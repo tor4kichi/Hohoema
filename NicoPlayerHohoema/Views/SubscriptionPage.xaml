@@ -1,0 +1,19 @@
+﻿<Page
+    x:Class="NicoPlayerHohoema.Views.SubscriptionPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:view="using:NicoPlayerHohoema.Views"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    mc:Ignorable="d">
+
+    <view:MenuNavigatePageBase>
+        <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+            <TextBlock Text="Subscription"
+                   Style="{StaticResource BodyTextBlockStyle}" />
+        </Grid>
+    </view:MenuNavigatePageBase>
+</Page>

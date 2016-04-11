@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class MainPageViewModel : ViewModelBase
+	public class RankingPageViewModel : ViewModelBase
 	{
 		private string message = "Hello world";
 

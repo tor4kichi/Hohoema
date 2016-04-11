@@ -1,4 +1,5 @@
-﻿using Prism.Mvvm;
+﻿using NicoPlayerHohoema.ViewModels;
+using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -18,6 +19,8 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Prism.Unity.Windows;
+using Microsoft.Practices.Unity;
 
 namespace NicoPlayerHohoema
 {
@@ -41,7 +44,7 @@ namespace NicoPlayerHohoema
 			DebugSettings.IsBindingTracingEnabled = true;
 #endif
 
-			NavigationService.Navigate("Main", null);
+			NavigationService.Navigate("Ranking", null);
 
 			Window.Current.Activate();
 
@@ -57,6 +60,15 @@ namespace NicoPlayerHohoema
 		private void RegisterTypes()
 		{
 			
+		}
+
+
+		protected override void ConfigureContainer()
+		{
+			base.ConfigureContainer();
+
+			var lifeTimeManager = new ContainerControlledLifetimeManager();
+			Container.RegisterInstance(typeof(MenuNavigatePageBaseViewModel), nameof(MenuNavigatePageBaseViewModel), new MenuNavigatePageBaseViewModel(NavigationService), lifeTimeManager);
 		}
 
 	}
