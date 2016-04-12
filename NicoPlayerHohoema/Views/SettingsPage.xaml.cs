@@ -27,4 +27,21 @@ namespace NicoPlayerHohoema.Views
 			this.InitializeComponent();
 		}
 	}
+
+
+	public class SettingContentTemplateSelector : DataTemplateSelector
+	{
+		public DataTemplate AccountTemplate { get; set; }
+
+
+		protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
+		{
+			if (item is ViewModels.AccountSettingsPageContentViewModel)
+			{
+				return AccountTemplate;
+			}
+
+			return base.SelectTemplateCore(item, container);
+		}
+	}
 }

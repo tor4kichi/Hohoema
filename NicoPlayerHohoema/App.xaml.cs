@@ -38,10 +38,31 @@ namespace NicoPlayerHohoema
         {
 			UnhandledException += PrismUnityApplication_UnhandledException;
 
+			this.Resuming += App_Resuming;
+			
 			this.InitializeComponent();
 		}
 
-		
+		protected override Task OnSuspendingApplicationAsync()
+		{
+			Task.Run(async () => 
+			{
+				var hohoemaApp = Container.Resolve<HohoemaApp>();
+				await hohoemaApp.SignOut();
+			});
+
+			return base.OnSuspendingApplicationAsync();
+		}
+
+		private void App_Resuming(object sender, object e)
+		{
+			Task.Run(async () =>
+			{
+				var hohoemaApp = Container.Resolve<HohoemaApp>();
+				await hohoemaApp.SignInFromUserSettings();
+			});
+			
+		}
 
 		protected override Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args)
 		{
@@ -60,6 +81,12 @@ namespace NicoPlayerHohoema
 		{
 			RegisterTypes();
 
+			var hohoemaApp = Container.Resolve<HohoemaApp>();
+			Task.Run(async () =>
+			{
+				await hohoemaApp.SignInFromUserSettings();
+			});
+
 			var pm = Container.Resolve<PageManager>();
 			pm.OpenPage(HohoemaPageType.Ranking);
 
@@ -68,6 +95,12 @@ namespace NicoPlayerHohoema
 
 		private void RegisterTypes()
 		{
+			// Models
+			Container.RegisterInstance(new HohoemaApp());
+			Container.RegisterInstance(new PageManager(NavigationService));
+
+
+			// ViewModels
 			Container.RegisterType<ViewModels.MenuNavigatePageBaseViewModel>(new ContainerControlledLifetimeManager());
 
 			Container.RegisterType<ViewModels.RankingPageViewModel>(new ContainerControlledLifetimeManager());
@@ -76,7 +109,6 @@ namespace NicoPlayerHohoema
 			Container.RegisterType<ViewModels.SearchPageViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.SettingsPageViewModel>(new ContainerControlledLifetimeManager());
 
-			Container.RegisterInstance(new PageManager(NavigationService));
 		}
 
 		protected override UIElement CreateShell(Frame rootFrame)
