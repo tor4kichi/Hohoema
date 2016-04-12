@@ -1,6 +1,9 @@
-﻿using Prism.Commands;
+﻿using NicoPlayerHohoema.Models;
+using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Windows.Navigation;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,78 +14,91 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class MenuNavigatePageBaseViewModel : BindableBase
 	{
-		public INavigationService NavigationService { get; private set; }
+		public PageManager PageManager { get; private set; }
 
 		public List<MenuListItemViewModel> TopMenuItems { get; private set; }
 		public List<MenuListItemViewModel> BottomMenuItems { get; private set; }
 
-
+		public ReactiveProperty<bool> IsPaneOpen { get; private set; }
 		
-		public MenuNavigatePageBaseViewModel(INavigationService navigationService)
+		public MenuNavigatePageBaseViewModel(PageManager pageManager)
 		{
-			NavigationService = navigationService;
+			PageManager = pageManager;
 
+			IsPaneOpen = new ReactiveProperty<bool>(false);
+
+			PageManager.ObserveProperty(x => x.CurrentPageType)
+				.Subscribe(x => 
+				{
+					ClosePane();
+				});
 
 			TopMenuItems = new List<MenuListItemViewModel>()
 			{
-				new MenuListItemViewModel(NavigationService)
+				new MenuListItemViewModel(PageManager)
 				{
 					Title = "ランキング",
-					PageName = "Ranking",
+					PageType = HohoemaPageType.Ranking,
 				}
-				, new MenuListItemViewModel(NavigationService)
+				, new MenuListItemViewModel(PageManager)
 				{
 					Title = "購読",
-					PageName = "Subscription",
+					PageType = HohoemaPageType.Subscription,
 				}
-				, new MenuListItemViewModel(NavigationService)
+				, new MenuListItemViewModel(PageManager)
 				{
 					Title = "履歴",
-					PageName = "History",
+					PageType = HohoemaPageType.History,
 				}
-				, new MenuListItemViewModel(NavigationService)
+				, new MenuListItemViewModel(PageManager)
 				{
 					Title = "検索",
-					PageName = "Search",
+					PageType = HohoemaPageType.Search,
 				}
 			};
 
 
 			BottomMenuItems = new List<MenuListItemViewModel>()
 			{
-				new MenuListItemViewModel(NavigationService)
+				new MenuListItemViewModel(PageManager)
 				{
 					Title = "設定",
-					PageName = "Settings",
+					PageType = HohoemaPageType.Settings,
 				}
-				, new MenuListItemViewModel(NavigationService)
+				, new MenuListItemViewModel(PageManager)
 				{
 					Title = "アカウント",
-					PageName = "Settings",
+					PageType = HohoemaPageType.Settings,
 					PageParameter = "Account"
 				}
 			};
 
+			ClosePaneCommand = new DelegateCommand(ClosePane);
 		}
 
 
+		public DelegateCommand ClosePaneCommand { get; private set; } 
 
-		
+		public void ClosePane()
+		{
+			IsPaneOpen.Value = false;
+		}
+
 	}
 
 	public class MenuListItemViewModel : BindableBase
 	{
-		public INavigationService NavigationService { get; private set; }
+		public PageManager PageManager { get; private set; }
 
-		public MenuListItemViewModel(INavigationService ns)
+		public MenuListItemViewModel(PageManager pageManager)
 		{
-			NavigationService = ns;
+			PageManager = pageManager;
 
 		}
 
-		public string Title { get; set; } = "";
-		public string PageName { get; set; } = "";
-		public string PageParameter { get; set; } = "";
+		public string Title { get; set; }
+		public HohoemaPageType PageType { get; set; }
+		public string PageParameter { get; set; }
 
 		private DelegateCommand _SelectMenuItemCommand;
 		public DelegateCommand SelectMenuItemCommand
@@ -92,8 +108,7 @@ namespace NicoPlayerHohoema.ViewModels
 				return _SelectMenuItemCommand
 					?? (_SelectMenuItemCommand = new DelegateCommand(() =>
 					{
-						// TODO: Menuから画面を開く時のパラメータ設定対応
-						NavigationService.Navigate(PageName, null);
+						PageManager.OpenPage(PageType, PageParameter);
 					}));
 			}
 		}

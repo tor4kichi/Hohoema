@@ -24,10 +24,15 @@ namespace NicoPlayerHohoema.Views
 		{
 			this.InitializeComponent();
 
-			this.Loaded += MenuNavigatePageBase_Loaded;
+			this.Loading += MenuNavigatePageBase_Loading;
 		}
 
-		private void MenuNavigatePageBase_Loaded(object sender, RoutedEventArgs e)
+		private void MenuNavigatePageBase_Loading(FrameworkElement sender, object args)
+		{
+			ForceChangeChildDataContext();
+		}
+
+		private void ForceChangeChildDataContext()
 		{
 			if (Parent is FrameworkElement && Content is FrameworkElement)
 			{

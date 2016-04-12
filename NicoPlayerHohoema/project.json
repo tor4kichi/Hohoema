@@ -1,5 +1,6 @@
 ﻿{
   "dependencies": {
+    "HtmlAgilityPack": "1.4.9",
     "Microsoft.NETCore.UniversalWindowsPlatform": "5.0.0",
     "Prism.Core": "6.1.0",
     "Prism.Unity": "6.2.0-pre3",

@@ -5,6 +5,8 @@
     xmlns:local="using:NicoPlayerHohoema.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
@@ -43,7 +45,7 @@
                     </VisualStateGroup>
                 </VisualStateManager.VisualStateGroups>
 
-                <SplitView x:Name="RootSplitView">
+                <SplitView x:Name="RootSplitView" IsPaneOpen="{Binding IsPaneOpen.Value, Mode=TwoWay}">
 
                     <SplitView.Pane>
                         <Grid>
@@ -52,7 +54,15 @@
                                     <DataTemplate x:Key="MenuListItemTemplate">
                                         <Button Content="{Binding Title}" 
                                                 Command="{Binding SelectMenuItemCommand}" 
-                                                CommandParameter="{Binding}" />
+                                                >
+                                            <i:Interaction.Behaviors>
+                                                <core:EventTriggerBehavior EventName="Tapped">
+                                                    <core:CallMethodAction TargetObject="{Binding ElementName=RootSplitView, Path=DataContext}"
+                                                                           MethodName="ClosePane"
+                                                                           />
+                                                </core:EventTriggerBehavior>
+                                            </i:Interaction.Behaviors>
+                                        </Button>
                                     </DataTemplate>
                                     
                                 </toolkit:DockPanel.Resources>
@@ -83,7 +93,8 @@
                                     <AppBarToggleButton toolkit:DockPanel.Dock="Left" 
                                                         Icon="OpenPane"
                                                         IsChecked="{Binding ElementName=RootSplitView, Path=IsPaneOpen, Mode=TwoWay}"
-                                        />
+                                        >
+                                    </AppBarToggleButton>
 
                                     <StackPanel toolkit:DockPanel.Dock="Right"
                                             Orientation="Horizontal"

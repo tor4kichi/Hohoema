@@ -10,12 +10,8 @@
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
-    <view:MenuNavigatePageBase VerticalAlignment="Stretch" 
-                               HorizontalAlignment="Stretch"
-                               >
-        <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-            <TextBlock Text="{Binding Message}"
-                   Style="{StaticResource BodyTextBlockStyle}" />
-        </Grid>
-    </view:MenuNavigatePageBase>
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <TextBlock Text="{Binding Message}"
+            Style="{StaticResource BodyTextBlockStyle}" />
+    </Grid>
 </Page>

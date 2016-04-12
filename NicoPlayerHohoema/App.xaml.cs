@@ -21,6 +21,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Prism.Unity.Windows;
 using Microsoft.Practices.Unity;
+using NicoPlayerHohoema.Models;
 
 namespace NicoPlayerHohoema
 {
@@ -35,41 +36,66 @@ namespace NicoPlayerHohoema
         /// </summary>
         public App()
         {
+			UnhandledException += PrismUnityApplication_UnhandledException;
 
+			this.InitializeComponent();
 		}
+
+		
 
 		protected override Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args)
 		{
 #if DEBUG
 			DebugSettings.IsBindingTracingEnabled = true;
 #endif
-
-			NavigationService.Navigate("Ranking", null);
-
+			
 			Window.Current.Activate();
 
 			return Task.FromResult<object>(null);
 		}
 
+		
+
 		protected override Task OnInitializeAsync(IActivatedEventArgs args)
 		{
-			//RegisterTypes();
+			RegisterTypes();
+
+			var pm = Container.Resolve<PageManager>();
+			pm.OpenPage(HohoemaPageType.Ranking);
+
 			return base.OnInitializeAsync(args);
 		}
 
 		private void RegisterTypes()
 		{
-			
+			Container.RegisterType<ViewModels.MenuNavigatePageBaseViewModel>(new ContainerControlledLifetimeManager());
+
+			Container.RegisterType<ViewModels.RankingPageViewModel>(new ContainerControlledLifetimeManager());
+			Container.RegisterType<ViewModels.HistoryPageViewModel>(new ContainerControlledLifetimeManager());
+			Container.RegisterType<ViewModels.SubscriptionPageViewModel>(new ContainerControlledLifetimeManager());
+			Container.RegisterType<ViewModels.SearchPageViewModel>(new ContainerControlledLifetimeManager());
+			Container.RegisterType<ViewModels.SettingsPageViewModel>(new ContainerControlledLifetimeManager());
+
+			Container.RegisterInstance(new PageManager(NavigationService));
 		}
 
-
-		protected override void ConfigureContainer()
+		protected override UIElement CreateShell(Frame rootFrame)
 		{
-			base.ConfigureContainer();
+//			var ui = base.CreateShell(rootFrame);
 
-			var lifeTimeManager = new ContainerControlledLifetimeManager();
-			Container.RegisterInstance(typeof(MenuNavigatePageBaseViewModel), nameof(MenuNavigatePageBaseViewModel), new MenuNavigatePageBaseViewModel(NavigationService), lifeTimeManager);
+			var menuPage = new Views.MenuNavigatePageBase();
+
+			menuPage.Content = rootFrame;
+
+			return menuPage;
 		}
 
+		private void PrismUnityApplication_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+		{
+			e.Handled = true;
+
+			Debug.Write(e.Message);
+			Debugger.Break();
+		}
 	}
 }

@@ -10,10 +10,9 @@
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
-    <view:MenuNavigatePageBase>
-        <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-            <TextBlock Text="Subscription"
-                   Style="{StaticResource BodyTextBlockStyle}" />
-        </Grid>
-    </view:MenuNavigatePageBase>
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <TextBlock Text="Subscription"
+            Style="{StaticResource BodyTextBlockStyle}" />
+    </Grid>
 </Page>

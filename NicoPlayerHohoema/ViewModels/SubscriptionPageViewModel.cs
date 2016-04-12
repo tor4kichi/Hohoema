@@ -9,5 +9,10 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class SubscriptionPageViewModel : ViewModelBase
 	{
+
+		public SubscriptionPageViewModel()
+		{
+
+		}
 	}
 }

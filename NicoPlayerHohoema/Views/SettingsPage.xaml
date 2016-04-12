@@ -11,10 +11,8 @@
 
     mc:Ignorable="d">
 
-    <view:MenuNavigatePageBase>
-        <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-            <TextBlock Text="Settings"
-                   Style="{StaticResource BodyTextBlockStyle}" />
-        </Grid>
-    </view:MenuNavigatePageBase>
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <TextBlock Text="Settings"
+            Style="{StaticResource BodyTextBlockStyle}" />
+    </Grid>
 </Page>
