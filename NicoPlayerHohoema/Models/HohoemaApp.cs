@@ -13,11 +13,13 @@ namespace NicoPlayerHohoema.Models
 		public HohoemaApp()
 		{
 			UserSettings = new HohoemaUserSettings();
+			NiconicoPlayer = new NiconicoPlayer(this);
+			NiconicoContext = new NiconicoContext();
 		}
 
 		public async Task<NiconicoSignInStatus> SignInFromUserSettings()
 		{
-			if (UserSettings.AccontSettings.HasMailOrTelephone && UserSettings.AccontSettings.HasPassword)
+			if (UserSettings.AccontSettings.IsValidMailOreTelephone && UserSettings.AccontSettings.IsValidPassword)
 			{
 				return await SignIn(UserSettings.AccontSettings.MailOrTelephone, UserSettings.AccontSettings.Password);
 			}
@@ -52,13 +54,6 @@ namespace NicoPlayerHohoema.Models
 			return await NiconicoContext.GetIsSignedInAsync();
 		}
 
-
-
-
-
-		
-
-
 		public HohoemaUserSettings UserSettings { get; private set; }
 
 
@@ -69,9 +64,11 @@ namespace NicoPlayerHohoema.Models
 			set { SetProperty(ref _NiconicoContext, value); }
 		}
 
+		public NiconicoPlayer NiconicoPlayer { get; private set; }
 
 		public const string HohoemaUserAgent = "Hohoema_UWP";
 
-
+		
 	}
+	
 }

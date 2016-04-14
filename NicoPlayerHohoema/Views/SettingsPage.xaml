@@ -18,7 +18,7 @@
                     <StackPanel>
                         <toolkit:DockPanel>
                             <Border toolkit:DockPanel.Dock="Right">
-                                <TextBox Text="{Binding MailOrTelephone.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                <TextBox Text="{Binding MailOrTelephone.Value, Mode=TwoWay}">
 
                                 </TextBox>
                             </Border>
@@ -27,7 +27,7 @@
 
                         <toolkit:DockPanel>
                             <Border toolkit:DockPanel.Dock="Right">
-                                <PasswordBox Password="{Binding Password.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                <PasswordBox Password="{Binding Password.Value, Mode=TwoWay}">
 
                                 </PasswordBox>
                             </Border>

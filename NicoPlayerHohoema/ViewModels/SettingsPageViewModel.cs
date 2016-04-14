@@ -12,6 +12,7 @@ using Reactive.Bindings.Extensions;
 using Prism.Commands;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
+using Mntone.Nico2;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -96,7 +97,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			var result = await HohoemaApp.SignInFromUserSettings();
 
-			IsValidAccount.Value = (result == Mntone.Nico2.NiconicoSignInStatus.Success);
+			IsValidAccount.Value = (result == NiconicoSignInStatus.Success);
 		}
 		
 		public ReactiveProperty<bool> IsValidAccount { get; private set; }

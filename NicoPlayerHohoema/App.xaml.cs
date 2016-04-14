@@ -22,6 +22,11 @@ using Windows.UI.Xaml.Navigation;
 using Prism.Unity.Windows;
 using Microsoft.Practices.Unity;
 using NicoPlayerHohoema.Models;
+using Windows.UI.ViewManagement;
+using Windows.ApplicationModel.Core;
+using Windows.UI.Core;
+using Prism.Events;
+using NicoPlayerHohoema.Events;
 
 namespace NicoPlayerHohoema
 {
@@ -30,6 +35,9 @@ namespace NicoPlayerHohoema
     /// </summary>
     sealed partial class App : Prism.Unity.Windows.PrismUnityApplication
     {
+		public CoreApplicationView PlayerWindow { get; private set; }
+
+
         /// <summary>
         /// 単一アプリケーション オブジェクトを初期化します。これは、実行される作成したコードの
         ///最初の行であるため、main() または WinMain() と論理的に等価です。
@@ -40,8 +48,11 @@ namespace NicoPlayerHohoema
 
 			this.Resuming += App_Resuming;
 			
+			
 			this.InitializeComponent();
 		}
+
+		
 
 		protected override Task OnSuspendingApplicationAsync()
 		{
@@ -61,7 +72,6 @@ namespace NicoPlayerHohoema
 				var hohoemaApp = Container.Resolve<HohoemaApp>();
 				await hohoemaApp.SignInFromUserSettings();
 			});
-			
 		}
 
 		protected override Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args)
@@ -90,7 +100,47 @@ namespace NicoPlayerHohoema
 			var pm = Container.Resolve<PageManager>();
 			pm.OpenPage(HohoemaPageType.Ranking);
 
+
+//			CreatePlayerWindow();
+
+
+			var playNicoVideoEvent = EventAggregator.GetEvent<PlayNicoVideoEvent>();
+			playNicoVideoEvent.Subscribe(PlayNicoVideoWithCurrentPlayerSetting);
+
 			return base.OnInitializeAsync(args);
+		}
+
+		private void PlayNicoVideoWithCurrentPlayerSetting(string videoUrl)
+		{
+			var hohoemaApp = Container.Resolve<HohoemaApp>();
+
+			switch (PlayerDisplayMode.MainWindow)
+			{
+				case PlayerDisplayMode.MainWindow:
+					// 現在のウィンドウに対してPlayerページへのナビゲーションを飛ばす
+					PlayNicoVideoInMainWindow(videoUrl);
+					break;
+				case PlayerDisplayMode.Standalone:
+					PlayNicoVideoInSubWindow(videoUrl);
+					break;
+				default:
+					break;
+			}
+		}
+
+		private void PlayNicoVideoInMainWindow(string videoUrl)
+		{
+			NavigationService.Navigate("Player", videoUrl);
+		}
+
+		private async void PlayNicoVideoInSubWindow(string videoUrl)
+		{
+			// サブウィンドウをアクティベートして、サブウィンドウにPlayerページナビゲーションを飛ばす
+			await PlayerWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+			{
+				((Frame)Window.Current.Content).Navigate(typeof(Views.PlayerPage), videoUrl);
+				Window.Current.Activate();
+			});
 		}
 
 		private void RegisterTypes()
@@ -110,6 +160,11 @@ namespace NicoPlayerHohoema
 			Container.RegisterType<ViewModels.SettingsPageViewModel>(new ContainerControlledLifetimeManager());
 
 		}
+		protected override void OnWindowCreated(WindowCreatedEventArgs args)
+		{
+			base.OnWindowCreated(args);
+
+		}
 
 		protected override UIElement CreateShell(Frame rootFrame)
 		{
@@ -118,6 +173,9 @@ namespace NicoPlayerHohoema
 			var menuPage = new Views.MenuNavigatePageBase();
 
 			menuPage.Content = rootFrame;
+
+
+			
 
 			return menuPage;
 		}
@@ -128,6 +186,32 @@ namespace NicoPlayerHohoema
 
 			Debug.Write(e.Message);
 			Debugger.Break();
+		}
+
+		private async void CreatePlayerWindow()
+		{
+			if (PlayerWindow == null)
+			{
+				var currentViewId = ApplicationView.GetForCurrentView().Id;
+				PlayerWindow = CoreApplication.CreateNewView();
+				
+				await PlayerWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+				{
+					Window.Current.Content = new Frame();
+					((Frame)Window.Current.Content).Navigate(typeof(Views.PlayerPage));
+//					Window.Current.Activate();
+					/*
+					await ApplicationViewSwitcher.TryShowAsStandaloneAsync(
+						ApplicationView.GetApplicationViewIdForWindow(Window.Current.CoreWindow),
+						ViewSizePreference.Default,
+						currentViewId,
+						ViewSizePreference.Default);
+					*/
+
+					Window.Current.Close();
+
+				});
+			}
 		}
 	}
 }

@@ -96,12 +96,19 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Events\PlayNicoVideoEvent.cs" />
+    <Compile Include="Mntone.Nico2.Ranking\NiconicoRanking.cs" />
+    <Compile Include="Mntone.Nico2.Ranking\NiconicoRankingRss.cs" />
     <Compile Include="Models\HohoemaApp.cs" />
     <Compile Include="Models\HohoemaPageType.cs" />
     <Compile Include="Models\HohoemaUserSettings.cs" />
+    <Compile Include="Models\NiconicoPlayer.cs" />
     <Compile Include="Models\PageManager.cs" />
+    <Compile Include="Models\PlayerDisplayMode.cs" />
+    <Compile Include="Util\HttpRandomAccessStream.cs" />
     <Compile Include="ViewModels\HistoryPageViewModel.cs" />
     <Compile Include="ViewModels\MenuNavigatePageBaseViewModel.cs" />
+    <Compile Include="ViewModels\PlayerPageViewModel.cs" />
     <Compile Include="ViewModels\RankingPageViewModel.cs" />
     <Compile Include="ViewModels\SearchPageViewModel.cs" />
     <Compile Include="ViewModels\SettingsPageViewModel.cs" />
@@ -111,6 +118,12 @@
     </Compile>
     <Compile Include="Views\MenuNavigatePageBase.xaml.cs">
       <DependentUpon>MenuNavigatePageBase.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\NicoVideoMediaElement.xaml.cs">
+      <DependentUpon>NicoVideoMediaElement.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PlayerPage.xaml.cs">
+      <DependentUpon>PlayerPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\RankingPage.xaml.cs">
       <DependentUpon>RankingPage.xaml</DependentUpon>
@@ -154,6 +167,14 @@
     <Page Include="Views\MenuNavigatePageBase.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\NicoVideoMediaElement.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PlayerPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\RankingPage.xaml">
       <Generator>MSBuild:Compile</Generator>
