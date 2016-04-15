@@ -10,7 +10,7 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <local:NicoVideoMediaElement VideoStream="{Binding VideoStream.Value}"
+        <MediaElement local:MediaElementExtention.CustomStream="{Binding VideoStream.Value}"
                                      />
     </Grid>
 </Page>
