@@ -10,8 +10,7 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <local:NicoVideoMediaElement VideoUrl="{Binding CurrentVideoUrl}"
-                                     HttpClient="{Binding HttpClient.Value}"
+        <local:NicoVideoMediaElement VideoStream="{Binding VideoStream.Value}"
                                      />
     </Grid>
 </Page>

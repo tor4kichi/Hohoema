@@ -25,47 +25,25 @@ namespace NicoPlayerHohoema.Views
 {
 	public sealed partial class NicoVideoMediaElement : UserControl
 	{
-		public static readonly DependencyProperty VideoUrlProperty =
+		public static readonly DependencyProperty VideoStreamProperty =
 		   DependencyProperty.Register(
-			   "VideoUrl", // プロパティ名を指定
-			   typeof(string), // プロパティの型を指定
+			   "VideoStream", // プロパティ名を指定
+			   typeof(IRandomAccessStream), // プロパティの型を指定
 			   typeof(NicoVideoMediaElement), // プロパティを所有する型を指定
-			   new PropertyMetadata("", VideoUrlPropertyChanged)); // メタデータを指定。ここではデフォルト値を設定してる
+			   new PropertyMetadata(default(IRandomAccessStream), VideoStreamPropertyChanged)); // メタデータを指定。ここではデフォルト値を設定してる
 
 		// 依存関係プロパティのCLRのプロパティのラッパー
-		public string VideoUrl
+		public IRandomAccessStream VideoStream
 		{
-			get { return (string)GetValue(VideoUrlProperty); }
-			set { SetValue(VideoUrlProperty, value); }
+			get { return (IRandomAccessStream)GetValue(VideoStreamProperty); }
+			set { SetValue(VideoStreamProperty, value); }
 		}
 
-		private static void VideoUrlPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		private static void VideoStreamPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
 		{
 			var _this = d as NicoVideoMediaElement;
 			_this.RefreshVideoStreaming();
 		}
-
-
-		public static readonly DependencyProperty HttpClientProperty =
-		   DependencyProperty.Register(
-			   "HttpClient", // プロパティ名を指定
-			   typeof(HttpClient), // プロパティの型を指定
-			   typeof(NicoVideoMediaElement), // プロパティを所有する型を指定
-			   new PropertyMetadata("", VideoUrlPropertyChanged)); // メタデータを指定。ここではデフォルト値を設定してる
-
-		// 依存関係プロパティのCLRのプロパティのラッパー
-		public HttpClient HttpClient
-		{
-			get { return (HttpClient)GetValue(HttpClientProperty); }
-			set { SetValue(HttpClientProperty, value); }
-		}
-
-		private static void HttpClientPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-		{
-			var _this = d as NicoVideoMediaElement;
-			_this.RefreshVideoStreaming();
-		}
-
 
 
 
@@ -76,20 +54,24 @@ namespace NicoPlayerHohoema.Views
 
 
 
-		private async void RefreshVideoStreaming()
+		private void RefreshVideoStreaming()
 		{
 			MediaElem.Stop();
 
 			// can streaming video?
-			if (String.IsNullOrWhiteSpace(VideoUrl) || HttpClient == null)
+			if (VideoStream == null)
 			{
 				return;
 			}
 
-			// create streaming
-			var stream = await Util.HttpRandomAccessStream.CreateAsync(HttpClient, new Uri(VideoUrl));
 
-			MediaElem.SetSource(stream, stream.ContentType);
+			string contentType = "";
+			if (VideoStream is Util.HttpRandomAccessStream)
+			{
+				contentType = (VideoStream as Util.HttpRandomAccessStream).ContentType;
+			}
+
+			MediaElem.SetSource(VideoStream, contentType);
 		}
 	}
 

@@ -16,6 +16,7 @@ using System.Reactive.Linq;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.ViewManagement;
+using Windows.Storage.Streams;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -25,10 +26,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			_HohoemaApp = hohoemaApp;
 
-			HttpClient =
-				_HohoemaApp.ObserveProperty(x => x.NiconicoContext)
-					.Select(x => x.HttpClient)
-					.ToReactiveProperty(_HohoemaApp.NiconicoContext.HttpClient);
+			VideoStream = new ReactiveProperty<IRandomAccessStream>(UIDispatcherScheduler.Default);
 		}
 
 
@@ -60,11 +58,12 @@ namespace NicoPlayerHohoema.ViewModels
 					await _HohoemaApp.NiconicoContext.Video.GetWatchApiAsync(videoId)
 						.ContinueWith(async prevTask =>
 						{
-							await win.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+							await win.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
 							{
 								VideoInfo = prevTask.Result;
+								
+								VideoStream.Value = await Util.HttpRandomAccessStream.CreateAsync(_HohoemaApp.NiconicoContext.HttpClient, VideoInfo.VideoUrl);
 								OnPropertyChanged(nameof(CurrentVideoUrl));
-								OnPropertyChanged(nameof(VideoLength));
 							});
 						});
 				}
@@ -80,8 +79,19 @@ namespace NicoPlayerHohoema.ViewModels
 				System.Diagnostics.Debug.Write(exception.Message);
 				
 			}
+		}
 
+		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+		{
+			if (VideoStream.Value != null)
+			{
+				var stream = VideoStream.Value;
+				VideoStream.Value = null;
 
+				stream.Dispose();
+			}
+
+			base.OnNavigatingFrom(e, viewModelState, suspending);
 		}
 
 		private WatchApiResponse _VideoInfo;
@@ -101,15 +111,8 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		public TimeSpan VideoLength
-		{
-			get
-			{
-				return VideoInfo?.Length ?? TimeSpan.Zero;
-			}
-		}
-
-		public ReactiveProperty<HttpClient> HttpClient { get; private set; }
+		public ReactiveProperty<IRandomAccessStream> VideoStream { get; private set; }
+	
 
 		
 		private HohoemaApp _HohoemaApp;
