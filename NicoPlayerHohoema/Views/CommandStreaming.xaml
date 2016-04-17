@@ -17,7 +17,7 @@
                           Draw="CanvasControl_Draw"
                           CreateResources="CanvasControl_CreateResources"
                           GameLoopStarting="CanvasControl_GameLoopStarting"
-                          TargetElapsedTime="00:00:00.016"
+                          TargetElapsedTime="00:00:00.032"
                           Update="CanvasControl_Update"
                           Loaded="CanvasControl_Loaded"
                           >

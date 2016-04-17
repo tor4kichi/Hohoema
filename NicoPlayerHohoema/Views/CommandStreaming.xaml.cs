@@ -33,7 +33,7 @@ namespace NicoPlayerHohoema.Views
 			TimeSequescailComments = new SortedDictionary<uint, List<Comment>>();
 			RenderComments = new Dictionary<Comment, CommentRenderInfo>();
 			SelectedCommentOutlineColor = Colors.White;
-
+			CommentVerticalPosToNextVpos = new List<uint>();
 		}
 
 		public double UIWidth { get; set; }
@@ -46,6 +46,18 @@ namespace NicoPlayerHohoema.Views
 		public SortedDictionary<uint, List<Comment>> TimeSequescailComments { get; private set; }
 		public Dictionary<Comment, CommentRenderInfo> RenderComments { get; private set; }
 
+		public List<uint> CommentVerticalPosToNextVpos { get; private set; }
+		public List<uint> CommentVerticalUePosToNextVpos { get; private set; }
+		public List<uint> CommentVerticalShitaPosToNextVpos { get; private set; }
+		
+
+
+		public int GetNextPosition(uint vpos, CommentRenderInfo renderInfo)
+		{
+			// コメントを流す位置を確定する
+
+			return 1;
+		}
 	}
 
 	public sealed partial class CommandStreaming : UserControl
@@ -252,31 +264,12 @@ namespace NicoPlayerHohoema.Views
 		}
 
 
-		private async void CanvasControl_Update(Microsoft.Graphics.Canvas.UI.Xaml.ICanvasAnimatedControl sender, Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedUpdateEventArgs args)
+		private void CanvasControl_Update(Microsoft.Graphics.Canvas.UI.Xaml.ICanvasAnimatedControl sender, Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedUpdateEventArgs args)
 		{
-			/*
-			uint currentVpos = 0;
-			await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.High, () =>
-			{
-				currentVpos = VideoPosition;
-			});
-
-			GameLoopThreadData.VideoPos = currentVpos;
-			*/
-		}
-
-
-		private void CanvasControl_Draw(Microsoft.Graphics.Canvas.UI.Xaml.ICanvasAnimatedControl sender, Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedDrawEventArgs args)
-		{
-			// 現在のフレームに表示すべきコメントを求める
+			// コメントの表示時間
 			const uint CommentDisplayTime = 300; // 3秒
 
-			
-
 			var currentVpos = GameLoopThreadData.VideoPos;
-			var selectedCommentId = GameLoopThreadData.SelectedCommentId;
-
-
 
 			// 表示すべきコメントを抽出する
 			var displayCommentVposEnumerable = BinarySearch(currentVpos, currentVpos + CommentDisplayTime).ToList();
@@ -293,7 +286,10 @@ namespace NicoPlayerHohoema.Views
 			{
 				if (!GameLoopThreadData.RenderComments.ContainsKey(displayComment))
 				{
-					GameLoopThreadData.RenderComments.Add(displayComment, new CommentRenderInfo(displayComment));
+					var renderComment = new CommentRenderInfo(displayComment);
+					GameLoopThreadData.RenderComments.Add(displayComment, renderComment);
+					renderComment.Width = renderComment.Comment.CommentText.Length * renderComment.Comment.FontSize;
+					renderComment.Height = 0;
 				}
 			}
 
@@ -306,6 +302,21 @@ namespace NicoPlayerHohoema.Views
 				GameLoopThreadData.RenderComments.Remove(renderComment.Key);
 			}
 
+			displayCommentVposEnumerable.Clear();
+			displayCommentVposEnumerable = null;
+
+
+		}
+
+
+		private void CanvasControl_Draw(Microsoft.Graphics.Canvas.UI.Xaml.ICanvasAnimatedControl sender, Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedDrawEventArgs args)
+		{
+
+
+			var currentVpos = GameLoopThreadData.VideoPos;
+			var selectedCommentId = GameLoopThreadData.SelectedCommentId;
+
+
 
 
 
@@ -315,8 +326,6 @@ namespace NicoPlayerHohoema.Views
 			using (var textFormat = new CanvasTextFormat { FontSize = 14.0f, WordWrapping = CanvasWordWrapping.NoWrap })
 			using (var session = args.DrawingSession)
 			{
-				session.DrawCircle(Vector2.Zero, 50.0f, Colors.Aqua);
-
 				foreach (var renderComment in GameLoopThreadData.RenderComments.Values)
 				{
 					if (renderComment.IsFirstRendering)
@@ -325,8 +334,6 @@ namespace NicoPlayerHohoema.Views
 						// http://stackoverflow.com/questions/30696838/how-to-calculate-the-size-of-a-piece-of-text-in-win2d
 
 
-						renderComment.Width = renderComment.Comment.CommentText.Length * renderComment.Comment.FontSize;
-						renderComment.Height = 0;
 						
 //						using (var textLayout = new CanvasTextLayout(session, renderComment.Comment.CommentText, textFormat, 0.0f, 0.0f))
 //						{
@@ -364,8 +371,6 @@ namespace NicoPlayerHohoema.Views
 
 
 
-			displayCommentVposEnumerable.Clear();
-			displayCommentVposEnumerable = null;
 		}
 
 

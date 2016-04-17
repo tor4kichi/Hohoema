@@ -81,20 +81,22 @@ namespace NicoPlayerHohoema.ViewModels
 
 				Color defaultColor = ColorExtention.HexStringToColor("FFFFFF");
 
-				foreach (var c in x.Chat)
+				foreach (var comment in x.Chat)
 				{
-					if (c.Text == null)
+					if (comment.Text == null)
 					{
 						continue;
 					}
 
-					var unescapedText = c.Text;
-					var vpos = c.GetVpos();
+
+					var decodedText = comment.GetDecodedText();
+
+					var vpos = comment.GetVpos();
 
 					var commentVM = new Comment()
 					{
-						CommentText = unescapedText,
-						CommentId = c.GetCommentNo(),
+						CommentText = decodedText,
+						CommentId = comment.GetCommentNo(),
 						FontSize = default_fontSize,
 						Color = defaultColor,
 						VideoPosition = vpos,
@@ -237,7 +239,7 @@ namespace NicoPlayerHohoema.ViewModels
 						{
 							commentVM = new Comment()
 							{
-								CommentText = unescapedText,
+								CommentText = decodedText,
 								FontSize = default_fontSize,
 								Color = defaultColor,
 								VideoPosition = vpos,

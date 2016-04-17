@@ -1,5 +1,6 @@
 ﻿{
   "dependencies": {
+    "FFmpeg.Win10": "2.7.1.1",
     "HtmlAgilityPack": "1.4.9",
     "Microsoft.NETCore.UniversalWindowsPlatform": "5.0.0",
     "Newtonsoft.Json": "8.0.3",

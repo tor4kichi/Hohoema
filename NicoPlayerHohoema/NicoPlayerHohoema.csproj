@@ -90,6 +90,7 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
+    <None Include="lib\Mntone.Nico2.UWP.pri" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
@@ -152,6 +153,8 @@
     <None Include="NicoPlayerHohoema_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="lib\Mntone.Nico2.UWP.dll" />
+    <Content Include="lib\Mntone.Nico2.UWP.pdb" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
