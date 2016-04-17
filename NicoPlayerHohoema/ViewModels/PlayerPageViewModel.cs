@@ -56,7 +56,6 @@ namespace NicoPlayerHohoema.ViewModels
 						CommentData.Value = await GetComment(x);
 						VideoLength.Value = x.Length.TotalSeconds;
 						SliderVideoPosition.Value = 0;
-						ResetAutoHide();
 					}
 				});
 
@@ -270,6 +269,30 @@ namespace NicoPlayerHohoema.ViewModels
 
 				SliderVideoPosition.Value = x.TotalSeconds;
 			});
+
+			// メディア・コントロールが非表示状態のときShowMediaControlCommandを実行可能
+			ShowMediaControlCommand = CurrentState
+				.Select(x => x == MediaElementState.Playing)
+				.ToReactiveCommand();
+
+			ShowMediaControlCommand.Subscribe(x => IsVisibleMediaControl.Value = true);
+
+			ShowMediaControlCommand
+				.Where(x => CurrentState.Value == MediaElementState.Playing)
+				.Throttle(TimeSpan.FromSeconds(3))
+				.Repeat()
+				.Subscribe(_ =>
+				{
+					IsVisibleMediaControl.Value = false;
+				});
+
+			CurrentState.Subscribe(x =>
+			{
+				if (x == MediaElementState.Paused || x == MediaElementState.Stopped)
+				{
+					IsVisibleMediaControl.Value = true;
+				}
+			});
 		}
 
 		bool _NowControlSlider = false;
@@ -348,42 +371,11 @@ namespace NicoPlayerHohoema.ViewModels
 			base.OnNavigatingFrom(e, viewModelState, suspending);
 		}
 
-		IDisposable _AutoHideTimeoutHandle;
-		private void ResetAutoHide()
-		{
-			_AutoHideTimeoutHandle?.Dispose();
-
-			if (IsAutoHideMediaControl.Value)
-			{
-				_AutoHideTimeoutHandle = IsVisibleMediaControl
-					.Where(x => x)
-					.Delay(TimeSpan.FromSeconds(3))
-					.Subscribe(_ =>
-					{
-						IsVisibleMediaControl.Value = false;
-
-						_AutoHideTimeoutHandle?.Dispose();
-						_AutoHideTimeoutHandle = null;
-					});
-			}
-		}
 
 
 		#region Command
 
-		private DelegateCommand _ShowMediaControlCommand;
-		public DelegateCommand ShowMediaControlCommand
-		{
-			get
-			{
-				return _ShowMediaControlCommand
-					?? (_ShowMediaControlCommand = new DelegateCommand(() => 
-					{
-						IsVisibleMediaControl.Value = true;
-						ResetAutoHide();
-					}));
-			}
-		}
+		public ReactiveCommand ShowMediaControlCommand { get; private set; }
 
 
 		private DelegateCommand _PlayCommand;
