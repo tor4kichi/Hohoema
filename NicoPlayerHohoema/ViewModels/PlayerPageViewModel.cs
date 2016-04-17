@@ -23,6 +23,7 @@ using System.Collections.ObjectModel;
 using NicoPlayerHohoema.Views;
 using Windows.UI;
 using NicoPlayerHohoema.Util;
+using Prism.Commands;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -35,8 +36,10 @@ namespace NicoPlayerHohoema.ViewModels
 			VideoStream = new ReactiveProperty<IRandomAccessStream>(UIDispatcherScheduler.Default);
 			CurrentVideoPosition = new ReactiveProperty<TimeSpan>(TimeSpan.Zero);
 			CommentData = new ReactiveProperty<CommentResponse>();
-
-				
+			IsVisibleMediaControl = new ReactiveProperty<bool>(true);
+			IsAutoHideMediaControl = new ReactiveProperty<bool>(true);
+			SliderVideoPosition = new ReactiveProperty<double>(0);
+			VideoLength = new ReactiveProperty<double>(0);
 
 			this.ObserveProperty(x => x.VideoInfo)
 				.Subscribe(async x =>
@@ -44,6 +47,9 @@ namespace NicoPlayerHohoema.ViewModels
 					if (x != null)
 					{
 						CommentData.Value = await GetComment(x);
+						VideoLength.Value = x.Length.TotalSeconds;
+						SliderVideoPosition.Value = 0;
+						ResetAutoHide();
 					}
 				});
 
@@ -240,8 +246,24 @@ namespace NicoPlayerHohoema.ViewModels
 				System.Diagnostics.Debug.WriteLine($"コメント数:{Comments.Count}");
 
 			});
+
+
+			SliderVideoPosition.Subscribe(x =>
+			{
+				_NowControlSlider = true;
+				CurrentVideoPosition.Value = TimeSpan.FromSeconds(x);
+				_NowControlSlider = false;
+			});
+
+			CurrentVideoPosition.Subscribe(x =>
+			{
+				if (_NowControlSlider) { return; }
+
+				SliderVideoPosition.Value = x.TotalSeconds;
+			});
 		}
 
+		bool _NowControlSlider = false;
 		
 
 
@@ -317,6 +339,71 @@ namespace NicoPlayerHohoema.ViewModels
 			base.OnNavigatingFrom(e, viewModelState, suspending);
 		}
 
+		IDisposable _AutoHideTimeoutHandle;
+		private void ResetAutoHide()
+		{
+			_AutoHideTimeoutHandle?.Dispose();
+
+			if (IsAutoHideMediaControl.Value)
+			{
+				_AutoHideTimeoutHandle = IsVisibleMediaControl
+					.Where(x => x)
+					.Delay(TimeSpan.FromSeconds(3))
+					.Subscribe(_ =>
+					{
+						IsVisibleMediaControl.Value = false;
+
+						_AutoHideTimeoutHandle?.Dispose();
+						_AutoHideTimeoutHandle = null;
+					});
+			}
+		}
+
+
+		#region Command
+
+		private DelegateCommand _ShowMediaControlCommand;
+		public DelegateCommand ShowMediaControlCommand
+		{
+			get
+			{
+				return _ShowMediaControlCommand
+					?? (_ShowMediaControlCommand = new DelegateCommand(() => 
+					{
+						IsVisibleMediaControl.Value = true;
+						ResetAutoHide();
+					}));
+			}
+		}
+
+
+		private DelegateCommand _PlayCommand;
+		public DelegateCommand PlayCommand
+		{
+			get
+			{
+				return _PlayCommand
+					?? (_PlayCommand = new DelegateCommand(() =>
+					{
+						IsVisibleMediaControl.Value = true;
+					}));
+			}
+		}
+
+		private DelegateCommand _StopCommand;
+		public DelegateCommand StopCommand
+		{
+			get
+			{
+				return _StopCommand
+					?? (_StopCommand = new DelegateCommand(() =>
+					{
+						IsVisibleMediaControl.Value = true;
+					}));
+			}
+		}
+
+		#endregion
 
 
 		public ReactiveProperty<CommentResponse> CommentData { get; private set; }
@@ -344,7 +431,14 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ObservableCollection<Comment> Comments { get; private set; }
 
-		
+		public ReactiveProperty<bool> IsVisibleMediaControl { get; private set; }
+		public ReactiveProperty<bool> IsAutoHideMediaControl { get; private set; }
+
+		public ReactiveProperty<double> SliderVideoPosition { get; private set; }
+
+		public ReactiveProperty<double> VideoLength { get; private set; }
+
+
 		private HohoemaApp _HohoemaApp;
 	}
 

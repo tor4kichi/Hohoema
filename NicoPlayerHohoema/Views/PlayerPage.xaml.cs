@@ -25,6 +25,7 @@ namespace NicoPlayerHohoema.Views
 		public PlayerPage()
 		{
 			this.InitializeComponent();
+
 		}
 	}
 }

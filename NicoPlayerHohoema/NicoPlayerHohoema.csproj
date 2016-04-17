@@ -117,10 +117,12 @@
       <DependentUpon>CommandStreaming.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Comment.cs" />
+    <Compile Include="Views\Converters\SecondsToTimeValueConverter.cs" />
     <Compile Include="Views\HistoryPage.xaml.cs">
       <DependentUpon>HistoryPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MediaElementExtractPositionBehavior.cs" />
+    <Compile Include="Views\MediaElementSeekAfterAutoPlayBehavior.cs" />
     <Compile Include="Views\MenuNavigatePageBase.xaml.cs">
       <DependentUpon>MenuNavigatePageBase.xaml</DependentUpon>
     </Compile>
