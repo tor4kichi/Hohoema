@@ -97,14 +97,13 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Events\PlayNicoVideoEvent.cs" />
-    <Compile Include="Mntone.Nico2.Ranking\NiconicoRanking.cs" />
-    <Compile Include="Mntone.Nico2.Ranking\NiconicoRankingRss.cs" />
     <Compile Include="Models\HohoemaApp.cs" />
     <Compile Include="Models\HohoemaPageType.cs" />
     <Compile Include="Models\HohoemaUserSettings.cs" />
     <Compile Include="Models\NiconicoPlayer.cs" />
     <Compile Include="Models\PageManager.cs" />
     <Compile Include="Models\PlayerDisplayMode.cs" />
+    <Compile Include="Util\ColorExtention.cs" />
     <Compile Include="Util\HttpRandomAccessStream.cs" />
     <Compile Include="ViewModels\CommentStreamingViewModel.cs" />
     <Compile Include="ViewModels\HistoryPageViewModel.cs" />
@@ -117,9 +116,11 @@
     <Compile Include="Views\CommandStreaming.xaml.cs">
       <DependentUpon>CommandStreaming.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Comment.cs" />
     <Compile Include="Views\HistoryPage.xaml.cs">
       <DependentUpon>HistoryPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\MediaElementExtractPositionBehavior.cs" />
     <Compile Include="Views\MenuNavigatePageBase.xaml.cs">
       <DependentUpon>MenuNavigatePageBase.xaml</DependentUpon>
     </Compile>

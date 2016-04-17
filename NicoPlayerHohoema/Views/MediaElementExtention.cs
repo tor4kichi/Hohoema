@@ -24,10 +24,10 @@ namespace NicoPlayerHohoema.Views
 		}
 
 		public static readonly DependencyProperty CustomStreamProperty =
-			DependencyProperty.RegisterAttached("CustomStream", typeof(IRandomAccessStream), typeof(MediaElementExtention), new PropertyMetadata(default(IRandomAccessStream), PropertyChanged));
+			DependencyProperty.RegisterAttached("CustomStream", typeof(IRandomAccessStream), typeof(MediaElementExtention), new PropertyMetadata(default(IRandomAccessStream), CustomStreamPropertyChanged));
 
 
-		public static void PropertyChanged(DependencyObject s, DependencyPropertyChangedEventArgs e)
+		public static void CustomStreamPropertyChanged(DependencyObject s, DependencyPropertyChangedEventArgs e)
 		{
 			if (s is MediaElement)
 			{
@@ -52,5 +52,8 @@ namespace NicoPlayerHohoema.Views
 		}
 
 		#endregion
+
+
+		
 	}
 }

@@ -13,10 +13,14 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <canvas:CanvasControl x:Name="CanvasControl" 
+    <canvas:CanvasAnimatedControl x:Name="CanvasControl" 
                           Draw="CanvasControl_Draw"
-                          
+                          CreateResources="CanvasControl_CreateResources"
+                          GameLoopStarting="CanvasControl_GameLoopStarting"
+                          TargetElapsedTime="00:00:00.016"
+                          Update="CanvasControl_Update"
+                          Loaded="CanvasControl_Loaded"
                           >
         
-    </canvas:CanvasControl>
+    </canvas:CanvasAnimatedControl>
 </UserControl>

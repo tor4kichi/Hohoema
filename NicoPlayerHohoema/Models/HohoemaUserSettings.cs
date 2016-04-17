@@ -1,4 +1,4 @@
-﻿using NicoPlayerHohoema.Mntone.Nico2.Ranking;
+﻿using Mntone.Nico2.Videos.Ranking;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;

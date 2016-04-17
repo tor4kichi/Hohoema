@@ -5,12 +5,29 @@
     xmlns:local="using:NicoPlayerHohoema.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
         <MediaElement local:MediaElementExtention.CustomStream="{Binding VideoStream.Value}"
-                                     />
+                      Position="{Binding CurrentVideoPosition.Value}"
+                      
+                                     >
+            <i:Interaction.Behaviors>
+                <local:MediaElementExtractPositionBehavior 
+                    Position="{Binding CurrentVideoPosition.Value, Mode=TwoWay}"
+                    Interval="00:00:00.016" 
+                    />
+
+            </i:Interaction.Behaviors>
+        </MediaElement>
+        
+        <local:CommandStreaming Comments="{Binding Comments}"
+                                VideoPosition="{Binding CurrentVideoPosition.Value}"
+                                />
     </Grid>
 </Page>
