@@ -100,10 +100,14 @@ namespace NicoPlayerHohoema.Views
 			CommandStreaming me = sender as CommandStreaming;
 
 			var val = (TimeSpan)e.NewValue;
-			await me.CanvasControl.RunOnGameLoopThreadAsync(() =>
+			try
 			{
-				me.GameLoopThreadData.VideoPos = (uint)Math.Floor(val.TotalMilliseconds * 0.1);
-			});
+				await me.CanvasControl.RunOnGameLoopThreadAsync(() =>
+				{
+					me.GameLoopThreadData.VideoPos = (uint)Math.Floor(val.TotalMilliseconds * 0.1);
+				});
+			}
+			catch { }
 		}
 
 

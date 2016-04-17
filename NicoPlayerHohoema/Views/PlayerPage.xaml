@@ -10,6 +10,7 @@
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:myconv="using:NicoPlayerHohoema.Views.Converters"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
@@ -29,7 +30,7 @@
             <core:EventTriggerBehavior EventName="PointerMoved">
                 <core:InvokeCommandAction Command="{Binding ShowMediaControlCommand}" />
             </core:EventTriggerBehavior>
-                                       
+
         </i:Interaction.Behaviors>
         
 
@@ -40,12 +41,16 @@
             <i:Interaction.Behaviors>
                 
                 <!-- 動画の再生位置を取り出す -->
-                <local:MediaElementExtractPositionBehavior 
+                <mybehavior:MediaElementExtractPositionBehavior 
                     Position="{Binding CurrentVideoPosition.Value, Mode=TwoWay}"
                     Interval="00:00:00.016" 
                     />
 
-                <local:MediaElementSeekAfterAutoPlayBehavior />
+                <!-- シーク操作後、自動で再生する -->
+                <mybehavior:MediaElementSeekAfterAutoPlayBehavior />
+
+                <!-- MediaElementのバッファリング/再生の状態を読み取る -->
+                <mybehavior:MediaElementStateGetter State="{Binding CurrentState.Value, Mode=TwoWay}" />
 
             </i:Interaction.Behaviors>
         </MediaElement>

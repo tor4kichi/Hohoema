@@ -24,6 +24,7 @@ using NicoPlayerHohoema.Views;
 using Windows.UI;
 using NicoPlayerHohoema.Util;
 using Prism.Commands;
+using Windows.UI.Xaml.Media;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -37,9 +38,15 @@ namespace NicoPlayerHohoema.ViewModels
 			CurrentVideoPosition = new ReactiveProperty<TimeSpan>(TimeSpan.Zero);
 			CommentData = new ReactiveProperty<CommentResponse>();
 			IsVisibleMediaControl = new ReactiveProperty<bool>(true);
-			IsAutoHideMediaControl = new ReactiveProperty<bool>(true);
 			SliderVideoPosition = new ReactiveProperty<double>(0);
 			VideoLength = new ReactiveProperty<double>(0);
+			CurrentState = new ReactiveProperty<MediaElementState>();
+			IsAutoHideMediaControl = CurrentState.Select(x =>
+				{
+					return x == MediaElementState.Playing;
+				})
+				.ToReadOnlyReactiveProperty(true);
+
 
 			this.ObserveProperty(x => x.VideoInfo)
 				.Subscribe(async x =>
@@ -403,6 +410,21 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+
+		private DelegateCommand<object> _CurrentStateChangedCommand;
+		public DelegateCommand<object> CurrentStateChangedCommand
+		{
+			get
+			{
+				return _CurrentStateChangedCommand
+					?? (_CurrentStateChangedCommand = new DelegateCommand<object>((arg) =>
+					{
+						var e = (RoutedEventArgs)arg;
+						
+					}
+					));
+			}
+		}
 		#endregion
 
 
@@ -432,12 +454,13 @@ namespace NicoPlayerHohoema.ViewModels
 		public ObservableCollection<Comment> Comments { get; private set; }
 
 		public ReactiveProperty<bool> IsVisibleMediaControl { get; private set; }
-		public ReactiveProperty<bool> IsAutoHideMediaControl { get; private set; }
+		public ReadOnlyReactiveProperty<bool> IsAutoHideMediaControl { get; private set; }
 
 		public ReactiveProperty<double> SliderVideoPosition { get; private set; }
 
 		public ReactiveProperty<double> VideoLength { get; private set; }
 
+		public ReactiveProperty<MediaElementState> CurrentState { get; private set; }
 
 		private HohoemaApp _HohoemaApp;
 	}

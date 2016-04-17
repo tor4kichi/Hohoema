@@ -113,6 +113,7 @@
     <Compile Include="ViewModels\SearchPageViewModel.cs" />
     <Compile Include="ViewModels\SettingsPageViewModel.cs" />
     <Compile Include="ViewModels\SubscriptionPageViewModel.cs" />
+    <Compile Include="Views\Behaviors\MediaElementStateGetter.cs" />
     <Compile Include="Views\CommandStreaming.xaml.cs">
       <DependentUpon>CommandStreaming.xaml</DependentUpon>
     </Compile>
@@ -121,8 +122,8 @@
     <Compile Include="Views\HistoryPage.xaml.cs">
       <DependentUpon>HistoryPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\MediaElementExtractPositionBehavior.cs" />
-    <Compile Include="Views\MediaElementSeekAfterAutoPlayBehavior.cs" />
+    <Compile Include="Views\Behaviors\MediaElementExtractPositionBehavior.cs" />
+    <Compile Include="Views\Behaviors\MediaElementSeekAfterAutoPlayBehavior.cs" />
     <Compile Include="Views\MenuNavigatePageBase.xaml.cs">
       <DependentUpon>MenuNavigatePageBase.xaml</DependentUpon>
     </Compile>

@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Controls;
 
-namespace NicoPlayerHohoema.Views
+namespace NicoPlayerHohoema.Views.Behaviors
 {
 
 	// MediaElementのバッファリング・再生の状態遷移について

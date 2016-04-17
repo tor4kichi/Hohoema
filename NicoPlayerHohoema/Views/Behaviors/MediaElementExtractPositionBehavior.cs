@@ -5,7 +5,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
 
-namespace NicoPlayerHohoema.Views
+namespace NicoPlayerHohoema.Views.Behaviors
 {
 	public class MediaElementExtractPositionBehavior : Behavior<MediaElement>
 	{		
