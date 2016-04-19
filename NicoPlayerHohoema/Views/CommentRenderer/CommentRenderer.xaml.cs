@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Graphics.Canvas;
+using Microsoft.Graphics.Canvas.Effects;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -31,8 +33,8 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		public SortedDictionary<uint, List<Comment>> TimeSequescailComments { get; private set; }
 		public Dictionary<Comment, CommentUI> RenderComments { get; private set; }
 
-		public Stack<CommentUI> CommentUIReservedItems { get; private set; }
 
+		public List<CommentUI> NextVerticalPosition { get; private set; }
 
 		private Timer _UpdateTimingTimer;
 
@@ -43,13 +45,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			TimeSequescailComments = new SortedDictionary<uint, List<Comment>>();
 			RenderComments = new Dictionary<Comment, CommentUI>();
 
-			CommentUIReservedItems = new Stack<CommentUI>();
-
-			for (var i = 0; i < CommentUIReserveCount; ++i)
-			{
-				CommentUIReservedItems.Push(new CommentUI());
-			}
-			
+			NextVerticalPosition = new List<CommentUI>();
 
 
 			Loaded += CommentRenderer_Loaded;
@@ -77,30 +73,97 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		}
 
 		
+		private int CalcAndRegisterCommentVerticalPosition(CommentUI commentUI)
+		{
+			const int CommentVerticalMargin = 2;
 
+
+			int? commentVerticalPos = null;
+			int totalHeight = 0;
+			for (int i = 0; i< NextVerticalPosition.Count; ++i)
+			{
+				var next = NextVerticalPosition[i];
+				if (next == null)
+				{
+					commentVerticalPos = totalHeight;
+					NextVerticalPosition[i] = commentUI;
+					break;
+				}
+				else
+				{
+					totalHeight += (int)next.DesiredSize.Height + CommentVerticalMargin;
+				}
+			}
+
+
+			if (!commentVerticalPos.HasValue)
+			{
+				commentVerticalPos = totalHeight;
+				NextVerticalPosition.Add(commentUI);
+			}
+
+			return commentVerticalPos.Value;
+		}
+
+
+		private void UpdateCommentVerticalPositionList(uint currentVPos)
+		{
+			var removeTargets = NextVerticalPosition.Where(x => 
+				{
+					if (x == null) { return false; }
+
+					var comment = x.CommentData;
+
+					if (comment == null) { return true; }
+
+					var width = (int)x.DesiredSize.Width;
+					var localVPos = currentVPos - comment.VideoPosition;
+					return localVPos < width;
+				})
+				.ToArray();
+
+
+			foreach (var remove in removeTargets)
+			{
+
+				var index = NextVerticalPosition.IndexOf(remove);
+				NextVerticalPosition[index] = null;
+			}
+		}
 		
 		private void OnUpdate()
 		{
 			const uint CommentDisplayTime = 300; // 3秒
 
+
+
+
 			var currentVpos = (uint)Math.Floor(VideoPosition.TotalMilliseconds * 0.1);
 			var canvasWidth = CommentCanvas.ActualWidth;
+
+
+			UpdateCommentVerticalPositionList(currentVpos);
 
 
 			// 表示すべきコメントを抽出して、表示対象として未登録のコメントを登録処理する
 			BinarySearch(currentVpos, currentVpos + CommentDisplayTime, (comment) =>
 			{
-				if (CommentUIReservedItems.Count != 0 &&
-						!RenderComments.ContainsKey(comment))
+				if (!RenderComments.ContainsKey(comment))
 				{
 					// リザーブからCommentUIを取得
-					var renderComment = CommentUIReservedItems.Pop();
+					var renderComment = new CommentUI()
+					{
+						DataContext = comment
+					};
 
 					// 表示対象に登録
-					renderComment.DataContext = comment;
 					RenderComments.Add(comment, renderComment);
 					CommentCanvas.Children.Add(renderComment);
+					renderComment.UpdateLayout();
 
+					var verticalPos = CalcAndRegisterCommentVerticalPosition(renderComment);
+					System.Diagnostics.Debug.WriteLine($"{comment.CommentText} : V={verticalPos}");
+					Canvas.SetTop(renderComment, verticalPos);
 				}
 			});
 
@@ -110,9 +173,6 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			{
 				// 表示対象としての登録を解除
 				RenderComments.Remove(renderComment.Key);
-
-				// CommentUIをリザーブに返却
-				CommentUIReservedItems.Push(renderComment.Value);
 
 				CommentCanvas.Children.Remove(renderComment.Value);
 				renderComment.Value.DataContext = null;
@@ -124,11 +184,9 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			{
 				commentLocation.X = (float)canvasWidth - renderComment.GetHorizontalPosition((int)canvasWidth, currentVpos);
 
-				// TODO: コメントの高さを求める
-				commentLocation.Y = 0.0f;
-
+				
 				Canvas.SetLeft(renderComment, (int)commentLocation.X);
-				//	Canvas.SetTop(renderComment, (int)commentLocation.Y);
+				//	
 			}
 		}
 
@@ -137,8 +195,6 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 		private bool CommentIsEndDisplay(Comment comment, uint currentVpos)
 		{
-			System.Diagnostics.Debug.WriteLineIf(comment.EndPosition <= currentVpos, $"endpos:{comment.EndPosition}, currentPos:{currentVpos}");
-
 			return comment.EndPosition <= currentVpos;
 		}
 
@@ -340,8 +396,6 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 				}
 			}
 		}
-
-
 	}
 
 

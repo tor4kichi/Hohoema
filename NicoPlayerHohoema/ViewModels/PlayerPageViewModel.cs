@@ -82,7 +82,7 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 
 
-				uint fontSize_mid = 14;
+				uint fontSize_mid = 26;
 				uint fontSize_small = (uint)Math.Ceiling(fontSize_mid * 0.75f);
 				uint fontSize_big = (uint)Math.Floor(fontSize_mid * 1.25f);
 
@@ -381,6 +381,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 				stream.Dispose();
 			}
+
+			Comments.Clear();
+
 
 			base.OnNavigatingFrom(e, viewModelState, suspending);
 		}
