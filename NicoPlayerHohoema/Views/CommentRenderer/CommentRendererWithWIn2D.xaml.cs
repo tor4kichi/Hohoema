@@ -20,6 +20,7 @@ using Microsoft.Graphics.Canvas.Brushes;
 using Windows.UI;
 using Microsoft.Graphics.Canvas.Geometry;
 using Microsoft.Graphics.Canvas;
+using System.Threading.Tasks;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -52,17 +53,29 @@ namespace NicoPlayerHohoema.Views
 		
 
 
-		public int GetNextPosition(uint vpos, CommentRenderInfo renderInfo)
+		public int GetNextPosition(uint vpos, CommentRenderInfo renderInfo, VerticalAlignment align)
 		{
 			// コメントを流す位置を確定する
-
+			switch (align)
+			{
+				case VerticalAlignment.Top:
+					break;
+				case VerticalAlignment.Center:
+					break;
+				case VerticalAlignment.Bottom:
+					break;
+				case VerticalAlignment.Stretch:
+					break;
+				default:
+					break;
+			}
 			return 1;
 		}
 	}
 
-	public sealed partial class CommandStreaming : UserControl
+	public sealed partial class CommentRendererWithWin2D : UserControl
 	{
-		public CommandStreaming()
+		public CommentRendererWithWin2D()
 		{
 			this.InitializeComponent();
 
@@ -78,7 +91,7 @@ namespace NicoPlayerHohoema.Views
 		public static readonly DependencyProperty SelectedCommentOutlineColorProperty =
 			DependencyProperty.Register("SelectedCommentOutlineColor"
 				, typeof(Color)
-				, typeof(CommandStreaming)
+				, typeof(CommentRendererWithWin2D)
 				, new PropertyMetadata(Windows.UI.Colors.LightGray)
 				);
 
@@ -96,7 +109,7 @@ namespace NicoPlayerHohoema.Views
 		public static readonly DependencyProperty VideoPositionProperty =
 			DependencyProperty.Register("VideoPosition"
 					, typeof(TimeSpan)
-					, typeof(CommandStreaming)
+					, typeof(CommentRendererWithWin2D)
 					, new PropertyMetadata(default(TimeSpan), OnVideoPositionChanged)
 				);
 
@@ -106,10 +119,10 @@ namespace NicoPlayerHohoema.Views
 			set { SetValue(VideoPositionProperty, value); }
 		}
 
-
+		
 		private static async void OnVideoPositionChanged(object sender, DependencyPropertyChangedEventArgs e)
 		{
-			CommandStreaming me = sender as CommandStreaming;
+			CommentRendererWithWin2D me = sender as CommentRendererWithWin2D;
 
 			var val = (TimeSpan)e.NewValue;
 			try
@@ -119,7 +132,10 @@ namespace NicoPlayerHohoema.Views
 					me.GameLoopThreadData.VideoPos = (uint)Math.Floor(val.TotalMilliseconds * 0.1);
 				});
 			}
-			catch { }
+			catch (TaskCanceledException taskCancel)
+			{
+				System.Diagnostics.Debug.WriteLine(taskCancel.Message);
+			}
 		}
 
 
@@ -129,7 +145,7 @@ namespace NicoPlayerHohoema.Views
 
 
 		public static readonly DependencyProperty SelectedCommentIdProperty =
-			DependencyProperty.Register("SelectedCommentId", typeof(uint), typeof(CommandStreaming), new PropertyMetadata(uint.MaxValue, OnSelectedCommentIdChanged));
+			DependencyProperty.Register("SelectedCommentId", typeof(uint), typeof(CommentRendererWithWin2D), new PropertyMetadata(uint.MaxValue, OnSelectedCommentIdChanged));
 
 
 		public uint SelectedCommentId
@@ -141,7 +157,7 @@ namespace NicoPlayerHohoema.Views
 
 		private static async void OnSelectedCommentIdChanged(object sender, DependencyPropertyChangedEventArgs e)
 		{
-			CommandStreaming me = sender as CommandStreaming;
+			CommentRendererWithWin2D me = sender as CommentRendererWithWin2D;
 
 			await me.CanvasControl.RunOnGameLoopThreadAsync(() =>
 			{
@@ -167,11 +183,11 @@ namespace NicoPlayerHohoema.Views
 
 		// Using a DependencyProperty as the backing store for WorkItems.  This enables animation, styling, binding, etc...
 		public static readonly DependencyProperty CommentsProperty =
-			DependencyProperty.Register("Comments", typeof(ObservableCollection<Comment>), typeof(CommandStreaming), new PropertyMetadata(null, OnCommentsChanged));
+			DependencyProperty.Register("Comments", typeof(ObservableCollection<Comment>), typeof(CommentRendererWithWin2D), new PropertyMetadata(null, OnCommentsChanged));
 
 		private static void OnCommentsChanged(object sender, DependencyPropertyChangedEventArgs e)
 		{
-			CommandStreaming me = sender as CommandStreaming;
+			CommentRendererWithWin2D me = sender as CommentRendererWithWin2D;
 
 			var old = e.OldValue as ObservableCollection<Comment>;
 
@@ -333,15 +349,13 @@ namespace NicoPlayerHohoema.Views
 						// 最初に描画するときだけ、描画後のテキストサイズを計算する
 						// http://stackoverflow.com/questions/30696838/how-to-calculate-the-size-of-a-piece-of-text-in-win2d
 
-
-						
-//						using (var textLayout = new CanvasTextLayout(session, renderComment.Comment.CommentText, textFormat, 0.0f, 0.0f))
-//						{
-							
-//							renderComment.Width = textLayout.DrawBounds.Width;
-//							renderComment.Height = textLayout.DrawBounds.Height;
-//						}
-
+						/*
+						using (var textLayout = new CanvasTextLayout(session, renderComment.Comment.CommentText, textFormat, 0.0f, 0.0f))
+						{
+							renderComment.Width = textLayout.DrawBounds.Width;
+							renderComment.Height = textLayout.DrawBounds.Height;
+						}
+						*/
 						renderComment.IsFirstRendering = false;
 					}
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Prism.Mvvm;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ using Windows.UI.Xaml;
 
 namespace NicoPlayerHohoema.Views
 {
-	public class Comment 
+	public class Comment : BindableBase
 	{
 		public string CommentText { get; set; }
 

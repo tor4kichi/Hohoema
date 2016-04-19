@@ -25,6 +25,7 @@ using Windows.UI;
 using NicoPlayerHohoema.Util;
 using Prism.Commands;
 using Windows.UI.Xaml.Media;
+using Windows.Media.Streaming.Adaptive;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -36,11 +37,14 @@ namespace NicoPlayerHohoema.ViewModels
 
 			VideoStream = new ReactiveProperty<IRandomAccessStream>(UIDispatcherScheduler.Default);
 			CurrentVideoPosition = new ReactiveProperty<TimeSpan>(TimeSpan.Zero);
+			ReadVideoPosition = new ReactiveProperty<TimeSpan>(TimeSpan.Zero);
 			CommentData = new ReactiveProperty<CommentResponse>();
 			IsVisibleMediaControl = new ReactiveProperty<bool>(true);
 			SliderVideoPosition = new ReactiveProperty<double>(0);
 			VideoLength = new ReactiveProperty<double>(0);
 			CurrentState = new ReactiveProperty<MediaElementState>();
+			Comments = new ObservableCollection<Views.Comment>();
+
 			IsAutoHideMediaControl = CurrentState.Select(x =>
 				{
 					return x == MediaElementState.Playing;
@@ -59,8 +63,15 @@ namespace NicoPlayerHohoema.ViewModels
 					}
 				});
 
-			Comments = new ObservableCollection<Views.Comment>();
+			// メディア・コントロールが非表示状態のときShowMediaControlCommandを実行可能
+			ShowMediaControlCommand = CurrentState
+				.Select(x => x == MediaElementState.Playing)
+				.ToReactiveCommand();
 
+			ShowMediaControlCommand.Subscribe(x => IsVisibleMediaControl.Value = true);
+
+
+		 
 			CommentData.Subscribe(x => 
 			{
 				Comments.Clear();
@@ -260,31 +271,30 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				_NowControlSlider = true;
 				CurrentVideoPosition.Value = TimeSpan.FromSeconds(x);
+				ReadVideoPosition.Value = CurrentVideoPosition.Value;
 				_NowControlSlider = false;
 			});
 
-			CurrentVideoPosition.Subscribe(x =>
+			ReadVideoPosition.Subscribe(x =>
 			{
 				if (_NowControlSlider) { return; }
 
 				SliderVideoPosition.Value = x.TotalSeconds;
 			});
 
-			// メディア・コントロールが非表示状態のときShowMediaControlCommandを実行可能
-			ShowMediaControlCommand = CurrentState
-				.Select(x => x == MediaElementState.Playing)
-				.ToReactiveCommand();
-
-			ShowMediaControlCommand.Subscribe(x => IsVisibleMediaControl.Value = true);
-
+			
+			
 			ShowMediaControlCommand
 				.Where(x => CurrentState.Value == MediaElementState.Playing)
-				.Throttle(TimeSpan.FromSeconds(3))
+				.Delay(TimeSpan.FromSeconds(3))
+				.Where(x => CurrentState.Value == MediaElementState.Playing)
 				.Repeat()
+				.SubscribeOnUIDispatcher()
 				.Subscribe(_ =>
 				{
 					IsVisibleMediaControl.Value = false;
 				});
+			
 
 			CurrentState.Subscribe(x =>
 			{
@@ -293,6 +303,8 @@ namespace NicoPlayerHohoema.ViewModels
 					IsVisibleMediaControl.Value = true;
 				}
 			});
+			
+			
 		}
 
 		bool _NowControlSlider = false;
@@ -330,8 +342,10 @@ namespace NicoPlayerHohoema.ViewModels
 							await win.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
 							{
 								VideoInfo = prevTask.Result;
+
 								
 								VideoStream.Value = await Util.HttpRandomAccessStream.CreateAsync(_HohoemaApp.NiconicoContext.HttpClient, VideoInfo.VideoUrl);
+
 								OnPropertyChanged(nameof(CurrentVideoUrl));
 							});
 						});
@@ -444,6 +458,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<IRandomAccessStream> VideoStream { get; private set; }
 	
 		public ReactiveProperty<TimeSpan> CurrentVideoPosition { get; private set; }
+		public ReactiveProperty<TimeSpan> ReadVideoPosition { get; private set; }
 
 		public ObservableCollection<Comment> Comments { get; private set; }
 

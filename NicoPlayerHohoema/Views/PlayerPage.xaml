@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:comment="using:NicoPlayerHohoema.Views.CommentRenderer"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
@@ -37,13 +38,15 @@
         <MediaElement x:Name="mediaElem"
                       local:MediaElementExtention.CustomStream="{Binding VideoStream.Value}"
                       Position="{Binding CurrentVideoPosition.Value}"
+                      AudioCategory="BackgroundCapableMedia"
                       >
             <i:Interaction.Behaviors>
                 
+                
                 <!-- 動画の再生位置を取り出す -->
                 <mybehavior:MediaElementExtractPositionBehavior 
-                    Position="{Binding CurrentVideoPosition.Value, Mode=TwoWay}"
-                    Interval="00:00:00.032" 
+                    Position="{Binding ReadVideoPosition.Value, Mode=TwoWay}"
+                    Interval="00:00:00.016" 
                     />
 
                 <!-- シーク操作後、自動で再生する -->
@@ -54,11 +57,13 @@
 
             </i:Interaction.Behaviors>
         </MediaElement>
-        
-        <local:CommandStreaming Comments="{Binding Comments}"
-                                VideoPosition="{Binding CurrentVideoPosition.Value}"
-                                />
 
+        
+        <comment:CommentRenderer Comments="{Binding Comments}"
+                                VideoPosition="{Binding ReadVideoPosition.Value}"
+                                />
+        
+        
         <toolkit:DockPanel HorizontalAlignment="Stretch"
                            VerticalAlignment="Stretch"
                            >
