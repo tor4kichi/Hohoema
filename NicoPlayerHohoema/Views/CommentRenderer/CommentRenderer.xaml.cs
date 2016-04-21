@@ -79,7 +79,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 
 			int? commentVerticalPos = null;
-			int totalHeight = 0;
+			int totalHeight = CommentVerticalMargin;
 			for (int i = 0; i< NextVerticalPosition.Count; ++i)
 			{
 				var next = NextVerticalPosition[i];
@@ -162,7 +162,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 					renderComment.UpdateLayout();
 
 					var verticalPos = CalcAndRegisterCommentVerticalPosition(renderComment);
-					System.Diagnostics.Debug.WriteLine($"{comment.CommentText} : V={verticalPos}");
+					System.Diagnostics.Debug.WriteLine($"{renderComment.CommentData.CommentText} : V={verticalPos}");
 					Canvas.SetTop(renderComment, verticalPos);
 				}
 			});
@@ -184,13 +184,9 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			{
 				commentLocation.X = (float)canvasWidth - renderComment.GetHorizontalPosition((int)canvasWidth, currentVpos);
 
-				
 				Canvas.SetLeft(renderComment, (int)commentLocation.X);
-				//	
 			}
 		}
-
-
 
 
 		private bool CommentIsEndDisplay(Comment comment, uint currentVpos)

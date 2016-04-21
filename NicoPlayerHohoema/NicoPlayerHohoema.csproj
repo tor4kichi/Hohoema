@@ -151,6 +151,10 @@
     <Compile Include="Views\SubscriptionPage.xaml.cs">
       <DependentUpon>SubscriptionPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\UIEffects\CanvasControlExtention.cs" />
+    <Compile Include="Views\UIEffects\DropShadowHostControl.xaml.cs">
+      <DependentUpon>DropShadowHostControl.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -215,12 +219,17 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\UIEffects\DropShadowHostControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Mntone.Nico2.UWP">
       <HintPath>lib\Mntone.Nico2.UWP.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

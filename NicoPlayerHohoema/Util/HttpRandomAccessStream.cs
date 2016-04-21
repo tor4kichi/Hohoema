@@ -38,11 +38,6 @@ namespace NicoPlayerHohoema.Util
 		private string lastModifiedHeader;
 		private Uri requestedUri;
 
-		private InMemoryRandomAccessStream BufferdMemory;
-		private Dictionary<ulong, BufferMappingInfo> PositionToBufferInfo;
-
-		private ulong ReadRequestCount;
-
 		// No public constructor, factory methods instead to handle async tasks.
 		private HttpRandomAccessStream(HttpClient client, Uri uri, uint memoryBufferSize = 1048576)
 		{
@@ -186,7 +181,7 @@ namespace NicoPlayerHohoema.Util
 
 		public virtual void Dispose()
 		{
-			BufferdMemory?.Dispose();
+			
 		}
 
 

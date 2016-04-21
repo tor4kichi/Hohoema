@@ -6,23 +6,25 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:win2d="using:Microsoft.Graphics.Canvas.UI.Xaml"
+    xmlns:myeffect="using:NicoPlayerHohoema.Views.UIEffects"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
 
     <Grid>
-        <win2d:CanvasControl x:Name="TextBGCanvas"
-                             CreateResources="TextBGCanvas_CreateResources"
-                             Draw="TextBGCanvas_Draw"
-                             >
-            
-        </win2d:CanvasControl>
-        
+        <myeffect:DropShadowHostControl
+            Target="TextUI"
+            ShadowBlurAmount="2.0"
+            >
+
+        </myeffect:DropShadowHostControl>
+
         <TextBlock x:Name="TextUI"
-              Text="{Binding CommentText}"
-               Foreground="{Binding Color, Converter={StaticResource ColorToBrush}}"
-               FontSize="{Binding FontSize}"
-               Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibility}}"
-               />
+            Text="{Binding CommentText}"
+            Foreground="{Binding Color, Converter={StaticResource ColorToBrush}}"
+            FontSize="{Binding FontSize}"
+            Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibility}}"
+            />
     </Grid>
+        
 </UserControl>

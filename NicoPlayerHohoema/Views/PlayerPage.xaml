@@ -46,7 +46,7 @@
                 <!-- 動画の再生位置を取り出す -->
                 <mybehavior:MediaElementExtractPositionBehavior 
                     Position="{Binding ReadVideoPosition.Value, Mode=TwoWay}"
-                    Interval="00:00:00.016" 
+                    Interval="00:00:00.032" 
                     />
 
                 <!-- シーク操作後、自動で再生する -->
