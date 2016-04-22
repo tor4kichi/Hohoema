@@ -12,19 +12,16 @@
     d:DesignWidth="400">
 
     <Grid>
-        <myeffect:DropShadowHostControl
-            Target="TextUI"
-            ShadowBlurAmount="2.0"
+        <myeffect:GlowEffectHostControl
+            GlowEffectBlurAmount="2.0"
             >
-
-        </myeffect:DropShadowHostControl>
-
-        <TextBlock x:Name="TextUI"
-            Text="{Binding CommentText}"
-            Foreground="{Binding Color, Converter={StaticResource ColorToBrush}}"
-            FontSize="{Binding FontSize}"
-            Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibility}}"
+            <TextBlock 
+                Text="{Binding CommentText}"
+                Foreground="{Binding Color, Converter={StaticResource ColorToBrush}}"
+                FontSize="{Binding FontSize}"
+                Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibility}}"
             />
+        </myeffect:GlowEffectHostControl>
     </Grid>
         
 </UserControl>

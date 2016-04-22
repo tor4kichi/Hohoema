@@ -1,140 +1,24 @@
-﻿using Microsoft.Graphics.Canvas;
-using Microsoft.Graphics.Canvas.Effects;
-using Microsoft.Graphics.Canvas.UI;
-using Microsoft.Graphics.Canvas.UI.Xaml;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Numerics;
-using System.Runtime.InteropServices.WindowsRuntime;
+﻿using System;
 using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
-
-// The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
+using Microsoft.Graphics.Canvas;
+using Microsoft.Graphics.Canvas.Effects;
+using Microsoft.Graphics.Canvas.UI;
+using Microsoft.Graphics.Canvas.UI.Xaml;
 
 namespace NicoPlayerHohoema.Views.UIEffects
 {
-	public sealed partial class DropShadowHostControl : UserControl
+	public sealed partial class GlowEffectHostControl : ContentControl
 	{
-		#region Target Property
-
-		public static readonly DependencyProperty TargetProperty =
-			DependencyProperty.Register("Target"
-				, typeof(string)
-				, typeof(DropShadowHostControl)
-				, new PropertyMetadata("")
-				);
-
-
-		public string Target
-		{
-			get { return (string)GetValue(TargetProperty); }
-			set { SetValue(TargetProperty, value); }
-		}
-
-		#endregion
-
-		#region ShadowColor Property
-
-		public static readonly DependencyProperty ShadowColorProperty =
-			DependencyProperty.Register("ShadowColor"
-				, typeof(Color)
-				, typeof(DropShadowHostControl)
-				, new PropertyMetadata(Windows.UI.Colors.Black)
-				);
-
-
-		public Color ShadowColor
-		{
-			get { return (Color)GetValue(ShadowColorProperty); }
-			set { SetValue(ShadowColorProperty, value); }
-		}
-
-		#endregion
-
-		#region ShadowOpacity Property
-
-		public static readonly DependencyProperty ShadowOpacityProperty =
-			DependencyProperty.Register("ShadowOpacity"
-				, typeof(float)
-				, typeof(DropShadowHostControl)
-				, new PropertyMetadata(1.0f)
-				);
-
-
-		public float ShadowOpacity
-		{
-			get { return (float)GetValue(ShadowOpacityProperty); }
-			set { SetValue(ShadowOpacityProperty, value); }
-		}
-
-		#endregion
-
-		#region ShadowBlurAmount Property
-
-		public static readonly DependencyProperty ShadowBlurAmountProperty =
-			DependencyProperty.Register("ShadowBlurAmount"
-				, typeof(double)
-				, typeof(DropShadowHostControl)
-				, new PropertyMetadata(1.0)
-				);
-
-
-		public double ShadowBlurAmount
-		{
-			get { return (double)GetValue(ShadowBlurAmountProperty); }
-			set { SetValue(ShadowBlurAmountProperty, value); }
-		}
-
-		#endregion
-
-		#region ShadowTranslate Property
-
-		public static readonly DependencyProperty ShadowTranslateProperty =
-			DependencyProperty.Register("ShadowTranslate"
-				, typeof(TranslateTransform)
-				, typeof(DropShadowHostControl)
-				, new PropertyMetadata(new TranslateTransform())
-				);
-
-
-		public TranslateTransform ShadowTranslate
-		{
-			get { return (TranslateTransform)GetValue(ShadowTranslateProperty); }
-			set { SetValue(ShadowTranslateProperty, value); }
-		}
-
-		#endregion
-
-
-		CanvasBitmap _bitmap;
-
-		ShadowEffect _shadowEffect;
-
-
-
-		private UIElement TargetUI
-		{
-			get
-			{
-				return (this.Parent as FrameworkElement).FindName(Target) as UIElement;
-			}
-		}
-
-		public DropShadowHostControl()
+		public GlowEffectHostControl()
 		{
 			this.InitializeComponent();
 
 			this.Loaded += OnLoaded;
+			this.Unloaded += OnUnloaded;
 		}
 
 		private void OnLoaded(object sender, RoutedEventArgs e)
@@ -142,41 +26,31 @@ namespace NicoPlayerHohoema.Views.UIEffects
 			if (TargetUI != null)
 			{
 				var canvasControl = new CanvasControl();
-				var rootPanel = this.GetTemplateChild("RootCanvas") as Panel;
-
-				Canvas.SetZIndex(canvasControl, -1);
 
 				canvasControl.CreateResources += BGCanvas_CreateResources;
 				canvasControl.Draw += BGCanvas_Draw;
-				this.Content = canvasControl;
 
-				this.Unloaded += DropShadowHostControl_Unloaded;
+				Canvas.SetZIndex(canvasControl, -1);
+
+				var rootPanel = GetTemplateChild("RootPanel") as Panel;
+				rootPanel.Children.Add(canvasControl);
 			}
-
 		}
 
-
-
-		private void OnParentLoaded(object sender, RoutedEventArgs e)
-		{			
-		}
-
-		protected override void OnApplyTemplate()
+		private void OnUnloaded(object sender, RoutedEventArgs e)
 		{
-			base.OnApplyTemplate();
-
-
+			_shadowEffect?.Dispose();
+			_bitmap?.Dispose();
 		}
 
-		private void DropShadowHostControl_Unloaded(object sender, RoutedEventArgs e)
-		{
-			_shadowEffect.Dispose();
-			_bitmap.Dispose();
-		}
-
+		/// <summary>
+		/// 影Bitmapの作成
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="args"></param>
 		void BGCanvas_CreateResources(CanvasControl sender, CanvasCreateResourcesEventArgs args)
 		{
-			args.TrackAsyncAction(sender.CreateUIElementBitmap(TargetUI)
+			args.TrackAsyncAction(sender.CreateBitmapFromUIElement(TargetUI)
 				.ContinueWith(x =>
 				{
 					_bitmap = x.Result;
@@ -186,32 +60,140 @@ namespace NicoPlayerHohoema.Views.UIEffects
 						Source = _bitmap
 					};
 				}).AsAsyncAction());
-
-			// TODO: CommandListで書き直す？
 		}
 
 
+		/// <summary>
+		/// ContentPresenter読み込み後に動的に追加したCanvasControlへの描画
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="args"></param>
 		void BGCanvas_Draw(CanvasControl sender, CanvasDrawEventArgs args)
 		{
-			if (_bitmap == null)
-			{
-				return;
-			}
-
-			_shadowEffect.BlurAmount = (float)ShadowBlurAmount;
-			_shadowEffect.ShadowColor = ShadowColor;
+			_shadowEffect.BlurAmount = (float)GlowEffectBlurAmount;
+			_shadowEffect.ShadowColor = GlowEffectColor;
 
 			using (var session = args.DrawingSession)
 			{
 				session.DrawImage(_shadowEffect
 					// Canvas上に描画する範囲
-					, new Rect(ShadowTranslate.X, ShadowTranslate.Y, sender.ActualWidth, sender.ActualHeight)
+					, new Rect(GlowEffectTranslate.X, GlowEffectTranslate.Y, sender.ActualWidth, sender.ActualHeight)
 
 					// Bitmapの参照範囲
 					, new Rect(0, 0, _bitmap.SizeInPixels.Width, _bitmap.SizeInPixels.Height)
-					
-					, ShadowOpacity
+
+					, (float)GlowEffectOpacity
 					);
+			}
+		}
+
+
+		#region field value
+
+		CanvasBitmap _bitmap;
+
+		ShadowEffect _shadowEffect;
+
+		#endregion
+
+
+		#region GlowEffectTargetName Property
+
+		public static readonly DependencyProperty GlowEffectTargetNameProperty =
+			DependencyProperty.Register("GlowEffectTargetName"
+				, typeof(string)
+				, typeof(GlowEffectHostControl)
+				, new PropertyMetadata("")
+				);
+
+
+		public string GlowEffectTargetName
+		{
+			get { return (string)GetValue(GlowEffectTargetNameProperty); }
+			set { SetValue(GlowEffectTargetNameProperty, value); }
+		}
+
+		#endregion
+
+		#region GlowEffectColor Property
+
+		public static readonly DependencyProperty GlowEffectColorProperty =
+			DependencyProperty.Register("GlowEffectColor"
+				, typeof(Color)
+				, typeof(GlowEffectHostControl)
+				, new PropertyMetadata(Windows.UI.Colors.Black)
+				);
+
+
+		public Color GlowEffectColor
+		{
+			get { return (Color)GetValue(GlowEffectColorProperty); }
+			set { SetValue(GlowEffectColorProperty, value); }
+		}
+
+		#endregion
+
+		#region GlowEffectOpacity Property
+
+		public static readonly DependencyProperty GlowEffectOpacityProperty =
+			DependencyProperty.Register("GlowEffectOpacity"
+				, typeof(double)
+				, typeof(GlowEffectHostControl)
+				, new PropertyMetadata(1.0)
+				);
+
+
+		public double GlowEffectOpacity
+		{
+			get { return (double)GetValue(GlowEffectOpacityProperty); }
+			set { SetValue(GlowEffectOpacityProperty, value); }
+		}
+
+		#endregion
+
+		#region GlowEffectBlurAmount Property
+
+		public static readonly DependencyProperty GlowEffectBlurAmountProperty =
+			DependencyProperty.Register("GlowEffectBlurAmount"
+				, typeof(double)
+				, typeof(GlowEffectHostControl)
+				, new PropertyMetadata(1.0)
+				);
+
+
+		public double GlowEffectBlurAmount
+		{
+			get { return (double)GetValue(GlowEffectBlurAmountProperty); }
+			set { SetValue(GlowEffectBlurAmountProperty, value); }
+		}
+
+		#endregion
+
+		#region GlowEffectTranslate Property
+
+		public static readonly DependencyProperty GlowEffectTranslateProperty =
+			DependencyProperty.Register("GlowEffectTranslate"
+				, typeof(TranslateTransform)
+				, typeof(GlowEffectHostControl)
+				, new PropertyMetadata(new TranslateTransform())
+				);
+
+
+		public TranslateTransform GlowEffectTranslate
+		{
+			get { return (TranslateTransform)GetValue(GlowEffectTranslateProperty); }
+			set { SetValue(GlowEffectTranslateProperty, value); }
+		}
+
+		#endregion
+
+
+
+		private UIElement TargetUI
+		{
+			get
+			{
+				return GetTemplateChild("ShadowTargetContentPresenter") as UIElement;
 			}
 		}
 	}

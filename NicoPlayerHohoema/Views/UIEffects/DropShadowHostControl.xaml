@@ -1,5 +1,5 @@
-﻿<UserControl
-    x:Class="NicoPlayerHohoema.Views.UIEffects.DropShadowHostControl"
+﻿<ContentControl
+    x:Class="NicoPlayerHohoema.Views.UIEffects.GlowEffectHostControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:NicoPlayerHohoema.Views.UIEffects"
@@ -10,6 +10,16 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    
+    <ContentControl.Template>
+        <ControlTemplate>
+            <Grid x:Name="RootPanel">
 
-</UserControl>
+                <!-- CanvasControl add to here from code behind -->
+
+                <ContentPresenter x:Name="ShadowTargetContentPresenter" />
+                
+            </Grid>
+        </ControlTemplate>
+    </ContentControl.Template>
+    
+</ContentControl>
