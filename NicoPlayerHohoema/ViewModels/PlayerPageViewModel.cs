@@ -1,55 +1,71 @@
-﻿using Prism.Windows.Mvvm;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Prism.Windows.Navigation;
-using Windows.Web.Http;
-using NicoPlayerHohoema.Models;
-using Mntone.Nico2;
+﻿using Mntone.Nico2;
+using Mntone.Nico2.Videos.Comment;
 using Mntone.Nico2.Videos.Flv;
 using Mntone.Nico2.Videos.WatchAPI;
-using Reactive.Bindings.Extensions;
-using Reactive.Bindings;
-using System.Reactive.Linq;
-using Windows.UI.Core;
-using Windows.UI.Xaml;
-using Windows.UI.ViewManagement;
-using Windows.Storage.Streams;
-using Mntone.Nico2.Videos.Comment;
-using Prism.Mvvm;
-using System.Collections.ObjectModel;
-using NicoPlayerHohoema.Views;
-using Windows.UI;
+using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Views;
 using Prism.Commands;
+using Prism.Events;
+using Prism.Windows.Mvvm;
+using Prism.Windows.Navigation;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Reactive.Concurrency;
+using System.Reactive.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Windows.Storage.Streams;
+using Windows.UI;
+using Windows.UI.Core;
+using Windows.UI.ViewManagement;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
-using Windows.Media.Streaming.Adaptive;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	public class PlayerPageViewModel : ViewModelBase
 	{
-		public PlayerPageViewModel(HohoemaApp hohoemaApp)
+
+		static SynchronizationContextScheduler PlayerWindowUIDispatcherScheduler;
+
+		public PlayerPageViewModel(HohoemaApp hohoemaApp, EventAggregator ea)
 		{
+			if (PlayerWindowUIDispatcherScheduler == null)
+			{
+				PlayerWindowUIDispatcherScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
+			}
+
+
+			ea.GetEvent<Events.PlayerClosedEvent>()
+				.Subscribe(_ =>
+				{
+					StopCommand.Execute();
+				});
+
 			_HohoemaApp = hohoemaApp;
 
-			VideoStream = new ReactiveProperty<IRandomAccessStream>(UIDispatcherScheduler.Default);
-			CurrentVideoPosition = new ReactiveProperty<TimeSpan>(TimeSpan.Zero);
-			ReadVideoPosition = new ReactiveProperty<TimeSpan>(TimeSpan.Zero);
-			CommentData = new ReactiveProperty<CommentResponse>();
-			IsVisibleMediaControl = new ReactiveProperty<bool>(true);
-			SliderVideoPosition = new ReactiveProperty<double>(0);
-			VideoLength = new ReactiveProperty<double>(0);
-			CurrentState = new ReactiveProperty<MediaElementState>();
+
+			VideoStream = new ReactiveProperty<IRandomAccessStream>(PlayerWindowUIDispatcherScheduler);
+			CurrentVideoPosition = new ReactiveProperty<TimeSpan>(PlayerWindowUIDispatcherScheduler, TimeSpan.Zero);
+			ReadVideoPosition = new ReactiveProperty<TimeSpan>(PlayerWindowUIDispatcherScheduler, TimeSpan.Zero);
+			CommentData = new ReactiveProperty<CommentResponse>(PlayerWindowUIDispatcherScheduler);
+			IsVisibleMediaControl = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, true);
+			SliderVideoPosition = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0);
+			VideoLength = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0);
+			CurrentState = new ReactiveProperty<MediaElementState>(PlayerWindowUIDispatcherScheduler);
 			Comments = new ObservableCollection<Views.Comment>();
+
 
 			IsAutoHideMediaControl = CurrentState.Select(x =>
 				{
 					return x == MediaElementState.Playing;
 				})
-				.ToReadOnlyReactiveProperty(true);
+				.ToReadOnlyReactiveProperty(true, eventScheduler: PlayerWindowUIDispatcherScheduler);
 
 
 			this.ObserveProperty(x => x.VideoInfo)
@@ -66,9 +82,10 @@ namespace NicoPlayerHohoema.ViewModels
 			// メディア・コントロールが非表示状態のときShowMediaControlCommandを実行可能
 			ShowMediaControlCommand = CurrentState
 				.Select(x => x == MediaElementState.Playing)
-				.ToReactiveCommand();
+				.ToReactiveCommand(PlayerWindowUIDispatcherScheduler);
 
-			ShowMediaControlCommand.Subscribe(x => IsVisibleMediaControl.Value = true);
+			ShowMediaControlCommand
+				.Subscribe(x => IsVisibleMediaControl.Value = true);
 
 
 		 
@@ -315,35 +332,40 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			base.OnNavigatedTo(e, viewModelState);
 
-			string videoUrl = null;
-			try
-			{
-				videoUrl = (string)e.Parameter;
-			}
-			catch
-			{
-				// error
-			}
+			System.Diagnostics.Debug.WriteLine($"Player Navigated ViewId is {ApplicationView.GetForCurrentView().Id}");
 
 
 			
+			string videoUrl = null;
+			if (e?.Parameter is string)
+			{
+				videoUrl = e.Parameter as string;
+			}
+			else if(viewModelState.ContainsKey(nameof(CurrentVideoUrl)))
+			{
+				videoUrl = (string)viewModelState[nameof(CurrentVideoUrl)];
+			}
+
+
+
+			var currentUIDispatcher = Window.Current.Dispatcher;
+
 			try
 			{
+				if (videoUrl == null) { return; }
+
 				if (await _HohoemaApp.CheckSignedInStatus() == NiconicoSignInStatus.Success)
 				{
 					var videoId = videoUrl.Split('/').Last();
 
-					// UIのDispatcher上で処理するために現在のウィンドウを取得
-					var win = Window.Current;
-
 					await _HohoemaApp.NiconicoContext.Video.GetWatchApiAsync(videoId)
 						.ContinueWith(async prevTask =>
 						{
-							await win.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+							await currentUIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
 							{
 								VideoInfo = prevTask.Result;
 
-								
+
 								VideoStream.Value = await Util.HttpRandomAccessStream.CreateAsync(_HohoemaApp.NiconicoContext.HttpClient, VideoInfo.VideoUrl);
 
 								OnPropertyChanged(nameof(CurrentVideoUrl));
@@ -363,8 +385,14 @@ namespace NicoPlayerHohoema.ViewModels
 				
 			}
 
-		}
 
+			if (viewModelState.ContainsKey(nameof(CurrentVideoPosition)))
+			{
+				CurrentVideoPosition.Value = (TimeSpan)viewModelState[nameof(CurrentVideoPosition)];
+			}
+
+
+		}
 
 		private async Task<CommentResponse> GetComment(FlvResponse response)
 		{
@@ -384,7 +412,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 			Comments.Clear();
 
-
+			if (suspending)
+			{
+				viewModelState.Add(nameof(CurrentVideoUrl), CurrentVideoUrl);
+				viewModelState.Add(nameof(CurrentVideoPosition), CurrentVideoPosition.Value);
+			}
 			base.OnNavigatingFrom(e, viewModelState, suspending);
 		}
 
@@ -448,6 +480,18 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _VideoInfo, value); }
 		}
 
+		private string _SourceVideoUrl;
+		public string SourceVideoUrl
+		{
+			get
+			{
+				return _SourceVideoUrl;
+			}
+			set
+			{
+				SetProperty(ref _SourceVideoUrl, value);
+			}
+		}
 
 
 		public string CurrentVideoUrl

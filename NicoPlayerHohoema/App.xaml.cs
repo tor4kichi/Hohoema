@@ -27,6 +27,8 @@ using Windows.ApplicationModel.Core;
 using Windows.UI.Core;
 using Prism.Events;
 using NicoPlayerHohoema.Events;
+using Prism.Windows.Navigation;
+using Prism.Windows.AppModel;
 
 namespace NicoPlayerHohoema
 {
@@ -35,7 +37,7 @@ namespace NicoPlayerHohoema
     /// </summary>
     sealed partial class App : Prism.Unity.Windows.PrismUnityApplication
     {
-		public CoreApplicationView PlayerWindow { get; private set; }
+		public PlayerWindowManager PlayerWindow { get; private set; }
 
 
         /// <summary>
@@ -101,47 +103,19 @@ namespace NicoPlayerHohoema
 			pm.OpenPage(HohoemaPageType.Ranking);
 
 
-//			CreatePlayerWindow();
-
-
 			var playNicoVideoEvent = EventAggregator.GetEvent<PlayNicoVideoEvent>();
-			playNicoVideoEvent.Subscribe(PlayNicoVideoWithCurrentPlayerSetting);
+			playNicoVideoEvent.Subscribe(PlayNicoVideoInPlayerWindow);
 
 			return base.OnInitializeAsync(args);
 		}
 
-		private void PlayNicoVideoWithCurrentPlayerSetting(string videoUrl)
+		private async void PlayNicoVideoInPlayerWindow(string videoUrl)
 		{
-			var hohoemaApp = Container.Resolve<HohoemaApp>();
+			await OpenPlayerWindow();
 
-			switch (PlayerDisplayMode.MainWindow)
-			{
-				case PlayerDisplayMode.MainWindow:
-					// 現在のウィンドウに対してPlayerページへのナビゲーションを飛ばす
-					PlayNicoVideoInMainWindow(videoUrl);
-					break;
-				case PlayerDisplayMode.Standalone:
-					PlayNicoVideoInSubWindow(videoUrl);
-					break;
-				default:
-					break;
-			}
+			await PlayerWindow.OpenVideo(videoUrl);
 		}
 
-		private void PlayNicoVideoInMainWindow(string videoUrl)
-		{
-			NavigationService.Navigate("Player", videoUrl);
-		}
-
-		private async void PlayNicoVideoInSubWindow(string videoUrl)
-		{
-			// サブウィンドウをアクティベートして、サブウィンドウにPlayerページナビゲーションを飛ばす
-			await PlayerWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-			{
-				((Frame)Window.Current.Content).Navigate(typeof(Views.PlayerPage), videoUrl);
-				Window.Current.Activate();
-			});
-		}
 
 		private void RegisterTypes()
 		{
@@ -160,10 +134,25 @@ namespace NicoPlayerHohoema
 			Container.RegisterType<ViewModels.SettingsPageViewModel>(new ContainerControlledLifetimeManager());
 
 		}
+
+
+		protected override void ConfigureViewModelLocator()
+		{
+			base.ConfigureViewModelLocator();
+		}
+
+
 		protected override void OnWindowCreated(WindowCreatedEventArgs args)
 		{
 			base.OnWindowCreated(args);
 
+			var mainWindowView = ApplicationView.GetForCurrentView();
+			mainWindowView.Consolidated += MainWindowView_Consolidated;
+		}
+
+		private void MainWindowView_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)
+		{
+			App.Current.Exit();
 		}
 
 		protected override UIElement CreateShell(Frame rootFrame)
@@ -188,30 +177,125 @@ namespace NicoPlayerHohoema
 			Debugger.Break();
 		}
 
-		private async void CreatePlayerWindow()
+		
+		private async Task OpenPlayerWindow()
 		{
+			var currentViewId = ApplicationView.GetForCurrentView().Id;
+			System.Diagnostics.Debug.WriteLine($"MainWindow ViewId is {currentViewId}");
+
+
 			if (PlayerWindow == null)
 			{
-				var currentViewId = ApplicationView.GetForCurrentView().Id;
-				PlayerWindow = CoreApplication.CreateNewView();
-				
-				await PlayerWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+				var view = CoreApplication.CreateNewView();
+
+				PlayerWindow = await PlayerWindowManager.CreatePlayerWindowManager(view);
+
+				await view.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () => 
 				{
-					Window.Current.Content = new Frame();
-					((Frame)Window.Current.Content).Navigate(typeof(Views.PlayerPage));
-//					Window.Current.Activate();
-					/*
-					await ApplicationViewSwitcher.TryShowAsStandaloneAsync(
-						ApplicationView.GetApplicationViewIdForWindow(Window.Current.CoreWindow),
-						ViewSizePreference.Default,
-						currentViewId,
-						ViewSizePreference.Default);
-					*/
-
-					Window.Current.Close();
-
+					var v = ApplicationView.GetForCurrentView();
+					v.Consolidated += PlayerWindow_Consolidated;					
 				});
 			}
+
+			await PlayerWindow.ShowFront(currentViewId);
 		}
+
+		/// <summary>
+		/// プレイヤーウィンドウが閉じられた時に呼ばれる
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="args"></param>
+		private void PlayerWindow_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)
+		{
+			PlayerWindow.Closed();
+		}
+	}
+
+
+
+
+	public class PlayerWindowManager
+	{
+		public int ViewId { get; private set; }
+		
+		
+		public CoreApplicationView View { get; private set; }
+		public INavigationService NavigationService { get; private set;}
+
+
+
+		PlayerWindowManager(CoreApplicationView view, int id, INavigationService ns)
+		{
+			this.View = view;
+			NavigationService = ns;
+			ViewId = id;
+		}
+
+		public static async Task<PlayerWindowManager> CreatePlayerWindowManager(CoreApplicationView playerView)
+		{
+			INavigationService ns = null;
+			int id = 0;
+			await playerView.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+			{
+				var frame = new Frame();
+				var frameFacade = new FrameFacadeAdapter(frame);
+				Window.Current.Content = frame;
+
+				var sessionStateService = new SessionStateService();
+				ns = new FrameNavigationService(frameFacade
+					, (pageToken) =>
+					{
+						if (pageToken == nameof(Views.PlayerPage))
+						{
+							return typeof(Views.PlayerPage);
+						}
+						else
+						{
+							return typeof(Page);
+						}
+					}, sessionStateService);
+				id = ApplicationView.GetApplicationViewIdForWindow(playerView.CoreWindow);
+			});
+
+			return new PlayerWindowManager(playerView, id, ns);
+		}
+
+		public async Task ShowFront(int mainViewid)
+		{
+			await View.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+			{
+				View.CoreWindow.Activate();
+				await ApplicationViewSwitcher.TryShowAsStandaloneAsync(
+					ViewId
+					, ViewSizePreference.Default
+					, mainViewid
+					, ViewSizePreference.Default
+					);
+			});
+		}
+
+		public async Task OpenVideo(string videoUrl)
+		{
+			// サブウィンドウをアクティベートして、サブウィンドウにPlayerページナビゲーションを飛ばす
+			await View.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+			{
+				if (!NavigationService.Navigate(nameof(Views.PlayerPage), videoUrl))
+				{
+					System.Diagnostics.Debug.WriteLine("Failed open player.");
+				}
+				NavigationService.ClearHistory();
+			});
+		}
+
+
+		public async void Closed()
+		{
+			await View.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+			{
+				NavigationService.Navigate("", null);
+				NavigationService.ClearHistory();
+			});
+		}
+
 	}
 }
