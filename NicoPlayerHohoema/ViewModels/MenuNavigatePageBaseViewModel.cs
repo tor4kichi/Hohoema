@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -27,30 +29,24 @@ namespace NicoPlayerHohoema.ViewModels
 
 			IsPaneOpen = new ReactiveProperty<bool>(false);
 
-			PageManager.ObserveProperty(x => x.CurrentPageType)
-				.Subscribe(x => 
-				{
-					ClosePane();
-				});
-
 			TopMenuItems = new List<MenuListItemViewModel>()
 			{
-				new MenuListItemViewModel(PageManager)
+				new MenuListItemViewModel(PageManager, this)
 				{
 					Title = "ランキング",
 					PageType = HohoemaPageType.Ranking,
 				}
-				, new MenuListItemViewModel(PageManager)
+				, new MenuListItemViewModel(PageManager, this)
 				{
 					Title = "購読",
 					PageType = HohoemaPageType.Subscription,
 				}
-				, new MenuListItemViewModel(PageManager)
+				, new MenuListItemViewModel(PageManager, this)
 				{
 					Title = "履歴",
 					PageType = HohoemaPageType.History,
 				}
-				, new MenuListItemViewModel(PageManager)
+				, new MenuListItemViewModel(PageManager, this)
 				{
 					Title = "検索",
 					PageType = HohoemaPageType.Search,
@@ -60,12 +56,12 @@ namespace NicoPlayerHohoema.ViewModels
 
 			BottomMenuItems = new List<MenuListItemViewModel>()
 			{
-				new MenuListItemViewModel(PageManager)
+				new MenuListItemViewModel(PageManager, this)
 				{
 					Title = "設定",
 					PageType = HohoemaPageType.Settings,
 				}
-				, new MenuListItemViewModel(PageManager)
+				, new MenuListItemViewModel(PageManager, this)
 				{
 					Title = "アカウント",
 					PageType = HohoemaPageType.Settings,
@@ -88,11 +84,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class MenuListItemViewModel : BindableBase
 	{
+		public MenuNavigatePageBaseViewModel ParentVM { get; private set; }
 		public PageManager PageManager { get; private set; }
 
-		public MenuListItemViewModel(PageManager pageManager)
+		public MenuListItemViewModel(PageManager pageManager, MenuNavigatePageBaseViewModel parentVM)
 		{
 			PageManager = pageManager;
+			ParentVM = parentVM;
 
 		}
 
@@ -100,14 +98,20 @@ namespace NicoPlayerHohoema.ViewModels
 		public HohoemaPageType PageType { get; set; }
 		public string PageParameter { get; set; }
 
-		private DelegateCommand _SelectMenuItemCommand;
-		public DelegateCommand SelectMenuItemCommand
+		private DelegateCommand<Visibility?> _SelectMenuItemCommand;
+		public DelegateCommand<Visibility?> SelectMenuItemCommand
 		{
 			get
 			{
 				return _SelectMenuItemCommand
-					?? (_SelectMenuItemCommand = new DelegateCommand(() =>
+					?? (_SelectMenuItemCommand = new DelegateCommand<Visibility?>((paneToggleButtonVisiblity) =>
 					{
+						// ペインの切り替えボタンが使える場合は、ペインを閉じる
+						if (paneToggleButtonVisiblity == Visibility.Visible)
+						{
+							ParentVM.ClosePane();
+						}
+
 						PageManager.OpenPage(PageType, PageParameter);
 					}));
 			}
