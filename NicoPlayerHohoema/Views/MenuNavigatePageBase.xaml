@@ -20,32 +20,60 @@
         <ControlTemplate>
 
             <Border>
-                <VisualStateManager.VisualStateGroups>
-                    <VisualStateGroup x:Name="Small">
-                        <VisualState>
-                            <!--
-                            <Storyboard TargetName="RootSplitView"
-                                        >
-                                <ObjectAnimationUsingKeyFrames
-                                    Storyboard.TargetProperty="IsPaneOpen"
-                                    >
-                                    <DiscreteObjectKeyFrame 
-                                        Value="True" />
-                                </ObjectAnimationUsingKeyFrames>
-                                <ObjectAnimationUsingKeyFrames
-                                    Storyboard.TargetProperty="DisplayMode"
-                                    >
-                                    <DiscreteObjectKeyFrame 
-                                        Value="Inline" />
-                                </ObjectAnimationUsingKeyFrames>
-                            </Storyboard>
-                            -->
-                        </VisualState>
 
+                <VisualStateManager.VisualStateGroups>
+                    <VisualStateGroup>
+                        <VisualState>
+                            <!-- 一番幅が広いとき -->
+                            <VisualState.StateTriggers>
+                                <AdaptiveTrigger MinWindowWidth="1025" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="RootSplitView.DisplayMode" Value="Inline" />
+                                <Setter Target="RootSplitView.IsPaneOpen" Value="True" />
+                                <Setter Target="PaneToggleButton.Visibility" Value="Collapsed" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        <!-- 中ぐらい -->
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <AdaptiveTrigger MinWindowWidth="721" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="RootSplitView.DisplayMode" Value="CompactOverlay" />
+                                <Setter Target="RootSplitView.IsPaneOpen" Value="False" />
+                                <Setter Target="PaneToggleButton.Visibility" Value="Visible" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        <!-- 狭い 
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <AdaptiveTrigger MinWindowWidth="600" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="RootSplitView.DisplayMode" Value="Overlay" />
+                                <Setter Target="RootSplitView.IsPaneOpen" Value="False" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        -->
+                        <!-- 超狭い -->
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <AdaptiveTrigger MinWindowWidth="0" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="RootSplitView.DisplayMode" Value="Overlay" />
+                                <Setter Target="RootSplitView.IsPaneOpen" Value="False" />
+                                <Setter Target="PaneToggleButton.Visibility" Value="Visible" />
+                            </VisualState.Setters>
+                        </VisualState>
                     </VisualStateGroup>
                 </VisualStateManager.VisualStateGroups>
 
-                <SplitView x:Name="RootSplitView" IsPaneOpen="{Binding IsPaneOpen.Value, Mode=TwoWay}">
+                <SplitView x:Name="RootSplitView" 
+                           IsPaneOpen="{Binding IsPaneOpen.Value, Mode=TwoWay}"
+                           OpenPaneLength="240"
+                           >
 
                     <SplitView.Pane>
                         <Grid>
@@ -54,20 +82,13 @@
                                     <DataTemplate x:Key="MenuListItemTemplate">
                                         <Button Content="{Binding Title}" 
                                                 Command="{Binding SelectMenuItemCommand}" 
+                                                CommandParameter="{Binding ElementName=PaneToggleButton, Path=Visibility}"
                                                 >
-                                            <i:Interaction.Behaviors>
-                                                <core:EventTriggerBehavior EventName="Tapped">
-                                                    <core:CallMethodAction TargetObject="{Binding ElementName=RootSplitView, Path=DataContext}"
-                                                                           MethodName="ClosePane"
-                                                                           />
-                                                </core:EventTriggerBehavior>
-                                            </i:Interaction.Behaviors>
                                         </Button>
                                     </DataTemplate>
-                                    
+
                                 </toolkit:DockPanel.Resources>
-                                
-                                
+
                                 <ItemsControl toolkit:DockPanel.Dock="Top"
                                               ItemsSource="{Binding TopMenuItems}"
                                               ItemTemplate="{StaticResource MenuListItemTemplate}"
@@ -85,12 +106,14 @@
                         </Grid>
                     </SplitView.Pane>
 
+                    
                     <SplitView.Content>
                         <toolkit:DockPanel>
                             <Border toolkit:DockPanel.Dock="Top" Height="48">
 
                                 <toolkit:DockPanel>
-                                    <AppBarToggleButton toolkit:DockPanel.Dock="Left" 
+                                    <AppBarToggleButton x:Name="PaneToggleButton"
+                                        toolkit:DockPanel.Dock="Left" 
                                                         Icon="OpenPane"
                                                         IsChecked="{Binding ElementName=RootSplitView, Path=IsPaneOpen, Mode=TwoWay}"
                                         >
@@ -99,9 +122,8 @@
                                     <StackPanel toolkit:DockPanel.Dock="Right"
                                             Orientation="Horizontal"
                                             >
-                                        <AppBarButton Icon="Find"/>
-
-                                        <TextBox Text="kensaku"></TextBox>
+                                        <AppBarButton Icon="Find"
+                                                      />
 
                                     </StackPanel>
 
