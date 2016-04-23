@@ -86,10 +86,9 @@
                                                 >
                                         </Button>
                                     </DataTemplate>
-                                    
+
                                 </toolkit:DockPanel.Resources>
-                                
-                                
+
                                 <ItemsControl toolkit:DockPanel.Dock="Top"
                                               ItemsSource="{Binding TopMenuItems}"
                                               ItemTemplate="{StaticResource MenuListItemTemplate}"
@@ -107,6 +106,7 @@
                         </Grid>
                     </SplitView.Pane>
 
+                    
                     <SplitView.Content>
                         <toolkit:DockPanel>
                             <Border toolkit:DockPanel.Dock="Top" Height="48">
@@ -122,9 +122,8 @@
                                     <StackPanel toolkit:DockPanel.Dock="Right"
                                             Orientation="Horizontal"
                                             >
-                                        <AppBarButton Icon="Find"/>
-
-                                        <TextBox Text="kensaku"></TextBox>
+                                        <AppBarButton Icon="Find"
+                                                      />
 
                                     </StackPanel>
 
