@@ -59,46 +59,23 @@
                     </StackPanel>
                 </Border>
 
-                <ScrollViewer>
-                    <ListView ItemsSource="{Binding RankingItems}"
+
+                <ListBox ItemsSource="{Binding RankingItems}"
+                         SelectionMode="Multiple"
                               >
-                        <ListView.ItemContainerStyle>
-                            <Style TargetType="ListViewItem">
-                                <Setter Property="HorizontalContentAlignment"
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="HorizontalContentAlignment"
                                         Value="Stretch" 
                                         />
-                            </Style>
-                        </ListView.ItemContainerStyle>
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <toolkit:DockPanel >
-
-                                    <i:Interaction.Behaviors>
-                                        <core:EventTriggerBehavior EventName="Tapped">
-                                            <core:InvokeCommandAction Command="{Binding ShowDetailCommand}" />
-                                        </core:EventTriggerBehavior>
-                                        <core:EventTriggerBehavior EventName="DoubleTapped">
-                                            <core:InvokeCommandAction Command="{Binding PlayCommand}" />
-                                        </core:EventTriggerBehavior>
-                                    </i:Interaction.Behaviors>
-                                    
-                                    
-                                    <Border toolkit:DockPanel.Dock="Left">
-                                        <Image ></Image>
-                                    </Border>
-
-                                    <Border toolkit:DockPanel.Dock="Right">
-                                        <Button Content="再生"
-                                                Command="{Binding PlayCommand}"
-                                                />
-                                    </Border>
-
-                                    <TextBlock Text="{Binding Title, Mode=OneTime}" />
-                                </toolkit:DockPanel>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
-                </ScrollViewer>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <view:VideoInfoControl />
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </toolkit:DockPanel>
         </Border>
     </Grid>

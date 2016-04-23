@@ -120,7 +120,7 @@ namespace NicoPlayerHohoema
 		private void RegisterTypes()
 		{
 			// Models
-			Container.RegisterInstance(new HohoemaApp());
+			Container.RegisterInstance(new HohoemaApp(EventAggregator));
 			Container.RegisterInstance(new PageManager(NavigationService));
 
 

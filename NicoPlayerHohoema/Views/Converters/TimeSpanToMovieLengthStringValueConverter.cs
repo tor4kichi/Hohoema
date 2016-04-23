@@ -7,11 +7,12 @@ using Windows.UI.Xaml.Data;
 
 namespace NicoPlayerHohoema.Views.Converters
 {
-	public class SecondsToTimeValueConverter : IValueConverter
+	public class TimeSpanToMovieLengthStringValueConverter : IValueConverter
 	{
 		public object Convert(object value, Type targetType, object parameter, string language)
 		{
-			var seconds = TimeSpan.FromSeconds(System.Convert.ToInt32(value));
+			var seconds = value is TimeSpan ? (TimeSpan)value : TimeSpan.FromSeconds(System.Convert.ToInt32(value));
+
 			if (seconds.Hours > 0)
 			{
 				return seconds.ToString(@"HH\:mm\:ss");

@@ -107,6 +107,7 @@
     <Compile Include="Models\PlayerDisplayMode.cs" />
     <Compile Include="Util\ColorExtention.cs" />
     <Compile Include="Util\HttpRandomAccessStream.cs" />
+    <Compile Include="Util\NicoVideoRssItemExtention.cs" />
     <Compile Include="ViewModels\CommentStreamingViewModel.cs" />
     <Compile Include="ViewModels\HistoryPageViewModel.cs" />
     <Compile Include="ViewModels\MenuNavigatePageBaseViewModel.cs" />
@@ -115,6 +116,7 @@
     <Compile Include="ViewModels\SearchPageViewModel.cs" />
     <Compile Include="ViewModels\SettingsPageViewModel.cs" />
     <Compile Include="ViewModels\SubscriptionPageViewModel.cs" />
+    <Compile Include="ViewModels\VideoInfoControlViewModel.cs" />
     <Compile Include="Views\Behaviors\MediaElementStateGetter.cs" />
     <Compile Include="Views\CommentRenderer\CommentRendererWithWIn2D.xaml.cs">
       <DependentUpon>CommentRendererWithWIn2D.xaml</DependentUpon>
@@ -126,7 +128,7 @@
     <Compile Include="Views\CommentRenderer\CommentUI.xaml.cs">
       <DependentUpon>CommentUI.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Converters\SecondsToTimeValueConverter.cs" />
+    <Compile Include="Views\Converters\TimeSpanToMovieLengthStringValueConverter.cs" />
     <Compile Include="Views\HistoryPage.xaml.cs">
       <DependentUpon>HistoryPage.xaml</DependentUpon>
     </Compile>
@@ -155,6 +157,9 @@
     <Compile Include="Views\UIEffects\CanvasControlExtention.cs" />
     <Compile Include="Views\UIEffects\DropShadowHostControl.xaml.cs">
       <DependentUpon>DropShadowHostControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\VideoInfoControl.xaml.cs">
+      <DependentUpon>VideoInfoControl.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -221,6 +226,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\UIEffects\DropShadowHostControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\VideoInfoControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

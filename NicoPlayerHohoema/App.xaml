@@ -5,11 +5,16 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:NicoPlayerHohoema"
     xmlns:conv="using:WinRTXamlToolkit.Converters"
+    xmlns:myconv="using:NicoPlayerHohoema.Views.Converters"
+    xmlns:view="using:NicoPlayerHohoema.Views"
     RequestedTheme="Light">
 
     <prism:PrismUnityApplication.Resources>
         <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         <conv:ColorToBrushConverter x:Key="ColorToBrush" />
+
+        <myconv:TimeSpanToMovieLengthStringValueConverter x:Key="TimeToMovieLengthConverter" />
+
     </prism:PrismUnityApplication.Resources>
 
 </prism:PrismUnityApplication>

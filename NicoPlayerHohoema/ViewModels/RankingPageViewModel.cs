@@ -1,5 +1,6 @@
 ﻿using Mntone.Nico2.Videos.Ranking;
 using NicoPlayerHohoema.Models;
+using NicoPlayerHohoema.Util;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
@@ -22,6 +23,7 @@ namespace NicoPlayerHohoema.ViewModels
 	{
 		public RankingPageViewModel(HohoemaApp hohoemaApp, EventAggregator ea)
 		{
+			HohoemaApp = hohoemaApp;
 			_EventAggregator = ea;
 			RankingSettings = hohoemaApp.UserSettings.RankingSettings;
 
@@ -61,7 +63,7 @@ namespace NicoPlayerHohoema.ViewModels
 			SelectedRankingCategory = new ReactiveProperty<RankingCategoryListItem>(RankingCategoryItems[0]);
 
 
-			RankingItems = new ObservableCollection<RankingListItem>();
+			RankingItems = new ObservableCollection<VideoInfoControlViewModel>();
 
 
 
@@ -95,13 +97,25 @@ namespace NicoPlayerHohoema.ViewModels
 
 				foreach(var item in list.Channel.Items)
 				{
-					RankingItems.Add(new RankingListItem(item, this));
-				}
+					try
+					{
+						var videoInfoVM = new VideoInfoControlViewModel(item.Title, item.VideoUrl, HohoemaApp);
 
+						RankingItems.Add(videoInfoVM);
+					}
+					catch { }
+				}
 			}
 			catch
 			{
 				// Errorを通知
+			}
+
+
+			// サムネイル情報を非同期読み込み
+			foreach (var videoInfoVM in RankingItems)
+			{
+				videoInfoVM.LoadThumbnail();
 			}
 		}
 
@@ -136,44 +150,16 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<RankingCategoryListItem> SelectedRankingCategory { get; private set; }
 
 
-		public ObservableCollection<RankingListItem> RankingItems { get; private set; }
+		public ObservableCollection<VideoInfoControlViewModel> RankingItems { get; private set; }
 
+		private HohoemaApp HohoemaApp;
 		private EventAggregator _EventAggregator;
 		public RankingSettings RankingSettings { get; private set; }
 
 	}
 
 
-	public class RankingListItem : BindableBase
-	{
-		
-
-		public RankingListItem(NiconicoVideoRssItem item, RankingPageViewModel parentVM)
-		{
-			ParentVM = parentVM;
-
-			Title = item.Title;
-			VideoUrl = item.VideoUrl;
-
-			ShowDetailCommand = new DelegateCommand(() => 
-			{
-			});
-
-			PlayCommand = new DelegateCommand(() =>
-			{
-				ParentVM.PlayVideo(this.VideoUrl);
-			});
-		}
-
-		public string Title { get; private set; }
-		public string VideoUrl { get; private set; }
-
-		public DelegateCommand ShowDetailCommand { get; private set; }
-		public DelegateCommand PlayCommand { get; private set; } 
-
-
-		public RankingPageViewModel ParentVM { get; private set; }
-	}
+	
 
 	public class RankingTargetListItem : BindableBase
 	{

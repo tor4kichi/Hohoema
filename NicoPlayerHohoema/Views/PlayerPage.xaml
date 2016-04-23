@@ -10,13 +10,11 @@
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
-    xmlns:myconv="using:NicoPlayerHohoema.Views.Converters"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
     <Page.Resources>
-        <myconv:SecondsToTimeValueConverter x:Key="SecondsToTimeConverter" />
     </Page.Resources>
     
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
@@ -135,7 +133,7 @@
                             Value="{Binding SliderVideoPosition.Value, Mode=TwoWay}"
                             Width="{Binding ElementName=ControlPanel_Center, Path=ActualWidth}"
                             IsThumbToolTipEnabled="True"
-                            ThumbToolTipValueConverter="{StaticResource SecondsToTimeConverter}"
+                            ThumbToolTipValueConverter="{StaticResource TimeToMovieLengthConverter}"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
                             >
@@ -147,9 +145,9 @@
                                IsHitTestVisible="False"
                                Foreground="Gray"
                                >
-                        <Run Text="{Binding SliderVideoPosition.Value, Converter={StaticResource SecondsToTimeConverter}}" />
+                        <Run Text="{Binding SliderVideoPosition.Value, Converter={StaticResource TimeToMovieLengthConverter}}" />
                         <Run Text="/" />
-                        <Run Text="{Binding VideoLength.Value, Converter={StaticResource SecondsToTimeConverter}}" />
+                        <Run Text="{Binding VideoLength.Value, Converter={StaticResource TimeToMovieLengthConverter}}" />
                     </TextBlock>
                 </Grid>
                 

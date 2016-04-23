@@ -1,4 +1,6 @@
 ﻿using Mntone.Nico2;
+using Mntone.Nico2.Videos.Thumbnail;
+using Prism.Events;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
@@ -10,8 +12,10 @@ namespace NicoPlayerHohoema.Models
 {
 	public class HohoemaApp : BindableBase
 	{
-		public HohoemaApp()
+		public HohoemaApp(IEventAggregator ea)
 		{
+			EventAggregator = ea;
+
 			UserSettings = new HohoemaUserSettings();
 			NiconicoPlayer = new NiconicoPlayer(this);
 			NiconicoContext = new NiconicoContext();
@@ -54,6 +58,21 @@ namespace NicoPlayerHohoema.Models
 			return await NiconicoContext.GetIsSignedInAsync();
 		}
 
+
+		public void PlayVideo(string videoUrl)
+		{
+			EventAggregator.GetEvent<Events.PlayNicoVideoEvent>()
+				.Publish(videoUrl);
+		}
+
+
+		public bool IsNgVideo(ThumbnailResponse response)
+		{
+			// TODO: 
+			return false;
+		}
+
+
 		public HohoemaUserSettings UserSettings { get; private set; }
 
 
@@ -68,7 +87,7 @@ namespace NicoPlayerHohoema.Models
 
 		public const string HohoemaUserAgent = "Hohoema_UWP";
 
-		
+		public IEventAggregator EventAggregator { get; private set; }
 	}
 	
 }
