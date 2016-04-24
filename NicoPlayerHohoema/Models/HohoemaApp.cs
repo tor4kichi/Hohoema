@@ -21,6 +21,16 @@ namespace NicoPlayerHohoema.Models
 			NiconicoContext = new NiconicoContext();
 		}
 
+		public async Task LoadUserSettings()
+		{
+			UserSettings = await HohoemaUserSettings.LoadSettings();
+		}
+
+		public async Task SaveUserSettings()
+		{
+			await UserSettings?.Save();
+		}
+
 		public async Task<NiconicoSignInStatus> SignInFromUserSettings()
 		{
 			if (UserSettings.AccontSettings.IsValidMailOreTelephone && UserSettings.AccontSettings.IsValidPassword)

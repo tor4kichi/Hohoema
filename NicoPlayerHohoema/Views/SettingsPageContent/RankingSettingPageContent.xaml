@@ -10,7 +10,19 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <Grid>
-        <TextBlock Text="テスト ランキング" />
-    </Grid>
+    <ScrollViewer>
+        <StackPanel>
+            <TextBlock Text="ランキング表示設定" />
+
+            <ListView ItemsSource="{Binding HandSortableCategories}" 
+                      CanReorderItems="True"
+                      >
+                
+            </ListView>
+
+
+        </StackPanel>
+
+
+    </ScrollViewer>
 </UserControl>

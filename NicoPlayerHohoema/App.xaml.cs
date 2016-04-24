@@ -81,7 +81,7 @@ namespace NicoPlayerHohoema
 #if DEBUG
 			DebugSettings.IsBindingTracingEnabled = true;
 #endif
-			
+
 			Window.Current.Activate();
 
 			return Task.FromResult<object>(null);
@@ -89,9 +89,12 @@ namespace NicoPlayerHohoema
 
 		
 
-		protected override Task OnInitializeAsync(IActivatedEventArgs args)
+		protected override async Task OnInitializeAsync(IActivatedEventArgs args)
 		{
 			RegisterTypes();
+
+			var hohoemaApp = Container.Resolve<HohoemaApp>();
+			await hohoemaApp.LoadUserSettings();
 
 			var pm = Container.Resolve<PageManager>();
 			pm.OpenPage(HohoemaPageType.Login, true /* Enable auto login */);
@@ -99,8 +102,7 @@ namespace NicoPlayerHohoema
 
 			var playNicoVideoEvent = EventAggregator.GetEvent<PlayNicoVideoEvent>();
 			playNicoVideoEvent.Subscribe(PlayNicoVideoInPlayerWindow);
-
-			return base.OnInitializeAsync(args);
+			await base.OnInitializeAsync(args);
 		}
 
 		private async void PlayNicoVideoInPlayerWindow(string videoUrl)

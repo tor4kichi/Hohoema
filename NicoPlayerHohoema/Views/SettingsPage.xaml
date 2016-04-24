@@ -14,12 +14,6 @@
 
     <Page.Resources>
         <view:SettingContentTemplateSelector x:Key="settingContentTemplateSelector">
-            <!-- Account -->
-            <view:SettingContentTemplateSelector.AccountTemplate>
-                <DataTemplate>
-                    <settingsContent:AccountSettingPageContent />
-                </DataTemplate>
-            </view:SettingContentTemplateSelector.AccountTemplate>
             
             <!-- Ranking -->
             <view:SettingContentTemplateSelector.RankingTemplate>

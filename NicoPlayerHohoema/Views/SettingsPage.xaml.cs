@@ -31,7 +31,6 @@ namespace NicoPlayerHohoema.Views
 
 	public class SettingContentTemplateSelector : DataTemplateSelector
 	{
-		public DataTemplate AccountTemplate { get; set; }
 		public DataTemplate RankingTemplate { get; set; }
 		public DataTemplate NGTemplate { get; set; }
 		public DataTemplate PlayerTemplate { get; set; }

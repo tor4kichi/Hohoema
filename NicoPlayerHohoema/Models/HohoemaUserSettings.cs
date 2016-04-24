@@ -2,15 +2,73 @@
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Newtonsoft.Json;
+using System.IO;
 
 namespace NicoPlayerHohoema.Models
 {
 	public class HohoemaUserSettings
 	{
+		const string AccountSettingsFileName = "account.json";
+		const string RankingSettingsFileName = "ranking.json";
+		const string PlayerSettingsFileName = "player.json";
+
+
+		public static async Task<HohoemaUserSettings> LoadSettings()
+		{
+			var localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
+
+
+			var account = await SettingsBase.Load<AccountSettings>(AccountSettingsFileName);
+			var ranking = await SettingsBase.Load<RankingSettings>(RankingSettingsFileName);
+			var player = await SettingsBase.Load<PlayerSettings>(PlayerSettingsFileName);
+
+			return new HohoemaUserSettings()
+			{
+				AccontSettings = account,
+				RankingSettings = ranking,
+				PlayerSettings = player
+			};
+		}
+
+		public static async Task<string> GetText(IStorageFile file)
+		{
+			using (var stream = await file.OpenAsync(FileAccessMode.Read))
+			{
+				using (var reader = new StreamReader(stream.AsStream(), Encoding.UTF8)) 
+				{
+					return reader.ReadToEnd();
+				}
+			}
+		}
+
+		public static async Task SaveText(IStorageFile file, string text)
+		{
+			using (var stream = await file.OpenAsync(FileAccessMode.ReadWrite))
+			{
+				using (var reader = new StreamWriter(stream.AsStream(), Encoding.UTF8))
+				{
+					await reader.WriteAsync(text);
+				}
+			}
+		}
+
+		public async Task Save()
+		{
+			var localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
+			var local = await localFolder.CreateFileAsync("settings.json", CreationCollisionOption.OpenIfExists);
+
+			var serializedText = JsonConvert.SerializeObject(this);
+
+			await SaveText(local, serializedText);
+		}
+
 		public AccountSettings AccontSettings { get; private set; }
 
 		public RankingSettings RankingSettings { get; private set; }
@@ -19,142 +77,145 @@ namespace NicoPlayerHohoema.Models
 
 		public HohoemaUserSettings()
 		{
-			LoadSettings();
-		}
-
-		public void LoadSettings()
-		{
-			var localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
-
-			Windows.Storage.ApplicationData.Current.SignalDataChanged();
-			var accountDataContainer = localSettings.CreateContainer(nameof(AccountSettings), ApplicationDataCreateDisposition.Always);
-
-			// 複数アカウント対応のための拡張性をもたせている
-			var firstAccount = accountDataContainer.CreateContainer("00", ApplicationDataCreateDisposition.Always);
-			AccontSettings = new AccountSettings(firstAccount);
-
-			// ランキングの表示設定
-			var rankingDataContainer = localSettings.CreateContainer(nameof(RankingSettings), ApplicationDataCreateDisposition.Always);
-			RankingSettings = new RankingSettings(rankingDataContainer);
-
-			// 動画プレイヤーの設定
-			var playerDataContainer = localSettings.CreateContainer(nameof(PlayerSettings), ApplicationDataCreateDisposition.Always);
-			PlayerSettings = new PlayerSettings(playerDataContainer);
 		}
 	}
 
-
+	[DataContract]
 	public abstract class SettingsBase : BindableBase
 	{
+		public string FileName { get; private set; }
 
-
-		public SettingsBase(ApplicationDataContainer dataContainer)
+		public static async Task<T> Load<T>(string filename)
+			where T : SettingsBase, new()
 		{
-			_DataContainer = dataContainer;
-		}
+			var localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
+			var local = await localFolder.CreateFileAsync(filename, CreationCollisionOption.OpenIfExists);
 
-		protected T GetValue<T>(string valueName)
-		{
-			if (!HasValue(valueName))
+			var rawText = await HohoemaUserSettings.GetText(local);
+			if (!String.IsNullOrEmpty(rawText))
 			{
-				SetValue(valueName, default(T));
+				try
+				{
+					var obj = JsonConvert.DeserializeObject<T>(rawText);
+					obj.FileName = filename;
+					return obj;
+				}
+				catch
+				{
+					await local.DeleteAsync();
+				}
 			}
-			return (T)_DataContainer.Values[valueName];
+
+			return new T()
+			{
+				FileName = filename
+			};
 		}
 
-		protected void SetValue<T>(string valueName, T value)
+
+		public async Task Save()
 		{
-			_DataContainer.Values[valueName] = value;
+			var localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
+			var local = await localFolder.CreateFileAsync(FileName, CreationCollisionOption.OpenIfExists);
+
+			var serializedText = JsonConvert.SerializeObject(this);
+
+			await HohoemaUserSettings.SaveText(local, serializedText);
 		}
-
-		protected bool HasValue(string valueName)
-		{
-			return _DataContainer.Values.ContainsKey(valueName);
-		}
-
-
-		ApplicationDataContainer _DataContainer;
 	}
 
+
+	[DataContract]
 	public class RankingSettings : SettingsBase
 	{
-		public RankingSettings(ApplicationDataContainer rankingDataContainer)
-			: base(rankingDataContainer)
+		public RankingSettings()
+			: base()
 		{
-		}
-
-		private RankingTarget _RankingTarget;
-		public RankingTarget RankingTarget
-		{
-			get
-			{
-				return _RankingTarget = GetValue<RankingTarget>(nameof(RankingTarget));
-			}
-			set
-			{
-				if (SetProperty(ref _RankingTarget, value))
-				{
-					SetValue(nameof(RankingTarget), value);
-				}
-			}
+			
 		}
 
 
-		private RankingTimeSpan _RankingTimeSpan;
-		public RankingTimeSpan RankingTimeSpan
-		{
-			get
-			{
-				return _RankingTimeSpan = GetValue<RankingTimeSpan>(nameof(RankingTimeSpan));
-			}
-			set
-			{
-				if (SetProperty(ref _RankingTimeSpan, value))
-				{
-					SetValue(nameof(RankingTimeSpan), value);
-				}
-			}
-		}
+
+
 
 		
 
 
+		private RankingTarget _Target;
 
-
-
-
-		private RankingCategory _RankingCategory;
-		public RankingCategory RankingCategory
+		[DataMember]
+		public RankingTarget Target
 		{
 			get
 			{
-				return _RankingCategory = GetValue<RankingCategory>(nameof(RankingCategory));
+				return _Target;
 			}
 			set
 			{
-				if (SetProperty(ref _RankingCategory, value))
-				{
-					SetValue(nameof(RankingCategory), value);
-				}
+				SetProperty(ref _Target, value);
 			}
 		}
 
+
+		private RankingTimeSpan _TimeSpan;
+
+		[DataMember]
+		public RankingTimeSpan TimeSpan
+		{
+			get
+			{
+				return _TimeSpan;
+			}
+			set
+			{
+				SetProperty(ref _TimeSpan, value);
+			}
+		}
+
+
+
+
+		private RankingCategory _Category;
+
+		[DataMember]
+		public RankingCategory Category
+		{
+			get
+			{
+				return _Category;
+			}
+			set
+			{
+				SetProperty(ref _Category, value);
+			}
+		}
+
+		[DataMember]
+		public ObservableCollection<RankingCategory> HighPriorityCategory { get; private set; }
+
+		[DataMember]
+		public ObservableCollection<RankingCategory> MiddlePriorityCategory { get; private set; }
+
+		[DataMember]
+		public ObservableCollection<RankingCategory> LowPriorityCategory { get; private set; }
 		
 	}
 
+	[DataContract]
 	public class AccountSettings : SettingsBase
 	{
-		public AccountSettings(ApplicationDataContainer accountDataContainer)
-			: base(accountDataContainer)
+		public AccountSettings()
+			: base()
 		{
-			_MailOrTelephone = GetValue<string>(nameof(MailOrTelephone));
-			_Password = GetValue<string>(nameof(Password));
-			_AutoLoginEnable = GetValue<bool>(nameof(AutoLoginEnable));
+			MailOrTelephone = "";
+			Password = "";
 		}
 
 
 
 		private string _MailOrTelephone;
+
+		[DataMember]
 		public string MailOrTelephone
 		{
 			get
@@ -163,10 +224,7 @@ namespace NicoPlayerHohoema.Models
 			}
 			set
 			{
-				if (SetProperty(ref _MailOrTelephone, value))
-				{
-					SetValue(nameof(MailOrTelephone), value);
-				}
+				SetProperty(ref _MailOrTelephone, value);
 			}
 		}
 
@@ -182,6 +240,8 @@ namespace NicoPlayerHohoema.Models
 		
 
 		private string _Password;
+
+		[DataMember]
 		public string Password
 		{
 			get
@@ -190,10 +250,7 @@ namespace NicoPlayerHohoema.Models
 			}
 			set
 			{
-				if (SetProperty(ref _Password, value))
-				{
-					SetValue(nameof(Password), value);
-				}
+				SetProperty(ref _Password, value);
 			}
 		}
 
@@ -208,6 +265,8 @@ namespace NicoPlayerHohoema.Models
 
 
 		private bool _AutoLoginEnable;
+
+		[DataMember]
 		public bool AutoLoginEnable
 		{
 			get
@@ -216,21 +275,18 @@ namespace NicoPlayerHohoema.Models
 			}
 			set
 			{
-				if (SetProperty(ref _AutoLoginEnable, value))
-				{
-					SetValue(nameof(AutoLoginEnable), value);
-				}
+				SetProperty(ref _AutoLoginEnable, value);
 			}
 		}
 
 	}
 
 
-
+	[DataContract]
 	public class PlayerSettings : SettingsBase
 	{
-		public PlayerSettings(ApplicationDataContainer dataContainer)
-			: base(dataContainer)
+		public PlayerSettings()
+			: base()
 		{
 		}
 
@@ -238,18 +294,17 @@ namespace NicoPlayerHohoema.Models
 
 
 		private PlayerDisplayMode _DisplayMode;
+
+		[DataMember]
 		public PlayerDisplayMode DisplayMode
 		{
 			get
 			{
-				return _DisplayMode = GetValue<PlayerDisplayMode>(nameof(DisplayMode));
+				return _DisplayMode;
 			}
 			set
 			{
-				if (SetProperty(ref _DisplayMode, value))
-				{
-					SetValue(nameof(DisplayMode), value);
-				}
+				SetProperty(ref _DisplayMode, value);
 			}
 		}
 	}

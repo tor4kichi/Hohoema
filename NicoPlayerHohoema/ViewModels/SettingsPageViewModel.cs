@@ -13,6 +13,8 @@ using Prism.Commands;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
 using Mntone.Nico2;
+using System.Collections.ObjectModel;
+using Mntone.Nico2.Videos.Ranking;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -125,7 +127,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public enum HohoemaSettingsKind
 	{
-		Account,
 		Ranking,
 		NG,
 		MediaPlayer,
@@ -184,8 +185,84 @@ namespace NicoPlayerHohoema.ViewModels
 		public RankingSettingsPageContentViewModel(HohoemaApp hohoemaApp, string title)
 			: base(title)
 		{
+			_HohoemaApp = hohoemaApp;
 
+			HandSortableCategories = new ObservableCollection<HandSortableCategoryListItemBase>();
+
+			_RankingSettings = _HohoemaApp.UserSettings.RankingSettings;
+			/*
+			foreach(var highPrioCat in _RankingSettings.HighPriorityCategory)
+			{
+				HandSortableCategories.Add(new HandSortableCategoryListItem()
+				{
+					Label = highPrioCat.ToCultulizedText(),
+					Category = highPrioCat
+				});
+			}
+
+			HandSortableCategories.Add(new DividerHandSortableCategoryListItem()
+			{
+				AborbText = "優先",
+				BelowText = "通常"
+			});
+
+			foreach (var highPrioCat in _RankingSettings.MiddlePriorityCategory)
+			{
+				HandSortableCategories.Add(new HandSortableCategoryListItem()
+				{
+					Label = highPrioCat.ToCultulizedText(),
+					Category = highPrioCat
+				});
+			}
+
+
+			HandSortableCategories.Add(new DividerHandSortableCategoryListItem()
+			{
+				AborbText = "通常",
+				BelowText = "非表示"
+			});
+
+			foreach (var highPrioCat in _RankingSettings.LowPriorityCategory)
+			{
+				HandSortableCategories.Add(new HandSortableCategoryListItem()
+				{
+					Label = highPrioCat.ToCultulizedText(),
+					Category = highPrioCat
+				});
+			}
+
+			*/
+					
 		}
+
+		public ObservableCollection<HandSortableCategoryListItemBase> HandSortableCategories { get; private set; }
+
+		RankingSettings _RankingSettings;
+		HohoemaApp _HohoemaApp;
+	}
+
+
+
+	public class HandSortableCategoryListItemBase 
+	{
+		public bool IsSortable { get; protected set; }
+	}
+
+	public class HandSortableCategoryListItem : HandSortableCategoryListItemBase
+	{
+		public HandSortableCategoryListItem()
+		{
+			IsSortable = true;
+		}
+
+		public string Label { get; set; }
+		public RankingCategory Category { get; set; }
+	}
+
+	public class DividerHandSortableCategoryListItem : HandSortableCategoryListItemBase
+	{
+		public string AborbText { get; set; }
+		public string BelowText { get; set; }
 	}
 
 

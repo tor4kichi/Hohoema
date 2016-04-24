@@ -159,9 +159,6 @@
     <Compile Include="Views\SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\SettingsPageContent\AccountSettingPageContent.xaml.cs">
-      <DependentUpon>AccountSettingPageContent.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\SettingsPageContent\NGSettingsPageContent.xaml.cs">
       <DependentUpon>NGSettingsPageContent.xaml</DependentUpon>
     </Compile>
@@ -249,10 +246,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SettingsPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\SettingsPageContent\AccountSettingPageContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
