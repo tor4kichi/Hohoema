@@ -26,6 +26,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			MailOrTelephone = AccountSettings.ToReactivePropertyAsSynchronized(x => x.MailOrTelephone);
 			Password = AccountSettings.ToReactivePropertyAsSynchronized(x => x.Password);
+			AutoLoginEnable = AccountSettings.ToReactivePropertyAsSynchronized(x => x.AutoLoginEnable);
 
 			// メールとパスワードが1文字以上あればログインボタンが押せる
 			CheckLoginCommand = Observable.CombineLatest(
@@ -37,38 +38,47 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactiveCommand();
 
 
-			CheckLoginCommand.Subscribe(async _ => 
+			CheckLoginCommand.Subscribe(async x => await CheckLoginAndGo());
+		}
+
+		private async Task CheckLoginAndGo()
+		{
+			CanChangeValue.Value = false;
+
+			var result = await HohoemaApp.SignInFromUserSettings();
+			if (result == NiconicoSignInStatus.Success)
 			{
-				CanChangeValue.Value = false;
-
-				if (await CheckLogin())
-				{
-					await Task.Delay(250);
-					PageManager.OpenPage(HohoemaPageType.RankingCategoryList);
-					PageManager.ClearNavigateHistory();
-				}
-				else
-				{
-					await Task.Delay(250);
-					CanChangeValue.Value = true;
-				}
-
-			});
+				await Task.Delay(250);
+				PageManager.OpenPage(HohoemaPageType.RankingCategoryList);
+				PageManager.ClearNavigateHistory();
+			}
+			else if (result == NiconicoSignInStatus.ServiceUnavailable)
+			{
+				
+			}
+			else
+			{
+				await Task.Delay(250);
+				CanChangeValue.Value = true;
+			}
 		}
 
 
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
+			// ログイン済みの場合、ログアウトする
+			if (await HohoemaApp.CheckSignedInStatus() == NiconicoSignInStatus.Success)
+			{
+				await HohoemaApp.SignOut();
+			}
+
 			if (e.Parameter is bool)
 			{
 				var canAutoLogin = (bool)e.Parameter;
 
 				if (canAutoLogin && HohoemaApp.UserSettings.AccontSettings.AutoLoginEnable)
 				{
-					if (CheckLoginCommand.CanExecute())
-					{
-						CheckLoginCommand.Execute();
-					}
+					await CheckLoginAndGo();
 				}
 			}
 
@@ -76,19 +86,13 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		private async Task<bool> CheckLogin()
-		{
-			var result = await HohoemaApp.SignInFromUserSettings();
-
-			return (result == NiconicoSignInStatus.Success);
-		}
 
 
 		public ReactiveProperty<bool> CanChangeValue { get; private set; }
 
 		public ReactiveProperty<string> MailOrTelephone { get; private set; }
 		public ReactiveProperty<string> Password { get; private set; }
-
+		public ReactiveProperty<bool> AutoLoginEnable { get; private set; }
 
 		public ReactiveCommand CheckLoginCommand { get; private set; }
 

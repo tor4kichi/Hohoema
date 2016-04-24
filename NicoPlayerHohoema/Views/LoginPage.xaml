@@ -60,8 +60,15 @@
             </toolkit:DockPanel>
 
             <StackPanel Orientation="Horizontal" Margin="0 0 0 8">
-                <ToggleButton Width="32" Height="32" Margin="8 0"></ToggleButton>
-                <TextBlock Text="Auto Login" VerticalAlignment="Center" />
+                <ToggleButton 
+                    IsChecked="{Binding AutoLoginEnable.Value, Mode=TwoWay}"
+                    Width="32" 
+                    Height="32" 
+                    Margin="8 0" />
+                
+                <TextBlock Text="Auto Login"
+                           VerticalAlignment="Center" 
+                           />
             
             </StackPanel>
             

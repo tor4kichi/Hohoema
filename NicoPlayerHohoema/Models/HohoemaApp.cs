@@ -47,10 +47,15 @@ namespace NicoPlayerHohoema.Models
 		{
 			if (NiconicoContext == null)
 			{
-				return NiconicoSignInStatus.Success;
+				return NiconicoSignInStatus.Failed;
 			}
 
-			return await NiconicoContext.SignOutOffAsync();
+			var result = await NiconicoContext.SignOutOffAsync();
+			NiconicoContext.Dispose();
+
+			NiconicoContext = null;
+
+			return result;
 		}
 
 		public async Task<NiconicoSignInStatus> CheckSignedInStatus()

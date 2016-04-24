@@ -92,7 +92,7 @@
                            >
 
                     <SplitView.Pane>
-                        <Grid Visibility="{Binding VisiblePane.Value, Converter={StaticResource BooleanToVisibility}}">
+                        <Grid>
                             <toolkit:DockPanel>
                                 <toolkit:DockPanel.Resources>
                                     <DataTemplate x:Key="MenuListItemTemplate">
