@@ -93,14 +93,8 @@ namespace NicoPlayerHohoema
 		{
 			RegisterTypes();
 
-			var hohoemaApp = Container.Resolve<HohoemaApp>();
-			Task.Run(async () =>
-			{
-				await hohoemaApp.SignInFromUserSettings();
-			});
-
 			var pm = Container.Resolve<PageManager>();
-			pm.OpenPage(HohoemaPageType.RankingCategoryList);
+			pm.OpenPage(HohoemaPageType.Login, true /* Enable auto login */);
 
 
 			var playNicoVideoEvent = EventAggregator.GetEvent<PlayNicoVideoEvent>();

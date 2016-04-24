@@ -40,11 +40,7 @@ namespace NicoPlayerHohoema.Views
 
 		protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
 		{
-			if (item is ViewModels.AccountSettingsPageContentViewModel)
-			{
-				return AccountTemplate;
-			}
-			else if (item is ViewModels.RankingSettingsPageContentViewModel)
+			if (item is ViewModels.RankingSettingsPageContentViewModel)
 			{
 				return RankingTemplate;
 			}

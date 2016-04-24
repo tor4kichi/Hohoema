@@ -149,6 +149,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			_MailOrTelephone = GetValue<string>(nameof(MailOrTelephone));
 			_Password = GetValue<string>(nameof(Password));
+			_AutoLoginEnable = GetValue<bool>(nameof(AutoLoginEnable));
 		}
 
 
@@ -204,9 +205,24 @@ namespace NicoPlayerHohoema.Models
 				return !String.IsNullOrWhiteSpace(Password);
 			}
 		}
-		
 
-		
+
+		private bool _AutoLoginEnable;
+		public bool AutoLoginEnable
+		{
+			get
+			{
+				return _AutoLoginEnable;
+			}
+			set
+			{
+				if (SetProperty(ref _AutoLoginEnable, value))
+				{
+					SetValue(nameof(AutoLoginEnable), value);
+				}
+			}
+		}
+
 	}
 
 

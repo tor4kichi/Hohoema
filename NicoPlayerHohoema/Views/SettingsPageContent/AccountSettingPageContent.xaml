@@ -11,37 +11,7 @@
     d:DesignWidth="400">
 
     <StackPanel>
-        <toolkit:DockPanel>
-            <Border toolkit:DockPanel.Dock="Right">
-                <TextBox Text="{Binding MailOrTelephone.Value, Mode=TwoWay}">
-
-                </TextBox>
-            </Border>
-            <TextBlock Text="Mail or Telephone" />
-        </toolkit:DockPanel>
-
-        <toolkit:DockPanel>
-            <Border toolkit:DockPanel.Dock="Right">
-                <PasswordBox Password="{Binding Password.Value, Mode=TwoWay}">
-
-                </PasswordBox>
-            </Border>
-            <TextBlock Text="Password" />
-        </toolkit:DockPanel>
-
-        <Button Content="Check Login"
-                                Command="{Binding CheckLoginCommand}"
-                                ></Button>
-
-        <StackPanel>
-            <TextBlock Visibility="{Binding IsValidAccount.Value, Converter={StaticResource BooleanToVisibility}}"
-                                       Text="Success SignIn!"
-                                       Foreground="LimeGreen"
-                                       >
-
-            </TextBlock>
-        </StackPanel>
-
+        
     </StackPanel>
 
 </UserControl>

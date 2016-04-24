@@ -22,12 +22,28 @@ namespace NicoPlayerHohoema.ViewModels
 		public List<MenuListItemViewModel> BottomMenuItems { get; private set; }
 
 		public ReactiveProperty<bool> IsPaneOpen { get; private set; }
+
+		public ReactiveProperty<bool> InvisiblePane { get; private set; }
 		
 		public MenuNavigatePageBaseViewModel(PageManager pageManager)
 		{
 			PageManager = pageManager;
 
 			IsPaneOpen = new ReactiveProperty<bool>(false);
+			InvisiblePane = new ReactiveProperty<bool>(true);
+
+			PageManager.ObserveProperty(x => x.CurrentPageType)
+				.Subscribe(pageType =>
+				{
+					if (pageType == HohoemaPageType.Login)
+					{
+						InvisiblePane.Value = true;
+					}
+					else
+					{
+						InvisiblePane.Value = false;
+					}
+				});
 
 			TopMenuItems = new List<MenuListItemViewModel>()
 			{

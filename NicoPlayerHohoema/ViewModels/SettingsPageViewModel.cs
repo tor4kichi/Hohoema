@@ -49,9 +49,6 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				switch (kind)
 				{
-					case HohoemaSettingsKind.Account:
-						vm = new AccountSettingsPageContentViewModel(HohoemaApp, title);
-						break;
 					case HohoemaSettingsKind.Ranking:
 						vm = new RankingSettingsPageContentViewModel(HohoemaApp, title);
 						break;
@@ -142,8 +139,6 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			switch (kind)
 			{
-				case HohoemaSettingsKind.Account:
-					return "アカウント";
 				case HohoemaSettingsKind.Ranking:
 					return "ランキング";
 				case HohoemaSettingsKind.NG:
@@ -181,50 +176,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 	}
 
-	public class AccountSettingsPageContentViewModel : SettingsPageContentViewModel
-	{
-		public AccountSettingsPageContentViewModel(HohoemaApp hohoemaApp, string title)
-			: base(title)
-		{
-			HohoemaApp = hohoemaApp;
-			AccountSettings = hohoemaApp.UserSettings.AccontSettings;
-
-			IsValidAccount = new ReactiveProperty<bool>(false);
-			MailOrTelephone = AccountSettings.ToReactivePropertyAsSynchronized(x => x.MailOrTelephone);
-			Password = AccountSettings.ToReactivePropertyAsSynchronized(x => x.Password);
-
-
-			Observable.CombineLatest(
-				MailOrTelephone.ToUnit(),
-				Password.ToUnit()
-				)
-				.Subscribe(_ => IsValidAccount.Value = false);
-
-			CheckLoginCommand = new DelegateCommand(CheckLogin);
-		}
-
-
-
-		private async void CheckLogin()
-		{
-			var result = await HohoemaApp.SignInFromUserSettings();
-
-			IsValidAccount.Value = (result == NiconicoSignInStatus.Success);
-		}
-		
-		public ReactiveProperty<bool> IsValidAccount { get; private set; }
-
-		public ReactiveProperty<string> MailOrTelephone { get; private set; }
-		public ReactiveProperty<string> Password { get; private set; }
-
-
-		public DelegateCommand CheckLoginCommand { get; private set; }
-
-
-
-		public HohoemaApp HohoemaApp { get; private set; }
-		public AccountSettings AccountSettings { get; private set; }
-	}
+	
 
 
 	public class RankingSettingsPageContentViewModel : SettingsPageContentViewModel

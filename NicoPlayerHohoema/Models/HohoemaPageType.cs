@@ -15,5 +15,7 @@ namespace NicoPlayerHohoema.Models
 		History,
 		Search,
 		Settings,
+
+		Login,
 	}
 }
