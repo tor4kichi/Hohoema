@@ -26,6 +26,7 @@ namespace NicoPlayerHohoema.Models
 			CurrentPageType = HohoemaPageType.RankingCategoryList;
 		}
 
+
 		public void OpenPage<NavigateParamType>(HohoemaPageType pageType, NavigateParamType parameter)
 		{
 			if (NavigationService.Navigate(pageType.ToString(), parameter))
@@ -40,6 +41,19 @@ namespace NicoPlayerHohoema.Models
 			{
 				CurrentPageType = pageType;
 			}
+		}
+
+
+		/// <summary>
+		/// 画面遷移の履歴を消去します
+		/// </summary>
+		/// <remarks>
+		/// ログイン後にログイン画面の表示履歴を消す時や
+		/// ログアウト後にログイン状態中の画面遷移を消すときに利用します。
+		/// </remarks>
+		public void ClearNavigateHistory()
+		{
+			NavigationService.ClearHistory();
 		}
 	}
 

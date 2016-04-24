@@ -18,35 +18,51 @@ namespace NicoPlayerHohoema.ViewModels
 	{
 		public PageManager PageManager { get; private set; }
 
-		public List<MenuListItemViewModel> TopMenuItems { get; private set; }
-		public List<MenuListItemViewModel> BottomMenuItems { get; private set; }
+		public List<MenuListItemViewModelBase> TopMenuItems { get; private set; }
+		public List<MenuListItemViewModelBase> BottomMenuItems { get; private set; }
 
 		public ReactiveProperty<bool> IsPaneOpen { get; private set; }
+
+		public ReactiveProperty<bool> InvisiblePane { get; private set; }
 		
 		public MenuNavigatePageBaseViewModel(PageManager pageManager)
 		{
 			PageManager = pageManager;
 
 			IsPaneOpen = new ReactiveProperty<bool>(false);
+			InvisiblePane = new ReactiveProperty<bool>(true);
 
-			TopMenuItems = new List<MenuListItemViewModel>()
+			PageManager.ObserveProperty(x => x.CurrentPageType)
+				.Subscribe(pageType =>
+				{
+					if (pageType == HohoemaPageType.Login)
+					{
+						InvisiblePane.Value = true;
+					}
+					else
+					{
+						InvisiblePane.Value = false;
+					}
+				});
+
+			TopMenuItems = new List<MenuListItemViewModelBase>()
 			{
-				new MenuListItemViewModel(PageManager, this)
+				new PageOpenMenuListItemViewModel(PageManager, this)
 				{
 					Title = "ランキング",
 					PageType = HohoemaPageType.RankingCategoryList,
 				}
-				, new MenuListItemViewModel(PageManager, this)
+				, new PageOpenMenuListItemViewModel(PageManager, this)
 				{
 					Title = "マイリスト",
 					PageType = HohoemaPageType.Mylist,
 				}
-				, new MenuListItemViewModel(PageManager, this)
+				, new PageOpenMenuListItemViewModel(PageManager, this)
 				{
 					Title = "履歴",
 					PageType = HohoemaPageType.History,
 				}
-				, new MenuListItemViewModel(PageManager, this)
+				, new PageOpenMenuListItemViewModel(PageManager, this)
 				{
 					Title = "検索",
 					PageType = HohoemaPageType.Search,
@@ -54,18 +70,16 @@ namespace NicoPlayerHohoema.ViewModels
 			};
 
 
-			BottomMenuItems = new List<MenuListItemViewModel>()
+			BottomMenuItems = new List<MenuListItemViewModelBase>()
 			{
-				new MenuListItemViewModel(PageManager, this)
+				new PageOpenMenuListItemViewModel(PageManager, this)
 				{
 					Title = "設定",
 					PageType = HohoemaPageType.Settings,
 				}
-				, new MenuListItemViewModel(PageManager, this)
+				, new LogoutMenuListItemViewModel(PageManager, this)
 				{
-					Title = "アカウント",
-					PageType = HohoemaPageType.Settings,
-					PageParameter = "Account"
+					Title = "ログアウト",
 				}
 			};
 
@@ -82,21 +96,17 @@ namespace NicoPlayerHohoema.ViewModels
 
 	}
 
-	public class MenuListItemViewModel : BindableBase
+	abstract public class MenuListItemViewModelBase : BindableBase
 	{
-		public MenuNavigatePageBaseViewModel ParentVM { get; private set; }
-		public PageManager PageManager { get; private set; }
 
-		public MenuListItemViewModel(PageManager pageManager, MenuNavigatePageBaseViewModel parentVM)
+		public MenuListItemViewModelBase(PageManager pageManager, MenuNavigatePageBaseViewModel parentVM)
 		{
 			PageManager = pageManager;
 			ParentVM = parentVM;
 
 		}
 
-		public string Title { get; set; }
-		public HohoemaPageType PageType { get; set; }
-		public string PageParameter { get; set; }
+		abstract protected void OnSelected();
 
 		private DelegateCommand<Visibility?> _SelectMenuItemCommand;
 		public DelegateCommand<Visibility?> SelectMenuItemCommand
@@ -112,9 +122,54 @@ namespace NicoPlayerHohoema.ViewModels
 							ParentVM.ClosePane();
 						}
 
-						PageManager.OpenPage(PageType, PageParameter);
+						OnSelected();
 					}));
 			}
 		}
+
+		public string Title { get; set; }
+
+		public MenuNavigatePageBaseViewModel ParentVM { get; private set; }
+		public PageManager PageManager { get; private set; }
+
+
+	}
+
+
+	public class PageOpenMenuListItemViewModel : MenuListItemViewModelBase
+	{
+
+		public PageOpenMenuListItemViewModel(PageManager pageManager, MenuNavigatePageBaseViewModel parentVM)
+			: base(pageManager, parentVM)
+		{
+
+		}
+
+		public HohoemaPageType PageType { get; set; }
+		public object PageParameter { get; set; }
+
+		protected override void OnSelected()
+		{
+			PageManager.OpenPage(PageType, PageParameter);
+		}
+	}
+
+	public class LogoutMenuListItemViewModel : MenuListItemViewModelBase
+	{
+
+		public LogoutMenuListItemViewModel(PageManager pageManager, MenuNavigatePageBaseViewModel parentVM)
+			: base(pageManager, parentVM)
+		{
+
+		}
+
+		protected override void OnSelected()
+		{
+			// TODO: ダウンロード中の場合、確認を表示する
+			PageManager.OpenPage(HohoemaPageType.Login);
+		}
+
+
+
 	}
 }

@@ -110,6 +110,7 @@
     <Compile Include="Util\NicoVideoRssItemExtention.cs" />
     <Compile Include="ViewModels\CommentStreamingViewModel.cs" />
     <Compile Include="ViewModels\HistoryPageViewModel.cs" />
+    <Compile Include="ViewModels\LoginPageViewModel.cs" />
     <Compile Include="ViewModels\MenuNavigatePageBaseViewModel.cs" />
     <Compile Include="ViewModels\PlayerPageViewModel.cs" />
     <Compile Include="ViewModels\RankingCategoryListPageViewModel.cs" />
@@ -135,6 +136,9 @@
     </Compile>
     <Compile Include="Views\Behaviors\MediaElementExtractPositionBehavior.cs" />
     <Compile Include="Views\Behaviors\MediaElementSeekAfterAutoPlayBehavior.cs" />
+    <Compile Include="Views\LoginPage.xaml.cs">
+      <DependentUpon>LoginPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\MenuNavigatePageBase.xaml.cs">
       <DependentUpon>MenuNavigatePageBase.xaml</DependentUpon>
     </Compile>
@@ -154,6 +158,18 @@
     <Compile Include="Views\MediaElementExtention.cs" />
     <Compile Include="Views\SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SettingsPageContent\NGSettingsPageContent.xaml.cs">
+      <DependentUpon>NGSettingsPageContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SettingsPageContent\PerformanceSettingsPageContent.xaml.cs">
+      <DependentUpon>PerformanceSettingsPageContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SettingsPageContent\PlayerSettingsPageContent.xaml.cs">
+      <DependentUpon>PlayerSettingsPageContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SettingsPageContent\RankingSettingPageContent.xaml.cs">
+      <DependentUpon>RankingSettingPageContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SubscriptionPage.xaml.cs">
       <DependentUpon>SubscriptionPage.xaml</DependentUpon>
@@ -205,6 +221,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\LoginPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\MenuNavigatePageBase.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -226,6 +246,22 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SettingsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SettingsPageContent\NGSettingsPageContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SettingsPageContent\PerformanceSettingsPageContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SettingsPageContent\PlayerSettingsPageContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SettingsPageContent\RankingSettingPageContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

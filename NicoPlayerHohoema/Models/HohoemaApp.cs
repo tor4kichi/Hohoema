@@ -21,6 +21,16 @@ namespace NicoPlayerHohoema.Models
 			NiconicoContext = new NiconicoContext();
 		}
 
+		public async Task LoadUserSettings()
+		{
+			UserSettings = await HohoemaUserSettings.LoadSettings();
+		}
+
+		public async Task SaveUserSettings()
+		{
+			await UserSettings?.Save();
+		}
+
 		public async Task<NiconicoSignInStatus> SignInFromUserSettings()
 		{
 			if (UserSettings.AccontSettings.IsValidMailOreTelephone && UserSettings.AccontSettings.IsValidPassword)
@@ -47,10 +57,15 @@ namespace NicoPlayerHohoema.Models
 		{
 			if (NiconicoContext == null)
 			{
-				return NiconicoSignInStatus.Success;
+				return NiconicoSignInStatus.Failed;
 			}
 
-			return await NiconicoContext.SignOutOffAsync();
+			var result = await NiconicoContext.SignOutOffAsync();
+			NiconicoContext.Dispose();
+
+			NiconicoContext = null;
+
+			return result;
 		}
 
 		public async Task<NiconicoSignInStatus> CheckSignedInStatus()

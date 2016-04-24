@@ -128,6 +128,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
+			RankingSettings.Save();
+
 			base.OnNavigatingFrom(e, viewModelState, suspending);
 		}
 
