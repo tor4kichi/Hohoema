@@ -65,7 +65,7 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					Title = "アカウント",
 					PageType = HohoemaPageType.Settings,
-					PageParameter = "Account"
+					PageParameter = HohoemaSettingsKind.Account
 				}
 			};
 
@@ -96,7 +96,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public string Title { get; set; }
 		public HohoemaPageType PageType { get; set; }
-		public string PageParameter { get; set; }
+		public object PageParameter { get; set; }
 
 		private DelegateCommand<Visibility?> _SelectMenuItemCommand;
 		public DelegateCommand<Visibility?> SelectMenuItemCommand

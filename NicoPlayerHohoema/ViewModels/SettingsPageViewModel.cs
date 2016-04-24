@@ -21,41 +21,153 @@ namespace NicoPlayerHohoema.ViewModels
 		public SettingsPageViewModel(HohoemaApp hohoemaApp)
 		{
 			HohoemaApp = hohoemaApp;
+			SettingKindToVM = new Dictionary<HohoemaSettingsKind, SettingsPageContentViewModel>();
 
-			AccountSeetingsContentVM = new AccountSettingsPageContentViewModel(HohoemaApp);
+			SettingItems = ((IEnumerable<HohoemaSettingsKind>)Enum.GetValues(typeof(HohoemaSettingsKind)))
+				.Select(x =>
+				{
+					return new HohoemaSettingsKindListItem(x, x.ToCulturelizedText());
+				})
+				.ToList();
+			CurrentSettingsKind = new ReactiveProperty<HohoemaSettingsKindListItem>(SettingItems[0]);
 
-			CurrentSettingsContent = new ReactiveProperty<SettingsPageContentViewModel>(AccountSeetingsContentVM);
-
-			SettingItems = new List<SettingsPageContentViewModel>()
-			{
-				AccountSeetingsContentVM
-			};
+			CurrentSettingsContent = CurrentSettingsKind
+				.Select(x => KindToVM(x.Kind, x.Label))
+				.ToReactiveProperty();
 		}
 
 
 
+		private SettingsPageContentViewModel KindToVM(HohoemaSettingsKind kind, string title)
+		{
+			SettingsPageContentViewModel vm = null;
+			if (SettingKindToVM.ContainsKey(kind))
+			{
+				vm = SettingKindToVM[kind];
+			}
+			else
+			{
+				switch (kind)
+				{
+					case HohoemaSettingsKind.Account:
+						vm = new AccountSettingsPageContentViewModel(HohoemaApp, title);
+						break;
+					case HohoemaSettingsKind.Ranking:
+						vm = new RankingSettingsPageContentViewModel(HohoemaApp, title);
+						break;
+					case HohoemaSettingsKind.NG:
+						vm = new NGSettingsPageContentViewModel(HohoemaApp, title);
+						break;
+					case HohoemaSettingsKind.MediaPlayer:
+						vm = new PlayerSettingsPageContentViewModel(HohoemaApp, title);
+						break;
+					case HohoemaSettingsKind.Performance:
+						vm = new PerformanceSettingsPageContentViewModel(HohoemaApp, title);
+						break;
+					default:
+						break;
+				}
+
+				if (vm != null)
+				{
+					SettingKindToVM.Add(kind, vm);
+				}
+			}
+
+			return vm;
+		}
 
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
+			HohoemaSettingsKind? selectRequestKind = null;
+
+			if (e.Parameter is HohoemaSettingsKind)
+			{
+				selectRequestKind = (HohoemaSettingsKind)e.Parameter;
+			}
+			else if (viewModelState.ContainsKey(nameof(CurrentSettingsKind)))
+			{
+				selectRequestKind = (HohoemaSettingsKind)viewModelState[nameof(CurrentSettingsKind)];
+			}
+
+
+			if (selectRequestKind.HasValue)
+			{
+				var settingItem = SettingItems.Single(x => x.Kind == selectRequestKind);
+				CurrentSettingsKind.Value = settingItem;
+			}
+
 			base.OnNavigatedTo(e, viewModelState);
 		}
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
+			if (suspending)
+			{
+				viewModelState.Add(nameof(CurrentSettingsKind), CurrentSettingsKind.Value.Kind);
+			}
+
 			base.OnNavigatingFrom(e, viewModelState, suspending);
 		}
 
 
 
 
-		public HohoemaApp HohoemaApp { get; private set; }
 
+		public Dictionary<HohoemaSettingsKind, SettingsPageContentViewModel> SettingKindToVM { get; private set; }
+		public ReactiveProperty<HohoemaSettingsKindListItem> CurrentSettingsKind { get; private set; }
 		public ReactiveProperty<SettingsPageContentViewModel> CurrentSettingsContent { get; private set; }
 
-		public AccountSettingsPageContentViewModel AccountSeetingsContentVM { get; private set; }
+		public List<HohoemaSettingsKindListItem> SettingItems { get; private set; }
 
-		public List<SettingsPageContentViewModel> SettingItems { get; private set; }
+
+		public HohoemaApp HohoemaApp { get; private set; }
+	}
+
+
+	public enum HohoemaSettingsKind
+	{
+		Account,
+		Ranking,
+		NG,
+		MediaPlayer,
+		Performance,
+	}
+
+
+	public static class HohoemaSettingsKindExtention
+	{
+		public static string ToCulturelizedText(this HohoemaSettingsKind kind)
+		{
+			switch (kind)
+			{
+				case HohoemaSettingsKind.Account:
+					return "アカウント";
+				case HohoemaSettingsKind.Ranking:
+					return "ランキング";
+				case HohoemaSettingsKind.NG:
+					return "NG";
+				case HohoemaSettingsKind.MediaPlayer:
+					return "動画プレイヤー";
+				case HohoemaSettingsKind.Performance:
+					return "パフォーマンス";
+				default:
+					throw new NotSupportedException($"not support {nameof(HohoemaSettingsKind)}.{kind.ToString()}");
+			}
+		}
+	}
+
+	public class HohoemaSettingsKindListItem
+	{
+		public HohoemaSettingsKind Kind { get; private set; }
+		public string Label { get; private set; }
+
+		public HohoemaSettingsKindListItem(HohoemaSettingsKind kind, string label)
+		{
+			Kind = kind;
+			Label = label;
+		}
 	}
 
 
@@ -71,8 +183,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class AccountSettingsPageContentViewModel : SettingsPageContentViewModel
 	{
-		public AccountSettingsPageContentViewModel(HohoemaApp hohoemaApp)
-			: base(title:"アカウント")
+		public AccountSettingsPageContentViewModel(HohoemaApp hohoemaApp, string title)
+			: base(title)
 		{
 			HohoemaApp = hohoemaApp;
 			AccountSettings = hohoemaApp.UserSettings.AccontSettings;
@@ -112,5 +224,44 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public HohoemaApp HohoemaApp { get; private set; }
 		public AccountSettings AccountSettings { get; private set; }
+	}
+
+
+	public class RankingSettingsPageContentViewModel : SettingsPageContentViewModel
+	{
+		public RankingSettingsPageContentViewModel(HohoemaApp hohoemaApp, string title)
+			: base(title)
+		{
+
+		}
+	}
+
+
+	public class NGSettingsPageContentViewModel : SettingsPageContentViewModel
+	{
+		public NGSettingsPageContentViewModel(HohoemaApp hohoemaApp, string title)
+			: base(title)
+		{
+
+		}
+	}
+
+
+	public class PlayerSettingsPageContentViewModel : SettingsPageContentViewModel
+	{
+		public PlayerSettingsPageContentViewModel(HohoemaApp hohoemaApp, string title)
+			: base(title)
+		{
+
+		}
+	}
+
+	public class PerformanceSettingsPageContentViewModel : SettingsPageContentViewModel
+	{
+		public PerformanceSettingsPageContentViewModel(HohoemaApp hohoemaApp, string title)
+			: base(title)
+		{
+
+		}
 	}
 }
