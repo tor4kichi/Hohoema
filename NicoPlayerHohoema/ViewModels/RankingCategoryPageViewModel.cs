@@ -19,9 +19,9 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class RankingPageViewModel : ViewModelBase
+	public class RankingCategoryPageViewModel : ViewModelBase
 	{
-		public RankingPageViewModel(HohoemaApp hohoemaApp, EventAggregator ea)
+		public RankingCategoryPageViewModel(HohoemaApp hohoemaApp, EventAggregator ea)
 		{
 			HohoemaApp = hohoemaApp;
 			_EventAggregator = ea;
@@ -51,17 +51,7 @@ namespace NicoPlayerHohoema.ViewModels
 			SelectedRankingTimeSpan = new ReactiveProperty<RankingTimeSpanListItem>(RankingTimeSpanItems[0]);
 
 
-			// ランキングのカテゴリ
-			// TODO: R-18などは除外しないとUWPとしては出せない
-			RankingCategoryItems = new List<RankingCategoryListItem>();
 			
-			foreach (var categoryType in (IEnumerable<RankingCategory>)Enum.GetValues(typeof(RankingCategory)))
-			{
-				RankingCategoryItems.Add(new RankingCategoryListItem(categoryType));
-			}
-
-			SelectedRankingCategory = new ReactiveProperty<RankingCategoryListItem>(RankingCategoryItems[0]);
-
 
 			RankingItems = new ObservableCollection<VideoInfoControlViewModel>();
 
@@ -69,7 +59,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 			Observable.CombineLatest(
 				SelectedRankingTarget.ToUnit(),
-				SelectedRankingCategory.ToUnit(),
 				SelectedRankingTimeSpan.ToUnit()
 				)
 				.Throttle(TimeSpan.FromSeconds(0.25), UIDispatcherScheduler.Default)
@@ -86,7 +75,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			var target = SelectedRankingTarget.Value.TargetType;
 			var timeSpan = SelectedRankingTimeSpan.Value.TimeSpan;
-			var category = SelectedRankingCategory.Value.Category;
+			var category = RankingCategory;
 
 
 			RankingItems.Clear();
@@ -130,25 +119,29 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
+			RankingCategory = (RankingCategory)e.Parameter;
+
+			UpdateRankingList();
+
 			base.OnNavigatedTo(e, viewModelState);
-			Debug.WriteLine("MainPageにきた");
 		}
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
 			base.OnNavigatingFrom(e, viewModelState, suspending);
-			Debug.WriteLine("MainPageから去る");
 		}
+
+
+
+
+
+		public RankingCategory RankingCategory { get; private set; }
 
 		public List<RankingTargetListItem> RankingTargetItems { get; private set; }
 		public ReactiveProperty<RankingTargetListItem> SelectedRankingTarget { get; private set; }
 
 		public List<RankingTimeSpanListItem> RankingTimeSpanItems { get; private set; }
 		public ReactiveProperty<RankingTimeSpanListItem> SelectedRankingTimeSpan { get; private set; }
-
-		public List<RankingCategoryListItem> RankingCategoryItems { get; private set; }
-		public ReactiveProperty<RankingCategoryListItem> SelectedRankingCategory { get; private set; }
-
 
 		public ObservableCollection<VideoInfoControlViewModel> RankingItems { get; private set; }
 

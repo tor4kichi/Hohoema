@@ -100,7 +100,7 @@ namespace NicoPlayerHohoema
 			});
 
 			var pm = Container.Resolve<PageManager>();
-			pm.OpenPage(HohoemaPageType.Ranking);
+			pm.OpenPage(HohoemaPageType.RankingCategoryList);
 
 
 			var playNicoVideoEvent = EventAggregator.GetEvent<PlayNicoVideoEvent>();
@@ -127,7 +127,7 @@ namespace NicoPlayerHohoema
 			// ViewModels
 			Container.RegisterType<ViewModels.MenuNavigatePageBaseViewModel>(new ContainerControlledLifetimeManager());
 
-			Container.RegisterType<ViewModels.RankingPageViewModel>(new ContainerControlledLifetimeManager());
+			Container.RegisterType<ViewModels.RankingCategoryPageViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.HistoryPageViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.SubscriptionPageViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.SearchPageViewModel>(new ContainerControlledLifetimeManager());

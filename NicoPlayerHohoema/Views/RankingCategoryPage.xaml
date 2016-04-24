@@ -1,5 +1,5 @@
 ﻿<Page
-    x:Class="NicoPlayerHohoema.Views.RankingPage"
+    x:Class="NicoPlayerHohoema.Views.RankingCategoryPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:NicoPlayerHohoema"
@@ -15,31 +15,11 @@
 
 
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" MinWidth="200"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+        
 
-        <toolkit:CustomGridSplitter Grid.Column="1" />
-
-        <Border Grid.Column="0">
-            <ScrollViewer HorizontalScrollBarVisibility="Hidden">
-                <ListView ItemsSource="{Binding RankingCategoryItems}"
-                          SelectedItem="{Binding SelectedRankingCategory.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                          SelectionMode="Single"
-                          DisplayMemberPath="Label"
-                          >
-
-                </ListView>
-            </ScrollViewer>
-        </Border>
-
-        <Border Grid.Column="2">
+        <Border>
             <toolkit:DockPanel>
                 <Border toolkit:DockPanel.Dock="Top">
-                    
-                
                     <StackPanel Orientation="Horizontal">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="対象"></TextBlock>

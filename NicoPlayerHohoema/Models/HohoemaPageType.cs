@@ -8,9 +8,11 @@ namespace NicoPlayerHohoema.Models
 {
 	public enum HohoemaPageType
 	{
-		Ranking,
+		RankingCategoryList,
+		RankingCategory,
+		Mylist,
+		Favorite,
 		History,
-		Subscription,
 		Search,
 		Settings,
 	}

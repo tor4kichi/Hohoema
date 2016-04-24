@@ -23,7 +23,7 @@ namespace NicoPlayerHohoema.Models
 		public PageManager(INavigationService ns)
 		{
 			NavigationService = ns;
-			CurrentPageType = HohoemaPageType.Ranking;
+			CurrentPageType = HohoemaPageType.RankingCategoryList;
 		}
 
 		public void OpenPage<NavigateParamType>(HohoemaPageType pageType, NavigateParamType parameter)

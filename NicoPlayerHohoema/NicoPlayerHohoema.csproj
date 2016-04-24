@@ -112,7 +112,8 @@
     <Compile Include="ViewModels\HistoryPageViewModel.cs" />
     <Compile Include="ViewModels\MenuNavigatePageBaseViewModel.cs" />
     <Compile Include="ViewModels\PlayerPageViewModel.cs" />
-    <Compile Include="ViewModels\RankingPageViewModel.cs" />
+    <Compile Include="ViewModels\RankingCategoryListPageViewModel.cs" />
+    <Compile Include="ViewModels\RankingCategoryPageViewModel.cs" />
     <Compile Include="ViewModels\SearchPageViewModel.cs" />
     <Compile Include="ViewModels\SettingsPageViewModel.cs" />
     <Compile Include="ViewModels\SubscriptionPageViewModel.cs" />
@@ -140,8 +141,11 @@
     <Compile Include="Views\PlayerPage.xaml.cs">
       <DependentUpon>PlayerPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\RankingPage.xaml.cs">
-      <DependentUpon>RankingPage.xaml</DependentUpon>
+    <Compile Include="Views\RankingCategoryListPage.xaml.cs">
+      <DependentUpon>RankingCategoryListPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\RankingCategoryPage.xaml.cs">
+      <DependentUpon>RankingCategoryPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Views\SearchPage.xaml.cs">
@@ -209,7 +213,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\RankingPage.xaml">
+    <Page Include="Views\RankingCategoryListPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\RankingCategoryPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

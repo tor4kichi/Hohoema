@@ -34,12 +34,12 @@ namespace NicoPlayerHohoema.ViewModels
 				new MenuListItemViewModel(PageManager, this)
 				{
 					Title = "ランキング",
-					PageType = HohoemaPageType.Ranking,
+					PageType = HohoemaPageType.RankingCategoryList,
 				}
 				, new MenuListItemViewModel(PageManager, this)
 				{
-					Title = "購読",
-					PageType = HohoemaPageType.Subscription,
+					Title = "マイリスト",
+					PageType = HohoemaPageType.Mylist,
 				}
 				, new MenuListItemViewModel(PageManager, this)
 				{
