@@ -52,6 +52,8 @@ namespace NicoPlayerHohoema.Models
 		{
 			using (var stream = await file.OpenAsync(FileAccessMode.ReadWrite))
 			{
+				stream.Size = 0;
+				await stream.FlushAsync();
 				using (var reader = new StreamWriter(stream.AsStream(), Encoding.UTF8))
 				{
 					await reader.WriteAsync(text);
@@ -106,10 +108,14 @@ namespace NicoPlayerHohoema.Models
 				}
 			}
 
-			return new T()
+			var newInstance = new T()
 			{
 				FileName = filename
 			};
+
+			newInstance.OnInitialize();
+
+			return newInstance;
 		}
 
 
@@ -122,6 +128,10 @@ namespace NicoPlayerHohoema.Models
 
 			await HohoemaUserSettings.SaveText(local, serializedText);
 		}
+
+		public virtual void OnInitialize() { }
+
+		protected virtual void Validate() { }
 	}
 
 
@@ -131,13 +141,37 @@ namespace NicoPlayerHohoema.Models
 		public RankingSettings()
 			: base()
 		{
-			
+			HighPriorityCategory = new ObservableCollection<RankingCategory>();
+			MiddlePriorityCategory = new ObservableCollection<RankingCategory>();
+			LowPriorityCategory = new ObservableCollection<RankingCategory>();
 		}
 
 
+		public void ResetCategoryPriority()
+		{
+			HighPriorityCategory.Clear();
+			MiddlePriorityCategory.Clear();
+			LowPriorityCategory.Clear();
+
+			var types = (IEnumerable<RankingCategory>)Enum.GetValues(typeof(RankingCategory));
+			foreach (var type in types)
+			{
+				MiddlePriorityCategory.Add(type);
+			}
+		}
 
 
+		public override void OnInitialize()
+		{
+			ResetCategoryPriority();
+		}
 
+		protected override void Validate()
+		{
+			
+		}
+
+		
 		
 
 

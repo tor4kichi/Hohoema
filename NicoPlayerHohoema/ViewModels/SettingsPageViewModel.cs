@@ -33,8 +33,14 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToList();
 			CurrentSettingsKind = new ReactiveProperty<HohoemaSettingsKindListItem>(SettingItems[0]);
 
+			
 			CurrentSettingsContent = CurrentSettingsKind
 				.Select(x => KindToVM(x.Kind, x.Label))
+				.Do(x =>
+				{
+					CurrentSettingsContent?.Value?.OnLeave();
+					x?.OnEnter();
+				})
 				.ToReactiveProperty();
 		}
 
@@ -102,6 +108,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
+			CurrentSettingsContent.Value?.OnLeave();
+
 			if (suspending)
 			{
 				viewModelState.Add(nameof(CurrentSettingsKind), CurrentSettingsKind.Value.Kind);
@@ -175,6 +183,12 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			Title = title;
 		}
+
+
+		virtual public void OnEnter() { }
+
+		abstract public void OnLeave();
+
 	}
 
 	
@@ -190,8 +204,42 @@ namespace NicoPlayerHohoema.ViewModels
 			HandSortableCategories = new ObservableCollection<HandSortableCategoryListItemBase>();
 
 			_RankingSettings = _HohoemaApp.UserSettings.RankingSettings;
-			/*
-			foreach(var highPrioCat in _RankingSettings.HighPriorityCategory)
+
+			ResetCategoryPriority();
+
+			
+			
+			// Dividerの順序をConstraintPositionによって拘束する
+
+			HandSortableCategories.CollectionChangedAsObservable()
+				// CollectionChangedイベントの中ではコレクションの変更ができないため、
+				// 実行コンテキストを切り離すため、Delayをはさむ
+				.Delay(TimeSpan.FromMilliseconds(50), UIDispatcherScheduler.Default)
+				.Subscribe(x => 
+				{
+					if (x.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+					{
+						TryCorrectDividerPlacement();
+					}
+				});
+
+
+			CategoryPriorityResetCommand = new DelegateCommand(() => 
+			{
+				_RankingSettings.ResetCategoryPriority();
+
+				_RankingSettings.Save();
+
+				ResetCategoryPriority();
+			});
+		}
+
+
+		private void ResetCategoryPriority()
+		{
+			HandSortableCategories.Clear();
+
+			foreach (var highPrioCat in _RankingSettings.HighPriorityCategory)
 			{
 				HandSortableCategories.Add(new HandSortableCategoryListItem()
 				{
@@ -202,6 +250,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			HandSortableCategories.Add(new DividerHandSortableCategoryListItem()
 			{
+				ConstraintPosition = 0,
 				AborbText = "優先",
 				BelowText = "通常"
 			});
@@ -218,6 +267,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			HandSortableCategories.Add(new DividerHandSortableCategoryListItem()
 			{
+				ConstraintPosition = 1,
 				AborbText = "通常",
 				BelowText = "非表示"
 			});
@@ -230,10 +280,107 @@ namespace NicoPlayerHohoema.ViewModels
 					Category = highPrioCat
 				});
 			}
-
-			*/
-					
 		}
+
+		bool _NowTryingCorrectalizeDividers = false;
+		private void TryCorrectDividerPlacement()
+		{
+			if (_NowTryingCorrectalizeDividers)
+			{
+				return;
+			}
+
+			_NowTryingCorrectalizeDividers = true;
+			
+			while(!IsCorrectDividerSequence())
+			{
+				var dividers = HandSortableCategories.Where(x => x is DividerHandSortableCategoryListItem)
+					.Cast<DividerHandSortableCategoryListItem>()
+					.ToList();
+
+				var dividerCount = dividers.Count();
+				for (int i = 0; i < dividerCount; ++i)
+				{
+					var div = dividers.ElementAt(i);
+					if (div.ConstraintPosition != i)
+					{
+						var targetDiv = dividers.ElementAt((int)div.ConstraintPosition);
+
+						HandSortableCategories.Remove(div);
+
+						var index = HandSortableCategories.IndexOf(targetDiv);
+						HandSortableCategories.Insert(index + 1, div);
+						break;
+					}
+				}
+			}
+
+			_NowTryingCorrectalizeDividers = false;
+		}
+
+		private bool IsCorrectDividerSequence()
+		{
+			var dividers = HandSortableCategories.Where(x => x is DividerHandSortableCategoryListItem)
+				.Cast<DividerHandSortableCategoryListItem>();
+
+			var dividerCount = dividers.Count();
+			for (uint i = 0; i < dividerCount; ++i )
+			{
+				if (dividers.ElementAt((int)i).ConstraintPosition != i)
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+
+		public override void OnLeave()
+		{
+			var sourceList = HandSortableCategories.Distinct().ToList();
+
+			var highGroup = HandSortableCategories
+				.TakeWhile(x => !(x is DividerHandSortableCategoryListItem))
+				.Where(x => x is HandSortableCategoryListItem)
+				.ToList();
+
+			var lowGroup = HandSortableCategories.Reverse()
+				.TakeWhile(x => !(x is DividerHandSortableCategoryListItem))
+				.Where(x => x is HandSortableCategoryListItem)
+				.ToList();
+
+			var middleGroup = HandSortableCategories
+				.Except(highGroup)
+				.Except(lowGroup)
+				.Where(x => x is HandSortableCategoryListItem);
+
+
+			_RankingSettings.HighPriorityCategory.Clear();
+			foreach (var highPrioCat in highGroup.Cast< HandSortableCategoryListItem>()) 
+			{
+				_RankingSettings.HighPriorityCategory.Add(highPrioCat.Category);
+			}
+
+
+			_RankingSettings.MiddlePriorityCategory.Clear();
+			foreach (var midPrioCat in middleGroup.Cast<HandSortableCategoryListItem>())
+			{
+				_RankingSettings.MiddlePriorityCategory.Add(midPrioCat.Category);
+			}
+
+			_RankingSettings.LowPriorityCategory.Clear();
+			foreach (var lowPrioCat in lowGroup.Cast<HandSortableCategoryListItem>())
+			{
+				_RankingSettings.LowPriorityCategory.Add(lowPrioCat.Category);
+			}
+
+
+			_RankingSettings.Save();
+		}
+
+
+		public DelegateCommand CategoryPriorityResetCommand { get; private set; }
 
 		public ObservableCollection<HandSortableCategoryListItemBase> HandSortableCategories { get; private set; }
 
@@ -261,6 +408,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class DividerHandSortableCategoryListItem : HandSortableCategoryListItemBase
 	{
+		public uint ConstraintPosition { get; set; }
+
 		public string AborbText { get; set; }
 		public string BelowText { get; set; }
 	}
@@ -273,6 +422,11 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 
 		}
+
+		public override void OnLeave()
+		{
+			throw new NotImplementedException();
+		}
 	}
 
 
@@ -283,6 +437,12 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 
 		}
+
+		public override void OnLeave()
+		{
+			throw new NotImplementedException();
+		}
+
 	}
 
 	public class PerformanceSettingsPageContentViewModel : SettingsPageContentViewModel
@@ -292,5 +452,11 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 
 		}
+
+		public override void OnLeave()
+		{
+			throw new NotImplementedException();
+		}
+
 	}
 }

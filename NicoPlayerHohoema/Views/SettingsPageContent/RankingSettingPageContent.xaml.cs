@@ -23,5 +23,32 @@ namespace NicoPlayerHohoema.Views.SettingsPageContent
 		{
 			this.InitializeComponent();
 		}
+
+
+		private void StackPanel_DragStarting(UIElement sender, DragStartingEventArgs args)
+		{
+
+		}
+	}
+
+
+	public class CategoryPrioListItemTemplateSelector : DataTemplateSelector
+	{
+		public DataTemplate ListItem { get; set; }
+		public DataTemplate Divider { get; set; }
+
+		protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
+		{
+			if (item is ViewModels.HandSortableCategoryListItem)
+			{
+				return ListItem;
+			}
+			else if (item is ViewModels.DividerHandSortableCategoryListItem)
+			{
+				return Divider;
+			}
+
+			return base.SelectTemplateCore(item, container);
+		}
 	}
 }
