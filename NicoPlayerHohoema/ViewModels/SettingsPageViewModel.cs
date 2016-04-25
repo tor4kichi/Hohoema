@@ -420,14 +420,240 @@ namespace NicoPlayerHohoema.ViewModels
 		public NGSettingsPageContentViewModel(HohoemaApp hohoemaApp, string title)
 			: base(title)
 		{
+			_HohoemaApp = hohoemaApp;
+			_NGSettings = _HohoemaApp.UserSettings.NGSettings;
 
+			// NG Video
+			NGVideoIdEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoIdEnable);
+			NGVideoIds = _NGSettings.NGVideoIds
+				.ToReadOnlyReactiveCollection(x => 
+					IdInfoToRemovableListItemVM(x, OnRemoveNGVideoIdFromList)
+					);
+
+			// NG Video Owner User Id
+			NGVideoOwnerUserIdEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoOwnerUserIdEnable);
+			NGVideoOwnerUserIds = _NGSettings.NGVideoOwnerUserIds
+				.ToReadOnlyReactiveCollection(x =>
+					IdInfoToRemovableListItemVM(x, OnRemoveNGVideoOwnerUserIdFromList)
+					);
+
+			// NG Keyword on Video Title
+			NGVideoTitleKeywordEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoTitleKeywordEnable);
+			NGVideoTitleKeywords = _NGSettings.NGVideoTitleKeywords.ToReadOnlyReactiveCollection(
+				x => new NGKeywordViewModel(x, OnRemoveNGTitleKeyword)
+				);
+
+			// NG動画タイトルキーワードを追加するコマンド
+			AddNewNGVideoTitleKeywordCommand = new DelegateCommand(() => 
+			{
+				_NGSettings.NGVideoTitleKeywords.Add(new NGKeyword()
+				{
+					TestText = "",
+					Keyword = ""
+				});
+			});
+
+
+
+
+
+
+			// NG Comment User Id
+			NGCommentUserIdEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentUserIdEnable);
+			NGCommentUserIds = _NGSettings.NGCommentUserIds
+				.ToReadOnlyReactiveCollection(x =>
+					IdInfoToRemovableListItemVM(x, OnRemoveNGCommentUserIdFromList)
+					);
+
+			NGCommentKeywordEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentKeywordEnable);
+			NGCommentKeywords = _NGSettings.NGCommentKeywords.ToReadOnlyReactiveCollection(
+				x => new NGKeywordViewModel(x, OnRemoveNGCommentKeyword)
+				);
+
+
+			NGCommentGlassMowerEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentGlassMowerEnable);
+
+
+			NGCommentScoreTypes = ((IEnumerable<NGCommentScore>)Enum.GetValues(typeof(NGCommentScore))).ToList();
+
+			SelectedNGCommentScore = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentScoreType);
+
+			AddNewNGCommentKeywordCommand = new DelegateCommand(() => 
+			{
+				_NGSettings.NGCommentKeywords.Add(new NGKeyword()
+				{
+					TestText = "",
+					Keyword = ""
+				});
+			});
+		}
+
+
+		private void OnRemoveNGVideoIdFromList(uint videoId)
+		{
+			var removeTarget = _NGSettings.NGVideoIds.First(x => x.Id == videoId);
+			_NGSettings.NGVideoIds.Remove(removeTarget);
+		}
+
+
+		private void OnRemoveNGVideoOwnerUserIdFromList(uint userId)
+		{
+			var removeTarget = _NGSettings.NGVideoOwnerUserIds.First(x => x.Id == userId);
+			_NGSettings.NGVideoOwnerUserIds.Remove(removeTarget);
+		}
+
+		internal void OnRemoveNGTitleKeyword(NGKeyword keywordInfo)
+		{
+			_NGSettings.NGVideoTitleKeywords.Remove(keywordInfo);
+		}
+
+
+		internal void OnRemoveNGCommentKeyword(NGKeyword keywordInfo)
+		{
+			_NGSettings.NGCommentKeywords.Remove(keywordInfo);
+		}
+
+		private void OnRemoveNGCommentUserIdFromList(uint userId)
+		{
+			var removeTarget = _NGSettings.NGCommentUserIds.First(x => x.Id == userId);
+			_NGSettings.NGCommentUserIds.Remove(removeTarget);
+		}
+
+
+		private RemovableListItem<uint> IdInfoToRemovableListItemVM(IdInfo info, Action<uint> removeAction)
+		{
+			var roundedDesc = info.Description.Substring(0, Math.Min(info.Description.Length - 1, 10));
+			return new RemovableListItem<uint>(info.Id, $"{info.Id} | {roundedDesc}", removeAction);
 		}
 
 		public override void OnLeave()
 		{
-			throw new NotImplementedException();
+			_NGSettings.Save();
 		}
+
+
+		
+
+		public DelegateCommand AddNewNGVideoTitleKeywordCommand { get; private set; }
+
+		public ReactiveProperty<bool> NGVideoIdEnable { get; private set; }
+		public ReadOnlyReactiveCollection<RemovableListItem<uint>> NGVideoIds { get; private set; }
+
+		public ReactiveProperty<bool> NGVideoOwnerUserIdEnable { get; private set; }
+		public ReadOnlyReactiveCollection<RemovableListItem<uint>> NGVideoOwnerUserIds { get; private set; }
+
+		public ReactiveProperty<bool> NGVideoTitleKeywordEnable { get; private set; }
+		public ReadOnlyReactiveCollection<NGKeywordViewModel> NGVideoTitleKeywords { get; private set; }
+
+
+		public DelegateCommand AddNewNGCommentKeywordCommand { get; private set; }
+
+		public ReactiveProperty<bool> NGCommentUserIdEnable { get; private set; }
+		public ReadOnlyReactiveCollection<RemovableListItem<uint>> NGCommentUserIds { get; private set; }
+
+		public ReactiveProperty<bool> NGCommentKeywordEnable { get; private set; }
+		public ReadOnlyReactiveCollection<NGKeywordViewModel> NGCommentKeywords { get; private set; }
+
+		public ReactiveProperty<bool> NGCommentGlassMowerEnable { get; private set; }
+
+		public List<NGCommentScore> NGCommentScoreTypes { get; private set; }
+		public ReactiveProperty<NGCommentScore> SelectedNGCommentScore { get; private set; }
+
+
+		NGSettings _NGSettings;
+		HohoemaApp _HohoemaApp;
 	}
+
+
+	public class RemovableListItem<T>
+	{
+		public T Source { get; private set; }
+		public Action<T> OnRemove { get; private set; }
+
+		public string Content { get; private set; }
+		public RemovableListItem(T source, string content, Action<T> onRemovedAction)
+		{
+			Source = source;
+			Content = content;
+			OnRemove = onRemovedAction;
+
+			RemoveCommand = new DelegateCommand(() => 
+			{
+				onRemovedAction(Source);
+			});
+		}
+
+
+		public DelegateCommand RemoveCommand { get; private set; }
+	}
+
+
+	public class NGKeywordViewModel : IDisposable
+	{
+		public NGKeywordViewModel(NGKeyword ngTitleInfo, Action<NGKeyword> onRemoveAction)
+		{
+			_NGKeywordInfo = ngTitleInfo;
+			_OnRemoveAction = onRemoveAction;
+
+			TestText = new ReactiveProperty<string>(_NGKeywordInfo.TestText);
+			Keyword = new ReactiveProperty<string>(_NGKeywordInfo.Keyword);
+
+			TestText.Subscribe(x => 
+			{
+				_NGKeywordInfo.TestText = x;
+			});
+
+			Keyword.Subscribe(x =>
+			{
+				_NGKeywordInfo.Keyword = x;
+			});
+
+			IsValidKeyword =
+				Observable.CombineLatest(
+					TestText,
+					Keyword
+					)
+					.Where(x => x[0].Length > 0)
+					.Select(x =>
+					{
+						var result = -1 != TestText.Value.IndexOf(Keyword.Value);
+						return result;
+					})
+					.ToReactiveProperty();
+
+			IsInvalidKeyword = IsValidKeyword.Select(x => !x)
+				.ToReactiveProperty();
+
+			RemoveKeywordCommand = new DelegateCommand(() => 
+			{
+				_OnRemoveAction(this._NGKeywordInfo);
+			});
+		}
+
+		public void Dispose()
+		{
+			TestText?.Dispose();
+			Keyword?.Dispose();
+
+			IsValidKeyword?.Dispose();
+			IsInvalidKeyword?.Dispose();
+			
+		}
+
+
+		public ReactiveProperty<string> TestText { get; private set; }
+		public ReactiveProperty<string> Keyword { get; private set; }
+
+		public ReactiveProperty<bool> IsValidKeyword { get; private set; }
+		public ReactiveProperty<bool> IsInvalidKeyword { get; private set; }
+
+
+		public DelegateCommand RemoveKeywordCommand { get; private set; }
+		
+		NGKeyword _NGKeywordInfo;
+		Action<NGKeyword> _OnRemoveAction;
+	}
+
 
 
 	public class PlayerSettingsPageContentViewModel : SettingsPageContentViewModel
@@ -440,7 +666,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override void OnLeave()
 		{
-			throw new NotImplementedException();
 		}
 
 	}
@@ -455,7 +680,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override void OnLeave()
 		{
-			throw new NotImplementedException();
 		}
 
 	}

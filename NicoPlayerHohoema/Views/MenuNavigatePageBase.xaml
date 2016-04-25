@@ -124,6 +124,7 @@
 
                     
                     <SplitView.Content>
+                        
                         <toolkit:DockPanel>
                             <Border toolkit:DockPanel.Dock="Top" 
                                     x:Name="TopMenu"
@@ -150,6 +151,7 @@
                             </Border>
 
                             <ContentPresenter />
+
 
                         </toolkit:DockPanel>
 

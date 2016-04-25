@@ -120,6 +120,7 @@
     <Compile Include="ViewModels\SubscriptionPageViewModel.cs" />
     <Compile Include="ViewModels\VideoInfoControlViewModel.cs" />
     <Compile Include="Views\Behaviors\MediaElementStateGetter.cs" />
+    <Compile Include="Views\Behaviors\ShowFlyoutBehavior.cs" />
     <Compile Include="Views\CommentRenderer\CommentRendererWithWIn2D.xaml.cs">
       <DependentUpon>CommentRendererWithWIn2D.xaml</DependentUpon>
     </Compile>
