@@ -15,7 +15,7 @@ namespace NicoPlayerHohoema.Views.Converters
 
 			if (seconds.Hours > 0)
 			{
-				return seconds.ToString(@"HH\:mm\:ss");
+				return seconds.ToString(@"hh\:mm\:ss");
 			}
 			else
 			{

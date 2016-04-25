@@ -83,6 +83,8 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 			};
 
+			
+
 			ClosePaneCommand = new DelegateCommand(ClosePane);
 		}
 

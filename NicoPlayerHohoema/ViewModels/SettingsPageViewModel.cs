@@ -420,15 +420,181 @@ namespace NicoPlayerHohoema.ViewModels
 		public NGSettingsPageContentViewModel(HohoemaApp hohoemaApp, string title)
 			: base(title)
 		{
+			_HohoemaApp = hohoemaApp;
+			_NGSettings = _HohoemaApp.UserSettings.NGSettings;
 
+			// NG Video
+			NGVideoIdEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoIdEnable);
+			NGVideoIds = _NGSettings.NGVideoIds
+				.ToReadOnlyReactiveCollection(x => 
+					IdInfoToRemovableListItemVM(x, OnRemoveNGVideoIdFromList)
+					);
+
+			// NG Video Owner User Id
+			NGVideoOwnerUserIdEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoOwnerUserIdEnable);
+			NGVideoOwnerUserIds = _NGSettings.NGVideoOwnerUserIds
+				.ToReadOnlyReactiveCollection(x =>
+					IdInfoToRemovableListItemVM(x, OnRemoveNGVideoOwnerUserIdFromList)
+					);
+
+			// NG Keyword on Video Title
+			NGVideoTitleKeywordEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoTitleKeywordEnable);
+			NGVideoTitleKeywords = _NGSettings.NGVideoTitleKeywords.ToReadOnlyReactiveCollection(
+				x => new NGTitleKeywordViewModel(this, x)
+				);
+
+			// NG動画タイトルキーワードを追加するコマンド
+			AddNewNGVideoTitleKeywordCommand = new DelegateCommand(() => 
+			{
+				_NGSettings.NGVideoTitleKeywords.Add(new NGTitleKeyword()
+				{
+					TestText = "",
+					Keyword = ""
+				});
+			});
+		}
+
+
+		private void OnRemoveNGVideoIdFromList(uint videoId)
+		{
+			var removeTarget = _NGSettings.NGVideoIds.First(x => x.Id == videoId);
+			_NGSettings.NGVideoIds.Remove(removeTarget);
+		}
+
+
+		private void OnRemoveNGVideoOwnerUserIdFromList(uint userId)
+		{
+			var removeTarget = _NGSettings.NGVideoOwnerUserIds.First(x => x.Id == userId);
+			_NGSettings.NGVideoOwnerUserIds.Remove(removeTarget);
+		}
+
+		private RemovableListItem<uint> IdInfoToRemovableListItemVM(IdInfo info, Action<uint> removeAction)
+		{
+			var roundedDesc = info.Description.Substring(0, Math.Min(info.Description.Length - 1, 10));
+			return new RemovableListItem<uint>(info.Id, $"{info.Id} | {roundedDesc}", removeAction);
 		}
 
 		public override void OnLeave()
 		{
-			throw new NotImplementedException();
+			_NGSettings.Save();
 		}
+
+
+		internal void RemoveNGTitleKeyword(NGTitleKeyword keywordInfo)
+		{
+			_NGSettings.NGVideoTitleKeywords.Remove(keywordInfo);
+		}
+
+
+		public DelegateCommand AddNewNGVideoTitleKeywordCommand { get; private set; }
+
+		public ReactiveProperty<bool> NGVideoIdEnable { get; private set; }
+		public ReadOnlyReactiveCollection<RemovableListItem<uint>> NGVideoIds { get; private set; }
+
+		public ReactiveProperty<bool> NGVideoOwnerUserIdEnable { get; private set; }
+		public ReadOnlyReactiveCollection<RemovableListItem<uint>> NGVideoOwnerUserIds { get; private set; }
+
+		public ReactiveProperty<bool> NGVideoTitleKeywordEnable { get; private set; }
+		public ReadOnlyReactiveCollection<NGTitleKeywordViewModel> NGVideoTitleKeywords { get; private set; }
+
+
+		NGSettings _NGSettings;
+		HohoemaApp _HohoemaApp;
 	}
 
+
+	public class RemovableListItem<T>
+	{
+		public T Source { get; private set; }
+		public Action<T> OnRemove { get; private set; }
+
+		public string Content { get; private set; }
+		public RemovableListItem(T source, string content, Action<T> onRemovedAction)
+		{
+			Source = source;
+			Content = content;
+			OnRemove = onRemovedAction;
+
+			RemoveCommand = new DelegateCommand(() => 
+			{
+				if (onRemovedAction != null)
+				{
+					onRemovedAction(Source);
+				}
+			});
+		}
+
+
+		public DelegateCommand RemoveCommand { get; private set; }
+	}
+
+
+	public class NGTitleKeywordViewModel : IDisposable
+	{
+		public NGTitleKeywordViewModel(NGSettingsPageContentViewModel parentVM, NGTitleKeyword ngTitleInfo)
+		{
+			_ParentVM = parentVM;
+			_NGTitleKeyword = ngTitleInfo;
+
+			TestText = new ReactiveProperty<string>(_NGTitleKeyword.TestText);
+			Keyword = new ReactiveProperty<string>(_NGTitleKeyword.Keyword);
+
+			TestText.Subscribe(x => 
+			{
+				_NGTitleKeyword.TestText = x;
+			});
+
+			Keyword.Subscribe(x =>
+			{
+				_NGTitleKeyword.Keyword = x;
+			});
+
+			IsValidKeyword =
+				Observable.CombineLatest(
+					TestText,
+					Keyword
+					)
+					.Where(x => x[0].Length > 0)
+					.Select(x =>
+					{
+						var result = -1 != TestText.Value.IndexOf(Keyword.Value);
+						return result;
+					})
+					.ToReactiveProperty();
+
+			IsInvalidKeyword = IsValidKeyword.Select(x => !x)
+				.ToReactiveProperty();
+
+			RemoveKeywordCommand = new DelegateCommand(() => 
+			{
+				_ParentVM.RemoveNGTitleKeyword(this._NGTitleKeyword);
+			});
+		}
+
+		public void Dispose()
+		{
+			TestText?.Dispose();
+			Keyword?.Dispose();
+
+			IsValidKeyword?.Dispose();
+			IsInvalidKeyword?.Dispose();
+			
+		}
+
+
+		public ReactiveProperty<string> TestText { get; private set; }
+		public ReactiveProperty<string> Keyword { get; private set; }
+
+		public ReactiveProperty<bool> IsValidKeyword { get; private set; }
+		public ReactiveProperty<bool> IsInvalidKeyword { get; private set; }
+
+
+		public DelegateCommand RemoveKeywordCommand { get; private set; }
+
+		NGTitleKeyword _NGTitleKeyword;
+		NGSettingsPageContentViewModel _ParentVM;
+
+	}
 
 	public class PlayerSettingsPageContentViewModel : SettingsPageContentViewModel
 	{
@@ -440,7 +606,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override void OnLeave()
 		{
-			throw new NotImplementedException();
 		}
 
 	}
@@ -455,7 +620,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override void OnLeave()
 		{
-			throw new NotImplementedException();
 		}
 
 	}

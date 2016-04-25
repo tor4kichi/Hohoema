@@ -18,6 +18,7 @@ namespace NicoPlayerHohoema.Models
 		const string AccountSettingsFileName = "account.json";
 		const string RankingSettingsFileName = "ranking.json";
 		const string PlayerSettingsFileName = "player.json";
+		const string NGSettingsFileName = "ng.json";
 
 
 		public static async Task<HohoemaUserSettings> LoadSettings()
@@ -28,12 +29,14 @@ namespace NicoPlayerHohoema.Models
 			var account = await SettingsBase.Load<AccountSettings>(AccountSettingsFileName);
 			var ranking = await SettingsBase.Load<RankingSettings>(RankingSettingsFileName);
 			var player = await SettingsBase.Load<PlayerSettings>(PlayerSettingsFileName);
+			var ng = await SettingsBase.Load<NGSettings>(NGSettingsFileName);
 
 			return new HohoemaUserSettings()
 			{
 				AccontSettings = account,
 				RankingSettings = ranking,
-				PlayerSettings = player
+				PlayerSettings = player,
+				NGSettings = ng
 			};
 		}
 
@@ -76,6 +79,8 @@ namespace NicoPlayerHohoema.Models
 		public RankingSettings RankingSettings { get; private set; }
 
 		public PlayerSettings PlayerSettings { get; private set; }
+
+		public NGSettings NGSettings { get; private set; }
 
 		public HohoemaUserSettings()
 		{
@@ -339,6 +344,179 @@ namespace NicoPlayerHohoema.Models
 			set
 			{
 				SetProperty(ref _DisplayMode, value);
+			}
+		}
+	}
+
+
+	[DataContract]
+	public class NGSettings : SettingsBase
+	{
+
+		public NGSettings()
+		{
+			NGVideoIdEnable = true;
+			NGVideoIds = new ObservableCollection<IdInfo>();
+			NGVideoOwnerUserIdEnable = true;
+			NGVideoOwnerUserIds = new ObservableCollection<IdInfo>();
+			NGVideoTitleKeywordEnable = true;
+			NGVideoTitleKeywords = new ObservableCollection<NGTitleKeyword>();
+
+			NGCommentUserIdEnable = true;
+			NGCommentUserIds = new ObservableCollection<IdInfo>();
+			NGCommentKeywordEnable = true;
+			NGCommentKeywords = new ObservableCollection<string>();
+			NGCommentGlassMowerEnable = false;
+			NGCommentScoreType = NGCommentScore.Middle;
+		}
+
+
+		#region Video NG
+
+
+		private bool _NGVideoIdEnable;
+
+		[DataMember]
+		public bool NGVideoIdEnable
+		{
+			get { return _NGVideoIdEnable; }
+			set { SetProperty(ref _NGVideoIdEnable, value); }
+		}
+
+
+		[DataMember]
+		public ObservableCollection<IdInfo> NGVideoIds { get; private set; }
+
+
+		private bool _NGVideoOwnerUserIdEnable;
+
+		[DataMember]
+		public bool NGVideoOwnerUserIdEnable
+		{
+			get { return _NGVideoOwnerUserIdEnable; }
+			set { SetProperty(ref _NGVideoOwnerUserIdEnable, value); }
+		}
+
+
+		[DataMember]
+		public ObservableCollection<IdInfo> NGVideoOwnerUserIds { get; private set; }
+
+
+		private bool _NGVideoTitleKeywordEnable;
+
+		[DataMember]
+		public bool NGVideoTitleKeywordEnable
+		{
+			get { return _NGVideoTitleKeywordEnable; }
+			set { SetProperty(ref _NGVideoTitleKeywordEnable, value); }
+		}
+
+
+		[DataMember]
+		public ObservableCollection<NGTitleKeyword> NGVideoTitleKeywords { get; private set; }
+
+		#endregion
+
+
+		#region Comment NG
+
+		
+		private bool _NGCommentUserIdEnable;
+
+		[DataMember]
+		public bool NGCommentUserIdEnable
+		{
+			get { return _NGCommentUserIdEnable; }
+			set { SetProperty(ref _NGCommentUserIdEnable, value); }
+		}
+
+		[DataMember]
+		public ObservableCollection<IdInfo> NGCommentUserIds;
+
+		private bool _NGCommentKeywordEnable;
+
+		[DataMember]
+		public bool NGCommentKeywordEnable
+		{
+			get { return _NGCommentKeywordEnable; }
+			set { SetProperty(ref _NGCommentKeywordEnable, value); }
+		}
+
+		[DataMember]
+		public ObservableCollection<string> NGCommentKeywords;
+
+
+		private bool _NGCommentGlassMowerEnable;
+
+		[DataMember]
+		public bool NGCommentGlassMowerEnable
+		{
+			get { return _NGCommentGlassMowerEnable; }
+			set { SetProperty(ref _NGCommentGlassMowerEnable, value); }
+		}
+
+
+		private NGCommentScore _NGCommentScoreType;
+
+		[DataMember]
+		public NGCommentScore NGCommentScoreType
+		{
+			get { return _NGCommentScoreType; }
+			set { SetProperty(ref _NGCommentScoreType, value); }
+		}
+
+		#endregion
+
+
+	}
+
+	public class NGTitleKeyword
+	{
+		public string TestText { get; set; }
+		public string Keyword { get; set; }
+	}
+
+	public class IdInfo
+	{
+		public uint Id { get; set; }
+		public string Description { get; set; }
+	}
+
+
+	public enum NGCommentScore
+	{
+		None,
+		Low,
+		Middle,
+		High,
+		VeryHigh,
+		SuperVeryHigh,
+		NoFishInTrueClearWater
+	}
+
+
+	public static class NGCommentScoreHelper
+	{
+		public static int GetCommentScoreAmount(this NGCommentScore scoreType)
+		{
+			switch (scoreType)
+			{
+				case NGCommentScore.None:
+					return int.MinValue;
+				case NGCommentScore.Low:
+					return -10000;
+				case NGCommentScore.Middle:
+					return -7200;
+				case NGCommentScore.High:
+					return -4800;
+				case NGCommentScore.VeryHigh:
+					return -2400;
+				case NGCommentScore.SuperVeryHigh:
+					return -600;
+				case NGCommentScore.NoFishInTrueClearWater:
+					return 0;
+				default:
+					throw new NotSupportedException();
 			}
 		}
 	}

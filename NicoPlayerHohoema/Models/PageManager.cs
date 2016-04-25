@@ -13,6 +13,8 @@ namespace NicoPlayerHohoema.Models
 	{
 		public INavigationService NavigationService { get; private set; }
 
+
+
 		private HohoemaPageType _CurrentPageType;
 		public HohoemaPageType CurrentPageType
 		{
@@ -56,5 +58,4 @@ namespace NicoPlayerHohoema.Models
 			NavigationService.ClearHistory();
 		}
 	}
-
 }
