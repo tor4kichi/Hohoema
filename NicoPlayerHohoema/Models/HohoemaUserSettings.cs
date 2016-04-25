@@ -360,12 +360,12 @@ namespace NicoPlayerHohoema.Models
 			NGVideoOwnerUserIdEnable = true;
 			NGVideoOwnerUserIds = new ObservableCollection<IdInfo>();
 			NGVideoTitleKeywordEnable = true;
-			NGVideoTitleKeywords = new ObservableCollection<NGTitleKeyword>();
+			NGVideoTitleKeywords = new ObservableCollection<NGKeyword>();
 
 			NGCommentUserIdEnable = true;
 			NGCommentUserIds = new ObservableCollection<IdInfo>();
 			NGCommentKeywordEnable = true;
-			NGCommentKeywords = new ObservableCollection<string>();
+			NGCommentKeywords = new ObservableCollection<NGKeyword>();
 			NGCommentGlassMowerEnable = false;
 			NGCommentScoreType = NGCommentScore.Middle;
 		}
@@ -413,7 +413,7 @@ namespace NicoPlayerHohoema.Models
 
 
 		[DataMember]
-		public ObservableCollection<NGTitleKeyword> NGVideoTitleKeywords { get; private set; }
+		public ObservableCollection<NGKeyword> NGVideoTitleKeywords { get; private set; }
 
 		#endregion
 
@@ -443,7 +443,7 @@ namespace NicoPlayerHohoema.Models
 		}
 
 		[DataMember]
-		public ObservableCollection<string> NGCommentKeywords;
+		public ObservableCollection<NGKeyword> NGCommentKeywords;
 
 
 		private bool _NGCommentGlassMowerEnable;
@@ -470,7 +470,7 @@ namespace NicoPlayerHohoema.Models
 
 	}
 
-	public class NGTitleKeyword
+	public class NGKeyword
 	{
 		public string TestText { get; set; }
 		public string Keyword { get; set; }
@@ -491,7 +491,7 @@ namespace NicoPlayerHohoema.Models
 		High,
 		VeryHigh,
 		SuperVeryHigh,
-		NoFishInTrueClearWater
+		UltraSuperVeryHigh
 	}
 
 
@@ -513,7 +513,7 @@ namespace NicoPlayerHohoema.Models
 					return -2400;
 				case NGCommentScore.SuperVeryHigh:
 					return -600;
-				case NGCommentScore.NoFishInTrueClearWater:
+				case NGCommentScore.UltraSuperVeryHigh:
 					return 0;
 				default:
 					throw new NotSupportedException();

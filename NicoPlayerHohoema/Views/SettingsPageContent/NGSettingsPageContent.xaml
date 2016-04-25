@@ -27,14 +27,109 @@
 
             </toolkit:DockPanel>
         </DataTemplate>
+
+        <DataTemplate x:Key="NGKeywordTemplate">
+            <toolkit:DockPanel
+                    Background="Transparent"
+                    >
+                <FlyoutBase.AttachedFlyout>
+                    <Flyout x:Name="NGTitleFlyout" >
+                        <toolkit:DockPanel>
+                            <TextBlock Text="除外キーワード"
+                                                                VerticalAlignment="Center"
+                                                                Margin="8 0"
+                                                               toolkit:DockPanel.Dock="Left"
+                                                                />
+                            <TextBox Text="{Binding Keyword.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                                MinWidth="150"
+                                                                >
+                            </TextBox>
+                        </toolkit:DockPanel>
+                    </Flyout>
+                </FlyoutBase.AttachedFlyout>
+                <i:Interaction.Behaviors>
+                    <mybehavior:ShowFlyoutBehavior />
+                </i:Interaction.Behaviors>
+
+
+                <AppBarButton Icon="Delete" 
+                                                      Command="{Binding RemoveKeywordCommand}"
+                                                      />
+                <TextBlock Text="{Binding Keyword.Value}" 
+                                                   VerticalAlignment="Center"
+                                                   HorizontalAlignment="Center"
+                                                   Margin="16 0"
+                                               >
+
+                </TextBlock>
+
+
+
+            </toolkit:DockPanel>
+        </DataTemplate>
+
+
+        <local:NGCommentScoreTypeTemplateSelector x:Key="NGCommentScoreTypeTemplateSelector">
+            <local:NGCommentScoreTypeTemplateSelector.NoneTemplate>
+                <DataTemplate>
+                    <TextBlock Text="なし" />
+                </DataTemplate>
+            </local:NGCommentScoreTypeTemplateSelector.NoneTemplate>
+
+            <local:NGCommentScoreTypeTemplateSelector.LowTemplate>
+                <DataTemplate>
+                    <TextBlock Text="弱" />
+                </DataTemplate>
+            </local:NGCommentScoreTypeTemplateSelector.LowTemplate>
+
+            <local:NGCommentScoreTypeTemplateSelector.MiddleTemplate>
+                <DataTemplate>
+                    <TextBlock Text="中" />
+                </DataTemplate>
+            </local:NGCommentScoreTypeTemplateSelector.MiddleTemplate>
+
+            <local:NGCommentScoreTypeTemplateSelector.HighTemplate>
+                <DataTemplate>
+                    <TextBlock Text="強" />
+                </DataTemplate>
+            </local:NGCommentScoreTypeTemplateSelector.HighTemplate>
+
+            <local:NGCommentScoreTypeTemplateSelector.VeryHighTemplate>
+                <DataTemplate>
+                    <TextBlock Text="さらに強" />
+                </DataTemplate>
+            </local:NGCommentScoreTypeTemplateSelector.VeryHighTemplate>
+
+            <local:NGCommentScoreTypeTemplateSelector.SuperVeryHighTemplate>
+                <DataTemplate>
+                    <TextBlock Text="極めて強" />
+                </DataTemplate>
+            </local:NGCommentScoreTypeTemplateSelector.SuperVeryHighTemplate>
+
+            <local:NGCommentScoreTypeTemplateSelector.UltraSuperVeryHighTemplate>
+                <DataTemplate>
+                    <TextBlock Text="最大" />
+                </DataTemplate>
+            </local:NGCommentScoreTypeTemplateSelector.UltraSuperVeryHighTemplate>
+
+        </local:NGCommentScoreTypeTemplateSelector>
+        
+
+        <Style x:Key="DescriptionTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="Gray" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
     </UserControl.Resources>
 
     <ScrollViewer>
+
+        
+        
         <StackPanel Margin="8">
             <StackPanel>
                 <TextBlock Text="※ この設定はHohoemaアプリ上でのみ適用されます"
-                           FontSize="12"
-                           Foreground="Gray"
+                           Style="{StaticResource DescriptionTextStyle}"
                            HorizontalAlignment="Right"
                            Margin="8 0"
                            />
@@ -109,14 +204,17 @@
                                        VerticalAlignment="Center"
                                />
                         </StackPanel>
+                        
                         <Button Content="NGタイトルキーワードを追加" 
                                 Command="{Binding AddNewNGVideoTitleKeywordCommand}"
                                 HorizontalAlignment="Center"
                                 toolkit:DockPanel.Dock="Bottom"
                                 />
+                        
                         <ListView ItemsSource="{Binding NGVideoTitleKeywords}"
                                   Margin="0 8"
                                   SelectionMode="None"
+                                  ItemTemplate="{StaticResource NGKeywordTemplate}"
                                   >
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="ListViewItem">
@@ -124,47 +222,7 @@
                                 </Style>
                             </ListView.ItemContainerStyle>
                            
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <toolkit:DockPanel
-                                        Background="Transparent"
-                                        >
-                                        <FlyoutBase.AttachedFlyout>
-                                            <Flyout x:Name="NGTitleFlyout" >
-                                                <toolkit:DockPanel>
-                                                    <TextBlock Text="除外キーワード"
-                                                                VerticalAlignment="Center"
-                                                                Margin="8 0"
-                                                               toolkit:DockPanel.Dock="Left"
-                                                                />
-                                                    <TextBox Text="{Binding Keyword.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                                                MinWidth="150"
-                                                                >
-                                                    </TextBox>
-                                                </toolkit:DockPanel>
-                                            </Flyout>
-                                        </FlyoutBase.AttachedFlyout>
-                                        <i:Interaction.Behaviors>
-                                            <mybehavior:ShowFlyoutBehavior />
-                                        </i:Interaction.Behaviors>
-
-                                        
-                                        <AppBarButton Icon="Delete" 
-                                                      Command="{Binding RemoveKeywordCommand}"
-                                                      />
-                                        <TextBlock Text="{Binding Keyword.Value}" 
-                                                   VerticalAlignment="Center"
-                                                   HorizontalAlignment="Center"
-                                                   Margin="16 0"
-                                               >
-                                            
-                                        </TextBlock>
-                                        
-                                        
-
-                                    </toolkit:DockPanel>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
+                           
                         </ListView>
 
                         
@@ -195,14 +253,19 @@
                         <StackPanel Orientation="Horizontal"
                                     toolkit:DockPanel.Dock="Top"
                                     >
-                            <ToggleButton Width="32" Height="32" Margin="0 0 8 0" />
+                            <ToggleButton Width="32" Height="32" 
+                                          Margin="0 0 8 0"
+                                          IsChecked="{Binding NGCommentUserIdEnable.Value, Mode=TwoWay}"
+                                          />
                             <TextBlock Text="NGコメントユーザーID" 
                                        VerticalAlignment="Center"
                                />
                         </StackPanel>
-                        <ListView>
-                            <TextBlock Text="aaaa" />
-                            <TextBlock Text="aaaa" />
+                        <ListView ItemsSource="{Binding NGCommentUserIds}"
+                                  ItemTemplate="{StaticResource TextWithRemoveButtonTemplate}"
+                                  Margin="0 8"
+                                  SelectionMode="None"
+                                  >
                         </ListView>
                     </toolkit:DockPanel>
 
@@ -211,16 +274,36 @@
                         <StackPanel Orientation="Horizontal" 
                                     toolkit:DockPanel.Dock="Top"
                                     >
-                            <ToggleButton Width="32" Height="32" Margin="0 0 8 0" />
+                            <ToggleButton Width="32" Height="32" 
+                                          Margin="0 0 8 0" 
+                                          IsChecked="{Binding NGCommentKeywordEnable.Value, Mode=TwoWay}"
+                                          />
                             <TextBlock Text="NGコメントキーワード" 
                                        VerticalAlignment="Center"
                                />
                         </StackPanel>
 
-                        <ListView>
-                            <TextBlock Text="aaaa" />
-                            <TextBlock Text="aaaa" />
+                        <TextBlock Text="※ NGコメントキーワードがたくさんあると、動画の準備時間が長くなるかもしれません。" 
+                                   Style="{StaticResource DescriptionTextStyle}"
+                                   Margin="32 4 0 4"
+                                toolkit:DockPanel.Dock="Bottom"
+                                   />
+                        <Button Content="NGコメントキーワードを追加" 
+                                Command="{Binding AddNewNGCommentKeywordCommand}"
+                                HorizontalAlignment="Center"
+                                toolkit:DockPanel.Dock="Bottom"
+                                />
 
+                        <ListView ItemsSource="{Binding NGCommentKeywords}"
+                                  Margin="0 8"
+                                  SelectionMode="None"
+                                  ItemTemplate="{StaticResource NGKeywordTemplate}"
+                                  >
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
                         </ListView>
                     </toolkit:DockPanel>
 
@@ -229,17 +312,28 @@
                                     toolkit:DockPanel.Dock="Top"
                                     >
 
-                            <ToggleButton Width="32" Height="32" Margin="0 16 8 8"
-                                          
+                            <TextBlock Text="連続するｗを１文字に刈り込みます"
+                                       Style="{StaticResource DescriptionTextStyle}"
+                                       Margin="32 4 0 4"
+                                       ToolTipService.ToolTip="ﾌﾞｲｰﾝｗｗｗｗｗ -> ﾌﾞｲｰﾝｗ"
+                                       toolkit:DockPanel.Dock="Bottom"
+                                       />
+                            
+                            <ToggleButton Width="32" Height="32" 
+                                          Margin="0 0 8 0" 
+                                          IsChecked="{Binding NGCommentGlassMowerEnable.Value, Mode=TwoWay}"                                          
                                           />
-
+                            
                             <TextBlock Text="自動草刈機" 
-                                       ToolTipService.ToolTip="連続するwやWを１文字に刈り込みます"
                                        VerticalAlignment="Center"
                                />
 
                         </toolkit:DockPanel>
 
+                    </toolkit:DockPanel>
+                    
+                    
+                    <toolkit:DockPanel >
                         <toolkit:DockPanel 
                                     toolkit:DockPanel.Dock="Top"
                                     >
@@ -252,10 +346,8 @@
                             -->
                             
                             <TextBlock Text="NGスコアとは：コメントは投稿時はスコア０、NG評価で減少する値です。"
-                                       FontSize="12"
-                                       Foreground="Gray"
-                                       Margin="0 4"
-                                       TextWrapping="Wrap"
+                                       Style="{StaticResource DescriptionTextStyle}"
+                                       Margin="32 4 0 4"
                                        toolkit:DockPanel.Dock="Bottom"
                                        />
                             <TextBlock Text="共有NGスコア設定" 
@@ -264,14 +356,13 @@
                                />
 
 
-                            <ComboBox Margin="16 0" MinWidth="100">
-                                <ComboBoxItem Content="なし" />
-                                <ComboBoxItem Content="弱(-10000)" />
-                                <ComboBoxItem Content="中(-7200)" />
-                                <ComboBoxItem Content="強(-4800)" />
-                                <ComboBoxItem Content="すごく強(-0000)" />
-                                <ComboBoxItem Content="めっちゃ強(-0000)" />
-                                <ComboBoxItem Content="水清不魚棲(0)" />
+                            <!-- TODO: スライダーに変更する？ -->
+                            
+                            <ComboBox Margin="16 0" MinWidth="100"
+                                      ItemsSource="{Binding NGCommentScoreTypes}"
+                                      SelectedItem="{Binding SelectedNGCommentScore.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      ItemTemplateSelector="{StaticResource NGCommentScoreTypeTemplateSelector}"                                      
+                                      >
                             </ComboBox>
 
                             <Border />
