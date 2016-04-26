@@ -31,15 +31,17 @@
 
                 <toolkit:DockPanel Background="Transparent">
 
+
+                    <SymbolIcon Symbol="Edit" 
+                                Margin="16 0"
+                                toolkit:DockPanel.Dock="Right"
+                                />
                     
                     <TextBlock Text="{Binding DisplayLabel.Value}"
                                VerticalAlignment="Center"
                                >
                     </TextBlock>
 
-                    <SymbolIcon Symbol="Edit" 
-                                Margin="16 0"
-                                />
 
 
                     <i:Interaction.Behaviors>
@@ -78,21 +80,28 @@
         </DataTemplate>
         
         <DataTemplate x:Key="DividerTemplate">
-            <StackPanel >
+            <StackPanel Margin="0 4">
 
-                <TextBlock Text="{Binding AborbText}" />
+                <TextBlock Text="{Binding AborbText}"
+                           HorizontalAlignment="Center"
+                           Foreground="DarkGray"
+                           />
                 
-                <Border BorderThickness="0 1" 
-                        BorderBrush="Black"
+                <Border BorderThickness="0 1 0 0" 
+                        BorderBrush="DarkGray"
+                        Margin="0 4"
                         />
 
-                <TextBlock Text="{Binding BelowText}" />
+                <TextBlock Text="{Binding BelowText}"
+                           HorizontalAlignment="Center"
+                           Foreground="DarkGray"
+                           />
 
             </StackPanel>
         </DataTemplate>
-        
-        
-        
+
+
+
         <local:CategoryPrioListItemTemplateSelector x:Key="categoryPrioListItemTemplateSelector"
                                                     ListItem="{StaticResource ListItemTemplate}"
                                                     UserCustmizedCategory="{StaticResource EditableListItemTemplate}"
@@ -103,9 +112,12 @@
     
     
     <ScrollViewer>
-        <StackPanel>
+        <StackPanel Margin="8">
 
-            <TextBlock Text="ランキング表示設定" />
+            <TextBlock Text="ランキング表示設定"
+                       Margin="8 16 0 16"
+                       FontSize="18"
+                       />
 
 
             <Button Content="カスタムランキングを追加する" 
@@ -132,12 +144,43 @@
 
 
             </ListView>
-                       
 
-            <Button Content="Reset"
-                Command="{Binding CategoryPriorityResetCommand}">
 
-            </Button>
+            <Border Height="32" />
+            
+            <Border Background="Gray" Margin="32"
+                    CornerRadius="8"
+                    >
+
+                <StackPanel Orientation="Vertical"
+                HorizontalAlignment="Center">
+
+                    <Button Content="ランキングの並び順をリセット"
+               
+                               Foreground="White"
+                            Background="DarkRed"
+                            HorizontalAlignment="Center"
+                            Margin="16"
+                            >
+                        <Button.Flyout>
+                            <Flyout>
+                                <Button Content="リセットを実行する"
+                                    Command="{Binding CategoryPriorityResetCommand}"                        
+                                        />
+                            </Flyout>
+                        </Button.Flyout>
+
+                    </Button>
+                    <TextBlock Text="※あなたが追加したカスタムランキングはそのまま残ります。"
+                           TextWrapping="Wrap"
+                           MaxWidth="300"
+                               FontSize="12"
+                               Margin="0 0 0 8"
+                           />
+
+                </StackPanel>
+            </Border>
+
 
 
         </StackPanel>

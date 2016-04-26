@@ -42,6 +42,11 @@
                           SelectionMode="Single"
                           DisplayMemberPath="Label"
                           >
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="Foreground" Value="Gray" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
 
                 </ListView>
 

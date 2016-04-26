@@ -257,8 +257,8 @@ namespace NicoPlayerHohoema.ViewModels
 			HandSortableCategories.Add(new DividerHandSortableCategoryListItem()
 			{
 				ConstraintPosition = 0,
-				AborbText = "優先",
-				BelowText = "通常"
+				AborbText = "▲優先▲",
+				BelowText = "▼通常▼"
 			});
 
 			foreach (var catInfo in _RankingSettings.MiddlePriorityCategory)
@@ -270,8 +270,8 @@ namespace NicoPlayerHohoema.ViewModels
 			HandSortableCategories.Add(new DividerHandSortableCategoryListItem()
 			{
 				ConstraintPosition = 1,
-				AborbText = "通常",
-				BelowText = "非表示"
+				AborbText = "▲通常▲",
+				BelowText = "▼あまり見ない▼"
 			});
 
 			foreach (var catInfo in _RankingSettings.LowPriorityCategory)

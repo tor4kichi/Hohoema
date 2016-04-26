@@ -22,7 +22,6 @@ namespace NicoPlayerHohoema.ViewModels
 			_RankingSettings = _HohoemaApp.UserSettings.RankingSettings;
 
 			// ランキングのカテゴリ
-			// TODO: R-18などは除外しないとUWPとしては出せない
 			HighPriorityRankingCategoryItems = new ObservableCollection<RankingCategoryListItem>();
 			MiddlePriorityRankingCategoryItems = new ObservableCollection<RankingCategoryListItem>();
 			LowPriorityRankingCategoryItems = new ObservableCollection<RankingCategoryListItem>();
