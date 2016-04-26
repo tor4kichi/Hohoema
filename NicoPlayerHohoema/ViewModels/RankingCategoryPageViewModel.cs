@@ -186,15 +186,15 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class RankingCategoryListItem : BindableBase
 	{
-		public RankingCategoryListItem(RankingCategory category)
+		public RankingCategoryListItem(RankingCategoryInfo categoryInfo)
 		{
-			Category = category;
-			Label = category.ToCultulizedText();
+			CategoryInfo = categoryInfo;
+			Label = categoryInfo.DisplayLabel;
 		}
 
 		public string Label { get; private set; }
 
-		public RankingCategory Category { get; private set; }
+		public RankingCategoryInfo CategoryInfo { get; private set; }
 	}
 
 }

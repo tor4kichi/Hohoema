@@ -19,6 +19,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public RankingCategoryListPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
 		{
 			_HohoemaApp = hohoemaApp;
+			_RankingSettings = _HohoemaApp.UserSettings.RankingSettings;
 
 			// ランキングのカテゴリ
 			// TODO: R-18などは除外しないとUWPとしては出せない
@@ -33,7 +34,7 @@ namespace NicoPlayerHohoema.ViewModels
 				.Subscribe(category => 
 			{
 				// RankingCategoryPageを開く
-				pageManager.OpenPage(HohoemaPageType.RankingCategory, category.Category);
+				pageManager.OpenPage(HohoemaPageType.RankingCategory, category.CategoryInfo);
 			});
 		}
 
@@ -45,11 +46,21 @@ namespace NicoPlayerHohoema.ViewModels
 			MiddlePriorityRankingCategoryItems.Clear();
 			LowPriorityRankingCategoryItems.Clear();
 
-			// ランキングカテゴリの優先設定に基いてリストを更新
-			foreach (var categoryType in (IEnumerable<RankingCategory>)Enum.GetValues(typeof(RankingCategory)))
+
+			foreach (var categoryType in _RankingSettings.HighPriorityCategory)
+			{
+				HighPriorityRankingCategoryItems.Add(new RankingCategoryListItem(categoryType));
+			}
+
+			foreach (var categoryType in _RankingSettings.MiddlePriorityCategory)
 			{
 				MiddlePriorityRankingCategoryItems.Add(new RankingCategoryListItem(categoryType));
 			}
+			foreach (var categoryType in _RankingSettings.LowPriorityCategory)
+			{
+				LowPriorityRankingCategoryItems.Add(new RankingCategoryListItem(categoryType));
+			}
+			
 
 		}
 
@@ -61,6 +72,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<RankingCategoryListItem> SelectedRankingCategory { get; private set; }
 
+		RankingSettings _RankingSettings;
 		private HohoemaApp _HohoemaApp;
 	}
 }

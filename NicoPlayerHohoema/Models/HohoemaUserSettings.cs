@@ -146,22 +146,39 @@ namespace NicoPlayerHohoema.Models
 		public RankingSettings()
 			: base()
 		{
-			HighPriorityCategory = new ObservableCollection<RankingCategory>();
-			MiddlePriorityCategory = new ObservableCollection<RankingCategory>();
-			LowPriorityCategory = new ObservableCollection<RankingCategory>();
+			HighPriorityCategory = new ObservableCollection<RankingCategoryInfo>();
+			MiddlePriorityCategory = new ObservableCollection<RankingCategoryInfo>();
+			LowPriorityCategory = new ObservableCollection<RankingCategoryInfo>();
 		}
 
 
 		public void ResetCategoryPriority()
 		{
+			var highPrioUserRanking = HighPriorityCategory.Where(x => x.RankingSource == RankingSource.SearchWithMostPopular).ToList();
+			var midPrioUserRanking = MiddlePriorityCategory.Where(x => x.RankingSource == RankingSource.SearchWithMostPopular).ToList();
+			var lowPrioUserRanking = LowPriorityCategory.Where(x => x.RankingSource == RankingSource.SearchWithMostPopular).ToList();
+
 			HighPriorityCategory.Clear();
 			MiddlePriorityCategory.Clear();
 			LowPriorityCategory.Clear();
 
+			foreach (var info in highPrioUserRanking)
+			{
+				HighPriorityCategory.Add(info);
+			}
+			foreach (var info in midPrioUserRanking)
+			{
+				MiddlePriorityCategory.Add(info);
+			}
+			foreach (var info in lowPrioUserRanking)
+			{
+				LowPriorityCategory.Add(info);
+			}
+
 			var types = (IEnumerable<RankingCategory>)Enum.GetValues(typeof(RankingCategory));
 			foreach (var type in types)
 			{
-				MiddlePriorityCategory.Add(type);
+				MiddlePriorityCategory.Add(RankingCategoryInfo.CreateFromRankingCategory(type));
 			}
 		}
 
@@ -230,15 +247,77 @@ namespace NicoPlayerHohoema.Models
 		}
 
 		[DataMember]
-		public ObservableCollection<RankingCategory> HighPriorityCategory { get; private set; }
+		public ObservableCollection<RankingCategoryInfo> HighPriorityCategory { get; private set; }
 
 		[DataMember]
-		public ObservableCollection<RankingCategory> MiddlePriorityCategory { get; private set; }
+		public ObservableCollection<RankingCategoryInfo> MiddlePriorityCategory { get; private set; }
 
 		[DataMember]
-		public ObservableCollection<RankingCategory> LowPriorityCategory { get; private set; }
+		public ObservableCollection<RankingCategoryInfo> LowPriorityCategory { get; private set; }
+		
+
 		
 	}
+
+
+	public enum RankingSource
+	{
+		CategoryRanking,
+		SearchWithMostPopular
+	}
+
+
+
+	public class RankingCategoryInfo : BindableBase
+	{
+
+		public static RankingCategoryInfo CreateFromRankingCategory(RankingCategory cat)
+		{
+			return new RankingCategoryInfo()
+			{
+				RankingSource = RankingSource.CategoryRanking,
+				Parameter = cat.ToString(),
+				DisplayLabel = cat.ToCultulizedText()
+			};
+		}
+
+
+		public static RankingCategoryInfo CreateUserCustomizedRanking()
+		{
+			return new RankingCategoryInfo()
+			{
+				RankingSource = RankingSource.SearchWithMostPopular,
+				Parameter = "",
+				DisplayLabel = ""
+			};
+		}
+
+		private RankingCategoryInfo()
+		{
+		}
+
+
+		public RankingSource RankingSource { get; set; }
+
+
+		private string _Parameter;
+		public string Parameter
+		{
+			get { return _Parameter; }
+			set { SetProperty(ref _Parameter, value); }
+		}
+
+		private string _DisplayLabel;
+		public string DisplayLabel
+		{
+			get { return _DisplayLabel; }
+			set { SetProperty(ref _DisplayLabel, value); }
+		}
+
+	}
+
+	
+
 
 	[DataContract]
 	public class AccountSettings : SettingsBase

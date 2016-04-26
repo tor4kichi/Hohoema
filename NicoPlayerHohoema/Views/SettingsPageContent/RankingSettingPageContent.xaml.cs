@@ -35,11 +35,18 @@ namespace NicoPlayerHohoema.Views.SettingsPageContent
 	public class CategoryPrioListItemTemplateSelector : DataTemplateSelector
 	{
 		public DataTemplate ListItem { get; set; }
+		public DataTemplate UserCustmizedCategory { get; set; }
 		public DataTemplate Divider { get; set; }
 
 		protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
 		{
-			if (item is ViewModels.HandSortableCategoryListItem)
+			// HandSortableUserCategoryListItemはHandSortableCategoryListItemから派生しているので
+			// HandSortableUserCategoryListItemを先に評価しないといけない
+			if (item is ViewModels.HandSortableUserCategoryListItem)
+			{
+				return UserCustmizedCategory;
+			}
+			else if (item is ViewModels.HandSortableCategoryListItem)
 			{
 				return ListItem;
 			}

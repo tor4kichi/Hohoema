@@ -232,6 +232,16 @@ namespace NicoPlayerHohoema.ViewModels
 
 				ResetCategoryPriority();
 			});
+
+			AddCustomRankingCategory = new DelegateCommand(() => 
+			{
+				HandSortableCategories.Insert(0, 
+					new HandSortableUserCategoryListItem(
+						RankingCategoryInfo.CreateUserCustomizedRanking()
+						, this
+						)
+					);
+			});
 		}
 
 
@@ -239,13 +249,9 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			HandSortableCategories.Clear();
 
-			foreach (var highPrioCat in _RankingSettings.HighPriorityCategory)
+			foreach (var catInfo in _RankingSettings.HighPriorityCategory)
 			{
-				HandSortableCategories.Add(new HandSortableCategoryListItem()
-				{
-					Label = highPrioCat.ToCultulizedText(),
-					Category = highPrioCat
-				});
+				HandSortableCategories.Add(CategoryInfoToVM(catInfo));
 			}
 
 			HandSortableCategories.Add(new DividerHandSortableCategoryListItem()
@@ -255,13 +261,9 @@ namespace NicoPlayerHohoema.ViewModels
 				BelowText = "通常"
 			});
 
-			foreach (var highPrioCat in _RankingSettings.MiddlePriorityCategory)
+			foreach (var catInfo in _RankingSettings.MiddlePriorityCategory)
 			{
-				HandSortableCategories.Add(new HandSortableCategoryListItem()
-				{
-					Label = highPrioCat.ToCultulizedText(),
-					Category = highPrioCat
-				});
+				HandSortableCategories.Add(CategoryInfoToVM(catInfo));
 			}
 
 
@@ -272,13 +274,23 @@ namespace NicoPlayerHohoema.ViewModels
 				BelowText = "非表示"
 			});
 
-			foreach (var highPrioCat in _RankingSettings.LowPriorityCategory)
+			foreach (var catInfo in _RankingSettings.LowPriorityCategory)
 			{
-				HandSortableCategories.Add(new HandSortableCategoryListItem()
-				{
-					Label = highPrioCat.ToCultulizedText(),
-					Category = highPrioCat
-				});
+				HandSortableCategories.Add(CategoryInfoToVM(catInfo));
+			}
+		}
+
+		
+		private HandSortableCategoryListItem CategoryInfoToVM(RankingCategoryInfo info)
+		{
+			switch (info.RankingSource)
+			{
+				case RankingSource.CategoryRanking:
+					return new HandSortableCategoryListItem(info);
+				case RankingSource.SearchWithMostPopular:
+					return new HandSortableUserCategoryListItem(info, this);
+				default:
+					throw new NotSupportedException($"not support {nameof(RankingSource)}.{info.RankingSource.ToString()}");
 			}
 		}
 
@@ -336,7 +348,12 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		public override void OnLeave()
+		internal void RemoveUserCustomizedRankingCategory(HandSortableUserCategoryListItem userListItem)
+		{
+			this.HandSortableCategories.Remove(userListItem);
+		}
+
+		private void ApplyAllPriorityCategoriesToRankingSettings()
 		{
 			var sourceList = HandSortableCategories.Distinct().ToList();
 
@@ -357,28 +374,36 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 			_RankingSettings.HighPriorityCategory.Clear();
-			foreach (var highPrioCat in highGroup.Cast< HandSortableCategoryListItem>()) 
+			foreach (var highPrioCat in highGroup.Cast<HandSortableCategoryListItem>())
 			{
-				_RankingSettings.HighPriorityCategory.Add(highPrioCat.Category);
+				_RankingSettings.HighPriorityCategory.Add(highPrioCat.CategoryInfo);
 			}
 
 
 			_RankingSettings.MiddlePriorityCategory.Clear();
 			foreach (var midPrioCat in middleGroup.Cast<HandSortableCategoryListItem>())
 			{
-				_RankingSettings.MiddlePriorityCategory.Add(midPrioCat.Category);
+				_RankingSettings.MiddlePriorityCategory.Add(midPrioCat.CategoryInfo);
 			}
 
 			_RankingSettings.LowPriorityCategory.Clear();
 			foreach (var lowPrioCat in lowGroup.Cast<HandSortableCategoryListItem>())
 			{
-				_RankingSettings.LowPriorityCategory.Add(lowPrioCat.Category);
+				_RankingSettings.LowPriorityCategory.Add(lowPrioCat.CategoryInfo);
 			}
+		}
 
+		public override void OnLeave()
+		{
+			ApplyAllPriorityCategoriesToRankingSettings();
 
 			_RankingSettings.Save();
 		}
 
+
+
+
+		public DelegateCommand AddCustomRankingCategory { get; private set; }
 
 		public DelegateCommand CategoryPriorityResetCommand { get; private set; }
 
@@ -390,20 +415,51 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-	public class HandSortableCategoryListItemBase 
+	public class HandSortableCategoryListItemBase : BindableBase
 	{
-		public bool IsSortable { get; protected set; }
+		public bool IsSortable { get; protected set; } = false;
 	}
 
 	public class HandSortableCategoryListItem : HandSortableCategoryListItemBase
 	{
-		public HandSortableCategoryListItem()
+		public HandSortableCategoryListItem(RankingCategoryInfo info)
 		{
+			CategoryInfo = info;
+			DisplayLabel = info.ToReactivePropertyAsSynchronized(x => x.DisplayLabel);
 			IsSortable = true;
 		}
 
-		public string Label { get; set; }
-		public RankingCategory Category { get; set; }
+		public ReactiveProperty<string> DisplayLabel { get; private set; }
+		public RankingCategoryInfo CategoryInfo { get; set; }
+	}
+
+	public class HandSortableUserCategoryListItem : HandSortableCategoryListItem
+	{
+		public HandSortableUserCategoryListItem(RankingCategoryInfo info, RankingSettingsPageContentViewModel parentVM)
+			: base(info)
+		{
+			_ParentVM = parentVM;
+			Parameter = info.ToReactivePropertyAsSynchronized(x => x.Parameter);
+		}
+
+		private DelegateCommand _RemoveUserCategoryCommand;
+		public DelegateCommand RemoveUserCategoryCommand
+		{
+			get
+			{
+				return _RemoveUserCategoryCommand
+					?? (_RemoveUserCategoryCommand = new DelegateCommand(() => 
+					{
+						_ParentVM.RemoveUserCustomizedRankingCategory(this);
+					}));
+			}
+		}
+
+
+
+		public ReactiveProperty<string> Parameter { get; private set; }
+
+		RankingSettingsPageContentViewModel _ParentVM;
 	}
 
 	public class DividerHandSortableCategoryListItem : HandSortableCategoryListItemBase

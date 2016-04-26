@@ -8,6 +8,7 @@
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
@@ -15,9 +16,66 @@
     <UserControl.Resources>
 
         <DataTemplate x:Key="ListItemTemplate">
-            <TextBlock Text="{Binding Label}" />
+            <TextBlock Text="{Binding DisplayLabel.Value}" />
         </DataTemplate>
-        
+
+        <DataTemplate x:Key="EditableListItemTemplate">
+
+            <toolkit:DockPanel>
+
+                <AppBarButton Icon="Delete" 
+                              toolkit:DockPanel.Dock="Left"
+                              Command="{Binding RemoveUserCategoryCommand}"
+                              VerticalAlignment="Center"
+                              />
+
+                <toolkit:DockPanel Background="Transparent">
+
+                    
+                    <TextBlock Text="{Binding DisplayLabel.Value}"
+                               VerticalAlignment="Center"
+                               >
+                    </TextBlock>
+
+                    <SymbolIcon Symbol="Edit" 
+                                Margin="16 0"
+                                />
+
+
+                    <i:Interaction.Behaviors>
+                        <mybehavior:ShowFlyoutBehavior />
+                    </i:Interaction.Behaviors>
+
+                    <FlyoutBase.AttachedFlyout>
+                        <Flyout>
+                            <StackPanel>
+                                <StackPanel Orientation="Vertical"
+                                            >
+
+                                    <TextBlock Text="表示名" Width="150" />
+                                    <TextBox Text="{Binding DisplayLabel.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                             MinWidth="150"
+                                             />
+
+                                </StackPanel>
+
+                                <Border Margin="0 8 0 0 " />
+                                <StackPanel Orientation="Vertical"
+                                            >
+
+                                    <TextBlock Text="キーワード" Width="150" />
+                                    <TextBox Text="{Binding Parameter.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                             MinWidth="150"
+                                             />
+
+                                </StackPanel>
+                            </StackPanel>
+                        </Flyout>
+                    </FlyoutBase.AttachedFlyout>
+                </toolkit:DockPanel>
+
+            </toolkit:DockPanel>
+        </DataTemplate>
         
         <DataTemplate x:Key="DividerTemplate">
             <StackPanel >
@@ -37,6 +95,7 @@
         
         <local:CategoryPrioListItemTemplateSelector x:Key="categoryPrioListItemTemplateSelector"
                                                     ListItem="{StaticResource ListItemTemplate}"
+                                                    UserCustmizedCategory="{StaticResource EditableListItemTemplate}"
                                                     Divider="{StaticResource DividerTemplate}"
                                                     >
         </local:CategoryPrioListItemTemplateSelector>
@@ -48,6 +107,13 @@
 
             <TextBlock Text="ランキング表示設定" />
 
+
+            <Button Content="カスタムランキングを追加する" 
+                    Command="{Binding AddCustomRankingCategory}"
+                    HorizontalAlignment="Center"
+                    Margin="8"
+                    />
+
             <ListView 
                 x:Name="SortableCategoryList"
                     ItemsSource="{Binding HandSortableCategories}" 
@@ -58,9 +124,15 @@
                       ItemTemplateSelector="{StaticResource categoryPrioListItemTemplateSelector}"
                 
                       >
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    </Style>
+                </ListView.ItemContainerStyle>
 
 
             </ListView>
+                       
 
             <Button Content="Reset"
                 Command="{Binding CategoryPriorityResetCommand}">
