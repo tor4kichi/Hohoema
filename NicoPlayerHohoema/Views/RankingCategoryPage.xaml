@@ -19,21 +19,32 @@
 
         <Border>
             <toolkit:DockPanel>
-                <Border toolkit:DockPanel.Dock="Top">
+                <Border toolkit:DockPanel.Dock="Top" 
+                        Visibility="{Binding CanChangeRankingParameter.Value, Converter={StaticResource BooleanToVisibility}}">
                     <StackPanel Orientation="Horizontal">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="対象"></TextBlock>
+                            <TextBlock Text="対象" 
+                                       VerticalAlignment="Center"
+                                       Margin="8 0"
+                                       />
                             <ComboBox ItemsSource="{Binding RankingTargetItems}"
                                       SelectedItem="{Binding SelectedRankingTarget.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                       DisplayMemberPath="Label"
+                                      MinWidth="80"
                                       />
                         </StackPanel>
 
+                        <Border Width="32" />
+
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="集計期間"></TextBlock>
+                            <TextBlock Text="集計期間"
+                                       VerticalAlignment="Center"
+                                       Margin="8 0"
+                                       />
                             <ComboBox ItemsSource="{Binding RankingTimeSpanItems}"
                                       SelectedItem="{Binding SelectedRankingTimeSpan.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                       DisplayMemberPath="Label"
+                                      MinWidth="80"
                                       />
                         </StackPanel>
                     </StackPanel>
@@ -52,7 +63,17 @@
                     </ListBox.ItemContainerStyle>
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <view:VideoInfoControl />
+                            <Grid>
+                                <view:VideoInfoControl />
+
+                                <TextBlock Text="{Binding Rank, Mode=OneTime}" 
+                                           HorizontalAlignment="Right"
+                                           VerticalAlignment="Bottom"
+                                           FontSize="60"
+                                           Foreground="#55777777"
+                                           Margin="8 0"
+                                           />
+                            </Grid>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>

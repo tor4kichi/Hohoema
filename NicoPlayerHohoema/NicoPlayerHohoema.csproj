@@ -107,6 +107,7 @@
     <Compile Include="Models\PlayerDisplayMode.cs" />
     <Compile Include="Util\ColorExtention.cs" />
     <Compile Include="Util\HttpRandomAccessStream.cs" />
+    <Compile Include="Util\NiconicoRankingExtention.cs" />
     <Compile Include="Util\NicoVideoRssItemExtention.cs" />
     <Compile Include="ViewModels\CommentStreamingViewModel.cs" />
     <Compile Include="ViewModels\HistoryPageViewModel.cs" />

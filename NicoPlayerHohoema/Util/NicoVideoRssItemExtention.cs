@@ -17,5 +17,9 @@ namespace NicoPlayerHohoema.Util
 		{
 			return url.Split('/').Last();
 		}
+		public static string VideoIdToWatchPageUrl(string id)
+		{
+			return Mntone.Nico2.NiconicoUrls.VideoWatchPageUrl + id;
+		}
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using Mntone.Nico2.Videos.Ranking;
+using Mntone.Nico2.Videos.Search;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Util;
 using Prism.Commands;
@@ -26,6 +27,8 @@ namespace NicoPlayerHohoema.ViewModels
 			HohoemaApp = hohoemaApp;
 			_EventAggregator = ea;
 			RankingSettings = hohoemaApp.UserSettings.RankingSettings;
+			IsFailedRefreshRanking = new ReactiveProperty<bool>(false);
+			CanChangeRankingParameter = new ReactiveProperty<bool>(false);
 
 			// ランキングの対象
 			RankingTargetItems = new List<RankingTargetListItem>()
@@ -65,30 +68,36 @@ namespace NicoPlayerHohoema.ViewModels
 				.SubscribeOnUIDispatcher()
 				.Subscribe(x => 
 				{
-					UpdateRankingList();
+					RefreshRankingList();
 				});
 			
 		}
 
 
-		private async void UpdateRankingList()
+		private async void UpdateRankingList(RankingCategory category)
 		{
 			var target = SelectedRankingTarget.Value.TargetType;
 			var timeSpan = SelectedRankingTimeSpan.Value.TimeSpan;
-			var category = RankingCategory;
 
 
 			RankingItems.Clear();
 
 			try
 			{
-				var list = await NiconicoRanking.GetRankingData(target, timeSpan, category);
+				var listItems = await NiconicoRanking.GetRankingData(target, timeSpan, category);
 
-				foreach(var item in list.Channel.Items)
+				for (uint i = 0; i < listItems.Channel.Items.Count; i++)
 				{
+					var item = listItems.Channel.Items[(int)i];
+
 					try
 					{
-						var videoInfoVM = new VideoInfoControlViewModel(item.Title, item.VideoUrl, HohoemaApp);
+						var videoInfoVM = new RankedVideoInfoControlViewModel(
+							i + 1
+							, item.Title
+							, item.VideoUrl
+							, HohoemaApp
+						);
 
 						RankingItems.Add(videoInfoVM);
 					}
@@ -109,6 +118,46 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
+		private async void LoadRankingFromSearchWithPopularity(string parameter)
+		{
+
+			var listItems = new List<Mntone.Nico2.Videos.Search.ListItem>();
+
+			// 
+			for (uint i = 0; i < 3; i++)
+			{
+				var res = await HohoemaApp.NiconicoContext.Video.GetKeywordSearchAsync(parameter, i + 1, SearchSortMethod.Popurarity);
+				listItems.AddRange(res.list);
+				await Task.Delay(200);
+			}
+
+
+
+			for (uint i = 0; i < listItems.Count; i++)
+			{
+				var item = listItems[(int)i];
+
+				try
+				{
+					var videoInfoVM = new RankedVideoInfoControlViewModel(
+						i + 1,
+						item.title
+						, NicoVideoExtention.VideoIdToWatchPageUrl(item.id)
+						, HohoemaApp);
+
+					RankingItems.Add(videoInfoVM);
+				}
+				catch { }
+			}
+
+			// サムネイル情報を非同期読み込み
+			foreach (var videoInfoVM in RankingItems)
+			{
+				videoInfoVM.LoadThumbnail();
+			}
+		}
+
+
 
 		internal void PlayVideo(string videoUrl)
 		{
@@ -119,11 +168,41 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			RankingCategory = (RankingCategory)e.Parameter;
+			CategoryInfo = (RankingCategoryInfo)e.Parameter;
 
-			UpdateRankingList();
+			RefreshRankingList();
+
+			// TODO: ページタイトルを変更したい
 
 			base.OnNavigatedTo(e, viewModelState);
+		}
+
+
+		public void RefreshRankingList()
+		{
+			IsFailedRefreshRanking.Value = false;
+
+			try
+			{
+				switch (CategoryInfo.RankingSource)
+				{
+					case RankingSource.CategoryRanking:
+						RankingCategory = (RankingCategory)Enum.Parse(typeof(RankingCategory), CategoryInfo.Parameter);
+						UpdateRankingList(RankingCategory);
+						CanChangeRankingParameter.Value = true;
+						break;
+					case RankingSource.SearchWithMostPopular:
+						LoadRankingFromSearchWithPopularity(CategoryInfo.Parameter);
+						CanChangeRankingParameter.Value = false;
+						break;
+					default:
+						throw new NotImplementedException();
+				}
+			}
+			catch
+			{
+				IsFailedRefreshRanking.Value = true;
+			}
 		}
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
@@ -134,8 +213,13 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
+		public ReactiveProperty<bool> IsFailedRefreshRanking { get; private set; }
+
+		public ReactiveProperty<bool> CanChangeRankingParameter { get; private set; }
 
 
+
+		public RankingCategoryInfo CategoryInfo { get; private set; }
 
 		public RankingCategory RankingCategory { get; private set; }
 
@@ -154,7 +238,18 @@ namespace NicoPlayerHohoema.ViewModels
 	}
 
 
-	
+	public class RankedVideoInfoControlViewModel : VideoInfoControlViewModel
+	{
+		public RankedVideoInfoControlViewModel(uint rank, string title, string videoUrl, HohoemaApp hohoemaApp)
+			: base(title, videoUrl, hohoemaApp)
+		{
+			Rank = rank;
+		}
+
+
+
+		public uint Rank { get; private set; }
+	}
 
 	public class RankingTargetListItem : BindableBase
 	{
