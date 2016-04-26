@@ -81,11 +81,60 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public bool IsNgVideo(ThumbnailResponse response)
+		public NGResult IsNgVideo(ThumbnailResponse response)
 		{
-			// TODO: 
-			return false;
+			var ng = UserSettings.NGSettings;
+
+			// 動画IDによるNG判定
+			if (ng.NGVideoIdEnable && ng.NGVideoIds.Count > 0)
+			{
+				var ngItem = ng.NGVideoIds.SingleOrDefault(x => x.VideoId == response.Id);
+
+				if (ngItem != null)
+				{
+					return new NGResult()
+					{
+						NGReason = NGReason.VideoId,
+						Content = ngItem.VideoId,
+						NGDescription = ngItem.Description,
+					};
+				}
+			}
+
+			// 動画投稿者によるNG判定
+			if (ng.NGVideoOwnerUserIdEnable && ng.NGVideoOwnerUserIds.Count > 0)
+			{
+				var ngItem = ng.NGVideoOwnerUserIds.SingleOrDefault(x => x.UserId == response.UserId);
+
+				if (ngItem != null)
+				{
+					return new NGResult()
+					{
+						NGReason = NGReason.UserId,
+						Content = ngItem.UserId.ToString(),
+						NGDescription = ngItem.Description
+					};
+				}
+			}
+
+			// 動画タイトルによるNG判定
+			if (ng.NGVideoTitleKeywordEnable && ng.NGVideoTitleKeywords.Count > 0)
+			{
+				var ngItem = ng.NGVideoTitleKeywords.FirstOrDefault(x => response.Title.Contains(x.Keyword));
+
+				if (ngItem != null)
+				{
+					return new NGResult()
+					{
+						NGReason = NGReason.Keyword,
+						Content = ngItem.Keyword,
+					};
+				}
+			}
+
+			return null;
 		}
+
 
 
 		public HohoemaUserSettings UserSettings { get; private set; }
@@ -105,4 +154,33 @@ namespace NicoPlayerHohoema.Models
 		public IEventAggregator EventAggregator { get; private set; }
 	}
 	
+
+	public class NGResult
+	{
+		public NGReason NGReason { get; set; }
+		public string NGDescription { get; set; } = "";
+		public string Content { get; set; }
+
+		internal string GetReasonText()
+		{
+			switch (NGReason)
+			{
+				case NGReason.VideoId:
+					return $"NG対象の動画ID : {Content}";
+				case NGReason.UserId:
+					return $"NG対象の投稿者ID : {Content}";
+				case NGReason.Keyword:
+					return $"NG対象のキーワード : {Content}";
+				default:
+					throw new NotSupportedException();
+			}
+		}
+	}
+
+	public enum NGReason
+	{
+		VideoId,
+		UserId,
+		Keyword,
+	}
 }

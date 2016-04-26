@@ -13,57 +13,101 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <toolkit:DockPanel >
+    <Grid>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsForceDisplayNGVideo}" />
+                    </VisualState.StateTriggers>
 
-        <i:Interaction.Behaviors>
-            <core:EventTriggerBehavior EventName="Tapped">
-                <core:InvokeCommandAction Command="{Binding ShowDetailCommand}" />
-            </core:EventTriggerBehavior>
-            <core:EventTriggerBehavior EventName="DoubleTapped">
-                <core:InvokeCommandAction Command="{Binding PlayCommand}" />
-            </core:EventTriggerBehavior>
-        </i:Interaction.Behaviors>
+                    <VisualState.Setters>
+                        <Setter Target="NGVideoShutoutWall.Visibility" Value="Collapsed" />
+                        <Setter Target="VideoInfo.Opacity" Value="1.0" />
+                        <Setter Target="VideoInfo.IsHitTestVisible" Value="True" />
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsNotGoodVideo}" />
+                    </VisualState.StateTriggers>
+
+                    <VisualState.Setters>
+                        <Setter Target="NGVideoShutoutWall.Visibility" Value="Visible" />
+                        <Setter Target="VideoInfo.Opacity" Value="0.2" />
+                        <Setter Target="VideoInfo.IsHitTestVisible" Value="False" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
 
 
-        <!-- post at -->
-        <Border toolkit:DockPanel.Dock="Top" Margin="0 0 0 4">
-            <TextBlock Foreground="Gray" FontSize="12">
+        
+        
+        
+        <toolkit:DockPanel x:Name="VideoInfo">
+
+            <i:Interaction.Behaviors>
+                <core:EventTriggerBehavior EventName="Tapped">
+                    <core:InvokeCommandAction Command="{Binding ShowDetailCommand}" />
+                </core:EventTriggerBehavior>
+                <core:EventTriggerBehavior EventName="DoubleTapped">
+                    <core:InvokeCommandAction Command="{Binding PlayCommand}" />
+                </core:EventTriggerBehavior>
+            </i:Interaction.Behaviors>
+
+            
+            <!-- post at -->
+            <Border toolkit:DockPanel.Dock="Top" Margin="0 0 0 4">
+                <TextBlock Foreground="Gray" FontSize="12">
                 <Run Text="{Binding PostAt}" />
                 <Run Text="投稿" />
-            </TextBlock>
-        </Border>
+                </TextBlock>
+            </Border>
 
-        <Grid Width="128" Height="80" toolkit:DockPanel.Dock="Left" >
-            <Image  Source="{Binding ThumbnailImageUrl}"
+            <Grid Width="128" Height="80" toolkit:DockPanel.Dock="Left" >
+
+               
+                <Image  Source="{Binding ThumbnailImageUrl}"
                    HorizontalAlignment="Stretch"
                    VerticalAlignment="Stretch"
                     Stretch="Fill"
                    ></Image>
 
-            <Border Background="#AA000000"
+                <Border Background="#AA000000"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Bottom"
                     Margin="4"
                     >
-                <TextBlock Text="{Binding MovieLength, Converter={StaticResource TimeToMovieLengthConverter}}"
+                    <TextBlock Text="{Binding MovieLength, Converter={StaticResource TimeToMovieLengthConverter}}"
                        Foreground="White"
                            FontSize="12"
                            Margin="2"
                            VerticalAlignment="Center"
                            HorizontalAlignment="Center"
                        />
-            </Border>
-        </Grid>
+                </Border>
+
+                <!-- NGVideoのときだけ表示するボタン -->
+                <Button Content="非表示"
+                        Command="{Binding StopNGVideoDisplayCommand}" 
+                        Visibility="{Binding IsNotGoodVideo, Converter={StaticResource BooleanToVisibility}}"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                    />
+
+            </Grid>
 
 
-        <toolkit:DockPanel Margin="8 0 0 0">
-            <TextBlock Text="{Binding Title}" 
+            <toolkit:DockPanel Margin="8 0 0 0">
+                <TextBlock Text="{Binding Title}" 
                        toolkit:DockPanel.Dock="Top"
                        FontSize="16"
                        />
 
-            <StackPanel Orientation="Vertical">
-                <TextBlock Text="{Binding OwnerComment}" 
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Text="{Binding OwnerComment}" 
                        Foreground="Gray"
                            MaxWidth="400"
                            Margin="0 8"
@@ -73,23 +117,64 @@
                            FontSize="12"
                        />
 
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Margin="0 0 8 0" Foreground="Gray" FontSize="12">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Margin="0 0 8 0" Foreground="Gray" FontSize="12">
                         <Run Text="再生" />
                         <Run Text="{Binding ViewCount}" />
-                    </TextBlock>
-                    <TextBlock Margin="0 0 8 0" Foreground="Gray" FontSize="12">
+                        </TextBlock>
+                        <TextBlock Margin="0 0 8 0" Foreground="Gray" FontSize="12">
                         <Run Text="コメ" />
                         <Run Text="{Binding CommentCount}" />
-                    </TextBlock>
-                    <TextBlock Margin="0 0 8 0" Foreground="Gray" FontSize="12">
+                        </TextBlock>
+                        <TextBlock Margin="0 0 8 0" Foreground="Gray" FontSize="12">
                         <Run Text="マイ" />
                         <Run Text="{Binding MylistCount}" />
-                    </TextBlock>
-                </StackPanel>
-               
-            </StackPanel>
+                        </TextBlock>
+                    </StackPanel>
 
+                </StackPanel>
+
+            </toolkit:DockPanel>
         </toolkit:DockPanel>
-    </toolkit:DockPanel>
+
+        
+        
+        <Grid x:Name="NGVideoShutoutWall"
+            Background="#01000000"
+              Visibility="Collapsed"
+              >
+
+            <toolkit:DockPanel HorizontalAlignment="Center"
+                               VerticalAlignment="Center">
+                <TextBlock Text="NG"
+                           FontSize="40"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           Foreground="Gray"
+                           Margin="16 0"
+                           />
+
+                <TextBlock toolkit:DockPanel.Dock="Top"
+                           HorizontalAlignment="Center"
+                           Foreground="Gray"
+                           Margin="0 16"
+                           >
+                    <Run Text="{Binding NGVideoReason}" />
+                </TextBlock>
+
+                <Button Content="NGを一時的に解除"
+                        Command="{Binding ForceDisplayNGVideoCommand}" 
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Bottom"
+                        Foreground="Gray"
+                    />
+
+            </toolkit:DockPanel>
+        </Grid>
+
+
+       
+    </Grid>
+
+    
 </UserControl>

@@ -128,7 +128,6 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				var res = await HohoemaApp.NiconicoContext.Video.GetKeywordSearchAsync(parameter, i + 1, SearchSortMethod.Popurarity);
 				listItems.AddRange(res.list);
-				await Task.Delay(200);
 			}
 
 

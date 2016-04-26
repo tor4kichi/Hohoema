@@ -436,14 +436,14 @@ namespace NicoPlayerHohoema.Models
 		public NGSettings()
 		{
 			NGVideoIdEnable = true;
-			NGVideoIds = new ObservableCollection<IdInfo>();
+			NGVideoIds = new ObservableCollection<VideoIdInfo>();
 			NGVideoOwnerUserIdEnable = true;
-			NGVideoOwnerUserIds = new ObservableCollection<IdInfo>();
+			NGVideoOwnerUserIds = new ObservableCollection<UserIdInfo>();
 			NGVideoTitleKeywordEnable = true;
 			NGVideoTitleKeywords = new ObservableCollection<NGKeyword>();
 
 			NGCommentUserIdEnable = true;
-			NGCommentUserIds = new ObservableCollection<IdInfo>();
+			NGCommentUserIds = new ObservableCollection<UserIdInfo>();
 			NGCommentKeywordEnable = true;
 			NGCommentKeywords = new ObservableCollection<NGKeyword>();
 			NGCommentGlassMowerEnable = false;
@@ -465,7 +465,7 @@ namespace NicoPlayerHohoema.Models
 
 
 		[DataMember]
-		public ObservableCollection<IdInfo> NGVideoIds { get; private set; }
+		public ObservableCollection<VideoIdInfo> NGVideoIds { get; private set; }
 
 
 		private bool _NGVideoOwnerUserIdEnable;
@@ -479,7 +479,7 @@ namespace NicoPlayerHohoema.Models
 
 
 		[DataMember]
-		public ObservableCollection<IdInfo> NGVideoOwnerUserIds { get; private set; }
+		public ObservableCollection<UserIdInfo> NGVideoOwnerUserIds { get; private set; }
 
 
 		private bool _NGVideoTitleKeywordEnable;
@@ -511,7 +511,7 @@ namespace NicoPlayerHohoema.Models
 		}
 
 		[DataMember]
-		public ObservableCollection<IdInfo> NGCommentUserIds;
+		public ObservableCollection<UserIdInfo> NGCommentUserIds;
 
 		private bool _NGCommentKeywordEnable;
 
@@ -556,12 +556,17 @@ namespace NicoPlayerHohoema.Models
 		public string Keyword { get; set; }
 	}
 
-	public class IdInfo
+	public class VideoIdInfo
 	{
-		public uint Id { get; set; }
+		public string VideoId { get; set; }
 		public string Description { get; set; }
 	}
 
+	public class UserIdInfo
+	{
+		public uint UserId { get; set; }
+		public string Description { get; set; }
+	}
 
 	public enum NGCommentScore
 	{

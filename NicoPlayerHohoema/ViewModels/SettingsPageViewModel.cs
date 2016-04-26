@@ -483,14 +483,14 @@ namespace NicoPlayerHohoema.ViewModels
 			NGVideoIdEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoIdEnable);
 			NGVideoIds = _NGSettings.NGVideoIds
 				.ToReadOnlyReactiveCollection(x => 
-					IdInfoToRemovableListItemVM(x, OnRemoveNGVideoIdFromList)
+					VideoIdInfoToRemovableListItemVM(x, OnRemoveNGVideoIdFromList)
 					);
 
 			// NG Video Owner User Id
 			NGVideoOwnerUserIdEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoOwnerUserIdEnable);
 			NGVideoOwnerUserIds = _NGSettings.NGVideoOwnerUserIds
 				.ToReadOnlyReactiveCollection(x =>
-					IdInfoToRemovableListItemVM(x, OnRemoveNGVideoOwnerUserIdFromList)
+					UserIdInfoToRemovableListItemVM(x, OnRemoveNGVideoOwnerUserIdFromList)
 					);
 
 			// NG Keyword on Video Title
@@ -518,7 +518,7 @@ namespace NicoPlayerHohoema.ViewModels
 			NGCommentUserIdEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentUserIdEnable);
 			NGCommentUserIds = _NGSettings.NGCommentUserIds
 				.ToReadOnlyReactiveCollection(x =>
-					IdInfoToRemovableListItemVM(x, OnRemoveNGCommentUserIdFromList)
+					UserIdInfoToRemovableListItemVM(x, OnRemoveNGCommentUserIdFromList)
 					);
 
 			NGCommentKeywordEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentKeywordEnable);
@@ -545,16 +545,16 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		private void OnRemoveNGVideoIdFromList(uint videoId)
+		private void OnRemoveNGVideoIdFromList(string videoId)
 		{
-			var removeTarget = _NGSettings.NGVideoIds.First(x => x.Id == videoId);
+			var removeTarget = _NGSettings.NGVideoIds.First(x => x.VideoId == videoId);
 			_NGSettings.NGVideoIds.Remove(removeTarget);
 		}
 
 
 		private void OnRemoveNGVideoOwnerUserIdFromList(uint userId)
 		{
-			var removeTarget = _NGSettings.NGVideoOwnerUserIds.First(x => x.Id == userId);
+			var removeTarget = _NGSettings.NGVideoOwnerUserIds.First(x => x.UserId == userId);
 			_NGSettings.NGVideoOwnerUserIds.Remove(removeTarget);
 		}
 
@@ -571,16 +571,24 @@ namespace NicoPlayerHohoema.ViewModels
 
 		private void OnRemoveNGCommentUserIdFromList(uint userId)
 		{
-			var removeTarget = _NGSettings.NGCommentUserIds.First(x => x.Id == userId);
+			var removeTarget = _NGSettings.NGCommentUserIds.First(x => x.UserId == userId);
 			_NGSettings.NGCommentUserIds.Remove(removeTarget);
 		}
 
 
-		private RemovableListItem<uint> IdInfoToRemovableListItemVM(IdInfo info, Action<uint> removeAction)
+		private RemovableListItem<string> VideoIdInfoToRemovableListItemVM(VideoIdInfo info, Action<string> removeAction)
 		{
 			var roundedDesc = info.Description.Substring(0, Math.Min(info.Description.Length - 1, 10));
-			return new RemovableListItem<uint>(info.Id, $"{info.Id} | {roundedDesc}", removeAction);
+			return new RemovableListItem<string>(info.VideoId, $"{info.VideoId} | {roundedDesc}", removeAction);
 		}
+
+
+		private RemovableListItem<uint> UserIdInfoToRemovableListItemVM(UserIdInfo info, Action<uint> removeAction)
+		{
+			var roundedDesc = info.Description.Substring(0, Math.Min(info.Description.Length - 1, 10));
+			return new RemovableListItem<uint>(info.UserId, $"{info.UserId} | {roundedDesc}", removeAction);
+		}
+
 
 		public override void OnLeave()
 		{
@@ -593,7 +601,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public DelegateCommand AddNewNGVideoTitleKeywordCommand { get; private set; }
 
 		public ReactiveProperty<bool> NGVideoIdEnable { get; private set; }
-		public ReadOnlyReactiveCollection<RemovableListItem<uint>> NGVideoIds { get; private set; }
+		public ReadOnlyReactiveCollection<RemovableListItem<string>> NGVideoIds { get; private set; }
 
 		public ReactiveProperty<bool> NGVideoOwnerUserIdEnable { get; private set; }
 		public ReadOnlyReactiveCollection<RemovableListItem<uint>> NGVideoOwnerUserIds { get; private set; }

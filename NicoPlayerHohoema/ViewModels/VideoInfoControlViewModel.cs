@@ -38,7 +38,13 @@ namespace NicoPlayerHohoema.ViewModels
 			var videoId = Util.NicoVideoExtention.UrlToVideoId(VideoUrl);
 			var thumbnail = await App.NiconicoContext.Video.GetThumbnailAsync(videoId);
 
-			IsNotGoodVideo = App.IsNgVideo(thumbnail);
+			// NG判定
+			var ngResult = App.IsNgVideo(thumbnail);
+			IsNotGoodVideo = ngResult != null;
+			NGVideoReason = ngResult?.GetReasonText() ?? "";
+			IsForceDisplayNGVideo = false;
+
+
 
 			Title = thumbnail.Title;
 			ViewCount = thumbnail.ViewCount;
@@ -46,7 +52,7 @@ namespace NicoPlayerHohoema.ViewModels
 			MylistCount = thumbnail.MylistCount;
 			OwnerComment = thumbnail.Description;
 			PostAt = thumbnail.PostedAt.LocalDateTime;
-			ThumbnailImageUrl = thumbnail.ThumbnailUrl;
+			ThumbnailImageUrl = IsNotGoodVideo ? null : thumbnail.ThumbnailUrl;
 			MovieLength = thumbnail.Length;
 
 		}
@@ -108,6 +114,21 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _IsNotGoodVideo, value); }
 		}
 
+		private string _NGVideoReason;
+		public string NGVideoReason
+		{
+			get { return _NGVideoReason; }
+			set { SetProperty(ref _NGVideoReason, value); }
+		}
+
+		private bool _IsForceDisplayNGVideo;
+		public bool IsForceDisplayNGVideo
+		{
+			get { return _IsForceDisplayNGVideo; }
+			set { SetProperty(ref _IsForceDisplayNGVideo, value); }
+		}
+
+
 		private DateTime _PostAt;
 		public DateTime PostAt
 		{
@@ -123,6 +144,33 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public DelegateCommand ShowDetailCommand { get; private set; }
 		public DelegateCommand PlayCommand { get; private set; }
+
+
+		private DelegateCommand _ForceDisplayNGVideoCommand;
+		public DelegateCommand ForceDisplayNGVideoCommand
+		{
+			get
+			{
+				return _ForceDisplayNGVideoCommand
+					?? (_ForceDisplayNGVideoCommand = new DelegateCommand(() => 
+					{
+						IsForceDisplayNGVideo = true;
+					}));
+			}
+		}
+
+		private DelegateCommand _StopNGVideoDisplayCommand;
+		public DelegateCommand StopNGVideoDisplayCommand
+		{
+			get
+			{
+				return _StopNGVideoDisplayCommand
+					?? (_StopNGVideoDisplayCommand = new DelegateCommand(() =>
+					{
+						IsForceDisplayNGVideo = false;
+					}));
+			}
+		}
 
 
 		public HohoemaApp App { get; private set; }
