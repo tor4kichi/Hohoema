@@ -15,120 +15,182 @@
     mc:Ignorable="d">
 
     <Page.Resources>
-    </Page.Resources>
-    
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
-
-        <i:Interaction.Behaviors>
-            <!-- 動画表示部分をタップしたらメディアコントロールを表示する -->
-            <core:EventTriggerBehavior EventName="Tapped">
-                <core:InvokeCommandAction Command="{Binding ShowMediaControlCommand}" />
-            </core:EventTriggerBehavior>
-
-            <core:EventTriggerBehavior EventName="PointerMoved">
-                <core:InvokeCommandAction Command="{Binding ShowMediaControlCommand}" />
-            </core:EventTriggerBehavior>
-
-        </i:Interaction.Behaviors>
         
+        
+    </Page.Resources>
 
-        <MediaElement x:Name="mediaElem"
+
+    
+
+    <toolkit:DockPanel>
+        
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding HideMediaInfo.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="LandscapeMediaInfo.Visibility" Value="Collapsed" />
+                        <Setter Target="PortraitMediaInfo.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+                
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="800" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="LandscapeMediaInfo.Visibility" Value="Visible" />
+                        <Setter Target="PortraitMediaInfo.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="LandscapeMediaInfo.Visibility" Value="Collapsed" />
+                        <Setter Target="PortraitMediaInfo.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+        
+        <!-- Landscape Media Info -->
+        <StackPanel x:Name="LandscapeMediaInfo"
+                    toolkit:DockPanel.Dock="Right"
+                    MinWidth="320"
+                    >
+            <local:MediaInfoContent />
+
+        </StackPanel>
+        <!-- Portrait Media Info -->
+        <StackPanel x:Name="PortraitMediaInfo"
+                    toolkit:DockPanel.Dock="Bottom"
+                    MinHeight="400"
+                    >
+            <local:MediaInfoContent />
+
+        </StackPanel>
+
+
+
+        <!-- Media Control -->
+        <Grid Background="Black">
+
+
+            <i:Interaction.Behaviors>
+                <!-- 動画表示部分をタップしたらメディアコントロールを表示する -->
+                <core:EventTriggerBehavior EventName="Tapped">
+                    <core:InvokeCommandAction Command="{Binding ShowMediaControlCommand}" />
+                </core:EventTriggerBehavior>
+
+                <core:EventTriggerBehavior EventName="PointerMoved">
+                    <core:InvokeCommandAction Command="{Binding ShowMediaControlCommand}" />
+                </core:EventTriggerBehavior>
+
+            </i:Interaction.Behaviors>
+
+
+            <MediaElement x:Name="mediaElem"
                       local:MediaElementExtention.CustomStream="{Binding VideoStream.Value}"
                       Position="{Binding CurrentVideoPosition.Value}"
                       AudioCategory="BackgroundCapableMedia"
                       >
-            <i:Interaction.Behaviors>
-                
-                
-                <!-- 動画の再生位置を取り出す -->
-                <mybehavior:MediaElementExtractPositionBehavior 
+                <i:Interaction.Behaviors>
+
+
+                    <!-- 動画の再生位置を取り出す -->
+                    <mybehavior:MediaElementExtractPositionBehavior 
                     Position="{Binding ReadVideoPosition.Value, Mode=TwoWay}"
                     Interval="00:00:00.032" 
                     />
 
-                <!-- シーク操作後、自動で再生する -->
-                <mybehavior:MediaElementSeekAfterAutoPlayBehavior />
+                    <!-- シーク操作後、自動で再生する -->
+                    <mybehavior:MediaElementSeekAfterAutoPlayBehavior />
 
-                <!-- MediaElementのバッファリング/再生の状態を読み取る -->
-                <mybehavior:MediaElementStateGetter State="{Binding CurrentState.Value, Mode=TwoWay}" />
+                    <!-- MediaElementのバッファリング/再生の状態を読み取る -->
+                    <mybehavior:MediaElementStateGetter State="{Binding CurrentState.Value, Mode=TwoWay}" />
 
-            </i:Interaction.Behaviors>
-        </MediaElement>
+                </i:Interaction.Behaviors>
+            </MediaElement>
 
-        
-        <comment:CommentRenderer Comments="{Binding Comments}"
+
+            <comment:CommentRenderer Comments="{Binding Comments}"
                                 VideoPosition="{Binding ReadVideoPosition.Value}"
                                 />
-        
-        
-        <toolkit:DockPanel HorizontalAlignment="Stretch"
+
+
+            <toolkit:DockPanel HorizontalAlignment="Stretch"
                            VerticalAlignment="Stretch"
                            >
 
 
-            <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom"
+                <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom"
                                Visibility="{Binding IsVisibleMediaControl.Value, Converter={StaticResource BooleanToVisibility}}"
                                Margin="32"
                                Background="#AA777777"
                                >
 
 
-                <!-- Bottom Items -->
-                <StackPanel 
+                    <!-- Bottom Items -->
+                    <StackPanel 
                         toolkit:DockPanel.Dock="Bottom"
                         Orientation="Horizontal"
                     HorizontalAlignment="Stretch"
                     >
-                    <!-- Comment -->
-                    
-                    
-                </StackPanel>
+                        <!-- Comment -->
 
-                <!-- Left Items -->
-                <StackPanel 
+
+                    </StackPanel>
+
+                    <!-- Left Items -->
+                    <StackPanel 
                         toolkit:DockPanel.Dock="Left"
                         Orientation="Horizontal">
-                    <AppBarButton Icon="Play"
+                        <AppBarButton Icon="Play"
                                   >
-                        <i:Interaction.Behaviors>
-                            <core:EventTriggerBehavior EventName="Tapped">
-                                <core:CallMethodAction TargetObject="{Binding ElementName=mediaElem}"
+                            <i:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <core:CallMethodAction TargetObject="{Binding ElementName=mediaElem}"
                                                        MethodName="Play"
                                                        />
-                            </core:EventTriggerBehavior>
-                        </i:Interaction.Behaviors>
-                    </AppBarButton>
-                    <AppBarButton Icon="Pause"
+                                </core:EventTriggerBehavior>
+                            </i:Interaction.Behaviors>
+                        </AppBarButton>
+                        <AppBarButton Icon="Pause"
                                   >
-                        <i:Interaction.Behaviors>
-                            <core:EventTriggerBehavior EventName="Tapped">
-                                <core:CallMethodAction TargetObject="{Binding ElementName=mediaElem}"
+                            <i:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <core:CallMethodAction TargetObject="{Binding ElementName=mediaElem}"
                                                        MethodName="Pause"
                                                        />
-                            </core:EventTriggerBehavior>
-                        </i:Interaction.Behaviors>
-                    </AppBarButton>
-                </StackPanel>
+                                </core:EventTriggerBehavior>
+                            </i:Interaction.Behaviors>
+                        </AppBarButton>
+                    </StackPanel>
 
-                <!-- Right Items-->
-                <StackPanel
+                    <!-- Right Items-->
+                    <StackPanel
                     toolkit:DockPanel.Dock="Right"
                     Orientation="Horizontal"
                     >
-                    
-                    
-                </StackPanel>
 
 
-                <!-- Center Items-->
-                <Grid 
+                    </StackPanel>
+
+
+                    <!-- Center Items-->
+                    <Grid 
                     x:Name="ControlPanel_Center"
                     Margin="32 0"
                     Height="48"
                              >
 
-                    <Slider Minimum="0.0" 
+                        <Slider Minimum="0.0" 
                             Maximum="{Binding VideoLength.Value}"
                             Value="{Binding SliderVideoPosition.Value, Mode=TwoWay}"
                             Width="{Binding ElementName=ControlPanel_Center, Path=ActualWidth}"
@@ -137,9 +199,9 @@
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
                             >
-                    </Slider>
+                        </Slider>
 
-                    <TextBlock HorizontalAlignment="Right"
+                        <TextBlock HorizontalAlignment="Right"
                                VerticalAlignment="Bottom"
                                Margin="4" 
                                IsHitTestVisible="False"
@@ -148,15 +210,18 @@
                         <Run Text="{Binding SliderVideoPosition.Value, Converter={StaticResource TimeToMovieLengthConverter}}" />
                         <Run Text="/" />
                         <Run Text="{Binding VideoLength.Value, Converter={StaticResource TimeToMovieLengthConverter}}" />
-                    </TextBlock>
-                </Grid>
-                
+                        </TextBlock>
+                    </Grid>
+
+                </toolkit:DockPanel>
+
+
+                <Border />
+
+
             </toolkit:DockPanel>
-            
-
-            <Border />
-
-
-        </toolkit:DockPanel>
-    </Grid>
+        </Grid>
+    </toolkit:DockPanel>
+    
+    
 </Page>

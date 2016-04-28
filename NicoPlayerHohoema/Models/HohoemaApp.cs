@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Foundation;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -19,6 +20,7 @@ namespace NicoPlayerHohoema.Models
 			UserSettings = new HohoemaUserSettings();
 			NiconicoPlayer = new NiconicoPlayer(this);
 			NiconicoContext = new NiconicoContext();
+			VideoIdToThumbnailInfo = new Dictionary<string, ThumbnailResponse>();
 		}
 
 		public async Task LoadUserSettings()
@@ -136,6 +138,32 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
+		public async Task<ThumbnailResponse> GetThumbnail(string videoId)
+		{
+			if (VideoIdToThumbnailInfo.ContainsKey(videoId))
+			{
+				var value = VideoIdToThumbnailInfo[videoId];
+
+				// TODO: サムネイル情報が古い場合は更新する
+
+				return value;
+			}
+			else
+			{
+				var thumbnail = await _NiconicoContext.Video.GetThumbnailAsync(videoId);
+				try
+				{
+					if (!VideoIdToThumbnailInfo.ContainsKey(videoId))
+					{
+						VideoIdToThumbnailInfo.Add(videoId, thumbnail);
+					}
+				}
+				catch { }
+
+				return thumbnail;
+			}
+		}
+
 
 		public HohoemaUserSettings UserSettings { get; private set; }
 
@@ -152,6 +180,9 @@ namespace NicoPlayerHohoema.Models
 		public const string HohoemaUserAgent = "Hohoema_UWP";
 
 		public IEventAggregator EventAggregator { get; private set; }
+
+
+		public Dictionary<string, ThumbnailResponse> VideoIdToThumbnailInfo { get; private set; }
 	}
 	
 

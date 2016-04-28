@@ -36,7 +36,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public async void LoadThumbnail()
 		{
 			var videoId = Util.NicoVideoExtention.UrlToVideoId(VideoUrl);
-			var thumbnail = await App.NiconicoContext.Video.GetThumbnailAsync(videoId);
+			var thumbnail = await App.GetThumbnail(videoId);
 
 			// NG判定
 			var ngResult = App.IsNgVideo(thumbnail);

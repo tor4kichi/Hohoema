@@ -59,7 +59,7 @@ namespace NicoPlayerHohoema.ViewModels
 			else
 			{
 				await Task.Delay(250);
-				HohoemaApp.NiconicoContext.Dispose();
+				HohoemaApp.NiconicoContext?.Dispose();
 				HohoemaApp.NiconicoContext = null;
 				CanChangeValue.Value = true;
 			}
