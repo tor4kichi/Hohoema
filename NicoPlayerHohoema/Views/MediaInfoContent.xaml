@@ -63,12 +63,18 @@
                 <WebView Source="{Binding VideoDescriptionUri, Mode=OneWay}" 
                          HorizontalAlignment="Stretch"
                          VerticalAlignment="Stretch"
-
+                         
                             >
                     
                     <i:Interaction.Behaviors>
-                        <mybehavior:WebViewAutoResizeToContent 
+                        <mybehavior:WebViewAutoResizeToContent />
+                        <mybehavior:WebViewNotifyUriClicked
+                            Command="{Binding ScriptNotifyCommand}"
                             />
+
+                        <core:EventTriggerBehavior EventName="ScriptNotify">
+                            <core:InvokeCommandAction Command="{Binding ScriptNotifyCommand}" />
+                        </core:EventTriggerBehavior>
                     </i:Interaction.Behaviors>
                     
                 </WebView>

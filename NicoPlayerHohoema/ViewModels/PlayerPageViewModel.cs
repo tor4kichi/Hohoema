@@ -28,6 +28,7 @@ using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 
 namespace NicoPlayerHohoema.ViewModels
@@ -658,9 +659,6 @@ namespace NicoPlayerHohoema.ViewModels
 	public class SummaryMediaInfoViewModel : MediaInfoViewModel
 	{
 
-		
-
-
 		public SummaryMediaInfoViewModel(ThumbnailResponse thumbnail, WatchApiResponse watchapi)
 		{
 			_ThumbnailResponse = thumbnail;
@@ -682,23 +680,31 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override async void OnInitailize()
 		{
+			// Note: WebViewに渡すHTMLファイルをテンポラリフォルダを経由してアクセスします。
+			// WebView.Sourceの仕様上、テンポラリフォルダにサブフォルダを作成し、そのサブフォルダにコンテンツを配置しなければなりません。
+
+
+
 			const string VideDescHTMLFolderName = "VideoDesctiptionHTML";
 			// ファイルとして動画説明HTMLを書き出す
 			var tempFolder = await ApplicationData.Current.TemporaryFolder.CreateFolderAsync(VideDescHTMLFolderName, CreationCollisionOption.OpenIfExists);
 
 
 			string descJoinedHtmlText = "";
+
 			// ファイルのテンプレートになるHTMLテキストを取得して
-			// 動画説明をテンプレートに埋め込んだテキストを作成
 			var templateHtmlFileStorage = await StorageFile.GetFileFromApplicationUriAsync(
 				new Uri("ms-appx:///Assets/VideoDescription/VideoDescription.html")
 				);
 
+			// テンプレートHTMLに動画説明を埋め込んだテキストを作成
 			using (var stream = await templateHtmlFileStorage.OpenAsync(FileAccessMode.Read))
 			using (var textReader = new StreamReader(stream.AsStream()))
 			{
 				var templateText = textReader.ReadToEnd();
-				descJoinedHtmlText = templateText.Replace("{Description}", _WatchApiRes.videoDetail.description);
+				descJoinedHtmlText = templateText
+					.Replace("{Description}", _WatchApiRes.videoDetail.description)
+					.Replace("http://", "https://");
 			}
 
 
@@ -711,6 +717,7 @@ namespace NicoPlayerHohoema.ViewModels
 				writer.Write(descJoinedHtmlText);
 			}
 
+			// 
 			VideoDescriptionUri = new Uri($"ms-appdata:///temp/{VideDescHTMLFolderName}/{filename}");
 		}
 
@@ -728,6 +735,37 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			
 		}
+
+		private DelegateCommand<Uri> _ScriptNotifyCommand;
+		public DelegateCommand<Uri> ScriptNotifyCommand
+		{
+			get
+			{
+				return _ScriptNotifyCommand  
+					?? (_ScriptNotifyCommand = new DelegateCommand<Uri>((parameter) =>
+				{
+					System.Diagnostics.Debug.WriteLine($"script notified: {parameter}");
+
+					var path = parameter.AbsoluteUri;
+					// is mylist url?
+					if (path.StartsWith("https://www.nicovideo.jp/mylist/"))
+					{
+						var mylistId = parameter.AbsolutePath.Split('/').Last();
+						System.Diagnostics.Debug.WriteLine($"open Mylist: {mylistId}");
+					}
+
+					// is nico video url?
+					if (path.StartsWith("https://www.nicovideo.jp/watch/"))
+					{
+						var videoId = parameter.AbsolutePath.Split('/').Last();
+						System.Diagnostics.Debug.WriteLine($"open Video: {videoId}");
+					}
+
+				}));
+			}
+		}
+		
+
 
 		public string Title { get; private set; }
 		

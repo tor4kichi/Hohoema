@@ -123,6 +123,7 @@
     <Compile Include="Views\Behaviors\MediaElementStateGetter.cs" />
     <Compile Include="Views\Behaviors\ShowFlyoutBehavior.cs" />
     <Compile Include="Views\Behaviors\WebViewAutoResizeToContent.cs" />
+    <Compile Include="Views\Behaviors\WebViewNotifyUriClicked.cs" />
     <Compile Include="Views\CommentRenderer\CommentRendererWithWIn2D.xaml.cs">
       <DependentUpon>CommentRendererWithWIn2D.xaml</DependentUpon>
     </Compile>
@@ -196,6 +197,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\VideoDescription\VideoDescription.html" />
+    <Content Include="Assets\VideoDescription\VideoDescription.js" />
     <Content Include="lib\Mntone.Nico2.UWP.dll" />
     <Content Include="lib\Mntone.Nico2.UWP.pdb" />
     <Content Include="Properties\Default.rd.xml" />
