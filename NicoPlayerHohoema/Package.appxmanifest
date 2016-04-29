@@ -21,7 +21,6 @@
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
       </uap:VisualElements>
       <uap:ApplicationContentUriRules>
-        <uap:Rule Match="https://*.niconico.jp" Type="include" WindowsRuntimeAccess="none" />
         <uap:Rule Match="https://*.nicovideo.jp" Type="include" WindowsRuntimeAccess="none" />
       </uap:ApplicationContentUriRules>
     </Application>

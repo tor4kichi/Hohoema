@@ -120,6 +120,7 @@
     <Compile Include="ViewModels\SettingsPageViewModel.cs" />
     <Compile Include="ViewModels\SubscriptionPageViewModel.cs" />
     <Compile Include="ViewModels\VideoInfoControlViewModel.cs" />
+    <Compile Include="Views\Behaviors\AutoHide.cs" />
     <Compile Include="Views\Behaviors\MediaElementStateGetter.cs" />
     <Compile Include="Views\Behaviors\ShowFlyoutBehavior.cs" />
     <Compile Include="Views\Behaviors\WebViewAutoResizeToContent.cs" />
@@ -134,6 +135,7 @@
     <Compile Include="Views\CommentRenderer\CommentUI.xaml.cs">
       <DependentUpon>CommentUI.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Converters\InvertBooleanConverter.cs" />
     <Compile Include="Views\Converters\TimeSpanToMovieLengthStringValueConverter.cs" />
     <Compile Include="Views\HistoryPage.xaml.cs">
       <DependentUpon>HistoryPage.xaml</DependentUpon>
@@ -197,7 +199,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\VideoDescription\VideoDescription.html" />
-    <Content Include="Assets\VideoDescription\VideoDescription.js" />
     <Content Include="lib\Mntone.Nico2.UWP.dll" />
     <Content Include="lib\Mntone.Nico2.UWP.pdb" />
     <Content Include="Properties\Default.rd.xml" />

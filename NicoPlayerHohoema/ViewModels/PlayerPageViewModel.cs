@@ -49,7 +49,7 @@ namespace NicoPlayerHohoema.ViewModels
 			ea.GetEvent<Events.PlayerClosedEvent>()
 				.Subscribe(_ =>
 				{
-					StopCommand.Execute();
+					
 				});
 
 			_HohoemaApp = hohoemaApp;
@@ -59,18 +59,13 @@ namespace NicoPlayerHohoema.ViewModels
 			CurrentVideoPosition = new ReactiveProperty<TimeSpan>(PlayerWindowUIDispatcherScheduler, TimeSpan.Zero);
 			ReadVideoPosition = new ReactiveProperty<TimeSpan>(PlayerWindowUIDispatcherScheduler, TimeSpan.Zero);
 			CommentData = new ReactiveProperty<CommentResponse>(PlayerWindowUIDispatcherScheduler);
-			IsVisibleMediaControl = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, true);
 			SliderVideoPosition = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0);
 			VideoLength = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0);
 			CurrentState = new ReactiveProperty<MediaElementState>(PlayerWindowUIDispatcherScheduler);
 			Comments = new ObservableCollection<Views.Comment>();
+			NowCommentWriting = new ReactiveProperty<bool>(false);
+			NowSoundChanging = new ReactiveProperty<bool>(false);
 
-
-			IsAutoHideMediaControl = CurrentState.Select(x =>
-				{
-					return x == MediaElementState.Playing;
-				})
-				.ToReadOnlyReactiveProperty(true, eventScheduler: PlayerWindowUIDispatcherScheduler);
 
 
 			this.ObserveProperty(x => x.VideoInfo)
@@ -84,15 +79,6 @@ namespace NicoPlayerHohoema.ViewModels
 						UpdateMediaInfoContent();
 					}
 				});
-
-			// メディア・コントロールが非表示状態のときShowMediaControlCommandを実行可能
-			ShowMediaControlCommand = CurrentState
-				.Select(x => x == MediaElementState.Playing)
-				.ToReactiveCommand(PlayerWindowUIDispatcherScheduler);
-
-			ShowMediaControlCommand
-				.Subscribe(x => IsVisibleMediaControl.Value = true);
-
 
 		 
 			CommentData.Subscribe(x => 
@@ -305,30 +291,26 @@ namespace NicoPlayerHohoema.ViewModels
 				SliderVideoPosition.Value = x.TotalSeconds;
 			});
 
-			
-			
-			ShowMediaControlCommand
-				.Where(x => CurrentState.Value == MediaElementState.Playing)
-				.Delay(TimeSpan.FromSeconds(3))
-				.Where(x => CurrentState.Value == MediaElementState.Playing)
-				.Repeat()
-				.SubscribeOnUIDispatcher()
-				.Subscribe(_ =>
+			NowPlaying = CurrentState
+				.Select(x =>
 				{
-					IsVisibleMediaControl.Value = false;
-				});
-			
+					return
+						x == MediaElementState.Opening ||
+						x == MediaElementState.Buffering ||
+						x == MediaElementState.Playing;
+				})
+				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler);
 
-			CurrentState.Subscribe(x =>
-			{
-				if (x == MediaElementState.Paused || x == MediaElementState.Stopped)
-				{
-					IsVisibleMediaControl.Value = true;
-				}
-			});
-
-
-
+			IsAutoHideEnable =
+				Observable.CombineLatest(
+					NowPlaying,
+					NowSoundChanging.Select(x => !x),
+					NowCommentWriting.Select(x => !x)
+					)
+					.Select(x => x.All(y => y))
+					.ToReactiveProperty(PlayerWindowUIDispatcherScheduler);
+				
+				
 
 			// Media Info
 
@@ -516,36 +498,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 		#region Command
 
-		public ReactiveCommand ShowMediaControlCommand { get; private set; }
-
-
-		private DelegateCommand _PlayCommand;
-		public DelegateCommand PlayCommand
-		{
-			get
-			{
-				return _PlayCommand
-					?? (_PlayCommand = new DelegateCommand(() =>
-					{
-						IsVisibleMediaControl.Value = true;
-					}));
-			}
-		}
-
-		private DelegateCommand _StopCommand;
-		public DelegateCommand StopCommand
-		{
-			get
-			{
-				return _StopCommand
-					?? (_StopCommand = new DelegateCommand(() =>
-					{
-						IsVisibleMediaControl.Value = true;
-					}));
-			}
-		}
-
-
 		private DelegateCommand<object> _CurrentStateChangedCommand;
 		public DelegateCommand<object> CurrentStateChangedCommand
 		{
@@ -562,7 +514,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 		#endregion
 
-
+		
 		public ReactiveProperty<CommentResponse> CommentData { get; private set; }
 
 		private WatchApiResponse _VideoInfo;
@@ -601,14 +553,22 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ObservableCollection<Comment> Comments { get; private set; }
 
-		public ReactiveProperty<bool> IsVisibleMediaControl { get; private set; }
-		public ReadOnlyReactiveProperty<bool> IsAutoHideMediaControl { get; private set; }
-
 		public ReactiveProperty<double> SliderVideoPosition { get; private set; }
 
 		public ReactiveProperty<double> VideoLength { get; private set; }
 
 		public ReactiveProperty<MediaElementState> CurrentState { get; private set; }
+
+
+		public ReactiveProperty<bool> NowPlaying { get; private set; }
+
+		public ReactiveProperty<bool> NowCommentWriting { get; private set; }
+
+		public ReactiveProperty<bool> NowSoundChanging { get; private set; }
+
+		public ReactiveProperty<bool> IsAutoHideEnable { get; private set; }
+
+
 
 
 		public List<MediaInfoDisplayType> MediaInfoTypeList { get; private set; }
@@ -675,7 +635,9 @@ namespace NicoPlayerHohoema.ViewModels
 			CommentCount = thumbnail.CommentCount;
 			MylistCount = thumbnail.MylistCount;
 
-
+			Tags = thumbnail.Tags.Value
+				.Select(x => new TagViewModel(x))
+				.ToList();
 		}
 
 		public override async void OnInitailize()
@@ -790,8 +752,57 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _VideoDesctiptionUri, value); }
 		}
 
+
+		public List<TagViewModel> Tags { get; private set; }
+
 		WatchApiResponse _WatchApiRes;
 		ThumbnailResponse _ThumbnailResponse;
+	}
+
+	public class TagViewModel
+	{
+		public TagViewModel(Tag tag)
+		{
+			_Tag = tag;
+
+			TagText = _Tag.Value;
+			IsCategoryTag = _Tag.Category;
+			IsLock = _Tag.Lock;
+		}
+
+		public string TagText { get; private set; }
+		public bool IsCategoryTag { get; private set; }
+		public bool IsLock { get; private set; }
+
+
+		private DelegateCommand _OpenSearchPageWithTagCommand;
+		public DelegateCommand OpenSearchPageWithTagCommand
+		{
+			get
+			{
+				return _OpenSearchPageWithTagCommand
+					?? (_OpenSearchPageWithTagCommand = new DelegateCommand(() => 
+					{
+						// TODO: 
+					}));
+			}
+		}
+
+
+		private DelegateCommand _OpenTagDictionaryInBrowserCommand;
+		public DelegateCommand OpenTagDictionaryInBrowserCommand
+		{
+			get
+			{
+				return _OpenTagDictionaryInBrowserCommand
+					?? (_OpenTagDictionaryInBrowserCommand = new DelegateCommand(() =>
+					{
+						// TODO: 
+					}));
+			}
+		}
+
+		Tag _Tag;
 	}
 
 	public class CommentMediaInfoViewModel : MediaInfoViewModel

@@ -21,33 +21,39 @@
                 <StackPanel toolkit:DockPanel.Dock="Top">
                     <TextBlock Text="{Binding Title}"
                                FontSize="20"
+                               Margin="8 8"
                                />
 
-                    <toolkit:DockPanel>
-                        <StackPanel Background="WhiteSmoke"
+                    <toolkit:DockPanel Margin="0 8">
+                        <StackPanel toolkit:DockPanel.Dock="Left"
+                                    Background="WhiteSmoke"
                                     Orientation="Horizontal"
-                                    Margin="16"
+                                    Padding="8"
+                                    Margin="0"
                                     >
                             <Image Source="{Binding UserIconUrl}" 
                                    Margin="0 0 8 0"
-                                   Width="32"
-                                   Height="32"
+                                   Width="48"
+                                   Height="48"
                                    />
                             <TextBlock Text="{Binding UserName}"
                                        VerticalAlignment="Center"
                                        />
                         </StackPanel>
 
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock>
+                        <StackPanel Orientation="Horizontal" 
+                                    VerticalAlignment="Bottom"
+                                    Margin="16 0 0 0"
+                                    >
+                            <TextBlock Margin="8 0">
                                 <Run Text="再生"/>
                                 <Run Text="{Binding PlayCount}" />
                             </TextBlock>
-                            <TextBlock>
+                            <TextBlock Margin="8 0">
                                 <Run Text="コメ"/>
                                 <Run Text="{Binding CommentCount}" />
                             </TextBlock>
-                            <TextBlock>
+                            <TextBlock Margin="8 0">
                                 <Run Text="マイ"/>
                                 <Run Text="{Binding MylistCount}" />
                             </TextBlock>
@@ -60,14 +66,46 @@
                     
                 </StackPanel>
 
+                <!-- Tags -->
+                <Border toolkit:DockPanel.Dock="Bottom" Margin="0 16">
+                    <ItemsControl ItemsSource="{Binding Tags}" 
+                                  >
+                        <ItemsControl.ItemContainerStyle>
+                            <Style TargetType="ContentPresenter">
+                                <Setter Property="Margin" Value="4 4" />
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <toolkit:WrapPanel Orientation="Horizontal"
+                                                   MaxWidth="300"
+                                                   >
+                                    
+                                </toolkit:WrapPanel>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Content="{Binding TagText}" 
+                                        />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+
+
+                    </ItemsControl>
+                </Border>
+                
+                <!-- Video Description -->
                 <WebView Source="{Binding VideoDescriptionUri, Mode=OneWay}" 
                          HorizontalAlignment="Stretch"
                          VerticalAlignment="Stretch"
-                         
                             >
                     
                     <i:Interaction.Behaviors>
+                        
                         <mybehavior:WebViewAutoResizeToContent />
+                        
                         <mybehavior:WebViewNotifyUriClicked
                             Command="{Binding ScriptNotifyCommand}"
                             />
@@ -129,13 +167,18 @@
 
 
         <ScrollViewer VerticalAlignment="Stretch">
-            <ContentControl Content="{Binding MediaInfoContent}"
+
+            <Border Margin="8">
+
+                <ContentControl Content="{Binding MediaInfoContent}"
                         ContentTemplateSelector="{StaticResource mediaInfoContentTemplateSelector}"
                         HorizontalContentAlignment="Stretch"
                         VerticalAlignment="Stretch"
                         >
 
-            </ContentControl>
+                </ContentControl>
+            </Border>
+            
         </ScrollViewer>
         
     </toolkit:DockPanel>

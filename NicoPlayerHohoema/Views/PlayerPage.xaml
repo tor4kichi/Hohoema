@@ -25,6 +25,8 @@
     <toolkit:DockPanel>
         
         <VisualStateManager.VisualStateGroups>
+
+            <!-- responsive MediaInfo  -->
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
@@ -57,6 +59,28 @@
                 </VisualState>
 
             </VisualStateGroup>
+
+            <!-- 再生・一時停止ボタン -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding NowPlaying.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PlayButton.Visibility" Value="Collapsed" />
+                        <Setter Target="PauseButton.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding NowPlaying.Value, Converter={StaticResource InvertBoolean}}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PlayButton.Visibility" Value="Visible" />
+                        <Setter Target="PauseButton.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
         
         <!-- Landscape Media Info -->
@@ -79,26 +103,14 @@
 
 
         <!-- Media Control -->
-        <Grid Background="Black">
-
-
-            <i:Interaction.Behaviors>
-                <!-- 動画表示部分をタップしたらメディアコントロールを表示する -->
-                <core:EventTriggerBehavior EventName="Tapped">
-                    <core:InvokeCommandAction Command="{Binding ShowMediaControlCommand}" />
-                </core:EventTriggerBehavior>
-
-                <core:EventTriggerBehavior EventName="PointerMoved">
-                    <core:InvokeCommandAction Command="{Binding ShowMediaControlCommand}" />
-                </core:EventTriggerBehavior>
-
-            </i:Interaction.Behaviors>
+        <Grid Background="Black" x:Name="MediaControl">
 
 
             <MediaElement x:Name="mediaElem"
                       local:MediaElementExtention.CustomStream="{Binding VideoStream.Value}"
                       Position="{Binding CurrentVideoPosition.Value}"
                       AudioCategory="BackgroundCapableMedia"
+                          
                       >
                 <i:Interaction.Behaviors>
 
@@ -126,11 +138,29 @@
 
             <toolkit:DockPanel HorizontalAlignment="Stretch"
                            VerticalAlignment="Stretch"
+                               
                            >
+                <i:Interaction.Behaviors>
+                    <mybehavior:AutoHide x:Name="AutoHideBehavior"
+                                         IsEnable="{Binding IsAutoHideEnable.Value}"
+                                         Delay="00:00:03" 
+                                         WithCursol="True"
+                                         HostScreen="{Binding ElementName=MediaControl}"
+                                         >
+                        <i:Interaction.Behaviors>
+                            <core:EventTriggerBehavior SourceObject="{Binding ElementName=MediaControl}" EventName="Tapped">
+                                <core:CallMethodAction TargetObject="{Binding ElementName=AutoHideBehavior}" MethodName="PreventAutoHide" />
+                            </core:EventTriggerBehavior>
+                            <core:EventTriggerBehavior SourceObject="{Binding ElementName=MediaControl}" EventName="PointerMoved">
+                                <core:CallMethodAction TargetObject="{Binding ElementName=AutoHideBehavior}" MethodName="PreventAutoHide" />
+                            </core:EventTriggerBehavior>
 
+                        </i:Interaction.Behaviors>
+                    </mybehavior:AutoHide>
+                </i:Interaction.Behaviors>
+                
 
                 <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom"
-                               Visibility="{Binding IsVisibleMediaControl.Value, Converter={StaticResource BooleanToVisibility}}"
                                Margin="32"
                                Background="#AA777777"
                                >
@@ -151,7 +181,10 @@
                     <StackPanel 
                         toolkit:DockPanel.Dock="Left"
                         Orientation="Horizontal">
-                        <AppBarButton Icon="Play"
+
+                        <AppBarButton 
+                                x:Name="PlayButton"
+                                Icon="Play"
                                   >
                             <i:Interaction.Behaviors>
                                 <core:EventTriggerBehavior EventName="Tapped">
@@ -161,7 +194,10 @@
                                 </core:EventTriggerBehavior>
                             </i:Interaction.Behaviors>
                         </AppBarButton>
-                        <AppBarButton Icon="Pause"
+                        <AppBarButton 
+                            x:Name="PauseButton"
+                            Icon="Pause"
+                            Visibility="Collapsed"
                                   >
                             <i:Interaction.Behaviors>
                                 <core:EventTriggerBehavior EventName="Tapped">

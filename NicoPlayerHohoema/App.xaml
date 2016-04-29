@@ -13,6 +13,7 @@
         <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
         <conv:ColorToBrushConverter x:Key="ColorToBrush" />
         <myconv:TimeSpanToMovieLengthStringValueConverter x:Key="TimeToMovieLengthConverter" />
+        <myconv:InvertBooleanConverter x:Key="InvertBoolean" />
 
     </prism:PrismUnityApplication.Resources>
 
