@@ -1,53 +1,13 @@
 ﻿using Microsoft.Xaml.Interactivity;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
-using WinRTXamlToolkit.Controls.Extensions;
 
 namespace NicoPlayerHohoema.Views.Behaviors
 {
 	public class AutoHide : Behavior<FrameworkElement>
 	{
-		// MouseMoveとタップの検出
-		// カーソルのAutoHide
-		#region HostScreen Property 
-
-		public static readonly DependencyProperty HostScreenProperty =
-		DependencyProperty.Register("HostScreen"
-				, typeof(FrameworkElement)
-				, typeof(AutoHide)
-				, new PropertyMetadata(default(FrameworkElement))
-			);
-
-		public FrameworkElement HostScreen
-		{
-			get { return (FrameworkElement)GetValue(HostScreenProperty); }
-			set { SetValue(HostScreenProperty, value); }
-		}
-
-		#endregion
-
-		#region WithCursol Property 
-		public static readonly DependencyProperty WithCursolProperty =
-		DependencyProperty.Register("WithCursol"
-				, typeof(bool)
-				, typeof(AutoHide)
-				, new PropertyMetadata(true)
-			);
-
-		public bool WithCursol
-		{
-			get { return (bool)GetValue(WithCursolProperty); }
-			set { SetValue(WithCursolProperty, value); }
-		}
-
-		#endregion
-
 
 
 		#region IsEnable Property
@@ -75,6 +35,10 @@ namespace NicoPlayerHohoema.Views.Behaviors
 			if (isActive)
 			{
 				source.EnableAutoHide();
+			}
+			else
+			{
+				source.DisableteAutoHide();
 			}
 		}
 
@@ -113,27 +77,28 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
 
 
-		protected override void OnAttached()
+
+		#region WithCursor Property 
+
+		public static readonly DependencyProperty WithCursorProperty =
+			DependencyProperty.Register("WithCursor"
+				, typeof(bool)
+				, typeof(AutoHide)
+				, new PropertyMetadata(true)
+			);
+
+		public bool WithCursor
 		{
-			base.OnAttached();
-
-			_CoreCursol = CoreWindow.GetForCurrentThread().PointerCursor;
-
+			get { return (bool)GetValue(WithCursorProperty); }
+			set { SetValue(WithCursorProperty, value); }
 		}
 
-		protected override void OnDetaching()
-		{
-			base.OnDetaching();
+		#endregion
 
-			_Timer?.Dispose();
-			_Timer = null;
 
-			var hostScreen = HostScreen;
-			if (hostScreen != null)
-			{
-				CoreWindow.GetForCurrentThread().PointerCursor = _CoreCursol;
-			}
-		}
+
+
+
 
 
 		public void PreventAutoHide()
@@ -143,12 +108,34 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
 			this.AssociatedObject.Visibility = Visibility.Visible;
 
-			var hostScreen = HostScreen;
-			if (hostScreen != null)
-			{
-				CoreWindow.GetForCurrentThread().PointerCursor = _CoreCursol;
-			}
+			CoreWindow.GetForCurrentThread().PointerCursor = _CoreCursor;
 		}
+
+
+
+
+
+
+
+
+		protected override void OnAttached()
+		{
+			base.OnAttached();
+
+			_CoreCursor = CoreWindow.GetForCurrentThread().PointerCursor;
+		}
+
+		protected override void OnDetaching()
+		{
+			base.OnDetaching();
+
+			_Timer?.Dispose();
+			_Timer = null;
+
+			CoreWindow.GetForCurrentThread().PointerCursor = _CoreCursor;
+		}
+
+
 
 
 		private void EnableAutoHide()
@@ -157,34 +144,37 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
 			_Timer = new Timer(async (state) => 
 			{
-				await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+				await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Low, () =>
 				{
-					if (_NextHideTime < DateTime.Now)
+					if (this.AssociatedObject.Visibility == Visibility.Visible && 
+						_NextHideTime < DateTime.Now)
 					{
 						this.AssociatedObject.Visibility = Visibility.Collapsed;
 
-						var hostScreen = HostScreen;
-						if (WithCursol && hostScreen != null)
+						if (WithCursor)
 						{
 							CoreWindow.GetForCurrentThread().PointerCursor = null;
 						}
 					}
 				});
 			}
-			, this, Delay, TimeSpan.FromMilliseconds(100));
+			, this, Delay, TimeSpan.FromMilliseconds(25));
 
 			
 		}
 
-		private void DeactivateAutoHide()
+		private void DisableteAutoHide()
 		{
 			_Timer?.Dispose();
 			_Timer = null;
 
 			this.AssociatedObject.Visibility = Visibility.Visible;
+			CoreWindow.GetForCurrentThread().PointerCursor = _CoreCursor;
 		}
 
-		CoreCursor _CoreCursol;
+
+
+		CoreCursor _CoreCursor;
 		DateTime _PrevPreventTime;
 		DateTime _NextHideTime;
 		Timer _Timer;

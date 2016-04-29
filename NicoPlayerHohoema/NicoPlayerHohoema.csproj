@@ -135,6 +135,7 @@
     <Compile Include="Views\CommentRenderer\CommentUI.xaml.cs">
       <DependentUpon>CommentUI.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Converters\CursorConverter.cs" />
     <Compile Include="Views\Converters\InvertBooleanConverter.cs" />
     <Compile Include="Views\Converters\TimeSpanToMovieLengthStringValueConverter.cs" />
     <Compile Include="Views\HistoryPage.xaml.cs">

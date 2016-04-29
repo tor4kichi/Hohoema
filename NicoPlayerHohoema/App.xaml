@@ -15,6 +15,7 @@
         <myconv:TimeSpanToMovieLengthStringValueConverter x:Key="TimeToMovieLengthConverter" />
         <myconv:InvertBooleanConverter x:Key="InvertBoolean" />
 
+        <myconv:CursorConverter x:Key="ToCoreCursor" />
     </prism:PrismUnityApplication.Resources>
 
 </prism:PrismUnityApplication>
