@@ -135,11 +135,29 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		{
 			const uint CommentDisplayTime = 300; // 3秒
 
-
-
-
 			var currentVpos = (uint)Math.Floor(VideoPosition.TotalMilliseconds * 0.1);
 			var canvasWidth = CommentCanvas.ActualWidth;
+
+
+			// 非表示時は処理を行わない
+			if (Visibility == Visibility.Collapsed)
+			{
+				if (RenderComments.Count > 0)
+				{
+					foreach (var renderComment in RenderComments.ToArray())
+					{
+						RenderComments.Remove(renderComment.Key);
+
+						CommentCanvas.Children.Remove(renderComment.Value);
+						renderComment.Value.DataContext = null;
+					}
+				}
+
+				return;
+			}
+
+
+
 
 
 			UpdateCommentVerticalPositionList(currentVpos);
@@ -162,7 +180,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 					renderComment.UpdateLayout();
 
 					var verticalPos = CalcAndRegisterCommentVerticalPosition(renderComment);
-					System.Diagnostics.Debug.WriteLine($"{renderComment.CommentData.CommentText} : V={verticalPos}");
+//					System.Diagnostics.Debug.WriteLine($"{renderComment.CommentData.CommentText} : V={verticalPos}");
 					Canvas.SetTop(renderComment, verticalPos);
 				}
 			});

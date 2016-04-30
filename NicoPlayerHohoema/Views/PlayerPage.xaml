@@ -13,7 +13,10 @@
     xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    d:DesignHeight="800"
+    d:DesignWidth="800"
+    >
 
     <Page.Resources>
         
@@ -82,6 +85,47 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
+            
+            <!-- リピートの有効・無効 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsEnableRepeat.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="RepeatButton.Icon" Value="RepeatAll" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsEnableRepeat.Value, Converter={StaticResource InvertBoolean}}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="RepeatButton.Icon" Value="RepeatOne" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+
+            <!-- ミュートの有効・無効 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsMuted.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MuteButton.Icon" Value="Mute" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsMuted.Value, Converter={StaticResource InvertBoolean}}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="MuteButton.Icon" Value="Volume" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
         
         <!-- Landscape Media Info -->
@@ -111,9 +155,12 @@
 
 
             <MediaElement x:Name="mediaElem"
-                      local:MediaElementExtention.CustomStream="{Binding VideoStream.Value}"
-                      Position="{Binding CurrentVideoPosition.Value}"
-                      AudioCategory="BackgroundCapableMedia"
+                          local:MediaElementExtention.CustomStream="{Binding VideoStream.Value}"
+                          Position="{Binding CurrentVideoPosition.Value}"
+                          AudioCategory="BackgroundCapableMedia"
+                          IsMuted="{Binding IsMuted.Value}"
+                          IsLooping="{Binding IsEnableRepeat.Value}"
+                          Volume="{Binding SoundVolume.Value}"
                           
                       >
                 <i:Interaction.Behaviors>
@@ -136,21 +183,24 @@
 
 
             <comment:CommentRenderer Comments="{Binding Comments}"
-                                VideoPosition="{Binding ReadVideoPosition.Value}"
-                                />
+                                     VideoPosition="{Binding ReadVideoPosition.Value}"                                     
+                                     Visibility="{Binding IsVisibleComment.Value, Converter={StaticResource BooleanToVisibility}}"
+                                     />
 
 
             <toolkit:DockPanel HorizontalAlignment="Stretch"
                            VerticalAlignment="Stretch"
-                               
+                               x:Name="ControlUIRoot"
                            >
                 <i:Interaction.Behaviors>
                     <mybehavior:AutoHide x:Name="AutoHideBehavior"
                                          IsEnable="{Binding IsAutoHideEnable.Value}"
-                                         Delay="00:00:03" 
+                                         Delay="00:00:05" 
                                          WithCursor="True"
                                          >
                         <i:Interaction.Behaviors>
+                           
+                            
                             <core:EventTriggerBehavior SourceObject="{Binding ElementName=MediaControl}" EventName="Tapped">
                                 <core:CallMethodAction TargetObject="{Binding ElementName=AutoHideBehavior}" MethodName="PreventAutoHide" />
                             </core:EventTriggerBehavior>
@@ -161,28 +211,63 @@
                         </i:Interaction.Behaviors>
                     </mybehavior:AutoHide>
                 </i:Interaction.Behaviors>
-                
 
+
+                <!-- Top Media Control -->
+                <toolkit:DockPanel toolkit:DockPanel.Dock="Top"
+                                   Background="#AA777777"
+                                   >
+                    <StackPanel toolkit:DockPanel.Dock="Left">
+                    </StackPanel>
+                    
+                    <StackPanel toolkit:DockPanel.Dock="Right">
+                        <AppBarToggleButton IsChecked="{Binding IsVisibleComment.Value, Mode=TwoWay}" 
+                                            Icon="Comment" 
+                                            />
+                    </StackPanel>
+
+                    <Border />
+
+                </toolkit:DockPanel>
+
+                <!-- Bottom Media Control -->
                 <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom"
-                               Margin="32"
                                Background="#AA777777"
                                >
 
+                    <!-- -->
+                    <Grid 
+                            x:Name="ControlPanel_Center"
+                            Margin="0 0"
+                            toolkit:DockPanel.Dock="Top"
+                             >
 
-                    <!-- Bottom Items -->
-                    <StackPanel 
-                        toolkit:DockPanel.Dock="Bottom"
-                        Orientation="Horizontal"
-                    HorizontalAlignment="Stretch"
-                    >
-                        <!-- Comment -->
+                        <Slider Minimum="0.0" 
+                            Maximum="{Binding VideoLength.Value}"
+                            Value="{Binding SliderVideoPosition.Value, Mode=TwoWay}"
+                            Width="{Binding ElementName=ControlPanel_Center, Path=ActualWidth, Mode=OneWay}"
+                            IsThumbToolTipEnabled="True"
+                            ThumbToolTipValueConverter="{StaticResource TimeToMovieLengthConverter}"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            VerticalAlignment="Center"
+                            >
+                        </Slider>
 
+                        <TextBlock HorizontalAlignment="Right"
+                               VerticalAlignment="Top"
+                               IsHitTestVisible="False"
+                               Foreground="Gray"
+                               >
+                            <Run Text="{Binding SliderVideoPosition.Value, Converter={StaticResource TimeToMovieLengthConverter}}" />
+                            <Run Text="/" />
+                            <Run Text="{Binding VideoLength.Value, Converter={StaticResource TimeToMovieLengthConverter}}" />
+                        </TextBlock>
+                    </Grid>
 
-                    </StackPanel>
 
                     <!-- Left Items -->
                     <StackPanel 
-                        toolkit:DockPanel.Dock="Left"
                         Orientation="Horizontal">
 
                         <AppBarButton 
@@ -210,50 +295,55 @@
                                 </core:EventTriggerBehavior>
                             </i:Interaction.Behaviors>
                         </AppBarButton>
+
+                        <AppBarButton x:Name="RepeatButton"
+                                      Icon="RepeatAll" 
+                                      Command="{Binding ToggleRepeatCommand}"                                      
+                                      />
                     </StackPanel>
 
                     <!-- Right Items-->
                     <StackPanel
-                    toolkit:DockPanel.Dock="Right"
-                    Orientation="Horizontal"
-                    >
+                        toolkit:DockPanel.Dock="Right"
+                        Orientation="Horizontal"
+                        >
+                        <AppBarButton x:Name="MuteButton"
+                                      Icon="Mute" 
+                                      Command="{Binding ToggleMuteCommand}"                                      
+                                      />
 
+                        <Slider x:Name="VolumeSlider"
+                            Width="200"
+                            VerticalAlignment="Center"
+                            Margin="32 0"                            
+                            Value="{Binding SoundVolume.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            IsThumbToolTipEnabled="True"
+                            ThumbToolTipValueConverter="{StaticResource ToUserFriendlySoubleVolume}"
+                            Maximum="1.0"
+                            Minimum="0.0"
+                            StepFrequency="0.01"
+                            />
 
                     </StackPanel>
 
 
-                    <!-- Center Items-->
-                    <Grid 
-                    x:Name="ControlPanel_Center"
-                    Margin="32 0"
-                    Height="48"
-                             >
+                    <!-- Center Items -->
+                    <StackPanel 
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        
+                    >
+                        <!-- Comment -->
+                        <AppBarButton Icon="Comment" 
+                                      />
 
-                        <Slider Minimum="0.0" 
-                            Maximum="{Binding VideoLength.Value}"
-                            Value="{Binding SliderVideoPosition.Value, Mode=TwoWay}"
-                            Width="{Binding ElementName=ControlPanel_Center, Path=ActualWidth}"
-                            IsThumbToolTipEnabled="True"
-                            ThumbToolTipValueConverter="{StaticResource TimeToMovieLengthConverter}"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Stretch"
-                            >
-                        </Slider>
+                    </StackPanel>
 
-                        <TextBlock HorizontalAlignment="Right"
-                               VerticalAlignment="Bottom"
-                               Margin="4" 
-                               IsHitTestVisible="False"
-                               Foreground="Gray"
-                               >
-                        <Run Text="{Binding SliderVideoPosition.Value, Converter={StaticResource TimeToMovieLengthConverter}}" />
-                        <Run Text="/" />
-                        <Run Text="{Binding VideoLength.Value, Converter={StaticResource TimeToMovieLengthConverter}}" />
-                        </TextBlock>
-                    </Grid>
+
 
                 </toolkit:DockPanel>
 
+                
 
                 <Border />
 

@@ -137,6 +137,7 @@
     </Compile>
     <Compile Include="Views\Converters\CursorConverter.cs" />
     <Compile Include="Views\Converters\InvertBooleanConverter.cs" />
+    <Compile Include="Views\Converters\SoundVolumeConveter.cs" />
     <Compile Include="Views\Converters\TimeSpanToMovieLengthStringValueConverter.cs" />
     <Compile Include="Views\HistoryPage.xaml.cs">
       <DependentUpon>HistoryPage.xaml</DependentUpon>

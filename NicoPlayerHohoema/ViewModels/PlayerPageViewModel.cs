@@ -63,9 +63,12 @@ namespace NicoPlayerHohoema.ViewModels
 			VideoLength = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0);
 			CurrentState = new ReactiveProperty<MediaElementState>(PlayerWindowUIDispatcherScheduler);
 			Comments = new ObservableCollection<Views.Comment>();
-			NowCommentWriting = new ReactiveProperty<bool>(false);
-			NowSoundChanging = new ReactiveProperty<bool>(false);
-
+			NowCommentWriting = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
+			NowSoundChanging = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
+			IsVisibleComment = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, true);
+			IsEnableRepeat = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
+			IsMuted = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
+			SoundVolume = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0.5);
 
 
 			this.ObserveProperty(x => x.VideoInfo)
@@ -512,9 +515,40 @@ namespace NicoPlayerHohoema.ViewModels
 					));
 			}
 		}
+
+
+		private DelegateCommand _ToggleMuteCommand;
+		public DelegateCommand ToggleMuteCommand
+		{
+			get
+			{
+				return _ToggleMuteCommand
+					?? (_ToggleMuteCommand = new DelegateCommand(() => 
+					{
+						IsMuted.Value = !IsMuted.Value;
+					}));
+			}
+		}
+
+
+		private DelegateCommand _ToggleRepeatCommand;
+		public DelegateCommand ToggleRepeatCommand
+		{
+			get
+			{
+				return _ToggleRepeatCommand
+					?? (_ToggleRepeatCommand = new DelegateCommand(() =>
+					{
+						IsEnableRepeat.Value = !IsEnableRepeat.Value;
+					}));
+			}
+		}
+
+
+
 		#endregion
 
-		
+
 		public ReactiveProperty<CommentResponse> CommentData { get; private set; }
 
 		private WatchApiResponse _VideoInfo;
@@ -568,6 +602,16 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<bool> IsAutoHideEnable { get; private set; }
 
+
+		public ReactiveProperty<bool> IsVisibleComment { get; private set; }
+
+		public ReactiveProperty<bool> IsEnableRepeat { get; private set; }
+		
+
+
+		public ReactiveProperty<bool> IsMuted { get; private set; }
+
+		public ReactiveProperty<double> SoundVolume { get; private set; }
 
 
 

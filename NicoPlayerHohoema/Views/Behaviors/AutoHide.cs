@@ -116,8 +116,6 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
 
 
-
-
 		protected override void OnAttached()
 		{
 			base.OnAttached();
@@ -146,7 +144,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
 			{
 				await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Low, () =>
 				{
-					if (this.AssociatedObject.Visibility == Visibility.Visible && 
+					if (this.AssociatedObject.Visibility == Visibility.Visible &&
 						_NextHideTime < DateTime.Now)
 					{
 						this.AssociatedObject.Visibility = Visibility.Collapsed;
