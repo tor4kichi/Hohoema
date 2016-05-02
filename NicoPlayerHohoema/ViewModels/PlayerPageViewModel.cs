@@ -1,12 +1,14 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Videos.Comment;
 using Mntone.Nico2.Videos.Flv;
+using Mntone.Nico2.Videos.Thumbnail;
 using Mntone.Nico2.Videos.WatchAPI;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Util;
 using NicoPlayerHohoema.Views;
 using Prism.Commands;
 using Prism.Events;
+using Prism.Mvvm;
 using Prism.Windows.Mvvm;
 using Prism.Windows.Navigation;
 using Reactive.Bindings;
@@ -14,24 +16,27 @@ using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class PlayerPageViewModel : ViewModelBase
+	public class PlayerPageViewModel : ViewModelBase, IDisposable
 	{
 
-		static SynchronizationContextScheduler PlayerWindowUIDispatcherScheduler;
+		public static SynchronizationContextScheduler PlayerWindowUIDispatcherScheduler;
 
 		public PlayerPageViewModel(HohoemaApp hohoemaApp, EventAggregator ea)
 		{
@@ -44,7 +49,7 @@ namespace NicoPlayerHohoema.ViewModels
 			ea.GetEvent<Events.PlayerClosedEvent>()
 				.Subscribe(_ =>
 				{
-					StopCommand.Execute();
+					
 				});
 
 			_HohoemaApp = hohoemaApp;
@@ -54,18 +59,16 @@ namespace NicoPlayerHohoema.ViewModels
 			CurrentVideoPosition = new ReactiveProperty<TimeSpan>(PlayerWindowUIDispatcherScheduler, TimeSpan.Zero);
 			ReadVideoPosition = new ReactiveProperty<TimeSpan>(PlayerWindowUIDispatcherScheduler, TimeSpan.Zero);
 			CommentData = new ReactiveProperty<CommentResponse>(PlayerWindowUIDispatcherScheduler);
-			IsVisibleMediaControl = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, true);
 			SliderVideoPosition = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0);
 			VideoLength = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0);
 			CurrentState = new ReactiveProperty<MediaElementState>(PlayerWindowUIDispatcherScheduler);
 			Comments = new ObservableCollection<Views.Comment>();
-
-
-			IsAutoHideMediaControl = CurrentState.Select(x =>
-				{
-					return x == MediaElementState.Playing;
-				})
-				.ToReadOnlyReactiveProperty(true, eventScheduler: PlayerWindowUIDispatcherScheduler);
+			NowCommentWriting = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
+			NowSoundChanging = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
+			IsVisibleComment = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, true);
+			IsEnableRepeat = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
+			IsMuted = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
+			SoundVolume = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0.5);
 
 
 			this.ObserveProperty(x => x.VideoInfo)
@@ -76,17 +79,9 @@ namespace NicoPlayerHohoema.ViewModels
 						CommentData.Value = await GetComment(x);
 						VideoLength.Value = x.Length.TotalSeconds;
 						SliderVideoPosition.Value = 0;
+						UpdateMediaInfoContent();
 					}
 				});
-
-			// メディア・コントロールが非表示状態のときShowMediaControlCommandを実行可能
-			ShowMediaControlCommand = CurrentState
-				.Select(x => x == MediaElementState.Playing)
-				.ToReactiveCommand(PlayerWindowUIDispatcherScheduler);
-
-			ShowMediaControlCommand
-				.Subscribe(x => IsVisibleMediaControl.Value = true);
-
 
 		 
 			CommentData.Subscribe(x => 
@@ -299,29 +294,102 @@ namespace NicoPlayerHohoema.ViewModels
 				SliderVideoPosition.Value = x.TotalSeconds;
 			});
 
-			
-			
-			ShowMediaControlCommand
-				.Where(x => CurrentState.Value == MediaElementState.Playing)
-				.Delay(TimeSpan.FromSeconds(3))
-				.Where(x => CurrentState.Value == MediaElementState.Playing)
-				.Repeat()
-				.SubscribeOnUIDispatcher()
-				.Subscribe(_ =>
+			NowPlaying = CurrentState
+				.Select(x =>
 				{
-					IsVisibleMediaControl.Value = false;
-				});
-			
+					return
+						x == MediaElementState.Opening ||
+						x == MediaElementState.Buffering ||
+						x == MediaElementState.Playing;
+				})
+				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler);
 
-			CurrentState.Subscribe(x =>
-			{
-				if (x == MediaElementState.Paused || x == MediaElementState.Stopped)
+			IsAutoHideEnable =
+				Observable.CombineLatest(
+					NowPlaying,
+					NowSoundChanging.Select(x => !x),
+					NowCommentWriting.Select(x => !x)
+					)
+					.Select(x => x.All(y => y))
+					.ToReactiveProperty(PlayerWindowUIDispatcherScheduler);
+				
+				
+
+			// Media Info
+
+			MediaInfoTypeToVM = new Dictionary<MediaInfoDisplayType, MediaInfoViewModel>();
+			MediaInfoTypeList = new List<MediaInfoDisplayType>(
+				(IEnumerable<MediaInfoDisplayType>)Enum.GetValues(typeof(MediaInfoDisplayType))
+				);
+
+			SelectedMediaInfoType = new ReactiveProperty<MediaInfoDisplayType>(PlayerWindowUIDispatcherScheduler);
+
+			SelectedMediaInfoType
+				.SubscribeOn(PlayerWindowUIDispatcherScheduler)
+				.Subscribe(x =>
 				{
-					IsVisibleMediaControl.Value = true;
+					UpdateMediaInfoContent();
+				});				
+		}
+
+
+		private void UpdateMediaInfoContent()
+		{
+			if (VideoInfo == null) { return; }
+
+			var type = SelectedMediaInfoType.Value;
+
+			MediaInfoContent?.OnLeave();
+
+			if (MediaInfoTypeToVM.ContainsKey(type))
+			{
+				MediaInfoContent = MediaInfoTypeToVM[type];
+			}
+			else
+			{
+				var createTask = CreateMediaInfoVMFromType(type);
+				createTask.Wait(500);
+				if (createTask.IsCompleted)
+				{
+					var mediaInfoVM = createTask.Result;
+					mediaInfoVM.OnInitailize();
+					MediaInfoTypeToVM.Add(type, mediaInfoVM);
+					MediaInfoContent = mediaInfoVM;
 				}
-			});
-			
-			
+				else
+				{
+					throw new Exception();
+				}
+			}
+
+			MediaInfoContent.OnEnter();
+		}
+
+
+		private async Task<MediaInfoViewModel> CreateMediaInfoVMFromType(MediaInfoDisplayType type)
+		{
+			switch (type)
+			{
+				case MediaInfoDisplayType.Summary:
+					
+					var videoId = Util.NicoVideoExtention.UrlToVideoId(SourceVideoUrl);
+					var thumbnail = await _HohoemaApp.GetThumbnail(videoId);
+					return new SummaryMediaInfoViewModel(thumbnail, this.VideoInfo);
+				case MediaInfoDisplayType.Comment:
+					return new CommentMediaInfoViewModel(Comments);
+				case MediaInfoDisplayType.Playlist:
+					return new PlaylistMediaInfoViewModel();
+				case MediaInfoDisplayType.Related:
+					return new RelatedVideoMediaInfoViewModel(
+						Util.NicoVideoExtention.UrlToVideoId(VideoInfo.VideoUrl.AbsolutePath)
+						);
+				case MediaInfoDisplayType.Ichiba:
+					return new IchibaMediaInfoViewModel(
+						Util.NicoVideoExtention.UrlToVideoId(VideoInfo.VideoUrl.AbsolutePath)
+						);
+				default:
+					throw new NotSupportedException($"not support {nameof(MediaInfoDisplayType)}.{type.ToString()}");
+			}
 		}
 
 		bool _NowControlSlider = false;
@@ -336,14 +404,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 			
-			string videoUrl = null;
 			if (e?.Parameter is string)
 			{
-				videoUrl = e.Parameter as string;
+				SourceVideoUrl = e.Parameter as string;
 			}
 			else if(viewModelState.ContainsKey(nameof(CurrentVideoUrl)))
 			{
-				videoUrl = (string)viewModelState[nameof(CurrentVideoUrl)];
+				SourceVideoUrl = (string)viewModelState[nameof(CurrentVideoUrl)];
 			}
 
 
@@ -352,11 +419,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 			try
 			{
-				if (videoUrl == null) { return; }
+				if (SourceVideoUrl == null) { return; }
 
 				if (await _HohoemaApp.CheckSignedInStatus() == NiconicoSignInStatus.Success)
 				{
-					var videoId = videoUrl.Split('/').Last();
+					var videoId = SourceVideoUrl.Split('/').Last();
 
 					await _HohoemaApp.NiconicoContext.Video.GetWatchApiAsync(videoId)
 						.ContinueWith(async prevTask =>
@@ -388,7 +455,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			if (viewModelState.ContainsKey(nameof(CurrentVideoPosition)))
 			{
-				CurrentVideoPosition.Value = (TimeSpan)viewModelState[nameof(CurrentVideoPosition)];
+				CurrentVideoPosition.Value = TimeSpan.FromSeconds((double)viewModelState[nameof(CurrentVideoPosition)]);
 			}
 
 
@@ -414,45 +481,25 @@ namespace NicoPlayerHohoema.ViewModels
 
 			if (suspending)
 			{
-				viewModelState.Add(nameof(CurrentVideoUrl), CurrentVideoUrl);
-				viewModelState.Add(nameof(CurrentVideoPosition), CurrentVideoPosition.Value);
+				viewModelState.Add(nameof(CurrentVideoUrl), SourceVideoUrl);
+				viewModelState.Add(nameof(CurrentVideoPosition), CurrentVideoPosition.Value.TotalSeconds);
 			}
 			base.OnNavigatingFrom(e, viewModelState, suspending);
+		}
+
+		public void Dispose()
+		{
+			foreach (var vm in MediaInfoTypeToVM.Values)
+			{
+				vm.Dispose();
+			}
+
+			VideoStream.Value?.Dispose();
 		}
 
 
 
 		#region Command
-
-		public ReactiveCommand ShowMediaControlCommand { get; private set; }
-
-
-		private DelegateCommand _PlayCommand;
-		public DelegateCommand PlayCommand
-		{
-			get
-			{
-				return _PlayCommand
-					?? (_PlayCommand = new DelegateCommand(() =>
-					{
-						IsVisibleMediaControl.Value = true;
-					}));
-			}
-		}
-
-		private DelegateCommand _StopCommand;
-		public DelegateCommand StopCommand
-		{
-			get
-			{
-				return _StopCommand
-					?? (_StopCommand = new DelegateCommand(() =>
-					{
-						IsVisibleMediaControl.Value = true;
-					}));
-			}
-		}
-
 
 		private DelegateCommand<object> _CurrentStateChangedCommand;
 		public DelegateCommand<object> CurrentStateChangedCommand
@@ -468,6 +515,37 @@ namespace NicoPlayerHohoema.ViewModels
 					));
 			}
 		}
+
+
+		private DelegateCommand _ToggleMuteCommand;
+		public DelegateCommand ToggleMuteCommand
+		{
+			get
+			{
+				return _ToggleMuteCommand
+					?? (_ToggleMuteCommand = new DelegateCommand(() => 
+					{
+						IsMuted.Value = !IsMuted.Value;
+					}));
+			}
+		}
+
+
+		private DelegateCommand _ToggleRepeatCommand;
+		public DelegateCommand ToggleRepeatCommand
+		{
+			get
+			{
+				return _ToggleRepeatCommand
+					?? (_ToggleRepeatCommand = new DelegateCommand(() =>
+					{
+						IsEnableRepeat.Value = !IsEnableRepeat.Value;
+					}));
+			}
+		}
+
+
+
 		#endregion
 
 
@@ -509,22 +587,384 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ObservableCollection<Comment> Comments { get; private set; }
 
-		public ReactiveProperty<bool> IsVisibleMediaControl { get; private set; }
-		public ReadOnlyReactiveProperty<bool> IsAutoHideMediaControl { get; private set; }
-
 		public ReactiveProperty<double> SliderVideoPosition { get; private set; }
 
 		public ReactiveProperty<double> VideoLength { get; private set; }
 
 		public ReactiveProperty<MediaElementState> CurrentState { get; private set; }
 
+
+		public ReactiveProperty<bool> NowPlaying { get; private set; }
+
+		public ReactiveProperty<bool> NowCommentWriting { get; private set; }
+
+		public ReactiveProperty<bool> NowSoundChanging { get; private set; }
+
+		public ReactiveProperty<bool> IsAutoHideEnable { get; private set; }
+
+
+		public ReactiveProperty<bool> IsVisibleComment { get; private set; }
+
+		public ReactiveProperty<bool> IsEnableRepeat { get; private set; }
+		
+
+
+		public ReactiveProperty<bool> IsMuted { get; private set; }
+
+		public ReactiveProperty<double> SoundVolume { get; private set; }
+
+
+
+		public List<MediaInfoDisplayType> MediaInfoTypeList { get; private set; }
+		public ReactiveProperty<MediaInfoDisplayType> SelectedMediaInfoType { get; private set; }
+		public Dictionary<MediaInfoDisplayType, MediaInfoViewModel> MediaInfoTypeToVM { get; private set; }
+
+		private MediaInfoViewModel _MediaInfoContent;
+		public MediaInfoViewModel MediaInfoContent
+		{
+			get
+			{
+				return _MediaInfoContent;
+			}
+			set
+			{
+				SetProperty(ref _MediaInfoContent, value);
+			}
+		}
+
+		// Note: 新しいReactivePropertyを追加したときの注意点
+		// RPではPlayerWindowUIDispatcherSchedulerを使うこと
+
+
+
 		private HohoemaApp _HohoemaApp;
 	}
 
 
-	
+	public enum MediaInfoDisplayType
+	{
+		Summary,
+		Comment,
+		Playlist,
+		Related,
+		Ichiba,
+	}
+
+	abstract public class MediaInfoViewModel : BindableBase, IDisposable
+	{
+		abstract public void OnInitailize();
+		abstract public void OnEnter();
+		abstract public void OnLeave();
+
+		abstract public void Dispose();
+	}
+
+
+	public class SummaryMediaInfoViewModel : MediaInfoViewModel
+	{
+
+		public SummaryMediaInfoViewModel(ThumbnailResponse thumbnail, WatchApiResponse watchapi)
+		{
+			_ThumbnailResponse = thumbnail;
+			_WatchApiRes = watchapi;
+
+			UserName = thumbnail.UserName;
+			UserIconUrl = thumbnail.UserIconUrl;
+			SubmitDate = thumbnail.PostedAt.LocalDateTime;
+
+			//			UserName = response.UserName;
+
+			Title = thumbnail.Title;
+			PlayCount = thumbnail.ViewCount;
+			CommentCount = thumbnail.CommentCount;
+			MylistCount = thumbnail.MylistCount;
+
+			Tags = thumbnail.Tags.Value
+				.Select(x => new TagViewModel(x))
+				.ToList();
+		}
+
+		public override async void OnInitailize()
+		{
+			// Note: WebViewに渡すHTMLファイルをテンポラリフォルダを経由してアクセスします。
+			// WebView.Sourceの仕様上、テンポラリフォルダにサブフォルダを作成し、そのサブフォルダにコンテンツを配置しなければなりません。
 
 
 
-	
+			const string VideDescHTMLFolderName = "VideoDesctiptionHTML";
+			// ファイルとして動画説明HTMLを書き出す
+			var tempFolder = await ApplicationData.Current.TemporaryFolder.CreateFolderAsync(VideDescHTMLFolderName, CreationCollisionOption.OpenIfExists);
+
+
+			string descJoinedHtmlText = "";
+
+			// ファイルのテンプレートになるHTMLテキストを取得して
+			var templateHtmlFileStorage = await StorageFile.GetFileFromApplicationUriAsync(
+				new Uri("ms-appx:///Assets/VideoDescription/VideoDescription.html")
+				);
+
+			// テンプレートHTMLに動画説明を埋め込んだテキストを作成
+			using (var stream = await templateHtmlFileStorage.OpenAsync(FileAccessMode.Read))
+			using (var textReader = new StreamReader(stream.AsStream()))
+			{
+				var templateText = textReader.ReadToEnd();
+				descJoinedHtmlText = templateText
+					.Replace("{Description}", _WatchApiRes.videoDetail.description)
+					.Replace("http://", "https://");
+			}
+
+
+			// テンポラリストレージ空間に動画説明HTMLファイルを書き込み
+			var filename = _WatchApiRes.videoDetail.id + ".html";
+			var savedVideoDescHtmlFile = await tempFolder.CreateFileAsync(filename, CreationCollisionOption.ReplaceExisting);
+			using (var stream = await savedVideoDescHtmlFile.OpenStreamForWriteAsync())
+			using (var writer = new StreamWriter(stream))
+			{
+				writer.Write(descJoinedHtmlText);
+			}
+
+			// 
+			VideoDescriptionUri = new Uri($"ms-appdata:///temp/{VideDescHTMLFolderName}/{filename}");
+		}
+
+		public override void OnEnter()
+		{
+
+		}
+
+		public override void OnLeave()
+		{
+			
+		}
+
+		public override void Dispose()
+		{
+			
+		}
+
+		private DelegateCommand<Uri> _ScriptNotifyCommand;
+		public DelegateCommand<Uri> ScriptNotifyCommand
+		{
+			get
+			{
+				return _ScriptNotifyCommand  
+					?? (_ScriptNotifyCommand = new DelegateCommand<Uri>((parameter) =>
+				{
+					System.Diagnostics.Debug.WriteLine($"script notified: {parameter}");
+
+					var path = parameter.AbsoluteUri;
+					// is mylist url?
+					if (path.StartsWith("https://www.nicovideo.jp/mylist/"))
+					{
+						var mylistId = parameter.AbsolutePath.Split('/').Last();
+						System.Diagnostics.Debug.WriteLine($"open Mylist: {mylistId}");
+					}
+
+					// is nico video url?
+					if (path.StartsWith("https://www.nicovideo.jp/watch/"))
+					{
+						var videoId = parameter.AbsolutePath.Split('/').Last();
+						System.Diagnostics.Debug.WriteLine($"open Video: {videoId}");
+					}
+
+				}));
+			}
+		}
+		
+
+
+		public string Title { get; private set; }
+		
+
+		public string UserName { get; private set; }
+		public Uri UserIconUrl { get; private set; }
+
+		public DateTime SubmitDate { get; private set; }
+
+
+		public uint PlayCount { get; private set; }
+
+		public uint CommentCount { get; private set; }
+
+		public uint MylistCount { get; private set; }
+
+
+		private Uri _VideoDesctiptionUri;
+		public Uri VideoDescriptionUri
+		{
+			get { return _VideoDesctiptionUri; }
+			set { SetProperty(ref _VideoDesctiptionUri, value); }
+		}
+
+
+		public List<TagViewModel> Tags { get; private set; }
+
+		WatchApiResponse _WatchApiRes;
+		ThumbnailResponse _ThumbnailResponse;
+	}
+
+	public class TagViewModel
+	{
+		public TagViewModel(Tag tag)
+		{
+			_Tag = tag;
+
+			TagText = _Tag.Value;
+			IsCategoryTag = _Tag.Category;
+			IsLock = _Tag.Lock;
+		}
+
+		public string TagText { get; private set; }
+		public bool IsCategoryTag { get; private set; }
+		public bool IsLock { get; private set; }
+
+
+		private DelegateCommand _OpenSearchPageWithTagCommand;
+		public DelegateCommand OpenSearchPageWithTagCommand
+		{
+			get
+			{
+				return _OpenSearchPageWithTagCommand
+					?? (_OpenSearchPageWithTagCommand = new DelegateCommand(() => 
+					{
+						// TODO: 
+					}));
+			}
+		}
+
+
+		private DelegateCommand _OpenTagDictionaryInBrowserCommand;
+		public DelegateCommand OpenTagDictionaryInBrowserCommand
+		{
+			get
+			{
+				return _OpenTagDictionaryInBrowserCommand
+					?? (_OpenTagDictionaryInBrowserCommand = new DelegateCommand(() =>
+					{
+						// TODO: 
+					}));
+			}
+		}
+
+		Tag _Tag;
+	}
+
+	public class CommentMediaInfoViewModel : MediaInfoViewModel
+	{
+		public CommentMediaInfoViewModel(ObservableCollection<Comment> comments)
+		{
+			Comments = comments;
+		}
+
+		public override void OnInitailize()
+		{
+		}
+
+		public override void OnEnter()
+		{
+
+		}
+
+		public override void OnLeave()
+		{
+
+		}
+
+		public override void Dispose()
+		{
+
+		}
+
+		public ObservableCollection<Comment> Comments { get; private set; }
+	}
+
+
+	public class PlaylistMediaInfoViewModel : MediaInfoViewModel
+	{
+		public PlaylistMediaInfoViewModel()
+		{
+
+		}
+
+		public override void OnInitailize()
+		{
+		}
+
+		public override void OnEnter()
+		{
+
+		}
+
+		public override void OnLeave()
+		{
+
+		}
+
+		public override void Dispose()
+		{
+
+		}
+
+	}
+
+	public class RelatedVideoMediaInfoViewModel : MediaInfoViewModel
+	{
+		public RelatedVideoMediaInfoViewModel(string videoId)
+		{
+
+		}
+
+		public override void OnInitailize()
+		{
+		}
+
+		public override void OnEnter()
+		{
+
+		}
+
+		public override void OnLeave()
+		{
+
+		}
+
+		public override void Dispose()
+		{
+
+		}
+
+	}
+
+	public class IchibaMediaInfoViewModel : MediaInfoViewModel
+	{
+		public IchibaMediaInfoViewModel(string videoId)
+		{
+
+		}
+
+		public override void OnInitailize()
+		{
+		}
+
+		public override void OnEnter()
+		{
+
+		}
+
+		public override void OnLeave()
+		{
+
+		}
+
+		public override void Dispose()
+		{
+
+		}
+
+	}
+
+
+
+
+
 }

@@ -148,7 +148,14 @@ namespace NicoPlayerHohoema
 
 		private void MainWindowView_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)
 		{
-			App.Current.Exit();
+			if (sender.Id  == PlayerWindow.ViewId)
+			{
+				PlayerWindow.Closed();
+			}
+			else
+			{
+				App.Current.Exit();
+			}
 		}
 
 		protected override UIElement CreateShell(Frame rootFrame)
@@ -185,25 +192,9 @@ namespace NicoPlayerHohoema
 				var view = CoreApplication.CreateNewView();
 
 				PlayerWindow = await PlayerWindowManager.CreatePlayerWindowManager(view);
-
-				await view.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () => 
-				{
-					var v = ApplicationView.GetForCurrentView();
-					v.Consolidated += PlayerWindow_Consolidated;					
-				});
 			}
 
 			await PlayerWindow.ShowFront(currentViewId);
-		}
-
-		/// <summary>
-		/// プレイヤーウィンドウが閉じられた時に呼ばれる
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="args"></param>
-		private void PlayerWindow_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)
-		{
-			PlayerWindow.Closed();
 		}
 	}
 
@@ -290,7 +281,11 @@ namespace NicoPlayerHohoema
 			{
 				NavigationService.Navigate("", null);
 				NavigationService.ClearHistory();
+
+				
 			});
+
+			await Task.Delay(3000);
 		}
 
 	}

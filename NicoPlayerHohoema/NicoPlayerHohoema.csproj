@@ -120,8 +120,11 @@
     <Compile Include="ViewModels\SettingsPageViewModel.cs" />
     <Compile Include="ViewModels\SubscriptionPageViewModel.cs" />
     <Compile Include="ViewModels\VideoInfoControlViewModel.cs" />
+    <Compile Include="Views\Behaviors\AutoHide.cs" />
     <Compile Include="Views\Behaviors\MediaElementStateGetter.cs" />
     <Compile Include="Views\Behaviors\ShowFlyoutBehavior.cs" />
+    <Compile Include="Views\Behaviors\WebViewAutoResizeToContent.cs" />
+    <Compile Include="Views\Behaviors\WebViewNotifyUriClicked.cs" />
     <Compile Include="Views\CommentRenderer\CommentRendererWithWIn2D.xaml.cs">
       <DependentUpon>CommentRendererWithWIn2D.xaml</DependentUpon>
     </Compile>
@@ -132,6 +135,9 @@
     <Compile Include="Views\CommentRenderer\CommentUI.xaml.cs">
       <DependentUpon>CommentUI.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Converters\CursorConverter.cs" />
+    <Compile Include="Views\Converters\InvertBooleanConverter.cs" />
+    <Compile Include="Views\Converters\SoundVolumeConveter.cs" />
     <Compile Include="Views\Converters\TimeSpanToMovieLengthStringValueConverter.cs" />
     <Compile Include="Views\HistoryPage.xaml.cs">
       <DependentUpon>HistoryPage.xaml</DependentUpon>
@@ -140,6 +146,9 @@
     <Compile Include="Views\Behaviors\MediaElementSeekAfterAutoPlayBehavior.cs" />
     <Compile Include="Views\LoginPage.xaml.cs">
       <DependentUpon>LoginPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\MediaInfoContent.xaml.cs">
+      <DependentUpon>MediaInfoContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MenuNavigatePageBase.xaml.cs">
       <DependentUpon>MenuNavigatePageBase.xaml</DependentUpon>
@@ -191,6 +200,7 @@
     <None Include="NicoPlayerHohoema_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\VideoDescription\VideoDescription.html" />
     <Content Include="lib\Mntone.Nico2.UWP.dll" />
     <Content Include="lib\Mntone.Nico2.UWP.pdb" />
     <Content Include="Properties\Default.rd.xml" />
@@ -224,6 +234,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\LoginPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\MediaInfoContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

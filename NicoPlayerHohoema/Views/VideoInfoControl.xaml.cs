@@ -24,4 +24,7 @@ namespace NicoPlayerHohoema.Views
 			this.InitializeComponent();
 		}
 	}
+
+
+	
 }
