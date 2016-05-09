@@ -50,8 +50,8 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				await AccountSettings.Save();
 				await Task.Delay(250);
-				PageManager.OpenPage(HohoemaPageType.RankingCategoryList);
 				PageManager.ClearNavigateHistory();
+				PageManager.OpenPage(HohoemaPageType.Portal);
 			}
 			else if (result == NiconicoSignInStatus.ServiceUnavailable)
 			{

@@ -5,6 +5,7 @@ using Mntone.Nico2.Videos.Thumbnail;
 using Mntone.Nico2.Videos.WatchAPI;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.ViewModels.VideoInfoContent;
 using NicoPlayerHohoema.Views;
 using Prism.Commands;
 using Prism.Events;
@@ -33,18 +34,20 @@ using Windows.UI.Xaml.Media;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class PlayerPageViewModel : ViewModelBase, IDisposable
+	public class VideoPlayerPageViewModel : ViewModelBase, IDisposable
 	{
 
 		public static SynchronizationContextScheduler PlayerWindowUIDispatcherScheduler;
 
-		public PlayerPageViewModel(HohoemaApp hohoemaApp, EventAggregator ea)
+		public VideoPlayerPageViewModel(HohoemaApp hohoemaApp, EventAggregator ea)
 		{
 			if (PlayerWindowUIDispatcherScheduler == null)
 			{
 				PlayerWindowUIDispatcherScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
 			}
 
+			
+			
 
 			ea.GetEvent<Events.PlayerClosedEvent>()
 				.Subscribe(_ =>
@@ -79,7 +82,6 @@ namespace NicoPlayerHohoema.ViewModels
 						CommentData.Value = await GetComment(x);
 						VideoLength.Value = x.Length.TotalSeconds;
 						SliderVideoPosition.Value = 0;
-						UpdateMediaInfoContent();
 					}
 				});
 
@@ -315,82 +317,14 @@ namespace NicoPlayerHohoema.ViewModels
 				
 				
 
-			// Media Info
-
-			MediaInfoTypeToVM = new Dictionary<MediaInfoDisplayType, MediaInfoViewModel>();
-			MediaInfoTypeList = new List<MediaInfoDisplayType>(
-				(IEnumerable<MediaInfoDisplayType>)Enum.GetValues(typeof(MediaInfoDisplayType))
-				);
-
-			SelectedMediaInfoType = new ReactiveProperty<MediaInfoDisplayType>(PlayerWindowUIDispatcherScheduler);
-
-			SelectedMediaInfoType
-				.SubscribeOn(PlayerWindowUIDispatcherScheduler)
-				.Subscribe(x =>
-				{
-					UpdateMediaInfoContent();
-				});				
+			
 		}
 
 
-		private void UpdateMediaInfoContent()
-		{
-			if (VideoInfo == null) { return; }
-
-			var type = SelectedMediaInfoType.Value;
-
-			MediaInfoContent?.OnLeave();
-
-			if (MediaInfoTypeToVM.ContainsKey(type))
-			{
-				MediaInfoContent = MediaInfoTypeToVM[type];
-			}
-			else
-			{
-				var createTask = CreateMediaInfoVMFromType(type);
-				createTask.Wait(500);
-				if (createTask.IsCompleted)
-				{
-					var mediaInfoVM = createTask.Result;
-					mediaInfoVM.OnInitailize();
-					MediaInfoTypeToVM.Add(type, mediaInfoVM);
-					MediaInfoContent = mediaInfoVM;
-				}
-				else
-				{
-					throw new Exception();
-				}
-			}
-
-			MediaInfoContent.OnEnter();
-		}
+		
 
 
-		private async Task<MediaInfoViewModel> CreateMediaInfoVMFromType(MediaInfoDisplayType type)
-		{
-			switch (type)
-			{
-				case MediaInfoDisplayType.Summary:
-					
-					var videoId = Util.NicoVideoExtention.UrlToVideoId(SourceVideoUrl);
-					var thumbnail = await _HohoemaApp.GetThumbnail(videoId);
-					return new SummaryMediaInfoViewModel(thumbnail, this.VideoInfo);
-				case MediaInfoDisplayType.Comment:
-					return new CommentMediaInfoViewModel(Comments);
-				case MediaInfoDisplayType.Playlist:
-					return new PlaylistMediaInfoViewModel();
-				case MediaInfoDisplayType.Related:
-					return new RelatedVideoMediaInfoViewModel(
-						Util.NicoVideoExtention.UrlToVideoId(VideoInfo.VideoUrl.AbsolutePath)
-						);
-				case MediaInfoDisplayType.Ichiba:
-					return new IchibaMediaInfoViewModel(
-						Util.NicoVideoExtention.UrlToVideoId(VideoInfo.VideoUrl.AbsolutePath)
-						);
-				default:
-					throw new NotSupportedException($"not support {nameof(MediaInfoDisplayType)}.{type.ToString()}");
-			}
-		}
+		
 
 		bool _NowControlSlider = false;
 		
@@ -399,10 +333,6 @@ namespace NicoPlayerHohoema.ViewModels
 		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			base.OnNavigatedTo(e, viewModelState);
-
-			System.Diagnostics.Debug.WriteLine($"Player Navigated ViewId is {ApplicationView.GetForCurrentView().Id}");
-
-
 			
 			if (e?.Parameter is string)
 			{
@@ -489,10 +419,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public void Dispose()
 		{
-			foreach (var vm in MediaInfoTypeToVM.Values)
-			{
-				vm.Dispose();
-			}
+			
 
 			VideoStream.Value?.Dispose();
 		}
@@ -615,22 +542,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		public List<MediaInfoDisplayType> MediaInfoTypeList { get; private set; }
-		public ReactiveProperty<MediaInfoDisplayType> SelectedMediaInfoType { get; private set; }
-		public Dictionary<MediaInfoDisplayType, MediaInfoViewModel> MediaInfoTypeToVM { get; private set; }
-
-		private MediaInfoViewModel _MediaInfoContent;
-		public MediaInfoViewModel MediaInfoContent
-		{
-			get
-			{
-				return _MediaInfoContent;
-			}
-			set
-			{
-				SetProperty(ref _MediaInfoContent, value);
-			}
-		}
+		
 
 		// Note: 新しいReactivePropertyを追加したときの注意点
 		// RPではPlayerWindowUIDispatcherSchedulerを使うこと
@@ -641,167 +553,10 @@ namespace NicoPlayerHohoema.ViewModels
 	}
 
 
-	public enum MediaInfoDisplayType
-	{
-		Summary,
-		Comment,
-		Playlist,
-		Related,
-		Ichiba,
-	}
-
-	abstract public class MediaInfoViewModel : BindableBase, IDisposable
-	{
-		abstract public void OnInitailize();
-		abstract public void OnEnter();
-		abstract public void OnLeave();
-
-		abstract public void Dispose();
-	}
+	
 
 
-	public class SummaryMediaInfoViewModel : MediaInfoViewModel
-	{
-
-		public SummaryMediaInfoViewModel(ThumbnailResponse thumbnail, WatchApiResponse watchapi)
-		{
-			_ThumbnailResponse = thumbnail;
-			_WatchApiRes = watchapi;
-
-			UserName = thumbnail.UserName;
-			UserIconUrl = thumbnail.UserIconUrl;
-			SubmitDate = thumbnail.PostedAt.LocalDateTime;
-
-			//			UserName = response.UserName;
-
-			Title = thumbnail.Title;
-			PlayCount = thumbnail.ViewCount;
-			CommentCount = thumbnail.CommentCount;
-			MylistCount = thumbnail.MylistCount;
-
-			Tags = thumbnail.Tags.Value
-				.Select(x => new TagViewModel(x))
-				.ToList();
-		}
-
-		public override async void OnInitailize()
-		{
-			// Note: WebViewに渡すHTMLファイルをテンポラリフォルダを経由してアクセスします。
-			// WebView.Sourceの仕様上、テンポラリフォルダにサブフォルダを作成し、そのサブフォルダにコンテンツを配置しなければなりません。
-
-
-
-			const string VideDescHTMLFolderName = "VideoDesctiptionHTML";
-			// ファイルとして動画説明HTMLを書き出す
-			var tempFolder = await ApplicationData.Current.TemporaryFolder.CreateFolderAsync(VideDescHTMLFolderName, CreationCollisionOption.OpenIfExists);
-
-
-			string descJoinedHtmlText = "";
-
-			// ファイルのテンプレートになるHTMLテキストを取得して
-			var templateHtmlFileStorage = await StorageFile.GetFileFromApplicationUriAsync(
-				new Uri("ms-appx:///Assets/VideoDescription/VideoDescription.html")
-				);
-
-			// テンプレートHTMLに動画説明を埋め込んだテキストを作成
-			using (var stream = await templateHtmlFileStorage.OpenAsync(FileAccessMode.Read))
-			using (var textReader = new StreamReader(stream.AsStream()))
-			{
-				var templateText = textReader.ReadToEnd();
-				descJoinedHtmlText = templateText
-					.Replace("{Description}", _WatchApiRes.videoDetail.description)
-					.Replace("http://", "https://");
-			}
-
-
-			// テンポラリストレージ空間に動画説明HTMLファイルを書き込み
-			var filename = _WatchApiRes.videoDetail.id + ".html";
-			var savedVideoDescHtmlFile = await tempFolder.CreateFileAsync(filename, CreationCollisionOption.ReplaceExisting);
-			using (var stream = await savedVideoDescHtmlFile.OpenStreamForWriteAsync())
-			using (var writer = new StreamWriter(stream))
-			{
-				writer.Write(descJoinedHtmlText);
-			}
-
-			// 
-			VideoDescriptionUri = new Uri($"ms-appdata:///temp/{VideDescHTMLFolderName}/{filename}");
-		}
-
-		public override void OnEnter()
-		{
-
-		}
-
-		public override void OnLeave()
-		{
-			
-		}
-
-		public override void Dispose()
-		{
-			
-		}
-
-		private DelegateCommand<Uri> _ScriptNotifyCommand;
-		public DelegateCommand<Uri> ScriptNotifyCommand
-		{
-			get
-			{
-				return _ScriptNotifyCommand  
-					?? (_ScriptNotifyCommand = new DelegateCommand<Uri>((parameter) =>
-				{
-					System.Diagnostics.Debug.WriteLine($"script notified: {parameter}");
-
-					var path = parameter.AbsoluteUri;
-					// is mylist url?
-					if (path.StartsWith("https://www.nicovideo.jp/mylist/"))
-					{
-						var mylistId = parameter.AbsolutePath.Split('/').Last();
-						System.Diagnostics.Debug.WriteLine($"open Mylist: {mylistId}");
-					}
-
-					// is nico video url?
-					if (path.StartsWith("https://www.nicovideo.jp/watch/"))
-					{
-						var videoId = parameter.AbsolutePath.Split('/').Last();
-						System.Diagnostics.Debug.WriteLine($"open Video: {videoId}");
-					}
-
-				}));
-			}
-		}
-		
-
-
-		public string Title { get; private set; }
-		
-
-		public string UserName { get; private set; }
-		public Uri UserIconUrl { get; private set; }
-
-		public DateTime SubmitDate { get; private set; }
-
-
-		public uint PlayCount { get; private set; }
-
-		public uint CommentCount { get; private set; }
-
-		public uint MylistCount { get; private set; }
-
-
-		private Uri _VideoDesctiptionUri;
-		public Uri VideoDescriptionUri
-		{
-			get { return _VideoDesctiptionUri; }
-			set { SetProperty(ref _VideoDesctiptionUri, value); }
-		}
-
-
-		public List<TagViewModel> Tags { get; private set; }
-
-		WatchApiResponse _WatchApiRes;
-		ThumbnailResponse _ThumbnailResponse;
-	}
+	
 
 	public class TagViewModel
 	{
@@ -849,119 +604,11 @@ namespace NicoPlayerHohoema.ViewModels
 		Tag _Tag;
 	}
 
-	public class CommentMediaInfoViewModel : MediaInfoViewModel
-	{
-		public CommentMediaInfoViewModel(ObservableCollection<Comment> comments)
-		{
-			Comments = comments;
-		}
-
-		public override void OnInitailize()
-		{
-		}
-
-		public override void OnEnter()
-		{
-
-		}
-
-		public override void OnLeave()
-		{
-
-		}
-
-		public override void Dispose()
-		{
-
-		}
-
-		public ObservableCollection<Comment> Comments { get; private set; }
-	}
+	
 
 
-	public class PlaylistMediaInfoViewModel : MediaInfoViewModel
-	{
-		public PlaylistMediaInfoViewModel()
-		{
 
-		}
-
-		public override void OnInitailize()
-		{
-		}
-
-		public override void OnEnter()
-		{
-
-		}
-
-		public override void OnLeave()
-		{
-
-		}
-
-		public override void Dispose()
-		{
-
-		}
-
-	}
-
-	public class RelatedVideoMediaInfoViewModel : MediaInfoViewModel
-	{
-		public RelatedVideoMediaInfoViewModel(string videoId)
-		{
-
-		}
-
-		public override void OnInitailize()
-		{
-		}
-
-		public override void OnEnter()
-		{
-
-		}
-
-		public override void OnLeave()
-		{
-
-		}
-
-		public override void Dispose()
-		{
-
-		}
-
-	}
-
-	public class IchibaMediaInfoViewModel : MediaInfoViewModel
-	{
-		public IchibaMediaInfoViewModel(string videoId)
-		{
-
-		}
-
-		public override void OnInitailize()
-		{
-		}
-
-		public override void OnEnter()
-		{
-
-		}
-
-		public override void OnLeave()
-		{
-
-		}
-
-		public override void Dispose()
-		{
-
-		}
-
-	}
+	
 
 
 

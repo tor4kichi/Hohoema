@@ -11,6 +11,7 @@ using Windows.Storage;
 using Newtonsoft.Json;
 using System.IO;
 using NicoPlayerHohoema.Util;
+using Mntone.Nico2.Videos.Thumbnail;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -449,6 +450,85 @@ namespace NicoPlayerHohoema.Models
 			NGCommentGlassMowerEnable = false;
 			NGCommentScoreType = NGCommentScore.Middle;
 		}
+
+
+		public NGResult IsNgVideo(ThumbnailResponse res)
+		{
+			NGResult result = null;
+
+			result = IsNgVideoOwnerId(res.UserId);
+			if (result != null) return result;
+
+			result = IsNGVideoId(res.Id);
+			if (result != null) return result;
+
+			result = IsNGVideoTitle(res.Title);
+			if (result != null) return result;
+
+			return result;
+		}
+
+
+		public NGResult IsNgVideoOwnerId(uint userId)
+		{
+
+			if (this.NGVideoOwnerUserIdEnable && this.NGVideoOwnerUserIds.Count > 0)
+			{
+				var ngItem = this.NGVideoOwnerUserIds.SingleOrDefault(x => x.UserId == userId);
+
+				if (ngItem != null)
+				{
+					return new NGResult()
+					{
+						NGReason = NGReason.UserId,
+						Content = ngItem.UserId.ToString(),
+						NGDescription = ngItem.Description
+					};
+				}
+			}
+
+			return null;
+		}
+
+		public NGResult IsNGVideoId(string videoId)
+		{
+			if (this.NGVideoIdEnable && this.NGVideoIds.Count > 0)
+			{
+				var ngItem = this.NGVideoIds.SingleOrDefault(x => x.VideoId == videoId);
+
+				if (ngItem != null)
+				{
+					return new NGResult()
+					{
+						NGReason = NGReason.VideoId,
+						Content = ngItem.VideoId,
+						NGDescription = ngItem.Description,
+					};
+				}
+			}
+			return null;
+		}
+
+		public NGResult IsNGVideoTitle(string title)
+		{
+			if (this.NGVideoTitleKeywordEnable && this.NGVideoTitleKeywords.Count > 0)
+			{
+				var ngItem = this.NGVideoTitleKeywords.FirstOrDefault(x => title.Contains(x.Keyword));
+
+				if (ngItem != null)
+				{
+					return new NGResult()
+					{
+						NGReason = NGReason.Keyword,
+						Content = ngItem.Keyword,
+					};
+				}
+			}
+
+			return null;
+		}
+
+
 
 
 		#region Video NG

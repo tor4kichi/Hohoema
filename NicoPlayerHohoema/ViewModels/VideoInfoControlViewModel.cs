@@ -14,20 +14,24 @@ namespace NicoPlayerHohoema.ViewModels
 	public class VideoInfoControlViewModel : BindableBase
 	{
 
-		public VideoInfoControlViewModel(string title, string videoUrl, HohoemaApp app)
+		public VideoInfoControlViewModel(string title, string videoUrl, NGSettings ngSettings, NiconicoMediaManager mediaMan, PageManager pageManager)
 		{
-			App = app;
+			NGSettings = ngSettings;
+			PageManager = pageManager;
+			MediaManager = mediaMan;
 
 			Title = title;
 			VideoUrl = videoUrl;
 
 			ShowDetailCommand = new DelegateCommand(() =>
 			{
+				PageManager.OpenPage(HohoemaPageType.VideoInfomation, VideoId);
 			});
 
 			PlayCommand = new DelegateCommand(() =>
 			{
-				App.PlayVideo(this.VideoUrl);
+				PageManager.OpenPage(HohoemaPageType.VideoInfomation, VideoId);
+//				App.PlayVideo(this.VideoUrl);
 			});
 		}
 
@@ -36,10 +40,10 @@ namespace NicoPlayerHohoema.ViewModels
 		public async void LoadThumbnail()
 		{
 			var videoId = Util.NicoVideoExtention.UrlToVideoId(VideoUrl);
-			var thumbnail = await App.GetThumbnail(videoId);
+			var thumbnail = await MediaManager.GetThumbnail(videoId);
 
 			// NG判定
-			var ngResult = App.IsNgVideo(thumbnail);
+			var ngResult = NGSettings.IsNgVideo(thumbnail);
 			IsNotGoodVideo = ngResult != null;
 			NGVideoReason = ngResult?.GetReasonText() ?? "";
 			IsForceDisplayNGVideo = false;
@@ -55,6 +59,8 @@ namespace NicoPlayerHohoema.ViewModels
 			ThumbnailImageUrl = IsNotGoodVideo ? null : thumbnail.ThumbnailUrl;
 			MovieLength = thumbnail.Length;
 
+
+			VideoId = thumbnail.Id;
 		}
 
 		private string _Title;
@@ -138,7 +144,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		
-
+		public string VideoId { get; private set; }
 
 		public string VideoUrl { get; private set; }
 
@@ -173,6 +179,8 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		public HohoemaApp App { get; private set; }
+		public NGSettings NGSettings { get; private set; }
+		public PageManager PageManager { get; private set; }
+		public NiconicoMediaManager MediaManager { get; private set; }
 	}
 }

@@ -20,58 +20,110 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			_HohoemaApp = hohoemaApp;
 			_RankingSettings = _HohoemaApp.UserSettings.RankingSettings;
+			_PageManager = pageManager;
 
 			// ランキングのカテゴリ
-			HighPriorityRankingCategoryItems = new ObservableCollection<RankingCategoryListItem>();
-			MiddlePriorityRankingCategoryItems = new ObservableCollection<RankingCategoryListItem>();
-			LowPriorityRankingCategoryItems = new ObservableCollection<RankingCategoryListItem>();
-
-			SelectedRankingCategory = new ReactiveProperty<RankingCategoryListItem>();
-
-			SelectedRankingCategory
-				.Where(x => x != null)
-				.Subscribe(category => 
+			RankingCategoryItems = new ObservableCollection<RankingCategoryHostListItem>()
 			{
-				// RankingCategoryPageを開く
-				pageManager.OpenPage(HohoemaPageType.RankingCategory, category.CategoryInfo);
-			});
+				new RankingCategoryHostListItem(RankingCategoryInfo.CreateFromRankingCategory(RankingCategory.all), OnRankingCategorySelected),
+				new RankingCategoryHostListItem(RankingCategoryInfo.CreateFromRankingCategory(RankingCategory.g_ent2), OnRankingCategorySelected)
+				{
+					ChildItems = new List<RankingCategoryListItem>()
+					{
+						CreateRankingCategryListItem(RankingCategory.ent),
+						CreateRankingCategryListItem(RankingCategory.music),
+						CreateRankingCategryListItem(RankingCategory.sing),
+						CreateRankingCategryListItem(RankingCategory.dance),
+						CreateRankingCategryListItem(RankingCategory.play),
+						CreateRankingCategryListItem(RankingCategory.vocaloid),
+						CreateRankingCategryListItem(RankingCategory.nicoindies),
+					}
+				},
+				new RankingCategoryHostListItem(RankingCategoryInfo.CreateFromRankingCategory(RankingCategory.g_life2), OnRankingCategorySelected)
+				{
+					ChildItems = new List<RankingCategoryListItem>()
+					{
+						CreateRankingCategryListItem(RankingCategory.animal),
+						CreateRankingCategryListItem(RankingCategory.cooking),
+						CreateRankingCategryListItem(RankingCategory.nature),
+						CreateRankingCategryListItem(RankingCategory.travel),
+						CreateRankingCategryListItem(RankingCategory.sport),
+						CreateRankingCategryListItem(RankingCategory.lecture),
+						CreateRankingCategryListItem(RankingCategory.drive),
+						CreateRankingCategryListItem(RankingCategory.history),
+					}
+				},
+				new RankingCategoryHostListItem(RankingCategoryInfo.CreateFromRankingCategory(RankingCategory.g_politics), OnRankingCategorySelected),
+				new RankingCategoryHostListItem(RankingCategoryInfo.CreateFromRankingCategory(RankingCategory.g_tech), OnRankingCategorySelected)
+				{
+					ChildItems = new List<RankingCategoryListItem>()
+					{
+						CreateRankingCategryListItem(RankingCategory.science),
+						CreateRankingCategryListItem(RankingCategory.tech),
+						CreateRankingCategryListItem(RankingCategory.handcraft),
+						CreateRankingCategryListItem(RankingCategory.make),
+					}
+				},
+				new RankingCategoryHostListItem(RankingCategoryInfo.CreateFromRankingCategory(RankingCategory.g_culture2), OnRankingCategorySelected)
+				{
+					ChildItems = new List<RankingCategoryListItem>()
+					{
+						CreateRankingCategryListItem(RankingCategory.anime),
+						CreateRankingCategryListItem(RankingCategory.game),
+						CreateRankingCategryListItem(RankingCategory.toho),
+						CreateRankingCategryListItem(RankingCategory.imas),
+						CreateRankingCategryListItem(RankingCategory.radio),
+						CreateRankingCategryListItem(RankingCategory.draw),
+					}
+				},
+				new RankingCategoryHostListItem(RankingCategoryInfo.CreateFromRankingCategory(RankingCategory.g_other), OnRankingCategorySelected)
+				{
+					ChildItems = new List<RankingCategoryListItem>()
+					{
+						CreateRankingCategryListItem(RankingCategory.are),
+						CreateRankingCategryListItem(RankingCategory.diary),
+						CreateRankingCategryListItem(RankingCategory.other),
+					}
+				},
+			};
+		}
+
+		RankingCategoryListItem CreateRankingCategryListItem(RankingCategory category)
+		{
+			return new RankingCategoryListItem(RankingCategoryInfo.CreateFromRankingCategory(category), OnRankingCategorySelected);
+		}
+
+
+		internal void OnRankingCategorySelected(RankingCategoryInfo info)
+		{
+			_PageManager.OpenPage(HohoemaPageType.RankingCategory, info);
 		}
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			base.OnNavigatedTo(e, viewModelState);
-
-			HighPriorityRankingCategoryItems.Clear();
-			MiddlePriorityRankingCategoryItems.Clear();
-			LowPriorityRankingCategoryItems.Clear();
-
-
-			foreach (var categoryType in _RankingSettings.HighPriorityCategory)
-			{
-				HighPriorityRankingCategoryItems.Add(new RankingCategoryListItem(categoryType));
-			}
-
-			foreach (var categoryType in _RankingSettings.MiddlePriorityCategory)
-			{
-				MiddlePriorityRankingCategoryItems.Add(new RankingCategoryListItem(categoryType));
-			}
-			foreach (var categoryType in _RankingSettings.LowPriorityCategory)
-			{
-				LowPriorityRankingCategoryItems.Add(new RankingCategoryListItem(categoryType));
-			}
+			
 			
 
 		}
 
-
-
-		public ObservableCollection<RankingCategoryListItem> HighPriorityRankingCategoryItems { get; private set; }
-		public ObservableCollection<RankingCategoryListItem> MiddlePriorityRankingCategoryItems { get; private set; }
-		public ObservableCollection<RankingCategoryListItem> LowPriorityRankingCategoryItems { get; private set; }
-
-		public ReactiveProperty<RankingCategoryListItem> SelectedRankingCategory { get; private set; }
+		public ObservableCollection<RankingCategoryHostListItem> RankingCategoryItems { get; private set; }
 
 		RankingSettings _RankingSettings;
 		private HohoemaApp _HohoemaApp;
+		PageManager _PageManager;
+	}
+
+
+
+	public class RankingCategoryHostListItem : RankingCategoryListItem
+	{
+		public RankingCategoryHostListItem(RankingCategoryInfo info, Action<RankingCategoryInfo> selected)
+			: base(info, selected)
+		{
+			ChildItems = new List<RankingCategoryListItem>();
+		}
+
+
+		public List<RankingCategoryListItem> ChildItems { get; set; }
 	}
 }

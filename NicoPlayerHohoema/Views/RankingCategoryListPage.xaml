@@ -13,43 +13,62 @@
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <ScrollViewer HorizontalScrollBarVisibility="Hidden">
-            <StackPanel Orientation="Vertical">
+    <Page.Resources>
+        <DataTemplate x:Key="CategoryListItemTemplate">
+            <Border Background="Transparent" Margin="8">
+                <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Tapped">
+                        <core:InvokeCommandAction Command="{Binding SelectedCommand}" />
+                    </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
                 
-                <ListView ItemsSource="{Binding HighPriorityRankingCategoryItems}"
-                          SelectedItem="{Binding SelectedRankingCategory.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                          SelectionMode="Single"
-                          DisplayMemberPath="Label"
+                <TextBlock Text="{Binding Label}"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Center"
+                           >
+
+                </TextBlock>
+            </Border>
+        </DataTemplate>
+    </Page.Resources>
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" >
+        <ScrollViewer VerticalScrollMode="Disabled" HorizontalScrollMode="Enabled" Margin="64 32 0 0">
+            <StackPanel Orientation="Horizontal">
+
+                <ItemsControl ItemsSource="{Binding RankingCategoryItems}"
                           >
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
 
-                </ListView>
+                            <StackPanel Orientation="Vertical">
+                                <ContentControl Content="{Binding}"
+                                            ContentTemplate="{StaticResource CategoryListItemTemplate}"
+                                            />
 
-                <Border BorderThickness="1 0 0 0" BorderBrush="Gray" />
+                                <ItemsControl ItemsSource="{Binding ChildItems}"
+                                          ItemTemplate="{StaticResource CategoryListItemTemplate}"
+                                          >
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Horizontal" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
 
-                <ListView ItemsSource="{Binding MiddlePriorityRankingCategoryItems}"
-                          SelectedItem="{Binding SelectedRankingCategory.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                          SelectionMode="Single"
-                          DisplayMemberPath="Label"
-                          >
+                                </ItemsControl>
+                                
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
 
-                </ListView>
+                </ItemsControl>
 
-                <Border BorderThickness="1 0 0 0" BorderBrush="Gray" />
-
-                <ListView ItemsSource="{Binding LowPriorityRankingCategoryItems}"
-                          SelectedItem="{Binding SelectedRankingCategory.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                          SelectionMode="Single"
-                          DisplayMemberPath="Label"
-                          >
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
-                            <Setter Property="Foreground" Value="Gray" />
-                        </Style>
-                    </ListView.ItemContainerStyle>
-
-                </ListView>
-
+                
             </StackPanel>
         </ScrollViewer>
     </Grid>

@@ -25,27 +25,12 @@
                     <VisualStateGroup>
 
                         <VisualState>
-                            <!-- ペインを強制非表示 -->
-                            <VisualState.StateTriggers>
-                                <StateTrigger IsActive="{Binding InvisiblePane.Value}" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-                                <Setter Target="RootSplitView.DisplayMode" Value="Overlay" />
-                                <Setter Target="RootSplitView.IsPaneOpen" Value="False" />
-                                <Setter Target="TopMenu.Visibility" Value="Collapsed" />
-                            </VisualState.Setters>
-                        </VisualState>
-                        
-                        <VisualState>
                             <!-- 一番幅が広いとき -->
                             <VisualState.StateTriggers>
                                 <AdaptiveTrigger MinWindowWidth="1025" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter Target="RootSplitView.DisplayMode" Value="Inline" />
-                                <Setter Target="RootSplitView.IsPaneOpen" Value="True" />
-                                <Setter Target="TopMenu.Visibility" Value="Visible" />
-                                <Setter Target="PaneToggleButton.Visibility" Value="Collapsed" />
+                                <Setter Target="TopMenu.Height" Value="200" />
                             </VisualState.Setters>
                         </VisualState>
                         <!-- 中ぐらい -->
@@ -54,10 +39,7 @@
                                 <AdaptiveTrigger MinWindowWidth="721" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter Target="RootSplitView.DisplayMode" Value="CompactOverlay" />
-                                <Setter Target="RootSplitView.IsPaneOpen" Value="False" />
-                                <Setter Target="TopMenu.Visibility" Value="Visible" />
-                                <Setter Target="PaneToggleButton.Visibility" Value="Visible" />
+                                <Setter Target="TopMenu.Height" Value="200" />
                             </VisualState.Setters>
                         </VisualState>
                         <!-- 狭い 
@@ -77,86 +59,43 @@
                                 <AdaptiveTrigger MinWindowWidth="0" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter Target="RootSplitView.DisplayMode" Value="Overlay" />
-                                <Setter Target="RootSplitView.IsPaneOpen" Value="False" />
-                                <Setter Target="TopMenu.Visibility" Value="Visible" />
-                                <Setter Target="PaneToggleButton.Visibility" Value="Visible" />
+                                <Setter Target="TopMenu.Height" Value="120" />
                             </VisualState.Setters>
                         </VisualState>
                     </VisualStateGroup>
                 </VisualStateManager.VisualStateGroups>
 
-                <SplitView x:Name="RootSplitView" 
-                           IsPaneOpen="{Binding IsPaneOpen.Value, Mode=TwoWay}"
-                           OpenPaneLength="240"
-                           >
+                <toolkit:DockPanel>
 
-                    <SplitView.Pane>
-                        <Grid>
-                            <toolkit:DockPanel>
-                                <toolkit:DockPanel.Resources>
-                                    <DataTemplate x:Key="MenuListItemTemplate">
-                                        <Button Content="{Binding Title}" 
-                                                Command="{Binding SelectMenuItemCommand}" 
-                                                CommandParameter="{Binding ElementName=PaneToggleButton, Path=Visibility}"
-                                                >
-                                        </Button>
-                                    </DataTemplate>
-
-                                </toolkit:DockPanel.Resources>
-
-                                <ItemsControl toolkit:DockPanel.Dock="Top"
-                                              ItemsSource="{Binding TopMenuItems}"
-                                              ItemTemplate="{StaticResource MenuListItemTemplate}"
-                                              >
-                                </ItemsControl>
-
-                                <ItemsControl toolkit:DockPanel.Dock="Bottom"
-                                              ItemsSource="{Binding BottomMenuItems}"
-                                              ItemTemplate="{StaticResource MenuListItemTemplate}"
-                                              >
-                                </ItemsControl>
-                                
-                                <Border />
-                            </toolkit:DockPanel>
-                        </Grid>
-                    </SplitView.Pane>
-
-                    
-                    <SplitView.Content>
+                    <RelativePanel toolkit:DockPanel.Dock="Top" x:Name="TopMenu">
                         
-                        <toolkit:DockPanel>
-                            <Border toolkit:DockPanel.Dock="Top" 
-                                    x:Name="TopMenu"
-                                    Height="48">
+                        <!-- アカウント -->
+                        <StackPanel x:Name="AccountPanel"
+                                    RelativePanel.Above="SearchPanel"
+                                    RelativePanel.AlignRightWithPanel="True"
+                                    
+                                    Margin="8"
+                                    >
+                            <TextBlock Text="****@gmail.com" 
+                                       
+                                       />
+                        </StackPanel>
+                        
+                        
+                        <!-- 検索 -->
+                        <StackPanel x:Name="SearchPanel"
+                                    Margin="8"
+                                    RelativePanel.AlignBottomWithPanel="True"
+                                    RelativePanel.AlignRightWithPanel="True"
+                                    >
+                            <TextBox Text="検索" Width="200" />
+                        </StackPanel>
+                    </RelativePanel>
 
-                                <toolkit:DockPanel>
-                                    <AppBarToggleButton x:Name="PaneToggleButton"
-                                        toolkit:DockPanel.Dock="Left" 
-                                                        Icon="OpenPane"
-                                                        IsChecked="{Binding ElementName=RootSplitView, Path=IsPaneOpen, Mode=TwoWay}"
-                                        >
-                                    </AppBarToggleButton>
+                    <ContentPresenter />
 
-                                    <StackPanel toolkit:DockPanel.Dock="Right"
-                                            Orientation="Horizontal"
-                                            >
-                                        <AppBarButton Icon="Find"
-                                                      />
-
-                                    </StackPanel>
-
-                                    <TextBlock Text="Page Title"  VerticalAlignment="Center" FontSize="18"/>
-                                </toolkit:DockPanel>
-                            </Border>
-
-                            <ContentPresenter />
-
-
-                        </toolkit:DockPanel>
-
-                    </SplitView.Content>
-                </SplitView>
+                </toolkit:DockPanel>
+                    
             </Border>
             
         </ControlTemplate>
