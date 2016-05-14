@@ -7,12 +7,63 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:view="using:NicoPlayerHohoema.Views"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <TextBlock Text="Search"
-            Style="{StaticResource BodyTextBlockStyle}" />
+        <Border>
+            <toolkit:DockPanel>
+
+
+                <ScrollViewer toolkit:DockPanel.Dock="Top" 
+                              Height="32"
+                              HorizontalScrollMode="Enabled"
+                              HorizontalScrollBarVisibility="Hidden"
+                              VerticalScrollMode="Disabled"
+                              VerticalScrollBarVisibility="Hidden"
+                              >
+                    <ListView ItemsSource="{Binding PagenationItems}"
+                              SelectionMode="Single"
+                              SelectedItem="{Binding SelectedPagenationItem.Value, Mode=TwoWay}"
+                              DisplayMemberPath="PageNumber"
+                              >
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
+                        
+                    </ListView>
+                </ScrollViewer>
+
+                <ListView ItemsSource="{Binding SearchResultItems}"
+                         SelectionMode="Multiple"
+                         IncrementalLoadingTrigger="Edge"
+                          
+                              >
+
+
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment"
+                                        Value="Stretch" 
+                                        />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+
+
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <view:VideoInfoControl />
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+
+            </toolkit:DockPanel>
+        </Border>
     </Grid>
 </Page>

@@ -116,9 +116,11 @@ namespace NicoPlayerHohoema
 		private void RegisterTypes()
 		{
 			// Models
-			Container.RegisterInstance(new HohoemaApp(EventAggregator));
+			var hohoemaApp = new HohoemaApp(EventAggregator);
+			Container.RegisterInstance(hohoemaApp);
 			Container.RegisterInstance(new PageManager(NavigationService));
-
+			Container.RegisterInstance(hohoemaApp.MediaManager);
+			Container.RegisterInstance(hohoemaApp.ContentFinder);
 
 			// ViewModels
 			Container.RegisterType<ViewModels.MenuNavigatePageBaseViewModel>(new ContainerControlledLifetimeManager());
@@ -128,7 +130,11 @@ namespace NicoPlayerHohoema
 			Container.RegisterType<ViewModels.SubscriptionPageViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.SearchPageViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.SettingsPageViewModel>(new ContainerControlledLifetimeManager());
+			
 
+			// Service
+			var searchVM = Container.Resolve<SearchViewModel>();
+			Container.RegisterInstance<Views.Service.ISearchDialogService>(new Views.Service.SearchDialogService(searchVM));
 		}
 
 
@@ -160,16 +166,7 @@ namespace NicoPlayerHohoema
 
 		protected override UIElement CreateShell(Frame rootFrame)
 		{
-//			var ui = base.CreateShell(rootFrame);
-
-			var menuPage = new Views.MenuNavigatePageBase();
-
-			menuPage.Content = rootFrame;
-
-
-			
-
-			return menuPage;
+			return base.CreateShell(rootFrame);
 		}
 
 		private void PrismUnityApplication_UnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -232,9 +229,9 @@ namespace NicoPlayerHohoema
 				ns = new FrameNavigationService(frameFacade
 					, (pageToken) =>
 					{
-						if (pageToken == nameof(Views.PlayerPage))
+						if (pageToken == nameof(Views.VideoPlayerPage))
 						{
-							return typeof(Views.PlayerPage);
+							return typeof(Views.VideoPlayerPage);
 						}
 						else
 						{
@@ -266,7 +263,7 @@ namespace NicoPlayerHohoema
 			// サブウィンドウをアクティベートして、サブウィンドウにPlayerページナビゲーションを飛ばす
 			await View.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
 			{
-				if (!NavigationService.Navigate(nameof(Views.PlayerPage), videoUrl))
+				if (!NavigationService.Navigate(nameof(Views.VideoPlayerPage), videoUrl))
 				{
 					System.Diagnostics.Debug.WriteLine("Failed open player.");
 				}

@@ -1,0 +1,50 @@
+﻿<UserControl
+    x:Class="NicoPlayerHohoema.Views.PortalContent.RankingPortalPageContent"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views.PortalContent"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="160">
+
+    <StackPanel>
+        <Border>
+            <TextBlock Text="ランキング" >
+                <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Tapped">
+                        <core:InvokeCommandAction Command="{Binding OpenRankingCategoryCommand}" />
+                    </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
+            </TextBlock>
+        </Border>
+
+        <Border Height="32" />
+
+
+        <toolkit:WrapPanel Width="160" Orientation="Horizontal" ItemWidth="80" ItemHeight="80"
+                           HorizontalAlignment="Left"
+                           >
+            
+            
+            <TextBlock Text="ゲーム"
+                       Margin="4"
+                       />
+            <TextBlock Text="ゲーム"
+                       Margin="4"
+                       />
+            <TextBlock Text="ゲーム"
+                       Margin="4"
+                       />
+
+        </toolkit:WrapPanel>
+       
+
+    </StackPanel>
+</UserControl>

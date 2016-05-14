@@ -22,10 +22,13 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class RankingCategoryPageViewModel : ViewModelBase
 	{
-		public RankingCategoryPageViewModel(HohoemaApp hohoemaApp, EventAggregator ea)
+		public RankingCategoryPageViewModel(HohoemaApp hohoemaApp, EventAggregator ea, PageManager pageManager)
 		{
 			HohoemaApp = hohoemaApp;
+			ContentFinder = HohoemaApp.ContentFinder;
 			_EventAggregator = ea;
+			_PageManager = pageManager;
+
 			RankingSettings = hohoemaApp.UserSettings.RankingSettings;
 			IsFailedRefreshRanking = new ReactiveProperty<bool>(false);
 			CanChangeRankingParameter = new ReactiveProperty<bool>(false);
@@ -96,7 +99,9 @@ namespace NicoPlayerHohoema.ViewModels
 							i + 1
 							, item.Title
 							, item.VideoUrl
-							, HohoemaApp
+							, HohoemaApp.UserSettings.NGSettings
+							, HohoemaApp.MediaManager
+							, _PageManager
 						);
 
 						RankingItems.Add(videoInfoVM);
@@ -126,7 +131,7 @@ namespace NicoPlayerHohoema.ViewModels
 			// 
 			for (uint i = 0; i < 3; i++)
 			{
-				var res = await HohoemaApp.NiconicoContext.Video.GetKeywordSearchAsync(parameter, i + 1, SearchSortMethod.Popurarity);
+				var res = await ContentFinder.GetKeywordSearch(parameter, i + 1, SearchSortMethod.Popurarity);
 				listItems.AddRange(res.list);
 			}
 
@@ -142,7 +147,10 @@ namespace NicoPlayerHohoema.ViewModels
 						i + 1,
 						item.title
 						, NicoVideoExtention.VideoIdToWatchPageUrl(item.id)
-						, HohoemaApp);
+						, HohoemaApp.UserSettings.NGSettings
+						, HohoemaApp.MediaManager
+						, _PageManager
+						);
 
 					RankingItems.Add(videoInfoVM);
 				}
@@ -158,10 +166,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		internal void PlayVideo(string videoUrl)
+		internal void ShowVideoInfomation(string videoUrl)
 		{
-			_EventAggregator.GetEvent<Events.PlayNicoVideoEvent>()
-				.Publish(videoUrl);
+			_PageManager.OpenPage(HohoemaPageType.VideoInfomation, videoUrl);
+//			_EventAggregator.GetEvent<Events.PlayNicoVideoEvent>()
+//				.Publish(videoUrl);
 		}
 
 
@@ -230,7 +239,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ObservableCollection<VideoInfoControlViewModel> RankingItems { get; private set; }
 
+		private PageManager _PageManager;
 		private HohoemaApp HohoemaApp;
+		private NiconicoContentFinder ContentFinder;
 		private EventAggregator _EventAggregator;
 		public RankingSettings RankingSettings { get; private set; }
 
@@ -239,8 +250,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class RankedVideoInfoControlViewModel : VideoInfoControlViewModel
 	{
-		public RankedVideoInfoControlViewModel(uint rank, string title, string videoUrl, HohoemaApp hohoemaApp)
-			: base(title, videoUrl, hohoemaApp)
+		public RankedVideoInfoControlViewModel(uint rank, string title, string videoUrl, NGSettings ngSettings, NiconicoMediaManager mediaMan, PageManager pageManager)
+			: base(title, videoUrl, ngSettings, mediaMan, pageManager)
 		{
 			Rank = rank;
 		}
@@ -278,17 +289,16 @@ namespace NicoPlayerHohoema.ViewModels
 	}
 
 
-	public class RankingCategoryListItem : BindableBase
+
+	public class RankingCategoryListItem : SelectableItem<RankingCategoryInfo>
 	{
-		public RankingCategoryListItem(RankingCategoryInfo categoryInfo)
+		public RankingCategoryListItem(RankingCategoryInfo categoryInfo, Action<RankingCategoryInfo> selectedAction)
+			: base(categoryInfo, selectedAction)
 		{
-			CategoryInfo = categoryInfo;
 			Label = categoryInfo.DisplayLabel;
 		}
 
 		public string Label { get; private set; }
-
-		public RankingCategoryInfo CategoryInfo { get; private set; }
 	}
 
 }

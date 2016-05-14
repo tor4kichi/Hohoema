@@ -1,5 +1,5 @@
 ﻿<Page
-    x:Class="NicoPlayerHohoema.Views.PlayerPage"
+    x:Class="NicoPlayerHohoema.Views.VideoPlayerPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:NicoPlayerHohoema.Views"
@@ -14,8 +14,8 @@
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
-    d:DesignHeight="800"
-    d:DesignWidth="800"
+    d:DesignHeight="480"
+    d:DesignWidth="720"
     >
 
     <Page.Resources>
@@ -30,39 +30,7 @@
         
         <VisualStateManager.VisualStateGroups>
 
-            <!-- responsive MediaInfo  -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding HideMediaInfo.Value}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="LandscapeMediaInfo.Visibility" Value="Collapsed" />
-                        <Setter Target="PortraitMediaInfo.Visibility" Value="Collapsed" />
-                    </VisualState.Setters>
-                </VisualState>
-                
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="800" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="LandscapeMediaInfo.Visibility" Value="Visible" />
-                        <Setter Target="PortraitMediaInfo.Visibility" Value="Collapsed" />
-                    </VisualState.Setters>
-                </VisualState>
-
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="0" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="LandscapeMediaInfo.Visibility" Value="Collapsed" />
-                        <Setter Target="PortraitMediaInfo.Visibility" Value="Visible" />
-                    </VisualState.Setters>
-                </VisualState>
-
-            </VisualStateGroup>
+            
 
             <!-- 再生・一時停止ボタン -->
             <VisualStateGroup>
@@ -128,27 +96,6 @@
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
         
-        <!-- Landscape Media Info -->
-        <StackPanel x:Name="LandscapeMediaInfo"
-                    toolkit:DockPanel.Dock="Right"
-                    MinWidth="320"
-                    toolkitext:FrameworkElementExtensions.Cursor="{Binding Converter={StaticResource ToCoreCursor}}"
-                    >
-            
-            <local:MediaInfoContent />
-
-        </StackPanel>
-        <!-- Portrait Media Info -->
-        <StackPanel x:Name="PortraitMediaInfo"
-                    toolkit:DockPanel.Dock="Bottom"
-                    MinHeight="400"
-                    toolkitext:FrameworkElementExtensions.Cursor="{Binding Converter={StaticResource ToCoreCursor}}"
-                    >
-            <local:MediaInfoContent />
-
-        </StackPanel>
-
-
 
         <!-- Media Control -->
         <Grid Background="Black" x:Name="MediaControl">
@@ -245,12 +192,12 @@
                         <Slider Minimum="0.0" 
                             Maximum="{Binding VideoLength.Value}"
                             Value="{Binding SliderVideoPosition.Value, Mode=TwoWay}"
-                            Width="{Binding ElementName=ControlPanel_Center, Path=ActualWidth, Mode=OneWay}"
                             IsThumbToolTipEnabled="True"
                             ThumbToolTipValueConverter="{StaticResource TimeToMovieLengthConverter}"
                             HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Stretch"
                             VerticalAlignment="Center"
+                                Margin="8 0"
                             >
                         </Slider>
 
@@ -303,19 +250,20 @@
                     </StackPanel>
 
                     <!-- Right Items-->
-                    <StackPanel
+                    <toolkit:DockPanel
                         toolkit:DockPanel.Dock="Right"
-                        Orientation="Horizontal"
+                        LastChildFill="True"
+                        Width="300"
                         >
                         <AppBarButton x:Name="MuteButton"
                                       Icon="Mute" 
                                       Command="{Binding ToggleMuteCommand}"                                      
+                                      toolkit:DockPanel.Dock="Left"
                                       />
 
                         <Slider x:Name="VolumeSlider"
-                            Width="200"
                             VerticalAlignment="Center"
-                            Margin="32 0"                            
+                            Margin="16 0"                            
                             Value="{Binding SoundVolume.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                             IsThumbToolTipEnabled="True"
                             ThumbToolTipValueConverter="{StaticResource ToUserFriendlySoubleVolume}"
@@ -324,7 +272,7 @@
                             StepFrequency="0.01"
                             />
 
-                    </StackPanel>
+                    </toolkit:DockPanel>
 
 
                     <!-- Center Items -->

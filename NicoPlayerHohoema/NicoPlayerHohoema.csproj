@@ -102,24 +102,44 @@
     <Compile Include="Models\HohoemaApp.cs" />
     <Compile Include="Models\HohoemaPageType.cs" />
     <Compile Include="Models\HohoemaUserSettings.cs" />
-    <Compile Include="Models\NiconicoPlayer.cs" />
+    <Compile Include="Models\NiconicoContentFinder.cs" />
+    <Compile Include="Models\NiconicoMediaManager.cs" />
     <Compile Include="Models\PageManager.cs" />
     <Compile Include="Models\PlayerDisplayMode.cs" />
+    <Compile Include="Models\SearchOption.cs" />
+    <Compile Include="Models\SearchTarget.cs" />
+    <Compile Include="Models\VideoDescriptionHelper.cs" />
     <Compile Include="Util\ColorExtention.cs" />
+    <Compile Include="Util\ConnectionRetryUtil.cs" />
     <Compile Include="Util\HttpRandomAccessStream.cs" />
+    <Compile Include="Util\IncrementalLoadingCollection.cs" />
     <Compile Include="Util\NiconicoRankingExtention.cs" />
     <Compile Include="Util\NicoVideoRssItemExtention.cs" />
     <Compile Include="ViewModels\CommentStreamingViewModel.cs" />
     <Compile Include="ViewModels\HistoryPageViewModel.cs" />
     <Compile Include="ViewModels\LoginPageViewModel.cs" />
     <Compile Include="ViewModels\MenuNavigatePageBaseViewModel.cs" />
-    <Compile Include="ViewModels\PlayerPageViewModel.cs" />
+    <Compile Include="ViewModels\SearchViewModel.cs" />
+    <Compile Include="Views\Service\ISearchDialogService.cs" />
+    <Compile Include="Views\Service\SearchDialogService.cs" />
+    <Compile Include="ViewModels\VideoPlayerPageViewModel.cs" />
+    <Compile Include="ViewModels\PortalContent\AppPortalPageContentViewModel.cs" />
+    <Compile Include="ViewModels\PortalContent\FavPortalPageContentViewModel.cs" />
+    <Compile Include="ViewModels\PortalContent\MylistPortalPageContentViewModel.cs" />
+    <Compile Include="ViewModels\PortalContent\RankingPortalPageContentViewModel.cs" />
+    <Compile Include="ViewModels\PortalContent\SearchPortalPageContentViewModel.cs" />
+    <Compile Include="ViewModels\PortalPageViewModel.cs" />
     <Compile Include="ViewModels\RankingCategoryListPageViewModel.cs" />
     <Compile Include="ViewModels\RankingCategoryPageViewModel.cs" />
     <Compile Include="ViewModels\SearchPageViewModel.cs" />
+    <Compile Include="ViewModels\SelectableItem.cs" />
     <Compile Include="ViewModels\SettingsPageViewModel.cs" />
     <Compile Include="ViewModels\SubscriptionPageViewModel.cs" />
+    <Compile Include="ViewModels\VideoInfoContent\IchibaVideoInfoContentViewModel.cs" />
+    <Compile Include="ViewModels\VideoInfoContent\RelationVideoInfoContentViewModel.cs" />
+    <Compile Include="ViewModels\VideoInfoContent\SummaryVideoInfoContentViewModel.cs" />
     <Compile Include="ViewModels\VideoInfoControlViewModel.cs" />
+    <Compile Include="ViewModels\VideoInfomationPageViewModel.cs" />
     <Compile Include="Views\Behaviors\AutoHide.cs" />
     <Compile Include="Views\Behaviors\MediaElementStateGetter.cs" />
     <Compile Include="Views\Behaviors\ShowFlyoutBehavior.cs" />
@@ -147,14 +167,32 @@
     <Compile Include="Views\LoginPage.xaml.cs">
       <DependentUpon>LoginPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\MediaInfoContent.xaml.cs">
-      <DependentUpon>MediaInfoContent.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\MenuNavigatePageBase.xaml.cs">
       <DependentUpon>MenuNavigatePageBase.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\PlayerPage.xaml.cs">
-      <DependentUpon>PlayerPage.xaml</DependentUpon>
+    <Compile Include="Views\SearchContentDialog.xaml.cs">
+      <DependentUpon>SearchContentDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\VideoPlayerPage.xaml.cs">
+      <DependentUpon>VideoPlayerPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PortalContent\AppPortalPageContent.xaml.cs">
+      <DependentUpon>AppPortalPageContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PortalContent\FavPortalPageContent.xaml.cs">
+      <DependentUpon>FavPortalPageContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PortalContent\MylistPortalPageContent.xaml.cs">
+      <DependentUpon>MylistPortalPageContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PortalContent\RankingPortalPageContent.xaml.cs">
+      <DependentUpon>RankingPortalPageContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PortalContent\SearchPortalPageContent.xaml.cs">
+      <DependentUpon>SearchPortalPageContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PortalPage.xaml.cs">
+      <DependentUpon>PortalPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\RankingCategoryListPage.xaml.cs">
       <DependentUpon>RankingCategoryListPage.xaml</DependentUpon>
@@ -189,8 +227,20 @@
     <Compile Include="Views\UIEffects\DropShadowHostControl.xaml.cs">
       <DependentUpon>DropShadowHostControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\VideoInfoContent\IchibaVideoInfoContent.xaml.cs">
+      <DependentUpon>IchibaVideoInfoContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\VideoInfoContent\RelationVideoInfoContent.xaml.cs">
+      <DependentUpon>RelationVideoInfoContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\VideoInfoContent\SummaryVideoInfoContent.xaml.cs">
+      <DependentUpon>SummaryVideoInfoContent.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\VideoInfoControl.xaml.cs">
       <DependentUpon>VideoInfoControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\VideoInfomationPage.xaml.cs">
+      <DependentUpon>VideoInfomationPage.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -237,15 +287,39 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\MediaInfoContent.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\MenuNavigatePageBase.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Views\PlayerPage.xaml">
+    <Page Include="Views\SearchContentDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\VideoPlayerPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PortalContent\AppPortalPageContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PortalContent\FavPortalPageContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PortalContent\MylistPortalPageContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PortalContent\RankingPortalPageContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PortalContent\SearchPortalPageContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PortalPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -289,7 +363,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\VideoInfoContent\IchibaVideoInfoContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\VideoInfoContent\RelationVideoInfoContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\VideoInfoContent\SummaryVideoInfoContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\VideoInfoControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\VideoInfomationPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

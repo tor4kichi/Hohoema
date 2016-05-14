@@ -18,9 +18,8 @@ namespace NicoPlayerHohoema.Models
 			EventAggregator = ea;
 
 			UserSettings = new HohoemaUserSettings();
-			NiconicoPlayer = new NiconicoPlayer(this);
-			NiconicoContext = new NiconicoContext();
-			VideoIdToThumbnailInfo = new Dictionary<string, ThumbnailResponse>();
+			MediaManager = new NiconicoMediaManager(this);
+			ContentFinder = new NiconicoContentFinder(this);
 		}
 
 		public async Task LoadUserSettings()
@@ -48,11 +47,21 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<NiconicoSignInStatus> SignIn(string mailOrTelephone, string password)
 		{
-			NiconicoContext = new NiconicoContext(new NiconicoAuthenticationToken(mailOrTelephone, password));
+			NiconicoContext?.Dispose();
+			NiconicoContext = null;
 
-			NiconicoContext.AdditionalUserAgent = HohoemaUserAgent;
+			var context = new NiconicoContext(new NiconicoAuthenticationToken(mailOrTelephone, password));
 
-			return await NiconicoContext.SignInAsync();
+			context.AdditionalUserAgent = HohoemaUserAgent;
+
+			var result = await context.SignInAsync();
+
+			if (result == NiconicoSignInStatus.Success)
+			{
+				NiconicoContext = context;
+			}
+
+			return result;
 		}
 
 		public async Task<NiconicoSignInStatus> SignOut()
@@ -72,98 +81,18 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<NiconicoSignInStatus> CheckSignedInStatus()
 		{
-			return await NiconicoContext.GetIsSignedInAsync();
-		}
-
-
-		public void PlayVideo(string videoUrl)
-		{
-			EventAggregator.GetEvent<Events.PlayNicoVideoEvent>()
-				.Publish(videoUrl);
-		}
-
-
-		public NGResult IsNgVideo(ThumbnailResponse response)
-		{
-			var ng = UserSettings.NGSettings;
-
-			// 動画IDによるNG判定
-			if (ng.NGVideoIdEnable && ng.NGVideoIds.Count > 0)
+			if (NiconicoContext != null)
 			{
-				var ngItem = ng.NGVideoIds.SingleOrDefault(x => x.VideoId == response.Id);
-
-				if (ngItem != null)
-				{
-					return new NGResult()
-					{
-						NGReason = NGReason.VideoId,
-						Content = ngItem.VideoId,
-						NGDescription = ngItem.Description,
-					};
-				}
-			}
-
-			// 動画投稿者によるNG判定
-			if (ng.NGVideoOwnerUserIdEnable && ng.NGVideoOwnerUserIds.Count > 0)
-			{
-				var ngItem = ng.NGVideoOwnerUserIds.SingleOrDefault(x => x.UserId == response.UserId);
-
-				if (ngItem != null)
-				{
-					return new NGResult()
-					{
-						NGReason = NGReason.UserId,
-						Content = ngItem.UserId.ToString(),
-						NGDescription = ngItem.Description
-					};
-				}
-			}
-
-			// 動画タイトルによるNG判定
-			if (ng.NGVideoTitleKeywordEnable && ng.NGVideoTitleKeywords.Count > 0)
-			{
-				var ngItem = ng.NGVideoTitleKeywords.FirstOrDefault(x => response.Title.Contains(x.Keyword));
-
-				if (ngItem != null)
-				{
-					return new NGResult()
-					{
-						NGReason = NGReason.Keyword,
-						Content = ngItem.Keyword,
-					};
-				}
-			}
-
-			return null;
-		}
-
-
-		public async Task<ThumbnailResponse> GetThumbnail(string videoId)
-		{
-			if (VideoIdToThumbnailInfo.ContainsKey(videoId))
-			{
-				var value = VideoIdToThumbnailInfo[videoId];
-
-				// TODO: サムネイル情報が古い場合は更新する
-
-				return value;
+				return await NiconicoContext.GetIsSignedInAsync();
 			}
 			else
 			{
-				var thumbnail = await _NiconicoContext.Video.GetThumbnailAsync(videoId);
-				try
-				{
-					if (!VideoIdToThumbnailInfo.ContainsKey(videoId))
-					{
-						VideoIdToThumbnailInfo.Add(videoId, thumbnail);
-					}
-				}
-				catch { }
-
-				return thumbnail;
+				return NiconicoSignInStatus.Failed;
 			}
 		}
 
+
+	
 
 		public HohoemaUserSettings UserSettings { get; private set; }
 
@@ -175,14 +104,15 @@ namespace NicoPlayerHohoema.Models
 			set { SetProperty(ref _NiconicoContext, value); }
 		}
 
-		public NiconicoPlayer NiconicoPlayer { get; private set; }
+		public NiconicoMediaManager MediaManager { get; private set; }
+
+		public NiconicoContentFinder ContentFinder { get; private set; }
 
 		public const string HohoemaUserAgent = "Hohoema_UWP";
 
 		public IEventAggregator EventAggregator { get; private set; }
 
 
-		public Dictionary<string, ThumbnailResponse> VideoIdToThumbnailInfo { get; private set; }
 	}
 	
 

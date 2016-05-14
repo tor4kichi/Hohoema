@@ -1,5 +1,4 @@
-﻿using Prism.Windows.Mvvm;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,20 +13,15 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
-// 空白ページのアイテム テンプレートについては、http://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
+// The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
-namespace NicoPlayerHohoema.Views
+namespace NicoPlayerHohoema.Views.VideoInfoContent
 {
-	/// <summary>
-	/// それ自体で使用できる空白ページまたはフレーム内に移動できる空白ページ。
-	/// </summary>
-	public sealed partial class PlayerPage : Page
+	public sealed partial class IchibaVideoInfoContent : UserControl
 	{
-		public PlayerPage()
+		public IchibaVideoInfoContent()
 		{
 			this.InitializeComponent();
 		}
-
-		
 	}
 }
