@@ -18,28 +18,6 @@
         <Border>
             <toolkit:DockPanel>
 
-
-                <ScrollViewer toolkit:DockPanel.Dock="Top" 
-                              Height="32"
-                              HorizontalScrollMode="Enabled"
-                              HorizontalScrollBarVisibility="Hidden"
-                              VerticalScrollMode="Disabled"
-                              VerticalScrollBarVisibility="Hidden"
-                              >
-                    <ListView ItemsSource="{Binding PagenationItems}"
-                              SelectionMode="Single"
-                              SelectedItem="{Binding SelectedPagenationItem.Value, Mode=TwoWay}"
-                              DisplayMemberPath="PageNumber"
-                              >
-                        <ListView.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal" />
-                            </ItemsPanelTemplate>
-                        </ListView.ItemsPanel>
-                        
-                    </ListView>
-                </ScrollViewer>
-
                 <ListView ItemsSource="{Binding SearchResultItems}"
                          SelectionMode="Multiple"
                          IncrementalLoadingTrigger="Edge"
