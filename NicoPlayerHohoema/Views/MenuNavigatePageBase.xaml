@@ -19,7 +19,7 @@
     <ContentControl.Template>
         <ControlTemplate>
 
-            <Border>
+            <Grid>
 
                 <VisualStateManager.VisualStateGroups>
                     <VisualStateGroup>
@@ -30,7 +30,6 @@
                                 <AdaptiveTrigger MinWindowWidth="1025" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter Target="TopMenu.Height" Value="200" />
                             </VisualState.Setters>
                         </VisualState>
                         <!-- 中ぐらい -->
@@ -39,7 +38,6 @@
                                 <AdaptiveTrigger MinWindowWidth="721" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter Target="TopMenu.Height" Value="200" />
                             </VisualState.Setters>
                         </VisualState>
                         <!-- 狭い 
@@ -59,44 +57,16 @@
                                 <AdaptiveTrigger MinWindowWidth="0" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter Target="TopMenu.Height" Value="120" />
                             </VisualState.Setters>
                         </VisualState>
                     </VisualStateGroup>
                 </VisualStateManager.VisualStateGroups>
 
-                <toolkit:DockPanel>
+                
 
-                    <RelativePanel toolkit:DockPanel.Dock="Top" x:Name="TopMenu">
-                        
-                        <!-- アカウント -->
-                        <StackPanel x:Name="AccountPanel"
-                                    RelativePanel.Above="SearchPanel"
-                                    RelativePanel.AlignRightWithPanel="True"
-                                    
-                                    Margin="8"
-                                    >
-                            <TextBlock Text="****@gmail.com" 
-                                       
-                                       />
-                        </StackPanel>
-                        
-                        
-                        <!-- 検索 -->
-                        <StackPanel x:Name="SearchPanel"
-                                    Margin="8"
-                                    RelativePanel.AlignBottomWithPanel="True"
-                                    RelativePanel.AlignRightWithPanel="True"
-                                    >
-                            <TextBox Text="検索" Width="200" />
-                        </StackPanel>
-                    </RelativePanel>
+                <ContentPresenter />
 
-                    <ContentPresenter />
-
-                </toolkit:DockPanel>
-                    
-            </Border>
+            </Grid>
             
         </ControlTemplate>
     </ContentControl.Template>

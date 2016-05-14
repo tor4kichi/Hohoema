@@ -130,7 +130,11 @@ namespace NicoPlayerHohoema
 			Container.RegisterType<ViewModels.SubscriptionPageViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.SearchPageViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.SettingsPageViewModel>(new ContainerControlledLifetimeManager());
+			
 
+			// Service
+			var searchVM = Container.Resolve<SearchViewModel>();
+			Container.RegisterInstance<Views.Service.ISearchDialogService>(new Views.Service.SearchDialogService(searchVM));
 		}
 
 

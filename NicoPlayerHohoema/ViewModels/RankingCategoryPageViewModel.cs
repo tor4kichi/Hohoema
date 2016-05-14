@@ -131,7 +131,7 @@ namespace NicoPlayerHohoema.ViewModels
 			// 
 			for (uint i = 0; i < 3; i++)
 			{
-				var res = await ContentFinder.GetSearch(parameter, i + 1, SearchSortMethod.Popurarity);
+				var res = await ContentFinder.GetKeywordSearch(parameter, i + 1, SearchSortMethod.Popurarity);
 				listItems.AddRange(res.list);
 			}
 

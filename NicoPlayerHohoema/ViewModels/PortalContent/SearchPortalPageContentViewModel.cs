@@ -1,4 +1,5 @@
 ﻿using NicoPlayerHohoema.Models;
+using NicoPlayerHohoema.Views.Service;
 using Prism.Commands;
 using Prism.Windows.Mvvm;
 using System;
@@ -11,23 +12,25 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 {
 	public class SearchPortalPageContentViewModel : PotalPageContentViewModel
 	{
+		// TODO: 検索履歴の表示
 
-		public SearchPortalPageContentViewModel(PageManager pageManager, HohoemaApp hohoemaApp)
+		public SearchPortalPageContentViewModel(PageManager pageManager, HohoemaApp hohoemaApp, ISearchDialogService searchDialog)
 		{
 			_PageManager = pageManager;
 			_HohoemaApp = hohoemaApp;
+			_SearchDialog = searchDialog;
 		}
 
 
-		private DelegateCommand<string> _SearchCommand;
-		public DelegateCommand<string> SearchCommand
+		private DelegateCommand _SearchCommand;
+		public DelegateCommand SearchCommand
 		{
 			get
 			{
 				return _SearchCommand
-					?? (_SearchCommand = new DelegateCommand<string>(word => 
+					?? (_SearchCommand = new DelegateCommand(() => 
 					{
-						_PageManager.OpenPage(HohoemaPageType.Search, word);
+						_SearchDialog.ShowAsync();
 					}));
 			}
 		}
@@ -36,5 +39,6 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 
 		PageManager _PageManager;
 		HohoemaApp _HohoemaApp;
+		ISearchDialogService _SearchDialog;
 	}
 }

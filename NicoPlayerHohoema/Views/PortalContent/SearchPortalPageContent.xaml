@@ -26,7 +26,9 @@
 
         <!-- 検索キーワード -->
         <Border>
-            <TextBox Text="お探し？" />
+            <Button Content="検索" Command="{Binding SearchCommand}"
+                    HorizontalAlignment="Stretch"
+                    />
         </Border>
 
         

@@ -92,14 +92,7 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public void PlayVideo(string videoUrl)
-		{
-			EventAggregator.GetEvent<Events.PlayNicoVideoEvent>()
-				.Publish(videoUrl);
-		}
-
-
-		
+	
 
 		public HohoemaUserSettings UserSettings { get; private set; }
 

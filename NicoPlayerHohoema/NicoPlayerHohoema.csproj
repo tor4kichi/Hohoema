@@ -106,16 +106,22 @@
     <Compile Include="Models\NiconicoMediaManager.cs" />
     <Compile Include="Models\PageManager.cs" />
     <Compile Include="Models\PlayerDisplayMode.cs" />
+    <Compile Include="Models\SearchOption.cs" />
+    <Compile Include="Models\SearchTarget.cs" />
     <Compile Include="Models\VideoDescriptionHelper.cs" />
     <Compile Include="Util\ColorExtention.cs" />
     <Compile Include="Util\ConnectionRetryUtil.cs" />
     <Compile Include="Util\HttpRandomAccessStream.cs" />
+    <Compile Include="Util\IncrementalLoadingCollection.cs" />
     <Compile Include="Util\NiconicoRankingExtention.cs" />
     <Compile Include="Util\NicoVideoRssItemExtention.cs" />
     <Compile Include="ViewModels\CommentStreamingViewModel.cs" />
     <Compile Include="ViewModels\HistoryPageViewModel.cs" />
     <Compile Include="ViewModels\LoginPageViewModel.cs" />
     <Compile Include="ViewModels\MenuNavigatePageBaseViewModel.cs" />
+    <Compile Include="ViewModels\SearchViewModel.cs" />
+    <Compile Include="Views\Service\ISearchDialogService.cs" />
+    <Compile Include="Views\Service\SearchDialogService.cs" />
     <Compile Include="ViewModels\VideoPlayerPageViewModel.cs" />
     <Compile Include="ViewModels\PortalContent\AppPortalPageContentViewModel.cs" />
     <Compile Include="ViewModels\PortalContent\FavPortalPageContentViewModel.cs" />
@@ -163,6 +169,9 @@
     </Compile>
     <Compile Include="Views\MenuNavigatePageBase.xaml.cs">
       <DependentUpon>MenuNavigatePageBase.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SearchContentDialog.xaml.cs">
+      <DependentUpon>SearchContentDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\VideoPlayerPage.xaml.cs">
       <DependentUpon>VideoPlayerPage.xaml</DependentUpon>
@@ -281,6 +290,10 @@
     <Page Include="Views\MenuNavigatePageBase.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\SearchContentDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\VideoPlayerPage.xaml">
       <SubType>Designer</SubType>

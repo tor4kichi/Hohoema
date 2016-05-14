@@ -31,11 +31,19 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public async Task<SearchResponse> GetSearch(string keyword, uint pageCount, SearchSortMethod sortMethod, SortDirection sortDir = SortDirection.Descending)
+		public async Task<SearchResponse> GetKeywordSearch(string keyword, uint pageCount, SearchSortMethod sortMethod, SortDirection sortDir = SortDirection.Descending)
 		{
 			return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
-				return await _HohoemaApp.NiconicoContext.Video.GetKeywordSearchAsync(keyword, pageCount + 1, sortMethod, sortDir);
+				return await _HohoemaApp.NiconicoContext.Video.GetKeywordSearchAsync(keyword, pageCount, sortMethod, sortDir);
+			});
+		}
+
+		public async Task<SearchResponse> GetTagSearch(string keyword, uint pageCount, SearchSortMethod sortMethod, SortDirection sortDir = SortDirection.Descending)
+		{
+			return await ConnectionRetryUtil.TaskWithRetry(async () =>
+			{
+				return await _HohoemaApp.NiconicoContext.Video.GetKeywordSearchAsync(keyword, pageCount, sortMethod, sortDir);
 			});
 		}
 
