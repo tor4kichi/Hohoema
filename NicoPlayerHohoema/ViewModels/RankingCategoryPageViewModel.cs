@@ -176,13 +176,22 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			CategoryInfo = (RankingCategoryInfo)e.Parameter;
+			base.OnNavigatedTo(e, viewModelState);
+
+
+			if (e.Parameter is string)
+			{
+				CategoryInfo = RankingCategoryInfo.FromParameterString(e.Parameter as string);
+			}
+			else
+			{
+				return;
+			}
 
 			RefreshRankingList();
 
 			// TODO: ページタイトルを変更したい
 
-			base.OnNavigatedTo(e, viewModelState);
 		}
 
 

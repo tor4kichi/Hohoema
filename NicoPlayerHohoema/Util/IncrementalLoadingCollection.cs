@@ -44,27 +44,27 @@ namespace NicoPlayerHohoema.Util
 			currentPage = count;
 
 			return Task.Run<LoadMoreItemsResult>(
-				async () =>
+				() =>
 				{
 					uint resultCount = 0;
-
-					var result = await source.GetPagedItems(count, itemsPerPage);
-
-					if (result == null || result.Count() == 0)
-					{
-						hasMoreItems = false;
-					}
-					else
-					{
-						resultCount = (uint)result.Count();
-					}
 
 					Task.WaitAll(
 						Task.Delay(1000),
 						dispatcher.RunAsync(
 							CoreDispatcherPriority.Normal,
-							() =>
+							async () =>
 							{
+								var result = await source.GetPagedItems(count, itemsPerPage);
+
+								if (result == null || result.Count() == 0)
+								{
+									hasMoreItems = false;
+								}
+								else
+								{
+									resultCount = (uint)result.Count();
+								}
+
 								foreach (I item in result)
 									this.Add(item);
 

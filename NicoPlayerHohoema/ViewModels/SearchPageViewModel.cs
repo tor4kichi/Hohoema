@@ -37,17 +37,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-
-			if (e.Parameter is SearchOption)
+			if (e.Parameter is string)
 			{
-				SearchOption = e.Parameter as SearchOption;
-			}
-			else if (e.Parameter is string)
-			{
-				SearchOption = new SearchOption()
-				{
-					Keyword = e.Parameter as string
-				};
+				SearchOption = SearchOption.FromParameterString(e.Parameter as string);
 			}
 
 			if (String.IsNullOrWhiteSpace(SearchOption.Keyword))

@@ -96,7 +96,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		internal void OnRankingCategorySelected(RankingCategoryInfo info)
 		{
-			_PageManager.OpenPage(HohoemaPageType.RankingCategory, info);
+			_PageManager.OpenPage(HohoemaPageType.RankingCategory, info.ToParameterString());
 		}
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)

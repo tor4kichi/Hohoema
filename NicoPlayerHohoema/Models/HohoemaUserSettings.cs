@@ -294,8 +294,18 @@ namespace NicoPlayerHohoema.Models
 			};
 		}
 
-		private RankingCategoryInfo()
+		public RankingCategoryInfo()
 		{
+		}
+
+		public string ToParameterString()
+		{
+			return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+		}
+
+		public static RankingCategoryInfo FromParameterString(string json)
+		{
+			return Newtonsoft.Json.JsonConvert.DeserializeObject<RankingCategoryInfo>(json);
 		}
 
 

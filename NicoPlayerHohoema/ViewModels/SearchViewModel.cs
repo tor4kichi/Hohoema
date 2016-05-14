@@ -136,6 +136,7 @@ namespace NicoPlayerHohoema.ViewModels
 						SortMethod = SelectedSearchOption.Value.SortMethod,
 						SortDirection = SelectedSearchOption.Value.SortDirection
 					}
+					.ToParameterString()
 				);
 			});
 		}

@@ -31,7 +31,7 @@
             
 
         <ComboBox ItemsSource="{Binding TargetListItems}"
-                  SelectedItem="{Binding SelectedTarget.Value}"
+                  SelectedItem="{Binding SelectedTarget.Value, Mode=TwoWay}"
                   Margin="32 8 0 8"
                   HorizontalAlignment="Stretch"
                   >
@@ -39,7 +39,7 @@
 
         <ComboBox ItemsSource="{Binding SearchOptionListItems}"
                   DisplayMemberPath="Label"
-                  SelectedItem="{Binding SelectedSearchOption.Value}"
+                  SelectedItem="{Binding SelectedSearchOption.Value, Mode=TwoWay}"
                   Margin="32 8 0 8"
                   HorizontalAlignment="Stretch"
                   >

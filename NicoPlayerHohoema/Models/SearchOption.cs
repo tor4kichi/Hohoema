@@ -12,5 +12,16 @@ namespace NicoPlayerHohoema.Models
 		public SearchTarget SearchTarget { get; set; }
 		public Mntone.Nico2.Videos.Search.SearchSortMethod SortMethod { get; set; }
 		public Mntone.Nico2.SortDirection SortDirection { get; set; }
+
+
+		public string ToParameterString()
+		{
+			return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+		}
+
+		public static SearchOption FromParameterString(string json)
+		{
+			return Newtonsoft.Json.JsonConvert.DeserializeObject<SearchOption>(json);
+		}
 	}
 }
