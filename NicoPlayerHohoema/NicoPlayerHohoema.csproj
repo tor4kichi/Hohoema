@@ -115,11 +115,15 @@
     <Compile Include="Util\IncrementalLoadingCollection.cs" />
     <Compile Include="Util\NiconicoRankingExtention.cs" />
     <Compile Include="Util\NicoVideoRssItemExtention.cs" />
+    <Compile Include="ViewModels\AppBarControlViewModel.cs" />
     <Compile Include="ViewModels\CommentStreamingViewModel.cs" />
     <Compile Include="ViewModels\HistoryPageViewModel.cs" />
     <Compile Include="ViewModels\LoginPageViewModel.cs" />
     <Compile Include="ViewModels\MenuNavigatePageBaseViewModel.cs" />
     <Compile Include="ViewModels\SearchViewModel.cs" />
+    <Compile Include="Views\AppBarControl.xaml.cs">
+      <DependentUpon>AppBarControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Service\ISearchDialogService.cs" />
     <Compile Include="Views\Service\SearchDialogService.cs" />
     <Compile Include="ViewModels\VideoPlayerPageViewModel.cs" />
@@ -267,6 +271,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Views\AppBarControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\CommentRenderer\CommentRendererWithWIn2D.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

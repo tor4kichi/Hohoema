@@ -15,7 +15,9 @@
 
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <Border>
+        <Border MaxWidth="800"
+                HorizontalAlignment="Center"
+                >
             <toolkit:DockPanel>
 
                 <ListView ItemsSource="{Binding SearchResultItems}"

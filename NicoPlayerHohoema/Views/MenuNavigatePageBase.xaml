@@ -19,7 +19,8 @@
     <ContentControl.Template>
         <ControlTemplate>
 
-            <Grid>
+            <toolkit:DockPanel>
+
 
                 <VisualStateManager.VisualStateGroups>
                     <VisualStateGroup>
@@ -62,11 +63,15 @@
                     </VisualStateGroup>
                 </VisualStateManager.VisualStateGroups>
 
-                
+                <local:AppBarControl 
+                    toolkit:DockPanel.Dock="Top"
+                    Height="40"                 
+                                     />
+
 
                 <ContentPresenter />
 
-            </Grid>
+            </toolkit:DockPanel>
             
         </ControlTemplate>
     </ContentControl.Template>

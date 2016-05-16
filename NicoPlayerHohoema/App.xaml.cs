@@ -166,7 +166,14 @@ namespace NicoPlayerHohoema
 
 		protected override UIElement CreateShell(Frame rootFrame)
 		{
-			return base.CreateShell(rootFrame);
+			var menu = new Views.MenuNavigatePageBase();
+
+			var viewModel = Container.Resolve<ViewModels.MenuNavigatePageBaseViewModel>();
+			menu.DataContext = viewModel;
+
+			menu.Content = rootFrame;
+
+			return menu;
 		}
 
 		private void PrismUnityApplication_UnhandledException(object sender, UnhandledExceptionEventArgs e)
