@@ -22,6 +22,7 @@ namespace NicoPlayerHohoema.Views.Service
 			{
 				DataContext = DataContext
 			};
+			
 
 			await contentDialog.ShowAsync();
 		}

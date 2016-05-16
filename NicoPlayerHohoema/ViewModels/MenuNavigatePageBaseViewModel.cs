@@ -14,6 +14,9 @@ using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Prism.Windows;
+using System.Reactive.Linq;
+using NicoPlayerHohoema.Views.Service;
+
 namespace NicoPlayerHohoema.ViewModels
 {
 	public class MenuNavigatePageBaseViewModel : BindableBase
@@ -21,17 +24,112 @@ namespace NicoPlayerHohoema.ViewModels
 		public PageManager PageManager { get; private set; }
 
 		
-		public MenuNavigatePageBaseViewModel(PageManager pageManager)
+		public MenuNavigatePageBaseViewModel(PageManager pageManager, ISearchDialogService searchDialog)
 		{
 			PageManager = pageManager;
-	
+			_SearchDialogService = searchDialog;
+
+			MenuItems = new List<PageTypeSelectableItem>()
+			{
+				new PageTypeSelectableItem(HohoemaPageType.Portal, OnMenuItemSelected, "ホーム"),
+				new PageTypeSelectableItem(HohoemaPageType.RankingCategoryList, OnMenuItemSelected, "ランキング"),
+				new PageTypeSelectableItem(HohoemaPageType.Favorite, OnMenuItemSelected, "お気に入り"),
+				new PageTypeSelectableItem(HohoemaPageType.Mylist, OnMenuItemSelected, "マイリスト"),
+				new PageTypeSelectableItem(HohoemaPageType.History, OnMenuItemSelected, "視聴履歴"),
+			};
+
+			PersonalMenuItems = new List<PageTypeSelectableItem>()
+			{
+				new PageTypeSelectableItem(HohoemaPageType.Settings, OnMenuItemSelected, "設定"),
+			};
+
+			SelectedItem = new ReactiveProperty<PageTypeSelectableItem>(MenuItems[0]);
+
+			SelectedItem.Subscribe(x => 
+			{
+				OnMenuItemSelected(x.Source);
+
+				TitleText = x.Label;
+			});
+
+			IsPersonalPage = SelectedItem.Select(x =>
+			{
+				return PersonalMenuItems.Any(y => x == y);
+			})
+			.ToReactiveProperty();
+		}
+
+		internal void OnMenuItemSelected(HohoemaPageType pageType)
+		{
+			PageManager.OpenPage(pageType);
+
+			foreach (var item in MenuItems)
+			{
+				item.IsSelected = item.Source == pageType;
+			}
+			foreach (var item in PersonalMenuItems)
+			{
+				item.IsSelected = item.Source == pageType;
+			}
+
+			
+			
 		}
 
 
+		private DelegateCommand _OpenSearchDialogCommand;
+		public DelegateCommand OpenSearchDialogCommand
+		{
+			get
+			{
+				return _OpenSearchDialogCommand
+					?? (_OpenSearchDialogCommand = new DelegateCommand(() => 
+					{
+						_SearchDialogService.ShowAsync();
+					}));
+			}
+		}
+
+		public List<PageTypeSelectableItem> MenuItems { get; private set; }
+
+		public List<PageTypeSelectableItem> PersonalMenuItems { get; private set; }
 
 
-		
+		public ReactiveProperty<bool> IsPersonalPage { get; private set; }
+
+
+		private string _TitleText;
+		public string TitleText
+		{
+			get { return _TitleText; }
+			set { SetProperty(ref _TitleText, value); }
+		}
+
+		public ReactiveProperty<PageTypeSelectableItem> SelectedItem { get; private set; }
+
+
+		ISearchDialogService _SearchDialogService;
 	}
 
-	
+	public class PageTypeSelectableItem : SelectableItem<HohoemaPageType>
+	{
+		public PageTypeSelectableItem(HohoemaPageType pageType, Action<HohoemaPageType> onSelected, string label)
+			: base(pageType, onSelected)
+		{
+			Label = label;
+			IsSelected = false;
+		}
+
+		private bool _IsSelected;
+		public bool IsSelected
+		{
+			get { return _IsSelected; }
+			set { SetProperty(ref _IsSelected, value); }
+		}
+
+		public string Label { get; set; }
+	}
+
+
+
 }
