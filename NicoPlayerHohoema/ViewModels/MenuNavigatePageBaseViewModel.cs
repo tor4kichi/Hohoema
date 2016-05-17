@@ -52,6 +52,41 @@ namespace NicoPlayerHohoema.ViewModels
 				TitleText = x.Label;
 			});
 
+
+			PageManager.ObserveProperty(x => x.CurrentPageType)
+				.Subscribe(pageType => 
+				{
+					foreach (var item in MenuItems)
+					{
+						item.IsSelected = item.Source == pageType;
+					}
+					foreach (var item in PersonalMenuItems)
+					{
+						item.IsSelected = item.Source == pageType;
+					}
+
+
+					foreach (var item in MenuItems)
+					{
+						if (item.IsSelected)
+						{
+							SelectedItem.Value = item;
+							break;
+						}
+					}
+
+					foreach (var item in PersonalMenuItems)
+					{
+						if (item.IsSelected)
+						{
+							SelectedItem.Value = item;
+							break;
+						}
+					}
+				});
+				
+
+
 			IsPersonalPage = SelectedItem.Select(x =>
 			{
 				return PersonalMenuItems.Any(y => x == y);
@@ -61,19 +96,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 		internal void OnMenuItemSelected(HohoemaPageType pageType)
 		{
-			PageManager.OpenPage(pageType);
-
-			foreach (var item in MenuItems)
+			if (pageType != PageManager.CurrentPageType)
 			{
-				item.IsSelected = item.Source == pageType;
+				PageManager.OpenPage(pageType);
 			}
-			foreach (var item in PersonalMenuItems)
-			{
-				item.IsSelected = item.Source == pageType;
-			}
-
-			
-			
 		}
 
 

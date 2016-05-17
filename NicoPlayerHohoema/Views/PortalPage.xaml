@@ -24,7 +24,7 @@
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-        <Border Margin="64 32 0 0">
+        <Border>
 
             <VisualStateManager.VisualStateGroups>
                 <VisualStateGroup>
@@ -53,38 +53,20 @@
 
             <toolkit:DockPanel>
 
-                <RelativePanel toolkit:DockPanel.Dock="Top" x:Name="TopMenu">
 
-                    <!-- アカウント -->
-                    <StackPanel x:Name="AccountPanel"
-                                RelativePanel.Above="SearchPanel"
-                                RelativePanel.AlignRightWith="SearchPanel"
-                                    
-                                    Margin="8"
-                                    >
-                        <TextBlock Text="****@gmail.com" 
-                                       
-                                       />
-                    </StackPanel>
-
-
-                    <!-- 検索 -->
-                    <StackPanel x:Name="SearchPanel"
-                                    Margin="8"
-                                    RelativePanel.AlignBottomWithPanel="True"
-                                    RelativePanel.AlignRightWithPanel="True"
-                                    >
-                        <TextBox Text="検索" Width="200" />
-                    </StackPanel>
-                </RelativePanel>
-
-                <ScrollViewer VerticalScrollMode="Disabled">
+                <ScrollViewer VerticalScrollMode="Disabled"
+                              VerticalScrollBarVisibility="Hidden"
+                              HorizontalScrollBarVisibility="Auto"
+                              HorizontalScrollMode="Enabled"
+                              >
 
                     <ItemsControl>
 
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal" />
+                                <StackPanel Orientation="Horizontal"
+                                            Margin="0 16 0 0"
+                                            />
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
 
