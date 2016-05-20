@@ -96,7 +96,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 				var videoInfoVM = new VideoInfoControlViewModel(
 							item.title
-							, NicoVideoExtention.VideoIdToWatchPageUrl(item.id)
+							, item.id
 							, HohoemaApp.UserSettings.NGSettings
 							, HohoemaApp.MediaManager
 							, _PageManager

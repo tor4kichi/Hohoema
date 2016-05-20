@@ -99,7 +99,7 @@ namespace NicoPlayerHohoema.ViewModels
 						var videoInfoVM = new RankedVideoInfoControlViewModel(
 							i + 1
 							, item.Title
-							, item.VideoUrl
+							, Util.NicoVideoExtention.UrlToVideoId(item.VideoUrl)
 							, HohoemaApp.UserSettings.NGSettings
 							, HohoemaApp.MediaManager
 							, _PageManager
@@ -147,7 +147,7 @@ namespace NicoPlayerHohoema.ViewModels
 					var videoInfoVM = new RankedVideoInfoControlViewModel(
 						i + 1,
 						item.title
-						, NicoVideoExtention.VideoIdToWatchPageUrl(item.id)
+						, item.id
 						, HohoemaApp.UserSettings.NGSettings
 						, HohoemaApp.MediaManager
 						, _PageManager

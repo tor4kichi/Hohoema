@@ -1,5 +1,6 @@
 ﻿using Mntone.Nico2.Videos.Thumbnail;
 using Mntone.Nico2.Videos.WatchAPI;
+using NicoPlayerHohoema.Models;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;
@@ -14,9 +15,10 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 	public class SummaryVideoInfoContentViewModel : MediaInfoViewModel
 	{
 
-		public SummaryVideoInfoContentViewModel(ThumbnailResponse thumbnail, Uri descriptionHtmlUri)
+		public SummaryVideoInfoContentViewModel(ThumbnailResponse thumbnail, Uri descriptionHtmlUri, PageManager pageManager)
 		{
 			_ThumbnailResponse = thumbnail;
+			_PageManager = pageManager;
 
 			UserName = thumbnail.UserName;
 			UserIconUrl = thumbnail.UserIconUrl;
@@ -53,6 +55,7 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 						{
 							var mylistId = parameter.AbsolutePath.Split('/').Last();
 							System.Diagnostics.Debug.WriteLine($"open Mylist: {mylistId}");
+							_PageManager.OpenPage(HohoemaPageType.Mylist, mylistId);
 						}
 
 						// is nico video url?
@@ -60,6 +63,7 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 						{
 							var videoId = parameter.AbsolutePath.Split('/').Last();
 							System.Diagnostics.Debug.WriteLine($"open Video: {videoId}");
+							_PageManager.OpenPage(HohoemaPageType.VideoInfomation, videoId);
 						}
 
 					}));
@@ -95,5 +99,6 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 		public List<TagViewModel> Tags { get; private set; }
 
 		ThumbnailResponse _ThumbnailResponse;
+		PageManager _PageManager;
 	}
 }

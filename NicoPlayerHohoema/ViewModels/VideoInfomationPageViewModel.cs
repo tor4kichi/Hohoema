@@ -125,7 +125,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			VideoInfoContentItems = new List<MediaInfoViewModel>()
 			{
-				new SummaryVideoInfoContentViewModel(ThumbnailResponse, uri),
+				new SummaryVideoInfoContentViewModel(ThumbnailResponse, uri, _PageManager),
 				new RelationVideoInfoContentViewModel(VideoId),
 				new IchibaVideoInfoContentViewModel(VideoId)
 			};
