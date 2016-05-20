@@ -1,4 +1,7 @@
-﻿using Mntone.Nico2.Videos.Ranking;
+﻿using Mntone.Nico2;
+using Mntone.Nico2.Mylist;
+using Mntone.Nico2.Mylist.MylistGroup;
+using Mntone.Nico2.Videos.Ranking;
 using Mntone.Nico2.Videos.Thumbnail;
 using NicoPlayerHohoema.Models;
 using Prism.Commands;
@@ -13,34 +16,66 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class VideoInfoControlViewModel : BindableBase
 	{
+		// とりあえずマイリストから取得したデータによる初期化
+		public VideoInfoControlViewModel(MylistData data, NGSettings ngSettings, PageManager pageManager)
+		{
+			NGSettings = ngSettings;
+			PageManager = pageManager;
 
-		public VideoInfoControlViewModel(string title, string videoUrl, NGSettings ngSettings, NiconicoMediaManager mediaMan, PageManager pageManager)
+			Title = data.Title;
+			VideoId = data.ItemId;
+			ViewCount = data.ViewCount;
+			CommentCount = data.CommentCount;
+			MylistCount = data.MylistCount;
+			OwnerComment = data.Description;
+			PostAt = data.CreateTime;
+			ThumbnailImageUrl = data.ThumbnailUrl;
+			MovieLength = data.Length;
+
+			IsNotGoodVideo = false;
+			NGVideoReason = "";
+			IsForceDisplayNGVideo = false;
+		}
+
+
+		// 個別マイリストから取得したデータによる初期化
+		public VideoInfoControlViewModel(Video_info data, NGSettings ngSettings, PageManager pageManager)
+		{
+			NGSettings = ngSettings;
+			PageManager = pageManager;
+
+			Title = data.Video.Title.DecodeUTF8();
+			VideoId = data.Video.Id;
+			ViewCount = uint.Parse(data.Video.View_counter);
+			CommentCount = uint.Parse(data.Thread.Num_res);
+			MylistCount = uint.Parse(data.Video.Mylist_counter);
+			OwnerComment = data.Thread.Summary.DecodeUTF8();
+			PostAt = DateTime.Parse(data.Video.Upload_time);
+			ThumbnailImageUrl = new Uri(data.Video.Thumbnail_url);
+			MovieLength = TimeSpan.FromSeconds(int.Parse(data.Video.Length_in_seconds));
+
+			IsNotGoodVideo = false;
+			NGVideoReason = "";
+			IsForceDisplayNGVideo = false;
+		}
+
+		public VideoInfoControlViewModel(string title, string videoId, NGSettings ngSettings, NiconicoMediaManager mediaMan, PageManager pageManager)
 		{
 			NGSettings = ngSettings;
 			PageManager = pageManager;
 			MediaManager = mediaMan;
 
 			Title = title;
-			VideoUrl = videoUrl;
-
-			ShowDetailCommand = new DelegateCommand(() =>
-			{
-				PageManager.OpenPage(HohoemaPageType.VideoInfomation, VideoId);
-			});
-
-			PlayCommand = new DelegateCommand(() =>
-			{
-				PageManager.OpenPage(HohoemaPageType.VideoInfomation, VideoId);
-//				App.PlayVideo(this.VideoUrl);
-			});
+			VideoId = videoId;
 		}
 
 
 
 		public async void LoadThumbnail()
 		{
-			var videoId = Util.NicoVideoExtention.UrlToVideoId(VideoUrl);
-			var thumbnail = await MediaManager.GetThumbnail(videoId);
+			if (MediaManager == null) { return; }
+
+			var thumbnail = await MediaManager.GetThumbnail(VideoId);
 
 			// NG判定
 			var ngResult = NGSettings.IsNgVideo(thumbnail);
@@ -58,9 +93,6 @@ namespace NicoPlayerHohoema.ViewModels
 			PostAt = thumbnail.PostedAt.LocalDateTime;
 			ThumbnailImageUrl = IsNotGoodVideo ? null : thumbnail.ThumbnailUrl;
 			MovieLength = thumbnail.Length;
-
-
-			VideoId = thumbnail.Id;
 		}
 
 		private string _Title;
@@ -146,10 +178,30 @@ namespace NicoPlayerHohoema.ViewModels
 		
 		public string VideoId { get; private set; }
 
-		public string VideoUrl { get; private set; }
-
-		public DelegateCommand ShowDetailCommand { get; private set; }
-		public DelegateCommand PlayCommand { get; private set; }
+		private DelegateCommand _ShowDetailCommand;
+		public DelegateCommand ShowDetailCommand
+		{
+			get
+			{
+				return _ShowDetailCommand
+					?? (_ShowDetailCommand = new DelegateCommand(() =>
+					{
+						PageManager.OpenPage(HohoemaPageType.VideoInfomation, VideoId);
+					}));
+			}
+		}
+		private DelegateCommand _PlayCommand;
+		public DelegateCommand PlayCommand
+		{
+			get
+			{
+				return _PlayCommand
+					?? (_PlayCommand = new DelegateCommand(() =>
+					{
+						PageManager.OpenPage(HohoemaPageType.VideoInfomation, VideoId);
+					}));
+			}
+		}
 
 
 		private DelegateCommand _ForceDisplayNGVideoCommand;

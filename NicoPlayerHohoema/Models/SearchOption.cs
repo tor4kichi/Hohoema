@@ -10,7 +10,7 @@ namespace NicoPlayerHohoema.Models
 	{
 		public string Keyword { get; set; }
 		public SearchTarget SearchTarget { get; set; }
-		public Mntone.Nico2.Videos.Search.SearchSortMethod SortMethod { get; set; }
+		public Mntone.Nico2.SortMethod SortMethod { get; set; }
 		public Mntone.Nico2.SortDirection SortDirection { get; set; }
 
 

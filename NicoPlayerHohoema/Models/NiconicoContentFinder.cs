@@ -1,4 +1,6 @@
 ﻿using Mntone.Nico2;
+using Mntone.Nico2.Mylist;
+using Mntone.Nico2.Mylist.MylistGroup;
 using Mntone.Nico2.Videos.Ranking;
 using Mntone.Nico2.Videos.Search;
 using NicoPlayerHohoema.Util;
@@ -31,7 +33,7 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public async Task<SearchResponse> GetKeywordSearch(string keyword, uint pageCount, SearchSortMethod sortMethod, SortDirection sortDir = SortDirection.Descending)
+		public async Task<SearchResponse> GetKeywordSearch(string keyword, uint pageCount, SortMethod sortMethod, SortDirection sortDir = SortDirection.Descending)
 		{
 			return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
@@ -39,11 +41,36 @@ namespace NicoPlayerHohoema.Models
 			});
 		}
 
-		public async Task<SearchResponse> GetTagSearch(string keyword, uint pageCount, SearchSortMethod sortMethod, SortDirection sortDir = SortDirection.Descending)
+		public async Task<SearchResponse> GetTagSearch(string keyword, uint pageCount, SortMethod sortMethod, SortDirection sortDir = SortDirection.Descending)
 		{
 			return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
 				return await _HohoemaApp.NiconicoContext.Video.GetKeywordSearchAsync(keyword, pageCount, sortMethod, sortDir);
+			});
+		}
+
+		public async Task<List<MylistGroupData>> GetLoginUserMylistGroups()
+		{
+			return await ConnectionRetryUtil.TaskWithRetry(async () =>
+			{
+				return await _HohoemaApp.NiconicoContext.Mylist.GetMylistGroupListAsync();
+			});
+		}
+
+
+		public async Task<List<MylistGroupData>> GetUserMylistGroups(string userId)
+		{
+			return await ConnectionRetryUtil.TaskWithRetry(async () =>
+			{
+				return await _HohoemaApp.NiconicoContext.Mylist.GetUserMylistGroupAsync(userId);
+			});
+		}
+
+		public async Task<MylistGroup> GetMylist(string mylistGroupid)
+		{
+			return await ConnectionRetryUtil.TaskWithRetry(async () =>
+			{
+				return await _HohoemaApp.NiconicoContext.Mylist.GetMylistGroupDetailAsync(mylistGroupid);
 			});
 		}
 

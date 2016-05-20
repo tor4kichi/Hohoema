@@ -34,7 +34,7 @@ namespace NicoPlayerHohoema.ViewModels
 				new PageTypeSelectableItem(HohoemaPageType.Portal, OnMenuItemSelected, "ホーム"),
 				new PageTypeSelectableItem(HohoemaPageType.RankingCategoryList, OnMenuItemSelected, "ランキング"),
 				new PageTypeSelectableItem(HohoemaPageType.Favorite, OnMenuItemSelected, "お気に入り"),
-				new PageTypeSelectableItem(HohoemaPageType.Mylist, OnMenuItemSelected, "マイリスト"),
+				new PageTypeSelectableItem(HohoemaPageType.UserMylist, OnMenuItemSelected, "マイリスト"),
 				new PageTypeSelectableItem(HohoemaPageType.History, OnMenuItemSelected, "視聴履歴"),
 			};
 

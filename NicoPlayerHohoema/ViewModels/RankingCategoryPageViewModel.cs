@@ -1,4 +1,5 @@
-﻿using Mntone.Nico2.Videos.Ranking;
+﻿using Mntone.Nico2;
+using Mntone.Nico2.Videos.Ranking;
 using Mntone.Nico2.Videos.Search;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Util;
@@ -131,7 +132,7 @@ namespace NicoPlayerHohoema.ViewModels
 			// 
 			for (uint i = 0; i < 3; i++)
 			{
-				var res = await ContentFinder.GetKeywordSearch(parameter, i + 1, SearchSortMethod.Popurarity);
+				var res = await ContentFinder.GetKeywordSearch(parameter, i + 1, SortMethod.Popurarity);
 				listItems.AddRange(res.list);
 			}
 

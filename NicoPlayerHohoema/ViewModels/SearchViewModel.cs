@@ -1,4 +1,5 @@
-﻿using Mntone.Nico2.Videos.Search;
+﻿using Mntone.Nico2;
+using Mntone.Nico2.Videos.Search;
 using NicoPlayerHohoema.Models;
 using Prism.Commands;
 using Prism.Mvvm;
@@ -32,52 +33,52 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					Label = "投稿が新しい順",
 					SortDirection = Mntone.Nico2.SortDirection.Descending,
-					SortMethod = SearchSortMethod.FirstRetrieve,
+					SortMethod = SortMethod.FirstRetrieve,
 				},
 				new SearchSortOptionListItem()
 				{
 					Label = "投稿が古い順",
 					SortDirection = Mntone.Nico2.SortDirection.Ascending,
-					SortMethod = SearchSortMethod.FirstRetrieve,
+					SortMethod = SortMethod.FirstRetrieve,
 				},
 
 				new SearchSortOptionListItem()
 				{
 					Label = "コメントが新しい順",
 					SortDirection = Mntone.Nico2.SortDirection.Descending,
-					SortMethod = SearchSortMethod.NewComment,
+					SortMethod = SortMethod.NewComment,
 				},
 				new SearchSortOptionListItem()
 				{
 					Label = "コメントが古い順",
 					SortDirection = Mntone.Nico2.SortDirection.Ascending,
-					SortMethod = SearchSortMethod.NewComment,
+					SortMethod = SortMethod.NewComment,
 				},
 
 				new SearchSortOptionListItem()
 				{
 					Label = "再生数が多い順",
 					SortDirection = Mntone.Nico2.SortDirection.Descending,
-					SortMethod = SearchSortMethod.ViewCount,
+					SortMethod = SortMethod.ViewCount,
 				},
 				new SearchSortOptionListItem()
 				{
 					Label = "再生数が少ない順",
 					SortDirection = Mntone.Nico2.SortDirection.Ascending,
-					SortMethod = SearchSortMethod.ViewCount,
+					SortMethod = SortMethod.ViewCount,
 				},
 
 				new SearchSortOptionListItem()
 				{
 					Label = "コメント数が多い順",
 					SortDirection = Mntone.Nico2.SortDirection.Descending,
-					SortMethod = SearchSortMethod.CommentCount,
+					SortMethod = SortMethod.CommentCount,
 				},
 				new SearchSortOptionListItem()
 				{
 					Label = "コメント数が少ない順",
 					SortDirection = Mntone.Nico2.SortDirection.Ascending,
-					SortMethod = SearchSortMethod.CommentCount,
+					SortMethod = SortMethod.CommentCount,
 				},
 
 
@@ -85,32 +86,32 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					Label = "再生時間が長い順",
 					SortDirection = Mntone.Nico2.SortDirection.Descending,
-					SortMethod = SearchSortMethod.Length,
+					SortMethod = SortMethod.Length,
 				},
 				new SearchSortOptionListItem()
 				{
 					Label = "再生時間が短い順",
 					SortDirection = Mntone.Nico2.SortDirection.Ascending,
-					SortMethod = SearchSortMethod.Length,
+					SortMethod = SortMethod.Length,
 				},
 
 				new SearchSortOptionListItem()
 				{
 					Label = "マイリスト数が多い順",
 					SortDirection = Mntone.Nico2.SortDirection.Descending,
-					SortMethod = SearchSortMethod.MylistCount,
+					SortMethod = SortMethod.MylistCount,
 				},
 				new SearchSortOptionListItem()
 				{
 					Label = "マイリスト数が少ない順",
 					SortDirection = Mntone.Nico2.SortDirection.Ascending,
-					SortMethod = SearchSortMethod.MylistCount,
+					SortMethod = SortMethod.MylistCount,
 				},
 
 				new SearchSortOptionListItem()
 				{
 					Label = "人気の高い順",
-					SortMethod = SearchSortMethod.Popurarity,
+					SortMethod = SortMethod.Popurarity,
 				},
 			};
 			#endregion
@@ -157,7 +158,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class SearchSortOptionListItem
 	{
-		public SearchSortMethod SortMethod { get; set; }
+		public Mntone.Nico2.SortMethod SortMethod { get; set; }
 		public Mntone.Nico2.SortDirection SortDirection { get; set; }
 		public string Label { get; set; }
 

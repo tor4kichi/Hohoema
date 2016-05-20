@@ -11,6 +11,7 @@ namespace NicoPlayerHohoema.Models
 		Portal,
 		RankingCategoryList,
 		RankingCategory,
+		UserMylist,
 		Mylist,
 		Favorite,
 		History,
