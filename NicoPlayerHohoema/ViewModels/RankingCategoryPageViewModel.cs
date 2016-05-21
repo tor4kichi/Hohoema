@@ -84,6 +84,8 @@ namespace NicoPlayerHohoema.ViewModels
 			var timeSpan = SelectedRankingTimeSpan.Value.TimeSpan;
 
 
+			_PageManager.PageTitle = $"「{category.ToCultulizedText()}」のランキング";
+
 			RankingItems.Clear();
 
 			try
@@ -260,8 +262,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class RankedVideoInfoControlViewModel : VideoInfoControlViewModel
 	{
-		public RankedVideoInfoControlViewModel(uint rank, string title, string videoUrl, NGSettings ngSettings, NiconicoMediaManager mediaMan, PageManager pageManager)
-			: base(title, videoUrl, ngSettings, mediaMan, pageManager)
+		public RankedVideoInfoControlViewModel(uint rank, string title, string videoId, NGSettings ngSettings, NiconicoMediaManager mediaMan, PageManager pageManager)
+			: base(title, videoId, ngSettings, mediaMan, pageManager)
 		{
 			Rank = rank;
 		}

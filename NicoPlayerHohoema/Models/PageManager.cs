@@ -22,6 +22,14 @@ namespace NicoPlayerHohoema.Models
 			set { SetProperty(ref _CurrentPageType, value); }
 		}
 
+		private string _PageTitle;
+		public string PageTitle
+		{
+			get { return _PageTitle; }
+			set { SetProperty(ref _PageTitle, value); }
+		}
+
+
 		public PageManager(INavigationService ns)
 		{
 			NavigationService = ns;
@@ -34,6 +42,8 @@ namespace NicoPlayerHohoema.Models
 			if (NavigationService.Navigate(pageType.ToString(), parameter))
 			{
 				CurrentPageType = pageType;
+
+				PageTitle = PageTypeToTitle(CurrentPageType);
 			}
 		}
 
@@ -42,6 +52,8 @@ namespace NicoPlayerHohoema.Models
 			if (NavigationService.Navigate(pageType.ToString(), null))
 			{
 				CurrentPageType = pageType;
+
+				PageTitle = PageTypeToTitle(CurrentPageType);
 			}
 		}
 
@@ -56,6 +68,44 @@ namespace NicoPlayerHohoema.Models
 		public void ClearNavigateHistory()
 		{
 			NavigationService.ClearHistory();
+		}
+
+		public string CurrentDefaultPageTitle()
+		{
+			return PageTypeToTitle(CurrentPageType);
+		}
+
+		public string PageTypeToTitle(HohoemaPageType pageType)
+		{
+			switch (pageType)
+			{
+				case HohoemaPageType.Portal:
+					return "ポータル";
+				case HohoemaPageType.RankingCategoryList:
+					return "ランキングカテゴリ一覧";
+				case HohoemaPageType.RankingCategory:
+					return "カテゴリランキング";
+				case HohoemaPageType.UserMylist:
+					return "○○さんマイリスト一覧";
+				case HohoemaPageType.Mylist:
+					return "マイリスト";
+				case HohoemaPageType.Favorite:
+					return "お気に入り";
+				case HohoemaPageType.History:
+					return "視聴履歴";
+				case HohoemaPageType.Search:
+					return "検索";
+				case HohoemaPageType.Settings:
+					return "設定";
+				case HohoemaPageType.VideoInfomation:
+					return "動画情報";
+				case HohoemaPageType.VideoPlayer:
+					return "動画プレイヤー";
+				case HohoemaPageType.Login:
+					return "ログイン";
+				default:
+					throw new NotSupportedException("not support " + nameof(HohoemaPageType) + "." + pageType.ToString());
+			}
 		}
 	}
 }

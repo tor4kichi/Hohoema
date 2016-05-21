@@ -12,7 +12,40 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <TextBlock Text="History"
-            Style="{StaticResource BodyTextBlockStyle}" />
+        <ListBox ItemsSource="{Binding HisotoryVideoInfoItems}"
+                         SelectionMode="Multiple"
+                              >
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="HorizontalContentAlignment"
+                                        Value="Stretch" 
+                                        />
+                </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <view:VideoInfoControl />
+
+                        <TextBlock HorizontalAlignment="Right"
+                                   VerticalAlignment="Top"
+                                   Foreground="#55777777"
+                                   >
+                            <Run Text="{Binding LastWatchedAt}" />
+                        </TextBlock>
+                        <TextBlock 
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Bottom"
+                                        FontSize="60"
+                                        Foreground="#55777777"
+                                        Margin="8 0"
+                                        >
+                            <Run Text="{Binding UserViewCount, Mode=OneTime}" />
+                            <Run Text="回" />
+                        </TextBlock>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
     </Grid>
 </Page>

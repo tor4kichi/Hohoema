@@ -1,6 +1,7 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Mylist;
 using Mntone.Nico2.Mylist.MylistGroup;
+using Mntone.Nico2.Videos.Histories;
 using Mntone.Nico2.Videos.Ranking;
 using Mntone.Nico2.Videos.Search;
 using NicoPlayerHohoema.Util;
@@ -73,6 +74,18 @@ namespace NicoPlayerHohoema.Models
 				return await _HohoemaApp.NiconicoContext.Mylist.GetMylistGroupDetailAsync(mylistGroupid);
 			});
 		}
+
+
+
+		public async Task<HistoriesResponse> GetHistory()
+		{
+			return await ConnectionRetryUtil.TaskWithRetry(async () =>
+			{
+				return await _HohoemaApp.NiconicoContext.Video.GetHistoriesAsync();
+			});
+			
+		}
+
 
 		HohoemaApp _HohoemaApp;
 	}

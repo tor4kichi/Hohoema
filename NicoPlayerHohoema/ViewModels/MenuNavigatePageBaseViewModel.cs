@@ -45,11 +45,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 			SelectedItem = new ReactiveProperty<PageTypeSelectableItem>(MenuItems[0]);
 
-			SelectedItem.Subscribe(x => 
+			SelectedItem
+				.Where(x => x != null)
+				.Subscribe(x => 
 			{
 				OnMenuItemSelected(x.Source);
-
-				TitleText = x.Label;
 			});
 
 
@@ -65,6 +65,7 @@ namespace NicoPlayerHohoema.ViewModels
 						item.IsSelected = item.Source == pageType;
 					}
 
+					SelectedItem.Value = null;
 
 					foreach (var item in MenuItems)
 					{
@@ -89,9 +90,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 			IsPersonalPage = SelectedItem.Select(x =>
 			{
-				return PersonalMenuItems.Any(y => x == y);
+				return MenuItems.All(y => x != y);
 			})
 			.ToReactiveProperty();
+
+
+			PageManager.ObserveProperty(x => x.PageTitle)
+				.Subscribe(x => TitleText = x);
 		}
 
 		internal void OnMenuItemSelected(HohoemaPageType pageType)
