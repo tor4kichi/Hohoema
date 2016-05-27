@@ -1,6 +1,8 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Mylist;
 using Mntone.Nico2.Mylist.MylistGroup;
+using Mntone.Nico2.Users.Fav;
+using Mntone.Nico2.Users.Video;
 using Mntone.Nico2.Videos.Histories;
 using Mntone.Nico2.Videos.Ranking;
 using Mntone.Nico2.Videos.Search;
@@ -22,6 +24,12 @@ namespace NicoPlayerHohoema.Models
 		public NiconicoContentFinder(HohoemaApp app)
 		{
 			_HohoemaApp = app;
+		}
+
+
+		public async Task Initialize()
+		{
+			// お気に入りデータの読み込み
 		}
 
 
@@ -67,13 +75,22 @@ namespace NicoPlayerHohoema.Models
 			});
 		}
 
-		public async Task<MylistGroup> GetMylist(string mylistGroupid)
+		public async Task<MylistGroupDetail> GetMylist(string mylistGroupid)
 		{
 			return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
 				return await _HohoemaApp.NiconicoContext.Mylist.GetMylistGroupDetailAsync(mylistGroupid);
 			});
 		}
+
+		public async Task<MylistListResponse> GetMylistItems(string mylistGroupid, uint from = 0, uint limit = 50)
+		{
+			return await ConnectionRetryUtil.TaskWithRetry(async () =>
+			{
+				return await _HohoemaApp.NiconicoContext.Mylist.GetMylistListAsync(mylistGroupid, from, limit);
+			});
+		}
+
 
 
 
@@ -84,6 +101,30 @@ namespace NicoPlayerHohoema.Models
 				return await _HohoemaApp.NiconicoContext.Video.GetHistoriesAsync();
 			});
 			
+		}
+
+		
+		public async Task<List<FavData>> GetFavUsers()
+		{
+			return await _HohoemaApp.NiconicoContext.User.GetFavUsersAsync();
+		}
+
+
+		public async Task<List<string>> GetFavTags()
+		{
+			return await _HohoemaApp.NiconicoContext.User.GetFavTagsAsync();
+		}
+
+		public async Task<List<FavData>> GetFavMylists()
+		{
+			return await _HohoemaApp.NiconicoContext.User.GetFavMylistsAsync();
+		}
+
+
+
+		public async Task<UserVideoResponse> GetUserVideos(uint userId, uint page, SortMethod sortMethod = SortMethod.FirstRetrieve, SortDirection sortDir = SortDirection.Descending)
+		{
+			return await _HohoemaApp.NiconicoContext.User.GetUserVideos(userId, page, sortMethod, sortDir);
 		}
 
 

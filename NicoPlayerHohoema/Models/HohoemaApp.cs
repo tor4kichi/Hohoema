@@ -20,6 +20,7 @@ namespace NicoPlayerHohoema.Models
 			UserSettings = new HohoemaUserSettings();
 			MediaManager = new NiconicoMediaManager(this);
 			ContentFinder = new NiconicoContentFinder(this);
+			FavFeedManager = null;
 		}
 
 		public async Task LoadUserSettings()
@@ -59,6 +60,11 @@ namespace NicoPlayerHohoema.Models
 			if (result == NiconicoSignInStatus.Success)
 			{
 				NiconicoContext = context;
+
+				var userInfo = await NiconicoContext.User.GetInfoAsync();
+				LoginUserId = userInfo.Id;
+				FavFeedManager = await FavFeedManager.Create(this, LoginUserId);
+
 			}
 
 			return result;
@@ -75,6 +81,7 @@ namespace NicoPlayerHohoema.Models
 			NiconicoContext.Dispose();
 
 			NiconicoContext = null;
+			FavFeedManager = null;
 
 			return result;
 		}
@@ -96,6 +103,7 @@ namespace NicoPlayerHohoema.Models
 
 		public HohoemaUserSettings UserSettings { get; private set; }
 
+		public uint LoginUserId { get; private set; }
 
 		private NiconicoContext _NiconicoContext;
 		public NiconicoContext NiconicoContext
@@ -107,6 +115,13 @@ namespace NicoPlayerHohoema.Models
 		public NiconicoMediaManager MediaManager { get; private set; }
 
 		public NiconicoContentFinder ContentFinder { get; private set; }
+
+		private FavFeedManager _FavFeedManager;
+		public FavFeedManager FavFeedManager
+		{
+			get { return _FavFeedManager; }
+			set { SetProperty(ref _FavFeedManager, value); }
+		}
 
 		public const string HohoemaUserAgent = "Hohoema_UWP";
 

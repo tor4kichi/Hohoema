@@ -99,6 +99,10 @@
     </Compile>
     <Compile Include="Events\PlayerClosedEvent.cs" />
     <Compile Include="Events\PlayNicoVideoEvent.cs" />
+    <Compile Include="Models\FavFeedList.cs" />
+    <Compile Include="Models\FavFeedManager.cs" />
+    <Compile Include="Models\FavoriteItemType.cs" />
+    <Compile Include="Models\FavoritePageParameter.cs" />
     <Compile Include="Models\HohoemaApp.cs" />
     <Compile Include="Models\HohoemaPageType.cs" />
     <Compile Include="Models\HohoemaUserSettings.cs" />
@@ -116,13 +120,18 @@
     <Compile Include="Util\NiconicoRankingExtention.cs" />
     <Compile Include="Util\NicoVideoRssItemExtention.cs" />
     <Compile Include="ViewModels\CommentStreamingViewModel.cs" />
+    <Compile Include="ViewModels\FavoriteListPageViewModel.cs" />
     <Compile Include="ViewModels\FavoritePageViewModel.cs" />
+    <Compile Include="ViewModels\FavoriteVideoInfoControlViewModel.cs" />
     <Compile Include="ViewModels\HistoryPageViewModel.cs" />
     <Compile Include="ViewModels\LoginPageViewModel.cs" />
     <Compile Include="ViewModels\MenuNavigatePageBaseViewModel.cs" />
     <Compile Include="ViewModels\MylistPageViewModel.cs" />
     <Compile Include="ViewModels\SearchViewModel.cs" />
     <Compile Include="ViewModels\UserMylistPageViewModel.cs" />
+    <Compile Include="Views\FavoriteListPage.xaml.cs">
+      <DependentUpon>FavoriteListPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\FavoritePage.xaml.cs">
       <DependentUpon>FavoritePage.xaml</DependentUpon>
     </Compile>
@@ -288,6 +297,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\CommentRenderer\CommentUI.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\FavoriteListPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

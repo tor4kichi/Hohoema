@@ -48,17 +48,15 @@ namespace NicoPlayerHohoema.ViewModels
 			var result = await HohoemaApp.SignInFromUserSettings();
 			if (result == NiconicoSignInStatus.Success)
 			{
-				await AccountSettings.Save();
-				await Task.Delay(250);
 				PageManager.ClearNavigateHistory();
 				PageManager.OpenPage(HohoemaPageType.Portal);
+				await AccountSettings.Save();
 			}
 			else if (result == NiconicoSignInStatus.ServiceUnavailable)
 			{
 			}
 			else
 			{
-				await Task.Delay(250);
 				HohoemaApp.NiconicoContext?.Dispose();
 				HohoemaApp.NiconicoContext = null;
 				CanChangeValue.Value = true;

@@ -11,6 +11,7 @@ using Prism.Commands;
 using Mntone.Nico2.Mylist.MylistGroup;
 using System.Collections.ObjectModel;
 using Reactive.Bindings;
+using Mntone.Nico2.Mylist;
 
 namespace NicoPlayerHohoema.ViewModels
 {

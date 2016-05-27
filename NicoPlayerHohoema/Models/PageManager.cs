@@ -89,6 +89,8 @@ namespace NicoPlayerHohoema.Models
 					return "○○さんマイリスト一覧";
 				case HohoemaPageType.Mylist:
 					return "マイリスト";
+				case HohoemaPageType.FavoriteList:
+					return "お気に入り一覧";
 				case HohoemaPageType.Favorite:
 					return "お気に入り";
 				case HohoemaPageType.History:
