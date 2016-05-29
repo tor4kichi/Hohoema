@@ -14,6 +14,26 @@
     d:DesignHeight="300"
     d:DesignWidth="160">
 
+    <UserControl.Resources>
+        <DataTemplate x:Key="CategoryListItemTemplate">
+            <Border Background="Transparent" Margin="8">
+                <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Tapped">
+                        <core:InvokeCommandAction Command="{Binding SelectedCommand}" />
+                    </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
+
+                <TextBlock Text="{Binding Label}"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Center"
+                           >
+
+                </TextBlock>
+            </Border>
+        </DataTemplate>
+    </UserControl.Resources>
+    
+    
     <StackPanel>
         <Border>
             <TextBlock Text="ランキング" >
@@ -27,23 +47,12 @@
 
         <Border Height="32" />
 
-
-        <toolkit:WrapPanel Width="160" Orientation="Horizontal" ItemWidth="80" ItemHeight="80"
-                           HorizontalAlignment="Left"
-                           >
-            
-            
-            <TextBlock Text="ゲーム"
-                       Margin="4"
-                       />
-            <TextBlock Text="ゲーム"
-                       Margin="4"
-                       />
-            <TextBlock Text="ゲーム"
-                       Margin="4"
-                       />
-
-        </toolkit:WrapPanel>
+        <ListView ItemsSource="{Binding PriorityRankingCategories}"
+                  ItemTemplate="{StaticResource CategoryListItemTemplate}"
+                  SelectionMode="None"
+                   >
+           
+        </ListView>
        
 
     </StackPanel>

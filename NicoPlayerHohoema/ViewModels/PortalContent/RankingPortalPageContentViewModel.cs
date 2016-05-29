@@ -1,7 +1,9 @@
 ﻿using NicoPlayerHohoema.Models;
 using Prism.Commands;
+using Reactive.Bindings;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +16,18 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 		{
 			_PageManager = pageManager;
 			_HohoemaApp = hohoemaApp;
+
+			PriorityRankingCategories = hohoemaApp.UserSettings.RankingSettings.HighPriorityCategory.ToReadOnlyReactiveCollection(
+				x => new RankingCategoryListItem(x, OnRankingListItemSelected)
+				);
+
+
+			
+		}
+
+		private void OnRankingListItemSelected(RankingCategoryInfo info)
+		{
+			_PageManager.OpenPage(HohoemaPageType.RankingCategory, info.ToParameterString());
 		}
 
 
@@ -30,6 +44,8 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 			}
 		}
 
+
+		public ReadOnlyReactiveCollection<RankingCategoryListItem> PriorityRankingCategories { get; private set; }
 
 
 		PageManager _PageManager;

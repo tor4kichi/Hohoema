@@ -1,5 +1,5 @@
 ﻿<UserControl
-    x:Class="NicoPlayerHohoema.Views.PortalContent.SearchPortalPageContent"
+    x:Class="NicoPlayerHohoema.Views.PortalContent.HistoryProtalPageContent"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:NicoPlayerHohoema.Views.PortalContent"
@@ -16,7 +16,7 @@
 
     <StackPanel>
         <Border>
-            <TextBlock Text="検索" >
+            <TextBlock Text="視聴履歴" >
 
             </TextBlock>
         </Border>
@@ -24,20 +24,9 @@
         <Border Height="32" />
 
 
-        <!-- 検索キーワード -->
-        <Border>
-            <Button Content="検索" Command="{Binding SearchCommand}"
-                    HorizontalAlignment="Stretch"
-                    />
-        </Border>
-
-        
-        <!-- 検索履歴 -->
-            
         <ListView>
+
         </ListView>
-
-
 
     </StackPanel>
 </UserControl>

@@ -135,7 +135,10 @@ namespace NicoPlayerHohoema.ViewModels
 			for (uint i = 0; i < 3; i++)
 			{
 				var res = await ContentFinder.GetKeywordSearch(parameter, i + 1, SortMethod.Popurarity);
-				listItems.AddRange(res.list);
+				if (res.IsStatusOK)
+				{
+					listItems.AddRange(res.list);
+				}
 			}
 
 

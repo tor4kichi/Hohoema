@@ -1,5 +1,6 @@
 ﻿using NicoPlayerHohoema.Models;
 using Prism.Commands;
+using Prism.Mvvm;
 using Prism.Windows.Mvvm;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 	}
 
-	abstract public class PotalPageContentViewModel : ViewModelBase
+	abstract public class PotalPageContentViewModel : BindableBase
 	{
 	}
 }

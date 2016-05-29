@@ -127,6 +127,7 @@
     <Compile Include="ViewModels\LoginPageViewModel.cs" />
     <Compile Include="ViewModels\MenuNavigatePageBaseViewModel.cs" />
     <Compile Include="ViewModels\MylistPageViewModel.cs" />
+    <Compile Include="ViewModels\PortalContent\HistoryPortalPageContentViewModel.cs" />
     <Compile Include="ViewModels\SearchViewModel.cs" />
     <Compile Include="ViewModels\UserMylistPageViewModel.cs" />
     <Compile Include="Views\FavoriteListPage.xaml.cs">
@@ -137,6 +138,9 @@
     </Compile>
     <Compile Include="Views\MylistPage.xaml.cs">
       <DependentUpon>MylistPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PortalContent\HistoryProtalPageContent.xaml.cs">
+      <DependentUpon>HistoryProtalPageContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Service\ISearchDialogService.cs" />
     <Compile Include="Views\Service\SearchDialogService.cs" />
@@ -321,6 +325,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\MylistPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PortalContent\HistoryProtalPageContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
