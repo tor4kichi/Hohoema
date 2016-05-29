@@ -83,8 +83,23 @@ namespace NicoPlayerHohoema.Models
 			return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
 				return await _HohoemaApp.NiconicoContext.Mylist.GetUserMylistGroupAsync(userId);
+			})
+			.ContinueWith(prevTask => 
+			{
+				if (prevTask.IsCompleted && prevTask.Result != null)
+				{
+					_CachedUserMylistGroupDatum = prevTask.Result;
+					return prevTask.Result;
+				}
+				else
+				{
+					return _CachedUserMylistGroupDatum;
+				}
 			});
 		}
+
+		private List<MylistGroupData> _CachedUserMylistGroupDatum = null;
+
 
 		public async Task<MylistGroupDetail> GetMylist(string mylistGroupid)
 		{

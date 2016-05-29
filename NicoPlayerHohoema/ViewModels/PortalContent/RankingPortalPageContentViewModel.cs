@@ -13,8 +13,8 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 	public class RankingPortalPageContentViewModel : PotalPageContentViewModel
 	{
 		public RankingPortalPageContentViewModel(PageManager pageManager, HohoemaApp hohoemaApp)
+			: base(pageManager)
 		{
-			_PageManager = pageManager;
 			_HohoemaApp = hohoemaApp;
 
 			PriorityRankingCategories = hohoemaApp.UserSettings.RankingSettings.HighPriorityCategory.ToReadOnlyReactiveCollection(
@@ -27,7 +27,7 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 
 		private void OnRankingListItemSelected(RankingCategoryInfo info)
 		{
-			_PageManager.OpenPage(HohoemaPageType.RankingCategory, info.ToParameterString());
+			PageManager.OpenPage(HohoemaPageType.RankingCategory, info.ToParameterString());
 		}
 
 
@@ -39,7 +39,7 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 				return _OpenRankingCategoryCommand
 					?? (_OpenRankingCategoryCommand = new DelegateCommand(() =>
 					{
-						_PageManager.OpenPage(HohoemaPageType.RankingCategoryList);
+						PageManager.OpenPage(HohoemaPageType.RankingCategoryList);
 					}));
 			}
 		}
@@ -48,7 +48,6 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 		public ReadOnlyReactiveCollection<RankingCategoryListItem> PriorityRankingCategories { get; private set; }
 
 
-		PageManager _PageManager;
 		HohoemaApp _HohoemaApp;
 	}
 }

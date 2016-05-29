@@ -130,8 +130,11 @@ namespace NicoPlayerHohoema
 			Container.RegisterType<ViewModels.SubscriptionPageViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.SearchPageViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.SettingsPageViewModel>(new ContainerControlledLifetimeManager());
+			Container.RegisterType<ViewModels.UserMylistPageViewModel>(new ContainerControlledLifetimeManager());
+			Container.RegisterType<ViewModels.PortalContent.MylistPortalPageContentViewModel>(new ContainerControlledLifetimeManager());
+			Container.RegisterType<ViewModels.PortalContent.FavPortalPageContentViewModel>(new ContainerControlledLifetimeManager());
+			Container.RegisterType<ViewModels.PortalContent.HistoryPortalPageContentViewModel>(new ContainerControlledLifetimeManager());
 			
-
 			// Service
 			var searchVM = Container.Resolve<SearchViewModel>();
 			Container.RegisterInstance<Views.Service.ISearchDialogService>(new Views.Service.SearchDialogService(searchVM));

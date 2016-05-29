@@ -43,7 +43,7 @@ namespace NicoPlayerHohoema.ViewModels
 				new PageTypeSelectableItem(HohoemaPageType.Settings, OnMenuItemSelected, "設定"),
 			};
 
-			SelectedItem = new ReactiveProperty<PageTypeSelectableItem>(MenuItems[0]);
+			SelectedItem = new ReactiveProperty<PageTypeSelectableItem>(MenuItems[0], mode: ReactivePropertyMode.DistinctUntilChanged);
 
 			SelectedItem
 				.Where(x => x != null)

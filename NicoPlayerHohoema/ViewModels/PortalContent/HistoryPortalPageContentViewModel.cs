@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NicoPlayerHohoema.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,5 +9,8 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 {
 	public class HistoryPortalPageContentViewModel : PotalPageContentViewModel
 	{
+		public HistoryPortalPageContentViewModel(PageManager pageManager)
+			: base(pageManager)
+		{ }
 	}
 }

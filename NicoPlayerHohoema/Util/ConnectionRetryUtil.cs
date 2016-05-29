@@ -10,7 +10,7 @@ namespace NicoPlayerHohoema.Util
 {
 	public static class ConnectionRetryUtil
 	{
-		public static async Task<T> TaskWithRetry<T>(Func<Task<T>> func, uint retryCount = 3, uint retryInterval = 100)
+		public static async Task<T> TaskWithRetry<T>(Func<Task<T>> func, uint retryCount = 3, int retryInterval = 100)
 		{
 			int currentRetry = 0;
 
@@ -36,6 +36,8 @@ namespace NicoPlayerHohoema.Util
 						// or we should not retry re-throw the exception. 
 						throw;
 					}
+
+					await Task.Delay(retryInterval);
 				}
 
 				// Wait to retry the operation.

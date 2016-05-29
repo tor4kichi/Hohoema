@@ -15,8 +15,8 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 		// TODO: 検索履歴の表示
 
 		public SearchPortalPageContentViewModel(PageManager pageManager, HohoemaApp hohoemaApp, ISearchDialogService searchDialog)
+			: base(pageManager)
 		{
-			_PageManager = pageManager;
 			_HohoemaApp = hohoemaApp;
 			_SearchDialog = searchDialog;
 		}
@@ -37,7 +37,6 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 
 
 
-		PageManager _PageManager;
 		HohoemaApp _HohoemaApp;
 		ISearchDialogService _SearchDialog;
 	}
