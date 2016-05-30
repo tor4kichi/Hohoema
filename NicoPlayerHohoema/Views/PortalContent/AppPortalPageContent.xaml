@@ -24,11 +24,21 @@
         <Border Height="32" />
 
 
-        <ListView>
-            <TextBlock Text="設定" />
+        <ListView ItemsSource="{Binding Items}">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Border Margin="0 4" Background="Transparent" IsHitTestVisible="True">
+                        <i:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="Tapped">
+                                <core:InvokeCommandAction Command="{Binding SelectedCommand}" />
+                            </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
 
-            <TextBlock Text="このアプリについて" />
-            <TextBlock Text="終了" />
+                        <TextBlock Text="{Binding Title}" />
+                    </Border>
+                    
+                </DataTemplate>
+            </ListView.ItemTemplate>
         </ListView>
 
     </StackPanel>
