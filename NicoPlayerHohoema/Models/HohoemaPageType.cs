@@ -17,7 +17,9 @@ namespace NicoPlayerHohoema.Models
 		Favorite,
 		History,
 		Search,
+
 		Settings,
+		About,
 
 		VideoInfomation,
 		VideoPlayer,

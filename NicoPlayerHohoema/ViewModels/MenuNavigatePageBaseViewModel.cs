@@ -94,6 +94,7 @@ namespace NicoPlayerHohoema.ViewModels
 			})
 			.ToReactiveProperty();
 
+			IsPersonalPage.ForceNotify();
 
 			PageManager.ObserveProperty(x => x.PageTitle)
 				.Subscribe(x => TitleText = x);
@@ -105,9 +106,6 @@ namespace NicoPlayerHohoema.ViewModels
 					return !(x == HohoemaPageType.Login || x == HohoemaPageType.VideoPlayer);
 				})
 				.ToReactiveProperty();
-
-			
-
 		}
 
 		internal void OnMenuItemSelected(HohoemaPageType pageType)

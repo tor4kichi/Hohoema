@@ -29,7 +29,7 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 					PageManager.OpenPage(HohoemaPageType.Settings);
 					break;
 				case AppContentType.About:
-//					PageManager.OpenPage(HohoemaPageType.About);
+					PageManager.OpenPage(HohoemaPageType.About);
 					break;
 				case AppContentType.Exit:
 					// TODO: ダウンロードタスクがある場合には終了の確認を行う
