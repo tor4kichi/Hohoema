@@ -86,7 +86,7 @@
 
                         <portalContent:MylistPortalPageContent />
 
-                        <portalContent:HistoryProtalPageContent />
+                        <portalContent:HistoryPortalPageContent />
                         
                         <portalContent:AppPortalPageContent />
 

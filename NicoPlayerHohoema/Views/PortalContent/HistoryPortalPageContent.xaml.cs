@@ -17,9 +17,9 @@ using Windows.UI.Xaml.Navigation;
 
 namespace NicoPlayerHohoema.Views.PortalContent
 {
-	public sealed partial class HistoryProtalPageContent : UserControl
+	public sealed partial class HistoryPortalPageContent : UserControl
 	{
-		public HistoryProtalPageContent()
+		public HistoryPortalPageContent()
 		{
 			this.InitializeComponent();
 		}

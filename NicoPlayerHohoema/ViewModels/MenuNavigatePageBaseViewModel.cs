@@ -97,6 +97,17 @@ namespace NicoPlayerHohoema.ViewModels
 
 			PageManager.ObserveProperty(x => x.PageTitle)
 				.Subscribe(x => TitleText = x);
+
+
+			IsVisibleTopBar = PageManager.ObserveProperty(x => x.CurrentPageType)
+				.Select(x => 
+				{
+					return !(x == HohoemaPageType.Login || x == HohoemaPageType.VideoPlayer);
+				})
+				.ToReactiveProperty();
+
+			
+
 		}
 
 		internal void OnMenuItemSelected(HohoemaPageType pageType)
@@ -125,6 +136,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public List<PageTypeSelectableItem> PersonalMenuItems { get; private set; }
 
+		public ReactiveProperty<bool> IsVisibleTopBar { get; private set; }
 
 		public ReactiveProperty<bool> IsPersonalPage { get; private set; }
 

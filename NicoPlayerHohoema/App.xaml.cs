@@ -102,6 +102,9 @@ namespace NicoPlayerHohoema
 
 			var playNicoVideoEvent = EventAggregator.GetEvent<PlayNicoVideoEvent>();
 			playNicoVideoEvent.Subscribe(PlayNicoVideoInPlayerWindow);
+
+			
+
 			await base.OnInitializeAsync(args);
 		}
 
@@ -176,7 +179,17 @@ namespace NicoPlayerHohoema
 
 			menu.Content = rootFrame;
 
+			rootFrame.Navigated += RootFrame_Navigated;
+
 			return menu;
+		}
+
+		private void RootFrame_Navigated(object sender, NavigationEventArgs e)
+		{
+			if (e.NavigationMode == NavigationMode.Back)
+			{
+				
+			}
 		}
 
 		private void PrismUnityApplication_UnhandledException(object sender, UnhandledExceptionEventArgs e)

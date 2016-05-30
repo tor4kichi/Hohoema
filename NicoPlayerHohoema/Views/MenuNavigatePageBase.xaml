@@ -156,7 +156,9 @@
                 </VisualStateManager.VisualStateGroups>
 
                 <toolkit:DockPanel x:Name="TopBar" 
-                                   toolkit:DockPanel.Dock="Top">
+                                   toolkit:DockPanel.Dock="Top"
+                                   Visibility="{Binding IsVisibleTopBar.Value, Converter={StaticResource BooleanToVisibility}}"
+                                   >
                     <AppBarButton
                           x:Name="OpenPaneButton"
                           Icon="OpenPane"
@@ -210,6 +212,8 @@
                                Text="{Binding TitleText}"
                                VerticalAlignment="Center"
                                FontSize="24"
+                               Visibility="{Binding IsVisibleTopBar.Value, Converter={StaticResource BooleanToVisibility}}"
+                               toolkit:DockPanel.Dock="Top"
                                >
 
                     </TextBlock>

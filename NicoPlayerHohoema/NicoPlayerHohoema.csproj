@@ -124,6 +124,7 @@
     <Compile Include="ViewModels\FavoritePageViewModel.cs" />
     <Compile Include="ViewModels\FavoriteVideoInfoControlViewModel.cs" />
     <Compile Include="ViewModels\HistoryPageViewModel.cs" />
+    <Compile Include="ViewModels\HohoemaViewModelBase.cs" />
     <Compile Include="ViewModels\LoginPageViewModel.cs" />
     <Compile Include="ViewModels\MenuNavigatePageBaseViewModel.cs" />
     <Compile Include="ViewModels\MylistPageViewModel.cs" />
@@ -139,8 +140,8 @@
     <Compile Include="Views\MylistPage.xaml.cs">
       <DependentUpon>MylistPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\PortalContent\HistoryProtalPageContent.xaml.cs">
-      <DependentUpon>HistoryProtalPageContent.xaml</DependentUpon>
+    <Compile Include="Views\PortalContent\HistoryPortalPageContent.xaml.cs">
+      <DependentUpon>HistoryPortalPageContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Service\ISearchDialogService.cs" />
     <Compile Include="Views\Service\SearchDialogService.cs" />
@@ -328,7 +329,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\PortalContent\HistoryProtalPageContent.xaml">
+    <Page Include="Views\PortalContent\HistoryPortalPageContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
