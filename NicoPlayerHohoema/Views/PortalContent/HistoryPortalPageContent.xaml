@@ -1,5 +1,5 @@
 ﻿<UserControl
-    x:Class="NicoPlayerHohoema.Views.PortalContent.AppPortalPageContent"
+    x:Class="NicoPlayerHohoema.Views.PortalContent.HistoryPortalPageContent"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:NicoPlayerHohoema.Views.PortalContent"
@@ -15,8 +15,15 @@
     d:DesignWidth="400">
 
     <StackPanel>
-        <Border>
-            <TextBlock Text="アプリ" >
+        <Border Background="Transparent" IsHitTestVisible="True">
+            <i:Interaction.Behaviors>
+                <core:EventTriggerBehavior EventName="Tapped">
+                    <core:InvokeCommandAction Command="{Binding OpenHistoryCommand}" />
+                </core:EventTriggerBehavior>
+            </i:Interaction.Behaviors>
+
+            
+            <TextBlock Text="視聴履歴" >
 
             </TextBlock>
         </Border>
@@ -24,21 +31,21 @@
         <Border Height="32" />
 
 
-        <ListView ItemsSource="{Binding Items}">
+        <ListView ItemsSource="{Binding HisotoryVideoInfoItems}">
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <Border Margin="0 4" Background="Transparent" IsHitTestVisible="True">
+                    <Border Background="Transparent" IsHitTestVisible="True">
                         <i:Interaction.Behaviors>
                             <core:EventTriggerBehavior EventName="Tapped">
-                                <core:InvokeCommandAction Command="{Binding SelectedCommand}" />
+                                <core:InvokeCommandAction Command="{Binding ShowDetailCommand}" />
                             </core:EventTriggerBehavior>
                         </i:Interaction.Behaviors>
 
                         <TextBlock Text="{Binding Title}" />
                     </Border>
-                    
                 </DataTemplate>
             </ListView.ItemTemplate>
+
         </ListView>
 
     </StackPanel>

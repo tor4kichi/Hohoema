@@ -82,10 +82,12 @@
 
                         <portalContent:RankingPortalPageContent />
 
-                        <portalContent:MylistPortalPageContent />
-
                         <portalContent:FavPortalPageContent />
 
+                        <portalContent:MylistPortalPageContent />
+
+                        <portalContent:HistoryPortalPageContent />
+                        
                         <portalContent:AppPortalPageContent />
 
                     </ItemsControl>

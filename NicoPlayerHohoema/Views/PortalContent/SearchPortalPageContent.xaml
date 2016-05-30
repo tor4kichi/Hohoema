@@ -35,12 +35,6 @@
         <!-- 検索履歴 -->
             
         <ListView>
-            <TextBlock Text="検索履歴１" />
-            <TextBlock Text="検索履歴２" />
-            <TextBlock Text="検索履歴３" />
-            <TextBlock Text="検索履歴４" />
-            <TextBlock Text="検索履歴５" />
-
         </ListView>
 
 

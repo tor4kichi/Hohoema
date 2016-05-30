@@ -54,7 +54,18 @@ namespace NicoPlayerHohoema.Models
 		{
 			return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
-				return await _HohoemaApp.NiconicoContext.Video.GetKeywordSearchAsync(keyword, pageCount, sortMethod, sortDir);
+				return await _HohoemaApp.NiconicoContext.Video.GetKeywordSearchAsync(keyword, pageCount, sortMethod, sortDir)
+					.ContinueWith(prevTask =>
+					{
+						if (!prevTask.Result.IsStatusOK)
+						{
+							throw new Exception();
+						}
+						else
+						{
+							return prevTask.Result;
+						}
+					});
 			});
 		}
 
@@ -72,8 +83,23 @@ namespace NicoPlayerHohoema.Models
 			return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
 				return await _HohoemaApp.NiconicoContext.Mylist.GetUserMylistGroupAsync(userId);
+			})
+			.ContinueWith(prevTask => 
+			{
+				if (prevTask.IsCompleted && prevTask.Result != null)
+				{
+					_CachedUserMylistGroupDatum = prevTask.Result;
+					return prevTask.Result;
+				}
+				else
+				{
+					return _CachedUserMylistGroupDatum;
+				}
 			});
 		}
+
+		private List<MylistGroupData> _CachedUserMylistGroupDatum = null;
+
 
 		public async Task<MylistGroupDetail> GetMylist(string mylistGroupid)
 		{
@@ -99,8 +125,7 @@ namespace NicoPlayerHohoema.Models
 			return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
 				return await _HohoemaApp.NiconicoContext.Video.GetHistoriesAsync();
-			});
-			
+			});	
 		}
 
 		
@@ -126,6 +151,8 @@ namespace NicoPlayerHohoema.Models
 		{
 			return await _HohoemaApp.NiconicoContext.User.GetUserVideos(userId, page, sortMethod, sortDir);
 		}
+
+
 
 
 		HohoemaApp _HohoemaApp;

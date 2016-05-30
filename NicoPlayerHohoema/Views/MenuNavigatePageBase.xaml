@@ -113,6 +113,15 @@
 
                         <VisualState>
                             <VisualState.StateTriggers>
+                                <StateTrigger IsActive="{Binding IsVisibleTopBar.Value, Converter={StaticResource InvertBoolean}}" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="ContentTitleText.Visibility" Value="Collapsed" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <VisualState>
+                            <VisualState.StateTriggers>
                                 <StateTrigger IsActive="{Binding IsPersonalPage.Value, Converter={StaticResource InvertBoolean}}" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
@@ -156,7 +165,9 @@
                 </VisualStateManager.VisualStateGroups>
 
                 <toolkit:DockPanel x:Name="TopBar" 
-                                   toolkit:DockPanel.Dock="Top">
+                                   toolkit:DockPanel.Dock="Top"
+                                   Visibility="{Binding IsVisibleTopBar.Value, Converter={StaticResource BooleanToVisibility}}"
+                                   >
                     <AppBarButton
                           x:Name="OpenPaneButton"
                           Icon="OpenPane"
@@ -210,6 +221,7 @@
                                Text="{Binding TitleText}"
                                VerticalAlignment="Center"
                                FontSize="24"
+                               toolkit:DockPanel.Dock="Top"
                                >
 
                     </TextBlock>

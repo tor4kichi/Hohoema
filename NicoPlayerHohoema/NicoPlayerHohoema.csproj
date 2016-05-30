@@ -119,16 +119,22 @@
     <Compile Include="Util\IncrementalLoadingCollection.cs" />
     <Compile Include="Util\NiconicoRankingExtention.cs" />
     <Compile Include="Util\NicoVideoRssItemExtention.cs" />
+    <Compile Include="ViewModels\AboutPageViewModel.cs" />
     <Compile Include="ViewModels\CommentStreamingViewModel.cs" />
     <Compile Include="ViewModels\FavoriteListPageViewModel.cs" />
     <Compile Include="ViewModels\FavoritePageViewModel.cs" />
     <Compile Include="ViewModels\FavoriteVideoInfoControlViewModel.cs" />
     <Compile Include="ViewModels\HistoryPageViewModel.cs" />
+    <Compile Include="ViewModels\HohoemaViewModelBase.cs" />
     <Compile Include="ViewModels\LoginPageViewModel.cs" />
     <Compile Include="ViewModels\MenuNavigatePageBaseViewModel.cs" />
     <Compile Include="ViewModels\MylistPageViewModel.cs" />
+    <Compile Include="ViewModels\PortalContent\HistoryPortalPageContentViewModel.cs" />
     <Compile Include="ViewModels\SearchViewModel.cs" />
     <Compile Include="ViewModels\UserMylistPageViewModel.cs" />
+    <Compile Include="Views\AboutPage.xaml.cs">
+      <DependentUpon>AboutPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\FavoriteListPage.xaml.cs">
       <DependentUpon>FavoriteListPage.xaml</DependentUpon>
     </Compile>
@@ -137,6 +143,9 @@
     </Compile>
     <Compile Include="Views\MylistPage.xaml.cs">
       <DependentUpon>MylistPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PortalContent\HistoryPortalPageContent.xaml.cs">
+      <DependentUpon>HistoryPortalPageContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Service\ISearchDialogService.cs" />
     <Compile Include="Views\Service\SearchDialogService.cs" />
@@ -288,6 +297,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Views\AboutPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\CommentRenderer\CommentRendererWithWIn2D.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -321,6 +334,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\MylistPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PortalContent\HistoryPortalPageContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

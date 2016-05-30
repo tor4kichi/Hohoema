@@ -102,6 +102,9 @@ namespace NicoPlayerHohoema
 
 			var playNicoVideoEvent = EventAggregator.GetEvent<PlayNicoVideoEvent>();
 			playNicoVideoEvent.Subscribe(PlayNicoVideoInPlayerWindow);
+
+			
+
 			await base.OnInitializeAsync(args);
 		}
 
@@ -130,8 +133,11 @@ namespace NicoPlayerHohoema
 			Container.RegisterType<ViewModels.SubscriptionPageViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.SearchPageViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.SettingsPageViewModel>(new ContainerControlledLifetimeManager());
+			Container.RegisterType<ViewModels.UserMylistPageViewModel>(new ContainerControlledLifetimeManager());
+			Container.RegisterType<ViewModels.PortalContent.MylistPortalPageContentViewModel>(new ContainerControlledLifetimeManager());
+			Container.RegisterType<ViewModels.PortalContent.FavPortalPageContentViewModel>(new ContainerControlledLifetimeManager());
+			Container.RegisterType<ViewModels.PortalContent.HistoryPortalPageContentViewModel>(new ContainerControlledLifetimeManager());
 			
-
 			// Service
 			var searchVM = Container.Resolve<SearchViewModel>();
 			Container.RegisterInstance<Views.Service.ISearchDialogService>(new Views.Service.SearchDialogService(searchVM));
@@ -173,7 +179,17 @@ namespace NicoPlayerHohoema
 
 			menu.Content = rootFrame;
 
+			rootFrame.Navigated += RootFrame_Navigated;
+
 			return menu;
+		}
+
+		private void RootFrame_Navigated(object sender, NavigationEventArgs e)
+		{
+			if (e.NavigationMode == NavigationMode.Back)
+			{
+				
+			}
 		}
 
 		private void PrismUnityApplication_UnhandledException(object sender, UnhandledExceptionEventArgs e)

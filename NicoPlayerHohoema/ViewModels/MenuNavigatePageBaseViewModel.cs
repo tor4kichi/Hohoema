@@ -43,7 +43,7 @@ namespace NicoPlayerHohoema.ViewModels
 				new PageTypeSelectableItem(HohoemaPageType.Settings, OnMenuItemSelected, "設定"),
 			};
 
-			SelectedItem = new ReactiveProperty<PageTypeSelectableItem>(MenuItems[0]);
+			SelectedItem = new ReactiveProperty<PageTypeSelectableItem>(MenuItems[0], mode: ReactivePropertyMode.DistinctUntilChanged);
 
 			SelectedItem
 				.Where(x => x != null)
@@ -94,9 +94,18 @@ namespace NicoPlayerHohoema.ViewModels
 			})
 			.ToReactiveProperty();
 
+			IsPersonalPage.ForceNotify();
 
 			PageManager.ObserveProperty(x => x.PageTitle)
 				.Subscribe(x => TitleText = x);
+
+
+			IsVisibleTopBar = PageManager.ObserveProperty(x => x.CurrentPageType)
+				.Select(x => 
+				{
+					return !(x == HohoemaPageType.Login || x == HohoemaPageType.VideoPlayer);
+				})
+				.ToReactiveProperty();
 		}
 
 		internal void OnMenuItemSelected(HohoemaPageType pageType)
@@ -125,6 +134,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public List<PageTypeSelectableItem> PersonalMenuItems { get; private set; }
 
+		public ReactiveProperty<bool> IsVisibleTopBar { get; private set; }
 
 		public ReactiveProperty<bool> IsPersonalPage { get; private set; }
 

@@ -75,24 +75,31 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			if (MediaManager == null) { return; }
 
-			var thumbnail = await MediaManager.GetThumbnail(VideoId);
+			try
+			{
+				var thumbnail = await MediaManager.GetThumbnail(VideoId);
 
-			// NG判定
-			var ngResult = NGSettings.IsNgVideo(thumbnail);
-			IsNotGoodVideo = ngResult != null;
-			NGVideoReason = ngResult?.GetReasonText() ?? "";
-			IsForceDisplayNGVideo = false;
+				// NG判定
+				var ngResult = NGSettings.IsNgVideo(thumbnail);
+				IsNotGoodVideo = ngResult != null;
+				NGVideoReason = ngResult?.GetReasonText() ?? "";
+				IsForceDisplayNGVideo = false;
 
 
 
-			Title = thumbnail.Title;
-			ViewCount = thumbnail.ViewCount;
-			CommentCount = thumbnail.CommentCount;
-			MylistCount = thumbnail.MylistCount;
-			OwnerComment = thumbnail.Description;
-			PostAt = thumbnail.PostedAt.LocalDateTime;
-			ThumbnailImageUrl = IsNotGoodVideo ? null : thumbnail.ThumbnailUrl;
-			MovieLength = thumbnail.Length;
+				Title = thumbnail.Title;
+				ViewCount = thumbnail.ViewCount;
+				CommentCount = thumbnail.CommentCount;
+				MylistCount = thumbnail.MylistCount;
+				OwnerComment = thumbnail.Description;
+				PostAt = thumbnail.PostedAt.LocalDateTime;
+				ThumbnailImageUrl = IsNotGoodVideo ? null : thumbnail.ThumbnailUrl;
+				MovieLength = thumbnail.Length;
+			}
+			catch
+			{
+				IsDeleted = true;
+			}
 		}
 
 		private string _Title;
@@ -174,8 +181,15 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _PostAt, value); }
 		}
 
+		private bool _IsDeleted;
+		public bool IsDeleted
+		{
+			get { return _IsDeleted; }
+			set { SetProperty(ref _IsDeleted, value); }
+		}
 
-		
+
+
 		public string VideoId { get; private set; }
 
 		private DelegateCommand _ShowDetailCommand;
