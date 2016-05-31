@@ -39,12 +39,18 @@ namespace NicoPlayerHohoema
     {
 		public PlayerWindowManager PlayerWindow { get; private set; }
 
+		private static Dictionary<Type, HohoemaPageType> ViewPageToPageType;
 
-        /// <summary>
-        /// 単一アプリケーション オブジェクトを初期化します。これは、実行される作成したコードの
-        ///最初の行であるため、main() または WinMain() と論理的に等価です。
-        /// </summary>
-        public App()
+
+		static App()
+		{
+		}
+
+		/// <summary>
+		/// 単一アプリケーション オブジェクトを初期化します。これは、実行される作成したコードの
+		///最初の行であるため、main() または WinMain() と論理的に等価です。
+		/// </summary>
+		public App()
         {
 			UnhandledException += PrismUnityApplication_UnhandledException;
 
@@ -188,9 +194,12 @@ namespace NicoPlayerHohoema
 		{
 			if (e.NavigationMode == NavigationMode.Back)
 			{
-				
+				var pageManager = Container.Resolve<PageManager>();
+				pageManager.OnBack();
 			}
 		}
+
+
 
 		private void PrismUnityApplication_UnhandledException(object sender, UnhandledExceptionEventArgs e)
 		{

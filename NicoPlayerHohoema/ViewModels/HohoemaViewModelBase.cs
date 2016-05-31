@@ -1,4 +1,5 @@
-﻿using Prism.Windows.Mvvm;
+﻿using NicoPlayerHohoema.Models;
+using Prism.Windows.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,11 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	abstract public class HohoemaViewModelBase : ViewModelBase
 	{
+		public HohoemaViewModelBase(PageManager pageManager)
+		{
+
+		}
+
 		abstract public string GetPageTitle();
 
 	}

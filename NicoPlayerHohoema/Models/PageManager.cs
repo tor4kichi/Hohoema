@@ -2,6 +2,7 @@
 using Prism.Windows.Navigation;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,32 +31,74 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
+
+
+		public ObservableCollection<PageInfo> PageInfoStack { get; private set; }
+
+
+
 		public PageManager(INavigationService ns)
 		{
 			NavigationService = ns;
 			CurrentPageType = HohoemaPageType.RankingCategoryList;
+			PageInfoStack = new ObservableCollection<PageInfo>();
 		}
 		
 
-		public void OpenPage<NavigateParamType>(HohoemaPageType pageType, NavigateParamType parameter)
+		public void OpenPage(HohoemaPageType pageType, object parameter = null)
 		{
-			if (NavigationService.Navigate(pageType.ToString(), parameter))
+			var pageInfo = new PageInfo(pageType, parameter)
 			{
-				CurrentPageType = pageType;
+				IsVirtual = false,
+			};
 
-				PageTitle = PageTypeToTitle(CurrentPageType);
+			OpenPage(pageInfo);
+		}
+
+		
+
+		public void OpenPage(PageInfo pageInfo, params PageInfo[] parentPages)
+		{
+			if (NavigationService.Navigate(pageInfo.PageType.ToString(), pageInfo.Parameter))
+			{
+				CurrentPageType = pageInfo.PageType;
+				PageTitle = pageInfo.PageTitle;
+
+				foreach (var parentPage in parentPages)
+				{
+					parentPage.IsVirtual = true;
+					PageInfoStack.Add(parentPage);
+				}
+
+				pageInfo.IsVirtual = false;
+				PageInfoStack.Add(pageInfo);
 			}
 		}
 
-		public void OpenPage(HohoemaPageType pageType)
-		{
-			if (NavigationService.Navigate(pageType.ToString(), null))
-			{
-				CurrentPageType = pageType;
 
-				PageTitle = PageTypeToTitle(CurrentPageType);
+		/// <summary>
+		/// 外部で戻る処理が行われた際にPageManager上での整合性を取ります
+		/// </summary>
+		public void OnBack()
+		{
+			if (PageInfoStack.Count == 0)
+			{
+				return;
 			}
+
+			PageInfoStack.RemoveAt(PageInfoStack.Count - 1);
+			
+			while (PageInfoStack.Count > 0 && PageInfoStack.Last().IsVirtual)
+			{
+				PageInfoStack.RemoveAt(PageInfoStack.Count - 1);
+			}
+
+			var lastItem = PageInfoStack.Last();
+			CurrentPageType = lastItem.PageType;
+			PageTitle = lastItem.PageTitle;
+
 		}
+
 
 
 		/// <summary>
@@ -75,7 +118,7 @@ namespace NicoPlayerHohoema.Models
 			return PageTypeToTitle(CurrentPageType);
 		}
 
-		public string PageTypeToTitle(HohoemaPageType pageType)
+		public static string PageTypeToTitle(HohoemaPageType pageType)
 		{
 			switch (pageType)
 			{
@@ -86,7 +129,7 @@ namespace NicoPlayerHohoema.Models
 				case HohoemaPageType.RankingCategory:
 					return "カテゴリランキング";
 				case HohoemaPageType.UserMylist:
-					return "○○さんマイリスト一覧";
+					return "マイリスト一覧";
 				case HohoemaPageType.Mylist:
 					return "マイリスト";
 				case HohoemaPageType.FavoriteList:
@@ -112,4 +155,28 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 	}
+
+
+	public class PageInfo
+	{
+		public PageInfo(HohoemaPageType pageType, object parameter = null, string pageTitle = null)
+		{
+			PageType = pageType;
+			Parameter = parameter;
+			PageTitle = String.IsNullOrEmpty(pageTitle) ? PageManager.PageTypeToTitle(pageType) : pageTitle;
+		}
+
+
+		/// <summary>
+		/// 実際にページナビゲーションが行われた場合はIsVirtualがfalse
+		/// ページナビゲーションが行われていない場合はtrue（この場合、ぱんくずリストに表示することが目的）
+		/// </summary>
+		public bool IsVirtual { get; internal set; }
+
+
+		public string PageTitle { get; set; }
+		public HohoemaPageType PageType { get; set; }
+		public object Parameter { get; set; }
+	}
+	
 }

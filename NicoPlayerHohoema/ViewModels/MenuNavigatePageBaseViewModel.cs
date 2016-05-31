@@ -31,11 +31,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 			MenuItems = new List<PageTypeSelectableItem>()
 			{
-				new PageTypeSelectableItem(HohoemaPageType.Portal, OnMenuItemSelected, "ホーム"),
+				new PageTypeSelectableItem(HohoemaPageType.Portal			  , OnMenuItemSelected, "ホーム"),
 				new PageTypeSelectableItem(HohoemaPageType.RankingCategoryList, OnMenuItemSelected, "ランキング"),
-				new PageTypeSelectableItem(HohoemaPageType.FavoriteList, OnMenuItemSelected, "お気に入り"),
-				new PageTypeSelectableItem(HohoemaPageType.UserMylist, OnMenuItemSelected, "マイリスト"),
-				new PageTypeSelectableItem(HohoemaPageType.History, OnMenuItemSelected, "視聴履歴"),
+				new PageTypeSelectableItem(HohoemaPageType.FavoriteList		  , OnMenuItemSelected, "お気に入り"),
+				new PageTypeSelectableItem(HohoemaPageType.UserMylist		  , OnMenuItemSelected, "マイリスト"),
+				new PageTypeSelectableItem(HohoemaPageType.History			  , OnMenuItemSelected, "視聴履歴"),
 			};
 
 			PersonalMenuItems = new List<PageTypeSelectableItem>()
