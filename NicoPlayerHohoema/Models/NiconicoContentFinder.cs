@@ -109,7 +109,7 @@ namespace NicoPlayerHohoema.Models
 			});
 		}
 
-		public async Task<MylistListResponse> GetMylistItems(string mylistGroupid, uint from = 0, uint limit = 50)
+		public async Task<NicoVideoResponse> GetMylistItems(string mylistGroupid, uint from = 0, uint limit = 50)
 		{
 			return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
@@ -152,15 +152,11 @@ namespace NicoPlayerHohoema.Models
 			return await _HohoemaApp.NiconicoContext.User.GetUserVideos(userId, page, sortMethod, sortDir);
 		}
 
-		public async Task GetRelatedVideos()
+		public async Task<NicoVideoResponse> GetRelatedVideos(string videoId, uint from, uint limit, SortMethod sortMethod = SortMethod.FirstRetrieve, SortDirection sortDir = SortDirection.Descending)
 		{
-			
+			return await _HohoemaApp.NiconicoContext.Video.GetRelatedVideoAsync(videoId, from, limit, sortMethod, sortDir);
 		}
 
-		public async Task GetIchiba()
-		{
-			
-		}
 
 
 		HohoemaApp _HohoemaApp;

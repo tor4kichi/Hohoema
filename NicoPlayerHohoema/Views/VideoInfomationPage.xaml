@@ -116,27 +116,12 @@
 
                     <Border toolkit:DockPanel.Dock="Bottom">
                         <StackPanel Orientation="Horizontal">
-                            <StackPanel 
-                                x:Name="UserInfo"
-                                Background="WhiteSmoke"
-                                Orientation="Horizontal"
-                                Padding="8"
-                                Margin="0"
-                                >
-                                <Image Source="{Binding UserIconUrl}" 
-                                    Margin="0 0 8 0"
-                                    Width="32"
-                                    Height="32"
-                                    />
-                                <TextBlock Text="{Binding UserName}"
-                                    VerticalAlignment="Center"
-                                    />
-                            </StackPanel>
+                            
 
                             <StackPanel x:Name="CountInfo"
                                     Orientation="Horizontal" 
                                         VerticalAlignment="Center"
-                                    Margin="16 0 0 0"
+                                    Margin="8 0 0 0"
                                     >
                                 <TextBlock Margin="8 0">
                                     <Run Text="再生"/>
@@ -151,7 +136,26 @@
                                     <Run Text="{Binding MylistCount}" />
                                 </TextBlock>
                             </StackPanel>
-                            
+
+
+                            <StackPanel 
+                                x:Name="UserInfo"
+                                Background="WhiteSmoke"
+                                Orientation="Horizontal"
+                                Padding="8"
+                                Margin="16 0 0 0"
+                                >
+                                <Image Source="{Binding UserIconUrl}" 
+                                    Margin="0 0 8 0"
+                                    Width="32"
+                                    Height="32"
+                                    />
+                                <TextBlock Text="{Binding UserName}"
+                                    VerticalAlignment="Center"
+                                           Margin="8 0"
+                                    />
+                            </StackPanel>
+
                         </StackPanel>
                         
                     </Border>
@@ -161,8 +165,9 @@
                     <Border Margin="8 8 8 16">
                         <TextBlock Text="{Binding Title}" 
                                    TextWrapping="Wrap"
-                                   FontWeight="Bold"
+                                   FontWeight="SemiBold"
                                    FontSize="20"
+                                   Margin="8 0 0 0"
                                    />
                     </Border>
                     
@@ -184,7 +189,7 @@
         
         <ScrollViewer
                     VerticalScrollMode="Auto"
-                    VerticalScrollBarVisibility="Auto"
+                    VerticalScrollBarVisibility="Visible"
                 >
 
             <ItemsControl ItemsSource="{Binding VideoInfoContentItems}"

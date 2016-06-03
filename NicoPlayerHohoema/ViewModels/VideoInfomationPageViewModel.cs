@@ -111,6 +111,8 @@ namespace NicoPlayerHohoema.ViewModels
 				CommentCount = ThumbnailResponse.CommentCount;
 				MylistCount = ThumbnailResponse.MylistCount;
 				ThumbnailUrl = ThumbnailResponse.ThumbnailUrl;
+
+				
 			}
 			catch (Exception exception)
 			{
@@ -124,13 +126,16 @@ namespace NicoPlayerHohoema.ViewModels
 
 			var uri = await VideoDescriptionHelper.PartHtmlOutputToCompletlyHtml(VideoId, VideoInfo.videoDetail.description);
 
+			RelationVideoInfoContentViewModel relatedVideoVM = new RelationVideoInfoContentViewModel(VideoId, _HohoemaApp.ContentFinder, _HohoemaApp.UserSettings.NGSettings, _PageManager);
 			VideoInfoContentItems = new List<MediaInfoViewModel>()
 			{
 				new SummaryVideoInfoContentViewModel(ThumbnailResponse, uri, _PageManager),
 				new TagsVideoInfoContentViewModel(ThumbnailResponse, _PageManager),
-				new RelationVideoInfoContentViewModel(VideoId, _HohoemaApp.ContentFinder),
-				new IchibaVideoInfoContentViewModel(VideoId, _HohoemaApp.ContentFinder)
+				relatedVideoVM,
+//				new IchibaVideoInfoContentViewModel(VideoId, _HohoemaApp.ContentFinder)
 			};
+
+			await relatedVideoVM.LoadRelatedVideo();
 
 
 			OnPropertyChanged(nameof(VideoInfoContentItems));
