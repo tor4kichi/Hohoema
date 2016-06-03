@@ -132,6 +132,7 @@
     <Compile Include="ViewModels\PortalContent\HistoryPortalPageContentViewModel.cs" />
     <Compile Include="ViewModels\SearchViewModel.cs" />
     <Compile Include="ViewModels\UserMylistPageViewModel.cs" />
+    <Compile Include="ViewModels\VideoInfoContent\TagsVideoInfoContentViewModel.cs" />
     <Compile Include="Views\AboutPage.xaml.cs">
       <DependentUpon>AboutPage.xaml</DependentUpon>
     </Compile>
@@ -202,6 +203,9 @@
     </Compile>
     <Compile Include="Views\UserMylistPage.xaml.cs">
       <DependentUpon>UserMylistPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\VideoInfoContent\TagsVideoIncoContent.xaml.cs">
+      <DependentUpon>TagsVideoIncoContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\VideoPlayerPage.xaml.cs">
       <DependentUpon>VideoPlayerPage.xaml</DependentUpon>
@@ -346,6 +350,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\UserMylistPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\VideoInfoContent\TagsVideoIncoContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

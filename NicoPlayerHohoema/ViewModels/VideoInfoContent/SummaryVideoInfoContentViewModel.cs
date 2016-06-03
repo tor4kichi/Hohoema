@@ -31,10 +31,7 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 			CommentCount = thumbnail.CommentCount;
 			MylistCount = thumbnail.MylistCount;
 
-			Tags = thumbnail.Tags.Value
-				.Select(x => new TagViewModel(x))
-				.ToList();
-
+			
 			VideoDescriptionUri = descriptionHtmlUri;
 		}
 
@@ -96,8 +93,7 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 		}
 
 
-		public List<TagViewModel> Tags { get; private set; }
-
+		
 		ThumbnailResponse _ThumbnailResponse;
 		PageManager _PageManager;
 	}

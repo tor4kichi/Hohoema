@@ -13,7 +13,47 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <Grid>
-        <TextBlock Text="関連動画" />
-    </Grid>
+    <UserControl.Resources>
+        <DataTemplate x:Key="RelatedVideoInfoTemplate">
+            <Button Command="{Binding ShowDetailCommand}" Margin="8">
+                <toolkit:DockPanel>
+                    <Border toolkit:DockPanel.Dock="Left" Visibility="Collapsed">
+                        <Image Source="{Binding ThumbnailUrl}"
+                           Width="90"
+                           >
+
+                        </Image>
+
+
+                    </Border>
+
+                    <Border Margin="8 0">
+                        <TextBlock Text="{Binding Title}"
+                               TextWrapping="Wrap"
+                               VerticalAlignment="Center"
+                               />
+                    </Border>
+                </toolkit:DockPanel>
+            </Button>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <toolkit:DockPanel>
+
+        <Border toolkit:DockPanel.Dock="Top" Margin="0 8">
+            <TextBlock Text="関連動画" />
+
+        </Border>
+
+
+        <Border>
+            <ItemsControl ItemsSource="{Binding RelatedVideos}"
+                          ItemTemplate="{StaticResource RelatedVideoInfoTemplate}"
+                          >
+                
+            </ItemsControl>
+        </Border>
+        
+        
+    </toolkit:DockPanel>
 </UserControl>

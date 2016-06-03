@@ -15,12 +15,19 @@
     d:DesignWidth="1200"
     d:DesignHeight="720"
     >
+    
 
+   
 
     <Page.Resources>
         <DataTemplate x:Key="SummaryVideoInfoContentTemplate" >
-            <videoInfo:SummaryVideoInfoContent />
+            <videoInfo:SummaryVideoInfoContent Width="600" />
         </DataTemplate>
+        
+        <DataTemplate x:Key="TagsVideoInfoContentTemplate">
+            <videoInfo:TagsVideoIncoContent />
+        </DataTemplate>
+        
         <DataTemplate x:Key="RelationVideoInfoContentTemplate" >
             <videoInfo:RelationVideoInfoContent />
         </DataTemplate>
@@ -29,8 +36,10 @@
         </DataTemplate>
 
 
+
         <local:VideoInfoContentTemplateSelector x:Key="VideoInfoContentTemplateSelector"
                                                 Summary="{StaticResource SummaryVideoInfoContentTemplate}"
+                                                Tags="{StaticResource TagsVideoInfoContentTemplate}"
                                                 Relation="{StaticResource RelationVideoInfoContentTemplate}"
                                                 Ichiba="{StaticResource IchibaVideoInfoContentTemplate}"
                                                 >
@@ -38,135 +47,181 @@
         </local:VideoInfoContentTemplateSelector>
     </Page.Resources>
 
-    <toolkit:DockPanel Margin="16">
-        <RelativePanel Margin="16 0 0 0"
-                       toolkit:DockPanel.Dock="Top"
-                       >
+    <toolkit:DockPanel>
+        <!--  Bottom App bar-->
+        <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 0 16 0">
+                <AppBarButton Icon="Play" 
+                          Label="Play" 
+                          Command="{Binding PlayVideoCommand}" />
 
-            <VisualStateManager.VisualStateGroups>
-                <VisualStateGroup>
+                <AppBarSeparator />
 
-                    <!-- Landscape -->
-                    <VisualState>
-                        <VisualState.StateTriggers>
-                            <AdaptiveTrigger MinWindowWidth="720" />
-                        </VisualState.StateTriggers>
+                <AppBarButton Icon="Download"
+                              Label="キャッシュを保存"
+                              />
 
-                        <VisualState.Setters>
-                            <Setter Target="UserInfo.(RelativePanel.AlignLeftWith)" Value="TitleText" />
-                            <Setter Target="MainContent.(RelativePanel.AlignLeftWith)" Value="TitleText" />
-                        </VisualState.Setters>
-                    </VisualState>
+                <AppBarButton Icon="Add" 
+                              />
 
 
-                    <!-- Portrait -->
-                    <VisualState>
-                        <VisualState.StateTriggers>
-                            <AdaptiveTrigger MinWindowWidth="0" />
-                        </VisualState.StateTriggers>
 
-                        <VisualState.Setters>
-                            <Setter Target="UserInfo.(RelativePanel.AlignLeftWith)" Value="BackButton" />
-
-                        </VisualState.Setters>
-                    </VisualState>
-                </VisualStateGroup>
-            </VisualStateManager.VisualStateGroups>
-
-
-            <AppBarButton x:Name="BackButton"
-                      Command="{Binding NavigationBackCommand}"
-                      RelativePanel.AlignLeftWithPanel="True"
-                      Margin="16 0"
-                      
-            Icon="Back"/>
-
-            <TextBlock x:Name="TitleText"
-            Text="{Binding Title}"
-                   FontSize="28"
-                   RelativePanel.RightOf="BackButton"
-                   Width="600"
-                   
-                   Margin="0 0 0 32"
-                   />
-
-
-            <StackPanel 
-            x:Name="UserInfo"
-            Background="WhiteSmoke"
-            Orientation="Horizontal"
-            Padding="8"
-            Margin="0"
-            RelativePanel.Below="TitleText"
-            >
-                <Image Source="{Binding UserIconUrl}" 
-                                Margin="0 0 8 0"
-                                Width="48"
-                                Height="48"
-                                />
-                <TextBlock Text="{Binding UserName}"
-                                    VerticalAlignment="Center"
-                                    />
             </StackPanel>
+        </toolkit:DockPanel>
+        <StackPanel toolkit:DockPanel.Dock="Top">
 
+           
 
-            <StackPanel x:Name="CountInfo"
-                    Orientation="Horizontal" 
-                    Margin="16 0 0 0"
-                    RelativePanel.AlignBottomWith="UserInfo"
-                    RelativePanel.RightOf="UserInfo"
-                                    >
-                <TextBlock Margin="8 0">
-                                <Run Text="再生"/>
-                                <Run Text="{Binding PlayCount}" />
-                </TextBlock>
-                <TextBlock Margin="8 0">
-                                <Run Text="コメ"/>
-                                <Run Text="{Binding CommentCount}" />
-                </TextBlock>
-                <TextBlock Margin="8 0">
-                                <Run Text="マイ"/>
-                                <Run Text="{Binding MylistCount}" />
-                </TextBlock>
-            </StackPanel>
-
-            <toolkit:DockPanel x:Name="ActionButtons" 
-                           RelativePanel.RightOf="TitleText"
-                           Margin="64 32"
-                           >
-                <Button Content="Play" Command="{Binding PlayVideoCommand}"
-                    
-                    Width="120"
-                    Height="80"
-                    ></Button>
-            </toolkit:DockPanel>
-
-
-
-        </RelativePanel>
-
-
-
-
-        <ScrollViewer
-            VerticalScrollMode="Disabled"
             
-            >
+            <StackPanel Margin="16 0 0 0"
+                    toolkit:DockPanel.Dock="Top"
+                    >
+
+                <VisualStateManager.VisualStateGroups>
+                    <VisualStateGroup>
+
+                        <!-- Landscape -->
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <AdaptiveTrigger MinWindowWidth="720" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                            </VisualState.Setters>
+                        </VisualState>
+
+
+                        <!-- Portrait -->
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <AdaptiveTrigger MinWindowWidth="0" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateManager.VisualStateGroups>
+
+
+                <toolkit:DockPanel Margin="0 0 0 8">
+
+                    <Border toolkit:DockPanel.Dock="Left">
+                        <Image Source="{Binding ThumbnailUrl}"
+                               Width="90"
+                               Margin="8"
+                               />
+                    </Border>
+
+                    <Border toolkit:DockPanel.Dock="Bottom">
+                        <StackPanel Orientation="Horizontal">
+                            
+
+                            <StackPanel x:Name="CountInfo"
+                                    Orientation="Horizontal" 
+                                        VerticalAlignment="Center"
+                                    Margin="8 0 0 0"
+                                    >
+                                <TextBlock Margin="8 0">
+                                    <Run Text="再生"/>
+                                    <Run Text="{Binding PlayCount}" />
+                                        </TextBlock>
+                                        <TextBlock Margin="8 0">
+                                    <Run Text="コメ"/>
+                                    <Run Text="{Binding CommentCount}" />
+                                        </TextBlock>
+                                        <TextBlock Margin="8 0">
+                                    <Run Text="マイ"/>
+                                    <Run Text="{Binding MylistCount}" />
+                                </TextBlock>
+                            </StackPanel>
+
+
+                            <StackPanel 
+                                x:Name="UserInfo"
+                                Background="WhiteSmoke"
+                                Orientation="Horizontal"
+                                Padding="8"
+                                Margin="16 0 0 0"
+                                >
+                                <Image Source="{Binding UserIconUrl}" 
+                                    Margin="0 0 8 0"
+                                    Width="32"
+                                    Height="32"
+                                    />
+                                <TextBlock Text="{Binding UserName}"
+                                    VerticalAlignment="Center"
+                                           Margin="8 0"
+                                    />
+                            </StackPanel>
+
+                        </StackPanel>
+                        
+                    </Border>
+
+                    
+
+                    <Border Margin="8 8 8 16">
+                        <TextBlock Text="{Binding Title}" 
+                                   TextWrapping="Wrap"
+                                   FontWeight="SemiBold"
+                                   FontSize="20"
+                                   Margin="8 0 0 0"
+                                   />
+                    </Border>
+                    
+                </toolkit:DockPanel>
+                
+                
+
+
+
+                
+
+
+            </StackPanel>
+
+            
+        </StackPanel>
+
+        
+        
+        <ScrollViewer
+                    VerticalScrollMode="Auto"
+                    VerticalScrollBarVisibility="Visible"
+                >
 
             <ItemsControl ItemsSource="{Binding VideoInfoContentItems}"
-                          ItemTemplateSelector="{StaticResource VideoInfoContentTemplateSelector}"
-                          >
+                        ItemTemplateSelector="{StaticResource VideoInfoContentTemplateSelector}"
+                          
+                        >
+
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="HorizontalAlignment" Value="Left" />
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal" />
+                        <StackPanel Orientation="Vertical" Margin="8" />
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
 
             </ItemsControl>
 
         </ScrollViewer>
-        
+
     </toolkit:DockPanel>
+    
+       
+
+
+
+
+    
+        
     
 
 

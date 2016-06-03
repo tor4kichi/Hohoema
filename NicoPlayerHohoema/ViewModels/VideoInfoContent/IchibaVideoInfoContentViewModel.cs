@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NicoPlayerHohoema.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 {
 	public class IchibaVideoInfoContentViewModel : MediaInfoViewModel
 	{
-		public IchibaVideoInfoContentViewModel(string videoId)
+		public IchibaVideoInfoContentViewModel(string videoId, NiconicoContentFinder contentFinder)
 		{
 
 		}
