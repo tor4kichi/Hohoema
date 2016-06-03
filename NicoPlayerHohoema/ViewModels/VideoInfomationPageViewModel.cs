@@ -110,6 +110,7 @@ namespace NicoPlayerHohoema.ViewModels
 				PlayCount = ThumbnailResponse.ViewCount;
 				CommentCount = ThumbnailResponse.CommentCount;
 				MylistCount = ThumbnailResponse.MylistCount;
+				ThumbnailUrl = ThumbnailResponse.ThumbnailUrl;
 			}
 			catch (Exception exception)
 			{
@@ -117,7 +118,7 @@ namespace NicoPlayerHohoema.ViewModels
 				System.Diagnostics.Debug.Write(exception.Message);
 			}
 
-
+//			_PageManager.PageTitle = Title;
 
 
 
@@ -126,8 +127,9 @@ namespace NicoPlayerHohoema.ViewModels
 			VideoInfoContentItems = new List<MediaInfoViewModel>()
 			{
 				new SummaryVideoInfoContentViewModel(ThumbnailResponse, uri, _PageManager),
-				new RelationVideoInfoContentViewModel(VideoId),
-				new IchibaVideoInfoContentViewModel(VideoId)
+				new TagsVideoInfoContentViewModel(ThumbnailResponse, _PageManager),
+				new RelationVideoInfoContentViewModel(VideoId, _HohoemaApp.ContentFinder),
+				new IchibaVideoInfoContentViewModel(VideoId, _HohoemaApp.ContentFinder)
 			};
 
 
@@ -248,6 +250,12 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _MylistCount, value); }
 		}
 
+		private Uri _ThumbnailUrl;
+		public Uri ThumbnailUrl
+		{
+			get { return _ThumbnailUrl; }
+			set { SetProperty(ref _ThumbnailUrl, value); }
+		}
 
 		private HohoemaApp _HohoemaApp;
 		private PageManager _PageManager;

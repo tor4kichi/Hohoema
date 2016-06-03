@@ -32,14 +32,14 @@ namespace NicoPlayerHohoema.Views.Behaviors
 			int height;
 			if (int.TryParse(heightString, out height))
 			{
-				this.AssociatedObject.MinHeight = height;
+				this.AssociatedObject.Height = height;
 			}
 
 			var widthString = await this.AssociatedObject.InvokeScriptAsync("eval", new[] { "document.body.scrollWidth.toString()" });
 			int width;
 			if (int.TryParse(widthString, out width))
 			{
-				this.AssociatedObject.MinWidth = width;
+				this.AssociatedObject.Width = width;
 			}
 		}
 

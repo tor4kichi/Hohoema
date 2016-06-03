@@ -9,9 +9,9 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 
 	public class RelationVideoInfoContentViewModel : MediaInfoViewModel
 	{
-		public RelationVideoInfoContentViewModel(string videoId)
+		public RelationVideoInfoContentViewModel(string videoId, Models.NiconicoContentFinder contentFinder)
 		{
-
+			
 		}
 
 		

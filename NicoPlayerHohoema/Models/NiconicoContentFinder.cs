@@ -152,7 +152,15 @@ namespace NicoPlayerHohoema.Models
 			return await _HohoemaApp.NiconicoContext.User.GetUserVideos(userId, page, sortMethod, sortDir);
 		}
 
+		public async Task GetRelatedVideos()
+		{
+			
+		}
 
+		public async Task GetIchiba()
+		{
+			
+		}
 
 
 		HohoemaApp _HohoemaApp;
