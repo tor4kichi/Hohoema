@@ -69,23 +69,11 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					if (VideoId == null) { return; }
 
-					if (await _HohoemaApp.CheckSignedInStatus() == NiconicoSignInStatus.Success)
-					{
-						await _HohoemaApp.NiconicoContext.Video.GetWatchApiAsync(VideoId)
-							.ContinueWith(async prevTask =>
-							{
-								await currentUIDispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-								{
-									VideoInfo = prevTask.Result;
-								});
-							});
-					}
-					else
-					{
-						// ログインに失敗
-						VideoInfo = null;
-					}
+					NicoVideo = await _HohoemaApp.MediaManager.CreateNicoVideoAccessor(VideoId);
 
+					VideoInfo = await NicoVideo.GetVideoInfo();
+
+					SaveVideoCommand.RaiseCanExecuteChanged();
 				}
 				catch (Exception exception)
 				{
@@ -181,7 +169,25 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+		private DelegateCommand _SaveVideoCommand;
+		public DelegateCommand SaveVideoCommand
+		{
+			get
+			{
+				return _SaveVideoCommand
+					?? (_SaveVideoCommand = new DelegateCommand(async () =>
+					{
+						await NicoVideo.RequestCache(NicoVideoQuority.Original);
+					}
+					, () => NicoVideo != null
+					));
+			}
+		}
 
+		
+
+
+		public NicoVideo NicoVideo { get; private set; }
 
 		public string VideoId { get; private set; }
 
@@ -260,6 +266,13 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			get { return _ThumbnailUrl; }
 			set { SetProperty(ref _ThumbnailUrl, value); }
+		}
+
+		private bool _NowDownload;
+		public bool NowDownload
+		{
+			get { return _NowDownload; }
+			set { SetProperty(ref _NowDownload, value); }
 		}
 
 		private HohoemaApp _HohoemaApp;

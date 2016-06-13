@@ -108,6 +108,7 @@
     <Compile Include="Models\HohoemaUserSettings.cs" />
     <Compile Include="Models\NiconicoContentFinder.cs" />
     <Compile Include="Models\NiconicoMediaManager.cs" />
+    <Compile Include="Models\NicoVideoCachedStream.cs" />
     <Compile Include="Models\PageManager.cs" />
     <Compile Include="Models\PlayerDisplayMode.cs" />
     <Compile Include="Models\SearchOption.cs" />

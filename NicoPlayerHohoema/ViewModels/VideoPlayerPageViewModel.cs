@@ -74,13 +74,14 @@ namespace NicoPlayerHohoema.ViewModels
 			SoundVolume = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0.5);
 
 
-			this.ObserveProperty(x => x.VideoInfo)
+			this.ObserveProperty(x => x.Video)
 				.Subscribe(async x =>
 				{
 					if (x != null)
 					{
-						CommentData.Value = await GetComment(x);
-						VideoLength.Value = x.Length.TotalSeconds;
+						var res = await x.GetVideoInfo();
+						CommentData.Value = await GetComment(res);
+						VideoLength.Value = res.Length.TotalSeconds;
 						SliderVideoPosition.Value = 0;
 					}
 				});
@@ -336,11 +337,11 @@ namespace NicoPlayerHohoema.ViewModels
 			
 			if (e?.Parameter is string)
 			{
-				SourceVideoUrl = e.Parameter as string;
+				VideoId = e.Parameter as string;
 			}
-			else if(viewModelState.ContainsKey(nameof(CurrentVideoUrl)))
+			else if(viewModelState.ContainsKey(nameof(VideoId)))
 			{
-				SourceVideoUrl = (string)viewModelState[nameof(CurrentVideoUrl)];
+				VideoId = (string)viewModelState[nameof(VideoId)];
 			}
 
 
@@ -349,31 +350,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 			try
 			{
-				if (SourceVideoUrl == null) { return; }
+				Video = await _HohoemaApp.MediaManager.CreateNicoVideoAccessor(VideoId);
 
-				if (await _HohoemaApp.CheckSignedInStatus() == NiconicoSignInStatus.Success)
-				{
-					var videoId = SourceVideoUrl.Split('/').Last();
-
-					await _HohoemaApp.NiconicoContext.Video.GetWatchApiAsync(videoId)
-						.ContinueWith(async prevTask =>
-						{
-							await currentUIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-							{
-								VideoInfo = prevTask.Result;
-
-
-								VideoStream.Value = await Util.HttpRandomAccessStream.CreateAsync(_HohoemaApp.NiconicoContext.HttpClient, VideoInfo.VideoUrl);
-
-								OnPropertyChanged(nameof(CurrentVideoUrl));
-							});
-						});
-				}
-				else
-				{
-					// ログインに失敗
-					VideoInfo = null;
-				}
+				VideoStream.Value = await Video.GetVideoStream(NicoVideoCacheMode.Low);				
 			}
 			catch (Exception exception)
 			{
@@ -393,8 +372,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 		private async Task<CommentResponse> GetComment(FlvResponse response)
 		{
-			return await this._HohoemaApp.NiconicoContext.Video
-					.GetCommentAsync(response);
+			if (Video == null) { return null; }
+
+			return await Video.GetComment();
+//			return await this._HohoemaApp.NiconicoContext.Video
+//					.GetCommentAsync(response);
 		}
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
@@ -411,7 +393,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			if (suspending)
 			{
-				viewModelState.Add(nameof(CurrentVideoUrl), SourceVideoUrl);
+				viewModelState.Add(nameof(VideoId), VideoId);
 				viewModelState.Add(nameof(CurrentVideoPosition), CurrentVideoPosition.Value.TotalSeconds);
 			}
 			base.OnNavigatingFrom(e, viewModelState, suspending);
@@ -419,7 +401,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public void Dispose()
 		{
-			
+			Video?.StopPlay();
 
 			VideoStream.Value?.Dispose();
 		}
@@ -478,35 +460,20 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<CommentResponse> CommentData { get; private set; }
 
-		private WatchApiResponse _VideoInfo;
-		public WatchApiResponse VideoInfo
+		private NicoVideo _Video;
+		public NicoVideo Video
 		{
-			get { return _VideoInfo; }
-			set { SetProperty(ref _VideoInfo, value); }
+			get { return _Video; }
+			set { SetProperty(ref _Video, value); }
 		}
 
-		private string _SourceVideoUrl;
-		public string SourceVideoUrl
+		private string _VideoId;
+		public string VideoId
 		{
-			get
-			{
-				return _SourceVideoUrl;
-			}
-			set
-			{
-				SetProperty(ref _SourceVideoUrl, value);
-			}
+			get { return _VideoId; }
+			set { SetProperty(ref _VideoId, value); }
 		}
-
-
-		public string CurrentVideoUrl
-		{
-			get
-			{
-				return VideoInfo?.VideoUrl?.AbsoluteUri ?? String.Empty;
-			}
-		}
-
+		
 		public ReactiveProperty<IRandomAccessStream> VideoStream { get; private set; }
 	
 		public ReactiveProperty<TimeSpan> CurrentVideoPosition { get; private set; }

@@ -97,7 +97,7 @@ namespace NicoPlayerHohoema
 
 		protected override async Task OnInitializeAsync(IActivatedEventArgs args)
 		{
-			RegisterTypes();
+			await RegisterTypes();
 
 			var hohoemaApp = Container.Resolve<HohoemaApp>();
 			await hohoemaApp.LoadUserSettings();
@@ -122,10 +122,10 @@ namespace NicoPlayerHohoema
 		}
 
 
-		private void RegisterTypes()
+		private async Task RegisterTypes()
 		{
 			// Models
-			var hohoemaApp = new HohoemaApp(EventAggregator);
+			var hohoemaApp = await HohoemaApp.Create(EventAggregator);
 			Container.RegisterInstance(hohoemaApp);
 			Container.RegisterInstance(new PageManager(NavigationService));
 			Container.RegisterInstance(hohoemaApp.MediaManager);

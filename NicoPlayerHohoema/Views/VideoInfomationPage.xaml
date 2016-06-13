@@ -59,6 +59,7 @@
 
                 <AppBarButton Icon="Download"
                               Label="キャッシュを保存"
+                              Command="{Binding SaveVideoCommand}"
                               />
 
                 <AppBarButton Icon="Add" 
