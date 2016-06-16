@@ -140,6 +140,8 @@ namespace NicoPlayerHohoema.Views.Behaviors
 		{
 			_NextHideTime = DateTime.Now + Delay;
 
+			tokenSource = new CancellationTokenSource();
+
 			_Timer = new Timer(async (state) => 
 			{
 				await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Low, () =>
@@ -157,8 +159,9 @@ namespace NicoPlayerHohoema.Views.Behaviors
 				});
 			}
 			, this, Delay, TimeSpan.FromMilliseconds(25));
-
 			
+
+
 		}
 
 		private void DisableteAutoHide()
@@ -168,9 +171,11 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
 			this.AssociatedObject.Visibility = Visibility.Visible;
 			CoreWindow.GetForCurrentThread().PointerCursor = _CoreCursor;
+			
 		}
 
 
+		CancellationTokenSource tokenSource;
 
 		CoreCursor _CoreCursor;
 		DateTime _PrevPreventTime;

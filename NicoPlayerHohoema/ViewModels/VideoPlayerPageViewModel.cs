@@ -79,9 +79,8 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					if (x != null)
 					{
-						var res = await x.GetVideoInfo();
-						CommentData.Value = await GetComment(res);
-						VideoLength.Value = res.Length.TotalSeconds;
+						CommentData.Value = await GetComment();
+						VideoLength.Value = x.CachedWatchApiResponse.Length.TotalSeconds;
 						SliderVideoPosition.Value = 0;
 					}
 				});
@@ -337,7 +336,9 @@ namespace NicoPlayerHohoema.ViewModels
 			
 			if (e?.Parameter is string)
 			{
-				VideoId = e.Parameter as string;
+				var payload = VideoPlayPayload.FromParameterString(e.Parameter as string);
+				VideoId = payload.VideoId;
+				Quality = payload.Quality;
 			}
 			else if(viewModelState.ContainsKey(nameof(VideoId)))
 			{
@@ -352,7 +353,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				Video = await _HohoemaApp.MediaManager.CreateNicoVideoAccessor(VideoId);
 
-				VideoStream.Value = await Video.GetVideoStream(NicoVideoCacheMode.Low);				
+				VideoStream.Value = await Video.GetVideoStream(Quality);
 			}
 			catch (Exception exception)
 			{
@@ -370,7 +371,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		}
 
-		private async Task<CommentResponse> GetComment(FlvResponse response)
+		private async Task<CommentResponse> GetComment()
 		{
 			if (Video == null) { return null; }
 
@@ -383,10 +384,14 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			if (VideoStream.Value != null)
 			{
+				Video.StopPlay();
+
 				var stream = VideoStream.Value;
 				VideoStream.Value = null;
 
-				stream.Dispose();
+				// Note: VideoStopPlayによってストリームの管理が行われます
+				// これは再生後もダウンロードしている場合に対応するためです
+				// stream.Dispose();
 			}
 
 			Comments.Clear();
@@ -475,7 +480,10 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 		
 		public ReactiveProperty<IRandomAccessStream> VideoStream { get; private set; }
-	
+
+		// TODO: 動画再生中の動画画質の変更をサポート
+		public NicoVideoQuality Quality { get; private set; }
+
 		public ReactiveProperty<TimeSpan> CurrentVideoPosition { get; private set; }
 		public ReactiveProperty<TimeSpan> ReadVideoPosition { get; private set; }
 
