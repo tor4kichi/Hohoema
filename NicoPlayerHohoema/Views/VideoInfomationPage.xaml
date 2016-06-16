@@ -52,18 +52,42 @@
         <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 0 16 0">
                 <AppBarButton Icon="Play" 
-                          Label="Play" 
-                          Command="{Binding PlayVideoCommand}" />
+                              Label="Play" 
+                              Command="{Binding PlayOriginalQualityVideoCommand}" 
+                              IsEnabled="{Binding CanPlayOriginalQuality.Value}"    
+                              Visibility="{Binding IsLowQuality.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                              />
+
+
+                <AppBarButton Icon="Download"
+                              Label="キャッシュ保存"
+                              Command="{Binding SaveOriginalQualityVideoCommand}"
+                              IsEnabled="{Binding CanDownloadCacheOriginalQuality.Value}"    
+                              Visibility="{Binding IsLowQuality.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                              />
+
+                <AppBarButton Icon="Play" 
+                              Label="Play (低画質)" 
+                              Command="{Binding PlayLowQualityVideoCommand}" 
+                              IsEnabled="{Binding CanPlayLowQuality.Value}"    
+                              Visibility="{Binding IsLowQuality.Value, Converter={StaticResource BooleanToVisibility}}"                              
+                              />
+
+                <AppBarButton Icon="Download"
+                              Label="キャッシュ（低画質）保存"
+                              Command="{Binding SaveLowQualityVideoCommand}"
+                              IsEnabled="{Binding CanDownloadCacheLowQuality.Value}"    
+                              Visibility="{Binding IsLowQuality.Value, Converter={StaticResource BooleanToVisibility}}"                              
+                              />
 
                 <AppBarSeparator />
 
-                <AppBarButton Icon="Download"
-                              Label="キャッシュを保存"
-                              />
 
-                <AppBarButton Icon="Add" 
-                              />
-
+                <AppBarToggleButton Label="低画質モード" 
+                                    IsChecked="{Binding IsLowQuality.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    IsEnabled="{Binding NowRestrictedLowQualityMode, Converter={StaticResource InvertBoolean}}"
+                                    Visibility="{Binding IsOnlyOriginalQuality, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                    />
 
 
             </StackPanel>

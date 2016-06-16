@@ -108,13 +108,16 @@
     <Compile Include="Models\HohoemaUserSettings.cs" />
     <Compile Include="Models\NiconicoContentFinder.cs" />
     <Compile Include="Models\NiconicoMediaManager.cs" />
+    <Compile Include="Models\NicoVideoCachedStream.cs" />
     <Compile Include="Models\PageManager.cs" />
     <Compile Include="Models\PlayerDisplayMode.cs" />
     <Compile Include="Models\SearchOption.cs" />
     <Compile Include="Models\SearchTarget.cs" />
     <Compile Include="Models\VideoDescriptionHelper.cs" />
+    <Compile Include="Models\VideoPlayPayload.cs" />
     <Compile Include="Util\ColorExtention.cs" />
     <Compile Include="Util\ConnectionRetryUtil.cs" />
+    <Compile Include="Util\FilePathHelper.cs" />
     <Compile Include="Util\HttpRandomAccessStream.cs" />
     <Compile Include="Util\IncrementalLoadingCollection.cs" />
     <Compile Include="Util\NiconicoRankingExtention.cs" />

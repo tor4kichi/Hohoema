@@ -11,15 +11,24 @@ using Windows.Foundation;
 
 namespace NicoPlayerHohoema.Models
 {
-	public class HohoemaApp : BindableBase
+	public class HohoemaApp : BindableBase, IDisposable
 	{
-		public HohoemaApp(IEventAggregator ea)
+		public static async Task<HohoemaApp> Create(IEventAggregator ea)
+		{
+			var app = new HohoemaApp(ea);
+
+			app.UserSettings = new HohoemaUserSettings();
+			app.MediaManager = await NiconicoMediaManager.Create(app);
+			app.ContentFinder = new NiconicoContentFinder(app);
+
+			return app;
+		}
+
+
+		private HohoemaApp(IEventAggregator ea)
 		{
 			EventAggregator = ea;
-
-			UserSettings = new HohoemaUserSettings();
-			MediaManager = new NiconicoMediaManager(this);
-			ContentFinder = new NiconicoContentFinder(this);
+			
 			FavFeedManager = null;
 		}
 
@@ -98,8 +107,10 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
-
-	
+		public void Dispose()
+		{
+			MediaManager?.Dispose();
+		}
 
 		public HohoemaUserSettings UserSettings { get; private set; }
 
