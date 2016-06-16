@@ -471,6 +471,8 @@ namespace NicoPlayerHohoema.Models
 				ulong head = start + (uint)division * BUFFER_SIZE;
 				var inputstream = await base.ReadRequestAsync(head).ConfigureAwait(false);
 				await DownloadAndWriteToFile(inputStream, head, mod);
+
+				await Task.Delay(DownloadInterval).ConfigureAwait(false);
 			}
 
 		}

@@ -567,11 +567,11 @@ namespace NicoPlayerHohoema.Models
 				{
 					OriginalQualityCacheState = NicoVideoCacheState.CanNotDownload;
 				}
-				else if (_Context.CheckCacheRequested(this.VideoId, NicoVideoQuality.Original))
+				else if (_Context.CheckCacheRequested(this.RealVideoId, NicoVideoQuality.Original))
 				{
 					OriginalQualityCacheState = NicoVideoCacheState.CacheRequested;
 				}
-				else if (_Context.CheckVideoDownloading(this.VideoId, NicoVideoQuality.Original))
+				else if (_Context.CheckVideoDownloading(this.RealVideoId, NicoVideoQuality.Original))
 				{
 					OriginalQualityCacheState = NicoVideoCacheState.NowDownloading;
 				}
@@ -595,11 +595,11 @@ namespace NicoPlayerHohoema.Models
 				{
 					LowQualityCacheState = NicoVideoCacheState.CanNotDownload;
 				}
-				else if (_Context.CheckCacheRequested(this.VideoId, NicoVideoQuality.Low))
+				else if (_Context.CheckCacheRequested(this.RealVideoId, NicoVideoQuality.Low))
 				{
 					LowQualityCacheState = NicoVideoCacheState.CacheRequested;
 				}
-				else if (_Context.CheckVideoDownloading(this.VideoId, NicoVideoQuality.Low))
+				else if (_Context.CheckVideoDownloading(this.RealVideoId, NicoVideoQuality.Low))
 				{
 					LowQualityCacheState = NicoVideoCacheState.NowDownloading;
 				}
@@ -613,7 +613,7 @@ namespace NicoPlayerHohoema.Models
 		// コメントのキャッシュまたはオンラインからの取得と更新
 		public async Task<CommentResponse> GetComment()
 		{
-			var fileName = $"{VideoId}_comment.json";
+			var fileName = $"{RealVideoId}_comment.json";
 
 			CommentResponse comment = null;
 			try
@@ -705,6 +705,8 @@ namespace NicoPlayerHohoema.Models
 
 			if (watchApiRes != null)
 			{
+				RealVideoId = CachedWatchApiResponse.videoDetail.id;
+
 				var jsonText = Newtonsoft.Json.JsonConvert.SerializeObject(watchApiRes);
 				var videoInfoFile = await saveFolder.CreateFileAsync(fileName, CreationCollisionOption.OpenIfExists);
 				try
@@ -717,6 +719,20 @@ namespace NicoPlayerHohoema.Models
 				finally
 				{
 					_VideoInfoFileWriteSemaphore.Release();
+				}
+
+
+				if (VideoId != RealVideoId)
+				{
+					var aliasDescriptionFilename = $"{VideoId}_real_id_is_[{RealVideoId}]";
+					if (!File.Exists(Path.Combine(saveFolder.Path, aliasDescriptionFilename)))
+					{
+						try
+						{
+							await saveFolder.CreateFileAsync(aliasDescriptionFilename, CreationCollisionOption.FailIfExists);
+						}
+						catch { }
+					}
 				}
 			}
 			else 
@@ -783,7 +799,7 @@ namespace NicoPlayerHohoema.Models
 
 		private void _Context_OnCacheCompleted(string videoId, bool isSuccess)
 		{
-			if (videoId == VideoId)
+			if (videoId == RealVideoId)
 			{
 				LowQualityCacheState = NicoVideoCacheState.CanDownload;
 				OriginalQualityCacheState = NicoVideoCacheState.CanDownload;
@@ -797,7 +813,7 @@ namespace NicoPlayerHohoema.Models
 
 		public void StopPlay()
 		{
-			_Context.ClosePlayingStream(VideoId);
+			_Context.ClosePlayingStream(RealVideoId);
 		}
 
 
@@ -826,6 +842,7 @@ namespace NicoPlayerHohoema.Models
 		private SemaphoreSlim _VideoInfoFileWriteSemaphore;
 		private SemaphoreSlim _CommentFileWriteSemaphore;
 
+		public string RealVideoId { get; private set; }
 		public string VideoId { get; private set; }
 
 		private NicoVideoCacheState _OriginalQualityCacheState;
