@@ -27,6 +27,7 @@ namespace NicoPlayerHohoema.Util
 			string g = hc.Substring(2, 2);
 			string b = hc.Substring(4, 2);
 			Color color = new Color();
+			color.A = 0xff;
 			try
 			{
 				byte ri

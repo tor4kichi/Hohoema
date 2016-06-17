@@ -141,7 +141,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
 			_NextHideTime = DateTime.Now + Delay;
 
 			tokenSource = new CancellationTokenSource();
-
+			
 			_Timer = new Timer(async (state) => 
 			{
 				await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Low, () =>

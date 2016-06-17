@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -116,28 +117,25 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 					if (comment == null) { return true; }
 
-					var width = (int)x.DesiredSize.Width;
-					var localVPos = currentVPos - comment.VideoPosition;
-					return localVPos < width;
+					return x.IsCompleteInsideScreen((int)this.ActualWidth, Math.Max(currentVPos - 50, 0));
 				})
 				.ToArray();
 
 
 			foreach (var remove in removeTargets)
 			{
-
 				var index = NextVerticalPosition.IndexOf(remove);
 				NextVerticalPosition[index] = null;
+
+				Debug.WriteLine($"VPos remove " + index);
 			}
 		}
 		
 		private void OnUpdate()
 		{
-			const uint CommentDisplayTime = 300; // 3秒
-
 			var currentVpos = (uint)Math.Floor(VideoPosition.TotalMilliseconds * 0.1);
 			var canvasWidth = CommentCanvas.ActualWidth;
-
+			var canvasHeight = CommentCanvas.ActualHeight;
 
 			// 非表示時は処理を行わない
 			if (Visibility == Visibility.Collapsed)
@@ -164,7 +162,10 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 
 			// 表示すべきコメントを抽出して、表示対象として未登録のコメントを登録処理する
-			BinarySearch(currentVpos, currentVpos + CommentDisplayTime, (comment) =>
+
+			var search = BinarySearch(currentVpos);
+
+			foreach (var comment in search)
 			{
 				if (!RenderComments.ContainsKey(comment))
 				{
@@ -180,12 +181,13 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 					renderComment.UpdateLayout();
 
 					var verticalPos = CalcAndRegisterCommentVerticalPosition(renderComment);
-//					System.Diagnostics.Debug.WriteLine($"{renderComment.CommentData.CommentText} : V={verticalPos}");
+					System.Diagnostics.Debug.WriteLine($"V={verticalPos}: [{renderComment.CommentData.CommentText}]");
 					Canvas.SetTop(renderComment, verticalPos);
 				}
-			});
+			}
 
 			// 表示区間をすぎたコメントを表示対象から削除
+
 			var removeRenderComments = RenderComments.Where(x => CommentIsEndDisplay(x.Key, currentVpos)).ToArray();
 			foreach (var renderComment in removeRenderComments)
 			{
@@ -385,17 +387,14 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 
 
-		private void BinarySearch(uint start, uint end, Action<Comment> commentAction)
+		private List<Comment> BinarySearch(uint currentVpos)
 		{
-			var list = TimeSequescailComments.Keys;
-
-			foreach (var key in list.SkipWhile((x => x < start)).TakeWhile(x => x < end))
-			{
-				foreach (var comment in TimeSequescailComments[key])
-				{
-					commentAction(comment);
-				}
-			}
+			return TimeSequescailComments.Keys.Where(x => x < currentVpos)
+//				.AsParallel()
+				.Select(x => TimeSequescailComments[x])
+				.SelectMany(x => x.Where(y => currentVpos < y.EndPosition))
+//				.AsSequential()
+				.ToList();
 		}
 
 
