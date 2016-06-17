@@ -302,7 +302,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 		private bool CommentIsEndDisplay(Comment comment, uint currentVpos)
 		{
-			return comment.EndPosition <= currentVpos;
+			return !(comment.VideoPosition <= currentVpos && currentVpos <= comment.EndPosition);
 		}
 
 		private void CommentRenderer_Unloaded(object sender, RoutedEventArgs e)
