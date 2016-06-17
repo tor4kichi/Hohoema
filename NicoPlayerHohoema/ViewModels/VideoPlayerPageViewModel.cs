@@ -127,8 +127,8 @@ namespace NicoPlayerHohoema.ViewModels
 						EndPosition = vpos + default_DisplayTime,
 					};
 
-//					var commandList = c.GetCommandTypes();
-					var commandList = Enumerable.Empty<CommandType>();
+					var commandList = comment.GetCommandTypes();
+//					var commandList = Enumerable.Empty<CommandType>();
 					bool isCommendCancel = false;
 					foreach (var command in commandList)
 					{

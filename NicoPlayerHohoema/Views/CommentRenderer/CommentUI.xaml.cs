@@ -47,6 +47,11 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			return CommentData.EndPosition <= currentVpos;
 		}
 
+		public bool IsCompleteInsideScreen(int screenWidth, uint currentVPos)
+		{
+			return GetHorizontalPosition(screenWidth, currentVPos) > DesiredSize.Width;
+		}
+
 		public int GetHorizontalPosition(int screenWidth, uint currentVpos)
 		{
 			// (Comment.EndPositioin - Comment.VideoPosition) の長さまでにコメント全体を表示しなければいけない
