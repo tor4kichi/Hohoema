@@ -39,6 +39,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public static SynchronizationContextScheduler PlayerWindowUIDispatcherScheduler;
 
+
+
+
 		public VideoPlayerPageViewModel(HohoemaApp hohoemaApp, EventAggregator ea)
 		{
 			if (PlayerWindowUIDispatcherScheduler == null)
@@ -70,9 +73,20 @@ namespace NicoPlayerHohoema.ViewModels
 			NowSoundChanging = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
 			IsVisibleComment = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, true);
 			IsEnableRepeat = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
-			IsMuted = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
-			SoundVolume = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0.5);
+			IsMuted = _HohoemaApp.UserSettings.PlayerSettings
+				.ToReactivePropertyAsSynchronized(x => x.IsMute, PlayerWindowUIDispatcherScheduler);
+			SoundVolume = _HohoemaApp.UserSettings.PlayerSettings
+				.ToReactivePropertyAsSynchronized(x => x.SoundVolume, PlayerWindowUIDispatcherScheduler);
 
+			Observable.Merge(
+				IsMuted.ToUnit(),
+				SoundVolume.ToUnit()
+				)
+				.Throttle(TimeSpan.FromSeconds(5))
+				.Subscribe(_ => 
+				{
+					_HohoemaApp.UserSettings.PlayerSettings.Save().ConfigureAwait(false);
+				});
 
 			this.ObserveProperty(x => x.Video)
 				.Subscribe(async x =>
@@ -513,7 +527,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<bool> IsMuted { get; private set; }
 
-		public ReactiveProperty<double> SoundVolume { get; private set; }
+		public ReactiveProperty<float> SoundVolume { get; private set; }
 
 
 

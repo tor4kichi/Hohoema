@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 using Windows.Storage;
 using Newtonsoft.Json;
 using System.IO;
@@ -42,30 +43,6 @@ namespace NicoPlayerHohoema.Models
 			};
 		}
 
-		public static async Task<string> GetText(IStorageFile file)
-		{
-			using (var stream = await file.OpenAsync(FileAccessMode.Read))
-			{
-				using (var reader = new StreamReader(stream.AsStream(), Encoding.UTF8)) 
-				{
-					return reader.ReadToEnd();
-				}
-			}
-		}
-
-		public static async Task SaveText(IStorageFile file, string text)
-		{
-			using (var stream = await file.OpenAsync(FileAccessMode.ReadWrite))
-			{
-				stream.Size = 0;
-				await stream.FlushAsync();
-				using (var reader = new StreamWriter(stream.AsStream(), Encoding.UTF8))
-				{
-					await reader.WriteAsync(text);
-				}
-			}
-		}
-
 		public async Task Save()
 		{
 			var localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
@@ -73,7 +50,7 @@ namespace NicoPlayerHohoema.Models
 
 			var serializedText = JsonConvert.SerializeObject(this);
 
-			await SaveText(local, serializedText);
+			await FileIO.WriteTextAsync(local, serializedText);
 		}
 
 		public AccountSettings AccontSettings { get; private set; }
@@ -92,7 +69,15 @@ namespace NicoPlayerHohoema.Models
 	[DataContract]
 	public abstract class SettingsBase : BindableBase
 	{
+		public SettingsBase()
+		{
+			_FileLock = new SemaphoreSlim(1, 1);
+		}
+
+
 		public string FileName { get; private set; }
+
+		public SemaphoreSlim _FileLock;
 
 		public static async Task<T> Load<T>(string filename)
 			where T : SettingsBase, new()
@@ -100,7 +85,7 @@ namespace NicoPlayerHohoema.Models
 			var localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
 			var local = await localFolder.CreateFileAsync(filename, CreationCollisionOption.OpenIfExists);
 
-			var rawText = await HohoemaUserSettings.GetText(local);
+			var rawText = await FileIO.ReadTextAsync(local);
 			if (!String.IsNullOrEmpty(rawText))
 			{
 				try
@@ -128,12 +113,21 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task Save()
 		{
-			var localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
-			var local = await localFolder.CreateFileAsync(FileName, CreationCollisionOption.OpenIfExists);
+			try
+			{
+				await _FileLock.WaitAsync().ConfigureAwait(false);
 
-			var serializedText = JsonConvert.SerializeObject(this);
+				var localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
+				var local = await localFolder.CreateFileAsync(FileName, CreationCollisionOption.OpenIfExists);
 
-			await HohoemaUserSettings.SaveText(local, serializedText);
+				var serializedText = JsonConvert.SerializeObject(this);
+
+				await FileIO.WriteTextAsync(local, serializedText);
+			}
+			finally
+			{
+				_FileLock.Release();
+			}
 		}
 
 		public virtual void OnInitialize() { }
@@ -418,9 +412,37 @@ namespace NicoPlayerHohoema.Models
 		public PlayerSettings()
 			: base()
 		{
+			SoundVolume = 0.25f;
 		}
 
 
+		private bool _IsLowQualityDeafult;
+
+		[DataMember]
+		public bool IsLowQualityDeafult
+		{
+			get { return _IsLowQualityDeafult; }
+			set { SetProperty(ref _IsLowQualityDeafult, value); }
+		}
+
+
+		private bool _IsMute;
+
+		[DataMember]
+		public bool IsMute
+		{
+			get { return _IsMute; }
+			set { SetProperty(ref _IsMute, value); }
+		}
+
+		private float _SoundVolume;
+
+		[DataMember]
+		public float SoundVolume
+		{
+			get { return _SoundVolume; }
+			set { SetProperty(ref _SoundVolume, value); }
+		}
 
 
 		private PlayerDisplayMode _DisplayMode;
@@ -428,14 +450,8 @@ namespace NicoPlayerHohoema.Models
 		[DataMember]
 		public PlayerDisplayMode DisplayMode
 		{
-			get
-			{
-				return _DisplayMode;
-			}
-			set
-			{
-				SetProperty(ref _DisplayMode, value);
-			}
+			get { return _DisplayMode; }
+			set { SetProperty(ref _DisplayMode, value); }
 		}
 	}
 
