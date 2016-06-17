@@ -298,6 +298,10 @@ namespace NicoPlayerHohoema.ViewModels
 			SliderVideoPosition.Subscribe(x =>
 			{
 				_NowControlSlider = true;
+				if (x > VideoLength.Value)
+				{
+					x = VideoLength.Value;
+				}
 				CurrentVideoPosition.Value = TimeSpan.FromSeconds(x);
 				ReadVideoPosition.Value = CurrentVideoPosition.Value;
 				_NowControlSlider = false;

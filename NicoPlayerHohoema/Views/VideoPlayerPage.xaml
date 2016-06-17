@@ -142,7 +142,7 @@
                 <i:Interaction.Behaviors>
                     <mybehavior:AutoHide x:Name="AutoHideBehavior"
                                          IsEnable="{Binding IsAutoHideEnable.Value}"
-                                         Delay="00:00:05" 
+                                         Delay="00:00:02" 
                                          WithCursor="True"
                                          >
                         <i:Interaction.Behaviors>
