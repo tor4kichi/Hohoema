@@ -24,7 +24,18 @@ namespace NicoPlayerHohoema.Views
 
 		public uint FontSize { get; set; }
 
-		public VerticalAlignment? VAlign { get; set; }
+		private VerticalAlignment? _VAlign;
+		public VerticalAlignment? VAlign
+		{
+			get
+			{
+				return _VAlign;
+			}
+			set
+			{
+				_VAlign = value;
+			}
+		}
 
 		public HorizontalAlignment? HAlign { get; set; }
 

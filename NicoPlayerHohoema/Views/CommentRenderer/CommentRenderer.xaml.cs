@@ -36,6 +36,8 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 
 		public List<CommentUI> NextVerticalPosition { get; private set; }
+		public List<CommentUI> TopAlignNextVerticalPosition { get; private set; }
+		public List<CommentUI> BottomAlignNextVerticalPosition { get; private set; }
 
 		private Timer _UpdateTimingTimer;
 
@@ -47,6 +49,8 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			RenderComments = new Dictionary<Comment, CommentUI>();
 
 			NextVerticalPosition = new List<CommentUI>();
+			TopAlignNextVerticalPosition = new List<CommentUI>();
+			BottomAlignNextVerticalPosition = new List<CommentUI>();
 
 
 			Loaded += CommentRenderer_Loaded;
@@ -78,16 +82,46 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		{
 			const int CommentVerticalMargin = 2;
 
+			
+			List<CommentUI> verticalAlignList;
+			VerticalAlignment? _valign = (commentUI.DataContext as Comment).VAlign;
+			if (_valign.HasValue)
+			{
+				if (_valign.Value == VerticalAlignment.Bottom)
+				{
+					verticalAlignList = BottomAlignNextVerticalPosition;
+				}
+				else if (_valign.Value == VerticalAlignment.Top)
+				{
+					verticalAlignList = TopAlignNextVerticalPosition;
+				}
+				else
+				{
+					verticalAlignList = NextVerticalPosition;
+				}
+			}
+			else
+			{
+				verticalAlignList = NextVerticalPosition;
+			}
 
 			int? commentVerticalPos = null;
 			int totalHeight = CommentVerticalMargin;
-			for (int i = 0; i< NextVerticalPosition.Count; ++i)
+			for (int i = 0; i< verticalAlignList.Count; ++i)
 			{
-				var next = NextVerticalPosition[i];
+				var next = verticalAlignList[i];
 				if (next == null)
 				{
-					commentVerticalPos = totalHeight;
-					NextVerticalPosition[i] = commentUI;
+					if (_valign.HasValue && _valign.Value == VerticalAlignment.Bottom)
+					{
+						commentVerticalPos = (int)this.ActualHeight - (int)commentUI.DesiredSize.Height - totalHeight;
+						Debug.WriteLine("is bottom");
+					}
+					else
+					{
+						commentVerticalPos = totalHeight;
+					}
+					verticalAlignList[i] = commentUI;
 					break;
 				}
 				else
@@ -99,8 +133,16 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 			if (!commentVerticalPos.HasValue)
 			{
-				commentVerticalPos = totalHeight;
-				NextVerticalPosition.Add(commentUI);
+				if (_valign.HasValue && _valign.Value == VerticalAlignment.Bottom)
+				{
+					commentVerticalPos = (int)this.ActualHeight - (int)commentUI.DesiredSize.Height - totalHeight;
+					Debug.WriteLine("is bottom");
+				}
+				else
+				{
+					commentVerticalPos = totalHeight;
+				}
+				verticalAlignList.Add(commentUI);
 			}
 
 			return commentVerticalPos.Value;
@@ -109,7 +151,34 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 		private void UpdateCommentVerticalPositionList(uint currentVPos)
 		{
-			var removeTargets = NextVerticalPosition.Where(x => 
+			_InnerUpdateCommentVertialPositonList(currentVPos, NextVerticalPosition);
+			_InnerUpdateAlignedCommentVertialPositonList(currentVPos, TopAlignNextVerticalPosition);
+			_InnerUpdateAlignedCommentVertialPositonList(currentVPos, BottomAlignNextVerticalPosition);
+		}
+
+		private void _InnerUpdateAlignedCommentVertialPositonList(uint currentVPos, List<CommentUI> list)
+		{
+			var removeTargets = list
+				.Where(x =>
+				{
+					if (x == null) { return false; }
+
+					return x.CommentData == null;
+				})
+				.ToArray();
+
+
+			foreach (var remove in removeTargets)
+			{
+				var index = list.IndexOf(remove);
+				list[index] = null;
+			}
+		}
+
+		private void _InnerUpdateCommentVertialPositonList(uint currentVPos, List<CommentUI> list)
+		{
+			var removeTargets = list
+				.Where(x =>
 				{
 					if (x == null) { return false; }
 
@@ -124,18 +193,16 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 			foreach (var remove in removeTargets)
 			{
-				var index = NextVerticalPosition.IndexOf(remove);
-				NextVerticalPosition[index] = null;
-
-				Debug.WriteLine($"VPos remove " + index);
+				var index = list.IndexOf(remove);
+				list[index] = null;
 			}
 		}
 		
 		private void OnUpdate()
 		{
 			var currentVpos = (uint)Math.Floor(VideoPosition.TotalMilliseconds * 0.1);
-			var canvasWidth = CommentCanvas.ActualWidth;
-			var canvasHeight = CommentCanvas.ActualHeight;
+			var canvasWidth = (int)CommentCanvas.ActualWidth;
+			var halfCanvasWidth = canvasWidth / 2;
 
 			// 非表示時は処理を行わない
 			if (Visibility == Visibility.Collapsed)
@@ -147,6 +214,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 						RenderComments.Remove(renderComment.Key);
 
 						CommentCanvas.Children.Remove(renderComment.Value);
+
 						renderComment.Value.DataContext = null;
 					}
 				}
@@ -175,36 +243,59 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 						DataContext = comment
 					};
 
+
 					// 表示対象に登録
 					RenderComments.Add(comment, renderComment);
+
 					CommentCanvas.Children.Add(renderComment);
 					renderComment.UpdateLayout();
 
 					var verticalPos = CalcAndRegisterCommentVerticalPosition(renderComment);
 					System.Diagnostics.Debug.WriteLine($"V={verticalPos}: [{renderComment.CommentData.CommentText}]");
 					Canvas.SetTop(renderComment, verticalPos);
+
+					if (comment.VAlign.HasValue)
+					{
+						switch (comment.VAlign.Value)
+						{
+							case VerticalAlignment.Top:
+							case VerticalAlignment.Bottom:
+								Canvas.SetLeft(renderComment, halfCanvasWidth - (int)(renderComment.DesiredSize.Width * 0.5));
+								break;
+							case VerticalAlignment.Center:
+							case VerticalAlignment.Stretch:
+							default:
+								break;
+						}
+					}
+
 				}
 			}
 
 			// 表示区間をすぎたコメントを表示対象から削除
 
-			var removeRenderComments = RenderComments.Where(x => CommentIsEndDisplay(x.Key, currentVpos)).ToArray();
+			var removeRenderComments = RenderComments
+				.Where(x => CommentIsEndDisplay(x.Key, currentVpos))
+				.ToArray();
 			foreach (var renderComment in removeRenderComments)
 			{
 				// 表示対象としての登録を解除
 				RenderComments.Remove(renderComment.Key);
 
 				CommentCanvas.Children.Remove(renderComment.Value);
+
 				renderComment.Value.DataContext = null;
 			}
 
 			// CommentUIの表示位置を更新
-			Vector2 commentLocation = new Vector2();
-			foreach (var renderComment in RenderComments.Values)
+			foreach (var renderComment in RenderComments)
 			{
-				commentLocation.X = (float)canvasWidth - renderComment.GetHorizontalPosition((int)canvasWidth, currentVpos);
-
-				Canvas.SetLeft(renderComment, (int)commentLocation.X);
+				var ui = renderComment.Value;
+				var comment = renderComment.Key;
+				if (comment.VAlign != VerticalAlignment.Bottom && comment.VAlign != VerticalAlignment.Top)
+				{
+					Canvas.SetLeft(ui, canvasWidth - ui.GetHorizontalPosition(canvasWidth, currentVpos));
+				}
 			}
 		}
 
