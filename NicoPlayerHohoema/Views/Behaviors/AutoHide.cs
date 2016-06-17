@@ -146,6 +146,11 @@ namespace NicoPlayerHohoema.Views.Behaviors
 			{
 				await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Low, () =>
 				{
+					if (AssociatedObject == null)
+					{
+						return;
+					}
+
 					if (this.AssociatedObject.Visibility == Visibility.Visible &&
 						_NextHideTime < DateTime.Now)
 					{
@@ -159,8 +164,6 @@ namespace NicoPlayerHohoema.Views.Behaviors
 				});
 			}
 			, this, Delay, TimeSpan.FromMilliseconds(25));
-			
-
 
 		}
 
