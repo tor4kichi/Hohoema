@@ -1,0 +1,64 @@
+﻿<Page
+    x:Class="NicoPlayerHohoema.Views.CacheManagementPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    mc:Ignorable="d">
+
+    <toolkit:DockPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+        <Border toolkit:DockPanel.Dock="Top">
+            <ContentControl Content="{Binding CurrentDownloadItem.Value, Mode=OneWay}"
+                        >
+                <ContentControl.ContentTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding}" />
+                            <TextBlock Text="{Binding Title}" />
+                            <TextBlock>
+                                <Run Text="{Binding ProgressPercent}" />
+                                <Run Text="%" />
+                            </TextBlock>
+                        </StackPanel>
+                    </DataTemplate>
+                </ContentControl.ContentTemplate>
+            </ContentControl>
+        </Border>
+
+
+        <Border BorderBrush="Black"
+                BorderThickness="0 1 0 0" />
+
+        <ScrollViewer>
+
+            <StackPanel>
+                <TextBlock Text="ダウンロード待ち" />
+                <ItemsControl ItemsSource="{Binding CacheRequestItems}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Title}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <TextBlock Text="キャッシュ済み動画" />
+                <ItemsControl ItemsSource="{Binding LocalCachedItems}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Title}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
+        
+
+    </toolkit:DockPanel>
+</Page>

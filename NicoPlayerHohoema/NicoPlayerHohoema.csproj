@@ -123,6 +123,7 @@
     <Compile Include="Util\NiconicoRankingExtention.cs" />
     <Compile Include="Util\NicoVideoRssItemExtention.cs" />
     <Compile Include="ViewModels\AboutPageViewModel.cs" />
+    <Compile Include="ViewModels\CacheManagementPageViewModel.cs" />
     <Compile Include="ViewModels\CommentStreamingViewModel.cs" />
     <Compile Include="ViewModels\FavoriteListPageViewModel.cs" />
     <Compile Include="ViewModels\FavoritePageViewModel.cs" />
@@ -138,6 +139,9 @@
     <Compile Include="ViewModels\VideoInfoContent\TagsVideoInfoContentViewModel.cs" />
     <Compile Include="Views\AboutPage.xaml.cs">
       <DependentUpon>AboutPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CacheManagementPage.xaml.cs">
+      <DependentUpon>CacheManagementPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\FavoriteListPage.xaml.cs">
       <DependentUpon>FavoriteListPage.xaml</DependentUpon>
@@ -305,6 +309,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Views\AboutPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\CacheManagementPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

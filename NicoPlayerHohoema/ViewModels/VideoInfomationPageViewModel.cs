@@ -120,32 +120,21 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					if (VideoId == null) { return; }
 
-					NicoVideo = await _HohoemaApp.MediaManager.CreateNicoVideoAccessor(VideoId);
+					NicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(VideoId);
 
 					VideoInfo = NicoVideo.CachedWatchApiResponse;
 
-
-
-
 					// 再生・キャッシュボタンの状態を設定
 
-					NowRestrictedLowQualityMode = VideoInfo.VideoUrl.AbsoluteUri.EndsWith("low");
+					NowRestrictedLowQualityMode = NicoVideo.NowLowQualityOnly;
 
 					CanPlayLowQuality.Value = true;
-					CanDownloadCacheLowQuality.Value = NicoVideo.LowQualityCacheState == NicoVideoCacheState.CanDownload;
+					CanDownloadCacheLowQuality.Value = NicoVideo.CanRequestDownloadLowQuality;
+					CanDownloadCacheOriginalQuality.Value = NicoVideo.CanRequestDownloadOriginalQuality;
 
+					IsLowQuality.Value = NowRestrictedLowQualityMode;
+					CanPlayOriginalQuality.Value = !NowRestrictedLowQualityMode;
 
-					if (NowRestrictedLowQualityMode)
-					{
-						IsLowQuality.Value = true;
-						CanPlayOriginalQuality.Value = NicoVideo.OriginalQualityCacheState == NicoVideoCacheState.Cached;
-						CanDownloadCacheOriginalQuality.Value = false;
-					}
-					else
-					{
-						CanPlayOriginalQuality.Value = true;
-						CanDownloadCacheOriginalQuality.Value = NicoVideo.OriginalQualityCacheState == NicoVideoCacheState.CanDownload;
-					}
 
 					// TODO: オフライン時の再生・キャッシュ状況の反映
 					var nowOffline = false;
@@ -162,14 +151,14 @@ namespace NicoPlayerHohoema.ViewModels
 						.Subscribe(x =>
 						{
 							IsOriginalQualityCached = x == NicoVideoCacheState.Cached;
-							CanDownloadCacheOriginalQuality.Value = x == NicoVideoCacheState.CanDownload;
+							CanDownloadCacheOriginalQuality.Value = NicoVideo.CanRequestDownloadOriginalQuality;
 						});
 
 					NicoVideo.ObserveProperty(x => x.LowQualityCacheState)
 						.Subscribe(x =>
 						{
 							IsLowQualityCached = x == NicoVideoCacheState.Cached;
-							CanDownloadCacheLowQuality.Value = x == NicoVideoCacheState.CanDownload;
+							CanDownloadCacheLowQuality.Value = NicoVideo.CanRequestDownloadLowQuality;
 						});
 					
 				}
@@ -198,6 +187,7 @@ namespace NicoPlayerHohoema.ViewModels
 				MylistCount = ThumbnailResponse.MylistCount;
 				ThumbnailUrl = ThumbnailResponse.ThumbnailUrl;
 
+				/*
 				IsOnlyOriginalQuality = ThumbnailResponse.SizeLow == 0;
 				if (IsOnlyOriginalQuality)
 				{
@@ -205,6 +195,7 @@ namespace NicoPlayerHohoema.ViewModels
 					CanDownloadCacheLowQuality.Value = false;
 					IsLowQuality.Value = false;
 				}
+				*/
 			}
 			catch (Exception exception)
 			{
