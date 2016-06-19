@@ -558,7 +558,7 @@ namespace NicoPlayerHohoema.Models
 				SaveProgress();
 			}
 
-			if (IsRequireCache)
+			if (!IsRequireCache)
 			{
 				CacheFile.DeleteAsync().AsTask().ConfigureAwait(false);
 				ProgressFile?.DeleteAsync().AsTask().ConfigureAwait(false);
