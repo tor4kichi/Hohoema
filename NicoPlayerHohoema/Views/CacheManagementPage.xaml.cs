@@ -27,4 +27,25 @@ namespace NicoPlayerHohoema.Views
 			this.InitializeComponent();
 		}
 	}
+
+
+
+	public class ProgressTemplateSelector : DataTemplateSelector
+	{
+		public DataTemplate Progress { get; set; }
+		public DataTemplate Empty { get; set; }
+
+
+		protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
+		{
+			if (item == null)
+			{
+				return Empty;
+			}
+			else
+			{
+				return Progress;
+			}
+		}
+	}
 }

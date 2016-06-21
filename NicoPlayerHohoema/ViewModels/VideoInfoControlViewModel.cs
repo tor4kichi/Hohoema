@@ -23,7 +23,7 @@ namespace NicoPlayerHohoema.ViewModels
 			PageManager = pageManager;
 
 			Title = data.Title;
-			VideoId = data.ItemId;
+			RawVideoId = data.ItemId;
 			ViewCount = data.ViewCount;
 			CommentCount = data.CommentCount;
 			MylistCount = data.MylistCount;
@@ -36,7 +36,7 @@ namespace NicoPlayerHohoema.ViewModels
 			NGVideoReason = "";
 			IsForceDisplayNGVideo = false;
 
-			RealVideoId = VideoId;
+			VideoId = RawVideoId;
 		}
 
 
@@ -47,7 +47,7 @@ namespace NicoPlayerHohoema.ViewModels
 			PageManager = pageManager;
 
 			Title = data.Video.Title.DecodeUTF8();
-			VideoId = data.Video.Id;
+			RawVideoId = data.Video.Id;
 			ViewCount = uint.Parse(data.Video.View_counter);
 			CommentCount = uint.Parse(data.Thread.Num_res);
 			MylistCount = uint.Parse(data.Video.Mylist_counter);
@@ -59,7 +59,7 @@ namespace NicoPlayerHohoema.ViewModels
 			IsNotGoodVideo = false;
 			NGVideoReason = "";
 			IsForceDisplayNGVideo = false;
-			RealVideoId = VideoId;
+			VideoId = RawVideoId;
 		}
 
 		public VideoInfoControlViewModel(string title, string videoId, NGSettings ngSettings, NiconicoMediaManager mediaMan, PageManager pageManager)
@@ -69,8 +69,8 @@ namespace NicoPlayerHohoema.ViewModels
 			MediaManager = mediaMan;
 
 			Title = title;
-			VideoId = videoId;
-			RealVideoId = VideoId;
+			RawVideoId = videoId;
+			VideoId = RawVideoId;
 		}
 
 
@@ -81,12 +81,27 @@ namespace NicoPlayerHohoema.ViewModels
 
 			try
 			{
-				var thumbnail = await MediaManager.GetThumbnail(VideoId);
+				var nicoVideo = await MediaManager.GetNicoVideo(RawVideoId);
+				var thumbnail = await nicoVideo.GetThumbnailInfo();
+
+
+				if (nicoVideo.IsDeleted)
+				{
+					IsDeleted = true;
+				}
+
+				if (thumbnail == null)
+				{
+					return;
+				}
 
 				// NG判定
-				var ngResult = NGSettings.IsNgVideo(thumbnail);
-				IsNotGoodVideo = ngResult != null;
-				NGVideoReason = ngResult?.GetReasonText() ?? "";
+				if (NGSettings != null)
+				{
+					var ngResult = NGSettings.IsNgVideo(thumbnail);
+					IsNotGoodVideo = ngResult != null;
+					NGVideoReason = ngResult?.GetReasonText() ?? "";
+				}
 				IsForceDisplayNGVideo = false;
 
 
@@ -100,7 +115,7 @@ namespace NicoPlayerHohoema.ViewModels
 				ThumbnailImageUrl = IsNotGoodVideo ? null : thumbnail.ThumbnailUrl;
 				MovieLength = thumbnail.Length;
 
-				RealVideoId = thumbnail.Id;
+				VideoId = thumbnail.Id;
 			}
 			catch
 			{
@@ -194,9 +209,9 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _IsDeleted, value); }
 		}
 
-		public string RealVideoId { get; private set; }
-
 		public string VideoId { get; private set; }
+
+		public string RawVideoId { get; private set; }
 
 		private DelegateCommand _ShowDetailCommand;
 		public DelegateCommand ShowDetailCommand
@@ -206,7 +221,7 @@ namespace NicoPlayerHohoema.ViewModels
 				return _ShowDetailCommand
 					?? (_ShowDetailCommand = new DelegateCommand(() =>
 					{
-						PageManager.OpenPage(HohoemaPageType.VideoInfomation, RealVideoId);
+						PageManager.OpenPage(HohoemaPageType.VideoInfomation, RawVideoId);
 					}));
 			}
 		}
@@ -218,7 +233,7 @@ namespace NicoPlayerHohoema.ViewModels
 				return _PlayCommand
 					?? (_PlayCommand = new DelegateCommand(() =>
 					{
-						PageManager.OpenPage(HohoemaPageType.VideoInfomation, RealVideoId);
+						PageManager.OpenPage(HohoemaPageType.VideoInfomation, RawVideoId);
 					}));
 			}
 		}

@@ -393,7 +393,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			if (Video == null) { return null; }
 
-			return await Video.GetComment();
+			return await Video.GetComment(true);
 //			return await this._HohoemaApp.NiconicoContext.Video
 //					.GetCommentAsync(response);
 		}

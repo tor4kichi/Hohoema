@@ -12,10 +12,11 @@ namespace NicoPlayerHohoema.ViewModels
 	{
 		public HohoemaViewModelBase(PageManager pageManager)
 		{
-
+			PageManager = pageManager;
 		}
 
 		abstract public string GetPageTitle();
 
+		public PageManager PageManager { get; private set; }
 	}
 }

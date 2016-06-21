@@ -13,39 +13,31 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Prism.Windows.Navigation;
+using System.Threading;
+using System.Reactive.Disposables;
+using System.Runtime.InteropServices.WindowsRuntime;
+using System.Reactive.Concurrency;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	public class CacheManagementPageViewModel : HohoemaViewModelBase
 	{
+		public static SynchronizationContextScheduler scheduler;
 		public CacheManagementPageViewModel(HohoemaApp app, PageManager pageManager)
 			: base(pageManager)
 		{
+			if (scheduler == null)
+			{
+				scheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
+			}
 			_HohoemaApp = app;
 			_MediaManager = app.MediaManager;
 
+			_CacheVideoViewModelSemaphore = new SemaphoreSlim(1, 1);
+
 			_CacheVideoVMs = new Dictionary<NicoVideoCacheRequest, CacheVideoViewModel>();
+			CacheVideoItems = new ObservableCollection<CacheVideoViewModel>();
 
-			CacheRequestItems = _MediaManager.Context.CacheRequestStack
-				.ToReadOnlyReactiveCollection(x =>
-				{
-					var task = ToCacheVideoViewModel(x);
-					task.Wait();
-					return task.Result;
-				});
-
-			CurrentDownloadItem = _MediaManager.Context.ObserveProperty(x => x.CurrentDownloadStream)
-				.Select(x =>
-				{
-					if (x == null) { return CacheProgressVideoViewModel.Empty; }
-
-					var task = _MediaManager.GetNicoVideo(x.RawVideoId);
-					task.Wait();
-
-
-					return new CacheProgressVideoViewModel(task.Result, x);
-				})
-				.ToReadOnlyReactiveProperty(CacheProgressVideoViewModel.Empty);
 
 		}
 
@@ -53,7 +45,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			base.OnNavigatedTo(e, viewModelState);
 
-			await this.UpdateLocalCacheFilesVM();
+			await this.UpdateCacheItemsVM();
 		}
 
 		private async Task<CacheVideoViewModel> ToCacheVideoViewModel(string videoId, NicoVideoQuality quality)
@@ -65,64 +57,66 @@ namespace NicoPlayerHohoema.ViewModels
 			});
 		}
 
+
 		private async Task<CacheVideoViewModel> ToCacheVideoViewModel(NicoVideoCacheRequest req)
 		{
-			if (_CacheVideoVMs.ContainsKey(req))
+			try
 			{
-				return _CacheVideoVMs[req];
+				await _CacheVideoViewModelSemaphore.WaitAsync().ConfigureAwait(false);
+
+				if (_CacheVideoVMs.ContainsKey(req))
+				{
+					return _CacheVideoVMs[req];
+				}
+				else
+				{
+					var nicoVideo = await _MediaManager.GetNicoVideo(req.RawVideoid);
+					
+
+					var vm = new CacheVideoViewModel(nicoVideo, req.Quality, _MediaManager, PageManager);
+
+					vm.LoadThumbnail();
+					_CacheVideoVMs.Add(req, vm);
+
+					return vm;
+				}
 			}
-			else
+			finally
 			{
-				var nicoVideo = await _MediaManager.GetNicoVideo(req.RawVideoid).ConfigureAwait(false);
-				var vm = new CacheVideoViewModel(nicoVideo, req.Quality);
-				_CacheVideoVMs.Add(req, vm);
-				return vm;
+				_CacheVideoViewModelSemaphore.Release();
 			}
+			
 		}
 
-		private async Task UpdateLocalCacheFilesVM()
+		private async Task UpdateCacheItemsVM()
 		{
-			var saveFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists).AsTask().ConfigureAwait(false);
-
-			// videoフォルダから *_info.json のファイルを取得してNicoVideoオブジェクトを初期化
-			var files = await saveFolder.GetFilesAsync();
-			var videoIds = files
-				.Where(x => x.Name.EndsWith("_info.json"))
-				.OrderBy(x => x.DateCreated)
-				.Select(x => new String(x.Name.TakeWhile(y => y != '_').ToArray()));
-
-			foreach (var videoId in videoIds)
+			foreach (var item in _MediaManager.VideoIdToNicoVideo.Values)
 			{
-				var nicoVideo = await _MediaManager.GetNicoVideo(videoId).ConfigureAwait(false);
+				await item.SetupVideoInfoFromLocal();
+				await item.CheckCacheStatus();
 
-				
-				if (NicoVideoCachedStream.ExistLowQuorityVideo(nicoVideo.CachedWatchApiResponse, saveFolder))
+				if (item.OriginalQualityCacheState != NicoVideoCacheState.Incomplete || 
+					await item.HasOriginalQualityIncompleteVideoFile()
+					)
 				{
-					var vm = await ToCacheVideoViewModel(videoId, NicoVideoQuality.Low).ConfigureAwait(false);
-					if (!LocalCachedItems.Contains(vm))
+					var vm = await ToCacheVideoViewModel(item.RawVideoId, NicoVideoQuality.Original);
+					if (!CacheVideoItems.Contains(vm))
 					{
-						LocalCachedItems.Insert(0, vm);
-					}
-
-				}
-				
-
-				if (NicoVideoCachedStream.ExistOriginalQuorityVideo(nicoVideo.CachedWatchApiResponse, saveFolder))
-				{
-					var vm = await ToCacheVideoViewModel(videoId, NicoVideoQuality.Original).ConfigureAwait(false);
-					if (!LocalCachedItems.Contains(vm))
-					{
-						LocalCachedItems.Insert(0, vm);
+						CacheVideoItems.Insert(0, vm);
 					}
 				}
 
-				
+				if (item.LowQualityCacheState != NicoVideoCacheState.Incomplete ||
+					await item.HasLowQualityIncompleteVideoFile()
+					)
+				{
+					var vm = await ToCacheVideoViewModel(item.RawVideoId, NicoVideoQuality.Low);
+					if (!CacheVideoItems.Contains(vm))
+					{
+						CacheVideoItems.Insert(0, vm);
+					}
+				}
 			}
-
-
-			
-
-
 		}
 
 		
@@ -133,113 +127,101 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
+
+
+		private SemaphoreSlim _CacheVideoViewModelSemaphore;
+
 		HohoemaApp _HohoemaApp;
 		NiconicoMediaManager _MediaManager;
 
 		private Dictionary<NicoVideoCacheRequest, CacheVideoViewModel> _CacheVideoVMs;
 
-		/// <summary>
-		/// 現在キャッシュ処理中のアイテム
-		/// </summary>
-		public ReadOnlyReactiveProperty<CacheProgressVideoViewModel> CurrentDownloadItem { get; private set; }
-
-		/// <summary>
-		/// キャッシュをリクエストされたアイテム
-		/// </summary>
-		public ReadOnlyReactiveCollection<CacheVideoViewModel> CacheRequestItems { get; private set; }
-
+		
 		/// <summary>
 		/// キャッシュ未完了のアイテムも含むキャッシュファイル
 		/// </summary>
-		public ObservableCollection<CacheVideoViewModel> LocalCachedItems { get; private set; }
+		public ObservableCollection<CacheVideoViewModel> CacheVideoItems { get; private set; }
 	}
 
 	// 自身のキャッシュ状況を表現する
 	// キャッシュ処理の状態、進捗状況
 	
-	public class CacheProgressVideoViewModel : CacheVideoViewModel
+	
+
+
+	public class CacheVideoViewModel : VideoInfoControlViewModel
 	{
-		public static CacheProgressVideoViewModel Empty { get; private set; } = new CacheProgressVideoViewModel();
 
-		private CacheProgressVideoViewModel()
+		public CacheVideoViewModel(NicoVideo nicoVideo, NicoVideoQuality quality, NiconicoMediaManager mediaMan, PageManager pageManager)
+			: base(nicoVideo.Title, nicoVideo.RawVideoId, null, mediaMan, pageManager)
 		{
+			_CompositeDisposable = new CompositeDisposable();
 
-		}
-
-		public CacheProgressVideoViewModel(NicoVideo nicoVideo, NicoVideoCachedStream stream)
-			: base(nicoVideo, stream.Quality)
-		{
-			_Stream = stream;
-			_ProgressMonitorTimerDisposeHandle = Observable.Timer(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(1), UIDispatcherScheduler.Default)
-				.Subscribe(x => 
-				{
-					if (_Stream.IsCacheComplete)
-					{
-						ProgressPercent = 100.0f;
-					}
-					else if (_Stream.Progress != null)
-					{
-						var totalSize = _Stream.Progress.Size;
-						var size = _Stream.Progress.RemainSize();
-
-						if (totalSize == 0) { throw new Exception("CacheProgress can not display progress percentage, due to Stream size is Zero."); }
-
-						// 少数第一位までを計算する
-						ProgressPercent = 100.0f - (float)Math.Floor((size  / (float)totalSize) * 1000.0f) * 0.1f;
-					}
-				});
-		}
-
-		public override void Dispose()
-		{
-			base.Dispose();
-
-			_ProgressMonitorTimerDisposeHandle?.Dispose();
-		}
-
-		private float _ProgressPercent;
-		public float ProgressPercent
-		{
-			get { return _ProgressPercent; }
-			set { SetProperty(ref _ProgressPercent, value); }
-		}
-
-
-		IDisposable _ProgressMonitorTimerDisposeHandle;
-		NicoVideoCachedStream _Stream;
-	}
-
-
-	public class CacheVideoViewModel : BindableBase, IDisposable
-	{
-		internal CacheVideoViewModel()
-		{
-			RealVideoId = "";
-			Title = "";
-			VideoId = "";
-		}
-
-		public CacheVideoViewModel(NicoVideo nicoVideo, NicoVideoQuality quality)
-		{
-			VideoId = nicoVideo.RawVideoId;
 			Quality = quality;
-			Title = nicoVideo.CachedWatchApiResponse.videoDetail.title;
+
+			if (quality == NicoVideoQuality.Low)
+			{
+				IsIncompleteCache = nicoVideo.LowQualityCacheState != NicoVideoCacheState.Cached;
+				ProgressPercent = nicoVideo.ObserveProperty(x => x.LowQualityCacheProgressSize)
+					.Select(x => ProgressToPercent(x, nicoVideo.LowQualityVideoSize))
+					.ToReactiveProperty(CacheManagementPageViewModel.scheduler)
+					.AddTo(_CompositeDisposable);
+				IsVisibleProgress = nicoVideo.ObserveProperty(x => x.LowQualityCacheState)
+					.Select(x => x == NicoVideoCacheState.NowDownloading)
+					.ToReactiveProperty(CacheManagementPageViewModel.scheduler)
+					.AddTo(_CompositeDisposable);
+				CacheState = nicoVideo.ObserveProperty(x => x.LowQualityCacheState)
+					.ToReactiveProperty(CacheManagementPageViewModel.scheduler)
+					.AddTo(_CompositeDisposable);
+
+			}
+			else
+			{
+				IsIncompleteCache = nicoVideo.OriginalQualityCacheState != NicoVideoCacheState.Cached;
+				ProgressPercent = nicoVideo.ObserveProperty(x => x.OriginalQualityCacheProgressSize)
+					.Select(x => ProgressToPercent(x, nicoVideo.OriginalQualityVideoSize))
+					.ToReactiveProperty(CacheManagementPageViewModel.scheduler)
+					.AddTo(_CompositeDisposable);
+				IsVisibleProgress = nicoVideo.ObserveProperty(x => x.OriginalQualityCacheState)
+					.Select(x => x == NicoVideoCacheState.NowDownloading)
+					.ToReactiveProperty(CacheManagementPageViewModel.scheduler)
+					.AddTo(_CompositeDisposable);
+				CacheState = nicoVideo.ObserveProperty(x => x.OriginalQualityCacheState)
+					.ToReactiveProperty(CacheManagementPageViewModel.scheduler)
+					.AddTo(_CompositeDisposable);
+			}
 
 
+			
 		}
-
-		public bool IsIncompleteCache { get; private set; }
-
-		public string RealVideoId { get; private set; }
-		public string Title { get; private set; }
-
-		public string VideoId { get; private set; }
-		public NicoVideoQuality Quality { get; private set; }
 
 		public virtual void Dispose()
 		{
-			
+			_CompositeDisposable?.Dispose();
 		}
+
+		private float ProgressToPercent(uint size, uint totalSize)
+		{
+			if (size == totalSize) { return 100.0f; }
+			return (float)Math.Floor((size / (float)totalSize) * 1000.0f) * 0.1f;
+		}
+
+
+		private CompositeDisposable _CompositeDisposable;
+
+		public bool IsIncompleteCache { get; private set; }
+
+
+		public NicoVideoQuality Quality { get; private set; }
+		public ReactiveProperty<NicoVideoCacheState> CacheState { get; private set; }
+
+		public ReactiveProperty<float> ProgressPercent { get; private set; }
+
+		public ReactiveProperty<bool> IsVisibleProgress { get; private set; }
+
+		
+
+		
 	}
 
 }

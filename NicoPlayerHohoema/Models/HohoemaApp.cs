@@ -4,6 +4,7 @@ using Prism.Events;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,7 +19,6 @@ namespace NicoPlayerHohoema.Models
 			var app = new HohoemaApp(ea);
 
 			app.UserSettings = new HohoemaUserSettings();
-			app.MediaManager = await NiconicoMediaManager.Create(app);
 			app.ContentFinder = new NiconicoContentFinder(app);
 
 			return app;
@@ -64,16 +64,30 @@ namespace NicoPlayerHohoema.Models
 
 			context.AdditionalUserAgent = HohoemaUserAgent;
 
+			Debug.WriteLine("try login");
+
 			var result = await context.SignInAsync();
 
 			if (result == NiconicoSignInStatus.Success)
 			{
+				Debug.WriteLine("login success");
+
 				NiconicoContext = context;
 
+				Debug.WriteLine("getting UserInfo");
 				var userInfo = await NiconicoContext.User.GetInfoAsync();
 				LoginUserId = userInfo.Id;
+				Debug.WriteLine("fav initilize");
 				FavFeedManager = await FavFeedManager.Create(this, LoginUserId);
+				Debug.WriteLine("local cache initilize");
+				MediaManager = await NiconicoMediaManager.Create(this);
 
+				Debug.WriteLine("Login done.");
+				//				await MediaManager.Context.Resume();
+			}
+			else
+			{
+				Debug.WriteLine("login failed");
 			}
 
 			return result;

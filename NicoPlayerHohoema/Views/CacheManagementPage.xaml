@@ -12,50 +12,64 @@
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
+
     <toolkit:DockPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
-        <Border toolkit:DockPanel.Dock="Top">
-            <ContentControl Content="{Binding CurrentDownloadItem.Value, Mode=OneWay}"
-                        >
-                <ContentControl.ContentTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding}" />
-                            <TextBlock Text="{Binding Title}" />
-                            <TextBlock>
-                                <Run Text="{Binding ProgressPercent}" />
-                                <Run Text="%" />
-                            </TextBlock>
-                        </StackPanel>
-                    </DataTemplate>
-                </ContentControl.ContentTemplate>
-            </ContentControl>
-        </Border>
-
-
-        <Border BorderBrush="Black"
-                BorderThickness="0 1 0 0" />
-
         <ScrollViewer>
-
-            <StackPanel>
-                <TextBlock Text="ダウンロード待ち" />
-                <ItemsControl ItemsSource="{Binding CacheRequestItems}">
+            <StackPanel Margin="0 0 16 0">
+                <ItemsControl ItemsSource="{Binding CacheVideoItems}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Title}" />
+                            <toolkit:DockPanel Margin="8">
+
+                                
+
+                                <Border toolkit:DockPanel.Dock="Bottom">
+                                    <toolkit:DockPanel Visibility="{Binding IsVisibleProgress.Value, Converter={StaticResource BooleanToVisibility}}">
+
+                                        <!--
+                                        <TextBlock toolkit:DockPanel.Dock="Left" Margin="8 0" Width="40">
+                                            <Run Text="{Binding ProgressPercent.Value}" />
+                                            <Run Text="%" />
+                                        </TextBlock>
+                                        -->
+                                        
+                                        <ProgressBar Maximum="100.0" Minimum="0.0" Value="{Binding ProgressPercent.Value}"
+                                                     ToolTipService.ToolTip="{Binding ProgressPercent.Value}"
+                                                     />
+                                        
+                                    </toolkit:DockPanel>
+                                </Border>
+
+                                <Border>
+                                    <toolkit:DockPanel>
+                                        
+                                        <!-- 状態 -->
+                                        <StackPanel  toolkit:DockPanel.Dock="Right" HorizontalAlignment="Right">
+                                            <TextBlock Text="{Binding Quality}" Margin="0 0 0 4" />
+                                            <TextBlock Text="{Binding CacheState.Value}" />
+                                            <TextBlock toolkit:DockPanel.Dock="Left" Margin="8 0"
+                                                       Visibility="{Binding IsVisibleProgress.Value, Converter={StaticResource BooleanToVisibility}}"
+                                                       >
+                                                <Run Text="{Binding ProgressPercent.Value}" />
+                                                <Run Text="%" />
+                                            </TextBlock>
+
+                                        </StackPanel>
+
+                                        <!-- 操作 -->
+
+                                        <local:VideoInfoControl />
+
+                                    </toolkit:DockPanel>
+                                    
+                                </Border>
+
+                            </toolkit:DockPanel>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
+                
 
-                <TextBlock Text="キャッシュ済み動画" />
-                <ItemsControl ItemsSource="{Binding LocalCachedItems}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Title}" />
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
             </StackPanel>
         </ScrollViewer>
         

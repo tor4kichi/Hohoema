@@ -32,6 +32,7 @@ namespace NicoPlayerHohoema.ViewModels
 			_NavigationService = ns;
 
 			_CompositeDisposable = new CompositeDisposable();
+			_CompositeDisposablePerNavigation = new CompositeDisposable();
 
 			IsLowQuality = new ReactiveProperty<bool>(false)
 				.AddTo(_CompositeDisposable);
@@ -87,7 +88,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 		}
 
-
+		
 
 		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
@@ -95,6 +96,8 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				return;
 			}
+
+			_CompositeDisposablePerNavigation = new CompositeDisposable();
 
 			if (e.Parameter is WatchApiResponse)
 			{
@@ -121,8 +124,7 @@ namespace NicoPlayerHohoema.ViewModels
 					if (VideoId == null) { return; }
 
 					NicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(VideoId);
-
-					VideoInfo = NicoVideo.CachedWatchApiResponse;
+					VideoInfo = await NicoVideo.GetVideoInfo();
 
 					// 再生・キャッシュボタンの状態を設定
 
@@ -148,19 +150,23 @@ namespace NicoPlayerHohoema.ViewModels
 					}
 
 					NicoVideo.ObserveProperty(x => x.OriginalQualityCacheState)
+						.SubscribeOnUIDispatcher()
 						.Subscribe(x =>
 						{
 							IsOriginalQualityCached = x == NicoVideoCacheState.Cached;
 							CanDownloadCacheOriginalQuality.Value = NicoVideo.CanRequestDownloadOriginalQuality;
-						});
+						})
+						.AddTo(_CompositeDisposablePerNavigation);
 
 					NicoVideo.ObserveProperty(x => x.LowQualityCacheState)
+						.SubscribeOnUIDispatcher()
 						.Subscribe(x =>
 						{
 							IsLowQualityCached = x == NicoVideoCacheState.Cached;
 							CanDownloadCacheLowQuality.Value = NicoVideo.CanRequestDownloadLowQuality;
-						});
-					
+						})
+						.AddTo(_CompositeDisposablePerNavigation);
+
 				}
 				catch (Exception exception)
 				{
@@ -173,7 +179,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			try
 			{
-				ThumbnailResponse = await _HohoemaApp.MediaManager.GetThumbnail(VideoId);
+				ThumbnailResponse = await NicoVideo.GetThumbnailInfo();
 
 				UserName = ThumbnailResponse.UserName;
 				UserIconUrl = ThumbnailResponse.UserIconUrl;
@@ -203,6 +209,13 @@ namespace NicoPlayerHohoema.ViewModels
 				System.Diagnostics.Debug.Write(exception.Message);
 			}
 
+			// 低画質動画がキャッシュ中（完了・リクエスト済み・ダウンロード中）の場合はそちらを優先表示する
+			if (NicoVideo.LowQualityCacheState != NicoVideoCacheState.Incomplete && 
+				NicoVideo.OriginalQualityCacheState == NicoVideoCacheState.Incomplete)
+			{
+				IsLowQuality.Value = true;
+			}
+
 //			_PageManager.PageTitle = Title;
 
 
@@ -229,9 +242,15 @@ namespace NicoPlayerHohoema.ViewModels
 			base.OnNavigatedTo(e, viewModelState);
 		}
 
+		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+		{
+			_CompositeDisposablePerNavigation?.Dispose();
+			_CompositeDisposablePerNavigation = null;
+
+			base.OnNavigatingFrom(e, viewModelState, suspending);
+		}
 
 
-		
 
 		private DelegateCommand _NavigationBackCommand;
 		public DelegateCommand NavigationBackCommand
@@ -248,6 +267,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+		CompositeDisposable _CompositeDisposablePerNavigation;
 		CompositeDisposable _CompositeDisposable;
 
 

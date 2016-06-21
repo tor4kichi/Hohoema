@@ -56,7 +56,6 @@ namespace NicoPlayerHohoema
 
 			this.Resuming += App_Resuming;
 			
-			
 			this.InitializeComponent();
 		}
 
@@ -68,6 +67,8 @@ namespace NicoPlayerHohoema
 			{
 				var hohoemaApp = Container.Resolve<HohoemaApp>();
 				await hohoemaApp.SignOut();
+
+				await hohoemaApp.MediaManager.Context.Suspending();
 			});
 
 			return base.OnSuspendingApplicationAsync();
@@ -79,6 +80,8 @@ namespace NicoPlayerHohoema
 			{
 				var hohoemaApp = Container.Resolve<HohoemaApp>();
 				await hohoemaApp.SignInFromUserSettings();
+
+				await hohoemaApp.MediaManager.Context.Resume();
 			});
 		}
 
@@ -92,8 +95,6 @@ namespace NicoPlayerHohoema
 
 			return Task.FromResult<object>(null);
 		}
-
-		
 
 		protected override async Task OnInitializeAsync(IActivatedEventArgs args)
 		{
@@ -128,7 +129,6 @@ namespace NicoPlayerHohoema
 			var hohoemaApp = await HohoemaApp.Create(EventAggregator);
 			Container.RegisterInstance(hohoemaApp);
 			Container.RegisterInstance(new PageManager(NavigationService));
-			Container.RegisterInstance(hohoemaApp.MediaManager);
 			Container.RegisterInstance(hohoemaApp.ContentFinder);
 
 			// ViewModels
