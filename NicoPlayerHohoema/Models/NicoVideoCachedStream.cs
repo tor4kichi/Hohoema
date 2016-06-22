@@ -45,60 +45,48 @@ namespace NicoPlayerHohoema.Models
 			// fileはincompleteか
 			var videoId = res.videoDetail.id;
 			var videoTitle = res.videoDetail.title.ToSafeFilePath();
-			var videoFileName = MakeVideoFileName(res.videoDetail.title, res.videoDetail.id);
+			var videoFileName = MakeVideoFileName(videoTitle, res.videoDetail.id);
 			var fileName = $"{videoFileName}.mp4";
 			var fileName_low = $"{videoFileName}.low.mp4";
 			var progressFileName = $"{videoId}_progress";
 
 			var dirInfo = new DirectoryInfo(videoSaveFolder.Path);
 
-			var relatedVideoFiles = dirInfo.EnumerateFiles($"{videoFileName}.*");
-
 			// 動画URLをキャッシュモードによって強制する
 			string videoUrl = res.VideoUrl.AbsoluteUri;
 			var isEconomy = videoUrl.EndsWith("low");
 
+			if (quality == NicoVideoQuality.Original && isEconomy)
+			{
+				throw new Exception("低画質動画のURLが指定された状態でオリジナル画質の動画のダウンロードが指定されています。");
+			}
+
+
 			StorageFile videoFile = null;
 
-
-			var completedNormalVideo = relatedVideoFiles.SingleOrDefault(x => x.FullName.EndsWith(".mp4"));
-			if (completedNormalVideo != null)
+			if (quality == NicoVideoQuality.Original)
 			{
-				// 
-				videoFile = await StorageFile.GetFileFromPathAsync(completedNormalVideo.FullName);
-			}
-
-			if (videoFile == null)
-			{
-				var completedLowVideo = relatedVideoFiles.SingleOrDefault(x => x.FullName.EndsWith(".low.mp4"));
-				if (completedLowVideo != null)
+				if (ExistOriginalQuorityVideo(videoTitle, videoId, videoSaveFolder))
 				{
-					videoFile = await StorageFile.GetFileFromPathAsync(completedLowVideo.FullName);
+					videoFile = await videoSaveFolder.GetFileAsync(fileName);
+				}
+				else if (ExistIncompleteOriginalQuorityVideo(videoTitle, videoId, videoSaveFolder))
+				{
+					videoFile = await videoSaveFolder.GetFileAsync(fileName + IncompleteExt);
 				}
 			}
-
-
-
-			if (videoFile == null)
+			else
 			{
-				if (!isEconomy)
+				if (ExistLowQuorityVideo(videoTitle, videoId, videoSaveFolder))
 				{
-					var incompletedNormalVideo = new FileInfo(Path.Combine(videoSaveFolder.Path, fileName + IncompleteExt));
-					if (incompletedNormalVideo != null && incompletedNormalVideo.Exists)
-					{
-						videoFile = await StorageFile.GetFileFromPathAsync(incompletedNormalVideo.FullName);
-					}
+					videoFile = await videoSaveFolder.GetFileAsync(fileName_low);
 				}
-				else
+				else if (ExistIncompleteLowQuorityVideo(videoTitle, videoId, videoSaveFolder))
 				{
-					var incompletedLowVideo = relatedVideoFiles.SingleOrDefault(x => x.FullName.EndsWith(".low.mp4.incomplete"));
-					if (incompletedLowVideo != null)
-					{
-						videoFile = await StorageFile.GetFileFromPathAsync(incompletedLowVideo.FullName);
-					}
-
+					videoFile = await videoSaveFolder.GetFileAsync(fileName_low + IncompleteExt);
 				}
 			}
+			
 			
 			if (videoFile == null)
 			{
@@ -258,6 +246,11 @@ namespace NicoPlayerHohoema.Models
 			{
 				await _CacheWriteSemaphore.WaitAsync().ConfigureAwait(false);
 
+				if (CacheFile == null)
+				{
+					return;
+				}
+
 				using (var stream = await CacheFile.OpenAsync(FileAccessMode.ReadWrite).AsTask().ConfigureAwait(false))
 				using (var writeStream = stream.GetOutputStreamAt(position))
 				{
@@ -320,6 +313,11 @@ namespace NicoPlayerHohoema.Models
 				var writeComplete = false;
 				while (!writeComplete)
 				{
+					if (ProgressFile == null)
+					{
+						return;
+					}
+
 					try
 					{
 						await FileIO.WriteTextAsync(ProgressFile, Newtonsoft.Json.JsonConvert.SerializeObject(Progress)).AsTask().ConfigureAwait(false);
@@ -555,21 +553,23 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public override void Dispose()
+		public override async void Dispose()
 		{
 			base.Dispose();
 
-			StopDownload();
+			await StopDownload();
 
 			if (!IsCacheComplete)
 			{
-				SaveProgress();
+				await SaveProgress();
 			}
 
 			if (!IsRequireCache)
 			{
-				CacheFile.DeleteAsync().AsTask().ConfigureAwait(false);
+				await CacheFile.DeleteAsync().AsTask().ConfigureAwait(false);
+				CacheFile = null;
 				ProgressFile?.DeleteAsync().AsTask().ConfigureAwait(false);
+				ProgressFile = null;
 			}
 		}
 

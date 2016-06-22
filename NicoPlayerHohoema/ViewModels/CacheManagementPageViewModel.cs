@@ -73,7 +73,7 @@ namespace NicoPlayerHohoema.ViewModels
 					var nicoVideo = await _MediaManager.GetNicoVideo(req.RawVideoid);
 					
 
-					var vm = new CacheVideoViewModel(nicoVideo, req.Quality, _MediaManager, PageManager);
+					var vm = new CacheVideoViewModel(nicoVideo, req.Quality, PageManager);
 
 					vm.LoadThumbnail();
 					_CacheVideoVMs.Add(req, vm);
@@ -90,32 +90,35 @@ namespace NicoPlayerHohoema.ViewModels
 
 		private async Task UpdateCacheItemsVM()
 		{
+			List<CacheVideoViewModel> list = new List<CacheVideoViewModel>();
+
+
 			foreach (var item in _MediaManager.VideoIdToNicoVideo.Values)
 			{
 				await item.SetupVideoInfoFromLocal();
 				await item.CheckCacheStatus();
 
 				if (item.OriginalQualityCacheState != NicoVideoCacheState.Incomplete || 
-					await item.HasOriginalQualityIncompleteVideoFile()
+					item.HasOriginalQualityIncompleteVideoFile()
 					)
 				{
 					var vm = await ToCacheVideoViewModel(item.RawVideoId, NicoVideoQuality.Original);
-					if (!CacheVideoItems.Contains(vm))
-					{
-						CacheVideoItems.Insert(0, vm);
-					}
+					list.Add(vm);
 				}
 
 				if (item.LowQualityCacheState != NicoVideoCacheState.Incomplete ||
-					await item.HasLowQualityIncompleteVideoFile()
+					item.HasLowQualityIncompleteVideoFile()
 					)
 				{
 					var vm = await ToCacheVideoViewModel(item.RawVideoId, NicoVideoQuality.Low);
-					if (!CacheVideoItems.Contains(vm))
-					{
-						CacheVideoItems.Insert(0, vm);
-					}
+					list.Add(vm);
 				}
+			}
+
+			CacheVideoItems.Clear();
+			foreach (var vm in list.OrderBy(x => x.CacheRequestTime).Reverse())
+			{
+				CacheVideoItems.Add(vm);
 			}
 		}
 
@@ -152,12 +155,13 @@ namespace NicoPlayerHohoema.ViewModels
 	public class CacheVideoViewModel : VideoInfoControlViewModel
 	{
 
-		public CacheVideoViewModel(NicoVideo nicoVideo, NicoVideoQuality quality, NiconicoMediaManager mediaMan, PageManager pageManager)
-			: base(nicoVideo.Title, nicoVideo.RawVideoId, null, mediaMan, pageManager)
+		public CacheVideoViewModel(NicoVideo nicoVideo, NicoVideoQuality quality, PageManager pageManager)
+			: base(nicoVideo, pageManager)
 		{
 			_CompositeDisposable = new CompositeDisposable();
 
 			Quality = quality;
+			CacheRequestTime = nicoVideo.CacheRequestTime;
 
 			if (quality == NicoVideoQuality.Low)
 			{
@@ -211,6 +215,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public bool IsIncompleteCache { get; private set; }
 
+		public DateTime CacheRequestTime { get; private set; }
 
 		public NicoVideoQuality Quality { get; private set; }
 		public ReactiveProperty<NicoVideoCacheState> CacheState { get; private set; }

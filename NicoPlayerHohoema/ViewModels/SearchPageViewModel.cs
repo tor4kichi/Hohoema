@@ -94,11 +94,9 @@ namespace NicoPlayerHohoema.ViewModels
 			foreach (var item in response.list)
 			{
 
+				var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideo(item.id);
 				var videoInfoVM = new VideoInfoControlViewModel(
-							item.title
-							, item.id
-							, HohoemaApp.UserSettings.NGSettings
-							, HohoemaApp.MediaManager
+							nicoVideo
 							, _PageManager
 						);
 

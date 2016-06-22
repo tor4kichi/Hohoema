@@ -29,7 +29,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			var man = new NiconicoMediaManager(app);
 			man.Context = await VideoDownloadContext.Create(app);
-
+			
 			// ダウンロードリクエストされたアイテムのNicoVideoオブジェクトの作成
 			// 及び、リクエストの再構築
 			var list = await VideoDownloadContext.LoadDownloadRequestItems().ConfigureAwait(false);
@@ -42,7 +42,7 @@ namespace NicoPlayerHohoema.Models
 			Debug.WriteLine($"{list.Count}件のダウンロード待ち状況を復元しました。");
 
 			// キャッシュ済みアイテムのNicoVideoオブジェクトの作成
-			var saveFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
+			var saveFolder = man.Context.VideoSaveFolder;
 			var files = await saveFolder.GetFilesAsync();
 			files
 				.AsParallel()
@@ -62,22 +62,19 @@ namespace NicoPlayerHohoema.Models
 			VideoIdToNicoVideo = new Dictionary<string, NicoVideo>();
 
 			_NicoVideoSemaphore = new SemaphoreSlim(1, 1);
+
 		}
 
-		
+
+
+
+
 
 
 		
-
-
-		public static async Task<StorageFolder> GetLocalVideoCacheFolderAsync()
-		{
-			return await ApplicationData.Current.LocalFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
-		}
-
 		public async Task DownloadVideoAsync(string rawVideoId)
 		{
-			var saveFolder = await GetLocalVideoCacheFolderAsync();
+			var saveFolder = Context.VideoSaveFolder;
 
 
 			var videoInfo = await _HohoemaApp.NiconicoContext.Video.GetWatchApiAsync(rawVideoId, false);
@@ -211,12 +208,16 @@ namespace NicoPlayerHohoema.Models
 		{
 			var context = new VideoDownloadContext(hohoemaApp);
 
+			context.VideoSaveFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
 
 			return context;
 		}
 
+		public StorageFolder VideoSaveFolder { get; private set; }
 
-		
+
+
+
 
 		private VideoDownloadContext(HohoemaApp hohoemaApp)
 		{
@@ -615,10 +616,12 @@ namespace NicoPlayerHohoema.Models
 
 			await nicoVideo.GetThumbnailInfo();
 			await nicoVideo.SetupVideoInfoFromLocal();
-			await nicoVideo.CheckCacheStatus();
 
 			nicoVideo.VideoId = nicoVideo.CachedThumbnailInfo.Id;
 			nicoVideo.Title = nicoVideo.CachedWatchApiResponse?.videoDetail.title ?? nicoVideo.CachedThumbnailInfo.Title;
+
+			await nicoVideo.CheckCacheStatus();
+
 			return nicoVideo;
 
 		}
@@ -635,6 +638,9 @@ namespace NicoPlayerHohoema.Models
 
 			OriginalQualityCacheState = NicoVideoCacheState.Incomplete;
 			LowQualityCacheState = NicoVideoCacheState.Incomplete;
+
+			CacheRequestTime = DateTime.MinValue;
+
 		}
 
 
@@ -642,7 +648,7 @@ namespace NicoPlayerHohoema.Models
 		public async Task CheckCacheStatus()
 		{
 			// すでにダウンロード済みのキャッシュファイルをチェック
-			var saveFolder = await NiconicoMediaManager.GetLocalVideoCacheFolderAsync();
+			var saveFolder = _Context.VideoSaveFolder;
 
 			if (NicoVideoCachedStream.ExistOriginalQuorityVideo(Title, VideoId, saveFolder))
 			{
@@ -683,6 +689,11 @@ namespace NicoPlayerHohoema.Models
 
 			CanRequestDownloadLowQuality = LowQualityCacheState == NicoVideoCacheState.Incomplete;
 
+			if (File.Exists(Path.Combine(saveFolder.Path, $"{RawVideoId}_info.json")))
+			{
+				var cacheFile = await saveFolder.GetFileAsync($"{RawVideoId}_info.json");
+				CacheRequestTime = cacheFile.DateCreated.DateTime;
+			}
 		}
 
 		// コメントのキャッシュまたはオンラインからの取得と更新
@@ -725,7 +736,7 @@ namespace NicoPlayerHohoema.Models
 		public async Task<CommentResponse> GetCommentFromLocal()
 		{
 			var fileName = $"{RawVideoId}_comment.json";
-			var saveFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
+			var saveFolder = _Context.VideoSaveFolder;
 
 			if (!System.IO.File.Exists(Path.Combine(saveFolder.Path, fileName)))
 			{
@@ -754,7 +765,7 @@ namespace NicoPlayerHohoema.Models
 		public async Task SaveComment(CommentResponse comment)
 		{
 			var fileName = $"{RawVideoId}_comment.json";
-			var saveFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
+			var saveFolder = _Context.VideoSaveFolder;
 
 			var jsonText = Newtonsoft.Json.JsonConvert.SerializeObject(comment);
 			var commentFile = await saveFolder.CreateFileAsync(fileName, CreationCollisionOption.OpenIfExists);
@@ -826,7 +837,7 @@ namespace NicoPlayerHohoema.Models
 		public async Task<ThumbnailResponse> GetThumbnailInfoFromLocal()
 		{
 			// ファイルに保存されたデータから動画情報を再現
-			var saveFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
+			var saveFolder = _Context.VideoSaveFolder;
 
 			ThumbnailResponse res = null;
 
@@ -868,7 +879,7 @@ namespace NicoPlayerHohoema.Models
 		private async Task SaveThumbnailInfo(ThumbnailResponse res)
 		{
 			// ファイルに保存されたデータから動画情報を再現
-			var saveFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
+			var saveFolder = _Context.VideoSaveFolder;
 
 			var fileName = $"{RawVideoId}_thumb.json";
 
@@ -886,7 +897,6 @@ namespace NicoPlayerHohoema.Models
 				_ThumbnailInfoFileWriteSemaphore.Release();
 			}
 		}
-
 
 		// 動画情報のキャッシュまたはオンラインからの取得と更新
 
@@ -940,7 +950,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			var fileName = $"{RawVideoId}_info.json";
 
-			var saveFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
+			var saveFolder = _Context.VideoSaveFolder;
 			// ファイルが存在するか
 			if (!System.IO.File.Exists(Path.Combine(saveFolder.Path, fileName)))
 			{
@@ -973,7 +983,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			var fileName = $"{RawVideoId}_info.json";
 
-			var saveFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
+			var saveFolder = _Context.VideoSaveFolder;
 
 			var jsonText = Newtonsoft.Json.JsonConvert.SerializeObject(watchApiRes);
 			var videoInfoFile = await saveFolder.CreateFileAsync(fileName, CreationCollisionOption.OpenIfExists);
@@ -1106,15 +1116,15 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public async Task<bool> HasOriginalQualityIncompleteVideoFile()
+		public bool HasOriginalQualityIncompleteVideoFile()
 		{
-			var saveFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
+			var saveFolder = _Context.VideoSaveFolder;
 			return NicoVideoCachedStream.ExistIncompleteOriginalQuorityVideo(Title, VideoId, saveFolder);
 		}
 
-		public async Task<bool> HasLowQualityIncompleteVideoFile()
+		public bool HasLowQualityIncompleteVideoFile()
 		{
-			var saveFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
+			var saveFolder = _Context.VideoSaveFolder;
 			return NicoVideoCachedStream.ExistIncompleteLowQuorityVideo(Title, VideoId, saveFolder);
 		}
 
@@ -1236,10 +1246,12 @@ namespace NicoPlayerHohoema.Models
 			set { SetProperty(ref _OriginalQualityVideoSize, value); }
 		}
 
-
+		public bool IsNeedPayment { get; private set; }
 
 
 		public bool NowOffline { get; private set; }
+
+		public DateTime CacheRequestTime { get; private set; }
 
 		public HohoemaApp HohoemaApp { get; private set; }
 		VideoDownloadContext _Context;

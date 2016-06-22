@@ -222,7 +222,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			var uri = await VideoDescriptionHelper.PartHtmlOutputToCompletlyHtml(VideoId, VideoInfo.videoDetail.description);
 
-			RelationVideoInfoContentViewModel relatedVideoVM = new RelationVideoInfoContentViewModel(VideoId, _HohoemaApp.ContentFinder, _HohoemaApp.UserSettings.NGSettings, _PageManager);
+			RelationVideoInfoContentViewModel relatedVideoVM = new RelationVideoInfoContentViewModel(VideoId, _HohoemaApp, _PageManager);
 			VideoInfoContentItems = new List<MediaInfoViewModel>()
 			{
 				new SummaryVideoInfoContentViewModel(ThumbnailResponse, uri, _PageManager),

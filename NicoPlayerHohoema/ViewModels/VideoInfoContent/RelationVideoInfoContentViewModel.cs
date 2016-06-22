@@ -11,11 +11,10 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 
 	public class RelationVideoInfoContentViewModel : MediaInfoViewModel
 	{
-		public RelationVideoInfoContentViewModel(string videoId, Models.NiconicoContentFinder contentFinder, NGSettings ngSettings, PageManager pageManager)
+		public RelationVideoInfoContentViewModel(string videoId, HohoemaApp app, PageManager pageManager)
 		{
 			VideoId = videoId;
-			ContentFinder = contentFinder;
-			NGSettings = ngSettings;
+			HohoemaApp = app;
 			PageManager = pageManager;
 
 
@@ -27,13 +26,14 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 
 		public async Task LoadRelatedVideo()
 		{
-			var relatedVideos = await ContentFinder.GetRelatedVideos(VideoId, 0, 5);
+			var relatedVideos = await HohoemaApp.ContentFinder.GetRelatedVideos(VideoId, 0, 5);
 			RelatedVideos.Clear();
 
 
 			foreach (var v in relatedVideos.Video_info)
 			{
-				RelatedVideos.Add(new VideoInfoControlViewModel(v, NGSettings, PageManager));
+				var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideo(VideoId);
+				RelatedVideos.Add(new VideoInfoControlViewModel(v, nicoVideo, PageManager));
 			}
 
 		}
@@ -43,8 +43,7 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 		public ObservableCollection<VideoInfoControlViewModel> RelatedVideos { get; private set; }
 
 		public string VideoId { get; private set; }
-		public NiconicoContentFinder ContentFinder { get; private set; }
-		public NGSettings NGSettings { get; private set; }
+		public HohoemaApp HohoemaApp { get; private set; }
 		public PageManager PageManager { get; private set; }
 	}
 }

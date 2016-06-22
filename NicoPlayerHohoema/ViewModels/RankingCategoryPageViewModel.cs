@@ -42,7 +42,7 @@ namespace NicoPlayerHohoema.ViewModels
 				new RankingTargetListItem(RankingTarget.mylist)
 			};
 
-			SelectedRankingTarget = new ReactiveProperty<RankingTargetListItem>(RankingTargetItems[0]);
+			SelectedRankingTarget = new ReactiveProperty<RankingTargetListItem>(RankingTargetItems[0], ReactivePropertyMode.DistinctUntilChanged);
 
 
 			// ランキングの集計期間
@@ -55,7 +55,7 @@ namespace NicoPlayerHohoema.ViewModels
 				new RankingTimeSpanListItem(RankingTimeSpan.total),
 			};
 
-			SelectedRankingTimeSpan = new ReactiveProperty<RankingTimeSpanListItem>(RankingTimeSpanItems[0]);
+			SelectedRankingTimeSpan = new ReactiveProperty<RankingTimeSpanListItem>(RankingTimeSpanItems[0], ReactivePropertyMode.DistinctUntilChanged);
 
 
 			
@@ -95,15 +95,12 @@ namespace NicoPlayerHohoema.ViewModels
 				for (uint i = 0; i < listItems.Channel.Items.Count; i++)
 				{
 					var item = listItems.Channel.Items[(int)i];
-
+					var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideo(item.GetVideoId());
 					try
 					{
 						var videoInfoVM = new RankedVideoInfoControlViewModel(
 							i + 1
-							, item.Title
-							, Util.NicoVideoExtention.UrlToVideoId(item.VideoUrl)
-							, HohoemaApp.UserSettings.NGSettings
-							, HohoemaApp.MediaManager
+							, nicoVideo
 							, _PageManager
 						);
 
@@ -147,14 +144,12 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				var item = listItems[(int)i];
 
+				var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideo(item.id);
 				try
 				{
 					var videoInfoVM = new RankedVideoInfoControlViewModel(
-						i + 1,
-						item.title
-						, item.id
-						, HohoemaApp.UserSettings.NGSettings
-						, HohoemaApp.MediaManager
+						i + 1
+						, nicoVideo
 						, _PageManager
 						);
 
@@ -265,8 +260,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class RankedVideoInfoControlViewModel : VideoInfoControlViewModel
 	{
-		public RankedVideoInfoControlViewModel(uint rank, string title, string videoId, NGSettings ngSettings, NiconicoMediaManager mediaMan, PageManager pageManager)
-			: base(title, videoId, ngSettings, mediaMan, pageManager)
+		public RankedVideoInfoControlViewModel(uint rank, NicoVideo nicoVideo, PageManager pageManager)
+			: base(nicoVideo, pageManager)
 		{
 			Rank = rank;
 		}

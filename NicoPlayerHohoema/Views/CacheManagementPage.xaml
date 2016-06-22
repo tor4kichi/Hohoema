@@ -34,7 +34,7 @@
                                         -->
                                         
                                         <ProgressBar Maximum="100.0" Minimum="0.0" Value="{Binding ProgressPercent.Value}"
-                                                     ToolTipService.ToolTip="{Binding ProgressPercent.Value}"
+                                                     Margin="0 4"
                                                      />
                                         
                                     </toolkit:DockPanel>
@@ -45,14 +45,18 @@
                                         
                                         <!-- 状態 -->
                                         <StackPanel  toolkit:DockPanel.Dock="Right" HorizontalAlignment="Right">
+                                            <TextBlock Text="{Binding CacheRequestTime}" Margin="0 0 0 4" />
                                             <TextBlock Text="{Binding Quality}" Margin="0 0 0 4" />
-                                            <TextBlock Text="{Binding CacheState.Value}" />
-                                            <TextBlock toolkit:DockPanel.Dock="Left" Margin="8 0"
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding CacheState.Value}" />
+                                                <TextBlock toolkit:DockPanel.Dock="Left" Margin="8 0"
                                                        Visibility="{Binding IsVisibleProgress.Value, Converter={StaticResource BooleanToVisibility}}"
                                                        >
-                                                <Run Text="{Binding ProgressPercent.Value}" />
-                                                <Run Text="%" />
-                                            </TextBlock>
+                                                    <Run Text="(" />
+                                                    <Run Text="{Binding ProgressPercent.Value}" />
+                                                    <Run Text="%)" />
+                                                </TextBlock>
+                                            </StackPanel>
 
                                         </StackPanel>
 
