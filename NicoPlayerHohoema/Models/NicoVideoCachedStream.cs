@@ -32,7 +32,7 @@ namespace NicoPlayerHohoema.Models
 
 		// エコノミーとオリジナルの切り替えはここでは責任を持たない
 		// 動画情報.jsonやコメント.jsonはここでは取り扱わない
-		const string IncompleteExt = ".incomplete";
+		public const string IncompleteExt = ".incomplete";
 
 		public static string MakeVideoFileName(string title, string videoid)
 		{

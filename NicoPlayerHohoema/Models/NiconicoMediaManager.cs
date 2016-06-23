@@ -320,9 +320,18 @@ namespace NicoPlayerHohoema.Models
 
 		public void CacnelDownloadRequest(string rawVideoId, NicoVideoQuality quality)
 		{
+			if (CheckVideoDownloading(rawVideoId, quality))
+			{
+				this.CloseCurrentDownloadStream();
+
+				TryBeginNextDownloadRequest().ConfigureAwait(false);
+			}
+
 			var req = _CacheRequestStack.SingleOrDefault(x => x.RawVideoid == rawVideoId && x.Quality == quality);
+			
 			if (req != null)
 			{
+				_CacheRequestStack.Remove(req);
 				OnCacheCompleted?.Invoke(req.RawVideoid, req.Quality, false);
 			}
 		}
@@ -1115,6 +1124,76 @@ namespace NicoPlayerHohoema.Models
 			_Context.ClosePlayingStream(VideoId);
 		}
 
+		public void CancelCacheRequest()
+		{
+			CancelCacheRequest(NicoVideoQuality.Original);
+			CancelCacheRequest(NicoVideoQuality.Low);
+		}
+
+		public void CancelCacheRequest(NicoVideoQuality quality)
+		{
+			_Context.CacnelDownloadRequest(this.RawVideoId, quality);
+		}
+
+		public async Task DeleteCache(NicoVideoQuality quality)
+		{
+			if (_Context.CheckVideoDownloading(this.RawVideoId, quality))
+			{
+				_Context.CacnelDownloadRequest(this.RawVideoId, quality);
+			}
+
+			if (quality == NicoVideoQuality.Original)
+			{
+				await DeleteOriginalQualityCache().ConfigureAwait(false);
+			}
+
+			if (quality == NicoVideoQuality.Low)
+			{
+				await DeleteLowQualityCache().ConfigureAwait(false);
+			}
+
+			await CheckCacheStatus();
+
+			if (LowQualityCacheState == NicoVideoCacheState.Incomplete 
+				&& OriginalQualityCacheState == NicoVideoCacheState.Incomplete)
+			{
+				// jsonファイルを削除
+				var saveFolder = _Context.VideoSaveFolder;
+				var files = await saveFolder.GetFilesAsync();
+				var deleteTargets = files.Where(x => x.Name.Contains(VideoId))
+					.Where(x => x.Name.EndsWith(".json"));
+
+				foreach (var file in deleteTargets)
+				{
+					await file.DeleteAsync();
+				}
+			}
+		}
+
+		private async Task DeleteOriginalQualityCache()
+		{
+			var saveFolder = _Context.VideoSaveFolder;
+			var files = await saveFolder.GetFilesAsync();
+			var deleteTargets = files.Where(x => x.Name.Contains(VideoId))
+				.Where(x => x.Name.EndsWith(".mp4") || x.Name.EndsWith(".mp4" + NicoVideoCachedStream.IncompleteExt));
+			foreach (var file in deleteTargets)
+			{
+				await file.DeleteAsync();
+			}
+
+		}
+
+		private async Task DeleteLowQualityCache()
+		{
+			var saveFolder = _Context.VideoSaveFolder;
+			var files = await saveFolder.GetFilesAsync();
+			var deleteTargets = files.Where(x => x.Name.Contains(VideoId))
+				.Where(x => x.Name.Contains(".low.mp4"));
+			foreach (var file in deleteTargets)
+			{
+				await file.DeleteAsync();
+			}
+		}
 
 		public bool HasOriginalQualityIncompleteVideoFile()
 		{

@@ -9,11 +9,13 @@
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:behavior="using:NicoPlayerHohoema.Views.Behaviors"
     mc:Ignorable="d"
     d:DesignHeight="60"
     d:DesignWidth="400">
 
     <Grid>
+
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup>
                 <VisualState>
@@ -57,7 +59,24 @@
                 </core:EventTriggerBehavior>
             </i:Interaction.Behaviors>
 
-            
+            <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left" Width="16"
+                        ToolTipService.ToolTip="灰色=未視聴 / 青=通常画質保存済み / 緑=低画質保存済み"
+                        >
+                <!--
+                <Border BorderThickness="1 0 1 0" BorderBrush="Gray"
+                        Visibility="{Binding IsStillNotWatch, Converter={StaticResource BooleanToVisibility}}"
+                        >
+                    <Border BorderThickness="1 0 0 0" BorderBrush="Gray" Margin="1 0" />
+                </Border>
+                -->
+                <Border BorderThickness="4 0 0 0" BorderBrush="Blue" 
+                        Visibility="{Binding IsOriginalQualityCached.Value, Converter={StaticResource BooleanToVisibility}}"
+                        />
+                <Border BorderThickness="2 0 2 0" BorderBrush="Green" 
+                        Width="6"
+                        Visibility="{Binding IsLowQualityCached.Value, Converter={StaticResource BooleanToVisibility}}"
+                        />
+            </StackPanel>
 
             <Grid Height="60" Width="80" toolkit:DockPanel.Dock="Left">
 

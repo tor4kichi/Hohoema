@@ -6,18 +6,24 @@ using Mntone.Nico2.Videos.Thumbnail;
 using NicoPlayerHohoema.Models;
 using Prism.Commands;
 using Prism.Mvvm;
+using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	public class VideoInfoControlViewModel : BindableBase, IDisposable
 	{
+	//	private IScheduler scheduler;
+
 		// とりあえずマイリストから取得したデータによる初期化
 		public VideoInfoControlViewModel(MylistData data, NicoVideo nicoVideo, PageManager pageManager)
 			: this(nicoVideo, pageManager)
@@ -36,7 +42,7 @@ namespace NicoPlayerHohoema.ViewModels
 			NGVideoReason = "";
 			IsForceDisplayNGVideo = false;
 
-			
+	//		scheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
 
 			VideoId = RawVideoId;
 		}
@@ -74,21 +80,20 @@ namespace NicoPlayerHohoema.ViewModels
 			VideoId = nicoVideo.VideoId;
 
 			IsDeleted = nicoVideo.IsDeleted;
-			NicoVideo.ObserveProperty(x => x.LowQualityCacheState)
-				.Subscribe(x =>
-				{
-					IsLowQualityCached = x != NicoVideoCacheState.Incomplete;
-				})
+			IsLowQualityCached = NicoVideo.ObserveProperty(x => x.LowQualityCacheState)
+				.Select(x => x != NicoVideoCacheState.Incomplete)
+				.ToReactiveProperty()
+				.AddTo(_CompositeDisposable);
+			IsOriginalQualityCached = NicoVideo.ObserveProperty(x => x.OriginalQualityCacheState)
+				.Select(x => x != NicoVideoCacheState.Incomplete)
+				.ToReactiveProperty()
 				.AddTo(_CompositeDisposable);
 
 
-			NicoVideo.ObserveProperty(x => x.OriginalQualityCacheState)
-				.Subscribe(x =>
-				{
-					IsOriginalQualityCached = x != NicoVideoCacheState.Incomplete;
-				})
-				.AddTo(_CompositeDisposable);
 
+
+
+			IsStillNotWatch = true;
 		}
 
 
@@ -236,19 +241,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public string RawVideoId { get; private set; }
 
+		public ReactiveProperty<bool> IsOriginalQualityCached { get; private set; }
+		public ReactiveProperty<bool> IsLowQualityCached { get; private set; }
 
-		private bool _IsOriginalQualityCached;
-		public bool IsOriginalQualityCached
-		{
-			get { return _IsOriginalQualityCached; }
-			set { SetProperty(ref _IsOriginalQualityCached, value); }
-		}
-		private bool _IsLowQualityCached;
-		public bool IsLowQualityCached
-		{
-			get { return _IsLowQualityCached; }
-			set { SetProperty(ref _IsLowQualityCached, value); }
-		}
 
 
 		private bool _IsStillNotWatch;
@@ -312,7 +307,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		private CompositeDisposable _CompositeDisposable;
+		protected CompositeDisposable _CompositeDisposable;
 
 		public NicoVideo NicoVideo { get; private set; }
 		public PageManager PageManager { get; private set; }

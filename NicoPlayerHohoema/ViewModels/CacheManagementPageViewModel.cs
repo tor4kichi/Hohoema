@@ -17,20 +17,20 @@ using System.Threading;
 using System.Reactive.Disposables;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Reactive.Concurrency;
+using NicoPlayerHohoema.Util;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class CacheManagementPageViewModel : HohoemaViewModelBase
+	public class CacheManagementPageViewModel : HohoemaVideoListingPageViewModelBase
 	{
 		public static SynchronizationContextScheduler scheduler;
 		public CacheManagementPageViewModel(HohoemaApp app, PageManager pageManager)
-			: base(pageManager)
+			: base(app, pageManager)
 		{
 			if (scheduler == null)
 			{
 				scheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
 			}
-			_HohoemaApp = app;
 			_MediaManager = app.MediaManager;
 
 			_CacheVideoViewModelSemaphore = new SemaphoreSlim(1, 1);
@@ -88,6 +88,12 @@ namespace NicoPlayerHohoema.ViewModels
 			
 		}
 
+
+		protected override void UpdateList()
+		{
+			UpdateCacheItemsVM().ConfigureAwait(false);
+		}
+
 		private async Task UpdateCacheItemsVM()
 		{
 			List<CacheVideoViewModel> list = new List<CacheVideoViewModel>();
@@ -134,7 +140,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 		private SemaphoreSlim _CacheVideoViewModelSemaphore;
 
-		HohoemaApp _HohoemaApp;
 		NiconicoMediaManager _MediaManager;
 
 		private Dictionary<NicoVideoCacheRequest, CacheVideoViewModel> _CacheVideoVMs;
@@ -151,15 +156,12 @@ namespace NicoPlayerHohoema.ViewModels
 	
 	
 
-
 	public class CacheVideoViewModel : VideoInfoControlViewModel
 	{
 
 		public CacheVideoViewModel(NicoVideo nicoVideo, NicoVideoQuality quality, PageManager pageManager)
 			: base(nicoVideo, pageManager)
 		{
-			_CompositeDisposable = new CompositeDisposable();
-
 			Quality = quality;
 			CacheRequestTime = nicoVideo.CacheRequestTime;
 
@@ -199,11 +201,6 @@ namespace NicoPlayerHohoema.ViewModels
 			
 		}
 
-		public virtual void Dispose()
-		{
-			_CompositeDisposable?.Dispose();
-		}
-
 		private float ProgressToPercent(uint size, uint totalSize)
 		{
 			if (size == totalSize) { return 100.0f; }
@@ -211,7 +208,6 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		private CompositeDisposable _CompositeDisposable;
 
 		public bool IsIncompleteCache { get; private set; }
 
