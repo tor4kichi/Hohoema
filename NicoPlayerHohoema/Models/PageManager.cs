@@ -140,6 +140,8 @@ namespace NicoPlayerHohoema.Models
 					return "視聴履歴";
 				case HohoemaPageType.Search:
 					return "検索";
+				case HohoemaPageType.CacheManagement:
+					return "ダウンロード管理";
 				case HohoemaPageType.Settings:
 					return "設定";
 				case HohoemaPageType.About:

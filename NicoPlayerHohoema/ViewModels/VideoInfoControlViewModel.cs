@@ -6,24 +6,30 @@ using Mntone.Nico2.Videos.Thumbnail;
 using NicoPlayerHohoema.Models;
 using Prism.Commands;
 using Prism.Mvvm;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Concurrency;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class VideoInfoControlViewModel : BindableBase
+	public class VideoInfoControlViewModel : BindableBase, IDisposable
 	{
-		// とりあえずマイリストから取得したデータによる初期化
-		public VideoInfoControlViewModel(MylistData data, NGSettings ngSettings, PageManager pageManager)
-		{
-			NGSettings = ngSettings;
-			PageManager = pageManager;
+	//	private IScheduler scheduler;
 
+		// とりあえずマイリストから取得したデータによる初期化
+		public VideoInfoControlViewModel(MylistData data, NicoVideo nicoVideo, PageManager pageManager)
+			: this(nicoVideo, pageManager)
+		{
 			Title = data.Title;
-			VideoId = data.ItemId;
+			RawVideoId = data.ItemId;
 			ViewCount = data.ViewCount;
 			CommentCount = data.CommentCount;
 			MylistCount = data.MylistCount;
@@ -36,18 +42,18 @@ namespace NicoPlayerHohoema.ViewModels
 			NGVideoReason = "";
 			IsForceDisplayNGVideo = false;
 
-			RealVideoId = VideoId;
+	//		scheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
+
+			VideoId = RawVideoId;
 		}
 
 
 		// 個別マイリストから取得したデータによる初期化
-		public VideoInfoControlViewModel(Video_info data, NGSettings ngSettings, PageManager pageManager)
+		public VideoInfoControlViewModel(Video_info data, NicoVideo nicoVideo, PageManager pageManager)
+			: this(nicoVideo, pageManager)
 		{
-			NGSettings = ngSettings;
-			PageManager = pageManager;
-
 			Title = data.Video.Title.DecodeUTF8();
-			VideoId = data.Video.Id;
+			RawVideoId = data.Video.Id;
 			ViewCount = uint.Parse(data.Video.View_counter);
 			CommentCount = uint.Parse(data.Thread.Num_res);
 			MylistCount = uint.Parse(data.Video.Mylist_counter);
@@ -59,34 +65,66 @@ namespace NicoPlayerHohoema.ViewModels
 			IsNotGoodVideo = false;
 			NGVideoReason = "";
 			IsForceDisplayNGVideo = false;
-			RealVideoId = VideoId;
+			VideoId = RawVideoId;
 		}
 
-		public VideoInfoControlViewModel(string title, string videoId, NGSettings ngSettings, NiconicoMediaManager mediaMan, PageManager pageManager)
+
+		public VideoInfoControlViewModel(NicoVideo nicoVideo, PageManager pageManager)
 		{
-			NGSettings = ngSettings;
 			PageManager = pageManager;
-			MediaManager = mediaMan;
+			NicoVideo = nicoVideo;
+			_CompositeDisposable = new CompositeDisposable();
 
-			Title = title;
-			VideoId = videoId;
-			RealVideoId = VideoId;
+			Title = nicoVideo.Title;
+			RawVideoId = nicoVideo.RawVideoId;
+			VideoId = nicoVideo.VideoId;
+
+			IsDeleted = nicoVideo.IsDeleted;
+			IsLowQualityCached = NicoVideo.ObserveProperty(x => x.LowQualityCacheState)
+				.Select(x => x != NicoVideoCacheState.Incomplete)
+				.ToReactiveProperty()
+				.AddTo(_CompositeDisposable);
+			IsOriginalQualityCached = NicoVideo.ObserveProperty(x => x.OriginalQualityCacheState)
+				.Select(x => x != NicoVideoCacheState.Incomplete)
+				.ToReactiveProperty()
+				.AddTo(_CompositeDisposable);
+
+
+
+
+
+			IsStillNotWatch = true;
 		}
-
 
 
 		public async void LoadThumbnail()
 		{
-			if (MediaManager == null) { return; }
+			if (NicoVideo == null) { return; }
 
 			try
 			{
-				var thumbnail = await MediaManager.GetThumbnail(VideoId);
+				var thumbnail = await NicoVideo.GetThumbnailInfo();
+
+
+				if (NicoVideo.IsDeleted)
+				{
+					IsDeleted = true;
+				}
+
+				if (thumbnail == null)
+				{
+					return;
+				}
 
 				// NG判定
-				var ngResult = NGSettings.IsNgVideo(thumbnail);
-				IsNotGoodVideo = ngResult != null;
-				NGVideoReason = ngResult?.GetReasonText() ?? "";
+				/*
+				if (NicoVideo.)
+				{
+					var ngResult = NGSettings.IsNgVideo(thumbnail);
+					IsNotGoodVideo = ngResult != null;
+					NGVideoReason = ngResult?.GetReasonText() ?? "";
+				}
+				*/
 				IsForceDisplayNGVideo = false;
 
 
@@ -100,12 +138,17 @@ namespace NicoPlayerHohoema.ViewModels
 				ThumbnailImageUrl = IsNotGoodVideo ? null : thumbnail.ThumbnailUrl;
 				MovieLength = thumbnail.Length;
 
-				RealVideoId = thumbnail.Id;
+				VideoId = thumbnail.Id;
 			}
 			catch
 			{
 				IsDeleted = true;
 			}
+		}
+
+		public void Dispose()
+		{
+			_CompositeDisposable?.Dispose();
 		}
 
 		private string _Title;
@@ -194,9 +237,23 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _IsDeleted, value); }
 		}
 
-		public string RealVideoId { get; private set; }
-
 		public string VideoId { get; private set; }
+
+		public string RawVideoId { get; private set; }
+
+		public ReactiveProperty<bool> IsOriginalQualityCached { get; private set; }
+		public ReactiveProperty<bool> IsLowQualityCached { get; private set; }
+
+
+
+		private bool _IsStillNotWatch;
+		public bool IsStillNotWatch
+		{
+			get { return _IsStillNotWatch; }
+			set { SetProperty(ref _IsStillNotWatch, value); }
+		}
+
+
 
 		private DelegateCommand _ShowDetailCommand;
 		public DelegateCommand ShowDetailCommand
@@ -206,7 +263,7 @@ namespace NicoPlayerHohoema.ViewModels
 				return _ShowDetailCommand
 					?? (_ShowDetailCommand = new DelegateCommand(() =>
 					{
-						PageManager.OpenPage(HohoemaPageType.VideoInfomation, RealVideoId);
+						PageManager.OpenPage(HohoemaPageType.VideoInfomation, RawVideoId);
 					}));
 			}
 		}
@@ -218,7 +275,7 @@ namespace NicoPlayerHohoema.ViewModels
 				return _PlayCommand
 					?? (_PlayCommand = new DelegateCommand(() =>
 					{
-						PageManager.OpenPage(HohoemaPageType.VideoInfomation, RealVideoId);
+						PageManager.OpenPage(HohoemaPageType.VideoInfomation, RawVideoId);
 					}));
 			}
 		}
@@ -250,9 +307,9 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+		protected CompositeDisposable _CompositeDisposable;
 
-		public NGSettings NGSettings { get; private set; }
+		public NicoVideo NicoVideo { get; private set; }
 		public PageManager PageManager { get; private set; }
-		public NiconicoMediaManager MediaManager { get; private set; }
 	}
 }

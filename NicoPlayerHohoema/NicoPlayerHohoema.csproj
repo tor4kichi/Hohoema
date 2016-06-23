@@ -18,6 +18,10 @@
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <PackageCertificateKeyFile>NicoPlayerHohoema_TemporaryKey.pfx</PackageCertificateKeyFile>
     <SkipIntermediatePriGenerationForResourceFiles>false</SkipIntermediatePriGenerationForResourceFiles>
+    <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
+    <AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
+    <AppxBundle>Always</AppxBundle>
+    <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -123,11 +127,13 @@
     <Compile Include="Util\NiconicoRankingExtention.cs" />
     <Compile Include="Util\NicoVideoRssItemExtention.cs" />
     <Compile Include="ViewModels\AboutPageViewModel.cs" />
+    <Compile Include="ViewModels\CacheManagementPageViewModel.cs" />
     <Compile Include="ViewModels\CommentStreamingViewModel.cs" />
     <Compile Include="ViewModels\FavoriteListPageViewModel.cs" />
     <Compile Include="ViewModels\FavoritePageViewModel.cs" />
     <Compile Include="ViewModels\FavoriteVideoInfoControlViewModel.cs" />
     <Compile Include="ViewModels\HistoryPageViewModel.cs" />
+    <Compile Include="ViewModels\HohoemaVideoListingPageViewModelBase.cs" />
     <Compile Include="ViewModels\HohoemaViewModelBase.cs" />
     <Compile Include="ViewModels\LoginPageViewModel.cs" />
     <Compile Include="ViewModels\MenuNavigatePageBaseViewModel.cs" />
@@ -138,6 +144,11 @@
     <Compile Include="ViewModels\VideoInfoContent\TagsVideoInfoContentViewModel.cs" />
     <Compile Include="Views\AboutPage.xaml.cs">
       <DependentUpon>AboutPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Behaviors\ListViewSelectedItemsGetter.cs" />
+    <Compile Include="Views\Behaviors\OpenFlyout.cs" />
+    <Compile Include="Views\CacheManagementPage.xaml.cs">
+      <DependentUpon>CacheManagementPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\FavoriteListPage.xaml.cs">
       <DependentUpon>FavoriteListPage.xaml</DependentUpon>
@@ -305,6 +316,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Views\AboutPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\CacheManagementPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

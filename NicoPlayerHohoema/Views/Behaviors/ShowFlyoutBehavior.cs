@@ -19,6 +19,8 @@ namespace NicoPlayerHohoema.Views.Behaviors
 	{
 		public DependencyObject AssociatedObject { get; private set; }
 
+		
+
 		// 前準備
 		public void Attach(DependencyObject associatedObject)
 		{

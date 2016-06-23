@@ -32,6 +32,7 @@ namespace NicoPlayerHohoema.ViewModels
 			_NavigationService = ns;
 
 			_CompositeDisposable = new CompositeDisposable();
+			_CompositeDisposablePerNavigation = new CompositeDisposable();
 
 			IsLowQuality = new ReactiveProperty<bool>(false)
 				.AddTo(_CompositeDisposable);
@@ -87,7 +88,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 		}
 
-
+		
 
 		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
@@ -95,6 +96,8 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				return;
 			}
+
+			_CompositeDisposablePerNavigation = new CompositeDisposable();
 
 			if (e.Parameter is WatchApiResponse)
 			{
@@ -120,32 +123,20 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					if (VideoId == null) { return; }
 
-					NicoVideo = await _HohoemaApp.MediaManager.CreateNicoVideoAccessor(VideoId);
-
-					VideoInfo = NicoVideo.CachedWatchApiResponse;
-
-
-
+					NicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(VideoId);
+					VideoInfo = await NicoVideo.GetVideoInfo();
 
 					// 再生・キャッシュボタンの状態を設定
 
-					NowRestrictedLowQualityMode = VideoInfo.VideoUrl.AbsoluteUri.EndsWith("low");
+					NowRestrictedLowQualityMode = NicoVideo.NowLowQualityOnly;
 
 					CanPlayLowQuality.Value = true;
-					CanDownloadCacheLowQuality.Value = NicoVideo.LowQualityCacheState == NicoVideoCacheState.CanDownload;
+					CanDownloadCacheLowQuality.Value = NicoVideo.CanRequestDownloadLowQuality;
+					CanDownloadCacheOriginalQuality.Value = NicoVideo.CanRequestDownloadOriginalQuality;
 
+					IsLowQuality.Value = NowRestrictedLowQualityMode;
+					CanPlayOriginalQuality.Value = !NowRestrictedLowQualityMode;
 
-					if (NowRestrictedLowQualityMode)
-					{
-						IsLowQuality.Value = true;
-						CanPlayOriginalQuality.Value = NicoVideo.OriginalQualityCacheState == NicoVideoCacheState.Cached;
-						CanDownloadCacheOriginalQuality.Value = false;
-					}
-					else
-					{
-						CanPlayOriginalQuality.Value = true;
-						CanDownloadCacheOriginalQuality.Value = NicoVideo.OriginalQualityCacheState == NicoVideoCacheState.CanDownload;
-					}
 
 					// TODO: オフライン時の再生・キャッシュ状況の反映
 					var nowOffline = false;
@@ -159,19 +150,23 @@ namespace NicoPlayerHohoema.ViewModels
 					}
 
 					NicoVideo.ObserveProperty(x => x.OriginalQualityCacheState)
+						.SubscribeOnUIDispatcher()
 						.Subscribe(x =>
 						{
 							IsOriginalQualityCached = x == NicoVideoCacheState.Cached;
-							CanDownloadCacheOriginalQuality.Value = x == NicoVideoCacheState.CanDownload;
-						});
+							CanDownloadCacheOriginalQuality.Value = NicoVideo.CanRequestDownloadOriginalQuality;
+						})
+						.AddTo(_CompositeDisposablePerNavigation);
 
 					NicoVideo.ObserveProperty(x => x.LowQualityCacheState)
+						.SubscribeOnUIDispatcher()
 						.Subscribe(x =>
 						{
 							IsLowQualityCached = x == NicoVideoCacheState.Cached;
-							CanDownloadCacheLowQuality.Value = x == NicoVideoCacheState.CanDownload;
-						});
-					
+							CanDownloadCacheLowQuality.Value = NicoVideo.CanRequestDownloadLowQuality;
+						})
+						.AddTo(_CompositeDisposablePerNavigation);
+
 				}
 				catch (Exception exception)
 				{
@@ -184,7 +179,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			try
 			{
-				ThumbnailResponse = await _HohoemaApp.MediaManager.GetThumbnail(VideoId);
+				ThumbnailResponse = await NicoVideo.GetThumbnailInfo();
 
 				UserName = ThumbnailResponse.UserName;
 				UserIconUrl = ThumbnailResponse.UserIconUrl;
@@ -198,6 +193,7 @@ namespace NicoPlayerHohoema.ViewModels
 				MylistCount = ThumbnailResponse.MylistCount;
 				ThumbnailUrl = ThumbnailResponse.ThumbnailUrl;
 
+				/*
 				IsOnlyOriginalQuality = ThumbnailResponse.SizeLow == 0;
 				if (IsOnlyOriginalQuality)
 				{
@@ -205,11 +201,19 @@ namespace NicoPlayerHohoema.ViewModels
 					CanDownloadCacheLowQuality.Value = false;
 					IsLowQuality.Value = false;
 				}
+				*/
 			}
 			catch (Exception exception)
 			{
 				System.Diagnostics.Debug.Write("動画サムネイル情報の取得または反映に失敗しました。");
 				System.Diagnostics.Debug.Write(exception.Message);
+			}
+
+			// 低画質動画がキャッシュ中（完了・リクエスト済み・ダウンロード中）の場合はそちらを優先表示する
+			if (NicoVideo.LowQualityCacheState != NicoVideoCacheState.Incomplete && 
+				NicoVideo.OriginalQualityCacheState == NicoVideoCacheState.Incomplete)
+			{
+				IsLowQuality.Value = true;
 			}
 
 //			_PageManager.PageTitle = Title;
@@ -218,7 +222,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			var uri = await VideoDescriptionHelper.PartHtmlOutputToCompletlyHtml(VideoId, VideoInfo.videoDetail.description);
 
-			RelationVideoInfoContentViewModel relatedVideoVM = new RelationVideoInfoContentViewModel(VideoId, _HohoemaApp.ContentFinder, _HohoemaApp.UserSettings.NGSettings, _PageManager);
+			RelationVideoInfoContentViewModel relatedVideoVM = new RelationVideoInfoContentViewModel(VideoId, _HohoemaApp, _PageManager);
 			VideoInfoContentItems = new List<MediaInfoViewModel>()
 			{
 				new SummaryVideoInfoContentViewModel(ThumbnailResponse, uri, _PageManager),
@@ -238,9 +242,15 @@ namespace NicoPlayerHohoema.ViewModels
 			base.OnNavigatedTo(e, viewModelState);
 		}
 
+		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+		{
+			_CompositeDisposablePerNavigation?.Dispose();
+			_CompositeDisposablePerNavigation = null;
+
+			base.OnNavigatingFrom(e, viewModelState, suspending);
+		}
 
 
-		
 
 		private DelegateCommand _NavigationBackCommand;
 		public DelegateCommand NavigationBackCommand
@@ -257,6 +267,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+		CompositeDisposable _CompositeDisposablePerNavigation;
 		CompositeDisposable _CompositeDisposable;
 
 

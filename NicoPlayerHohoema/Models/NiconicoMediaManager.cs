@@ -29,60 +29,55 @@ namespace NicoPlayerHohoema.Models
 		{
 			var man = new NiconicoMediaManager(app);
 			man.Context = await VideoDownloadContext.Create(app);
+			
+			// ダウンロードリクエストされたアイテムのNicoVideoオブジェクトの作成
+			// 及び、リクエストの再構築
+			var list = await VideoDownloadContext.LoadDownloadRequestItems().ConfigureAwait(false);
+			foreach (var req in list)
+			{
+				var nicoVideo = await man.GetNicoVideo(req.RawVideoid);
+				await nicoVideo.RequestCache(req.Quality);
+			}
+
+			Debug.WriteLine($"{list.Count}件のダウンロード待ち状況を復元しました。");
+
+			// キャッシュ済みアイテムのNicoVideoオブジェクトの作成
+			var saveFolder = man.Context.VideoSaveFolder;
+			var files = await saveFolder.GetFilesAsync();
+			files
+				.AsParallel()
+				.Where(x => x.Name.EndsWith("_info.json"))
+				.Select(x => new String(x.Name.TakeWhile(y => y != '_').ToArray()))
+				.ForAll(x => man.GetNicoVideo(x).ConfigureAwait(false));
+
 			return man;
 		}
 
+		
 
 		private NiconicoMediaManager(HohoemaApp app)
 		{
 			_HohoemaApp = app;
 
-			VideoIdToThumbnailInfo = new Dictionary<string, ThumbnailResponse>();
+			VideoIdToNicoVideo = new Dictionary<string, NicoVideo>();
+
+			_NicoVideoSemaphore = new SemaphoreSlim(1, 1);
+
 		}
 
 
 
-		public async Task<ThumbnailResponse> GetThumbnail(string videoId)
+
+
+
+
+		
+		public async Task DownloadVideoAsync(string rawVideoId)
 		{
-			if (VideoIdToThumbnailInfo.ContainsKey(videoId))
-			{
-				var value = VideoIdToThumbnailInfo[videoId];
-
-				// TODO: サムネイル情報が古い場合は更新する
-
-				return value;
-			}
-			else
-			{
-				var thumbnail = await ConnectionRetryUtil.TaskWithRetry(async () =>
-					{
-						return await _HohoemaApp.NiconicoContext.Video.GetThumbnailAsync(videoId);
-					});
-				try
-				{
-					if (!VideoIdToThumbnailInfo.ContainsKey(videoId))
-					{
-						VideoIdToThumbnailInfo.Add(videoId, thumbnail);
-					}
-				}
-				catch { }
-
-				return thumbnail;
-			}
-		}
+			var saveFolder = Context.VideoSaveFolder;
 
 
-		public static async Task<StorageFolder> GetLocalVideoCacheFolderAsync()
-		{
-			return await ApplicationData.Current.LocalFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
-		}
-
-		public async Task DownloadVideoAsync(string videoId)
-		{
-			var saveFolder = await GetLocalVideoCacheFolderAsync();
-
-
-			var videoInfo = await _HohoemaApp.NiconicoContext.Video.GetWatchApiAsync(videoId, false);
+			var videoInfo = await _HohoemaApp.NiconicoContext.Video.GetWatchApiAsync(rawVideoId, false);
 			var file = await saveFolder.CreateFileAsync(videoInfo.videoDetail.title + ".mp4", CreationCollisionOption.ReplaceExisting);
 
 			System.Diagnostics.Debug.WriteLine($"{videoInfo.videoDetail.title}のダウンロードを開始します。");
@@ -116,10 +111,31 @@ namespace NicoPlayerHohoema.Models
 		}
 
 		
-		public async Task<NicoVideo> CreateNicoVideoAccessor(string videoId)
+
+		public async Task<NicoVideo> GetNicoVideo(string rawVideoId)
 		{
-			return await NicoVideo.Create(_HohoemaApp, videoId, Context);
+			try
+			{
+				await _NicoVideoSemaphore.WaitAsync().ConfigureAwait(false);
+
+				if (VideoIdToNicoVideo.ContainsKey(rawVideoId))
+				{
+					return VideoIdToNicoVideo[rawVideoId];
+				}
+				else
+				{
+					var nicoVideo = await NicoVideo.Create(_HohoemaApp, rawVideoId, Context);
+					VideoIdToNicoVideo.Add(rawVideoId, nicoVideo);
+					return nicoVideo;
+				}
+			}
+			finally
+			{
+				_NicoVideoSemaphore.Release();
+			}
 		}
+
+
 
 		/// <summary>
 		/// 
@@ -165,10 +181,13 @@ namespace NicoPlayerHohoema.Models
 
 		public void Dispose()
 		{
-			
+			Context.Dispose();
 		}
 
-		public Dictionary<string, ThumbnailResponse> VideoIdToThumbnailInfo { get; private set; }
+
+		private SemaphoreSlim _NicoVideoSemaphore;
+
+		public Dictionary<string, NicoVideo> VideoIdToNicoVideo { get; private set; }
 
 		public VideoDownloadContext Context { get; private set; }
 		HohoemaApp _HohoemaApp;
@@ -189,30 +208,28 @@ namespace NicoPlayerHohoema.Models
 		{
 			var context = new VideoDownloadContext(hohoemaApp);
 
-			var list = await VideoDownloadContext.LoadDownloadRequestItems().ConfigureAwait(false);
-			foreach (var req in list)
-			{
-				context._CacheRequestStack.Add(req);
-			}
-
-			await context.TryBeginNextDownloadRequest().ConfigureAwait(false);
+			context.VideoSaveFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
 
 			return context;
 		}
 
+		public StorageFolder VideoSaveFolder { get; private set; }
 
-		
+
+
+
 
 		private VideoDownloadContext(HohoemaApp hohoemaApp)
 		{
 			_HohoemaApp = hohoemaApp;
 			_CacheRequestStack = new ObservableCollection<NicoVideoCacheRequest>();
+			CacheRequestStack = new ReadOnlyObservableCollection<NicoVideoCacheRequest>(_CacheRequestStack);
 
-			_CurrentPlayingStream = null;
-			_CurrentDownloadStream = null;
+			CurrentPlayingStream = null;
+			CurrentDownloadStream = null;
 		}
 
-		public async Task<NicoVideoCachedStream> GetPlayingStream(WatchApiResponse res, NicoVideoQuality quality)
+		public async Task<NicoVideoCachedStream> GetPlayingStream(string rawVideoId, NicoVideoQuality quality)
 		{
 			CloseCurrentPlayingStream();
 
@@ -224,9 +241,9 @@ namespace NicoPlayerHohoema.Models
 			// 再生用対象をダウンロード中の場合は
 			// キャッシュモードを無視してダウンロード中のストリームをそのまま帰す
 			if (_CurrentDownloadStream != null && 
-				_CurrentDownloadStream.VideoId == res.videoDetail.id)
+				_CurrentDownloadStream.RawVideoId == rawVideoId)
 			{
-				_CurrentPlayingStream = _CurrentDownloadStream;
+				CurrentPlayingStream = _CurrentDownloadStream;
 			}
 			
 			// 再生ストリームを作成します
@@ -238,8 +255,7 @@ namespace NicoPlayerHohoema.Models
 					PushToTopCurrentDownloadRequest();
 				}
 
-
-				_CurrentPlayingStream = await CreateDownloadStream(res, quality, isRequireCache:false);
+				CurrentPlayingStream = await CreateDownloadStream(rawVideoId, quality, isRequireCache:false);
 				
 				
 				if (!_CurrentPlayingStream.IsCacheComplete)
@@ -258,17 +274,17 @@ namespace NicoPlayerHohoema.Models
 
 		
 
-		public async Task RequestDownload(WatchApiResponse res, NicoVideoQuality quority)
+		public async Task RequestDownload(string rawVideoId, NicoVideoQuality quority)
 		{
-			PushDownloadRequest(res.videoDetail.id, quority);
+			PushDownloadRequest(rawVideoId, quority);
 
 			await TryBeginNextDownloadRequest();
 		}
 
-		public void ClosePlayingStream(string videoId)
+		public void ClosePlayingStream(string rawVideoId)
 		{
 			if (_CurrentPlayingStream != null &&
-				_CurrentPlayingStream.VideoId == videoId)
+				_CurrentPlayingStream.VideoId == rawVideoId)
 			{
 				CloseCurrentPlayingStream();
 			}
@@ -294,7 +310,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			if (_CurrentDownloadStream != null)
 			{
-				OnCacheCompleted?.Invoke(_CurrentDownloadStream.VideoId, false);
+				OnCacheCompleted?.Invoke(_CurrentDownloadStream.RawVideoId, _CurrentDownloadStream.Quality, false);
 				_CurrentDownloadStream.OnCacheComplete -= DownloadCompleteAction;
 				_CurrentDownloadStream.Dispose();
 				_CurrentDownloadStream = null;
@@ -302,22 +318,35 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public void CacnelDownloadRequest(string videoId, NicoVideoQuality quality)
+		public void CacnelDownloadRequest(string rawVideoId, NicoVideoQuality quality)
 		{
-			_CacheRequestStack.SingleOrDefault(x => x.VideoId == videoId && x.Quality == quality);
+			if (CheckVideoDownloading(rawVideoId, quality))
+			{
+				this.CloseCurrentDownloadStream();
+
+				TryBeginNextDownloadRequest().ConfigureAwait(false);
+			}
+
+			var req = _CacheRequestStack.SingleOrDefault(x => x.RawVideoid == rawVideoId && x.Quality == quality);
+			
+			if (req != null)
+			{
+				_CacheRequestStack.Remove(req);
+				OnCacheCompleted?.Invoke(req.RawVideoid, req.Quality, false);
+			}
 		}
 
 
-		public bool CheckCacheRequested(string videoId, NicoVideoQuality quality)
+		public bool CheckCacheRequested(string rawVideoId, NicoVideoQuality quality)
 		{
-			return _CacheRequestStack.Any(x => x.VideoId == videoId && x.Quality == quality);
+			return _CacheRequestStack.Any(x => x.RawVideoid == rawVideoId && x.Quality == quality);
 		}
 
-		public bool CheckVideoDownloading(string videoId, NicoVideoQuality quality)
+		public bool CheckVideoDownloading(string rawVideoId, NicoVideoQuality quality)
 		{
 			if (CurrentDownloadStream == null) { return false; }
 
-			return CurrentDownloadStream.VideoId == videoId && CurrentDownloadStream.Quality == quality;
+			return CurrentDownloadStream.VideoId == rawVideoId && CurrentDownloadStream.Quality == quality;
 		}
 
 		private async Task<bool> TryBeginNextDownloadRequest()
@@ -340,20 +369,20 @@ namespace NicoPlayerHohoema.Models
 				var req = _CacheRequestStack.Last();
 				_CacheRequestStack.Remove(req);
 
-				Debug.WriteLine($"{req.VideoId}のダウンロードリクエストを処理しています");
+				Debug.WriteLine($"{req.RawVideoid}のダウンロードリクエストを処理しています");
 
-				var stream = await CreateDownloadStream(req.VideoId, req.Quality, isRequireCache:true);
+				var stream = await CreateDownloadStream(req.RawVideoid, req.Quality, isRequireCache:true);
 
 				if (!stream.IsCacheComplete)
 				{
-					Debug.WriteLine($"{req.VideoId}のダウンロードを開始");
+					Debug.WriteLine($"{req.RawVideoid}のダウンロードを開始");
 
 					await AssignDownloadStream(stream);
 					break;
 				}
 				else
 				{
-					Debug.WriteLine($"{req.VideoId}はダウンロード済みのため処理をスキップ");
+					Debug.WriteLine($"{req.RawVideoid}はダウンロード済みのため処理をスキップ");
 					stream.Dispose();
 				}
 			}
@@ -361,21 +390,24 @@ namespace NicoPlayerHohoema.Models
 			return true;
 		}
 
-		private async void DownloadCompleteAction(string videoId)
+		private async void DownloadCompleteAction(string rawVideoid)
 		{
 			if (_CurrentDownloadStream != null &&
-				_CurrentDownloadStream.VideoId == videoId)
+				_CurrentDownloadStream.RawVideoId == rawVideoid)
 			{
 				if (_CurrentDownloadStream != _CurrentPlayingStream)
 				{
 					_CurrentDownloadStream.Dispose();
 				}
 
+				var quality = _CurrentDownloadStream.Quality;
 				_CurrentDownloadStream.OnCacheComplete -= DownloadCompleteAction;
-				_CurrentDownloadStream = null;
+				CurrentDownloadStream = null;
 
-				Debug.WriteLine($"{videoId} のダウンロード完了");
-				OnCacheCompleted?.Invoke(videoId, true);
+				Debug.WriteLine($"{rawVideoid} のダウンロード完了");
+				OnCacheCompleted?.Invoke(rawVideoid, quality, true);
+
+				await SaveDownloadRequestItems().ConfigureAwait(false);
 
 				await TryBeginNextDownloadRequest().ConfigureAwait(false);
 			}
@@ -387,31 +419,39 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		private async Task<NicoVideoCachedStream> CreateDownloadStream(WatchApiResponse res, NicoVideoQuality quality, bool isRequireCache)
+
+		private async Task<NicoVideoCachedStream> CreateDownloadStream(string rawVideoid, WatchApiResponse res, NicoVideoQuality quality, bool isRequireCache)
 		{
 			var saveFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
-			return await NicoVideoCachedStream.Create(this._HohoemaApp.NiconicoContext.HttpClient, res, saveFolder, quality, isRequireCache);
+			return await NicoVideoCachedStream.Create(this._HohoemaApp.NiconicoContext.HttpClient, rawVideoid, res, saveFolder, quality, isRequireCache);
 		}
 
 
-		private async Task<NicoVideoCachedStream> CreateDownloadStream(string videoId, NicoVideoQuality quality, bool isRequireCache)
+		private async Task<NicoVideoCachedStream> CreateDownloadStream(string rawVideoid, NicoVideoQuality quality, bool isRequireCache)
 		{
-			var res = await _HohoemaApp.NiconicoContext.Video.GetWatchApiAsync(videoId, quality == NicoVideoQuality.Low);
-			return await CreateDownloadStream(res, quality, isRequireCache);
+			var res = await _HohoemaApp.NiconicoContext.Video.GetWatchApiAsync(rawVideoid, quality == NicoVideoQuality.Low);
+			return await CreateDownloadStream(rawVideoid, res, quality, isRequireCache);
 		}
 
 
 		private async Task AssignDownloadStream(NicoVideoCachedStream downloadStream)
 		{
-			_CurrentDownloadStream = downloadStream;
+			CurrentDownloadStream = downloadStream;
 			if (!_CurrentDownloadStream.IsCacheComplete)
 			{
 				_CurrentDownloadStream.OnCacheComplete += DownloadCompleteAction;
+				_CurrentDownloadStream.OnCacheProgress += _CurrentDownloadStream_OnCacheProgress;
+
+				OnCacheStarted?.Invoke(downloadStream.RawVideoId, downloadStream.Quality);
 			}
 
 			await _CurrentDownloadStream.Download();
 		}
 
+		private void _CurrentDownloadStream_OnCacheProgress(string rawVideoId, NicoVideoQuality quality, uint totalSize, uint size)
+		{
+			OnCacheProgress?.Invoke(rawVideoId, quality, totalSize, size);
+		}
 
 		private void PushToTopCurrentDownloadRequest()
 		{
@@ -419,17 +459,17 @@ namespace NicoPlayerHohoema.Models
 			{
 				_CacheRequestStack.Add(new NicoVideoCacheRequest()
 				{
-					VideoId = _CurrentDownloadStream.VideoId,
+					RawVideoid = _CurrentDownloadStream.RawVideoId,
 					Quality = _CurrentDownloadStream.Quality,
 				});
 
 				_CurrentDownloadStream.Dispose();
-				_CurrentDownloadStream = null;
+				CurrentDownloadStream = null;
 			}
 		}
-		private void PushDownloadRequest(string videoId, NicoVideoQuality quality)
+		private void PushDownloadRequest(string rawVideoid, NicoVideoQuality quality)
 		{
-			var alreadyRequest = _CacheRequestStack.SingleOrDefault(x => x.VideoId == videoId);
+			var alreadyRequest = _CacheRequestStack.SingleOrDefault(x => x.RawVideoid == rawVideoid);
 			if (alreadyRequest != null)
 			{
 				_CacheRequestStack.Remove(alreadyRequest);
@@ -437,26 +477,50 @@ namespace NicoPlayerHohoema.Models
 
 			_CacheRequestStack.Insert(0, new NicoVideoCacheRequest()
 			{
-				VideoId = videoId,
+				RawVideoid = rawVideoid,
 				Quality = quality,
 			});
 		}
 
-		public void Dispose()
+
+		public async Task Suspending()
 		{
 			PushToTopCurrentDownloadRequest();
 
-			SaveDownloadRequestItems().ConfigureAwait(false);
+			await SaveDownloadRequestItems().ConfigureAwait(false);
+
+		}
+
+		public async Task Resume()
+		{
+			await TryBeginNextDownloadRequest();
+		}
+
+		public void Dispose()
+		{
+			Suspending();
 		}
 
 		const string DOWNLOAD_QUEUE_FILENAME = "download_queue.json";
 
 		public async Task SaveDownloadRequestItems()
 		{
-			var videoFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("video");
-			var file = await videoFolder.CreateFileAsync(DOWNLOAD_QUEUE_FILENAME);
-			var jsonText = Newtonsoft.Json.JsonConvert.SerializeObject(_CacheRequestStack.ToArray());
-			await FileIO.WriteTextAsync(file, jsonText);
+			var videoFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
+			if (_CacheRequestStack.Count > 0)
+			{
+				var file = await videoFolder.CreateFileAsync(DOWNLOAD_QUEUE_FILENAME, CreationCollisionOption.OpenIfExists);
+				var jsonText = Newtonsoft.Json.JsonConvert.SerializeObject(_CacheRequestStack.ToArray());
+				await FileIO.WriteTextAsync(file, jsonText);
+
+				Debug.WriteLine("ダウンロード待ち状況を保存しました。");
+			}
+			else if (File.Exists(Path.Combine(videoFolder.Path, DOWNLOAD_QUEUE_FILENAME)))
+			{
+				var file = await videoFolder.GetFileAsync(DOWNLOAD_QUEUE_FILENAME);
+				await file.DeleteAsync();
+
+				Debug.WriteLine("ダウンロード待ちがないため、状況ファイルを削除しました。");
+			}
 		}
 
 		public static async Task<List<NicoVideoCacheRequest>> LoadDownloadRequestItems()
@@ -464,7 +528,7 @@ namespace NicoPlayerHohoema.Models
 
 			try
 			{
-				var videoFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("video");
+				var videoFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
 				if (!File.Exists(Path.Combine(videoFolder.Path, DOWNLOAD_QUEUE_FILENAME)))
 				{
 					return new List<NicoVideoCacheRequest>();
@@ -481,6 +545,8 @@ namespace NicoPlayerHohoema.Models
 		}
 
 		private ObservableCollection<NicoVideoCacheRequest> _CacheRequestStack;
+		public ReadOnlyObservableCollection<NicoVideoCacheRequest> CacheRequestStack { get; private set; }
+
 		private NicoVideoCachedStream _CurrentPlayingStream;
 		public NicoVideoCachedStream CurrentPlayingStream
 		{
@@ -510,259 +576,458 @@ namespace NicoPlayerHohoema.Models
 		// TODO: アプリ終了時にDownloadStreamを中断して、_CacheRequestStackに積む
 		// TODO: _CacheRequestStackの内容を終了時に未ダウンロードアイテムとしてvideoフォルダに書き出す
 
+		public event CacheStartedHandler OnCacheStarted;
 		public event CacheCompleteHandler OnCacheCompleted;
-
+		public event CacheProgressHandler OnCacheProgress;
 
 		HohoemaApp _HohoemaApp;
 	}
 
-	public delegate void CacheCompleteHandler(string videoId, bool isSuccess);
+	public delegate void CacheStartedHandler(string rawVideoId, NicoVideoQuality quality);
+	public delegate void CacheCompleteHandler(string videoId, NicoVideoQuality quality, bool isSuccess);
+	public delegate void CacheProgressHandler(string rawVideoId, NicoVideoQuality quality, uint totalSize, uint size);
 
 
-	public class NicoVideoCacheRequest
+	public class NicoVideoCacheRequest : IEquatable<NicoVideoCacheRequest>
 	{
-		public string VideoId { get; set; }
+		public string RawVideoid { get; set; }
 		public NicoVideoQuality Quality { get; set; }
+
+		public override int GetHashCode()
+		{
+			return RawVideoid.GetHashCode() ^ Quality.GetHashCode();
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (obj is NicoVideoCacheRequest)
+			{
+				return Equals(obj as NicoVideoCacheRequest);
+			}
+			else
+			{
+				return false;
+			}
+		}
+
+		public bool Equals(NicoVideoCacheRequest other)
+		{
+			return this.RawVideoid == other.RawVideoid && this.Quality == other.Quality;
+		}
 	}
 
 	public class NicoVideo : BindableBase
 	{
-		internal static async Task<NicoVideo> Create(HohoemaApp app, string videoId, VideoDownloadContext context)
+		internal static async Task<NicoVideo> Create(HohoemaApp app, string rawVideoid, VideoDownloadContext context)
 		{
-			var nicoVideo = new NicoVideo(app, videoId, context);
+			Debug.WriteLine("start initialize : " + rawVideoid);
+			var nicoVideo = new NicoVideo(app, rawVideoid, context);
 
-			await nicoVideo.UpdateVideoInfo();
+			await nicoVideo.GetThumbnailInfo();
+			await nicoVideo.SetupVideoInfoFromLocal();
+
+			nicoVideo.VideoId = nicoVideo.CachedThumbnailInfo.Id;
+			nicoVideo.Title = nicoVideo.CachedWatchApiResponse?.videoDetail.title ?? nicoVideo.CachedThumbnailInfo.Title;
+
 			await nicoVideo.CheckCacheStatus();
 
 			return nicoVideo;
 
 		}
 
-		private NicoVideo(HohoemaApp app, string videoId, VideoDownloadContext context)
+		private NicoVideo(HohoemaApp app, string rawVideoid, VideoDownloadContext context)
 		{
 			HohoemaApp = app;
-			VideoId = videoId;
+			RawVideoId = rawVideoid;
 			_Context = context;
 
+			_ThumbnailInfoFileWriteSemaphore = new SemaphoreSlim(1, 1);
 			_VideoInfoFileWriteSemaphore = new SemaphoreSlim(1, 1);
 			_CommentFileWriteSemaphore = new SemaphoreSlim(1, 1);
 
-			OriginalQualityCacheState = NicoVideoCacheState.CanDownload;
-			LowQualityCacheState = NicoVideoCacheState.CanDownload;
+			OriginalQualityCacheState = NicoVideoCacheState.Incomplete;
+			LowQualityCacheState = NicoVideoCacheState.Incomplete;
+
+			CacheRequestTime = DateTime.MinValue;
+
 		}
+
 
 
 		public async Task CheckCacheStatus()
 		{
 			// すでにダウンロード済みのキャッシュファイルをチェック
-			var saveFolder = await NiconicoMediaManager.GetLocalVideoCacheFolderAsync();
+			var saveFolder = _Context.VideoSaveFolder;
 
-			if (NicoVideoCachedStream.ExistOriginalQuorityVideo(CachedWatchApiResponse, saveFolder))
+			if (NicoVideoCachedStream.ExistOriginalQuorityVideo(Title, VideoId, saveFolder))
 			{
 				OriginalQualityCacheState = NicoVideoCacheState.Cached;
 			}
-			else
+			else if(_Context.CheckCacheRequested(this.RawVideoId, NicoVideoQuality.Original))
 			{
-				if (NowOffline)
-				{
-					OriginalQualityCacheState = NicoVideoCacheState.CanNotDownload;
-				}
-				else if (_Context.CheckCacheRequested(this.RealVideoId, NicoVideoQuality.Original))
-				{
-					OriginalQualityCacheState = NicoVideoCacheState.CacheRequested;
-				}
-				else if (_Context.CheckVideoDownloading(this.RealVideoId, NicoVideoQuality.Original))
-				{
-					OriginalQualityCacheState = NicoVideoCacheState.NowDownloading;
-				}
-				else if (NowLowQualityOnly)
-				{
-					OriginalQualityCacheState = NicoVideoCacheState.CanNotDownload;
-				}
-				else
-				{
-					OriginalQualityCacheState = NicoVideoCacheState.CanDownload;
-				}
+				OriginalQualityCacheState = NicoVideoCacheState.CacheRequested;
+			}
+			else if (_Context.CheckVideoDownloading(this.RawVideoId, NicoVideoQuality.Original))
+			{
+				OriginalQualityCacheState = NicoVideoCacheState.NowDownloading;
+			}
+			else // if (NicoVideoCachedStream.ExistIncompleteOriginalQuorityVideo(CachedWatchApiResponse, saveFolder))
+			{
+				OriginalQualityCacheState = NicoVideoCacheState.Incomplete;
 			}
 
-			if (NicoVideoCachedStream.ExistLowQuorityVideo(CachedWatchApiResponse, saveFolder))
+			CanRequestDownloadOriginalQuality = OriginalQualityCacheState == NicoVideoCacheState.Incomplete;
+
+
+			if (NicoVideoCachedStream.ExistLowQuorityVideo(Title, VideoId, saveFolder))
 			{
 				LowQualityCacheState = NicoVideoCacheState.Cached;
 			}
-			else
+			else if (_Context.CheckCacheRequested(this.RawVideoId, NicoVideoQuality.Low))
 			{
-				if (NowOffline)
-				{
-					LowQualityCacheState = NicoVideoCacheState.CanNotDownload;
-				}
-				else if (_Context.CheckCacheRequested(this.RealVideoId, NicoVideoQuality.Low))
-				{
-					LowQualityCacheState = NicoVideoCacheState.CacheRequested;
-				}
-				else if (_Context.CheckVideoDownloading(this.RealVideoId, NicoVideoQuality.Low))
-				{
-					LowQualityCacheState = NicoVideoCacheState.NowDownloading;
-				}
-				else
-				{
-					LowQualityCacheState = NicoVideoCacheState.CanDownload;
-				}
+				LowQualityCacheState = NicoVideoCacheState.CacheRequested;
+			}
+			else if (_Context.CheckVideoDownloading(this.RawVideoId, NicoVideoQuality.Low))
+			{
+				LowQualityCacheState = NicoVideoCacheState.NowDownloading;
+			}
+			else // if (NicoVideoCachedStream.ExistIncompleteOriginalQuorityVideo(CachedWatchApiResponse, saveFolder))
+			{
+				LowQualityCacheState = NicoVideoCacheState.Incomplete;
+			}
+
+			CanRequestDownloadLowQuality = LowQualityCacheState == NicoVideoCacheState.Incomplete;
+
+			if (File.Exists(Path.Combine(saveFolder.Path, $"{RawVideoId}_info.json")))
+			{
+				var cacheFile = await saveFolder.GetFileAsync($"{RawVideoId}_info.json");
+				CacheRequestTime = cacheFile.DateCreated.DateTime;
 			}
 		}
 
 		// コメントのキャッシュまたはオンラインからの取得と更新
-		public async Task<CommentResponse> GetComment()
+		public async Task<CommentResponse> GetComment(bool requierLatest = false)
 		{
-			var fileName = $"{RealVideoId}_comment.json";
+			if (_CachedCommentResponse == null || requierLatest)
+			{
+				var comment = await GetCommentFromOnline();
 
+				if (comment != null)
+				{
+					_CachedCommentResponse = comment;
+				}
+			}
+
+			if (_CachedCommentResponse == null)
+			{
+				_CachedCommentResponse = await GetCommentFromLocal();
+			}
+
+			return _CachedCommentResponse;
+		}
+
+		public async Task<CommentResponse> GetCommentFromOnline()
+		{
 			CommentResponse comment = null;
 			try
 			{
-				comment = await this.HohoemaApp.NiconicoContext.Video
-					.GetCommentAsync(CachedWatchApiResponse);
+				comment = await ConnectionRetryUtil.TaskWithRetry(async () => 
+				{
+					return await this.HohoemaApp.NiconicoContext.Video
+						.GetCommentAsync(CachedWatchApiResponse);
+				});
 			}
 			catch { }
-
-			var saveFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
-			if (comment != null)
-			{
-				var jsonText = Newtonsoft.Json.JsonConvert.SerializeObject(comment);
-				var commentFile = await saveFolder.CreateFileAsync(fileName, CreationCollisionOption.OpenIfExists);
-				// コメントデータをファイルに保存
-				try
-				{
-					await _CommentFileWriteSemaphore.WaitAsync();
-					await FileIO.WriteTextAsync(commentFile, jsonText);
-				}
-				finally
-				{
-					_CommentFileWriteSemaphore.Release();
-				}
-			}
-			else
-			{ 
-				// オンラインからコメントの取得に失敗
-				// ファイルから取得を試みます
-
-				// ファイルに保存されたデータからコメントを再現
-
-				// ファイルが存在するか
-				if (!System.IO.File.Exists(Path.Combine(saveFolder.Path, fileName)))
-				{
-					return null;
-				}
-
-				StorageFile commentFile;
-				commentFile = await saveFolder.GetFileAsync(fileName);
-				string jsonText;
-				try
-				{
-					await _CommentFileWriteSemaphore.WaitAsync();
-					jsonText = await FileIO.ReadTextAsync(commentFile);
-				}
-				finally
-				{
-					_CommentFileWriteSemaphore.Release();
-				}
-
-				comment = Newtonsoft.Json.JsonConvert.DeserializeObject<CommentResponse>(jsonText);
-			}
-
-			NowOffline = comment == null;
 
 			return comment;
 		}
 
-		private async Task SetupForceLowQuality()
+		public async Task<CommentResponse> GetCommentFromLocal()
 		{
-			_CachedWatchApiResponse = await HohoemaApp.NiconicoContext.Video.GetWatchApiAsync(VideoId, forceLowQuality:true);
-		}
-		
+			var fileName = $"{RawVideoId}_comment.json";
+			var saveFolder = _Context.VideoSaveFolder;
 
-		// 動画情報のキャッシュまたはオンラインからの取得と更新
-		public async Task<WatchApiResponse> UpdateVideoInfo()
-		{
-			if (_CachedWatchApiResponse != null)
+			if (!System.IO.File.Exists(Path.Combine(saveFolder.Path, fileName)))
 			{
-				return _CachedWatchApiResponse;
+				return null;
 			}
 
-			// ファイルに保存されたデータから動画情報を再現
-			var saveFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
+			CommentResponse comment = null;
+			StorageFile commentFile;
+			commentFile = await saveFolder.GetFileAsync(fileName);
+			string jsonText;
+			try
+			{
+				await _CommentFileWriteSemaphore.WaitAsync();
+				jsonText = await FileIO.ReadTextAsync(commentFile);
+			}
+			finally
+			{
+				_CommentFileWriteSemaphore.Release();
+			}
 
-			WatchApiResponse watchApiRes = null;
+			comment = Newtonsoft.Json.JsonConvert.DeserializeObject<CommentResponse>(jsonText);
 
-			var fileName = $"{VideoId}_info.json";
+			return comment;
+		}
+
+		public async Task SaveComment(CommentResponse comment)
+		{
+			var fileName = $"{RawVideoId}_comment.json";
+			var saveFolder = _Context.VideoSaveFolder;
+
+			var jsonText = Newtonsoft.Json.JsonConvert.SerializeObject(comment);
+			var commentFile = await saveFolder.CreateFileAsync(fileName, CreationCollisionOption.OpenIfExists);
+			// コメントデータをファイルに保存
+			try
+			{
+				await _CommentFileWriteSemaphore.WaitAsync();
+				await FileIO.WriteTextAsync(commentFile, jsonText);
+			}
+			finally
+			{
+				_CommentFileWriteSemaphore.Release();
+			}
+		}
+
+		private async Task SetupForceLowQuality()
+		{
+			_CachedWatchApiResponse = await HohoemaApp.NiconicoContext.Video.GetWatchApiAsync(RawVideoId, forceLowQuality:true);
+		}
+
+		public async Task<ThumbnailResponse> GetThumbnailInfo()
+		{
+			if (_CachedThumbnailInfo == null || !_IsLatestThumbnailResponse)
+			{
+				var thumb = await GetThumbnailInfoFromOnline();
+
+				if (thumb != null)
+				{
+					_CachedThumbnailInfo = thumb;
+					_IsLatestThumbnailResponse = true;
+				}
+			}
+
+			if (_CachedThumbnailInfo == null)
+			{
+				_CachedThumbnailInfo = await GetThumbnailInfoFromLocal();
+				_IsLatestThumbnailResponse = false;
+			}
+
+			if (_CachedThumbnailInfo != null)
+			{
+				LowQualityVideoSize = (uint)_CachedThumbnailInfo.SizeLow;
+				OriginalQualityVideoSize = (uint)_CachedThumbnailInfo.SizeHigh;
+			}
+
+			return _CachedThumbnailInfo;
+		}
+		
+		private async Task<ThumbnailResponse> GetThumbnailInfoFromOnline()
+		{
+			ThumbnailResponse res = null;
 
 			try
 			{
-				watchApiRes = await HohoemaApp.NiconicoContext.Video.GetWatchApiAsync(VideoId, forceLowQuality:false);
+				res = await Util.ConnectionRetryUtil.TaskWithRetry(async () =>
+				{
+					return await HohoemaApp.NiconicoContext.Video.GetThumbnailAsync(RawVideoId);
+				});
+			}
+			catch (Exception e) when (e.Message.Contains("delete"))
+			{
+				IsDeleted = true;
+			}
 
-				_CachedWatchApiResponse = watchApiRes;
-				NowLowQualityOnly = _CachedWatchApiResponse.VideoUrl.AbsoluteUri.EndsWith("low");
+
+			return res;
+		}
+
+		public async Task<ThumbnailResponse> GetThumbnailInfoFromLocal()
+		{
+			// ファイルに保存されたデータから動画情報を再現
+			var saveFolder = _Context.VideoSaveFolder;
+
+			ThumbnailResponse res = null;
+
+			var fileName = $"{RawVideoId}_thumb.json";
+
+			// ファイルが存在するか
+			if (!System.IO.File.Exists(Path.Combine(saveFolder.Path, fileName)))
+			{
+				return null;
+			}
+
+			StorageFile videoInfoFile;
+			videoInfoFile = await saveFolder.GetFileAsync(fileName);
+			string jsonText;
+			try
+			{
+				await _ThumbnailInfoFileWriteSemaphore.WaitAsync();
+				jsonText = await FileIO.ReadTextAsync(videoInfoFile);
+			}
+			finally
+			{
+				_ThumbnailInfoFileWriteSemaphore.Release();
+			}
+			res = Newtonsoft.Json.JsonConvert.DeserializeObject<ThumbnailResponse>(jsonText);
+
+
+			return res;
+		}
+
+		public async Task SaveLatestThumbnailInfo()
+		{
+			var thumb = await GetThumbnailInfoFromOnline();
+			if (thumb != null)
+			{
+				await SaveThumbnailInfo(thumb);
+			}
+		}
+
+		private async Task SaveThumbnailInfo(ThumbnailResponse res)
+		{
+			// ファイルに保存されたデータから動画情報を再現
+			var saveFolder = _Context.VideoSaveFolder;
+
+			var fileName = $"{RawVideoId}_thumb.json";
+
+			var jsonText = Newtonsoft.Json.JsonConvert.SerializeObject(res);
+			var videoInfoFile = await saveFolder.CreateFileAsync(fileName, CreationCollisionOption.OpenIfExists);
+			try
+			{
+				await _ThumbnailInfoFileWriteSemaphore.WaitAsync();
+
+				// 動画情報データをファイルに保存
+				await FileIO.WriteTextAsync(videoInfoFile, jsonText);
+			}
+			finally
+			{
+				_ThumbnailInfoFileWriteSemaphore.Release();
+			}
+		}
+
+		// 動画情報のキャッシュまたはオンラインからの取得と更新
+
+		public async Task<WatchApiResponse> GetVideoInfo()
+		{
+			if (_CachedWatchApiResponse == null || !_IsLatestWatchApiResponse)
+			{
+				// オンラインから動画情報を取得
+				var res = await GetVideoInfoFromOnline();
+
+				if (res != null)
+				{
+					_CachedWatchApiResponse = res;
+					_IsLatestWatchApiResponse = true;
+					NowLowQualityOnly = _CachedWatchApiResponse.VideoUrl.AbsoluteUri.EndsWith("low");
+				}
+			}
+
+			if (_CachedWatchApiResponse == null)
+			{
+				_CachedWatchApiResponse = await GetVideoInfoFromLocal();
+				_IsLatestWatchApiResponse = false;
+			}
+
+			return _CachedWatchApiResponse;
+		}
+
+		private async Task<WatchApiResponse> GetVideoInfoFromOnline()
+		{
+			WatchApiResponse watchApiRes = null;
+
+			try
+			{
+				watchApiRes = await Util.ConnectionRetryUtil.TaskWithRetry(async () =>
+				{
+					return await HohoemaApp.NiconicoContext.Video.GetWatchApiAsync(RawVideoId, forceLowQuality: false);
+				});
 			}
 			catch { }
 
-			if (watchApiRes != null)
-			{
-				RealVideoId = CachedWatchApiResponse.videoDetail.id;
-
-				var jsonText = Newtonsoft.Json.JsonConvert.SerializeObject(watchApiRes);
-				var videoInfoFile = await saveFolder.CreateFileAsync(fileName, CreationCollisionOption.OpenIfExists);
-				try
-				{
-					await _VideoInfoFileWriteSemaphore.WaitAsync();
-
-					// 動画情報データをファイルに保存
-					await FileIO.WriteTextAsync(videoInfoFile, jsonText);
-				}
-				finally
-				{
-					_VideoInfoFileWriteSemaphore.Release();
-				}
-
-
-				if (VideoId != RealVideoId)
-				{
-					var aliasDescriptionFilename = $"{VideoId}_real_id_is_[{RealVideoId}]";
-					if (!File.Exists(Path.Combine(saveFolder.Path, aliasDescriptionFilename)))
-					{
-						try
-						{
-							await saveFolder.CreateFileAsync(aliasDescriptionFilename, CreationCollisionOption.FailIfExists);
-						}
-						catch { }
-					}
-				}
-			}
-			else 
-			{
-				// ファイルが存在するか
-				if (!System.IO.File.Exists(Path.Combine(saveFolder.Path, fileName)))
-				{
-					return null;
-				}
-
-				StorageFile videoInfoFile;
-				videoInfoFile = await saveFolder.GetFileAsync(fileName);
-				string jsonText;
-				try
-				{
-					await _VideoInfoFileWriteSemaphore.WaitAsync();
-					jsonText = await FileIO.ReadTextAsync(videoInfoFile);
-				}
-				finally
-				{
-					_VideoInfoFileWriteSemaphore.Release();
-				}
-				watchApiRes = Newtonsoft.Json.JsonConvert.DeserializeObject<WatchApiResponse>(jsonText);
-			}
-
-			NowOffline = watchApiRes == null;
-
-
 			return watchApiRes;
 		}
+
+		public async Task SetupVideoInfoFromLocal()
+		{
+			_CachedWatchApiResponse = await GetVideoInfoFromLocal();
+			_IsLatestWatchApiResponse = false;
+		}
+
+		public async Task<WatchApiResponse> GetVideoInfoFromLocal()
+		{
+			var fileName = $"{RawVideoId}_info.json";
+
+			var saveFolder = _Context.VideoSaveFolder;
+			// ファイルが存在するか
+			if (!System.IO.File.Exists(Path.Combine(saveFolder.Path, fileName)))
+			{
+				return null;
+			}
+
+			StorageFile videoInfoFile;
+			videoInfoFile = await saveFolder.GetFileAsync(fileName);
+			string jsonText;
+			try
+			{
+				await _VideoInfoFileWriteSemaphore.WaitAsync();
+				jsonText = await FileIO.ReadTextAsync(videoInfoFile);
+			}
+			finally
+			{
+				_VideoInfoFileWriteSemaphore.Release();
+			}
+
+			return Newtonsoft.Json.JsonConvert.DeserializeObject<WatchApiResponse>(jsonText);
+		}
+
+		public async Task SaveLatestVideoInfo()
+		{
+			var watchApiRes = await GetVideoInfoFromOnline();
+			await SaveVideoInfo(watchApiRes);
+		}
+
+		private async Task SaveVideoInfo(WatchApiResponse watchApiRes)
+		{
+			var fileName = $"{RawVideoId}_info.json";
+
+			var saveFolder = _Context.VideoSaveFolder;
+
+			var jsonText = Newtonsoft.Json.JsonConvert.SerializeObject(watchApiRes);
+			var videoInfoFile = await saveFolder.CreateFileAsync(fileName, CreationCollisionOption.OpenIfExists);
+			try
+			{
+				await _VideoInfoFileWriteSemaphore.WaitAsync();
+
+				// 動画情報データをファイルに保存
+				await FileIO.WriteTextAsync(videoInfoFile, jsonText);
+			}
+			finally
+			{
+				_VideoInfoFileWriteSemaphore.Release();
+			}
+
+
+			if (RawVideoId != VideoId)
+			{
+				var aliasDescriptionFilename = $"{RawVideoId}_real_id_is_[{VideoId}]";
+				if (!File.Exists(Path.Combine(saveFolder.Path, aliasDescriptionFilename)))
+				{
+					try
+					{
+						await saveFolder.CreateFileAsync(aliasDescriptionFilename, CreationCollisionOption.FailIfExists);
+					}
+					catch { }
+				}
+			}
+		}
+
+
+
+
+
+		
 
 
 		/// <summary>
@@ -778,55 +1043,189 @@ namespace NicoPlayerHohoema.Models
 				await SetupForceLowQuality();
 			}
 
-			return await _Context.GetPlayingStream(_CachedWatchApiResponse, quality);
+			return await _Context.GetPlayingStream(RawVideoId, quality);
 		}
 
-
+		// TODO: 
 		// 動画のキャッシュ要求
 		public async Task RequestCache(NicoVideoQuality quality)
 		{
+			if (CachedWatchApiResponse == null)
+			{
+				await GetVideoInfo();
+			}
+
 			if (quality == NicoVideoQuality.Low || NowLowQualityOnly)
 			{
 				quality = NicoVideoQuality.Low;
 				await SetupForceLowQuality();
 			}
 
-			await _Context.RequestDownload(_CachedWatchApiResponse, quality);
+			await _Context.RequestDownload(RawVideoId, quality);
+			_Context.OnCacheStarted += _Context_OnCacheStarted;
 			_Context.OnCacheCompleted += _Context_OnCacheCompleted;
-
+			_Context.OnCacheProgress += _Context_OnCacheProgress;
 			await CheckCacheStatus();
+
+			await GetComment(true);
+			await SaveComment(CachedCommentResponse);
+			await SaveVideoInfo(CachedWatchApiResponse);
+			await SaveThumbnailInfo(CachedThumbnailInfo);
 		}
 
-		private void _Context_OnCacheCompleted(string videoId, bool isSuccess)
+		private void _Context_OnCacheStarted(string rawVideoId, NicoVideoQuality quality)
 		{
-			if (videoId == RealVideoId)
+			if (RawVideoId == rawVideoId)
 			{
-				LowQualityCacheState = NicoVideoCacheState.CanDownload;
-				OriginalQualityCacheState = NicoVideoCacheState.CanDownload;
-
-				if (isSuccess)
+				switch (quality)
 				{
-					CheckCacheStatus().ConfigureAwait(false);
+					case NicoVideoQuality.Original:
+						OriginalQualityCacheState = NicoVideoCacheState.NowDownloading;
+						break;
+					case NicoVideoQuality.Low:
+						LowQualityCacheState = NicoVideoCacheState.NowDownloading;
+						break;
+					default:
+						break;
 				}
+			}
+		}
+
+		private void _Context_OnCacheProgress(string rawVideoId, NicoVideoQuality quality, uint totalSize, uint size)
+		{
+			if (rawVideoId == RawVideoId)
+			{
+				switch (quality)
+				{
+					case NicoVideoQuality.Original:
+						OriginalQualityCacheState = NicoVideoCacheState.NowDownloading;
+						OriginalQualityCacheProgressSize = size;
+						break;
+					case NicoVideoQuality.Low:
+						LowQualityCacheState = NicoVideoCacheState.NowDownloading;
+						LowQualityCacheProgressSize = size;
+						break;
+					default:
+						break;
+				}
+			}
+		}
+
+		private void _Context_OnCacheCompleted(string videoId, NicoVideoQuality quality, bool isSuccess)
+		{
+			if (videoId == RawVideoId)
+			{
+				CheckCacheStatus().ConfigureAwait(false);
 			}
 		}
 
 		public void StopPlay()
 		{
-			_Context.ClosePlayingStream(RealVideoId);
+			_Context.ClosePlayingStream(VideoId);
+		}
+
+		public void CancelCacheRequest()
+		{
+			CancelCacheRequest(NicoVideoQuality.Original);
+			CancelCacheRequest(NicoVideoQuality.Low);
+		}
+
+		public void CancelCacheRequest(NicoVideoQuality quality)
+		{
+			_Context.CacnelDownloadRequest(this.RawVideoId, quality);
+		}
+
+		public async Task DeleteCache(NicoVideoQuality quality)
+		{
+			if (_Context.CheckVideoDownloading(this.RawVideoId, quality))
+			{
+				_Context.CacnelDownloadRequest(this.RawVideoId, quality);
+			}
+
+			if (quality == NicoVideoQuality.Original)
+			{
+				await DeleteOriginalQualityCache().ConfigureAwait(false);
+			}
+
+			if (quality == NicoVideoQuality.Low)
+			{
+				await DeleteLowQualityCache().ConfigureAwait(false);
+			}
+
+			await CheckCacheStatus();
+
+			if (LowQualityCacheState == NicoVideoCacheState.Incomplete 
+				&& OriginalQualityCacheState == NicoVideoCacheState.Incomplete)
+			{
+				// jsonファイルを削除
+				var saveFolder = _Context.VideoSaveFolder;
+				var files = await saveFolder.GetFilesAsync();
+				var deleteTargets = files.Where(x => x.Name.Contains(VideoId))
+					.Where(x => x.Name.EndsWith(".json"));
+
+				foreach (var file in deleteTargets)
+				{
+					await file.DeleteAsync();
+				}
+			}
+		}
+
+		private async Task DeleteOriginalQualityCache()
+		{
+			var saveFolder = _Context.VideoSaveFolder;
+			var files = await saveFolder.GetFilesAsync();
+			var deleteTargets = files.Where(x => x.Name.Contains(VideoId))
+				.Where(x => x.Name.EndsWith(".mp4") || x.Name.EndsWith(".mp4" + NicoVideoCachedStream.IncompleteExt));
+			foreach (var file in deleteTargets)
+			{
+				await file.DeleteAsync();
+			}
+
+		}
+
+		private async Task DeleteLowQualityCache()
+		{
+			var saveFolder = _Context.VideoSaveFolder;
+			var files = await saveFolder.GetFilesAsync();
+			var deleteTargets = files.Where(x => x.Name.Contains(VideoId))
+				.Where(x => x.Name.Contains(".low.mp4"));
+			foreach (var file in deleteTargets)
+			{
+				await file.DeleteAsync();
+			}
+		}
+
+		public bool HasOriginalQualityIncompleteVideoFile()
+		{
+			var saveFolder = _Context.VideoSaveFolder;
+			return NicoVideoCachedStream.ExistIncompleteOriginalQuorityVideo(Title, VideoId, saveFolder);
+		}
+
+		public bool HasLowQualityIncompleteVideoFile()
+		{
+			var saveFolder = _Context.VideoSaveFolder;
+			return NicoVideoCachedStream.ExistIncompleteLowQuorityVideo(Title, VideoId, saveFolder);
 		}
 
 
-		private bool _IsCacheRequested;
-		public bool IsCacheRequested
+		public IList<TagList> GetTags()
+		{
+			return CachedWatchApiResponse.videoDetail.tagList;
+		}
+
+
+
+
+		private bool _IsLatestWatchApiResponse;
+
+		private bool _IsLatestThumbnailResponse;
+
+		private CommentResponse _CachedCommentResponse;
+		public CommentResponse CachedCommentResponse
 		{
 			get
 			{
-				return _IsCacheRequested;
-			}
-			set
-			{
-				SetProperty(ref _IsCacheRequested, value);
+				return _CachedCommentResponse;
 			}
 		}
 
@@ -839,11 +1238,27 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
+		private ThumbnailResponse _CachedThumbnailInfo;
+		public ThumbnailResponse CachedThumbnailInfo
+		{
+			get
+			{
+				return _CachedThumbnailInfo;
+			}
+		}
+
+		private SemaphoreSlim _ThumbnailInfoFileWriteSemaphore;
+
 		private SemaphoreSlim _VideoInfoFileWriteSemaphore;
 		private SemaphoreSlim _CommentFileWriteSemaphore;
 
-		public string RealVideoId { get; private set; }
 		public string VideoId { get; private set; }
+		public string RawVideoId { get; private set; }
+
+		public string Title { get; private set; }
+
+		public bool IsDeleted { get; private set; }
+
 
 		private NicoVideoCacheState _OriginalQualityCacheState;
 		public NicoVideoCacheState OriginalQualityCacheState
@@ -867,7 +1282,55 @@ namespace NicoPlayerHohoema.Models
 			set { SetProperty(ref _NowLowQualityOnly, value); }
 		}
 
+		private bool _CanRequestDownloadLowQuality;
+		public bool CanRequestDownloadLowQuality
+		{
+			get { return _CanRequestDownloadLowQuality && !NowOffline; }
+			set { SetProperty(ref _CanRequestDownloadLowQuality, value); }
+		}
+
+		private bool _CanRequestDownloadOriginalQuality;
+		public bool CanRequestDownloadOriginalQuality
+		{
+			get { return _CanRequestDownloadOriginalQuality && !NowLowQualityOnly && !NowOffline; }
+			set { SetProperty(ref _CanRequestDownloadOriginalQuality, value); }
+		}
+
+
+		private uint _LowQualityCacheProgressSize;
+		public uint LowQualityCacheProgressSize
+		{
+			get { return _LowQualityCacheProgressSize; }
+			set { SetProperty(ref _LowQualityCacheProgressSize, value); }
+		}
+
+		private uint _LowQualityVideoSize;
+		public uint LowQualityVideoSize
+		{
+			get { return _LowQualityVideoSize; }
+			set { SetProperty(ref _LowQualityVideoSize, value); }
+		}
+
+		private uint _OriginalQualityCacheProgressSize;
+		public uint OriginalQualityCacheProgressSize
+		{
+			get { return _OriginalQualityCacheProgressSize; }
+			set { SetProperty(ref _OriginalQualityCacheProgressSize, value); }
+		}
+
+		private uint _OriginalQualityVideoSize;
+		public uint OriginalQualityVideoSize
+		{
+			get { return _OriginalQualityVideoSize; }
+			set { SetProperty(ref _OriginalQualityVideoSize, value); }
+		}
+
+		public bool IsNeedPayment { get; private set; }
+
+
 		public bool NowOffline { get; private set; }
+
+		public DateTime CacheRequestTime { get; private set; }
 
 		public HohoemaApp HohoemaApp { get; private set; }
 		VideoDownloadContext _Context;
@@ -875,8 +1338,7 @@ namespace NicoPlayerHohoema.Models
 
 	public enum NicoVideoCacheState
 	{
-		CanNotDownload,
-		CanDownload,
+		Incomplete,
 		CacheRequested,
 		NowDownloading,
 		Cached,
@@ -885,6 +1347,7 @@ namespace NicoPlayerHohoema.Models
 	public enum NicoVideoCanNotDownloadReason
 	{
 		Unknown,
+		Offline,
 		NotExist,
 		OnlyLowQualityWithoutPremiumUser,
 	}

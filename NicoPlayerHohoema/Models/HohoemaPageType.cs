@@ -18,6 +18,7 @@ namespace NicoPlayerHohoema.Models
 		History,
 		Search,
 
+		CacheManagement,
 		Settings,
 		About,
 

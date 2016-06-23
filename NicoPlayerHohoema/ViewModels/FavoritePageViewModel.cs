@@ -28,8 +28,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			base.OnNavigatedTo(e, viewModelState);
-
 
 			if (e.Parameter is string)
 			{
@@ -54,22 +52,22 @@ namespace NicoPlayerHohoema.ViewModels
 
 				await _HohoemaApp.FavFeedManager.UpdateFavFeedList(feedList);
 
-				var items = feedList.Items.Select(x =>
-				{
-					return new FavoriteVideoInfoControlViewModel(x, _NGSettings, _MediaManager, _PageManager);
-				})
-				.ToList();
+				
 
-				foreach (var item in items)
+				foreach (var item in feedList.Items)
 				{
-					item.LoadThumbnail();
-					VideoInfoItems.Add(item);
+					var nicoVideo = await _MediaManager.GetNicoVideo(item.VideoId);
+					var feedItemVM = new FavoriteVideoInfoControlViewModel(item, nicoVideo, _PageManager);
+					feedItemVM.LoadThumbnail();
+					VideoInfoItems.Add(feedItemVM);
 				}
 			}
 			else
 			{
 				// error, missing feedList.
 			}
+			base.OnNavigatedTo(e, viewModelState);
+
 		}
 
 

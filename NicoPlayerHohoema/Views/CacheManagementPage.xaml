@@ -1,0 +1,97 @@
+﻿<Page
+    x:Class="NicoPlayerHohoema.Views.CacheManagementPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:behavior="using:NicoPlayerHohoema.Views.Behaviors"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    mc:Ignorable="d">
+
+
+    <toolkit:DockPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+        
+        <Button Content="選択動画の処理..." toolkit:DockPanel.Dock="Top">
+            <Button.Flyout>
+                <MenuFlyout>
+                    <MenuFlyoutItem Text="キャッシュを取得（通常画質）" Command="{Binding RequestOriginalQualityCacheDownload}"  />
+                    <MenuFlyoutItem Text="キャッシュを取得（低画質）" Command="{Binding RequestLowQualityCacheDownload}"  />
+                    <MenuFlyoutItem Text="キャッシュを削除（通常画質）" Command="{Binding DeleteOriginalQualityCache}" />
+                    <MenuFlyoutItem Text="キャッシュを削除（低画質）" Command="{Binding DeleteLowQualityCache}" />
+                    <MenuFlyoutItem Text="キャッシュを中止" Command="{Binding CancelCacheDownloadRequest}"  />
+                </MenuFlyout>
+            </Button.Flyout>
+        </Button>
+        
+        <ScrollViewer>
+            <StackPanel Margin="0 0 16 0">
+                <ListView x:Name="VideoInfoItems" 
+                          ItemsSource="{Binding CacheVideoItems}" 
+                          SelectionMode="Multiple"
+                          
+                          >
+
+                    <i:Interaction.Behaviors>
+                        <behavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedVideoInfoItems, Mode=TwoWay}" />
+                    </i:Interaction.Behaviors>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <toolkit:DockPanel Margin="8">
+
+                                <Border toolkit:DockPanel.Dock="Bottom">
+                                    <toolkit:DockPanel Visibility="{Binding IsVisibleProgress.Value, Converter={StaticResource BooleanToVisibility}}">
+
+                                        
+                                        <ProgressBar Maximum="100.0" Minimum="0.0" Value="{Binding ProgressPercent.Value}"
+                                                     Margin="0 4"
+                                                     />
+                                        
+                                    </toolkit:DockPanel>
+                                </Border>
+
+                                <Border>
+                                    <toolkit:DockPanel>
+                                        
+                                        <!-- 状態 -->
+                                        <StackPanel  toolkit:DockPanel.Dock="Right" HorizontalAlignment="Right">
+                                            <TextBlock Text="{Binding CacheRequestTime}" Margin="0 0 0 4" />
+                                            <TextBlock Text="{Binding Quality}" Margin="0 0 0 4" />
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding CacheState.Value}" />
+                                                <TextBlock toolkit:DockPanel.Dock="Left" Margin="8 0"
+                                                       Visibility="{Binding IsVisibleProgress.Value, Converter={StaticResource BooleanToVisibility}}"
+                                                       >
+                                                    <Run Text="(" />
+                                                    <Run Text="{Binding ProgressPercent.Value}" />
+                                                    <Run Text="%)" />
+                                                </TextBlock>
+                                            </StackPanel>
+
+                                        </StackPanel>
+
+                                        <!-- 操作 -->
+
+                                        <local:VideoInfoControl />
+
+                                    </toolkit:DockPanel>
+                                    
+                                </Border>
+
+                            </toolkit:DockPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ListView>
+                
+
+            </StackPanel>
+        </ScrollViewer>
+        
+
+    </toolkit:DockPanel>
+</Page>

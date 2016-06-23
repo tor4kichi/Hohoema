@@ -369,7 +369,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			try
 			{
-				Video = await _HohoemaApp.MediaManager.CreateNicoVideoAccessor(VideoId);
+				Video = await _HohoemaApp.MediaManager.GetNicoVideo(VideoId);
 
 				VideoStream.Value = await Video.GetVideoStream(Quality);
 			}
@@ -393,7 +393,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			if (Video == null) { return null; }
 
-			return await Video.GetComment();
+			return await Video.GetComment(true);
 //			return await this._HohoemaApp.NiconicoContext.Video
 //					.GetCommentAsync(response);
 		}

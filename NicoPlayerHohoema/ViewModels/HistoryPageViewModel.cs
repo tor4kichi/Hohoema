@@ -30,11 +30,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 			foreach (var history in histories.Histories)
 			{
+				var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(history.Id);
 				var vm = new HisotoryVideoInfoControlViewModel(
 					history.WatchCount
-					, history.Title
-					, history.ItemId
-					, _HohoemaApp.UserSettings.NGSettings
+					, nicoVideo
 					, _PageManager
 					);
 
@@ -60,8 +59,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class HisotoryVideoInfoControlViewModel : VideoInfoControlViewModel
 	{
-		public HisotoryVideoInfoControlViewModel(uint viewCount, string title, string videoId, NGSettings ngSettings, PageManager pageManager)
-			: base(title, videoId, ngSettings, null, pageManager)
+		public HisotoryVideoInfoControlViewModel(uint viewCount, NicoVideo nicoVideo, PageManager pageManager)
+			: base(nicoVideo, pageManager)
 		{
 			UserViewCount = viewCount;
 		}

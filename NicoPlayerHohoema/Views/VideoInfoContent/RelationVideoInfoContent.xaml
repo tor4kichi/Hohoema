@@ -18,7 +18,7 @@
             <Button Command="{Binding ShowDetailCommand}" Margin="8">
                 <toolkit:DockPanel>
                     <Border toolkit:DockPanel.Dock="Left" Visibility="Collapsed">
-                        <Image Source="{Binding ThumbnailUrl}"
+                        <Image Source="{Binding ThumbnailImageUrl}"
                            Width="90"
                            >
 

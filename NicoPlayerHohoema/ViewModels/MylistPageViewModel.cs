@@ -42,25 +42,21 @@ namespace NicoPlayerHohoema.ViewModels
 					MylistDescription = "";
 					// TODO とりまのマイリストアイテム一覧取得
 					var res = await _HohoemaApp.NiconicoContext.Mylist.GetMylistItemListAsync(MylistGroupId);
-
-					var videoItems = res.Select(x => new VideoInfoControlViewModel(x, _HohoemaApp.UserSettings.NGSettings, _PageManager));
-
-					foreach (var item in videoItems)
+					
+					foreach (var item in res)
 					{
-						MylistItems.Add(item);
+						var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(item.ItemId);
+						MylistItems.Add(new VideoInfoControlViewModel(item, nicoVideo, _PageManager));
 					}
 				}
 				else
 				{
 					var response = await _HohoemaApp.ContentFinder.GetMylist(MylistGroupId);
 
-					// 動画コンテンツだけを抽出
-					var videoItems = response.Video_info
-						.Select(x => new VideoInfoControlViewModel(x, _HohoemaApp.UserSettings.NGSettings, _PageManager));
-
-					foreach (var item in videoItems)
+					foreach (var item in response.Video_info)
 					{
-						MylistItems.Add(item);
+						var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(item.Video.Id);
+						MylistItems.Add(new VideoInfoControlViewModel(item, nicoVideo, _PageManager));
 					}
 
 					MylistTitle = StringExtention.DecodeUTF8(response.Name);

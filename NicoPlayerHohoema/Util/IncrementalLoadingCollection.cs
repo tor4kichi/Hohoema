@@ -20,28 +20,20 @@ namespace NicoPlayerHohoema.Util
 			ISupportIncrementalLoading
 			where T : IIncrementalSource<I>
 	{
-		private T source;
-		private uint itemsPerPage;
-		private bool hasMoreItems;
-		private uint currentPage;
-
 		public IncrementalLoadingCollection(T source, uint itemsPerPage = 20)
 		{
-			this.source = source;
-			this.itemsPerPage = itemsPerPage;
-			this.hasMoreItems = true;
+			this._Source = source;
+			this._ItemsPerPage = itemsPerPage;
+			this._HasMoreItems = true;
 		}
 
-		public bool HasMoreItems
-		{
-			get { return hasMoreItems; }
-		}
+		
 
 		public IAsyncOperation<LoadMoreItemsResult> LoadMoreItemsAsync(uint count)
 		{
 			var dispatcher = Window.Current.Dispatcher;
 
-			currentPage = count;
+			_CurrentPage = count;
 
 			return Task.Run<LoadMoreItemsResult>(
 				() =>
@@ -54,11 +46,11 @@ namespace NicoPlayerHohoema.Util
 							CoreDispatcherPriority.Normal,
 							async () =>
 							{
-								var result = await source.GetPagedItems(count, itemsPerPage);
+								var result = await _Source.GetPagedItems(count, _ItemsPerPage);
 
 								if (result == null || result.Count() == 0)
 								{
-									hasMoreItems = false;
+									_HasMoreItems = false;
 								}
 								else
 								{
@@ -76,5 +68,18 @@ namespace NicoPlayerHohoema.Util
 
 				}).AsAsyncOperation();
 		}
+
+		public bool HasMoreItems
+		{
+			get { return _HasMoreItems; }
+		}
+
+
+		private T _Source;
+		private uint _ItemsPerPage;
+		private bool _HasMoreItems;
+		private uint _CurrentPage;
+
+
 	}
 }

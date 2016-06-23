@@ -9,11 +9,13 @@
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:behavior="using:NicoPlayerHohoema.Views.Behaviors"
     mc:Ignorable="d"
-    d:DesignHeight="300"
+    d:DesignHeight="60"
     d:DesignWidth="400">
 
     <Grid>
+
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup>
                 <VisualState>
@@ -49,24 +51,34 @@
         <toolkit:DockPanel x:Name="VideoInfo">
 
             <i:Interaction.Behaviors>
-                <core:EventTriggerBehavior EventName="Tapped">
-                    <core:InvokeCommandAction Command="{Binding ShowDetailCommand}" />
-                </core:EventTriggerBehavior>
                 <core:EventTriggerBehavior EventName="DoubleTapped">
                     <core:InvokeCommandAction Command="{Binding PlayCommand}" />
                 </core:EventTriggerBehavior>
+                <core:EventTriggerBehavior EventName="Tapped">
+                    <core:InvokeCommandAction Command="{Binding ShowDetailCommand}" />
+                </core:EventTriggerBehavior>
             </i:Interaction.Behaviors>
 
-            
-            <!-- post at -->
-            <Border toolkit:DockPanel.Dock="Top" Margin="0 0 0 4">
-                <TextBlock Foreground="Gray" FontSize="12">
-                <Run Text="{Binding PostAt}" />
-                <Run Text="投稿" />
-                </TextBlock>
-            </Border>
+            <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left" Width="16"
+                        ToolTipService.ToolTip="灰色=未視聴 / 青=通常画質保存済み / 緑=低画質保存済み"
+                        >
+                <!--
+                <Border BorderThickness="1 0 1 0" BorderBrush="Gray"
+                        Visibility="{Binding IsStillNotWatch, Converter={StaticResource BooleanToVisibility}}"
+                        >
+                    <Border BorderThickness="1 0 0 0" BorderBrush="Gray" Margin="1 0" />
+                </Border>
+                -->
+                <Border BorderThickness="4 0 0 0" BorderBrush="Blue" 
+                        Visibility="{Binding IsOriginalQualityCached.Value, Converter={StaticResource BooleanToVisibility}}"
+                        />
+                <Border BorderThickness="2 0 2 0" BorderBrush="Green" 
+                        Width="6"
+                        Visibility="{Binding IsLowQualityCached.Value, Converter={StaticResource BooleanToVisibility}}"
+                        />
+            </StackPanel>
 
-            <Grid Width="128" Height="80" toolkit:DockPanel.Dock="Left" >
+            <Grid Height="60" Width="80" toolkit:DockPanel.Dock="Left">
 
                
                 <Image  Source="{Binding ThumbnailImageUrl}"
@@ -100,45 +112,47 @@
             </Grid>
 
 
-            <toolkit:DockPanel Margin="8 0 0 0">
-                <TextBlock Text="{Binding Title}" 
-                       toolkit:DockPanel.Dock="Top"
-                       FontSize="16"
-                       />
+            <toolkit:DockPanel Margin="8 0 0 0" >
 
-                <StackPanel Orientation="Vertical">
-                    <TextBlock Text="{Binding OwnerComment}" 
-                       Foreground="Gray"
-                           MaxWidth="400"
-                           Margin="0 8"
-                           TextWrapping="Wrap"
-                           MaxLines="2"
-                           HorizontalAlignment="Left"
-                           FontSize="12"
-                       />
+                <!-- post at -->
+                <Border toolkit:DockPanel.Dock="Top" Margin="0 0 0 0">
+                    <TextBlock Foreground="Gray" FontSize="12">
+                        <Run Text="{Binding PostAt}" />
+                        <Run Text="投稿" />
+                    </TextBlock>
+                </Border>
 
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Margin="0 0 8 0" Foreground="Gray" FontSize="12">
+                
+
+               
+
+                <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Bottom">
+                    <TextBlock Margin="0 0 8 0" Foreground="Gray" FontSize="12">
                         <Run Text="再生" />
                         <Run Text="{Binding ViewCount}" />
-                        </TextBlock>
-                        <TextBlock Margin="0 0 8 0" Foreground="Gray" FontSize="12">
+                    </TextBlock>
+                    <TextBlock Margin="0 0 8 0" Foreground="Gray" FontSize="12">
                         <Run Text="コメ" />
                         <Run Text="{Binding CommentCount}" />
-                        </TextBlock>
-                        <TextBlock Margin="0 0 8 0" Foreground="Gray" FontSize="12">
+                    </TextBlock>
+                    <TextBlock Margin="0 0 8 0" Foreground="Gray" FontSize="12">
                         <Run Text="マイ" />
                         <Run Text="{Binding MylistCount}" />
-                        </TextBlock>
-                    </StackPanel>
-
+                    </TextBlock>
                 </StackPanel>
 
+
+                <TextBlock Text="{Binding Title}" 
+                           FontSize="16"
+                           TextWrapping="Wrap"
+                           VerticalAlignment="Center"
+                       />
+                
             </toolkit:DockPanel>
         </toolkit:DockPanel>
 
         
-        
+       <!--
         <Grid x:Name="NGVideoShutoutWall"
             Background="#01000000"
               Visibility="Collapsed"
@@ -171,7 +185,7 @@
 
             </toolkit:DockPanel>
         </Grid>
-
+-->
 
        
     </Grid>

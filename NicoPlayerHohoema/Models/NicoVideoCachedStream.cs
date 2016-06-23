@@ -32,67 +32,61 @@ namespace NicoPlayerHohoema.Models
 
 		// エコノミーとオリジナルの切り替えはここでは責任を持たない
 		// 動画情報.jsonやコメント.jsonはここでは取り扱わない
+		public const string IncompleteExt = ".incomplete";
 
-		public static async Task<NicoVideoCachedStream> Create(HttpClient client, WatchApiResponse res, StorageFolder videoSaveFolder, NicoVideoQuality quality, bool isCache)
+		public static string MakeVideoFileName(string title, string videoid)
+		{
+			return $"{title} - [{videoid}]";
+		}
+
+
+		public static async Task<NicoVideoCachedStream> Create(HttpClient client, string rawVideoId, WatchApiResponse res, StorageFolder videoSaveFolder, NicoVideoQuality quality, bool isCache)
 		{
 			// fileはincompleteか
 			var videoId = res.videoDetail.id;
 			var videoTitle = res.videoDetail.title.ToSafeFilePath();
-			var videoFileName = $"{videoTitle} - [{videoId}]";
+			var videoFileName = MakeVideoFileName(videoTitle, res.videoDetail.id);
 			var fileName = $"{videoFileName}.mp4";
 			var fileName_low = $"{videoFileName}.low.mp4";
-			const string IncompleteExt = ".incomplete";
 			var progressFileName = $"{videoId}_progress";
 
 			var dirInfo = new DirectoryInfo(videoSaveFolder.Path);
-
-			var relatedVideoFiles = dirInfo.EnumerateFiles($"{videoFileName}.*");
 
 			// 動画URLをキャッシュモードによって強制する
 			string videoUrl = res.VideoUrl.AbsoluteUri;
 			var isEconomy = videoUrl.EndsWith("low");
 
+			if (quality == NicoVideoQuality.Original && isEconomy)
+			{
+				throw new Exception("低画質動画のURLが指定された状態でオリジナル画質の動画のダウンロードが指定されています。");
+			}
+
+
 			StorageFile videoFile = null;
 
-
-			var completedNormalVideo = relatedVideoFiles.SingleOrDefault(x => x.FullName.EndsWith(".mp4"));
-			if (completedNormalVideo != null)
+			if (quality == NicoVideoQuality.Original)
 			{
-				// 
-				videoFile = await StorageFile.GetFileFromPathAsync(completedNormalVideo.FullName);
-			}
-
-			if (videoFile == null)
-			{
-				var completedLowVideo = relatedVideoFiles.SingleOrDefault(x => x.FullName.EndsWith(".low.mp4"));
-				if (completedLowVideo != null)
+				if (ExistOriginalQuorityVideo(videoTitle, videoId, videoSaveFolder))
 				{
-					videoFile = await StorageFile.GetFileFromPathAsync(completedLowVideo.FullName);
+					videoFile = await videoSaveFolder.GetFileAsync(fileName);
+				}
+				else if (ExistIncompleteOriginalQuorityVideo(videoTitle, videoId, videoSaveFolder))
+				{
+					videoFile = await videoSaveFolder.GetFileAsync(fileName + IncompleteExt);
 				}
 			}
-
-
-
-			if (videoFile == null)
+			else
 			{
-				if (!isEconomy)
+				if (ExistLowQuorityVideo(videoTitle, videoId, videoSaveFolder))
 				{
-					var incompletedNormalVideo = new FileInfo(Path.Combine(videoSaveFolder.Path, fileName + IncompleteExt));
-					if (incompletedNormalVideo != null && incompletedNormalVideo.Exists)
-					{
-						videoFile = await StorageFile.GetFileFromPathAsync(incompletedNormalVideo.FullName);
-					}
+					videoFile = await videoSaveFolder.GetFileAsync(fileName_low);
 				}
-				else
+				else if (ExistIncompleteLowQuorityVideo(videoTitle, videoId, videoSaveFolder))
 				{
-					var incompletedLowVideo = relatedVideoFiles.SingleOrDefault(x => x.FullName.EndsWith(".low.mp4.incomplete"));
-					if (incompletedLowVideo != null)
-					{
-						videoFile = await StorageFile.GetFileFromPathAsync(incompletedLowVideo.FullName);
-					}
-
+					videoFile = await videoSaveFolder.GetFileAsync(fileName_low + IncompleteExt);
 				}
 			}
+			
 			
 			if (videoFile == null)
 			{
@@ -108,7 +102,7 @@ namespace NicoPlayerHohoema.Models
 			}
 
 
-			var stream = new NicoVideoCachedStream(client, videoId, new Uri(videoUrl), videoFile, quality, isCache);
+			var stream = new NicoVideoCachedStream(client, rawVideoId, videoId, new Uri(videoUrl), videoFile, quality, isCache);
 
 			stream.Quality = quality;
 			stream.IsPremiumUser = res.IsPremium;
@@ -144,24 +138,31 @@ namespace NicoPlayerHohoema.Models
 			return stream;
 		}
 
-		public static bool ExistOriginalQuorityVideo(WatchApiResponse res, StorageFolder folder)
+		public static bool ExistOriginalQuorityVideo(string title, string videoId, StorageFolder folder)
 		{
-			
-			var fileName = res.videoDetail.title + ".mp4";
-
-			return File.Exists(Path.Combine(folder.Path, fileName.ToSafeFilePath()));
+			return File.Exists(Path.Combine(folder.Path, $"{MakeVideoFileName(title, videoId)}.mp4".ToSafeFilePath()));
 		}
 
-		public static bool ExistLowQuorityVideo(WatchApiResponse res, StorageFolder folder)
+		public static bool ExistLowQuorityVideo(string title, string videoId, StorageFolder folder)
 		{
-			var fileName = res.videoDetail.title + ".low.mp4";
-
-			return File.Exists(Path.Combine(folder.Path, fileName.ToSafeFilePath()));
+			return File.Exists(Path.Combine(folder.Path, $"{MakeVideoFileName(title, videoId)}.low.mp4".ToSafeFilePath()));
 		}
 
-		public NicoVideoCachedStream(HttpClient client, string videoId, Uri uri, StorageFile file, NicoVideoQuality quality, bool isCache)
+		public static bool ExistIncompleteOriginalQuorityVideo(string title, string videoId, StorageFolder folder)
+		{
+			return File.Exists(Path.Combine(folder.Path, $"{MakeVideoFileName(title, videoId)}.mp4{IncompleteExt}".ToSafeFilePath()));
+		}
+
+		public static bool ExistIncompleteLowQuorityVideo(string title, string videoId, StorageFolder folder)
+		{
+			return File.Exists(Path.Combine(folder.Path, $"{MakeVideoFileName(title, videoId)}.low.mp4{IncompleteExt}".ToSafeFilePath()));
+		}
+
+
+		public NicoVideoCachedStream(HttpClient client, string rawVideoId, string videoId, Uri uri, StorageFile file, NicoVideoQuality quality, bool isCache)
 			: base(client, uri)
 		{
+			RawVideoId = rawVideoId;
 			VideoId = videoId;
 			CacheFile = file;
 			Quality = quality;
@@ -245,6 +246,11 @@ namespace NicoPlayerHohoema.Models
 			{
 				await _CacheWriteSemaphore.WaitAsync().ConfigureAwait(false);
 
+				if (CacheFile == null)
+				{
+					return;
+				}
+
 				using (var stream = await CacheFile.OpenAsync(FileAccessMode.ReadWrite).AsTask().ConfigureAwait(false))
 				using (var writeStream = stream.GetOutputStreamAt(position))
 				{
@@ -307,6 +313,11 @@ namespace NicoPlayerHohoema.Models
 				var writeComplete = false;
 				while (!writeComplete)
 				{
+					if (ProgressFile == null)
+					{
+						return;
+					}
+
 					try
 					{
 						await FileIO.WriteTextAsync(ProgressFile, Newtonsoft.Json.JsonConvert.SerializeObject(Progress)).AsTask().ConfigureAwait(false);
@@ -340,7 +351,7 @@ namespace NicoPlayerHohoema.Models
 			var stopped = await _StopDownload();
 			if (stopped)
 			{
-				OnCacheCanceled?.Invoke(VideoId);
+				OnCacheCanceled?.Invoke(RawVideoId);
 			}
 		}
 
@@ -487,7 +498,9 @@ namespace NicoPlayerHohoema.Models
 
 			Progress.Update((uint)head, resultBuffer.Length);
 
-			await SaveProgress().ConfigureAwait(false); ;
+			await SaveProgress().ConfigureAwait(false);
+
+			OnCacheProgress?.Invoke(RawVideoId, Quality, (uint)Size, Progress.BufferedSize());
 
 			Debug.WriteLine($"download:{head}~{head + resultBuffer.Length}");
 
@@ -535,26 +548,28 @@ namespace NicoPlayerHohoema.Models
 
 				Debug.WriteLine($"{VideoId} is download done.");
 
-				OnCacheComplete?.Invoke(VideoId);
+				OnCacheComplete?.Invoke(RawVideoId);
 			}
 		}
 
 
-		public override void Dispose()
+		public override async void Dispose()
 		{
 			base.Dispose();
 
-			StopDownload();
+			await StopDownload();
 
 			if (!IsCacheComplete)
 			{
-				SaveProgress();
+				await SaveProgress();
 			}
 
-			if (IsRequireCache)
+			if (!IsRequireCache)
 			{
-				CacheFile.DeleteAsync().AsTask().ConfigureAwait(false);
+				await CacheFile.DeleteAsync().AsTask().ConfigureAwait(false);
+				CacheFile = null;
 				ProgressFile?.DeleteAsync().AsTask().ConfigureAwait(false);
+				ProgressFile = null;
 			}
 		}
 
@@ -597,7 +612,9 @@ namespace NicoPlayerHohoema.Models
 
 		public event Action<string> OnCacheComplete;
 		public event Action<string> OnCacheCanceled;
+		public event Action<string, NicoVideoQuality, uint, uint> OnCacheProgress;
 
+		public string RawVideoId { get; private set; }
 		public string VideoId { get; private set; }
 		public StorageFile CacheFile { get; private set; }
 
@@ -769,6 +786,17 @@ namespace NicoPlayerHohoema.Models
 				}
 			}
 
+		}
+
+		public uint BufferedSize()
+		{
+			uint bufferedSize = 0;
+			foreach (var range in CachedRanges)
+			{
+				bufferedSize += range.Value - range.Key;
+			}
+
+			return bufferedSize;
 		}
 
 		public uint RemainSize()

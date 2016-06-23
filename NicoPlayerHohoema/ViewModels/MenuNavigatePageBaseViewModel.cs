@@ -40,7 +40,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 			PersonalMenuItems = new List<PageTypeSelectableItem>()
 			{
-				new PageTypeSelectableItem(HohoemaPageType.Settings, OnMenuItemSelected, "設定"),
+				new PageTypeSelectableItem(HohoemaPageType.CacheManagement	  , OnMenuItemSelected, "ダウンロード管理"),
+				new PageTypeSelectableItem(HohoemaPageType.Settings			  , OnMenuItemSelected, "設定"),
 			};
 
 			SelectedItem = new ReactiveProperty<PageTypeSelectableItem>(MenuItems[0], mode: ReactivePropertyMode.DistinctUntilChanged);

@@ -9,8 +9,8 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class FavoriteVideoInfoControlViewModel : VideoInfoControlViewModel
 	{
-		public FavoriteVideoInfoControlViewModel(FavFeedItem feedItem, NGSettings ngSettings, NiconicoMediaManager mediaMan, PageManager pageMan)
-			: base(feedItem.Title, feedItem.VideoId, ngSettings, mediaMan, pageMan)
+		public FavoriteVideoInfoControlViewModel(FavFeedItem feedItem, NicoVideo nicoVideo, PageManager pageMan)
+			: base(nicoVideo, pageMan)
 		{
 			IsNewItem = feedItem.IsNewItem;
 		}
