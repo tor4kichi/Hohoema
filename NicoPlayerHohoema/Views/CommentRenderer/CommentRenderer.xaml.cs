@@ -30,7 +30,6 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 	{
 		const int CommentUIReserveCount = 100;
 
-
 		public SortedDictionary<uint, List<Comment>> TimeSequescailComments { get; private set; }
 		public Dictionary<Comment, CommentUI> RenderComments { get; private set; }
 
@@ -40,6 +39,9 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		public List<CommentUI> BottomAlignNextVerticalPosition { get; private set; }
 
 		private Timer _UpdateTimingTimer;
+
+		private List<CommentUI> _CommentUIReserve;
+
 
 		public CommentRenderer()
 		{
@@ -52,6 +54,12 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			TopAlignNextVerticalPosition = new List<CommentUI>();
 			BottomAlignNextVerticalPosition = new List<CommentUI>();
 
+			_CommentUIReserve = new List<CommentUI>();
+
+			for (var i = 0; i < 100; ++i)
+			{
+				_CommentUIReserve.Add(new CommentUI());
+			}
 
 			Loaded += CommentRenderer_Loaded;
 			Unloaded += CommentRenderer_Unloaded;
@@ -238,10 +246,19 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 				if (!RenderComments.ContainsKey(comment))
 				{
 					// リザーブからCommentUIを取得
-					var renderComment = new CommentUI()
+
+					CommentUI renderComment = null;
+					if (_CommentUIReserve.Count > 0)
 					{
-						DataContext = comment
-					};
+						renderComment = _CommentUIReserve.Last();
+						_CommentUIReserve.Remove(renderComment);
+					}
+					else
+					{
+						renderComment = new CommentUI();
+					}
+
+					renderComment.DataContext = comment;
 
 
 					// 表示対象に登録
@@ -283,6 +300,8 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 				RenderComments.Remove(renderComment.Key);
 
 				CommentCanvas.Children.Remove(renderComment.Value);
+
+				_CommentUIReserve.Add(renderComment.Value);
 
 				renderComment.Value.DataContext = null;
 			}
