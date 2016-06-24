@@ -315,6 +315,8 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 				{
 					Canvas.SetLeft(ui, canvasWidth - ui.GetHorizontalPosition(canvasWidth, currentVpos));
 				}
+
+				
 			}
 		}
 
@@ -497,14 +499,11 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 
 
-		private List<Comment> BinarySearch(uint currentVpos)
+		private IEnumerable<Comment> BinarySearch(uint currentVpos)
 		{
 			return TimeSequescailComments.Keys.Where(x => x < currentVpos)
-//				.AsParallel()
 				.Select(x => TimeSequescailComments[x])
-				.SelectMany(x => x.Where(y => currentVpos < y.EndPosition))
-//				.AsSequential()
-				.ToList();
+				.SelectMany(x => x.Where(y => currentVpos < y.EndPosition));
 		}
 
 
