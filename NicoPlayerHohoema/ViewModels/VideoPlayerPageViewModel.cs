@@ -17,6 +17,7 @@ using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Concurrency;
@@ -34,7 +35,7 @@ using Windows.UI.Xaml.Media;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class VideoPlayerPageViewModel : ViewModelBase, IDisposable
+	public class VideoPlayerPageViewModel : HohoemaViewModelBase, IDisposable
 	{
 
 		public static SynchronizationContextScheduler PlayerWindowUIDispatcherScheduler;
@@ -42,7 +43,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		public VideoPlayerPageViewModel(HohoemaApp hohoemaApp, EventAggregator ea)
+		public VideoPlayerPageViewModel(HohoemaApp hohoemaApp, EventAggregator ea, PageManager pageManager)
+			: base(pageManager)
 		{
 			if (PlayerWindowUIDispatcherScheduler == null)
 			{
@@ -77,6 +79,122 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactivePropertyAsSynchronized(x => x.IsMute, PlayerWindowUIDispatcherScheduler);
 			SoundVolume = _HohoemaApp.UserSettings.PlayerSettings
 				.ToReactivePropertyAsSynchronized(x => x.SoundVolume, PlayerWindowUIDispatcherScheduler);
+
+			Title = new ReactiveProperty<string>("");
+			WritingComment = new ReactiveProperty<string>("");
+
+			CommentSubmitCommand = WritingComment.Select(x => !string.IsNullOrWhiteSpace(x))
+				.ToReactiveCommand();
+
+			CommentSubmitCommand.Subscribe(x => 
+			{
+				if (SubmitComment(WritingComment.Value, Enumerable.Empty<CommandType>()))
+				{
+					WritingComment.Value = "";
+				}
+			});
+
+
+			CurrentVideoQuality = new ReactiveProperty<NicoVideoQuality>(PlayerWindowUIDispatcherScheduler, NicoVideoQuality.Low, ReactivePropertyMode.DistinctUntilChanged);
+			CanToggleCurrentQualityCacheState = CurrentVideoQuality
+				.SubscribeOnUIDispatcher()
+				.Select(x =>
+				{
+					if (this.Video == null) { return false; }
+
+					switch (CurrentVideoQuality.Value)
+					{
+						case NicoVideoQuality.Original:
+							return Video.OriginalQualityCacheState == NicoVideoCacheState.Incomplete ? Video.CanRequestDownloadOriginalQuality : false;
+						case NicoVideoQuality.Low:
+							return Video.LowQualityCacheState == NicoVideoCacheState.Incomplete ? Video.CanRequestDownloadLowQuality : false;
+						default:
+							return false;
+					}
+				})
+				.ToReactiveProperty();
+
+			IsSaveRequestedCurrentQualityCache = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false, ReactivePropertyMode.DistinctUntilChanged);
+
+			CurrentVideoQuality
+				.SubscribeOnUIDispatcher()
+				.Subscribe(async x => 
+			{
+				if (Video == null) { IsSaveRequestedCurrentQualityCache.Value = false; return; }
+
+				switch (x)
+				{
+					case NicoVideoQuality.Original:
+						IsSaveRequestedCurrentQualityCache.Value = Video.OriginalQualityCacheState != NicoVideoCacheState.Incomplete;
+						break;
+					case NicoVideoQuality.Low:
+						IsSaveRequestedCurrentQualityCache.Value = Video.LowQualityCacheState != NicoVideoCacheState.Incomplete;
+						break;
+					default:
+						IsSaveRequestedCurrentQualityCache.Value = false;
+						break;
+				}
+
+				VideoStream.Value = await Video.GetVideoStream(x);
+			});
+
+			IsSaveRequestedCurrentQualityCache
+				.SubscribeOnUIDispatcher()
+				.Subscribe(async saveRequested => 
+			{
+				if (saveRequested)
+				{
+					await Video.RequestCache(this.CurrentVideoQuality.Value);
+				}
+				else
+				{
+					Video.CancelCacheRequest(this.CurrentVideoQuality.Value);
+				}
+
+				CanToggleCurrentQualityCacheState.ForceNotify();
+			});
+
+
+
+			TogglePlayQualityCommand =
+				Observable.Merge(
+					this.ObserveProperty(x => x.Video).ToUnit(),
+					CurrentVideoQuality.ToUnit()
+					)
+				.Select(_ =>
+				{
+					if (Video == null) { return false; }
+					if (CurrentVideoQuality.Value == NicoVideoQuality.Original)
+					{
+						return Video.CanPlayLowQuality;
+					}
+					else
+					{
+						return Video.CanPlayOriginalQuality;
+					}
+				})
+				.ToReactiveCommand();
+
+			TogglePlayQualityCommand
+				.SubscribeOnUIDispatcher()
+				.Subscribe(_ => 
+				{
+					if (CurrentVideoQuality.Value == NicoVideoQuality.Low)
+					{
+						CurrentVideoQuality.Value = NicoVideoQuality.Original;
+					}
+					else
+					{
+						CurrentVideoQuality.Value = NicoVideoQuality.Low;
+					}
+				});
+
+
+			ToggleQualityText = CurrentVideoQuality
+				.Select(x => x == NicoVideoQuality.Low ? "低画質に切り替え" : "通常画質に切り替え")
+				.ToReactiveProperty();
+
+
 
 			Observable.Merge(
 				IsMuted.ToUnit(),
@@ -351,12 +469,13 @@ namespace NicoPlayerHohoema.ViewModels
 		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			base.OnNavigatedTo(e, viewModelState);
-			
+
+			NicoVideoQuality quality = NicoVideoQuality.Low;
 			if (e?.Parameter is string)
 			{
 				var payload = VideoPlayPayload.FromParameterString(e.Parameter as string);
 				VideoId = payload.VideoId;
-				Quality = payload.Quality;
+				quality =  payload.Quality;
 			}
 			else if(viewModelState.ContainsKey(nameof(VideoId)))
 			{
@@ -369,9 +488,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 			try
 			{
-				Video = await _HohoemaApp.MediaManager.GetNicoVideo(VideoId);
+				var videoInfo = await _HohoemaApp.MediaManager.GetNicoVideo(VideoId);
 
-				VideoStream.Value = await Video.GetVideoStream(Quality);
+				// 内部状態を更新
+				await videoInfo.GetVideoInfo();
+				await videoInfo.CheckCacheStatus();
+
+				Video = videoInfo;
 			}
 			catch (Exception exception)
 			{
@@ -381,12 +504,38 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 
 
+
+
+			// ビデオクオリティをトリガーにしてビデオ関連の情報を更新させる
+			// CurrentVideoQualityは代入時に常にNotifyが発行される設定になっている
+			
+			if (Video.NowLowQualityOnly && Video.OriginalQualityCacheState != NicoVideoCacheState.Cached)
+			{
+				CurrentVideoQuality.Value = NicoVideoQuality.Low;
+				CurrentVideoQuality.ForceNotify();
+			}
+			else
+			{
+
+				if (quality == CurrentVideoQuality.Value)
+				{
+					CurrentVideoQuality.ForceNotify();
+				}
+				else
+				{
+					CurrentVideoQuality.Value = quality;
+				}
+			}
+
+		
+			
+
 			if (viewModelState.ContainsKey(nameof(CurrentVideoPosition)))
 			{
 				CurrentVideoPosition.Value = TimeSpan.FromSeconds((double)viewModelState[nameof(CurrentVideoPosition)]);
 			}
 
-
+			Title.Value = Video.Title;
 		}
 
 		private async Task<CommentResponse> GetComment()
@@ -425,13 +574,25 @@ namespace NicoPlayerHohoema.ViewModels
 		public void Dispose()
 		{
 			Video?.StopPlay();
+		}
 
-			VideoStream.Value?.Dispose();
+		public override string GetPageTitle()
+		{
+			return Title.Value;
+		}
+
+
+		private bool SubmitComment(string comment, IEnumerable<CommandType> commands)
+		{
+			Debug.WriteLine($"comment submit:{comment}");
+
+
+			return true;
 		}
 
 
 
-		#region Command
+		#region Command	
 
 		private DelegateCommand<object> _CurrentStateChangedCommand;
 		public DelegateCommand<object> CurrentStateChangedCommand
@@ -476,7 +637,9 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-
+		public ReactiveCommand CommentSubmitCommand { get; private set; }
+		public ReactiveCommand TogglePlayQualityCommand { get; private set; }
+		
 
 		#endregion
 
@@ -499,8 +662,11 @@ namespace NicoPlayerHohoema.ViewModels
 		
 		public ReactiveProperty<IRandomAccessStream> VideoStream { get; private set; }
 
-		// TODO: 動画再生中の動画画質の変更をサポート
-		public NicoVideoQuality Quality { get; private set; }
+		public ReactiveProperty<NicoVideoQuality> CurrentVideoQuality { get; private set; }
+		public ReactiveProperty<bool> CanToggleCurrentQualityCacheState { get; private set; }
+		public ReactiveProperty<bool> IsSaveRequestedCurrentQualityCache { get; private set; }
+
+		public ReactiveProperty<string> ToggleQualityText { get; private set; }
 
 		public ReactiveProperty<TimeSpan> CurrentVideoPosition { get; private set; }
 		public ReactiveProperty<TimeSpan> ReadVideoPosition { get; private set; }
@@ -512,7 +678,6 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<double> VideoLength { get; private set; }
 
 		public ReactiveProperty<MediaElementState> CurrentState { get; private set; }
-
 
 		public ReactiveProperty<bool> NowPlaying { get; private set; }
 
@@ -527,15 +692,16 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<bool> IsEnableRepeat { get; private set; }
 		
-
+		public ReactiveProperty<string> WritingComment { get; private set; }
 
 		public ReactiveProperty<bool> IsMuted { get; private set; }
 
 		public ReactiveProperty<float> SoundVolume { get; private set; }
 
+		public ReactiveProperty<string> Title { get; private set; }
 
 
-		
+
 
 		// Note: 新しいReactivePropertyを追加したときの注意点
 		// RPではPlayerWindowUIDispatcherSchedulerを使うこと

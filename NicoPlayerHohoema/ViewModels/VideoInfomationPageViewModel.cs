@@ -193,7 +193,6 @@ namespace NicoPlayerHohoema.ViewModels
 				MylistCount = ThumbnailResponse.MylistCount;
 				ThumbnailUrl = ThumbnailResponse.ThumbnailUrl;
 
-				/*
 				IsOnlyOriginalQuality = ThumbnailResponse.SizeLow == 0;
 				if (IsOnlyOriginalQuality)
 				{
@@ -201,7 +200,6 @@ namespace NicoPlayerHohoema.ViewModels
 					CanDownloadCacheLowQuality.Value = false;
 					IsLowQuality.Value = false;
 				}
-				*/
 			}
 			catch (Exception exception)
 			{

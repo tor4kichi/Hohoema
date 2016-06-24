@@ -574,6 +574,11 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
+		public void ChangeCacheRequire(bool isCacheRequire)
+		{
+			IsRequireCache = isCacheRequire;
+		}
+
 		public bool IsCacheComplete
 		{
 			get

@@ -255,18 +255,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		private DelegateCommand _ShowDetailCommand;
-		public DelegateCommand ShowDetailCommand
-		{
-			get
-			{
-				return _ShowDetailCommand
-					?? (_ShowDetailCommand = new DelegateCommand(() =>
-					{
-						PageManager.OpenPage(HohoemaPageType.VideoInfomation, RawVideoId);
-					}));
-			}
-		}
+		
 		private DelegateCommand _PlayCommand;
 		public DelegateCommand PlayCommand
 		{
@@ -275,7 +264,12 @@ namespace NicoPlayerHohoema.ViewModels
 				return _PlayCommand
 					?? (_PlayCommand = new DelegateCommand(() =>
 					{
-						PageManager.OpenPage(HohoemaPageType.VideoInfomation, RawVideoId);
+						var payload = new VideoPlayPayload()
+						{
+							VideoId = RawVideoId,
+							Quality = NicoVideoQuality.Original,
+						};
+						PageManager.OpenPage(HohoemaPageType.VideoPlayer, payload.ToParameterString());
 					}));
 			}
 		}
