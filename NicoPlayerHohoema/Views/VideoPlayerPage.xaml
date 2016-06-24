@@ -192,6 +192,7 @@
                         <Slider Minimum="0.0" 
                             Maximum="{Binding VideoLength.Value}"
                             Value="{Binding SliderVideoPosition.Value, Mode=TwoWay}"
+                            StepFrequency="0.1"
                             IsThumbToolTipEnabled="True"
                             ThumbToolTipValueConverter="{StaticResource TimeToMovieLengthConverter}"
                             HorizontalAlignment="Stretch"
