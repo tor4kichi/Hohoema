@@ -51,17 +51,18 @@
                 </Border>
 
 
-                <ListBox ItemsSource="{Binding RankingItems}"
+                <ListView ItemsSource="{Binding RankingItems}"
                          SelectionMode="Multiple"
+                         IncrementalLoadingTrigger="Edge"
                               >
-                    <ListBox.ItemContainerStyle>
-                        <Style TargetType="ListBoxItem">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
                             <Setter Property="HorizontalContentAlignment"
                                         Value="Stretch" 
                                         />
                         </Style>
-                    </ListBox.ItemContainerStyle>
-                    <ListBox.ItemTemplate>
+                    </ListView.ItemContainerStyle>
+                    <ListView.ItemTemplate>
                         <DataTemplate>
                             <Grid>
                                 <view:VideoInfoControl />
@@ -78,8 +79,8 @@
                                 
                             </Grid>
                         </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
+                    </ListView.ItemTemplate>
+                </ListView>
             </toolkit:DockPanel>
         </Border>
     </Grid>

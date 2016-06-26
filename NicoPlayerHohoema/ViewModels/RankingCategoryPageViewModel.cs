@@ -16,8 +16,11 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using Windows.Foundation;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -58,12 +61,6 @@ namespace NicoPlayerHohoema.ViewModels
 			SelectedRankingTimeSpan = new ReactiveProperty<RankingTimeSpanListItem>(RankingTimeSpanItems[0], ReactivePropertyMode.DistinctUntilChanged);
 
 
-			
-
-			RankingItems = new ObservableCollection<VideoInfoControlViewModel>();
-
-
-
 			Observable.CombineLatest(
 				SelectedRankingTarget.ToUnit(),
 				SelectedRankingTimeSpan.ToUnit()
@@ -78,94 +75,6 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		private async void UpdateRankingList(RankingCategory category)
-		{
-			var target = SelectedRankingTarget.Value.TargetType;
-			var timeSpan = SelectedRankingTimeSpan.Value.TimeSpan;
-
-
-			_PageManager.PageTitle = $"「{category.ToCultulizedText()}」のランキング";
-
-			RankingItems.Clear();
-
-			try
-			{
-				var listItems = await NiconicoRanking.GetRankingData(target, timeSpan, category);
-
-				for (uint i = 0; i < listItems.Channel.Items.Count; i++)
-				{
-					var item = listItems.Channel.Items[(int)i];
-					var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideo(item.GetVideoId());
-					try
-					{
-						var videoInfoVM = new RankedVideoInfoControlViewModel(
-							i + 1
-							, nicoVideo
-							, _PageManager
-						);
-
-						RankingItems.Add(videoInfoVM);
-					}
-					catch { }
-				}
-			}
-			catch
-			{
-				// Errorを通知
-			}
-
-
-			// サムネイル情報を非同期読み込み
-			foreach (var videoInfoVM in RankingItems)
-			{
-				videoInfoVM.LoadThumbnail();
-			}
-		}
-
-
-		private async void LoadRankingFromSearchWithPopularity(string parameter)
-		{
-
-			var listItems = new List<Mntone.Nico2.Videos.Search.ListItem>();
-
-			// 
-			for (uint i = 0; i < 3; i++)
-			{
-				var res = await ContentFinder.GetKeywordSearch(parameter, i + 1, SortMethod.Popurarity);
-				if (res.IsStatusOK)
-				{
-					listItems.AddRange(res.list);
-				}
-			}
-
-
-
-			for (uint i = 0; i < listItems.Count; i++)
-			{
-				var item = listItems[(int)i];
-
-				var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideo(item.id);
-				try
-				{
-					var videoInfoVM = new RankedVideoInfoControlViewModel(
-						i + 1
-						, nicoVideo
-						, _PageManager
-						);
-
-					RankingItems.Add(videoInfoVM);
-				}
-				catch { }
-			}
-
-			// サムネイル情報を非同期読み込み
-			foreach (var videoInfoVM in RankingItems)
-			{
-				videoInfoVM.LoadThumbnail();
-			}
-		}
-
-
 
 		internal void ShowVideoInfomation(string videoUrl)
 		{
@@ -175,7 +84,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			base.OnNavigatedTo(e, viewModelState);
 
@@ -200,17 +109,25 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			IsFailedRefreshRanking.Value = false;
 
+			IIncrementalSource<RankedVideoInfoControlViewModel> source = null;
+			uint pageSize = 20;
 			try
 			{
 				switch (CategoryInfo.RankingSource)
 				{
 					case RankingSource.CategoryRanking:
 						RankingCategory = (RankingCategory)Enum.Parse(typeof(RankingCategory), CategoryInfo.Parameter);
-						UpdateRankingList(RankingCategory);
+						var target = SelectedRankingTarget.Value.TargetType;
+						var timeSpan = SelectedRankingTimeSpan.Value.TimeSpan;
+						source = new CategoryRankingLoadingSource(HohoemaApp, _PageManager, RankingCategory, target, timeSpan);
+
 						CanChangeRankingParameter.Value = true;
 						break;
 					case RankingSource.SearchWithMostPopular:
-						LoadRankingFromSearchWithPopularity(CategoryInfo.Parameter);
+
+						source = new CustomRankingLoadingSource(HohoemaApp, _PageManager, CategoryInfo.Parameter);
+						pageSize = 30;
+
 						CanChangeRankingParameter.Value = false;
 						break;
 					default:
@@ -221,6 +138,9 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				IsFailedRefreshRanking.Value = true;
 			}
+
+
+			RankingItems = new IncrementalLoadingCollection<IIncrementalSource<RankedVideoInfoControlViewModel>, RankedVideoInfoControlViewModel>(source, pageSize);
 		}
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
@@ -247,15 +167,133 @@ namespace NicoPlayerHohoema.ViewModels
 		public List<RankingTimeSpanListItem> RankingTimeSpanItems { get; private set; }
 		public ReactiveProperty<RankingTimeSpanListItem> SelectedRankingTimeSpan { get; private set; }
 
-		public ObservableCollection<VideoInfoControlViewModel> RankingItems { get; private set; }
+		public IncrementalLoadingCollection<IIncrementalSource<RankedVideoInfoControlViewModel>, RankedVideoInfoControlViewModel> RankingItems { get; private set; }
 
 		private PageManager _PageManager;
 		private HohoemaApp HohoemaApp;
 		private NiconicoContentFinder ContentFinder;
 		private EventAggregator _EventAggregator;
 		public RankingSettings RankingSettings { get; private set; }
+	}
+
+
+	public class CategoryRankingLoadingSource : IIncrementalSource<RankedVideoInfoControlViewModel>
+	{
+		public CategoryRankingLoadingSource(HohoemaApp app, PageManager pageManager, RankingCategory category, RankingTarget target, RankingTimeSpan timeSpan)
+		{
+			_HohoemaApp = app;
+			_PageManager = pageManager;
+			_Category = category;
+			_Target = target;
+			_TimeSpan = timeSpan;
+		}
+
+
+		public Task<IEnumerable<RankedVideoInfoControlViewModel>> GetPagedItems(uint position, uint pageSize)
+		{
+			return AsyncInfo.Run(async (token) => 
+			{
+				var contentFinder = _HohoemaApp.ContentFinder;
+				var mediaManager = _HohoemaApp.MediaManager;
+
+
+				if (RankingRss == null)
+				{
+					RankingRss = await NiconicoRanking.GetRankingData(_Target, _TimeSpan, _Category);
+				}
+				var head = (int)(position);
+				var tail = head + pageSize;
+
+				List<RankedVideoInfoControlViewModel> items = new List<RankedVideoInfoControlViewModel>();
+				for (int i = head; i < tail; ++i)
+				{
+					var rank = i;
+
+					if (rank >= RankingRss.Channel.Items.Count)
+					{
+						break;
+					}
+
+					var item = RankingRss.Channel.Items[rank-1];
+					var nicoVideo = await mediaManager.GetNicoVideo(item.GetVideoId());
+
+
+					var vm = new RankedVideoInfoControlViewModel(
+						(uint)(rank)
+						, nicoVideo
+						, _PageManager
+					);
+					vm.LoadThumbnail();
+
+					items.Add(vm);
+				}
+
+				return items.AsEnumerable();
+			})
+			.AsTask();			
+		}
+
+
+		NiconicoRankingRss RankingRss;
+		HohoemaApp _HohoemaApp;
+		PageManager _PageManager;
+		RankingCategory _Category;
+		RankingTarget _Target;
+		RankingTimeSpan _TimeSpan;
+	}
+
+
+
+	public class CustomRankingLoadingSource : IIncrementalSource<RankedVideoInfoControlViewModel>
+	{
+		public CustomRankingLoadingSource(HohoemaApp app, PageManager pageManager, string parameter)
+		{
+			_HohoemaApp = app;
+			_PageManager = pageManager;
+			_Parameter = parameter;
+		}
+
+
+		public async Task<IEnumerable<RankedVideoInfoControlViewModel>> GetPagedItems(uint pageIndex, uint pageSize)
+		{
+			// 
+			var contentFinder = _HohoemaApp.ContentFinder;
+			var mediaManager = _HohoemaApp.MediaManager;
+
+
+			var res = await contentFinder.GetKeywordSearch(_Parameter, pageIndex + 1, SortMethod.Popurarity);			
+
+			var head = pageIndex * pageSize;
+
+			List<RankedVideoInfoControlViewModel> items = new List<RankedVideoInfoControlViewModel>();
+
+			for (int i = 0; i < res.list.Count; ++i)
+			{
+				var item = res.list[i];
+				var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(item.id);
+
+				var videoInfoVM = new RankedVideoInfoControlViewModel(
+					(uint)(i + 1)
+					, nicoVideo
+					, _PageManager
+					);
+
+				videoInfoVM.LoadThumbnail();
+
+				items.Add(videoInfoVM);
+			}
+
+			return items;
+		}
+
+		HohoemaApp _HohoemaApp;
+		PageManager _PageManager;
+		string _Parameter;
 
 	}
+
+
+
 
 
 	public class RankedVideoInfoControlViewModel : VideoInfoControlViewModel

@@ -13,6 +13,7 @@ using Reactive.Bindings;
 using Prism.Commands;
 using Prism.Mvvm;
 using System.Reactive.Linq;
+using System.Diagnostics;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -136,9 +137,13 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		public async Task<IEnumerable<VideoInfoControlViewModel>> GetPagedItems(uint pageIndex, uint pageSize)
+		public async Task<IEnumerable<VideoInfoControlViewModel>> GetPagedItems(uint position, uint pageSize)
 		{
-			return await _ParentVM.GetSearchPage(pageIndex+1);
+			var pageIndex = position / pageSize;
+
+			Debug.WriteLine(pageIndex);
+
+			return await _ParentVM.GetSearchPage(pageIndex + 1);
 		}
 
 

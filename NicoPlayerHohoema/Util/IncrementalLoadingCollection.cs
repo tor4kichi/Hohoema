@@ -25,6 +25,7 @@ namespace NicoPlayerHohoema.Util
 			this._Source = source;
 			this._ItemsPerPage = itemsPerPage;
 			this._HasMoreItems = true;
+			_Position = 1;
 		}
 
 		
@@ -33,7 +34,6 @@ namespace NicoPlayerHohoema.Util
 		{
 			var dispatcher = Window.Current.Dispatcher;
 
-			_CurrentPage = count;
 
 			return Task.Run<LoadMoreItemsResult>(
 				() =>
@@ -41,12 +41,12 @@ namespace NicoPlayerHohoema.Util
 					uint resultCount = 0;
 
 					Task.WaitAll(
-						Task.Delay(1000),
+						Task.Delay(5000),
 						dispatcher.RunAsync(
 							CoreDispatcherPriority.Normal,
 							async () =>
 							{
-								var result = await _Source.GetPagedItems(count, _ItemsPerPage);
+								var result = await _Source.GetPagedItems(_Position, _ItemsPerPage);
 
 								if (result == null || result.Count() == 0)
 								{
@@ -60,9 +60,11 @@ namespace NicoPlayerHohoema.Util
 								foreach (I item in result)
 									this.Add(item);
 
+								_Position += (uint)result.Count();
 							})
 							.AsTask()
 						);
+
 					
 					return new LoadMoreItemsResult() { Count = resultCount };
 
@@ -78,8 +80,6 @@ namespace NicoPlayerHohoema.Util
 		private T _Source;
 		private uint _ItemsPerPage;
 		private bool _HasMoreItems;
-		private uint _CurrentPage;
-
-
+		private uint _Position;
 	}
 }
