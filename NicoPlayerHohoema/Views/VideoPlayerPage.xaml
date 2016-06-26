@@ -12,6 +12,7 @@
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:videoInfo="using:NicoPlayerHohoema.Views.VideoInfoContent"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
     d:DesignHeight="480"
@@ -19,12 +20,24 @@
     >
 
     <Page.Resources>
-        
-        
+        <DataTemplate x:Key="SummaryVideoInfoContentTemplate" >
+            <videoInfo:SummaryVideoInfoContent Width="400"
+                                               />
+        </DataTemplate>
+
+
+
+
+        <local:VideoInfoContentTemplateSelector x:Key="VideoInfoContentTemplateSelector"
+                                                Summary="{StaticResource SummaryVideoInfoContentTemplate}"
+                                                
+                                                >
+
+        </local:VideoInfoContentTemplateSelector>
     </Page.Resources>
 
 
-    
+
 
     <toolkit:DockPanel>
         
@@ -97,7 +110,9 @@
         </VisualStateManager.VisualStateGroups>
 
 
-        <SplitView x:Name="SplitView" PanePlacement="Right" PaneBackground="#77000000">
+        <SplitView x:Name="SplitView" PanePlacement="Right" PaneBackground="#77FFFFFF"
+                   OpenPaneLength="400"
+                   >
             <SplitView.Content>
 
                 <!-- Media Control -->
@@ -145,7 +160,7 @@
                             <mybehavior:AutoHide x:Name="AutoHideBehavior"
                                          IsEnable="{Binding IsAutoHideEnable.Value}"
                                          Delay="00:00:02" 
-                                         WithCursor="True"
+                                         WithCursor="False"
                                          >
                                 <i:Interaction.Behaviors>
 
@@ -383,7 +398,36 @@
                 </Grid>
             </SplitView.Content>
             <SplitView.Pane>
-                <TextBlock Text="test" />
+                <toolkit:DockPanel>
+                    
+                    <!-- サブコンテンツのセレクタ -->
+                    <ListView toolkit:DockPanel.Dock="Top"
+                              ItemsSource="{Binding Types}"
+                              SelectionMode="Single"
+                              SelectedItem="{Binding SelectedSidePaneType.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              >
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" />
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
+                    </ListView>
+
+                    <ScrollViewer>
+                        <ContentControl Content="{Binding SidePaneContent.Value}"
+                                    ContentTemplateSelector="{StaticResource VideoInfoContentTemplateSelector}"
+                                    />
+                    </ScrollViewer>
+
+                    
+
+                </toolkit:DockPanel>
 
             </SplitView.Pane>
         </SplitView>

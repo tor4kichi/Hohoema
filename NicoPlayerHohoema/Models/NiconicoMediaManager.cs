@@ -451,7 +451,7 @@ namespace NicoPlayerHohoema.Models
 			WatchApiResponse res;
 			if (quality == NicoVideoQuality.Low)
 			{
-				res = await nicoVideo.GetLowQualityWatchApiResponse();
+				res = await nicoVideo.GetVideoInfoFromOnline(true);
 			}
 			else
 			{
@@ -837,15 +837,7 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
-		internal async Task<WatchApiResponse> GetLowQualityWatchApiResponse()
-		{
-			await Task.Delay(1000);
-			return await ConnectionRetryUtil.TaskWithRetry(() => 
-			{
-				return HohoemaApp.NiconicoContext.Video.GetWatchApiAsync(RawVideoId, forceLowQuality: true);
-			}
-			, retryInterval:1000);
-		}
+		
 
 		public async Task<ThumbnailResponse> GetThumbnailInfo()
 		{
@@ -874,8 +866,8 @@ namespace NicoPlayerHohoema.Models
 
 			return _CachedThumbnailInfo;
 		}
-		
-		private async Task<ThumbnailResponse> GetThumbnailInfoFromOnline()
+
+		internal async Task<ThumbnailResponse> GetThumbnailInfoFromOnline()
 		{
 			ThumbnailResponse res = null;
 
@@ -997,15 +989,17 @@ namespace NicoPlayerHohoema.Models
 			return _CachedWatchApiResponse;
 		}
 
-		private async Task<WatchApiResponse> GetVideoInfoFromOnline()
+		internal async Task<WatchApiResponse> GetVideoInfoFromOnline(bool forceLowQuality = false)
 		{
 			WatchApiResponse watchApiRes = null;
+
+			Debug.WriteLine($"{RawVideoId}の動画情報を取得 : {DateTime.Now}");
 
 			try
 			{
 				watchApiRes = await Util.ConnectionRetryUtil.TaskWithRetry(async () =>
 				{
-					return await HohoemaApp.NiconicoContext.Video.GetWatchApiAsync(RawVideoId, forceLowQuality: false);
+					return await HohoemaApp.NiconicoContext.Video.GetWatchApiAsync(RawVideoId, forceLowQuality: forceLowQuality);
 				});
 			}
 			catch { }
@@ -1109,6 +1103,15 @@ namespace NicoPlayerHohoema.Models
 		// 動画のキャッシュ要求
 		public async Task RequestCache(NicoVideoQuality quality)
 		{
+			if (quality == NicoVideoQuality.Original)
+			{
+				if (OriginalQualityCacheState == NicoVideoCacheState.Cached) { return; }
+			}
+			else
+			{
+				if (LowQualityCacheState == NicoVideoCacheState.Cached) { return; }
+			}
+
 			if (CachedWatchApiResponse == null)
 			{
 				await GetVideoInfo();
@@ -1396,6 +1399,7 @@ namespace NicoPlayerHohoema.Models
 		public HohoemaApp HohoemaApp { get; private set; }
 		VideoDownloadContext _Context;
 
+		public bool LastAccessIsLowQuality { get; private set; }
 
 		private SemaphoreSlim _WatchApiGettingLock;
 	}

@@ -51,8 +51,9 @@ namespace NicoPlayerHohoema.ViewModels
 				PlayerWindowUIDispatcherScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
 			}
 
-			
-			
+			_SidePaneContentCache = new Dictionary<MediaInfoDisplayType, MediaInfoViewModel>();
+
+
 
 			ea.GetEvent<Events.PlayerClosedEvent>()
 				.Subscribe(_ =>
@@ -450,10 +451,20 @@ namespace NicoPlayerHohoema.ViewModels
 					)
 					.Select(x => x.All(y => y))
 					.ToReactiveProperty(PlayerWindowUIDispatcherScheduler);
-				
-				
 
-			
+
+
+			SelectedSidePaneType = new ReactiveProperty<MediaInfoDisplayType>(MediaInfoDisplayType.Summary, ReactivePropertyMode.DistinctUntilChanged);
+
+			Types = new List<MediaInfoDisplayType>()
+			{
+				MediaInfoDisplayType.Summary,
+			};
+
+			SidePaneContent = SelectedSidePaneType
+				.SelectMany(x => GetMediaInfoVM(x))
+				.ToReactiveProperty();
+
 		}
 
 
@@ -527,8 +538,7 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 			}
 
-		
-			
+
 
 			if (viewModelState.ContainsKey(nameof(CurrentVideoPosition)))
 			{
@@ -536,6 +546,17 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 
 			Title.Value = Video.Title;
+			_SidePaneContentCache.Clear();
+			if (SelectedSidePaneType.Value == MediaInfoDisplayType.Summary)
+			{
+				SelectedSidePaneType.ForceNotify();
+			}
+			else
+			{
+				SelectedSidePaneType.Value = MediaInfoDisplayType.Summary;
+			}
+
+
 		}
 
 		private async Task<CommentResponse> GetComment()
@@ -568,6 +589,9 @@ namespace NicoPlayerHohoema.ViewModels
 				viewModelState.Add(nameof(VideoId), VideoId);
 				viewModelState.Add(nameof(CurrentVideoPosition), CurrentVideoPosition.Value.TotalSeconds);
 			}
+
+			_SidePaneContentCache.Clear();
+
 			base.OnNavigatingFrom(e, viewModelState, suspending);
 		}
 
@@ -591,6 +615,32 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
+
+		private async Task<MediaInfoViewModel> GetMediaInfoVM(MediaInfoDisplayType type)
+		{
+			MediaInfoViewModel vm = null;
+			if (_SidePaneContentCache.ContainsKey(type))
+			{
+				vm = _SidePaneContentCache[type];
+			}
+			else 
+			{
+				switch (type)
+				{
+					case MediaInfoDisplayType.Summary:
+						var uri = await VideoDescriptionHelper.PartHtmlOutputToCompletlyHtml(VideoId, Video.CachedWatchApiResponse.videoDetail.description);
+
+						vm = new SummaryVideoInfoContentViewModel(Video.CachedThumbnailInfo, uri, PageManager);
+						break;
+					default:
+						throw new NotSupportedException();
+				}
+
+				_SidePaneContentCache.Add(type, vm);
+			}
+
+			return vm;
+		}
 
 		#region Command	
 
@@ -700,8 +750,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<string> Title { get; private set; }
 
-
-
+		public ReactiveProperty<MediaInfoViewModel> SidePaneContent { get; private set; }
+		private Dictionary<MediaInfoDisplayType, MediaInfoViewModel> _SidePaneContentCache;
+		public ReactiveProperty<MediaInfoDisplayType> SelectedSidePaneType { get; private set; }
+		public List<MediaInfoDisplayType> Types { get; private set; }
 
 		// Note: 新しいReactivePropertyを追加したときの注意点
 		// RPではPlayerWindowUIDispatcherSchedulerを使うこと
@@ -763,11 +815,18 @@ namespace NicoPlayerHohoema.ViewModels
 		Tag _Tag;
 	}
 
-	
+
+	public enum MediaInfoDisplayType
+	{
+		Summary,
+	}
 
 
 
-	
+
+
+
+
 
 
 

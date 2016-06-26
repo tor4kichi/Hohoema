@@ -30,4 +30,27 @@ namespace NicoPlayerHohoema.Views
 
 		
 	}
+
+
+
+	public class VideoInfoContentTemplateSelector : DataTemplateSelector
+	{
+		public DataTemplate Summary { get; set; }
+		public DataTemplate Tags { get; set; }
+		public DataTemplate Relation { get; set; }
+		public DataTemplate Ichiba { get; set; }
+
+
+
+		protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
+		{
+			if (item is ViewModels.VideoInfoContent.SummaryVideoInfoContentViewModel)
+			{
+				return Summary;
+			}
+			
+
+			return base.SelectTemplateCore(item, container);
+		}
+	}
 }

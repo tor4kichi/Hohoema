@@ -16,6 +16,7 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 	{
 
 		public SummaryVideoInfoContentViewModel(ThumbnailResponse thumbnail, Uri descriptionHtmlUri, PageManager pageManager)
+			: base("動画説明")
 		{
 			_ThumbnailResponse = thumbnail;
 			_PageManager = pageManager;
@@ -26,13 +27,17 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 
 			//			UserName = response.UserName;
 
-			Title = thumbnail.Title;
 			PlayCount = thumbnail.ViewCount;
 			CommentCount = thumbnail.CommentCount;
 			MylistCount = thumbnail.MylistCount;
 
 			
 			VideoDescriptionUri = descriptionHtmlUri;
+
+
+			Tags = thumbnail.Tags.Value
+				.Select(x => new TagViewModel(x))
+				.ToList();
 		}
 
 		
@@ -67,11 +72,6 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 			}
 		}
 
-
-
-		public string Title { get; private set; }
-
-
 		public string UserName { get; private set; }
 		public Uri UserIconUrl { get; private set; }
 
@@ -92,8 +92,10 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 			set { SetProperty(ref _VideoDesctiptionUri, value); }
 		}
 
+		// タグ
+		public List<TagViewModel> Tags { get; private set; }
 
-		
+
 		ThumbnailResponse _ThumbnailResponse;
 		PageManager _PageManager;
 	}
