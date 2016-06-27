@@ -456,9 +456,9 @@ namespace NicoPlayerHohoema.Models
 			else
 			{
 				res = await nicoVideo.GetVideoInfo();
-				if (nicoVideo.NowLowQualityOnly && quality == NicoVideoQuality.Original)
+				if (nicoVideo.NowLowQualityOnly && quality == NicoVideoQuality.Original && nicoVideo.OriginalQualityCacheState != NicoVideoCacheState.Cached)
 				{
-					// ダウンロードできない
+					// ダウンロード再生ができない
 					throw new Exception("can not download video with original quality in current time.");
 				}
 			}

@@ -413,6 +413,9 @@ namespace NicoPlayerHohoema.Models
 			: base()
 		{
 			SoundVolume = 0.25f;
+			DefaultCommentDisplay = true;
+			IncrementReadablityOwnerComment = true;
+			CommentRenderingFPS = 24;
 		}
 
 
@@ -453,7 +456,41 @@ namespace NicoPlayerHohoema.Models
 			get { return _DisplayMode; }
 			set { SetProperty(ref _DisplayMode, value); }
 		}
+
+
+
+		private bool _DefaultCommentDisplay;
+
+		[DataMember]
+		public bool DefaultCommentDisplay
+		{
+			get { return _DefaultCommentDisplay; }
+			set { SetProperty(ref _DefaultCommentDisplay, value); }
+		}
+
+
+		private bool _IncrementReadablityOwnerComment;
+
+		[DataMember]
+		public bool IncrementReadablityOwnerComment
+		{
+			get { return _IncrementReadablityOwnerComment; }
+			set { SetProperty(ref _IncrementReadablityOwnerComment, value); }
+		}
+
+
+
+		private uint _CommentRenderingFPS;
+
+
+		[DataMember]
+		public uint CommentRenderingFPS
+		{
+			get { return _CommentRenderingFPS; }
+			set { SetProperty(ref _CommentRenderingFPS, value); }
+		}
 	}
+
 
 
 	[DataContract]

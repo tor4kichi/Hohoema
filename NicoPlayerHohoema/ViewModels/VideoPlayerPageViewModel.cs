@@ -673,7 +673,7 @@ namespace NicoPlayerHohoema.ViewModels
 						break;
 
 					case MediaInfoDisplayType.Settings:
-						vm = new SettingsVideoInfoContentViewModel(_HohoemaApp.UserSettings);
+						vm = new SettingsVideoInfoContentViewModel(_HohoemaApp.UserSettings.PlayerSettings);
 						break;
 					default:
 						throw new NotSupportedException();

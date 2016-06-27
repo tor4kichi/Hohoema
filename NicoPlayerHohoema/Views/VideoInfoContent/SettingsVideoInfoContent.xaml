@@ -16,6 +16,56 @@
     d:DesignWidth="400">
 
     <Grid>
-        <TextBlock Text="Settings" />
+
+        <ItemsControl>
+            
+
+            <toolkit:DockPanel Margin="8">
+
+                <TextBlock Text="デフォルトでコメントを表示する"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+
+                <ToggleButton Width="32" Height="32"
+                              IsChecked="{Binding DefaultCommentDisplay.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                              HorizontalAlignment="Right"
+                              />
+
+            </toolkit:DockPanel>
+
+            <toolkit:DockPanel Margin="8">
+
+                <TextBlock Text="投稿者コメントを読みやすくする"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+
+                <ToggleButton Width="32" Height="32"
+                              IsChecked="{Binding IncrementReadablityOwnerComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              HorizontalAlignment="Right"
+                              />
+
+            </toolkit:DockPanel>
+
+
+            <toolkit:DockPanel Margin="8">
+
+                <TextBlock Text="コメントの一秒あたりの描画回数"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+
+                <ComboBox ItemsSource="{Binding CommentRenderringFPSList}"
+                          SelectedItem="{Binding CommentRenderingFPS.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                          HorizontalAlignment="Right"
+                          >
+                    
+                </ComboBox>
+                          
+
+            </toolkit:DockPanel>
+
+        </ItemsControl>
     </Grid>
 </UserControl>

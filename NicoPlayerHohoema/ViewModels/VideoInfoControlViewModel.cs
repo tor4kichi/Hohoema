@@ -151,6 +151,21 @@ namespace NicoPlayerHohoema.ViewModels
 			_CompositeDisposable?.Dispose();
 		}
 
+
+
+		protected virtual VideoPlayPayload MakeVideoPlayPayload()
+		{
+			return new VideoPlayPayload()
+			{
+				VideoId = RawVideoId,
+				Quality = NicoVideoQuality.Original,
+			};
+		}
+
+
+
+
+
 		private string _Title;
 		public string Title
 		{
@@ -264,11 +279,8 @@ namespace NicoPlayerHohoema.ViewModels
 				return _PlayCommand
 					?? (_PlayCommand = new DelegateCommand(() =>
 					{
-						var payload = new VideoPlayPayload()
-						{
-							VideoId = RawVideoId,
-							Quality = NicoVideoQuality.Original,
-						};
+						var payload = MakeVideoPlayPayload();
+
 						PageManager.OpenPage(HohoemaPageType.VideoPlayer, payload.ToParameterString());
 					}));
 			}

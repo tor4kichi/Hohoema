@@ -207,7 +207,7 @@
 
                             <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Right">
 
-                                <TextBlock Text="{Binding CurrentVideoQuality}" 
+                                <TextBlock Text="{Binding CurrentVideoQuality.Value}" 
                                            VerticalAlignment="Center"
                                            Foreground="Black"
                                            />

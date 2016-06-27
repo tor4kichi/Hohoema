@@ -56,11 +56,7 @@ namespace NicoPlayerHohoema.Models
 			string videoUrl = res.VideoUrl.AbsoluteUri;
 			var isEconomy = videoUrl.EndsWith("low");
 
-			if (quality == NicoVideoQuality.Original && isEconomy)
-			{
-				throw new Exception("低画質動画のURLが指定された状態でオリジナル画質の動画のダウンロードが指定されています。");
-			}
-
+			
 
 			StorageFile videoFile = null;
 
@@ -72,6 +68,11 @@ namespace NicoPlayerHohoema.Models
 				}
 				else if (ExistIncompleteOriginalQuorityVideo(videoTitle, videoId, videoSaveFolder))
 				{
+					if (quality == NicoVideoQuality.Original && isEconomy)
+					{
+						throw new Exception("エコノミーモードのためオリジナル画質の動画がダウンロードできません。");
+					}
+
 					videoFile = await videoSaveFolder.GetFileAsync(fileName + IncompleteExt);
 				}
 			}
@@ -86,8 +87,10 @@ namespace NicoPlayerHohoema.Models
 					videoFile = await videoSaveFolder.GetFileAsync(fileName_low + IncompleteExt);
 				}
 			}
+
 			
-			
+
+
 			if (videoFile == null)
 			{
 				// 画質モードに応じてファイルを作成、最初はファイル名に.incompleteが付く
