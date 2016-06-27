@@ -25,11 +25,21 @@
                                                />
         </DataTemplate>
 
+        <DataTemplate x:Key="CommentVideoInfoContentTemplate" >
+            <videoInfo:CommentVideoInfoContent 
+                                               />
+        </DataTemplate>
+        <DataTemplate x:Key="SettingsVideoInfoContentTemplate" >
+            <videoInfo:SettingsVideoInfoContent
+                                               />
+        </DataTemplate>
 
 
 
         <local:VideoInfoContentTemplateSelector x:Key="VideoInfoContentTemplateSelector"
                                                 Summary="{StaticResource SummaryVideoInfoContentTemplate}"
+                                                Comment="{StaticResource CommentVideoInfoContentTemplate}"
+                                                Settings="{StaticResource SettingsVideoInfoContentTemplate}"
                                                 
                                                 >
 

@@ -21,6 +21,9 @@
         <myconv:SoundVolumeConveter x:Key="ToUserFriendlySoubleVolume" />
 
         <myconv:CursorConverter x:Key="ToCoreCursor" />
+
+        <myconv:VideoPositionToTimeConverter x:Key="VPosToTime" />
+        <myconv:ToUserFriendlyNumber x:Key="ToUserFriendlyNumber" />
     </prism:PrismUnityApplication.Resources>
 
 </prism:PrismUnityApplication>

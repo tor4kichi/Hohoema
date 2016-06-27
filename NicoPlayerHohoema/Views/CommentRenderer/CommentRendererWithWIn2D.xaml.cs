@@ -216,23 +216,23 @@ namespace NicoPlayerHohoema.Views
 					foreach (Comment item in e.NewItems)
 					{
 						// Subscribe for changes on item
-						var gameloopThreadComment = new Comment()
-						{
-							Color = item.Color,
-							CommentId = item.CommentId,
-							CommentText = item.CommentText,
-							EndPosition = item.EndPosition,
-							VideoPosition = item.VideoPosition,
-							FontSize = item.FontSize,
-							HAlign = item.HAlign,
-							VAlign = item.VAlign,
-							IsAnonimity = item.IsAnonimity,
-							IsVisible = item.IsVisible,
-							UserId = item.UserId,
-							IsOwnerComment = item.IsOwnerComment
-						};
-
-						AddNewComment(gameloopThreadComment);
+						/*						var gameloopThreadComment = new Comment()
+												{
+													Color = item.Color,
+													CommentId = item.CommentId,
+													CommentText = item.CommentText,
+													EndPosition = item.EndPosition,
+													VideoPosition = item.VideoPosition,
+													FontSize = item.FontSize,
+													HAlign = item.HAlign,
+													VAlign = item.VAlign,
+													IsAnonimity = item.IsAnonimity,
+													IsVisible = item.IsVisible,
+													UserId = item.UserId,
+													IsOwnerComment = item.IsOwnerComment
+												};
+												AddNewComment(gameloopThreadComment);
+												*/
 
 						// Add item to internal collection
 					}

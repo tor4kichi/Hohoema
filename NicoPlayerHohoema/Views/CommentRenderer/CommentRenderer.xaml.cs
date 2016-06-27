@@ -292,7 +292,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			// 表示区間をすぎたコメントを表示対象から削除
 
 			var removeRenderComments = RenderComments
-				.Where(x => CommentIsEndDisplay(x.Key, currentVpos))
+				.Where(x => CommentIsEndDisplay(x.Key, currentVpos) || x.Key.IsNGComment)
 				.ToArray();
 			foreach (var renderComment in removeRenderComments)
 			{
@@ -503,7 +503,8 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		{
 			return TimeSequescailComments.Keys.Where(x => x < currentVpos)
 				.Select(x => TimeSequescailComments[x])
-				.SelectMany(x => x.Where(y => currentVpos < y.EndPosition));
+				.SelectMany(x => x.Where(y => currentVpos < y.EndPosition))
+				.Where(x => !x.IsNGComment);
 		}
 
 

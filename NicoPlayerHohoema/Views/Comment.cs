@@ -1,4 +1,7 @@
-﻿using Prism.Mvvm;
+﻿using NicoPlayerHohoema.Models;
+using NicoPlayerHohoema.ViewModels;
+using Prism.Commands;
+using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,5 +56,65 @@ namespace NicoPlayerHohoema.Views
 			}
 
 		}
+
+		public Comment(VideoPlayerPageViewModel videoPlayerPageVM)
+		{
+			_VideoPlayerPageViewModel = videoPlayerPageVM;
+		}
+
+
+
+		private DelegateCommand _AddNgUserCommand;
+		public DelegateCommand AddNgUserCommand
+		{
+			get
+			{
+				return _AddNgUserCommand
+					?? (_AddNgUserCommand = new DelegateCommand(async () =>
+					{
+						await _VideoPlayerPageViewModel.AddNgUser(this);
+					}));
+			}
+		}
+
+
+
+		private NGResult _NgResult;
+		public NGResult NgResult
+		{
+			get { return _NgResult; }
+			set
+			{
+				if (SetProperty(ref _NgResult, value))
+				{
+					OnPropertyChanged(nameof(IsNGComment));
+					OnPropertyChanged(nameof(IsNGDescription));
+				}
+			}
+		}
+
+
+		public bool IsNGComment
+		{
+			get
+			{
+				return _NgResult != null;
+			}
+		}
+
+		public string IsNGDescription
+		{
+			get
+			{
+				return _NgResult?.NGDescription ?? "";
+			}
+		}
+
+
+
+
+
+
+		private VideoPlayerPageViewModel _VideoPlayerPageViewModel;
 	}
 }

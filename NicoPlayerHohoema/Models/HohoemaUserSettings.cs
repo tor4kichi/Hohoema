@@ -556,6 +556,47 @@ namespace NicoPlayerHohoema.Models
 
 
 
+		public NGResult IsNGCommentUser(uint userId)
+		{
+			if (this.NGCommentUserIdEnable && this.NGCommentUserIds.Count > 0)
+			{
+				var ngItem = this.NGCommentUserIds.FirstOrDefault(x => x.UserId == userId);
+
+				if (ngItem != null)
+				{
+					return new NGResult()
+					{
+						NGReason = NGReason.UserId,
+						Content = userId.ToString(),
+						NGDescription = ngItem.Description,
+					};
+
+				}
+			}
+
+			return null;
+		}
+
+		public NGResult IsNGComment(string commentText)
+		{
+			if (this.NGCommentKeywordEnable && this.NGCommentKeywords.Count > 0)
+			{
+				var ngItem = this.NGCommentKeywords.FirstOrDefault(x => commentText.Contains(x.Keyword));
+
+				if (ngItem != null)
+				{
+					return new NGResult()
+					{
+						NGReason = NGReason.Keyword,
+						Content = ngItem.Keyword,
+					};
+
+				}
+			}
+
+			return null;
+		}
+
 
 		#region Video NG
 
@@ -617,7 +658,7 @@ namespace NicoPlayerHohoema.Models
 		}
 
 		[DataMember]
-		public ObservableCollection<UserIdInfo> NGCommentUserIds;
+		public ObservableCollection<UserIdInfo> NGCommentUserIds { get; private set; }
 
 		private bool _NGCommentKeywordEnable;
 
@@ -629,7 +670,7 @@ namespace NicoPlayerHohoema.Models
 		}
 
 		[DataMember]
-		public ObservableCollection<NGKeyword> NGCommentKeywords;
+		public ObservableCollection<NGKeyword> NGCommentKeywords { get; private set; }
 
 
 		private bool _NGCommentGlassMowerEnable;

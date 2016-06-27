@@ -2,6 +2,7 @@
 using Mntone.Nico2.Mylist;
 using Mntone.Nico2.Mylist.MylistGroup;
 using Mntone.Nico2.Users.Fav;
+using Mntone.Nico2.Users.User;
 using Mntone.Nico2.Users.Video;
 using Mntone.Nico2.Videos.Histories;
 using Mntone.Nico2.Videos.Ranking;
@@ -30,6 +31,15 @@ namespace NicoPlayerHohoema.Models
 		public async Task Initialize()
 		{
 			// お気に入りデータの読み込み
+		}
+
+
+		public Task<User> GetUserInfo(string userId)
+		{
+			return ConnectionRetryUtil.TaskWithRetry(() =>
+			{
+				return _HohoemaApp.NiconicoContext.User.GetUserAsync(userId);
+			});
 		}
 
 

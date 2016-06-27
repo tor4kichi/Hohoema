@@ -17,7 +17,7 @@
 
     <StackPanel>
 
-        <TextBlock Opacity="0.7" Margin="8 0" HorizontalAlignment="Right">
+        <TextBlock Opacity="0.7" Margin="8 0 16 0" HorizontalAlignment="Right">
             <Run Text="{Binding SubmitDate}" />
             <Run Text="投稿" />
         </TextBlock>
@@ -27,7 +27,7 @@
 
             <StackPanel Background="Gray" Orientation="Horizontal" 
                         Padding="8" Margin="8"
-                        toolkit:DockPanel.Dock="Right"
+                        toolkit:DockPanel.Dock="Left"
                         >
 
                 <Image Height="32" Width="32" Source="{Binding UserIconUrl}"/>
@@ -43,20 +43,21 @@
 
         </toolkit:DockPanel>
 
-        <StackPanel Orientation="Horizontal" Margin="8 0" Opacity="0.7">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                    Margin="8 0 16 0" Opacity="0.7">
             <TextBlock>
                 <Run Text="再生" />
-                <Run Text="{Binding PlayCount}" />
+                <Run Text="{Binding PlayCount, Converter={StaticResource ToUserFriendlyNumber}}" />
             </TextBlock>
 
             <TextBlock>
                 <Run Text="コメント" />
-                <Run Text="{Binding CommentCount}" />
+                <Run Text="{Binding CommentCount, Converter={StaticResource ToUserFriendlyNumber}}" />
             </TextBlock>
 
             <TextBlock>
                 <Run Text="マイ" />
-                <Run Text="{Binding MylistCount}" />
+                <Run Text="{Binding MylistCount, Converter={StaticResource ToUserFriendlyNumber}}" />
             </TextBlock>
         </StackPanel>
 
