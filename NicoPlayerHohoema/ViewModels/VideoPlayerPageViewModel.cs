@@ -471,7 +471,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 				if (commentVM.IsOwnerComment && commentVM.VAlign.HasValue)
 				{
-					var displayTime = commentVM.CommentText.Count() * 0.3f; // 4文字で1秒？ 年齢層的に読みが遅いかもしれないのでやや長めに
+					var displayTime = Math.Max(3.0f, commentVM.CommentText.Count() * 0.3f); // 4文字で1秒？ 年齢層的に読みが遅いかもしれないのでやや長めに
 					var displayTimeVideoLength = (uint)(displayTime * 100);
 					commentVM.EndPosition = commentVM.VideoPosition + displayTimeVideoLength;
 				}

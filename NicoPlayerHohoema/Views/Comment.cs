@@ -44,7 +44,12 @@ namespace NicoPlayerHohoema.Views
 
 		public bool IsOwnerComment { get; set; }
 
-		public bool IsVisible { get; set; } = true;
+		private bool _IsVisible = true;
+		public bool IsVisible
+		{
+			get { return _IsVisible && !IsNGComment; }
+			set { SetProperty(ref _IsVisible, value); }
+		}
 
 		public bool IsAnonimity { get; set; } = false;
 
@@ -103,6 +108,8 @@ namespace NicoPlayerHohoema.Views
 				{
 					OnPropertyChanged(nameof(IsNGComment));
 					OnPropertyChanged(nameof(IsNGDescription));
+
+					OnPropertyChanged(nameof(IsVisible));
 				}
 			}
 		}
