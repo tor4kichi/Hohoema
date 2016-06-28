@@ -552,7 +552,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		private void OnRemoveNGVideoOwnerUserIdFromList(uint userId)
+		private void OnRemoveNGVideoOwnerUserIdFromList(string userId)
 		{
 			var removeTarget = _NGSettings.NGVideoOwnerUserIds.First(x => x.UserId == userId);
 			_NGSettings.NGVideoOwnerUserIds.Remove(removeTarget);
@@ -569,7 +569,7 @@ namespace NicoPlayerHohoema.ViewModels
 			_NGSettings.NGCommentKeywords.Remove(keywordInfo);
 		}
 
-		private void OnRemoveNGCommentUserIdFromList(uint userId)
+		private void OnRemoveNGCommentUserIdFromList(string userId)
 		{
 			var removeTarget = _NGSettings.NGCommentUserIds.First(x => x.UserId == userId);
 			_NGSettings.NGCommentUserIds.Remove(removeTarget);
@@ -583,10 +583,10 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		private RemovableListItem<uint> UserIdInfoToRemovableListItemVM(UserIdInfo info, Action<uint> removeAction)
+		private RemovableListItem<string> UserIdInfoToRemovableListItemVM(UserIdInfo info, Action<string> removeAction)
 		{
 			var roundedDesc = info.Description.Substring(0, Math.Min(info.Description.Length - 1, 10));
-			return new RemovableListItem<uint>(info.UserId, $"{info.UserId} | {roundedDesc}", removeAction);
+			return new RemovableListItem<string>(info.UserId, $"{info.UserId} | {roundedDesc}", removeAction);
 		}
 
 
@@ -604,7 +604,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReadOnlyReactiveCollection<RemovableListItem<string>> NGVideoIds { get; private set; }
 
 		public ReactiveProperty<bool> NGVideoOwnerUserIdEnable { get; private set; }
-		public ReadOnlyReactiveCollection<RemovableListItem<uint>> NGVideoOwnerUserIds { get; private set; }
+		public ReadOnlyReactiveCollection<RemovableListItem<string>> NGVideoOwnerUserIds { get; private set; }
 
 		public ReactiveProperty<bool> NGVideoTitleKeywordEnable { get; private set; }
 		public ReadOnlyReactiveCollection<NGKeywordViewModel> NGVideoTitleKeywords { get; private set; }
@@ -613,7 +613,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public DelegateCommand AddNewNGCommentKeywordCommand { get; private set; }
 
 		public ReactiveProperty<bool> NGCommentUserIdEnable { get; private set; }
-		public ReadOnlyReactiveCollection<RemovableListItem<uint>> NGCommentUserIds { get; private set; }
+		public ReadOnlyReactiveCollection<RemovableListItem<string>> NGCommentUserIds { get; private set; }
 
 		public ReactiveProperty<bool> NGCommentKeywordEnable { get; private set; }
 		public ReadOnlyReactiveCollection<NGKeywordViewModel> NGCommentKeywords { get; private set; }

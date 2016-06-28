@@ -126,15 +126,15 @@
                 <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Bottom">
                     <TextBlock Margin="0 0 8 0" Foreground="Gray" FontSize="12">
                         <Run Text="再生" />
-                        <Run Text="{Binding ViewCount}" />
+                        <Run Text="{Binding ViewCount, Converter={StaticResource ToUserFriendlyNumber}}" />
                     </TextBlock>
                     <TextBlock Margin="0 0 8 0" Foreground="Gray" FontSize="12">
                         <Run Text="コメ" />
-                        <Run Text="{Binding CommentCount}" />
+                        <Run Text="{Binding CommentCount, Converter={StaticResource ToUserFriendlyNumber}}" />
                     </TextBlock>
                     <TextBlock Margin="0 0 8 0" Foreground="Gray" FontSize="12">
                         <Run Text="マイ" />
-                        <Run Text="{Binding MylistCount}" />
+                        <Run Text="{Binding MylistCount, Converter={StaticResource ToUserFriendlyNumber}}" />
                     </TextBlock>
                 </StackPanel>
 

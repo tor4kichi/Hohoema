@@ -17,9 +17,9 @@ using Windows.UI.Xaml.Navigation;
 
 namespace NicoPlayerHohoema.Views.VideoInfoContent
 {
-	public sealed partial class RelationVideoInfoContent : UserControl
+	public sealed partial class CommentVideoInfoContent : UserControl
 	{
-		public RelationVideoInfoContent()
+		public CommentVideoInfoContent()
 		{
 			this.InitializeComponent();
 		}

@@ -1,0 +1,71 @@
+﻿<UserControl
+    x:Class="NicoPlayerHohoema.Views.VideoInfoContent.SettingsVideoInfoContent"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views.VideoInfoContent"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+
+    <Grid>
+
+        <ItemsControl>
+            
+
+            <toolkit:DockPanel Margin="8">
+
+                <TextBlock Text="デフォルトでコメントを表示する"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+
+                <ToggleButton Width="32" Height="32"
+                              IsChecked="{Binding DefaultCommentDisplay.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                              HorizontalAlignment="Right"
+                              />
+
+            </toolkit:DockPanel>
+
+            <toolkit:DockPanel Margin="8">
+
+                <TextBlock Text="投稿者コメントを読みやすくする"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+
+                <ToggleButton Width="32" Height="32"
+                              IsChecked="{Binding IncrementReadablityOwnerComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              HorizontalAlignment="Right"
+                              />
+
+            </toolkit:DockPanel>
+
+
+            <toolkit:DockPanel Margin="8">
+
+                <TextBlock Text="コメントの一秒あたりの描画回数"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+
+                <ComboBox ItemsSource="{Binding CommentRenderringFPSList}"
+                          SelectedItem="{Binding CommentRenderingFPS.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                          HorizontalAlignment="Right"
+                          >
+                    
+                </ComboBox>
+                          
+
+            </toolkit:DockPanel>
+
+        </ItemsControl>
+    </Grid>
+</UserControl>

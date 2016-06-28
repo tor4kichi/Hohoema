@@ -43,6 +43,12 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		private List<CommentUI> _CommentUIReserve;
 
 
+		public uint RealFPS { get; private set; }
+
+		public uint RenderingSkipCount { get; private set; }
+
+		public Timer RenderingTimingTimer { get; private set; }
+
 		public CommentRenderer()
 		{
 			this.InitializeComponent();
@@ -69,22 +75,57 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 		private void CommentRenderer_Loaded(object sender, RoutedEventArgs e)
 		{
-//			_UpdateTimingTimer = new Timer(
-//				async (state) =>
-//				{
-//					var me = (CommentRenderer)state;
+			//			_UpdateTimingTimer = new Timer(
+			//				async (state) =>
+			//				{
+			//					var me = (CommentRenderer)state;
 
-//					await me.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
-//					{
-////						me.OnUpdate();
-//					});
-//				}
-//				, this
-//				, TimeSpan.FromSeconds(1)
-//				, TimeSpan.FromMilliseconds(64)
-//			);
+			//					await me.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
+			//					{
+			////						me.OnUpdate();
+			//					});
+			//				}
+			//				, this
+			//				, TimeSpan.FromSeconds(1)
+			//				, TimeSpan.FromMilliseconds(64)
+			//			);
+
+			ResetRenderingTimer();
 		}
 
+		private async void ResetRenderingTimer()
+		{
+			RenderingTimingTimer?.Dispose();
+
+			uint MaxCount = 10000;
+			uint count = 0;
+			while (_NowUpdating && MaxCount > count)
+			{
+				await Task.Delay(10);
+
+				count++;
+				Debug.WriteLine("コメント描画の終了を待機中 " + count.ToString());				
+			}
+
+			RenderingTimingTimer = new Timer(TimerCallback, this, 100, (int)(1000 / RequestFPS));
+		}
+
+		private bool _NowUpdating;
+		private async void TimerCallback(object state)
+		{
+			if (_NowUpdating) { RenderingSkipCount++; return; }
+
+			_NowUpdating = true;
+
+			await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
+			{
+				OnUpdate();
+			});
+
+			_NowUpdating = false;
+
+			RenderingSkipCount = 0;
+		}
 		
 		private int CalcAndRegisterCommentVerticalPosition(CommentUI commentUI)
 		{
@@ -292,7 +333,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			// 表示区間をすぎたコメントを表示対象から削除
 
 			var removeRenderComments = RenderComments
-				.Where(x => CommentIsEndDisplay(x.Key, currentVpos))
+				.Where(x => CommentIsEndDisplay(x.Key, currentVpos) || x.Key.IsNGComment)
 				.ToArray();
 			foreach (var renderComment in removeRenderComments)
 			{
@@ -315,8 +356,6 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 				{
 					Canvas.SetLeft(ui, canvasWidth - ui.GetHorizontalPosition(canvasWidth, currentVpos));
 				}
-
-				
 			}
 		}
 
@@ -328,9 +367,8 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 		private void CommentRenderer_Unloaded(object sender, RoutedEventArgs e)
 		{
-
-			_UpdateTimingTimer?.Dispose();
-			_UpdateTimingTimer = null;
+			RenderingTimingTimer?.Dispose();
+			RenderingTimingTimer = null;
 		}
 
 
@@ -370,12 +408,32 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		{
 			CommentRenderer me = sender as CommentRenderer;
 
-			me.OnUpdate();
+//			me.OnUpdate();
 		}
 
 
 
 
+		public static readonly DependencyProperty RequestFPSProperty =
+			DependencyProperty.Register("RequestFPS"
+				, typeof(int)
+				, typeof(CommentRenderer)
+				, new PropertyMetadata(24, OnRequestFPSChanged)
+				);
+
+		public int RequestFPS
+		{
+			get { return (int)GetValue(RequestFPSProperty); }
+			set { SetValue(RequestFPSProperty, value); }
+		}
+
+
+		private static void OnRequestFPSChanged(object sender, DependencyPropertyChangedEventArgs e)
+		{
+			CommentRenderer me = sender as CommentRenderer;
+
+			me.ResetRenderingTimer();
+		}
 
 
 
@@ -393,6 +451,8 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			set { SetValue(SelectedCommentIdProperty, value); }
 		}
 
+
+		
 
 		private static void OnSelectedCommentIdChanged(object sender, DependencyPropertyChangedEventArgs e)
 		{
@@ -503,7 +563,8 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		{
 			return TimeSequescailComments.Keys.Where(x => x < currentVpos)
 				.Select(x => TimeSequescailComments[x])
-				.SelectMany(x => x.Where(y => currentVpos < y.EndPosition));
+				.SelectMany(x => x.Where(y => currentVpos < y.EndPosition))
+				.Where(x => !x.IsNGComment);
 		}
 
 

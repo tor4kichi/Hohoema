@@ -51,8 +51,9 @@ namespace NicoPlayerHohoema.ViewModels
 				PlayerWindowUIDispatcherScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
 			}
 
-			
-			
+			_SidePaneContentCache = new Dictionary<MediaInfoDisplayType, MediaInfoViewModel>();
+
+
 
 			ea.GetEvent<Events.PlayerClosedEvent>()
 				.Subscribe(_ =>
@@ -70,7 +71,7 @@ namespace NicoPlayerHohoema.ViewModels
 			SliderVideoPosition = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0);
 			VideoLength = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0);
 			CurrentState = new ReactiveProperty<MediaElementState>(PlayerWindowUIDispatcherScheduler);
-			Comments = new ObservableCollection<Views.Comment>();
+			Comments = new ObservableCollection<Comment>();
 			NowCommentWriting = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
 			NowSoundChanging = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
 			IsVisibleComment = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, true);
@@ -227,189 +228,18 @@ namespace NicoPlayerHohoema.ViewModels
 					return;
 				}
 
+				var list = x.Chat.Select(ChatToComment)
+					.Where(y => y != null)
+					.OrderBy(y => y.VideoPosition);
 
-				uint fontSize_mid = 26;
-				uint fontSize_small = (uint)Math.Ceiling(fontSize_mid * 0.75f);
-				uint fontSize_big = (uint)Math.Floor(fontSize_mid * 1.25f);
-
-				uint default_fontSize = fontSize_mid;
-				uint default_DisplayTime = 300; // 3秒
-
-				Color defaultColor = ColorExtention.HexStringToColor("FFFFFF");
-
-				foreach (var comment in x.Chat)
+				foreach (var comment in list)
 				{
-					if (comment.Text == null)
-					{
-						continue;
-					}
-
-
-					var decodedText = comment.GetDecodedText();
-
-					var vpos = comment.GetVpos();
-
-					var commentVM = new Comment()
-					{
-						CommentText = decodedText,
-						CommentId = comment.GetCommentNo(),
-						FontSize = default_fontSize,
-						Color = defaultColor,
-						VideoPosition = vpos,
-						EndPosition = vpos + default_DisplayTime,
-					};
-
-					var commandList = comment.GetCommandTypes();
-//					var commandList = Enumerable.Empty<CommandType>();
-					bool isCommendCancel = false;
-					foreach (var command in commandList)
-					{
-						switch (command)
-						{
-							case CommandType.small:
-								commentVM.FontSize = fontSize_small;
-								break;
-							case CommandType.big:
-								commentVM.FontSize = fontSize_big;
-								break;
-							case CommandType.medium:
-								commentVM.FontSize = fontSize_mid;
-								break;
-							case CommandType.ue:
-								commentVM.VAlign = VerticalAlignment.Top;
-								break;
-							case CommandType.shita:
-								commentVM.VAlign = VerticalAlignment.Bottom;
-								break;
-							case CommandType.naka:
-								commentVM.VAlign = VerticalAlignment.Center;
-								break;
-							case CommandType.white:
-								commentVM.Color = ColorExtention.HexStringToColor("FFFFFF");
-								break;
-							case CommandType.red:
-								commentVM.Color = ColorExtention.HexStringToColor("FF0000");
-								break;
-							case CommandType.pink:
-								commentVM.Color = ColorExtention.HexStringToColor("FF8080");
-								break;
-							case CommandType.orange:
-								commentVM.Color = ColorExtention.HexStringToColor("FFC000");
-								break;
-							case CommandType.yellow:
-								commentVM.Color = ColorExtention.HexStringToColor("FFFF00");
-								break;
-							case CommandType.green:
-								commentVM.Color = ColorExtention.HexStringToColor("00FF00");
-								break;
-							case CommandType.cyan:
-								commentVM.Color = ColorExtention.HexStringToColor("00FFFF");
-								break;
-							case CommandType.blue:
-								commentVM.Color = ColorExtention.HexStringToColor("0000FF");
-								break;
-							case CommandType.purple:
-								commentVM.Color = ColorExtention.HexStringToColor("C000FF");
-								break;
-							case CommandType.black:
-								commentVM.Color = ColorExtention.HexStringToColor("000000");
-								break;
-							case CommandType.white2:
-								commentVM.Color = ColorExtention.HexStringToColor("CCCC99");
-								break;
-							case CommandType.niconicowhite:
-								commentVM.Color = ColorExtention.HexStringToColor("CCCC99");
-								break;
-							case CommandType.red2:
-								commentVM.Color = ColorExtention.HexStringToColor("CC0033");
-								break;
-							case CommandType.truered:
-								commentVM.Color = ColorExtention.HexStringToColor("CC0033");
-								break;
-							case CommandType.pink2:
-								commentVM.Color = ColorExtention.HexStringToColor("FF33CC");
-								break;
-							case CommandType.orange2:
-								commentVM.Color = ColorExtention.HexStringToColor("FF6600");
-								break;
-							case CommandType.passionorange:
-								commentVM.Color = ColorExtention.HexStringToColor("FF6600");
-								break;
-							case CommandType.yellow2:
-								commentVM.Color = ColorExtention.HexStringToColor("999900");
-								break;
-							case CommandType.madyellow:
-								commentVM.Color = ColorExtention.HexStringToColor("999900");
-								break;
-							case CommandType.green2:
-								commentVM.Color = ColorExtention.HexStringToColor("00CC66");
-								break;
-							case CommandType.elementalgreen:
-								commentVM.Color = ColorExtention.HexStringToColor("00CC66");
-								break;
-							case CommandType.cyan2:
-								commentVM.Color = ColorExtention.HexStringToColor("00CCCC");
-								break;
-							case CommandType.blue2:
-								commentVM.Color = ColorExtention.HexStringToColor("3399FF");
-								break;
-							case CommandType.marineblue:
-								commentVM.Color = ColorExtention.HexStringToColor("3399FF");
-								break;
-							case CommandType.purple2:
-								commentVM.Color = ColorExtention.HexStringToColor("6633CC");
-								break;
-							case CommandType.nobleviolet:
-								commentVM.Color = ColorExtention.HexStringToColor("6633CC");
-								break;
-							case CommandType.black2:
-								commentVM.Color = ColorExtention.HexStringToColor("666666");
-								break;
-							case CommandType.full:
-								break;
-							case CommandType._184:
-								commentVM.IsAnonimity = true;
-								break;
-							case CommandType.invisible:
-								commentVM.IsVisible = false;
-								break;
-							case CommandType.all:
-								isCommendCancel = true;
-								break;
-							case CommandType.from_button:
-								break;
-							case CommandType.is_button:
-								break;
-							case CommandType._live:
-								break;
-							default:
-								break;
-						}
-
-						// TODO: 投稿者のコメント表示時間を伸ばす？（3秒→５秒）
-						// usまたはshitaが指定されている場合に限る？
-						
-						// 　→　投コメ解説をみやすくしたい
-
-						if (isCommendCancel)
-						{
-							commentVM = new Comment()
-							{
-								CommentText = decodedText,
-								FontSize = default_fontSize,
-								Color = defaultColor,
-								VideoPosition = vpos,
-								EndPosition = vpos + default_DisplayTime,
-							};
-							break;
-						}
-					}
-
-					Comments.Add(commentVM);
+					Comments.Add(comment);
 				}
 
-				System.Diagnostics.Debug.WriteLine($"コメント数:{Comments.Count}");
+				UpdateCommentNGStatus();
 
+				System.Diagnostics.Debug.WriteLine($"コメント数:{Comments.Count}");
 			});
 
 
@@ -450,15 +280,245 @@ namespace NicoPlayerHohoema.ViewModels
 					)
 					.Select(x => x.All(y => y))
 					.ToReactiveProperty(PlayerWindowUIDispatcherScheduler);
-				
-				
 
-			
+
+
+			SelectedSidePaneType = new ReactiveProperty<MediaInfoDisplayType>(MediaInfoDisplayType.Summary, ReactivePropertyMode.DistinctUntilChanged);
+
+			Types = new List<MediaInfoDisplayType>()
+			{
+				MediaInfoDisplayType.Summary,
+				MediaInfoDisplayType.Comment,
+				MediaInfoDisplayType.Settings,
+			};
+
+			SidePaneContent = SelectedSidePaneType
+				.SelectMany(x => GetMediaInfoVM(x))
+				.ToReactiveProperty();
+
+			RequestFPS = _HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.CommentRenderingFPS)
+				.Select(x => (int)x)
+				.ToReactiveProperty();
 		}
 
+		private Comment ChatToComment(Chat comment)
+		{
+			uint fontSize_mid = 26;
+			uint fontSize_small = (uint)Math.Ceiling(fontSize_mid * 0.75f);
+			uint fontSize_big = (uint)Math.Floor(fontSize_mid * 1.25f);
 
+			uint default_fontSize = fontSize_mid;
+			uint default_DisplayTime = 300; // 3秒
+
+			Color defaultColor = ColorExtention.HexStringToColor("FFFFFF");
+
+
+			if (comment.Text == null)
+			{
+				return null;
+			}
+
+
+			var decodedText = comment.GetDecodedText();
+
+			var vpos = comment.GetVpos();
+
+			var commentVM = new Comment(this)
+			{
+				CommentText = decodedText,
+				CommentId = comment.GetCommentNo(),
+				FontSize = default_fontSize,
+				Color = defaultColor,
+				VideoPosition = vpos,
+				EndPosition = vpos + default_DisplayTime,
+			};
+
+
+			commentVM.IsOwnerComment = comment.User_id != null ? comment.User_id == Video.CachedThumbnailInfo.UserId.ToString() : false;
+
+			var commandList = comment.GetCommandTypes();
+			//					var commandList = Enumerable.Empty<CommandType>();
+			bool isCommendCancel = false;
+			foreach (var command in commandList)
+			{
+				switch (command)
+				{
+					case CommandType.small:
+						commentVM.FontSize = fontSize_small;
+						break;
+					case CommandType.big:
+						commentVM.FontSize = fontSize_big;
+						break;
+					case CommandType.medium:
+						commentVM.FontSize = fontSize_mid;
+						break;
+					case CommandType.ue:
+						commentVM.VAlign = VerticalAlignment.Top;
+						break;
+					case CommandType.shita:
+						commentVM.VAlign = VerticalAlignment.Bottom;
+						break;
+					case CommandType.naka:
+						commentVM.VAlign = VerticalAlignment.Center;
+						break;
+					case CommandType.white:
+						commentVM.Color = ColorExtention.HexStringToColor("FFFFFF");
+						break;
+					case CommandType.red:
+						commentVM.Color = ColorExtention.HexStringToColor("FF0000");
+						break;
+					case CommandType.pink:
+						commentVM.Color = ColorExtention.HexStringToColor("FF8080");
+						break;
+					case CommandType.orange:
+						commentVM.Color = ColorExtention.HexStringToColor("FFC000");
+						break;
+					case CommandType.yellow:
+						commentVM.Color = ColorExtention.HexStringToColor("FFFF00");
+						break;
+					case CommandType.green:
+						commentVM.Color = ColorExtention.HexStringToColor("00FF00");
+						break;
+					case CommandType.cyan:
+						commentVM.Color = ColorExtention.HexStringToColor("00FFFF");
+						break;
+					case CommandType.blue:
+						commentVM.Color = ColorExtention.HexStringToColor("0000FF");
+						break;
+					case CommandType.purple:
+						commentVM.Color = ColorExtention.HexStringToColor("C000FF");
+						break;
+					case CommandType.black:
+						commentVM.Color = ColorExtention.HexStringToColor("000000");
+						break;
+					case CommandType.white2:
+						commentVM.Color = ColorExtention.HexStringToColor("CCCC99");
+						break;
+					case CommandType.niconicowhite:
+						commentVM.Color = ColorExtention.HexStringToColor("CCCC99");
+						break;
+					case CommandType.red2:
+						commentVM.Color = ColorExtention.HexStringToColor("CC0033");
+						break;
+					case CommandType.truered:
+						commentVM.Color = ColorExtention.HexStringToColor("CC0033");
+						break;
+					case CommandType.pink2:
+						commentVM.Color = ColorExtention.HexStringToColor("FF33CC");
+						break;
+					case CommandType.orange2:
+						commentVM.Color = ColorExtention.HexStringToColor("FF6600");
+						break;
+					case CommandType.passionorange:
+						commentVM.Color = ColorExtention.HexStringToColor("FF6600");
+						break;
+					case CommandType.yellow2:
+						commentVM.Color = ColorExtention.HexStringToColor("999900");
+						break;
+					case CommandType.madyellow:
+						commentVM.Color = ColorExtention.HexStringToColor("999900");
+						break;
+					case CommandType.green2:
+						commentVM.Color = ColorExtention.HexStringToColor("00CC66");
+						break;
+					case CommandType.elementalgreen:
+						commentVM.Color = ColorExtention.HexStringToColor("00CC66");
+						break;
+					case CommandType.cyan2:
+						commentVM.Color = ColorExtention.HexStringToColor("00CCCC");
+						break;
+					case CommandType.blue2:
+						commentVM.Color = ColorExtention.HexStringToColor("3399FF");
+						break;
+					case CommandType.marineblue:
+						commentVM.Color = ColorExtention.HexStringToColor("3399FF");
+						break;
+					case CommandType.purple2:
+						commentVM.Color = ColorExtention.HexStringToColor("6633CC");
+						break;
+					case CommandType.nobleviolet:
+						commentVM.Color = ColorExtention.HexStringToColor("6633CC");
+						break;
+					case CommandType.black2:
+						commentVM.Color = ColorExtention.HexStringToColor("666666");
+						break;
+					case CommandType.full:
+						break;
+					case CommandType._184:
+						commentVM.IsAnonimity = true;
+						break;
+					case CommandType.invisible:
+						commentVM.IsVisible = false;
+						break;
+					case CommandType.all:
+						isCommendCancel = true;
+						break;
+					case CommandType.from_button:
+						break;
+					case CommandType.is_button:
+						break;
+					case CommandType._live:
+
+						break;
+					default:
+						break;
+				}
+
+				// TODO: 投稿者のコメント表示時間を伸ばす？（3秒→５秒）
+				// usまたはshitaが指定されている場合に限る？
+
+				// 　→　投コメ解説をみやすくしたい
+
+				if (commentVM.IsOwnerComment && commentVM.VAlign.HasValue)
+				{
+					var displayTime = Math.Max(3.0f, commentVM.CommentText.Count() * 0.3f); // 4文字で1秒？ 年齢層的に読みが遅いかもしれないのでやや長めに
+					var displayTimeVideoLength = (uint)(displayTime * 100);
+					commentVM.EndPosition = commentVM.VideoPosition + displayTimeVideoLength;
+				}
+
+
+				if (isCommendCancel)
+				{
+					commentVM = new Comment(this)
+					{
+						CommentText = decodedText,
+						FontSize = default_fontSize,
+						Color = defaultColor,
+						VideoPosition = vpos,
+						EndPosition = vpos + default_DisplayTime,
+					};
+					break;
+				}
+			}
+
+			return commentVM;
+		}
 		
+		private void UpdateCommentNGStatus()
+		{
+			var ngSettings = _HohoemaApp.UserSettings.NGSettings;
+			foreach (var comment in Comments)
+			{
+				if (comment.UserId != null)
+				{
+					var userNg = ngSettings.IsNGCommentUser(comment.UserId);
+					if (userNg != null)
+					{
+						comment.NgResult = userNg;
+						continue;
+					}
+				}
 
+				var keywordNg = ngSettings.IsNGComment(comment.CommentText);
+				if (keywordNg != null)
+				{
+					comment.NgResult = keywordNg;
+					continue;
+				}
+
+				comment.NgResult = null;
+			}
+		}
 
 		
 
@@ -527,8 +587,7 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 			}
 
-		
-			
+
 
 			if (viewModelState.ContainsKey(nameof(CurrentVideoPosition)))
 			{
@@ -536,6 +595,24 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 
 			Title.Value = Video.Title;
+			_SidePaneContentCache.Clear();
+
+			if (SelectedSidePaneType.Value == MediaInfoDisplayType.Summary)
+			{
+				SelectedSidePaneType.ForceNotify();
+			}
+			else
+			{
+				SelectedSidePaneType.Value = MediaInfoDisplayType.Summary;
+			}
+
+			// PlayerSettings
+			var playerSettings = _HohoemaApp.UserSettings.PlayerSettings;
+			IsVisibleComment.Value = playerSettings.DefaultCommentDisplay;
+			
+
+
+
 		}
 
 		private async Task<CommentResponse> GetComment()
@@ -568,6 +645,9 @@ namespace NicoPlayerHohoema.ViewModels
 				viewModelState.Add(nameof(VideoId), VideoId);
 				viewModelState.Add(nameof(CurrentVideoPosition), CurrentVideoPosition.Value.TotalSeconds);
 			}
+
+			_SidePaneContentCache.Clear();
+
 			base.OnNavigatingFrom(e, viewModelState, suspending);
 		}
 
@@ -591,6 +671,40 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
+
+		private async Task<MediaInfoViewModel> GetMediaInfoVM(MediaInfoDisplayType type)
+		{
+			MediaInfoViewModel vm = null;
+			if (_SidePaneContentCache.ContainsKey(type))
+			{
+				vm = _SidePaneContentCache[type];
+			}
+			else 
+			{
+				switch (type)
+				{
+					case MediaInfoDisplayType.Summary:
+						var uri = await VideoDescriptionHelper.PartHtmlOutputToCompletlyHtml(VideoId, Video.CachedWatchApiResponse.videoDetail.description);
+
+						vm = new SummaryVideoInfoContentViewModel(Video.CachedThumbnailInfo, uri, PageManager);
+						break;
+
+					case MediaInfoDisplayType.Comment:
+						vm = new CommentVideoInfoContentViewModel(_HohoemaApp.UserSettings, Comments);
+						break;
+
+					case MediaInfoDisplayType.Settings:
+						vm = new SettingsVideoInfoContentViewModel(_HohoemaApp.UserSettings.PlayerSettings);
+						break;
+					default:
+						throw new NotSupportedException();
+				}
+
+				_SidePaneContentCache.Add(type, vm);
+			}
+
+			return vm;
+		}
 
 		#region Command	
 
@@ -700,8 +814,12 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<string> Title { get; private set; }
 
+		public ReactiveProperty<int> RequestFPS { get; private set; }
 
-
+		public ReactiveProperty<MediaInfoViewModel> SidePaneContent { get; private set; }
+		private Dictionary<MediaInfoDisplayType, MediaInfoViewModel> _SidePaneContentCache;
+		public ReactiveProperty<MediaInfoDisplayType> SelectedSidePaneType { get; private set; }
+		public List<MediaInfoDisplayType> Types { get; private set; }
 
 		// Note: 新しいReactivePropertyを追加したときの注意点
 		// RPではPlayerWindowUIDispatcherSchedulerを使うこと
@@ -709,6 +827,31 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		private HohoemaApp _HohoemaApp;
+
+
+
+
+		internal async Task AddNgUser(Comment commentViewModel)
+		{
+			if (commentViewModel.UserId == null) { return; }
+
+			string userName = "";
+			try
+			{
+//				var commentUser = await _HohoemaApp.ContentFinder.GetUserInfo(commentViewModel.UserId);
+//				userName = commentUser.Nickname;
+			}
+			catch { }
+
+		    _HohoemaApp.UserSettings.NGSettings.NGCommentUserIds.Add(new UserIdInfo()
+			{
+				UserId = commentViewModel.UserId,
+				Description = userName
+			});
+
+			UpdateCommentNGStatus();
+			
+		}
 	}
 
 
@@ -763,11 +906,18 @@ namespace NicoPlayerHohoema.ViewModels
 		Tag _Tag;
 	}
 
-	
+
+	public enum MediaInfoDisplayType
+	{
+		Summary,
+		Comment,
+		Settings,
+	}
 
 
 
-	
+
+
 
 
 

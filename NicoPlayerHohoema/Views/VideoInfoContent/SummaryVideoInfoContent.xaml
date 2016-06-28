@@ -1,4 +1,5 @@
 ﻿<UserControl
+    x:Name="ControlRoot"
     x:Class="NicoPlayerHohoema.Views.VideoInfoContent.SummaryVideoInfoContent"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -14,23 +15,115 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <WebView Source="{Binding VideoDescriptionUri, Mode=OneWay}" 
+    <StackPanel>
+
+        <TextBlock Opacity="0.7" Margin="8 0 16 0" HorizontalAlignment="Right">
+            <Run Text="{Binding SubmitDate}" />
+            <Run Text="投稿" />
+        </TextBlock>
+        
+        <!-- 投稿ユーザー -->
+        <toolkit:DockPanel>
+
+            <StackPanel Background="Gray" Orientation="Horizontal" 
+                        Padding="8" Margin="8"
+                        toolkit:DockPanel.Dock="Left"
+                        >
+
+                <Image Height="32" Width="32" Source="{Binding UserIconUrl}"/>
+
+                <TextBlock Text="{Binding UserName}"
+                           VerticalAlignment="Center"
+                           Margin="8 0"
+                           />
+
+            </StackPanel>
+
+            <Border />
+
+        </toolkit:DockPanel>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                    Margin="8 0 16 0" Opacity="0.7">
+            <TextBlock>
+                <Run Text="再生" />
+                <Run Text="{Binding PlayCount, Converter={StaticResource ToUserFriendlyNumber}}" />
+            </TextBlock>
+
+            <TextBlock>
+                <Run Text="コメント" />
+                <Run Text="{Binding CommentCount, Converter={StaticResource ToUserFriendlyNumber}}" />
+            </TextBlock>
+
+            <TextBlock>
+                <Run Text="マイ" />
+                <Run Text="{Binding MylistCount, Converter={StaticResource ToUserFriendlyNumber}}" />
+            </TextBlock>
+        </StackPanel>
+
+        <Border Height="16" />
+
+        <!-- 動画説明文 -->
+        <WebView Source="{Binding VideoDescriptionUri, Mode=OneWay}" 
                          HorizontalAlignment="Stretch"
                          VerticalAlignment="Stretch"
+             DefaultBackgroundColor="Transparent"
+             Width="{Binding ElementName=ControlRoot, Path=ActualWidth}"
+             Height="{Binding ElementName=ControlRoot, Path=ActualHeight}"
                             >
 
-        <i:Interaction.Behaviors>
+            <i:Interaction.Behaviors>
 
+                <!-- 
             <mybehavior:WebViewAutoResizeToContent />
-            
-            <mybehavior:WebViewNotifyUriClicked
+            -->
+                <mybehavior:WebViewNotifyUriClicked
                             Command="{Binding ScriptNotifyCommand}"
                             />
 
-            <core:EventTriggerBehavior EventName="ScriptNotify">
-                <core:InvokeCommandAction Command="{Binding ScriptNotifyCommand}" />
-            </core:EventTriggerBehavior>
-        </i:Interaction.Behaviors>
+                <core:EventTriggerBehavior EventName="ScriptNotify">
+                    <core:InvokeCommandAction Command="{Binding ScriptNotifyCommand}" />
+                </core:EventTriggerBehavior>
+            </i:Interaction.Behaviors>
 
-    </WebView>
+        </WebView>
+
+
+        <Border Height="16" />
+
+        
+        <!-- タグ -->
+        <toolkit:DockPanel x:Name="TagsRoot">
+
+
+            <Border toolkit:DockPanel.Dock="Bottom" Margin="0 0 0 0">
+                <ItemsControl ItemsSource="{Binding Tags}">
+
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ContentPresenter">
+                            <Setter Property="Margin" Value="4 4" />
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <toolkit:WrapPanel 
+                            Orientation="Horizontal"
+                            />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Content="{Binding TagText}" 
+                                        />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+
+
+                </ItemsControl>
+            </Border>
+        </toolkit:DockPanel>
+    </StackPanel>
+    
 </UserControl>

@@ -141,7 +141,9 @@
     <Compile Include="ViewModels\PortalContent\HistoryPortalPageContentViewModel.cs" />
     <Compile Include="ViewModels\SearchViewModel.cs" />
     <Compile Include="ViewModels\UserMylistPageViewModel.cs" />
-    <Compile Include="ViewModels\VideoInfoContent\TagsVideoInfoContentViewModel.cs" />
+    <Compile Include="ViewModels\VideoInfoContent\CommentVideoInfoContentViewModel.cs" />
+    <Compile Include="ViewModels\VideoInfoContent\MediaInfoViewModel.cs" />
+    <Compile Include="ViewModels\VideoInfoContent\SettingsVideoInfoContentViewModel.cs" />
     <Compile Include="Views\AboutPage.xaml.cs">
       <DependentUpon>AboutPage.xaml</DependentUpon>
     </Compile>
@@ -150,6 +152,8 @@
     <Compile Include="Views\CacheManagementPage.xaml.cs">
       <DependentUpon>CacheManagementPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Converters\ToUserFriendlyNumber.cs" />
+    <Compile Include="Views\Converters\VideoPositionToTimeConverter.cs" />
     <Compile Include="Views\FavoriteListPage.xaml.cs">
       <DependentUpon>FavoriteListPage.xaml</DependentUpon>
     </Compile>
@@ -177,11 +181,8 @@
     <Compile Include="ViewModels\SelectableItem.cs" />
     <Compile Include="ViewModels\SettingsPageViewModel.cs" />
     <Compile Include="ViewModels\SubscriptionPageViewModel.cs" />
-    <Compile Include="ViewModels\VideoInfoContent\IchibaVideoInfoContentViewModel.cs" />
-    <Compile Include="ViewModels\VideoInfoContent\RelationVideoInfoContentViewModel.cs" />
     <Compile Include="ViewModels\VideoInfoContent\SummaryVideoInfoContentViewModel.cs" />
     <Compile Include="ViewModels\VideoInfoControlViewModel.cs" />
-    <Compile Include="ViewModels\VideoInfomationPageViewModel.cs" />
     <Compile Include="Views\Behaviors\AutoHide.cs" />
     <Compile Include="Views\Behaviors\MediaElementStateGetter.cs" />
     <Compile Include="Views\Behaviors\ShowFlyoutBehavior.cs" />
@@ -218,8 +219,11 @@
     <Compile Include="Views\UserMylistPage.xaml.cs">
       <DependentUpon>UserMylistPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\VideoInfoContent\TagsVideoIncoContent.xaml.cs">
-      <DependentUpon>TagsVideoIncoContent.xaml</DependentUpon>
+    <Compile Include="Views\VideoInfoContent\CommentVideoInfoContent.xaml.cs">
+      <DependentUpon>CommentVideoInfoContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\VideoInfoContent\SettingsVideoInfoContent.xaml.cs">
+      <DependentUpon>SettingsVideoInfoContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\VideoPlayerPage.xaml.cs">
       <DependentUpon>VideoPlayerPage.xaml</DependentUpon>
@@ -275,20 +279,11 @@
     <Compile Include="Views\UIEffects\DropShadowHostControl.xaml.cs">
       <DependentUpon>DropShadowHostControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\VideoInfoContent\IchibaVideoInfoContent.xaml.cs">
-      <DependentUpon>IchibaVideoInfoContent.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\VideoInfoContent\RelationVideoInfoContent.xaml.cs">
-      <DependentUpon>RelationVideoInfoContent.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\VideoInfoContent\SummaryVideoInfoContent.xaml.cs">
       <DependentUpon>SummaryVideoInfoContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\VideoInfoControl.xaml.cs">
       <DependentUpon>VideoInfoControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\VideoInfomationPage.xaml.cs">
-      <DependentUpon>VideoInfomationPage.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -371,7 +366,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\VideoInfoContent\TagsVideoIncoContent.xaml">
+    <Page Include="Views\VideoInfoContent\CommentVideoInfoContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\VideoInfoContent\SettingsVideoInfoContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -443,23 +442,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\VideoInfoContent\IchibaVideoInfoContent.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\VideoInfoContent\RelationVideoInfoContent.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\VideoInfoContent\SummaryVideoInfoContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\VideoInfoControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\VideoInfomationPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

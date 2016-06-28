@@ -413,6 +413,9 @@ namespace NicoPlayerHohoema.Models
 			: base()
 		{
 			SoundVolume = 0.25f;
+			DefaultCommentDisplay = true;
+			IncrementReadablityOwnerComment = true;
+			CommentRenderingFPS = 24;
 		}
 
 
@@ -453,7 +456,41 @@ namespace NicoPlayerHohoema.Models
 			get { return _DisplayMode; }
 			set { SetProperty(ref _DisplayMode, value); }
 		}
+
+
+
+		private bool _DefaultCommentDisplay;
+
+		[DataMember]
+		public bool DefaultCommentDisplay
+		{
+			get { return _DefaultCommentDisplay; }
+			set { SetProperty(ref _DefaultCommentDisplay, value); }
+		}
+
+
+		private bool _IncrementReadablityOwnerComment;
+
+		[DataMember]
+		public bool IncrementReadablityOwnerComment
+		{
+			get { return _IncrementReadablityOwnerComment; }
+			set { SetProperty(ref _IncrementReadablityOwnerComment, value); }
+		}
+
+
+
+		private uint _CommentRenderingFPS;
+
+
+		[DataMember]
+		public uint CommentRenderingFPS
+		{
+			get { return _CommentRenderingFPS; }
+			set { SetProperty(ref _CommentRenderingFPS, value); }
+		}
 	}
+
 
 
 	[DataContract]
@@ -482,7 +519,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			NGResult result = null;
 
-			result = IsNgVideoOwnerId(res.UserId);
+			result = IsNgVideoOwnerId(res.UserId.ToString());
 			if (result != null) return result;
 
 			result = IsNGVideoId(res.Id);
@@ -495,7 +532,7 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public NGResult IsNgVideoOwnerId(uint userId)
+		public NGResult IsNgVideoOwnerId(string userId)
 		{
 
 			if (this.NGVideoOwnerUserIdEnable && this.NGVideoOwnerUserIds.Count > 0)
@@ -555,6 +592,47 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
+
+		public NGResult IsNGCommentUser(string userId)
+		{
+			if (this.NGCommentUserIdEnable && this.NGCommentUserIds.Count > 0)
+			{
+				var ngItem = this.NGCommentUserIds.FirstOrDefault(x => x.UserId == userId);
+
+				if (ngItem != null)
+				{
+					return new NGResult()
+					{
+						NGReason = NGReason.UserId,
+						Content = userId.ToString(),
+						NGDescription = ngItem.Description,
+					};
+
+				}
+			}
+
+			return null;
+		}
+
+		public NGResult IsNGComment(string commentText)
+		{
+			if (this.NGCommentKeywordEnable && this.NGCommentKeywords.Count > 0)
+			{
+				var ngItem = this.NGCommentKeywords.FirstOrDefault(x => commentText.Contains(x.Keyword));
+
+				if (ngItem != null)
+				{
+					return new NGResult()
+					{
+						NGReason = NGReason.Keyword,
+						Content = ngItem.Keyword,
+					};
+
+				}
+			}
+
+			return null;
+		}
 
 
 		#region Video NG
@@ -617,7 +695,7 @@ namespace NicoPlayerHohoema.Models
 		}
 
 		[DataMember]
-		public ObservableCollection<UserIdInfo> NGCommentUserIds;
+		public ObservableCollection<UserIdInfo> NGCommentUserIds { get; private set; }
 
 		private bool _NGCommentKeywordEnable;
 
@@ -629,7 +707,7 @@ namespace NicoPlayerHohoema.Models
 		}
 
 		[DataMember]
-		public ObservableCollection<NGKeyword> NGCommentKeywords;
+		public ObservableCollection<NGKeyword> NGCommentKeywords { get; private set; }
 
 
 		private bool _NGCommentGlassMowerEnable;
@@ -670,7 +748,7 @@ namespace NicoPlayerHohoema.Models
 
 	public class UserIdInfo
 	{
-		public uint UserId { get; set; }
+		public string UserId { get; set; }
 		public string Description { get; set; }
 	}
 

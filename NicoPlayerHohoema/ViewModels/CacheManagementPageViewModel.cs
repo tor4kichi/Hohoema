@@ -209,6 +209,16 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
+		protected override VideoPlayPayload MakeVideoPlayPayload()
+		{
+			var payload = base.MakeVideoPlayPayload();
+
+			payload.Quality = Quality;
+
+			return payload;
+		}
+
+
 		public bool IsIncompleteCache { get; private set; }
 
 		public DateTime CacheRequestTime { get; private set; }
