@@ -591,6 +591,12 @@ namespace NicoPlayerHohoema.ViewModels
 				SelectedSidePaneType.Value = MediaInfoDisplayType.Summary;
 			}
 
+			// PlayerSettings
+			var playerSettings = _HohoemaApp.UserSettings.PlayerSettings;
+			IsVisibleComment.Value = playerSettings.DefaultCommentDisplay;
+			
+
+
 
 		}
 
