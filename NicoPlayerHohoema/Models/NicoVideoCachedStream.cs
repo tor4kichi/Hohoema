@@ -40,7 +40,7 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public static async Task<NicoVideoCachedStream> Create(HttpClient client, string rawVideoId, WatchApiResponse res, StorageFolder videoSaveFolder, NicoVideoQuality quality, bool isCache)
+		public static async Task<NicoVideoCachedStream> Create(HttpClient client, string rawVideoId, WatchApiResponse res, ThumbnailResponse thumbnailRes, StorageFolder videoSaveFolder, NicoVideoQuality quality, bool isCache)
 		{
 			// fileはincompleteか
 			var videoId = res.videoDetail.id;
@@ -56,7 +56,7 @@ namespace NicoPlayerHohoema.Models
 			string videoUrl = res.VideoUrl.AbsoluteUri;
 			var isEconomy = videoUrl.EndsWith("low");
 
-			
+			uint streamSize = (uint)(isEconomy ? thumbnailRes.SizeLow : thumbnailRes.SizeHigh);
 
 			StorageFile videoFile = null;
 
@@ -113,12 +113,12 @@ namespace NicoPlayerHohoema.Models
 				TimeSpan.FromSeconds(BUFFER_SIZE / (float)PremiumUserDownload_kbps) :
 				TimeSpan.FromSeconds(BUFFER_SIZE / (float)IppanUserDownload_kbps);
 
-			await stream.ReadRequestAsync(0).ConfigureAwait(false);
+			stream.Size = streamSize;
 
 			System.Diagnostics.Debug.WriteLine($"size:{stream.Size}");
 
 			// ProgressFileの解決
-			if (videoFile != null && videoFile.FileType == IncompleteExt)
+			if (videoFile.FileType == IncompleteExt)
 			{
 				// cacheProgressFileの存在をチェックし、あれば読み込み
 				var name = progressFileName + (isEconomy ? ".low.json" : ".json");
@@ -136,6 +136,12 @@ namespace NicoPlayerHohoema.Models
 					stream.ProgressFile = await videoSaveFolder.CreateFileAsync(name);
 					await stream.SaveProgress();
 				}
+			}
+			else
+			{
+				// すでにダウンロード済みの場合は予めキャッシュ要求されたことにして
+				// Dispose時の削除を回避させる
+				stream.IsRequireCache = true;
 			}
 
 			return stream;
@@ -563,14 +569,14 @@ namespace NicoPlayerHohoema.Models
 		{
 			base.Dispose();
 
-			await StopDownload();
-
 			if (!IsCacheComplete)
 			{
+				await StopDownload();
+
 				await SaveProgress();
 			}
 
-			if (!IsRequireCache && !IsCacheComplete)
+			if (!IsRequireCache)
 			{
 				await CacheFile.DeleteAsync().AsTask().ConfigureAwait(false);
 				CacheFile = null;

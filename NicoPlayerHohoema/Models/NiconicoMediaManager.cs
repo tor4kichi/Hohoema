@@ -370,15 +370,17 @@ namespace NicoPlayerHohoema.Models
 
 
 
-		private async Task<NicoVideoCachedStream> CreateDownloadStream(string rawVideoid, WatchApiResponse res, NicoVideoQuality quality, bool isRequireCache)
+		private async Task<NicoVideoCachedStream> CreateDownloadStream(string rawVideoid, WatchApiResponse res, ThumbnailResponse thubmnailRes,NicoVideoQuality quality, bool isRequireCache)
 		{
 			var saveFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
-			return await NicoVideoCachedStream.Create(this._HohoemaApp.NiconicoContext.HttpClient, rawVideoid, res, saveFolder, quality, isRequireCache);
+			return await NicoVideoCachedStream.Create(this._HohoemaApp.NiconicoContext.HttpClient, rawVideoid, res, thubmnailRes, saveFolder, quality, isRequireCache);
 		}
 
 
 		private async Task<NicoVideoCachedStream> CreateDownloadStream(string rawVideoid, NicoVideoQuality quality, bool isRequireCache)
 		{
+			// TODO: オフラインのときのストリーム作成
+
 			var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(rawVideoid);
 			WatchApiResponse res;
 			if (quality == NicoVideoQuality.Low)
@@ -395,7 +397,9 @@ namespace NicoPlayerHohoema.Models
 				}
 			}
 
-			return await CreateDownloadStream(rawVideoid, res, quality, isRequireCache);
+			var thumbnailRes = await nicoVideo.GetThumbnailInfo();
+
+			return await CreateDownloadStream(rawVideoid, res, thumbnailRes, quality, isRequireCache);
 		}
 
 
