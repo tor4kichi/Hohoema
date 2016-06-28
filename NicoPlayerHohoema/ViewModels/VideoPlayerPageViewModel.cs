@@ -333,6 +333,9 @@ namespace NicoPlayerHohoema.ViewModels
 				EndPosition = vpos + default_DisplayTime,
 			};
 
+
+			commentVM.IsOwnerComment = comment.User_id != null ? comment.User_id == Video.CachedThumbnailInfo.UserId.ToString() : false;
+
 			var commandList = comment.GetCommandTypes();
 			//					var commandList = Enumerable.Empty<CommandType>();
 			bool isCommendCancel = false;
@@ -455,6 +458,7 @@ namespace NicoPlayerHohoema.ViewModels
 					case CommandType.is_button:
 						break;
 					case CommandType._live:
+
 						break;
 					default:
 						break;
@@ -464,6 +468,14 @@ namespace NicoPlayerHohoema.ViewModels
 				// usまたはshitaが指定されている場合に限る？
 
 				// 　→　投コメ解説をみやすくしたい
+
+				if (commentVM.IsOwnerComment && commentVM.VAlign.HasValue)
+				{
+					var displayTime = commentVM.CommentText.Count() * 0.3f; // 4文字で1秒？ 年齢層的に読みが遅いかもしれないのでやや長めに
+					var displayTimeVideoLength = (uint)(displayTime * 100);
+					commentVM.EndPosition = commentVM.VideoPosition + displayTimeVideoLength;
+				}
+
 
 				if (isCommendCancel)
 				{
@@ -489,7 +501,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				if (comment.UserId != null)
 				{
-					var userNg = ngSettings.IsNGCommentUser(uint.Parse(comment.UserId));
+					var userNg = ngSettings.IsNGCommentUser(comment.UserId);
 					if (userNg != null)
 					{
 						comment.NgResult = userNg;
@@ -833,7 +845,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		    _HohoemaApp.UserSettings.NGSettings.NGCommentUserIds.Add(new UserIdInfo()
 			{
-				UserId = uint.Parse(commentViewModel.UserId),
+				UserId = commentViewModel.UserId,
 				Description = userName
 			});
 

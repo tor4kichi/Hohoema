@@ -519,7 +519,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			NGResult result = null;
 
-			result = IsNgVideoOwnerId(res.UserId);
+			result = IsNgVideoOwnerId(res.UserId.ToString());
 			if (result != null) return result;
 
 			result = IsNGVideoId(res.Id);
@@ -532,7 +532,7 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public NGResult IsNgVideoOwnerId(uint userId)
+		public NGResult IsNgVideoOwnerId(string userId)
 		{
 
 			if (this.NGVideoOwnerUserIdEnable && this.NGVideoOwnerUserIds.Count > 0)
@@ -593,7 +593,7 @@ namespace NicoPlayerHohoema.Models
 
 
 
-		public NGResult IsNGCommentUser(uint userId)
+		public NGResult IsNGCommentUser(string userId)
 		{
 			if (this.NGCommentUserIdEnable && this.NGCommentUserIds.Count > 0)
 			{
@@ -748,7 +748,7 @@ namespace NicoPlayerHohoema.Models
 
 	public class UserIdInfo
 	{
-		public uint UserId { get; set; }
+		public string UserId { get; set; }
 		public string Description { get; set; }
 	}
 

@@ -356,8 +356,6 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 				{
 					Canvas.SetLeft(ui, canvasWidth - ui.GetHorizontalPosition(canvasWidth, currentVpos));
 				}
-
-				
 			}
 		}
 

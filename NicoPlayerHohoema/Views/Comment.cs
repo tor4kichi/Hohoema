@@ -54,7 +54,21 @@ namespace NicoPlayerHohoema.Views
 			{
 				return !(VAlign.HasValue || HAlign.HasValue);
 			}
+		}
 
+		public TextWrapping TextWrapping
+		{
+			get
+			{
+				if (IsOwnerComment && VAlign.HasValue)
+				{
+					return TextWrapping.Wrap;
+				}
+				else
+				{
+					return TextWrapping.NoWrap;
+				}
+			}
 		}
 
 		public Comment(VideoPlayerPageViewModel videoPlayerPageVM)
