@@ -296,6 +296,9 @@ namespace NicoPlayerHohoema.ViewModels
 				.SelectMany(x => GetMediaInfoVM(x))
 				.ToReactiveProperty();
 
+			RequestFPS = _HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.CommentRenderingFPS)
+				.Select(x => (int)x)
+				.ToReactiveProperty();
 		}
 
 		private Comment ChatToComment(Chat comment)
@@ -798,6 +801,8 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<float> SoundVolume { get; private set; }
 
 		public ReactiveProperty<string> Title { get; private set; }
+
+		public ReactiveProperty<int> RequestFPS { get; private set; }
 
 		public ReactiveProperty<MediaInfoViewModel> SidePaneContent { get; private set; }
 		private Dictionary<MediaInfoDisplayType, MediaInfoViewModel> _SidePaneContentCache;

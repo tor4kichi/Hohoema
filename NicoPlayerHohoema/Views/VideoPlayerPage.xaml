@@ -159,6 +159,7 @@
                     <comment:CommentRenderer Comments="{Binding Comments}"
                                      VideoPosition="{Binding ReadVideoPosition.Value}"                                     
                                      Visibility="{Binding IsVisibleComment.Value, Converter={StaticResource BooleanToVisibility}}"
+                                     RequestFPS="{Binding RequestFPS.Value}"
                                      />
 
 
