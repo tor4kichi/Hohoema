@@ -230,11 +230,6 @@ namespace NicoPlayerHohoema.Models
 				}
 				else if (_CurrentDownloadStream == null && _CurrentPlayingStream.IsCacheComplete)
 				{
-					if (_CurrentPlayingStream.IsRequireCache)
-					{
-						throw new Exception("キャッシュが必要だけどダウンロード指定されていない？");
-					}
-
 					_CurrentPlayingStream.Dispose();
 				}
 			}

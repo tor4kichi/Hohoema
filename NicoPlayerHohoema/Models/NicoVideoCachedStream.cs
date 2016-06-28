@@ -368,7 +368,7 @@ namespace NicoPlayerHohoema.Models
 			{
 				_DownloadTaskCancelToken.Cancel();
 
-				while(!_DownloadTask.IsCanceled && !_DownloadTask.IsCompleted && !_DownloadTask.IsFaulted)
+				while(_DownloadTask != null && !_DownloadTask.IsCanceled && !_DownloadTask.IsCompleted && !_DownloadTask.IsFaulted)
 				{
 					await Task.Delay(10);
 				}
@@ -570,7 +570,7 @@ namespace NicoPlayerHohoema.Models
 				await SaveProgress();
 			}
 
-			if (!IsRequireCache)
+			if (!IsRequireCache && !IsCacheComplete)
 			{
 				await CacheFile.DeleteAsync().AsTask().ConfigureAwait(false);
 				CacheFile = null;

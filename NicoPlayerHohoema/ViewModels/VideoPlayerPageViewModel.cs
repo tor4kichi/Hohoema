@@ -215,7 +215,7 @@ namespace NicoPlayerHohoema.ViewModels
 					{
 						CommentData.Value = await GetComment();
 						VideoLength.Value = x.CachedWatchApiResponse.Length.TotalSeconds;
-						SliderVideoPosition.Value = 0;
+						CurrentVideoPosition.Value = TimeSpan.Zero;
 					}
 				});
 
@@ -252,7 +252,6 @@ namespace NicoPlayerHohoema.ViewModels
 					x = VideoLength.Value;
 				}
 				CurrentVideoPosition.Value = TimeSpan.FromSeconds(x);
-				ReadVideoPosition.Value = CurrentVideoPosition.Value;
 				_NowControlSlider = false;
 			});
 
