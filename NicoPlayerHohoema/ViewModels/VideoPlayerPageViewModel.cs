@@ -136,6 +136,7 @@ namespace NicoPlayerHohoema.ViewModels
 						break;
 				}
 
+				PreviousVideoPosition = CurrentVideoPosition.Value.TotalSeconds;
 				VideoStream.Value = await Video.GetVideoStream(x);
 			});
 
@@ -272,6 +273,26 @@ namespace NicoPlayerHohoema.ViewModels
 				})
 				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler);
 
+			CurrentState.Subscribe(async x => 
+			{
+				if (x == MediaElementState.Opening)
+				{
+					_IsOnceAfterVideoOpening = true;
+				}
+				else if (x == MediaElementState.Playing && _IsOnceAfterVideoOpening)
+				{
+					_IsOnceAfterVideoOpening = false;
+					await Task.Delay(1)
+						.ContinueWith(_ => 
+						{
+							CurrentVideoPosition.Value = TimeSpan.FromSeconds(PreviousVideoPosition);
+						});
+				}
+
+				Debug.WriteLine("player state :" + x.ToString());
+			});
+
+
 			IsAutoHideEnable =
 				Observable.CombineLatest(
 					NowPlaying,
@@ -300,6 +321,10 @@ namespace NicoPlayerHohoema.ViewModels
 				.Select(x => (int)x)
 				.ToReactiveProperty();
 		}
+
+		private bool _IsOnceAfterVideoOpening;
+
+		private double PreviousVideoPosition;
 
 		private Comment ChatToComment(Chat comment)
 		{

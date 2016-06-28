@@ -64,51 +64,7 @@ namespace NicoPlayerHohoema.Models
 			_NicoVideoSemaphore = new SemaphoreSlim(1, 1);
 
 		}
-
-
-
-
-
-
-
 		
-		public async Task DownloadVideoAsync(string rawVideoId)
-		{
-			var saveFolder = Context.VideoSaveFolder;
-
-
-			var videoInfo = await _HohoemaApp.NiconicoContext.Video.GetWatchApiAsync(rawVideoId, false);
-			var file = await saveFolder.CreateFileAsync(videoInfo.videoDetail.title + ".mp4", CreationCollisionOption.ReplaceExisting);
-
-			System.Diagnostics.Debug.WriteLine($"{videoInfo.videoDetail.title}のダウンロードを開始します。");
-			System.Diagnostics.Debug.WriteLine($"{videoInfo.VideoUrl}");
-
-
-
-			var downloadTask = DownloadVideo(file, videoInfo.VideoUrl);
-			downloadTask.Progress = (progress, current) => 
-			{
-				var parcent = (float)current.Progress / current.VideoSize * 100.0f;
-				System.Diagnostics.Debug.WriteLine($"{current.Progress}/{current.VideoSize}({parcent:0.##})%");
-
-				if (current.VideoSize == current.Progress)
-				{
-					System.Diagnostics.Debug.WriteLine("done poi");
-				}
-
-				_HohoemaApp.NiconicoContext.User.GetInfoAsync();
-			};
-
-			downloadTask.Completed = (x, y) => 
-			{
-				System.Diagnostics.Debug.WriteLine("download done.");
-
-				if (downloadTask.ErrorCode != null)
-				{
-					System.Diagnostics.Debug.WriteLine(downloadTask.ErrorCode.Message);
-				}
-			};
-		}
 
 		
 
@@ -137,45 +93,7 @@ namespace NicoPlayerHohoema.Models
 
 
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="file"></param>
-		/// <param name="videoId"></param>
-		/// <returns>progress max is 1000</returns>
-		internal IAsyncActionWithProgress<VideoDownloadProgressEventArgs> DownloadVideo(StorageFile file, Uri videoUri)
-		{ 
-
-			return AsyncInfo.Run<VideoDownloadProgressEventArgs>(async (token, task) =>
-			{
-				var stream = await Util.HttpRandomAccessStream.CreateAsync(_HohoemaApp.NiconicoContext.HttpClient, videoUri);
-
-				var arg = new VideoDownloadProgressEventArgs();
-
-
-				using (var fileStream = await file.OpenAsync(FileAccessMode.ReadWrite))
-				{
-					var buffer = new byte[262144].AsBuffer();
-
-					arg.VideoSize = (uint)stream.Size;
-
-					
-					while (stream.Position < arg.VideoSize)
-					{
-						var downloadSize = (uint) Math.Min(buffer.Capacity, stream.Size);
-						await stream.ReadAsync(buffer, downloadSize, Windows.Storage.Streams.InputStreamOptions.None);
-
-						await fileStream.WriteAsync(buffer);
-
-						arg.Progress = (uint)stream.Position;
-
-						task.Report(arg);
-
-						await Task.Delay(1000);
-					}
-				}
-			});
-		}
+		
 
 
 
@@ -274,9 +192,19 @@ namespace NicoPlayerHohoema.Models
 
 		
 
-		public async Task RequestDownload(string rawVideoId, NicoVideoQuality quority)
+		public async Task RequestDownload(string rawVideoId, NicoVideoQuality quality)
 		{
-			PushDownloadRequest(rawVideoId, quority);
+			if (CurrentDownloadStream != null)
+			{
+				if (CurrentDownloadStream.RawVideoId == rawVideoId && CurrentDownloadStream.Quality == quality)
+				{
+					CurrentDownloadStream.ChangeCacheRequire(true);
+					return;
+				}
+			}
+
+
+			PushDownloadRequest(rawVideoId, quality);
 
 			await TryBeginNextDownloadRequest();
 		}
@@ -292,13 +220,22 @@ namespace NicoPlayerHohoema.Models
 
 		private void CloseCurrentPlayingStream()
 		{
-			if (_CurrentPlayingStream != null && !_CurrentPlayingStream.IsRequireCache)
+			if (_CurrentPlayingStream != null)
 			{
-				if (_CurrentDownloadStream == _CurrentPlayingStream)
+				if (_CurrentDownloadStream == _CurrentPlayingStream && !_CurrentPlayingStream.IsRequireCache)
 				{
 					CloseCurrentDownloadStream();
 
 					TryBeginNextDownloadRequest().ConfigureAwait(false);
+				}
+				else if (_CurrentDownloadStream == null && _CurrentPlayingStream.IsCacheComplete)
+				{
+					if (_CurrentPlayingStream.IsRequireCache)
+					{
+						throw new Exception("キャッシュが必要だけどダウンロード指定されていない？");
+					}
+
+					_CurrentPlayingStream.Dispose();
 				}
 			}
 
@@ -507,16 +444,6 @@ namespace NicoPlayerHohoema.Models
 			{
 				_CacheRequestStack.Remove(alreadyRequest);
 			}
-
-			if (CurrentDownloadStream != null)
-			{
-				if (CurrentDownloadStream.RawVideoId == rawVideoid && CurrentDownloadStream.Quality == quality)
-				{
-					CurrentDownloadStream.ChangeCacheRequire(true);
-					return;
-				}
-			}
-
 			_CacheRequestStack.Insert(0, new NicoVideoCacheRequest()
 			{
 				RawVideoid = rawVideoid,

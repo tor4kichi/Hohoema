@@ -220,6 +220,8 @@ namespace NicoPlayerHohoema.Models
 						cancellationToken.ThrowIfCancellationRequested();
 
 						await Task.Delay(100).ConfigureAwait(false);
+
+						Debug.WriteLine("キャッシュ待ち...");
 					}
 				}
 
@@ -227,10 +229,12 @@ namespace NicoPlayerHohoema.Models
 
 				await _CacheWriteSemaphore.WaitAsync().ConfigureAwait(false);
 
-				var stream = await CacheFile.OpenAsync(FileAccessMode.Read).AsTask().ConfigureAwait(false);
+				var stream = await CacheFile.OpenReadAsync();
 				resultStream = stream.GetInputStreamAt(Position);
 
 				var result = await resultStream.ReadAsync(buffer, count, options).AsTask(cancellationToken, progress).ConfigureAwait(false);
+
+				Debug.WriteLine($"read: {Position} + {result.Length}");
 
 				_CurrentPosition += result.Length;
 
@@ -254,7 +258,7 @@ namespace NicoPlayerHohoema.Models
 					return;
 				}
 
-				using (var stream = await CacheFile.OpenAsync(FileAccessMode.ReadWrite).AsTask().ConfigureAwait(false))
+				using (var stream = await CacheFile.OpenAsync(FileAccessMode.ReadWrite))
 				using (var writeStream = stream.GetOutputStreamAt(position))
 				{
 					await writeStream.WriteAsync(buffer).AsTask().ConfigureAwait(false);
@@ -554,7 +558,6 @@ namespace NicoPlayerHohoema.Models
 				OnCacheComplete?.Invoke(RawVideoId);
 			}
 		}
-
 
 		public override async void Dispose()
 		{
