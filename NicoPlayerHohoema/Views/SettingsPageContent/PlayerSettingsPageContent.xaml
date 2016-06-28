@@ -11,6 +11,25 @@
     d:DesignWidth="400">
 
     <Grid>
-        <TextBlock Text="テスト Player" />
+        <ItemsControl>
+
+
+            <toolkit:DockPanel Margin="8">
+
+                <TextBlock Text="低画質モードをデフォルトに設定"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+
+                <ToggleButton Width="32" Height="32"
+                              IsChecked="{Binding IsDefaultPlayWithLowQuality.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                              HorizontalAlignment="Right"
+                              />
+
+            </toolkit:DockPanel>
+
+           
+
+        </ItemsControl>
     </Grid>
 </UserControl>

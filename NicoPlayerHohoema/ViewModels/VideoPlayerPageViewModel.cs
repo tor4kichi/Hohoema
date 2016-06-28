@@ -530,7 +530,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			base.OnNavigatedTo(e, viewModelState);
 
-			NicoVideoQuality quality = NicoVideoQuality.Low;
+			NicoVideoQuality? quality = null;
 			if (e?.Parameter is string)
 			{
 				var payload = VideoPlayPayload.FromParameterString(e.Parameter as string);
@@ -568,23 +568,27 @@ namespace NicoPlayerHohoema.ViewModels
 
 			// ビデオクオリティをトリガーにしてビデオ関連の情報を更新させる
 			// CurrentVideoQualityは代入時に常にNotifyが発行される設定になっている
-			
+
+			// エコノミー時間帯でオリジナル画質が未保存の場合
 			if (Video.NowLowQualityOnly && Video.OriginalQualityCacheState != NicoVideoCacheState.Cached)
 			{
-				CurrentVideoQuality.Value = NicoVideoQuality.Low;
+				quality = NicoVideoQuality.Low;
+			}
+			else if (!quality.HasValue)
+			{
+				// 画質指定がない場合、ユーザー設定から低画質がリクエストされてないかチェック
+				var defaultLowQuality = _HohoemaApp.UserSettings.PlayerSettings.IsLowQualityDeafult;
+				quality = defaultLowQuality ? NicoVideoQuality.Low : NicoVideoQuality.Original;
+			}
+
+			// qualityを無駄な通知が発生しないように適用
+			if (quality.Value == CurrentVideoQuality.Value)
+			{
 				CurrentVideoQuality.ForceNotify();
 			}
 			else
 			{
-
-				if (quality == CurrentVideoQuality.Value)
-				{
-					CurrentVideoQuality.ForceNotify();
-				}
-				else
-				{
-					CurrentVideoQuality.Value = quality;
-				}
+				CurrentVideoQuality.Value = quality.Value;
 			}
 
 

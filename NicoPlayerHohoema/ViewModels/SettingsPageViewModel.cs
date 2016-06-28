@@ -725,13 +725,20 @@ namespace NicoPlayerHohoema.ViewModels
 		public PlayerSettingsPageContentViewModel(HohoemaApp hohoemaApp, string title)
 			: base(title)
 		{
+			_PlayerSettings = hohoemaApp.UserSettings.PlayerSettings;
 
+			IsDefaultPlayWithLowQuality = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsLowQualityDeafult);
 		}
 
 		public override void OnLeave()
 		{
+			_PlayerSettings.Save().ConfigureAwait(false);
 		}
 
+
+		public ReactiveProperty<bool> IsDefaultPlayWithLowQuality { get; private set; }
+
+		private PlayerSettings _PlayerSettings;
 	}
 
 	public class PerformanceSettingsPageContentViewModel : SettingsPageContentViewModel

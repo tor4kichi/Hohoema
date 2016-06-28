@@ -158,7 +158,7 @@ namespace NicoPlayerHohoema.ViewModels
 			return new VideoPlayPayload()
 			{
 				VideoId = RawVideoId,
-				Quality = NicoVideoQuality.Original,
+				Quality = null,
 			};
 		}
 

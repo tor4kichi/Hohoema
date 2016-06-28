@@ -9,7 +9,7 @@ namespace NicoPlayerHohoema.Models
 	public class VideoPlayPayload
 	{
 		public string VideoId { get; set; }
-		public NicoVideoQuality Quality { get; set; }
+		public NicoVideoQuality? Quality { get; set; }
 
 
 		public string ToParameterString()
