@@ -37,6 +37,17 @@
                           
                           >
 
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment"
+                                    Value="Stretch" 
+                                        />
+                            <Setter Property="Margin"
+                                    Value="0 0 0 8" 
+                                    />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+
                     <i:Interaction.Behaviors>
                         <behavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedVideoInfoItems, Mode=TwoWay}" />
                     </i:Interaction.Behaviors>

@@ -89,14 +89,23 @@ namespace NicoPlayerHohoema.ViewModels
 			base.OnNavigatedTo(e, viewModelState);
 
 
+			RankingCategoryInfo categoryInfo = null;
 			if (e.Parameter is string)
 			{
-				CategoryInfo = RankingCategoryInfo.FromParameterString(e.Parameter as string);
+				categoryInfo = RankingCategoryInfo.FromParameterString(e.Parameter as string);
 			}
 			else
 			{
 				return;
 			}
+
+
+			if (categoryInfo.Equals(CategoryInfo))
+			{
+				return;
+			}
+
+			CategoryInfo = categoryInfo;
 
 			RefreshRankingList();
 
@@ -196,17 +205,24 @@ namespace NicoPlayerHohoema.ViewModels
 				var contentFinder = _HohoemaApp.ContentFinder;
 				var mediaManager = _HohoemaApp.MediaManager;
 
+				token.ThrowIfCancellationRequested();
 
 				if (RankingRss == null)
 				{
 					RankingRss = await NiconicoRanking.GetRankingData(_Target, _TimeSpan, _Category);
 				}
+
+				token.ThrowIfCancellationRequested();
+
+
 				var head = (int)(position);
 				var tail = head + pageSize;
 
 				List<RankedVideoInfoControlViewModel> items = new List<RankedVideoInfoControlViewModel>();
 				for (int i = head; i < tail; ++i)
 				{
+					token.ThrowIfCancellationRequested();
+
 					var rank = i;
 
 					if (rank >= RankingRss.Channel.Items.Count)
@@ -227,6 +243,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 					items.Add(vm);
 				}
+
+				token.ThrowIfCancellationRequested();
 
 				return items.AsEnumerable();
 			})

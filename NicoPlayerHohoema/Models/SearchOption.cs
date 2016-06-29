@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Models
 {
-	public class SearchOption
+	public class SearchOption : IEquatable<SearchOption>
 	{
 		public string Keyword { get; set; }
 		public SearchTarget SearchTarget { get; set; }
@@ -22,6 +22,28 @@ namespace NicoPlayerHohoema.Models
 		public static SearchOption FromParameterString(string json)
 		{
 			return Newtonsoft.Json.JsonConvert.DeserializeObject<SearchOption>(json);
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (obj is SearchOption)
+			{
+				return Equals(obj as SearchOption);
+			}
+			else
+			{
+				return base.Equals(obj);
+			}
+		}
+
+		public bool Equals(SearchOption other)
+		{
+			if (other == null) { return false; }
+
+			return this.Keyword == other.Keyword
+				&& this.SearchTarget == other.SearchTarget
+				&& this.SortDirection == other.SortDirection
+				&& this.SortMethod == other.SortMethod;
 		}
 	}
 }

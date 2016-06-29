@@ -264,7 +264,7 @@ namespace NicoPlayerHohoema.Models
 
 
 
-	public class RankingCategoryInfo : BindableBase
+	public class RankingCategoryInfo : BindableBase, IEquatable<RankingCategoryInfo>
 	{
 
 		public static RankingCategoryInfo CreateFromRankingCategory(RankingCategory cat)
@@ -319,7 +319,14 @@ namespace NicoPlayerHohoema.Models
 			get { return _DisplayLabel; }
 			set { SetProperty(ref _DisplayLabel, value); }
 		}
+		
+		public bool Equals(RankingCategoryInfo other)
+		{
+			if (other == null) { return false; }
 
+			return this.RankingSource == other.RankingSource
+				&& this.Parameter == other.Parameter;
+		}
 	}
 
 	

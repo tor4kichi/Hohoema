@@ -10,28 +10,30 @@
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <Border MaxWidth="800"
-                HorizontalAlignment="Center"
-                >
+        <Border>
             <toolkit:DockPanel>
 
                 <ListView ItemsSource="{Binding SearchResultItems}"
                          SelectionMode="Multiple"
                          IncrementalLoadingTrigger="Edge"
-                          
+                          SelectedItem="{Binding LastSelectedIndex.Value}"
                               >
 
 
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
                             <Setter Property="HorizontalContentAlignment"
-                                        Value="Stretch" 
+                                    Value="Stretch" 
                                         />
+                            <Setter Property="Margin"
+                                    Value="0 0 0 8" 
+                                    />
                         </Style>
                     </ListView.ItemContainerStyle>
 

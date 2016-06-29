@@ -58,8 +58,11 @@
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
                             <Setter Property="HorizontalContentAlignment"
-                                        Value="Stretch" 
+                                    Value="Stretch" 
                                         />
+                            <Setter Property="Margin"
+                                    Value="0 0 0 8" 
+                                    />
                         </Style>
                     </ListView.ItemContainerStyle>
                     <ListView.ItemTemplate>

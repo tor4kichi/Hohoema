@@ -34,14 +34,24 @@ namespace NicoPlayerHohoema.ViewModels
 			LoadedPage = new ReactiveProperty<int>(1);
 			MaxPageCount = new ReactiveProperty<int>(1);
 
+			LastSelectedIndex = new ReactiveProperty<int>(0);
 		}
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
+			SearchOption parameter = null;
 			if (e.Parameter is string)
 			{
-				SearchOption = SearchOption.FromParameterString(e.Parameter as string);
+				parameter = SearchOption.FromParameterString(e.Parameter as string);
 			}
+
+			if (parameter.Equals(SearchOption))
+			{
+				OnPropertyChanged(nameof(SearchResultItems));
+				return;
+			}
+
+			SearchOption = parameter;
 
 			if (String.IsNullOrWhiteSpace(SearchOption.Keyword))
 			{
@@ -120,6 +130,8 @@ namespace NicoPlayerHohoema.ViewModels
 		public SearchOption SearchOption { get; private set; }
 		public ReactiveProperty<int> LoadedPage { get; private set; }
 		public ReactiveProperty<int> MaxPageCount { get; private set; }
+
+		public ReactiveProperty<int> LastSelectedIndex { get; private set; }
 
 		public ReactiveProperty<bool> NowPageLoading { get; private set; }
 

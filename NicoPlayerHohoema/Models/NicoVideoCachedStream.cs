@@ -569,10 +569,10 @@ namespace NicoPlayerHohoema.Models
 		{
 			base.Dispose();
 
+			await StopDownload();
+
 			if (!IsCacheComplete)
 			{
-				await StopDownload();
-
 				await SaveProgress();
 			}
 
