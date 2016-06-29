@@ -167,7 +167,7 @@ namespace NicoPlayerHohoema.Util
 			}
 			set
 			{
-				throw new NotImplementedException();
+				_Size = value;
 			}
 		}
 
