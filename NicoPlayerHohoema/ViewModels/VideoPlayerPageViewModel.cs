@@ -230,7 +230,9 @@ namespace NicoPlayerHohoema.ViewModels
 					return;
 				}
 
-				var list = x.Chat.Select(ChatToComment)
+				var list = x.Chat
+					.Where(y => y != null)
+					.Select(ChatToComment)
 					.Where(y => y != null)
 					.OrderBy(y => y.VideoPosition);
 
@@ -362,7 +364,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 			var decodedText = comment.GetDecodedText();
 
-			var vpos = comment.GetVpos();
+			
+			var vpos_value = int.Parse(comment.Vpos);
+			var vpos = vpos_value >= 0 ? (uint)vpos_value : 0;
 
 			var commentVM = new Comment(this)
 			{
