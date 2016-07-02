@@ -54,7 +54,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 				
 
-				foreach (var item in feedList.Items)
+				foreach (var item in feedList.Items.ToArray())
 				{
 					var nicoVideo = await _MediaManager.GetNicoVideo(item.VideoId);
 					var feedItemVM = new FavoriteVideoInfoControlViewModel(item, nicoVideo, _PageManager);
