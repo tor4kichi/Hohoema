@@ -111,19 +111,25 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		}
 
 		private bool _NowUpdating;
+		private TimeSpan _PreviousVideoPosition = TimeSpan.Zero;
 		private async void TimerCallback(object state)
 		{
 			if (_NowUpdating) { RenderingSkipCount++; return; }
+
 
 			_NowUpdating = true;
 
 			await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
 			{
+				// 更新済みの位置であれば処理をスキップ
+				if (_PreviousVideoPosition == VideoPosition) { return; }
+
 				OnUpdate();
+
+				_PreviousVideoPosition = VideoPosition;
 			});
 
 			_NowUpdating = false;
-
 			RenderingSkipCount = 0;
 		}
 		

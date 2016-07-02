@@ -67,6 +67,7 @@ namespace NicoPlayerHohoema.ViewModels
 			VideoStream = new ReactiveProperty<IRandomAccessStream>(PlayerWindowUIDispatcherScheduler);
 			CurrentVideoPosition = new ReactiveProperty<TimeSpan>(PlayerWindowUIDispatcherScheduler, TimeSpan.Zero);
 			ReadVideoPosition = new ReactiveProperty<TimeSpan>(PlayerWindowUIDispatcherScheduler, TimeSpan.Zero);
+			CommentVideoPosition = new ReactiveProperty<TimeSpan>(PlayerWindowUIDispatcherScheduler, TimeSpan.Zero);
 			CommentData = new ReactiveProperty<CommentResponse>(PlayerWindowUIDispatcherScheduler);
 			SliderVideoPosition = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0);
 			VideoLength = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0);
@@ -251,7 +252,12 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					x = VideoLength.Value;
 				}
-				CurrentVideoPosition.Value = TimeSpan.FromSeconds(x);
+
+				if (!_NowReadingVideoPosition)
+				{
+					CurrentVideoPosition.Value = TimeSpan.FromSeconds(x);
+				}
+
 				_NowControlSlider = false;
 			});
 
@@ -259,7 +265,12 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				if (_NowControlSlider) { return; }
 
+				_NowReadingVideoPosition = true;
+
 				SliderVideoPosition.Value = x.TotalSeconds;
+				CommentVideoPosition.Value = x;
+
+				_NowReadingVideoPosition = false;
 			});
 
 			NowPlaying = CurrentState
@@ -319,7 +330,13 @@ namespace NicoPlayerHohoema.ViewModels
 			RequestFPS = _HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.CommentRenderingFPS)
 				.Select(x => (int)x)
 				.ToReactiveProperty();
+
+
 		}
+
+		bool _NowControlSlider = false;
+		bool _NowReadingVideoPosition = false;
+
 
 		private bool _IsOnceAfterVideoOpening;
 
@@ -546,9 +563,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		
 
-		bool _NowControlSlider = false;
 		
-
 
 		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
@@ -812,6 +827,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<TimeSpan> CurrentVideoPosition { get; private set; }
 		public ReactiveProperty<TimeSpan> ReadVideoPosition { get; private set; }
+		public ReactiveProperty<TimeSpan> CommentVideoPosition { get; private set; }
 
 		public ObservableCollection<Comment> Comments { get; private set; }
 

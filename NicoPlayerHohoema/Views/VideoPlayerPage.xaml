@@ -143,7 +143,7 @@
                             <!-- 動画の再生位置を取り出す -->
                             <mybehavior:MediaElementExtractPositionBehavior 
                                 Position="{Binding ReadVideoPosition.Value, Mode=TwoWay}"
-                                Interval="00:00:00.128" 
+                                Interval="00:00:00.008" 
                                 />  
 
                             <!-- シーク操作後、自動で再生する -->
@@ -155,7 +155,7 @@
                         </i:Interaction.Behaviors>
                     </MediaElement>
 
-
+                
                     <comment:CommentRenderer Comments="{Binding Comments}"
                                      VideoPosition="{Binding ReadVideoPosition.Value}"                                     
                                      Visibility="{Binding IsVisibleComment.Value, Converter={StaticResource BooleanToVisibility}}"
