@@ -1,0 +1,115 @@
+﻿<Page
+    x:Class="NicoPlayerHohoema.Views.UserInfoPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:wrExt="using:WinRTXamlToolkit.Controls.Extensions"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    mc:Ignorable="d">
+
+    <ScrollViewer>
+        <StackPanel Margin="8 8 16 8">
+
+            <Border BorderBrush="Black" BorderThickness="2">
+                <toolkit:DockPanel>
+                    <Image Width="128" Height="128" Source="{Binding UserIconUri}" 
+                           Margin="8"
+                           VerticalAlignment="Top"
+                           toolkit:DockPanel.Dock="Left"
+                           />
+
+
+                    <StackPanel Margin="8 0">
+                        <TextBlock Text="{Binding UserName}" 
+                                   FontSize="24"
+                                   Margin="0 8" />
+
+                        <StackPanel Orientation="Horizontal"
+                                    Margin="0 8" 
+                            >
+                            <TextBlock Margin="0 0 8 0">
+                        <Run Text="性別:" />
+                        <Run Text="{Binding Gender}" />
+                            </TextBlock>
+                            <TextBlock Margin="0 0 8 0">
+                        <Run Text="生年月日:" />
+                        <Run Text="{Binding BirthDay}" />
+                            </TextBlock>
+                            <TextBlock Margin="0 0 8 0">
+                        <Run Text="地域:" />
+                        <Run Text="{Binding Region}" />
+                            </TextBlock>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal"
+                                    Margin="0 8" 
+                                    >
+                            <TextBlock Margin="0 0 8 0">
+                            <Run Text="お気に入り:" />
+                            <Run Text="{Binding FavCount}" />
+                            </TextBlock>
+                            <TextBlock Margin="0 0 8 0">
+                            <Run Text="スタンプ:" />
+                            <Run Text="{Binding StampCount}" />
+                            </TextBlock>
+                        </StackPanel>
+
+                        <!-- TODO: ユーザーの紹介文をHTMLを含めて正しく表示されるように -->
+                        <!--
+                    <Border>
+                        <TextBlock Text="{Binding Description}" />
+                    </Border>
+                    -->
+                    </StackPanel>
+                    
+                    
+                    
+                </toolkit:DockPanel>
+            </Border>
+           
+
+           
+
+           
+
+
+            <StackPanel Margin="0 8">
+                <TextBlock Text="マイリスト一覧" FontWeight="Bold"
+                           Margin="0 16 0 8"
+                           />
+                <ListView ItemsSource="{Binding MylistGroups}"
+                          Margin="0 8"
+                          >
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Title}" />
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+
+                <TextBlock FontWeight="Bold"
+                           Margin="0 16 0 8"
+                           >
+                    <Run Text="{Binding UserName}" />
+                    <Run Text="さんの投稿動画" />
+                </TextBlock>
+                <ListView ItemsSource="{Binding VideoInfoItems}"
+                          Margin="0 8"
+                          >
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Title}" />
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

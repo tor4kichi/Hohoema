@@ -140,6 +140,7 @@
     <Compile Include="ViewModels\MylistPageViewModel.cs" />
     <Compile Include="ViewModels\PortalContent\HistoryPortalPageContentViewModel.cs" />
     <Compile Include="ViewModels\SearchViewModel.cs" />
+    <Compile Include="ViewModels\UserInfoPageViewModel.cs" />
     <Compile Include="ViewModels\UserMylistPageViewModel.cs" />
     <Compile Include="ViewModels\VideoInfoContent\CommentVideoInfoContentViewModel.cs" />
     <Compile Include="ViewModels\VideoInfoContent\MediaInfoViewModel.cs" />
@@ -216,6 +217,9 @@
     </Compile>
     <Compile Include="Views\SearchContentDialog.xaml.cs">
       <DependentUpon>SearchContentDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UserInfoPage.xaml.cs">
+      <DependentUpon>UserInfoPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\UserMylistPage.xaml.cs">
       <DependentUpon>UserMylistPage.xaml</DependentUpon>
@@ -360,6 +364,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SearchContentDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\UserInfoPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

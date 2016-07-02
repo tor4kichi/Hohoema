@@ -133,7 +133,7 @@ namespace NicoPlayerHohoema.ViewModels
 			Title = mylistGroup.Name;
 			Description = mylistGroup.Description;
 			GroupId = mylistGroup.Id;
-			IsPublic = mylistGroup.IsPublic;
+			IsPublic = mylistGroup.GetIsPublic();
 			
 		}
 

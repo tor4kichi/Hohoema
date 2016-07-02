@@ -40,7 +40,20 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 				.ToList();
 		}
 
-		
+
+		private DelegateCommand _OpenUserInfoCommand;
+		public DelegateCommand OpenUserInfoCommand
+		{
+			get
+			{
+				return _OpenUserInfoCommand
+					?? (_OpenUserInfoCommand = new DelegateCommand(() =>
+					{
+						_PageManager.OpenPage(HohoemaPageType.UserInfo, _ThumbnailResponse.UserId);
+					}));
+			}
+		}
+
 		private DelegateCommand<Uri> _ScriptNotifyCommand;
 		public DelegateCommand<Uri> ScriptNotifyCommand
 		{

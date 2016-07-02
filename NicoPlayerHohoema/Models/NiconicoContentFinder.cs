@@ -42,6 +42,14 @@ namespace NicoPlayerHohoema.Models
 			});
 		}
 
+		public Task<UserDetail> GetUserDetail(string userId)
+		{
+			return ConnectionRetryUtil.TaskWithRetry(() =>
+			{
+				return _HohoemaApp.NiconicoContext.User.GetUserDetail(userId);
+			});
+		}
+
 
 		public async Task<NiconicoRankingRss> GetCategoryRanking(RankingCategory category, RankingTarget target, RankingTimeSpan timeSpan)
 		{
@@ -92,7 +100,14 @@ namespace NicoPlayerHohoema.Models
 		{
 			return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
-				return await _HohoemaApp.NiconicoContext.Mylist.GetUserMylistGroupAsync(userId);
+				try
+				{
+					return await _HohoemaApp.NiconicoContext.Mylist.GetUserMylistGroupAsync(userId);
+				}
+				catch (Exception e) when (e.Message.Contains("Forbidden"))
+				{
+					return new List<MylistGroupData>();
+				}
 			})
 			.ContinueWith(prevTask => 
 			{

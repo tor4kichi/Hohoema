@@ -150,6 +150,8 @@ namespace NicoPlayerHohoema.Models
 					return "動画情報";
 				case HohoemaPageType.VideoPlayer:
 					return "動画プレイヤー";
+				case HohoemaPageType.UserInfo:
+					return "ユーザー情報";
 				case HohoemaPageType.Login:
 					return "ログイン";
 				default:
