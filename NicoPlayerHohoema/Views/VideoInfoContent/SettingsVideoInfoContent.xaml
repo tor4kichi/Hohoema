@@ -66,6 +66,24 @@
 
             </toolkit:DockPanel>
 
+
+            <toolkit:DockPanel Margin="8">
+
+                <TextBlock Text="コメントの表示サイズ"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+
+                <toolkit:NumericUpDown Value="{Binding CommentFontScale.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                       SmallChange="0.05"
+                                       LargeChange="1.0"
+                                       Minimum="0.1"
+                                       Maximum="2.0"
+                                       />
+
+            </toolkit:DockPanel>
+
+
         </ItemsControl>
     </Grid>
 </UserControl>

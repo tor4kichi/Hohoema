@@ -25,7 +25,8 @@ namespace NicoPlayerHohoema.Views
 
 		public Color Color { get; set; }
 
-		public uint FontSize { get; set; }
+		public uint FontSize { get; set; } = 24;
+		public float FontScale { get; set; } = 1.0f;
 
 		private VerticalAlignment? _VAlign;
 		public VerticalAlignment? VAlign

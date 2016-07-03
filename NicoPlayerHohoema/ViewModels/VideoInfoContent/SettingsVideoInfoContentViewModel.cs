@@ -26,12 +26,13 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 			DefaultCommentDisplay = settings.ToReactivePropertyAsSynchronized(x => x.DefaultCommentDisplay);
 			IncrementReadablityOwnerComment = settings.ToReactivePropertyAsSynchronized(x => x.IncrementReadablityOwnerComment);
 			CommentRenderingFPS = settings.ToReactivePropertyAsSynchronized(x => x.CommentRenderingFPS);
-
+			CommentFontScale = settings.ToReactivePropertyAsSynchronized(x => x.DefaultCommentFontScale);
 
 			Observable.Merge(
 				DefaultCommentDisplay.ToUnit(),
 				IncrementReadablityOwnerComment.ToUnit(),
-				CommentRenderingFPS.ToUnit()
+				CommentRenderingFPS.ToUnit(),
+				CommentFontScale.ToUnit()
 				)
 				.SubscribeOnUIDispatcher()
 				.Subscribe(_ => _PlayerSettings.Save().ConfigureAwait(false));
@@ -43,6 +44,7 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 		public ReactiveProperty<bool> DefaultCommentDisplay { get; private set; }
 		public ReactiveProperty<bool> IncrementReadablityOwnerComment { get; private set; }
 		public ReactiveProperty<uint> CommentRenderingFPS { get; private set; }
+		public ReactiveProperty<float> CommentFontScale { get; private set; }
 
 		public List<uint> CommentRenderringFPSList { get; private set; }
 

@@ -81,6 +81,10 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactivePropertyAsSynchronized(x => x.IsMute, PlayerWindowUIDispatcherScheduler);
 			SoundVolume = _HohoemaApp.UserSettings.PlayerSettings
 				.ToReactivePropertyAsSynchronized(x => x.SoundVolume, PlayerWindowUIDispatcherScheduler);
+			CommentFontScale = _HohoemaApp.UserSettings.PlayerSettings
+				.ObserveProperty(x => x.DefaultCommentFontScale)
+				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler);
+				
 
 			Title = new ReactiveProperty<string>("");
 			WritingComment = new ReactiveProperty<string>("");
@@ -346,11 +350,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 		private Comment ChatToComment(Chat comment)
 		{
-			uint fontSize_mid = 26;
-			uint fontSize_small = (uint)Math.Ceiling(fontSize_mid * 0.75f);
-			uint fontSize_big = (uint)Math.Floor(fontSize_mid * 1.25f);
+			var fontSize_mid = 1.0f;
+			var fontSize_small = 0.75f;
+			var fontSize_big = 1.25f;
 
-			uint default_fontSize = fontSize_mid;
+			var default_fontSize = fontSize_mid;
 			uint default_DisplayTime = 300; // 3秒
 
 			Color defaultColor = ColorExtention.HexStringToColor("FFFFFF");
@@ -372,7 +376,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				CommentText = decodedText,
 				CommentId = comment.GetCommentNo(),
-				FontSize = default_fontSize,
+				FontScale = default_fontSize,
 				Color = defaultColor,
 				VideoPosition = vpos,
 				EndPosition = vpos + default_DisplayTime,
@@ -389,13 +393,13 @@ namespace NicoPlayerHohoema.ViewModels
 				switch (command)
 				{
 					case CommandType.small:
-						commentVM.FontSize = fontSize_small;
+						commentVM.FontScale = fontSize_small;
 						break;
 					case CommandType.big:
-						commentVM.FontSize = fontSize_big;
+						commentVM.FontScale = fontSize_big;
 						break;
 					case CommandType.medium:
-						commentVM.FontSize = fontSize_mid;
+						commentVM.FontScale = fontSize_mid;
 						break;
 					case CommandType.ue:
 						commentVM.VAlign = VerticalAlignment.Top;
@@ -527,7 +531,7 @@ namespace NicoPlayerHohoema.ViewModels
 					commentVM = new Comment(this)
 					{
 						CommentText = decodedText,
-						FontSize = default_fontSize,
+						FontScale = default_fontSize,
 						Color = defaultColor,
 						VideoPosition = vpos,
 						EndPosition = vpos + default_DisplayTime,
@@ -863,6 +867,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<string> Title { get; private set; }
 
 		public ReactiveProperty<int> RequestFPS { get; private set; }
+		public ReactiveProperty<float> CommentFontScale { get; private set; }
 
 		public ReactiveProperty<MediaInfoViewModel> SidePaneContent { get; private set; }
 		private Dictionary<MediaInfoDisplayType, MediaInfoViewModel> _SidePaneContentCache;

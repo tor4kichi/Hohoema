@@ -160,6 +160,7 @@
                                      VideoPosition="{Binding ReadVideoPosition.Value}"                                     
                                      Visibility="{Binding IsVisibleComment.Value, Converter={StaticResource BooleanToVisibility}}"
                                      RequestFPS="{Binding RequestFPS.Value}"
+                                     CommentSizeScale="{Binding CommentFontScale.Value}"
                                      />
 
 

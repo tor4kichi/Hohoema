@@ -423,6 +423,7 @@ namespace NicoPlayerHohoema.Models
 			DefaultCommentDisplay = true;
 			IncrementReadablityOwnerComment = true;
 			CommentRenderingFPS = 24;
+			DefaultCommentFontScale = 1.0f;
 		}
 
 
@@ -495,6 +496,16 @@ namespace NicoPlayerHohoema.Models
 		{
 			get { return _CommentRenderingFPS; }
 			set { SetProperty(ref _CommentRenderingFPS, value); }
+		}
+
+
+		private float _DefaultCommentFontScale;
+
+		[DataMember]
+		public float DefaultCommentFontScale
+		{
+			get { return _DefaultCommentFontScale; }
+			set { SetProperty(ref _DefaultCommentFontScale, value); }
 		}
 	}
 

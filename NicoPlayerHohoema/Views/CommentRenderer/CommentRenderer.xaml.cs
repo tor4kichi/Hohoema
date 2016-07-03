@@ -257,7 +257,9 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		{
 			var currentVpos = (uint)Math.Floor(VideoPosition.TotalMilliseconds * 0.1);
 			var canvasWidth = (int)CommentCanvas.ActualWidth;
+			var canvasHeight = (uint)CommentCanvas.ActualHeight;
 			var halfCanvasWidth = canvasWidth / 2;
+			var fontScale = (float)CommentSizeScale;
 
 			// 非表示時は処理を行わない
 			if (Visibility == Visibility.Collapsed)
@@ -305,6 +307,14 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 						renderComment = new CommentUI();
 					}
 
+					// フォントサイズの計算
+					// 画面サイズの10分の１＊ベーススケール＊フォントスケール
+					var baseSize = canvasHeight / 10;
+					const float PixelToPoint = 0.75f;
+					var scaledFontSize = baseSize * fontScale * comment.FontScale * PixelToPoint;
+					comment.FontSize = (uint)Math.Ceiling(scaledFontSize);
+
+
 					renderComment.DataContext = comment;
 
 
@@ -315,7 +325,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 					renderComment.UpdateLayout();
 
 					var verticalPos = CalcAndRegisterCommentVerticalPosition(renderComment);
-					System.Diagnostics.Debug.WriteLine($"V={verticalPos}: [{renderComment.CommentData.CommentText}]");
+					System.Diagnostics.Debug.WriteLine($"V={verticalPos}: [{renderComment.CommentData.CommentText}] [{comment.FontSize}]");
 					Canvas.SetTop(renderComment, verticalPos);
 
 					if (comment.VAlign.HasValue)
@@ -333,6 +343,8 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 						}
 					}
 
+
+					
 				}
 			}
 
@@ -393,7 +405,19 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		}
 
 
+		public static readonly DependencyProperty CommentSizeScaleProperty =
+			DependencyProperty.Register("CommentSizeScale"
+				, typeof(double)
+				, typeof(CommentRenderer)
+				, new PropertyMetadata(1.0)
+				);
 
+
+		public double CommentSizeScale
+		{
+			get { return (double)GetValue(CommentSizeScaleProperty); }
+			set { SetValue(CommentSizeScaleProperty, value); }
+		}
 
 
 		public static readonly DependencyProperty VideoPositionProperty =
