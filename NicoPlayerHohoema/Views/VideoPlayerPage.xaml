@@ -135,7 +135,6 @@
                           IsMuted="{Binding IsMuted.Value}"
                           IsLooping="{Binding IsEnableRepeat.Value}"
                           Volume="{Binding SoundVolume.Value}"
-                          
                       >
                         <i:Interaction.Behaviors>
 

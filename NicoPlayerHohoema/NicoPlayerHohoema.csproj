@@ -110,6 +110,7 @@
     <Compile Include="Models\HohoemaApp.cs" />
     <Compile Include="Models\HohoemaPageType.cs" />
     <Compile Include="Models\HohoemaUserSettings.cs" />
+    <Compile Include="Models\MediaBackgroundTask.cs" />
     <Compile Include="Models\NiconicoContentFinder.cs" />
     <Compile Include="Models\NiconicoMediaManager.cs" />
     <Compile Include="Models\NicoVideoCachedStream.cs" />
@@ -124,6 +125,7 @@
     <Compile Include="Util\FilePathHelper.cs" />
     <Compile Include="Util\HttpRandomAccessStream.cs" />
     <Compile Include="Util\IncrementalLoadingCollection.cs" />
+    <Compile Include="Util\MediaPlaybackBackgroundTaskHelper.cs" />
     <Compile Include="Util\NiconicoRankingExtention.cs" />
     <Compile Include="Util\NicoVideoRssItemExtention.cs" />
     <Compile Include="ViewModels\AboutPageViewModel.cs" />
@@ -465,7 +467,16 @@
       <HintPath>lib\Mntone.Nico2.UWP.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\BackgroundAudioShared\VideoBackgroundShared.csproj">
+      <Project>{62C43640-D9FB-41B8-81B7-A02BE8FACD09}</Project>
+      <Name>VideoBackgroundShared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VideoBackgroundTask\VideoBackgroundTask.csproj">
+      <Project>{03e0d8ba-4f1d-4f35-8335-81b641bbbac1}</Project>
+      <Name>VideoBackgroundTask</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

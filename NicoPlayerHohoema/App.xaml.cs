@@ -131,6 +131,11 @@ namespace NicoPlayerHohoema
 			Container.RegisterInstance(new PageManager(NavigationService));
 			Container.RegisterInstance(hohoemaApp.ContentFinder);
 
+			// TODO: プレイヤーウィンドウ上で管理する
+			var backgroundTask = MediaBackgroundTask.Create();
+			Container.RegisterInstance(backgroundTask);
+
+
 			// ViewModels
 			Container.RegisterType<ViewModels.MenuNavigatePageBaseViewModel>(new ContainerControlledLifetimeManager());
 

@@ -1,4 +1,6 @@
-﻿using Mntone.Nico2;
+﻿using BackgroundAudioShared;
+using BackgroundAudioShared.Messages;
+using Mntone.Nico2;
 using Mntone.Nico2.Videos.Comment;
 using Mntone.Nico2.Videos.Flv;
 using Mntone.Nico2.Videos.Thumbnail;
@@ -22,8 +24,12 @@ using System.IO;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Background;
+using Windows.Foundation;
+using Windows.Media.Playback;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI;
@@ -40,12 +46,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public static SynchronizationContextScheduler PlayerWindowUIDispatcherScheduler;
 
-
-
-
 		public VideoPlayerPageViewModel(HohoemaApp hohoemaApp, EventAggregator ea, PageManager pageManager)
 			: base(pageManager)
 		{
+
 			if (PlayerWindowUIDispatcherScheduler == null)
 			{
 				PlayerWindowUIDispatcherScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
@@ -338,6 +342,7 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactiveProperty();
 
 
+			
 		}
 
 		bool _NowControlSlider = false;
@@ -660,11 +665,10 @@ namespace NicoPlayerHohoema.ViewModels
 			// PlayerSettings
 			var playerSettings = _HohoemaApp.UserSettings.PlayerSettings;
 			IsVisibleComment.Value = playerSettings.DefaultCommentDisplay;
-			
-
-
-
 		}
+
+
+		
 
 		private async Task<CommentResponse> GetComment()
 		{
@@ -698,6 +702,10 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 
 			_SidePaneContentCache.Clear();
+
+
+
+			
 
 			base.OnNavigatingFrom(e, viewModelState, suspending);
 		}
@@ -804,10 +812,19 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveCommand CommentSubmitCommand { get; private set; }
 		public ReactiveCommand TogglePlayQualityCommand { get; private set; }
-		
+
 
 		#endregion
 
+
+		
+
+		#region background 
+
+
+		
+
+		#endregion
 
 		public ReactiveProperty<CommentResponse> CommentData { get; private set; }
 
@@ -880,6 +897,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		private HohoemaApp _HohoemaApp;
+
+
 
 
 
