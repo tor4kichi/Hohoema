@@ -27,12 +27,16 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 			IncrementReadablityOwnerComment = settings.ToReactivePropertyAsSynchronized(x => x.IncrementReadablityOwnerComment);
 			CommentRenderingFPS = settings.ToReactivePropertyAsSynchronized(x => x.CommentRenderingFPS);
 			CommentFontScale = settings.ToReactivePropertyAsSynchronized(x => x.DefaultCommentFontScale);
+			IsKeepDisplayInPlayback = settings.ToReactivePropertyAsSynchronized(x => x.IsKeepDisplayInPlayback);
+			IsKeepFrontsideInPlayback = settings.ToReactivePropertyAsSynchronized(x => x.IsKeepFrontsideInPlayback);
 
 			Observable.Merge(
 				DefaultCommentDisplay.ToUnit(),
 				IncrementReadablityOwnerComment.ToUnit(),
 				CommentRenderingFPS.ToUnit(),
-				CommentFontScale.ToUnit()
+				CommentFontScale.ToUnit(),
+				IsKeepDisplayInPlayback.ToUnit(),
+				IsKeepFrontsideInPlayback.ToUnit()
 				)
 				.SubscribeOnUIDispatcher()
 				.Subscribe(_ => _PlayerSettings.Save().ConfigureAwait(false));
@@ -45,6 +49,8 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 		public ReactiveProperty<bool> IncrementReadablityOwnerComment { get; private set; }
 		public ReactiveProperty<uint> CommentRenderingFPS { get; private set; }
 		public ReactiveProperty<float> CommentFontScale { get; private set; }
+		public ReactiveProperty<bool> IsKeepDisplayInPlayback { get; private set; }
+		public ReactiveProperty<bool> IsKeepFrontsideInPlayback { get; private set; }
 
 		public List<uint> CommentRenderringFPSList { get; private set; }
 

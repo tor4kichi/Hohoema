@@ -309,6 +309,9 @@ namespace NicoPlayerHohoema.ViewModels
 						});
 				}
 
+
+				SetKeepDisplayWithCurrentState();
+
 				Debug.WriteLine("player state :" + x.ToString());
 			});
 
@@ -342,7 +345,27 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactiveProperty();
 
 
+			_HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.IsKeepDisplayInPlayback)
+				.Subscribe(isKeepDisplay =>
+				{
+					SetKeepDisplayWithCurrentState();
+				});
+
 			
+		}
+
+
+		private void SetKeepDisplayWithCurrentState()
+		{
+			var x = CurrentState.Value;
+			if (x == MediaElementState.Paused || x == MediaElementState.Stopped || x == MediaElementState.Closed)
+			{
+				ExitKeepDisplay();
+			}
+			else
+			{
+				SetKeepDisplayIfEnable();
+			}
 		}
 
 		bool _NowControlSlider = false;
@@ -819,10 +842,29 @@ namespace NicoPlayerHohoema.ViewModels
 
 		
 
-		#region background 
+		#region player settings method
+		
+		
+		void SetKeepDisplayIfEnable()
+		{
+			ExitKeepDisplay();
+
+			if (_HohoemaApp.UserSettings.PlayerSettings.IsKeepDisplayInPlayback)
+			{
+				DisplayRequestHelper.StartVideoPlayback();
+			}
+		}
+
+		void ExitKeepDisplay()
+		{
+			DisplayRequestHelper.StopVideoPlayback();
+		}
+
 
 
 		
+
+
 
 		#endregion
 

@@ -84,6 +84,45 @@
             </toolkit:DockPanel>
 
 
+            <toolkit:DockPanel Margin="8">
+                
+                <TextBlock Text="再生中は画面を点灯したままにする"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+
+                <ToggleButton Width="32" Height="32"
+                              IsChecked="{Binding IsKeepDisplayInPlayback.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              HorizontalAlignment="Right"
+                              />
+
+            </toolkit:DockPanel>
+
+
+            <toolkit:DockPanel Margin="8">
+
+                <TextBlock Text="（デスクトップ表示の時だけ有効です）"
+                           toolkit:DockPanel.Dock="Bottom"
+                           VerticalAlignment="Top"
+                           HorizontalAlignment="Left"
+                           FontSize="11"
+                           Foreground="DarkGray"
+                           />
+                
+                <TextBlock Text="再生中はウィンドウを最前面に表示する"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+               
+
+                <ToggleButton Width="32" Height="32"
+                              IsChecked="{Binding IsKeepFrontsideInPlayback.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              HorizontalAlignment="Right"
+                              />
+
+            </toolkit:DockPanel>
+
+
         </ItemsControl>
     </Grid>
 </UserControl>

@@ -122,6 +122,7 @@
     <Compile Include="Models\VideoPlayPayload.cs" />
     <Compile Include="Util\ColorExtention.cs" />
     <Compile Include="Util\ConnectionRetryUtil.cs" />
+    <Compile Include="Util\DisplayRequestHelper.cs" />
     <Compile Include="Util\FilePathHelper.cs" />
     <Compile Include="Util\HttpRandomAccessStream.cs" />
     <Compile Include="Util\IncrementalLoadingCollection.cs" />

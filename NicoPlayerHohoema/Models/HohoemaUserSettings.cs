@@ -424,6 +424,8 @@ namespace NicoPlayerHohoema.Models
 			IncrementReadablityOwnerComment = true;
 			CommentRenderingFPS = 24;
 			DefaultCommentFontScale = 1.0f;
+			IsKeepDisplayInPlayback = true;
+			IsKeepFrontsideInPlayback = true;
 		}
 
 
@@ -507,6 +509,29 @@ namespace NicoPlayerHohoema.Models
 			get { return _DefaultCommentFontScale; }
 			set { SetProperty(ref _DefaultCommentFontScale, value); }
 		}
+
+
+
+		private bool _IsKeepDisplayInPlayback;
+
+		[DataMember]
+		public bool IsKeepDisplayInPlayback
+		{
+			get { return _IsKeepDisplayInPlayback; }
+			set { SetProperty(ref _IsKeepDisplayInPlayback, value); }
+		}
+
+
+
+		private bool _IsKeepFrontsideInPlayback;
+
+		[DataMember]
+		public bool IsKeepFrontsideInPlayback
+		{
+			get { return _IsKeepFrontsideInPlayback; }
+			set { SetProperty(ref _IsKeepFrontsideInPlayback, value); }
+		}
+
 	}
 
 
