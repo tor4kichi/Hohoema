@@ -47,7 +47,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 			if (parameter.Equals(SearchOption))
 			{
-				OnPropertyChanged(nameof(SearchResultItems));
+//				OnPropertyChanged(nameof(SearchResultItems));
+				if (SearchResultItems != null)
+				{
+					SearchResultItems.IsPuaseLoading = false;
+				}
 				return;
 			}
 
@@ -72,6 +76,8 @@ namespace NicoPlayerHohoema.ViewModels
 			SearchResultItems = null;
 			OnPropertyChanged(nameof(SearchResultItems));
 			*/
+
+			SearchResultItems.IsPuaseLoading = true;
 
 			base.OnNavigatingFrom(e, viewModelState, suspending);
 		}

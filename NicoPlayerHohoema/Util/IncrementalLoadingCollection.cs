@@ -26,6 +26,7 @@ namespace NicoPlayerHohoema.Util
 			this._ItemsPerPage = itemsPerPage;
 			this._HasMoreItems = true;
 			_Position = 1;
+			IsPuaseLoading = false;
 		}
 
 		
@@ -72,8 +73,11 @@ namespace NicoPlayerHohoema.Util
 
 		public bool HasMoreItems
 		{
-			get { return _HasMoreItems; }
+			get { return !IsPuaseLoading && _HasMoreItems; }
 		}
+
+
+		public bool IsPuaseLoading { get; set; }
 
 
 		private T _Source;
