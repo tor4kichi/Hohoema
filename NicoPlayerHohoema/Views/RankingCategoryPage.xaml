@@ -10,6 +10,7 @@
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
@@ -55,6 +56,13 @@
                          SelectionMode="Multiple"
                          IncrementalLoadingTrigger="Edge"
                               >
+
+                    <i:Interaction.Behaviors>
+                        <mybehavior:ListViewVerticalOffsetGetter
+                            VerticalOffset="{Binding ListViewVerticalOffset.Value, Mode=TwoWay}"
+                            />
+                    </i:Interaction.Behaviors>
+                    
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
                             <Setter Property="HorizontalContentAlignment"

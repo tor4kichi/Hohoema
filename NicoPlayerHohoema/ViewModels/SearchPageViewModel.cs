@@ -22,6 +22,8 @@ namespace NicoPlayerHohoema.ViewModels
 		const uint MaxPagenationCount = 50;
 		const int OneTimeLoadSearchItemCount = 32;
 
+		
+
 		public SearchPageViewModel(HohoemaApp hohomaApp, PageManager pageManager, NiconicoContentFinder contentFinder)
 		{
 			HohoemaApp = hohomaApp;
@@ -35,6 +37,10 @@ namespace NicoPlayerHohoema.ViewModels
 			MaxPageCount = new ReactiveProperty<int>(1);
 
 			LastSelectedIndex = new ReactiveProperty<int>(0);
+
+			LastSelectedItem = new ReactiveProperty<VideoInfoControlViewModel>();
+
+			ListViewVerticalOffset = new ReactiveProperty<double>(0);
 		}
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
@@ -52,6 +58,8 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					SearchResultItems.IsPuaseLoading = false;
 				}
+
+				ListViewVerticalOffset.Value = _LastListViewOffset;
 				return;
 			}
 
@@ -78,6 +86,8 @@ namespace NicoPlayerHohoema.ViewModels
 			*/
 
 			SearchResultItems.IsPuaseLoading = true;
+
+			_LastListViewOffset = ListViewVerticalOffset.Value;
 
 			base.OnNavigatingFrom(e, viewModelState, suspending);
 		}
@@ -140,6 +150,13 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<int> LastSelectedIndex { get; private set; }
 
 		public ReactiveProperty<bool> NowPageLoading { get; private set; }
+
+		public ReactiveProperty<double> ListViewVerticalOffset { get; private set; }
+
+		private double _LastListViewOffset;
+
+
+		public ReactiveProperty<VideoInfoControlViewModel> LastSelectedItem { get; private set; }
 
 		NiconicoContentFinder _ContentFinder;
 

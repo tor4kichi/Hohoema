@@ -11,7 +11,9 @@
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
+    
     mc:Ignorable="d">
 
 
@@ -20,20 +22,25 @@
             <toolkit:DockPanel>
 
                 <ListView ItemsSource="{Binding SearchResultItems}"
-                         SelectionMode="Multiple"
-                         IncrementalLoadingTrigger="Edge"
-                          SelectedItem="{Binding LastSelectedIndex.Value}"
-                              >
+                        SelectionMode="Multiple"
+                        IncrementalLoadingTrigger="Edge"
+                        ScrollViewer.VerticalScrollMode="Enabled"
+                            >
+                    <i:Interaction.Behaviors>
+                        <mybehavior:ListViewVerticalOffsetGetter
+                            VerticalOffset="{Binding ListViewVerticalOffset.Value, Mode=TwoWay}"
+                            />
+                    </i:Interaction.Behaviors>
 
 
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
                             <Setter Property="HorizontalContentAlignment"
-                                    Value="Stretch" 
-                                        />
-                            <Setter Property="Margin"
-                                    Value="0 0 0 8" 
+                                Value="Stretch" 
                                     />
+                            <Setter Property="Margin"
+                                Value="0 0 0 8" 
+                                />
                         </Style>
                     </ListView.ItemContainerStyle>
 
@@ -44,7 +51,7 @@
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
-
+                
             </toolkit:DockPanel>
         </Border>
     </Grid>

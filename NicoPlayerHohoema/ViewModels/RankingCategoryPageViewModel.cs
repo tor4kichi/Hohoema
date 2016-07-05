@@ -37,6 +37,9 @@ namespace NicoPlayerHohoema.ViewModels
 			IsFailedRefreshRanking = new ReactiveProperty<bool>(false);
 			CanChangeRankingParameter = new ReactiveProperty<bool>(false);
 
+			ListViewVerticalOffset = new ReactiveProperty<double>(0);
+
+
 			// ランキングの対象
 			RankingTargetItems = new List<RankingTargetListItem>()
 			{
@@ -71,7 +74,7 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					RefreshRankingList();
 				});
-			
+
 		}
 
 
@@ -106,7 +109,8 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					RankingItems.IsPuaseLoading = false;
 				}
-					
+
+				ListViewVerticalOffset.Value = _LastListViewOffset;
 				return;
 			}
 
@@ -163,6 +167,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 			RankingItems.IsPuaseLoading = true;
 
+			_LastListViewOffset = ListViewVerticalOffset.Value;
+
 			base.OnNavigatingFrom(e, viewModelState, suspending);
 		}
 
@@ -184,6 +190,10 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<RankingTimeSpanListItem> SelectedRankingTimeSpan { get; private set; }
 
 		public IncrementalLoadingCollection<IIncrementalSource<RankedVideoInfoControlViewModel>, RankedVideoInfoControlViewModel> RankingItems { get; private set; }
+
+		public ReactiveProperty<double> ListViewVerticalOffset { get; private set; }
+		private double _LastListViewOffset;
+
 
 		private PageManager _PageManager;
 		private HohoemaApp HohoemaApp;
