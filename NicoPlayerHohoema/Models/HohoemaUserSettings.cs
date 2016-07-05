@@ -22,6 +22,7 @@ namespace NicoPlayerHohoema.Models
 		const string RankingSettingsFileName = "ranking.json";
 		const string PlayerSettingsFileName = "player.json";
 		const string NGSettingsFileName = "ng.json";
+		const string SearchSettingsFileName = "search.json";
 
 
 		public static async Task<HohoemaUserSettings> LoadSettings()
@@ -33,13 +34,15 @@ namespace NicoPlayerHohoema.Models
 			var ranking = await SettingsBase.Load<RankingSettings>(RankingSettingsFileName);
 			var player = await SettingsBase.Load<PlayerSettings>(PlayerSettingsFileName);
 			var ng = await SettingsBase.Load<NGSettings>(NGSettingsFileName);
+			var search = await SettingsBase.Load<SearchSeetings>(SearchSettingsFileName);
 
 			return new HohoemaUserSettings()
 			{
 				AccontSettings = account,
 				RankingSettings = ranking,
 				PlayerSettings = player,
-				NGSettings = ng
+				NGSettings = ng,
+				SearchSettings = search
 			};
 		}
 
@@ -60,6 +63,8 @@ namespace NicoPlayerHohoema.Models
 		public PlayerSettings PlayerSettings { get; private set; }
 
 		public NGSettings NGSettings { get; private set; }
+
+		public SearchSeetings SearchSettings { get; private set; }
 
 		public HohoemaUserSettings()
 		{
@@ -832,4 +837,53 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 	}
+
+
+	[DataContract]
+	public sealed class SearchSeetings : SettingsBase
+	{
+		public SearchSeetings()
+		{
+			_SearchHistory = new ObservableCollection<string>();
+
+			SearchHistory = new ReadOnlyObservableCollection<string>(_SearchHistory);
+		}
+
+
+		[OnDeserialized]
+		void OnDeserialized(StreamingContext context)
+		{
+			SearchHistory = new ReadOnlyObservableCollection<string>(_SearchHistory);
+		}
+
+
+		public void UpdateSearchHistory(string keyword)
+		{
+			// すでに含まれている場合は一旦削除
+			RemoveSearchHistory(keyword);
+
+			// 先頭に追加
+			_SearchHistory.Insert(0, keyword);
+
+			Save().ConfigureAwait(false);
+		}
+
+
+		public void RemoveSearchHistory(string keyword)
+		{
+			if (_SearchHistory.Contains(keyword))
+			{
+				_SearchHistory.Remove(keyword);
+			}
+
+			Save().ConfigureAwait(false);
+		}
+
+
+		[DataMember(Name = "history")]
+		private ObservableCollection<string> _SearchHistory { get; set; }
+
+		public ReadOnlyObservableCollection<string> SearchHistory { get; private set; }
+	}
+
 }

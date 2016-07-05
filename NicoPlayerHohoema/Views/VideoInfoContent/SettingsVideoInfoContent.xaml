@@ -15,9 +15,9 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <Grid>
+    <ScrollViewer>
 
-        <ItemsControl>
+        <ItemsControl Margin="0 0 16 0">
             
 
             <toolkit:DockPanel Margin="8">
@@ -79,6 +79,7 @@
                                        LargeChange="1.0"
                                        Minimum="0.1"
                                        Maximum="2.0"
+                                       HorizontalAlignment="Right"
                                        />
 
             </toolkit:DockPanel>
@@ -98,7 +99,7 @@
 
             </toolkit:DockPanel>
 
-
+<!--
             <toolkit:DockPanel Margin="8">
 
                 <TextBlock Text="（デスクトップ表示の時だけ有効です）"
@@ -121,8 +122,8 @@
                               />
 
             </toolkit:DockPanel>
-
+-->
 
         </ItemsControl>
-    </Grid>
+    </ScrollViewer>
 </UserControl>

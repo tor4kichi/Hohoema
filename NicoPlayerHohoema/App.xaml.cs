@@ -148,10 +148,10 @@ namespace NicoPlayerHohoema
 			Container.RegisterType<ViewModels.PortalContent.MylistPortalPageContentViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.PortalContent.FavPortalPageContentViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.PortalContent.HistoryPortalPageContentViewModel>(new ContainerControlledLifetimeManager());
-			
+
 			// Service
-			var searchVM = Container.Resolve<SearchViewModel>();
-			Container.RegisterInstance<Views.Service.ISearchDialogService>(new Views.Service.SearchDialogService(searchVM));
+			Container.RegisterType<Views.Service.ISearchDialogService, Views.Service.SearchDialogService>();
+			
 		}
 
 

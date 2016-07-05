@@ -11,7 +11,7 @@ namespace NicoPlayerHohoema.Views.Service
 	{
 		public object DataContext { get; private set; }
 
-		public SearchDialogService(object dataContext)
+		public SearchDialogService(ViewModels.SearchViewModel dataContext)
 		{
 			DataContext = dataContext;
 		}

@@ -5,26 +5,32 @@ using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Windows.Mvvm;
 using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class SearchViewModel : BindableBase
+	public class SearchViewModel : BindableBase, IDisposable
 	{
-		public SearchViewModel(PageManager pageManager)
+		public SearchViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
 		{
+			_CompositeDisposable = new CompositeDisposable();
+			_SearchSettings = hohoemaApp.UserSettings.SearchSettings;
 			_PageManager = pageManager;
-
-			Keyword = new ReactiveProperty<string>("");
+			
+			Keyword = new ReactiveProperty<string>("")
+				.AddTo(_CompositeDisposable);
 
 			TargetListItems = ((IEnumerable<SearchTarget>)Enum.GetValues(typeof(SearchTarget))).ToList();
 
-			SelectedTarget = new ReactiveProperty<SearchTarget>(TargetListItems[0]);
+			SelectedTarget = new ReactiveProperty<SearchTarget>(TargetListItems[0])
+				.AddTo(_CompositeDisposable);
 
 			#region SearchOptionListItems
 			SearchOptionListItems = new List<SearchSortOptionListItem>()
@@ -122,13 +128,18 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 			DoSearchCommand =
-				Keyword.Select(x => !String.IsNullOrWhiteSpace(x))
-				.ToReactiveCommand(false);
+				Keyword.Select(x => !String.IsNullOrEmpty(x))
+				.ToReactiveCommand()
+				.AddTo(_CompositeDisposable);
 
 			DoSearchCommand.Subscribe(_ => 
 			{
 				if (Keyword.Value.Length == 0) { return; }
 
+				// キーワードを検索履歴を記録
+				_SearchSettings.UpdateSearchHistory(Keyword.Value);
+
+				// 検索結果を表示
 				_PageManager.OpenPage(HohoemaPageType.Search, 
 					new SearchOption()
 					{
@@ -140,9 +151,26 @@ namespace NicoPlayerHohoema.ViewModels
 					.ToParameterString()
 				);
 			});
+
+			HistoryKeywords = _SearchSettings.SearchHistory
+				.ToReadOnlyReactiveCollection(x => new SearchHistoryKeywordItem(x, this, _SearchSettings))
+				.AddTo(_CompositeDisposable);
 		}
 
 
+		public void Dispose()
+		{
+			_CompositeDisposable?.Dispose();
+		}
+
+
+		internal void KeywordSelected(string keyword)
+		{
+			Keyword.Value = keyword;
+		}
+
+
+		public ReadOnlyReactiveCollection<SearchHistoryKeywordItem> HistoryKeywords { get; private set; }
 
 		public ReactiveProperty<string> Keyword { get; private set; }
 		public List<SearchTarget> TargetListItems { get; private set; }
@@ -152,7 +180,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveCommand DoSearchCommand { get; private set; }
 
+		private SearchSeetings _SearchSettings;
 		public PageManager _PageManager { get; private set; }
+
+		private CompositeDisposable _CompositeDisposable;
+
 	}
 
 
@@ -162,5 +194,48 @@ namespace NicoPlayerHohoema.ViewModels
 		public Mntone.Nico2.SortDirection SortDirection { get; set; }
 		public string Label { get; set; }
 
+	}
+
+
+	public class SearchHistoryKeywordItem
+	{
+		public SearchHistoryKeywordItem(string keyword, SearchViewModel vm, SearchSeetings settings)
+		{
+			Keyword = keyword;
+			_SearchVM = vm;
+			_Settings = settings;
+		}
+
+		private DelegateCommand _SelectedKeywordCommand;
+		public DelegateCommand SelectedKeywordCommand
+		{
+			get
+			{
+				return _SelectedKeywordCommand
+					?? (_SelectedKeywordCommand = new DelegateCommand(() =>
+					{
+						_SearchVM.KeywordSelected(this.Keyword);
+					}));
+			}
+		}
+
+		private DelegateCommand _RemoveKeywordCommand;
+		public DelegateCommand RemoveKeywordCommand
+		{
+			get
+			{
+				return _RemoveKeywordCommand
+					?? (_RemoveKeywordCommand = new DelegateCommand(() => 
+					{
+						_Settings.RemoveSearchHistory(Keyword);
+					}));
+			}
+		}
+
+
+		public string Keyword { get; private set; }
+
+		private SearchViewModel _SearchVM;
+		private SearchSeetings _Settings;
 	}
 }
