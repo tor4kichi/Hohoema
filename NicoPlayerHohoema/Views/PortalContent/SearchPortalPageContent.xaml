@@ -17,24 +17,33 @@
     <StackPanel>
         <Border>
             <TextBlock Text="検索" >
-
+                <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Tapped">
+                        <core:InvokeCommandAction Command="{Binding SearchCommand}" />
+                    </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
             </TextBlock>
         </Border>
 
         <Border Height="32" />
 
-
-        <!-- 検索キーワード -->
-        <Border>
-            <Button Content="検索" Command="{Binding SearchCommand}"
-                    HorizontalAlignment="Stretch"
-                    />
-        </Border>
-
-        
         <!-- 検索履歴 -->
-            
-        <ListView>
+
+        <ListView ItemsSource="{Binding HistoryKeywords}" 
+                  SelectionMode="None"
+                  HorizontalContentAlignment="Stretch"
+                  >
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Keyword}">
+                        <i:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="Tapped">
+                                <core:InvokeCommandAction Command="{Binding SelectedKeywordCommand}" />
+                            </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
+                    </TextBlock>
+                </DataTemplate>
+            </ListView.ItemTemplate>
         </ListView>
 
 

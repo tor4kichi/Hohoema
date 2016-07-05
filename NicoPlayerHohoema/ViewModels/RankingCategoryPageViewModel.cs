@@ -102,6 +102,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 			if (categoryInfo.Equals(CategoryInfo))
 			{
+				if (RankingItems != null)
+				{
+					RankingItems.IsPuaseLoading = false;
+				}
+					
 				return;
 			}
 
@@ -155,6 +160,8 @@ namespace NicoPlayerHohoema.ViewModels
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
 			RankingSettings.Save();
+
+			RankingItems.IsPuaseLoading = true;
 
 			base.OnNavigatingFrom(e, viewModelState, suspending);
 		}
