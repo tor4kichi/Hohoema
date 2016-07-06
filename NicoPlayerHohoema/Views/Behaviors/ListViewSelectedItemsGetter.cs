@@ -2,6 +2,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,11 +26,77 @@ namespace NicoPlayerHohoema.Views.Behaviors
 			DependencyProperty.Register("SelectedItems"
 				, typeof(IList)
 				, typeof(ListViewSelectedItemsGetter)
-				, new PropertyMetadata(null)
+				, new PropertyMetadata(null, OnSelectedItemsPropertyChanged)
 				);
-			
 
 
+		public static void OnSelectedItemsPropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
+		{
+			var source = (ListViewSelectedItemsGetter)sender;
+
+			if (args.OldValue != null)
+			{
+				source.RemoveNotifyCollectionChangedHandler(args.OldValue);
+			}
+
+			if (args.NewValue != null)
+			{
+				source.AddNotifyCollectionChangedHandler(args.NewValue);
+			}
+		}
+
+
+		private void RemoveNotifyCollectionChangedHandler(object item)
+		{
+			if (item is INotifyCollectionChanged)
+			{
+				var collection = item as INotifyCollectionChanged;
+
+				collection.CollectionChanged -= this.Collection_CollectionChanged;
+			}
+		}
+
+		private void AddNotifyCollectionChangedHandler(object item)
+		{
+			if (item is INotifyCollectionChanged)
+			{
+				var collection = item as INotifyCollectionChanged;
+
+				collection.CollectionChanged += this.Collection_CollectionChanged;
+			}
+		}
+
+
+		private void Collection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		{
+			// ListViewの選択状態をコレクションアイテムの状態に合わせて変更する
+			if(e.Action == NotifyCollectionChangedAction.Remove)
+			{
+				var rawListItems = this.AssociatedObject.Items
+					.Select(x =>
+					{
+						return this.AssociatedObject.ContainerFromItem(x) as ListViewItem;
+					})
+					.ToList();
+
+				var removeItems = e.OldItems.Cast<object>();
+
+				var removeTargets = removeItems.Select(x =>
+				{
+					return rawListItems.SingleOrDefault(y => x == y.Content);
+				});
+
+				foreach (var i in removeTargets)
+				{
+					i.IsSelected = false;
+				}
+			}
+			else if (e.Action == NotifyCollectionChangedAction.Reset)
+			{
+				this.AssociatedObject.SelectedIndex = -1;
+				this.AssociatedObject.UpdateLayout();
+			}
+		}
 
 		protected override void OnAttached()
 		{
@@ -43,6 +111,9 @@ namespace NicoPlayerHohoema.Views.Behaviors
 			base.OnDetaching();
 
 			this.AssociatedObject.SelectionChanged -= AssociatedObject_SelectionChanged;
+
+
+			RemoveNotifyCollectionChangedHandler(SelectedItems);
 		}
 
 		private void AssociatedObject_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -51,11 +122,34 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
 			if (SelectedItems != null)
 			{
-				SelectedItems.Clear();
-
+				// Viewで追加済みのアイテムをVM側のコレクションに追加
 				foreach (var item in me.SelectedItems)
 				{
-					SelectedItems.Add(item);
+					var alreadyAdded = false;
+					foreach (var selectedItem in SelectedItems)
+					{
+						if (item == selectedItem)
+						{
+							alreadyAdded = true;
+							break;
+						}
+					}
+
+					if (!alreadyAdded)
+					{
+						SelectedItems.Add(item);
+					}
+				}
+
+				// Viewに存在しないVM側のアイテムをVM側のコレクションから削除
+				object[] selectedItems = new object[SelectedItems.Count];
+				SelectedItems.CopyTo(selectedItems, 0);
+				foreach (var item in selectedItems)
+				{
+					if (me.SelectedItems.All(x => x != item))
+					{
+						SelectedItems.Remove(item);
+					}
 				}
 			}
 		}

@@ -24,12 +24,19 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			HohoemaApp = app;
 
-			SelectedVideoInfoItems = new ObservableCollection<VideoInfoControlViewModel>();
+			SelectedVideoInfoItems = new ObservableCollection<VIDEO_INFO_VM>();
 
 			ListViewVerticalOffset = new ReactiveProperty<double>(0.0);
 			_LastListViewOffset = 0;
 
 			var SelectionItemsChanged = SelectedVideoInfoItems.ToCollectionChanged().ToUnit();
+
+
+			SelectedVideoInfoItems.CollectionChangedAsObservable()
+				.Subscribe(x => 
+				{
+					Debug.WriteLine("Selected Count: " + SelectedVideoInfoItems.Count);
+				});
 
 			CancelCacheDownloadRequest = SelectionItemsChanged
 				.Select(_ => EnumerateDownloadingVideoItems().Count() > 0)
@@ -42,6 +49,7 @@ namespace NicoPlayerHohoema.ViewModels
 					item.NicoVideo.CancelCacheRequest();
 				}
 
+				ClearSelection();
 				UpdateList();
 			});
 
@@ -55,6 +63,7 @@ namespace NicoPlayerHohoema.ViewModels
 					await item.NicoVideo.RequestCache(NicoVideoQuality.Original);
 				}
 
+				ClearSelection();
 				UpdateList();
 			});
 
@@ -68,7 +77,9 @@ namespace NicoPlayerHohoema.ViewModels
 					await item.NicoVideo.RequestCache(NicoVideoQuality.Low);
 				}
 
+				ClearSelection();
 				UpdateList();
+
 			});
 
 			DeleteOriginalQualityCache = SelectionItemsChanged
@@ -81,6 +92,7 @@ namespace NicoPlayerHohoema.ViewModels
 					await item.NicoVideo.DeleteCache(NicoVideoQuality.Original);
 				}
 
+				ClearSelection();
 				ResetList();
 			});
 
@@ -94,11 +106,12 @@ namespace NicoPlayerHohoema.ViewModels
 					await item.NicoVideo.DeleteCache(NicoVideoQuality.Low);
 				}
 
+				ClearSelection();
 				ResetList();
 			});
 		}
 
-
+		
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			base.OnNavigatedTo(e, viewModelState);
@@ -201,7 +214,17 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		public ObservableCollection<VideoInfoControlViewModel> SelectedVideoInfoItems { get; private set; }
+
+
+		private void ClearSelection()
+		{
+			SelectedVideoInfoItems.Clear();
+		}
+
+
+
+
+		public ObservableCollection<VIDEO_INFO_VM> SelectedVideoInfoItems { get; private set; }
 
 		public IncrementalLoadingCollection<IIncrementalSource<VIDEO_INFO_VM>, VIDEO_INFO_VM> IncrementalLoadingItems { get; private set; }
 

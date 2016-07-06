@@ -10,6 +10,7 @@
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:behavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
@@ -34,7 +35,6 @@
                 <ListView x:Name="VideoInfoItems" 
                           ItemsSource="{Binding IncrementalLoadingItems}" 
                           SelectionMode="Multiple"
-                          
                           >
 
                     <ListView.ItemContainerStyle>
@@ -48,9 +48,11 @@
                         </Style>
                     </ListView.ItemContainerStyle>
 
+                    
                     <i:Interaction.Behaviors>
                         <behavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedVideoInfoItems, Mode=TwoWay}" />
                     </i:Interaction.Behaviors>
+                    
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <toolkit:DockPanel Margin="8">
