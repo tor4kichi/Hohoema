@@ -203,12 +203,24 @@ namespace NicoPlayerHohoema.ViewModels
 
 		private IEnumerable<VideoInfoControlViewModel> EnumerateCachedVideoItem(NicoVideoQuality quality)
 		{
+			var qualityFilterdVideoItems = SelectedVideoInfoItems
+				.Where(x =>
+				{
+					if (x is CacheVideoViewModel)
+					{
+						var cacheVideoVM = x as CacheVideoViewModel;
+						return cacheVideoVM.Quality == quality;
+					}
+					return true;
+				});
 			switch (quality)
 			{
 				case NicoVideoQuality.Original:
-					return SelectedVideoInfoItems.Where(x => x.NicoVideo.OriginalQualityCacheState != NicoVideoCacheState.Incomplete || x.NicoVideo.HasOriginalQualityIncompleteVideoFile());
+					return qualityFilterdVideoItems
+						.Where(x => x.NicoVideo.OriginalQualityCacheState != NicoVideoCacheState.Incomplete || x.NicoVideo.HasOriginalQualityIncompleteVideoFile());
 				case NicoVideoQuality.Low:
-					return SelectedVideoInfoItems.Where(x => x.NicoVideo.LowQualityCacheState != NicoVideoCacheState.Incomplete || x.NicoVideo.HasLowQualityIncompleteVideoFile());
+					return qualityFilterdVideoItems
+						.Where(x => x.NicoVideo.LowQualityCacheState != NicoVideoCacheState.Incomplete || x.NicoVideo.HasLowQualityIncompleteVideoFile());
 				default:
 					return Enumerable.Empty<VideoInfoControlViewModel>();
 			}
