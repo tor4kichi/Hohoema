@@ -52,7 +52,7 @@
                 </Border>
 
 
-                <ListView ItemsSource="{Binding RankingItems}"
+                <ListView ItemsSource="{Binding IncrementalLoadingItems}"
                          SelectionMode="Multiple"
                          IncrementalLoadingTrigger="Edge"
                               >

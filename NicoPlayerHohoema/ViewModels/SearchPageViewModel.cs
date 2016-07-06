@@ -17,17 +17,16 @@ using System.Diagnostics;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class SearchPageViewModel : ViewModelBase
+	public class SearchPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
 	{
 		const uint MaxPagenationCount = 50;
 		const int OneTimeLoadSearchItemCount = 32;
 
 		
 
-		public SearchPageViewModel(HohoemaApp hohomaApp, PageManager pageManager, NiconicoContentFinder contentFinder)
+		public SearchPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, NiconicoContentFinder contentFinder)
+			: base(hohoemaApp, pageManager)
 		{
-			HohoemaApp = hohomaApp;
-			_PageManager = pageManager;
 			_ContentFinder = contentFinder;
 
 
@@ -35,44 +34,14 @@ namespace NicoPlayerHohoema.ViewModels
 
 			LoadedPage = new ReactiveProperty<int>(1);
 			MaxPageCount = new ReactiveProperty<int>(1);
-
-			LastSelectedIndex = new ReactiveProperty<int>(0);
-
-			LastSelectedItem = new ReactiveProperty<VideoInfoControlViewModel>();
-
-			ListViewVerticalOffset = new ReactiveProperty<double>(0);
 		}
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			SearchOption parameter = null;
 			if (e.Parameter is string)
 			{
-				parameter = SearchOption.FromParameterString(e.Parameter as string);
+				RequireSearchOption = SearchOption.FromParameterString(e.Parameter as string);
 			}
-
-			if (parameter.Equals(SearchOption))
-			{
-//				OnPropertyChanged(nameof(SearchResultItems));
-				if (SearchResultItems != null)
-				{
-					SearchResultItems.IsPuaseLoading = false;
-				}
-
-				ListViewVerticalOffset.Value = _LastListViewOffset;
-				return;
-			}
-
-			SearchOption = parameter;
-
-			if (String.IsNullOrWhiteSpace(SearchOption.Keyword))
-			{
-				FailLoading.Value = true;
-			}
-
-
-			SearchResultItems = new IncrementalLoadingCollection<SearchPageSource, VideoInfoControlViewModel>(new SearchPageSource(this), OneTimeLoadSearchItemCount);
-			OnPropertyChanged(nameof(SearchResultItems));
 
 			base.OnNavigatedTo(e, viewModelState);
 		}
@@ -85,27 +54,55 @@ namespace NicoPlayerHohoema.ViewModels
 			OnPropertyChanged(nameof(SearchResultItems));
 			*/
 
-			SearchResultItems.IsPuaseLoading = true;
-
-			_LastListViewOffset = ListViewVerticalOffset.Value;
-
 			base.OnNavigatingFrom(e, viewModelState, suspending);
 		}
 
-		
+
+		#region Implement HohoemaVideListViewModelBase
+
+		protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
+		{
+			return new SearchPageSource(this);
+		}
+
+
+		protected override void PostResetList()
+		{
+			SearchOption = RequireSearchOption;
+			RequireSearchOption = null;			
+		}
+
+		protected override uint IncrementalLoadCount
+		{
+			get
+			{
+				return 20u;
+			}
+		}
+
+		protected override bool CheckNeedUpdate()
+		{
+			return !RequireSearchOption.Equals(SearchOption);
+		}
+
+		#endregion
+
+
 
 		internal async Task<List<VideoInfoControlViewModel>> GetSearchPage(uint page)
 		{
 			var items = new List<VideoInfoControlViewModel>();
 
+			var searchOption = RequireSearchOption != null ? RequireSearchOption : SearchOption;
+
 			SearchResponse response = null;
-			switch (SearchOption.SearchTarget)
+			switch (searchOption.SearchTarget)
 			{
 				case SearchTarget.Keyword:
-					response = await _ContentFinder.GetKeywordSearch(SearchOption.Keyword, page, SearchOption.SortMethod, SearchOption.SortDirection);
+					response = await _ContentFinder.GetKeywordSearch(searchOption.Keyword, page, searchOption.SortMethod, searchOption.SortDirection);
 					break;
 				case SearchTarget.Tag:
-					response = await _ContentFinder.GetTagSearch(SearchOption.Keyword, page, SearchOption.SortMethod, SearchOption.SortDirection);
+					response = await _ContentFinder.GetTagSearch(searchOption.Keyword, page, searchOption.SortMethod, searchOption.SortDirection);
 					break;
 				default:
 					break;
@@ -124,7 +121,7 @@ namespace NicoPlayerHohoema.ViewModels
 				var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideo(item.id);
 				var videoInfoVM = new VideoInfoControlViewModel(
 							nicoVideo
-							, _PageManager
+							, PageManager
 						);
 
 				items.Add(videoInfoVM);
@@ -133,35 +130,25 @@ namespace NicoPlayerHohoema.ViewModels
 
 			}
 
-				
-
 			return items;
 		}
-		
+
+		public override string GetPageTitle()
+		{
+			return $"'{RequireSearchOption.Keyword}'検索結果";
+		}
 
 		public ReactiveProperty<bool> FailLoading { get; private set; }
 
-		public IncrementalLoadingCollection<SearchPageSource, VideoInfoControlViewModel> SearchResultItems { get; private set; }
-
+		public SearchOption RequireSearchOption { get; private set; }
 		public SearchOption SearchOption { get; private set; }
 		public ReactiveProperty<int> LoadedPage { get; private set; }
 		public ReactiveProperty<int> MaxPageCount { get; private set; }
 
-		public ReactiveProperty<int> LastSelectedIndex { get; private set; }
-
 		public ReactiveProperty<bool> NowPageLoading { get; private set; }
-
-		public ReactiveProperty<double> ListViewVerticalOffset { get; private set; }
-
-		private double _LastListViewOffset;
-
-
-		public ReactiveProperty<VideoInfoControlViewModel> LastSelectedItem { get; private set; }
-
+	
 		NiconicoContentFinder _ContentFinder;
 
-		public HohoemaApp HohoemaApp { get; private set; }
-		PageManager _PageManager;
 	}
 
 	public class SearchPageSource : IIncrementalSource<VideoInfoControlViewModel>

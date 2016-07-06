@@ -24,20 +24,17 @@ using Windows.Foundation;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class RankingCategoryPageViewModel : ViewModelBase
+	public class RankingCategoryPageViewModel : HohoemaVideoListingPageViewModelBase<RankedVideoInfoControlViewModel>
 	{
 		public RankingCategoryPageViewModel(HohoemaApp hohoemaApp, EventAggregator ea, PageManager pageManager)
+			: base(hohoemaApp, pageManager)
 		{
-			HohoemaApp = hohoemaApp;
 			ContentFinder = HohoemaApp.ContentFinder;
 			_EventAggregator = ea;
-			_PageManager = pageManager;
 
 			RankingSettings = hohoemaApp.UserSettings.RankingSettings;
 			IsFailedRefreshRanking = new ReactiveProperty<bool>(false);
 			CanChangeRankingParameter = new ReactiveProperty<bool>(false);
-
-			ListViewVerticalOffset = new ReactiveProperty<double>(0);
 
 
 			// ランキングの対象
@@ -72,7 +69,7 @@ namespace NicoPlayerHohoema.ViewModels
 				.SubscribeOnUIDispatcher()
 				.Subscribe(x => 
 				{
-					RefreshRankingList();
+					ResetList();
 				});
 
 		}
@@ -81,7 +78,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		internal void ShowVideoInfomation(string videoUrl)
 		{
-			_PageManager.OpenPage(HohoemaPageType.VideoInfomation, videoUrl);
+			PageManager.OpenPage(HohoemaPageType.VideoInfomation, videoUrl);
 //			_EventAggregator.GetEvent<Events.PlayNicoVideoEvent>()
 //				.Publish(videoUrl);
 		}
@@ -89,62 +86,52 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			base.OnNavigatedTo(e, viewModelState);
-
-
-			RankingCategoryInfo categoryInfo = null;
 			if (e.Parameter is string)
 			{
-				categoryInfo = RankingCategoryInfo.FromParameterString(e.Parameter as string);
+				RequireCategoryInfo = RankingCategoryInfo.FromParameterString(e.Parameter as string);
 			}
 			else
 			{
+				RequireCategoryInfo = null;
 				return;
 			}
-
-
-			if (categoryInfo.Equals(CategoryInfo))
-			{
-				if (RankingItems != null)
-				{
-					RankingItems.IsPuaseLoading = false;
-				}
-
-				ListViewVerticalOffset.Value = _LastListViewOffset;
-				return;
-			}
-
-			CategoryInfo = categoryInfo;
-
-			RefreshRankingList();
 
 			// TODO: ページタイトルを変更したい
 
+			base.OnNavigatedTo(e, viewModelState);
 		}
 
+		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+		{
+			RankingSettings.Save();
 
-		public void RefreshRankingList()
+			base.OnNavigatingFrom(e, viewModelState, suspending);
+		}
+
+		#region Implement HohoemaVideListViewModelBase
+
+		protected override IIncrementalSource<RankedVideoInfoControlViewModel> GenerateIncrementalSource()
 		{
 			IsFailedRefreshRanking.Value = false;
 
-			IIncrementalSource<RankedVideoInfoControlViewModel> source = null;
-			uint pageSize = 20;
+			var categoryInfo = RequireCategoryInfo != null ? RequireCategoryInfo : CategoryInfo;
+
+			IIncrementalSource <RankedVideoInfoControlViewModel> source = null;
 			try
 			{
-				switch (CategoryInfo.RankingSource)
+				switch (categoryInfo.RankingSource)
 				{
 					case RankingSource.CategoryRanking:
-						RankingCategory = (RankingCategory)Enum.Parse(typeof(RankingCategory), CategoryInfo.Parameter);
+						RankingCategory = (RankingCategory)Enum.Parse(typeof(RankingCategory), categoryInfo.Parameter);
 						var target = SelectedRankingTarget.Value.TargetType;
 						var timeSpan = SelectedRankingTimeSpan.Value.TimeSpan;
-						source = new CategoryRankingLoadingSource(HohoemaApp, _PageManager, RankingCategory, target, timeSpan);
+						source = new CategoryRankingLoadingSource(HohoemaApp, PageManager, RankingCategory, target, timeSpan);
 
 						CanChangeRankingParameter.Value = true;
 						break;
 					case RankingSource.SearchWithMostPopular:
 
-						source = new CustomRankingLoadingSource(HohoemaApp, _PageManager, CategoryInfo.Parameter);
-						pageSize = 30;
+						source = new CustomRankingLoadingSource(HohoemaApp, PageManager, categoryInfo.Parameter);
 
 						CanChangeRankingParameter.Value = false;
 						break;
@@ -158,27 +145,49 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 
 
-			RankingItems = new IncrementalLoadingCollection<IIncrementalSource<RankedVideoInfoControlViewModel>, RankedVideoInfoControlViewModel>(source, pageSize);
+			return source;
 		}
 
-		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+
+		protected override void PostResetList()
 		{
-			RankingSettings.Save();
-
-			RankingItems.IsPuaseLoading = true;
-
-			_LastListViewOffset = ListViewVerticalOffset.Value;
-
-			base.OnNavigatingFrom(e, viewModelState, suspending);
+			if (RequireCategoryInfo != null)
+			{
+				CategoryInfo = RequireCategoryInfo;
+				RequireCategoryInfo = null;
+			}
 		}
 
+		protected override uint IncrementalLoadCount
+		{
+			get
+			{
+				// 検索ベースランキングの場合は30個ずつ
+				// （ニコ動の検索一回あたりの取得件数が30固定のため）
+				return CanChangeRankingParameter.Value ? 20u : 30u;
+			}
+		}
+
+		protected override bool CheckNeedUpdate()
+		{
+			return !RequireCategoryInfo.Equals(CategoryInfo);
+		}
+
+		#endregion
+
+		
+
+		public override string GetPageTitle()
+		{
+			return $"{RankingCategory.ToCultulizedText()} ランキング";
+		}
 
 		public ReactiveProperty<bool> IsFailedRefreshRanking { get; private set; }
 
 		public ReactiveProperty<bool> CanChangeRankingParameter { get; private set; }
 
 
-
+		public RankingCategoryInfo RequireCategoryInfo { get; private set; }
 		public RankingCategoryInfo CategoryInfo { get; private set; }
 
 		public RankingCategory RankingCategory { get; private set; }
@@ -189,14 +198,6 @@ namespace NicoPlayerHohoema.ViewModels
 		public List<RankingTimeSpanListItem> RankingTimeSpanItems { get; private set; }
 		public ReactiveProperty<RankingTimeSpanListItem> SelectedRankingTimeSpan { get; private set; }
 
-		public IncrementalLoadingCollection<IIncrementalSource<RankedVideoInfoControlViewModel>, RankedVideoInfoControlViewModel> RankingItems { get; private set; }
-
-		public ReactiveProperty<double> ListViewVerticalOffset { get; private set; }
-		private double _LastListViewOffset;
-
-
-		private PageManager _PageManager;
-		private HohoemaApp HohoemaApp;
 		private NiconicoContentFinder ContentFinder;
 		private EventAggregator _EventAggregator;
 		public RankingSettings RankingSettings { get; private set; }

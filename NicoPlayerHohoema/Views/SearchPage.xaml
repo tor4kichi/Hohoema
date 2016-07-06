@@ -21,7 +21,7 @@
         <Border>
             <toolkit:DockPanel>
 
-                <ListView ItemsSource="{Binding SearchResultItems}"
+                <ListView ItemsSource="{Binding IncrementalLoadingItems}"
                         SelectionMode="Multiple"
                         IncrementalLoadingTrigger="Edge"
                         ScrollViewer.VerticalScrollMode="Enabled"

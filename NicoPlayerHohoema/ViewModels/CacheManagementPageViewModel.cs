@@ -21,7 +21,7 @@ using NicoPlayerHohoema.Util;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class CacheManagementPageViewModel : HohoemaVideoListingPageViewModelBase
+	public class CacheManagementPageViewModel : HohoemaVideoListingPageViewModelBase<CacheVideoViewModel>
 	{
 		public static SynchronizationContextScheduler scheduler;
 		public CacheManagementPageViewModel(HohoemaApp app, PageManager pageManager)
@@ -32,123 +32,49 @@ namespace NicoPlayerHohoema.ViewModels
 				scheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
 			}
 			_MediaManager = app.MediaManager;
-
-			_CacheVideoViewModelSemaphore = new SemaphoreSlim(1, 1);
-
-			_CacheVideoVMs = new Dictionary<NicoVideoCacheRequest, CacheVideoViewModel>();
-			CacheVideoItems = new ObservableCollection<CacheVideoViewModel>();
-
-
 		}
 
-		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			base.OnNavigatedTo(e, viewModelState);
-
-			await this.UpdateCacheItemsVM();
-		}
-
-		private async Task<CacheVideoViewModel> ToCacheVideoViewModel(string videoId, NicoVideoQuality quality)
-		{
-			return await ToCacheVideoViewModel(new NicoVideoCacheRequest()
-			{
-				RawVideoid = videoId,
-				Quality = quality
-			});
-		}
-
-
-		private async Task<CacheVideoViewModel> ToCacheVideoViewModel(NicoVideoCacheRequest req)
-		{
-			try
-			{
-				await _CacheVideoViewModelSemaphore.WaitAsync().ConfigureAwait(false);
-
-				if (_CacheVideoVMs.ContainsKey(req))
-				{
-					return _CacheVideoVMs[req];
-				}
-				else
-				{
-					var nicoVideo = await _MediaManager.GetNicoVideo(req.RawVideoid);
-					
-
-					var vm = new CacheVideoViewModel(nicoVideo, req.Quality, PageManager);
-
-					vm.LoadThumbnail();
-					_CacheVideoVMs.Add(req, vm);
-
-					return vm;
-				}
-			}
-			finally
-			{
-				_CacheVideoViewModelSemaphore.Release();
-			}
-			
-		}
-
-
-		protected override void UpdateList()
-		{
-			UpdateCacheItemsVM().ConfigureAwait(false);
-		}
-
-		private async Task UpdateCacheItemsVM()
-		{
-			List<CacheVideoViewModel> list = new List<CacheVideoViewModel>();
-
-
-			foreach (var item in _MediaManager.VideoIdToNicoVideo.Values)
-			{
-				await item.SetupVideoInfoFromLocal();
-				await item.CheckCacheStatus();
-
-				if (item.OriginalQualityCacheState != NicoVideoCacheState.Incomplete || 
-					item.HasOriginalQualityIncompleteVideoFile()
-					)
-				{
-					var vm = await ToCacheVideoViewModel(item.RawVideoId, NicoVideoQuality.Original);
-					list.Add(vm);
-				}
-
-				if (item.LowQualityCacheState != NicoVideoCacheState.Incomplete ||
-					item.HasLowQualityIncompleteVideoFile()
-					)
-				{
-					var vm = await ToCacheVideoViewModel(item.RawVideoId, NicoVideoQuality.Low);
-					list.Add(vm);
-				}
-			}
-
-			CacheVideoItems.Clear();
-			foreach (var vm in list.OrderBy(x => x.CacheRequestTime).Reverse())
-			{
-				CacheVideoItems.Add(vm);
-			}
 		}
 
 		
-
+		
 		public override string GetPageTitle()
 		{
 			return "ダウンロード管理";
 		}
 
+		#region Implement HohoemaVideListViewModelBase
+
+		protected override IIncrementalSource<CacheVideoViewModel> GenerateIncrementalSource()
+		{
+			return new CacheVideoInfoLoadingSource(HohoemaApp, PageManager);
+		}
 
 
+		protected override void PostResetList()
+		{
+			
+		}
 
-		private SemaphoreSlim _CacheVideoViewModelSemaphore;
+		protected override uint IncrementalLoadCount
+		{
+			get
+			{
+				return 20u;
+			}
+		}
+
+		protected override bool CheckNeedUpdate()
+		{
+			return true;
+		}
+
+		#endregion
 
 		NiconicoMediaManager _MediaManager;
-
-		private Dictionary<NicoVideoCacheRequest, CacheVideoViewModel> _CacheVideoVMs;
-
-		
-		/// <summary>
-		/// キャッシュ未完了のアイテムも含むキャッシュファイル
-		/// </summary>
-		public ObservableCollection<CacheVideoViewModel> CacheVideoItems { get; private set; }
 	}
 
 	// 自身のキャッシュ状況を表現する
@@ -233,6 +159,87 @@ namespace NicoPlayerHohoema.ViewModels
 		
 
 		
+	}
+
+
+	public class CacheVideoInfoLoadingSource : IIncrementalSource<CacheVideoViewModel>
+	{
+		public CacheVideoInfoLoadingSource(HohoemaApp app, PageManager pageManager)
+		{
+			_HohoemaApp = app;
+			_PageManager = pageManager;
+		}
+
+
+		public async Task<IEnumerable<CacheVideoViewModel>> GetPagedItems(uint pageIndex, uint pageSize)
+		{
+			// 
+			var contentFinder = _HohoemaApp.ContentFinder;
+			var mediaManager = _HohoemaApp.MediaManager;
+
+
+			if (RawList == null)
+			{
+				List<CacheVideoViewModel> list = new List<CacheVideoViewModel>();
+
+
+				foreach (var item in mediaManager.VideoIdToNicoVideo.Values)
+				{
+					await item.SetupVideoInfoFromLocal();
+					await item.CheckCacheStatus();
+
+					if (item.OriginalQualityCacheState != NicoVideoCacheState.Incomplete ||
+						item.HasOriginalQualityIncompleteVideoFile()
+						)
+					{
+						var vm = await ToCacheVideoViewModel(item.RawVideoId, NicoVideoQuality.Original);
+						list.Add(vm);
+					}
+
+					if (item.LowQualityCacheState != NicoVideoCacheState.Incomplete ||
+						item.HasLowQualityIncompleteVideoFile()
+						)
+					{
+						var vm = await ToCacheVideoViewModel(item.RawVideoId, NicoVideoQuality.Low);
+						list.Add(vm);
+					}
+				}
+
+				RawList = list.OrderBy(x => x.CacheRequestTime).Reverse().ToList();
+			}
+
+			int head = (int)((pageIndex - 1) * pageSize);
+			return RawList.Skip(head).Take((int)pageSize);
+		}
+
+		private async Task<CacheVideoViewModel> ToCacheVideoViewModel(string videoId, NicoVideoQuality quality)
+		{
+			return await ToCacheVideoViewModel(new NicoVideoCacheRequest()
+			{
+				RawVideoid = videoId,
+				Quality = quality
+			});
+		}
+
+
+		private async Task<CacheVideoViewModel> ToCacheVideoViewModel(NicoVideoCacheRequest req)
+		{
+			var mediaManager = _HohoemaApp.MediaManager;
+
+			var nicoVideo = await mediaManager.GetNicoVideo(req.RawVideoid);
+
+			var vm = new CacheVideoViewModel(nicoVideo, req.Quality, _PageManager);
+
+			vm.LoadThumbnail();
+			return vm;
+
+		}
+
+		public List<CacheVideoViewModel> RawList { get; private set; }
+
+		HohoemaApp _HohoemaApp;
+		PageManager _PageManager;
+
 	}
 
 }

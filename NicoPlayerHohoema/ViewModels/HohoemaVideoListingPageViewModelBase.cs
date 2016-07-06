@@ -1,4 +1,5 @@
 ﻿using NicoPlayerHohoema.Models;
+using NicoPlayerHohoema.Util;
 using Prism.Commands;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -11,10 +12,12 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Prism.Windows.Navigation;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	abstract public class HohoemaVideoListingPageViewModelBase : HohoemaViewModelBase
+	abstract public class HohoemaVideoListingPageViewModelBase<VIDEO_INFO_VM> : HohoemaViewModelBase
+		where VIDEO_INFO_VM : VideoInfoControlViewModel
 	{
 		public HohoemaVideoListingPageViewModelBase(HohoemaApp app, PageManager pageManager)
 			: base(pageManager)
@@ -22,6 +25,9 @@ namespace NicoPlayerHohoema.ViewModels
 			HohoemaApp = app;
 
 			SelectedVideoInfoItems = new ObservableCollection<VideoInfoControlViewModel>();
+
+			ListViewVerticalOffset = new ReactiveProperty<double>(0.0);
+			_LastListViewOffset = 0;
 
 			var SelectionItemsChanged = SelectedVideoInfoItems.ToCollectionChanged().ToUnit();
 
@@ -75,7 +81,7 @@ namespace NicoPlayerHohoema.ViewModels
 					await item.NicoVideo.DeleteCache(NicoVideoQuality.Original);
 				}
 
-				UpdateList();
+				ResetList();
 			});
 
 			DeleteLowQualityCache = SelectionItemsChanged
@@ -88,12 +94,74 @@ namespace NicoPlayerHohoema.ViewModels
 					await item.NicoVideo.DeleteCache(NicoVideoQuality.Low);
 				}
 
-				UpdateList();
+				ResetList();
 			});
 		}
 
 
-		abstract protected void UpdateList();
+		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		{
+			base.OnNavigatedTo(e, viewModelState);
+
+			if (CheckNeedUpdate())
+			{
+				ResetList();
+			}
+			else
+			{
+				ListViewVerticalOffset.Value = _LastListViewOffset;
+				ChangeCanIncmentalLoading(true);
+			}
+		}
+
+		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+		{
+			base.OnNavigatingFrom(e, viewModelState, suspending);
+
+			_LastListViewOffset = ListViewVerticalOffset.Value;
+			ChangeCanIncmentalLoading(false);
+		}
+
+
+		private void ChangeCanIncmentalLoading(bool enableLoading)
+		{
+			if (IncrementalLoadingItems != null)
+			{
+//				IncrementalLoadingItems.IsPuaseLoading = !enableLoading;
+			}
+		}
+
+		protected virtual void UpdateList()
+		{
+			// TODO: 表示中のアイテムすべての状態を更新
+			// 主にキャッシュ状態の更新が目的
+		}
+
+		protected virtual void ResetList()
+		{
+			try
+			{
+				var source = GenerateIncrementalSource();
+
+				IncrementalLoadingItems = new IncrementalLoadingCollection<IIncrementalSource<VIDEO_INFO_VM>, VIDEO_INFO_VM>(source, IncrementalLoadCount);
+
+				PostResetList();
+			}
+			catch
+			{
+				IncrementalLoadingItems = null;
+
+				Debug.WriteLine("failed GenerateIncrementalSource.");
+			}
+		}
+
+		protected virtual void PostResetList() { }
+
+		protected abstract uint IncrementalLoadCount { get; }
+
+		abstract protected IIncrementalSource<VIDEO_INFO_VM> GenerateIncrementalSource();
+
+		abstract protected bool CheckNeedUpdate();
 
 		private IEnumerable<VideoInfoControlViewModel> EnumerateDownloadingVideoItems()
 		{
@@ -133,15 +201,19 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-
 		public ObservableCollection<VideoInfoControlViewModel> SelectedVideoInfoItems { get; private set; }
+
+		public IncrementalLoadingCollection<IIncrementalSource<VIDEO_INFO_VM>, VIDEO_INFO_VM> IncrementalLoadingItems { get; private set; }
+
+		public ReactiveProperty<double> ListViewVerticalOffset { get; private set; }
+		private double _LastListViewOffset;
+
 
 		public ReactiveCommand CancelCacheDownloadRequest { get; private set; }
 		public ReactiveCommand RequestOriginalQualityCacheDownload { get; private set; }
 		public ReactiveCommand RequestLowQualityCacheDownload { get; private set; }
 		public ReactiveCommand DeleteOriginalQualityCache { get; private set; }
 		public ReactiveCommand DeleteLowQualityCache { get; private set; }
-
 
 
 		public HohoemaApp HohoemaApp { get; private set; }
