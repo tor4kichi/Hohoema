@@ -77,6 +77,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
 					{
 						return this.AssociatedObject.ContainerFromItem(x) as ListViewItem;
 					})
+					.Where(x => x != null)
 					.ToList();
 
 				var removeItems = e.OldItems.Cast<object>();

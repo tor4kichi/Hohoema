@@ -26,15 +26,9 @@
 
                     <!-- 複数選択のON/OFF -->
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="8">
-                        <Button Content="複数選択を始める..."
-                        Command="{Binding EnableSelectionCommand}"
-                        Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                        />
-                        <Button Content="複数選択を終わる..."
-                        Command="{Binding DisableSelectionCommand}"
-                        Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
-                        />
-
+                        <ToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              Content="選択モード"
+                              />
                     </StackPanel>
 
                 </toolkit:DockPanel>
@@ -46,11 +40,12 @@
                     <StackPanel Orientation="Horizontal"
                         toolkit:DockPanel.Dock="Right"
                         >
-                        <AppBarButton Icon="Play" IsCompact="False" Content="連続再生" Command="{Binding PlayAllCommand}" />
+                        <AppBarButton Icon="Play" Content="連続再生" Command="{Binding PlayAllCommand}" />
                         <AppBarSeparator />
                         <AppBarButton Icon="Download" Content="キャッシュを取得" Command="{Binding RequestCacheDownload}" />
-                        <AppBarButton Icon="Remove" Content="キャッシュを削除" Command="{Binding DeleteCache}" />
                         <AppBarButton Icon="Cancel" Content="キャッシュを中止" Command="{Binding CancelCacheDownloadRequest}"  />
+                        <AppBarSeparator />
+                        <AppBarButton Icon="Delete" Content="キャッシュを削除" Command="{Binding DeleteCache}" />
                     </StackPanel>
 
                     <Border />
