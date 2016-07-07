@@ -20,6 +20,10 @@ namespace NicoPlayerHohoema.Util
 			ISupportIncrementalLoading
 			where T : IIncrementalSource<I>
 	{
+		public event Action BeginLoading;
+		public event Action CompleteLoading;
+
+
 		public IncrementalLoadingCollection(T source, uint itemsPerPage = 20)
 		{
 			this._Source = source;
@@ -39,6 +43,13 @@ namespace NicoPlayerHohoema.Util
 			return Task.Run<LoadMoreItemsResult>(
 				async () =>
 				{
+					await dispatcher.RunAsync(
+						CoreDispatcherPriority.Normal,
+						() =>
+						{
+							BeginLoading?.Invoke();
+						});
+
 					uint resultCount = 0;
 
 					var result = await _Source.GetPagedItems(_Position, _ItemsPerPage);
@@ -65,6 +76,14 @@ namespace NicoPlayerHohoema.Util
 							})
 							.AsTask()
 						);
+
+					await dispatcher.RunAsync(
+						CoreDispatcherPriority.Normal,
+						() =>
+						{
+							CompleteLoading?.Invoke();
+						});
+			
 
 					return new LoadMoreItemsResult() { Count = resultCount };
 

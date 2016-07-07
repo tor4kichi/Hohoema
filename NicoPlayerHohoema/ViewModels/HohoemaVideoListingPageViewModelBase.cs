@@ -25,6 +25,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			HohoemaApp = app;
 
+			NowLoadingItems = new ReactiveProperty<bool>(false);
 			SelectedVideoInfoItems = new ObservableCollection<VIDEO_INFO_VM>();
 
 			ListViewVerticalOffset = new ReactiveProperty<double>(0.0);
@@ -223,11 +224,20 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			IsSelectionModeEnable.Value = false;
 
+			if (IncrementalLoadingItems != null)
+			{
+				IncrementalLoadingItems.BeginLoading -= BeginLoadingItems;
+				IncrementalLoadingItems.CompleteLoading -= CompleteLoadingItems;
+			}
+
 			try
 			{
 				var source = GenerateIncrementalSource();
 
 				IncrementalLoadingItems = new IncrementalLoadingCollection<IIncrementalSource<VIDEO_INFO_VM>, VIDEO_INFO_VM>(source, IncrementalLoadCount);
+
+				IncrementalLoadingItems.BeginLoading += BeginLoadingItems;
+				IncrementalLoadingItems.CompleteLoading += CompleteLoadingItems;
 
 				PostResetList();
 			}
@@ -237,6 +247,17 @@ namespace NicoPlayerHohoema.ViewModels
 
 				Debug.WriteLine("failed GenerateIncrementalSource.");
 			}
+		}
+
+
+		private void BeginLoadingItems()
+		{
+			NowLoadingItems.Value = true;
+		}
+
+		private void CompleteLoadingItems()
+		{
+			NowLoadingItems.Value = false;
 		}
 
 		protected virtual void PostResetList() { }
@@ -353,6 +374,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<double> ListViewVerticalOffset { get; private set; }
 		private double _LastListViewOffset;
 
+		public ReactiveProperty<bool> NowLoadingItems { get; private set; }
 
 
 		public ReactiveCommand PlayAllCommand { get; private set; }
