@@ -105,7 +105,7 @@ namespace NicoPlayerHohoema.ViewModels
 			});
 
 
-			CurrentVideoQuality = new ReactiveProperty<NicoVideoQuality>(PlayerWindowUIDispatcherScheduler, NicoVideoQuality.Low, ReactivePropertyMode.DistinctUntilChanged);
+			CurrentVideoQuality = new ReactiveProperty<NicoVideoQuality>(PlayerWindowUIDispatcherScheduler, NicoVideoQuality.Low, ReactivePropertyMode.None);
 			CanToggleCurrentQualityCacheState = CurrentVideoQuality
 				.SubscribeOnUIDispatcher()
 				.Select(x =>
@@ -656,16 +656,9 @@ namespace NicoPlayerHohoema.ViewModels
 				quality = defaultLowQuality ? NicoVideoQuality.Low : NicoVideoQuality.Original;
 			}
 
-			// qualityを無駄な通知が発生しないように適用
-			if (quality.Value == CurrentVideoQuality.Value)
-			{
-				CurrentVideoQuality.ForceNotify();
-			}
-			else
-			{
-				CurrentVideoQuality.Value = quality.Value;
-			}
-
+			// CurrentVideoQualityは同一値の代入でもNotifyがトリガーされるようになっている
+			CurrentVideoQuality.Value = quality.Value;
+			
 
 
 			if (viewModelState.ContainsKey(nameof(CurrentVideoPosition)))
