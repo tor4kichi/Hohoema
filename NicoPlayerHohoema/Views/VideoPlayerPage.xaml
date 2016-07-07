@@ -148,9 +148,6 @@
                             <!-- シーク操作後、自動で再生する -->
                             <mybehavior:MediaElementSeekAfterAutoPlayBehavior />
 
-                            <!-- MediaElementのバッファリング/再生の状態を読み取る -->
-                            <mybehavior:MediaElementStateGetter State="{Binding CurrentState.Value, Mode=TwoWay}" />
-
                         </i:Interaction.Behaviors>
                     </MediaElement>
 

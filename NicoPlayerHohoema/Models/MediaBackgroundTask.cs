@@ -1,5 +1,6 @@
 ﻿using BackgroundAudioShared;
 using BackgroundAudioShared.Messages;
+using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,12 +17,20 @@ using Windows.UI.Xaml;
 
 namespace NicoPlayerHohoema.Models
 {
-	public class MediaBackgroundTask : IDisposable
+	public class MediaBackgroundTask : BindableBase, IDisposable
 	{
 		const int RPC_S_SERVER_UNAVAILABLE = -2147023174; // 0x800706BA
 
 		private AutoResetEvent backgroundAudioTaskStarted;
 		private bool _isMyBackgroundTaskRunning = false;
+
+
+		private MediaPlayerState _PlayerState;
+		public MediaPlayerState PlayerState
+		{
+			get { return _PlayerState; }
+			set { SetProperty(ref _PlayerState, value); }
+		}
 
 
 		private MediaBackgroundTask()
