@@ -29,7 +29,6 @@
             <toolkit:DockPanel>
                 <toolkit:DockPanel toolkit:DockPanel.Dock="Top" >
                     
-                    <!-- 複数選択のON/OFF -->
                     <StackPanel Orientation="Horizontal" Margin="8"
                                 toolkit:DockPanel.Dock="Right"
                                 >
@@ -75,7 +74,6 @@
 
 
           
-                <!-- 選択アクション -->
                 <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom" 
                            Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
                            >
@@ -97,14 +95,14 @@
 
 
                 <ListView ItemsSource="{Binding IncrementalLoadingItems}"
-                          SelectionMode="{Binding SelectionMode.Value}"
+                          SelectionMode="Multiple"
                           IsMultiSelectCheckBoxEnabled="False"
                           IncrementalLoadingTrigger="Edge"
                               >
 
                     <i:Interaction.Behaviors>
                         <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedVideoInfoItems, Mode=TwoWay}" />
-                        
+
                         <mybehavior:ListViewVerticalOffsetGetter
                             VerticalOffset="{Binding ListViewVerticalOffset.Value, Mode=TwoWay}"
                             />
@@ -149,7 +147,10 @@
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
+                
+                
             </toolkit:DockPanel>
         </Border>
+        
     </Grid>
 </Page>

@@ -68,7 +68,7 @@
                 
                 
                 <ListView ItemsSource="{Binding IncrementalLoadingItems}"
-                          SelectionMode="{Binding SelectionMode.Value}"
+                          SelectionMode="Multiple"
                           IsMultiSelectCheckBoxEnabled="False"
                           IncrementalLoadingTrigger="Edge"
                             >

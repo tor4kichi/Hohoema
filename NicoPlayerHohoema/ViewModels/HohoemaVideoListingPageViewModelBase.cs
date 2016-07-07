@@ -33,17 +33,26 @@ namespace NicoPlayerHohoema.ViewModels
 
 			// 複数選択モード
 			IsSelectionModeEnable = new ReactiveProperty<bool>(false);
-			SelectionMode = IsSelectionModeEnable
-				.Select(x => x ? ListViewSelectionMode.Multiple : ListViewSelectionMode.None)
-				.ToReactiveProperty();
 
+			IsSelectionModeEnable.Where(x => !x)
+				.Subscribe(x => ClearSelection());
 
 			// 複数選択モードによって再生コマンドの呼び出しを制御する
 			PlayCommand = IsSelectionModeEnable
 				.Select(x => !x)
 				.ToReactiveCommand<VideoInfoControlViewModel>();
 
-			PlayCommand.Subscribe(x => x?.PlayCommand.Execute());
+			PlayCommand.Subscribe(x =>
+			{
+				x?.PlayCommand.Execute();
+
+				Task.Delay(500)
+					.ContinueWith(prevResult =>
+					{
+						ClearSelection();
+					})
+					.ConfigureAwait(false);
+			});
 
 
 			var SelectionItemsChanged = SelectedVideoInfoItems.ToCollectionChanged().ToUnit();
@@ -329,8 +338,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		public ReactiveProperty<bool> IsSelectionModeEnable { get; private set; }
-		public ReactiveProperty<ListViewSelectionMode> SelectionMode { get; private set; }
-
+		
 
 		public ReactiveCommand<VideoInfoControlViewModel> PlayCommand { get; private set; }
 
