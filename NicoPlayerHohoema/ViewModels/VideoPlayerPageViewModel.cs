@@ -24,6 +24,7 @@ using System.IO;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using System.Threading.Tasks;
@@ -44,16 +45,12 @@ namespace NicoPlayerHohoema.ViewModels
 	public class VideoPlayerPageViewModel : HohoemaViewModelBase, IDisposable
 	{
 
-		public static SynchronizationContextScheduler PlayerWindowUIDispatcherScheduler;
+		public SynchronizationContextScheduler PlayerWindowUIDispatcherScheduler;
 
 		public VideoPlayerPageViewModel(HohoemaApp hohoemaApp, EventAggregator ea, PageManager pageManager)
 			: base(pageManager)
 		{
-
-			if (PlayerWindowUIDispatcherScheduler == null)
-			{
-				PlayerWindowUIDispatcherScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
-			}
+			PlayerWindowUIDispatcherScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
 
 			_SidePaneContentCache = new Dictionary<MediaInfoDisplayType, MediaInfoViewModel>();
 
@@ -106,7 +103,7 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 			});
 
-
+			_VideoUpdaterSubject = new BehaviorSubject<object>(null);
 			CurrentVideoQuality = new ReactiveProperty<NicoVideoQuality>(PlayerWindowUIDispatcherScheduler, NicoVideoQuality.Low, ReactivePropertyMode.None);
 			CanToggleCurrentQualityCacheState = CurrentVideoQuality
 				.SubscribeOnUIDispatcher()
@@ -128,12 +125,15 @@ namespace NicoPlayerHohoema.ViewModels
 
 			IsSaveRequestedCurrentQualityCache = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false, ReactivePropertyMode.DistinctUntilChanged);
 
-			CurrentVideoQuality
+			Observable.Merge(
+				_VideoUpdaterSubject
+				)
 				.SubscribeOnUIDispatcher()
-				.Subscribe(async x => 
+				.Subscribe(async _ => 
 			{
 				if (Video == null) { IsSaveRequestedCurrentQualityCache.Value = false; return; }
 
+				var x = CurrentVideoQuality.Value;
 				switch (x)
 				{
 					case NicoVideoQuality.Original:
@@ -200,6 +200,8 @@ namespace NicoPlayerHohoema.ViewModels
 					{
 						CurrentVideoQuality.Value = NicoVideoQuality.Low;
 					}
+
+					_VideoUpdaterSubject.OnNext(null);
 				});
 
 
@@ -697,6 +699,8 @@ namespace NicoPlayerHohoema.ViewModels
 			// PlayerSettings
 			var playerSettings = _HohoemaApp.UserSettings.PlayerSettings;
 			IsVisibleComment.Value = playerSettings.DefaultCommentDisplay;
+
+			_VideoUpdaterSubject.OnNext(null);
 		}
 
 
@@ -895,6 +899,7 @@ namespace NicoPlayerHohoema.ViewModels
 		
 		public ReactiveProperty<IRandomAccessStream> VideoStream { get; private set; }
 
+		private ISubject<object> _VideoUpdaterSubject;
 		public ReactiveProperty<NicoVideoQuality> CurrentVideoQuality { get; private set; }
 		public ReactiveProperty<bool> CanToggleCurrentQualityCacheState { get; private set; }
 		public ReactiveProperty<bool> IsSaveRequestedCurrentQualityCache { get; private set; }

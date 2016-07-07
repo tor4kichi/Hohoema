@@ -195,18 +195,33 @@ namespace NicoPlayerHohoema.Models
 		{
 			base.Seek(position);
 
-			if (!CurrentPositionIsCached(0))
+			if (!CurrentPositionIsCached(0) && _CurrentDownloadHead != position)
 			{
-				if (_DownloadTask != null)
-				{
-					var task = _StopDownload();
-					task.Wait();
-				}
+				StartDownloadTask((uint)position);
+			}
+		}
 
-				Debug.WriteLine(VideoId + ":" + position +" からダウンロードを再開");
+		private async void StartDownloadTask(uint position)
+		{
+			await _StopDownload();
+
+			try
+			{
+				Debug.WriteLine(VideoId + ":" + position + " からダウンロードを再開");
 
 				_DownloadTaskCancelToken = new CancellationTokenSource();
-				_DownloadTask = DownloadIncompleteData((uint)position).AsTask(_DownloadTaskCancelToken.Token);
+				_DownloadTask = DownloadIncompleteData((uint)position)
+					.AsTask(_DownloadTaskCancelToken.Token);
+
+				await _DownloadTask.ContinueWith(prevResult =>
+				{
+					_DownloadTask = null;
+					_DownloadTaskCancelToken = null;
+				});
+			}
+			catch (OperationCanceledException ex)
+			{
+				Debug.WriteLine("download canceled.");
 			}
 
 		}
@@ -221,13 +236,18 @@ namespace NicoPlayerHohoema.Models
 				// まだキャッシュが終わってない場合は指定区間のダウンロード完了を待つ
 				if (Progress != null)
 				{
-					while (!CurrentPositionIsCached(count))
+					while (!CurrentPositionIsCached(count) && _DownloadTask != null)
 					{
 						cancellationToken.ThrowIfCancellationRequested();
 
 						await Task.Delay(100).ConfigureAwait(false);
 
-						Debug.WriteLine("キャッシュ待ち...");
+						Debug.Write("キャッシュ待ち...");
+					}
+
+					if (!CurrentPositionIsCached(count))
+					{
+						new TaskCanceledException();
 					}
 				}
 
@@ -372,15 +392,12 @@ namespace NicoPlayerHohoema.Models
 		{
 			if (_DownloadTask != null)
 			{
-				_DownloadTaskCancelToken.Cancel();
+				_DownloadTaskCancelToken?.Cancel();
 
-				while(_DownloadTask != null && !_DownloadTask.IsCanceled && !_DownloadTask.IsCompleted && !_DownloadTask.IsFaulted)
+				while (_DownloadTask != null && !_DownloadTask.IsCanceled && !_DownloadTask.IsFaulted)
 				{
-					await Task.Delay(10);
+					await Task.Delay(100);
 				}
-
-				_DownloadTask = null;
-				_DownloadTaskCancelToken = null;
 
 				return true;
 			}
@@ -393,6 +410,7 @@ namespace NicoPlayerHohoema.Models
 		
 		private IAsyncAction DownloadIncompleteData(uint offset = 0)
 		{
+			_CurrentDownloadHead = offset;
 			// TODO: 終了予定時刻の計算?
 
 			// ダウンロードスピードを制限する
@@ -620,6 +638,7 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
+		private uint _CurrentDownloadHead;
 		private CancellationTokenSource _DownloadTaskCancelToken;
 		private Task _DownloadTask;
 

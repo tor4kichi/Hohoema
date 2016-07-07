@@ -149,6 +149,15 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<NicoVideoCachedStream> GetPlayingStream(string rawVideoId, NicoVideoQuality quality)
 		{
+			if (_CurrentPlayingStream != null)
+			{
+				if (_CurrentPlayingStream.RawVideoId == rawVideoId 
+					&& _CurrentDownloadStream.Quality == quality)
+				{
+					return _CurrentPlayingStream;
+				}
+			}
+
 			CloseCurrentPlayingStream();
 
 			// 再生用のストリームを取得します
