@@ -128,6 +128,17 @@
                 <!-- Media Control -->
                 <Grid Background="Black" x:Name="MediaControl">
 
+                    <ProgressRing Visibility="{Binding NowBuffering.Value, Converter={StaticResource BooleanToVisibility}}"
+                                  IsActive="{Binding NowBuffering.Value}"
+                                  Width="32"
+                                  Height="32"
+                                  HorizontalAlignment="Right"
+                                  VerticalAlignment="Top"
+                                  Margin="24 64 24 24"
+                                  />
+
+
+
                     <MediaElement x:Name="mediaElem"
                           local:MediaElementExtention.CustomStream="{Binding VideoStream.Value}"
                           Position="{Binding CurrentVideoPosition.Value}"
@@ -402,7 +413,9 @@
 
 
 
-                        <Border />
+                        <Border >
+                            
+                        </Border>
 
 
                     </toolkit:DockPanel>

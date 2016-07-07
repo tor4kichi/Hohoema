@@ -76,6 +76,8 @@ namespace NicoPlayerHohoema.ViewModels
 			SliderVideoPosition = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0);
 			VideoLength = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0);
 			CurrentState = new ReactiveProperty<MediaElementState>(PlayerWindowUIDispatcherScheduler);
+			NowBuffering = CurrentState.Select(x => x == MediaElementState.Buffering || x == MediaElementState.Opening)
+				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler);
 			Comments = new ObservableCollection<Comment>();
 			NowCommentWriting = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
 			NowSoundChanging = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
@@ -413,7 +415,21 @@ namespace NicoPlayerHohoema.ViewModels
 
 			commentVM.IsOwnerComment = comment.User_id != null ? comment.User_id == Video.CachedThumbnailInfo.UserId.ToString() : false;
 
-			var commandList = comment.GetCommandTypes();
+			IEnumerable<CommandType> commandList = null;
+			try
+			{
+				commandList = comment.GetCommandTypes();
+			}
+			catch(Exception ex)
+			{
+				Debug.WriteLine(ex.Message);
+				Debug.WriteLine(comment.Mail);
+			}
+
+			if (commandList == null)
+			{
+				commandList = Enumerable.Empty<CommandType>();
+			}
 			//					var commandList = Enumerable.Empty<CommandType>();
 			bool isCommendCancel = false;
 			foreach (var command in commandList)
@@ -896,6 +912,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<double> VideoLength { get; private set; }
 
 		public ReactiveProperty<MediaElementState> CurrentState { get; private set; }
+		public ReactiveProperty<bool> NowBuffering { get; private set; }
 
 		public ReactiveProperty<bool> NowPlaying { get; private set; }
 
