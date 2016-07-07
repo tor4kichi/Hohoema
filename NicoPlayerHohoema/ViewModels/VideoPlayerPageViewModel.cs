@@ -46,10 +46,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public static SynchronizationContextScheduler PlayerWindowUIDispatcherScheduler;
 
-		public VideoPlayerPageViewModel(HohoemaApp hohoemaApp, EventAggregator ea, PageManager pageManager, MediaBackgroundTask mediaBG)
+		public VideoPlayerPageViewModel(HohoemaApp hohoemaApp, EventAggregator ea, PageManager pageManager)
 			: base(pageManager)
 		{
-			
+
 			if (PlayerWindowUIDispatcherScheduler == null)
 			{
 				PlayerWindowUIDispatcherScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
@@ -75,12 +75,7 @@ namespace NicoPlayerHohoema.ViewModels
 			CommentData = new ReactiveProperty<CommentResponse>(PlayerWindowUIDispatcherScheduler);
 			SliderVideoPosition = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0);
 			VideoLength = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0);
-			CurrentState = mediaBG.ObserveProperty(x => x.PlayerState)
-				.Select(x =>
-				{
-					return (MediaElementState)x;
-				})
-				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler);
+			CurrentState = new ReactiveProperty<MediaElementState>(PlayerWindowUIDispatcherScheduler);
 			Comments = new ObservableCollection<Comment>();
 			NowCommentWriting = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
 			NowSoundChanging = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
@@ -292,6 +287,8 @@ namespace NicoPlayerHohoema.ViewModels
 				.Select(x =>
 				{
 					return
+						x == MediaElementState.Opening ||
+						x == MediaElementState.Buffering ||
 						x == MediaElementState.Playing;
 				})
 				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler);
@@ -353,7 +350,6 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					SetKeepDisplayWithCurrentState();
 				});
-
 
 			
 		}
