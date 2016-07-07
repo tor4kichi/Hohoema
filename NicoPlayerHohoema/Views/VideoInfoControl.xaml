@@ -48,13 +48,9 @@
         
         
         
-        <toolkit:DockPanel x:Name="VideoInfo" IsDoubleTapEnabled="True">
+        <toolkit:DockPanel x:Name="VideoInfo">
 
-            <i:Interaction.Behaviors>
-                <core:EventTriggerBehavior EventName="DoubleTapped">
-                    <core:InvokeCommandAction Command="{Binding PlayCommand}" />
-                </core:EventTriggerBehavior>
-            </i:Interaction.Behaviors>
+            
 
             <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left" Width="16"
                         ToolTipService.ToolTip="灰色=未視聴 / 青=通常画質保存済み / 緑=低画質保存済み"

@@ -13,6 +13,7 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Prism.Windows.Navigation;
+using Windows.UI.Xaml.Controls;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -29,18 +30,48 @@ namespace NicoPlayerHohoema.ViewModels
 			ListViewVerticalOffset = new ReactiveProperty<double>(0.0);
 			_LastListViewOffset = 0;
 
+			// 複数選択モード
+			IsSelectionModeEnable = new ReactiveProperty<bool>(false);
+			SelectionMode = IsSelectionModeEnable
+				.Select(x => x ? ListViewSelectionMode.Multiple : ListViewSelectionMode.None)
+				.ToReactiveProperty();
+
+
+			// 複数選択モードによって再生コマンドの呼び出しを制御する
+			PlayCommand = IsSelectionModeEnable
+				.Select(x => !x)
+				.ToReactiveCommand<VideoInfoControlViewModel>();
+
+			PlayCommand.Subscribe(x => x?.PlayCommand.Execute());
+
+
 			var SelectionItemsChanged = SelectedVideoInfoItems.ToCollectionChanged().ToUnit();
 
-
+#if DEBUG
 			SelectedVideoInfoItems.CollectionChangedAsObservable()
 				.Subscribe(x => 
 				{
 					Debug.WriteLine("Selected Count: " + SelectedVideoInfoItems.Count);
 				});
+#endif
+
+
+			PlayAllCommand = SelectionItemsChanged
+				.Select(_ => SelectedVideoInfoItems.Count > 0)
+				.ToReactiveCommand(false);
+
+			PlayAllCommand.Subscribe(_ => 
+			{
+
+				// TODO: プレイリストに登録
+				// プレイリストを空にしてから選択動画を登録
+
+				SelectedVideoInfoItems.First()?.PlayCommand.Execute();
+			});
 
 			CancelCacheDownloadRequest = SelectionItemsChanged
 				.Select(_ => EnumerateDownloadingVideoItems().Count() > 0)
-				.ToReactiveCommand();
+				.ToReactiveCommand(false);
 
 			CancelCacheDownloadRequest.Subscribe(_ => 
 			{
@@ -55,7 +86,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			RequestOriginalQualityCacheDownload = SelectionItemsChanged
 				.Select(_ => EnumerateCanDownloadVideoItem(NicoVideoQuality.Original).Count() > 0)
-				.ToReactiveCommand();
+				.ToReactiveCommand(false);
 			RequestOriginalQualityCacheDownload.Subscribe(async _ => 
 			{
 				foreach (var item in EnumerateCanDownloadVideoItem(NicoVideoQuality.Original))
@@ -69,7 +100,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			RequestLowQualityCacheDownload = SelectionItemsChanged
 				.Select(_ => EnumerateCanDownloadVideoItem(NicoVideoQuality.Low).Count() > 0)
-				.ToReactiveCommand();
+				.ToReactiveCommand(false);
 			RequestLowQualityCacheDownload.Subscribe(async _ =>
 			{
 				foreach (var item in EnumerateCanDownloadVideoItem(NicoVideoQuality.Low))
@@ -84,7 +115,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			DeleteOriginalQualityCache = SelectionItemsChanged
 				.Select(_ => EnumerateCachedVideoItem(NicoVideoQuality.Original).Count() > 0)
-				.ToReactiveCommand();
+				.ToReactiveCommand(false);
 			DeleteOriginalQualityCache.Subscribe(async _ =>
 			{
 				foreach (var item in EnumerateCachedVideoItem(NicoVideoQuality.Original))
@@ -98,7 +129,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			DeleteLowQualityCache = SelectionItemsChanged
 				.Select(_ => EnumerateCachedVideoItem(NicoVideoQuality.Low).Count() > 0)
-				.ToReactiveCommand();
+				.ToReactiveCommand(false);
 			DeleteLowQualityCache.Subscribe(async _ =>
 			{
 				foreach (var item in EnumerateCachedVideoItem(NicoVideoQuality.Low))
@@ -109,6 +140,44 @@ namespace NicoPlayerHohoema.ViewModels
 				ClearSelection();
 				ResetList();
 			});
+
+			// クオリティ指定無しのキャッシュDLリクエスト
+			RequestCacheDownload = SelectionItemsChanged
+				.Select(_ => EnumerateCanDownloadVideoItem(NicoVideoQuality.Low).Count() > 0)
+				.ToReactiveCommand(false);
+
+			RequestCacheDownload.Subscribe(async _ =>
+			{
+				foreach (var item in EnumerateCanDownloadVideoItem(NicoVideoQuality.Low))
+				{
+					await item.NicoVideo.RequestCache(NicoVideoQuality.Low);
+				}
+
+				ClearSelection();
+				UpdateList();
+			});
+
+
+			// クオリティ指定無しのキャッシュ削除
+			DeleteCache = SelectionItemsChanged
+				.Select(_ => EnumerateCachedVideoItem(NicoVideoQuality.Low).Count() > 0 || EnumerateCachedVideoItem(NicoVideoQuality.Original).Count() > 0)
+				.ToReactiveCommand(false);
+			DeleteCache.Subscribe(async _ =>
+			{
+				foreach (var item in EnumerateCachedVideoItem(NicoVideoQuality.Low))
+				{
+					await item.NicoVideo.DeleteCache(NicoVideoQuality.Low);
+				}
+
+				foreach (var item in EnumerateCachedVideoItem(NicoVideoQuality.Original))
+				{
+					await item.NicoVideo.DeleteCache(NicoVideoQuality.Original);
+				}
+
+				ClearSelection();
+				ResetList();
+			});
+
 		}
 
 		
@@ -233,6 +302,45 @@ namespace NicoPlayerHohoema.ViewModels
 			SelectedVideoInfoItems.Clear();
 		}
 
+		#region Selection
+
+
+		public ReactiveProperty<bool> IsSelectionModeEnable { get; private set; }
+		public ReactiveProperty<ListViewSelectionMode> SelectionMode { get; private set; }
+
+
+		public ReactiveCommand<VideoInfoControlViewModel> PlayCommand { get; private set; }
+
+		
+
+		private DelegateCommand _EnableSelectionCommand;
+		public DelegateCommand EnableSelectionCommand
+		{
+			get
+			{
+				return _EnableSelectionCommand
+					?? (_EnableSelectionCommand = new DelegateCommand(() => 
+					{
+						IsSelectionModeEnable.Value = true;
+					}));
+			}
+		}
+
+
+		private DelegateCommand _DisableSelectionCommand;
+		public DelegateCommand DisableSelectionCommand
+		{
+			get
+			{
+				return _DisableSelectionCommand
+					?? (_DisableSelectionCommand = new DelegateCommand(() =>
+					{
+						IsSelectionModeEnable.Value = false;
+					}));
+			}
+		}
+
+		#endregion
 
 
 
@@ -244,12 +352,21 @@ namespace NicoPlayerHohoema.ViewModels
 		private double _LastListViewOffset;
 
 
+
+		public ReactiveCommand PlayAllCommand { get; private set; }
 		public ReactiveCommand CancelCacheDownloadRequest { get; private set; }
 		public ReactiveCommand RequestOriginalQualityCacheDownload { get; private set; }
 		public ReactiveCommand RequestLowQualityCacheDownload { get; private set; }
 		public ReactiveCommand DeleteOriginalQualityCache { get; private set; }
 		public ReactiveCommand DeleteLowQualityCache { get; private set; }
 
+		// クオリティ指定なしのコマンド
+		// VMがクオリティを実装している場合には、そのクオリティを仕様
+		// そうでない場合は、リクエスト時は低クオリティのみを
+		// 削除時はすべてのクオリティの動画を指定してアクションを実行します。
+		// 基本的にキャッシュ管理画面でしか使わないはずです
+		public ReactiveCommand RequestCacheDownload { get; private set; }
+		public ReactiveCommand DeleteCache { get; private set; }
 
 		public HohoemaApp HohoemaApp { get; private set; }
 
