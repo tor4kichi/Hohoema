@@ -221,6 +221,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected virtual void ResetList()
 		{
+			IsSelectionModeEnable.Value = false;
+
 			try
 			{
 				var source = GenerateIncrementalSource();

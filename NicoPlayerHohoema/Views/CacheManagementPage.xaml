@@ -10,7 +10,7 @@
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
-    xmlns:behavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
@@ -36,6 +36,7 @@
             
         </toolkit:DockPanel>
 
+        <!-- 選択アクション -->
         <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom" 
                            Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
                            >
@@ -60,6 +61,7 @@
                           ItemsSource="{Binding IncrementalLoadingItems}" 
                           SelectionMode="{Binding SelectionMode.Value}"
                           IsMultiSelectCheckBoxEnabled="False"
+                          IncrementalLoadingTrigger="Edge"
                           >
 
                     <ListView.ItemContainerStyle>
@@ -75,7 +77,12 @@
 
                     
                     <i:Interaction.Behaviors>
-                        <behavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedVideoInfoItems, Mode=TwoWay}" />
+                        <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedVideoInfoItems, Mode=TwoWay}" />
+
+                        <mybehavior:ListViewVerticalOffsetGetter
+                            VerticalOffset="{Binding ListViewVerticalOffset.Value, Mode=TwoWay}"
+                            />
+
                     </i:Interaction.Behaviors>
                     
                     <ItemsControl.ItemTemplate>
