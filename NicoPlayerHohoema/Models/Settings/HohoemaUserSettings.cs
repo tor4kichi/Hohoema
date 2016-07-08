@@ -42,12 +42,10 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task Save()
 		{
-			var localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
-			var local = await localFolder.CreateFileAsync("settings.json", CreationCollisionOption.OpenIfExists);
-
-			var serializedText = JsonConvert.SerializeObject(this);
-
-			await FileIO.WriteTextAsync(local, serializedText);
+			await RankingSettings.Save();
+			await PlayerSettings.Save();
+			await NGSettings.Save();
+			await SearchSettings.Save();
 		}
 
 		public RankingSettings RankingSettings { get; private set; }

@@ -20,13 +20,15 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			HohoemaApp = hohoemaApp;
 			PageManager = pageMananger;
-			AccountSettings = new AccountSettings();
+			AccountSettings = HohoemaApp.CurrentAccount;
 
 			CanChangeValue = new ReactiveProperty<bool>(true);
 
 			MailOrTelephone = AccountSettings.ToReactivePropertyAsSynchronized(x => x.MailOrTelephone);
 			Password = AccountSettings.ToReactivePropertyAsSynchronized(x => x.Password);
-			AutoLoginEnable = AccountSettings.ToReactivePropertyAsSynchronized(x => x.AutoLoginEnable);
+			
+			// すでにパスワード保存済みの場合は「パスワードを保存する」をチェックした状態にする
+			IsRememberPassword = new ReactiveProperty<bool>(!String.IsNullOrEmpty(Password.Value));
 
 			// メールとパスワードが1文字以上あればログインボタンが押せる
 			CheckLoginCommand = Observable.CombineLatest(
@@ -46,10 +48,16 @@ namespace NicoPlayerHohoema.ViewModels
 			CanChangeValue.Value = false;
 
 			var result = await HohoemaApp.SignInFromUserSettings();
+
 			if (result == NiconicoSignInStatus.Success)
 			{
-				await AccountSettings.Save();
+				// アカウント情報をアプリケーションデータとして保存
+				HohoemaApp.SaveAccount(IsRememberPassword.Value);
+
+				// ログインページにバックキーで戻れないようにページ履歴削除
 				PageManager.ClearNavigateHistory();
+
+				// ポータルページへGO
 				PageManager.OpenPage(HohoemaPageType.Portal);
 			}
 			else if (result == NiconicoSignInStatus.ServiceUnavailable)
@@ -76,13 +84,11 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				var canAutoLogin = (bool)e.Parameter;
 
-				if (canAutoLogin && HohoemaApp.CurrentAccount.AutoLoginEnable)
+				if (canAutoLogin && !String.IsNullOrEmpty(HohoemaApp.CurrentAccount.Password))
 				{
 					await CheckLoginAndGo();
 				}
 			}
-
-			
 
 			base.OnNavigatedTo(e, viewModelState);
 		}
@@ -94,7 +100,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<string> MailOrTelephone { get; private set; }
 		public ReactiveProperty<string> Password { get; private set; }
-		public ReactiveProperty<bool> AutoLoginEnable { get; private set; }
+		public ReactiveProperty<bool> IsRememberPassword { get; private set; }
 
 		public ReactiveCommand CheckLoginCommand { get; private set; }
 

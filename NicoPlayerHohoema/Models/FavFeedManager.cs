@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 
@@ -22,8 +23,8 @@ namespace NicoPlayerHohoema.Models
 
 		private static async Task<StorageFolder> GetSpecifyFavFolder(string groupName, uint userId)
 		{
-			var favFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync(FavFolderName, CreationCollisionOption.OpenIfExists);
-			var userFolder = await favFolder.CreateFolderAsync($"user_{userId}", CreationCollisionOption.OpenIfExists);
+			var userFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync(userId.ToString(), CreationCollisionOption.OpenIfExists);
+			var favFolder = await userFolder.CreateFolderAsync(FavFolderName, CreationCollisionOption.OpenIfExists);
 			return await favFolder.CreateFolderAsync(groupName, CreationCollisionOption.OpenIfExists);
 		}
 
@@ -60,6 +61,7 @@ namespace NicoPlayerHohoema.Models
 			UserId = userId;
 
 			ItemsByGroupName = new Dictionary<FavoriteItemType, ObservableCollection<FavFeedList>>();
+			_FavFeedWriterLock = new SemaphoreSlim(1, 1);
 		}
 
 
@@ -245,18 +247,26 @@ namespace NicoPlayerHohoema.Models
 		private async Task SaveFavFeedList(FavFeedList feedList)
 		{
 
-
 			var serializedText = JsonConvert.SerializeObject(feedList);
 
 			var saveFile = await GetFeedListFile(feedList);
 
-			using (var stream = await saveFile.OpenStreamForWriteAsync())
-			using (var streamWriter = new StreamWriter(stream))
+			try
 			{
-				streamWriter.Write(serializedText);
+				await _FavFeedWriterLock.WaitAsync();
+				using (var stream = await saveFile.OpenStreamForWriteAsync())
+				using (var streamWriter = new StreamWriter(stream))
+				{
+					streamWriter.Write(serializedText);
+				}
+			}
+			finally
+			{
+				_FavFeedWriterLock.Release();
 			}
 		}
 
+		private SemaphoreSlim _FavFeedWriterLock;
 
 		private async Task UpdateFavFeedList(IList<FavFeedList> lists)
 		{

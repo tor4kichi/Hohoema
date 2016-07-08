@@ -31,11 +31,52 @@ namespace NicoPlayerHohoema.Models
 			EventAggregator = ea;
 			
 			FavFeedManager = null;
+			CurrentAccount = new AccountSettings();
+
+			LoadRecentLoginAccount();
 		}
+
+		public void LoadRecentLoginAccount()
+		{
+			if (ApplicationData.Current.LocalSettings.Containers.ContainsKey(RECENT_LOGIN_ACCOUNT))
+			{
+				// load
+				var container = ApplicationData.Current.LocalSettings.Containers[RECENT_LOGIN_ACCOUNT];
+				var prop = container.Values.FirstOrDefault();
+				CurrentAccount.MailOrTelephone = prop.Key ?? "";
+
+				CurrentAccount.Password = prop.Value as string ?? "";
+			}
+			else
+			{
+			}
+		}
+
+		public void SaveAccount(bool isRemenberPassword)
+		{
+			ApplicationDataContainer container = null;
+			if (ApplicationData.Current.LocalSettings.Containers.ContainsKey(RECENT_LOGIN_ACCOUNT))
+			{
+				container = ApplicationData.Current.LocalSettings.Containers[RECENT_LOGIN_ACCOUNT];
+			}
+			else
+			{
+				container = ApplicationData.Current.LocalSettings.CreateContainer(RECENT_LOGIN_ACCOUNT, ApplicationDataCreateDisposition.Always);
+			}
+
+			var id = CurrentAccount.MailOrTelephone;
+			var password = isRemenberPassword ? CurrentAccount.Password : "";
+			container.Values[id] = password;
+
+		}
+
+
+
+
 
 		public async Task LoadUserSettings(string userId)
 		{
-			var folder = await ApplicationData.Current.LocalFolder.GetFolderAsync(userId);
+			var folder = await ApplicationData.Current.LocalFolder.CreateFolderAsync(userId, CreationCollisionOption.OpenIfExists);
 			UserSettings = await HohoemaUserSettings.LoadSettings(folder);
 		}
 
@@ -168,49 +209,13 @@ namespace NicoPlayerHohoema.Models
 
 		public IEventAggregator EventAggregator { get; private set; }
 
+
+		const string RECENT_LOGIN_ACCOUNT = "recent_login_account";
 		public AccountSettings CurrentAccount { get; private set; }
 
 
 
-		const string RECENT_LOGIN_ACCOUNT = "recent_login_account";
-
-		public void LoadRecentLoginAccount()
-		{
-			CurrentAccount = new AccountSettings();
-
-			if (ApplicationData.Current.LocalSettings.Containers.ContainsKey(RECENT_LOGIN_ACCOUNT))
-			{
-				// load
-				var container = ApplicationData.Current.LocalSettings.Containers[RECENT_LOGIN_ACCOUNT];
-				var prop = container.Values.FirstOrDefault();
-				CurrentAccount.MailOrTelephone = prop.Key;
-
-				CurrentAccount.Password = (string)prop.Value;
-			}
-			else
-			{
-			}
-		}
 		
-		public void SaveAccount(bool isRemenberPassword)
-		{
-			ApplicationDataContainer container = null;
-			if (ApplicationData.Current.LocalSettings.Containers.ContainsKey(RECENT_LOGIN_ACCOUNT))
-			{
-				container = ApplicationData.Current.LocalSettings.Containers[RECENT_LOGIN_ACCOUNT];
-			}
-			else
-			{
-				container = ApplicationData.Current.LocalSettings.CreateContainer(RECENT_LOGIN_ACCOUNT, ApplicationDataCreateDisposition.Always);
-			}
-
-			var id = CurrentAccount.MailOrTelephone;
-			var password = isRemenberPassword ? CurrentAccount.Password : "";
-			container.Values[id] = password;			
-
-		}
-
-
 		
 	}
 	
