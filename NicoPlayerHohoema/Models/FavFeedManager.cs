@@ -15,30 +15,27 @@ namespace NicoPlayerHohoema.Models
 {
 	public class FavFeedManager 
 	{
-		public const string FavFolderName = "fav";
-
 		public const string UserFavGroupName = "user";
 		public const string MylistFavGroupName = "mylist";
 		public const string TagFavGroupName = "tag";
 
-		private static async Task<StorageFolder> GetSpecifyFavFolder(string groupName, uint userId)
+		private async Task<StorageFolder> GetSpecifyFavFolder(string groupName, uint userId)
 		{
-			var userFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync(userId.ToString(), CreationCollisionOption.OpenIfExists);
-			var favFolder = await userFolder.CreateFolderAsync(FavFolderName, CreationCollisionOption.OpenIfExists);
+			var favFolder = await _HohoemaApp.GetCurrentUserFavFolder();
 			return await favFolder.CreateFolderAsync(groupName, CreationCollisionOption.OpenIfExists);
 		}
 
-		public static Task<StorageFolder> GetFavUserFolder(uint userId)
+		public Task<StorageFolder> GetFavUserFolder(uint userId)
 		{
 			return GetSpecifyFavFolder(UserFavGroupName, userId);
 		}
 
-		public static Task<StorageFolder> GetFavMylistFolder(uint userId)
+		public Task<StorageFolder> GetFavMylistFolder(uint userId)
 		{
 			return GetSpecifyFavFolder(MylistFavGroupName, userId);
 		}
 
-		public static Task<StorageFolder> GetFavTagFolder(uint userId)
+		public Task<StorageFolder> GetFavTagFolder(uint userId)
 		{
 			return GetSpecifyFavFolder(TagFavGroupName, userId);
 		}

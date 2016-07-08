@@ -178,6 +178,24 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
+		private async Task<StorageFolder> GetCurrentUserFolder()
+		{
+			return await ApplicationData.Current.LocalFolder.CreateFolderAsync(LoginUserId.ToString(), CreationCollisionOption.OpenIfExists);
+		}
+
+		public async Task<StorageFolder> GetCurrentUserVideoFolder()
+		{
+			var userFolder = await GetCurrentUserFolder();
+			return await userFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
+		}
+
+		public async Task<StorageFolder> GetCurrentUserFavFolder()
+		{
+			var userFolder = await GetCurrentUserFolder();
+			return await userFolder.CreateFolderAsync("fav", CreationCollisionOption.OpenIfExists);
+		}
+
+
 		public void Dispose()
 		{
 			MediaManager?.Dispose();
