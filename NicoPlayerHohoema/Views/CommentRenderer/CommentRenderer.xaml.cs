@@ -1,6 +1,4 @@
-﻿using Microsoft.Graphics.Canvas;
-using Microsoft.Graphics.Canvas.Effects;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -37,8 +35,6 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		public List<CommentUI> NextVerticalPosition { get; private set; }
 		public List<CommentUI> TopAlignNextVerticalPosition { get; private set; }
 		public List<CommentUI> BottomAlignNextVerticalPosition { get; private set; }
-
-		private Timer _UpdateTimingTimer;
 
 		private List<CommentUI> _CommentUIReserve;
 
@@ -486,7 +482,6 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 		private static void OnSelectedCommentIdChanged(object sender, DependencyPropertyChangedEventArgs e)
 		{
-			CommentRendererWithWin2D me = sender as CommentRendererWithWin2D;
 
 		}
 

@@ -196,9 +196,6 @@
     <Compile Include="Views\Behaviors\ShowFlyoutBehavior.cs" />
     <Compile Include="Views\Behaviors\WebViewAutoResizeToContent.cs" />
     <Compile Include="Views\Behaviors\WebViewNotifyUriClicked.cs" />
-    <Compile Include="Views\CommentRenderer\CommentRendererWithWIn2D.xaml.cs">
-      <DependentUpon>CommentRendererWithWIn2D.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\Comment.cs" />
     <Compile Include="Views\CommentRenderer\CommentRenderer.xaml.cs">
       <DependentUpon>CommentRenderer.xaml</DependentUpon>
@@ -286,10 +283,6 @@
     <Compile Include="Views\SubscriptionPage.xaml.cs">
       <DependentUpon>SubscriptionPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\UIEffects\CanvasControlExtention.cs" />
-    <Compile Include="Views\UIEffects\DropShadowHostControl.xaml.cs">
-      <DependentUpon>DropShadowHostControl.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\VideoInfoContent\SummaryVideoInfoContent.xaml.cs">
       <DependentUpon>SummaryVideoInfoContent.xaml</DependentUpon>
     </Compile>
@@ -326,10 +319,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\CacheManagementPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\CommentRenderer\CommentRendererWithWIn2D.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -450,10 +439,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SubscriptionPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\UIEffects\DropShadowHostControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
