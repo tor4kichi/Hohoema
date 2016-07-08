@@ -150,11 +150,13 @@ namespace NicoPlayerHohoema.ViewModels
 					}
 					.ToParameterString()
 				);
-			});
+			});			
 
-			HistoryKeywords = _SearchSettings.SearchHistory
-				.ToReadOnlyReactiveCollection(x => new SearchHistoryKeywordItem(x, this, _SearchSettings))
-				.AddTo(_CompositeDisposable);
+
+			// TODO: 検索ダイアログの検索履歴をユーザーログインごとに表示できるようにする
+//			HistoryKeywords = _SearchSettings.SearchHistory
+//				.ToReadOnlyReactiveCollection(x => new SearchHistoryKeywordItem(x, this, _SearchSettings))
+//				.AddTo(_CompositeDisposable);
 		}
 
 

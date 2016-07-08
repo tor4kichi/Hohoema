@@ -61,12 +61,12 @@
 
             <StackPanel Orientation="Horizontal" Margin="0 0 0 8">
                 <ToggleButton 
-                    IsChecked="{Binding AutoLoginEnable.Value, Mode=TwoWay}"
+                    IsChecked="{Binding IsRememberPassword.Value, Mode=TwoWay}"
                     Width="32" 
                     Height="32" 
                     Margin="8 0" />
                 
-                <TextBlock Text="Auto Login"
+                <TextBlock Text="パスワードを保存する"
                            VerticalAlignment="Center" 
                            />
             

@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 
@@ -14,30 +15,27 @@ namespace NicoPlayerHohoema.Models
 {
 	public class FavFeedManager 
 	{
-		public const string FavFolderName = "fav";
-
 		public const string UserFavGroupName = "user";
 		public const string MylistFavGroupName = "mylist";
 		public const string TagFavGroupName = "tag";
 
-		private static async Task<StorageFolder> GetSpecifyFavFolder(string groupName, uint userId)
+		private async Task<StorageFolder> GetSpecifyFavFolder(string groupName, uint userId)
 		{
-			var favFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync(FavFolderName, CreationCollisionOption.OpenIfExists);
-			var userFolder = await favFolder.CreateFolderAsync($"user_{userId}", CreationCollisionOption.OpenIfExists);
+			var favFolder = await _HohoemaApp.GetCurrentUserFavFolder();
 			return await favFolder.CreateFolderAsync(groupName, CreationCollisionOption.OpenIfExists);
 		}
 
-		public static Task<StorageFolder> GetFavUserFolder(uint userId)
+		public Task<StorageFolder> GetFavUserFolder(uint userId)
 		{
 			return GetSpecifyFavFolder(UserFavGroupName, userId);
 		}
 
-		public static Task<StorageFolder> GetFavMylistFolder(uint userId)
+		public Task<StorageFolder> GetFavMylistFolder(uint userId)
 		{
 			return GetSpecifyFavFolder(MylistFavGroupName, userId);
 		}
 
-		public static Task<StorageFolder> GetFavTagFolder(uint userId)
+		public Task<StorageFolder> GetFavTagFolder(uint userId)
 		{
 			return GetSpecifyFavFolder(TagFavGroupName, userId);
 		}
@@ -60,6 +58,7 @@ namespace NicoPlayerHohoema.Models
 			UserId = userId;
 
 			ItemsByGroupName = new Dictionary<FavoriteItemType, ObservableCollection<FavFeedList>>();
+			_FavFeedWriterLock = new SemaphoreSlim(1, 1);
 		}
 
 
@@ -245,18 +244,26 @@ namespace NicoPlayerHohoema.Models
 		private async Task SaveFavFeedList(FavFeedList feedList)
 		{
 
-
 			var serializedText = JsonConvert.SerializeObject(feedList);
 
 			var saveFile = await GetFeedListFile(feedList);
 
-			using (var stream = await saveFile.OpenStreamForWriteAsync())
-			using (var streamWriter = new StreamWriter(stream))
+			try
 			{
-				streamWriter.Write(serializedText);
+				await _FavFeedWriterLock.WaitAsync();
+				using (var stream = await saveFile.OpenStreamForWriteAsync())
+				using (var streamWriter = new StreamWriter(stream))
+				{
+					streamWriter.Write(serializedText);
+				}
+			}
+			finally
+			{
+				_FavFeedWriterLock.Release();
 			}
 		}
 
+		private SemaphoreSlim _FavFeedWriterLock;
 
 		private async Task UpdateFavFeedList(IList<FavFeedList> lists)
 		{

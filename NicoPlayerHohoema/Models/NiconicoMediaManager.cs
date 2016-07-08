@@ -32,7 +32,7 @@ namespace NicoPlayerHohoema.Models
 			
 			// ダウンロードリクエストされたアイテムのNicoVideoオブジェクトの作成
 			// 及び、リクエストの再構築
-			var list = await VideoDownloadContext.LoadDownloadRequestItems().ConfigureAwait(false);
+			var list = await man.Context.LoadDownloadRequestItems().ConfigureAwait(false);
 			foreach (var req in list)
 			{
 				var nicoVideo = await man.GetNicoVideo(req.RawVideoid);
@@ -126,12 +126,10 @@ namespace NicoPlayerHohoema.Models
 		{
 			var context = new VideoDownloadContext(hohoemaApp);
 
-			context.VideoSaveFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
+			context.VideoSaveFolder = await hohoemaApp.GetCurrentUserVideoFolder();
 
 			return context;
 		}
-
-		public StorageFolder VideoSaveFolder { get; private set; }
 
 
 
@@ -381,7 +379,7 @@ namespace NicoPlayerHohoema.Models
 
 		private async Task<NicoVideoCachedStream> CreateDownloadStream(string rawVideoid, WatchApiResponse res, ThumbnailResponse thubmnailRes,NicoVideoQuality quality, bool isRequireCache)
 		{
-			var saveFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
+			var saveFolder = await _HohoemaApp.GetCurrentUserVideoFolder();
 			return await NicoVideoCachedStream.Create(this._HohoemaApp.NiconicoContext.HttpClient, rawVideoid, res, thubmnailRes, saveFolder, quality, isRequireCache);
 		}
 
@@ -482,7 +480,7 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task SaveDownloadRequestItems()
 		{
-			var videoFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
+			var videoFolder = await _HohoemaApp.GetCurrentUserVideoFolder();
 			if (_CacheRequestStack.Count > 0)
 			{
 				var file = await videoFolder.CreateFileAsync(DOWNLOAD_QUEUE_FILENAME, CreationCollisionOption.OpenIfExists);
@@ -500,12 +498,12 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
-		public static async Task<List<NicoVideoCacheRequest>> LoadDownloadRequestItems()
+		public async Task<List<NicoVideoCacheRequest>> LoadDownloadRequestItems()
 		{
 
 			try
 			{
-				var videoFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
+				var videoFolder = await _HohoemaApp.GetCurrentUserVideoFolder();
 				if (!File.Exists(Path.Combine(videoFolder.Path, DOWNLOAD_QUEUE_FILENAME)))
 				{
 					return new List<NicoVideoCacheRequest>();
@@ -521,6 +519,8 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
+
+		public StorageFolder VideoSaveFolder { get; private set; }
 		private ObservableCollection<NicoVideoCacheRequest> _CacheRequestStack;
 		public ReadOnlyObservableCollection<NicoVideoCacheRequest> CacheRequestStack { get; private set; }
 

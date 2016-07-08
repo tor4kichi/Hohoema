@@ -101,7 +101,7 @@ namespace NicoPlayerHohoema
 			await RegisterTypes();
 
 			var hohoemaApp = Container.Resolve<HohoemaApp>();
-			await hohoemaApp.LoadUserSettings();
+//			await hohoemaApp.LoadUserSettings();
 
 			var pm = Container.Resolve<PageManager>();
 			pm.OpenPage(HohoemaPageType.Login, true /* Enable auto login */);
@@ -139,15 +139,15 @@ namespace NicoPlayerHohoema
 			// ViewModels
 			Container.RegisterType<ViewModels.MenuNavigatePageBaseViewModel>(new ContainerControlledLifetimeManager());
 
-			Container.RegisterType<ViewModels.RankingCategoryPageViewModel>(new ContainerControlledLifetimeManager());
-			Container.RegisterType<ViewModels.HistoryPageViewModel>(new ContainerControlledLifetimeManager());
-			Container.RegisterType<ViewModels.SubscriptionPageViewModel>(new ContainerControlledLifetimeManager());
-			Container.RegisterType<ViewModels.SearchPageViewModel>(new ContainerControlledLifetimeManager());
-			Container.RegisterType<ViewModels.SettingsPageViewModel>(new ContainerControlledLifetimeManager());
-			Container.RegisterType<ViewModels.UserMylistPageViewModel>(new ContainerControlledLifetimeManager());
-			Container.RegisterType<ViewModels.PortalContent.MylistPortalPageContentViewModel>(new ContainerControlledLifetimeManager());
-			Container.RegisterType<ViewModels.PortalContent.FavPortalPageContentViewModel>(new ContainerControlledLifetimeManager());
-			Container.RegisterType<ViewModels.PortalContent.HistoryPortalPageContentViewModel>(new ContainerControlledLifetimeManager());
+//			Container.RegisterType<ViewModels.RankingCategoryPageViewModel>(new ContainerControlledLifetimeManager());
+//			Container.RegisterType<ViewModels.HistoryPageViewModel>(new ContainerControlledLifetimeManager());
+//			Container.RegisterType<ViewModels.SubscriptionPageViewModel>(new ContainerControlledLifetimeManager());
+//			Container.RegisterType<ViewModels.SearchPageViewModel>(new ContainerControlledLifetimeManager());
+//			Container.RegisterType<ViewModels.SettingsPageViewModel>(new ContainerControlledLifetimeManager());
+//			Container.RegisterType<ViewModels.UserMylistPageViewModel>(new ContainerControlledLifetimeManager());
+//			Container.RegisterType<ViewModels.PortalContent.MylistPortalPageContentViewModel>(new ContainerControlledLifetimeManager());
+//			Container.RegisterType<ViewModels.PortalContent.FavPortalPageContentViewModel>(new ContainerControlledLifetimeManager());
+//			Container.RegisterType<ViewModels.PortalContent.HistoryPortalPageContentViewModel>(new ContainerControlledLifetimeManager());
 
 			// Service
 			Container.RegisterType<Views.Service.ISearchDialogService, Views.Service.SearchDialogService>();

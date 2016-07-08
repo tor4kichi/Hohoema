@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation;
+using Windows.Storage;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -30,11 +31,53 @@ namespace NicoPlayerHohoema.Models
 			EventAggregator = ea;
 			
 			FavFeedManager = null;
+			CurrentAccount = new AccountSettings();
+
+			LoadRecentLoginAccount();
 		}
 
-		public async Task LoadUserSettings()
+		public void LoadRecentLoginAccount()
 		{
-			UserSettings = await HohoemaUserSettings.LoadSettings();
+			if (ApplicationData.Current.LocalSettings.Containers.ContainsKey(RECENT_LOGIN_ACCOUNT))
+			{
+				// load
+				var container = ApplicationData.Current.LocalSettings.Containers[RECENT_LOGIN_ACCOUNT];
+				var prop = container.Values.FirstOrDefault();
+				CurrentAccount.MailOrTelephone = prop.Key ?? "";
+
+				CurrentAccount.Password = prop.Value as string ?? "";
+			}
+			else
+			{
+			}
+		}
+
+		public void SaveAccount(bool isRemenberPassword)
+		{
+			ApplicationDataContainer container = null;
+			if (ApplicationData.Current.LocalSettings.Containers.ContainsKey(RECENT_LOGIN_ACCOUNT))
+			{
+				container = ApplicationData.Current.LocalSettings.Containers[RECENT_LOGIN_ACCOUNT];
+			}
+			else
+			{
+				container = ApplicationData.Current.LocalSettings.CreateContainer(RECENT_LOGIN_ACCOUNT, ApplicationDataCreateDisposition.Always);
+			}
+
+			var id = CurrentAccount.MailOrTelephone;
+			var password = isRemenberPassword ? CurrentAccount.Password : "";
+			container.Values[id] = password;
+
+		}
+
+
+
+
+
+		public async Task LoadUserSettings(string userId)
+		{
+			var folder = await ApplicationData.Current.LocalFolder.CreateFolderAsync(userId, CreationCollisionOption.OpenIfExists);
+			UserSettings = await HohoemaUserSettings.LoadSettings(folder);
 		}
 
 		public async Task SaveUserSettings()
@@ -44,9 +87,14 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<NiconicoSignInStatus> SignInFromUserSettings()
 		{
-			if (UserSettings.AccontSettings.IsValidMailOreTelephone && UserSettings.AccontSettings.IsValidPassword)
+			if (CurrentAccount == null)
 			{
-				return await SignIn(UserSettings.AccontSettings.MailOrTelephone, UserSettings.AccontSettings.Password);
+				return NiconicoSignInStatus.Failed;
+			}
+
+			if (CurrentAccount.IsValidMailOreTelephone && CurrentAccount.IsValidPassword)
+			{
+				return await SignIn(CurrentAccount.MailOrTelephone, CurrentAccount.Password);
 			}
 			else
 			{
@@ -74,12 +122,18 @@ namespace NicoPlayerHohoema.Models
 
 				NiconicoContext = context;
 
+				Debug.WriteLine("start post login process....");
+
 				Debug.WriteLine("getting UserInfo");
 				var userInfo = await NiconicoContext.User.GetInfoAsync();
 				LoginUserId = userInfo.Id;
-				Debug.WriteLine("fav initilize");
+				Debug.WriteLine("user id is : " + LoginUserId);
+				Debug.WriteLine("initilize: user settings ");
+				await LoadUserSettings(LoginUserId.ToString());
+
+				Debug.WriteLine("initilize: fav");
 				FavFeedManager = await FavFeedManager.Create(this, LoginUserId);
-				Debug.WriteLine("local cache initilize");
+				Debug.WriteLine("initilize: local cache ");
 				MediaManager = await NiconicoMediaManager.Create(this);
 
 				Debug.WriteLine("Login done.");
@@ -105,6 +159,9 @@ namespace NicoPlayerHohoema.Models
 
 			NiconicoContext = null;
 			FavFeedManager = null;
+			await SaveUserSettings();
+			UserSettings = null;
+			LoginUserId = uint.MaxValue;
 
 			return result;
 		}
@@ -120,6 +177,24 @@ namespace NicoPlayerHohoema.Models
 				return NiconicoSignInStatus.Failed;
 			}
 		}
+
+		private async Task<StorageFolder> GetCurrentUserFolder()
+		{
+			return await ApplicationData.Current.LocalFolder.CreateFolderAsync(LoginUserId.ToString(), CreationCollisionOption.OpenIfExists);
+		}
+
+		public async Task<StorageFolder> GetCurrentUserVideoFolder()
+		{
+			var userFolder = await GetCurrentUserFolder();
+			return await userFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
+		}
+
+		public async Task<StorageFolder> GetCurrentUserFavFolder()
+		{
+			var userFolder = await GetCurrentUserFolder();
+			return await userFolder.CreateFolderAsync("fav", CreationCollisionOption.OpenIfExists);
+		}
+
 
 		public void Dispose()
 		{
@@ -153,6 +228,13 @@ namespace NicoPlayerHohoema.Models
 		public IEventAggregator EventAggregator { get; private set; }
 
 
+		const string RECENT_LOGIN_ACCOUNT = "recent_login_account";
+		public AccountSettings CurrentAccount { get; private set; }
+
+
+
+		
+		
 	}
 	
 
