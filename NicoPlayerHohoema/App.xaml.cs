@@ -101,7 +101,7 @@ namespace NicoPlayerHohoema
 			await RegisterTypes();
 
 			var hohoemaApp = Container.Resolve<HohoemaApp>();
-			await hohoemaApp.LoadUserSettings();
+//			await hohoemaApp.LoadUserSettings();
 
 			var pm = Container.Resolve<PageManager>();
 			pm.OpenPage(HohoemaPageType.Login, true /* Enable auto login */);

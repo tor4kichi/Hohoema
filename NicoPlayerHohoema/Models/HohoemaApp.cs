@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation;
+using Windows.Storage;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -32,9 +33,10 @@ namespace NicoPlayerHohoema.Models
 			FavFeedManager = null;
 		}
 
-		public async Task LoadUserSettings()
+		public async Task LoadUserSettings(string userId)
 		{
-			UserSettings = await HohoemaUserSettings.LoadSettings();
+			var folder = await ApplicationData.Current.LocalFolder.GetFolderAsync(userId);
+			UserSettings = await HohoemaUserSettings.LoadSettings(folder);
 		}
 
 		public async Task SaveUserSettings()
@@ -74,12 +76,18 @@ namespace NicoPlayerHohoema.Models
 
 				NiconicoContext = context;
 
+				Debug.WriteLine("start post login process....");
+
 				Debug.WriteLine("getting UserInfo");
 				var userInfo = await NiconicoContext.User.GetInfoAsync();
 				LoginUserId = userInfo.Id;
-				Debug.WriteLine("fav initilize");
+				Debug.WriteLine("user id is : " + LoginUserId);
+				Debug.WriteLine("initilize: user settings ");
+				await LoadUserSettings(LoginUserId.ToString());
+
+				Debug.WriteLine("initilize: fav");
 				FavFeedManager = await FavFeedManager.Create(this, LoginUserId);
-				Debug.WriteLine("local cache initilize");
+				Debug.WriteLine("initilize: local cache ");
 				MediaManager = await NiconicoMediaManager.Create(this);
 
 				Debug.WriteLine("Login done.");
@@ -105,6 +113,9 @@ namespace NicoPlayerHohoema.Models
 
 			NiconicoContext = null;
 			FavFeedManager = null;
+			await SaveUserSettings();
+			UserSettings = null;
+			LoginUserId = uint.MaxValue;
 
 			return result;
 		}

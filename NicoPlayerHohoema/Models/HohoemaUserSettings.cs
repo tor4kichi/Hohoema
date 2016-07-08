@@ -25,16 +25,13 @@ namespace NicoPlayerHohoema.Models
 		const string SearchSettingsFileName = "search.json";
 
 
-		public static async Task<HohoemaUserSettings> LoadSettings()
+		public static async Task<HohoemaUserSettings> LoadSettings(StorageFolder userFolder)
 		{
-			var localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
-
-
-			var account = await SettingsBase.Load<AccountSettings>(AccountSettingsFileName);
-			var ranking = await SettingsBase.Load<RankingSettings>(RankingSettingsFileName);
-			var player = await SettingsBase.Load<PlayerSettings>(PlayerSettingsFileName);
-			var ng = await SettingsBase.Load<NGSettings>(NGSettingsFileName);
-			var search = await SettingsBase.Load<SearchSeetings>(SearchSettingsFileName);
+			var account = await SettingsBase.Load<AccountSettings>(AccountSettingsFileName, userFolder);
+			var ranking = await SettingsBase.Load<RankingSettings>(RankingSettingsFileName, userFolder);
+			var player = await SettingsBase.Load<PlayerSettings>(PlayerSettingsFileName, userFolder);
+			var ng = await SettingsBase.Load<NGSettings>(NGSettingsFileName, userFolder);
+			var search = await SettingsBase.Load<SearchSeetings>(SearchSettingsFileName, userFolder);
 
 			return new HohoemaUserSettings()
 			{
@@ -81,13 +78,14 @@ namespace NicoPlayerHohoema.Models
 
 
 		public string FileName { get; private set; }
+		public StorageFolder Folder { get; private set; }
 
 		public SemaphoreSlim _FileLock;
 
-		public static async Task<T> Load<T>(string filename)
+		public static async Task<T> Load<T>(string filename, StorageFolder folder)
 			where T : SettingsBase, new()
 		{
-			var localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
+			var localFolder = folder;
 			var local = await localFolder.CreateFileAsync(filename, CreationCollisionOption.OpenIfExists);
 
 			var rawText = await FileIO.ReadTextAsync(local);
@@ -112,6 +110,8 @@ namespace NicoPlayerHohoema.Models
 
 			newInstance.OnInitialize();
 
+			newInstance.Folder = folder;
+
 			return newInstance;
 		}
 
@@ -122,8 +122,7 @@ namespace NicoPlayerHohoema.Models
 			{
 				await _FileLock.WaitAsync().ConfigureAwait(false);
 
-				var localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
-				var local = await localFolder.CreateFileAsync(FileName, CreationCollisionOption.OpenIfExists);
+				var local = await Folder.CreateFileAsync(FileName, CreationCollisionOption.OpenIfExists);
 
 				var serializedText = JsonConvert.SerializeObject(this);
 
