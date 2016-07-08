@@ -109,7 +109,7 @@
     <Compile Include="Models\FavoritePageParameter.cs" />
     <Compile Include="Models\HohoemaApp.cs" />
     <Compile Include="Models\HohoemaPageType.cs" />
-    <Compile Include="Models\HohoemaUserSettings.cs" />
+    <Compile Include="Models\Settings\HohoemaUserSettings.cs" />
     <Compile Include="Models\MediaBackgroundTask.cs" />
     <Compile Include="Models\NiconicoContentFinder.cs" />
     <Compile Include="Models\NiconicoMediaManager.cs" />
@@ -118,6 +118,11 @@
     <Compile Include="Models\PlayerDisplayMode.cs" />
     <Compile Include="Models\SearchOption.cs" />
     <Compile Include="Models\SearchTarget.cs" />
+    <Compile Include="Models\Settings\AccountSettings.cs" />
+    <Compile Include="Models\Settings\NGSettings.cs" />
+    <Compile Include="Models\Settings\PlayerSettings.cs" />
+    <Compile Include="Models\Settings\RankingSettings.cs" />
+    <Compile Include="Models\Settings\SearchSettings.cs" />
     <Compile Include="Models\VideoDescriptionHelper.cs" />
     <Compile Include="Models\VideoPlayPayload.cs" />
     <Compile Include="Util\ColorExtention.cs" />

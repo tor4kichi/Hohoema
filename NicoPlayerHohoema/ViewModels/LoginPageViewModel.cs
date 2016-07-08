@@ -20,7 +20,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			HohoemaApp = hohoemaApp;
 			PageManager = pageMananger;
-			AccountSettings = hohoemaApp.UserSettings.AccontSettings;
+			AccountSettings = new AccountSettings();
 
 			CanChangeValue = new ReactiveProperty<bool>(true);
 
@@ -72,15 +72,17 @@ namespace NicoPlayerHohoema.ViewModels
 				await HohoemaApp.SignOut();
 			}
 
-			if (e.Parameter is bool)
+			if (e.Parameter is bool && HohoemaApp.CurrentAccount != null)
 			{
 				var canAutoLogin = (bool)e.Parameter;
 
-				if (canAutoLogin && HohoemaApp.UserSettings.AccontSettings.AutoLoginEnable)
+				if (canAutoLogin && HohoemaApp.CurrentAccount.AutoLoginEnable)
 				{
 					await CheckLoginAndGo();
 				}
 			}
+
+			
 
 			base.OnNavigatedTo(e, viewModelState);
 		}
