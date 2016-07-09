@@ -11,11 +11,11 @@ using Prism.Commands;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class FavoritePageViewModel : ViewModelBase
+	public class FavoriteFeedPageViewModel : ViewModelBase
 	{
 		
 
-		public FavoritePageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
+		public FavoriteFeedPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
 		{
 			_HohoemaApp = hohoemaApp;
 			_NGSettings = hohoemaApp.UserSettings.NGSettings;

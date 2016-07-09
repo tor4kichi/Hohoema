@@ -20,9 +20,9 @@ namespace NicoPlayerHohoema.Views
 	/// <summary>
 	/// それ自体で使用できる空白ページまたはフレーム内に移動できる空白ページ。
 	/// </summary>
-	public sealed partial class FavoritePage : Page
+	public sealed partial class FavoriteFeedPage : Page
 	{
-		public FavoritePage()
+		public FavoriteFeedPage()
 		{
 			this.InitializeComponent();
 		}

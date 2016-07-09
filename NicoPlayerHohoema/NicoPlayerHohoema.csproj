@@ -137,8 +137,9 @@
     <Compile Include="ViewModels\AboutPageViewModel.cs" />
     <Compile Include="ViewModels\CacheManagementPageViewModel.cs" />
     <Compile Include="ViewModels\CommentStreamingViewModel.cs" />
-    <Compile Include="ViewModels\FavoriteListPageViewModel.cs" />
-    <Compile Include="ViewModels\FavoritePageViewModel.cs" />
+    <Compile Include="ViewModels\FavoriteAllFeedViewModel.cs" />
+    <Compile Include="ViewModels\FavoriteManagePageViewModel.cs" />
+    <Compile Include="ViewModels\FavoriteFeedPageViewModel.cs" />
     <Compile Include="ViewModels\FavoriteVideoInfoControlViewModel.cs" />
     <Compile Include="ViewModels\HistoryPageViewModel.cs" />
     <Compile Include="ViewModels\HohoemaVideoListingPageViewModelBase.cs" />
@@ -167,11 +168,14 @@
     </Compile>
     <Compile Include="Views\Converters\ToUserFriendlyNumber.cs" />
     <Compile Include="Views\Converters\VideoPositionToTimeConverter.cs" />
-    <Compile Include="Views\FavoriteListPage.xaml.cs">
-      <DependentUpon>FavoriteListPage.xaml</DependentUpon>
+    <Compile Include="Views\FavoriteAllFeed.xaml.cs">
+      <DependentUpon>FavoriteAllFeed.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\FavoritePage.xaml.cs">
-      <DependentUpon>FavoritePage.xaml</DependentUpon>
+    <Compile Include="Views\FavoriteManagePage.xaml.cs">
+      <DependentUpon>FavoriteManagePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FavoriteFeedPage.xaml.cs">
+      <DependentUpon>FavoriteFeedPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MylistPage.xaml.cs">
       <DependentUpon>MylistPage.xaml</DependentUpon>
@@ -335,11 +339,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\FavoriteListPage.xaml">
+    <Page Include="Views\FavoriteAllFeed.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\FavoritePage.xaml">
+    <Page Include="Views\FavoriteManagePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\FavoriteFeedPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -471,6 +479,7 @@
       <Name>VideoBackgroundTask</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

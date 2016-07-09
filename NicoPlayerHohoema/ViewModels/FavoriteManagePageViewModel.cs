@@ -12,9 +12,9 @@ using System.Collections.ObjectModel;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class FavoriteListPageViewModel : ViewModelBase
+	public class FavoriteManagePageViewModel : ViewModelBase
 	{
-		public FavoriteListPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
+		public FavoriteManagePageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
 		{
 			_HohoemaApp = hohoemaApp;
 			_PageManager = pageManager;
