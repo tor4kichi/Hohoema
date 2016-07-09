@@ -1,4 +1,5 @@
 ﻿using NicoPlayerHohoema.Models;
+using Prism.Commands;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -54,6 +55,19 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 			});
 
 			base.NavigateTo();
+		}
+
+		private DelegateCommand _OpenFavFeedListCommand;
+		public DelegateCommand OpenFavFeedListCommand
+		{
+			get
+			{
+				return _OpenFavFeedListCommand
+					?? (_OpenFavFeedListCommand = new DelegateCommand(() =>
+					{
+						PageManager.OpenPage(HohoemaPageType.FavoriteAllFeed);
+					}));
+			}
 		}
 
 

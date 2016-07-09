@@ -137,7 +137,7 @@
     <Compile Include="ViewModels\AboutPageViewModel.cs" />
     <Compile Include="ViewModels\CacheManagementPageViewModel.cs" />
     <Compile Include="ViewModels\CommentStreamingViewModel.cs" />
-    <Compile Include="ViewModels\FavoriteAllFeedViewModel.cs" />
+    <Compile Include="ViewModels\FavoriteAllFeedPageViewModel.cs" />
     <Compile Include="ViewModels\FavoriteManagePageViewModel.cs" />
     <Compile Include="ViewModels\FavoriteFeedPageViewModel.cs" />
     <Compile Include="ViewModels\FavoriteVideoInfoControlViewModel.cs" />
@@ -168,8 +168,8 @@
     </Compile>
     <Compile Include="Views\Converters\ToUserFriendlyNumber.cs" />
     <Compile Include="Views\Converters\VideoPositionToTimeConverter.cs" />
-    <Compile Include="Views\FavoriteAllFeed.xaml.cs">
-      <DependentUpon>FavoriteAllFeed.xaml</DependentUpon>
+    <Compile Include="Views\FavoriteAllFeedPage.xaml.cs">
+      <DependentUpon>FavoriteAllFeedPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\FavoriteManagePage.xaml.cs">
       <DependentUpon>FavoriteManagePage.xaml</DependentUpon>
@@ -339,7 +339,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\FavoriteAllFeed.xaml">
+    <Page Include="Views\FavoriteAllFeedPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

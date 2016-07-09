@@ -33,6 +33,11 @@
     <StackPanel>
         <Border>
             <TextBlock Text="お気に入り" >
+                <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Tapped">
+                        <core:InvokeCommandAction Command="{Binding OpenFavFeedListCommand}" />
+                    </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
 
             </TextBlock>
         </Border>

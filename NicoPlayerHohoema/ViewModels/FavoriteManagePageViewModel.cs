@@ -98,7 +98,7 @@ namespace NicoPlayerHohoema.ViewModels
 							ItemType = this.ItemType
 						};
 
-						_PageManager.OpenPage(HohoemaPageType.Favorite, param.ToJson());
+						_PageManager.OpenPage(HohoemaPageType.FavoriteFeed, param.ToJson());
 					}));
 			}
 		}

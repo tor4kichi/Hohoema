@@ -77,6 +77,16 @@ namespace NicoPlayerHohoema.Models
 		/// </summary>
 		[DataMember(Name = "label")]
 		public string UserLabel { get; set; }
+
+
+		[OnDeserialized]
+		public void OnSeralized(StreamingContext context)
+		{
+			foreach (var item in Items)
+			{
+				item.ParentList = this;
+			}
+		}
 	}
 
 
@@ -106,6 +116,9 @@ namespace NicoPlayerHohoema.Models
 
 
 		public bool IsNewItem { get; set; }
+
+
+		public FavFeedList ParentList { get; set; }
 
 		public bool Equals(FavFeedItem other)
 		{

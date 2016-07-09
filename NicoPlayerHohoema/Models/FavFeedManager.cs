@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -198,14 +199,10 @@ namespace NicoPlayerHohoema.Models
 		}
 
 		private async Task<FavFeedList> LoadFeedList(StorageFile file)
-		{
-			using (var stream = await file.OpenReadAsync())
-			using (var reader = new StreamReader(stream.AsStreamForRead()))
-			{
-				var text = reader.ReadToEnd();
-				var favFeedList = Newtonsoft.Json.JsonConvert.DeserializeObject<FavFeedList>(text);
-				return favFeedList;
-			}
+		{			
+			var text = await FileIO.ReadTextAsync(file);
+			var favFeedList = Newtonsoft.Json.JsonConvert.DeserializeObject<FavFeedList>(text);
+			return favFeedList;
 		}
 
 
@@ -251,11 +248,8 @@ namespace NicoPlayerHohoema.Models
 			try
 			{
 				await _FavFeedWriterLock.WaitAsync();
-				using (var stream = await saveFile.OpenStreamForWriteAsync())
-				using (var streamWriter = new StreamWriter(stream))
-				{
-					streamWriter.Write(serializedText);
-				}
+
+				await FileIO.WriteTextAsync(saveFile, serializedText);
 			}
 			finally
 			{
@@ -345,15 +339,32 @@ namespace NicoPlayerHohoema.Models
 		{
 			var userVideos = await _HohoemaApp.ContentFinder.GetUserVideos(uint.Parse(userFavFeedList.Id), 1);
 
-			return userVideos.Items.Select(videoData => 
+			var list = new List<FavFeedItem>();
+			
+			foreach (var video in userVideos.Items)
 			{
-				return new FavFeedItem()
+				try
 				{
-					VideoId = videoData.VideoId,
-					Title = videoData.Title,
-				};
-			})
-			.ToList();
+					var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(video.VideoId);
+					var thumbnail = await nicoVideo.GetThumbnailInfo();
+					var item = new FavFeedItem()
+					{
+						VideoId = video.VideoId,
+						Title = video.Title,
+						ParentList = userFavFeedList,
+						IsDeleted = nicoVideo.IsDeleted,
+						SubmitDate = thumbnail.PostedAt.DateTime,
+					};
+
+					list.Add(item);
+				}
+				catch (Exception ex)
+				{
+					Debug.Fail("UserFeedItem 更新中、NicoVideoオブジェクトの取得に失敗しました。", ex.Message);
+				}
+			}
+
+			return list;
 		}
 
 
@@ -368,6 +379,7 @@ namespace NicoPlayerHohoema.Models
 					VideoId = x.id,
 					Title = x.title,
 					SubmitDate = x.FirstRetrieve,
+					ParentList = tagFavFeedList,
 				};
 			})
 			.ToList();
@@ -385,6 +397,7 @@ namespace NicoPlayerHohoema.Models
 					Title = x.Video.Title,
 					SubmitDate = DateTime.Parse(x.Video.First_retrieve),
 					IsDeleted = int.Parse(x.Video.Deleted) == 0 ? false : true,
+					ParentList = mylistFavFeedList,
 				};
 			})
 			.ToList();
@@ -421,6 +434,7 @@ namespace NicoPlayerHohoema.Models
 
 			feedList.UpdateTime = updateTime;
 		}
+
 
 
 		private FavFeedList GetUserFeed(string favUserId)

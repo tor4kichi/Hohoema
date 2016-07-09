@@ -131,10 +131,11 @@ namespace NicoPlayerHohoema.Models
 				Debug.WriteLine("initilize: user settings ");
 				await LoadUserSettings(LoginUserId.ToString());
 
-				Debug.WriteLine("initilize: fav");
-				FavFeedManager = await FavFeedManager.Create(this, LoginUserId);
 				Debug.WriteLine("initilize: local cache ");
 				MediaManager = await NiconicoMediaManager.Create(this);
+
+				Debug.WriteLine("initilize: fav");
+				FavFeedManager = await FavFeedManager.Create(this, LoginUserId);
 
 				Debug.WriteLine("Login done.");
 				//				await MediaManager.Context.Resume();
