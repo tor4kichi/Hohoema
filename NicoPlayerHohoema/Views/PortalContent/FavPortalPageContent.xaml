@@ -45,40 +45,23 @@
         <Border Height="32" />
 
 
-        <ItemsControl ItemsSource="{Binding Lists}">
+        <ListView ItemsSource="{Binding UnreadFavFeedItems}">
 
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <StackPanel Orientation="Vertical" />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-
-            <ItemsControl.ItemTemplate>
+            <ListView.ItemTemplate>
                 <DataTemplate>
-                    <Grid Margin="0 4">
-                        <TextBlock Text="{Binding Name}" 
-                                   VerticalAlignment="Top"
-                                   HorizontalAlignment="Right"
-                                   Foreground="Gray"
-                                   FontSize="20"
-                                           />
+                    <Border>
+                        <TextBlock Text="{Binding Title}" 
+                                    VerticalAlignment="Center"
+                                            />
 
-                        <ListView ItemsSource="{Binding Items}"
-                                          ItemTemplate="{StaticResource FavoriteItemTemplate}"
-                                          >
-                            <ListView.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <toolkit:WrapPanel Orientation="Vertical"
-                                                               />
-
-                                </ItemsPanelTemplate>
-                            </ListView.ItemsPanel>
-
-                        </ListView>
-
-                    </Grid>
+                        <i:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="Tapped">
+                                <core:InvokeCommandAction Command="{Binding PlayCommand}" />
+                            </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
+                    </Border>
                 </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+            </ListView.ItemTemplate>
+        </ListView>
     </StackPanel>
 </UserControl>

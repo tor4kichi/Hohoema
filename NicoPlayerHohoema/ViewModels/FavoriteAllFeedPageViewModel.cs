@@ -67,7 +67,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			if (FeedItems == null)
 			{
-				FeedItems = GetAllFeedItems().ToList();
+				FeedItems = _FavFeedManager.GetAllFeedItems().Take(100).ToList();
 			}
 
 			var head = pageIndex - 1;
@@ -95,15 +95,6 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		IEnumerable<FavFeedItem> GetAllFeedItems()
-		{
-			var mylistFeeds = _FavFeedManager.GetFavMylistFeedListAll().SelectMany(x => x.Items);
-			var tagFeeds = _FavFeedManager.GetFavTagFeedListAll().SelectMany(x => x.Items);
-			var userFeeds = _FavFeedManager.GetFavUserFeedListAll().SelectMany(x => x.Items);
-
-			var allFeeds = mylistFeeds.Concat(tagFeeds).Concat(userFeeds);
-
-			return allFeeds.OrderBy(x => x.SubmitDate).Reverse();
-		}
+		
 	}
 }

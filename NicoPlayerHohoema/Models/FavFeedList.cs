@@ -114,8 +114,8 @@ namespace NicoPlayerHohoema.Models
 
 		public bool IsDeleted { get; set; }
 
-
-		public bool IsNewItem { get; set; }
+		[DataMember(Name = "is_unread")]
+		public bool IsUnread { get; set; }
 
 
 		public FavFeedList ParentList { get; set; }

@@ -12,7 +12,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public FavoriteVideoInfoControlViewModel(FavFeedItem feedItem, NicoVideo nicoVideo, PageManager pageMan)
 			: base(nicoVideo, pageMan)
 		{
-			IsNewItem = feedItem.IsNewItem;
+			IsNewItem = feedItem.IsUnread;
 		}
 
 

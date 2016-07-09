@@ -319,10 +319,10 @@ namespace NicoPlayerHohoema.Models
 			foreach (var item in newItems)
 			{
 				item.CheckedTime = updateTime;
-				item.IsNewItem = true;
+//				item.IsNewItem = true;
 			}
 
-			MergeFavFeedList(feedList, newItems, updateTime);
+			await MergeFavFeedList(feedList, newItems, updateTime);
 
 
 			// ユーザーの投稿動画を取得する
@@ -340,28 +340,17 @@ namespace NicoPlayerHohoema.Models
 			var userVideos = await _HohoemaApp.ContentFinder.GetUserVideos(uint.Parse(userFavFeedList.Id), 1);
 
 			var list = new List<FavFeedItem>();
-			
+
 			foreach (var video in userVideos.Items)
 			{
-				try
+				var item = new FavFeedItem()
 				{
-					var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(video.VideoId);
-					var thumbnail = await nicoVideo.GetThumbnailInfo();
-					var item = new FavFeedItem()
-					{
-						VideoId = video.VideoId,
-						Title = video.Title,
-						ParentList = userFavFeedList,
-						IsDeleted = nicoVideo.IsDeleted,
-						SubmitDate = thumbnail.PostedAt.DateTime,
-					};
+					VideoId = video.VideoId,
+					Title = video.Title,
+					ParentList = userFavFeedList,
+				};
 
-					list.Add(item);
-				}
-				catch (Exception ex)
-				{
-					Debug.Fail("UserFeedItem 更新中、NicoVideoオブジェクトの取得に失敗しました。", ex.Message);
-				}
+				list.Add(item);
 			}
 
 			return list;
@@ -404,7 +393,7 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		private void MergeFavFeedList(FavFeedList feedList, List<FavFeedItem> items, DateTime updateTime)
+		private async Task MergeFavFeedList(FavFeedList feedList, List<FavFeedItem> items, DateTime updateTime)
 		{
 			var exceptItems = items.Except(feedList.Items, FavFeedItemComparer.Default).ToList();
 
@@ -414,6 +403,26 @@ namespace NicoPlayerHohoema.Models
 
 			foreach (var addItem in addedItems)
 			{
+				addItem.IsUnread = true;
+
+				// 投稿日時が初期化されていない場合はThumbnailInfoから拾ってくる
+
+				if (addItem.SubmitDate == default(DateTime))
+				{
+					try
+					{
+						var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(addItem.VideoId);
+						var thumbnail = await nicoVideo.GetThumbnailInfo();
+
+						addItem.SubmitDate = thumbnail.PostedAt.DateTime;
+					}
+					catch (Exception ex)
+					{
+						Debug.Fail("UserFeedItem 更新中、NicoVideoオブジェクトの取得に失敗しました。", ex.Message);
+					}
+				}
+			
+
 				feedList.Items.Add(addItem);
 
 				AddFavFeedEvent?.Invoke(addItem);
@@ -465,8 +474,30 @@ namespace NicoPlayerHohoema.Models
 			return ItemsByGroupName[itemType].SingleOrDefault(x => x.Id == id);
 		}
 
-		
 
+		public IEnumerable<FavFeedItem> GetAllFeedItems()
+		{
+			var mylistFeeds = this.GetFavMylistFeedListAll().SelectMany(x => x.Items);
+			var tagFeeds = this.GetFavTagFeedListAll().SelectMany(x => x.Items);
+			var userFeeds = this.GetFavUserFeedListAll().SelectMany(x => x.Items);
+
+			var allFeeds = mylistFeeds.Concat(tagFeeds).Concat(userFeeds);
+
+			return allFeeds.OrderBy(x => x.SubmitDate).Reverse();
+		}
+
+		public IEnumerable<FavFeedItem> GetUnreadFeedItems()
+		{
+			var mylistFeeds = this.GetFavMylistFeedListAll().SelectMany(x => x.Items);
+			var tagFeeds = this.GetFavTagFeedListAll().SelectMany(x => x.Items);
+			var userFeeds = this.GetFavUserFeedListAll().SelectMany(x => x.Items);
+
+			var allFeeds = mylistFeeds.Concat(tagFeeds).Concat(userFeeds);
+				
+			var allUnreadFeeds = allFeeds.Where(x => x.IsUnread);
+
+			return allUnreadFeeds.OrderBy(x => x.SubmitDate).Reverse();
+		}
 
 
 		public async Task<ContentManageResult> AddFav(FavoriteItemType itemType, string id)
@@ -578,7 +609,7 @@ namespace NicoPlayerHohoema.Models
 			}
 
 			var saveFolder = await GetSpecifyFavFolder(SaveFolderName, UserId);
-			return await saveFolder.CreateFileAsync($"{feedList.Id}.json", CreationCollisionOption.ReplaceExisting);
+			return await saveFolder.CreateFileAsync($"{feedList.Id}.json", CreationCollisionOption.OpenIfExists);
 		}
 
 		public uint UserId { get; set; }
