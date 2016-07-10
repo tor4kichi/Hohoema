@@ -92,13 +92,30 @@ namespace NicoPlayerHohoema.ViewModels
 				return _SelectedCommand
 					?? (_SelectedCommand = new DelegateCommand(() => 
 					{
-						var param = new FavoritePageParameter()
-						{
-							Id = this.SourceId,
-							ItemType = this.ItemType
-						};
 
-						_PageManager.OpenPage(HohoemaPageType.FavoriteFeed, param.ToJson());
+						switch (ItemType)
+						{
+							case FavoriteItemType.Tag:
+								var param = new SearchOption()
+								{
+									Keyword = this.SourceId,
+									SearchTarget = SearchTarget.Tag,
+									SortMethod = Mntone.Nico2.SortMethod.FirstRetrieve,
+									SortDirection = Mntone.Nico2.SortDirection.Descending,
+								}.ToParameterString();
+
+								_PageManager.OpenPage(HohoemaPageType.Search, param);
+								break;
+							case FavoriteItemType.Mylist:
+								_PageManager.OpenPage(HohoemaPageType.Mylist, this.SourceId);
+								break;
+							case FavoriteItemType.User:
+								// TODO: UserVideo
+								_PageManager.OpenPage(HohoemaPageType.UserVideo, this.SourceId);
+								break;
+							default:
+								break;
+						}
 					}));
 			}
 		}

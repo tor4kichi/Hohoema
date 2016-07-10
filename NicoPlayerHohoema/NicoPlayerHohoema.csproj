@@ -139,7 +139,6 @@
     <Compile Include="ViewModels\CommentStreamingViewModel.cs" />
     <Compile Include="ViewModels\FavoriteAllFeedPageViewModel.cs" />
     <Compile Include="ViewModels\FavoriteManagePageViewModel.cs" />
-    <Compile Include="ViewModels\FavoriteFeedPageViewModel.cs" />
     <Compile Include="ViewModels\FavoriteVideoInfoControlViewModel.cs" />
     <Compile Include="ViewModels\HistoryPageViewModel.cs" />
     <Compile Include="ViewModels\HohoemaVideoListingPageViewModelBase.cs" />
@@ -151,6 +150,7 @@
     <Compile Include="ViewModels\SearchViewModel.cs" />
     <Compile Include="ViewModels\UserInfoPageViewModel.cs" />
     <Compile Include="ViewModels\UserMylistPageViewModel.cs" />
+    <Compile Include="ViewModels\UserVideoPageViewModel.cs" />
     <Compile Include="ViewModels\VideoInfoContent\CommentVideoInfoContentViewModel.cs" />
     <Compile Include="ViewModels\VideoInfoContent\MediaInfoViewModel.cs" />
     <Compile Include="ViewModels\VideoInfoContent\SettingsVideoInfoContentViewModel.cs" />
@@ -173,9 +173,6 @@
     </Compile>
     <Compile Include="Views\FavoriteManagePage.xaml.cs">
       <DependentUpon>FavoriteManagePage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\FavoriteFeedPage.xaml.cs">
-      <DependentUpon>FavoriteFeedPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MylistPage.xaml.cs">
       <DependentUpon>MylistPage.xaml</DependentUpon>
@@ -235,6 +232,9 @@
     </Compile>
     <Compile Include="Views\UserMylistPage.xaml.cs">
       <DependentUpon>UserMylistPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UserVideoPage.xaml.cs">
+      <DependentUpon>UserVideoPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\VideoInfoContent\CommentVideoInfoContent.xaml.cs">
       <DependentUpon>CommentVideoInfoContent.xaml</DependentUpon>
@@ -347,10 +347,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\FavoriteFeedPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\HistoryPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -380,6 +376,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\UserMylistPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\UserVideoPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
