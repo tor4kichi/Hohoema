@@ -1,4 +1,5 @@
 ﻿using Mntone.Nico2;
+using Mntone.Nico2.Users.Fav;
 using Mntone.Nico2.Users.Video;
 using Newtonsoft.Json;
 using System;
@@ -110,6 +111,11 @@ namespace NicoPlayerHohoema.Models
 		public bool IsFavoriteItem(FavoriteItemType itemType, string id)
 		{
 			ObservableCollection<FavFeedList> list = ItemsByGroupName[itemType];
+
+			if (itemType == FavoriteItemType.Tag)
+			{
+				id = TagStringHelper.ToEnsureHankakuNumberTagString(id);
+			}
 
 			return list.Any(x => x.Id == id);
 		}
@@ -433,7 +439,7 @@ namespace NicoPlayerHohoema.Models
 
 		private async Task<List<FavFeedItem>> GetTagFeedItems(FavFeedList tagFavFeedList)
 		{
-			var tagVideos = await _HohoemaApp.ContentFinder.GetTagSearch(tagFavFeedList.Name, 1, SortMethod.FirstRetrieve);
+			var tagVideos = await _HohoemaApp.ContentFinder.GetTagSearch(tagFavFeedList.Id, 1, SortMethod.FirstRetrieve);
 
 			return tagVideos.list.Select(x => 
 			{

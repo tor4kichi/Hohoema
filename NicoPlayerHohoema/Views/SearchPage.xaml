@@ -36,6 +36,19 @@
                 <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
 
 
+                    <!-- タグのお気に入り -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" 
+                                Visibility="{Binding IsTagSearch.Value, Converter={StaticResource BooleanToVisibility}}"
+                                >
+
+                        <AppBarToggleButton Icon="Favorite" 
+                                            IsChecked="{Binding IsFavoriteTag.Value, Mode=TwoWay}"
+                                            IsEnabled="{Binding CanChangeFavoriteTagState.Value}"
+                                            />
+
+                    </StackPanel>
+                    
+
                     <!-- 複数選択のON/OFF -->
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="8">
                         <ToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"

@@ -21,7 +21,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public SearchViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
 		{
 			_CompositeDisposable = new CompositeDisposable();
-			_SearchSettings = hohoemaApp.UserSettings.SearchSettings;
+			HohoemaApp = hohoemaApp;
 			_PageManager = pageManager;
 			
 			Keyword = new ReactiveProperty<string>("")
@@ -137,7 +137,7 @@ namespace NicoPlayerHohoema.ViewModels
 				if (Keyword.Value.Length == 0) { return; }
 
 				// キーワードを検索履歴を記録
-				_SearchSettings.UpdateSearchHistory(Keyword.Value);
+				SearchSettings.UpdateSearchHistory(Keyword.Value);
 
 				// 検索結果を表示
 				_PageManager.OpenPage(HohoemaPageType.Search, 
@@ -182,7 +182,15 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveCommand DoSearchCommand { get; private set; }
 
-		private SearchSeetings _SearchSettings;
+		private SearchSeetings SearchSettings
+		{
+			get
+			{
+				return HohoemaApp.UserSettings.SearchSettings;
+			}
+		}
+
+		public HohoemaApp HohoemaApp { get; private set; }
 		public PageManager _PageManager { get; private set; }
 
 		private CompositeDisposable _CompositeDisposable;
