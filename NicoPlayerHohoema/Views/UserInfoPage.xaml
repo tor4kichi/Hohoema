@@ -25,11 +25,38 @@
                            toolkit:DockPanel.Dock="Left"
                            />
 
+                    
 
                     <StackPanel Margin="8 0">
-                        <TextBlock Text="{Binding UserName}" 
+
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Left"
+                                >
+
+                            <TextBlock Text="{Binding UserName}" 
                                    FontSize="24"
-                                   Margin="0 8" />
+                                   Margin="8 8" />
+                            
+                            <StackPanel Visibility="{Binding IsFavorite.Value, Converter={StaticResource BooleanToVisibility}}"
+                                        Background="#4CA9A9A9"
+
+                                        >
+                                <AppBarButton Icon="Favorite" IsCompact="True" Foreground="#FFFDFD25" Command="{Binding RemoveFavoriteCommand}" 
+                                          ToolTipService.ToolTip="お気に入り登録済み"
+                                          />
+                            </StackPanel>
+
+                            <StackPanel Visibility="{Binding IsFavorite.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                        Background="#4CA9A9A9"
+                                        >
+                                <AppBarButton Icon="Favorite" IsCompact="True" Foreground="Black" Command="{Binding AddFavoriteCommand}"
+                                          ToolTipService.ToolTip="お気に入り未登録"
+
+                                          />
+                            </StackPanel>
+                        </StackPanel>
+                        
+                        
 
                         <StackPanel Orientation="Horizontal"
                                     Margin="0 8" 
@@ -81,6 +108,33 @@
 
 
             <StackPanel Margin="0 8">
+
+                <StackPanel Visibility="{Binding IsVideoPrivate, Converter={StaticResource BooleanToVisibilityInverted}}">
+                    <TextBlock FontWeight="Bold"
+                           Margin="0 16 0 8"
+                           >
+                        <Run Text="{Binding UserName}" />
+                        <Run Text="さんの投稿動画（最新５件）" />
+                    </TextBlock>
+                    <ListView ItemsSource="{Binding VideoInfoItems}"
+                          Margin="0 8"
+                          >
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Title}" />
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+
+                <Border Visibility="{Binding IsVideoPrivate, Converter={StaticResource BooleanToVisibility}}"
+                        Margin="16"
+                        >
+                    <TextBlock Text="投稿動画は非公開です" 
+                               Foreground="Gray"
+                               />
+                </Border>
+                
                 <TextBlock Text="マイリスト一覧" FontWeight="Bold"
                            Margin="0 16 0 8"
                            />
@@ -94,21 +148,7 @@
                     </ListView.ItemTemplate>
                 </ListView>
 
-                <TextBlock FontWeight="Bold"
-                           Margin="0 16 0 8"
-                           >
-                    <Run Text="{Binding UserName}" />
-                    <Run Text="さんの投稿動画" />
-                </TextBlock>
-                <ListView ItemsSource="{Binding VideoInfoItems}"
-                          Margin="0 8"
-                          >
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Title}" />
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
+                
             </StackPanel>
         </StackPanel>
     </ScrollViewer>

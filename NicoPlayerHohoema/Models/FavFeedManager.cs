@@ -16,6 +16,15 @@ namespace NicoPlayerHohoema.Models
 {
 	public class FavFeedManager 
 	{
+		public const uint FAV_USER_MAX_COUNT = 50;
+		public const uint PREMIUM_FAV_USER_MAX_COUNT = 400;
+		public const uint FAV_MYLIST_MAX_COUNT = 20;
+		public const uint PREMIUM_FAV_MYLIST_MAX_COUNT = 50;
+		public const uint FAV_TAG_MAX_COUNT = 10;
+		public const uint PREMIUM_FAV_TAG_MAX_COUNT = 10;
+
+
+
 		public const string UserFavGroupName = "user";
 		public const string MylistFavGroupName = "mylist";
 		public const string TagFavGroupName = "tag";
@@ -78,6 +87,31 @@ namespace NicoPlayerHohoema.Models
 			await UpdateAll();
 
 			await SaveAllFavFeedLists();
+		}
+
+		public bool CanMoreAddFavorite(FavoriteItemType itemType)
+		{
+			var list = ItemsByGroupName[itemType];
+			var isPremium = _HohoemaApp.IsPremiumUser;
+			switch (itemType)
+			{
+				case FavoriteItemType.Tag:
+					return list.Count < (isPremium ? PREMIUM_FAV_USER_MAX_COUNT   : FAV_USER_MAX_COUNT);
+				case FavoriteItemType.Mylist:
+					return list.Count < (isPremium ? PREMIUM_FAV_MYLIST_MAX_COUNT : FAV_MYLIST_MAX_COUNT);
+				case FavoriteItemType.User:
+					return list.Count < (isPremium ? PREMIUM_FAV_TAG_MAX_COUNT    : FAV_TAG_MAX_COUNT);
+				default:
+					return false;
+			}
+		}
+
+
+		public bool IsFavoriteItem(FavoriteItemType itemType, string id)
+		{
+			ObservableCollection<FavFeedList> list = ItemsByGroupName[itemType];
+
+			return list.Any(x => x.Id == id);
 		}
 
 

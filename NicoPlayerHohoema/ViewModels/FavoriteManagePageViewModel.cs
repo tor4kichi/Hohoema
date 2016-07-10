@@ -109,9 +109,8 @@ namespace NicoPlayerHohoema.ViewModels
 							case FavoriteItemType.Mylist:
 								_PageManager.OpenPage(HohoemaPageType.Mylist, this.SourceId);
 								break;
-							case FavoriteItemType.User:
-								// TODO: UserVideo
-								_PageManager.OpenPage(HohoemaPageType.UserVideo, this.SourceId);
+							case FavoriteItemType.User:								
+								_PageManager.OpenPage(HohoemaPageType.UserInfo, this.SourceId);
 								break;
 							default:
 								break;
