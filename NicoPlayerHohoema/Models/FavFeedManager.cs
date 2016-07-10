@@ -81,6 +81,42 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
+		public async Task MarkAsRead(string videoId)
+		{
+			bool isChanged = false;
+			foreach (var item in GetAllFeedItems())
+			{
+				if (item.VideoId == videoId && item.IsUnread)
+				{
+					item.IsUnread = false;
+					isChanged = true;
+				}
+			}
+
+			if (isChanged)
+			{
+				await SaveAllFavFeedLists().ConfigureAwait(false);
+			}
+		}
+
+		public async Task MarkAsReadAllVideo()
+		{
+			bool isChanged = false;
+			foreach (var item in GetAllFeedItems())
+			{
+				if (item.IsUnread)
+				{
+					item.IsUnread = false;
+					isChanged = true;
+				}
+			}
+
+			if (isChanged)
+			{
+				await SaveAllFavFeedLists().ConfigureAwait(false);
+			}
+		}
+
 		public async Task SyncAllFav()
 		{
 			await SyncFavUsers();
@@ -250,6 +286,10 @@ namespace NicoPlayerHohoema.Models
 				await _FavFeedWriterLock.WaitAsync();
 
 				await FileIO.WriteTextAsync(saveFile, serializedText);
+			}
+			catch(Exception ex)
+			{
+				Debug.WriteLine(ex.Message);
 			}
 			finally
 			{
@@ -615,7 +655,6 @@ namespace NicoPlayerHohoema.Models
 		public uint UserId { get; set; }
 
 		public Dictionary<FavoriteItemType, ObservableCollection<FavFeedList>> ItemsByGroupName { get; private set; }
-
 
 		HohoemaApp _HohoemaApp;
 

@@ -50,9 +50,32 @@
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <Border>
-                        <TextBlock Text="{Binding Title}" 
-                                    VerticalAlignment="Center"
-                                            />
+
+                        <TextBlock x:Name="VideoTitle"                            
+                                    Text="{Binding Title}" 
+                                   VerticalAlignment="Center"
+                                   >
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup>
+                                    <VisualState x:Name="UnreadItemState">
+                                        <VisualState.StateTriggers>
+                                            <StateTrigger IsActive="{Binding IsUnread.Value}" />
+                                        </VisualState.StateTriggers>
+
+                                        <VisualState.Setters>
+                                            <Setter Target="VideoTitle.Foreground" Value="Black" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+
+                                    <VisualState x:Name="ReadItemState">
+                                        <VisualState.Setters>
+                                            <Setter Target="VideoTitle.Foreground" Value="Gray" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+
+                        </TextBlock>
 
                         <i:Interaction.Behaviors>
                             <core:EventTriggerBehavior EventName="Tapped">

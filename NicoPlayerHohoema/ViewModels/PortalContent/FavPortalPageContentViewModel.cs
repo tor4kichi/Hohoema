@@ -38,7 +38,7 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 
 			UnreadFavFeedItems.Clear();
 
-			var unreadItems = _HohoemaApp.FavFeedManager.GetUnreadFeedItems().Take(10);
+			var unreadItems = _HohoemaApp.FavFeedManager.GetAllFeedItems().Take(10);
 
 			foreach (var item in unreadItems)
 			{

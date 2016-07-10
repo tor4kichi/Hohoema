@@ -1,4 +1,6 @@
 ﻿using NicoPlayerHohoema.Models;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,17 +14,12 @@ namespace NicoPlayerHohoema.ViewModels
 		public FavoriteVideoInfoControlViewModel(FavFeedItem feedItem, NicoVideo nicoVideo, PageManager pageMan)
 			: base(nicoVideo, pageMan)
 		{
-			IsNewItem = feedItem.IsUnread;
+			IsUnread = feedItem.ToReactivePropertyAsSynchronized(x => x.IsUnread);
 		}
 
 
+		public ReactiveProperty<bool> IsUnread { get; private set; }
 
-		private bool _IsNewItem;
-		public bool IsNewItem
-		{
-			get { return _IsNewItem; }
-			set { SetProperty(ref _IsNewItem, value); }
-		}
 	}
 
 }

@@ -1,4 +1,5 @@
 ﻿<Page
+    x:Name="PageRoot"
     x:Class="NicoPlayerHohoema.Views.FavoriteAllFeedPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -49,35 +50,15 @@
                               />
                     </StackPanel>
 
-                    <StackPanel Orientation="Horizontal"
-                                Visibility="{Binding CanChangeRankingParameter.Value, Converter={StaticResource BooleanToVisibility}}"
-                                >
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="対象" 
-                                       VerticalAlignment="Center"
-                                       Margin="8 0"
-                                       />
-                            <ComboBox ItemsSource="{Binding RankingTargetItems}"
-                                      SelectedItem="{Binding SelectedRankingTarget.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                      DisplayMemberPath="Label"
-                                      MinWidth="80"
-                                      />
-                        </StackPanel>
 
-                        <Border Width="32" />
+                    <StackPanel toolkit:DockPanel.Dock="Left" Margin="8">
 
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="集計期間"
-                                       VerticalAlignment="Center"
-                                       Margin="8 0"
-                                       />
-                            <ComboBox ItemsSource="{Binding RankingTimeSpanItems}"
-                                      SelectedItem="{Binding SelectedRankingTimeSpan.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                      DisplayMemberPath="Label"
-                                      MinWidth="80"
-                                      />
-                        </StackPanel>
+                        <Button Content="全てチェック済みにする" Command="{Binding AllMarkAsReadCommand}" />
+
                     </StackPanel>
+                    
+
+                    <Border></Border>
 
 
 
@@ -89,6 +70,10 @@
                 <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom" 
                            Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
                            >
+                    <StackPanel toolkit:DockPanel.Dock="Left">
+                        <AppBarButton Icon="Read" Content="チェック済み" Command="{Binding SelectedItemsMarkAsReadCommand}" />
+                    </StackPanel>
+                    
                     <StackPanel Orientation="Horizontal"
                         toolkit:DockPanel.Dock="Right"
                         >
@@ -132,9 +117,25 @@
                     </ListView.ItemContainerStyle>
                     <ListView.ItemTemplate>
                         <DataTemplate>
+
                             <Grid Background="Transparent"
                                   IsHitTestVisible="True"
+                                  
                                   >
+
+                                <view:VideoInfoControl />
+
+
+                                <TextBlock Text="New" 
+                                           Visibility="{Binding IsUnread.Value, Converter={StaticResource BooleanToVisibility}}"
+                                           HorizontalAlignment="Right"
+                                           VerticalAlignment="Top"
+                                           FontSize="45"
+                                           Foreground="#55777777"
+                                           Margin="2 0"
+                                           LineStackingStrategy="MaxHeight"
+                                           />
+                                                                
                                 <i:Interaction.Behaviors>
                                     <core:EventTriggerBehavior EventName="Tapped">
                                         <core:InvokeCommandAction Command="{Binding ElementName=PageRoot, Path=DataContext.PlayCommand}"                                                                      
@@ -143,18 +144,7 @@
                                     </core:EventTriggerBehavior>
                                 </i:Interaction.Behaviors>
 
-                                <view:VideoInfoControl />
-
-
-                                <TextBlock Text="New" 
-                                           Visibility="{Binding IsNewItem, Converter={StaticResource BooleanToVisibility}}"
-                                           HorizontalAlignment="Right"
-                                           VerticalAlignment="Top"
-                                           FontSize="45"
-                                           Foreground="#55777777"
-                                           Margin="2 0"
-                                           LineStackingStrategy="MaxHeight"
-                                           />
+                                
 
                             </Grid>
                         </DataTemplate>

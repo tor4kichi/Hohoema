@@ -7,6 +7,10 @@ using NicoPlayerHohoema.Util;
 using NicoPlayerHohoema.Models;
 using System.Diagnostics;
 using Prism.Windows.Navigation;
+using Reactive.Bindings;
+using Prism.Commands;
+using Reactive.Bindings.Extensions;
+using System.Reactive.Linq;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -15,7 +19,30 @@ namespace NicoPlayerHohoema.ViewModels
 		public FavoriteAllFeedPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
 			: base(hohoemaApp, pageManager)
 		{
+			AllMarkAsReadCommand = new DelegateCommand(async () =>
+			{
+				await HohoemaApp.FavFeedManager.MarkAsReadAllVideo();
+			}
+			, () =>  
+			{
+				return HohoemaApp.FavFeedManager.GetUnreadFeedItems().Any(x => x.IsUnread);
+			});
 
+
+			SelectedItemsMarkAsReadCommand = SelectedVideoInfoItems.ToCollectionChanged()
+				.Select(x => SelectedVideoInfoItems.Count > 0)
+				.ToReactiveCommand();
+
+			SelectedItemsMarkAsReadCommand.Subscribe(async _ =>
+			{
+				foreach (var item in SelectedVideoInfoItems)
+				{
+					await HohoemaApp.FavFeedManager.MarkAsRead(item.VideoId);
+					await HohoemaApp.FavFeedManager.MarkAsRead(item.RawVideoId);
+				}
+
+				ClearSelection();
+			});
 		}
 
 		public override string GetPageTitle()
@@ -27,6 +54,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			base.OnNavigatedTo(e, viewModelState);
 
+			AllMarkAsReadCommand.RaiseCanExecuteChanged();
 		}
 
 
@@ -45,6 +73,12 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			return new FavriteAllFeedIncrementalSource(HohoemaApp.FavFeedManager, HohoemaApp.MediaManager, PageManager);
 		}
+
+
+
+		public DelegateCommand AllMarkAsReadCommand { get; private set; }
+		public ReactiveCommand SelectedItemsMarkAsReadCommand { get; private set; }
+
 	}
 
 
