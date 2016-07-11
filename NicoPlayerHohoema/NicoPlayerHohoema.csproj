@@ -137,8 +137,8 @@
     <Compile Include="ViewModels\AboutPageViewModel.cs" />
     <Compile Include="ViewModels\CacheManagementPageViewModel.cs" />
     <Compile Include="ViewModels\CommentStreamingViewModel.cs" />
-    <Compile Include="ViewModels\FavoriteListPageViewModel.cs" />
-    <Compile Include="ViewModels\FavoritePageViewModel.cs" />
+    <Compile Include="ViewModels\FavoriteAllFeedPageViewModel.cs" />
+    <Compile Include="ViewModels\FavoriteManagePageViewModel.cs" />
     <Compile Include="ViewModels\FavoriteVideoInfoControlViewModel.cs" />
     <Compile Include="ViewModels\HistoryPageViewModel.cs" />
     <Compile Include="ViewModels\HohoemaVideoListingPageViewModelBase.cs" />
@@ -150,6 +150,7 @@
     <Compile Include="ViewModels\SearchViewModel.cs" />
     <Compile Include="ViewModels\UserInfoPageViewModel.cs" />
     <Compile Include="ViewModels\UserMylistPageViewModel.cs" />
+    <Compile Include="ViewModels\UserVideoPageViewModel.cs" />
     <Compile Include="ViewModels\VideoInfoContent\CommentVideoInfoContentViewModel.cs" />
     <Compile Include="ViewModels\VideoInfoContent\MediaInfoViewModel.cs" />
     <Compile Include="ViewModels\VideoInfoContent\SettingsVideoInfoContentViewModel.cs" />
@@ -167,11 +168,11 @@
     </Compile>
     <Compile Include="Views\Converters\ToUserFriendlyNumber.cs" />
     <Compile Include="Views\Converters\VideoPositionToTimeConverter.cs" />
-    <Compile Include="Views\FavoriteListPage.xaml.cs">
-      <DependentUpon>FavoriteListPage.xaml</DependentUpon>
+    <Compile Include="Views\FavoriteAllFeedPage.xaml.cs">
+      <DependentUpon>FavoriteAllFeedPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\FavoritePage.xaml.cs">
-      <DependentUpon>FavoritePage.xaml</DependentUpon>
+    <Compile Include="Views\FavoriteManagePage.xaml.cs">
+      <DependentUpon>FavoriteManagePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MylistPage.xaml.cs">
       <DependentUpon>MylistPage.xaml</DependentUpon>
@@ -231,6 +232,9 @@
     </Compile>
     <Compile Include="Views\UserMylistPage.xaml.cs">
       <DependentUpon>UserMylistPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UserVideoPage.xaml.cs">
+      <DependentUpon>UserVideoPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\VideoInfoContent\CommentVideoInfoContent.xaml.cs">
       <DependentUpon>CommentVideoInfoContent.xaml</DependentUpon>
@@ -335,11 +339,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\FavoriteListPage.xaml">
+    <Page Include="Views\FavoriteAllFeedPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\FavoritePage.xaml">
+    <Page Include="Views\FavoriteManagePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -372,6 +376,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\UserMylistPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\UserVideoPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -471,6 +479,7 @@
       <Name>VideoBackgroundTask</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

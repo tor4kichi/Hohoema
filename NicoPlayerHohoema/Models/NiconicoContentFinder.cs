@@ -12,6 +12,7 @@ using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -77,14 +78,14 @@ namespace NicoPlayerHohoema.Models
 					{
 						if (!prevTask.Result.IsStatusOK)
 						{
-							throw new Exception();
+							throw new WebException();
 						}
 						else
 						{
 							return prevTask.Result;
 						}
 					});
-			});
+			}, retryInterval:2000);
 		}
 
 		public async Task<List<MylistGroupData>> GetLoginUserMylistGroups()

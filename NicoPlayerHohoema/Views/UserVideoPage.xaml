@@ -1,6 +1,5 @@
 ﻿<Page
-    x:Name="PageRoot"
-    x:Class="NicoPlayerHohoema.Views.SearchPage"
+    x:Class="NicoPlayerHohoema.Views.UserVideoPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:NicoPlayerHohoema.Views"
@@ -12,14 +11,10 @@
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
-    xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
-    
     mc:Ignorable="d">
 
-
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
+    <Grid>
         <ProgressRing Visibility="{Binding NowLoadingItems.Value, Converter={StaticResource BooleanToVisibility}}"
                       IsActive="{Binding NowLoadingItems.Value}"
                       Margin="24"
@@ -28,37 +23,35 @@
                       HorizontalAlignment="Right"
                       VerticalAlignment="Bottom"
                                   />
-
-        
         <Border>
             <toolkit:DockPanel>
+                <toolkit:DockPanel toolkit:DockPanel.Dock="Top" >
 
-                <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
-
-
-                    <!-- タグのお気に入り -->
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" 
-                                Visibility="{Binding IsTagSearch.Value, Converter={StaticResource BooleanToVisibility}}"
+                    <StackPanel Orientation="Horizontal" Margin="8"
+                                toolkit:DockPanel.Dock="Right"
                                 >
-
-                        <AppBarToggleButton Icon="Favorite" 
-                                            IsChecked="{Binding IsFavoriteTag.Value, Mode=TwoWay}"
-                                            IsEnabled="{Binding CanChangeFavoriteTagState.Value}"
-                                            />
-
-                    </StackPanel>
-                    
-
-                    <!-- 複数選択のON/OFF -->
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="8">
                         <ToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               Content="選択モード"
                               />
                     </StackPanel>
 
+
+                    <StackPanel toolkit:DockPanel.Dock="Left" Margin="8">
+
+                        <!-- TODO: ユーザーアイコン＋ユーザー情報画面への移動 -->
+
+                    </StackPanel>
+
+
+                    <Border></Border>
+
+
+
                 </toolkit:DockPanel>
 
-                <!-- 選択アクション -->
+
+
+
                 <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom" 
                            Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
                            >
@@ -76,15 +69,15 @@
                     <Border />
 
                 </toolkit:DockPanel>
-                
-                
-                
-                
+
+
+
                 <ListView ItemsSource="{Binding IncrementalLoadingItems}"
                           SelectionMode="Multiple"
                           IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
                           IncrementalLoadingTrigger="Edge"
-                            >
+                              >
+
                     <i:Interaction.Behaviors>
                         <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedVideoInfoItems, Mode=TwoWay}" />
 
@@ -93,24 +86,36 @@
                             />
                     </i:Interaction.Behaviors>
 
-
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
                             <Setter Property="HorizontalContentAlignment"
-                                Value="Stretch" 
-                                    />
+                                    Value="Stretch" 
+                                        />
                             <Setter Property="Margin"
-                                Value="0 0 0 8" 
-                                />
+                                    Value="0 0 0 8" 
+                                    />
                         </Style>
                     </ListView.ItemContainerStyle>
-
-
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <Border Background="Transparent"
-                                    IsHitTestVisible="True"
-                                    >
+
+                            <Grid Background="Transparent"
+                                  IsHitTestVisible="True"
+                                  
+                                  >
+
+                                <view:VideoInfoControl />
+
+
+                                <TextBlock Text="New" 
+                                           Visibility="{Binding IsUnread.Value, Converter={StaticResource BooleanToVisibility}}"
+                                           HorizontalAlignment="Right"
+                                           VerticalAlignment="Top"
+                                           FontSize="45"
+                                           Foreground="#55777777"
+                                           Margin="2 0"
+                                           LineStackingStrategy="MaxHeight"
+                                           />
 
                                 <i:Interaction.Behaviors>
                                     <core:EventTriggerBehavior EventName="Tapped">
@@ -120,13 +125,16 @@
                                     </core:EventTriggerBehavior>
                                 </i:Interaction.Behaviors>
 
-                                <view:VideoInfoControl />
-                            </Border>
+
+
+                            </Grid>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
-                
+
+
             </toolkit:DockPanel>
         </Border>
+
     </Grid>
 </Page>

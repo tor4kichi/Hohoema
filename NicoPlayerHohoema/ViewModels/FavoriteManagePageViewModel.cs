@@ -12,9 +12,9 @@ using System.Collections.ObjectModel;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class FavoriteListPageViewModel : ViewModelBase
+	public class FavoriteManagePageViewModel : ViewModelBase
 	{
-		public FavoriteListPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
+		public FavoriteManagePageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
 		{
 			_HohoemaApp = hohoemaApp;
 			_PageManager = pageManager;
@@ -92,13 +92,29 @@ namespace NicoPlayerHohoema.ViewModels
 				return _SelectedCommand
 					?? (_SelectedCommand = new DelegateCommand(() => 
 					{
-						var param = new FavoritePageParameter()
-						{
-							Id = this.SourceId,
-							ItemType = this.ItemType
-						};
 
-						_PageManager.OpenPage(HohoemaPageType.Favorite, param.ToJson());
+						switch (ItemType)
+						{
+							case FavoriteItemType.Tag:
+								var param = new SearchOption()
+								{
+									Keyword = this.SourceId,
+									SearchTarget = SearchTarget.Tag,
+									SortMethod = Mntone.Nico2.SortMethod.FirstRetrieve,
+									SortDirection = Mntone.Nico2.SortDirection.Descending,
+								}.ToParameterString();
+
+								_PageManager.OpenPage(HohoemaPageType.Search, param);
+								break;
+							case FavoriteItemType.Mylist:
+								_PageManager.OpenPage(HohoemaPageType.Mylist, this.SourceId);
+								break;
+							case FavoriteItemType.User:								
+								_PageManager.OpenPage(HohoemaPageType.UserInfo, this.SourceId);
+								break;
+							default:
+								break;
+						}
 					}));
 			}
 		}

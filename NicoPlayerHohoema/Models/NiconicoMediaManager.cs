@@ -603,10 +603,23 @@ namespace NicoPlayerHohoema.Models
 			await nicoVideo.GetThumbnailInfo();
 			await nicoVideo.SetupVideoInfoFromLocal();
 
-			nicoVideo.VideoId = nicoVideo.CachedThumbnailInfo.Id;
-			nicoVideo.Title = nicoVideo.CachedWatchApiResponse?.videoDetail.title ?? nicoVideo.CachedThumbnailInfo.Title;
+			if (!nicoVideo.IsDeleted)
+			{
+				nicoVideo.VideoId = nicoVideo.CachedThumbnailInfo.Id;
+				nicoVideo.Title = nicoVideo.CachedWatchApiResponse?.videoDetail.title ?? nicoVideo.CachedThumbnailInfo.Title;
 
-			await nicoVideo.CheckCacheStatus();
+				await nicoVideo.CheckCacheStatus();
+			}
+			else
+			{
+				nicoVideo.VideoId = "";
+				nicoVideo.Title = "this video has been deleted.";
+				Debug.WriteLine($"{rawVideoid}は削除された動画です");
+//				await nicoVideo.DeleteLowQualityCache();
+//				await nicoVideo.DeleteOriginalQualityCache();
+			}
+
+
 
 			return nicoVideo;
 

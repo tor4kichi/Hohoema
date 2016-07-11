@@ -329,7 +329,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		private void ClearSelection()
+		protected void ClearSelection()
 		{
 			SelectedVideoInfoItems.Clear();
 		}

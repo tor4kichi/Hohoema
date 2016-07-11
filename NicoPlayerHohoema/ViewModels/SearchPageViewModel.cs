@@ -34,7 +34,62 @@ namespace NicoPlayerHohoema.ViewModels
 
 			LoadedPage = new ReactiveProperty<int>(1);
 			MaxPageCount = new ReactiveProperty<int>(1);
+
+
+			IsTagSearch = new ReactiveProperty<bool>();
+			IsFavoriteTag = new ReactiveProperty<bool>(mode:ReactivePropertyMode.DistinctUntilChanged);
+			CanChangeFavoriteTagState = new ReactiveProperty<bool>();
+
+			AddFavoriteTagCommand = CanChangeFavoriteTagState
+				.ToReactiveCommand();
+
+			RemoveFavoriteTagCommand = IsFavoriteTag
+				.ToReactiveCommand();
+
+
+			IsFavoriteTag.Subscribe(async x => 
+			{
+				if (_NowProcessFavorite) { return; }
+
+				_NowProcessFavorite = true;
+
+				CanChangeFavoriteTagState.Value = false;
+				if (x)
+				{
+					if (await FavoriteTag())
+					{
+						Debug.WriteLine(SearchOption.Keyword + "のタグをお気に入り登録しました.");
+					}
+					else 
+					{
+						// お気に入り登録に失敗した場合は状態を差し戻し
+						Debug.WriteLine(SearchOption.Keyword + "のタグをお気に入り登録に失敗");
+						IsFavoriteTag.Value = false;
+					}
+				}
+				else
+				{
+					if (await UnfavoriteTag())
+					{
+						Debug.WriteLine(SearchOption.Keyword + "のタグをお気に入り解除しました.");
+					}
+					else
+					{
+						// お気に入り解除に失敗した場合は状態を差し戻し
+						Debug.WriteLine(SearchOption.Keyword + "のタグをお気に入り解除に失敗");
+						IsFavoriteTag.Value = true;
+					}
+				}
+
+				CanChangeFavoriteTagState.Value = IsFavoriteTag.Value == true || HohoemaApp.FavFeedManager.CanMoreAddFavorite(FavoriteItemType.Tag);
+
+
+				_NowProcessFavorite = false;
+			});
 		}
+
+
+		bool _NowProcessFavorite = false;
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
@@ -42,6 +97,20 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				RequireSearchOption = SearchOption.FromParameterString(e.Parameter as string);
 			}
+
+			_NowProcessFavorite = true;
+
+			IsTagSearch.Value = RequireSearchOption.SearchTarget == SearchTarget.Tag;
+			if (IsTagSearch.Value)
+			{
+				// お気に入り登録されているかチェック
+				var favManager = HohoemaApp.FavFeedManager;
+				IsFavoriteTag.Value = favManager.IsFavoriteItem(FavoriteItemType.Tag, RequireSearchOption.Keyword);
+				CanChangeFavoriteTagState.Value = favManager.CanMoreAddFavorite(FavoriteItemType.Tag);
+			}
+
+			_NowProcessFavorite = false;
+
 
 			base.OnNavigatedTo(e, viewModelState);
 		}
@@ -137,6 +206,38 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			return $"'{RequireSearchOption.Keyword}'検索結果";
 		}
+
+
+		private async Task<bool> FavoriteTag()
+		{
+			if (!IsTagSearch.Value) { return false; }
+
+			var favManager = HohoemaApp.FavFeedManager;
+			var result = await favManager.AddFav(FavoriteItemType.Tag, SearchOption.Keyword);
+
+			return result == Mntone.Nico2.ContentManageResult.Success || result == Mntone.Nico2.ContentManageResult.Exist;
+		}
+
+		private async Task<bool> UnfavoriteTag()
+		{
+			if (!IsTagSearch.Value) { return false; }
+
+			var favManager = HohoemaApp.FavFeedManager;
+			var result = await favManager.RemoveFav(FavoriteItemType.Tag, SearchOption.Keyword);
+
+			return result == Mntone.Nico2.ContentManageResult.Success;
+		}
+
+
+
+		public ReactiveProperty<bool> IsTagSearch { get; private set; }
+		public ReactiveProperty<bool> IsFavoriteTag { get; private set; }
+		public ReactiveProperty<bool> CanChangeFavoriteTagState { get; private set; }
+
+
+		public ReactiveCommand AddFavoriteTagCommand { get; private set; }
+		public ReactiveCommand RemoveFavoriteTagCommand { get; private set; }
+
 
 		public ReactiveProperty<bool> FailLoading { get; private set; }
 

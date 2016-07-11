@@ -701,10 +701,15 @@ namespace NicoPlayerHohoema.ViewModels
 			IsVisibleComment.Value = playerSettings.DefaultCommentDisplay;
 
 			_VideoUpdaterSubject.OnNext(null);
+
+
+			// FavFeedList
+			await _HohoemaApp.FavFeedManager.MarkAsRead(Video.VideoId);
+			await _HohoemaApp.FavFeedManager.MarkAsRead(Video.RawVideoId);
 		}
 
 
-		
+
 
 		private async Task<CommentResponse> GetComment()
 		{

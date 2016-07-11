@@ -127,14 +127,17 @@ namespace NicoPlayerHohoema.Models
 				Debug.WriteLine("getting UserInfo");
 				var userInfo = await NiconicoContext.User.GetInfoAsync();
 				LoginUserId = userInfo.Id;
+				IsPremiumUser = userInfo.IsPremium;
+
 				Debug.WriteLine("user id is : " + LoginUserId);
 				Debug.WriteLine("initilize: user settings ");
 				await LoadUserSettings(LoginUserId.ToString());
 
-				Debug.WriteLine("initilize: fav");
-				FavFeedManager = await FavFeedManager.Create(this, LoginUserId);
 				Debug.WriteLine("initilize: local cache ");
 				MediaManager = await NiconicoMediaManager.Create(this);
+
+				Debug.WriteLine("initilize: fav");
+				FavFeedManager = await FavFeedManager.Create(this, LoginUserId);
 
 				Debug.WriteLine("Login done.");
 				//				await MediaManager.Context.Resume();
@@ -204,6 +207,7 @@ namespace NicoPlayerHohoema.Models
 		public HohoemaUserSettings UserSettings { get; private set; }
 
 		public uint LoginUserId { get; private set; }
+		public bool IsPremiumUser { get; private set; }
 
 		private NiconicoContext _NiconicoContext;
 		public NiconicoContext NiconicoContext

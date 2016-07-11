@@ -13,8 +13,9 @@ namespace NicoPlayerHohoema.Models
 		RankingCategory,
 		UserMylist,
 		Mylist,
-		FavoriteList,
-		Favorite,
+		FavoriteManage,
+		FavoriteAllFeed,
+		FavoriteFeed,
 		History,
 		Search,
 
@@ -26,6 +27,7 @@ namespace NicoPlayerHohoema.Models
 		VideoPlayer,
 
 		UserInfo,
+		UserVideo,
 
 		Login,
 	}

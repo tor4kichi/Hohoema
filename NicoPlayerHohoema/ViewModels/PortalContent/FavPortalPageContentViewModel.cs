@@ -1,4 +1,5 @@
 ﻿using NicoPlayerHohoema.Models;
+using Prism.Commands;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,7 +16,7 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 		{
 			_HohoemaApp = hohoemaApp;
 
-			Lists = new ObservableCollection<FavoriteListViewModel>();
+			UnreadFavFeedItems = new ObservableCollection<FavoriteVideoInfoControlViewModel>();
 		}
 
 		protected override async void NavigateTo()
@@ -25,39 +26,43 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 				await Task.Delay(100);
 			}
 
-			await _HohoemaApp.FavFeedManager.UpdateAll();
-
-			Lists.Clear();
-
-			Lists.Add(new FavoriteListViewModel()
-			{
-				Name = "ユーザー",
-				Items = _HohoemaApp.FavFeedManager.GetFavUserFeedListAll()
-					.Select(x => new FavoriteItemViewModel(x, PageManager))
-					.ToList()
-			});
-
-			Lists.Add(new FavoriteListViewModel()
-			{
-				Name = "マイリスト",
-				Items = _HohoemaApp.FavFeedManager.GetFavMylistFeedListAll()
-					.Select(x => new FavoriteItemViewModel(x, PageManager))
-					.ToList()
-			});
-
-			Lists.Add(new FavoriteListViewModel()
-			{
-				Name = "タグ",
-				Items = _HohoemaApp.FavFeedManager.GetFavTagFeedListAll()
-					.Select(x => new FavoriteItemViewModel(x, PageManager))
-					.ToList()
-			});
+			await UpdateUnreadFeedItems();
 
 			base.NavigateTo();
+		}		
+
+
+		private async Task UpdateUnreadFeedItems()
+		{
+			await _HohoemaApp.FavFeedManager.UpdateAll();
+
+			UnreadFavFeedItems.Clear();
+
+			var unreadItems = _HohoemaApp.FavFeedManager.GetAllFeedItems().Take(10);
+
+			foreach (var item in unreadItems)
+			{
+				var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(item.VideoId);
+				var vm = new FavoriteVideoInfoControlViewModel(item, nicoVideo, PageManager);
+				UnreadFavFeedItems.Add(vm);
+			}
+		}
+
+		private DelegateCommand _OpenFavFeedListCommand;
+		public DelegateCommand OpenFavFeedListCommand
+		{
+			get
+			{
+				return _OpenFavFeedListCommand
+					?? (_OpenFavFeedListCommand = new DelegateCommand(() =>
+					{
+						PageManager.OpenPage(HohoemaPageType.FavoriteAllFeed);
+					}));
+			}
 		}
 
 
-		public ObservableCollection<FavoriteListViewModel> Lists { get; private set; }
+		public ObservableCollection<FavoriteVideoInfoControlViewModel> UnreadFavFeedItems { get; private set; }
 
 
 		HohoemaApp _HohoemaApp;
