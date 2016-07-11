@@ -1,4 +1,5 @@
 ﻿using NicoPlayerHohoema.Models;
+using Prism.Commands;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -15,11 +16,51 @@ namespace NicoPlayerHohoema.ViewModels
 			: base(nicoVideo, pageMan)
 		{
 			IsUnread = feedItem.ToReactivePropertyAsSynchronized(x => x.IsUnread);
+
+			_FafFeedItem = feedItem;
+			SourceType = feedItem.ParentList.FavoriteItemType;
+			SourceTitle = feedItem.ParentList.Name;
 		}
 
 
-		public ReactiveProperty<bool> IsUnread { get; private set; }
+		private DelegateCommand _OpenFeedSourceCommand;
+		public DelegateCommand OpenFeedSourceCommand
+		{
+			get
+			{
+				return _OpenFeedSourceCommand
+					?? (_OpenFeedSourceCommand = new DelegateCommand(() => 
+					{
+						var feedList = _FafFeedItem.ParentList;
+						switch (SourceType)
+						{
+							case FavoriteItemType.Tag:
+								PageManager.OpenPage(HohoemaPageType.Search, new SearchOption()
+								{
+									Keyword = feedList.Id,
+									SearchTarget = SearchTarget.Tag,
+									SortDirection = Mntone.Nico2.SortDirection.Descending,
+									SortMethod = Mntone.Nico2.SortMethod.FirstRetrieve
+								});
+								break;
+							case FavoriteItemType.Mylist:
+								PageManager.OpenPage(HohoemaPageType.UserMylist, feedList.Id);
+								break;
+							case FavoriteItemType.User:
+								PageManager.OpenPage(HohoemaPageType.UserInfo, feedList.Id);
+								break;
+							default:
+								break;
+						}
+					}));
+			}
+		}
 
+		FavFeedItem _FafFeedItem;
+
+		public ReactiveProperty<bool> IsUnread { get; private set; }
+		public FavoriteItemType SourceType { get; private set; }
+		public string SourceTitle { get; private set; }
 	}
 
 }

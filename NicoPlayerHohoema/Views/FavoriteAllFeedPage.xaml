@@ -125,16 +125,22 @@
 
                                 <view:VideoInfoControl />
 
-
-                                <TextBlock Text="New" 
-                                           Visibility="{Binding IsUnread.Value, Converter={StaticResource BooleanToVisibility}}"
-                                           HorizontalAlignment="Right"
+                                <Grid                                            HorizontalAlignment="Right"
                                            VerticalAlignment="Top"
-                                           FontSize="45"
+>
+                                    <TextBlock Text="{Binding SourceTitle}"
+                                               Foreground="#55343434"                                           
+                                               />
+                                    <TextBlock Text="New" 
+                                           Visibility="{Binding IsUnread.Value, Converter={StaticResource BooleanToVisibility}}"
+                                           FontSize="35"
                                            Foreground="#55777777"
                                            Margin="2 0"
                                            LineStackingStrategy="MaxHeight"
                                            />
+
+                                </Grid>
+
                                                                 
                                 <i:Interaction.Behaviors>
                                     <core:EventTriggerBehavior EventName="Tapped">
