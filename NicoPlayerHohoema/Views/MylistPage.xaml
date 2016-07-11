@@ -1,4 +1,5 @@
 ﻿<Page
+    x:Name="PageRoot"
     x:Class="NicoPlayerHohoema.Views.MylistPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -10,33 +11,128 @@
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
-    <toolkit:DockPanel>
+    <Grid>
+        <ProgressRing Visibility="{Binding NowLoadingItems.Value, Converter={StaticResource BooleanToVisibility}}"
+                      IsActive="{Binding NowLoadingItems.Value}"
+                      Margin="24"
+                      Width="48"
+                      Height="48"
+                      HorizontalAlignment="Right"
+                      VerticalAlignment="Bottom"
+                                  />
 
-        <Border toolkit:DockPanel.Dock="Top" Margin="16">
-            <TextBlock Text="{Binding MylistTitle}" />
-        </Border>
-        
-        <ListView ItemsSource="{Binding MylistItems}"
-                         SelectionMode="Multiple"
-                              >
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
-                    <Setter Property="HorizontalContentAlignment"
-                                        Value="Stretch" 
-                                        />
-                </Style>
-            </ListView.ItemContainerStyle>
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <view:VideoInfoControl />
+        <toolkit:DockPanel >
 
-                    </Grid>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
-    </toolkit:DockPanel>
+            
+
+            
+            <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
+
+
+                <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left">
+                    <TextBlock Text="{Binding MylistTitle}" />
+
+                    <AppBarToggleButton Icon="Favorite"
+                                    IsChecked="{Binding IsFavoriteMylist.Value, Mode=TwoWay}"
+                                    IsEnabled="{Binding CanChangeFavoriteMylistState.Value}"
+                                    />
+
+                </StackPanel>
+
+                <!-- 複数選択のON/OFF -->
+                <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Right" Margin="8">
+                    <ToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              Content="選択モード"
+                              />
+                </StackPanel>
+
+                <Border />
+
+            </toolkit:DockPanel>
+
+            <!-- 選択アクション -->
+            <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom" 
+                           Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                           >
+                <StackPanel Orientation="Horizontal"
+                        toolkit:DockPanel.Dock="Right"
+                        >
+                    <AppBarButton Icon="Play" Content="連続再生" Command="{Binding PlayAllCommand}" />
+                    <AppBarSeparator />
+                    <AppBarButton Icon="Download" Content="キャッシュを取得" Command="{Binding RequestCacheDownload}" />
+                    <AppBarButton Icon="Cancel" Content="キャッシュを中止" Command="{Binding CancelCacheDownloadRequest}"  />
+                    <AppBarSeparator />
+                    <AppBarButton Icon="Delete" Content="キャッシュを削除" Command="{Binding DeleteCache}" />
+                </StackPanel>
+
+                <Border />
+
+            </toolkit:DockPanel>
+
+
+           
+            <ListView x:Name="VideoInfoItems" 
+                    ItemsSource="{Binding IncrementalLoadingItems}" 
+                    SelectionMode="Multiple"
+                    IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
+                    IncrementalLoadingTrigger="Edge"
+                    >
+
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment"
+                            Value="Stretch" 
+                                />
+                        <Setter Property="Margin"
+                            Value="0 0 0 8" 
+                            />
+                    </Style>
+                </ListView.ItemContainerStyle>
+
+
+                <i:Interaction.Behaviors>
+                    <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedVideoInfoItems, Mode=TwoWay}" />
+
+                    <mybehavior:ListViewVerticalOffsetGetter
+                    VerticalOffset="{Binding ListViewVerticalOffset.Value, Mode=TwoWay}"
+                    />
+
+                </i:Interaction.Behaviors>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <toolkit:DockPanel Margin="8"
+                                        Background="Transparent" IsHitTestVisible="True"
+                                        >
+                            <i:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <core:InvokeCommandAction Command="{Binding ElementName=PageRoot, Path=DataContext.PlayCommand}"                                                                      
+                                                            CommandParameter="{Binding}"
+                                                                />
+                                </core:EventTriggerBehavior>
+                            </i:Interaction.Behaviors>
+
+
+
+                            <Border >
+                                <local:VideoInfoControl
+                                />
+                            </Border>
+
+                        </toolkit:DockPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ListView>
+
+
+
+
+        </toolkit:DockPanel>
+    </Grid>
+    
+    
 </Page>

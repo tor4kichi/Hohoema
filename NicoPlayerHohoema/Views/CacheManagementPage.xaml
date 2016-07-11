@@ -26,7 +26,7 @@
                       VerticalAlignment="Bottom"
                                   />
         
-        <toolkit:DockPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <toolkit:DockPanel >
 
 
             <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
@@ -60,100 +60,96 @@
             </toolkit:DockPanel>
 
 
-            <ScrollViewer>
-                <StackPanel Margin="0 0 16 0">
-                    <ListView x:Name="VideoInfoItems" 
-                          ItemsSource="{Binding IncrementalLoadingItems}" 
-                          SelectionMode="Multiple"
-                          IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
-                          IncrementalLoadingTrigger="Edge"
-                          >
+            <ListView x:Name="VideoInfoItems" 
+                    ItemsSource="{Binding IncrementalLoadingItems}" 
+                    SelectionMode="Multiple"
+                    IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
+                    IncrementalLoadingTrigger="Edge"
+                    >
 
-                        <ListView.ItemContainerStyle>
-                            <Style TargetType="ListViewItem">
-                                <Setter Property="HorizontalContentAlignment"
-                                    Value="Stretch" 
-                                        />
-                                <Setter Property="Margin"
-                                    Value="0 0 0 8" 
-                                    />
-                            </Style>
-                        </ListView.ItemContainerStyle>
-
-
-                        <i:Interaction.Behaviors>
-                            <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedVideoInfoItems, Mode=TwoWay}" />
-
-                            <mybehavior:ListViewVerticalOffsetGetter
-                            VerticalOffset="{Binding ListViewVerticalOffset.Value, Mode=TwoWay}"
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment"
+                            Value="Stretch" 
+                                />
+                        <Setter Property="Margin"
+                            Value="0 0 0 8" 
                             />
-
-                        </i:Interaction.Behaviors>
-
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <toolkit:DockPanel Margin="8"
-                                               Background="Transparent" IsHitTestVisible="True"
-                                               >
-                                    <i:Interaction.Behaviors>
-                                        <core:EventTriggerBehavior EventName="Tapped">
-                                            <core:InvokeCommandAction Command="{Binding ElementName=PageRoot, Path=DataContext.PlayCommand}"                                                                      
-                                                                  CommandParameter="{Binding}"
-                                                                      />
-                                        </core:EventTriggerBehavior>
-                                    </i:Interaction.Behaviors>
-
-                                    <Border toolkit:DockPanel.Dock="Bottom" >
-                                        <toolkit:DockPanel Visibility="{Binding IsVisibleProgress.Value, Converter={StaticResource BooleanToVisibility}}">
+                    </Style>
+                </ListView.ItemContainerStyle>
 
 
-                                            <ProgressBar Maximum="100.0" Minimum="0.0" Value="{Binding ProgressPercent.Value}"
-                                                     Margin="0 4"
-                                                     />
+                <i:Interaction.Behaviors>
+                    <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedVideoInfoItems, Mode=TwoWay}" />
 
-                                        </toolkit:DockPanel>
-                                    </Border>
+                    <mybehavior:ListViewVerticalOffsetGetter
+                    VerticalOffset="{Binding ListViewVerticalOffset.Value, Mode=TwoWay}"
+                    />
 
-                                    <Border >
+                </i:Interaction.Behaviors>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <toolkit:DockPanel Margin="8"
+                                        Background="Transparent" IsHitTestVisible="True"
+                                        >
+                            <i:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <core:InvokeCommandAction Command="{Binding ElementName=PageRoot, Path=DataContext.PlayCommand}"                                                                      
+                                                            CommandParameter="{Binding}"
+                                                                />
+                                </core:EventTriggerBehavior>
+                            </i:Interaction.Behaviors>
+
+                            <Border toolkit:DockPanel.Dock="Bottom" >
+                                <toolkit:DockPanel Visibility="{Binding IsVisibleProgress.Value, Converter={StaticResource BooleanToVisibility}}">
 
 
-                                        <toolkit:DockPanel>
-
-                                            <!-- 状態 -->
-                                            <StackPanel  toolkit:DockPanel.Dock="Right" HorizontalAlignment="Right">
-                                                <TextBlock Text="{Binding CacheRequestTime}" Margin="0 0 0 4" />
-                                                <TextBlock Text="{Binding Quality}" Margin="0 0 0 4" />
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="{Binding CacheState.Value}" />
-                                                    <TextBlock toolkit:DockPanel.Dock="Left" Margin="8 0"
-                                                       Visibility="{Binding IsVisibleProgress.Value, Converter={StaticResource BooleanToVisibility}}"
-                                                       >
-                                                    <Run Text="(" />
-                                                    <Run Text="{Binding ProgressPercent.Value}" />
-                                                    <Run Text="%)" />
-                                                    </TextBlock>
-                                                </StackPanel>
-
-                                            </StackPanel>
-
-                                            <!-- 操作 -->
-
-                                            <local:VideoInfoControl
-                                            
-                                            />
-
-                                        </toolkit:DockPanel>
-
-                                    </Border>
+                                    <ProgressBar Maximum="100.0" Minimum="0.0" Value="{Binding ProgressPercent.Value}"
+                                                Margin="0 4"
+                                                />
 
                                 </toolkit:DockPanel>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ListView>
+                            </Border>
+
+                            <Border >
 
 
-                </StackPanel>
-            </ScrollViewer>
+                                <toolkit:DockPanel>
+
+                                    <!-- 状態 -->
+                                    <StackPanel  toolkit:DockPanel.Dock="Right" HorizontalAlignment="Right">
+                                        <TextBlock Text="{Binding CacheRequestTime}" Margin="0 0 0 4" />
+                                        <TextBlock Text="{Binding Quality}" Margin="0 0 0 4" />
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding CacheState.Value}" />
+                                            <TextBlock toolkit:DockPanel.Dock="Left" Margin="8 0"
+                                                Visibility="{Binding IsVisibleProgress.Value, Converter={StaticResource BooleanToVisibility}}"
+                                                >
+                                            <Run Text="(" />
+                                            <Run Text="{Binding ProgressPercent.Value}" />
+                                            <Run Text="%)" />
+                                            </TextBlock>
+                                        </StackPanel>
+
+                                    </StackPanel>
+
+                                    <!-- 操作 -->
+
+                                    <local:VideoInfoControl
+                                            
+                                    />
+
+                                </toolkit:DockPanel>
+
+                            </Border>
+
+                        </toolkit:DockPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ListView>
+
+
 
 
         </toolkit:DockPanel>
