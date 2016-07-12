@@ -22,7 +22,7 @@ namespace NicoPlayerHohoema.ViewModels
 	public class MylistPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
 	{
 		public MylistPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
-			: base(hohoemaApp, pageManager)
+			: base(hohoemaApp, pageManager, isRequireSignIn: true)
 		{
 			IsFavoriteMylist = new ReactiveProperty<bool>(mode:ReactivePropertyMode.DistinctUntilChanged);
 			CanChangeFavoriteMylistState = new ReactiveProperty<bool>();
@@ -165,11 +165,6 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				return new MylistIncrementalSource(MylistGroupId, HohoemaApp, PageManager);
 			}
-		}
-
-		protected override bool CheckNeedUpdate()
-		{
-			return true;
 		}
 
 		public override string GetPageTitle()

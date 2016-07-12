@@ -43,11 +43,6 @@ namespace NicoPlayerHohoema.ViewModels
 			return new HistoryIncrementalLoadingSource(HohoemaApp, PageManager);
 		}
 
-		protected override bool CheckNeedUpdate()
-		{
-			return true;
-		}
-
 		
 	}
 

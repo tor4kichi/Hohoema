@@ -105,8 +105,7 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<NiconicoSignInStatus> SignIn(string mailOrTelephone, string password)
 		{
-			NiconicoContext?.Dispose();
-			NiconicoContext = null;
+			await SignOut();
 
 			var context = new NiconicoContext(new NiconicoAuthenticationToken(mailOrTelephone, password));
 
@@ -141,6 +140,8 @@ namespace NicoPlayerHohoema.Models
 
 				Debug.WriteLine("Login done.");
 				//				await MediaManager.Context.Resume();
+
+				OnSignin?.Invoke();
 			}
 			else
 			{
@@ -165,6 +166,8 @@ namespace NicoPlayerHohoema.Models
 			await SaveUserSettings();
 			UserSettings = null;
 			LoginUserId = uint.MaxValue;
+
+			OnSignout?.Invoke();
 
 			return result;
 		}
@@ -236,11 +239,13 @@ namespace NicoPlayerHohoema.Models
 		public AccountSettings CurrentAccount { get; private set; }
 
 
+		public event Action OnSignout;
+		public event Action OnSignin;
 
-		
-		
+
+
 	}
-	
+
 
 	public class NGResult
 	{

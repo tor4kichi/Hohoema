@@ -43,6 +43,35 @@ namespace NicoPlayerHohoema.ViewModels
 			CheckLoginCommand.Subscribe(async x => await CheckLoginAndGo());
 		}
 
+		
+
+		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		{
+			// ログイン済みの場合、ログアウトする
+			if (await HohoemaApp.CheckSignedInStatus() == NiconicoSignInStatus.Success)
+			{
+				await HohoemaApp.SignOut();
+
+				// ログアウト前のページに戻れないようにページ履歴を削除
+				PageManager.ClearNavigateHistory();
+			}
+
+			if (e.Parameter is bool && HohoemaApp.CurrentAccount != null)
+			{
+				var canAutoLogin = (bool)e.Parameter;
+
+				if (canAutoLogin && !String.IsNullOrEmpty(HohoemaApp.CurrentAccount.Password))
+				{
+					await CheckLoginAndGo();
+				}
+			}
+
+			base.OnNavigatedTo(e, viewModelState);
+		}
+
+
+
+
 		private async Task CheckLoginAndGo()
 		{
 			CanChangeValue.Value = false;
@@ -70,29 +99,6 @@ namespace NicoPlayerHohoema.ViewModels
 				CanChangeValue.Value = true;
 			}
 		}
-
-
-		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-			// ログイン済みの場合、ログアウトする
-			if (await HohoemaApp.CheckSignedInStatus() == NiconicoSignInStatus.Success)
-			{
-				await HohoemaApp.SignOut();
-			}
-
-			if (e.Parameter is bool && HohoemaApp.CurrentAccount != null)
-			{
-				var canAutoLogin = (bool)e.Parameter;
-
-				if (canAutoLogin && !String.IsNullOrEmpty(HohoemaApp.CurrentAccount.Password))
-				{
-					await CheckLoginAndGo();
-				}
-			}
-
-			base.OnNavigatedTo(e, viewModelState);
-		}
-
 
 
 

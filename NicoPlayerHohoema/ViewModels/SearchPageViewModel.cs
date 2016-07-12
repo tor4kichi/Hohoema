@@ -25,7 +25,7 @@ namespace NicoPlayerHohoema.ViewModels
 		
 
 		public SearchPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, NiconicoContentFinder contentFinder)
-			: base(hohoemaApp, pageManager)
+			: base(hohoemaApp, pageManager, isRequireSignIn:true)
 		{
 			_ContentFinder = contentFinder;
 
@@ -100,13 +100,18 @@ namespace NicoPlayerHohoema.ViewModels
 
 			_NowProcessFavorite = true;
 
-			IsTagSearch.Value = RequireSearchOption.SearchTarget == SearchTarget.Tag;
+			IsTagSearch.Value = RequireSearchOption.SearchTarget == SearchTarget.Tag && NowSignIn;
 			if (IsTagSearch.Value)
 			{
 				// お気に入り登録されているかチェック
 				var favManager = HohoemaApp.FavFeedManager;
 				IsFavoriteTag.Value = favManager.IsFavoriteItem(FavoriteItemType.Tag, RequireSearchOption.Keyword);
 				CanChangeFavoriteTagState.Value = favManager.CanMoreAddFavorite(FavoriteItemType.Tag);
+			}
+			else
+			{
+				IsFavoriteTag.Value = false;
+				CanChangeFavoriteTagState.Value = false;
 			}
 
 			_NowProcessFavorite = false;

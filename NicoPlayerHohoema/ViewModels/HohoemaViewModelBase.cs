@@ -11,9 +11,43 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	abstract public class HohoemaViewModelBase : ViewModelBase
 	{
-		public HohoemaViewModelBase(PageManager pageManager)
+		public HohoemaViewModelBase(HohoemaApp hohoemaApp, PageManager pageManager, bool isRequireSignIn = false)
 		{
+			HohoemaApp = hohoemaApp;
 			PageManager = pageManager;
+
+			IsRequireSignIn = isRequireSignIn;
+
+			HohoemaApp.OnSignout += HohoemaApp_OnSignout;
+			HohoemaApp.OnSignin += HohoemaApp_OnSignin;
+
+		}
+
+		private void HohoemaApp_OnSignin()
+		{
+			OnSignIn();
+		}
+
+		private void HohoemaApp_OnSignout()
+		{
+			OnSignOut();
+		}
+
+		
+
+		protected virtual void OnSignIn()
+		{
+			NowSignIn = true;
+		}
+
+		protected virtual void OnSignOut()
+		{
+			NowSignIn = false;
+		}
+
+		protected async Task<bool> CheckSignIn()
+		{
+			return await HohoemaApp.CheckSignedInStatus() == Mntone.Nico2.NiconicoSignInStatus.Success;
 		}
 
 		abstract public string GetPageTitle();
@@ -41,6 +75,11 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
+		public bool IsRequireSignIn { get; private set; }
+		public bool NowSignIn { get; private set; }
+
+
+		public HohoemaApp HohoemaApp { get; private set; }
 		public PageManager PageManager { get; private set; }
 	}
 }

@@ -20,11 +20,9 @@ namespace NicoPlayerHohoema.ViewModels
 	abstract public class HohoemaVideoListingPageViewModelBase<VIDEO_INFO_VM> : HohoemaViewModelBase
 		where VIDEO_INFO_VM : VideoInfoControlViewModel
 	{
-		public HohoemaVideoListingPageViewModelBase(HohoemaApp app, PageManager pageManager)
-			: base(pageManager)
+		public HohoemaVideoListingPageViewModelBase(HohoemaApp app, PageManager pageManager, bool isRequireSignIn = false)
+			: base(app, pageManager, isRequireSignIn)
 		{
-			HohoemaApp = app;
-
 			NowLoadingItems = new ReactiveProperty<bool>(false);
 			SelectedVideoInfoItems = new ObservableCollection<VIDEO_INFO_VM>();
 
@@ -188,14 +186,38 @@ namespace NicoPlayerHohoema.ViewModels
 				ResetList();
 			});
 
+
+
 		}
 
-		
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+
+		protected override void OnSignIn()
+		{
+			base.OnSignIn();
+		}
+
+		protected override void OnSignOut()
+		{
+			base.OnSignOut();
+
+			if (IsRequireSignIn)
+			{
+				IncrementalLoadingItems = null;
+			}
+		}
+
+
+		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			base.OnNavigatedTo(e, viewModelState);
 
-			if (CheckNeedUpdate())
+			if (!NowSignIn && PageIsRequireSignIn)
+			{
+				IncrementalLoadingItems = null;
+				return;
+			}
+
+			if (IncrementalLoadingItems == null || CheckNeedUpdate())
 			{
 				ResetList();
 			}
@@ -275,7 +297,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		abstract protected IIncrementalSource<VIDEO_INFO_VM> GenerateIncrementalSource();
 
-		abstract protected bool CheckNeedUpdate();
+		protected virtual bool CheckNeedUpdate() { return false; }
 
 		private IEnumerable<VideoInfoControlViewModel> EnumerateDownloadingVideoItems()
 		{
@@ -400,8 +422,8 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveCommand RequestCacheDownload { get; private set; }
 		public ReactiveCommand DeleteCache { get; private set; }
 
-		public HohoemaApp HohoemaApp { get; private set; }
-
+		public bool PageIsRequireSignIn { get; private set; }
+		public bool NowSignedIn { get; private set; }
 
 	}
 }

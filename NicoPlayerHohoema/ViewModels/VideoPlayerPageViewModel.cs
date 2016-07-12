@@ -48,7 +48,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public SynchronizationContextScheduler PlayerWindowUIDispatcherScheduler;
 
 		public VideoPlayerPageViewModel(HohoemaApp hohoemaApp, EventAggregator ea, PageManager pageManager)
-			: base(pageManager)
+			: base(hohoemaApp, pageManager)
 		{
 			PlayerWindowUIDispatcherScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
 

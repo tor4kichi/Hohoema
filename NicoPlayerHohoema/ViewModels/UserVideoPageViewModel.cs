@@ -15,7 +15,7 @@ namespace NicoPlayerHohoema.ViewModels
 	public class UserVideoPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
 	{
 		public UserVideoPageViewModel(HohoemaApp app, PageManager pageManager) 
-			: base(app, pageManager)
+			: base(app, pageManager, isRequireSignIn:true)
 		{
 		}
 
@@ -45,10 +45,7 @@ namespace NicoPlayerHohoema.ViewModels
 			return "ユーザーの投稿動画一覧";
 		}
 
-		protected override bool CheckNeedUpdate()
-		{
-			return true;
-		}
+		
 
 		protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
 		{

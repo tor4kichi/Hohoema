@@ -66,11 +66,7 @@ namespace NicoPlayerHohoema.ViewModels
 				return 20u;
 			}
 		}
-
-		protected override bool CheckNeedUpdate()
-		{
-			return true;
-		}
+		
 
 		#endregion
 
