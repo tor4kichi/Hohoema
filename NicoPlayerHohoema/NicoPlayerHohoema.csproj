@@ -94,6 +94,7 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
+    <Content Include="Assets\LibLisencies\_lisence_summary.json" />
     <None Include="lib\Mntone.Nico2.UWP.pri" />
     <None Include="project.json" />
   </ItemGroup>
@@ -109,6 +110,7 @@
     <Compile Include="Models\FavoritePageParameter.cs" />
     <Compile Include="Models\HohoemaApp.cs" />
     <Compile Include="Models\HohoemaPageType.cs" />
+    <Compile Include="Models\LisenceSummary.cs" />
     <Compile Include="Models\Settings\HohoemaUserSettings.cs" />
     <Compile Include="Models\MediaBackgroundTask.cs" />
     <Compile Include="Models\NiconicoContentFinder.cs" />
@@ -302,6 +304,12 @@
     <None Include="NicoPlayerHohoema_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\LibLisencies\HtmlAgilityPack.txt" />
+    <Content Include="Assets\LibLisencies\Newtonsoft.Json.txt" />
+    <Content Include="Assets\LibLisencies\OpenNiconico2.txt" />
+    <Content Include="Assets\LibLisencies\Prism.txt" />
+    <Content Include="Assets\LibLisencies\ReactiveProperty.txt" />
+    <Content Include="Assets\LibLisencies\WinRTXamlToolkit.UWP.txt" />
     <Content Include="Assets\VideoDescription\VideoDescription.html" />
     <Content Include="lib\Mntone.Nico2.UWP.dll" />
     <Content Include="lib\Mntone.Nico2.UWP.pdb" />
