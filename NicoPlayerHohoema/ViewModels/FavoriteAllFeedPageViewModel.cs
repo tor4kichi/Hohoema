@@ -17,7 +17,7 @@ namespace NicoPlayerHohoema.ViewModels
 	public class FavoriteAllFeedPageViewModel : HohoemaVideoListingPageViewModelBase<FavoriteVideoInfoControlViewModel>
 	{
 		public FavoriteAllFeedPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
-			: base(hohoemaApp, pageManager)
+			: base(hohoemaApp, pageManager, isRequireSignIn: true)
 		{
 			AllMarkAsReadCommand = new DelegateCommand(async () =>
 			{
@@ -64,10 +64,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 		
-		protected override bool CheckNeedUpdate()
-		{
-			return true;
-		}
+	
 
 		protected override IIncrementalSource<FavoriteVideoInfoControlViewModel> GenerateIncrementalSource()
 		{

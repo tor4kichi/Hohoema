@@ -194,7 +194,6 @@
     <Compile Include="ViewModels\SearchPageViewModel.cs" />
     <Compile Include="ViewModels\SelectableItem.cs" />
     <Compile Include="ViewModels\SettingsPageViewModel.cs" />
-    <Compile Include="ViewModels\SubscriptionPageViewModel.cs" />
     <Compile Include="ViewModels\VideoInfoContent\SummaryVideoInfoContentViewModel.cs" />
     <Compile Include="ViewModels\VideoInfoControlViewModel.cs" />
     <Compile Include="Views\Behaviors\AutoHide.cs" />
@@ -288,9 +287,6 @@
     </Compile>
     <Compile Include="Views\SettingsPageContent\RankingSettingPageContent.xaml.cs">
       <DependentUpon>RankingSettingPageContent.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\SubscriptionPage.xaml.cs">
-      <DependentUpon>SubscriptionPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\VideoInfoContent\SummaryVideoInfoContent.xaml.cs">
       <DependentUpon>SummaryVideoInfoContent.xaml</DependentUpon>
@@ -448,10 +444,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SettingsPageContent\RankingSettingPageContent.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\SubscriptionPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

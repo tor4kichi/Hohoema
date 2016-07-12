@@ -17,7 +17,7 @@ namespace NicoPlayerHohoema.ViewModels
 	public class UserInfoPageViewModel : HohoemaViewModelBase
 	{
 		public UserInfoPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager) 
-			: base(pageManager)
+			: base(hohoemaApp, pageManager)
 		{
 			_HohoemaApp = hohoemaApp;
 

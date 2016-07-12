@@ -16,7 +16,7 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 		{
 			_HohoemaApp = hohoemaApp;
 
-			HisotoryVideoInfoItems = new ObservableCollection<HisotoryVideoInfoControlViewModel>();
+			HisotoryVideoInfoItems = new ObservableCollection<HistoryVideoInfoControlViewModel>();
 
 		}
 
@@ -32,7 +32,7 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 			foreach (var history in histories.Histories.Take(10))
 			{
 				var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(history.Id);
-				var vm = new HisotoryVideoInfoControlViewModel(
+				var vm = new HistoryVideoInfoControlViewModel(
 					history.WatchCount
 					, nicoVideo
 					, PageManager
@@ -61,7 +61,7 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 		}
 
 
-		public ObservableCollection<HisotoryVideoInfoControlViewModel> HisotoryVideoInfoItems { get; private set; }
+		public ObservableCollection<HistoryVideoInfoControlViewModel> HisotoryVideoInfoItems { get; private set; }
 
 		HohoemaApp _HohoemaApp;
 
