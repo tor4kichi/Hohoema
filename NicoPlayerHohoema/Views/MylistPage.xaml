@@ -103,7 +103,7 @@
 
                 </i:Interaction.Behaviors>
 
-                <ItemsControl.ItemTemplate>
+                <ListView.ItemTemplate>
                     <DataTemplate>
                         <toolkit:DockPanel Margin="8"
                                         Background="Transparent" IsHitTestVisible="True"
@@ -125,7 +125,7 @@
 
                         </toolkit:DockPanel>
                     </DataTemplate>
-                </ItemsControl.ItemTemplate>
+                </ListView.ItemTemplate>
             </ListView>
 
 

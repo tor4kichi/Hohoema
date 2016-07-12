@@ -7,31 +7,85 @@ using System.Text;
 using System.Threading.Tasks;
 using Prism.Windows.Navigation;
 using System.Collections.ObjectModel;
+using NicoPlayerHohoema.Util;
+using Mntone.Nico2.Videos.Histories;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class HistoryPageViewModel : ViewModelBase
+	public class HistoryPageViewModel : HohoemaVideoListingPageViewModelBase<HistoryVideoInfoControlViewModel>
 	{
 		public HistoryPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
+			: base(hohoemaApp, pageManager)
 		{
-			_HohoemaApp = hohoemaApp;
-			_PageManager = pageManager;
-
-			HisotoryVideoInfoItems = new ObservableCollection<HisotoryVideoInfoControlViewModel>();
 		}
 
 
-		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		{			
+			base.OnNavigatedTo(e, viewModelState);
+		}
+
+		public override string GetPageTitle()
 		{
-			var histories = await _HohoemaApp.ContentFinder.GetHistory();
+			return "視聴履歴";
+		}
+
+		protected override uint IncrementalLoadCount
+		{
+			get
+			{
+				return 20;
+			}
+		}
+
+		protected override IIncrementalSource<HistoryVideoInfoControlViewModel> GenerateIncrementalSource()
+		{
+			return new HistoryIncrementalLoadingSource(HohoemaApp, PageManager);
+		}
+
+		protected override bool CheckNeedUpdate()
+		{
+			return true;
+		}
+
+		
+	}
 
 
-			HisotoryVideoInfoItems.Clear();
+	public class HistoryVideoInfoControlViewModel : VideoInfoControlViewModel
+	{
+		public HistoryVideoInfoControlViewModel(uint viewCount, NicoVideo nicoVideo, PageManager pageManager)
+			: base(nicoVideo, pageManager)
+		{
+			UserViewCount = viewCount;
+		}
 
-			foreach (var history in histories.Histories)
+		public DateTime LastWatchedAt { get; set; }
+		public uint UserViewCount { get; set; }
+	}
+
+
+	public class HistoryIncrementalLoadingSource : IIncrementalSource<HistoryVideoInfoControlViewModel>
+	{
+		public HistoryIncrementalLoadingSource(HohoemaApp hohoemaApp, PageManager pageManager)
+		{
+			_HohoemaApp = hohoemaApp;
+			_PageManager = pageManager;
+		}
+
+		public async Task<IEnumerable<HistoryVideoInfoControlViewModel>> GetPagedItems(uint pageIndex, uint pageSize)
+		{
+			if (_HistoriesResponse == null)
+			{
+				_HistoriesResponse = await _HohoemaApp.ContentFinder.GetHistory();
+			}
+
+			var head = (int)pageIndex - 1;
+			var list = new List<HistoryVideoInfoControlViewModel>();
+			foreach (var history in _HistoriesResponse.Histories.Skip(head).Take((int)pageSize))
 			{
 				var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(history.Id);
-				var vm = new HisotoryVideoInfoControlViewModel(
+				var vm = new HistoryVideoInfoControlViewModel(
 					history.WatchCount
 					, nicoVideo
 					, _PageManager
@@ -41,31 +95,17 @@ namespace NicoPlayerHohoema.ViewModels
 				vm.MovieLength = history.Length;
 				vm.ThumbnailImageUrl = history.ThumbnailUrl;
 
-				HisotoryVideoInfoItems.Add(vm);
+				list.Add(vm);
 			}
 
-			
-
-			base.OnNavigatedTo(e, viewModelState);
+			return list;
 		}
 
-		
-		public ObservableCollection<HisotoryVideoInfoControlViewModel> HisotoryVideoInfoItems { get; private set; }
+
+		HistoriesResponse _HistoriesResponse;
 
 		HohoemaApp _HohoemaApp;
 		PageManager _PageManager;
-	}
 
-
-	public class HisotoryVideoInfoControlViewModel : VideoInfoControlViewModel
-	{
-		public HisotoryVideoInfoControlViewModel(uint viewCount, NicoVideo nicoVideo, PageManager pageManager)
-			: base(nicoVideo, pageManager)
-		{
-			UserViewCount = viewCount;
-		}
-
-		public DateTime LastWatchedAt { get; set; }
-		public uint UserViewCount { get; set; }
 	}
 }

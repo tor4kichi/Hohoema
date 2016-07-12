@@ -32,7 +32,7 @@ namespace NicoPlayerHohoema.ViewModels
 			ContentFinder = HohoemaApp.ContentFinder;
 			_EventAggregator = ea;
 
-			RankingSettings = hohoemaApp.UserSettings.RankingSettings;
+//			RankingSettings = hohoemaApp.UserSettings.RankingSettings;
 			IsFailedRefreshRanking = new ReactiveProperty<bool>(false);
 			CanChangeRankingParameter = new ReactiveProperty<bool>(false);
 
@@ -200,7 +200,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 		private NiconicoContentFinder ContentFinder;
 		private EventAggregator _EventAggregator;
-		public RankingSettings RankingSettings { get; private set; }
+		public RankingSettings RankingSettings
+		{
+			get
+			{
+				return HohoemaApp.UserSettings.RankingSettings;
+			}
+		}
 	}
 
 
