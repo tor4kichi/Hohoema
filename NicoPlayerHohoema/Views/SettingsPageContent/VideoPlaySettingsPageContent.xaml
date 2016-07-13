@@ -10,13 +10,13 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <Grid>
-        <ItemsControl>
+    <ScrollViewer>
+        <ItemsControl Margin="8" >
 
 
             <toolkit:DockPanel Margin="8">
 
-                <TextBlock Text="低画質モードをデフォルトに設定"
+                <TextBlock Text="低画質モードをデフォルトに設定する"
                            toolkit:DockPanel.Dock="Left"
                            VerticalAlignment="Center"
                            />
@@ -28,8 +28,21 @@
 
             </toolkit:DockPanel>
 
-           
+
+            <toolkit:DockPanel Margin="8">
+
+                <TextBlock Text="再生中は画面を点灯したままにする"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+
+                <ToggleButton Width="32" Height="32"
+                              IsChecked="{Binding IsKeepDisplayInPlayback.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              HorizontalAlignment="Right"
+                              />
+
+            </toolkit:DockPanel>
 
         </ItemsControl>
-    </Grid>
+    </ScrollViewer>
 </UserControl>

@@ -17,11 +17,12 @@ using Windows.UI.Xaml.Navigation;
 
 namespace NicoPlayerHohoema.Views.SettingsPageContent
 {
-	public sealed partial class PerformanceSettingsPageContent : UserControl
+	public sealed partial class RankingSettingPageContent : UserControl
 	{
-		public PerformanceSettingsPageContent()
+		public RankingSettingPageContent()
 		{
 			this.InitializeComponent();
 		}
 	}
+	
 }

@@ -34,26 +34,20 @@ namespace NicoPlayerHohoema.Views
 		public DataTemplate RankingTemplate { get; set; }
 		public DataTemplate NGTemplate { get; set; }
 		public DataTemplate PlayerTemplate { get; set; }
-		public DataTemplate PerformanceTemplate { get; set; }
-
 
 		protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
 		{
-			if (item is ViewModels.RankingSettingsPageContentViewModel)
+			if (item is ViewModels.VideoListSettingsPageContentViewModel)
 			{
 				return RankingTemplate;
 			}
-			else if (item is ViewModels.NGSettingsPageContentViewModel)
+			else if (item is ViewModels.CommentSettingsPageContentViewModel)
 			{
 				return NGTemplate;
 			}
-			else if (item is ViewModels.PlayerSettingsPageContentViewModel)
+			else if (item is ViewModels.VideoPlaySettingsPageContentViewModel)
 			{
 				return PlayerTemplate;
-			}
-			else if (item is ViewModels.PerformanceSettingsPageContentViewModel)
-			{
-				return PerformanceTemplate;
 			}
 
 			return base.SelectTemplateCore(item, container);

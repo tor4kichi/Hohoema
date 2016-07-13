@@ -380,6 +380,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 		private double PreviousVideoPosition;
 
+
+		static readonly ReadOnlyCollection<char> glassChars = new ReadOnlyCollection<char>(new char[] { 'w', 'ｗ', 'W', 'Ｗ' });
+
 		private Comment ChatToComment(Chat comment)
 		{
 			var fontSize_mid = 1.0f;
@@ -391,18 +394,34 @@ namespace NicoPlayerHohoema.ViewModels
 
 			Color defaultColor = ColorExtention.HexStringToColor("FFFFFF");
 
-
+			
 			if (comment.Text == null)
 			{
 				return null;
 			}
 
+			var playerSettings = _HohoemaApp.UserSettings.PlayerSettings;
 
 			var decodedText = comment.GetDecodedText();
+
+			// 自動芝刈り機
+			if (playerSettings.CommentGlassMowerEnable)
+			{
+				foreach (var someGlassChar in glassChars)
+				{
+					if (decodedText.Last() == someGlassChar)
+					{
+						decodedText = new String(decodedText.Reverse().SkipWhile(x => x == someGlassChar).Reverse().ToArray()) + someGlassChar;
+						break;
+					}
+				}
+			}
 
 			
 			var vpos_value = int.Parse(comment.Vpos);
 			var vpos = vpos_value >= 0 ? (uint)vpos_value : 0;
+
+
 
 			var commentVM = new Comment(this)
 			{
@@ -418,21 +437,32 @@ namespace NicoPlayerHohoema.ViewModels
 			commentVM.IsOwnerComment = comment.User_id != null ? comment.User_id == Video.CachedThumbnailInfo.UserId.ToString() : false;
 
 			IEnumerable<CommandType> commandList = null;
-			try
-			{
-				commandList = comment.GetCommandTypes();
-			}
-			catch(Exception ex)
-			{
-				Debug.WriteLine(ex.Message);
-				Debug.WriteLine(comment.Mail);
-			}
 
+			// コメントの装飾許可設定に従ってコメントコマンドの取得を行う
+			var isAllowOwnerCommentCommnad = (playerSettings.CommentCommandPermission & CommentCommandPermissionType.Owner) == CommentCommandPermissionType.Owner;
+			var isAllowUserCommentCommnad = (playerSettings.CommentCommandPermission & CommentCommandPermissionType.User) == CommentCommandPermissionType.User;
+			var isAllowAnonymousCommentCommnad = (playerSettings.CommentCommandPermission & CommentCommandPermissionType.Anonymous) == CommentCommandPermissionType.Anonymous;
+			if ((commentVM.IsOwnerComment && isAllowOwnerCommentCommnad)
+				|| (comment.User_id != null && isAllowUserCommentCommnad)
+				|| (comment.User_id == null && isAllowAnonymousCommentCommnad)
+				)
+			{
+				try
+				{
+					commandList = comment.GetCommandTypes();
+				}
+				catch (Exception ex)
+				{
+					Debug.WriteLine(ex.Message);
+					Debug.WriteLine(comment.Mail);
+				}
+			}
+			
 			if (commandList == null)
 			{
 				commandList = Enumerable.Empty<CommandType>();
 			}
-			//					var commandList = Enumerable.Empty<CommandType>();
+
 			bool isCommendCancel = false;
 			foreach (var command in commandList)
 			{

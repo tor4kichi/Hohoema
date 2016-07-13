@@ -1,0 +1,394 @@
+﻿<UserControl
+    x:Class="NicoPlayerHohoema.Views.SettingsPageContent.NGSettingsPageContent"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views.SettingsPageContent"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    mc:Ignorable="d"
+    d:DesignHeight="1200"
+    d:DesignWidth="400">
+
+    <UserControl.Resources>
+        <DataTemplate x:Key="TextWithRemoveButtonTemplate">
+            <toolkit:DockPanel>
+                <TextBlock Text="{Binding Content}" 
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+
+                <AppBarButton Icon="Remove" 
+                              Command="{Binding RemoveCommand}" 
+                              />
+
+            </toolkit:DockPanel>
+        </DataTemplate>
+
+        <DataTemplate x:Key="NGKeywordTemplate">
+            <toolkit:DockPanel
+                    Background="Transparent"
+                    >
+                <FlyoutBase.AttachedFlyout>
+                    <Flyout x:Name="NGTitleFlyout" >
+                        <toolkit:DockPanel>
+                            <TextBlock Text="除外キーワード"
+                                                                VerticalAlignment="Center"
+                                                                Margin="8 0"
+                                                               toolkit:DockPanel.Dock="Left"
+                                                                />
+                            <TextBox Text="{Binding Keyword.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                                MinWidth="150"
+                                                                >
+                            </TextBox>
+                        </toolkit:DockPanel>
+                    </Flyout>
+                </FlyoutBase.AttachedFlyout>
+                <i:Interaction.Behaviors>
+                    <mybehavior:ShowFlyoutBehavior />
+                </i:Interaction.Behaviors>
+
+
+                <AppBarButton Icon="Delete" 
+                                                      Command="{Binding RemoveKeywordCommand}"
+                                                      />
+                <TextBlock Text="{Binding Keyword.Value}" 
+                                                   VerticalAlignment="Center"
+                                                   HorizontalAlignment="Center"
+                                                   Margin="16 0"
+                                               >
+
+                </TextBlock>
+
+
+
+            </toolkit:DockPanel>
+        </DataTemplate>
+
+
+        <local:NGCommentScoreTypeTemplateSelector x:Key="NGCommentScoreTypeTemplateSelector">
+            <local:NGCommentScoreTypeTemplateSelector.NoneTemplate>
+                <DataTemplate>
+                    <TextBlock Text="なし" />
+                </DataTemplate>
+            </local:NGCommentScoreTypeTemplateSelector.NoneTemplate>
+
+            <local:NGCommentScoreTypeTemplateSelector.LowTemplate>
+                <DataTemplate>
+                    <TextBlock Text="弱" />
+                </DataTemplate>
+            </local:NGCommentScoreTypeTemplateSelector.LowTemplate>
+
+            <local:NGCommentScoreTypeTemplateSelector.MiddleTemplate>
+                <DataTemplate>
+                    <TextBlock Text="中" />
+                </DataTemplate>
+            </local:NGCommentScoreTypeTemplateSelector.MiddleTemplate>
+
+            <local:NGCommentScoreTypeTemplateSelector.HighTemplate>
+                <DataTemplate>
+                    <TextBlock Text="強" />
+                </DataTemplate>
+            </local:NGCommentScoreTypeTemplateSelector.HighTemplate>
+
+            <local:NGCommentScoreTypeTemplateSelector.VeryHighTemplate>
+                <DataTemplate>
+                    <TextBlock Text="さらに強" />
+                </DataTemplate>
+            </local:NGCommentScoreTypeTemplateSelector.VeryHighTemplate>
+
+            <local:NGCommentScoreTypeTemplateSelector.SuperVeryHighTemplate>
+                <DataTemplate>
+                    <TextBlock Text="極めて強" />
+                </DataTemplate>
+            </local:NGCommentScoreTypeTemplateSelector.SuperVeryHighTemplate>
+
+            <local:NGCommentScoreTypeTemplateSelector.UltraSuperVeryHighTemplate>
+                <DataTemplate>
+                    <TextBlock Text="最大" />
+                </DataTemplate>
+            </local:NGCommentScoreTypeTemplateSelector.UltraSuperVeryHighTemplate>
+
+        </local:NGCommentScoreTypeTemplateSelector>
+        
+
+        <Style x:Key="DescriptionTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="Gray" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer>
+
+        
+        
+        <StackPanel Margin="8">
+            <StackPanel>
+                <TextBlock Text="※ この設定はHohoemaアプリ上でのみ適用されます"
+                           Style="{StaticResource DescriptionTextStyle}"
+                           HorizontalAlignment="Right"
+                           Margin="8 0"
+                           />
+            </StackPanel>
+            
+            
+            
+            <Border Margin="0 8" 
+                    BorderThickness="0 1 0 0"
+                    BorderBrush="Gray"
+                    />
+
+
+            <toolkit:DockPanel Margin="8">
+
+                <TextBlock Text="デフォルトでコメントを表示する"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+
+                <ToggleButton Width="32" Height="32"
+                              IsChecked="{Binding DefaultCommentDisplay.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                              HorizontalAlignment="Right"
+                              />
+
+            </toolkit:DockPanel>
+
+            <toolkit:DockPanel Margin="8">
+
+                <TextBlock Text="投稿者コメントを読みやすくする"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+
+                <ToggleButton Width="32" Height="32"
+                              IsChecked="{Binding IncrementReadablityOwnerComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              HorizontalAlignment="Right"
+                              />
+
+            </toolkit:DockPanel>
+
+
+            <toolkit:DockPanel Margin="8">
+
+                <TextBlock Text="コメントの一秒あたりの描画回数"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+
+                <ComboBox ItemsSource="{Binding CommentRenderringFPSList}"
+                          SelectedItem="{Binding CommentRenderingFPS.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                          HorizontalAlignment="Right"
+                          >
+
+                </ComboBox>
+
+
+            </toolkit:DockPanel>
+
+
+            <toolkit:DockPanel Margin="8">
+
+                <TextBlock Text="コメントの表示サイズ"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+
+                <toolkit:NumericUpDown Value="{Binding CommentFontScale.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                       SmallChange="0.05"
+                                       LargeChange="1.0"
+                                       Minimum="0.1"
+                                       Maximum="2.0"
+                                       HorizontalAlignment="Right"
+                                       />
+
+            </toolkit:DockPanel>
+
+            <toolkit:DockPanel Margin="8">
+
+                <TextBlock Text="コメントの装飾許可設定"
+                           toolkit:DockPanel.Dock="Top"
+                           VerticalAlignment="Center"
+                           />
+
+                <StackPanel Margin="8 8 0 0">
+                    <toolkit:DockPanel Margin="8">
+                        <TextBlock Text="動画投稿者コメントの装飾を許可"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+                        <ToggleButton Width="32" Height="32" 
+                                  Margin="0 0 8 0"
+                                  IsChecked="{Binding IsEnableOwnerCommentCommand.Value, Mode=TwoWay}"
+                                  HorizontalAlignment="Right"
+                                          />
+                    </toolkit:DockPanel>
+
+                    <toolkit:DockPanel Margin="8">
+                        <TextBlock Text="ユーザーコメントの装飾を許可"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+                        <ToggleButton Width="32" Height="32" 
+                                  Margin="0 0 8 0"
+                                  IsChecked="{Binding IsEnableUserCommentCommand.Value, Mode=TwoWay}"
+                                  HorizontalAlignment="Right"
+                                          />
+                    </toolkit:DockPanel>
+
+                    <toolkit:DockPanel Margin="8">
+                        <TextBlock Text="匿名コメントの装飾を許可"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+                        <ToggleButton Width="32" Height="32" 
+                                  Margin="0 0 8 0"
+                                  IsChecked="{Binding IsEnableAnonymousCommentCommand.Value, Mode=TwoWay}"
+                                  HorizontalAlignment="Right"
+                                          />
+                    </toolkit:DockPanel>
+                </StackPanel>
+                
+            </toolkit:DockPanel>
+
+
+            <!-- NGコメント -->
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="8 8 0 16">
+                    <TextBlock Text="コメントのNG設定"
+                             FontSize="18"
+                               VerticalAlignment="Center"
+                           />
+
+                </StackPanel>
+                
+                
+
+                <StackPanel Margin="16 0 0 0">
+
+                    <!-- NG共有スコア -->
+                    <toolkit:DockPanel Margin="8">
+                        
+                        <TextBlock Text="NGスコアとは：コメントは投稿時はスコア０、NG評価で減少する値です。"
+                                       Style="{StaticResource DescriptionTextStyle}"
+                                       Margin="32 4 0 4"
+                                       toolkit:DockPanel.Dock="Bottom"
+                                       />
+                        <TextBlock Text="共有NGスコア設定" 
+                                       toolkit:DockPanel.Dock="Left"
+                                       VerticalAlignment="Center"
+                               />
+
+
+                        <!-- TODO: スライダーに変更する？ -->
+
+                        <ComboBox Margin="16 0" MinWidth="100"
+                                      ItemsSource="{Binding NGCommentScoreTypes}"
+                                      SelectedItem="{Binding SelectedNGCommentScore.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      ItemTemplateSelector="{StaticResource NGCommentScoreTypeTemplateSelector}"                                      
+                                      >
+                        </ComboBox>
+
+                        <Border />
+
+                    </toolkit:DockPanel>
+                    
+                    
+                    <!-- NG ユーザーID -->
+                    <toolkit:DockPanel Margin="8">
+                        <TextBlock Text="ユーザーIDによるNGコメント機能を有効にする"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+                        <ToggleButton Width="32" Height="32" 
+                                  Margin="0 0 8 0"
+                                  IsChecked="{Binding NGCommentUserIdEnable.Value, Mode=TwoWay}"
+                                  HorizontalAlignment="Right"
+                                          />
+                    </toolkit:DockPanel>
+
+
+                    <ListView ItemsSource="{Binding NGCommentUserIds}"
+                                  ItemTemplate="{StaticResource TextWithRemoveButtonTemplate}"
+                                  Margin="0 8"
+                                  SelectionMode="None"
+                                  >
+                    </ListView>
+
+
+                    <!-- NG キーワード -->
+                    <toolkit:DockPanel Margin="8">
+                        <TextBlock Text="※ NGコメントのキーワードがたくさんあると、動画の準備時間が長くなるかもしれません。" 
+                                   Style="{StaticResource DescriptionTextStyle}"
+                                   Margin="32 4 0 4"
+                                toolkit:DockPanel.Dock="Bottom"
+                                   />
+                        
+                        <TextBlock Text="キーワードによるNGコメント機能を有効にする"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+                        <ToggleButton Width="32" Height="32" 
+                                  Margin="0 0 8 0"
+                                  IsChecked="{Binding NGCommentKeywordEnable.Value, Mode=TwoWay}"
+                                  HorizontalAlignment="Right"
+                                          />
+                    </toolkit:DockPanel>
+
+
+
+                    <toolkit:DockPanel>
+                        <Button Content="NGコメントキーワードを追加" 
+                                Command="{Binding AddNewNGCommentKeywordCommand}"
+                                HorizontalAlignment="Center"
+                                toolkit:DockPanel.Dock="Bottom"
+                                />
+
+                        <ListView ItemsSource="{Binding NGCommentKeywords}"
+                                  Margin="0 8"
+                                  SelectionMode="None"
+                                  ItemTemplate="{StaticResource NGKeywordTemplate}"
+                                  >
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                        </ListView>
+                    </toolkit:DockPanel>
+
+
+
+                    <!-- 自動芝刈り機 -->
+                    <toolkit:DockPanel Margin="8">
+
+                        <TextBlock Text="連続するｗを１文字に刈り込みます"
+                                       Style="{StaticResource DescriptionTextStyle}"
+                                       Margin="32 4 0 4"
+                                       ToolTipService.ToolTip="ﾌﾞｲｰﾝｗｗｗｗｗ -> ﾌﾞｲｰﾝｗ"
+                                       toolkit:DockPanel.Dock="Bottom"
+                                       />
+
+                        <TextBlock Text="自動草刈機"
+                                       toolkit:DockPanel.Dock="Left"
+                                       VerticalAlignment="Center"
+                                          />
+                        <ToggleButton Width="32" Height="32" 
+                                      Margin="0 0 8 0"
+                                      IsChecked="{Binding CommentGlassMowerEnable.Value, Mode=TwoWay}"
+                                      HorizontalAlignment="Right"
+                                          />
+                    </toolkit:DockPanel>
+
+
+                    
+                </StackPanel>
+
+                
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

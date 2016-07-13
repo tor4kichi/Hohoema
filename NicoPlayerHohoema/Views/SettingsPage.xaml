@@ -36,12 +36,6 @@
                 </DataTemplate>
             </view:SettingContentTemplateSelector.PlayerTemplate>
             
-            <!-- Performance -->
-            <view:SettingContentTemplateSelector.PerformanceTemplate>
-                <DataTemplate>
-                    <settingsContent:PerformanceSettingsPageContent />
-                </DataTemplate>
-            </view:SettingContentTemplateSelector.PerformanceTemplate>
         </view:SettingContentTemplateSelector>
     </Page.Resources>
     
@@ -69,7 +63,9 @@
                             ContentTemplateSelector="{StaticResource settingContentTemplateSelector}"
                             VerticalContentAlignment="Stretch"
                             HorizontalContentAlignment="Stretch"
+                            MaxWidth="600"
                             >
+                
                 
             </ContentControl>
         </Border>

@@ -25,7 +25,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			PageManager = pageManager;
 
-			pageManager.ObserveProperty(x => x.CurrentPageType)
+			pageManager.ObserveProperty(x => x.CurrentPageType, isPushCurrentValueAtFirst:false)
 				.Subscribe(x => 
 				{
 					if (x == HohoemaPageType.Portal)

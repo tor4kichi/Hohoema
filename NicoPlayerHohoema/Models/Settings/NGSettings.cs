@@ -26,7 +26,6 @@ namespace NicoPlayerHohoema.Models
 			NGCommentUserIds = new ObservableCollection<UserIdInfo>();
 			NGCommentKeywordEnable = true;
 			NGCommentKeywords = new ObservableCollection<NGKeyword>();
-			NGCommentGlassMowerEnable = false;
 			NGCommentScoreType = NGCommentScore.Middle;
 		}
 
@@ -226,15 +225,7 @@ namespace NicoPlayerHohoema.Models
 		public ObservableCollection<NGKeyword> NGCommentKeywords { get; private set; }
 
 
-		private bool _NGCommentGlassMowerEnable;
-
-		[DataMember]
-		public bool NGCommentGlassMowerEnable
-		{
-			get { return _NGCommentGlassMowerEnable; }
-			set { SetProperty(ref _NGCommentGlassMowerEnable, value); }
-		}
-
+		
 
 		private NGCommentScore _NGCommentScoreType;
 

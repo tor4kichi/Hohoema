@@ -104,6 +104,7 @@
     </Compile>
     <Compile Include="Events\PlayerClosedEvent.cs" />
     <Compile Include="Events\PlayNicoVideoEvent.cs" />
+    <Compile Include="Models\CommentCommandPermissionType.cs" />
     <Compile Include="Models\FavFeedList.cs" />
     <Compile Include="Models\FavFeedManager.cs" />
     <Compile Include="Models\FavoriteItemType.cs" />
@@ -150,6 +151,9 @@
     <Compile Include="ViewModels\MylistPageViewModel.cs" />
     <Compile Include="ViewModels\PortalContent\HistoryPortalPageContentViewModel.cs" />
     <Compile Include="ViewModels\SearchViewModel.cs" />
+    <Compile Include="ViewModels\SettingsContent\CommentSettingsPageContentViewModel.cs" />
+    <Compile Include="ViewModels\SettingsContent\VideoListSettingsPageContentViewModel.cs" />
+    <Compile Include="ViewModels\SettingsContent\VideoPlaySettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\UserInfoPageViewModel.cs" />
     <Compile Include="ViewModels\UserMylistPageViewModel.cs" />
     <Compile Include="ViewModels\UserVideoPageViewModel.cs" />
@@ -182,7 +186,11 @@
     <Compile Include="Views\PortalContent\HistoryPortalPageContent.xaml.cs">
       <DependentUpon>HistoryPortalPageContent.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\RankingChoiceContentDialog.xaml.cs">
+      <DependentUpon>RankingChoiceContentDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Service\ISearchDialogService.cs" />
+    <Compile Include="Views\Service\RankingChoiceDialogService.cs" />
     <Compile Include="Views\Service\SearchDialogService.cs" />
     <Compile Include="ViewModels\VideoPlayerPageViewModel.cs" />
     <Compile Include="ViewModels\PortalContent\AppPortalPageContentViewModel.cs" />
@@ -278,17 +286,14 @@
     <Compile Include="Views\SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\SettingsPageContent\NGSettingsPageContent.xaml.cs">
-      <DependentUpon>NGSettingsPageContent.xaml</DependentUpon>
+    <Compile Include="Views\SettingsPageContent\CommentSettingsPageContent.xaml.cs">
+      <DependentUpon>CommentSettingsPageContent.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\SettingsPageContent\PerformanceSettingsPageContent.xaml.cs">
-      <DependentUpon>PerformanceSettingsPageContent.xaml</DependentUpon>
+    <Compile Include="Views\SettingsPageContent\VideoPlaySettingsPageContent.xaml.cs">
+      <DependentUpon>VideoPlaySettingsPageContent.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\SettingsPageContent\PlayerSettingsPageContent.xaml.cs">
-      <DependentUpon>PlayerSettingsPageContent.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\SettingsPageContent\RankingSettingPageContent.xaml.cs">
-      <DependentUpon>RankingSettingPageContent.xaml</DependentUpon>
+    <Compile Include="Views\SettingsPageContent\VideoListSettingsPageContent.xaml.cs">
+      <DependentUpon>VideoListSettingsPageContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\VideoInfoContent\SummaryVideoInfoContent.xaml.cs">
       <DependentUpon>SummaryVideoInfoContent.xaml</DependentUpon>
@@ -371,6 +376,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\RankingChoiceContentDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\SearchContentDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -439,19 +448,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\SettingsPageContent\NGSettingsPageContent.xaml">
+    <Page Include="Views\SettingsPageContent\CommentSettingsPageContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\SettingsPageContent\PerformanceSettingsPageContent.xaml">
+    <Page Include="Views\SettingsPageContent\VideoPlaySettingsPageContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\SettingsPageContent\PlayerSettingsPageContent.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\SettingsPageContent\RankingSettingPageContent.xaml">
+    <Page Include="Views\SettingsPageContent\VideoListSettingsPageContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
