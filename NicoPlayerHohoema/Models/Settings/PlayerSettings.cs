@@ -18,6 +18,8 @@ namespace NicoPlayerHohoema.Models
 			IncrementReadablityOwnerComment = true;
 			CommentRenderingFPS = 24;
 			DefaultCommentFontScale = 1.0f;
+			CommentCommandPermission = CommentCommandPermissionType.Owner | CommentCommandPermissionType.User | CommentCommandPermissionType.Anonymous;
+			CommentGlassMowerEnable = false;
 			IsKeepDisplayInPlayback = true;
 			IsKeepFrontsideInPlayback = true;
 		}
@@ -102,6 +104,27 @@ namespace NicoPlayerHohoema.Models
 		{
 			get { return _DefaultCommentFontScale; }
 			set { SetProperty(ref _DefaultCommentFontScale, value); }
+		}
+
+
+
+		private CommentCommandPermissionType _CommentCommandPermission;
+
+		[DataMember]
+		public CommentCommandPermissionType CommentCommandPermission
+		{
+			get { return _CommentCommandPermission; }
+			set { SetProperty(ref _CommentCommandPermission, value); }
+		}
+
+
+		private bool _CommentGlassMowerEnable;
+
+		[DataMember]
+		public bool CommentGlassMowerEnable
+		{
+			get { return _CommentGlassMowerEnable; }
+			set { SetProperty(ref _CommentGlassMowerEnable, value); }
 		}
 
 

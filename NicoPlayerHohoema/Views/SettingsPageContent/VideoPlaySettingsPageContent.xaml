@@ -11,7 +11,7 @@
     d:DesignWidth="400">
 
     <ScrollViewer>
-        <ItemsControl Margin="8 16">
+        <ItemsControl Margin="8" >
 
 
             <toolkit:DockPanel Margin="8">

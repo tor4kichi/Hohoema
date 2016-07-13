@@ -39,8 +39,6 @@ namespace NicoPlayerHohoema.ViewModels
 				);
 
 
-			NGCommentGlassMowerEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentGlassMowerEnable);
-
 
 			NGCommentScoreTypes = ((IEnumerable<NGCommentScore>)Enum.GetValues(typeof(NGCommentScore))).ToList();
 
@@ -62,15 +60,30 @@ namespace NicoPlayerHohoema.ViewModels
 			IncrementReadablityOwnerComment = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IncrementReadablityOwnerComment);
 			CommentRenderingFPS = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentRenderingFPS);
 			CommentFontScale = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCommentFontScale);
+			CommentGlassMowerEnable = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentGlassMowerEnable);
 
 			CommentRenderringFPSList = new List<uint>()
 			{
 				5, 10, 15, 24, 30, 45, 60, 75, 90, 120
 			};
 
+
+			IsEnableOwnerCommentCommand = new ReactiveProperty<bool>(_PlayerSettings.CommentCommandPermission.HasFlag(CommentCommandPermissionType.Owner));
+			IsEnableUserCommentCommand = new ReactiveProperty<bool>(_PlayerSettings.CommentCommandPermission.HasFlag(CommentCommandPermissionType.User));
+			IsEnableAnonymousCommentCommand = new ReactiveProperty<bool>(_PlayerSettings.CommentCommandPermission.HasFlag(CommentCommandPermissionType.Anonymous));
+
+			IsEnableOwnerCommentCommand.Subscribe(x => SetCommentCommandPermission(x, CommentCommandPermissionType.Owner));
+			IsEnableUserCommentCommand.Subscribe(x => SetCommentCommandPermission(x, CommentCommandPermissionType.User));
+			IsEnableAnonymousCommentCommand.Subscribe(x => SetCommentCommandPermission(x, CommentCommandPermissionType.Anonymous));
+
 		}
 
 
+		public override void OnLeave()
+		{
+			_NGSettings.Save().ConfigureAwait(false);
+			_PlayerSettings.Save().ConfigureAwait(false);
+		}
 
 
 		internal void OnRemoveNGCommentKeyword(NGKeyword keywordInfo)
@@ -85,21 +98,27 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		
 
 
-		
 
-
-		public override void OnLeave()
+		private void SetCommentCommandPermission(bool isEnable, CommentCommandPermissionType type)
 		{
-			_NGSettings.Save().ConfigureAwait(false);
+			if (isEnable)
+			{
+				_PlayerSettings.CommentCommandPermission |= type;
+			}
+			else
+			{
+				_PlayerSettings.CommentCommandPermission = _PlayerSettings.CommentCommandPermission & ~type;
+			}
 		}
 
 
 
 
-		
+
+
+
 
 		public DelegateCommand AddNewNGCommentKeywordCommand { get; private set; }
 
@@ -109,7 +128,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> NGCommentKeywordEnable { get; private set; }
 		public ReadOnlyReactiveCollection<NGKeywordViewModel> NGCommentKeywords { get; private set; }
 
-		public ReactiveProperty<bool> NGCommentGlassMowerEnable { get; private set; }
+		public ReactiveProperty<bool> CommentGlassMowerEnable { get; private set; }
 
 		public List<NGCommentScore> NGCommentScoreTypes { get; private set; }
 		public ReactiveProperty<NGCommentScore> SelectedNGCommentScore { get; private set; }
@@ -122,6 +141,11 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<float> CommentFontScale { get; private set; }
 
 		public List<uint> CommentRenderringFPSList { get; private set; }
+
+
+		public ReactiveProperty<bool> IsEnableOwnerCommentCommand { get; private set; }
+		public ReactiveProperty<bool> IsEnableUserCommentCommand { get; private set; }
+		public ReactiveProperty<bool> IsEnableAnonymousCommentCommand { get; private set; }
 
 
 

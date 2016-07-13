@@ -63,7 +63,9 @@
                             ContentTemplateSelector="{StaticResource settingContentTemplateSelector}"
                             VerticalContentAlignment="Stretch"
                             HorizontalContentAlignment="Stretch"
+                            MaxWidth="600"
                             >
+                
                 
             </ContentControl>
         </Border>

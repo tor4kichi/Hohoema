@@ -173,17 +173,21 @@
     <ScrollViewer>
         <StackPanel Margin="8">
 
-            <TextBlock Text="ランキング表示設定"
+            <!-- ランキング -->
+            <StackPanel>
+                <TextBlock Text="ランキング表示設定"
                        Margin="8 16 0 16"
                        FontSize="18"
                        />
 
 
-            <Button Content="カスタムランキングを追加する" 
+                <Button Content="カスタムランキングを追加する" 
                     Command="{Binding AddCustomRankingCategory}"
                     HorizontalAlignment="Center"
                     Margin="8"
                     />
+
+            </StackPanel>
 
             <!--NG動画-->
             <StackPanel>
@@ -198,63 +202,65 @@
                 </StackPanel>
 
                 <StackPanel Margin="16 0 0 0">
-                    <toolkit:DockPanel>
-                        <StackPanel Orientation="Horizontal"
-                                    toolkit:DockPanel.Dock="Top"
-                                    >
-                            <ToggleButton Width="32" Height="32" 
-                                          Margin="0 0 8 0"
-                                          IsChecked="{Binding NGVideoIdEnable.Value, Mode=TwoWay}"
+
+                    <toolkit:DockPanel Margin="8">
+                        <TextBlock Text="動画IDによる動画の除外を有効にする"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+                        <ToggleButton Width="32" Height="32" 
+                                  Margin="0 0 8 0"
+                                  IsChecked="{Binding NGVideoIdEnable.Value, Mode=TwoWay}"
+                                  HorizontalAlignment="Right"
                                           />
-                            <TextBlock Text="動画IDによる動画の除外を有効にする" 
-                                       VerticalAlignment="Center"
-                               />
-                        </StackPanel>
-                        <ListView ItemsSource="{Binding NGVideoIds}"
+                    </toolkit:DockPanel>
+
+                    <ListView ItemsSource="{Binding NGVideoIds}"
                                   ItemTemplate="{StaticResource TextWithRemoveButtonTemplate}"
                                   Margin="0 8"
                                   SelectionMode="None"
                                   >
-                        </ListView>
+                    </ListView>
+
+
+
+
+                    <toolkit:DockPanel Margin="8">
+                        <TextBlock Text="動画投稿者IDによる動画の除外を有効にする"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+                        <ToggleButton Width="32" Height="32" 
+                                  Margin="0 0 8 0"
+                                  IsChecked="{Binding NGVideoOwnerUserIdEnable.Value, Mode=TwoWay}"
+                                  HorizontalAlignment="Right"
+                                          />
                     </toolkit:DockPanel>
 
-
-                    <toolkit:DockPanel>
-                        <StackPanel Orientation="Horizontal" 
-                                    toolkit:DockPanel.Dock="Top"
-                                    >
-                            <ToggleButton Width="32" Height="32" 
-                                          Margin="0 0 8 0"
-                                          IsChecked="{Binding NGVideoOwnerUserIdEnable.Value, Mode=TwoWay}"                                          
-                                          />
-                            <TextBlock Text="動画投稿者IDによる動画の除外を有効にする" 
-                                       VerticalAlignment="Center"
-                               />
-                        </StackPanel>
-
-                        <ListView ItemsSource="{Binding NGVideoOwnerUserIds}"
+                    <ListView ItemsSource="{Binding NGVideoOwnerUserIds}"
                                   ItemTemplate="{StaticResource TextWithRemoveButtonTemplate}"
                                   Margin="0 8"
                                   SelectionMode="None"
                                   >
-                        </ListView>
+                    </ListView>
+
+
+
+
+                    <toolkit:DockPanel Margin="8">
+                        <TextBlock Text="動画タイトルのNGキーワードによる動画の除外を有効にする"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+                        <ToggleButton Width="32" Height="32" 
+                                  Margin="0 0 8 0"
+                                  IsChecked="{Binding NGVideoTitleKeywordEnable.Value, Mode=TwoWay}"
+                                  HorizontalAlignment="Right"
+                                          />
                     </toolkit:DockPanel>
+
 
                     <toolkit:DockPanel >
-                        <StackPanel Orientation="Horizontal"
-                                    toolkit:DockPanel.Dock="Top"
-                                    >
-                            <ToggleButton Width="32" Height="32" 
-                                          Margin="0 0 8 0"
-                                          IsChecked="{Binding NGVideoTitleKeywordEnable.Value, Mode=TwoWay}"
-                                          />
-                            <TextBlock Text="動画タイトルのNGキーワードによる動画の除外を有効にする" 
-                                       ToolTipService.ToolTip="正規表現が利用できます"
-                                       toolkit:DockPanel.Dock="Top"
-                                       VerticalAlignment="Center"
-                               />
-                        </StackPanel>
-
                         <Button Content="動画タイトルのNGキーワードを追加" 
                                 Command="{Binding AddNewNGVideoTitleKeywordCommand}"
                                 HorizontalAlignment="Center"
