@@ -774,7 +774,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			_SidePaneContentCache.Clear();
 
-
+			ExitKeepDisplay();
 
 			
 
