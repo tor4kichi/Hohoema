@@ -57,17 +57,14 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				switch (kind)
 				{
-					case HohoemaSettingsKind.Ranking:
-						vm = new RankingSettingsPageContentViewModel(HohoemaApp, title);
+					case HohoemaSettingsKind.VideoList:
+						vm = new VideoListSettingsPageContentViewModel(HohoemaApp, title);
 						break;
-					case HohoemaSettingsKind.NG:
-						vm = new NGSettingsPageContentViewModel(HohoemaApp, title);
+					case HohoemaSettingsKind.Comment:
+						vm = new CommentSettingsPageContentViewModel(HohoemaApp, title);
 						break;
-					case HohoemaSettingsKind.MediaPlayer:
-						vm = new PlayerSettingsPageContentViewModel(HohoemaApp, title);
-						break;
-					case HohoemaSettingsKind.Performance:
-						vm = new PerformanceSettingsPageContentViewModel(HohoemaApp, title);
+					case HohoemaSettingsKind.VideoPlay:
+						vm = new VideoPlaySettingsPageContentViewModel(HohoemaApp, title);
 						break;
 					default:
 						break;
@@ -135,10 +132,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public enum HohoemaSettingsKind
 	{
-		Ranking,
-		NG,
-		MediaPlayer,
-		Performance,
+		VideoList,
+		VideoPlay,
+		Comment,
 	}
 
 
@@ -148,14 +144,12 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			switch (kind)
 			{
-				case HohoemaSettingsKind.Ranking:
-					return "ランキング";
-				case HohoemaSettingsKind.NG:
-					return "NG";
-				case HohoemaSettingsKind.MediaPlayer:
-					return "動画プレイヤー";
-				case HohoemaSettingsKind.Performance:
-					return "パフォーマンス";
+				case HohoemaSettingsKind.VideoList:
+					return "動画リスト";
+				case HohoemaSettingsKind.Comment:
+					return "コメント";
+				case HohoemaSettingsKind.VideoPlay:
+					return "動画再生";
 				default:
 					throw new NotSupportedException($"not support {nameof(HohoemaSettingsKind)}.{kind.ToString()}");
 			}
@@ -194,439 +188,8 @@ namespace NicoPlayerHohoema.ViewModels
 	
 
 
-	public class RankingSettingsPageContentViewModel : SettingsPageContentViewModel
-	{
-		public RankingSettingsPageContentViewModel(HohoemaApp hohoemaApp, string title)
-			: base(title)
-		{
-			_HohoemaApp = hohoemaApp;
-
-			HandSortableCategories = new ObservableCollection<HandSortableCategoryListItemBase>();
-
-			_RankingSettings = _HohoemaApp.UserSettings.RankingSettings;
-
-			ResetCategoryPriority();
-
-			
-			
-			// Dividerの順序をConstraintPositionによって拘束する
-
-			HandSortableCategories.CollectionChangedAsObservable()
-				// CollectionChangedイベントの中ではコレクションの変更ができないため、
-				// 実行コンテキストを切り離すため、Delayをはさむ
-				.Delay(TimeSpan.FromMilliseconds(50), UIDispatcherScheduler.Default)
-				.Subscribe(x => 
-				{
-					if (x.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
-					{
-						TryCorrectDividerPlacement();
-					}
-				});
-
-
-			CategoryPriorityResetCommand = new DelegateCommand(() => 
-			{
-				_RankingSettings.ResetCategoryPriority();
-
-				_RankingSettings.Save();
-
-				ResetCategoryPriority();
-			});
-
-			AddCustomRankingCategory = new DelegateCommand(() => 
-			{
-				HandSortableCategories.Insert(0, 
-					new HandSortableUserCategoryListItem(
-						RankingCategoryInfo.CreateUserCustomizedRanking()
-						, this
-						)
-					);
-			});
-		}
-
-
-		private void ResetCategoryPriority()
-		{
-			HandSortableCategories.Clear();
-
-			foreach (var catInfo in _RankingSettings.HighPriorityCategory)
-			{
-				HandSortableCategories.Add(CategoryInfoToVM(catInfo));
-			}
-
-			HandSortableCategories.Add(new DividerHandSortableCategoryListItem()
-			{
-				ConstraintPosition = 0,
-				AborbText = "▲優先▲",
-				BelowText = "▼通常▼"
-			});
-
-			foreach (var catInfo in _RankingSettings.MiddlePriorityCategory)
-			{
-				HandSortableCategories.Add(CategoryInfoToVM(catInfo));
-			}
-
-
-			HandSortableCategories.Add(new DividerHandSortableCategoryListItem()
-			{
-				ConstraintPosition = 1,
-				AborbText = "▲通常▲",
-				BelowText = "▼あまり見ない▼"
-			});
-
-			foreach (var catInfo in _RankingSettings.LowPriorityCategory)
-			{
-				HandSortableCategories.Add(CategoryInfoToVM(catInfo));
-			}
-		}
-
-		
-		private HandSortableCategoryListItem CategoryInfoToVM(RankingCategoryInfo info)
-		{
-			switch (info.RankingSource)
-			{
-				case RankingSource.CategoryRanking:
-					return new HandSortableCategoryListItem(info);
-				case RankingSource.SearchWithMostPopular:
-					return new HandSortableUserCategoryListItem(info, this);
-				default:
-					throw new NotSupportedException($"not support {nameof(RankingSource)}.{info.RankingSource.ToString()}");
-			}
-		}
-
-		bool _NowTryingCorrectalizeDividers = false;
-		private void TryCorrectDividerPlacement()
-		{
-			if (_NowTryingCorrectalizeDividers)
-			{
-				return;
-			}
-
-			_NowTryingCorrectalizeDividers = true;
-			
-			while(!IsCorrectDividerSequence())
-			{
-				var dividers = HandSortableCategories.Where(x => x is DividerHandSortableCategoryListItem)
-					.Cast<DividerHandSortableCategoryListItem>()
-					.ToList();
-
-				var dividerCount = dividers.Count();
-				for (int i = 0; i < dividerCount; ++i)
-				{
-					var div = dividers.ElementAt(i);
-					if (div.ConstraintPosition != i)
-					{
-						var targetDiv = dividers.ElementAt((int)div.ConstraintPosition);
-
-						HandSortableCategories.Remove(div);
-
-						var index = HandSortableCategories.IndexOf(targetDiv);
-						HandSortableCategories.Insert(index + 1, div);
-						break;
-					}
-				}
-			}
-
-			_NowTryingCorrectalizeDividers = false;
-		}
-
-		private bool IsCorrectDividerSequence()
-		{
-			var dividers = HandSortableCategories.Where(x => x is DividerHandSortableCategoryListItem)
-				.Cast<DividerHandSortableCategoryListItem>();
-
-			var dividerCount = dividers.Count();
-			for (uint i = 0; i < dividerCount; ++i )
-			{
-				if (dividers.ElementAt((int)i).ConstraintPosition != i)
-				{
-					return false;
-				}
-			}
-
-			return true;
-		}
-
-
-		internal void RemoveUserCustomizedRankingCategory(HandSortableUserCategoryListItem userListItem)
-		{
-			this.HandSortableCategories.Remove(userListItem);
-		}
-
-		private void ApplyAllPriorityCategoriesToRankingSettings()
-		{
-			var sourceList = HandSortableCategories.Distinct().ToList();
-
-			var highGroup = HandSortableCategories
-				.TakeWhile(x => !(x is DividerHandSortableCategoryListItem))
-				.Where(x => x is HandSortableCategoryListItem)
-				.ToList();
-
-			var lowGroup = HandSortableCategories.Reverse()
-				.TakeWhile(x => !(x is DividerHandSortableCategoryListItem))
-				.Where(x => x is HandSortableCategoryListItem)
-				.ToList();
-
-			var middleGroup = HandSortableCategories
-				.Except(highGroup)
-				.Except(lowGroup)
-				.Where(x => x is HandSortableCategoryListItem);
-
-
-			_RankingSettings.HighPriorityCategory.Clear();
-			foreach (var highPrioCat in highGroup.Cast<HandSortableCategoryListItem>())
-			{
-				_RankingSettings.HighPriorityCategory.Add(highPrioCat.CategoryInfo);
-			}
-
-
-			_RankingSettings.MiddlePriorityCategory.Clear();
-			foreach (var midPrioCat in middleGroup.Cast<HandSortableCategoryListItem>())
-			{
-				_RankingSettings.MiddlePriorityCategory.Add(midPrioCat.CategoryInfo);
-			}
-
-			_RankingSettings.LowPriorityCategory.Clear();
-			foreach (var lowPrioCat in lowGroup.Cast<HandSortableCategoryListItem>())
-			{
-				_RankingSettings.LowPriorityCategory.Add(lowPrioCat.CategoryInfo);
-			}
-		}
-
-		public override void OnLeave()
-		{
-			ApplyAllPriorityCategoriesToRankingSettings();
-
-			_RankingSettings.Save();
-		}
-
-
-
-
-		public DelegateCommand AddCustomRankingCategory { get; private set; }
-
-		public DelegateCommand CategoryPriorityResetCommand { get; private set; }
-
-		public ObservableCollection<HandSortableCategoryListItemBase> HandSortableCategories { get; private set; }
-
-		RankingSettings _RankingSettings;
-		HohoemaApp _HohoemaApp;
-	}
-
-
-
-	public class HandSortableCategoryListItemBase : BindableBase
-	{
-		public bool IsSortable { get; protected set; } = false;
-	}
-
-	public class HandSortableCategoryListItem : HandSortableCategoryListItemBase
-	{
-		public HandSortableCategoryListItem(RankingCategoryInfo info)
-		{
-			CategoryInfo = info;
-			DisplayLabel = info.ToReactivePropertyAsSynchronized(x => x.DisplayLabel);
-			IsSortable = true;
-		}
-
-		public ReactiveProperty<string> DisplayLabel { get; private set; }
-		public RankingCategoryInfo CategoryInfo { get; set; }
-	}
-
-	public class HandSortableUserCategoryListItem : HandSortableCategoryListItem
-	{
-		public HandSortableUserCategoryListItem(RankingCategoryInfo info, RankingSettingsPageContentViewModel parentVM)
-			: base(info)
-		{
-			_ParentVM = parentVM;
-			Parameter = info.ToReactivePropertyAsSynchronized(x => x.Parameter);
-		}
-
-		private DelegateCommand _RemoveUserCategoryCommand;
-		public DelegateCommand RemoveUserCategoryCommand
-		{
-			get
-			{
-				return _RemoveUserCategoryCommand
-					?? (_RemoveUserCategoryCommand = new DelegateCommand(() => 
-					{
-						_ParentVM.RemoveUserCustomizedRankingCategory(this);
-					}));
-			}
-		}
-
-
-
-		public ReactiveProperty<string> Parameter { get; private set; }
-
-		RankingSettingsPageContentViewModel _ParentVM;
-	}
-
-	public class DividerHandSortableCategoryListItem : HandSortableCategoryListItemBase
-	{
-		public uint ConstraintPosition { get; set; }
-
-		public string AborbText { get; set; }
-		public string BelowText { get; set; }
-	}
-
-
-	public class NGSettingsPageContentViewModel : SettingsPageContentViewModel
-	{
-		public NGSettingsPageContentViewModel(HohoemaApp hohoemaApp, string title)
-			: base(title)
-		{
-			_HohoemaApp = hohoemaApp;
-			_NGSettings = _HohoemaApp.UserSettings.NGSettings;
-
-			// NG Video
-			NGVideoIdEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoIdEnable);
-			NGVideoIds = _NGSettings.NGVideoIds
-				.ToReadOnlyReactiveCollection(x => 
-					VideoIdInfoToRemovableListItemVM(x, OnRemoveNGVideoIdFromList)
-					);
-
-			// NG Video Owner User Id
-			NGVideoOwnerUserIdEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoOwnerUserIdEnable);
-			NGVideoOwnerUserIds = _NGSettings.NGVideoOwnerUserIds
-				.ToReadOnlyReactiveCollection(x =>
-					UserIdInfoToRemovableListItemVM(x, OnRemoveNGVideoOwnerUserIdFromList)
-					);
-
-			// NG Keyword on Video Title
-			NGVideoTitleKeywordEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoTitleKeywordEnable);
-			NGVideoTitleKeywords = _NGSettings.NGVideoTitleKeywords.ToReadOnlyReactiveCollection(
-				x => new NGKeywordViewModel(x, OnRemoveNGTitleKeyword)
-				);
-
-			// NG動画タイトルキーワードを追加するコマンド
-			AddNewNGVideoTitleKeywordCommand = new DelegateCommand(() => 
-			{
-				_NGSettings.NGVideoTitleKeywords.Add(new NGKeyword()
-				{
-					TestText = "",
-					Keyword = ""
-				});
-			});
-
-
-
-
-
-
-			// NG Comment User Id
-			NGCommentUserIdEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentUserIdEnable);
-			NGCommentUserIds = _NGSettings.NGCommentUserIds
-				.ToReadOnlyReactiveCollection(x =>
-					UserIdInfoToRemovableListItemVM(x, OnRemoveNGCommentUserIdFromList)
-					);
-
-			NGCommentKeywordEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentKeywordEnable);
-			NGCommentKeywords = _NGSettings.NGCommentKeywords.ToReadOnlyReactiveCollection(
-				x => new NGKeywordViewModel(x, OnRemoveNGCommentKeyword)
-				);
-
-
-			NGCommentGlassMowerEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentGlassMowerEnable);
-
-
-			NGCommentScoreTypes = ((IEnumerable<NGCommentScore>)Enum.GetValues(typeof(NGCommentScore))).ToList();
-
-			SelectedNGCommentScore = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentScoreType);
-
-			AddNewNGCommentKeywordCommand = new DelegateCommand(() => 
-			{
-				_NGSettings.NGCommentKeywords.Add(new NGKeyword()
-				{
-					TestText = "",
-					Keyword = ""
-				});
-			});
-		}
-
-
-		private void OnRemoveNGVideoIdFromList(string videoId)
-		{
-			var removeTarget = _NGSettings.NGVideoIds.First(x => x.VideoId == videoId);
-			_NGSettings.NGVideoIds.Remove(removeTarget);
-		}
-
-
-		private void OnRemoveNGVideoOwnerUserIdFromList(string userId)
-		{
-			var removeTarget = _NGSettings.NGVideoOwnerUserIds.First(x => x.UserId == userId);
-			_NGSettings.NGVideoOwnerUserIds.Remove(removeTarget);
-		}
-
-		internal void OnRemoveNGTitleKeyword(NGKeyword keywordInfo)
-		{
-			_NGSettings.NGVideoTitleKeywords.Remove(keywordInfo);
-		}
-
-
-		internal void OnRemoveNGCommentKeyword(NGKeyword keywordInfo)
-		{
-			_NGSettings.NGCommentKeywords.Remove(keywordInfo);
-		}
-
-		private void OnRemoveNGCommentUserIdFromList(string userId)
-		{
-			var removeTarget = _NGSettings.NGCommentUserIds.First(x => x.UserId == userId);
-			_NGSettings.NGCommentUserIds.Remove(removeTarget);
-		}
-
-
-		private RemovableListItem<string> VideoIdInfoToRemovableListItemVM(VideoIdInfo info, Action<string> removeAction)
-		{
-			var roundedDesc = info.Description.Substring(0, Math.Min(info.Description.Length - 1, 10));
-			return new RemovableListItem<string>(info.VideoId, $"{info.VideoId} | {roundedDesc}", removeAction);
-		}
-
-
-		private RemovableListItem<string> UserIdInfoToRemovableListItemVM(UserIdInfo info, Action<string> removeAction)
-		{
-			var roundedDesc = info.Description.Substring(0, Math.Min(info.Description.Length - 1, 10));
-			return new RemovableListItem<string>(info.UserId, $"{info.UserId} | {roundedDesc}", removeAction);
-		}
-
-
-		public override void OnLeave()
-		{
-			_NGSettings.Save();
-		}
-
-
-		
-
-		public DelegateCommand AddNewNGVideoTitleKeywordCommand { get; private set; }
-
-		public ReactiveProperty<bool> NGVideoIdEnable { get; private set; }
-		public ReadOnlyReactiveCollection<RemovableListItem<string>> NGVideoIds { get; private set; }
-
-		public ReactiveProperty<bool> NGVideoOwnerUserIdEnable { get; private set; }
-		public ReadOnlyReactiveCollection<RemovableListItem<string>> NGVideoOwnerUserIds { get; private set; }
-
-		public ReactiveProperty<bool> NGVideoTitleKeywordEnable { get; private set; }
-		public ReadOnlyReactiveCollection<NGKeywordViewModel> NGVideoTitleKeywords { get; private set; }
-
-
-		public DelegateCommand AddNewNGCommentKeywordCommand { get; private set; }
-
-		public ReactiveProperty<bool> NGCommentUserIdEnable { get; private set; }
-		public ReadOnlyReactiveCollection<RemovableListItem<string>> NGCommentUserIds { get; private set; }
-
-		public ReactiveProperty<bool> NGCommentKeywordEnable { get; private set; }
-		public ReadOnlyReactiveCollection<NGKeywordViewModel> NGCommentKeywords { get; private set; }
-
-		public ReactiveProperty<bool> NGCommentGlassMowerEnable { get; private set; }
-
-		public List<NGCommentScore> NGCommentScoreTypes { get; private set; }
-		public ReactiveProperty<NGCommentScore> SelectedNGCommentScore { get; private set; }
-
-
-		NGSettings _NGSettings;
-		HohoemaApp _HohoemaApp;
-	}
+	
+	
 
 
 	public class RemovableListItem<T>
@@ -718,40 +281,22 @@ namespace NicoPlayerHohoema.ViewModels
 		Action<NGKeyword> _OnRemoveAction;
 	}
 
-
-
-	public class PlayerSettingsPageContentViewModel : SettingsPageContentViewModel
+	public static class RemovableSettingsListItemHelper
 	{
-		public PlayerSettingsPageContentViewModel(HohoemaApp hohoemaApp, string title)
-			: base(title)
+		public static RemovableListItem<string> VideoIdInfoToRemovableListItemVM(VideoIdInfo info, Action<string> removeAction)
 		{
-			_PlayerSettings = hohoemaApp.UserSettings.PlayerSettings;
-
-			IsDefaultPlayWithLowQuality = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsLowQualityDeafult);
+			var roundedDesc = info.Description.Substring(0, Math.Min(info.Description.Length - 1, 10));
+			return new RemovableListItem<string>(info.VideoId, $"{info.VideoId} | {roundedDesc}", removeAction);
 		}
 
-		public override void OnLeave()
+		public static RemovableListItem<string> UserIdInfoToRemovableListItemVM(UserIdInfo info, Action<string> removeAction)
 		{
-			_PlayerSettings.Save().ConfigureAwait(false);
+			var roundedDesc = info.Description.Substring(0, Math.Min(info.Description.Length - 1, 10));
+			return new RemovableListItem<string>(info.UserId, $"{info.UserId} | {roundedDesc}", removeAction);
 		}
-
-
-		public ReactiveProperty<bool> IsDefaultPlayWithLowQuality { get; private set; }
-
-		private PlayerSettings _PlayerSettings;
 	}
 
-	public class PerformanceSettingsPageContentViewModel : SettingsPageContentViewModel
-	{
-		public PerformanceSettingsPageContentViewModel(HohoemaApp hohoemaApp, string title)
-			: base(title)
-		{
+	
 
-		}
-
-		public override void OnLeave()
-		{
-		}
-
-	}
+	
 }

@@ -36,12 +36,6 @@
                 </DataTemplate>
             </view:SettingContentTemplateSelector.PlayerTemplate>
             
-            <!-- Performance -->
-            <view:SettingContentTemplateSelector.PerformanceTemplate>
-                <DataTemplate>
-                    <settingsContent:PerformanceSettingsPageContent />
-                </DataTemplate>
-            </view:SettingContentTemplateSelector.PerformanceTemplate>
         </view:SettingContentTemplateSelector>
     </Page.Resources>
     

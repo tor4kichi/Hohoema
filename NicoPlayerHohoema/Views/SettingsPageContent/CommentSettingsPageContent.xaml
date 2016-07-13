@@ -135,108 +135,80 @@
                            />
             </StackPanel>
             
-            <!--NG動画-->
-            <StackPanel>
-
-               
-                <StackPanel Orientation="Horizontal" Margin="8 8 0 16">
-                    <TextBlock Text="動画のNG設定"
-                             FontSize="18"
-                               VerticalAlignment="Center"
-                           />
-
-                </StackPanel>
-
-                <StackPanel Margin="16 0 0 0">
-                    <toolkit:DockPanel>
-                        <StackPanel Orientation="Horizontal"
-                                    toolkit:DockPanel.Dock="Top"
-                                    >
-                            <ToggleButton Width="32" Height="32" 
-                                          Margin="0 0 8 0"
-                                          IsChecked="{Binding NGVideoIdEnable.Value, Mode=TwoWay}"
-                                          />
-                            <TextBlock Text="NG動画ID" 
-                                       VerticalAlignment="Center"
-                               />
-                        </StackPanel>
-                        <ListView ItemsSource="{Binding NGVideoIds}"
-                                  ItemTemplate="{StaticResource TextWithRemoveButtonTemplate}"
-                                  Margin="0 8"
-                                  SelectionMode="None"
-                                  >
-                        </ListView>
-                    </toolkit:DockPanel>
-
-
-                    <toolkit:DockPanel>
-                        <StackPanel Orientation="Horizontal" 
-                                    toolkit:DockPanel.Dock="Top"
-                                    >
-                            <ToggleButton Width="32" Height="32" 
-                                          Margin="0 0 8 0"
-                                          IsChecked="{Binding NGVideoOwnerUserIdEnable.Value, Mode=TwoWay}"                                          
-                                          />
-                            <TextBlock Text="NG動画投稿者ID" 
-                                       VerticalAlignment="Center"
-                               />
-                        </StackPanel>
-
-                        <ListView ItemsSource="{Binding NGVideoOwnerUserIds}"
-                                  ItemTemplate="{StaticResource TextWithRemoveButtonTemplate}"
-                                  Margin="0 8"
-                                  SelectionMode="None"
-                                  >
-                        </ListView>
-                    </toolkit:DockPanel>
-
-                    <toolkit:DockPanel >
-                        <StackPanel Orientation="Horizontal"
-                                    toolkit:DockPanel.Dock="Top"
-                                    >
-                            <ToggleButton Width="32" Height="32" 
-                                          Margin="0 0 8 0"
-                                          IsChecked="{Binding NGVideoTitleKeywordEnable.Value, Mode=TwoWay}"
-                                          />
-                            <TextBlock Text="NG動画タイトルキーワード" 
-                                       ToolTipService.ToolTip="正規表現が利用できます"
-                                       toolkit:DockPanel.Dock="Top"
-                                       VerticalAlignment="Center"
-                               />
-                        </StackPanel>
-                        
-                        <Button Content="NGタイトルキーワードを追加" 
-                                Command="{Binding AddNewNGVideoTitleKeywordCommand}"
-                                HorizontalAlignment="Center"
-                                toolkit:DockPanel.Dock="Bottom"
-                                />
-                        
-                        <ListView ItemsSource="{Binding NGVideoTitleKeywords}"
-                                  Margin="0 8"
-                                  SelectionMode="None"
-                                  ItemTemplate="{StaticResource NGKeywordTemplate}"
-                                  >
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem">
-                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                </Style>
-                            </ListView.ItemContainerStyle>
-                           
-                           
-                        </ListView>
-
-                        
-                    </toolkit:DockPanel>
-                </StackPanel>
-                
-
-
-            </StackPanel>
-
+            
+            
             <Border Margin="0 8" 
                     BorderThickness="0 1 0 0"
                     BorderBrush="Gray"
                     />
+
+
+            <toolkit:DockPanel Margin="8">
+
+                <TextBlock Text="デフォルトでコメントを表示する"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+
+                <ToggleButton Width="32" Height="32"
+                              IsChecked="{Binding DefaultCommentDisplay.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                              HorizontalAlignment="Right"
+                              />
+
+            </toolkit:DockPanel>
+
+            <toolkit:DockPanel Margin="8">
+
+                <TextBlock Text="投稿者コメントを読みやすくする"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+
+                <ToggleButton Width="32" Height="32"
+                              IsChecked="{Binding IncrementReadablityOwnerComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              HorizontalAlignment="Right"
+                              />
+
+            </toolkit:DockPanel>
+
+
+            <toolkit:DockPanel Margin="8">
+
+                <TextBlock Text="コメントの一秒あたりの描画回数"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+
+                <ComboBox ItemsSource="{Binding CommentRenderringFPSList}"
+                          SelectedItem="{Binding CommentRenderingFPS.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                          HorizontalAlignment="Right"
+                          >
+
+                </ComboBox>
+
+
+            </toolkit:DockPanel>
+
+
+            <toolkit:DockPanel Margin="8">
+
+                <TextBlock Text="コメントの表示サイズ"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+
+                <toolkit:NumericUpDown Value="{Binding CommentFontScale.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                       SmallChange="0.05"
+                                       LargeChange="1.0"
+                                       Minimum="0.1"
+                                       Maximum="2.0"
+                                       HorizontalAlignment="Right"
+                                       />
+
+            </toolkit:DockPanel>
+
+
+
 
             <!-- NGコメント -->
             <StackPanel>
@@ -257,7 +229,7 @@
                                           Margin="0 0 8 0"
                                           IsChecked="{Binding NGCommentUserIdEnable.Value, Mode=TwoWay}"
                                           />
-                            <TextBlock Text="NGコメントユーザーID" 
+                            <TextBlock Text="ユーザーIDによるNGコメント機能を有効にする" 
                                        VerticalAlignment="Center"
                                />
                         </StackPanel>
@@ -278,12 +250,12 @@
                                           Margin="0 0 8 0" 
                                           IsChecked="{Binding NGCommentKeywordEnable.Value, Mode=TwoWay}"
                                           />
-                            <TextBlock Text="NGコメントキーワード" 
+                            <TextBlock Text="キーワードによるNGコメント機能を有効にする" 
                                        VerticalAlignment="Center"
                                />
                         </StackPanel>
 
-                        <TextBlock Text="※ NGコメントキーワードがたくさんあると、動画の準備時間が長くなるかもしれません。" 
+                        <TextBlock Text="※ NGコメントのキーワードがたくさんあると、動画の準備時間が長くなるかもしれません。" 
                                    Style="{StaticResource DescriptionTextStyle}"
                                    Margin="32 4 0 4"
                                 toolkit:DockPanel.Dock="Bottom"
