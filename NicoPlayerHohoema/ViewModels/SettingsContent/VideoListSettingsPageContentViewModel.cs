@@ -10,58 +10,57 @@ using System.Reactive.Linq;
 using System.Collections.ObjectModel;
 using Reactive.Bindings;
 using Prism.Mvvm;
+using NicoPlayerHohoema.Views.Service;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	public class VideoListSettingsPageContentViewModel : SettingsPageContentViewModel
 	{
-		public VideoListSettingsPageContentViewModel(HohoemaApp hohoemaApp, string title)
+		public VideoListSettingsPageContentViewModel(HohoemaApp hohoemaApp, string title, RankingChoiceDialogService rankingChoiceDialog)
 			: base(title)
 		{
 			_HohoemaApp = hohoemaApp;
 			_NGSettings = _HohoemaApp.UserSettings.NGSettings;
 			_RankingSettings = _HohoemaApp.UserSettings.RankingSettings;
-
-			HandSortableCategories = new ObservableCollection<HandSortableCategoryListItemBase>();
-
-			ResetCategoryPriority();
+			_RankingChoiceDialogService = rankingChoiceDialog;
 
 
+			SelectableCategories = new ObservableCollection<RankingCategorySettingsListItem>(
+				_RankingSettings.MiddlePriorityCategory
+				.Select(x => new RankingCategorySettingsListItem(x, this))
+				.ToList()
+				);
 
-			// Dividerの順序をConstraintPositionによって拘束する
+			FavCategories = new ObservableCollection<RankingCategorySettingsListItem>(
+				_RankingSettings.HighPriorityCategory
+				.Select(x => new RankingCategorySettingsListItem(x, this))
+				.ToList()
+				);
 
-			HandSortableCategories.CollectionChangedAsObservable()
-				// CollectionChangedイベントの中ではコレクションの変更ができないため、
-				// 実行コンテキストを切り離すため、Delayをはさむ
-				.Delay(TimeSpan.FromMilliseconds(50), UIDispatcherScheduler.Default)
-				.Subscribe(x =>
+
+			AddFavRankingCategory = new DelegateCommand(async () =>
+			{
+				var items = _RankingSettings.MiddlePriorityCategory.ToArray();
+				var choiceItem = await _RankingChoiceDialogService.ShowDialog(items);
+
+				if (choiceItem != null)
 				{
-					if (x.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+					if (choiceItem.RankingSource == RankingSource.CategoryRanking)
 					{
-						TryCorrectDividerPlacement();
+						var removeTarget = SelectableCategories.SingleOrDefault(x => x.CategoryInfo == choiceItem);
+						SelectableCategories.Remove(removeTarget);
 					}
-				});
 
+					FavCategories.Add(new RankingCategorySettingsListItem(choiceItem, this));
+				}
 
-			CategoryPriorityResetCommand = new DelegateCommand(() =>
-			{
-				_RankingSettings.ResetCategoryPriority();
-
-				_RankingSettings.Save();
-
-				ResetCategoryPriority();
+				ApplyAllPriorityCategoriesToRankingSettings();
 			});
 
-			AddCustomRankingCategory = new DelegateCommand(() =>
-			{
-				HandSortableCategories.Insert(0,
-					new HandSortableUserCategoryListItem(
-						RankingCategoryInfo.CreateUserCustomizedRanking()
-						, this
-						)
-					);
-			});
 
+			// 入れ替え説明テキストの表示フラグ
+			FavCategories.ObserveProperty(x => x.Count)
+				.Subscribe(x => IsDisplayReorderText = x >= 2);
 
 
 			// NG Video
@@ -104,155 +103,40 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			ApplyAllPriorityCategoriesToRankingSettings();
 
-			_RankingSettings.Save();
+			_RankingSettings.Save().ConfigureAwait(false);
 		}
 
-		private void ResetCategoryPriority()
+		
+
+
+
+		internal void UnfavRankingCategory(RankingCategorySettingsListItem userListItem)
 		{
-			HandSortableCategories.Clear();
+			FavCategories.Remove(userListItem);
 
-			foreach (var catInfo in _RankingSettings.HighPriorityCategory)
+			if (userListItem.CategoryInfo.RankingSource == RankingSource.CategoryRanking)
 			{
-				HandSortableCategories.Add(CategoryInfoToVM(catInfo));
+				SelectableCategories.Add(userListItem);
 			}
 
-			HandSortableCategories.Add(new DividerHandSortableCategoryListItem()
-			{
-				ConstraintPosition = 0,
-				AborbText = "▲優先▲",
-				BelowText = "▼通常▼"
-			});
-
-			foreach (var catInfo in _RankingSettings.MiddlePriorityCategory)
-			{
-				HandSortableCategories.Add(CategoryInfoToVM(catInfo));
-			}
-
-
-			HandSortableCategories.Add(new DividerHandSortableCategoryListItem()
-			{
-				ConstraintPosition = 1,
-				AborbText = "▲通常▲",
-				BelowText = "▼あまり見ない▼"
-			});
-
-			foreach (var catInfo in _RankingSettings.LowPriorityCategory)
-			{
-				HandSortableCategories.Add(CategoryInfoToVM(catInfo));
-			}
-		}
-
-
-		private HandSortableCategoryListItem CategoryInfoToVM(RankingCategoryInfo info)
-		{
-			switch (info.RankingSource)
-			{
-				case RankingSource.CategoryRanking:
-					return new HandSortableCategoryListItem(info);
-				case RankingSource.SearchWithMostPopular:
-					return new HandSortableUserCategoryListItem(info, this);
-				default:
-					throw new NotSupportedException($"not support {nameof(RankingSource)}.{info.RankingSource.ToString()}");
-			}
-		}
-
-		bool _NowTryingCorrectalizeDividers = false;
-		private void TryCorrectDividerPlacement()
-		{
-			if (_NowTryingCorrectalizeDividers)
-			{
-				return;
-			}
-
-			_NowTryingCorrectalizeDividers = true;
-
-			while (!IsCorrectDividerSequence())
-			{
-				var dividers = HandSortableCategories.Where(x => x is DividerHandSortableCategoryListItem)
-					.Cast<DividerHandSortableCategoryListItem>()
-					.ToList();
-
-				var dividerCount = dividers.Count();
-				for (int i = 0; i < dividerCount; ++i)
-				{
-					var div = dividers.ElementAt(i);
-					if (div.ConstraintPosition != i)
-					{
-						var targetDiv = dividers.ElementAt((int)div.ConstraintPosition);
-
-						HandSortableCategories.Remove(div);
-
-						var index = HandSortableCategories.IndexOf(targetDiv);
-						HandSortableCategories.Insert(index + 1, div);
-						break;
-					}
-				}
-			}
-
-			_NowTryingCorrectalizeDividers = false;
-		}
-
-		private bool IsCorrectDividerSequence()
-		{
-			var dividers = HandSortableCategories.Where(x => x is DividerHandSortableCategoryListItem)
-				.Cast<DividerHandSortableCategoryListItem>();
-
-			var dividerCount = dividers.Count();
-			for (uint i = 0; i < dividerCount; ++i)
-			{
-				if (dividers.ElementAt((int)i).ConstraintPosition != i)
-				{
-					return false;
-				}
-			}
-
-			return true;
-		}
-
-
-		internal void RemoveUserCustomizedRankingCategory(HandSortableUserCategoryListItem userListItem)
-		{
-			this.HandSortableCategories.Remove(userListItem);
+			ApplyAllPriorityCategoriesToRankingSettings();
 		}
 
 		private void ApplyAllPriorityCategoriesToRankingSettings()
 		{
-			var sourceList = HandSortableCategories.Distinct().ToList();
-
-			var highGroup = HandSortableCategories
-				.TakeWhile(x => !(x is DividerHandSortableCategoryListItem))
-				.Where(x => x is HandSortableCategoryListItem)
-				.ToList();
-
-			var lowGroup = HandSortableCategories.Reverse()
-				.TakeWhile(x => !(x is DividerHandSortableCategoryListItem))
-				.Where(x => x is HandSortableCategoryListItem)
-				.ToList();
-
-			var middleGroup = HandSortableCategories
-				.Except(highGroup)
-				.Except(lowGroup)
-				.Where(x => x is HandSortableCategoryListItem);
-
-
 			_RankingSettings.HighPriorityCategory.Clear();
-			foreach (var highPrioCat in highGroup.Cast<HandSortableCategoryListItem>())
+			foreach (var highPrioCat in FavCategories)
 			{
 				_RankingSettings.HighPriorityCategory.Add(highPrioCat.CategoryInfo);
 			}
 
 
 			_RankingSettings.MiddlePriorityCategory.Clear();
-			foreach (var midPrioCat in middleGroup.Cast<HandSortableCategoryListItem>())
+			foreach (var midPrioCat in SelectableCategories)
 			{
 				_RankingSettings.MiddlePriorityCategory.Add(midPrioCat.CategoryInfo);
 			}
 
-			_RankingSettings.LowPriorityCategory.Clear();
-			foreach (var lowPrioCat in lowGroup.Cast<HandSortableCategoryListItem>())
-			{
-				_RankingSettings.LowPriorityCategory.Add(lowPrioCat.CategoryInfo);
-			}
 		}
 
 		
@@ -277,12 +161,19 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		
-		public DelegateCommand AddCustomRankingCategory { get; private set; }
+		public DelegateCommand AddFavRankingCategory { get; private set; }
 
 		public DelegateCommand CategoryPriorityResetCommand { get; private set; }
 
-		public ObservableCollection<HandSortableCategoryListItemBase> HandSortableCategories { get; private set; }
+		public ObservableCollection<RankingCategorySettingsListItem> FavCategories { get; private set; }
+		public ObservableCollection<RankingCategorySettingsListItem> SelectableCategories { get; private set; }
 
+		private bool _IsDisplayReorderText;
+		public bool IsDisplayReorderText
+		{
+			get { return _IsDisplayReorderText; }
+			set { SetProperty(ref _IsDisplayReorderText, value); }
+		}
 
 		public DelegateCommand AddNewNGVideoTitleKeywordCommand { get; private set; }
 
@@ -300,64 +191,44 @@ namespace NicoPlayerHohoema.ViewModels
 		NGSettings _NGSettings;
 		RankingSettings _RankingSettings;
 		HohoemaApp _HohoemaApp;
+		RankingChoiceDialogService _RankingChoiceDialogService;
 	}
 
 
 
-	public class HandSortableCategoryListItemBase : BindableBase
-	{
-		public bool IsSortable { get; protected set; } = false;
-	}
+	
 
-	public class HandSortableCategoryListItem : HandSortableCategoryListItemBase
-	{
-		public HandSortableCategoryListItem(RankingCategoryInfo info)
-		{
-			CategoryInfo = info;
-			DisplayLabel = info.ToReactivePropertyAsSynchronized(x => x.DisplayLabel);
-			IsSortable = true;
-		}
+	
 
-		public ReactiveProperty<string> DisplayLabel { get; private set; }
-		public RankingCategoryInfo CategoryInfo { get; set; }
-	}
-
-	public class HandSortableUserCategoryListItem : HandSortableCategoryListItem
+	public class RankingCategorySettingsListItem : BindableBase
 	{
-		public HandSortableUserCategoryListItem(RankingCategoryInfo info, VideoListSettingsPageContentViewModel parentVM)
-			: base(info)
+		public RankingCategorySettingsListItem(RankingCategoryInfo info, VideoListSettingsPageContentViewModel parentVM)
 		{
 			_ParentVM = parentVM;
+			CategoryInfo = info;
+			DisplayLabel = info.ToReactivePropertyAsSynchronized(x => x.DisplayLabel);
 			Parameter = info.ToReactivePropertyAsSynchronized(x => x.Parameter);
 		}
 
-		private DelegateCommand _RemoveUserCategoryCommand;
-		public DelegateCommand RemoveUserCategoryCommand
+		private DelegateCommand _UnfavCategoryCommand;
+		public DelegateCommand UnfavCategoryCommand
 		{
 			get
 			{
-				return _RemoveUserCategoryCommand
-					?? (_RemoveUserCategoryCommand = new DelegateCommand(() =>
+				return _UnfavCategoryCommand
+					?? (_UnfavCategoryCommand = new DelegateCommand(() =>
 					{
-						_ParentVM.RemoveUserCustomizedRankingCategory(this);
+						_ParentVM.UnfavRankingCategory(this);
 					}));
 			}
 		}
 
 
 
+		public ReactiveProperty<string> DisplayLabel { get; private set; }
+		public RankingCategoryInfo CategoryInfo { get; set; }
 		public ReactiveProperty<string> Parameter { get; private set; }
 
 		VideoListSettingsPageContentViewModel _ParentVM;
 	}
-
-	public class DividerHandSortableCategoryListItem : HandSortableCategoryListItemBase
-	{
-		public uint ConstraintPosition { get; set; }
-
-		public string AborbText { get; set; }
-		public string BelowText { get; set; }
-	}
-
-
 }

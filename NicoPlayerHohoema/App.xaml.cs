@@ -154,7 +154,8 @@ namespace NicoPlayerHohoema
 
 			// Service
 			Container.RegisterType<Views.Service.ISearchDialogService, Views.Service.SearchDialogService>();
-			
+			Container.RegisterType<Views.Service.RankingChoiceDialogService>();
+
 		}
 
 

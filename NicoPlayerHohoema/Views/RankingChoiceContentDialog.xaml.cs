@@ -15,14 +15,13 @@ using Windows.UI.Xaml.Navigation;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
-namespace NicoPlayerHohoema.Views.SettingsPageContent
+namespace NicoPlayerHohoema.Views
 {
-	public sealed partial class RankingSettingPageContent : UserControl
+	public sealed partial class RankingChoiceContentDialog : ContentDialog
 	{
-		public RankingSettingPageContent()
+		public RankingChoiceContentDialog()
 		{
 			this.InitializeComponent();
 		}
 	}
-	
 }

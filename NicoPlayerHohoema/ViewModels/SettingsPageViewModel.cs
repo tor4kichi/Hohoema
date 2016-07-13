@@ -15,14 +15,16 @@ using System.Reactive.Disposables;
 using Mntone.Nico2;
 using System.Collections.ObjectModel;
 using Mntone.Nico2.Videos.Ranking;
+using NicoPlayerHohoema.Views.Service;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	public class SettingsPageViewModel : ViewModelBase
 	{
-		public SettingsPageViewModel(HohoemaApp hohoemaApp)
+		public SettingsPageViewModel(HohoemaApp hohoemaApp, RankingChoiceDialogService rakingChoiceDialog)
 		{
 			HohoemaApp = hohoemaApp;
+			RankingChoiceDialogService = rakingChoiceDialog;
 			SettingKindToVM = new Dictionary<HohoemaSettingsKind, SettingsPageContentViewModel>();
 
 			SettingItems = ((IEnumerable<HohoemaSettingsKind>)Enum.GetValues(typeof(HohoemaSettingsKind)))
@@ -58,7 +60,7 @@ namespace NicoPlayerHohoema.ViewModels
 				switch (kind)
 				{
 					case HohoemaSettingsKind.VideoList:
-						vm = new VideoListSettingsPageContentViewModel(HohoemaApp, title);
+						vm = new VideoListSettingsPageContentViewModel(HohoemaApp, title, RankingChoiceDialogService);
 						break;
 					case HohoemaSettingsKind.Comment:
 						vm = new CommentSettingsPageContentViewModel(HohoemaApp, title);
@@ -125,7 +127,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public List<HohoemaSettingsKindListItem> SettingItems { get; private set; }
 
-
+		public RankingChoiceDialogService RankingChoiceDialogService { get; private set; }
 		public HohoemaApp HohoemaApp { get; private set; }
 	}
 

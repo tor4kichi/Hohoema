@@ -186,7 +186,11 @@
     <Compile Include="Views\PortalContent\HistoryPortalPageContent.xaml.cs">
       <DependentUpon>HistoryPortalPageContent.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\RankingChoiceContentDialog.xaml.cs">
+      <DependentUpon>RankingChoiceContentDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Service\ISearchDialogService.cs" />
+    <Compile Include="Views\Service\RankingChoiceDialogService.cs" />
     <Compile Include="Views\Service\SearchDialogService.cs" />
     <Compile Include="ViewModels\VideoPlayerPageViewModel.cs" />
     <Compile Include="ViewModels\PortalContent\AppPortalPageContentViewModel.cs" />
@@ -369,6 +373,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\PortalContent\HistoryPortalPageContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\RankingChoiceContentDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

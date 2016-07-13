@@ -15,99 +15,31 @@
 
     <UserControl.Resources>
 
-        <DataTemplate x:Key="ListItemTemplate">
-            <TextBlock Text="{Binding DisplayLabel.Value}" />
-        </DataTemplate>
-
+        
         <DataTemplate x:Key="EditableListItemTemplate">
 
             <toolkit:DockPanel>
 
                 <AppBarButton Icon="Delete" 
                               toolkit:DockPanel.Dock="Left"
-                              Command="{Binding RemoveUserCategoryCommand}"
+                              Command="{Binding UnfavCategoryCommand}"
                               VerticalAlignment="Center"
                               />
 
-                <toolkit:DockPanel Background="Transparent">
+                <toolkit:DockPanel Background="Transparent" Margin="16 0">
 
-
-                    <SymbolIcon Symbol="Edit" 
-                                Margin="16 0"
-                                toolkit:DockPanel.Dock="Right"
-                                />
-                    
                     <TextBlock Text="{Binding DisplayLabel.Value}"
                                VerticalAlignment="Center"
                                >
                     </TextBlock>
-
-
-
-                    <i:Interaction.Behaviors>
-                        <mybehavior:ShowFlyoutBehavior />
-                    </i:Interaction.Behaviors>
-
-                    <FlyoutBase.AttachedFlyout>
-                        <Flyout>
-                            <StackPanel>
-                                <StackPanel Orientation="Vertical"
-                                            >
-
-                                    <TextBlock Text="表示名" Width="150" />
-                                    <TextBox Text="{Binding DisplayLabel.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                             MinWidth="150"
-                                             />
-
-                                </StackPanel>
-
-                                <Border Margin="0 8 0 0 " />
-                                <StackPanel Orientation="Vertical"
-                                            >
-
-                                    <TextBlock Text="キーワード" Width="150" />
-                                    <TextBox Text="{Binding Parameter.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                             MinWidth="150"
-                                             />
-
-                                </StackPanel>
-                            </StackPanel>
-                        </Flyout>
-                    </FlyoutBase.AttachedFlyout>
+                    
                 </toolkit:DockPanel>
+                
+                <!-- TODO: ランキングソースの種類を表示 -->
 
             </toolkit:DockPanel>
         </DataTemplate>
-        
-        <DataTemplate x:Key="DividerTemplate">
-            <StackPanel Margin="0 4">
 
-                <TextBlock Text="{Binding AborbText}"
-                           HorizontalAlignment="Center"
-                           Foreground="DarkGray"
-                           />
-                
-                <Border BorderThickness="0 1 0 0" 
-                        BorderBrush="DarkGray"
-                        Margin="0 4"
-                        />
-
-                <TextBlock Text="{Binding BelowText}"
-                           HorizontalAlignment="Center"
-                           Foreground="DarkGray"
-                           />
-
-            </StackPanel>
-        </DataTemplate>
-
-
-
-        <local:CategoryPrioListItemTemplateSelector x:Key="categoryPrioListItemTemplateSelector"
-                                                    ListItem="{StaticResource ListItemTemplate}"
-                                                    UserCustmizedCategory="{StaticResource EditableListItemTemplate}"
-                                                    Divider="{StaticResource DividerTemplate}"
-                                                    >
-        </local:CategoryPrioListItemTemplateSelector>
 
 
 
@@ -174,20 +106,50 @@
         <StackPanel Margin="8">
 
             <!-- ランキング -->
-            <StackPanel>
-                <TextBlock Text="ランキング表示設定"
-                       Margin="8 16 0 16"
+            <StackPanel Margin="8 8">
+                <TextBlock Text="好きなランキング設定"
+                       Margin="0 0 0 4"
                        FontSize="18"
                        />
 
+                <TextBlock Text="ここで選択されたランキングは、ホーム画面やランキング画面で優先表示されるようになります。"
+                           FontSize="12"
+                           Margin="16 0 16 8"
+                           Foreground="DarkGray"
+                           TextWrapping="Wrap"
+                       />
 
-                <Button Content="カスタムランキングを追加する" 
-                    Command="{Binding AddCustomRankingCategory}"
+                
+                <ListView ItemsSource="{Binding FavCategories}"
+                          ItemTemplate="{StaticResource EditableListItemTemplate}"
+                          Margin="0 8"
+                          ReorderMode="Enabled" 
+                          CanReorderItems="True"
+                          AllowDrop="True"
+                          />
+
+                <TextBlock Text="※つまむと入れ替えできます"
+                           FontSize="12"
+                           Margin="16 0 16 8"
+                           Foreground="DarkGray"
+                           TextWrapping="Wrap"
+                           HorizontalAlignment="Right"
+                           Visibility="{Binding IsDisplayReorderText, Converter={StaticResource BooleanToVisibility}}"
+                       />
+
+                <Button Content="好きなランキングを追加する" 
+                    Command="{Binding AddFavRankingCategory}"
                     HorizontalAlignment="Center"
-                    Margin="8"
+                    Margin="0 8"
                     />
 
+
             </StackPanel>
+
+
+            <Border BorderBrush="DarkGray" BorderThickness="0 1 0 0" 
+                    Margin="8"
+                    />
 
             <!--NG動画-->
             <StackPanel>
