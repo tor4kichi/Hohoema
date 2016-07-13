@@ -124,9 +124,22 @@ namespace NicoPlayerHohoema.Models
 				Debug.WriteLine("start post login process....");
 
 				Debug.WriteLine("getting UserInfo");
-				var userInfo = await NiconicoContext.User.GetInfoAsync();
-				LoginUserId = userInfo.Id;
-				IsPremiumUser = userInfo.IsPremium;
+
+				try
+				{
+					var userInfo = await NiconicoContext.User.GetInfoAsync();
+					LoginUserId = userInfo.Id;
+					IsPremiumUser = userInfo.IsPremium;
+				}
+				catch
+				{
+					Debug.WriteLine("login failed: failed download user info. invalid user.");
+
+					NiconicoContext.Dispose();
+					NiconicoContext = null;
+					return NiconicoSignInStatus.Failed;
+				}
+
 
 				Debug.WriteLine("user id is : " + LoginUserId);
 				Debug.WriteLine("initilize: user settings ");
