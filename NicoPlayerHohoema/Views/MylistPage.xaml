@@ -103,6 +103,12 @@
                     <mybehavior:ListViewVerticalOffsetGetter
                     VerticalOffset="{Binding ListViewVerticalOffset.Value, Mode=TwoWay}"
                     />
+                    
+                    <mybehavior:KeyboardTrigger Key="F5">
+                        <mybehavior:KeyboardTrigger.Actions>
+                            <core:InvokeCommandAction Command="{Binding RefreshCommand}" />
+                        </mybehavior:KeyboardTrigger.Actions>
+                    </mybehavior:KeyboardTrigger>
 
                 </i:Interaction.Behaviors>
 
