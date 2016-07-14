@@ -16,7 +16,8 @@
     
     
     <toolkit:DockPanel HorizontalAlignment="Center"
-                       VerticalAlignment="Center">
+                       VerticalAlignment="Center"
+                       >
 
         <StackPanel toolkit:DockPanel.Dock="Top">
             <TextBlock>
@@ -29,6 +30,51 @@
         </StackPanel>
 
         <Border Margin="0 0 0 16" toolkit:DockPanel.Dock="Top"/>
+
+        <StackPanel Height="48" Margin="8 16 8 8" toolkit:DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center">
+            
+            <ProgressRing IsActive="{Binding CanChangeValue.Value, Converter={StaticResource InvertBoolean}}"
+                          Visibility="{Binding CanChangeValue.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                          Width="48"
+                          Height="48"
+                          Margin="16 0"
+                          />
+
+            <TextBlock Text="ログイン中"
+                       VerticalAlignment="Center"
+                       Visibility="{Binding CanChangeValue.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                       />
+            
+        </StackPanel>
+
+        <StackPanel Margin="8 16" toolkit:DockPanel.Dock="Bottom">
+
+            <StackPanel Visibility="{Binding IsLoginFailed.Value, Converter={StaticResource BooleanToVisibility}}">
+                <TextBlock HorizontalAlignment="Center" Margin="0 0 0 8" >
+                    <Run Text="ログインに失敗しました。" />
+                </TextBlock>
+                <TextBlock HorizontalAlignment="Center" Margin="0 0 0 8" >
+                    <Run Text="メールアドレスやパスワードが正しいか確認してみてください。" />
+                </TextBlock>
+            </StackPanel>
+
+            <StackPanel Visibility="{Binding IsServiceUnavailable.Value, Converter={StaticResource BooleanToVisibility}}">
+                <TextBlock HorizontalAlignment="Center" Margin="0 0 0 8" >
+                    <Run Text="ニコニコ動画のサービスが利用できない状況です。" />
+                </TextBlock>
+                <TextBlock HorizontalAlignment="Center" Margin="0 0 0 8" >
+                    <Run Text="時間を置いてからアクセスしてみてください。" />
+                
+                </TextBlock>
+                <TextBlock HorizontalAlignment="Center" Margin="0 0 0 8" >
+                    <Hyperlink NavigateUri="http://www.nicovideo.jp/">
+                        <Run Text="ブラウザでニコニコ動画をチェックする"/>
+                    </Hyperlink>
+                </TextBlock>
+            </StackPanel>
+            
+        </StackPanel>
+
 
         <StackPanel>
             <toolkit:DockPanel Margin="0 0 0 8">
@@ -80,5 +126,7 @@
                                 ></Button>
 
         </StackPanel>
+        
+        
     </toolkit:DockPanel>
 </Page>

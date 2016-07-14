@@ -40,12 +40,18 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 			CheckLoginCommand.Subscribe(async x => await CheckLoginAndGo());
+
+			IsLoginFailed = new ReactiveProperty<bool>();
+			IsServiceUnavailable = new ReactiveProperty<bool>();
 		}
 
 		
 
 		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
+			IsLoginFailed.Value = false;
+
+
 			// ログイン済みの場合、ログアウトする
 			if (await HohoemaApp.CheckSignedInStatus() == NiconicoSignInStatus.Success)
 			{
@@ -74,6 +80,7 @@ namespace NicoPlayerHohoema.ViewModels
 		private async Task CheckLoginAndGo()
 		{
 			CanChangeValue.Value = false;
+			IsLoginFailed.Value = false;
 
 			var result = await HohoemaApp.SignInFromUserSettings();
 
@@ -87,19 +94,29 @@ namespace NicoPlayerHohoema.ViewModels
 
 				// ポータルページへGO
 				PageManager.OpenPage(HohoemaPageType.Portal);
+				IsServiceUnavailable.Value = false;
+			}
+			else if (result == NiconicoSignInStatus.Failed)
+			{
+				IsLoginFailed.Value = true;
+				IsServiceUnavailable.Value = false;
 			}
 			else if (result == NiconicoSignInStatus.ServiceUnavailable)
 			{
+				IsLoginFailed.Value = false;
+				IsServiceUnavailable.Value = true;
 			}
 			else
 			{
 				HohoemaApp.NiconicoContext?.Dispose();
 				HohoemaApp.NiconicoContext = null;
-				CanChangeValue.Value = true;
 			}
+
+			CanChangeValue.Value = true;
 		}
 
-
+		public ReactiveProperty<bool> IsLoginFailed { get; private set; }
+		public ReactiveProperty<bool> IsServiceUnavailable { get; private set; }
 
 		public ReactiveProperty<bool> CanChangeValue { get; private set; }
 
