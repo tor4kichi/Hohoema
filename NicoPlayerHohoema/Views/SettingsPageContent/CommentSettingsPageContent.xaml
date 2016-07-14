@@ -143,61 +143,56 @@
                     />
 
 
-            <toolkit:DockPanel Margin="8">
+            <StackPanel Orientation="Horizontal" Margin="8 8 0 8">
+                <TextBlock Text="コメントの基本設定"
+                             FontSize="18"
+                               VerticalAlignment="Center"
+                           />
 
-                <TextBlock Text="デフォルトでコメントを表示する"
+            </StackPanel>
+            <StackPanel Margin="8 0 0 0">
+
+                <toolkit:DockPanel Margin="8">
+
+                    <TextBlock Text="デフォルトでコメントを表示する"
                            toolkit:DockPanel.Dock="Left"
                            VerticalAlignment="Center"
                            />
 
-                <ToggleButton Width="32" Height="32"
+                    <ToggleButton Width="32" Height="32"
                               IsChecked="{Binding DefaultCommentDisplay.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                               HorizontalAlignment="Right"
                               />
 
-            </toolkit:DockPanel>
+                </toolkit:DockPanel>
 
-            <toolkit:DockPanel Margin="8">
 
-                <TextBlock Text="投稿者コメントを読みやすくする"
+                <toolkit:DockPanel Margin="8">
+
+                    <TextBlock Text="コメントの一秒あたりの描画回数"
                            toolkit:DockPanel.Dock="Left"
                            VerticalAlignment="Center"
                            />
 
-                <ToggleButton Width="32" Height="32"
-                              IsChecked="{Binding IncrementReadablityOwnerComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                              HorizontalAlignment="Right"
-                              />
-
-            </toolkit:DockPanel>
-
-
-            <toolkit:DockPanel Margin="8">
-
-                <TextBlock Text="コメントの一秒あたりの描画回数"
-                           toolkit:DockPanel.Dock="Left"
-                           VerticalAlignment="Center"
-                           />
-
-                <ComboBox ItemsSource="{Binding CommentRenderringFPSList}"
+                    <ComboBox ItemsSource="{Binding CommentRenderringFPSList}"
                           SelectedItem="{Binding CommentRenderingFPS.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                           HorizontalAlignment="Right"
                           >
 
-                </ComboBox>
+                    </ComboBox>
 
 
-            </toolkit:DockPanel>
+                </toolkit:DockPanel>
 
 
-            <toolkit:DockPanel Margin="8">
+                <toolkit:DockPanel Margin="8">
 
-                <TextBlock Text="コメントの表示サイズ"
+                    <TextBlock Text="コメントの表示サイズ"
                            toolkit:DockPanel.Dock="Left"
                            VerticalAlignment="Center"
                            />
 
-                <toolkit:NumericUpDown Value="{Binding CommentFontScale.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    <toolkit:NumericUpDown Value="{Binding CommentFontScale.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                        SmallChange="0.05"
                                        LargeChange="1.0"
                                        Minimum="0.1"
@@ -205,15 +200,19 @@
                                        HorizontalAlignment="Right"
                                        />
 
-            </toolkit:DockPanel>
+                </toolkit:DockPanel>
+            </StackPanel>
+            
 
-            <toolkit:DockPanel Margin="8">
+            <StackPanel Margin="0 8 0 8">
 
-                <TextBlock Text="コメントの装飾許可設定"
-                           toolkit:DockPanel.Dock="Top"
-                           VerticalAlignment="Center"
+                <StackPanel Orientation="Horizontal" Margin="8 8 0 0">
+                    <TextBlock Text="コメントの装飾許可設定"
+                             FontSize="18"
+                               VerticalAlignment="Center"
                            />
 
+                </StackPanel>
                 <StackPanel Margin="8 8 0 0">
                     <toolkit:DockPanel Margin="8">
                         <TextBlock Text="動画投稿者コメントの装飾を許可"
@@ -252,7 +251,68 @@
                     </toolkit:DockPanel>
                 </StackPanel>
                 
-            </toolkit:DockPanel>
+            </StackPanel>
+
+
+
+            <StackPanel Margin="0 8 0 8">
+
+                <StackPanel Orientation="Horizontal" Margin="8 8 0 0">
+                    <TextBlock Text="コメントの追加設定"
+                             FontSize="18"
+                               VerticalAlignment="Center"
+                           />
+
+                </StackPanel>
+                <StackPanel Margin="8 8 0 0">
+                    <toolkit:DockPanel Margin="8">
+
+                        <TextBlock Text="※ この設定を有効にするには「コメントの装飾許可設定」の「動画投稿者コメントの装飾を許可」を ON にします。" 
+                                   Visibility="{Binding IsEnableOwnerCommentCommand.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                   Style="{StaticResource DescriptionTextStyle}"
+                                   TextWrapping="Wrap"
+                                   toolkit:DockPanel.Dock="Bottom"
+                                   Margin="32 4 32 0"
+                                   />
+
+                        <TextBlock Text="投稿者コメントを読みやすくする"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+
+                        <ToggleButton Width="32" Height="32"
+                              IsChecked="{Binding IncrementReadablityOwnerComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              Margin="0 0 8 0"
+                              HorizontalAlignment="Right"
+                              IsEnabled="{Binding IsEnableOwnerCommentCommand.Value}"
+                              />
+
+                    </toolkit:DockPanel>
+
+                    <!-- 自動芝刈り機 -->
+                    <toolkit:DockPanel Margin="8">
+
+                        <TextBlock Text="※ 連続するｗを１文字に刈り込みます"
+                                       Style="{StaticResource DescriptionTextStyle}"
+                                       Margin="32 4 0 4"
+                                       ToolTipService.ToolTip="ﾌﾞｲｰﾝｗｗｗｗｗ -> ﾌﾞｲｰﾝｗ"
+                                       toolkit:DockPanel.Dock="Bottom"
+                                       />
+
+                        <TextBlock Text="自動草刈機"
+                                       toolkit:DockPanel.Dock="Left"
+                                       VerticalAlignment="Center"
+                                          />
+                        <ToggleButton Width="32" Height="32" 
+                                      Margin="0 0 8 0"
+                                      IsChecked="{Binding CommentGlassMowerEnable.Value, Mode=TwoWay}"
+                                      HorizontalAlignment="Right"
+                                          />
+                    </toolkit:DockPanel>
+
+                </StackPanel>
+
+            </StackPanel>
 
 
             <!-- NGコメント -->
@@ -362,28 +422,7 @@
 
 
 
-                    <!-- 自動芝刈り機 -->
-                    <toolkit:DockPanel Margin="8">
-
-                        <TextBlock Text="連続するｗを１文字に刈り込みます"
-                                       Style="{StaticResource DescriptionTextStyle}"
-                                       Margin="32 4 0 4"
-                                       ToolTipService.ToolTip="ﾌﾞｲｰﾝｗｗｗｗｗ -> ﾌﾞｲｰﾝｗ"
-                                       toolkit:DockPanel.Dock="Bottom"
-                                       />
-
-                        <TextBlock Text="自動草刈機"
-                                       toolkit:DockPanel.Dock="Left"
-                                       VerticalAlignment="Center"
-                                          />
-                        <ToggleButton Width="32" Height="32" 
-                                      Margin="0 0 8 0"
-                                      IsChecked="{Binding CommentGlassMowerEnable.Value, Mode=TwoWay}"
-                                      HorizontalAlignment="Right"
-                                          />
-                    </toolkit:DockPanel>
-
-
+                    
                     
                 </StackPanel>
 
