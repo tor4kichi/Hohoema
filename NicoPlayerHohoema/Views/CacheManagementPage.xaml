@@ -12,6 +12,7 @@
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:rlv="using:RefreshableListView"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
@@ -60,12 +61,22 @@
             </toolkit:DockPanel>
 
 
-            <ListView x:Name="VideoInfoItems" 
-                    ItemsSource="{Binding IncrementalLoadingItems}" 
-                    SelectionMode="Multiple"
-                    IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
-                    IncrementalLoadingTrigger="Edge"
+            <rlv:RefreshableListView x:Name="VideoInfoItems" 
+                                    ItemsSource="{Binding IncrementalLoadingItems}" 
+                                    SelectionMode="Multiple"
+                                    IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
+                                    IncrementalLoadingTrigger="Edge"
+                                    AutoRefresh="False"
+                                    RefreshCommand="{Binding RefreshCommand}"
                     >
+
+                <rlv:RefreshableListView.RefreshIndicatorContent>
+                    <Grid Height="100">
+                        <SymbolIcon Symbol="Accept" 
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Center"/>
+                    </Grid>
+                </rlv:RefreshableListView.RefreshIndicatorContent>
 
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
@@ -147,7 +158,7 @@
                         </toolkit:DockPanel>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
-            </ListView>
+            </rlv:RefreshableListView>
 
 
 

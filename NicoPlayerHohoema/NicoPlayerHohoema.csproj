@@ -192,6 +192,7 @@
     <Compile Include="Views\RankingChoiceContentDialog.xaml.cs">
       <DependentUpon>RankingChoiceContentDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\RefreshableListView.cs" />
     <Compile Include="Views\Service\ISearchDialogService.cs" />
     <Compile Include="Views\Service\RankingChoiceDialogService.cs" />
     <Compile Include="Views\Service\SearchDialogService.cs" />
@@ -335,6 +336,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Styles\RefreshableListViewStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\AboutPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

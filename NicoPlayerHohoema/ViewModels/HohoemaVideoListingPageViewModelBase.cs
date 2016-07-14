@@ -267,6 +267,7 @@ namespace NicoPlayerHohoema.ViewModels
 				var source = GenerateIncrementalSource();
 
 				IncrementalLoadingItems = new IncrementalLoadingCollection<IIncrementalSource<VIDEO_INFO_VM>, VIDEO_INFO_VM>(source, IncrementalLoadCount);
+				OnPropertyChanged(nameof(IncrementalLoadingItems));
 
 				IncrementalLoadingItems.BeginLoading += BeginLoadingItems;
 				IncrementalLoadingItems.CompleteLoading += CompleteLoadingItems;
@@ -395,6 +396,21 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 		#endregion
+
+
+
+		private DelegateCommand _RefreshCommand;
+		public DelegateCommand RefreshCommand
+		{
+			get
+			{
+				return _RefreshCommand
+					?? (_RefreshCommand = new DelegateCommand(() => 
+					{
+						IncrementalLoadingItems.Clear();
+					}));
+			}
+		}
 
 
 

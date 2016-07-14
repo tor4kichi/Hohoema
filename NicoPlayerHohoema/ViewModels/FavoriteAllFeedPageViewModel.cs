@@ -91,8 +91,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public async Task<IEnumerable<FavoriteVideoInfoControlViewModel>> GetPagedItems(uint pageIndex, uint pageSize)
 		{
-			if (FeedItems == null)
+			if (FeedItems == null || pageIndex == 1)
 			{
+				await _FavFeedManager.UpdateAll();
 				FeedItems = _FavFeedManager.GetAllFeedItems().Take(100).ToList();
 			}
 

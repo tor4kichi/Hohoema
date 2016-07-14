@@ -12,6 +12,7 @@
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:rlv="using:RefreshableListView"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
@@ -91,10 +92,12 @@
 
 
 
-                <ListView ItemsSource="{Binding IncrementalLoadingItems}"
-                          SelectionMode="Multiple"
-                          IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
-                          IncrementalLoadingTrigger="Edge"
+                <rlv:RefreshableListView ItemsSource="{Binding IncrementalLoadingItems}"
+                                         SelectionMode="Multiple"
+                                         IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
+                                         IncrementalLoadingTrigger="Edge"
+                                         AutoRefresh="False"
+                                         RefreshCommand="{Binding RefreshCommand}"
                               >
 
                     <i:Interaction.Behaviors>
@@ -155,7 +158,7 @@
                             </Grid>
                         </DataTemplate>
                     </ListView.ItemTemplate>
-                </ListView>
+                </rlv:RefreshableListView>
 
 
             </toolkit:DockPanel>

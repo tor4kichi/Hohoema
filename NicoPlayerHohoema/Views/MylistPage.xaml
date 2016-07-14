@@ -12,6 +12,7 @@
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:rlv="using:RefreshableListView"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
@@ -74,12 +75,14 @@
             </toolkit:DockPanel>
 
 
-           
-            <ListView x:Name="VideoInfoItems" 
-                    ItemsSource="{Binding IncrementalLoadingItems}" 
-                    SelectionMode="Multiple"
-                    IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
-                    IncrementalLoadingTrigger="Edge"
+
+            <rlv:RefreshableListView x:Name="VideoInfoItems" 
+                                     ItemsSource="{Binding IncrementalLoadingItems}" 
+                                     SelectionMode="Multiple"
+                                     IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
+                                     IncrementalLoadingTrigger="Edge"
+                                     AutoRefresh="False"
+                                     RefreshCommand="{Binding RefreshCommand}"
                     >
 
                 <ListView.ItemContainerStyle>
@@ -126,7 +129,7 @@
                         </toolkit:DockPanel>
                     </DataTemplate>
                 </ListView.ItemTemplate>
-            </ListView>
+            </rlv:RefreshableListView>
 
 
 

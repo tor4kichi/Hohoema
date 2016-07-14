@@ -167,7 +167,7 @@ namespace NicoPlayerHohoema.ViewModels
 			var mediaManager = _HohoemaApp.MediaManager;
 
 
-			if (RawList == null)
+			if (RawList == null || pageIndex == 1)
 			{
 				List<CacheVideoViewModel> list = new List<CacheVideoViewModel>();
 
