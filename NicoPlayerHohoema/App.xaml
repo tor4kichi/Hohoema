@@ -10,20 +10,27 @@
     RequestedTheme="Light">
 
     <prism:PrismUnityApplication.Resources>
-        <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
-        <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibilityInverted"
+       
+        <ResourceDictionary>
+            <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+            <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibilityInverted"
                                            IsInversed="True"
                                            />
-        <conv:ColorToBrushConverter x:Key="ColorToBrush" />
-        <myconv:TimeSpanToMovieLengthStringValueConverter x:Key="TimeToMovieLengthConverter" />
-        <myconv:InvertBooleanConverter x:Key="InvertBoolean" />
+            <conv:ColorToBrushConverter x:Key="ColorToBrush" />
+            <myconv:TimeSpanToMovieLengthStringValueConverter x:Key="TimeToMovieLengthConverter" />
+            <myconv:InvertBooleanConverter x:Key="InvertBoolean" />
 
-        <myconv:SoundVolumeConveter x:Key="ToUserFriendlySoubleVolume" />
+            <myconv:SoundVolumeConveter x:Key="ToUserFriendlySoubleVolume" />
 
-        <myconv:CursorConverter x:Key="ToCoreCursor" />
+            <myconv:CursorConverter x:Key="ToCoreCursor" />
 
-        <myconv:VideoPositionToTimeConverter x:Key="VPosToTime" />
-        <myconv:ToUserFriendlyNumber x:Key="ToUserFriendlyNumber" />
+            <myconv:VideoPositionToTimeConverter x:Key="VPosToTime" />
+            <myconv:ToUserFriendlyNumber x:Key="ToUserFriendlyNumber" />
+            
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Styles/RefreshableListViewStyles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </prism:PrismUnityApplication.Resources>
 
 </prism:PrismUnityApplication>

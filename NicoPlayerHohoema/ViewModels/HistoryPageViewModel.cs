@@ -65,7 +65,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public async Task<IEnumerable<HistoryVideoInfoControlViewModel>> GetPagedItems(uint pageIndex, uint pageSize)
 		{
-			if (_HistoriesResponse == null)
+			if (_HistoriesResponse == null || pageIndex == 1)
 			{
 				_HistoriesResponse = await _HohoemaApp.ContentFinder.GetHistory();
 			}

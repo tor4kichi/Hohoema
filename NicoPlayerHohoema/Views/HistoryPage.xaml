@@ -11,6 +11,7 @@
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:rlv="using:RefreshableListView"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     xmlns:win2d="win2d"
     mc:Ignorable="d">
@@ -68,11 +69,13 @@
 
 
 
-            <ListView x:Name="VideoInfoItems" 
-                    ItemsSource="{Binding IncrementalLoadingItems}" 
-                    SelectionMode="Multiple"
-                    IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
-                    IncrementalLoadingTrigger="Edge"
+            <rlv:RefreshableListView x:Name="VideoInfoItems" 
+                                     ItemsSource="{Binding IncrementalLoadingItems}" 
+                                     SelectionMode="Multiple"
+                                     IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
+                                     IncrementalLoadingTrigger="Edge"
+                                     AutoRefresh="False"
+                                     RefreshCommand="{Binding RefreshCommand}"
                     >
 
                 <ListView.ItemContainerStyle>
@@ -93,6 +96,12 @@
                     <mybehavior:ListViewVerticalOffsetGetter
                     VerticalOffset="{Binding ListViewVerticalOffset.Value, Mode=TwoWay}"
                     />
+
+                    <mybehavior:KeyboardTrigger Key="F5">
+                        <mybehavior:KeyboardTrigger.Actions>
+                            <core:InvokeCommandAction Command="{Binding RefreshCommand}" />
+                        </mybehavior:KeyboardTrigger.Actions>
+                    </mybehavior:KeyboardTrigger>
 
                 </i:Interaction.Behaviors>
 
@@ -132,7 +141,7 @@
                         </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>
-            </ListView>
+            </rlv:RefreshableListView>
 
 
 

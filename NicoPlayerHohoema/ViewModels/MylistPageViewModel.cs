@@ -212,7 +212,7 @@ namespace NicoPlayerHohoema.ViewModels
 			List<VideoInfoControlViewModel> list = new List<VideoInfoControlViewModel>();
 
 			// TODO とりまのマイリストアイテム一覧取得
-			if (_MylistData == null)
+			if (_MylistData == null || head == 1)
 			{
 				_MylistData = await _HohoemaApp.NiconicoContext.Mylist.GetMylistItemListAsync("0");
 			}

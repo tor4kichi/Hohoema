@@ -245,7 +245,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 				token.ThrowIfCancellationRequested();
 
-				if (RankingRss == null)
+				if (RankingRss == null || position == 1)
 				{
 					RankingRss = await NiconicoRanking.GetRankingData(_Target, _TimeSpan, _Category);
 				}

@@ -93,6 +93,14 @@ namespace NicoPlayerHohoema.Util
 				}).AsAsyncOperation();
 		}
 
+
+		protected override void ClearItems()
+		{
+			base.ClearItems();
+
+			_Position = 1;
+		}
+
 		public bool HasMoreItems
 		{
 			get { return !IsPuaseLoading && _HasMoreItems; }

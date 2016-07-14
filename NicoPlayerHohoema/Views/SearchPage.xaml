@@ -13,6 +13,7 @@
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:rlv="using:RefreshableListView"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     
     mc:Ignorable="d">
@@ -76,14 +77,16 @@
                     <Border />
 
                 </toolkit:DockPanel>
-                
-                
-                
-                
-                <ListView ItemsSource="{Binding IncrementalLoadingItems}"
-                          SelectionMode="Multiple"
-                          IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
-                          IncrementalLoadingTrigger="Edge"
+
+
+
+
+                <rlv:RefreshableListView ItemsSource="{Binding IncrementalLoadingItems}"
+                                         SelectionMode="Multiple"
+                                         IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
+                                         IncrementalLoadingTrigger="Edge"
+                                         AutoRefresh="False"
+                                         RefreshCommand="{Binding RefreshCommand}"
                             >
                     <i:Interaction.Behaviors>
                         <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedVideoInfoItems, Mode=TwoWay}" />
@@ -91,6 +94,13 @@
                         <mybehavior:ListViewVerticalOffsetGetter
                             VerticalOffset="{Binding ListViewVerticalOffset.Value, Mode=TwoWay}"
                             />
+
+                        <mybehavior:KeyboardTrigger Key="F5">
+                            <mybehavior:KeyboardTrigger.Actions>
+                                <core:InvokeCommandAction Command="{Binding RefreshCommand}" />
+                            </mybehavior:KeyboardTrigger.Actions>
+                        </mybehavior:KeyboardTrigger>
+
                     </i:Interaction.Behaviors>
 
 
@@ -124,7 +134,7 @@
                             </Border>
                         </DataTemplate>
                     </ListView.ItemTemplate>
-                </ListView>
+                </rlv:RefreshableListView>
                 
             </toolkit:DockPanel>
         </Border>
