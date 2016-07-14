@@ -88,20 +88,23 @@ namespace NicoPlayerHohoema.Models
 				}
 			}
 
-			
 
 
+
+			var recreateProgress = false;
 			if (videoFile == null)
 			{
 				// 画質モードに応じてファイルを作成、最初はファイル名に.incompleteが付く
 				if (isEconomy)
 				{
-					videoFile = await videoSaveFolder.CreateFileAsync($"{fileName_low}{IncompleteExt}");
+					videoFile = await videoSaveFolder.CreateFileAsync($"{fileName_low}{IncompleteExt}", CreationCollisionOption.ReplaceExisting);
 				}
 				else
 				{
-					videoFile = await videoSaveFolder.CreateFileAsync($"{fileName}{IncompleteExt}");
+					videoFile = await videoSaveFolder.CreateFileAsync($"{fileName}{IncompleteExt}", CreationCollisionOption.ReplaceExisting);
 				}
+
+				recreateProgress = true;
 			}
 
 
@@ -122,7 +125,7 @@ namespace NicoPlayerHohoema.Models
 			{
 				// cacheProgressFileの存在をチェックし、あれば読み込み
 				var name = progressFileName + (isEconomy ? ".low.json" : ".json");
-				if (File.Exists(Path.Combine(videoSaveFolder.Path, name)))
+				if (!recreateProgress && File.Exists(Path.Combine(videoSaveFolder.Path, name)))
 				{
 					var progressFile = await videoSaveFolder.GetFileAsync(name);
 					var jsonText = await FileIO.ReadTextAsync(progressFile);
@@ -133,7 +136,7 @@ namespace NicoPlayerHohoema.Models
 				else
 				{
 					stream.Progress = new VideoCacheProgress((uint)stream.Size);
-					stream.ProgressFile = await videoSaveFolder.CreateFileAsync(name);
+					stream.ProgressFile = await videoSaveFolder.CreateFileAsync(name, CreationCollisionOption.ReplaceExisting);
 					await stream.SaveProgress();
 				}
 			}
@@ -394,9 +397,11 @@ namespace NicoPlayerHohoema.Models
 			{
 				_DownloadTaskCancelToken?.Cancel();
 
-				while (_DownloadTask != null && !_DownloadTask.IsCanceled && !_DownloadTask.IsFaulted)
+				while (_DownloadTask != null && !_DownloadTask.IsCanceled && !_DownloadTask.IsFaulted && !_DownloadTask.IsCompleted)
 				{
 					await Task.Delay(100);
+
+					Debug.Write("ダウンロードキャンセルを待機中");
 				}
 
 				return true;
@@ -569,6 +574,13 @@ namespace NicoPlayerHohoema.Models
 					try
 					{
 						await _CacheWriteSemaphore.WaitAsync().ConfigureAwait(false);
+
+						var path = Path.Combine(Path.GetDirectoryName(CacheFile.Path), name);
+						if (File.Exists(path))
+						{
+							var alreadFile = await StorageFile.GetFileFromPathAsync(path);
+							await alreadFile.DeleteAsync();
+						}
 						await CacheFile.RenameAsync(name).AsTask().ConfigureAwait(false);
 					}
 					finally
@@ -587,11 +599,11 @@ namespace NicoPlayerHohoema.Models
 		{
 			base.Dispose();
 
-			await StopDownload();
+			await StopDownload().ConfigureAwait(false);
 
 			if (!IsCacheComplete)
 			{
-				await SaveProgress();
+				await SaveProgress().ConfigureAwait(false);
 			}
 
 			if (!IsRequireCache)

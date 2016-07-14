@@ -227,21 +227,21 @@ namespace NicoPlayerHohoema.Models
 
 		private void CloseCurrentPlayingStream()
 		{
-			if (_CurrentPlayingStream != null)
+			if (_CurrentPlayingStream != null && !_CurrentPlayingStream.IsRequireCache)
 			{
-				if (_CurrentDownloadStream == _CurrentPlayingStream && !_CurrentPlayingStream.IsRequireCache)
+				// 再生ストリームが再生終了後に継続ダウンロードの必要がなければ、閉じる
+				if (_CurrentPlayingStream == _CurrentDownloadStream)
 				{
 					CloseCurrentDownloadStream();
-
 					TryBeginNextDownloadRequest().ConfigureAwait(false);
 				}
-				else if (_CurrentDownloadStream == null && _CurrentPlayingStream.IsCacheComplete)
+				else
 				{
 					_CurrentPlayingStream.Dispose();
 				}
-			}
 
-			_CurrentPlayingStream = null;
+				_CurrentPlayingStream = null;
+			}
 		}
 
 
