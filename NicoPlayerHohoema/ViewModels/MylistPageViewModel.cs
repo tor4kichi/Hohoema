@@ -152,6 +152,8 @@ namespace NicoPlayerHohoema.ViewModels
 					}).ConfigureAwait(false);
 			}
 
+			UpdateTitle("マイリスト - " + MylistTitle);
+
 			base.OnNavigatedTo(e, viewModelState);
 		}
 
@@ -165,11 +167,6 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				return new MylistIncrementalSource(MylistGroupId, HohoemaApp, PageManager);
 			}
-		}
-
-		public override string GetPageTitle()
-		{
-			return "マイリスト";
 		}
 
 		private string _MylistTitle;

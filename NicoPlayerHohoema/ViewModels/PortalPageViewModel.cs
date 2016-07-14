@@ -8,12 +8,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.UI.Xaml;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class PortalPageViewModel : ViewModelBase
+	public class PortalPageViewModel : HohoemaViewModelBase
 	{
 		public PortalPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
+			: base(hohoemaApp, pageManager)
 		{
 			
 		}
@@ -25,19 +27,27 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			PageManager = pageManager;
 
-			pageManager.ObserveProperty(x => x.CurrentPageType, isPushCurrentValueAtFirst:false)
-				.Subscribe(x => 
+			var dispatcher = Window.Current.CoreWindow.Dispatcher;
+			pageManager.ObserveProperty(x => x.CurrentPageType, isPushCurrentValueAtFirst:true)
+				.Subscribe(async x => 
 				{
 					if (x == HohoemaPageType.Portal)
 					{
-						NavigateTo();
+						await dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
+						{
+							NavigateTo();
+						});
 					}
 					else
 					{
-						NavigateFrom();
+						await dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+						{
+							NavigateFrom();
+						});
 					}
 				});
 		}
+
 		protected virtual void NavigateTo()
 		{
 

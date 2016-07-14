@@ -12,19 +12,17 @@ using System.Collections.ObjectModel;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class FavoriteManagePageViewModel : ViewModelBase
+	public class FavoriteManagePageViewModel : HohoemaViewModelBase
 	{
 		public FavoriteManagePageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
+			: base(hohoemaApp, pageManager)
 		{
-			_HohoemaApp = hohoemaApp;
-			_PageManager = pageManager;
-
 			Lists = new ObservableCollection<FavoriteListViewModel>();
 		}
 
 		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			while (_HohoemaApp.FavFeedManager == null)
+			while (HohoemaApp.FavFeedManager == null)
 			{
 				await Task.Delay(100);
 			}
@@ -35,33 +33,30 @@ namespace NicoPlayerHohoema.ViewModels
 			Lists.Add(new FavoriteListViewModel()
 			{
 				Name = "ユーザー",
-				Items = _HohoemaApp.FavFeedManager.GetFavUserFeedListAll()
-					.Select(x => new FavoriteItemViewModel(x, _PageManager))
+				Items = HohoemaApp.FavFeedManager.GetFavUserFeedListAll()
+					.Select(x => new FavoriteItemViewModel(x, PageManager))
 					.ToList()
 			});
 
 			Lists.Add(new FavoriteListViewModel()
 			{
 				Name = "マイリスト",
-				Items = _HohoemaApp.FavFeedManager.GetFavMylistFeedListAll()
-					.Select(x => new FavoriteItemViewModel(x, _PageManager))
+				Items = HohoemaApp.FavFeedManager.GetFavMylistFeedListAll()
+					.Select(x => new FavoriteItemViewModel(x, PageManager))
 					.ToList()
 			});
 
 			Lists.Add(new FavoriteListViewModel()
 			{
 				Name = "タグ",
-				Items = _HohoemaApp.FavFeedManager.GetFavTagFeedListAll()
-					.Select(x => new FavoriteItemViewModel(x, _PageManager))
+				Items = HohoemaApp.FavFeedManager.GetFavTagFeedListAll()
+					.Select(x => new FavoriteItemViewModel(x, PageManager))
 					.ToList()
 			});
 
 		}
 
 		public ObservableCollection<FavoriteListViewModel> Lists { get; private set; }
-
-		HohoemaApp _HohoemaApp;
-		PageManager _PageManager;
 	}
 
 	public class FavoriteListViewModel : BindableBase

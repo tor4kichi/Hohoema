@@ -29,6 +29,7 @@ using Prism.Events;
 using NicoPlayerHohoema.Events;
 using Prism.Windows.Navigation;
 using Prism.Windows.AppModel;
+using Prism.Windows.Mvvm;
 
 namespace NicoPlayerHohoema
 {
@@ -201,10 +202,27 @@ namespace NicoPlayerHohoema
 
 		private void RootFrame_Navigated(object sender, NavigationEventArgs e)
 		{
-			if (e.NavigationMode == NavigationMode.Back)
+			if (e.NavigationMode == NavigationMode.Back || e.NavigationMode == NavigationMode.Forward)
 			{
-				var pageManager = Container.Resolve<PageManager>();
-				pageManager.OnBack();
+				if (e.SourcePageType.Name.EndsWith("Page"))
+				{
+					var pageTypeString = e.SourcePageType.Name.Remove(e.SourcePageType.Name.IndexOf("Page"));
+
+					HohoemaPageType pageType;
+					if (Enum.TryParse(pageTypeString, out pageType))
+					{
+						var pageManager = Container.Resolve<PageManager>();
+						pageManager.OnNavigated(pageType);
+					}
+					else
+					{
+						throw new NotSupportedException();
+					}
+				}
+				else
+				{
+					throw new Exception();
+				}
 			}
 		}
 

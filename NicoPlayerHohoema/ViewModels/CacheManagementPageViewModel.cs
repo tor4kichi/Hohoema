@@ -38,14 +38,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			base.OnNavigatedTo(e, viewModelState);
 		}
-
 		
-		
-		public override string GetPageTitle()
-		{
-			return "ダウンロード管理";
-		}
-
 		#region Implement HohoemaVideListViewModelBase
 
 		protected override IIncrementalSource<CacheVideoViewModel> GenerateIncrementalSource()

@@ -69,10 +69,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 		}
 
-		public override string GetPageTitle()
-		{
-			return "";
-		}
 
 		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
@@ -190,9 +186,9 @@ namespace NicoPlayerHohoema.ViewModels
 				IsLoadFailed = true;
 				Debug.WriteLine(ex.Message);
 			}
-			
 
-			
+
+			UpdateTitle($"{UserName} さんのユーザー情報");
 
 			base.OnNavigatedTo(e, viewModelState);
 		}

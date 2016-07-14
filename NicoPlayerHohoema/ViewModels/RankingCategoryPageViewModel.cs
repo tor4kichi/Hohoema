@@ -103,7 +103,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
-			RankingSettings.Save();
+			RankingSettings.Save().ConfigureAwait(false);
 
 			base.OnNavigatingFrom(e, viewModelState, suspending);
 		}
@@ -155,6 +155,24 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				CategoryInfo = RequireCategoryInfo;
 				RequireCategoryInfo = null;
+
+				if (CategoryInfo.RankingSource == RankingSource.CategoryRanking)
+				{
+					RankingCategory category;
+					if (Enum.TryParse(CategoryInfo.Parameter, out category))
+					{
+						var text = RankingCategoryExtention.ToCultulizedText(category);
+						UpdateTitle($"{text} のランキング ");
+					}
+					else
+					{
+						UpdateTitle($"{CategoryInfo.Parameter} のランキング");
+					}
+				}
+				else
+				{
+					UpdateTitle($"{CategoryInfo.Parameter} のランキング");
+				}
 			}
 		}
 
@@ -177,10 +195,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 		
 
-		public override string GetPageTitle()
-		{
-			return $"{RankingCategory.ToCultulizedText()} ランキング";
-		}
 
 		public ReactiveProperty<bool> IsFailedRefreshRanking { get; private set; }
 

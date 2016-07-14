@@ -14,13 +14,12 @@ using System.Reactive.Linq;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class RankingCategoryListPageViewModel : ViewModelBase
+	public class RankingCategoryListPageViewModel : HohoemaViewModelBase
 	{
 		public RankingCategoryListPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
+			: base(hohoemaApp, pageManager)
 		{
-			_HohoemaApp = hohoemaApp;
-			_RankingSettings = _HohoemaApp.UserSettings.RankingSettings;
-			_PageManager = pageManager;
+			_RankingSettings = HohoemaApp.UserSettings.RankingSettings;
 
 			// ランキングのカテゴリ
 			RankingCategoryItems = new ObservableCollection<RankingCategoryHostListItem>()
@@ -96,7 +95,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		internal void OnRankingCategorySelected(RankingCategoryInfo info)
 		{
-			_PageManager.OpenPage(HohoemaPageType.RankingCategory, info.ToParameterString());
+			PageManager.OpenPage(HohoemaPageType.RankingCategory, info.ToParameterString());
 		}
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
@@ -109,8 +108,6 @@ namespace NicoPlayerHohoema.ViewModels
 		public ObservableCollection<RankingCategoryHostListItem> RankingCategoryItems { get; private set; }
 
 		RankingSettings _RankingSettings;
-		private HohoemaApp _HohoemaApp;
-		PageManager _PageManager;
 	}
 
 

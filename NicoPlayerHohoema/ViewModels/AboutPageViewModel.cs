@@ -11,9 +11,10 @@ using Windows.Storage;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class AboutPageViewModel : ViewModelBase
+	public class AboutPageViewModel : HohoemaViewModelBase
 	{
 		public AboutPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
+			: base(hohoemaApp, pageManager)
 		{
 			
 		}

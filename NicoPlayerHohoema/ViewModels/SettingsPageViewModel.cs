@@ -19,11 +19,11 @@ using NicoPlayerHohoema.Views.Service;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class SettingsPageViewModel : ViewModelBase
+	public class SettingsPageViewModel : HohoemaViewModelBase
 	{
-		public SettingsPageViewModel(HohoemaApp hohoemaApp, RankingChoiceDialogService rakingChoiceDialog)
+		public SettingsPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, RankingChoiceDialogService rakingChoiceDialog)
+			: base(hohoemaApp, pageManager, isRequireSignIn:true)
 		{
-			HohoemaApp = hohoemaApp;
 			RankingChoiceDialogService = rakingChoiceDialog;
 			SettingKindToVM = new Dictionary<HohoemaSettingsKind, SettingsPageContentViewModel>();
 
@@ -128,7 +128,6 @@ namespace NicoPlayerHohoema.ViewModels
 		public List<HohoemaSettingsKindListItem> SettingItems { get; private set; }
 
 		public RankingChoiceDialogService RankingChoiceDialogService { get; private set; }
-		public HohoemaApp HohoemaApp { get; private set; }
 	}
 
 

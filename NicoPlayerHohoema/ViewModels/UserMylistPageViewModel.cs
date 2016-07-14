@@ -15,9 +15,10 @@ using Mntone.Nico2.Mylist;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class UserMylistPageViewModel : ViewModelBase
+	public class UserMylistPageViewModel : HohoemaViewModelBase
 	{
 		public UserMylistPageViewModel(HohoemaApp app, PageManager pageMaanger)
+			: base(app, pageMaanger)
 		{
 			_HohoemaApp = app;
 			_PageManager = pageMaanger;
@@ -100,6 +101,8 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				MylistGroupItems.Add(mylistGroupVM);
 			}
+
+			UpdateTitle($"{UserName} さんのマイリスト一覧");
 		}
 
 		public ReactiveProperty<bool> IsHostedMylist { get; private set; }

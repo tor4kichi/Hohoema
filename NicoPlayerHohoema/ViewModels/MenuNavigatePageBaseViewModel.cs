@@ -101,7 +101,10 @@ namespace NicoPlayerHohoema.ViewModels
 			IsPersonalPage.ForceNotify();
 
 			PageManager.ObserveProperty(x => x.PageTitle)
-				.Subscribe(x => TitleText = x);
+				.Subscribe(x =>
+				{
+					TitleText = x;
+				});
 
 
 			IsVisibleTopBar = PageManager.ObserveProperty(x => x.CurrentPageType)

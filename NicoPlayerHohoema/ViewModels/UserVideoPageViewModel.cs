@@ -40,10 +40,6 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		public override string GetPageTitle()
-		{
-			return "ユーザーの投稿動画一覧";
-		}
 
 		
 

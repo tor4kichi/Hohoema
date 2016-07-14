@@ -137,6 +137,7 @@
     <Compile Include="Util\MediaPlaybackBackgroundTaskHelper.cs" />
     <Compile Include="Util\NiconicoRankingExtention.cs" />
     <Compile Include="Util\NicoVideoRssItemExtention.cs" />
+    <Compile Include="Util\SortMethodHelper.cs" />
     <Compile Include="ViewModels\AboutPageViewModel.cs" />
     <Compile Include="ViewModels\CacheManagementPageViewModel.cs" />
     <Compile Include="ViewModels\CommentStreamingViewModel.cs" />

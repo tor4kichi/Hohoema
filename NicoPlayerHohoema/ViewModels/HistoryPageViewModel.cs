@@ -25,11 +25,6 @@ namespace NicoPlayerHohoema.ViewModels
 			base.OnNavigatedTo(e, viewModelState);
 		}
 
-		public override string GetPageTitle()
-		{
-			return "視聴履歴";
-		}
-
 		protected override uint IncrementalLoadCount
 		{
 			get

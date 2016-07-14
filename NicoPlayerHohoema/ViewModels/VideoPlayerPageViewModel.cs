@@ -794,11 +794,6 @@ namespace NicoPlayerHohoema.ViewModels
 			Video?.StopPlay();
 		}
 
-		public override string GetPageTitle()
-		{
-			return Title.Value;
-		}
-
 
 		private bool SubmitComment(string comment, IEnumerable<CommandType> commands)
 		{

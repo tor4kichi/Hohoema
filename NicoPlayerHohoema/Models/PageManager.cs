@@ -1,4 +1,6 @@
-﻿using Prism.Mvvm;
+﻿using NicoPlayerHohoema.ViewModels;
+using Prism.Mvvm;
+using Prism.Windows.Mvvm;
 using Prism.Windows.Navigation;
 using System;
 using System.Collections.Generic;
@@ -30,48 +32,21 @@ namespace NicoPlayerHohoema.Models
 			set { SetProperty(ref _PageTitle, value); }
 		}
 
-
-
-
-		public ObservableCollection<PageInfo> PageInfoStack { get; private set; }
-
-
-
 		public PageManager(INavigationService ns)
 		{
 			NavigationService = ns;
 			CurrentPageType = HohoemaPageType.RankingCategoryList;
-			PageInfoStack = new ObservableCollection<PageInfo>();
 		}
 		
-
+	
 		public void OpenPage(HohoemaPageType pageType, object parameter = null)
 		{
-			var pageInfo = new PageInfo(pageType, parameter)
+			var oldPageType = CurrentPageType;
+			CurrentPageType = pageType;
+
+			if (!NavigationService.Navigate(pageType.ToString(), parameter))
 			{
-				IsVirtual = false,
-			};
-
-			OpenPage(pageInfo);
-		}
-
-		
-
-		public void OpenPage(PageInfo pageInfo, params PageInfo[] parentPages)
-		{
-			if (NavigationService.Navigate(pageInfo.PageType.ToString(), pageInfo.Parameter))
-			{
-				CurrentPageType = pageInfo.PageType;
-				PageTitle = pageInfo.PageTitle;
-
-				foreach (var parentPage in parentPages)
-				{
-					parentPage.IsVirtual = true;
-					PageInfoStack.Add(parentPage);
-				}
-
-				pageInfo.IsVirtual = false;
-				PageInfoStack.Add(pageInfo);
+				CurrentPageType = oldPageType;
 			}
 		}
 
@@ -79,26 +54,10 @@ namespace NicoPlayerHohoema.Models
 		/// <summary>
 		/// 外部で戻る処理が行われた際にPageManager上での整合性を取ります
 		/// </summary>
-		public void OnBack()
+		public void OnNavigated(HohoemaPageType pageType)
 		{
-			if (PageInfoStack.Count == 0)
-			{
-				return;
-			}
-
-			PageInfoStack.RemoveAt(PageInfoStack.Count - 1);
-			
-			while (PageInfoStack.Count > 0 && PageInfoStack.Last().IsVirtual)
-			{
-				PageInfoStack.RemoveAt(PageInfoStack.Count - 1);
-			}
-
-			var lastItem = PageInfoStack.Last();
-			CurrentPageType = lastItem.PageType;
-			PageTitle = lastItem.PageTitle;
-
+			CurrentPageType = pageType;
 		}
-
 
 
 		/// <summary>
@@ -161,6 +120,13 @@ namespace NicoPlayerHohoema.Models
 				default:
 					throw new NotSupportedException("not support " + nameof(HohoemaPageType) + "." + pageType.ToString());
 			}
+		}
+
+		
+
+		public void UpdateTitle(string title)
+		{
+			PageTitle = title;
 		}
 	}
 

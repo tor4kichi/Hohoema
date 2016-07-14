@@ -14,12 +14,11 @@ using Prism.Windows.Navigation;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class LoginPageViewModel : ViewModelBase
+	public class LoginPageViewModel : HohoemaViewModelBase
 	{
-		public LoginPageViewModel(HohoemaApp hohoemaApp, PageManager pageMananger)
+		public LoginPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
+			 : base(hohoemaApp, pageManager)
 		{
-			HohoemaApp = hohoemaApp;
-			PageManager = pageMananger;
 			AccountSettings = HohoemaApp.CurrentAccount;
 
 			CanChangeValue = new ReactiveProperty<bool>(true);
@@ -111,8 +110,6 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveCommand CheckLoginCommand { get; private set; }
 
 
-		public PageManager PageManager { get; private set; }
-		public HohoemaApp HohoemaApp { get; private set; }
 		public AccountSettings AccountSettings { get; private set; }
 	}
 

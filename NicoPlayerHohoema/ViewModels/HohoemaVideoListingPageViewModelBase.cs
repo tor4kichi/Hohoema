@@ -225,6 +225,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				ListViewVerticalOffset.Value = _LastListViewOffset;
 				ChangeCanIncmentalLoading(true);
+				OnPropertyChanged(nameof(IncrementalLoadingItems));
 			}
 		}
 

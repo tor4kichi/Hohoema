@@ -45,11 +45,6 @@ namespace NicoPlayerHohoema.ViewModels
 			});
 		}
 
-		public override string GetPageTitle()
-		{
-			return "お気に入りの新着動画一覧";
-		}
-
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			base.OnNavigatedTo(e, viewModelState);

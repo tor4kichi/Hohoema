@@ -143,7 +143,11 @@ namespace NicoPlayerHohoema.ViewModels
 		protected override void PostResetList()
 		{
 			SearchOption = RequireSearchOption;
-			RequireSearchOption = null;			
+			RequireSearchOption = null;
+
+			var target = SearchOption.SearchTarget == SearchTarget.Keyword ? "キーワード" : "タグ";
+			var optionText = Util.SortMethodHelper.ToCulturizedText(SearchOption.SortMethod, SearchOption.SortDirection);
+			UpdateTitle($"{target}検索: {SearchOption.Keyword} - {optionText}");
 		}
 
 		protected override uint IncrementalLoadCount
@@ -207,11 +211,7 @@ namespace NicoPlayerHohoema.ViewModels
 			return items;
 		}
 
-		public override string GetPageTitle()
-		{
-			return $"'{RequireSearchOption.Keyword}'検索結果";
-		}
-
+	
 
 		private async Task<bool> FavoriteTag()
 		{
