@@ -211,8 +211,6 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			base.OnNavigatedTo(e, viewModelState);
 
-			IncrementalLoadingItems = _IncrementalLoadingItems;
-
 			if (!NowSignIn && PageIsRequireSignIn)
 			{
 				IncrementalLoadingItems = null;
@@ -236,10 +234,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 			_LastListViewOffset = ListViewVerticalOffset.Value;
 			ChangeCanIncmentalLoading(false);
-
-			_IncrementalLoadingItems = IncrementalLoadingItems;
-			IncrementalLoadingItems = null;
-			OnPropertyChanged(nameof(IncrementalLoadingItems));
 		}
 
 
@@ -247,7 +241,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			if (IncrementalLoadingItems != null)
 			{
-//				IncrementalLoadingItems.IsPuaseLoading = !enableLoading;
+				IncrementalLoadingItems.IsPuaseLoading = !enableLoading;
 			}
 		}
 
@@ -405,7 +399,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ObservableCollection<VIDEO_INFO_VM> SelectedVideoInfoItems { get; private set; }
 
-		private IncrementalLoadingCollection<IIncrementalSource<VIDEO_INFO_VM>, VIDEO_INFO_VM> _IncrementalLoadingItems;
 		public IncrementalLoadingCollection<IIncrementalSource<VIDEO_INFO_VM>, VIDEO_INFO_VM> IncrementalLoadingItems { get; private set; }
 
 		public ReactiveProperty<double> ListViewVerticalOffset { get; private set; }
