@@ -177,6 +177,9 @@ namespace NicoPlayerHohoema.ViewModels
 				.Select(_ =>
 				{
 					if (Video == null) { return false; }
+					// 低画質動画が存在しない場合は画質の変更はできない
+					if (this.Video.LowQualityVideoSize == 0) { return false; }
+
 					if (CurrentVideoQuality.Value == NicoVideoQuality.Original)
 					{
 						return Video.CanPlayLowQuality;
@@ -692,8 +695,13 @@ namespace NicoPlayerHohoema.ViewModels
 			// ビデオクオリティをトリガーにしてビデオ関連の情報を更新させる
 			// CurrentVideoQualityは代入時に常にNotifyが発行される設定になっている
 
+			// 低画質動画が存在しない場合はオリジナル画質を選択
+			if (Video.LowQualityVideoSize == 0)
+			{
+				quality = NicoVideoQuality.Original;
+			}
 			// エコノミー時間帯でオリジナル画質が未保存の場合
-			if (Video.NowLowQualityOnly && Video.OriginalQualityCacheState != NicoVideoCacheState.Cached)
+			else if (Video.NowLowQualityOnly && Video.OriginalQualityCacheState != NicoVideoCacheState.Cached)
 			{
 				quality = NicoVideoQuality.Low;
 			}

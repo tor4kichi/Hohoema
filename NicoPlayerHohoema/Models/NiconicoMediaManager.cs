@@ -1294,7 +1294,7 @@ namespace NicoPlayerHohoema.Models
 
 		public bool CanRequestDownloadLowQuality
 		{
-			get { return LowQualityCacheState == NicoVideoCacheState.Incomplete && !NowOffline; }
+			get { return LowQualityCacheState == NicoVideoCacheState.Incomplete && !NowOffline && LowQualityVideoSize != 0; }
 		}
 
 		
