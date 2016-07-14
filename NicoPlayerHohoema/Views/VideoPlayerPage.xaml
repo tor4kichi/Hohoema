@@ -314,9 +314,7 @@
                                         >
                                         <i:Interaction.Behaviors>
                                             <core:EventTriggerBehavior EventName="Tapped">
-                                                <core:CallMethodAction TargetObject="{Binding ElementName=mediaElem}"
-                                                       MethodName="Play"
-                                                       />
+                                                <mybehavior:MediaElementPlayAction TargetObject="{Binding ElementName=mediaElem}" />
                                             </core:EventTriggerBehavior>
                                         </i:Interaction.Behaviors>
                                     </AppBarButton>
@@ -327,9 +325,7 @@
                                           >
                                         <i:Interaction.Behaviors>
                                             <core:EventTriggerBehavior EventName="Tapped">
-                                                <core:CallMethodAction TargetObject="{Binding ElementName=mediaElem}"
-                                                       MethodName="Pause"
-                                                       />
+                                                <mybehavior:MediaElementPauseAction TargetObject="{Binding ElementName=mediaElem}" />
                                             </core:EventTriggerBehavior>
                                         </i:Interaction.Behaviors>
                                     </AppBarButton>
