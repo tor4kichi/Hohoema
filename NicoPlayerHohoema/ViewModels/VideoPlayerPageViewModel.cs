@@ -44,6 +44,16 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class VideoPlayerPageViewModel : HohoemaViewModelBase, IDisposable
 	{
+		const float fontSize_mid = 1.0f;
+		const float fontSize_small = 0.75f;
+		const float fontSize_big = 1.25f;
+
+		const float default_fontSize = fontSize_mid;
+		const uint default_DisplayTime = 300; // 3秒
+
+		static readonly Color defaultColor = ColorExtention.HexStringToColor("FFFFFF");
+
+
 
 		public SynchronizationContextScheduler PlayerWindowUIDispatcherScheduler;
 
@@ -70,6 +80,7 @@ namespace NicoPlayerHohoema.ViewModels
 			ReadVideoPosition = new ReactiveProperty<TimeSpan>(PlayerWindowUIDispatcherScheduler, TimeSpan.Zero);
 			CommentVideoPosition = new ReactiveProperty<TimeSpan>(PlayerWindowUIDispatcherScheduler, TimeSpan.Zero);
 			CommentData = new ReactiveProperty<CommentResponse>(PlayerWindowUIDispatcherScheduler);
+			NowSubmittingComment = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler);
 			SliderVideoPosition = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0);
 			VideoLength = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0);
 			CurrentState = new ReactiveProperty<MediaElementState>(PlayerWindowUIDispatcherScheduler);
@@ -95,13 +106,7 @@ namespace NicoPlayerHohoema.ViewModels
 			CommentSubmitCommand = WritingComment.Select(x => !string.IsNullOrWhiteSpace(x))
 				.ToReactiveCommand();
 
-			CommentSubmitCommand.Subscribe(x => 
-			{
-				if (SubmitComment(WritingComment.Value, Enumerable.Empty<CommandType>()))
-				{
-					WritingComment.Value = "";
-				}
-			});
+			CommentSubmitCommand.Subscribe(async x => await SubmitComment());
 
 			_VideoUpdaterSubject = new BehaviorSubject<object>(null);
 			CurrentVideoQuality = new ReactiveProperty<NicoVideoQuality>(PlayerWindowUIDispatcherScheduler, NicoVideoQuality.Low, ReactivePropertyMode.None);
@@ -384,19 +389,10 @@ namespace NicoPlayerHohoema.ViewModels
 		private double PreviousVideoPosition;
 
 
-		static readonly ReadOnlyCollection<char> glassChars = new ReadOnlyCollection<char>(new char[] { 'w', 'ｗ', 'W', 'Ｗ' });
+		static readonly ReadOnlyCollection<char> glassChars = new ReadOnlyCollection<char>(new char[] { 'w', 'ｗ', 'W', 'Ｗ' });		
 
 		private Comment ChatToComment(Chat comment)
 		{
-			var fontSize_mid = 1.0f;
-			var fontSize_small = 0.75f;
-			var fontSize_big = 1.25f;
-
-			var default_fontSize = fontSize_mid;
-			uint default_DisplayTime = 300; // 3秒
-
-			Color defaultColor = ColorExtention.HexStringToColor("FFFFFF");
-
 			
 			if (comment.Text == null)
 			{
@@ -461,12 +457,18 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 			}
 			
-			if (commandList == null)
+			
+			return commentVM;
+		}
+		
+
+		private void CommentDecorateFromCommands(Comment commentVM, IEnumerable<CommandType> commandList)
+		{
+			if (commandList == null || commandList.Any(x => x == CommandType.all))
 			{
 				commandList = Enumerable.Empty<CommandType>();
 			}
 
-			bool isCommendCancel = false;
 			foreach (var command in commandList)
 			{
 				switch (command)
@@ -579,7 +581,7 @@ namespace NicoPlayerHohoema.ViewModels
 						commentVM.IsVisible = false;
 						break;
 					case CommandType.all:
-						isCommendCancel = true;
+						// Note: 事前に判定しているのでここでは評価しない
 						break;
 					case CommandType.from_button:
 						break;
@@ -592,36 +594,25 @@ namespace NicoPlayerHohoema.ViewModels
 						break;
 				}
 
-				// TODO: 投稿者のコメント表示時間を伸ばす？（3秒→５秒）
-				// usまたはshitaが指定されている場合に限る？
-
-				// 　→　投コメ解説をみやすくしたい
-
-				if (commentVM.IsOwnerComment && commentVM.VAlign.HasValue)
-				{
-					var displayTime = Math.Max(3.0f, commentVM.CommentText.Count() * 0.3f); // 4文字で1秒？ 年齢層的に読みが遅いかもしれないのでやや長めに
-					var displayTimeVideoLength = (uint)(displayTime * 100);
-					commentVM.EndPosition = commentVM.VideoPosition + displayTimeVideoLength;
-				}
 
 
-				if (isCommendCancel)
-				{
-					commentVM = new Comment(this)
-					{
-						CommentText = decodedText,
-						FontScale = default_fontSize,
-						Color = defaultColor,
-						VideoPosition = vpos,
-						EndPosition = vpos + default_DisplayTime,
-					};
-					break;
-				}
 			}
 
-			return commentVM;
+			// TODO: 投稿者のコメント表示時間を伸ばす？（3秒→５秒）
+			// usまたはshitaが指定されている場合に限る？
+
+			// 　→　投コメ解説をみやすくしたい
+
+			if (commentVM.IsOwnerComment && commentVM.VAlign.HasValue)
+			{
+				var displayTime = Math.Max(3.0f, commentVM.CommentText.Count() * 0.3f); // 4文字で1秒？ 年齢層的に読みが遅いかもしれないのでやや長めに
+				var displayTimeVideoLength = (uint)(displayTime * 100);
+				commentVM.EndPosition = commentVM.VideoPosition + displayTimeVideoLength;
+			}
+
+
 		}
-		
+
 		private void UpdateCommentNGStatus()
 		{
 			var ngSettings = _HohoemaApp.UserSettings.NGSettings;
@@ -749,14 +740,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		private async Task<CommentResponse> GetComment()
-		{
-			if (Video == null) { return null; }
-
-			return await Video.GetComment(true);
-//			return await this._HohoemaApp.NiconicoContext.Video
-//					.GetCommentAsync(response);
-		}
+		
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
@@ -795,12 +779,55 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		private bool SubmitComment(string comment, IEnumerable<CommandType> commands)
+
+		private async Task<CommentResponse> GetComment()
 		{
-			Debug.WriteLine($"comment submit:{comment}");
+			if (Video == null) { return null; }
+
+			return await Video.GetComment(true);
+			//			return await this._HohoemaApp.NiconicoContext.Video
+			//					.GetCommentAsync(response);
+		}
 
 
-			return true;
+		private async Task SubmitComment()
+		{
+			Debug.WriteLine($"try comment submit:{WritingComment.Value}");
+
+			NowSubmittingComment.Value = true;
+			try
+			{
+				var vpos = (uint)(ReadVideoPosition.Value.TotalMilliseconds / 10);
+				var commands = Enumerable.Empty<CommandType>().ToList();
+				var res = await Video.SubmitComment(WritingComment.Value, ReadVideoPosition.Value, commands);
+
+				if (res.Chat_result.Status == ChatResult.Success)
+				{
+					Debug.WriteLine("コメントの投稿に成功: " + res.Chat_result.No);
+
+					var commentVM = new Comment(this)
+					{
+						CommentId = (uint)res.Chat_result.No,
+						VideoPosition = vpos,
+						UserId = HohoemaApp.LoginUserId.ToString(),
+						CommentText = WritingComment.Value,
+					};
+					CommentDecorateFromCommands(commentVM, commands);
+
+					Comments.Add(commentVM);
+
+					WritingComment.Value = "";
+				}
+				else
+				{
+					Debug.WriteLine("コメントの投稿に失敗: " + res.Chat_result.Status.ToString());
+				}
+
+			}
+			finally
+			{
+				NowSubmittingComment.Value = false;
+			}
 		}
 
 
@@ -934,61 +961,61 @@ namespace NicoPlayerHohoema.ViewModels
 			get { return _VideoId; }
 			set { SetProperty(ref _VideoId, value); }
 		}
-		
+
+
+		// Note: 新しいReactivePropertyを追加したときの注意点
+		// ReactivePorpertyの初期化にPlayerWindowUIDispatcherSchedulerを使うこと
+
+
+		public ReactiveProperty<string> Title { get; private set; }
+
 		public ReactiveProperty<IRandomAccessStream> VideoStream { get; private set; }
 
 		private ISubject<object> _VideoUpdaterSubject;
 		public ReactiveProperty<NicoVideoQuality> CurrentVideoQuality { get; private set; }
 		public ReactiveProperty<bool> CanToggleCurrentQualityCacheState { get; private set; }
 		public ReactiveProperty<bool> IsSaveRequestedCurrentQualityCache { get; private set; }
-
 		public ReactiveProperty<string> ToggleQualityText { get; private set; }
+
 
 		public ReactiveProperty<TimeSpan> CurrentVideoPosition { get; private set; }
 		public ReactiveProperty<TimeSpan> ReadVideoPosition { get; private set; }
 		public ReactiveProperty<TimeSpan> CommentVideoPosition { get; private set; }
 
-		public ObservableCollection<Comment> Comments { get; private set; }
-
 		public ReactiveProperty<double> SliderVideoPosition { get; private set; }
-
 		public ReactiveProperty<double> VideoLength { get; private set; }
-
 		public ReactiveProperty<MediaElementState> CurrentState { get; private set; }
 		public ReactiveProperty<bool> NowBuffering { get; private set; }
-
 		public ReactiveProperty<bool> NowPlaying { get; private set; }
-
-		public ReactiveProperty<bool> NowCommentWriting { get; private set; }
-
-		public ReactiveProperty<bool> NowSoundChanging { get; private set; }
+		public ReactiveProperty<bool> IsEnableRepeat { get; private set; }
 
 		public ReactiveProperty<bool> IsAutoHideEnable { get; private set; }
 
 
-		public ReactiveProperty<bool> IsVisibleComment { get; private set; }
-
-		public ReactiveProperty<bool> IsEnableRepeat { get; private set; }
-		
-		public ReactiveProperty<string> WritingComment { get; private set; }
-
+		// Sound
+		public ReactiveProperty<bool> NowSoundChanging { get; private set; }
 		public ReactiveProperty<bool> IsMuted { get; private set; }
-
 		public ReactiveProperty<float> SoundVolume { get; private set; }
 
-		public ReactiveProperty<string> Title { get; private set; }
-
+		// Settings
 		public ReactiveProperty<int> RequestFPS { get; private set; }
 		public ReactiveProperty<float> CommentFontScale { get; private set; }
+
+
+
+		public ReactiveProperty<bool> NowSubmittingComment { get; private set; }
+		public ReactiveProperty<string> WritingComment { get; private set; }
+		public ReactiveProperty<bool> IsVisibleComment { get; private set; }
+		public ReactiveProperty<bool> NowCommentWriting { get; private set; }
+		public ObservableCollection<Comment> Comments { get; private set; }
+
+
+
 
 		public ReactiveProperty<MediaInfoViewModel> SidePaneContent { get; private set; }
 		private Dictionary<MediaInfoDisplayType, MediaInfoViewModel> _SidePaneContentCache;
 		public ReactiveProperty<MediaInfoDisplayType> SelectedSidePaneType { get; private set; }
 		public List<MediaInfoDisplayType> Types { get; private set; }
-
-		// Note: 新しいReactivePropertyを追加したときの注意点
-		// RPではPlayerWindowUIDispatcherSchedulerを使うこと
-
 
 
 		private HohoemaApp _HohoemaApp;

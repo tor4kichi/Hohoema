@@ -1219,6 +1219,19 @@ namespace NicoPlayerHohoema.Models
 
 
 
+		public Task<PostCommentResponse> SubmitComment(string comment, TimeSpan position, IEnumerable<CommandType> commands)
+		{
+			try
+			{
+				return HohoemaApp.NiconicoContext.Video.PostCommentAsync(CachedWatchApiResponse, CachedCommentResponse.Thread, comment, position, commands);
+			}
+			catch
+			{
+				// コメントデータを再取得してもう一度？
+				return Task.FromResult<PostCommentResponse>(null);
+			}
+		}
+
 
 		private bool _IsLatestWatchApiResponse;
 
