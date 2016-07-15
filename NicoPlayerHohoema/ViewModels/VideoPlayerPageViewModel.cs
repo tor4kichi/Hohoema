@@ -1008,7 +1008,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> IsVisibleComment { get; private set; }
 		public ReactiveProperty<bool> NowCommentWriting { get; private set; }
 		public ObservableCollection<Comment> Comments { get; private set; }
-
+		
 
 
 

@@ -1,4 +1,5 @@
 ﻿<Page
+    x:Name="PageRoot"
     x:Class="NicoPlayerHohoema.Views.VideoPlayerPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -175,6 +176,9 @@
                                      CommentSizeScale="{Binding CommentFontScale.Value}"
                                      />
 
+                   
+                    
+
                     <!-- playback toggle screen -->
                     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                           Visibility="{Binding ElementName=ControlUIRoot, Path=Visibility}"
@@ -206,6 +210,8 @@
 
                         </Border>
                     </Grid>
+
+                    
 
                     <toolkit:DockPanel HorizontalAlignment="Stretch"
                            VerticalAlignment="Stretch"
@@ -457,10 +463,30 @@
                                             Width="120"
                                         />
 
-                                    <TextBox Text="{Binding WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    <TextBox x:Name="CommentTextBox" 
+                                            Text="{Binding WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              FontSize="18"
                                              VerticalAlignment="Center"
-                                 />
+                                             
+                                             >
+                                        <i:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="GotFocus" >
+                                                <core:ChangePropertyAction TargetObject="{Binding NowCommentWriting}" PropertyName="Value" Value="True" />
+                                            </core:EventTriggerBehavior>
+                                            <core:EventTriggerBehavior EventName="LostFocus" >
+                                                <core:ChangePropertyAction TargetObject="{Binding NowCommentWriting}" PropertyName="Value" Value="False" />
+                                            </core:EventTriggerBehavior>
+
+                                            <mybehavior:KeyboardTrigger Key="Escape">
+                                                <mybehavior:KeyboardTrigger.Actions>
+                                                    <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="False" />
+                                                    <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="True" />
+                                                </mybehavior:KeyboardTrigger.Actions>
+                                            </mybehavior:KeyboardTrigger>
+                                        </i:Interaction.Behaviors>
+                                    </TextBox>
+                                            
+                                 
 
 
                                 </toolkit:DockPanel>
@@ -481,6 +507,18 @@
 
 
                     </toolkit:DockPanel>
+
+                    <!-- コメントテキストを書いたあとに画面のどこかをタップしたら
+                         ロストフォーカスさせるためのタップバリア -->
+                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0 0 0 64" 
+                          Background="Transparent"
+                          IsHitTestVisible="True"
+                          Visibility="{Binding NowCommentWriting.Value, Converter={StaticResource BooleanToVisibility}}"
+                          >
+                        <Border />
+                    </Grid>
+                    
+                    
                 </Grid>
             </SplitView.Content>
             <SplitView.Pane>
