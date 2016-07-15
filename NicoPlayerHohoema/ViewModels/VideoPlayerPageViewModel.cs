@@ -108,8 +108,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 			CommentSubmitCommand.Subscribe(async x => await SubmitComment());
 
-			IsPauseWithCommentWriting = _HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.PauseWithCommentWriting)
-				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler);
+			IsPauseWithCommentWriting = _HohoemaApp.UserSettings.PlayerSettings
+				.ToReactivePropertyAsSynchronized(x => x.PauseWithCommentWriting, PlayerWindowUIDispatcherScheduler);
 
 
 			_VideoUpdaterSubject = new BehaviorSubject<object>(null);

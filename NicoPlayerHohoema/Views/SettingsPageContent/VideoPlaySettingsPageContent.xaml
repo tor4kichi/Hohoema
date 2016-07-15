@@ -43,6 +43,22 @@
 
             </toolkit:DockPanel>
 
+
+            <toolkit:DockPanel Margin="8">
+
+                <TextBlock Text="コメントを書き始めたら動画を一時停止する"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+
+                <ToggleButton Width="32" Height="32"
+                              IsChecked="{Binding IsPauseWithCommentWriting.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              HorizontalAlignment="Right"
+                              />
+
+            </toolkit:DockPanel>
+
+
         </ItemsControl>
     </ScrollViewer>
 </UserControl>

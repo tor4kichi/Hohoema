@@ -18,6 +18,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			IsDefaultPlayWithLowQuality = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsLowQualityDeafult);
 			IsKeepDisplayInPlayback = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsKeepDisplayInPlayback);
+			IsPauseWithCommentWriting = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.PauseWithCommentWriting);
 		}
 
 		public override void OnLeave()
@@ -28,6 +29,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<bool> IsDefaultPlayWithLowQuality { get; private set; }
 		public ReactiveProperty<bool> IsKeepDisplayInPlayback { get; private set; }
+		public ReactiveProperty<bool> IsPauseWithCommentWriting { get; private set; }
 
 		private PlayerSettings _PlayerSettings;
 	}
