@@ -168,6 +168,7 @@
     <Compile Include="Views\Behaviors\ListViewSelectedItemsGetter.cs" />
     <Compile Include="Views\Behaviors\MediaElementPauseAction.cs" />
     <Compile Include="Views\Behaviors\MediaElementPlayAction.cs" />
+    <Compile Include="Views\Behaviors\MediaElementTogglePlayback.cs" />
     <Compile Include="Views\Behaviors\OpenFlyout.cs" />
     <Compile Include="Views\Behaviors\ScrollToIndex.cs" />
     <Compile Include="Views\Behaviors\ListViewVerticalOffsetGetter.cs" />

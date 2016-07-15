@@ -124,10 +124,12 @@
                    OpenPaneLength="400"
                    >
             <SplitView.Content>
-
+                
                 <!-- Media Control -->
-                <Grid Background="Black" x:Name="MediaControl">
+                <Grid Background="#FF0C0C0C" x:Name="MediaControl">
 
+                   
+                    
                     <ProgressRing Visibility="{Binding NowBuffering.Value, Converter={StaticResource BooleanToVisibility}}"
                                   IsActive="{Binding NowBuffering.Value}"
                                   Width="32"
@@ -173,6 +175,37 @@
                                      CommentSizeScale="{Binding CommentFontScale.Value}"
                                      />
 
+                    <!-- playback toggle screen -->
+                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                          Visibility="{Binding ElementName=ControlUIRoot, Path=Visibility}"
+                          >
+                        <Border Background="Transparent" IsHitTestVisible="True">
+                            <i:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <mybehavior:MediaElementTogglePlayback TargetObject="{Binding ElementName=mediaElem}"  />
+                                </core:EventTriggerBehavior>
+                            </i:Interaction.Behaviors>
+
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0 0 0 48">
+                                <Border Background="#550C0C0C" 
+                                    Height="48" Width="48" CornerRadius="24" Padding="4 0 0 0"
+                                    Visibility="{Binding NowPlaying.Value, Converter={StaticResource BooleanToVisibility}}"
+                                    >
+                                    <SymbolIcon Symbol="Play" Foreground="WhiteSmoke" />
+
+                                </Border>
+                                <Border Background="#AA0C0C0C" 
+                                    Height="48" Width="48" CornerRadius="24" Padding="0 0 0 0"
+                                    Visibility="{Binding NowPlaying.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                    >
+                                    <SymbolIcon Symbol="Pause" Foreground="WhiteSmoke" />
+
+                                </Border>
+                            </StackPanel>
+                           
+
+                        </Border>
+                    </Grid>
 
                     <toolkit:DockPanel HorizontalAlignment="Stretch"
                            VerticalAlignment="Stretch"
@@ -233,6 +266,15 @@
                                                     IsEnabled="{Binding CanToggleCurrentQualityCacheState.Value}"
                                               />
 
+                                <AppBarToggleButton IsChecked="{Binding IsVisibleComment.Value, Mode=TwoWay}" 
+                                                Icon="Comment" 
+                                            />
+
+                                <AppBarButton x:Name="RepeatButton"
+                                            Icon="RepeatAll" 
+                                            Command="{Binding ToggleRepeatCommand}"                                      
+                                      />
+
                                 <AppBarButton Icon="OpenPane" Content="動画情報"
                                               
                                               >
@@ -259,10 +301,107 @@
                         
                         
                         <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom"
-                               Background="#AA777777"
+                               
                                >
 
-                            <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
+
+                            <!-- ビデオコントロール  -->
+
+
+
+                            <toolkit:DockPanel toolkit:DockPanel.Dock="Top" 
+                                               Margin="0 0 0 16"
+
+                                               >
+                                <!-- Left Items -->
+                                <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left">
+
+                                    <!--
+                                    <AppBarButton x:Name="PlayButton"
+                                            Icon="Play"
+                                        >
+                                        <i:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Tapped">
+                                                <mybehavior:MediaElementPlayAction TargetObject="{Binding ElementName=mediaElem}" />
+                                            </core:EventTriggerBehavior>
+                                        </i:Interaction.Behaviors>
+                                    </AppBarButton>
+                                    
+                                    
+                                    <AppBarButton 
+                                            x:Name="PauseButton"
+                                            Icon="Pause"
+                                            Visibility="Collapsed"
+                                          >
+                                        <i:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Tapped">
+                                                <mybehavior:MediaElementPauseAction TargetObject="{Binding ElementName=mediaElem}" />
+                                            </core:EventTriggerBehavior>
+                                        </i:Interaction.Behaviors>
+                                    </AppBarButton>
+
+                                    -->
+
+                                </StackPanel>
+
+                                <!-- Right Items-->
+                                <toolkit:DockPanel
+                                    toolkit:DockPanel.Dock="Right"
+                                    Margin="0 0 16 0"
+                                    >
+
+                                    <Border Background="#AA777777">
+                                        <AppBarButton Icon="Audio" 
+                                                  Width="48"
+                                                  Height="48"
+                                                  >
+
+
+                                            <AppBarButton.Flyout>
+                                                <Flyout>
+
+
+                                                    <StackPanel Orientation="Vertical" Width="68">
+
+
+                                                        <Slider x:Name="VolumeSlider"
+                                                            VerticalAlignment="Center"
+                                                            Margin="16 8 16 8"                            
+                                                            Value="{Binding SoundVolume.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                            IsThumbToolTipEnabled="True"
+                                                            ThumbToolTipValueConverter="{StaticResource ToUserFriendlySoubleVolume}"
+                                                            Maximum="1.0"
+                                                            Minimum="0.0"
+                                                            StepFrequency="0.01"
+                                                            Height="128"
+                                                            Orientation="Vertical"
+                                                    />
+
+                                                        <AppBarToggleButton x:Name="MuteButton"
+                                                            Icon="Mute" 
+                                                            Command="{Binding ToggleMuteCommand}"                                      
+                                                            toolkit:DockPanel.Dock="Left"                
+                                                            Height="36"
+                                                      />
+
+                                                    </StackPanel>
+
+                                                </Flyout>
+                                            </AppBarButton.Flyout>
+                                        </AppBarButton>
+                                    </Border>
+
+                                </toolkit:DockPanel>
+
+                                <Border />
+
+
+                            </toolkit:DockPanel>
+
+
+                            <toolkit:DockPanel toolkit:DockPanel.Dock="Top"
+                                               Background="#AA777777"
+                                               >
                                 <!-- -->
                                 <Grid 
                                     x:Name="ControlPanel_Center"
@@ -280,14 +419,15 @@
                                             HorizontalAlignment="Stretch"
                                             HorizontalContentAlignment="Stretch"
                                             VerticalAlignment="Center"
-                                            Margin="16 0"
+                                            Margin="24 0"
                                      >
                                     </Slider>
 
                                     <TextBlock HorizontalAlignment="Right"
-                                               VerticalAlignment="Top"
+                                               VerticalAlignment="Bottom"
                                                IsHitTestVisible="False"
-                                               Foreground="Gray"
+                                               Foreground="DarkGray"
+                                               Margin="0 0 24 0"
                                             >
                                         <Run Text="{Binding SliderVideoPosition.Value, Converter={StaticResource TimeToMovieLengthConverter}}" />
                                         <Run Text="/" />
@@ -296,105 +436,30 @@
                                 </Grid>
 
                             </toolkit:DockPanel>
-                            
-                            
-                            
-                            
-                            
-                            <!-- ビデオコントロール  -->
-                            
-                            
-                            
-                            <toolkit:DockPanel toolkit:DockPanel.Dock="Top" Height="48">
-                                <!-- Left Items -->
-                                <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left">
-
-                                    <AppBarButton x:Name="PlayButton"
-                                            Icon="Play"
-                                        >
-                                        <i:Interaction.Behaviors>
-                                            <core:EventTriggerBehavior EventName="Tapped">
-                                                <mybehavior:MediaElementPlayAction TargetObject="{Binding ElementName=mediaElem}" />
-                                            </core:EventTriggerBehavior>
-                                        </i:Interaction.Behaviors>
-                                    </AppBarButton>
-                                    <AppBarButton 
-                                            x:Name="PauseButton"
-                                            Icon="Pause"
-                                            Visibility="Collapsed"
-                                          >
-                                        <i:Interaction.Behaviors>
-                                            <core:EventTriggerBehavior EventName="Tapped">
-                                                <mybehavior:MediaElementPauseAction TargetObject="{Binding ElementName=mediaElem}" />
-                                            </core:EventTriggerBehavior>
-                                        </i:Interaction.Behaviors>
-                                    </AppBarButton>
-
-                                    <AppBarButton x:Name="RepeatButton"
-                                            Icon="RepeatAll" 
-                                            Command="{Binding ToggleRepeatCommand}"                                      
-                                      />
-                                </StackPanel>
-
-                                <!-- Right Items-->
-                                <toolkit:DockPanel
-                                    toolkit:DockPanel.Dock="Right"
-                                    LastChildFill="True"
-                                    Width="300"
-                                    >
-                                    <AppBarButton x:Name="MuteButton"
-                                            Icon="Mute" 
-                                            Command="{Binding ToggleMuteCommand}"                                      
-                                            toolkit:DockPanel.Dock="Left"
-                                      />
-
-                                    <Slider x:Name="VolumeSlider"
-                                            VerticalAlignment="Center"
-                                            Margin="16 0"                            
-                                            Value="{Binding SoundVolume.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                            IsThumbToolTipEnabled="True"
-                                            ThumbToolTipValueConverter="{StaticResource ToUserFriendlySoubleVolume}"
-                                            Maximum="1.0"
-                                            Minimum="0.0"
-                                            StepFrequency="0.01"
-                                    />
-
-                                </toolkit:DockPanel>
-
-                                <Border />
 
 
-                            </toolkit:DockPanel>
 
-                            
-                            
-                            
                             <!-- Comment関連 -->
-                            
-                            
-                            <toolkit:DockPanel Height="48">
 
 
-                                <StackPanel toolkit:DockPanel.Dock="Right" Orientation="Horizontal">
+                            <toolkit:DockPanel Background="#AA777777">
 
-                                    <AppBarToggleButton IsChecked="{Binding IsVisibleComment.Value, Mode=TwoWay}" 
-                                                Icon="Comment" 
-                                            />
-                                </StackPanel>
-
-                                <toolkit:DockPanel>
+                                <toolkit:DockPanel Margin="8" MaxWidth="9600">
                                     <Button Content="投稿"  Margin="16 0" 
-                                    Width="80" Height="40"
-                                    Command="{Binding CommentSubmitCommand}"
-                                    toolkit:DockPanel.Dock="Right"
-                                    />
+                                        Width="80" Height="40"
+                                        Command="{Binding CommentSubmitCommand}"
+                                        toolkit:DockPanel.Dock="Right"
+                                        />
 
                                     <Button Content="184" ToolTipService.ToolTip="コマンドを選ぶ" 
-                                toolkit:DockPanel.Dock="Left"
-                                    Margin="16 0"
-                                />
+                                        toolkit:DockPanel.Dock="Left"
+                                            Margin="16 0"
+                                            Width="120"
+                                        />
 
                                     <TextBox Text="{Binding WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             FontSize="18"
+                                             VerticalAlignment="Center"
                                  />
 
 
@@ -404,6 +469,7 @@
                             </toolkit:DockPanel>
 
 
+                            
 
                         </toolkit:DockPanel>
 
