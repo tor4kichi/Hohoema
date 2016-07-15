@@ -16,6 +16,7 @@ namespace NicoPlayerHohoema.Models
 			SoundVolume = 0.25f;
 			DefaultCommentDisplay = true;
 			IncrementReadablityOwnerComment = true;
+			PauseWithCommentWriting = true;
 			CommentRenderingFPS = 24;
 			DefaultCommentFontScale = 1.0f;
 			CommentCommandPermission = CommentCommandPermissionType.Owner | CommentCommandPermissionType.User | CommentCommandPermissionType.Anonymous;
@@ -84,6 +85,16 @@ namespace NicoPlayerHohoema.Models
 			set { SetProperty(ref _IncrementReadablityOwnerComment, value); }
 		}
 
+
+
+		private bool _PauseWithCommentWriting;
+
+		[DataMember]
+		public bool PauseWithCommentWriting
+		{
+			get { return _PauseWithCommentWriting; }
+			set { SetProperty(ref _PauseWithCommentWriting, value); }
+		}
 
 
 		private uint _CommentRenderingFPS;

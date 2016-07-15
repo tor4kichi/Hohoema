@@ -26,10 +26,24 @@ namespace NicoPlayerHohoema.Views.Behaviors
 		}
 
 
+		public static readonly DependencyProperty IsEnabledProperty =
+			DependencyProperty.Register("IsEnabled"
+					, typeof(bool)
+					, typeof(MediaElementPlayAction)
+					, new PropertyMetadata(false)
+				);
+
+		public bool IsEnabled
+		{
+			get { return (bool)GetValue(IsEnabledProperty); }
+			set { SetValue(IsEnabledProperty, value); }
+		}
+
+
 		public object Execute(object sender, object parameter)
 		{
 			var mediaElem = TargetObject;
-			if (mediaElem != null)
+			if (mediaElem != null && IsEnabled)
 			{
 				mediaElem.Play();
 			}

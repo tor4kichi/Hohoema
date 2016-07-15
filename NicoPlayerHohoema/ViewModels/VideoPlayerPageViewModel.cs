@@ -53,7 +53,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		static readonly Color defaultColor = ColorExtention.HexStringToColor("FFFFFF");
 
-
+		
 
 		public SynchronizationContextScheduler PlayerWindowUIDispatcherScheduler;
 
@@ -107,6 +107,10 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactiveCommand();
 
 			CommentSubmitCommand.Subscribe(async x => await SubmitComment());
+
+			IsPauseWithCommentWriting = _HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.PauseWithCommentWriting)
+				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler);
+
 
 			_VideoUpdaterSubject = new BehaviorSubject<object>(null);
 			CurrentVideoQuality = new ReactiveProperty<NicoVideoQuality>(PlayerWindowUIDispatcherScheduler, NicoVideoQuality.Low, ReactivePropertyMode.None);
@@ -1008,7 +1012,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> IsVisibleComment { get; private set; }
 		public ReactiveProperty<bool> NowCommentWriting { get; private set; }
 		public ObservableCollection<Comment> Comments { get; private set; }
-		
+		public ReactiveProperty<bool> IsPauseWithCommentWriting { get; private set; }
 
 
 

@@ -152,7 +152,8 @@
                       >
                         <i:Interaction.Behaviors>
 
-
+                            
+                            
                             <!-- 動画の再生位置を取り出す -->
                             <mybehavior:MediaElementExtractPositionBehavior 
                                 Position="{Binding ReadVideoPosition.Value, Mode=TwoWay}"
@@ -472,9 +473,13 @@
                                         <i:Interaction.Behaviors>
                                             <core:EventTriggerBehavior EventName="GotFocus" >
                                                 <core:ChangePropertyAction TargetObject="{Binding NowCommentWriting}" PropertyName="Value" Value="True" />
+                                                <mybehavior:MediaElementPauseAction TargetObject="{Binding ElementName=mediaElem}" 
+                                                                                   IsEnabled="{Binding IsPauseWithCommentWriting.Value}" />
                                             </core:EventTriggerBehavior>
                                             <core:EventTriggerBehavior EventName="LostFocus" >
                                                 <core:ChangePropertyAction TargetObject="{Binding NowCommentWriting}" PropertyName="Value" Value="False" />
+                                                <mybehavior:MediaElementPlayAction TargetObject="{Binding ElementName=mediaElem}" 
+                                                                                   IsEnabled="{Binding IsPauseWithCommentWriting.Value}" />
                                             </core:EventTriggerBehavior>
 
                                             <mybehavior:KeyboardTrigger Key="Escape">
