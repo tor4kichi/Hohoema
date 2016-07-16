@@ -23,6 +23,7 @@ namespace NicoPlayerHohoema.Models
 			CommentGlassMowerEnable = false;
 			IsKeepDisplayInPlayback = true;
 			IsKeepFrontsideInPlayback = true;
+			IsDefaultCommentWithAnonymous = true;
 		}
 
 
@@ -158,6 +159,16 @@ namespace NicoPlayerHohoema.Models
 		{
 			get { return _IsKeepFrontsideInPlayback; }
 			set { SetProperty(ref _IsKeepFrontsideInPlayback, value); }
+		}
+
+
+		private bool _IsDefaultCommentWithAnonymous;
+
+		[DataMember]
+		public bool IsDefaultCommentWithAnonymous
+		{
+			get { return _IsDefaultCommentWithAnonymous; }
+			set { SetProperty(ref _IsDefaultCommentWithAnonymous, value); }
 		}
 
 	}

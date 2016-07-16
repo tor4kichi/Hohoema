@@ -92,10 +92,13 @@ namespace NicoPlayerHohoema.ViewModels
 		public DelegateCommand ResetAllCommand { get; private set; }
 
 
-		public CommentCommandEditerViewModel(HohoemaUserSettings settings)
+		public bool IsAnonymousDefault { get; set; }
+
+		public CommentCommandEditerViewModel(bool isAnonymousDefault = true)
 		{
+			IsAnonymousDefault = isAnonymousDefault;
 			CanChangeAnonymity = new ReactiveProperty<bool>(false);
-			IsAnonymousComment = new ReactiveProperty<bool>(false);
+			IsAnonymousComment = new ReactiveProperty<bool>(IsAnonymousDefault);
 
 			SizeSelectedItem = new ReactiveProperty<CommandType?>(new Nullable<CommandType>());
 			AlingmentSelectedItem = new ReactiveProperty<CommandType?>(new Nullable<CommandType>());
@@ -110,7 +113,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 				try
 				{
-					IsAnonymousComment.Value = true;
+					IsAnonymousComment.Value = IsAnonymousDefault;
 					SizeSelectedItem.Value = null;
 					AlingmentSelectedItem.Value = null;
 					ColorSelectedItem.Value = null;

@@ -113,7 +113,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			CommandString = new ReactiveProperty<string>("");
 
-			CommandEditerVM = new CommentCommandEditerViewModel(_HohoemaApp.UserSettings);
+			CommandEditerVM = new CommentCommandEditerViewModel(isAnonymousDefault:_HohoemaApp.UserSettings.PlayerSettings.IsDefaultCommentWithAnonymous);
 
 			CommandEditerVM.OnCommandChanged += () => UpdateCommandString();
 

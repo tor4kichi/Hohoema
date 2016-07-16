@@ -150,7 +150,7 @@ namespace NicoPlayerHohoema.Models
 			if (_CurrentPlayingStream != null)
 			{
 				if (_CurrentPlayingStream.RawVideoId == rawVideoId 
-					&& _CurrentDownloadStream.Quality == quality)
+					&& _CurrentPlayingStream.Quality == quality)
 				{
 					return _CurrentPlayingStream;
 				}
