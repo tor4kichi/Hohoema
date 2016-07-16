@@ -128,6 +128,15 @@
                 
                 <!-- Media Control -->
                 <Grid Background="#FF0C0C0C" x:Name="MediaControl">
+
+                    <i:Interaction.Behaviors>
+                        <mybehavior:KeyboardTrigger Key="Enter" IsEnabled="{Binding NowCommentWriting.Value, Converter={StaticResource InvertBoolean}}">
+                            <mybehavior:KeyboardTrigger.Actions>
+                                <mybehavior:SetFocus TargetObject="{Binding ElementName=CommentTextBox}" />
+                            </mybehavior:KeyboardTrigger.Actions>
+                        </mybehavior:KeyboardTrigger>
+                    </i:Interaction.Behaviors>
+
                     
                     <ProgressRing Visibility="{Binding NowBuffering.Value, Converter={StaticResource BooleanToVisibility}}"
                                   IsActive="{Binding NowBuffering.Value}"
@@ -475,9 +484,11 @@
                                              FontSize="18"
                                              VerticalAlignment="Center"
                                              MaxLength="75"
+                                             IsTabStop="True"
+                                             toolkitext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
                                              >
                                         <i:Interaction.Behaviors>
-                                            <core:EventTriggerBehavior EventName="GotFocus" >
+                                            <core:EventTriggerBehavior EventName="GotFocus">
                                                 <core:ChangePropertyAction TargetObject="{Binding NowCommentWriting}" PropertyName="Value" Value="True" />
                                                 <mybehavior:MediaElementPauseAction TargetObject="{Binding ElementName=mediaElem}" 
                                                                                    IsEnabled="{Binding IsPauseWithCommentWriting.Value}" />

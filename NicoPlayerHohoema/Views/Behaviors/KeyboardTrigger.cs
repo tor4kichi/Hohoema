@@ -64,6 +64,28 @@ namespace NicoPlayerHohoema.Views.Behaviors
 		public static readonly DependencyProperty KeyProperty =
 			DependencyProperty.Register("Key", typeof(VirtualKey), typeof(KeyboardTrigger), new PropertyMetadata(VirtualKey.None));
 
+
+		public bool UseKeyUp
+		{
+			get { return (bool)GetValue(UseKeyUpProperty); }
+			set { SetValue(UseKeyUpProperty, value); }
+		}
+
+		public static readonly DependencyProperty UseKeyUpProperty =
+			DependencyProperty.Register("UseKeyUp", typeof(bool), typeof(KeyboardTrigger), new PropertyMetadata(false));
+
+
+
+		public bool IsEnabled
+		{
+			get { return (bool)GetValue(IsEnabledProperty); }
+			set { SetValue(IsEnabledProperty, value); }
+		}
+
+		// Using a DependencyProperty as the backing store for Key.  This enables animation, styling, binding, etc...
+		public static readonly DependencyProperty IsEnabledProperty =
+			DependencyProperty.Register("IsEnabled", typeof(bool), typeof(KeyboardTrigger), new PropertyMetadata(true));
+
 		public void Attach(DependencyObject associatedObject)
 		{
 			this.AssociatedObject = associatedObject;
@@ -81,7 +103,14 @@ namespace NicoPlayerHohoema.Views.Behaviors
 			var fe = this.AssociatedObject as FrameworkElement;
 			if (fe == null) { return; }
 			fe.Unloaded += this.Fe_Unloaded;
-			Window.Current.CoreWindow.KeyDown += this.CoreWindow_KeyDown;
+			if (!UseKeyUp)
+			{
+				Window.Current.CoreWindow.KeyDown += this.CoreWindow_KeyDown;
+			}
+			else
+			{
+				Window.Current.CoreWindow.KeyUp += this.CoreWindow_KeyDown;
+			}
 		}
 
 		private void Unregister()
@@ -89,11 +118,22 @@ namespace NicoPlayerHohoema.Views.Behaviors
 			var fe = this.AssociatedObject as FrameworkElement;
 			if (fe == null) { return; }
 			fe.Unloaded -= this.Fe_Unloaded;
-			Window.Current.CoreWindow.KeyDown -= this.CoreWindow_KeyDown;
+
+			if (!UseKeyUp)
+			{
+				Window.Current.CoreWindow.KeyDown -= this.CoreWindow_KeyDown;
+			}
+			else
+			{
+				Window.Current.CoreWindow.KeyUp -= this.CoreWindow_KeyDown;
+			}
 		}
 
 		private void CoreWindow_KeyDown(Windows.UI.Core.CoreWindow sender, Windows.UI.Core.KeyEventArgs args)
 		{
+			if (!IsEnabled) { return; }
+			if (args.Handled) { return; }
+
 			if (this.ShiftKey && (Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift) & CoreVirtualKeyStates.Down) != CoreVirtualKeyStates.Down)
 			{
 				return;
