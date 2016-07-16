@@ -137,15 +137,8 @@
                         </mybehavior:KeyboardTrigger>
                     </i:Interaction.Behaviors>
 
+
                     
-                    <ProgressRing Visibility="{Binding NowBuffering.Value, Converter={StaticResource BooleanToVisibility}}"
-                                  IsActive="{Binding NowBuffering.Value}"
-                                  Width="32"
-                                  Height="32"
-                                  HorizontalAlignment="Right"
-                                  VerticalAlignment="Top"
-                                  Margin="24 64 24 24"
-                                  />
 
 
 
@@ -167,16 +160,22 @@
                                 Interval="00:00:00.008" 
                                 />  
 
-                            <!-- シーク操作後、自動で再生する -->
-                            <mybehavior:MediaElementSeekAfterAutoPlayBehavior />
-
                             <!-- MediaElementのバッファリング/再生の状態を読み取る -->
                             <mybehavior:MediaElementStateGetter State="{Binding CurrentState.Value, Mode=TwoWay}" />
 
                         </i:Interaction.Behaviors>
                     </MediaElement>
 
-                
+
+                    <ProgressRing Visibility="{Binding NowBuffering.Value, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}"
+                                  IsActive="{Binding NowBuffering.Value, Mode=OneWay}"
+                                  Width="48"
+                                  Height="48"
+                                  HorizontalAlignment="Right"
+                                  VerticalAlignment="Top"
+                                  Margin="24 64 24 24"
+                                  />
+                    
                     <comment:CommentRenderer Comments="{Binding Comments}"
                                      VideoPosition="{Binding ReadVideoPosition.Value}"                                     
                                      Visibility="{Binding IsVisibleComment.Value, Converter={StaticResource BooleanToVisibility}}"

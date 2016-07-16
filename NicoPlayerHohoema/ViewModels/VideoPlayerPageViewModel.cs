@@ -130,6 +130,34 @@ namespace NicoPlayerHohoema.ViewModels
 			CommandEditerVM.OnCommandChanged += () => UpdateCommandString();
 
 
+
+
+			
+
+			NowBuffering = 
+					Observable.Timer(TimeSpan.Zero, TimeSpan.FromMilliseconds(100), PlayerWindowUIDispatcherScheduler)
+						.Where(x => CurrentState.Value != MediaElementState.Paused)
+						.Select(x =>
+						{
+							if (ReadVideoPosition.Value == _PreviosPlayingVideoPosition)
+							{
+								return true;
+							}
+							else
+							{
+								_PreviosPlayingVideoPosition = ReadVideoPosition.Value;
+								return false;
+							}
+						}
+						)
+						.ObserveOnUIDispatcher()
+					.ToReactiveProperty(PlayerWindowUIDispatcherScheduler);
+
+			NowBuffering
+				.Subscribe(x => Debug.WriteLine(x ? "Buffering..." : "Playing..."));
+
+
+
 			_VideoUpdaterSubject = new BehaviorSubject<object>(null);
 			CurrentVideoQuality = new ReactiveProperty<NicoVideoQuality>(PlayerWindowUIDispatcherScheduler, NicoVideoQuality.Low, ReactivePropertyMode.None);
 			CanToggleCurrentQualityCacheState = CurrentVideoQuality
@@ -1033,6 +1061,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<bool> IsAutoHideEnable { get; private set; }
 
+		private TimeSpan _PreviosPlayingVideoPosition;
 
 		// Sound
 		public ReactiveProperty<bool> NowSoundChanging { get; private set; }

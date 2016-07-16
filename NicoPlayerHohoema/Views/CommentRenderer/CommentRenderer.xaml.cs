@@ -166,7 +166,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 					if (_valign.HasValue && _valign.Value == VerticalAlignment.Bottom)
 					{
 						commentVerticalPos = (int)this.ActualHeight - (int)commentUI.DesiredSize.Height - totalHeight;
-						Debug.WriteLine("is bottom");
+//						Debug.WriteLine("is bottom");
 					}
 					else
 					{
@@ -187,7 +187,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 				if (_valign.HasValue && _valign.Value == VerticalAlignment.Bottom)
 				{
 					commentVerticalPos = (int)this.ActualHeight - (int)commentUI.DesiredSize.Height - totalHeight;
-					Debug.WriteLine("is bottom");
+//					Debug.WriteLine("is bottom");
 				}
 				else
 				{
@@ -321,7 +321,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 					renderComment.UpdateLayout();
 
 					var verticalPos = CalcAndRegisterCommentVerticalPosition(renderComment);
-					System.Diagnostics.Debug.WriteLine($"V={verticalPos}: [{renderComment.CommentData.CommentText}] [{comment.FontSize}]");
+//					System.Diagnostics.Debug.WriteLine($"V={verticalPos}: [{renderComment.CommentData.CommentText}] [{comment.FontSize}]");
 					Canvas.SetTop(renderComment, verticalPos);
 
 					if (comment.VAlign.HasValue)
