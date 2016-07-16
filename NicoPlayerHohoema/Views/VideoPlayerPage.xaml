@@ -128,8 +128,6 @@
                 
                 <!-- Media Control -->
                 <Grid Background="#FF0C0C0C" x:Name="MediaControl">
-
-                   
                     
                     <ProgressRing Visibility="{Binding NowBuffering.Value, Converter={StaticResource BooleanToVisibility}}"
                                   IsActive="{Binding NowBuffering.Value}"
@@ -496,6 +494,15 @@
                                                     <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="True" />
                                                 </mybehavior:KeyboardTrigger.Actions>
                                             </mybehavior:KeyboardTrigger>
+
+                                            <mybehavior:KeyboardTrigger Key="Enter">
+                                                <mybehavior:KeyboardTrigger.Actions>
+                                                    <core:InvokeCommandAction Command="{Binding CommentSubmitCommand}" />
+                                                    <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="False" />
+                                                    <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="True" />
+                                                </mybehavior:KeyboardTrigger.Actions>
+                                            </mybehavior:KeyboardTrigger>
+                                            
                                         </i:Interaction.Behaviors>
                                     </TextBox>
                                             
