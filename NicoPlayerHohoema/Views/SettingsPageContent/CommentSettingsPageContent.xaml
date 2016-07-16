@@ -144,7 +144,35 @@
 
 
             <StackPanel Orientation="Horizontal" Margin="8 8 0 8">
-                <TextBlock Text="コメントの基本設定"
+                <TextBlock Text="コメントの投稿設定"
+                             FontSize="18"
+                               VerticalAlignment="Center"
+                           />
+
+            </StackPanel>
+            <StackPanel Margin="8 0 0 0">
+
+                <toolkit:DockPanel Margin="8">
+
+                    <TextBlock Text="デフォルトで匿名(184)コマンドを有効にする"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+
+                    <ToggleButton Width="32" Height="32"
+                              IsChecked="{Binding IsDefaultCommentWithAnonymous.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                              HorizontalAlignment="Right"
+                              />
+
+                </toolkit:DockPanel>
+
+
+                
+            </StackPanel>
+            
+
+            <StackPanel Orientation="Horizontal" Margin="8 8 0 8">
+                <TextBlock Text="コメントの表示設定"
                              FontSize="18"
                                VerticalAlignment="Center"
                            />

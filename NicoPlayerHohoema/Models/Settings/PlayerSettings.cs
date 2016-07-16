@@ -16,12 +16,14 @@ namespace NicoPlayerHohoema.Models
 			SoundVolume = 0.25f;
 			DefaultCommentDisplay = true;
 			IncrementReadablityOwnerComment = true;
+			PauseWithCommentWriting = true;
 			CommentRenderingFPS = 24;
 			DefaultCommentFontScale = 1.0f;
 			CommentCommandPermission = CommentCommandPermissionType.Owner | CommentCommandPermissionType.User | CommentCommandPermissionType.Anonymous;
 			CommentGlassMowerEnable = false;
 			IsKeepDisplayInPlayback = true;
 			IsKeepFrontsideInPlayback = true;
+			IsDefaultCommentWithAnonymous = true;
 		}
 
 
@@ -86,6 +88,16 @@ namespace NicoPlayerHohoema.Models
 
 
 
+		private bool _PauseWithCommentWriting;
+
+		[DataMember]
+		public bool PauseWithCommentWriting
+		{
+			get { return _PauseWithCommentWriting; }
+			set { SetProperty(ref _PauseWithCommentWriting, value); }
+		}
+
+
 		private uint _CommentRenderingFPS;
 
 
@@ -147,6 +159,16 @@ namespace NicoPlayerHohoema.Models
 		{
 			get { return _IsKeepFrontsideInPlayback; }
 			set { SetProperty(ref _IsKeepFrontsideInPlayback, value); }
+		}
+
+
+		private bool _IsDefaultCommentWithAnonymous;
+
+		[DataMember]
+		public bool IsDefaultCommentWithAnonymous
+		{
+			get { return _IsDefaultCommentWithAnonymous; }
+			set { SetProperty(ref _IsDefaultCommentWithAnonymous, value); }
 		}
 
 	}

@@ -19,10 +19,6 @@ namespace NicoPlayerHohoema.ViewModels
 			_HohoemaApp = hohoemaApp;
 			_NGSettings = _HohoemaApp.UserSettings.NGSettings;
 			_PlayerSettings = _HohoemaApp.UserSettings.PlayerSettings;
-			
-
-
-
 
 
 
@@ -61,6 +57,7 @@ namespace NicoPlayerHohoema.ViewModels
 			CommentRenderingFPS = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentRenderingFPS);
 			CommentFontScale = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCommentFontScale);
 			CommentGlassMowerEnable = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentGlassMowerEnable);
+			IsDefaultCommentWithAnonymous = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsDefaultCommentWithAnonymous);
 
 			CommentRenderringFPSList = new List<uint>()
 			{
@@ -135,6 +132,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
+		public ReactiveProperty<bool> IsDefaultCommentWithAnonymous { get; private set; }
 		public ReactiveProperty<bool> DefaultCommentDisplay { get; private set; }
 		public ReactiveProperty<bool> IncrementReadablityOwnerComment { get; private set; }
 		public ReactiveProperty<uint> CommentRenderingFPS { get; private set; }

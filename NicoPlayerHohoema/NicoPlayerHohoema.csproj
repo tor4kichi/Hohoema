@@ -140,6 +140,7 @@
     <Compile Include="Util\SortMethodHelper.cs" />
     <Compile Include="ViewModels\AboutPageViewModel.cs" />
     <Compile Include="ViewModels\CacheManagementPageViewModel.cs" />
+    <Compile Include="ViewModels\CommentCommandEditerViewModel.cs" />
     <Compile Include="ViewModels\CommentStreamingViewModel.cs" />
     <Compile Include="ViewModels\FavoriteAllFeedPageViewModel.cs" />
     <Compile Include="ViewModels\FavoriteManagePageViewModel.cs" />
@@ -168,12 +169,16 @@
     <Compile Include="Views\Behaviors\ListViewSelectedItemsGetter.cs" />
     <Compile Include="Views\Behaviors\MediaElementPauseAction.cs" />
     <Compile Include="Views\Behaviors\MediaElementPlayAction.cs" />
+    <Compile Include="Views\Behaviors\MediaElementTogglePlayback.cs" />
     <Compile Include="Views\Behaviors\OpenFlyout.cs" />
     <Compile Include="Views\Behaviors\ScrollToIndex.cs" />
     <Compile Include="Views\Behaviors\ListViewVerticalOffsetGetter.cs" />
     <Compile Include="Views\Behaviors\SetFocus.cs" />
     <Compile Include="Views\CacheManagementPage.xaml.cs">
       <DependentUpon>CacheManagementPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CommentCommandEditer.xaml.cs">
+      <DependentUpon>CommentCommandEditer.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Converters\ToUserFriendlyNumber.cs" />
     <Compile Include="Views\Converters\VideoPositionToTimeConverter.cs" />
@@ -345,6 +350,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\CacheManagementPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\CommentCommandEditer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
