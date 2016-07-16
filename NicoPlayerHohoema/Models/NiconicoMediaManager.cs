@@ -1219,7 +1219,7 @@ namespace NicoPlayerHohoema.Models
 
 
 
-		public Task<PostCommentResponse> SubmitComment(string comment, TimeSpan position, IEnumerable<CommandType> commands)
+		public Task<PostCommentResponse> SubmitComment(string comment, TimeSpan position, string commands)
 		{
 			try
 			{

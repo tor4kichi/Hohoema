@@ -111,6 +111,12 @@ namespace NicoPlayerHohoema.ViewModels
 			IsPauseWithCommentWriting = _HohoemaApp.UserSettings.PlayerSettings
 				.ToReactivePropertyAsSynchronized(x => x.PauseWithCommentWriting, PlayerWindowUIDispatcherScheduler);
 
+			CommandString = new ReactiveProperty<string>("");
+
+			CommandEditerVM = new CommentCommandEditerViewModel(_HohoemaApp.UserSettings);
+
+			CommandEditerVM.OnCommandChanged += () => UpdateCommandString();
+
 
 			_VideoUpdaterSubject = new BehaviorSubject<object>(null);
 			CurrentVideoQuality = new ReactiveProperty<NicoVideoQuality>(PlayerWindowUIDispatcherScheduler, NicoVideoQuality.Low, ReactivePropertyMode.None);
@@ -729,6 +735,13 @@ namespace NicoPlayerHohoema.ViewModels
 				SelectedSidePaneType.Value = MediaInfoDisplayType.Summary;
 			}
 
+			CommandEditerVM.IsPremiumUser = HohoemaApp.IsPremiumUser;
+
+			// TODO: チャンネル動画やコミュニティ動画の検知			
+			CommandEditerVM.ChangeEnableAnonymity(true);
+
+			UpdateCommandString();
+
 			// PlayerSettings
 			var playerSettings = _HohoemaApp.UserSettings.PlayerSettings;
 			IsVisibleComment.Value = playerSettings.DefaultCommentDisplay;
@@ -802,7 +815,7 @@ namespace NicoPlayerHohoema.ViewModels
 			try
 			{
 				var vpos = (uint)(ReadVideoPosition.Value.TotalMilliseconds / 10);
-				var commands = Enumerable.Empty<CommandType>().ToList();
+				var commands = CommandString.Value;
 				var res = await Video.SubmitComment(WritingComment.Value, ReadVideoPosition.Value, commands);
 
 				if (res.Chat_result.Status == ChatResult.Success)
@@ -816,7 +829,7 @@ namespace NicoPlayerHohoema.ViewModels
 						UserId = HohoemaApp.LoginUserId.ToString(),
 						CommentText = WritingComment.Value,
 					};
-					CommentDecorateFromCommands(commentVM, commands);
+//					CommentDecorateFromCommands(commentVM, commands);
 
 					Comments.Add(commentVM);
 
@@ -834,6 +847,19 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+
+		private void UpdateCommandString()
+		{
+			var str = CommandEditerVM.MakeCommandsString();
+			if (String.IsNullOrEmpty(str))
+			{
+				CommandString.Value = "コマンド";
+			}
+			else
+			{
+				CommandString.Value = str;
+			}
+		}
 
 
 		private async Task<MediaInfoViewModel> GetMediaInfoVM(MediaInfoDisplayType type)
@@ -1014,7 +1040,8 @@ namespace NicoPlayerHohoema.ViewModels
 		public ObservableCollection<Comment> Comments { get; private set; }
 		public ReactiveProperty<bool> IsPauseWithCommentWriting { get; private set; }
 
-
+		public CommentCommandEditerViewModel CommandEditerVM { get; private set; }
+		public ReactiveProperty<string> CommandString { get; private set; }
 
 		public ReactiveProperty<MediaInfoViewModel> SidePaneContent { get; private set; }
 		private Dictionary<MediaInfoDisplayType, MediaInfoViewModel> _SidePaneContentCache;

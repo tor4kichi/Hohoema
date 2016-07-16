@@ -406,10 +406,10 @@
                             </toolkit:DockPanel>
 
 
+                            <!-- シークバー -->
                             <toolkit:DockPanel toolkit:DockPanel.Dock="Top"
                                                Background="#AA777777"
                                                >
-                                <!-- -->
                                 <Grid 
                                     x:Name="ControlPanel_Center"
                                     Margin="0 0"
@@ -458,11 +458,19 @@
                                         toolkit:DockPanel.Dock="Right"
                                         />
 
-                                    <Button Content="184" ToolTipService.ToolTip="コマンドを選ぶ" 
-                                        toolkit:DockPanel.Dock="Left"
+                                    <Button Content="{Binding CommandString.Value}" 
+                                            toolkit:DockPanel.Dock="Left"
                                             Margin="16 0"
-                                            Width="120"
-                                        />
+                                            MinWidth="120"
+                                            MinHeight="32"
+                                            DataContext="{Binding}"
+                                        >
+                                        <Button.Flyout>
+                                            <Flyout>
+                                                <local:CommentCommandEditer DataContext="{Binding CommandEditerVM}" />
+                                            </Flyout>
+                                        </Button.Flyout>
+                                    </Button>
 
                                     <TextBox x:Name="CommentTextBox" 
                                             Text="{Binding WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
