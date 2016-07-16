@@ -113,6 +113,16 @@ namespace NicoPlayerHohoema.ViewModels
 			IsPauseWithCommentWriting = _HohoemaApp.UserSettings.PlayerSettings
 				.ToReactivePropertyAsSynchronized(x => x.PauseWithCommentWriting, PlayerWindowUIDispatcherScheduler);
 
+			CanResumeOnExitWritingComment = new ReactiveProperty<bool>();
+			NowCommentWriting
+				.Where(x => x)
+				.Subscribe(x => 
+			{
+				// TODO: ウィンドウの表示状態が最小化の時にも再開できないようにしたい
+				CanResumeOnExitWritingComment.Value = CurrentState.Value == MediaElementState.Playing
+					&& IsPauseWithCommentWriting.Value;
+			});
+
 			CommandString = new ReactiveProperty<string>("");
 
 			CommandEditerVM = new CommentCommandEditerViewModel(isAnonymousDefault:_HohoemaApp.UserSettings.PlayerSettings.IsDefaultCommentWithAnonymous);
@@ -1041,6 +1051,9 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> NowCommentWriting { get; private set; }
 		public ObservableCollection<Comment> Comments { get; private set; }
 		public ReactiveProperty<bool> IsPauseWithCommentWriting { get; private set; }
+		public ReactiveProperty<bool> CanResumeOnExitWritingComment { get; private set; }
+
+		bool _IsPlayingOnBeginWritingComment;
 
 		public CommentCommandEditerViewModel CommandEditerVM { get; private set; }
 		public ReactiveProperty<string> CommandString { get; private set; }

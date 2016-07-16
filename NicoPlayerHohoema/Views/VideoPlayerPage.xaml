@@ -496,7 +496,7 @@
                                             <core:EventTriggerBehavior EventName="LostFocus" >
                                                 <core:ChangePropertyAction TargetObject="{Binding NowCommentWriting}" PropertyName="Value" Value="False" />
                                                 <mybehavior:MediaElementPlayAction TargetObject="{Binding ElementName=mediaElem}" 
-                                                                                   IsEnabled="{Binding IsPauseWithCommentWriting.Value}" />
+                                                                                   IsEnabled="{Binding CanResumeOnExitWritingComment.Value}" />
                                             </core:EventTriggerBehavior>
 
                                             <mybehavior:KeyboardTrigger Key="Escape">
