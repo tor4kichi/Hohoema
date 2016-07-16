@@ -473,10 +473,10 @@
                                     </Button>
 
                                     <TextBox x:Name="CommentTextBox" 
-                                            Text="{Binding WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             Text="{Binding WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              FontSize="18"
                                              VerticalAlignment="Center"
-                                             
+                                             MaxLength="75"
                                              >
                                         <i:Interaction.Behaviors>
                                             <core:EventTriggerBehavior EventName="GotFocus" >
