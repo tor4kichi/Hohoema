@@ -147,16 +147,11 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<NicoVideoCachedStream> GetPlayingStream(string rawVideoId, NicoVideoQuality quality)
 		{
-			if (_CurrentPlayingStream != null)
-			{
-				if (_CurrentPlayingStream.RawVideoId == rawVideoId 
-					&& _CurrentPlayingStream.Quality == quality)
-				{
-					return _CurrentPlayingStream;
-				}
-			}
-
 			CloseCurrentPlayingStream();
+
+
+			// 閉じれていない場合はNG
+			Debug.Assert(CurrentPlayingStream == null);
 
 			// 再生用のストリームを取得します
 			// すでに開始されたダウンロードタスクは一旦中断し、再生用ストリームに回線を明け渡します。
@@ -170,19 +165,18 @@ namespace NicoPlayerHohoema.Models
 			{
 				CurrentPlayingStream = _CurrentDownloadStream;
 			}
-			
-			// 再生ストリームを作成します
-			if (_CurrentPlayingStream == null)
+			else
 			{
+				// 再生ストリームを作成します
 				// 現在のダウンロードタスクは後でダウンロードするようにスタックへ積み直します
 				if (_CurrentDownloadStream != null)
 				{
+					
 					PushToTopCurrentDownloadRequest();
 				}
 
-				CurrentPlayingStream = await CreateDownloadStream(rawVideoId, quality, isRequireCache:false);
-				
-				
+				CurrentPlayingStream = await CreateDownloadStream(rawVideoId, quality, isRequireCache: false);
+
 				if (!_CurrentPlayingStream.IsCacheComplete)
 				{
 					await AssignDownloadStream(_CurrentPlayingStream);
@@ -194,7 +188,7 @@ namespace NicoPlayerHohoema.Models
 				}
 			}
 
-			return _CurrentPlayingStream;
+			return CurrentPlayingStream;
 		}
 
 		
@@ -227,7 +221,7 @@ namespace NicoPlayerHohoema.Models
 
 		private void CloseCurrentPlayingStream()
 		{
-			if (_CurrentPlayingStream != null && !_CurrentPlayingStream.IsRequireCache)
+			if (_CurrentPlayingStream != null)
 			{
 				// 再生ストリームが再生終了後に継続ダウンロードの必要がなければ、閉じる
 				if (_CurrentPlayingStream == _CurrentDownloadStream)
