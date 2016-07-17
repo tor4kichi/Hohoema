@@ -135,6 +135,15 @@
                                 <mybehavior:SetFocus TargetObject="{Binding ElementName=CommentTextBox}" />
                             </mybehavior:KeyboardTrigger.Actions>
                         </mybehavior:KeyboardTrigger>
+
+                        <mybehavior:MouseWheelTrigger>
+                            <mybehavior:MouseWheelTrigger.UpActions>
+                                <core:InvokeCommandAction Command="{Binding VolumeUpCommand}" />
+                            </mybehavior:MouseWheelTrigger.UpActions>
+                            <mybehavior:MouseWheelTrigger.DownActions>
+                                <core:InvokeCommandAction Command="{Binding VolumeDownCommand}" />
+                            </mybehavior:MouseWheelTrigger.DownActions>
+                        </mybehavior:MouseWheelTrigger>
                     </i:Interaction.Behaviors>
 
 

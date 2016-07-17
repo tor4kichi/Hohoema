@@ -975,6 +975,36 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
+		private DelegateCommand _VolumeUpCommand;
+		public DelegateCommand VolumeUpCommand
+		{
+			get
+			{
+				return _VolumeUpCommand
+					?? (_VolumeUpCommand = new DelegateCommand(() =>
+					{
+						var amount = _HohoemaApp.UserSettings.PlayerSettings.ScrollVolumeFrequency;
+						SoundVolume.Value = Math.Min(1.0f, SoundVolume.Value + amount);
+					}));
+			}
+		}
+
+		private DelegateCommand _VolumeDownCommand;
+		public DelegateCommand VolumeDownCommand
+		{
+			get
+			{
+				return _VolumeDownCommand
+					?? (_VolumeDownCommand = new DelegateCommand(() =>
+					{
+						var amount = _HohoemaApp.UserSettings.PlayerSettings.ScrollVolumeFrequency;
+						SoundVolume.Value = Math.Max(0.0f, SoundVolume.Value - amount);
+					}));
+			}
+		}
+
+
+
 		private DelegateCommand _ToggleRepeatCommand;
 		public DelegateCommand ToggleRepeatCommand
 		{

@@ -10,7 +10,7 @@
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     mc:Ignorable="d"
-    d:DesignHeight="300"
+    d:DesignHeight="1200"
     d:DesignWidth="400">
 
     <UserControl.Resources>
@@ -108,8 +108,10 @@
             <!-- ランキング -->
             <StackPanel Margin="8 8">
                 <TextBlock Text="好きなランキング設定"
-                       Margin="0 0 0 4"
-                       FontSize="18"
+                           Margin="0 0 0 4"
+                            FontSize="18"
+                           FontWeight="SemiBold"
+                           VerticalAlignment="Center"
                        />
 
                 <TextBlock Text="ここで選択されたランキングは、ホーム画面やランキング画面で優先表示されるようになります。"
@@ -157,7 +159,8 @@
 
                 <StackPanel Orientation="Horizontal" Margin="8 8 0 16">
                     <TextBlock Text="動画のNG設定"
-                             FontSize="18"
+                               FontSize="18"
+                               FontWeight="SemiBold"
                                VerticalAlignment="Center"
                            />
 

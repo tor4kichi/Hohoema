@@ -13,7 +13,10 @@ namespace NicoPlayerHohoema.Models
 		public PlayerSettings()
 			: base()
 		{
+			IsLowQualityDeafult = false;
+			IsMute = false;
 			SoundVolume = 0.25f;
+			ScrollVolumeFrequency = 0.02f;
 			DefaultCommentDisplay = true;
 			IncrementReadablityOwnerComment = true;
 			PauseWithCommentWriting = true;
@@ -53,6 +56,15 @@ namespace NicoPlayerHohoema.Models
 		{
 			get { return _SoundVolume; }
 			set { SetProperty(ref _SoundVolume, value); }
+		}
+
+		private float _ScrollVolumeFrequency;
+
+		[DataMember]
+		public float ScrollVolumeFrequency
+		{
+			get { return _ScrollVolumeFrequency; }
+			set { SetProperty(ref _ScrollVolumeFrequency, value); }
 		}
 
 

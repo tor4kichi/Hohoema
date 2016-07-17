@@ -145,8 +145,10 @@
 
             <StackPanel Orientation="Horizontal" Margin="8 8 0 8">
                 <TextBlock Text="コメントの投稿設定"
-                             FontSize="18"
-                               VerticalAlignment="Center"
+                           FontSize="18"
+                           VerticalAlignment="Center"
+                           FontWeight="SemiBold"
+
                            />
 
             </StackPanel>
@@ -157,6 +159,7 @@
                     <TextBlock Text="デフォルトで匿名(184)コマンドを有効にする"
                            toolkit:DockPanel.Dock="Left"
                            VerticalAlignment="Center"
+                               
                            />
 
                     <ToggleButton Width="32" Height="32"
@@ -175,6 +178,7 @@
                 <TextBlock Text="コメントの表示設定"
                              FontSize="18"
                                VerticalAlignment="Center"
+                           FontWeight="SemiBold"
                            />
 
             </StackPanel>
@@ -236,8 +240,9 @@
 
                 <StackPanel Orientation="Horizontal" Margin="8 8 0 0">
                     <TextBlock Text="コメントの装飾許可設定"
-                             FontSize="18"
+                               FontSize="18"
                                VerticalAlignment="Center"
+                               FontWeight="SemiBold"
                            />
 
                 </StackPanel>
@@ -287,8 +292,9 @@
 
                 <StackPanel Orientation="Horizontal" Margin="8 8 0 0">
                     <TextBlock Text="コメントの追加設定"
-                             FontSize="18"
+                               FontSize="18"
                                VerticalAlignment="Center"
+                               FontWeight="SemiBold"
                            />
 
                 </StackPanel>
@@ -347,8 +353,9 @@
             <StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="8 8 0 16">
                     <TextBlock Text="コメントのNG設定"
-                             FontSize="18"
+                               FontSize="18"
                                VerticalAlignment="Center"
+                               FontWeight="SemiBold"
                            />
 
                 </StackPanel>

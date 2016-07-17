@@ -114,6 +114,31 @@
 
             </toolkit:DockPanel>
 
+
+            <toolkit:DockPanel Margin="8">
+
+                <TextBlock Text="※音量は 0.0 ～ 1.0 の間に設定されます"
+                           toolkit:DockPanel.Dock="Bottom"
+                           VerticalAlignment="Center"
+                           FontSize="12"
+                           Foreground="Gray"
+                           />
+
+                <TextBlock Text="マウススクロール時の音量変更量"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+
+                <toolkit:NumericUpDown Value="{Binding ScrollVolumeFrequency.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                       SmallChange="0.01"
+                                       LargeChange="0.05"
+                                       Minimum="0.0"
+                                       Maximum="1.0"
+                                       HorizontalAlignment="Right"
+                                       />
+
+            </toolkit:DockPanel>
+            
             <!--
             <toolkit:DockPanel Margin="8">
 
