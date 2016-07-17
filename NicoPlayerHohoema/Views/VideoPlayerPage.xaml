@@ -248,48 +248,58 @@
                         <!-- トップバー -->
                         <toolkit:DockPanel toolkit:DockPanel.Dock="Top"
                                    Background="#AA777777"
-                                           Height="48"
+                                           Height="66"
                                    >
-                            <StackPanel toolkit:DockPanel.Dock="Left" 
-                                Orientation="Horizontal"
-                                >
-                                <AppBarButton Icon="Back" 
-                                      Command="{Binding BackCommand}"
-                                      />
-                                <TextBlock Text="{Binding Title.Value}" 
-                                   VerticalAlignment="Center"
-                                   Margin="8 0"
-                                   Foreground="White"
-                                   />
-                            </StackPanel>
+                            
 
-                            <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Right">
+                            <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Right" >
 
-                                <TextBlock Text="{Binding CurrentVideoQuality.Value}" 
-                                           VerticalAlignment="Center"
+                                <Button 
+                                           Command="{Binding TogglePlayQualityCommand}"
+                                           VerticalAlignment="Stretch"
                                            Foreground="Black"
-                                           />
+                                           Padding="8 0 8 0"
+                                           
+                                           >
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding CurrentVideoQuality.Value}"
+                                                   FontSize="20"
+                                                   FontWeight="SemiBold"
+                                                   TextAlignment="Center"
+                                                   >
 
-                                <AppBarButton Icon="Refresh" Content="{Binding ToggleQualityText}"
-                                              Command="{Binding TogglePlayQualityCommand}"
-                                              />
+                                        </TextBlock>
+                                        <TextBlock Text="変更"
+                                                   FontSize="12"
+                                                   Margin="0 0 0 0"
+                                                   Width="48"
+                                                   TextWrapping="Wrap"
+                                                   TextAlignment="Center"
+                                                   />
+                                    </StackPanel>
+                                </Button>
                                 
-                                <AppBarToggleButton Icon="Download" Content="キャッシュを保存"
-                                              IsChecked="{Binding IsSaveRequestedCurrentQualityCache.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                <AppBarToggleButton Icon="Download" Label="保存"
+                                                    IsChecked="{Binding IsSaveRequestedCurrentQualityCache.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                     IsEnabled="{Binding CanToggleCurrentQualityCacheState.Value}"
+                                                    VerticalAlignment="Stretch"
                                               />
 
                                 <AppBarToggleButton IsChecked="{Binding IsVisibleComment.Value, Mode=TwoWay}" 
                                                 Icon="Comment" 
+                                                    Label="コメント表示"
+                                                    VerticalAlignment="Stretch"
                                             />
 
                                 <AppBarButton x:Name="RepeatButton"
-                                            Icon="RepeatAll" 
-                                            Command="{Binding ToggleRepeatCommand}"                                      
+                                              Icon="RepeatAll" 
+                                              Label="リピート"
+                                              Command="{Binding ToggleRepeatCommand}"                                      
+                                              VerticalAlignment="Stretch"
                                       />
 
-                                <AppBarButton Icon="OpenPane" Content="動画情報"
-                                              
+                                <AppBarButton Icon="OpenPane" Label="情報表示"
+                                              VerticalAlignment="Stretch"
                                               >
                                     <i:Interaction.Behaviors>
                                         <core:EventTriggerBehavior EventName="Tapped">
@@ -300,8 +310,23 @@
                                 </AppBarButton>
                             </StackPanel>
 
+                            <StackPanel 
+                                Orientation="Horizontal"
+                                >
+                                <AppBarButton Icon="Back" 
+                                              Label="戻る"
+                                              Command="{Binding BackCommand}"
+                                              VerticalAlignment="Stretch"
+                                      />
+                                <TextBlock Text="{Binding Title.Value}" 
+                                           VerticalAlignment="Center"
+                                           Margin="8 0"
+                                           Foreground="Black"
+                                           TextWrapping="Wrap"
+                                           
+                                   />
+                            </StackPanel>
 
-                            <Border />
 
                         </toolkit:DockPanel>
 
@@ -361,12 +386,13 @@
                                 <toolkit:DockPanel
                                     toolkit:DockPanel.Dock="Right"
                                     Margin="0 0 16 0"
+                                      Height="66"
                                     >
 
                                     <Border Background="#AA777777">
                                         <AppBarButton Icon="Audio" 
-                                                  Width="48"
-                                                  Height="48"
+                                                      Label="音量"
+                                                  VerticalAlignment="Stretch"
                                                   >
 
 
@@ -485,6 +511,7 @@
                                              MaxLength="75"
                                              IsTabStop="True"
                                              toolkitext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
+                                             PlaceholderText="コメント"
                                              >
                                         <i:Interaction.Behaviors>
                                             <core:EventTriggerBehavior EventName="GotFocus">
@@ -545,7 +572,7 @@
                           IsHitTestVisible="True"
                           Visibility="{Binding NowCommentWriting.Value, Converter={StaticResource BooleanToVisibility}}"
                           >
-                        <Border />
+                        
                     </Grid>
                     
                     
