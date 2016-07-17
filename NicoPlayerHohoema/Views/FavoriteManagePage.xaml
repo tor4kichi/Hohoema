@@ -10,12 +10,13 @@
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
     <Page.Resources>
         <DataTemplate x:Key="FavoriteItemTemplate">
-            <Border Background="Transparent">
+            <Border Background="Transparent" Margin="8">
                 <i:Interaction.Behaviors>
                     <core:EventTriggerBehavior EventName="Tapped">
                         <core:InvokeCommandAction Command="{Binding SelectedCommand}" />
@@ -36,24 +37,28 @@
                       VerticalScrollMode="Disabled"
                       VerticalScrollBarVisibility="Hidden"
                       >
-            <Border>
+            <Border Margin="16">
                 <ItemsControl ItemsSource="{Binding Lists}">
 
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal" />
+                            <StackPanel Orientation="Vertical" />
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <toolkit:DockPanel>
+                            
+                            <toolkit:DockPanel Margin="8">
                                 <TextBlock Text="{Binding Name}" 
                                            toolkit:DockPanel.Dock="Top"
+                                           Margin="0 0 0 8"
+                                           FontSize="20"
                                            />
 
                                 <ListView ItemsSource="{Binding Items}"
                                           ItemTemplate="{StaticResource FavoriteItemTemplate}"
+                                          Margin="8 0"
                                           >
                                     <ListView.ItemsPanel>
                                         <ItemsPanelTemplate>
