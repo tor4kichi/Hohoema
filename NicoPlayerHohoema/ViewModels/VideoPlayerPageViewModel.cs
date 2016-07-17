@@ -370,6 +370,10 @@ namespace NicoPlayerHohoema.ViewModels
 							CurrentVideoPosition.Value = TimeSpan.FromSeconds(PreviousVideoPosition);
 						});
 				}
+				else if (x == MediaElementState.Closed)
+				{
+					VideoStream.ForceNotify();
+				}
 
 
 				SetKeepDisplayWithCurrentState();
