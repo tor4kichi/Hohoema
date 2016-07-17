@@ -372,7 +372,10 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 				else if (x == MediaElementState.Closed)
 				{
-					VideoStream.ForceNotify();
+					if (VideoStream.Value != null)
+					{
+						VideoStream.ForceNotify();
+					}
 				}
 
 

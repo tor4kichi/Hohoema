@@ -304,8 +304,6 @@ namespace NicoPlayerHohoema.Models
 
 			if (_CurrentDownloadStream != null)
 			{
-				await _CurrentDownloadStream.StopDownload();
-				await _CurrentDownloadStream.Download();
 				Debug.WriteLine("ダウンロードがすでに実行中のためリクエスト処理は実行できません");
 				return false;
 			}

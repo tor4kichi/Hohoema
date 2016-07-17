@@ -185,6 +185,7 @@ namespace NicoPlayerHohoema.Models
 
 			_CacheWriteSemaphore = new SemaphoreSlim(1, 1);
 			_CacheProgressSemaphore = new SemaphoreSlim(1, 1);
+			_DownloadTaskLock = new SemaphoreSlim(1, 1);
 		}
 
 		public uint GetDownloadProgress()
@@ -200,34 +201,11 @@ namespace NicoPlayerHohoema.Models
 
 			if (!CurrentPositionIsCached(0) && _CurrentDownloadHead != position)
 			{
-				StartDownloadTask((uint)position);
+				StartDownloadTask((uint)position).ConfigureAwait(false);
 			}
 		}
 
-		private async void StartDownloadTask(uint position)
-		{
-			await _StopDownload();
-
-			try
-			{
-				Debug.WriteLine(VideoId + ":" + position + " からダウンロードを再開");
-
-				_DownloadTaskCancelToken = new CancellationTokenSource();
-				_DownloadTask = DownloadIncompleteData((uint)position)
-					.AsTask(_DownloadTaskCancelToken.Token);
-
-				await _DownloadTask.ContinueWith(prevResult =>
-				{
-					_DownloadTask = null;
-					_DownloadTaskCancelToken = null;
-				});
-			}
-			catch (OperationCanceledException ex)
-			{
-				Debug.WriteLine("download canceled.");
-			}
-
-		}
+		
 
 		public override Windows.Foundation.IAsyncOperationWithProgress<IBuffer, uint> ReadAsync(IBuffer buffer, uint count, InputStreamOptions options)
 		{
@@ -391,6 +369,30 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
+		private async Task StartDownloadTask(uint position)
+		{
+			await _StopDownload();
+
+			try
+			{
+				await _DownloadTaskLock.WaitAsync();
+				Debug.WriteLine(VideoId + ":" + position + " からダウンロードを再開");
+
+				_DownloadTaskCancelToken = new CancellationTokenSource();
+				_DownloadTask = DownloadIncompleteData((uint)position)
+					.AsTask(_DownloadTaskCancelToken.Token);
+			}
+			catch (OperationCanceledException)
+			{
+				Debug.WriteLine("download canceled.");
+			}
+			finally
+			{
+				_DownloadTaskLock.Release();
+			}
+
+		}
+
 		public async Task Download()
 		{
 			if (IsCacheComplete)
@@ -398,10 +400,7 @@ namespace NicoPlayerHohoema.Models
 				return;
 			}
 
-			await _StopDownload();
-
-			_DownloadTaskCancelToken = new CancellationTokenSource();
-			_DownloadTask = DownloadIncompleteData().AsTask(_DownloadTaskCancelToken.Token);
+			await StartDownloadTask(0);
 		}
 
 		public async Task StopDownload()
@@ -415,21 +414,31 @@ namespace NicoPlayerHohoema.Models
 
 		private async Task<bool> _StopDownload()
 		{
-			if (_DownloadTask != null)
+			try
 			{
-				_DownloadTaskCancelToken?.Cancel();
+				await _DownloadTaskLock.WaitAsync();
 
-				while (_DownloadTask != null && !_DownloadTask.IsCanceled && !_DownloadTask.IsFaulted && !_DownloadTask.IsCompleted)
+				if (_DownloadTask != null)
 				{
-					await Task.Delay(100);
+					_DownloadTaskCancelToken?.Cancel();
 
-					Debug.Write("ダウンロードキャンセルを待機中");
+					while (_DownloadTask != null && !_DownloadTask.IsCanceled && !_DownloadTask.IsFaulted && !_DownloadTask.IsCompleted)
+					{
+						await Task.Delay(100);
+
+						Debug.Write("ダウンロードキャンセルを待機中");
+					}
+
+					_DownloadTask = null;
+
+					return true;
 				}
-
-				_DownloadTask = null;
-
-				return true;
 			}
+			finally
+			{
+				_DownloadTaskLock.Release();
+			}
+
 
 			return false;
 		}
@@ -619,6 +628,17 @@ namespace NicoPlayerHohoema.Models
 				Debug.WriteLine($"{VideoId} is download done.");
 
 				OnCacheComplete?.Invoke(RawVideoId);
+
+				try
+				{
+					await _DownloadTaskLock.WaitAsync();
+					_DownloadTask = null;
+					_DownloadTaskCancelToken = null;
+				}
+				finally
+				{
+					_DownloadTaskLock.Release();
+				}
 			}
 		}
 
@@ -680,6 +700,7 @@ namespace NicoPlayerHohoema.Models
 		private uint _CurrentDownloadHead;
 		private CancellationTokenSource _DownloadTaskCancelToken;
 		private Task _DownloadTask;
+		private SemaphoreSlim _DownloadTaskLock;
 
 		private SemaphoreSlim _CacheProgressSemaphore;
 
