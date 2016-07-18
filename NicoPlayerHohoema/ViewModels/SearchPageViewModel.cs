@@ -98,9 +98,12 @@ namespace NicoPlayerHohoema.ViewModels
 				RequireSearchOption = SearchOption.FromParameterString(e.Parameter as string);
 			}
 
+			
 			_NowProcessFavorite = true;
 
-			IsTagSearch.Value = RequireSearchOption.SearchTarget == SearchTarget.Tag && NowSignIn;
+			IsTagSearch.Value = RequireSearchOption.SearchTarget == SearchTarget.Tag 
+				&& HohoemaApp.LoginUserId != default(uint);
+
 			if (IsTagSearch.Value)
 			{
 				// お気に入り登録されているかチェック
