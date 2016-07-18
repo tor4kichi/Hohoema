@@ -18,6 +18,7 @@
     mc:Ignorable="d"
     d:DesignHeight="480"
     d:DesignWidth="720"
+    
     >
 
     <Page.Resources>
@@ -160,8 +161,6 @@
                           Volume="{Binding SoundVolume.Value}"
                       >
                         <i:Interaction.Behaviors>
-
-                            
                             
                             <!-- 動画の再生位置を取り出す -->
                             <mybehavior:MediaElementExtractPositionBehavior 
@@ -171,6 +170,9 @@
 
                             <!-- MediaElementのバッファリング/再生の状態を読み取る -->
                             <mybehavior:MediaElementStateGetter State="{Binding CurrentState.Value, Mode=TwoWay}" />
+
+
+                            <mybehavior:EnsureLifecycleMediaElement />
 
                         </i:Interaction.Behaviors>
                     </MediaElement>

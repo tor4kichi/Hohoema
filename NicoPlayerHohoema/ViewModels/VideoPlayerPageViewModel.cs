@@ -808,25 +808,29 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
-			if (VideoStream.Value != null)
-			{
-				Video.StopPlay();
+			Comments.Clear();
 
+
+			if (suspending)
+			{
+				VideoStream.Value = null;
+
+				viewModelState.Add(nameof(VideoId), VideoId);
+				viewModelState.Add(nameof(CurrentVideoPosition), CurrentVideoPosition.Value.TotalSeconds);
+			}
+			else if (VideoStream.Value != null)
+			{
 				var stream = VideoStream.Value;
 				VideoStream.Value = null;
+
 
 				// Note: VideoStopPlayによってストリームの管理が行われます
 				// これは再生後もダウンロードしている場合に対応するためです
 				// stream.Dispose();
 			}
 
-			Comments.Clear();
+			Video.StopPlay();
 
-			if (suspending)
-			{
-				viewModelState.Add(nameof(VideoId), VideoId);
-				viewModelState.Add(nameof(CurrentVideoPosition), CurrentVideoPosition.Value.TotalSeconds);
-			}
 
 			_SidePaneContentCache.Clear();
 
@@ -840,6 +844,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public void Dispose()
 		{
 			Video?.StopPlay();
+
 		}
 
 

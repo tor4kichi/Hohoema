@@ -43,6 +43,7 @@ namespace NicoPlayerHohoema.Views
 
 				if (stream == null)
 				{
+					mediaElement.Stop();
 					mediaElement.Source = null;
 				}
 				else

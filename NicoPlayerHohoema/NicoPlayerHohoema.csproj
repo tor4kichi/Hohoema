@@ -165,6 +165,7 @@
     <Compile Include="Views\AboutPage.xaml.cs">
       <DependentUpon>AboutPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Behaviors\EnsureLifecycleMediaElement.cs" />
     <Compile Include="Views\Behaviors\KeyboardTrigger.cs" />
     <Compile Include="Views\Behaviors\ListViewSelectedItemsGetter.cs" />
     <Compile Include="Views\Behaviors\MediaElementPauseAction.cs" />

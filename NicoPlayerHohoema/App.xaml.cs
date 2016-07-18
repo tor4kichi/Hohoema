@@ -30,6 +30,8 @@ using NicoPlayerHohoema.Events;
 using Prism.Windows.Navigation;
 using Prism.Windows.AppModel;
 using Prism.Windows.Mvvm;
+using BackgroundAudioShared;
+using Windows.Media;
 
 namespace NicoPlayerHohoema
 {
@@ -62,28 +64,31 @@ namespace NicoPlayerHohoema
 
 		
 
-		protected override Task OnSuspendingApplicationAsync()
+		protected override async Task OnSuspendingApplicationAsync()
 		{
-			Task.Run(async () => 
-			{
-				var hohoemaApp = Container.Resolve<HohoemaApp>();
-				await hohoemaApp.SignOut();
+			await base.OnSuspendingApplicationAsync();
 
-				await hohoemaApp.MediaManager.Context.Suspending();
-			});
+			var backTask = Container.Resolve<MediaBackgroundTask>();
+			Container.Teardown(backTask);
 
-			return base.OnSuspendingApplicationAsync();
+			var hohoemaApp = Container.Resolve<HohoemaApp>();
+//			hohoemaApp.SignOut().ConfigureAwait(false);
+
+//			await hohoemaApp.MediaManager.Context.Suspending();
+
 		}
 
-		private void App_Resuming(object sender, object e)
-		{
-			Task.Run(async () =>
-			{
-				var hohoemaApp = Container.Resolve<HohoemaApp>();
-				await hohoemaApp.SignInFromUserSettings();
+		
 
-				await hohoemaApp.MediaManager.Context.Resume();
-			});
+		private async void App_Resuming(object sender, object e)
+		{
+			var backgroundTask = MediaBackgroundTask.Create();
+			Container.RegisterInstance(backgroundTask);
+
+			var hohoemaApp = Container.Resolve<HohoemaApp>();
+			await hohoemaApp.SignInFromUserSettings();
+
+			await hohoemaApp.MediaManager.Context.Resume();
 		}
 
 		protected override Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args)
@@ -91,7 +96,9 @@ namespace NicoPlayerHohoema
 #if DEBUG
 			DebugSettings.IsBindingTracingEnabled = true;
 #endif
-
+			// メディアバックグラウンドタスクの動作状態を初期化
+			ApplicationSettingsHelper.ReadResetSettingsValue(ApplicationSettingsConstants.AppState);
+			
 			Window.Current.Activate();
 
 			return Task.FromResult<object>(null);

@@ -136,7 +136,7 @@ namespace NicoPlayerHohoema.Models
 			if (IsMyBackgroundTaskRunning)
 			{
 				RemoveMediaPlayerEventHandlers();
-				ApplicationSettingsHelper.SaveSettingsValue(ApplicationSettingsConstants.BackgroundTaskState, BackgroundTaskState.Running.ToString());
+				ApplicationSettingsHelper.ReadResetSettingsValue(ApplicationSettingsConstants.BackgroundTaskState);
 			}
 
 			Application.Current.Suspending -= ForegroundApp_Suspending;
@@ -230,7 +230,7 @@ namespace NicoPlayerHohoema.Models
 				// Tell the background task the foreground is suspended
 				MessageService.SendMessageToBackground(new AppSuspendedMessage());
 			}
-
+			
 			// Persist that the foreground app is suspended
 			ApplicationSettingsHelper.SaveSettingsValue(ApplicationSettingsConstants.AppState, AppState.Suspended.ToString());
 

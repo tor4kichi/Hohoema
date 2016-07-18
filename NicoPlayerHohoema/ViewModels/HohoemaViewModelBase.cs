@@ -84,6 +84,14 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				PageManager.PageTitle = PageManager.CurrentDefaultPageTitle();
 			}
+
+		}
+
+		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+		{
+			base.OnNavigatingFrom(e, viewModelState, suspending);
+
+			HohoemaApp.MediaManager.Context.Suspending().ConfigureAwait(false);
 		}
 
 		protected void UpdateTitle(string title)

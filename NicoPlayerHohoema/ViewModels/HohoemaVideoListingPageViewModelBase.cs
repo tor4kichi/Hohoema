@@ -44,12 +44,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				x?.PlayCommand.Execute();
 
-				Task.Delay(500)
-					.ContinueWith(prevResult =>
-					{
-						ClearSelection();
-					})
-					.ConfigureAwait(false);
+				ClearSelection();
 			});
 
 
