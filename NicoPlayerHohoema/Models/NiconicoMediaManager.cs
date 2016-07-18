@@ -388,7 +388,7 @@ namespace NicoPlayerHohoema.Models
 			}
 			else
 			{
-				res = await nicoVideo.GetVideoInfo();
+				res = await nicoVideo.GetVideoInfoFromOnline();
 				if (nicoVideo.NowLowQualityOnly && quality == NicoVideoQuality.Original && nicoVideo.OriginalQualityCacheState != NicoVideoCacheState.Cached)
 				{
 					// ダウンロード再生ができない
