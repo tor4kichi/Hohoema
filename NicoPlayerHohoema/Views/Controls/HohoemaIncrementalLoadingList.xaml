@@ -1,0 +1,114 @@
+﻿<UserControl
+    x:Name="ControlRoot"
+    x:Class="NicoPlayerHohoema.Views.Controls.HohoemaIncrementalLoadingList"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:view="using:NicoPlayerHohoema.Views"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:rlv="using:RefreshableListView"
+    mc:Ignorable="d"    
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+
+    <UserControl.Resources>
+
+        <DataTemplate x:Key="DefaultListItemTemplate">
+            <view:VideoInfoControl />
+        </DataTemplate>
+
+        <DataTemplate x:Key="HistoryListItemTemplate">
+            <local:HistoryListItem />
+        </DataTemplate>
+
+        <DataTemplate x:Key="RankingListItemTemplate">
+            <local:RankingCategoryListItem />
+        </DataTemplate>
+        <DataTemplate x:Key="CacheManagementListItemTemplate">
+            <local:CacheManagementListItem />
+        </DataTemplate>
+
+        <DataTemplate x:Key="FavFeedListItemTemplate">
+            <local:FavoriteFeedListItem />
+        </DataTemplate>
+
+
+        <local:IncrementalLoadingListItemTemplateSelector x:Key="listItemTemplateSelector"
+                                                          Default="{StaticResource DefaultListItemTemplate}"
+                                                          History="{StaticResource HistoryListItemTemplate}"
+                                                          Ranking="{StaticResource RankingListItemTemplate}"
+                                                          CacheManagement="{StaticResource CacheManagementListItemTemplate}"
+                                                          FavFeed="{StaticResource FavFeedListItemTemplate}"
+                                                          >
+            
+            
+        </local:IncrementalLoadingListItemTemplateSelector>
+    </UserControl.Resources>
+
+    <rlv:RefreshableListView ItemsSource="{Binding IncrementalLoadingItems}"
+                                         SelectionMode="Multiple"
+                                         IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
+                                         IncrementalLoadingTrigger="Edge"
+                                         AutoRefresh="False"
+                                         RefreshCommand="{Binding RefreshCommand}"
+                            >
+        <i:Interaction.Behaviors>
+            <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedVideoInfoItems, Mode=TwoWay}" />
+
+            <mybehavior:ListViewVerticalOffsetGetter
+                            VerticalOffset="{Binding ListViewVerticalOffset.Value, Mode=TwoWay}"
+                            />
+
+            <mybehavior:KeyboardTrigger Key="F5">
+                <mybehavior:KeyboardTrigger.Actions>
+                    <core:InvokeCommandAction Command="{Binding RefreshCommand}" />
+                </mybehavior:KeyboardTrigger.Actions>
+            </mybehavior:KeyboardTrigger>
+
+        </i:Interaction.Behaviors>
+
+
+        <ListView.ItemContainerStyle>
+            <Style TargetType="ListViewItem">
+                <Setter Property="HorizontalContentAlignment"
+                                Value="Stretch" 
+                                    />
+                <Setter Property="Margin"
+                                Value="0 0 0 8" 
+                                />
+            </Style>
+        </ListView.ItemContainerStyle>
+
+        <ListView.ItemTemplate>
+
+            <DataTemplate>
+
+                <Border>
+                    <i:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="Tapped">
+                            <core:InvokeCommandAction Command="{Binding ElementName=ControlRoot, Path=DataContext.PlayCommand}"
+                                                      CommandParameter="{Binding}"
+                                                      />
+                        </core:EventTriggerBehavior>
+                    </i:Interaction.Behaviors>
+                    
+                    
+                    <ContentControl Content="{Binding}"
+                                    ContentTemplateSelector="{StaticResource listItemTemplateSelector}"
+                                    HorizontalContentAlignment="Stretch"
+                                    VerticalContentAlignment="Stretch"
+                                    />
+                </Border>
+            </DataTemplate>
+            
+        </ListView.ItemTemplate>
+
+    </rlv:RefreshableListView>
+</UserControl>

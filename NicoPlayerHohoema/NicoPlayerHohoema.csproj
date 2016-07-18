@@ -181,6 +181,21 @@
     <Compile Include="Views\CommentCommandEditer.xaml.cs">
       <DependentUpon>CommentCommandEditer.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Controls\CacheManagementListItem.xaml.cs">
+      <DependentUpon>CacheManagementListItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\FavoriteFeedListItem.xaml.cs">
+      <DependentUpon>FavoriteFeedListItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\HistoryListItem.xaml.cs">
+      <DependentUpon>HistoryListItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\HohoemaIncrementalLoadingList.xaml.cs">
+      <DependentUpon>HohoemaIncrementalLoadingList.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\RankingCategoryListItem.xaml.cs">
+      <DependentUpon>RankingCategoryListItem.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Converters\ToUserFriendlyNumber.cs" />
     <Compile Include="Views\Converters\VideoPositionToTimeConverter.cs" />
     <Compile Include="Views\FavoriteAllFeedPage.xaml.cs">
@@ -308,7 +323,7 @@
     <Compile Include="Views\VideoInfoContent\SummaryVideoInfoContent.xaml.cs">
       <DependentUpon>SummaryVideoInfoContent.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\VideoInfoControl.xaml.cs">
+    <Compile Include="Views\Controls\VideoInfoControl.xaml.cs">
       <DependentUpon>VideoInfoControl.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
@@ -363,6 +378,26 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\CommentRenderer\CommentUI.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\CacheManagementListItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\FavoriteFeedListItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\HistoryListItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\HohoemaIncrementalLoadingList.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\RankingCategoryListItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -482,7 +517,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\VideoInfoControl.xaml">
+    <Page Include="Views\Controls\VideoInfoControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

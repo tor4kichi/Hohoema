@@ -23,7 +23,7 @@ namespace NicoPlayerHohoema.Util
 			where T : IIncrementalSource<I>
 	{
 		public event Action BeginLoading;
-		public event Action CompleteLoading;
+		public event Action DoneLoading;
 
 		// Note: Navigation操作に関わるバグへの対処
 		// 読み込み中にナビゲーション等によって ListView の LayoutUpdate が阻害されると
@@ -55,12 +55,9 @@ namespace NicoPlayerHohoema.Util
 
 			return Task.Run(async () =>
 			{
-				await dispatcher.RunAsync(
-					CoreDispatcherPriority.Normal,
-					() =>
-					{
-						BeginLoading?.Invoke();
-					});
+				await dispatcher.RunAsync(CoreDispatcherPriority.Normal, 
+					() => BeginLoading?.Invoke()
+					);
 
 				uint resultCount = 0;
 
@@ -85,17 +82,18 @@ namespace NicoPlayerHohoema.Util
 
 					_Position += resultCount;
 
-					await dispatcher.RunAsync(
-						CoreDispatcherPriority.Normal,
+					await dispatcher.RunAsync(CoreDispatcherPriority.Normal, 
 						() =>
 						{
 							foreach (I item in resultItems)
 								this.Add(item);
-
-							CompleteLoading?.Invoke();
 						});
 
 				}
+
+				await dispatcher.RunAsync(CoreDispatcherPriority.Normal,
+					() => DoneLoading?.Invoke()
+					);
 
 				// 多重読み込み防止のため
 				// リスト表示に反映されるまで

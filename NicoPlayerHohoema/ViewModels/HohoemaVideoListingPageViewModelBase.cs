@@ -268,7 +268,7 @@ namespace NicoPlayerHohoema.ViewModels
 			if (IncrementalLoadingItems != null)
 			{
 				IncrementalLoadingItems.BeginLoading -= BeginLoadingItems;
-				IncrementalLoadingItems.CompleteLoading -= CompleteLoadingItems;
+				IncrementalLoadingItems.DoneLoading -= CompleteLoadingItems;
 			}
 
 			try
@@ -279,7 +279,7 @@ namespace NicoPlayerHohoema.ViewModels
 				OnPropertyChanged(nameof(IncrementalLoadingItems));
 
 				IncrementalLoadingItems.BeginLoading += BeginLoadingItems;
-				IncrementalLoadingItems.CompleteLoading += CompleteLoadingItems;
+				IncrementalLoadingItems.DoneLoading += CompleteLoadingItems;
 
 				PostResetList();
 			}

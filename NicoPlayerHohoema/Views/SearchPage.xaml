@@ -14,6 +14,7 @@
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:rlv="using:RefreshableListView"
+    xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     
     mc:Ignorable="d">
@@ -36,6 +37,9 @@
 
                 <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
 
+                    
+                    
+                    
 
                     <!-- タグのお気に入り -->
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" 
@@ -51,12 +55,23 @@
                     
 
                     <!-- 複数選択のON/OFF -->
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="8">
+                    <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Right" Margin="8">
                         <ToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               Content="選択モード"
                               />
                     </StackPanel>
 
+                    <Border>
+                        <TextBlock Text=":)" Padding="16 8" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <i:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0" />
+                                </core:EventTriggerBehavior>
+                            </i:Interaction.Behaviors>
+
+                        </TextBlock>
+                    </Border>
+                    
                 </toolkit:DockPanel>
 
                 <!-- 選択アクション -->
@@ -79,63 +94,10 @@
                 </toolkit:DockPanel>
 
 
+                <controls:HohoemaIncrementalLoadingList />
 
 
-                <rlv:RefreshableListView ItemsSource="{Binding IncrementalLoadingItems}"
-                                         SelectionMode="Multiple"
-                                         IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
-                                         IncrementalLoadingTrigger="Edge"
-                                         AutoRefresh="False"
-                                         RefreshCommand="{Binding RefreshCommand}"
-                            >
-                    <i:Interaction.Behaviors>
-                        <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedVideoInfoItems, Mode=TwoWay}" />
 
-                        <mybehavior:ListViewVerticalOffsetGetter
-                            VerticalOffset="{Binding ListViewVerticalOffset.Value, Mode=TwoWay}"
-                            />
-
-                        <mybehavior:KeyboardTrigger Key="F5">
-                            <mybehavior:KeyboardTrigger.Actions>
-                                <core:InvokeCommandAction Command="{Binding RefreshCommand}" />
-                            </mybehavior:KeyboardTrigger.Actions>
-                        </mybehavior:KeyboardTrigger>
-
-                    </i:Interaction.Behaviors>
-
-
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
-                            <Setter Property="HorizontalContentAlignment"
-                                Value="Stretch" 
-                                    />
-                            <Setter Property="Margin"
-                                Value="0 0 0 8" 
-                                />
-                        </Style>
-                    </ListView.ItemContainerStyle>
-
-
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <Border Background="Transparent"
-                                    IsHitTestVisible="True"
-                                    >
-
-                                <i:Interaction.Behaviors>
-                                    <core:EventTriggerBehavior EventName="Tapped">
-                                        <core:InvokeCommandAction Command="{Binding ElementName=PageRoot, Path=DataContext.PlayCommand}"                                                                      
-                                                                  CommandParameter="{Binding}"
-                                                                      />
-                                    </core:EventTriggerBehavior>
-                                </i:Interaction.Behaviors>
-
-                                <view:VideoInfoControl />
-                            </Border>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </rlv:RefreshableListView>
-                
             </toolkit:DockPanel>
         </Border>
     </Grid>

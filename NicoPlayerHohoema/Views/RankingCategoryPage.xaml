@@ -13,6 +13,7 @@
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:rlv="using:RefreshableListView"
+    xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
@@ -39,6 +40,7 @@
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal"
+                                toolkit:DockPanel.Dock="Left"
                                 Visibility="{Binding CanChangeRankingParameter.Value, Converter={StaticResource BooleanToVisibility}}"
                                 >
                         <StackPanel Orientation="Horizontal">
@@ -68,6 +70,16 @@
                         </StackPanel>
                     </StackPanel>
 
+                    <Border>
+                        <TextBlock Text=":)" Padding="16 8" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <i:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0" />
+                                </core:EventTriggerBehavior>
+                            </i:Interaction.Behaviors>
+
+                        </TextBlock>
+                    </Border>
 
                    
                 </toolkit:DockPanel>
@@ -95,77 +107,9 @@
 
 
 
-                <rlv:RefreshableListView ItemsSource="{Binding IncrementalLoadingItems}"
-                                         SelectionMode="Multiple"
-                                         IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
-                                         IncrementalLoadingTrigger="Edge"
-                                         AutoRefresh="False"
-                                         RefreshCommand="{Binding RefreshCommand}"
-                              >
+                <controls:HohoemaIncrementalLoadingList />
 
-                    <rlv:RefreshableListView.RefreshIndicatorContent>
-                        <Grid Height="100">
-                            <SymbolIcon Symbol="Accept" 
-                                VerticalAlignment="Center"
-                                HorizontalAlignment="Center"/>
-                        </Grid>
-                    </rlv:RefreshableListView.RefreshIndicatorContent>
-                    
-                    <i:Interaction.Behaviors>
-                        <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedVideoInfoItems, Mode=TwoWay}" />
 
-                        <mybehavior:ListViewVerticalOffsetGetter
-                            VerticalOffset="{Binding ListViewVerticalOffset.Value, Mode=TwoWay}"
-                            />
-
-                        <mybehavior:KeyboardTrigger Key="F5">
-                            <mybehavior:KeyboardTrigger.Actions>
-                                <core:InvokeCommandAction Command="{Binding RefreshCommand}" />
-                            </mybehavior:KeyboardTrigger.Actions>
-                        </mybehavior:KeyboardTrigger>
-                    </i:Interaction.Behaviors>
-                    
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
-                            <Setter Property="HorizontalContentAlignment"
-                                    Value="Stretch" 
-                                        />
-                            <Setter Property="Margin"
-                                    Value="0 0 0 8" 
-                                    />
-                        </Style>
-                    </ListView.ItemContainerStyle>
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <Grid Background="Transparent"
-                                  IsHitTestVisible="True"
-                                  >
-                                <i:Interaction.Behaviors>
-                                    <core:EventTriggerBehavior EventName="Tapped">
-                                        <core:InvokeCommandAction Command="{Binding ElementName=PageRoot, Path=DataContext.PlayCommand}"                                                                      
-                                                                  CommandParameter="{Binding}"
-                                                                      />
-                                    </core:EventTriggerBehavior>
-                                </i:Interaction.Behaviors>
-
-                                <view:VideoInfoControl />
-
-                                
-                                <TextBlock Text="{Binding Rank, Mode=OneTime}" 
-                                           HorizontalAlignment="Right"
-                                           VerticalAlignment="Top"
-                                           FontSize="45"
-                                           Foreground="#55777777"
-                                           Margin="2 0"
-                                           LineStackingStrategy="MaxHeight"
-                                           />
-                                
-                            </Grid>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </rlv:RefreshableListView>
-                
-                
             </toolkit:DockPanel>
         </Border>
         
