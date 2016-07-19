@@ -474,16 +474,7 @@ namespace NicoPlayerHohoema.Models
 		// 動画のキャッシュ要求
 		public async Task RequestCache(NicoVideoQuality quality)
 		{
-			if (_Context.CheckVideoPlaying(this.RawVideoId, quality))
-			{
-				_Context.CurrentPlayingStream.ChangeCacheRequire(true);
-				return;
-			}
-			else if (_Context.CheckVideoDownloading(this.RawVideoId, quality))
-			{
-				return;
-			}
-			else if (_Context.CheckCacheRequested(this.RawVideoId, quality))
+			if (_Context.CheckCacheRequested(this.RawVideoId, quality))
 			{
 				return;
 			}

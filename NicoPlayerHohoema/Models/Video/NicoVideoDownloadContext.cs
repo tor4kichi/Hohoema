@@ -48,6 +48,37 @@ namespace NicoPlayerHohoema.Models
 			_StreamControlLock = new SemaphoreSlim(1, 1);
 		}
 
+
+		#region Application Lifecycle 
+
+		public async Task Suspending()
+		{
+			await PushToTopCurrentDownloadRequest();
+
+			await SaveDownloadRequestItems().ConfigureAwait(false);
+		}
+
+		public async Task Resume()
+		{
+			await TryBeginNextDownloadRequest();
+		}
+
+		public void Dispose()
+		{
+			Suspending().ConfigureAwait(false);
+		}
+
+		#endregion
+
+
+		public void StartBackgroundDownload()
+		{
+			TryBeginNextDownloadRequest().ConfigureAwait(false);
+		}
+
+
+		#region Video Playback management
+
 		public async Task<NicoVideoCachedStream> GetPlayingStream(string rawVideoId, NicoVideoQuality quality)
 		{
 			await CloseCurrentPlayingStream();
@@ -77,7 +108,7 @@ namespace NicoPlayerHohoema.Models
 					await PushToTopCurrentDownloadRequest();
 				}
 
-				var stream = await CreateDownloadStream(rawVideoId, quality, isRequireCache: false);
+				var stream = await CreateDownloadStream(rawVideoId, quality);
 
 				await AssignPlayingStream(stream);
 
@@ -95,26 +126,22 @@ namespace NicoPlayerHohoema.Models
 			return CurrentPlayingStream;
 		}
 
-
-
-		public async Task RequestDownload(string rawVideoId, NicoVideoQuality quality)
+		private async Task AssignPlayingStream(NicoVideoCachedStream stream)
 		{
-			if (CurrentDownloadStream != null)
+			try
 			{
-				if (CurrentDownloadStream.RawVideoId == rawVideoId && CurrentDownloadStream.Quality == quality)
-				{
-					CurrentDownloadStream.ChangeCacheRequire(true);
-					return;
-				}
+				await _StreamControlLock.WaitAsync();
+
+				CurrentPlayingStream = stream;
 			}
-
-
-			PushDownloadRequest(rawVideoId, quality);
-
-			await TryBeginNextDownloadRequest();
+			finally
+			{
+				_StreamControlLock.Release();
+			}
 		}
 
-		public async Task ClosePlayingStream(string rawVideoId)
+
+		internal async Task ClosePlayingStream(string rawVideoId)
 		{
 			if (_CurrentPlayingStream != null &&
 				_CurrentPlayingStream.VideoId == rawVideoId)
@@ -130,7 +157,7 @@ namespace NicoPlayerHohoema.Models
 				// 再生ストリームが再生終了後に継続ダウンロードの必要がなければ、閉じる
 				if (_CurrentPlayingStream == _CurrentDownloadStream)
 				{
-					if (!_CurrentPlayingStream.IsRequireCache)
+					if (!_CurrentPlayingStream.IsCacheRequested)
 					{
 						await CloseCurrentDownloadStream();
 						await TryBeginNextDownloadRequest();
@@ -146,53 +173,11 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		private async Task CloseCurrentDownloadStream()
-		{
-			try
-			{
-				await _StreamControlLock.WaitAsync();
 
-				if (_CurrentDownloadStream != null)
-				{
-					await _CurrentDownloadStream.StopDownload();
-
-					OnCacheCompleted?.Invoke(_CurrentDownloadStream.RawVideoId, _CurrentDownloadStream.Quality, false);
-					_CurrentDownloadStream.OnCacheComplete -= DownloadCompleteAction;
-					_CurrentDownloadStream.Dispose();
-					_CurrentDownloadStream = null;
-				}
-			}
-			finally
-			{
-				_StreamControlLock.Release();
-			}
-		}
+		#endregion
 
 
-		public async Task CacnelDownloadRequest(string rawVideoId, NicoVideoQuality quality)
-		{
-			if (CheckVideoPlaying(rawVideoId, quality))
-			{
-				CurrentPlayingStream.ChangeCacheRequire(false);
-			}
-			else if (CheckVideoDownloading(rawVideoId, quality))
-			{
-				await this.CloseCurrentDownloadStream();
-
-				await TryBeginNextDownloadRequest();
-			}
-			else
-			{
-				var req = _CacheRequestStack.SingleOrDefault(x => x.RawVideoid == rawVideoId && x.Quality == quality);
-
-				if (req != null)
-				{
-					_CacheRequestStack.Remove(req);
-					OnCacheCompleted?.Invoke(req.RawVideoid, req.Quality, false);
-				}
-			}
-		}
-
+		#region Video Downloading management
 
 		public bool CheckCacheRequested(string rawVideoId, NicoVideoQuality quality)
 		{
@@ -214,9 +199,86 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public void StartBackgroundDownload()
+
+
+		public async Task RequestDownload(string rawVideoId, NicoVideoQuality quality)
 		{
-			TryBeginNextDownloadRequest().ConfigureAwait(false);
+			if (CurrentDownloadStream != null)
+			{
+				if (CurrentDownloadStream.RawVideoId == rawVideoId && CurrentDownloadStream.Quality == quality)
+				{
+					CurrentDownloadStream.IsCacheRequested = true;
+					return;
+				}
+			}
+
+
+			PushDownloadRequest(rawVideoId, quality);
+
+			await TryBeginNextDownloadRequest();
+		}
+
+		internal async Task CacnelDownloadRequest(string rawVideoId, NicoVideoQuality quality)
+		{
+			if (CheckVideoPlaying(rawVideoId, quality))
+			{
+				CurrentPlayingStream.IsCacheRequested = false;
+			}
+			else if (CheckVideoDownloading(rawVideoId, quality))
+			{
+				CurrentDownloadStream.IsCacheRequested = false;
+
+				await this.CloseCurrentDownloadStream();
+
+				await TryBeginNextDownloadRequest();
+			}
+			else
+			{
+				var req = _CacheRequestStack.SingleOrDefault(x => x.RawVideoid == rawVideoId && x.Quality == quality);
+
+				if (req != null)
+				{
+					_CacheRequestStack.Remove(req);
+					OnCacheCompleted?.Invoke(req.RawVideoid, req.Quality, false);
+				}
+			}
+		}
+
+
+
+		private async Task PushToTopCurrentDownloadRequest()
+		{
+			if (_CurrentDownloadStream != null)
+			{
+				var isCacheRequested = _CurrentDownloadStream.IsCacheRequested;
+				var videoId = _CurrentDownloadStream.RawVideoId;
+				var quality = _CurrentDownloadStream.Quality;
+
+				await CloseCurrentDownloadStream();
+
+				if (isCacheRequested)
+				{
+					_CacheRequestStack.Add(new NicoVideoCacheRequest()
+					{
+						RawVideoid = videoId,
+						Quality = quality,
+					});
+				}
+			}
+		}
+
+		private void PushDownloadRequest(string rawVideoid, NicoVideoQuality quality)
+		{
+			var alreadyRequest = _CacheRequestStack.SingleOrDefault(x => x.RawVideoid == rawVideoid);
+			if (alreadyRequest != null)
+			{
+				_CacheRequestStack.Remove(alreadyRequest);
+			}
+			_CacheRequestStack.Insert(0, new NicoVideoCacheRequest()
+			{
+				RawVideoid = rawVideoid,
+				Quality = quality,
+			});
 		}
 
 		private async Task<bool> TryBeginNextDownloadRequest()
@@ -242,101 +304,37 @@ namespace NicoPlayerHohoema.Models
 				var req = _CacheRequestStack.Last();
 				_CacheRequestStack.Remove(req);
 
-				Debug.WriteLine($"{req.RawVideoid}のダウンロードリクエストを処理しています");
+				Debug.WriteLine($"{req.RawVideoid}:{req.Quality}のダウンロードリクエストを処理しています");
 
-				var stream = await CreateDownloadStream(req.RawVideoid, req.Quality, isRequireCache: true);
-
-				if (!stream.IsCacheComplete)
+				try
 				{
-					Debug.WriteLine($"{req.RawVideoid}のダウンロードを開始");
+					var stream = await CreateDownloadStream(req.RawVideoid, req.Quality);
 
-					await AssignDownloadStream(stream);
-					break;
+					if (!stream.IsCacheComplete)
+					{
+						Debug.WriteLine($"{req.RawVideoid}:{req.Quality}のダウンロードを開始");
+						stream.IsCacheRequested = true;
+						await AssignDownloadStream(stream);
+						break;
+					}
+					else
+					{
+						Debug.WriteLine($"{req.RawVideoid}:{req.Quality}はダウンロード済みのため処理をスキップ");
+						stream.Dispose();
+					}
 				}
-				else
+				catch (Exception ex)
 				{
-					Debug.WriteLine($"{req.RawVideoid}はダウンロード済みのため処理をスキップ");
-					stream.Dispose();
+					Debug.WriteLine($"{req.RawVideoid}:{req.Quality}のダウンロード開始に失敗しました。");
+					Debug.WriteLine(ex.ToString());
+					if (req.Quality == NicoVideoQuality.Original)
+					{
+						Debug.WriteLine("オリジナル画質がダウンロードできない時間帯の可能性があります。");
+					}
 				}
 			}
 
 			return true;
-		}
-
-		private async void DownloadCompleteAction(string rawVideoid)
-		{
-			if (_CurrentDownloadStream != null &&
-				_CurrentDownloadStream.RawVideoId == rawVideoid)
-			{
-				if (_CurrentDownloadStream != _CurrentPlayingStream)
-				{
-					_CurrentDownloadStream.Dispose();
-				}
-
-				var quality = _CurrentDownloadStream.Quality;
-				_CurrentDownloadStream.OnCacheComplete -= DownloadCompleteAction;
-				CurrentDownloadStream = null;
-
-				Debug.WriteLine($"{rawVideoid} のダウンロード完了");
-				OnCacheCompleted?.Invoke(rawVideoid, quality, true);
-
-				await SaveDownloadRequestItems().ConfigureAwait(false);
-
-				await TryBeginNextDownloadRequest().ConfigureAwait(false);
-			}
-			else
-			{
-				throw new Exception("ダウンロードタスクの解除処理が異常");
-			}
-
-		}
-
-
-
-		private async Task<NicoVideoCachedStream> CreateDownloadStream(string rawVideoid, WatchApiResponse res, ThumbnailResponse thubmnailRes, NicoVideoQuality quality, bool isRequireCache)
-		{
-			var saveFolder = await _HohoemaApp.GetCurrentUserVideoFolder();
-			return await NicoVideoCachedStream.Create(this._HohoemaApp.NiconicoContext.HttpClient, rawVideoid, res, thubmnailRes, saveFolder, quality, isRequireCache);
-		}
-
-
-		private async Task<NicoVideoCachedStream> CreateDownloadStream(string rawVideoid, NicoVideoQuality quality, bool isRequireCache)
-		{
-			// TODO: オフラインのときのストリーム作成
-
-			var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(rawVideoid);
-			WatchApiResponse res;
-			if (quality == NicoVideoQuality.Low)
-			{
-				res = await nicoVideo.GetVideoInfoFromOnline(true);
-			}
-			else
-			{
-				res = await nicoVideo.GetVideoInfoFromOnline();
-				if (nicoVideo.NowLowQualityOnly && quality == NicoVideoQuality.Original && nicoVideo.OriginalQualityCacheState != NicoVideoCacheState.Cached)
-				{
-					// ダウンロード再生ができない
-					throw new Exception("can not download video with original quality in current time.");
-				}
-			}
-
-			var thumbnailRes = await nicoVideo.GetThumbnailInfo();
-
-			return await CreateDownloadStream(rawVideoid, res, thumbnailRes, quality, isRequireCache);
-		}
-
-		private async Task AssignPlayingStream(NicoVideoCachedStream stream)
-		{
-			try
-			{
-				await _StreamControlLock.WaitAsync();
-
-				CurrentPlayingStream = stream;
-			}
-			finally
-			{
-				_StreamControlLock.Release();
-			}
 		}
 
 		private async Task AssignDownloadStream(NicoVideoCachedStream downloadStream)
@@ -362,62 +360,110 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
+
+
+		private async Task CloseCurrentDownloadStream()
+		{
+			try
+			{
+				await _StreamControlLock.WaitAsync();
+
+				if (_CurrentDownloadStream != null)
+				{
+					await _CurrentDownloadStream.StopDownload();
+
+					OnCacheCompleted?.Invoke(_CurrentDownloadStream.RawVideoId, _CurrentDownloadStream.Quality, false);
+					_CurrentDownloadStream.OnCacheComplete -= DownloadCompleteAction;
+					_CurrentDownloadStream.Dispose();
+					_CurrentDownloadStream = null;
+				}
+			}
+			finally
+			{
+				_StreamControlLock.Release();
+			}
+		}
+
+		private async Task<NicoVideoCachedStream> CreateDownloadStream(string rawVideoid, WatchApiResponse res, ThumbnailResponse thubmnailRes, NicoVideoQuality quality)
+		{
+			var saveFolder = await _HohoemaApp.GetCurrentUserVideoFolder();
+			return await NicoVideoCachedStream.Create(this._HohoemaApp.NiconicoContext.HttpClient, rawVideoid, res, thubmnailRes, saveFolder, quality);
+		}
+
+		private async Task<NicoVideoCachedStream> CreateDownloadStream(string rawVideoid, NicoVideoQuality quality)
+		{
+			// TODO: オフラインのときのストリーム作成
+
+			var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(rawVideoid);
+			WatchApiResponse res;
+			if (quality == NicoVideoQuality.Low)
+			{
+				res = await nicoVideo.GetVideoInfoFromOnline(true);
+			}
+			else
+			{
+				res = await nicoVideo.GetVideoInfoFromOnline();
+				if (nicoVideo.NowLowQualityOnly && quality == NicoVideoQuality.Original && nicoVideo.OriginalQualityCacheState != NicoVideoCacheState.Cached)
+				{
+					// ダウンロード再生ができない
+					throw new Exception("can not download video with original quality in current time.");
+				}
+			}
+
+			var thumbnailRes = await nicoVideo.GetThumbnailInfo();
+
+			return await CreateDownloadStream(rawVideoid, res, thumbnailRes, quality);
+		}
+
+		
+
+		
+
+		#endregion
+
+
+		#region Cache Progress Event Handler
+
 		private void _CurrentDownloadStream_OnCacheProgress(string rawVideoId, NicoVideoQuality quality, uint totalSize, uint size)
 		{
 			OnCacheProgress?.Invoke(rawVideoId, quality, totalSize, size);
 		}
 
-		private async Task PushToTopCurrentDownloadRequest()
+		private async void DownloadCompleteAction(string rawVideoid)
 		{
-			if (_CurrentDownloadStream != null)
+			if (_CurrentDownloadStream != null &&
+				_CurrentDownloadStream.RawVideoId == rawVideoid)
 			{
-				var isReqireCache = _CurrentDownloadStream.IsRequireCache;
-				var videoId = _CurrentDownloadStream.RawVideoId;
-				var quality = _CurrentDownloadStream.Quality;
-
-				await CloseCurrentDownloadStream();
-
-				if (isReqireCache)
+				if (_CurrentDownloadStream != _CurrentPlayingStream)
 				{
-					_CacheRequestStack.Add(new NicoVideoCacheRequest()
-					{
-						RawVideoid = videoId,
-						Quality = quality,
-					});
+					_CurrentDownloadStream.Dispose();
 				}
+
+				var quality = _CurrentDownloadStream.Quality;
+				_CurrentDownloadStream.OnCacheComplete -= DownloadCompleteAction;
+				CurrentDownloadStream = null;
+
+				Debug.WriteLine($"{rawVideoid}:{quality.ToString()} のダウンロード完了");
+				OnCacheCompleted?.Invoke(rawVideoid, quality, true);
+
+				await SaveDownloadRequestItems().ConfigureAwait(false);
+
+				await TryBeginNextDownloadRequest().ConfigureAwait(false);
 			}
-		}
-		private void PushDownloadRequest(string rawVideoid, NicoVideoQuality quality)
-		{
-			var alreadyRequest = _CacheRequestStack.SingleOrDefault(x => x.RawVideoid == rawVideoid);
-			if (alreadyRequest != null)
+			else
 			{
-				_CacheRequestStack.Remove(alreadyRequest);
+				throw new Exception("ダウンロードタスクの解除処理が異常");
 			}
-			_CacheRequestStack.Insert(0, new NicoVideoCacheRequest()
-			{
-				RawVideoid = rawVideoid,
-				Quality = quality,
-			});
+
 		}
 
 
-		public async Task Suspending()
-		{
-			await PushToTopCurrentDownloadRequest();
+		#endregion
 
-			await SaveDownloadRequestItems().ConfigureAwait(false);
-		}
 
-		public async Task Resume()
-		{
-			await TryBeginNextDownloadRequest();
-		}
 
-		public void Dispose()
-		{
-			Suspending().ConfigureAwait(false);
-		}
+
+		#region Download Queue management
 
 		const string DOWNLOAD_QUEUE_FILENAME = "download_queue.json";
 
@@ -462,11 +508,20 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
+		#endregion
+
+
+		#region Cache Progress Event
+
+		public event CacheStartedHandler OnCacheStarted;
+		public event CacheCompleteHandler OnCacheCompleted;
+		public event CacheProgressHandler OnCacheProgress;
+
+		#endregion
 
 		// Donwload/Playingのストリームのアサイン、破棄のタイミング同期用ロック
 		private SemaphoreSlim _StreamControlLock;
 
-		public StorageFolder VideoSaveFolder { get; private set; }
 		private ObservableCollection<NicoVideoCacheRequest> _CacheRequestStack;
 		public ReadOnlyObservableCollection<NicoVideoCacheRequest> CacheRequestStack { get; private set; }
 
@@ -496,12 +551,7 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
-		// TODO: アプリ終了時にDownloadStreamを中断して、_CacheRequestStackに積む
-		// TODO: _CacheRequestStackの内容を終了時に未ダウンロードアイテムとしてvideoフォルダに書き出す
-
-		public event CacheStartedHandler OnCacheStarted;
-		public event CacheCompleteHandler OnCacheCompleted;
-		public event CacheProgressHandler OnCacheProgress;
+		public StorageFolder VideoSaveFolder { get; private set; }
 
 		HohoemaApp _HohoemaApp;
 	}
