@@ -120,6 +120,8 @@ namespace NicoPlayerHohoema.Models
 
 			System.Diagnostics.Debug.WriteLine($"size:{stream.Size}");
 
+			// TODO: ProgressFileの扱いはLockが必要
+
 			// ProgressFileの解決
 			if (videoFile.FileType == IncompleteExt)
 			{
@@ -894,12 +896,18 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public bool IsCachedRange(uint position, uint length)
+		public bool IsCachedRange(uint head, uint length)
 		{
+			var tail = head + length;
+			if (tail > Size)
+			{
+				tail = Size;
+			}
+
 			foreach (var range in CachedRanges)
 			{
-				if (_ValueIsInsideRange(position, range.Key, range.Value) &&
-					_ValueIsInsideRange(position + length, range.Key, range.Value))
+				if (_ValueIsInsideRange(head, range.Key, range.Value) &&
+					_ValueIsInsideRange(tail, range.Key, range.Value))
 				{
 					return true;
 				}
