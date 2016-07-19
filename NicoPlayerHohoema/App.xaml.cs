@@ -42,8 +42,6 @@ namespace NicoPlayerHohoema
     {
 		public PlayerWindowManager PlayerWindow { get; private set; }
 
-		private static Dictionary<Type, HohoemaPageType> ViewPageToPageType;
-
 
 		static App()
 		{
@@ -159,6 +157,9 @@ namespace NicoPlayerHohoema
 			//			Container.RegisterType<ViewModels.PortalContent.MylistPortalPageContentViewModel>(new ContainerControlledLifetimeManager());
 			//			Container.RegisterType<ViewModels.PortalContent.FavPortalPageContentViewModel>(new ContainerControlledLifetimeManager());
 			//			Container.RegisterType<ViewModels.PortalContent.HistoryPortalPageContentViewModel>(new ContainerControlledLifetimeManager());
+
+			Container.RegisterType<ViewModels.VideoPlayerPageViewModel>(new TransientLifetimeManager());
+
 
 			// Service
 			Container.RegisterType<Views.Service.ISearchDialogService, Views.Service.SearchDialogService>();

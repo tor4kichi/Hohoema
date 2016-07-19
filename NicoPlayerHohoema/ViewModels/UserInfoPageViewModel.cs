@@ -19,52 +19,58 @@ namespace NicoPlayerHohoema.ViewModels
 		public UserInfoPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager) 
 			: base(hohoemaApp, pageManager)
 		{
-			_HohoemaApp = hohoemaApp;
-
 			MylistGroups = new ObservableCollection<MylistGroupListItem>();
 			VideoInfoItems = new ObservableCollection<VideoInfoControlViewModel>();
 
-			IsFavorite = new ReactiveProperty<bool>();
-			CanAddFavorite = new ReactiveProperty<bool>();
+			IsFavorite = new ReactiveProperty<bool>()
+				.AddTo(_CompositeDisposable);
+			CanAddFavorite = new ReactiveProperty<bool>()
+				.AddTo(_CompositeDisposable);
 
 
 			AddFavoriteCommand = CanAddFavorite
-				.ToReactiveCommand();
+				.ToReactiveCommand()
+				.AddTo(_CompositeDisposable);
 
 			RemoveFavoriteCommand = IsFavorite
-				.ToReactiveCommand();
+				.ToReactiveCommand()
+				.AddTo(_CompositeDisposable);
 
 			AddFavoriteCommand.Where(_ => UserId != null)
 				.Subscribe(async x => 
 				{
-					var result = await _HohoemaApp.FavFeedManager.AddFav(FavoriteItemType.User, UserId);
+					var result = await HohoemaApp.FavFeedManager.AddFav(FavoriteItemType.User, UserId);
 					if (result == ContentManageResult.Success)
 					{
 						IsFavorite.Value = true;
 						CanAddFavorite.Value = false;
 					}
-				});
+				})
+				.AddTo(_CompositeDisposable);
 
 			RemoveFavoriteCommand.Where(_ => UserId != null)
 				.Subscribe(async x =>
 				{
-					var result = await _HohoemaApp.FavFeedManager.RemoveFav(FavoriteItemType.User, UserId);
+					var result = await HohoemaApp.FavFeedManager.RemoveFav(FavoriteItemType.User, UserId);
 					if (result == ContentManageResult.Success)
 					{
 						IsFavorite.Value = false;
-						CanAddFavorite.Value = _HohoemaApp.FavFeedManager.CanMoreAddFavorite(FavoriteItemType.User);
+						CanAddFavorite.Value = HohoemaApp.FavFeedManager.CanMoreAddFavorite(FavoriteItemType.User);
 					}
-				});
+				})
+				.AddTo(_CompositeDisposable);
 
 
 			OpenUserVideoPage = VideoInfoItems.ObserveProperty(x => x.Count)
 				.Select(x => x > 0)
-				.ToReactiveCommand();
+				.ToReactiveCommand()
+				.AddTo(_CompositeDisposable);
 
 			OpenUserVideoPage.Subscribe(x => 
 			{
 				PageManager.OpenPage(HohoemaPageType.UserVideo, UserId);
-			});
+			})
+			.AddTo(_CompositeDisposable);
 
 
 		}
@@ -93,7 +99,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			try
 			{
-				var userInfo = await _HohoemaApp.ContentFinder.GetUserDetail(UserId);
+				var userInfo = await HohoemaApp.ContentFinder.GetUserDetail(UserId);
 
 				var user = userInfo;
 				UserName = user.Nickname;
@@ -137,7 +143,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			try
 			{
-				var favManager = _HohoemaApp.FavFeedManager;
+				var favManager = HohoemaApp.FavFeedManager;
 				IsFavorite.Value = favManager.IsFavoriteItem(FavoriteItemType.User, UserId);
 				if (!IsFavorite.Value)
 				{
@@ -158,7 +164,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			try
 			{
-				var mylistGroups = await _HohoemaApp.ContentFinder.GetUserMylistGroups(UserId);
+				var mylistGroups = await HohoemaApp.ContentFinder.GetUserMylistGroups(UserId);
 				foreach (var item in mylistGroups)
 				{
 					MylistGroups.Add(new MylistGroupListItem(item, PageManager));
@@ -174,10 +180,10 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				await Task.Delay(1000);
 
-				var userVideos = await _HohoemaApp.ContentFinder.GetUserVideos(uint.Parse(UserId), 1);
+				var userVideos = await HohoemaApp.ContentFinder.GetUserVideos(uint.Parse(UserId), 1);
 				foreach (var item in userVideos.Items.Take(5))
 				{
-					var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(item.VideoId);
+					var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideo(item.VideoId);
 					VideoInfoItems.Add(new VideoInfoControlViewModel(nicoVideo, PageManager));
 				}
 			}
@@ -290,7 +296,5 @@ namespace NicoPlayerHohoema.ViewModels
 		public ObservableCollection<VideoInfoControlViewModel> VideoInfoItems { get; private set; }
 
 		public ReactiveCommand OpenUserVideoPage { get; private set; }
-
-		private HohoemaApp _HohoemaApp;
 	}
 }

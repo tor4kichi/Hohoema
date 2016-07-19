@@ -16,6 +16,7 @@ using System.Reactive.Linq;
 using System.Diagnostics;
 using NicoPlayerHohoema.Util;
 using Windows.UI.Xaml;
+using Reactive.Bindings.Extensions;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -24,8 +25,10 @@ namespace NicoPlayerHohoema.ViewModels
 		public MylistPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
 			: base(hohoemaApp, pageManager, isRequireSignIn: true)
 		{
-			IsFavoriteMylist = new ReactiveProperty<bool>(mode:ReactivePropertyMode.DistinctUntilChanged);
-			CanChangeFavoriteMylistState = new ReactiveProperty<bool>();
+			IsFavoriteMylist = new ReactiveProperty<bool>(mode:ReactivePropertyMode.DistinctUntilChanged)
+				.AddTo(_CompositeDisposable);
+			CanChangeFavoriteMylistState = new ReactiveProperty<bool>()
+				.AddTo(_CompositeDisposable);
 
 
 			IsFavoriteMylist
@@ -70,7 +73,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 					_NowProcessFavorite = false;
-				});
+				})
+				.AddTo(_CompositeDisposable);
 		}
 
 

@@ -91,9 +91,8 @@ namespace NicoPlayerHohoema.ViewModels
 			return list;
 		}
 
-
 		HistoriesResponse _HistoriesResponse;
-
+	
 		HohoemaApp _HohoemaApp;
 		PageManager _PageManager;
 

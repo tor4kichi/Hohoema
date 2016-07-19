@@ -19,7 +19,8 @@ namespace NicoPlayerHohoema.Util
 	}
 
 	public class IncrementalLoadingCollection<T, I> : ObservableCollection<I>,
-			ISupportIncrementalLoading
+			ISupportIncrementalLoading,
+			IDisposable
 			where T : IIncrementalSource<I>
 	{
 		public event Action BeginLoading;
@@ -35,8 +36,6 @@ namespace NicoPlayerHohoema.Util
 		private uint _ItemsPerPage;
 		private bool _HasMoreItems;
 		private uint _Position;
-
-
 
 		public IncrementalLoadingCollection(T source, uint itemsPerPage = 20, uint firstHeadPosition = 1)
 		{
@@ -108,12 +107,31 @@ namespace NicoPlayerHohoema.Util
 
 		protected override void ClearItems()
 		{
+			foreach (var item in this)
+			{
+				if (item is IDisposable)
+				{
+					(item as IDisposable).Dispose();
+				}
+			}
+
 			base.ClearItems();
 
 			// Note: PullToRefresh等で要素を削除した時のための対応
 			// IIncrementalSourceの実装で head == 1 の時に
 			// 強制的にアイテムソースのリストを更新させるよう対応してください
 			_Position = 1;		
+		}
+
+		public void Dispose()
+		{
+			foreach (var item in this)
+			{
+				if (item is IDisposable)
+				{
+					(item as IDisposable).Dispose();
+				}
+			}
 		}
 
 		public bool HasMoreItems

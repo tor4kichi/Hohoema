@@ -32,9 +32,12 @@ namespace NicoPlayerHohoema.ViewModels
 			ContentFinder = HohoemaApp.ContentFinder;
 			_EventAggregator = ea;
 
-//			RankingSettings = hohoemaApp.UserSettings.RankingSettings;
-			IsFailedRefreshRanking = new ReactiveProperty<bool>(false);
-			CanChangeRankingParameter = new ReactiveProperty<bool>(false);
+			//			RankingSettings = hohoemaApp.UserSettings.RankingSettings;
+			IsFailedRefreshRanking = new ReactiveProperty<bool>(false)
+				.AddTo(_CompositeDisposable);
+			CanChangeRankingParameter = new ReactiveProperty<bool>(false)
+				.AddTo(_CompositeDisposable);
+
 
 
 			// ランキングの対象
@@ -45,7 +48,8 @@ namespace NicoPlayerHohoema.ViewModels
 				new RankingTargetListItem(RankingTarget.mylist)
 			};
 
-			SelectedRankingTarget = new ReactiveProperty<RankingTargetListItem>(RankingTargetItems[0], ReactivePropertyMode.DistinctUntilChanged);
+			SelectedRankingTarget = new ReactiveProperty<RankingTargetListItem>(RankingTargetItems[0], ReactivePropertyMode.DistinctUntilChanged)
+				.AddTo(_CompositeDisposable);
 
 
 			// ランキングの集計期間
@@ -58,7 +62,8 @@ namespace NicoPlayerHohoema.ViewModels
 				new RankingTimeSpanListItem(RankingTimeSpan.total),
 			};
 
-			SelectedRankingTimeSpan = new ReactiveProperty<RankingTimeSpanListItem>(RankingTimeSpanItems[0], ReactivePropertyMode.DistinctUntilChanged);
+			SelectedRankingTimeSpan = new ReactiveProperty<RankingTimeSpanListItem>(RankingTimeSpanItems[0], ReactivePropertyMode.DistinctUntilChanged)
+				.AddTo(_CompositeDisposable);
 
 
 			Observable.CombineLatest(
@@ -70,7 +75,8 @@ namespace NicoPlayerHohoema.ViewModels
 				.Subscribe(x => 
 				{
 					ResetList();
-				});
+				})
+				.AddTo(_CompositeDisposable);
 
 		}
 
@@ -79,8 +85,6 @@ namespace NicoPlayerHohoema.ViewModels
 		internal void ShowVideoInfomation(string videoUrl)
 		{
 			PageManager.OpenPage(HohoemaPageType.VideoInfomation, videoUrl);
-//			_EventAggregator.GetEvent<Events.PlayNicoVideoEvent>()
-//				.Publish(videoUrl);
 		}
 
 
@@ -95,8 +99,6 @@ namespace NicoPlayerHohoema.ViewModels
 				RequireCategoryInfo = null;
 				return;
 			}
-
-			// TODO: ページタイトルを変更したい
 
 			base.OnNavigatedTo(e, viewModelState);
 		}

@@ -14,6 +14,7 @@ using Prism.Commands;
 using Prism.Mvvm;
 using System.Reactive.Linq;
 using System.Diagnostics;
+using Reactive.Bindings.Extensions;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -30,21 +31,29 @@ namespace NicoPlayerHohoema.ViewModels
 			_ContentFinder = contentFinder;
 
 
-			FailLoading = new ReactiveProperty<bool>(false);
+			FailLoading = new ReactiveProperty<bool>(false)
+				.AddTo(_CompositeDisposable);
 
-			LoadedPage = new ReactiveProperty<int>(1);
-			MaxPageCount = new ReactiveProperty<int>(1);
+			LoadedPage = new ReactiveProperty<int>(1)
+				.AddTo(_CompositeDisposable);
+			MaxPageCount = new ReactiveProperty<int>(1)
+				.AddTo(_CompositeDisposable);
 
 
-			IsTagSearch = new ReactiveProperty<bool>();
-			IsFavoriteTag = new ReactiveProperty<bool>(mode:ReactivePropertyMode.DistinctUntilChanged);
-			CanChangeFavoriteTagState = new ReactiveProperty<bool>();
+			IsTagSearch = new ReactiveProperty<bool>()
+				.AddTo(_CompositeDisposable);
+			IsFavoriteTag = new ReactiveProperty<bool>(mode:ReactivePropertyMode.DistinctUntilChanged)
+				.AddTo(_CompositeDisposable);
+			CanChangeFavoriteTagState = new ReactiveProperty<bool>()
+				.AddTo(_CompositeDisposable);
 
 			AddFavoriteTagCommand = CanChangeFavoriteTagState
-				.ToReactiveCommand();
+				.ToReactiveCommand()
+				.AddTo(_CompositeDisposable);
 
 			RemoveFavoriteTagCommand = IsFavoriteTag
-				.ToReactiveCommand();
+				.ToReactiveCommand()
+				.AddTo(_CompositeDisposable);
 
 
 			IsFavoriteTag.Subscribe(async x => 
@@ -85,7 +94,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 				_NowProcessFavorite = false;
-			});
+			})
+			.AddTo(_CompositeDisposable);
 		}
 
 

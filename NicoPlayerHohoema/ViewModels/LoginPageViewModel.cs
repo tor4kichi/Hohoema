@@ -21,13 +21,17 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			AccountSettings = HohoemaApp.CurrentAccount;
 
-			CanChangeValue = new ReactiveProperty<bool>(true);
+			CanChangeValue = new ReactiveProperty<bool>(true)
+				.AddTo(_CompositeDisposable);
 
-			MailOrTelephone = AccountSettings.ToReactivePropertyAsSynchronized(x => x.MailOrTelephone);
-			Password = AccountSettings.ToReactivePropertyAsSynchronized(x => x.Password);
-			
+			MailOrTelephone = AccountSettings.ToReactivePropertyAsSynchronized(x => x.MailOrTelephone)
+				.AddTo(_CompositeDisposable);
+			Password = AccountSettings.ToReactivePropertyAsSynchronized(x => x.Password)
+				.AddTo(_CompositeDisposable);
+
 			// すでにパスワード保存済みの場合は「パスワードを保存する」をチェックした状態にする
-			IsRememberPassword = new ReactiveProperty<bool>(!String.IsNullOrEmpty(Password.Value));
+			IsRememberPassword = new ReactiveProperty<bool>(!String.IsNullOrEmpty(Password.Value))
+				.AddTo(_CompositeDisposable);
 
 			// メールとパスワードが1文字以上あればログインボタンが押せる
 			CheckLoginCommand = Observable.CombineLatest(
@@ -36,13 +40,17 @@ namespace NicoPlayerHohoema.ViewModels
 					CanChangeValue
 				)
 				.Select(x => x[0] && x[1] && x[2])
-				.ToReactiveCommand();
+				.ToReactiveCommand()
+				.AddTo(_CompositeDisposable);
 
 
-			CheckLoginCommand.Subscribe(async x => await CheckLoginAndGo());
+			CheckLoginCommand.Subscribe(async x => await CheckLoginAndGo())
+				.AddTo(_CompositeDisposable);
 
-			IsLoginFailed = new ReactiveProperty<bool>();
-			IsServiceUnavailable = new ReactiveProperty<bool>();
+			IsLoginFailed = new ReactiveProperty<bool>()
+				.AddTo(_CompositeDisposable);
+			IsServiceUnavailable = new ReactiveProperty<bool>()
+				.AddTo(_CompositeDisposable);
 		}
 
 		
@@ -129,53 +137,4 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public AccountSettings AccountSettings { get; private set; }
 	}
-
-	/*
-	 
-	 public class AccountSettingsPageContentViewModel : SettingsPageContentViewModel
-	{
-		public AccountSettingsPageContentViewModel(HohoemaApp hohoemaApp, string title)
-			: base(title)
-		{
-			HohoemaApp = hohoemaApp;
-			AccountSettings = hohoemaApp.UserSettings.AccontSettings;
-
-			IsValidAccount = new ReactiveProperty<bool>(false);
-			MailOrTelephone = AccountSettings.ToReactivePropertyAsSynchronized(x => x.MailOrTelephone);
-			Password = AccountSettings.ToReactivePropertyAsSynchronized(x => x.Password);
-
-
-			Observable.CombineLatest(
-				MailOrTelephone.ToUnit(),
-				Password.ToUnit()
-				)
-				.Subscribe(_ => IsValidAccount.Value = false);
-
-			CheckLoginCommand = new DelegateCommand(CheckLogin);
-		}
-
-
-
-		private async void CheckLogin()
-		{
-			var result = await HohoemaApp.SignInFromUserSettings();
-
-			IsValidAccount.Value = (result == NiconicoSignInStatus.Success);
-		}
-		
-		public ReactiveProperty<bool> IsValidAccount { get; private set; }
-
-		public ReactiveProperty<string> MailOrTelephone { get; private set; }
-		public ReactiveProperty<string> Password { get; private set; }
-
-
-		public DelegateCommand CheckLoginCommand { get; private set; }
-
-
-
-		public HohoemaApp HohoemaApp { get; private set; }
-		public AccountSettings AccountSettings { get; private set; }
-	}
-	 
-	 */
 }

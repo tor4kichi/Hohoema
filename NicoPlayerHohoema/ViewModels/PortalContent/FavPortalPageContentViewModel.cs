@@ -34,9 +34,14 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 
 		private async Task UpdateUnreadFeedItems()
 		{
-			await _HohoemaApp.FavFeedManager.UpdateAll();
+			foreach (var item in UnreadFavFeedItems)
+			{
+				item.Dispose();
+			}
 
 			UnreadFavFeedItems.Clear();
+
+			await _HohoemaApp.FavFeedManager.UpdateAll();			
 
 			var unreadItems = _HohoemaApp.FavFeedManager.GetAllFeedItems().Take(10);
 
