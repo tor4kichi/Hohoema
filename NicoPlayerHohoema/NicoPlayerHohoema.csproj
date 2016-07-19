@@ -112,11 +112,16 @@
     <Compile Include="Models\HohoemaApp.cs" />
     <Compile Include="Models\HohoemaPageType.cs" />
     <Compile Include="Models\LisenceSummary.cs" />
+    <Compile Include="Models\Video\NicoVideo.cs" />
+    <Compile Include="Models\Video\NicoVideoCacheRequest.cs" />
+    <Compile Include="Models\Video\NicoVideoCacheState.cs" />
+    <Compile Include="Models\Video\NicoVideoCanNotDownloadReason.cs" />
+    <Compile Include="Models\Video\NicoVideoDownloadContext.cs" />
     <Compile Include="Models\Settings\HohoemaUserSettings.cs" />
     <Compile Include="Models\MediaBackgroundTask.cs" />
     <Compile Include="Models\NiconicoContentFinder.cs" />
-    <Compile Include="Models\NiconicoMediaManager.cs" />
-    <Compile Include="Models\NicoVideoCachedStream.cs" />
+    <Compile Include="Models\Video\NiconicoMediaManager.cs" />
+    <Compile Include="Models\Video\NicoVideoCachedStream.cs" />
     <Compile Include="Models\PageManager.cs" />
     <Compile Include="Models\PlayerDisplayMode.cs" />
     <Compile Include="Models\SearchOption.cs" />
@@ -128,6 +133,7 @@
     <Compile Include="Models\Settings\SearchSettings.cs" />
     <Compile Include="Models\VideoDescriptionHelper.cs" />
     <Compile Include="Models\VideoPlayPayload.cs" />
+    <Compile Include="Models\Video\NicoVideoQuality.cs" />
     <Compile Include="Util\ColorExtention.cs" />
     <Compile Include="Util\ConnectionRetryUtil.cs" />
     <Compile Include="Util\DisplayRequestHelper.cs" />
