@@ -147,7 +147,7 @@ namespace NicoPlayerHohoema.Models
 
 				Debug.WriteLine("initilize: local cache ");
 				MediaManager = await NiconicoMediaManager.Create(this);
-
+	
 				Debug.WriteLine("initilize: fav");
 				FavFeedManager = await FavFeedManager.Create(this, LoginUserId);
 
@@ -155,6 +155,9 @@ namespace NicoPlayerHohoema.Models
 				//				await MediaManager.Context.Resume();
 
 				OnSignin?.Invoke();
+
+
+				MediaManager.Context.StartBackgroundDownload();
 			}
 			else
 			{

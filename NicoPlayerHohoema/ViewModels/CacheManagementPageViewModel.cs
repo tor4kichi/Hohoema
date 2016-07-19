@@ -36,6 +36,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
+			
 			base.OnNavigatedTo(e, viewModelState);
 		}
 		
@@ -46,7 +47,10 @@ namespace NicoPlayerHohoema.ViewModels
 			return new CacheVideoInfoLoadingSource(HohoemaApp, PageManager);
 		}
 
-
+		protected override bool CheckNeedUpdateOnNavigateTo()
+		{
+			return true;
+		}
 		protected override void PostResetList()
 		{
 			

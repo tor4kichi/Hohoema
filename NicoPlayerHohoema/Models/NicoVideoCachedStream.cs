@@ -32,6 +32,14 @@ namespace NicoPlayerHohoema.Models
 
 		// エコノミーとオリジナルの切り替えはここでは責任を持たない
 		// 動画情報.jsonやコメント.jsonはここでは取り扱わない
+
+
+
+		static NicoVideoCachedStream()
+		{
+			_CacheProgressSemaphore = new SemaphoreSlim(1, 1);
+		}
+
 		public const string IncompleteExt = ".incomplete";
 
 		public static string MakeVideoFileName(string title, string videoid)
@@ -48,7 +56,6 @@ namespace NicoPlayerHohoema.Models
 			var videoFileName = MakeVideoFileName(videoTitle, res.videoDetail.id);
 			var fileName = $"{videoFileName}.mp4";
 			var fileName_low = $"{videoFileName}.low.mp4";
-			var progressFileName = $"{videoId}_progress";
 
 			var dirInfo = new DirectoryInfo(videoSaveFolder.Path);
 
@@ -91,7 +98,6 @@ namespace NicoPlayerHohoema.Models
 
 
 
-			var recreateProgress = false;
 			if (videoFile == null)
 			{
 				// 画質モードに応じてファイルを作成、最初はファイル名に.incompleteが付く
@@ -103,14 +109,11 @@ namespace NicoPlayerHohoema.Models
 				{
 					videoFile = await videoSaveFolder.CreateFileAsync($"{fileName}{IncompleteExt}", CreationCollisionOption.ReplaceExisting);
 				}
-
-				recreateProgress = true;
 			}
 
 
 			var stream = new NicoVideoCachedStream(client, rawVideoId, videoId, new Uri(videoUrl), videoFile, quality, isCache);
 
-			stream.Quality = quality;
 			stream.IsPremiumUser = res.IsPremium;
 			stream.DownloadInterval = res.IsPremium ?
 				TimeSpan.FromSeconds(BUFFER_SIZE / (float)PremiumUserDownload_kbps) :
@@ -120,34 +123,9 @@ namespace NicoPlayerHohoema.Models
 
 			System.Diagnostics.Debug.WriteLine($"size:{stream.Size}");
 
-			// TODO: ProgressFileの扱いはLockが必要
+			await stream.Initialize(videoSaveFolder);
 
-			// ProgressFileの解決
-			if (videoFile.FileType == IncompleteExt)
-			{
-				// cacheProgressFileの存在をチェックし、あれば読み込み
-				var name = progressFileName + (isEconomy ? ".low.json" : ".json");
-				if (!recreateProgress && File.Exists(Path.Combine(videoSaveFolder.Path, name)))
-				{
-					var progressFile = await videoSaveFolder.GetFileAsync(name);
-					var jsonText = await FileIO.ReadTextAsync(progressFile);
 
-					stream.Progress = Newtonsoft.Json.JsonConvert.DeserializeObject<VideoCacheProgress>(jsonText);
-					stream.ProgressFile = progressFile;
-				}
-				else
-				{
-					stream.Progress = new VideoCacheProgress((uint)stream.Size);
-					stream.ProgressFile = await videoSaveFolder.CreateFileAsync(name, CreationCollisionOption.ReplaceExisting);
-					await stream.SaveProgress();
-				}
-			}
-			else
-			{
-				// すでにダウンロード済みの場合は予めキャッシュ要求されたことにして
-				// Dispose時の削除を回避させる
-				stream.IsRequireCache = true;
-			}
 
 			return stream;
 		}
@@ -186,7 +164,6 @@ namespace NicoPlayerHohoema.Models
 			ProgressFile = null;
 
 			_CacheWriteSemaphore = new SemaphoreSlim(1, 1);
-			_CacheProgressSemaphore = new SemaphoreSlim(1, 1);
 			_DownloadTaskLock = new SemaphoreSlim(1, 1);
 		}
 
@@ -196,6 +173,48 @@ namespace NicoPlayerHohoema.Models
 			return (uint)Size - remain;
 		}
 		
+
+
+		private async Task Initialize(StorageFolder videoSaveFolder)
+		{
+			try
+			{
+				await _CacheProgressSemaphore.WaitAsync();
+
+				if (CacheFile.FileType == IncompleteExt)
+				{
+					var progressFileName = GetProgressFileName();
+					var isLowQuality = Quality == NicoVideoQuality.Low;
+					// cacheProgressFileの存在をチェックし、あれば読み込み
+					var name = progressFileName + (isLowQuality ? ".low.json" : ".json");
+					if (File.Exists(Path.Combine(videoSaveFolder.Path, name)))
+					{
+						var progressFile = await videoSaveFolder.GetFileAsync(name);
+						var jsonText = await FileIO.ReadTextAsync(progressFile);
+
+						Progress = Newtonsoft.Json.JsonConvert.DeserializeObject<VideoCacheProgress>(jsonText);
+						
+						ProgressFile = progressFile;
+					}
+
+					if (Progress == null)
+					{
+						Progress = new VideoCacheProgress((uint)Size);
+						ProgressFile = await videoSaveFolder.CreateFileAsync(name, CreationCollisionOption.ReplaceExisting);
+					}
+				}
+			}
+			finally
+			{
+				_CacheProgressSemaphore.Release();
+			}
+		}
+
+		private string GetProgressFileName()
+		{
+			return $"{RawVideoId}_progress";
+		}
+
 
 		public override void Seek(ulong position)
 		{
@@ -376,7 +395,7 @@ namespace NicoPlayerHohoema.Models
 					{
 						await FileIO.WriteTextAsync(ProgressFile, Newtonsoft.Json.JsonConvert.SerializeObject(Progress)).AsTask().ConfigureAwait(false);
 					}
-					catch { }
+					catch { break; }
 
 					if (!ensureWrite) break;
 				}
@@ -755,7 +774,7 @@ namespace NicoPlayerHohoema.Models
 		private Task _DownloadTask;
 		private SemaphoreSlim _DownloadTaskLock;
 
-		private SemaphoreSlim _CacheProgressSemaphore;
+		private static SemaphoreSlim _CacheProgressSemaphore;
 
 		private SemaphoreSlim _CacheWriteSemaphore;
 

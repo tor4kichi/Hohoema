@@ -250,7 +250,7 @@ namespace NicoPlayerHohoema.ViewModels
 				return;
 			}
 
-			if (IncrementalLoadingItems == null || CheckNeedUpdate())
+			if (IncrementalLoadingItems == null || CheckNeedUpdateOnNavigateTo())
 			{
 				ResetList();
 			}
@@ -337,7 +337,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		abstract protected IIncrementalSource<VIDEO_INFO_VM> GenerateIncrementalSource();
 
-		protected virtual bool CheckNeedUpdate() { return false; }
+		protected virtual bool CheckNeedUpdateOnNavigateTo() { return false; }
 
 		private IEnumerable<VideoInfoControlViewModel> EnumerateDownloadingVideoItems()
 		{

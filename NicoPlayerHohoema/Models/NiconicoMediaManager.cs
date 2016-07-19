@@ -229,8 +229,11 @@ namespace NicoPlayerHohoema.Models
 				// 再生ストリームが再生終了後に継続ダウンロードの必要がなければ、閉じる
 				if (_CurrentPlayingStream == _CurrentDownloadStream)
 				{
-					await CloseCurrentDownloadStream();
-					await TryBeginNextDownloadRequest();
+					if (!_CurrentPlayingStream.IsRequireCache)
+					{
+						await CloseCurrentDownloadStream();
+						await TryBeginNextDownloadRequest();
+					}
 				}
 				else
 				{
@@ -307,6 +310,12 @@ namespace NicoPlayerHohoema.Models
 			if (CurrentDownloadStream == null) { return false; }
 
 			return CurrentDownloadStream.VideoId == rawVideoId && CurrentDownloadStream.Quality == quality;
+		}
+
+
+		public void StartBackgroundDownload()
+		{
+			TryBeginNextDownloadRequest().ConfigureAwait(false);
 		}
 
 		private async Task<bool> TryBeginNextDownloadRequest()
@@ -461,16 +470,20 @@ namespace NicoPlayerHohoema.Models
 		{
 			if (_CurrentDownloadStream != null)
 			{
+				var isReqireCache = _CurrentDownloadStream.IsRequireCache;
 				var videoId = _CurrentDownloadStream.RawVideoId;
 				var quality = _CurrentDownloadStream.Quality;
 
 				await CloseCurrentDownloadStream();
 
-				_CacheRequestStack.Add(new NicoVideoCacheRequest()
+				if (isReqireCache)
 				{
-					RawVideoid = videoId,
-					Quality = quality,
-				});
+					_CacheRequestStack.Add(new NicoVideoCacheRequest()
+					{
+						RawVideoid = videoId,
+						Quality = quality,
+					});
+				}
 			}
 		}
 		private void PushDownloadRequest(string rawVideoid, NicoVideoQuality quality)
@@ -1083,6 +1096,20 @@ namespace NicoPlayerHohoema.Models
 		// 動画のキャッシュ要求
 		public async Task RequestCache(NicoVideoQuality quality)
 		{
+			if (_Context.CheckVideoPlaying(this.RawVideoId, quality))
+			{
+				_Context.CurrentPlayingStream.ChangeCacheRequire(true);
+				return;
+			}
+			else if (_Context.CheckVideoDownloading(this.RawVideoId, quality))
+			{
+				return;
+			}
+			else if (_Context.CheckCacheRequested(this.RawVideoId, quality))
+			{
+				return;
+			}
+
 			if (quality == NicoVideoQuality.Original)
 			{
 				if (OriginalQualityCacheState == NicoVideoCacheState.Cached) { return; }

@@ -171,7 +171,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		protected override bool CheckNeedUpdate()
+		protected override bool CheckNeedUpdateOnNavigateTo()
 		{
 			return !RequireSearchOption.Equals(SearchOption);
 		}

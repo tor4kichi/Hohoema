@@ -211,6 +211,10 @@ namespace NicoPlayerHohoema.ViewModels
 				if (Video == null) { IsSaveRequestedCurrentQualityCache.Value = false; return; }
 
 				var x = CurrentVideoQuality.Value;
+
+				PreviousVideoPosition = CurrentVideoPosition.Value.TotalSeconds;
+				VideoStream.Value = await Video.GetVideoStream(x);
+
 				switch (x)
 				{
 					case NicoVideoQuality.Original:
@@ -224,8 +228,6 @@ namespace NicoPlayerHohoema.ViewModels
 						break;
 				}
 
-				PreviousVideoPosition = CurrentVideoPosition.Value.TotalSeconds;
-				VideoStream.Value = await Video.GetVideoStream(x);
 			})
 			.AddTo(_CompositeDisposable);
 

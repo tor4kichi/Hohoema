@@ -93,7 +93,10 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			base.OnNavigatingFrom(e, viewModelState, suspending);
 
-			HohoemaApp.MediaManager.Context.Suspending().ConfigureAwait(false);
+			if (suspending)
+			{
+				HohoemaApp.MediaManager.Context.Suspending().ConfigureAwait(false);
+			}
 		}
 
 		protected void UpdateTitle(string title)
