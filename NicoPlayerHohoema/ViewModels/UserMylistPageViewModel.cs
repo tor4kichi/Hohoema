@@ -12,6 +12,7 @@ using Mntone.Nico2.Mylist.MylistGroup;
 using System.Collections.ObjectModel;
 using Reactive.Bindings;
 using Mntone.Nico2.Mylist;
+using Reactive.Bindings.Extensions;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -20,12 +21,11 @@ namespace NicoPlayerHohoema.ViewModels
 		public UserMylistPageViewModel(HohoemaApp app, PageManager pageMaanger)
 			: base(app, pageMaanger)
 		{
-			_HohoemaApp = app;
-			_PageManager = pageMaanger;
-
 			MylistGroupItems = new ObservableCollection<MylistGroupListItem>();
-			IsPublicMylist = new ReactiveProperty<bool>(false);
-			IsHostedMylist = new ReactiveProperty<bool>(false);
+			IsPublicMylist = new ReactiveProperty<bool>(false)
+				.AddTo(_CompositeDisposable);
+			IsHostedMylist = new ReactiveProperty<bool>(false)
+				.AddTo(_CompositeDisposable);
 		}
 
 		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
@@ -43,7 +43,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				try
 				{
-					var userInfo = await _HohoemaApp.NiconicoContext.User.GetUserAsync(UserId);
+					var userInfo = await HohoemaApp.NiconicoContext.User.GetUserAsync(UserId);
 					UserName = userInfo.Nickname;
 				}
 				catch (Exception ex)
@@ -55,7 +55,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 				try
 				{
-					mylists = await _HohoemaApp.ContentFinder.GetUserMylistGroups(UserId);
+					mylists = await HohoemaApp.ContentFinder.GetUserMylistGroups(UserId);
 					IsPublicMylist.Value = true;
 				}
 				catch (Exception ex)
@@ -71,7 +71,7 @@ namespace NicoPlayerHohoema.ViewModels
 			
 				try
 				{
-					var userInfo = await _HohoemaApp.NiconicoContext.User.GetInfoAsync();
+					var userInfo = await HohoemaApp.NiconicoContext.User.GetInfoAsync();
 					UserName = userInfo.Name;
 				}
 				catch (Exception ex)
@@ -85,7 +85,7 @@ namespace NicoPlayerHohoema.ViewModels
 					Id = "0",
 					Name = "とりあえずマイリスト"
 				};
-				mylists = await _HohoemaApp.ContentFinder.GetLoginUserMylistGroups();
+				mylists = await HohoemaApp.ContentFinder.GetLoginUserMylistGroups();
 
 				mylists.Insert(0, torima);
 
@@ -93,7 +93,7 @@ namespace NicoPlayerHohoema.ViewModels
 				IsHostedMylist.Value = true;
 			}
 
-			var mylistGroupVMItems = mylists.Select(x => new MylistGroupListItem(x, _PageManager));
+			var mylistGroupVMItems = mylists.Select(x => new MylistGroupListItem(x, PageManager));
 
 			MylistGroupItems.Clear();
 
@@ -116,9 +116,6 @@ namespace NicoPlayerHohoema.ViewModels
 			get { return _UserName; }
 			set { SetProperty(ref _UserName, value); }
 		}
-
-		HohoemaApp _HohoemaApp;
-		PageManager _PageManager;
 
 
 		public ObservableCollection<MylistGroupListItem> MylistGroupItems { get; private set; }

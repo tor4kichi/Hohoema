@@ -23,7 +23,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				await HohoemaApp.FavFeedManager.MarkAsReadAllVideo();
 			}
-			, () =>  
+			, () =>
 			{
 				return HohoemaApp.FavFeedManager.GetUnreadFeedItems().Any(x => x.IsUnread);
 			});
@@ -31,7 +31,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 			SelectedItemsMarkAsReadCommand = SelectedVideoInfoItems.ToCollectionChanged()
 				.Select(x => SelectedVideoInfoItems.Count > 0)
-				.ToReactiveCommand();
+				.ToReactiveCommand()
+				.AddTo(_CompositeDisposable);
 
 			SelectedItemsMarkAsReadCommand.Subscribe(async _ =>
 			{
@@ -42,7 +43,8 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 
 				ClearSelection();
-			});
+			})
+			.AddTo(_CompositeDisposable);
 		}
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
@@ -120,8 +122,5 @@ namespace NicoPlayerHohoema.ViewModels
 
 			return list;
 		}
-
-
-		
 	}
 }

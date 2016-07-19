@@ -313,7 +313,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		protected CompositeDisposable _CompositeDisposable;
+		protected CompositeDisposable _CompositeDisposable { get; private set; }
 
 		public NicoVideo NicoVideo { get; private set; }
 		public PageManager PageManager { get; private set; }

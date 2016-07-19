@@ -7,10 +7,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Prism.Windows.Navigation;
+using System.Reactive.Disposables;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	abstract public class HohoemaViewModelBase : ViewModelBase
+	abstract public class HohoemaViewModelBase : ViewModelBase, IDisposable
 	{
 		public HohoemaViewModelBase(HohoemaApp hohoemaApp, PageManager pageManager, bool isRequireSignIn = false)
 		{
@@ -22,6 +23,7 @@ namespace NicoPlayerHohoema.ViewModels
 			HohoemaApp.OnSignout += HohoemaApp_OnSignout;
 			HohoemaApp.OnSignin += HohoemaApp_OnSignin;
 
+			_CompositeDisposable = new CompositeDisposable();
 		}
 
 		private void HohoemaApp_OnSignin()
@@ -100,6 +102,19 @@ namespace NicoPlayerHohoema.ViewModels
 			PageManager.UpdateTitle(title);
 		}
 
+		public void Dispose()
+		{
+			_CompositeDisposable.Dispose();
+
+			OnDispose();
+		}
+
+
+		protected virtual void OnDispose() { }
+
+
+
+
 
 		public bool IsRequireSignIn { get; private set; }
 		public bool NowSignIn { get; private set; }
@@ -108,5 +123,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public HohoemaApp HohoemaApp { get; private set; }
 		public PageManager PageManager { get; private set; }
+
+		protected CompositeDisposable _CompositeDisposable { get; private set; }
 	}
 }

@@ -7,6 +7,7 @@ using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ using Windows.UI;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class CommentCommandEditerViewModel : BindableBase
+	public class CommentCommandEditerViewModel : BindableBase, IDisposable
 	{
 
 		public static IReadOnlyList<CommandType?> SizeCommandItems { get; private set; }
@@ -89,23 +90,36 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _IsPremiumUser, value); }
 		}
 
+		private bool _NowReseting;
 		public DelegateCommand ResetAllCommand { get; private set; }
 
 
 		public bool IsAnonymousDefault { get; set; }
 
+
+		private CompositeDisposable _CompositeDisposable;
+
 		public CommentCommandEditerViewModel(bool isAnonymousDefault = true)
 		{
+			_CompositeDisposable = new CompositeDisposable();
+
 			IsAnonymousDefault = isAnonymousDefault;
-			CanChangeAnonymity = new ReactiveProperty<bool>(false);
-			IsAnonymousComment = new ReactiveProperty<bool>(IsAnonymousDefault);
+			CanChangeAnonymity = new ReactiveProperty<bool>(false)
+				.AddTo(_CompositeDisposable);
+			IsAnonymousComment = new ReactiveProperty<bool>(IsAnonymousDefault)
+				.AddTo(_CompositeDisposable);
 
-			SizeSelectedItem = new ReactiveProperty<CommandType?>(new Nullable<CommandType>());
-			AlingmentSelectedItem = new ReactiveProperty<CommandType?>(new Nullable<CommandType>());
-			ColorSelectedItem = new ReactiveProperty<CommandType?>(new Nullable<CommandType>());
+			SizeSelectedItem = new ReactiveProperty<CommandType?>(new Nullable<CommandType>())
+				.AddTo(_CompositeDisposable);
+			AlingmentSelectedItem = new ReactiveProperty<CommandType?>(new Nullable<CommandType>())
+				.AddTo(_CompositeDisposable);
+			ColorSelectedItem = new ReactiveProperty<CommandType?>(new Nullable<CommandType>())
+				.AddTo(_CompositeDisposable);
 
-			FreePickedColor = new ReactiveProperty<Color>();
-			IsPickedColor = new ReactiveProperty<bool>(false);
+			FreePickedColor = new ReactiveProperty<Color>()
+				.AddTo(_CompositeDisposable);
+			IsPickedColor = new ReactiveProperty<bool>(false)
+				.AddTo(_CompositeDisposable);
 
 			ResetAllCommand = new DelegateCommand(() => 
 			{
@@ -138,10 +152,20 @@ namespace NicoPlayerHohoema.ViewModels
 				IsPickedColor.ToUnit()
 				)
 				.Where(x => !_NowReseting)
-				.Subscribe(_ => OnCommandChanged?.Invoke());
+				.Subscribe(_ => OnCommandChanged?.Invoke())
+				.AddTo(_CompositeDisposable);
 		}
 
-		private bool _NowReseting;
+
+
+		public void Dispose()
+		{
+			_CompositeDisposable.Dispose();
+		}
+
+
+
+
 
 		public void ChangeEnableAnonymity(bool enableAnonymsouUser)
 		{
@@ -183,5 +207,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			return String.Join(" ", commands);
 		}
+
+		
 	}
 }

@@ -151,10 +151,14 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
 		private async void ExtractPosition()
 		{
-			var mediaElem = this.AssociatedObject as MediaElement;
-			
 			await this.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Low,
-					() => this.Position = mediaElem.Position);
+					() =>
+					{
+						var mediaElem = this.AssociatedObject as MediaElement;
+						if (mediaElem == null) { return; }
+
+						this.Position = mediaElem.Position;
+					});
 		}
 
 

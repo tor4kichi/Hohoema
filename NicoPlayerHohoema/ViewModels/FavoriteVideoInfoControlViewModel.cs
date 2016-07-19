@@ -15,7 +15,8 @@ namespace NicoPlayerHohoema.ViewModels
 		public FavoriteVideoInfoControlViewModel(FavFeedItem feedItem, NicoVideo nicoVideo, PageManager pageMan)
 			: base(nicoVideo, pageMan)
 		{
-			IsUnread = feedItem.ToReactivePropertyAsSynchronized(x => x.IsUnread);
+			IsUnread = feedItem.ToReactivePropertyAsSynchronized(x => x.IsUnread)
+				.AddTo(_CompositeDisposable);
 
 			_FafFeedItem = feedItem;
 			SourceType = feedItem.ParentList.FavoriteItemType;

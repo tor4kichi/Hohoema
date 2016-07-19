@@ -444,16 +444,15 @@ namespace NicoPlayerHohoema.Models
 
 			Debug.Write("ダウンロードキャンセルを待機中");
 
-			try
+
+			while (true)
 			{
-				if (!_DownloadTask.Wait(5000))
+				if (_DownloadTask.IsCanceled || _DownloadTask.IsCompleted || _DownloadTask.IsFaulted)
 				{
-					Debug.WriteLine("aa");
+					break;
 				}
-			}
-			catch
-			{
-				Debug.WriteLine("aa");
+
+				await Task.Delay(50);
 			}
 
 
@@ -464,7 +463,7 @@ namespace NicoPlayerHohoema.Models
 
 
 
-			return false;
+			return true;
 		}
 
 	

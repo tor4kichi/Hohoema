@@ -23,29 +23,36 @@ namespace NicoPlayerHohoema.ViewModels
 		public HohoemaVideoListingPageViewModelBase(HohoemaApp app, PageManager pageManager, bool isRequireSignIn = false)
 			: base(app, pageManager, isRequireSignIn)
 		{
-			NowLoadingItems = new ReactiveProperty<bool>(false);
+			NowLoadingItems = new ReactiveProperty<bool>(false)
+				.AddTo(_CompositeDisposable);
 			SelectedVideoInfoItems = new ObservableCollection<VIDEO_INFO_VM>();
 
-			ListViewVerticalOffset = new ReactiveProperty<double>(0.0);
+			ListViewVerticalOffset = new ReactiveProperty<double>(0.0)
+				.AddTo(_CompositeDisposable);
 			_LastListViewOffset = 0;
 
 			// 複数選択モード
-			IsSelectionModeEnable = new ReactiveProperty<bool>(false);
+			IsSelectionModeEnable = new ReactiveProperty<bool>(false)
+				.AddTo(_CompositeDisposable);
 
 			IsSelectionModeEnable.Where(x => !x)
-				.Subscribe(x => ClearSelection());
+				.Subscribe(x => ClearSelection())
+				.AddTo(_CompositeDisposable);
 
 			// 複数選択モードによって再生コマンドの呼び出しを制御する
 			PlayCommand = IsSelectionModeEnable
 				.Select(x => !x)
-				.ToReactiveCommand<VideoInfoControlViewModel>();
+				.ToReactiveCommand<VideoInfoControlViewModel>()
+				.AddTo(_CompositeDisposable);
+
 
 			PlayCommand.Subscribe(x =>
 			{
 				x?.PlayCommand.Execute();
 
 				ClearSelection();
-			});
+			})
+			.AddTo(_CompositeDisposable);
 
 
 			var SelectionItemsChanged = SelectedVideoInfoItems.ToCollectionChanged().ToUnit();
@@ -61,7 +68,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 			PlayAllCommand = SelectionItemsChanged
 				.Select(_ => SelectedVideoInfoItems.Count > 0)
-				.ToReactiveCommand(false);
+				.ToReactiveCommand(false)
+				.AddTo(_CompositeDisposable);
 
 			PlayAllCommand.Subscribe(_ => 
 			{
@@ -70,11 +78,13 @@ namespace NicoPlayerHohoema.ViewModels
 				// プレイリストを空にしてから選択動画を登録
 
 				SelectedVideoInfoItems.First()?.PlayCommand.Execute();
-			});
+			})
+			.AddTo(_CompositeDisposable);
 
 			CancelCacheDownloadRequest = SelectionItemsChanged
 				.Select(_ => EnumerateDownloadingVideoItems().Count() > 0)
-				.ToReactiveCommand(false);
+				.ToReactiveCommand(false)
+				.AddTo(_CompositeDisposable);
 
 			CancelCacheDownloadRequest.Subscribe(_ => 
 			{
@@ -85,11 +95,14 @@ namespace NicoPlayerHohoema.ViewModels
 
 				ClearSelection();
 				UpdateList();
-			});
+			})
+			.AddTo(_CompositeDisposable);
 
 			RequestOriginalQualityCacheDownload = SelectionItemsChanged
 				.Select(_ => EnumerateCanDownloadVideoItem(NicoVideoQuality.Original).Count() > 0)
-				.ToReactiveCommand(false);
+				.ToReactiveCommand(false)
+				.AddTo(_CompositeDisposable);
+
 			RequestOriginalQualityCacheDownload.Subscribe(async _ => 
 			{
 				foreach (var item in EnumerateCanDownloadVideoItem(NicoVideoQuality.Original))
@@ -99,11 +112,14 @@ namespace NicoPlayerHohoema.ViewModels
 
 				ClearSelection();
 				UpdateList();
-			});
+			})
+			.AddTo(_CompositeDisposable);
 
 			RequestLowQualityCacheDownload = SelectionItemsChanged
 				.Select(_ => EnumerateCanDownloadVideoItem(NicoVideoQuality.Low).Count() > 0)
-				.ToReactiveCommand(false);
+				.ToReactiveCommand(false)
+				.AddTo(_CompositeDisposable);
+
 			RequestLowQualityCacheDownload.Subscribe(async _ =>
 			{
 				foreach (var item in EnumerateCanDownloadVideoItem(NicoVideoQuality.Low))
@@ -114,11 +130,14 @@ namespace NicoPlayerHohoema.ViewModels
 				ClearSelection();
 				UpdateList();
 
-			});
+			})
+			.AddTo(_CompositeDisposable);
 
 			DeleteOriginalQualityCache = SelectionItemsChanged
 				.Select(_ => EnumerateCachedVideoItem(NicoVideoQuality.Original).Count() > 0)
-				.ToReactiveCommand(false);
+				.ToReactiveCommand(false)
+				.AddTo(_CompositeDisposable);
+
 			DeleteOriginalQualityCache.Subscribe(async _ =>
 			{
 				foreach (var item in EnumerateCachedVideoItem(NicoVideoQuality.Original))
@@ -128,11 +147,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 				ClearSelection();
 				ResetList();
-			});
+			})
+			.AddTo(_CompositeDisposable);
 
 			DeleteLowQualityCache = SelectionItemsChanged
 				.Select(_ => EnumerateCachedVideoItem(NicoVideoQuality.Low).Count() > 0)
-				.ToReactiveCommand(false);
+				.ToReactiveCommand(false)
+				.AddTo(_CompositeDisposable);
 			DeleteLowQualityCache.Subscribe(async _ =>
 			{
 				foreach (var item in EnumerateCachedVideoItem(NicoVideoQuality.Low))
@@ -142,12 +163,14 @@ namespace NicoPlayerHohoema.ViewModels
 
 				ClearSelection();
 				ResetList();
-			});
+			})
+			.AddTo(_CompositeDisposable);
 
 			// クオリティ指定無しのキャッシュDLリクエスト
 			RequestCacheDownload = SelectionItemsChanged
 				.Select(_ => EnumerateCanDownloadVideoItem(NicoVideoQuality.Low).Count() > 0)
-				.ToReactiveCommand(false);
+				.ToReactiveCommand(false)
+				.AddTo(_CompositeDisposable);
 
 			RequestCacheDownload.Subscribe(async _ =>
 			{
@@ -158,13 +181,15 @@ namespace NicoPlayerHohoema.ViewModels
 
 				ClearSelection();
 				UpdateList();
-			});
+			})
+			.AddTo(_CompositeDisposable);
 
 
 			// クオリティ指定無しのキャッシュ削除
 			DeleteCache = SelectionItemsChanged
 				.Select(_ => EnumerateCachedVideoItem(NicoVideoQuality.Low).Count() > 0 || EnumerateCachedVideoItem(NicoVideoQuality.Original).Count() > 0)
-				.ToReactiveCommand(false);
+				.ToReactiveCommand(false)
+				.AddTo(_CompositeDisposable);
 			DeleteCache.Subscribe(async _ =>
 			{
 				foreach (var item in EnumerateCachedVideoItem(NicoVideoQuality.Low))
@@ -179,10 +204,17 @@ namespace NicoPlayerHohoema.ViewModels
 
 				ClearSelection();
 				ResetList();
-			});
+			})
+			.AddTo(_CompositeDisposable);
 
 
 
+		}
+
+
+		protected override void OnDispose()
+		{
+			IncrementalLoadingItems?.Dispose();
 		}
 
 
@@ -264,6 +296,8 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				IncrementalLoadingItems.BeginLoading -= BeginLoadingItems;
 				IncrementalLoadingItems.DoneLoading -= CompleteLoadingItems;
+				IncrementalLoadingItems.Dispose();
+				IncrementalLoadingItems = null;
 			}
 
 			try

@@ -33,9 +33,10 @@ namespace NicoPlayerHohoema.ViewModels
 					return new HohoemaSettingsKindListItem(x, x.ToCulturelizedText());
 				})
 				.ToList();
-			CurrentSettingsKind = new ReactiveProperty<HohoemaSettingsKindListItem>(SettingItems[0]);
+			CurrentSettingsKind = new ReactiveProperty<HohoemaSettingsKindListItem>(SettingItems[0])
+				.AddTo(_CompositeDisposable);
 
-			
+
 			CurrentSettingsContent = CurrentSettingsKind
 				.Select(x => KindToVM(x.Kind, x.Label))
 				.Do(x =>
@@ -43,7 +44,8 @@ namespace NicoPlayerHohoema.ViewModels
 					CurrentSettingsContent?.Value?.OnLeave();
 					x?.OnEnter();
 				})
-				.ToReactiveProperty();
+				.ToReactiveProperty()
+				.AddTo(_CompositeDisposable);
 		}
 
 
