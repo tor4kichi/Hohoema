@@ -21,6 +21,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
+using Windows.UI.Xaml.Navigation;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -188,9 +189,10 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		protected override bool CheckNeedUpdateOnNavigateTo()
+		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
 		{
-			return !RequireCategoryInfo.Equals(CategoryInfo);
+			return !RequireCategoryInfo.Equals(CategoryInfo) 
+				&& mode != NavigationMode.Back;
 		}
 
 		#endregion

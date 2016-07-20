@@ -15,6 +15,7 @@ using Prism.Mvvm;
 using System.Reactive.Linq;
 using System.Diagnostics;
 using Reactive.Bindings.Extensions;
+using Windows.UI.Xaml.Navigation;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -171,7 +172,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		protected override bool CheckNeedUpdateOnNavigateTo()
+		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
 		{
 			return !RequireSearchOption.Equals(SearchOption);
 		}

@@ -18,6 +18,7 @@ using System.Reactive.Disposables;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Reactive.Concurrency;
 using NicoPlayerHohoema.Util;
+using Windows.UI.Xaml.Navigation;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -47,10 +48,11 @@ namespace NicoPlayerHohoema.ViewModels
 			return new CacheVideoInfoLoadingSource(HohoemaApp, PageManager);
 		}
 
-		protected override bool CheckNeedUpdateOnNavigateTo()
+		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
 		{
 			return true;
 		}
+
 		protected override void PostResetList()
 		{
 			

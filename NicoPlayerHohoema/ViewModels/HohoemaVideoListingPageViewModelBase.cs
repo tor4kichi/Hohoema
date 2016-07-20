@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Prism.Windows.Navigation;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Navigation;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -252,7 +253,8 @@ namespace NicoPlayerHohoema.ViewModels
 				return;
 			}
 
-			if (IncrementalLoadingItems == null || CheckNeedUpdateOnNavigateTo())
+			if (IncrementalLoadingItems == null 
+				|| CheckNeedUpdateOnNavigateTo(e.NavigationMode))
 			{
 				ResetList();
 			}
@@ -339,7 +341,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		abstract protected IIncrementalSource<VIDEO_INFO_VM> GenerateIncrementalSource();
 
-		protected virtual bool CheckNeedUpdateOnNavigateTo() { return false; }
+		protected virtual bool CheckNeedUpdateOnNavigateTo(NavigationMode mode) { return mode != NavigationMode.Back; }
 
 		private IEnumerable<VideoInfoControlViewModel> EnumerateDownloadingVideoItems()
 		{
