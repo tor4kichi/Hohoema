@@ -53,12 +53,14 @@
     </UserControl.Resources>
 
     <rlv:RefreshableListView ItemsSource="{Binding IncrementalLoadingItems}"
-                                         SelectionMode="Multiple"
-                                         IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
-                                         IncrementalLoadingTrigger="Edge"
-                                         AutoRefresh="False"
-                                         RefreshCommand="{Binding RefreshCommand}"
+                             SelectionMode="Multiple"
+                             IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
+                             IncrementalLoadingTrigger="Edge"
+                             AutoRefresh="False"
+                             RefreshCommand="{Binding RefreshCommand}"
+                                PullThreshold="85"
                             >
+        
         <i:Interaction.Behaviors>
             <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedVideoInfoItems, Mode=TwoWay}" />
 
@@ -72,6 +74,8 @@
                 </mybehavior:KeyboardTrigger.Actions>
             </mybehavior:KeyboardTrigger>
 
+
+            <mybehavior:RefreshableListViewRefreshableGetter IsRefreshable="{Binding NowRefreshable.Value, Mode=TwoWay}" />
         </i:Interaction.Behaviors>
 
 
@@ -86,6 +90,18 @@
             </Style>
         </ListView.ItemContainerStyle>
 
+        <rlv:RefreshableListView.RefreshIndicatorContent>
+            <StackPanel  Margin="0 32 0 0" >
+                <Border Margin="0 16 0 0" BorderThickness="0 0 0 1" BorderBrush="Gray" />
+                <SymbolIcon Symbol="Refresh" VerticalAlignment="Bottom" Height="48" Width="48" Margin="0 24 0 8"
+                            Visibility="{Binding NowRefreshable.Value, Converter={StaticResource BooleanToVisibility}}"
+                            />
+                <SymbolIcon Symbol="Download" VerticalAlignment="Bottom" Height="48" Width="48" Margin="0 24 0 8"
+                            Visibility="{Binding NowRefreshable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                            />
+            </StackPanel>
+        </rlv:RefreshableListView.RefreshIndicatorContent>
+        
         <ListView.ItemTemplate>
 
             <DataTemplate>

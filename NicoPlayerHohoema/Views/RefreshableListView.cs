@@ -326,7 +326,8 @@ namespace RefreshableListView
             Windows.UI.Xaml.Media.CompositionTarget.Rendering -= CompositionTarget_Rendering;
             m_scroller.ViewChanging -= Scroller_ViewChanging;
 
-            if (m_refreshActivated)
+
+			if (m_refreshActivated)
             {
                 if (this.RefreshRequested != null)
                 {
@@ -410,7 +411,6 @@ namespace RefreshableListView
                     if (timeSinceActivated.TotalMilliseconds > DEACTIVATION_TIMEOUT_MSEC)
                     {
                         // Refresh threshold has not been re-reached for more than a second, deactivate.
-                        m_refreshActivated = false;
                         m_lastRefreshActivation = default(DateTime);
                         pullProgress = pullAmount / pullThreshold;
                         this.UpdateCompositionAnimations();
@@ -429,11 +429,14 @@ namespace RefreshableListView
                 {
                     pullProgress = pullAmount / pullThreshold;
                 }
-            }
 
-            if (this.PullProgressChanged != null)
+			}
+
+			m_refreshActivated = pullProgress >= 1.0;
+
+			if (this.PullProgressChanged != null)
             {
-                this.PullProgressChanged(this, new RefreshProgressEventArgs() { PullProgress = pullProgress, IsRefreshable = true });
+                this.PullProgressChanged(this, new RefreshProgressEventArgs() { PullProgress = pullProgress, IsRefreshable = m_refreshActivated });
             }
 
             if (m_refreshActivated && this.AutoRefresh)

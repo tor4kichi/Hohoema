@@ -179,6 +179,7 @@
     <Compile Include="Views\Behaviors\MediaElementTogglePlayback.cs" />
     <Compile Include="Views\Behaviors\MouseWheelTrigger.cs" />
     <Compile Include="Views\Behaviors\OpenFlyout.cs" />
+    <Compile Include="Views\Behaviors\RefreshableListViewExtention.cs" />
     <Compile Include="Views\Behaviors\ScrollToIndex.cs" />
     <Compile Include="Views\Behaviors\ListViewVerticalOffsetGetter.cs" />
     <Compile Include="Views\Behaviors\SetFocus.cs" />

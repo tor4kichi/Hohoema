@@ -31,6 +31,8 @@ namespace NicoPlayerHohoema.ViewModels
 				.AddTo(_CompositeDisposable);
 			_LastListViewOffset = 0;
 
+			NowRefreshable = new ReactiveProperty<bool>(false);
+
 			// 複数選択モード
 			IsSelectionModeEnable = new ReactiveProperty<bool>(false)
 				.AddTo(_CompositeDisposable);
@@ -462,6 +464,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<bool> NowLoadingItems { get; private set; }
 
+		public ReactiveProperty<bool> NowRefreshable { get; private set; }
 
 		public ReactiveCommand PlayAllCommand { get; private set; }
 		public ReactiveCommand CancelCacheDownloadRequest { get; private set; }
