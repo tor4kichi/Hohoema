@@ -35,7 +35,13 @@
                     <settingsContent:PlayerSettingsPageContent />
                 </DataTemplate>
             </view:SettingContentTemplateSelector.PlayerTemplate>
-            
+
+            <!-- Cache -->
+            <view:SettingContentTemplateSelector.CacheTemplate>
+                <DataTemplate>
+                    <settingsContent:CacheSettingsPageContent />
+                </DataTemplate>
+            </view:SettingContentTemplateSelector.CacheTemplate>
         </view:SettingContentTemplateSelector>
     </Page.Resources>
     
