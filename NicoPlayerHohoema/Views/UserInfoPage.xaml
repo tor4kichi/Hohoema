@@ -14,16 +14,19 @@
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
+
+        
+
     <ScrollViewer>
         <StackPanel Margin="8 8 16 8">
 
             <Border BorderBrush="Black" BorderThickness="2">
                 <toolkit:DockPanel>
                     <Image Width="128" Height="128" Source="{Binding UserIconUri}" 
-                           Margin="8"
-                           VerticalAlignment="Top"
-                           toolkit:DockPanel.Dock="Left"
-                           />
+                            Margin="8"
+                            VerticalAlignment="Top"
+                            toolkit:DockPanel.Dock="Left"
+                            />
 
                     
 
@@ -34,25 +37,25 @@
                                 >
 
                             <TextBlock Text="{Binding UserName}" 
-                                   FontSize="24"
-                                   Margin="8 8" />
+                                    FontSize="24"
+                                    Margin="8 8" />
                             
                             <StackPanel Visibility="{Binding IsFavorite.Value, Converter={StaticResource BooleanToVisibility}}"
                                         Background="#4CA9A9A9"
 
                                         >
                                 <AppBarButton Icon="Favorite" IsCompact="True" Foreground="#FFFDFD25" Command="{Binding RemoveFavoriteCommand}" 
-                                          ToolTipService.ToolTip="お気に入り登録済み"
-                                          />
+                                            ToolTipService.ToolTip="お気に入り登録済み"
+                                            />
                             </StackPanel>
 
                             <StackPanel Visibility="{Binding IsFavorite.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                         Background="#4CA9A9A9"
                                         >
                                 <AppBarButton Icon="Favorite" IsCompact="True" Foreground="Black" Command="{Binding AddFavoriteCommand}"
-                                          ToolTipService.ToolTip="お気に入り未登録"
+                                            ToolTipService.ToolTip="お気に入り未登録"
 
-                                          />
+                                            />
                             </StackPanel>
                         </StackPanel>
                         
@@ -100,56 +103,83 @@
                     
                 </toolkit:DockPanel>
             </Border>
-           
-
-           
-
-           
 
 
-            <StackPanel Margin="0 8">
 
-                <StackPanel Visibility="{Binding IsVideoPrivate, Converter={StaticResource BooleanToVisibilityInverted}}">
-                    <TextBlock FontWeight="Bold"
-                           Margin="0 16 0 8"
-                           >
-                        <Run Text="{Binding UserName}" />
-                        <Run Text="さんの投稿動画（最新５件）" />
-                    </TextBlock>
-                    <ListView ItemsSource="{Binding VideoInfoItems}"
-                          Margin="0 8"
-                          >
+
+
+
+
+            <Grid>
+                <ProgressRing Visibility="{Binding NowLoading, Converter={StaticResource BooleanToVisibility}}"
+                    IsActive="{Binding NowLoading}"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    Margin="16"
+                    Width="32"
+                    Height="32"
+                    />
+                <StackPanel Margin="8 8">
+
+                    <StackPanel Visibility="{Binding IsVideoPrivate, Converter={StaticResource BooleanToVisibilityInverted}}">
+                        <TextBlock FontWeight="Bold"
+                                Margin="0 16 0 8"
+                                >
+                            <Run Text="{Binding UserName}" />
+                            <Run Text="さんの投稿動画（最新５件）" />
+                        </TextBlock>
+                        <ListView ItemsSource="{Binding VideoInfoItems}"
+                                Margin="0 8"
+                                >
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Title}" />
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+
+                        <Button Content="投稿動画の一覧を見る" 
+                                Command="{Binding OpenUserVideoPageCommand}"
+                                Visibility="{Binding HasOwnerVideo, Converter={StaticResource BooleanToVisibility}}"
+                                HorizontalAlignment="Center"
+                                Margin="8"                            
+                                />
+
+
+                        <Border Visibility="{Binding HasOwnerVideo, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                Margin="16"
+                                >
+                            <TextBlock Foreground="Gray">
+                                <Run Text="投稿動画はありません" />
+                            </TextBlock>
+                        </Border>
+                    </StackPanel>
+
+                    <Border Visibility="{Binding IsVideoPrivate, Converter={StaticResource BooleanToVisibility}}"
+                            Margin="16"
+                            >
+                        <TextBlock Text="投稿動画は非公開です" 
+                                    Foreground="Gray"
+                                    />
+                    </Border>
+                
+                    <TextBlock Text="マイリスト一覧" FontWeight="Bold"
+                                Margin="0 16 0 8"
+                                />
+                    <ListView ItemsSource="{Binding MylistGroups}"
+                                Margin="0 8"
+                                >
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Title}" />
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
+
+                
                 </StackPanel>
+            </Grid>
 
-                <Border Visibility="{Binding IsVideoPrivate, Converter={StaticResource BooleanToVisibility}}"
-                        Margin="16"
-                        >
-                    <TextBlock Text="投稿動画は非公開です" 
-                               Foreground="Gray"
-                               />
-                </Border>
-                
-                <TextBlock Text="マイリスト一覧" FontWeight="Bold"
-                           Margin="0 16 0 8"
-                           />
-                <ListView ItemsSource="{Binding MylistGroups}"
-                          Margin="0 8"
-                          >
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Title}" />
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
-
-                
-            </StackPanel>
         </StackPanel>
     </ScrollViewer>
 </Page>

@@ -19,6 +19,8 @@ namespace NicoPlayerHohoema.ViewModels
 		public UserInfoPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager) 
 			: base(hohoemaApp, pageManager)
 		{
+			HasOwnerVideo = true;
+
 			MylistGroups = new ObservableCollection<MylistGroupListItem>();
 			VideoInfoItems = new ObservableCollection<VideoInfoControlViewModel>();
 
@@ -61,12 +63,12 @@ namespace NicoPlayerHohoema.ViewModels
 				.AddTo(_CompositeDisposable);
 
 
-			OpenUserVideoPage = VideoInfoItems.ObserveProperty(x => x.Count)
+			OpenUserVideoPageCommand = VideoInfoItems.ObserveProperty(x => x.Count)
 				.Select(x => x > 0)
 				.ToReactiveCommand()
 				.AddTo(_CompositeDisposable);
 
-			OpenUserVideoPage.Subscribe(x => 
+			OpenUserVideoPageCommand.Subscribe(x => 
 			{
 				PageManager.OpenPage(HohoemaPageType.UserVideo, UserId);
 			})
@@ -78,6 +80,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
+			NowLoading = true;
+
 			string userId = null;
 			if(e.Parameter is string)
 			{
@@ -135,11 +139,13 @@ namespace NicoPlayerHohoema.ViewModels
 			catch
 			{
 				IsLoadFailed = true;
+				NowLoading = false;
 			}
 
 
 			if (UserId == null) { return; }
 
+			UpdateTitle($"{UserName} さんのユーザー情報");
 
 			try
 			{
@@ -158,12 +164,34 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				CanAddFavorite.Value = false;
 				IsLoadFailed = true;
+				NowLoading = false;
 				Debug.WriteLine(ex.Message);
 			}
 
+			try
+			{
+				await Task.Delay(500);
+
+				var userVideos = await HohoemaApp.ContentFinder.GetUserVideos(uint.Parse(UserId), 1);
+				foreach (var item in userVideos.Items.Take(5))
+				{
+					var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideo(item.VideoId);
+					VideoInfoItems.Add(new VideoInfoControlViewModel(nicoVideo, PageManager));
+				}
+			}
+			catch (Exception ex)
+			{
+				IsLoadFailed = true;
+				NowLoading = false;
+				Debug.WriteLine(ex.Message);
+			}
+
+			HasOwnerVideo = VideoInfoItems.Count != 0;
 
 			try
 			{
+				await Task.Delay(500);
+
 				var mylistGroups = await HohoemaApp.ContentFinder.GetUserMylistGroups(UserId);
 				foreach (var item in mylistGroups)
 				{
@@ -176,25 +204,10 @@ namespace NicoPlayerHohoema.ViewModels
 				Debug.WriteLine(ex.Message);
 			}
 
-			try
-			{
-				await Task.Delay(1000);
-
-				var userVideos = await HohoemaApp.ContentFinder.GetUserVideos(uint.Parse(UserId), 1);
-				foreach (var item in userVideos.Items.Take(5))
-				{
-					var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideo(item.VideoId);
-					VideoInfoItems.Add(new VideoInfoControlViewModel(nicoVideo, PageManager));
-				}
-			}
-			catch (Exception ex)
-			{
-				IsLoadFailed = true;
-				Debug.WriteLine(ex.Message);
-			}
+			
 
 
-			UpdateTitle($"{UserName} さんのユーザー情報");
+			NowLoading = false;
 
 			base.OnNavigatedTo(e, viewModelState);
 		}
@@ -284,6 +297,20 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _IsVideoPrivate, value); }
 		}
 
+		private bool _HasOwnerVideo;
+		public bool HasOwnerVideo
+		{
+			get { return _HasOwnerVideo; }
+			set { SetProperty(ref _HasOwnerVideo, value); }
+		}
+
+
+		private bool _NowLoading;
+		public bool NowLoading
+		{
+			get { return _NowLoading; }
+			set { SetProperty(ref _NowLoading, value); }
+		}
 
 		public ReactiveProperty<bool> IsFavorite { get; private set; }
 		public ReactiveProperty<bool> CanAddFavorite { get; private set; }
@@ -291,10 +318,11 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveCommand AddFavoriteCommand { get; private set; }
 		public ReactiveCommand RemoveFavoriteCommand { get; private set; }
 
+		
 
 		public ObservableCollection<MylistGroupListItem> MylistGroups { get; private set; }
 		public ObservableCollection<VideoInfoControlViewModel> VideoInfoItems { get; private set; }
 
-		public ReactiveCommand OpenUserVideoPage { get; private set; }
+		public ReactiveCommand OpenUserVideoPageCommand { get; private set; }
 	}
 }
