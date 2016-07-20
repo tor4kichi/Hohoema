@@ -192,7 +192,7 @@ namespace NicoPlayerHohoema.ViewModels
 		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
 		{
 			return !RequireCategoryInfo.Equals(CategoryInfo) 
-				&& mode != NavigationMode.Back;
+				|| mode != NavigationMode.Back;
 		}
 
 		#endregion
