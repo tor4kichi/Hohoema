@@ -56,7 +56,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			try
 			{
-				_ExternalAccessControlLock.Wait();
+				await _ExternalAccessControlLock.WaitAsync();
 
 				await PushToTopCurrentDownloadRequest();
 
@@ -72,7 +72,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			try
 			{
-				_ExternalAccessControlLock.Wait();
+				await _ExternalAccessControlLock.WaitAsync();
 
 				await TryBeginNextDownloadRequest();
 			}

@@ -66,8 +66,8 @@ namespace NicoPlayerHohoema
 		{
 			await base.OnSuspendingApplicationAsync();
 
-			var backTask = Container.Resolve<MediaBackgroundTask>();
-			Container.Teardown(backTask);
+//			var backTask = Container.Resolve<MediaBackgroundTask>();
+//			Container.Teardown(backTask);
 
 			var hohoemaApp = Container.Resolve<HohoemaApp>();
 //			hohoemaApp.SignOut().ConfigureAwait(false);
@@ -80,8 +80,8 @@ namespace NicoPlayerHohoema
 
 		private async void App_Resuming(object sender, object e)
 		{
-			var backgroundTask = MediaBackgroundTask.Create();
-			Container.RegisterInstance(backgroundTask);
+//			var backgroundTask = MediaBackgroundTask.Create();
+//			Container.RegisterInstance(backgroundTask);
 
 			var hohoemaApp = Container.Resolve<HohoemaApp>();
 			await hohoemaApp.SignInFromUserSettings();

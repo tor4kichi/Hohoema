@@ -32,7 +32,6 @@ namespace NicoPlayerHohoema.ViewModels
 				.AddTo(_CompositeDisposable);
 			_LastListViewOffset = 0;
 
-			CanDownload = HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache;
 
 			NowRefreshable = new ReactiveProperty<bool>(false);
 
@@ -239,6 +238,8 @@ namespace NicoPlayerHohoema.ViewModels
 			HohoemaApp.UserSettings.CacheSettings.ObserveProperty(x => x.IsUserAcceptedCache)
 				.Subscribe(x => CanDownload = x)
 				.AddTo(disposer);
+
+			
 		}
 
 		protected override void OnSignOut()
