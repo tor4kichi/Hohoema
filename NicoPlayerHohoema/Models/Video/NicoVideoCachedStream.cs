@@ -253,10 +253,10 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
-
-		public override Windows.Foundation.IAsyncOperationWithProgress<IBuffer, uint> ReadAsync(IBuffer buffer, uint count, InputStreamOptions options)
+		private IAsyncOperationWithProgress<IBuffer, uint> _ReadAsyncAction;
+		public override IAsyncOperationWithProgress<IBuffer, uint> ReadAsync(IBuffer buffer, uint count, InputStreamOptions options)
 		{
-			return AsyncInfo.Run<IBuffer, uint>(async (cancellationToken, progress) =>
+			return _ReadAsyncAction = AsyncInfo.Run<IBuffer, uint>(async (cancellationToken, progress) =>
 			{
 				// まだキャッシュが終わってない場合は指定区間のダウンロード完了を待つ
 				if (_Progress != null)
@@ -269,6 +269,11 @@ namespace NicoPlayerHohoema.Models
 						await Task.Delay(250).ConfigureAwait(false);
 
 						Debug.Write("キャッシュ待ち...");
+
+						if (_DownloadTask == null)
+						{
+							_ReadAsyncAction?.Cancel();
+						}
 
 						waitCount++;
 					}
@@ -315,7 +320,7 @@ namespace NicoPlayerHohoema.Models
 					_CacheWriteSemaphore.Release();
 				}
 
-				//_CurrentOperation = null;
+				_ReadAsyncAction = null;
 
 				return videoFragmentBuffer;
 			});
@@ -378,8 +383,8 @@ namespace NicoPlayerHohoema.Models
 
 			_DownloadTaskCancelToken?.Cancel();
 
-//			_CurrentOperation?.Cancel();
-
+			_ReadAsyncAction?.Cancel();
+			_ReadAsyncAction = null;
 			Debug.Write("ダウンロードキャンセルを待機中");
 
 

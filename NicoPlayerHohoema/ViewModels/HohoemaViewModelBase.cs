@@ -22,6 +22,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public HohoemaViewModelBase(HohoemaApp hohoemaApp, PageManager pageManager, bool isRequireSignIn = false)
 		{
 			_SignStatusLock = new SemaphoreSlim(1, 1);
+			_NavigationToLock = new SemaphoreSlim(1, 1);
 			HohoemaApp = hohoemaApp;
 			PageManager = pageManager;
 
@@ -118,8 +119,11 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
+			_IsNavigatedToDone = false;
+			_IsNavigatingFromDone = false;
+
 			base.OnNavigatedTo(e, viewModelState);
 
 			if (!String.IsNullOrEmpty(_Title))
@@ -131,16 +135,58 @@ namespace NicoPlayerHohoema.ViewModels
 				PageManager.PageTitle = PageManager.CurrentDefaultPageTitle();
 			}
 
+			try
+			{
+				await _NavigationToLock.WaitAsync();
+
+				await OnNavigatedToAsync(e, viewModelState);
+			}
+			finally
+			{
+				_NavigationToLock.Release();
+			}
+
+			_IsNavigatedToDone = true;
+			_IsNavigatingFromDone = false;
 		}
 
-		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+
+		protected virtual Task OnNavigatedToAsync(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
+			return Task.CompletedTask;
+		}
+
+		public override async void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+		{
+			while (!_IsNavigatedToDone)
+			{
+				await Task.Delay(50);
+			}
+
 			base.OnNavigatingFrom(e, viewModelState, suspending);
+
+			try
+			{
+				await _NavigationToLock.WaitAsync();
+
+				await OnNavigatingFromAsync(e, viewModelState, suspending);
+			}
+			finally
+			{
+				_NavigationToLock.Release();
+			}
 
 			if (suspending)
 			{
-				HohoemaApp.MediaManager.Context.Suspending().ConfigureAwait(false);
+				await HohoemaApp.MediaManager.Context.Suspending();
 			}
+
+			_IsNavigatingFromDone = true;
+		}
+
+		protected virtual Task OnNavigatingFromAsync(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+		{
+			return Task.CompletedTask;
 		}
 
 		protected void UpdateTitle(string title)
@@ -149,25 +195,45 @@ namespace NicoPlayerHohoema.ViewModels
 			PageManager.UpdateTitle(title);
 		}
 
-		public void Dispose()
+		public async void Dispose()
 		{
+			IsDisposed = true;
+
+			while (!_IsNavigatingFromDone)
+			{
+				await Task.Delay(50);
+			}
+
 			OnSignout();
+
+			try
+			{
+				_NavigationToLock.Wait();
+
+				OnDispose();
+			}
+			finally
+			{
+				_NavigationToLock.Release();
+			}
 
 			_CompositeDisposable.Dispose();
 			_UserSettingsCompositeDisposable?.Dispose();
-
-			OnDispose();
 		}
 
 
-		
+		private SemaphoreSlim _NavigationToLock;
 
+
+		public bool IsDisposed { get; private set; }
 
 		protected virtual void OnDispose() { }
 
 
 		private SemaphoreSlim _SignStatusLock;
 
+		private bool _IsNavigatedToDone;
+		private bool _IsNavigatingFromDone;
 
 		public bool IsRequireSignIn { get; private set; }
 		public bool NowSignIn { get; private set; }

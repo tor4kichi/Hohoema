@@ -184,7 +184,7 @@ namespace NicoPlayerHohoema.ViewModels
 				.SubscribeOnUIDispatcher()
 				.Select(x =>
 				{
-					if (this.Video == null) { return false; }
+					if (this.Video == null || IsDisposed) { return false; }
 
 					switch (CurrentVideoQuality.Value)
 					{
@@ -208,12 +208,20 @@ namespace NicoPlayerHohoema.ViewModels
 				.SubscribeOnUIDispatcher()
 				.Subscribe(async _ => 
 			{
-				if (Video == null) { IsSaveRequestedCurrentQualityCache.Value = false; return; }
-
+				if (Video == null || IsDisposed) { IsSaveRequestedCurrentQualityCache.Value = false; return; }
+				
 				var x = CurrentVideoQuality.Value;
 
 				PreviousVideoPosition = CurrentVideoPosition.Value.TotalSeconds;
-				VideoStream.Value = await Video.GetVideoStream(x);
+				var stream = await Video.GetVideoStream(x);
+
+				if (IsDisposed)
+				{
+					await Video?.StopPlay();
+					return;
+				}
+
+				VideoStream.Value = stream;
 
 				switch (x)
 				{
@@ -232,6 +240,7 @@ namespace NicoPlayerHohoema.ViewModels
 			.AddTo(_CompositeDisposable);
 
 			IsSaveRequestedCurrentQualityCache
+				.Where(x => !IsDisposed)
 				.SubscribeOnUIDispatcher()
 				.Subscribe(async saveRequested => 
 			{
@@ -255,6 +264,7 @@ namespace NicoPlayerHohoema.ViewModels
 					this.ObserveProperty(x => x.Video).ToUnit(),
 					CurrentVideoQuality.ToUnit()
 					)
+				.Where(x => !IsDisposed)
 				.Select(_ =>
 				{
 					if (Video == null) { return false; }
@@ -274,6 +284,7 @@ namespace NicoPlayerHohoema.ViewModels
 				.AddTo(_CompositeDisposable);
 
 			TogglePlayQualityCommand
+				.Where(x => !IsDisposed)
 				.SubscribeOnUIDispatcher()
 				.Subscribe(_ => 
 				{
@@ -303,6 +314,7 @@ namespace NicoPlayerHohoema.ViewModels
 				SoundVolume.ToUnit()
 				)
 				.Throttle(TimeSpan.FromSeconds(5))
+				.Where(x => !IsDisposed)
 				.Subscribe(_ => 
 				{
 					HohoemaApp.UserSettings.PlayerSettings.Save().ConfigureAwait(false);
@@ -310,11 +322,14 @@ namespace NicoPlayerHohoema.ViewModels
 				.AddTo(_CompositeDisposable);
 
 			this.ObserveProperty(x => x.Video)
+				.Where(x => !IsDisposed)
 				.Subscribe(async x =>
 				{
 					if (x != null)
 					{
-						CommentData.Value = await GetComment();
+						var comment = await GetComment();
+						if (IsDisposed) { return; }
+						CommentData.Value = comment;
 						VideoLength.Value = x.CachedWatchApiResponse.Length.TotalSeconds;
 						CurrentVideoPosition.Value = TimeSpan.Zero;
 					}
@@ -741,9 +756,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 		
 
-		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		protected override async Task OnNavigatedToAsync(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			base.OnNavigatedTo(e, viewModelState);
+			Debug.WriteLine("VideoPlayer OnNavigatedToAsync start.");
 
 
 			CanDownload = HohoemaApp.UserSettings?.CacheSettings?.IsUserAcceptedCache ?? false;
@@ -844,15 +859,21 @@ namespace NicoPlayerHohoema.ViewModels
 			// FavFeedList
 			await HohoemaApp.FavFeedManager.MarkAsRead(Video.VideoId);
 			await HohoemaApp.FavFeedManager.MarkAsRead(Video.RawVideoId);
+
+
+
+			Debug.WriteLine("VideoPlayer OnNavigatedToAsync done.");
 		}
 
 
 
 
-		
 
-		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+
+		protected override Task OnNavigatingFromAsync(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
+			Debug.WriteLine("VideoPlayer OnNavigatingFromAsync start.");
+
 			Comments.Clear();
 
 
@@ -874,21 +895,24 @@ namespace NicoPlayerHohoema.ViewModels
 				// stream.Dispose();
 			}
 
-			Video.StopPlay();
-
+			Video?.StopPlay();
 
 			_SidePaneContentCache.Clear();
 
 			ExitKeepDisplay();
 
-			
+			Debug.WriteLine("VideoPlayer OnNavigatingFromAsync done.");
 
-			base.OnNavigatingFrom(e, viewModelState, suspending);
+			return Task.CompletedTask;
 		}
 
 		protected override void OnDispose()
 		{
+			Debug.WriteLine("VideoPlayer OnDispose start.");
 
+			Video?.StopPlay();
+
+			Debug.WriteLine("VideoPlayer OnDispose done.");
 		}
 
 
@@ -971,7 +995,7 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					case MediaInfoDisplayType.Summary:
 						var uri = await VideoDescriptionHelper.PartHtmlOutputToCompletlyHtml(VideoId, Video.CachedWatchApiResponse.videoDetail.description);
-
+						if (IsDisposed) { return null; }
 						vm = new SummaryVideoInfoContentViewModel(Video.CachedThumbnailInfo, uri, PageManager);
 						break;
 
