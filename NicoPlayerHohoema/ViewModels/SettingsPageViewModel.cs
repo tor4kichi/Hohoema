@@ -100,6 +100,14 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				selectRequestKind = (HohoemaSettingsKind)viewModelState[nameof(CurrentSettingsKind)];
 			}
+			else if (e.Parameter is string)
+			{
+				HohoemaSettingsKind kind;
+				if(Enum.TryParse(e.Parameter as string, out kind))
+				{
+					selectRequestKind = kind;
+				}
+			}
 
 
 			if (selectRequestKind.HasValue)

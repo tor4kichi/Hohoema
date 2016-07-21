@@ -19,6 +19,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Reactive.Concurrency;
 using NicoPlayerHohoema.Util;
 using Windows.UI.Xaml.Navigation;
+using Prism.Commands;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -33,6 +34,11 @@ namespace NicoPlayerHohoema.ViewModels
 				scheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
 			}
 			_MediaManager = app.MediaManager;
+
+			OpenCacheSettingsCommand = new DelegateCommand(() => 
+			{
+				PageManager.OpenPage(HohoemaPageType.Settings, HohoemaSettingsKind.Cache.ToString());
+			});
 		}
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
@@ -68,6 +74,10 @@ namespace NicoPlayerHohoema.ViewModels
 		
 
 		#endregion
+
+
+
+		public DelegateCommand OpenCacheSettingsCommand { get; private set; }
 
 		NiconicoMediaManager _MediaManager;
 	}

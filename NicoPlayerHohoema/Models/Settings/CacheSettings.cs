@@ -14,7 +14,7 @@ namespace NicoPlayerHohoema.Models
 	{
 		public CacheSettings()
 		{
-			IsUserAcceptRegalNotice = false;
+			IsUserAcceptedCache = false;
 			IsAutoCacheOnPlayEnable = false;
 			CacheOnPlayTagConditions = new ObservableCollection<TagCondition>();
 		}
@@ -23,7 +23,7 @@ namespace NicoPlayerHohoema.Models
 		private bool _IsUserAcceptRegalNotice;
 
 		[DataMember]
-		public bool IsUserAcceptRegalNotice
+		public bool IsUserAcceptedCache
 		{
 			get { return _IsUserAcceptRegalNotice; }
 			set { SetProperty(ref _IsUserAcceptRegalNotice, value); }

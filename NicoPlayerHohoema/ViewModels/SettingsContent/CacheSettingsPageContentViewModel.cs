@@ -25,16 +25,16 @@ namespace NicoPlayerHohoema.ViewModels
 
 			IsAutoCacheOnPlayEnable = _CacheSettings.ToReactivePropertyAsSynchronized(x => x.IsAutoCacheOnPlayEnable);
 				
-			IsUserAcceptRegalNotice = _CacheSettings.ToReactivePropertyAsSynchronized(x => x.IsUserAcceptRegalNotice);
-			IsShowRegalNotice = new ReactiveProperty<bool>(!_CacheSettings.IsUserAcceptRegalNotice);
+			IsUserAcceptRegalNotice = _CacheSettings.ToReactivePropertyAsSynchronized(x => x.IsUserAcceptedCache);
+			IsShowRegalNotice = new ReactiveProperty<bool>(!_CacheSettings.IsUserAcceptedCache);
 
-			IsTempAcceptChecked = new ReactiveProperty<bool>(_CacheSettings.IsUserAcceptRegalNotice);
+			IsTempAcceptChecked = new ReactiveProperty<bool>(_CacheSettings.IsUserAcceptedCache);
 			AcceptCommand = IsTempAcceptChecked
 				.ToReactiveCommand();
 
 			AcceptCommand.Subscribe(_ => 
 			{
-				_CacheSettings.IsUserAcceptRegalNotice = true;
+				_CacheSettings.IsUserAcceptedCache = true;
 				IsShowRegalNotice.Value = false;
 			});
 
@@ -112,9 +112,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		public ReactiveCommand AcceptCommand { get; private set; }
-
 		public DelegateCommand AddAutoCacheConditionCommand { get; private set; }
-
 		public DelegateCommand<AutoCacheConditionViewModel> EditAutoCacheConditionCommnad { get; private set; }
 
 		public ReadOnlyReactiveCollection<AutoCacheConditionViewModel> AutoCacheConditions { get; private set; }
