@@ -8,44 +8,88 @@ using System.Text;
 using System.Threading.Tasks;
 using Prism.Windows.Navigation;
 using System.Reactive.Disposables;
+using System.Threading;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	abstract public class HohoemaViewModelBase : ViewModelBase, IDisposable
 	{
+		// TODO: サインインライフサイクルの確実な呼び出しをサポートする
+
+		// Note: サインイン後にHohoemaViewModelBaseが呼び出された場合、OnSigninが呼び出されない。これに対処する
+
+
 		public HohoemaViewModelBase(HohoemaApp hohoemaApp, PageManager pageManager, bool isRequireSignIn = false)
 		{
+			_SignStatusLock = new SemaphoreSlim(1, 1);
 			HohoemaApp = hohoemaApp;
 			PageManager = pageManager;
 
 			IsRequireSignIn = isRequireSignIn;
+			NowSignIn = false;
 
-			HohoemaApp.OnSignout += HohoemaApp_OnSignout;
-			HohoemaApp.OnSignin += HohoemaApp_OnSignin;
+			HohoemaApp.OnSignout += OnSignout;
+			HohoemaApp.OnSignin += OnSignin;
 
 			_CompositeDisposable = new CompositeDisposable();
+
+			_UserSettingsCompositeDisposable = new CompositeDisposable();
+
+			OnSignin();
 		}
 
-		private void HohoemaApp_OnSignin()
+		private void OnSignin()
 		{
-			OnSignIn();
+			try
+			{
+				_SignStatusLock.Wait();
+
+				if (!NowSignIn && HohoemaApp.IsLoggedIn)
+				{
+					_UserSettingsCompositeDisposable?.Dispose();
+					_UserSettingsCompositeDisposable = new CompositeDisposable();
+
+					NowSignIn = true;
+
+					OnSignIn(_UserSettingsCompositeDisposable);
+				}
+			}
+			finally
+			{
+				_SignStatusLock.Release();
+			}			
 		}
 
-		private void HohoemaApp_OnSignout()
+		private void OnSignout()
 		{
-			OnSignOut();
+			try
+			{
+				_SignStatusLock.Wait();
+
+				if (NowSignIn && !HohoemaApp.IsLoggedIn)
+				{
+					NowSignIn = false;
+
+					OnSignOut();
+
+					_UserSettingsCompositeDisposable?.Dispose();
+					_UserSettingsCompositeDisposable = null;
+				}
+			}
+			finally
+			{
+				_SignStatusLock.Release();
+			}
 		}
 
 		
 
-		protected virtual void OnSignIn()
+		protected virtual void OnSignIn(ICollection<IDisposable> userSessionDisposer)
 		{
-			NowSignIn = true;
 		}
 
 		protected virtual void OnSignOut()
 		{
-			NowSignIn = false;
 		}
 
 		protected async Task<bool> CheckSignIn()
@@ -107,16 +151,22 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public void Dispose()
 		{
+			OnSignout();
+
 			_CompositeDisposable.Dispose();
+			_UserSettingsCompositeDisposable?.Dispose();
 
 			OnDispose();
 		}
 
 
+		
+
+
 		protected virtual void OnDispose() { }
 
 
-
+		private SemaphoreSlim _SignStatusLock;
 
 
 		public bool IsRequireSignIn { get; private set; }
@@ -128,5 +178,6 @@ namespace NicoPlayerHohoema.ViewModels
 		public PageManager PageManager { get; private set; }
 
 		protected CompositeDisposable _CompositeDisposable { get; private set; }
+		protected CompositeDisposable _UserSettingsCompositeDisposable { get; private set; }
 	}
 }

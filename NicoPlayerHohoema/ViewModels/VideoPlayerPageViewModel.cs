@@ -745,6 +745,10 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			base.OnNavigatedTo(e, viewModelState);
 
+
+			CanDownload = HohoemaApp.UserSettings?.CacheSettings?.IsUserAcceptedCache ?? false;
+
+
 			NicoVideoQuality? quality = null;
 			if (e?.Parameter is string)
 			{
@@ -1112,6 +1116,15 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			get { return _VideoId; }
 			set { SetProperty(ref _VideoId, value); }
+		}
+
+
+
+		private bool _CanDownload;
+		public bool CanDownload
+		{
+			get { return _CanDownload; }
+			set { SetProperty(ref _CanDownload, value); }
 		}
 
 

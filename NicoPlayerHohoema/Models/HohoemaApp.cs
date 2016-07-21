@@ -29,7 +29,8 @@ namespace NicoPlayerHohoema.Models
 		private HohoemaApp(IEventAggregator ea)
 		{
 			EventAggregator = ea;
-			
+			LoginUserId = uint.MaxValue;
+
 			FavFeedManager = null;
 			CurrentAccount = new AccountSettings();
 
@@ -222,6 +223,16 @@ namespace NicoPlayerHohoema.Models
 		{
 			MediaManager?.Dispose();
 		}
+
+
+		public bool IsLoggedIn
+		{
+			get
+			{
+				return LoginUserId != uint.MaxValue;
+			}
+		}
+
 
 		public HohoemaUserSettings UserSettings { get; private set; }
 

@@ -22,6 +22,7 @@ namespace NicoPlayerHohoema.Models
 		const string PlayerSettingsFileName = "player.json";
 		const string NGSettingsFileName = "ng.json";
 		const string SearchSettingsFileName = "search.json";
+		const string CacheSettingsFileName = "cache.json";
 
 
 		public static async Task<HohoemaUserSettings> LoadSettings(StorageFolder userFolder)
@@ -30,13 +31,15 @@ namespace NicoPlayerHohoema.Models
 			var player = await SettingsBase.Load<PlayerSettings>(PlayerSettingsFileName, userFolder);
 			var ng = await SettingsBase.Load<NGSettings>(NGSettingsFileName, userFolder);
 			var search = await SettingsBase.Load<SearchSeetings>(SearchSettingsFileName, userFolder);
+			var cache = await SettingsBase.Load<CacheSettings>(CacheSettingsFileName, userFolder);
 
 			return new HohoemaUserSettings()
 			{
 				RankingSettings = ranking,
 				PlayerSettings = player,
 				NGSettings = ng,
-				SearchSettings = search
+				SearchSettings = search,
+				CacheSettings = cache
 			};
 		}
 
@@ -46,6 +49,7 @@ namespace NicoPlayerHohoema.Models
 			await PlayerSettings.Save();
 			await NGSettings.Save();
 			await SearchSettings.Save();
+			await CacheSettings.Save();
 		}
 
 		public RankingSettings RankingSettings { get; private set; }
@@ -55,6 +59,8 @@ namespace NicoPlayerHohoema.Models
 		public NGSettings NGSettings { get; private set; }
 
 		public SearchSeetings SearchSettings { get; private set; }
+
+		public CacheSettings CacheSettings { get; private set; }
 
 		public HohoemaUserSettings()
 		{
@@ -69,32 +75,28 @@ namespace NicoPlayerHohoema.Models
 			_FileLock = new SemaphoreSlim(1, 1);
 		}
 
-		public StorageFile File { get; private set; }
-//		public string FileName { get; private set; }
-//		public StorageFolder Folder { get; private set; }
+		public string FileName { get; private set; }
+		public StorageFolder Folder { get; private set; }
 
+		
 		public SemaphoreSlim _FileLock;
+
+		
+
 
 		public static async Task<T> Load<T>(string filename, StorageFolder folder)
 			where T : SettingsBase, new()
 		{
-			var localFolder = folder;
-			var local = await localFolder.CreateFileAsync(filename, CreationCollisionOption.OpenIfExists);
+			var file = await folder.CreateFileAsync(filename, CreationCollisionOption.OpenIfExists);
 
-			return await Load<T>(local);
-		}
-
-
-		public static async Task<T> Load<T>(StorageFile file)
-			where T : SettingsBase, new()
-		{
 			var rawText = await FileIO.ReadTextAsync(file);
 			if (!String.IsNullOrEmpty(rawText))
 			{
 				try
 				{
 					var obj = JsonConvert.DeserializeObject<T>(rawText);
-					obj.File = file;
+					obj.FileName = filename;
+					obj.Folder = folder;
 					return obj;
 				}
 				catch
@@ -105,7 +107,8 @@ namespace NicoPlayerHohoema.Models
 
 			var newInstance = new T()
 			{
-				File = file
+				FileName = filename,
+				Folder = folder
 			};
 
 			newInstance.OnInitialize();
@@ -119,9 +122,10 @@ namespace NicoPlayerHohoema.Models
 			try
 			{
 				await _FileLock.WaitAsync().ConfigureAwait(false);
+				var file = await Folder.CreateFileAsync(FileName, CreationCollisionOption.OpenIfExists);
 				var serializedText = JsonConvert.SerializeObject(this);
 
-				await FileIO.WriteTextAsync(File, serializedText);
+				await FileIO.WriteTextAsync(file, serializedText);
 			}
 			finally
 			{

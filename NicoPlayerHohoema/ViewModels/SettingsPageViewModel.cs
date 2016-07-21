@@ -21,10 +21,11 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class SettingsPageViewModel : HohoemaViewModelBase
 	{
-		public SettingsPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, RankingChoiceDialogService rakingChoiceDialog)
+		public SettingsPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, RankingChoiceDialogService rakingChoiceDialog, EditAutoCacheConditionDialogService editAutoCacheDialog)
 			: base(hohoemaApp, pageManager, isRequireSignIn:true)
 		{
 			RankingChoiceDialogService = rakingChoiceDialog;
+			EditAutoCacheConditionDialogService = editAutoCacheDialog;
 			SettingKindToVM = new Dictionary<HohoemaSettingsKind, SettingsPageContentViewModel>();
 
 			SettingItems = ((IEnumerable<HohoemaSettingsKind>)Enum.GetValues(typeof(HohoemaSettingsKind)))
@@ -70,6 +71,9 @@ namespace NicoPlayerHohoema.ViewModels
 					case HohoemaSettingsKind.VideoPlay:
 						vm = new VideoPlaySettingsPageContentViewModel(HohoemaApp, title);
 						break;
+					case HohoemaSettingsKind.Cache:
+						vm = new CacheSettingsPageContentViewModel(HohoemaApp, title, EditAutoCacheConditionDialogService);
+						break;
 					default:
 						break;
 				}
@@ -95,6 +99,14 @@ namespace NicoPlayerHohoema.ViewModels
 			else if (viewModelState.ContainsKey(nameof(CurrentSettingsKind)))
 			{
 				selectRequestKind = (HohoemaSettingsKind)viewModelState[nameof(CurrentSettingsKind)];
+			}
+			else if (e.Parameter is string)
+			{
+				HohoemaSettingsKind kind;
+				if(Enum.TryParse(e.Parameter as string, out kind))
+				{
+					selectRequestKind = kind;
+				}
 			}
 
 
@@ -129,6 +141,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public List<HohoemaSettingsKindListItem> SettingItems { get; private set; }
 
+		public EditAutoCacheConditionDialogService EditAutoCacheConditionDialogService { get; private set;}
 		public RankingChoiceDialogService RankingChoiceDialogService { get; private set; }
 	}
 
@@ -138,6 +151,7 @@ namespace NicoPlayerHohoema.ViewModels
 		VideoList,
 		VideoPlay,
 		Comment,
+		Cache,
 	}
 
 
@@ -153,6 +167,8 @@ namespace NicoPlayerHohoema.ViewModels
 					return "コメント";
 				case HohoemaSettingsKind.VideoPlay:
 					return "動画再生";
+				case HohoemaSettingsKind.Cache:
+					return "動画キャッシュ";
 				default:
 					throw new NotSupportedException($"not support {nameof(HohoemaSettingsKind)}.{kind.ToString()}");
 			}

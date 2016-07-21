@@ -29,6 +29,8 @@ namespace NicoPlayerHohoema.ViewModels
 			PageManager = pageManager;
 			_SearchDialogService = searchDialog;
 
+			
+
 			MenuItems = new List<PageTypeSelectableItem>()
 			{
 				new PageTypeSelectableItem(HohoemaPageType.Portal			  , OnMenuItemSelected, "ホーム"),
@@ -40,7 +42,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			PersonalMenuItems = new List<PageTypeSelectableItem>()
 			{
-				new PageTypeSelectableItem(HohoemaPageType.CacheManagement	  , OnMenuItemSelected, "ダウンロード管理"),
+				new PageTypeSelectableItem(HohoemaPageType.CacheManagement	  , OnMenuItemSelected, "キャッシュ管理"),
 				new PageTypeSelectableItem(HohoemaPageType.FavoriteManage     , OnMenuItemSelected, "お気に入り管理"),
 				new PageTypeSelectableItem(HohoemaPageType.Settings			  , OnMenuItemSelected, "設定"),
 				new PageTypeSelectableItem(HohoemaPageType.About			  , OnMenuItemSelected, "このアプリについて"),

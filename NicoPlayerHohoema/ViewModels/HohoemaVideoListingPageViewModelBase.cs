@@ -32,6 +32,8 @@ namespace NicoPlayerHohoema.ViewModels
 				.AddTo(_CompositeDisposable);
 			_LastListViewOffset = 0;
 
+			CanDownload = HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache;
+
 			NowRefreshable = new ReactiveProperty<bool>(false);
 
 			// 複数選択モード
@@ -102,7 +104,12 @@ namespace NicoPlayerHohoema.ViewModels
 			.AddTo(_CompositeDisposable);
 
 			RequestOriginalQualityCacheDownload = SelectionItemsChanged
-				.Select(_ => EnumerateCanDownloadVideoItem(NicoVideoQuality.Original).Count() > 0)
+				.Select(_ =>
+				{
+					return EnumerateCanDownloadVideoItem(NicoVideoQuality.Original).Count() > 0
+						&& HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache;
+				}			 
+				)
 				.ToReactiveCommand(false)
 				.AddTo(_CompositeDisposable);
 
@@ -119,7 +126,11 @@ namespace NicoPlayerHohoema.ViewModels
 			.AddTo(_CompositeDisposable);
 
 			RequestLowQualityCacheDownload = SelectionItemsChanged
-				.Select(_ => EnumerateCanDownloadVideoItem(NicoVideoQuality.Low).Count() > 0)
+				.Select(_ =>
+				{
+					return EnumerateCanDownloadVideoItem(NicoVideoQuality.Low).Count() > 0
+						&& HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache;
+				})
 				.ToReactiveCommand(false)
 				.AddTo(_CompositeDisposable);
 
@@ -171,7 +182,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			// クオリティ指定無しのキャッシュDLリクエスト
 			RequestCacheDownload = SelectionItemsChanged
-				.Select(_ => EnumerateCanDownloadVideoItem(NicoVideoQuality.Low).Count() > 0)
+				.Select(_ => EnumerateCanDownloadVideoItem(NicoVideoQuality.Low).Count() > 0 && HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache)
 				.ToReactiveCommand(false)
 				.AddTo(_CompositeDisposable);
 
@@ -221,9 +232,13 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		protected override void OnSignIn()
+		protected override void OnSignIn(ICollection<IDisposable> disposer)
 		{
-			base.OnSignIn();
+			base.OnSignIn(disposer);
+
+			HohoemaApp.UserSettings.CacheSettings.ObserveProperty(x => x.IsUserAcceptedCache)
+				.Subscribe(x => CanDownload = x)
+				.AddTo(disposer);
 		}
 
 		protected override void OnSignOut()
@@ -454,6 +469,13 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+		private bool _CanDownload;
+		public bool CanDownload
+		{
+			get { return _CanDownload; }
+			set { SetProperty(ref _CanDownload, value); }
+		}
+
 
 
 		public ObservableCollection<VIDEO_INFO_VM> SelectedVideoInfoItems { get; private set; }
@@ -467,6 +489,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> NowLoadingItems { get; private set; }
 
 		public ReactiveProperty<bool> NowRefreshable { get; private set; }
+
 
 		public ReactiveCommand PlayAllCommand { get; private set; }
 		public ReactiveCommand CancelCacheDownloadRequest { get; private set; }

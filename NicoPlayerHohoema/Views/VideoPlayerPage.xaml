@@ -295,6 +295,7 @@
                                                     IsChecked="{Binding IsSaveRequestedCurrentQualityCache.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                     IsEnabled="{Binding CanToggleCurrentQualityCacheState.Value}"
                                                     VerticalAlignment="Stretch"
+                                                    Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
                                               />
 
                                 <AppBarToggleButton IsChecked="{Binding IsVisibleComment.Value, Mode=TwoWay}" 

@@ -34,6 +34,7 @@ namespace NicoPlayerHohoema.Views
 		public DataTemplate RankingTemplate { get; set; }
 		public DataTemplate NGTemplate { get; set; }
 		public DataTemplate PlayerTemplate { get; set; }
+		public DataTemplate CacheTemplate { get; set; }
 
 		protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
 		{
@@ -48,6 +49,10 @@ namespace NicoPlayerHohoema.Views
 			else if (item is ViewModels.VideoPlaySettingsPageContentViewModel)
 			{
 				return PlayerTemplate;
+			}
+			else if (item is ViewModels.CacheSettingsPageContentViewModel)
+			{
+				return CacheTemplate;
 			}
 
 			return base.SelectTemplateCore(item, container);

@@ -18,6 +18,7 @@
 
 
     <Grid>
+        
         <ProgressRing Visibility="{Binding NowLoadingItems.Value, Converter={StaticResource BooleanToVisibility}}"
                       IsActive="{Binding NowLoadingItems.Value}"
                       Margin="24"
@@ -76,6 +77,32 @@
 
 
         </toolkit:DockPanel>
+
+
+        <Grid Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibilityInverted}}" 
+              HorizontalAlignment="Stretch"
+              VerticalAlignment="Stretch"
+              Background="#77FFFFFF"
+              >
+            <StackPanel HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+                <TextBlock Margin="4">キャッシュ機能を有効にするには</TextBlock>
+
+                
+                <TextBlock Margin="4">
+                    <Run>「キャッシュ機能の利用に関する確認」への合意が必要です</Run>
+                </TextBlock>
+
+
+                <Button Content="「キャッシュ機能の利用に関する確認」を表示する" 
+                        Command="{Binding OpenCacheSettingsCommand}" 
+                        Margin="8 16 8 8"
+                         />
+
+            </StackPanel>
+            
+            
+        </Grid>
     </Grid>
     
 </Page>
