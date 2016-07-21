@@ -21,7 +21,7 @@
         <ScrollViewer Visibility="{Binding IsUserAcceptRegalNotice.Value, Converter={StaticResource BooleanToVisibility}}">
             <StackPanel Margin="8">
 
-                <!-- ランキング -->
+                <!-- キャッシュ設定 -->
                 <StackPanel Margin="8 8">
                     <TextBlock Text="キャッシュ設定"
                            Margin="0 0 0 4"
@@ -31,6 +31,7 @@
                        />
 
 
+                    <!--
                     <StackPanel Margin="16 0 0 0">
 
                         <toolkit:DockPanel Margin="8">
@@ -95,6 +96,8 @@
                                 />
 
                     </StackPanel>
+                    
+                    -->
                 </StackPanel>
 
 
