@@ -109,6 +109,7 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="MuteButton.Icon" Value="Mute" />
+                        <Setter Target="VolumeButton.Icon" Value="Mute" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -117,6 +118,7 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="MuteButton.Icon" Value="Volume" />
+                        <Setter Target="VolumeButton.Icon" Value="Volume" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -403,9 +405,10 @@
                                     >
 
                                     <Border Background="#AA777777">
-                                        <AppBarButton Icon="Audio" 
+                                        <AppBarButton Icon="Volume" 
                                                       Label="音量"
-                                                  VerticalAlignment="Stretch"
+                                                      VerticalAlignment="Stretch"
+                                                      x:Name="VolumeButton"
                                                   >
 
 
@@ -413,12 +416,20 @@
                                                 <Flyout>
 
 
-                                                    <StackPanel Orientation="Vertical" Width="68">
+                                                    <StackPanel Orientation="Vertical" Width="48">
 
-
+                                                        <AppBarButton x:Name="MuteButton"
+                                                            Icon="Mute" 
+                                                            Command="{Binding ToggleMuteCommand}"                                      
+                                                                      VerticalContentAlignment="Top"
+                                                                      HorizontalAlignment="Center"
+                                                            Height="48"
+                                                                      Width="48"
+                                                                      
+                                                      />
                                                         <Slider x:Name="VolumeSlider"
                                                             VerticalAlignment="Center"
-                                                            Margin="16 8 16 8"                            
+                                                            Margin="0 8 0 8"                            
                                                             Value="{Binding SoundVolume.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                             IsThumbToolTipEnabled="True"
                                                             ThumbToolTipValueConverter="{StaticResource ToUserFriendlySoubleVolume}"
@@ -427,14 +438,12 @@
                                                             StepFrequency="0.01"
                                                             Height="128"
                                                             Orientation="Vertical"
+                                                                Width="48"
+                                                                Padding="6 0 0 0"
+                                                                
                                                     />
 
-                                                        <AppBarToggleButton x:Name="MuteButton"
-                                                            Icon="Mute" 
-                                                            Command="{Binding ToggleMuteCommand}"                                      
-                                                            toolkit:DockPanel.Dock="Left"                
-                                                            Height="36"
-                                                      />
+                                                        
 
                                                     </StackPanel>
 

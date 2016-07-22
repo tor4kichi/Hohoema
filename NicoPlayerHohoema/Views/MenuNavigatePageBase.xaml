@@ -265,7 +265,7 @@
                                       >
                                 <ListBox.ItemContainerStyle>
                                     <Style TargetType="ListBoxItem">
-                                        <Setter Property="Padding" Value="8 8" />
+                                        <Setter Property="Padding" Value="6 8 10 8" />
                                         <Setter Property="Margin" Value="0" />
                                     </Style>
                                 </ListBox.ItemContainerStyle>
@@ -292,7 +292,7 @@
                                               >
                                 <ListBox.ItemContainerStyle>
                                     <Style TargetType="ListBoxItem">
-                                        <Setter Property="Padding" Value="8 8" />
+                                        <Setter Property="Padding" Value="6 8 10 8" />
                                         <Setter Property="Margin" Value="0" />
                                     </Style>
                                 </ListBox.ItemContainerStyle>
