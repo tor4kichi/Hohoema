@@ -33,20 +33,20 @@ namespace NicoPlayerHohoema.ViewModels
 
 			MenuItems = new List<PageTypeSelectableItem>()
 			{
-				new PageTypeSelectableItem(HohoemaPageType.Portal			  , OnMenuItemSelected, "ホーム"),
-				new PageTypeSelectableItem(HohoemaPageType.RankingCategoryList, OnMenuItemSelected, "ランキング"),
-				new PageTypeSelectableItem(HohoemaPageType.FavoriteAllFeed    , OnMenuItemSelected, "お気に入り"),
-				new PageTypeSelectableItem(HohoemaPageType.UserMylist		  , OnMenuItemSelected, "マイリスト"),
-				new PageTypeSelectableItem(HohoemaPageType.History			  , OnMenuItemSelected, "視聴履歴"),
+				new PageTypeSelectableItem(HohoemaPageType.Portal             , OnMenuItemSelected, "ホーム", Symbol.Home),
+				new PageTypeSelectableItem(HohoemaPageType.RankingCategoryList, OnMenuItemSelected, "ランキング", Symbol.Sort),
+				new PageTypeSelectableItem(HohoemaPageType.FavoriteAllFeed    , OnMenuItemSelected, "お気に入り", Symbol.OutlineStar),
+				new PageTypeSelectableItem(HohoemaPageType.UserMylist		  , OnMenuItemSelected, "マイリスト", Symbol.List),
+				new PageTypeSelectableItem(HohoemaPageType.History			  , OnMenuItemSelected, "視聴履歴", Symbol.Clock),
 			};
 
 			PersonalMenuItems = new List<PageTypeSelectableItem>()
 			{
-				new PageTypeSelectableItem(HohoemaPageType.CacheManagement	  , OnMenuItemSelected, "キャッシュ管理"),
-				new PageTypeSelectableItem(HohoemaPageType.FavoriteManage     , OnMenuItemSelected, "お気に入り管理"),
-				new PageTypeSelectableItem(HohoemaPageType.Settings			  , OnMenuItemSelected, "設定"),
-				new PageTypeSelectableItem(HohoemaPageType.About			  , OnMenuItemSelected, "このアプリについて"),
-				new PageTypeSelectableItem(HohoemaPageType.Login	          , OnMenuItemSelected, "ログアウト"),
+				new PageTypeSelectableItem(HohoemaPageType.CacheManagement	  , OnMenuItemSelected, "キャッシュ管理", Symbol.Download),
+				new PageTypeSelectableItem(HohoemaPageType.FavoriteManage     , OnMenuItemSelected, "お気に入り管理", Symbol.Favorite),
+				new PageTypeSelectableItem(HohoemaPageType.Settings			  , OnMenuItemSelected, "設定", Symbol.Setting),
+				new PageTypeSelectableItem(HohoemaPageType.About			  , OnMenuItemSelected, "このアプリについて", Symbol.ContactInfo),
+				new PageTypeSelectableItem(HohoemaPageType.Login	          , OnMenuItemSelected, "ログアウト", Symbol.LeaveChat),
 			};
 
 			SelectedItem = new ReactiveProperty<PageTypeSelectableItem>(MenuItems[0], mode: ReactivePropertyMode.DistinctUntilChanged);
@@ -109,7 +109,7 @@ namespace NicoPlayerHohoema.ViewModels
 				});
 
 
-			IsVisibleTopBar = PageManager.ObserveProperty(x => x.CurrentPageType)
+			IsVisibleMenu = PageManager.ObserveProperty(x => x.CurrentPageType)
 				.Select(x => 
 				{
 					return !(x == HohoemaPageType.Login || x == HohoemaPageType.VideoPlayer);
@@ -143,7 +143,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public List<PageTypeSelectableItem> PersonalMenuItems { get; private set; }
 
-		public ReactiveProperty<bool> IsVisibleTopBar { get; private set; }
+		public ReactiveProperty<bool> IsVisibleMenu { get; private set; }
 
 		public ReactiveProperty<bool> IsPersonalPage { get; private set; }
 
@@ -163,11 +163,12 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class PageTypeSelectableItem : SelectableItem<HohoemaPageType>
 	{
-		public PageTypeSelectableItem(HohoemaPageType pageType, Action<HohoemaPageType> onSelected, string label)
+		public PageTypeSelectableItem(HohoemaPageType pageType, Action<HohoemaPageType> onSelected, string label, Symbol iconType)
 			: base(pageType, onSelected)
 		{
 			Label = label;
 			IsSelected = false;
+			IconType = iconType;
 		}
 
 		private bool _IsSelected;
@@ -178,6 +179,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 		public string Label { get; set; }
+		public Symbol IconType { get; set; }
 	}
 
 

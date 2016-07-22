@@ -19,7 +19,7 @@
     <PackageCertificateKeyFile>NicoPlayerHohoema_TemporaryKey.pfx</PackageCertificateKeyFile>
     <SkipIntermediatePriGenerationForResourceFiles>false</SkipIntermediatePriGenerationForResourceFiles>
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
-    <AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
+    <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
     <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
   </PropertyGroup>
