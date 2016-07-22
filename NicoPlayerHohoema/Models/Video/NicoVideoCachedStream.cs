@@ -373,35 +373,44 @@ namespace NicoPlayerHohoema.Models
 
 		private async Task<bool> _StopDownload()
 		{
-			if (_DownloadTask == null) { return true; }
-
-			if (_DownloadTaskCancelToken != null
-				&& _DownloadTaskCancelToken.IsCancellationRequested == true)
+			try
 			{
-				return true;
-			}
+				await _DownloadTaskLock.WaitAsync();
 
-			_DownloadTaskCancelToken?.Cancel();
+				if (_DownloadTask == null) { return true; }
 
-			_ReadAsyncAction?.Cancel();
-			_ReadAsyncAction = null;
-			Debug.Write("ダウンロードキャンセルを待機中");
-
-
-			while (true)
-			{
-				if (_DownloadTask.IsCanceled || _DownloadTask.IsCompleted || _DownloadTask.IsFaulted)
+				if (_DownloadTaskCancelToken != null
+					&& _DownloadTaskCancelToken.IsCancellationRequested == true)
 				{
-					break;
+					return true;
 				}
 
-				await Task.Delay(50);
+				_DownloadTaskCancelToken?.Cancel();
+
+				_ReadAsyncAction?.Cancel();
+				_ReadAsyncAction = null;
+				Debug.Write("ダウンロードキャンセルを待機中");
+
+
+				while (true)
+				{
+					if (_DownloadTask.IsCanceled || _DownloadTask.IsCompleted || _DownloadTask.IsFaulted)
+					{
+						break;
+					}
+
+					await Task.Delay(50);
+				}
+
+
+				_DownloadTask = null;
+				_DownloadTaskCancelToken.Dispose();
+				_DownloadTaskCancelToken = null;
 			}
-
-
-			_DownloadTask = null;
-			_DownloadTaskCancelToken.Dispose();
-			_DownloadTaskCancelToken = null;
+			finally
+			{
+				_DownloadTaskLock.Release();
+			}
 
 			return true;
 		}
