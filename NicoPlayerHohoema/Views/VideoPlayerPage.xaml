@@ -587,9 +587,10 @@
 
                     </toolkit:DockPanel>
 
-                    <!-- コメントテキストを書いたあとに画面のどこかをタップしたら
-                         ロストフォーカスさせるためのタップバリア -->
-                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0 0 0 64" 
+                    <!-- タップバリア
+                         コメントテキストを書いたあとに画面のどこかをタップしたら
+                         ロストフォーカスさせるためのやつ -->
+                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0 0 0 56" 
                           Background="Transparent"
                           IsHitTestVisible="True"
                           Visibility="{Binding NowCommentWriting.Value, Converter={StaticResource BooleanToVisibility}}"
