@@ -22,6 +22,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
+			base.OnNavigatedTo(e, viewModelState);
+
 			while (HohoemaApp.FavFeedManager == null)
 			{
 				await Task.Delay(100);

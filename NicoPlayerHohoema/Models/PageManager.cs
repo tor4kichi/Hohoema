@@ -82,7 +82,7 @@ namespace NicoPlayerHohoema.Models
 			switch (pageType)
 			{
 				case HohoemaPageType.Portal:
-					return "ポータル";
+					return "ホーム";
 				case HohoemaPageType.RankingCategoryList:
 					return "ランキングカテゴリ一覧";
 				case HohoemaPageType.RankingCategory:

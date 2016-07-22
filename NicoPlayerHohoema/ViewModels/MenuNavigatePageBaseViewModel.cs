@@ -29,23 +29,23 @@ namespace NicoPlayerHohoema.ViewModels
 			PageManager = pageManager;
 			_SearchDialogService = searchDialog;
 
-			
+			// Symbol see@ https://msdn.microsoft.com/library/windows/apps/dn252842
 
 			MenuItems = new List<PageTypeSelectableItem>()
 			{
 				new PageTypeSelectableItem(HohoemaPageType.Portal             , OnMenuItemSelected, "ホーム", Symbol.Home),
-				new PageTypeSelectableItem(HohoemaPageType.RankingCategoryList, OnMenuItemSelected, "ランキング", Symbol.Sort),
+				new PageTypeSelectableItem(HohoemaPageType.RankingCategoryList, OnMenuItemSelected, "ランキング", Symbol.Flag),
 				new PageTypeSelectableItem(HohoemaPageType.FavoriteAllFeed    , OnMenuItemSelected, "お気に入り", Symbol.OutlineStar),
-				new PageTypeSelectableItem(HohoemaPageType.UserMylist		  , OnMenuItemSelected, "マイリスト", Symbol.List),
+				new PageTypeSelectableItem(HohoemaPageType.UserMylist		  , OnMenuItemSelected, "マイリスト", Symbol.Bookmarks),
 				new PageTypeSelectableItem(HohoemaPageType.History			  , OnMenuItemSelected, "視聴履歴", Symbol.Clock),
 			};
 
 			PersonalMenuItems = new List<PageTypeSelectableItem>()
 			{
 				new PageTypeSelectableItem(HohoemaPageType.CacheManagement	  , OnMenuItemSelected, "キャッシュ管理", Symbol.Download),
-				new PageTypeSelectableItem(HohoemaPageType.FavoriteManage     , OnMenuItemSelected, "お気に入り管理", Symbol.Favorite),
+				new PageTypeSelectableItem(HohoemaPageType.FavoriteManage     , OnMenuItemSelected, "お気に入り管理", Symbol.SolidStar),
 				new PageTypeSelectableItem(HohoemaPageType.Settings			  , OnMenuItemSelected, "設定", Symbol.Setting),
-				new PageTypeSelectableItem(HohoemaPageType.About			  , OnMenuItemSelected, "このアプリについて", Symbol.ContactInfo),
+				new PageTypeSelectableItem(HohoemaPageType.About			  , OnMenuItemSelected, "このアプリについて", Symbol.Help),
 				new PageTypeSelectableItem(HohoemaPageType.Login	          , OnMenuItemSelected, "ログアウト", Symbol.LeaveChat),
 			};
 

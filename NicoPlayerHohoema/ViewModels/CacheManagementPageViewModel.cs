@@ -187,8 +187,8 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				List<CacheVideoViewModel> list = new List<CacheVideoViewModel>();
 
-
-				foreach (var item in mediaManager.VideoIdToNicoVideo.Values)
+				
+				foreach (var item in mediaManager.VideoIdToNicoVideo.Values.ToArray())
 				{
 					await item.SetupVideoInfoFromLocal();
 					await item.CheckCacheStatus();
