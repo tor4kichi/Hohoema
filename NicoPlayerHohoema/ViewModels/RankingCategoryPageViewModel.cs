@@ -49,7 +49,7 @@ namespace NicoPlayerHohoema.ViewModels
 				new RankingTargetListItem(RankingTarget.mylist)
 			};
 
-			SelectedRankingTarget = new ReactiveProperty<RankingTargetListItem>(RankingTargetItems[0], ReactivePropertyMode.DistinctUntilChanged)
+			SelectedRankingTarget = new ReactiveProperty<RankingTargetListItem>(RankingTargetItems[0])
 				.AddTo(_CompositeDisposable);
 
 
@@ -63,15 +63,13 @@ namespace NicoPlayerHohoema.ViewModels
 				new RankingTimeSpanListItem(RankingTimeSpan.total),
 			};
 
-			SelectedRankingTimeSpan = new ReactiveProperty<RankingTimeSpanListItem>(RankingTimeSpanItems[0], ReactivePropertyMode.DistinctUntilChanged)
+			SelectedRankingTimeSpan = new ReactiveProperty<RankingTimeSpanListItem>(RankingTimeSpanItems[0])
 				.AddTo(_CompositeDisposable);
-
 
 			Observable.CombineLatest(
 				SelectedRankingTarget.ToUnit(),
 				SelectedRankingTimeSpan.ToUnit()
 				)
-				.Throttle(TimeSpan.FromSeconds(0.25), UIDispatcherScheduler.Default)
 				.SubscribeOnUIDispatcher()
 				.Subscribe(x => 
 				{

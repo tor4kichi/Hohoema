@@ -24,7 +24,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public HohoemaVideoListingPageViewModelBase(HohoemaApp app, PageManager pageManager, bool isRequireSignIn = false)
 			: base(app, pageManager, isRequireSignIn)
 		{
-			NowLoadingItems = new ReactiveProperty<bool>(false)
+			NowLoadingItems = new ReactiveProperty<bool>(true)
 				.AddTo(_CompositeDisposable);
 			SelectedVideoInfoItems = new ObservableCollection<VIDEO_INFO_VM>();
 

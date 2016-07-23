@@ -31,7 +31,7 @@
             <toolkit:DockPanel>
                 <toolkit:DockPanel toolkit:DockPanel.Dock="Top" >
                     
-                    <StackPanel Orientation="Horizontal" Margin="8"
+                    <StackPanel Orientation="Horizontal" Margin="8 0"
                                 toolkit:DockPanel.Dock="Right"
                                 >
                         <ToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -47,25 +47,29 @@
                             <TextBlock Text="対象" 
                                        VerticalAlignment="Center"
                                        Margin="8 0"
+                                       Foreground="DimGray"
                                        />
                             <ComboBox ItemsSource="{Binding RankingTargetItems}"
                                       SelectedItem="{Binding SelectedRankingTarget.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                       DisplayMemberPath="Label"
                                       MinWidth="80"
+                                      IsEnabled="{Binding NowLoadingItems.Value, Converter={StaticResource InvertBoolean}}"
                                       />
                         </StackPanel>
 
-                        <Border Width="32" />
+                        <Border Width="16" />
 
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="集計期間"
                                        VerticalAlignment="Center"
                                        Margin="8 0"
+                                       Foreground="DimGray"
                                        />
                             <ComboBox ItemsSource="{Binding RankingTimeSpanItems}"
                                       SelectedItem="{Binding SelectedRankingTimeSpan.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                       DisplayMemberPath="Label"
                                       MinWidth="80"
+                                      IsEnabled="{Binding NowLoadingItems.Value, Converter={StaticResource InvertBoolean}}"
                                       />
                         </StackPanel>
                     </StackPanel>
