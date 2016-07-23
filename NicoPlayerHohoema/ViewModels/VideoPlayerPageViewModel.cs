@@ -1057,7 +1057,7 @@ namespace NicoPlayerHohoema.ViewModels
 					?? (_VolumeUpCommand = new DelegateCommand(() =>
 					{
 						var amount = HohoemaApp.UserSettings.PlayerSettings.ScrollVolumeFrequency;
-						SoundVolume.Value = Math.Min(1.0f, SoundVolume.Value + amount);
+						SoundVolume.Value = Math.Min(1.0, SoundVolume.Value + amount);
 					}));
 			}
 		}
@@ -1071,7 +1071,7 @@ namespace NicoPlayerHohoema.ViewModels
 					?? (_VolumeDownCommand = new DelegateCommand(() =>
 					{
 						var amount = HohoemaApp.UserSettings.PlayerSettings.ScrollVolumeFrequency;
-						SoundVolume.Value = Math.Max(0.0f, SoundVolume.Value - amount);
+						SoundVolume.Value = Math.Max(0.0, SoundVolume.Value - amount);
 					}));
 			}
 		}
@@ -1185,11 +1185,11 @@ namespace NicoPlayerHohoema.ViewModels
 		// Sound
 		public ReactiveProperty<bool> NowSoundChanging { get; private set; }
 		public ReactiveProperty<bool> IsMuted { get; private set; }
-		public ReactiveProperty<float> SoundVolume { get; private set; }
+		public ReactiveProperty<double> SoundVolume { get; private set; }
 
 		// Settings
 		public ReactiveProperty<int> RequestFPS { get; private set; }
-		public ReactiveProperty<float> CommentFontScale { get; private set; }
+		public ReactiveProperty<double> CommentFontScale { get; private set; }
 
 
 

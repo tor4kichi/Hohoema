@@ -136,7 +136,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> DefaultCommentDisplay { get; private set; }
 		public ReactiveProperty<bool> IncrementReadablityOwnerComment { get; private set; }
 		public ReactiveProperty<uint> CommentRenderingFPS { get; private set; }
-		public ReactiveProperty<float> CommentFontScale { get; private set; }
+		public ReactiveProperty<double> CommentFontScale { get; private set; }
 
 		public List<uint> CommentRenderringFPSList { get; private set; }
 

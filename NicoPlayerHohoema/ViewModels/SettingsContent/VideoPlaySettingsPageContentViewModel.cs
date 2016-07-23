@@ -31,7 +31,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> IsDefaultPlayWithLowQuality { get; private set; }
 		public ReactiveProperty<bool> IsKeepDisplayInPlayback { get; private set; }
 		public ReactiveProperty<bool> IsPauseWithCommentWriting { get; private set; }
-		public ReactiveProperty<float> ScrollVolumeFrequency { get; private set; }
+		public ReactiveProperty<double> ScrollVolumeFrequency { get; private set; }
 
 		private PlayerSettings _PlayerSettings;
 	}
