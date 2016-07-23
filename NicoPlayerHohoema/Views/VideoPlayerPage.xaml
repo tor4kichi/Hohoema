@@ -164,7 +164,7 @@
                                   Height="48"
                                   HorizontalAlignment="Right"
                                   VerticalAlignment="Top"
-                                  Margin="24 64 24 24"
+                                  Margin="24 88"
                                   />
                     
                     <comment:CommentRenderer Comments="{Binding Comments}"
