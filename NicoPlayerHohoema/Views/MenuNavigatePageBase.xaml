@@ -139,6 +139,7 @@
                             <VisualState.Setters>
                                 <Setter Target="OpenPaneButton.Visibility" Value="Visible" />
                                 <Setter Target="SplitView.DisplayMode" Value="CompactOverlay" />
+                                <Setter Target="SplitView.IsPaneOpen" Value="False" />
                             </VisualState.Setters>
                         </VisualState>
                         <!-- 超狭い -->
@@ -149,6 +150,7 @@
                             <VisualState.Setters>
                                 <Setter Target="OpenPaneButton.Visibility" Value="Visible" />
                                 <Setter Target="SplitView.DisplayMode" Value="Overlay" />
+                                <Setter Target="SplitView.IsPaneOpen" Value="False" />
                             </VisualState.Setters>
                         </VisualState>
                     </VisualStateGroup>

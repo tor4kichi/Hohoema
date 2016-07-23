@@ -102,8 +102,8 @@
     </UserControl.Resources>
     
     
-    <ScrollViewer>
-        <StackPanel Margin="8">
+    <ScrollViewer HorizontalAlignment="Stretch">
+        <StackPanel Margin="8" MinWidth="400" HorizontalAlignment="Left">
 
             <!-- ランキング -->
             <StackPanel Margin="8 8">

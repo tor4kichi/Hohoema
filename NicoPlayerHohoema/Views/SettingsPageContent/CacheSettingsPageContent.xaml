@@ -19,7 +19,7 @@
 
 
         <ScrollViewer Visibility="{Binding IsUserAcceptRegalNotice.Value, Converter={StaticResource BooleanToVisibility}}">
-            <StackPanel Margin="8">
+            <StackPanel Margin="8" MinWidth="400" HorizontalAlignment="Left">
 
                 <!-- キャッシュ設定 -->
                 <StackPanel Margin="8 8">
@@ -123,6 +123,7 @@
         <Border Padding="32" 
                 Background="WhiteSmoke"
                 Visibility="{Binding IsShowRegalNotice.Value, Converter={StaticResource BooleanToVisibility}}"
+                MinWidth="400" HorizontalAlignment="Left"
                 >
             <toolkit:DockPanel 
                                >

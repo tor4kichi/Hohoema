@@ -124,9 +124,9 @@
 
     <ScrollViewer>
 
-        
-        
-        <StackPanel Margin="8">
+
+
+        <StackPanel Margin="8" MinWidth="400" HorizontalAlignment="Left">
             <StackPanel>
                 <TextBlock Text="※ この設定はHohoemaアプリ上でのみ適用されます"
                            Style="{StaticResource DescriptionTextStyle}"
