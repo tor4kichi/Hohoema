@@ -97,7 +97,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		public async void LoadThumbnail()
+		public async Task LoadThumbnail()
 		{
 			if (NicoVideo == null) { return; }
 
