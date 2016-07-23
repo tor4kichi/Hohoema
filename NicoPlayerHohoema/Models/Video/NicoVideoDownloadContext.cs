@@ -236,6 +236,26 @@ namespace NicoPlayerHohoema.Models
 
 		public bool CheckCacheRequested(string rawVideoId, NicoVideoQuality quality)
 		{
+			if (CurrentPlayingStream != null)
+			{
+				if (CurrentPlayingStream.RawVideoId == rawVideoId &&
+					CurrentPlayingStream.Quality == quality &&
+					CurrentPlayingStream.IsCacheRequested)
+				{
+					return true;
+				}
+			}
+
+			if (CurrentDownloadStream != null)
+			{
+				if (CurrentDownloadStream.RawVideoId == rawVideoId &&
+					CurrentDownloadStream.Quality == quality &&
+					CurrentDownloadStream.IsCacheRequested)
+				{
+					return true;
+				}
+			}
+
 			return _CacheRequestStack.Any(x => x.RawVideoid == rawVideoId && x.Quality == quality);
 		}
 

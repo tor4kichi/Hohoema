@@ -1,4 +1,5 @@
-﻿using Mntone.Nico2.Videos.Comment;
+﻿using Mntone.Nico2;
+using Mntone.Nico2.Videos.Comment;
 using Mntone.Nico2.Videos.Thumbnail;
 using Mntone.Nico2.Videos.WatchAPI;
 using NicoPlayerHohoema.Util;
@@ -18,12 +19,35 @@ namespace NicoPlayerHohoema.Models
 {
 	public class NicoVideo : BindableBase
 	{
+
+		public const string DELETED_EXT = ".deleted";
+
+
+		internal static async Task<NicoVideo> CreateWithDeleted(HohoemaApp app, string rawVideoid, NicoVideoDownloadContext context)
+		{
+			Debug.WriteLine("start initialize : " + rawVideoid);
+			var nicoVideo = new NicoVideo(app, rawVideoid, context);
+
+			nicoVideo.IsDeleted = true;
+			nicoVideo.IsRequireConfirmDelete = true;
+
+			await nicoVideo.SetupVideoInfoFromLocal();
+
+			nicoVideo.VideoId = nicoVideo.CachedWatchApiResponse.videoDetail.id;
+			nicoVideo.Title = nicoVideo.CachedWatchApiResponse?.videoDetail.title ?? nicoVideo.CachedThumbnailInfo.Title;
+			nicoVideo.PrivateReason = nicoVideo.CachedWatchApiResponse.PrivateReason;
+
+			return nicoVideo;
+		}
+
+
 		internal static async Task<NicoVideo> Create(HohoemaApp app, string rawVideoid, NicoVideoDownloadContext context)
 		{
 			Debug.WriteLine("start initialize : " + rawVideoid);
 			var nicoVideo = new NicoVideo(app, rawVideoid, context);
 
 			await nicoVideo.GetThumbnailInfo();
+
 			await nicoVideo.SetupVideoInfoFromLocal();
 
 			if (!nicoVideo.IsDeleted)
@@ -71,9 +95,9 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task CheckCacheStatus()
 		{
-			// すでにダウンロード済みのキャッシュファイルをチェック
 			var saveFolder = _Context.VideoSaveFolder;
 
+			// すでにダウンロード済みのキャッシュファイルをチェック
 			if (NicoVideoCachedStream.ExistOriginalQuorityVideo(Title, VideoId, saveFolder))
 			{
 				OriginalQualityCacheState = NicoVideoCacheState.Cached;
@@ -124,6 +148,8 @@ namespace NicoPlayerHohoema.Models
 		// コメントのキャッシュまたはオンラインからの取得と更新
 		public async Task<CommentResponse> GetComment(bool requierLatest = false)
 		{
+			IfVideoDeletedThrowException();
+
 			if (_CachedCommentResponse == null || requierLatest)
 			{
 				var comment = await GetCommentFromOnline();
@@ -144,6 +170,8 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<CommentResponse> GetCommentFromOnline()
 		{
+			IfVideoDeletedThrowException();
+
 			var watchApiResponse = await GetVideoInfo();
 
 			CommentResponse comment = null;
@@ -162,6 +190,8 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<CommentResponse> GetCommentFromLocal()
 		{
+			IfVideoDeletedThrowException();
+
 			var fileName = $"{RawVideoId}_comment.json";
 			var saveFolder = _Context.VideoSaveFolder;
 
@@ -191,6 +221,8 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task SaveComment(CommentResponse comment)
 		{
+			IfVideoDeletedThrowException();
+
 			var fileName = $"{RawVideoId}_comment.json";
 			var saveFolder = _Context.VideoSaveFolder;
 
@@ -220,6 +252,10 @@ namespace NicoPlayerHohoema.Models
 				{
 					_CachedThumbnailInfo = thumb;
 					_IsLatestThumbnailResponse = true;
+				}
+				else if (IsDeleted)
+				{
+					return null;
 				}
 			}
 
@@ -251,15 +287,16 @@ namespace NicoPlayerHohoema.Models
 			}
 			catch (Exception e) when (e.Message.Contains("delete"))
 			{
-				IsDeleted = true;
+				await OnDeletedTeardown();
 			}
-
 
 			return res;
 		}
 
 		public async Task<ThumbnailResponse> GetThumbnailInfoFromLocal()
 		{
+			IfVideoDeletedThrowException();
+
 			// ファイルに保存されたデータから動画情報を再現
 			var saveFolder = _Context.VideoSaveFolder;
 
@@ -291,17 +328,12 @@ namespace NicoPlayerHohoema.Models
 			return res;
 		}
 
-		public async Task SaveLatestThumbnailInfo()
-		{
-			var thumb = await GetThumbnailInfoFromOnline();
-			if (thumb != null)
-			{
-				await SaveThumbnailInfo(thumb);
-			}
-		}
+
 
 		private async Task SaveThumbnailInfo(ThumbnailResponse res)
 		{
+			IfVideoDeletedThrowException();
+
 			// ファイルに保存されたデータから動画情報を再現
 			var saveFolder = _Context.VideoSaveFolder;
 
@@ -326,9 +358,21 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<WatchApiResponse> GetVideoInfo()
 		{
+			if (IsDeleted)
+			{
+				if (_CachedWatchApiResponse == null)
+				{
+					_CachedWatchApiResponse = await GetVideoInfoFromLocal();
+				}
+
+				return _CachedWatchApiResponse;
+			}
+
 			try
 			{
 				await _WatchApiGettingLock.WaitAsync();
+
+
 
 				if (_CachedWatchApiResponse == null || !_IsLatestWatchApiResponse)
 				{
@@ -388,6 +432,11 @@ namespace NicoPlayerHohoema.Models
 		{
 			var fileName = $"{RawVideoId}_info.json";
 
+			if (IsDeleted)
+			{
+				fileName += DELETED_EXT;
+			}
+
 			var saveFolder = _Context.VideoSaveFolder;
 			// ファイルが存在するか
 			if (!System.IO.File.Exists(Path.Combine(saveFolder.Path, fileName)))
@@ -411,17 +460,45 @@ namespace NicoPlayerHohoema.Models
 			return Newtonsoft.Json.JsonConvert.DeserializeObject<WatchApiResponse>(jsonText);
 		}
 
-		public async Task SaveLatestVideoInfo()
-		{
-			var watchApiRes = await GetVideoInfoFromOnline();
-			await SaveVideoInfo(watchApiRes);
-		}
 
 		private async Task SaveVideoInfo(WatchApiResponse watchApiRes)
 		{
+			var saveFolder = _Context.VideoSaveFolder;
+
 			var fileName = $"{RawVideoId}_info.json";
 
-			var saveFolder = _Context.VideoSaveFolder;
+			// 削除済みを示していたら、すでに保存済みのファイルを削除
+			if (watchApiRes.IsDeleted && saveFolder.ExistFile(fileName))
+			{
+				// 
+				var file = await saveFolder.GetFileAsync(fileName);
+				try
+				{
+					await _VideoInfoFileWriteSemaphore.WaitAsync();
+
+					await file.DeleteAsync(StorageDeleteOption.PermanentDelete);
+				}
+				finally
+				{
+					_VideoInfoFileWriteSemaphore.Release();
+				}
+
+
+
+			}
+
+			// 削除済みファイルとしてファイル名を変更
+			if (watchApiRes.IsDeleted)
+			{
+				fileName += DELETED_EXT;
+
+				// 削除済み情報が既に保存されている場合は、何もしない
+				if (saveFolder.ExistFile(fileName))
+				{
+					return;
+				}
+			}
+
 
 			var jsonText = Newtonsoft.Json.JsonConvert.SerializeObject(watchApiRes);
 			var videoInfoFile = await saveFolder.CreateFileAsync(fileName, CreationCollisionOption.OpenIfExists);
@@ -438,10 +515,20 @@ namespace NicoPlayerHohoema.Models
 			}
 
 
-			if (RawVideoId != VideoId)
+
+			var aliasDescriptionFilename = $"{RawVideoId}_real_id_is_[{VideoId}]";
+			if (!watchApiRes.IsDeleted)
 			{
-				var aliasDescriptionFilename = $"{RawVideoId}_real_id_is_[{VideoId}]";
-				if (!File.Exists(Path.Combine(saveFolder.Path, aliasDescriptionFilename)))
+				if (saveFolder.ExistFile(aliasDescriptionFilename))
+				{
+					var file = await saveFolder.GetFileAsync(aliasDescriptionFilename);
+					await file.DeleteAsync(StorageDeleteOption.PermanentDelete);
+				}
+			}
+			else if (RawVideoId != VideoId)
+			{
+
+				if (!saveFolder.ExistFile(aliasDescriptionFilename))
 				{
 					try
 					{
@@ -457,8 +544,6 @@ namespace NicoPlayerHohoema.Models
 
 
 
-
-
 		/// <summary>
 		/// 動画ストリームの取得します
 		/// </summary>
@@ -467,6 +552,8 @@ namespace NicoPlayerHohoema.Models
 		/// <remarks>既にキャッシュ対象に指定されている場合、cacheModel.NoCacheは無視されます。</remarks>
 		public async Task<IRandomAccessStream> GetVideoStream(NicoVideoQuality quality)
 		{
+			IfVideoDeletedThrowException();
+
 			return await _Context.GetPlayingStream(RawVideoId, quality);
 		}
 
@@ -474,6 +561,8 @@ namespace NicoPlayerHohoema.Models
 		// 動画のキャッシュ要求
 		public async Task RequestCache(NicoVideoQuality quality)
 		{
+			IfVideoDeletedThrowException();
+
 			if (_Context.CheckCacheRequested(this.RawVideoId, quality))
 			{
 				return;
@@ -602,6 +691,20 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
+		private async Task DeleteCachedInfo()
+		{
+			// jsonファイルを削除
+			var saveFolder = _Context.VideoSaveFolder;
+			var files = await saveFolder.GetFilesAsync();
+			var deleteTargets = files.Where(x => x.Name.Contains(VideoId))
+				.Where(x => x.Name.EndsWith(".json") || x.Name.EndsWith(DELETED_EXT));
+
+			foreach (var file in deleteTargets)
+			{
+				await file.DeleteAsync();
+			}
+		}
+
 		private async Task DeleteOriginalQualityCache()
 		{
 			var saveFolder = _Context.VideoSaveFolder;
@@ -649,6 +752,8 @@ namespace NicoPlayerHohoema.Models
 
 		public Task<PostCommentResponse> SubmitComment(string comment, TimeSpan position, string commands)
 		{
+			IfVideoDeletedThrowException();
+
 			try
 			{
 				return HohoemaApp.NiconicoContext.Video.PostCommentAsync(CachedWatchApiResponse, CachedCommentResponse.Thread, comment, position, commands);
@@ -658,6 +763,81 @@ namespace NicoPlayerHohoema.Models
 				// コメントデータを再取得してもう一度？
 				return Task.FromResult<PostCommentResponse>(null);
 			}
+		}
+
+
+
+		/// <summary>
+		/// 動画削除済みの場合の処理
+		/// </summary>
+		private async Task OnDeletedTeardown()
+		{
+			if (!IsDeleted)
+			{
+				// コンテキスト内から動画のキャッシュリクエストを削除
+				// 古いWatchApiResponseの削除
+				// IsDeletedを示すWatchApiResponseの取得
+				// WatchApiResponseを.deleteをつけて保存
+
+				// コメントの削除
+				// ThumbnailInfoの削除
+				var cacheRequested = _Context.CheckCacheRequested(RawVideoId, NicoVideoQuality.Original)
+					|| _Context.CheckCacheRequested(RawVideoId, NicoVideoQuality.Low);
+
+				await DeleteCache(NicoVideoQuality.Original);
+				await DeleteCache(NicoVideoQuality.Low);
+
+				await NicoVideoCachedStream.ClearProgressFile(_Context.VideoSaveFolder, RawVideoId);
+
+				// キャッシュリクエストがされていた場合はユーザーに伝えるために情報を残す
+				if (cacheRequested)
+				{
+					// GetVideoInfo内で削除済みを示すWatchApiResponseを取得しています。
+					// オンラインから動画情報を取得
+					var res = await GetVideoInfoFromOnline();
+
+					if (!res.IsDeleted)
+					{
+						throw new Exception("Thumbnail情報では削除済みを示していますが、動画ページ上では削除されていないとなっています");
+					}
+
+					await SaveVideoInfo(res);
+
+					IsRequireConfirmDelete = true;
+					PrivateReason = res.PrivateReason;
+				}
+
+				IsDeleted = true;
+			}
+		}
+
+
+
+		// TODO: ユーザーから削除動画を確認した場合の処理
+		// MediaManagerから呼び出してもらって処理後、MediaManagerからもNicoVideoオブジェクトを削除する
+		internal static Task DeletedVideoConfirmedFromUser(NicoVideo nicoVideo)
+		{
+			if (nicoVideo.IsDeleted)
+			{
+				return nicoVideo.DeleteCachedInfo()
+					.ContinueWith(prevResult => 
+					{
+						nicoVideo.IsRequireConfirmDelete = false;
+					});
+			}
+			else
+			{
+				throw new Exception("Video is Not Deleted");
+			}
+		}
+
+
+
+
+
+		private void IfVideoDeletedThrowException()
+		{
+			if (IsDeleted) { throw new Exception("video is deleted"); }
 		}
 
 
@@ -703,7 +883,7 @@ namespace NicoPlayerHohoema.Models
 		public string Title { get; private set; }
 
 		public bool IsDeleted { get; private set; }
-
+		public PrivateReasonType PrivateReason { get; private set; }
 
 		private NicoVideoCacheState _OriginalQualityCacheState;
 		public NicoVideoCacheState OriginalQualityCacheState
@@ -780,6 +960,8 @@ namespace NicoPlayerHohoema.Models
 
 		public bool IsNeedPayment { get; private set; }
 
+
+		public bool IsRequireConfirmDelete { get; private set; }
 
 		public bool NowOffline { get; private set; }
 

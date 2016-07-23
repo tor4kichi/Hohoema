@@ -860,8 +860,6 @@ namespace NicoPlayerHohoema.ViewModels
 			await HohoemaApp.FavFeedManager.MarkAsRead(Video.VideoId);
 			await HohoemaApp.FavFeedManager.MarkAsRead(Video.RawVideoId);
 
-
-
 			Debug.WriteLine("VideoPlayer OnNavigatedToAsync done.");
 		}
 

@@ -129,7 +129,8 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 
 
-			
+			PrivateReasonText = nicoVideo.PrivateReason.ToString();
+			IsRequireConfirmDelete = new ReactiveProperty<bool>(nicoVideo.IsRequireConfirmDelete);
 		}
 
 		private float ProgressToPercent(uint size, uint totalSize)
@@ -150,6 +151,28 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
+		private DelegateCommand _ConfirmDeleteCommand;
+		public DelegateCommand ConfirmDeleteCommand
+		{
+			get
+			{
+				return _ConfirmDeleteCommand
+					?? (_ConfirmDeleteCommand = new DelegateCommand(() =>
+					{
+						try
+						{
+							NicoVideo.DeletedVideoConfirmedFromUser(NicoVideo).ConfigureAwait(false);
+							IsRequireConfirmDelete.Value = false;
+						}
+						catch { }
+					}));
+			}
+		}
+
+
+		public string PrivateReasonText { get; private set; }
+
+
 		public bool IsIncompleteCache { get; private set; }
 
 		public DateTime CacheRequestTime { get; private set; }
@@ -161,9 +184,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<bool> IsVisibleProgress { get; private set; }
 
-		
+		public ReactiveProperty<bool> IsRequireConfirmDelete { get; private set; }
 
-		
+
+
 	}
 
 
@@ -235,10 +259,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 			var vm = new CacheVideoViewModel(nicoVideo, req.Quality, _PageManager);
 
-			vm.LoadThumbnail();
+			await vm.LoadThumbnail();
 			return vm;
 
 		}
+
+
+
 
 		public List<CacheVideoViewModel> RawList { get; private set; }
 

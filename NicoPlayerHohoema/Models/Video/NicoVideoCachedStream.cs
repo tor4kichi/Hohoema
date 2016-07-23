@@ -131,7 +131,6 @@ namespace NicoPlayerHohoema.Models
 				}
 			}
 
-
 			var stream = new NicoVideoCachedStream(client, rawVideoId, videoId, new Uri(videoUrl), videoFile, quality);
 
 			stream.IsPremiumUser = res.IsPremium;
@@ -145,10 +144,42 @@ namespace NicoPlayerHohoema.Models
 
 			await stream.Initialize(videoSaveFolder);
 
-
-
 			return stream;
 		}
+
+
+		public static async Task ClearCacheFiles(StorageFolder saveFolder, WatchApiResponse res)
+		{
+			var videoId = res.videoDetail.id;
+			var videoTitle = res.videoDetail.title.ToSafeFilePath();
+			var videoFileName = MakeVideoFileName(videoTitle, videoId);
+			var filename_orig = $"{videoFileName}.mp4";
+			var filename_low = $"{videoFileName}.low.mp4";
+
+			await EnsureDeleteFile(saveFolder, filename_orig);
+			await EnsureDeleteFile(saveFolder, filename_low);
+			await EnsureDeleteFile(saveFolder, filename_orig + IncompleteExt);
+			await EnsureDeleteFile(saveFolder, filename_low + IncompleteExt);
+
+		}
+
+		public static async Task ClearProgressFile(StorageFolder saveFolder, string rawVideoId)
+		{
+			var progressFilename = GetProgressFileName(rawVideoId);
+
+			await EnsureDeleteFile(saveFolder, progressFilename + ".json");
+			await EnsureDeleteFile(saveFolder, progressFilename + ".low.json");
+		}
+
+		private static async Task EnsureDeleteFile(StorageFolder saveFolder, string filename)
+		{
+			if (saveFolder.ExistFile(filename))
+			{
+				var file = await saveFolder.GetFileAsync(filename);
+				await file.DeleteAsync(StorageDeleteOption.PermanentDelete);
+			}
+		}
+
 
 		public NicoVideoCachedStream(HttpClient client, string rawVideoId, string videoId, Uri uri, StorageFile file, NicoVideoQuality quality)
 			: base(client, uri)
@@ -173,7 +204,7 @@ namespace NicoPlayerHohoema.Models
 			{
 				await _CacheProgressSemaphore.WaitAsync();
 
-				var progressFileName = GetProgressFileName();
+				var progressFileName = GetProgressFileName(RawVideoId);
 				var isLowQuality = Quality == NicoVideoQuality.Low;
 				// cacheProgressFileの存在をチェックし、あれば読み込み
 				var name = progressFileName + (isLowQuality ? ".low.json" : ".json");
@@ -666,10 +697,10 @@ namespace NicoPlayerHohoema.Models
 
 		#region Progress management
 
-
-		private string GetProgressFileName()
+		// TODO: なぜRawVideoIdを使っているの？
+		private static string GetProgressFileName(string rawVideoId)
 		{
-			return $"{RawVideoId}_progress";
+			return $"{rawVideoId}_progress";
 		}
 
 

@@ -47,6 +47,13 @@ namespace NicoPlayerHohoema.Models
 				.Select(x => new String(x.Name.TakeWhile(y => y != '_').ToArray()))
 				.ForAll(x => man.GetNicoVideo(x).ConfigureAwait(false));
 
+			files
+				.AsParallel()
+				.Where(x => x.Name.EndsWith("_info.json" + NicoVideo.DELETED_EXT))
+				.Select(x => new String(x.Name.TakeWhile(y => y != '_').ToArray()))
+				.ForAll(x => man.SetupDeletedVideo(x).ConfigureAwait(false));
+
+
 			return man;
 		}
 
@@ -61,9 +68,31 @@ namespace NicoPlayerHohoema.Models
 			_NicoVideoSemaphore = new SemaphoreSlim(1, 1);
 
 		}
-		
 
-		
+
+		public async Task<NicoVideo> SetupDeletedVideo(string rawVideoId)
+		{
+			try
+			{
+				await _NicoVideoSemaphore.WaitAsync().ConfigureAwait(false);
+
+				if (VideoIdToNicoVideo.ContainsKey(rawVideoId))
+				{
+					return VideoIdToNicoVideo[rawVideoId];
+				}
+				else
+				{
+					var nicoVideo = await NicoVideo.CreateWithDeleted(_HohoemaApp, rawVideoId, Context);
+					VideoIdToNicoVideo.Add(rawVideoId, nicoVideo);
+					return nicoVideo;
+				}
+			}
+			finally
+			{
+				_NicoVideoSemaphore.Release();
+			}
+		}
+
 
 		public async Task<NicoVideo> GetNicoVideo(string rawVideoId)
 		{
@@ -90,10 +119,6 @@ namespace NicoPlayerHohoema.Models
 
 
 
-		
-
-
-
 		public void Dispose()
 		{
 			Context.Dispose();
@@ -107,5 +132,12 @@ namespace NicoPlayerHohoema.Models
 		public NicoVideoDownloadContext Context { get; private set; }
 		HohoemaApp _HohoemaApp;
 	}
+
+
+
+
+
+	
+
 
 }

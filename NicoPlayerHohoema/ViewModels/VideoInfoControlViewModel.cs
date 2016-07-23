@@ -42,9 +42,10 @@ namespace NicoPlayerHohoema.ViewModels
 			NGVideoReason = "";
 			IsForceDisplayNGVideo = false;
 
-	//		scheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
+			//		scheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
 
 			VideoId = RawVideoId;
+			IsDeleted = nicoVideo.IsDeleted;
 		}
 
 
@@ -66,6 +67,7 @@ namespace NicoPlayerHohoema.ViewModels
 			NGVideoReason = "";
 			IsForceDisplayNGVideo = false;
 			VideoId = RawVideoId;
+			IsDeleted = nicoVideo.IsDeleted;
 		}
 
 
@@ -80,6 +82,7 @@ namespace NicoPlayerHohoema.ViewModels
 			VideoId = nicoVideo.VideoId;
 
 			IsDeleted = nicoVideo.IsDeleted;
+
 			IsLowQualityCached = NicoVideo.ObserveProperty(x => x.LowQualityCacheState)
 				.Select(x => x != NicoVideoCacheState.Incomplete)
 				.ToReactiveProperty()
@@ -100,6 +103,8 @@ namespace NicoPlayerHohoema.ViewModels
 		public async Task LoadThumbnail()
 		{
 			if (NicoVideo == null) { return; }
+
+			if (NicoVideo.IsDeleted) { return; }
 
 			try
 			{
@@ -252,6 +257,8 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _IsDeleted, value); }
 		}
 
+
+		
 		public string VideoId { get; private set; }
 
 		public string RawVideoId { get; private set; }

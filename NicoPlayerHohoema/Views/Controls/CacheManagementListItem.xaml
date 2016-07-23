@@ -17,6 +17,33 @@
     d:DesignWidth="400">
 
     <toolkit:DockPanel Margin="8">
+
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsRequireConfirmDelete.Value}" />
+                    </VisualState.StateTriggers>
+
+                    <VisualState.Setters>
+                        <Setter Target="DeletedPanel.Visibility" Value="Visible" />
+                        <Setter Target="NormalPanel.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsRequireConfirmDelete.Value, Converter={StaticResource InvertBoolean}}" />
+                    </VisualState.StateTriggers>
+
+                    <VisualState.Setters>
+                        <Setter Target="DeletedPanel.Visibility" Value="Collapsed" />
+                        <Setter Target="NormalPanel.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+        
         
         <Border toolkit:DockPanel.Dock="Bottom" >
             <toolkit:DockPanel Visibility="{Binding IsVisibleProgress.Value, Converter={StaticResource BooleanToVisibility}}">
@@ -35,21 +62,45 @@
             <toolkit:DockPanel>
 
                 <!-- 状態 -->
-                <StackPanel  toolkit:DockPanel.Dock="Right" HorizontalAlignment="Right">
-                    <TextBlock Text="{Binding CacheRequestTime}" Margin="0 0 0 4" />
-                    <TextBlock Text="{Binding Quality}" Margin="0 0 0 4" />
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding CacheState.Value}" />
-                        <TextBlock toolkit:DockPanel.Dock="Left" Margin="8 0"
+                <Grid toolkit:DockPanel.Dock="Right" HorizontalAlignment="Right"
+                             >
+                    
+                    <!-- 削除済み動画の場合 -->
+                    <Border x:Name="DeletedPanel" Background="#60ffffff">
+                        <StackPanel VerticalAlignment="Center">
+
+                            <TextBlock Text="削除理由" HorizontalAlignment="Center" FontSize="13"/>
+                            <TextBlock Text="{Binding PrivateReasonText}" HorizontalAlignment="Center" Margin="0 8" />
+
+                            <Button Content="削除確認" 
+                                Command="{Binding ConfirmDeleteCommand}"
+                                VerticalAlignment="Center"
+                                Margin="8"
+                                >
+
+                            </Button>
+                        </StackPanel>
+                    </Border>
+                    
+                    
+                    <!-- 削除されてない動画の場合 -->
+                    <StackPanel x:Name="NormalPanel">
+                        <TextBlock Text="{Binding CacheRequestTime}" Margin="0 0 0 4" />
+                        <TextBlock Text="{Binding Quality}" Margin="0 0 0 4" />
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding CacheState.Value}" />
+                            <TextBlock toolkit:DockPanel.Dock="Left" Margin="8 0"
                                                 Visibility="{Binding IsVisibleProgress.Value, Converter={StaticResource BooleanToVisibility}}"
                                                 >
                             <Run Text="(" />
                             <Run Text="{Binding ProgressPercent.Value}" />
                             <Run Text="%)" />
-                        </TextBlock>
+                            </TextBlock>
+                        </StackPanel>
+
                     </StackPanel>
 
-                </StackPanel>
+                </Grid>
 
                 <!-- 操作 -->
 
