@@ -19,11 +19,7 @@
     <Grid>
         <ProgressRing Visibility="{Binding NowLoadingItems.Value, Converter={StaticResource BooleanToVisibility}}"
                       IsActive="{Binding NowLoadingItems.Value}"
-                      Margin="24"
-                      Width="48"
-                      Height="48"
-                      HorizontalAlignment="Right"
-                      VerticalAlignment="Bottom"
+                      Style="{StaticResource VideoListProgressRingStyle}"
                                   />
 
         <toolkit:DockPanel >
