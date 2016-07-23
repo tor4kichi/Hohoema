@@ -30,6 +30,8 @@ namespace NicoPlayerHohoema.ViewModels
 			_SearchDialogService = searchDialog;
 
 			// Symbol see@ https://msdn.microsoft.com/library/windows/apps/dn252842
+			CanClosePane = new ReactiveProperty<bool>(false);
+
 
 			MenuItems = new List<PageTypeSelectableItem>()
 			{
@@ -146,6 +148,12 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> IsVisibleMenu { get; private set; }
 
 		public ReactiveProperty<bool> IsPersonalPage { get; private set; }
+
+
+		/// <summary>
+		/// 表示サイズによるPane表示方法の違い
+		/// </summary>
+		public ReactiveProperty<bool> CanClosePane { get; private set; }
 
 
 		private string _TitleText;

@@ -125,7 +125,7 @@
                                 <AdaptiveTrigger MinWindowWidth="1025" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter Target="OpenPaneButton.Visibility" Value="Visible" />
+                                <Setter Target="OpenPaneButton.Visibility" Value="Collapsed" />
                                 <Setter Target="SplitView.DisplayMode" Value="Inline" />
                                 <Setter Target="SplitView.IsPaneOpen" Value="True" />
                                 
@@ -148,7 +148,7 @@
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
                                 <Setter Target="OpenPaneButton.Visibility" Value="Visible" />
-                                <Setter Target="SplitView.DisplayMode" Value="CompactOverlay" />
+                                <Setter Target="SplitView.DisplayMode" Value="Overlay" />
                             </VisualState.Setters>
                         </VisualState>
                     </VisualStateGroup>
@@ -254,6 +254,22 @@
                            OpenPaneLength="180"
                            >
 
+                    <i:Interaction.Behaviors>
+                        <core:DataTriggerBehavior Binding="{Binding ElementName=SplitView, Path=DisplayMode}" ComparisonCondition="Equal">
+                            <core:DataTriggerBehavior.Value>
+                                <SplitViewDisplayMode>Inline</SplitViewDisplayMode>
+                            </core:DataTriggerBehavior.Value>
+
+                            <core:ChangePropertyAction TargetObject="{Binding CanClosePane}" PropertyName="Value" Value="False" />
+                        </core:DataTriggerBehavior>
+                        <core:DataTriggerBehavior Binding="{Binding ElementName=SplitView, Path=DisplayMode}" ComparisonCondition="NotEqual">
+                            <core:DataTriggerBehavior.Value>
+                                <SplitViewDisplayMode>Inline</SplitViewDisplayMode>
+                            </core:DataTriggerBehavior.Value>
+
+                            <core:ChangePropertyAction TargetObject="{Binding CanClosePane}" PropertyName="Value" Value="True" />
+                        </core:DataTriggerBehavior>
+                    </i:Interaction.Behaviors>
                     
                     <SplitView.Pane>
                         <StackPanel>
@@ -274,7 +290,7 @@
                                     <core:EventTriggerBehavior EventName="SelectionChanged">
                                         <core:ChangePropertyAction TargetObject="{Binding ElementName=SplitView}"
                                                                    PropertyName="IsPaneOpen"
-                                                                   Value="False"
+                                                                   Value="{Binding CanClosePane.Value, Converter={StaticResource InvertBoolean}}"
                                                                    />
 
                                     </core:EventTriggerBehavior>
@@ -301,7 +317,7 @@
                                     <core:EventTriggerBehavior EventName="SelectionChanged">
                                         <core:ChangePropertyAction TargetObject="{Binding ElementName=SplitView}"
                                                                    PropertyName="IsPaneOpen"
-                                                                   Value="False"
+                                                                   Value="{Binding CanClosePane.Value, Converter={StaticResource InvertBoolean}}"
                                                                    />
 
                                     </core:EventTriggerBehavior>
