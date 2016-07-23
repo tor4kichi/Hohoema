@@ -109,7 +109,6 @@
   <ItemGroup>
     <Compile Include="MyVideoBackgroundTask.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Properties\VideoBackgroundTask.rd.xml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BackgroundAudioShared\VideoBackgroundShared.csproj">
