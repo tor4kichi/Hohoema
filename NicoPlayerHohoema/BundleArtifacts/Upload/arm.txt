@@ -1,0 +1,7 @@
+MainPackage=C:\Users\torakichi\Documents\Visual Studio 2015\Projects\NicoPlayerHohoema\NicoPlayerHohoema\bin\ARM\Release\Upload\NicoPlayerHohoema_0.2.0.0_ARM.appx
+SymbolPackage=C:\Users\torakichi\Documents\Visual Studio 2015\Projects\NicoPlayerHohoema\NicoPlayerHohoema\AppPackages\NicoPlayerHohoema_0.2.0.0\NicoPlayerHohoema_0.2.0.0_ARM.appxsym
+ResourcePack=C:\Users\torakichi\Documents\Visual Studio 2015\Projects\NicoPlayerHohoema\NicoPlayerHohoema\_language-ja.appx
+ResourcePack=C:\Users\torakichi\Documents\Visual Studio 2015\Projects\NicoPlayerHohoema\NicoPlayerHohoema\_scale-100.appx
+ResourcePack=C:\Users\torakichi\Documents\Visual Studio 2015\Projects\NicoPlayerHohoema\NicoPlayerHohoema\_scale-125.appx
+ResourcePack=C:\Users\torakichi\Documents\Visual Studio 2015\Projects\NicoPlayerHohoema\NicoPlayerHohoema\_scale-150.appx
+ResourcePack=C:\Users\torakichi\Documents\Visual Studio 2015\Projects\NicoPlayerHohoema\NicoPlayerHohoema\_scale-400.appx

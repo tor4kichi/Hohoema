@@ -42,7 +42,6 @@ namespace NicoPlayerHohoema
     {
 		public PlayerWindowManager PlayerWindow { get; private set; }
 
-
 		static App()
 		{
 		}
@@ -94,29 +93,35 @@ namespace NicoPlayerHohoema
 #if DEBUG
 			DebugSettings.IsBindingTracingEnabled = true;
 #endif
-			// メディアバックグラウンドタスクの動作状態を初期化
-			ApplicationSettingsHelper.ReadResetSettingsValue(ApplicationSettingsConstants.AppState);
-			
-			Window.Current.Activate();
 
-			return Task.FromResult<object>(null);
+			if (args.PreviousExecutionState == ApplicationExecutionState.Terminated)
+			{
+				//TODO: Load state from previously suspended application
+				var hohoemaApp = Container.Resolve<HohoemaApp>();
+				
+			}
+
+
+			if (!args.PrelaunchActivated)
+			{
+				// メディアバックグラウンドタスクの動作状態を初期化
+				ApplicationSettingsHelper.ReadResetSettingsValue(ApplicationSettingsConstants.AppState);
+
+				var pm = Container.Resolve<PageManager>();
+				pm.OpenPage(HohoemaPageType.Login, true /* Enable auto login */);
+			}
+
+			return Task.CompletedTask;
 		}
+
+		
 
 		protected override async Task OnInitializeAsync(IActivatedEventArgs args)
 		{
 			await RegisterTypes();
 
-			var hohoemaApp = Container.Resolve<HohoemaApp>();
-//			await hohoemaApp.LoadUserSettings();
-
-			var pm = Container.Resolve<PageManager>();
-			pm.OpenPage(HohoemaPageType.Login, true /* Enable auto login */);
-
-
 			var playNicoVideoEvent = EventAggregator.GetEvent<PlayNicoVideoEvent>();
 			playNicoVideoEvent.Subscribe(PlayNicoVideoInPlayerWindow);
-
-			
 
 			await base.OnInitializeAsync(args);
 		}
@@ -180,6 +185,7 @@ namespace NicoPlayerHohoema
 
 			var mainWindowView = ApplicationView.GetForCurrentView();
 			mainWindowView.Consolidated += MainWindowView_Consolidated;
+
 		}
 
 		private void MainWindowView_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)

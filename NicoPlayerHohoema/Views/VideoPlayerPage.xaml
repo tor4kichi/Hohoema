@@ -55,30 +55,7 @@
     <toolkit:DockPanel>
         
         <VisualStateManager.VisualStateGroups>
-
-            
-
-            <!-- 再生・一時停止ボタン -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding NowPlaying.Value}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="PlayButton.Visibility" Value="Collapsed" />
-                        <Setter Target="PauseButton.Visibility" Value="Visible" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding NowPlaying.Value, Converter={StaticResource InvertBoolean}}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="PlayButton.Visibility" Value="Visible" />
-                        <Setter Target="PauseButton.Visibility" Value="Collapsed" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
+           
             
             <!-- リピートの有効・無効 -->
             <VisualStateGroup>
@@ -369,32 +346,7 @@
                                 <!-- Left Items -->
                                 <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left">
 
-                                    <!--
-                                    <AppBarButton x:Name="PlayButton"
-                                            Icon="Play"
-                                        >
-                                        <i:Interaction.Behaviors>
-                                            <core:EventTriggerBehavior EventName="Tapped">
-                                                <mybehavior:MediaElementPlayAction TargetObject="{Binding ElementName=mediaElem}" />
-                                            </core:EventTriggerBehavior>
-                                        </i:Interaction.Behaviors>
-                                    </AppBarButton>
-                                    
-                                    
-                                    <AppBarButton 
-                                            x:Name="PauseButton"
-                                            Icon="Pause"
-                                            Visibility="Collapsed"
-                                          >
-                                        <i:Interaction.Behaviors>
-                                            <core:EventTriggerBehavior EventName="Tapped">
-                                                <mybehavior:MediaElementPauseAction TargetObject="{Binding ElementName=mediaElem}" />
-                                            </core:EventTriggerBehavior>
-                                        </i:Interaction.Behaviors>
-                                    </AppBarButton>
-
-                                    -->
-
+                                   
                                 </StackPanel>
 
                                 <!-- Right Items-->
