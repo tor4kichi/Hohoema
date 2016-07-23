@@ -28,6 +28,8 @@ namespace NicoPlayerHohoema.ViewModels
 				.AddTo(_CompositeDisposable);
 			SelectedVideoInfoItems = new ObservableCollection<VIDEO_INFO_VM>();
 
+			HasVideoInfoItem = new ReactiveProperty<bool>(true);
+
 			ListViewVerticalOffset = new ReactiveProperty<double>(0.0)
 				.AddTo(_CompositeDisposable);
 			_LastListViewOffset = 0;
@@ -349,6 +351,8 @@ namespace NicoPlayerHohoema.ViewModels
 		private void CompleteLoadingItems()
 		{
 			NowLoadingItems.Value = false;
+
+			HasVideoInfoItem.Value = IncrementalLoadingItems?.Count > 0;
 		}
 
 		protected virtual void PostResetList() { }
@@ -491,6 +495,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<bool> NowRefreshable { get; private set; }
 
+		public ReactiveProperty<bool> HasVideoInfoItem { get; private set; }
 
 		public ReactiveCommand PlayAllCommand { get; private set; }
 		public ReactiveCommand CancelCacheDownloadRequest { get; private set; }

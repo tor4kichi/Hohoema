@@ -52,79 +52,106 @@
         </local:IncrementalLoadingListItemTemplateSelector>
     </UserControl.Resources>
 
-    <rlv:RefreshableListView ItemsSource="{Binding IncrementalLoadingItems}"
-                             SelectionMode="Multiple"
-                             IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
-                             IncrementalLoadingTrigger="Edge"
-                             AutoRefresh="False"
-                             RefreshCommand="{Binding RefreshCommand}"
-                                PullThreshold="85"
-                            >
+    <Grid>
         
-        <i:Interaction.Behaviors>
-            <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedVideoInfoItems, Mode=TwoWay}" />
+    
+        <rlv:RefreshableListView ItemsSource="{Binding IncrementalLoadingItems}"
+                                 SelectionMode="Multiple"
+                                 IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
+                                 IncrementalLoadingTrigger="Edge"
+                                 AutoRefresh="False"
+                                 RefreshCommand="{Binding RefreshCommand}"
+                                    PullThreshold="85"
+                                >
+        
+            <i:Interaction.Behaviors>
+                <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedVideoInfoItems, Mode=TwoWay}" />
 
-            <mybehavior:ListViewVerticalOffsetGetter
-                            VerticalOffset="{Binding ListViewVerticalOffset.Value, Mode=TwoWay}"
-                            />
-
-            <mybehavior:KeyboardTrigger Key="F5">
-                <mybehavior:KeyboardTrigger.Actions>
-                    <core:InvokeCommandAction Command="{Binding RefreshCommand}" />
-                </mybehavior:KeyboardTrigger.Actions>
-            </mybehavior:KeyboardTrigger>
-
-
-            <mybehavior:RefreshableListViewRefreshableGetter IsRefreshable="{Binding NowRefreshable.Value, Mode=TwoWay}" />
-        </i:Interaction.Behaviors>
-
-
-        <ListView.ItemContainerStyle>
-            <Style TargetType="ListViewItem">
-                <Setter Property="HorizontalContentAlignment"
-                                Value="Stretch" 
-                                    />
-                <Setter Property="Margin"
-                                Value="0 0 0 8" 
+                <mybehavior:ListViewVerticalOffsetGetter
+                                VerticalOffset="{Binding ListViewVerticalOffset.Value, Mode=TwoWay}"
                                 />
-            </Style>
-        </ListView.ItemContainerStyle>
 
-        <rlv:RefreshableListView.RefreshIndicatorContent>
-            <StackPanel  Margin="0 32 0 0" >
-                <Border Margin="0 16 0 0" BorderThickness="0 0 0 1" BorderBrush="Gray" />
-                <SymbolIcon Symbol="Refresh" VerticalAlignment="Bottom" Height="48" Width="48" Margin="0 24 0 8"
-                            Visibility="{Binding NowRefreshable.Value, Converter={StaticResource BooleanToVisibility}}"
-                            />
-                <SymbolIcon Symbol="Download" VerticalAlignment="Bottom" Height="48" Width="48" Margin="0 24 0 8"
-                            Visibility="{Binding NowRefreshable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                            />
-            </StackPanel>
-        </rlv:RefreshableListView.RefreshIndicatorContent>
-        
-        <ListView.ItemTemplate>
+                <mybehavior:KeyboardTrigger Key="F5">
+                    <mybehavior:KeyboardTrigger.Actions>
+                        <core:InvokeCommandAction Command="{Binding RefreshCommand}" />
+                    </mybehavior:KeyboardTrigger.Actions>
+                </mybehavior:KeyboardTrigger>
 
-            <DataTemplate>
 
-                <Border>
-                    <i:Interaction.Behaviors>
-                        <core:EventTriggerBehavior EventName="Tapped">
-                            <core:InvokeCommandAction Command="{Binding ElementName=ControlRoot, Path=DataContext.PlayCommand}"
-                                                      CommandParameter="{Binding}"
-                                                      />
-                        </core:EventTriggerBehavior>
-                    </i:Interaction.Behaviors>
-                    
-                    
-                    <ContentControl Content="{Binding}"
-                                    ContentTemplateSelector="{StaticResource listItemTemplateSelector}"
-                                    HorizontalContentAlignment="Stretch"
-                                    VerticalContentAlignment="Stretch"
+                <mybehavior:RefreshableListViewRefreshableGetter IsRefreshable="{Binding NowRefreshable.Value, Mode=TwoWay}" />
+            </i:Interaction.Behaviors>
+
+
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment"
+                                    Value="Stretch" 
+                                        />
+                    <Setter Property="Margin"
+                                    Value="0 0 0 8" 
                                     />
-                </Border>
-            </DataTemplate>
-            
-        </ListView.ItemTemplate>
+                </Style>
+            </ListView.ItemContainerStyle>
 
-    </rlv:RefreshableListView>
+            <rlv:RefreshableListView.RefreshIndicatorContent>
+                <StackPanel  Margin="0 32 0 0" >
+                    <Border Margin="0 16 0 0" BorderThickness="0 0 0 1" BorderBrush="Gray" />
+                    <SymbolIcon Symbol="Refresh" VerticalAlignment="Bottom" Height="48" Width="48" Margin="0 24 0 8"
+                                Visibility="{Binding NowRefreshable.Value, Converter={StaticResource BooleanToVisibility}}"
+                                />
+                    <SymbolIcon Symbol="Download" VerticalAlignment="Bottom" Height="48" Width="48" Margin="0 24 0 8"
+                                Visibility="{Binding NowRefreshable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                />
+                </StackPanel>
+            </rlv:RefreshableListView.RefreshIndicatorContent>
+        
+            <ListView.ItemTemplate>
+
+                <DataTemplate>
+
+                    <Border>
+                        <i:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="Tapped">
+                                <core:InvokeCommandAction Command="{Binding ElementName=ControlRoot, Path=DataContext.PlayCommand}"
+                                                          CommandParameter="{Binding}"
+                                                          />
+                            </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
+                    
+                    
+                        <ContentControl Content="{Binding}"
+                                        ContentTemplateSelector="{StaticResource listItemTemplateSelector}"
+                                        HorizontalContentAlignment="Stretch"
+                                        VerticalContentAlignment="Stretch"
+                                        />
+                    </Border>
+                </DataTemplate>
+            
+            </ListView.ItemTemplate>
+
+        </rlv:RefreshableListView>
+
+        <Border Visibility="{Binding NowLoadingItems.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
+            <Border Visibility="{Binding HasVideoInfoItem.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                HorizontalAlignment="Center"
+                Margin="0 8"
+                >
+
+                <StackPanel>
+                    <TextBlock Text="動画アイテムはありません。" 
+                       Foreground="DimGray"
+                           Margin="0 8"
+                       />
+
+                    <AppBarButton Icon="Refresh"
+                              Label="更新" 
+                              Command="{Binding RefreshCommand}"
+                              HorizontalAlignment="Center"
+                              />
+                </StackPanel>
+
+
+            </Border>
+        </Border>
+    </Grid>
 </UserControl>

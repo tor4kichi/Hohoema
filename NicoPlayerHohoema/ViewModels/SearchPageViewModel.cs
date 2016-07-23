@@ -207,6 +207,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 			MaxPageCount.Value = Math.Min((int)Math.Floor((float)response.count / OneTimeLoadSearchItemCount), (int)MaxPagenationCount);
 
+			if (response.list == null)
+			{
+				return items;
+			}
+
 			foreach (var item in response.list)
 			{
 
