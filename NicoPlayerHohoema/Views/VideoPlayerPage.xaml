@@ -102,7 +102,7 @@
         </VisualStateManager.VisualStateGroups>
 
 
-        <SplitView x:Name="SplitView" PanePlacement="Right" PaneBackground="#77FFFFFF"
+        <SplitView x:Name="SplitView" PanePlacement="Right" PaneBackground="#99FFFFFF"
                    OpenPaneLength="400"
                    >
             <SplitView.Content>
@@ -120,11 +120,14 @@
                         <mybehavior:MouseWheelTrigger>
                             <mybehavior:MouseWheelTrigger.UpActions>
                                 <core:InvokeCommandAction Command="{Binding VolumeUpCommand}" />
+                                <core:CallMethodAction TargetObject="{Binding ElementName=AutoHideBehavior}" MethodName="PreventAutoHide" />
                             </mybehavior:MouseWheelTrigger.UpActions>
                             <mybehavior:MouseWheelTrigger.DownActions>
                                 <core:InvokeCommandAction Command="{Binding VolumeDownCommand}" />
+                                <core:CallMethodAction TargetObject="{Binding ElementName=AutoHideBehavior}" MethodName="PreventAutoHide" />
                             </mybehavior:MouseWheelTrigger.DownActions>
                         </mybehavior:MouseWheelTrigger>
+
                     </i:Interaction.Behaviors>
 
 
@@ -231,8 +234,13 @@
                                         <core:CallMethodAction TargetObject="{Binding ElementName=AutoHideBehavior}" MethodName="PreventAutoHide" />
                                     </core:EventTriggerBehavior>
 
+
+                                    
+
                                 </i:Interaction.Behaviors>
                             </mybehavior:AutoHide>
+
+                            
                         </i:Interaction.Behaviors>
 
 
@@ -549,8 +557,6 @@
                           >
                         
                     </Grid>
-                    
-                    
                 </Grid>
             </SplitView.Content>
             <SplitView.Pane>

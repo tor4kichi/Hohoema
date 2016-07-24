@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.UI.Input;
 using Windows.UI.Xaml;
 
 namespace NicoPlayerHohoema.Views.Behaviors
@@ -73,15 +74,22 @@ namespace NicoPlayerHohoema.Views.Behaviors
 			if (fe == null) { return; }
 			fe.Unloaded += this.Fe_Unloaded;
 
-			Window.Current.CoreWindow.PointerWheelChanged += CoreWindow_PointerWheelChanged;
 
-
+			if (AssociatedObject is UIElement)
+			{
+				var ui = AssociatedObject as UIElement;
+				ui.PointerWheelChanged += Ui_PointerWheelChanged; ;
+			}
+			else
+			{
+				Window.Current.CoreWindow.PointerWheelChanged += CoreWindow_PointerWheelChanged;
+			}
 		}
 
-		private void CoreWindow_PointerWheelChanged(Windows.UI.Core.CoreWindow sender, Windows.UI.Core.PointerEventArgs args)
+		private void Ui_PointerWheelChanged(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs args)
 		{
-			var pointer = args.CurrentPoint;
-
+			var pointer = args.GetCurrentPoint(null);
+			
 			if (pointer.Properties.MouseWheelDelta > 0)
 			{
 				Interaction.ExecuteActions(this, this.UpActions, args);
@@ -92,6 +100,30 @@ namespace NicoPlayerHohoema.Views.Behaviors
 				Interaction.ExecuteActions(this, this.DownActions, args);
 				args.Handled = true;
 			}
+
+		}
+
+		private void CoreWindow_PointerWheelChanged(Windows.UI.Core.CoreWindow sender, Windows.UI.Core.PointerEventArgs args)
+		{
+			var pointer = args.CurrentPoint;
+
+			
+			if (pointer.Properties.MouseWheelDelta > 0)
+			{
+				Interaction.ExecuteActions(this, this.UpActions, args);
+				args.Handled = true;
+			}
+			else if (pointer.Properties.MouseWheelDelta < 0)
+			{
+				Interaction.ExecuteActions(this, this.DownActions, args);
+				args.Handled = true;
+			}
+		}
+
+
+		private void Process(PointerPoint pp)
+		{
+
 		}
 
 		private void Unregister()
