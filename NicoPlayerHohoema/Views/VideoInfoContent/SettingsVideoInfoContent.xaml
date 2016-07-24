@@ -15,7 +15,7 @@
     d:DesignHeight="800"
     d:DesignWidth="800">
 
-    <StackPanel>
+    <StackPanel Width="380">
         <ItemsControl Margin="0 0 0 0">
 
 
