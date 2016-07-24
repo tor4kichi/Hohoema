@@ -193,6 +193,7 @@
     <Compile Include="Views\Behaviors\ScrollToIndex.cs" />
     <Compile Include="Views\Behaviors\ListViewVerticalOffsetGetter.cs" />
     <Compile Include="Views\Behaviors\SetFocus.cs" />
+    <Compile Include="Views\Behaviors\SplitViewDisplayModeGetter.cs" />
     <Compile Include="Views\CacheManagementPage.xaml.cs">
       <DependentUpon>CacheManagementPage.xaml</DependentUpon>
     </Compile>

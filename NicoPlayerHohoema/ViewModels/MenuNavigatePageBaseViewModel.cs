@@ -30,7 +30,9 @@ namespace NicoPlayerHohoema.ViewModels
 			_SearchDialogService = searchDialog;
 
 			// Symbol see@ https://msdn.microsoft.com/library/windows/apps/dn252842
-			CanClosePane = new ReactiveProperty<bool>(false);
+			SplitViewDisplayMode = new ReactiveProperty<Windows.UI.Xaml.Controls.SplitViewDisplayMode>();
+			CanClosePane = SplitViewDisplayMode.Select(x => x != Windows.UI.Xaml.Controls.SplitViewDisplayMode.Inline)
+				.ToReactiveProperty();
 
 
 			MenuItems = new List<PageTypeSelectableItem>()
@@ -154,6 +156,7 @@ namespace NicoPlayerHohoema.ViewModels
 		/// 表示サイズによるPane表示方法の違い
 		/// </summary>
 		public ReactiveProperty<bool> CanClosePane { get; private set; }
+		public ReactiveProperty<SplitViewDisplayMode> SplitViewDisplayMode { get; private set; }
 
 
 		private string _TitleText;
