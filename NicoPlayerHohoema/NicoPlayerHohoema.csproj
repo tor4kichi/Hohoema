@@ -126,7 +126,6 @@
     <Compile Include="Models\Video\NicoVideoCanNotDownloadReason.cs" />
     <Compile Include="Models\Video\NicoVideoDownloadContext.cs" />
     <Compile Include="Models\Settings\HohoemaUserSettings.cs" />
-    <Compile Include="Models\MediaBackgroundTask.cs" />
     <Compile Include="Models\NiconicoContentFinder.cs" />
     <Compile Include="Models\Video\NiconicoMediaManager.cs" />
     <Compile Include="Models\Video\NicoVideoCachedStream.cs" />
@@ -603,16 +602,6 @@
     <Reference Include="Mntone.Nico2.UWP">
       <HintPath>lib\Mntone.Nico2.UWP.dll</HintPath>
     </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\BackgroundAudioShared\VideoBackgroundShared.csproj">
-      <Project>{62C43640-D9FB-41B8-81B7-A02BE8FACD09}</Project>
-      <Name>VideoBackgroundShared</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\VideoBackgroundTask\VideoBackgroundTask.csproj">
-      <Project>{03e0d8ba-4f1d-4f35-8335-81b641bbbac1}</Project>
-      <Name>VideoBackgroundTask</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

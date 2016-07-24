@@ -30,7 +30,7 @@ using NicoPlayerHohoema.Events;
 using Prism.Windows.Navigation;
 using Prism.Windows.AppModel;
 using Prism.Windows.Mvvm;
-using BackgroundAudioShared;
+//using BackgroundAudioShared;
 using Windows.Media;
 
 namespace NicoPlayerHohoema
@@ -105,7 +105,7 @@ namespace NicoPlayerHohoema
 			if (!args.PrelaunchActivated)
 			{
 				// メディアバックグラウンドタスクの動作状態を初期化
-				ApplicationSettingsHelper.ReadResetSettingsValue(ApplicationSettingsConstants.AppState);
+//				ApplicationSettingsHelper.ReadResetSettingsValue(ApplicationSettingsConstants.AppState);
 
 				var pm = Container.Resolve<PageManager>();
 				pm.OpenPage(HohoemaPageType.Login, true /* Enable auto login */);
@@ -143,8 +143,8 @@ namespace NicoPlayerHohoema
 			Container.RegisterInstance(hohoemaApp.ContentFinder);
 
 			// TODO: プレイヤーウィンドウ上で管理する
-			var backgroundTask = MediaBackgroundTask.Create();
-			Container.RegisterInstance(backgroundTask);
+//			var backgroundTask = MediaBackgroundTask.Create();
+//			Container.RegisterInstance(backgroundTask);
 
 
 			// ViewModels

@@ -13,7 +13,7 @@ namespace NicoPlayerHohoema.Models
 		public PlayerSettings()
 			: base()
 		{
-			IsLowQualityDeafult = false;
+			IsLowQualityDeafult = true;
 			IsMute = false;
 			SoundVolume = 0.25;
 			ScrollVolumeFrequency = 0.02;

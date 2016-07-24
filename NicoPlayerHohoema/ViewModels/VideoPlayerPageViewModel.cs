@@ -1,6 +1,4 @@
-﻿using BackgroundAudioShared;
-using BackgroundAudioShared.Messages;
-using Mntone.Nico2;
+﻿using Mntone.Nico2;
 using Mntone.Nico2.Videos.Comment;
 using Mntone.Nico2.Videos.Flv;
 using Mntone.Nico2.Videos.Thumbnail;
