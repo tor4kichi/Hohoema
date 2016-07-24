@@ -1,4 +1,5 @@
 ﻿using Microsoft.Practices.Unity;
+using NicoPlayerHohoema.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,22 +10,30 @@ namespace NicoPlayerHohoema.Views.Service
 {
 	public class SearchDialogService : ISearchDialogService
 	{
-		public object DataContext { get; private set; }
 
-		public SearchDialogService(ViewModels.SearchViewModel dataContext)
+		HohoemaApp _HohoemaApp;
+		PageManager _PageManager;
+
+		public SearchDialogService(HohoemaApp app, PageManager pageManager)
 		{
-			DataContext = dataContext;
+			_HohoemaApp = app;
+			_PageManager = pageManager;
 		}
 
 		public async Task ShowAsync()
 		{
 			var contentDialog = new SearchContentDialog()
 			{
-				DataContext = DataContext
+				DataContext = new ViewModels.SearchViewModel(_HohoemaApp, _PageManager)
 			};
 			
 
 			await contentDialog.ShowAsync();
+
+			if (contentDialog.DataContext is IDisposable)
+			{
+				(contentDialog.DataContext as IDisposable).Dispose();
+			}
 		}
 	}
 }

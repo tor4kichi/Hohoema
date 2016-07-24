@@ -38,29 +38,42 @@
 
             <AppBarButton Icon="Clock" toolkit:DockPanel.Dock="Right"
                           Margin="8 0 0 0"
-                          Width="32"
-                          Height="32"
+                          Width="48"
+                          Height="48"
                           >
                 <AppBarButton.Flyout>
                     <Flyout x:Name="flyout">
-                        <ItemsControl ItemsSource="{Binding HistoryKeywords}">
+                        <ListView ItemsSource="{Binding HistoryKeywords}">
+
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Button Content="{Binding Keyword}"
-                                            Command="{Binding SelectedKeywordCommand}"
-                                            >
+                                    <Border Background="Transparent" IsHitTestVisible="True">
                                         <i:Interaction.Behaviors>
                                             <core:EventTriggerBehavior EventName="Tapped">
+                                                <core:InvokeCommandAction Command="{Binding SelectedKeywordCommand}" />
                                                 <core:CallMethodAction TargetObject="{Binding ElementName=flyout}" 
                                                                        MethodName="Hide"
                                                                        />
-                                                
+
                                             </core:EventTriggerBehavior>
                                         </i:Interaction.Behaviors>
-                                    </Button>
+                                        
+                                        <TextBlock Text="{Binding Keyword}"
+                                            VerticalAlignment="Center"
+                                            >
+                                        </TextBlock>
+
+                                    </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                        </ListView>
                     </Flyout>
                 </AppBarButton.Flyout>
             </AppBarButton>
@@ -68,9 +81,10 @@
             <TextBox x:Name="KeywordTextBox"
                      HorizontalAlignment="Stretch" 
                      Text="{Binding Keyword.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                     Margin="0 8" 
+                     Margin="0 0" 
                      IsTabStop="True"
                      TabIndex="0"
+                     Height="32"
                      ext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
                         >
                 <i:Interaction.Behaviors>

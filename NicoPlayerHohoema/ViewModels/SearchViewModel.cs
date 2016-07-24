@@ -122,7 +122,8 @@ namespace NicoPlayerHohoema.ViewModels
 			};
 			#endregion
 
-			SelectedSearchOption = new ReactiveProperty<SearchSortOptionListItem>(SearchOptionListItems[0]);
+			SelectedSearchOption = new ReactiveProperty<SearchSortOptionListItem>(SearchOptionListItems[0])
+				.AddTo(_CompositeDisposable);
 
 
 
@@ -132,7 +133,7 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactiveCommand()
 				.AddTo(_CompositeDisposable);
 
-			DoSearchCommand.Subscribe(_ => 
+			DoSearchCommand.Subscribe(_ =>
 			{
 				if (Keyword.Value.Length == 0) { return; }
 
@@ -140,7 +141,7 @@ namespace NicoPlayerHohoema.ViewModels
 				SearchSettings.UpdateSearchHistory(Keyword.Value);
 
 				// 検索結果を表示
-				_PageManager.OpenPage(HohoemaPageType.Search, 
+				_PageManager.OpenPage(HohoemaPageType.Search,
 					new SearchOption()
 					{
 						Keyword = Keyword.Value,
@@ -150,13 +151,16 @@ namespace NicoPlayerHohoema.ViewModels
 					}
 					.ToParameterString()
 				);
-			});			
+			})
+			.AddTo(_CompositeDisposable);
+
 
 
 			// TODO: 検索ダイアログの検索履歴をユーザーログインごとに表示できるようにする
-//			HistoryKeywords = _SearchSettings.SearchHistory
-//				.ToReadOnlyReactiveCollection(x => new SearchHistoryKeywordItem(x, this, _SearchSettings))
-//				.AddTo(_CompositeDisposable);
+			var searchSettings = HohoemaApp.UserSettings.SearchSettings;
+			HistoryKeywords = searchSettings.SearchHistory
+				.ToReadOnlyReactiveCollection(x => new SearchHistoryKeywordItem(x, this, searchSettings))
+				.AddTo(_CompositeDisposable);
 		}
 
 
