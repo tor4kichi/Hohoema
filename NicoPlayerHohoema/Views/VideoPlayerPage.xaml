@@ -441,6 +441,7 @@
                                             HorizontalContentAlignment="Stretch"
                                             VerticalAlignment="Center"
                                             Margin="24 0"
+                                            IsEnabled="{Binding NowQualityChanging.Value, Converter={StaticResource InvertBoolean}}"
                                      >
                                     </Slider>
 

@@ -86,6 +86,7 @@ namespace NicoPlayerHohoema.ViewModels
 			NowBuffering = CurrentState.Select(x => x == MediaElementState.Buffering || x == MediaElementState.Opening)
 				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
 				.AddTo(_CompositeDisposable);
+			NowQualityChanging = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
 			Comments = new ObservableCollection<Comment>();
 			NowCommentWriting = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false)
 				.AddTo(_CompositeDisposable);
@@ -209,10 +210,12 @@ namespace NicoPlayerHohoema.ViewModels
 				.Subscribe(async _ => 
 			{
 				if (Video == null || IsDisposed) { IsSaveRequestedCurrentQualityCache.Value = false; return; }
-				
-				var x = CurrentVideoQuality.Value;
 
-				PreviousVideoPosition = CurrentVideoPosition.Value.TotalSeconds;
+				NowQualityChanging.Value = true;
+
+				var x = CurrentVideoQuality.Value;
+				PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
+
 				var stream = await Video.GetVideoStream(x);
 
 				if (IsDisposed)
@@ -288,6 +291,7 @@ namespace NicoPlayerHohoema.ViewModels
 				.SubscribeOnUIDispatcher()
 				.Subscribe(_ => 
 				{
+
 					if (CurrentVideoQuality.Value == NicoVideoQuality.Low)
 					{
 						CurrentVideoQuality.Value = NicoVideoQuality.Original;
@@ -405,20 +409,16 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
 				.AddTo(_CompositeDisposable);
 
-			CurrentState.Subscribe(async x => 
+			CurrentState.Subscribe(x => 
 			{
 				if (x == MediaElementState.Opening)
 				{
-					_IsOnceAfterVideoOpening = true;
 				}
-				else if (x == MediaElementState.Playing && _IsOnceAfterVideoOpening)
+				else if (x == MediaElementState.Playing && NowQualityChanging.Value)
 				{
-					_IsOnceAfterVideoOpening = false;
-					await Task.Delay(1)
-						.ContinueWith(_ => 
-						{
-							CurrentVideoPosition.Value = TimeSpan.FromSeconds(PreviousVideoPosition);
-						});
+					NowQualityChanging.Value = false;
+					SliderVideoPosition.Value = PreviousVideoPosition;
+//							CurrentVideoPosition.Value = TimeSpan.FromSeconds(PreviousVideoPosition);
 				}
 				else if (x == MediaElementState.Closed)
 				{
@@ -496,8 +496,6 @@ namespace NicoPlayerHohoema.ViewModels
 		bool _NowControlSlider = false;
 		bool _NowReadingVideoPosition = false;
 
-
-		private bool _IsOnceAfterVideoOpening;
 
 		private double PreviousVideoPosition;
 
@@ -1174,6 +1172,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<MediaElementState> CurrentState { get; private set; }
 		public ReactiveProperty<bool> NowBuffering { get; private set; }
 		public ReactiveProperty<bool> NowPlaying { get; private set; }
+		public ReactiveProperty<bool> NowQualityChanging { get; private set; }
 		public ReactiveProperty<bool> IsEnableRepeat { get; private set; }
 
 		public ReactiveProperty<bool> IsAutoHideEnable { get; private set; }
