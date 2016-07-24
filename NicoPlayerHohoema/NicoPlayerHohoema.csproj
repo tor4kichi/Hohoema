@@ -156,6 +156,7 @@
     <Compile Include="ViewModels\CacheManagementPageViewModel.cs" />
     <Compile Include="ViewModels\CommentCommandEditerViewModel.cs" />
     <Compile Include="ViewModels\CommentStreamingViewModel.cs" />
+    <Compile Include="ViewModels\ConfirmWatchHurmfulVideoPageViewModel.cs" />
     <Compile Include="ViewModels\FavoriteAllFeedPageViewModel.cs" />
     <Compile Include="ViewModels\FavoriteManagePageViewModel.cs" />
     <Compile Include="ViewModels\FavoriteVideoInfoControlViewModel.cs" />
@@ -198,6 +199,9 @@
     </Compile>
     <Compile Include="Views\CommentCommandEditer.xaml.cs">
       <DependentUpon>CommentCommandEditer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ConfirmWatchHurmfulVideoPage.xaml.cs">
+      <DependentUpon>ConfirmWatchHurmfulVideoPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\CacheManagementListItem.xaml.cs">
       <DependentUpon>CacheManagementListItem.xaml</DependentUpon>
@@ -446,6 +450,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\CommentRenderer\CommentUI.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ConfirmWatchHurmfulVideoPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

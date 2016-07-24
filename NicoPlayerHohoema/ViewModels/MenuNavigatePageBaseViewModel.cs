@@ -116,7 +116,7 @@ namespace NicoPlayerHohoema.ViewModels
 			IsVisibleMenu = PageManager.ObserveProperty(x => x.CurrentPageType)
 				.Select(x => 
 				{
-					return !(x == HohoemaPageType.Login || x == HohoemaPageType.VideoPlayer);
+					return PageManager.DontNeedMenuPageTypes.All(dontNeedMenuPageType => x != dontNeedMenuPageType);
 				})
 				.ToReactiveProperty();
 		}

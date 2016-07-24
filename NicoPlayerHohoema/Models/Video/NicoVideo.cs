@@ -410,12 +410,26 @@ namespace NicoPlayerHohoema.Models
 
 			Debug.WriteLine($"{RawVideoId}の動画情報を取得 : {DateTime.Now}");
 
+			IsBlockedHarmfulVideo = false;
+
 			try
 			{
 				watchApiRes = await Util.ConnectionRetryUtil.TaskWithRetry(async () =>
 				{
-					return await HohoemaApp.NiconicoContext.Video.GetWatchApiAsync(RawVideoId, forceLowQuality: forceLowQuality);
+					return await HohoemaApp.NiconicoContext.Video.GetWatchApiAsync(
+						RawVideoId
+						, forceLowQuality: forceLowQuality
+						, harmfulReactType: HarmfulContentReactionType
+						);
 				});
+			}
+			catch (AggregateException ea) when (ea.Flatten().InnerExceptions.Any(e => e is ContentZoningException))
+			{
+				IsBlockedHarmfulVideo = true;
+			}
+			catch (ContentZoningException)
+			{
+				IsBlockedHarmfulVideo = true;
 			}
 			catch { }
 
@@ -971,6 +985,12 @@ namespace NicoPlayerHohoema.Models
 		NicoVideoDownloadContext _Context;
 
 		public bool LastAccessIsLowQuality { get; private set; }
+
+
+		// 有害動画への対応
+		public bool IsBlockedHarmfulVideo { get; private set; }
+		public HarmfulContentReactionType HarmfulContentReactionType { get; set; }
+
 
 		private SemaphoreSlim _WatchApiGettingLock;
 	}

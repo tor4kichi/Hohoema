@@ -784,6 +784,22 @@ namespace NicoPlayerHohoema.ViewModels
 				await videoInfo.GetVideoInfo();
 				await videoInfo.CheckCacheStatus();
 
+				if (videoInfo.IsBlockedHarmfulVideo)
+				{
+					// ここに来たナビゲーションを忘れさせる
+					PageManager.ForgetLastPage();
+					// 有害動画を視聴するか確認するページを表示
+					PageManager.OpenPage(HohoemaPageType.ConfirmWatchHurmfulVideo,
+						new VideoPlayPayload()
+						{
+							VideoId = VideoId,
+							Quality = quality,
+						}
+						.ToParameterString()
+						);
+					return;
+				}
+
 				Video = videoInfo;
 			}
 			catch (Exception exception)
@@ -793,7 +809,16 @@ namespace NicoPlayerHohoema.ViewModels
 				
 			}
 
+			// 動画ページにアクセスできず、キャッシュからも復元できなかった場合
+			if (Video.CachedWatchApiResponse == null)
+			{
+				Debug.WriteLine($"cant playback{VideoId}. due to denied access to watch page, or connection offline.");
 
+				PageManager.NavigationService.GoBack();
+				
+				// TODO: 再生できなかった旨をアプリ内のトースト表示で通知する
+				return;
+			}
 
 
 			// ビデオクオリティをトリガーにしてビデオ関連の情報を更新させる
@@ -1203,10 +1228,6 @@ namespace NicoPlayerHohoema.ViewModels
 		private Dictionary<MediaInfoDisplayType, MediaInfoViewModel> _SidePaneContentCache;
 		public ReactiveProperty<MediaInfoDisplayType> SelectedSidePaneType { get; private set; }
 		public List<MediaInfoDisplayType> Types { get; private set; }
-
-
-
-
 
 
 		internal async Task AddNgUser(Comment commentViewModel)

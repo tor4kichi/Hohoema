@@ -221,6 +221,8 @@ namespace NicoPlayerHohoema.ViewModels
 			_UserSettingsCompositeDisposable?.Dispose();
 		}
 
+		
+
 
 		private SemaphoreSlim _NavigationToLock;
 

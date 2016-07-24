@@ -64,7 +64,7 @@ namespace NicoPlayerHohoema.Models
 			{
 				container = ApplicationData.Current.LocalSettings.CreateContainer(RECENT_LOGIN_ACCOUNT, ApplicationDataCreateDisposition.Always);
 			}
-
+			container.Values.Clear();
 			var id = CurrentAccount.MailOrTelephone;
 			var password = isRemenberPassword ? CurrentAccount.Password : "";
 			container.Values[id] = password;
