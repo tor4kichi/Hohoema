@@ -168,6 +168,7 @@
 
                 <StackPanel Margin="16 0 0 0">
 
+                    <!-- 
                     <toolkit:DockPanel Margin="8">
                         <TextBlock Text="動画IDによる動画の除外を有効にする"
                            toolkit:DockPanel.Dock="Left"
@@ -186,10 +187,10 @@
                                   SelectionMode="None"
                                   >
                     </ListView>
+                    -->
 
 
-
-
+                    <!--
                     <toolkit:DockPanel Margin="8">
                         <TextBlock Text="動画投稿者IDによる動画の除外を有効にする"
                            toolkit:DockPanel.Dock="Left"
@@ -208,7 +209,8 @@
                                   SelectionMode="None"
                                   >
                     </ListView>
-
+                        
+                    -->
 
 
 

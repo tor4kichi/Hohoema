@@ -33,6 +33,7 @@
 
             </toolkit:DockPanel>
 
+            <!--
             <toolkit:DockPanel Margin="8">
 
                 <TextBlock Text="投稿者コメントを読みやすくする"
@@ -46,7 +47,7 @@
                             />
 
             </toolkit:DockPanel>
-
+            -->
 
             <toolkit:DockPanel Margin="8">
 
