@@ -226,10 +226,10 @@ namespace NicoPlayerHohoema.ViewModels
 				switch (x)
 				{
 					case NicoVideoQuality.Original:
-						IsSaveRequestedCurrentQualityCache.Value = Video.OriginalQualityCacheState != NicoVideoCacheState.Incomplete;
+						IsSaveRequestedCurrentQualityCache.Value = !Video.CanRequestDownloadOriginalQuality;
 						break;
 					case NicoVideoQuality.Low:
-						IsSaveRequestedCurrentQualityCache.Value = Video.LowQualityCacheState != NicoVideoCacheState.Incomplete;
+						IsSaveRequestedCurrentQualityCache.Value = !Video.CanRequestDownloadLowQuality;
 						break;
 					default:
 						IsSaveRequestedCurrentQualityCache.Value = false;
