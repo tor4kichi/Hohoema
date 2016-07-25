@@ -178,7 +178,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			if (suspending && HohoemaApp.IsLoggedIn)
 			{
-				await HohoemaApp.MediaManager.Context.Suspending();
+				await HohoemaApp.MediaManager?.Context.Suspending();
 			}
 
 			_IsNavigatingFromDone = true;

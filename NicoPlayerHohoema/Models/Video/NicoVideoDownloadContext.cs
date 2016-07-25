@@ -133,10 +133,9 @@ namespace NicoPlayerHohoema.Models
 				// 中断されたダウンロードタスクは、ダウンロードスタックに積み、再生用ストリームのダウンロード完了を確認して
 				// ダウンロードを再開させます。		
 
-				// 再生用対象をダウンロード中の場合は
-				// キャッシュモードを無視してダウンロード中のストリームをそのまま帰す
 				if (_CurrentDownloadStream != null &&
-					_CurrentDownloadStream.RawVideoId == rawVideoId)
+					_CurrentDownloadStream.RawVideoId == rawVideoId && 
+					_CurrentDownloadStream.Quality == quality)
 				{
 					await AssignPlayingStream(_CurrentDownloadStream);
 				}

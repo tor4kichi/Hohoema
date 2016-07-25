@@ -423,14 +423,14 @@ namespace NicoPlayerHohoema.Models
 				Debug.Write("ダウンロードキャンセルを待機中");
 
 
-				while (true)
+				for (int i = 0; i < 10; i++)
 				{
-					if (_DownloadTask.IsCanceled || _DownloadTask.IsCompleted || _DownloadTask.IsFaulted)
+					if (_DownloadTask == null || _DownloadTask.IsCanceled || _DownloadTask.IsCompleted || _DownloadTask.IsFaulted)
 					{
 						break;
 					}
 
-					await Task.Delay(50);
+					await Task.Delay(1000);
 				}
 
 
@@ -454,7 +454,7 @@ namespace NicoPlayerHohoema.Models
 			try
 			{
 				await _DownloadTaskLock.WaitAsync();
-				Debug.WriteLine(VideoId + ":" + position + " からダウンロードを再開");
+				Debug.WriteLine(VideoId + ":" + position + " からダウンロードを開始");
 
 				_DownloadTaskCancelToken = new CancellationTokenSource();
 				_DownloadTask = DownloadIncompleteData((uint)position, _DownloadTaskCancelToken.Token)
@@ -676,6 +676,7 @@ namespace NicoPlayerHohoema.Models
 
 				OnCacheComplete?.Invoke(RawVideoId);
 
+				/*
 				try
 				{
 					await _DownloadTaskLock.WaitAsync();
@@ -686,6 +687,7 @@ namespace NicoPlayerHohoema.Models
 				{
 					_DownloadTaskLock.Release();
 				}
+				*/
 			}
 		}
 
@@ -806,6 +808,7 @@ namespace NicoPlayerHohoema.Models
 
 		private IAsyncOperationWithProgress<IBuffer, uint> _CurrentOperation;
 
+		const uint MediaElementBufferSize = 262144;
 
 		const uint PremiumUserDownload_kbps = 262144 * 2;
 		const uint IppanUserDownload_kbps = 262144;

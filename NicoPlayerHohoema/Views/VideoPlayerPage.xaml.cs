@@ -34,16 +34,16 @@ namespace NicoPlayerHohoema.Views
 
 		private void VideoPlayerPage_Unloaded(object sender, RoutedEventArgs e)
 		{
-			mediaElem.Stop();
+//			mediaElem.Stop();
 
-			(DataContext as IDisposable).Dispose();
+//			(DataContext as IDisposable).Dispose();
 		}
 
 		protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
 		{
 			base.OnNavigatingFrom(e);
 
-			mediaElem.Stop();
+//			mediaElem.Stop();
 
 		}
 
