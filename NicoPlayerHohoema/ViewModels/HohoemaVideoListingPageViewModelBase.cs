@@ -254,11 +254,8 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		protected override Task OnNavigatedToAsync(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			base.OnNavigatedTo(e, viewModelState);
-
 			if (_IncrementalLoadingItems != null)
 			{
 				IncrementalLoadingItems = _IncrementalLoadingItems;
@@ -268,10 +265,9 @@ namespace NicoPlayerHohoema.ViewModels
 			if (!NowSignIn && PageIsRequireSignIn)
 			{
 				IncrementalLoadingItems = null;
-				return;
 			}
 
-			if (IncrementalLoadingItems == null 
+			if (IncrementalLoadingItems == null
 				|| CheckNeedUpdateOnNavigateTo(e.NavigationMode))
 			{
 				ResetList();
@@ -282,6 +278,15 @@ namespace NicoPlayerHohoema.ViewModels
 				ChangeCanIncmentalLoading(true);
 				OnPropertyChanged(nameof(IncrementalLoadingItems));
 			}
+
+			return base.OnNavigatedToAsync(e, viewModelState);
+		}
+
+		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		{
+			base.OnNavigatedTo(e, viewModelState);
+
+			
 		}
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)

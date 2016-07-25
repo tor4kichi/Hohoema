@@ -102,7 +102,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		}
 
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		protected override async Task OnNavigatedToAsync(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			if (e.Parameter is string)
 			{
@@ -142,23 +142,32 @@ namespace NicoPlayerHohoema.ViewModels
 			else
 			{
 				// Note: await をつけると後段の読み込みが行われません
-				var dispathcer = Window.Current.CoreWindow.Dispatcher;
-				HohoemaApp.ContentFinder.GetMylist(MylistGroupId)
-					.ContinueWith(async prevResult =>
-					{
-						var response = prevResult.Result;
 
-						await dispathcer.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-						{
-							MylistTitle = StringExtention.DecodeUTF8(response.Name);
-							MylistDescription = StringExtention.DecodeUTF8(response.Description);
-						});
-					}).ConfigureAwait(false);
+				try
+				{
+					var response = await HohoemaApp.ContentFinder.GetMylist(MylistGroupId);
+					MylistTitle = StringExtention.DecodeUTF8(response.Name);
+					MylistDescription = StringExtention.DecodeUTF8(response.Description);
+
+					OwnerUserId = response.User_id;
+					
+					await Task.Delay(500);
+
+					var userDetail = await HohoemaApp.ContentFinder.GetUserDetail(OwnerUserId);
+
+					UserName = userDetail.Nickname;
+				}
+				catch
+				{
+
+				}				
 			}
 
-			UpdateTitle("マイリスト - " + MylistTitle);
+			UpdateTitle(MylistTitle);
 
-			base.OnNavigatedTo(e, viewModelState);
+
+
+			await base.OnNavigatedToAsync(e, viewModelState);
 		}
 
 		protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
@@ -172,6 +181,26 @@ namespace NicoPlayerHohoema.ViewModels
 				return new MylistIncrementalSource(MylistGroupId, HohoemaApp, PageManager);
 			}
 		}
+
+
+
+
+		private DelegateCommand _OpenUserPageCommand;
+		public DelegateCommand OpenUserPageCommand
+		{
+			get
+			{
+				return _OpenUserPageCommand
+					?? (_OpenUserPageCommand = new DelegateCommand(() =>
+					{
+						PageManager.OpenPage(HohoemaPageType.UserInfo, OwnerUserId);
+					}));
+			}
+		}
+
+
+
+
 
 		private string _MylistTitle;
 		public string MylistTitle
@@ -189,6 +218,15 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public string MylistGroupId { get; private set; }
 
+		public string OwnerUserId { get; private set; }
+
+
+		private string _UserName;
+		public string UserName
+		{
+			get { return _UserName; }
+			set { SetProperty(ref _UserName, value); }
+		}
 
 		public ReactiveProperty<bool> IsFavoriteMylist { get; private set; }
 		public ReactiveProperty<bool> CanChangeFavoriteMylistState { get; private set; }

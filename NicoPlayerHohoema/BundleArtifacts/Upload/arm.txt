@@ -1,2 +1,0 @@
-MainPackage=C:\Users\torakichi\Documents\Visual Studio 2015\Projects\NicoPlayerHohoema\NicoPlayerHohoema\bin\ARM\Release\Upload\NicoPlayerHohoema_0.2.0.0_ARM.appx
-SymbolPackage=C:\Users\torakichi\Documents\Visual Studio 2015\Projects\NicoPlayerHohoema\NicoPlayerHohoema\AppPackages\NicoPlayerHohoema_0.2.0.0\NicoPlayerHohoema_0.2.0.0_ARM.appxsym

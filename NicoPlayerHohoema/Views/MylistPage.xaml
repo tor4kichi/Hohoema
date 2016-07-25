@@ -31,12 +31,24 @@
 
 
                 <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left">
-                    <TextBlock Text="{Binding MylistTitle}" />
+                    
 
                     <AppBarToggleButton Icon="Favorite"
                                     IsChecked="{Binding IsFavoriteMylist.Value, Mode=TwoWay}"
                                     IsEnabled="{Binding CanChangeFavoriteMylistState.Value}"
+                                        Label="お気に入り"
                                     />
+
+                    <Border Width="16" />
+
+                    <HyperlinkButton Command="{Binding OpenUserPageCommand}"
+                                     >
+                        <TextBlock>
+                            <Run Text="{Binding UserName}" />
+                            <Run Text=" さんのマイリスト" />
+                        </TextBlock>
+                    </HyperlinkButton>
+                    
 
                 </StackPanel>
 
