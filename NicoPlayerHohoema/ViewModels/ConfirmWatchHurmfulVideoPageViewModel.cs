@@ -36,6 +36,7 @@ namespace NicoPlayerHohoema.ViewModels
 					});
 				});
 		}
+
 		protected override async Task OnNavigatedToAsync(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			await base.OnNavigatedToAsync(e, viewModelState);

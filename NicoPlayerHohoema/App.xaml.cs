@@ -209,13 +209,32 @@ namespace NicoPlayerHohoema
 
 			menu.Content = rootFrame;
 
-			rootFrame.Navigated += RootFrame_Navigated;
-
+			rootFrame.Navigating += RootFrame_Navigating;
+			
 			return menu;
 		}
 
-		private void RootFrame_Navigated(object sender, NavigationEventArgs e)
+		private void RootFrame_Navigating(object sender, NavigatingCancelEventArgs e)
 		{
+			if (e.NavigationMode == NavigationMode.Forward)
+			{
+				if (e.SourcePageType.Name.EndsWith("Page"))
+				{
+					var pageTypeString = e.SourcePageType.Name.Remove(e.SourcePageType.Name.IndexOf("Page"));
+
+					HohoemaPageType pageType;
+					if (Enum.TryParse(pageTypeString, out pageType))
+					{
+						if (pageType == HohoemaPageType.ConfirmWatchHurmfulVideo)
+						{
+							e.Cancel = true;
+							return;
+						}
+					}
+				}
+			}
+
+
 			if (e.NavigationMode == NavigationMode.Back || e.NavigationMode == NavigationMode.Forward)
 			{
 				if (e.SourcePageType.Name.EndsWith("Page"))
@@ -227,6 +246,8 @@ namespace NicoPlayerHohoema
 					{
 						var pageManager = Container.Resolve<PageManager>();
 						pageManager.OnNavigated(pageType);
+
+						Debug.WriteLine($"navigated : {pageType.ToString()}");
 					}
 					else
 					{
@@ -238,8 +259,8 @@ namespace NicoPlayerHohoema
 					throw new Exception();
 				}
 			}
-		}
 
+		}
 
 
 		private void PrismUnityApplication_UnhandledException(object sender, UnhandledExceptionEventArgs e)
