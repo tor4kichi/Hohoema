@@ -161,7 +161,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			if (UserId == null) { return; }
 
-			UpdateTitle($"{UserName} さんのユーザー情報");
+			UpdateTitle($"{UserName} さん");
 
 			// お気に入り状態の取得
 			_NowProcessFavorite = true;

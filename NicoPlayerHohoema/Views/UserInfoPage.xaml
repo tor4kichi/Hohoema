@@ -37,15 +37,17 @@
                                 >
 
                             <TextBlock Text="{Binding UserName}" 
-                                    FontSize="24"
-                                    Margin="8 8 16 8" />
+                                       FontSize="24"
+                                       Margin="8 8 32 8"
+                                       VerticalAlignment="Center"
+                                       />
                             
-                                <AppBarToggleButton Icon="Favorite"
-                                                    IsChecked="{Binding IsFavorite.Value, Mode=TwoWay}"
-                                                    IsEnabled="{Binding CanChangeFavoriteState.Value}"
-                                                    Label="お気に入り"
-                                                    Visibility="{Binding IsLoginUser, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                    />
+                            <AppBarToggleButton Icon="Favorite"
+                                                IsChecked="{Binding IsFavorite.Value, Mode=TwoWay}"
+                                                IsEnabled="{Binding CanChangeFavoriteState.Value}"
+                                                Label="お気に入り"
+                                                Visibility="{Binding IsLoginUser, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                />
 
                         </StackPanel>
                         
