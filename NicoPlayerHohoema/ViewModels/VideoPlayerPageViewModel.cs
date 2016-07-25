@@ -237,7 +237,11 @@ namespace NicoPlayerHohoema.ViewModels
 				NowQualityChanging.Value = true;
 
 				var x = CurrentVideoQuality.Value;
-				PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
+
+				if (PreviousVideoPosition == 0.0)
+				{
+					PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
+				}
 
 				var stream = await Video.GetVideoStream(x);
 
@@ -314,6 +318,7 @@ namespace NicoPlayerHohoema.ViewModels
 				.SubscribeOnUIDispatcher()
 				.Subscribe(_ => 
 				{
+					PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
 
 					if (CurrentVideoQuality.Value == NicoVideoQuality.Low)
 					{
@@ -323,6 +328,7 @@ namespace NicoPlayerHohoema.ViewModels
 					{
 						CurrentVideoQuality.Value = NicoVideoQuality.Low;
 					}
+
 
 					_VideoUpdaterSubject.OnNext(null);
 				})
@@ -814,8 +820,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 				if (videoInfo.IsBlockedHarmfulVideo)
 				{
-					// ここに来たナビゲーションを忘れさせる
-					PageManager.ForgetLastPage();
 					// 有害動画を視聴するか確認するページを表示
 					PageManager.OpenPage(HohoemaPageType.ConfirmWatchHurmfulVideo,
 						new VideoPlayPayload()

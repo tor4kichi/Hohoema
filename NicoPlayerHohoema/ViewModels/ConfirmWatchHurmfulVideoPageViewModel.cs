@@ -8,6 +8,7 @@ using Prism.Windows.Navigation;
 using Reactive.Bindings;
 using Prism.Commands;
 using System.Collections.ObjectModel;
+using Windows.UI.Xaml;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -20,9 +21,25 @@ namespace NicoPlayerHohoema.ViewModels
 			Tags = new ObservableCollection<string>();
 		}
 
+
+		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		{
+			base.OnNavigatedTo(e, viewModelState);
+
+			var dispatcher = Window.Current.CoreWindow.Dispatcher;
+			await Task.Delay(100).
+				ContinueWith(async prevResult => 
+				{
+					await dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
+					{
+						PageManager.ForgetLastPage();
+					});
+				});
+		}
 		protected override async Task OnNavigatedToAsync(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			await base.OnNavigatedToAsync(e, viewModelState);
+
 
 			VideoPlayPayload payload = null;
 			if (e.Parameter is string)
@@ -78,7 +95,6 @@ namespace NicoPlayerHohoema.ViewModels
 				return _ContinueWatchVideoCommand
 					?? (_ContinueWatchVideoCommand = new DelegateCommand(() =>
 					{
-						PageManager.ForgetLastPage();
 
 						NicoVideo.HarmfulContentReactionType = IsNoMoreConfirmHarmfulVideo.Value ? Mntone.Nico2.HarmfulContentReactionType.ContinueWithNotMoreConfirm : Mntone.Nico2.HarmfulContentReactionType.ContinueOnce;
 						PageManager.OpenPage(HohoemaPageType.VideoPlayer,
@@ -89,6 +105,8 @@ namespace NicoPlayerHohoema.ViewModels
 							}
 							.ToParameterString()
 						);
+
+						PageManager.ForgetLastPage();
 					}));
 			}
 		}
