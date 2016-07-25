@@ -580,7 +580,7 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public async Task<ContentManageResult> AddFav(FavoriteItemType itemType, string id)
+		public async Task<ContentManageResult> AddFav(FavoriteItemType itemType, string id, string name)
 		{
 			ContentManageResult? result = null;
 			switch (itemType)
@@ -602,6 +602,7 @@ namespace NicoPlayerHohoema.Models
 			{
 				var newList = new FavFeedList()
 				{
+					Name = name,
 					Id = id,
 					FavoriteItemType = itemType,
 				};

@@ -223,7 +223,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 				items.Add(videoInfoVM);
 
-				videoInfoVM.LoadThumbnail();
+				await videoInfoVM.LoadThumbnail();
 
 			}
 
@@ -237,7 +237,7 @@ namespace NicoPlayerHohoema.ViewModels
 			if (!IsTagSearch.Value) { return false; }
 
 			var favManager = HohoemaApp.FavFeedManager;
-			var result = await favManager.AddFav(FavoriteItemType.Tag, SearchOption.Keyword);
+			var result = await favManager.AddFav(FavoriteItemType.Tag, SearchOption.Keyword, SearchOption.Keyword);
 
 			return result == Mntone.Nico2.ContentManageResult.Success || result == Mntone.Nico2.ContentManageResult.Exist;
 		}

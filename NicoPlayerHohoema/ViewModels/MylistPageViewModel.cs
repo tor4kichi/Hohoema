@@ -84,7 +84,7 @@ namespace NicoPlayerHohoema.ViewModels
 			if (MylistGroupId == null) { return false; }
 
 			var favManager = HohoemaApp.FavFeedManager;
-			var result = await favManager.AddFav(FavoriteItemType.Mylist, MylistGroupId);
+			var result = await favManager.AddFav(FavoriteItemType.Mylist, MylistGroupId, MylistTitle);
 
 			return result == ContentManageResult.Success || result == ContentManageResult.Exist;
 		}

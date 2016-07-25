@@ -229,7 +229,7 @@ namespace NicoPlayerHohoema.ViewModels
 			if (UserId == null) { return false; }
 
 			var favManager = HohoemaApp.FavFeedManager;
-			var result = await favManager.AddFav(FavoriteItemType.User, UserId);
+			var result = await favManager.AddFav(FavoriteItemType.User, UserId, UserName);
 
 			return result == ContentManageResult.Success || result == ContentManageResult.Exist;
 		}
