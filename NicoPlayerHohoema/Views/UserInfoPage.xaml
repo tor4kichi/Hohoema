@@ -38,25 +38,15 @@
 
                             <TextBlock Text="{Binding UserName}" 
                                     FontSize="24"
-                                    Margin="8 8" />
+                                    Margin="8 8 16 8" />
                             
-                            <StackPanel Visibility="{Binding IsFavorite.Value, Converter={StaticResource BooleanToVisibility}}"
-                                        Background="#4CA9A9A9"
+                                <AppBarToggleButton Icon="Favorite"
+                                                    IsChecked="{Binding IsFavorite.Value, Mode=TwoWay}"
+                                                    IsEnabled="{Binding CanChangeFavoriteState.Value}"
+                                                    Label="お気に入り"
+                                                    Visibility="{Binding IsLoginUser, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                    />
 
-                                        >
-                                <AppBarButton Icon="Favorite" IsCompact="True" Foreground="#FFFDFD25" Command="{Binding RemoveFavoriteCommand}" 
-                                            ToolTipService.ToolTip="お気に入り登録済み"
-                                            />
-                            </StackPanel>
-
-                            <StackPanel Visibility="{Binding IsFavorite.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                        Background="#4CA9A9A9"
-                                        >
-                                <AppBarButton Icon="Favorite" IsCompact="True" Foreground="Black" Command="{Binding AddFavoriteCommand}"
-                                            ToolTipService.ToolTip="お気に入り未登録"
-
-                                            />
-                            </StackPanel>
                         </StackPanel>
                         
                         
@@ -171,7 +161,17 @@
                                 >
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Title}" />
+                                <Border Background="Transparent" IsHitTestVisible="True">
+
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Tapped">
+                                            <core:InvokeCommandAction Command="{Binding OpenMylistCommand}" />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
+                                    
+                                    <TextBlock Text="{Binding Title}" />
+                                </Border>
+                                
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>

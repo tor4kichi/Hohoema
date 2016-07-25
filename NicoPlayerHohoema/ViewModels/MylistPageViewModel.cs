@@ -44,12 +44,12 @@ namespace NicoPlayerHohoema.ViewModels
 					{
 						if (await FavoriteMylist())
 						{
-							Debug.WriteLine(_MylistTitle + "のタグをお気に入り登録しました.");
+							Debug.WriteLine(_MylistTitle + "のマイリストをお気に入り登録しました.");
 						}
 						else
 						{
 							// お気に入り登録に失敗した場合は状態を差し戻し
-							Debug.WriteLine(_MylistTitle + "のタグをお気に入り登録に失敗");
+							Debug.WriteLine(_MylistTitle + "のマイリストをお気に入り登録に失敗");
 							IsFavoriteMylist.Value = false;
 						}
 					}
@@ -57,19 +57,19 @@ namespace NicoPlayerHohoema.ViewModels
 					{
 						if (await UnfavoriteMylist())
 						{
-							Debug.WriteLine(_MylistTitle + "のタグをお気に入り解除しました.");
+							Debug.WriteLine(_MylistTitle + "のマイリストをお気に入り解除しました.");
 						}
 						else
 						{
 							// お気に入り解除に失敗した場合は状態を差し戻し
-							Debug.WriteLine(_MylistTitle + "のタグをお気に入り解除に失敗");
+							Debug.WriteLine(_MylistTitle + "のマイリストをお気に入り解除に失敗");
 							IsFavoriteMylist.Value = true;
 						}
 					}
 
 					CanChangeFavoriteMylistState.Value = 
 						IsFavoriteMylist.Value == true 
-						|| HohoemaApp.FavFeedManager.CanMoreAddFavorite(FavoriteItemType.Tag);
+						|| HohoemaApp.FavFeedManager.CanMoreAddFavorite(FavoriteItemType.Mylist);
 
 
 					_NowProcessFavorite = false;
@@ -77,8 +77,6 @@ namespace NicoPlayerHohoema.ViewModels
 				.AddTo(_CompositeDisposable);
 		}
 
-
-		private bool _NowProcessFavorite;
 
 
 		private async Task<bool> FavoriteMylist()
@@ -199,6 +197,8 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
+
+		private bool _NowProcessFavorite;
 
 
 

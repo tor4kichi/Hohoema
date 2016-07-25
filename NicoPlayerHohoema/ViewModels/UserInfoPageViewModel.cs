@@ -26,39 +26,52 @@ namespace NicoPlayerHohoema.ViewModels
 
 			IsFavorite = new ReactiveProperty<bool>()
 				.AddTo(_CompositeDisposable);
-			CanAddFavorite = new ReactiveProperty<bool>()
+			CanChangeFavoriteState = new ReactiveProperty<bool>()
 				.AddTo(_CompositeDisposable);
 
 
-			AddFavoriteCommand = CanAddFavorite
-				.ToReactiveCommand()
-				.AddTo(_CompositeDisposable);
-
-			RemoveFavoriteCommand = IsFavorite
-				.ToReactiveCommand()
-				.AddTo(_CompositeDisposable);
-
-			AddFavoriteCommand.Where(_ => UserId != null)
-				.Subscribe(async x => 
-				{
-					var result = await HohoemaApp.FavFeedManager.AddFav(FavoriteItemType.User, UserId);
-					if (result == ContentManageResult.Success)
-					{
-						IsFavorite.Value = true;
-						CanAddFavorite.Value = false;
-					}
-				})
-				.AddTo(_CompositeDisposable);
-
-			RemoveFavoriteCommand.Where(_ => UserId != null)
+			IsFavorite
+				.Where(x => UserId != null)
 				.Subscribe(async x =>
 				{
-					var result = await HohoemaApp.FavFeedManager.RemoveFav(FavoriteItemType.User, UserId);
-					if (result == ContentManageResult.Success)
+					if (_NowProcessFavorite) { return; }
+
+					_NowProcessFavorite = true;
+
+					CanChangeFavoriteState.Value = false;
+					if (x)
 					{
-						IsFavorite.Value = false;
-						CanAddFavorite.Value = HohoemaApp.FavFeedManager.CanMoreAddFavorite(FavoriteItemType.User);
+						if (await FavoriteUser())
+						{
+							Debug.WriteLine(UserName + "をお気に入り登録しました.");
+						}
+						else
+						{
+							// お気に入り登録に失敗した場合は状態を差し戻し
+							Debug.WriteLine(UserName + "をお気に入り登録に失敗");
+							IsFavorite.Value = false;
+						}
 					}
+					else
+					{
+						if (await UnfavoriteUser())
+						{
+							Debug.WriteLine(UserName + "をお気に入り解除しました.");
+						}
+						else
+						{
+							// お気に入り解除に失敗した場合は状態を差し戻し
+							Debug.WriteLine(UserName + "お気に入り解除に失敗");
+							IsFavorite.Value = true;
+						}
+					}
+
+					CanChangeFavoriteState.Value =
+						IsFavorite.Value == true
+						|| HohoemaApp.FavFeedManager.CanMoreAddFavorite(FavoriteItemType.User);
+
+
+					_NowProcessFavorite = false;
 				})
 				.AddTo(_CompositeDisposable);
 
@@ -95,6 +108,9 @@ namespace NicoPlayerHohoema.ViewModels
 			if (userId == UserId) { return; }
 
 			UserId = userId;
+
+			// ログインユーザーと同じ場合、お気に入り表示をOFFに
+			IsLoginUser = HohoemaApp.LoginUserId.ToString() == userId;
 
 			IsLoadFailed = false;
 
@@ -147,26 +163,17 @@ namespace NicoPlayerHohoema.ViewModels
 
 			UpdateTitle($"{UserName} さんのユーザー情報");
 
-			try
-			{
-				var favManager = HohoemaApp.FavFeedManager;
-				IsFavorite.Value = favManager.IsFavoriteItem(FavoriteItemType.User, UserId);
-				if (!IsFavorite.Value)
-				{
-					CanAddFavorite.Value = favManager.CanMoreAddFavorite(FavoriteItemType.User);
-				}
-				else
-				{
-					CanAddFavorite.Value = false;
-				}
-			}
-			catch (Exception ex)
-			{
-				CanAddFavorite.Value = false;
-				IsLoadFailed = true;
-				NowLoading = false;
-				Debug.WriteLine(ex.Message);
-			}
+			// お気に入り状態の取得
+			_NowProcessFavorite = true;
+
+			var favManager = HohoemaApp.FavFeedManager;
+			IsFavorite.Value = favManager.IsFavoriteItem(FavoriteItemType.User, UserId);
+
+			CanChangeFavoriteState.Value =
+				IsFavorite.Value == true
+				|| favManager.CanMoreAddFavorite(FavoriteItemType.User);
+
+			_NowProcessFavorite = false;
 
 			try
 			{
@@ -213,8 +220,47 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
+
+
+
+
+		private async Task<bool> FavoriteUser()
+		{
+			if (UserId == null) { return false; }
+
+			var favManager = HohoemaApp.FavFeedManager;
+			var result = await favManager.AddFav(FavoriteItemType.User, UserId);
+
+			return result == ContentManageResult.Success || result == ContentManageResult.Exist;
+		}
+
+		private async Task<bool> UnfavoriteUser()
+		{
+			if (UserId == null) { return false; }
+
+			var favManager = HohoemaApp.FavFeedManager;
+			var result = await favManager.RemoveFav(FavoriteItemType.User, UserId);
+
+			return result == ContentManageResult.Success;
+
+		}
+
+
+
+
+
+
+
 		public string UserId { get; private set; }
 		public bool IsLoadFailed { get; private set; }
+
+
+		private bool _IsLoginUser;
+		public bool IsLoginUser
+		{
+			get { return _IsLoginUser; }
+			set { SetProperty(ref _IsLoginUser, value); }
+		}
 
 
 		private string _UserName;
@@ -313,7 +359,9 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 		public ReactiveProperty<bool> IsFavorite { get; private set; }
-		public ReactiveProperty<bool> CanAddFavorite { get; private set; }
+		public ReactiveProperty<bool> CanChangeFavoriteState { get; private set; }
+		private bool _NowProcessFavorite;
+
 
 		public ReactiveCommand AddFavoriteCommand { get; private set; }
 		public ReactiveCommand RemoveFavoriteCommand { get; private set; }
