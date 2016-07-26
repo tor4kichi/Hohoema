@@ -9,6 +9,7 @@ using Prism.Windows.Navigation;
 using Prism.Mvvm;
 using Prism.Commands;
 using System.Collections.ObjectModel;
+using System.Threading;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -20,9 +21,8 @@ namespace NicoPlayerHohoema.ViewModels
 			Lists = new ObservableCollection<FavoriteListViewModel>();
 		}
 
-		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			base.OnNavigatedTo(e, viewModelState);
 
 			while (HohoemaApp.FavFeedManager == null)
 			{

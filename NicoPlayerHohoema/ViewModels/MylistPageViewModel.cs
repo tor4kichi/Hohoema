@@ -17,6 +17,7 @@ using System.Diagnostics;
 using NicoPlayerHohoema.Util;
 using Windows.UI.Xaml;
 using Reactive.Bindings.Extensions;
+using System.Threading;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -100,7 +101,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		}
 
-		protected override async Task OnNavigatedToAsync(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			if (e.Parameter is string)
 			{
@@ -121,17 +122,17 @@ namespace NicoPlayerHohoema.ViewModels
 			var favManager = HohoemaApp.FavFeedManager;
 			IsFavoriteMylist.Value = favManager.IsFavoriteItem(FavoriteItemType.Mylist, MylistGroupId);
 
-			CanChangeFavoriteMylistState.Value = 
-				IsFavoriteMylist.Value == true 
+			CanChangeFavoriteMylistState.Value =
+				IsFavoriteMylist.Value == true
 				|| favManager.CanMoreAddFavorite(FavoriteItemType.Mylist);
 
 			_NowProcessFavorite = false;
 
 
 
-			
-			
-			
+
+
+
 
 			if (MylistGroupId == "0")
 			{
@@ -148,7 +149,7 @@ namespace NicoPlayerHohoema.ViewModels
 					MylistDescription = StringExtention.DecodeUTF8(response.Description);
 
 					OwnerUserId = response.User_id;
-					
+
 					await Task.Delay(500);
 
 					var userDetail = await HohoemaApp.ContentFinder.GetUserDetail(OwnerUserId);
@@ -158,15 +159,16 @@ namespace NicoPlayerHohoema.ViewModels
 				catch
 				{
 
-				}				
+				}
 			}
 
 			UpdateTitle(MylistTitle);
 
 
 
-			await base.OnNavigatedToAsync(e, viewModelState);
 		}
+
+		
 
 		protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
 		{

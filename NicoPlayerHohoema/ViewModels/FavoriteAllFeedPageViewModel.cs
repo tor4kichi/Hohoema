@@ -11,6 +11,7 @@ using Reactive.Bindings;
 using Prism.Commands;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
+using System.Threading;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -47,11 +48,11 @@ namespace NicoPlayerHohoema.ViewModels
 			.AddTo(_CompositeDisposable);
 		}
 
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		protected override Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			base.OnNavigatedTo(e, viewModelState);
-
 			AllMarkAsReadCommand.RaiseCanExecuteChanged();
+
+			return Task.CompletedTask;
 		}
 
 

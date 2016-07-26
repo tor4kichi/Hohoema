@@ -87,7 +87,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		protected override Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			if (e.Parameter is string)
 			{
@@ -96,10 +96,9 @@ namespace NicoPlayerHohoema.ViewModels
 			else
 			{
 				RequireCategoryInfo = null;
-				return;
 			}
 
-			base.OnNavigatedTo(e, viewModelState);
+			return Task.CompletedTask;
 		}
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
@@ -279,7 +278,7 @@ namespace NicoPlayerHohoema.ViewModels
 						, nicoVideo
 						, _PageManager
 					);
-					vm.LoadThumbnail();
+					await vm.LoadThumbnail();
 
 					items.Add(vm);
 				}
@@ -336,7 +335,7 @@ namespace NicoPlayerHohoema.ViewModels
 					, _PageManager
 					);
 
-				videoInfoVM.LoadThumbnail();
+				await videoInfoVM.LoadThumbnail();
 
 				items.Add(videoInfoVM);
 			}

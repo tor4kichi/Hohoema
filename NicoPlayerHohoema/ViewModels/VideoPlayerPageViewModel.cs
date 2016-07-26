@@ -21,6 +21,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Concurrency;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -51,14 +52,21 @@ namespace NicoPlayerHohoema.ViewModels
 
 		static readonly Color defaultColor = ColorExtention.HexStringToColor("FFFFFF");
 
-		
 
-		public SynchronizationContextScheduler PlayerWindowUIDispatcherScheduler;
+		private SynchronizationContextScheduler _PlayerWindowUIDispatcherScheduler;
+		public SynchronizationContextScheduler PlayerWindowUIDispatcherScheduler
+		{
+			get
+			{
+				return _PlayerWindowUIDispatcherScheduler
+					?? (_PlayerWindowUIDispatcherScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current));
+			}
+		}
 
 		public VideoPlayerPageViewModel(HohoemaApp hohoemaApp, EventAggregator ea, PageManager pageManager)
 			: base(hohoemaApp, pageManager)
 		{
-			PlayerWindowUIDispatcherScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
+			
 
 			_SidePaneContentCache = new Dictionary<MediaInfoDisplayType, MediaInfoViewModel>();
 
@@ -67,8 +75,8 @@ namespace NicoPlayerHohoema.ViewModels
 				.AddTo(_CompositeDisposable);
 			CurrentVideoPosition = new ReactiveProperty<TimeSpan>(PlayerWindowUIDispatcherScheduler, TimeSpan.Zero)
 				.AddTo(_CompositeDisposable);
-			ReadVideoPosition = new ReactiveProperty<TimeSpan>(PlayerWindowUIDispatcherScheduler, TimeSpan.Zero)
-				.AddTo(_CompositeDisposable);
+			ReadVideoPosition = new ReactiveProperty<TimeSpan>(PlayerWindowUIDispatcherScheduler, TimeSpan.Zero);
+//				.AddTo(_CompositeDisposable);
 			CommentVideoPosition = new ReactiveProperty<TimeSpan>(PlayerWindowUIDispatcherScheduler, TimeSpan.Zero)
 				.AddTo(_CompositeDisposable);
 			CommentData = new ReactiveProperty<CommentResponse>(PlayerWindowUIDispatcherScheduler)
@@ -94,17 +102,7 @@ namespace NicoPlayerHohoema.ViewModels
 				.AddTo(_CompositeDisposable);
 			IsEnableRepeat = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false)
 				.AddTo(_CompositeDisposable);
-			IsMuted = HohoemaApp.UserSettings.PlayerSettings
-				.ToReactivePropertyAsSynchronized(x => x.IsMute, PlayerWindowUIDispatcherScheduler)
-				.AddTo(_CompositeDisposable);
-			SoundVolume = HohoemaApp.UserSettings.PlayerSettings
-				.ToReactivePropertyAsSynchronized(x => x.SoundVolume, PlayerWindowUIDispatcherScheduler)
-				.AddTo(_CompositeDisposable);
-			CommentFontScale = HohoemaApp.UserSettings.PlayerSettings
-				.ObserveProperty(x => x.DefaultCommentFontScale)
-				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
-				.AddTo(_CompositeDisposable);
-
+			
 
 			Title = new ReactiveProperty<string>("")
 				.AddTo(_CompositeDisposable);
@@ -121,29 +119,23 @@ namespace NicoPlayerHohoema.ViewModels
 			NowCommentWriting.Subscribe(x => Debug.WriteLine("NowCommentWriting:" + NowCommentWriting.Value))
 				.AddTo(_CompositeDisposable);
 
-			IsPauseWithCommentWriting = HohoemaApp.UserSettings.PlayerSettings
-				.ToReactivePropertyAsSynchronized(x => x.PauseWithCommentWriting, PlayerWindowUIDispatcherScheduler)
-				.AddTo(_CompositeDisposable);
-
+		
 			CanResumeOnExitWritingComment = new ReactiveProperty<bool>();
+
 			NowCommentWriting
 				.Where(x => x)
 				.Subscribe(x => 
 			{
 				// TODO: ウィンドウの表示状態が最小化の時にも再開できないようにしたい
 				CanResumeOnExitWritingComment.Value = CurrentState.Value == MediaElementState.Playing
-					&& IsPauseWithCommentWriting.Value;
+					&& (IsPauseWithCommentWriting?.Value ?? true);
 			})
 			.AddTo(_CompositeDisposable);
 
 			CommandString = new ReactiveProperty<string>("")
 				.AddTo(_CompositeDisposable);
 
-			CommandEditerVM = new CommentCommandEditerViewModel(isAnonymousDefault: HohoemaApp.UserSettings.PlayerSettings.IsDefaultCommentWithAnonymous)
-				.AddTo(_CompositeDisposable);
-
-			CommandEditerVM.OnCommandChanged += () => UpdateCommandString();
-
+			
 
 
 
@@ -251,6 +243,12 @@ namespace NicoPlayerHohoema.ViewModels
 					return;
 				}
 
+
+				// Note: 参照数をDisposeで減らす形を採用しています
+				// これはMediaElementが動画を停止させたことを確認してからStreamを閉じるための措置です
+				// MediaElementからのstream.Disposeの呼び出しは MediaElementExtention.cs を参照して下さい
+				// 他の参照数増減は NicoVideoDownloadContext.cs を参照して下さい
+				stream.IncrementRef();
 				VideoStream.Value = stream;
 
 				switch (x)
@@ -342,17 +340,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-			Observable.Merge(
-				IsMuted.ToUnit(),
-				SoundVolume.ToUnit()
-				)
-				.Throttle(TimeSpan.FromSeconds(5))
-				.Where(x => !IsDisposed)
-				.Subscribe(_ => 
-				{
-					HohoemaApp.UserSettings.PlayerSettings.Save().ConfigureAwait(false);
-				})
-				.AddTo(_CompositeDisposable);
+			
 
 			this.ObserveProperty(x => x.Video)
 				.Where(x => !IsDisposed)
@@ -495,10 +483,55 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactiveProperty()
 				.AddTo(_CompositeDisposable);
 
+			
+		}
+
+
+
+		protected override void OnSignIn(ICollection<IDisposable> userSessionDisposer)
+		{
+			IsPauseWithCommentWriting = HohoemaApp.UserSettings.PlayerSettings
+				.ToReactivePropertyAsSynchronized(x => x.PauseWithCommentWriting, PlayerWindowUIDispatcherScheduler)
+				.AddTo(userSessionDisposer);
+			OnPropertyChanged(nameof(IsPauseWithCommentWriting) + ".Value");
+
+			IsMuted = HohoemaApp.UserSettings.PlayerSettings
+				.ToReactivePropertyAsSynchronized(x => x.IsMute, PlayerWindowUIDispatcherScheduler)
+				.AddTo(userSessionDisposer);
+			OnPropertyChanged(nameof(IsMuted)+ ".Value");
+
+			SoundVolume = HohoemaApp.UserSettings.PlayerSettings
+				.ToReactivePropertyAsSynchronized(x => x.SoundVolume, PlayerWindowUIDispatcherScheduler)
+				.AddTo(userSessionDisposer);
+			OnPropertyChanged(nameof(SoundVolume) + ".Value");
+
+
+			Observable.Merge(
+				IsMuted.ToUnit(),
+				SoundVolume.ToUnit()
+				)
+				.Throttle(TimeSpan.FromSeconds(5))
+				.Where(x => !IsDisposed)
+				.Subscribe(_ =>
+				{
+					HohoemaApp.UserSettings.PlayerSettings.Save().ConfigureAwait(false);
+				})
+				.AddTo(userSessionDisposer);
+
+
+
+			CommentFontScale = HohoemaApp.UserSettings.PlayerSettings
+				.ObserveProperty(x => x.DefaultCommentFontScale)
+				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
+				.AddTo(userSessionDisposer);
+			OnPropertyChanged(nameof(CommentFontScale) + ".Value");
+
+
 			RequestFPS = HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.CommentRenderingFPS)
 				.Select(x => (int)x)
 				.ToReactiveProperty()
-				.AddTo(_CompositeDisposable);
+				.AddTo(userSessionDisposer);
+			OnPropertyChanged(nameof(RequestFPS) + ".Value");
 
 
 			HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.IsKeepDisplayInPlayback)
@@ -506,9 +539,16 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					SetKeepDisplayWithCurrentState();
 				})
-				.AddTo(_CompositeDisposable);
+				.AddTo(userSessionDisposer);
 
 
+			CommandEditerVM = new CommentCommandEditerViewModel(isAnonymousDefault: HohoemaApp.UserSettings.PlayerSettings.IsDefaultCommentWithAnonymous)
+				.AddTo(userSessionDisposer);
+			OnPropertyChanged(nameof(CommandEditerVM));
+
+			CommandEditerVM.OnCommandChanged += () => UpdateCommandString();
+
+			CanDownload = HohoemaApp.UserSettings?.CacheSettings?.IsUserAcceptedCache ?? false;
 		}
 
 
@@ -782,31 +822,24 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		
 
-		
-
-		protected override async Task OnNavigatedToAsync(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			Debug.WriteLine("VideoPlayer OnNavigatedToAsync start.");
-
-
-			CanDownload = HohoemaApp.UserSettings?.CacheSettings?.IsUserAcceptedCache ?? false;
-
 
 			NicoVideoQuality? quality = null;
 			if (e?.Parameter is string)
 			{
 				var payload = VideoPlayPayload.FromParameterString(e.Parameter as string);
 				VideoId = payload.VideoId;
-				quality =  payload.Quality;
+				quality = payload.Quality;
 			}
-			else if(viewModelState.ContainsKey(nameof(VideoId)))
+			else if (viewModelState.ContainsKey(nameof(VideoId)))
 			{
 				VideoId = (string)viewModelState[nameof(VideoId)];
 			}
 
-
+			cancelToken.ThrowIfCancellationRequested();
 
 			var currentUIDispatcher = Window.Current.Dispatcher;
 
@@ -838,8 +871,11 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				// 動画情報の取得に失敗
 				System.Diagnostics.Debug.Write(exception.Message);
-				
+
 			}
+
+			cancelToken.ThrowIfCancellationRequested();
+
 
 			// 動画ページにアクセスできず、キャッシュからも復元できなかった場合
 			if (Video.CachedWatchApiResponse == null)
@@ -847,7 +883,7 @@ namespace NicoPlayerHohoema.ViewModels
 				Debug.WriteLine($"cant playback{VideoId}. due to denied access to watch page, or connection offline.");
 
 				PageManager.NavigationService.GoBack();
-				
+
 				// TODO: 再生できなかった旨をアプリ内のトースト表示で通知する
 				return;
 			}
@@ -875,7 +911,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 			// CurrentVideoQualityは同一値の代入でもNotifyがトリガーされるようになっている
 			CurrentVideoQuality.Value = quality.Value;
-			
+
+			cancelToken.ThrowIfCancellationRequested();
 
 
 			if (viewModelState.ContainsKey(nameof(CurrentVideoPosition)))
@@ -902,6 +939,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 			UpdateCommandString();
 
+
+			cancelToken.ThrowIfCancellationRequested();
+
+
 			// PlayerSettings
 			var playerSettings = HohoemaApp.UserSettings.PlayerSettings;
 			IsVisibleComment.Value = playerSettings.DefaultCommentDisplay;
@@ -909,25 +950,23 @@ namespace NicoPlayerHohoema.ViewModels
 			_VideoUpdaterSubject.OnNext(null);
 
 
+			cancelToken.ThrowIfCancellationRequested();
+
 			// FavFeedList
 			await HohoemaApp.FavFeedManager.MarkAsRead(Video.VideoId);
 			await HohoemaApp.FavFeedManager.MarkAsRead(Video.RawVideoId);
+
+			cancelToken.ThrowIfCancellationRequested();
 
 			Debug.WriteLine("VideoPlayer OnNavigatedToAsync done.");
 		}
 
 
 
-
-
-
-		protected override Task OnNavigatingFromAsync(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
 			Debug.WriteLine("VideoPlayer OnNavigatingFromAsync start.");
-
-			Comments.Clear();
-
-
+			
 			if (suspending)
 			{
 				VideoStream.Value = null;
@@ -935,7 +974,7 @@ namespace NicoPlayerHohoema.ViewModels
 				viewModelState.Add(nameof(VideoId), VideoId);
 				viewModelState.Add(nameof(CurrentVideoPosition), CurrentVideoPosition.Value.TotalSeconds);
 			}
-			else if (VideoStream.Value != null)
+			else 
 			{
 				var stream = VideoStream.Value;
 				VideoStream.Value = null;
@@ -946,27 +985,35 @@ namespace NicoPlayerHohoema.ViewModels
 				// stream.Dispose();
 			}
 
-			Video?.StopPlay();
-
 			_SidePaneContentCache.Clear();
 
 			ExitKeepDisplay();
 
-			Debug.WriteLine("VideoPlayer OnNavigatingFromAsync done.");
+			Comments.Clear();
 
-			return Task.CompletedTask;
+			if (Video != null)
+			{
+				var task = Video.StopPlay();
+				task.Wait();
+			}
+
+			base.OnNavigatingFrom(e, viewModelState, suspending);
+
+
+			Debug.WriteLine("VideoPlayer OnNavigatingFromAsync done.");
 		}
 
 		protected override void OnDispose()
 		{
-			Debug.WriteLine("VideoPlayer OnDispose start.");
+			base.OnDispose();
 
-			Video?.StopPlay();
+			if (Video != null)
+			{
+				VideoStream.Value = null;
 
-			Debug.WriteLine("VideoPlayer OnDispose done.");
+//				Video.StopPlay().ConfigureAwait(false);
+			}
 		}
-
-
 
 		private async Task<CommentResponse> GetComment()
 		{
@@ -1262,9 +1309,11 @@ namespace NicoPlayerHohoema.ViewModels
 		public List<MediaInfoDisplayType> Types { get; private set; }
 
 
-		internal async Task AddNgUser(Comment commentViewModel)
+
+		// TODO: コメントのNGユーザー登録
+		internal Task AddNgUser(Comment commentViewModel)
 		{
-			if (commentViewModel.UserId == null) { return; }
+			if (commentViewModel.UserId == null) { return Task.CompletedTask; }
 
 			string userName = "";
 			try
@@ -1281,7 +1330,8 @@ namespace NicoPlayerHohoema.ViewModels
 			});
 
 			UpdateCommentNGStatus();
-			
+
+			return Task.CompletedTask;
 		}
 	}
 

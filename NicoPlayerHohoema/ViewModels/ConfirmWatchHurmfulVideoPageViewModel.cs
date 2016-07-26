@@ -9,6 +9,7 @@ using Reactive.Bindings;
 using Prism.Commands;
 using System.Collections.ObjectModel;
 using Windows.UI.Xaml;
+using System.Threading;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -22,26 +23,8 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			base.OnNavigatedTo(e, viewModelState);
-
-			var dispatcher = Window.Current.CoreWindow.Dispatcher;
-			await Task.Delay(100).
-				ContinueWith(async prevResult => 
-				{
-					await dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
-					{
-						PageManager.ForgetLastPage();
-					});
-				});
-		}
-
-		protected override async Task OnNavigatedToAsync(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-			await base.OnNavigatedToAsync(e, viewModelState);
-
-
 			VideoPlayPayload payload = null;
 			if (e.Parameter is string)
 			{
@@ -52,12 +35,18 @@ namespace NicoPlayerHohoema.ViewModels
 				throw new Exception();
 			}
 
+			cancelToken.ThrowIfCancellationRequested();
+
 			VideoId = payload.VideoId;
 			Quality = payload.Quality;
 
 			NicoVideo = await HohoemaApp.MediaManager.GetNicoVideo(VideoId);
+
+			cancelToken.ThrowIfCancellationRequested();
+
 			SubmitDate = NicoVideo.CachedThumbnailInfo.PostedAt.DateTime;
 			Title = NicoVideo.Title;
+
 
 			Tags.Clear();
 			foreach (var tag in NicoVideo.CachedThumbnailInfo.Tags.Value)
@@ -65,7 +54,19 @@ namespace NicoPlayerHohoema.ViewModels
 				Tags.Add(tag.Value);
 			}
 
+			// このページに来る前のプレイヤーを忘れされる
+			// ユーザーが戻るナビゲーションを行った時は、動画ページを飛ばしてさらに前のリスト系ページ等に戻る
+			var dispatcher = Window.Current.CoreWindow.Dispatcher;
+			await Task.Delay(100).
+				ContinueWith(async prevResult =>
+				{
+					await dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+					{
+						PageManager.ForgetLastPage();
+					});
+				});
 		}
+	
 
 		private DelegateCommand _BackCommand;
 		public new DelegateCommand BackCommand

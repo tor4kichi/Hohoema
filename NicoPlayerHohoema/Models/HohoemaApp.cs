@@ -68,6 +68,7 @@ namespace NicoPlayerHohoema.Models
 			var id = CurrentAccount.MailOrTelephone;
 			var password = isRemenberPassword ? CurrentAccount.Password : "";
 			container.Values[id] = password;
+			ApplicationData.Current.SignalDataChanged();
 
 		}
 

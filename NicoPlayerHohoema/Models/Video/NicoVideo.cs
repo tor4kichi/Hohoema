@@ -564,7 +564,7 @@ namespace NicoPlayerHohoema.Models
 		/// <param name="cacheMode"></param>
 		/// <returns></returns>
 		/// <remarks>既にキャッシュ対象に指定されている場合、cacheModel.NoCacheは無視されます。</remarks>
-		public async Task<IRandomAccessStream> GetVideoStream(NicoVideoQuality quality)
+		public async Task<NicoVideoCachedStream> GetVideoStream(NicoVideoQuality quality)
 		{
 			IfVideoDeletedThrowException();
 

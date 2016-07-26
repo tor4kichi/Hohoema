@@ -98,10 +98,6 @@ namespace NicoPlayerHohoema.ViewModels
 			PageManager.OpenPage(HohoemaPageType.RankingCategory, info.ToParameterString());
 		}
 
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-			base.OnNavigatedTo(e, viewModelState);
-		}
 
 		public ObservableCollection<RankingCategoryHostListItem> RankingCategoryItems { get; private set; }
 

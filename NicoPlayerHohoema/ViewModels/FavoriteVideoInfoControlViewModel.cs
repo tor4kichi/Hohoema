@@ -42,7 +42,7 @@ namespace NicoPlayerHohoema.ViewModels
 									SearchTarget = SearchTarget.Tag,
 									SortDirection = Mntone.Nico2.SortDirection.Descending,
 									SortMethod = Mntone.Nico2.SortMethod.FirstRetrieve
-								});
+								}.ToParameterString());
 								break;
 							case FavoriteItemType.Mylist:
 								PageManager.OpenPage(HohoemaPageType.UserMylist, feedList.Id);

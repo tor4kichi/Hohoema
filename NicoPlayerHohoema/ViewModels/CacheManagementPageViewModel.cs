@@ -41,11 +41,6 @@ namespace NicoPlayerHohoema.ViewModels
 			});
 		}
 
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-			
-			base.OnNavigatedTo(e, viewModelState);
-		}
 		
 		#region Implement HohoemaVideListViewModelBase
 

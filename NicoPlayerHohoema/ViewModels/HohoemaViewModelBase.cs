@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 using Prism.Windows.Navigation;
 using System.Reactive.Disposables;
 using System.Threading;
+using Windows.UI.Xaml;
+using Windows.Foundation;
+using NicoPlayerHohoema.Util;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -36,7 +39,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 			_UserSettingsCompositeDisposable = new CompositeDisposable();
 
-			OnSignin();
 		}
 
 		private void OnSignin()
@@ -121,10 +123,27 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			_IsNavigatedToDone = false;
-			_IsNavigatingFromDone = false;
-
 			base.OnNavigatedTo(e, viewModelState);
+
+			// サインインステータスチェック
+
+			if (! await CheckSignIn())
+			{
+				var result = await HohoemaApp.SignInFromUserSettings();
+
+				if (result != Mntone.Nico2.NiconicoSignInStatus.Success)
+				{
+					// サインイン出来ない場合はログインページへ戻す
+					PageManager.OpenPage(HohoemaPageType.Login);
+					return;
+				}
+			}
+
+			OnSignin();
+
+			_NavigatedToTaskCancelToken = new CancellationTokenSource();
+
+			_NavigatedToTask = NavigatedToAsync(_NavigatedToTaskCancelToken.Token, e, viewModelState);
 
 			if (!String.IsNullOrEmpty(_Title))
 			{
@@ -134,95 +153,51 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				PageManager.PageTitle = PageManager.CurrentDefaultPageTitle();
 			}
-
-			try
-			{
-				await _NavigationToLock.WaitAsync();
-
-				await OnNavigatedToAsync(e, viewModelState);
-			}
-			finally
-			{
-				_NavigationToLock.Release();
-			}
-
-			_IsNavigatedToDone = true;
-			_IsNavigatingFromDone = false;
 		}
 
 
-		protected virtual Task OnNavigatedToAsync(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		protected virtual Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			return Task.CompletedTask;
 		}
 
-		public override async void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+
+		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
-			while (!_IsNavigatedToDone)
-			{
-				await Task.Delay(50);
-			}
+			_NavigatedToTaskCancelToken?.Cancel();
+
+			var task = _NavigatedToTask.WaitToCompelation();
+
+			task.Wait();
+
+			_NavigatedToTaskCancelToken?.Dispose();
+			_NavigatedToTaskCancelToken = null;
 
 			base.OnNavigatingFrom(e, viewModelState, suspending);
-
-			try
-			{
-				await _NavigationToLock.WaitAsync();
-
-				await OnNavigatingFromAsync(e, viewModelState, suspending);
-			}
-			finally
-			{
-				_NavigationToLock.Release();
-			}
-
-			if (suspending && HohoemaApp.IsLoggedIn)
-			{
-				await HohoemaApp.MediaManager?.Context.Suspending();
-			}
-
-			_IsNavigatingFromDone = true;
 		}
 
-		protected virtual Task OnNavigatingFromAsync(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
-		{
-			return Task.CompletedTask;
-		}
-
+	
 		protected void UpdateTitle(string title)
 		{
 			_Title = title;
 			PageManager.UpdateTitle(title);
 		}
 
-		public async void Dispose()
+		public void Dispose()
 		{
 			IsDisposed = true;
-
-			while (!_IsNavigatingFromDone)
-			{
-				await Task.Delay(50);
-			}
-
+			
 			OnSignout();
 
-			try
-			{
-				_NavigationToLock.Wait();
-
-				OnDispose();
-			}
-			finally
-			{
-				_NavigationToLock.Release();
-			}
+			OnDispose();
 
 			_CompositeDisposable.Dispose();
 			_UserSettingsCompositeDisposable?.Dispose();
 		}
 
-		
 
+		CancellationTokenSource _NavigatedToTaskCancelToken;
+		Task _NavigatedToTask;
 
 		private SemaphoreSlim _NavigationToLock;
 
@@ -234,8 +209,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 		private SemaphoreSlim _SignStatusLock;
 
-		private bool _IsNavigatedToDone;
-		private bool _IsNavigatingFromDone;
 
 		public bool IsRequireSignIn { get; private set; }
 		public bool NowSignIn { get; private set; }

@@ -55,27 +55,25 @@ namespace NicoPlayerHohoema
 			UnhandledException += PrismUnityApplication_UnhandledException;
 
 			this.Resuming += App_Resuming;
+			this.Suspending += App_Suspending;
 			
 			this.InitializeComponent();
 		}
 
-		
-
-		protected override async Task OnSuspendingApplicationAsync()
+		private async void App_Suspending(object sender, SuspendingEventArgs e)
 		{
-			await base.OnSuspendingApplicationAsync();
-
-//			var backTask = Container.Resolve<MediaBackgroundTask>();
-//			Container.Teardown(backTask);
-
+			var deferral = e.SuspendingOperation.GetDeferral();
 			var hohoemaApp = Container.Resolve<HohoemaApp>();
-//			hohoemaApp.SignOut().ConfigureAwait(false);
+			//			hohoemaApp.SignOut().ConfigureAwait(false);
 
-//			await hohoemaApp.MediaManager.Context.Suspending();
-
+			if (hohoemaApp.IsLoggedIn)
+			{
+				await hohoemaApp.MediaManager.Context.Suspending();
+			}
+			
+			deferral.Complete();
 		}
 
-		
 
 		private async void App_Resuming(object sender, object e)
 		{
@@ -120,8 +118,8 @@ namespace NicoPlayerHohoema
 		{
 			await RegisterTypes();
 
-			var playNicoVideoEvent = EventAggregator.GetEvent<PlayNicoVideoEvent>();
-			playNicoVideoEvent.Subscribe(PlayNicoVideoInPlayerWindow);
+//			var playNicoVideoEvent = EventAggregator.GetEvent<PlayNicoVideoEvent>();
+//			playNicoVideoEvent.Subscribe(PlayNicoVideoInPlayerWindow);
 
 			await base.OnInitializeAsync(args);
 		}
@@ -182,14 +180,16 @@ namespace NicoPlayerHohoema
 		protected override void OnWindowCreated(WindowCreatedEventArgs args)
 		{
 			base.OnWindowCreated(args);
-
-			var mainWindowView = ApplicationView.GetForCurrentView();
-			mainWindowView.Consolidated += MainWindowView_Consolidated;
+			
+//			var mainWindowView = ApplicationView.GetForCurrentView();
+//			mainWindowView.Consolidated += MainWindowView_Consolidated;
 
 		}
 
 		private void MainWindowView_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)
 		{
+			if (PlayerWindow == null) { App.Current.Exit(); }
+
 			if (sender.Id  == PlayerWindow.ViewId)
 			{
 				PlayerWindow.Closed();

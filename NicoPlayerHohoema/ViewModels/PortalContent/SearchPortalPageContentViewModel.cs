@@ -20,14 +20,20 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 			_HohoemaApp = hohoemaApp;
 			_SearchDialog = searchDialog;
 
+			_HohoemaApp.OnSignin += _HohoemaApp_OnSignin;
+		}
+
+		private void _HohoemaApp_OnSignin()
+		{
 			var searchSettings = _HohoemaApp.UserSettings.SearchSettings;
 
 			HistoryKeywords = searchSettings.SearchHistory
-				.ToReadOnlyReactiveCollection(x => 
+				.ToReadOnlyReactiveCollection(x =>
 					new PortalSearchHisotryItem(x, PageManager)
 				);
-		}
+			OnPropertyChanged(nameof(HistoryKeywords));
 
+		}
 
 		private DelegateCommand _SearchCommand;
 		public DelegateCommand SearchCommand

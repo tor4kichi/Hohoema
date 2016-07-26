@@ -53,12 +53,14 @@ namespace NicoPlayerHohoema.ViewModels
 				.AddTo(_CompositeDisposable);
 		}
 
-		
+
 
 		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			IsLoginFailed.Value = false;
+			// Note: ログインページだけはbase.OnNavigatedTo が不要
+			//			base.OnNavigatedTo(e, viewModelState);
 
+			IsLoginFailed.Value = false;
 
 			// ログイン済みの場合、ログアウトする
 			if (await HohoemaApp.CheckSignedInStatus() == NiconicoSignInStatus.Success)
@@ -79,7 +81,6 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 			}
 
-			base.OnNavigatedTo(e, viewModelState);
 		}
 
 

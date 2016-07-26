@@ -11,6 +11,7 @@ using Reactive.Bindings;
 using System.Reactive.Linq;
 using Reactive.Bindings.Extensions;
 using System.Diagnostics;
+using System.Threading;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -91,8 +92,9 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
+
 			NowLoading = true;
 
 			string userId = null;
@@ -216,7 +218,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			NowLoading = false;
 
-			base.OnNavigatedTo(e, viewModelState);
+			
 		}
 
 

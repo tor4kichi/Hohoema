@@ -16,6 +16,7 @@ using System.Reactive.Linq;
 using System.Diagnostics;
 using Reactive.Bindings.Extensions;
 using Windows.UI.Xaml.Navigation;
+using System.Threading;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -102,8 +103,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 		bool _NowProcessFavorite = false;
 
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		protected override Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
+
 			if (e.Parameter is string)
 			{
 				RequireSearchOption = SearchOption.FromParameterString(e.Parameter as string);
@@ -130,8 +132,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 			_NowProcessFavorite = false;
 
-
-			base.OnNavigatedTo(e, viewModelState);
+			return Task.CompletedTask;
+			
 		}
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)

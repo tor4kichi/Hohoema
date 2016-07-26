@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Prism.Windows.Navigation;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
+using System.Threading;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -254,7 +255,8 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		protected override Task OnNavigatedToAsync(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+
+		protected override Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			if (_IncrementalLoadingItems != null)
 			{
@@ -279,14 +281,7 @@ namespace NicoPlayerHohoema.ViewModels
 				OnPropertyChanged(nameof(IncrementalLoadingItems));
 			}
 
-			return base.OnNavigatedToAsync(e, viewModelState);
-		}
-
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-			base.OnNavigatedTo(e, viewModelState);
-
-			
+			return Task.CompletedTask;
 		}
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)

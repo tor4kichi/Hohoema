@@ -9,6 +9,7 @@ using Mntone.Nico2.Users.Video;
 using Prism.Windows.Navigation;
 using System.Diagnostics;
 using Mntone.Nico2.Users.User;
+using System.Threading;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -20,8 +21,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-
-		protected override async Task OnNavigatedToAsync(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			if (e.Parameter is string)
 			{
@@ -33,11 +33,10 @@ namespace NicoPlayerHohoema.ViewModels
 				_User = await HohoemaApp.ContentFinder.GetUserDetail(UserId);
 			}
 
+			cancelToken.ThrowIfCancellationRequested();
+
 			UpdateTitle(_User.Nickname + "さんの投稿動画一覧");
-
-			await base.OnNavigatedToAsync(e, viewModelState);
-		}
-
+		}	
 
 		protected override uint IncrementalLoadCount
 		{
