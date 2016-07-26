@@ -84,6 +84,9 @@ namespace NicoPlayerHohoema
 			await hohoemaApp.SignInFromUserSettings();
 
 			await hohoemaApp.MediaManager.Context.Resume();
+
+
+			hohoemaApp.Resumed();
 		}
 
 		protected override Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args)

@@ -21,30 +21,12 @@ namespace NicoPlayerHohoema.Views
 	/// <summary>
 	/// それ自体で使用できる空白ページまたはフレーム内に移動できる空白ページ。
 	/// </summary>
-	public sealed partial class VideoPlayerPage : SessionStateAwarePage
+	public sealed partial class VideoPlayerPage : Page
 	{
 		public VideoPlayerPage()
 		{
 			this.InitializeComponent();
-
-//			this.Unloaded += VideoPlayerPage_Unloaded;
-
 		}
-
-		private void VideoPlayerPage_Unloaded(object sender, RoutedEventArgs e)
-		{
-//			mediaElem.Stop();
-
-//			(DataContext as IDisposable).Dispose();
-		}
-
-		protected override void OnNavigatedFrom(NavigationEventArgs e)
-		{
-			base.OnNavigatedFrom(e);
-
-			(DataContext as IDisposable).Dispose();
-		}
-
 	}
 
 

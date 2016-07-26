@@ -52,12 +52,6 @@ namespace NicoPlayerHohoema.Views
 				{
 					mediaElement.SetSource(stream, contentType);
 				}
-
-				var oldStream = e.OldValue as IDisposable;
-				if (oldStream != null)
-				{
-					oldStream.Dispose();
-				}
 			}
 		}
 

@@ -1,4 +1,4 @@
-﻿<mvvm:SessionStateAwarePage
+﻿<Page
     x:Name="PageRoot"
     x:Class="NicoPlayerHohoema.Views.VideoPlayerPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -598,4 +598,4 @@
     </toolkit:DockPanel>
     
     
-</mvvm:SessionStateAwarePage>
+</Page>

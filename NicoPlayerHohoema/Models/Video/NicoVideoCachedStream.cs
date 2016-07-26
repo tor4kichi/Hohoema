@@ -232,11 +232,6 @@ namespace NicoPlayerHohoema.Models
 
 		public override void Dispose()
 		{
-			DecrementRef();
-
-			// まだ参照がある場合は処理しない
-			if (!IsNoRefarence) { return; }
-
 			// もうクローズ済みの場合は処理しない
 			if (IsClosed) { return; }
 
@@ -850,30 +845,6 @@ namespace NicoPlayerHohoema.Models
 		#endregion
 
 
-		#region RefCount
-
-
-		public void IncrementRef()
-		{
-			RefCount++;
-		}
-
-		private void DecrementRef()
-		{
-			RefCount--;
-		}
-
-		private bool IsNoRefarence
-		{
-			get
-			{
-				return RefCount <= 0;
-			}
-		}
-
-		#endregion
-
-
 
 		private IAsyncOperationWithProgress<IBuffer, uint> _CurrentOperation;
 
@@ -926,8 +897,6 @@ namespace NicoPlayerHohoema.Models
 
 
 		public bool IsClosed { get; private set; }
-
-		public int RefCount { get; private set; }
 	}
 
 	

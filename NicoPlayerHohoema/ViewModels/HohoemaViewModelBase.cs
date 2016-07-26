@@ -39,6 +39,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 			_UserSettingsCompositeDisposable = new CompositeDisposable();
 
+			HohoemaApp.OnResumed += _OnResumed;
+
 		}
 
 		private void OnSignin()
@@ -121,6 +123,10 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+
+		
+
+
 		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			base.OnNavigatedTo(e, viewModelState);
@@ -153,8 +159,20 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				PageManager.PageTitle = PageManager.CurrentDefaultPageTitle();
 			}
+
+
+
 		}
 
+		private void _OnResumed()
+		{
+			OnResumed();
+		}
+
+		protected virtual void OnResumed()
+		{
+
+		}
 
 		protected virtual Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
@@ -174,6 +192,7 @@ namespace NicoPlayerHohoema.ViewModels
 			_NavigatedToTaskCancelToken = null;
 
 			base.OnNavigatingFrom(e, viewModelState, suspending);
+
 		}
 
 	
@@ -191,8 +210,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 			OnDispose();
 
-			_CompositeDisposable.Dispose();
+			_CompositeDisposable?.Dispose();
 			_UserSettingsCompositeDisposable?.Dispose();
+
+			HohoemaApp.OnSignout -= OnSignout;
+			HohoemaApp.OnSignin -= OnSignin;
+
+			HohoemaApp.OnResumed -= _OnResumed;
 		}
 
 

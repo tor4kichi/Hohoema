@@ -181,7 +181,6 @@ namespace NicoPlayerHohoema.Models
 				await _StreamControlLock.WaitAsync();
 
 				CurrentPlayingStream = stream;
-				CurrentPlayingStream.IncrementRef();
 			}
 			finally
 			{
@@ -212,8 +211,6 @@ namespace NicoPlayerHohoema.Models
 		{
 			if (_CurrentPlayingStream != null)
 			{
-				_CurrentPlayingStream.Dispose();
-
 				// 再生ストリームが再生終了後に継続ダウンロードの必要がなければ、閉じる
 				if (_CurrentPlayingStream == _CurrentDownloadStream)
 				{
@@ -222,8 +219,10 @@ namespace NicoPlayerHohoema.Models
 						await CloseCurrentDownloadStream().ConfigureAwait(false);
 						await TryBeginNextDownloadRequest().ConfigureAwait(false);
 					}
+
+					_CurrentPlayingStream.Dispose();
 				}
-				
+
 				_CurrentPlayingStream = null;
 			}
 		}
@@ -447,8 +446,6 @@ namespace NicoPlayerHohoema.Models
 
 					OnCacheStarted?.Invoke(downloadStream.RawVideoId, downloadStream.Quality);
 				}
-
-				CurrentDownloadStream.IncrementRef();
 
 				await _CurrentDownloadStream.Download();
 			}
