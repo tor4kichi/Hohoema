@@ -37,7 +37,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
 					nameof(IsEnable)
 					, typeof(bool)
 					, typeof(SplitViewClosePane)
-					, new PropertyMetadata(default(bool))
+					, new PropertyMetadata(true)
 				);
 
 		public bool IsEnable
