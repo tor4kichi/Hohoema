@@ -219,7 +219,9 @@ namespace NicoPlayerHohoema.Models
 						await CloseCurrentDownloadStream().ConfigureAwait(false);
 						await TryBeginNextDownloadRequest().ConfigureAwait(false);
 					}
-
+				}
+				else
+				{
 					_CurrentPlayingStream.Dispose();
 				}
 

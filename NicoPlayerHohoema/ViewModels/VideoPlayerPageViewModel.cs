@@ -881,7 +881,10 @@ namespace NicoPlayerHohoema.ViewModels
 							toastContent = $"削除された動画です";
 						}
 						_ToastService.ShowText($"動画 {VideoId} は再生できません", toastContent);
-					});
+					})
+					.AsTask()
+					.ConfigureAwait(false);
+
 
 					return;
 				}

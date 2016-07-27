@@ -470,7 +470,7 @@ namespace NicoPlayerHohoema.Models
 				Debug.Write("ダウンロードキャンセルを待機中");
 
 
-				await _DownloadTask.WaitToCompelation().ConfigureAwait(false);
+				await _DownloadTask.WaitToCompelation();
 
 
 				_DownloadTask = null;
@@ -728,9 +728,9 @@ namespace NicoPlayerHohoema.Models
 
 				try
 				{
-					await _DownloadTaskLock.WaitAsync().ConfigureAwait(false);
+					await _DownloadTaskLock.WaitAsync();
 					_DownloadTask = null;
-					_DownloadTaskCancelToken.Dispose();
+					_DownloadTaskCancelToken?.Dispose();
 					_DownloadTaskCancelToken = null;
 				}
 				finally

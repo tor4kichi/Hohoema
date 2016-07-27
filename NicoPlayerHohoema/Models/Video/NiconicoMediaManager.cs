@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Storage;
+using Windows.UI.Xaml;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -22,6 +23,8 @@ namespace NicoPlayerHohoema.Models
 	/// </summary>
 	public class NiconicoMediaManager : BindableBase, IDisposable
 	{
+		
+
 		static internal async Task<NiconicoMediaManager> Create(HohoemaApp app)
 		{
 			var man = new NiconicoMediaManager(app);
@@ -107,16 +110,13 @@ namespace NicoPlayerHohoema.Models
 			{
 				await _NicoVideoSemaphore.WaitAsync();
 
-				if (VideoIdToNicoVideo.ContainsKey(rawVideoId))
-				{
-					return VideoIdToNicoVideo[rawVideoId];
-				}
-				else
+				if (!VideoIdToNicoVideo.ContainsKey(rawVideoId))
 				{
 					var nicoVideo = await NicoVideo.Create(_HohoemaApp, rawVideoId, Context);
 					VideoIdToNicoVideo.Add(rawVideoId, nicoVideo);
-					return nicoVideo;
 				}
+
+				return VideoIdToNicoVideo[rawVideoId];
 			}
 			finally
 			{
