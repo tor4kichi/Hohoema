@@ -78,7 +78,13 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 						{
 							var videoId = parameter.AbsolutePath.Split('/').Last();
 							System.Diagnostics.Debug.WriteLine($"open Video: {videoId}");
-							_PageManager.OpenPage(HohoemaPageType.VideoInfomation, videoId);
+							_PageManager.OpenPage(HohoemaPageType.VideoPlayer,
+								new VideoPlayPayload()
+								{
+									VideoId = videoId
+								}
+								.ToParameterString()
+								);
 						}
 
 					}));

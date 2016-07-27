@@ -119,6 +119,7 @@
     <Compile Include="Models\HohoemaApp.cs" />
     <Compile Include="Models\HohoemaPageType.cs" />
     <Compile Include="Models\LisenceSummary.cs" />
+    <Compile Include="Models\MediaBackgroundTask.cs" />
     <Compile Include="Models\Settings\CacheSettings.cs" />
     <Compile Include="Models\Video\NicoVideo.cs" />
     <Compile Include="Models\Video\NicoVideoCacheRequest.cs" />
@@ -288,6 +289,7 @@
     <Compile Include="Views\SearchContentDialog.xaml.cs">
       <DependentUpon>SearchContentDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Service\ToastNotificationService.cs" />
     <Compile Include="Views\SettingsPageContent\CacheSettingsPageContent.xaml.cs">
       <DependentUpon>CacheSettingsPageContent.xaml</DependentUpon>
     </Compile>
@@ -612,7 +614,16 @@
       <HintPath>lib\Mntone.Nico2.UWP.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\BackgroundAudioShared\VideoBackgroundShared.csproj">
+      <Project>{62c43640-d9fb-41b8-81b7-a02be8facd09}</Project>
+      <Name>VideoBackgroundShared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VideoBackgroundTask\VideoBackgroundTask.csproj">
+      <Project>{03e0d8ba-4f1d-4f35-8335-81b641bbbac1}</Project>
+      <Name>VideoBackgroundTask</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

@@ -711,6 +711,8 @@ namespace NicoPlayerHohoema.Models
 						}
 						await CacheFile.RenameAsync(name);
 
+						CacheFile = await StorageFile.GetFileFromPathAsync(CacheFile.Path);
+
 						await Task.Delay(100);
 					}
 				}

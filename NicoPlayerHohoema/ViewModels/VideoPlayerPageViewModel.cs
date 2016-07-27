@@ -7,6 +7,7 @@ using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Util;
 using NicoPlayerHohoema.ViewModels.VideoInfoContent;
 using NicoPlayerHohoema.Views;
+using NicoPlayerHohoema.Views.Service;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
@@ -63,10 +64,10 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		public VideoPlayerPageViewModel(HohoemaApp hohoemaApp, EventAggregator ea, PageManager pageManager)
+		public VideoPlayerPageViewModel(HohoemaApp hohoemaApp, EventAggregator ea, PageManager pageManager, ToastNotificationService toast)
 			: base(hohoemaApp, pageManager)
 		{
-			
+			_ToastService = toast;
 
 			_SidePaneContentCache = new Dictionary<MediaInfoDisplayType, MediaInfoViewModel>();
 
@@ -858,6 +859,33 @@ namespace NicoPlayerHohoema.ViewModels
 				await videoInfo.GetVideoInfo();
 				await videoInfo.CheckCacheStatus();
 
+				// 動画ページにアクセスできず、キャッシュからも復元できなかった場合
+				if (videoInfo.IsDeleted || videoInfo.CachedWatchApiResponse == null)
+				{
+					Debug.WriteLine($"cant playback{VideoId}. due to denied access to watch page, or connection offline.");
+
+					var dispatcher = Window.Current.CoreWindow.Dispatcher;
+
+					dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+					{
+						await Task.Delay(100);
+						PageManager.NavigationService.GoBack();
+
+						string toastContent = "";
+						if (!String.IsNullOrEmpty(videoInfo.Title))
+						{
+							toastContent = $"\"{videoInfo.Title}\" は削除された動画です";
+						}
+						else
+						{
+							toastContent = $"削除された動画です";
+						}
+						_ToastService.ShowText($"動画 {VideoId} は再生できません", toastContent);
+					});
+
+					return;
+				}
+
 				if (videoInfo.IsBlockedHarmfulVideo)
 				{
 					// 有害動画を視聴するか確認するページを表示
@@ -884,16 +912,7 @@ namespace NicoPlayerHohoema.ViewModels
 			cancelToken.ThrowIfCancellationRequested();
 
 
-			// 動画ページにアクセスできず、キャッシュからも復元できなかった場合
-			if (Video.CachedWatchApiResponse == null)
-			{
-				Debug.WriteLine($"cant playback{VideoId}. due to denied access to watch page, or connection offline.");
-
-				PageManager.NavigationService.GoBack();
-
-				// TODO: 再生できなかった旨をアプリ内のトースト表示で通知する
-				return;
-			}
+			
 
 
 			// ビデオクオリティをトリガーにしてビデオ関連の情報を更新させる
@@ -1033,6 +1052,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 //				Video.StopPlay().ConfigureAwait(false);
 			}
+
+			Video = null;
 
 			_BufferingMonitorDisposable?.Dispose();
 		}
@@ -1331,7 +1352,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public List<MediaInfoDisplayType> Types { get; private set; }
 
 
-
+		ToastNotificationService _ToastService;
 		// TODO: コメントのNGユーザー登録
 		internal Task AddNgUser(Comment commentViewModel)
 		{

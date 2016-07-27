@@ -144,8 +144,8 @@ namespace NicoPlayerHohoema
 			Container.RegisterInstance(hohoemaApp.ContentFinder);
 
 			// TODO: プレイヤーウィンドウ上で管理する
-//			var backgroundTask = MediaBackgroundTask.Create();
-//			Container.RegisterInstance(backgroundTask);
+			var backgroundTask = MediaBackgroundTask.Create();
+			Container.RegisterInstance(backgroundTask);
 
 
 			// ViewModels
@@ -165,13 +165,12 @@ namespace NicoPlayerHohoema
 			//			Container.RegisterType<ViewModels.PortalContent.FavPortalPageContentViewModel>(new ContainerControlledLifetimeManager());
 			//			Container.RegisterType<ViewModels.PortalContent.HistoryPortalPageContentViewModel>(new ContainerControlledLifetimeManager());
 
-			Container.RegisterType<ViewModels.VideoPlayerPageViewModel>(new TransientLifetimeManager());
 
 
 			// Service
 			Container.RegisterType<Views.Service.ISearchDialogService, Views.Service.SearchDialogService>();
 			Container.RegisterType<Views.Service.RankingChoiceDialogService>();
-
+			Container.RegisterInstance(new Views.Service.ToastNotificationService());
 		}
 
 

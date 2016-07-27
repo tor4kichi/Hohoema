@@ -489,14 +489,23 @@ namespace NicoPlayerHohoema.Models
 			// TODO: オフラインのときのストリーム作成
 
 			var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(rawVideoid).ConfigureAwait(false);
+			var thumbnailRes = await nicoVideo.GetThumbnailInfo().ConfigureAwait(false);
+
+
 			WatchApiResponse res;
 			if (quality == NicoVideoQuality.Low)
 			{
 				res = await nicoVideo.GetVideoInfoFromOnline(true).ConfigureAwait(false);
 			}
+			else if (thumbnailRes.SizeLow == 0)
+			{
+				// オリジナル画質のみの時
+				res = await nicoVideo.GetVideoInfoFromOnline().ConfigureAwait(false);
+			}
 			else
 			{
 				res = await nicoVideo.GetVideoInfoFromOnline().ConfigureAwait(false);
+
 				if (nicoVideo.NowLowQualityOnly && quality == NicoVideoQuality.Original && nicoVideo.OriginalQualityCacheState != NicoVideoCacheState.Cached)
 				{
 					// ダウンロード再生ができない
@@ -504,7 +513,6 @@ namespace NicoPlayerHohoema.Models
 				}
 			}
 
-			var thumbnailRes = await nicoVideo.GetThumbnailInfo().ConfigureAwait(false);
 
 			return await CreateDownloadStream(rawVideoid, res, thumbnailRes, quality);
 		}

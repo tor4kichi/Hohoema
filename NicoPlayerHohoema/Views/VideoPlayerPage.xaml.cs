@@ -26,6 +26,13 @@ namespace NicoPlayerHohoema.Views
 		public VideoPlayerPage()
 		{
 			this.InitializeComponent();
+
+			this.Unloaded += VideoPlayerPage_Unloaded;
+		}
+
+		private void VideoPlayerPage_Unloaded(object sender, RoutedEventArgs e)
+		{
+			(this.DataContext as IDisposable)?.Dispose();
 		}
 	}
 
