@@ -132,7 +132,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
 		private void RefreshTimerSetting()
 		{
 			TimerExit();
-
+				
 			_ExtractTimingTimer = new Timer((x) =>
 			{
 				var me = (MediaElementExtractPositionBehavior)x;
@@ -157,7 +157,11 @@ namespace NicoPlayerHohoema.Views.Behaviors
 						var mediaElem = this.AssociatedObject as MediaElement;
 						if (mediaElem == null) { return; }
 
-						this.Position = mediaElem.Position;
+						try
+						{
+							this.Position = mediaElem.Position;
+						}
+						catch { }
 					});
 		}
 

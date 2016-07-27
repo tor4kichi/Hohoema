@@ -3,7 +3,7 @@
     {
       "name": "HtmlAgilityPack",
       "site": "https://htmlagilitypack.codeplex.com/",
-      "author": ["Filip Skakun"],
+      "author": ["Simon Mourrier", "Jeff Klawiter", "Stephan Grell"],
       "lisence_type": "MS_PL",
       "lisence_page_url": "https://htmlagilitypack.codeplex.com/license"
     },
@@ -24,7 +24,7 @@
     {
       "name": "WinRTXamlToolkit.UWP",
       "site": "https://github.com/xyzzer/WinRTXamlToolkit",
-      "author": [""],
+      "author": ["Filip Skakun", "Thomas Martinsen", "Mahmoud Moussa", "Joost van Schaik"],
       "lisence_type": "MIT",
       "lisence_page_url": "https://github.com/xyzzer/WinRTXamlToolkit/blob/master/License.md"
     },

@@ -8,10 +8,12 @@
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     mc:Ignorable="d"
     d:DesignHeight="300"
-    d:DesignWidth="400">
+    d:DesignWidth="1200">
 
-    <ScrollViewer>
-        <ItemsControl Margin="8" >
+    <ScrollViewer 
+        HorizontalAlignment="Stretch"
+        >
+        <ItemsControl Margin="8" MinWidth="400" HorizontalAlignment="Left">
 
             <StackPanel Orientation="Horizontal" Margin="8 8 0 8">
                 <TextBlock Text="動画プレイヤーの設定"
@@ -22,73 +24,76 @@
 
             </StackPanel>
 
-            <toolkit:DockPanel Margin="8">
-
-                <TextBlock Text="低画質モードをデフォルトに設定する"
-                           toolkit:DockPanel.Dock="Left"
-                           VerticalAlignment="Center"
-                           />
-
-                <ToggleButton Width="32" Height="32"
-                              IsChecked="{Binding IsDefaultPlayWithLowQuality.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                              HorizontalAlignment="Right"
-                              />
-
-            </toolkit:DockPanel>
-
-
-            <toolkit:DockPanel Margin="8">
-
-                <TextBlock Text="再生中は画面を点灯したままにする"
-                           toolkit:DockPanel.Dock="Left"
-                           VerticalAlignment="Center"
-                           />
-
-                <ToggleButton Width="32" Height="32"
-                              IsChecked="{Binding IsKeepDisplayInPlayback.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                              HorizontalAlignment="Right"
-                              />
-
-            </toolkit:DockPanel>
-
-
-            <toolkit:DockPanel Margin="8">
-
-                <TextBlock Text="コメントを書き始めたら動画を一時停止する"
-                           toolkit:DockPanel.Dock="Left"
-                           VerticalAlignment="Center"
-                           />
-
-                <ToggleButton Width="32" Height="32"
-                              IsChecked="{Binding IsPauseWithCommentWriting.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                              HorizontalAlignment="Right"
-                              />
-
-            </toolkit:DockPanel>
-
-            <toolkit:DockPanel Margin="8">
-
-                <TextBlock Text="※音量は 0.0 ～ 1.0 の間に設定されます"
-                           toolkit:DockPanel.Dock="Bottom"
-                           VerticalAlignment="Center"
-                           FontSize="12"
-                           Foreground="Gray"
-                           />
+            <StackPanel Margin="8 0 0 0">
                 
-                <TextBlock Text="マウススクロール時の音量変更量"
-                           toolkit:DockPanel.Dock="Left"
-                           VerticalAlignment="Center"
-                           />
+                <toolkit:DockPanel Margin="8">
 
-                <toolkit:NumericUpDown Value="{Binding ScrollVolumeFrequency.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                       SmallChange="0.01"
-                                       LargeChange="0.05"
-                                       Minimum="0.0"
-                                       Maximum="1.0"
-                                       HorizontalAlignment="Right"
-                                       />
+                    <TextBlock Text="低画質モードをデフォルトに設定する"
+                               toolkit:DockPanel.Dock="Left"
+                               VerticalAlignment="Center"
+                               />
 
-            </toolkit:DockPanel>
+                    <ToggleButton Width="32" Height="32"
+                                  IsChecked="{Binding IsDefaultPlayWithLowQuality.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                  HorizontalAlignment="Right"
+                                  />
+
+                </toolkit:DockPanel>
+
+
+                <toolkit:DockPanel Margin="8">
+
+                    <TextBlock Text="再生中は画面を点灯したままにする"
+                               toolkit:DockPanel.Dock="Left"
+                               VerticalAlignment="Center"
+                               />
+
+                    <ToggleButton Width="32" Height="32"
+                                  IsChecked="{Binding IsKeepDisplayInPlayback.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  HorizontalAlignment="Right"
+                                  />
+
+                </toolkit:DockPanel>
+
+
+                <toolkit:DockPanel Margin="8">
+
+                    <TextBlock Text="コメントを書き始めたら動画を一時停止する"
+                               toolkit:DockPanel.Dock="Left"
+                               VerticalAlignment="Center"
+                               />
+
+                    <ToggleButton Width="32" Height="32"
+                                  IsChecked="{Binding IsPauseWithCommentWriting.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  HorizontalAlignment="Right"
+                                  />
+
+                </toolkit:DockPanel>
+
+                <toolkit:DockPanel Margin="8">
+
+                    <TextBlock Text="※音量は 0.0 ～ 1.0 の間に設定されます"
+                               toolkit:DockPanel.Dock="Bottom"
+                               VerticalAlignment="Center"
+                               FontSize="12"
+                               Foreground="Gray"
+                               />
+
+                    <TextBlock Text="マウススクロール時の音量変更量"
+                               toolkit:DockPanel.Dock="Left"
+                               VerticalAlignment="Center"
+                               />
+
+                    <toolkit:NumericUpDown Value="{Binding ScrollVolumeFrequency.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                           SmallChange="0.01"
+                                           LargeChange="0.05"
+                                           Minimum="0.0"
+                                           Maximum="1.0"
+                                           HorizontalAlignment="Right"
+                                           />
+
+                </toolkit:DockPanel>
+            </StackPanel>
 
         </ItemsControl>
     </ScrollViewer>

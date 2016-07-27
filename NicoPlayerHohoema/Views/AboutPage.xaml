@@ -16,12 +16,12 @@
     <Page.Resources>
         <Style x:Key="SubTitleStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="20" />
-            <Setter Property="Margin" Value="0 8" />
+            <Setter Property="Margin" Value="0 0" />
         </Style>
 
         <Style x:Key="ContentTextStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="13" />
-            <Setter Property="Margin" Value="0 8" />
+            <Setter Property="Margin" Value="0 0 0 8" />
             <Setter Property="TextWrapping" Value="Wrap" />
 
         </Style>
@@ -29,53 +29,68 @@
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
         <ScrollViewer>
-            <StackPanel Margin="16 8">
+            <StackPanel Margin="24 16 16 16">
+                
+                
                 <TextBlock Text="このアプリについて"
                        Style="{StaticResource SubTitleStyle}"
                    ></TextBlock>
 
+                <StackPanel Margin="16 8">
+                    <TextBlock Style="{StaticResource ContentTextStyle}">
+                        <Run>
+                            "Hohoema" はWindows 10向けのニコニコ動画プレイヤーです。
+                        </Run>
+                    </TextBlock>
+                </StackPanel>
 
-                <TextBlock Style="{StaticResource ContentTextStyle}">
-                <Run>
-                    "Nico Player Hohoema" はニコニコ動画の動画再生プレイヤーです。
-                </Run>
-
-                </TextBlock>
-
+                
+                
                 <TextBlock Text="作った人"
                        Style="{StaticResource SubTitleStyle}"
                        />
 
-                <TextBlock Style="{StaticResource ContentTextStyle}">
-                    <Run>
-                        @tor4kichi
-                    </Run>
-                </TextBlock>
-
+                <StackPanel Margin="16 8">
+                    <TextBlock Style="{StaticResource ContentTextStyle}">
+                        <Run>
+                            @tor4kichi
+                        </Run>
+                    </TextBlock>
+                </StackPanel>
+                
+                
+                
+                
                 <TextBlock Text="ソースコード"
                        Style="{StaticResource SubTitleStyle}"
                        />
 
+                <StackPanel Margin="16 8">
+                    <TextBlock Style="{StaticResource ContentTextStyle}">
+                        <Hyperlink NavigateUri="https://github.com/tor4kichi/Hohoema">
+                            https://github.com/tor4kichi/Hohoema
+                        </Hyperlink>
+                    </TextBlock>
 
-                <TextBlock Style="{StaticResource ContentTextStyle}">
-                    <Hyperlink NavigateUri="https://github.com/tor4kichi/Hohoema">
-                        https://github.com/tor4kichi/Hohoema
-                    </Hyperlink>
-                </TextBlock>
-
-                <TextBlock Style="{StaticResource ContentTextStyle}">
-                    <Run Foreground="Gray">
-                        ※ このアプリはGPL v3ライセンスの元、オープンソースで開発しています。
-                    </Run>
-                </TextBlock>
-
+                    <TextBlock Style="{StaticResource ContentTextStyle}">
+                        <Run Foreground="Gray">
+                            ※ このアプリはGPL v3ライセンスの元、オープンソースで開発しています。
+                        </Run>
+                    </TextBlock>
+                </StackPanel>
+                
+                
+                
+                
                 <TextBlock Text="使用ライブラリのライセンス表示"
                        Style="{StaticResource SubTitleStyle}"
                        />
 
 
 
-                <ItemsControl ItemsSource="{Binding LisenceItems}">
+                <ItemsControl ItemsSource="{Binding LisenceItems}"
+                              Margin="16 8"
+                              >
 
                     
                     <ItemsControl.ItemTemplate>
@@ -109,7 +124,7 @@
 
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
-                                                <StackPanel Orientation="Horizontal">
+                                                <StackPanel Orientation="Vertical">
 
                                                 </StackPanel>
                                             </ItemsPanelTemplate>
@@ -117,7 +132,7 @@
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <TextBlock Text="{Binding}"
-                                                       Margin="8 0"
+                                                       Margin="8 0 0 1"
                                                        />
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>

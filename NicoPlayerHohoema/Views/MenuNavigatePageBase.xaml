@@ -9,6 +9,7 @@
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
@@ -19,48 +20,7 @@
     <ContentControl.Resources>
         <DataTemplate x:Key="MenuItemTemplate">
             <StackPanel>
-                <VisualStateManager.VisualStateGroups>
-                    <VisualStateGroup x:Name="MenuItemState">
-
-                        <!-- 一番幅が広いとき -->
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <AdaptiveTrigger MinWindowWidth="1025" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-                                <Setter Target="LabelTextBlock.Visibility" Value="Visible" />
-                                <Setter Target="Icon.Height" Value="32" />
-                                <Setter Target="Icon.Width" Value="32" />
-                                <Setter Target="Icon.Margin" Value="8" />
-                            </VisualState.Setters>
-                        </VisualState>
-                        <!-- 中ぐらい -->
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <AdaptiveTrigger MinWindowWidth="721" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-                                <Setter Target="LabelTextBlock.Visibility" Value="Collapsed" />
-                                <Setter Target="Icon.Height" Value="32" />
-                                <Setter Target="Icon.Width" Value="32" />
-                                <Setter Target="Icon.Margin" Value="0" />
-
-                            </VisualState.Setters>
-                        </VisualState>
-                        <!-- 超狭い -->
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <AdaptiveTrigger MinWindowWidth="0" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-                                <Setter Target="LabelTextBlock.Visibility" Value="Collapsed" />
-                                <Setter Target="Icon.Height" Value="24" />
-                                <Setter Target="Icon.Width" Value="24" />
-                                <Setter Target="Icon.Margin" Value="0" />
-                            </VisualState.Setters>
-                        </VisualState>
-                    </VisualStateGroup>
-                </VisualStateManager.VisualStateGroups>
+                
 
                 <Border Background="Transparent" 
                     HorizontalAlignment="Stretch"
@@ -113,9 +73,11 @@
                                 <StateTrigger IsActive="{Binding IsVisibleMenu.Value, Converter={StaticResource InvertBoolean}}" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter Target="OpenPaneButton.Visibility" Value="Collapsed" />
                                 <Setter Target="SplitView.DisplayMode" Value="Overlay" />
                                 <Setter Target="SplitView.IsPaneOpen" Value="False" />
+
+                                <Setter Target="ContentTopBarPanel.Visibility" Value="Collapsed" />
+                                <Setter Target="TopBar.Visibility" Value="Collapsed" />
                             </VisualState.Setters>
                         </VisualState>
                         
@@ -125,10 +87,11 @@
                                 <AdaptiveTrigger MinWindowWidth="1025" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter Target="OpenPaneButton.Visibility" Value="Visible" />
                                 <Setter Target="SplitView.DisplayMode" Value="Inline" />
                                 <Setter Target="SplitView.IsPaneOpen" Value="True" />
-                                
+
+                                <Setter Target="ContentTopBarPanel.Visibility" Value="Visible" />
+                                <Setter Target="TopBar.Visibility" Value="Collapsed" />
                             </VisualState.Setters>
                         </VisualState>
                         <!-- 中ぐらい -->
@@ -137,8 +100,11 @@
                                 <AdaptiveTrigger MinWindowWidth="721" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter Target="OpenPaneButton.Visibility" Value="Visible" />
                                 <Setter Target="SplitView.DisplayMode" Value="CompactOverlay" />
+                                <Setter Target="SplitView.IsPaneOpen" Value="False" />
+
+                                <Setter Target="ContentTopBarPanel.Visibility" Value="Collapsed" />
+                                <Setter Target="TopBar.Visibility" Value="Visible" />
                             </VisualState.Setters>
                         </VisualState>
                         <!-- 超狭い -->
@@ -147,40 +113,17 @@
                                 <AdaptiveTrigger MinWindowWidth="0" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter Target="OpenPaneButton.Visibility" Value="Visible" />
-                                <Setter Target="SplitView.DisplayMode" Value="CompactOverlay" />
+                                <Setter Target="SplitView.DisplayMode" Value="Overlay" />
+                                <Setter Target="SplitView.IsPaneOpen" Value="False" />
+
+                                <Setter Target="ContentTopBarPanel.Visibility" Value="Collapsed" />
+                                <Setter Target="TopBar.Visibility" Value="Visible" />
                             </VisualState.Setters>
                         </VisualState>
                     </VisualStateGroup>
 
 
-                    <VisualStateGroup x:Name="PaneStateGroup">
-                        <!-- 一番幅が広いとき -->
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <AdaptiveTrigger MinWindowWidth="1025" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-                            </VisualState.Setters>
-                        </VisualState>
-                        <!-- 中ぐらい -->
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <AdaptiveTrigger MinWindowWidth="721" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-                            </VisualState.Setters>
-                        </VisualState>
-                        <!-- 超狭い -->
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <AdaptiveTrigger MinWindowWidth="0" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-                            </VisualState.Setters>
-                        </VisualState>
-                    </VisualStateGroup>
-
+                    
                     
 
 
@@ -211,12 +154,13 @@
 
                     
                     <!-- Topbar Right-->
+                    <toolkit:DockPanel>
+                        
+                    </toolkit:DockPanel>
                     <StackPanel 
                                 Orientation="Horizontal"
                                 toolkit:DockPanel.Dock="Right"
                                 >
-
-
                         <AppBarButton
                           Icon="Find"
                           toolkit:DockPanel.Dock="Left"
@@ -250,11 +194,8 @@
 
                 <SplitView x:Name="SplitView" 
                            CompactPaneLength="48"
-                           DisplayMode="CompactInline"
                            OpenPaneLength="180"
                            >
-
-                    
                     <SplitView.Pane>
                         <StackPanel>
 
@@ -272,11 +213,8 @@
                                 
                                 <i:Interaction.Behaviors>
                                     <core:EventTriggerBehavior EventName="SelectionChanged">
-                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=SplitView}"
-                                                                   PropertyName="IsPaneOpen"
-                                                                   Value="False"
-                                                                   />
-
+                                        <mybehavior:SplitViewClosePane SplitView="{Binding ElementName=SplitView}" 
+                                                                       />
                                     </core:EventTriggerBehavior>
                                 </i:Interaction.Behaviors>
                             </ListBox>
@@ -299,11 +237,8 @@
 
                                 <i:Interaction.Behaviors>
                                     <core:EventTriggerBehavior EventName="SelectionChanged">
-                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=SplitView}"
-                                                                   PropertyName="IsPaneOpen"
-                                                                   Value="False"
-                                                                   />
-
+                                        <mybehavior:SplitViewClosePane SplitView="{Binding ElementName=SplitView}" 
+                                                                       />
                                     </core:EventTriggerBehavior>
                                 </i:Interaction.Behaviors>
                             </ListBox>
@@ -314,7 +249,63 @@
 
                         <toolkit:DockPanel>
 
+
+
+                            
+                            <toolkit:DockPanel x:Name="ContentTopBarPanel"
+                                               toolkit:DockPanel.Dock="Top"
+                                               >
+
+                                <AppBarButton
+                                  Icon="OpenPane"
+                                  toolkit:DockPanel.Dock="Left"
+                                  Height="48"
+                                  Visibility="{Binding ElementName=SplitView, Path=IsPaneOpen, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                  >
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Tapped">
+                                            <core:ChangePropertyAction TargetObject="{Binding ElementName=SplitView}"
+                                                           PropertyName="IsPaneOpen"
+                                                           Value="True"
+                                                       />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
+                                </AppBarButton>
+
+                                
+                                <StackPanel 
+                                    Orientation="Horizontal"
+                                    toolkit:DockPanel.Dock="Right"
+                                    >
+                                    <AppBarButton
+                                      Icon="Find"
+                                      toolkit:DockPanel.Dock="Left"
+                                      Height="48"
+                                      >
+                                        <i:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Tapped">
+                                                <core:InvokeCommandAction Command="{Binding OpenSearchDialogCommand}" />
+                                            </core:EventTriggerBehavior>
+                                        </i:Interaction.Behaviors>
+                                    </AppBarButton>
+
+
+                                </StackPanel>
+
+                                <TextBlock 
+                                   Text="{Binding TitleText}"
+                                   VerticalAlignment="Center"
+                                   FontSize="24"
+                                   Margin="16 0"
+                                   FontWeight="SemiLight"
+                                   >
+
+                                </TextBlock>
+                            </toolkit:DockPanel>
+
+                            
                             <ContentPresenter />
+
 
                         </toolkit:DockPanel>
                     </SplitView.Content>

@@ -49,7 +49,7 @@ namespace NicoPlayerHohoema.ViewModels
 				new RankingTargetListItem(RankingTarget.mylist)
 			};
 
-			SelectedRankingTarget = new ReactiveProperty<RankingTargetListItem>(RankingTargetItems[0], ReactivePropertyMode.DistinctUntilChanged)
+			SelectedRankingTarget = new ReactiveProperty<RankingTargetListItem>(RankingTargetItems[0])
 				.AddTo(_CompositeDisposable);
 
 
@@ -63,19 +63,20 @@ namespace NicoPlayerHohoema.ViewModels
 				new RankingTimeSpanListItem(RankingTimeSpan.total),
 			};
 
-			SelectedRankingTimeSpan = new ReactiveProperty<RankingTimeSpanListItem>(RankingTimeSpanItems[0], ReactivePropertyMode.DistinctUntilChanged)
+			SelectedRankingTimeSpan = new ReactiveProperty<RankingTimeSpanListItem>(RankingTimeSpanItems[0])
 				.AddTo(_CompositeDisposable);
-
 
 			Observable.CombineLatest(
 				SelectedRankingTarget.ToUnit(),
 				SelectedRankingTimeSpan.ToUnit()
 				)
-				.Throttle(TimeSpan.FromSeconds(0.25), UIDispatcherScheduler.Default)
 				.SubscribeOnUIDispatcher()
 				.Subscribe(x => 
 				{
-					ResetList();
+					if (RequireCategoryInfo!= null)
+					{
+						ResetList();
+					}
 				})
 				.AddTo(_CompositeDisposable);
 
@@ -88,7 +89,6 @@ namespace NicoPlayerHohoema.ViewModels
 			PageManager.OpenPage(HohoemaPageType.VideoInfomation, videoUrl);
 		}
 
-
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			if (e.Parameter is string)
@@ -98,10 +98,14 @@ namespace NicoPlayerHohoema.ViewModels
 			else
 			{
 				RequireCategoryInfo = null;
-				return;
 			}
 
 			base.OnNavigatedTo(e, viewModelState);
+		}
+
+		protected override Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		{
+			return base.NavigatedToAsync(cancelToken, e, viewModelState);
 		}
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
@@ -281,7 +285,7 @@ namespace NicoPlayerHohoema.ViewModels
 						, nicoVideo
 						, _PageManager
 					);
-					vm.LoadThumbnail();
+					await vm.LoadThumbnail();
 
 					items.Add(vm);
 				}
@@ -338,7 +342,7 @@ namespace NicoPlayerHohoema.ViewModels
 					, _PageManager
 					);
 
-				videoInfoVM.LoadThumbnail();
+				await videoInfoVM.LoadThumbnail();
 
 				items.Add(videoInfoVM);
 			}

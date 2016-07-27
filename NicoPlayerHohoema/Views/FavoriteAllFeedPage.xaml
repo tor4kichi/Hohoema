@@ -33,11 +33,8 @@
     <Grid>
         <ProgressRing Visibility="{Binding NowLoadingItems.Value, Converter={StaticResource BooleanToVisibility}}"
                       IsActive="{Binding NowLoadingItems.Value}"
-                      Margin="24"
-                      Width="48"
-                      Height="48"
-                      HorizontalAlignment="Right"
-                      VerticalAlignment="Bottom"
+                      Style="{StaticResource VideoListProgressRingStyle}"
+
                                   />
         <Border>
             <toolkit:DockPanel>
@@ -88,8 +85,8 @@
                         toolkit:DockPanel.Dock="Right"
                         >
                         <AppBarButton Icon="Play" Content="連続再生" Command="{Binding PlayAllCommand}" />
-                        <AppBarSeparator />
                         <StackPanel Orientation="Horizontal" Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}">
+                            <AppBarSeparator />
                             <AppBarButton Icon="Download" Content="キャッシュを取得" Command="{Binding RequestCacheDownload}" />
                             <AppBarButton Icon="Cancel" Content="キャッシュを中止" Command="{Binding CancelCacheDownloadRequest}"  />
                             <AppBarSeparator />

@@ -21,7 +21,7 @@
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
     <AppxBundle>Always</AppxBundle>
-    <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
+    <AppxBundlePlatforms>x86|x64</AppxBundlePlatforms>
     <PackageCertificateThumbprint>BFE34B4665927D2844D7BF676023FAED7F089F9D</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
@@ -119,6 +119,7 @@
     <Compile Include="Models\HohoemaApp.cs" />
     <Compile Include="Models\HohoemaPageType.cs" />
     <Compile Include="Models\LisenceSummary.cs" />
+    <Compile Include="Models\MediaBackgroundTask.cs" />
     <Compile Include="Models\Settings\CacheSettings.cs" />
     <Compile Include="Models\Video\NicoVideo.cs" />
     <Compile Include="Models\Video\NicoVideoCacheRequest.cs" />
@@ -126,7 +127,6 @@
     <Compile Include="Models\Video\NicoVideoCanNotDownloadReason.cs" />
     <Compile Include="Models\Video\NicoVideoDownloadContext.cs" />
     <Compile Include="Models\Settings\HohoemaUserSettings.cs" />
-    <Compile Include="Models\MediaBackgroundTask.cs" />
     <Compile Include="Models\NiconicoContentFinder.cs" />
     <Compile Include="Models\Video\NiconicoMediaManager.cs" />
     <Compile Include="Models\Video\NicoVideoCachedStream.cs" />
@@ -152,10 +152,13 @@
     <Compile Include="Util\NiconicoRankingExtention.cs" />
     <Compile Include="Util\NicoVideoRssItemExtention.cs" />
     <Compile Include="Util\SortMethodHelper.cs" />
+    <Compile Include="Util\StorageFolderExtention.cs" />
+    <Compile Include="Util\TaskExtention.cs" />
     <Compile Include="ViewModels\AboutPageViewModel.cs" />
     <Compile Include="ViewModels\CacheManagementPageViewModel.cs" />
     <Compile Include="ViewModels\CommentCommandEditerViewModel.cs" />
     <Compile Include="ViewModels\CommentStreamingViewModel.cs" />
+    <Compile Include="ViewModels\ConfirmWatchHurmfulVideoPageViewModel.cs" />
     <Compile Include="ViewModels\FavoriteAllFeedPageViewModel.cs" />
     <Compile Include="ViewModels\FavoriteManagePageViewModel.cs" />
     <Compile Include="ViewModels\FavoriteVideoInfoControlViewModel.cs" />
@@ -192,11 +195,15 @@
     <Compile Include="Views\Behaviors\ScrollToIndex.cs" />
     <Compile Include="Views\Behaviors\ListViewVerticalOffsetGetter.cs" />
     <Compile Include="Views\Behaviors\SetFocus.cs" />
+    <Compile Include="Views\Behaviors\SplitViewDisplayModeGetter.cs" />
     <Compile Include="Views\CacheManagementPage.xaml.cs">
       <DependentUpon>CacheManagementPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\CommentCommandEditer.xaml.cs">
       <DependentUpon>CommentCommandEditer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ConfirmWatchHurmfulVideoPage.xaml.cs">
+      <DependentUpon>ConfirmWatchHurmfulVideoPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\CacheManagementListItem.xaml.cs">
       <DependentUpon>CacheManagementListItem.xaml</DependentUpon>
@@ -282,6 +289,7 @@
     <Compile Include="Views\SearchContentDialog.xaml.cs">
       <DependentUpon>SearchContentDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Service\ToastNotificationService.cs" />
     <Compile Include="Views\SettingsPageContent\CacheSettingsPageContent.xaml.cs">
       <DependentUpon>CacheSettingsPageContent.xaml</DependentUpon>
     </Compile>
@@ -423,6 +431,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Styles\VideoListProgressRingStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
     <Page Include="Views\AboutPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -440,6 +453,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\CommentRenderer\CommentUI.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ConfirmWatchHurmfulVideoPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -599,7 +616,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BackgroundAudioShared\VideoBackgroundShared.csproj">
-      <Project>{62C43640-D9FB-41B8-81B7-A02BE8FACD09}</Project>
+      <Project>{62c43640-d9fb-41b8-81b7-a02be8facd09}</Project>
       <Name>VideoBackgroundShared</Name>
     </ProjectReference>
     <ProjectReference Include="..\VideoBackgroundTask\VideoBackgroundTask.csproj">
@@ -607,7 +624,6 @@
       <Name>VideoBackgroundTask</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

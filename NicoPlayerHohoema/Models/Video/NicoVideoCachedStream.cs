@@ -131,13 +131,12 @@ namespace NicoPlayerHohoema.Models
 				}
 			}
 
-
 			var stream = new NicoVideoCachedStream(client, rawVideoId, videoId, new Uri(videoUrl), videoFile, quality);
 
 			stream.IsPremiumUser = res.IsPremium;
 			stream.DownloadInterval = res.IsPremium ?
-				TimeSpan.FromSeconds(BUFFER_SIZE / (float)PremiumUserDownload_kbps) :
-				TimeSpan.FromSeconds(BUFFER_SIZE / (float)IppanUserDownload_kbps);
+				TimeSpan.FromSeconds(BUFFER_SIZE / (float)PremiumUserDownload_kbps + 0.2) :
+				TimeSpan.FromSeconds(BUFFER_SIZE / (float)IppanUserDownload_kbps + 0.2);
 
 			stream.Size = streamSize;
 
@@ -145,10 +144,42 @@ namespace NicoPlayerHohoema.Models
 
 			await stream.Initialize(videoSaveFolder);
 
-
-
 			return stream;
 		}
+
+
+		public static async Task ClearCacheFiles(StorageFolder saveFolder, WatchApiResponse res)
+		{
+			var videoId = res.videoDetail.id;
+			var videoTitle = res.videoDetail.title.ToSafeFilePath();
+			var videoFileName = MakeVideoFileName(videoTitle, videoId);
+			var filename_orig = $"{videoFileName}.mp4";
+			var filename_low = $"{videoFileName}.low.mp4";
+
+			await EnsureDeleteFile(saveFolder, filename_orig);
+			await EnsureDeleteFile(saveFolder, filename_low);
+			await EnsureDeleteFile(saveFolder, filename_orig + IncompleteExt);
+			await EnsureDeleteFile(saveFolder, filename_low + IncompleteExt);
+
+		}
+
+		public static async Task ClearProgressFile(StorageFolder saveFolder, string rawVideoId)
+		{
+			var progressFilename = GetProgressFileName(rawVideoId);
+
+			await EnsureDeleteFile(saveFolder, progressFilename + ".json");
+			await EnsureDeleteFile(saveFolder, progressFilename + ".low.json");
+		}
+
+		private static async Task EnsureDeleteFile(StorageFolder saveFolder, string filename)
+		{
+			if (saveFolder.ExistFile(filename))
+			{
+				var file = await saveFolder.GetFileAsync(filename);
+				await file.DeleteAsync(StorageDeleteOption.PermanentDelete);
+			}
+		}
+
 
 		public NicoVideoCachedStream(HttpClient client, string rawVideoId, string videoId, Uri uri, StorageFile file, NicoVideoQuality quality)
 			: base(client, uri)
@@ -173,7 +204,7 @@ namespace NicoPlayerHohoema.Models
 			{
 				await _CacheProgressSemaphore.WaitAsync();
 
-				var progressFileName = GetProgressFileName();
+				var progressFileName = GetProgressFileName(RawVideoId);
 				var isLowQuality = Quality == NicoVideoQuality.Low;
 				// cacheProgressFileの存在をチェックし、あれば読み込み
 				var name = progressFileName + (isLowQuality ? ".low.json" : ".json");
@@ -199,33 +230,42 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
-		public override async void Dispose()
+		public override void Dispose()
 		{
+			// もうクローズ済みの場合は処理しない
+			if (IsClosed) { return; }
+
+
 			IsClosed = true;
 
-			try
+			var task = Task.Run(async () => 
 			{
-				await _CacheWriteSemaphore.WaitAsync().ConfigureAwait(false);
-				await StopDownload();
-			}
-			finally
-			{
-				_CacheWriteSemaphore.Release();
-			}
+				try
+				{
+					await _CacheWriteSemaphore.WaitAsync().ConfigureAwait(false);
+					await StopDownload().ConfigureAwait(false);
+				}
+				finally
+				{
+					_CacheWriteSemaphore.Release();
+				}
 
 
-			if (!IsCacheComplete)
-			{
-				await SaveProgress().ConfigureAwait(false);
-			}
+				if (!IsCacheComplete)
+				{
+					await SaveProgress().ConfigureAwait(false);
+				}
 
-			if (!IsCacheRequested)
-			{
-				await CacheFile.DeleteAsync().AsTask().ConfigureAwait(false);
-				CacheFile = null;
-				_ProgressFile?.DeleteAsync().AsTask().ConfigureAwait(false);
-				_ProgressFile = null;
-			}
+				if (!IsCacheRequested)
+				{
+					await CacheFile.DeleteAsync().AsTask().ConfigureAwait(false);
+					CacheFile = null;
+					_ProgressFile?.DeleteAsync().AsTask().ConfigureAwait(false);
+					_ProgressFile = null;
+				}
+			});
+
+			task.Wait();
 
 			// stopdownload 
 			base.Dispose();
@@ -280,7 +320,7 @@ namespace NicoPlayerHohoema.Models
 
 					if (waitCount != 0)
 					{
-						await Task.Delay(250).ConfigureAwait(false);
+						await Task.Delay(250);
 
 						cancellationToken.ThrowIfCancellationRequested();
 					}
@@ -297,22 +337,50 @@ namespace NicoPlayerHohoema.Models
 				IInputStream videoFragmentStream = null;
 				IBuffer videoFragmentBuffer = buffer;
 
+				
+
 				try
 				{
-					await _CacheWriteSemaphore.WaitAsync().ConfigureAwait(false);
+					await _CacheWriteSemaphore.WaitAsync();
 
-					if (CacheFile != null)
+					cancellationToken.ThrowIfCancellationRequested();
+
+					if (CacheFile == null)
+					{
+						throw new Exception();
+					}
+
+					try
 					{
 						using (var stream = await CacheFile.OpenReadAsync())
 						{
 							videoFragmentStream = stream.GetInputStreamAt(Position);
 
-							videoFragmentBuffer = await videoFragmentStream.ReadAsync(buffer, count, options).AsTask(cancellationToken, progress).ConfigureAwait(false);
+							videoFragmentBuffer = await videoFragmentStream.ReadAsync(buffer, count, options).AsTask(cancellationToken, progress);
 
 							Debug.WriteLine($"read: {Position} + {videoFragmentBuffer.Length}");
 
 							_CurrentPosition += videoFragmentBuffer.Length;
 						}
+					}
+					catch
+					{
+						await Task.Delay(100);
+
+						cancellationToken.ThrowIfCancellationRequested();
+					}					
+				}
+				catch
+				{
+					while (CacheFile == null)
+					{
+						cancellationToken.ThrowIfCancellationRequested();
+
+						_ReadAsyncAction?.Cancel();
+
+						await Task.Delay(250).ConfigureAwait(false);
+
+						Debug.Write("キャンセル待ち...");
 					}
 				}
 				finally
@@ -345,7 +413,7 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task StopDownload()
 		{
-			var stopped = await _StopDownload();
+			var stopped = await _StopDownload().ConfigureAwait(false); ;
 			if (stopped)
 			{
 				OnCacheCanceled?.Invoke(RawVideoId);
@@ -375,32 +443,34 @@ namespace NicoPlayerHohoema.Models
 		{
 			try
 			{
-				await _DownloadTaskLock.WaitAsync();
+				await _DownloadTaskLock.WaitAsync().ConfigureAwait(false);
 
-				if (_DownloadTask == null) { return true; }
+				if (_DownloadTask == null)
+				{
+					Debug.Write("ダウンロードは既に終了");
+					return true;
+				}
 
 				if (_DownloadTaskCancelToken != null
 					&& _DownloadTaskCancelToken.IsCancellationRequested == true)
 				{
+					Debug.Write("ダウンロードキャンセルは既にリクエスト済みです");
 					return true;
 				}
 
+
+				await Task.Delay(100).ConfigureAwait(false);
+
 				_DownloadTaskCancelToken?.Cancel();
 
-				_ReadAsyncAction?.Cancel();
-				_ReadAsyncAction = null;
+//				_ReadAsyncAction?.Cancel();
+//				_ReadAsyncAction = null;
+
+
 				Debug.Write("ダウンロードキャンセルを待機中");
 
 
-				while (true)
-				{
-					if (_DownloadTask.IsCanceled || _DownloadTask.IsCompleted || _DownloadTask.IsFaulted)
-					{
-						break;
-					}
-
-					await Task.Delay(50);
-				}
+				await _DownloadTask.WaitToCompelation().ConfigureAwait(false);
 
 
 				_DownloadTask = null;
@@ -418,12 +488,12 @@ namespace NicoPlayerHohoema.Models
 
 		private async Task StartDownloadTask(uint position)
 		{
-			await _StopDownload();
+			await _StopDownload().ConfigureAwait(false);
 
 			try
 			{
 				await _DownloadTaskLock.WaitAsync();
-				Debug.WriteLine(VideoId + ":" + position + " からダウンロードを再開");
+				Debug.WriteLine(VideoId + ":" + position + " からダウンロードを開始");
 
 				_DownloadTaskCancelToken = new CancellationTokenSource();
 				_DownloadTask = DownloadIncompleteData((uint)position, _DownloadTaskCancelToken.Token)
@@ -488,8 +558,11 @@ namespace NicoPlayerHohoema.Models
 					await DownloadFragment(start, size, cancellationtoken);
 
 					cancellationtoken.ThrowIfCancellationRequested();
+
+					await Task.Delay(1).ConfigureAwait(false);
 				}
 
+				cancellationtoken.ThrowIfCancellationRequested();
 
 				// キャッシュが必要な場合に未完了部分のダウンロード
 				if (IsCacheRequested && !_Progress.CheckComplete())
@@ -504,12 +577,14 @@ namespace NicoPlayerHohoema.Models
 						var size = incompleteRange.Value - incompleteRange.Key;
 
 						await DownloadFragment(start, size, cancellationtoken);
+
+						await Task.Delay(1).ConfigureAwait(false);
 					}
 				}
 
 				Debug.WriteLine("done");
 
-				await CompleteAction().ConfigureAwait(false);
+				await CompleteAction();
 			}
 			, cancellationtoken
 			)
@@ -526,7 +601,7 @@ namespace NicoPlayerHohoema.Models
 
 				try
 				{
-					return await base.ReadRequestAsync(start).ConfigureAwait(false);
+					return await base.ReadRequestAsync(start);
 				}
 				catch (System.ObjectDisposedException)
 				{
@@ -554,7 +629,7 @@ namespace NicoPlayerHohoema.Models
 				ulong head = start + i * BUFFER_SIZE;
 				await DownloadAndWriteToFile(inputStream, head, BUFFER_SIZE);
 
-				await Task.Delay(DownloadInterval).ConfigureAwait(false);
+				await Task.Delay(DownloadInterval);
 			}
 
 			token.ThrowIfCancellationRequested();
@@ -566,7 +641,7 @@ namespace NicoPlayerHohoema.Models
 				ulong head = start + (uint)division * BUFFER_SIZE;
 				await DownloadAndWriteToFile(inputStream, head, finalFragmentSize);
 
-				await Task.Delay(DownloadInterval).ConfigureAwait(false);
+				await Task.Delay(DownloadInterval);
 			}
 
 		}
@@ -575,11 +650,11 @@ namespace NicoPlayerHohoema.Models
 		{
 			Array.Clear(RawBuffer, 0, RawBuffer.Length);
 			
-			var resultBuffer = await inputStream.ReadAsync(DownloadBuffer, readSize, InputStreamOptions.None).AsTask().ConfigureAwait(false);
-			await WriteToVideoFile(head, resultBuffer).ConfigureAwait(false);
+			var resultBuffer = await inputStream.ReadAsync(DownloadBuffer, readSize, InputStreamOptions.None).AsTask();
+			await WriteToVideoFile(head, resultBuffer);
 
 			RecordProgress((uint)head, resultBuffer.Length);
-			await SaveProgress().ConfigureAwait(false);
+			await SaveProgress();
 
 			OnCacheProgress?.Invoke(RawVideoId, Quality, (uint)Size, _Progress.BufferedSize());
 
@@ -618,14 +693,15 @@ namespace NicoPlayerHohoema.Models
 
 				await SaveProgress(true);
 
-				// 動画ファイル名から.incompleteを削除するようリネーム
-				if (CacheFile.Name.Contains((".incomplete")))
+				try
 				{
-					var pos = CacheFile.Name.IndexOf(".incomplete");
-					var name = CacheFile.Name.Remove(pos);
-					try
+					await _CacheWriteSemaphore.WaitAsync();
+
+					// 動画ファイル名から.incompleteを削除するようリネーム
+					if (CacheFile.Name.Contains((".incomplete")))
 					{
-						await _CacheWriteSemaphore.WaitAsync().ConfigureAwait(false);
+						var pos = CacheFile.Name.IndexOf(".incomplete");
+						var name = CacheFile.Name.Remove(pos);
 
 						var path = Path.Combine(Path.GetDirectoryName(CacheFile.Path), name);
 						if (File.Exists(path))
@@ -633,13 +709,18 @@ namespace NicoPlayerHohoema.Models
 							var alreadFile = await StorageFile.GetFileFromPathAsync(path);
 							await alreadFile.DeleteAsync();
 						}
-						await CacheFile.RenameAsync(name).AsTask().ConfigureAwait(false);
-					}
-					finally
-					{
-						_CacheWriteSemaphore.Release();
+						await CacheFile.RenameAsync(name);
+
+						CacheFile = await StorageFile.GetFileFromPathAsync(CacheFile.Path);
+
+						await Task.Delay(100);
 					}
 				}
+				finally
+				{
+					_CacheWriteSemaphore.Release();
+				}
+
 
 				Debug.WriteLine($"{VideoId} is download done.");
 
@@ -647,8 +728,9 @@ namespace NicoPlayerHohoema.Models
 
 				try
 				{
-					await _DownloadTaskLock.WaitAsync();
+					await _DownloadTaskLock.WaitAsync().ConfigureAwait(false);
 					_DownloadTask = null;
+					_DownloadTaskCancelToken.Dispose();
 					_DownloadTaskCancelToken = null;
 				}
 				finally
@@ -666,10 +748,10 @@ namespace NicoPlayerHohoema.Models
 
 		#region Progress management
 
-
-		private string GetProgressFileName()
+		// TODO: なぜRawVideoIdを使っているの？
+		private static string GetProgressFileName(string rawVideoId)
 		{
-			return $"{RawVideoId}_progress";
+			return $"{rawVideoId}_progress";
 		}
 
 
@@ -708,7 +790,7 @@ namespace NicoPlayerHohoema.Models
 
 					try
 					{
-						await FileIO.WriteTextAsync(_ProgressFile, Newtonsoft.Json.JsonConvert.SerializeObject(_Progress)).AsTask().ConfigureAwait(false);
+						await FileIO.WriteTextAsync(_ProgressFile, Newtonsoft.Json.JsonConvert.SerializeObject(_Progress));
 						break;
 					}
 					catch {  }
@@ -747,12 +829,12 @@ namespace NicoPlayerHohoema.Models
 			return (uint)Size - remain;
 		}
 
-
+		
 		public bool IsCacheComplete
 		{
 			get
 			{
-				return _Progress == null;
+				return _Progress.CheckComplete();
 			}
 		}
 
@@ -771,10 +853,10 @@ namespace NicoPlayerHohoema.Models
 		#endregion
 
 
-		
 
 		private IAsyncOperationWithProgress<IBuffer, uint> _CurrentOperation;
 
+		const uint MediaElementBufferSize = 262144;
 
 		const uint PremiumUserDownload_kbps = 262144 * 2;
 		const uint IppanUserDownload_kbps = 262144;
@@ -823,7 +905,6 @@ namespace NicoPlayerHohoema.Models
 
 
 		public bool IsClosed { get; private set; }
-
 	}
 
 	

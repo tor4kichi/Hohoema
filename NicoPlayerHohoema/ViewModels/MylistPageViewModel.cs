@@ -17,6 +17,7 @@ using System.Diagnostics;
 using NicoPlayerHohoema.Util;
 using Windows.UI.Xaml;
 using Reactive.Bindings.Extensions;
+using System.Threading;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -44,12 +45,12 @@ namespace NicoPlayerHohoema.ViewModels
 					{
 						if (await FavoriteMylist())
 						{
-							Debug.WriteLine(_MylistTitle + "のタグをお気に入り登録しました.");
+							Debug.WriteLine(_MylistTitle + "のマイリストをお気に入り登録しました.");
 						}
 						else
 						{
 							// お気に入り登録に失敗した場合は状態を差し戻し
-							Debug.WriteLine(_MylistTitle + "のタグをお気に入り登録に失敗");
+							Debug.WriteLine(_MylistTitle + "のマイリストをお気に入り登録に失敗");
 							IsFavoriteMylist.Value = false;
 						}
 					}
@@ -57,19 +58,19 @@ namespace NicoPlayerHohoema.ViewModels
 					{
 						if (await UnfavoriteMylist())
 						{
-							Debug.WriteLine(_MylistTitle + "のタグをお気に入り解除しました.");
+							Debug.WriteLine(_MylistTitle + "のマイリストをお気に入り解除しました.");
 						}
 						else
 						{
 							// お気に入り解除に失敗した場合は状態を差し戻し
-							Debug.WriteLine(_MylistTitle + "のタグをお気に入り解除に失敗");
+							Debug.WriteLine(_MylistTitle + "のマイリストをお気に入り解除に失敗");
 							IsFavoriteMylist.Value = true;
 						}
 					}
 
 					CanChangeFavoriteMylistState.Value = 
 						IsFavoriteMylist.Value == true 
-						|| HohoemaApp.FavFeedManager.CanMoreAddFavorite(FavoriteItemType.Tag);
+						|| HohoemaApp.FavFeedManager.CanMoreAddFavorite(FavoriteItemType.Mylist);
 
 
 					_NowProcessFavorite = false;
@@ -78,15 +79,13 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		private bool _NowProcessFavorite;
-
 
 		private async Task<bool> FavoriteMylist()
 		{
 			if (MylistGroupId == null) { return false; }
 
 			var favManager = HohoemaApp.FavFeedManager;
-			var result = await favManager.AddFav(FavoriteItemType.Mylist, MylistGroupId);
+			var result = await favManager.AddFav(FavoriteItemType.Mylist, MylistGroupId, MylistTitle);
 
 			return result == ContentManageResult.Success || result == ContentManageResult.Exist;
 		}
@@ -109,7 +108,11 @@ namespace NicoPlayerHohoema.ViewModels
 				MylistGroupId = e.Parameter as string;
 			}
 
+			base.OnNavigatedTo(e, viewModelState);
+		}
 
+		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		{
 			if (MylistGroupId == null)
 			{
 				return;
@@ -123,43 +126,55 @@ namespace NicoPlayerHohoema.ViewModels
 			var favManager = HohoemaApp.FavFeedManager;
 			IsFavoriteMylist.Value = favManager.IsFavoriteItem(FavoriteItemType.Mylist, MylistGroupId);
 
-			CanChangeFavoriteMylistState.Value = 
-				IsFavoriteMylist.Value == true 
+			CanChangeFavoriteMylistState.Value =
+				IsFavoriteMylist.Value == true
 				|| favManager.CanMoreAddFavorite(FavoriteItemType.Mylist);
 
 			_NowProcessFavorite = false;
 
 
 
-			
-			
-			
+
+
+
 
 			if (MylistGroupId == "0")
 			{
 				MylistTitle = "とりあえずマイリスト";
+				OwnerUserId = HohoemaApp.LoginUserId.ToString();
+
+				var loginUserInfo = await HohoemaApp.NiconicoContext.User.GetInfoAsync();
+				UserName = loginUserInfo.Name;
 			}
 			else
 			{
-				// Note: await をつけると後段の読み込みが行われません
-				var dispathcer = Window.Current.CoreWindow.Dispatcher;
-				HohoemaApp.ContentFinder.GetMylist(MylistGroupId)
-					.ContinueWith(async prevResult =>
-					{
-						var response = prevResult.Result;
+				try
+				{
+					var response = await HohoemaApp.ContentFinder.GetMylist(MylistGroupId);
+					MylistTitle = StringExtention.DecodeUTF8(response.Name);
+					MylistDescription = StringExtention.DecodeUTF8(response.Description);
 
-						await dispathcer.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-						{
-							MylistTitle = StringExtention.DecodeUTF8(response.Name);
-							MylistDescription = StringExtention.DecodeUTF8(response.Description);
-						});
-					}).ConfigureAwait(false);
+					OwnerUserId = response.User_id;
+
+					await Task.Delay(500);
+
+					var userDetail = await HohoemaApp.ContentFinder.GetUserDetail(OwnerUserId);
+
+					UserName = userDetail.Nickname;
+				}
+				catch
+				{
+
+				}
 			}
 
-			UpdateTitle("マイリスト - " + MylistTitle);
+			UpdateTitle(MylistTitle);
 
-			base.OnNavigatedTo(e, viewModelState);
+
+
 		}
+
+		
 
 		protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
 		{
@@ -172,6 +187,28 @@ namespace NicoPlayerHohoema.ViewModels
 				return new MylistIncrementalSource(MylistGroupId, HohoemaApp, PageManager);
 			}
 		}
+
+
+
+
+		private DelegateCommand _OpenUserPageCommand;
+		public DelegateCommand OpenUserPageCommand
+		{
+			get
+			{
+				return _OpenUserPageCommand
+					?? (_OpenUserPageCommand = new DelegateCommand(() =>
+					{
+						PageManager.OpenPage(HohoemaPageType.UserInfo, OwnerUserId);
+					}));
+			}
+		}
+
+
+
+		private bool _NowProcessFavorite;
+
+
 
 		private string _MylistTitle;
 		public string MylistTitle
@@ -189,6 +226,15 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public string MylistGroupId { get; private set; }
 
+		public string OwnerUserId { get; private set; }
+
+
+		private string _UserName;
+		public string UserName
+		{
+			get { return _UserName; }
+			set { SetProperty(ref _UserName, value); }
+		}
 
 		public ReactiveProperty<bool> IsFavoriteMylist { get; private set; }
 		public ReactiveProperty<bool> CanChangeFavoriteMylistState { get; private set; }

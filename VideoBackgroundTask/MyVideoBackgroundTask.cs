@@ -54,10 +54,13 @@ namespace VideoBackgroundTask
 			smtc = BackgroundMediaPlayer.Current.SystemMediaTransportControls;
 			smtc.ButtonPressed += Smtc_ButtonPressed;
 			smtc.PropertyChanged += Smtc_PropertyChanged;
-			smtc.IsEnabled = true;
+			smtc.IsEnabled = false;
+			smtc.DisplayUpdater.Type = MediaPlaybackType.Video;
 			smtc.IsPauseEnabled = true;
 			smtc.IsPlayEnabled = true;
-			smtc.IsRewindEnabled = true;
+			//			smtc.IsRewindEnabled = true;
+
+			smtc.IsNextEnabled = false;
 
 			BackgroundMediaPlayer.Current.CurrentStateChanged += Current_CurrentStateChanged;
 			BackgroundMediaPlayer.MessageReceivedFromForeground += BackgroundMediaPlayer_MessageReceivedFromForeground;

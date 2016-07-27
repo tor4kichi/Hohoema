@@ -19,11 +19,7 @@
     <Grid>
         <ProgressRing Visibility="{Binding NowLoadingItems.Value, Converter={StaticResource BooleanToVisibility}}"
                       IsActive="{Binding NowLoadingItems.Value}"
-                      Margin="24"
-                      Width="48"
-                      Height="48"
-                      HorizontalAlignment="Right"
-                      VerticalAlignment="Bottom"
+                      Style="{StaticResource VideoListProgressRingStyle}"
                                   />
 
         <toolkit:DockPanel >
@@ -35,12 +31,24 @@
 
 
                 <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left">
-                    <TextBlock Text="{Binding MylistTitle}" />
+                    
 
                     <AppBarToggleButton Icon="Favorite"
                                     IsChecked="{Binding IsFavoriteMylist.Value, Mode=TwoWay}"
                                     IsEnabled="{Binding CanChangeFavoriteMylistState.Value}"
+                                        Label="お気に入り"
                                     />
+
+                    <Border Width="16" />
+
+                    <HyperlinkButton Command="{Binding OpenUserPageCommand}"
+                                     >
+                        <TextBlock>
+                            <Run Text="{Binding UserName}" />
+                            <Run Text=" さんのマイリスト" />
+                        </TextBlock>
+                    </HyperlinkButton>
+                    
 
                 </StackPanel>
 
@@ -63,8 +71,8 @@
                         toolkit:DockPanel.Dock="Right"
                         >
                     <AppBarButton Icon="Play" Content="連続再生" Command="{Binding PlayAllCommand}" />
-                    <AppBarSeparator />
                     <StackPanel Orientation="Horizontal" Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}">
+                        <AppBarSeparator />
                         <AppBarButton Icon="Download" Content="キャッシュを取得" Command="{Binding RequestCacheDownload}" />
                         <AppBarButton Icon="Cancel" Content="キャッシュを中止" Command="{Binding CancelCacheDownloadRequest}"  />
                         <AppBarSeparator />

@@ -8,12 +8,20 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Windows.UI.Core;
 
 namespace NicoPlayerHohoema.Models
 {
 	public class PageManager : BindableBase
 	{
+
+		public readonly IReadOnlyList<HohoemaPageType> DontNeedMenuPageTypes = new List<HohoemaPageType>
+		{
+			HohoemaPageType.Login,
+			HohoemaPageType.VideoPlayer,
+		};
+
+
 		public INavigationService NavigationService { get; private set; }
 
 
@@ -48,6 +56,13 @@ namespace NicoPlayerHohoema.Models
 			{
 				CurrentPageType = oldPageType;
 			}
+		}
+
+
+
+		public void ForgetLastPage()
+		{
+			NavigationService.RemoveLastPage();
 		}
 
 
@@ -102,7 +117,7 @@ namespace NicoPlayerHohoema.Models
 				case HohoemaPageType.Search:
 					return "検索";
 				case HohoemaPageType.CacheManagement:
-					return "ダウンロード管理";
+					return "キャッシュ管理";
 				case HohoemaPageType.Settings:
 					return "設定";
 				case HohoemaPageType.About:
@@ -111,6 +126,8 @@ namespace NicoPlayerHohoema.Models
 					return "動画情報";
 				case HohoemaPageType.VideoPlayer:
 					return "動画プレイヤー";
+				case HohoemaPageType.ConfirmWatchHurmfulVideo:
+					return "動画視聴の確認";
 				case HohoemaPageType.UserInfo:
 					return "ユーザー情報";
 				case HohoemaPageType.UserVideo:

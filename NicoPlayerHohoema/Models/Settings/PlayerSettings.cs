@@ -13,15 +13,15 @@ namespace NicoPlayerHohoema.Models
 		public PlayerSettings()
 			: base()
 		{
-			IsLowQualityDeafult = false;
+			IsLowQualityDeafult = true;
 			IsMute = false;
-			SoundVolume = 0.25f;
-			ScrollVolumeFrequency = 0.02f;
+			SoundVolume = 0.25;
+			ScrollVolumeFrequency = 0.02;
 			DefaultCommentDisplay = true;
 			IncrementReadablityOwnerComment = true;
 			PauseWithCommentWriting = true;
 			CommentRenderingFPS = 24;
-			DefaultCommentFontScale = 1.0f;
+			DefaultCommentFontScale = 1.0;
 			CommentCommandPermission = CommentCommandPermissionType.Owner | CommentCommandPermissionType.User | CommentCommandPermissionType.Anonymous;
 			CommentGlassMowerEnable = false;
 			IsKeepDisplayInPlayback = true;
@@ -49,19 +49,19 @@ namespace NicoPlayerHohoema.Models
 			set { SetProperty(ref _IsMute, value); }
 		}
 
-		private float _SoundVolume;
+		private double _SoundVolume;
 
 		[DataMember]
-		public float SoundVolume
+		public double SoundVolume
 		{
 			get { return _SoundVolume; }
 			set { SetProperty(ref _SoundVolume, value); }
 		}
 
-		private float _ScrollVolumeFrequency;
+		private double _ScrollVolumeFrequency;
 
 		[DataMember]
-		public float ScrollVolumeFrequency
+		public double ScrollVolumeFrequency
 		{
 			get { return _ScrollVolumeFrequency; }
 			set { SetProperty(ref _ScrollVolumeFrequency, value); }
@@ -121,10 +121,10 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		private float _DefaultCommentFontScale;
+		private double _DefaultCommentFontScale;
 
 		[DataMember]
-		public float DefaultCommentFontScale
+		public double DefaultCommentFontScale
 		{
 			get { return _DefaultCommentFontScale; }
 			set { SetProperty(ref _DefaultCommentFontScale, value); }

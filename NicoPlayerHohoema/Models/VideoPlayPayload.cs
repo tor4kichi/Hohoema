@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mntone.Nico2;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,6 @@ namespace NicoPlayerHohoema.Models
 	{
 		public string VideoId { get; set; }
 		public NicoVideoQuality? Quality { get; set; }
-
 
 		public string ToParameterString()
 		{

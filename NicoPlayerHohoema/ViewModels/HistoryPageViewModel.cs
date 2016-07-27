@@ -20,11 +20,6 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{			
-			base.OnNavigatedTo(e, viewModelState);
-		}
-
 		protected override uint IncrementalLoadCount
 		{
 			get
@@ -86,6 +81,12 @@ namespace NicoPlayerHohoema.ViewModels
 				vm.ThumbnailImageUrl = history.ThumbnailUrl;
 
 				list.Add(vm);
+			}
+
+
+			foreach (var item in list)
+			{
+				await item.LoadThumbnail();
 			}
 
 			return list;

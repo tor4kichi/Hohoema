@@ -214,3 +214,6 @@ ModelManifest.xml
 /NicoPlayerHohoema/Package.appxmanifest
 /NicoPlayerHohoema/BundleArtifacts/x64.txt
 /NicoPlayerHohoema/BundleArtifacts/arm.txt
+/NicoPlayerHohoema/BundleArtifacts
+/NicoPlayerHohoema/_pkginfo.txt
+/NicoPlayerHohoema/*.appx

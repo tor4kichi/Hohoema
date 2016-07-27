@@ -18,7 +18,6 @@
     mc:Ignorable="d"
     d:DesignHeight="480"
     d:DesignWidth="720"
-    NavigationCacheMode="Disabled"
     
     >
 
@@ -102,7 +101,7 @@
         </VisualStateManager.VisualStateGroups>
 
 
-        <SplitView x:Name="SplitView" PanePlacement="Right" PaneBackground="#77FFFFFF"
+        <SplitView x:Name="SplitView" PanePlacement="Right" PaneBackground="#99FFFFFF"
                    OpenPaneLength="400"
                    >
             <SplitView.Content>
@@ -120,11 +119,14 @@
                         <mybehavior:MouseWheelTrigger>
                             <mybehavior:MouseWheelTrigger.UpActions>
                                 <core:InvokeCommandAction Command="{Binding VolumeUpCommand}" />
+                                <core:CallMethodAction TargetObject="{Binding ElementName=AutoHideBehavior}" MethodName="PreventAutoHide" />
                             </mybehavior:MouseWheelTrigger.UpActions>
                             <mybehavior:MouseWheelTrigger.DownActions>
                                 <core:InvokeCommandAction Command="{Binding VolumeDownCommand}" />
+                                <core:CallMethodAction TargetObject="{Binding ElementName=AutoHideBehavior}" MethodName="PreventAutoHide" />
                             </mybehavior:MouseWheelTrigger.DownActions>
                         </mybehavior:MouseWheelTrigger>
+
                     </i:Interaction.Behaviors>
 
 
@@ -139,6 +141,7 @@
                           IsMuted="{Binding IsMuted.Value}"
                           IsLooping="{Binding IsEnableRepeat.Value}"
                           Volume="{Binding SoundVolume.Value}"
+                          AutoPlay="True"
                       >
                         <i:Interaction.Behaviors>
                             
@@ -164,7 +167,7 @@
                                   Height="48"
                                   HorizontalAlignment="Right"
                                   VerticalAlignment="Top"
-                                  Margin="24 64 24 24"
+                                  Margin="24 88"
                                   />
                     
                     <comment:CommentRenderer Comments="{Binding Comments}"
@@ -231,8 +234,13 @@
                                         <core:CallMethodAction TargetObject="{Binding ElementName=AutoHideBehavior}" MethodName="PreventAutoHide" />
                                     </core:EventTriggerBehavior>
 
+
+                                    
+
                                 </i:Interaction.Behaviors>
                             </mybehavior:AutoHide>
+
+                            
                         </i:Interaction.Behaviors>
 
 
@@ -433,6 +441,7 @@
                                             HorizontalContentAlignment="Stretch"
                                             VerticalAlignment="Center"
                                             Margin="24 0"
+                                            IsEnabled="{Binding NowQualityChanging.Value, Converter={StaticResource InvertBoolean}}"
                                      >
                                     </Slider>
 
@@ -549,8 +558,6 @@
                           >
                         
                     </Grid>
-                    
-                    
                 </Grid>
             </SplitView.Content>
             <SplitView.Pane>

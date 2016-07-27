@@ -30,6 +30,10 @@ namespace NicoPlayerHohoema.ViewModels
 			_SearchDialogService = searchDialog;
 
 			// Symbol see@ https://msdn.microsoft.com/library/windows/apps/dn252842
+			SplitViewDisplayMode = new ReactiveProperty<Windows.UI.Xaml.Controls.SplitViewDisplayMode>();
+			CanClosePane = SplitViewDisplayMode.Select(x => x != Windows.UI.Xaml.Controls.SplitViewDisplayMode.Inline)
+				.ToReactiveProperty();
+
 
 			MenuItems = new List<PageTypeSelectableItem>()
 			{
@@ -112,7 +116,7 @@ namespace NicoPlayerHohoema.ViewModels
 			IsVisibleMenu = PageManager.ObserveProperty(x => x.CurrentPageType)
 				.Select(x => 
 				{
-					return !(x == HohoemaPageType.Login || x == HohoemaPageType.VideoPlayer);
+					return PageManager.DontNeedMenuPageTypes.All(dontNeedMenuPageType => x != dontNeedMenuPageType);
 				})
 				.ToReactiveProperty();
 		}
@@ -146,6 +150,13 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> IsVisibleMenu { get; private set; }
 
 		public ReactiveProperty<bool> IsPersonalPage { get; private set; }
+
+
+		/// <summary>
+		/// 表示サイズによるPane表示方法の違い
+		/// </summary>
+		public ReactiveProperty<bool> CanClosePane { get; private set; }
+		public ReactiveProperty<SplitViewDisplayMode> SplitViewDisplayMode { get; private set; }
 
 
 		private string _TitleText;

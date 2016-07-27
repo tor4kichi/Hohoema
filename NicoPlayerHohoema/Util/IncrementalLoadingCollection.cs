@@ -37,6 +37,8 @@ namespace NicoPlayerHohoema.Util
 		private bool _HasMoreItems;
 		private uint _Position;
 
+
+
 		public IncrementalLoadingCollection(T source, uint itemsPerPage = 20, uint firstHeadPosition = 1)
 		{
 			this._Source = source;
@@ -139,6 +141,14 @@ namespace NicoPlayerHohoema.Util
 			get { return !IsPuaseLoading && _HasMoreItems; }
 		}
 
+		public T Source
+		{
+			get
+			{
+				return _Source;
+			}
+		}
+		
 
 		
 	}

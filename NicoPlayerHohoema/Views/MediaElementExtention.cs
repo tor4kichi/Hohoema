@@ -33,6 +33,7 @@ namespace NicoPlayerHohoema.Views
 			if (s is MediaElement)
 			{
 				var mediaElement = s as MediaElement;
+
 				var stream = e.NewValue as IRandomAccessStream;
 
 				string contentType = "";
@@ -41,10 +42,11 @@ namespace NicoPlayerHohoema.Views
 					contentType = (stream as Util.HttpRandomAccessStream).ContentType;
 				}
 
+				
+
 				if (stream == null)
 				{
 					mediaElement.Stop();
-					mediaElement.Source = null;
 				}
 				else
 				{

@@ -9,6 +9,7 @@ using Mntone.Nico2.Users.Video;
 using Prism.Windows.Navigation;
 using System.Diagnostics;
 using Mntone.Nico2.Users.User;
+using System.Threading;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -18,7 +19,6 @@ namespace NicoPlayerHohoema.ViewModels
 			: base(app, pageManager, isRequireSignIn:true)
 		{
 		}
-
 
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
@@ -40,8 +40,17 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+		protected override void PostResetList()
+		{
+			base.PostResetList();
 
-		
+			var source = IncrementalLoadingItems.Source as UserVideoIncrementalSource;
+
+			UpdateTitle(source.User.Nickname + "さんの投稿動画一覧");
+
+		}
+
+
 
 		protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
 		{
@@ -55,25 +64,24 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		public string UserId { get; private set; }
-		
 	}
 
 
 	public class UserVideoIncrementalSource : IIncrementalSource<VideoInfoControlViewModel>
 	{
-		public string UserId { get; private set; }
+		public uint UserId { get; private set; }
 		public NiconicoContentFinder ContentFinder { get; private set; }
 		public NiconicoMediaManager MediaManager { get; private set; }
 		public PageManager PageManager { get; private set; }
 
 
+		public UserDetail User { get; private set;}
 
 
-		UserDetail _User;
 
 		public UserVideoIncrementalSource(string userId, NiconicoContentFinder contentFinder, NiconicoMediaManager mediaMan, PageManager pageManager)
 		{
-			UserId = userId;
+			UserId = uint.Parse(userId);
 			ContentFinder = contentFinder;
 			MediaManager = mediaMan;
 			PageManager = pageManager;
@@ -81,12 +89,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public async Task<IEnumerable<VideoInfoControlViewModel>> GetPagedItems(uint pageIndex, uint pageSize)
 		{
-			if (_User == null)
+			if (User == null)
 			{
-				_User = await ContentFinder.GetUserDetail(UserId);
+				User = await ContentFinder.GetUserDetail(UserId.ToString());
 			}
 
-			if (_User.TotalVideoCount < pageIndex)
+
+			if (User.TotalVideoCount < pageIndex)
 			{
 				return Enumerable.Empty<VideoInfoControlViewModel>();
 			}
@@ -97,7 +106,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			try
 			{
-				var res = await ContentFinder.GetUserVideos(uint.Parse(UserId), page);
+				var res = await ContentFinder.GetUserVideos(UserId, page);
 
 				foreach (var item in res.Items)
 				{
@@ -106,7 +115,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 					list.Add(vm);
 
-					vm.LoadThumbnail();
+					await vm.LoadThumbnail();
 				}
 			}
 			catch (Exception ex)

@@ -15,14 +15,14 @@ namespace NicoPlayerHohoema.Models
 {
 	public class HohoemaApp : BindableBase, IDisposable
 	{
-		public static async Task<HohoemaApp> Create(IEventAggregator ea)
+		public static Task<HohoemaApp> Create(IEventAggregator ea)
 		{
 			var app = new HohoemaApp(ea);
 
 			app.UserSettings = new HohoemaUserSettings();
 			app.ContentFinder = new NiconicoContentFinder(app);
 
-			return app;
+			return Task.FromResult(app);
 		}
 
 
@@ -64,10 +64,11 @@ namespace NicoPlayerHohoema.Models
 			{
 				container = ApplicationData.Current.LocalSettings.CreateContainer(RECENT_LOGIN_ACCOUNT, ApplicationDataCreateDisposition.Always);
 			}
-
+			container.Values.Clear();
 			var id = CurrentAccount.MailOrTelephone;
 			var password = isRemenberPassword ? CurrentAccount.Password : "";
 			container.Values[id] = password;
+			ApplicationData.Current.SignalDataChanged();
 
 		}
 
@@ -101,6 +102,15 @@ namespace NicoPlayerHohoema.Models
 			{
 				return NiconicoSignInStatus.Failed;
 			}
+		}
+
+		/// <summary>
+		/// Appから呼び出します
+		/// 他の場所からは呼ばないようにしてください
+		/// </summary>
+		public void Resumed()
+		{
+			OnResumed?.Invoke();
 		}
 
 
@@ -268,6 +278,7 @@ namespace NicoPlayerHohoema.Models
 
 		public event Action OnSignout;
 		public event Action OnSignin;
+		public event Action OnResumed;
 
 
 

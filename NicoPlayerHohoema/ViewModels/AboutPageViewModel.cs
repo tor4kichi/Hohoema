@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Prism.Windows.Navigation;
 using Windows.UI.Xaml;
 using Windows.Storage;
+using System.Threading;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -20,7 +21,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		protected override Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			var dispatcher = Window.Current.CoreWindow.Dispatcher;
 			LisenceSummary.Load()
@@ -37,7 +38,8 @@ namespace NicoPlayerHohoema.ViewModels
 						OnPropertyChanged(nameof(LisenceItems));
 					});
 				});
-			base.OnNavigatedTo(e, viewModelState);
+
+			return Task.CompletedTask;
 		}
 
 		public List<LisenceItemViewModel> LisenceItems { get; private set; }

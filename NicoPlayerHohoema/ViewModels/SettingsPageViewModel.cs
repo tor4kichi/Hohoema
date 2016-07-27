@@ -16,6 +16,7 @@ using Mntone.Nico2;
 using System.Collections.ObjectModel;
 using Mntone.Nico2.Videos.Ranking;
 using NicoPlayerHohoema.Views.Service;
+using System.Threading;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -88,7 +89,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		protected override Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			HohoemaSettingsKind? selectRequestKind = null;
 
@@ -98,7 +99,12 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 			else if (viewModelState.ContainsKey(nameof(CurrentSettingsKind)))
 			{
-				selectRequestKind = (HohoemaSettingsKind)viewModelState[nameof(CurrentSettingsKind)];
+				var kindString = viewModelState[nameof(CurrentSettingsKind)] as string;
+				HohoemaSettingsKind kind;
+				if (Enum.TryParse(kindString, out kind))
+				{
+					selectRequestKind = kind;
+				}
 			}
 			else if (e.Parameter is string)
 			{
@@ -116,7 +122,8 @@ namespace NicoPlayerHohoema.ViewModels
 				CurrentSettingsKind.Value = settingItem;
 			}
 
-			base.OnNavigatedTo(e, viewModelState);
+
+			return Task.CompletedTask;
 		}
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
@@ -125,7 +132,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			if (suspending)
 			{
-				viewModelState.Add(nameof(CurrentSettingsKind), CurrentSettingsKind.Value.Kind);
+				viewModelState.Add(nameof(CurrentSettingsKind), CurrentSettingsKind.Value.Kind.ToString());
 			}
 
 			base.OnNavigatingFrom(e, viewModelState, suspending);

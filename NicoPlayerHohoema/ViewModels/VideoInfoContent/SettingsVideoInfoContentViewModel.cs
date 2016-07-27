@@ -52,11 +52,11 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 		public ReactiveProperty<bool> DefaultCommentDisplay { get; private set; }
 		public ReactiveProperty<bool> IncrementReadablityOwnerComment { get; private set; }
 		public ReactiveProperty<uint> CommentRenderingFPS { get; private set; }
-		public ReactiveProperty<float> CommentFontScale { get; private set; }
+		public ReactiveProperty<double> CommentFontScale { get; private set; }
 		public ReactiveProperty<bool> IsKeepDisplayInPlayback { get; private set; }
 		public ReactiveProperty<bool> IsKeepFrontsideInPlayback { get; private set; }
 		public ReactiveProperty<bool> IsPauseWithCommentWriting { get; private set; }
-		public ReactiveProperty<float> ScrollVolumeFrequency { get; private set; }
+		public ReactiveProperty<double> ScrollVolumeFrequency { get; private set; }
 
 		public List<uint> CommentRenderringFPSList { get; private set; }
 

@@ -29,9 +29,8 @@
         <TextBlock 
                     HorizontalAlignment="Right"
                     VerticalAlignment="Bottom"
-                    FontSize="48"
+                    FontSize="32"
                     Foreground="#55777777"
-                    Margin="8 0"
                     >
             <Run Text="{Binding UserViewCount, Mode=OneTime}" />
             <Run Text="回" />

@@ -13,6 +13,7 @@ using System.Collections.ObjectModel;
 using Reactive.Bindings;
 using Mntone.Nico2.Mylist;
 using Reactive.Bindings.Extensions;
+using System.Threading;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -28,10 +29,14 @@ namespace NicoPlayerHohoema.ViewModels
 				.AddTo(_CompositeDisposable);
 		}
 
-		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+
+		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			base.OnNavigatedTo(e, viewModelState);
+		}
 
+		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		{
 			List<MylistGroupData> mylists = null;
 
 			if (e.Parameter is string)
@@ -146,7 +151,8 @@ namespace NicoPlayerHohoema.ViewModels
 					?? (_OpenMylistCommand = new DelegateCommand(() =>
 					{
 						_PageManager.OpenPage(HohoemaPageType.Mylist, GroupId);
-					}
+					},
+					() => IsPublic
 					));
 			}
 		}

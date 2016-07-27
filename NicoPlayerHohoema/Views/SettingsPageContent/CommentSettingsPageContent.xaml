@@ -124,9 +124,9 @@
 
     <ScrollViewer>
 
-        
-        
-        <StackPanel Margin="8">
+
+
+        <StackPanel Margin="8" MinWidth="400" HorizontalAlignment="Left">
             <StackPanel>
                 <TextBlock Text="※ この設定はHohoemaアプリ上でのみ適用されます"
                            Style="{StaticResource DescriptionTextStyle}"
@@ -299,6 +299,7 @@
 
                 </StackPanel>
                 <StackPanel Margin="8 8 0 0">
+                    <!--
                     <toolkit:DockPanel Margin="8">
 
                         <TextBlock Text="※ この設定を有効にするには「コメントの装飾許可設定」の「動画投稿者コメントの装飾を許可」を ON にします。" 
@@ -322,6 +323,7 @@
                               />
 
                     </toolkit:DockPanel>
+                        -->
 
                     <!-- 自動芝刈り機 -->
                     <toolkit:DockPanel Margin="8">
@@ -329,7 +331,7 @@
                         <TextBlock Text="※ 連続するｗを１文字に刈り込みます"
                                        Style="{StaticResource DescriptionTextStyle}"
                                        Margin="32 4 0 4"
-                                       ToolTipService.ToolTip="ﾌﾞｲｰﾝｗｗｗｗｗ -> ﾌﾞｲｰﾝｗ"
+                                       ToolTipService.ToolTip="ｗｗｗｗｗ -> ｗ"
                                        toolkit:DockPanel.Dock="Bottom"
                                        />
 
@@ -393,6 +395,7 @@
                     
                     
                     <!-- NG ユーザーID -->
+                    <!--
                     <toolkit:DockPanel Margin="8">
                         <TextBlock Text="ユーザーIDによるNGコメント機能を有効にする"
                            toolkit:DockPanel.Dock="Left"
@@ -413,6 +416,7 @@
                                   >
                     </ListView>
 
+                    -->
 
                     <!-- NG キーワード -->
                     <toolkit:DockPanel Margin="8">

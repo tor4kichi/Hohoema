@@ -16,6 +16,7 @@ using System.Reactive.Linq;
 using System.Diagnostics;
 using Reactive.Bindings.Extensions;
 using Windows.UI.Xaml.Navigation;
+using System.Threading;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -102,6 +103,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		bool _NowProcessFavorite = false;
 
+
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			if (e.Parameter is string)
@@ -109,29 +111,34 @@ namespace NicoPlayerHohoema.ViewModels
 				RequireSearchOption = SearchOption.FromParameterString(e.Parameter as string);
 			}
 
+			IsFavoriteTag.Value = false;
+			CanChangeFavoriteTagState.Value = false;
+
+			base.OnNavigatedTo(e, viewModelState);
+		}
+
+		protected override Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		{			
 			
+			if (SearchOption == null) { return Task.CompletedTask; }
+
 			_NowProcessFavorite = true;
 
-			IsTagSearch.Value = RequireSearchOption.SearchTarget == SearchTarget.Tag 
+			IsTagSearch.Value = SearchOption.SearchTarget == SearchTarget.Tag 
 				&& HohoemaApp.LoginUserId != default(uint);
 
 			if (IsTagSearch.Value)
 			{
 				// お気に入り登録されているかチェック
 				var favManager = HohoemaApp.FavFeedManager;
-				IsFavoriteTag.Value = favManager.IsFavoriteItem(FavoriteItemType.Tag, RequireSearchOption.Keyword);
+				IsFavoriteTag.Value = favManager.IsFavoriteItem(FavoriteItemType.Tag, SearchOption.Keyword);
 				CanChangeFavoriteTagState.Value = favManager.CanMoreAddFavorite(FavoriteItemType.Tag);
-			}
-			else
-			{
-				IsFavoriteTag.Value = false;
-				CanChangeFavoriteTagState.Value = false;
 			}
 
 			_NowProcessFavorite = false;
 
-
-			base.OnNavigatedTo(e, viewModelState);
+			return Task.CompletedTask;
+			
 		}
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
@@ -207,6 +214,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 			MaxPageCount.Value = Math.Min((int)Math.Floor((float)response.count / OneTimeLoadSearchItemCount), (int)MaxPagenationCount);
 
+			if (response.list == null)
+			{
+				return items;
+			}
+
 			foreach (var item in response.list)
 			{
 
@@ -218,7 +230,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 				items.Add(videoInfoVM);
 
-				videoInfoVM.LoadThumbnail();
+				await videoInfoVM.LoadThumbnail();
 
 			}
 
@@ -232,7 +244,7 @@ namespace NicoPlayerHohoema.ViewModels
 			if (!IsTagSearch.Value) { return false; }
 
 			var favManager = HohoemaApp.FavFeedManager;
-			var result = await favManager.AddFav(FavoriteItemType.Tag, SearchOption.Keyword);
+			var result = await favManager.AddFav(FavoriteItemType.Tag, SearchOption.Keyword, SearchOption.Keyword);
 
 			return result == Mntone.Nico2.ContentManageResult.Success || result == Mntone.Nico2.ContentManageResult.Exist;
 		}

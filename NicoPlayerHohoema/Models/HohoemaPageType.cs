@@ -25,6 +25,7 @@ namespace NicoPlayerHohoema.Models
 
 		VideoInfomation,
 		VideoPlayer,
+		ConfirmWatchHurmfulVideo,
 
 		UserInfo,
 		UserVideo,

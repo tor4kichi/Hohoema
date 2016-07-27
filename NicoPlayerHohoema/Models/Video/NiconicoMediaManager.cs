@@ -29,7 +29,7 @@ namespace NicoPlayerHohoema.Models
 			
 			// ダウンロードリクエストされたアイテムのNicoVideoオブジェクトの作成
 			// 及び、リクエストの再構築
-			var list = await man.Context.LoadDownloadRequestItems().ConfigureAwait(false);
+			var list = await man.Context.LoadDownloadRequestItems();
 			foreach (var req in list)
 			{
 				var nicoVideo = await man.GetNicoVideo(req.RawVideoid);
@@ -41,11 +41,25 @@ namespace NicoPlayerHohoema.Models
 			// キャッシュ済みアイテムのNicoVideoオブジェクトの作成
 			var saveFolder = man.Context.VideoSaveFolder;
 			var files = await saveFolder.GetFilesAsync();
-			files
-				.AsParallel()
+
+			var cachedFiles = files
 				.Where(x => x.Name.EndsWith("_info.json"))
-				.Select(x => new String(x.Name.TakeWhile(y => y != '_').ToArray()))
-				.ForAll(x => man.GetNicoVideo(x).ConfigureAwait(false));
+				.Select(x => new String(x.Name.TakeWhile(y => y != '_').ToArray()));
+
+			foreach (var cachedFile in cachedFiles)
+			{
+				await man.GetNicoVideo(cachedFile);
+			}
+
+			var deletedCachedFiles = files
+				.Where(x => x.Name.EndsWith("_info.json" + NicoVideo.DELETED_EXT))
+				.Select(x => new String(x.Name.TakeWhile(y => y != '_').ToArray()));
+
+			foreach (var deletedCachedFile in deletedCachedFiles)
+			{
+				await man.SetupDeletedVideo(deletedCachedFile);
+			}
+
 
 			return man;
 		}
@@ -61,15 +75,37 @@ namespace NicoPlayerHohoema.Models
 			_NicoVideoSemaphore = new SemaphoreSlim(1, 1);
 
 		}
-		
 
-		
+
+		public async Task<NicoVideo> SetupDeletedVideo(string rawVideoId)
+		{
+			try
+			{
+				await _NicoVideoSemaphore.WaitAsync();
+
+				if (VideoIdToNicoVideo.ContainsKey(rawVideoId))
+				{
+					return VideoIdToNicoVideo[rawVideoId];
+				}
+				else
+				{
+					var nicoVideo = await NicoVideo.CreateWithDeleted(_HohoemaApp, rawVideoId, Context);
+					VideoIdToNicoVideo.Add(rawVideoId, nicoVideo);
+					return nicoVideo;
+				}
+			}
+			finally
+			{
+				_NicoVideoSemaphore.Release();
+			}
+		}
+
 
 		public async Task<NicoVideo> GetNicoVideo(string rawVideoId)
 		{
 			try
 			{
-				await _NicoVideoSemaphore.WaitAsync().ConfigureAwait(false);
+				await _NicoVideoSemaphore.WaitAsync();
 
 				if (VideoIdToNicoVideo.ContainsKey(rawVideoId))
 				{
@@ -90,10 +126,6 @@ namespace NicoPlayerHohoema.Models
 
 
 
-		
-
-
-
 		public void Dispose()
 		{
 			Context.Dispose();
@@ -107,5 +139,12 @@ namespace NicoPlayerHohoema.Models
 		public NicoVideoDownloadContext Context { get; private set; }
 		HohoemaApp _HohoemaApp;
 	}
+
+
+
+
+
+	
+
 
 }

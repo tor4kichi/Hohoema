@@ -53,15 +53,8 @@
             
 
             <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left" Width="16"
-                        ToolTipService.ToolTip="灰色=未視聴 / 青=通常画質保存済み / 緑=低画質保存済み"
+                        ToolTipService.ToolTip="青=通常画質保存済み / 緑=低画質保存済み / 赤=削除確認が必要"
                         >
-                <!--
-                <Border BorderThickness="1 0 1 0" BorderBrush="Gray"
-                        Visibility="{Binding IsStillNotWatch, Converter={StaticResource BooleanToVisibility}}"
-                        >
-                    <Border BorderThickness="1 0 0 0" BorderBrush="Gray" Margin="1 0" />
-                </Border>
-                -->
                 <Border BorderThickness="4 0 0 0" BorderBrush="Blue" 
                         Visibility="{Binding IsOriginalQualityCached.Value, Converter={StaticResource BooleanToVisibility}}"
                         />
@@ -69,6 +62,7 @@
                         Width="6"
                         Visibility="{Binding IsLowQualityCached.Value, Converter={StaticResource BooleanToVisibility}}"
                         />
+
             </StackPanel>
 
             <Grid Height="60" Width="80" toolkit:DockPanel.Dock="Left">
@@ -144,6 +138,18 @@
             </toolkit:DockPanel>
         </toolkit:DockPanel>
 
+
+        <Grid Visibility="{Binding IsDeleted, Converter={StaticResource BooleanToVisibility}}"
+              Background="#60ffffff"
+              >
+            <SymbolIcon Symbol="Delete"
+                        HorizontalAlignment="Left"
+                        Margin="32 0 0 0"
+                        Width="48"
+                        Height="48"
+                        />
+
+        </Grid>
         
        <!--
         <Grid x:Name="NGVideoShutoutWall"

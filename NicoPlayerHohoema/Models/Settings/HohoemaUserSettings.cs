@@ -121,7 +121,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			try
 			{
-				await _FileLock.WaitAsync().ConfigureAwait(false);
+				await _FileLock.WaitAsync();
 				var file = await Folder.CreateFileAsync(FileName, CreationCollisionOption.OpenIfExists);
 				var serializedText = JsonConvert.SerializeObject(this);
 
