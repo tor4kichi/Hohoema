@@ -16,6 +16,7 @@ using Prism.Windows.Navigation;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using System.Threading;
+using Windows.UI.Xaml;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -78,7 +79,9 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactiveCommand(false)
 				.AddTo(_CompositeDisposable);
 
-			PlayAllCommand.Subscribe(_ => 
+			PlayAllCommand
+				.SubscribeOnUIDispatcher()
+				.Subscribe(_ => 
 			{
 
 				// TODO: プレイリストに登録
@@ -93,7 +96,9 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactiveCommand(false)
 				.AddTo(_CompositeDisposable);
 
-			CancelCacheDownloadRequest.Subscribe(_ => 
+			CancelCacheDownloadRequest
+				.SubscribeOnUIDispatcher()
+				.Subscribe(_ => 
 			{
 				foreach (var item in EnumerateDownloadingVideoItems())
 				{
@@ -115,7 +120,9 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactiveCommand(false)
 				.AddTo(_CompositeDisposable);
 
-			RequestOriginalQualityCacheDownload.Subscribe(async _ => 
+			RequestOriginalQualityCacheDownload
+				.SubscribeOnUIDispatcher()
+				.Subscribe(async _ => 
 			{
 				foreach (var item in EnumerateCanDownloadVideoItem(NicoVideoQuality.Original))
 				{
@@ -136,7 +143,9 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactiveCommand(false)
 				.AddTo(_CompositeDisposable);
 
-			RequestLowQualityCacheDownload.Subscribe(async _ =>
+			RequestLowQualityCacheDownload
+				.SubscribeOnUIDispatcher()
+				.Subscribe(async _ =>
 			{
 				foreach (var item in EnumerateCanDownloadVideoItem(NicoVideoQuality.Low))
 				{
@@ -154,7 +163,9 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactiveCommand(false)
 				.AddTo(_CompositeDisposable);
 
-			DeleteOriginalQualityCache.Subscribe(async _ =>
+			DeleteOriginalQualityCache
+				.SubscribeOnUIDispatcher()
+				.Subscribe(async _ =>
 			{
 				foreach (var item in EnumerateCachedVideoItem(NicoVideoQuality.Original))
 				{
@@ -170,7 +181,9 @@ namespace NicoPlayerHohoema.ViewModels
 				.Select(_ => EnumerateCachedVideoItem(NicoVideoQuality.Low).Count() > 0)
 				.ToReactiveCommand(false)
 				.AddTo(_CompositeDisposable);
-			DeleteLowQualityCache.Subscribe(async _ =>
+			DeleteLowQualityCache
+				.SubscribeOnUIDispatcher()
+				.Subscribe(async _ =>
 			{
 				foreach (var item in EnumerateCachedVideoItem(NicoVideoQuality.Low))
 				{
@@ -188,7 +201,9 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactiveCommand(false)
 				.AddTo(_CompositeDisposable);
 
-			RequestCacheDownload.Subscribe(async _ =>
+			RequestCacheDownload
+				.SubscribeOnUIDispatcher()
+				.Subscribe(async _ =>
 			{
 				foreach (var item in EnumerateCanDownloadVideoItem(NicoVideoQuality.Low))
 				{
@@ -200,13 +215,15 @@ namespace NicoPlayerHohoema.ViewModels
 			})
 			.AddTo(_CompositeDisposable);
 
-
+			var dispacther = Window.Current.CoreWindow.Dispatcher;
 			// クオリティ指定無しのキャッシュ削除
 			DeleteCache = SelectionItemsChanged
 				.Select(_ => EnumerateCachedVideoItem(NicoVideoQuality.Low).Count() > 0 || EnumerateCachedVideoItem(NicoVideoQuality.Original).Count() > 0)
 				.ToReactiveCommand(false)
 				.AddTo(_CompositeDisposable);
-			DeleteCache.Subscribe(async _ =>
+			DeleteCache
+				.SubscribeOnUIDispatcher()
+				.Subscribe(async _ =>
 			{
 				foreach (var item in EnumerateCachedVideoItem(NicoVideoQuality.Low))
 				{
@@ -217,7 +234,7 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					await item.NicoVideo.DeleteCache(NicoVideoQuality.Original);
 				}
-
+				
 				ClearSelection();
 				ResetList();
 			})
@@ -255,8 +272,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-
-		protected override Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			if (_IncrementalLoadingItems != null)
 			{
@@ -269,6 +285,7 @@ namespace NicoPlayerHohoema.ViewModels
 				IncrementalLoadingItems = null;
 			}
 
+
 			if (IncrementalLoadingItems == null
 				|| CheckNeedUpdateOnNavigateTo(e.NavigationMode))
 			{
@@ -276,11 +293,17 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 			else
 			{
+				OnPropertyChanged(nameof(IncrementalLoadingItems));
 				ListViewVerticalOffset.Value = _LastListViewOffset;
 				ChangeCanIncmentalLoading(true);
-				OnPropertyChanged(nameof(IncrementalLoadingItems));
 			}
 
+			base.OnNavigatedTo(e, viewModelState);
+		}
+
+
+		protected override Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		{
 			return Task.CompletedTask;
 		}
 

@@ -828,8 +828,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 				comment.NgResult = null;
 			}
-		}
-
+		}		
 
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{

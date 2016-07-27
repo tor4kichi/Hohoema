@@ -679,12 +679,12 @@ namespace NicoPlayerHohoema.Models
 
 			if (quality == NicoVideoQuality.Original)
 			{
-				await DeleteOriginalQualityCache().ConfigureAwait(false);
+				await DeleteOriginalQualityCache();
 			}
 
 			if (quality == NicoVideoQuality.Low)
 			{
-				await DeleteLowQualityCache().ConfigureAwait(false);
+				await DeleteLowQualityCache();
 			}
 
 			await CheckCacheStatus();

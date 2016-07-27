@@ -29,6 +29,12 @@ namespace NicoPlayerHohoema.ViewModels
 				.AddTo(_CompositeDisposable);
 		}
 
+
+		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		{
+			base.OnNavigatedTo(e, viewModelState);
+		}
+
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			List<MylistGroupData> mylists = null;

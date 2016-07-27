@@ -101,14 +101,18 @@ namespace NicoPlayerHohoema.ViewModels
 
 		}
 
-		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			if (e.Parameter is string)
 			{
 				MylistGroupId = e.Parameter as string;
 			}
 
+			base.OnNavigatedTo(e, viewModelState);
+		}
 
+		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		{
 			if (MylistGroupId == null)
 			{
 				return;
@@ -137,11 +141,13 @@ namespace NicoPlayerHohoema.ViewModels
 			if (MylistGroupId == "0")
 			{
 				MylistTitle = "とりあえずマイリスト";
+				OwnerUserId = HohoemaApp.LoginUserId.ToString();
+
+				var loginUserInfo = await HohoemaApp.NiconicoContext.User.GetInfoAsync();
+				UserName = loginUserInfo.Name;
 			}
 			else
 			{
-				// Note: await をつけると後段の読み込みが行われません
-
 				try
 				{
 					var response = await HohoemaApp.ContentFinder.GetMylist(MylistGroupId);

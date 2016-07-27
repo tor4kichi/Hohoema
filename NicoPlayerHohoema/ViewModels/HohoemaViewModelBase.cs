@@ -160,8 +160,6 @@ namespace NicoPlayerHohoema.ViewModels
 				PageManager.PageTitle = PageManager.CurrentDefaultPageTitle();
 			}
 
-
-
 		}
 
 		private void _OnResumed()

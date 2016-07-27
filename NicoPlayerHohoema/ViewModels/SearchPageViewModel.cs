@@ -103,31 +103,36 @@ namespace NicoPlayerHohoema.ViewModels
 
 		bool _NowProcessFavorite = false;
 
-		protected override Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
 
+		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		{
 			if (e.Parameter is string)
 			{
 				RequireSearchOption = SearchOption.FromParameterString(e.Parameter as string);
 			}
 
+			IsFavoriteTag.Value = false;
+			CanChangeFavoriteTagState.Value = false;
+
+			base.OnNavigatedTo(e, viewModelState);
+		}
+
+		protected override Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		{			
 			
+			if (SearchOption == null) { return Task.CompletedTask; }
+
 			_NowProcessFavorite = true;
 
-			IsTagSearch.Value = RequireSearchOption.SearchTarget == SearchTarget.Tag 
+			IsTagSearch.Value = SearchOption.SearchTarget == SearchTarget.Tag 
 				&& HohoemaApp.LoginUserId != default(uint);
 
 			if (IsTagSearch.Value)
 			{
 				// お気に入り登録されているかチェック
 				var favManager = HohoemaApp.FavFeedManager;
-				IsFavoriteTag.Value = favManager.IsFavoriteItem(FavoriteItemType.Tag, RequireSearchOption.Keyword);
+				IsFavoriteTag.Value = favManager.IsFavoriteItem(FavoriteItemType.Tag, SearchOption.Keyword);
 				CanChangeFavoriteTagState.Value = favManager.CanMoreAddFavorite(FavoriteItemType.Tag);
-			}
-			else
-			{
-				IsFavoriteTag.Value = false;
-				CanChangeFavoriteTagState.Value = false;
 			}
 
 			_NowProcessFavorite = false;

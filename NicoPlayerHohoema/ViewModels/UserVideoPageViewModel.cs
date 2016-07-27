@@ -21,22 +21,16 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			if (e.Parameter is string)
 			{
 				UserId = e.Parameter as string;
 			}
 
-			if (_User == null)
-			{
-				_User = await HohoemaApp.ContentFinder.GetUserDetail(UserId);
-			}
+			base.OnNavigatedTo(e, viewModelState);
+		}
 
-			cancelToken.ThrowIfCancellationRequested();
-
-			UpdateTitle(_User.Nickname + "さんの投稿動画一覧");
-		}	
 
 		protected override uint IncrementalLoadCount
 		{
@@ -46,14 +40,22 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+		protected override void PostResetList()
+		{
+			base.PostResetList();
 
-		
+			var source = IncrementalLoadingItems.Source as UserVideoIncrementalSource;
+
+			UpdateTitle(source.User.Nickname + "さんの投稿動画一覧");
+
+		}
+
+
 
 		protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
 		{
 			return new UserVideoIncrementalSource(
 				UserId,
-				_User,
 				HohoemaApp.ContentFinder,
 				HohoemaApp.MediaManager,
 				PageManager
@@ -62,8 +64,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		public string UserId { get; private set; }
-		UserDetail _User;
-
 	}
 
 
@@ -75,13 +75,12 @@ namespace NicoPlayerHohoema.ViewModels
 		public PageManager PageManager { get; private set; }
 
 
-		UserDetail _User;
+		public UserDetail User { get; private set;}
 
 
 
-		public UserVideoIncrementalSource(string userId, UserDetail userDetail, NiconicoContentFinder contentFinder, NiconicoMediaManager mediaMan, PageManager pageManager)
+		public UserVideoIncrementalSource(string userId, NiconicoContentFinder contentFinder, NiconicoMediaManager mediaMan, PageManager pageManager)
 		{
-			_User = userDetail;
 			UserId = uint.Parse(userId);
 			ContentFinder = contentFinder;
 			MediaManager = mediaMan;
@@ -90,7 +89,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public async Task<IEnumerable<VideoInfoControlViewModel>> GetPagedItems(uint pageIndex, uint pageSize)
 		{
-			if (_User.TotalVideoCount < pageIndex)
+			if (User == null)
+			{
+				User = await ContentFinder.GetUserDetail(UserId.ToString());
+			}
+
+
+			if (User.TotalVideoCount < pageIndex)
 			{
 				return Enumerable.Empty<VideoInfoControlViewModel>();
 			}

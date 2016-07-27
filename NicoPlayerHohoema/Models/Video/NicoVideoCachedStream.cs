@@ -337,16 +337,7 @@ namespace NicoPlayerHohoema.Models
 				IInputStream videoFragmentStream = null;
 				IBuffer videoFragmentBuffer = buffer;
 
-				while (CacheFile == null)
-				{
-					cancellationToken.ThrowIfCancellationRequested();
-
-					_ReadAsyncAction?.Cancel();
-
-					await Task.Delay(250).ConfigureAwait(false);
-
-					Debug.Write("キャンセル待ち...");
-				}
+				
 
 				try
 				{
@@ -354,31 +345,43 @@ namespace NicoPlayerHohoema.Models
 
 					cancellationToken.ThrowIfCancellationRequested();
 
-					for (int i = 0; i < 3; i++)
+					if (CacheFile == null)
 					{
-						try
-						{
-							using (var stream = await CacheFile.OpenReadAsync())
-							{
-								videoFragmentStream = stream.GetInputStreamAt(Position);
-
-								videoFragmentBuffer = await videoFragmentStream.ReadAsync(buffer, count, options).AsTask(cancellationToken, progress);
-
-								Debug.WriteLine($"read: {Position} + {videoFragmentBuffer.Length}");
-
-								_CurrentPosition += videoFragmentBuffer.Length;
-							}
-							break;
-						}
-						catch
-						{
-							await Task.Delay(100);
-
-							cancellationToken.ThrowIfCancellationRequested();
-						}
+						throw new Exception();
 					}
 
-					
+					try
+					{
+						using (var stream = await CacheFile.OpenReadAsync())
+						{
+							videoFragmentStream = stream.GetInputStreamAt(Position);
+
+							videoFragmentBuffer = await videoFragmentStream.ReadAsync(buffer, count, options).AsTask(cancellationToken, progress);
+
+							Debug.WriteLine($"read: {Position} + {videoFragmentBuffer.Length}");
+
+							_CurrentPosition += videoFragmentBuffer.Length;
+						}
+					}
+					catch
+					{
+						await Task.Delay(100);
+
+						cancellationToken.ThrowIfCancellationRequested();
+					}					
+				}
+				catch
+				{
+					while (CacheFile == null)
+					{
+						cancellationToken.ThrowIfCancellationRequested();
+
+						_ReadAsyncAction?.Cancel();
+
+						await Task.Delay(250).ConfigureAwait(false);
+
+						Debug.Write("キャンセル待ち...");
+					}
 				}
 				finally
 				{
@@ -692,12 +695,13 @@ namespace NicoPlayerHohoema.Models
 
 				try
 				{
+					await _CacheWriteSemaphore.WaitAsync();
+
 					// 動画ファイル名から.incompleteを削除するようリネーム
 					if (CacheFile.Name.Contains((".incomplete")))
 					{
 						var pos = CacheFile.Name.IndexOf(".incomplete");
 						var name = CacheFile.Name.Remove(pos);
-						await _CacheWriteSemaphore.WaitAsync();
 
 						var path = Path.Combine(Path.GetDirectoryName(CacheFile.Path), name);
 						if (File.Exists(path))
@@ -706,6 +710,8 @@ namespace NicoPlayerHohoema.Models
 							await alreadFile.DeleteAsync();
 						}
 						await CacheFile.RenameAsync(name);
+
+						await Task.Delay(100);
 					}
 				}
 				finally

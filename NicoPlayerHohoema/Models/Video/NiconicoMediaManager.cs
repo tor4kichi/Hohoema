@@ -29,7 +29,7 @@ namespace NicoPlayerHohoema.Models
 			
 			// ダウンロードリクエストされたアイテムのNicoVideoオブジェクトの作成
 			// 及び、リクエストの再構築
-			var list = await man.Context.LoadDownloadRequestItems().ConfigureAwait(false);
+			var list = await man.Context.LoadDownloadRequestItems();
 			foreach (var req in list)
 			{
 				var nicoVideo = await man.GetNicoVideo(req.RawVideoid);
@@ -41,17 +41,24 @@ namespace NicoPlayerHohoema.Models
 			// キャッシュ済みアイテムのNicoVideoオブジェクトの作成
 			var saveFolder = man.Context.VideoSaveFolder;
 			var files = await saveFolder.GetFilesAsync();
-			files
-				.AsParallel()
-				.Where(x => x.Name.EndsWith("_info.json"))
-				.Select(x => new String(x.Name.TakeWhile(y => y != '_').ToArray()))
-				.ForAll(x => man.GetNicoVideo(x).ConfigureAwait(false));
 
-			files
-				.AsParallel()
+			var cachedFiles = files
+				.Where(x => x.Name.EndsWith("_info.json"))
+				.Select(x => new String(x.Name.TakeWhile(y => y != '_').ToArray()));
+
+			foreach (var cachedFile in cachedFiles)
+			{
+				await man.GetNicoVideo(cachedFile);
+			}
+
+			var deletedCachedFiles = files
 				.Where(x => x.Name.EndsWith("_info.json" + NicoVideo.DELETED_EXT))
-				.Select(x => new String(x.Name.TakeWhile(y => y != '_').ToArray()))
-				.ForAll(x => man.SetupDeletedVideo(x).ConfigureAwait(false));
+				.Select(x => new String(x.Name.TakeWhile(y => y != '_').ToArray()));
+
+			foreach (var deletedCachedFile in deletedCachedFiles)
+			{
+				await man.SetupDeletedVideo(deletedCachedFile);
+			}
 
 
 			return man;
@@ -74,7 +81,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			try
 			{
-				await _NicoVideoSemaphore.WaitAsync().ConfigureAwait(false);
+				await _NicoVideoSemaphore.WaitAsync();
 
 				if (VideoIdToNicoVideo.ContainsKey(rawVideoId))
 				{
@@ -98,7 +105,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			try
 			{
-				await _NicoVideoSemaphore.WaitAsync().ConfigureAwait(false);
+				await _NicoVideoSemaphore.WaitAsync();
 
 				if (VideoIdToNicoVideo.ContainsKey(rawVideoId))
 				{

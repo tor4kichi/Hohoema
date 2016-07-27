@@ -73,7 +73,10 @@ namespace NicoPlayerHohoema.ViewModels
 				.SubscribeOnUIDispatcher()
 				.Subscribe(x => 
 				{
-					ResetList();
+					if (RequireCategoryInfo!= null)
+					{
+						ResetList();
+					}
 				})
 				.AddTo(_CompositeDisposable);
 
@@ -86,8 +89,7 @@ namespace NicoPlayerHohoema.ViewModels
 			PageManager.OpenPage(HohoemaPageType.VideoInfomation, videoUrl);
 		}
 
-
-		protected override Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			if (e.Parameter is string)
 			{
@@ -98,7 +100,12 @@ namespace NicoPlayerHohoema.ViewModels
 				RequireCategoryInfo = null;
 			}
 
-			return Task.CompletedTask;
+			base.OnNavigatedTo(e, viewModelState);
+		}
+
+		protected override Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		{
+			return base.NavigatedToAsync(cancelToken, e, viewModelState);
 		}
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
