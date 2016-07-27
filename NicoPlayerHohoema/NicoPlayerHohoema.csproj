@@ -16,8 +16,13 @@
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <PackageCertificateKeyFile>NicoPlayerHohoema_TemporaryKey.pfx</PackageCertificateKeyFile>
+    <PackageCertificateKeyFile>NicoPlayerHohoema_StoreKey.pfx</PackageCertificateKeyFile>
     <SkipIntermediatePriGenerationForResourceFiles>false</SkipIntermediatePriGenerationForResourceFiles>
+    <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
+    <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
+    <AppxBundle>Always</AppxBundle>
+    <AppxBundlePlatforms>x86|x64</AppxBundlePlatforms>
+    <PackageCertificateThumbprint>BFE34B4665927D2844D7BF676023FAED7F089F9D</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -90,7 +95,14 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
+    <Content Include="Assets\BadgeLogo.scale-100.png" />
+    <Content Include="Assets\BadgeLogo.scale-125.png" />
+    <Content Include="Assets\BadgeLogo.scale-150.png" />
+    <Content Include="Assets\BadgeLogo.scale-200.png" />
+    <Content Include="Assets\BadgeLogo.scale-400.png" />
+    <Content Include="Assets\LibLisencies\_lisence_summary.json" />
     <None Include="lib\Mntone.Nico2.UWP.pri" />
+    <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
@@ -99,26 +111,159 @@
     </Compile>
     <Compile Include="Events\PlayerClosedEvent.cs" />
     <Compile Include="Events\PlayNicoVideoEvent.cs" />
+    <Compile Include="Models\CommentCommandPermissionType.cs" />
+    <Compile Include="Models\FavFeedList.cs" />
+    <Compile Include="Models\FavFeedManager.cs" />
+    <Compile Include="Models\FavoriteItemType.cs" />
+    <Compile Include="Models\FavoritePageParameter.cs" />
     <Compile Include="Models\HohoemaApp.cs" />
     <Compile Include="Models\HohoemaPageType.cs" />
-    <Compile Include="Models\HohoemaUserSettings.cs" />
-    <Compile Include="Models\NiconicoPlayer.cs" />
+    <Compile Include="Models\LisenceSummary.cs" />
+    <Compile Include="Models\MediaBackgroundTask.cs" />
+    <Compile Include="Models\Settings\CacheSettings.cs" />
+    <Compile Include="Models\Video\NicoVideo.cs" />
+    <Compile Include="Models\Video\NicoVideoCacheRequest.cs" />
+    <Compile Include="Models\Video\NicoVideoCacheState.cs" />
+    <Compile Include="Models\Video\NicoVideoCanNotDownloadReason.cs" />
+    <Compile Include="Models\Video\NicoVideoDownloadContext.cs" />
+    <Compile Include="Models\Settings\HohoemaUserSettings.cs" />
+    <Compile Include="Models\NiconicoContentFinder.cs" />
+    <Compile Include="Models\Video\NiconicoMediaManager.cs" />
+    <Compile Include="Models\Video\NicoVideoCachedStream.cs" />
     <Compile Include="Models\PageManager.cs" />
     <Compile Include="Models\PlayerDisplayMode.cs" />
+    <Compile Include="Models\SearchOption.cs" />
+    <Compile Include="Models\SearchTarget.cs" />
+    <Compile Include="Models\Settings\AccountSettings.cs" />
+    <Compile Include="Models\Settings\NGSettings.cs" />
+    <Compile Include="Models\Settings\PlayerSettings.cs" />
+    <Compile Include="Models\Settings\RankingSettings.cs" />
+    <Compile Include="Models\Settings\SearchSettings.cs" />
+    <Compile Include="Models\VideoDescriptionHelper.cs" />
+    <Compile Include="Models\VideoPlayPayload.cs" />
+    <Compile Include="Models\Video\NicoVideoQuality.cs" />
     <Compile Include="Util\ColorExtention.cs" />
+    <Compile Include="Util\ConnectionRetryUtil.cs" />
+    <Compile Include="Util\DisplayRequestHelper.cs" />
+    <Compile Include="Util\FilePathHelper.cs" />
     <Compile Include="Util\HttpRandomAccessStream.cs" />
+    <Compile Include="Util\IncrementalLoadingCollection.cs" />
+    <Compile Include="Util\MediaPlaybackBackgroundTaskHelper.cs" />
+    <Compile Include="Util\NiconicoRankingExtention.cs" />
+    <Compile Include="Util\NicoVideoRssItemExtention.cs" />
+    <Compile Include="Util\SortMethodHelper.cs" />
+    <Compile Include="Util\StorageFolderExtention.cs" />
+    <Compile Include="Util\TaskExtention.cs" />
+    <Compile Include="ViewModels\AboutPageViewModel.cs" />
+    <Compile Include="ViewModels\CacheManagementPageViewModel.cs" />
+    <Compile Include="ViewModels\CommentCommandEditerViewModel.cs" />
     <Compile Include="ViewModels\CommentStreamingViewModel.cs" />
+    <Compile Include="ViewModels\ConfirmWatchHurmfulVideoPageViewModel.cs" />
+    <Compile Include="ViewModels\FavoriteAllFeedPageViewModel.cs" />
+    <Compile Include="ViewModels\FavoriteManagePageViewModel.cs" />
+    <Compile Include="ViewModels\FavoriteVideoInfoControlViewModel.cs" />
     <Compile Include="ViewModels\HistoryPageViewModel.cs" />
+    <Compile Include="ViewModels\HohoemaVideoListingPageViewModelBase.cs" />
+    <Compile Include="ViewModels\HohoemaViewModelBase.cs" />
+    <Compile Include="ViewModels\LoginPageViewModel.cs" />
     <Compile Include="ViewModels\MenuNavigatePageBaseViewModel.cs" />
-    <Compile Include="ViewModels\PlayerPageViewModel.cs" />
-    <Compile Include="ViewModels\RankingPageViewModel.cs" />
-    <Compile Include="ViewModels\SearchPageViewModel.cs" />
-    <Compile Include="ViewModels\SettingsPageViewModel.cs" />
-    <Compile Include="ViewModels\SubscriptionPageViewModel.cs" />
-    <Compile Include="Views\Behaviors\MediaElementStateGetter.cs" />
-    <Compile Include="Views\CommentRenderer\CommentRendererWithWIn2D.xaml.cs">
-      <DependentUpon>CommentRendererWithWIn2D.xaml</DependentUpon>
+    <Compile Include="ViewModels\MylistPageViewModel.cs" />
+    <Compile Include="ViewModels\PortalContent\HistoryPortalPageContentViewModel.cs" />
+    <Compile Include="ViewModels\SearchViewModel.cs" />
+    <Compile Include="ViewModels\SettingsContent\CacheSettingsPageContentViewModel.cs" />
+    <Compile Include="ViewModels\SettingsContent\CommentSettingsPageContentViewModel.cs" />
+    <Compile Include="ViewModels\SettingsContent\VideoListSettingsPageContentViewModel.cs" />
+    <Compile Include="ViewModels\SettingsContent\VideoPlaySettingsPageContentViewModel.cs" />
+    <Compile Include="ViewModels\UserInfoPageViewModel.cs" />
+    <Compile Include="ViewModels\UserMylistPageViewModel.cs" />
+    <Compile Include="ViewModels\UserVideoPageViewModel.cs" />
+    <Compile Include="ViewModels\VideoInfoContent\CommentVideoInfoContentViewModel.cs" />
+    <Compile Include="ViewModels\VideoInfoContent\MediaInfoViewModel.cs" />
+    <Compile Include="ViewModels\VideoInfoContent\SettingsVideoInfoContentViewModel.cs" />
+    <Compile Include="Views\AboutPage.xaml.cs">
+      <DependentUpon>AboutPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Behaviors\EnsureLifecycleMediaElement.cs" />
+    <Compile Include="Views\Behaviors\KeyboardTrigger.cs" />
+    <Compile Include="Views\Behaviors\ListViewSelectedItemsGetter.cs" />
+    <Compile Include="Views\Behaviors\MediaElementPauseAction.cs" />
+    <Compile Include="Views\Behaviors\MediaElementPlayAction.cs" />
+    <Compile Include="Views\Behaviors\MediaElementTogglePlayback.cs" />
+    <Compile Include="Views\Behaviors\MouseWheelTrigger.cs" />
+    <Compile Include="Views\Behaviors\OpenFlyout.cs" />
+    <Compile Include="Views\Behaviors\RefreshableListViewExtention.cs" />
+    <Compile Include="Views\Behaviors\ScrollToIndex.cs" />
+    <Compile Include="Views\Behaviors\ListViewVerticalOffsetGetter.cs" />
+    <Compile Include="Views\Behaviors\SetFocus.cs" />
+    <Compile Include="Views\Behaviors\SplitViewDisplayModeGetter.cs" />
+    <Compile Include="Views\CacheManagementPage.xaml.cs">
+      <DependentUpon>CacheManagementPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CommentCommandEditer.xaml.cs">
+      <DependentUpon>CommentCommandEditer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ConfirmWatchHurmfulVideoPage.xaml.cs">
+      <DependentUpon>ConfirmWatchHurmfulVideoPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\CacheManagementListItem.xaml.cs">
+      <DependentUpon>CacheManagementListItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\FavoriteFeedListItem.xaml.cs">
+      <DependentUpon>FavoriteFeedListItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\HistoryListItem.xaml.cs">
+      <DependentUpon>HistoryListItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\HohoemaIncrementalLoadingList.xaml.cs">
+      <DependentUpon>HohoemaIncrementalLoadingList.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\RankingCategoryListItem.xaml.cs">
+      <DependentUpon>RankingCategoryListItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Converters\ToUserFriendlyNumber.cs" />
+    <Compile Include="Views\Converters\VideoPositionToTimeConverter.cs" />
+    <Compile Include="Views\EditAutCacheConditionDialog.xaml.cs">
+      <DependentUpon>EditAutCacheConditionDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FavoriteAllFeedPage.xaml.cs">
+      <DependentUpon>FavoriteAllFeedPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FavoriteManagePage.xaml.cs">
+      <DependentUpon>FavoriteManagePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\MylistPage.xaml.cs">
+      <DependentUpon>MylistPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PortalContent\HistoryPortalPageContent.xaml.cs">
+      <DependentUpon>HistoryPortalPageContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\RankingChoiceContentDialog.xaml.cs">
+      <DependentUpon>RankingChoiceContentDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\RefreshableListView.cs" />
+    <Compile Include="Views\Service\EditAutoCacheConditionDialogService.cs" />
+    <Compile Include="Views\Service\ISearchDialogService.cs" />
+    <Compile Include="Views\Service\RankingChoiceDialogService.cs" />
+    <Compile Include="Views\Service\SearchDialogService.cs" />
+    <Compile Include="ViewModels\VideoPlayerPageViewModel.cs" />
+    <Compile Include="ViewModels\PortalContent\AppPortalPageContentViewModel.cs" />
+    <Compile Include="ViewModels\PortalContent\FavPortalPageContentViewModel.cs" />
+    <Compile Include="ViewModels\PortalContent\MylistPortalPageContentViewModel.cs" />
+    <Compile Include="ViewModels\PortalContent\RankingPortalPageContentViewModel.cs" />
+    <Compile Include="ViewModels\PortalContent\SearchPortalPageContentViewModel.cs" />
+    <Compile Include="ViewModels\PortalPageViewModel.cs" />
+    <Compile Include="ViewModels\RankingCategoryListPageViewModel.cs" />
+    <Compile Include="ViewModels\RankingCategoryPageViewModel.cs" />
+    <Compile Include="ViewModels\SearchPageViewModel.cs" />
+    <Compile Include="ViewModels\SelectableItem.cs" />
+    <Compile Include="ViewModels\SettingsPageViewModel.cs" />
+    <Compile Include="ViewModels\VideoInfoContent\SummaryVideoInfoContentViewModel.cs" />
+    <Compile Include="ViewModels\VideoInfoControlViewModel.cs" />
+    <Compile Include="Views\Behaviors\AutoHide.cs" />
+    <Compile Include="Views\Behaviors\MediaElementStateGetter.cs" />
+    <Compile Include="Views\Behaviors\ShowFlyoutBehavior.cs" />
+    <Compile Include="Views\Behaviors\WebViewAutoResizeToContent.cs" />
+    <Compile Include="Views\Behaviors\WebViewNotifyUriClicked.cs" />
     <Compile Include="Views\Comment.cs" />
     <Compile Include="Views\CommentRenderer\CommentRenderer.xaml.cs">
       <DependentUpon>CommentRenderer.xaml</DependentUpon>
@@ -126,20 +271,69 @@
     <Compile Include="Views\CommentRenderer\CommentUI.xaml.cs">
       <DependentUpon>CommentUI.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Converters\SecondsToTimeValueConverter.cs" />
+    <Compile Include="Views\Converters\CursorConverter.cs" />
+    <Compile Include="Views\Converters\InvertBooleanConverter.cs" />
+    <Compile Include="Views\Converters\SoundVolumeConveter.cs" />
+    <Compile Include="Views\Converters\TimeSpanToMovieLengthStringValueConverter.cs" />
     <Compile Include="Views\HistoryPage.xaml.cs">
       <DependentUpon>HistoryPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Behaviors\MediaElementExtractPositionBehavior.cs" />
     <Compile Include="Views\Behaviors\MediaElementSeekAfterAutoPlayBehavior.cs" />
+    <Compile Include="Views\LoginPage.xaml.cs">
+      <DependentUpon>LoginPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\MenuNavigatePageBase.xaml.cs">
       <DependentUpon>MenuNavigatePageBase.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\PlayerPage.xaml.cs">
-      <DependentUpon>PlayerPage.xaml</DependentUpon>
+    <Compile Include="Views\SearchContentDialog.xaml.cs">
+      <DependentUpon>SearchContentDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\RankingPage.xaml.cs">
-      <DependentUpon>RankingPage.xaml</DependentUpon>
+    <Compile Include="Views\Service\ToastNotificationService.cs" />
+    <Compile Include="Views\SettingsPageContent\CacheSettingsPageContent.xaml.cs">
+      <DependentUpon>CacheSettingsPageContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UserInfoPage.xaml.cs">
+      <DependentUpon>UserInfoPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UserMylistPage.xaml.cs">
+      <DependentUpon>UserMylistPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UserVideoPage.xaml.cs">
+      <DependentUpon>UserVideoPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\VideoInfoContent\CommentVideoInfoContent.xaml.cs">
+      <DependentUpon>CommentVideoInfoContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\VideoInfoContent\SettingsVideoInfoContent.xaml.cs">
+      <DependentUpon>SettingsVideoInfoContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\VideoPlayerPage.xaml.cs">
+      <DependentUpon>VideoPlayerPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PortalContent\AppPortalPageContent.xaml.cs">
+      <DependentUpon>AppPortalPageContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PortalContent\FavPortalPageContent.xaml.cs">
+      <DependentUpon>FavPortalPageContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PortalContent\MylistPortalPageContent.xaml.cs">
+      <DependentUpon>MylistPortalPageContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PortalContent\RankingPortalPageContent.xaml.cs">
+      <DependentUpon>RankingPortalPageContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PortalContent\SearchPortalPageContent.xaml.cs">
+      <DependentUpon>SearchPortalPageContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PortalPage.xaml.cs">
+      <DependentUpon>PortalPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\RankingCategoryListPage.xaml.cs">
+      <DependentUpon>RankingCategoryListPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\RankingCategoryPage.xaml.cs">
+      <DependentUpon>RankingCategoryPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Views\SearchPage.xaml.cs">
@@ -149,12 +343,20 @@
     <Compile Include="Views\SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\SubscriptionPage.xaml.cs">
-      <DependentUpon>SubscriptionPage.xaml</DependentUpon>
+    <Compile Include="Views\SettingsPageContent\CommentSettingsPageContent.xaml.cs">
+      <DependentUpon>CommentSettingsPageContent.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\UIEffects\CanvasControlExtention.cs" />
-    <Compile Include="Views\UIEffects\DropShadowHostControl.xaml.cs">
-      <DependentUpon>DropShadowHostControl.xaml</DependentUpon>
+    <Compile Include="Views\SettingsPageContent\VideoPlaySettingsPageContent.xaml.cs">
+      <DependentUpon>VideoPlaySettingsPageContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SettingsPageContent\VideoListSettingsPageContent.xaml.cs">
+      <DependentUpon>VideoListSettingsPageContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\VideoInfoContent\SummaryVideoInfoContent.xaml.cs">
+      <DependentUpon>SummaryVideoInfoContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\VideoInfoControl.xaml.cs">
+      <DependentUpon>VideoInfoControl.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -164,15 +366,60 @@
     <None Include="NicoPlayerHohoema_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\LibLisencies\HtmlAgilityPack.txt" />
+    <Content Include="Assets\LibLisencies\Newtonsoft.Json.txt" />
+    <Content Include="Assets\LibLisencies\OpenNiconico2.txt" />
+    <Content Include="Assets\LibLisencies\Prism.txt" />
+    <Content Include="Assets\LibLisencies\ReactiveProperty.txt" />
+    <Content Include="Assets\LibLisencies\WinRTXamlToolkit.UWP.txt" />
+    <Content Include="Assets\LockScreenLogo.scale-100.png" />
+    <Content Include="Assets\LockScreenLogo.scale-125.png" />
+    <Content Include="Assets\LockScreenLogo.scale-150.png" />
+    <Content Include="Assets\LockScreenLogo.scale-400.png" />
+    <Content Include="Assets\SplashScreen.scale-100.png" />
+    <Content Include="Assets\SplashScreen.scale-125.png" />
+    <Content Include="Assets\SplashScreen.scale-150.png" />
+    <Content Include="Assets\SplashScreen.scale-400.png" />
+    <Content Include="Assets\Square150x150Logo.scale-100.png" />
+    <Content Include="Assets\Square150x150Logo.scale-125.png" />
+    <Content Include="Assets\Square150x150Logo.scale-150.png" />
+    <Content Include="Assets\Square150x150Logo.scale-400.png" />
+    <Content Include="Assets\Square310x310Logo.scale-100.png" />
+    <Content Include="Assets\Square310x310Logo.scale-125.png" />
+    <Content Include="Assets\Square310x310Logo.scale-150.png" />
+    <Content Include="Assets\Square310x310Logo.scale-200.png" />
+    <Content Include="Assets\Square310x310Logo.scale-400.png" />
+    <Content Include="Assets\Square44x44Logo.scale-100.png" />
+    <Content Include="Assets\Square44x44Logo.scale-125.png" />
+    <Content Include="Assets\Square44x44Logo.scale-150.png" />
+    <Content Include="Assets\Square44x44Logo.scale-400.png" />
+    <Content Include="Assets\Square44x44Logo.targetsize-16_altform-unplated.png" />
+    <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
+    <Content Include="Assets\Square44x44Logo.targetsize-256_altform-unplated.png" />
+    <Content Include="Assets\Square44x44Logo.targetsize-48_altform-unplated.png" />
+    <Content Include="Assets\Square71x71Logo.scale-100.png" />
+    <Content Include="Assets\Square71x71Logo.scale-125.png" />
+    <Content Include="Assets\Square71x71Logo.scale-150.png" />
+    <Content Include="Assets\Square71x71Logo.scale-200.png" />
+    <Content Include="Assets\Square71x71Logo.scale-400.png" />
+    <Content Include="Assets\StoreLogo.scale-100.png" />
+    <Content Include="Assets\StoreLogo.scale-125.png" />
+    <Content Include="Assets\StoreLogo.scale-150.png" />
+    <Content Include="Assets\StoreLogo.scale-200.png" />
+    <Content Include="Assets\StoreLogo.scale-400.png" />
+    <Content Include="Assets\VideoDescription\VideoDescription.html" />
+    <Content Include="Assets\Wide310x150Logo.scale-100.png" />
+    <Content Include="Assets\Wide310x150Logo.scale-125.png" />
+    <Content Include="Assets\Wide310x150Logo.scale-150.png" />
+    <Content Include="Assets\Wide310x150Logo.scale-400.png" />
     <Content Include="lib\Mntone.Nico2.UWP.dll" />
     <Content Include="lib\Mntone.Nico2.UWP.pdb" />
+    <None Include="Package.StoreAssociation.xml" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
     <Content Include="Assets\Square150x150Logo.scale-200.png" />
     <Content Include="Assets\Square44x44Logo.scale-200.png" />
-    <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
-    <Content Include="Assets\StoreLogo.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
   </ItemGroup>
   <ItemGroup>
@@ -180,7 +427,24 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="Views\CommentRenderer\CommentRendererWithWIn2D.xaml">
+    <Page Include="Styles\RefreshableListViewStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Styles\VideoListProgressRingStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
+    <Page Include="Views\AboutPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\CacheManagementPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\CommentCommandEditer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -192,7 +456,47 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\ConfirmWatchHurmfulVideoPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\CacheManagementListItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\FavoriteFeedListItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\HistoryListItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\HohoemaIncrementalLoadingList.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\RankingCategoryListItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\EditAutCacheConditionDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\FavoriteAllFeedPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\FavoriteManagePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\HistoryPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\LoginPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -200,11 +504,79 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Views\PlayerPage.xaml">
+    <Page Include="Views\MylistPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\RankingPage.xaml">
+    <Page Include="Views\PortalContent\HistoryPortalPageContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\RankingChoiceContentDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SearchContentDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SettingsPageContent\CacheSettingsPageContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\UserInfoPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\UserMylistPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\UserVideoPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\VideoInfoContent\CommentVideoInfoContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\VideoInfoContent\SettingsVideoInfoContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\VideoPlayerPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PortalContent\AppPortalPageContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PortalContent\FavPortalPageContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PortalContent\MylistPortalPageContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PortalContent\RankingPortalPageContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PortalContent\SearchPortalPageContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PortalPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\RankingCategoryListPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\RankingCategoryPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -216,11 +588,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\SubscriptionPage.xaml">
+    <Page Include="Views\SettingsPageContent\CommentSettingsPageContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\UIEffects\DropShadowHostControl.xaml">
+    <Page Include="Views\SettingsPageContent\VideoPlaySettingsPageContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SettingsPageContent\VideoListSettingsPageContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\VideoInfoContent\SummaryVideoInfoContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\VideoInfoControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -230,7 +614,16 @@
       <HintPath>lib\Mntone.Nico2.UWP.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\BackgroundAudioShared\VideoBackgroundShared.csproj">
+      <Project>{62c43640-d9fb-41b8-81b7-a02be8facd09}</Project>
+      <Name>VideoBackgroundShared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VideoBackgroundTask\VideoBackgroundTask.csproj">
+      <Project>{03e0d8ba-4f1d-4f35-8335-81b641bbbac1}</Project>
+      <Name>VideoBackgroundTask</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

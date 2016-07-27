@@ -1,8 +1,4 @@
-﻿using Microsoft.Graphics.Canvas;
-using Microsoft.Graphics.Canvas.Effects;
-using Microsoft.Graphics.Canvas.UI;
-using Microsoft.Graphics.Canvas.UI.Xaml;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -45,6 +41,11 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		public bool IsEndDisplay(uint currentVpos)
 		{
 			return CommentData.EndPosition <= currentVpos;
+		}
+
+		public bool IsCompleteInsideScreen(int screenWidth, uint currentVPos)
+		{
+			return GetHorizontalPosition(screenWidth, currentVPos) > DesiredSize.Width;
 		}
 
 		public int GetHorizontalPosition(int screenWidth, uint currentVpos)

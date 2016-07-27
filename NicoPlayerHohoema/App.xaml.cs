@@ -29,6 +29,9 @@ using Prism.Events;
 using NicoPlayerHohoema.Events;
 using Prism.Windows.Navigation;
 using Prism.Windows.AppModel;
+using Prism.Windows.Mvvm;
+//using BackgroundAudioShared;
+using Windows.Media;
 
 namespace NicoPlayerHohoema
 {
@@ -39,41 +42,51 @@ namespace NicoPlayerHohoema
     {
 		public PlayerWindowManager PlayerWindow { get; private set; }
 
+		static App()
+		{
+		}
 
-        /// <summary>
-        /// 単一アプリケーション オブジェクトを初期化します。これは、実行される作成したコードの
-        ///最初の行であるため、main() または WinMain() と論理的に等価です。
-        /// </summary>
-        public App()
+		/// <summary>
+		/// 単一アプリケーション オブジェクトを初期化します。これは、実行される作成したコードの
+		///最初の行であるため、main() または WinMain() と論理的に等価です。
+		/// </summary>
+		public App()
         {
 			UnhandledException += PrismUnityApplication_UnhandledException;
 
 			this.Resuming += App_Resuming;
-			
+			this.Suspending += App_Suspending;
 			
 			this.InitializeComponent();
 		}
 
-		
-
-		protected override Task OnSuspendingApplicationAsync()
+		private async void App_Suspending(object sender, SuspendingEventArgs e)
 		{
-			Task.Run(async () => 
-			{
-				var hohoemaApp = Container.Resolve<HohoemaApp>();
-				await hohoemaApp.SignOut();
-			});
+			var deferral = e.SuspendingOperation.GetDeferral();
+			var hohoemaApp = Container.Resolve<HohoemaApp>();
+			//			hohoemaApp.SignOut().ConfigureAwait(false);
 
-			return base.OnSuspendingApplicationAsync();
+			if (hohoemaApp.IsLoggedIn)
+			{
+				await hohoemaApp.MediaManager.Context.Suspending();
+			}
+			
+			deferral.Complete();
 		}
 
-		private void App_Resuming(object sender, object e)
+
+		private async void App_Resuming(object sender, object e)
 		{
-			Task.Run(async () =>
-			{
-				var hohoemaApp = Container.Resolve<HohoemaApp>();
-				await hohoemaApp.SignInFromUserSettings();
-			});
+//			var backgroundTask = MediaBackgroundTask.Create();
+//			Container.RegisterInstance(backgroundTask);
+
+			var hohoemaApp = Container.Resolve<HohoemaApp>();
+			await hohoemaApp.SignInFromUserSettings();
+
+			await hohoemaApp.MediaManager.Context.Resume();
+
+
+			hohoemaApp.Resumed();
 		}
 
 		protected override Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args)
@@ -81,32 +94,37 @@ namespace NicoPlayerHohoema
 #if DEBUG
 			DebugSettings.IsBindingTracingEnabled = true;
 #endif
-			
-			Window.Current.Activate();
 
-			return Task.FromResult<object>(null);
+			if (args.PreviousExecutionState == ApplicationExecutionState.Terminated)
+			{
+				//TODO: Load state from previously suspended application
+				var hohoemaApp = Container.Resolve<HohoemaApp>();
+				
+			}
+
+
+			if (!args.PrelaunchActivated)
+			{
+				// メディアバックグラウンドタスクの動作状態を初期化
+//				ApplicationSettingsHelper.ReadResetSettingsValue(ApplicationSettingsConstants.AppState);
+
+				var pm = Container.Resolve<PageManager>();
+				pm.OpenPage(HohoemaPageType.Login, true /* Enable auto login */);
+			}
+
+			return Task.CompletedTask;
 		}
 
 		
 
-		protected override Task OnInitializeAsync(IActivatedEventArgs args)
+		protected override async Task OnInitializeAsync(IActivatedEventArgs args)
 		{
-			RegisterTypes();
+			await RegisterTypes();
 
-			var hohoemaApp = Container.Resolve<HohoemaApp>();
-			Task.Run(async () =>
-			{
-				await hohoemaApp.SignInFromUserSettings();
-			});
+//			var playNicoVideoEvent = EventAggregator.GetEvent<PlayNicoVideoEvent>();
+//			playNicoVideoEvent.Subscribe(PlayNicoVideoInPlayerWindow);
 
-			var pm = Container.Resolve<PageManager>();
-			pm.OpenPage(HohoemaPageType.Ranking);
-
-
-			var playNicoVideoEvent = EventAggregator.GetEvent<PlayNicoVideoEvent>();
-			playNicoVideoEvent.Subscribe(PlayNicoVideoInPlayerWindow);
-
-			return base.OnInitializeAsync(args);
+			await base.OnInitializeAsync(args);
 		}
 
 		private async void PlayNicoVideoInPlayerWindow(string videoUrl)
@@ -117,22 +135,42 @@ namespace NicoPlayerHohoema
 		}
 
 
-		private void RegisterTypes()
+		private async Task RegisterTypes()
 		{
 			// Models
-			Container.RegisterInstance(new HohoemaApp());
+			var hohoemaApp = await HohoemaApp.Create(EventAggregator);
+			Container.RegisterInstance(hohoemaApp);
 			Container.RegisterInstance(new PageManager(NavigationService));
+			Container.RegisterInstance(hohoemaApp.ContentFinder);
+
+			// TODO: プレイヤーウィンドウ上で管理する
+			var backgroundTask = MediaBackgroundTask.Create();
+			Container.RegisterInstance(backgroundTask);
 
 
 			// ViewModels
 			Container.RegisterType<ViewModels.MenuNavigatePageBaseViewModel>(new ContainerControlledLifetimeManager());
 
-			Container.RegisterType<ViewModels.RankingPageViewModel>(new ContainerControlledLifetimeManager());
+			Container.RegisterType<ViewModels.RankingCategoryPageViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.HistoryPageViewModel>(new ContainerControlledLifetimeManager());
-			Container.RegisterType<ViewModels.SubscriptionPageViewModel>(new ContainerControlledLifetimeManager());
+			//			Container.RegisterType<ViewModels.SubscriptionPageViewModel>(new ContainerControlledLifetimeManager());
+			Container.RegisterType<ViewModels.UserVideoPageViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.SearchPageViewModel>(new ContainerControlledLifetimeManager());
-			Container.RegisterType<ViewModels.SettingsPageViewModel>(new ContainerControlledLifetimeManager());
+			Container.RegisterType<ViewModels.MylistPageViewModel>(new ContainerControlledLifetimeManager());
+			//			Container.RegisterType<ViewModels.UserVideoPageViewModel>(new ContainerControlledLifetimeManager());
+			Container.RegisterType<ViewModels.FavoriteAllFeedPageViewModel>(new ContainerControlledLifetimeManager());
+			Container.RegisterType<ViewModels.UserMylistPageViewModel>(new ContainerControlledLifetimeManager());
+			Container.RegisterType<ViewModels.CacheManagementPageViewModel>(new ContainerControlledLifetimeManager());
+			//			Container.RegisterType<ViewModels.PortalContent.MylistPortalPageContentViewModel>(new ContainerControlledLifetimeManager());
+			//			Container.RegisterType<ViewModels.PortalContent.FavPortalPageContentViewModel>(new ContainerControlledLifetimeManager());
+			//			Container.RegisterType<ViewModels.PortalContent.HistoryPortalPageContentViewModel>(new ContainerControlledLifetimeManager());
 
+
+
+			// Service
+			Container.RegisterType<Views.Service.ISearchDialogService, Views.Service.SearchDialogService>();
+			Container.RegisterType<Views.Service.RankingChoiceDialogService>();
+			Container.RegisterInstance(new Views.Service.ToastNotificationService());
 		}
 
 
@@ -145,29 +183,88 @@ namespace NicoPlayerHohoema
 		protected override void OnWindowCreated(WindowCreatedEventArgs args)
 		{
 			base.OnWindowCreated(args);
+			
+//			var mainWindowView = ApplicationView.GetForCurrentView();
+//			mainWindowView.Consolidated += MainWindowView_Consolidated;
 
-			var mainWindowView = ApplicationView.GetForCurrentView();
-			mainWindowView.Consolidated += MainWindowView_Consolidated;
 		}
 
 		private void MainWindowView_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)
 		{
-			App.Current.Exit();
+			if (PlayerWindow == null) { App.Current.Exit(); }
+
+			if (sender.Id  == PlayerWindow.ViewId)
+			{
+				PlayerWindow.Closed();
+			}
+			else
+			{
+				App.Current.Exit();
+			}
 		}
 
 		protected override UIElement CreateShell(Frame rootFrame)
 		{
-//			var ui = base.CreateShell(rootFrame);
+			var menu = new Views.MenuNavigatePageBase();
 
-			var menuPage = new Views.MenuNavigatePageBase();
+			var viewModel = Container.Resolve<ViewModels.MenuNavigatePageBaseViewModel>();
+			menu.DataContext = viewModel;
 
-			menuPage.Content = rootFrame;
+			menu.Content = rootFrame;
 
-
+			rootFrame.Navigating += RootFrame_Navigating;
 			
-
-			return menuPage;
+			return menu;
 		}
+
+		private void RootFrame_Navigating(object sender, NavigatingCancelEventArgs e)
+		{
+			if (e.NavigationMode == NavigationMode.Forward)
+			{
+				if (e.SourcePageType.Name.EndsWith("Page"))
+				{
+					var pageTypeString = e.SourcePageType.Name.Remove(e.SourcePageType.Name.IndexOf("Page"));
+
+					HohoemaPageType pageType;
+					if (Enum.TryParse(pageTypeString, out pageType))
+					{
+						if (pageType == HohoemaPageType.ConfirmWatchHurmfulVideo)
+						{
+							e.Cancel = true;
+							return;
+						}
+					}
+				}
+			}
+
+
+			if (e.NavigationMode == NavigationMode.Back || e.NavigationMode == NavigationMode.Forward)
+			{
+				if (e.SourcePageType.Name.EndsWith("Page"))
+				{
+					var pageTypeString = e.SourcePageType.Name.Remove(e.SourcePageType.Name.IndexOf("Page"));
+
+					HohoemaPageType pageType;
+					if (Enum.TryParse(pageTypeString, out pageType))
+					{
+						var pageManager = Container.Resolve<PageManager>();
+						pageManager.OnNavigated(pageType);
+
+						Debug.WriteLine($"navigated : {pageType.ToString()}");
+					}
+					else
+					{
+						throw new NotSupportedException();
+					}
+				}
+				else
+				{
+					throw new Exception();
+				}
+			}
+
+		}
+
 
 		private void PrismUnityApplication_UnhandledException(object sender, UnhandledExceptionEventArgs e)
 		{
@@ -189,25 +286,9 @@ namespace NicoPlayerHohoema
 				var view = CoreApplication.CreateNewView();
 
 				PlayerWindow = await PlayerWindowManager.CreatePlayerWindowManager(view);
-
-				await view.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () => 
-				{
-					var v = ApplicationView.GetForCurrentView();
-					v.Consolidated += PlayerWindow_Consolidated;					
-				});
 			}
 
 			await PlayerWindow.ShowFront(currentViewId);
-		}
-
-		/// <summary>
-		/// プレイヤーウィンドウが閉じられた時に呼ばれる
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="args"></param>
-		private void PlayerWindow_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)
-		{
-			PlayerWindow.Closed();
 		}
 	}
 
@@ -245,9 +326,9 @@ namespace NicoPlayerHohoema
 				ns = new FrameNavigationService(frameFacade
 					, (pageToken) =>
 					{
-						if (pageToken == nameof(Views.PlayerPage))
+						if (pageToken == nameof(Views.VideoPlayerPage))
 						{
-							return typeof(Views.PlayerPage);
+							return typeof(Views.VideoPlayerPage);
 						}
 						else
 						{
@@ -279,7 +360,7 @@ namespace NicoPlayerHohoema
 			// サブウィンドウをアクティベートして、サブウィンドウにPlayerページナビゲーションを飛ばす
 			await View.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
 			{
-				if (!NavigationService.Navigate(nameof(Views.PlayerPage), videoUrl))
+				if (!NavigationService.Navigate(nameof(Views.VideoPlayerPage), videoUrl))
 				{
 					System.Diagnostics.Debug.WriteLine("Failed open player.");
 				}
@@ -294,7 +375,11 @@ namespace NicoPlayerHohoema
 			{
 				NavigationService.Navigate("", null);
 				NavigationService.ClearHistory();
+
+				
 			});
+
+			await Task.Delay(3000);
 		}
 
 	}

@@ -1,0 +1,159 @@
+﻿<ContentDialog
+    x:Name="DialogRoot"
+    x:Class="NicoPlayerHohoema.Views.EditAutCacheConditionDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:mybehavior ="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="450"
+    
+    Title="キャッシュ条件を編集"
+    SecondaryButtonText="OK"
+    PrimaryButtonText="キャンセル"
+    >
+
+    <Grid Width="400">
+        <StackPanel Margin="8">
+
+            <toolkit:DockPanel Margin="0 0 0 8">
+                <TextBox Text="{Binding Label.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         MinWidth="240"
+                         toolkit:DockPanel.Dock="Right"
+                         ext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
+                         TabIndex="10"
+                         />
+
+                <TextBlock Text="ラベル" 
+                           VerticalAlignment="Center"
+                           FontWeight="SemiBold"
+                           />
+            </toolkit:DockPanel>
+
+            <toolkit:DockPanel Margin="0 8 0 8">
+
+                <Border toolkit:DockPanel.Dock="Bottom" Margin="0 16 0 8">
+                    <ItemsControl ItemsSource="{Binding IncludeTags}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <toolkit:WrapPanel Orientation="Horizontal" Width="370" HorizontalAlignment="Left"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="Green" BorderThickness="1" CornerRadius="8" Background="LightGreen" IsHitTestVisible="True">
+                                    <StackPanel Orientation="Horizontal" Margin="8 4 0 4">
+                                        <TextBlock Text="{Binding}" 
+                                                   VerticalAlignment="Center"
+                                                   />
+
+                                        
+                                        <AppBarButton Icon="Delete" 
+                                                      Command="{Binding ElementName=DialogRoot, Path=DataContext.RemoveIncludeTagCommand}"
+                                                      CommandParameter="{Binding}"  
+                                                      Width="48"
+                                                      Height="48"
+                                                      />
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                </Border>
+
+                <StackPanel Orientation="Horizontal"
+                             toolkit:DockPanel.Dock="Right"                        
+                            >
+
+                    <TextBox Text="{Binding IncludeTagText.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         MinWidth="200"
+                             ext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
+                             TabIndex="1"
+                         />
+
+                    <Button Content="追加" Margin="8 0"
+                            Command="{Binding AddIncludeTagCommand}"
+                             TabIndex="2"
+                            />
+
+                </StackPanel>
+
+                <TextBlock Text="タグ包含条件" 
+                           VerticalAlignment="Center"
+                           FontWeight="SemiBold"
+                           />
+            </toolkit:DockPanel>
+
+
+
+            <toolkit:DockPanel Margin="0 8 0 8">
+
+                <Border toolkit:DockPanel.Dock="Bottom" Margin="0 16 0 8">
+                    <ItemsControl ItemsSource="{Binding ExcludeTags}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <toolkit:WrapPanel Orientation="Horizontal" Width="370" HorizontalAlignment="Left" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="DarkRed" BorderThickness="1" CornerRadius="8" Background="LightPink" IsHitTestVisible="True">
+                                    <StackPanel Orientation="Horizontal" Margin="8 4 0 4">
+                                        <TextBlock Text="{Binding}" 
+                                                   VerticalAlignment="Center"
+                                                   />
+
+
+                                        <AppBarButton Icon="Delete" 
+                                                      Command="{Binding ElementName=DialogRoot, Path=DataContext.RemoveExcludeTagCommand}"
+                                                      CommandParameter="{Binding}"  
+                                                      Width="48"
+                                                      Height="48"
+                                                      />
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                </Border>
+
+                <StackPanel Orientation="Horizontal"
+                             toolkit:DockPanel.Dock="Right"                        
+                            >
+
+                    <TextBox Text="{Binding ExcludeTagText.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         MinWidth="200"
+                             ext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
+                             
+                              TabIndex="5"
+                         />
+
+                    <Button Content="追加" Margin="8 0"
+                            Command="{Binding AddExcludeTagCommand}"
+                            TabIndex="6"
+                            />
+
+                </StackPanel>
+
+                <TextBlock Text="タグ除外条件" 
+                           VerticalAlignment="Center"
+                           FontWeight="SemiBold"
+                           />
+            </toolkit:DockPanel>
+
+            <TextBlock Text="包含条件に指定されたタグが動画に設定されている時、自動ダウンロードを行います。" />
+
+        </StackPanel>
+    </Grid>
+</ContentDialog>

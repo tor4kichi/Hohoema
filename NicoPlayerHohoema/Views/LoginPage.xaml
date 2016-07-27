@@ -1,0 +1,130 @@
+﻿<Page
+    x:Class="NicoPlayerHohoema.Views.LoginPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:view="using:NicoPlayerHohoema.Views"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:settingsContent="using:NicoPlayerHohoema.Views.SettingsPageContent"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"
+
+    mc:Ignorable="d">
+
+    
+    
+    <toolkit:DockPanel HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       >
+
+        <StackPanel toolkit:DockPanel.Dock="Top">
+            <TextBlock>
+                <Run Text="Nico Video Player" />
+            </TextBlock>
+
+            <TextBlock Text="Hohoema" 
+                       FontSize="50"
+                       />
+        </StackPanel>
+
+        <Border Margin="0 0 0 16" toolkit:DockPanel.Dock="Top"/>
+
+        <StackPanel Height="48" Margin="8 16 8 8" toolkit:DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center">
+            
+            <ProgressRing IsActive="{Binding CanChangeValue.Value, Converter={StaticResource InvertBoolean}}"
+                          Visibility="{Binding CanChangeValue.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                          Width="48"
+                          Height="48"
+                          Margin="16 0"
+                          />
+
+            <TextBlock Text="ログイン中"
+                       VerticalAlignment="Center"
+                       Visibility="{Binding CanChangeValue.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                       />
+            
+        </StackPanel>
+
+        <StackPanel Margin="8 16" toolkit:DockPanel.Dock="Bottom">
+
+            <StackPanel Visibility="{Binding IsLoginFailed.Value, Converter={StaticResource BooleanToVisibility}}">
+                <TextBlock HorizontalAlignment="Center" Margin="0 0 0 8" >
+                    <Run Text="ログインに失敗しました。" />
+                </TextBlock>
+                <TextBlock HorizontalAlignment="Center" Margin="0 0 0 8" >
+                    <Run Text="メールアドレスやパスワードが正しいか確認してみてください。" />
+                </TextBlock>
+            </StackPanel>
+
+            <StackPanel Visibility="{Binding IsServiceUnavailable.Value, Converter={StaticResource BooleanToVisibility}}">
+                <TextBlock HorizontalAlignment="Center" Margin="0 0 0 8" >
+                    <Run Text="ニコニコ動画のサービスが利用できない状況です。" />
+                </TextBlock>
+                <TextBlock HorizontalAlignment="Center" Margin="0 0 0 8" >
+                    <Run Text="時間を置いてからアクセスしてみてください。" />
+                
+                </TextBlock>
+                <TextBlock HorizontalAlignment="Center" Margin="0 0 0 8" >
+                    <Hyperlink NavigateUri="http://www.nicovideo.jp/">
+                        <Run Text="ブラウザでニコニコ動画をチェックする"/>
+                    </Hyperlink>
+                </TextBlock>
+            </StackPanel>
+            
+        </StackPanel>
+
+
+        <StackPanel>
+            <toolkit:DockPanel Margin="0 0 0 8">
+                <Border toolkit:DockPanel.Dock="Right" MinWidth="200">
+                    <TextBox Text="{Binding MailOrTelephone.Value, Mode=TwoWay}"
+                             IsEnabled="{Binding CanChangeValue.Value}"
+                             >
+
+                    </TextBox>
+                </Border>
+                <TextBlock Text="Mail or Telephone" 
+                           VerticalAlignment="Center"
+                           Margin="8 0"
+                           />
+            </toolkit:DockPanel>
+
+            <toolkit:DockPanel Margin="0 0 0 8">
+                <Border toolkit:DockPanel.Dock="Right" MinWidth="200">
+                    <PasswordBox Password="{Binding Password.Value, Mode=TwoWay}"
+                                 IsEnabled="{Binding CanChangeValue.Value}"
+                                 >
+
+                    </PasswordBox>
+                </Border>
+                <TextBlock Text="Password" 
+                           VerticalAlignment="Center"
+                           Margin="8 0"
+                           />
+            </toolkit:DockPanel>
+
+            <StackPanel Orientation="Horizontal" Margin="0 0 0 8">
+                <ToggleButton 
+                    IsChecked="{Binding IsRememberPassword.Value, Mode=TwoWay}"
+                    IsEnabled="{Binding CanChangeValue.Value}"
+                    Content="パスワードを保存する"
+                    Height="32" 
+                    Margin="8 0" />
+                
+            
+            </StackPanel>
+            
+            <Button Content="Login"
+                    Width="150"
+                    Height="48"
+                    HorizontalAlignment="Center"
+                                Command="{Binding CheckLoginCommand}"
+                                ></Button>
+
+        </StackPanel>
+        
+        
+    </toolkit:DockPanel>
+</Page>

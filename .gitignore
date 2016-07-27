@@ -210,3 +210,10 @@ FakesAssemblies/
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
+/NicoPlayerHohoema/Package.StoreAssociation.xml
+/NicoPlayerHohoema/Package.appxmanifest
+/NicoPlayerHohoema/BundleArtifacts/x64.txt
+/NicoPlayerHohoema/BundleArtifacts/arm.txt
+/NicoPlayerHohoema/BundleArtifacts
+/NicoPlayerHohoema/_pkginfo.txt
+/NicoPlayerHohoema/*.appx

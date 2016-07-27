@@ -1,0 +1,223 @@
+﻿<UserControl
+    x:Name="PageContentRoot"
+    x:Class="NicoPlayerHohoema.Views.SettingsPageContent.CacheSettingsPageContent"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views.SettingsPageContent"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    mc:Ignorable="d"
+    d:DesignHeight="1800"
+    d:DesignWidth="600">
+
+    <Grid>
+        
+
+
+        <ScrollViewer >
+            <StackPanel >
+
+                <StackPanel Visibility="{Binding IsUserAcceptRegalNotice.Value, Converter={StaticResource BooleanToVisibility}}"
+                    Margin="8" MinWidth="400" HorizontalAlignment="Left"
+                            >
+
+                    <!-- キャッシュ設定 -->
+                    <StackPanel Margin="8 8">
+                        <TextBlock Text="キャッシュ設定"
+                           Margin="0 0 0 4"
+                            FontSize="18"
+                           FontWeight="SemiBold"
+                           VerticalAlignment="Center"
+                       />
+
+
+                        <!--
+                    <StackPanel Margin="16 0 0 0">
+
+                        <toolkit:DockPanel Margin="8">
+                            <TextBlock Text="再生時の自動キャッシュを有効にする"
+                               toolkit:DockPanel.Dock="Left"
+                               VerticalAlignment="Center"
+                           />
+                            <ToggleButton Width="32" Height="32" 
+                                  Margin="0 0 8 0"
+                                  IsChecked="{Binding IsAutoCacheOnPlayEnable.Value, Mode=TwoWay}"
+                                  HorizontalAlignment="Right"
+                                          />
+                        </toolkit:DockPanel>
+
+
+                    </StackPanel>
+
+                    <StackPanel Margin="16 0 0 0">
+
+                        <toolkit:DockPanel Margin="8">
+                            <TextBlock Text="自動キャッシュの条件設定"
+                               toolkit:DockPanel.Dock="Left"
+                               VerticalAlignment="Center"
+                           />
+                        </toolkit:DockPanel>
+                        
+                        
+
+                        <toolkit:DockPanel Margin="8">
+                            <ListView ItemsSource="{Binding AutoCacheConditions}"
+                                      SelectionMode="None"
+                                      >
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="ListViewItem">
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="Transparent" IsHitTestVisible="True">
+                                            <i:Interaction.Behaviors>
+                                                <core:EventTriggerBehavior EventName="Tapped">
+                                                    <core:InvokeCommandAction Command="{Binding ElementName=PageContentRoot, Path=DataContext.EditAutoCacheConditionCommnad}"
+                                                                              CommandParameter="{Binding}" />
+                                                </core:EventTriggerBehavior>
+                                            </i:Interaction.Behaviors>
+                                            
+                                            <TextBlock Text="{Binding Label.Value}" />
+                                        </Border>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                            
+                            
+                            
+                        </toolkit:DockPanel>
+
+                        <Button Content="自動キャッシュ条件を追加"
+                                HorizontalAlignment="Center"
+                                Margin="0 8"
+                                Command="{Binding AddAutoCacheConditionCommand}"
+                                />
+
+                    </StackPanel>
+                    
+                    -->
+                    </StackPanel>
+
+
+                    <Border BorderBrush="DarkGray" BorderThickness="0 1 0 0" 
+                    Margin="8"
+                    />
+
+                    <ToggleButton IsChecked="{Binding IsShowRegalNotice.Value, Mode=TwoWay}"
+                              Content="「キャッシュ機能利用に関する確認」を表示"
+                              HorizontalAlignment="Center"
+                              Margin="8"
+                              />
+
+
+
+
+                </StackPanel>
+
+                
+                <!-- 通知と合意 -->
+                <Border Padding="32" 
+                    Background="WhiteSmoke"
+                    Visibility="{Binding IsShowRegalNotice.Value, Converter={StaticResource BooleanToVisibility}}"
+                    MinWidth="400" HorizontalAlignment="Left"
+                    >
+                    <toolkit:DockPanel 
+                               >
+
+                        <Border toolkit:DockPanel.Dock="Top">
+                            <TextBlock Text="キャッシュ機能の利用に関する確認"
+                               FontWeight="SemiBold"
+                               FontStyle="Italic"
+                               FontSize="20"
+                               >
+
+                            </TextBlock>
+                        </Border>
+
+
+
+
+
+                        <StackPanel Margin="16">
+                            <TextBlock Text="Hohoemaのキャッシュ機能は、通信量を抑えるために動画のファイルデータをローカルストレージにキャッシュすることができるHohoemaの機能です。" 
+                                TextWrapping="Wrap"
+                                Margin="0 8"
+                                />
+                            <TextBlock Text="あなたがHohoemaアプリ内でキャッシュ化を要求した動画について、Hohoemaは権利者及び利用者保護のため、以下の条件の元であなたの確認なく削除出来ます。" 
+                                TextWrapping="Wrap"
+                                Margin="0 8"
+                                />
+
+                            <TextBlock Text="・ニコニコ動画、動画権利者、動画アップロード者等によってニコニコ動画サーバー上から動画が削除された時" 
+                                TextWrapping="Wrap"
+                                Margin="16 4"
+                                />
+
+                            <TextBlock Text="なお、上記条件の元でHohoema内から削除された動画については、動画のタイトルと削除理由をあなたに伝えるよう努めます" 
+                                TextWrapping="Wrap"
+                                Margin="0 8"
+                                />
+
+
+                            <Border Margin="0 24" 
+                            Visibility="{Binding IsUserAcceptRegalNotice.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                            >
+                                <StackPanel>
+
+                                    <StackPanel Orientation="Horizontal" Margin="0 0 0 8">
+                                        <ToggleButton IsChecked="{Binding IsTempAcceptChecked.Value, Mode=TwoWay}" 
+                                                    
+                                                Width="32"
+                                                Height="32"
+                                                Margin="8"
+                                                />
+
+                                        <TextBlock Text="「キャッシュ機能利用に関する確認」に同意します" 
+                                            TextWrapping="Wrap"
+                                            Width="220"
+                                            />
+                                    </StackPanel>
+
+                                    <Button Content="キャッシュ機能を利用する"
+                                Command="{Binding AcceptCommand}"
+                                HorizontalAlignment="Right"
+                                    
+                            />
+
+
+                                </StackPanel>
+                            </Border>
+
+
+                            <Button 
+                            Content="閉じる"
+                            HorizontalAlignment="Center"
+                            Margin="8"
+                            Visibility="{Binding IsUserAcceptRegalNotice.Value, Converter={StaticResource BooleanToVisibility}}"
+                            >
+                                <i:Interaction.Behaviors>
+                                    <core:EventTriggerBehavior EventName="Tapped">
+                                        <core:ChangePropertyAction TargetObject="{Binding IsShowRegalNotice}" PropertyName="Value" Value="False" />
+                                    </core:EventTriggerBehavior>
+                                </i:Interaction.Behaviors>
+                            </Button>
+                        </StackPanel>
+                    </toolkit:DockPanel>
+
+                </Border>
+            </StackPanel>
+            
+
+        </ScrollViewer>
+
+
+        
+    </Grid>
+    
+</UserControl>

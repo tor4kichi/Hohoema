@@ -31,14 +31,28 @@ namespace NicoPlayerHohoema.Views
 
 	public class SettingContentTemplateSelector : DataTemplateSelector
 	{
-		public DataTemplate AccountTemplate { get; set; }
-
+		public DataTemplate RankingTemplate { get; set; }
+		public DataTemplate NGTemplate { get; set; }
+		public DataTemplate PlayerTemplate { get; set; }
+		public DataTemplate CacheTemplate { get; set; }
 
 		protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
 		{
-			if (item is ViewModels.AccountSettingsPageContentViewModel)
+			if (item is ViewModels.VideoListSettingsPageContentViewModel)
 			{
-				return AccountTemplate;
+				return RankingTemplate;
+			}
+			else if (item is ViewModels.CommentSettingsPageContentViewModel)
+			{
+				return NGTemplate;
+			}
+			else if (item is ViewModels.VideoPlaySettingsPageContentViewModel)
+			{
+				return PlayerTemplate;
+			}
+			else if (item is ViewModels.CacheSettingsPageContentViewModel)
+			{
+				return CacheTemplate;
 			}
 
 			return base.SelectTemplateCore(item, container);

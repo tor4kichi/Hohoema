@@ -7,51 +7,41 @@
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:view="using:NicoPlayerHohoema.Views"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:settingsContent="using:NicoPlayerHohoema.Views.SettingsPageContent"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
 
     mc:Ignorable="d">
 
     <Page.Resources>
         <view:SettingContentTemplateSelector x:Key="settingContentTemplateSelector">
-            <view:SettingContentTemplateSelector.AccountTemplate>
+            
+            <!-- Ranking -->
+            <view:SettingContentTemplateSelector.RankingTemplate>
                 <DataTemplate>
-                    <StackPanel>
-                        <toolkit:DockPanel>
-                            <Border toolkit:DockPanel.Dock="Right">
-                                <TextBox Text="{Binding MailOrTelephone.Value, Mode=TwoWay}">
-
-                                </TextBox>
-                            </Border>
-                            <TextBlock Text="Mail or Telephone" />
-                        </toolkit:DockPanel>
-
-                        <toolkit:DockPanel>
-                            <Border toolkit:DockPanel.Dock="Right">
-                                <PasswordBox Password="{Binding Password.Value, Mode=TwoWay}">
-
-                                </PasswordBox>
-                            </Border>
-                            <TextBlock Text="Password" />
-                        </toolkit:DockPanel>
-
-                        <Button Content="Check Login"
-                                Command="{Binding CheckLoginCommand}"
-                                ></Button>
-
-                        <StackPanel>
-                            <TextBlock Visibility="{Binding IsValidAccount.Value, Converter={StaticResource BooleanToVisibility}}"
-                                       Text="Success SignIn!"
-                                       Foreground="LimeGreen"
-                                       >
-
-                            </TextBlock>
-                        </StackPanel>
-                        
-                    </StackPanel>
-                    
-                    
+                    <settingsContent:RankingSettingPageContent />
                 </DataTemplate>
-            </view:SettingContentTemplateSelector.AccountTemplate>
+            </view:SettingContentTemplateSelector.RankingTemplate>
+            
+            <!-- NG -->
+            <view:SettingContentTemplateSelector.NGTemplate>
+                <DataTemplate>
+                    <settingsContent:NGSettingsPageContent />
+                </DataTemplate>
+            </view:SettingContentTemplateSelector.NGTemplate>
+
+            <!-- Player -->
+            <view:SettingContentTemplateSelector.PlayerTemplate>
+                <DataTemplate>
+                    <settingsContent:PlayerSettingsPageContent />
+                </DataTemplate>
+            </view:SettingContentTemplateSelector.PlayerTemplate>
+
+            <!-- Cache -->
+            <view:SettingContentTemplateSelector.CacheTemplate>
+                <DataTemplate>
+                    <settingsContent:CacheSettingsPageContent />
+                </DataTemplate>
+            </view:SettingContentTemplateSelector.CacheTemplate>
         </view:SettingContentTemplateSelector>
     </Page.Resources>
     
@@ -62,29 +52,27 @@
             <ListView x:Name="SettingItemsList"
                       SelectionMode="Single"
                       ItemsSource="{Binding SettingItems}"
-                      SelectedItem="{Binding CurrentSettingsContent.Value, Mode=TwoWay}"
+                      SelectedItem="{Binding CurrentSettingsKind.Value, Mode=TwoWay}"
+                      DisplayMemberPath="Label"
                       >
                 <ListView.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Horizontal" />
                     </ItemsPanelTemplate>
                 </ListView.ItemsPanel>
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Title}" />
-                    </DataTemplate>
-                </ListView.ItemTemplate>
                 
             </ListView>
         </Border>
 
         <Border>
-            <ContentControl Content="{Binding ElementName=SettingItemsList, Path=SelectedItem}"
+            <ContentControl Content="{Binding CurrentSettingsContent.Value}"
                             ContentTemplateSelector="{StaticResource settingContentTemplateSelector}"
                             VerticalContentAlignment="Stretch"
                             HorizontalContentAlignment="Stretch"
+                            
                             >
-                
+
+
             </ContentControl>
         </Border>
     </toolkit:DockPanel>

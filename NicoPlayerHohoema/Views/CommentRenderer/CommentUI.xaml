@@ -12,6 +12,28 @@
     d:DesignWidth="400">
 
     <Grid>
+        <TextBlock 
+                Text="{Binding CommentText}"
+                Foreground="Black"
+                Opacity="0.5"
+                FontSize="{Binding FontSize}"
+                Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibility}}"
+                TextWrapping="{Binding TextWrapping}"
+            >
+            <TextBlock.RenderTransform>
+                <TranslateTransform X="2" Y="2" />
+            </TextBlock.RenderTransform>
+        </TextBlock>
+        
+        <TextBlock 
+                Text="{Binding CommentText}"
+                Foreground="{Binding Color, Converter={StaticResource ColorToBrush}}"
+                FontSize="{Binding FontSize}"
+                Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibility}}"
+                TextWrapping="{Binding TextWrapping}"
+            />
+        
+        <!-- 
         <myeffect:GlowEffectHostControl
             GlowEffectBlurAmount="2.0"
             >
@@ -22,6 +44,7 @@
                 Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibility}}"
             />
         </myeffect:GlowEffectHostControl>
+        -->
     </Grid>
         
 </UserControl>

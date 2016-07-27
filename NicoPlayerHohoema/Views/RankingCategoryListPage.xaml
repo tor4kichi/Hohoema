@@ -1,0 +1,81 @@
+﻿<Page
+    x:Class="NicoPlayerHohoema.Views.RankingCategoryListPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:view="using:NicoPlayerHohoema.Views"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <DataTemplate x:Key="CategoryListItemTemplate">
+            <Border Background="Transparent" Margin="8">
+                <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Tapped">
+                        <core:InvokeCommandAction Command="{Binding SelectedCommand}" />
+                    </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
+                
+                <TextBlock Text="{Binding Label}"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Center"
+                           >
+
+                </TextBlock>
+            </Border>
+        </DataTemplate>
+    </Page.Resources>
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" >
+        <ScrollViewer VerticalScrollMode="Disabled" 
+                      VerticalScrollBarVisibility="Hidden"
+                      HorizontalScrollMode="Enabled" 
+                      HorizontalScrollBarVisibility="Auto"
+                      Margin="0 0 0 0">
+            <StackPanel Orientation="Horizontal">
+
+                <ItemsControl ItemsSource="{Binding RankingCategoryItems}"
+                          >
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="16 16 16 0"
+                                        />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+
+                            <StackPanel Orientation="Vertical" Margin="8 0">
+                                <ContentControl Content="{Binding}"
+                                            ContentTemplate="{StaticResource CategoryListItemTemplate}"
+                                            />
+
+                                <ItemsControl ItemsSource="{Binding ChildItems}"
+                                          ItemTemplate="{StaticResource CategoryListItemTemplate}"
+                                          >
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Vertical" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+
+                                </ItemsControl>
+                                
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+
+                </ItemsControl>
+
+                
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

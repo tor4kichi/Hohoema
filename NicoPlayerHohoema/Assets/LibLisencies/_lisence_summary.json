@@ -1,0 +1,48 @@
+﻿{
+  "items": [
+    {
+      "name": "HtmlAgilityPack",
+      "site": "https://htmlagilitypack.codeplex.com/",
+      "author": ["Simon Mourrier", "Jeff Klawiter", "Stephan Grell"],
+      "lisence_type": "MS_PL",
+      "lisence_page_url": "https://htmlagilitypack.codeplex.com/license"
+    },
+    {
+      "name": "Newtonsoft.Json",
+      "site": "http://www.newtonsoft.com/json",
+      "author": ["James Newton-King"],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/JamesNK/Newtonsoft.Json/blob/master/LICENSE.md"
+    },
+     {
+      "name": "ReactiveProperty",
+      "site": "https://github.com/runceel/ReactiveProperty",
+      "author": ["neuecc", "xin9le", "okazuki"],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/runceel/ReactiveProperty/blob/master/LICENSE.txt"
+    },
+    {
+      "name": "WinRTXamlToolkit.UWP",
+      "site": "https://github.com/xyzzer/WinRTXamlToolkit",
+      "author": ["Filip Skakun", "Thomas Martinsen", "Mahmoud Moussa", "Joost van Schaik"],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/xyzzer/WinRTXamlToolkit/blob/master/License.md"
+    },
+
+    {
+      "name": "Prism",
+      "site": "https://github.com/PrismLibrary/Prism",
+      "author": [".NET Foundation"],
+      "lisence_type": "Apache_v2",
+      "lisence_page_url": "https://github.com/PrismLibrary/Prism/blob/master/LICENSE"
+    },
+    {
+      "name": "OpenNiconico2",
+      "site": "https://github.com/tor4kichi/OpenNiconico2",
+      "author": ["mntone", "tor4kichi"],
+      "lisence_type": "Simplified_BSD",
+      "lisence_page_url": "https://github.com/tor4kichi/OpenNiconico2/blob/master/license.md"
+    }
+  ]
+
+}

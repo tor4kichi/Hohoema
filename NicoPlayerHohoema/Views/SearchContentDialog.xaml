@@ -1,0 +1,124 @@
+﻿<ContentDialog
+    x:Name="SearchDialog"
+    x:Class="NicoPlayerHohoema.Views.SearchContentDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:mybehavior ="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
+    
+    mc:Ignorable="d"
+    PrimaryButtonText="キャンセル"
+    SecondaryButtonText="検索"
+    SecondaryButtonCommand="{Binding DoSearchCommand}"
+    >
+
+    <ContentDialog.TitleTemplate>
+        <DataTemplate>
+            <TextBlock Text="ニコニコ動画を検索"
+                       />
+        </DataTemplate>
+    </ContentDialog.TitleTemplate>
+
+    
+    <i:Interaction.Behaviors>
+        <core:EventTriggerBehavior EventName="Opened">
+            <mybehavior:SetFocus TargetObject="{Binding ElementName=KeywordTextBox}" />
+        </core:EventTriggerBehavior>
+    </i:Interaction.Behaviors>
+
+    <StackPanel>
+
+        <toolkit:DockPanel>
+
+            <AppBarButton Icon="Clock" toolkit:DockPanel.Dock="Right"
+                          Margin="8 0 0 0"
+                          Width="48"
+                          Height="48"
+                          >
+                <AppBarButton.Flyout>
+                    <Flyout x:Name="flyout">
+                        <ListView ItemsSource="{Binding HistoryKeywords}">
+
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="Transparent" IsHitTestVisible="True">
+                                        <i:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Tapped">
+                                                <core:InvokeCommandAction Command="{Binding SelectedKeywordCommand}" />
+                                                <core:CallMethodAction TargetObject="{Binding ElementName=flyout}" 
+                                                                       MethodName="Hide"
+                                                                       />
+
+                                            </core:EventTriggerBehavior>
+                                        </i:Interaction.Behaviors>
+                                        
+                                        <TextBlock Text="{Binding Keyword}"
+                                            VerticalAlignment="Center"
+                                            >
+                                        </TextBlock>
+
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ListView>
+                    </Flyout>
+                </AppBarButton.Flyout>
+            </AppBarButton>
+
+            <TextBox x:Name="KeywordTextBox"
+                     HorizontalAlignment="Stretch" 
+                     Text="{Binding Keyword.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     Margin="0 0" 
+                     IsTabStop="True"
+                     TabIndex="0"
+                     Height="32"
+                     ext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
+                        >
+                <i:Interaction.Behaviors>
+                    <mybehavior:KeyboardTrigger Key="Enter">
+                        <mybehavior:KeyboardTrigger.Actions>
+                            <core:InvokeCommandAction Command="{Binding DoSearchCommand}" />
+                            <core:CallMethodAction TargetObject="{Binding ElementName=SearchDialog}"
+                                                   MethodName="Hide" />
+                        </mybehavior:KeyboardTrigger.Actions>
+                    </mybehavior:KeyboardTrigger>
+                </i:Interaction.Behaviors>
+            </TextBox>
+        </toolkit:DockPanel>
+            
+
+        <ComboBox ItemsSource="{Binding TargetListItems}"
+                  SelectedItem="{Binding SelectedTarget.Value, Mode=TwoWay}"
+                  Margin="32 8 0 8"
+                  HorizontalAlignment="Stretch"
+                  TabIndex="1"
+                  IsTabStop="True"
+                  >
+        </ComboBox>
+
+        <ComboBox ItemsSource="{Binding SearchOptionListItems}"
+                  DisplayMemberPath="Label"
+                  SelectedItem="{Binding SelectedSearchOption.Value, Mode=TwoWay}"
+                  Margin="32 8 0 8"
+                  HorizontalAlignment="Stretch"
+                  TabIndex="2"
+                  IsTabStop="True"
+                  >
+            
+        </ComboBox>
+        
+    </StackPanel>
+</ContentDialog>

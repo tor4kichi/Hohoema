@@ -1,0 +1,102 @@
+﻿<Page
+    x:Class="NicoPlayerHohoema.Views.PortalPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:portalContent="using:NicoPlayerHohoema.Views.PortalContent"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    mc:Ignorable="d"
+    d:DesignWidth="600"
+    d:DesignHeight="600"
+    >
+
+
+    <!-- PortalContentをまとめるだけ 
+    -->
+
+    
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+        <Border>
+
+            <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup>
+
+                    <VisualState>
+                        <VisualState.StateTriggers>
+                            <AdaptiveTrigger MinWindowHeight="800" />
+                        </VisualState.StateTriggers>
+                        <VisualState.Setters>
+                            <Setter Target="AccountPanel.(RelativePanel.Above)" Value="SearchPanel" />
+                            <Setter Target="AccountPanel.(RelativePanel.AlignRightWith)" Value="SearchPanel" />
+                        </VisualState.Setters>
+                    </VisualState>
+                   
+                    <VisualState>
+                        <VisualState.StateTriggers>
+                            <AdaptiveTrigger MinWindowHeight="0" />
+                        </VisualState.StateTriggers>
+                        <VisualState.Setters>
+                            <Setter Target="AccountPanel.(RelativePanel.LeftOf)" Value="SearchPanel" />
+                            <Setter Target="AccountPanel.(RelativePanel.AlignBottomWith)" Value="SearchPanel" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
+
+            <toolkit:DockPanel>
+
+
+                <ScrollViewer VerticalScrollMode="Disabled"
+                              VerticalScrollBarVisibility="Hidden"
+                              HorizontalScrollBarVisibility="Auto"
+                              HorizontalScrollMode="Enabled"
+                              >
+
+                    <ItemsControl>
+
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal"
+                                            Margin="0 16 0 0"
+                                            />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+
+                        <ItemsControl.ItemContainerStyle>
+                            <Style TargetType="UserControl">
+                                <Setter Property="Margin" Value="32 0" />
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
+
+
+
+                        <portalContent:SearchPortalPageContent />
+
+                        <portalContent:RankingPortalPageContent />
+
+                        <portalContent:FavPortalPageContent />
+
+                        <portalContent:MylistPortalPageContent />
+
+                        <portalContent:HistoryPortalPageContent />
+                        
+                        <portalContent:AppPortalPageContent />
+
+                    </ItemsControl>
+                </ScrollViewer>
+
+            </toolkit:DockPanel>
+
+        </Border>
+        
+        
+    </Grid>
+</Page>

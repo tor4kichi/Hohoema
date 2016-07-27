@@ -1,13 +1,12 @@
 ﻿{
   "dependencies": {
     "HtmlAgilityPack": "1.4.9",
-    "Microsoft.NETCore.UniversalWindowsPlatform": "5.0.0",
+    "Microsoft.NETCore.UniversalWindowsPlatform": "5.1.0",
     "Newtonsoft.Json": "8.0.3",
-    "Prism.Core": "6.1.0",
+    "Prism.Core": "6.2.0-pre1",
     "Prism.Unity": "6.2.0-pre3",
     "Prism.Windows": "6.0.2-pre1",
-    "ReactiveProperty": "2.7.1",
-    "Win2D.uwp": "1.17.0",
+    "ReactiveProperty": "2.9.0",
     "WinRTXamlToolkit.UWP": "2.0.0"
   },
   "frameworks": {

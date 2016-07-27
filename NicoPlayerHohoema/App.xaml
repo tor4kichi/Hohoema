@@ -5,11 +5,33 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:NicoPlayerHohoema"
     xmlns:conv="using:WinRTXamlToolkit.Converters"
+    xmlns:myconv="using:NicoPlayerHohoema.Views.Converters"
+    xmlns:view="using:NicoPlayerHohoema.Views"
     RequestedTheme="Light">
 
     <prism:PrismUnityApplication.Resources>
-        <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
-        <conv:ColorToBrushConverter x:Key="ColorToBrush" />
+       
+        <ResourceDictionary>
+            <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+            <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibilityInverted"
+                                           IsInversed="True"
+                                           />
+            <conv:ColorToBrushConverter x:Key="ColorToBrush" />
+            <myconv:TimeSpanToMovieLengthStringValueConverter x:Key="TimeToMovieLengthConverter" />
+            <myconv:InvertBooleanConverter x:Key="InvertBoolean" />
+
+            <myconv:SoundVolumeConveter x:Key="ToUserFriendlySoubleVolume" />
+
+            <myconv:CursorConverter x:Key="ToCoreCursor" />
+
+            <myconv:VideoPositionToTimeConverter x:Key="VPosToTime" />
+            <myconv:ToUserFriendlyNumber x:Key="ToUserFriendlyNumber" />
+            
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Styles/RefreshableListViewStyles.xaml" />
+                <ResourceDictionary Source="/Styles/VideoListProgressRingStyle.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </prism:PrismUnityApplication.Resources>
 
 </prism:PrismUnityApplication>

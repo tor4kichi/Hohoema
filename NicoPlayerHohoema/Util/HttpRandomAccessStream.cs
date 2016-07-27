@@ -11,39 +11,21 @@ using Windows.Web.Http;
 
 namespace NicoPlayerHohoema.Util
 {
-
-	public struct BufferMappingInfo
-	{
-		public BufferMappingInfo(ulong originalPos, ulong memoryPos, uint size, ulong registerTiming)
-		{
-			RegisterTiming = registerTiming;
-			OriginalPosition = originalPos;
-			MemoryPosition = memoryPos;
-			Size = size;
-		}
-
-		public ulong RegisterTiming { get; private set; }
-		public ulong OriginalPosition { get; private set; }
-
-		public ulong MemoryPosition { get; private set; }
-		public uint Size { get; private set; }
-	}
-
 	public class HttpRandomAccessStream : IRandomAccessStream
 	{
-		private HttpClient client;
-		private ulong size;
-		private ulong currentPosition;
-		private string etagHeader;
-		private string lastModifiedHeader;
-		private Uri requestedUri;
+		private HttpClient _Client;
+		private ulong _Size;
+		protected ulong _CurrentPosition;
+		private string _EtagHeader;
+		private string _LastModifiedHeader;
+		private Uri _RequestedUri;
 
 		// No public constructor, factory methods instead to handle async tasks.
-		private HttpRandomAccessStream(HttpClient client, Uri uri, uint memoryBufferSize = 1048576)
+		protected HttpRandomAccessStream(HttpClient client, Uri uri)
 		{
-			this.client = client;
-			requestedUri = uri;
-			currentPosition = 0;
+			this._Client = client;
+			_RequestedUri = uri;
+			_CurrentPosition = 0;
 		}
 
 		static public IAsyncOperation<HttpRandomAccessStream> CreateAsync(HttpClient client, Uri uri)
@@ -52,37 +34,47 @@ namespace NicoPlayerHohoema.Util
 
 			return AsyncInfo.Run<HttpRandomAccessStream>(async (cancellationToken) =>
 			{
-				await randomStream.ReadRequestAsync().ConfigureAwait(false);
+				await randomStream.ReadRequestAsync(0).ConfigureAwait(false);
 				return randomStream;
 			});
 		}
 
-		private async Task<IInputStream> ReadRequestAsync()
+		protected async Task<IInputStream> ReadRequestAsync(ulong position)
 		{
-			HttpRequestMessage request = null;
-			request = new HttpRequestMessage(HttpMethod.Get, requestedUri);
-
-			request.Headers.Add("Range", $"bytes={currentPosition}-");
-
-			if (!String.IsNullOrEmpty(etagHeader))
+			var response = await Util.ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
-				request.Headers.Add("If-Match", etagHeader);
-			}
+				try
+				{
+					HttpRequestMessage request = null;
+					request = new HttpRequestMessage(HttpMethod.Get, _RequestedUri);
 
-			if (!String.IsNullOrEmpty(lastModifiedHeader))
-			{
-				request.Headers.Add("If-Unmodified-Since", lastModifiedHeader);
-			}
+					request.Headers.Add("Range", $"bytes={position}-");
 
-			HttpResponseMessage response = await client.SendRequestAsync(
-				request,
-				HttpCompletionOption.ResponseHeadersRead).AsTask().ConfigureAwait(false);
+					if (!String.IsNullOrEmpty(_EtagHeader))
+					{
+						request.Headers.Add("If-Match", _EtagHeader);
+					}
+
+					if (!String.IsNullOrEmpty(_LastModifiedHeader))
+					{
+						request.Headers.Add("If-Unmodified-Since", _LastModifiedHeader);
+					}
+					
+					return await _Client.SendRequestAsync(
+						request,
+						HttpCompletionOption.ResponseHeadersRead);
+				}
+				catch (System.Runtime.InteropServices.COMException e)
+				{
+					throw new System.Net.WebException(e.Message, System.Net.WebExceptionStatus.Timeout);
+				}
+			}, retryInterval:3000);
 
 //			Debug.WriteLine(response);
 
-			size = response.Content.Headers.ContentLength.Value;
+			_Size = response.Content.Headers.ContentLength.Value;
 
-			if (response.StatusCode != HttpStatusCode.PartialContent && currentPosition != 0)
+			if (response.StatusCode != HttpStatusCode.PartialContent && position != 0)
 			{
 				throw new Exception("HTTP server did not reply with a '206 Partial Content' status.");
 			}
@@ -94,14 +86,14 @@ namespace NicoPlayerHohoema.Util
 					"http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.5"));
 			}
 
-			if (String.IsNullOrEmpty(etagHeader) && response.Headers.ContainsKey("ETag"))
+			if (String.IsNullOrEmpty(_EtagHeader) && response.Headers.ContainsKey("ETag"))
 			{
-				etagHeader = response.Headers["ETag"];
+				_EtagHeader = response.Headers["ETag"];
 			}
 
-			if (String.IsNullOrEmpty(lastModifiedHeader) && response.Content.Headers.ContainsKey("Last-Modified"))
+			if (String.IsNullOrEmpty(_LastModifiedHeader) && response.Content.Headers.ContainsKey("Last-Modified"))
 			{
-				lastModifiedHeader = response.Content.Headers["Last-Modified"];
+				_LastModifiedHeader = response.Content.Headers["Last-Modified"];
 			}
 			if (response.Content.Headers.ContainsKey("Content-Type"))
 			{
@@ -154,16 +146,16 @@ namespace NicoPlayerHohoema.Util
 		{
 			get
 			{
-				return currentPosition;
+				return _CurrentPosition;
 			}
 		}
 
-		public void Seek(ulong position)
+		public virtual void Seek(ulong position)
 		{
-			if (currentPosition != position)
+			if (_CurrentPosition != position)
 			{
-				Debug.WriteLine($"Seek: {currentPosition:N0} -> {position:N0}");
-				currentPosition = position;
+				Debug.WriteLine($"Seek: {_CurrentPosition:N0} -> {position:N0}");
+				_CurrentPosition = position;
 			}
 		}
 
@@ -171,11 +163,11 @@ namespace NicoPlayerHohoema.Util
 		{
 			get
 			{
-				return size;
+				return _Size;
 			}
 			set
 			{
-				throw new NotImplementedException();
+				_Size = value;
 			}
 		}
 
@@ -185,14 +177,14 @@ namespace NicoPlayerHohoema.Util
 		}
 
 
-		public Windows.Foundation.IAsyncOperationWithProgress<IBuffer, uint> ReadAsync(IBuffer buffer, uint count, InputStreamOptions options)
+		public virtual Windows.Foundation.IAsyncOperationWithProgress<IBuffer, uint> ReadAsync(IBuffer buffer, uint count, InputStreamOptions options)
 		{
 			return AsyncInfo.Run<IBuffer, uint>(async (cancellationToken, progress) =>
 			{
 				IInputStream inputStream;
 				try
 				{
-					inputStream = await ReadRequestAsync().ConfigureAwait(false);
+					inputStream = await ReadRequestAsync(_CurrentPosition).ConfigureAwait(false);
 				}
 				catch (Exception ex)
 				{
@@ -203,12 +195,13 @@ namespace NicoPlayerHohoema.Util
 				var result = await inputStream.ReadAsync(buffer, count, options).AsTask(cancellationToken, progress).ConfigureAwait(false);
 				
 				// Move position forward.
-				currentPosition += result.Length;
-				Debug.WriteLine("requestedPosition = {0:N0}", currentPosition);
-				return result;
+				_CurrentPosition += result.Length;
+				Debug.WriteLine("requestedPosition = {0:N0}", _CurrentPosition);
 
+				inputStream.Dispose();
+
+				return result;
 			});
-			
 		}
 
 		

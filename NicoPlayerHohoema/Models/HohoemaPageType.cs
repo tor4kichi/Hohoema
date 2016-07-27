@@ -8,10 +8,29 @@ namespace NicoPlayerHohoema.Models
 {
 	public enum HohoemaPageType
 	{
-		Ranking,
+		Portal,
+		RankingCategoryList,
+		RankingCategory,
+		UserMylist,
+		Mylist,
+		FavoriteManage,
+		FavoriteAllFeed,
+		FavoriteFeed,
 		History,
-		Subscription,
 		Search,
+
+		CacheManagement,
 		Settings,
+		About,
+
+		VideoInfomation,
+		VideoPlayer,
+		ConfirmWatchHurmfulVideo,
+
+		UserInfo,
+		UserVideo,
+
+		Login,
+
 	}
 }
