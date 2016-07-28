@@ -274,6 +274,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
+			base.OnNavigatedTo(e, viewModelState);
+
 			if (_IncrementalLoadingItems != null)
 			{
 				IncrementalLoadingItems = _IncrementalLoadingItems;
@@ -289,7 +291,7 @@ namespace NicoPlayerHohoema.ViewModels
 			if (IncrementalLoadingItems == null
 				|| CheckNeedUpdateOnNavigateTo(e.NavigationMode))
 			{
-				ResetList();
+//				ResetList();
 			}
 			else
 			{
@@ -297,12 +299,21 @@ namespace NicoPlayerHohoema.ViewModels
 				ListViewVerticalOffset.Value = _LastListViewOffset;
 				ChangeCanIncmentalLoading(true);
 			}
-
-			base.OnNavigatedTo(e, viewModelState);
 		}
 
 
-		protected override Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		{
+			await ListPageNavigatedToAsync(cancelToken, e, viewModelState);
+
+			if (IncrementalLoadingItems == null
+				|| CheckNeedUpdateOnNavigateTo(e.NavigationMode))
+			{
+				ResetList();
+			}
+		}
+
+		protected virtual Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			return Task.CompletedTask;
 		}

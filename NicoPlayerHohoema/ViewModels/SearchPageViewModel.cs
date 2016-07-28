@@ -117,9 +117,8 @@ namespace NicoPlayerHohoema.ViewModels
 			base.OnNavigatedTo(e, viewModelState);
 		}
 
-		protected override Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{			
-			
+		protected override Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		{
 			if (SearchOption == null) { return Task.CompletedTask; }
 
 			_NowProcessFavorite = true;
@@ -137,8 +136,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			_NowProcessFavorite = false;
 
-			return Task.CompletedTask;
-			
+			return Task.CompletedTask;		
 		}
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
@@ -181,7 +179,14 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
 		{
-			return !RequireSearchOption.Equals(SearchOption);
+			if (RequireSearchOption != null)
+			{
+				return !RequireSearchOption.Equals(SearchOption);
+			}
+			else
+			{
+				return true;
+			}
 		}
 
 		#endregion
