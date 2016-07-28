@@ -56,7 +56,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 			PlayCommand.Subscribe(x =>
 			{
-				x?.PlayCommand.Execute();
+				if (x?.PlayCommand.CanExecute() ?? false)
+				{
+					x?.PlayCommand.Execute();
+				}
 
 				ClearSelection();
 			})

@@ -846,13 +846,21 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-
+		
 
 
 		private void IfVideoDeletedThrowException()
 		{
 			if (IsDeleted) { throw new Exception("video is deleted"); }
 		}
+
+
+		public NGResult CheckUserNGVideo()
+		{
+			return HohoemaApp.UserSettings?.NGSettings.IsNgVideo(this.CachedThumbnailInfo);
+		}
+
+
 
 
 		private bool _IsLatestWatchApiResponse;

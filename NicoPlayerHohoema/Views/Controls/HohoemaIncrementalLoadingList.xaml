@@ -109,7 +109,8 @@
 
                 <DataTemplate>
 
-                    <Border>
+                    <Grid>
+
                         <i:Interaction.Behaviors>
                             <core:EventTriggerBehavior EventName="Tapped">
                                 <core:InvokeCommandAction Command="{Binding ElementName=ControlRoot, Path=DataContext.PlayCommand}"
@@ -117,14 +118,14 @@
                                                           />
                             </core:EventTriggerBehavior>
                         </i:Interaction.Behaviors>
-                    
-                    
+
                         <ContentControl Content="{Binding}"
                                         ContentTemplateSelector="{StaticResource listItemTemplateSelector}"
                                         HorizontalContentAlignment="Stretch"
                                         VerticalContentAlignment="Stretch"
                                         />
-                    </Border>
+
+                    </Grid>
                 </DataTemplate>
             
             </ListView.ItemTemplate>

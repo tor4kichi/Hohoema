@@ -95,7 +95,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-
+			IsForceDisplayNGVideo = false;
 			IsStillNotWatch = true;
 		}
 
@@ -122,17 +122,9 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 
 				// NG判定
-				/*
-				if (NicoVideo.)
-				{
-					var ngResult = NGSettings.IsNgVideo(thumbnail);
-					IsNotGoodVideo = ngResult != null;
-					NGVideoReason = ngResult?.GetReasonText() ?? "";
-				}
-				*/
-				IsForceDisplayNGVideo = false;
-
-
+				var ngResult = NicoVideo.CheckUserNGVideo();
+				IsNotGoodVideo = ngResult != null;
+				NGVideoReason = ngResult?.GetReasonText() ?? "";
 
 				Title = thumbnail.Title;
 				ViewCount = thumbnail.ViewCount;
@@ -289,6 +281,9 @@ namespace NicoPlayerHohoema.ViewModels
 						var payload = MakeVideoPlayPayload();
 
 						PageManager.OpenPage(HohoemaPageType.VideoPlayer, payload.ToParameterString());
+					}, () => 
+					{
+						return !IsNotGoodVideo || IsForceDisplayNGVideo;
 					}));
 			}
 		}
@@ -300,9 +295,20 @@ namespace NicoPlayerHohoema.ViewModels
 			get
 			{
 				return _ForceDisplayNGVideoCommand
-					?? (_ForceDisplayNGVideoCommand = new DelegateCommand(() => 
+					?? (_ForceDisplayNGVideoCommand = new DelegateCommand(async () => 
 					{
+						// Note: NG動画の強制表示させる前に動画再生が行われないようにTask.Delayを挟みます
+
+						// NGVideoの解除操作が HohoemaVideoListViewModelBase.PlayCommand と競合しています
+						// IsForceDisplayNGVideo=true にするタイミングを 
+						// HohoemaVideoListViewModelBase.PlayCommand よりも後にして
+						// 少しDelayさせます
+						
+						await Task.Delay(100);
+
 						IsForceDisplayNGVideo = true;
+
+						PlayCommand.RaiseCanExecuteChanged();
 					}));
 			}
 		}
@@ -316,6 +322,8 @@ namespace NicoPlayerHohoema.ViewModels
 					?? (_StopNGVideoDisplayCommand = new DelegateCommand(() =>
 					{
 						IsForceDisplayNGVideo = false;
+
+						PlayCommand.RaiseCanExecuteChanged();
 					}));
 			}
 		}
