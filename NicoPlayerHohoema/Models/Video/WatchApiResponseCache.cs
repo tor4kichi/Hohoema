@@ -23,8 +23,11 @@ namespace NicoPlayerHohoema.Models
 
 		public HarmfulContentReactionType HarmfulContentReactionType { get; set; }
 
-		public bool ForceLowQuality { get; set; }
+		public bool ForceLowQuality { get; private set; }
 
+		private bool _NowForceLowQualityUsed;
+
+		public NicoVideoQuality VisitedPageType { get; private set; }
 
 		public WatchApiResponseCache(string rawVideoId, HohoemaApp hohoemaApp, StorageFolder saveFolder, string filename) 
 			: base(saveFolder, filename)
@@ -37,6 +40,8 @@ namespace NicoPlayerHohoema.Models
 		protected override async Task<WatchApiResponse> GetLatest()
 		{
 			IsBlockedHarmfulVideo = false;
+
+			_NowForceLowQualityUsed = ForceLowQuality;
 
 			WatchApiResponse watchApiRes = null;
 			try
@@ -60,17 +65,28 @@ namespace NicoPlayerHohoema.Models
 			}
 			catch { }
 
+			ForceLowQuality = false;
+
 			return watchApiRes;
 		}
 
 		protected override void UpdateToLatest(WatchApiResponse item)
 		{
-			if (!ForceLowQuality)
+			VisitedPageType = item.VideoUrl.AbsoluteUri.EndsWith("low") ? NicoVideoQuality.Low : NicoVideoQuality.Original;
+
+			if (!_NowForceLowQualityUsed)
 			{
-				NowLowQualityOnly = item.VideoUrl.AbsoluteUri.EndsWith("low");
+				NowLowQualityOnly = VisitedPageType == NicoVideoQuality.Low;
 			}
 
+
 			base.UpdateToLatest(item);
+		}
+
+
+		public void OnceSetForceLowQualityForcing()
+		{
+			ForceLowQuality = true;
 		}
 	}
 }

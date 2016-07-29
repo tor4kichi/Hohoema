@@ -214,10 +214,10 @@ namespace NicoPlayerHohoema.ViewModels
 				switch (x)
 				{
 					case NicoVideoQuality.Original:
-						IsSaveRequestedCurrentQualityCache.Value = Video.OriginalQualityCacheState != null;
+						IsSaveRequestedCurrentQualityCache.Value = Video.IsOriginalQualityCacheRequested;
 						break;
 					case NicoVideoQuality.Low:
-						IsSaveRequestedCurrentQualityCache.Value = Video.LowQualityCacheState != null;
+						IsSaveRequestedCurrentQualityCache.Value = Video.IsLowQualityCacheRequested;
 						break;
 					default:
 						IsSaveRequestedCurrentQualityCache.Value = false;
@@ -540,38 +540,43 @@ namespace NicoPlayerHohoema.ViewModels
 			_BufferingMonitorDisposable = new CompositeDisposable();
 
 			NowBuffering =
-					Observable.Timer(TimeSpan.Zero, TimeSpan.FromMilliseconds(100), PlayerWindowUIDispatcherScheduler)
-						.Select(x =>
+				Observable.Timer(TimeSpan.Zero, TimeSpan.FromMilliseconds(100), PlayerWindowUIDispatcherScheduler)
+					.Select(x =>
+					{
+						if (DownloadCompleted.Value) { return false; }
+
+						if (CurrentState.Value == MediaElementState.Paused)
 						{
-							if (DownloadCompleted.Value) { return false; }
-
-							if (CurrentState.Value == MediaElementState.Buffering 
-							|| CurrentState.Value == MediaElementState.Opening)
-							{
-								return true;
-							}
-
-							if (ReadVideoPosition.Value == _PreviosPlayingVideoPosition)
-							{
-								return true;
-							}
-							else
-							{
-								_PreviosPlayingVideoPosition = ReadVideoPosition.Value;
-								return false;
-							}
+							return false;
 						}
-						)
-						.ObserveOnUIDispatcher()
-					.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
+
+						if (CurrentState.Value == MediaElementState.Buffering 
+						|| CurrentState.Value == MediaElementState.Opening)
+						{
+							return true;
+						}
+
+						if (ReadVideoPosition.Value == _PreviosPlayingVideoPosition)
+						{
+							return true;
+						}
+						else
+						{
+							_PreviosPlayingVideoPosition = ReadVideoPosition.Value;
+							return false;
+						}
+					}
+				)
+				.ObserveOnUIDispatcher()
+				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
 				.AddTo(_BufferingMonitorDisposable);
 
 			OnPropertyChanged(nameof(NowBuffering));
-
+#if DEBUG
 			NowBuffering
 				.Subscribe(x => Debug.WriteLine(x ? "Buffering..." : "Playing..."))
 				.AddTo(_BufferingMonitorDisposable);
-
+#endif
 			Video.ObserveProperty(x => x.OriginalQualityCacheProgressSize)
 				.Where(_ => CurrentVideoQuality.Value == NicoVideoQuality.Original)
 				.Subscribe(originalProgress => 
@@ -579,7 +584,7 @@ namespace NicoPlayerHohoema.ViewModels
 					DownloadCompleted.Value = originalProgress == Video.OriginalQualityVideoSize;
 					if (DownloadCompleted.Value)
 					{
-						ProgressPercent.Value = 100.0;
+						ProgressPercent.Value = 100;
 					}
 					else
 					{
@@ -595,7 +600,7 @@ namespace NicoPlayerHohoema.ViewModels
 					DownloadCompleted.Value = lowProgress == Video.LowQualityVideoSize;
 					if (DownloadCompleted.Value)
 					{
-						ProgressPercent.Value = 100.0;
+						ProgressPercent.Value = 100;
 					}
 					else
 					{
@@ -671,6 +676,7 @@ namespace NicoPlayerHohoema.ViewModels
 				try
 				{
 					commandList = comment.GetCommandTypes();
+					CommentDecorateFromCommands(commentVM, commandList);
 				}
 				catch (Exception ex)
 				{
@@ -886,7 +892,7 @@ namespace NicoPlayerHohoema.ViewModels
 				var videoInfo = await HohoemaApp.MediaManager.GetNicoVideo(VideoId);
 
 				// 内部状態を更新
-				await videoInfo.GetWatchApiResponse();
+				await videoInfo.GetWatchApiResponse(requireLatest:true);
 				await videoInfo.CheckCacheStatus();
 
 				// 動画が削除されていた場合
@@ -953,7 +959,7 @@ namespace NicoPlayerHohoema.ViewModels
 			// CurrentVideoQualityは代入時に常にNotifyが発行される設定になっている
 
 			// 低画質動画が存在しない場合はオリジナル画質を選択
-			if (Video.LowQualityVideoSize == 0)
+			if (Video.IsOriginalQualityOnly)
 			{
 				quality = NicoVideoQuality.Original;
 			}
@@ -1023,7 +1029,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			Debug.WriteLine("VideoPlayer OnNavigatedToAsync done.");
 
-			
+
 		}
 
 		protected override void OnResumed()

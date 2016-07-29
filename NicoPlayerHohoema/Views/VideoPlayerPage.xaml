@@ -447,18 +447,23 @@
                                      >
                                     </Slider>
 
-                                            
-                                                
-                                    <TextBlock  FontSize="12"
-                                                HorizontalAlignment="Left"          
+
+
+                                    <Border HorizontalAlignment="Left"          
                                                 VerticalAlignment="Bottom"
+                                            Width="60"
+                                            Margin="24 0 0 0"
+                                            >
+                                        <TextBlock  
                                                 Foreground="DarkGray"
                                                 IsHitTestVisible="False"
-                                                 Margin="24 0 0 0"
+                                                HorizontalAlignment="Right"
                                                     >
                                             <Run Text="{Binding ProgressPercent.Value}" />
-                                            <Run Text="%" />    
-                                    </TextBlock>
+                                            <Run Text="%" />
+                                        </TextBlock>
+
+                                    </Border>
 
                                     
                                     <TextBlock  HorizontalAlignment="Right"

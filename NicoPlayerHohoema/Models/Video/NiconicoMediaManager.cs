@@ -150,16 +150,21 @@ namespace NicoPlayerHohoema.Models
 				var nicoVideo = await GetNicoVideo(req.RawVideoid);
 
 				await nicoVideo.CheckCacheStatus();
+
 				if (req.Quality == NicoVideoQuality.Original)
 				{
-					if (nicoVideo.OriginalQualityCacheState != NicoVideoCacheState.Cached)
+					if (nicoVideo.OriginalQualityCacheState != NicoVideoCacheState.Cached
+						&& nicoVideo.CanRequestDownloadOriginalQuality
+						)
 					{
 						return req;
 					}
 				}
 				else
 				{
-					if (nicoVideo.LowQualityCacheState != NicoVideoCacheState.Cached)
+					if (nicoVideo.LowQualityCacheState != NicoVideoCacheState.Cached
+						&& nicoVideo.CanRequestDownloadLowQuality
+						)
 					{
 						return req;
 					}
@@ -215,7 +220,7 @@ namespace NicoPlayerHohoema.Models
 		public async Task DeleteUnrequestedVideos()
 		{
 			var removeTargets = new List<string>();
-			foreach (var item in VideoIdToNicoVideo.Values)
+			foreach (var item in VideoIdToNicoVideo.Values.ToArray())
 			{
 				if (!CheckHasCacheRequest(item.RawVideoId, NicoVideoQuality.Original))
 				{

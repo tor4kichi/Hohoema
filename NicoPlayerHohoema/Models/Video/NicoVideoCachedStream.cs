@@ -19,7 +19,6 @@ using System.Net;
 
 namespace NicoPlayerHohoema.Models
 {
-	
 	public class NicoVideoCachedStream : IRandomAccessStream
 	{
 		public NicoVideoDownloader Downloader;

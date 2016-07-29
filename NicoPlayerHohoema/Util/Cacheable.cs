@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Foundation;
 using Windows.Storage;
 
 namespace NicoPlayerHohoema.Util
@@ -18,12 +19,22 @@ namespace NicoPlayerHohoema.Util
 		public StorageFolder SaveFolder { get; private set; }
 		public string FileName { get; private set; }
 
-		public DateTime RecentCacheTime { get; private set; }
-		public bool CacheIsLatest { get; private set; }
 
+		/// <summary>
+		/// 次のキャッシュ更新予定時間
+		/// Update(true)またはGetItem(true)を使用した場合、無視されます
+		/// </summary>
+		public DateTime NextCacheUpdateTime { get; private set; }
+
+
+		/// <summary>
+		/// キャッシュ更新までの時間
+		/// </summary>
 		public TimeSpan ExpirationTime { get; set; }
 
+
 		private T _CachedItem;
+
 		private SemaphoreSlim _FileReadWriteLock;
 
 
@@ -34,17 +45,14 @@ namespace NicoPlayerHohoema.Util
 			FileName = filename;
 
 			_FileReadWriteLock = new SemaphoreSlim(1, 1);
-			CacheIsLatest = false;
 			_CachedItem = default(T);
 			ExpirationTime = TimeSpan.FromMinutes(10);
+			NextCacheUpdateTime = DateTime.Now;
 		}
 
 
-		public T CachedItem { get { return _CachedItem; } }
 
-
-		public bool HasCache { get { return _CachedItem != null; } }
-
+		
 
 		protected virtual bool CanGetLatest { get { return true; } }
 
@@ -59,6 +67,20 @@ namespace NicoPlayerHohoema.Util
 		protected virtual void PreUpdateToLatest() { }
 
 
+		public bool CacheIsLatest
+		{
+			get
+			{
+				return NextCacheUpdateTime > DateTime.Now;
+			}
+		}
+
+		public T CachedItem { get { return _CachedItem; } }
+
+
+		public bool HasCache { get { return _CachedItem != null; } }
+
+
 		public async Task UpdateFromLocal()
 		{
 			var item = await GetRecent();
@@ -66,7 +88,6 @@ namespace NicoPlayerHohoema.Util
 			if (item != null)
 			{
 				_CachedItem = item;
-				CacheIsLatest = false;
 
 				UpdateToRecent(_CachedItem);
 			}
@@ -85,8 +106,7 @@ namespace NicoPlayerHohoema.Util
 					if (item != null)
 					{
 						_CachedItem = item;
-						CacheIsLatest = true;
-						RecentCacheTime = DateTime.Now;
+						NextCacheUpdateTime = DateTime.Now + ExpirationTime;
 
 						UpdateToLatest(_CachedItem);
 					}
@@ -109,7 +129,7 @@ namespace NicoPlayerHohoema.Util
 
 		private async Task<T> GetRecent()
 		{
-			if (!ExistLocalCache())
+			if (!ExistCachedFile())
 			{
 				return default(T);
 			}
@@ -134,6 +154,11 @@ namespace NicoPlayerHohoema.Util
 			return item;
 		}
 
+
+		public bool ExistCachedFile()
+		{
+			return SaveFolder.ExistFile(FileName);
+		}
 
 		public async Task Save()
 		{
@@ -165,11 +190,36 @@ namespace NicoPlayerHohoema.Util
 		}
 
 
+		public async Task DoCacheFileAction(Action<StorageFile> action)
+		{
+			if (!ExistCachedFile())
+			{
+				return;
+			}
+
+			try
+			{
+				await _FileReadWriteLock.WaitAsync();
+
+				var file = await SaveFolder.GetFileAsync(FileName);
+
+				action(file);
+			}
+			catch (Exception ex)
+			{
+				Debug.WriteLine(ex.ToString());
+			}
+			finally
+			{
+				_FileReadWriteLock.Release();
+			}
+		}
+
 		
 
 		public async Task Delete(StorageDeleteOption option = StorageDeleteOption.Default)
 		{
-			if (!ExistLocalCache())
+			if (!ExistCachedFile())
 			{
 				return;
 			}
@@ -193,9 +243,5 @@ namespace NicoPlayerHohoema.Util
 
 		}
 
-		private bool ExistLocalCache()
-		{
-			return System.IO.File.Exists(Path.Combine(SaveFolder.Path, FileName));
-		}
 	}
 }

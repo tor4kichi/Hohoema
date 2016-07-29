@@ -376,6 +376,8 @@ namespace NicoPlayerHohoema.Models
 
 		private async Task DownloadFragment(uint start, uint size, CancellationToken token)
 		{
+			Debug.WriteLine($"download: {start} + {size}");
+
 			// 動画ダウンロードストリームを取得
 			var inputStream = await Util.ConnectionRetryUtil.TaskWithRetry(async () =>
 			{

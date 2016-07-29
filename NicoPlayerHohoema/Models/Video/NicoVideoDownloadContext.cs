@@ -334,7 +334,7 @@ namespace NicoPlayerHohoema.Models
 			{
 				var req = await _MediaManager.GetNextCacheRequest();
 
-				if (req == null) { return false; }
+				if (req == null) { break; }
 
 
 				Debug.WriteLine($"{req.RawVideoid}:{req.Quality}のダウンロードリクエストを処理しています");
@@ -419,41 +419,9 @@ namespace NicoPlayerHohoema.Models
 
 		private async Task<NicoVideoDownloader> CreateDownloader(NicoVideo nicoVideo, NicoVideoQuality quality)
 		{
-			await nicoVideo.ThumbnailResponseCache.Update();
 
-			WatchApiResponse res;
+			await nicoVideo.SetupWatchPageVisit(quality);
 
-			
-			if (quality == NicoVideoQuality.Low && !nicoVideo.ThumbnailResponseCache.IsOriginalQualityOnly)
-			{
-				// 低画質の視聴ページへアクセス
-				if (nicoVideo.WatchApiResponseCache.HasCache && nicoVideo.WatchApiResponseCache.NowLowQualityOnly)
-				{
-					// すでに
-					res = nicoVideo.WatchApiResponseCache.CachedItem;
-				}
-				else
-				{
-					// まだなので、強制低画質を指定してアクセスする
-					nicoVideo.WatchApiResponseCache.ForceLowQuality = true;
-					res = await nicoVideo.WatchApiResponseCache.GetItem(true).ConfigureAwait(false);
-				}
-			}
-			else
-			{
-				// 低画質じゃない、またはオリジナル画質しか存在しない場合
-				if (!nicoVideo.WatchApiResponseCache.HasCache)
-				{
-					await nicoVideo.WatchApiResponseCache.Update();
-				}
-
-				res = nicoVideo.WatchApiResponseCache.CachedItem;
-			}
-
-			if (res == null)
-			{
-				throw new Exception("");
-			}
 
 			// オリジナル画質が必要で
 			// オリジナル画質のダウンロードリクエストができなくて
