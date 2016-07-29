@@ -84,11 +84,11 @@ namespace NicoPlayerHohoema.ViewModels
 			IsDeleted = nicoVideo.IsDeleted;
 
 			IsLowQualityCached = NicoVideo.ObserveProperty(x => x.LowQualityCacheState)
-				.Select(x => x != NicoVideoCacheState.Incomplete)
+				.Select(x => x != null)
 				.ToReactiveProperty()
 				.AddTo(_CompositeDisposable);
 			IsOriginalQualityCached = NicoVideo.ObserveProperty(x => x.OriginalQualityCacheState)
-				.Select(x => x != NicoVideoCacheState.Incomplete)
+				.Select(x => x != null)
 				.ToReactiveProperty()
 				.AddTo(_CompositeDisposable);
 
@@ -108,7 +108,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			try
 			{
-				var thumbnail = await NicoVideo.GetThumbnailInfo();
+				var thumbnail = await NicoVideo.GetThumbnailResponse();
 
 
 				if (NicoVideo.IsDeleted)
@@ -122,7 +122,7 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 
 				// NG判定
-				var ngResult = NicoVideo.CheckUserNGVideo();
+				var ngResult = await NicoVideo.CheckUserNGVideo();
 				IsNotGoodVideo = ngResult != null;
 				NGVideoReason = ngResult?.GetReasonText() ?? "";
 

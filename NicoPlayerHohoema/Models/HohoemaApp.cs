@@ -188,11 +188,14 @@ namespace NicoPlayerHohoema.Models
 			var result = await NiconicoContext.SignOutOffAsync();
 			NiconicoContext.Dispose();
 
+			await SaveUserSettings();
+			await MediaManager.DeleteUnrequestedVideos();
+
 			NiconicoContext = null;
 			FavFeedManager = null;
-			await SaveUserSettings();
 			UserSettings = null;
 			LoginUserId = uint.MaxValue;
+			MediaManager = null;
 
 			OnSignout?.Invoke();
 

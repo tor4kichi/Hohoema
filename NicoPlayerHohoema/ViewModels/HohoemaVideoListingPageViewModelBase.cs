@@ -172,7 +172,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				foreach (var item in EnumerateCachedVideoItem(NicoVideoQuality.Original))
 				{
-					await item.NicoVideo.DeleteCache(NicoVideoQuality.Original);
+					await item.NicoVideo.CancelCacheRequest(NicoVideoQuality.Original);
 				}
 
 				ClearSelection();
@@ -190,7 +190,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				foreach (var item in EnumerateCachedVideoItem(NicoVideoQuality.Low))
 				{
-					await item.NicoVideo.DeleteCache(NicoVideoQuality.Low);
+					await item.NicoVideo.CancelCacheRequest(NicoVideoQuality.Low);
 				}
 
 				ClearSelection();
@@ -230,12 +230,12 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				foreach (var item in EnumerateCachedVideoItem(NicoVideoQuality.Low))
 				{
-					await item.NicoVideo.DeleteCache(NicoVideoQuality.Low);
+					await item.NicoVideo.CancelCacheRequest(NicoVideoQuality.Low);
 				}
 
 				foreach (var item in EnumerateCachedVideoItem(NicoVideoQuality.Original))
 				{
-					await item.NicoVideo.DeleteCache(NicoVideoQuality.Original);
+					await item.NicoVideo.CancelCacheRequest(NicoVideoQuality.Original);
 				}
 				
 				ClearSelection();
@@ -441,10 +441,10 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				case NicoVideoQuality.Original:
 					return qualityFilterdVideoItems
-						.Where(x => x.NicoVideo.OriginalQualityCacheState != NicoVideoCacheState.Incomplete || x.NicoVideo.HasOriginalQualityIncompleteVideoFile());
+						.Where(x => x.NicoVideo.OriginalQualityCacheState != null);
 				case NicoVideoQuality.Low:
 					return qualityFilterdVideoItems
-						.Where(x => x.NicoVideo.LowQualityCacheState != NicoVideoCacheState.Incomplete || x.NicoVideo.HasLowQualityIncompleteVideoFile());
+						.Where(x => x.NicoVideo.LowQualityCacheState != null);
 				default:
 					return Enumerable.Empty<VideoInfoControlViewModel>();
 			}

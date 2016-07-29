@@ -49,6 +49,15 @@ namespace NicoPlayerHohoema.ViewModels
 			return new CacheVideoInfoLoadingSource(HohoemaApp, PageManager);
 		}
 
+
+		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+		{
+			base.OnNavigatingFrom(e, viewModelState, suspending);
+
+			// 削除動作
+			_MediaManager.DeleteUnrequestedVideos().ConfigureAwait(false);
+		}
+
 		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
 		{
 			return true;
@@ -95,7 +104,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				IsIncompleteCache = nicoVideo.LowQualityCacheState != NicoVideoCacheState.Cached;
 				ProgressPercent = nicoVideo.ObserveProperty(x => x.LowQualityCacheProgressSize)
-					.Select(x => ProgressToPercent(x, nicoVideo.LowQualityVideoSize))
+					.Select(x => ProgressToPercent(x, (uint)nicoVideo.ThumbnailResponseCache.CachedItem.SizeLow))
 					.ToReactiveProperty(CacheManagementPageViewModel.scheduler)
 					.AddTo(_CompositeDisposable);
 				IsVisibleProgress = nicoVideo.ObserveProperty(x => x.LowQualityCacheState)
@@ -111,7 +120,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				IsIncompleteCache = nicoVideo.OriginalQualityCacheState != NicoVideoCacheState.Cached;
 				ProgressPercent = nicoVideo.ObserveProperty(x => x.OriginalQualityCacheProgressSize)
-					.Select(x => ProgressToPercent(x, nicoVideo.OriginalQualityVideoSize))
+					.Select(x => ProgressToPercent(x, (uint)nicoVideo.ThumbnailResponseCache.CachedItem.SizeHigh))
 					.ToReactiveProperty(CacheManagementPageViewModel.scheduler)
 					.AddTo(_CompositeDisposable);
 				IsVisibleProgress = nicoVideo.ObserveProperty(x => x.OriginalQualityCacheState)
@@ -124,7 +133,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 
 
-			PrivateReasonText = nicoVideo.PrivateReason.ToString();
+			PrivateReasonText = nicoVideo.WatchApiResponseCache?.CachedItem?.PrivateReason.ToString() ?? "";
 			IsRequireConfirmDelete = new ReactiveProperty<bool>(nicoVideo.IsRequireConfirmDelete);
 			IsForceDisplayNGVideo = true;
 		}
@@ -157,7 +166,8 @@ namespace NicoPlayerHohoema.ViewModels
 					{
 						try
 						{
-							NicoVideo.DeletedVideoConfirmedFromUser(NicoVideo).ConfigureAwait(false);
+							// TODO: MediaManagerに削除動画の確認が済んだことを伝える
+//							NicoVideo.DeletedVideoConfirmedFromUser(NicoVideo).ConfigureAwait(false);
 							IsRequireConfirmDelete.Value = false;
 						}
 						catch { }
@@ -174,7 +184,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public DateTime CacheRequestTime { get; private set; }
 
 		public NicoVideoQuality Quality { get; private set; }
-		public ReactiveProperty<NicoVideoCacheState> CacheState { get; private set; }
+		public ReactiveProperty<NicoVideoCacheState?> CacheState { get; private set; }
 
 		public ReactiveProperty<float> ProgressPercent { get; private set; }
 
@@ -208,22 +218,19 @@ namespace NicoPlayerHohoema.ViewModels
 				List<CacheVideoViewModel> list = new List<CacheVideoViewModel>();
 
 				
-				foreach (var item in mediaManager.VideoIdToNicoVideo.Values.ToArray())
+				foreach (var req in mediaManager.CacheRequestedItemsStack.ToArray())
 				{
-					await item.SetupVideoInfoFromLocal();
-					await item.CheckCacheStatus();
+					var item = await mediaManager.GetNicoVideo(req.RawVideoid);
 
-					if (item.OriginalQualityCacheState != NicoVideoCacheState.Incomplete ||
-						item.HasOriginalQualityIncompleteVideoFile()
-						)
+					await item.CheckCacheStatus();
+					await item.WatchApiResponseCache.UpdateFromLocal();
+
+					if (req.Quality == NicoVideoQuality.Original)
 					{
 						var vm = await ToCacheVideoViewModel(item.RawVideoId, NicoVideoQuality.Original);
 						list.Add(vm);
 					}
-
-					if (item.LowQualityCacheState != NicoVideoCacheState.Incomplete ||
-						item.HasLowQualityIncompleteVideoFile()
-						)
+					else if (req.Quality == NicoVideoQuality.Low)
 					{
 						var vm = await ToCacheVideoViewModel(item.RawVideoId, NicoVideoQuality.Low);
 						list.Add(vm);

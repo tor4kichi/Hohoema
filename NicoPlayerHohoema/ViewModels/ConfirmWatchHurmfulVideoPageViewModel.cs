@@ -37,6 +37,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 			cancelToken.ThrowIfCancellationRequested();
 
+			var thumbnailInfo = await NicoVideo.GetThumbnailResponse();
+
 			VideoId = payload.VideoId;
 			Quality = payload.Quality;
 
@@ -44,12 +46,12 @@ namespace NicoPlayerHohoema.ViewModels
 
 			cancelToken.ThrowIfCancellationRequested();
 
-			SubmitDate = NicoVideo.CachedThumbnailInfo.PostedAt.DateTime;
+			SubmitDate = thumbnailInfo.PostedAt.DateTime;
 			Title = NicoVideo.Title;
 
 
 			Tags.Clear();
-			foreach (var tag in NicoVideo.CachedThumbnailInfo.Tags.Value)
+			foreach (var tag in thumbnailInfo.Tags.Value)
 			{
 				Tags.Add(tag.Value);
 			}
