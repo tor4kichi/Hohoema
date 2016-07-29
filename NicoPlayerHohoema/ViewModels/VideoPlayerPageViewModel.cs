@@ -49,9 +49,9 @@ namespace NicoPlayerHohoema.ViewModels
 		const float fontSize_big = 1.25f;
 
 		const float default_fontSize = fontSize_mid;
-		const uint default_DisplayTime = 300; // 3秒
+		const uint default_DisplayTime = 400; // 1 = 10ms, 400 = 4000ms = 4.0 Seconds
 
-		static readonly Color defaultColor = ColorExtention.HexStringToColor("FFFFFF");
+		static readonly Color defaultColor = ColorExtention.HexStringToColor("FAFAFA");
 
 
 		private SynchronizationContextScheduler _PlayerWindowUIDispatcherScheduler;
