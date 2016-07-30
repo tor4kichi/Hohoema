@@ -689,7 +689,7 @@ namespace NicoPlayerHohoema.Models
 				if (!Util.InternetConnection.IsInternet()) { return false; }
 
 				// キャッシュリクエスト済みじゃないか
-				if (OriginalQualityCacheState != null) { return false; }
+				if (LowQualityCacheState == NicoVideoCacheState.Cached) { return false; }
 
 				// 
 				if (ThumbnailResponseCache.IsOriginalQualityOnly)
@@ -715,7 +715,7 @@ namespace NicoPlayerHohoema.Models
 				if (!Util.InternetConnection.IsInternet()) { return false; }
 
 				// キャッシュリクエスト済みじゃないか
-				if (LowQualityCacheState != null) { return false; }
+				if (LowQualityCacheState == NicoVideoCacheState.Cached) { return false; }
 
 
 				if (!ThumbnailResponseCache.HasCache)
