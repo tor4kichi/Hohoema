@@ -279,40 +279,44 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			base.OnNavigatedTo(e, viewModelState);
 
+			if (IncrementalLoadingItems == null
+				|| CheckNeedUpdateOnNavigateTo(e.NavigationMode))
+			{
+//				ResetList();
+			}
+			
+		}
+
+
+		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		{
+			if (!NowSignIn && PageIsRequireSignIn)
+			{
+				IncrementalLoadingItems = null;
+				return;
+			}
+
+			await ListPageNavigatedToAsync(cancelToken, e, viewModelState);
+
 			if (_IncrementalLoadingItems != null)
 			{
 				IncrementalLoadingItems = _IncrementalLoadingItems;
 				_IncrementalLoadingItems = null;
 			}
 
-			if (!NowSignIn && PageIsRequireSignIn)
-			{
-				IncrementalLoadingItems = null;
-			}
-
-
-			if (IncrementalLoadingItems == null
-				|| CheckNeedUpdateOnNavigateTo(e.NavigationMode))
-			{
-//				ResetList();
-			}
-			else
-			{
-				OnPropertyChanged(nameof(IncrementalLoadingItems));
-				ListViewVerticalOffset.Value = _LastListViewOffset;
-				ChangeCanIncmentalLoading(true);
-			}
-		}
-
-
-		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-			await ListPageNavigatedToAsync(cancelToken, e, viewModelState);
-
 			if (IncrementalLoadingItems == null
 				|| CheckNeedUpdateOnNavigateTo(e.NavigationMode))
 			{
 				ResetList();
+			}
+			else
+			{
+				OnPropertyChanged(nameof(IncrementalLoadingItems));
+
+				await Task.Delay(100);
+
+				ListViewVerticalOffset.Value = _LastListViewOffset;
+				ChangeCanIncmentalLoading(true);				
 			}
 		}
 
@@ -326,6 +330,7 @@ namespace NicoPlayerHohoema.ViewModels
 			base.OnNavigatingFrom(e, viewModelState, suspending);
 
 			_LastListViewOffset = ListViewVerticalOffset.Value;
+			ListViewVerticalOffset.Value = 0.0;
 			ChangeCanIncmentalLoading(false);
 
 			_IncrementalLoadingItems = IncrementalLoadingItems;

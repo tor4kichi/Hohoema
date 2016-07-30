@@ -47,13 +47,20 @@ namespace NicoPlayerHohoema.Models
 				Debug.WriteLine($"Seek: {_CurrentPosition:N0} -> {position:N0}");
 				_CurrentPosition = position;
 
-				try
+				if (Downloader.CurrentDownloadHead != position)
 				{
-					Downloader.StartDownloadTask((uint)position).ConfigureAwait(false);
+					try
+					{
+						Downloader.StartDownloadTask((uint)position).ConfigureAwait(false);
+					}
+					catch (Exception ex)
+					{
+						Debug.WriteLine(ex.Message);
+					}
 				}
-				catch (Exception ex)
+				else
 				{
-					Debug.WriteLine(ex.Message);
+					Debug.WriteLine("seeking but CurrentDownloadHead is not changed.");
 				}
 			}
 		}

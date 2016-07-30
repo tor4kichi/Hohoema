@@ -112,7 +112,7 @@ namespace NicoPlayerHohoema.Models
 
 					waitCount++;
 
-					if (_DownloadTask == null) { throw new Exception(); }
+//					if (_DownloadTask == null) { throw new Exception(); }
 				}
 
 				if (waitCount != 0)

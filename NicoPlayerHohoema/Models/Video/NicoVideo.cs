@@ -457,16 +457,19 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
-		private void _Context_OnCacheCompleted(string videoId, NicoVideoQuality quality, bool isSuccess)
+		private async void _Context_OnCacheCompleted(string videoId, NicoVideoQuality quality, bool isSuccess)
 		{
 			if (videoId == RawVideoId)
 			{
-				if (NicoVideoDownloader != null && NicoVideoDownloader.Quality == quality)
+				await _Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
 				{
-					_OriginalQualityDownloadProgressFileAccessor?.Delete();
-				}
+					if (NicoVideoDownloader != null && NicoVideoDownloader.Quality == quality)
+					{
+						_OriginalQualityDownloadProgressFileAccessor?.Delete();
+					}
 
-				CheckCacheStatus().ConfigureAwait(false);
+					CheckCacheStatus().ConfigureAwait(false);
+				});
 			}
 		}
 
