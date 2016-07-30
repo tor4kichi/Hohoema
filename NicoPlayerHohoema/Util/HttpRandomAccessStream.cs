@@ -70,14 +70,15 @@ namespace NicoPlayerHohoema.Util
 				}
 			}, retryInterval:3000);
 
-//			Debug.WriteLine(response);
+			Debug.WriteLine(response);
 
-			_Size = response.Content.Headers.ContentLength.Value;
 
 			if (response.StatusCode != HttpStatusCode.PartialContent && position != 0)
 			{
 				throw new Exception("HTTP server did not reply with a '206 Partial Content' status.");
 			}
+
+			_Size = response.Content.Headers.ContentLength.Value;
 
 			if (!response.Headers.ContainsKey("Accept-Ranges"))
 			{

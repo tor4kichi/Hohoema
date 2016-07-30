@@ -161,14 +161,7 @@
                     </MediaElement>
 
 
-                    <ProgressRing Visibility="{Binding NowBuffering.Value, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}"
-                                  IsActive="{Binding NowBuffering.Value, Mode=OneWay}"
-                                  Width="48"
-                                  Height="48"
-                                  HorizontalAlignment="Right"
-                                  VerticalAlignment="Top"
-                                  Margin="24 88"
-                                  />
+                    
                     
                     <comment:CommentRenderer Comments="{Binding Comments}"
                                      VideoPosition="{Binding ReadVideoPosition.Value}"                                     
@@ -177,8 +170,17 @@
                                      CommentSizeScale="{Binding CommentFontScale.Value}"
                                      />
 
-                   
                     
+                    
+
+                    <ProgressRing Visibility="{Binding NowBuffering.Value, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}"
+                                  IsActive="{Binding NowBuffering.Value, Mode=OneWay}"
+                                  Width="48"
+                                  Height="48"
+                                  HorizontalAlignment="Right"
+                                  VerticalAlignment="Top"
+                                  Margin="24 88"      
+                                  />
 
                     <!-- playback toggle screen -->
                     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
@@ -445,12 +447,32 @@
                                      >
                                     </Slider>
 
-                                    <TextBlock HorizontalAlignment="Right"
+
+
+                                    <Border HorizontalAlignment="Left"          
+                                                VerticalAlignment="Bottom"
+                                            Width="60"
+                                            Margin="24 0 0 0"
+                                            >
+                                        <TextBlock  
+                                                Foreground="DarkGray"
+                                                IsHitTestVisible="False"
+                                                HorizontalAlignment="Right"
+                                                    >
+                                            <Run Text="{Binding ProgressPercent.Value}" />
+                                            <Run Text="%" />
+                                        </TextBlock>
+
+                                    </Border>
+
+                                    
+                                    <TextBlock  HorizontalAlignment="Right"
                                                VerticalAlignment="Bottom"
                                                IsHitTestVisible="False"
                                                Foreground="DarkGray"
                                                Margin="0 0 24 0"
                                             >
+                                        
                                         <Run Text="{Binding SliderVideoPosition.Value, Converter={StaticResource TimeToMovieLengthConverter}}" />
                                         <Run Text="/" />
                                         <Run Text="{Binding VideoLength.Value, Converter={StaticResource TimeToMovieLengthConverter}}" />

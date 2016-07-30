@@ -103,11 +103,7 @@ namespace NicoPlayerHohoema.ViewModels
 			base.OnNavigatedTo(e, viewModelState);
 		}
 
-		protected override Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-			return base.NavigatedToAsync(cancelToken, e, viewModelState);
-		}
-
+		
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
 			RankingSettings.Save().ConfigureAwait(false);
@@ -195,8 +191,15 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
 		{
-			return !RequireCategoryInfo.Equals(CategoryInfo) 
-				|| mode != NavigationMode.Back;
+			if (RequireCategoryInfo != null)
+			{
+				return !RequireCategoryInfo.Equals(CategoryInfo)
+					|| mode != NavigationMode.Back;
+			}
+			else
+			{
+				return mode != NavigationMode.Back;
+			}
 		}
 
 		#endregion
@@ -342,9 +345,12 @@ namespace NicoPlayerHohoema.ViewModels
 					, _PageManager
 					);
 
-				await videoInfoVM.LoadThumbnail();
-
 				items.Add(videoInfoVM);
+			}
+
+			foreach (var item in items)
+			{
+				await item.LoadThumbnail().ConfigureAwait(false);
 			}
 
 			return items;

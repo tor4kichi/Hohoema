@@ -22,7 +22,7 @@ namespace NicoPlayerHohoema.Views.Service
 			var text = $@"
 				<toast>
 					<visual>
-						<binding template=""ToastText02"">
+						<binding >
 							<text id=""1"">{title}</text>
 							<text id=""2"">{content}</text>
 						</binding>  

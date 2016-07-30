@@ -64,7 +64,7 @@ namespace NicoPlayerHohoema
 		{
 			var deferral = e.SuspendingOperation.GetDeferral();
 			var hohoemaApp = Container.Resolve<HohoemaApp>();
-			//			hohoemaApp.SignOut().ConfigureAwait(false);
+			await hohoemaApp.SignOut().ConfigureAwait(false);
 
 			if (hohoemaApp.IsLoggedIn)
 			{

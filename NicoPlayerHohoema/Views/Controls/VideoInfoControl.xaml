@@ -25,7 +25,7 @@
 
                     <VisualState.Setters>
                         <Setter Target="NGVideoShutoutWall.Visibility" Value="Collapsed" />
-                        <Setter Target="VideoInfo.Opacity" Value="1.0" />
+                        <Setter Target="VideoInfo.Visibility" Value="Visible" />
                         <Setter Target="VideoInfo.IsHitTestVisible" Value="True" />
                     </VisualState.Setters>
                 </VisualState>
@@ -37,7 +37,7 @@
 
                     <VisualState.Setters>
                         <Setter Target="NGVideoShutoutWall.Visibility" Value="Visible" />
-                        <Setter Target="VideoInfo.Opacity" Value="0.2" />
+                        <Setter Target="VideoInfo.Visibility" Value="Collapsed" />
                         <Setter Target="VideoInfo.IsHitTestVisible" Value="False" />
                     </VisualState.Setters>
                 </VisualState>
@@ -48,9 +48,7 @@
         
         
         
-        <toolkit:DockPanel x:Name="VideoInfo">
-
-            
+        <toolkit:DockPanel x:Name="VideoInfo" IsHitTestVisible="True" Background="Transparent">
 
             <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left" Width="16"
                         ToolTipService.ToolTip="青=通常画質保存済み / 緑=低画質保存済み / 赤=削除確認が必要"
@@ -89,11 +87,11 @@
                 </Border>
 
                 <!-- NGVideoのときだけ表示するボタン -->
-                <Button Content="非表示"
+                <Button Content="NG"
                         Command="{Binding StopNGVideoDisplayCommand}" 
                         Visibility="{Binding IsNotGoodVideo, Converter={StaticResource BooleanToVisibility}}"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Top"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
                     />
 
             </Grid>
@@ -150,43 +148,46 @@
                         />
 
         </Grid>
-        
-       <!--
+
+
         <Grid x:Name="NGVideoShutoutWall"
             Background="#01000000"
               Visibility="Collapsed"
               >
 
+            <Button Content="NGを一時的に解除"
+                        Command="{Binding ForceDisplayNGVideoCommand}" 
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Stretch"
+                        Foreground="Gray"                        
+                        Margin="16 0 0 0"
+                    />
+            
             <toolkit:DockPanel HorizontalAlignment="Center"
                                VerticalAlignment="Center">
                 <TextBlock Text="NG"
-                           FontSize="40"
+                           FontSize="32"
                            toolkit:DockPanel.Dock="Left"
                            VerticalAlignment="Center"
                            Foreground="Gray"
                            Margin="16 0"
                            />
 
-                <TextBlock toolkit:DockPanel.Dock="Top"
-                           HorizontalAlignment="Center"
+                
+                
+                <TextBlock HorizontalAlignment="Center"
                            Foreground="Gray"
-                           Margin="0 16"
+                           VerticalAlignment="Center"
                            >
                     <Run Text="{Binding NGVideoReason}" />
                 </TextBlock>
 
-                <Button Content="NGを一時的に解除"
-                        Command="{Binding ForceDisplayNGVideoCommand}" 
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Bottom"
-                        Foreground="Gray"
-                    />
+                
 
             </toolkit:DockPanel>
         </Grid>
--->
 
-       
+
     </Grid>
 
     

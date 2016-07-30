@@ -56,7 +56,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 			PlayCommand.Subscribe(x =>
 			{
-				x?.PlayCommand.Execute();
+				if (x?.PlayCommand.CanExecute() ?? false)
+				{
+					x?.PlayCommand.Execute();
+				}
 
 				ClearSelection();
 			})
@@ -169,7 +172,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				foreach (var item in EnumerateCachedVideoItem(NicoVideoQuality.Original))
 				{
-					await item.NicoVideo.DeleteCache(NicoVideoQuality.Original);
+					await item.NicoVideo.CancelCacheRequest(NicoVideoQuality.Original);
 				}
 
 				ClearSelection();
@@ -187,7 +190,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				foreach (var item in EnumerateCachedVideoItem(NicoVideoQuality.Low))
 				{
-					await item.NicoVideo.DeleteCache(NicoVideoQuality.Low);
+					await item.NicoVideo.CancelCacheRequest(NicoVideoQuality.Low);
 				}
 
 				ClearSelection();
@@ -227,12 +230,12 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				foreach (var item in EnumerateCachedVideoItem(NicoVideoQuality.Low))
 				{
-					await item.NicoVideo.DeleteCache(NicoVideoQuality.Low);
+					await item.NicoVideo.CancelCacheRequest(NicoVideoQuality.Low);
 				}
 
 				foreach (var item in EnumerateCachedVideoItem(NicoVideoQuality.Original))
 				{
-					await item.NicoVideo.DeleteCache(NicoVideoQuality.Original);
+					await item.NicoVideo.CancelCacheRequest(NicoVideoQuality.Original);
 				}
 				
 				ClearSelection();
@@ -274,17 +277,32 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
+			base.OnNavigatedTo(e, viewModelState);
+
+			if (IncrementalLoadingItems == null
+				|| CheckNeedUpdateOnNavigateTo(e.NavigationMode))
+			{
+//				ResetList();
+			}
+			
+		}
+
+
+		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		{
+			if (!NowSignIn && PageIsRequireSignIn)
+			{
+				IncrementalLoadingItems = null;
+				return;
+			}
+
+			await ListPageNavigatedToAsync(cancelToken, e, viewModelState);
+
 			if (_IncrementalLoadingItems != null)
 			{
 				IncrementalLoadingItems = _IncrementalLoadingItems;
 				_IncrementalLoadingItems = null;
 			}
-
-			if (!NowSignIn && PageIsRequireSignIn)
-			{
-				IncrementalLoadingItems = null;
-			}
-
 
 			if (IncrementalLoadingItems == null
 				|| CheckNeedUpdateOnNavigateTo(e.NavigationMode))
@@ -294,15 +312,15 @@ namespace NicoPlayerHohoema.ViewModels
 			else
 			{
 				OnPropertyChanged(nameof(IncrementalLoadingItems));
-				ListViewVerticalOffset.Value = _LastListViewOffset;
-				ChangeCanIncmentalLoading(true);
-			}
 
-			base.OnNavigatedTo(e, viewModelState);
+				await Task.Delay(100);
+
+				ListViewVerticalOffset.Value = _LastListViewOffset;
+				ChangeCanIncmentalLoading(true);				
+			}
 		}
 
-
-		protected override Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		protected virtual Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			return Task.CompletedTask;
 		}
@@ -312,6 +330,7 @@ namespace NicoPlayerHohoema.ViewModels
 			base.OnNavigatingFrom(e, viewModelState, suspending);
 
 			_LastListViewOffset = ListViewVerticalOffset.Value;
+			ListViewVerticalOffset.Value = 0.0;
 			ChangeCanIncmentalLoading(false);
 
 			_IncrementalLoadingItems = IncrementalLoadingItems;
@@ -427,10 +446,10 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				case NicoVideoQuality.Original:
 					return qualityFilterdVideoItems
-						.Where(x => x.NicoVideo.OriginalQualityCacheState != NicoVideoCacheState.Incomplete || x.NicoVideo.HasOriginalQualityIncompleteVideoFile());
+						.Where(x => x.NicoVideo.OriginalQualityCacheState != null);
 				case NicoVideoQuality.Low:
 					return qualityFilterdVideoItems
-						.Where(x => x.NicoVideo.LowQualityCacheState != NicoVideoCacheState.Incomplete || x.NicoVideo.HasLowQualityIncompleteVideoFile());
+						.Where(x => x.NicoVideo.LowQualityCacheState != null);
 				default:
 					return Enumerable.Empty<VideoInfoControlViewModel>();
 			}

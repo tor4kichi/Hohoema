@@ -31,6 +31,10 @@ namespace NicoPlayerHohoema.ViewModels
 			base.OnNavigatedTo(e, viewModelState);
 		}
 
+		protected override async Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		{
+			User = await HohoemaApp.ContentFinder.GetUserDetail(UserId);			
+		}
 
 		protected override uint IncrementalLoadCount
 		{
@@ -46,7 +50,14 @@ namespace NicoPlayerHohoema.ViewModels
 
 			var source = IncrementalLoadingItems.Source as UserVideoIncrementalSource;
 
-			UpdateTitle(source.User.Nickname + "さんの投稿動画一覧");
+			if (User != null)
+			{
+				UpdateTitle(User.Nickname + "さんの投稿動画一覧");
+			}
+			else
+			{
+				UpdateTitle("投稿動画一覧");
+			}
 
 		}
 
@@ -56,11 +67,14 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			return new UserVideoIncrementalSource(
 				UserId,
+				User,
 				HohoemaApp.ContentFinder,
 				HohoemaApp.MediaManager,
 				PageManager
 				);
 		}
+
+		public UserDetail User { get; private set; }
 
 
 		public string UserId { get; private set; }
@@ -79,9 +93,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		public UserVideoIncrementalSource(string userId, NiconicoContentFinder contentFinder, NiconicoMediaManager mediaMan, PageManager pageManager)
+		public UserVideoIncrementalSource(string userId, UserDetail userDetail, NiconicoContentFinder contentFinder, NiconicoMediaManager mediaMan, PageManager pageManager)
 		{
 			UserId = uint.Parse(userId);
+			User = userDetail;
 			ContentFinder = contentFinder;
 			MediaManager = mediaMan;
 			PageManager = pageManager;
