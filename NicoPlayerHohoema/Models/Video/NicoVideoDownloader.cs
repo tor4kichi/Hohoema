@@ -258,7 +258,7 @@ namespace NicoPlayerHohoema.Models
 
 		internal async Task StartDownloadTask(uint position)
 		{
-			await _StopDownload().ConfigureAwait(false);
+			await _StopDownload();
 
 			try
 			{
