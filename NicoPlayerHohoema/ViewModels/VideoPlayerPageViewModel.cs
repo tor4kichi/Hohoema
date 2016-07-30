@@ -952,31 +952,42 @@ namespace NicoPlayerHohoema.ViewModels
 			cancelToken.ThrowIfCancellationRequested();
 
 
-			
+
 
 
 			// ビデオクオリティをトリガーにしてビデオ関連の情報を更新させる
 			// CurrentVideoQualityは代入時に常にNotifyが発行される設定になっている
 
-			// 低画質動画が存在しない場合はオリジナル画質を選択
-			if (Video.IsOriginalQualityOnly)
+			NicoVideoQuality realQuality = NicoVideoQuality.Low;
+			if ((quality == null || quality == NicoVideoQuality.Original)
+				&& Video.OriginalQualityCacheState == NicoVideoCacheState.Cached)
 			{
-				quality = NicoVideoQuality.Original;
+				realQuality = NicoVideoQuality.Original;
+			}
+			else if ((quality == null || quality == NicoVideoQuality.Low)
+				&& Video.LowQualityCacheState == NicoVideoCacheState.Cached)
+			{
+				realQuality = NicoVideoQuality.Low;
+			}
+			// 低画質動画が存在しない場合はオリジナル画質を選択
+			else if (Video.IsOriginalQualityOnly)
+			{
+				realQuality = NicoVideoQuality.Original;
 			}
 			// エコノミー時間帯でオリジナル画質が未保存の場合
 			else if (Video.NowLowQualityOnly && Video.OriginalQualityCacheState != NicoVideoCacheState.Cached)
 			{
-				quality = NicoVideoQuality.Low;
+				realQuality = NicoVideoQuality.Low;
 			}
 			else if (!quality.HasValue)
 			{
 				// 画質指定がない場合、ユーザー設定から低画質がリクエストされてないかチェック
 				var defaultLowQuality = HohoemaApp.UserSettings.PlayerSettings.IsLowQualityDeafult;
-				quality = defaultLowQuality ? NicoVideoQuality.Low : NicoVideoQuality.Original;
+				realQuality = defaultLowQuality ? NicoVideoQuality.Low : NicoVideoQuality.Original;
 			}
 
 			// CurrentVideoQualityは同一値の代入でもNotifyがトリガーされるようになっている
-			CurrentVideoQuality.Value = quality.Value;
+			CurrentVideoQuality.Value = realQuality;
 
 			cancelToken.ThrowIfCancellationRequested();
 
