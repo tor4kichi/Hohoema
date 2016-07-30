@@ -121,6 +121,12 @@
     <Compile Include="Models\LisenceSummary.cs" />
     <Compile Include="Models\MediaBackgroundTask.cs" />
     <Compile Include="Models\Settings\CacheSettings.cs" />
+    <Compile Include="Models\Video\CommentResponseCache.cs" />
+    <Compile Include="Models\Video\NicoVideoDownloader.cs" />
+    <Compile Include="Models\Video\ThumbnailResponseCache.cs" />
+    <Compile Include="Models\Video\VideoDownloadProgress.cs" />
+    <Compile Include="Models\Video\WatchApiResponseCache.cs" />
+    <Compile Include="Util\Cacheable.cs" />
     <Compile Include="Models\Video\NicoVideo.cs" />
     <Compile Include="Models\Video\NicoVideoCacheRequest.cs" />
     <Compile Include="Models\Video\NicoVideoCacheState.cs" />
@@ -145,9 +151,11 @@
     <Compile Include="Util\ColorExtention.cs" />
     <Compile Include="Util\ConnectionRetryUtil.cs" />
     <Compile Include="Util\DisplayRequestHelper.cs" />
+    <Compile Include="Util\FileAccessor.cs" />
     <Compile Include="Util\FilePathHelper.cs" />
     <Compile Include="Util\HttpRandomAccessStream.cs" />
     <Compile Include="Util\IncrementalLoadingCollection.cs" />
+    <Compile Include="Util\InternetConnection.cs" />
     <Compile Include="Util\MediaPlaybackBackgroundTaskHelper.cs" />
     <Compile Include="Util\NiconicoRankingExtention.cs" />
     <Compile Include="Util\NicoVideoRssItemExtention.cs" />

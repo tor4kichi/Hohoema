@@ -104,6 +104,7 @@ namespace NicoPlayerHohoema.ViewModels
 			ApplyAllPriorityCategoriesToRankingSettings();
 
 			_RankingSettings.Save().ConfigureAwait(false);
+			_NGSettings.Save().ConfigureAwait(false);
 		}
 
 		
