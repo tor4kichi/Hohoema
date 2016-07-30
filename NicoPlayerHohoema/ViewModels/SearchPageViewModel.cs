@@ -17,6 +17,7 @@ using System.Diagnostics;
 using Reactive.Bindings.Extensions;
 using Windows.UI.Xaml.Navigation;
 using System.Threading;
+using Windows.UI.Xaml;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -155,6 +156,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
 		{
+			_CachedSearchListItem = new List<ListItem>();
 			return new SearchPageSource(this);
 		}
 
@@ -173,7 +175,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			get
 			{
-				return 20u;
+				return OneTimeLoadSearchItemCount / 2;
 			}
 		}
 
@@ -192,41 +194,55 @@ namespace NicoPlayerHohoema.ViewModels
 		#endregion
 
 
+		List<ListItem> _CachedSearchListItem;
 
-		internal async Task<List<VideoInfoControlViewModel>> GetSearchPage(uint page)
+		internal async Task<List<VideoInfoControlViewModel>> GetSearchPage(uint head, uint count)
 		{
 			var items = new List<VideoInfoControlViewModel>();
 
 			var searchOption = RequireSearchOption != null ? RequireSearchOption : SearchOption;
 
-			SearchResponse response = null;
-			switch (searchOption.SearchTarget)
+			// 検索は一度のレスポンスで32件を得られる
+			// countが16件として来るように調節したうえで
+			// １レスポンス分を２回のインクリメンタルローディングに分けて表示を行う
+			var tail = head + count - 1;
+			if (_CachedSearchListItem.Count < tail)
 			{
-				case SearchTarget.Keyword:
-					response = await _ContentFinder.GetKeywordSearch(searchOption.Keyword, page, searchOption.SortMethod, searchOption.SortDirection);
-					break;
-				case SearchTarget.Tag:
-					response = await _ContentFinder.GetTagSearch(searchOption.Keyword, page, searchOption.SortMethod, searchOption.SortDirection);
-					break;
-				default:
-					break;
+				var page = (tail / OneTimeLoadSearchItemCount) + 1;
+
+				SearchResponse response = null;
+				switch (searchOption.SearchTarget)
+				{
+					case SearchTarget.Keyword:
+						response = await _ContentFinder.GetKeywordSearch(searchOption.Keyword, page, searchOption.SortMethod, searchOption.SortDirection);
+						break;
+					case SearchTarget.Tag:
+						response = await _ContentFinder.GetTagSearch(searchOption.Keyword, page, searchOption.SortMethod, searchOption.SortDirection);
+						break;
+					default:
+						break;
+				}
+
+				if (response == null || !response.IsStatusOK)
+				{
+					throw new Exception("page Load failed. " + page);
+				}
+
+				MaxPageCount.Value = Math.Min((int)Math.Floor((float)response.count / OneTimeLoadSearchItemCount), (int)MaxPagenationCount);
+
+				if (response.list == null)
+				{
+					return items;
+				}
+
+				
+
+				_CachedSearchListItem.AddRange(response.list);
 			}
+			
 
-			if (response == null || !response.IsStatusOK)
+			foreach (var item in _CachedSearchListItem.Skip((int)head).Take((int)count).ToArray())
 			{
-				throw new Exception("page Load failed. " + page);
-			}
-
-			MaxPageCount.Value = Math.Min((int)Math.Floor((float)response.count / OneTimeLoadSearchItemCount), (int)MaxPagenationCount);
-
-			if (response.list == null)
-			{
-				return items;
-			}
-
-			foreach (var item in response.list)
-			{
-
 				var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideo(item.id);
 				var videoInfoVM = new VideoInfoControlViewModel(
 							nicoVideo
@@ -234,11 +250,13 @@ namespace NicoPlayerHohoema.ViewModels
 						);
 
 				items.Add(videoInfoVM);
-
-				await videoInfoVM.LoadThumbnail();
-
 			}
 
+			foreach (var item in items)
+			{
+				await item.LoadThumbnail().ConfigureAwait(false);
+			}
+			
 			return items;
 		}
 
@@ -298,11 +316,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public async Task<IEnumerable<VideoInfoControlViewModel>> GetPagedItems(uint position, uint pageSize)
 		{
-			var pageIndex = position / pageSize;
-
-			Debug.WriteLine(pageIndex);
-
-			return await _ParentVM.GetSearchPage(pageIndex + 1);
+			return await _ParentVM.GetSearchPage(position, pageSize);
 		}
 
 

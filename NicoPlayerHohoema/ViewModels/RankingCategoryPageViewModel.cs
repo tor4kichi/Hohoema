@@ -345,9 +345,12 @@ namespace NicoPlayerHohoema.ViewModels
 					, _PageManager
 					);
 
-				await videoInfoVM.LoadThumbnail();
-
 				items.Add(videoInfoVM);
+			}
+
+			foreach (var item in items)
+			{
+				await item.LoadThumbnail().ConfigureAwait(false);
 			}
 
 			return items;

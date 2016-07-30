@@ -83,7 +83,7 @@ namespace NicoPlayerHohoema.Util
 
 					_Position += resultCount;
 
-					await dispatcher.RunAsync(CoreDispatcherPriority.Normal, 
+					await dispatcher.RunAsync(CoreDispatcherPriority.High, 
 						() =>
 						{
 							foreach (I item in resultItems)
