@@ -368,8 +368,6 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveCommand AddFavoriteCommand { get; private set; }
 		public ReactiveCommand RemoveFavoriteCommand { get; private set; }
 
-		
-
 		public ObservableCollection<MylistGroupListItem> MylistGroups { get; private set; }
 		public ObservableCollection<VideoInfoControlViewModel> VideoInfoItems { get; private set; }
 
