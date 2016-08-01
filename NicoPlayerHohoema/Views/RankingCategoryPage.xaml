@@ -89,17 +89,19 @@
           
                 <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom" 
                            Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                                Height="72"
+                                Margin="8 0"                               
                            >
                     <StackPanel Orientation="Horizontal"
                         toolkit:DockPanel.Dock="Right"
                         >
-                        <AppBarButton Icon="Add" Content="マイリストに登録" Command="{Binding RegistratioMylistCommand}" />
+                        <AppBarButton Icon="Add" Label="マイリスト登録" Command="{Binding RegistratioMylistCommand}" />
                         <StackPanel Orientation="Horizontal" Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}">
                             <AppBarSeparator />
-                            <AppBarButton Icon="Download" Content="キャッシュを取得" Command="{Binding RequestCacheDownload}" />
-                            <AppBarButton Icon="Cancel" Content="キャッシュを中止" Command="{Binding CancelCacheDownloadRequest}"  />
+                            <AppBarButton Icon="Download" Label="キャッシュ取得" Command="{Binding RequestCacheDownload}" />
+                            <AppBarButton Icon="Cancel" Label="キャッシュ中止" Command="{Binding CancelCacheDownloadRequest}"  />
                             <AppBarSeparator />
-                            <AppBarButton Icon="Delete" Content="キャッシュを削除" Command="{Binding DeleteCache}" />
+                            <AppBarButton Icon="Delete" Label="キャッシュ削除" Command="{Binding DeleteCache}" />
                         </StackPanel>
 
                     </StackPanel>
