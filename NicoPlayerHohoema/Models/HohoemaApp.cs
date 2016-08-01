@@ -114,6 +114,19 @@ namespace NicoPlayerHohoema.Models
 			OnResumed?.Invoke();
 		}
 
+		public async Task Relogin()
+		{
+			if (NiconicoContext != null)
+			{
+				var context = new NiconicoContext(NiconicoContext.AuthenticationToken);
+
+				if (await context.SignInAsync() == NiconicoSignInStatus.Success)
+				{
+					NiconicoContext = context;
+				}
+			}
+		}
+
 
 		public async Task<NiconicoSignInStatus> SignIn(string mailOrTelephone, string password)
 		{
