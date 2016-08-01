@@ -319,6 +319,8 @@ namespace NicoPlayerHohoema.ViewModels
 						}
 					}
 
+//					ResetList();
+
 					Debug.WriteLine($"一括マイリスト登録を完了---------------");
 				});
 		}

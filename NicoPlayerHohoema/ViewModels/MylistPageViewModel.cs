@@ -18,6 +18,8 @@ using NicoPlayerHohoema.Util;
 using Windows.UI.Xaml;
 using Reactive.Bindings.Extensions;
 using System.Threading;
+using NicoPlayerHohoema.Views.Service;
+using Microsoft.Practices.Unity;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -76,6 +78,69 @@ namespace NicoPlayerHohoema.ViewModels
 					_NowProcessFavorite = false;
 				})
 				.AddTo(_CompositeDisposable);
+
+
+			UnregistrationMylistCommand = SelectedVideoInfoItems.ObserveProperty(x => x.Count)
+				.Where(_ => this.IsLoginUserOwnedMylist)
+				.Select(x => x > 0)
+				.ToReactiveCommand();
+
+			UnregistrationMylistCommand.Subscribe(async _ => 
+			{
+				var mylistGroup = HohoemaApp.UserMylistManager.GetMylistGroup(MylistGroupId);
+
+				var items = SelectedVideoInfoItems.ToArray();
+
+				int successCount = 0;
+				int failedCount = 0;
+
+				Debug.WriteLine($"マイリスト登録解除を開始...");
+				foreach (var video in items)
+				{
+					var unregistrationResult = await mylistGroup.Unregistration(
+						video.RawVideoId
+						, withRefresh : false /* あとでまとめてリフレッシュするのでここでは OFF */);
+
+					if (unregistrationResult == ContentManageResult.Success)
+					{
+						successCount++;
+					}
+					else
+					{
+						failedCount++;
+					}
+
+					Debug.WriteLine($"{video.Title}[{video.RawVideoId}]:{unregistrationResult.ToString()}");
+				}
+				
+				// 登録解除結果を得るためリフレッシュ
+				await mylistGroup.Refresh();
+
+
+				// ユーザーに結果を通知
+				var titleText = $"「{mylistGroup.Name}」から {successCount}件 の動画が登録解除されました";
+				var toastService = App.Current.Container.Resolve<ToastNotificationService>();
+				var resultText = $"";
+				if (failedCount > 0)
+				{
+					resultText += $"\n登録解除に失敗した {failedCount}件 は選択されたままです";
+				}
+				toastService.ShowText(titleText, resultText);
+
+				// 登録解除に失敗したアイテムだけを残すように
+				// マイリストから除外された動画を選択アイテムリストから削除
+				foreach (var item in SelectedVideoInfoItems.ToArray())
+				{
+					if (false == mylistGroup.CheckRegistratedVideoId(item.RawVideoId))
+					{
+						SelectedVideoInfoItems.Remove(item);
+						IncrementalLoadingItems.Remove(item);
+					}
+				}
+
+				Debug.WriteLine($"マイリスト登録解除完了---------------");
+
+			});
 		}
 
 
@@ -118,6 +183,7 @@ namespace NicoPlayerHohoema.ViewModels
 				return;
 			}
 
+			IsLoginUserOwnedMylist = false;
 
 
 			// お気に入り状態の取得
@@ -136,46 +202,35 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
+			IsLoginUserOwnedMylist = HohoemaApp.UserMylistManager.HasMylistGroup(MylistGroupId);
 
-
-			if (MylistGroupId == "0")
+			try
 			{
-				MylistTitle = "とりあえずマイリスト";
-				OwnerUserId = HohoemaApp.LoginUserId.ToString();
+				if (IsLoginUserOwnedMylist)
+				{
+					var mylistGroup = HohoemaApp.UserMylistManager.GetMylistGroup(MylistGroupId);
+					MylistTitle = mylistGroup.Name;
+					MylistDescription = mylistGroup.Description;
+					OwnerUserId = mylistGroup.UserId;
+				}
+				else
+				{
+					var response = await HohoemaApp.ContentFinder.GetMylist(MylistGroupId);
+					MylistTitle = StringExtention.DecodeUTF8(response.Name);
+					MylistDescription = StringExtention.DecodeUTF8(response.Description);
 
-				var loginUserInfo = await HohoemaApp.NiconicoContext.User.GetInfoAsync();
-				UserName = loginUserInfo.Name;
+					OwnerUserId = response.User_id;
+
+					await Task.Delay(500);
+				}
+
+				var userDetail = await HohoemaApp.ContentFinder.GetUserDetail(OwnerUserId);
+
+				UserName = userDetail.Nickname;
 			}
-			else
+			catch
 			{
-				try
-				{
-					if (HohoemaApp.UserMylistManager.HasMylistGroup(MylistGroupId))
-					{
-						var mylistGroup = HohoemaApp.UserMylistManager.GetMylistGroup(MylistGroupId);
-						MylistTitle = mylistGroup.Name;
-						MylistDescription = mylistGroup.Description;
-						OwnerUserId = mylistGroup.UserId;
-					}
-					else
-					{
-						var response = await HohoemaApp.ContentFinder.GetMylist(MylistGroupId);
-						MylistTitle = StringExtention.DecodeUTF8(response.Name);
-						MylistDescription = StringExtention.DecodeUTF8(response.Description);
 
-						OwnerUserId = response.User_id;
-
-						await Task.Delay(500);
-					}
-
-					var userDetail = await HohoemaApp.ContentFinder.GetUserDetail(OwnerUserId);
-
-					UserName = userDetail.Nickname;
-				}
-				catch
-				{
-
-				}
 			}
 
 			UpdateTitle(MylistTitle);
@@ -214,6 +269,8 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+		public ReactiveCommand UnregistrationMylistCommand { get; private set; }
+
 
 
 		private bool _NowProcessFavorite;
@@ -238,6 +295,12 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public string OwnerUserId { get; private set; }
 
+		private bool _IsLoginUserOwnedMylist;
+		public bool IsLoginUserOwnedMylist
+		{
+			get { return _IsLoginUserOwnedMylist; }
+			set { SetProperty(ref _IsLoginUserOwnedMylist, value); }
+		}
 
 		private string _UserName;
 		public string UserName
@@ -248,6 +311,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<bool> IsFavoriteMylist { get; private set; }
 		public ReactiveProperty<bool> CanChangeFavoriteMylistState { get; private set; }
+
+
+		
 
 		protected override uint IncrementalLoadCount
 		{

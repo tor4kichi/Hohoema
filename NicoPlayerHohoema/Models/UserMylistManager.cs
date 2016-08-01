@@ -129,6 +129,13 @@ namespace NicoPlayerHohoema.Models
 			return result;
 		}
 		
+
+
+
+		public bool CheckIsRegistratedAnyMylist(string videoId)
+		{
+			return UserMylists.Any(x => x.CheckRegistratedVideoId(videoId));
+		}
 	}
 
 	public class MylistVideoItemInfo
@@ -261,7 +268,7 @@ namespace NicoPlayerHohoema.Models
 			return result;
 		}
 
-		public async Task<ContentManageResult> Unregistration(string video_id)
+		public async Task<ContentManageResult> Unregistration(string video_id, bool withRefresh = true)
 		{
 			var item = VideoItems.SingleOrDefault(x => x.VideoId == video_id);
 			if (item == null)
@@ -271,7 +278,7 @@ namespace NicoPlayerHohoema.Models
 
 			var result = await HohoemaApp.NiconicoContext.Mylist.RemoveMylistItemAsync(GroupId, NiconicoItemType.Video, item.ThreadId);
 
-			if (result == ContentManageResult.Success)
+			if (withRefresh && result == ContentManageResult.Success)
 			{
 				await Refresh();
 			}
