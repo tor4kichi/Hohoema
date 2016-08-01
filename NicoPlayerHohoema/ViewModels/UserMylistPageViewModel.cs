@@ -44,6 +44,8 @@ namespace NicoPlayerHohoema.ViewModels
 				UserId = e.Parameter as string;				
 			}
 
+			MylistGroupItems.Clear();
+
 			if (UserId != null)
 			{
 				try
@@ -70,10 +72,17 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 
 				IsHostedMylist.Value = false;
+
+				var mylistGroupVMItems = mylists.Select(x => new MylistGroupListItem(x, PageManager));
+
+				foreach (var mylistGroupVM in mylistGroupVMItems)
+				{
+					MylistGroupItems.Add(mylistGroupVM);
+				}
 			}
 			else
 			{
-			
+				// ログインユーザーのマイリスト一覧を表示
 				try
 				{
 					var userInfo = await HohoemaApp.NiconicoContext.User.GetInfoAsync();
@@ -85,28 +94,18 @@ namespace NicoPlayerHohoema.ViewModels
 
 				}
 
-				var torima = new MylistGroupData()
+				var listItems = HohoemaApp.UserMylistManager.UserMylists
+					.Select(x => new MylistGroupListItem(x, PageManager));
+
+				foreach (var item in listItems)
 				{
-					Id = "0",
-					Name = "とりあえずマイリスト"
-				};
-				mylists = await HohoemaApp.ContentFinder.GetLoginUserMylistGroups();
+					MylistGroupItems.Add(item);
+				}
 
-				mylists.Insert(0, torima);
-
-				IsHostedMylist.Value = true;
 				IsHostedMylist.Value = true;
 			}
 
-			var mylistGroupVMItems = mylists.Select(x => new MylistGroupListItem(x, PageManager));
-
-			MylistGroupItems.Clear();
-
-			foreach (var mylistGroupVM in mylistGroupVMItems)
-			{
-				MylistGroupItems.Add(mylistGroupVM);
-			}
-
+			
 			UpdateTitle($"{UserName} さんのマイリスト一覧");
 		}
 
@@ -130,7 +129,17 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class MylistGroupListItem : BindableBase
 	{
+		public MylistGroupListItem(MylistGroupInfo info, PageManager pageManager)
+		{
+			_PageManager = pageManager;
 
+			Title = info.Name;
+			Description = info.Description;
+			GroupId = info.GroupId;
+			IsPublic = info.IsPublic;
+
+
+		}
 		public MylistGroupListItem(MylistGroupData mylistGroup, PageManager pageManager)
 		{
 			_PageManager = pageManager;

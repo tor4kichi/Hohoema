@@ -59,12 +59,7 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task UpdateUserMylists()
 		{
-			// ユーザーのマイリストグループの一覧を取得
-			var mylistGroupDataLists = await HohoemaApp.NiconicoContext.Mylist.GetMylistGroupListAsync();
-
-			_UserMylists = mylistGroupDataLists.Select(x => MylistGroupInfo.FromMylistGroupData(x, HohoemaApp, this)).ToList();
-
-
+			_UserMylists = new List<MylistGroupInfo>();
 			// とりあえずマイリストを手動で追加
 			_UserMylists.Add(new MylistGroupInfo("0", HohoemaApp, this)
 			{
@@ -73,6 +68,15 @@ namespace NicoPlayerHohoema.Models
 				UserId = HohoemaApp.LoginUserId.ToString(),
 				IsPublic = false
 			});
+
+			// ユーザーのマイリストグループの一覧を取得
+			var mylistGroupDataLists = await HohoemaApp.ContentFinder.GetLoginUserMylistGroups();
+
+
+			var userMylists = mylistGroupDataLists.Select(x => MylistGroupInfo.FromMylistGroupData(x, HohoemaApp, this));
+
+			_UserMylists.AddRange(userMylists);
+
 
 			// マイリストの最大登録件数はプレミアムでフォルダごと500、通常ユーザーだとフォルダ関係なく最大100まで
 
