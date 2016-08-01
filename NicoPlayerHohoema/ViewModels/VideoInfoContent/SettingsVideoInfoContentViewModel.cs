@@ -13,7 +13,6 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 	public class SettingsVideoInfoContentViewModel : MediaInfoViewModel
 	{
 		public SettingsVideoInfoContentViewModel(PlayerSettings settings)
-			: base("")
 		{
 			_PlayerSettings = settings;
 

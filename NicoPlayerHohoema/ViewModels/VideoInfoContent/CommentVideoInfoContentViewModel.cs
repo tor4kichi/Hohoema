@@ -14,7 +14,6 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 	public class CommentVideoInfoContentViewModel : MediaInfoViewModel
 	{
 		public CommentVideoInfoContentViewModel(HohoemaUserSettings settings, ObservableCollection<Comment> comments)
-			: base("コメント")
 		{
 			UserSettings = settings;
 			Comments = comments;

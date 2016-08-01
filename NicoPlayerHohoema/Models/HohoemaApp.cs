@@ -21,6 +21,7 @@ namespace NicoPlayerHohoema.Models
 
 			app.UserSettings = new HohoemaUserSettings();
 			app.ContentFinder = new NiconicoContentFinder(app);
+			app.UserMylistManager = new UserMylistManager(app);
 
 			return Task.FromResult(app);
 		}
@@ -162,8 +163,13 @@ namespace NicoPlayerHohoema.Models
 				Debug.WriteLine("initilize: fav");
 				FavFeedManager = await FavFeedManager.Create(this, LoginUserId);
 
-				Debug.WriteLine("Login done.");
 				//				await MediaManager.Context.Resume();
+
+				Debug.WriteLine("initilize: mylist");
+				await UserMylistManager.UpdateUserMylists();
+
+
+				Debug.WriteLine("Login done.");
 
 				OnSignin?.Invoke();
 
@@ -269,6 +275,9 @@ namespace NicoPlayerHohoema.Models
 			get { return _FavFeedManager; }
 			set { SetProperty(ref _FavFeedManager, value); }
 		}
+
+		public UserMylistManager UserMylistManager { get; private set; }
+
 
 		public const string HohoemaUserAgent = "Hohoema_UWP";
 
