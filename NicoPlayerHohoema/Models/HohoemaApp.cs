@@ -155,6 +155,7 @@ namespace NicoPlayerHohoema.Models
 					var userInfo = await NiconicoContext.User.GetInfoAsync();
 					LoginUserId = userInfo.Id;
 					IsPremiumUser = userInfo.IsPremium;
+					LoginUserName = userInfo.Name;
 				}
 				catch
 				{
@@ -270,6 +271,7 @@ namespace NicoPlayerHohoema.Models
 
 		public uint LoginUserId { get; private set; }
 		public bool IsPremiumUser { get; private set; }
+		public string LoginUserName { get; private set; }
 
 		private NiconicoContext _NiconicoContext;
 		public NiconicoContext NiconicoContext
