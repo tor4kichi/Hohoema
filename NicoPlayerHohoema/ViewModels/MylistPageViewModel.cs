@@ -150,13 +150,23 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				try
 				{
-					var response = await HohoemaApp.ContentFinder.GetMylist(MylistGroupId);
-					MylistTitle = StringExtention.DecodeUTF8(response.Name);
-					MylistDescription = StringExtention.DecodeUTF8(response.Description);
+					if (HohoemaApp.UserMylistManager.HasMylistGroup(MylistGroupId))
+					{
+						var mylistGroup = HohoemaApp.UserMylistManager.GetMylistGroup(MylistGroupId);
+						MylistTitle = mylistGroup.Name;
+						MylistDescription = mylistGroup.Description;
+						OwnerUserId = mylistGroup.UserId;
+					}
+					else
+					{
+						var response = await HohoemaApp.ContentFinder.GetMylist(MylistGroupId);
+						MylistTitle = StringExtention.DecodeUTF8(response.Name);
+						MylistDescription = StringExtention.DecodeUTF8(response.Description);
 
-					OwnerUserId = response.User_id;
+						OwnerUserId = response.User_id;
 
-					await Task.Delay(500);
+						await Task.Delay(500);
+					}
 
 					var userDetail = await HohoemaApp.ContentFinder.GetUserDetail(OwnerUserId);
 
@@ -254,29 +264,32 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			_HohoemaApp = hohoemaApp;
 			_PageManager = pageManager;
+			
 		}
-
 
 		public async Task<IEnumerable<VideoInfoControlViewModel>> GetPagedItems(uint head, uint pageSize)
 		{
 			List<VideoInfoControlViewModel> list = new List<VideoInfoControlViewModel>();
 
-			// TODO とりまのマイリストアイテム一覧取得
-			if (_MylistData == null || head == 1)
-			{
-				_MylistData = await _HohoemaApp.NiconicoContext.Mylist.GetMylistItemListAsync("0");
-			}
+			var mylistGroup = _HohoemaApp.UserMylistManager.GetMylistGroup("0");
+			var items = mylistGroup.VideoItems;
 
-			foreach (var item in _MylistData.Skip((int)head-1).Take((int)pageSize))
+			if (items.Count <= head-1)
 			{
-				var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(item.ItemId);
-				list.Add(new VideoInfoControlViewModel(item, nicoVideo, _PageManager));
+				return list;
+			}
+			foreach (var item in items.Skip((int)head-1).Take((int)pageSize))
+			{
+				var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(item.VideoId);
+
+				var videoVM = new VideoInfoControlViewModel(nicoVideo, _PageManager);
+				list.Add(videoVM);
+
+				await videoVM.LoadThumbnail();
 			}
 
 			return list;
 		}
-
-		List<MylistData> _MylistData;
 
 		HohoemaApp _HohoemaApp;
 		PageManager _PageManager;
@@ -294,7 +307,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		public async Task<IEnumerable<VideoInfoControlViewModel>> GetPagedItems(uint pageIndex, uint pageSize)
+		public async Task<IEnumerable<VideoInfoControlViewModel>> GetPagedItems(uint head, uint pageSize)
 		{
 			List<VideoInfoControlViewModel> list = new List<VideoInfoControlViewModel>();
 
@@ -303,15 +316,39 @@ namespace NicoPlayerHohoema.ViewModels
 				throw new Exception();
 			}
 
-			var res = await _HohoemaApp.ContentFinder.GetMylistItems(MylistGroupId, pageIndex, pageSize);
-
-
-			foreach (var item in res.Video_info)
+			var mylistManager = _HohoemaApp.UserMylistManager;
+			if (mylistManager.HasMylistGroup(MylistGroupId))
 			{
-				var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(item.Video.Id);
-				list.Add(new VideoInfoControlViewModel(item, nicoVideo, _PageManager));
+				var mylistGroup = mylistManager.GetMylistGroup(MylistGroupId);
+				var items = mylistGroup.VideoItems;
+
+				if (items.Count <= head - 1)
+				{
+					return list;
+				}
+
+				foreach (var item in items.Skip((int)head - 1).Take((int)pageSize))
+				{
+					var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(item.VideoId);
+					var videoListItemVM = new VideoInfoControlViewModel(nicoVideo, _PageManager);
+					list.Add(videoListItemVM);
+
+					await videoListItemVM.LoadThumbnail().ConfigureAwait(false);
+				}
 			}
-			
+			else
+			{
+				var res = await _HohoemaApp.ContentFinder.GetMylistItems(MylistGroupId, head, pageSize);
+
+				foreach (var item in res.Video_info)
+				{
+					var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(item.Video.Id);
+					list.Add(new VideoInfoControlViewModel(item, nicoVideo, _PageManager));
+				}
+
+			}
+
+
 
 			return list;
 		}

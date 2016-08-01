@@ -23,25 +23,12 @@ namespace NicoPlayerHohoema.Models
 
 		}
 
-		private Dictionary<string, List<string>> _MylistGroupToItems;
-		public IReadOnlyDictionary<string, List<string>> MylistGroupToItems
-		{
-			get
-			{
-				return _MylistGroupToItems;
-			}
-		}
-
-		private Dictionary<string, List<MylistGroupInfo>> _VideoIdToMylists;
-
 
 		public UserMylistManager(HohoemaApp app)
 		{
 			HohoemaApp = app;
 
 			_UserMylists = new List<MylistGroupInfo>();
-			_MylistGroupToItems = new Dictionary<string, List<string>>();
-			_VideoIdToMylists = new Dictionary<string, List<MylistGroupInfo>>();
 
 			app.OnSignin += App_OnSignin;
 			app.OnSignout += App_OnSignout;
@@ -64,30 +51,18 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
+		public MylistGroupInfo GetMylistGroup(string groupId)
+		{
+			return UserMylists.SingleOrDefault(x => x.GroupId == groupId);
+		}
+
+
 		public async Task UpdateUserMylists()
 		{
 			// ユーザーのマイリストグループの一覧を取得
-			var mylistGroupDataLists = await HohoemaApp.ContentFinder.GetUserMylistGroups(HohoemaApp.LoginUserId.ToString());
+			var mylistGroupDataLists = await HohoemaApp.NiconicoContext.Mylist.GetMylistGroupListAsync();
 
 			_UserMylists = mylistGroupDataLists.Select(x => MylistGroupInfo.FromMylistGroupData(x, HohoemaApp, this)).ToList();
-
-			
-
-
-			// マイリストの最大登録件数はプレミアムでフォルダごと500、通常ユーザーだとフォルダ関係なく最大100まで
-			_MylistGroupToItems.Clear();
-
-			var itemCountPerMylist = HohoemaApp.IsPremiumUser ? 500u : 100u;
-
-			foreach (var group in _UserMylists)
-			{
-				await Task.Delay(250);
-				
-				var res = await HohoemaApp.ContentFinder.GetMylistItems(group.GroupId, 0, itemCountPerMylist);
-
-				_MylistGroupToItems.Add(group.GroupId, res.Video_info.Select(x => x.Video.Id).ToList());
-			}
-
 
 
 			// とりあえずマイリストを手動で追加
@@ -99,20 +74,22 @@ namespace NicoPlayerHohoema.Models
 				IsPublic = false
 			});
 
-			var defMylist = await HohoemaApp.NiconicoContext.Mylist.GetMylistItemListAsync("0");
-
-			_MylistGroupToItems.Add("0", defMylist.Select(x => x.ItemId).ToList());
+			// マイリストの最大登録件数はプレミアムでフォルダごと500、通常ユーザーだとフォルダ関係なく最大100まで
 
 
-			_VideoIdToMylists.Clear();
-
-			foreach (var group in UserMylists)
+			foreach (var group in _UserMylists)
 			{
-				foreach (var videoId in _MylistGroupToItems[group.GroupId].ToList())
-				{					
-					AddVideo(videoId, group);
-				}
+				await Task.Delay(250);
+
+				await group.Refresh();
 			}
+
+
+
+			
+
+
+			
 		}
 
 
@@ -143,83 +120,18 @@ namespace NicoPlayerHohoema.Models
 					return result;
 				}
 
-				// _VideoIdToMylists
-				var videos = MylistGroupToItems[group_id];
-				foreach (var videoId in videos)
-				{
-					if (_VideoIdToMylists[videoId].Remove(removeTargetMylist))
-					{
-						if (_VideoIdToMylists[videoId].Count == 0)
-						{
-							_VideoIdToMylists.Remove(videoId);
-						}
-					}
-				}
-
-				// _MylistGroupToItems
-				_MylistGroupToItems.Remove(group_id);
 			}
 
 			return result;
 		}
-
-
-
-		internal void AddVideo(string videoId, MylistGroupInfo group, bool insertToTop = false)
-		{
-			if (!_VideoIdToMylists.ContainsKey(videoId))
-			{
-				_VideoIdToMylists.Add(videoId, new List<MylistGroupInfo>()
-				{
-					group
-				});
-			}
-			else
-			{
-				_VideoIdToMylists[videoId].Add(group);
-			}
-
-			if (insertToTop)
-			{
-				_MylistGroupToItems[group.GroupId].Insert(0, videoId);
-			}
-			else
-			{
-				_MylistGroupToItems[group.GroupId].Add(videoId);
-			}
-		}
-
-		internal void RemoveVideo(string videoId, MylistGroupInfo group)
-		{
-			if (_VideoIdToMylists.ContainsKey(videoId))
-			{
-				if (_VideoIdToMylists[videoId].Remove(group))
-				{
-					if (_VideoIdToMylists[videoId].Count == 0)
-					{
-						_VideoIdToMylists.Remove(videoId);
-					}
-				}
-			}
-
-			_MylistGroupToItems[group.GroupId].Remove(videoId);
-		}
-
-		public IEnumerable<MylistGroupInfo> GetVideoRegistratedMylists(string video_id)
-		{
-			if (_VideoIdToMylists.ContainsKey(video_id))
-			{
-				return _VideoIdToMylists[video_id];
-			}
-			else
-			{
-				return Enumerable.Empty<MylistGroupInfo>();
-			}
-		}
-
-
+		
 	}
 
+	public class MylistVideoItemInfo
+	{
+		public string VideoId { get; set; }
+		public string ThreadId { get; set; }
+	}
 
 	public class MylistGroupInfo
 	{
@@ -241,8 +153,69 @@ namespace NicoPlayerHohoema.Models
 		public bool IsPublic { get; set; }
 		public IconType IconType { get; set; }
 
+		private List<MylistVideoItemInfo> _VideoItems;
+		public IReadOnlyList<MylistVideoItemInfo> VideoItems
+		{
+			get
+			{
+				return _VideoItems;
+			}
+		}
 
 		public bool IsDeflist { get; private set; }
+
+
+		public async Task Refresh()
+		{
+			var itemCountPerMylist = HohoemaApp.IsPremiumUser ? 500u : 100u;
+
+			if (IsDeflist)
+			{
+				var defMylist = await HohoemaApp.NiconicoContext.Mylist.GetMylistItemListAsync("0");
+
+				_VideoItems = defMylist.Select(x =>
+				{
+					return new MylistVideoItemInfo()
+					{
+						VideoId = x.WatchId,
+						ThreadId = x.ItemId
+					};
+				}).ToList();
+			}
+			else
+			{
+				if (!IsPublic && UserId == HohoemaApp.LoginUserId.ToString())
+				{
+					var res = await HohoemaApp.NiconicoContext.Mylist.GetMylistItemListAsync(GroupId);
+
+					_VideoItems = res.Select(x =>
+					{
+						return new MylistVideoItemInfo()
+						{
+							VideoId = x.WatchId,
+							ThreadId = x.ItemId
+						};
+					}).ToList();
+				}
+				else
+				{
+					var res = await HohoemaApp.ContentFinder.GetMylistItems(GroupId, 0, itemCountPerMylist);
+
+					_VideoItems = res.Video_info.Select(x =>
+					{
+						return new MylistVideoItemInfo()
+						{
+							VideoId = x.Video.Id,
+							ThreadId = x.Thread.Id
+						};
+					}).ToList();
+				}
+
+				
+			}
+
+
+		}
 
 		public async Task<ContentManageResult> UpdateMylist(string group_id, string name, string description, bool is_public, MylistDefaultSort default_sort, IconType iconType)
 		{
@@ -266,14 +239,14 @@ namespace NicoPlayerHohoema.Models
 
 
 
-		public async Task<ContentManageResult> Registration(string video_id, string mylistComment = "")
+		public async Task<ContentManageResult> Registration(string thread_id, string mylistComment = "")
 		{
-			var result = await HohoemaApp.NiconicoContext.Mylist.AddMylistItemAsync(GroupId, Mntone.Nico2.NiconicoItemType.Video, video_id, mylistComment);
+			var result = await HohoemaApp.NiconicoContext.Mylist.AddMylistItemAsync(GroupId, Mntone.Nico2.NiconicoItemType.Video, thread_id, mylistComment);
 
 			if (result == ContentManageResult.Success)
 			{
 				// 新しく追加したアイテムが先頭に表示されるように追加
-				MylistManager.AddVideo(video_id, this, insertToTop:true);
+				await Refresh();
 			}
 
 			return result;
@@ -281,11 +254,17 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<ContentManageResult> Unregistration(string video_id)
 		{
-			var result = await HohoemaApp.NiconicoContext.Mylist.RemoveMylistItemAsync(GroupId, NiconicoItemType.Video, video_id);
+			var item = VideoItems.SingleOrDefault(x => x.VideoId == video_id);
+			if (item == null)
+			{
+				throw new Exception();
+			}
+
+			var result = await HohoemaApp.NiconicoContext.Mylist.RemoveMylistItemAsync(GroupId, NiconicoItemType.Video, item.ThreadId);
 
 			if (result == ContentManageResult.Success)
 			{
-				MylistManager.RemoveVideo(video_id, this);
+				await Refresh();
 			}
 
 			return result;
@@ -307,7 +286,7 @@ namespace NicoPlayerHohoema.Models
 
 		public bool CheckRegistratedVideoId(string videoId)
 		{
-			return MylistManager.GetVideoRegistratedMylists(videoId).Any(x => x == this);
+			return VideoItems.Any(x => x.VideoId == videoId);
 		}
 	}
 }

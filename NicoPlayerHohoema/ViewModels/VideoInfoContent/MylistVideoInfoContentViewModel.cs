@@ -44,7 +44,7 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 
 		public async Task<bool> UnregistrationMylist(MylistGroupInfo groupInfo)
 		{
-			var result = await groupInfo.Unregistration(ThreadId);
+			var result = await groupInfo.Unregistration(VideoId);
 
 			return result == Mntone.Nico2.ContentManageResult.Success;
 		}
