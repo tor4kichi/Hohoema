@@ -73,6 +73,9 @@
                             VerticalAlignment="Center"
                         toolkit:DockPanel.Dock="Right"
                         >
+                    <AppBarButton Icon="Copy" Label="マイリストコピー" Command="{Binding CopyMylistCommand}" />
+                    <AppBarButton Icon="Preview" Label="マイリスト移動" Command="{Binding UnregistrationMylistCommand}" />
+                    <AppBarSeparator />
                     <AppBarButton Icon="Remove" Label="マイリスト解除" Command="{Binding UnregistrationMylistCommand}" />
                     <StackPanel Orientation="Horizontal" Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}">
                         <AppBarSeparator />

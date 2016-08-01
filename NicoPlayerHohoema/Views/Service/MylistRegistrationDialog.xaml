@@ -35,6 +35,7 @@
             <TextBox Text="{Binding MylistComment.Value}" 
                      PlaceholderText="マイリストコメント（オプション）"
                      Margin="0 8 0 0"
+                     Visibility="{Binding IsVisibleMylistComment, Converter={StaticResource BooleanToVisibility}}"
                      />
 
         </StackPanel>
