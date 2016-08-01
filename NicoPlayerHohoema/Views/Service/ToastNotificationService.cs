@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NotificationsExtensions.Toasts;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,22 +18,24 @@ namespace NicoPlayerHohoema.Views.Service
 		}
 
 
-		public void ShowText(string title, string content, bool isSuppress = false)
+		public void ShowText(string title, string content, ToastDuration duration = ToastDuration.Short, bool isSuppress = false)
 		{
-			var text = $@"
-				<toast>
-					<visual>
-						<binding >
-							<text id=""1"">{title}</text>
-							<text id=""2"">{content}</text>
-						</binding>  
-					</visual>
-				</toast>"
-				;
-			var docu = new XmlDocument();
-			docu.LoadXml(text);
-			var toast = new ToastNotification(docu);
-			toast.ExpirationTime = DateTime.Now.AddSeconds(5);
+			var toastContent = new ToastContent();
+
+			toastContent.Visual = new ToastVisual()
+			{
+				BindingGeneric = new ToastBindingGeneric()
+				{
+					Attribution = new ToastGenericAttributionText()
+					{
+						Text = title + "\n" + content
+					}
+				}
+			};
+			
+			toastContent.Duration = ToastDuration.Long;
+			
+			var toast = new ToastNotification(toastContent.GetXml());
 			toast.SuppressPopup = isSuppress;
 			
 			_Nofifier.Show(toast);

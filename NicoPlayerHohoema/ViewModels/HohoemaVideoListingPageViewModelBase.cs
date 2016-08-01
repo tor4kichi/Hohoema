@@ -17,15 +17,19 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using System.Threading;
 using Windows.UI.Xaml;
+using NicoPlayerHohoema.Views.Service;
+using Microsoft.Practices.Unity;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	abstract public class HohoemaVideoListingPageViewModelBase<VIDEO_INFO_VM> : HohoemaViewModelBase
 		where VIDEO_INFO_VM : VideoInfoControlViewModel
 	{
-		public HohoemaVideoListingPageViewModelBase(HohoemaApp app, PageManager pageManager, bool isRequireSignIn = false)
+		public HohoemaVideoListingPageViewModelBase(HohoemaApp app, PageManager pageManager, MylistRegistrationDialogService mylistDialogService, bool isRequireSignIn = false)
 			: base(app, pageManager, isRequireSignIn)
 		{
+			MylistDialogService = mylistDialogService;
+
 			NowLoadingItems = new ReactiveProperty<bool>(true)
 				.AddTo(_CompositeDisposable);
 			SelectedVideoInfoItems = new ObservableCollection<VIDEO_INFO_VM>();
@@ -244,7 +248,79 @@ namespace NicoPlayerHohoema.ViewModels
 			.AddTo(_CompositeDisposable);
 
 
+			RegistratioMylistCommand = SelectionItemsChanged
+				.Select(x => SelectedVideoInfoItems.Count > 0)
+				.ToReactiveCommand(false)
+				.AddTo(_CompositeDisposable);
+			RegistratioMylistCommand
+				.SubscribeOnUIDispatcher()
+				.Subscribe(async _ => 
+				{
+					var result = await MylistDialogService.ShowDialog(SelectedVideoInfoItems);
 
+					if (result == null) { return; }
+
+					var mylistGroup = result.Item1;
+					var mylistComment = result.Item2;
+
+					Debug.WriteLine($"一括マイリスト登録を開始...");
+					int successCount = 0;
+					int existCount = 0;
+					int failedCount = 0;
+					foreach (var video in SelectedVideoInfoItems)
+					{
+						var registrationResult = await mylistGroup.Registration(
+							video.RawVideoId
+							, mylistComment
+							, withRefresh : false /* あとで一括でリフレッシュ */
+							);
+
+						switch (registrationResult)
+						{
+							case Mntone.Nico2.ContentManageResult.Success: successCount++; break;
+							case Mntone.Nico2.ContentManageResult.Exist:   existCount++; break;
+							case Mntone.Nico2.ContentManageResult.Failed:  failedCount++; break;
+							default:
+								break;
+						}
+
+						Debug.WriteLine($"{video.Title}[{video.RawVideoId}]:{registrationResult.ToString()}");
+					}
+
+					// リフレッシュ
+					await mylistGroup.Refresh();
+
+
+					// ユーザーに結果を通知
+
+					var titleText = $"「{mylistGroup.Name}」に {successCount}件 の動画を登録しました";
+					var toastService = App.Current.Container.Resolve<ToastNotificationService>();
+					var resultText = $"";
+					if (existCount > 0)
+					{
+						resultText += $"重複：{existCount} 件";
+					}
+					if (failedCount > 0)
+					{
+						resultText += $"\n登録に失敗した {failedCount}件 は選択されたままです";
+					}
+
+					toastService.ShowText(titleText, resultText);
+
+
+
+					// マイリスト登録に失敗したものを残すように
+					// 登録済みのアイテムを選択アイテムリストから削除
+					foreach (var item in SelectedVideoInfoItems.ToArray())
+					{
+						if (mylistGroup.CheckRegistratedVideoId(item.RawVideoId))
+						{
+							SelectedVideoInfoItems.Remove(item);
+						}
+					}
+
+					Debug.WriteLine($"一括マイリスト登録を完了---------------");
+				});
 		}
 
 
@@ -523,7 +599,7 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _CanDownload, value); }
 		}
 
-
+		public MylistRegistrationDialogService MylistDialogService { get; private set; }
 
 		public ObservableCollection<VIDEO_INFO_VM> SelectedVideoInfoItems { get; private set; }
 
@@ -545,6 +621,9 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveCommand RequestLowQualityCacheDownload { get; private set; }
 		public ReactiveCommand DeleteOriginalQualityCache { get; private set; }
 		public ReactiveCommand DeleteLowQualityCache { get; private set; }
+
+		public ReactiveCommand RegistratioMylistCommand { get; private set; }
+
 
 		// クオリティ指定なしのコマンド
 		// VMがクオリティを実装している場合には、そのクオリティを仕様

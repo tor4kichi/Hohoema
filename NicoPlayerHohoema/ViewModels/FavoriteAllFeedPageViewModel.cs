@@ -17,8 +17,8 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class FavoriteAllFeedPageViewModel : HohoemaVideoListingPageViewModelBase<FavoriteVideoInfoControlViewModel>
 	{
-		public FavoriteAllFeedPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
-			: base(hohoemaApp, pageManager, isRequireSignIn: true)
+		public FavoriteAllFeedPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
+			: base(hohoemaApp, pageManager, mylistDialogService, isRequireSignIn: true)
 		{
 			AllMarkAsReadCommand = new DelegateCommand(async () =>
 			{

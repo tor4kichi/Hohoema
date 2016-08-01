@@ -243,11 +243,16 @@ namespace NicoPlayerHohoema.Models
 
 
 
-		public async Task<ContentManageResult> Registration(string thread_id, string mylistComment = "")
+		public async Task<ContentManageResult> Registration(string videoId, string mylistComment = "", bool withRefresh = true)
 		{
-			var result = await HohoemaApp.NiconicoContext.Mylist.AddMylistItemAsync(GroupId, Mntone.Nico2.NiconicoItemType.Video, thread_id, mylistComment);
+			var result = await HohoemaApp.NiconicoContext.Mylist.AddMylistItemAsync(
+				GroupId
+				, Mntone.Nico2.NiconicoItemType.Video
+				, videoId
+				, mylistComment
+				);
 
-			if (result == ContentManageResult.Success)
+			if (withRefresh && result == ContentManageResult.Success)
 			{
 				// 新しく追加したアイテムが先頭に表示されるように追加
 				await Refresh();

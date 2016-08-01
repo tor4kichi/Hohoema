@@ -23,8 +23,8 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class MylistPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
 	{
-		public MylistPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
-			: base(hohoemaApp, pageManager, isRequireSignIn: true)
+		public MylistPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
+			: base(hohoemaApp, pageManager, mylistDialogService, isRequireSignIn: true)
 		{
 			IsFavoriteMylist = new ReactiveProperty<bool>(mode:ReactivePropertyMode.DistinctUntilChanged)
 				.AddTo(_CompositeDisposable);

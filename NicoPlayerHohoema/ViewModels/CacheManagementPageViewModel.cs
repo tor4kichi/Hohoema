@@ -26,8 +26,8 @@ namespace NicoPlayerHohoema.ViewModels
 	public class CacheManagementPageViewModel : HohoemaVideoListingPageViewModelBase<CacheVideoViewModel>
 	{
 		public static SynchronizationContextScheduler scheduler;
-		public CacheManagementPageViewModel(HohoemaApp app, PageManager pageManager)
-			: base(app, pageManager)
+		public CacheManagementPageViewModel(HohoemaApp app, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
+			: base(app, pageManager, mylistDialogService)
 		{
 			if (scheduler == null)
 			{

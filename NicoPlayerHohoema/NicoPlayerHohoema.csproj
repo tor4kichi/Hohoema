@@ -254,6 +254,10 @@
     <Compile Include="Views\RefreshableListView.cs" />
     <Compile Include="Views\Service\EditAutoCacheConditionDialogService.cs" />
     <Compile Include="Views\Service\ISearchDialogService.cs" />
+    <Compile Include="Views\Service\MylistRegistrationDialog.xaml.cs">
+      <DependentUpon>MylistRegistrationDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Service\MylistRegistrationDialogService.cs" />
     <Compile Include="Views\Service\RankingChoiceDialogService.cs" />
     <Compile Include="Views\Service\SearchDialogService.cs" />
     <Compile Include="ViewModels\VideoPlayerPageViewModel.cs" />
@@ -531,6 +535,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SearchContentDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Service\MylistRegistrationDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
