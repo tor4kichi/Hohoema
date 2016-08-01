@@ -9,12 +9,8 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 {
 	abstract public class MediaInfoViewModel : BindableBase
 	{
-		public string Title { get; private set; }
-
-
-		public MediaInfoViewModel(string title)
+		public MediaInfoViewModel()
 		{
-			Title = title;
 		}
 	}
 }

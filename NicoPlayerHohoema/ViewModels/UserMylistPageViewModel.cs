@@ -151,8 +151,7 @@ namespace NicoPlayerHohoema.ViewModels
 					?? (_OpenMylistCommand = new DelegateCommand(() =>
 					{
 						_PageManager.OpenPage(HohoemaPageType.Mylist, GroupId);
-					},
-					() => IsPublic
+					}
 					));
 			}
 		}
