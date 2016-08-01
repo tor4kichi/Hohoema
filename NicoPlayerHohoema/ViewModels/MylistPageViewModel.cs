@@ -352,6 +352,7 @@ namespace NicoPlayerHohoema.ViewModels
 					MylistTitle = mylistGroup.Name;
 					MylistDescription = mylistGroup.Description;
 					OwnerUserId = mylistGroup.UserId;
+					UserName = HohoemaApp.LoginUserName;
 				}
 				else
 				{
@@ -362,11 +363,12 @@ namespace NicoPlayerHohoema.ViewModels
 					OwnerUserId = response.User_id;
 
 					await Task.Delay(500);
+
+					var userDetail = await HohoemaApp.ContentFinder.GetUserDetail(OwnerUserId);
+
+					UserName = userDetail.Nickname;
 				}
 
-				var userDetail = await HohoemaApp.ContentFinder.GetUserDetail(OwnerUserId);
-
-				UserName = userDetail.Nickname;
 			}
 			catch
 			{
