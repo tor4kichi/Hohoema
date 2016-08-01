@@ -82,7 +82,7 @@
                     <StackPanel toolkit:DockPanel.Dock="Left"
                                 VerticalAlignment="Center"
                                 >
-                        <AppBarButton Icon="Read" Label="チェック済み" Command="{Binding SelectedItemsMarkAsReadCommand}" />
+                        <AppBarButton Icon="Accept" Label="チェック済み" Command="{Binding SelectedItemsMarkAsReadCommand}" />
                     </StackPanel>
                     
                     <StackPanel Orientation="Horizontal"

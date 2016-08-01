@@ -286,6 +286,45 @@ namespace NicoPlayerHohoema.Models
 			return result;
 		}
 
+		public async Task<ContentManageResult> CopyMylistTo(MylistGroupInfo targetGroupInfo, params string[] videoIdList)
+		{
+			var threadIdList = videoIdList.Select(x =>
+			{
+				return VideoItems.Single(y => y.VideoId == x).ThreadId;
+			})
+			.ToArray();
+
+			var result = await HohoemaApp.NiconicoContext.Mylist.CopyMylistItemAsync(this.GroupId, targetGroupInfo.GroupId, NiconicoItemType.Video, threadIdList);
+
+			if (result == ContentManageResult.Success)
+			{
+				await targetGroupInfo.Refresh();
+			}
+
+			return result;
+		}
+
+
+		public async Task<ContentManageResult> MoveMylistTo(MylistGroupInfo targetGroupInfo, params string[] videoIdList)
+		{
+			var threadIdList = videoIdList.Select(x =>
+			{
+				return VideoItems.Single(y => y.VideoId == x).ThreadId;
+			})
+			.ToArray();
+
+			var result = await HohoemaApp.NiconicoContext.Mylist.MoveMylistItemAsync(this.GroupId, targetGroupInfo.GroupId, NiconicoItemType.Video, threadIdList);
+
+			if (result == ContentManageResult.Success)
+			{
+				await this.Refresh();
+				await targetGroupInfo.Refresh();
+			}
+
+			return result;
+		}
+
+
 		public static MylistGroupInfo FromMylistGroupData(MylistGroupData group, HohoemaApp hohoemaApp, UserMylistManager mylistManager)
 		{
 			return new MylistGroupInfo(group.Id, hohoemaApp, mylistManager)
