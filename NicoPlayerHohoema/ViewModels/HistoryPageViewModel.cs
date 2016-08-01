@@ -14,8 +14,8 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class HistoryPageViewModel : HohoemaVideoListingPageViewModelBase<HistoryVideoInfoControlViewModel>
 	{
-		public HistoryPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
-			: base(hohoemaApp, pageManager)
+		public HistoryPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
+			: base(hohoemaApp, pageManager, mylistDialogService)
 		{
 		}
 

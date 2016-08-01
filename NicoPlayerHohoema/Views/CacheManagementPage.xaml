@@ -56,7 +56,8 @@
                 <StackPanel Orientation="Horizontal"
                         toolkit:DockPanel.Dock="Right"
                         >
-                    <AppBarButton Icon="Play" Content="連続再生" Command="{Binding PlayAllCommand}" />
+                    
+                    <AppBarButton Icon="Add" Content="マイリストに登録" Command="{Binding RegistratioMylistCommand}" />
                     <AppBarSeparator />
                     <AppBarButton Icon="Download" Content="キャッシュを取得" Command="{Binding RequestCacheDownload}" />
                     <AppBarButton Icon="Cancel" Content="キャッシュを中止" Command="{Binding CancelCacheDownloadRequest}"  />
