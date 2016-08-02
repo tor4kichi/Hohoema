@@ -2,6 +2,7 @@
 using Mntone.Nico2.Mylist;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,25 +11,22 @@ namespace NicoPlayerHohoema.Models
 {
 	public class UserMylistManager
 	{
+		public const int MaxUserMylistGroupCount = 25;
+
+
 		public HohoemaApp HohoemaApp { get; private set; }
 
 
-		private List<MylistGroupInfo> _UserMylists;
-		public IReadOnlyList<MylistGroupInfo> UserMylists
-		{
-			get
-			{
-				return _UserMylists;
-			}
-
-		}
+		private ObservableCollection<MylistGroupInfo> _UserMylists;
+		public ReadOnlyObservableCollection<MylistGroupInfo> UserMylists { get; private set; }
 
 
 		public UserMylistManager(HohoemaApp app)
 		{
 			HohoemaApp = app;
 
-			_UserMylists = new List<MylistGroupInfo>();
+			_UserMylists = new ObservableCollection<MylistGroupInfo>();
+			UserMylists = new ReadOnlyObservableCollection<MylistGroupInfo>(_UserMylists);
 
 			app.OnSignin += App_OnSignin;
 			app.OnSignout += App_OnSignout;
@@ -59,45 +57,52 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task UpdateUserMylists()
 		{
-			_UserMylists = new List<MylistGroupInfo>();
-			// とりあえずマイリストを手動で追加
-			_UserMylists.Add(new MylistGroupInfo("0", HohoemaApp, this)
+			if (_UserMylists.Count == 0)
 			{
-				Name = "とりあえずマイリスト",
-				Description = "ユーザーの一時的なマイリストです",
-				UserId = HohoemaApp.LoginUserId.ToString(),
-				IsPublic = false
-			});
+				// とりあえずマイリストを手動で追加
+				_UserMylists.Add(new MylistGroupInfo("0", HohoemaApp, this)
+				{
+					Name = "とりあえずマイリスト",
+					Description = "ユーザーの一時的なマイリストです",
+					UserId = HohoemaApp.LoginUserId.ToString(),
+					IsPublic = false
+				});
+			}
+
 
 			// ユーザーのマイリストグループの一覧を取得
 			var mylistGroupDataLists = await HohoemaApp.ContentFinder.GetLoginUserMylistGroups();
 
 
-			var userMylists = mylistGroupDataLists.Select(x => MylistGroupInfo.FromMylistGroupData(x, HohoemaApp, this));
+			// 追加分だけを検出してUserMylistに追加
+			var addedMylistGroups = mylistGroupDataLists
+				.Where(x => _UserMylists.All(y => x.Id != y.GroupId))
+				.ToArray();
 
-			_UserMylists.AddRange(userMylists);
-
-
-			// マイリストの最大登録件数はプレミアムでフォルダごと500、通常ユーザーだとフォルダ関係なく最大100まで
-
-
-			foreach (var group in _UserMylists)
+			foreach (var userMylist in addedMylistGroups)
 			{
+				var addedMylistGroupInfo = MylistGroupInfo.FromMylistGroupData(userMylist, HohoemaApp, this);
+				_UserMylists.Add(addedMylistGroupInfo);
+
 				await Task.Delay(250);
 
-				await group.Refresh();
+				await addedMylistGroupInfo.Refresh();
 			}
 
+			// 削除分だけ検出してUserMylistから削除
+			var removedMylistGroups = _UserMylists
+				.Where(x => !x.IsDeflist)
+				.Where(x => mylistGroupDataLists.All(y => x.GroupId != y.Id))
+				.ToArray();
 
-
-			
-
-
-			
+			foreach (var removeMylistGroup in removedMylistGroups)
+			{
+				_UserMylists.Remove(removeMylistGroup);
+			}
 		}
 
 
-		public async Task<ContentManageResult> AddUpdateMylist(string name, string description, bool is_public, MylistDefaultSort default_sort, IconType iconType)
+		public async Task<ContentManageResult> AddMylist(string name, string description, bool is_public, MylistDefaultSort default_sort, IconType iconType)
 		{
 			var result = await HohoemaApp.NiconicoContext.Mylist.CreateMylistGroupAsync(name, description, is_public, default_sort, iconType);
 
@@ -116,14 +121,7 @@ namespace NicoPlayerHohoema.Models
 
 			if (result == ContentManageResult.Success)
 			{
-				// _UserMylists
-				var removeTargetMylist = _UserMylists.SingleOrDefault(x => x.GroupId == group_id);
-
-				if (removeTargetMylist == null)
-				{
-					return result;
-				}
-
+				await UpdateUserMylists();
 			}
 
 			return result;
