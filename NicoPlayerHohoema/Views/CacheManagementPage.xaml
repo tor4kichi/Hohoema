@@ -38,11 +38,11 @@
 
                 <Border>
                     <TextBlock Text=":)" Padding="16 8" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <i:Interaction.Behaviors>
-                                <core:EventTriggerBehavior EventName="Tapped">
-                                    <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0" />
-                                </core:EventTriggerBehavior>
-                            </i:Interaction.Behaviors>
+                        <i:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="Tapped">
+                                <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0" />
+                            </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
 
                     </TextBlock>
                 </Border>

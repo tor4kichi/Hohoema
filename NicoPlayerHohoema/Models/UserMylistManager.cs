@@ -2,6 +2,7 @@
 using Mntone.Nico2.Mylist;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,25 +11,22 @@ namespace NicoPlayerHohoema.Models
 {
 	public class UserMylistManager
 	{
+		public const int MaxUserMylistGroupCount = 25;
+
+
 		public HohoemaApp HohoemaApp { get; private set; }
 
 
-		private List<MylistGroupInfo> _UserMylists;
-		public IReadOnlyList<MylistGroupInfo> UserMylists
-		{
-			get
-			{
-				return _UserMylists;
-			}
-
-		}
+		private ObservableCollection<MylistGroupInfo> _UserMylists;
+		public ReadOnlyObservableCollection<MylistGroupInfo> UserMylists { get; private set; }
 
 
 		public UserMylistManager(HohoemaApp app)
 		{
 			HohoemaApp = app;
 
-			_UserMylists = new List<MylistGroupInfo>();
+			_UserMylists = new ObservableCollection<MylistGroupInfo>();
+			UserMylists = new ReadOnlyObservableCollection<MylistGroupInfo>(_UserMylists);
 
 			app.OnSignin += App_OnSignin;
 			app.OnSignout += App_OnSignout;
@@ -59,7 +57,9 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task UpdateUserMylists()
 		{
-			_UserMylists = new List<MylistGroupInfo>();
+			_UserMylists.Clear();
+
+
 			// とりあえずマイリストを手動で追加
 			_UserMylists.Add(new MylistGroupInfo("0", HohoemaApp, this)
 			{
@@ -75,29 +75,21 @@ namespace NicoPlayerHohoema.Models
 
 			var userMylists = mylistGroupDataLists.Select(x => MylistGroupInfo.FromMylistGroupData(x, HohoemaApp, this));
 
-			_UserMylists.AddRange(userMylists);
-
-
-			// マイリストの最大登録件数はプレミアムでフォルダごと500、通常ユーザーだとフォルダ関係なく最大100まで
-
-
+			foreach (var userMylist in userMylists)
+			{
+				_UserMylists.Add(userMylist);
+			}
+			
 			foreach (var group in _UserMylists)
 			{
 				await Task.Delay(250);
 
 				await group.Refresh();
 			}
-
-
-
-			
-
-
-			
 		}
 
 
-		public async Task<ContentManageResult> AddUpdateMylist(string name, string description, bool is_public, MylistDefaultSort default_sort, IconType iconType)
+		public async Task<ContentManageResult> AddMylist(string name, string description, bool is_public, MylistDefaultSort default_sort, IconType iconType)
 		{
 			var result = await HohoemaApp.NiconicoContext.Mylist.CreateMylistGroupAsync(name, description, is_public, default_sort, iconType);
 

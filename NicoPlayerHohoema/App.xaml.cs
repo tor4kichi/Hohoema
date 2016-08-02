@@ -172,6 +172,7 @@ namespace NicoPlayerHohoema
 			Container.RegisterType<Views.Service.RankingChoiceDialogService>();
 			Container.RegisterInstance(new Views.Service.ToastNotificationService());
 			Container.RegisterInstance(new Views.Service.MylistRegistrationDialogService(hohoemaApp));
+			Container.RegisterInstance(new Views.Service.EditMylistGroupDialogService());
 		}
 
 

@@ -1,4 +1,5 @@
 ﻿<Page
+    x:Name="PageRoot"
     x:Class="NicoPlayerHohoema.Views.UserMylistPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -8,34 +9,119 @@
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:view="using:NicoPlayerHohoema.Views"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:tookitext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
-    <Page.Resources>
-        <DataTemplate x:Key="MylistGroupListItemTemplate">
-            <toolkit:DockPanel>
 
-                <Border Background="Transparent">
-                    <TextBlock Text="{Binding Title}" />
+    <toolkit:DockPanel>
 
-                    <i:Interaction.Behaviors>
-                        <core:EventTriggerBehavior EventName="Tapped">
-                            <core:InvokeCommandAction Command="{Binding OpenMylistCommand}" />
-                        </core:EventTriggerBehavior>
-                    </i:Interaction.Behaviors>
-                </Border>
-            </toolkit:DockPanel>
-        </DataTemplate>
-    </Page.Resources>
-    
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <ListView ItemsSource="{Binding MylistGroupItems}"
-                  ItemTemplate="{StaticResource MylistGroupListItemTemplate}"
-                  >
+       
+        <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
+
+            <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left" Margin="8">
+                <AppBarButton Icon="Add" Label="マイリスト作成" Command="{Binding AddMylistGroupCommand}" />
+            </StackPanel>
             
-        </ListView>
-        
-    </Grid>
+            <!-- 複数選択のON/OFF -->
+            <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Right"  Margin="8">
+                <ToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              Content="選択モード"
+                              />
+            </StackPanel>
+
+            <Border />
+        </toolkit:DockPanel>
+
+        <toolkit:DockPanel >
+
+                <!-- 選択アクション -->
+            <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom" 
+                                   Height="72"
+                                   Margin="8 0"
+                               >
+                <StackPanel Orientation="Horizontal"
+                                VerticalAlignment="Center"
+                                toolkit:DockPanel.Dock="Left"
+                            >
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center"
+                            toolkit:DockPanel.Dock="Right"
+                            Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"                            
+                            >
+                    <AppBarButton Icon="Remove" Label="マイリスト削除" Command="{Binding RemoveMylistGroupCommand}" 
+                                  Foreground="Red"
+                                  >
+                        <AppBarButton.Flyout>
+                            <Flyout>
+                                <StackPanel>
+
+                                    <Button Content="削除する" Margin="0 0 0 32" />
+
+                                    <TextBlock Text="マイリストを削除します" />
+                                    <TextBlock Text="マイリストの内容を復元することはできません" />
+                                    
+                                </StackPanel>
+                            </Flyout>
+                        </AppBarButton.Flyout>
+                    </AppBarButton>
+                </StackPanel>
+
+                <Border />
+
+            </toolkit:DockPanel>
+
+
+            <ListView ItemsSource="{Binding MylistGroupItems}"
+                      IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
+                      SelectionMode="Single"
+                  >
+
+                <i:Interaction.Behaviors>
+                    <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedMylistGroupItems}" />
+                </i:Interaction.Behaviors>
+
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment"
+                                    Value="Stretch" 
+                                        />
+                        <Setter Property="Margin"
+                                    Value="0 0 0 8" 
+                                    />
+                    </Style>
+                </ListView.ItemContainerStyle>
+
+
+                <ListView.ItemTemplate>
+
+                    <DataTemplate>
+
+                        <Grid>
+
+                            <i:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <core:InvokeCommandAction Command="{Binding ElementName=PageRoot, Path=DataContext.PlayCommand}"
+                                                          CommandParameter="{Binding}"
+                                                          />
+                                </core:EventTriggerBehavior>
+                            </i:Interaction.Behaviors>
+
+                            <TextBlock Text="{Binding Title}" />
+
+                        </Grid>
+                    </DataTemplate>
+
+                </ListView.ItemTemplate>
+            </ListView>
+
+        </toolkit:DockPanel>
+
+
+    </toolkit:DockPanel>
 </Page>
