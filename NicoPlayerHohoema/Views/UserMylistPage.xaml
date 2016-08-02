@@ -54,17 +54,21 @@
                             toolkit:DockPanel.Dock="Right"
                             Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"                            
                             >
-                    <AppBarButton Icon="Remove" Label="マイリスト削除" Command="{Binding RemoveMylistGroupCommand}" 
+                    <AppBarButton Icon="Remove" 
+                                  Label="マイリスト削除" 
                                   Foreground="Red"
+                                  IsEnabled="{Binding CanDeleteSelectedMylistGroups.Value}"
                                   >
                         <AppBarButton.Flyout>
                             <Flyout>
                                 <StackPanel>
 
-                                    <Button Content="削除する" Margin="0 0 0 32" />
+                                    <Button Content="削除する" 
+                                            Command="{Binding RemoveMylistGroupCommand}"
+                                            Margin="0 0 0 32" />
 
-                                    <TextBlock Text="マイリストを削除します" />
-                                    <TextBlock Text="マイリストの内容を復元することはできません" />
+                                    <TextBlock Text="マイリストを削除します" FontWeight="Bold" Margin="0 8" />
+                                    <TextBlock Text="マイリストの内容を復元することはできません" FontWeight="Bold" />
                                     
                                 </StackPanel>
                             </Flyout>

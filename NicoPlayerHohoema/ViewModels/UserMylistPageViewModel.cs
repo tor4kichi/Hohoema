@@ -73,9 +73,13 @@ namespace NicoPlayerHohoema.ViewModels
 			, () => HohoemaApp.UserMylistManager.UserMylists.Count < UserMylistManager.MaxUserMylistGroupCount
 			);
 
-			RemoveMylistGroupCommand = SelectedMylistGroupItems.ObserveProperty(x => x.Count)
+
+			CanDeleteSelectedMylistGroups = SelectedMylistGroupItems.ObserveProperty(x => x.Count)
 				.Select(x => x > 0 && !SelectedMylistGroupItems.Any(y => y.GroupId == "0"))
-				.ToReactiveCommand(false);
+				.ToReactiveProperty(false);
+
+			RemoveMylistGroupCommand = CanDeleteSelectedMylistGroups
+				.ToReactiveCommand();
 
 			RemoveMylistGroupCommand.Subscribe(async _ => 
 			{
@@ -86,6 +90,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 					await Task.Delay(500);
 				}
+
+				UpdateUserMylist();
 			});
 		}
 
@@ -205,6 +211,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ObservableCollection<MylistGroupListItem> SelectedMylistGroupItems { get; private set; }
 
+		public ReactiveProperty<bool> CanDeleteSelectedMylistGroups { get; private set;}
 
 
 		public ObservableCollection<MylistGroupListItem> MylistGroupItems { get; private set; }

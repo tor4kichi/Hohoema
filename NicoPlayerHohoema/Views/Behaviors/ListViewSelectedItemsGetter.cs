@@ -85,11 +85,15 @@ namespace NicoPlayerHohoema.Views.Behaviors
 				var removeTargets = removeItems.Select(x =>
 				{
 					return rawListItems.SingleOrDefault(y => x == y.Content);
-				});
+				})
+				.ToArray();
 
 				foreach (var i in removeTargets)
 				{
-					i.IsSelected = false;
+					if (i != null)
+					{
+						i.IsSelected = false;
+					}
 				}
 			}
 			else if (e.Action == NotifyCollectionChangedAction.Reset)

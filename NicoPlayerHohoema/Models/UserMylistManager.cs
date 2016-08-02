@@ -57,34 +57,47 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task UpdateUserMylists()
 		{
-			_UserMylists.Clear();
-
-
-			// とりあえずマイリストを手動で追加
-			_UserMylists.Add(new MylistGroupInfo("0", HohoemaApp, this)
+			if (_UserMylists.Count == 0)
 			{
-				Name = "とりあえずマイリスト",
-				Description = "ユーザーの一時的なマイリストです",
-				UserId = HohoemaApp.LoginUserId.ToString(),
-				IsPublic = false
-			});
+				// とりあえずマイリストを手動で追加
+				_UserMylists.Add(new MylistGroupInfo("0", HohoemaApp, this)
+				{
+					Name = "とりあえずマイリスト",
+					Description = "ユーザーの一時的なマイリストです",
+					UserId = HohoemaApp.LoginUserId.ToString(),
+					IsPublic = false
+				});
+			}
+
 
 			// ユーザーのマイリストグループの一覧を取得
 			var mylistGroupDataLists = await HohoemaApp.ContentFinder.GetLoginUserMylistGroups();
 
 
-			var userMylists = mylistGroupDataLists.Select(x => MylistGroupInfo.FromMylistGroupData(x, HohoemaApp, this));
+			// 追加分だけを検出してUserMylistに追加
+			var addedMylistGroups = mylistGroupDataLists
+				.Where(x => _UserMylists.All(y => x.Id != y.GroupId))
+				.ToArray();
 
-			foreach (var userMylist in userMylists)
+			foreach (var userMylist in addedMylistGroups)
 			{
-				_UserMylists.Add(userMylist);
-			}
-			
-			foreach (var group in _UserMylists)
-			{
+				var addedMylistGroupInfo = MylistGroupInfo.FromMylistGroupData(userMylist, HohoemaApp, this);
+				_UserMylists.Add(addedMylistGroupInfo);
+
 				await Task.Delay(250);
 
-				await group.Refresh();
+				await addedMylistGroupInfo.Refresh();
+			}
+
+			// 削除分だけ検出してUserMylistから削除
+			var removedMylistGroups = _UserMylists
+				.Where(x => !x.IsDeflist)
+				.Where(x => mylistGroupDataLists.All(y => x.GroupId != y.Id))
+				.ToArray();
+
+			foreach (var removeMylistGroup in removedMylistGroups)
+			{
+				_UserMylists.Remove(removeMylistGroup);
 			}
 		}
 
@@ -108,14 +121,7 @@ namespace NicoPlayerHohoema.Models
 
 			if (result == ContentManageResult.Success)
 			{
-				// _UserMylists
-				var removeTargetMylist = _UserMylists.SingleOrDefault(x => x.GroupId == group_id);
-
-				if (removeTargetMylist == null)
-				{
-					return result;
-				}
-
+				await UpdateUserMylists();
 			}
 
 			return result;
