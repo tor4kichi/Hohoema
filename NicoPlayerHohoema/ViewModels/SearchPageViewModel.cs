@@ -28,8 +28,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 		
 
-		public SearchPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, NiconicoContentFinder contentFinder)
-			: base(hohoemaApp, pageManager, isRequireSignIn:true)
+		public SearchPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, NiconicoContentFinder contentFinder, Views.Service.MylistRegistrationDialogService mylistDialogService)
+			: base(hohoemaApp, pageManager, mylistDialogService, isRequireSignIn:true)
 		{
 			_ContentFinder = contentFinder;
 

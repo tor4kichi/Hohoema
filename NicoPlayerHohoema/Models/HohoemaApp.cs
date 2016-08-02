@@ -21,6 +21,7 @@ namespace NicoPlayerHohoema.Models
 
 			app.UserSettings = new HohoemaUserSettings();
 			app.ContentFinder = new NiconicoContentFinder(app);
+			app.UserMylistManager = new UserMylistManager(app);
 
 			return Task.FromResult(app);
 		}
@@ -113,6 +114,19 @@ namespace NicoPlayerHohoema.Models
 			OnResumed?.Invoke();
 		}
 
+		public async Task Relogin()
+		{
+			if (NiconicoContext != null)
+			{
+				var context = new NiconicoContext(NiconicoContext.AuthenticationToken);
+
+				if (await context.SignInAsync() == NiconicoSignInStatus.Success)
+				{
+					NiconicoContext = context;
+				}
+			}
+		}
+
 
 		public async Task<NiconicoSignInStatus> SignIn(string mailOrTelephone, string password)
 		{
@@ -141,6 +155,7 @@ namespace NicoPlayerHohoema.Models
 					var userInfo = await NiconicoContext.User.GetInfoAsync();
 					LoginUserId = userInfo.Id;
 					IsPremiumUser = userInfo.IsPremium;
+					LoginUserName = userInfo.Name;
 				}
 				catch
 				{
@@ -162,8 +177,13 @@ namespace NicoPlayerHohoema.Models
 				Debug.WriteLine("initilize: fav");
 				FavFeedManager = await FavFeedManager.Create(this, LoginUserId);
 
-				Debug.WriteLine("Login done.");
 				//				await MediaManager.Context.Resume();
+
+				Debug.WriteLine("initilize: mylist");
+				await UserMylistManager.UpdateUserMylists();
+
+
+				Debug.WriteLine("Login done.");
 
 				OnSignin?.Invoke();
 
@@ -251,6 +271,7 @@ namespace NicoPlayerHohoema.Models
 
 		public uint LoginUserId { get; private set; }
 		public bool IsPremiumUser { get; private set; }
+		public string LoginUserName { get; private set; }
 
 		private NiconicoContext _NiconicoContext;
 		public NiconicoContext NiconicoContext
@@ -269,6 +290,9 @@ namespace NicoPlayerHohoema.Models
 			get { return _FavFeedManager; }
 			set { SetProperty(ref _FavFeedManager, value); }
 		}
+
+		public UserMylistManager UserMylistManager { get; private set; }
+
 
 		public const string HohoemaUserAgent = "Hohoema_UWP";
 

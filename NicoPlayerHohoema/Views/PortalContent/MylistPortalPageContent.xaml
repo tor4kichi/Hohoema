@@ -17,7 +17,7 @@
         <DataTemplate x:Key="MylistGroupListItemTemplate">
             <toolkit:DockPanel>
 
-                <Border Background="Transparent">
+                <Border Background="Transparent" IsHitTestVisible="True">
                     <TextBlock Text="{Binding Title}" />
 
                     <i:Interaction.Behaviors>

@@ -122,6 +122,7 @@
     <Compile Include="Models\LisenceSummary.cs" />
     <Compile Include="Models\MediaBackgroundTask.cs" />
     <Compile Include="Models\Settings\CacheSettings.cs" />
+    <Compile Include="Models\UserMylistManager.cs" />
     <Compile Include="Models\Video\CommentResponseCache.cs" />
     <Compile Include="Models\Video\NicoVideoDownloader.cs" />
     <Compile Include="Models\Video\ThumbnailResponseCache.cs" />
@@ -188,6 +189,7 @@
     <Compile Include="ViewModels\UserVideoPageViewModel.cs" />
     <Compile Include="ViewModels\VideoInfoContent\CommentVideoInfoContentViewModel.cs" />
     <Compile Include="ViewModels\VideoInfoContent\MediaInfoViewModel.cs" />
+    <Compile Include="ViewModels\VideoInfoContent\MylistVideoInfoContentViewModel.cs" />
     <Compile Include="ViewModels\VideoInfoContent\SettingsVideoInfoContentViewModel.cs" />
     <Compile Include="Views\AboutPage.xaml.cs">
       <DependentUpon>AboutPage.xaml</DependentUpon>
@@ -252,6 +254,10 @@
     <Compile Include="Views\RefreshableListView.cs" />
     <Compile Include="Views\Service\EditAutoCacheConditionDialogService.cs" />
     <Compile Include="Views\Service\ISearchDialogService.cs" />
+    <Compile Include="Views\Service\MylistRegistrationDialog.xaml.cs">
+      <DependentUpon>MylistRegistrationDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Service\MylistRegistrationDialogService.cs" />
     <Compile Include="Views\Service\RankingChoiceDialogService.cs" />
     <Compile Include="Views\Service\SearchDialogService.cs" />
     <Compile Include="ViewModels\VideoPlayerPageViewModel.cs" />
@@ -313,6 +319,9 @@
     </Compile>
     <Compile Include="Views\VideoInfoContent\CommentVideoInfoContent.xaml.cs">
       <DependentUpon>CommentVideoInfoContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\VideoInfoContent\MylistVideoInfoContent.xaml.cs">
+      <DependentUpon>MylistVideoInfoContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\VideoInfoContent\SettingsVideoInfoContent.xaml.cs">
       <DependentUpon>SettingsVideoInfoContent.xaml</DependentUpon>
@@ -529,6 +538,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Service\MylistRegistrationDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\SettingsPageContent\CacheSettingsPageContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -546,6 +559,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\VideoInfoContent\CommentVideoInfoContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\VideoInfoContent\MylistVideoInfoContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

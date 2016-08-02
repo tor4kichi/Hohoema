@@ -18,13 +18,15 @@ using NicoPlayerHohoema.Util;
 using Windows.UI.Xaml;
 using Reactive.Bindings.Extensions;
 using System.Threading;
+using NicoPlayerHohoema.Views.Service;
+using Microsoft.Practices.Unity;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	public class MylistPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
 	{
-		public MylistPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
-			: base(hohoemaApp, pageManager, isRequireSignIn: true)
+		public MylistPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
+			: base(hohoemaApp, pageManager, mylistDialogService, isRequireSignIn: true)
 		{
 			IsFavoriteMylist = new ReactiveProperty<bool>(mode:ReactivePropertyMode.DistinctUntilChanged)
 				.AddTo(_CompositeDisposable);
@@ -76,6 +78,209 @@ namespace NicoPlayerHohoema.ViewModels
 					_NowProcessFavorite = false;
 				})
 				.AddTo(_CompositeDisposable);
+				
+
+			UnregistrationMylistCommand = SelectedVideoInfoItems.ObserveProperty(x => x.Count)
+				.Where(_ => this.IsLoginUserOwnedMylist)
+				.Select(x => x > 0)
+				.ToReactiveCommand(false);
+
+			UnregistrationMylistCommand.Subscribe(async _ => 
+			{
+				var mylistGroup = HohoemaApp.UserMylistManager.GetMylistGroup(MylistGroupId);
+
+				var items = SelectedVideoInfoItems.ToArray();
+
+				int successCount = 0;
+				int failedCount = 0;
+
+				Debug.WriteLine($"マイリスト登録解除を開始...");
+				foreach (var video in items)
+				{
+					var unregistrationResult = await mylistGroup.Unregistration(
+						video.RawVideoId
+						, withRefresh : false /* あとでまとめてリフレッシュするのでここでは OFF */);
+
+					if (unregistrationResult == ContentManageResult.Success)
+					{
+						successCount++;
+					}
+					else
+					{
+						failedCount++;
+					}
+
+					Debug.WriteLine($"{video.Title}[{video.RawVideoId}]:{unregistrationResult.ToString()}");
+				}
+				
+				// 登録解除結果を得るためリフレッシュ
+				await mylistGroup.Refresh();
+
+
+				// ユーザーに結果を通知
+				var titleText = $"「{mylistGroup.Name}」から {successCount}件 の動画が登録解除されました";
+				var toastService = App.Current.Container.Resolve<ToastNotificationService>();
+				var resultText = $"";
+				if (failedCount > 0)
+				{
+					resultText += $"\n登録解除に失敗した {failedCount}件 は選択されたままです";
+				}
+				toastService.ShowText(titleText, resultText);
+
+				// 登録解除に失敗したアイテムだけを残すように
+				// マイリストから除外された動画を選択アイテムリストから削除
+				foreach (var item in SelectedVideoInfoItems.ToArray())
+				{
+					if (false == mylistGroup.CheckRegistratedVideoId(item.RawVideoId))
+					{
+						SelectedVideoInfoItems.Remove(item);
+						IncrementalLoadingItems.Remove(item);
+					}
+				}
+
+				Debug.WriteLine($"マイリスト登録解除完了---------------");
+			});
+
+			CopyMylistCommand = SelectedVideoInfoItems.ObserveProperty(x => x.Count)
+				.Where(_ => this.IsLoginUserOwnedMylist)
+				.Select(x => x > 0)
+				.ToReactiveCommand(false);
+
+			CopyMylistCommand.Subscribe(async _ => 
+			{
+				var mylistGroup = HohoemaApp.UserMylistManager.GetMylistGroup(MylistGroupId);
+
+				// ターゲットのマイリストを選択する
+				var targetMylist = await MylistDialogService
+					.ShowSelectSingleMylistDialog(
+						SelectedVideoInfoItems
+						, hideMylistGroupId : mylistGroup.GroupId
+					);
+
+				if (targetMylist == null) { return; }
+
+
+
+				// すでにターゲットのマイリストに登録されている動画を除外してコピーする
+				var items = SelectedVideoInfoItems
+					.Where(x => !targetMylist.CheckRegistratedVideoId(x.RawVideoId))
+					.ToList();
+
+				Debug.WriteLine($"マイリストのコピーを開始...");
+
+				var result = await mylistGroup.CopyMylistTo(
+					   targetMylist
+					   , items.Select(video => video.RawVideoId).ToArray()
+					   );
+
+				Debug.WriteLine($"copy mylist {items.Count} item from {mylistGroup.Name} to {targetMylist.Name} : {result.ToString()}");
+
+				// ユーザーに結果を通知
+				var toastService = App.Current.Container.Resolve<ToastNotificationService>();
+
+				string titleText;
+				string contentText;
+				if (result == ContentManageResult.Success)
+				{
+					titleText = $"「{targetMylist.Name}」に {SelectedVideoInfoItems.Count}件 コピーしました";
+					contentText = $" {SelectedVideoInfoItems.Count}件 の動画をコピーしました";
+				}
+				else
+				{
+					titleText = $"マイリストコピーに失敗";
+					contentText = $"時間を置いてからやり直してみてください";
+				}
+
+				toastService.ShowText(titleText, contentText);
+
+
+
+				// 成功した場合は選択状態を解除
+				if (result == ContentManageResult.Success)
+				{
+					ClearSelection();
+				}
+
+				Debug.WriteLine($"マイリストのコピー完了...");
+			});
+
+
+			MoveMylistCommand = SelectedVideoInfoItems.ObserveProperty(x => x.Count)
+				.Where(_ => this.IsLoginUserOwnedMylist)
+				.Select(x => x > 0)
+				.ToReactiveCommand(false);
+
+			MoveMylistCommand.Subscribe(async _ =>
+			{
+				var mylistGroup = HohoemaApp.UserMylistManager.GetMylistGroup(MylistGroupId);
+
+				// ターゲットのマイリストを選択する
+				var targetMylist = await MylistDialogService
+					.ShowSelectSingleMylistDialog(
+						SelectedVideoInfoItems
+						, hideMylistGroupId: mylistGroup.GroupId
+					);
+
+				if (targetMylist == null) { return; }
+
+
+
+				// すでにターゲットのマイリストに登録されている動画を除外してコピーする
+				var items = SelectedVideoInfoItems
+					.Where(x => !targetMylist.CheckRegistratedVideoId(x.RawVideoId))
+					.ToList();
+
+				Debug.WriteLine($"マイリストの移動を開始...");
+
+				var result = await mylistGroup.MoveMylistTo(
+					   targetMylist
+					   , items.Select(video => video.RawVideoId).ToArray()
+					   );
+
+				Debug.WriteLine($"move mylist {items.Count} item from {mylistGroup.Name} to {targetMylist.Name} : {result.ToString()}");
+
+				// ユーザーに結果を通知
+				var toastService = App.Current.Container.Resolve<ToastNotificationService>();
+
+				string titleText;
+				string contentText;
+				if (result == ContentManageResult.Success)
+				{
+					titleText = $"「{targetMylist.Name}」に {SelectedVideoInfoItems.Count}件 移動しました";
+					contentText = $" {SelectedVideoInfoItems.Count}件 の動画を移動しました";
+				}
+				else
+				{
+					titleText = $"マイリスト移動に失敗";
+					contentText = $"時間を置いてからやり直してみてください";
+				}
+
+				toastService.ShowText(titleText, contentText);
+
+
+
+				// 成功した場合は選択状態を解除
+				if (result == ContentManageResult.Success)
+				{
+					// 移動元のマイリストからは削除されているはず
+					foreach (var item in SelectedVideoInfoItems)
+					{
+						if (!mylistGroup.CheckRegistratedVideoId(item.RawVideoId))
+						{
+							IncrementalLoadingItems.Remove(item);
+						}
+						else
+						{
+							throw new Exception();
+						}
+					}
+
+					ClearSelection();
+				}
+
+				Debug.WriteLine($"マイリストの移動完了...");
+			});
+
 		}
 
 
@@ -118,6 +323,7 @@ namespace NicoPlayerHohoema.ViewModels
 				return;
 			}
 
+			IsLoginUserOwnedMylist = false;
 
 
 			// お気に入り状態の取得
@@ -136,19 +342,19 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
+			IsLoginUserOwnedMylist = HohoemaApp.UserMylistManager.HasMylistGroup(MylistGroupId);
 
-
-			if (MylistGroupId == "0")
+			try
 			{
-				MylistTitle = "とりあえずマイリスト";
-				OwnerUserId = HohoemaApp.LoginUserId.ToString();
-
-				var loginUserInfo = await HohoemaApp.NiconicoContext.User.GetInfoAsync();
-				UserName = loginUserInfo.Name;
-			}
-			else
-			{
-				try
+				if (IsLoginUserOwnedMylist)
+				{
+					var mylistGroup = HohoemaApp.UserMylistManager.GetMylistGroup(MylistGroupId);
+					MylistTitle = mylistGroup.Name;
+					MylistDescription = mylistGroup.Description;
+					OwnerUserId = mylistGroup.UserId;
+					UserName = HohoemaApp.LoginUserName;
+				}
+				else
 				{
 					var response = await HohoemaApp.ContentFinder.GetMylist(MylistGroupId);
 					MylistTitle = StringExtention.DecodeUTF8(response.Name);
@@ -162,10 +368,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 					UserName = userDetail.Nickname;
 				}
-				catch
-				{
 
-				}
+			}
+			catch
+			{
+
 			}
 
 			UpdateTitle(MylistTitle);
@@ -204,6 +411,10 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+		public ReactiveCommand UnregistrationMylistCommand { get; private set; }
+		public ReactiveCommand CopyMylistCommand { get; private set; }
+		public ReactiveCommand MoveMylistCommand { get; private set; }
+
 
 
 		private bool _NowProcessFavorite;
@@ -228,6 +439,12 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public string OwnerUserId { get; private set; }
 
+		private bool _IsLoginUserOwnedMylist;
+		public bool IsLoginUserOwnedMylist
+		{
+			get { return _IsLoginUserOwnedMylist; }
+			set { SetProperty(ref _IsLoginUserOwnedMylist, value); }
+		}
 
 		private string _UserName;
 		public string UserName
@@ -238,6 +455,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<bool> IsFavoriteMylist { get; private set; }
 		public ReactiveProperty<bool> CanChangeFavoriteMylistState { get; private set; }
+
+
+		
 
 		protected override uint IncrementalLoadCount
 		{
@@ -254,29 +474,32 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			_HohoemaApp = hohoemaApp;
 			_PageManager = pageManager;
+			
 		}
-
 
 		public async Task<IEnumerable<VideoInfoControlViewModel>> GetPagedItems(uint head, uint pageSize)
 		{
 			List<VideoInfoControlViewModel> list = new List<VideoInfoControlViewModel>();
 
-			// TODO とりまのマイリストアイテム一覧取得
-			if (_MylistData == null || head == 1)
-			{
-				_MylistData = await _HohoemaApp.NiconicoContext.Mylist.GetMylistItemListAsync("0");
-			}
+			var mylistGroup = _HohoemaApp.UserMylistManager.GetMylistGroup("0");
+			var items = mylistGroup.VideoItems;
 
-			foreach (var item in _MylistData.Skip((int)head).Take((int)pageSize))
+			if (items.Count <= head-1)
 			{
-				var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(item.ItemId);
-				list.Add(new VideoInfoControlViewModel(item, nicoVideo, _PageManager));
+				return list;
+			}
+			foreach (var item in items.Skip((int)head-1).Take((int)pageSize))
+			{
+				var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(item.VideoId);
+
+				var videoVM = new VideoInfoControlViewModel(nicoVideo, _PageManager);
+				list.Add(videoVM);
+
+				await videoVM.LoadThumbnail();
 			}
 
 			return list;
 		}
-
-		List<MylistData> _MylistData;
 
 		HohoemaApp _HohoemaApp;
 		PageManager _PageManager;
@@ -294,7 +517,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		public async Task<IEnumerable<VideoInfoControlViewModel>> GetPagedItems(uint pageIndex, uint pageSize)
+		public async Task<IEnumerable<VideoInfoControlViewModel>> GetPagedItems(uint head, uint pageSize)
 		{
 			List<VideoInfoControlViewModel> list = new List<VideoInfoControlViewModel>();
 
@@ -303,15 +526,39 @@ namespace NicoPlayerHohoema.ViewModels
 				throw new Exception();
 			}
 
-			var res = await _HohoemaApp.ContentFinder.GetMylistItems(MylistGroupId, pageIndex, pageSize);
-
-
-			foreach (var item in res.Video_info)
+			var mylistManager = _HohoemaApp.UserMylistManager;
+			if (mylistManager.HasMylistGroup(MylistGroupId))
 			{
-				var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(item.Video.Id);
-				list.Add(new VideoInfoControlViewModel(item, nicoVideo, _PageManager));
+				var mylistGroup = mylistManager.GetMylistGroup(MylistGroupId);
+				var items = mylistGroup.VideoItems;
+
+				if (items.Count <= head - 1)
+				{
+					return list;
+				}
+
+				foreach (var item in items.Skip((int)head - 1).Take((int)pageSize))
+				{
+					var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(item.VideoId);
+					var videoListItemVM = new VideoInfoControlViewModel(nicoVideo, _PageManager);
+					list.Add(videoListItemVM);
+
+					await videoListItemVM.LoadThumbnail().ConfigureAwait(false);
+				}
 			}
-			
+			else
+			{
+				var res = await _HohoemaApp.ContentFinder.GetMylistItems(MylistGroupId, head, pageSize);
+
+				foreach (var item in res.Video_info)
+				{
+					var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(item.Video.Id);
+					list.Add(new VideoInfoControlViewModel(item, nicoVideo, _PageManager));
+				}
+
+			}
+
+
 
 			return list;
 		}

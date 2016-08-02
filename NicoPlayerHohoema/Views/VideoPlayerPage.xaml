@@ -27,6 +27,11 @@
                                                />
         </DataTemplate>
 
+        <DataTemplate x:Key="MylistVideoInfoContentTemplate" >
+            <videoInfo:MylistVideoInfoContent Width="400"
+                                               />
+        </DataTemplate>
+        
         <DataTemplate x:Key="CommentVideoInfoContentTemplate" >
             <videoInfo:CommentVideoInfoContent 
                                                />
@@ -40,6 +45,7 @@
 
         <local:VideoInfoContentTemplateSelector x:Key="VideoInfoContentTemplateSelector"
                                                 Summary="{StaticResource SummaryVideoInfoContentTemplate}"
+                                                Mylist="{StaticResource MylistVideoInfoContentTemplate}"
                                                 Comment="{StaticResource CommentVideoInfoContentTemplate}"
                                                 Settings="{StaticResource SettingsVideoInfoContentTemplate}"
                                                 
@@ -300,11 +306,25 @@
                                               VerticalAlignment="Stretch"
                                       />
 
+                                <AppBarButton Icon="Add" 
+                                              Label="マイリスト登録"
+                                              VerticalAlignment="Stretch"
+                                            >
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Tapped">
+                                            <core:ChangePropertyAction TargetObject="{Binding SelectedSidePaneType}" PropertyName="Value" Value="Mylist" />
+                                            <core:ChangePropertyAction TargetObject="{Binding ElementName=SplitView}" PropertyName="IsPaneOpen" Value="True" />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
+                                </AppBarButton>
+
+
                                 <AppBarButton Icon="OpenPane" Label="情報表示"
                                               VerticalAlignment="Stretch"
                                               >
                                     <i:Interaction.Behaviors>
                                         <core:EventTriggerBehavior EventName="Tapped">
+                                            <core:ChangePropertyAction TargetObject="{Binding SelectedSidePaneType}" PropertyName="Value" Value="Summary" />
                                             <core:ChangePropertyAction TargetObject="{Binding ElementName=SplitView}" PropertyName="IsPaneOpen" Value="True" />
                                         </core:EventTriggerBehavior>
                                     </i:Interaction.Behaviors>

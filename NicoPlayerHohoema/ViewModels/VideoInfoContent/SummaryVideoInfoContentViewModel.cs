@@ -16,7 +16,6 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 	{
 
 		public SummaryVideoInfoContentViewModel(ThumbnailResponse thumbnail, Uri descriptionHtmlUri, PageManager pageManager)
-			: base("動画説明")
 		{
 			_ThumbnailResponse = thumbnail;
 			_PageManager = pageManager;
