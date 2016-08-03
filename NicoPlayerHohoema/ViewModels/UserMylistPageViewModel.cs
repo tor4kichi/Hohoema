@@ -17,6 +17,7 @@ using System.Threading;
 using NicoPlayerHohoema.Views.Service;
 using Microsoft.Practices.Unity;
 using System.Reactive.Linq;
+using Windows.UI;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -29,6 +30,14 @@ namespace NicoPlayerHohoema.ViewModels
 			IsSelectionModeEnable = new ReactiveProperty<bool>(false);
 			SelectedMylistGroupItems = new ObservableCollection<MylistGroupListItem>();
 
+			OpenMylistCommand = IsSelectionModeEnable.Select(x => !x)
+				.ToReactiveCommand<MylistGroupListItem>();
+
+			OpenMylistCommand.Subscribe(listItem => 
+			{
+				ClearSelection();
+				PageManager.OpenPage(HohoemaPageType.Mylist, listItem.GroupId);
+			});
 
 			AddMylistGroupCommand = new DelegateCommand(async () => 
 			{
@@ -74,11 +83,11 @@ namespace NicoPlayerHohoema.ViewModels
 			);
 
 
-			CanDeleteSelectedMylistGroups = SelectedMylistGroupItems.ObserveProperty(x => x.Count)
+			CanEditSelectedMylistGroups = SelectedMylistGroupItems.ObserveProperty(x => x.Count)
 				.Select(x => x > 0 && !SelectedMylistGroupItems.Any(y => y.GroupId == "0"))
 				.ToReactiveProperty(false);
 
-			RemoveMylistGroupCommand = CanDeleteSelectedMylistGroups
+			RemoveMylistGroupCommand = CanEditSelectedMylistGroups
 				.ToReactiveCommand();
 
 			RemoveMylistGroupCommand.Subscribe(async _ => 
@@ -92,6 +101,56 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 
 				UpdateUserMylist();
+			});
+
+
+			EditMylistGroupCommand = CanEditSelectedMylistGroups
+				.ToReactiveCommand(false);
+
+			EditMylistGroupCommand.Subscribe(async _ => 
+			{
+				var mylistGroupListItem = SelectedMylistGroupItems.FirstOrDefault();
+				var selectedMylistGroupId = mylistGroupListItem?.GroupId;
+
+				if (selectedMylistGroupId == null) { return; }
+
+				var mylistGroup = HohoemaApp.UserMylistManager.GetMylistGroup(selectedMylistGroupId);
+				MylistGroupEditData data = new MylistGroupEditData()
+				{
+					Name = mylistGroup.Name,
+					Description = mylistGroup.Description,
+					IsPublic = mylistGroup.IsPublic,
+					MylistDefaultSort = mylistGroup.Sort,
+					IconType = mylistGroup.IconType,
+				};
+
+				var editDialog = App.Current.Container.Resolve<EditMylistGroupDialogService>();
+
+				// 成功するかキャンセルが押されるまで繰り返す
+				while (true)
+				{
+					if (true == await editDialog.ShowAsync(data))
+					{
+						var result = await mylistGroup.UpdateMylist(
+							data.Name,
+							data.Description,
+							data.IsPublic,
+							data.MylistDefaultSort,
+							data.IconType
+						);
+
+						if (result == Mntone.Nico2.ContentManageResult.Success)
+						{
+							mylistGroupListItem.Update(mylistGroup);
+							break;
+						}
+					}
+					else
+					{
+						break;
+					}
+				}
+
 			});
 		}
 
@@ -177,25 +236,13 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		private DelegateCommand<MylistGroupListItem> _OpenMylistCommand;
-		public DelegateCommand<MylistGroupListItem> OpenMylistCommand
-		{
-			get
-			{
-				return _OpenMylistCommand
-					?? (_OpenMylistCommand = new DelegateCommand<MylistGroupListItem>(mylistVM =>
-					{
-						ClearSelection();
-						PageManager.OpenPage(HohoemaPageType.Mylist, mylistVM.GroupId);
-					}
-					));
-			}
-		}
+		public ReactiveCommand<MylistGroupListItem> OpenMylistCommand { get; private set; }
 
 		public DelegateCommand AddMylistGroupCommand { get; private set; }
 		public ReactiveCommand RemoveMylistGroupCommand { get; private set; }
 
-		
+		public ReactiveCommand EditMylistGroupCommand { get; private set; }
+
 
 		public string UserId { get; private set; }
 
@@ -211,7 +258,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ObservableCollection<MylistGroupListItem> SelectedMylistGroupItems { get; private set; }
 
-		public ReactiveProperty<bool> CanDeleteSelectedMylistGroups { get; private set;}
+		public ReactiveProperty<bool> CanEditSelectedMylistGroups { get; private set;}
 
 
 		public ObservableCollection<MylistGroupListItem> MylistGroupItems { get; private set; }
@@ -227,13 +274,11 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			_PageManager = pageManager;
 
-			Title = info.Name;
-			Description = info.Description;
 			GroupId = info.GroupId;
-			IsPublic = info.IsPublic;
 
-
+			Update(info);
 		}
+
 		public MylistGroupListItem(MylistGroupData mylistGroup, PageManager pageManager)
 		{
 			_PageManager = pageManager;
@@ -242,7 +287,8 @@ namespace NicoPlayerHohoema.ViewModels
 			Description = mylistGroup.Description;
 			GroupId = mylistGroup.Id;
 			IsPublic = mylistGroup.GetIsPublic();
-			
+			ItemCount = mylistGroup.Count;
+			ThemeColor = mylistGroup.GetIconType().ToColor();
 		}
 
 		private DelegateCommand _OpenMylistCommand;
@@ -259,6 +305,22 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+		public void Update(MylistGroupInfo info)
+		{
+			Title = info.Name;
+			Description = info.Description;
+			IsPublic = info.IsPublic;
+			ItemCount = info.VideoItems.Count;
+			ThemeColor = info.IconType.ToColor();
+
+
+			OnPropertyChanged(nameof(Title));
+			OnPropertyChanged(nameof(Description));
+			OnPropertyChanged(nameof(IsPublic));
+			OnPropertyChanged(nameof(ItemCount));
+			OnPropertyChanged(nameof(ThemeColor));
+		}
+
 		public bool IsPublic { get; set; }
 
 		public string Title { get; set; }
@@ -266,6 +328,10 @@ namespace NicoPlayerHohoema.ViewModels
 		public string Description { get; set; }
 
 		public string GroupId { get; private set; }
+
+		public int ItemCount { get; private set; }
+
+		public Color ThemeColor { get; private set; }
 
 
 		PageManager _PageManager;

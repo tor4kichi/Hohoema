@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.UI;
 
 namespace NicoPlayerHohoema.Views.Service
 {
@@ -53,31 +54,41 @@ namespace NicoPlayerHohoema.Views.Service
 
 	public class EditMylistGroupDialogContext
 	{
-		public static List<IconType> IconTypeList { get; private set; }
+		public static List<IncoTypeVM> IconTypeList { get; private set; }
 		public static List<string> MylistDefaultSortList { get; private set; }
 
 		static EditMylistGroupDialogContext()
 		{
-			IconTypeList = ((IconType[])Enum.GetValues(typeof(IconType))).ToList();
+			IconTypeList = new List<IncoTypeVM>();
+			foreach (var iconType in ((IconType[])Enum.GetValues(typeof(IconType))))
+			{
+				IconTypeList.Add(new IncoTypeVM()
+				{
+					IconType = iconType,
+					Color = iconType.ToColor()
+				});
+			}
+
 			MylistDefaultSortList = new List<string>()
 			{
-				"マイリストへの登録が古い順", // = 0
-				"マイリストへの登録が新しい順", // = 1
+				"登録が古い順", // = 0
+				"登録が新しい順", // = 1
 				"メモ昇順",
 				"メモ降順",
 				"タイトル昇順",
 				"タイトル降順",
-				"投稿時間が新しい順",
-				"投稿時間が古い順",
-				"再生数が少ない順",
-				"再生数が多い順",
+				"投稿が新しい順",
+				"投稿が古い順",
+				"再生が多い順",
+				"再生が少ない順",
 				"コメントが新しい順",
-				"コメント数が少ない順",
+				"コメントが古い順",
 				"コメント数が多い順",
-				"マイリスト数が少ない順",
-				"マイリスト数が多い順",
-				"動画時間が短い順",
+				"コメント数が少ない順",
+				"マイリスト登録が多い順",
+				"マイリスト登録が少ない順",
 				"動画時間が長い順",
+				"動画時間が短い順",
 			};
 
 		}
@@ -89,7 +100,7 @@ namespace NicoPlayerHohoema.Views.Service
 				.SetValidateAttribute(() => MylistName);
 
 			MylistDescription = new ReactiveProperty<string>(data.Description);
-			MylistIconType = new ReactiveProperty<IconType>(data.IconType);
+			MylistIconType = new ReactiveProperty<IncoTypeVM>(IconTypeList.Single(x => x.IconType == data.IconType));
 			MylistIsPublicIndex = new ReactiveProperty<int>(data.IsPublic ? 0 : 1); // 公開=1 非公開=0
 			MylistDefaultSortIndex = new ReactiveProperty<int>((int)data.MylistDefaultSort);
 
@@ -106,17 +117,11 @@ namespace NicoPlayerHohoema.Views.Service
 
 		public MylistGroupEditData GetResult()
 		{
-			// TODO: MylistDefaultSortの0番目に対応する
-			if (MylistDefaultSortIndex.Value == 0)
-			{
-				MylistDefaultSortIndex.Value = 1;
-			}
-
 			return new MylistGroupEditData()
 			{
 				Name = MylistName.Value,
 				Description = MylistDescription.Value,
-				IconType = MylistIconType.Value,
+				IconType = MylistIconType.Value.IconType,
 				IsPublic = MylistIsPublicIndex.Value == 0 ? true : false,
 				MylistDefaultSort = (MylistDefaultSort)MylistDefaultSortIndex.Value
 			};
@@ -129,7 +134,7 @@ namespace NicoPlayerHohoema.Views.Service
 		[Required(ErrorMessage = "Please input mylist name!")]
 		public ReactiveProperty<string> MylistName { get; private set; }
 		public ReactiveProperty<string> MylistDescription { get; private set; }
-		public ReactiveProperty<IconType> MylistIconType { get; private set; }
+		public ReactiveProperty<IncoTypeVM> MylistIconType { get; private set; }
 		public ReactiveProperty<int> MylistIsPublicIndex { get; private set; }
 		public ReactiveProperty<int> MylistDefaultSortIndex { get; private set; }
 
@@ -149,5 +154,12 @@ namespace NicoPlayerHohoema.Views.Service
 		{
 
 		}
+	}
+
+
+	public class IncoTypeVM
+	{
+		public IconType IconType { get; set; }
+		public Color Color { get; set; }
 	}
 }

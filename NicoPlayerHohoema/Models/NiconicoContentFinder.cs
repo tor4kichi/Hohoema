@@ -88,18 +88,22 @@ namespace NicoPlayerHohoema.Models
 			}, retryInterval:2000);
 		}
 
-		public async Task<List<MylistGroupData>> GetLoginUserMylistGroups()
+		public Task<List<LoginUserMylistGroup>> GetLoginUserMylistGroups()
 		{
-			return await ConnectionRetryUtil.TaskWithRetry(async () =>
+			return ConnectionRetryUtil.TaskWithRetry(() =>
 			{
-				return await _HohoemaApp.NiconicoContext.Mylist.GetMylistGroupListAsync();
+				return _HohoemaApp.NiconicoContext.Mylist.GetMylistGroupListAsync();
+			})
+			.ContinueWith(prevResult => 
+			{
+				return prevResult.Result.Cast<LoginUserMylistGroup>().ToList();
 			});
 		}
 
 
-		public async Task<List<MylistGroupData>> GetUserMylistGroups(string userId)
+		public Task<List<MylistGroupData>> GetUserMylistGroups(string userId)
 		{
-			return await ConnectionRetryUtil.TaskWithRetry(async () =>
+			return ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
 				try
 				{
