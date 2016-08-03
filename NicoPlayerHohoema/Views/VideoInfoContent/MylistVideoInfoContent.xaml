@@ -17,29 +17,52 @@
 
     <StackPanel Width="380">
 
-        
-        <TextBlock Text="動画を追加したいマイリストを選択" 
-                   Margin="8"
-                   Foreground="Gray"
-                   />
-
+    
         <TextBox Text="{Binding MylistComment.Value}"
                  PlaceholderText="マイリストコメント（オプション）"
                  Width="320"
-                 HorizontalAlignment="Right"
-                 Margin="8 0"
+                 HorizontalAlignment="Left"
+                 Margin="8 8"
                  />
 
         <Border Height="8" />
         
-        <ItemsControl ItemsSource="{Binding MylistGroups}" HorizontalAlignment="Left" Margin="8 0">
+        <ItemsControl ItemsSource="{Binding MylistGroups}" HorizontalAlignment="Right" Margin="8 0">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Border Margin="8">
-                        <ToggleButton Content="{Binding GroupInfo.Name}" 
-                                      IsChecked="{Binding IsRegistrated.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        <ToggleButton IsChecked="{Binding IsRegistrated.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                       IsEnabled="{Binding NowProccessing.Value, Converter={StaticResource InvertBoolean}}"
-                                      />
+                                      >
+                            <toolkit:DockPanel>
+                                <Border Background="{Binding GroupInfo.ThemeColor, Converter={StaticResource ColorToBrush}}" 
+                                        toolkit:DockPanel.Dock="Left"
+                                        Width="24"
+                                        Height="24"
+                                        BorderBrush="Gray"
+                                        BorderThickness="0 0 1 1"
+                                        />
+
+                                <Border Width="24" Height="24" 
+                                        Background="LightGray" 
+                                        CornerRadius="12"
+                                        toolkit:DockPanel.Dock="Right"                                        
+                                        >
+                                    <TextBlock Text="{Binding GroupInfo.ItemCount}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Foreground="Black"
+                                               />
+                                </Border>
+
+                                <TextBlock Text="{Binding GroupInfo.Name}"
+                                           VerticalAlignment="Center"
+                                           Margin="8 0"
+                                           Width="200"
+                                           />
+                            </toolkit:DockPanel>
+                        </ToggleButton>
+                        
                     </Border>
                     
                 </DataTemplate>

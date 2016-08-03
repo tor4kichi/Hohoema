@@ -16,10 +16,45 @@ namespace NicoPlayerHohoema.Models
 
 		public HohoemaApp HohoemaApp { get; private set; }
 
+		public MylistGroupInfo Deflist { get; private set; }
 
 		private ObservableCollection<MylistGroupInfo> _UserMylists;
 		public ReadOnlyObservableCollection<MylistGroupInfo> UserMylists { get; private set; }
 
+		public int DeflistRegistrationCapacity
+		{
+			get
+			{
+				return HohoemaApp.IsPremiumUser ? 500 : 100;
+			}
+		}
+
+		public int DeflistRegistrationCount
+		{
+			get
+			{
+				return Deflist.ItemCount;
+			}
+		}
+		public int MylistRegistrationCapacity
+		{
+			get
+			{
+				return HohoemaApp.IsPremiumUser ? 12500 : 100;
+			}
+		}
+		public int MylistRegistrationCount
+		{
+			get
+			{
+				return UserMylists
+					.Where(x => !x.IsDeflist)
+					.Sum(x => x.ItemCount);
+			}
+		}
+
+
+		
 
 		public UserMylistManager(HohoemaApp app)
 		{
@@ -43,7 +78,7 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public bool CanAddMylist
+		public bool CanAddMylistGroup
 		{
 			get
 			{
@@ -68,7 +103,7 @@ namespace NicoPlayerHohoema.Models
 			if (_UserMylists.Count == 0)
 			{
 				// とりあえずマイリストを手動で追加
-				var deflist = new MylistGroupInfo("0", HohoemaApp, this)
+				Deflist = new MylistGroupInfo("0", HohoemaApp, this)
 				{
 					Name = "とりあえずマイリスト",
 					Description = "ユーザーの一時的なマイリストです",
@@ -76,9 +111,9 @@ namespace NicoPlayerHohoema.Models
 					IsPublic = false,
 					Sort = MylistDefaultSort.Latest
 				};
-				_UserMylists.Add(deflist);
+				_UserMylists.Add(Deflist);
 
-				await deflist.Refresh();
+				await Deflist.Refresh();
 			}
 
 
@@ -138,8 +173,23 @@ namespace NicoPlayerHohoema.Models
 
 			return result;
 		}
-		
 
+
+		public bool IsDeflistCapacityReached
+		{
+			get
+			{
+				return DeflistRegistrationCount >= DeflistRegistrationCapacity;
+			}
+		}
+
+		public bool CanAddMylistItem
+		{
+			get
+			{
+				return MylistRegistrationCount < MylistRegistrationCapacity;
+			}
+		}
 
 
 		public bool CheckIsRegistratedAnyMylist(string videoId)
@@ -175,12 +225,30 @@ namespace NicoPlayerHohoema.Models
 		public IconType IconType { get; set; }
 		public MylistDefaultSort Sort { get; set; }
 
+		public Windows.UI.Color ThemeColor
+		{
+			get
+			{
+				return IconType.ToColor();
+			}
+		}
+
 		private List<MylistVideoItemInfo> _VideoItems;
 		public IReadOnlyList<MylistVideoItemInfo> VideoItems
 		{
 			get
 			{
 				return _VideoItems;
+			}
+		}
+
+		
+
+		public int ItemCount
+		{
+			get
+			{
+				return VideoItems.Count;
 			}
 		}
 
@@ -260,6 +328,10 @@ namespace NicoPlayerHohoema.Models
 			return result;
 		}
 
+		public bool CanMoreRegistration()
+		{
+			return IsDeflist ? true : MylistManager.CanAddMylistItem;
+		}
 
 
 		public async Task<ContentManageResult> Registration(string videoId, string mylistComment = "", bool withRefresh = true)

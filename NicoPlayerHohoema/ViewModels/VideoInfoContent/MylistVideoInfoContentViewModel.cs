@@ -1,5 +1,6 @@
 ﻿using NicoPlayerHohoema.Models;
 using Prism.Commands;
+using Prism.Mvvm;
 using Reactive.Bindings;
 using System;
 using System.Collections.Generic;
@@ -53,7 +54,7 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 
 	// 対象Videoに対するマイリストグループの表示と機能を提供するViewModel
 	// VideoIdからマイリストへの登録がされているかをチェック
-	public class VideoTargetedMylistGroupInfoViewModel : IDisposable
+	public class VideoTargetedMylistGroupInfoViewModel : BindableBase, IDisposable
 	{
 		public VideoTargetedMylistGroupInfoViewModel(string videoId, MylistGroupInfo groupInfo, MylistVideoInfoContentViewModel mylistContentVM)
 		{
@@ -101,6 +102,8 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 							IsRegistrated.Value = true;
 						}
 					}
+
+					OnPropertyChanged(nameof(GroupInfo));
 				}
 				finally
 				{
