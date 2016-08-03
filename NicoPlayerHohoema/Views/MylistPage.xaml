@@ -24,15 +24,22 @@
 
         <toolkit:DockPanel >
 
-            
 
-            
             <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
 
+                <Border Background="{Binding ThemeColor, Converter={StaticResource ColorToBrush}}" Width="4" 
+                    toolkit:DockPanel.Dock="Left"
+                        Margin="0 0 8 0"
+                    />
 
-                <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left">
-                    
 
+                <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left" 
+                            >
+                    <AppBarButton Icon="Edit"
+                                  Label="マイリスト編集"
+                                  Command="{Binding EditMylistGroupCommand}"
+                                  Visibility="{Binding IsLoginUserOwnedMylist, Converter={StaticResource BooleanToVisibility}}"
+                                    />
                     <AppBarToggleButton Icon="Favorite"
                                         IsChecked="{Binding IsFavoriteMylist.Value, Mode=TwoWay}"
                                         IsEnabled="{Binding CanChangeFavoriteMylistState.Value}"
@@ -49,8 +56,13 @@
                             <Run Text=" さんのマイリスト" />
                         </TextBlock>
                     </HyperlinkButton>
-                    
 
+                    <TextBlock Text="非公開マイリスト"
+                               FontWeight="SemiBold"
+                               Margin="16 0"
+                               VerticalAlignment="Center"
+                               Visibility="{Binding IsPublic, Converter={StaticResource BooleanToVisibilityInverted}}"
+                               />
                 </StackPanel>
 
                 <!-- 複数選択のON/OFF -->
