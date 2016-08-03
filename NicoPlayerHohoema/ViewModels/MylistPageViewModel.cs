@@ -20,6 +20,8 @@ using Reactive.Bindings.Extensions;
 using System.Threading;
 using NicoPlayerHohoema.Views.Service;
 using Microsoft.Practices.Unity;
+using Windows.UI;
+using Mntone.Nico2.Live.PlayerStatus;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -343,6 +345,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 			IsLoginUserOwnedMylist = HohoemaApp.UserMylistManager.HasMylistGroup(MylistGroupId);
+			IsLoginUserDeflist = false;
 
 			try
 			{
@@ -351,6 +354,10 @@ namespace NicoPlayerHohoema.ViewModels
 					var mylistGroup = HohoemaApp.UserMylistManager.GetMylistGroup(MylistGroupId);
 					MylistTitle = mylistGroup.Name;
 					MylistDescription = mylistGroup.Description;
+					ThemeColor = mylistGroup.IconType.ToColor();
+					IsPublic = mylistGroup.IsPublic;
+					IsLoginUserDeflist = mylistGroup.IsDeflist;
+
 					OwnerUserId = mylistGroup.UserId;
 					UserName = HohoemaApp.LoginUserName;
 				}
@@ -359,13 +366,14 @@ namespace NicoPlayerHohoema.ViewModels
 					var response = await HohoemaApp.ContentFinder.GetMylist(MylistGroupId);
 					MylistTitle = StringExtention.DecodeUTF8(response.Name);
 					MylistDescription = StringExtention.DecodeUTF8(response.Description);
+					IsPublic = response.Public == "1" ? true : false;
+					ThemeColor = ((IconType)int.Parse(response.Icon_id)).ToColor();
 
 					OwnerUserId = response.User_id;
 
 					await Task.Delay(500);
 
 					var userDetail = await HohoemaApp.ContentFinder.GetUserDetail(OwnerUserId);
-
 					UserName = userDetail.Nickname;
 				}
 
@@ -378,7 +386,7 @@ namespace NicoPlayerHohoema.ViewModels
 			UpdateTitle(MylistTitle);
 
 
-
+			EditMylistGroupCommand.RaiseCanExecuteChanged();
 		}
 
 		
@@ -396,6 +404,61 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
+		private DelegateCommand _EditMylistGroupCommand;
+		public DelegateCommand EditMylistGroupCommand
+		{
+			get
+			{
+				return _EditMylistGroupCommand
+					?? (_EditMylistGroupCommand = new DelegateCommand(async () =>
+					{
+						var mylistGroup = HohoemaApp.UserMylistManager.GetMylistGroup(MylistGroupId);
+						MylistGroupEditData data = new MylistGroupEditData()
+						{
+							Name = mylistGroup.Name,
+							Description = mylistGroup.Description,
+							IsPublic = mylistGroup.IsPublic,
+							MylistDefaultSort = mylistGroup.Sort,
+							IconType = mylistGroup.IconType,
+						};
+
+						var editDialog = App.Current.Container.Resolve<EditMylistGroupDialogService>();
+
+						// 成功するかキャンセルが押されるまで繰り返す
+						while (true)
+						{
+							if (true == await editDialog.ShowAsync(data))
+							{
+								var result = await mylistGroup.UpdateMylist(
+									data.Name,
+									data.Description,
+									data.IsPublic,
+									data.MylistDefaultSort,
+									data.IconType
+								);
+
+								if (result == Mntone.Nico2.ContentManageResult.Success)
+								{
+									MylistTitle = data.Name;
+									UpdateTitle(MylistTitle);
+
+									MylistDescription = data.Description;
+
+									// TODO: IsPublicなどの情報を表示
+
+									break;
+								}
+							}
+							else
+							{
+								break;
+							}
+						}
+					}
+					, () => IsLoginUserOwnedMylist && !IsLoginUserDeflist
+					));
+			}
+		}
 
 
 		private DelegateCommand _OpenUserPageCommand;
@@ -435,6 +498,20 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _MylistDescription, value); }
 		}
 
+		private bool _IsPublic;
+		public bool IsPublic
+		{
+			get { return _IsPublic; }
+			set { SetProperty(ref _IsPublic, value); }
+		}
+
+		private Color _ThemeColor;
+		public Color ThemeColor
+		{
+			get { return _ThemeColor; }
+			set { SetProperty(ref _ThemeColor, value); }
+		}
+
 		public string MylistGroupId { get; private set; }
 
 		public string OwnerUserId { get; private set; }
@@ -444,6 +521,13 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			get { return _IsLoginUserOwnedMylist; }
 			set { SetProperty(ref _IsLoginUserOwnedMylist, value); }
+		}
+
+		private bool _IsLoginUserDeflist;
+		public bool IsLoginUserDeflist
+		{
+			get { return _IsLoginUserDeflist; }
+			set { SetProperty(ref _IsLoginUserDeflist, value); }
 		}
 
 		private string _UserName;

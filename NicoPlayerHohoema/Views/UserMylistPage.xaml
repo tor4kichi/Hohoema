@@ -9,7 +9,7 @@
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:view="using:NicoPlayerHohoema.Views"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
-    xmlns:tookitext="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
@@ -54,10 +54,15 @@
                             toolkit:DockPanel.Dock="Right"
                             Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"                            
                             >
+                    <AppBarButton Icon="Edit" 
+                                  Label="マイリスト編集" 
+                                  Command="{Binding EditMylistGroupCommand}"
+                                  >
+                    </AppBarButton>
                     <AppBarButton Icon="Remove" 
                                   Label="マイリスト削除" 
                                   Foreground="Red"
-                                  IsEnabled="{Binding CanDeleteSelectedMylistGroups.Value}"
+                                  IsEnabled="{Binding CanEditSelectedMylistGroups.Value}"
                                   >
                         <AppBarButton.Flyout>
                             <Flyout>
@@ -106,17 +111,55 @@
 
                     <DataTemplate>
 
-                        <Grid>
+                        <Grid Height="48" Background="Transparent" IsHitTestVisible="True">
 
                             <i:Interaction.Behaviors>
                                 <core:EventTriggerBehavior EventName="Tapped">
-                                    <core:InvokeCommandAction Command="{Binding ElementName=PageRoot, Path=DataContext.PlayCommand}"
+                                    <core:InvokeCommandAction Command="{Binding ElementName=PageRoot, Path=DataContext.OpenMylistCommand}"
                                                           CommandParameter="{Binding}"
                                                           />
                                 </core:EventTriggerBehavior>
                             </i:Interaction.Behaviors>
 
-                            <TextBlock Text="{Binding Title}" />
+                            <toolkit:DockPanel MaxWidth="480">
+
+
+                                <Border BorderBrush="Gray" BorderThickness="0 0 2 2"
+                                        Background="{Binding ThemeColor, Converter={StaticResource ColorToBrush}}"
+                                        CornerRadius="8"
+                                        Width="32"
+                                        Height="32"
+                                        Margin="8"
+                                        VerticalAlignment="Center"
+                                        toolkit:DockPanel.Dock="Left"
+                                        >
+                                    
+                                </Border>
+
+
+                                <Border toolkit:DockPanel.Dock="Right" Margin="0 0 8 0">
+                                    <Border Background="LightGray" CornerRadius="16" Height="32" Width="32">
+                                        <TextBlock Text="{Binding ItemCount}" 
+                                                   VerticalAlignment="Center"
+                                                   HorizontalAlignment="Center"
+                                                   Foreground="Black"
+                                                   />
+
+                                    </Border>
+                                </Border>
+
+
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding Title}" VerticalAlignment="Center" />
+
+                                    <SymbolIcon Symbol="People" Margin="16 0" 
+                                                Visibility="{Binding IsPublic, Converter={StaticResource BooleanToVisibility}}"
+                                                ToolTipService.ToolTip="公開マイリスト"
+                                                />
+                                </StackPanel>
+
+                            </toolkit:DockPanel>
+                            
 
                         </Grid>
                     </DataTemplate>

@@ -14,7 +14,7 @@
     mc:Ignorable="d"
     d:DesignHeight="500"
     d:DesignWidth="400"
-    Title="マイリストを編集"
+    Title="{Binding DialogTitle}"
     PrimaryButtonText="キャンセル"
     SecondaryButtonText="OK"
     IsSecondaryButtonEnabled="{Binding CanEditCompletion.Value}"
@@ -73,7 +73,23 @@
 
             <ComboBox ItemsSource="{Binding IconTypeList}"
                       SelectedItem="{Binding MylistIconType.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                      />
+                      >
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <Border Background="{Binding Color, Converter={StaticResource ColorToBrush}}"
+                                    Width="24"
+                                    Height="24"
+                                    Margin="8 0"
+                                    ></Border>
+
+                            <TextBlock Text="{Binding IconType}" 
+                                       VerticalAlignment="Center" 
+                                       />
+                        </StackPanel>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
         </toolkit:DockPanel>
 
         <toolkit:DockPanel Margin="8">

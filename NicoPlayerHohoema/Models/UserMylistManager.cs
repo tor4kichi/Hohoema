@@ -60,13 +60,17 @@ namespace NicoPlayerHohoema.Models
 			if (_UserMylists.Count == 0)
 			{
 				// とりあえずマイリストを手動で追加
-				_UserMylists.Add(new MylistGroupInfo("0", HohoemaApp, this)
+				var deflist = new MylistGroupInfo("0", HohoemaApp, this)
 				{
 					Name = "とりあえずマイリスト",
 					Description = "ユーザーの一時的なマイリストです",
 					UserId = HohoemaApp.LoginUserId.ToString(),
-					IsPublic = false
-				});
+					IsPublic = false,
+					Sort = MylistDefaultSort.Latest
+				};
+				_UserMylists.Add(deflist);
+
+				await deflist.Refresh();
 			}
 
 
@@ -161,6 +165,7 @@ namespace NicoPlayerHohoema.Models
 		public string Description { get; set; }
 		public bool IsPublic { get; set; }
 		public IconType IconType { get; set; }
+		public MylistDefaultSort Sort { get; set; }
 
 		private List<MylistVideoItemInfo> _VideoItems;
 		public IReadOnlyList<MylistVideoItemInfo> VideoItems
@@ -226,14 +231,14 @@ namespace NicoPlayerHohoema.Models
 
 		}
 
-		public async Task<ContentManageResult> UpdateMylist(string group_id, string name, string description, bool is_public, MylistDefaultSort default_sort, IconType iconType)
+		public async Task<ContentManageResult> UpdateMylist(string name, string description, bool is_public, MylistDefaultSort default_sort, IconType iconType)
 		{
 			if (this.GroupId == "0")
 			{
-
+				throw new Exception();
 			}
 
-			var result = await HohoemaApp.NiconicoContext.Mylist.UpdateMylistGroupAsync(group_id, name, description, is_public, default_sort, iconType);
+			var result = await HohoemaApp.NiconicoContext.Mylist.UpdateMylistGroupAsync(GroupId, name, description, is_public, default_sort, iconType);
 
 			if (result == ContentManageResult.Success)
 			{ 
@@ -241,6 +246,7 @@ namespace NicoPlayerHohoema.Models
 				Name = name;
 				IsPublic = is_public;
 				IconType = iconType;
+				Sort = default_sort;
 			}
 
 			return result;
@@ -323,7 +329,7 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public static MylistGroupInfo FromMylistGroupData(MylistGroupData group, HohoemaApp hohoemaApp, UserMylistManager mylistManager)
+		public static MylistGroupInfo FromMylistGroupData(LoginUserMylistGroup group, HohoemaApp hohoemaApp, UserMylistManager mylistManager)
 		{
 			return new MylistGroupInfo(group.Id, hohoemaApp, mylistManager)
 			{
@@ -331,7 +337,8 @@ namespace NicoPlayerHohoema.Models
 				Name = group.Name,
 				Description = group.Description,
 				IsPublic = group.GetIsPublic(),
-				IconType = group.GetIconType()
+				IconType = group.GetIconType(),
+				Sort = group.GetDefaultSort()
 			};
 
 		}
