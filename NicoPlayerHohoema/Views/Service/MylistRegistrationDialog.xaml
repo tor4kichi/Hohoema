@@ -128,25 +128,25 @@
             <Border >
                 <toolkit:DockPanel>
 
-                    <TextBlock Text="登録可能件数" VerticalAlignment="Center" Foreground="Gray"
+                    <TextBlock Text="登録情報" VerticalAlignment="Center" Foreground="Gray"
                                toolkit:DockPanel.Dock="Left"
                                />
 
                     <StackPanel HorizontalAlignment="Right" Margin="0 8" Orientation="Vertical">
                         <TextBlock  Foreground="Gray" HorizontalAlignment="Right">
-                    <Run Text="とりあえずマイリスト " />
-                    <Run Text="{Binding DeflistRegistrationCount}" />
-                    <Run Text="/" />
-                    <Run Text="{Binding DeflistRegistrationCapacity}" />
+                            <Run Text="とりあえずマイリスト " />
+                            <Run Text="{Binding DeflistRegistrationCount}" />
+                            <Run Text="/" />
+                            <Run Text="{Binding DeflistRegistrationCapacity}" />
                         </TextBlock>
 
-                        <Border Margin="8" />
+                        <Border Height="4" />
 
                         <TextBlock  Foreground="Gray" HorizontalAlignment="Right">
-                    <Run Text="マイリスト " />
-                    <Run Text="{Binding MylistRegistrationCount}" />
-                    <Run Text="/" />
-                    <Run Text="{Binding MylistRegistrationCapacity}" />
+                            <Run Text="マイリスト " />
+                            <Run Text="{Binding MylistRegistrationCount}" />
+                            <Run Text="/" />
+                            <Run Text="{Binding MylistRegistrationCapacity}" />
                         </TextBlock>
 
                     </StackPanel>

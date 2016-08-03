@@ -1,5 +1,6 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Mylist;
+using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Models
 {
-	public class UserMylistManager
+	public class UserMylistManager : BindableBase
 	{
 		public const int MaxUserMylistGroupCount = 25;
 
@@ -196,6 +197,18 @@ namespace NicoPlayerHohoema.Models
 		{
 			return UserMylists.Any(x => x.CheckRegistratedVideoId(videoId));
 		}
+
+
+
+		internal void DeflistUpdated()
+		{
+			OnPropertyChanged(nameof(IsDeflistCapacityReached));
+		}
+
+		internal void MylistUpdated()
+		{
+			OnPropertyChanged(nameof(CanAddMylistItem));
+		}
 	}
 
 	public class MylistVideoItemInfo
@@ -212,6 +225,7 @@ namespace NicoPlayerHohoema.Models
 			IsDeflist = GroupId == "0";
 			HohoemaApp = hohoemaApp;
 			MylistManager = mylistManager;
+			_VideoIdToThreadIdMap = new Dictionary<string, string>();
 		}
 
 		public HohoemaApp HohoemaApp { get; private set; }
@@ -233,12 +247,12 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
-		private List<MylistVideoItemInfo> _VideoItems;
-		public IReadOnlyList<MylistVideoItemInfo> VideoItems
+		private Dictionary<string, string> _VideoIdToThreadIdMap;
+		public IReadOnlyCollection<string> VideoItems
 		{
 			get
 			{
-				return _VideoItems;
+				return _VideoIdToThreadIdMap.Keys;
 			}
 		}
 
@@ -259,18 +273,18 @@ namespace NicoPlayerHohoema.Models
 		{
 			var itemCountPerMylist = HohoemaApp.IsPremiumUser ? 500u : 100u;
 
+			_VideoIdToThreadIdMap.Clear();
+
 			if (IsDeflist)
 			{
 				var defMylist = await HohoemaApp.NiconicoContext.Mylist.GetMylistItemListAsync("0");
 
-				_VideoItems = defMylist.Select(x =>
+				foreach (var item in defMylist)
 				{
-					return new MylistVideoItemInfo()
-					{
-						VideoId = x.WatchId,
-						ThreadId = x.ItemId
-					};
-				}).ToList();
+					_VideoIdToThreadIdMap.Add(item.WatchId, item.ItemId);
+				}
+
+				MylistManager.DeflistUpdated();
 			}
 			else
 			{
@@ -278,27 +292,22 @@ namespace NicoPlayerHohoema.Models
 				{
 					var res = await HohoemaApp.NiconicoContext.Mylist.GetMylistItemListAsync(GroupId);
 
-					_VideoItems = res.Select(x =>
+					foreach (var item in res)
 					{
-						return new MylistVideoItemInfo()
-						{
-							VideoId = x.WatchId,
-							ThreadId = x.ItemId
-						};
-					}).ToList();
+						_VideoIdToThreadIdMap.Add(item.WatchId, item.ItemId);
+					}
+
+					MylistManager.MylistUpdated();
 				}
 				else
 				{
 					var res = await HohoemaApp.ContentFinder.GetMylistItems(GroupId, 0, itemCountPerMylist);
 
-					_VideoItems = res.Video_info.Select(x =>
+
+					foreach (var item in res.Video_info)
 					{
-						return new MylistVideoItemInfo()
-						{
-							VideoId = x.Video.Id,
-							ThreadId = x.Thread.Id
-						};
-					}).ToList();
+						_VideoIdToThreadIdMap.Add(item.Video.Id, item.Thread.Id);
+					}
 				}
 
 				
@@ -345,7 +354,6 @@ namespace NicoPlayerHohoema.Models
 
 			if (withRefresh && result == ContentManageResult.Success)
 			{
-				// 新しく追加したアイテムが先頭に表示されるように追加
 				await Refresh();
 			}
 
@@ -354,13 +362,13 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<ContentManageResult> Unregistration(string video_id, bool withRefresh = true)
 		{
-			var item = VideoItems.SingleOrDefault(x => x.VideoId == video_id);
-			if (item == null)
+			if (!_VideoIdToThreadIdMap.ContainsKey(video_id))
 			{
 				throw new Exception();
 			}
 
-			var result = await HohoemaApp.NiconicoContext.Mylist.RemoveMylistItemAsync(GroupId, NiconicoItemType.Video, item.ThreadId);
+			var threadId = _VideoIdToThreadIdMap[video_id];
+			var result = await HohoemaApp.NiconicoContext.Mylist.RemoveMylistItemAsync(GroupId, NiconicoItemType.Video, threadId);
 
 			if (withRefresh && result == ContentManageResult.Success)
 			{
@@ -374,7 +382,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			var threadIdList = videoIdList.Select(x =>
 			{
-				return VideoItems.Single(y => y.VideoId == x).ThreadId;
+				return _VideoIdToThreadIdMap[x];
 			})
 			.ToArray();
 
@@ -393,7 +401,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			var threadIdList = videoIdList.Select(x =>
 			{
-				return VideoItems.Single(y => y.VideoId == x).ThreadId;
+				return _VideoIdToThreadIdMap[x];
 			})
 			.ToArray();
 
@@ -426,7 +434,7 @@ namespace NicoPlayerHohoema.Models
 
 		public bool CheckRegistratedVideoId(string videoId)
 		{
-			return VideoItems.Any(x => x.VideoId == videoId);
+			return _VideoIdToThreadIdMap.ContainsKey(videoId);
 		}
 	}
 }

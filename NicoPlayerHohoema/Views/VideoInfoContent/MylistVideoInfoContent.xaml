@@ -17,7 +17,35 @@
 
     <StackPanel Width="380">
 
-    
+        <Border >
+            <toolkit:DockPanel>
+
+                <TextBlock Text="登録情報" VerticalAlignment="Center" 
+                               toolkit:DockPanel.Dock="Left"
+                               />
+
+                <StackPanel HorizontalAlignment="Right" Margin="0 8" Orientation="Vertical">
+                    <TextBlock  HorizontalAlignment="Right">
+                        <Run Text="とりあえずマイリスト " />
+                        <Run Text="{Binding DeflistRegistrationCount}" />
+                        <Run Text="/" />
+                        <Run Text="{Binding DeflistRegistrationCapacity}" />
+                    </TextBlock>
+
+                    <Border Height="4" />
+
+                    <TextBlock  HorizontalAlignment="Right">
+                        <Run Text="マイリスト " />
+                        <Run Text="{Binding MylistRegistrationCount}" />
+                        <Run Text="/" />
+                        <Run Text="{Binding MylistRegistrationCapacity}" />
+                    </TextBlock>
+
+                </StackPanel>
+            </toolkit:DockPanel>
+        </Border>
+
+
         <TextBox Text="{Binding MylistComment.Value}"
                  PlaceholderText="マイリストコメント（オプション）"
                  Width="320"
