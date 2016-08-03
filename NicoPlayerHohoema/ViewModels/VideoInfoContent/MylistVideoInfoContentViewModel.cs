@@ -1,10 +1,12 @@
 ﻿using NicoPlayerHohoema.Models;
 using Prism.Commands;
+using Prism.Mvvm;
 using Reactive.Bindings;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,6 +26,12 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 			MylistGroups = MylistManager.UserMylists
 				.Select(x => new VideoTargetedMylistGroupInfoViewModel(videoId, x, this))
 				.ToList();
+
+
+			DeflistRegistrationCapacity = MylistManager.DeflistRegistrationCapacity;
+			MylistRegistrationCapacity = MylistManager.MylistRegistrationCapacity;
+			DeflistRegistrationCount = MylistManager.DeflistRegistrationCount;
+			MylistRegistrationCount = MylistManager.MylistRegistrationCount;
 		}
 
 		public string VideoId { get; private set; }
@@ -31,13 +39,27 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 
 		public ReactiveProperty<string> MylistComment { get; private set; }
 
+		public int DeflistRegistrationCapacity { get; private set; }
+		public int DeflistRegistrationCount { get; private set; }
+		public int MylistRegistrationCapacity { get; private set; }
+		public int MylistRegistrationCount { get; private set; }
+
 		public List<VideoTargetedMylistGroupInfoViewModel> MylistGroups { get; private set; }
 		public UserMylistManager MylistManager { get; private set; }
+
 
 
 		public async Task<bool> RegistrationMylist(MylistGroupInfo groupInfo)
 		{
 			var result = await groupInfo.Registration(VideoId, MylistComment.Value);
+
+			if (result == Mntone.Nico2.ContentManageResult.Success)
+			{
+				DeflistRegistrationCount = MylistManager.DeflistRegistrationCount;
+				MylistRegistrationCount = MylistManager.MylistRegistrationCount;
+				OnPropertyChanged(nameof(DeflistRegistrationCount));
+				OnPropertyChanged(nameof(MylistRegistrationCount));
+			}
 
 			return result == Mntone.Nico2.ContentManageResult.Success;
 		}
@@ -46,6 +68,14 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 		{
 			var result = await groupInfo.Unregistration(VideoId);
 
+			if (result == Mntone.Nico2.ContentManageResult.Success)
+			{
+				DeflistRegistrationCount = MylistManager.DeflistRegistrationCount;
+				MylistRegistrationCount = MylistManager.MylistRegistrationCount;
+				OnPropertyChanged(nameof(DeflistRegistrationCount));
+				OnPropertyChanged(nameof(MylistRegistrationCount));
+			}
+
 			return result == Mntone.Nico2.ContentManageResult.Success;
 		}
 	}
@@ -53,7 +83,7 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 
 	// 対象Videoに対するマイリストグループの表示と機能を提供するViewModel
 	// VideoIdからマイリストへの登録がされているかをチェック
-	public class VideoTargetedMylistGroupInfoViewModel : IDisposable
+	public class VideoTargetedMylistGroupInfoViewModel : BindableBase, IDisposable
 	{
 		public VideoTargetedMylistGroupInfoViewModel(string videoId, MylistGroupInfo groupInfo, MylistVideoInfoContentViewModel mylistContentVM)
 		{
@@ -101,6 +131,8 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 							IsRegistrated.Value = true;
 						}
 					}
+
+					OnPropertyChanged(nameof(GroupInfo));
 				}
 				finally
 				{
@@ -110,7 +142,6 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 				}
 
 			});
-			
 		}
 
 
@@ -123,6 +154,7 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 
 		public ReactiveProperty<bool> IsRegistrated { get; private set; }
 		public ReactiveProperty<bool> NowProccessing { get; private set; }
+
 
 		private SemaphoreSlim _RegistrationLock;
 		

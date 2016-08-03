@@ -572,9 +572,9 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				return list;
 			}
-			foreach (var item in items.Skip((int)head-1).Take((int)pageSize))
+			foreach (var videoId in items.Skip((int)head-1).Take((int)pageSize))
 			{
-				var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(item.VideoId);
+				var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(videoId);
 
 				var videoVM = new VideoInfoControlViewModel(nicoVideo, _PageManager);
 				list.Add(videoVM);
@@ -621,9 +621,9 @@ namespace NicoPlayerHohoema.ViewModels
 					return list;
 				}
 
-				foreach (var item in items.Skip((int)head - 1).Take((int)pageSize))
+				foreach (var videoId in items.Skip((int)head - 1).Take((int)pageSize))
 				{
-					var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(item.VideoId);
+					var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(videoId);
 					var videoListItemVM = new VideoInfoControlViewModel(nicoVideo, _PageManager);
 					list.Add(videoListItemVM);
 

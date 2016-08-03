@@ -95,18 +95,16 @@ namespace NicoPlayerHohoema.Views.Service
 			IsCreateMylistMode = new ReactiveProperty<bool>(false)
 				.AddTo(_CompositeDisposable);
 
-			if (hideMylistGroupId == null)
-			{
-				SelectableItems = mylistManager.UserMylists.ToList();
-			}
-			else
-			{
-				SelectableItems = mylistManager.UserMylists
-					.Where(x => hideMylistGroupId == x.GroupId)
-					.ToList();
-			}
+			// 通常マイリストにこれ以上アイテムを追加できない
+			IsNoMoreMylistRegistration = !mylistManager.CanAddMylistItem;
 
-			SelectedItem = new ReactiveProperty<MylistGroupInfo>(SelectableItems[0])
+
+			SelectableItems = mylistManager.UserMylists
+				.Where(x => hideMylistGroupId != x.GroupId)
+				.Where(x => x.IsDeflist || !IsNoMoreMylistRegistration)
+				.ToList();
+
+			SelectedItem = new ReactiveProperty<MylistGroupInfo>(SelectableItems.FirstOrDefault())
 				.AddTo(_CompositeDisposable);
 			MylistComment = new ReactiveProperty<string>("")
 				.AddTo(_CompositeDisposable);
@@ -142,8 +140,18 @@ namespace NicoPlayerHohoema.Views.Service
 					.ToReactiveProperty(false)
 				.AddTo(_CompositeDisposable);
 
-			CanAddMylist = false;//UserMylistManager.CanAddMylist;
+			CanAddMylist = UserMylistManager.CanAddMylistGroup;
 			IsVisibleMylistComment = true;
+
+			// とりマが上限に達しているので追加された場合、古いアイテムが削除されます
+			IsShowDeflistReachLimitGuide = SelectedItem
+				.Select(x => x != null && x.IsDeflist && mylistManager.IsDeflistCapacityReached)
+				.ToReactiveProperty();
+
+			DeflistRegistrationCapacity = UserMylistManager.DeflistRegistrationCapacity;
+			DeflistRegistrationCount = UserMylistManager.DeflistRegistrationCount;
+			MylistRegistrationCapacity = UserMylistManager.MylistRegistrationCapacity;
+			MylistRegistrationCount = UserMylistManager.MylistRegistrationCount;
 		}
 
 		public void Dispose()
@@ -201,6 +209,15 @@ namespace NicoPlayerHohoema.Views.Service
 		public bool CanAddMylist { get; private set; }
 
 		public UserMylistManager UserMylistManager { get; private set; }
+
+
+		public int DeflistRegistrationCapacity { get; private set; }
+		public int DeflistRegistrationCount { get; private set; }
+		public int MylistRegistrationCapacity { get; private set; }
+		public int MylistRegistrationCount { get; private set; }
+
+		public ReactiveProperty<bool> IsShowDeflistReachLimitGuide { get; private set; }
+		public bool IsNoMoreMylistRegistration { get; private set; }
 
 		private CompositeDisposable _CompositeDisposable;
 	}

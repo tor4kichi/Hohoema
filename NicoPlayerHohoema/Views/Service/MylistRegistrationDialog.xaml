@@ -11,7 +11,7 @@
     xmlns:mybehavior ="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     mc:Ignorable="d"
-    d:DesignHeight="300"
+    d:DesignHeight="500"
     d:DesignWidth="400"
     Title="マイリストに登録"
     PrimaryButtonText="キャンセル"
@@ -23,6 +23,25 @@
         <StackPanel Margin="0 16 0 0">
 
             <toolkit:DockPanel Margin="0 8">
+
+                <TextBlock Text="とりあえずマイリストの上限数に達しているため、古い登録アイテムから順に削除されます" 
+                           toolkit:DockPanel.Dock="Bottom"
+                           TextWrapping="Wrap"
+                           Width="300"
+                           FontSize="12"
+                           Margin="0 8 0 0"
+                           Visibility="{Binding IsShowDeflistReachLimitGuide.Value, Converter={StaticResource BooleanToVisibility}}"
+                           />
+                
+                <TextBlock Text="通常マイリストの合計登録数が上限に到達しているため、通常マイリストは選択できません" 
+                           toolkit:DockPanel.Dock="Bottom"
+                           TextWrapping="Wrap"
+                           Width="300"
+                           FontSize="12"
+                           Margin="0 8 0 0"
+                           Visibility="{Binding IsNoMoreMylistRegistration, Converter={StaticResource BooleanToVisibility}}"
+                           />
+
                 <RadioButton x:Name="ChoiceFromListButton" 
                              Content="選択"
                              GroupName="MylistSelectMethodGroup"
@@ -32,11 +51,40 @@
 
                 </RadioButton>
                 <ComboBox ItemsSource="{Binding SelectableItems}"
-                          DisplayMemberPath="Name"
                           SelectedItem="{Binding SelectedItem.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                           IsEnabled="{Binding IsCreateMylistMode.Value, Converter={StaticResource InvertBoolean}}"
                           HorizontalAlignment="Stretch"
                       >
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <toolkit:DockPanel>
+                                <Border Background="{Binding ThemeColor, Converter={StaticResource ColorToBrush}}" 
+                                        toolkit:DockPanel.Dock="Left"
+                                        Width="24"
+                                        Height="24"
+                                        BorderBrush="Gray"
+                                        BorderThickness="0 0 1 1"
+                                        />
+
+                                <Border Width="24" Height="24" 
+                                        Background="LightGray" 
+                                        CornerRadius="12"
+                                        toolkit:DockPanel.Dock="Right"                                        
+                                        >
+                                    <TextBlock Text="{Binding ItemCount}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               />
+                                </Border>
+
+                                <TextBlock Text="{Binding Name}"
+                                           VerticalAlignment="Center"
+                                           Margin="8 0"
+                                           />
+
+                            </toolkit:DockPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
 
 
                 </ComboBox>
@@ -52,6 +100,7 @@
                            Foreground="Red"
                            Margin="8"
                            toolkit:DockPanel.Dock="Bottom"
+                           Visibility="{Binding CanAddMylist, Converter={StaticResource BooleanToVisibilityInverted}}"
                            />
                 <RadioButton x:Name="CreateMylistButton"
                              Content="新規作成"
@@ -75,6 +124,37 @@
                      Visibility="{Binding IsVisibleMylistComment, Converter={StaticResource BooleanToVisibility}}"
                      Height="64"
                      />
+
+            <Border >
+                <toolkit:DockPanel>
+
+                    <TextBlock Text="登録情報" VerticalAlignment="Center" Foreground="Gray"
+                               toolkit:DockPanel.Dock="Left"
+                               />
+
+                    <StackPanel HorizontalAlignment="Right" Margin="0 8" Orientation="Vertical">
+                        <TextBlock  Foreground="Gray" HorizontalAlignment="Right">
+                            <Run Text="とりあえずマイリスト " />
+                            <Run Text="{Binding DeflistRegistrationCount}" />
+                            <Run Text="/" />
+                            <Run Text="{Binding DeflistRegistrationCapacity}" />
+                        </TextBlock>
+
+                        <Border Height="4" />
+
+                        <TextBlock  Foreground="Gray" HorizontalAlignment="Right">
+                            <Run Text="マイリスト " />
+                            <Run Text="{Binding MylistRegistrationCount}" />
+                            <Run Text="/" />
+                            <Run Text="{Binding MylistRegistrationCapacity}" />
+                        </TextBlock>
+
+                    </StackPanel>
+                </toolkit:DockPanel>
+            </Border>
+            
+           
+            
 
         </StackPanel>
 
