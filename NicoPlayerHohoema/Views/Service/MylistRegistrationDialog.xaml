@@ -16,26 +16,64 @@
     Title="マイリストに登録"
     PrimaryButtonText="キャンセル"
     SecondaryButtonText="登録"
-    IsSecondaryButtonEnabled="{Binding IsSelectedItem.Value}"
+    IsSecondaryButtonEnabled="{Binding CanCompleteSelection.Value}"
     >
 
     <Grid>
         <StackPanel Margin="0 16 0 0">
-            
-            
-            <ListView ItemsSource="{Binding SelectableItems}"
-                      DisplayMemberPath="Name"
-                      SelectedItem="{Binding SelectedItem.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                      SelectionMode="Single"
-                      >
-                
-                
-            </ListView>
 
+            <toolkit:DockPanel Margin="0 8">
+                <RadioButton x:Name="ChoiceFromListButton" 
+                             Content="選択"
+                             GroupName="MylistSelectMethodGroup"
+                             IsChecked="{Binding IsCreateMylistMode.Value, Converter={StaticResource InvertBoolean}}"
+                             toolkit:DockPanel.Dock="Left"
+                             >
+
+                </RadioButton>
+                <ComboBox ItemsSource="{Binding SelectableItems}"
+                          DisplayMemberPath="Name"
+                          SelectedItem="{Binding SelectedItem.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                          IsEnabled="{Binding IsCreateMylistMode.Value, Converter={StaticResource InvertBoolean}}"
+                          HorizontalAlignment="Stretch"
+                      >
+
+
+                </ComboBox>
+            </toolkit:DockPanel>
+
+            <toolkit:DockPanel Margin="0 8"
+                        >
+
+                <TextBlock Text="すでにマイリストが25個あるため新しく作ることはできません"
+                           TextWrapping="Wrap"
+                           Width="300"
+                           FontSize="12"
+                           Foreground="Red"
+                           Margin="8"
+                           toolkit:DockPanel.Dock="Bottom"
+                           />
+                <RadioButton x:Name="CreateMylistButton"
+                             Content="新規作成"
+                             GroupName="MylistSelectMethodGroup"
+                             IsChecked="{Binding IsCreateMylistMode.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             toolkit:DockPanel.Dock="Left"
+                             IsEnabled="{Binding CanAddMylist}"
+                             >
+                               
+                </RadioButton>
+
+                <TextBox Text="{Binding NewMylistName.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  
+                         IsEnabled="{Binding IsCreateMylistMode.Value}"
+                         />
+
+            </toolkit:DockPanel>
+            
             <TextBox Text="{Binding MylistComment.Value}" 
                      PlaceholderText="マイリストコメント（オプション）"
                      Margin="0 8 0 0"
                      Visibility="{Binding IsVisibleMylistComment, Converter={StaticResource BooleanToVisibility}}"
+                     Height="64"
                      />
 
         </StackPanel>

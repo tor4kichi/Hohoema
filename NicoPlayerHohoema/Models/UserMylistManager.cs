@@ -43,6 +43,14 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
+		public bool CanAddMylist
+		{
+			get
+			{
+				return UserMylists.Count < MaxUserMylistGroupCount;
+			}
+		}
+
 		public bool HasMylistGroup(string groupId)
 		{
 			return UserMylists.Any(x => x.GroupId == groupId);
