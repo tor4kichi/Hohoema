@@ -897,7 +897,7 @@ namespace NicoPlayerHohoema.ViewModels
 				await videoInfo.CheckCacheStatus();
 
 				// 動画が削除されていた場合
-				if (videoInfo.IsDeleted)
+				if (videoInfo.ThumbnailResponseCache.IsDeleted || (videoInfo.WatchApiResponseCache.CachedItem?.IsDeleted ?? false))
 				{
 					Debug.WriteLine($"cant playback{VideoId}. due to denied access to watch page, or connection offline.");
 
@@ -927,7 +927,7 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 
 				// 有害動画へのアクセスに対して意思確認された場合
-				if (videoInfo.IsBlockedHarmfulVideo)
+				if (videoInfo.WatchApiResponseCache.IsBlockedHarmfulVideo)
 				{
 					// 有害動画を視聴するか確認するページを表示
 					PageManager.OpenPage(HohoemaPageType.ConfirmWatchHurmfulVideo,
