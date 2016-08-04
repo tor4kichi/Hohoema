@@ -92,6 +92,8 @@ namespace NicoPlayerHohoema.Models
 		MS_PL,
 		Apache_v2,
 		Simplified_BSD,
+		CC_BY_40,
+		SIL_OFL_v1_1,
 	}
 
 }

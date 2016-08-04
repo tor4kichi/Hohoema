@@ -42,6 +42,13 @@
       "author": ["mntone", "tor4kichi"],
       "lisence_type": "Simplified_BSD",
       "lisence_page_url": "https://github.com/tor4kichi/OpenNiconico2/blob/master/license.md"
+    },
+    {
+      "name": "Material Design Icons",
+      "site": "https://materialdesignicons.com/",
+      "author": ["Austin Andrews", "Google"],
+      "lisence_type": "SIL_OFL_v1_1",
+      "lisence_page_url": "https://github.com/Templarian/MaterialDesign/blob/master/license.txt"
     }
   ]
 

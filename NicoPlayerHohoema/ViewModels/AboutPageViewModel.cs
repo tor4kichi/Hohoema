@@ -107,6 +107,10 @@ namespace NicoPlayerHohoema.ViewModels
 					return "Apache Lisence version 2.0";
 				case Models.LisenceType.Simplified_BSD:
 					return "二条項BSDライセンス";
+				case Models.LisenceType.CC_BY_40:
+					return "クリエイティブ・コモンズ 表示 4.0 国際";
+				case Models.LisenceType.SIL_OFL_v1_1:
+					return "SIL OPEN FONT LICENSE Version 1.1";
 				default:
 					throw new NotSupportedException(type.ToString());
 			}

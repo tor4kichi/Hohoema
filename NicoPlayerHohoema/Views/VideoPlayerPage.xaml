@@ -31,7 +31,7 @@
             <videoInfo:MylistVideoInfoContent Width="400"
                                                />
         </DataTemplate>
-        
+
         <DataTemplate x:Key="CommentVideoInfoContentTemplate" >
             <videoInfo:CommentVideoInfoContent 
                                                />
@@ -58,10 +58,10 @@
 
 
     <toolkit:DockPanel>
-        
+
         <VisualStateManager.VisualStateGroups>
-           
-            
+
+
             <!-- リピートの有効・無効 -->
             <VisualStateGroup>
                 <VisualState>
@@ -111,7 +111,7 @@
                    OpenPaneLength="400"
                    >
             <SplitView.Content>
-                
+
                 <!-- Media Control -->
                 <Grid Background="#FF0C0C0C" x:Name="MediaControl">
 
@@ -136,7 +136,7 @@
                     </i:Interaction.Behaviors>
 
 
-                    
+
 
 
 
@@ -150,12 +150,12 @@
                           AutoPlay="True"
                       >
                         <i:Interaction.Behaviors>
-                            
+
                             <!-- 動画の再生位置を取り出す -->
                             <mybehavior:MediaElementExtractPositionBehavior 
                                 Position="{Binding ReadVideoPosition.Value, Mode=TwoWay}"
                                 Interval="00:00:00.008" 
-                                />  
+                                />
 
                             <!-- MediaElementのバッファリング/再生の状態を読み取る -->
                             <mybehavior:MediaElementStateGetter State="{Binding CurrentState.Value, Mode=TwoWay}" />
@@ -167,8 +167,8 @@
                     </MediaElement>
 
 
-                    
-                    
+
+
                     <comment:CommentRenderer Comments="{Binding Comments}"
                                      VideoPosition="{Binding ReadVideoPosition.Value}"                                     
                                      Visibility="{Binding IsVisibleComment.Value, Converter={StaticResource BooleanToVisibility}}"
@@ -176,8 +176,8 @@
                                      CommentSizeScale="{Binding CommentFontScale.Value}"
                                      />
 
-                    
-                    
+
+
 
                     <ProgressRing Visibility="{Binding NowBuffering.Value, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}"
                                   IsActive="{Binding NowBuffering.Value, Mode=OneWay}"
@@ -199,28 +199,54 @@
                                 </core:EventTriggerBehavior>
                             </i:Interaction.Behaviors>
 
-                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0 0 0 48">
-                                <Border Background="#550C0C0C" 
-                                    Height="48" Width="48" CornerRadius="24" Padding="4 0 0 0"
-                                    Visibility="{Binding NowPlaying.Value, Converter={StaticResource BooleanToVisibility}}"
+                            <Grid Margin="0 0 0 48" >
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="3*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                    <ColumnDefinition Width="3*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Grid.RowDefinitions>
+
+                                    <RowDefinition Height="3*"/>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="3*"/>
+
+                                </Grid.RowDefinitions>
+
+                                <Border Grid.Row="1" Grid.Column="1"
+                                    Visibility="{Binding NowPlaying.Value, Converter={StaticResource BooleanToVisibility}}" 
                                     >
-                                    <SymbolIcon Symbol="Play" Foreground="WhiteSmoke" />
+                                    <Viewbox>
+                                        <Canvas Width="24" Height="24">
+
+                                            <Ellipse Width="24" Height="24" Fill="#AA000000"
+                                                     />
+                                            <Path Data="M8,5.14V19.14L19,12.14L8,5.14Z" Fill="WhiteSmoke" />
+                                        </Canvas>
+                                    </Viewbox>
+                                </Border>
+
+                                <Border Grid.Row="1" Grid.Column="1"
+                                    Visibility="{Binding NowPlaying.Value, Converter={StaticResource BooleanToVisibilityInverted}}" 
+                                    >
+                                    <Viewbox>
+                                        <Canvas Width="24" Height="24">
+                                            <Ellipse Width="24" Height="24" Fill="#AA000000"
+                                                     />
+                                            <Path Data="M14,19H18V5H14M6,19H10V5H6V19Z" Fill="WhiteSmoke" />
+                                        </Canvas>
+                                    </Viewbox>
 
                                 </Border>
-                                <Border Background="#AA0C0C0C" 
-                                    Height="48" Width="48" CornerRadius="24" Padding="0 0 0 0"
-                                    Visibility="{Binding NowPlaying.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                    >
-                                    <SymbolIcon Symbol="Pause" Foreground="WhiteSmoke" />
 
-                                </Border>
-                            </StackPanel>
-                           
+                            </Grid>
+
 
                         </Border>
                     </Grid>
 
-                    
+
 
                     <toolkit:DockPanel HorizontalAlignment="Stretch"
                            VerticalAlignment="Stretch"
@@ -243,12 +269,12 @@
                                     </core:EventTriggerBehavior>
 
 
-                                    
+
 
                                 </i:Interaction.Behaviors>
                             </mybehavior:AutoHide>
 
-                            
+
                         </i:Interaction.Behaviors>
 
 
@@ -257,7 +283,7 @@
                                    Background="#AA777777"
                                            Height="66"
                                    >
-                            
+
 
                             <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Right" >
 
@@ -285,7 +311,7 @@
                                                    />
                                     </StackPanel>
                                 </Button>
-                                
+
                                 <AppBarToggleButton Icon="Download" Label="保存"
                                                     IsChecked="{Binding IsSaveRequestedCurrentQualityCache.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                     IsEnabled="{Binding CanToggleCurrentQualityCacheState.Value}"
@@ -352,14 +378,14 @@
 
                         </toolkit:DockPanel>
 
-                        
-                        
-                        
-                        
+
+
+
+
                         <!-- Bottom Media Control -->
-                        
-                        
-                        
+
+
+
                         <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom"
                                
                                >
@@ -376,7 +402,7 @@
                                 <!-- Left Items -->
                                 <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left">
 
-                                   
+
                                 </StackPanel>
 
                                 <!-- Right Items-->
@@ -425,7 +451,7 @@
                                                                 
                                                     />
 
-                                                        
+
 
                                                     </StackPanel>
 
@@ -485,7 +511,7 @@
 
                                     </Border>
 
-                                    
+
                                     <TextBlock  HorizontalAlignment="Right"
                                                VerticalAlignment="Bottom"
                                                IsHitTestVisible="False"
@@ -564,11 +590,11 @@
                                                     <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="True" />
                                                 </mybehavior:KeyboardTrigger.Actions>
                                             </mybehavior:KeyboardTrigger>
-                                            
+
                                         </i:Interaction.Behaviors>
                                     </TextBox>
-                                            
-                                 
+
+
 
 
                                 </toolkit:DockPanel>
@@ -577,14 +603,14 @@
                             </toolkit:DockPanel>
 
 
-                            
+
 
                         </toolkit:DockPanel>
 
 
 
                         <Border >
-                            
+
                         </Border>
 
 
@@ -598,13 +624,13 @@
                           IsHitTestVisible="True"
                           Visibility="{Binding NowCommentWriting.Value, Converter={StaticResource BooleanToVisibility}}"
                           >
-                        
+
                     </Grid>
                 </Grid>
             </SplitView.Content>
             <SplitView.Pane>
                 <toolkit:DockPanel>
-                    
+
                     <!-- サブコンテンツのセレクタ -->
                     <ListView toolkit:DockPanel.Dock="Top"
                               ItemsSource="{Binding Types}"
@@ -630,14 +656,14 @@
                                     />
                     </ScrollViewer>
 
-                    
+
 
                 </toolkit:DockPanel>
 
             </SplitView.Pane>
         </SplitView>
-        
+
     </toolkit:DockPanel>
-    
-    
+
+
 </Page>
