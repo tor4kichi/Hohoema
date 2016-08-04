@@ -26,9 +26,35 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 {
 	public sealed partial class CommentRenderer : UserControl
 	{
-		const int CommentUIReserveCount = 100;
+		/// <summary>
+		/// コメントUIのView使いまわし
+		/// </summary>
+		const int CommentUIReserveCount = 200;
 
+		/// <summary>
+		/// 仮定の最大コメント表示時間 <br />
+		/// 描画範囲から切り捨てるために利用する
+		/// </summary>
+		const int CommentDisplayMaxTime = 700; // 1 = 10ms
+
+		/// <summary>
+		/// 各コメントの縦方向に追加される余白
+		/// </summary>
+		const int CommentVerticalMargin = 4;
+
+		/// <summary>
+		/// shita コマンドのコメントの下に追加する余白
+		/// </summary>
+		const int BottomCommentMargin = 12;
+
+		/// <summary>
+		/// 表示時間で昇順にソートされたコメントVMのディクショナリ <br />
+		/// </summary>
 		public SortedDictionary<uint, List<Comment>> TimeSequescailComments { get; private set; }
+
+		/// <summary>
+		/// 現在表示中のコメント
+		/// </summary>
 		public Dictionary<Comment, CommentUI> RenderComments { get; private set; }
 
 
@@ -36,14 +62,22 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		public List<CommentUI> TopAlignNextVerticalPosition { get; private set; }
 		public List<CommentUI> BottomAlignNextVerticalPosition { get; private set; }
 
+		/// <summary>
+		/// 非アクティブなコメントUIをあとで使いまわすためのリザーブリスト
+		/// </summary>
 		private List<CommentUI> _CommentUIReserve;
 
+		private uint _RenderingSkipCount;
 
-		public uint RealFPS { get; private set; }
+		/// <summary>
+		/// コメントの描画タイミングを生み出すタイマー
+		/// </summary>
+		private Timer _RenderingTimingTimer;
 
-		public uint RenderingSkipCount { get; private set; }
+		private bool _NowUpdating;
+		private TimeSpan _PreviousVideoPosition = TimeSpan.Zero;
+		private SemaphoreSlim _UpdateLock = new SemaphoreSlim(1, 1);
 
-		public Timer RenderingTimingTimer { get; private set; }
 
 		public CommentRenderer()
 		{
@@ -67,31 +101,30 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			Unloaded += CommentRenderer_Unloaded;
 		}
 
-	
 
-		private void CommentRenderer_Loaded(object sender, RoutedEventArgs e)
+		#region Event Handler
+
+		private async void CommentRenderer_Loaded(object sender, RoutedEventArgs e)
 		{
-			//			_UpdateTimingTimer = new Timer(
-			//				async (state) =>
-			//				{
-			//					var me = (CommentRenderer)state;
-
-			//					await me.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
-			//					{
-			////						me.OnUpdate();
-			//					});
-			//				}
-			//				, this
-			//				, TimeSpan.FromSeconds(1)
-			//				, TimeSpan.FromMilliseconds(64)
-			//			);
-
-			ResetRenderingTimer();
+			await ResetRenderingTimer();
 		}
 
-		private async void ResetRenderingTimer()
+
+
+		private void CommentRenderer_Unloaded(object sender, RoutedEventArgs e)
 		{
-			RenderingTimingTimer?.Dispose();
+			_RenderingTimingTimer?.Dispose();
+			_RenderingTimingTimer = null;
+		}
+
+
+		#endregion
+
+
+
+		private async Task ResetRenderingTimer()
+		{
+			_RenderingTimingTimer?.Dispose();
 
 			uint MaxCount = 10000;
 			uint count = 0;
@@ -103,37 +136,204 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 				Debug.WriteLine("コメント描画の終了を待機中 " + count.ToString());				
 			}
 
-			RenderingTimingTimer = new Timer(TimerCallback, this, 100, (int)(1000 / RequestFPS));
+			_RenderingTimingTimer = new Timer(TimerCallback, this, 100, (int)(1000 / RequestFPS));
 		}
 
-		private bool _NowUpdating;
-		private TimeSpan _PreviousVideoPosition = TimeSpan.Zero;
-		private async void TimerCallback(object state)
+		private void TimerCallback(object state)
 		{
-			if (_NowUpdating) { RenderingSkipCount++; return; }
+			try
+			{
+				_UpdateLock.Wait();
 
+				if (_NowUpdating)
+				{
+					_RenderingSkipCount++;
+					return;
+				}
 
-			_NowUpdating = true;
+				_NowUpdating = true;
+			}
+			finally
+			{
+				_UpdateLock.Release();
+			}
 
-			await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
+			var task = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
 			{
 				// 更新済みの位置であれば処理をスキップ
-				if (_PreviousVideoPosition == VideoPosition) { return; }
+				var videoPosition = VideoPosition;
+				if (_PreviousVideoPosition == videoPosition)
+				{
+					return;
+				}
 
 				OnUpdate();
 
-				_PreviousVideoPosition = VideoPosition;
-			});
+				_PreviousVideoPosition = videoPosition;
+				
+			})
+			.AsTask();
 
-			_NowUpdating = false;
-			RenderingSkipCount = 0;
+			task.Wait();
+
+			try
+			{
+				_UpdateLock.Wait();
+
+				_NowUpdating = false;
+				_RenderingSkipCount = 0;
+			}
+			finally
+			{
+				_UpdateLock.Release();
+			}
 		}
-		
-		private int CalcAndRegisterCommentVerticalPosition(CommentUI commentUI)
-		{
-			const int CommentVerticalMargin = 2;
 
-			
+
+
+		private void OnUpdate()
+		{
+			var currentVpos = (uint)Math.Floor(VideoPosition.TotalMilliseconds * 0.1);
+			var canvasWidth = (int)CommentCanvas.ActualWidth;
+			var canvasHeight = (uint)CommentCanvas.ActualHeight;
+			var halfCanvasWidth = canvasWidth / 2;
+			var fontScale = (float)CommentSizeScale;
+
+			// 非表示時は処理を行わない
+			if (Visibility == Visibility.Collapsed)
+			{
+				if (RenderComments.Count > 0)
+				{
+					foreach (var renderComment in RenderComments.ToArray())
+					{
+						RenderComments.Remove(renderComment.Key);
+
+						CommentCanvas.Children.Remove(renderComment.Value);
+
+						renderComment.Value.DataContext = null;
+					}
+				}
+
+				return;
+			}
+
+
+
+
+
+			UpdateCommentVerticalPositionList(currentVpos);
+
+
+			// 表示すべきコメントを抽出して、表示対象として未登録のコメントを登録処理する
+
+			var search = BinarySearch(currentVpos);
+
+			foreach (var comment in search)
+			{
+				if (!RenderComments.ContainsKey(comment))
+				{
+					// リザーブからCommentUIを取得
+
+					CommentUI renderComment = null;
+					if (_CommentUIReserve.Count > 0)
+					{
+						renderComment = _CommentUIReserve.Last();
+						_CommentUIReserve.Remove(renderComment);
+					}
+					else
+					{
+						renderComment = new CommentUI();
+					}
+
+					// フォントサイズの計算
+					// 画面サイズの10分の１＊ベーススケール＊フォントスケール
+					var baseSize = canvasHeight / 10;
+					const float PixelToPoint = 0.75f;
+					var scaledFontSize = baseSize * fontScale * comment.FontScale * PixelToPoint;
+					comment.FontSize = (uint)Math.Ceiling(scaledFontSize);
+
+
+					renderComment.DataContext = comment;
+
+
+					renderComment.Visibility = Visibility.Visible;
+
+					// 表示対象に登録
+					RenderComments.Add(comment, renderComment);
+
+					CommentCanvas.Children.Add(renderComment);
+					renderComment.UpdateLayout();
+
+					var verticalPos = CalcAndRegisterCommentVerticalPosition(renderComment);
+
+					if (verticalPos < 0 || verticalPos > canvasHeight)
+					{
+						renderComment.Visibility = Visibility.Collapsed;
+
+						Debug.WriteLine("hide comment : " + comment.CommentText);
+					}
+					else
+					{
+
+						Canvas.SetTop(renderComment, verticalPos);
+						var left = halfCanvasWidth - (int)(renderComment.DesiredSize.Width * 0.5);
+						System.Diagnostics.Debug.WriteLine($"V={verticalPos}: [{renderComment.CommentData.CommentText}] [{left}] [{comment.FontSize}]");
+
+						if (comment.VAlign.HasValue)
+						{
+							switch (comment.VAlign.Value)
+							{
+								case VerticalAlignment.Top:
+								case VerticalAlignment.Bottom:
+									Canvas.SetLeft(renderComment, left);
+									break;
+								case VerticalAlignment.Center:
+								case VerticalAlignment.Stretch:
+								default:
+									break;
+							}
+						}
+
+					}
+
+
+
+
+				}
+			}
+
+			// 表示区間をすぎたコメントを表示対象から削除
+			var removeRenderComments = RenderComments
+				.Where(x => CommentIsEndDisplay(x.Key, currentVpos) || x.Key.IsNGComment)
+				.ToArray();
+			foreach (var renderComment in removeRenderComments)
+			{
+				// 表示対象としての登録を解除
+				RenderComments.Remove(renderComment.Key);
+
+				CommentCanvas.Children.Remove(renderComment.Value);
+
+				_CommentUIReserve.Add(renderComment.Value);
+
+				renderComment.Value.DataContext = null;
+			}
+
+			// CommentUIの表示位置を更新
+			foreach (var renderComment in RenderComments)
+			{
+				var ui = renderComment.Value;
+				var comment = renderComment.Key;
+				if (comment.VAlign != VerticalAlignment.Bottom && comment.VAlign != VerticalAlignment.Top)
+				{
+					Canvas.SetLeft(ui, canvasWidth - ui.GetHorizontalPosition(canvasWidth, currentVpos));
+				}
+			}
+		}
+
+
+
+		private int CalcAndRegisterCommentVerticalPosition(CommentUI commentUI)
+		{	
 			List<CommentUI> verticalAlignList;
 			VerticalAlignment? _valign = (commentUI.DataContext as Comment).VAlign;
 			if (_valign.HasValue)
@@ -157,7 +357,14 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			}
 
 			int? commentVerticalPos = null;
-			int totalHeight = CommentVerticalMargin;
+			int totalHeight = 0;
+
+			// TrimFromBaselineを指定しているため、下コメントに余白を追加
+			if (_valign.HasValue && _valign.Value == VerticalAlignment.Bottom)
+			{
+				totalHeight += BottomCommentMargin;
+			}
+
 			for (int i = 0; i< verticalAlignList.Count; ++i)
 			{
 				var next = verticalAlignList[i];
@@ -237,7 +444,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 					if (comment == null) { return true; }
 
-					return x.IsCompleteInsideScreen((int)this.ActualWidth, Math.Max(currentVPos - 50, 0));
+					return x.IsCompleteInsideScreen((int)this.ActualWidth, Math.Max(currentVPos, 0));
 				})
 				.ToArray();
 
@@ -249,129 +456,6 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			}
 		}
 		
-		private void OnUpdate()
-		{
-			var currentVpos = (uint)Math.Floor(VideoPosition.TotalMilliseconds * 0.1);
-			var canvasWidth = (int)CommentCanvas.ActualWidth;
-			var canvasHeight = (uint)CommentCanvas.ActualHeight;
-			var halfCanvasWidth = canvasWidth / 2;
-			var fontScale = (float)CommentSizeScale;
-
-			// 非表示時は処理を行わない
-			if (Visibility == Visibility.Collapsed)
-			{
-				if (RenderComments.Count > 0)
-				{
-					foreach (var renderComment in RenderComments.ToArray())
-					{
-						RenderComments.Remove(renderComment.Key);
-
-						CommentCanvas.Children.Remove(renderComment.Value);
-
-						renderComment.Value.DataContext = null;
-					}
-				}
-
-				return;
-			}
-
-
-
-
-
-			UpdateCommentVerticalPositionList(currentVpos);
-
-
-			// 表示すべきコメントを抽出して、表示対象として未登録のコメントを登録処理する
-
-			var search = BinarySearch(currentVpos);
-
-			foreach (var comment in search)
-			{
-				if (!RenderComments.ContainsKey(comment))
-				{
-					// リザーブからCommentUIを取得
-
-					CommentUI renderComment = null;
-					if (_CommentUIReserve.Count > 0)
-					{
-						renderComment = _CommentUIReserve.Last();
-						_CommentUIReserve.Remove(renderComment);
-					}
-					else
-					{
-						renderComment = new CommentUI();
-					}
-
-					// フォントサイズの計算
-					// 画面サイズの10分の１＊ベーススケール＊フォントスケール
-					var baseSize = canvasHeight / 10;
-					const float PixelToPoint = 0.75f;
-					var scaledFontSize = baseSize * fontScale * comment.FontScale * PixelToPoint;
-					comment.FontSize = (uint)Math.Ceiling(scaledFontSize);
-
-
-					renderComment.DataContext = comment;
-
-
-					// 表示対象に登録
-					RenderComments.Add(comment, renderComment);
-
-					CommentCanvas.Children.Add(renderComment);
-					renderComment.UpdateLayout();
-
-					var verticalPos = CalcAndRegisterCommentVerticalPosition(renderComment);
-//					System.Diagnostics.Debug.WriteLine($"V={verticalPos}: [{renderComment.CommentData.CommentText}] [{comment.FontSize}]");
-					Canvas.SetTop(renderComment, verticalPos);
-
-					if (comment.VAlign.HasValue)
-					{
-						switch (comment.VAlign.Value)
-						{
-							case VerticalAlignment.Top:
-							case VerticalAlignment.Bottom:
-								Canvas.SetLeft(renderComment, halfCanvasWidth - (int)(renderComment.DesiredSize.Width * 0.5));
-								break;
-							case VerticalAlignment.Center:
-							case VerticalAlignment.Stretch:
-							default:
-								break;
-						}
-					}
-
-
-					
-				}
-			}
-
-			// 表示区間をすぎたコメントを表示対象から削除
-
-			var removeRenderComments = RenderComments
-				.Where(x => CommentIsEndDisplay(x.Key, currentVpos) || x.Key.IsNGComment)
-				.ToArray();
-			foreach (var renderComment in removeRenderComments)
-			{
-				// 表示対象としての登録を解除
-				RenderComments.Remove(renderComment.Key);
-
-				CommentCanvas.Children.Remove(renderComment.Value);
-
-				_CommentUIReserve.Add(renderComment.Value);
-
-				renderComment.Value.DataContext = null;
-			}
-
-			// CommentUIの表示位置を更新
-			foreach (var renderComment in RenderComments)
-			{
-				var ui = renderComment.Value;
-				var comment = renderComment.Key;
-				if (comment.VAlign != VerticalAlignment.Bottom && comment.VAlign != VerticalAlignment.Top)
-				{
-					Canvas.SetLeft(ui, canvasWidth - ui.GetHorizontalPosition(canvasWidth, currentVpos));
-				}
-			}
-		}
 
 
 		private bool CommentIsEndDisplay(Comment comment, uint currentVpos)
@@ -379,11 +463,54 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			return !(comment.VideoPosition <= currentVpos && currentVpos <= comment.EndPosition);
 		}
 
-		private void CommentRenderer_Unloaded(object sender, RoutedEventArgs e)
+		
+
+
+
+
+		private void AddComment(Comment comment)
 		{
-			RenderingTimingTimer?.Dispose();
-			RenderingTimingTimer = null;
+			var vpos = comment.VideoPosition;
+			List<Comment> list;
+			if (TimeSequescailComments.ContainsKey(vpos))
+			{
+				list = TimeSequescailComments[vpos];
+			}
+			else
+			{
+				list = new List<Comment>();
+				TimeSequescailComments.Add(vpos, list);
+			}
+
+			list.Add(comment);
 		}
+
+
+		private CommentUI MakeCommentUI(Comment comment)
+		{
+			CommentUI ui = new CommentUI()
+			{
+				DataContext = comment
+			};
+
+			return ui;
+		}
+
+
+
+
+		private IEnumerable<Comment> BinarySearch(uint currentVpos)
+		{
+			int skipVpos = (int)currentVpos - CommentDisplayMaxTime;
+			return TimeSequescailComments.Keys
+				.SkipWhile(x => x < skipVpos)
+				.TakeWhile(x => x < currentVpos)
+				.Select(x => TimeSequescailComments[x])
+				.SelectMany(x => x.Where(y => currentVpos < y.EndPosition && !y.IsNGComment));
+		}
+
+
+		#region Dependency Properties
 
 
 		public static readonly DependencyProperty SelectedCommentOutlineColorProperty =
@@ -553,57 +680,8 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		}
 
 
-		private void AddComment(Comment comment)
-		{
-			var vpos = comment.VideoPosition;
-			List<Comment> list;
-			if (TimeSequescailComments.ContainsKey(vpos))
-			{
-				list = TimeSequescailComments[vpos];
-			}
-			else
-			{
-				list = new List<Comment>();
-				TimeSequescailComments.Add(vpos, list);
-			}
+		#endregion
 
-			list.Add(comment);
-		}
-
-
-		private CommentUI MakeCommentUI(Comment comment)
-		{
-			CommentUI ui = new CommentUI()
-			{
-				DataContext = comment
-			};
-
-			return ui;
-		}
-
-
-
-
-		private IEnumerable<Comment> BinarySearch(uint currentVpos)
-		{
-			return TimeSequescailComments.Keys.Where(x => x < currentVpos)
-				.Select(x => TimeSequescailComments[x])
-				.SelectMany(x => x.Where(y => currentVpos < y.EndPosition))
-				.Where(x => !x.IsNGComment);
-		}
-
-
-		private IEnumerable<Comment> DisplayComments(IEnumerable<uint> vposList)
-		{
-			foreach (var vpos in vposList)
-			{
-				var list = TimeSequescailComments[vpos];
-				foreach (var comment in list)
-				{
-					yield return comment;
-				}
-			}
-		}
 	}
 
 
