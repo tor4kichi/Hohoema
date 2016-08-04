@@ -101,6 +101,7 @@
     <Content Include="Assets\BadgeLogo.scale-150.png" />
     <Content Include="Assets\BadgeLogo.scale-200.png" />
     <Content Include="Assets\BadgeLogo.scale-400.png" />
+    <Content Include="Assets\LibLisencies\Material Design Icons.txt" />
     <Content Include="Assets\LibLisencies\_lisence_summary.json" />
     <None Include="lib\Mntone.Nico2.UWP.pri" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
