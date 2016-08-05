@@ -56,6 +56,7 @@ namespace NicoPlayerHohoema.ViewModels
 			IsFavoriteTag.Subscribe(async x => 
 			{
 				if (_NowProcessFavorite) { return; }
+				if (!IsTagSearch.Value) { return; }
 
 				_NowProcessFavorite = true;
 
@@ -64,12 +65,12 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					if (await FavoriteTag())
 					{
-						Debug.WriteLine(SearchOption.Keyword + "のタグをお気に入り登録しました.");
+						Debug.WriteLine(RequireSearchOption.Keyword + "のタグをお気に入り登録しました.");
 					}
 					else 
 					{
 						// お気に入り登録に失敗した場合は状態を差し戻し
-						Debug.WriteLine(SearchOption.Keyword + "のタグをお気に入り登録に失敗");
+						Debug.WriteLine(RequireSearchOption.Keyword + "のタグをお気に入り登録に失敗");
 						IsFavoriteTag.Value = false;
 					}
 				}
@@ -77,12 +78,12 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					if (await UnfavoriteTag())
 					{
-						Debug.WriteLine(SearchOption.Keyword + "のタグをお気に入り解除しました.");
+						Debug.WriteLine(RequireSearchOption.Keyword + "のタグをお気に入り解除しました.");
 					}
 					else
 					{
 						// お気に入り解除に失敗した場合は状態を差し戻し
-						Debug.WriteLine(SearchOption.Keyword + "のタグをお気に入り解除に失敗");
+						Debug.WriteLine(RequireSearchOption.Keyword + "のタグをお気に入り解除に失敗");
 						IsFavoriteTag.Value = true;
 					}
 				}
@@ -106,45 +107,37 @@ namespace NicoPlayerHohoema.ViewModels
 				RequireSearchOption = SearchOption.FromParameterString(e.Parameter as string);
 			}
 
+			_NowProcessFavorite = true;
+
 			IsFavoriteTag.Value = false;
 			CanChangeFavoriteTagState.Value = false;
+
+			_NowProcessFavorite = false;
 
 			base.OnNavigatedTo(e, viewModelState);
 		}
 
 		protected override Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			if (SearchOption == null) { return Task.CompletedTask; }
+			if (RequireSearchOption == null) { return Task.CompletedTask; }
 
 			_NowProcessFavorite = true;
 
-			IsTagSearch.Value = SearchOption.SearchTarget == SearchTarget.Tag 
+			IsTagSearch.Value = RequireSearchOption.SearchTarget == SearchTarget.Tag 
 				&& HohoemaApp.LoginUserId != default(uint);
 
 			if (IsTagSearch.Value)
 			{
 				// お気に入り登録されているかチェック
 				var favManager = HohoemaApp.FavFeedManager;
-				IsFavoriteTag.Value = favManager.IsFavoriteItem(FavoriteItemType.Tag, SearchOption.Keyword);
+				IsFavoriteTag.Value = favManager.IsFavoriteItem(FavoriteItemType.Tag, RequireSearchOption.Keyword);
 				CanChangeFavoriteTagState.Value = favManager.CanMoreAddFavorite(FavoriteItemType.Tag);
 			}
 
 			_NowProcessFavorite = false;
 
 			return Task.CompletedTask;		
-		}
-
-		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
-		{
-			/*
-			SearchResultItems.Clear();
-			SearchResultItems = null;
-			OnPropertyChanged(nameof(SearchResultItems));
-			*/
-
-			base.OnNavigatingFrom(e, viewModelState, suspending);
-		}
-
+		}	
 
 		#region Implement HohoemaVideListViewModelBase
 
@@ -156,13 +149,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override void PostResetList()
 		{
-			SearchOption = RequireSearchOption;
-			RequireSearchOption = null;
-
-
-			var target = SearchOption.SearchTarget == SearchTarget.Keyword ? "キーワード" : "タグ";
-			var optionText = Util.SortMethodHelper.ToCulturizedText(SearchOption.SortMethod, SearchOption.SortDirection);
-			UpdateTitle($"{target}検索: {SearchOption.Keyword} - {optionText}");
+			var source = IncrementalLoadingItems.Source as SearchPageSource;
+			var searchOption = source.SearchOption;
+			var target = searchOption.SearchTarget == SearchTarget.Keyword ? "キーワード" : "タグ";
+			var optionText = Util.SortMethodHelper.ToCulturizedText(searchOption.SortMethod, searchOption.SortDirection);
+			UpdateTitle($"{target}検索: {searchOption.Keyword} - {optionText}");
 		}
 
 		protected override uint IncrementalLoadCount
@@ -175,9 +166,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
 		{
+			if (mode == NavigationMode.New || mode == NavigationMode.Refresh) { return true; }
+
+			var source = IncrementalLoadingItems.Source as SearchPageSource;
+
 			if (RequireSearchOption != null)
 			{
-				return !RequireSearchOption.Equals(SearchOption);
+				return !RequireSearchOption.Equals(source.SearchOption);
 			}
 			else
 			{
@@ -196,7 +191,7 @@ namespace NicoPlayerHohoema.ViewModels
 			if (!IsTagSearch.Value) { return false; }
 
 			var favManager = HohoemaApp.FavFeedManager;
-			var result = await favManager.AddFav(FavoriteItemType.Tag, SearchOption.Keyword, SearchOption.Keyword);
+			var result = await favManager.AddFav(FavoriteItemType.Tag, RequireSearchOption.Keyword, RequireSearchOption.Keyword);
 
 			return result == Mntone.Nico2.ContentManageResult.Success || result == Mntone.Nico2.ContentManageResult.Exist;
 		}
@@ -206,7 +201,7 @@ namespace NicoPlayerHohoema.ViewModels
 			if (!IsTagSearch.Value) { return false; }
 
 			var favManager = HohoemaApp.FavFeedManager;
-			var result = await favManager.RemoveFav(FavoriteItemType.Tag, SearchOption.Keyword);
+			var result = await favManager.RemoveFav(FavoriteItemType.Tag, RequireSearchOption.Keyword);
 
 			return result == Mntone.Nico2.ContentManageResult.Success;
 		}
@@ -225,7 +220,6 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> FailLoading { get; private set; }
 
 		public SearchOption RequireSearchOption { get; private set; }
-		public SearchOption SearchOption { get; private set; }
 		public ReactiveProperty<int> LoadedPage { get; private set; }
 		public ReactiveProperty<int> MaxPageCount { get; private set; }
 	
@@ -242,7 +236,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		HohoemaApp _HohoemaApp;
 		PageManager _PageManager;
-		SearchOption _SearchOption;
+		public SearchOption SearchOption { get; private set; }
 
 		List<ListItem> _CachedSearchListItem;
 
@@ -253,7 +247,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			_HohoemaApp = hohoemaApp;
 			_PageManager = pageManager;
-			_SearchOption = searchOption;
+			SearchOption = searchOption;
 
 			_CachedSearchListItem = new List<ListItem>();
 		}
@@ -277,13 +271,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 			var contentFinder = _HohoemaApp.ContentFinder;
 			SearchResponse response = null;
-			switch (_SearchOption.SearchTarget)
+			switch (SearchOption.SearchTarget)
 			{
 				case SearchTarget.Keyword:
-					response = await contentFinder.GetKeywordSearch(_SearchOption.Keyword, pageIndex, _SearchOption.SortMethod, _SearchOption.SortDirection);
+					response = await contentFinder.GetKeywordSearch(SearchOption.Keyword, pageIndex, SearchOption.SortMethod, SearchOption.SortDirection);
 					break;
 				case SearchTarget.Tag:
-					response = await contentFinder.GetTagSearch(_SearchOption.Keyword, pageIndex, _SearchOption.SortMethod, _SearchOption.SortDirection);
+					response = await contentFinder.GetTagSearch(SearchOption.Keyword, pageIndex, SearchOption.SortMethod, SearchOption.SortDirection);
 					break;
 				default:
 					break;
