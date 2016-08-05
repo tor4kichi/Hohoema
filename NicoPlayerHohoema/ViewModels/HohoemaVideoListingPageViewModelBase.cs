@@ -214,7 +214,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			// クオリティ指定無しのキャッシュDLリクエスト
 			RequestCacheDownload = SelectionItemsChanged
-				.Select(_ => EnumerateCanDownloadVideoItem(NicoVideoQuality.Low).Count() > 0 && HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache)
+				.Select(_ => EnumerateCanDownloadVideoItem().Count() > 0 && HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache)
 				.ToReactiveCommand(false)
 				.AddTo(_CompositeDisposable);
 
@@ -222,11 +222,38 @@ namespace NicoPlayerHohoema.ViewModels
 				.SubscribeOnUIDispatcher()
 				.Subscribe(async _ =>
 			{
-				foreach (var item in EnumerateCanDownloadVideoItem(NicoVideoQuality.Low))
+				// 低画質限定を指定されている場合はそれに従う
+				if (HohoemaApp.UserSettings.PlayerSettings.IsLowQualityDeafult)
 				{
-					await item.NicoVideo.RequestCache(NicoVideoQuality.Low);
+					foreach (var item in EnumerateCanDownloadVideoItem())
+					{
+						if (item.NicoVideo.IsOriginalQualityOnly)
+						{
+							await item.NicoVideo.RequestCache(NicoVideoQuality.Original);
+						}
+						else
+						{
+							await item.NicoVideo.RequestCache(NicoVideoQuality.Low);
+						}
+					}
 				}
 
+				// そうでない場合は、オリジナル画質を優先して現在ダウンロード可能な画質でキャッシュリクエスト
+				else
+				{
+					foreach (var item in EnumerateCanDownloadVideoItem(/*画質指定なし*/))
+					{
+						if (item.NicoVideo.CanRequestDownloadOriginalQuality)
+						{
+							await item.NicoVideo.RequestCache(NicoVideoQuality.Original);
+						}
+						else if (item.NicoVideo.CanRequestDownloadLowQuality)
+						{
+							await item.NicoVideo.RequestCache(NicoVideoQuality.Low);
+						}
+					}
+				}
+				
 				ClearSelection();
 				await UpdateList();
 			})
@@ -516,8 +543,27 @@ namespace NicoPlayerHohoema.ViewModels
 			});
 		}
 
-		private IEnumerable<VideoInfoControlViewModel> EnumerateCanDownloadVideoItem(NicoVideoQuality quality)
+		private IEnumerable<VideoInfoControlViewModel> EnumerateCanDownloadVideoItem(NicoVideoQuality? quality = null)
 		{
+			if (!quality.HasValue)
+			{
+				return SelectedVideoInfoItems.Where(x =>
+				{
+					var video = x.NicoVideo;
+					if (x.NicoVideo.CanRequestDownloadOriginalQuality)
+					{
+						return true;
+					}
+					else if (video.CanRequestDownloadLowQuality)
+					{
+						return true;
+					}
+					else
+					{
+						return false;
+					}
+				});
+			}
 			switch (quality)
 			{
 				case NicoVideoQuality.Original:
