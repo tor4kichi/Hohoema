@@ -109,7 +109,7 @@ namespace NicoPlayerHohoema.ViewModels
 			.AddTo(_CompositeDisposable);
 
 			CancelCacheDownloadRequest = SelectionItemsChanged
-				.Select(_ => EnumerateDownloadingVideoItems().Count() > 0)
+				.Select(_ => EnumerateCacheRequestedVideoItems().Count() > 0)
 				.ToReactiveCommand(false)
 				.AddTo(_CompositeDisposable);
 
@@ -117,13 +117,21 @@ namespace NicoPlayerHohoema.ViewModels
 				.SubscribeOnUIDispatcher()
 				.Subscribe(async _ => 
 			{
-				foreach (var item in EnumerateDownloadingVideoItems())
+				foreach (var item in EnumerateCacheRequestedVideoItems())
 				{
-					item.NicoVideo.CancelCacheRequest();
+					if (item is CacheVideoViewModel)
+					{
+						var quality = (item as CacheVideoViewModel).Quality;
+						await item.NicoVideo.CancelCacheRequest(quality);
+					}
+					else
+					{
+						await item.NicoVideo.CancelCacheRequest();
+					}
 				}
 
 				ClearSelection();
-				await UpdateList();
+//				await UpdateList();
 			})
 			.AddTo(_CompositeDisposable);
 
@@ -175,42 +183,7 @@ namespace NicoPlayerHohoema.ViewModels
 			})
 			.AddTo(_CompositeDisposable);
 
-			DeleteOriginalQualityCache = SelectionItemsChanged
-				.Select(_ => EnumerateCachedVideoItem(NicoVideoQuality.Original).Count() > 0)
-				.ToReactiveCommand(false)
-				.AddTo(_CompositeDisposable);
-
-			DeleteOriginalQualityCache
-				.SubscribeOnUIDispatcher()
-				.Subscribe(async _ =>
-			{
-				foreach (var item in EnumerateCachedVideoItem(NicoVideoQuality.Original))
-				{
-					await item.NicoVideo.CancelCacheRequest(NicoVideoQuality.Original);
-				}
-
-				ClearSelection();
-				await ResetList();
-			})
-			.AddTo(_CompositeDisposable);
-
-			DeleteLowQualityCache = SelectionItemsChanged
-				.Select(_ => EnumerateCachedVideoItem(NicoVideoQuality.Low).Count() > 0)
-				.ToReactiveCommand(false)
-				.AddTo(_CompositeDisposable);
-			DeleteLowQualityCache
-				.SubscribeOnUIDispatcher()
-				.Subscribe(async _ =>
-			{
-				foreach (var item in EnumerateCachedVideoItem(NicoVideoQuality.Low))
-				{
-					await item.NicoVideo.CancelCacheRequest(NicoVideoQuality.Low);
-				}
-
-				ClearSelection();
-				await ResetList();
-			})
-			.AddTo(_CompositeDisposable);
+			
 
 			// クオリティ指定無しのキャッシュDLリクエスト
 			RequestCacheDownload = SelectionItemsChanged
@@ -259,31 +232,7 @@ namespace NicoPlayerHohoema.ViewModels
 			})
 			.AddTo(_CompositeDisposable);
 
-			var dispacther = Window.Current.CoreWindow.Dispatcher;
-			// クオリティ指定無しのキャッシュ削除
-			DeleteCache = SelectionItemsChanged
-				.Select(_ => EnumerateCachedVideoItem(NicoVideoQuality.Low).Count() > 0 || EnumerateCachedVideoItem(NicoVideoQuality.Original).Count() > 0)
-				.ToReactiveCommand(false)
-				.AddTo(_CompositeDisposable);
-			DeleteCache
-				.SubscribeOnUIDispatcher()
-				.Subscribe(async _ =>
-			{
-				foreach (var item in EnumerateCachedVideoItem(NicoVideoQuality.Low))
-				{
-					await item.NicoVideo.CancelCacheRequest(NicoVideoQuality.Low);
-				}
-
-				foreach (var item in EnumerateCachedVideoItem(NicoVideoQuality.Original))
-				{
-					await item.NicoVideo.CancelCacheRequest(NicoVideoQuality.Original);
-				}
-				
-				ClearSelection();
-				await ResetList();
-			})
-			.AddTo(_CompositeDisposable);
-
+			
 
 			RegistratioMylistCommand = SelectionItemsChanged
 				.Select(x => SelectedVideoInfoItems.Count > 0)
@@ -531,15 +480,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected virtual bool CheckNeedUpdateOnNavigateTo(NavigationMode mode) { return mode != NavigationMode.Back; }
 
-		private IEnumerable<VideoInfoControlViewModel> EnumerateDownloadingVideoItems()
+		private IEnumerable<VideoInfoControlViewModel> EnumerateCacheRequestedVideoItems()
 		{
 			return SelectedVideoInfoItems.Where(x =>
 			{
-				return 
-					x.NicoVideo.OriginalQualityCacheState == NicoVideoCacheState.NowDownloading
-					|| x.NicoVideo.OriginalQualityCacheState == NicoVideoCacheState.CacheRequested
-					|| x.NicoVideo.LowQualityCacheState == NicoVideoCacheState.NowDownloading
-					|| x.NicoVideo.LowQualityCacheState == NicoVideoCacheState.CacheRequested;
+				return x.NicoVideo.OriginalQualityCacheState.HasValue
+					|| x.NicoVideo.LowQualityCacheState.HasValue;
+					
 			});
 		}
 

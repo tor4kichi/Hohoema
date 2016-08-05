@@ -475,15 +475,18 @@ namespace NicoPlayerHohoema.Models
 
 		
 
-		public void CancelCacheRequest()
+		public async Task CancelCacheRequest()
 		{
-			CancelCacheRequest(NicoVideoQuality.Original);
-			CancelCacheRequest(NicoVideoQuality.Low);
+			await CancelCacheRequest(NicoVideoQuality.Original);
+			await CancelCacheRequest(NicoVideoQuality.Low);
 		}
 
-		public Task CancelCacheRequest(NicoVideoQuality quality)
+		public async Task CancelCacheRequest(NicoVideoQuality quality)
 		{
-			return _Context.CacnelDownloadRequest(this.RawVideoId, quality);
+			if (await _Context.CacnelDownloadRequest(this.RawVideoId, quality))
+			{
+				await this.CheckCacheStatus();
+			}
 		}
 
 		public async Task DeleteCache(NicoVideoQuality quality)
@@ -689,7 +692,7 @@ namespace NicoPlayerHohoema.Models
 				if (!Util.InternetConnection.IsInternet()) { return false; }
 
 				// キャッシュリクエスト済みじゃないか
-				if (LowQualityCacheState == NicoVideoCacheState.Cached) { return false; }
+				if (OriginalQualityCacheState.HasValue) { return false; }
 
 				// 
 				if (ThumbnailResponseCache.IsOriginalQualityOnly)
@@ -715,7 +718,7 @@ namespace NicoPlayerHohoema.Models
 				if (!Util.InternetConnection.IsInternet()) { return false; }
 
 				// キャッシュリクエスト済みじゃないか
-				if (LowQualityCacheState == NicoVideoCacheState.Cached) { return false; }
+				if (LowQualityCacheState.HasValue) { return false; }
 
 
 				if (!ThumbnailResponseCache.HasCache)

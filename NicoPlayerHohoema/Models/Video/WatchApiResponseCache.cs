@@ -11,11 +11,15 @@ namespace NicoPlayerHohoema.Models
 {
 	public class WatchApiResponseCache : Util.Cacheable<WatchApiResponse>
 	{
+		public static bool NowLowQualityOnly { get; private set; } = true;
+
+
+
+
 		public HohoemaApp HohoemaApp { get; private set; }
 
 		public string RawVideoId { get; private set; }
 
-		public bool NowLowQualityOnly { get; private set; }
 
 		public bool IsBlockedHarmfulVideo { get; private set; }
 
