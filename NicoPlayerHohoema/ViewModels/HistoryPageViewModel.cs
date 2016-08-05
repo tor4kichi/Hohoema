@@ -9,16 +9,63 @@ using Prism.Windows.Navigation;
 using System.Collections.ObjectModel;
 using NicoPlayerHohoema.Util;
 using Mntone.Nico2.Videos.Histories;
+using Prism.Commands;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
+using System.Reactive.Linq;
+using System.Threading;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	public class HistoryPageViewModel : HohoemaVideoListingPageViewModelBase<HistoryVideoInfoControlViewModel>
 	{
+		HistoriesResponse _HistoriesResponse;
+
+
 		public HistoryPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
 			: base(hohoemaApp, pageManager, mylistDialogService)
 		{
+			RemoveHistoryCommand = SelectedVideoInfoItems.ObserveProperty(x => x.Count)
+				.Select(x => x > 0)
+				.ToReactiveCommand()
+				.AddTo(_CompositeDisposable);
+
+			RemoveHistoryCommand.Subscribe(async _ => 
+			{
+				var selectedItems = SelectedVideoInfoItems.ToArray();
+
+				foreach (var item in selectedItems)
+				{
+					await RemoveHistory(item.RawVideoId);
+
+					SelectedVideoInfoItems.Remove(item);
+
+					await Task.Delay(250);
+				}
+
+				_HistoriesResponse = await HohoemaApp.ContentFinder.GetHistory();
+
+				RemoveAllHistoryCommand.RaiseCanExecuteChanged();
+			})
+			.AddTo(_CompositeDisposable);
 		}
 
+		public ReactiveCommand RemoveHistoryCommand { get; private set; }
+
+		private DelegateCommand _RemoveAllHistoryCommand;
+		public DelegateCommand RemoveAllHistoryCommand
+		{
+			get
+			{
+				return _RemoveAllHistoryCommand
+					?? (_RemoveAllHistoryCommand = new DelegateCommand(async () =>
+					{
+						await RemoveAllHistory();
+					}
+					, () => _HistoriesResponse?.Histories.Count > 0
+					));
+			}
+		}
 
 		protected override uint IncrementalLoadCount
 		{
@@ -28,43 +75,71 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		protected override IIncrementalSource<HistoryVideoInfoControlViewModel> GenerateIncrementalSource()
+
+		
+		protected override async Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			return new HistoryIncrementalLoadingSource(HohoemaApp, PageManager);
+			_HistoriesResponse = await HohoemaApp.ContentFinder.GetHistory();
+			
+			await base.ListPageNavigatedToAsync(cancelToken, e, viewModelState);
 		}
 
+		protected override IIncrementalSource<HistoryVideoInfoControlViewModel> GenerateIncrementalSource()
+		{
+			return new HistoryIncrementalLoadingSource(HohoemaApp, PageManager, _HistoriesResponse);
+		}
+
+		internal async Task RemoveAllHistory()
+		{
+			await HohoemaApp.NiconicoContext.Video.RemoveAllHistoriesAsync(_HistoriesResponse.Token);
+
+			_HistoriesResponse = await HohoemaApp.ContentFinder.GetHistory();
+
+			RemoveAllHistoryCommand.RaiseCanExecuteChanged();
+
+			ResetList();
+		}
+
+		internal async Task RemoveHistory(string videoId)
+		{
+			await HohoemaApp.NiconicoContext.Video.RemoveHistoryAsync(_HistoriesResponse.Token, videoId);
+
+			var item = IncrementalLoadingItems.SingleOrDefault(x => x.RawVideoId == videoId);
+			IncrementalLoadingItems.Remove(item);
+		}
 		
 	}
 
 
 	public class HistoryVideoInfoControlViewModel : VideoInfoControlViewModel
 	{
+		public DateTime LastWatchedAt { get; set; }
+		public uint UserViewCount { get; set; }
+
 		public HistoryVideoInfoControlViewModel(uint viewCount, NicoVideo nicoVideo, PageManager pageManager)
 			: base(nicoVideo, pageManager)
 		{
 			UserViewCount = viewCount;
 		}
 
-		public DateTime LastWatchedAt { get; set; }
-		public uint UserViewCount { get; set; }
+
+
+		
 	}
 
 
 	public class HistoryIncrementalLoadingSource : IIncrementalSource<HistoryVideoInfoControlViewModel>
 	{
-		public HistoryIncrementalLoadingSource(HohoemaApp hohoemaApp, PageManager pageManager)
+		public HistoryIncrementalLoadingSource(HohoemaApp hohoemaApp, PageManager pageManager, HistoriesResponse historyRes)
 		{
 			_HohoemaApp = hohoemaApp;
 			_PageManager = pageManager;
+			_HistoriesResponse = historyRes;
 		}
 
 		public async Task<IEnumerable<HistoryVideoInfoControlViewModel>> GetPagedItems(uint pageIndex, uint pageSize)
 		{
-			if (_HistoriesResponse == null || pageIndex == 1)
-			{
-				_HistoriesResponse = await _HohoemaApp.ContentFinder.GetHistory();
-			}
-
+			
 			var head = (int)pageIndex - 1;
 			var list = new List<HistoryVideoInfoControlViewModel>();
 			foreach (var history in _HistoriesResponse.Histories.Skip(head).Take((int)pageSize))

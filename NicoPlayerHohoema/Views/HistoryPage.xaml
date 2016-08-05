@@ -32,6 +32,10 @@
 
 
                 <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left">
+                    <AppBarButton Icon="Delete" 
+                                  Label="全ての履歴を削除"
+                                  Command="{Binding RemoveAllHistoryCommand}"
+                                  />
                 </StackPanel>
 
                 <!-- 複数選択のON/OFF -->
@@ -64,6 +68,8 @@
                             VerticalAlignment="Center"
                         toolkit:DockPanel.Dock="Right"
                         >
+                    <AppBarButton Icon="Remove" Label="視聴履歴削除" Command="{Binding RemoveHistoryCommand}" />
+                    <AppBarSeparator />
                     <AppBarButton Icon="Add" Label="マイリスト登録" Command="{Binding RegistratioMylistCommand}" />
                     <StackPanel Orientation="Horizontal" Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}">
                         <AppBarSeparator />
