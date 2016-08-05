@@ -561,6 +561,12 @@ namespace NicoPlayerHohoema.ViewModels
 			
 		}
 
+
+		public Task<int> ResetSource()
+		{
+			return Task.FromResult(_HohoemaApp.UserMylistManager.GetMylistGroup("0").ItemCount);
+		}
+
 		public async Task<IEnumerable<VideoInfoControlViewModel>> GetPagedItems(uint head, uint pageSize)
 		{
 			List<VideoInfoControlViewModel> list = new List<VideoInfoControlViewModel>();
@@ -572,6 +578,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				return list;
 			}
+
 			foreach (var videoId in items.Skip((int)head-1).Take((int)pageSize))
 			{
 				var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(videoId);
@@ -600,6 +607,22 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
+		public async Task<int> ResetSource()
+		{
+			var count = 0;
+			var mylistManager = _HohoemaApp.UserMylistManager;
+			if (mylistManager.HasMylistGroup(MylistGroupId))
+			{
+				count = mylistManager.GetMylistGroup(MylistGroupId).ItemCount;
+			}
+			else
+			{
+				var res = await _HohoemaApp.ContentFinder.GetMylistItems(MylistGroupId, 0, 1);
+				count = int.Parse(res.Total_count);
+			}
+
+			return count;
+		}
 
 		public async Task<IEnumerable<VideoInfoControlViewModel>> GetPagedItems(uint head, uint pageSize)
 		{

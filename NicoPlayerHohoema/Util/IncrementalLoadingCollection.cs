@@ -15,6 +15,7 @@ namespace NicoPlayerHohoema.Util
 {
 	public interface IIncrementalSource<T>
 	{
+		Task<int> ResetSource();
 		Task<IEnumerable<T>> GetPagedItems(uint head, uint count);
 	}
 
@@ -37,8 +38,6 @@ namespace NicoPlayerHohoema.Util
 		private bool _HasMoreItems;
 		private uint _Position;
 
-
-
 		public IncrementalLoadingCollection(T source, uint itemsPerPage = 20, uint firstHeadPosition = 1)
 		{
 			this._Source = source;
@@ -47,8 +46,6 @@ namespace NicoPlayerHohoema.Util
 			_Position = firstHeadPosition;
 			IsPuaseLoading = false;
 		}
-
-		
 
 		public IAsyncOperation<LoadMoreItemsResult> LoadMoreItemsAsync(uint count)
 		{
@@ -61,7 +58,7 @@ namespace NicoPlayerHohoema.Util
 					);
 
 				uint resultCount = 0;
-
+				
 				List<I> resultItems = null;
 				try
 				{

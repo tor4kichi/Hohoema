@@ -43,6 +43,8 @@ namespace NicoPlayerHohoema.ViewModels
 					await Task.Delay(250);
 				}
 
+				await UpdateList();
+
 				_HistoriesResponse = await HohoemaApp.ContentFinder.GetHistory();
 
 				RemoveAllHistoryCommand.RaiseCanExecuteChanged();
@@ -62,7 +64,7 @@ namespace NicoPlayerHohoema.ViewModels
 					{
 						await RemoveAllHistory();
 					}
-					, () => _HistoriesResponse?.Histories.Count > 0
+					, () => MaxItemsCount.Value > 0
 					));
 			}
 		}
@@ -80,7 +82,7 @@ namespace NicoPlayerHohoema.ViewModels
 		protected override async Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			_HistoriesResponse = await HohoemaApp.ContentFinder.GetHistory();
-			
+
 			await base.ListPageNavigatedToAsync(cancelToken, e, viewModelState);
 		}
 
@@ -89,15 +91,20 @@ namespace NicoPlayerHohoema.ViewModels
 			return new HistoryIncrementalLoadingSource(HohoemaApp, PageManager, _HistoriesResponse);
 		}
 
+		protected override void PostResetList()
+		{
+			RemoveAllHistoryCommand.RaiseCanExecuteChanged();
+
+			base.PostResetList();
+		}
+
 		internal async Task RemoveAllHistory()
 		{
 			await HohoemaApp.NiconicoContext.Video.RemoveAllHistoriesAsync(_HistoriesResponse.Token);
 
-			_HistoriesResponse = await HohoemaApp.ContentFinder.GetHistory();
-
 			RemoveAllHistoryCommand.RaiseCanExecuteChanged();
 
-			ResetList();
+			await ResetList();
 		}
 
 		internal async Task RemoveHistory(string videoId)
@@ -106,8 +113,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 			var item = IncrementalLoadingItems.SingleOrDefault(x => x.RawVideoId == videoId);
 			IncrementalLoadingItems.Remove(item);
+
+//			await UpdateList();
 		}
-		
+
 	}
 
 
@@ -136,6 +145,13 @@ namespace NicoPlayerHohoema.ViewModels
 			_PageManager = pageManager;
 			_HistoriesResponse = historyRes;
 		}
+
+
+		public Task<int> ResetSource()
+		{
+			return Task.FromResult(_HistoriesResponse.Histories.Count);
+		}
+
 
 		public async Task<IEnumerable<HistoryVideoInfoControlViewModel>> GetPagedItems(uint pageIndex, uint pageSize)
 		{
