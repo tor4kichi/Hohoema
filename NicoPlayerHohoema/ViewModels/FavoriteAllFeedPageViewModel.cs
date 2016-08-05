@@ -92,14 +92,16 @@ namespace NicoPlayerHohoema.ViewModels
 			_PageManager = pageManager;
 		}
 
+		public async Task<int> ResetSource()
+		{
+			await _FavFeedManager.UpdateAll();
+			FeedItems = _FavFeedManager.GetAllFeedItems().Take(100).ToList();
+
+			return FeedItems.Count;
+		}
+
 		public async Task<IEnumerable<FavoriteVideoInfoControlViewModel>> GetPagedItems(uint pageIndex, uint pageSize)
 		{
-			if (FeedItems == null || pageIndex == 1)
-			{
-				await _FavFeedManager.UpdateAll();
-				FeedItems = _FavFeedManager.GetAllFeedItems().Take(100).ToList();
-			}
-
 			var head = pageIndex - 1;
 			var currentItems = FeedItems.Skip((int)head).Take((int)pageSize).ToList();
 
@@ -113,7 +115,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 					list.Add(vm);
 
-					vm.LoadThumbnail();
+					await vm.LoadThumbnail();
 				}
 				catch (Exception ex)
 				{

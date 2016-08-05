@@ -41,6 +41,16 @@ namespace NicoPlayerHohoema.ViewModels
 			_LastListViewOffset = 0;
 
 
+			MaxItemsCount = new ReactiveProperty<int>(0)
+				.AddTo(_CompositeDisposable);
+			LoadedItemsCount = new ReactiveProperty<int>(0)
+				.AddTo(_CompositeDisposable);
+			SelectedItemsCount = SelectedVideoInfoItems.ObserveProperty(x => x.Count)
+				.ToReactiveProperty(0)
+				.AddTo(_CompositeDisposable);
+
+
+
 			NowRefreshable = new ReactiveProperty<bool>(false);
 
 			// 複数選択モード
@@ -105,7 +115,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			CancelCacheDownloadRequest
 				.SubscribeOnUIDispatcher()
-				.Subscribe(_ => 
+				.Subscribe(async _ => 
 			{
 				foreach (var item in EnumerateDownloadingVideoItems())
 				{
@@ -113,7 +123,7 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 
 				ClearSelection();
-				UpdateList();
+				await UpdateList();
 			})
 			.AddTo(_CompositeDisposable);
 
@@ -137,7 +147,7 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 
 				ClearSelection();
-				UpdateList();
+				await UpdateList();
 			})
 			.AddTo(_CompositeDisposable);
 
@@ -160,7 +170,7 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 
 				ClearSelection();
-				UpdateList();
+				await UpdateList();
 
 			})
 			.AddTo(_CompositeDisposable);
@@ -180,7 +190,7 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 
 				ClearSelection();
-				ResetList();
+				await ResetList();
 			})
 			.AddTo(_CompositeDisposable);
 
@@ -198,7 +208,7 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 
 				ClearSelection();
-				ResetList();
+				await ResetList();
 			})
 			.AddTo(_CompositeDisposable);
 
@@ -218,7 +228,7 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 
 				ClearSelection();
-				UpdateList();
+				await UpdateList();
 			})
 			.AddTo(_CompositeDisposable);
 
@@ -243,7 +253,7 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 				
 				ClearSelection();
-				ResetList();
+				await ResetList();
 			})
 			.AddTo(_CompositeDisposable);
 
@@ -385,7 +395,7 @@ namespace NicoPlayerHohoema.ViewModels
 			if (IncrementalLoadingItems == null
 				|| CheckNeedUpdateOnNavigateTo(e.NavigationMode))
 			{
-				ResetList();
+				await ResetList();
 			}
 			else
 			{
@@ -424,13 +434,20 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		protected virtual void UpdateList()
+		protected async Task UpdateList()
 		{
 			// TODO: 表示中のアイテムすべての状態を更新
 			// 主にキャッシュ状態の更新が目的
+
+			var source = IncrementalLoadingItems?.Source;
+
+			if (source != null)
+			{
+				MaxItemsCount.Value = await source.ResetSource();
+			}
 		}
 
-		protected virtual void ResetList()
+		protected async Task ResetList()
 		{
 			IsSelectionModeEnable.Value = false;
 
@@ -444,7 +461,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 			try
 			{
+
 				var source = GenerateIncrementalSource();
+
+				MaxItemsCount.Value = await source.ResetSource();
 
 				IncrementalLoadingItems = new IncrementalLoadingCollection<IIncrementalSource<VIDEO_INFO_VM>, VIDEO_INFO_VM>(source, IncrementalLoadCount);
 				OnPropertyChanged(nameof(IncrementalLoadingItems));
@@ -472,7 +492,8 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			NowLoadingItems.Value = false;
 
-			HasVideoInfoItem.Value = IncrementalLoadingItems?.Count > 0;
+			LoadedItemsCount.Value = IncrementalLoadingItems?.Count ?? 0;
+			HasVideoInfoItem.Value = LoadedItemsCount.Value > 0;
 		}
 
 		protected virtual void PostResetList() { }
@@ -600,6 +621,12 @@ namespace NicoPlayerHohoema.ViewModels
 			get { return _CanDownload; }
 			set { SetProperty(ref _CanDownload, value); }
 		}
+
+
+		public ReactiveProperty<int> MaxItemsCount { get; private set; }
+		public ReactiveProperty<int> LoadedItemsCount { get; private set; }
+		public ReactiveProperty<int> SelectedItemsCount { get; private set; }
+
 
 		public MylistRegistrationDialogService MylistDialogService { get; private set; }
 
