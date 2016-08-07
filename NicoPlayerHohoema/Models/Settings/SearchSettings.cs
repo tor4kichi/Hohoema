@@ -11,38 +11,52 @@ namespace NicoPlayerHohoema.Models
 	[DataContract]
 	public sealed class SearchSeetings : SettingsBase
 	{
+		public const int MaxHistoryCount = 20;
+
+
 		public SearchSeetings()
 		{
-			_SearchHistory = new ObservableCollection<string>();
+			_SearchHistory = new ObservableCollection<SearchHistoryItem>();
 
-			SearchHistory = new ReadOnlyObservableCollection<string>(_SearchHistory);
+			SearchHistory = new ReadOnlyObservableCollection<SearchHistoryItem>(_SearchHistory);
 		}
 
 
 		[OnDeserialized]
 		void OnDeserialized(StreamingContext context)
 		{
-			SearchHistory = new ReadOnlyObservableCollection<string>(_SearchHistory);
+			SearchHistory = new ReadOnlyObservableCollection<SearchHistoryItem>(_SearchHistory);
 		}
 
 
-		public void UpdateSearchHistory(string keyword)
+		public void UpdateSearchHistory(string keyword, SearchTarget target)
 		{
 			// すでに含まれている場合は一旦削除
-			RemoveSearchHistory(keyword);
+			RemoveSearchHistory(keyword, target);
 
 			// 先頭に追加
-			_SearchHistory.Insert(0, keyword);
+			_SearchHistory.Insert(0, new SearchHistoryItem()
+			{
+				Keyword = keyword,
+				Target = target
+			} );
+
+			// 最大数以下になるように古いアイテムを削除
+			while(_SearchHistory.Count > MaxHistoryCount)
+			{
+				_SearchHistory.Remove(_SearchHistory.Last());
+			}
 
 			Save().ConfigureAwait(false);
 		}
 
 
-		public void RemoveSearchHistory(string keyword)
+		public void RemoveSearchHistory(string keyword, SearchTarget target)
 		{
-			if (_SearchHistory.Contains(keyword))
+			var alreadItem = _SearchHistory.SingleOrDefault(x => x.Keyword == keyword && x.Target == target);
+			if (alreadItem != null)
 			{
-				_SearchHistory.Remove(keyword);
+				_SearchHistory.Remove(alreadItem);
 			}
 
 			Save().ConfigureAwait(false);
@@ -50,8 +64,20 @@ namespace NicoPlayerHohoema.Models
 
 
 		[DataMember(Name = "history")]
-		private ObservableCollection<string> _SearchHistory { get; set; }
+		private ObservableCollection<SearchHistoryItem> _SearchHistory { get; set; }
 
-		public ReadOnlyObservableCollection<string> SearchHistory { get; private set; }
+		public ReadOnlyObservableCollection<SearchHistoryItem> SearchHistory { get; private set; }
+	}
+
+
+
+	[DataContract]
+	public class SearchHistoryItem
+	{
+		[DataMember]
+		public string Keyword { get; set; }
+
+		[DataMember]
+		public SearchTarget Target { get; set; } 
 	}
 }

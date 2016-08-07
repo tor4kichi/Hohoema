@@ -179,7 +179,12 @@ namespace NicoPlayerHohoema.ViewModels
 			SearchText = new ReactiveProperty<string>("")
 				.AddTo(_CompositeDisposable);
 
-			TargetListItems = ((IEnumerable<SearchTarget>)Enum.GetValues(typeof(SearchTarget))).ToList();
+			TargetListItems = new List<SearchTarget>()
+			{
+				SearchTarget.Keyword,
+				SearchTarget.Tag,
+//				SearchTarget.Mylist,
+			};
 
 			SelectedTarget = new ReactiveProperty<SearchTarget>(TargetListItems[0])
 				.AddTo(_CompositeDisposable);
@@ -204,7 +209,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 				// キーワードを検索履歴を記録
 				var searchSettings = HohoemaApp.UserSettings.SearchSettings;
-				searchSettings.UpdateSearchHistory(SearchText.Value);
+				searchSettings.UpdateSearchHistory(SearchText.Value, SelectedTarget.Value);
 
 				var searchOption = new SearchOption()
 				{

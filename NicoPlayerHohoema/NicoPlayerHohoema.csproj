@@ -182,8 +182,8 @@
     <Compile Include="ViewModels\PortalContent\HistoryPortalPageContentViewModel.cs" />
     <Compile Include="ViewModels\SearchContent\EmptySearchPageContentViewModel.cs" />
     <Compile Include="ViewModels\SearchContent\KeywordSearchPageContentViewModel.cs" />
+    <Compile Include="ViewModels\SearchContent\searchSortOptionListItem.cs" />
     <Compile Include="ViewModels\SearchContent\TagSearchPageContentViewModel.cs" />
-    <Compile Include="ViewModels\SearchViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\CacheSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\CommentSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\VideoListSettingsPageContentViewModel.cs" />
@@ -270,13 +270,11 @@
       <DependentUpon>EditMylistGroupDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Service\EditMylistGroupDialogService.cs" />
-    <Compile Include="Views\Service\ISearchDialogService.cs" />
     <Compile Include="Views\Service\MylistRegistrationDialog.xaml.cs">
       <DependentUpon>MylistRegistrationDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Service\MylistRegistrationDialogService.cs" />
     <Compile Include="Views\Service\RankingChoiceDialogService.cs" />
-    <Compile Include="Views\Service\SearchDialogService.cs" />
     <Compile Include="ViewModels\VideoPlayerPageViewModel.cs" />
     <Compile Include="ViewModels\PortalContent\AppPortalPageContentViewModel.cs" />
     <Compile Include="ViewModels\PortalContent\FavPortalPageContentViewModel.cs" />
@@ -317,9 +315,6 @@
     </Compile>
     <Compile Include="Views\MenuNavigatePageBase.xaml.cs">
       <DependentUpon>MenuNavigatePageBase.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\SearchContentDialog.xaml.cs">
-      <DependentUpon>SearchContentDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Service\ToastNotificationService.cs" />
     <Compile Include="Views\SettingsPageContent\CacheSettingsPageContent.xaml.cs">
@@ -548,10 +543,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\RankingChoiceContentDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\SearchContentDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
