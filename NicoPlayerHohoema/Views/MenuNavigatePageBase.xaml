@@ -154,25 +154,11 @@
 
                     
                     <!-- Topbar Right-->
-                    <toolkit:DockPanel>
-                        
-                    </toolkit:DockPanel>
                     <StackPanel 
                                 Orientation="Horizontal"
                                 toolkit:DockPanel.Dock="Right"
                                 >
-                        <AppBarButton
-                          Icon="Find"
-                          toolkit:DockPanel.Dock="Left"
-                          Height="48"
-                          >
-                            <i:Interaction.Behaviors>
-                                <core:EventTriggerBehavior EventName="Tapped">
-                                    <core:InvokeCommandAction Command="{Binding OpenSearchDialogCommand}" />
-                                </core:EventTriggerBehavior>
-                            </i:Interaction.Behaviors>
-                        </AppBarButton>
-
+                        
 
                     </StackPanel>
 

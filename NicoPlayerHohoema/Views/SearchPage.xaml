@@ -4,6 +4,8 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:searchContent="using:NicoPlayerHohoema.Views.SearchContent"
+    
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
@@ -19,104 +21,95 @@
     
     mc:Ignorable="d">
 
+    <Page.Resources>
+
+        <DataTemplate x:Key="EmptySearchContentTemplate">
+            <searchContent:EmptySearchPageContent />
+        </DataTemplate>
+
+
+        <DataTemplate x:Key="TagSearchContentTemplate">
+            <searchContent:TagSearchPageContent />
+        </DataTemplate>
+
+        <DataTemplate x:Key="KeywordSearchContentTemplate">
+            <searchContent:KeywordSearchPageContent />
+        </DataTemplate>
+
+
+        <local:SearchPageContentTemplateSelector x:Key="SearchPageContentTemplateSelector"
+                                                 Empty="{StaticResource EmptySearchContentTemplate}" 
+                                                 Tag="{StaticResource TagSearchContentTemplate}"
+                                                 Keyword="{StaticResource KeywordSearchContentTemplate}"
+                                                 />
+    </Page.Resources>
 
     <Grid>
-
-        <ProgressRing Visibility="{Binding NowLoadingItems.Value, Converter={StaticResource BooleanToVisibility}}"
-                      IsActive="{Binding NowLoadingItems.Value}"
-                      Style="{StaticResource VideoListProgressRingStyle}"
-                                  />
-
-        
         <Border>
+
             <toolkit:DockPanel>
 
                 <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
+                    <Border toolkit:DockPanel.Dock="Right" Margin="8 0">
+                        <!-- Vidoe系検索のサーチオプション -->
+                        <ComboBox ItemsSource="{Binding SearchOptionListItems}"
+                              DisplayMemberPath="Label"
+                              SelectedItem="{Binding SelectedSearchOption.Value, Mode=TwoWay}"
+                              Margin="0"
+                              HorizontalAlignment="Stretch"
+                              TabIndex="2"
+                              IsTabStop="True"
+                              Width="150"
+                              > 
 
-                    
-                    
-                    
+                        </ComboBox>
+                    </Border>
 
-                    <!-- タグのお気に入り -->
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" 
-                                Visibility="{Binding IsTagSearch.Value, Converter={StaticResource BooleanToVisibility}}"
-                                >
+                    <Border toolkit:DockPanel.Dock="Left" Margin="8 0">
+                        <ComboBox ItemsSource="{Binding TargetListItems}"
+                          SelectedItem="{Binding SelectedTarget.Value, Mode=TwoWay}"
+                          Margin="8 0 0 0"
+                          HorizontalAlignment="Stretch"
+                          TabIndex="1"
+                          IsTabStop="True"
+                          Width="120"
+                          >
+                        </ComboBox>
+                    </Border>
 
-                        <AppBarToggleButton Icon="Favorite" 
-                                            IsChecked="{Binding IsFavoriteTag.Value, Mode=TwoWay}"
-                                            IsEnabled="{Binding CanChangeFavoriteTagState.Value}"
-                                            Label="お気に入り"
-                                            />
+                    <StackPanel Orientation="Horizontal">
 
-                    </StackPanel>
-                    
-
-                    <!-- 複数選択のON/OFF -->
-                    <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Right" Margin="8">
-                        <StackPanel Orientation="Horizontal" Margin="16 0">
-
-                            <TextBlock Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
-                                   VerticalAlignment="Center"
-                                   Margin="8 0"
-                                   Foreground="DimGray"
-                                   >
-                            <Run Text="{Binding SelectedItemsCount.Value}" />
-                            <Run Text="個を選択中" />
-                            </TextBlock>
-
-                            <TextBlock VerticalAlignment="Center" Foreground="DimGray">
-                            <Run Text="{Binding LoadedItemsCount.Value}" />
-                            <Run Text="/" />
-                            <Run Text="{Binding MaxItemsCount.Value}" />
-                            </TextBlock>
-                        </StackPanel>
-                        
-                        <ToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                              Content="選択モード"
-                              />
-                    </StackPanel>
-
-                    <Border>
-                        <TextBlock Text=":)" Padding="16 8" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBox Text="{Binding SearchText.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                 Height="32"
+                                 Width="120"
+                                 HorizontalAlignment="Stretch" 
+                                 ext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
+                             >
                             <i:Interaction.Behaviors>
-                                <core:EventTriggerBehavior EventName="Tapped">
-                                    <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0" />
-                                </core:EventTriggerBehavior>
+                                <mybehavior:KeyboardTrigger Key="Enter">
+                                    <mybehavior:KeyboardTrigger.Actions>
+                                        <core:InvokeCommandAction Command="{Binding DoSearchCommand}" />
+                                    </mybehavior:KeyboardTrigger.Actions>
+                                </mybehavior:KeyboardTrigger>
                             </i:Interaction.Behaviors>
 
-                        </TextBlock>
-                    </Border>
-                    
-                </toolkit:DockPanel>
+                        </TextBox>
 
-                <!-- 選択アクション -->
-                <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom" 
-                           Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
-                                Height="72"
-                                Margin="8 0"                               
-                           >
-                    <StackPanel Orientation="Horizontal"
-                                VerticalAlignment="Center"
-                        toolkit:DockPanel.Dock="Right"
-                        >
-                        <AppBarButton Icon="Add" Label="マイリスト登録" Command="{Binding RegistratioMylistCommand}" />
-                        <StackPanel Orientation="Horizontal" Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}">
-                            <AppBarSeparator />
-                            <AppBarButton Icon="Download" Label="キャッシュ取得" Command="{Binding RequestCacheDownload}" />
-                            <AppBarButton Icon="Cancel" Label="キャッシュ中止" Command="{Binding CancelCacheDownloadRequest}"  />
-                            <AppBarSeparator />
-                            <AppBarButton Icon="Delete" Label="キャッシュ削除" Command="{Binding DeleteCache}" />
-                        </StackPanel>
+                        <Button Content="検索" 
+                                Command="{Binding DoSearchCommand}"
+                                Margin="8 0"
+                                />
 
                     </StackPanel>
 
-                    <Border />
 
                 </toolkit:DockPanel>
 
-
-                <controls:HohoemaIncrementalLoadingList />
-
+                <ContentControl Content="{Binding ContentVM.Value}" 
+                        ContentTemplateSelector="{StaticResource SearchPageContentTemplateSelector}"
+                        HorizontalContentAlignment="Stretch"
+                        VerticalContentAlignment="Stretch"
+                        />
 
 
             </toolkit:DockPanel>

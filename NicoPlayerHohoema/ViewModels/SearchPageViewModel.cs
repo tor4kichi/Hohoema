@@ -18,86 +18,224 @@ using Reactive.Bindings.Extensions;
 using Windows.UI.Xaml.Navigation;
 using System.Threading;
 using Windows.UI.Xaml;
+using Mntone.Nico2;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class SearchPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
+	public class SearchPageViewModel : HohoemaViewModelBase
 	{
+		public static List<SearchSortOptionListItem> SearchOptionListItems { get; private set; }
 
-		public SearchPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, NiconicoContentFinder contentFinder, Views.Service.MylistRegistrationDialogService mylistDialogService)
-			: base(hohoemaApp, pageManager, mylistDialogService, isRequireSignIn:true)
+		static SearchPageViewModel()
 		{
-			_ContentFinder = contentFinder;
-
-
-			FailLoading = new ReactiveProperty<bool>(false)
-				.AddTo(_CompositeDisposable);
-
-			LoadedPage = new ReactiveProperty<int>(1)
-				.AddTo(_CompositeDisposable);
-
-
-			IsTagSearch = new ReactiveProperty<bool>()
-				.AddTo(_CompositeDisposable);
-			IsFavoriteTag = new ReactiveProperty<bool>(mode:ReactivePropertyMode.DistinctUntilChanged)
-				.AddTo(_CompositeDisposable);
-			CanChangeFavoriteTagState = new ReactiveProperty<bool>()
-				.AddTo(_CompositeDisposable);
-
-			AddFavoriteTagCommand = CanChangeFavoriteTagState
-				.ToReactiveCommand()
-				.AddTo(_CompositeDisposable);
-
-			RemoveFavoriteTagCommand = IsFavoriteTag
-				.ToReactiveCommand()
-				.AddTo(_CompositeDisposable);
-
-
-			IsFavoriteTag.Subscribe(async x => 
+			#region SearchOptionListItems
+			SearchOptionListItems = new List<SearchSortOptionListItem>()
 			{
-				if (_NowProcessFavorite) { return; }
-				if (!IsTagSearch.Value) { return; }
-
-				_NowProcessFavorite = true;
-
-				CanChangeFavoriteTagState.Value = false;
-				if (x)
+				new SearchSortOptionListItem()
 				{
-					if (await FavoriteTag())
-					{
-						Debug.WriteLine(RequireSearchOption.Keyword + "のタグをお気に入り登録しました.");
-					}
-					else 
-					{
-						// お気に入り登録に失敗した場合は状態を差し戻し
-						Debug.WriteLine(RequireSearchOption.Keyword + "のタグをお気に入り登録に失敗");
-						IsFavoriteTag.Value = false;
-					}
-				}
-				else
+					Label = "投稿が新しい順",
+					SortDirection = Mntone.Nico2.SortDirection.Descending,
+					SortMethod = SortMethod.FirstRetrieve,
+				},
+				new SearchSortOptionListItem()
 				{
-					if (await UnfavoriteTag())
-					{
-						Debug.WriteLine(RequireSearchOption.Keyword + "のタグをお気に入り解除しました.");
-					}
-					else
-					{
-						// お気に入り解除に失敗した場合は状態を差し戻し
-						Debug.WriteLine(RequireSearchOption.Keyword + "のタグをお気に入り解除に失敗");
-						IsFavoriteTag.Value = true;
-					}
-				}
+					Label = "投稿が古い順",
+					SortDirection = Mntone.Nico2.SortDirection.Ascending,
+					SortMethod = SortMethod.FirstRetrieve,
+				},
 
-				CanChangeFavoriteTagState.Value = IsFavoriteTag.Value == true || HohoemaApp.FavFeedManager.CanMoreAddFavorite(FavoriteItemType.Tag);
+				new SearchSortOptionListItem()
+				{
+					Label = "コメントが新しい順",
+					SortDirection = Mntone.Nico2.SortDirection.Descending,
+					SortMethod = SortMethod.NewComment,
+				},
+				new SearchSortOptionListItem()
+				{
+					Label = "コメントが古い順",
+					SortDirection = Mntone.Nico2.SortDirection.Ascending,
+					SortMethod = SortMethod.NewComment,
+				},
+
+				new SearchSortOptionListItem()
+				{
+					Label = "再生数が多い順",
+					SortDirection = Mntone.Nico2.SortDirection.Descending,
+					SortMethod = SortMethod.ViewCount,
+				},
+				new SearchSortOptionListItem()
+				{
+					Label = "再生数が少ない順",
+					SortDirection = Mntone.Nico2.SortDirection.Ascending,
+					SortMethod = SortMethod.ViewCount,
+				},
+
+				new SearchSortOptionListItem()
+				{
+					Label = "コメント数が多い順",
+					SortDirection = Mntone.Nico2.SortDirection.Descending,
+					SortMethod = SortMethod.CommentCount,
+				},
+				new SearchSortOptionListItem()
+				{
+					Label = "コメント数が少ない順",
+					SortDirection = Mntone.Nico2.SortDirection.Ascending,
+					SortMethod = SortMethod.CommentCount,
+				},
 
 
-				_NowProcessFavorite = false;
-			})
-			.AddTo(_CompositeDisposable);
+				new SearchSortOptionListItem()
+				{
+					Label = "再生時間が長い順",
+					SortDirection = Mntone.Nico2.SortDirection.Descending,
+					SortMethod = SortMethod.Length,
+				},
+				new SearchSortOptionListItem()
+				{
+					Label = "再生時間が短い順",
+					SortDirection = Mntone.Nico2.SortDirection.Ascending,
+					SortMethod = SortMethod.Length,
+				},
+
+				new SearchSortOptionListItem()
+				{
+					Label = "マイリスト数が多い順",
+					SortDirection = Mntone.Nico2.SortDirection.Descending,
+					SortMethod = SortMethod.MylistCount,
+				},
+				new SearchSortOptionListItem()
+				{
+					Label = "マイリスト数が少ない順",
+					SortDirection = Mntone.Nico2.SortDirection.Ascending,
+					SortMethod = SortMethod.MylistCount,
+				},
+
+				new SearchSortOptionListItem()
+				{
+					Label = "人気の高い順",
+					SortMethod = SortMethod.Popurarity,
+				},
+			};
+			#endregion
+
 		}
 
 
-		bool _NowProcessFavorite = false;
+		Views.Service.MylistRegistrationDialogService _MylistDialogService;
+		public SearchOption RequireSearchOption { get; private set; }
+
+
+		public ReactiveCommand DoSearchCommand { get; private set; }
+
+		public ReactiveProperty<string> SearchText { get; private set; }
+		public List<SearchTarget> TargetListItems { get; private set; }
+		public ReactiveProperty<SearchTarget> SelectedTarget { get; private set; }
+		public ReactiveProperty<SearchSortOptionListItem> SelectedSearchOption { get; private set; }
+
+
+
+		public ReactiveProperty<HohoemaViewModelBase> ContentVM { get; private set; }
+
+
+		public bool IsSearchKeyword
+		{
+			get
+			{
+				return RequireSearchOption?.SearchTarget == SearchTarget.Keyword;
+			}
+		}
+
+		public bool IsSearchTag
+		{
+			get
+			{
+				return RequireSearchOption?.SearchTarget == SearchTarget.Tag;
+			}
+		}
+
+		public bool IsSearchMylist
+		{
+			get
+			{
+				return RequireSearchOption?.SearchTarget == SearchTarget.Mylist;
+			}
+		}
+
+
+		private void RaiseSearchTargetFlags()
+		{
+			OnPropertyChanged(nameof(IsSearchKeyword));
+			OnPropertyChanged(nameof(IsSearchTag));
+			OnPropertyChanged(nameof(IsSearchMylist));
+		}
+
+		public SearchPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
+			: base(hohoemaApp, pageManager, isRequireSignIn:true)
+		{
+			_MylistDialogService = mylistDialogService;
+
+			ContentVM = new ReactiveProperty<HohoemaViewModelBase>();
+
+			SearchText = new ReactiveProperty<string>("")
+				.AddTo(_CompositeDisposable);
+
+			TargetListItems = new List<SearchTarget>()
+			{
+				SearchTarget.Keyword,
+				SearchTarget.Tag,
+//				SearchTarget.Mylist,
+			};
+
+			SelectedTarget = new ReactiveProperty<SearchTarget>(TargetListItems[0])
+				.AddTo(_CompositeDisposable);
+
+			SelectedTarget.Subscribe(x => 
+			{
+				RaiseSearchTargetFlags();
+			});
+
+			SelectedSearchOption = new ReactiveProperty<SearchSortOptionListItem>(SearchOptionListItems[0])
+				.AddTo(_CompositeDisposable);
+
+
+			DoSearchCommand =
+				SearchText.Select(x => !String.IsNullOrEmpty(x))
+				.ToReactiveCommand()
+				.AddTo(_CompositeDisposable);
+
+			DoSearchCommand.Subscribe(_ =>
+			{
+				if (SearchText.Value.Length == 0) { return; }
+
+				// キーワードを検索履歴を記録
+				var searchSettings = HohoemaApp.UserSettings.SearchSettings;
+				searchSettings.UpdateSearchHistory(SearchText.Value, SelectedTarget.Value);
+
+				var searchOption = new SearchOption()
+				{
+					Keyword = SearchText.Value,
+					SearchTarget = SelectedTarget.Value,
+					SortMethod = SelectedSearchOption.Value.SortMethod,
+					SortDirection = SelectedSearchOption.Value.SortDirection
+				};
+
+				// TODO: EmptySearchなページはナビゲーション後忘れさせる
+
+				var isEmptyPage = RequireSearchOption == null;
+
+				// 検索結果を表示
+				PageManager.OpenPage(HohoemaPageType.Search,
+					searchOption
+					.ToParameterString()
+				);
+
+				if (isEmptyPage)
+				{
+					PageManager.ForgetLastPage();
+				}
+			})
+			.AddTo(_CompositeDisposable);
+		}
 
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
@@ -107,127 +245,66 @@ namespace NicoPlayerHohoema.ViewModels
 				RequireSearchOption = SearchOption.FromParameterString(e.Parameter as string);
 			}
 
-			_NowProcessFavorite = true;
+			HohoemaViewModelBase contentVM = null;
+			SearchTarget? searchTarget = RequireSearchOption?.SearchTarget;
+			switch (searchTarget)
+			{
+				case SearchTarget.Keyword:
+					contentVM = new KeywordSearchPageContentViewModel(
+						HohoemaApp
+						, PageManager
+						, _MylistDialogService
+						, RequireSearchOption
+						);
+					break;
+				case SearchTarget.Tag:
+					contentVM = new TagSearchPageContentViewModel(
+						HohoemaApp
+						, PageManager
+						, _MylistDialogService
+						, RequireSearchOption
+						);
+					break;
+				case SearchTarget.Mylist:
+					break;
+				case SearchTarget.Community:
+					break;
+				case SearchTarget.Niconama:
+					break;
+				default:
+					contentVM = new EmptySearchPageContentViewModel(
+						HohoemaApp
+						, PageManager
+						);
+					break;
+			}
 
-			IsFavoriteTag.Value = false;
-			CanChangeFavoriteTagState.Value = false;
+			if (contentVM == null)
+			{
+				throw new NotSupportedException($"not support SearchPageContent type : {RequireSearchOption.SearchTarget}");
+			}
 
-			_NowProcessFavorite = false;
-
+			// ContentVM側のページタイトルが後で呼び出されるように、SearchPage側を先に呼び出す
 			base.OnNavigatedTo(e, viewModelState);
+
+			contentVM.OnNavigatedTo(e, viewModelState);
+
+			ContentVM.Value = contentVM;
 		}
 
-		protected override Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
-			if (RequireSearchOption == null) { return Task.CompletedTask; }
-
-			_NowProcessFavorite = true;
-
-			IsTagSearch.Value = RequireSearchOption.SearchTarget == SearchTarget.Tag 
-				&& HohoemaApp.LoginUserId != default(uint);
-
-			if (IsTagSearch.Value)
+			if (ContentVM.Value != null)
 			{
-				// お気に入り登録されているかチェック
-				var favManager = HohoemaApp.FavFeedManager;
-				IsFavoriteTag.Value = favManager.IsFavoriteItem(FavoriteItemType.Tag, RequireSearchOption.Keyword);
-				CanChangeFavoriteTagState.Value = favManager.CanMoreAddFavorite(FavoriteItemType.Tag);
+				ContentVM.Value.OnNavigatingFrom(e, viewModelState, suspending);
 			}
 
-			_NowProcessFavorite = false;
-
-			return Task.CompletedTask;		
-		}	
-
-		#region Implement HohoemaVideListViewModelBase
-
-		protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
-		{
-			return new SearchPageSource(RequireSearchOption, HohoemaApp, PageManager);
+			base.OnNavigatingFrom(e, viewModelState, suspending);
 		}
-
-
-		protected override void PostResetList()
-		{
-			var source = IncrementalLoadingItems.Source as SearchPageSource;
-			var searchOption = source.SearchOption;
-			var target = searchOption.SearchTarget == SearchTarget.Keyword ? "キーワード" : "タグ";
-			var optionText = Util.SortMethodHelper.ToCulturizedText(searchOption.SortMethod, searchOption.SortDirection);
-			UpdateTitle($"{target}検索: {searchOption.Keyword} - {optionText}");
-		}
-
-		protected override uint IncrementalLoadCount
-		{
-			get
-			{
-				return SearchPageSource.OneTimeLoadSearchItemCount / 2;
-			}
-		}
-
-		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
-		{
-			if (mode == NavigationMode.New || mode == NavigationMode.Refresh) { return true; }
-
-			var source = IncrementalLoadingItems.Source as SearchPageSource;
-
-			if (RequireSearchOption != null)
-			{
-				return !RequireSearchOption.Equals(source.SearchOption);
-			}
-			else
-			{
-				return true;
-			}
-		}
-
-		#endregion
-
-
-
-	
-
-		private async Task<bool> FavoriteTag()
-		{
-			if (!IsTagSearch.Value) { return false; }
-
-			var favManager = HohoemaApp.FavFeedManager;
-			var result = await favManager.AddFav(FavoriteItemType.Tag, RequireSearchOption.Keyword, RequireSearchOption.Keyword);
-
-			return result == Mntone.Nico2.ContentManageResult.Success || result == Mntone.Nico2.ContentManageResult.Exist;
-		}
-
-		private async Task<bool> UnfavoriteTag()
-		{
-			if (!IsTagSearch.Value) { return false; }
-
-			var favManager = HohoemaApp.FavFeedManager;
-			var result = await favManager.RemoveFav(FavoriteItemType.Tag, RequireSearchOption.Keyword);
-
-			return result == Mntone.Nico2.ContentManageResult.Success;
-		}
-
-
-
-		public ReactiveProperty<bool> IsTagSearch { get; private set; }
-		public ReactiveProperty<bool> IsFavoriteTag { get; private set; }
-		public ReactiveProperty<bool> CanChangeFavoriteTagState { get; private set; }
-
-
-		public ReactiveCommand AddFavoriteTagCommand { get; private set; }
-		public ReactiveCommand RemoveFavoriteTagCommand { get; private set; }
-
-
-		public ReactiveProperty<bool> FailLoading { get; private set; }
-
-		public SearchOption RequireSearchOption { get; private set; }
-		public ReactiveProperty<int> LoadedPage { get; private set; }
-		public ReactiveProperty<int> MaxPageCount { get; private set; }
-	
-		NiconicoContentFinder _ContentFinder;
 
 	}
 
-	public class SearchPageSource : IIncrementalSource<VideoInfoControlViewModel>
+	public class VideoSearchSource : IIncrementalSource<VideoInfoControlViewModel>
 	{
 		public const uint MaxPagenationCount = 50;
 		public const int OneTimeLoadSearchItemCount = 32;
@@ -243,7 +320,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		SearchResponse _CachedSearchResponse;
 
-		public SearchPageSource(SearchOption searchOption, HohoemaApp hohoemaApp, PageManager pageManager)
+		public VideoSearchSource(SearchOption searchOption, HohoemaApp hohoemaApp, PageManager pageManager)
 		{
 			_HohoemaApp = hohoemaApp;
 			_PageManager = pageManager;
@@ -334,4 +411,14 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 	}
 
+
+
+	abstract public class SearchPageContentViewModelBase<T> : HohoemaVideoListingPageViewModelBase<T>
+		where T: VideoInfoControlViewModel
+	{
+		public SearchPageContentViewModelBase(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
+			: base(hohoemaApp, pageManager, mylistDialogService)
+		{
+		}
+	}
 }

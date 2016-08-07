@@ -180,7 +180,10 @@
     <Compile Include="ViewModels\MenuNavigatePageBaseViewModel.cs" />
     <Compile Include="ViewModels\MylistPageViewModel.cs" />
     <Compile Include="ViewModels\PortalContent\HistoryPortalPageContentViewModel.cs" />
-    <Compile Include="ViewModels\SearchViewModel.cs" />
+    <Compile Include="ViewModels\SearchContent\EmptySearchPageContentViewModel.cs" />
+    <Compile Include="ViewModels\SearchContent\KeywordSearchPageContentViewModel.cs" />
+    <Compile Include="ViewModels\SearchContent\searchSortOptionListItem.cs" />
+    <Compile Include="ViewModels\SearchContent\TagSearchPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\CacheSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\CommentSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\VideoListSettingsPageContentViewModel.cs" />
@@ -253,18 +256,25 @@
       <DependentUpon>RankingChoiceContentDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\RefreshableListView.cs" />
+    <Compile Include="Views\SearchContent\EmptySearchPageContent.xaml.cs">
+      <DependentUpon>EmptySearchPageContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SearchContent\KeywordSearchPageContent.xaml.cs">
+      <DependentUpon>KeywordSearchPageContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SearchContent\TagSearchPageContent.xaml.cs">
+      <DependentUpon>TagSearchPageContent.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Service\EditAutoCacheConditionDialogService.cs" />
     <Compile Include="Views\Service\EditMylistGroupDialog.xaml.cs">
       <DependentUpon>EditMylistGroupDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Service\EditMylistGroupDialogService.cs" />
-    <Compile Include="Views\Service\ISearchDialogService.cs" />
     <Compile Include="Views\Service\MylistRegistrationDialog.xaml.cs">
       <DependentUpon>MylistRegistrationDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Service\MylistRegistrationDialogService.cs" />
     <Compile Include="Views\Service\RankingChoiceDialogService.cs" />
-    <Compile Include="Views\Service\SearchDialogService.cs" />
     <Compile Include="ViewModels\VideoPlayerPageViewModel.cs" />
     <Compile Include="ViewModels\PortalContent\AppPortalPageContentViewModel.cs" />
     <Compile Include="ViewModels\PortalContent\FavPortalPageContentViewModel.cs" />
@@ -305,9 +315,6 @@
     </Compile>
     <Compile Include="Views\MenuNavigatePageBase.xaml.cs">
       <DependentUpon>MenuNavigatePageBase.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\SearchContentDialog.xaml.cs">
-      <DependentUpon>SearchContentDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Service\ToastNotificationService.cs" />
     <Compile Include="Views\SettingsPageContent\CacheSettingsPageContent.xaml.cs">
@@ -539,7 +546,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\SearchContentDialog.xaml">
+    <Page Include="Views\SearchContent\EmptySearchPageContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SearchContent\KeywordSearchPageContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SearchContent\TagSearchPageContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -659,6 +674,7 @@
       <Name>VideoBackgroundTask</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

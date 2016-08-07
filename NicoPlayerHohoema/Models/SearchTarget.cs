@@ -10,5 +10,8 @@ namespace NicoPlayerHohoema.Models
 	{
 		Keyword,
 		Tag,
+		Mylist,
+		Community,
+		Niconama,
 	}
 }
