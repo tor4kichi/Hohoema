@@ -80,8 +80,8 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 							{
 								Keyword = Keyword,
 								SearchTarget = Target,
-								SortMethod = Mntone.Nico2.SortMethod.FirstRetrieve,
-								SortDirection = Mntone.Nico2.SortDirection.Descending,
+								Sort = Mntone.Nico2.Sort.FirstRetrieve,
+								Order = Mntone.Nico2.Order.Descending,
 							}.ToParameterString());
 					}));
 			}

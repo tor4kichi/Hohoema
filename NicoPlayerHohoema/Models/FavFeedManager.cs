@@ -439,15 +439,15 @@ namespace NicoPlayerHohoema.Models
 
 		private async Task<List<FavFeedItem>> GetTagFeedItems(FavFeedList tagFavFeedList)
 		{
-			var tagVideos = await _HohoemaApp.ContentFinder.GetTagSearch(tagFavFeedList.Id, 1, SortMethod.FirstRetrieve);
+			var tagVideos = await _HohoemaApp.ContentFinder.GetTagSearch(tagFavFeedList.Id, 0, 50);
 
-			return tagVideos.list.Select(x => 
+			return tagVideos.VideoInfoItems.Select(x => 
 			{
 				return new FavFeedItem()
 				{
-					VideoId = x.id,
-					Title = x.title,
-					SubmitDate = x.FirstRetrieve,
+					VideoId = x.Video.Id,
+					Title = x.Video.Title,
+					SubmitDate = x.Video.FirstRetrieve,
 					ParentList = tagFavFeedList,
 				};
 			})
@@ -464,8 +464,8 @@ namespace NicoPlayerHohoema.Models
 				{
 					VideoId = x.Video.Id,
 					Title = x.Video.Title,
-					SubmitDate = DateTime.Parse(x.Video.First_retrieve),
-					IsDeleted = int.Parse(x.Video.Deleted) == 0 ? false : true,
+					SubmitDate = x.Video.FirstRetrieve,
+					IsDeleted = x.Video.IsDeleted,
 					ParentList = mylistFavFeedList,
 				};
 			})

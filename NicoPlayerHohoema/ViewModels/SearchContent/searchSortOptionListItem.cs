@@ -8,8 +8,8 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class SearchSortOptionListItem
 	{
-		public Mntone.Nico2.SortMethod SortMethod { get; set; }
-		public Mntone.Nico2.SortDirection SortDirection { get; set; }
+		public Mntone.Nico2.Order Order { get; set; }
+		public Mntone.Nico2.Sort Sort { get; set; }
 		public string Label { get; set; }
 
 	}

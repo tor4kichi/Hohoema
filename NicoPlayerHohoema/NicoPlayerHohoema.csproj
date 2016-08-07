@@ -184,7 +184,8 @@
     <Compile Include="ViewModels\PortalContent\HistoryPortalPageContentViewModel.cs" />
     <Compile Include="ViewModels\SearchContent\EmptySearchPageContentViewModel.cs" />
     <Compile Include="ViewModels\SearchContent\KeywordSearchPageContentViewModel.cs" />
-    <Compile Include="ViewModels\SearchContent\searchSortOptionListItem.cs" />
+    <Compile Include="ViewModels\SearchContent\MylistSearchPageContentViewModel.cs" />
+    <Compile Include="ViewModels\SearchContent\SearchSortOptionListItem.cs" />
     <Compile Include="ViewModels\SearchContent\TagSearchPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\CacheSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\CommentSettingsPageContentViewModel.cs" />
@@ -234,6 +235,9 @@
     <Compile Include="Views\Controls\HohoemaIncrementalLoadingList.xaml.cs">
       <DependentUpon>HohoemaIncrementalLoadingList.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Controls\MylistSearchListItem.xaml.cs">
+      <DependentUpon>MylistSearchListItem.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Controls\RankingCategoryListItem.xaml.cs">
       <DependentUpon>RankingCategoryListItem.xaml</DependentUpon>
     </Compile>
@@ -263,6 +267,9 @@
     </Compile>
     <Compile Include="Views\SearchContent\KeywordSearchPageContent.xaml.cs">
       <DependentUpon>KeywordSearchPageContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SearchContent\MylistSearchPageContent.xaml.cs">
+      <DependentUpon>MylistSearchPageContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SearchContent\TagSearchPageContent.xaml.cs">
       <DependentUpon>TagSearchPageContent.xaml</DependentUpon>
@@ -508,6 +515,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Controls\MylistSearchListItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Controls\RankingCategoryListItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -553,6 +564,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SearchContent\KeywordSearchPageContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SearchContent\MylistSearchPageContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

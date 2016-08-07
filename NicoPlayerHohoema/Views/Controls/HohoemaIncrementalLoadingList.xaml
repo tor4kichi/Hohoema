@@ -39,6 +39,11 @@
             <local:FavoriteFeedListItem />
         </DataTemplate>
 
+        <DataTemplate x:Key="MylistListItemTemplate">
+            <local:MylistSearchListItem />
+        </DataTemplate>
+
+
 
         <local:IncrementalLoadingListItemTemplateSelector x:Key="listItemTemplateSelector"
                                                           Default="{StaticResource DefaultListItemTemplate}"
@@ -46,6 +51,7 @@
                                                           Ranking="{StaticResource RankingListItemTemplate}"
                                                           CacheManagement="{StaticResource CacheManagementListItemTemplate}"
                                                           FavFeed="{StaticResource FavFeedListItemTemplate}"
+                                                          Mylist="{StaticResource MylistListItemTemplate}"
                                                           >
             
             

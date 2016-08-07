@@ -364,12 +364,13 @@ namespace NicoPlayerHohoema.ViewModels
 				else
 				{
 					var response = await HohoemaApp.ContentFinder.GetMylist(MylistGroupId);
-					MylistTitle = StringExtention.DecodeUTF8(response.Name);
-					MylistDescription = StringExtention.DecodeUTF8(response.Description);
-					IsPublic = response.Public == "1" ? true : false;
-					ThemeColor = ((IconType)int.Parse(response.Icon_id)).ToColor();
+					var mylistGroupDetail = response.Mylistgroup.FirstOrDefault();
+					MylistTitle = StringExtention.DecodeUTF8(mylistGroupDetail.Name);
+					MylistDescription = StringExtention.DecodeUTF8(mylistGroupDetail.Description);
+					IsPublic = mylistGroupDetail.IsPublic;
+					ThemeColor = ((IconType)int.Parse(mylistGroupDetail.Icon_id)).ToColor();
 
-					OwnerUserId = response.User_id;
+					OwnerUserId = mylistGroupDetail.UserId;
 
 					await Task.Delay(500);
 

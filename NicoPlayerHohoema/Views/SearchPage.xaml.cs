@@ -36,6 +36,7 @@ namespace NicoPlayerHohoema.Views
 		public DataTemplate Empty { get; set; }
 		public DataTemplate Tag { get; set; }
 		public DataTemplate Keyword { get; set; }
+		public DataTemplate Mylist { get; set; }
 
 		protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
 		{
@@ -51,6 +52,11 @@ namespace NicoPlayerHohoema.Views
 			{
 				return Keyword;
 			}
+			else if (item is ViewModels.MylistSearchPageContentViewModel)
+			{
+				return Mylist;
+			}
+
 		
 
 			return base.SelectTemplateCore(item, container);

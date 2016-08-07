@@ -7,26 +7,26 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Util
 {
-	public static class SortMethodHelper
+	public static class SortHelper
 	{
-		public static string ToCulturizedText(SortMethod method, SortDirection dir)
+		public static string ToCulturizedText(Sort sort, Order order)
 		{
-			var isAscending = dir == SortDirection.Ascending;
-			switch (method)
+			var isAscending = order == Order.Ascending;
+			switch (sort)
 			{
-				case SortMethod.NewComment:
+				case Sort.NewComment:
 					return isAscending ? "コメントが古い順" : "コメントが新しい順";
-				case SortMethod.ViewCount:
+				case Sort.ViewCount:
 					return isAscending ? "再生数が少ない順" : "再生数が多い順";
-				case SortMethod.MylistCount:
+				case Sort.MylistCount:
 					return isAscending ? "マイリスト数が少ない順" : "マイリスト数が多い順";
-				case SortMethod.CommentCount:
+				case Sort.CommentCount:
 					return isAscending ? "コメント数が少ない順" : "コメント数が多い順";
-				case SortMethod.FirstRetrieve:
+				case Sort.FirstRetrieve:
 					return isAscending ? "投稿日時が古い順" : "投稿日時が新しい順";
-				case SortMethod.Length:
+				case Sort.Length:
 					return isAscending ? "動画時間が短い順" : "動画時間が長い順";
-				case SortMethod.Popurarity:
+				case Sort.Popurarity:
 					return "人気が高い順";
 				default:
 					throw new NotSupportedException();

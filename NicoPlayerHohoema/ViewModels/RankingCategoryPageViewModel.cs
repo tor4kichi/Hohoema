@@ -1,6 +1,6 @@
 ﻿using Mntone.Nico2;
+using Mntone.Nico2.Searches.Video;
 using Mntone.Nico2.Videos.Ranking;
-using Mntone.Nico2.Videos.Search;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Util;
 using Prism.Commands;
@@ -312,16 +312,13 @@ namespace NicoPlayerHohoema.ViewModels
 			_Parameter = parameter;
 		}
 
-		SearchResponse _ResCache;
-
 		public async Task<int> ResetSource()
 		{
 			var contentFinder = _HohoemaApp.ContentFinder;
 
-			var res = await contentFinder.GetKeywordSearch(_Parameter, 1, SortMethod.Popurarity).ConfigureAwait(false);
+			var res = await contentFinder.GetKeywordSearch(_Parameter, 0, 1, Sort.Popurarity).ConfigureAwait(false);
 
-			_ResCache = res;
-			return res.count;
+			return res.TotalCount;
 		}
 
 
@@ -330,22 +327,16 @@ namespace NicoPlayerHohoema.ViewModels
 			var contentFinder = _HohoemaApp.ContentFinder;
 			var mediaManager = _HohoemaApp.MediaManager;
 
-			var pageIndex = (head / pageSize) + 1;
-
-			if (_ResCache == null || _ResCache.page != pageIndex)
-			{
-				_ResCache = await contentFinder.GetKeywordSearch(_Parameter, pageIndex, SortMethod.Popurarity);
-			}
-
-
+			var response = await _HohoemaApp.ContentFinder.GetKeywordSearch(_Parameter, head, pageSize, Sort.Popurarity);
 
 
 			List<RankedVideoInfoControlViewModel> items = new List<RankedVideoInfoControlViewModel>();
 
-			for (int i = 0; i < _ResCache.list.Count; ++i)
+			var count = response.VideoInfoItems.Count();
+			for (int i = 0; i < count; ++i)
 			{
-				var item = _ResCache.list[i];
-				var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(item.id);
+				var item = response.VideoInfoItems[i];
+				var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(item.Video.Id);
 
 				var videoInfoVM = new RankedVideoInfoControlViewModel(
 					(uint)(i + 1)
