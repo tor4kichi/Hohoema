@@ -25,20 +25,20 @@ namespace NicoPlayerHohoema.ViewModels
 		public HistoryPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
 			: base(hohoemaApp, pageManager, mylistDialogService)
 		{
-			RemoveHistoryCommand = SelectedVideoInfoItems.ObserveProperty(x => x.Count)
+			RemoveHistoryCommand = SelectedItems.ObserveProperty(x => x.Count)
 				.Select(x => x > 0)
 				.ToReactiveCommand()
 				.AddTo(_CompositeDisposable);
 
 			RemoveHistoryCommand.Subscribe(async _ => 
 			{
-				var selectedItems = SelectedVideoInfoItems.ToArray();
+				var selectedItems = SelectedItems.ToArray();
 
 				foreach (var item in selectedItems)
 				{
 					await RemoveHistory(item.RawVideoId);
 
-					SelectedVideoInfoItems.Remove(item);
+					SelectedItems.Remove(item);
 
 					await Task.Delay(250);
 				}

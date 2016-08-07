@@ -82,7 +82,7 @@ namespace NicoPlayerHohoema.ViewModels
 				.AddTo(_CompositeDisposable);
 				
 
-			UnregistrationMylistCommand = SelectedVideoInfoItems.ObserveProperty(x => x.Count)
+			UnregistrationMylistCommand = SelectedItems.ObserveProperty(x => x.Count)
 				.Where(_ => this.IsLoginUserOwnedMylist)
 				.Select(x => x > 0)
 				.ToReactiveCommand(false);
@@ -91,7 +91,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				var mylistGroup = HohoemaApp.UserMylistManager.GetMylistGroup(MylistGroupId);
 
-				var items = SelectedVideoInfoItems.ToArray();
+				var items = SelectedItems.ToArray();
 
 				int successCount = 0;
 				int failedCount = 0;
@@ -131,11 +131,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 				// 登録解除に失敗したアイテムだけを残すように
 				// マイリストから除外された動画を選択アイテムリストから削除
-				foreach (var item in SelectedVideoInfoItems.ToArray())
+				foreach (var item in SelectedItems.ToArray())
 				{
 					if (false == mylistGroup.CheckRegistratedVideoId(item.RawVideoId))
 					{
-						SelectedVideoInfoItems.Remove(item);
+						SelectedItems.Remove(item);
 						IncrementalLoadingItems.Remove(item);
 					}
 				}
@@ -143,7 +143,7 @@ namespace NicoPlayerHohoema.ViewModels
 				Debug.WriteLine($"マイリスト登録解除完了---------------");
 			});
 
-			CopyMylistCommand = SelectedVideoInfoItems.ObserveProperty(x => x.Count)
+			CopyMylistCommand = SelectedItems.ObserveProperty(x => x.Count)
 				.Where(_ => this.IsLoginUserOwnedMylist)
 				.Select(x => x > 0)
 				.ToReactiveCommand(false);
@@ -155,7 +155,7 @@ namespace NicoPlayerHohoema.ViewModels
 				// ターゲットのマイリストを選択する
 				var targetMylist = await MylistDialogService
 					.ShowSelectSingleMylistDialog(
-						SelectedVideoInfoItems
+						SelectedItems
 						, hideMylistGroupId : mylistGroup.GroupId
 					);
 
@@ -164,7 +164,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 				// すでにターゲットのマイリストに登録されている動画を除外してコピーする
-				var items = SelectedVideoInfoItems
+				var items = SelectedItems
 					.Where(x => !targetMylist.CheckRegistratedVideoId(x.RawVideoId))
 					.ToList();
 
@@ -184,8 +184,8 @@ namespace NicoPlayerHohoema.ViewModels
 				string contentText;
 				if (result == ContentManageResult.Success)
 				{
-					titleText = $"「{targetMylist.Name}」に {SelectedVideoInfoItems.Count}件 コピーしました";
-					contentText = $" {SelectedVideoInfoItems.Count}件 の動画をコピーしました";
+					titleText = $"「{targetMylist.Name}」に {SelectedItems.Count}件 コピーしました";
+					contentText = $" {SelectedItems.Count}件 の動画をコピーしました";
 				}
 				else
 				{
@@ -207,7 +207,7 @@ namespace NicoPlayerHohoema.ViewModels
 			});
 
 
-			MoveMylistCommand = SelectedVideoInfoItems.ObserveProperty(x => x.Count)
+			MoveMylistCommand = SelectedItems.ObserveProperty(x => x.Count)
 				.Where(_ => this.IsLoginUserOwnedMylist)
 				.Select(x => x > 0)
 				.ToReactiveCommand(false);
@@ -219,7 +219,7 @@ namespace NicoPlayerHohoema.ViewModels
 				// ターゲットのマイリストを選択する
 				var targetMylist = await MylistDialogService
 					.ShowSelectSingleMylistDialog(
-						SelectedVideoInfoItems
+						SelectedItems
 						, hideMylistGroupId: mylistGroup.GroupId
 					);
 
@@ -228,7 +228,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 				// すでにターゲットのマイリストに登録されている動画を除外してコピーする
-				var items = SelectedVideoInfoItems
+				var items = SelectedItems
 					.Where(x => !targetMylist.CheckRegistratedVideoId(x.RawVideoId))
 					.ToList();
 
@@ -248,8 +248,8 @@ namespace NicoPlayerHohoema.ViewModels
 				string contentText;
 				if (result == ContentManageResult.Success)
 				{
-					titleText = $"「{targetMylist.Name}」に {SelectedVideoInfoItems.Count}件 移動しました";
-					contentText = $" {SelectedVideoInfoItems.Count}件 の動画を移動しました";
+					titleText = $"「{targetMylist.Name}」に {SelectedItems.Count}件 移動しました";
+					contentText = $" {SelectedItems.Count}件 の動画を移動しました";
 				}
 				else
 				{
@@ -265,7 +265,7 @@ namespace NicoPlayerHohoema.ViewModels
 				if (result == ContentManageResult.Success)
 				{
 					// 移動元のマイリストからは削除されているはず
-					foreach (var item in SelectedVideoInfoItems)
+					foreach (var item in SelectedItems)
 					{
 						if (!mylistGroup.CheckRegistratedVideoId(item.RawVideoId))
 						{

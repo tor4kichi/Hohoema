@@ -17,10 +17,11 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class VideoInfoControlViewModel : BindableBase, IDisposable
+	public class VideoInfoControlViewModel : HohoemaListingPageItemBase
 	{
 	//	private IScheduler scheduler;
 
@@ -143,7 +144,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		public void Dispose()
+		public override void Dispose()
 		{
 			_CompositeDisposable?.Dispose();
 		}
@@ -158,10 +159,6 @@ namespace NicoPlayerHohoema.ViewModels
 				Quality = null,
 			};
 		}
-
-
-
-
 
 		private string _Title;
 		public string Title
@@ -268,8 +265,15 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
+		public override ICommand SelectedCommand
+		{
+			get
+			{
+				return PlayCommand;
+			}
+		}
 
-		
+
 		private DelegateCommand _PlayCommand;
 		public DelegateCommand PlayCommand
 		{
