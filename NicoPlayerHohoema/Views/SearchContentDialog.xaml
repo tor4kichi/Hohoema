@@ -91,8 +91,6 @@
                     <mybehavior:KeyboardTrigger Key="Enter">
                         <mybehavior:KeyboardTrigger.Actions>
                             <core:InvokeCommandAction Command="{Binding DoSearchCommand}" />
-                            <core:CallMethodAction TargetObject="{Binding ElementName=SearchDialog}"
-                                                   MethodName="Hide" />
                         </mybehavior:KeyboardTrigger.Actions>
                     </mybehavior:KeyboardTrigger>
                 </i:Interaction.Behaviors>
