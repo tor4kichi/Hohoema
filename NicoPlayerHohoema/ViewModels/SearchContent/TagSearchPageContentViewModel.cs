@@ -133,7 +133,7 @@ namespace NicoPlayerHohoema.ViewModels
 			
 			_NowProcessFavorite = false;
 
-			return Task.CompletedTask;
+			return base.ListPageNavigatedToAsync(cancelToken, e, viewModelState);
 		}
 
 		#region Implement HohoemaVideListViewModelBase

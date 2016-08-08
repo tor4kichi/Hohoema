@@ -30,38 +30,48 @@ namespace NicoPlayerHohoema.Models
 		{
 			Downloader = downloader;
 			_ReaderAssignLock = new SemaphoreSlim(1, 1);
+			_SeekLock = new SemaphoreSlim(1, 1);
 		}
 
 		private ulong _CurrentPosition;
-		
 
-		
+
+		private SemaphoreSlim _SeekLock;
 
 
 		#region override HttpRandomAccessStream
 
-		public void Seek(ulong position)
+		public async void Seek(ulong position)
 		{
-			if (_CurrentPosition != position)
+			try
 			{
-				Debug.WriteLine($"Seek: {_CurrentPosition:N0} -> {position:N0}");
-				_CurrentPosition = position;
+				await _SeekLock.WaitAsync();
 
-				if (Downloader.CurrentDownloadHead != position)
+				if (_CurrentPosition != position)
 				{
-					try
+					Debug.WriteLine($"Seek: {_CurrentPosition:N0} -> {position:N0}");
+					_CurrentPosition = position;
+
+					if (Downloader.CurrentDownloadHead != position)
 					{
-						Downloader.StartDownloadTask((uint)position).ConfigureAwait(false);
+						try
+						{
+							await Downloader.StartDownloadTask((uint)position);
+						}
+						catch (Exception ex)
+						{
+							Debug.WriteLine(ex.Message);
+						}
 					}
-					catch (Exception ex)
+					else
 					{
-						Debug.WriteLine(ex.Message);
+						Debug.WriteLine("seeking but CurrentDownloadHead is not changed.");
 					}
 				}
-				else
-				{
-					Debug.WriteLine("seeking but CurrentDownloadHead is not changed.");
-				}
+			}
+			finally
+			{
+				_SeekLock.Release();
 			}
 		}
 
