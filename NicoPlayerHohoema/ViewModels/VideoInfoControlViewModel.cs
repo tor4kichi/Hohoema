@@ -17,10 +17,11 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class VideoInfoControlViewModel : BindableBase, IDisposable
+	public class VideoInfoControlViewModel : HohoemaListingPageItemBase
 	{
 	//	private IScheduler scheduler;
 
@@ -55,13 +56,13 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			Title = data.Video.Title.DecodeUTF8();
 			RawVideoId = data.Video.Id;
-			ViewCount = uint.Parse(data.Video.View_counter);
+			ViewCount = (uint)data.Video.ViewCount;
 			CommentCount = uint.Parse(data.Thread.Num_res);
-			MylistCount = uint.Parse(data.Video.Mylist_counter);
+			MylistCount = (uint)data.Video.MylistCount;
 			OwnerComment = data.Thread.Summary.DecodeUTF8();
-			PostAt = DateTime.Parse(data.Video.Upload_time);
-			ThumbnailImageUrl = new Uri(data.Video.Thumbnail_url);
-			MovieLength = TimeSpan.FromSeconds(int.Parse(data.Video.Length_in_seconds));
+			PostAt = data.Video.UploadTime;
+			ThumbnailImageUrl = data.Video.ThumbnailUrl;
+			MovieLength = TimeSpan.FromSeconds(data.Video.LengthInSeconds);
 
 			IsNotGoodVideo = false;
 			NGVideoReason = "";
@@ -143,7 +144,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		public void Dispose()
+		public override void Dispose()
 		{
 			_CompositeDisposable?.Dispose();
 		}
@@ -158,10 +159,6 @@ namespace NicoPlayerHohoema.ViewModels
 				Quality = null,
 			};
 		}
-
-
-
-
 
 		private string _Title;
 		public string Title
@@ -268,8 +265,15 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
+		public override ICommand SelectedCommand
+		{
+			get
+			{
+				return PlayCommand;
+			}
+		}
 
-		
+
 		private DelegateCommand _PlayCommand;
 		public DelegateCommand PlayCommand
 		{

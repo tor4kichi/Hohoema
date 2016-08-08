@@ -30,14 +30,14 @@ namespace NicoPlayerHohoema.ViewModels
 			});
 
 
-			SelectedItemsMarkAsReadCommand = SelectedVideoInfoItems.ToCollectionChanged()
-				.Select(x => SelectedVideoInfoItems.Count > 0)
+			SelectedItemsMarkAsReadCommand = SelectedItems.ToCollectionChanged()
+				.Select(x => SelectedItems.Count > 0)
 				.ToReactiveCommand()
 				.AddTo(_CompositeDisposable);
 
 			SelectedItemsMarkAsReadCommand.Subscribe(async _ =>
 			{
-				foreach (var item in SelectedVideoInfoItems)
+				foreach (var item in SelectedItems)
 				{
 					await HohoemaApp.FavFeedManager.MarkAsRead(item.VideoId);
 					await HohoemaApp.FavFeedManager.MarkAsRead(item.RawVideoId);

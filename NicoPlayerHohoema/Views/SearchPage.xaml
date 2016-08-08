@@ -36,11 +36,16 @@
             <searchContent:KeywordSearchPageContent />
         </DataTemplate>
 
+        <DataTemplate x:Key="MylistSearchContentTemplate">
+            <searchContent:MylistSearchPageContent />
+        </DataTemplate>
+
 
         <local:SearchPageContentTemplateSelector x:Key="SearchPageContentTemplateSelector"
                                                  Empty="{StaticResource EmptySearchContentTemplate}" 
                                                  Tag="{StaticResource TagSearchContentTemplate}"
                                                  Keyword="{StaticResource KeywordSearchContentTemplate}"
+                                                 Mylist="{StaticResource MylistSearchContentTemplate}"
                                                  />
     </Page.Resources>
 

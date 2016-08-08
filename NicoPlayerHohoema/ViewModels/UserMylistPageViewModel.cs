@@ -313,7 +313,6 @@ namespace NicoPlayerHohoema.ViewModels
 			ItemCount = info.VideoItems.Count;
 			ThemeColor = info.IconType.ToColor();
 
-
 			OnPropertyChanged(nameof(Title));
 			OnPropertyChanged(nameof(Description));
 			OnPropertyChanged(nameof(IsPublic));
@@ -332,7 +331,6 @@ namespace NicoPlayerHohoema.ViewModels
 		public int ItemCount { get; private set; }
 
 		public Color ThemeColor { get; private set; }
-
 
 		PageManager _PageManager;
 	}

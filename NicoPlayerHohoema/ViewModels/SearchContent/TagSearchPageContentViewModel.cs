@@ -15,7 +15,7 @@ using Windows.UI.Xaml.Navigation;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class TagSearchPageContentViewModel : SearchPageContentViewModelBase<VideoInfoControlViewModel>
+	public class TagSearchPageContentViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
 	{
 		public ReactiveProperty<bool> IsFavoriteTag { get; private set; }
 		public ReactiveProperty<bool> CanChangeFavoriteTagState { get; private set; }
@@ -149,7 +149,7 @@ namespace NicoPlayerHohoema.ViewModels
 			var source = IncrementalLoadingItems.Source as VideoSearchSource;
 			var searchOption = source.SearchOption;
 			var target = searchOption.SearchTarget == SearchTarget.Keyword ? "キーワード" : "タグ";
-			var optionText = Util.SortMethodHelper.ToCulturizedText(searchOption.SortMethod, searchOption.SortDirection);
+			var optionText = Util.SortHelper.ToCulturizedText(searchOption.Sort, searchOption.Order);
 			UpdateTitle($"{target}検索: {searchOption.Keyword} - {optionText}");
 		}
 

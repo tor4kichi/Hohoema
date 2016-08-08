@@ -33,6 +33,7 @@ namespace NicoPlayerHohoema.Views.Controls
 		public DataTemplate Ranking { get; set; }
 		public DataTemplate CacheManagement { get; set; }
 		public DataTemplate FavFeed { get; set; }
+		public DataTemplate Mylist { get; set; }
 
 
 
@@ -57,6 +58,10 @@ namespace NicoPlayerHohoema.Views.Controls
 			else if (item is ViewModels.VideoInfoControlViewModel)
 			{
 				return Default;
+			}
+			else if (item is ViewModels.MylistSearchListingItem)
+			{
+				return Mylist;
 			}
 
 			return base.SelectTemplateCore(item, container);

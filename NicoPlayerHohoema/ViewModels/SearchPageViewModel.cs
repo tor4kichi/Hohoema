@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Prism.Windows.Navigation;
 using NicoPlayerHohoema.Models;
 using System.Collections.ObjectModel;
-using Mntone.Nico2.Videos.Search;
 using NicoPlayerHohoema.Util;
 using Reactive.Bindings;
 using Prism.Commands;
@@ -19,6 +18,7 @@ using Windows.UI.Xaml.Navigation;
 using System.Threading;
 using Windows.UI.Xaml;
 using Mntone.Nico2;
+using Mntone.Nico2.Searches.Video;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -34,86 +34,86 @@ namespace NicoPlayerHohoema.ViewModels
 				new SearchSortOptionListItem()
 				{
 					Label = "投稿が新しい順",
-					SortDirection = Mntone.Nico2.SortDirection.Descending,
-					SortMethod = SortMethod.FirstRetrieve,
+					Order = Mntone.Nico2.Order.Descending,
+					Sort = Sort.FirstRetrieve,
 				},
 				new SearchSortOptionListItem()
 				{
 					Label = "投稿が古い順",
-					SortDirection = Mntone.Nico2.SortDirection.Ascending,
-					SortMethod = SortMethod.FirstRetrieve,
+					Order = Mntone.Nico2.Order.Ascending,
+					Sort = Sort.FirstRetrieve,
 				},
 
 				new SearchSortOptionListItem()
 				{
 					Label = "コメントが新しい順",
-					SortDirection = Mntone.Nico2.SortDirection.Descending,
-					SortMethod = SortMethod.NewComment,
+					Order = Mntone.Nico2.Order.Descending,
+					Sort = Sort.NewComment,
 				},
 				new SearchSortOptionListItem()
 				{
 					Label = "コメントが古い順",
-					SortDirection = Mntone.Nico2.SortDirection.Ascending,
-					SortMethod = SortMethod.NewComment,
+					Order = Mntone.Nico2.Order.Ascending,
+					Sort = Sort.NewComment,
 				},
 
 				new SearchSortOptionListItem()
 				{
 					Label = "再生数が多い順",
-					SortDirection = Mntone.Nico2.SortDirection.Descending,
-					SortMethod = SortMethod.ViewCount,
+					Order = Mntone.Nico2.Order.Descending,
+					Sort = Sort.ViewCount,
 				},
 				new SearchSortOptionListItem()
 				{
 					Label = "再生数が少ない順",
-					SortDirection = Mntone.Nico2.SortDirection.Ascending,
-					SortMethod = SortMethod.ViewCount,
+					Order = Mntone.Nico2.Order.Ascending,
+					Sort = Sort.ViewCount,
 				},
 
 				new SearchSortOptionListItem()
 				{
 					Label = "コメント数が多い順",
-					SortDirection = Mntone.Nico2.SortDirection.Descending,
-					SortMethod = SortMethod.CommentCount,
+					Order = Mntone.Nico2.Order.Descending,
+					Sort = Sort.CommentCount,
 				},
 				new SearchSortOptionListItem()
 				{
 					Label = "コメント数が少ない順",
-					SortDirection = Mntone.Nico2.SortDirection.Ascending,
-					SortMethod = SortMethod.CommentCount,
+					Order = Mntone.Nico2.Order.Ascending,
+					Sort = Sort.CommentCount,
 				},
 
 
 				new SearchSortOptionListItem()
 				{
 					Label = "再生時間が長い順",
-					SortDirection = Mntone.Nico2.SortDirection.Descending,
-					SortMethod = SortMethod.Length,
+					Order = Mntone.Nico2.Order.Descending,
+					Sort = Sort.Length,
 				},
 				new SearchSortOptionListItem()
 				{
 					Label = "再生時間が短い順",
-					SortDirection = Mntone.Nico2.SortDirection.Ascending,
-					SortMethod = SortMethod.Length,
+					Order = Mntone.Nico2.Order.Ascending,
+					Sort = Sort.Length,
 				},
 
 				new SearchSortOptionListItem()
 				{
 					Label = "マイリスト数が多い順",
-					SortDirection = Mntone.Nico2.SortDirection.Descending,
-					SortMethod = SortMethod.MylistCount,
+					Order = Mntone.Nico2.Order.Descending,
+					Sort = Sort.MylistCount,
 				},
 				new SearchSortOptionListItem()
 				{
 					Label = "マイリスト数が少ない順",
-					SortDirection = Mntone.Nico2.SortDirection.Ascending,
-					SortMethod = SortMethod.MylistCount,
+					Order = Mntone.Nico2.Order.Ascending,
+					Sort = Sort.MylistCount,
 				},
 
 				new SearchSortOptionListItem()
 				{
 					Label = "人気の高い順",
-					SortMethod = SortMethod.Popurarity,
+					Sort = Sort.Popurarity,
 				},
 			};
 			#endregion
@@ -183,7 +183,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				SearchTarget.Keyword,
 				SearchTarget.Tag,
-//				SearchTarget.Mylist,
+				SearchTarget.Mylist,
 			};
 
 			SelectedTarget = new ReactiveProperty<SearchTarget>(TargetListItems[0])
@@ -215,8 +215,8 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					Keyword = SearchText.Value,
 					SearchTarget = SelectedTarget.Value,
-					SortMethod = SelectedSearchOption.Value.SortMethod,
-					SortDirection = SelectedSearchOption.Value.SortDirection
+					Sort = SelectedSearchOption.Value.Sort,
+					Order = SelectedSearchOption.Value.Order
 				};
 
 				// TODO: EmptySearchなページはナビゲーション後忘れさせる
@@ -266,6 +266,11 @@ namespace NicoPlayerHohoema.ViewModels
 						);
 					break;
 				case SearchTarget.Mylist:
+					contentVM = new MylistSearchPageContentViewModel(
+						HohoemaApp
+						, PageManager
+						, RequireSearchOption
+						);
 					break;
 				case SearchTarget.Community:
 					break;
@@ -315,85 +320,54 @@ namespace NicoPlayerHohoema.ViewModels
 		PageManager _PageManager;
 		public SearchOption SearchOption { get; private set; }
 
-		List<ListItem> _CachedSearchListItem;
-
-
-		SearchResponse _CachedSearchResponse;
 
 		public VideoSearchSource(SearchOption searchOption, HohoemaApp hohoemaApp, PageManager pageManager)
 		{
 			_HohoemaApp = hohoemaApp;
 			_PageManager = pageManager;
 			SearchOption = searchOption;
-
-			_CachedSearchListItem = new List<ListItem>();
 		}
 
 		public async Task<int> ResetSource()
 		{
-			_CachedSearchResponse = await GetPageSearchRespose(1);
-
-			MaxPageCount = Math.Min((int)Math.Floor((float)_CachedSearchResponse.count / OneTimeLoadSearchItemCount), (int)MaxPagenationCount);
-
-			return _CachedSearchResponse.count;
+			if (SearchOption.SearchTarget == SearchTarget.Keyword)
+			{
+				var response = await _HohoemaApp.ContentFinder.GetKeywordSearch(SearchOption.Keyword, 0, 2);
+				return response.TotalCount;
+			}
+			else if (SearchOption.SearchTarget == SearchTarget.Tag)
+			{
+				var response = await _HohoemaApp.ContentFinder.GetTagSearch(SearchOption.Keyword, 0, 2);
+				return response.TotalCount;
+			}
+			else
+			{
+				throw new Exception();
+			}
 		}
 
-
-		private async Task<SearchResponse> GetPageSearchRespose(uint pageIndex)
-		{
-			if (pageIndex == 1 && _CachedSearchResponse != null)
-			{
-				return _CachedSearchResponse;
-			}
-
-			var contentFinder = _HohoemaApp.ContentFinder;
-			SearchResponse response = null;
-			switch (SearchOption.SearchTarget)
-			{
-				case SearchTarget.Keyword:
-					response = await contentFinder.GetKeywordSearch(SearchOption.Keyword, pageIndex, SearchOption.SortMethod, SearchOption.SortDirection);
-					break;
-				case SearchTarget.Tag:
-					response = await contentFinder.GetTagSearch(SearchOption.Keyword, pageIndex, SearchOption.SortMethod, SearchOption.SortDirection);
-					break;
-				default:
-					break;
-			}
-
-			if (response == null || !response.IsStatusOK)
-			{
-				throw new Exception("page Load failed. " + pageIndex);
-			}
-
-			return response;
-		}
 
 		public async Task<IEnumerable<VideoInfoControlViewModel>> GetPagedItems(uint head, uint count)
 		{
 			var items = new List<VideoInfoControlViewModel>();
 
-			// 検索は一度のレスポンスで32件を得られる
-			// countが16件として来るように調節したうえで
-			// １レスポンス分を２回のインクリメンタルローディングに分けて表示を行う
-			var tail = head + count - 1;
-			if (_CachedSearchListItem.Count < tail)
+			var contentFinder = _HohoemaApp.ContentFinder;
+			VideoSearchResponse response = null;
+			switch (SearchOption.SearchTarget)
 			{
-				var page = (tail / OneTimeLoadSearchItemCount) + 1;
-
-				var response = await GetPageSearchRespose(page);
-
-				if (response.list == null)
-				{
-					return items;
-				}
-
-				_CachedSearchListItem.AddRange(response.list);
+				case SearchTarget.Keyword:
+					response = await contentFinder.GetKeywordSearch(SearchOption.Keyword, head, count, SearchOption.Sort, SearchOption.Order);
+					break;
+				case SearchTarget.Tag:
+					response = await contentFinder.GetTagSearch(SearchOption.Keyword, head, count, SearchOption.Sort, SearchOption.Order);
+					break;
+				default:
+					break;
 			}
 
-
-			foreach (var item in _CachedSearchListItem.Skip((int)head).Take((int)count).ToArray())
+			foreach (var item in response.VideoInfoItems)
 			{
-				var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(item.id);
+				var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(item.Video.Id);
 				var videoInfoVM = new VideoInfoControlViewModel(
 							nicoVideo
 							, _PageManager
@@ -411,14 +385,4 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 	}
 
-
-
-	abstract public class SearchPageContentViewModelBase<T> : HohoemaVideoListingPageViewModelBase<T>
-		where T: VideoInfoControlViewModel
-	{
-		public SearchPageContentViewModelBase(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
-			: base(hohoemaApp, pageManager, mylistDialogService)
-		{
-		}
-	}
 }
