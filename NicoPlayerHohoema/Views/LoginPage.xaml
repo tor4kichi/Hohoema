@@ -83,6 +83,7 @@
                     <Border toolkit:DockPanel.Dock="Right" MinWidth="200">
                         <TextBox Text="{Binding MailOrTelephone.Value, Mode=TwoWay}"
                                  IsEnabled="{Binding CanChangeValue.Value}"
+                                 InputScope="EmailSmtpAddress"
                                  >
 
                         </TextBox>
@@ -91,6 +92,7 @@
                                VerticalAlignment="Center"
                                HorizontalAlignment="Right"
                                Margin="16 0"
+                               
                                />
                 </toolkit:DockPanel>
 
