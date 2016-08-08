@@ -84,7 +84,7 @@
                         <!-- 一番幅が広いとき -->
                         <VisualState>
                             <VisualState.StateTriggers>
-                                <AdaptiveTrigger MinWindowWidth="1025" />
+                                <AdaptiveTrigger MinWindowWidth="721" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
                                 <Setter Target="SplitView.DisplayMode" Value="Inline" />
@@ -97,14 +97,14 @@
                         <!-- 中ぐらい -->
                         <VisualState>
                             <VisualState.StateTriggers>
-                                <AdaptiveTrigger MinWindowWidth="721" />
+                                <AdaptiveTrigger MinWindowWidth="521" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
                                 <Setter Target="SplitView.DisplayMode" Value="CompactOverlay" />
                                 <Setter Target="SplitView.IsPaneOpen" Value="False" />
 
-                                <Setter Target="ContentTopBarPanel.Visibility" Value="Collapsed" />
-                                <Setter Target="TopBar.Visibility" Value="Visible" />
+                                <Setter Target="ContentTopBarPanel.Visibility" Value="Visible" />
+                                <Setter Target="TopBar.Visibility" Value="Collapsed" />
                             </VisualState.Setters>
                         </VisualState>
                         <!-- 超狭い -->
@@ -181,6 +181,7 @@
                 <SplitView x:Name="SplitView" 
                            CompactPaneLength="48"
                            OpenPaneLength="180"
+                           DisplayMode="CompactInline"
                            >
                     <SplitView.Pane>
                         <ScrollViewer HorizontalScrollMode="Disabled"
