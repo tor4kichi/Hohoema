@@ -67,15 +67,17 @@ namespace NicoPlayerHohoema.ViewModels
 			_PageManager = pageManager;
 
 			Name = mylistgroup.Name;
+			Description = mylistgroup.Description;
 			ItemCount = mylistgroup.ItemCount;
 			GroupId = mylistgroup.Id;
 			UpdateTime = mylistgroup.UpdateTime;
 
-			SampleVideos = mylistgroup.SampleVideos?.ToList();
+			SampleVideos = mylistgroup.SampleVideos?.Select(x => x.Video).ToList() ?? new List<Mntone.Nico2.Searches.Video.Video>();
 		}
 
 
 		public string Name { get; private set; }
+		public string Description { get; private set; }
 		public int ItemCount { get; private set; }
 		public string GroupId { get; private set; }
 		public DateTime UpdateTime { get; private set; }

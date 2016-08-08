@@ -62,7 +62,8 @@
                         </StackPanel>
 
                         <ToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                              Content="選択モード"
+                                      Content="選択モード"
+                                      Visibility="Collapsed"
                               />
                     </StackPanel>
 
@@ -89,7 +90,7 @@
                                 VerticalAlignment="Center"
                                 toolkit:DockPanel.Dock="Right"
                                 >
-                        <StackPanel Orientation="Horizontal" Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}">
+                        <StackPanel Orientation="Horizontal">
                         </StackPanel>
 
                     </StackPanel>

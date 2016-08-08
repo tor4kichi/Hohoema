@@ -14,7 +14,99 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <Grid>
-        <TextBlock Text="{Binding Name}" />
-    </Grid>
+    <toolkit:DockPanel Margin="0 8">
+
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="TopBarStateGroup">
+
+                <!-- 一番幅が広いとき -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1025" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="SampleVideoItems.Width" Value="216" />
+                        <Setter Target="DescText.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+                <!-- 中ぐらい -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="721" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="SampleVideoItems.Width" Value="216" />
+                        <Setter Target="DescText.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+                <!-- 超狭い -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="SampleVideoItems.Width" Value="72" />
+                        <Setter Target="DescText.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+
+
+
+
+
+
+
+
+        </VisualStateManager.VisualStateGroups>
+        
+        <ItemsControl ItemsSource="{Binding SampleVideos}"
+                      toolkit:DockPanel.Dock="Right"
+                      Width="64"
+                      x:Name="SampleVideoItems"
+                      >
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border Margin="4 0">
+                        <Image Source="{Binding ThumbnailUrl}"
+                           Width="64"
+                           Height="48"
+                           />
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+
+            
+        </ItemsControl>
+
+        <Border toolkit:DockPanel.Dock="Right" Margin="16">
+            <TextBlock Foreground="Gray" VerticalAlignment="Center">
+                <Run Text="{Binding ItemCount}" />
+                <Run Text="件" />
+            </TextBlock>
+        </Border>
+
+        <Border toolkit:DockPanel.Dock="Bottom" Margin="16 0 0 0" 
+                x:Name="DescText"                
+                >
+            <TextBlock Foreground="Gray" FontSize="12"
+                       Text="{Binding Description}"
+                       MaxLines="2"
+                       >
+                
+            </TextBlock>
+        </Border>
+
+
+        <TextBlock Text="{Binding Name}" 
+                   TextWrapping="Wrap"
+                   VerticalAlignment="Center"
+                   />
+    </toolkit:DockPanel>
 </UserControl>
