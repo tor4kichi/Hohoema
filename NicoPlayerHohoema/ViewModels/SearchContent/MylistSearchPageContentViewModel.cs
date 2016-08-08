@@ -45,13 +45,22 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			get
 			{
-				return VideoSearchSource.OneTimeLoadSearchItemCount / 2;
+				return 15;
 			}
 		}
 
 		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
 		{
-			return true;
+			var source = IncrementalLoadingItems.Source as MylistSearchSource;
+
+			if (SearchOption != null)
+			{
+				return !SearchOption.Equals(source.SearchOption);
+			}
+			else
+			{
+				return true;
+			}
 		}
 
 		#endregion

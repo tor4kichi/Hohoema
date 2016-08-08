@@ -183,53 +183,59 @@
                            OpenPaneLength="180"
                            >
                     <SplitView.Pane>
-                        <StackPanel>
+                        <ScrollViewer HorizontalScrollMode="Disabled"
+                                      VerticalScrollMode="Auto"
+                                      VerticalScrollBarVisibility="Hidden"
+                                      >
+                            <StackPanel>
 
-                            <ListBox ItemsSource="{Binding MenuItems}"
+                                <ListBox ItemsSource="{Binding MenuItems}"
                                       SelectionMode="Single"
                                       SelectedValue="{Binding SelectedItem.Value, Mode=TwoWay}"
                                       ItemTemplate="{StaticResource MenuItemTemplate}"
                                       >
-                                <ListBox.ItemContainerStyle>
-                                    <Style TargetType="ListBoxItem">
-                                        <Setter Property="Padding" Value="6 8 10 8" />
-                                        <Setter Property="Margin" Value="0" />
-                                    </Style>
-                                </ListBox.ItemContainerStyle>
-                                
-                                <i:Interaction.Behaviors>
-                                    <core:EventTriggerBehavior EventName="SelectionChanged">
-                                        <mybehavior:SplitViewClosePane SplitView="{Binding ElementName=SplitView}" 
-                                                                       />
-                                    </core:EventTriggerBehavior>
-                                </i:Interaction.Behaviors>
-                            </ListBox>
+                                    <ListBox.ItemContainerStyle>
+                                        <Style TargetType="ListBoxItem">
+                                            <Setter Property="Padding" Value="6 12 10 12" />
+                                            <Setter Property="Margin" Value="0" />
+                                        </Style>
+                                    </ListBox.ItemContainerStyle>
 
-                            <Border BorderBrush="Gray"
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="SelectionChanged">
+                                            <mybehavior:SplitViewClosePane SplitView="{Binding ElementName=SplitView}" 
+                                                                       />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
+                                </ListBox>
+
+                                <Border BorderBrush="Gray"
                                     BorderThickness="0 1 0 0" />
 
-                            <ListBox ItemsSource="{Binding PersonalMenuItems}" 
+
+                                <ListBox ItemsSource="{Binding PersonalMenuItems}" 
                                       SelectionMode="Single"
                                       SelectedValue="{Binding SelectedItem.Value, Mode=TwoWay}"
                                       ItemTemplate="{StaticResource MenuItemTemplate}"
-                                      
                                               >
-                                <ListBox.ItemContainerStyle>
-                                    <Style TargetType="ListBoxItem">
-                                        <Setter Property="Padding" Value="6 8 10 8" />
-                                        <Setter Property="Margin" Value="0" />
-                                    </Style>
-                                </ListBox.ItemContainerStyle>
+                                    <ListBox.ItemContainerStyle>
+                                        <Style TargetType="ListBoxItem">
+                                            <Setter Property="Padding" Value="6 12 10 12" />
+                                            <Setter Property="Margin" Value="0" />
+                                        </Style>
+                                    </ListBox.ItemContainerStyle>
 
-                                <i:Interaction.Behaviors>
-                                    <core:EventTriggerBehavior EventName="SelectionChanged">
-                                        <mybehavior:SplitViewClosePane SplitView="{Binding ElementName=SplitView}" 
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="SelectionChanged">
+                                            <mybehavior:SplitViewClosePane SplitView="{Binding ElementName=SplitView}" 
                                                                        />
-                                    </core:EventTriggerBehavior>
-                                </i:Interaction.Behaviors>
-                            </ListBox>
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
+                                </ListBox>
 
-                        </StackPanel>
+                            </StackPanel>
+                        </ScrollViewer>
+                        
                     </SplitView.Pane>
                     <SplitView.Content>
 

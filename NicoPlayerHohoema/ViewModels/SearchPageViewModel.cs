@@ -240,61 +240,66 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
+			var prevSearchOption = RequireSearchOption;
 			if (e.Parameter is string)
 			{
 				RequireSearchOption = SearchOption.FromParameterString(e.Parameter as string);
 			}
 
-			HohoemaViewModelBase contentVM = null;
-			SearchTarget? searchTarget = RequireSearchOption?.SearchTarget;
-			switch (searchTarget)
-			{
-				case SearchTarget.Keyword:
-					contentVM = new KeywordSearchPageContentViewModel(
-						HohoemaApp
-						, PageManager
-						, _MylistDialogService
-						, RequireSearchOption
-						);
-					break;
-				case SearchTarget.Tag:
-					contentVM = new TagSearchPageContentViewModel(
-						HohoemaApp
-						, PageManager
-						, _MylistDialogService
-						, RequireSearchOption
-						);
-					break;
-				case SearchTarget.Mylist:
-					contentVM = new MylistSearchPageContentViewModel(
-						HohoemaApp
-						, PageManager
-						, RequireSearchOption
-						);
-					break;
-				case SearchTarget.Community:
-					break;
-				case SearchTarget.Niconama:
-					break;
-				default:
-					contentVM = new EmptySearchPageContentViewModel(
-						HohoemaApp
-						, PageManager
-						);
-					break;
-			}
-
-			if (contentVM == null)
-			{
-				throw new NotSupportedException($"not support SearchPageContent type : {RequireSearchOption.SearchTarget}");
-			}
-
 			// ContentVM側のページタイトルが後で呼び出されるように、SearchPage側を先に呼び出す
 			base.OnNavigatedTo(e, viewModelState);
 
-			contentVM.OnNavigatedTo(e, viewModelState);
 
-			ContentVM.Value = contentVM;
+			if (!(prevSearchOption?.Equals(RequireSearchOption) ?? false))
+			{
+				HohoemaViewModelBase contentVM = null;
+				SearchTarget? searchTarget = RequireSearchOption?.SearchTarget;
+				switch (searchTarget)
+				{
+					case SearchTarget.Keyword:
+						contentVM = new KeywordSearchPageContentViewModel(
+							HohoemaApp
+							, PageManager
+							, _MylistDialogService
+							, RequireSearchOption
+							);
+						break;
+					case SearchTarget.Tag:
+						contentVM = new TagSearchPageContentViewModel(
+							HohoemaApp
+							, PageManager
+							, _MylistDialogService
+							, RequireSearchOption
+							);
+						break;
+					case SearchTarget.Mylist:
+						contentVM = new MylistSearchPageContentViewModel(
+							HohoemaApp
+							, PageManager
+							, RequireSearchOption
+							);
+						break;
+					case SearchTarget.Community:
+						break;
+					case SearchTarget.Niconama:
+						break;
+					default:
+						contentVM = new EmptySearchPageContentViewModel(
+							HohoemaApp
+							, PageManager
+							);
+						break;
+				}
+
+				if (contentVM == null)
+				{
+					throw new NotSupportedException($"not support SearchPageContent type : {RequireSearchOption.SearchTarget}");
+				}
+
+				ContentVM.Value = contentVM;
+			}
+
+			ContentVM.Value?.OnNavigatedTo(e, viewModelState);
 		}
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)

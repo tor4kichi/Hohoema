@@ -12,7 +12,7 @@
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
-    xmlns:rlv="using:RefreshableListView"
+    xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
@@ -125,66 +125,7 @@
 
 
 
-            <rlv:RefreshableListView x:Name="VideoInfoItems" 
-                                     ItemsSource="{Binding IncrementalLoadingItems}" 
-                                     SelectionMode="Multiple"
-                                     IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
-                                     IncrementalLoadingTrigger="Edge"
-                                     AutoRefresh="False"
-                                     RefreshCommand="{Binding RefreshCommand}"
-                    >
-
-                <ListView.ItemContainerStyle>
-                    <Style TargetType="ListViewItem">
-                        <Setter Property="HorizontalContentAlignment"
-                            Value="Stretch" 
-                                />
-                        <Setter Property="Margin"
-                            Value="0 0 0 8" 
-                            />
-                    </Style>
-                </ListView.ItemContainerStyle>
-
-
-                <i:Interaction.Behaviors>
-                    <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedVideoInfoItems, Mode=TwoWay}" />
-
-                    <mybehavior:ListViewVerticalOffsetGetter
-                    VerticalOffset="{Binding ListViewVerticalOffset.Value, Mode=TwoWay}"
-                    />
-                    
-                    <mybehavior:KeyboardTrigger Key="F5">
-                        <mybehavior:KeyboardTrigger.Actions>
-                            <core:InvokeCommandAction Command="{Binding RefreshCommand}" />
-                        </mybehavior:KeyboardTrigger.Actions>
-                    </mybehavior:KeyboardTrigger>
-
-                </i:Interaction.Behaviors>
-
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <toolkit:DockPanel Margin="8"
-                                        Background="Transparent" IsHitTestVisible="True"
-                                        >
-                            <i:Interaction.Behaviors>
-                                <core:EventTriggerBehavior EventName="Tapped">
-                                    <core:InvokeCommandAction Command="{Binding ElementName=PageRoot, Path=DataContext.PlayCommand}"                                                                      
-                                                            CommandParameter="{Binding}"
-                                                                />
-                                </core:EventTriggerBehavior>
-                            </i:Interaction.Behaviors>
-
-
-
-                            <Border >
-                                <local:VideoInfoControl
-                                />
-                            </Border>
-
-                        </toolkit:DockPanel>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </rlv:RefreshableListView>
+            <controls:HohoemaIncrementalLoadingList />
 
 
 
