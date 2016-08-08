@@ -25,6 +25,7 @@
                 <TextBlock Text="{Binding Label}"
                            VerticalAlignment="Center"
                            HorizontalAlignment="Center"
+                           FontWeight="{Binding FontWeight, Mode=OneTime}"
                            >
 
                 </TextBlock>
