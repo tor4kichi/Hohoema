@@ -15,7 +15,7 @@ namespace NicoPlayerHohoema.Models
 {
 	public class HohoemaApp : BindableBase, IDisposable
 	{
-		public static Task<HohoemaApp> Create(IEventAggregator ea)
+		public static HohoemaApp Create(IEventAggregator ea)
 		{
 			var app = new HohoemaApp(ea);
 
@@ -23,7 +23,7 @@ namespace NicoPlayerHohoema.Models
 			app.ContentFinder = new NiconicoContentFinder(app);
 			app.UserMylistManager = new UserMylistManager(app);
 
-			return Task.FromResult(app);
+			return app;
 		}
 
 
