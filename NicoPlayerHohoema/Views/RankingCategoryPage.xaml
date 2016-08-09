@@ -25,11 +25,29 @@
                                   />
         <Border>
             <toolkit:DockPanel>
-                <toolkit:DockPanel toolkit:DockPanel.Dock="Top" >
+                <toolkit:DockPanel toolkit:DockPanel.Dock="Top" Margin="0 8" >
                     
                     <StackPanel Orientation="Horizontal" Margin="8 0"
                                 toolkit:DockPanel.Dock="Right"
                                 >
+                        <StackPanel Orientation="Horizontal" Margin="16 0">
+
+                            <TextBlock Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                                   VerticalAlignment="Center"
+                                   Margin="8 0"
+                                   Foreground="DimGray"
+                                   >
+                            <Run Text="{Binding SelectedItemsCount.Value}" />
+                            <Run Text="個を選択中" />
+                            </TextBlock>
+
+                            <TextBlock VerticalAlignment="Center" Foreground="DimGray">
+                            <Run Text="{Binding LoadedItemsCount.Value}" />
+                            <Run Text="/" />
+                            <Run Text="{Binding MaxItemsCount.Value}" />
+                            </TextBlock>
+                        </StackPanel>
+                        
                         <ToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               Content="選択モード"
                               />
@@ -89,17 +107,18 @@
           
                 <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom" 
                            Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                                Height="72"
+                                Margin="8 0"                               
                            >
                     <StackPanel Orientation="Horizontal"
                         toolkit:DockPanel.Dock="Right"
                         >
-                        <AppBarButton Icon="Play" Content="連続再生" Command="{Binding PlayAllCommand}" />
+                        <AppBarButton Icon="Add" Label="マイリスト登録" Command="{Binding RegistratioMylistCommand}" />
                         <StackPanel Orientation="Horizontal" Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}">
                             <AppBarSeparator />
-                            <AppBarButton Icon="Download" Content="キャッシュを取得" Command="{Binding RequestCacheDownload}" />
-                            <AppBarButton Icon="Cancel" Content="キャッシュを中止" Command="{Binding CancelCacheDownloadRequest}"  />
+                            <AppBarButton Icon="Download" Label="キャッシュ取得" Command="{Binding RequestCacheDownload}" />
                             <AppBarSeparator />
-                            <AppBarButton Icon="Delete" Content="キャッシュを削除" Command="{Binding DeleteCache}" />
+                            <AppBarButton Icon="Cancel" Label="キャッシュ取消" Command="{Binding CancelCacheDownloadRequest}" />
                         </StackPanel>
 
                     </StackPanel>

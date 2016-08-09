@@ -17,7 +17,8 @@ namespace NicoPlayerHohoema.ViewModels
 		public AboutPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
 			: base(hohoemaApp, pageManager)
 		{
-			
+			var version = Windows.ApplicationModel.Package.Current.Id.Version;
+			VersionText = $"{version.Major}.{version.Minor}.{version.Build}";
 		}
 
 
@@ -41,6 +42,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 			return Task.CompletedTask;
 		}
+
+		public string VersionText { get; private set; }
 
 		public List<LisenceItemViewModel> LisenceItems { get; private set; }
 	}
@@ -107,6 +110,10 @@ namespace NicoPlayerHohoema.ViewModels
 					return "Apache Lisence version 2.0";
 				case Models.LisenceType.Simplified_BSD:
 					return "二条項BSDライセンス";
+				case Models.LisenceType.CC_BY_40:
+					return "クリエイティブ・コモンズ 表示 4.0 国際";
+				case Models.LisenceType.SIL_OFL_v1_1:
+					return "SIL OPEN FONT LICENSE Version 1.1";
 				default:
 					throw new NotSupportedException(type.ToString());
 			}

@@ -24,7 +24,9 @@
 
                 </i:Interaction.Behaviors>
                 
-                <TextBlock Text="{Binding Title}" />
+                <TextBlock Text="{Binding Title}"
+                           VerticalAlignment="Center"
+                           />
                 
             </Border>
         </DataTemplate>
@@ -60,6 +62,13 @@
                                           ItemTemplate="{StaticResource FavoriteItemTemplate}"
                                           Margin="8 0"
                                           >
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="ListViewItem">
+                                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+
                                     <ListView.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <toolkit:WrapPanel 

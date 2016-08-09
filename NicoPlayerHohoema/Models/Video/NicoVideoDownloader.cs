@@ -228,7 +228,7 @@ namespace NicoPlayerHohoema.Models
 				Debug.Write("ダウンロードキャンセルを待機中");
 
 
-				await _DownloadTask.WaitToCompelation();
+				await _DownloadTask.WaitToCompelation(count:5);
 
 
 				_DownloadTask = null;

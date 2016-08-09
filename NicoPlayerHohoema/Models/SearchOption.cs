@@ -10,8 +10,8 @@ namespace NicoPlayerHohoema.Models
 	{
 		public string Keyword { get; set; }
 		public SearchTarget SearchTarget { get; set; }
-		public Mntone.Nico2.SortMethod SortMethod { get; set; }
-		public Mntone.Nico2.SortDirection SortDirection { get; set; }
+		public Mntone.Nico2.Order Order { get; set; }
+		public Mntone.Nico2.Sort Sort { get; set; }
 
 
 		public string ToParameterString()
@@ -42,8 +42,8 @@ namespace NicoPlayerHohoema.Models
 
 			return this.Keyword == other.Keyword
 				&& this.SearchTarget == other.SearchTarget
-				&& this.SortDirection == other.SortDirection
-				&& this.SortMethod == other.SortMethod;
+				&& this.Order == other.Order
+				&& this.Sort == other.Sort;
 		}
 	}
 }

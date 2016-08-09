@@ -31,18 +31,39 @@
 
                 <!-- 複数選択のON/OFF -->
                 <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Right"  Margin="8">
+
+                    <StackPanel Orientation="Horizontal" Margin="16 0">
+
+                        <TextBlock Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                                   VerticalAlignment="Center"
+                                   Margin="8 0"
+                                   Foreground="DimGray"
+                                   >
+                            <Run Text="{Binding SelectedItemsCount.Value}" />
+                            <Run Text="個を選択中" />
+                        </TextBlock>
+
+                        <TextBlock VerticalAlignment="Center" Foreground="DimGray">
+                            <Run Text="{Binding LoadedItemsCount.Value}" />
+                            <Run Text="/" />
+                            <Run Text="{Binding MaxItemsCount.Value}" />
+                        </TextBlock>
+                    </StackPanel>
+                    
                     <ToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               Content="選択モード"
                               />
                 </StackPanel>
 
+                
+
                 <Border>
                     <TextBlock Text=":)" Padding="16 8" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <i:Interaction.Behaviors>
-                                <core:EventTriggerBehavior EventName="Tapped">
-                                    <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0" />
-                                </core:EventTriggerBehavior>
-                            </i:Interaction.Behaviors>
+                        <i:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="Tapped">
+                                <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0" />
+                            </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
 
                     </TextBlock>
                 </Border>
@@ -51,17 +72,21 @@
 
             <!-- 選択アクション -->
             <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom" 
-                           Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                               Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                               Height="72"
+                               Margin="8 0"
                            >
                 <StackPanel Orientation="Horizontal"
-                        toolkit:DockPanel.Dock="Right"
+                            VerticalAlignment="Center"
+                            toolkit:DockPanel.Dock="Right"
+                            
                         >
-                    <AppBarButton Icon="Play" Content="連続再生" Command="{Binding PlayAllCommand}" />
+
+                    <AppBarButton Icon="Add" Label="マイリスト登録" Command="{Binding RegistratioMylistCommand}" />
                     <AppBarSeparator />
-                    <AppBarButton Icon="Download" Content="キャッシュを取得" Command="{Binding RequestCacheDownload}" />
-                    <AppBarButton Icon="Cancel" Content="キャッシュを中止" Command="{Binding CancelCacheDownloadRequest}"  />
+                    <AppBarButton Icon="Download" Label="キャッシュ取得" Command="{Binding RequestCacheDownload}" />
                     <AppBarSeparator />
-                    <AppBarButton Icon="Delete" Content="キャッシュを削除" Command="{Binding DeleteCache}" />
+                    <AppBarButton Icon="Cancel" Label="キャッシュ取消" Command="{Binding CancelCacheDownloadRequest}" />
                 </StackPanel>
 
                 <Border />

@@ -1,0 +1,104 @@
+﻿<UserControl
+    x:Class="NicoPlayerHohoema.Views.VideoInfoContent.MylistVideoInfoContent"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views.VideoInfoContent"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+
+    <StackPanel Width="380">
+
+        <Border >
+            <toolkit:DockPanel>
+
+                <TextBlock Text="登録情報" VerticalAlignment="Center" 
+                               toolkit:DockPanel.Dock="Left"
+                               />
+
+                <StackPanel HorizontalAlignment="Right" Margin="0 8" Orientation="Vertical">
+                    <TextBlock  HorizontalAlignment="Right">
+                        <Run Text="とりあえずマイリスト " />
+                        <Run Text="{Binding DeflistRegistrationCount}" />
+                        <Run Text="/" />
+                        <Run Text="{Binding DeflistRegistrationCapacity}" />
+                    </TextBlock>
+
+                    <Border Height="4" />
+
+                    <TextBlock  HorizontalAlignment="Right">
+                        <Run Text="マイリスト " />
+                        <Run Text="{Binding MylistRegistrationCount}" />
+                        <Run Text="/" />
+                        <Run Text="{Binding MylistRegistrationCapacity}" />
+                    </TextBlock>
+
+                </StackPanel>
+            </toolkit:DockPanel>
+        </Border>
+
+
+        <TextBox Text="{Binding MylistComment.Value}"
+                 PlaceholderText="マイリストコメント（オプション）"
+                 Width="320"
+                 HorizontalAlignment="Left"
+                 Margin="8 8"
+                 />
+
+        <Border Height="8" />
+        
+        <ItemsControl ItemsSource="{Binding MylistGroups}" HorizontalAlignment="Right" Margin="8 0">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border Margin="8">
+                        <ToggleButton IsChecked="{Binding IsRegistrated.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      IsEnabled="{Binding NowProccessing.Value, Converter={StaticResource InvertBoolean}}"
+                                      >
+                            <toolkit:DockPanel>
+                                <Border Background="{Binding GroupInfo.ThemeColor, Converter={StaticResource ColorToBrush}}" 
+                                        toolkit:DockPanel.Dock="Left"
+                                        Width="24"
+                                        Height="24"
+                                        BorderBrush="Gray"
+                                        BorderThickness="0 0 1 1"
+                                        />
+
+                                <Border Width="24" Height="24" 
+                                        Background="LightGray" 
+                                        CornerRadius="12"
+                                        toolkit:DockPanel.Dock="Right"                                        
+                                        >
+                                    <TextBlock Text="{Binding GroupInfo.ItemCount}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Foreground="Black"
+                                               />
+                                </Border>
+
+                                <TextBlock Text="{Binding GroupInfo.Name}"
+                                           VerticalAlignment="Center"
+                                           Margin="8 0"
+                                           Width="200"
+                                           />
+                            </toolkit:DockPanel>
+                        </ToggleButton>
+                        
+                    </Border>
+                    
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            
+            
+        </ItemsControl>
+        
+        
+    </StackPanel>
+</UserControl>

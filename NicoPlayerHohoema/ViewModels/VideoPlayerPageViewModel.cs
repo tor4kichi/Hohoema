@@ -434,7 +434,8 @@ namespace NicoPlayerHohoema.ViewModels
 			Types = new List<MediaInfoDisplayType>()
 			{
 				MediaInfoDisplayType.Summary,
-				MediaInfoDisplayType.Comment,
+				MediaInfoDisplayType.Mylist,
+//				MediaInfoDisplayType.Comment,
 				MediaInfoDisplayType.Settings,
 			};
 
@@ -896,7 +897,7 @@ namespace NicoPlayerHohoema.ViewModels
 				await videoInfo.CheckCacheStatus();
 
 				// 動画が削除されていた場合
-				if (videoInfo.IsDeleted)
+				if (videoInfo.ThumbnailResponseCache.IsDeleted || (videoInfo.WatchApiResponseCache.CachedItem?.IsDeleted ?? false))
 				{
 					Debug.WriteLine($"cant playback{VideoId}. due to denied access to watch page, or connection offline.");
 
@@ -926,7 +927,7 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 
 				// 有害動画へのアクセスに対して意思確認された場合
-				if (videoInfo.IsBlockedHarmfulVideo)
+				if (videoInfo.WatchApiResponseCache.IsBlockedHarmfulVideo)
 				{
 					// 有害動画を視聴するか確認するページを表示
 					PageManager.OpenPage(HohoemaPageType.ConfirmWatchHurmfulVideo,
@@ -999,6 +1000,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 			Title.Value = Video.Title;
 			_SidePaneContentCache.Clear();
+
+			// 
+			var watchApiRes = await Video.WatchApiResponseCache.GetItem();
+			_VideoDescriptionHtmlUri = await VideoDescriptionHelper.PartHtmlOutputToCompletlyHtml(VideoId, watchApiRes.videoDetail.description);
 
 			if (SelectedSidePaneType.Value == MediaInfoDisplayType.Summary)
 			{
@@ -1175,7 +1180,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		private async Task<MediaInfoViewModel> GetMediaInfoVM(MediaInfoDisplayType type)
+		private Task<MediaInfoViewModel> GetMediaInfoVM(MediaInfoDisplayType type)
 		{
 			MediaInfoViewModel vm = null;
 			if (_SidePaneContentCache.ContainsKey(type))
@@ -1187,10 +1192,12 @@ namespace NicoPlayerHohoema.ViewModels
 				switch (type)
 				{
 					case MediaInfoDisplayType.Summary:
-						var watchApiRes = await Video.WatchApiResponseCache.GetItem();
-						var uri = await VideoDescriptionHelper.PartHtmlOutputToCompletlyHtml(VideoId, watchApiRes.videoDetail.description);
-						if (IsDisposed) { return null; }
-						vm = new SummaryVideoInfoContentViewModel(Video.ThumbnailResponseCache.CachedItem, uri, PageManager);
+						vm = new SummaryVideoInfoContentViewModel(Video.ThumbnailResponseCache.CachedItem, _VideoDescriptionHtmlUri, PageManager);
+						break;
+
+					case MediaInfoDisplayType.Mylist:
+						var threadId = Video.WatchApiResponseCache.CachedItem.ThreadId.ToString();
+						vm = new MylistVideoInfoContentViewModel(VideoId, threadId, HohoemaApp.UserMylistManager);
 						break;
 
 					case MediaInfoDisplayType.Comment:
@@ -1207,7 +1214,7 @@ namespace NicoPlayerHohoema.ViewModels
 				_SidePaneContentCache.Add(type, vm);
 			}
 
-			return vm;
+			return Task.FromResult(vm);
 		}
 
 		#region Command	
@@ -1407,6 +1414,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<MediaInfoDisplayType> SelectedSidePaneType { get; private set; }
 		public List<MediaInfoDisplayType> Types { get; private set; }
 
+		private Uri _VideoDescriptionHtmlUri;
 
 		ToastNotificationService _ToastService;
 		// TODO: コメントのNGユーザー登録
@@ -1490,6 +1498,7 @@ namespace NicoPlayerHohoema.ViewModels
 	public enum MediaInfoDisplayType
 	{
 		Summary,
+		Mylist,
 		Comment,
 		Settings,
 	}

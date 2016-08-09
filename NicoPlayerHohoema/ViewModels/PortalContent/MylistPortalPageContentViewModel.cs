@@ -16,29 +16,15 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 		{
 			_HohoemaApp = hohoemaApp;
 
-
 			MylistGroupItems = new ObservableCollection<MylistGroupListItem>();
 		}
 
-		protected override async void NavigateTo()
+		protected override void NavigateTo()
 		{
 			try
 			{
-				var mylistGroups = await _HohoemaApp.ContentFinder.GetLoginUserMylistGroups();
-
-				var torima = new Mntone.Nico2.Mylist.MylistGroupData()
-				{
-					Id = "0",
-					Name = "とりあえずマイリスト"
-				};
-
-				mylistGroups.Insert(0, torima);
-
-				var listItems = mylistGroups
+				var listItems = _HohoemaApp.UserMylistManager.UserMylists
 					.Select(x => new MylistGroupListItem(x, PageManager));
-
-				MylistGroupItems.Clear();
-
 
 				foreach (var item in listItems)
 				{

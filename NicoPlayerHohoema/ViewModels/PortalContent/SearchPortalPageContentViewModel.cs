@@ -14,11 +14,10 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 {
 	public class SearchPortalPageContentViewModel : PotalPageContentViewModel
 	{
-		public SearchPortalPageContentViewModel(PageManager pageManager, HohoemaApp hohoemaApp, ISearchDialogService searchDialog)
+		public SearchPortalPageContentViewModel(PageManager pageManager, HohoemaApp hohoemaApp)
 			: base(pageManager)
 		{
 			_HohoemaApp = hohoemaApp;
-			_SearchDialog = searchDialog;
 		}
 
 		private void _HohoemaApp_OnSignin()
@@ -34,7 +33,7 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 				return _SearchCommand
 					?? (_SearchCommand = new DelegateCommand(() => 
 					{
-						_SearchDialog.ShowAsync();
+						PageManager.OpenPage(HohoemaPageType.Search);
 					}));
 			}
 		}
@@ -49,22 +48,22 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 
 			HistoryKeywords = searchSettings.SearchHistory
 				.ToReadOnlyReactiveCollection(x =>
-					new PortalSearchHisotryItem(x, PageManager)
+					new PortalSearchHisotryItem(x.Keyword, x.Target, PageManager)
 				);
 			OnPropertyChanged(nameof(HistoryKeywords));
 
 		}
 
 		HohoemaApp _HohoemaApp;
-		ISearchDialogService _SearchDialog;
 	}
 
 	public class PortalSearchHisotryItem
 	{
-		public PortalSearchHisotryItem(string keyword, PageManager pageManager)
+		public PortalSearchHisotryItem(string keyword, SearchTarget target, PageManager pageManager)
 		{
 			_PageManager = pageManager;
 			Keyword = keyword;
+			Target = target;
 		}
 
 
@@ -80,9 +79,9 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 							new SearchOption()
 							{
 								Keyword = Keyword,
-								SearchTarget = SearchTarget.Keyword,
-								SortMethod = Mntone.Nico2.SortMethod.FirstRetrieve,
-								SortDirection = Mntone.Nico2.SortDirection.Descending,
+								SearchTarget = Target,
+								Sort = Mntone.Nico2.Sort.FirstRetrieve,
+								Order = Mntone.Nico2.Order.Descending,
 							}.ToParameterString());
 					}));
 			}
@@ -90,6 +89,7 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 
 		private PageManager _PageManager;
 		public string Keyword { get; private set; }
+		public SearchTarget Target { get; private set; }
 
 	}
 }

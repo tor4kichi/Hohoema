@@ -83,6 +83,7 @@
                     <Border toolkit:DockPanel.Dock="Right" MinWidth="200">
                         <TextBox Text="{Binding MailOrTelephone.Value, Mode=TwoWay}"
                                  IsEnabled="{Binding CanChangeValue.Value}"
+                                 InputScope="EmailSmtpAddress"
                                  >
 
                         </TextBox>
@@ -91,6 +92,7 @@
                                VerticalAlignment="Center"
                                HorizontalAlignment="Right"
                                Margin="16 0"
+                               
                                />
                 </toolkit:DockPanel>
 
@@ -147,6 +149,17 @@
                                      NavigateUri="https://account.nicovideo.jp/register"
                                      IsEnabled="{Binding CanChangeValue.Value}"
                                      />
+        </Border>
+
+        <Border HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Margin="16"
+                >
+            <TextBlock Foreground="DimGray"
+                       >
+                <Run Text="ver " />
+                <Run Text="{Binding VersionText}" />
+            </TextBlock>
         </Border>
     </Grid>
 </Page>

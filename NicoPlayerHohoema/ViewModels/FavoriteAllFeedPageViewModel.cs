@@ -17,8 +17,8 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class FavoriteAllFeedPageViewModel : HohoemaVideoListingPageViewModelBase<FavoriteVideoInfoControlViewModel>
 	{
-		public FavoriteAllFeedPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
-			: base(hohoemaApp, pageManager, isRequireSignIn: true)
+		public FavoriteAllFeedPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
+			: base(hohoemaApp, pageManager, mylistDialogService, isRequireSignIn: true)
 		{
 			AllMarkAsReadCommand = new DelegateCommand(async () =>
 			{
@@ -30,14 +30,14 @@ namespace NicoPlayerHohoema.ViewModels
 			});
 
 
-			SelectedItemsMarkAsReadCommand = SelectedVideoInfoItems.ToCollectionChanged()
-				.Select(x => SelectedVideoInfoItems.Count > 0)
-				.ToReactiveCommand()
+			SelectedItemsMarkAsReadCommand = SelectedItems.ToCollectionChanged()
+				.Select(x => SelectedItems.Count > 0)
+				.ToReactiveCommand(false)
 				.AddTo(_CompositeDisposable);
 
 			SelectedItemsMarkAsReadCommand.Subscribe(async _ =>
 			{
-				foreach (var item in SelectedVideoInfoItems)
+				foreach (var item in SelectedItems)
 				{
 					await HohoemaApp.FavFeedManager.MarkAsRead(item.VideoId);
 					await HohoemaApp.FavFeedManager.MarkAsRead(item.RawVideoId);
@@ -92,14 +92,16 @@ namespace NicoPlayerHohoema.ViewModels
 			_PageManager = pageManager;
 		}
 
+		public async Task<int> ResetSource()
+		{
+			await _FavFeedManager.UpdateAll();
+			FeedItems = _FavFeedManager.GetAllFeedItems().Take(100).ToList();
+
+			return FeedItems.Count;
+		}
+
 		public async Task<IEnumerable<FavoriteVideoInfoControlViewModel>> GetPagedItems(uint pageIndex, uint pageSize)
 		{
-			if (FeedItems == null || pageIndex == 1)
-			{
-				await _FavFeedManager.UpdateAll();
-				FeedItems = _FavFeedManager.GetAllFeedItems().Take(100).ToList();
-			}
-
 			var head = pageIndex - 1;
 			var currentItems = FeedItems.Skip((int)head).Take((int)pageSize).ToList();
 
@@ -113,7 +115,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 					list.Add(vm);
 
-					vm.LoadThumbnail();
+					await vm.LoadThumbnail();
 				}
 				catch (Exception ex)
 				{

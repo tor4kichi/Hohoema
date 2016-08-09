@@ -1,12 +1,12 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Mylist;
 using Mntone.Nico2.Mylist.MylistGroup;
+using Mntone.Nico2.Searches.Video;
 using Mntone.Nico2.Users.Fav;
 using Mntone.Nico2.Users.User;
 using Mntone.Nico2.Users.Video;
 using Mntone.Nico2.Videos.Histories;
 using Mntone.Nico2.Videos.Ranking;
-using Mntone.Nico2.Videos.Search;
 using NicoPlayerHohoema.Util;
 using Prism.Mvvm;
 using System;
@@ -29,9 +29,11 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public async Task Initialize()
+		public Task Initialize()
 		{
 			// お気に入りデータの読み込み
+
+			return Task.CompletedTask;
 		}
 
 
@@ -61,22 +63,22 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public async Task<SearchResponse> GetKeywordSearch(string keyword, uint pageCount, SortMethod sortMethod, SortDirection sortDir = SortDirection.Descending)
+		public async Task<VideoSearchResponse> GetKeywordSearch(string keyword, uint from, uint limit, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
 		{
 			return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
-				return await _HohoemaApp.NiconicoContext.Video.GetKeywordSearchAsync(keyword, pageCount, sortMethod, sortDir);
+				return await _HohoemaApp.NiconicoContext.Search.KeywordSearchAsync(keyword, from, limit, sort, order);
 			});
 		}
 
-		public async Task<SearchResponse> GetTagSearch(string keyword, uint pageCount, SortMethod sortMethod, SortDirection sortDir = SortDirection.Descending)
+		public async Task<VideoSearchResponse> GetTagSearch(string tag, uint from, uint limit, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
 		{
 			return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
-				return await _HohoemaApp.NiconicoContext.Video.GetKeywordSearchAsync(keyword, pageCount, sortMethod, sortDir)
+				return await _HohoemaApp.NiconicoContext.Search.TagSearchAsync(tag, from, limit, sort, order)
 					.ContinueWith(prevTask =>
 					{
-						if (!prevTask.Result.IsStatusOK)
+						if (!prevTask.Result.IsOK)
 						{
 							throw new WebException();
 						}
@@ -88,18 +90,22 @@ namespace NicoPlayerHohoema.Models
 			}, retryInterval:2000);
 		}
 
-		public async Task<List<MylistGroupData>> GetLoginUserMylistGroups()
+		public Task<List<LoginUserMylistGroup>> GetLoginUserMylistGroups()
 		{
-			return await ConnectionRetryUtil.TaskWithRetry(async () =>
+			return ConnectionRetryUtil.TaskWithRetry(() =>
 			{
-				return await _HohoemaApp.NiconicoContext.Mylist.GetMylistGroupListAsync();
+				return _HohoemaApp.NiconicoContext.Mylist.GetMylistGroupListAsync();
+			})
+			.ContinueWith(prevResult => 
+			{
+				return prevResult.Result.Cast<LoginUserMylistGroup>().ToList();
 			});
 		}
 
 
-		public async Task<List<MylistGroupData>> GetUserMylistGroups(string userId)
+		public Task<List<MylistGroupData>> GetUserMylistGroups(string userId)
 		{
-			return await ConnectionRetryUtil.TaskWithRetry(async () =>
+			return ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
 				try
 				{
@@ -127,7 +133,7 @@ namespace NicoPlayerHohoema.Models
 		private List<MylistGroupData> _CachedUserMylistGroupDatum = null;
 
 
-		public async Task<MylistGroupDetail> GetMylist(string mylistGroupid)
+		public async Task<MylistGroupResponse> GetMylist(string mylistGroupid)
 		{
 			return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
@@ -173,14 +179,14 @@ namespace NicoPlayerHohoema.Models
 
 
 
-		public async Task<UserVideoResponse> GetUserVideos(uint userId, uint page, SortMethod sortMethod = SortMethod.FirstRetrieve, SortDirection sortDir = SortDirection.Descending)
+		public async Task<UserVideoResponse> GetUserVideos(uint userId, uint page, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
 		{
-			return await _HohoemaApp.NiconicoContext.User.GetUserVideos(userId, page, sortMethod, sortDir);
+			return await _HohoemaApp.NiconicoContext.User.GetUserVideos(userId, page, sort, order);
 		}
 
-		public async Task<NicoVideoResponse> GetRelatedVideos(string videoId, uint from, uint limit, SortMethod sortMethod = SortMethod.FirstRetrieve, SortDirection sortDir = SortDirection.Descending)
+		public async Task<NicoVideoResponse> GetRelatedVideos(string videoId, uint from, uint limit, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
 		{
-			return await _HohoemaApp.NiconicoContext.Video.GetRelatedVideoAsync(videoId, from, limit, sortMethod, sortDir);
+			return await _HohoemaApp.NiconicoContext.Video.GetRelatedVideoAsync(videoId, from, limit, sort, order);
 		}
 
 

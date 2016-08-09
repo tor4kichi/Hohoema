@@ -21,13 +21,19 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			_RankingSettings = HohoemaApp.UserSettings.RankingSettings;
 
+
+			Func< RankingCategory, bool> checkFavorite = (RankingCategory cat) => 
+			{
+				return _RankingSettings.HighPriorityCategory.Any(x => x.RankingSource == RankingSource.CategoryRanking && x.Parameter == cat.ToString());
+			};
+
 			// ランキングのカテゴリ
 			RankingCategoryItems = new ObservableCollection<RankingCategoryHostListItem>()
 			{
-				new RankingCategoryHostListItem(RankingCategoryInfo.CreateFromRankingCategory(RankingCategory.all), OnRankingCategorySelected),
-				new RankingCategoryHostListItem(RankingCategoryInfo.CreateFromRankingCategory(RankingCategory.g_ent2), OnRankingCategorySelected)
+				new RankingCategoryHostListItem(RankingCategoryInfo.CreateFromRankingCategory(RankingCategory.all), checkFavorite(RankingCategory.all), OnRankingCategorySelected),
+				new RankingCategoryHostListItem(RankingCategoryInfo.CreateFromRankingCategory(RankingCategory.g_ent2), checkFavorite(RankingCategory.g_ent2), OnRankingCategorySelected)
 				{
-					ChildItems = new List<RankingCategoryListItem>()
+					ChildItems = new List<RankingCategoryListPageListItem>()
 					{
 						CreateRankingCategryListItem(RankingCategory.ent),
 						CreateRankingCategryListItem(RankingCategory.music),
@@ -38,9 +44,9 @@ namespace NicoPlayerHohoema.ViewModels
 						CreateRankingCategryListItem(RankingCategory.nicoindies),
 					}
 				},
-				new RankingCategoryHostListItem(RankingCategoryInfo.CreateFromRankingCategory(RankingCategory.g_life2), OnRankingCategorySelected)
+				new RankingCategoryHostListItem(RankingCategoryInfo.CreateFromRankingCategory(RankingCategory.g_life2), checkFavorite(RankingCategory.g_life2), OnRankingCategorySelected)
 				{
-					ChildItems = new List<RankingCategoryListItem>()
+					ChildItems = new List<RankingCategoryListPageListItem>()
 					{
 						CreateRankingCategryListItem(RankingCategory.animal),
 						CreateRankingCategryListItem(RankingCategory.cooking),
@@ -52,10 +58,10 @@ namespace NicoPlayerHohoema.ViewModels
 						CreateRankingCategryListItem(RankingCategory.history),
 					}
 				},
-				new RankingCategoryHostListItem(RankingCategoryInfo.CreateFromRankingCategory(RankingCategory.g_politics), OnRankingCategorySelected),
-				new RankingCategoryHostListItem(RankingCategoryInfo.CreateFromRankingCategory(RankingCategory.g_tech), OnRankingCategorySelected)
+				new RankingCategoryHostListItem(RankingCategoryInfo.CreateFromRankingCategory(RankingCategory.g_politics), checkFavorite(RankingCategory.g_politics), OnRankingCategorySelected),
+				new RankingCategoryHostListItem(RankingCategoryInfo.CreateFromRankingCategory(RankingCategory.g_tech), checkFavorite(RankingCategory.g_tech), OnRankingCategorySelected)
 				{
-					ChildItems = new List<RankingCategoryListItem>()
+					ChildItems = new List<RankingCategoryListPageListItem>()
 					{
 						CreateRankingCategryListItem(RankingCategory.science),
 						CreateRankingCategryListItem(RankingCategory.tech),
@@ -63,9 +69,9 @@ namespace NicoPlayerHohoema.ViewModels
 						CreateRankingCategryListItem(RankingCategory.make),
 					}
 				},
-				new RankingCategoryHostListItem(RankingCategoryInfo.CreateFromRankingCategory(RankingCategory.g_culture2), OnRankingCategorySelected)
+				new RankingCategoryHostListItem(RankingCategoryInfo.CreateFromRankingCategory(RankingCategory.g_culture2), checkFavorite(RankingCategory.g_culture2), OnRankingCategorySelected)
 				{
-					ChildItems = new List<RankingCategoryListItem>()
+					ChildItems = new List<RankingCategoryListPageListItem>()
 					{
 						CreateRankingCategryListItem(RankingCategory.anime),
 						CreateRankingCategryListItem(RankingCategory.game),
@@ -75,9 +81,9 @@ namespace NicoPlayerHohoema.ViewModels
 						CreateRankingCategryListItem(RankingCategory.draw),
 					}
 				},
-				new RankingCategoryHostListItem(RankingCategoryInfo.CreateFromRankingCategory(RankingCategory.g_other), OnRankingCategorySelected)
+				new RankingCategoryHostListItem(RankingCategoryInfo.CreateFromRankingCategory(RankingCategory.g_other), checkFavorite(RankingCategory.g_other), OnRankingCategorySelected)
 				{
-					ChildItems = new List<RankingCategoryListItem>()
+					ChildItems = new List<RankingCategoryListPageListItem>()
 					{
 						CreateRankingCategryListItem(RankingCategory.are),
 						CreateRankingCategryListItem(RankingCategory.diary),
@@ -87,9 +93,11 @@ namespace NicoPlayerHohoema.ViewModels
 			};
 		}
 
-		RankingCategoryListItem CreateRankingCategryListItem(RankingCategory category)
+		RankingCategoryListPageListItem CreateRankingCategryListItem(RankingCategory category)
 		{
-			return new RankingCategoryListItem(RankingCategoryInfo.CreateFromRankingCategory(category), OnRankingCategorySelected);
+			var categoryInfo = RankingCategoryInfo.CreateFromRankingCategory(category);
+			var isFavoriteCategory = HohoemaApp.UserSettings.RankingSettings.HighPriorityCategory.Contains(categoryInfo);
+			return new RankingCategoryListPageListItem(categoryInfo, isFavoriteCategory, OnRankingCategorySelected);
 		}
 
 
@@ -106,15 +114,30 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-	public class RankingCategoryHostListItem : RankingCategoryListItem
+	public class RankingCategoryHostListItem : RankingCategoryListPageListItem
 	{
-		public RankingCategoryHostListItem(RankingCategoryInfo info, Action<RankingCategoryInfo> selected)
-			: base(info, selected)
+		public RankingCategoryHostListItem(RankingCategoryInfo info, bool isFavoriteCategory, Action<RankingCategoryInfo> selected)
+			: base(info, isFavoriteCategory, selected)
 		{
-			ChildItems = new List<RankingCategoryListItem>();
+			ChildItems = new List<RankingCategoryListPageListItem>();
 		}
 
 
-		public List<RankingCategoryListItem> ChildItems { get; set; }
+		public List<RankingCategoryListPageListItem> ChildItems { get; set; }
+	}
+
+
+	public class RankingCategoryListPageListItem : RankingCategoryListItem
+	{
+		public Windows.UI.Text.FontWeight FontWeight { get; private set; }
+		public bool IsFavorite { get; private set; }
+
+		public RankingCategoryListPageListItem(RankingCategoryInfo info, bool isFavoriteCategory, Action<RankingCategoryInfo> selected)
+			: base(info, selected)
+		{
+			IsFavorite = isFavoriteCategory;
+
+			FontWeight = IsFavorite ? Windows.UI.Text.FontWeights.Bold : Windows.UI.Text.FontWeights.Normal;
+		}
 	}
 }

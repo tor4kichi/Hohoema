@@ -26,8 +26,8 @@ namespace NicoPlayerHohoema.ViewModels
 	public class CacheManagementPageViewModel : HohoemaVideoListingPageViewModelBase<CacheVideoViewModel>
 	{
 		public static SynchronizationContextScheduler scheduler;
-		public CacheManagementPageViewModel(HohoemaApp app, PageManager pageManager)
-			: base(app, pageManager)
+		public CacheManagementPageViewModel(HohoemaApp app, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
+			: base(app, pageManager, mylistDialogService)
 		{
 			if (scheduler == null)
 			{
@@ -90,10 +90,9 @@ namespace NicoPlayerHohoema.ViewModels
 	// キャッシュ処理の状態、進捗状況
 	
 	
-
+	
 	public class CacheVideoViewModel : VideoInfoControlViewModel
 	{
-
 		public CacheVideoViewModel(NicoVideo nicoVideo, NicoVideoQuality quality, PageManager pageManager)
 			: base(nicoVideo, pageManager)
 		{
@@ -114,7 +113,6 @@ namespace NicoPlayerHohoema.ViewModels
 				CacheState = nicoVideo.ObserveProperty(x => x.LowQualityCacheState)
 					.ToReactiveProperty(CacheManagementPageViewModel.scheduler)
 					.AddTo(_CompositeDisposable);
-
 			}
 			else
 			{
@@ -205,43 +203,42 @@ namespace NicoPlayerHohoema.ViewModels
 			_PageManager = pageManager;
 		}
 
-
-		public async Task<IEnumerable<CacheVideoViewModel>> GetPagedItems(uint pageIndex, uint pageSize)
+		public async Task<int> ResetSource()
 		{
+			List<CacheVideoViewModel> list = new List<CacheVideoViewModel>();
+
 			// 
 			var contentFinder = _HohoemaApp.ContentFinder;
 			var mediaManager = _HohoemaApp.MediaManager;
 
-
-			if (RawList == null || pageIndex == 1)
+			foreach (var req in mediaManager.CacheRequestedItemsStack.ToArray())
 			{
-				List<CacheVideoViewModel> list = new List<CacheVideoViewModel>();
+				var item = await mediaManager.GetNicoVideo(req.RawVideoid);
 
-				
-				foreach (var req in mediaManager.CacheRequestedItemsStack.ToArray())
+				await item.CheckCacheStatus();
+				await item.WatchApiResponseCache.UpdateFromLocal();
+
+				if (req.Quality == NicoVideoQuality.Original)
 				{
-					var item = await mediaManager.GetNicoVideo(req.RawVideoid);
-
-					await item.CheckCacheStatus();
-					await item.WatchApiResponseCache.UpdateFromLocal();
-
-					if (req.Quality == NicoVideoQuality.Original)
-					{
-						var vm = await ToCacheVideoViewModel(item.RawVideoId, NicoVideoQuality.Original);
-						list.Add(vm);
-					}
-					else if (req.Quality == NicoVideoQuality.Low)
-					{
-						var vm = await ToCacheVideoViewModel(item.RawVideoId, NicoVideoQuality.Low);
-						list.Add(vm);
-					}
+					var vm = await ToCacheVideoViewModel(item.RawVideoId, NicoVideoQuality.Original);
+					list.Add(vm);
 				}
-
-				RawList = list.OrderBy(x => x.CacheRequestTime).Reverse().ToList();
+				else if (req.Quality == NicoVideoQuality.Low)
+				{
+					var vm = await ToCacheVideoViewModel(item.RawVideoId, NicoVideoQuality.Low);
+					list.Add(vm);
+				}
 			}
 
+			RawList = list.OrderBy(x => x.CacheRequestTime).Reverse().ToList();
+
+			return RawList.Count;
+		}
+
+		public Task<IEnumerable<CacheVideoViewModel>> GetPagedItems(uint pageIndex, uint pageSize)
+		{
 			int head = (int)((pageIndex - 1) * pageSize);
-			return RawList.Skip(head).Take((int)pageSize);
+			return Task.FromResult(RawList.Skip(head).Take((int)pageSize));
 		}
 
 		private async Task<CacheVideoViewModel> ToCacheVideoViewModel(string videoId, NicoVideoQuality quality)

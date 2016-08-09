@@ -42,6 +42,8 @@ namespace NicoPlayerHohoema
     {
 		public PlayerWindowManager PlayerWindow { get; private set; }
 
+		private bool _IsPreLaunch;
+
 		static App()
 		{
 		}
@@ -62,9 +64,11 @@ namespace NicoPlayerHohoema
 
 		private async void App_Suspending(object sender, SuspendingEventArgs e)
 		{
+			if (_IsPreLaunch) { return; }
+
 			var deferral = e.SuspendingOperation.GetDeferral();
 			var hohoemaApp = Container.Resolve<HohoemaApp>();
-			await hohoemaApp.SignOut().ConfigureAwait(false);
+//			await hohoemaApp.SignOut().ConfigureAwait(false);
 
 			if (hohoemaApp.IsLoggedIn)
 			{
@@ -77,14 +81,14 @@ namespace NicoPlayerHohoema
 
 		private async void App_Resuming(object sender, object e)
 		{
-//			var backgroundTask = MediaBackgroundTask.Create();
-//			Container.RegisterInstance(backgroundTask);
+			if (_IsPreLaunch) { return; }
+
+			//			var backgroundTask = MediaBackgroundTask.Create();
+			//			Container.RegisterInstance(backgroundTask);
 
 			var hohoemaApp = Container.Resolve<HohoemaApp>();
-			await hohoemaApp.SignInFromUserSettings();
 
-			await hohoemaApp.MediaManager.Context.Resume();
-
+			await hohoemaApp.MediaManager?.Context.Resume();
 
 			hohoemaApp.Resumed();
 		}
@@ -94,11 +98,11 @@ namespace NicoPlayerHohoema
 #if DEBUG
 			DebugSettings.IsBindingTracingEnabled = true;
 #endif
+			_IsPreLaunch = args.PrelaunchActivated;
 
 			if (args.PreviousExecutionState == ApplicationExecutionState.Terminated)
 			{
 				//TODO: Load state from previously suspended application
-				var hohoemaApp = Container.Resolve<HohoemaApp>();
 				
 			}
 
@@ -106,7 +110,7 @@ namespace NicoPlayerHohoema
 			if (!args.PrelaunchActivated)
 			{
 				// メディアバックグラウンドタスクの動作状態を初期化
-//				ApplicationSettingsHelper.ReadResetSettingsValue(ApplicationSettingsConstants.AppState);
+				//				ApplicationSettingsHelper.ReadResetSettingsValue(ApplicationSettingsConstants.AppState);
 
 				var pm = Container.Resolve<PageManager>();
 				pm.OpenPage(HohoemaPageType.Login, true /* Enable auto login */);
@@ -121,8 +125,8 @@ namespace NicoPlayerHohoema
 		{
 			await RegisterTypes();
 
-//			var playNicoVideoEvent = EventAggregator.GetEvent<PlayNicoVideoEvent>();
-//			playNicoVideoEvent.Subscribe(PlayNicoVideoInPlayerWindow);
+			//			var playNicoVideoEvent = EventAggregator.GetEvent<PlayNicoVideoEvent>();
+			//			playNicoVideoEvent.Subscribe(PlayNicoVideoInPlayerWindow);
 
 			await base.OnInitializeAsync(args);
 		}
@@ -135,10 +139,10 @@ namespace NicoPlayerHohoema
 		}
 
 
-		private async Task RegisterTypes()
+		private Task RegisterTypes()
 		{
 			// Models
-			var hohoemaApp = await HohoemaApp.Create(EventAggregator);
+			var hohoemaApp = HohoemaApp.Create(EventAggregator);
 			Container.RegisterInstance(hohoemaApp);
 			Container.RegisterInstance(new PageManager(NavigationService));
 			Container.RegisterInstance(hohoemaApp.ContentFinder);
@@ -168,9 +172,12 @@ namespace NicoPlayerHohoema
 
 
 			// Service
-			Container.RegisterType<Views.Service.ISearchDialogService, Views.Service.SearchDialogService>();
 			Container.RegisterType<Views.Service.RankingChoiceDialogService>();
 			Container.RegisterInstance(new Views.Service.ToastNotificationService());
+			Container.RegisterInstance(new Views.Service.MylistRegistrationDialogService(hohoemaApp));
+			Container.RegisterInstance(new Views.Service.EditMylistGroupDialogService());
+
+			return Task.CompletedTask;
 		}
 
 

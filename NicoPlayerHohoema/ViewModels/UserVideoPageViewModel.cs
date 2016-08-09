@@ -15,8 +15,8 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class UserVideoPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
 	{
-		public UserVideoPageViewModel(HohoemaApp app, PageManager pageManager) 
-			: base(app, pageManager, isRequireSignIn:true)
+		public UserVideoPageViewModel(HohoemaApp app, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService) 
+			: base(app, pageManager, mylistDialogService, isRequireSignIn:true)
 		{
 		}
 
@@ -91,7 +91,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public UserDetail User { get; private set;}
 
-
+		public async Task<int> ResetSource()
+		{
+			User = await ContentFinder.GetUserDetail(UserId.ToString());
+			return (int)User.TotalVideoCount;
+		}
 
 		public UserVideoIncrementalSource(string userId, UserDetail userDetail, NiconicoContentFinder contentFinder, NiconicoMediaManager mediaMan, PageManager pageManager)
 		{
@@ -104,12 +108,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public async Task<IEnumerable<VideoInfoControlViewModel>> GetPagedItems(uint pageIndex, uint pageSize)
 		{
-			if (User == null)
-			{
-				User = await ContentFinder.GetUserDetail(UserId.ToString());
-			}
-
-
 			if (User.TotalVideoCount < pageIndex)
 			{
 				return Enumerable.Empty<VideoInfoControlViewModel>();

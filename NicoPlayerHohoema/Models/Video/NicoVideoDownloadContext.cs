@@ -263,16 +263,17 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
-		internal async Task CacnelDownloadRequest(string rawVideoId, NicoVideoQuality quality)
+		internal async Task<bool> CacnelDownloadRequest(string rawVideoId, NicoVideoQuality quality)
 		{
 			try
 			{
 				await _ExternalAccessControlLock.WaitAsync();
 
+				var successRemove = false;
 				// リクエストキューに登録されていればキャンセルする
 				if (_MediaManager.CheckHasCacheRequest(rawVideoId, quality))
 				{
-					await _MediaManager.RemoveCacheRequest(rawVideoId, quality);
+					successRemove = await _MediaManager.RemoveCacheRequest(rawVideoId, quality);
 				}
 
 				if (CheckVideoPlaying(rawVideoId, quality))
@@ -290,7 +291,7 @@ namespace NicoPlayerHohoema.Models
 					await TryBeginNextDownloadRequest();
 				}
 
-				
+				return successRemove;
 			}
 			finally
 			{

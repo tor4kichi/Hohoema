@@ -197,23 +197,35 @@ namespace NicoPlayerHohoema.ViewModels
 
 			HasOwnerVideo = VideoInfoItems.Count != 0;
 
-			try
-			{
-				await Task.Delay(500);
 
-				var mylistGroups = await HohoemaApp.ContentFinder.GetUserMylistGroups(UserId);
-				foreach (var item in mylistGroups)
+			if (HohoemaApp.LoginUserId.ToString() == UserId)
+			{
+				foreach (var item in HohoemaApp.UserMylistManager.UserMylists)
 				{
 					MylistGroups.Add(new MylistGroupListItem(item, PageManager));
 				}
 			}
-			catch (Exception ex)
+			else
 			{
-				IsLoadFailed = true;
-				Debug.WriteLine(ex.Message);
+				try
+				{
+					await Task.Delay(500);
+
+					var mylistGroups = await HohoemaApp.ContentFinder.GetUserMylistGroups(UserId);
+					foreach (var item in mylistGroups)
+					{
+						MylistGroups.Add(new MylistGroupListItem(item, PageManager));
+					}
+				}
+				catch (Exception ex)
+				{
+					IsLoadFailed = true;
+					Debug.WriteLine(ex.Message);
+				}
+
 			}
 
-			
+
 
 
 			NowLoading = false;
@@ -367,8 +379,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveCommand AddFavoriteCommand { get; private set; }
 		public ReactiveCommand RemoveFavoriteCommand { get; private set; }
-
-		
 
 		public ObservableCollection<MylistGroupListItem> MylistGroups { get; private set; }
 		public ObservableCollection<VideoInfoControlViewModel> VideoInfoItems { get; private set; }

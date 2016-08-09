@@ -24,6 +24,7 @@
                               toolkit:DockPanel.Dock="Left"
                               Command="{Binding UnfavCategoryCommand}"
                               VerticalAlignment="Center"
+                              IsCompact="True"
                               />
 
                 <toolkit:DockPanel Background="Transparent" Margin="16 0">
@@ -45,19 +46,7 @@
 
 
 
-        <DataTemplate x:Key="TextWithRemoveButtonTemplate">
-            <toolkit:DockPanel>
-                <TextBlock Text="{Binding Content}" 
-                           toolkit:DockPanel.Dock="Left"
-                           VerticalAlignment="Center"
-                           />
-
-                <AppBarButton Icon="Remove" 
-                              Command="{Binding RemoveCommand}" 
-                              />
-
-            </toolkit:DockPanel>
-        </DataTemplate>
+       
 
         <DataTemplate x:Key="NGKeywordTemplate">
             <toolkit:DockPanel
@@ -84,13 +73,14 @@
 
 
                 <AppBarButton Icon="Delete" 
-                                                      Command="{Binding RemoveKeywordCommand}"
-                                                      />
+                              Command="{Binding RemoveKeywordCommand}"
+                              IsCompact="True"
+                              />
                 <TextBlock Text="{Binding Keyword.Value}" 
-                                                   VerticalAlignment="Center"
-                                                   HorizontalAlignment="Center"
-                                                   Margin="16 0"
-                                               >
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Center"
+                            Margin="16 0"
+                        >
 
                 </TextBlock>
 

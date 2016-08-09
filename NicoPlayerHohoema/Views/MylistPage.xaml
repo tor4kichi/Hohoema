@@ -12,7 +12,7 @@
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
-    xmlns:rlv="using:RefreshableListView"
+    xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
@@ -24,19 +24,27 @@
 
         <toolkit:DockPanel >
 
-            
 
-            
             <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
 
+                <Border Background="{Binding ThemeColor, Converter={StaticResource ColorToBrush}}" Width="4" 
+                    toolkit:DockPanel.Dock="Left"
+                        Margin="0 0 8 0"
+                    />
 
-                <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left">
-                    
 
+                <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left" 
+                            >
+                    <AppBarButton Icon="Edit"
+                                  Label="マイリスト編集"
+                                  Command="{Binding EditMylistGroupCommand}"
+                                  Visibility="{Binding IsLoginUserOwnedMylist, Converter={StaticResource BooleanToVisibility}}"
+                                    />
                     <AppBarToggleButton Icon="Favorite"
-                                    IsChecked="{Binding IsFavoriteMylist.Value, Mode=TwoWay}"
-                                    IsEnabled="{Binding CanChangeFavoriteMylistState.Value}"
+                                        IsChecked="{Binding IsFavoriteMylist.Value, Mode=TwoWay}"
+                                        IsEnabled="{Binding CanChangeFavoriteMylistState.Value}"
                                         Label="お気に入り"
+                                        Visibility="{Binding IsLoginUserOwnedMylist, Converter={StaticResource BooleanToVisibilityInverted}}"
                                     />
 
                     <Border Width="16" />
@@ -48,12 +56,36 @@
                             <Run Text=" さんのマイリスト" />
                         </TextBlock>
                     </HyperlinkButton>
-                    
 
+                    <TextBlock Text="非公開マイリスト"
+                               FontWeight="SemiBold"
+                               Margin="16 0"
+                               VerticalAlignment="Center"
+                               Visibility="{Binding IsPublic, Converter={StaticResource BooleanToVisibilityInverted}}"
+                               />
                 </StackPanel>
 
                 <!-- 複数選択のON/OFF -->
                 <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Right" Margin="8">
+
+                    <StackPanel Orientation="Horizontal" Margin="16 0">
+
+                        <TextBlock Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                                   VerticalAlignment="Center"
+                                   Margin="8 0"
+                                   Foreground="DimGray"
+                                   >
+                            <Run Text="{Binding SelectedItemsCount.Value}" />
+                            <Run Text="個を選択中" />
+                        </TextBlock>
+
+                        <TextBlock VerticalAlignment="Center" Foreground="DimGray">
+                            <Run Text="{Binding LoadedItemsCount.Value}" />
+                            <Run Text="/" />
+                            <Run Text="{Binding MaxItemsCount.Value}" />
+                        </TextBlock>
+                    </StackPanel>
+                    
                     <ToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               Content="選択モード"
                               />
@@ -65,18 +97,23 @@
 
             <!-- 選択アクション -->
             <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom" 
-                           Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                               Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                                Height="72"
+                                Margin="8 0"                               
                            >
                 <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center"
                         toolkit:DockPanel.Dock="Right"
                         >
-                    <AppBarButton Icon="Play" Content="連続再生" Command="{Binding PlayAllCommand}" />
+                    <AppBarButton Icon="Copy" Label="マイリストコピー" Command="{Binding CopyMylistCommand}" />
+                    <AppBarButton Icon="Preview" Label="マイリスト移動" Command="{Binding UnregistrationMylistCommand}" />
+                    <AppBarSeparator />
+                    <AppBarButton Icon="Remove" Label="マイリスト解除" Command="{Binding UnregistrationMylistCommand}" />
                     <StackPanel Orientation="Horizontal" Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}">
                         <AppBarSeparator />
-                        <AppBarButton Icon="Download" Content="キャッシュを取得" Command="{Binding RequestCacheDownload}" />
-                        <AppBarButton Icon="Cancel" Content="キャッシュを中止" Command="{Binding CancelCacheDownloadRequest}"  />
+                        <AppBarButton Icon="Download" Label="キャッシュ取得" Command="{Binding RequestCacheDownload}" />
                         <AppBarSeparator />
-                        <AppBarButton Icon="Delete" Content="キャッシュを削除" Command="{Binding DeleteCache}" />
+                        <AppBarButton Icon="Cancel" Label="キャッシュ取消" Command="{Binding CancelCacheDownloadRequest}" />
                     </StackPanel>
 
                 </StackPanel>
@@ -87,66 +124,7 @@
 
 
 
-            <rlv:RefreshableListView x:Name="VideoInfoItems" 
-                                     ItemsSource="{Binding IncrementalLoadingItems}" 
-                                     SelectionMode="Multiple"
-                                     IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
-                                     IncrementalLoadingTrigger="Edge"
-                                     AutoRefresh="False"
-                                     RefreshCommand="{Binding RefreshCommand}"
-                    >
-
-                <ListView.ItemContainerStyle>
-                    <Style TargetType="ListViewItem">
-                        <Setter Property="HorizontalContentAlignment"
-                            Value="Stretch" 
-                                />
-                        <Setter Property="Margin"
-                            Value="0 0 0 8" 
-                            />
-                    </Style>
-                </ListView.ItemContainerStyle>
-
-
-                <i:Interaction.Behaviors>
-                    <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedVideoInfoItems, Mode=TwoWay}" />
-
-                    <mybehavior:ListViewVerticalOffsetGetter
-                    VerticalOffset="{Binding ListViewVerticalOffset.Value, Mode=TwoWay}"
-                    />
-                    
-                    <mybehavior:KeyboardTrigger Key="F5">
-                        <mybehavior:KeyboardTrigger.Actions>
-                            <core:InvokeCommandAction Command="{Binding RefreshCommand}" />
-                        </mybehavior:KeyboardTrigger.Actions>
-                    </mybehavior:KeyboardTrigger>
-
-                </i:Interaction.Behaviors>
-
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <toolkit:DockPanel Margin="8"
-                                        Background="Transparent" IsHitTestVisible="True"
-                                        >
-                            <i:Interaction.Behaviors>
-                                <core:EventTriggerBehavior EventName="Tapped">
-                                    <core:InvokeCommandAction Command="{Binding ElementName=PageRoot, Path=DataContext.PlayCommand}"                                                                      
-                                                            CommandParameter="{Binding}"
-                                                                />
-                                </core:EventTriggerBehavior>
-                            </i:Interaction.Behaviors>
-
-
-
-                            <Border >
-                                <local:VideoInfoControl
-                                />
-                            </Border>
-
-                        </toolkit:DockPanel>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </rlv:RefreshableListView>
+            <controls:HohoemaIncrementalLoadingList />
 
 
 

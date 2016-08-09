@@ -40,8 +40,8 @@ namespace NicoPlayerHohoema.ViewModels
 								{
 									Keyword = feedList.Id,
 									SearchTarget = SearchTarget.Tag,
-									SortDirection = Mntone.Nico2.SortDirection.Descending,
-									SortMethod = Mntone.Nico2.SortMethod.FirstRetrieve
+									Sort = Mntone.Nico2.Sort.FirstRetrieve,
+									Order = Mntone.Nico2.Order.Descending,
 								}.ToParameterString());
 								break;
 							case FavoriteItemType.Mylist:

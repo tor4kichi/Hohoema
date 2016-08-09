@@ -39,6 +39,11 @@
             <local:FavoriteFeedListItem />
         </DataTemplate>
 
+        <DataTemplate x:Key="MylistListItemTemplate">
+            <local:MylistSearchListItem />
+        </DataTemplate>
+
+
 
         <local:IncrementalLoadingListItemTemplateSelector x:Key="listItemTemplateSelector"
                                                           Default="{StaticResource DefaultListItemTemplate}"
@@ -46,6 +51,7 @@
                                                           Ranking="{StaticResource RankingListItemTemplate}"
                                                           CacheManagement="{StaticResource CacheManagementListItemTemplate}"
                                                           FavFeed="{StaticResource FavFeedListItemTemplate}"
+                                                          Mylist="{StaticResource MylistListItemTemplate}"
                                                           >
             
             
@@ -65,7 +71,7 @@
                                 >
         
             <i:Interaction.Behaviors>
-                <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedVideoInfoItems, Mode=TwoWay}" />
+                <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedItems, Mode=TwoWay}" />
 
                 <mybehavior:ListViewVerticalOffsetGetter
                                 VerticalOffset="{Binding ListViewVerticalOffset.Value, Mode=TwoWay}"
@@ -113,7 +119,7 @@
 
                         <i:Interaction.Behaviors>
                             <core:EventTriggerBehavior EventName="Tapped">
-                                <core:InvokeCommandAction Command="{Binding ElementName=ControlRoot, Path=DataContext.PlayCommand}"
+                                <core:InvokeCommandAction Command="{Binding ElementName=ControlRoot, Path=DataContext.SelectItemCommand}"
                                                           CommandParameter="{Binding}"
                                                           />
                             </core:EventTriggerBehavior>
@@ -133,7 +139,7 @@
         </rlv:RefreshableListView>
 
         <Border Visibility="{Binding NowLoadingItems.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
-            <Border Visibility="{Binding HasVideoInfoItem.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+            <Border Visibility="{Binding HasItem.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                 HorizontalAlignment="Center"
                 Margin="0 8"
                 >

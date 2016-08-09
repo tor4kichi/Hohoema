@@ -27,4 +27,39 @@ namespace NicoPlayerHohoema.Views
 			this.InitializeComponent();
 		}
 	}
+
+
+
+
+	public class SearchPageContentTemplateSelector : DataTemplateSelector
+	{
+		public DataTemplate Empty { get; set; }
+		public DataTemplate Tag { get; set; }
+		public DataTemplate Keyword { get; set; }
+		public DataTemplate Mylist { get; set; }
+
+		protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
+		{
+			if (item is ViewModels.EmptySearchPageContentViewModel)
+			{
+				return Empty;
+			}
+			else if (item is ViewModels.TagSearchPageContentViewModel)
+			{
+				return Tag;
+			}
+			else if (item is ViewModels.KeywordSearchPageContentViewModel)
+			{
+				return Keyword;
+			}
+			else if (item is ViewModels.MylistSearchPageContentViewModel)
+			{
+				return Mylist;
+			}
+
+		
+
+			return base.SelectTemplateCore(item, container);
+		}
+	}
 }

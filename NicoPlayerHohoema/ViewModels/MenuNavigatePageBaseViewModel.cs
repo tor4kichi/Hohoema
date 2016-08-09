@@ -24,10 +24,9 @@ namespace NicoPlayerHohoema.ViewModels
 		public PageManager PageManager { get; private set; }
 
 		
-		public MenuNavigatePageBaseViewModel(PageManager pageManager, ISearchDialogService searchDialog)
+		public MenuNavigatePageBaseViewModel(PageManager pageManager)
 		{
 			PageManager = pageManager;
-			_SearchDialogService = searchDialog;
 
 			// Symbol see@ https://msdn.microsoft.com/library/windows/apps/dn252842
 			SplitViewDisplayMode = new ReactiveProperty<Windows.UI.Xaml.Controls.SplitViewDisplayMode>();
@@ -42,6 +41,7 @@ namespace NicoPlayerHohoema.ViewModels
 				new PageTypeSelectableItem(HohoemaPageType.FavoriteAllFeed    , OnMenuItemSelected, "お気に入り", Symbol.OutlineStar),
 				new PageTypeSelectableItem(HohoemaPageType.UserMylist		  , OnMenuItemSelected, "マイリスト", Symbol.Bookmarks),
 				new PageTypeSelectableItem(HohoemaPageType.History			  , OnMenuItemSelected, "視聴履歴", Symbol.Clock),
+				new PageTypeSelectableItem(HohoemaPageType.Search             , OnMenuItemSelected, "検索", Symbol.Find),
 			};
 
 			PersonalMenuItems = new List<PageTypeSelectableItem>()
@@ -129,20 +129,6 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-
-		private DelegateCommand _OpenSearchDialogCommand;
-		public DelegateCommand OpenSearchDialogCommand
-		{
-			get
-			{
-				return _OpenSearchDialogCommand
-					?? (_OpenSearchDialogCommand = new DelegateCommand(() => 
-					{
-						_SearchDialogService.ShowAsync();
-					}));
-			}
-		}
-
 		public List<PageTypeSelectableItem> MenuItems { get; private set; }
 
 		public List<PageTypeSelectableItem> PersonalMenuItems { get; private set; }
@@ -167,9 +153,6 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 		public ReactiveProperty<PageTypeSelectableItem> SelectedItem { get; private set; }
-
-
-		ISearchDialogService _SearchDialogService;
 	}
 
 	public class PageTypeSelectableItem : SelectableItem<HohoemaPageType>
