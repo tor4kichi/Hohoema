@@ -117,13 +117,6 @@ namespace NicoPlayerHohoema.ViewModels
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			base.OnNavigatedTo(e, viewModelState);
-
-			if (IncrementalLoadingItems == null
-				|| CheckNeedUpdateOnNavigateTo(e.NavigationMode))
-			{
-//				ResetList();
-			}
-			
 		}
 
 
@@ -199,6 +192,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected async Task ResetList()
 		{
+			HasItem.Value = true;
+			LoadedItemsCount.Value = 0;
+
 			IsSelectionModeEnable.Value = false;
 
 			if (IncrementalLoadingItems != null)
@@ -227,7 +223,7 @@ namespace NicoPlayerHohoema.ViewModels
 			catch
 			{
 				IncrementalLoadingItems = null;
-
+				HasItem.Value = false;
 				Debug.WriteLine("failed GenerateIncrementalSource.");
 			}
 		}
