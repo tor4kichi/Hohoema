@@ -105,7 +105,7 @@
         </VisualStateManager.VisualStateGroups>
 
 
-        <SplitView x:Name="SplitView" PanePlacement="Right" PaneBackground="#99FFFFFF"
+        <SplitView x:Name="SplitView" PanePlacement="Right" PaneBackground="#CCFFFFFF"
                    OpenPaneLength="400"
                    >
             <SplitView.Content>
