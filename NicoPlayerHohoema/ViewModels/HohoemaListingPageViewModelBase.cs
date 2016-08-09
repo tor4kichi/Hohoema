@@ -154,7 +154,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 				await Task.Delay(100);
 
-				ListViewVerticalOffset.Value = _LastListViewOffset;
+				ListViewVerticalOffset.Value = _LastListViewOffset + 0.1;
 				ChangeCanIncmentalLoading(true);				
 			}
 		}
@@ -169,7 +169,6 @@ namespace NicoPlayerHohoema.ViewModels
 			base.OnNavigatingFrom(e, viewModelState, suspending);
 
 			_LastListViewOffset = ListViewVerticalOffset.Value;
-			ListViewVerticalOffset.Value = 0.0;
 			ChangeCanIncmentalLoading(false);
 
 			_IncrementalLoadingItems = IncrementalLoadingItems;
