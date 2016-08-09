@@ -25,7 +25,7 @@
                                   />
         <Border>
             <toolkit:DockPanel>
-                <toolkit:DockPanel toolkit:DockPanel.Dock="Top" >
+                <toolkit:DockPanel toolkit:DockPanel.Dock="Top" Margin="0 8" >
                     
                     <StackPanel Orientation="Horizontal" Margin="8 0"
                                 toolkit:DockPanel.Dock="Right"
@@ -117,9 +117,8 @@
                         <StackPanel Orientation="Horizontal" Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}">
                             <AppBarSeparator />
                             <AppBarButton Icon="Download" Label="キャッシュ取得" Command="{Binding RequestCacheDownload}" />
-                            <AppBarButton Icon="Cancel" Label="キャッシュ中止" Command="{Binding CancelCacheDownloadRequest}"  />
                             <AppBarSeparator />
-                            <AppBarButton Icon="Delete" Label="キャッシュ削除" Command="{Binding DeleteCache}" />
+                            <AppBarButton Icon="Cancel" Label="キャッシュ取消" Command="{Binding CancelCacheDownloadRequest}" />
                         </StackPanel>
 
                     </StackPanel>

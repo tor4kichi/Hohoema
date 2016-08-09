@@ -22,16 +22,23 @@
                 </core:EventTriggerBehavior>
             </i:Interaction.Behaviors>
 
-            
-            <TextBlock Text="視聴履歴" >
 
-            </TextBlock>
+            <TextBlock Text="視聴履歴" />
+
+
         </Border>
 
         <Border Height="32" />
 
 
         <ListView ItemsSource="{Binding HisotoryVideoInfoItems}">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                </Style>
+            </ListView.ItemContainerStyle>
+
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <Border Background="Transparent" IsHitTestVisible="True" IsDoubleTapEnabled="True">
@@ -41,7 +48,9 @@
                             </core:EventTriggerBehavior>
                         </i:Interaction.Behaviors>
 
-                        <TextBlock Text="{Binding Title}" />
+                        <TextBlock Text="{Binding Title}"
+                                   VerticalAlignment="Center"
+                                   />
                     </Border>
                 </DataTemplate>
             </ListView.ItemTemplate>

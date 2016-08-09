@@ -123,6 +123,13 @@
                         <ListView ItemsSource="{Binding VideoInfoItems}"
                                 Margin="0 8"
                                 >
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+
                             <ListView.ItemTemplate>
                                 <DataTemplate>
 
@@ -133,7 +140,9 @@
                                             </core:EventTriggerBehavior>
                                         </i:Interaction.Behaviors>
 
-                                        <TextBlock Text="{Binding Title}" />
+                                        <TextBlock Text="{Binding Title}" 
+                                                   VerticalAlignment="Center"
+                                                   />
                                     </Border>
                                 </DataTemplate>
                             </ListView.ItemTemplate>

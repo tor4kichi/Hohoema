@@ -31,21 +31,28 @@
     </UserControl.Resources>
     
     <StackPanel>
-        <Border>
-            <TextBlock Text="お気に入り" >
-                <i:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="Tapped">
-                        <core:InvokeCommandAction Command="{Binding OpenFavFeedListCommand}" />
-                    </core:EventTriggerBehavior>
-                </i:Interaction.Behaviors>
+        <Border Background="Transparent" IsHitTestVisible="True">
 
-            </TextBlock>
+            <i:Interaction.Behaviors>
+                <core:EventTriggerBehavior EventName="Tapped">
+                    <core:InvokeCommandAction Command="{Binding OpenFavFeedListCommand}" />
+                </core:EventTriggerBehavior>
+            </i:Interaction.Behaviors>
+
+            <TextBlock Text="お気に入り" />
+
         </Border>
 
         <Border Height="32" />
 
 
         <ListView ItemsSource="{Binding UnreadFavFeedItems}">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                </Style>
+            </ListView.ItemContainerStyle>
 
             <ListView.ItemTemplate>
                 <DataTemplate>

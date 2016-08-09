@@ -105,7 +105,7 @@
         </VisualStateManager.VisualStateGroups>
 
 
-        <SplitView x:Name="SplitView" PanePlacement="Right" PaneBackground="#99FFFFFF"
+        <SplitView x:Name="SplitView" PanePlacement="Right" PaneBackground="#CCFFFFFF"
                    OpenPaneLength="400"
                    >
             <SplitView.Content>
@@ -410,16 +410,29 @@
                                       Height="66"
                                     >
 
+                                    <StackPanel Background="#AA777777"
+                                                toolkit:DockPanel.Dock="Left"
+                                                >
+                                        <AppBarButton Icon="Volume" 
+                                                      Label="ミュート"
+                                                      VerticalAlignment="Stretch"
+                                                      x:Name="VolumeButton"
+                                                      Command="{Binding ToggleMuteCommand}"    
+                                                  >
+
+                                        </AppBarButton>
+                                    </StackPanel>
+
+                                    
                                     <StackPanel Background="#AA777777" Margin="8 0" 
-                                                Orientation="Vertical"
-                                                toolkit:DockPanel.Dock="Left">
+                                                Orientation="Vertical">
                                         
                                         
                                         
                                         <Slider x:Name="VolumeSlider"
                                             Orientation="Horizontal"
                                             VerticalAlignment="Top"
-                                            Margin="8 4"                            
+                                            Margin="8 4"
                                             Value="{Binding SoundVolume.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                             IsThumbToolTipEnabled="True"
                                             ThumbToolTipValueConverter="{StaticResource ToUserFriendlySoubleVolume}"
@@ -427,7 +440,7 @@
                                             Minimum="0.0"
                                             StepFrequency="0.01"
                                             Height="32"
-                                            Width="128"
+                                            Width="160"
                                                                 
                                             />
                                         <TextBlock Text="音量" 
@@ -441,17 +454,7 @@
                                     </StackPanel>
                                     
 
-                                    <StackPanel Background="#AA777777">
-                                        <AppBarButton Icon="Volume" 
-                                                      Label="ミュート"
-                                                      VerticalAlignment="Stretch"
-                                                      x:Name="VolumeButton"
-                                                      Command="{Binding ToggleMuteCommand}"    
-                                                  >
-                                            
-                                        </AppBarButton>
-                                    </StackPanel>
-
+                                    
                                 </toolkit:DockPanel>
 
                                 <Border />

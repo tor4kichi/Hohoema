@@ -270,7 +270,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				var rank = i;
 
-				if (rank >= RankingRss.Channel.Items.Count)
+				if (rank > RankingRss.Channel.Items.Count)
 				{
 					break;
 				}

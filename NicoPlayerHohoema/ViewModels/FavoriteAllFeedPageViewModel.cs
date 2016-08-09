@@ -32,7 +32,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			SelectedItemsMarkAsReadCommand = SelectedItems.ToCollectionChanged()
 				.Select(x => SelectedItems.Count > 0)
-				.ToReactiveCommand()
+				.ToReactiveCommand(false)
 				.AddTo(_CompositeDisposable);
 
 			SelectedItemsMarkAsReadCommand.Subscribe(async _ =>

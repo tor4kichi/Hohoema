@@ -98,9 +98,8 @@
                         <StackPanel Orientation="Horizontal" Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}">
                             <AppBarSeparator />
                             <AppBarButton Icon="Download" Label="キャッシュ取得" Command="{Binding RequestCacheDownload}" />
-                            <AppBarButton Icon="Cancel" Label="キャッシュ中止" Command="{Binding CancelCacheDownloadRequest}"  />
                             <AppBarSeparator />
-                            <AppBarButton Icon="Delete" Label="キャッシュ削除" Command="{Binding DeleteCache}" />
+                            <AppBarButton Icon="Cancel" Label="キャッシュ取消" Command="{Binding CancelCacheDownloadRequest}" />
                         </StackPanel>
 
                     </StackPanel>

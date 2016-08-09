@@ -117,13 +117,6 @@ namespace NicoPlayerHohoema.ViewModels
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			base.OnNavigatedTo(e, viewModelState);
-
-			if (IncrementalLoadingItems == null
-				|| CheckNeedUpdateOnNavigateTo(e.NavigationMode))
-			{
-//				ResetList();
-			}
-			
 		}
 
 
@@ -154,7 +147,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 				await Task.Delay(100);
 
-				ListViewVerticalOffset.Value = _LastListViewOffset;
+				ListViewVerticalOffset.Value = _LastListViewOffset + 0.1;
 				ChangeCanIncmentalLoading(true);				
 			}
 		}
@@ -169,7 +162,6 @@ namespace NicoPlayerHohoema.ViewModels
 			base.OnNavigatingFrom(e, viewModelState, suspending);
 
 			_LastListViewOffset = ListViewVerticalOffset.Value;
-			ListViewVerticalOffset.Value = 0.0;
 			ChangeCanIncmentalLoading(false);
 
 			_IncrementalLoadingItems = IncrementalLoadingItems;
@@ -200,6 +192,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected async Task ResetList()
 		{
+			HasItem.Value = true;
+			LoadedItemsCount.Value = 0;
+
 			IsSelectionModeEnable.Value = false;
 
 			if (IncrementalLoadingItems != null)
@@ -228,7 +223,7 @@ namespace NicoPlayerHohoema.ViewModels
 			catch
 			{
 				IncrementalLoadingItems = null;
-
+				HasItem.Value = false;
 				Debug.WriteLine("failed GenerateIncrementalSource.");
 			}
 		}
