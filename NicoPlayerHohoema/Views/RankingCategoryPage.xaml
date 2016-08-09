@@ -25,7 +25,7 @@
                                   />
         <Border>
             <toolkit:DockPanel>
-                <toolkit:DockPanel toolkit:DockPanel.Dock="Top" >
+                <toolkit:DockPanel toolkit:DockPanel.Dock="Top" Margin="0 8" >
                     
                     <StackPanel Orientation="Horizontal" Margin="8 0"
                                 toolkit:DockPanel.Dock="Right"

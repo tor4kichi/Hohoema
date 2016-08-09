@@ -25,7 +25,6 @@
 
                 <TextBlock Text="{Binding Label}"
                            VerticalAlignment="Center"
-                           HorizontalAlignment="Center"
                            >
 
                 </TextBlock>
@@ -35,14 +34,15 @@
     
     
     <StackPanel>
-        <Border>
-            <TextBlock Text="ランキング" >
-                <i:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="Tapped">
-                        <core:InvokeCommandAction Command="{Binding OpenRankingCategoryCommand}" />
-                    </core:EventTriggerBehavior>
-                </i:Interaction.Behaviors>
-            </TextBlock>
+        <Border Background="Transparent" IsHitTestVisible="True">
+
+            <i:Interaction.Behaviors>
+                <core:EventTriggerBehavior EventName="Tapped">
+                    <core:InvokeCommandAction Command="{Binding OpenRankingCategoryCommand}" />
+                </core:EventTriggerBehavior>
+            </i:Interaction.Behaviors>
+            <TextBlock Text="ランキング" />
+
         </Border>
 
         <Border Height="32" />
@@ -51,7 +51,13 @@
                   ItemTemplate="{StaticResource CategoryListItemTemplate}"
                   SelectionMode="None"
                    >
-           
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                </Style>
+            </ListView.ItemContainerStyle>
+
         </ListView>
        
 
