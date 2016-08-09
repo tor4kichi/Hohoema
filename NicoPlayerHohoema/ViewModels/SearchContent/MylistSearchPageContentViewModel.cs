@@ -145,6 +145,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public async Task<int> ResetSource()
 		{
+			// Note: 件数が1だとJsonのParseがエラーになる
 			_MylistGroupResponse = await _HohoemaApp.NiconicoContext.Search.MylistSearchAsync(SearchOption.Keyword, 0, 2);
 
 			return _MylistGroupResponse.TotalCount;
@@ -158,7 +159,7 @@ namespace NicoPlayerHohoema.ViewModels
 			var items = new List<MylistSearchListingItem>();
 
 
-			var response = await _HohoemaApp.NiconicoContext.Search.MylistSearchAsync(SearchOption.Keyword, head, count);
+			var response = await _HohoemaApp.NiconicoContext.Search.MylistSearchAsync(SearchOption.Keyword, head, count, SearchOption.Sort, SearchOption.Order);
 
 
 			foreach (var item in response.MylistgroupList)

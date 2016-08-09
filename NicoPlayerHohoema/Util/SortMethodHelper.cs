@@ -27,7 +27,15 @@ namespace NicoPlayerHohoema.Util
 				case Sort.Length:
 					return isAscending ? "動画時間が短い順" : "動画時間が長い順";
 				case Sort.Popurarity:
-					return "人気が高い順";
+					return isAscending ? "人気が低い順" : "人気が高い順";
+				case Sort.MylistPopurarity:
+					return isAscending ? "人気が低い順" : "人気が高い順";
+				case Sort.VideoCount:
+					return isAscending ? "動画数が少ない順" : "動画数が多い順";
+				case Sort.UpdateTime:
+					return isAscending ? "更新が古い順" : "更新が新しい順";
+				case Sort.Relation:
+					return isAscending ? "適合率が低い順" : "適合率が高い順";
 				default:
 					throw new NotSupportedException();
 			}

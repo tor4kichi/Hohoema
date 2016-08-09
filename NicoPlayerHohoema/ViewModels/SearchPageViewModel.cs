@@ -24,12 +24,13 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class SearchPageViewModel : HohoemaViewModelBase
 	{
-		public static List<SearchSortOptionListItem> SearchOptionListItems { get; private set; }
+		public static List<SearchSortOptionListItem> VideoSearchOptionListItems { get; private set; }
+		public static List<SearchSortOptionListItem> MylistSearchOptionListItems { get; private set; }
 
 		static SearchPageViewModel()
 		{
 			#region SearchOptionListItems
-			SearchOptionListItems = new List<SearchSortOptionListItem>()
+			VideoSearchOptionListItems = new List<SearchSortOptionListItem>()
 			{
 				new SearchSortOptionListItem()
 				{
@@ -118,6 +119,71 @@ namespace NicoPlayerHohoema.ViewModels
 			};
 			#endregion
 
+
+			#region マイリスト検索時のオプション
+
+			MylistSearchOptionListItems = new List<SearchSortOptionListItem>()
+			{
+				new SearchSortOptionListItem()
+				{
+					Label = "人気が高い順",
+					Sort = Sort.MylistPopurarity,
+					Order = Order.Descending,
+				}
+				,
+				new SearchSortOptionListItem()
+				{
+					Label = "人気が低い順",
+					Sort = Sort.MylistPopurarity,
+					Order = Order.Ascending,
+				}
+				,
+				new SearchSortOptionListItem()
+				{
+					Label = "更新が新しい順",
+					Sort = Sort.UpdateTime,
+					Order = Order.Descending,
+				}
+				,
+				new SearchSortOptionListItem()
+				{
+					Label = "更新が古い順",
+					Sort = Sort.UpdateTime,
+					Order = Order.Ascending,
+				}
+				,
+				new SearchSortOptionListItem()
+				{
+					Label = "動画数が多い順",
+					Sort = Sort.VideoCount,
+					Order = Order.Descending,
+				}
+				,
+				new SearchSortOptionListItem()
+				{
+					Label = "動画数が少ない順",
+					Sort = Sort.VideoCount,
+					Order = Order.Ascending,
+				}
+				,
+				new SearchSortOptionListItem()
+				{
+					Label = "適合率が高い順",
+					Sort = Sort.Relation,
+					Order = Order.Descending,
+				}
+				,
+				new SearchSortOptionListItem()
+				{
+					Label = "適合率が低い順",
+					Sort = Sort.Relation,
+					Order = Order.Ascending,
+				}
+				,
+			};
+
+			#endregion
+
 		}
 
 
@@ -136,6 +202,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<HohoemaViewModelBase> ContentVM { get; private set; }
 
+		public List<SearchSortOptionListItem> SearchOptioinItems { get; private set; }
 
 		public bool IsSearchKeyword
 		{
@@ -189,13 +256,37 @@ namespace NicoPlayerHohoema.ViewModels
 			SelectedTarget = new ReactiveProperty<SearchTarget>(TargetListItems[0])
 				.AddTo(_CompositeDisposable);
 
+			SelectedSearchOption = new ReactiveProperty<SearchSortOptionListItem>()
+				.AddTo(_CompositeDisposable);
+
 			SelectedTarget.Subscribe(x => 
 			{
 				RaiseSearchTargetFlags();
+
+				switch (x)
+				{
+					case SearchTarget.Keyword:
+						SearchOptioinItems = VideoSearchOptionListItems;
+						break;
+					case SearchTarget.Tag:
+						SearchOptioinItems = VideoSearchOptionListItems;
+						break;
+					case SearchTarget.Mylist:
+						SearchOptioinItems = MylistSearchOptionListItems;
+						break;
+					case SearchTarget.Community:
+						break;
+					case SearchTarget.Niconama:
+						break;
+					default:
+						break;
+				}
+
+				OnPropertyChanged(nameof(SearchOptioinItems));
+
+				SelectedSearchOption.Value = SearchOptioinItems.FirstOrDefault();
 			});
 
-			SelectedSearchOption = new ReactiveProperty<SearchSortOptionListItem>(SearchOptionListItems[0])
-				.AddTo(_CompositeDisposable);
 
 
 			DoSearchCommand =

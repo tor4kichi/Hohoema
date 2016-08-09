@@ -185,7 +185,7 @@
     <Compile Include="ViewModels\SearchContent\EmptySearchPageContentViewModel.cs" />
     <Compile Include="ViewModels\SearchContent\KeywordSearchPageContentViewModel.cs" />
     <Compile Include="ViewModels\SearchContent\MylistSearchPageContentViewModel.cs" />
-    <Compile Include="ViewModels\SearchContent\SearchSortOptionListItem.cs" />
+    <Compile Include="ViewModels\SearchContent\VideoSearchSortOptionListItem.cs" />
     <Compile Include="ViewModels\SearchContent\TagSearchPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\CacheSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\CommentSettingsPageContentViewModel.cs" />

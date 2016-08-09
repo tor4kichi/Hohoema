@@ -147,7 +147,7 @@
                     <Border Width="54" />
                     <!-- Vidoe系検索のサーチオプション -->
                     <Border toolkit:DockPanel.Dock="Left" Margin="8 0">
-                        <ComboBox ItemsSource="{Binding SearchOptionListItems}"
+                        <ComboBox ItemsSource="{Binding SearchOptioinItems}"
                                   DisplayMemberPath="Label"
                                   SelectedItem="{Binding SelectedSearchOption.Value, Mode=TwoWay}"
                                   Margin="0"
