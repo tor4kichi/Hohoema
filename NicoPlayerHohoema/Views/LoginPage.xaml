@@ -150,5 +150,16 @@
                                      IsEnabled="{Binding CanChangeValue.Value}"
                                      />
         </Border>
+
+        <Border HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Margin="16"
+                >
+            <TextBlock Foreground="DimGray"
+                       >
+                <Run Text="ver " />
+                <Run Text="{Binding VersionText}" />
+            </TextBlock>
+        </Border>
     </Grid>
 </Page>

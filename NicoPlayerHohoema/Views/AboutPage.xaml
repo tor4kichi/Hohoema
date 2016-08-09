@@ -30,8 +30,9 @@
 
         <ScrollViewer>
             <StackPanel Margin="24 16 16 16">
+
                 
-                
+
                 <TextBlock Text="このアプリについて"
                        Style="{StaticResource SubTitleStyle}"
                    ></TextBlock>
@@ -42,10 +43,24 @@
                             "Hohoema" はWindows 10向けのニコニコ動画プレイヤーです。
                         </Run>
                     </TextBlock>
+
+                    
                 </StackPanel>
 
-                
-                
+                <TextBlock Text="バージョン情報"
+                       Style="{StaticResource SubTitleStyle}"
+                   ></TextBlock>
+
+                <StackPanel Margin="16 8">
+                    <TextBlock Style="{StaticResource ContentTextStyle}">
+                        <Run Text="ver" />
+                        <Run Text="{Binding VersionText}" />
+                    </TextBlock>
+
+
+                </StackPanel>
+
+
                 <TextBlock Text="作った人"
                        Style="{StaticResource SubTitleStyle}"
                        />

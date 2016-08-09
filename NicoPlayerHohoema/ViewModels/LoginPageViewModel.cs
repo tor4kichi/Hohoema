@@ -11,6 +11,7 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Prism.Windows.Navigation;
+using Windows.ApplicationModel;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -51,6 +52,10 @@ namespace NicoPlayerHohoema.ViewModels
 				.AddTo(_CompositeDisposable);
 			IsServiceUnavailable = new ReactiveProperty<bool>()
 				.AddTo(_CompositeDisposable);
+
+
+			var version = Package.Current.Id.Version;
+			VersionText = $"{version.Major}.{version.Minor}.{version.Build}";
 		}
 
 
@@ -137,5 +142,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		public AccountSettings AccountSettings { get; private set; }
+
+
+		public string VersionText { get; private set; }
 	}
 }

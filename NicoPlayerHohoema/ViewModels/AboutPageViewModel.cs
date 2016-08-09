@@ -17,7 +17,8 @@ namespace NicoPlayerHohoema.ViewModels
 		public AboutPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
 			: base(hohoemaApp, pageManager)
 		{
-			
+			var version = Windows.ApplicationModel.Package.Current.Id.Version;
+			VersionText = $"{version.Major}.{version.Minor}.{version.Build}";
 		}
 
 
@@ -41,6 +42,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 			return Task.CompletedTask;
 		}
+
+		public string VersionText { get; private set; }
 
 		public List<LisenceItemViewModel> LisenceItems { get; private set; }
 	}
