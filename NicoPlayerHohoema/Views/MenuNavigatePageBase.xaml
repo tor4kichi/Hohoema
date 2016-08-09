@@ -278,7 +278,7 @@
                                    Text="{Binding TitleText}"
                                    VerticalAlignment="Center"
                                    FontSize="24"
-                                   Margin="16 0"
+                                   Margin="16 8 0 8"
                                    FontWeight="SemiLight"
                                    >
 

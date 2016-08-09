@@ -132,7 +132,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<SearchTarget> SelectedTarget { get; private set; }
 		public ReactiveProperty<SearchSortOptionListItem> SelectedSearchOption { get; private set; }
 
-
+		public ReadOnlyReactiveCollection<SearchHistoryListItem> SearchHistoryItems { get; private set; }
 
 		public ReactiveProperty<HohoemaViewModelBase> ContentVM { get; private set; }
 
@@ -237,6 +237,30 @@ namespace NicoPlayerHohoema.ViewModels
 			.AddTo(_CompositeDisposable);
 		}
 
+
+		protected override void OnSignIn(ICollection<IDisposable> userSessionDisposer)
+		{
+			SearchHistoryItems = HohoemaApp.UserSettings.SearchSettings.SearchHistory
+				.ToReadOnlyReactiveCollection(x => new SearchHistoryListItem(x, OnSearchHistorySelected))
+				.AddTo(userSessionDisposer);
+
+			base.OnSignIn(userSessionDisposer);
+		}
+
+		protected override void OnSignOut()
+		{
+			base.OnSignOut();
+
+			SearchHistoryItems = null;
+		}
+
+
+
+		private void OnSearchHistorySelected(SearchHistoryItem item)
+		{
+			SearchText.Value = item.Keyword;
+			SelectedTarget.Value = TargetListItems.Single(x => x == item.Target);
+		}
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
@@ -390,4 +414,19 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 	}
 
+
+
+	public class SearchHistoryListItem : SelectableItem<SearchHistoryItem>
+	{
+		public string Keyword { get; private set; }
+		public SearchTarget Target { get; private set; }
+
+
+
+		public SearchHistoryListItem(SearchHistoryItem source, Action<SearchHistoryItem> selectedAction) : base(source, selectedAction)
+		{
+			Keyword = source.Keyword;
+			Target = source.Target;
+		}
+	}
 }
