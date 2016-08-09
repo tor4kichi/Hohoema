@@ -32,8 +32,8 @@ Hohoemaのストアアプリは試用版が無料で無期限にご利用いた�
 
 ## 実装予定
 
-* v0.3.1 ユーザーIDベースのNGなど使いやすさ向上
-* v0.4 ニコ生の視聴
+* v0.4 ユーザーIDベースのNGなど使いやすさ向上
+* v0.5 ニコ生の視聴／ニコニコミュニティ対応
 
 https://github.com/tor4kichi/Hohoema/milestones
 
