@@ -54,20 +54,46 @@
                         <DataTemplate>
 
                             <StackPanel Orientation="Vertical" Margin="8 0">
-                                <ContentControl Content="{Binding}"
-                                            ContentTemplate="{StaticResource CategoryListItemTemplate}"
-                                            />
-
-                                <ItemsControl ItemsSource="{Binding ChildItems}"
-                                          ItemTemplate="{StaticResource CategoryListItemTemplate}"
+                                
+                                <ListView SelectionMode="None"
                                           >
-                                    <ItemsControl.ItemsPanel>
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="ListViewItem">
+                                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+
+                                    <ListView.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <StackPanel Orientation="Vertical" />
                                         </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
+                                    </ListView.ItemsPanel>
 
-                                </ItemsControl>
+                                    <ContentControl Content="{Binding}"
+                                                ContentTemplate="{StaticResource CategoryListItemTemplate}"
+                                                HorizontalContentAlignment="Stretch"
+                                            />
+                                </ListView>
+
+                                <ListView ItemsSource="{Binding ChildItems}"
+                                          ItemTemplate="{StaticResource CategoryListItemTemplate}"
+                                          SelectionMode="None"
+                                          >
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="ListViewItem">
+                                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+
+                                    <ListView.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Vertical" />
+                                        </ItemsPanelTemplate>
+                                    </ListView.ItemsPanel>
+
+                                </ListView>
                                 
                             </StackPanel>
                         </DataTemplate>
