@@ -32,24 +32,35 @@ namespace NicoPlayerHohoema.Models
 		private CancellationTokenSource _DownloadTaskCancelToken;
 		private SemaphoreSlim _DownloadTaskLock;
 
+		public DividedQualityNicoVideo DividedQualityNicoVideo { get; private set; }
 
-		public VideoDownloadProgress DownloadProgress
-		{
-			get; private set;
-		}
+
+		public VideoDownloadProgress DownloadProgress { get; private set; }
+
 
 
 		public StorageFile CacheFile { get; private set; }
 		private SemaphoreSlim _CacheWriteSemaphore;
 
 
-		public string RawVideoId { get; private set; }
-		public NicoVideoQuality Quality { get; private set; }
 		public bool IsPremiumUser { get; private set; }
 		public TimeSpan DownloadInterval { get; private set; }
 
 
 		public bool IsClosed { get; private set; }
+
+		public string RawVideoId
+		{
+			get
+			{
+				return DividedQualityNicoVideo.RawVideoId;
+			}
+		}
+
+		public NicoVideoQuality Quality
+		{
+			get { return DividedQualityNicoVideo.Quality; }
+		}
 
 
 		#region Cache Download Event
@@ -68,19 +79,17 @@ namespace NicoPlayerHohoema.Models
 		const uint IppanUserDownload_kbps = 262144;
 
 
-		public NicoVideoDownloader(HttpClient client, string rawVideoId, NicoVideoQuality quality, WatchApiResponse watchApiRes, ThumbnailResponse thumb, VideoDownloadProgress downloadProgress, StorageFile file)
+		public NicoVideoDownloader(DividedQualityNicoVideo qualityNicoVideo, HttpClient client,  WatchApiResponse watchApiRes, StorageFile cacheFile)
 			: base(client, watchApiRes.VideoUrl)
 		{
-			RawVideoId = rawVideoId;
+			DividedQualityNicoVideo = qualityNicoVideo;
 			IsPremiumUser = watchApiRes.IsPremium;
-			DownloadProgress = downloadProgress;
-			CacheFile = file;
-			Quality = quality;
+			DownloadProgress = qualityNicoVideo.Progress;
 			DownloadInterval = IsPremiumUser ?
 				TimeSpan.FromSeconds(BUFFER_SIZE / (float)PremiumUserDownload_kbps + 0.2) :
 				TimeSpan.FromSeconds(BUFFER_SIZE / (float)IppanUserDownload_kbps + 0.2);
-
-			Size = quality == NicoVideoQuality.Original ? thumb.SizeHigh : thumb.SizeLow;
+			CacheFile = cacheFile;
+			Size = qualityNicoVideo.VideoSize;
 
 			_DownloadTaskLock = new SemaphoreSlim(1, 1);
 			_CacheWriteSemaphore = new SemaphoreSlim(1, 1);
@@ -134,11 +143,6 @@ namespace NicoPlayerHohoema.Models
 					await _CacheWriteSemaphore.WaitAsync();
 
 					cancellationToken.ThrowIfCancellationRequested();
-
-					if (CacheFile == null)
-					{
-						throw new Exception();
-					}
 
 					try
 					{
@@ -473,35 +477,6 @@ namespace NicoPlayerHohoema.Models
 			// データが完全にダウンロードできたときの処理
 			if (DownloadProgress.CheckComplete())
 			{
-				try
-				{
-					await _CacheWriteSemaphore.WaitAsync();
-
-					// 動画ファイル名から.incompleteを削除するようリネーム
-					if (CacheFile.Name.Contains((".incomplete")))
-					{
-						var pos = CacheFile.Name.IndexOf(".incomplete");
-						var name = CacheFile.Name.Remove(pos);
-
-						var path = Path.Combine(Path.GetDirectoryName(CacheFile.Path), name);
-						if (File.Exists(path))
-						{
-							var alreadFile = await StorageFile.GetFileFromPathAsync(path);
-							await alreadFile.DeleteAsync();
-						}
-						await CacheFile.RenameAsync(name);
-
-						CacheFile = await StorageFile.GetFileFromPathAsync(CacheFile.Path);
-
-						await Task.Delay(100);
-					}
-				}
-				finally
-				{
-					_CacheWriteSemaphore.Release();
-				}
-
-
 				Debug.WriteLine($"{RawVideoId} is download done.");
 
 				OnCacheComplete?.Invoke(RawVideoId);
@@ -559,7 +534,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			get
 			{
-				return DownloadProgress.CheckComplete();
+				return DownloadProgress?.CheckComplete() ?? false;
 			}
 		}
 
@@ -567,7 +542,7 @@ namespace NicoPlayerHohoema.Models
 		#endregion
 
 
-		const uint BUFFER_SIZE = 262144 / 4;
+		const uint BUFFER_SIZE = 262144;
 		byte[] _RawBuffer;
 		byte[] RawBuffer
 		{

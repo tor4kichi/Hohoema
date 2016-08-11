@@ -20,7 +20,7 @@ namespace NicoPlayerHohoema.Models
 		public uint LowQualityVideoSize { get; private set; }
 		public uint OriginalQualityVideoSize { get; private set; }
 
-
+		public MovieType MovieType { get; private set; }
 
 		public bool IsOriginalQualityOnly { get { return LowQualityVideoSize == 0; } }
 
@@ -56,6 +56,7 @@ namespace NicoPlayerHohoema.Models
 			LowQualityVideoSize = (uint)item.SizeLow;
 			OriginalQualityVideoSize = (uint) item.SizeHigh;
 
+			MovieType = item.MovieType;
 
 			base.UpdateToLatest(item);
 		}

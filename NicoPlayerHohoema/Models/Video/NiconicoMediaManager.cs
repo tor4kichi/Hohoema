@@ -153,8 +153,8 @@ namespace NicoPlayerHohoema.Models
 
 				if (req.Quality == NicoVideoQuality.Original)
 				{
-					if (nicoVideo.OriginalQualityCacheState != NicoVideoCacheState.Cached
-						&& nicoVideo.CanRequestDownloadOriginalQuality
+					if (!nicoVideo.OriginalQuality.IsCacheRequested
+						&& nicoVideo.OriginalQuality.CanRequestDownload
 						)
 					{
 						return req;
@@ -162,8 +162,8 @@ namespace NicoPlayerHohoema.Models
 				}
 				else
 				{
-					if (nicoVideo.LowQualityCacheState != NicoVideoCacheState.Cached
-						&& nicoVideo.CanRequestDownloadLowQuality
+					if (!nicoVideo.LowQuality.IsCacheRequested
+						&& nicoVideo.LowQuality.CanRequestDownload
 						)
 					{
 						return req;
@@ -224,16 +224,16 @@ namespace NicoPlayerHohoema.Models
 			{
 				if (!CheckHasCacheRequest(item.RawVideoId, NicoVideoQuality.Original))
 				{
-					await item.DeleteCache(NicoVideoQuality.Original);
+					await item.OriginalQuality.DeleteCache();
 				}
 
 				if (!CheckHasCacheRequest(item.RawVideoId, NicoVideoQuality.Low))
 				{
-					await item.DeleteCache(NicoVideoQuality.Low);
+					await item.LowQuality.DeleteCache();
 				}
 
-				if (item.LowQualityCacheState == null 
-					&& item.OriginalQualityCacheState == null)
+				if (!item.OriginalQuality.IsCached
+					&& !item.LowQuality.IsCached)
 				{
 					removeTargets.Add(item.RawVideoId);
 				}

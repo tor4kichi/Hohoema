@@ -429,15 +429,24 @@ namespace NicoPlayerHohoema.Models
 			// オリジナル画質がキャッシュされていない場合
 			// 例外を投げる
 			if (quality == NicoVideoQuality.Original
-				&& !nicoVideo.CanRequestDownloadOriginalQuality
-				&& !(nicoVideo.OriginalQualityCacheState == NicoVideoCacheState.Cached)
+				&& !nicoVideo.OriginalQuality.CanRequestDownload
+				&& !nicoVideo.OriginalQuality.IsCached
 				)
 			{
 				// ダウンロード再生ができない
 				throw new Exception("can not download video with original quality in current time.");
 			}
 
-			return await nicoVideo.CreateDownloader(quality);
+			switch (quality)
+			{
+				case NicoVideoQuality.Original:
+					return await nicoVideo.OriginalQuality.CreateDownloader();
+				case NicoVideoQuality.Low:
+					return await nicoVideo.LowQuality.CreateDownloader();
+				default:
+					throw new NotSupportedException($"not support NicoVideoQuality, {quality}");
+			}
+			
 		}
 
 		private async Task<NicoVideoDownloader> CreateDownloader(string rawVideoid, NicoVideoQuality quality)

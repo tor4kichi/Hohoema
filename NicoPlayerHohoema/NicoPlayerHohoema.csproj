@@ -125,6 +125,8 @@
     <Compile Include="Models\Settings\CacheSettings.cs" />
     <Compile Include="Models\UserMylistManager.cs" />
     <Compile Include="Models\Video\CommentResponseCache.cs" />
+    <Compile Include="Models\Video\DividedQualityNicoVideo.cs" />
+    <Compile Include="Models\Video\MediaProtocolType.cs" />
     <Compile Include="Models\Video\NicoVideoDownloader.cs" />
     <Compile Include="Models\Video\ThumbnailResponseCache.cs" />
     <Compile Include="Models\Video\VideoDownloadProgress.cs" />

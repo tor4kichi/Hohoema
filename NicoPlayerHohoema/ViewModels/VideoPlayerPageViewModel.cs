@@ -155,26 +155,27 @@ namespace NicoPlayerHohoema.ViewModels
 					switch (x)
 					{
 						case NicoVideoQuality.Original:
-							if (Video.OriginalQualityCacheState == null)
-							{
-								return Video.CanRequestDownloadOriginalQuality;
-							}
-							else
+							if (Video.OriginalQuality.IsCacheRequested)
 							{
 								// DL中、DL済み
 								return true;
 							}
-						case NicoVideoQuality.Low:
-							if (Video.LowQualityCacheState == null)
+							else
 							{
-								return Video.CanRequestDownloadLowQuality;
+								return Video.OriginalQuality.CanRequestDownload;
+							}
+						case NicoVideoQuality.Low:
+							if (Video.LowQuality.IsCacheRequested)
+							{
+								// DL中、DL済み
+								return true;
 							}
 							else
 							{
-								return true;
+								return Video.LowQuality.CanRequestDownload;
 							}
 						default:
-							return false;
+							throw new NotSupportedException(x.ToString());
 					}
 				})
 				.ToReactiveProperty()
@@ -214,10 +215,10 @@ namespace NicoPlayerHohoema.ViewModels
 				switch (x)
 				{
 					case NicoVideoQuality.Original:
-						IsSaveRequestedCurrentQualityCache.Value = Video.IsOriginalQualityCacheRequested;
+						IsSaveRequestedCurrentQualityCache.Value = Video.OriginalQuality.IsCacheRequested;
 						break;
 					case NicoVideoQuality.Low:
-						IsSaveRequestedCurrentQualityCache.Value = Video.IsLowQualityCacheRequested;
+						IsSaveRequestedCurrentQualityCache.Value = Video.LowQuality.IsCacheRequested;
 						break;
 					default:
 						IsSaveRequestedCurrentQualityCache.Value = false;
@@ -261,11 +262,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 					if (CurrentVideoQuality.Value == NicoVideoQuality.Original)
 					{
-						return Video.CanPlayLowQuality;
+						return Video.LowQuality.CanPlay;
 					}
 					else
 					{
-						return Video.CanPlayOriginalQuality;
+						return Video.OriginalQuality.CanPlay;
 					}
 				})
 				.ToReactiveCommand()
@@ -402,7 +403,7 @@ namespace NicoPlayerHohoema.ViewModels
 					if (VideoStream.Value != null)
 					{
 						await Video.StopPlay();
-						_VideoUpdaterSubject.OnNext(null);
+//						_VideoUpdaterSubject.OnNext(null);
 
 						Debug.WriteLine("再生中に動画がClosedになったため、強制的に再初期化を実行しました。これは非常措置です。");
 					}
@@ -578,34 +579,34 @@ namespace NicoPlayerHohoema.ViewModels
 				.Subscribe(x => Debug.WriteLine(x ? "Buffering..." : "Playing..."))
 				.AddTo(_BufferingMonitorDisposable);
 #endif
-			Video.ObserveProperty(x => x.OriginalQualityCacheProgressSize)
+			Video.OriginalQuality.ObserveProperty(x => x.CacheProgressSize)
 				.Where(_ => CurrentVideoQuality.Value == NicoVideoQuality.Original)
 				.Subscribe(originalProgress => 
 				{
-					DownloadCompleted.Value = originalProgress == Video.OriginalQualityVideoSize;
+					DownloadCompleted.Value = originalProgress == Video.OriginalQuality.VideoSize;
 					if (DownloadCompleted.Value)
 					{
 						ProgressPercent.Value = 100;
 					}
 					else
 					{
-						ProgressPercent.Value = Math.Round((double)originalProgress / Video.OriginalQualityVideoSize * 100, 1);
+						ProgressPercent.Value = Math.Round((double)originalProgress / Video.OriginalQuality.VideoSize * 100, 1);
 					}
 				})
 				.AddTo(_BufferingMonitorDisposable);
 
-			Video.ObserveProperty(x => x.LowQualityCacheProgressSize)
+			Video.LowQuality.ObserveProperty(x => x.CacheProgressSize)
 				.Where(_ => CurrentVideoQuality.Value == NicoVideoQuality.Low)
 				.Subscribe(lowProgress =>
 				{
-					DownloadCompleted.Value = lowProgress == Video.LowQualityVideoSize;
+					DownloadCompleted.Value = lowProgress == Video.LowQuality.VideoSize;
 					if (DownloadCompleted.Value)
 					{
 						ProgressPercent.Value = 100;
 					}
 					else
 					{
-						ProgressPercent.Value = Math.Round((double)lowProgress / Video.LowQualityVideoSize * 100, 1);
+						ProgressPercent.Value = Math.Round((double)lowProgress / Video.LowQuality.VideoSize * 100, 1);
 					}
 				})
 				.AddTo(_BufferingMonitorDisposable);
@@ -953,7 +954,7 @@ namespace NicoPlayerHohoema.ViewModels
 			cancelToken.ThrowIfCancellationRequested();
 
 
-
+			// TODO: ビデオタイプとプロトコルタイプをチェックする
 
 
 			// ビデオクオリティをトリガーにしてビデオ関連の情報を更新させる
@@ -961,12 +962,12 @@ namespace NicoPlayerHohoema.ViewModels
 
 			NicoVideoQuality realQuality = NicoVideoQuality.Low;
 			if ((quality == null || quality == NicoVideoQuality.Original)
-				&& Video.OriginalQualityCacheState == NicoVideoCacheState.Cached)
+				&& Video.OriginalQuality.IsCached)
 			{
 				realQuality = NicoVideoQuality.Original;
 			}
 			else if ((quality == null || quality == NicoVideoQuality.Low)
-				&& Video.LowQualityCacheState == NicoVideoCacheState.Cached)
+				&& Video.LowQuality.IsCached)
 			{
 				realQuality = NicoVideoQuality.Low;
 			}
@@ -976,7 +977,9 @@ namespace NicoPlayerHohoema.ViewModels
 				realQuality = NicoVideoQuality.Original;
 			}
 			// エコノミー時間帯でオリジナル画質が未保存の場合
-			else if (Video.NowLowQualityOnly && Video.OriginalQualityCacheState != NicoVideoCacheState.Cached)
+			else if (!HohoemaApp.IsPremiumUser 
+				&& Video.NowLowQualityOnly 
+				&& !Video.OriginalQuality.IsCached)
 			{
 				realQuality = NicoVideoQuality.Low;
 			}

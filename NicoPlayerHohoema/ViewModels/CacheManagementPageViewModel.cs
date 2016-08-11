@@ -99,36 +99,33 @@ namespace NicoPlayerHohoema.ViewModels
 			Quality = quality;
 			CacheRequestTime = nicoVideo.CacheRequestTime;
 
-			if (quality == NicoVideoQuality.Low)
+			DividedQualityNicoVideo qualityNicoVideo;
+
+			switch (quality)
 			{
-				IsIncompleteCache = nicoVideo.LowQualityCacheState != NicoVideoCacheState.Cached;
-				ProgressPercent = nicoVideo.ObserveProperty(x => x.LowQualityCacheProgressSize)
-					.Select(x => ProgressToPercent(x, (uint)nicoVideo.ThumbnailResponseCache.CachedItem.SizeLow))
-					.ToReactiveProperty(CacheManagementPageViewModel.scheduler)
-					.AddTo(_CompositeDisposable);
-				IsVisibleProgress = nicoVideo.ObserveProperty(x => x.LowQualityCacheState)
-					.Select(x => x == NicoVideoCacheState.NowDownloading)
-					.ToReactiveProperty(CacheManagementPageViewModel.scheduler)
-					.AddTo(_CompositeDisposable);
-				CacheState = nicoVideo.ObserveProperty(x => x.LowQualityCacheState)
-					.ToReactiveProperty(CacheManagementPageViewModel.scheduler)
-					.AddTo(_CompositeDisposable);
+				case NicoVideoQuality.Original:
+					qualityNicoVideo = NicoVideo.OriginalQuality;
+					break;
+				case NicoVideoQuality.Low:
+					qualityNicoVideo = NicoVideo.LowQuality;
+					break;
+				default:
+					throw new NotSupportedException();
 			}
-			else
-			{
-				IsIncompleteCache = nicoVideo.OriginalQualityCacheState != NicoVideoCacheState.Cached;
-				ProgressPercent = nicoVideo.ObserveProperty(x => x.OriginalQualityCacheProgressSize)
-					.Select(x => ProgressToPercent(x, (uint)nicoVideo.ThumbnailResponseCache.CachedItem.SizeHigh))
-					.ToReactiveProperty(CacheManagementPageViewModel.scheduler)
-					.AddTo(_CompositeDisposable);
-				IsVisibleProgress = nicoVideo.ObserveProperty(x => x.OriginalQualityCacheState)
-					.Select(x => x == NicoVideoCacheState.NowDownloading)
-					.ToReactiveProperty(CacheManagementPageViewModel.scheduler)
-					.AddTo(_CompositeDisposable);
-				CacheState = nicoVideo.ObserveProperty(x => x.OriginalQualityCacheState)
-					.ToReactiveProperty(CacheManagementPageViewModel.scheduler)
-					.AddTo(_CompositeDisposable);
-			}
+
+			IsIncompleteCache = !qualityNicoVideo.IsCached;
+			ProgressPercent = qualityNicoVideo.ObserveProperty(x => x.CacheProgressSize)
+				.Select(x => ProgressToPercent(x, qualityNicoVideo.VideoSize))
+				.ToReactiveProperty(CacheManagementPageViewModel.scheduler)
+				.AddTo(_CompositeDisposable);
+			CacheState = qualityNicoVideo.ObserveProperty(x => x.CacheState)
+				.ToReactiveProperty(CacheManagementPageViewModel.scheduler)
+				.AddTo(_CompositeDisposable);
+			IsVisibleProgress = CacheState
+				.Select(x => x == NicoVideoCacheState.NowDownloading)
+				.ToReactiveProperty(CacheManagementPageViewModel.scheduler)
+				.AddTo(_CompositeDisposable);
+			
 
 
 			PrivateReasonText = nicoVideo.WatchApiResponseCache?.CachedItem?.PrivateReason.ToString() ?? "";
