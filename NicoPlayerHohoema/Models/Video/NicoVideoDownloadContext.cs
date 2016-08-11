@@ -15,10 +15,6 @@ using Windows.Storage;
 
 namespace NicoPlayerHohoema.Models
 {
-	public delegate void CacheStartedHandler(string rawVideoId, NicoVideoQuality quality);
-	public delegate void CacheCompleteHandler(string videoId, NicoVideoQuality quality, bool isSuccess);
-	public delegate void CacheProgressHandler(string rawVideoId, NicoVideoQuality quality, uint totalSize, uint size);
-
 
 
 	public sealed class NicoVideoDownloadContext : BindableBase, IDisposable
@@ -382,8 +378,6 @@ namespace NicoPlayerHohoema.Models
 				{
 					_CurrentDownloader.OnCacheComplete += DownloadCompleteAction;
 					_CurrentDownloader.OnCacheProgress += _CurrentDownloadStream_OnCacheProgress;
-
-					OnCacheStarted?.Invoke(downloadStream.RawVideoId, downloadStream.Quality);
 				}
 
 				await _CurrentDownloader.Download();
@@ -407,7 +401,6 @@ namespace NicoPlayerHohoema.Models
 					await _CurrentDownloader.StopDownload();
 					_CurrentDownloader.Dispose();
 
-					OnCacheCompleted?.Invoke(_CurrentDownloader.RawVideoId, _CurrentDownloader.Quality, false);
 					_CurrentDownloader.OnCacheComplete -= DownloadCompleteAction;
 					_CurrentDownloader = null;
 				}
@@ -470,8 +463,6 @@ namespace NicoPlayerHohoema.Models
 			try
 			{
 				await _ExternalAccessControlLock.WaitAsync();
-
-				OnCacheProgress?.Invoke(rawVideoId, quality, totalSize, size);
 			}
 			finally
 			{
@@ -499,8 +490,7 @@ namespace NicoPlayerHohoema.Models
 					CurrentDownloader = null;
 
 					Debug.WriteLine($"{rawVideoid}:{quality.ToString()} のダウンロード完了");
-					OnCacheCompleted?.Invoke(rawVideoid, quality, true);
-
+					
 					await TryBeginNextDownloadRequest().ConfigureAwait(false);
 				}
 				else
@@ -518,18 +508,6 @@ namespace NicoPlayerHohoema.Models
 
 		#endregion
 
-
-
-
-		
-
-		#region Cache Progress Event
-
-		public event CacheStartedHandler OnCacheStarted;
-		public event CacheCompleteHandler OnCacheCompleted;
-		public event CacheProgressHandler OnCacheProgress;
-
-		#endregion
 
 		// Donwload/Playingのストリームのアサイン、破棄のタイミング同期用ロック
 		private SemaphoreSlim _StreamControlLock;

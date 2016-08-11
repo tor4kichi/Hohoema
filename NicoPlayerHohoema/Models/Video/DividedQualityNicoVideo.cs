@@ -50,6 +50,7 @@ namespace NicoPlayerHohoema.Models
 
 		protected FileAccessor<VideoDownloadProgress> _DownloadProgressFileAccessor;
 
+		NicoVideoDownloader _NicoVideoDownloader;
 
 		public DividedQualityNicoVideo(NicoVideoQuality quality, NicoVideo nicoVideo, NicoVideoDownloadContext context)
 		{
@@ -73,7 +74,12 @@ namespace NicoPlayerHohoema.Models
 				if (ExistVideo)
 				{
 					Progress.Update(0, VideoSize);
+					CacheProgressSize = VideoSize;
 				}
+			}
+			else
+			{
+				CacheProgressSize = Progress.BufferedSize();
 			}
 
 			await CheckCacheStatus();
@@ -111,13 +117,13 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
+		private bool _IsCacheRequested;
 		public bool IsCacheRequested
 		{
-			get
-			{
-				return CacheState.HasValue;
-			}
+			get { return _IsCacheRequested; }
+			protected set { SetProperty(ref _IsCacheRequested, value); }
 		}
+
 
 
 		public bool ExistVideo
@@ -174,6 +180,7 @@ namespace NicoPlayerHohoema.Models
 			OnPropertyChanged(nameof(CanRequestDownload));
 			OnPropertyChanged(nameof(CanPlay));
 			OnPropertyChanged(nameof(IsCached));
+			OnPropertyChanged(nameof(CanPlay));
 			
 			return Task.CompletedTask;
 		}
@@ -193,18 +200,21 @@ namespace NicoPlayerHohoema.Models
 
 
 			var file = await GetCacheFile();
-			var stream = new NicoVideoDownloader(
+			var downloader = new NicoVideoDownloader(
 				this
 				, NicoVideo.HohoemaApp.NiconicoContext.HttpClient
 				, NicoVideo.WatchApiResponseCache.CachedItem
 				, file
 				);
 
-			System.Diagnostics.Debug.WriteLine($"size:{stream.Size}");
+			System.Diagnostics.Debug.WriteLine($"size:{downloader.Size}");
 
-			return stream;
+			AddCacheEventHandler(downloader);
+
+			return downloader;
 		}
 
+		
 
 		public async Task DeleteCache()
 		{
@@ -235,10 +245,6 @@ namespace NicoPlayerHohoema.Models
 
 			await _Context.RequestDownload(NicoVideo.RawVideoId, Quality);
 
-			_Context.OnCacheStarted += _Context_OnCacheStarted;
-			_Context.OnCacheCompleted += _Context_OnCacheCompleted;
-			_Context.OnCacheProgress += _Context_OnCacheProgress;
-
 			await CheckCacheStatus();
 
 
@@ -262,13 +268,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			if (!IsAvailable) { return Task.CompletedTask; }
 
-			// プログレスファイルの削除
-			var progressFileName = ProgressFileName;
-
-			progressFileName += ".low.json";
-
-			var progressFileAccessor = new FileAccessor<VideoDownloadProgress>(_Context.VideoSaveFolder, progressFileName);
-			return progressFileAccessor.Delete();
+			return _DownloadProgressFileAccessor.Delete();
 		}
 
 
@@ -305,45 +305,67 @@ namespace NicoPlayerHohoema.Models
 
 		#region Event Handler
 
-
-		private async void _Context_OnCacheStarted(string rawVideoId, NicoVideoQuality quality)
+		
+		private async void Stream_OnCacheCanceled(string rawVideoId)
 		{
-			if (RawVideoId == rawVideoId && quality == Quality)
+			if (RawVideoId == rawVideoId)
 			{
 				await NicoVideo._Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
 				{
-					CacheState = NicoVideoCacheState.NowDownloading;
+					await CheckCacheStatus();
 					await SaveProgress();
 				});
 			}
+
+			RemoveCacheEventHandler();
 		}
 
-		private async void _Context_OnCacheProgress(string rawVideoId, NicoVideoQuality quality, uint totalSize, uint size)
+		private async void Stream_OnCacheProgress(string rawVideoId, NicoVideoQuality quality, uint size, uint progressSize)
 		{
 			if (rawVideoId == RawVideoId && quality == Quality)
 			{
 				await NicoVideo._Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
 				{
 					CacheState = NicoVideoCacheState.NowDownloading;
-					CacheProgressSize = size;
+					CacheProgressSize = progressSize;
 					OnPropertyChanged(nameof(CacheProgressSize));
 				});
 			}
 		}
 
-		private async void _Context_OnCacheCompleted(string videoId, NicoVideoQuality quality, bool isSuccess)
-		{
-			if (videoId == RawVideoId)
-			{
-				await NicoVideo._Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
-				{
-					await _DownloadProgressFileAccessor?.Delete();
 
-					await CheckCacheStatus();
-				});
-			}
+		private async void Stream_OnCacheComplete(string rawVideoId)
+		{
+			await NicoVideo._Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+			{
+				await _DownloadProgressFileAccessor?.Delete();
+
+				await CheckCacheStatus();
+			});
+
+			RemoveCacheEventHandler();
 		}
 
+
+		private void AddCacheEventHandler(NicoVideoDownloader downloader)
+		{
+			downloader.OnCacheProgress += Stream_OnCacheProgress;
+			downloader.OnCacheCanceled += Stream_OnCacheCanceled;
+			downloader.OnCacheComplete += Stream_OnCacheComplete;
+
+			_NicoVideoDownloader = downloader;
+		}
+
+		private void RemoveCacheEventHandler()
+		{
+			if (_NicoVideoDownloader != null)
+			{
+				_NicoVideoDownloader.OnCacheProgress -= Stream_OnCacheProgress;
+				_NicoVideoDownloader.OnCacheCanceled -= Stream_OnCacheCanceled;
+				_NicoVideoDownloader.OnCacheComplete -= Stream_OnCacheComplete;
+				_NicoVideoDownloader = null;
+			}
+		}
 
 		#endregion
 	}
