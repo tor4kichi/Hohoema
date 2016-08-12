@@ -53,9 +53,6 @@ namespace NicoPlayerHohoema.ViewModels
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
 			base.OnNavigatingFrom(e, viewModelState, suspending);
-
-			// 削除動作
-			_MediaManager.DeleteUnrequestedVideos().ConfigureAwait(false);
 		}
 
 		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)

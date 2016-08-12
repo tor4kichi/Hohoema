@@ -259,11 +259,15 @@ namespace NicoPlayerHohoema.Models
 
 			var saveFolder = _Context.VideoSaveFolder;
 			var fileName = VideoFileName;
-			if (saveFolder.ExistFile(fileName))
+			try
 			{
-				var file = await saveFolder.GetFileAsync(fileName);
-				await file.DeleteAsync(StorageDeleteOption.PermanentDelete);
+				if (saveFolder.ExistFile(fileName))
+				{
+					var file = await saveFolder.GetFileAsync(fileName);
+					await file.DeleteAsync(StorageDeleteOption.PermanentDelete);
+				}
 			}
+			catch { }
 		}
 
 		protected Task DeleteDownloadProgress()

@@ -324,11 +324,11 @@ namespace NicoPlayerHohoema.ViewModels
 				return SelectedItems.Where(x =>
 				{
 					var video = x.NicoVideo;
-					if (x.NicoVideo.OriginalQuality.CanRequestDownload)
+					if (video.OriginalQuality.CanRequestDownload && video.OriginalQuality.CacheState != NicoVideoCacheState.NowDownloading)
 					{
 						return true;
 					}
-					else if (video.LowQuality.CanRequestDownload)
+					else if (video.LowQuality.CanRequestDownload && video.LowQuality.CacheState != NicoVideoCacheState.NowDownloading)
 					{
 						return true;
 					}
@@ -341,9 +341,9 @@ namespace NicoPlayerHohoema.ViewModels
 			switch (quality)
 			{
 				case NicoVideoQuality.Original:
-					return SelectedItems.Where(x => x.NicoVideo.OriginalQuality.CanRequestDownload);
+					return SelectedItems.Where(x => x.NicoVideo.OriginalQuality.CanRequestDownload && x.NicoVideo.OriginalQuality.CacheState != NicoVideoCacheState.NowDownloading);
 				case NicoVideoQuality.Low:
-					return SelectedItems.Where(x => x.NicoVideo.LowQuality.CanRequestDownload);
+					return SelectedItems.Where(x => x.NicoVideo.LowQuality.CanRequestDownload && x.NicoVideo.LowQuality.CacheState != NicoVideoCacheState.NowDownloading);
 				default:
 					return Enumerable.Empty<VideoInfoControlViewModel>();
 			}
