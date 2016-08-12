@@ -68,10 +68,10 @@ namespace NicoPlayerHohoema
 
 			var deferral = e.SuspendingOperation.GetDeferral();
 			var hohoemaApp = Container.Resolve<HohoemaApp>();
-			await hohoemaApp.SignOut().ConfigureAwait(false);
 
 			if (hohoemaApp.IsLoggedIn)
 			{
+				await hohoemaApp.MediaManager.DeleteUnrequestedVideos();
 				await hohoemaApp.MediaManager.Context.Suspending();
 			}
 			
@@ -85,10 +85,13 @@ namespace NicoPlayerHohoema
 
 			//			var backgroundTask = MediaBackgroundTask.Create();
 			//			Container.RegisterInstance(backgroundTask);
-
+			
 			var hohoemaApp = Container.Resolve<HohoemaApp>();
 
-			await hohoemaApp.MediaManager?.Context.Resume();
+			if (hohoemaApp.MediaManager != null && hohoemaApp.MediaManager.Context != null)
+			{
+				await hohoemaApp.MediaManager?.Context?.Resume();
+			}
 
 			hohoemaApp.Resumed();
 		}

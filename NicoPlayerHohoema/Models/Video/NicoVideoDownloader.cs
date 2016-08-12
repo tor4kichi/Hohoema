@@ -99,6 +99,13 @@ namespace NicoPlayerHohoema.Models
 
 		public override void Dispose()
 		{
+			IsClosed = true;
+
+			if (!IsCacheComplete)
+			{
+				OnCacheCanceled?.Invoke(RawVideoId);
+			}
+
 			base.Dispose();
 		}
 
@@ -179,7 +186,7 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task Download()
 		{
-			if (IsCacheComplete)
+			if (IsCacheComplete || IsClosed)
 			{
 				return;
 			}
@@ -192,7 +199,7 @@ namespace NicoPlayerHohoema.Models
 			var stopped = await _StopDownload();
 			if (stopped)
 			{
-				OnCacheCanceled?.Invoke(RawVideoId);
+//				OnCacheCanceled?.Invoke(RawVideoId);
 			}
 		}
 
@@ -232,7 +239,7 @@ namespace NicoPlayerHohoema.Models
 				Debug.Write("ダウンロードキャンセルを待機中");
 
 
-				await _DownloadTask.WaitToCompelation(count:5);
+				await _DownloadTask.WaitToCompelation(count:10);
 
 
 				_DownloadTask = null;
@@ -262,8 +269,6 @@ namespace NicoPlayerHohoema.Models
 
 		internal async Task StartDownloadTask(uint position)
 		{
-			await _StopDownload();
-
 			try
 			{
 				await _DownloadTaskLock.WaitAsync();
@@ -542,7 +547,7 @@ namespace NicoPlayerHohoema.Models
 		#endregion
 
 
-		const uint BUFFER_SIZE = 262144;
+		const uint BUFFER_SIZE = 262144 / 4;
 		byte[] _RawBuffer;
 		byte[] RawBuffer
 		{

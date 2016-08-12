@@ -39,6 +39,8 @@ namespace NicoPlayerHohoema.Models
 			await nicoVideo.OriginalQuality.SetupDownloadProgress();
 			await nicoVideo.LowQuality.SetupDownloadProgress();
 
+			await nicoVideo.CheckCacheStatus();
+
 			return nicoVideo;
 		}
 
@@ -65,6 +67,8 @@ namespace NicoPlayerHohoema.Models
 		{
 			var saveFolder = _Context.VideoSaveFolder;
 
+			await OriginalQuality.CheckCacheStatus();
+			await LowQuality.CheckCacheStatus();
 
 			
 			if (WatchApiResponseCache.ExistCachedFile())
@@ -197,9 +201,11 @@ namespace NicoPlayerHohoema.Models
 
 			await _Context.ClosePlayingStream(this.RawVideoId);
 
-			await NicoVideoDownloader.DividedQualityNicoVideo.SaveProgress();
-
-			NicoVideoDownloader = null;
+			if (NicoVideoDownloader != null)
+			{
+				await NicoVideoDownloader.DividedQualityNicoVideo.SaveProgress();
+				NicoVideoDownloader = null;
+			}
 
 			await CheckCacheStatus();
 		}
@@ -452,7 +458,6 @@ namespace NicoPlayerHohoema.Models
 
 
 		public bool IsNeedPayment { get; private set; }
-
 
 
 		public bool IsRequireConfirmDelete { get; private set; }

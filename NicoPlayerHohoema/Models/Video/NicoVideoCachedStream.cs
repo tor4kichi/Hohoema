@@ -56,6 +56,13 @@ namespace NicoPlayerHohoema.Models
 					{
 						try
 						{
+							await Downloader.StopDownload();
+
+							if (IsClosed)
+							{
+								return;
+							}
+
 							await Downloader.StartDownloadTask((uint)position);
 						}
 						catch (Exception ex)

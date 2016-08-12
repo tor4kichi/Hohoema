@@ -69,13 +69,6 @@ namespace NicoPlayerHohoema.Models
 			if (Progress == null)
 			{
 				Progress = new VideoDownloadProgress(VideoSize);
-
-				// 既に完了している場合
-				if (ExistVideo)
-				{
-					Progress.Update(0, VideoSize);
-					CacheProgressSize = VideoSize;
-				}
 			}
 			else
 			{
@@ -107,12 +100,27 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
+		public bool NowPlaying
+		{
+			get
+			{
+				return _Context.CheckVideoPlaying(RawVideoId, Quality);
+			}
+		}
 
 		public bool IsCached
 		{
 			get
 			{
 				return CacheState == NicoVideoCacheState.Cached;
+			}
+		}
+
+		public bool HasCache
+		{
+			get
+			{
+				return CacheState.HasValue;
 			}
 		}
 
@@ -150,28 +158,22 @@ namespace NicoPlayerHohoema.Models
 			}
 
 
-			if (_Context.CheckCacheRequested(this.RawVideoId, Quality))
+			IsCacheRequested = _Context.CheckCacheRequested(this.RawVideoId, Quality);
+
+			if (ExistVideo
+				&& (Progress.CheckComplete()))
 			{
-				// すでにダウンロード済みのキャッシュファイルをチェック
-				if (ExistVideo
-					&& (Progress.CheckComplete()))
-				{
-					CacheState = NicoVideoCacheState.Cached;
-				}
-				else if (_Context.CheckCacheRequested(this.RawVideoId, Quality))
-				{
-					CacheState = NicoVideoCacheState.CacheRequested;
-				}
-				else if (_Context.CheckVideoDownloading(this.RawVideoId, Quality))
-				{
-					CacheState = NicoVideoCacheState.NowDownloading;
-				}
-				else // if (NicoVideoCachedStream.ExistIncompleteOriginalQuorityVideo(CachedWatchApiResponse, saveFolder))
-				{
-					CacheState = null;
-				}
+				CacheState = NicoVideoCacheState.Cached;
 			}
-			else
+			else if (_Context.CheckVideoDownloading(this.RawVideoId, Quality))
+			{
+				CacheState = NicoVideoCacheState.NowDownloading;
+			}
+			else if (ExistVideo)
+			{
+				CacheState = NicoVideoCacheState.CacheProgress;
+			}
+			else // if (NicoVideoCachedStream.ExistIncompleteOriginalQuorityVideo(CachedWatchApiResponse, saveFolder))
 			{
 				CacheState = null;
 			}
@@ -338,8 +340,6 @@ namespace NicoPlayerHohoema.Models
 		{
 			await NicoVideo._Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
 			{
-				await _DownloadProgressFileAccessor?.Delete();
-
 				await CheckCacheStatus();
 			});
 
@@ -424,8 +424,8 @@ namespace NicoPlayerHohoema.Models
 				// インターネット繋がってるか
 				if (!Util.InternetConnection.IsInternet()) { return false; }
 
-				// キャッシュリクエスト済みじゃないか
-				if (CacheState.HasValue) { return false; }
+				// キャッシュ済みじゃないか
+				if (CacheState == NicoVideoCacheState.Cached) { return false; }
 
 
 				if (!NicoVideo.ThumbnailResponseCache.HasCache)
@@ -503,8 +503,8 @@ namespace NicoPlayerHohoema.Models
 				// インターネット繋がってるか
 				if (!Util.InternetConnection.IsInternet()) { return false; }
 
-				// キャッシュリクエスト済みじゃないか
-				if (CacheState.HasValue) { return false; }
+				// キャッシュ済みじゃないか
+				if (CacheState == NicoVideoCacheState.Cached) { return false; }
 
 				// 
 				if (NicoVideo.ThumbnailResponseCache.IsOriginalQualityOnly)

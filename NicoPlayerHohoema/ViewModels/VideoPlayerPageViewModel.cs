@@ -65,7 +65,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 		public VideoPlayerPageViewModel(HohoemaApp hohoemaApp, EventAggregator ea, PageManager pageManager, ToastNotificationService toast)
-			: base(hohoemaApp, pageManager)
+			: base(hohoemaApp, pageManager, isRequireSignIn:true)
 		{
 			_ToastService = toast;
 
@@ -203,6 +203,8 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 
 				var stream = await Video.GetVideoStream(x);
+
+
 
 				if (IsDisposed)
 				{
@@ -403,7 +405,7 @@ namespace NicoPlayerHohoema.ViewModels
 					if (VideoStream.Value != null)
 					{
 						await Video.StopPlay();
-//						_VideoUpdaterSubject.OnNext(null);
+						_VideoUpdaterSubject.OnNext(null);
 
 						Debug.WriteLine("再生中に動画がClosedになったため、強制的に再初期化を実行しました。これは非常措置です。");
 					}
@@ -1054,6 +1056,8 @@ namespace NicoPlayerHohoema.ViewModels
 		protected override void OnResumed()
 		{
 			_VideoUpdaterSubject.OnNext(null);
+
+			InitializeBufferingMonitor();
 		}
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
