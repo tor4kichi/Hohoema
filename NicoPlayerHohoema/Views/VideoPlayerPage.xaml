@@ -105,7 +105,7 @@
         </VisualStateManager.VisualStateGroups>
 
 
-        <SplitView x:Name="SplitView" PanePlacement="Right" PaneBackground="#CCFFFFFF"
+        <SplitView x:Name="SplitView" PanePlacement="Right" PaneBackground="{ThemeResource ApplicationPageBackgroundThemeBrush}"
                    OpenPaneLength="400"
                    >
             <SplitView.Content>
@@ -288,7 +288,6 @@
                                 <Button 
                                            Command="{Binding TogglePlayQualityCommand}"
                                            VerticalAlignment="Stretch"
-                                           Foreground="Black"
                                            Padding="8 0 8 0"
                                            
                                            >

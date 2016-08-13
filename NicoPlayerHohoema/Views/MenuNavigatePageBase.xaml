@@ -240,7 +240,7 @@
                     </SplitView.Pane>
                     <SplitView.Content>
 
-                        <toolkit:DockPanel>
+                        <toolkit:DockPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
 
 

@@ -22,7 +22,7 @@
 
     
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid >
 
         <Border>
 
