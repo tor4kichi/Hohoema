@@ -395,6 +395,7 @@ namespace NicoPlayerHohoema.Models
 				if (!_CurrentDownloader.IsCacheComplete)
 				{
 					_CurrentDownloader.OnCacheComplete += DownloadCompleteAction;
+					_CurrentDownloader.OnCacheCanceled += _CurrentDownloader_OnCacheCanceled;
 					_CurrentDownloader.OnCacheProgress += _CurrentDownloadStream_OnCacheProgress;
 				}
 
@@ -406,8 +407,7 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
-
-
+		
 		private async Task CloseCurrentDownloadStream()
 		{
 			try
@@ -420,6 +420,8 @@ namespace NicoPlayerHohoema.Models
 					_CurrentDownloader.Dispose();
 
 					_CurrentDownloader.OnCacheComplete -= DownloadCompleteAction;
+					_CurrentDownloader.OnCacheCanceled -= _CurrentDownloader_OnCacheCanceled;
+					_CurrentDownloader.OnCacheProgress -= _CurrentDownloadStream_OnCacheProgress;
 					_CurrentDownloader = null;
 				}
 			}
@@ -498,13 +500,16 @@ namespace NicoPlayerHohoema.Models
 				if (_CurrentDownloader != null &&
 				_CurrentDownloader.RawVideoId == rawVideoid)
 				{
+					_CurrentDownloader.OnCacheComplete -= DownloadCompleteAction;
+					_CurrentDownloader.OnCacheCanceled -= _CurrentDownloader_OnCacheCanceled;
+					_CurrentDownloader.OnCacheProgress -= _CurrentDownloadStream_OnCacheProgress;
+
 					if (_CurrentDownloader != _CurrentPlayingDownloader)
 					{
 						_CurrentDownloader.Dispose();
 					}
 
 					var quality = _CurrentDownloader.Quality;
-					_CurrentDownloader.OnCacheComplete -= DownloadCompleteAction;
 					CurrentDownloader = null;
 
 					Debug.WriteLine($"{rawVideoid}:{quality.ToString()} のダウンロード完了");
@@ -522,6 +527,40 @@ namespace NicoPlayerHohoema.Models
 			}
 			
 		}
+
+		private async void _CurrentDownloader_OnCacheCanceled(string rawVideoId)
+		{
+			try
+			{
+				await _ExternalAccessControlLock.WaitAsync();
+
+
+				if (_CurrentDownloader != null &&
+					_CurrentDownloader.RawVideoId == rawVideoId)
+				{
+					_CurrentDownloader.OnCacheComplete -= DownloadCompleteAction;
+					_CurrentDownloader.OnCacheCanceled -= _CurrentDownloader_OnCacheCanceled;
+					_CurrentDownloader.OnCacheProgress -= _CurrentDownloadStream_OnCacheProgress;
+
+					if (_CurrentDownloader != _CurrentPlayingDownloader)
+					{
+						_CurrentDownloader.Dispose();
+					}
+
+					var quality = _CurrentDownloader.Quality;
+					CurrentDownloader = null;
+
+					Debug.WriteLine($"{rawVideoId}:{quality.ToString()} のダウンロードをキャンセル");
+
+					await TryBeginNextDownloadRequest().ConfigureAwait(false);
+				}
+			}
+			finally
+			{
+				_ExternalAccessControlLock.Release();
+			}
+		}
+
 
 
 		#endregion

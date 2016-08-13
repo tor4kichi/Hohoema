@@ -498,6 +498,10 @@ namespace NicoPlayerHohoema.Models
 					_DownloadTaskLock.Release();
 				}
 			}
+			else
+			{
+				OnCacheCanceled?.Invoke(RawVideoId);
+			}
 		}
 
 
