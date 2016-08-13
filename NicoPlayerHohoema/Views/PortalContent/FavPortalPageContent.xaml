@@ -29,36 +29,45 @@
             </Border>
         </DataTemplate>
     </UserControl.Resources>
-    
-    <StackPanel>
-        <Border Background="Transparent" IsHitTestVisible="True">
 
-            <i:Interaction.Behaviors>
-                <core:EventTriggerBehavior EventName="Tapped">
-                    <core:InvokeCommandAction Command="{Binding OpenFavFeedListCommand}" />
-                </core:EventTriggerBehavior>
-            </i:Interaction.Behaviors>
+    <toolkit:DockPanel>
+        <StackPanel toolkit:DockPanel.Dock="Top">
 
-            <TextBlock Text="お気に入り" />
+            <Border Background="Transparent" IsHitTestVisible="True">
 
-        </Border>
+                <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Tapped">
+                        <core:InvokeCommandAction Command="{Binding OpenFavFeedListCommand}" />
+                    </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
 
-        <Border Height="32" />
+                <TextBlock Text="お気に入り" />
 
+            </Border>
 
-        <ListView ItemsSource="{Binding UnreadFavFeedItems}">
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
-                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                    <Setter Property="VerticalContentAlignment" Value="Stretch" />
-                </Style>
-            </ListView.ItemContainerStyle>
+            <Border Height="32" />
+        </StackPanel>
 
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <Border>
+        <ScrollViewer HorizontalScrollMode="Disabled"
+                      HorizontalScrollBarVisibility="Hidden"
+                      VerticalScrollMode="Auto"
+                      VerticalScrollBarVisibility="Hidden"
+                      >
+            <ListView ItemsSource="{Binding UnreadFavFeedItems}"
+                      Margin="0 0 0 16"
+                      >
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                    </Style>
+                </ListView.ItemContainerStyle>
 
-                        <TextBlock x:Name="VideoTitle"                            
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Border>
+
+                            <TextBlock x:Name="VideoTitle"                            
                                     Text="{Binding Title}" 
                                    VerticalAlignment="Center"
                                    >
@@ -82,16 +91,18 @@
                                 </VisualStateGroup>
                             </VisualStateManager.VisualStateGroups>
 
-                        </TextBlock>
+                            </TextBlock>
 
-                        <i:Interaction.Behaviors>
-                            <core:EventTriggerBehavior EventName="Tapped">
-                                <core:InvokeCommandAction Command="{Binding PlayCommand}" />
-                            </core:EventTriggerBehavior>
-                        </i:Interaction.Behaviors>
-                    </Border>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
-    </StackPanel>
+                            <i:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <core:InvokeCommandAction Command="{Binding PlayCommand}" />
+                                </core:EventTriggerBehavior>
+                            </i:Interaction.Behaviors>
+                        </Border>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </ScrollViewer>
+
+    </toolkit:DockPanel>
 </UserControl>

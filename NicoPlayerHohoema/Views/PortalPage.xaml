@@ -58,6 +58,7 @@
                               VerticalScrollBarVisibility="Hidden"
                               HorizontalScrollBarVisibility="Auto"
                               HorizontalScrollMode="Enabled"
+                              x:Name="RootScrollViewer"
                               >
 
                     <ItemsControl>
@@ -78,15 +79,23 @@
 
 
 
-                        <portalContent:SearchPortalPageContent />
+                        <portalContent:SearchPortalPageContent
+                            Height="{Binding ElementName=RootScrollViewer, Path=ActualHeight}"
+                            />
 
                         <portalContent:RankingPortalPageContent />
 
-                        <portalContent:FavPortalPageContent />
+                        <portalContent:FavPortalPageContent
+                            Height="{Binding ElementName=RootScrollViewer, Path=ActualHeight}"
+                            />
 
-                        <portalContent:MylistPortalPageContent />
+                        <portalContent:MylistPortalPageContent
+                            Height="{Binding ElementName=RootScrollViewer, Path=ActualHeight}"                            
+                            />
 
-                        <portalContent:HistoryPortalPageContent />
+                        <portalContent:HistoryPortalPageContent
+                            Height="{Binding ElementName=RootScrollViewer, Path=ActualHeight}"
+                            />
                         
                         <portalContent:AppPortalPageContent />
 

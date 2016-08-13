@@ -31,35 +31,47 @@
             </Border>
         </DataTemplate>
     </UserControl.Resources>
-    
-    
-    <StackPanel>
-        <Border Background="Transparent" IsHitTestVisible="True">
 
-            <i:Interaction.Behaviors>
-                <core:EventTriggerBehavior EventName="Tapped">
-                    <core:InvokeCommandAction Command="{Binding OpenRankingCategoryCommand}" />
-                </core:EventTriggerBehavior>
-            </i:Interaction.Behaviors>
-            <TextBlock Text="ランキング" />
 
-        </Border>
+    <toolkit:DockPanel>
+        <StackPanel toolkit:DockPanel.Dock="Top">
 
-        <Border Height="32" />
+            <Border Background="Transparent" IsHitTestVisible="True">
 
-        <ListView ItemsSource="{Binding PriorityRankingCategories}"
+                <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Tapped">
+                        <core:InvokeCommandAction Command="{Binding OpenRankingCategoryCommand}" />
+                    </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
+                <TextBlock Text="ランキング" />
+
+            </Border>
+
+            <Border Height="32" />
+
+        </StackPanel>
+
+
+        <ScrollViewer HorizontalScrollMode="Disabled"
+                      HorizontalScrollBarVisibility="Hidden"
+                      VerticalScrollMode="Auto"
+                      VerticalScrollBarVisibility="Hidden"
+                      >
+
+            <ListView ItemsSource="{Binding PriorityRankingCategories}"
                   ItemTemplate="{StaticResource CategoryListItemTemplate}"
                   SelectionMode="None"
+                      Margin="0 0 0 16"
                    >
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
-                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                    <Setter Property="VerticalContentAlignment" Value="Stretch" />
-                </Style>
-            </ListView.ItemContainerStyle>
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                    </Style>
+                </ListView.ItemContainerStyle>
 
-        </ListView>
-       
+            </ListView>
 
-    </StackPanel>
+        </ScrollViewer>
+    </toolkit:DockPanel>
 </UserControl>

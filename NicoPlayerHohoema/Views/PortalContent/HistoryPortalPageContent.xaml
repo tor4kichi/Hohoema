@@ -14,48 +14,60 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <StackPanel>
-        <Border Background="Transparent" IsHitTestVisible="True">
-            <i:Interaction.Behaviors>
-                <core:EventTriggerBehavior EventName="Tapped">
-                    <core:InvokeCommandAction Command="{Binding OpenHistoryCommand}" />
-                </core:EventTriggerBehavior>
-            </i:Interaction.Behaviors>
+    <toolkit:DockPanel>
+        <StackPanel toolkit:DockPanel.Dock="Top">
+
+            <Border Background="Transparent" IsHitTestVisible="True">
+                <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Tapped">
+                        <core:InvokeCommandAction Command="{Binding OpenHistoryCommand}" />
+                    </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
 
 
-            <TextBlock Text="視聴履歴" />
+                <TextBlock Text="視聴履歴" />
 
 
-        </Border>
+            </Border>
 
-        <Border Height="32" />
+            <Border Height="32" />
+
+        </StackPanel>
 
 
-        <ListView ItemsSource="{Binding HisotoryVideoInfoItems}">
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
-                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                    <Setter Property="VerticalContentAlignment" Value="Stretch" />
-                </Style>
-            </ListView.ItemContainerStyle>
+        <ScrollViewer HorizontalScrollMode="Disabled"
+                      HorizontalScrollBarVisibility="Hidden"
+                      VerticalScrollMode="Auto"
+                      VerticalScrollBarVisibility="Hidden"
+                      >
 
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <Border Background="Transparent" IsHitTestVisible="True" IsDoubleTapEnabled="True">
-                        <i:Interaction.Behaviors>
-                            <core:EventTriggerBehavior EventName="Tapped">
-                                <core:InvokeCommandAction Command="{Binding PlayCommand}" />
-                            </core:EventTriggerBehavior>
-                        </i:Interaction.Behaviors>
+            <ListView ItemsSource="{Binding HisotoryVideoInfoItems}"
+                      Margin="0 0 0 16"
+                      >
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                    </Style>
+                </ListView.ItemContainerStyle>
 
-                        <TextBlock Text="{Binding Title}"
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="Transparent" IsHitTestVisible="True" IsDoubleTapEnabled="True">
+                            <i:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <core:InvokeCommandAction Command="{Binding PlayCommand}" />
+                                </core:EventTriggerBehavior>
+                            </i:Interaction.Behaviors>
+
+                            <TextBlock Text="{Binding Title}"
                                    VerticalAlignment="Center"
                                    />
-                    </Border>
-                </DataTemplate>
-            </ListView.ItemTemplate>
+                        </Border>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
 
-        </ListView>
-
-    </StackPanel>
+            </ListView>
+        </ScrollViewer>
+    </toolkit:DockPanel>
 </UserControl>
