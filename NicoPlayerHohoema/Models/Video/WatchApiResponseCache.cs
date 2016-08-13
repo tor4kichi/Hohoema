@@ -33,6 +33,9 @@ namespace NicoPlayerHohoema.Models
 
 		public NicoVideoQuality VisitedPageType { get; private set; }
 
+		public MediaProtocolType MediaProtocolType { get; private set; }
+
+
 		public WatchApiResponseCache(string rawVideoId, HohoemaApp hohoemaApp, StorageFolder saveFolder, string filename) 
 			: base(saveFolder, filename)
 		{
@@ -83,6 +86,7 @@ namespace NicoPlayerHohoema.Models
 				NowLowQualityOnly = VisitedPageType == NicoVideoQuality.Low;
 			}
 
+			MediaProtocolType = MediaProtocolTypeHelper.ParseMediaProtocolType(item.VideoUrl);
 
 			base.UpdateToLatest(item);
 		}

@@ -84,12 +84,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 			IsDeleted = nicoVideo.IsDeleted;
 
-			IsLowQualityCached = NicoVideo.ObserveProperty(x => x.LowQualityCacheState)
-				.Select(x => x != null)
+			IsOriginalQualityCached = NicoVideo.OriginalQuality.ObserveProperty(x => x.IsCacheRequested)
 				.ToReactiveProperty()
 				.AddTo(_CompositeDisposable);
-			IsOriginalQualityCached = NicoVideo.ObserveProperty(x => x.OriginalQualityCacheState)
-				.Select(x => x != null)
+			IsLowQualityCached = NicoVideo.LowQuality.ObserveProperty(x => x.IsCacheRequested)
 				.ToReactiveProperty()
 				.AddTo(_CompositeDisposable);
 

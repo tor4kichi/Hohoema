@@ -102,7 +102,7 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					foreach (var item in EnumerateCanDownloadVideoItem(NicoVideoQuality.Original))
 					{
-						await item.NicoVideo.RequestCache(NicoVideoQuality.Original);
+						await item.NicoVideo.OriginalQuality.RequestCache();
 					}
 
 					ClearSelection();
@@ -125,7 +125,7 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					foreach (var item in EnumerateCanDownloadVideoItem(NicoVideoQuality.Low))
 					{
-						await item.NicoVideo.RequestCache(NicoVideoQuality.Low);
+						await item.NicoVideo.LowQuality.RequestCache();
 					}
 
 					ClearSelection();
@@ -153,11 +153,11 @@ namespace NicoPlayerHohoema.ViewModels
 						{
 							if (item.NicoVideo.IsOriginalQualityOnly)
 							{
-								await item.NicoVideo.RequestCache(NicoVideoQuality.Original);
+								await item.NicoVideo.OriginalQuality.RequestCache();
 							}
 							else
 							{
-								await item.NicoVideo.RequestCache(NicoVideoQuality.Low);
+								await item.NicoVideo.LowQuality.RequestCache();
 							}
 						}
 					}
@@ -167,13 +167,13 @@ namespace NicoPlayerHohoema.ViewModels
 					{
 						foreach (var item in EnumerateCanDownloadVideoItem(/*画質指定なし*/))
 						{
-							if (item.NicoVideo.CanRequestDownloadOriginalQuality)
+							if (item.NicoVideo.OriginalQuality.CanRequestDownload)
 							{
-								await item.NicoVideo.RequestCache(NicoVideoQuality.Original);
+								await item.NicoVideo.OriginalQuality.RequestCache();
 							}
-							else if (item.NicoVideo.CanRequestDownloadLowQuality)
+							else if (item.NicoVideo.LowQuality.CanRequestDownload)
 							{
-								await item.NicoVideo.RequestCache(NicoVideoQuality.Low);
+								await item.NicoVideo.LowQuality.RequestCache();
 							}
 						}
 					}
@@ -311,8 +311,8 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			return SelectedItems.Where(x =>
 			{
-				return x.NicoVideo.OriginalQualityCacheState.HasValue
-					|| x.NicoVideo.LowQualityCacheState.HasValue;
+				return x.NicoVideo.OriginalQuality.IsCacheRequested
+					|| x.NicoVideo.LowQuality.IsCacheRequested;
 
 			});
 		}
@@ -324,11 +324,11 @@ namespace NicoPlayerHohoema.ViewModels
 				return SelectedItems.Where(x =>
 				{
 					var video = x.NicoVideo;
-					if (x.NicoVideo.CanRequestDownloadOriginalQuality)
+					if (video.OriginalQuality.CanRequestDownload && video.OriginalQuality.CacheState != NicoVideoCacheState.NowDownloading)
 					{
 						return true;
 					}
-					else if (video.CanRequestDownloadLowQuality)
+					else if (video.LowQuality.CanRequestDownload && video.LowQuality.CacheState != NicoVideoCacheState.NowDownloading)
 					{
 						return true;
 					}
@@ -341,9 +341,9 @@ namespace NicoPlayerHohoema.ViewModels
 			switch (quality)
 			{
 				case NicoVideoQuality.Original:
-					return SelectedItems.Where(x => x.NicoVideo.CanRequestDownloadOriginalQuality);
+					return SelectedItems.Where(x => x.NicoVideo.OriginalQuality.CanRequestDownload && x.NicoVideo.OriginalQuality.CacheState != NicoVideoCacheState.NowDownloading);
 				case NicoVideoQuality.Low:
-					return SelectedItems.Where(x => x.NicoVideo.CanRequestDownloadLowQuality);
+					return SelectedItems.Where(x => x.NicoVideo.LowQuality.CanRequestDownload && x.NicoVideo.LowQuality.CacheState != NicoVideoCacheState.NowDownloading);
 				default:
 					return Enumerable.Empty<VideoInfoControlViewModel>();
 			}
@@ -365,10 +365,10 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				case NicoVideoQuality.Original:
 					return qualityFilterdVideoItems
-						.Where(x => x.NicoVideo.OriginalQualityCacheState != null);
+						.Where(x => x.NicoVideo.OriginalQuality.IsCacheRequested);
 				case NicoVideoQuality.Low:
 					return qualityFilterdVideoItems
-						.Where(x => x.NicoVideo.LowQualityCacheState != null);
+						.Where(x => x.NicoVideo.LowQuality.IsCacheRequested);
 				default:
 					return Enumerable.Empty<VideoInfoControlViewModel>();
 			}
