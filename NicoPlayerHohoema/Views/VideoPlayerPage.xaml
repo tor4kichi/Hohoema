@@ -137,23 +137,22 @@
 
 
 
-
                     <MediaElement x:Name="mediaElem"
-                          local:MediaElementExtention.CustomStream="{Binding VideoStream.Value}"
-                          Position="{Binding CurrentVideoPosition.Value}"
-                          AudioCategory="BackgroundCapableMedia"
-                          IsMuted="{Binding IsMuted.Value}"
-                          IsLooping="{Binding IsEnableRepeat.Value}"
-                          Volume="{Binding SoundVolume.Value}"
-                          AutoPlay="True"
-                      >
+                                local:MediaElementExtention.CustomStream="{Binding VideoStream.Value}"
+                                Position="{Binding CurrentVideoPosition.Value}"
+                                AudioCategory="BackgroundCapableMedia"
+                                IsMuted="{Binding IsMuted.Value}"
+                                IsLooping="{Binding IsEnableRepeat.Value}"
+                                Volume="{Binding SoundVolume.Value}"
+                                AutoPlay="True"
+                            >
                         <i:Interaction.Behaviors>
 
                             <!-- 動画の再生位置を取り出す -->
                             <mybehavior:MediaElementExtractPositionBehavior 
-                                Position="{Binding ReadVideoPosition.Value, Mode=TwoWay}"
-                                Interval="00:00:00.008" 
-                                />
+                                    Position="{Binding ReadVideoPosition.Value, Mode=TwoWay}"
+                                    Interval="00:00:00.008" 
+                                    />
 
                             <!-- MediaElementのバッファリング/再生の状態を読み取る -->
                             <mybehavior:MediaElementStateGetter State="{Binding CurrentState.Value, Mode=TwoWay}" />
@@ -161,18 +160,24 @@
 
                             <mybehavior:EnsureLifecycleMediaElement />
 
+                            <mybehavior:MediaElementContentHeightGetter ContentHeight="{Binding CommentCanvasHeight.Value, Mode=TwoWay}"
+                                                                        />
+
                         </i:Interaction.Behaviors>
                     </MediaElement>
 
 
+                    <comment:CommentRenderer 
+                                x:Name="CommentRederer"
+                                Comments="{Binding Comments}"
+                                VideoPosition="{Binding ReadVideoPosition.Value}"                                     
+                                Visibility="{Binding IsVisibleComment.Value, Converter={StaticResource BooleanToVisibility}}"
+                                RequestFPS="{Binding RequestFPS.Value}"
+                                CommentSizeScale="{Binding CommentFontScale.Value}"
+                                Height="{Binding CommentCanvasHeight.Value}"
+                                />
 
 
-                    <comment:CommentRenderer Comments="{Binding Comments}"
-                                     VideoPosition="{Binding ReadVideoPosition.Value}"                                     
-                                     Visibility="{Binding IsVisibleComment.Value, Converter={StaticResource BooleanToVisibility}}"
-                                     RequestFPS="{Binding RequestFPS.Value}"
-                                     CommentSizeScale="{Binding CommentFontScale.Value}"
-                                     />
 
 
 

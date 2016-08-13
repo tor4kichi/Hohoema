@@ -23,7 +23,7 @@
                 TextLineBounds="TrimToBaseline"
             >
             <TextBlock.RenderTransform>
-                <TranslateTransform X="1" Y="1" />
+                <TranslateTransform X="1.5" Y="1.5" />
             </TextBlock.RenderTransform>
         </TextBlock>
         
