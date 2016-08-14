@@ -88,7 +88,26 @@ namespace NicoPlayerHohoema.ViewModels
 			})
 			.AddTo(_CompositeDisposable);
 
+			IsNGVideoOwner = new ReactiveProperty<bool>(false);
 
+			AddNGVideoOwnerCommand = new ReactiveCommand();
+			AddNGVideoOwnerCommand.Subscribe(_ => 
+			{
+				HohoemaApp.UserSettings.NGSettings.AddNGVideoOwnerId(UserId, UserName);
+				IsNGVideoOwner.Value = true;
+
+				HohoemaApp.UserSettings.NGSettings.Save().ConfigureAwait(false);
+				Debug.WriteLine(UserName + "をNG動画投稿者として登録しました。");
+			});
+			RemoveNGVideoOwnerCommand = new ReactiveCommand();
+			RemoveNGVideoOwnerCommand.Subscribe(_ =>
+			{
+				HohoemaApp.UserSettings.NGSettings.RemoveNGVideoOwnerId(UserId);
+				IsNGVideoOwner.Value = false;
+
+				HohoemaApp.UserSettings.NGSettings.Save().ConfigureAwait(false);
+				Debug.WriteLine(UserName + "をNG動画投稿者の指定を解除しました。");
+			});
 		}
 
 
@@ -164,6 +183,19 @@ namespace NicoPlayerHohoema.ViewModels
 			if (UserId == null) { return; }
 
 			UpdateTitle($"{UserName} さん");
+
+			// NGユーザーの設定
+
+			if (!IsLoginUser)
+			{
+				var ngResult = HohoemaApp.UserSettings.NGSettings.IsNgVideoOwnerId(UserId);
+				IsNGVideoOwner.Value = ngResult != null;
+			}
+			else
+			{
+				IsNGVideoOwner.Value = false;
+			}
+
 
 			// お気に入り状態の取得
 			_NowProcessFavorite = true;
@@ -258,6 +290,10 @@ namespace NicoPlayerHohoema.ViewModels
 			return result == ContentManageResult.Success;
 
 		}
+
+
+
+
 
 
 
@@ -379,6 +415,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveCommand AddFavoriteCommand { get; private set; }
 		public ReactiveCommand RemoveFavoriteCommand { get; private set; }
+
+		public ReactiveProperty<bool> IsNGVideoOwner { get; private set; }
+		public ReactiveCommand AddNGVideoOwnerCommand { get; private set; }
+		public ReactiveCommand RemoveNGVideoOwnerCommand { get; private set; }
+
 
 		public ObservableCollection<MylistGroupListItem> MylistGroups { get; private set; }
 		public ObservableCollection<VideoInfoControlViewModel> VideoInfoItems { get; private set; }
