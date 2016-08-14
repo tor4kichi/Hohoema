@@ -42,7 +42,7 @@ namespace NicoPlayerHohoema.Models
 
 					
 			// キャッシュリクエストファイルのアクセサーを初期化
-			var videoSaveFolder = await app.GetCurrentUserVideoFolder();
+			var videoSaveFolder = await app.GetCurrentUserVideoDataFolder();
 			man._CacheRequestedItemsFileAccessor = new FileAccessor<IList<NicoVideoCacheRequest>>(videoSaveFolder, CACHE_REQUESTED_FILENAME);
 
 			// ダウンロードコンテキストを作成
