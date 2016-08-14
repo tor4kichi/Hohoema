@@ -34,7 +34,7 @@ namespace NicoPlayerHohoema.Models
 
 		public DividedQualityNicoVideo DividedQualityNicoVideo { get; private set; }
 
-
+		public SemaphoreSlim _ProgressReadWriteLock;
 		public VideoDownloadProgress DownloadProgress { get; private set; }
 
 
@@ -94,6 +94,7 @@ namespace NicoPlayerHohoema.Models
 			_DownloadTaskLock = new SemaphoreSlim(1, 1);
 			_CacheWriteSemaphore = new SemaphoreSlim(1, 1);
 
+			_ProgressReadWriteLock = new SemaphoreSlim(1, 1);
 		}
 
 
@@ -151,24 +152,29 @@ namespace NicoPlayerHohoema.Models
 
 					cancellationToken.ThrowIfCancellationRequested();
 
-					try
+					for (int i = 0; i < 3; i++)
 					{
-						using (var stream = await CacheFile.OpenReadAsync())
+						try
 						{
-							var videoFragmentStream = stream.GetInputStreamAt(position);
+							using (var stream = await CacheFile.OpenReadAsync())
+							{
+								var videoFragmentStream = stream.GetInputStreamAt(position);
 
-							videoFragmentBuffer = await videoFragmentStream.ReadAsync(buffer, count, options).AsTask(cancellationToken);
+								videoFragmentBuffer = await videoFragmentStream.ReadAsync(buffer, count, options).AsTask(cancellationToken);
 
-							Debug.WriteLine($"read: {position} + {videoFragmentBuffer.Length}");
+								Debug.WriteLine($"read: {position} + {videoFragmentBuffer.Length}");
 
+							}
+
+							break;
 						}
-					}
-					catch
-					{
-						await Task.Delay(100);
+						catch
+						{
+							await Task.Delay(100);
 
-						cancellationToken.ThrowIfCancellationRequested();
-					}
+							cancellationToken.ThrowIfCancellationRequested();
+						}
+					}					
 				}
 				finally
 				{
@@ -516,19 +522,37 @@ namespace NicoPlayerHohoema.Models
 
 		private void RecordProgress(ulong position, uint count)
 		{
-			DownloadProgress.Update((uint)position, count);
+			try
+			{
+				_ProgressReadWriteLock.Wait();
+
+				DownloadProgress.Update((uint)position, count);
+			}
+			finally
+			{
+				_ProgressReadWriteLock.Release();
+			}
 		}
 
 
 
 		public bool CurrentPositionIsCached(uint position, uint length)
 		{
-			// Progressがあればキャッシュ済み範囲か取得
-			// なければキャッシュ済み(true)を返す
-			return DownloadProgress?
-				.IsCachedRange((uint)position, length)
-				?? true;
+			try
+			{
+				_ProgressReadWriteLock.Wait();
 
+				// Progressがあればキャッシュ済み範囲か取得
+				// なければキャッシュ済み(true)を返す
+				return DownloadProgress?
+					.IsCachedRange((uint)position, length)
+					?? true;
+			}
+			finally
+			{
+				_ProgressReadWriteLock.Release();
+			}
+			
 		}
 
 
