@@ -128,6 +128,13 @@ namespace NicoPlayerHohoema.Models
 
 
 
+
+
+		public bool IsDislikeRankingCategory(RankingCategory category)
+		{
+			var categoryString = category.ToString();
+			return LowPriorityCategory.Any(x => x.RankingSource == RankingSource.CategoryRanking && x.Parameter == categoryString);
+		}
 	}
 
 

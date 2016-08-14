@@ -42,11 +42,34 @@
         </DataTemplate>
 
 
+        <DataTemplate x:Key="DislikeCategoryListItemTemplate">
+
+            <toolkit:DockPanel>
+
+                <AppBarButton Icon="Delete" 
+                              toolkit:DockPanel.Dock="Left"
+                              Command="{Binding RemoveDislikeCategoryCommand}"
+                              VerticalAlignment="Center"
+                              IsCompact="True"
+                              />
+
+                <toolkit:DockPanel Background="Transparent" Margin="16 0">
+
+                    <TextBlock Text="{Binding DisplayLabel.Value}"
+                               VerticalAlignment="Center"
+                               >
+                    </TextBlock>
+
+                </toolkit:DockPanel>
+
+                <!-- TODO: ランキングソースの種類を表示 -->
+
+            </toolkit:DockPanel>
+        </DataTemplate>
 
 
 
 
-       
 
         <DataTemplate x:Key="NGKeywordTemplate">
             <toolkit:DockPanel
@@ -142,6 +165,45 @@
             <Border BorderBrush="DarkGray" BorderThickness="0 1 0 0" 
                     Margin="8"
                     />
+
+            <!-- 非表示にしたいランキング -->
+            <StackPanel Margin="8 8">
+                <TextBlock Text="ランキングの非表示設定"
+                           Margin="0 0 0 4"
+                            FontSize="18"
+                           FontWeight="SemiBold"
+                           VerticalAlignment="Center"
+                       />
+
+                <TextBlock Text="ここで選択されたランキングは、ランキング画面で非表示になります。"
+                           FontSize="12"
+                           Margin="16 0 16 8"
+                           Foreground="DarkGray"
+                           TextWrapping="Wrap"
+                       />
+
+
+                <ListView ItemsSource="{Binding DislikeCategories}"
+                          ItemTemplate="{StaticResource DislikeCategoryListItemTemplate}"
+                          Margin="0 8"
+                          ReorderMode="Enabled" 
+                          CanReorderItems="True"
+                          AllowDrop="True"
+                          />
+
+                <Button Content="非表示にするランキングを追加する" 
+                    Command="{Binding AddDislikeRankingCategory}"
+                    HorizontalAlignment="Center"
+                    Margin="0 8"
+                    />
+
+
+            </StackPanel>
+
+            <Border BorderBrush="DarkGray" BorderThickness="0 1 0 0" 
+                    Margin="8"
+                    />
+
 
             <!--NG動画-->
             <StackPanel>
