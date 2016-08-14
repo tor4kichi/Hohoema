@@ -32,7 +32,7 @@ namespace NicoPlayerHohoema.Models
 
 		private async Task<StorageFolder> GetSpecifyFavFolder(string groupName, uint userId)
 		{
-			var favFolder = await _HohoemaApp.GetCurrentUserFavFolder();
+			var favFolder = await _HohoemaApp.GetCurrentUserFavDataFolder();
 			return await favFolder.CreateFolderAsync(groupName, CreationCollisionOption.OpenIfExists);
 		}
 

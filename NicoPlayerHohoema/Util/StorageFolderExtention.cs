@@ -10,10 +10,10 @@ namespace NicoPlayerHohoema.Util
 {
 	public static class StorageFolderExtention
 	{
-		public static bool ExistFile(this StorageFolder folder, string filename)
+		public static Task<bool> ExistFile(this StorageFolder folder, string filename)
 		{
 			var path = Path.Combine(folder.Path, filename);
-			return File.Exists(path);
+			return Task.Run<bool>(() => { return File.Exists(path); });
 		}
 	}
 }

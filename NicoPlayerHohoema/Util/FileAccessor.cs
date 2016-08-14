@@ -23,7 +23,7 @@ namespace NicoPlayerHohoema.Util
 			_ReadWriteLock = new SemaphoreSlim(1, 1);
 		}
 
-		public bool ExistFile()
+		public Task<bool> ExistFile()
 		{
 			return Folder.ExistFile(FileName);
 		}
@@ -57,7 +57,7 @@ namespace NicoPlayerHohoema.Util
 			{
 				await _ReadWriteLock.WaitAsync();
 
-				if (!Folder.ExistFile(FileName))
+				if (false == await Folder.ExistFile(FileName))
 				{
 					return default(T);
 				}
@@ -93,7 +93,7 @@ namespace NicoPlayerHohoema.Util
 			{
 				await _ReadWriteLock.WaitAsync();
 
-				if (!Folder.ExistFile(FileName))
+				if (false == await Folder.ExistFile(FileName))
 				{
 					return false;
 				}
