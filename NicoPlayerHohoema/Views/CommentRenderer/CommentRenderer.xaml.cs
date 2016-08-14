@@ -364,6 +364,10 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			{
 				totalHeight += BottomCommentMargin;
 			}
+			else
+			{
+				totalHeight += (int)(commentUI.DesiredSize.Height * 0.35);
+			}
 
 			for (int i = 0; i< verticalAlignList.Count; ++i)
 			{
@@ -384,7 +388,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 				}
 				else
 				{
-					totalHeight += (int)next.DesiredSize.Height + CommentVerticalMargin;
+					totalHeight += (int)next.DesiredSize.Height + CommentVerticalMargin + (int)(next.DesiredSize.Height * 0.35);
 				}
 			}
 

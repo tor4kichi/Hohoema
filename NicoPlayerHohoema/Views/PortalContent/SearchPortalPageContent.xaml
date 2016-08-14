@@ -14,37 +14,47 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <StackPanel>
-        <Border Background="Transparent" IsHitTestVisible="True">
-            
-            <i:Interaction.Behaviors>
-                <core:EventTriggerBehavior EventName="Tapped">
-                    <core:InvokeCommandAction Command="{Binding SearchCommand}" />
-                </core:EventTriggerBehavior>
-            </i:Interaction.Behaviors>
-            
-            <TextBlock Text="検索" >
-            </TextBlock>
-        </Border>
+    <toolkit:DockPanel>
+        <StackPanel toolkit:DockPanel.Dock="Top">
+            <Border Background="Transparent" IsHitTestVisible="True">
 
-        <Border Height="32" />
+                <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Tapped">
+                        <core:InvokeCommandAction Command="{Binding SearchCommand}" />
+                    </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
+
+                <TextBlock Text="検索" >
+                </TextBlock>
+            </Border>
+
+            <Border Height="32" />
+
+        </StackPanel>
 
         <!-- 検索履歴 -->
 
-        <ListView ItemsSource="{Binding HistoryKeywords}" 
-                  SelectionMode="None"
-                  HorizontalContentAlignment="Stretch"
-                  >
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
-                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                    <Setter Property="VerticalContentAlignment" Value="Stretch" />
-                </Style>
-            </ListView.ItemContainerStyle>
+        <ScrollViewer HorizontalScrollMode="Disabled"
+                      HorizontalScrollBarVisibility="Hidden"
+                      VerticalScrollMode="Auto"
+                      VerticalScrollBarVisibility="Hidden"
+                      >
 
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock VerticalAlignment="Center">
+            <ListView ItemsSource="{Binding HistoryKeywords}" 
+                      SelectionMode="None"
+                      HorizontalContentAlignment="Stretch"
+                      Margin="0 0 0 16"
+                  >
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                    </Style>
+                </ListView.ItemContainerStyle>
+
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock VerticalAlignment="Center">
                         
                         <Run Text="{Binding Keyword}" />
                         
@@ -56,12 +66,12 @@
                                 <core:InvokeCommandAction Command="{Binding SelectedKeywordCommand}" />
                             </core:EventTriggerBehavior>
                         </i:Interaction.Behaviors>
-                    </TextBlock>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+                        </TextBlock>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
 
+        </ScrollViewer>
 
-
-    </StackPanel>
+    </toolkit:DockPanel>
 </UserControl>

@@ -35,33 +35,43 @@
         
     </UserControl.Resources>
 
-    <StackPanel>
-        <Border Background="Transparent" IsHitTestVisible="True">
-            <i:Interaction.Behaviors>
-                <core:EventTriggerBehavior EventName="Tapped">
-                    <core:InvokeCommandAction Command="{Binding OpenMylistCommand}" />
-                </core:EventTriggerBehavior>
-            </i:Interaction.Behaviors>
+    <toolkit:DockPanel>
+        <StackPanel toolkit:DockPanel.Dock="Top">
 
-            <TextBlock Text="マイリスト" />
+            <Border Background="Transparent" IsHitTestVisible="True">
+                <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Tapped">
+                        <core:InvokeCommandAction Command="{Binding OpenMylistCommand}" />
+                    </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
 
-
-        </Border>
-
-        <Border Height="32" />
+                <TextBlock Text="マイリスト" />
 
 
-        <ListView ItemsSource="{Binding MylistGroupItems}"
+            </Border>
+
+            <Border Height="32" />
+
+        </StackPanel>
+
+        <ScrollViewer HorizontalScrollMode="Disabled"
+                      HorizontalScrollBarVisibility="Hidden"
+                      VerticalScrollMode="Auto"
+                      VerticalScrollBarVisibility="Hidden"
+                      >
+
+            <ListView ItemsSource="{Binding MylistGroupItems}"
                   ItemTemplate="{StaticResource MylistGroupListItemTemplate}"
+                      Margin="0 0 0 16"
                   >
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
-                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                    <Setter Property="VerticalContentAlignment" Value="Stretch" />
-                </Style>
-            </ListView.ItemContainerStyle>
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                    </Style>
+                </ListView.ItemContainerStyle>
 
-        </ListView>
-
-    </StackPanel>
+            </ListView>
+        </ScrollViewer>
+    </toolkit:DockPanel>
 </UserControl>

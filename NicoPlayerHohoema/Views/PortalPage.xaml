@@ -22,7 +22,7 @@
 
     
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid >
 
         <Border>
 
@@ -56,8 +56,9 @@
 
                 <ScrollViewer VerticalScrollMode="Disabled"
                               VerticalScrollBarVisibility="Hidden"
-                              HorizontalScrollBarVisibility="Auto"
                               HorizontalScrollMode="Enabled"
+                              HorizontalScrollBarVisibility="Auto"
+                              x:Name="RootScrollViewer"
                               >
 
                     <ItemsControl>
@@ -78,15 +79,30 @@
 
 
 
-                        <portalContent:SearchPortalPageContent />
+                        <portalContent:SearchPortalPageContent
+                            Height="{Binding ElementName=RootScrollViewer, Path=ActualHeight}"
+                            VerticalAlignment="Top"
+                            />
 
-                        <portalContent:RankingPortalPageContent />
+                        <portalContent:RankingPortalPageContent
+                            Height="{Binding ElementName=RootScrollViewer, Path=ActualHeight}"
+                            VerticalAlignment="Top"
+                            />
 
-                        <portalContent:FavPortalPageContent />
+                        <portalContent:FavPortalPageContent
+                            Height="{Binding ElementName=RootScrollViewer, Path=ActualHeight}"
+                            VerticalAlignment="Top"
+                            />
 
-                        <portalContent:MylistPortalPageContent />
+                        <portalContent:MylistPortalPageContent
+                            Height="{Binding ElementName=RootScrollViewer, Path=ActualHeight}"                            
+                            VerticalAlignment="Top"
+                            />
 
-                        <portalContent:HistoryPortalPageContent />
+                        <portalContent:HistoryPortalPageContent
+                            Height="{Binding ElementName=RootScrollViewer, Path=ActualHeight}"
+                            VerticalAlignment="Top"
+                            />
                         
                         <portalContent:AppPortalPageContent />
 

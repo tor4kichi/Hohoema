@@ -133,14 +133,14 @@ namespace NicoPlayerHohoema.ViewModels
 			CommandString = new ReactiveProperty<string>("")
 				.AddTo(_CompositeDisposable);
 
-			
+			CommentCanvasHeight = new ReactiveProperty<double>(0);
+			CommentCanvasWidth = new ReactiveProperty<double>(0);
 
 
 
-			
-			
-			
-	
+
+
+
 
 			_VideoUpdaterSubject = new BehaviorSubject<object>(null)
 				.AddTo(_CompositeDisposable);
@@ -1412,6 +1412,9 @@ namespace NicoPlayerHohoema.ViewModels
 		public ObservableCollection<Comment> Comments { get; private set; }
 		public ReactiveProperty<bool> IsPauseWithCommentWriting { get; private set; }
 		public ReactiveProperty<bool> CanResumeOnExitWritingComment { get; private set; }
+		public ReactiveProperty<double> CommentCanvasHeight { get; private set; }
+		public ReactiveProperty<double> CommentCanvasWidth { get; private set; }
+
 
 		public CommentCommandEditerViewModel CommandEditerVM { get; private set; }
 		public ReactiveProperty<string> CommandString { get; private set; }
