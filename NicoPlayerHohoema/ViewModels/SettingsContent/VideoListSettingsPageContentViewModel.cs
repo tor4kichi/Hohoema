@@ -68,7 +68,7 @@ namespace NicoPlayerHohoema.ViewModels
 			AddDislikeRankingCategory = new DelegateCommand(async () =>
 			{
 				var items = _RankingSettings.MiddlePriorityCategory.ToArray();
-				var choiceItem = await _RankingChoiceDialogService.ShowDialog(items);
+				var choiceItem = await _RankingChoiceDialogService.ShowDislikeRankingCategoryChoiceDialog(items);
 
 				if (choiceItem != null)
 				{
