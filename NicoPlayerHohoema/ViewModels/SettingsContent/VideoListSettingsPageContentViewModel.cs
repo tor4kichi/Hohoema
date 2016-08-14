@@ -16,7 +16,7 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class VideoListSettingsPageContentViewModel : SettingsPageContentViewModel
 	{
-		public VideoListSettingsPageContentViewModel(HohoemaApp hohoemaApp, string title, RankingChoiceDialogService rankingChoiceDialog)
+		public VideoListSettingsPageContentViewModel(HohoemaApp hohoemaApp, PageManager pageManager, string title, RankingChoiceDialogService rankingChoiceDialog)
 			: base(title)
 		{
 			_HohoemaApp = hohoemaApp;
@@ -76,9 +76,12 @@ namespace NicoPlayerHohoema.ViewModels
 			// NG Video Owner User Id
 			NGVideoOwnerUserIdEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoOwnerUserIdEnable);
 			NGVideoOwnerUserIds = _NGSettings.NGVideoOwnerUserIds
-				.ToReadOnlyReactiveCollection(x =>
-					RemovableSettingsListItemHelper.UserIdInfoToRemovableListItemVM(x, OnRemoveNGVideoOwnerUserIdFromList)
-					);
+				.ToReadOnlyReactiveCollection(x => 
+				new SelectableItem<UserIdInfo>(x, (y) => 
+					{
+						pageManager.OpenPage(HohoemaPageType.UserInfo, x.UserId);
+					})
+				);
 
 			// NG Keyword on Video Title
 			NGVideoTitleKeywordEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoTitleKeywordEnable);
@@ -182,7 +185,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReadOnlyReactiveCollection<RemovableListItem<string>> NGVideoIds { get; private set; }
 
 		public ReactiveProperty<bool> NGVideoOwnerUserIdEnable { get; private set; }
-		public ReadOnlyReactiveCollection<RemovableListItem<string>> NGVideoOwnerUserIds { get; private set; }
+		public ReadOnlyReactiveCollection<SelectableItem<UserIdInfo>> NGVideoOwnerUserIds { get; private set; }
 
 		public ReactiveProperty<bool> NGVideoTitleKeywordEnable { get; private set; }
 		public ReadOnlyReactiveCollection<NGKeywordViewModel> NGVideoTitleKeywords { get; private set; }
