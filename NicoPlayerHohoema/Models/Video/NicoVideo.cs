@@ -71,7 +71,7 @@ namespace NicoPlayerHohoema.Models
 			await LowQuality.CheckCacheStatus();
 
 			
-			if (WatchApiResponseCache.ExistCachedFile())
+			if (await WatchApiResponseCache.ExistCachedFile())
 			{
 				DateTime time = DateTime.MinValue;
 				await WatchApiResponseCache.DoCacheFileAction((file) => 

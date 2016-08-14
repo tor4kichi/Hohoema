@@ -276,7 +276,7 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<IList<NicoVideoCacheRequest>> LoadDownloadRequestItems()
 		{
-			if (_CacheRequestedItemsFileAccessor.ExistFile())
+			if (await _CacheRequestedItemsFileAccessor.ExistFile())
 			{
 				return await _CacheRequestedItemsFileAccessor.Load();
 			}

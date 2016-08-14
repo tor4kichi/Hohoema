@@ -5,6 +5,7 @@ using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -234,15 +235,36 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
-		private async Task<StorageFolder> GetCurrentUserFolder()
+		public async Task<StorageFolder> GetCurrentUserFolder()
 		{
 			return await ApplicationData.Current.LocalFolder.CreateFolderAsync(LoginUserId.ToString(), CreationCollisionOption.OpenIfExists);
 		}
 
+
+		StorageFolder _DownloadFolder;
+
+		private async Task<StorageFolder> GetVideoFolder()
+		{
+			if (_DownloadFolder == null)
+			{
+				if (Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.ContainsItem(UserSettings.CacheSettings.CacheFolderName))
+				{
+					_DownloadFolder = await Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.GetFolderAsync(UserSettings.CacheSettings.CacheFolderName);
+				}
+				else
+				{
+					_DownloadFolder = await DownloadsFolder.CreateFolderAsync(UserSettings.CacheSettings.CacheFolderName, CreationCollisionOption.FailIfExists);
+					Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.AddOrReplace(UserSettings.CacheSettings.CacheFolderName, _DownloadFolder);
+				}
+			}
+
+			return _DownloadFolder;
+		}
+
 		public async Task<StorageFolder> GetCurrentUserVideoFolder()
 		{
-			var userFolder = await GetCurrentUserFolder();
-			return await userFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
+			var userFolder = await GetVideoFolder();
+			return await userFolder.CreateFolderAsync(LoginUserId.ToString(), CreationCollisionOption.OpenIfExists);
 		}
 
 		public async Task<StorageFolder> GetCurrentUserFavFolder()
