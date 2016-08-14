@@ -196,7 +196,59 @@
                         </ListView.ItemTemplate>
                     </ListView>
 
-                
+                    <StackPanel Visibility="{Binding IsLoginUser, Converter={StaticResource BooleanToVisibilityInverted}}">
+                        
+                        <!-- NG登録中の表示 -->
+                        <Border Visibility="{Binding IsNGVideoOwner.Value, Converter={StaticResource BooleanToVisibility}}"
+                            Background="LightPink"
+                            Padding="16"
+                            >
+                            <StackPanel>
+                                <TextBlock
+                                Margin="0 0 0 8"
+                                >
+                                <Run Text="{Binding UserName}" />
+                                <Run Text="さんをNG動画投稿者に指定しています" />
+                                </TextBlock>
+                                <TextBlock Text="このユーザーが投稿した動画はあなたの動画一覧に表示されません" 
+                                       TextWrapping="Wrap"                                       
+                                       Margin="0 0 0 8"
+                                       />
+
+                                <Button Content="NG動画投稿者を解除"
+                                    Command="{Binding RemoveNGVideoOwnerCommand}"
+                                    />
+                            </StackPanel>
+
+                        </Border>
+
+                        <!-- NG登録 前 の表示 -->
+                        <Border Visibility="{Binding IsNGVideoOwner.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                            Background="LightPink"
+                            Padding="16"
+                            >
+
+                            <StackPanel>
+                                <TextBlock TextWrapping="Wrap"                                
+                                       Margin="0 0 0 8"
+                                >
+                                <Run Text="{Binding UserName}" />
+                                <Run Text="さんをNG動画投稿者に指定しますか？" />
+                                </TextBlock>
+                                <TextBlock Text="NG動画投稿者に指定されたユーザーの投稿動画は、あなたの動画一覧に表示されなくなるので注意してください。" 
+                                       TextWrapping="Wrap"
+                                       Margin="0 0 0 8"
+                                       />
+
+                                <Button Content="NG動画投稿者として指定する"
+                                    Command="{Binding AddNGVideoOwnerCommand}"
+                                    />
+                            </StackPanel>
+
+                        </Border>
+                    </StackPanel>
+                    
+                   
                 </StackPanel>
             </Grid>
 

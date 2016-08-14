@@ -64,7 +64,7 @@ namespace NicoPlayerHohoema.ViewModels
 				switch (kind)
 				{
 					case HohoemaSettingsKind.VideoList:
-						vm = new VideoListSettingsPageContentViewModel(HohoemaApp, title, RankingChoiceDialogService);
+						vm = new VideoListSettingsPageContentViewModel(HohoemaApp, PageManager, title, RankingChoiceDialogService);
 						break;
 					case HohoemaSettingsKind.Comment:
 						vm = new CommentSettingsPageContentViewModel(HohoemaApp, title);

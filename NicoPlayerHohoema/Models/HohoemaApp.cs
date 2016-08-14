@@ -247,12 +247,13 @@ namespace NicoPlayerHohoema.Models
 		{
 			if (_DownloadFolder == null)
 			{
+				var loginUserId = LoginUserId.ToString();
 				// 既にフォルダを指定済みの場合
 				try
 				{
-					if (Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.ContainsItem(LoginUserId.ToString()))
+					if (Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.ContainsItem(loginUserId))
 					{
-						_DownloadFolder = await Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.GetFolderAsync(LoginUserId.ToString());
+						_DownloadFolder = await Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.GetFolderAsync(loginUserId);
 					}
 				}
 				catch (Exception ex)
@@ -263,8 +264,8 @@ namespace NicoPlayerHohoema.Models
 				// フォルダが指定されていない、または指定されたフォルダが存在しない場合
 				if (_DownloadFolder == null)
 				{
-					_DownloadFolder = await DownloadsFolder.CreateFolderAsync(LoginUserId.ToString(), CreationCollisionOption.FailIfExists);
-					Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.AddOrReplace(UserSettings.CacheSettings.CacheFolderName, _DownloadFolder);
+					_DownloadFolder = await DownloadsFolder.CreateFolderAsync(loginUserId, CreationCollisionOption.FailIfExists);
+					Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.AddOrReplace(loginUserId, _DownloadFolder);
 
 					#region v0.3.3 からの移行処理
 

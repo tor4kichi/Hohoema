@@ -106,6 +106,8 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
 			await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
 			{
+				if (AssociatedObject == null) { return; }
+
 				if (AssociatedObject.CurrentState == Windows.UI.Xaml.Media.MediaElementState.Closed)
 				{
 					return;
