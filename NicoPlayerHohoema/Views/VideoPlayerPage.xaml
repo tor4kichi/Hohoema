@@ -327,13 +327,6 @@
                                                     VerticalAlignment="Stretch"
                                             />
 
-                                <AppBarButton x:Name="RepeatButton"
-                                              Icon="RepeatAll" 
-                                              Label="リピート"
-                                              Command="{Binding ToggleRepeatCommand}"                                      
-                                              VerticalAlignment="Stretch"
-                                      />
-
                                 <AppBarButton Icon="Add" 
                                               Label="マイリスト登録"
                                               VerticalAlignment="Stretch"
@@ -402,10 +395,24 @@
 
                                                >
                                 <!-- Left Items -->
-                                <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left">
+                                <toolkit:DockPanel
+                                            toolkit:DockPanel.Dock="Left"
+                                            Margin="16 0 0 0"
+                                            Height="66"
+                                            >
+                                    <StackPanel Background="#AA777777"
+                                                toolkit:DockPanel.Dock="Left"
+                                                >
+                                        <AppBarButton x:Name="RepeatButton"
+                                              Icon="RepeatAll" 
+                                              Label="リピート"
+                                              Command="{Binding ToggleRepeatCommand}"                                      
+                                              VerticalAlignment="Stretch"
+                                      />
+                                    </StackPanel>
+                                    
 
-
-                                </StackPanel>
+                                </toolkit:DockPanel>
 
                                 <!-- Right Items-->
                                 <toolkit:DockPanel
