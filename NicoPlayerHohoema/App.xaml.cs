@@ -71,8 +71,8 @@ namespace NicoPlayerHohoema
 
 			if (hohoemaApp.IsLoggedIn)
 			{
-				await hohoemaApp.MediaManager.Context.Suspending();
-				await hohoemaApp.MediaManager.DeleteUnrequestedVideos();
+				await hohoemaApp.MediaManager?.Context?.Suspending();
+				await hohoemaApp.MediaManager?.DeleteUnrequestedVideos();
 			}
 
 			deferral.Complete();

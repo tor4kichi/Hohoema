@@ -81,6 +81,11 @@
                     <VisualState.Setters>
                         <Setter Target="AddToMylistButton.Visibility" Value="Visible" />
                         <Setter Target="MuteToggleButton.Visibility" Value="Visible" />
+
+
+                        <Setter Target="TopBarControlButtons_Wide.Visibility" Value="Visible" />
+                        <Setter Target="TopBarControlButtons_Short.Visibility" Value="Collapsed" />
+
                     </VisualState.Setters>
                 </VisualState>
                 <!-- 超狭い -->
@@ -91,6 +96,9 @@
                     <VisualState.Setters>
                         <Setter Target="AddToMylistButton.Visibility" Value="Collapsed" />
                         <Setter Target="MuteToggleButton.Visibility" Value="Collapsed" />
+
+                        <Setter Target="TopBarControlButtons_Wide.Visibility" Value="Collapsed" />
+                        <Setter Target="TopBarControlButtons_Short.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -315,16 +323,21 @@
 
                         </i:Interaction.Behaviors>
 
+                        
 
                         <!-- トップバー -->
                         <toolkit:DockPanel toolkit:DockPanel.Dock="Top"
-                                   Background="#AA777777"
-                                           Height="66"
+                                          
                                    >
 
-
-                            <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Right" >
-
+                            <StackPanel x:Name="TopBarControlButtons_Short"
+                                        toolkit:DockPanel.Dock="Bottom"
+                                        HorizontalAlignment="Right"
+                                        Orientation="Horizontal"
+                                        Height="66"
+                                   Background="#AA777777"
+                                        Margin="0 8 0 0"
+                                            >
                                 <Button 
                                            Command="{Binding TogglePlayQualityCommand}"
                                            VerticalAlignment="Stretch"
@@ -362,19 +375,70 @@
                                                     VerticalAlignment="Stretch"
                                             />
 
-                                <AppBarButton Icon="Add" 
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Right"
+                                         Height="66"
+                                   Background="#AA777777"
+                                        >
+
+                                <StackPanel Orientation="Horizontal"
+                                            x:Name="TopBarControlButtons_Wide"
+                                            >
+                                    <Button 
+                                           Command="{Binding TogglePlayQualityCommand}"
+                                           VerticalAlignment="Stretch"
+                                           Padding="8 0 8 0"
+                                           
+                                           >
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding CurrentVideoQuality.Value}"
+                                                   FontSize="20"
+                                                   FontWeight="SemiBold"
+                                                   TextAlignment="Center"
+                                                   >
+
+                                            </TextBlock>
+                                            <TextBlock Text="変更"
+                                                   FontSize="12"
+                                                   Margin="0 0 0 0"
+                                                   Width="48"
+                                                   TextWrapping="Wrap"
+                                                   TextAlignment="Center"
+                                                   />
+                                        </StackPanel>
+                                    </Button>
+
+                                    <AppBarToggleButton Icon="Download" Label="保存"
+                                                    IsChecked="{Binding IsSaveRequestedCurrentQualityCache.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                    IsEnabled="{Binding CanToggleCurrentQualityCacheState.Value}"
+                                                    VerticalAlignment="Stretch"
+                                                    Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
+                                              />
+
+                                    <AppBarToggleButton IsChecked="{Binding IsVisibleComment.Value, Mode=TwoWay}" 
+                                                Icon="Comment" 
+                                                    Label="コメント表示"
+                                                    VerticalAlignment="Stretch"
+                                            />
+
+                                    <AppBarButton Icon="Add" 
                                               Label="マイリスト登録"
                                               VerticalAlignment="Stretch"
                                               x:Name="AddToMylistButton"
                                             >
-                                    <i:Interaction.Behaviors>
-                                        <core:EventTriggerBehavior EventName="Tapped">
-                                            <core:ChangePropertyAction TargetObject="{Binding SelectedSidePaneType}" PropertyName="Value" Value="Mylist" />
-                                            <core:ChangePropertyAction TargetObject="{Binding ElementName=SplitView}" PropertyName="IsPaneOpen" Value="True" />
-                                        </core:EventTriggerBehavior>
-                                    </i:Interaction.Behaviors>
-                                </AppBarButton>
+                                        <i:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Tapped">
+                                                <core:ChangePropertyAction TargetObject="{Binding SelectedSidePaneType}" PropertyName="Value" Value="Mylist" />
+                                                <core:ChangePropertyAction TargetObject="{Binding ElementName=SplitView}" PropertyName="IsPaneOpen" Value="True" />
+                                            </core:EventTriggerBehavior>
+                                        </i:Interaction.Behaviors>
+                                    </AppBarButton>
+                                    
+                                </StackPanel>
+                                
 
+                                
 
                                 <AppBarButton Icon="OpenPane" Label="情報表示"
                                               VerticalAlignment="Stretch"
@@ -389,8 +453,12 @@
                                 </AppBarButton>
                             </StackPanel>
 
+
+                            
+
                             <StackPanel 
                                 Orientation="Horizontal"
+                                   Background="#AA777777"
                                 >
                                 <AppBarButton Icon="Back" 
                                               Label="戻る"
