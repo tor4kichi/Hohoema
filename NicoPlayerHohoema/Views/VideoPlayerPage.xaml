@@ -79,13 +79,15 @@
                         <AdaptiveTrigger MinWindowWidth="521" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="AddToMylistButton.Visibility" Value="Visible" />
                         <Setter Target="MuteToggleButton.Visibility" Value="Visible" />
-
 
                         <Setter Target="TopBarControlButtons_Wide.Visibility" Value="Visible" />
                         <Setter Target="TopBarControlButtons_Short.Visibility" Value="Collapsed" />
 
+
+                        <Setter Target="CommentButtons_Short.Visibility" Value="Collapsed" />
+                        <Setter Target="CommentSubmitButton_Wide.Visibility" Value="Visible" />
+                        <Setter Target="CommentCommandEditButton_Wide.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
                 <!-- 超狭い -->
@@ -94,11 +96,16 @@
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="AddToMylistButton.Visibility" Value="Collapsed" />
                         <Setter Target="MuteToggleButton.Visibility" Value="Collapsed" />
 
                         <Setter Target="TopBarControlButtons_Wide.Visibility" Value="Collapsed" />
                         <Setter Target="TopBarControlButtons_Short.Visibility" Value="Visible" />
+
+
+                        <Setter Target="CommentButtons_Short.Visibility" Value="Visible" />
+                        <Setter Target="CommentSubmitButton_Wide.Visibility" Value="Collapsed" />
+                        <Setter Target="CommentCommandEditButton_Wide.Visibility" Value="Collapsed" />
+
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -375,6 +382,18 @@
                                                     VerticalAlignment="Stretch"
                                             />
 
+                                <AppBarButton Icon="Add" 
+                                              Label="マイリスト登録"
+                                              VerticalAlignment="Stretch"
+                                            >
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Tapped">
+                                            <core:ChangePropertyAction TargetObject="{Binding SelectedSidePaneType}" PropertyName="Value" Value="Mylist" />
+                                            <core:ChangePropertyAction TargetObject="{Binding ElementName=SplitView}" PropertyName="IsPaneOpen" Value="True" />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
+                                </AppBarButton>
+
                             </StackPanel>
 
                             <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Right"
@@ -644,11 +663,43 @@
 
                             <toolkit:DockPanel Background="#AA777777">
 
-                                <toolkit:DockPanel Margin="8" MaxWidth="9600">
+                                <Grid toolkit:DockPanel.Dock="Bottom" 
+                                      x:Name="CommentButtons_Short"
+                                      Margin="0 8"
+                                      >
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    
+                                    <Button Content="{Binding CommandString.Value}" 
+                                            Margin="16 0 8 0"
+                                            Height="40"
+                                            DataContext="{Binding}"
+                                            HorizontalAlignment="Stretch"
+                                        >
+                                        <Button.Flyout>
+                                            <Flyout>
+                                                <local:CommentCommandEditer DataContext="{Binding CommandEditerVM}" />
+                                            </Flyout>
+                                        </Button.Flyout>
+                                    </Button>
+
+                                    <Button Content="投稿"  Margin="8 0 16 0" 
+                                             Height="40"
+                                            HorizontalAlignment="Stretch"
+                                            Command="{Binding CommentSubmitCommand}"
+                                            Grid.Column="1"
+                                        />
+
+                                </Grid>
+                                
+                                <toolkit:DockPanel Margin="8" MaxWidth="960">
                                     <Button Content="投稿"  Margin="16 0" 
                                         Width="80" Height="40"
                                         Command="{Binding CommentSubmitCommand}"
-                                        toolkit:DockPanel.Dock="Right"
+                                        x:Name="CommentSubmitButton_Wide"
+                                            toolkit:DockPanel.Dock="Right"
                                         />
 
                                     <Button Content="{Binding CommandString.Value}" 
@@ -657,6 +708,7 @@
                                             MinWidth="120"
                                             MinHeight="32"
                                             DataContext="{Binding}"
+                                            x:Name="CommentCommandEditButton_Wide"
                                         >
                                         <Button.Flyout>
                                             <Flyout>
@@ -673,6 +725,7 @@
                                              IsTabStop="True"
                                              toolkitext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
                                              PlaceholderText="コメント"
+                                             HorizontalAlignment="Stretch"
                                              >
                                         <i:Interaction.Behaviors>
                                             <core:EventTriggerBehavior EventName="GotFocus">
