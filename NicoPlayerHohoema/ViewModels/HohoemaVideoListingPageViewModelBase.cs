@@ -297,16 +297,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 		}
 
-		
-		private void ChangeCanIncmentalLoading(bool enableLoading)
-		{
-			if (IncrementalLoadingItems != null)
-			{
-				IncrementalLoadingItems.IsPuaseLoading = !enableLoading;
-			}
-		}
-
-
 		private IEnumerable<VideoInfoControlViewModel> EnumerateCacheRequestedVideoItems()
 		{
 			return SelectedItems.Where(x =>
