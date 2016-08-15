@@ -38,6 +38,8 @@ namespace NicoPlayerHohoema.Util
 		private bool _HasMoreItems;
 		private uint _Position;
 
+		private SemaphoreSlim _LoadingLock;
+
 		public IncrementalLoadingCollection(T source, uint itemsPerPage = 20, uint firstHeadPosition = 1)
 		{
 			this._Source = source;
@@ -45,6 +47,7 @@ namespace NicoPlayerHohoema.Util
 			this._HasMoreItems = true;
 			_Position = firstHeadPosition;
 			IsPuaseLoading = false;
+			_LoadingLock = new SemaphoreSlim(1, 1);
 		}
 
 		public IAsyncOperation<LoadMoreItemsResult> LoadMoreItemsAsync(uint count)
@@ -53,52 +56,62 @@ namespace NicoPlayerHohoema.Util
 
 			return Task.Run(async () =>
 			{
-				await dispatcher.RunAsync(CoreDispatcherPriority.Normal, 
+				try
+				{
+					await _LoadingLock.WaitAsync();
+
+					await dispatcher.RunAsync(CoreDispatcherPriority.Normal,
 					() => BeginLoading?.Invoke()
 					);
 
-				uint resultCount = 0;
+					uint resultCount = 0;
+
+					List<I> resultItems = null;
+					try
+					{
+						var items = await _Source.GetPagedItems(_Position, _ItemsPerPage);
+						resultItems = items?.ToList();
+					}
+					catch (Exception ex)
+					{
+						Debug.WriteLine(ex.Message);
+					}
+
+					if (resultItems == null || resultItems.Count == 0)
+					{
+						_HasMoreItems = false;
+					}
+					else
+					{
+						resultCount = (uint)resultItems.Count;
+
+						_Position += resultCount;
+
+						await dispatcher.RunAsync(CoreDispatcherPriority.High,
+							() =>
+							{
+								foreach (I item in resultItems)
+									this.Add(item);
+							});
+
+					}
+
+					await dispatcher.RunAsync(CoreDispatcherPriority.Normal,
+						() => DoneLoading?.Invoke()
+						);
+
+					// 多重読み込み防止のため
+					// リスト表示に反映されるまで
+					// タスクの終了を遅延させる必要があります
+					await Task.Delay(500);
+
+					return new LoadMoreItemsResult() { Count = resultCount };
+				}
+				finally
+				{
+					_LoadingLock.Release();
+				}
 				
-				List<I> resultItems = null;
-				try
-				{
-					var items = await _Source.GetPagedItems(_Position, _ItemsPerPage);
-					resultItems = items?.ToList();
-				}
-				catch (Exception ex)
-				{
-					Debug.WriteLine(ex.Message);
-				}
-				
-				if (resultItems == null || resultItems.Count == 0)
-				{
-					_HasMoreItems = false;
-				}
-				else
-				{
-					resultCount = (uint)resultItems.Count;
-
-					_Position += resultCount;
-
-					await dispatcher.RunAsync(CoreDispatcherPriority.High, 
-						() =>
-						{
-							foreach (I item in resultItems)
-								this.Add(item);
-						});
-
-				}
-
-				await dispatcher.RunAsync(CoreDispatcherPriority.Normal,
-					() => DoneLoading?.Invoke()
-					);
-
-				// 多重読み込み防止のため
-				// リスト表示に反映されるまで
-				// タスクの終了を遅延させる必要があります
-				await Task.Delay(500);
-
-				return new LoadMoreItemsResult() { Count = resultCount };
 			})
 			.AsAsyncOperation();
 		}
