@@ -222,20 +222,20 @@ namespace NicoPlayerHohoema.Models
 			var removeTargets = new List<string>();
 			foreach (var item in VideoIdToNicoVideo.Values.ToArray())
 			{
+				if (PreventDeleteOnPlayingVideoId != null && item.RawVideoId == PreventDeleteOnPlayingVideoId)
+				{
+					Debug.WriteLine("再生中だった " + item.Title + " の動画キャッシュ削除を抑制");
+					continue;
+				}
+
 				if (!item.OriginalQuality.IsCacheRequested && item.OriginalQuality.HasCache)
 				{
-					if (!item.OriginalQuality.NowPlaying)
-					{
-						await item.OriginalQuality.DeleteCache();
-					}
+					await item.OriginalQuality.DeleteCache();
 				}
 
 				if (!item.LowQuality.IsCacheRequested && item.LowQuality.HasCache)
 				{
-					if (!item.LowQuality.NowPlaying)
-					{
-						await item.LowQuality.DeleteCache();
-					}
+					await item.LowQuality.DeleteCache();
 				}
 
 				if (!item.OriginalQuality.IsCached
@@ -253,6 +253,9 @@ namespace NicoPlayerHohoema.Models
 
 				Debug.Write($"[{id}]");
 			}
+
+
+			PreventDeleteOnPlayingVideoId = null;
 
 			Debug.WriteLine("done");
 		}
@@ -290,7 +293,10 @@ namespace NicoPlayerHohoema.Models
 		#endregion
 
 
-
+		public void OncePrevnetDeleteCacheOnPlayingVideo(string rawVideoId)
+		{
+			PreventDeleteOnPlayingVideoId = rawVideoId;
+		}
 
 		
 
@@ -307,6 +313,9 @@ namespace NicoPlayerHohoema.Models
 
 		public NicoVideoDownloadContext Context { get; private set; }
 		HohoemaApp _HohoemaApp;
+
+
+		public string PreventDeleteOnPlayingVideoId { get; private set; }
 	}
 
 

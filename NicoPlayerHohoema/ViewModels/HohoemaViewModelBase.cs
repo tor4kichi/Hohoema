@@ -163,12 +163,12 @@ namespace NicoPlayerHohoema.ViewModels
 
 		private void _OnResumed()
 		{
-			OnResumed();
+			OnResumed().ConfigureAwait(false);
 		}
 
-		protected virtual void OnResumed()
+		protected virtual Task OnResumed()
 		{
-
+			return Task.CompletedTask;
 		}
 
 		protected virtual Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
