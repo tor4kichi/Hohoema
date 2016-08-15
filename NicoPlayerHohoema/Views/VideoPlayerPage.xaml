@@ -61,6 +61,41 @@
 
         <VisualStateManager.VisualStateGroups>
 
+            <!-- 画面サイズごとの表示・非表示に切り替え -->
+            <VisualStateGroup>
+                <!-- 一番幅が広いとき -->
+                <!--
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="721" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                    </VisualState.Setters>
+                </VisualState>
+                -->
+                <!-- 中ぐらい -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="521" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="AddToMylistButton.Visibility" Value="Visible" />
+                        <Setter Target="MuteToggleButton.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+                <!-- 超狭い -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="AddToMylistButton.Visibility" Value="Collapsed" />
+                        <Setter Target="MuteToggleButton.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+            
 
             <!-- リピートの有効・無効 -->
             <VisualStateGroup>
@@ -90,7 +125,7 @@
                         <StateTrigger IsActive="{Binding IsMuted.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="VolumeButton.Icon" Value="Mute" />
+                        <Setter Target="MuteToggleButton.Icon" Value="Mute" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -98,7 +133,7 @@
                         <StateTrigger IsActive="{Binding IsMuted.Value, Converter={StaticResource InvertBoolean}}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="VolumeButton.Icon" Value="Volume" />
+                        <Setter Target="MuteToggleButton.Icon" Value="Volume" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -330,6 +365,7 @@
                                 <AppBarButton Icon="Add" 
                                               Label="マイリスト登録"
                                               VerticalAlignment="Stretch"
+                                              x:Name="AddToMylistButton"
                                             >
                                     <i:Interaction.Behaviors>
                                         <core:EventTriggerBehavior EventName="Tapped">
@@ -427,7 +463,7 @@
                                         <AppBarButton Icon="Volume" 
                                                       Label="ミュート"
                                                       VerticalAlignment="Stretch"
-                                                      x:Name="VolumeButton"
+                                                      x:Name="MuteToggleButton"
                                                       Command="{Binding ToggleMuteCommand}"    
                                                   >
 
