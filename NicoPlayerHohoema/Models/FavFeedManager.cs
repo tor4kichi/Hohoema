@@ -362,7 +362,7 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task UpdateAll()
 		{
-			await UpdateFavUsers();
+//			await UpdateFavUsers();
 			await UpdateFavMylists();
 			await UpdateFavTags();
 		}
