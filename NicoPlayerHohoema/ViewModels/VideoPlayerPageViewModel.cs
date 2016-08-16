@@ -1460,9 +1460,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class TagViewModel
 	{
-		public TagViewModel(Tag tag)
+		public TagViewModel(Tag tag, PageManager pageManager)
 		{
 			_Tag = tag;
+			_PageManager = pageManager;
 
 			TagText = _Tag.Value;
 			IsCategoryTag = _Tag.Category;
@@ -1482,7 +1483,14 @@ namespace NicoPlayerHohoema.ViewModels
 				return _OpenSearchPageWithTagCommand
 					?? (_OpenSearchPageWithTagCommand = new DelegateCommand(() => 
 					{
-						// TODO: 
+						_PageManager.OpenPage(HohoemaPageType.Search, new Models.SearchOption()
+						{
+							SearchTarget = SearchTarget.Tag,
+							Keyword = _Tag.Value,
+							Sort = Sort.FirstRetrieve,
+							Order = Order.Descending
+						}
+						.ToParameterString());
 					}));
 			}
 		}
@@ -1502,6 +1510,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 		Tag _Tag;
+		PageManager _PageManager;
 	}
 
 

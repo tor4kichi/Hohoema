@@ -122,7 +122,8 @@
 
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Button Content="{Binding TagText}" 
+                            <Button Content="{Binding TagText}"
+                                    Command="{Binding OpenSearchPageWithTagCommand}"
                                         />
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
