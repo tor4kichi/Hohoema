@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Prism.Mvvm;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace NicoPlayerHohoema.Models
 		IAsyncAction Update();
 	}
 
-	abstract public class BackgroundUpdateItemBase : IBackgroundUpdateable
+	abstract public class BackgroundUpdateItemBase : BindableBase, IBackgroundUpdateable
 	{
 		public BackgroundUpdateItemBase(string label)
 		{
