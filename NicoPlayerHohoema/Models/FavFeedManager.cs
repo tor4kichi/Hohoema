@@ -12,10 +12,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.Foundation;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace NicoPlayerHohoema.Models
 {
-	public class FavFeedManager 
+	public class FavFeedManager : BackgroundUpdateItemBase
 	{
 		public const uint FAV_USER_MAX_COUNT = 50;
 		public const uint PREMIUM_FAV_USER_MAX_COUNT = 400;
@@ -64,6 +66,7 @@ namespace NicoPlayerHohoema.Models
 
 
 		internal FavFeedManager(HohoemaApp hohoemaApp, uint userId)
+			: base("favmanager_" + userId)
 		{
 			_HohoemaApp = hohoemaApp;
 			UserId = userId;
@@ -85,9 +88,7 @@ namespace NicoPlayerHohoema.Models
 
 			await SyncAllFav();
 
-			await UpdateAll();
-
-			await SaveAllFavFeedLists();
+			await _HohoemaApp.BackgroundUpdater.Schedule(this);
 		}
 
 		public bool CanMoreAddFavorite(FavoriteItemType itemType)
@@ -345,6 +346,17 @@ namespace NicoPlayerHohoema.Models
 			{
 				await UpdateFavFeedList(feedList);
 			}
+		}
+
+		// バックグラウンドタスク
+		public override IAsyncAction Update()
+		{
+			return AsyncInfo.Run(async cancelToken => 
+			{
+				await UpdateAll();
+
+				await SaveAllFavFeedLists();
+			});
 		}
 
 
@@ -693,6 +705,7 @@ namespace NicoPlayerHohoema.Models
 			return await saveFolder.CreateFileAsync($"{feedList.Id}.json", CreationCollisionOption.OpenIfExists);
 		}
 
+		
 		public uint UserId { get; set; }
 
 		public Dictionary<FavoriteItemType, ObservableCollection<FavFeedList>> ItemsByGroupName { get; private set; }

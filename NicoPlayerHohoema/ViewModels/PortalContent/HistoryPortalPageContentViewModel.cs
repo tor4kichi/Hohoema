@@ -29,7 +29,7 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 
 			HisotoryVideoInfoItems.Clear();
 
-			foreach (var history in histories.Histories.Take(10))
+			foreach (var history in histories.Histories.Take(5))
 			{
 				var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(history.Id);
 				var vm = new HistoryVideoInfoControlViewModel(

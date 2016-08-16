@@ -113,6 +113,7 @@
     </Compile>
     <Compile Include="Events\PlayerClosedEvent.cs" />
     <Compile Include="Events\PlayNicoVideoEvent.cs" />
+    <Compile Include="Models\BackgroundUpdater.cs" />
     <Compile Include="Models\CommentCommandPermissionType.cs" />
     <Compile Include="Models\FavFeedList.cs" />
     <Compile Include="Models\FavFeedManager.cs" />
