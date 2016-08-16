@@ -179,7 +179,7 @@ namespace NicoPlayerHohoema.Models
 	
 				Debug.WriteLine("initilize: fav");
 				FavFeedManager = await FavFeedManager.Create(this, LoginUserId);
-
+				
 				Debug.WriteLine("initialize: mylist");
 				await UserMylistManager.UpdateUserMylists();
 
