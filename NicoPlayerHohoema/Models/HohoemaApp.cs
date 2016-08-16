@@ -147,6 +147,9 @@ namespace NicoPlayerHohoema.Models
 
 				NiconicoContext = context;
 
+				// バックグラウンド処理機能を生成
+				BackgroundUpdater = new BackgroundUpdater("HohoemaBG1");
+
 				Debug.WriteLine("start post login process....");
 
 				Debug.WriteLine("getting UserInfo");
@@ -167,7 +170,6 @@ namespace NicoPlayerHohoema.Models
 					return NiconicoSignInStatus.Failed;
 				}
 
-
 				Debug.WriteLine("user id is : " + LoginUserId);
 				Debug.WriteLine("initilize: user settings ");
 				await LoadUserSettings(LoginUserId.ToString());
@@ -177,6 +179,9 @@ namespace NicoPlayerHohoema.Models
 	
 				Debug.WriteLine("initilize: fav");
 				FavFeedManager = await FavFeedManager.Create(this, LoginUserId);
+
+				Debug.WriteLine("initialize: mylist");
+				await UserMylistManager.UpdateUserMylists();
 
 				Debug.WriteLine("Login done.");
 
@@ -211,6 +216,8 @@ namespace NicoPlayerHohoema.Models
 			UserSettings = null;
 			LoginUserId = uint.MaxValue;
 			MediaManager = null;
+			BackgroundUpdater?.Dispose();
+			BackgroundUpdater = null;
 
 			OnSignout?.Invoke();
 
@@ -385,9 +392,11 @@ namespace NicoPlayerHohoema.Models
 
 		public IEventAggregator EventAggregator { get; private set; }
 
-
 		const string RECENT_LOGIN_ACCOUNT = "recent_login_account";
 		public AccountSettings CurrentAccount { get; private set; }
+
+
+		public BackgroundUpdater BackgroundUpdater { get; private set; }
 
 
 		public event Action OnSignout;
