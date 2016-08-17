@@ -50,7 +50,7 @@
         
         <toolkit:DockPanel x:Name="VideoInfo" IsHitTestVisible="True" Background="Transparent">
 
-            <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left" Width="16"
+            <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left" Width="8"
                         ToolTipService.ToolTip="青=通常画質保存済み / 緑=低画質保存済み / 赤=削除確認が必要"
                         >
                 <Border BorderThickness="4 0 0 0" BorderBrush="Blue" 
