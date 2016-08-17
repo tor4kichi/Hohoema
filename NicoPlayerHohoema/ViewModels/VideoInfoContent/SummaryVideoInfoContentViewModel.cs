@@ -35,7 +35,7 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 
 
 			Tags = thumbnail.Tags.Value
-				.Select(x => new TagViewModel(x))
+				.Select(x => new TagViewModel(x, _PageManager))
 				.ToList();
 		}
 

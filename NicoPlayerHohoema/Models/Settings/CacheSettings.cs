@@ -14,12 +14,32 @@ namespace NicoPlayerHohoema.Models
 	{
 		public CacheSettings()
 		{
+			CacheFolderName = "HohoemaDL";
 			IsUserAcceptedCache = false;
 			IsAutoCacheOnPlayEnable = false;
 			CacheOnPlayTagConditions = new ObservableCollection<TagCondition>();
 		}
 
-		
+		private string _CacheFolderName;
+
+		[DataMember]
+		public string CacheFolderName
+		{
+			get { return _CacheFolderName; }
+			set { SetProperty(ref _CacheFolderName, value); }
+		}
+
+
+		private string _CacheFolderPath;
+
+		[DataMember]
+		public string CacheFolderPath
+		{
+			get { return _CacheFolderPath; }
+			set { SetProperty(ref _CacheFolderPath, value); }
+		}
+
+
 		private bool _IsUserAcceptRegalNotice;
 
 		[DataMember]

@@ -239,6 +239,36 @@ namespace NicoPlayerHohoema.Models
 		#endregion
 
 
+
+
+
+
+		public void AddNGVideoOwnerId(string userId, string userName)
+		{
+			RemoveNGVideoOwnerId(userId);
+
+			var userIdInfo = new UserIdInfo()
+			{
+				UserId = userId,
+				Description = userName
+			};
+
+			NGVideoOwnerUserIds.Add(userIdInfo);
+		}
+
+		public bool RemoveNGVideoOwnerId(string userId)
+		{
+			var item = NGVideoOwnerUserIds.SingleOrDefault(x => x.UserId == userId);
+			if (item != null)
+			{
+				return NGVideoOwnerUserIds.Remove(item);
+			}
+			else
+			{
+				return false;
+			}
+		}
+
 	}
 
 	public class NGKeyword

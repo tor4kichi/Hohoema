@@ -24,7 +24,7 @@ namespace NicoPlayerHohoema.Models
 			var context = new NicoVideoDownloadContext(hohoemaApp);
 			context._MediaManager = mediaMan;
 
-			context.VideoSaveFolder = await hohoemaApp.GetCurrentUserVideoFolder();
+			context.VideoSaveFolder = await hohoemaApp.GetCurrentUserVideoDataFolder();
 
 			return context;
 		}

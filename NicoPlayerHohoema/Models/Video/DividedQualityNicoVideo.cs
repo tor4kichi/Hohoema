@@ -134,12 +134,9 @@ namespace NicoPlayerHohoema.Models
 
 
 
-		public bool ExistVideo
+		public Task<bool> ExistVideo()
 		{
-			get
-			{
-				return _Context.VideoSaveFolder.ExistFile(VideoFileName);
-			}
+			return _Context.VideoSaveFolder.ExistFile(VideoFileName);
 		}
 
 
@@ -149,18 +146,18 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		internal Task CheckCacheStatus()
+		internal async Task CheckCacheStatus()
 		{
 			if (!IsAvailable)
 			{
 				CacheState = null;
-				return Task.CompletedTask;
 			}
 
 
 			IsCacheRequested = _Context.CheckCacheRequested(this.RawVideoId, Quality);
 
-			if (ExistVideo
+			var existVideo = await ExistVideo();
+			if (existVideo
 				&& (Progress.CheckComplete()))
 			{
 				CacheState = NicoVideoCacheState.Cached;
@@ -169,7 +166,7 @@ namespace NicoPlayerHohoema.Models
 			{
 				CacheState = NicoVideoCacheState.NowDownloading;
 			}
-			else if (ExistVideo)
+			else if (existVideo)
 			{
 				CacheState = NicoVideoCacheState.CacheProgress;
 			}
@@ -183,8 +180,6 @@ namespace NicoPlayerHohoema.Models
 			OnPropertyChanged(nameof(CanPlay));
 			OnPropertyChanged(nameof(IsCached));
 			OnPropertyChanged(nameof(CanPlay));
-			
-			return Task.CompletedTask;
 		}
 
 
@@ -261,7 +256,7 @@ namespace NicoPlayerHohoema.Models
 			var fileName = VideoFileName;
 			try
 			{
-				if (saveFolder.ExistFile(fileName))
+				if (await saveFolder.ExistFile(fileName))
 				{
 					var file = await saveFolder.GetFileAsync(fileName);
 					await file.DeleteAsync(StorageDeleteOption.PermanentDelete);

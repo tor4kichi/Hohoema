@@ -129,7 +129,7 @@ namespace NicoPlayerHohoema.Util
 
 		private async Task<T> GetRecent()
 		{
-			if (!ExistCachedFile())
+			if (false == await ExistCachedFile())
 			{
 				return default(T);
 			}
@@ -155,7 +155,7 @@ namespace NicoPlayerHohoema.Util
 		}
 
 
-		public bool ExistCachedFile()
+		public Task<bool> ExistCachedFile()
 		{
 			return SaveFolder.ExistFile(FileName);
 		}
@@ -192,7 +192,7 @@ namespace NicoPlayerHohoema.Util
 
 		public async Task DoCacheFileAction(Action<StorageFile> action)
 		{
-			if (!ExistCachedFile())
+			if (false == await ExistCachedFile())
 			{
 				return;
 			}
@@ -219,7 +219,7 @@ namespace NicoPlayerHohoema.Util
 
 		public async Task Delete(StorageDeleteOption option = StorageDeleteOption.Default)
 		{
-			if (!ExistCachedFile())
+			if (false == await ExistCachedFile())
 			{
 				return;
 			}

@@ -27,70 +27,85 @@ namespace NicoPlayerHohoema.ViewModels
 				return _RankingSettings.HighPriorityCategory.Any(x => x.RankingSource == RankingSource.CategoryRanking && x.Parameter == cat.ToString());
 			};
 
-			// ランキングのカテゴリ
-			RankingCategoryItems = new ObservableCollection<RankingCategoryHostListItem>()
+			List<List<RankingCategory>> categories = new List<List<RankingCategory>>()
 			{
-				new RankingCategoryHostListItem(RankingCategoryInfo.CreateFromRankingCategory(RankingCategory.all), checkFavorite(RankingCategory.all), OnRankingCategorySelected),
-				new RankingCategoryHostListItem(RankingCategoryInfo.CreateFromRankingCategory(RankingCategory.g_ent2), checkFavorite(RankingCategory.g_ent2), OnRankingCategorySelected)
+				new List<RankingCategory>()
 				{
-					ChildItems = new List<RankingCategoryListPageListItem>()
-					{
-						CreateRankingCategryListItem(RankingCategory.ent),
-						CreateRankingCategryListItem(RankingCategory.music),
-						CreateRankingCategryListItem(RankingCategory.sing),
-						CreateRankingCategryListItem(RankingCategory.dance),
-						CreateRankingCategryListItem(RankingCategory.play),
-						CreateRankingCategryListItem(RankingCategory.vocaloid),
-						CreateRankingCategryListItem(RankingCategory.nicoindies),
-					}
+					RankingCategory.all
 				},
-				new RankingCategoryHostListItem(RankingCategoryInfo.CreateFromRankingCategory(RankingCategory.g_life2), checkFavorite(RankingCategory.g_life2), OnRankingCategorySelected)
+				new List<RankingCategory>()
 				{
-					ChildItems = new List<RankingCategoryListPageListItem>()
-					{
-						CreateRankingCategryListItem(RankingCategory.animal),
-						CreateRankingCategryListItem(RankingCategory.cooking),
-						CreateRankingCategryListItem(RankingCategory.nature),
-						CreateRankingCategryListItem(RankingCategory.travel),
-						CreateRankingCategryListItem(RankingCategory.sport),
-						CreateRankingCategryListItem(RankingCategory.lecture),
-						CreateRankingCategryListItem(RankingCategory.drive),
-						CreateRankingCategryListItem(RankingCategory.history),
-					}
+					RankingCategory.g_ent2,
+					RankingCategory.ent,
+					RankingCategory.music,
+					RankingCategory.sing,
+					RankingCategory.dance,
+					RankingCategory.play,
+					RankingCategory.vocaloid,
+					RankingCategory.nicoindies
 				},
-				new RankingCategoryHostListItem(RankingCategoryInfo.CreateFromRankingCategory(RankingCategory.g_politics), checkFavorite(RankingCategory.g_politics), OnRankingCategorySelected),
-				new RankingCategoryHostListItem(RankingCategoryInfo.CreateFromRankingCategory(RankingCategory.g_tech), checkFavorite(RankingCategory.g_tech), OnRankingCategorySelected)
+				new List<RankingCategory>()
 				{
-					ChildItems = new List<RankingCategoryListPageListItem>()
-					{
-						CreateRankingCategryListItem(RankingCategory.science),
-						CreateRankingCategryListItem(RankingCategory.tech),
-						CreateRankingCategryListItem(RankingCategory.handcraft),
-						CreateRankingCategryListItem(RankingCategory.make),
-					}
+					RankingCategory.g_life2,
+					RankingCategory.animal,
+					RankingCategory.cooking,
+					RankingCategory.nature,
+					RankingCategory.travel,
+					RankingCategory.sport,
+					RankingCategory.lecture,
+					RankingCategory.drive,
+					RankingCategory.history,
 				},
-				new RankingCategoryHostListItem(RankingCategoryInfo.CreateFromRankingCategory(RankingCategory.g_culture2), checkFavorite(RankingCategory.g_culture2), OnRankingCategorySelected)
+				new List<RankingCategory>()
 				{
-					ChildItems = new List<RankingCategoryListPageListItem>()
-					{
-						CreateRankingCategryListItem(RankingCategory.anime),
-						CreateRankingCategryListItem(RankingCategory.game),
-						CreateRankingCategryListItem(RankingCategory.toho),
-						CreateRankingCategryListItem(RankingCategory.imas),
-						CreateRankingCategryListItem(RankingCategory.radio),
-						CreateRankingCategryListItem(RankingCategory.draw),
-					}
+					RankingCategory.g_politics
 				},
-				new RankingCategoryHostListItem(RankingCategoryInfo.CreateFromRankingCategory(RankingCategory.g_other), checkFavorite(RankingCategory.g_other), OnRankingCategorySelected)
+				new List<RankingCategory>()
 				{
-					ChildItems = new List<RankingCategoryListPageListItem>()
-					{
-						CreateRankingCategryListItem(RankingCategory.are),
-						CreateRankingCategryListItem(RankingCategory.diary),
-						CreateRankingCategryListItem(RankingCategory.other),
-					}
+					RankingCategory.g_tech,
+					RankingCategory.science,
+					RankingCategory.tech,
+					RankingCategory.handcraft,
+					RankingCategory.make,
 				},
+				new List<RankingCategory>()
+				{
+					RankingCategory.g_culture2,
+					RankingCategory.anime,
+					RankingCategory.game,
+					RankingCategory.toho,
+					RankingCategory.imas,
+					RankingCategory.radio,
+					RankingCategory.draw,
+				},
+				new List<RankingCategory>()
+				{
+					RankingCategory.g_other,
+					RankingCategory.are,
+					RankingCategory.diary,
+					RankingCategory.other,
+
+				}
+
 			};
+
+			// ランキングのカテゴリ
+			RankingCategoryItems = new List<List<RankingCategoryListPageListItem>>();
+
+			foreach (var categoryList in categories)
+			{
+				// 非表示ランキングを除外したカテゴリリストを作成
+				var list = categoryList
+					.Where(x => !HohoemaApp.UserSettings.RankingSettings.IsDislikeRankingCategory(x))
+					.Select(x => CreateRankingCategryListItem(x))
+					.ToList();
+
+				// 表示対象があればリストに追加
+				if (list.Count > 0)
+				{
+					RankingCategoryItems.Add(list);
+				}
+			}
 		}
 
 		RankingCategoryListPageListItem CreateRankingCategryListItem(RankingCategory category)
@@ -107,7 +122,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		public ObservableCollection<RankingCategoryHostListItem> RankingCategoryItems { get; private set; }
+		public List<List<RankingCategoryListPageListItem>> RankingCategoryItems { get; private set; }
 
 		RankingSettings _RankingSettings;
 	}

@@ -42,11 +42,34 @@
         </DataTemplate>
 
 
+        <DataTemplate x:Key="DislikeCategoryListItemTemplate">
+
+            <toolkit:DockPanel>
+
+                <AppBarButton Icon="Delete" 
+                              toolkit:DockPanel.Dock="Left"
+                              Command="{Binding RemoveDislikeCategoryCommand}"
+                              VerticalAlignment="Center"
+                              IsCompact="True"
+                              />
+
+                <toolkit:DockPanel Background="Transparent" Margin="16 0">
+
+                    <TextBlock Text="{Binding DisplayLabel.Value}"
+                               VerticalAlignment="Center"
+                               >
+                    </TextBlock>
+
+                </toolkit:DockPanel>
+
+                <!-- TODO: ランキングソースの種類を表示 -->
+
+            </toolkit:DockPanel>
+        </DataTemplate>
 
 
 
 
-       
 
         <DataTemplate x:Key="NGKeywordTemplate">
             <toolkit:DockPanel
@@ -143,6 +166,45 @@
                     Margin="8"
                     />
 
+            <!-- 非表示にしたいランキング -->
+            <StackPanel Margin="8 8">
+                <TextBlock Text="ランキングの非表示設定"
+                           Margin="0 0 0 4"
+                            FontSize="18"
+                           FontWeight="SemiBold"
+                           VerticalAlignment="Center"
+                       />
+
+                <TextBlock Text="ここで選択されたランキングは、ランキング画面で非表示になります。"
+                           FontSize="12"
+                           Margin="16 0 16 8"
+                           Foreground="DarkGray"
+                           TextWrapping="Wrap"
+                       />
+
+
+                <ListView ItemsSource="{Binding DislikeCategories}"
+                          ItemTemplate="{StaticResource DislikeCategoryListItemTemplate}"
+                          Margin="0 8"
+                          ReorderMode="Enabled" 
+                          CanReorderItems="True"
+                          AllowDrop="True"
+                          />
+
+                <Button Content="非表示にするランキングを追加する" 
+                    Command="{Binding AddDislikeRankingCategory}"
+                    HorizontalAlignment="Center"
+                    Margin="0 8"
+                    />
+
+
+            </StackPanel>
+
+            <Border BorderBrush="DarkGray" BorderThickness="0 1 0 0" 
+                    Margin="8"
+                    />
+
+
             <!--NG動画-->
             <StackPanel>
 
@@ -180,7 +242,7 @@
                     -->
 
 
-                    <!--
+                    
                     <toolkit:DockPanel Margin="8">
                         <TextBlock Text="動画投稿者IDによる動画の除外を有効にする"
                            toolkit:DockPanel.Dock="Left"
@@ -193,14 +255,45 @@
                                           />
                     </toolkit:DockPanel>
 
-                    <ListView ItemsSource="{Binding NGVideoOwnerUserIds}"
-                                  ItemTemplate="{StaticResource TextWithRemoveButtonTemplate}"
-                                  Margin="0 8"
+                    <toolkit:DockPanel Margin="8">
+                        <TextBlock Text="動画投稿者IDに指定したユーザー一覧"
+                           toolkit:DockPanel.Dock="Top"
+                           VerticalAlignment="Center"
+                           />
+                        <ListView ItemsSource="{Binding NGVideoOwnerUserIds}"
+                                  Margin="16 8"
                                   SelectionMode="None"
                                   >
-                    </ListView>
+
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="Transparent" IsHitTestVisible="True">
+
+                                        <i:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Tapped">
+                                                <core:InvokeCommandAction Command="{Binding SelectedCommand}" />
+                                            </core:EventTriggerBehavior>
+                                        </i:Interaction.Behaviors>
+
+                                        <TextBlock Text="{Binding Source.Description}"
+                                               VerticalAlignment="Center"
+                                               />
+
+                                    </Border>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </toolkit:DockPanel>
+                    
+                    
                         
-                    -->
+                    
 
 
 

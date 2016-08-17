@@ -16,7 +16,7 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class VideoListSettingsPageContentViewModel : SettingsPageContentViewModel
 	{
-		public VideoListSettingsPageContentViewModel(HohoemaApp hohoemaApp, string title, RankingChoiceDialogService rankingChoiceDialog)
+		public VideoListSettingsPageContentViewModel(HohoemaApp hohoemaApp, PageManager pageManager, string title, RankingChoiceDialogService rankingChoiceDialog)
 			: base(title)
 		{
 			_HohoemaApp = hohoemaApp;
@@ -37,6 +37,7 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToList()
 				);
 
+			
 
 			AddFavRankingCategory = new DelegateCommand(async () =>
 			{
@@ -58,6 +59,33 @@ namespace NicoPlayerHohoema.ViewModels
 			});
 
 
+			DislikeCategories = new ObservableCollection<RankingCategorySettingsListItem>(
+				_RankingSettings.LowPriorityCategory
+				.Select(x => new RankingCategorySettingsListItem(x, this))
+				.ToList()
+				);
+
+			AddDislikeRankingCategory = new DelegateCommand(async () =>
+			{
+				var items = _RankingSettings.MiddlePriorityCategory.ToArray();
+				var choiceItem = await _RankingChoiceDialogService.ShowDislikeRankingCategoryChoiceDialog(items);
+
+				if (choiceItem != null)
+				{
+					if (choiceItem.RankingSource == RankingSource.CategoryRanking)
+					{
+						var removeTarget = SelectableCategories.SingleOrDefault(x => x.CategoryInfo == choiceItem);
+						SelectableCategories.Remove(removeTarget);
+					}
+
+					DislikeCategories.Add(new RankingCategorySettingsListItem(choiceItem, this));
+				}
+
+				ApplyAllPriorityCategoriesToRankingSettings();
+			});
+
+
+
 			// 入れ替え説明テキストの表示フラグ
 			FavCategories.ObserveProperty(x => x.Count)
 				.Subscribe(x => IsDisplayReorderText = x >= 2);
@@ -76,9 +104,12 @@ namespace NicoPlayerHohoema.ViewModels
 			// NG Video Owner User Id
 			NGVideoOwnerUserIdEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoOwnerUserIdEnable);
 			NGVideoOwnerUserIds = _NGSettings.NGVideoOwnerUserIds
-				.ToReadOnlyReactiveCollection(x =>
-					RemovableSettingsListItemHelper.UserIdInfoToRemovableListItemVM(x, OnRemoveNGVideoOwnerUserIdFromList)
-					);
+				.ToReadOnlyReactiveCollection(x => 
+				new SelectableItem<UserIdInfo>(x, (y) => 
+					{
+						pageManager.OpenPage(HohoemaPageType.UserInfo, x.UserId);
+					})
+				);
 
 			// NG Keyword on Video Title
 			NGVideoTitleKeywordEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoTitleKeywordEnable);
@@ -123,6 +154,18 @@ namespace NicoPlayerHohoema.ViewModels
 			ApplyAllPriorityCategoriesToRankingSettings();
 		}
 
+		internal void RemoveDislikeRankingCategory(RankingCategorySettingsListItem userListItem)
+		{
+			DislikeCategories.Remove(userListItem);
+
+			if (userListItem.CategoryInfo.RankingSource == RankingSource.CategoryRanking)
+			{
+				SelectableCategories.Add(userListItem);
+			}
+
+			ApplyAllPriorityCategoriesToRankingSettings();
+		}
+
 		private void ApplyAllPriorityCategoriesToRankingSettings()
 		{
 			_RankingSettings.HighPriorityCategory.Clear();
@@ -138,6 +181,11 @@ namespace NicoPlayerHohoema.ViewModels
 				_RankingSettings.MiddlePriorityCategory.Add(midPrioCat.CategoryInfo);
 			}
 
+			_RankingSettings.LowPriorityCategory.Clear();
+			foreach (var lowPrioCat in DislikeCategories)
+			{
+				_RankingSettings.LowPriorityCategory.Add(lowPrioCat.CategoryInfo);
+			}
 		}
 
 		
@@ -163,11 +211,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 		
 		public DelegateCommand AddFavRankingCategory { get; private set; }
+		public DelegateCommand AddDislikeRankingCategory { get; private set; }
 
 		public DelegateCommand CategoryPriorityResetCommand { get; private set; }
 
-		public ObservableCollection<RankingCategorySettingsListItem> FavCategories { get; private set; }
 		public ObservableCollection<RankingCategorySettingsListItem> SelectableCategories { get; private set; }
+		public ObservableCollection<RankingCategorySettingsListItem> FavCategories { get; private set; }
+		public ObservableCollection<RankingCategorySettingsListItem> DislikeCategories { get; private set; }
 
 		private bool _IsDisplayReorderText;
 		public bool IsDisplayReorderText
@@ -182,7 +232,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReadOnlyReactiveCollection<RemovableListItem<string>> NGVideoIds { get; private set; }
 
 		public ReactiveProperty<bool> NGVideoOwnerUserIdEnable { get; private set; }
-		public ReadOnlyReactiveCollection<RemovableListItem<string>> NGVideoOwnerUserIds { get; private set; }
+		public ReadOnlyReactiveCollection<SelectableItem<UserIdInfo>> NGVideoOwnerUserIds { get; private set; }
 
 		public ReactiveProperty<bool> NGVideoTitleKeywordEnable { get; private set; }
 		public ReadOnlyReactiveCollection<NGKeywordViewModel> NGVideoTitleKeywords { get; private set; }
@@ -224,6 +274,19 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+
+		private DelegateCommand _RemoveDislikeCategoryCommand;
+		public DelegateCommand RemoveDislikeCategoryCommand
+		{
+			get
+			{
+				return _RemoveDislikeCategoryCommand
+					?? (_RemoveDislikeCategoryCommand = new DelegateCommand(() =>
+					{
+						_ParentVM.RemoveDislikeRankingCategory(this);
+					}));
+			}
+		}
 
 
 		public ReactiveProperty<string> DisplayLabel { get; private set; }

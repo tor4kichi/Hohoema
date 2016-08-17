@@ -113,6 +113,7 @@
     </Compile>
     <Compile Include="Events\PlayerClosedEvent.cs" />
     <Compile Include="Events\PlayNicoVideoEvent.cs" />
+    <Compile Include="Models\BackgroundUpdater.cs" />
     <Compile Include="Models\CommentCommandPermissionType.cs" />
     <Compile Include="Models\FavFeedList.cs" />
     <Compile Include="Models\FavFeedManager.cs" />
@@ -276,6 +277,9 @@
     </Compile>
     <Compile Include="Views\SearchContent\TagSearchPageContent.xaml.cs">
       <DependentUpon>TagSearchPageContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Service\DislikeRankingCategoryChoiceDialog.xaml.cs">
+      <DependentUpon>DislikeRankingCategoryChoiceDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Service\EditAutoCacheConditionDialogService.cs" />
     <Compile Include="Views\Service\EditMylistGroupDialog.xaml.cs">
@@ -575,6 +579,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SearchContent\TagSearchPageContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Service\DislikeRankingCategoryChoiceDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

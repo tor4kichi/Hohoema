@@ -34,7 +34,7 @@
     </Page.Resources>
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" >
-        <ScrollViewer VerticalScrollMode="Auto" 
+        <ScrollViewer VerticalScrollMode="Disabled" 
                       VerticalScrollBarVisibility="Hidden"
                       HorizontalScrollMode="Enabled" 
                       HorizontalScrollBarVisibility="Auto"
@@ -54,32 +54,12 @@
                         <DataTemplate>
 
                             <toolkit:DockPanel Margin="0 0">
-                                
-                                <ListView SelectionMode="None"
-                                          toolkit:DockPanel.Dock="Top"
-                                          >
-                                    <ListView.ItemContainerStyle>
-                                        <Style TargetType="ListViewItem">
-                                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                            <Setter Property="VerticalContentAlignment" Value="Stretch" />
-                                        </Style>
-                                    </ListView.ItemContainerStyle>
-
-                                    <ListView.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <StackPanel Orientation="Vertical" />
-                                        </ItemsPanelTemplate>
-                                    </ListView.ItemsPanel>
-
-                                    <ContentControl Content="{Binding}"
-                                                ContentTemplate="{StaticResource CategoryListItemTemplate}"
-                                                HorizontalContentAlignment="Stretch"
-                                            />
-                                </ListView>
-
-                                <ListView ItemsSource="{Binding ChildItems}"
+                          
+                                <ListView ItemsSource="{Binding}"
                                           ItemTemplate="{StaticResource CategoryListItemTemplate}"
                                           SelectionMode="None"
+                                          ScrollViewer.VerticalScrollMode="Auto"
+                                          ScrollViewer.VerticalScrollBarVisibility="Hidden"
                                           >
                                     <ListView.ItemContainerStyle>
                                         <Style TargetType="ListViewItem">

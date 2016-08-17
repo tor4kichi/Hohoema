@@ -148,7 +148,7 @@ namespace NicoPlayerHohoema.ViewModels
 				await Task.Delay(100);
 
 				ListViewVerticalOffset.Value = _LastListViewOffset + 0.1;
-				ChangeCanIncmentalLoading(true);				
+				ChangeCanIncmentalLoading(true);
 			}
 		}
 
@@ -157,15 +157,25 @@ namespace NicoPlayerHohoema.ViewModels
 			return Task.CompletedTask;
 		}
 
+		protected override Task OnResumed()
+		{
+			ChangeCanIncmentalLoading(true);
+
+			return base.OnResumed();
+		}
+
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
 			base.OnNavigatingFrom(e, viewModelState, suspending);
 
-			_LastListViewOffset = ListViewVerticalOffset.Value;
-			ChangeCanIncmentalLoading(false);
+			if(!suspending)
+			{
+				_LastListViewOffset = ListViewVerticalOffset.Value;
+				ChangeCanIncmentalLoading(false);
 
-			_IncrementalLoadingItems = IncrementalLoadingItems;
-			IncrementalLoadingItems = null;
+				_IncrementalLoadingItems = IncrementalLoadingItems;
+				IncrementalLoadingItems = null;
+			}
 		}
 
 

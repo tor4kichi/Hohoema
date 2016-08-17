@@ -26,7 +26,10 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 				await Task.Delay(100);
 			}
 
-			await UpdateUnreadFeedItems();
+			if (UnreadFavFeedItems.Count == 0)
+			{
+				await UpdateUnreadFeedItems();
+			}
 
 			base.NavigateTo();
 		}		
@@ -41,9 +44,7 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 
 			UnreadFavFeedItems.Clear();
 
-			await _HohoemaApp.FavFeedManager.UpdateAll();			
-
-			var unreadItems = _HohoemaApp.FavFeedManager.GetAllFeedItems().Take(10);
+			var unreadItems = _HohoemaApp.FavFeedManager.GetAllFeedItems().Take(5);
 
 			foreach (var item in unreadItems)
 			{

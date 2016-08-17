@@ -142,8 +142,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-			_VideoUpdaterSubject = new BehaviorSubject<object>(null)
-				.AddTo(_CompositeDisposable);
 			CurrentVideoQuality = new ReactiveProperty<NicoVideoQuality>(PlayerWindowUIDispatcherScheduler, NicoVideoQuality.Low, ReactivePropertyMode.None)
 				.AddTo(_CompositeDisposable);
 			CanToggleCurrentQualityCacheState = CurrentVideoQuality
@@ -183,52 +181,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 			IsSaveRequestedCurrentQualityCache = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false, ReactivePropertyMode.DistinctUntilChanged)
 				.AddTo(_CompositeDisposable);
-
-			Observable.Merge(
-				_VideoUpdaterSubject
-				)
-				.SubscribeOnUIDispatcher()
-				.Subscribe(async _ => 
-			{
-				if (Video == null || IsDisposed) { IsSaveRequestedCurrentQualityCache.Value = false; return; }
-
-
-				NowQualityChanging.Value = true;
-
-				var x = CurrentVideoQuality.Value;
-
-				if (PreviousVideoPosition == 0.0)
-				{
-					PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
-				}
-
-				var stream = await Video.GetVideoStream(x);
-
-
-
-				if (IsDisposed)
-				{
-					await Video?.StopPlay();
-					return;
-				}
-
-				VideoStream.Value = stream;
-
-				switch (x)
-				{
-					case NicoVideoQuality.Original:
-						IsSaveRequestedCurrentQualityCache.Value = Video.OriginalQuality.IsCacheRequested;
-						break;
-					case NicoVideoQuality.Low:
-						IsSaveRequestedCurrentQualityCache.Value = Video.LowQuality.IsCacheRequested;
-						break;
-					default:
-						IsSaveRequestedCurrentQualityCache.Value = false;
-						break;
-				}
-
-			})
-			.AddTo(_CompositeDisposable);
 
 			IsSaveRequestedCurrentQualityCache
 				.Where(x => !IsDisposed)
@@ -277,7 +229,7 @@ namespace NicoPlayerHohoema.ViewModels
 			TogglePlayQualityCommand
 				.Where(x => !IsDisposed)
 				.SubscribeOnUIDispatcher()
-				.Subscribe(_ => 
+				.Subscribe(async _ => 
 				{
 					PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
 
@@ -291,7 +243,7 @@ namespace NicoPlayerHohoema.ViewModels
 					}
 
 
-					_VideoUpdaterSubject.OnNext(null);
+					await PlayingQualityChangeAction();
 				})
 				.AddTo(_CompositeDisposable);
 
@@ -405,7 +357,11 @@ namespace NicoPlayerHohoema.ViewModels
 					if (VideoStream.Value != null)
 					{
 						await Video.StopPlay();
-						_VideoUpdaterSubject.OnNext(null);
+
+						// TODO: ユーザー手動の再読み込みに変更する
+						await Task.Delay(500);
+
+						await this.PlayingQualityChangeAction();
 
 						Debug.WriteLine("再生中に動画がClosedになったため、強制的に再初期化を実行しました。これは非常措置です。");
 					}
@@ -537,6 +493,48 @@ namespace NicoPlayerHohoema.ViewModels
 		private double PreviousVideoPosition;
 
 		private CompositeDisposable _BufferingMonitorDisposable;
+
+
+		private async Task PlayingQualityChangeAction()
+		{
+			if (Video == null || IsDisposed) { IsSaveRequestedCurrentQualityCache.Value = false; return; }
+
+
+			NowQualityChanging.Value = true;
+
+			var x = CurrentVideoQuality.Value;
+
+			if (PreviousVideoPosition == 0.0)
+			{
+				PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
+			}
+
+			var stream = await Video.GetVideoStream(x);
+
+
+
+			if (IsDisposed)
+			{
+				await Video?.StopPlay();
+				return;
+			}
+
+			VideoStream.Value = stream;
+
+			switch (x)
+			{
+				case NicoVideoQuality.Original:
+					IsSaveRequestedCurrentQualityCache.Value = Video.OriginalQuality.IsCacheRequested;
+					break;
+				case NicoVideoQuality.Low:
+					IsSaveRequestedCurrentQualityCache.Value = Video.LowQuality.IsCacheRequested;
+					break;
+				default:
+					IsSaveRequestedCurrentQualityCache.Value = false;
+					break;
+			}
+
+		}
 
 		private void InitializeBufferingMonitor()
 		{
@@ -1034,7 +1032,6 @@ namespace NicoPlayerHohoema.ViewModels
 			var playerSettings = HohoemaApp.UserSettings.PlayerSettings;
 			IsVisibleComment.Value = playerSettings.DefaultCommentDisplay;
 
-			_VideoUpdaterSubject.OnNext(null);
 
 
 			cancelToken.ThrowIfCancellationRequested();
@@ -1050,14 +1047,14 @@ namespace NicoPlayerHohoema.ViewModels
 
 			Debug.WriteLine("VideoPlayer OnNavigatedToAsync done.");
 
-
+			await PlayingQualityChangeAction();
 		}
 
-		protected override void OnResumed()
+		protected override async Task OnResumed()
 		{
-			_VideoUpdaterSubject.OnNext(null);
-
 			InitializeBufferingMonitor();
+
+			await PlayingQualityChangeAction();
 		}
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
@@ -1070,8 +1067,12 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				VideoStream.Value = null;
 
-				viewModelState.Add(nameof(VideoId), VideoId);
-				viewModelState.Add(nameof(CurrentVideoPosition), CurrentVideoPosition.Value.TotalSeconds);
+				// 再生中動画のキャッシュがサスペンドから復帰後にも利用できるように
+				// 削除を抑制するように要請する
+				HohoemaApp.MediaManager.OncePrevnetDeleteCacheOnPlayingVideo(Video.RawVideoId);
+
+				viewModelState[nameof(VideoId)] = VideoId;
+				viewModelState[nameof(CurrentVideoPosition)] = CurrentVideoPosition.Value.TotalSeconds;
 			}
 			else 
 			{
@@ -1368,7 +1369,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<IRandomAccessStream> VideoStream { get; private set; }
 
-		private ISubject<object> _VideoUpdaterSubject;
 		public ReactiveProperty<NicoVideoQuality> CurrentVideoQuality { get; private set; }
 		public ReactiveProperty<bool> CanToggleCurrentQualityCacheState { get; private set; }
 		public ReactiveProperty<bool> IsSaveRequestedCurrentQualityCache { get; private set; }
@@ -1460,9 +1460,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class TagViewModel
 	{
-		public TagViewModel(Tag tag)
+		public TagViewModel(Tag tag, PageManager pageManager)
 		{
 			_Tag = tag;
+			_PageManager = pageManager;
 
 			TagText = _Tag.Value;
 			IsCategoryTag = _Tag.Category;
@@ -1482,7 +1483,14 @@ namespace NicoPlayerHohoema.ViewModels
 				return _OpenSearchPageWithTagCommand
 					?? (_OpenSearchPageWithTagCommand = new DelegateCommand(() => 
 					{
-						// TODO: 
+						_PageManager.OpenPage(HohoemaPageType.Search, new Models.SearchOption()
+						{
+							SearchTarget = SearchTarget.Tag,
+							Keyword = _Tag.Value,
+							Sort = Sort.FirstRetrieve,
+							Order = Order.Descending
+						}
+						.ToParameterString());
 					}));
 			}
 		}
@@ -1502,6 +1510,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 		Tag _Tag;
+		PageManager _PageManager;
 	}
 
 

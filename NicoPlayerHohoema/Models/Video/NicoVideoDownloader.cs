@@ -449,7 +449,22 @@ namespace NicoPlayerHohoema.Models
 		{
 			Array.Clear(RawBuffer, 0, RawBuffer.Length);
 
-			var resultBuffer = await inputStream.ReadAsync(DownloadBuffer, readSize, InputStreamOptions.None).AsTask();
+			IBuffer resultBuffer = null;
+			for (int i = 0; i < 3; i++)
+			{
+				using (var cancelTokenSource = new CancellationTokenSource(10000))
+				{
+					resultBuffer = await inputStream.ReadAsync(DownloadBuffer, readSize, InputStreamOptions.None).AsTask(cancelTokenSource.Token);
+				}
+
+				if (resultBuffer != null) { break; }
+			}
+
+			if (resultBuffer == null)
+			{
+				throw new Exception();
+			}
+
 			await WriteToVideoFile(head, resultBuffer);
 
 			RecordProgress((uint)head, resultBuffer.Length);
