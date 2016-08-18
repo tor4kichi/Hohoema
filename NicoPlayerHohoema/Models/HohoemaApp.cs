@@ -242,20 +242,74 @@ namespace NicoPlayerHohoema.Models
 			return await ApplicationData.Current.LocalFolder.CreateFolderAsync(LoginUserId.ToString(), CreationCollisionOption.OpenIfExists);
 		}
 
+		
 
 		StorageFolder _DownloadFolder;
 
-		private async Task<StorageFolder> GetCurrentUserDataFolder()
+		public async Task<bool> IsAvailableUserDataFolder()
 		{
-			if (_DownloadFolder == null)
+			try
 			{
-				var loginUserId = LoginUserId.ToString();
-				// 既にフォルダを指定済みの場合
+				var folder = await GetCurrentUserDataFolder();
+
+				return true;
+			}
+			catch
+			{
+				return false;
+			}
+		}
+
+
+		
+		private async Task CacheFolderMigration(StorageFolder folder)
+		{
+			if (_DownloadFolder?.Path != folder.Path)
+			{
+				// フォルダーの移行作業を開始
+
+				// 現在あるダウンロードタスクは必ず終了させる必要があります
+				await MediaManager.Context.Suspending();
+
+				{
+					var files = await _DownloadFolder.GetFilesAsync();
+
+					foreach (var file in files)
+					{
+						try
+						{
+							await file.MoveAsync(folder);
+						}
+						catch { }
+					}
+				}
+
+
+
+				#region v0.3.3 からの移行処理
+
+
+				// Note: v0.3.3以前にLocalFolderに作成されていたフォルダが存在する場合、そのフォルダの内容を
+				// _DownlaodFolderに移動させます
 				try
 				{
-					if (Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.ContainsItem(loginUserId))
+					var userFolder = await GetCurrentUserFolder();
+					var oldSaveFolder = (await userFolder.TryGetItemAsync("video")) as StorageFolder;
+					if (oldSaveFolder != null)
 					{
-						_DownloadFolder = await Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.GetFolderAsync(loginUserId);
+						// ファイルを全部移動させて
+						var files = await oldSaveFolder.GetFilesAsync();
+						foreach (var file in files)
+						{
+							try
+							{
+								await file.MoveAsync(_DownloadFolder);
+							}
+							catch { }
+						}
+
+						// 古いフォルダを削除
+						await oldSaveFolder.DeleteAsync(StorageDeleteOption.PermanentDelete);
 					}
 				}
 				catch (Exception ex)
@@ -263,72 +317,106 @@ namespace NicoPlayerHohoema.Models
 					Debug.WriteLine(ex.ToString());
 				}
 
-				// フォルダが指定されていない、または指定されたフォルダが存在しない場合
-				if (_DownloadFolder == null)
+
+				try
 				{
-					_DownloadFolder = await DownloadsFolder.CreateFolderAsync(loginUserId, CreationCollisionOption.FailIfExists);
-					Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.AddOrReplace(loginUserId, _DownloadFolder);
-
-					#region v0.3.3 からの移行処理
-
-
-					// Note: v0.3.3以前にLocalFolderに作成されていたフォルダが存在する場合、そのフォルダの内容を
-					// _DownlaodFolderに移動させます
-					try
+					var userFolder = await GetCurrentUserFolder();
+					var oldSaveFolder = (await userFolder.TryGetItemAsync("fav")) as StorageFolder;
+					if (oldSaveFolder != null)
 					{
-						var userFolder = await GetCurrentUserFolder();
-						var oldSaveFolder = (await userFolder.TryGetItemAsync("video")) as StorageFolder;
-						if (oldSaveFolder != null)
+						// ファイルを全部移動させて
+						var files = await oldSaveFolder.GetFilesAsync();
+						foreach (var file in files)
 						{
-							// ファイルを全部移動させて
-							var files = await oldSaveFolder.GetFilesAsync();
-							foreach (var file in files)
+							try
 							{
-								try
-								{
-									await file.MoveAsync(_DownloadFolder);
-								}
-								catch { }
+								await file.MoveAsync(_DownloadFolder);
 							}
-
-							// 古いフォルダを削除
-							await oldSaveFolder.DeleteAsync(StorageDeleteOption.PermanentDelete);
+							catch { }
 						}
-					}
-					catch (Exception ex)
-					{
-						Debug.WriteLine(ex.ToString());
-					}
 
-
-					try
-					{
-						var userFolder = await GetCurrentUserFolder();
-						var oldSaveFolder = (await userFolder.TryGetItemAsync("fav")) as StorageFolder;
-						if (oldSaveFolder != null)
-						{
-							// ファイルを全部移動させて
-							var files = await oldSaveFolder.GetFilesAsync();
-							foreach (var file in files)
-							{
-								try
-								{
-									await file.MoveAsync(_DownloadFolder);
-								}
-								catch { }
-							}
-
-							// 古いフォルダを削除
-							await oldSaveFolder.DeleteAsync(StorageDeleteOption.PermanentDelete);
-						}
+						// 古いフォルダを削除
+						await oldSaveFolder.DeleteAsync(StorageDeleteOption.PermanentDelete);
 					}
-					catch (Exception ex)
-					{
-						Debug.WriteLine(ex.ToString());
-					}
-
-					#endregion
 				}
+				catch (Exception ex)
+				{
+					Debug.WriteLine(ex.ToString());
+				}
+
+				#endregion
+
+
+				// ダウンロードタスクを再開
+				await MediaManager.Context.Resume();
+			}
+
+			_DownloadFolder = folder;
+		}
+
+		public async Task<StorageFolder> ResetDefaultUserDataFolder()
+		{
+			var loginUserId = LoginUserId.ToString();
+			var folder = await DownloadsFolder.CreateFolderAsync(loginUserId, CreationCollisionOption.FailIfExists);
+			Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.AddOrReplace(loginUserId, _DownloadFolder);
+
+			await CacheFolderMigration(folder);
+
+			await UserSettings.CacheSettings.ResetCacheFolder();
+
+			return _DownloadFolder;
+		}
+
+
+		public async Task<StorageFolder> ChangeUserDataFolder()
+		{
+			var folderPicker = new Windows.Storage.Pickers.FolderPicker();
+			folderPicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Downloads;
+			folderPicker.FileTypeFilter.Add("*");
+
+			var folder = await folderPicker.PickSingleFolderAsync();
+			if (folder != null && folder.Path != _DownloadFolder?.Path)
+			{
+				var loginUserId = LoginUserId.ToString();
+				Windows.Storage.AccessCache.StorageApplicationPermissions.
+				FutureAccessList.AddOrReplace(loginUserId, folder);
+
+				await CacheFolderMigration(folder);
+				await UserSettings.CacheSettings.UserSelectedCacheFolder();
+			}
+
+			return _DownloadFolder;
+		}
+
+
+		public async Task<StorageFolder> GetCurrentUserDataFolder()
+		{
+			if (_DownloadFolder == null)
+			{
+				var loginUserId = LoginUserId.ToString();
+				try
+				{
+					if (Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.ContainsItem(loginUserId))
+					{
+						// 既にフォルダを指定済みの場合
+						_DownloadFolder = await Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.GetFolderAsync(loginUserId);
+					}
+					else
+					{
+						// フォルダが無い場合、デフォルトフォルダに作成
+						await ResetDefaultUserDataFolder();
+					}
+				}
+				catch (Exception ex)
+				{
+					Debug.WriteLine(ex.ToString());
+					throw;
+				}
+			}
+
+			if (_DownloadFolder == null)
+			{
+				throw new Exception("invalid cache folder. select cache folder once more.");
 			}
 
 			return _DownloadFolder;
