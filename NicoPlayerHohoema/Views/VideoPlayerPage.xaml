@@ -152,6 +152,9 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
+
+
+            
         </VisualStateManager.VisualStateGroups>
 
 
@@ -228,7 +231,7 @@
                                 />
 
 
-
+                   
 
 
 
@@ -299,7 +302,7 @@
                         </Border>
                     </Grid>
 
-
+                    
 
                     <toolkit:DockPanel HorizontalAlignment="Stretch"
                            VerticalAlignment="Stretch"
@@ -661,7 +664,7 @@
                             <!-- Comment関連 -->
 
 
-                            <toolkit:DockPanel Background="#AA777777">
+                            <toolkit:DockPanel Background="#AA777777" x:Name="CommentLayoutRoot">
 
                                 <Grid toolkit:DockPanel.Dock="Bottom" 
                                       x:Name="CommentButtons_Short"
@@ -789,6 +792,48 @@
                           >
 
                     </Grid>
+
+
+
+                    <!-- サポートされていないプロトコル・動画形式 -->
+                    <Border HorizontalAlignment="Left"
+                          VerticalAlignment="Top"
+                          Margin="24 88"
+                          Visibility="{Binding IsNotSupportVideoType, Converter={StaticResource BooleanToVisibility}}"
+                          Background="WhiteSmoke"
+                                Padding="16"
+                          >
+
+                        <StackPanel Orientation="Horizontal">
+
+                            <SymbolIcon Symbol="Important"
+                                        Foreground="Black"                                         
+                                        Margin="8 8 16 8"
+                                        />
+
+                            <StackPanel>
+                                <TextBlock Text="この動画は再生できません"
+                                   VerticalAlignment="Center"    
+                                           FontSize="18"
+                                           Margin="0 0 0 8"
+                                        Foreground="Black"                                         
+                                   />
+
+                                <TextBlock VerticalAlignment="Center"
+                                        Foreground="Black"                                         
+                                   >
+                                    <Run Text="{Binding CannotPlayReason}" />
+                                </TextBlock>
+
+                                <HyperlinkButton Content="ブラウザで動画を見る"
+                                                 Command="{Binding OpenVideoPageWithBrowser}"
+                                                 >
+                                </HyperlinkButton>
+
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
                 </Grid>
             </SplitView.Content>
             <SplitView.Pane>

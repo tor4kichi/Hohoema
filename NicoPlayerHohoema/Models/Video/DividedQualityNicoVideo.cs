@@ -426,6 +426,10 @@ namespace NicoPlayerHohoema.Models
 				// キャッシュ済みじゃないか
 				if (CacheState == NicoVideoCacheState.Cached) { return false; }
 
+				if (NicoVideo.ThumbnailResponseCache.MovieType != Mntone.Nico2.Videos.Thumbnail.MovieType.Mp4)
+				{
+					return false;
+				}
 
 				if (!NicoVideo.ThumbnailResponseCache.HasCache)
 				{
@@ -504,6 +508,11 @@ namespace NicoPlayerHohoema.Models
 
 				// キャッシュ済みじゃないか
 				if (CacheState == NicoVideoCacheState.Cached) { return false; }
+
+				if (NicoVideo.ThumbnailResponseCache.MovieType != Mntone.Nico2.Videos.Thumbnail.MovieType.Mp4)
+				{
+					return false;
+				}
 
 				// 
 				if (NicoVideo.ThumbnailResponseCache.IsOriginalQualityOnly)
