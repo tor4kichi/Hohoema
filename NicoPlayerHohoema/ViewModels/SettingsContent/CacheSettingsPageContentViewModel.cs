@@ -70,13 +70,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 			CacheSaveFolderPath = new ReactiveProperty<string>("");
 
-			ChangeCacheSaveFolderCommand = new DelegateCommand(async () => 
-			{
-				var folder = await _HohoemaApp.ChangeUserDataFolder();
-
-				await ResetCacheSaveFolderNameDisplay();
-			});
-
 			OpenCurrentCacheFolderCommand = new DelegateCommand(async () =>
 			{
 				var folder = await _HohoemaApp.GetCurrentUserDataFolder();
@@ -97,10 +90,14 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			var folder = await _HohoemaApp.GetCurrentUserDataFolder();
 
-			var pathItems = folder.Path.Split(Path.PathSeparator);
-			var lastTwoItem = pathItems.Skip(Math.Max(0, pathItems.Length - 2)).ToList();
-			lastTwoItem.Insert(0, "...");
-			CacheSaveFolderPath.Value = String.Join("/", lastTwoItem);
+			if (folder != null)
+			{
+				CacheSaveFolderPath.Value = $".../Downloads/Hohoema/{folder.DisplayName}/";
+			}
+			else
+			{
+				throw new Exception("キャッシュ保存先フォルダがありません");
+			}
 		}
 
 		private async Task EditAutoCacheCondition(AutoCacheConditionViewModel conditionVM)
@@ -154,9 +151,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReadOnlyReactiveCollection<AutoCacheConditionViewModel> AutoCacheConditions { get; private set; }
 
 		public ReactiveProperty<string> CacheSaveFolderPath { get; private set; }
-		public DelegateCommand ChangeCacheSaveFolderCommand { get; private set; }
 		public DelegateCommand OpenCurrentCacheFolderCommand { get; private set; }
-		public DelegateCommand ResetDefaultCacheSaveFolderCommand { get; private set; }
 
 		EditAutoCacheConditionDialogService _EditDialogService;
 		CacheSettings _CacheSettings;

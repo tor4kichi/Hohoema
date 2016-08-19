@@ -485,20 +485,23 @@ namespace NicoPlayerHohoema.ViewModels
 					break;
 			}
 
-			foreach (var item in response.VideoInfoItems)
+			if (response.Count > 0)
 			{
-				var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(item.Video.Id);
-				var videoInfoVM = new VideoInfoControlViewModel(
-							nicoVideo
-							, _PageManager
-						);
+				foreach (var item in response.VideoInfoItems)
+				{
+					var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(item.Video.Id);
+					var videoInfoVM = new VideoInfoControlViewModel(
+								nicoVideo
+								, _PageManager
+							);
 
-				items.Add(videoInfoVM);
-			}
+					items.Add(videoInfoVM);
+				}
 
-			foreach (var item in items)
-			{
-				await item.LoadThumbnail().ConfigureAwait(false);
+				foreach (var item in items)
+				{
+					await item.LoadThumbnail().ConfigureAwait(false);
+				}
 			}
 
 			return items;

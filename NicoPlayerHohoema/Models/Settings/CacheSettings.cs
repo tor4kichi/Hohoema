@@ -14,32 +14,10 @@ namespace NicoPlayerHohoema.Models
 	{
 		public CacheSettings()
 		{
-			CacheFolderName = "HohoemaDL";
 			IsUserAcceptedCache = false;
 			IsAutoCacheOnPlayEnable = false;
 			CacheOnPlayTagConditions = new ObservableCollection<TagCondition>();
-			CacheFolderIsDefault = true;
 		}
-
-		private string _CacheFolderName;
-
-		[DataMember]
-		public string CacheFolderName
-		{
-			get { return _CacheFolderName; }
-			set { SetProperty(ref _CacheFolderName, value); }
-		}
-
-
-		private string _CacheFolderPath;
-
-		[DataMember]
-		public string CacheFolderPath
-		{
-			get { return _CacheFolderPath; }
-			set { SetProperty(ref _CacheFolderPath, value); }
-		}
-
 
 		private bool _IsUserAcceptRegalNotice;
 
@@ -65,28 +43,6 @@ namespace NicoPlayerHohoema.Models
 		public ObservableCollection<TagCondition> CacheOnPlayTagConditions { get; private set; }
 
 
-
-
-		private bool _CacheFolderIsDefault;
-
-		[DataMember]
-		public bool CacheFolderIsDefault
-		{
-			get { return _CacheFolderIsDefault; }
-			private set { SetProperty(ref _CacheFolderIsDefault, value); }
-		}
-
-		public Task ResetCacheFolder()
-		{
-			CacheFolderIsDefault = true;
-			return Save();
-		}
-
-		public Task UserSelectedCacheFolder()
-		{
-			CacheFolderIsDefault = false;
-			return Save();
-		}
 	}
 
 	[DataContract]

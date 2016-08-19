@@ -216,18 +216,18 @@ namespace NicoPlayerHohoema.ViewModels
 
 					if (CurrentVideoQuality.Value == NicoVideoQuality.Original)
 					{
-						return Video.LowQuality.CanPlay;
+						return Video.LowQuality.CanPlay && !IsNotSupportVideoType;
 					}
 					else
 					{
-						return Video.OriginalQuality.CanPlay;
+						return Video.OriginalQuality.CanPlay && !IsNotSupportVideoType;
 					}
 				})
 				.ToReactiveCommand()
 				.AddTo(_CompositeDisposable);
 
 			TogglePlayQualityCommand
-				.Where(x => !IsDisposed)
+				.Where(x => !IsDisposed && !IsNotSupportVideoType)
 				.SubscribeOnUIDispatcher()
 				.Subscribe(async _ => 
 				{
@@ -261,7 +261,7 @@ namespace NicoPlayerHohoema.ViewModels
 				.Where(x => !IsDisposed)
 				.Subscribe(async x =>
 				{
-					if (x != null)
+					if (x != null && !IsNotSupportVideoType)
 					{
 						var comment = await GetComment();
 						if (IsDisposed) { return; }
@@ -405,6 +405,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			DownloadCompleted = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
 			ProgressPercent = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0.0);
+
 		}
 
 
@@ -942,6 +943,28 @@ namespace NicoPlayerHohoema.ViewModels
 					return;
 				}
 
+				Title.Value = videoInfo.Title;
+
+
+				// ビデオタイプとプロトコルタイプをチェックする
+				if (videoInfo.WatchApiResponseCache.MediaProtocolType != MediaProtocolType.RTSPoverHTTP)
+				{
+					// サポートしていないプロトコルです
+					IsNotSupportVideoType = true;
+					CannotPlayReason = videoInfo.WatchApiResponseCache.MediaProtocolType.ToString() + " はHohoemaでサポートされないデータ通信形式です";
+				}
+				else if (videoInfo.ThumbnailResponseCache.MovieType != MovieType.Mp4)
+				{
+					// サポートしていない動画タイプです
+					IsNotSupportVideoType = true;
+					CannotPlayReason = videoInfo.ThumbnailResponseCache.MovieType.ToString() + " はHohoemaでサポートされない動画形式です";
+				}
+				else
+				{
+					IsNotSupportVideoType = false;
+					CannotPlayReason = "";
+				}
+
 				Video = videoInfo;
 			}
 			catch (Exception exception)
@@ -954,57 +977,95 @@ namespace NicoPlayerHohoema.ViewModels
 			cancelToken.ThrowIfCancellationRequested();
 
 
-			// TODO: ビデオタイプとプロトコルタイプをチェックする
+			
 
-
-			// ビデオクオリティをトリガーにしてビデオ関連の情報を更新させる
-			// CurrentVideoQualityは代入時に常にNotifyが発行される設定になっている
-
-			NicoVideoQuality realQuality = NicoVideoQuality.Low;
-			if ((quality == null || quality == NicoVideoQuality.Original)
-				&& Video.OriginalQuality.IsCached)
+			if (IsNotSupportVideoType)
 			{
-				realQuality = NicoVideoQuality.Original;
+				// コメント入力不可
+				NowSubmittingComment.Value = true;
 			}
-			else if ((quality == null || quality == NicoVideoQuality.Low)
-				&& Video.LowQuality.IsCached)
+			else
 			{
-				realQuality = NicoVideoQuality.Low;
-			}
-			// 低画質動画が存在しない場合はオリジナル画質を選択
-			else if (Video.IsOriginalQualityOnly)
-			{
-				realQuality = NicoVideoQuality.Original;
-			}
-			// エコノミー時間帯でオリジナル画質が未保存の場合
-			else if (!HohoemaApp.IsPremiumUser 
-				&& Video.NowLowQualityOnly 
-				&& !Video.OriginalQuality.IsCached)
-			{
-				realQuality = NicoVideoQuality.Low;
-			}
-			else if (!quality.HasValue)
-			{
-				// 画質指定がない場合、ユーザー設定から低画質がリクエストされてないかチェック
-				var defaultLowQuality = HohoemaApp.UserSettings.PlayerSettings.IsLowQualityDeafult;
-				realQuality = defaultLowQuality ? NicoVideoQuality.Low : NicoVideoQuality.Original;
+				// ビデオクオリティをトリガーにしてビデオ関連の情報を更新させる
+				// CurrentVideoQualityは代入時に常にNotifyが発行される設定になっている
+
+				NicoVideoQuality realQuality = NicoVideoQuality.Low;
+				if ((quality == null || quality == NicoVideoQuality.Original)
+					&& Video.OriginalQuality.IsCached)
+				{
+					realQuality = NicoVideoQuality.Original;
+				}
+				else if ((quality == null || quality == NicoVideoQuality.Low)
+					&& Video.LowQuality.IsCached)
+				{
+					realQuality = NicoVideoQuality.Low;
+				}
+				// 低画質動画が存在しない場合はオリジナル画質を選択
+				else if (Video.IsOriginalQualityOnly)
+				{
+					realQuality = NicoVideoQuality.Original;
+				}
+				// エコノミー時間帯でオリジナル画質が未保存の場合
+				else if (!HohoemaApp.IsPremiumUser
+					&& Video.NowLowQualityOnly
+					&& !Video.OriginalQuality.IsCached)
+				{
+					realQuality = NicoVideoQuality.Low;
+				}
+				else if (!quality.HasValue)
+				{
+					// 画質指定がない場合、ユーザー設定から低画質がリクエストされてないかチェック
+					var defaultLowQuality = HohoemaApp.UserSettings.PlayerSettings.IsLowQualityDeafult;
+					realQuality = defaultLowQuality ? NicoVideoQuality.Low : NicoVideoQuality.Original;
+				}
+
+				// CurrentVideoQualityは同一値の代入でもNotifyがトリガーされるようになっている
+				CurrentVideoQuality.Value = realQuality;
+
+				cancelToken.ThrowIfCancellationRequested();
+
+
+				if (viewModelState.ContainsKey(nameof(CurrentVideoPosition)))
+				{
+					CurrentVideoPosition.Value = TimeSpan.FromSeconds((double)viewModelState[nameof(CurrentVideoPosition)]);
+				}
+
+				
+
+				CommandEditerVM.IsPremiumUser = base.HohoemaApp.IsPremiumUser;
+
+				// TODO: チャンネル動画やコミュニティ動画の検知			
+				CommandEditerVM.ChangeEnableAnonymity(true);
+
+				UpdateCommandString();
+
+
+				cancelToken.ThrowIfCancellationRequested();
+
+
+				// PlayerSettings
+				var playerSettings = HohoemaApp.UserSettings.PlayerSettings;
+				IsVisibleComment.Value = playerSettings.DefaultCommentDisplay;
+
+
+
+				cancelToken.ThrowIfCancellationRequested();
+
+				// FavFeedList
+				await HohoemaApp.FavFeedManager.MarkAsRead(Video.VideoId);
+				await HohoemaApp.FavFeedManager.MarkAsRead(Video.RawVideoId);
+
+				cancelToken.ThrowIfCancellationRequested();
+
+				// バッファリング状態のモニターが使うタイマーだけはページ稼働中のみ動くようにする
+				InitializeBufferingMonitor();
+
+				// 再生ストリームの準備を開始する
+				await PlayingQualityChangeAction();
 			}
 
-			// CurrentVideoQualityは同一値の代入でもNotifyがトリガーされるようになっている
-			CurrentVideoQuality.Value = realQuality;
-
-			cancelToken.ThrowIfCancellationRequested();
-
-
-			if (viewModelState.ContainsKey(nameof(CurrentVideoPosition)))
-			{
-				CurrentVideoPosition.Value = TimeSpan.FromSeconds((double)viewModelState[nameof(CurrentVideoPosition)]);
-			}
-
-			Title.Value = Video.Title;
 			_SidePaneContentCache.Clear();
 
-			// 
 			var watchApiRes = await Video.WatchApiResponseCache.GetItem();
 			_VideoDescriptionHtmlUri = await VideoDescriptionHelper.PartHtmlOutputToCompletlyHtml(VideoId, watchApiRes.videoDetail.description);
 
@@ -1017,37 +1078,8 @@ namespace NicoPlayerHohoema.ViewModels
 				SelectedSidePaneType.Value = MediaInfoDisplayType.Summary;
 			}
 
-			CommandEditerVM.IsPremiumUser = base.HohoemaApp.IsPremiumUser;
-
-			// TODO: チャンネル動画やコミュニティ動画の検知			
-			CommandEditerVM.ChangeEnableAnonymity(true);
-
-			UpdateCommandString();
-
-
-			cancelToken.ThrowIfCancellationRequested();
-
-
-			// PlayerSettings
-			var playerSettings = HohoemaApp.UserSettings.PlayerSettings;
-			IsVisibleComment.Value = playerSettings.DefaultCommentDisplay;
-
-
-
-			cancelToken.ThrowIfCancellationRequested();
-
-			// FavFeedList
-			await HohoemaApp.FavFeedManager.MarkAsRead(Video.VideoId);
-			await HohoemaApp.FavFeedManager.MarkAsRead(Video.RawVideoId);
-
-			cancelToken.ThrowIfCancellationRequested();
-
-			// バッファリング状態のモニターが使うタイマーだけはページ稼働中のみ動くようにする
-			InitializeBufferingMonitor();
-
 			Debug.WriteLine("VideoPlayer OnNavigatedToAsync done.");
 
-			await PlayingQualityChangeAction();
 		}
 
 		protected override async Task OnResumed()
@@ -1304,14 +1336,29 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveCommand TogglePlayQualityCommand { get; private set; }
 
 
+		private DelegateCommand _OpenVideoPageWithBrowser;
+		public DelegateCommand OpenVideoPageWithBrowser
+		{
+			get
+			{
+				return _OpenVideoPageWithBrowser
+					?? (_OpenVideoPageWithBrowser = new DelegateCommand(async () =>
+					{
+						var watchPageUri = Mntone.Nico2.NiconicoUrls.VideoWatchPageUrl + Video.RawVideoId;
+						await Windows.System.Launcher.LaunchUriAsync(new Uri(watchPageUri));
+					}
+					));
+			}
+		}
+
 		#endregion
 
 
-		
+
 
 		#region player settings method
-		
-		
+
+
 		void SetKeepDisplayIfEnable()
 		{
 			ExitKeepDisplay();
@@ -1425,6 +1472,23 @@ namespace NicoPlayerHohoema.ViewModels
 		public List<MediaInfoDisplayType> Types { get; private set; }
 
 		private Uri _VideoDescriptionHtmlUri;
+
+		// 再生できない場合の補助
+
+		private bool _IsCannotPlay;
+		public bool IsNotSupportVideoType
+		{
+			get { return _IsCannotPlay; }
+			set { SetProperty(ref _IsCannotPlay, value); }
+		}
+
+		private string _CannotPlayReason;
+		public string CannotPlayReason
+		{
+			get { return _CannotPlayReason; }
+			set { SetProperty(ref _CannotPlayReason, value); }
+		}
+
 
 		ToastNotificationService _ToastService;
 		// TODO: コメントのNGユーザー登録
