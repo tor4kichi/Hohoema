@@ -35,6 +35,29 @@
                        />
 
 
+
+                        <toolkit:DockPanel Margin="8">
+
+
+                            <HyperlinkButton Command="{Binding OpenCurrentCacheFolderCommand}"
+                               toolkit:DockPanel.Dock="Bottom"
+                                             HorizontalAlignment="Right"
+                                             Margin="0 8 0 0"
+                                             >
+                                <TextBlock Text="{Binding CacheSaveFolderPath.Value}"
+                                           TextWrapping="Wrap"
+                                           />
+                            </HyperlinkButton>
+
+                            <TextBlock Text="キャッシュ保存先"
+                               VerticalAlignment="Center"
+                                       HorizontalAlignment="Left"
+                               />
+
+                           
+                        </toolkit:DockPanel>
+
+
                         <!--
                     <StackPanel Margin="16 0 0 0">
 

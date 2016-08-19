@@ -256,9 +256,10 @@
                     </toolkit:DockPanel>
 
                     <toolkit:DockPanel Margin="8">
-                        <TextBlock Text="動画投稿者IDに指定したユーザー一覧"
+                        <TextBlock Text="NG指定した動画投稿者の一覧"
                            toolkit:DockPanel.Dock="Top"
                            VerticalAlignment="Center"
+                                   Foreground="DimGray"
                            />
                         <ListView ItemsSource="{Binding NGVideoOwnerUserIds}"
                                   Margin="16 8"

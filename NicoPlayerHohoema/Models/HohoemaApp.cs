@@ -1,5 +1,6 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Videos.Thumbnail;
+using NicoPlayerHohoema.Util;
 using Prism.Events;
 using Prism.Mvvm;
 using System;
@@ -242,92 +243,181 @@ namespace NicoPlayerHohoema.Models
 			return await ApplicationData.Current.LocalFolder.CreateFolderAsync(LoginUserId.ToString(), CreationCollisionOption.OpenIfExists);
 		}
 
+		
 
 		StorageFolder _DownloadFolder;
 
-		private async Task<StorageFolder> GetCurrentUserDataFolder()
+		public async Task<bool> IsAvailableUserDataFolder()
+		{
+			var folder = await GetCurrentUserDataFolder();
+
+			return folder != null;
+		}
+
+
+		
+		private async Task CacheFolderMigration(StorageFolder newFolder)
+		{
+			if (_DownloadFolder?.Path != newFolder.Path)
+			{
+				// フォルダーの移行作業を開始
+
+				// 現在あるダウンロードタスクは必ず終了させる必要があります
+				await MediaManager?.Context?.Suspending();
+
+				if (_DownloadFolder != null)
+				{
+					var oldSaveFolder = _DownloadFolder;
+					var oldVideoSaveFolder = (await oldSaveFolder.TryGetItemAsync("video")) as StorageFolder;
+					if (oldVideoSaveFolder != null)
+					{
+						var newVideoSaveFolder = await newFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
+						await MoveFiles(oldVideoSaveFolder, newVideoSaveFolder);
+					}
+
+					var oldFavSaveFolder = (await oldSaveFolder.TryGetItemAsync("fav")) as StorageFolder;
+					if (oldFavSaveFolder != null)
+					{
+						var newFavSaveFolder = await newFolder.CreateFolderAsync("fav", CreationCollisionOption.OpenIfExists);
+						await MoveFiles(oldFavSaveFolder, newFavSaveFolder);
+					}
+				}
+
+
+
+				#region v0.3.3 からの移行処理
+
+
+				// Note: v0.3.3以前にLocalFolderに作成されていたフォルダが存在する場合、そのフォルダの内容を
+				// _DownlaodFolderに移動させます
+
+				{
+					var oldVersionDataFolder = await GetCurrentUserFolder();
+					var oldVideoSaveFolder = (await oldVersionDataFolder.TryGetItemAsync("video")) as StorageFolder;
+					if (oldVideoSaveFolder != null)
+					{
+						var newVideoSaveFolder = await newFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
+						await MoveFiles(oldVideoSaveFolder, newVideoSaveFolder);
+					}
+
+					var oldFavSaveFolder = (await oldVersionDataFolder.TryGetItemAsync("fav")) as StorageFolder;
+					if (oldFavSaveFolder != null)
+					{
+						var newFavSaveFolder = await newFolder.CreateFolderAsync("fav", CreationCollisionOption.OpenIfExists);
+						await MoveFiles(oldFavSaveFolder, newFavSaveFolder);
+					}
+				}
+
+				#endregion
+
+
+				// ダウンロードタスクを再開
+				await MediaManager?.Context?.Resume();
+			}
+
+			_DownloadFolder = newFolder;
+		}
+
+
+		private async Task MoveFiles(StorageFolder source, StorageFolder dest)
+		{
+			try
+			{
+				// ファイルを全部移動させて
+				var files = await source.GetFilesAsync();
+				foreach (var file in files)
+				{
+					try
+					{
+						await file.MoveAsync(dest);
+					}
+					catch { }
+				}
+
+				// 古いフォルダを削除
+				var remainSomething = await source.GetItemsAsync();
+				if (remainSomething.Count == 0)
+				{
+					await source.DeleteAsync(StorageDeleteOption.PermanentDelete);
+				}
+			}
+			catch (Exception ex)
+			{
+				Debug.WriteLine(ex.ToString());
+			}
+		}
+
+		public async Task<StorageFolder> ResetDefaultUserDataFolder()
+		{
+			var folderAccessToken = LoginUserId.ToString();
+
+			// ユーザー名とランダムな英数字文字列から新しいフォルダアクセストークンを作成
+			var folderName = LoginUserName.ToSafeDirectoryPath() + "_" + Path.GetFileNameWithoutExtension(Path.GetRandomFileName());
+			var folder = await DownloadsFolder.CreateFolderAsync(folderName, CreationCollisionOption.FailIfExists);
+			Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.AddOrReplace(folderAccessToken, folder);
+
+			try
+			{
+				await CacheFolderMigration(folder);
+			}
+			catch
+			{
+				_DownloadFolder = null;
+			}
+
+			return _DownloadFolder;
+		}
+
+		/*
+		public async Task<StorageFolder> ChangeUserDataFolder()
+		{
+			var folderPicker = new Windows.Storage.Pickers.FolderPicker();
+			folderPicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Downloads;
+			folderPicker.FileTypeFilter.Add("*");
+
+			var folder = await folderPicker.PickSingleFolderAsync();
+			if (folder != null && folder.Path != _DownloadFolder?.Path)
+			{
+				var loginUserId = LoginUserId.ToString();
+				Windows.Storage.AccessCache.StorageApplicationPermissions.
+				FutureAccessList.AddOrReplace(loginUserId, folder);
+
+				await CacheFolderMigration(folder);
+
+				await UserSettings.CacheSettings.UserSelectedCacheFolder();
+			}
+
+			return _DownloadFolder;
+		}
+		*/
+
+		public async Task<StorageFolder> GetCurrentUserDataFolder()
 		{
 			if (_DownloadFolder == null)
 			{
-				var loginUserId = LoginUserId.ToString();
-				// 既にフォルダを指定済みの場合
+				var folderAccessToken = LoginUserId.ToString();
 				try
 				{
-					if (Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.ContainsItem(loginUserId))
+					// v0.3.4以前のバージョンでの動作との整合性を取るためのコード
+					// 以前はログインユーザーIDで
+
+					if (Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.ContainsItem(folderAccessToken))
 					{
-						_DownloadFolder = await Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.GetFolderAsync(loginUserId);
+						// 既にフォルダを指定済みの場合
+						_DownloadFolder = await Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.GetFolderAsync(folderAccessToken);
 					}
 				}
 				catch (Exception ex)
 				{
+					Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Remove(folderAccessToken);
+
 					Debug.WriteLine(ex.ToString());
 				}
 
-				// フォルダが指定されていない、または指定されたフォルダが存在しない場合
+				// フォルダが無い場合、デフォルトフォルダに作成
 				if (_DownloadFolder == null)
 				{
-					_DownloadFolder = await DownloadsFolder.CreateFolderAsync(loginUserId, CreationCollisionOption.FailIfExists);
-					Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.AddOrReplace(loginUserId, _DownloadFolder);
-
-					#region v0.3.3 からの移行処理
-
-
-					// Note: v0.3.3以前にLocalFolderに作成されていたフォルダが存在する場合、そのフォルダの内容を
-					// _DownlaodFolderに移動させます
-					try
-					{
-						var userFolder = await GetCurrentUserFolder();
-						var oldSaveFolder = (await userFolder.TryGetItemAsync("video")) as StorageFolder;
-						if (oldSaveFolder != null)
-						{
-							// ファイルを全部移動させて
-							var files = await oldSaveFolder.GetFilesAsync();
-							foreach (var file in files)
-							{
-								try
-								{
-									await file.MoveAsync(_DownloadFolder);
-								}
-								catch { }
-							}
-
-							// 古いフォルダを削除
-							await oldSaveFolder.DeleteAsync(StorageDeleteOption.PermanentDelete);
-						}
-					}
-					catch (Exception ex)
-					{
-						Debug.WriteLine(ex.ToString());
-					}
-
-
-					try
-					{
-						var userFolder = await GetCurrentUserFolder();
-						var oldSaveFolder = (await userFolder.TryGetItemAsync("fav")) as StorageFolder;
-						if (oldSaveFolder != null)
-						{
-							// ファイルを全部移動させて
-							var files = await oldSaveFolder.GetFilesAsync();
-							foreach (var file in files)
-							{
-								try
-								{
-									await file.MoveAsync(_DownloadFolder);
-								}
-								catch { }
-							}
-
-							// 古いフォルダを削除
-							await oldSaveFolder.DeleteAsync(StorageDeleteOption.PermanentDelete);
-						}
-					}
-					catch (Exception ex)
-					{
-						Debug.WriteLine(ex.ToString());
-					}
-
-					#endregion
+					await ResetDefaultUserDataFolder();
 				}
 			}
 
@@ -337,12 +427,18 @@ namespace NicoPlayerHohoema.Models
 		public async Task<StorageFolder> GetCurrentUserVideoDataFolder()
 		{
 			var folder = await GetCurrentUserDataFolder();
+
+			if (folder == null) { return null; }
+
 			return await folder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
 		}
 
 		public async Task<StorageFolder> GetCurrentUserFavDataFolder()
 		{
 			var folder = await GetCurrentUserDataFolder();
+
+			if (folder == null) { return null; }
+
 			return await folder.CreateFolderAsync("fav", CreationCollisionOption.OpenIfExists);
 		}
 
