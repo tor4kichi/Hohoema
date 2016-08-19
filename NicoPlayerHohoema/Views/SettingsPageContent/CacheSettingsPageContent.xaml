@@ -38,24 +38,20 @@
 
                         <toolkit:DockPanel Margin="8">
 
-                            <Button Content="変更"
-                                    Width="80"
-                                    Margin="8"
-                                    toolkit:DockPanel.Dock="Right"   
-                                    Command="{Binding ChangeCacheSaveFolderCommand}" 
-                                          >
-                            </Button>
 
                             <HyperlinkButton Command="{Binding OpenCurrentCacheFolderCommand}"
                                toolkit:DockPanel.Dock="Bottom"
+                                             HorizontalAlignment="Right"
+                                             Margin="0 8 0 0"
                                              >
                                 <TextBlock Text="{Binding CacheSaveFolderPath.Value}"
                                            TextWrapping="Wrap"
                                            />
                             </HyperlinkButton>
 
-                            <TextBlock Text="キャッシュの保存フォルダ"
+                            <TextBlock Text="キャッシュ保存先"
                                VerticalAlignment="Center"
+                                       HorizontalAlignment="Left"
                                />
 
                            

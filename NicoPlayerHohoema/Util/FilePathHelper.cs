@@ -17,5 +17,14 @@ namespace NicoPlayerHohoema.Util
 				.ToArray()
 				);
 		}
+
+		public static string ToSafeDirectoryPath(this string fileName)
+		{
+			var invalidChars = Path.GetInvalidPathChars();
+			return new String(fileName
+				.Where(x => !invalidChars.Any(y => x == y))
+				.ToArray()
+				);
+		}
 	}
 }
