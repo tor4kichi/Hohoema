@@ -405,7 +405,24 @@ namespace NicoPlayerHohoema.ViewModels
 
 			DownloadCompleted = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
 			ProgressPercent = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0.0);
-
+			IsFullScreen = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
+			IsFullScreen
+				.Subscribe(isFullScreen => 
+			{
+				var appView = ApplicationView.GetForCurrentView();
+				if (isFullScreen)
+				{
+					if (!appView.TryEnterFullScreenMode())
+					{
+						IsFullScreen.Value = false;
+					}
+				}
+				else
+				{
+					appView.ExitFullScreenMode();
+				}
+			})
+			.AddTo(_CompositeDisposable);
 		}
 
 
@@ -1095,6 +1112,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 			PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
 
+			IsFullScreen.Value = false;
+
 			if (suspending)
 			{
 				VideoStream.Value = null;
@@ -1351,6 +1370,20 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+		private DelegateCommand _ToggleFullScreenCommand;
+		public DelegateCommand ToggleFullScreenCommand
+		{
+			get
+			{
+				return _ToggleFullScreenCommand
+					?? (_ToggleFullScreenCommand = new DelegateCommand(() =>
+					{
+						IsFullScreen.Value = !IsFullScreen.Value;
+					}
+					));
+			}
+		}
+
 		#endregion
 
 
@@ -1449,6 +1482,7 @@ namespace NicoPlayerHohoema.ViewModels
 		// Settings
 		public ReactiveProperty<int> RequestFPS { get; private set; }
 		public ReactiveProperty<double> CommentFontScale { get; private set; }
+		public ReactiveProperty<bool> IsFullScreen { get; private set; }
 
 
 

@@ -380,10 +380,16 @@
                                               />
 
                                 <AppBarToggleButton IsChecked="{Binding IsVisibleComment.Value, Mode=TwoWay}" 
-                                                Icon="Comment" 
+                                                    Icon="Comment" 
                                                     Label="コメント表示"
                                                     VerticalAlignment="Stretch"
                                             />
+                                <AppBarToggleButton IsChecked="{Binding IsFullScreen.Value, Mode=TwoWay}" 
+                                                    Icon="FullScreen" 
+                                                    Label="全画面表示"
+                                                    VerticalAlignment="Stretch"
+                                            />
+
 
                                 <AppBarButton Icon="Add" 
                                               Label="マイリスト登録"
@@ -439,9 +445,15 @@
                                               />
 
                                     <AppBarToggleButton IsChecked="{Binding IsVisibleComment.Value, Mode=TwoWay}" 
-                                                Icon="Comment" 
-                                                    Label="コメント表示"
-                                                    VerticalAlignment="Stretch"
+                                                        Icon="Comment" 
+                                                        Label="コメント表示"
+                                                        VerticalAlignment="Stretch"
+                                            />
+
+                                    <AppBarToggleButton IsChecked="{Binding IsFullScreen.Value, Mode=TwoWay}" 
+                                                        Icon="FullScreen" 
+                                                        Label="全画面表示"
+                                                        VerticalAlignment="Stretch"
                                             />
 
                                     <AppBarButton Icon="Add" 
