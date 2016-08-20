@@ -575,9 +575,9 @@
                                     
                                     <StackPanel Background="#AA777777" Margin="8 0" 
                                                 Orientation="Vertical">
-                                        
-                                        
-                                        
+
+
+
                                         <Slider x:Name="VolumeSlider"
                                             Orientation="Horizontal"
                                             VerticalAlignment="Top"
@@ -591,7 +591,13 @@
                                             Height="32"
                                             Width="160"
                                                                 
-                                            />
+                                            >
+                                            <i:Interaction.Behaviors>
+                                                <core:EventTriggerBehavior EventName="ValueChanged" >
+                                                    <core:CallMethodAction TargetObject="{Binding ElementName=AutoHideBehavior}" MethodName="PreventAutoHide" />
+                                                </core:EventTriggerBehavior>
+                                            </i:Interaction.Behaviors>
+                                        </Slider>
                                         <TextBlock Text="音量" 
                                                    VerticalAlignment="Center"
                                                    Foreground="Black"
