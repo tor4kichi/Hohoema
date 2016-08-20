@@ -5,11 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	
-	public class SelectableItem<T> : BindableBase
+	public class SelectableItem<T> : HohoemaListingPageItemBase
 	{
 		public SelectableItem(T source, Action<T> selectedAction)
 		{
@@ -23,7 +24,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public Action<T> SelectedAction { get; private set; }
 
 		private DelegateCommand _SelectedCommand;
-		public DelegateCommand SelectedCommand
+		public override ICommand SelectedCommand
 		{
 			get
 			{
@@ -33,6 +34,11 @@ namespace NicoPlayerHohoema.ViewModels
 						SelectedAction(Source);
 					}));
 			}
+		}
+
+		public override void Dispose()
+		{
+			// do nothing.
 		}
 	}
 

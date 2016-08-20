@@ -58,40 +58,11 @@
                    
 
                     <!-- 検索履歴 -->
-                    <Border toolkit:DockPanel.Dock="Left" Margin="8 0 0 0">
+                    <Border toolkit:DockPanel.Dock="Right" Margin="8 0 0 0">
                         <AppBarButton Icon="Clock" 
-                                      IsCompact="True"
+                                      Label="検索履歴"
+                                      Command="{Binding ShowSearchHistoryCommand}"
                                       >
-                            <AppBarButton.Flyout>
-                                <Flyout x:Name="SearchHistoryFlyout">
-                                    <ListView ItemsSource="{Binding SearchHistoryItems}">
-
-                                        <ListView.ItemContainerStyle>
-                                            <Style TargetType="ListViewItem">
-                                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                                
-                                            </Style>
-                                        </ListView.ItemContainerStyle>
-                                        <ListView.ItemTemplate>
-                                            <DataTemplate>
-                                                <TextBlock>
-                                                    <Run Text="{Binding Keyword}" />
-                        
-                                                    <Run Text="{Binding Target}" Foreground="Gray" FontSize="12" />
-                        
-                        
-                                                    <i:Interaction.Behaviors>
-                                                        <core:EventTriggerBehavior EventName="Tapped">
-                                                            <core:InvokeCommandAction Command="{Binding SelectedCommand}" />
-                                                            <core:CallMethodAction TargetObject="{Binding ElementName=SearchHistoryFlyout}" MethodName="Hide" />
-                                                        </core:EventTriggerBehavior>
-                                                    </i:Interaction.Behaviors>      
-                                                </TextBlock>
-                                            </DataTemplate>
-                                        </ListView.ItemTemplate>
-                                    </ListView>
-                                </Flyout>
-                            </AppBarButton.Flyout>
                         </AppBarButton>
                     </Border>
 

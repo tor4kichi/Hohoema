@@ -245,6 +245,9 @@
     <Compile Include="Views\Controls\RankingCategoryListItem.xaml.cs">
       <DependentUpon>RankingCategoryListItem.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Controls\SearchHistoryListItem.xaml.cs">
+      <DependentUpon>SearchHistoryListItem.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Converters\ToUserFriendlyNumber.cs" />
     <Compile Include="Views\Converters\VideoPositionToTimeConverter.cs" />
     <Compile Include="Views\EditAutCacheConditionDialog.xaml.cs">
@@ -527,6 +530,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Controls\RankingCategoryListItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\SearchHistoryListItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

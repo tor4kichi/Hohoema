@@ -362,7 +362,6 @@ namespace NicoPlayerHohoema.Models
 			}
 			catch
 			{
-				_DownloadFolder = null;
 			}
 
 			return _DownloadFolder;
