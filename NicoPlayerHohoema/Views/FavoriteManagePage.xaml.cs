@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NicoPlayerHohoema.Models;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -25,6 +26,38 @@ namespace NicoPlayerHohoema.Views
 		public FavoriteManagePage()
 		{
 			this.InitializeComponent();
+		}
+	}
+
+	public class FavTypeToSymbolIconConverter : IValueConverter
+	{
+		public object Convert(object value, Type targetType, object parameter, string language)
+		{
+			if (value is FavoriteItemType)
+			{
+				var type = (FavoriteItemType)value;
+
+				switch (type)
+				{
+					case FavoriteItemType.Tag:
+						return Symbol.Tag;
+					case FavoriteItemType.Mylist:
+						return Symbol.List;
+					case FavoriteItemType.User:
+						return Symbol.People;
+					default:
+						throw new NotSupportedException();
+				}
+			}
+			else
+			{
+				throw new NotSupportedException();
+			}
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, string language)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }
