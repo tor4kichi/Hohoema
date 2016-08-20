@@ -623,7 +623,15 @@
                                     
                                      >
 
-                                    <Slider Minimum="0.0" 
+                                    <Grid Margin="24 0">
+                                        
+                                        <local:DownloadProgressBar 
+                                            ProgressFragmentItems="{Binding ProgressFragments}"
+                                            Margin="0 20 0 0"
+                                            />
+                                            
+                                        
+                                        <Slider Minimum="0.0" 
                                             Maximum="{Binding VideoLength.Value}"
                                             Value="{Binding SliderVideoPosition.Value, Mode=TwoWay}"
                                             StepFrequency="0.1"
@@ -632,11 +640,10 @@
                                             HorizontalAlignment="Stretch"
                                             HorizontalContentAlignment="Stretch"
                                             VerticalAlignment="Center"
-                                            Margin="24 0"
                                             IsEnabled="{Binding NowQualityChanging.Value, Converter={StaticResource InvertBoolean}}"
-                                     >
-                                    </Slider>
-
+                                         >
+                                        </Slider>
+                                    </Grid>
 
 
                                     <Border HorizontalAlignment="Left"          

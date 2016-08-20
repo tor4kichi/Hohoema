@@ -25,6 +25,17 @@ namespace NicoPlayerHohoema.Models
 			CachedRanges = new SortedDictionary<uint, uint>();
 		}
 
+		public VideoDownloadProgress Clone()
+		{
+			var prog = new VideoDownloadProgress(Size);
+
+			foreach (var cached in CachedRanges)
+			{
+				prog.CachedRanges.Add(cached.Key, cached.Value);
+			}
+
+			return prog;
+		}
 
 
 		private void _InnerUpdate(uint position, uint length)

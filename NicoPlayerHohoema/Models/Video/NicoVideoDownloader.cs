@@ -24,6 +24,7 @@ namespace NicoPlayerHohoema.Models
 	// ３．キャッシュファイルを元にした再生用ストリーム
 	// ４．シークによって歯抜けになった動画リソースの補完ダウンロード
 
+	public delegate void DownloadProgressEvnetHandler(string rawVideoId, NicoVideoQuality quality, uint progressHead, uint length);
 
 	public class NicoVideoDownloader : Util.HttpRandomAccessStream
 	{
@@ -67,7 +68,7 @@ namespace NicoPlayerHohoema.Models
 
 		public event Action<string> OnCacheComplete;
 		public event Action<string> OnCacheCanceled;
-		public event Action<string, NicoVideoQuality, uint, uint> OnCacheProgress;
+		public event DownloadProgressEvnetHandler OnCacheProgress;
 
 
 		#endregion
@@ -469,7 +470,7 @@ namespace NicoPlayerHohoema.Models
 
 			RecordProgress((uint)head, resultBuffer.Length);
 
-			OnCacheProgress?.Invoke(RawVideoId, Quality, (uint)Size, DownloadProgress.BufferedSize());
+			OnCacheProgress?.Invoke(RawVideoId, Quality, (uint)head, resultBuffer.Length);
 
 			Debug.WriteLine($"download:{head}~{head + resultBuffer.Length}");
 		}

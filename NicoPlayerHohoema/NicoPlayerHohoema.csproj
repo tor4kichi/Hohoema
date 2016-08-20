@@ -250,6 +250,13 @@
     </Compile>
     <Compile Include="Views\Converters\ToUserFriendlyNumber.cs" />
     <Compile Include="Views\Converters\VideoPositionToTimeConverter.cs" />
+    <Compile Include="Views\DownloadProgress\DownloadProgressBar.xaml.cs">
+      <DependentUpon>DownloadProgressBar.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DownloadProgress\ProgressBarFragment.xaml.cs">
+      <DependentUpon>ProgressBarFragment.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DownloadProgress\ProgressFragment.cs" />
     <Compile Include="Views\EditAutCacheConditionDialog.xaml.cs">
       <DependentUpon>EditAutCacheConditionDialog.xaml</DependentUpon>
     </Compile>
@@ -534,6 +541,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Controls\SearchHistoryListItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\DownloadProgress\DownloadProgressBar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\DownloadProgress\ProgressBarFragment.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
