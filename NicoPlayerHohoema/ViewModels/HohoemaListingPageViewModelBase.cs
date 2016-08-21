@@ -149,6 +149,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 				ListViewVerticalOffset.Value = _LastListViewOffset + 0.1;
 				ChangeCanIncmentalLoading(true);
+
+				LoadedItemsCount.Value = IncrementalLoadingItems?.Count ?? 0;
+				HasItem.Value = LoadedItemsCount.Value > 0;
 			}
 		}
 
@@ -198,6 +201,8 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				MaxItemsCount.Value = await source.ResetSource();
 			}
+
+
 		}
 
 		protected async Task ResetList()
