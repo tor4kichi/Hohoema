@@ -7,6 +7,7 @@ using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Util;
 using NicoPlayerHohoema.ViewModels.VideoInfoContent;
 using NicoPlayerHohoema.Views;
+using NicoPlayerHohoema.Views.DownloadProgress;
 using NicoPlayerHohoema.Views.Service;
 using Prism.Commands;
 using Prism.Events;
@@ -405,6 +406,26 @@ namespace NicoPlayerHohoema.ViewModels
 
 			DownloadCompleted = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
 			ProgressPercent = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0.0);
+			IsFullScreen = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
+			IsFullScreen
+				.Subscribe(isFullScreen => 
+			{
+				var appView = ApplicationView.GetForCurrentView();
+				if (isFullScreen)
+				{
+					if (!appView.TryEnterFullScreenMode())
+					{
+						IsFullScreen.Value = false;
+					}
+				}
+				else
+				{
+					appView.ExitFullScreenMode();
+				}
+			})
+			.AddTo(_CompositeDisposable);
+
+			ProgressFragments = new ObservableCollection<ProgressFragment>();
 
 		}
 
@@ -471,6 +492,9 @@ namespace NicoPlayerHohoema.ViewModels
 			CommandEditerVM.OnCommandChanged += () => UpdateCommandString();
 
 			CanDownload = HohoemaApp.UserSettings?.CacheSettings?.IsUserAcceptedCache ?? false;
+
+
+
 		}
 
 
@@ -496,6 +520,11 @@ namespace NicoPlayerHohoema.ViewModels
 		private CompositeDisposable _BufferingMonitorDisposable;
 
 
+
+		/// <summary>
+		/// 再生処理
+		/// </summary>
+		/// <returns></returns>
 		private async Task PlayingQualityChangeAction()
 		{
 			if (Video == null || IsDisposed) { IsSaveRequestedCurrentQualityCache.Value = false; return; }
@@ -511,7 +540,6 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 
 			var stream = await Video.GetVideoStream(x);
-
 
 
 			if (IsDisposed)
@@ -535,6 +563,16 @@ namespace NicoPlayerHohoema.ViewModels
 					break;
 			}
 
+
+			stream.Downloader.OnCacheProgress += Downloader_OnCacheProgress;
+			_TempProgress = stream.Downloader.DownloadProgress.Clone();
+
+			ProgressFragments.Clear();
+			var invertedTotalSize = 1.0 / (x == NicoVideoQuality.Original ? Video.OriginalQuality.VideoSize : Video.LowQuality.VideoSize);
+			foreach (var cachedRange in _TempProgress.CachedRanges.ToArray())
+			{
+				ProgressFragments.Add(new ProgressFragment(invertedTotalSize, cachedRange.Key, cachedRange.Value));
+			}
 		}
 
 		private void InitializeBufferingMonitor()
@@ -584,15 +622,7 @@ namespace NicoPlayerHohoema.ViewModels
 				.Where(_ => CurrentVideoQuality.Value == NicoVideoQuality.Original)
 				.Subscribe(originalProgress => 
 				{
-					DownloadCompleted.Value = originalProgress == Video.OriginalQuality.VideoSize;
-					if (DownloadCompleted.Value)
-					{
-						ProgressPercent.Value = 100;
-					}
-					else
-					{
-						ProgressPercent.Value = Math.Round((double)originalProgress / Video.OriginalQuality.VideoSize * 100, 1);
-					}
+					UpdadeProgress(Video.OriginalQuality.VideoSize, originalProgress);
 				})
 				.AddTo(_BufferingMonitorDisposable);
 
@@ -600,17 +630,80 @@ namespace NicoPlayerHohoema.ViewModels
 				.Where(_ => CurrentVideoQuality.Value == NicoVideoQuality.Low)
 				.Subscribe(lowProgress =>
 				{
-					DownloadCompleted.Value = lowProgress == Video.LowQuality.VideoSize;
-					if (DownloadCompleted.Value)
-					{
-						ProgressPercent.Value = 100;
-					}
-					else
-					{
-						ProgressPercent.Value = Math.Round((double)lowProgress / Video.LowQuality.VideoSize * 100, 1);
-					}
+					UpdadeProgress(Video.LowQuality.VideoSize, lowProgress);
+
+					
 				})
 				.AddTo(_BufferingMonitorDisposable);
+		}
+
+
+		private void UpdadeProgress(float videoSize, float progressSize)
+		{
+			//ProgressFragments
+
+			DownloadCompleted.Value = progressSize == videoSize;
+			if (DownloadCompleted.Value)
+			{
+				ProgressPercent.Value = 100;
+			}
+			else
+			{
+				ProgressPercent.Value = Math.Round((double)progressSize / videoSize * 100, 1);
+			}
+
+		}
+
+		private void Downloader_OnCacheProgress(string arg1, NicoVideoQuality quality, uint head, uint length)
+		{
+			
+			// TODO: 
+			
+			var oldCount = _TempProgress.CachedRanges.Count;
+			_TempProgress.Update(head, length);
+
+			if (oldCount != _TempProgress.CachedRanges.Count)
+			{
+				// 追加されている場合
+				foreach (var cachedRange in _TempProgress.CachedRanges)
+				{
+					if (!ProgressFragments.Any(x => x.Start == cachedRange.Key))
+					{
+						var invertedTotalSize = 1.0 / (quality == NicoVideoQuality.Original ? Video.OriginalQuality.VideoSize : Video.LowQuality.VideoSize);
+						ProgressFragments.Add(new ProgressFragment(invertedTotalSize, cachedRange.Key, cachedRange.Value));
+					}
+				}
+
+				// 削除されている場合
+				var removeFragments = ProgressFragments.Where(x => _TempProgress.CachedRanges.All(y => x.Start != y.Key))
+					.ToArray();
+
+				foreach (var removeFrag in removeFragments)
+				{
+					ProgressFragments.Remove(removeFrag);
+				}
+			}
+			else
+			{
+				// 内部の更新だけ
+				foreach (var cachedRange in _TempProgress.CachedRanges)
+				{
+					var start = cachedRange.Key;
+					var end = cachedRange.Value;
+
+					if (start < head && head < end)
+					{
+						var fragment = ProgressFragments.SingleOrDefault(x => x.Start == start);
+						if (fragment != null)
+						{
+							fragment.End = end;
+						}
+						break;
+					}
+				}
+			}
+
+			
 		}
 
 
@@ -619,7 +712,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		static readonly ReadOnlyCollection<char> glassChars = new ReadOnlyCollection<char>(new char[] { 'w', 'ｗ', 'W', 'Ｗ' });		
+		static readonly ReadOnlyCollection<char> glassChars =
+			new ReadOnlyCollection<char>(new char[] { 'w', 'ｗ', 'W', 'Ｗ' });		
 
 		private Comment ChatToComment(Chat comment)
 		{
@@ -693,7 +787,8 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 		
 
-		private void CommentDecorateFromCommands(Comment commentVM, IEnumerable<CommandType> commandList)
+		private void CommentDecorateFromCommands(
+			Comment commentVM, IEnumerable<CommandType> commandList)
 		{
 			if (commandList == null || commandList.Any(x => x == CommandType.all))
 			{
@@ -1095,6 +1190,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 			PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
 
+			IsFullScreen.Value = false;
+
 			if (suspending)
 			{
 				VideoStream.Value = null;
@@ -1351,6 +1448,20 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+		private DelegateCommand _ToggleFullScreenCommand;
+		public DelegateCommand ToggleFullScreenCommand
+		{
+			get
+			{
+				return _ToggleFullScreenCommand
+					?? (_ToggleFullScreenCommand = new DelegateCommand(() =>
+					{
+						IsFullScreen.Value = !IsFullScreen.Value;
+					}
+					));
+			}
+		}
+
 		#endregion
 
 
@@ -1449,6 +1560,7 @@ namespace NicoPlayerHohoema.ViewModels
 		// Settings
 		public ReactiveProperty<int> RequestFPS { get; private set; }
 		public ReactiveProperty<double> CommentFontScale { get; private set; }
+		public ReactiveProperty<bool> IsFullScreen { get; private set; }
 
 
 
@@ -1472,6 +1584,11 @@ namespace NicoPlayerHohoema.ViewModels
 		public List<MediaInfoDisplayType> Types { get; private set; }
 
 		private Uri _VideoDescriptionHtmlUri;
+
+
+		// プログレス
+		public ObservableCollection<ProgressFragment> ProgressFragments { get; private set; }
+		private VideoDownloadProgress _TempProgress;
 
 		// 再生できない場合の補助
 

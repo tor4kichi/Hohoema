@@ -30,6 +30,9 @@
                 
             </Border>
         </DataTemplate>
+
+
+        <local:FavTypeToSymbolIconConverter x:Key="FavTypeToSymbol" />
     </Page.Resources>
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
@@ -52,11 +55,22 @@
                         <DataTemplate>
                             
                             <toolkit:DockPanel Margin="8">
-                                <TextBlock Text="{Binding Name}" 
-                                           toolkit:DockPanel.Dock="Top"
+
+
+                                <StackPanel Orientation="Horizontal"
+                                           toolkit:DockPanel.Dock="Top"                                            
+                                            >
+                                    <SymbolIcon Symbol="{Binding FavType, Converter={StaticResource FavTypeToSymbol}}" 
+                                                Margin="8 8 16 8"
+                                                />
+
+                                    <TextBlock Text="{Binding Name}" 
                                            Margin="0 0 0 8"
                                            FontSize="20"
+                                               VerticalAlignment="Center"
                                            />
+
+                                </StackPanel>
 
                                 <ListView ItemsSource="{Binding Items}"
                                           ItemTemplate="{StaticResource FavoriteItemTemplate}"

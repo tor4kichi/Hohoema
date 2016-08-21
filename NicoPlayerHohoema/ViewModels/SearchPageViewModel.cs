@@ -115,6 +115,7 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					Label = "人気の高い順",
 					Sort = Sort.Popurarity,
+					Order = Mntone.Nico2.Order.Descending,
 				},
 			};
 			#endregion
@@ -198,7 +199,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<SearchTarget> SelectedTarget { get; private set; }
 		public ReactiveProperty<SearchSortOptionListItem> SelectedSearchOption { get; private set; }
 
-		public ReadOnlyReactiveCollection<SearchHistoryListItem> SearchHistoryItems { get; private set; }
+		public ReactiveCommand ShowSearchHistoryCommand { get; private set; }
 
 		public ReactiveProperty<HohoemaViewModelBase> ContentVM { get; private set; }
 
@@ -310,8 +311,6 @@ namespace NicoPlayerHohoema.ViewModels
 					Order = SelectedSearchOption.Value.Order
 				};
 
-				// TODO: EmptySearchなページはナビゲーション後忘れさせる
-
 				var isEmptyPage = RequireSearchOption == null;
 
 				// 検索結果を表示
@@ -326,28 +325,16 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 			})
 			.AddTo(_CompositeDisposable);
+
+			ShowSearchHistoryCommand = new ReactiveCommand();
+			ShowSearchHistoryCommand.Subscribe(_ => 
+			{
+				PageManager.OpenPage(HohoemaPageType.Search);
+			});
+
 		}
 
-
-		protected override void OnSignIn(ICollection<IDisposable> userSessionDisposer)
-		{
-			SearchHistoryItems = HohoemaApp.UserSettings.SearchSettings.SearchHistory
-				.ToReadOnlyReactiveCollection(x => new SearchHistoryListItem(x, OnSearchHistorySelected))
-				.AddTo(userSessionDisposer);
-
-			base.OnSignIn(userSessionDisposer);
-		}
-
-		protected override void OnSignOut()
-		{
-			base.OnSignOut();
-
-			SearchHistoryItems = null;
-		}
-
-
-
-		private void OnSearchHistorySelected(SearchHistoryItem item)
+		internal void OnSearchHistorySelected(SearchHistoryItem item)
 		{
 			SearchText.Value = item.Keyword;
 			SelectedTarget.Value = TargetListItems.Single(x => x == item.Target);
@@ -356,10 +343,19 @@ namespace NicoPlayerHohoema.ViewModels
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			var prevSearchOption = RequireSearchOption;
+			RequireSearchOption = null;
 			if (e.Parameter is string)
 			{
 				RequireSearchOption = SearchOption.FromParameterString(e.Parameter as string);
 			}
+			else if (e.NavigationMode == NavigationMode.New || e.NavigationMode == NavigationMode.Refresh)
+			{
+				// バック・フォワード以外では常に検索履歴（EmptySearchPage）を表示させたいので
+				// 検索オプションをクリア
+				RequireSearchOption = null;
+			}
+			
+			
 
 			// ContentVM側のページタイトルが後で呼び出されるように、SearchPage側を先に呼び出す
 			base.OnNavigatedTo(e, viewModelState);
@@ -402,6 +398,7 @@ namespace NicoPlayerHohoema.ViewModels
 						contentVM = new EmptySearchPageContentViewModel(
 							HohoemaApp
 							, PageManager
+							, this
 							);
 						break;
 				}

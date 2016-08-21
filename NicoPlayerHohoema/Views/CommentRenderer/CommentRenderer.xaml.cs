@@ -270,14 +270,14 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 					{
 						renderComment.Visibility = Visibility.Collapsed;
 
-						Debug.WriteLine("hide comment : " + comment.CommentText);
+//						Debug.WriteLine("hide comment : " + comment.CommentText);
 					}
 					else
 					{
 
 						Canvas.SetTop(renderComment, verticalPos);
 						var left = halfCanvasWidth - (int)(renderComment.DesiredSize.Width * 0.5);
-						System.Diagnostics.Debug.WriteLine($"V={verticalPos}: [{renderComment.CommentData.CommentText}] [{left}] [{comment.FontSize}]");
+//						Debug.WriteLine($"V={verticalPos}: [{renderComment.CommentData.CommentText}] [{left}] [{comment.FontSize}]");
 
 						if (comment.VAlign.HasValue)
 						{

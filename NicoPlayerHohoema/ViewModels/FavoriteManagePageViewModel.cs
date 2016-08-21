@@ -35,6 +35,7 @@ namespace NicoPlayerHohoema.ViewModels
 			Lists.Add(new FavoriteListViewModel()
 			{
 				Name = "ユーザー",
+				FavType = FavoriteItemType.User,
 				Items = HohoemaApp.FavFeedManager.GetFavUserFeedListAll()
 					.Select(x => new FavoriteItemViewModel(x, PageManager))
 					.ToList()
@@ -43,6 +44,7 @@ namespace NicoPlayerHohoema.ViewModels
 			Lists.Add(new FavoriteListViewModel()
 			{
 				Name = "マイリスト",
+				FavType = FavoriteItemType.Mylist,
 				Items = HohoemaApp.FavFeedManager.GetFavMylistFeedListAll()
 					.Select(x => new FavoriteItemViewModel(x, PageManager))
 					.ToList()
@@ -51,6 +53,7 @@ namespace NicoPlayerHohoema.ViewModels
 			Lists.Add(new FavoriteListViewModel()
 			{
 				Name = "タグ",
+				FavType = FavoriteItemType.Tag,
 				Items = HohoemaApp.FavFeedManager.GetFavTagFeedListAll()
 					.Select(x => new FavoriteItemViewModel(x, PageManager))
 					.ToList()
@@ -63,6 +66,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class FavoriteListViewModel : BindableBase
 	{
+		public FavoriteItemType FavType { get; set; }
 		public string Name { get; set; }
 
 		public List<FavoriteItemViewModel> Items { get; set; }

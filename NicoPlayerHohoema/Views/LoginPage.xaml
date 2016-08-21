@@ -58,6 +58,14 @@
                     <TextBlock HorizontalAlignment="Center" Margin="0 0 0 8" >
                         <Run Text="メールアドレスやパスワードが正しいか確認してみてください。" />
                     </TextBlock>
+
+                    <TextBlock HorizontalAlignment="Center" Margin="0 0 0 8"
+                               Opacity="0.8"
+                               >
+                        <Run Text="追加情報：" />
+                        <Run Text="{Binding LoginErrorText.Value}" />
+                    </TextBlock>
+
                 </StackPanel>
 
                 <StackPanel Visibility="{Binding IsServiceUnavailable.Value, Converter={StaticResource BooleanToVisibility}}">
@@ -146,9 +154,9 @@
                 Margin="16"
                 >
             <HyperlinkButton Content="アカウントを新しく作成する場合はこちら" 
-                                     NavigateUri="https://account.nicovideo.jp/register"
-                                     IsEnabled="{Binding CanChangeValue.Value}"
-                                     />
+                                    NavigateUri="https://account.nicovideo.jp/register"
+                                    IsEnabled="{Binding CanChangeValue.Value}"
+                                    />
         </Border>
 
         <Border HorizontalAlignment="Right"

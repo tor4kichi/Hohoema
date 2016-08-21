@@ -133,19 +133,23 @@ namespace NicoPlayerHohoema.ViewModels
 
 			// サインインステータスチェック
 
-			if (! await CheckSignIn())
+			if (IsRequireSignIn)
 			{
-				var result = await HohoemaApp.SignInFromUserSettings();
-
-				if (result != Mntone.Nico2.NiconicoSignInStatus.Success)
+				if (!await CheckSignIn())
 				{
-					// サインイン出来ない場合はログインページへ戻す
-					PageManager.OpenPage(HohoemaPageType.Login);
-					return;
+					var result = await HohoemaApp.SignInFromUserSettings();
+
+					if (result != Mntone.Nico2.NiconicoSignInStatus.Success)
+					{
+						// サインイン出来ない場合はログインページへ戻す
+						PageManager.OpenPage(HohoemaPageType.Login);
+						return;
+					}
 				}
+
+				OnSignin();
 			}
 
-			OnSignin();
 
 			_NavigatedToTaskCancelToken = new CancellationTokenSource();
 
@@ -203,7 +207,10 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			IsDisposed = true;
 			
-			OnSignout();
+			if (IsRequireSignIn)
+			{
+				OnSignout();
+			}
 
 			OnDispose();
 

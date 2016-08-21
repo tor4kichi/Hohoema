@@ -380,10 +380,16 @@
                                               />
 
                                 <AppBarToggleButton IsChecked="{Binding IsVisibleComment.Value, Mode=TwoWay}" 
-                                                Icon="Comment" 
+                                                    Icon="Comment" 
                                                     Label="コメント表示"
                                                     VerticalAlignment="Stretch"
                                             />
+                                <AppBarToggleButton IsChecked="{Binding IsFullScreen.Value, Mode=TwoWay}" 
+                                                    Icon="FullScreen" 
+                                                    Label="全画面表示"
+                                                    VerticalAlignment="Stretch"
+                                            />
+
 
                                 <AppBarButton Icon="Add" 
                                               Label="マイリスト登録"
@@ -439,9 +445,15 @@
                                               />
 
                                     <AppBarToggleButton IsChecked="{Binding IsVisibleComment.Value, Mode=TwoWay}" 
-                                                Icon="Comment" 
-                                                    Label="コメント表示"
-                                                    VerticalAlignment="Stretch"
+                                                        Icon="Comment" 
+                                                        Label="コメント表示"
+                                                        VerticalAlignment="Stretch"
+                                            />
+
+                                    <AppBarToggleButton IsChecked="{Binding IsFullScreen.Value, Mode=TwoWay}" 
+                                                        Icon="FullScreen" 
+                                                        Label="全画面表示"
+                                                        VerticalAlignment="Stretch"
                                             />
 
                                     <AppBarButton Icon="Add" 
@@ -563,9 +575,9 @@
                                     
                                     <StackPanel Background="#AA777777" Margin="8 0" 
                                                 Orientation="Vertical">
-                                        
-                                        
-                                        
+
+
+
                                         <Slider x:Name="VolumeSlider"
                                             Orientation="Horizontal"
                                             VerticalAlignment="Top"
@@ -579,7 +591,13 @@
                                             Height="32"
                                             Width="160"
                                                                 
-                                            />
+                                            >
+                                            <i:Interaction.Behaviors>
+                                                <core:EventTriggerBehavior EventName="ValueChanged" >
+                                                    <core:CallMethodAction TargetObject="{Binding ElementName=AutoHideBehavior}" MethodName="PreventAutoHide" />
+                                                </core:EventTriggerBehavior>
+                                            </i:Interaction.Behaviors>
+                                        </Slider>
                                         <TextBlock Text="音量" 
                                                    VerticalAlignment="Center"
                                                    Foreground="Black"
@@ -611,7 +629,15 @@
                                     
                                      >
 
-                                    <Slider Minimum="0.0" 
+                                    <Grid Margin="24 0">
+                                        
+                                        <local:DownloadProgressBar 
+                                            ProgressFragmentItems="{Binding ProgressFragments}"
+                                            Margin="0 20 0 0"
+                                            />
+                                            
+                                        
+                                        <Slider Minimum="0.0" 
                                             Maximum="{Binding VideoLength.Value}"
                                             Value="{Binding SliderVideoPosition.Value, Mode=TwoWay}"
                                             StepFrequency="0.1"
@@ -620,11 +646,10 @@
                                             HorizontalAlignment="Stretch"
                                             HorizontalContentAlignment="Stretch"
                                             VerticalAlignment="Center"
-                                            Margin="24 0"
                                             IsEnabled="{Binding NowQualityChanging.Value, Converter={StaticResource InvertBoolean}}"
-                                     >
-                                    </Slider>
-
+                                         >
+                                        </Slider>
+                                    </Grid>
 
 
                                     <Border HorizontalAlignment="Left"          

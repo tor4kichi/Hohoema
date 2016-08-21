@@ -10,6 +10,7 @@ using Prism.Windows.Navigation;
 using System.Diagnostics;
 using Mntone.Nico2.Users.User;
 using System.Threading;
+using Prism.Commands;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -58,7 +59,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				UpdateTitle("投稿動画一覧");
 			}
-
+			UserName = User.Nickname;
 		}
 
 
@@ -74,9 +75,32 @@ namespace NicoPlayerHohoema.ViewModels
 				);
 		}
 
+
+		private DelegateCommand _OpenVideoOwnerUserPageCommand;
+		public DelegateCommand OpenVideoOwnerUserPageCommand
+		{
+			get
+			{
+				return _OpenVideoOwnerUserPageCommand
+					?? (_OpenVideoOwnerUserPageCommand = new DelegateCommand(() => 
+					{
+						PageManager.OpenPage(HohoemaPageType.UserInfo, UserId);
+					}));
+			}
+		}
+
+
+		private string _UserName;
+		public string UserName
+		{
+			get { return _UserName; }
+			set { SetProperty(ref _UserName, value); }
+		}
+
+
 		public UserDetail User { get; private set; }
 
-
+		
 		public string UserId { get; private set; }
 	}
 

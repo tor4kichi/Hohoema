@@ -321,14 +321,14 @@ namespace NicoPlayerHohoema.Models
 			RemoveCacheEventHandler();
 		}
 
-		private async void Stream_OnCacheProgress(string rawVideoId, NicoVideoQuality quality, uint size, uint progressSize)
+		private async void Stream_OnCacheProgress(string rawVideoId, NicoVideoQuality quality, uint head, uint length)
 		{
 			if (rawVideoId == RawVideoId && quality == Quality)
 			{
 				await NicoVideo._Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
 				{
 					CacheState = NicoVideoCacheState.NowDownloading;
-					CacheProgressSize = progressSize;
+					CacheProgressSize = Progress.BufferedSize();
 					OnPropertyChanged(nameof(CacheProgressSize));
 				});
 			}

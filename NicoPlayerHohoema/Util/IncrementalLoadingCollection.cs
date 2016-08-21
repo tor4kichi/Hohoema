@@ -96,14 +96,14 @@ namespace NicoPlayerHohoema.Util
 
 					}
 
-					await dispatcher.RunAsync(CoreDispatcherPriority.Normal,
-						() => DoneLoading?.Invoke()
-						);
-
 					// 多重読み込み防止のため
 					// リスト表示に反映されるまで
 					// タスクの終了を遅延させる必要があります
 					await Task.Delay(500);
+
+					await dispatcher.RunAsync(CoreDispatcherPriority.Normal,
+						() => DoneLoading?.Invoke()
+						);
 
 					return new LoadMoreItemsResult() { Count = resultCount };
 				}

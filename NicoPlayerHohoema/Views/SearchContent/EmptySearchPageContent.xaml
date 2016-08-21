@@ -17,6 +17,86 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <Grid>
-    </Grid>
+    <Border>
+        <toolkit:DockPanel>
+
+            <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
+
+
+
+
+
+                <!--  -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" 
+                            Margin="8"
+                            >
+                    <AppBarButton Label="検索履歴を全て削除"
+                                  Icon="Delete"
+                                  Command="{Binding DeleteAllSearchHistoryCommand}"
+                                  />
+                </StackPanel>
+
+
+                <!-- 複数選択のON/OFF -->
+                <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Right" Margin="8">
+                    <StackPanel Orientation="Horizontal" Margin="16 0">
+
+                        <TextBlock Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                                VerticalAlignment="Center"
+                                Margin="8 0"
+                                Foreground="DimGray"
+                                >
+                        <Run Text="{Binding SelectedItemsCount.Value}" />
+                        <Run Text="個を選択中" />
+                        </TextBlock>
+
+                        <TextBlock VerticalAlignment="Center" Foreground="DimGray">
+                        <Run Text="{Binding LoadedItemsCount.Value}" />
+                        <Run Text="/" />
+                        <Run Text="{Binding MaxItemsCount.Value}" />
+                        </TextBlock>
+                    </StackPanel>
+
+                    <ToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            Content="選択モード"
+                            />
+                </StackPanel>
+
+                <Border>
+                    <TextBlock Text=":)" Padding="16 8" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <i:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="Tapped">
+                                <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0" />
+                            </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
+
+                    </TextBlock>
+                </Border>
+
+            </toolkit:DockPanel>
+
+            <!-- 選択アクション -->
+            <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom" 
+                        Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                            Height="72"
+                            Margin="8 0"                               
+                        >
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center"
+                            toolkit:DockPanel.Dock="Right"
+                            >
+                    <AppBarButton Icon="Remove" Label="検索履歴削除" Command="{Binding DeleteSelectedSearchHistoryCommand}" />
+                </StackPanel>
+
+                <Border />
+
+            </toolkit:DockPanel>
+
+
+            <controls:HohoemaIncrementalLoadingList />
+
+
+
+        </toolkit:DockPanel>
+    </Border>
 </UserControl>

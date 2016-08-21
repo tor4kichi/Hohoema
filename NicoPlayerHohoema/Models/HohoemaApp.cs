@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation;
+using Windows.Foundation.Diagnostics;
 using Windows.Storage;
 
 namespace NicoPlayerHohoema.Models
@@ -28,11 +29,13 @@ namespace NicoPlayerHohoema.Models
 			return app;
 		}
 
+		public readonly static Guid HohoemaLoggerGroupGuid = Guid.NewGuid();
 
 		private HohoemaApp(IEventAggregator ea)
 		{
 			EventAggregator = ea;
 			LoginUserId = uint.MaxValue;
+			LoggingChannel = new LoggingChannel("HohoemaLog", new LoggingChannelOptions(HohoemaLoggerGroupGuid));
 
 			FavFeedManager = null;
 			CurrentAccount = new AccountSettings();
@@ -138,6 +141,8 @@ namespace NicoPlayerHohoema.Models
 
 			context.AdditionalUserAgent = HohoemaUserAgent;
 
+			LoginErrorText = "";
+
 			Debug.WriteLine("try login");
 
 			var result = await context.SignInAsync();
@@ -151,44 +156,115 @@ namespace NicoPlayerHohoema.Models
 				// バックグラウンド処理機能を生成
 				BackgroundUpdater = new BackgroundUpdater("HohoemaBG1");
 
-				Debug.WriteLine("start post login process....");
-
-				Debug.WriteLine("getting UserInfo");
-
-				try
-				{
-					var userInfo = await NiconicoContext.User.GetInfoAsync();
-					LoginUserId = userInfo.Id;
-					IsPremiumUser = userInfo.IsPremium;
-					LoginUserName = userInfo.Name;
-				}
-				catch
-				{
-					Debug.WriteLine("login failed: failed download user info. invalid user.");
-
-					NiconicoContext.Dispose();
-					NiconicoContext = null;
-					return NiconicoSignInStatus.Failed;
-				}
-
-				Debug.WriteLine("user id is : " + LoginUserId);
-				Debug.WriteLine("initilize: user settings ");
-				await LoadUserSettings(LoginUserId.ToString());
-
-				Debug.WriteLine("initilize: fav");
-				FavFeedManager = await FavFeedManager.Create(this, LoginUserId);
 				
-				Debug.WriteLine("initialize: mylist");
-				await UserMylistManager.UpdateUserMylists();
+				using (var loginActivityLogger = LoggingChannel.StartActivity("login process"))
+				{
 
-				Debug.WriteLine("initilize: local cache ");
-				MediaManager = await NiconicoMediaManager.Create(this);
+					loginActivityLogger.LogEvent("begin login process.");
+
+					var fields = new LoggingFields();
+
+					try
+					{
+						loginActivityLogger.LogEvent("getting UserInfo.");
+						var userInfo = await NiconicoContext.User.GetInfoAsync();
+
+						LoginUserId = userInfo.Id;
+						IsPremiumUser = userInfo.IsPremium;
+						LoginUserName = userInfo.Name;
+
+						fields.AddString("user id", LoginUserId.ToString());
+						fields.AddString("user name", LoginUserName);
+						fields.AddBoolean("is premium", IsPremiumUser);
+
+						loginActivityLogger.LogEvent("[Success]:get UserInfo.", fields, LoggingLevel.Information);
+					}
+					catch
+					{
+						LoginErrorText = "[Failed]:get UserInfo.";
+
+						fields.AddString("mail", mailOrTelephone);
+						loginActivityLogger.LogEvent(LoginErrorText, fields, LoggingLevel.Warning);
+
+						NiconicoContext.Dispose();
+						NiconicoContext = null;
+						return NiconicoSignInStatus.Failed;
+					}
+
+					fields.Clear();
 
 
-				Debug.WriteLine("Login done.");
+
+
+					Debug.WriteLine("user id is : " + LoginUserId);
+
+					try
+					{
+						loginActivityLogger.LogEvent("initialize user settings");
+						await LoadUserSettings(LoginUserId.ToString());
+					}
+					catch
+					{
+						LoginErrorText = "[Failed]: load user settings failed.";
+						Debug.WriteLine(LoginErrorText);
+						loginActivityLogger.LogEvent(LoginErrorText, fields, LoggingLevel.Error);
+						
+						return NiconicoSignInStatus.Failed;
+					}
+
+
+
+					try
+					{
+						Debug.WriteLine("initilize: fav");
+						loginActivityLogger.LogEvent("initialize user favorite");
+						FavFeedManager = await FavFeedManager.Create(this, LoginUserId);
+					}
+					catch
+					{
+						LoginErrorText = "[Failed] user favorite initialize failed.";
+						Debug.WriteLine(LoginErrorText);
+						loginActivityLogger.LogEvent(LoginErrorText, fields, LoggingLevel.Error);
+						return NiconicoSignInStatus.Failed;
+					}
+
+
+
+
+					try
+					{
+						Debug.WriteLine("initilize: mylist");
+						loginActivityLogger.LogEvent(LoginErrorText);
+						await UserMylistManager.UpdateUserMylists();
+					}
+					catch
+					{
+						Debug.WriteLine(LoginErrorText = "[Failed] user mylist");
+						loginActivityLogger.LogEvent("[Failed] user mylist", fields, LoggingLevel.Error);
+						return NiconicoSignInStatus.Failed;
+					}
+
+
+
+					try
+					{
+						Debug.WriteLine("initilize: local cache ");
+						loginActivityLogger.LogEvent("initialize user local cache");
+						MediaManager = await NiconicoMediaManager.Create(this);
+					}
+					catch
+					{
+						LoginErrorText = "[Failed] local cache initialize failed.";
+						Debug.WriteLine(LoginErrorText);
+						loginActivityLogger.LogEvent(LoginErrorText, fields, LoggingLevel.Error);
+						return NiconicoSignInStatus.Failed;
+					}
+
+					Debug.WriteLine("Login done.");
+					loginActivityLogger.LogEvent("[Success]: Login done");
+				}
 
 				OnSignin?.Invoke();
-
 
 				MediaManager.Context.StartBackgroundDownload();
 			}
@@ -263,7 +339,10 @@ namespace NicoPlayerHohoema.Models
 				// フォルダーの移行作業を開始
 
 				// 現在あるダウンロードタスクは必ず終了させる必要があります
-				await MediaManager?.Context?.Suspending();
+				if (MediaManager != null && MediaManager.Context != null)
+				{
+					await MediaManager?.Context?.Suspending();
+				}
 
 				if (_DownloadFolder != null)
 				{
@@ -312,7 +391,10 @@ namespace NicoPlayerHohoema.Models
 
 
 				// ダウンロードタスクを再開
-				await MediaManager?.Context?.Resume();
+				if (MediaManager != null && MediaManager.Context != null)
+				{
+					await MediaManager.Context.Resume();
+				}
 			}
 
 			_DownloadFolder = newFolder;
@@ -362,7 +444,6 @@ namespace NicoPlayerHohoema.Models
 			}
 			catch
 			{
-				_DownloadFolder = null;
 			}
 
 			return _DownloadFolder;
@@ -446,6 +527,7 @@ namespace NicoPlayerHohoema.Models
 		public void Dispose()
 		{
 			MediaManager?.Dispose();
+			LoggingChannel?.Dispose();
 		}
 
 
@@ -495,6 +577,11 @@ namespace NicoPlayerHohoema.Models
 
 		public BackgroundUpdater BackgroundUpdater { get; private set; }
 
+
+		public LoggingChannel LoggingChannel { get; private set; }
+
+
+		public string LoginErrorText { get; private set; }
 
 		public event Action OnSignout;
 		public event Action OnSignin;

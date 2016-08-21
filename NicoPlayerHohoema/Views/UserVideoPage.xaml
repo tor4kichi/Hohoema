@@ -28,6 +28,18 @@
 
                         <!-- TODO: ユーザーアイコン＋ユーザー情報画面への移動 -->
 
+                        <StackPanel Orientation="Horizontal">
+
+                            <TextBlock Text="動画投稿者：" VerticalAlignment="Center" />
+
+                            <HyperlinkButton Command="{Binding OpenVideoOwnerUserPageCommand}">
+                                <TextBlock VerticalAlignment="Center"
+                                           >
+                                    <Run Text="{Binding UserName}" />
+                                    <Run Text="さん" />
+                                </TextBlock>
+                            </HyperlinkButton>
+                        </StackPanel>
                     </StackPanel>
                     
                     <StackPanel Orientation="Horizontal" Margin="8"

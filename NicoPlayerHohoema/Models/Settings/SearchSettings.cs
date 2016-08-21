@@ -29,7 +29,7 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public void UpdateSearchHistory(string keyword, SearchTarget target)
+		public Task UpdateSearchHistory(string keyword, SearchTarget target)
 		{
 			// すでに含まれている場合は一旦削除
 			RemoveSearchHistory(keyword, target);
@@ -47,11 +47,11 @@ namespace NicoPlayerHohoema.Models
 				_SearchHistory.Remove(_SearchHistory.Last());
 			}
 
-			Save().ConfigureAwait(false);
+			return Save();
 		}
 
 
-		public void RemoveSearchHistory(string keyword, SearchTarget target)
+		public Task RemoveSearchHistory(string keyword, SearchTarget target, bool withSave = true)
 		{
 			var alreadItem = _SearchHistory.SingleOrDefault(x => x.Keyword == keyword && x.Target == target);
 			if (alreadItem != null)
@@ -59,7 +59,15 @@ namespace NicoPlayerHohoema.Models
 				_SearchHistory.Remove(alreadItem);
 			}
 
-			Save().ConfigureAwait(false);
+			return withSave ? Save() : Task.CompletedTask;
+		}
+
+
+		public Task RemoveAllSearchHistory()
+		{
+			_SearchHistory.Clear();
+
+			return Save();
 		}
 
 

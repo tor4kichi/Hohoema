@@ -218,6 +218,7 @@
     <Compile Include="Views\Behaviors\ListViewVerticalOffsetGetter.cs" />
     <Compile Include="Views\Behaviors\SetFocus.cs" />
     <Compile Include="Views\Behaviors\SplitViewDisplayModeGetter.cs" />
+    <Compile Include="Views\Behaviors\HideInputPaneAction.cs" />
     <Compile Include="Views\CacheManagementPage.xaml.cs">
       <DependentUpon>CacheManagementPage.xaml</DependentUpon>
     </Compile>
@@ -245,8 +246,18 @@
     <Compile Include="Views\Controls\RankingCategoryListItem.xaml.cs">
       <DependentUpon>RankingCategoryListItem.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Controls\SearchHistoryListItem.xaml.cs">
+      <DependentUpon>SearchHistoryListItem.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Converters\ToUserFriendlyNumber.cs" />
     <Compile Include="Views\Converters\VideoPositionToTimeConverter.cs" />
+    <Compile Include="Views\DownloadProgress\DownloadProgressBar.xaml.cs">
+      <DependentUpon>DownloadProgressBar.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DownloadProgress\ProgressBarFragment.xaml.cs">
+      <DependentUpon>ProgressBarFragment.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DownloadProgress\ProgressFragment.cs" />
     <Compile Include="Views\EditAutCacheConditionDialog.xaml.cs">
       <DependentUpon>EditAutCacheConditionDialog.xaml</DependentUpon>
     </Compile>
@@ -527,6 +538,18 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Controls\RankingCategoryListItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\SearchHistoryListItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\DownloadProgress\DownloadProgressBar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\DownloadProgress\ProgressBarFragment.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

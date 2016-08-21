@@ -43,6 +43,10 @@
             <local:MylistSearchListItem />
         </DataTemplate>
 
+        <DataTemplate x:Key="SearchHistoryListItemTemplate">
+            <local:SearchHistoryListItem />
+        </DataTemplate>
+
 
 
         <local:IncrementalLoadingListItemTemplateSelector x:Key="listItemTemplateSelector"
@@ -52,6 +56,7 @@
                                                           CacheManagement="{StaticResource CacheManagementListItemTemplate}"
                                                           FavFeed="{StaticResource FavFeedListItemTemplate}"
                                                           Mylist="{StaticResource MylistListItemTemplate}"
+                                                          SearchHistory="{StaticResource SearchHistoryListItemTemplate}"
                                                           >
             
             
@@ -145,7 +150,7 @@
                 >
 
                 <StackPanel>
-                    <TextBlock Text="動画アイテムはありません。" 
+                    <TextBlock Text="アイテムはありません" 
                        Foreground="DimGray"
                            Margin="0 8"
                        />
