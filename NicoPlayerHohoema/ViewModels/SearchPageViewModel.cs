@@ -115,6 +115,7 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					Label = "人気の高い順",
 					Sort = Sort.Popurarity,
+					Order = Mntone.Nico2.Order.Descending,
 				},
 			};
 			#endregion
