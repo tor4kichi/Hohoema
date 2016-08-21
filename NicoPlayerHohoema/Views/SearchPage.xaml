@@ -90,6 +90,7 @@
                                  HorizontalAlignment="Stretch" 
                                  ext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
                                  VerticalAlignment="Center"
+                                 InputScope="Search"
                              >
                             <i:Interaction.Behaviors>
                                 <mybehavior:KeyboardTrigger Key="Enter">
