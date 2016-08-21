@@ -339,7 +339,11 @@ namespace NicoPlayerHohoema.Models
 				// フォルダーの移行作業を開始
 
 				// 現在あるダウンロードタスクは必ず終了させる必要があります
-				await MediaManager?.Context?.Suspending();
+				
+				if (MediaManager != null && MediaManager.Context != null)
+				{
+					await MediaManager?.Context?.Suspending();
+				}
 
 				if (_DownloadFolder != null)
 				{
@@ -388,7 +392,10 @@ namespace NicoPlayerHohoema.Models
 
 
 				// ダウンロードタスクを再開
-				await MediaManager?.Context?.Resume();
+				if (MediaManager != null && MediaManager.Context != null)
+				{
+					await MediaManager.Context.Resume();
+				}
 			}
 
 			_DownloadFolder = newFolder;
