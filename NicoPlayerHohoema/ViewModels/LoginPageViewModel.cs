@@ -12,6 +12,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Prism.Windows.Navigation;
 using Windows.ApplicationModel;
+using Windows.Foundation.Diagnostics;
+using System.Threading;
+using Windows.Storage;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -56,11 +59,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 			var version = Package.Current.Id.Version;
 			VersionText = $"{version.Major}.{version.Minor}.{version.Build}";
+
+
+			LoginErrorText = new ReactiveProperty<string>();
+			
 		}
 
-
-
-		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			// Note: ログインページだけはbase.OnNavigatedTo が不要
 			//			base.OnNavigatedTo(e, viewModelState);
@@ -86,45 +91,62 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 			}
 
+//			return base.NavigatedToAsync(cancelToken, e, viewModelState);
 		}
 
 
+		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+		{
+			base.OnNavigatingFrom(e, viewModelState, suspending);
+		}
 
 
 		private async Task CheckLoginAndGo()
 		{
 			CanChangeValue.Value = false;
 			IsLoginFailed.Value = false;
+			LoginErrorText.Value = null;
 
-			var result = await HohoemaApp.SignInFromUserSettings();
+			try
+			{
+				var result = await HohoemaApp.SignInFromUserSettings();
 
-			if (result == NiconicoSignInStatus.Success)
-			{
-				// アカウント情報をアプリケーションデータとして保存
-				HohoemaApp.SaveAccount(IsRememberPassword.Value);
+				if (result == NiconicoSignInStatus.Success)
+				{
+					// アカウント情報をアプリケーションデータとして保存
+					HohoemaApp.SaveAccount(IsRememberPassword.Value);
 
-				// ログインページにバックキーで戻れないようにページ履歴削除
-				PageManager.ClearNavigateHistory();
+					// ログインページにバックキーで戻れないようにページ履歴削除
+					PageManager.ClearNavigateHistory();
 
-				// ポータルページへGO
-				PageManager.OpenPage(HohoemaPageType.Portal);
-				IsServiceUnavailable.Value = false;
+					// ポータルページへGO
+					PageManager.OpenPage(HohoemaPageType.Portal);
+					IsServiceUnavailable.Value = false;
+				}
+				else if (result == NiconicoSignInStatus.Failed)
+				{
+					IsLoginFailed.Value = true;
+					IsServiceUnavailable.Value = false;
+				}
+				else if (result == NiconicoSignInStatus.ServiceUnavailable)
+				{
+					IsLoginFailed.Value = false;
+					IsServiceUnavailable.Value = true;
+				}
+				else
+				{
+					HohoemaApp.NiconicoContext?.Dispose();
+					HohoemaApp.NiconicoContext = null;
+				}
 			}
-			else if (result == NiconicoSignInStatus.Failed)
+			finally
 			{
-				IsLoginFailed.Value = true;
-				IsServiceUnavailable.Value = false;
+				if (IsLoginFailed.Value == true)
+				{
+					LoginErrorText.Value = HohoemaApp.LoginErrorText;
+				}
 			}
-			else if (result == NiconicoSignInStatus.ServiceUnavailable)
-			{
-				IsLoginFailed.Value = false;
-				IsServiceUnavailable.Value = true;
-			}
-			else
-			{
-				HohoemaApp.NiconicoContext?.Dispose();
-				HohoemaApp.NiconicoContext = null;
-			}
+			
 
 			CanChangeValue.Value = true;
 		}
@@ -143,6 +165,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public AccountSettings AccountSettings { get; private set; }
 
+		public ReactiveProperty<string> LoginErrorText { get; private set; }
 
 		public string VersionText { get; private set; }
 	}

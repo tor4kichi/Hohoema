@@ -86,8 +86,6 @@ namespace NicoPlayerHohoema.Models
 			var tagLists = new ObservableCollection<FavFeedList>(await LoadFeedLists(await GetSpecifyFavFolder(TagFavGroupName, UserId)));
 			ItemsByGroupName.Add(FavoriteItemType.Tag, tagLists);
 
-			await SyncAllFav();
-
 			await _HohoemaApp.BackgroundUpdater.Schedule(this);
 		}
 
@@ -353,6 +351,8 @@ namespace NicoPlayerHohoema.Models
 		{
 			return AsyncInfo.Run(async cancelToken => 
 			{
+				await SyncAllFav();
+
 				await UpdateAll();
 
 				await SaveAllFavFeedLists();
