@@ -32,8 +32,16 @@
                             >
                     <AppBarButton Label="検索履歴を全て削除"
                                   Icon="Delete"
-                                  Command="{Binding DeleteAllSearchHistoryCommand}"
-                                  />
+                                  IsEnabled="{Binding HasItem.Value}"
+                                  >
+                        <AppBarButton.Flyout>
+                            <Flyout>
+                                <Button Content="【確認】検索履歴を全て削除します" 
+                                        Command="{Binding DeleteAllSearchHistoryCommand}"
+                                        />
+                            </Flyout>
+                        </AppBarButton.Flyout>
+                    </AppBarButton>
                 </StackPanel>
 
 
