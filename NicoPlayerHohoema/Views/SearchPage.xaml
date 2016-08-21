@@ -85,17 +85,19 @@
                     <StackPanel Orientation="Horizontal">
 
                         <TextBox Text="{Binding SearchText.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                 Height="32"
-                                 Width="160"
-                                 HorizontalAlignment="Stretch" 
-                                 ext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
-                                 VerticalAlignment="Center"
-                                 InputScope="Search"
-                             >
+                                    Height="32"
+                                    Width="160"
+                                    HorizontalAlignment="Stretch" 
+                                    ext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
+                                    VerticalAlignment="Center"
+                                    InputScope="Search"
+                                    x:Name="SearchTextBox"
+                                >
                             <i:Interaction.Behaviors>
                                 <mybehavior:KeyboardTrigger Key="Enter">
                                     <mybehavior:KeyboardTrigger.Actions>
                                         <core:InvokeCommandAction Command="{Binding DoSearchCommand}" />
+                                        <mybehavior:HideInputPaneAction />
                                     </mybehavior:KeyboardTrigger.Actions>
                                 </mybehavior:KeyboardTrigger>
                             </i:Interaction.Behaviors>
@@ -103,11 +105,18 @@
                         </TextBox>
 
                         <Button Content="検索" 
-                                Command="{Binding DoSearchCommand}"
                                 Margin="8 0"
                                 VerticalAlignment="Center"
                                 Width="80"
-                                />
+                                >
+                            <i:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <core:InvokeCommandAction Command="{Binding DoSearchCommand}" />
+                                    <mybehavior:HideInputPaneAction />
+                                </core:EventTriggerBehavior>
+                            </i:Interaction.Behaviors>
+
+                        </Button>
 
                     </StackPanel>
 
