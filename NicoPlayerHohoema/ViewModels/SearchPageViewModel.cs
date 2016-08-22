@@ -449,17 +449,40 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			if (SearchOption.SearchTarget == SearchTarget.Keyword)
 			{
-				var response = await _HohoemaApp.ContentFinder.GetKeywordSearch(SearchOption.Keyword, 0, 2);
-				return response.TotalCount;
+				_FirstResponse = await _HohoemaApp.ContentFinder.GetKeywordSearch(SearchOption.Keyword, 0, OneTimeLoadSearchItemCount);
 			}
 			else if (SearchOption.SearchTarget == SearchTarget.Tag)
 			{
-				var response = await _HohoemaApp.ContentFinder.GetTagSearch(SearchOption.Keyword, 0, 2);
-				return response.TotalCount;
+				_FirstResponse = await _HohoemaApp.ContentFinder.GetTagSearch(SearchOption.Keyword, 0, OneTimeLoadSearchItemCount);
+			}
+
+			if (_FirstResponse != null)
+			{
+				// 最初の検索結果だけ先行してThumbnail情報を読みこませる
+				await _HohoemaApp.ThumbnailBackgroundLoader.Schedule(
+					new SimpleBackgroundUpdate("Search_" + SearchOption.Keyword
+					, () => UpdateItemsThumbnailInfo()
+					)
+					);
+
+				return _FirstResponse.TotalCount;
 			}
 			else
 			{
 				throw new Exception();
+			}
+		}
+
+		VideoSearchResponse _FirstResponse;
+
+		private async Task UpdateItemsThumbnailInfo()
+		{
+			if (_FirstResponse != null)
+			{
+				foreach (var item in _FirstResponse.VideoInfoItems.Take(16))
+				{
+					await _HohoemaApp.MediaManager.GetNicoVideo(item.Video.Id);
+				}
 			}
 		}
 
