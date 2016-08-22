@@ -25,7 +25,7 @@ namespace NicoPlayerHohoema.ViewModels
 	abstract public class HohoemaListingPageViewModelBase<ITEM_VM> : HohoemaViewModelBase
 		where ITEM_VM : HohoemaListingPageItemBase
 	{
-		public HohoemaListingPageViewModelBase(HohoemaApp app, PageManager pageManager, bool isRequireSignIn = false)
+		public HohoemaListingPageViewModelBase(HohoemaApp app, PageManager pageManager, bool isRequireSignIn = true)
 			: base(app, pageManager, isRequireSignIn)
 		{
 			NowLoadingItems = new ReactiveProperty<bool>(true)

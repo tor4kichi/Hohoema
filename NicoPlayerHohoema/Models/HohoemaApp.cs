@@ -13,11 +13,15 @@ using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Diagnostics;
 using Windows.Storage;
+using Windows.UI.Core;
+using Windows.UI.Xaml;
 
 namespace NicoPlayerHohoema.Models
 {
 	public class HohoemaApp : BindableBase, IDisposable
 	{
+		public static CoreDispatcher UIDispatcher { get; private set; }
+
 		public static HohoemaApp Create(IEventAggregator ea)
 		{
 			var app = new HohoemaApp(ea);
@@ -26,6 +30,7 @@ namespace NicoPlayerHohoema.Models
 			app.ContentFinder = new NiconicoContentFinder(app);
 			app.UserMylistManager = new UserMylistManager(app);
 
+			UIDispatcher = Window.Current.CoreWindow.Dispatcher;
 			return app;
 		}
 

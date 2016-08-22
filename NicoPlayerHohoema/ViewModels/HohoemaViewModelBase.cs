@@ -22,7 +22,7 @@ namespace NicoPlayerHohoema.ViewModels
 		// Note: サインイン後にHohoemaViewModelBaseが呼び出された場合、OnSigninが呼び出されない。これに対処する
 
 
-		public HohoemaViewModelBase(HohoemaApp hohoemaApp, PageManager pageManager, bool isRequireSignIn = false)
+		public HohoemaViewModelBase(HohoemaApp hohoemaApp, PageManager pageManager, bool isRequireSignIn = true)
 		{
 			_SignStatusLock = new SemaphoreSlim(1, 1);
 			_NavigationToLock = new SemaphoreSlim(1, 1);
