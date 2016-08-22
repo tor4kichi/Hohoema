@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.UI;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -27,6 +28,7 @@ namespace NicoPlayerHohoema.Models
 			IsKeepDisplayInPlayback = true;
 			IsKeepFrontsideInPlayback = true;
 			IsDefaultCommentWithAnonymous = true;
+			CommentColor = Colors.WhiteSmoke;
 		}
 
 
@@ -183,5 +185,13 @@ namespace NicoPlayerHohoema.Models
 			set { SetProperty(ref _IsDefaultCommentWithAnonymous, value); }
 		}
 
+		private Color _CommentColor;
+
+		[DataMember]
+		public Color CommentColor
+		{
+			get { return _CommentColor; }
+			set { SetProperty(ref _CommentColor, value); }
+		}
 	}
 }

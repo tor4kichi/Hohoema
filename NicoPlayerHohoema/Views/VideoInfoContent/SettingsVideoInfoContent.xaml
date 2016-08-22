@@ -139,6 +139,29 @@
 
             </toolkit:DockPanel>
 
+            <toolkit:DockPanel Margin="8">
+
+
+                <TextBlock Text="デフォルトのコメント色"
+                        toolkit:DockPanel.Dock="Left"
+                        VerticalAlignment="Center"
+                        />
+
+                <ComboBox ItemsSource="{Binding CommentColorList}"
+                          SelectedItem="{Binding CommentColor.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                          HorizontalAlignment="Right"
+                          >
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="{Binding Converter={StaticResource ColorToBrush}}"
+                                    Width="80"
+                                    Height="32"
+                                    />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </toolkit:DockPanel>
+            
             <!--
         <toolkit:DockPanel Margin="8">
 
