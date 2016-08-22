@@ -257,10 +257,14 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public async Task<IEnumerable<RankedVideoInfoControlViewModel>> GetPagedItems(uint position, uint pageSize)
 		{
+			while(_HohoemaApp.MediaManager == null)
+			{
+				await Task.Delay(100);
+			}
+
 			var contentFinder = _HohoemaApp.ContentFinder;
 			var mediaManager = _HohoemaApp.MediaManager;
 
-			
 
 			var head = (int)(position);
 			var tail = head + pageSize;

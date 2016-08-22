@@ -26,7 +26,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 			, () =>
 			{
-				return HohoemaApp.FavFeedManager.GetUnreadFeedItems().Any(x => x.IsUnread);
+				return HohoemaApp.FavFeedManager?.GetUnreadFeedItems().Any(x => x.IsUnread) ?? false;
 			});
 
 

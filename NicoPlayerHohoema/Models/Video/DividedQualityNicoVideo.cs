@@ -311,7 +311,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			if (RawVideoId == rawVideoId)
 			{
-				await NicoVideo._Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+				await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
 				{
 					await CheckCacheStatus();
 					await SaveProgress();
@@ -325,7 +325,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			if (rawVideoId == RawVideoId && quality == Quality)
 			{
-				await NicoVideo._Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+				await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
 				{
 					CacheState = NicoVideoCacheState.NowDownloading;
 					CacheProgressSize = Progress.BufferedSize();
@@ -337,7 +337,7 @@ namespace NicoPlayerHohoema.Models
 
 		private async void Stream_OnCacheComplete(string rawVideoId)
 		{
-			await NicoVideo._Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
 			{
 				await CheckCacheStatus();
 			});

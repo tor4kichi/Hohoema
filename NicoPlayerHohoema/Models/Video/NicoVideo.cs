@@ -21,12 +21,6 @@ namespace NicoPlayerHohoema.Models
 {
 	public class NicoVideo : BindableBase
 	{
-		internal static CoreDispatcher _Dispatcher;
-
-		static NicoVideo()
-		{
-			_Dispatcher = Window.Current.Dispatcher;
-		}
 
 		internal static async Task<NicoVideo> Create(HohoemaApp app, string rawVideoid, NicoVideoDownloadContext context)
 		{
