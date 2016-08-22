@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.UI;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -27,6 +28,7 @@ namespace NicoPlayerHohoema.Models
 			IsKeepDisplayInPlayback = true;
 			IsKeepFrontsideInPlayback = true;
 			IsDefaultCommentWithAnonymous = true;
+			CommentColor = Colors.WhiteSmoke;
 		}
 
 
@@ -183,5 +185,35 @@ namespace NicoPlayerHohoema.Models
 			set { SetProperty(ref _IsDefaultCommentWithAnonymous, value); }
 		}
 
+		private Color _CommentColor;
+
+		[DataMember]
+		public Color CommentColor
+		{
+			get { return _CommentColor; }
+			set { SetProperty(ref _CommentColor, value); }
+		}
+
+
+		/// <summary>
+		/// コメント色の反転した色を返します
+		/// グレー等の淡い色は反転してもコントラスト差がでないので
+		/// 手動で色を選択してください
+		/// </summary>
+		/// <returns></returns>
+		public Color InvertedCommentColor()
+		{
+			byte inv_R = (byte)(byte.MaxValue - CommentColor.R);
+			byte inv_G = (byte)(byte.MaxValue - CommentColor.G);
+			byte inv_B = (byte)(byte.MaxValue - CommentColor.B);
+
+			return new Color()
+			{
+				A = byte.MaxValue,
+				R = inv_R,
+				G = inv_G,
+				B = inv_B
+			};
+		}
 	}
 }
