@@ -46,6 +46,7 @@ namespace NicoPlayerHohoema.Models
 			CurrentAccount = new AccountSettings();
 
 			LoadRecentLoginAccount();
+			ThumbnailBackgroundLoader = new BackgroundUpdater("ThumbnailLoader");
 		}
 
 		public void LoadRecentLoginAccount()
@@ -581,6 +582,7 @@ namespace NicoPlayerHohoema.Models
 
 
 		public BackgroundUpdater BackgroundUpdater { get; private set; }
+		public BackgroundUpdater ThumbnailBackgroundLoader { get; private set; }
 
 
 		public LoggingChannel LoggingChannel { get; private set; }

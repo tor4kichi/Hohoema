@@ -251,8 +251,45 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			RankingRss = await NiconicoRanking.GetRankingData(_Target, _TimeSpan, _Category);
 
+			// 先頭20件を先行ロード
+			await _HohoemaApp.ThumbnailBackgroundLoader.Schedule(
+				new SimpleBackgroundUpdate("Ranking_First_" + _Category.ToString()
+				, () => UpdateItemsThumbnailInfo_First()
+				)
+				);
+
 			return RankingRss.Channel.Items.Count;
 		}
+
+		private async Task UpdateItemsThumbnailInfo_First()
+		{
+			if (RankingRss != null)
+			{
+				foreach (var item in RankingRss.Channel.Items.Take(20))
+				{
+					await _HohoemaApp.MediaManager.GetNicoVideo(item.GetVideoId());
+				}
+
+				// 次以降のデータをバックグラウンドで読み込み
+				await _HohoemaApp.ThumbnailBackgroundLoader.Schedule(
+					new SimpleBackgroundUpdate("Ranking_Second_" + _Category.ToString()
+					, () => UpdateItemsThumbnailInfo_Second()
+					)
+					);
+			}
+		}
+
+		private async Task UpdateItemsThumbnailInfo_Second()
+		{
+			if (RankingRss != null)
+			{
+				foreach (var item in RankingRss.Channel.Items.Skip(20))
+				{
+					await _HohoemaApp.MediaManager.GetNicoVideo(item.GetVideoId());
+				}
+			}
+		}
+
 
 
 		public async Task<IEnumerable<RankedVideoInfoControlViewModel>> GetPagedItems(uint position, uint pageSize)
@@ -293,6 +330,8 @@ namespace NicoPlayerHohoema.ViewModels
 				items.Add(vm);
 			}
 
+
+
 			return items;			
 		}
 
@@ -322,9 +361,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 			var res = await contentFinder.GetKeywordSearch(_Parameter, 0, 1, Sort.Popurarity).ConfigureAwait(false);
 
+
+
+
 			return res.TotalCount;
 		}
-
 
 		public async Task<IEnumerable<RankedVideoInfoControlViewModel>> GetPagedItems(uint head, uint pageSize)
 		{

@@ -196,64 +196,80 @@ namespace NicoPlayerHohoema.Models
 
 		private async Task SyncFavMylists()
 		{
-			var mylistFavFeedLists = GetFavMylistFeedListAll();
-			var mylistfavDatas = await _HohoemaApp.ContentFinder.GetFavMylists();
+			try
+			{
+				var mylistFavFeedLists = GetFavMylistFeedListAll();
+				var mylistfavDatas = await _HohoemaApp.ContentFinder.GetFavMylists();
 
 
-			var addedItems = mylistfavDatas.Where(x => mylistFavFeedLists.All(y => y.Id != x.ItemId))
-				.Select(x => new FavFeedList()
+				var addedItems = mylistfavDatas.Where(x => mylistFavFeedLists.All(y => y.Id != x.ItemId))
+					.Select(x => new FavFeedList()
+					{
+						Id = x.ItemId,
+						FavoriteItemType = FavoriteItemType.Mylist,
+						Name = x.Title,
+						FeedSource = FeedSource.Account,
+						UserLabel = "default",
+					});
+
+				foreach (var addItem in addedItems)
 				{
-					Id = x.ItemId,
-					FavoriteItemType = FavoriteItemType.Mylist,
-					Name = x.Title,
-					FeedSource = FeedSource.Account,
-					UserLabel = "default",
-				});
+					mylistFavFeedLists.Add(addItem);
+				}
 
-			foreach (var addItem in addedItems)
-			{
-				mylistFavFeedLists.Add(addItem);
+
+				var removedItems = mylistFavFeedLists.Where(x => !mylistfavDatas.Any(y => x.Id == y.ItemId)).ToList();
+				foreach (var removeItem in removedItems)
+				{
+					removeItem.IsDeleted = true;
+					mylistFavFeedLists.Remove(removeItem);
+				}
 			}
-
-
-			var removedItems = mylistFavFeedLists.Where(x => !mylistfavDatas.Any(y => x.Id == y.ItemId)).ToList();
-			foreach (var removeItem in removedItems)
+			catch (Exception ex)
 			{
-				removeItem.IsDeleted = true;
-				mylistFavFeedLists.Remove(removeItem);
+				Debug.WriteLine(ex.ToString());
 			}
+			
 
 		}
 
 
 		private async Task SyncFavTags()
 		{
-			var tagFavFeedLists = GetFavTagFeedListAll();
-			var tagFavDatas = await _HohoemaApp.ContentFinder.GetFavTags();
+			try
+			{
+				var tagFavFeedLists = GetFavTagFeedListAll();
+				var tagFavDatas = await _HohoemaApp.ContentFinder.GetFavTags();
 
 
-			var addedItems = tagFavDatas.Where(x => tagFavFeedLists.All(y => y.Name != x))
-				.Select(x => new FavFeedList()
+				var addedItems = tagFavDatas.Where(x => tagFavFeedLists.All(y => y.Name != x))
+					.Select(x => new FavFeedList()
+					{
+						Id = x,
+						FavoriteItemType = FavoriteItemType.Tag,
+						Name = x,
+						FeedSource = FeedSource.Account,
+						UserLabel = "default",
+					});
+
+				foreach (var addItem in addedItems)
 				{
-					Id = x,
-					FavoriteItemType = FavoriteItemType.Tag,
-					Name = x,
-					FeedSource = FeedSource.Account,
-					UserLabel = "default",
-				});
+					tagFavFeedLists.Add(addItem);
+				}
 
-			foreach (var addItem in addedItems)
-			{
-				tagFavFeedLists.Add(addItem);
+
+
+				var removedItems = tagFavFeedLists.Where(x => !tagFavDatas.Any(y => x.Name == y)).ToList();
+				foreach (var removeItem in removedItems)
+				{
+					removeItem.IsDeleted = true;
+					tagFavFeedLists.Remove(removeItem);
+				}
+
 			}
-
-
-
-			var removedItems = tagFavFeedLists.Where(x => !tagFavDatas.Any(y => x.Name == y)).ToList();
-			foreach (var removeItem in removedItems)
+			catch (Exception ex)
 			{
-				removeItem.IsDeleted = true;
-				tagFavFeedLists.Remove(removeItem);
+				Debug.WriteLine(ex.ToString());
 			}
 
 		}
