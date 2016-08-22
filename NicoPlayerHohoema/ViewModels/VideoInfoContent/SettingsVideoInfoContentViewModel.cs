@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.UI;
 
 namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 {
@@ -22,6 +23,13 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 				5, 10, 15, 24, 30, 45, 60, 75, 90, 120
 			};
 
+			CommentColorList = new List<Color>()
+			{
+				Colors.WhiteSmoke,
+				Colors.Black,
+			};
+
+
 			DefaultCommentDisplay = settings.ToReactivePropertyAsSynchronized(x => x.DefaultCommentDisplay);
 			IncrementReadablityOwnerComment = settings.ToReactivePropertyAsSynchronized(x => x.IncrementReadablityOwnerComment);
 			CommentRenderingFPS = settings.ToReactivePropertyAsSynchronized(x => x.CommentRenderingFPS);
@@ -30,7 +38,7 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 			IsKeepFrontsideInPlayback = settings.ToReactivePropertyAsSynchronized(x => x.IsKeepFrontsideInPlayback);
 			IsPauseWithCommentWriting = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.PauseWithCommentWriting);
 			ScrollVolumeFrequency = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.ScrollVolumeFrequency);
-
+			CommentColor = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentColor);
 			Observable.Merge(
 				DefaultCommentDisplay.ToUnit(),
 				IncrementReadablityOwnerComment.ToUnit(),
@@ -56,6 +64,10 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 		public ReactiveProperty<bool> IsKeepFrontsideInPlayback { get; private set; }
 		public ReactiveProperty<bool> IsPauseWithCommentWriting { get; private set; }
 		public ReactiveProperty<double> ScrollVolumeFrequency { get; private set; }
+
+		public List<Color> CommentColorList { get; private set; }
+		public ReactiveProperty<Color> CommentColor { get; private set; }
+
 
 		public List<uint> CommentRenderringFPSList { get; private set; }
 
