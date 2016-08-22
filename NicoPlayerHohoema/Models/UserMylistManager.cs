@@ -116,7 +116,8 @@ namespace NicoPlayerHohoema.Models
 				};
 				_UserMylists.Add(Deflist);
 
-				await HohoemaApp.BackgroundUpdater.Schedule(Deflist);
+				var updater = new SimpleBackgroundUpdate("mylist_deflist", () => Deflist.Refresh());
+				await HohoemaApp.BackgroundUpdater.Schedule(updater);
 			}
 
 
@@ -134,7 +135,8 @@ namespace NicoPlayerHohoema.Models
 				var addedMylistGroupInfo = MylistGroupInfo.FromMylistGroupData(userMylist, HohoemaApp, this);
 				_UserMylists.Add(addedMylistGroupInfo);
 
-				await HohoemaApp.BackgroundUpdater.Schedule(addedMylistGroupInfo);
+				var updater = new SimpleBackgroundUpdate("mylist_" + addedMylistGroupInfo.Name, () => addedMylistGroupInfo.Refresh());
+				await HohoemaApp.BackgroundUpdater.Schedule(updater);
 			}
 
 			// 削除分だけ検出してUserMylistから削除
@@ -217,10 +219,9 @@ namespace NicoPlayerHohoema.Models
 		public string ThreadId { get; set; }
 	}
 
-	public class MylistGroupInfo : BackgroundUpdateItemBase
+	public class MylistGroupInfo 
 	{
 		public MylistGroupInfo(string groupId, HohoemaApp hohoemaApp, UserMylistManager mylistManager)
-			: base("mylist_" + groupId)
 		{
 			GroupId = groupId;
 			IsDeflist = GroupId == "0";
@@ -274,7 +275,7 @@ namespace NicoPlayerHohoema.Models
 		/// <returns></returns>
 		public Task Refresh()
 		{
-			return Update().AsTask();
+			return Update();
 		}
 
 		public async Task<ContentManageResult> UpdateMylist(string name, string description, bool is_public, MylistDefaultSort default_sort, IconType iconType)
@@ -398,52 +399,50 @@ namespace NicoPlayerHohoema.Models
 			return _VideoIdToThreadIdMap.ContainsKey(videoId);
 		}
 
-		public override IAsyncAction Update()
+		private async Task Update()
 		{
-			return AsyncInfo.Run(async (cancelToken) => 
+
+			var itemCountPerMylist = HohoemaApp.IsPremiumUser ? 500u : 100u;
+
+			_VideoIdToThreadIdMap.Clear();
+
+			if (IsDeflist)
 			{
-				var itemCountPerMylist = HohoemaApp.IsPremiumUser ? 500u : 100u;
+				var defMylist = await HohoemaApp.NiconicoContext.Mylist.GetMylistItemListAsync("0");
 
-				_VideoIdToThreadIdMap.Clear();
-
-				if (IsDeflist)
+				foreach (var item in defMylist)
 				{
-					var defMylist = await HohoemaApp.NiconicoContext.Mylist.GetMylistItemListAsync("0");
+					_VideoIdToThreadIdMap.Add(item.WatchId, item.ItemId);
+				}
 
-					foreach (var item in defMylist)
+				MylistManager.DeflistUpdated();
+			}
+			else
+			{
+				if (!IsPublic && UserId == HohoemaApp.LoginUserId.ToString())
+				{
+					var res = await HohoemaApp.NiconicoContext.Mylist.GetMylistItemListAsync(GroupId);
+
+					foreach (var item in res)
 					{
 						_VideoIdToThreadIdMap.Add(item.WatchId, item.ItemId);
 					}
 
-					MylistManager.DeflistUpdated();
+					MylistManager.MylistUpdated();
 				}
 				else
 				{
-					if (!IsPublic && UserId == HohoemaApp.LoginUserId.ToString())
+					var res = await HohoemaApp.ContentFinder.GetMylistItems(GroupId, 0, itemCountPerMylist);
+
+
+					foreach (var item in res.Video_info)
 					{
-						var res = await HohoemaApp.NiconicoContext.Mylist.GetMylistItemListAsync(GroupId);
-
-						foreach (var item in res)
-						{
-							_VideoIdToThreadIdMap.Add(item.WatchId, item.ItemId);
-						}
-
-						MylistManager.MylistUpdated();
-					}
-					else
-					{
-						var res = await HohoemaApp.ContentFinder.GetMylistItems(GroupId, 0, itemCountPerMylist);
-
-
-						foreach (var item in res.Video_info)
-						{
-							_VideoIdToThreadIdMap.Add(item.Video.Id, item.Thread.Id);
-						}
+						_VideoIdToThreadIdMap.Add(item.Video.Id, item.Thread.Id);
 					}
 				}
+			}
 
-				await Task.Delay(100);
-			});
+			await Task.Delay(100);
 		}
 	}
 }

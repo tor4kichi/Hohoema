@@ -74,7 +74,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 					CanChangeFavoriteMylistState.Value = 
 						IsFavoriteMylist.Value == true 
-						|| HohoemaApp.FavFeedManager.CanMoreAddFavorite(FavoriteItemType.Mylist);
+						|| HohoemaApp.FavManager.CanMoreAddFavorite(FavoriteItemType.Mylist);
 
 
 					_NowProcessFavorite = false;
@@ -291,7 +291,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			if (MylistGroupId == null) { return false; }
 
-			var favManager = HohoemaApp.FavFeedManager;
+			var favManager = HohoemaApp.FavManager;
 			var result = await favManager.AddFav(FavoriteItemType.Mylist, MylistGroupId, MylistTitle);
 
 			return result == ContentManageResult.Success || result == ContentManageResult.Exist;
@@ -301,7 +301,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			if (MylistGroupId == null) { return false; }
 
-			var favManager = HohoemaApp.FavFeedManager;
+			var favManager = HohoemaApp.FavManager;
 			var result = await favManager.RemoveFav(FavoriteItemType.Mylist, MylistGroupId);
 
 			return result == ContentManageResult.Success;
@@ -331,7 +331,7 @@ namespace NicoPlayerHohoema.ViewModels
 			// お気に入り状態の取得
 			_NowProcessFavorite = true;
 
-			var favManager = HohoemaApp.FavFeedManager;
+			var favManager = HohoemaApp.FavManager;
 			IsFavoriteMylist.Value = favManager.IsFavoriteItem(FavoriteItemType.Mylist, MylistGroupId);
 
 			CanChangeFavoriteMylistState.Value =

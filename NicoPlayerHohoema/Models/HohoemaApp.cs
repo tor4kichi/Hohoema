@@ -42,7 +42,7 @@ namespace NicoPlayerHohoema.Models
 			LoginUserId = uint.MaxValue;
 			LoggingChannel = new LoggingChannel("HohoemaLog", new LoggingChannelOptions(HohoemaLoggerGroupGuid));
 
-			FavFeedManager = null;
+			FavManager = null;
 			CurrentAccount = new AccountSettings();
 
 			LoadRecentLoginAccount();
@@ -224,7 +224,7 @@ namespace NicoPlayerHohoema.Models
 					{
 						Debug.WriteLine("initilize: fav");
 						loginActivityLogger.LogEvent("initialize user favorite");
-						FavFeedManager = await FavFeedManager.Create(this, LoginUserId);
+						FavManager = await FavManager.Create(this, LoginUserId);
 					}
 					catch
 					{
@@ -235,7 +235,21 @@ namespace NicoPlayerHohoema.Models
 					}
 
 
+					try
+					{
+						FavFeedManager = new FavFeedManager(this, LoginUserId);
+						
+						
+						// TODO: FavFeedManager の初期化
 
+					}
+					catch
+					{
+						LoginErrorText = "[Failed] user FavFeedUpdater initialize failed.";
+						Debug.WriteLine(LoginErrorText);
+						loginActivityLogger.LogEvent(LoginErrorText, fields, LoggingLevel.Error);
+						return NiconicoSignInStatus.Failed;
+					}
 
 					try
 					{
@@ -299,7 +313,7 @@ namespace NicoPlayerHohoema.Models
 			}
 
 			NiconicoContext = null;
-			FavFeedManager = null;
+			FavManager = null;
 			UserSettings = null;
 			LoginUserId = uint.MaxValue;
 			MediaManager = null;
@@ -566,12 +580,22 @@ namespace NicoPlayerHohoema.Models
 
 		public NiconicoContentFinder ContentFinder { get; private set; }
 
+		private FavManager _FavManager;
+		public FavManager FavManager
+		{
+			get { return _FavManager; }
+			set { SetProperty(ref _FavManager, value); }
+		}
+
 		private FavFeedManager _FavFeedManager;
 		public FavFeedManager FavFeedManager
 		{
 			get { return _FavFeedManager; }
 			set { SetProperty(ref _FavFeedManager, value); }
 		}
+
+		
+
 
 		public UserMylistManager UserMylistManager { get; private set; }
 

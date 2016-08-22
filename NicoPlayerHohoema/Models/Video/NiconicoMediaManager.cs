@@ -22,7 +22,7 @@ namespace NicoPlayerHohoema.Models
 	/// ニコニコ動画の動画やサムネイル画像、
 	/// 動画情報など動画に関わるメディアを管理します
 	/// </summary>
-	public class NiconicoMediaManager : BackgroundUpdateItemBase, IDisposable
+	public class NiconicoMediaManager : BindableBase, IDisposable
 	{
 		// TODO: DeletedになったファイルをNicoVideoから受け取る
 		// TODO: Deletedなファイルの保存と復元
@@ -48,7 +48,9 @@ namespace NicoPlayerHohoema.Models
 			// ダウンロードコンテキストを作成
 			man.Context = await NicoVideoDownloadContext.Create(app, man);
 
-			await app.BackgroundUpdater.Schedule(man);
+			// 初期化をバックグラウンドタスクに登録
+			var updater = new SimpleBackgroundUpdate("NicoMediaManager", () => man.Initialize());
+			await app.BackgroundUpdater.Schedule(updater);
 			
 			return man;
 		}
@@ -56,7 +58,6 @@ namespace NicoPlayerHohoema.Models
 		
 
 		private NiconicoMediaManager(HohoemaApp app)
-			: base("NicoMediaManager")
 		{
 			_HohoemaApp = app;
 
@@ -69,44 +70,43 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public override IAsyncAction Update()
+		private async Task Initialize()
 		{
-			return AsyncInfo.Run(async (cancelToken) =>
+			
+			Debug.Write($"ダウンロードリクエストの復元を開始");
+
+
+			// ダウンロードリクエストされたアイテムのNicoVideoオブジェクトの作成
+			// 及び、リクエストの再構築
+			var list = await LoadDownloadRequestItems();
+			foreach (var req in list)
 			{
-				Debug.Write($"ダウンロードリクエストの復元を開始");
+				var nicoVideo = await GetNicoVideo(req.RawVideoid);
+				_CacheRequestedItemsStack.Add(req);
+				await nicoVideo.CheckCacheStatus();
+				Debug.Write(".");
+			}
 
+			Debug.WriteLine("");
+			Debug.WriteLine($"{list.Count} 件のダウンロードリクエストを復元");
 
-				// ダウンロードリクエストされたアイテムのNicoVideoオブジェクトの作成
-				// 及び、リクエストの再構築
-				var list = await LoadDownloadRequestItems();
-				foreach (var req in list)
-				{
-					var nicoVideo = await GetNicoVideo(req.RawVideoid);
-					_CacheRequestedItemsStack.Add(req);
-					await nicoVideo.CheckCacheStatus();
-					Debug.Write(".");
-				}
+			// キャッシュ済み動画情報のNicoVideoオブジェクトの作成
+			// キャッシュリクエスト対象でなかった場合でも異常動作で終了していた場合に対応するため
+			var saveFolder = Context.VideoSaveFolder;
+			var files = await saveFolder.GetFilesAsync();
 
-				Debug.WriteLine("");
-				Debug.WriteLine($"{list.Count} 件のダウンロードリクエストを復元");
+			var cachedFiles = files
+				.Where(x => x.Name.EndsWith("_info.json"))
+				.Select(x => new String(x.Name.TakeWhile(y => y != '_').ToArray()));
 
-				// キャッシュ済み動画情報のNicoVideoオブジェクトの作成
-				// キャッシュリクエスト対象でなかった場合でも異常動作で終了していた場合に対応するため
-				var saveFolder = Context.VideoSaveFolder;
-				var files = await saveFolder.GetFilesAsync();
+			foreach (var cachedFile in cachedFiles)
+			{
+				await GetNicoVideo(cachedFile);
 
-				var cachedFiles = files
-					.Where(x => x.Name.EndsWith("_info.json"))
-					.Select(x => new String(x.Name.TakeWhile(y => y != '_').ToArray()));
+				await Task.Delay(50);
+			}
 
-				foreach (var cachedFile in cachedFiles)
-				{
-					await GetNicoVideo(cachedFile);
-
-					await Task.Delay(50);
-				}
-
-			});
+			
 		}
 
 		public async Task<NicoVideo> GetNicoVideo(string rawVideoId)

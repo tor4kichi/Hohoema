@@ -21,7 +21,7 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 
 		protected override async void NavigateTo()
 		{
-			while (_HohoemaApp.FavFeedManager == null)
+			while (_HohoemaApp.FavManager == null)
 			{
 				await Task.Delay(100);
 			}
@@ -44,7 +44,12 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 
 			UnreadFavFeedItems.Clear();
 
-			var unreadItems = _HohoemaApp.FavFeedManager.GetAllFeedItems().Take(5);
+			await Task.Delay(0);
+
+			// TODO: FavFeedGroupによるフィード表示に対応
+
+			/*
+			var unreadItems = _HohoemaApp.FavManager.GetAllFeedItems().Take(5);
 
 			foreach (var item in unreadItems)
 			{
@@ -52,6 +57,7 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 				var vm = new FavoriteVideoInfoControlViewModel(item, nicoVideo, PageManager);
 				UnreadFavFeedItems.Add(vm);
 			}
+			*/
 		}
 
 		private DelegateCommand _OpenFavFeedListCommand;

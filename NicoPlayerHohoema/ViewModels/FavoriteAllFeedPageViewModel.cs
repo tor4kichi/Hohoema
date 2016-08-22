@@ -26,7 +26,8 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 			, () =>
 			{
-				return HohoemaApp.FavFeedManager?.GetUnreadFeedItems().Any(x => x.IsUnread) ?? false;
+				return false;
+//				return HohoemaApp.FavFeedManager?.GetUnreadFeedItems().Any(x => x.IsUnread) ?? false;
 			});
 
 
@@ -94,14 +95,20 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public async Task<int> ResetSource()
 		{
-			await _FavFeedManager.UpdateAll();
-			FeedItems = _FavFeedManager.GetAllFeedItems().Take(100).ToList();
+			await Task.Delay(0);
+			// FavFeedManagerから
+			//			await _FavFeedManager.UpdateAll();
+			//			FeedItems = _FavFeedManager.GetAllFeedItems().Take(100).ToList();
 
-			return FeedItems.Count;
+			//			return FeedItems.Count;
+			return 0;
 		}
 
 		public async Task<IEnumerable<FavoriteVideoInfoControlViewModel>> GetPagedItems(uint pageIndex, uint pageSize)
 		{
+			await Task.Delay(0);
+			return new List<FavoriteVideoInfoControlViewModel>();
+			/*
 			var head = pageIndex - 1;
 			var currentItems = FeedItems.Skip((int)head).Take((int)pageSize).ToList();
 
@@ -124,6 +131,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 
 			return list;
+			*/
 		}
 	}
 }
