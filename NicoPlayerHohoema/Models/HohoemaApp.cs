@@ -293,7 +293,10 @@ namespace NicoPlayerHohoema.Models
 			NiconicoContext.Dispose();
 
 			await SaveUserSettings();
-			await MediaManager.DeleteUnrequestedVideos();
+			if (MediaManager != null)
+			{
+				await MediaManager.DeleteUnrequestedVideos();
+			}
 
 			NiconicoContext = null;
 			FavFeedManager = null;

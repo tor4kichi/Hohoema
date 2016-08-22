@@ -64,6 +64,22 @@ namespace NicoPlayerHohoema.Util
 			}
 			return newnum;
 		}
+
+
+		public static Color ToInverted(this Color color)
+		{
+			byte inv_R = (byte)(byte.MaxValue - color.R);
+			byte inv_G = (byte)(byte.MaxValue - color.G);
+			byte inv_B = (byte)(byte.MaxValue - color.B);
+
+			return new Color()
+			{
+				A = byte.MaxValue,
+				R = inv_R,
+				G = inv_G,
+				B = inv_B
+			};
+		}
 	}
 
 }

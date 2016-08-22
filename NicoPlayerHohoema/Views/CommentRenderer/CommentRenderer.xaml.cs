@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NicoPlayerHohoema.Util;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -198,6 +199,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			var canvasHeight = (uint)CommentCanvas.ActualHeight;
 			var halfCanvasWidth = canvasWidth / 2;
 			var fontScale = (float)CommentSizeScale;
+			var commentDefaultColor = CommentDefaultColor;
 
 			// 非表示時は処理を行わない
 			if (Visibility == Visibility.Collapsed)
@@ -251,6 +253,28 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 					const float PixelToPoint = 0.75f;
 					var scaledFontSize = baseSize * fontScale * comment.FontScale * PixelToPoint;
 					comment.FontSize = (uint)Math.Ceiling(scaledFontSize);
+
+					if (comment.Color == null)
+					{
+						comment.RealColor = commentDefaultColor;
+					}
+					else
+					{
+						comment.RealColor = comment.Color.Value;
+					}
+
+					// コメント背景の色を求める
+					// 色を反転して輝度に変換
+					var baseColor = comment.RealColor.ToInverted();
+					var c = (byte)(0.299f * baseColor.R + 0.587f * baseColor.G + 0.114f * baseColor.B);
+
+					comment.BackColor = new Color()
+					{
+						R = c,
+						G = c,
+						B = c,
+						A = byte.MaxValue
+					};
 
 
 					renderComment.DataContext = comment;
@@ -515,6 +539,23 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 
 		#region Dependency Properties
+
+		public static readonly DependencyProperty CommentDefaultColorProperty =
+			DependencyProperty.Register("CommentDefaultColor"
+				, typeof(Color)
+				, typeof(CommentRenderer)
+				, new PropertyMetadata(Windows.UI.Colors.WhiteSmoke)
+				);
+
+
+		public Color CommentDefaultColor
+		{
+			get { return (Color)GetValue(CommentDefaultColorProperty); }
+			set { SetValue(CommentDefaultColorProperty, value); }
+		}
+
+
+
 
 
 		public static readonly DependencyProperty SelectedCommentOutlineColorProperty =
