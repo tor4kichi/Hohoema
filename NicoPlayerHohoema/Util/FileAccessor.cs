@@ -114,5 +114,42 @@ namespace NicoPlayerHohoema.Util
 
 			return true;
 		}
+
+
+
+
+		/// <summary>
+		/// ファイル名を変更します。
+		/// 拡張子も必要です。
+		/// ファイルが存在しない場合は何もせず false を返します。
+		/// </summary>
+		/// <param name="filename"></param>
+		/// <returns></returns>
+		public async Task<bool> Rename(string filename)
+		{
+			try
+			{
+				await _ReadWriteLock.WaitAsync();
+
+				if (false == await Folder.ExistFile(FileName))
+				{
+					return false;
+				}
+
+				var file = await Folder.GetFileAsync(FileName);
+
+				await file.RenameAsync(filename);
+			}
+			catch (Exception ex)
+			{
+				Debug.WriteLine(ex.ToString());
+			}
+			finally
+			{
+				_ReadWriteLock.Release();
+			}
+
+			return true;
+		}
 	}
 }
