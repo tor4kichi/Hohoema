@@ -12,15 +12,14 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class FavoriteVideoInfoControlViewModel : VideoInfoControlViewModel
 	{
-		public FavoriteVideoInfoControlViewModel(FavFeedItem feedItem, NicoVideo nicoVideo, PageManager pageMan)
+		public FavoriteVideoInfoControlViewModel(FavFeedItem feedItem, FeedGroup feedGroup, NicoVideo nicoVideo, PageManager pageMan)
 			: base(nicoVideo, pageMan)
 		{
 			IsUnread = feedItem.ToReactivePropertyAsSynchronized(x => x.IsUnread)
 				.AddTo(_CompositeDisposable);
 
 			_FafFeedItem = feedItem;
-			SourceType = feedItem.ParentList.FavoriteItemType;
-			SourceTitle = feedItem.ParentList.Name;
+			_FeedGroup = feedGroup;
 		}
 
 
@@ -32,6 +31,7 @@ namespace NicoPlayerHohoema.ViewModels
 				return _OpenFeedSourceCommand
 					?? (_OpenFeedSourceCommand = new DelegateCommand(() => 
 					{
+						/*
 						var feedList = _FafFeedItem.ParentList;
 						switch (SourceType)
 						{
@@ -53,11 +53,13 @@ namespace NicoPlayerHohoema.ViewModels
 							default:
 								break;
 						}
+						*/
 					}));
 			}
 		}
 
 		FavFeedItem _FafFeedItem;
+		FeedGroup _FeedGroup;
 
 		public ReactiveProperty<bool> IsUnread { get; private set; }
 		public FavoriteItemType SourceType { get; private set; }

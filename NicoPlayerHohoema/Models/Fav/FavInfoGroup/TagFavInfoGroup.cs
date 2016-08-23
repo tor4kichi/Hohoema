@@ -35,7 +35,6 @@ namespace NicoPlayerHohoema.Models
 			{
 				Id = source,
 				Name = source,
-				FeedSource = FeedSource.Account,
 				FavoriteItemType = FavoriteItemType
 			};
 		}

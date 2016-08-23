@@ -34,35 +34,6 @@ namespace NicoPlayerHohoema.Models
 		public DateTime UpdateTime { get; set; }
 
 
-		[DataMember(Name = "source")]
-		private uint _feedSourceRaw;
-		public uint FeedSourceRaw
-		{
-			get
-			{
-				return _feedSourceRaw;
-			}
-			set
-			{
-				_FeedSource = (FeedSource)value;
-				_feedSourceRaw = value;
-			}
-		}
-
-		private FeedSource _FeedSource;
-		public FeedSource FeedSource
-		{
-			get
-			{
-				return _FeedSource;
-			}
-			set
-			{
-				_FeedSource = value;
-				_feedSourceRaw = (uint)value;
-			}
-		}
-
 
 		[DataMember(Name = "deleted")]
 		public bool IsDeleted { get; set; }

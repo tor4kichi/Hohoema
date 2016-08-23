@@ -237,11 +237,11 @@ namespace NicoPlayerHohoema.Models
 
 					try
 					{
-						FavFeedManager = new FavFeedManager(this, LoginUserId);
-						
-						
-						// TODO: FavFeedManager の初期化
+						Debug.WriteLine("initilize: feed");
+						loginActivityLogger.LogEvent("initialize feed");
 
+						FeedManager = new FeedManager(this, LoginUserId);
+						await FeedManager.Initialize();
 					}
 					catch
 					{
@@ -319,6 +319,8 @@ namespace NicoPlayerHohoema.Models
 			MediaManager = null;
 			BackgroundUpdater?.Dispose();
 			BackgroundUpdater = null;
+			FavManager = null;
+			FeedManager = null;
 
 			OnSignout?.Invoke();
 
@@ -587,11 +589,11 @@ namespace NicoPlayerHohoema.Models
 			set { SetProperty(ref _FavManager, value); }
 		}
 
-		private FavFeedManager _FavFeedManager;
-		public FavFeedManager FavFeedManager
+		private FeedManager _FeedManager;
+		public FeedManager FeedManager
 		{
-			get { return _FavFeedManager; }
-			set { SetProperty(ref _FavFeedManager, value); }
+			get { return _FeedManager; }
+			set { SetProperty(ref _FeedManager, value); }
 		}
 
 		

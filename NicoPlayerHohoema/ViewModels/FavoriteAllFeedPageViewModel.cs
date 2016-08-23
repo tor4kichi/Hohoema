@@ -22,7 +22,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			AllMarkAsReadCommand = new DelegateCommand(async () =>
 			{
-				await HohoemaApp.FavFeedManager.MarkAsReadAllVideo();
+				await HohoemaApp.FeedManager.MarkAsReadAllVideo();
 			}
 			, () =>
 			{
@@ -40,8 +40,8 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				foreach (var item in SelectedItems)
 				{
-					await HohoemaApp.FavFeedManager.MarkAsRead(item.VideoId);
-					await HohoemaApp.FavFeedManager.MarkAsRead(item.RawVideoId);
+					await HohoemaApp.FeedManager.MarkAsRead(item.VideoId);
+					await HohoemaApp.FeedManager.MarkAsRead(item.RawVideoId);
 				}
 
 				ClearSelection();
@@ -67,7 +67,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override IIncrementalSource<FavoriteVideoInfoControlViewModel> GenerateIncrementalSource()
 		{
-			return new FavriteAllFeedIncrementalSource(HohoemaApp.FavFeedManager, HohoemaApp.MediaManager, PageManager);
+			return new FavriteAllFeedIncrementalSource(HohoemaApp.FeedManager, HohoemaApp.MediaManager, PageManager);
 		}
 
 
@@ -80,13 +80,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class FavriteAllFeedIncrementalSource : IIncrementalSource<FavoriteVideoInfoControlViewModel>
 	{
-		FavFeedManager _FavFeedManager;
+		FeedManager _FavFeedManager;
 		NiconicoMediaManager _NiconicoMediaManager;
 		PageManager _PageManager;
 
 		public List<FavFeedItem> FeedItems { get; private set; }
 
-		public FavriteAllFeedIncrementalSource(FavFeedManager favFeedManager, NiconicoMediaManager mediaManager, PageManager pageManager)
+		public FavriteAllFeedIncrementalSource(FeedManager favFeedManager, NiconicoMediaManager mediaManager, PageManager pageManager)
 		{
 			_FavFeedManager = favFeedManager;
 			_NiconicoMediaManager = mediaManager;

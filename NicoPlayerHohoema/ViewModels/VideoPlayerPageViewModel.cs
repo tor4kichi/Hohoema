@@ -1152,8 +1152,8 @@ namespace NicoPlayerHohoema.ViewModels
 				cancelToken.ThrowIfCancellationRequested();
 
 				// お気に入りフィード上の動画を既読としてマーク
-				await HohoemaApp.FavFeedManager.MarkAsRead(Video.VideoId);
-				await HohoemaApp.FavFeedManager.MarkAsRead(Video.RawVideoId);
+				await HohoemaApp.FeedManager.MarkAsRead(Video.VideoId);
+				await HohoemaApp.FeedManager.MarkAsRead(Video.RawVideoId);
 
 				cancelToken.ThrowIfCancellationRequested();
 

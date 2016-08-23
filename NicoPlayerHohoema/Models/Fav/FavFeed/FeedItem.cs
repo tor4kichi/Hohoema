@@ -74,8 +74,6 @@ namespace NicoPlayerHohoema.Models
 
 
 
-		public FavInfo ParentList { get; set; }
-
 		public bool Equals(FavFeedItem other)
 		{
 			return VideoId == other.VideoId;
