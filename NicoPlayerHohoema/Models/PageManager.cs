@@ -106,10 +106,6 @@ namespace NicoPlayerHohoema.Models
 					return "マイリスト一覧";
 				case HohoemaPageType.Mylist:
 					return "マイリスト";
-				case HohoemaPageType.FavoriteAllFeed:
-					return "お気に入り一覧";
-				case HohoemaPageType.FavoriteFeed:
-					return "お気に入り";
 				case HohoemaPageType.FavoriteManage:
 					return "お気に入り管理";
 				case HohoemaPageType.History:
@@ -128,6 +124,12 @@ namespace NicoPlayerHohoema.Models
 					return "動画プレイヤー";
 				case HohoemaPageType.ConfirmWatchHurmfulVideo:
 					return "動画視聴の確認";
+				case HohoemaPageType.FeedGroupManage:
+					return "全てのフィードグループ";
+				case HohoemaPageType.FeedGroup:
+					return "フィードグループ";
+				case HohoemaPageType.FeedVideoList:
+					return "フィードの動画一覧";
 				case HohoemaPageType.UserInfo:
 					return "ユーザー情報";
 				case HohoemaPageType.UserVideo:

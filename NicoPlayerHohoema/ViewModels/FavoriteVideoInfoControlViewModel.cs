@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class FavoriteVideoInfoControlViewModel : VideoInfoControlViewModel
+	public class FeedVideoInfoControlViewModel : VideoInfoControlViewModel
 	{
-		public FavoriteVideoInfoControlViewModel(FavFeedItem feedItem, FeedGroup feedGroup, NicoVideo nicoVideo, PageManager pageMan)
+		public FeedVideoInfoControlViewModel(FavFeedItem feedItem, FeedGroup feedGroup, NicoVideo nicoVideo, PageManager pageMan)
 			: base(nicoVideo, pageMan)
 		{
 			IsUnread = feedItem.ToReactivePropertyAsSynchronized(x => x.IsUnread)

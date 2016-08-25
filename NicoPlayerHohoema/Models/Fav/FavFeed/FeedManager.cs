@@ -21,18 +21,33 @@ namespace NicoPlayerHohoema.Models
 
 	public class FeedManager
 	{
+		static Newtonsoft.Json.JsonSerializerSettings FeedGroupSerializerSettings = new Newtonsoft.Json.JsonSerializerSettings()
+		{
+			TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Objects
+		};
+
+
 		public HohoemaApp HohoemaApp { get; private set; }
 
 		public uint UserId { get; private set; }
 
 
-		public List<Tuple<FileAccessor<FeedGroup>, FeedGroup>> FeedGroups { get; private set; }
+		public Dictionary<FeedGroup, FileAccessor<FeedGroup>> FeedGroupDict { get; private set; }
+		public IReadOnlyCollection<FeedGroup> FeedGroups
+		{
+			get
+			{
+				return FeedGroupDict.Keys;
+			}
+		}
+		
+
 
 		public FeedManager(HohoemaApp hohoemaApp, uint userId)
 		{
 			HohoemaApp = hohoemaApp;
 			UserId = userId;
-			FeedGroups = new List<Tuple<FileAccessor<FeedGroup>, FeedGroup>>();
+			FeedGroupDict = new Dictionary<FeedGroup, FileAccessor<FeedGroup>>();
 		}
 		
 
@@ -58,12 +73,12 @@ namespace NicoPlayerHohoema.Models
 
 					try
 					{
-						var item = await fileAccessor.Load();
+						var item = await fileAccessor.Load(FeedGroupSerializerSettings);
 						if (item != null)
 						{
 							item.HohoemaApp = this.HohoemaApp;
 							item.FeedManager = this;
-							FeedGroups.Add(new Tuple<FileAccessor<FeedGroup>, FeedGroup>(fileAccessor, item));
+							FeedGroupDict.Add(item, fileAccessor);
 						}
 						Debug.WriteLine($"FeedManager: [Sucesss] load {item.Label}");
 
@@ -75,7 +90,7 @@ namespace NicoPlayerHohoema.Models
 				}
 			}
 
-			Debug.WriteLine($"FeedManager: {FeedGroups.Count} 件のFeedGroupを読み込みました。");
+			Debug.WriteLine($"FeedManager: {FeedGroupDict.Count} 件のFeedGroupを読み込みました。");
 
 
 			var updater = new SimpleBackgroundUpdate("feedManager_" + UserId, () => Refresh());
@@ -83,24 +98,33 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
+		public FeedGroup GetFeedGroup(string label)
+		{
+			return FeedGroups.SingleOrDefault(x => x.Label == label);
+		}
+
+
 		private async Task Refresh()
 		{
 			foreach (var items in FeedGroups)
 			{
-				await items.Item2.Refresh();
+				await Task.Delay(500);
+
+				await items.Refresh();
 			}
 		}
 
+		
 
-		private Task _Save(Tuple<FileAccessor<FeedGroup>, FeedGroup> feedItem)
+		private Task _Save(KeyValuePair<FeedGroup, FileAccessor<FeedGroup>> feedItem)
 		{
-			var fileAccessor = feedItem.Item1;
-			return fileAccessor.Save(feedItem.Item2);
+			var fileAccessor = feedItem.Value;
+			return fileAccessor.Save(feedItem.Key, FeedGroupSerializerSettings);
 		}
 
 		public async Task Save()
 		{
-			foreach (var feedGroupTuple in FeedGroups)
+			foreach (var feedGroupTuple in FeedGroupDict)
 			{
 				await _Save(feedGroupTuple);
 			}
@@ -108,7 +132,7 @@ namespace NicoPlayerHohoema.Models
 
 		public Task SaveOne(FeedGroup group)
 		{
-			var target = FeedGroups.SingleOrDefault(x => x.Item2.Label == group.Label);
+			var target = FeedGroupDict.SingleOrDefault(x => x.Key.Label == group.Label);
 			return _Save(target);
 		}
 
@@ -119,13 +143,11 @@ namespace NicoPlayerHohoema.Models
 			var feedGroup = new FeedGroup(label);
 			var fileAccessor = new FileAccessor<FeedGroup>(folder, label + ".json");
 
-			var item = new Tuple<FileAccessor<FeedGroup>, FeedGroup>(fileAccessor, feedGroup);
 			feedGroup.HohoemaApp = this.HohoemaApp;
 			feedGroup.FeedManager = this;
-			FeedGroups.Add(item);
+			FeedGroupDict.Add(feedGroup, fileAccessor);
 
-			await _Save(item);
-
+			await fileAccessor.Save(feedGroup);
 			return feedGroup;
 		}
 
@@ -133,18 +155,19 @@ namespace NicoPlayerHohoema.Models
 
 		public bool CanAddLabel(string label)
 		{
-			return FeedGroups.All(x => x.Item2.Label != label);
+			return FeedGroups.All(x => x.Label != label);
 		}
 
 
 		public async Task<bool> RemoveFeedGroup(FeedGroup group)
 		{
-			var removeTarget = FeedGroups.SingleOrDefault(x => x.Item2.Label == group.Label);
+			var removeTarget = FeedGroups.SingleOrDefault(x => x.Label == group.Label);
 
 			if (removeTarget != null)
 			{
-				await removeTarget.Item1.Delete(StorageDeleteOption.PermanentDelete);
-				return FeedGroups.Remove(removeTarget);
+				var fileAccessor = FeedGroupDict[removeTarget];
+				await fileAccessor.Delete(StorageDeleteOption.PermanentDelete);
+				return FeedGroupDict.Remove(removeTarget);
 			}
 			else
 			{
@@ -155,11 +178,11 @@ namespace NicoPlayerHohoema.Models
 
 		internal Task RenameFeedGroup(FeedGroup group, string newLabel)
 		{
-			var target = FeedGroups.SingleOrDefault(x => x.Item2.Label == group.Label);
+			var target = FeedGroups.SingleOrDefault(x => x.Label == group.Label);
 
 			if (target != null)
 			{
-				var fileAccessor = target.Item1;
+				var fileAccessor = FeedGroupDict[target];
 
 				return fileAccessor.Rename(newLabel + ".json");
 			}
@@ -172,9 +195,9 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task MarkAsRead(string videoId)
 		{
-			foreach (var group in FeedGroups)
+			foreach (var group in FeedGroupDict)
 			{
-				var feedGroup = group.Item2;
+				var feedGroup = group.Key;
 				if (feedGroup.MarkAsRead(videoId))
 				{
 					await _Save(group);
@@ -185,9 +208,9 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task MarkAsReadAllVideo()
 		{
-			foreach (var group in FeedGroups)
+			foreach (var group in FeedGroupDict)
 			{
-				var feedGroup = group.Item2;
+				var feedGroup = group.Key;
 				feedGroup.ForceMarkAsRead();
 				await _Save(group);				
 			}

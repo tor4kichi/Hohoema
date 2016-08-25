@@ -15,9 +15,12 @@ using System.Threading;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class FavoriteAllFeedPageViewModel : HohoemaVideoListingPageViewModelBase<FavoriteVideoInfoControlViewModel>
+	public class FeedVideoListPageViewModel : HohoemaVideoListingPageViewModelBase<FeedVideoInfoControlViewModel>
 	{
-		public FavoriteAllFeedPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
+		public FeedGroup FeedGroup { get; private set; }
+
+
+		public FeedVideoListPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
 			: base(hohoemaApp, pageManager, mylistDialogService, isRequireSignIn: true)
 		{
 			AllMarkAsReadCommand = new DelegateCommand(async () =>
@@ -51,7 +54,23 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
+			if (e.Parameter is string)
+			{
+				var label = e.Parameter as string;
+
+				FeedGroup = HohoemaApp.FeedManager.GetFeedGroup(label);
+			}
+
+			if (FeedGroup == null)
+			{
+				throw new Exception("");
+			}
+
+
+			UpdateTitle(FeedGroup.Label);
+
 			AllMarkAsReadCommand.RaiseCanExecuteChanged();
+
 
 			return Task.CompletedTask;
 		}
@@ -65,9 +84,9 @@ namespace NicoPlayerHohoema.ViewModels
 		
 	
 
-		protected override IIncrementalSource<FavoriteVideoInfoControlViewModel> GenerateIncrementalSource()
+		protected override IIncrementalSource<FeedVideoInfoControlViewModel> GenerateIncrementalSource()
 		{
-			return new FavriteAllFeedIncrementalSource(HohoemaApp.FeedManager, HohoemaApp.MediaManager, PageManager);
+			return new FeedVideoIncrementalSource(FeedGroup, HohoemaApp.FeedManager, HohoemaApp.MediaManager, PageManager);
 		}
 
 
@@ -78,16 +97,17 @@ namespace NicoPlayerHohoema.ViewModels
 	}
 
 
-	public class FavriteAllFeedIncrementalSource : IIncrementalSource<FavoriteVideoInfoControlViewModel>
+	public class FeedVideoIncrementalSource : IIncrementalSource<FeedVideoInfoControlViewModel>
 	{
 		FeedManager _FavFeedManager;
 		NiconicoMediaManager _NiconicoMediaManager;
 		PageManager _PageManager;
+		FeedGroup _FeedGroup;
 
-		public List<FavFeedItem> FeedItems { get; private set; }
 
-		public FavriteAllFeedIncrementalSource(FeedManager favFeedManager, NiconicoMediaManager mediaManager, PageManager pageManager)
+		public FeedVideoIncrementalSource(FeedGroup feedGroup, FeedManager favFeedManager, NiconicoMediaManager mediaManager, PageManager pageManager)
 		{
+			_FeedGroup = feedGroup;
 			_FavFeedManager = favFeedManager;
 			_NiconicoMediaManager = mediaManager;
 			_PageManager = pageManager;
@@ -95,30 +115,27 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public async Task<int> ResetSource()
 		{
-			await Task.Delay(0);
-			// FavFeedManagerから
+			await _FeedGroup.Refresh();
 			//			await _FavFeedManager.UpdateAll();
 			//			FeedItems = _FavFeedManager.GetAllFeedItems().Take(100).ToList();
 
 			//			return FeedItems.Count;
-			return 0;
+			return _FeedGroup.GetUnreadItemCount();
 		}
 
-		public async Task<IEnumerable<FavoriteVideoInfoControlViewModel>> GetPagedItems(uint pageIndex, uint pageSize)
+		public async Task<IEnumerable<FeedVideoInfoControlViewModel>> GetPagedItems(uint pageIndex, uint pageSize)
 		{
-			await Task.Delay(0);
-			return new List<FavoriteVideoInfoControlViewModel>();
-			/*
-			var head = pageIndex - 1;
-			var currentItems = FeedItems.Skip((int)head).Take((int)pageSize).ToList();
+			var list = new List<FeedVideoInfoControlViewModel>();
 
-			var list = new List<FavoriteVideoInfoControlViewModel>();
+			var head = pageIndex - 1;
+			var currentItems = _FeedGroup.FeedItems.Skip((int)head).Take((int)pageSize).ToList();
+
 			foreach (var feed in currentItems)
 			{
 				try
 				{
 					var nicoVideo = await _NiconicoMediaManager.GetNicoVideo(feed.VideoId);
-					var vm = new FavoriteVideoInfoControlViewModel(feed, nicoVideo, _PageManager);
+					var vm = new FeedVideoInfoControlViewModel(feed, _FeedGroup, nicoVideo, _PageManager);
 
 					list.Add(vm);
 
@@ -131,7 +148,6 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 
 			return list;
-			*/
 		}
 	}
 }

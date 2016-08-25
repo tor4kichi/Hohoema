@@ -11,8 +11,12 @@ namespace NicoPlayerHohoema.Models
 {
 	// ユーザーが指定したFavItemを束ねて、動画Feedを生成する
 	[DataContract]
+	[KnownType(typeof(TagFeedSource))]
+	[KnownType(typeof(MylistFeedSource))]
+	[KnownType(typeof(UserFeedSource))]
 	public class FeedGroup : BindableBase
 	{
+
 
 		#region Properties
 
@@ -28,8 +32,20 @@ namespace NicoPlayerHohoema.Models
 			internal set { SetProperty(ref _Label, value); }
 		}
 
+
 		[DataMember(Name = "feed_source_list")]
-		public List<IFeedSource> FeedSourceList { get; private set; }
+		private List<IFeedSource> _FeedSourceList;
+
+
+		public IReadOnlyList<IFeedSource> FeedSourceList
+		{
+			get
+			{
+				return _FeedSourceList;
+			}
+		}
+
+
 
 		[DataMember(Name = "feed_items")]
 		public List<FavFeedItem> FeedItems { get; private set; }
@@ -53,36 +69,47 @@ namespace NicoPlayerHohoema.Models
 		public FeedGroup(string label)
 		{
 			Label = label;
-			FeedSourceList = new List<IFeedSource>();
+			_FeedSourceList = new List<IFeedSource>();
 			FeedItems = new List<FavFeedItem>();
 		}
 
 
-		public void AddTagFeedSource(string tag)
+		public IFeedSource AddTagFeedSource(string tag)
 		{
-			if (ExistFeedSource(FavoriteItemType.Tag, tag)) { return; }
+			if (ExistFeedSource(FavoriteItemType.Tag, tag)) { return null; }
 
-			FeedSourceList.Add(new TagFeedSource(tag));
+			var feedSource = new TagFeedSource(tag);
+			_FeedSourceList.Add(feedSource);
+			return feedSource;
 		}
 
-		public void AddMylistFeedSource(string name, string mylistGroupId)
+		public IFeedSource AddMylistFeedSource(string name, string mylistGroupId)
 		{
-			if (ExistFeedSource(FavoriteItemType.Mylist, mylistGroupId)) { return; }
+			if (ExistFeedSource(FavoriteItemType.Mylist, mylistGroupId)) { return null; }
 
-			FeedSourceList.Add(new MylistFeedSource(name, mylistGroupId));
+			var feedSource = new MylistFeedSource(name, mylistGroupId);
+			_FeedSourceList.Add(feedSource);
+			return feedSource;
 		}
 
-		public void AddUserFeedSource(string name, string userId)
+		public IFeedSource AddUserFeedSource(string name, string userId)
 		{
-			if (ExistFeedSource(FavoriteItemType.User, userId)) { return; }
+			if (ExistFeedSource(FavoriteItemType.User, userId)) { return null; }
 
-			FeedSourceList.Add(new UserFeedSource(name, userId));
+			var feedSource = new UserFeedSource(name, userId);
+			_FeedSourceList.Add(feedSource);
+			return feedSource;
+		}
+
+		public void RemoveUserFeedSource(IFeedSource feedSource)
+		{
+			_FeedSourceList.Remove(feedSource);
 		}
 
 
 		public bool ExistFeedSource(FavoriteItemType itemType, string id)
 		{
-			return FeedSourceList.Any(x => x.FavoriteItemType == itemType && x.Id == id);
+			return _FeedSourceList.Any(x => x.FavoriteItemType == itemType && x.Id == id);
 		}
 
 
@@ -92,7 +119,7 @@ namespace NicoPlayerHohoema.Models
 
 			var updateTime = DateTime.Now;
 			var latestItems = new List<FavFeedItem>();
-			foreach (var feedSource in FeedSourceList)
+			foreach (var feedSource in _FeedSourceList)
 			{
 				var items = await feedSource.GetLatestItems(HohoemaApp);
 				latestItems.AddRange(items);
@@ -154,7 +181,7 @@ namespace NicoPlayerHohoema.Models
 
 			}
 
-			FeedItems.Sort();
+			FeedItems.Sort(FavFeedItemComparer.Default);
 
 			UpdateTime = updateTime;
 
@@ -186,11 +213,17 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
+		public int GetUnreadItemCount()
+		{
+			return FeedItems.Count(x => x.IsUnread);
+		}
 
 
 		public Task Rename(string newLabel)
 		{
 			return FeedManager.RenameFeedGroup(this, newLabel);
 		}
+
+
 	}
 }

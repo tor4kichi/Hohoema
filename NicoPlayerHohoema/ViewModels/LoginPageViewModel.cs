@@ -21,7 +21,7 @@ namespace NicoPlayerHohoema.ViewModels
 	public class LoginPageViewModel : HohoemaViewModelBase
 	{
 		public LoginPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
-			 : base(hohoemaApp, pageManager)
+			 : base(hohoemaApp, pageManager, false)
 		{
 			AccountSettings = HohoemaApp.CurrentAccount;
 

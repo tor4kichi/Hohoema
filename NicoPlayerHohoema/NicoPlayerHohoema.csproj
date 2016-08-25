@@ -189,9 +189,11 @@
     <Compile Include="ViewModels\CommentCommandEditerViewModel.cs" />
     <Compile Include="ViewModels\CommentStreamingViewModel.cs" />
     <Compile Include="ViewModels\ConfirmWatchHurmfulVideoPageViewModel.cs" />
-    <Compile Include="ViewModels\FavoriteAllFeedPageViewModel.cs" />
+    <Compile Include="ViewModels\FeedVideoListPageViewModel.cs" />
     <Compile Include="ViewModels\FavoriteManagePageViewModel.cs" />
     <Compile Include="ViewModels\FavoriteVideoInfoControlViewModel.cs" />
+    <Compile Include="ViewModels\FeedGroupManagePageViewModel.cs" />
+    <Compile Include="ViewModels\FeedGroupPageViewModel.cs" />
     <Compile Include="ViewModels\HistoryPageViewModel.cs" />
     <Compile Include="ViewModels\HohoemaListingPageItemBase.cs" />
     <Compile Include="ViewModels\HohoemaListingPageViewModelBase.cs" />
@@ -220,6 +222,7 @@
     <Compile Include="Views\AboutPage.xaml.cs">
       <DependentUpon>AboutPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Behaviors\CloseFlyoutAction.cs" />
     <Compile Include="Views\Behaviors\EnsureLifecycleMediaElement.cs" />
     <Compile Include="Views\Behaviors\KeyboardTrigger.cs" />
     <Compile Include="Views\Behaviors\ListViewSelectedItemsGetter.cs" />
@@ -277,11 +280,17 @@
     <Compile Include="Views\EditAutCacheConditionDialog.xaml.cs">
       <DependentUpon>EditAutCacheConditionDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\FavoriteAllFeedPage.xaml.cs">
-      <DependentUpon>FavoriteAllFeedPage.xaml</DependentUpon>
+    <Compile Include="Views\FeedVideoListPage.xaml.cs">
+      <DependentUpon>FeedVideoListPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\FavoriteManagePage.xaml.cs">
       <DependentUpon>FavoriteManagePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FeedGroupManagePage.xaml.cs">
+      <DependentUpon>FeedGroupManagePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FeedGroupPage.xaml.cs">
+      <DependentUpon>FeedGroupPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MylistPage.xaml.cs">
       <DependentUpon>MylistPage.xaml</DependentUpon>
@@ -305,19 +314,6 @@
     <Compile Include="Views\SearchContent\TagSearchPageContent.xaml.cs">
       <DependentUpon>TagSearchPageContent.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Service\DislikeRankingCategoryChoiceDialog.xaml.cs">
-      <DependentUpon>DislikeRankingCategoryChoiceDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Service\EditAutoCacheConditionDialogService.cs" />
-    <Compile Include="Views\Service\EditMylistGroupDialog.xaml.cs">
-      <DependentUpon>EditMylistGroupDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Service\EditMylistGroupDialogService.cs" />
-    <Compile Include="Views\Service\MylistRegistrationDialog.xaml.cs">
-      <DependentUpon>MylistRegistrationDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Service\MylistRegistrationDialogService.cs" />
-    <Compile Include="Views\Service\RankingChoiceDialogService.cs" />
     <Compile Include="ViewModels\VideoPlayerPageViewModel.cs" />
     <Compile Include="ViewModels\PortalContent\AppPortalPageContentViewModel.cs" />
     <Compile Include="ViewModels\PortalContent\FavPortalPageContentViewModel.cs" />
@@ -359,6 +355,13 @@
     <Compile Include="Views\MenuNavigatePageBase.xaml.cs">
       <DependentUpon>MenuNavigatePageBase.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Service\EditAutoCacheConditionDialogService.cs" />
+    <Compile Include="Views\Service\EditMylistGroupDialogService.cs" />
+    <Compile Include="Views\Service\MylistRegistrationDialog.xaml.cs">
+      <DependentUpon>MylistRegistrationDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Service\MylistRegistrationDialogService.cs" />
+    <Compile Include="Views\Service\RankingChoiceDialogService.cs" />
     <Compile Include="Views\Service\ToastNotificationService.cs" />
     <Compile Include="Views\SettingsPageContent\CacheSettingsPageContent.xaml.cs">
       <DependentUpon>CacheSettingsPageContent.xaml</DependentUpon>
@@ -573,11 +576,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\FavoriteAllFeedPage.xaml">
+    <Page Include="Views\FeedVideoListPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\FavoriteManagePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\FeedGroupManagePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\FeedGroupPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -622,16 +633,16 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Service\DislikeRankingCategoryChoiceDialog.xaml">
-      <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\Service\EditMylistGroupDialog.xaml">
-      <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\Service\MylistRegistrationDialog.xaml">
-      <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\SettingsPageContent\CacheSettingsPageContent.xaml">
       <SubType>Designer</SubType>

@@ -28,13 +28,19 @@ namespace NicoPlayerHohoema.Util
 			return Folder.ExistFile(FileName);
 		}
 
-		public async Task Save(T item)
+		public async Task Save(T item, Newtonsoft.Json.JsonSerializerSettings settings = null)
 		{
+			if (settings == null)
+			{
+				settings = new Newtonsoft.Json.JsonSerializerSettings();
+			}
+
 			try
 			{
 				await _ReadWriteLock.WaitAsync();
 				var file = await Folder.CreateFileAsync(FileName, CreationCollisionOption.OpenIfExists);
-				await FileIO.WriteTextAsync(file, Newtonsoft.Json.JsonConvert.SerializeObject(item));
+
+				await FileIO.WriteTextAsync(file, Newtonsoft.Json.JsonConvert.SerializeObject(item, settings));
 			}
 			catch (Exception ex)
 			{
@@ -49,9 +55,12 @@ namespace NicoPlayerHohoema.Util
 
 		
 
-		public async Task<T> Load()
+		public async Task<T> Load(Newtonsoft.Json.JsonSerializerSettings settings = null)
 		{
-			
+			if (settings == null)
+			{
+				settings = new Newtonsoft.Json.JsonSerializerSettings();
+			}
 
 			try
 			{
@@ -65,7 +74,7 @@ namespace NicoPlayerHohoema.Util
 				var file = await Folder.GetFileAsync(FileName);
 				var text = await FileIO.ReadTextAsync(file);
 
-				return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(text);
+				return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(text, settings);
 			}
 			catch (Exception ex)
 			{

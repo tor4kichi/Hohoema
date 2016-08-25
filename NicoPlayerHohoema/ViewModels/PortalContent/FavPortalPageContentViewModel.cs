@@ -16,7 +16,7 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 		{
 			_HohoemaApp = hohoemaApp;
 
-			UnreadFavFeedItems = new ObservableCollection<FavoriteVideoInfoControlViewModel>();
+			UnreadFavFeedItems = new ObservableCollection<FeedVideoInfoControlViewModel>();
 		}
 
 		protected override async void NavigateTo()
@@ -68,13 +68,13 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 				return _OpenFavFeedListCommand
 					?? (_OpenFavFeedListCommand = new DelegateCommand(() =>
 					{
-						PageManager.OpenPage(HohoemaPageType.FavoriteAllFeed);
+//						PageManager.OpenPage(HohoemaPageType.FavoriteAllFeed);
 					}));
 			}
 		}
 
 
-		public ObservableCollection<FavoriteVideoInfoControlViewModel> UnreadFavFeedItems { get; private set; }
+		public ObservableCollection<FeedVideoInfoControlViewModel> UnreadFavFeedItems { get; private set; }
 
 
 		HohoemaApp _HohoemaApp;
