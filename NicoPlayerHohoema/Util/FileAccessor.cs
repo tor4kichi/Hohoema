@@ -148,10 +148,13 @@ namespace NicoPlayerHohoema.Util
 				var file = await Folder.GetFileAsync(FileName);
 
 				await file.RenameAsync(filename);
+
+				FileName = filename;
 			}
 			catch (Exception ex)
 			{
 				Debug.WriteLine(ex.ToString());
+				return false;
 			}
 			finally
 			{

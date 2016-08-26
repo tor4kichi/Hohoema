@@ -29,10 +29,12 @@ namespace NicoPlayerHohoema.ViewModels
 				FeedGroup.ForceMarkAsRead();
 
 				await HohoemaApp.FeedManager.SaveOne(FeedGroup);
+
+				AllMarkAsReadCommand.RaiseCanExecuteChanged();
 			}
 			, () =>
 			{
-				return FeedGroup.GetUnreadItemCount() > 0;
+				return (FeedGroup?.GetUnreadItemCount() ?? 0 ) > 0;
 			});
 
 
@@ -125,11 +127,8 @@ namespace NicoPlayerHohoema.ViewModels
 		public async Task<int> ResetSource()
 		{
 			await _FeedGroup.Refresh();
-			//			await _FavFeedManager.UpdateAll();
-			//			FeedItems = _FavFeedManager.GetAllFeedItems().Take(100).ToList();
 
-			//			return FeedItems.Count;
-			return _FeedGroup.GetUnreadItemCount();
+			return _FeedGroup.FeedItems.Count;
 		}
 
 		public async Task<IEnumerable<FeedVideoInfoControlViewModel>> GetPagedItems(uint pageIndex, uint pageSize)

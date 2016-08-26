@@ -155,6 +155,8 @@ namespace NicoPlayerHohoema.Models
 
 		public bool CanAddLabel(string label)
 		{
+			if (String.IsNullOrWhiteSpace(label)) { return false; }
+
 			return FeedGroups.All(x => x.Label != label);
 		}
 
@@ -176,7 +178,7 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		internal Task RenameFeedGroup(FeedGroup group, string newLabel)
+		internal Task<bool> RenameFeedGroup(FeedGroup group, string newLabel)
 		{
 			var target = FeedGroups.SingleOrDefault(x => x.Label == group.Label);
 
@@ -188,7 +190,7 @@ namespace NicoPlayerHohoema.Models
 			}
 			else
 			{
-				return Task.CompletedTask;
+				return Task.FromResult(false);
 			}
 		}
 		

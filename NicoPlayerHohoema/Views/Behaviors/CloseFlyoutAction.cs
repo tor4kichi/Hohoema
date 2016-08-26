@@ -19,6 +19,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
 		{
 			var element = sender as DependencyObject;
 			var flyout = element.GetFirstAncestorOfType<FlyoutPresenter>();
+			if (flyout == null) { return null; }
 			var popup = flyout.Parent as Popup;
 			if (popup != null)
 			{

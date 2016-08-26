@@ -246,9 +246,20 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public Task Rename(string newLabel)
+		public async Task<bool> Rename(string newLabel)
 		{
-			return FeedManager.RenameFeedGroup(this, newLabel);
+			if (await FeedManager.RenameFeedGroup(this, newLabel))
+			{
+				this.Label = newLabel;
+
+				await FeedManager.SaveOne(this);
+
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 
 

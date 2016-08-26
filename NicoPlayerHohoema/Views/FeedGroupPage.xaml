@@ -47,6 +47,41 @@
 
     <ScrollViewer>
         <StackPanel x:Name="LyaoutRoot" VerticalAlignment="Stretch" Margin="8">
+
+            <Button Content="名前の変更"
+                    HorizontalAlignment="Right"
+                    Margin="8"
+                    >
+                <Button.Flyout>
+                    <Flyout>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox Text="{Binding FeedGroupName.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="120">
+                                <i:Interaction.Behaviors>
+                                    <mybehavior:KeyboardTrigger Key="Enter">
+                                        <mybehavior:KeyboardTrigger.Actions>
+                                            <mybehavior:CloseFlyoutAction />
+                                            <core:InvokeCommandAction Command="{Binding RenameApplyCommand}" />
+                                        </mybehavior:KeyboardTrigger.Actions>
+                                    </mybehavior:KeyboardTrigger>
+                                </i:Interaction.Behaviors>
+                            </TextBox>
+
+                            <Button Content="OK" Margin="8 0 0 0"
+                                    Command="{Binding RenameApplyCommand}"
+                                    >
+                                <i:Interaction.Behaviors>
+                                    <core:EventTriggerBehavior EventName="Tapped">
+                                        <mybehavior:CloseFlyoutAction />
+                                    </core:EventTriggerBehavior>
+                                </i:Interaction.Behaviors>
+                            </Button>
+                        </StackPanel>
+                        
+                    </Flyout>
+                </Button.Flyout>
+            </Button>
+            
+            
             <StackPanel Orientation="Horizontal" Margin="8">
 
                 <SymbolIcon Symbol="List" VerticalAlignment="Center" />

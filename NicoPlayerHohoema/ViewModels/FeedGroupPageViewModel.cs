@@ -17,6 +17,8 @@ namespace NicoPlayerHohoema.ViewModels
 	{
 		public FeedGroup FeedGroup { get; private set; }
 
+		public ReactiveProperty<string> FeedGroupName { get; private set; }
+
 		public ReactiveProperty<bool> IsDeleted { get; private set; }
 
 		public ObservableCollection<FeedItemSourceListItem> MylistFeedSources { get; private set; }
@@ -46,6 +48,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			IsDeleted = new ReactiveProperty<bool>();
 
+			FeedGroupName = new ReactiveProperty<string>();
 			MylistFeedSources = new ObservableCollection<FeedItemSourceListItem>();
 			TagFeedSources = new ObservableCollection<FeedItemSourceListItem>();
 			UserFeedSources = new ObservableCollection<FeedItemSourceListItem>();
@@ -61,8 +64,6 @@ namespace NicoPlayerHohoema.ViewModels
 			FeedSourceId = new ReactiveProperty<string>();
 			ExistFeedSource = new ReactiveProperty<bool>();
 			IsPublicFeedSource = new ReactiveProperty<bool>();
-
-
 
 			FavItemType.Subscribe(x => 
 			{
@@ -260,6 +261,21 @@ namespace NicoPlayerHohoema.ViewModels
 				HohoemaApp.FeedManager.SaveOne(FeedGroup);
 
 			});
+
+			RenameApplyCommand = FeedGroupName
+				.Where(x => HohoemaApp.FeedManager != null && x != null)
+				.Select(x => HohoemaApp.FeedManager.CanAddLabel(x))
+				.ToReactiveCommand();
+
+			RenameApplyCommand.Subscribe(async _ => 
+			{
+				if (await FeedGroup.Rename(FeedGroupName.Value))
+				{
+					UpdateTitle(FeedGroup.Label);
+				}
+
+				FeedGroupName.ForceNotify();
+			});
 		}
 
 
@@ -281,6 +297,8 @@ namespace NicoPlayerHohoema.ViewModels
 			if (FeedGroup != null)
 			{
 				UpdateTitle(FeedGroup.Label);
+
+				FeedGroupName.Value = FeedGroup.Label;
 
 				MylistFeedSources.Clear();
 				foreach (var mylistFeedSrouce in FeedGroup.FeedSourceList.Where(x => x.FavoriteItemType == FavoriteItemType.Mylist))
@@ -354,7 +372,11 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		
+
+		public ReactiveCommand RenameApplyCommand { get; private set; }
+
+
+
 		internal void RemoveFeedSrouce(FeedItemSourceListItem feedSourceListItem)
 		{
 			var feedSource = feedSourceListItem.FeedSource;
