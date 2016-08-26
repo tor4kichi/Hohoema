@@ -45,8 +45,8 @@
         
     </Page.Resources>
 
-    <ScrollViewer Margin="8">
-        <StackPanel x:Name="LyaoutRoot" VerticalAlignment="Stretch">
+    <ScrollViewer>
+        <StackPanel x:Name="LyaoutRoot" VerticalAlignment="Stretch" Margin="8">
             <StackPanel Orientation="Horizontal" Margin="8">
 
                 <SymbolIcon Symbol="List" VerticalAlignment="Center" />
@@ -327,6 +327,24 @@
 
             </ItemsControl>
 
+
+            <Border HorizontalAlignment="Stretch" Background="#99C00000">
+                <Button Content="このフィードグループを削除する"
+                        Margin="16 16"
+                        HorizontalAlignment="Center"
+                        >
+                    <Button.Flyout>
+                        <Flyout>
+                            <Button 
+                                Content="【確認】フィードグループを削除"
+                                Command="{Binding RemoveFeedGroupCommand}"
+                                />
+                        </Flyout>
+                    </Button.Flyout>
+                </Button>
+            </Border>
+            
+            
         </StackPanel>
     </ScrollViewer>
 </Page>

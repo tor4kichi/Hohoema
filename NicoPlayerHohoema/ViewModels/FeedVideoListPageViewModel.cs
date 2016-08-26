@@ -26,17 +26,18 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			AllMarkAsReadCommand = new DelegateCommand(async () =>
 			{
-				await HohoemaApp.FeedManager.MarkAsReadAllVideo();
+				FeedGroup.ForceMarkAsRead();
+
+				await HohoemaApp.FeedManager.SaveOne(FeedGroup);
 			}
 			, () =>
 			{
-				return false;
-//				return HohoemaApp.FavFeedManager?.GetUnreadFeedItems().Any(x => x.IsUnread) ?? false;
+				return FeedGroup.GetUnreadItemCount() > 0;
 			});
 
 
 			SelectedItemsMarkAsReadCommand = SelectedItems.ToCollectionChanged()
-				.Select(x => SelectedItems.Count > 0)
+				.Select(x => SelectedItems.Count(y => y.IsUnread.Value) > 0)
 				.ToReactiveCommand(false)
 				.AddTo(_CompositeDisposable);
 
