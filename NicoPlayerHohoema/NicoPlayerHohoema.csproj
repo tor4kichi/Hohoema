@@ -316,7 +316,7 @@
     </Compile>
     <Compile Include="ViewModels\VideoPlayerPageViewModel.cs" />
     <Compile Include="ViewModels\PortalContent\AppPortalPageContentViewModel.cs" />
-    <Compile Include="ViewModels\PortalContent\FavPortalPageContentViewModel.cs" />
+    <Compile Include="ViewModels\PortalContent\FeedPortalPageContentViewModel.cs" />
     <Compile Include="ViewModels\PortalContent\MylistPortalPageContentViewModel.cs" />
     <Compile Include="ViewModels\PortalContent\RankingPortalPageContentViewModel.cs" />
     <Compile Include="ViewModels\PortalContent\SearchPortalPageContentViewModel.cs" />
@@ -390,8 +390,8 @@
     <Compile Include="Views\PortalContent\AppPortalPageContent.xaml.cs">
       <DependentUpon>AppPortalPageContent.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\PortalContent\FavPortalPageContent.xaml.cs">
-      <DependentUpon>FavPortalPageContent.xaml</DependentUpon>
+    <Compile Include="Views\PortalContent\FeedPortalPageContent.xaml.cs">
+      <DependentUpon>FeedPortalPageContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\PortalContent\MylistPortalPageContent.xaml.cs">
       <DependentUpon>MylistPortalPageContent.xaml</DependentUpon>
@@ -680,7 +680,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\PortalContent\FavPortalPageContent.xaml">
+    <Page Include="Views\PortalContent\FeedPortalPageContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

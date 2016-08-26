@@ -89,7 +89,7 @@
                             VerticalAlignment="Top"
                             />
 
-                        <portalContent:FavPortalPageContent
+                        <portalContent:FeedPortalPageContent
                             Height="{Binding ElementName=RootScrollViewer, Path=ActualHeight}"
                             VerticalAlignment="Top"
                             />

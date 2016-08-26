@@ -79,7 +79,7 @@ namespace NicoPlayerHohoema.Models
 			Label = label;
 			_FeedSourceList = new List<IFeedSource>();
 			FeedItems = new List<FavFeedItem>();
-			IsNeedRefresh = false;
+			IsNeedRefresh = true;
 		}
 
 
