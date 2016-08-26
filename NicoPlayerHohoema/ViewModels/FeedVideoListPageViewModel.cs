@@ -12,6 +12,7 @@ using Prism.Commands;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using System.Threading;
+using Windows.UI.Xaml.Navigation;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -75,6 +76,14 @@ namespace NicoPlayerHohoema.ViewModels
 			return Task.CompletedTask;
 		}
 
+		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
+		{
+			if (FeedGroup?.IsNeedRefresh ?? false)
+			{
+				return true;
+			}
+			return base.CheckNeedUpdateOnNavigateTo(mode);
+		}
 
 		protected override uint IncrementalLoadCount
 		{
@@ -88,7 +97,6 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			return new FeedVideoIncrementalSource(FeedGroup, HohoemaApp.FeedManager, HohoemaApp.MediaManager, PageManager);
 		}
-
 
 
 		public DelegateCommand AllMarkAsReadCommand { get; private set; }

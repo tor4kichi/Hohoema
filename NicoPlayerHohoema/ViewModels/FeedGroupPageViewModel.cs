@@ -19,9 +19,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<bool> IsDeleted { get; private set; }
 
-		public ObservableCollection<IFeedSource> MylistFeedSources { get; private set; }
-		public ObservableCollection<IFeedSource> TagFeedSources { get; private set; }
-		public ObservableCollection<IFeedSource> UserFeedSources { get; private set; }
+		public ObservableCollection<FeedItemSourceListItem> MylistFeedSources { get; private set; }
+		public ObservableCollection<FeedItemSourceListItem> TagFeedSources { get; private set; }
+		public ObservableCollection<FeedItemSourceListItem> UserFeedSources { get; private set; }
 
 
 
@@ -46,9 +46,9 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			IsDeleted = new ReactiveProperty<bool>();
 
-			MylistFeedSources = new ObservableCollection<IFeedSource>();
-			TagFeedSources = new ObservableCollection<IFeedSource>();
-			UserFeedSources = new ObservableCollection<IFeedSource>();
+			MylistFeedSources = new ObservableCollection<FeedItemSourceListItem>();
+			TagFeedSources = new ObservableCollection<FeedItemSourceListItem>();
+			UserFeedSources = new ObservableCollection<FeedItemSourceListItem>();
 
 			MylistFavItems = new ObservableCollection<FavInfo>();
 			TagFavItems = new ObservableCollection<FavInfo>();
@@ -68,8 +68,27 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				FeedSourceId.Value = "";
 				ExistFeedSource.Value = false;
-
+				
 				_FeedSourceName = "";
+
+
+				// お気に入りアイテムがある場合は、「お気に入りから選択」をデフォルトに
+				switch (x)
+				{
+					case FavoriteItemType.Tag:
+						SelectFromFavItems.Value = TagFavItems.Count > 0;
+						break;
+					case FavoriteItemType.Mylist:
+						SelectFromFavItems.Value = MylistFavItems.Count > 0;
+						break;
+					case FavoriteItemType.User:
+						SelectFromFavItems.Value = UserFavItems.Count > 0;
+						break;
+					default:
+						break;
+				}
+				
+
 			});
 
 			Observable.Merge(
@@ -151,6 +170,7 @@ namespace NicoPlayerHohoema.ViewModels
 						}
 					}
 				});
+
 			AddFeedCommand = 
 				Observable.CombineLatest(
 					ExistFeedSource,
@@ -199,7 +219,7 @@ namespace NicoPlayerHohoema.ViewModels
 								TagFavItems.Remove(favInfo);
 							}
 
-							TagFeedSources.Add(feedSource);
+							TagFeedSources.Add(new FeedItemSourceListItem(feedSource, this));
 						}
 
 						break;
@@ -214,7 +234,7 @@ namespace NicoPlayerHohoema.ViewModels
 								MylistFavItems.Remove(favInfo);
 							}
 
-							MylistFeedSources.Add(feedSource);
+							MylistFeedSources.Add(new FeedItemSourceListItem(feedSource, this));
 						}
 
 						break;
@@ -229,7 +249,7 @@ namespace NicoPlayerHohoema.ViewModels
 								UserFavItems.Remove(favInfo);
 							}
 
-							UserFeedSources.Add(feedSource);
+							UserFeedSources.Add(new FeedItemSourceListItem(feedSource, this));
 						}
 
 						break;
@@ -265,11 +285,11 @@ namespace NicoPlayerHohoema.ViewModels
 				MylistFeedSources.Clear();
 				foreach (var mylistFeedSrouce in FeedGroup.FeedSourceList.Where(x => x.FavoriteItemType == FavoriteItemType.Mylist))
 				{
-					MylistFeedSources.Add(mylistFeedSrouce);
+					MylistFeedSources.Add(new FeedItemSourceListItem(mylistFeedSrouce, this));
 				}
 
 				MylistFavItems.Clear();
-				foreach (var mylistFavInfo in HohoemaApp.FavManager.Mylist.FavInfoItems.Where(x => MylistFeedSources.All(y => x.Id != y.Id)))
+				foreach (var mylistFavInfo in HohoemaApp.FavManager.Mylist.FavInfoItems.Where(x => MylistFeedSources.All(y => x.Id != y.FeedSource.Id)))
 				{
 					MylistFavItems.Add(mylistFavInfo);
 				}
@@ -277,11 +297,11 @@ namespace NicoPlayerHohoema.ViewModels
 				TagFeedSources.Clear();
 				foreach (var tagFeedSrouce in FeedGroup.FeedSourceList.Where(x => x.FavoriteItemType == FavoriteItemType.Tag))
 				{
-					TagFeedSources.Add(tagFeedSrouce);
+					TagFeedSources.Add(new FeedItemSourceListItem(tagFeedSrouce, this));
 				}
 
 				TagFavItems.Clear();
-				foreach (var tagFavInfo in HohoemaApp.FavManager.Tag.FavInfoItems.Where(x => TagFeedSources.All(y => x.Id != y.Id)))
+				foreach (var tagFavInfo in HohoemaApp.FavManager.Tag.FavInfoItems.Where(x => TagFeedSources.All(y => x.Id != y.FeedSource.Id)))
 				{
 					TagFavItems.Add(tagFavInfo);
 				}
@@ -289,11 +309,11 @@ namespace NicoPlayerHohoema.ViewModels
 				UserFeedSources.Clear();
 				foreach (var userFeedSrouce in FeedGroup.FeedSourceList.Where(x => x.FavoriteItemType == FavoriteItemType.User))
 				{
-					UserFeedSources.Add(userFeedSrouce);
+					UserFeedSources.Add(new FeedItemSourceListItem(userFeedSrouce, this));
 				}
 
 				UserFavItems.Clear();
-				foreach (var userFavInfo in HohoemaApp.FavManager.User.FavInfoItems.Where(x => UserFeedSources.All(y => x.Id != y.Id)))
+				foreach (var userFavInfo in HohoemaApp.FavManager.User.FavInfoItems.Where(x => UserFeedSources.All(y => x.Id != y.FeedSource.Id)))
 				{
 					UserFavItems.Add(userFavInfo);
 				}
@@ -307,6 +327,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 			base.OnNavigatedTo(e, viewModelState);
 		}
+
+
+		public ReactiveCommand AddFeedCommand { get; private set; }
 
 		private DelegateCommand _RemoveFeedGroupCommand;
 		public DelegateCommand RemoveFeedGroupCommand
@@ -331,82 +354,78 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		public ReactiveCommand AddFeedCommand { get; private set; }
 		
-
-		private DelegateCommand _ExistFeedSourceCommand;
-		public DelegateCommand ExistFeedSourceCommand
+		internal void RemoveFeedSrouce(FeedItemSourceListItem feedSourceListItem)
 		{
-			get
+			var feedSource = feedSourceListItem.FeedSource;
+			FeedGroup.RemoveUserFeedSource(feedSource);
+
+			switch (feedSource.FavoriteItemType)
 			{
-				return _ExistFeedSourceCommand
-					?? (_ExistFeedSourceCommand = new DelegateCommand(() =>
+				case FavoriteItemType.Tag:
+					if (TagFeedSources.Remove(feedSourceListItem))
 					{
-
-					}));
-			}
-		}
-
-		
-
-		private DelegateCommand<IFeedSource> _RemoveFeedSourceCommand;
-		public DelegateCommand<IFeedSource> RemoveFeedSourceCommand
-		{
-			get
-			{
-				return _RemoveFeedSourceCommand
-					?? (_RemoveFeedSourceCommand = new DelegateCommand<IFeedSource>((feedSource) =>
-					{
-						FeedGroup.RemoveUserFeedSource(feedSource);
-
-						switch (feedSource.FavoriteItemType)
+						var favInfo = HohoemaApp.FavManager.Tag.FavInfoItems.SingleOrDefault(x => x.Id == feedSource.Id);
+						if (favInfo != null)
 						{
-							case FavoriteItemType.Tag:
-								if (TagFeedSources.Remove(feedSource))
-								{
-									var favInfo = HohoemaApp.FavManager.Tag.FavInfoItems.SingleOrDefault(x => x.Id == feedSource.Id);
-									if (favInfo != null)
-									{
-										TagFavItems.Add(favInfo);
-									}
-								}
-								break;
-							case FavoriteItemType.Mylist:
-								if (MylistFeedSources.Remove(feedSource))
-								{
-									var favInfo = HohoemaApp.FavManager.Mylist.FavInfoItems.SingleOrDefault(x => x.Id == feedSource.Id);
-									if (favInfo != null)
-									{
-										MylistFavItems.Add(favInfo);
-									}
-								}
-								break;
-							case FavoriteItemType.User:
-								if (UserFeedSources.Remove(feedSource))
-								{
-									var favInfo = HohoemaApp.FavManager.User.FavInfoItems.SingleOrDefault(x => x.Id == feedSource.Id);
-									if (favInfo != null)
-									{
-										UserFavItems.Add(favInfo);
-									}
-								}
-								break;
-							default:
-								break;
+							TagFavItems.Add(favInfo);
 						}
-
-					}));
+					}
+					break;
+				case FavoriteItemType.Mylist:
+					if (MylistFeedSources.Remove(feedSourceListItem))
+					{
+						var favInfo = HohoemaApp.FavManager.Mylist.FavInfoItems.SingleOrDefault(x => x.Id == feedSource.Id);
+						if (favInfo != null)
+						{
+							MylistFavItems.Add(favInfo);
+						}
+					}
+					break;
+				case FavoriteItemType.User:
+					if (UserFeedSources.Remove(feedSourceListItem))
+					{
+						var favInfo = HohoemaApp.FavManager.User.FavInfoItems.SingleOrDefault(x => x.Id == feedSource.Id);
+						if (favInfo != null)
+						{
+							UserFavItems.Add(favInfo);
+						}
+					}
+					break;
+				default:
+					break;
 			}
+
 		}
 	}
 
 	public class FeedItemSourceListItem
 	{
-		public FeedItemSourceListItem()
-		{
+		public FeedGroupPageViewModel FeedGroupPageVM { get; private set; }
+		public IFeedSource FeedSource { get; private set; }
 
+		public string Name { get; private set; }
+
+		public FeedItemSourceListItem(IFeedSource source, FeedGroupPageViewModel feedGroupPageVM)
+		{
+			FeedSource = source;
+			FeedGroupPageVM = feedGroupPageVM;
+
+			Name = FeedSource.Name;
 		}
 
-
+		private DelegateCommand _RemoveFeedSourceCommand;
+		public DelegateCommand RemoveFeedSourceCommand
+		{
+			get
+			{
+				return _RemoveFeedSourceCommand
+					?? (_RemoveFeedSourceCommand = new DelegateCommand(() =>
+					{
+						FeedGroupPageVM.RemoveFeedSrouce(this);
+						
+					}));
+			}
+		}
 	}
 }

@@ -1,0 +1,332 @@
+﻿<Page
+    x:Class="NicoPlayerHohoema.Views.FeedGroupPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:view="using:NicoPlayerHohoema.Views"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    >
+
+    <Page.Resources>
+        <DataTemplate x:Key="FeedSourceTemplate">
+            <StackPanel Orientation="Horizontal" >
+                <TextBlock Text="{Binding Name}" 
+                           VerticalAlignment="Center"
+                           />
+
+                <AppBarButton Icon="Remove" 
+                              IsCompact="True"
+                              Margin="8"
+                              >
+                    <AppBarButton.Flyout>
+                        <Flyout>
+                            <AppBarButton Icon="Delete" 
+                                          Label="削除"
+                                          Command="{Binding RemoveFeedSourceCommand}"
+                                          />
+                        </Flyout>
+                    </AppBarButton.Flyout>
+                </AppBarButton>
+            </StackPanel>
+        </DataTemplate>
+        
+        
+        
+    </Page.Resources>
+
+    <ScrollViewer Margin="8">
+        <StackPanel x:Name="LyaoutRoot" VerticalAlignment="Stretch">
+            <StackPanel Orientation="Horizontal" Margin="8">
+
+                <SymbolIcon Symbol="List" VerticalAlignment="Center" />
+
+                <TextBlock Text="マイリスト"
+                           VerticalAlignment="Center"
+                           Margin="8 0"
+                           FontSize="20"
+                           />
+
+                <AppBarButton Icon="Add" 
+                              IsCompact="True"
+                              >
+
+                    <i:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="Tapped">
+                            <core:ChangePropertyAction TargetObject="{Binding FavItemType}" PropertyName="Value" Value="Mylist" />
+                        </core:EventTriggerBehavior>
+                    </i:Interaction.Behaviors>
+                    
+                    <AppBarButton.Flyout>
+                        <Flyout x:Name="MylistFeedSourceFlyout">
+                            <StackPanel Width="400">
+                                <toolkit:DockPanel Margin="0 8">
+                                    <RadioButton Content="お気に入りから選択" 
+                                             GroupName="MylistFavSelctionGroup"
+                                             IsChecked="{Binding SelectFromFavItems.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             toolkit:DockPanel.Dock="Left"
+                                             />
+
+                                    <ComboBox ItemsSource="{Binding MylistFavItems}" 
+                                              SelectedItem="{Binding SelectedFavInfo.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              DisplayMemberPath="Name" 
+                                              HorizontalAlignment="Right"
+                                              MinWidth="120"
+                                              IsEnabled="{Binding SelectFromFavItems.Value}"
+                                          />
+
+                                </toolkit:DockPanel>
+
+                                <toolkit:DockPanel Margin="0 8">
+                                    <RadioButton Content="マイリストIDを直接指定" 
+                                             GroupName="MylistFavSelctionGroup"
+                                             IsChecked="{Binding SelectFromFavItems.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource InvertBoolean}}"
+                                             toolkit:DockPanel.Dock="Left"
+                                             />
+
+                                    <TextBox Text="{Binding FeedSourceId.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                             ext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
+                                             HorizontalAlignment="Right"
+                                             MinWidth="120"
+                                             IsEnabled="{Binding SelectFromFavItems.Value, Converter={StaticResource InvertBoolean}}"
+                                             />
+                                </toolkit:DockPanel>
+
+                                <Button Content="追加" 
+                                        Command="{Binding AddFeedCommand}"
+                                        Width="80"
+                                        Height="40"
+                                        Margin="8"
+                                        >
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Tapped">
+                                            <mybehavior:CloseFlyoutAction />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
+                                </Button>
+                            </StackPanel>
+                        </Flyout>
+                    </AppBarButton.Flyout>
+                </AppBarButton>
+            </StackPanel>
+
+            <ItemsControl ItemsSource="{Binding MylistFeedSources}"
+                          ItemTemplate="{StaticResource FeedSourceTemplate}"
+                          Margin="8"
+                          >
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <toolkit:WrapPanel Orientation="Horizontal" 
+                                           MinWidth="{Binding ElementName=LyaoutRoot, Path=ActualWidth}"
+                                           MinHeight="100"
+                                           HorizontalAlignment="Stretch"
+                                           />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+            </ItemsControl>
+
+
+
+
+
+
+
+
+            <StackPanel Orientation="Horizontal" Margin="8">
+
+                <SymbolIcon Symbol="Tag" VerticalAlignment="Center" />
+
+                <TextBlock Text="タグ"
+                           VerticalAlignment="Center"
+                           Margin="8 0"
+                           FontSize="20"
+                           />
+
+                <AppBarButton Icon="Add" 
+                              IsCompact="True"
+                              >
+
+                    <i:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="Tapped">
+                            <core:ChangePropertyAction TargetObject="{Binding FavItemType}" PropertyName="Value" Value="Tag" />
+                        </core:EventTriggerBehavior>
+                    </i:Interaction.Behaviors>
+
+                    <AppBarButton.Flyout>
+                        <Flyout x:Name="TagFeedSourceFlyout">
+                            <StackPanel Width="400">
+                                <toolkit:DockPanel Margin="0 8">
+                                    <RadioButton Content="お気に入りから選択" 
+                                             GroupName="TagFavSelctionGroup"
+                                             IsChecked="{Binding SelectFromFavItems.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             toolkit:DockPanel.Dock="Left"
+                                             />
+
+                                    <ComboBox ItemsSource="{Binding TagFavItems}" 
+                                              SelectedItem="{Binding SelectedFavInfo.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              DisplayMemberPath="Name" 
+                                              HorizontalAlignment="Right"
+                                              MinWidth="120"
+                                              IsEnabled="{Binding SelectFromFavItems.Value}"
+                                          />
+
+                                </toolkit:DockPanel>
+
+                                <toolkit:DockPanel Margin="0 8">
+                                    <RadioButton Content="タグを入力" 
+                                             GroupName="TagFavSelctionGroup"
+                                             IsChecked="{Binding SelectFromFavItems.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource InvertBoolean}}"
+                                             toolkit:DockPanel.Dock="Left"
+                                             />
+
+                                    <TextBox Text="{Binding FeedSourceId.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                             ext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
+                                             HorizontalAlignment="Right"
+                                             MinWidth="120"
+                                             IsEnabled="{Binding SelectFromFavItems.Value, Converter={StaticResource InvertBoolean}}"
+                                             />
+                                </toolkit:DockPanel>
+
+                                <Button Content="追加" 
+                                        Command="{Binding AddFeedCommand}"
+                                        Width="80"
+                                        Height="40"
+                                        Margin="8"
+                                        >
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Tapped">
+                                            <mybehavior:CloseFlyoutAction />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
+                                </Button>
+                            </StackPanel>
+                        </Flyout>
+                    </AppBarButton.Flyout>
+                </AppBarButton>
+            </StackPanel>
+
+            <ItemsControl ItemsSource="{Binding TagFeedSources}"
+                          ItemTemplate="{StaticResource FeedSourceTemplate}"
+                          Margin="8"
+                          >
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <toolkit:WrapPanel Orientation="Horizontal" 
+                                           MinWidth="{Binding ElementName=LyaoutRoot, Path=ActualWidth}"
+                                           MinHeight="100"
+                                           HorizontalAlignment="Stretch"
+                                           />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+            </ItemsControl>
+
+
+
+
+
+
+
+            <StackPanel Orientation="Horizontal" Margin="8">
+
+                <SymbolIcon Symbol="People" VerticalAlignment="Center" />
+
+                <TextBlock Text="ユーザー"
+                           VerticalAlignment="Center"
+                           Margin="8 0"
+                           FontSize="20"
+                           />
+
+                <AppBarButton Icon="Add" 
+                              IsCompact="True"
+                              >
+
+                    <i:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="Tapped">
+                            <core:ChangePropertyAction TargetObject="{Binding FavItemType}" PropertyName="Value" Value="User" />
+                        </core:EventTriggerBehavior>
+                    </i:Interaction.Behaviors>
+
+                    <AppBarButton.Flyout>
+                        <Flyout x:Name="UserFeedSourceFlyout">
+                            <StackPanel Width="400">
+                                <toolkit:DockPanel Margin="0 8">
+                                    <RadioButton Content="お気に入りから選択" 
+                                             GroupName="TagFavSelctionGroup"
+                                             IsChecked="{Binding SelectFromFavItems.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             toolkit:DockPanel.Dock="Left"
+                                             />
+
+                                    <ComboBox ItemsSource="{Binding UserFavItems}" 
+                                              SelectedItem="{Binding SelectedFavInfo.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              DisplayMemberPath="Name" 
+                                              HorizontalAlignment="Right"
+                                              MinWidth="120"
+                                              IsEnabled="{Binding SelectFromFavItems.Value}"
+                                          />
+
+                                </toolkit:DockPanel>
+
+                                <toolkit:DockPanel Margin="0 8">
+                                    <RadioButton Content="ユーザーIDを直接入力" 
+                                             GroupName="TagFavSelctionGroup"
+                                             IsChecked="{Binding SelectFromFavItems.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource InvertBoolean}}"
+                                             toolkit:DockPanel.Dock="Left"
+                                             />
+
+                                    <TextBox Text="{Binding FeedSourceId.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                             ext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
+                                             HorizontalAlignment="Right"
+                                             MinWidth="120"
+                                             IsEnabled="{Binding SelectFromFavItems.Value, Converter={StaticResource InvertBoolean}}"
+                                             />
+                                </toolkit:DockPanel>
+
+                                <Button Content="追加" 
+                                        Command="{Binding AddFeedCommand}"
+                                        Width="80"
+                                        Height="40"
+                                        Margin="8"
+                                        >
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Tapped">
+                                            <mybehavior:CloseFlyoutAction />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
+                                </Button>
+                            </StackPanel>
+                        </Flyout>
+                    </AppBarButton.Flyout>
+                </AppBarButton>
+            </StackPanel>
+
+            <ItemsControl ItemsSource="{Binding UserFeedSources}"
+                          ItemTemplate="{StaticResource FeedSourceTemplate}"
+                          Margin="8"
+                          >
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <toolkit:WrapPanel Orientation="Horizontal" 
+                                           MinWidth="{Binding ElementName=LyaoutRoot, Path=ActualWidth}"
+                                           MinHeight="100"
+                                           HorizontalAlignment="Stretch"
+                                           />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+            </ItemsControl>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

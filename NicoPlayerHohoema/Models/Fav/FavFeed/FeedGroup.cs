@@ -58,6 +58,14 @@ namespace NicoPlayerHohoema.Models
 			private set { SetProperty(ref _UpdateTime, value); }
 		}
 
+		[DataMember(Name = "is_need_refresh")]
+		private bool _IsNeedRefresh;
+		public bool IsNeedRefresh
+		{
+			get { return _IsNeedRefresh; }
+			internal set { SetProperty(ref _IsNeedRefresh, value); }
+		}
+
 
 		#endregion
 
@@ -71,6 +79,7 @@ namespace NicoPlayerHohoema.Models
 			Label = label;
 			_FeedSourceList = new List<IFeedSource>();
 			FeedItems = new List<FavFeedItem>();
+			IsNeedRefresh = false;
 		}
 
 
@@ -80,6 +89,9 @@ namespace NicoPlayerHohoema.Models
 
 			var feedSource = new TagFeedSource(tag);
 			_FeedSourceList.Add(feedSource);
+
+			IsNeedRefresh = true;
+
 			return feedSource;
 		}
 
@@ -89,6 +101,9 @@ namespace NicoPlayerHohoema.Models
 
 			var feedSource = new MylistFeedSource(name, mylistGroupId);
 			_FeedSourceList.Add(feedSource);
+
+			IsNeedRefresh = true;
+
 			return feedSource;
 		}
 
@@ -98,12 +113,18 @@ namespace NicoPlayerHohoema.Models
 
 			var feedSource = new UserFeedSource(name, userId);
 			_FeedSourceList.Add(feedSource);
+
+			IsNeedRefresh = true;
+
 			return feedSource;
 		}
 
 		public void RemoveUserFeedSource(IFeedSource feedSource)
 		{
-			_FeedSourceList.Remove(feedSource);
+			if (_FeedSourceList.Remove(feedSource))
+			{
+				IsNeedRefresh = true;
+			}
 		}
 
 
@@ -140,7 +161,10 @@ namespace NicoPlayerHohoema.Models
 
 			var addedItems = exceptItems.Where(x => x.CheckedTime == updateTime);
 
-			var removedItems = exceptItems.Except(addedItems, FavFeedItemComparer.Default);
+			var removedItems = FeedItems
+				.Except(latestOrderedItems, FavFeedItemComparer.Default)
+				.Where(x => x.CheckedTime != updateTime)
+				.ToList();
 
 
 			foreach (var addItem in addedItems)
@@ -186,7 +210,10 @@ namespace NicoPlayerHohoema.Models
 			UpdateTime = updateTime;
 
 			await FeedManager.SaveOne(this);
-			
+
+
+			IsNeedRefresh = false;
+
 			Debug.WriteLine($"{Label} update feed done.");
 		}
 
