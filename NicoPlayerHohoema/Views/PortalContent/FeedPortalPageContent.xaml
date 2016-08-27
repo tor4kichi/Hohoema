@@ -1,5 +1,5 @@
 ﻿<UserControl
-    x:Class="NicoPlayerHohoema.Views.PortalContent.FavPortalPageContent"
+    x:Class="NicoPlayerHohoema.Views.PortalContent.FeedPortalPageContent"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:NicoPlayerHohoema.Views.PortalContent"
@@ -28,46 +28,46 @@
 
             </Border>
         </DataTemplate>
-    </UserControl.Resources>
 
-    <toolkit:DockPanel>
-        <StackPanel toolkit:DockPanel.Dock="Top">
+        <DataTemplate x:Key="FeedGroupPortalContentTemplate">
+            <toolkit:DockPanel>
+                <StackPanel toolkit:DockPanel.Dock="Top">
 
-            <Border Background="Transparent" IsHitTestVisible="True">
+                    <Border Background="Transparent" IsHitTestVisible="True">
 
-                <i:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="Tapped">
-                        <core:InvokeCommandAction Command="{Binding OpenFavFeedListCommand}" />
-                    </core:EventTriggerBehavior>
-                </i:Interaction.Behaviors>
+                        <i:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="Tapped">
+                                <core:InvokeCommandAction Command="{Binding OpenFeedVideoListCommand}" />
+                            </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
 
-                <TextBlock Text="お気に入り" />
+                        <TextBlock Text="{Binding Name}" />
 
-            </Border>
+                    </Border>
 
-            <Border Height="32" />
-        </StackPanel>
+                    <Border Height="32" />
+                </StackPanel>
 
-        <ScrollViewer HorizontalScrollMode="Disabled"
+                <ScrollViewer HorizontalScrollMode="Disabled"
                       HorizontalScrollBarVisibility="Hidden"
                       VerticalScrollMode="Auto"
                       VerticalScrollBarVisibility="Hidden"
                       >
-            <ListView ItemsSource="{Binding UnreadFavFeedItems}"
+                    <ListView ItemsSource="{Binding FeedItems}"
                       Margin="0 0 0 16"
                       >
-                <ListView.ItemContainerStyle>
-                    <Style TargetType="ListViewItem">
-                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                        <Setter Property="VerticalContentAlignment" Value="Stretch" />
-                    </Style>
-                </ListView.ItemContainerStyle>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
 
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <Border>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Border>
 
-                            <TextBlock x:Name="VideoTitle"                            
+                                    <TextBlock x:Name="VideoTitle"                            
                                     Text="{Binding Title}" 
                                    VerticalAlignment="Center"
                                    >
@@ -91,18 +91,33 @@
                                 </VisualStateGroup>
                             </VisualStateManager.VisualStateGroups>
 
-                            </TextBlock>
+                                    </TextBlock>
 
-                            <i:Interaction.Behaviors>
-                                <core:EventTriggerBehavior EventName="Tapped">
-                                    <core:InvokeCommandAction Command="{Binding PlayCommand}" />
-                                </core:EventTriggerBehavior>
-                            </i:Interaction.Behaviors>
-                        </Border>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-        </ScrollViewer>
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Tapped">
+                                            <core:InvokeCommandAction Command="{Binding PlayCommand}" />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
+                                </Border>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </ScrollViewer>
 
-    </toolkit:DockPanel>
+            </toolkit:DockPanel>
+        </DataTemplate>
+        
+    </UserControl.Resources>
+
+
+    <ItemsControl ItemsSource="{Binding FeedGroupItems}"
+                  ItemTemplate="{StaticResource FeedGroupPortalContentTemplate}"
+                  >
+        <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+                <StackPanel Orientation="Horizontal" />
+            </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+    </ItemsControl>
+    
 </UserControl>

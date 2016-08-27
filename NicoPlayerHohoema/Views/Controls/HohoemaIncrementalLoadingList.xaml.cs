@@ -52,7 +52,7 @@ namespace NicoPlayerHohoema.Views.Controls
 			{
 				return Ranking;
 			}
-			else if (item is ViewModels.FavoriteVideoInfoControlViewModel)
+			else if (item is ViewModels.FeedVideoInfoControlViewModel)
 			{
 				return FavFeed;
 			}
@@ -68,6 +68,7 @@ namespace NicoPlayerHohoema.Views.Controls
 			{
 				return SearchHistory;
 			}
+
 
 			return base.SelectTemplateCore(item, container);
 		}

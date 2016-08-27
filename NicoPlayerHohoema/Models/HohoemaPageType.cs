@@ -14,8 +14,6 @@ namespace NicoPlayerHohoema.Models
 		UserMylist,
 		Mylist,
 		FavoriteManage,
-		FavoriteAllFeed,
-		FavoriteFeed,
 		History,
 		Search,
 
@@ -26,6 +24,10 @@ namespace NicoPlayerHohoema.Models
 		VideoInfomation,
 		VideoPlayer,
 		ConfirmWatchHurmfulVideo,
+
+		FeedGroupManage,
+		FeedGroup,
+		FeedVideoList,
 
 		UserInfo,
 		UserVideo,

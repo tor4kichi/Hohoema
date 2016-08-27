@@ -42,7 +42,7 @@ namespace NicoPlayerHohoema.Models
 			LoginUserId = uint.MaxValue;
 			LoggingChannel = new LoggingChannel("HohoemaLog", new LoggingChannelOptions(HohoemaLoggerGroupGuid));
 
-			FavFeedManager = null;
+			FavManager = null;
 			CurrentAccount = new AccountSettings();
 
 			LoadRecentLoginAccount();
@@ -224,7 +224,7 @@ namespace NicoPlayerHohoema.Models
 					{
 						Debug.WriteLine("initilize: fav");
 						loginActivityLogger.LogEvent("initialize user favorite");
-						FavFeedManager = await FavFeedManager.Create(this, LoginUserId);
+						FavManager = await FavManager.Create(this, LoginUserId);
 					}
 					catch
 					{
@@ -235,7 +235,21 @@ namespace NicoPlayerHohoema.Models
 					}
 
 
+					try
+					{
+						Debug.WriteLine("initilize: feed");
+						loginActivityLogger.LogEvent("initialize feed");
 
+						FeedManager = new FeedManager(this, LoginUserId);
+						await FeedManager.Initialize();
+					}
+					catch
+					{
+						LoginErrorText = "[Failed] user FavFeedUpdater initialize failed.";
+						Debug.WriteLine(LoginErrorText);
+						loginActivityLogger.LogEvent(LoginErrorText, fields, LoggingLevel.Error);
+						return NiconicoSignInStatus.Failed;
+					}
 
 					try
 					{
@@ -299,12 +313,14 @@ namespace NicoPlayerHohoema.Models
 			}
 
 			NiconicoContext = null;
-			FavFeedManager = null;
+			FavManager = null;
 			UserSettings = null;
 			LoginUserId = uint.MaxValue;
 			MediaManager = null;
 			BackgroundUpdater?.Dispose();
 			BackgroundUpdater = null;
+			FavManager = null;
+			FeedManager = null;
 
 			OnSignout?.Invoke();
 
@@ -566,12 +582,22 @@ namespace NicoPlayerHohoema.Models
 
 		public NiconicoContentFinder ContentFinder { get; private set; }
 
-		private FavFeedManager _FavFeedManager;
-		public FavFeedManager FavFeedManager
+		private FavManager _FavManager;
+		public FavManager FavManager
 		{
-			get { return _FavFeedManager; }
-			set { SetProperty(ref _FavFeedManager, value); }
+			get { return _FavManager; }
+			set { SetProperty(ref _FavManager, value); }
 		}
+
+		private FeedManager _FeedManager;
+		public FeedManager FeedManager
+		{
+			get { return _FeedManager; }
+			set { SetProperty(ref _FeedManager, value); }
+		}
+
+		
+
 
 		public UserMylistManager UserMylistManager { get; private set; }
 

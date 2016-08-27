@@ -1,6 +1,6 @@
 ﻿<Page
     x:Name="PageRoot"
-    x:Class="NicoPlayerHohoema.Views.FavoriteAllFeedPage"
+    x:Class="NicoPlayerHohoema.Views.FeedVideoListPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:NicoPlayerHohoema.Views"
@@ -40,7 +40,7 @@
             <toolkit:DockPanel>
                 <toolkit:DockPanel toolkit:DockPanel.Dock="Top" >
 
-                    <StackPanel Orientation="Horizontal" Margin="8"
+                    <StackPanel Orientation="Horizontal" Margin="8 0"
                                 toolkit:DockPanel.Dock="Right"
                                 >
                         <StackPanel Orientation="Horizontal" Margin="16 0">
@@ -67,9 +67,17 @@
                     </StackPanel>
 
 
-                    <StackPanel toolkit:DockPanel.Dock="Left" Margin="8">
+                    <StackPanel toolkit:DockPanel.Dock="Left" Margin="0"
+                                Orientation="Horizontal"
+                                >
 
-                        <Button Content="全てチェック済みにする" Command="{Binding AllMarkAsReadCommand}" />
+                        <AppBarButton Label="フィード編集"
+                                      Icon="Edit"
+                                      Command="{Binding OpenFeedGroupPageCommand}" />
+
+                        <AppBarButton Label="全て既読"
+                                      Icon="Accept"
+                                      Command="{Binding AllMarkAsReadCommand}" />
 
                     </StackPanel>
 

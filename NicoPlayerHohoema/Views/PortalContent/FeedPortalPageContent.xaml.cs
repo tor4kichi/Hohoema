@@ -15,11 +15,11 @@ using Windows.UI.Xaml.Navigation;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
-namespace NicoPlayerHohoema.Views.Service
+namespace NicoPlayerHohoema.Views.PortalContent
 {
-	public sealed partial class EditMylistGroupDialog : ContentDialog
+	public sealed partial class FeedPortalPageContent : UserControl
 	{
-		public EditMylistGroupDialog()
+		public FeedPortalPageContent()
 		{
 			this.InitializeComponent();
 		}
