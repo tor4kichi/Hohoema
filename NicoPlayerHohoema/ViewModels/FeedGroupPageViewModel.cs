@@ -285,11 +285,11 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			FeedGroup = null;
 
-			if (e.Parameter is string)
+			if (e.Parameter is Guid)
 			{
-				var label = e.Parameter as string;
+				var feedGroupId = (Guid)e.Parameter;
 
-				FeedGroup = HohoemaApp.FeedManager.GetFeedGroup(label);
+				FeedGroup = HohoemaApp.FeedManager.GetFeedGroup(feedGroupId);
 			}
 
 			IsDeleted.Value = FeedGroup == null;
@@ -383,7 +383,7 @@ namespace NicoPlayerHohoema.ViewModels
 				return _OpenFeedVideoListPageCommand
 					?? (_OpenFeedVideoListPageCommand = new DelegateCommand(() =>
 					{
-						PageManager.OpenPage(HohoemaPageType.FeedVideoList, FeedGroup.Label);
+						PageManager.OpenPage(HohoemaPageType.FeedVideoList, FeedGroup.Id);
 					}));
 			}
 		}

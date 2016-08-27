@@ -133,7 +133,7 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 				return _OpenFeedGroupCommand
 					?? (_OpenFeedGroupCommand = new DelegateCommand(() => 
 					{
-						PageManager.OpenPage(HohoemaPageType.FeedGroup, FeedGroup.Label);
+						PageManager.OpenPage(HohoemaPageType.FeedGroup, FeedGroup.Id);
 					}));
 			}
 		}
@@ -146,7 +146,7 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 				return _OpenFeedVideoListCommand
 					?? (_OpenFeedVideoListCommand = new DelegateCommand(() =>
 					{
-						PageManager.OpenPage(HohoemaPageType.FeedVideoList, FeedGroup.Label);
+						PageManager.OpenPage(HohoemaPageType.FeedVideoList, FeedGroup.Id);
 					}));
 			}
 		}

@@ -59,18 +59,18 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				if (FeedGroup != null)
 				{
-					PageManager.OpenPage(HohoemaPageType.FeedGroup, FeedGroup.Label);
+					PageManager.OpenPage(HohoemaPageType.FeedGroup, FeedGroup.Id);
 				}
 			});
 		}
 
 		protected override Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			if (e.Parameter is string)
+			if (e.Parameter is Guid)
 			{
-				var label = e.Parameter as string;
+				var feedGroupId = (Guid)e.Parameter;
 
-				FeedGroup = HohoemaApp.FeedManager.GetFeedGroup(label);
+				FeedGroup = HohoemaApp.FeedManager.GetFeedGroup(feedGroupId);
 			}
 
 			if (FeedGroup == null)

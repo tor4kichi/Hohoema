@@ -51,7 +51,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				var feedGroup = await HohoemaApp.FeedManager.AddFeedGroup(NewFeedGroupName.Value);
 
-				PageManager.OpenPage(HohoemaPageType.FeedGroup, feedGroup.Label);
+				PageManager.OpenPage(HohoemaPageType.FeedGroup, feedGroup.Id);
 			});
 		}
 
@@ -141,7 +141,7 @@ namespace NicoPlayerHohoema.ViewModels
 				return _SelectedCommand
 					?? (_SelectedCommand = new DelegateCommand(() => 
 					{
-						_PageManager.OpenPage(HohoemaPageType.FeedVideoList, FeedGroup.Label);
+						_PageManager.OpenPage(HohoemaPageType.FeedVideoList, FeedGroup.Id);
 					}));
 			}
 		}
@@ -155,7 +155,7 @@ namespace NicoPlayerHohoema.ViewModels
 				return _SecondaryActionCommand
 					?? (_SecondaryActionCommand = new DelegateCommand(() =>
 					{
-						_PageManager.OpenPage(HohoemaPageType.FeedGroup, FeedGroup.Label);
+						_PageManager.OpenPage(HohoemaPageType.FeedGroup, FeedGroup.Id);
 					}));
 			}
 		}

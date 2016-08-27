@@ -23,6 +23,13 @@ namespace NicoPlayerHohoema.Models
 		public HohoemaApp HohoemaApp { get; internal set; }
 		public FeedManager FeedManager { get; internal set; }
 
+		[DataMember(Name = "id")]
+		private Guid _Id;
+		public Guid Id
+		{
+			get { return _Id; }
+			private set { SetProperty(ref _Id, value); }
+		}
 
 		[DataMember(Name = "label")]
 		private string _Label;
@@ -76,6 +83,7 @@ namespace NicoPlayerHohoema.Models
 
 		public FeedGroup(string label)
 		{
+			Id = Guid.NewGuid();
 			Label = label;
 			_FeedSourceList = new List<IFeedSource>();
 			FeedItems = new List<FavFeedItem>();

@@ -98,9 +98,9 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public FeedGroup GetFeedGroup(string label)
+		public FeedGroup GetFeedGroup(Guid id)
 		{
-			return FeedGroups.SingleOrDefault(x => x.Label == label);
+			return FeedGroups.SingleOrDefault(x => x.Id == id);
 		}
 
 
@@ -132,7 +132,7 @@ namespace NicoPlayerHohoema.Models
 
 		public Task SaveOne(FeedGroup group)
 		{
-			var target = FeedGroupDict.SingleOrDefault(x => x.Key.Label == group.Label);
+			var target = FeedGroupDict.SingleOrDefault(x => x.Key.Id == group.Id);
 			return _Save(target);
 		}
 
@@ -163,7 +163,7 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<bool> RemoveFeedGroup(FeedGroup group)
 		{
-			var removeTarget = FeedGroups.SingleOrDefault(x => x.Label == group.Label);
+			var removeTarget = FeedGroups.SingleOrDefault(x => x.Id == group.Id);
 
 			if (removeTarget != null)
 			{
@@ -180,7 +180,7 @@ namespace NicoPlayerHohoema.Models
 
 		internal Task<bool> RenameFeedGroup(FeedGroup group, string newLabel)
 		{
-			var target = FeedGroups.SingleOrDefault(x => x.Label == group.Label);
+			var target = FeedGroups.SingleOrDefault(x => x.Id == group.Id);
 
 			if (target != null)
 			{
