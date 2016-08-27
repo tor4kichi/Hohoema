@@ -54,6 +54,14 @@ namespace NicoPlayerHohoema.ViewModels
 				ClearSelection();
 			})
 			.AddTo(_CompositeDisposable);
+
+			OpenFeedGroupPageCommand = new DelegateCommand(() => 
+			{
+				if (FeedGroup != null)
+				{
+					PageManager.OpenPage(HohoemaPageType.FeedGroup, FeedGroup.Label);
+				}
+			});
 		}
 
 		protected override Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
@@ -105,6 +113,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public DelegateCommand AllMarkAsReadCommand { get; private set; }
 		public ReactiveCommand SelectedItemsMarkAsReadCommand { get; private set; }
 
+		public DelegateCommand OpenFeedGroupPageCommand { get; private set; }
 	}
 
 

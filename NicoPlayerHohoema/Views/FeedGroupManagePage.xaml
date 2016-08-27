@@ -62,7 +62,7 @@
 
             <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
 
-                <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left" Margin="8">
+                <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left" Margin="0">
 
                     <AppBarButton Icon="Add" 
                                   Label="フィードグループ 作成">
@@ -113,7 +113,7 @@
                                     Value="Stretch" 
                                         />
                         <Setter Property="Margin"
-                                    Value="0 0 0 8" 
+                                    Value="8 0 8 8" 
                                     />
                     </Style>
                 </ListView.ItemContainerStyle>

@@ -46,40 +46,56 @@
     </Page.Resources>
 
     <ScrollViewer>
-        <StackPanel x:Name="LyaoutRoot" VerticalAlignment="Stretch" Margin="8">
+        <StackPanel x:Name="LyaoutRoot" VerticalAlignment="Stretch" Margin="0">
 
-            <Button Content="名前の変更"
-                    HorizontalAlignment="Right"
+            <toolkit:DockPanel>
+
+
+                <StackPanel toolkit:DockPanel.Dock="Left">
+                    <AppBarButton Label="フィード一覧"
+                                      Icon="List"
+                                      Command="{Binding OpenFeedVideoListPageCommand}" />
+
+                </StackPanel>
+                
+                <Button Content="名前の変更"
+                    toolkit:DockPanel.Dock="Right"
+                        VerticalAlignment="Center"
                     Margin="8"
                     >
-                <Button.Flyout>
-                    <Flyout>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBox Text="{Binding FeedGroupName.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="120">
-                                <i:Interaction.Behaviors>
-                                    <mybehavior:KeyboardTrigger Key="Enter">
-                                        <mybehavior:KeyboardTrigger.Actions>
-                                            <mybehavior:CloseFlyoutAction />
-                                            <core:InvokeCommandAction Command="{Binding RenameApplyCommand}" />
-                                        </mybehavior:KeyboardTrigger.Actions>
-                                    </mybehavior:KeyboardTrigger>
-                                </i:Interaction.Behaviors>
-                            </TextBox>
+                    <Button.Flyout>
+                        <Flyout>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBox Text="{Binding FeedGroupName.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="120">
+                                    <i:Interaction.Behaviors>
+                                        <mybehavior:KeyboardTrigger Key="Enter">
+                                            <mybehavior:KeyboardTrigger.Actions>
+                                                <mybehavior:CloseFlyoutAction />
+                                                <core:InvokeCommandAction Command="{Binding RenameApplyCommand}" />
+                                            </mybehavior:KeyboardTrigger.Actions>
+                                        </mybehavior:KeyboardTrigger>
+                                    </i:Interaction.Behaviors>
+                                </TextBox>
 
-                            <Button Content="OK" Margin="8 0 0 0"
+                                <Button Content="OK" Margin="8 0 0 0"
                                     Command="{Binding RenameApplyCommand}"
                                     >
-                                <i:Interaction.Behaviors>
-                                    <core:EventTriggerBehavior EventName="Tapped">
-                                        <mybehavior:CloseFlyoutAction />
-                                    </core:EventTriggerBehavior>
-                                </i:Interaction.Behaviors>
-                            </Button>
-                        </StackPanel>
-                        
-                    </Flyout>
-                </Button.Flyout>
-            </Button>
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Tapped">
+                                            <mybehavior:CloseFlyoutAction />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
+                                </Button>
+                            </StackPanel>
+
+                        </Flyout>
+                    </Button.Flyout>
+                </Button>
+
+                <Border />
+
+            </toolkit:DockPanel>
+            
             
             
             <StackPanel Orientation="Horizontal" Margin="8">

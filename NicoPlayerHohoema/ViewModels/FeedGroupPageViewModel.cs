@@ -375,7 +375,18 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveCommand RenameApplyCommand { get; private set; }
 
-
+		private DelegateCommand _OpenFeedVideoListPageCommand;
+		public DelegateCommand OpenFeedVideoListPageCommand
+		{
+			get
+			{
+				return _OpenFeedVideoListPageCommand
+					?? (_OpenFeedVideoListPageCommand = new DelegateCommand(() =>
+					{
+						PageManager.OpenPage(HohoemaPageType.FeedVideoList, FeedGroup.Label);
+					}));
+			}
+		}
 
 		internal void RemoveFeedSrouce(FeedItemSourceListItem feedSourceListItem)
 		{

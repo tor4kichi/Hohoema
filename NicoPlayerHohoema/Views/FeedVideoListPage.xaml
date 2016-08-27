@@ -40,7 +40,7 @@
             <toolkit:DockPanel>
                 <toolkit:DockPanel toolkit:DockPanel.Dock="Top" >
 
-                    <StackPanel Orientation="Horizontal" Margin="8"
+                    <StackPanel Orientation="Horizontal" Margin="8 0"
                                 toolkit:DockPanel.Dock="Right"
                                 >
                         <StackPanel Orientation="Horizontal" Margin="16 0">
@@ -67,7 +67,13 @@
                     </StackPanel>
 
 
-                    <StackPanel toolkit:DockPanel.Dock="Left" Margin="8">
+                    <StackPanel toolkit:DockPanel.Dock="Left" Margin="0"
+                                Orientation="Horizontal"
+                                >
+
+                        <AppBarButton Label="フィード編集"
+                                      Icon="Edit"
+                                      Command="{Binding OpenFeedGroupPageCommand}" />
 
                         <AppBarButton Label="全て既読"
                                       Icon="Accept"
