@@ -7,7 +7,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using Windows.Foundation;
 using Windows.UI.Core;
 
 namespace NicoPlayerHohoema.Models
@@ -141,13 +143,49 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
+		public async Task StartNoUIWork(string title, uint totalCount, Func<IAsyncActionWithProgress<uint>> actionFactory)
+		{
+			StartWork?.Invoke(title, totalCount);
+
+			var progressHandler = new Progress<uint>((x) => ProgressWork?.Invoke(x));
+
+			using (var cancelSource = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
+			{
+				await actionFactory().AsTask(cancelSource.Token, progressHandler);
+
+				await Task.Delay(500);
+
+				if (cancelSource.IsCancellationRequested)
+				{
+					CancelWork?.Invoke();
+				}
+				else 
+				{
+					CompleteWork?.Invoke();
+				}
+			}
+		}
+
 		
 
 		public void UpdateTitle(string title)
 		{
 			PageTitle = title;
 		}
+
+		public event StartExcludeUserInputWorkHandler StartWork;
+		public event ProgressExcludeUserInputWorkHandler ProgressWork;
+		public event CompleteExcludeUserInputWorkHandler CompleteWork;
+		public event CancelExcludeUserInputWorkHandler CancelWork;
 	}
+
+
+	public delegate void StartExcludeUserInputWorkHandler(string title, uint totalCount);
+	public delegate void ProgressExcludeUserInputWorkHandler(uint count);
+	public delegate void CompleteExcludeUserInputWorkHandler();
+	public delegate void CancelExcludeUserInputWorkHandler();
+
+
 
 
 	public class PageInfo

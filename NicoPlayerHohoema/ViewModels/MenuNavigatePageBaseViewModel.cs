@@ -119,7 +119,41 @@ namespace NicoPlayerHohoema.ViewModels
 					return PageManager.DontNeedMenuPageTypes.All(dontNeedMenuPageType => x != dontNeedMenuPageType);
 				})
 				.ToReactiveProperty();
+
+
+
+
+			PageManager.StartWork += PageManager_StartWork;
+			PageManager.ProgressWork += PageManager_ProgressWork;
+			PageManager.CompleteWork += PageManager_CompleteWork;
+			PageManager.CancelWork += PageManager_CancelWork;
 		}
+
+		private void PageManager_StartWork(string title, uint totalCount)
+		{
+			WorkTitle = title;
+			WorkTotalCount = totalCount;
+
+			NowWorking = true;
+		}
+
+
+		private void PageManager_ProgressWork(uint count)
+		{
+			WorkCount = count;
+		}
+
+		private void PageManager_CompleteWork()
+		{
+			NowWorking = false;
+		}
+
+		private void PageManager_CancelWork()
+		{
+			NowWorking = false;
+		}
+
+
 
 		internal void OnMenuItemSelected(HohoemaPageType pageType)
 		{
@@ -151,6 +185,38 @@ namespace NicoPlayerHohoema.ViewModels
 			get { return _TitleText; }
 			set { SetProperty(ref _TitleText, value); }
 		}
+
+
+
+		private bool _NowWorking;
+		public bool NowWorking
+		{
+			get { return _NowWorking; }
+			set { SetProperty(ref _NowWorking, value); }
+		}
+
+		private string _WorkTitle;
+		public string WorkTitle
+		{
+			get { return _WorkTitle; }
+			set { SetProperty(ref _WorkTitle, value); }
+		}
+
+		private uint _WorkCount;
+		public uint WorkCount
+		{
+			get { return _WorkCount; }
+			set { SetProperty(ref _WorkCount, value); }
+		}
+
+
+		private uint _WorkTotalCount;
+		public uint WorkTotalCount
+		{
+			get { return _WorkTotalCount; }
+			set { SetProperty(ref _WorkTotalCount, value); }
+		}
+
 
 		public ReactiveProperty<PageTypeSelectableItem> SelectedItem { get; private set; }
 	}
