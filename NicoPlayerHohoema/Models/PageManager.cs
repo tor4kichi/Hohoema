@@ -143,9 +143,31 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
-		public async Task StartNoUIWork(string title, uint totalCount, Func<IAsyncActionWithProgress<uint>> actionFactory)
+		public async Task StartNoUIWork(string title, Func<IAsyncAction> actionFactory)
 		{
-			StartWork?.Invoke(title, totalCount);
+			StartWork?.Invoke(title, 1);
+
+			using (var cancelSource = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
+			{
+				await actionFactory().AsTask(cancelSource.Token);
+
+				ProgressWork?.Invoke(1);
+
+				await Task.Delay(2000);
+
+				if (cancelSource.IsCancellationRequested)
+				{
+					CancelWork?.Invoke();
+				}
+				else
+				{
+					CompleteWork?.Invoke();
+				}
+			}
+		}
+		public async Task StartNoUIWork(string title, int totalCount, Func<IAsyncActionWithProgress<uint>> actionFactory)
+		{
+			StartWork?.Invoke(title, (uint)totalCount);
 
 			var progressHandler = new Progress<uint>((x) => ProgressWork?.Invoke(x));
 

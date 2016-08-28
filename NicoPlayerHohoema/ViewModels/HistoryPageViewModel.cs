@@ -14,6 +14,7 @@ using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using System.Threading;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -34,20 +35,25 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				var selectedItems = SelectedItems.ToArray();
 
-				foreach (var item in selectedItems)
+				var action = AsyncInfo.Run<uint>(async (cancelToken, progress) => 
 				{
-					await RemoveHistory(item.RawVideoId);
+					foreach (var item in selectedItems)
+					{
+						await RemoveHistory(item.RawVideoId);
 
-					SelectedItems.Remove(item);
+						SelectedItems.Remove(item);
 
-					await Task.Delay(250);
-				}
+						await Task.Delay(250);
+					}
 
-				await UpdateList();
+					await UpdateList();
 
-				_HistoriesResponse = await HohoemaApp.ContentFinder.GetHistory();
+					_HistoriesResponse = await HohoemaApp.ContentFinder.GetHistory();
 
-				RemoveAllHistoryCommand.RaiseCanExecuteChanged();
+					RemoveAllHistoryCommand.RaiseCanExecuteChanged();
+				});
+
+				await PageManager.StartNoUIWork("視聴履歴の削除", selectedItems.Length, () => action);
 			})
 			.AddTo(_CompositeDisposable);
 		}
@@ -100,9 +106,16 @@ namespace NicoPlayerHohoema.ViewModels
 
 		internal async Task RemoveAllHistory()
 		{
-			await HohoemaApp.NiconicoContext.Video.RemoveAllHistoriesAsync(_HistoriesResponse.Token);
+			var action = AsyncInfo.Run(async (cancelToken) => 
+			{
+				await HohoemaApp.NiconicoContext.Video.RemoveAllHistoriesAsync(_HistoriesResponse.Token);
 
-			RemoveAllHistoryCommand.RaiseCanExecuteChanged();
+				_HistoriesResponse = await HohoemaApp.ContentFinder.GetHistory();
+
+				RemoveAllHistoryCommand.RaiseCanExecuteChanged();
+			});
+
+			await PageManager.StartNoUIWork("全ての視聴履歴を削除", () => action);
 
 			await ResetList();
 		}

@@ -64,75 +64,77 @@
 
             <Grid>
 
+                <VisualStateManager.VisualStateGroups>
+                    <VisualStateGroup x:Name="TopBarStateGroup">
+
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <StateTrigger IsActive="{Binding IsVisibleMenu.Value, Converter={StaticResource InvertBoolean}}" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="SplitView.DisplayMode" Value="Overlay" />
+                                <Setter Target="SplitView.IsPaneOpen" Value="False" />
+
+                                <Setter Target="ContentTopBarPanel.Visibility" Value="Collapsed" />
+                                <Setter Target="TopBar.Visibility" Value="Collapsed" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <!-- 一番幅が広いとき -->
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <AdaptiveTrigger MinWindowWidth="721" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="SplitView.DisplayMode" Value="Inline" />
+                                <Setter Target="SplitView.IsPaneOpen" Value="True" />
+
+                                <Setter Target="ContentTopBarPanel.Visibility" Value="Visible" />
+                                <Setter Target="TopBar.Visibility" Value="Collapsed" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        <!-- 中ぐらい -->
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <AdaptiveTrigger MinWindowWidth="521" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="SplitView.DisplayMode" Value="CompactOverlay" />
+                                <Setter Target="SplitView.IsPaneOpen" Value="False" />
+
+                                <Setter Target="ContentTopBarPanel.Visibility" Value="Visible" />
+                                <Setter Target="TopBar.Visibility" Value="Collapsed" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        <!-- 超狭い -->
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <AdaptiveTrigger MinWindowWidth="0" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="SplitView.DisplayMode" Value="Overlay" />
+                                <Setter Target="SplitView.IsPaneOpen" Value="False" />
+
+                                <Setter Target="ContentTopBarPanel.Visibility" Value="Collapsed" />
+                                <Setter Target="TopBar.Visibility" Value="Visible" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+
+
+
+
+
+
+
+
+
+                </VisualStateManager.VisualStateGroups>
+                
                 <toolkit:DockPanel>
 
 
-                    <VisualStateManager.VisualStateGroups>
-                        <VisualStateGroup x:Name="TopBarStateGroup">
-
-                            <VisualState>
-                                <VisualState.StateTriggers>
-                                    <StateTrigger IsActive="{Binding IsVisibleMenu.Value, Converter={StaticResource InvertBoolean}}" />
-                                </VisualState.StateTriggers>
-                                <VisualState.Setters>
-                                    <Setter Target="SplitView.DisplayMode" Value="Overlay" />
-                                    <Setter Target="SplitView.IsPaneOpen" Value="False" />
-
-                                    <Setter Target="ContentTopBarPanel.Visibility" Value="Collapsed" />
-                                    <Setter Target="TopBar.Visibility" Value="Collapsed" />
-                                </VisualState.Setters>
-                            </VisualState>
-
-                            <!-- 一番幅が広いとき -->
-                            <VisualState>
-                                <VisualState.StateTriggers>
-                                    <AdaptiveTrigger MinWindowWidth="721" />
-                                </VisualState.StateTriggers>
-                                <VisualState.Setters>
-                                    <Setter Target="SplitView.DisplayMode" Value="Inline" />
-                                    <Setter Target="SplitView.IsPaneOpen" Value="True" />
-
-                                    <Setter Target="ContentTopBarPanel.Visibility" Value="Visible" />
-                                    <Setter Target="TopBar.Visibility" Value="Collapsed" />
-                                </VisualState.Setters>
-                            </VisualState>
-                            <!-- 中ぐらい -->
-                            <VisualState>
-                                <VisualState.StateTriggers>
-                                    <AdaptiveTrigger MinWindowWidth="521" />
-                                </VisualState.StateTriggers>
-                                <VisualState.Setters>
-                                    <Setter Target="SplitView.DisplayMode" Value="CompactOverlay" />
-                                    <Setter Target="SplitView.IsPaneOpen" Value="False" />
-
-                                    <Setter Target="ContentTopBarPanel.Visibility" Value="Visible" />
-                                    <Setter Target="TopBar.Visibility" Value="Collapsed" />
-                                </VisualState.Setters>
-                            </VisualState>
-                            <!-- 超狭い -->
-                            <VisualState>
-                                <VisualState.StateTriggers>
-                                    <AdaptiveTrigger MinWindowWidth="0" />
-                                </VisualState.StateTriggers>
-                                <VisualState.Setters>
-                                    <Setter Target="SplitView.DisplayMode" Value="Overlay" />
-                                    <Setter Target="SplitView.IsPaneOpen" Value="False" />
-
-                                    <Setter Target="ContentTopBarPanel.Visibility" Value="Collapsed" />
-                                    <Setter Target="TopBar.Visibility" Value="Visible" />
-                                </VisualState.Setters>
-                            </VisualState>
-                        </VisualStateGroup>
-
-
-
-
-
-
-
-
-
-                    </VisualStateManager.VisualStateGroups>
+                   
 
                     <toolkit:DockPanel x:Name="TopBar" 
                                    toolkit:DockPanel.Dock="Top"
@@ -301,17 +303,23 @@
 
                 <Grid Visibility="{Binding NowWorking, Converter={StaticResource BooleanToVisibility}}">
 
-                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Opacity="0.8" />
+                    
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="400">
 
-                        <TextBlock Text="{Binding WorkTitle}" />
+                        <TextBlock Text="{Binding WorkTitle}"
+                                   FontSize="20"
+                                   />
 
                         <StackPanel Margin="0 16">
 
+                            <!--
                             <TextBlock HorizontalAlignment="Right" FontSize="12">
                                 <Run Text="{Binding WorkCount}" />
                                 <Run Text="/" />
                                 <Run Text="{Binding WorkTotalCount}" />
                             </TextBlock>
+                            -->
                             
                             <ProgressBar Minimum="0" Maximum="{Binding WorkTotalCount}"
                                      Value="{Binding WorkCount}"
@@ -320,12 +328,11 @@
 
                         </StackPanel>
                         
-                        <ProgressRing IsActive="{Binding NowWorking}" />
+                        <ProgressRing IsActive="{Binding NowWorking}" Margin="8" />
 
                     </StackPanel>
                                 
 
-                    <Border Background="Black" Opacity="0.8" />
                 </Grid>
                 
             </Grid>
