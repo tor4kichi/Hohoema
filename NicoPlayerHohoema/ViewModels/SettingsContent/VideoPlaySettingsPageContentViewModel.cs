@@ -16,6 +16,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			_PlayerSettings = hohoemaApp.UserSettings.PlayerSettings;
 
+			IsFullScreenDefault = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsFullScreenDefault);
 			IsDefaultPlayWithLowQuality = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsLowQualityDeafult);
 			IsKeepDisplayInPlayback = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsKeepDisplayInPlayback);
 			IsPauseWithCommentWriting = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.PauseWithCommentWriting);
@@ -28,6 +29,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
+		public ReactiveProperty<bool> IsFullScreenDefault { get; private set; }
 		public ReactiveProperty<bool> IsDefaultPlayWithLowQuality { get; private set; }
 		public ReactiveProperty<bool> IsKeepDisplayInPlayback { get; private set; }
 		public ReactiveProperty<bool> IsPauseWithCommentWriting { get; private set; }

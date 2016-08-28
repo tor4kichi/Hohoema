@@ -19,6 +19,7 @@ namespace NicoPlayerHohoema.Models
 			SoundVolume = 0.25;
 			ScrollVolumeFrequency = 0.02;
 			DefaultCommentDisplay = true;
+			IsFullScreenDefault = false;
 			IncrementReadablityOwnerComment = true;
 			PauseWithCommentWriting = true;
 			CommentRenderingFPS = 24;
@@ -80,6 +81,15 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
+
+		private bool _IsFullScreenDefault;
+
+		[DataMember]
+		public bool IsFullScreenDefault
+		{
+			get { return _IsFullScreenDefault; }
+			set { SetProperty(ref _IsFullScreenDefault, value); }
+		}
 
 		private bool _DefaultCommentDisplay;
 

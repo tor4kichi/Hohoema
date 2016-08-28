@@ -1077,7 +1077,13 @@ namespace NicoPlayerHohoema.ViewModels
 			cancelToken.ThrowIfCancellationRequested();
 
 
-			
+			// 全画面表示の設定を反映
+			if (HohoemaApp.UserSettings.PlayerSettings.IsFullScreenDefault)
+			{
+				IsFullScreen.Value = true;
+			}
+
+
 
 			if (IsNotSupportVideoType)
 			{
@@ -1178,6 +1184,7 @@ namespace NicoPlayerHohoema.ViewModels
 				SelectedSidePaneType.Value = MediaInfoDisplayType.Summary;
 			}
 
+		
 			Debug.WriteLine("VideoPlayer OnNavigatedToAsync done.");
 
 		}
