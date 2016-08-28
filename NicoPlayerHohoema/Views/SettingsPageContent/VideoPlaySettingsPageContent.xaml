@@ -25,7 +25,7 @@
             </StackPanel>
 
             <StackPanel Margin="8 0 0 0">
-                
+
                 <toolkit:DockPanel Margin="8">
 
                     <TextBlock Text="低画質モードをデフォルトに設定する"
@@ -40,7 +40,20 @@
 
                 </toolkit:DockPanel>
 
+                <toolkit:DockPanel Margin="8">
 
+                    <TextBlock Text="全画面表示をデフォルトに設定する"
+                               toolkit:DockPanel.Dock="Left"
+                               VerticalAlignment="Center"
+                               />
+
+                    <ToggleButton Width="32" Height="32"
+                                  IsChecked="{Binding IsFullScreenDefault.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                  HorizontalAlignment="Right"
+                                  />
+
+                </toolkit:DockPanel>
+                
                 <toolkit:DockPanel Margin="8">
 
                     <TextBlock Text="再生中は画面を点灯したままにする"
