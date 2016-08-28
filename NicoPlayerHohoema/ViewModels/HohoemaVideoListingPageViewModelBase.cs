@@ -19,6 +19,7 @@ using System.Threading;
 using Windows.UI.Xaml;
 using NicoPlayerHohoema.Views.Service;
 using Microsoft.Practices.Unity;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -68,22 +69,32 @@ namespace NicoPlayerHohoema.ViewModels
 				.SubscribeOnUIDispatcher()
 				.Subscribe(async _ =>
 				{
-					foreach (var item in EnumerateCacheRequestedVideoItems())
+					var items = EnumerateCacheRequestedVideoItems().ToList();
+					var action = AsyncInfo.Run<uint>(async (cancelToken, progress) => 
 					{
-						if (item is CacheVideoViewModel)
+						uint count = 0;
+						foreach (var item in items)
 						{
-							var quality = (item as CacheVideoViewModel).Quality;
-							await item.NicoVideo.CancelCacheRequest(quality);
-						}
-						else
-						{
-							await item.NicoVideo.CancelCacheRequest();
-						}
-					}
+							if (item is CacheVideoViewModel)
+							{
+								var quality = (item as CacheVideoViewModel).Quality;
+								await item.NicoVideo.CancelCacheRequest(quality);
+							}
+							else
+							{
+								await item.NicoVideo.CancelCacheRequest();
+							}
 
-					ClearSelection();
-				//				await UpdateList();
-			})
+							++count;
+							progress.Report(count);
+						}
+
+						ClearSelection();
+					});
+
+					await PageManager.StartNoUIWork("キャッシュリクエストをキャンセル中", items.Count, () => action);
+				}
+			)
 			.AddTo(_CompositeDisposable);
 
 			RequestOriginalQualityCacheDownload = SelectionItemsChanged
@@ -199,67 +210,80 @@ namespace NicoPlayerHohoema.ViewModels
 
 					var mylistGroup = result.Item1;
 					var mylistComment = result.Item2;
-
-					Debug.WriteLine($"一括マイリスト登録を開始...");
-					int successCount = 0;
-					int existCount = 0;
-					int failedCount = 0;
-					foreach (var video in SelectedItems)
+					var items = EnumerateCacheRequestedVideoItems().ToList();
+					var action = AsyncInfo.Run<uint>(async (cancelToken, progress) =>
 					{
-						var registrationResult = await mylistGroup.Registration(
-							video.RawVideoId
-							, mylistComment
-							, withRefresh: false /* あとで一括でリフレッシュ */
-							);
+						uint progressCount = 0;
 
-						switch (registrationResult)
+
+						Debug.WriteLine($"一括マイリスト登録を開始...");
+						int successCount = 0;
+						int existCount = 0;
+						int failedCount = 0;
+						foreach (var video in SelectedItems)
 						{
-							case Mntone.Nico2.ContentManageResult.Success: successCount++; break;
-							case Mntone.Nico2.ContentManageResult.Exist: existCount++; break;
-							case Mntone.Nico2.ContentManageResult.Failed: failedCount++; break;
-							default:
-								break;
+							var registrationResult = await mylistGroup.Registration(
+								video.RawVideoId
+								, mylistComment
+								, withRefresh: false /* あとで一括でリフレッシュ */
+								);
+
+							switch (registrationResult)
+							{
+								case Mntone.Nico2.ContentManageResult.Success: successCount++; break;
+								case Mntone.Nico2.ContentManageResult.Exist: existCount++; break;
+								case Mntone.Nico2.ContentManageResult.Failed: failedCount++; break;
+								default:
+									break;
+							}
+
+							progressCount++;
+							progress.Report(progressCount);
+
+							Debug.WriteLine($"{video.Title}[{video.RawVideoId}]:{registrationResult.ToString()}");
 						}
 
-						Debug.WriteLine($"{video.Title}[{video.RawVideoId}]:{registrationResult.ToString()}");
-					}
-
-				// リフレッシュ
-				await mylistGroup.Refresh();
+						// リフレッシュ
+						await mylistGroup.Refresh();
 
 
-				// ユーザーに結果を通知
+						// ユーザーに結果を通知
 
-				var titleText = $"「{mylistGroup.Name}」に {successCount}件 の動画を登録しました";
-					var toastService = App.Current.Container.Resolve<ToastNotificationService>();
-					var resultText = $"";
-					if (existCount > 0)
-					{
-						resultText += $"重複：{existCount} 件";
-					}
-					if (failedCount > 0)
-					{
-						resultText += $"\n登録に失敗した {failedCount}件 は選択されたままです";
-					}
-
-					toastService.ShowText(titleText, resultText);
-
-
-
-				// マイリスト登録に失敗したものを残すように
-				// 登録済みのアイテムを選択アイテムリストから削除
-				foreach (var item in SelectedItems.ToArray())
-					{
-						if (mylistGroup.CheckRegistratedVideoId(item.RawVideoId))
+						var titleText = $"「{mylistGroup.Name}」に {successCount}件 の動画を登録しました";
+						var toastService = App.Current.Container.Resolve<ToastNotificationService>();
+						var resultText = $"";
+						if (existCount > 0)
 						{
-							SelectedItems.Remove(item);
+							resultText += $"重複：{existCount} 件";
 						}
-					}
+						if (failedCount > 0)
+						{
+							resultText += $"\n登録に失敗した {failedCount}件 は選択されたままです";
+						}
 
-				//					ResetList();
+						toastService.ShowText(titleText, resultText);
 
-				Debug.WriteLine($"一括マイリスト登録を完了---------------");
-				});
+
+
+						// マイリスト登録に失敗したものを残すように
+						// 登録済みのアイテムを選択アイテムリストから削除
+						foreach (var item in SelectedItems.ToArray())
+						{
+							if (mylistGroup.CheckRegistratedVideoId(item.RawVideoId))
+							{
+								SelectedItems.Remove(item);
+							}
+						}
+
+						//					ResetList();
+
+						Debug.WriteLine($"一括マイリスト登録を完了---------------");
+						ClearSelection();
+					});
+
+					await PageManager.StartNoUIWork("マイリスト登録", items.Count, () => action);
+				}
+			);
 		}
 
 
