@@ -264,9 +264,10 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 					}
 
 					// コメント背景の色を求める
-					// 色を反転して輝度に変換
-					var baseColor = comment.RealColor.ToInverted();
-					var c = (byte)(0.299f * baseColor.R + 0.587f * baseColor.G + 0.114f * baseColor.B);
+					// 色から輝度を求めて輝度を反転させて影色とする
+					var baseColor = comment.RealColor;
+					byte c = (byte)(byte.MaxValue - (byte)(0.299f * baseColor.R + 0.587f * baseColor.G + 0.114f * baseColor.B));
+
 
 					comment.BackColor = new Color()
 					{
