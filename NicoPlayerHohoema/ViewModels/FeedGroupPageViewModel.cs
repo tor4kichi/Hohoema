@@ -283,6 +283,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
+			base.OnNavigatedTo(e, viewModelState);
+
 			FeedGroup = null;
 
 			if (e.Parameter is Guid)
@@ -343,7 +345,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-			base.OnNavigatedTo(e, viewModelState);
+			
 		}
 
 

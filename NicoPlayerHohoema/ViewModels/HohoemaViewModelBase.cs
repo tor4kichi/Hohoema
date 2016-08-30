@@ -12,6 +12,7 @@ using System.Threading;
 using Windows.UI.Xaml;
 using Windows.Foundation;
 using NicoPlayerHohoema.Util;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -127,33 +128,14 @@ namespace NicoPlayerHohoema.ViewModels
 		
 
 
-		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			base.OnNavigatedTo(e, viewModelState);
 
 			// サインインステータスチェック
-
-			if (IsRequireSignIn)
-			{
-				if (!await CheckSignIn())
-				{
-					var result = await HohoemaApp.SignInFromUserSettings();
-
-					if (result != Mntone.Nico2.NiconicoSignInStatus.Success)
-					{
-						// サインイン出来ない場合はログインページへ戻す
-						PageManager.OpenPage(HohoemaPageType.Login);
-						return;
-					}
-				}
-
-				OnSignin();
-			}
-
-
 			_NavigatedToTaskCancelToken = new CancellationTokenSource();
 
-			_NavigatedToTask = NavigatedToAsync(_NavigatedToTaskCancelToken.Token, e, viewModelState);
+			_NavigatedToTask = __NavigatedToAsync(_NavigatedToTaskCancelToken.Token, e, viewModelState);
 
 			if (!String.IsNullOrEmpty(_Title))
 			{
@@ -178,6 +160,29 @@ namespace NicoPlayerHohoema.ViewModels
 		protected virtual Task OnResumed()
 		{
 			return Task.CompletedTask;
+		}
+
+
+		private async Task __NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		{
+			if (IsRequireSignIn)
+			{
+				if (!await CheckSignIn())
+				{
+					var result = await HohoemaApp.SignInFromUserSettings();
+
+					if (result != Mntone.Nico2.NiconicoSignInStatus.Success)
+					{
+						// サインイン出来ない場合はログインページへ戻す
+						PageManager.OpenPage(HohoemaPageType.Login);
+						return;
+					}
+				}
+
+				OnSignin();
+			}
+
+			await NavigatedToAsync(cancelToken, e, viewModelState);
 		}
 
 		protected virtual Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
