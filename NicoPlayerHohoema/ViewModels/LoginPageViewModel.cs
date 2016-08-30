@@ -28,9 +28,9 @@ namespace NicoPlayerHohoema.ViewModels
 			CanChangeValue = new ReactiveProperty<bool>(true)
 				.AddTo(_CompositeDisposable);
 
-			MailOrTelephone = AccountSettings.ToReactivePropertyAsSynchronized(x => x.MailOrTelephone)
+			MailOrTelephone = new ReactiveProperty<string>(AccountSettings.MailOrTelephone)
 				.AddTo(_CompositeDisposable);
-			Password = AccountSettings.ToReactivePropertyAsSynchronized(x => x.Password)
+			Password = new ReactiveProperty<string>(AccountSettings.Password)
 				.AddTo(_CompositeDisposable);
 
 			// すでにパスワード保存済みの場合は「パスワードを保存する」をチェックした状態にする
@@ -109,10 +109,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 			try
 			{
-				var result = await HohoemaApp.SignInFromUserSettings();
+				var result = await HohoemaApp.SignIn(MailOrTelephone.Value, Password.Value);
 
 				if (result == NiconicoSignInStatus.Success)
 				{
+					AccountSettings.MailOrTelephone = MailOrTelephone.Value;
+					AccountSettings.Password = Password.Value;
+
 					// アカウント情報をアプリケーションデータとして保存
 					HohoemaApp.SaveAccount(IsRememberPassword.Value);
 
