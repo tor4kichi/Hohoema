@@ -354,7 +354,13 @@
     <Compile Include="Views\MenuNavigatePageBase.xaml.cs">
       <DependentUpon>MenuNavigatePageBase.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Service\DislikeRankingCtegoryChoiceDialog.xaml.cs">
+      <DependentUpon>DislikeRankingCtegoryChoiceDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Service\EditAutoCacheConditionDialogService.cs" />
+    <Compile Include="Views\Service\EditMylistGroupDialog.xaml.cs">
+      <DependentUpon>EditMylistGroupDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Service\EditMylistGroupDialogService.cs" />
     <Compile Include="Views\Service\MylistRegistrationDialog.xaml.cs">
       <DependentUpon>MylistRegistrationDialog.xaml</DependentUpon>
@@ -630,13 +636,13 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\Service\DislikeRankingCategoryChoiceDialog.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    <Page Include="Views\Service\DislikeRankingCtegoryChoiceDialog.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Service\EditMylistGroupDialog.xaml">
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Service\MylistRegistrationDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
