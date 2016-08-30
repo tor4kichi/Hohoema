@@ -107,48 +107,64 @@ namespace NicoPlayerHohoema.ViewModels
 			IsLoginFailed.Value = false;
 			LoginErrorText.Value = null;
 
+			if (!Util.InternetConnection.IsInternet())
+			{
+				IsLoginFailed.Value = true;
+				LoginErrorText.Value = "インターネット接続が必要です";
+				CanChangeValue.Value = true;
+				return;
+			}
+
+			var cancelSource = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+
+
+			NiconicoSignInStatus signinResult = NiconicoSignInStatus.Failed;
 			try
 			{
-				var result = await HohoemaApp.SignIn(MailOrTelephone.Value, Password.Value);
-
-				if (result == NiconicoSignInStatus.Success)
-				{
-					AccountSettings.MailOrTelephone = MailOrTelephone.Value;
-					AccountSettings.Password = Password.Value;
-
-					// アカウント情報をアプリケーションデータとして保存
-					HohoemaApp.SaveAccount(IsRememberPassword.Value);
-
-					// ログインページにバックキーで戻れないようにページ履歴削除
-					PageManager.ClearNavigateHistory();
-
-					// ポータルページへGO
-					PageManager.OpenPage(HohoemaPageType.Portal);
-					IsServiceUnavailable.Value = false;
-				}
-				else if (result == NiconicoSignInStatus.Failed)
-				{
-					IsLoginFailed.Value = true;
-					IsServiceUnavailable.Value = false;
-				}
-				else if (result == NiconicoSignInStatus.ServiceUnavailable)
-				{
-					IsLoginFailed.Value = false;
-					IsServiceUnavailable.Value = true;
-				}
-				else
-				{
-					HohoemaApp.NiconicoContext?.Dispose();
-					HohoemaApp.NiconicoContext = null;
-				}
+				signinResult = await HohoemaApp.SignIn(MailOrTelephone.Value, Password.Value).AsTask(cancelSource.Token);
+			}
+			catch (TaskCanceledException)
+			{
+				IsLoginFailed.Value = true;
+				LoginErrorText.Value = "ログインに時間が掛かっています。もう一度お試しください。";
 			}
 			finally
 			{
-				if (IsLoginFailed.Value == true)
-				{
-					LoginErrorText.Value = HohoemaApp.LoginErrorText;
-				}
+				cancelSource.Dispose();
 			}
+
+			if (signinResult == NiconicoSignInStatus.Success)
+			{
+				AccountSettings.MailOrTelephone = MailOrTelephone.Value;
+				AccountSettings.Password = Password.Value;
+
+				// アカウント情報をアプリケーションデータとして保存
+				HohoemaApp.SaveAccount(IsRememberPassword.Value);
+
+				// ログインページにバックキーで戻れないようにページ履歴削除
+				PageManager.ClearNavigateHistory();
+
+				// ポータルページへGO
+				PageManager.OpenPage(HohoemaPageType.Portal);
+				IsServiceUnavailable.Value = false;
+			}
+			else if (signinResult == NiconicoSignInStatus.Failed)
+			{
+				IsLoginFailed.Value = true;
+				IsServiceUnavailable.Value = false;
+				LoginErrorText.Value = HohoemaApp.LoginErrorText;
+			}
+			else if (signinResult == NiconicoSignInStatus.ServiceUnavailable)
+			{
+				IsLoginFailed.Value = false;
+				IsServiceUnavailable.Value = true;
+			}
+			else
+			{
+				HohoemaApp.NiconicoContext?.Dispose();
+				HohoemaApp.NiconicoContext = null;
+			}
+			
 			
 
 			CanChangeValue.Value = true;
