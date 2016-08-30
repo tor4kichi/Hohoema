@@ -167,7 +167,12 @@ namespace NicoPlayerHohoema.ViewModels
 
 		private void _OnResumed()
 		{
-			OnResumed().ConfigureAwait(false);
+			HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+			{
+				OnResumed();
+			})
+			.AsTask()
+			.ConfigureAwait(false);
 		}
 
 		protected virtual Task OnResumed()
