@@ -48,6 +48,15 @@
                     <Border Height="32" />
                 </StackPanel>
 
+                <Border toolkit:DockPanel.Dock="Top"
+                        Visibility="{Binding HasFeedItems, Converter={StaticResource BooleanToVisibilityInverted}}"
+                        Margin="0 16 0 0"
+                        >
+                    <TextBlock Opacity="0.7">
+                        <Run>新着動画はありません</Run>
+                    </TextBlock>
+                </Border>
+
                 <ScrollViewer HorizontalScrollMode="Disabled"
                       HorizontalScrollBarVisibility="Hidden"
                       VerticalScrollMode="Auto"

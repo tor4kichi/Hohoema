@@ -78,6 +78,8 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 		public string Name { get; private set; }
 
 		public ObservableCollection<FeedVideoInfoControlViewModel> FeedItems { get; private set; }
+		public bool HasFeedItems { get; private set; }
+
 
 		public FeedGroupPortalContentViewModel(FeedGroup feedGroup, HohoemaApp hohoemaApp, PageManager pageManager)
 		{
@@ -105,6 +107,9 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 				var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideo(feed.VideoId);
 				FeedItems.Add(new FeedVideoInfoControlViewModel(feed, FeedGroup, nicoVideo, PageManager));
 			}
+
+			HasFeedItems = FeedItems.Count > 0;
+			OnPropertyChanged(nameof(HasFeedItems));
 		}
 
 		public void Dispose()
