@@ -57,7 +57,7 @@
                 >
             <StackPanel Opacity="0.7">
                 <TextBlock Margin="0 0 0 8">
-                    <Run>好きなランキングをここに表示できます。</Run>
+                    <Run>好きなランキングをここに表示できます</Run>
                 </TextBlock>
 
                 <HyperlinkButton Content="設定を開く" 
