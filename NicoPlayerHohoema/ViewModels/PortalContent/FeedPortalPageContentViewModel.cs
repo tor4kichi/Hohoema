@@ -97,11 +97,8 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 		{
 			// TODO: FeedGroupのバックグラウンドの更新を待ってから表示したい
 
-			while(FeedGroup.IsNeedRefresh)
-			{
-				await Task.Delay(100);
-			}
-
+			await FeedGroup.Refresh();
+			
 			foreach (var feed in FeedGroup.FeedItems.Where(x => x.IsUnread).Take(5))
 			{
 				var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideo(feed.VideoId);

@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Models
@@ -77,7 +78,7 @@ namespace NicoPlayerHohoema.Models
 		#endregion
 
 
-
+		private SemaphoreSlim _RefreshingLock;
 
 
 
@@ -88,11 +89,12 @@ namespace NicoPlayerHohoema.Models
 			_FeedSourceList = new List<IFeedSource>();
 			FeedItems = new List<FavFeedItem>();
 			IsNeedRefresh = true;
+			_RefreshingLock = new SemaphoreSlim(1, 1);
 		}
 
 
 		public IFeedSource AddTagFeedSource(string tag)
-		{
+		{			
 			if (ExistFeedSource(FavoriteItemType.Tag, tag)) { return null; }
 
 			var feedSource = new TagFeedSource(tag);
@@ -141,9 +143,15 @@ namespace NicoPlayerHohoema.Models
 			return _FeedSourceList.Any(x => x.FavoriteItemType == itemType && x.Id == id);
 		}
 
-
-		public async Task Refresh()
+		public Task Refresh()
 		{
+			return RefreshAction(() => _Refresh());
+		}
+
+		private async Task _Refresh()
+		{
+			if (!IsNeedRefresh) { return; }
+
 			Debug.WriteLine($"{Label} starting update feed.");
 
 			var updateTime = DateTime.Now;
@@ -223,6 +231,22 @@ namespace NicoPlayerHohoema.Models
 			IsNeedRefresh = false;
 
 			Debug.WriteLine($"{Label} update feed done.");
+		}
+
+
+		
+		private async Task RefreshAction(Func<Task> action)
+		{
+			try
+			{
+				await _RefreshingLock.WaitAsync();
+
+				await action();
+			}
+			finally
+			{
+				_RefreshingLock.Release();
+			}
 		}
 
 		internal bool MarkAsRead(string videoId)
