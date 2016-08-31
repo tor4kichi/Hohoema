@@ -23,7 +23,7 @@
     <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
     <PackageCertificateThumbprint>BFE34B4665927D2844D7BF676023FAED7F089F9D</PackageCertificateThumbprint>
-    <AppxPackageDir>C:\Users\torakichi\Documents\Visual Studio 2015\Projects\NicoPlayerHohoema\NicoPlayerHohoema\AppPackages\</AppxPackageDir>
+    <AppxPackageDir>C:\Users\tor4k\Documents\Visual Studio 2015\Projects\NicoPlayerHohoema\NicoPlayerHohoema\AppPackages\</AppxPackageDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
