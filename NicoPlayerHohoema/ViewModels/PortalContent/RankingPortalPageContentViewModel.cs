@@ -17,12 +17,15 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 		{
 			_HohoemaApp = hohoemaApp;
 
-			PriorityRankingCategories = hohoemaApp.UserSettings.RankingSettings.HighPriorityCategory.ToReadOnlyReactiveCollection(
+
+			PriorityRankingCategories = _HohoemaApp.UserSettings.RankingSettings.HighPriorityCategory.ToReadOnlyReactiveCollection(
 				x => new RankingCategoryListItem(x, OnRankingListItemSelected)
 				);
+		}
 
-
-			
+		protected override Task NavigateTo()
+		{
+			return base.NavigateTo();
 		}
 
 		private void OnRankingListItemSelected(RankingCategoryInfo info)

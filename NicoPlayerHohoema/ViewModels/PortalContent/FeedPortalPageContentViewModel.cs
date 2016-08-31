@@ -20,19 +20,12 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 			FeedGroupItems = new ObservableCollection<FeedGroupPortalContentViewModel>();
 		}
 
-		protected override async void NavigateTo()
+		protected override async Task NavigateTo()
 		{
-			while (_HohoemaApp.FavManager == null)
-			{
-				await Task.Delay(100);
-			}
-
 			if (FeedGroupItems.Count == 0)
 			{
 				await UpdateUnreadFeedItems();
 			}
-
-			base.NavigateTo();
 		}		
 
 
