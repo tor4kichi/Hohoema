@@ -118,6 +118,12 @@
                 <StackPanel Orientation="Horizontal" />
             </ItemsPanelTemplate>
         </ItemsControl.ItemsPanel>
+
+        <ItemsControl.ItemContainerStyle>
+            <Style TargetType="ContentPresenter">
+                <Setter Property="Margin" Value="24 0" />
+            </Style>
+        </ItemsControl.ItemContainerStyle>
     </ItemsControl>
     
 </UserControl>
