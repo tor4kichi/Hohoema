@@ -25,6 +25,9 @@ namespace NicoPlayerHohoema.ViewModels
 		public ObservableCollection<FeedItemSourceListItem> TagFeedSources { get; private set; }
 		public ObservableCollection<FeedItemSourceListItem> UserFeedSources { get; private set; }
 
+		public ReadOnlyReactiveProperty<bool> HasMylistFeedSource { get; private set; }
+		public ReadOnlyReactiveProperty<bool> HasTagFeedSource { get; private set; }
+		public ReadOnlyReactiveProperty<bool> HasUserFeedSource { get; private set; }
 
 
 		public ReactiveProperty<bool> SelectFromFavItems { get; private set; }
@@ -38,10 +41,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<FavoriteItemType> FavItemType { get; private set; }
 		public ReactiveProperty<string> FeedSourceId { get; private set; }
+		public ReactiveProperty<string> FeedSourceItemName { get; private set; }
 		public ReactiveProperty<bool> ExistFeedSource { get; private set; }
 		public ReactiveProperty<bool> IsPublicFeedSource { get; private set; }
 		
-		private string _FeedSourceName;
 
 		public FeedGroupPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager) 
 			: base(hohoemaApp, pageManager, isRequireSignIn:true )
@@ -53,6 +56,17 @@ namespace NicoPlayerHohoema.ViewModels
 			TagFeedSources = new ObservableCollection<FeedItemSourceListItem>();
 			UserFeedSources = new ObservableCollection<FeedItemSourceListItem>();
 
+			HasMylistFeedSource = MylistFeedSources.ObserveProperty(x => x.Count)
+				.Select(x => x > 0)
+				.ToReadOnlyReactiveProperty();
+			HasTagFeedSource = TagFeedSources.ObserveProperty(x => x.Count)
+				.Select(x => x > 0)
+				.ToReadOnlyReactiveProperty();
+			HasUserFeedSource = UserFeedSources.ObserveProperty(x => x.Count)
+				.Select(x => x > 0)
+				.ToReadOnlyReactiveProperty();
+
+
 			MylistFavItems = new ObservableCollection<FavInfo>();
 			TagFavItems = new ObservableCollection<FavInfo>();
 			UserFavItems = new ObservableCollection<FavInfo>();
@@ -62,15 +76,23 @@ namespace NicoPlayerHohoema.ViewModels
 
 			FavItemType = new ReactiveProperty<FavoriteItemType>();
 			FeedSourceId = new ReactiveProperty<string>();
+			FeedSourceItemName = new ReactiveProperty<string>();
 			ExistFeedSource = new ReactiveProperty<bool>();
 			IsPublicFeedSource = new ReactiveProperty<bool>();
+
+			CanUseFeedSource = Observable.CombineLatest(
+				ExistFeedSource,
+				IsPublicFeedSource
+				)
+				.Select(x => x.All(y => y))
+				.ToReactiveProperty();
 
 			FavItemType.Subscribe(x => 
 			{
 				FeedSourceId.Value = "";
 				ExistFeedSource.Value = false;
-				
-				_FeedSourceName = "";
+
+				FeedSourceItemName.Value = "";
 
 
 				// お気に入りアイテムがある場合は、「お気に入りから選択」をデフォルトに
@@ -92,6 +114,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 			});
 
+			FeedSourceId.ToUnit()
+				.Subscribe(_ => 
+				{
+					ExistFeedSource.Value = false;
+					FeedSourceItemName.Value = "";
+				});
+
 			Observable.Merge(
 				SelectFromFavItems.ToUnit(),
 				
@@ -106,6 +135,7 @@ namespace NicoPlayerHohoema.ViewModels
 					{
 						ExistFeedSource.Value = SelectedFavInfo.Value != null;
 						IsPublicFeedSource.Value = true;
+						FeedSourceItemName.Value = "";
 						return;
 					}
 
@@ -115,7 +145,7 @@ namespace NicoPlayerHohoema.ViewModels
 					{
 						ExistFeedSource.Value = !string.IsNullOrWhiteSpace(FeedSourceId.Value);
 						IsPublicFeedSource.Value = true;
-						_FeedSourceName = FeedSourceId.Value;
+						FeedSourceItemName.Value = FeedSourceId.Value;
 					}
 					else
 					{
@@ -136,7 +166,7 @@ namespace NicoPlayerHohoema.ViewModels
 									{
 										ExistFeedSource.Value = true;
 										IsPublicFeedSource.Value = mylist.IsPublic;
-										_FeedSourceName = mylist.Name;
+										FeedSourceItemName.Value = Mntone.Nico2.StringExtention.DecodeUTF8(mylist.Name);
 									}
 								}
 								catch
@@ -154,7 +184,7 @@ namespace NicoPlayerHohoema.ViewModels
 									{
 										ExistFeedSource.Value = true;
 										IsPublicFeedSource.Value = !user.IsOwnerVideoPrivate;
-										_FeedSourceName = user.Nickname;
+										FeedSourceItemName.Value = user.Nickname;
 									}
 								}
 								catch
@@ -166,7 +196,7 @@ namespace NicoPlayerHohoema.ViewModels
 							if (!ExistFeedSource.Value)
 							{
 								IsPublicFeedSource.Value = false;
-								_FeedSourceName = "";
+								FeedSourceItemName.Value = "";
 							}
 						}
 					}
@@ -200,8 +230,11 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					// idからMylistGroupを引く
 					// 公開されていない場合にはエラー
-					name = _FeedSourceName;
 					id = FeedSourceId.Value;
+					name = FeedSourceItemName.Value;
+
+					FeedSourceItemName.Value = "";
+					FeedSourceId.Value = "";
 				}
 
 				var favManager = HohoemaApp.FavManager;
@@ -221,6 +254,8 @@ namespace NicoPlayerHohoema.ViewModels
 							}
 
 							TagFeedSources.Add(new FeedItemSourceListItem(feedSource, this));
+
+
 						}
 
 						break;
@@ -283,6 +318,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
+			base.OnNavigatedTo(e, viewModelState);
+
 			FeedGroup = null;
 
 			if (e.Parameter is Guid)
@@ -343,7 +380,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-			base.OnNavigatedTo(e, viewModelState);
+			
 		}
 
 
@@ -359,14 +396,7 @@ namespace NicoPlayerHohoema.ViewModels
 					{
 						if (await HohoemaApp.FeedManager.RemoveFeedGroup(FeedGroup))
 						{
-							if (PageManager.NavigationService.CanGoBack())
-							{
-								PageManager.NavigationService.GoBack();
-							}
-							else
-							{
-								PageManager.OpenPage(HohoemaPageType.FeedGroupManage);
-							}
+							PageManager.OpenPage(HohoemaPageType.FeedGroupManage);
 						}
 					}));
 			}
@@ -387,6 +417,8 @@ namespace NicoPlayerHohoema.ViewModels
 					}));
 			}
 		}
+
+		public ReactiveProperty<bool> CanUseFeedSource { get; private set; }
 
 		internal void RemoveFeedSrouce(FeedItemSourceListItem feedSourceListItem)
 		{

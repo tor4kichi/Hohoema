@@ -21,12 +21,16 @@
     
     >
 
-    <ListBox ItemsSource="{Binding Items}"
-        DisplayMemberPath="DisplayLabel"
-        SelectedItem="{Binding SelectedItem.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-        SelectionMode="Single"
+    <ListView ItemsSource="{Binding Items}"
+            DisplayMemberPath="DisplayLabel"
+            SelectionMode="Multiple"
+              IsMultiSelectCheckBoxEnabled="True"
             Height="260"    
-             Margin="0 16 0 0"
-    />
+             Margin="0 16 0 0">
+        <i:Interaction.Behaviors>
+            <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedItems}" />
+        </i:Interaction.Behaviors>
+    </ListView>
+    
 
 </ContentDialog>

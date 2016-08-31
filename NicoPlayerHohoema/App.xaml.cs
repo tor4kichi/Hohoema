@@ -95,12 +95,30 @@ namespace NicoPlayerHohoema
 			
 			var hohoemaApp = Container.Resolve<HohoemaApp>();
 
-			if (hohoemaApp.MediaManager != null && hohoemaApp.MediaManager.Context != null)
+			try
 			{
-				await hohoemaApp.MediaManager?.Context?.Resume();
+				hohoemaApp.Resumed();
+			}
+			catch
+			{
+				Debug.WriteLine("アプリモデルの復帰処理でエラーを検出しました。");
+				throw;
 			}
 
-			hohoemaApp.Resumed();
+			try
+			{
+				if (hohoemaApp.MediaManager != null && hohoemaApp.MediaManager.Context != null)
+				{
+					await hohoemaApp.MediaManager.Context.Resume();
+				}
+			}
+			catch
+			{
+				Debug.WriteLine("MediaManager.Contextの復帰に失敗しました。");
+			}
+
+
+
 		}
 
 		protected override Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args)

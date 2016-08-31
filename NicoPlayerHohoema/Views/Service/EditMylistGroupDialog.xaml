@@ -62,7 +62,7 @@
                         <StackPanel Orientation="Horizontal" />
                     </ItemsPanelTemplate>
                 </ListView.ItemsPanel>
-                
+
                 <TextBlock Text="誰でも" />
                 <TextBlock Text="自分だけ" />
             </ListView>

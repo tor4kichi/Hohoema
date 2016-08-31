@@ -68,17 +68,20 @@ namespace NicoPlayerHohoema.ViewModels
 			AddDislikeRankingCategory = new DelegateCommand(async () =>
 			{
 				var items = _RankingSettings.MiddlePriorityCategory.ToArray();
-				var choiceItem = await _RankingChoiceDialogService.ShowDislikeRankingCategoryChoiceDialog(items);
+				var choiceItems = await _RankingChoiceDialogService.ShowDislikeRankingCategoryChoiceDialog(items);
 
-				if (choiceItem != null)
+				if (choiceItems != null)
 				{
-					if (choiceItem.RankingSource == RankingSource.CategoryRanking)
+					foreach (var choiceItem in choiceItems)
 					{
-						var removeTarget = SelectableCategories.SingleOrDefault(x => x.CategoryInfo == choiceItem);
-						SelectableCategories.Remove(removeTarget);
-					}
+						if (choiceItem.RankingSource == RankingSource.CategoryRanking)
+						{
+							var removeTarget = SelectableCategories.SingleOrDefault(x => x.CategoryInfo == choiceItem);
+							SelectableCategories.Remove(removeTarget);
+						}
 
-					DislikeCategories.Add(new RankingCategorySettingsListItem(choiceItem, this));
+						DislikeCategories.Add(new RankingCategorySettingsListItem(choiceItem, this));
+					}					
 				}
 
 				ApplyAllPriorityCategoriesToRankingSettings();

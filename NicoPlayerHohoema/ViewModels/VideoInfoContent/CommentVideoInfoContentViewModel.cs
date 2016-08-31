@@ -2,6 +2,7 @@
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Views;
 using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -17,7 +18,8 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 		{
 			UserSettings = settings;
 			Comments = comments;
-			IsCommentListScrollWithVideo = new ReactiveProperty<bool>(false);
+			IsCommentListScrollWithVideo = new ReactiveProperty<bool>(false)
+				.AddTo(_CompositeDisposable);
 		}
 
 

@@ -345,9 +345,8 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public async Task<NGResult> CheckUserNGVideo()
+		public NGResult CheckUserNGVideo(ThumbnailResponse thumb)
 		{
-			var thumb = await ThumbnailResponseCache.GetItem();
 			return HohoemaApp.UserSettings?.NGSettings.IsNgVideo(thumb);
 		}
 

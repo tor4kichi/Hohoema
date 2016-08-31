@@ -101,6 +101,8 @@ namespace NicoPlayerHohoema.Models
 
 		private async Task TryBeginNext()
 		{
+			if (_IsClosed) { return; }
+
 			if (await CheckTaskRunning())
 			{
 				// 既にタスクが実行中なので何もしない

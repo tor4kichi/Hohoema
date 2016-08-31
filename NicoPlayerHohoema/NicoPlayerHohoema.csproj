@@ -23,7 +23,7 @@
     <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
     <PackageCertificateThumbprint>BFE34B4665927D2844D7BF676023FAED7F089F9D</PackageCertificateThumbprint>
-    <AppxPackageDir>C:\Users\torakichi\Documents\Visual Studio 2015\Projects\NicoPlayerHohoema\NicoPlayerHohoema\AppPackages\</AppxPackageDir>
+    <AppxPackageDir>C:\Users\tor4k\Documents\Visual Studio 2015\Projects\NicoPlayerHohoema\NicoPlayerHohoema\AppPackages\</AppxPackageDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -103,7 +103,6 @@
     <Content Include="Assets\BadgeLogo.scale-400.png" />
     <Content Include="Assets\LibLisencies\Material Design Icons.txt" />
     <Content Include="Assets\LibLisencies\_lisence_summary.json" />
-    <None Include="lib\Mntone.Nico2.UWP.pri" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <None Include="project.json" />
   </ItemGroup>
@@ -355,7 +354,13 @@
     <Compile Include="Views\MenuNavigatePageBase.xaml.cs">
       <DependentUpon>MenuNavigatePageBase.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Service\DislikeRankingCtegoryChoiceDialog.xaml.cs">
+      <DependentUpon>DislikeRankingCtegoryChoiceDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Service\EditAutoCacheConditionDialogService.cs" />
+    <Compile Include="Views\Service\EditMylistGroupDialog.xaml.cs">
+      <DependentUpon>EditMylistGroupDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Service\EditMylistGroupDialogService.cs" />
     <Compile Include="Views\Service\MylistRegistrationDialog.xaml.cs">
       <DependentUpon>MylistRegistrationDialog.xaml</DependentUpon>
@@ -489,7 +494,6 @@
     <Content Include="Assets\Wide310x150Logo.scale-150.png" />
     <Content Include="Assets\Wide310x150Logo.scale-400.png" />
     <Content Include="lib\Mntone.Nico2.UWP.dll" />
-    <Content Include="lib\Mntone.Nico2.UWP.pdb" />
     <None Include="Package.StoreAssociation.xml" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
@@ -632,13 +636,13 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\Service\DislikeRankingCategoryChoiceDialog.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    <Page Include="Views\Service\DislikeRankingCtegoryChoiceDialog.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Service\EditMylistGroupDialog.xaml">
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Service\MylistRegistrationDialog.xaml">
       <Generator>MSBuild:Compile</Generator>

@@ -40,10 +40,8 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 
 		public ReadOnlyReactiveCollection<PortalSearchHisotryItem> HistoryKeywords { get; private set; }
 
-		protected override void NavigateTo()
+		protected override Task NavigateTo()
 		{
-			base.NavigateTo();
-
 			var searchSettings = _HohoemaApp.UserSettings.SearchSettings;
 
 			HistoryKeywords = searchSettings.SearchHistory
@@ -52,6 +50,7 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 				);
 			OnPropertyChanged(nameof(HistoryKeywords));
 
+			return base.NavigateTo();
 		}
 
 		HohoemaApp _HohoemaApp;

@@ -25,6 +25,9 @@ namespace NicoPlayerHohoema.ViewModels
 	{
 	//	private IScheduler scheduler;
 
+
+		
+
 		// とりあえずマイリストから取得したデータによる初期化
 		public VideoInfoControlViewModel(MylistData data, NicoVideo nicoVideo, PageManager pageManager)
 			: this(nicoVideo, pageManager)
@@ -92,53 +95,59 @@ namespace NicoPlayerHohoema.ViewModels
 				.AddTo(_CompositeDisposable);
 
 
+			if (NicoVideo.ThumbnailResponseCache.HasCache)
+			{
+				SetupFromThumbnail(NicoVideo.ThumbnailResponseCache.CachedItem);
+			}
 
 
 			IsForceDisplayNGVideo = false;
 			IsStillNotWatch = true;
 		}
 
+		private void SetupFromThumbnail(ThumbnailResponse thumbnail)
+		{
+			Title = thumbnail.Title;
+			ViewCount = thumbnail.ViewCount;
+			CommentCount = thumbnail.CommentCount;
+			MylistCount = thumbnail.MylistCount;
+			OwnerComment = thumbnail.Description;
+			PostAt = thumbnail.PostedAt.LocalDateTime;
+			ThumbnailImageUrl = IsNotGoodVideo ? null : thumbnail.ThumbnailUrl;
+			MovieLength = thumbnail.Length;
+
+			VideoId = thumbnail.Id;
+
+			// NG判定
+			var ngResult = NicoVideo.CheckUserNGVideo(thumbnail);
+			IsNotGoodVideo = ngResult != null;
+			NGVideoReason = ngResult?.GetReasonText() ?? "";
+		}
+
 
 		public async Task LoadThumbnail()
 		{
-			if (NicoVideo == null) { return; }
-
-			if (NicoVideo.IsDeleted) { return; }
-
-			try
+			if (ThumbnailImageUrl == null)
 			{
-				var thumbnail = await NicoVideo.GetThumbnailResponse();
+				if (NicoVideo == null) { return; }
 
+				if (NicoVideo.IsDeleted) { return; }
 
-				if (NicoVideo.IsDeleted)
+				try
+				{
+					var thumbnail = await NicoVideo.GetThumbnailResponse();
+
+					SetupFromThumbnail(thumbnail);
+
+					if (NicoVideo.IsDeleted)
+					{
+						IsDeleted = true;
+					}
+				}
+				catch
 				{
 					IsDeleted = true;
 				}
-
-				if (thumbnail == null)
-				{
-					return;
-				}
-
-				// NG判定
-				var ngResult = await NicoVideo.CheckUserNGVideo();
-				IsNotGoodVideo = ngResult != null;
-				NGVideoReason = ngResult?.GetReasonText() ?? "";
-
-				Title = thumbnail.Title;
-				ViewCount = thumbnail.ViewCount;
-				CommentCount = thumbnail.CommentCount;
-				MylistCount = thumbnail.MylistCount;
-				OwnerComment = thumbnail.Description;
-				PostAt = thumbnail.PostedAt.LocalDateTime;
-				ThumbnailImageUrl = IsNotGoodVideo ? null : thumbnail.ThumbnailUrl;
-				MovieLength = thumbnail.Length;
-
-				VideoId = thumbnail.Id;
-			}
-			catch
-			{
-				IsDeleted = true;
 			}
 		}
 

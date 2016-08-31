@@ -16,7 +16,7 @@ namespace NicoPlayerHohoema.Models
 
 		}
 
-		public override FavoriteItemType FavoriteItemType => FavoriteItemType.Mylist;
+		public override FavoriteItemType FavoriteItemType => FavoriteItemType.User;
 
 		public override async Task<IEnumerable<FavFeedItem>> GetLatestItems(HohoemaApp hohoemaApp)
 		{

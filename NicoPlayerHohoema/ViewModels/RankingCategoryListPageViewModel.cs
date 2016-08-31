@@ -16,18 +16,12 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class RankingCategoryListPageViewModel : HohoemaViewModelBase
 	{
-		public RankingCategoryListPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
-			: base(hohoemaApp, pageManager)
+
+		private static readonly List<List<RankingCategory>> RankingCategories;
+
+		static RankingCategoryListPageViewModel()
 		{
-			_RankingSettings = HohoemaApp.UserSettings.RankingSettings;
-
-
-			Func< RankingCategory, bool> checkFavorite = (RankingCategory cat) => 
-			{
-				return _RankingSettings.HighPriorityCategory.Any(x => x.RankingSource == RankingSource.CategoryRanking && x.Parameter == cat.ToString());
-			};
-
-			List<List<RankingCategory>> categories = new List<List<RankingCategory>>()
+			RankingCategories = new List<List<RankingCategory>>()
 			{
 				new List<RankingCategory>()
 				{
@@ -89,10 +83,36 @@ namespace NicoPlayerHohoema.ViewModels
 
 			};
 
+		}
+
+		public RankingCategoryListPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
+			: base(hohoemaApp, pageManager)
+		{
+			_RankingSettings = HohoemaApp.UserSettings.RankingSettings;
+
+
+			Func< RankingCategory, bool> checkFavorite = (RankingCategory cat) => 
+			{
+				return _RankingSettings.HighPriorityCategory.Any(x => x.RankingSource == RankingSource.CategoryRanking && x.Parameter == cat.ToString());
+			};
+
+			
+			
+		}
+
+		RankingCategoryListPageListItem CreateRankingCategryListItem(RankingCategory category)
+		{
+			var categoryInfo = RankingCategoryInfo.CreateFromRankingCategory(category);
+			var isFavoriteCategory = HohoemaApp.UserSettings.RankingSettings.HighPriorityCategory.Contains(categoryInfo);
+			return new RankingCategoryListPageListItem(categoryInfo, isFavoriteCategory, OnRankingCategorySelected);
+		}
+
+		protected override void OnSignIn(ICollection<IDisposable> userSessionDisposer)
+		{
 			// ランキングのカテゴリ
 			RankingCategoryItems = new List<List<RankingCategoryListPageListItem>>();
 
-			foreach (var categoryList in categories)
+			foreach (var categoryList in RankingCategories)
 			{
 				// 非表示ランキングを除外したカテゴリリストを作成
 				var list = categoryList
@@ -106,15 +126,11 @@ namespace NicoPlayerHohoema.ViewModels
 					RankingCategoryItems.Add(list);
 				}
 			}
-		}
 
-		RankingCategoryListPageListItem CreateRankingCategryListItem(RankingCategory category)
-		{
-			var categoryInfo = RankingCategoryInfo.CreateFromRankingCategory(category);
-			var isFavoriteCategory = HohoemaApp.UserSettings.RankingSettings.HighPriorityCategory.Contains(categoryInfo);
-			return new RankingCategoryListPageListItem(categoryInfo, isFavoriteCategory, OnRankingCategorySelected);
-		}
+			OnPropertyChanged(nameof(RankingCategoryItems));
 
+			base.OnSignIn(userSessionDisposer);
+		}
 
 		internal void OnRankingCategorySelected(RankingCategoryInfo info)
 		{

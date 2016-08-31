@@ -21,11 +21,12 @@
 
         <Style x:Key="FeedItemSourceTextBlockStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="12" />
+            <Setter Property="Opacity" Value="0.7" />
         </Style>
         
 
         <DataTemplate x:Key="TagFeedItemSourceTemplate">
-            <Border>
+            <Border Margin="8 0">
                 <TextBlock Text="{Binding Name}" 
                            Style="{StaticResource FeedItemSourceTextBlockStyle}"
                            />
@@ -33,7 +34,7 @@
         </DataTemplate>
 
         <DataTemplate x:Key="MylistFeedItemSourceTemplate">
-            <Border>
+            <Border Margin="8 0">
                 <TextBlock Text="{Binding Name}"
                            Style="{StaticResource FeedItemSourceTextBlockStyle}"
                            />
@@ -41,7 +42,7 @@
         </DataTemplate>
 
         <DataTemplate x:Key="UserFeedItemSourceTemplate">
-            <Border>
+            <Border Margin="8 0">
                 <TextBlock Text="{Binding Name}"
                            Style="{StaticResource FeedItemSourceTextBlockStyle}"
                            />
@@ -98,7 +99,49 @@
                 
             </toolkit:DockPanel>
 
-            
+
+            <Border Visibility="{Binding HasFeedGroupItems.Value, Converter={StaticResource BooleanToVisibilityInverted}}" 
+                    Margin="8"
+                    toolkit:DockPanel.Dock="Top"
+                    >
+
+                <ItemsControl>
+
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel></StackPanel>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                                        
+                    
+                    <TextBlock FontSize="20">
+                        <Run>↑ ここからフィードグループを作成しましょう。</Run>
+                        <LineBreak />
+                    </TextBlock>
+
+                    <Border BorderBrush="White" BorderThickness="0 1 0 0" HorizontalAlignment="Stretch"
+                            Margin="0 8"
+                            />
+                    
+                    <TextBlock Margin="8 8">
+                        <Bold>フィードって？</Bold>
+                    </TextBlock>
+                    
+                    <TextBlock TextWrapping="Wrap"
+                               Margin="16 0"
+                               LineHeight="30"
+                               >
+                        <Run>情報の流れをひとまとめにして一覧表示する機能を一般に「フィード」と呼びます。</Run>
+                        <LineBreak />
+                        <Run>Hohoemaでは、マイリストの動画・タグ検索結果・ユーザー投稿動画をひとまとめにして、新着動画を自動でチェックしてくれる機能を「フィード」として扱っています。</Run>
+                        <LineBreak />
+                        <Run>また、「フィードグループ」はフィードに名前をつけて管理する単位です。ジャンルごと、分野ごとに分けてフィードグループを作ってみるのがオススメです。</Run>
+                    </TextBlock>
+
+
+                </ItemsControl>
+                
+            </Border>
 
 
             <ListView ItemsSource="{Binding FeedGroupItems}"
@@ -169,6 +212,8 @@
                                             <StackPanel Orientation="Horizontal" />
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
+                                    
+                                    
 
                                 </ItemsControl>
 

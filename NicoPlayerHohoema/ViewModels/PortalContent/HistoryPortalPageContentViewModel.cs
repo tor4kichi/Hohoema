@@ -20,10 +20,8 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 
 		}
 
-		protected override async void NavigateTo()
+		protected override async Task NavigateTo()
 		{
-			base.NavigateTo();
-
 			var histories = await _HohoemaApp.ContentFinder.GetHistory();
 
 

@@ -20,19 +20,12 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 			FeedGroupItems = new ObservableCollection<FeedGroupPortalContentViewModel>();
 		}
 
-		protected override async void NavigateTo()
+		protected override async Task NavigateTo()
 		{
-			while (_HohoemaApp.FavManager == null)
-			{
-				await Task.Delay(100);
-			}
-
 			if (FeedGroupItems.Count == 0)
 			{
 				await UpdateUnreadFeedItems();
 			}
-
-			base.NavigateTo();
 		}		
 
 
@@ -85,6 +78,8 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 		public string Name { get; private set; }
 
 		public ObservableCollection<FeedVideoInfoControlViewModel> FeedItems { get; private set; }
+		public bool HasFeedItems { get; private set; }
+
 
 		public FeedGroupPortalContentViewModel(FeedGroup feedGroup, HohoemaApp hohoemaApp, PageManager pageManager)
 		{
@@ -102,16 +97,16 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 		{
 			// TODO: FeedGroupのバックグラウンドの更新を待ってから表示したい
 
-			while(FeedGroup.IsNeedRefresh)
-			{
-				await Task.Delay(100);
-			}
-
+			await FeedGroup.Refresh();
+			
 			foreach (var feed in FeedGroup.FeedItems.Where(x => x.IsUnread).Take(5))
 			{
 				var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideo(feed.VideoId);
 				FeedItems.Add(new FeedVideoInfoControlViewModel(feed, FeedGroup, nicoVideo, PageManager));
 			}
+
+			HasFeedItems = FeedItems.Count > 0;
+			OnPropertyChanged(nameof(HasFeedItems));
 		}
 
 		public void Dispose()

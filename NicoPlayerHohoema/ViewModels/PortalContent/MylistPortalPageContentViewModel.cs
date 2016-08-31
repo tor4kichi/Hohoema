@@ -19,7 +19,7 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 			MylistGroupItems = new ObservableCollection<MylistGroupListItem>();
 		}
 
-		protected override void NavigateTo()
+		protected override Task NavigateTo()
 		{
 			try
 			{
@@ -37,7 +37,7 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 			}
 
 
-			base.NavigateTo();
+			return base.NavigateTo();
 		}
 
 		private DelegateCommand _OpenMylistCommand;

@@ -325,6 +325,7 @@ namespace NicoPlayerHohoema.ViewModels
 					, nicoVideo
 					, _PageManager
 				);
+
 				await vm.LoadThumbnail();
 
 				items.Add(vm);
@@ -392,9 +393,10 @@ namespace NicoPlayerHohoema.ViewModels
 				items.Add(videoInfoVM);
 			}
 
+			
 			foreach (var item in items)
 			{
-				await item.LoadThumbnail().ConfigureAwait(false);
+				await item.LoadThumbnail();
 			}
 
 			return items;
