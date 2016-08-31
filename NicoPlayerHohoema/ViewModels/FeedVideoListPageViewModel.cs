@@ -75,14 +75,15 @@ namespace NicoPlayerHohoema.ViewModels
 
 			if (FeedGroup == null)
 			{
-				throw new Exception("");
+				// 削除済み？
+				PageManager.OpenPage(HohoemaPageType.FeedGroupManage);
 			}
+			else
+			{
+				UpdateTitle(FeedGroup.Label);
 
-
-			UpdateTitle(FeedGroup.Label);
-
-			AllMarkAsReadCommand.RaiseCanExecuteChanged();
-
+				AllMarkAsReadCommand.RaiseCanExecuteChanged();
+			}
 
 			return Task.CompletedTask;
 		}

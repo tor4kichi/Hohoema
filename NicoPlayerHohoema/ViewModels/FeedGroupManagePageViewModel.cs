@@ -12,6 +12,7 @@ using Reactive.Bindings;
 using System.Collections.ObjectModel;
 using Prism.Windows.Navigation;
 using System.Reactive.Linq;
+using Reactive.Bindings.Extensions;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -22,6 +23,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<FeedGroupListItem> SelectedFeedGroupItem { get; private set; }
 
 		public ObservableCollection<FeedGroupListItem> FeedGroupItems { get; private set; }
+		public ReadOnlyReactiveProperty<bool> HasFeedGroupItems { get; private set; }
 
 		public ReactiveProperty<string> NewFeedGroupName { get; private set; }
 		public ReactiveCommand AddFeedGroupCommand { get; private set; }
@@ -31,10 +33,19 @@ namespace NicoPlayerHohoema.ViewModels
 			: base(hohoemaApp, pageManager, isRequireSignIn:true)
 		{
 			FeedGroupItems = new ObservableCollection<FeedGroupListItem>();
-			IsSelectionModeEnable = new ReactiveProperty<bool>(false);
-			SelectedFeedGroupItem = new ReactiveProperty<FeedGroupListItem>();
+			HasFeedGroupItems = FeedGroupItems.ObserveProperty(x => x.Count)
+				.Select(x => x > 0)
+				.ToReadOnlyReactiveProperty()
+				.AddTo(_CompositeDisposable);
+			IsSelectionModeEnable = new ReactiveProperty<bool>(false)
+				.AddTo(_CompositeDisposable);
+			SelectedFeedGroupItem = new ReactiveProperty<FeedGroupListItem>()
+				.AddTo(_CompositeDisposable);
 
-			NewFeedGroupName = new ReactiveProperty<string>("");
+
+
+			NewFeedGroupName = new ReactiveProperty<string>("")
+				.AddTo(_CompositeDisposable);
 
 			AddFeedGroupCommand = NewFeedGroupName
 				.Select(x =>
@@ -45,14 +56,16 @@ namespace NicoPlayerHohoema.ViewModels
 
 					return true;
 				})
-				.ToReactiveCommand();
+				.ToReactiveCommand()
+				.AddTo(_CompositeDisposable);
 
 			AddFeedGroupCommand.Subscribe(async _ => 
 			{
 				var feedGroup = await HohoemaApp.FeedManager.AddFeedGroup(NewFeedGroupName.Value);
 
 				PageManager.OpenPage(HohoemaPageType.FeedGroup, feedGroup.Id);
-			});
+			})
+				.AddTo(_CompositeDisposable);
 		}
 
 

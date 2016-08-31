@@ -375,14 +375,7 @@ namespace NicoPlayerHohoema.ViewModels
 					{
 						if (await HohoemaApp.FeedManager.RemoveFeedGroup(FeedGroup))
 						{
-							if (PageManager.NavigationService.CanGoBack())
-							{
-								PageManager.NavigationService.GoBack();
-							}
-							else
-							{
-								PageManager.OpenPage(HohoemaPageType.FeedGroupManage);
-							}
+							PageManager.OpenPage(HohoemaPageType.FeedGroupManage);
 						}
 					}));
 			}
