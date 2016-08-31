@@ -21,11 +21,12 @@
 
         <Style x:Key="FeedItemSourceTextBlockStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="12" />
+            <Setter Property="Opacity" Value="0.7" />
         </Style>
         
 
         <DataTemplate x:Key="TagFeedItemSourceTemplate">
-            <Border>
+            <Border Margin="8 0">
                 <TextBlock Text="{Binding Name}" 
                            Style="{StaticResource FeedItemSourceTextBlockStyle}"
                            />
@@ -33,7 +34,7 @@
         </DataTemplate>
 
         <DataTemplate x:Key="MylistFeedItemSourceTemplate">
-            <Border>
+            <Border Margin="8 0">
                 <TextBlock Text="{Binding Name}"
                            Style="{StaticResource FeedItemSourceTextBlockStyle}"
                            />
@@ -41,7 +42,7 @@
         </DataTemplate>
 
         <DataTemplate x:Key="UserFeedItemSourceTemplate">
-            <Border>
+            <Border Margin="8 0">
                 <TextBlock Text="{Binding Name}"
                            Style="{StaticResource FeedItemSourceTextBlockStyle}"
                            />
@@ -211,6 +212,8 @@
                                             <StackPanel Orientation="Horizontal" />
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
+                                    
+                                    
 
                                 </ItemsControl>
 
