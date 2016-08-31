@@ -79,7 +79,7 @@ namespace NicoPlayerHohoema.ViewModels
 				return _OpenFeedVideoPageCommand
 					?? (_OpenFeedVideoPageCommand = new DelegateCommand<FeedGroupListItem>((listItem) =>
 					{
-						PageManager.OpenPage(HohoemaPageType.FeedVideoList, listItem.Label);
+						PageManager.OpenPage(HohoemaPageType.FeedVideoList, listItem.FeedGroup.Id);
 					}));
 			}
 		}

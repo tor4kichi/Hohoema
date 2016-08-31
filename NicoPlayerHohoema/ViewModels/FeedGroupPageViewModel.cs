@@ -25,6 +25,9 @@ namespace NicoPlayerHohoema.ViewModels
 		public ObservableCollection<FeedItemSourceListItem> TagFeedSources { get; private set; }
 		public ObservableCollection<FeedItemSourceListItem> UserFeedSources { get; private set; }
 
+		public ReadOnlyReactiveProperty<bool> HasMylistFeedSource { get; private set; }
+		public ReadOnlyReactiveProperty<bool> HasTagFeedSource { get; private set; }
+		public ReadOnlyReactiveProperty<bool> HasUserFeedSource { get; private set; }
 
 
 		public ReactiveProperty<bool> SelectFromFavItems { get; private set; }
@@ -52,6 +55,17 @@ namespace NicoPlayerHohoema.ViewModels
 			MylistFeedSources = new ObservableCollection<FeedItemSourceListItem>();
 			TagFeedSources = new ObservableCollection<FeedItemSourceListItem>();
 			UserFeedSources = new ObservableCollection<FeedItemSourceListItem>();
+
+			HasMylistFeedSource = MylistFeedSources.ObserveProperty(x => x.Count)
+				.Select(x => x > 0)
+				.ToReadOnlyReactiveProperty();
+			HasTagFeedSource = TagFeedSources.ObserveProperty(x => x.Count)
+				.Select(x => x > 0)
+				.ToReadOnlyReactiveProperty();
+			HasUserFeedSource = UserFeedSources.ObserveProperty(x => x.Count)
+				.Select(x => x > 0)
+				.ToReadOnlyReactiveProperty();
+
 
 			MylistFavItems = new ObservableCollection<FavInfo>();
 			TagFavItems = new ObservableCollection<FavInfo>();
