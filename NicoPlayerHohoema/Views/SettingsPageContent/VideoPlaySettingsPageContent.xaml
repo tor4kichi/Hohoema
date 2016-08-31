@@ -26,6 +26,9 @@
 
             <StackPanel Margin="8 0 0 0">
 
+                
+
+                
                 <toolkit:DockPanel Margin="8">
 
                     <TextBlock Text="低画質モードをデフォルトに設定する"
@@ -53,59 +56,45 @@
                                   />
 
                 </toolkit:DockPanel>
-                
+
                 <toolkit:DockPanel Margin="8">
 
                     <TextBlock Text="再生中は画面を点灯したままにする"
-                               toolkit:DockPanel.Dock="Left"
-                               VerticalAlignment="Center"
-                               />
+                        toolkit:DockPanel.Dock="Left"
+                        VerticalAlignment="Center"
+                        />
 
                     <ToggleButton Width="32" Height="32"
-                                  IsChecked="{Binding IsKeepDisplayInPlayback.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                  HorizontalAlignment="Right"
-                                  />
-
-                </toolkit:DockPanel>
-
-
-                <toolkit:DockPanel Margin="8">
-
-                    <TextBlock Text="コメントを書き始めたら動画を一時停止する"
-                               toolkit:DockPanel.Dock="Left"
-                               VerticalAlignment="Center"
-                               />
-
-                    <ToggleButton Width="32" Height="32"
-                                  IsChecked="{Binding IsPauseWithCommentWriting.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                  HorizontalAlignment="Right"
-                                  />
+                            IsChecked="{Binding IsKeepDisplayInPlayback.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            HorizontalAlignment="Right"
+                            />
 
                 </toolkit:DockPanel>
 
                 <toolkit:DockPanel Margin="8">
 
                     <TextBlock Text="※音量は 0.0 ～ 1.0 の間に設定されます"
-                               toolkit:DockPanel.Dock="Bottom"
-                               VerticalAlignment="Center"
-                               FontSize="12"
-                               Foreground="Gray"
-                               />
+                        toolkit:DockPanel.Dock="Bottom"
+                        VerticalAlignment="Center"
+                        FontSize="12"
+                        Foreground="Gray"
+                        />
 
                     <TextBlock Text="マウススクロール時の音量変更量"
-                               toolkit:DockPanel.Dock="Left"
-                               VerticalAlignment="Center"
-                               />
+                        toolkit:DockPanel.Dock="Left"
+                        VerticalAlignment="Center"
+                        />
 
                     <toolkit:NumericUpDown Value="{Binding ScrollVolumeFrequency.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                           SmallChange="0.01"
-                                           LargeChange="0.05"
-                                           Minimum="0.0"
-                                           Maximum="1.0"
-                                           HorizontalAlignment="Right"
-                                           />
+                                    SmallChange="0.01"
+                                    LargeChange="0.05"
+                                    Minimum="0.0"
+                                    Maximum="1.0"
+                                    HorizontalAlignment="Right"
+                                    />
 
                 </toolkit:DockPanel>
+
             </StackPanel>
 
         </ItemsControl>

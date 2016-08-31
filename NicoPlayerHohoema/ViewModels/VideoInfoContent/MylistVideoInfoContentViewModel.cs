@@ -2,6 +2,7 @@
 using Prism.Commands;
 using Prism.Mvvm;
 using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -22,7 +23,8 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 			ThreadId = threadId;
 			MylistManager = mylistManager;
 
-			MylistComment = new ReactiveProperty<string>("");
+			MylistComment = new ReactiveProperty<string>("")
+				.AddTo(_CompositeDisposable);
 			MylistGroups = MylistManager.UserMylists
 				.Select(x => new VideoTargetedMylistGroupInfoViewModel(videoId, x, this))
 				.ToList();
