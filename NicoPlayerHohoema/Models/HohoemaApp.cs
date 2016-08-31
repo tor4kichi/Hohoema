@@ -154,7 +154,15 @@ namespace NicoPlayerHohoema.Models
 
 				Debug.WriteLine("try login");
 
-				var result = await context.SignInAsync();
+				NiconicoSignInStatus result = NiconicoSignInStatus.Failed;
+				try
+				{
+					result = await context.SignInAsync();
+				}
+				catch
+				{
+					LoginErrorText = "サインインに失敗、再起動をお試しください";
+				}
 
 				if (result == NiconicoSignInStatus.Success)
 				{
@@ -308,30 +316,35 @@ namespace NicoPlayerHohoema.Models
 				return NiconicoSignInStatus.Failed;
 			}
 
-			var result = await NiconicoContext.SignOutOffAsync();
-			NiconicoContext.Dispose();
-
-			await SaveUserSettings();
-			if (MediaManager != null)
+			try
 			{
-				await MediaManager.DeleteUnrequestedVideos();
+				var result = await NiconicoContext.SignOutOffAsync();
+				NiconicoContext.Dispose();
+
+				await SaveUserSettings();
+				if (MediaManager != null)
+				{
+					await MediaManager.DeleteUnrequestedVideos();
+				}
+
+				return result;
 			}
+			finally
+			{
+				NiconicoContext = null;
+				FavManager = null;
+				UserSettings = null;
+				LoginUserId = uint.MaxValue;
+				MediaManager = null;
+				BackgroundUpdater?.Dispose();
+				BackgroundUpdater = null;
+				ThumbnailBackgroundLoader?.Dispose();
+				ThumbnailBackgroundLoader = null;
+				FavManager = null;
+				FeedManager = null;
 
-			NiconicoContext = null;
-			FavManager = null;
-			UserSettings = null;
-			LoginUserId = uint.MaxValue;
-			MediaManager = null;
-			BackgroundUpdater?.Dispose();
-			BackgroundUpdater = null;
-			ThumbnailBackgroundLoader?.Dispose();
-			ThumbnailBackgroundLoader = null;
-			FavManager = null;
-			FeedManager = null;
-
-			OnSignout?.Invoke();
-
-			return result;
+				OnSignout?.Invoke();
+			}
 		}
 
 		public async Task<NiconicoSignInStatus> CheckSignedInStatus()
