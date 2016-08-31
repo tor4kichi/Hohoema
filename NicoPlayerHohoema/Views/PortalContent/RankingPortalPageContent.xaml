@@ -52,6 +52,22 @@
         </StackPanel>
 
 
+        <Border Visibility="{Binding HasPriorityRankingCategoryItem.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                Margin="0 16 0 0"
+                >
+            <StackPanel Opacity="0.7">
+                <TextBlock Margin="0 0 0 8">
+                    <Run>好きなランキングをここに表示できます。</Run>
+                </TextBlock>
+
+                <HyperlinkButton Content="設定を開く" 
+                                 Command="{Binding OpenVideoListingSettingsCommand}">
+                    
+                </HyperlinkButton>
+
+            </StackPanel>
+        </Border>
+
         <ScrollViewer HorizontalScrollMode="Disabled"
                       HorizontalScrollBarVisibility="Hidden"
                       VerticalScrollMode="Auto"
