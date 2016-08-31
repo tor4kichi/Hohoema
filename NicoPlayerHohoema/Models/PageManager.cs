@@ -7,7 +7,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using Windows.Foundation;
 using Windows.UI.Core;
 
 namespace NicoPlayerHohoema.Models
@@ -106,10 +108,6 @@ namespace NicoPlayerHohoema.Models
 					return "マイリスト一覧";
 				case HohoemaPageType.Mylist:
 					return "マイリスト";
-				case HohoemaPageType.FavoriteAllFeed:
-					return "お気に入り一覧";
-				case HohoemaPageType.FavoriteFeed:
-					return "お気に入り";
 				case HohoemaPageType.FavoriteManage:
 					return "お気に入り管理";
 				case HohoemaPageType.History:
@@ -128,6 +126,12 @@ namespace NicoPlayerHohoema.Models
 					return "動画プレイヤー";
 				case HohoemaPageType.ConfirmWatchHurmfulVideo:
 					return "動画視聴の確認";
+				case HohoemaPageType.FeedGroupManage:
+					return "全てのフィードグループ";
+				case HohoemaPageType.FeedGroup:
+					return "フィードグループ";
+				case HohoemaPageType.FeedVideoList:
+					return "フィードの動画一覧";
 				case HohoemaPageType.UserInfo:
 					return "ユーザー情報";
 				case HohoemaPageType.UserVideo:
@@ -139,13 +143,71 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
+		public async Task StartNoUIWork(string title, Func<IAsyncAction> actionFactory)
+		{
+			StartWork?.Invoke(title, 1);
+
+			using (var cancelSource = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
+			{
+				await actionFactory().AsTask(cancelSource.Token);
+
+				ProgressWork?.Invoke(1);
+
+				await Task.Delay(2000);
+
+				if (cancelSource.IsCancellationRequested)
+				{
+					CancelWork?.Invoke();
+				}
+				else
+				{
+					CompleteWork?.Invoke();
+				}
+			}
+		}
+		public async Task StartNoUIWork(string title, int totalCount, Func<IAsyncActionWithProgress<uint>> actionFactory)
+		{
+			StartWork?.Invoke(title, (uint)totalCount);
+
+			var progressHandler = new Progress<uint>((x) => ProgressWork?.Invoke(x));
+
+			using (var cancelSource = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
+			{
+				await actionFactory().AsTask(cancelSource.Token, progressHandler);
+
+				await Task.Delay(500);
+
+				if (cancelSource.IsCancellationRequested)
+				{
+					CancelWork?.Invoke();
+				}
+				else 
+				{
+					CompleteWork?.Invoke();
+				}
+			}
+		}
+
 		
 
 		public void UpdateTitle(string title)
 		{
 			PageTitle = title;
 		}
+
+		public event StartExcludeUserInputWorkHandler StartWork;
+		public event ProgressExcludeUserInputWorkHandler ProgressWork;
+		public event CompleteExcludeUserInputWorkHandler CompleteWork;
+		public event CancelExcludeUserInputWorkHandler CancelWork;
 	}
+
+
+	public delegate void StartExcludeUserInputWorkHandler(string title, uint totalCount);
+	public delegate void ProgressExcludeUserInputWorkHandler(uint count);
+	public delegate void CompleteExcludeUserInputWorkHandler();
+	public delegate void CancelExcludeUserInputWorkHandler();
+
+
 
 
 	public class PageInfo

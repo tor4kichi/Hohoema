@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.UI;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -18,6 +19,7 @@ namespace NicoPlayerHohoema.Models
 			SoundVolume = 0.25;
 			ScrollVolumeFrequency = 0.02;
 			DefaultCommentDisplay = true;
+			IsFullScreenDefault = false;
 			IncrementReadablityOwnerComment = true;
 			PauseWithCommentWriting = true;
 			CommentRenderingFPS = 24;
@@ -27,6 +29,7 @@ namespace NicoPlayerHohoema.Models
 			IsKeepDisplayInPlayback = true;
 			IsKeepFrontsideInPlayback = true;
 			IsDefaultCommentWithAnonymous = true;
+			CommentColor = Colors.WhiteSmoke;
 		}
 
 
@@ -78,6 +81,15 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
+
+		private bool _IsFullScreenDefault;
+
+		[DataMember]
+		public bool IsFullScreenDefault
+		{
+			get { return _IsFullScreenDefault; }
+			set { SetProperty(ref _IsFullScreenDefault, value); }
+		}
 
 		private bool _DefaultCommentDisplay;
 
@@ -183,5 +195,13 @@ namespace NicoPlayerHohoema.Models
 			set { SetProperty(ref _IsDefaultCommentWithAnonymous, value); }
 		}
 
+		private Color _CommentColor;
+
+		[DataMember]
+		public Color CommentColor
+		{
+			get { return _CommentColor; }
+			set { SetProperty(ref _CommentColor, value); }
+		}
 	}
 }

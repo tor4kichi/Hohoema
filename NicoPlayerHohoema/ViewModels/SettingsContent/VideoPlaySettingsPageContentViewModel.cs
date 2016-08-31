@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.UI;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -16,9 +17,12 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			_PlayerSettings = hohoemaApp.UserSettings.PlayerSettings;
 
+			
+
 			IsDefaultPlayWithLowQuality = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsLowQualityDeafult);
+			IsFullScreenDefault = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsFullScreenDefault);
+
 			IsKeepDisplayInPlayback = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsKeepDisplayInPlayback);
-			IsPauseWithCommentWriting = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.PauseWithCommentWriting);
 			ScrollVolumeFrequency = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.ScrollVolumeFrequency);
 		}
 
@@ -27,11 +31,12 @@ namespace NicoPlayerHohoema.ViewModels
 			_PlayerSettings.Save().ConfigureAwait(false);
 		}
 
-
 		public ReactiveProperty<bool> IsDefaultPlayWithLowQuality { get; private set; }
+		public ReactiveProperty<bool> IsFullScreenDefault { get; private set; }
+
 		public ReactiveProperty<bool> IsKeepDisplayInPlayback { get; private set; }
-		public ReactiveProperty<bool> IsPauseWithCommentWriting { get; private set; }
 		public ReactiveProperty<double> ScrollVolumeFrequency { get; private set; }
+
 
 		private PlayerSettings _PlayerSettings;
 	}

@@ -15,24 +15,26 @@
     <Grid>
         <TextBlock 
                 Text="{Binding CommentText}"
-                Foreground="Black"
+                Foreground="{Binding BackColor, Converter={StaticResource ColorToBrush}}"
                 Opacity="0.5"
                 FontSize="{Binding FontSize}"
                 Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibility}}"
                 TextWrapping="{Binding TextWrapping}"
+                FontWeight="Medium"
                 TextLineBounds="Tight"
             >
             <TextBlock.RenderTransform>
-                <TranslateTransform X="2" Y="2" />
+                <TranslateTransform X="1" Y="1" />
             </TextBlock.RenderTransform>
         </TextBlock>
         
         <TextBlock 
                 Text="{Binding CommentText}"
-                Foreground="{Binding Color, Converter={StaticResource ColorToBrush}}"
+                Foreground="{Binding RealColor, Converter={StaticResource ColorToBrush}}"
                 FontSize="{Binding FontSize}"
                 Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibility}}"
                 TextWrapping="{Binding TextWrapping}"
+                FontWeight="Medium"
                 TextLineBounds="Tight"
             />
         

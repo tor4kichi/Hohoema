@@ -197,6 +197,7 @@
                                 IsMuted="{Binding IsMuted.Value}"
                                 IsLooping="{Binding IsEnableRepeat.Value}"
                                 Volume="{Binding SoundVolume.Value}"
+                                  
                                 AutoPlay="True"
                             >
                         <i:Interaction.Behaviors>
@@ -228,6 +229,7 @@
                                 RequestFPS="{Binding RequestFPS.Value}"
                                 CommentSizeScale="{Binding CommentFontScale.Value}"
                                 Height="{Binding CommentCanvasHeight.Value}"
+                                CommentDefaultColor="{Binding CommentDefaultColor.Value}"
                                 />
 
 

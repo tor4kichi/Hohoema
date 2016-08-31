@@ -35,16 +35,16 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					if (x == HohoemaPageType.Portal)
 					{
-						await dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+						await dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
 						{
-							NavigateTo();
+							await NavigateTo();
 						});
 					}
 					else
 					{
-						await dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+						await dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
 						{
-							NavigateFrom();
+							await NavigateFrom();
 						});
 					}
 				})
@@ -52,14 +52,14 @@ namespace NicoPlayerHohoema.ViewModels
 				
 		}
 
-		protected virtual void NavigateTo()
+		protected virtual Task NavigateTo()
 		{
-
+			return Task.CompletedTask;
 		}
 
-		protected virtual void NavigateFrom()
+		protected virtual Task NavigateFrom()
 		{
-
+			return Task.CompletedTask;
 		}
 
 		public void Dispose()

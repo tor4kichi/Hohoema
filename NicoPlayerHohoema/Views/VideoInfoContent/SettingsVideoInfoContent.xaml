@@ -33,22 +33,6 @@
 
             </toolkit:DockPanel>
 
-            <!--
-            <toolkit:DockPanel Margin="8">
-
-                <TextBlock Text="投稿者コメントを読みやすくする"
-                        toolkit:DockPanel.Dock="Left"
-                        VerticalAlignment="Center"
-                        />
-
-                <ToggleButton Width="32" Height="32"
-                            IsChecked="{Binding IncrementReadablityOwnerComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                            HorizontalAlignment="Right"
-                            />
-
-            </toolkit:DockPanel>
-            -->
-
             <toolkit:DockPanel Margin="8">
 
                 <TextBlock Text="コメントの一秒あたりの描画回数"
@@ -67,7 +51,7 @@
             </toolkit:DockPanel>
 
 
-            <toolkit:DockPanel Margin="8">
+            <toolkit:DockPanel Margin="8 16">
 
                 <TextBlock Text="コメントの表示サイズ"
                         toolkit:DockPanel.Dock="Left"
@@ -84,6 +68,42 @@
 
             </toolkit:DockPanel>
 
+            <toolkit:DockPanel Margin="8">
+
+
+                <TextBlock Text="デフォルトのコメント色"
+                        toolkit:DockPanel.Dock="Left"
+                        VerticalAlignment="Center"
+                        />
+
+                <ComboBox ItemsSource="{Binding CommentColorList}"
+                          SelectedItem="{Binding CommentColor.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                          HorizontalAlignment="Right"
+                          >
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="{Binding Converter={StaticResource ColorToBrush}}"
+                                    Width="80"
+                                    Height="32"
+                                    />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </toolkit:DockPanel>
+
+            <toolkit:DockPanel Margin="8">
+
+                <TextBlock Text="コメントを書き始めたら動画を一時停止する"
+                        toolkit:DockPanel.Dock="Left"
+                        VerticalAlignment="Center"
+                        />
+
+                <ToggleButton Width="32" Height="32"
+                            IsChecked="{Binding IsPauseWithCommentWriting.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            HorizontalAlignment="Right"
+                            />
+
+            </toolkit:DockPanel>
 
             <toolkit:DockPanel Margin="8">
 
@@ -99,20 +119,6 @@
 
             </toolkit:DockPanel>
 
-
-            <toolkit:DockPanel Margin="8">
-
-                <TextBlock Text="コメントを書き始めたら動画を一時停止する"
-                        toolkit:DockPanel.Dock="Left"
-                        VerticalAlignment="Center"
-                        />
-
-                <ToggleButton Width="32" Height="32"
-                            IsChecked="{Binding IsPauseWithCommentWriting.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                            HorizontalAlignment="Right"
-                            />
-
-            </toolkit:DockPanel>
 
 
             <toolkit:DockPanel Margin="8">
@@ -139,6 +145,8 @@
 
             </toolkit:DockPanel>
 
+            
+            
             <!--
         <toolkit:DockPanel Margin="8">
 

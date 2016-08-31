@@ -22,6 +22,7 @@ using NicoPlayerHohoema.Views.Service;
 using Microsoft.Practices.Unity;
 using Windows.UI;
 using Mntone.Nico2.Live.PlayerStatus;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -74,7 +75,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 					CanChangeFavoriteMylistState.Value = 
 						IsFavoriteMylist.Value == true 
-						|| HohoemaApp.FavFeedManager.CanMoreAddFavorite(FavoriteItemType.Mylist);
+						|| HohoemaApp.FavManager.CanMoreAddFavorite(FavoriteItemType.Mylist);
 
 
 					_NowProcessFavorite = false;
@@ -93,54 +94,66 @@ namespace NicoPlayerHohoema.ViewModels
 
 				var items = SelectedItems.ToArray();
 
-				int successCount = 0;
-				int failedCount = 0;
 
-				Debug.WriteLine($"マイリスト登録解除を開始...");
-				foreach (var video in items)
+				var action = AsyncInfo.Run<uint>(async (cancelToken, progress) =>
 				{
-					var unregistrationResult = await mylistGroup.Unregistration(
-						video.RawVideoId
-						, withRefresh : false /* あとでまとめてリフレッシュするのでここでは OFF */);
+					uint progressCount = 0;
+					int successCount = 0;
+					int failedCount = 0;
 
-					if (unregistrationResult == ContentManageResult.Success)
+					Debug.WriteLine($"マイリスト登録解除を開始...");
+					foreach (var video in items)
 					{
-						successCount++;
-					}
-					else
-					{
-						failedCount++;
+						var unregistrationResult = await mylistGroup.Unregistration(
+							video.RawVideoId
+							, withRefresh: false /* あとでまとめてリフレッシュするのでここでは OFF */);
+
+						if (unregistrationResult == ContentManageResult.Success)
+						{
+							successCount++;
+						}
+						else
+						{
+							failedCount++;
+						}
+
+						progressCount++;
+						progress.Report(progressCount);
+
+						Debug.WriteLine($"{video.Title}[{video.RawVideoId}]:{unregistrationResult.ToString()}");
 					}
 
-					Debug.WriteLine($"{video.Title}[{video.RawVideoId}]:{unregistrationResult.ToString()}");
-				}
+					// 登録解除結果を得るためリフレッシュ
+					await mylistGroup.Refresh();
+
+
+					// ユーザーに結果を通知
+					var titleText = $"「{mylistGroup.Name}」から {successCount}件 の動画が登録解除されました";
+					var toastService = App.Current.Container.Resolve<ToastNotificationService>();
+					var resultText = $"";
+					if (failedCount > 0)
+					{
+						resultText += $"\n登録解除に失敗した {failedCount}件 は選択されたままです";
+					}
+					toastService.ShowText(titleText, resultText);
+
+					// 登録解除に失敗したアイテムだけを残すように
+					// マイリストから除外された動画を選択アイテムリストから削除
+					foreach (var item in SelectedItems.ToArray())
+					{
+						if (false == mylistGroup.CheckRegistratedVideoId(item.RawVideoId))
+						{
+							SelectedItems.Remove(item);
+							IncrementalLoadingItems.Remove(item);
+						}
+					}
+
+					Debug.WriteLine($"マイリスト登録解除完了---------------");
+				});
+
+				await PageManager.StartNoUIWork("マイリスト登録解除", items.Length, () => action);
+
 				
-				// 登録解除結果を得るためリフレッシュ
-				await mylistGroup.Refresh();
-
-
-				// ユーザーに結果を通知
-				var titleText = $"「{mylistGroup.Name}」から {successCount}件 の動画が登録解除されました";
-				var toastService = App.Current.Container.Resolve<ToastNotificationService>();
-				var resultText = $"";
-				if (failedCount > 0)
-				{
-					resultText += $"\n登録解除に失敗した {failedCount}件 は選択されたままです";
-				}
-				toastService.ShowText(titleText, resultText);
-
-				// 登録解除に失敗したアイテムだけを残すように
-				// マイリストから除外された動画を選択アイテムリストから削除
-				foreach (var item in SelectedItems.ToArray())
-				{
-					if (false == mylistGroup.CheckRegistratedVideoId(item.RawVideoId))
-					{
-						SelectedItems.Remove(item);
-						IncrementalLoadingItems.Remove(item);
-					}
-				}
-
-				Debug.WriteLine($"マイリスト登録解除完了---------------");
 			});
 
 			CopyMylistCommand = SelectedItems.ObserveProperty(x => x.Count)
@@ -151,13 +164,12 @@ namespace NicoPlayerHohoema.ViewModels
 			CopyMylistCommand.Subscribe(async _ => 
 			{
 				var mylistGroup = HohoemaApp.UserMylistManager.GetMylistGroup(MylistGroupId);
-
 				// ターゲットのマイリストを選択する
 				var targetMylist = await MylistDialogService
-					.ShowSelectSingleMylistDialog(
-						SelectedItems
-						, hideMylistGroupId : mylistGroup.GroupId
-					);
+				.ShowSelectSingleMylistDialog(
+					SelectedItems
+					, hideMylistGroupId: mylistGroup.GroupId
+				);
 
 				if (targetMylist == null) { return; }
 
@@ -168,42 +180,53 @@ namespace NicoPlayerHohoema.ViewModels
 					.Where(x => !targetMylist.CheckRegistratedVideoId(x.RawVideoId))
 					.ToList();
 
-				Debug.WriteLine($"マイリストのコピーを開始...");
-
-				var result = await mylistGroup.CopyMylistTo(
-					   targetMylist
-					   , items.Select(video => video.RawVideoId).ToArray()
-					   );
-
-				Debug.WriteLine($"copy mylist {items.Count} item from {mylistGroup.Name} to {targetMylist.Name} : {result.ToString()}");
-
-				// ユーザーに結果を通知
-				var toastService = App.Current.Container.Resolve<ToastNotificationService>();
-
-				string titleText;
-				string contentText;
-				if (result == ContentManageResult.Success)
+				var action = AsyncInfo.Run<uint>(async (cancelToken, progress) =>
 				{
-					titleText = $"「{targetMylist.Name}」に {SelectedItems.Count}件 コピーしました";
-					contentText = $" {SelectedItems.Count}件 の動画をコピーしました";
-				}
-				else
-				{
-					titleText = $"マイリストコピーに失敗";
-					contentText = $"時間を置いてからやり直してみてください";
-				}
+					uint progressCount = 0;
+					
 
-				toastService.ShowText(titleText, contentText);
+					Debug.WriteLine($"マイリストのコピーを開始...");
 
+					var result = await mylistGroup.CopyMylistTo(
+						   targetMylist
+						   , items.Select(video => video.RawVideoId).ToArray()
+						   );
 
 
-				// 成功した場合は選択状態を解除
-				if (result == ContentManageResult.Success)
-				{
-					ClearSelection();
-				}
+					Debug.WriteLine($"copy mylist {items.Count} item from {mylistGroup.Name} to {targetMylist.Name} : {result.ToString()}");
 
-				Debug.WriteLine($"マイリストのコピー完了...");
+					// ユーザーに結果を通知
+					var toastService = App.Current.Container.Resolve<ToastNotificationService>();
+
+					string titleText;
+					string contentText;
+					if (result == ContentManageResult.Success)
+					{
+						titleText = $"「{targetMylist.Name}」に {SelectedItems.Count}件 コピーしました";
+						contentText = $" {SelectedItems.Count}件 の動画をコピーしました";
+
+						progress.Report((uint)items.Count);
+					}
+					else
+					{
+						titleText = $"マイリストコピーに失敗";
+						contentText = $"時間を置いてからやり直してみてください";
+					}
+
+					toastService.ShowText(titleText, contentText);
+
+
+
+					// 成功した場合は選択状態を解除
+					if (result == ContentManageResult.Success)
+					{
+						ClearSelection();
+					}
+
+					Debug.WriteLine($"マイリストのコピー完了...");
+				});
+
+				await PageManager.StartNoUIWork("マイリストのコピー", items.Count, () => action);
 			});
 
 
@@ -291,7 +314,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			if (MylistGroupId == null) { return false; }
 
-			var favManager = HohoemaApp.FavFeedManager;
+			var favManager = HohoemaApp.FavManager;
 			var result = await favManager.AddFav(FavoriteItemType.Mylist, MylistGroupId, MylistTitle);
 
 			return result == ContentManageResult.Success || result == ContentManageResult.Exist;
@@ -301,7 +324,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			if (MylistGroupId == null) { return false; }
 
-			var favManager = HohoemaApp.FavFeedManager;
+			var favManager = HohoemaApp.FavManager;
 			var result = await favManager.RemoveFav(FavoriteItemType.Mylist, MylistGroupId);
 
 			return result == ContentManageResult.Success;
@@ -331,7 +354,7 @@ namespace NicoPlayerHohoema.ViewModels
 			// お気に入り状態の取得
 			_NowProcessFavorite = true;
 
-			var favManager = HohoemaApp.FavFeedManager;
+			var favManager = HohoemaApp.FavManager;
 			IsFavoriteMylist.Value = favManager.IsFavoriteItem(FavoriteItemType.Mylist, MylistGroupId);
 
 			CanChangeFavoriteMylistState.Value =

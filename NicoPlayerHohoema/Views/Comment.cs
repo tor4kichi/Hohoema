@@ -23,7 +23,10 @@ namespace NicoPlayerHohoema.Views
 		public uint VideoPosition { get; set; }
 		public uint EndPosition { get; set; }
 
-		public Color Color { get; set; }
+		public Color? Color { get; set; }
+
+		public Color RealColor { get; set; }
+		public Color BackColor { get; set; }
 
 		public uint FontSize { get; set; } = 24;
 		public float FontScale { get; set; } = 1.0f;

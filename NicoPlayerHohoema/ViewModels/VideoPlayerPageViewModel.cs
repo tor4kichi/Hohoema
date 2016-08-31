@@ -52,7 +52,6 @@ namespace NicoPlayerHohoema.ViewModels
 		const float default_fontSize = fontSize_mid;
 		const uint default_DisplayTime = 400; // 1 = 10ms, 400 = 4000ms = 4.0 Seconds
 
-		static readonly Color defaultColor = ColorExtention.HexStringToColor("FAFAFA");
 
 
 		private SynchronizationContextScheduler _PlayerWindowUIDispatcherScheduler;
@@ -448,10 +447,16 @@ namespace NicoPlayerHohoema.ViewModels
 				.AddTo(userSessionDisposer);
 			OnPropertyChanged(nameof(SoundVolume));
 
+			CommentDefaultColor = HohoemaApp.UserSettings.PlayerSettings
+				.ToReactivePropertyAsSynchronized(x => x.CommentColor, PlayerWindowUIDispatcherScheduler)
+				.AddTo(userSessionDisposer);
+			OnPropertyChanged(nameof(CommentDefaultColor));
+
 
 			Observable.Merge(
 				IsMuted.ToUnit(),
-				SoundVolume.ToUnit()
+				SoundVolume.ToUnit(),
+				CommentDefaultColor.ToUnit()
 				)
 				.Throttle(TimeSpan.FromSeconds(5))
 				.Where(x => !IsDisposed)
@@ -751,7 +756,7 @@ namespace NicoPlayerHohoema.ViewModels
 				CommentText = decodedText,
 				CommentId = comment.GetCommentNo(),
 				FontScale = default_fontSize,
-				Color = defaultColor,
+				Color = null,
 				VideoPosition = vpos,
 				EndPosition = vpos + default_DisplayTime,
 			};
@@ -1072,7 +1077,13 @@ namespace NicoPlayerHohoema.ViewModels
 			cancelToken.ThrowIfCancellationRequested();
 
 
-			
+			// 全画面表示の設定を反映
+			if (HohoemaApp.UserSettings.PlayerSettings.IsFullScreenDefault)
+			{
+				IsFullScreen.Value = true;
+			}
+
+
 
 			if (IsNotSupportVideoType)
 			{
@@ -1146,9 +1157,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 				cancelToken.ThrowIfCancellationRequested();
 
-				// FavFeedList
-				await HohoemaApp.FavFeedManager.MarkAsRead(Video.VideoId);
-				await HohoemaApp.FavFeedManager.MarkAsRead(Video.RawVideoId);
+				// お気に入りフィード上の動画を既読としてマーク
+				await HohoemaApp.FeedManager.MarkAsRead(Video.VideoId);
+				await HohoemaApp.FeedManager.MarkAsRead(Video.RawVideoId);
 
 				cancelToken.ThrowIfCancellationRequested();
 
@@ -1173,6 +1184,7 @@ namespace NicoPlayerHohoema.ViewModels
 				SelectedSidePaneType.Value = MediaInfoDisplayType.Summary;
 			}
 
+		
 			Debug.WriteLine("VideoPlayer OnNavigatedToAsync done.");
 
 		}
@@ -1573,6 +1585,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> CanResumeOnExitWritingComment { get; private set; }
 		public ReactiveProperty<double> CommentCanvasHeight { get; private set; }
 		public ReactiveProperty<double> CommentCanvasWidth { get; private set; }
+		public ReactiveProperty<Color> CommentDefaultColor { get; private set; }
 
 
 		public CommentCommandEditerViewModel CommandEditerVM { get; private set; }

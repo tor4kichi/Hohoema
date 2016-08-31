@@ -8,11 +8,26 @@ using NicoPlayerHohoema.Models;
 using Reactive.Bindings.Extensions;
 using Prism.Commands;
 using System.Reactive.Linq;
+using Windows.UI;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	public class CommentSettingsPageContentViewModel : SettingsPageContentViewModel
 	{
+		static CommentSettingsPageContentViewModel()
+		{
+			CommentRenderringFPSList = new List<uint>()
+			{
+				5, 10, 15, 24, 30, 45, 60, 75, 90, 120
+			};
+
+			CommentColorList = new List<Color>()
+			{
+				Colors.WhiteSmoke,
+				Colors.Black,
+			};
+		}
+
 		public CommentSettingsPageContentViewModel(HohoemaApp hohoemaApp, string title)
 			: base(title)
 		{
@@ -53,17 +68,12 @@ namespace NicoPlayerHohoema.ViewModels
 
 			// Comment Display 
 			DefaultCommentDisplay = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCommentDisplay);
-			IncrementReadablityOwnerComment = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IncrementReadablityOwnerComment);
+			CommentColor = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentColor);
+			IsPauseWithCommentWriting = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.PauseWithCommentWriting);
 			CommentRenderingFPS = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentRenderingFPS);
 			CommentFontScale = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCommentFontScale);
 			CommentGlassMowerEnable = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentGlassMowerEnable);
 			IsDefaultCommentWithAnonymous = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsDefaultCommentWithAnonymous);
-
-			CommentRenderringFPSList = new List<uint>()
-			{
-				5, 10, 15, 24, 30, 45, 60, 75, 90, 120
-			};
-
 
 			IsEnableOwnerCommentCommand = new ReactiveProperty<bool>(_PlayerSettings.CommentCommandPermission.HasFlag(CommentCommandPermissionType.Owner));
 			IsEnableUserCommentCommand = new ReactiveProperty<bool>(_PlayerSettings.CommentCommandPermission.HasFlag(CommentCommandPermissionType.User));
@@ -134,11 +144,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<bool> IsDefaultCommentWithAnonymous { get; private set; }
 		public ReactiveProperty<bool> DefaultCommentDisplay { get; private set; }
-		public ReactiveProperty<bool> IncrementReadablityOwnerComment { get; private set; }
 		public ReactiveProperty<uint> CommentRenderingFPS { get; private set; }
 		public ReactiveProperty<double> CommentFontScale { get; private set; }
+		public ReactiveProperty<Color> CommentColor { get; private set; }
+		public ReactiveProperty<bool> IsPauseWithCommentWriting { get; private set; }
 
-		public List<uint> CommentRenderringFPSList { get; private set; }
+		public static List<Color> CommentColorList { get; private set; }
+		public static List<uint> CommentRenderringFPSList { get; private set; }
 
 
 		public ReactiveProperty<bool> IsEnableOwnerCommentCommand { get; private set; }

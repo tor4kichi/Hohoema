@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,6 +32,24 @@ namespace NicoPlayerHohoema.Models
 		public abstract IAsyncAction Update();
 	}
 
+	public class SimpleBackgroundUpdate : BackgroundUpdateItemBase
+	{
+		private Func<Task> _UpdateAction;
+
+		public SimpleBackgroundUpdate(string label, Func<Task> updateActionFactory)
+			: base(label)
+		{
+			_UpdateAction = updateActionFactory;
+		}
+
+		public override IAsyncAction Update()
+		{
+			return AsyncInfo.Run(cancelToken => 
+			{
+				return _UpdateAction();
+			});
+		}
+	}
 
 	public delegate void BackgroundUpdateStartedEventHandler(IBackgroundUpdateable item);
 	public delegate void BackgroundUpdateCompletedEventHandler(IBackgroundUpdateable item);
@@ -82,6 +101,8 @@ namespace NicoPlayerHohoema.Models
 
 		private async Task TryBeginNext()
 		{
+			if (_IsClosed) { return; }
+
 			if (await CheckTaskRunning())
 			{
 				// 既にタスクが実行中なので何もしない

@@ -24,7 +24,7 @@ namespace NicoPlayerHohoema.ViewModels
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 
-			while (HohoemaApp.FavFeedManager == null)
+			while (HohoemaApp.FavManager == null)
 			{
 				await Task.Delay(100);
 			}
@@ -36,7 +36,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				Name = "ユーザー",
 				FavType = FavoriteItemType.User,
-				Items = HohoemaApp.FavFeedManager.GetFavUserFeedListAll()
+				Items = HohoemaApp.FavManager.User.FavInfoItems
 					.Select(x => new FavoriteItemViewModel(x, PageManager))
 					.ToList()
 			});
@@ -45,7 +45,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				Name = "マイリスト",
 				FavType = FavoriteItemType.Mylist,
-				Items = HohoemaApp.FavFeedManager.GetFavMylistFeedListAll()
+				Items = HohoemaApp.FavManager.Mylist.FavInfoItems
 					.Select(x => new FavoriteItemViewModel(x, PageManager))
 					.ToList()
 			});
@@ -54,7 +54,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				Name = "タグ",
 				FavType = FavoriteItemType.Tag,
-				Items = HohoemaApp.FavFeedManager.GetFavTagFeedListAll()
+				Items = HohoemaApp.FavManager.Tag.FavInfoItems
 					.Select(x => new FavoriteItemViewModel(x, PageManager))
 					.ToList()
 			});
@@ -75,7 +75,7 @@ namespace NicoPlayerHohoema.ViewModels
 	public class FavoriteItemViewModel : BindableBase
 	{
 		
-		public FavoriteItemViewModel(FavFeedList feedList, PageManager pageManager)
+		public FavoriteItemViewModel(FavInfo feedList, PageManager pageManager)
 		{
 			Title = feedList.Name;
 			ItemType = feedList.FavoriteItemType;

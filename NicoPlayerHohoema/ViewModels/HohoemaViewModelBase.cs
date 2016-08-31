@@ -12,6 +12,7 @@ using System.Threading;
 using Windows.UI.Xaml;
 using Windows.Foundation;
 using NicoPlayerHohoema.Util;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -127,12 +128,43 @@ namespace NicoPlayerHohoema.ViewModels
 		
 
 
-		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			base.OnNavigatedTo(e, viewModelState);
 
 			// サインインステータスチェック
+			_NavigatedToTaskCancelToken = new CancellationTokenSource();
 
+			_NavigatedToTask = __NavigatedToAsync(_NavigatedToTaskCancelToken.Token, e, viewModelState);
+
+			if (!String.IsNullOrEmpty(_Title))
+			{
+				PageManager.PageTitle = _Title;
+			}
+			else
+			{
+				PageManager.PageTitle = PageManager.CurrentDefaultPageTitle();
+			}
+		}
+
+		private void _OnResumed()
+		{
+			HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+			{
+				OnResumed();
+			})
+			.AsTask()
+			.ConfigureAwait(false);
+		}
+
+		protected virtual Task OnResumed()
+		{
+			return Task.CompletedTask;
+		}
+
+
+		private async Task __NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		{
 			if (IsRequireSignIn)
 			{
 				if (!await CheckSignIn())
@@ -150,29 +182,7 @@ namespace NicoPlayerHohoema.ViewModels
 				OnSignin();
 			}
 
-
-			_NavigatedToTaskCancelToken = new CancellationTokenSource();
-
-			_NavigatedToTask = NavigatedToAsync(_NavigatedToTaskCancelToken.Token, e, viewModelState);
-
-			if (!String.IsNullOrEmpty(_Title))
-			{
-				PageManager.PageTitle = _Title;
-			}
-			else
-			{
-				PageManager.PageTitle = PageManager.CurrentDefaultPageTitle();
-			}
-		}
-
-		private void _OnResumed()
-		{
-			OnResumed().ConfigureAwait(false);
-		}
-
-		protected virtual Task OnResumed()
-		{
-			return Task.CompletedTask;
+			await NavigatedToAsync(cancelToken, e, viewModelState);
 		}
 
 		protected virtual Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)

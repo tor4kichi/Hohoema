@@ -17,9 +17,9 @@ using Windows.UI.Xaml.Navigation;
 
 namespace NicoPlayerHohoema.Views.PortalContent
 {
-	public sealed partial class FavPortalPageContent : UserControl
+	public sealed partial class FeedPortalPageContent : UserControl
 	{
-		public FavPortalPageContent()
+		public FeedPortalPageContent()
 		{
 			this.InitializeComponent();
 		}

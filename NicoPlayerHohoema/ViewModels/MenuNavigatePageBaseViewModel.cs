@@ -38,7 +38,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				new PageTypeSelectableItem(HohoemaPageType.Portal             , OnMenuItemSelected, "ホーム", Symbol.Home),
 				new PageTypeSelectableItem(HohoemaPageType.RankingCategoryList, OnMenuItemSelected, "ランキング", Symbol.Flag),
-				new PageTypeSelectableItem(HohoemaPageType.FavoriteAllFeed    , OnMenuItemSelected, "お気に入り", Symbol.OutlineStar),
+				new PageTypeSelectableItem(HohoemaPageType.FeedGroupManage    , OnMenuItemSelected, "フィード", Symbol.List),
 				new PageTypeSelectableItem(HohoemaPageType.UserMylist		  , OnMenuItemSelected, "マイリスト", Symbol.Bookmarks),
 				new PageTypeSelectableItem(HohoemaPageType.History			  , OnMenuItemSelected, "視聴履歴", Symbol.Clock),
 				new PageTypeSelectableItem(HohoemaPageType.Search             , OnMenuItemSelected, "検索", Symbol.Find),
@@ -47,7 +47,7 @@ namespace NicoPlayerHohoema.ViewModels
 			PersonalMenuItems = new List<PageTypeSelectableItem>()
 			{
 				new PageTypeSelectableItem(HohoemaPageType.CacheManagement	  , OnMenuItemSelected, "キャッシュ管理", Symbol.Download),
-				new PageTypeSelectableItem(HohoemaPageType.FavoriteManage     , OnMenuItemSelected, "お気に入り管理", Symbol.SolidStar),
+				new PageTypeSelectableItem(HohoemaPageType.FavoriteManage     , OnMenuItemSelected, "お気に入り管理", Symbol.OutlineStar),
 				new PageTypeSelectableItem(HohoemaPageType.Settings			  , OnMenuItemSelected, "設定", Symbol.Setting),
 				new PageTypeSelectableItem(HohoemaPageType.About			  , OnMenuItemSelected, "このアプリについて", Symbol.Help),
 				new PageTypeSelectableItem(HohoemaPageType.Login	          , OnMenuItemSelected, "ログアウト", Symbol.LeaveChat),
@@ -119,7 +119,41 @@ namespace NicoPlayerHohoema.ViewModels
 					return PageManager.DontNeedMenuPageTypes.All(dontNeedMenuPageType => x != dontNeedMenuPageType);
 				})
 				.ToReactiveProperty();
+
+
+
+
+			PageManager.StartWork += PageManager_StartWork;
+			PageManager.ProgressWork += PageManager_ProgressWork;
+			PageManager.CompleteWork += PageManager_CompleteWork;
+			PageManager.CancelWork += PageManager_CancelWork;
 		}
+
+		private void PageManager_StartWork(string title, uint totalCount)
+		{
+			WorkTitle = title;
+			WorkTotalCount = totalCount;
+
+			NowWorking = true;
+		}
+
+
+		private void PageManager_ProgressWork(uint count)
+		{
+			WorkCount = count;
+		}
+
+		private void PageManager_CompleteWork()
+		{
+			NowWorking = false;
+		}
+
+		private void PageManager_CancelWork()
+		{
+			NowWorking = false;
+		}
+
+
 
 		internal void OnMenuItemSelected(HohoemaPageType pageType)
 		{
@@ -151,6 +185,38 @@ namespace NicoPlayerHohoema.ViewModels
 			get { return _TitleText; }
 			set { SetProperty(ref _TitleText, value); }
 		}
+
+
+
+		private bool _NowWorking;
+		public bool NowWorking
+		{
+			get { return _NowWorking; }
+			set { SetProperty(ref _NowWorking, value); }
+		}
+
+		private string _WorkTitle;
+		public string WorkTitle
+		{
+			get { return _WorkTitle; }
+			set { SetProperty(ref _WorkTitle, value); }
+		}
+
+		private uint _WorkCount;
+		public uint WorkCount
+		{
+			get { return _WorkCount; }
+			set { SetProperty(ref _WorkCount, value); }
+		}
+
+
+		private uint _WorkTotalCount;
+		public uint WorkTotalCount
+		{
+			get { return _WorkTotalCount; }
+			set { SetProperty(ref _WorkTotalCount, value); }
+		}
+
 
 		public ReactiveProperty<PageTypeSelectableItem> SelectedItem { get; private set; }
 	}

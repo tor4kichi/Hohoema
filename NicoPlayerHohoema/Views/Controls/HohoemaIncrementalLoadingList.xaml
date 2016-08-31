@@ -47,8 +47,6 @@
             <local:SearchHistoryListItem />
         </DataTemplate>
 
-
-
         <local:IncrementalLoadingListItemTemplateSelector x:Key="listItemTemplateSelector"
                                                           Default="{StaticResource DefaultListItemTemplate}"
                                                           History="{StaticResource HistoryListItemTemplate}"

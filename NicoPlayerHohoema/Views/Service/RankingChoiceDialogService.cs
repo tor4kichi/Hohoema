@@ -1,6 +1,7 @@
 ﻿using NicoPlayerHohoema.Models;
 using Prism.Mvvm;
 using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -43,7 +44,7 @@ namespace NicoPlayerHohoema.Views.Service
 		}
 
 
-		public async Task<RankingCategoryInfo> ShowDislikeRankingCategoryChoiceDialog(IEnumerable<RankingCategoryInfo> selectableItems)
+		public async Task<List<RankingCategoryInfo>> ShowDislikeRankingCategoryChoiceDialog(IEnumerable<RankingCategoryInfo> selectableItems)
 		{
 			var context = new DislikeRankingChoiceDialogContext();
 
@@ -158,9 +159,9 @@ namespace NicoPlayerHohoema.Views.Service
 		public DislikeRankingChoiceDialogContext()
 		{
 			Items = new ObservableCollection<RankingCategoryInfo>();
-			SelectedItem = new ReactiveProperty<RankingCategoryInfo>();
+			SelectedItems = new ObservableCollection<RankingCategoryInfo>();
 
-			SelectedItem.Subscribe(x => IsSelectedItem = x != null);
+			_SelectedItemsCountObserver = SelectedItems.ObserveProperty(x => x.Count).Subscribe(x => IsSelectedItem = x > 0);
 		}
 
 
@@ -174,25 +175,26 @@ namespace NicoPlayerHohoema.Views.Service
 				Items.Add(item);
 			}
 
-			SelectedItem.Value = null;
+			SelectedItems.Clear();
 		}
 
 
 
-		public RankingCategoryInfo GetResult()
+		public List<RankingCategoryInfo> GetResult()
 		{
-			return SelectedItem.Value;
+			return SelectedItems.ToList();
 		}
 
 		public void Dispose()
 		{
-			SelectedItem?.Dispose();
+			_SelectedItemsCountObserver?.Dispose();
 		}
 
 		public ObservableCollection<RankingCategoryInfo> Items { get; private set; }
 
-		public ReactiveProperty<RankingCategoryInfo> SelectedItem { get; set; }
+		public ObservableCollection<RankingCategoryInfo> SelectedItems { get; set; }
 
+		IDisposable _SelectedItemsCountObserver;
 
 		private bool _IsSelectedItem;
 		public bool IsSelectedItem
