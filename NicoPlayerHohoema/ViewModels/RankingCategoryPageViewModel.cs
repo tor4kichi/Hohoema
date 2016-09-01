@@ -365,7 +365,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-			return res.TotalCount;
+			return (int)res.GetTotalCount();
 		}
 
 		public async Task<IEnumerable<RankedVideoInfoControlViewModel>> GetPagedItems(uint head, uint pageSize)

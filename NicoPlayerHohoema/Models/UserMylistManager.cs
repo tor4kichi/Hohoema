@@ -154,7 +154,7 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<ContentManageResult> AddMylist(string name, string description, bool is_public, MylistDefaultSort default_sort, IconType iconType)
 		{
-			var result = await HohoemaApp.NiconicoContext.Mylist.CreateMylistGroupAsync(name, description, is_public, default_sort, iconType);
+			var result = await HohoemaApp.NiconicoContext.User.CreateMylistGroupAsync(name, description, is_public, default_sort, iconType);
 
 			if (result == ContentManageResult.Success)
 			{
@@ -167,7 +167,7 @@ namespace NicoPlayerHohoema.Models
 		
 		public async Task<ContentManageResult> RemoveMylist(string group_id)
 		{
-			var result = await HohoemaApp.NiconicoContext.Mylist.RemoveMylistGroupAsync(group_id);
+			var result = await HohoemaApp.NiconicoContext.User.RemoveMylistGroupAsync(group_id);
 
 			if (result == ContentManageResult.Success)
 			{
@@ -285,7 +285,7 @@ namespace NicoPlayerHohoema.Models
 				throw new Exception();
 			}
 
-			var result = await HohoemaApp.NiconicoContext.Mylist.UpdateMylistGroupAsync(GroupId, name, description, is_public, default_sort, iconType);
+			var result = await HohoemaApp.NiconicoContext.User.UpdateMylistGroupAsync(GroupId, name, description, is_public, default_sort, iconType);
 
 			if (result == ContentManageResult.Success)
 			{ 
@@ -307,7 +307,7 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<ContentManageResult> Registration(string videoId, string mylistComment = "", bool withRefresh = true)
 		{
-			var result = await HohoemaApp.NiconicoContext.Mylist.AddMylistItemAsync(
+			var result = await HohoemaApp.NiconicoContext.User.AddMylistItemAsync(
 				GroupId
 				, Mntone.Nico2.NiconicoItemType.Video
 				, videoId
@@ -330,7 +330,7 @@ namespace NicoPlayerHohoema.Models
 			}
 
 			var threadId = _VideoIdToThreadIdMap[video_id];
-			var result = await HohoemaApp.NiconicoContext.Mylist.RemoveMylistItemAsync(GroupId, NiconicoItemType.Video, threadId);
+			var result = await HohoemaApp.NiconicoContext.User.RemoveMylistItemAsync(GroupId, NiconicoItemType.Video, threadId);
 
 			if (withRefresh && result == ContentManageResult.Success)
 			{
@@ -348,7 +348,7 @@ namespace NicoPlayerHohoema.Models
 			})
 			.ToArray();
 
-			var result = await HohoemaApp.NiconicoContext.Mylist.CopyMylistItemAsync(this.GroupId, targetGroupInfo.GroupId, NiconicoItemType.Video, threadIdList);
+			var result = await HohoemaApp.NiconicoContext.User.CopyMylistItemAsync(this.GroupId, targetGroupInfo.GroupId, NiconicoItemType.Video, threadIdList);
 
 			if (result == ContentManageResult.Success)
 			{
@@ -367,7 +367,7 @@ namespace NicoPlayerHohoema.Models
 			})
 			.ToArray();
 
-			var result = await HohoemaApp.NiconicoContext.Mylist.MoveMylistItemAsync(this.GroupId, targetGroupInfo.GroupId, NiconicoItemType.Video, threadIdList);
+			var result = await HohoemaApp.NiconicoContext.User.MoveMylistItemAsync(this.GroupId, targetGroupInfo.GroupId, NiconicoItemType.Video, threadIdList);
 
 			if (result == ContentManageResult.Success)
 			{
@@ -408,7 +408,7 @@ namespace NicoPlayerHohoema.Models
 
 			if (IsDeflist)
 			{
-				var defMylist = await HohoemaApp.NiconicoContext.Mylist.GetMylistItemListAsync("0");
+				var defMylist = await HohoemaApp.NiconicoContext.User.GetMylistItemListAsync("0");
 
 				foreach (var item in defMylist)
 				{
@@ -421,7 +421,7 @@ namespace NicoPlayerHohoema.Models
 			{
 				if (!IsPublic && UserId == HohoemaApp.LoginUserId.ToString())
 				{
-					var res = await HohoemaApp.NiconicoContext.Mylist.GetMylistItemListAsync(GroupId);
+					var res = await HohoemaApp.NiconicoContext.User.GetMylistItemListAsync(GroupId);
 
 					foreach (var item in res)
 					{
@@ -432,10 +432,10 @@ namespace NicoPlayerHohoema.Models
 				}
 				else
 				{
-					var res = await HohoemaApp.ContentFinder.GetMylistItems(GroupId, 0, itemCountPerMylist);
+					var res = await HohoemaApp.ContentFinder.GetMylistGroupVideo(GroupId, 0, itemCountPerMylist);
 
 
-					foreach (var item in res.Video_info)
+					foreach (var item in res.MylistVideoInfoItems)
 					{
 						_VideoIdToThreadIdMap.Add(item.Video.Id, item.Thread.Id);
 					}

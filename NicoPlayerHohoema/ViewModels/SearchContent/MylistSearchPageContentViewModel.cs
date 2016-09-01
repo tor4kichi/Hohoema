@@ -71,7 +71,7 @@ namespace NicoPlayerHohoema.ViewModels
 		PageManager _PageManager;
 
 
-		public MylistSearchListingItem(Mylistgroup mylistgroup, PageManager pageManager)
+		public MylistSearchListingItem(MylistGroup mylistgroup, PageManager pageManager)
 		{
 			_PageManager = pageManager;
 
@@ -81,13 +81,13 @@ namespace NicoPlayerHohoema.ViewModels
 			GroupId = mylistgroup.Id;
 			UpdateTime = mylistgroup.UpdateTime;
 
-			SampleVideos = mylistgroup.SampleVideos?.Select(x => x.Video).ToList() ?? new List<Mntone.Nico2.Searches.Video.Video>();
+			SampleVideos = mylistgroup.VideoInfoItems?.Select(x => x.Video).ToList() ?? new List<Mntone.Nico2.Searches.Video.Video>();
 		}
 
 
 		public string Name { get; private set; }
 		public string Description { get; private set; }
-		public int ItemCount { get; private set; }
+		public uint ItemCount { get; private set; }
 		public string GroupId { get; private set; }
 		public DateTime UpdateTime { get; private set; }
 		public List<Mntone.Nico2.Searches.Video.Video> SampleVideos { get; private set; }
@@ -148,7 +148,7 @@ namespace NicoPlayerHohoema.ViewModels
 			// Note: 件数が1だとJsonのParseがエラーになる
 			_MylistGroupResponse = await _HohoemaApp.NiconicoContext.Search.MylistSearchAsync(SearchOption.Keyword, 0, 2);
 
-			return _MylistGroupResponse.TotalCount;
+			return (int)_MylistGroupResponse.GetTotalCount();
 		}
 
 
@@ -162,7 +162,7 @@ namespace NicoPlayerHohoema.ViewModels
 			var response = await _HohoemaApp.NiconicoContext.Search.MylistSearchAsync(SearchOption.Keyword, head, count, SearchOption.Sort, SearchOption.Order);
 
 
-			foreach (var item in response.MylistgroupList)
+			foreach (var item in response.MylistGroupItems)
 			{
 				// TODO: mylistGroupをリスト表示
 				items.Add(new MylistSearchListingItem(item, _PageManager));

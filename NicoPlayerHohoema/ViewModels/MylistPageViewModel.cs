@@ -386,12 +386,12 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 				else
 				{
-					var response = await HohoemaApp.ContentFinder.GetMylist(MylistGroupId);
-					var mylistGroupDetail = response.Mylistgroup.FirstOrDefault();
-					MylistTitle = StringExtention.DecodeUTF8(mylistGroupDetail.Name);
-					MylistDescription = StringExtention.DecodeUTF8(mylistGroupDetail.Description);
+					var response = await HohoemaApp.ContentFinder.GetMylistGroupDetail(MylistGroupId);
+					var mylistGroupDetail = response.MylistGroup;
+					MylistTitle = mylistGroupDetail.Name;
+					MylistDescription = mylistGroupDetail.Description;
 					IsPublic = mylistGroupDetail.IsPublic;
-					ThemeColor = ((IconType)int.Parse(mylistGroupDetail.Icon_id)).ToColor();
+					ThemeColor = mylistGroupDetail.GetIconType().ToColor();
 
 					OwnerUserId = mylistGroupDetail.UserId;
 
@@ -641,8 +641,8 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 			else
 			{
-				var res = await _HohoemaApp.ContentFinder.GetMylistItems(MylistGroupId, 0, 1);
-				count = int.Parse(res.Total_count);
+				var res = await _HohoemaApp.ContentFinder.GetMylistGroupVideo(MylistGroupId, 0, 1);
+				count = (int)res.GetTotalCount();
 			}
 
 			return count;
@@ -679,9 +679,9 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 			else
 			{
-				var res = await _HohoemaApp.ContentFinder.GetMylistItems(MylistGroupId, head, pageSize);
+				var res = await _HohoemaApp.ContentFinder.GetMylistGroupVideo(MylistGroupId, head, pageSize);
 
-				foreach (var item in res.Video_info)
+				foreach (var item in res.MylistVideoInfoItems)
 				{
 					var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(item.Video.Id);
 					list.Add(new VideoInfoControlViewModel(item, nicoVideo, _PageManager));

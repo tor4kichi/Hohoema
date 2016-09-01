@@ -1,6 +1,7 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Mylist;
 using Mntone.Nico2.Mylist.MylistGroup;
+using Mntone.Nico2.Searches.Video;
 using Mntone.Nico2.Videos.Ranking;
 using Mntone.Nico2.Videos.Thumbnail;
 using NicoPlayerHohoema.Models;
@@ -54,18 +55,19 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		// 個別マイリストから取得したデータによる初期化
-		public VideoInfoControlViewModel(Video_info data, NicoVideo nicoVideo, PageManager pageManager)
+		public VideoInfoControlViewModel(VideoInfo data, NicoVideo nicoVideo, PageManager pageManager)
 			: this(nicoVideo, pageManager)
 		{
-			Title = data.Video.Title.DecodeUTF8();
+			Title = data.Video.Title;
 			RawVideoId = data.Video.Id;
 			ViewCount = (uint)data.Video.ViewCount;
-			CommentCount = uint.Parse(data.Thread.Num_res);
+			CommentCount = data.Thread.GetCommentCount();
 			MylistCount = (uint)data.Video.MylistCount;
-			OwnerComment = data.Thread.Summary.DecodeUTF8();
+			
+//			OwnerComment = data.Thread.GetDecodedSummary();
 			PostAt = data.Video.UploadTime;
 			ThumbnailImageUrl = data.Video.ThumbnailUrl;
-			MovieLength = TimeSpan.FromSeconds(data.Video.LengthInSeconds);
+			MovieLength = data.Video.Length;
 
 			IsNotGoodVideo = false;
 			NGVideoReason = "";

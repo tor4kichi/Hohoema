@@ -162,6 +162,7 @@ namespace NicoPlayerHohoema.Models
 				catch
 				{
 					LoginErrorText = "サインインに失敗、再起動をお試しください";
+					context?.Dispose();
 				}
 
 				if (result == NiconicoSignInStatus.Success)
@@ -302,6 +303,7 @@ namespace NicoPlayerHohoema.Models
 				else
 				{
 					Debug.WriteLine("login failed");
+					context?.Dispose();
 				}
 
 				return result;
@@ -319,7 +321,10 @@ namespace NicoPlayerHohoema.Models
 			try
 			{
 				var result = await NiconicoContext.SignOutOffAsync();
+				
 				NiconicoContext.Dispose();
+
+				
 
 				await SaveUserSettings();
 				if (MediaManager != null)
