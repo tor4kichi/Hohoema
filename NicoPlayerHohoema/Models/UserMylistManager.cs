@@ -434,10 +434,12 @@ namespace NicoPlayerHohoema.Models
 				{
 					var res = await HohoemaApp.ContentFinder.GetMylistGroupVideo(GroupId, 0, itemCountPerMylist);
 
-
-					foreach (var item in res.MylistVideoInfoItems)
+					if (res.GetCount() > 0)
 					{
-						_VideoIdToThreadIdMap.Add(item.Video.Id, item.Thread.Id);
+						foreach (var item in res.MylistVideoInfoItems)
+						{
+							_VideoIdToThreadIdMap.Add(item.Video.Id, item.Thread.Id);
+						}
 					}
 				}
 			}

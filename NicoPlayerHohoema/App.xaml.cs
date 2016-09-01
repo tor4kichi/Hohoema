@@ -71,15 +71,7 @@ namespace NicoPlayerHohoema
 
 			if (hohoemaApp.IsLoggedIn)
 			{
-				var mediamanager = hohoemaApp.MediaManager;
-				if (mediamanager != null)
-				{
-					if (mediamanager.Context != null)
-					{
-						await mediamanager.Context.Suspending();
-					}
-					await mediamanager.DeleteUnrequestedVideos();
-				}
+				await hohoemaApp.SignOut();
 			}
 
 			deferral.Complete();

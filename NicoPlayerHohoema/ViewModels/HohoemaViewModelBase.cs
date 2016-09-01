@@ -149,9 +149,26 @@ namespace NicoPlayerHohoema.ViewModels
 
 		private void _OnResumed()
 		{
-			HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+			HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
 			{
-				OnResumed();
+				if (IsRequireSignIn)
+				{
+					if (!await CheckSignIn())
+					{
+						var result = await HohoemaApp.SignInToRecentLoginUserAccount();
+
+						if (result != Mntone.Nico2.NiconicoSignInStatus.Success)
+						{
+							// サインイン出来ない場合はログインページへ戻す
+							PageManager.OpenPage(HohoemaPageType.Login);
+							return;
+						}
+					}
+
+					OnSignin();
+				}
+
+				await OnResumed();
 			})
 			.AsTask()
 			.ConfigureAwait(false);
@@ -169,7 +186,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				if (!await CheckSignIn())
 				{
-					var result = await HohoemaApp.SignInFromUserSettings();
+					var result = await HohoemaApp.SignInToRecentLoginUserAccount();
 
 					if (result != Mntone.Nico2.NiconicoSignInStatus.Success)
 					{

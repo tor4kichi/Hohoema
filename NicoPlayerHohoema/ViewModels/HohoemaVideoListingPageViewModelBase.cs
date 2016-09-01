@@ -27,7 +27,7 @@ namespace NicoPlayerHohoema.ViewModels
 		where VIDEO_INFO_VM : VideoInfoControlViewModel
 	{
 		public HohoemaVideoListingPageViewModelBase(HohoemaApp app, PageManager pageManager, MylistRegistrationDialogService mylistDialogService, bool isRequireSignIn = true)
-			: base(app, pageManager, isRequireSignIn)
+			: base(app, pageManager, true)
 		{
 			MylistDialogService = mylistDialogService;
 
