@@ -267,8 +267,12 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				foreach (var item in RankingRss.Channel.Items.Take(20))
 				{
+					if (!_HohoemaApp.IsLoggedIn) { return; }
+
 					await _HohoemaApp.MediaManager.GetNicoVideo(item.GetVideoId());
 				}
+
+				if (!_HohoemaApp.IsLoggedIn) { return; }
 
 				// 次以降のデータをバックグラウンドで読み込み
 				await _HohoemaApp.ThumbnailBackgroundLoader.Schedule(
@@ -285,6 +289,8 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				foreach (var item in RankingRss.Channel.Items.Skip(20))
 				{
+					if (!_HohoemaApp.IsLoggedIn) { return; }
+
 					await _HohoemaApp.MediaManager.GetNicoVideo(item.GetVideoId());
 				}
 			}

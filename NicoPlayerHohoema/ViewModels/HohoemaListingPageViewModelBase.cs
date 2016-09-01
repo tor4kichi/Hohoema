@@ -99,26 +99,6 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		protected override void OnSignIn(ICollection<IDisposable> disposer)
-		{
-			base.OnSignIn(disposer);			
-		}
-
-		protected override void OnSignOut()
-		{
-			base.OnSignOut();
-
-			if (IsRequireSignIn)
-			{
-				IncrementalLoadingItems = null;
-			}
-		}
-
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-			base.OnNavigatedTo(e, viewModelState);
-		}
-
 
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
@@ -160,12 +140,6 @@ namespace NicoPlayerHohoema.ViewModels
 			return Task.CompletedTask;
 		}
 
-		protected override Task OnResumed()
-		{
-			ChangeCanIncmentalLoading(true);
-
-			return base.OnResumed();
-		}
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
