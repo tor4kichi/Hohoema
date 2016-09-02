@@ -31,26 +31,38 @@ namespace NicoPlayerHohoema.Models
 
 		public Task Initialize()
 		{
-			// お気に入りデータの読み込み
-
 			return Task.CompletedTask;
 		}
 
 
-		public Task<User> GetUserInfo(string userId)
+		public async Task<User> GetUserInfo(string userId)
 		{
-			return ConnectionRetryUtil.TaskWithRetry(() =>
+			var user = await ConnectionRetryUtil.TaskWithRetry(() =>
 			{
 				return _HohoemaApp.NiconicoContext.User.GetUserAsync(userId);
 			});
+
+			if (user != null)
+			{
+				await UserInfo.UserInfoDbContext.AddOrReplaceAsync(userId, user.Nickname, user.ThumbnailUrl);
+			}
+
+			return user;
 		}
 
-		public Task<UserDetail> GetUserDetail(string userId)
+		public async Task<UserDetail> GetUserDetail(string userId)
 		{
-			return ConnectionRetryUtil.TaskWithRetry(() =>
+			var userDetail = await ConnectionRetryUtil.TaskWithRetry(() =>
 			{
 				return _HohoemaApp.NiconicoContext.User.GetUserDetail(userId);
 			});
+
+			if (userDetail != null)
+			{
+				await UserInfo.UserInfoDbContext.AddOrReplaceAsync(userId, userDetail.Nickname, userDetail.ThumbnailUri);
+			}
+
+			return userDetail;
 		}
 
 

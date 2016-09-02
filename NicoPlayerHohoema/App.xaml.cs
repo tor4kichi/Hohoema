@@ -32,6 +32,7 @@ using Prism.Windows.AppModel;
 using Prism.Windows.Mvvm;
 //using BackgroundAudioShared;
 using Windows.Media;
+using NicoPlayerHohoema.Models.UserInfo;
 
 namespace NicoPlayerHohoema
 {
@@ -143,6 +144,8 @@ namespace NicoPlayerHohoema
 
 		protected override async Task OnInitializeAsync(IActivatedEventArgs args)
 		{
+			await UserInfoDbContext.InitializeAsync();
+
 			await RegisterTypes();
 
 			//			var playNicoVideoEvent = EventAggregator.GetEvent<PlayNicoVideoEvent>();
