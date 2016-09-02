@@ -139,6 +139,7 @@
     <Compile Include="Models\LisenceSummary.cs" />
     <Compile Include="Models\MediaBackgroundTask.cs" />
     <Compile Include="Models\Settings\CacheSettings.cs" />
+    <Compile Include="Models\UserInfo\UserInfo.cs" />
     <Compile Include="Models\UserMylistManager.cs" />
     <Compile Include="Models\Video\CommentResponseCache.cs" />
     <Compile Include="Models\Video\DividedQualityNicoVideo.cs" />

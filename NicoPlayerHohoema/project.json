@@ -1,9 +1,11 @@
 ﻿{
   "dependencies": {
     "HtmlAgilityPack": "1.4.9.5",
+    "Microsoft.EntityFrameworkCore.Sqlite": "1.0.0",
     "Microsoft.NETCore.UniversalWindowsPlatform": "5.2.2",
+    "Microsoft.Toolkit.Uwp": "1.0.0",
+    "Microsoft.Toolkit.Uwp.Notifications": "1.0.0",
     "Newtonsoft.Json": "9.0.1",
-    "NotificationsExtensions.Win10": "14332.0.2",
     "Prism.Core": "6.2.0",
     "Prism.Unity": "6.2.0",
     "Prism.Windows": "6.0.2",
