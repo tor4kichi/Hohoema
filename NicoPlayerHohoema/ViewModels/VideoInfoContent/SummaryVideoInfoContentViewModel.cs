@@ -21,7 +21,7 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 			_PageManager = pageManager;
 
 			UserName = thumbnail.UserName;
-			UserIconUrl = thumbnail.UserIconUrl;
+			UserIconUrl = thumbnail.UserIconUrl.AbsoluteUri;
 			SubmitDate = thumbnail.PostedAt.LocalDateTime;
 
 			//			UserName = response.UserName;
@@ -91,7 +91,7 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 		}
 
 		public string UserName { get; private set; }
-		public Uri UserIconUrl { get; private set; }
+		public string UserIconUrl { get; private set; }
 
 		public DateTime SubmitDate { get; private set; }
 

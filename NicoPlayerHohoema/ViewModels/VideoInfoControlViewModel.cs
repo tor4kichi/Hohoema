@@ -40,7 +40,7 @@ namespace NicoPlayerHohoema.ViewModels
 			MylistCount = data.MylistCount;
 			OwnerComment = data.Description;
 			PostAt = data.CreateTime;
-			ThumbnailImageUrl = data.ThumbnailUrl;
+			ThumbnailImageUrl = data.ThumbnailUrl.AbsoluteUri;
 			MovieLength = data.Length;
 
 			IsNotGoodVideo = false;
@@ -66,7 +66,7 @@ namespace NicoPlayerHohoema.ViewModels
 			
 //			OwnerComment = data.Thread.GetDecodedSummary();
 			PostAt = data.Video.UploadTime;
-			ThumbnailImageUrl = data.Video.ThumbnailUrl;
+			ThumbnailImageUrl = data.Video.ThumbnailUrl.AbsoluteUri;
 			MovieLength = data.Video.Length;
 
 			IsNotGoodVideo = false;
@@ -115,7 +115,7 @@ namespace NicoPlayerHohoema.ViewModels
 			MylistCount = thumbnail.MylistCount;
 			OwnerComment = thumbnail.Description;
 			PostAt = thumbnail.PostedAt.LocalDateTime;
-			ThumbnailImageUrl = IsNotGoodVideo ? null : thumbnail.ThumbnailUrl;
+			ThumbnailImageUrl = IsNotGoodVideo ? null : thumbnail.ThumbnailUrl.AbsoluteUri;
 			MovieLength = thumbnail.Length;
 
 			VideoId = thumbnail.Id;
@@ -212,8 +212,8 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _MovieLength, value); }
 		}
 
-		private Uri _ThumbnailImageUrl;
-		public Uri ThumbnailImageUrl
+		private string _ThumbnailImageUrl;
+		public string ThumbnailImageUrl
 		{
 			get { return _ThumbnailImageUrl; }
 			set { SetProperty(ref _ThumbnailImageUrl, value); }

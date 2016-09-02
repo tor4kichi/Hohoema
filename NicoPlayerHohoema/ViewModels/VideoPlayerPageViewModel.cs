@@ -549,7 +549,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 			if (IsDisposed)
 			{
-				await Video?.StopPlay();
+				if (Video != null)
+				{
+					await Video.StopPlay();
+				}
 				return;
 			}
 
