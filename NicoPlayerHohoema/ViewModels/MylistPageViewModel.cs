@@ -609,8 +609,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 				var videoVM = new VideoInfoControlViewModel(nicoVideo, _PageManager);
 				list.Add(videoVM);
-
-				await videoVM.LoadThumbnail();
 			}
 
 			return list;
@@ -673,8 +671,6 @@ namespace NicoPlayerHohoema.ViewModels
 					var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(videoId);
 					var videoListItemVM = new VideoInfoControlViewModel(nicoVideo, _PageManager);
 					list.Add(videoListItemVM);
-
-					await videoListItemVM.LoadThumbnail().ConfigureAwait(false);
 				}
 			}
 			else

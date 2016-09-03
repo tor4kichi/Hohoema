@@ -200,7 +200,7 @@ namespace NicoPlayerHohoema.Models
 			var downloader = new NicoVideoDownloader(
 				this
 				, NicoVideo.HohoemaApp.NiconicoContext.HttpClient
-				, NicoVideo.WatchApiResponseCache.CachedItem
+				, NicoVideo.CachedWatchApiResponse
 				, file
 				);
 
@@ -224,9 +224,6 @@ namespace NicoPlayerHohoema.Models
 			await DeleteDownloadProgress();
 
 			await CheckCacheStatus();
-
-
-			await NicoVideo.OnDeleteCache();
 
 			Debug.WriteLine($".完了");
 		}
@@ -297,9 +294,9 @@ namespace NicoPlayerHohoema.Models
 			return await _Context.VideoSaveFolder.CreateFileAsync(VideoFileName, CreationCollisionOption.OpenIfExists);
 		}
 
-		public void DeletedTeardown()
+		public Task DeletedTeardown()
 		{
-
+			return _Context.CacnelDownloadRequest(RawVideoId, this.Quality);
 		}
 
 
@@ -401,7 +398,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			get
 			{
-				return NicoVideo.ThumbnailResponseCache.LowQualityVideoSize;
+				return NicoVideo.Info.LowSize;
 			}
 		}
 
@@ -409,7 +406,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			get
 			{
-				return !NicoVideo.ThumbnailResponseCache.IsOriginalQualityOnly;
+				return !NicoVideo.IsOriginalQualityOnly;
 			}
 		}
 
@@ -426,14 +423,9 @@ namespace NicoPlayerHohoema.Models
 				// キャッシュ済みじゃないか
 				if (CacheState == NicoVideoCacheState.Cached) { return false; }
 
-				if (NicoVideo.ThumbnailResponseCache.MovieType != Mntone.Nico2.Videos.Thumbnail.MovieType.Mp4)
+				if (NicoVideo.Info.MovieType != Mntone.Nico2.Videos.Thumbnail.MovieType.Mp4)
 				{
 					return false;
-				}
-
-				if (!NicoVideo.ThumbnailResponseCache.HasCache)
-				{
-					throw new Exception();
 				}
 
 				// オリジナル画質しか存在しない動画
@@ -486,7 +478,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			get
 			{
-				return NicoVideo.ThumbnailResponseCache.OriginalQualityVideoSize;
+				return NicoVideo.Info.HighSize;
 			}
 		}
 
@@ -509,19 +501,19 @@ namespace NicoPlayerHohoema.Models
 				// キャッシュ済みじゃないか
 				if (CacheState == NicoVideoCacheState.Cached) { return false; }
 
-				if (NicoVideo.ThumbnailResponseCache.MovieType != Mntone.Nico2.Videos.Thumbnail.MovieType.Mp4)
+				if (NicoVideo.Info.MovieType != Mntone.Nico2.Videos.Thumbnail.MovieType.Mp4)
 				{
 					return false;
 				}
 
 				// 
-				if (NicoVideo.ThumbnailResponseCache.IsOriginalQualityOnly)
+				if (NicoVideo.IsOriginalQualityOnly)
 				{
 					return true;
 				}
 
 				// オリジナル画質DL可能時間帯か
-				if (WatchApiResponseCache.NowLowQualityOnly)
+				if (NicoVideo.NowLowQualityOnly)
 				{
 					return false;
 				}

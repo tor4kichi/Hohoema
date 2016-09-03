@@ -5,6 +5,7 @@ using Mntone.Nico2.Searches.Video;
 using Mntone.Nico2.Videos.Ranking;
 using Mntone.Nico2.Videos.Thumbnail;
 using NicoPlayerHohoema.Models;
+using NicoPlayerHohoema.Models.Db;
 using Prism.Commands;
 using Prism.Mvvm;
 using Reactive.Bindings;
@@ -40,7 +41,7 @@ namespace NicoPlayerHohoema.ViewModels
 			MylistCount = data.MylistCount;
 			OwnerComment = data.Description;
 			PostAt = data.CreateTime;
-			ThumbnailImageUrl = data.ThumbnailUrl;
+			ThumbnailImageUrl = data.ThumbnailUrl.AbsoluteUri;
 			MovieLength = data.Length;
 
 			IsNotGoodVideo = false;
@@ -66,7 +67,7 @@ namespace NicoPlayerHohoema.ViewModels
 			
 //			OwnerComment = data.Thread.GetDecodedSummary();
 			PostAt = data.Video.UploadTime;
-			ThumbnailImageUrl = data.Video.ThumbnailUrl;
+			ThumbnailImageUrl = data.Video.ThumbnailUrl.AbsoluteUri;
 			MovieLength = data.Video.Length;
 
 			IsNotGoodVideo = false;
@@ -96,63 +97,36 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactiveProperty()
 				.AddTo(_CompositeDisposable);
 
-
-			if (NicoVideo.ThumbnailResponseCache.HasCache)
-			{
-				SetupFromThumbnail(NicoVideo.ThumbnailResponseCache.CachedItem);
-			}
+			SetupFromThumbnail(nicoVideo.Info);
 
 
 			IsForceDisplayNGVideo = false;
 			IsStillNotWatch = true;
 		}
 
-		private void SetupFromThumbnail(ThumbnailResponse thumbnail)
+		private void SetupFromThumbnail(NicoVideoInfo info)
 		{
-			Title = thumbnail.Title;
-			ViewCount = thumbnail.ViewCount;
-			CommentCount = thumbnail.CommentCount;
-			MylistCount = thumbnail.MylistCount;
-			OwnerComment = thumbnail.Description;
-			PostAt = thumbnail.PostedAt.LocalDateTime;
-			ThumbnailImageUrl = IsNotGoodVideo ? null : thumbnail.ThumbnailUrl;
-			MovieLength = thumbnail.Length;
+			Title = info.Title;
+			ViewCount = info.ViewCount;
+			CommentCount = info.CommentCount;
+			MylistCount = info.MylistCount;
+			OwnerComment = info.Description;
+			PostAt = info.PostedAt;
+			ThumbnailImageUrl = IsNotGoodVideo ? null : info.ThumbnailUrl;
+			MovieLength = info.Length;
 
-			VideoId = thumbnail.Id;
+			VideoId = info.RawVideoId;
 
 			// NG判定
-			var ngResult = NicoVideo.CheckUserNGVideo(thumbnail);
+			var ngResult = NicoVideo.CheckUserNGVideo(info);
 			IsNotGoodVideo = ngResult != null;
 			NGVideoReason = ngResult?.GetReasonText() ?? "";
+
+			IsDeleted = info.IsDeleted;
 		}
 
 
-		public async Task LoadThumbnail()
-		{
-			if (ThumbnailImageUrl == null)
-			{
-				if (NicoVideo == null) { return; }
-
-				if (NicoVideo.IsDeleted) { return; }
-
-				try
-				{
-					var thumbnail = await NicoVideo.GetThumbnailResponse();
-
-					SetupFromThumbnail(thumbnail);
-
-					if (NicoVideo.IsDeleted)
-					{
-						IsDeleted = true;
-					}
-				}
-				catch
-				{
-					IsDeleted = true;
-				}
-			}
-		}
-
+		
 		public override void Dispose()
 		{
 			_CompositeDisposable?.Dispose();
@@ -212,8 +186,8 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _MovieLength, value); }
 		}
 
-		private Uri _ThumbnailImageUrl;
-		public Uri ThumbnailImageUrl
+		private string _ThumbnailImageUrl;
+		public string ThumbnailImageUrl
 		{
 			get { return _ThumbnailImageUrl; }
 			set { SetProperty(ref _ThumbnailImageUrl, value); }

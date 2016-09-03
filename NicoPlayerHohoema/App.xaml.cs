@@ -132,6 +132,9 @@ namespace NicoPlayerHohoema
 				// メディアバックグラウンドタスクの動作状態を初期化
 				//				ApplicationSettingsHelper.ReadResetSettingsValue(ApplicationSettingsConstants.AppState);
 
+
+				Microsoft.Toolkit.Uwp.UI.ImageCache.CacheDuration = TimeSpan.FromHours(24);
+
 				var pm = Container.Resolve<PageManager>();
 				pm.OpenPage(HohoemaPageType.Login, true /* Enable auto login */);
 			}
@@ -143,6 +146,8 @@ namespace NicoPlayerHohoema
 
 		protected override async Task OnInitializeAsync(IActivatedEventArgs args)
 		{
+			await Models.Db.NicoVideoDbContext.InitializeAsync();
+
 			await RegisterTypes();
 
 			//			var playNicoVideoEvent = EventAggregator.GetEvent<PlayNicoVideoEvent>();

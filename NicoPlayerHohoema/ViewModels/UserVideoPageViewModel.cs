@@ -151,8 +151,6 @@ namespace NicoPlayerHohoema.ViewModels
 					var vm = new VideoInfoControlViewModel(nicoVideo, PageManager);
 
 					list.Add(vm);
-
-					await vm.LoadThumbnail();
 				}
 			}
 			catch (Exception ex)

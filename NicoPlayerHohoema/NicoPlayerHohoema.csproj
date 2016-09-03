@@ -114,6 +114,9 @@
     <Compile Include="Events\PlayNicoVideoEvent.cs" />
     <Compile Include="Models\BackgroundUpdater.cs" />
     <Compile Include="Models\CommentCommandPermissionType.cs" />
+    <Compile Include="Models\Db\NicoVideo\CommentDb.cs" />
+    <Compile Include="Models\Db\NicoVideo\VideoInfoDb.cs" />
+    <Compile Include="Models\Db\NicoVideo\UserInfoDb.cs" />
     <Compile Include="Models\Fav\FavFeed\FeedGroup.cs" />
     <Compile Include="Models\Fav\FavFeed\FeedItem.cs" />
     <Compile Include="Models\Fav\FavFeed\FeedItemComparer.cs" />
@@ -140,13 +143,11 @@
     <Compile Include="Models\MediaBackgroundTask.cs" />
     <Compile Include="Models\Settings\CacheSettings.cs" />
     <Compile Include="Models\UserMylistManager.cs" />
-    <Compile Include="Models\Video\CommentResponseCache.cs" />
     <Compile Include="Models\Video\DividedQualityNicoVideo.cs" />
     <Compile Include="Models\Video\MediaProtocolType.cs" />
+    <Compile Include="Models\Db\NicoVideo\NicoVIdeoDbContext.cs" />
     <Compile Include="Models\Video\NicoVideoDownloader.cs" />
-    <Compile Include="Models\Video\ThumbnailResponseCache.cs" />
     <Compile Include="Models\Video\VideoDownloadProgress.cs" />
-    <Compile Include="Models\Video\WatchApiResponseCache.cs" />
     <Compile Include="Util\Cacheable.cs" />
     <Compile Include="Models\Video\NicoVideo.cs" />
     <Compile Include="Models\Video\NicoVideoCacheRequest.cs" />

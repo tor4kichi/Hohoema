@@ -311,9 +311,9 @@ namespace NicoPlayerHohoema.Models
 
 		
 
-		private async Task AddCacheRequest(string rawVideoid, NicoVideoQuality quality)
+		private Task AddCacheRequest(string rawVideoid, NicoVideoQuality quality)
 		{
-			await _MediaManager.AddCacheRequest(rawVideoid, quality);
+			return _MediaManager.AddCacheRequest(rawVideoid, quality);
 		}
 
 		private async Task<bool> TryBeginNextDownloadRequest()

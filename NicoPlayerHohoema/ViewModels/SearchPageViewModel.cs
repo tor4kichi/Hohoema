@@ -517,11 +517,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 					items.Add(videoInfoVM);
 				}
-
-				foreach (var item in items)
-				{
-					await item.LoadThumbnail().ConfigureAwait(false);
-				}
 			}
 
 			return items;

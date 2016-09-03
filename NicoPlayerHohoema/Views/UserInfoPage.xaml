@@ -11,6 +11,7 @@
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:wrExt="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:uwpUI="using:Microsoft.Toolkit.Uwp.UI.Controls"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
@@ -22,7 +23,8 @@
 
             <Border BorderBrush="Black" BorderThickness="2">
                 <toolkit:DockPanel>
-                    <Image Width="128" Height="128" Source="{Binding UserIconUri}" 
+                    <uwpUI:ImageEx Width="128" Height="128" Source="{Binding UserIconUri}" 
+                                        IsCacheEnabled="True"
                             Margin="8"
                             VerticalAlignment="Top"
                             toolkit:DockPanel.Dock="Left"

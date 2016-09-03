@@ -11,6 +11,7 @@
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:wrExt="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:uwpUI="using:Microsoft.Toolkit.Uwp.UI.Controls"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
@@ -37,7 +38,9 @@
                         toolkit:DockPanel.Dock="Left"
                         >
 
-                <Image Height="32" Width="32" Source="{Binding UserIconUrl}"/>
+                <uwpUI:ImageEx Height="32" Width="32" Source="{Binding UserIconUrl}"
+                               IsCacheEnabled="True"
+                               />
 
                 <TextBlock Text="{Binding UserName}"
                            VerticalAlignment="Center"

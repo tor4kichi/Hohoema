@@ -549,7 +549,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 			if (IsDisposed)
 			{
-				await Video?.StopPlay();
+				if (Video != null)
+				{
+					await Video.StopPlay();
+				}
 				return;
 			}
 
@@ -995,11 +998,11 @@ namespace NicoPlayerHohoema.ViewModels
 				var videoInfo = await HohoemaApp.MediaManager.GetNicoVideo(VideoId);
 
 				// 内部状態を更新
-				await videoInfo.GetWatchApiResponse(requireLatest:true);
+				await videoInfo.VisitWatchPage();
 				await videoInfo.CheckCacheStatus();
 
 				// 動画が削除されていた場合
-				if (videoInfo.ThumbnailResponseCache.IsDeleted || (videoInfo.WatchApiResponseCache.CachedItem?.IsDeleted ?? false))
+				if (videoInfo.IsDeleted)
 				{
 					Debug.WriteLine($"cant playback{VideoId}. due to denied access to watch page, or connection offline.");
 
@@ -1029,7 +1032,7 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 
 				// 有害動画へのアクセスに対して意思確認された場合
-				if (videoInfo.WatchApiResponseCache.IsBlockedHarmfulVideo)
+				if (videoInfo.IsBlockedHarmfulVideo)
 				{
 					// 有害動画を視聴するか確認するページを表示
 					PageManager.OpenPage(HohoemaPageType.ConfirmWatchHurmfulVideo,
@@ -1047,17 +1050,17 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 				// ビデオタイプとプロトコルタイプをチェックする
-				if (videoInfo.WatchApiResponseCache.MediaProtocolType != MediaProtocolType.RTSPoverHTTP)
+				if (videoInfo.ProtocolType != MediaProtocolType.RTSPoverHTTP)
 				{
 					// サポートしていないプロトコルです
 					IsNotSupportVideoType = true;
-					CannotPlayReason = videoInfo.WatchApiResponseCache.MediaProtocolType.ToString() + " はHohoemaでサポートされないデータ通信形式です";
+					CannotPlayReason = videoInfo.ProtocolType.ToString() + " はHohoemaでサポートされないデータ通信形式です";
 				}
-				else if (videoInfo.ThumbnailResponseCache.MovieType != MovieType.Mp4)
+				else if (videoInfo.Info.MovieType != MovieType.Mp4)
 				{
 					// サポートしていない動画タイプです
 					IsNotSupportVideoType = true;
-					CannotPlayReason = videoInfo.ThumbnailResponseCache.MovieType.ToString() + " はHohoemaでサポートされない動画形式です";
+					CannotPlayReason = videoInfo.Info.MovieType.ToString() + " はHohoemaでサポートされない動画形式です";
 				}
 				else
 				{
@@ -1172,8 +1175,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			_SidePaneContentCache.Clear();
 
-			var watchApiRes = await Video.WatchApiResponseCache.GetItem();
-			_VideoDescriptionHtmlUri = await VideoDescriptionHelper.PartHtmlOutputToCompletlyHtml(VideoId, watchApiRes.videoDetail.description);
+			_VideoDescriptionHtmlUri = await VideoDescriptionHelper.PartHtmlOutputToCompletlyHtml(VideoId, Video.Info.DescriptionWithHtml);
 
 			if (SelectedSidePaneType.Value == MediaInfoDisplayType.Summary)
 			{
@@ -1341,12 +1343,11 @@ namespace NicoPlayerHohoema.ViewModels
 				switch (type)
 				{
 					case MediaInfoDisplayType.Summary:
-						vm = new SummaryVideoInfoContentViewModel(Video.ThumbnailResponseCache.CachedItem, _VideoDescriptionHtmlUri, PageManager);
+						vm = new SummaryVideoInfoContentViewModel(Video, _VideoDescriptionHtmlUri, PageManager);
 						break;
 
 					case MediaInfoDisplayType.Mylist:
-						var threadId = Video.WatchApiResponseCache.CachedItem.ThreadId.ToString();
-						vm = new MylistVideoInfoContentViewModel(VideoId, threadId, HohoemaApp.UserMylistManager);
+						vm = new MylistVideoInfoContentViewModel(VideoId, Video.Info.ThreadId, HohoemaApp.UserMylistManager);
 						break;
 
 					case MediaInfoDisplayType.Comment:

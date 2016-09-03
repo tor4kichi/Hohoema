@@ -38,7 +38,7 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 
 				vm.LastWatchedAt = history.WatchedAt.DateTime;
 				vm.MovieLength = history.Length;
-				vm.ThumbnailImageUrl = history.ThumbnailUrl;
+				vm.ThumbnailImageUrl = history.ThumbnailUrl.AbsoluteUri;
 
 				HisotoryVideoInfoItems.Add(vm);
 			}

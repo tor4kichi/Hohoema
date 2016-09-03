@@ -24,23 +24,13 @@ namespace NicoPlayerHohoema.Models
 	/// </summary>
 	public class NiconicoMediaManager : BindableBase, IDisposable
 	{
-		// TODO: DeletedになったファイルをNicoVideoから受け取る
-		// TODO: Deletedなファイルの保存と復元
-		// TODO: Deletedなファイルに対するユーザー確認動作の受け取り
-
-
-
-		// TODO: キャッシュリクエストに指定されたアイテムを受け取る
-		// TODO: キャッシュリクエストされたアイテムのリストを保存、復元する
-
 		const string CACHE_REQUESTED_FILENAME = "cache_requested.json";
-
 
 		static internal async Task<NiconicoMediaManager> Create(HohoemaApp app)
 		{
 			var man = new NiconicoMediaManager(app);
 
-					
+
 			// キャッシュリクエストファイルのアクセサーを初期化
 			var videoSaveFolder = await app.GetCurrentUserVideoDataFolder();
 			man._CacheRequestedItemsFileAccessor = new FileAccessor<IList<NicoVideoCacheRequest>>(videoSaveFolder, CACHE_REQUESTED_FILENAME);
@@ -51,11 +41,11 @@ namespace NicoPlayerHohoema.Models
 			// 初期化をバックグラウンドタスクに登録
 			var updater = new SimpleBackgroundUpdate("NicoMediaManager", () => man.Initialize());
 			await app.BackgroundUpdater.Schedule(updater);
-			
+
 			return man;
 		}
 
-		
+
 
 		private NiconicoMediaManager(HohoemaApp app)
 		{
@@ -72,7 +62,7 @@ namespace NicoPlayerHohoema.Models
 
 		private async Task Initialize()
 		{
-			
+
 			Debug.Write($"ダウンロードリクエストの復元を開始");
 
 
@@ -106,7 +96,7 @@ namespace NicoPlayerHohoema.Models
 				await Task.Delay(50);
 			}
 
-			
+
 		}
 
 		public async Task<NicoVideo> GetNicoVideo(string rawVideoId)
@@ -142,7 +132,7 @@ namespace NicoPlayerHohoema.Models
 
 
 		// TODO: キャッシュ対象の検索が低速にならないように対策
-		 
+
 		public bool HasDownloadQueue
 		{
 			get
@@ -157,7 +147,7 @@ namespace NicoPlayerHohoema.Models
 		/// </summary>
 		/// <returns></returns>
 		internal async Task<NicoVideoCacheRequest> GetNextCacheRequest()
-		{			
+		{
 			foreach (var req in _CacheRequestedItemsStack)
 			{
 				var nicoVideo = await GetNicoVideo(req.RawVideoid);
@@ -311,7 +301,7 @@ namespace NicoPlayerHohoema.Models
 			PreventDeleteOnPlayingVideoId = rawVideoId;
 		}
 
-		
+
 
 		private FileAccessor<IList<NicoVideoCacheRequest>> _CacheRequestedItemsFileAccessor;
 		private ObservableCollection<NicoVideoCacheRequest> _CacheRequestedItemsStack;
@@ -334,7 +324,7 @@ namespace NicoPlayerHohoema.Models
 
 
 
-	
+
 
 
 }

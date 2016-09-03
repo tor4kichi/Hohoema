@@ -7,6 +7,9 @@ using Mntone.Nico2.Users.User;
 using Mntone.Nico2.Users.Video;
 using Mntone.Nico2.Videos.Histories;
 using Mntone.Nico2.Videos.Ranking;
+using Mntone.Nico2.Videos.Thumbnail;
+using Mntone.Nico2.Videos.WatchAPI;
+using NicoPlayerHohoema.Models.Db;
 using NicoPlayerHohoema.Util;
 using Prism.Mvvm;
 using System;
@@ -31,26 +34,83 @@ namespace NicoPlayerHohoema.Models
 
 		public Task Initialize()
 		{
-			// お気に入りデータの読み込み
-
 			return Task.CompletedTask;
 		}
 
-
-		public Task<User> GetUserInfo(string userId)
+		public async Task<ThumbnailResponse> GetThumbnailResponse(string rawVideoId)
 		{
-			return ConnectionRetryUtil.TaskWithRetry(() =>
+			ThumbnailResponse res = null;
+			try
+			{
+				res = await Util.ConnectionRetryUtil.TaskWithRetry(async () =>
+				{
+					return await _HohoemaApp.NiconicoContext.Video.GetThumbnailAsync(rawVideoId);
+				});
+			}
+			catch (Exception e) when (e.Message.Contains("delete"))
+			{
+				VideoInfoDb.Deleted(rawVideoId);
+			}
+
+			if (res != null)
+			{
+				UserInfoDb.AddOrReplace(res.UserId.ToString(), res.UserName, res.UserIconUrl.AbsoluteUri);
+				VideoInfoDb.UpdateWithThumbnail(rawVideoId, res);
+			}
+
+			return res;
+		}
+
+		public async Task<WatchApiResponse> GetWatchApiResponse(string rawVideoId, bool forceLowQuality = false, HarmfulContentReactionType harmfulContentReaction = HarmfulContentReactionType.None)
+		{
+			var res = await Util.ConnectionRetryUtil.TaskWithRetry(() =>
+			{
+				return _HohoemaApp.NiconicoContext.Video.GetWatchApiAsync(
+					rawVideoId
+					, forceLowQuality: forceLowQuality
+					, harmfulReactType: harmfulContentReaction
+					);
+			});
+
+			if (res != null)
+			{
+				var uploaderInfo = res.UploaderInfo;
+				UserInfoDb.AddOrReplace(uploaderInfo.id, uploaderInfo.nickname, uploaderInfo.icon_url);
+				VideoInfoDb.UpdateWithWatchApiResponse(rawVideoId, res);
+			}
+
+			return res;
+		}
+
+
+		public async Task<User> GetUserInfo(string userId)
+		{
+			var user = await ConnectionRetryUtil.TaskWithRetry(() =>
 			{
 				return _HohoemaApp.NiconicoContext.User.GetUserAsync(userId);
 			});
+
+			if (user != null)
+			{
+				await UserInfoDb.AddOrReplaceAsync(userId, user.Nickname, user.ThumbnailUrl);
+			}
+
+			return user;
 		}
 
-		public Task<UserDetail> GetUserDetail(string userId)
+		public async Task<UserDetail> GetUserDetail(string userId)
 		{
-			return ConnectionRetryUtil.TaskWithRetry(() =>
+			var userDetail = await ConnectionRetryUtil.TaskWithRetry(() =>
 			{
 				return _HohoemaApp.NiconicoContext.User.GetUserDetail(userId);
 			});
+
+			if (userDetail != null)
+			{
+				await UserInfoDb.AddOrReplaceAsync(userId, userDetail.Nickname, userDetail.ThumbnailUri);
+			}
+
+			return userDetail;
 		}
 
 

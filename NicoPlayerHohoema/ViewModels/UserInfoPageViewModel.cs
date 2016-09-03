@@ -144,7 +144,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 				var user = userInfo;
 				UserName = user.Nickname;
-				UserIconUri = new Uri(user.ThumbnailUri);
+				UserIconUri = user.ThumbnailUri;
 				Description = user.Description;
 
 				BirthDay = user.BirthDay;
@@ -321,8 +321,8 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		private Uri _UserIconUri;
-		public Uri UserIconUri
+		private string _UserIconUri;
+		public string UserIconUri
 		{
 			get { return _UserIconUri; }
 			set { SetProperty(ref _UserIconUri, value); }
