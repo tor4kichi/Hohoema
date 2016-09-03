@@ -235,7 +235,7 @@ namespace NicoPlayerHohoema.Models
 
 
 			// キャッシュリクエストされている場合このタイミングでコメントを取得
-			if (CacheRequestDb.CheckCacheRequested(RawVideoId, quality))
+			if (_Context.CheckCacheRequested(RawVideoId, quality))
 			{
 				var commentRes = await GetCommentResponse();
 				CommentDb.AddOrUpdate(RawVideoId, commentRes);
@@ -340,21 +340,12 @@ namespace NicoPlayerHohoema.Models
 		/// </summary>
 		private async Task DeletedTeardown()
 		{
-			// コンテキスト内から動画のキャッシュリクエストを削除
-			// 古いWatchApiResponseの削除
-			// IsDeletedを示すWatchApiResponseの取得
-			// WatchApiResponseを.deleteをつけて保存
+			// キャッシュした動画データと動画コメントの削除
 
-			// コメントの削除
-			// ThumbnailInfoの削除
-			var cacheRequested = _Context.CheckCacheRequested(RawVideoId, NicoVideoQuality.Original)
-				|| _Context.CheckCacheRequested(RawVideoId, NicoVideoQuality.Low);
-
-			OriginalQuality.DeletedTeardown();
-			LowQuality.DeletedTeardown();
+			await OriginalQuality.DeletedTeardown();
+			await LowQuality.DeletedTeardown();
 
 			CommentDb.Remove(RawVideoId);
-			CacheRequestDb.Deleted(RawVideoId);
 		}
 
 

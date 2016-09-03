@@ -281,7 +281,7 @@ namespace NicoPlayerHohoema.Models
 				// リクエストキューに登録されていればキャンセルする
 				if (_MediaManager.CheckHasCacheRequest(rawVideoId, quality))
 				{
-					successRemove = _MediaManager.RemoveCacheRequest(rawVideoId, quality);
+					successRemove = await _MediaManager.RemoveCacheRequest(rawVideoId, quality);
 				}
 
 				if (CheckVideoPlaying(rawVideoId, quality))
@@ -311,9 +311,9 @@ namespace NicoPlayerHohoema.Models
 
 		
 
-		private async Task AddCacheRequest(string rawVideoid, NicoVideoQuality quality)
+		private Task AddCacheRequest(string rawVideoid, NicoVideoQuality quality)
 		{
-			_MediaManager.AddCacheRequest(rawVideoid, quality);
+			return _MediaManager.AddCacheRequest(rawVideoid, quality);
 		}
 
 		private async Task<bool> TryBeginNextDownloadRequest()

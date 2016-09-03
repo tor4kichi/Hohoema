@@ -20,7 +20,6 @@ namespace NicoPlayerHohoema.Models.Db
 		public DbSet<NicoVideoInfo> VideoInfos { get; set; }
 		public DbSet<UserInfo> Users { get; set; }
 		public DbSet<NicoVideoComment> Comments { get; set; }
-		public DbSet<CacheRequest> CacheRequests { get; set; }
 		public DbSet<PlayHistory> PlayHistories { get; set; }
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -31,9 +30,6 @@ namespace NicoPlayerHohoema.Models.Db
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
-			modelBuilder.Entity<CacheRequest>()
-				.HasAlternateKey(c => c.Quality);
-
 		}
 
 		public static Task InitializeAsync()
@@ -129,17 +125,6 @@ namespace NicoPlayerHohoema.Models.Db
 		public string IconUri { get; set; }
 	}
 
-
-
-	public class CacheRequest
-	{
-		[Key]
-		public string ThreadId { get; set; }
-
-		public NicoVideoQuality Quality { get; set; }
-
-		public DateTime RequestTime { get; set; }
-	}
 
 	public class PlayHistory
 	{

@@ -114,7 +114,6 @@
     <Compile Include="Events\PlayNicoVideoEvent.cs" />
     <Compile Include="Models\BackgroundUpdater.cs" />
     <Compile Include="Models\CommentCommandPermissionType.cs" />
-    <Compile Include="Models\Db\NicoVideo\CacheRequestDb.cs" />
     <Compile Include="Models\Db\NicoVideo\CommentDb.cs" />
     <Compile Include="Models\Db\NicoVideo\VideoInfoDb.cs" />
     <Compile Include="Models\Db\NicoVideo\UserInfoDb.cs" />

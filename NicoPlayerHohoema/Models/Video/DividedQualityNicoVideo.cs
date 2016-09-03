@@ -294,9 +294,9 @@ namespace NicoPlayerHohoema.Models
 			return await _Context.VideoSaveFolder.CreateFileAsync(VideoFileName, CreationCollisionOption.OpenIfExists);
 		}
 
-		public void DeletedTeardown()
+		public Task DeletedTeardown()
 		{
-
+			return _Context.CacnelDownloadRequest(RawVideoId, this.Quality);
 		}
 
 

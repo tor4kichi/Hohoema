@@ -1,6 +1,5 @@
 ﻿using Mntone.Nico2.Videos.Thumbnail;
 using Mntone.Nico2.Videos.WatchAPI;
-using NicoPlayerHohoema.Models.Db;
 using NicoPlayerHohoema.Util;
 using Prism.Mvvm;
 using System;
@@ -25,21 +24,28 @@ namespace NicoPlayerHohoema.Models
 	/// </summary>
 	public class NiconicoMediaManager : BindableBase, IDisposable
 	{
+		const string CACHE_REQUESTED_FILENAME = "cache_requested.json";
+
 		static internal async Task<NiconicoMediaManager> Create(HohoemaApp app)
 		{
 			var man = new NiconicoMediaManager(app);
-					
+
+
+			// キャッシュリクエストファイルのアクセサーを初期化
+			var videoSaveFolder = await app.GetCurrentUserVideoDataFolder();
+			man._CacheRequestedItemsFileAccessor = new FileAccessor<IList<NicoVideoCacheRequest>>(videoSaveFolder, CACHE_REQUESTED_FILENAME);
+
 			// ダウンロードコンテキストを作成
 			man.Context = await NicoVideoDownloadContext.Create(app, man);
 
 			// 初期化をバックグラウンドタスクに登録
 			var updater = new SimpleBackgroundUpdate("NicoMediaManager", () => man.Initialize());
 			await app.BackgroundUpdater.Schedule(updater);
-			
+
 			return man;
 		}
 
-		
+
 
 		private NiconicoMediaManager(HohoemaApp app)
 		{
@@ -56,13 +62,13 @@ namespace NicoPlayerHohoema.Models
 
 		private async Task Initialize()
 		{
-			
+
 			Debug.Write($"ダウンロードリクエストの復元を開始");
 
 
 			// ダウンロードリクエストされたアイテムのNicoVideoオブジェクトの作成
 			// 及び、リクエストの再構築
-			var list = LoadDownloadRequestItems();
+			var list = await LoadDownloadRequestItems();
 			foreach (var req in list)
 			{
 				var nicoVideo = await GetNicoVideo(req.RawVideoid);
@@ -90,7 +96,7 @@ namespace NicoPlayerHohoema.Models
 				await Task.Delay(50);
 			}
 
-			
+
 		}
 
 		public async Task<NicoVideo> GetNicoVideo(string rawVideoId)
@@ -126,7 +132,7 @@ namespace NicoPlayerHohoema.Models
 
 
 		// TODO: キャッシュ対象の検索が低速にならないように対策
-		 
+
 		public bool HasDownloadQueue
 		{
 			get
@@ -141,7 +147,7 @@ namespace NicoPlayerHohoema.Models
 		/// </summary>
 		/// <returns></returns>
 		internal async Task<NicoVideoCacheRequest> GetNextCacheRequest()
-		{			
+		{
 			foreach (var req in _CacheRequestedItemsStack)
 			{
 				var nicoVideo = await GetNicoVideo(req.RawVideoid);
@@ -178,43 +184,39 @@ namespace NicoPlayerHohoema.Models
 		/// </summary>
 		/// <param name="req"></param>
 		/// <returns></returns>
-		internal void AddCacheRequest(string rawVideoId, NicoVideoQuality quality)
+		internal async Task AddCacheRequest(string rawVideoId, NicoVideoQuality quality)
 		{
-			//RemoveCacheRequest(rawVideoId, quality);
+			await RemoveCacheRequest(rawVideoId, quality);
 
-			if (false == CheckHasCacheRequest(rawVideoId, quality))
+			_CacheRequestedItemsStack.Add(new NicoVideoCacheRequest()
 			{
-				_CacheRequestedItemsStack.Add(new NicoVideoCacheRequest()
-				{
-					RawVideoid = rawVideoId,
-					Quality = quality,
-				});
-			}
+				RawVideoid = rawVideoId,
+				Quality = quality,
+			});
 
-			CacheRequestDb.RequestCache(rawVideoId, quality);
+			await SaveDownloadRequestItems();
 		}
 
 
-		public bool RemoveCacheRequest(string rawVideoId, NicoVideoQuality quality)
+		public async Task<bool> RemoveCacheRequest(string rawVideoId, NicoVideoQuality quality)
 		{
 			var removeTarget = _CacheRequestedItemsStack.SingleOrDefault(x => x.RawVideoid == rawVideoId && x.Quality == quality);
 			if (removeTarget != null)
 			{
 				_CacheRequestedItemsStack.Remove(removeTarget);
-
-				CacheRequestDb.CancelRequest(rawVideoId, quality);
+				await SaveDownloadRequestItems();
 
 				return true;
 			}
 			else
 			{
-				return false;
+				return true;
 			}
 		}
 
 		public bool CheckHasCacheRequest(string rawVideoId, NicoVideoQuality quality)
 		{
-			return CacheRequestDb.CheckCacheRequested(rawVideoId, quality);
+			return _CacheRequestedItemsStack.Any(x => x.RawVideoid == rawVideoId && x.Quality == quality);
 		}
 
 
@@ -261,18 +263,34 @@ namespace NicoPlayerHohoema.Models
 			Debug.WriteLine("done");
 		}
 
-		
-
-
-		public IList<NicoVideoCacheRequest> LoadDownloadRequestItems()
+		public async Task SaveDownloadRequestItems()
 		{
-			var cachedItems = CacheRequestDb.GetList();
-			return cachedItems.Select(x => new NicoVideoCacheRequest()
+			if (HasDownloadQueue)
 			{
-				RawVideoid = x.ThreadId,
-				Quality = x.Quality,
-			})
-			.ToList();
+				await _CacheRequestedItemsFileAccessor.Save(_CacheRequestedItemsStack);
+
+				Debug.WriteLine("ダウンロード待ち状況を保存しました。");
+			}
+			else
+			{
+				if (await _CacheRequestedItemsFileAccessor.Delete())
+				{
+					Debug.WriteLine("ダウンロード待ちがないため、状況ファイルを削除しました。");
+				}
+			}
+		}
+
+		public async Task<IList<NicoVideoCacheRequest>> LoadDownloadRequestItems()
+		{
+			if (await _CacheRequestedItemsFileAccessor.ExistFile())
+			{
+				return await _CacheRequestedItemsFileAccessor.Load();
+			}
+			else
+			{
+				return new List<NicoVideoCacheRequest>();
+			}
+
 		}
 
 		#endregion
@@ -283,7 +301,7 @@ namespace NicoPlayerHohoema.Models
 			PreventDeleteOnPlayingVideoId = rawVideoId;
 		}
 
-		
+
 
 		private FileAccessor<IList<NicoVideoCacheRequest>> _CacheRequestedItemsFileAccessor;
 		private ObservableCollection<NicoVideoCacheRequest> _CacheRequestedItemsStack;
@@ -303,43 +321,10 @@ namespace NicoPlayerHohoema.Models
 	}
 
 
-	public static class CacheReqeustMigrateHelper
-	{
-		const string CACHE_REQUESTED_FILENAME = "cache_requested.json";
-
-		public static async Task<int> ResqueOldRequestItems(HohoemaApp app)
-		{
-			int resqueCount = 0;
-			foreach (var entry in Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Entries)
-			{
-				var folder = await Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.GetItemAsync(entry.Token) as StorageFolder;
-				if (folder != null)
-				{
-					var videoSaveFolder = await folder.GetItemAsync("video/") as StorageFolder;
-					var fileAccessor = new FileAccessor<IList<NicoVideoCacheRequest>>(videoSaveFolder, CACHE_REQUESTED_FILENAME);
-
-					var items = await fileAccessor.Load();
-					if (items != null)
-					{
-						foreach (var item in items)
-						{
-							CacheRequestDb.RequestCache(item.RawVideoid, item.Quality);
-						}
-
-						await fileAccessor.Delete();
-
-						resqueCount += items.Count;
-					}
-				}
-			}
-			
-
-			return resqueCount;
-		}
-	}
 
 
-	
+
+
 
 
 }
