@@ -159,8 +159,8 @@ namespace NicoPlayerHohoema.ViewModels
 							{
 								try
 								{
-									var mylistRes = await HohoemaApp.ContentFinder.GetMylist(FeedSourceId.Value);
-									var mylist = mylistRes?.Mylistgroup.ElementAtOrDefault(0);
+									var mylistRes = await HohoemaApp.ContentFinder.GetMylistGroupDetail(FeedSourceId.Value);
+									var mylist = mylistRes?.MylistGroup;
 									
 									if (mylist != null)
 									{

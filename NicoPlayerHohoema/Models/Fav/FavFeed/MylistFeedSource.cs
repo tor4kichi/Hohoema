@@ -21,11 +21,11 @@ namespace NicoPlayerHohoema.Models
 
 		public override async Task<IEnumerable<FavFeedItem>> GetLatestItems(HohoemaApp hohoemaApp)
 		{
-			var items = await hohoemaApp.ContentFinder.GetMylistItems(this.Id, 0, 32);
+			var items = await hohoemaApp.ContentFinder.GetMylistGroupVideo(this.Id, 0, 32);
 
-			if (items?.Video_info != null)
+			if (items?.MylistVideoInfoItems != null)
 			{
-				return items.Video_info.Select(x =>
+				return items.MylistVideoInfoItems.Select(x =>
 					new FavFeedItem()
 					{
 						Title = x.Video.Title,

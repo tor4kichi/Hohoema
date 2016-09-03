@@ -465,7 +465,7 @@ namespace NicoPlayerHohoema.ViewModels
 					)
 					);
 
-				return _FirstResponse.TotalCount;
+				return (int)_FirstResponse.GetTotalCount();
 			}
 			else
 			{
@@ -473,7 +473,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		VideoSearchResponse _FirstResponse;
+		VideoListingResponse _FirstResponse;
 
 		private async Task UpdateItemsThumbnailInfo()
 		{
@@ -492,7 +492,7 @@ namespace NicoPlayerHohoema.ViewModels
 			var items = new List<VideoInfoControlViewModel>();
 
 			var contentFinder = _HohoemaApp.ContentFinder;
-			VideoSearchResponse response = null;
+			VideoListingResponse response = null;
 			switch (SearchOption.SearchTarget)
 			{
 				case SearchTarget.Keyword:
@@ -505,7 +505,7 @@ namespace NicoPlayerHohoema.ViewModels
 					break;
 			}
 
-			if (response.Count > 0)
+			if (response.GetCount() > 0)
 			{
 				foreach (var item in response.VideoInfoItems)
 				{

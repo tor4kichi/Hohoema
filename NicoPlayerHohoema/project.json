@@ -1,13 +1,13 @@
 ﻿{
   "dependencies": {
-    "HtmlAgilityPack": "1.4.9",
-    "Microsoft.NETCore.UniversalWindowsPlatform": "5.1.0",
+    "HtmlAgilityPack": "1.4.9.5",
+    "Microsoft.NETCore.UniversalWindowsPlatform": "5.2.2",
     "Newtonsoft.Json": "9.0.1",
     "NotificationsExtensions.Win10": "14332.0.2",
-    "Prism.Core": "6.2.0-pre1",
-    "Prism.Unity": "6.2.0-pre3",
-    "Prism.Windows": "6.0.2-pre1",
-    "ReactiveProperty": "2.9.0",
+    "Prism.Core": "6.2.0",
+    "Prism.Unity": "6.2.0",
+    "Prism.Windows": "6.0.2",
+    "ReactiveProperty": "3.0.1",
     "WinRTXamlToolkit.UWP": "2.0.0"
   },
   "frameworks": {
