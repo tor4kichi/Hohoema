@@ -1,4 +1,5 @@
 ﻿using Mntone.Nico2.Videos.Thumbnail;
+using NicoPlayerHohoema.Models.Db;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -30,17 +31,17 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public NGResult IsNgVideo(ThumbnailResponse res)
+		public NGResult IsNgVideo(NicoVideoInfo info)
 		{
 			NGResult result = null;
 
-			result = IsNgVideoOwnerId(res.UserId.ToString());
+			result = IsNgVideoOwnerId(info.UserId.ToString());
 			if (result != null) return result;
 
-			result = IsNGVideoId(res.Id);
+			result = IsNGVideoId(info.RawVideoId);
 			if (result != null) return result;
 
-			result = IsNGVideoTitle(res.Title);
+			result = IsNGVideoTitle(info.Title);
 			if (result != null) return result;
 
 			return result;

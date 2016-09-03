@@ -125,7 +125,7 @@ namespace NicoPlayerHohoema.ViewModels
 			
 
 
-			PrivateReasonText = nicoVideo.WatchApiResponseCache?.CachedItem?.PrivateReason.ToString() ?? "";
+			PrivateReasonText = nicoVideo.Info.PrivateReasonType.ToString() ?? "";
 			IsRequireConfirmDelete = new ReactiveProperty<bool>(nicoVideo.IsRequireConfirmDelete);
 			IsForceDisplayNGVideo = true;
 		}
@@ -210,7 +210,6 @@ namespace NicoPlayerHohoema.ViewModels
 				var item = await mediaManager.GetNicoVideo(req.RawVideoid);
 
 				await item.CheckCacheStatus();
-				await item.WatchApiResponseCache.UpdateFromLocal();
 
 				if (req.Quality == NicoVideoQuality.Original)
 				{
@@ -253,7 +252,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 			var vm = new CacheVideoViewModel(nicoVideo, req.Quality, _PageManager);
 
-			await vm.LoadThumbnail();
 			return vm;
 
 		}

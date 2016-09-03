@@ -156,8 +156,6 @@ namespace NicoPlayerHohoema.ViewModels
 					var vm = new FeedVideoInfoControlViewModel(feed, _FeedGroup, nicoVideo, _PageManager);
 
 					list.Add(vm);
-
-					await vm.LoadThumbnail();
 				}
 				catch (Exception ex)
 				{

@@ -1,5 +1,6 @@
 ﻿using Mntone.Nico2.Videos.Thumbnail;
 using Mntone.Nico2.Videos.WatchAPI;
+using NicoPlayerHohoema.Models.Db;
 using NicoPlayerHohoema.Util;
 using Prism.Mvvm;
 using System;
@@ -24,27 +25,10 @@ namespace NicoPlayerHohoema.Models
 	/// </summary>
 	public class NiconicoMediaManager : BindableBase, IDisposable
 	{
-		// TODO: DeletedになったファイルをNicoVideoから受け取る
-		// TODO: Deletedなファイルの保存と復元
-		// TODO: Deletedなファイルに対するユーザー確認動作の受け取り
-
-
-
-		// TODO: キャッシュリクエストに指定されたアイテムを受け取る
-		// TODO: キャッシュリクエストされたアイテムのリストを保存、復元する
-
-		const string CACHE_REQUESTED_FILENAME = "cache_requested.json";
-
-
 		static internal async Task<NiconicoMediaManager> Create(HohoemaApp app)
 		{
 			var man = new NiconicoMediaManager(app);
-
 					
-			// キャッシュリクエストファイルのアクセサーを初期化
-			var videoSaveFolder = await app.GetCurrentUserVideoDataFolder();
-			man._CacheRequestedItemsFileAccessor = new FileAccessor<IList<NicoVideoCacheRequest>>(videoSaveFolder, CACHE_REQUESTED_FILENAME);
-
 			// ダウンロードコンテキストを作成
 			man.Context = await NicoVideoDownloadContext.Create(app, man);
 
@@ -78,7 +62,7 @@ namespace NicoPlayerHohoema.Models
 
 			// ダウンロードリクエストされたアイテムのNicoVideoオブジェクトの作成
 			// 及び、リクエストの再構築
-			var list = await LoadDownloadRequestItems();
+			var list = LoadDownloadRequestItems();
 			foreach (var req in list)
 			{
 				var nicoVideo = await GetNicoVideo(req.RawVideoid);
@@ -194,39 +178,43 @@ namespace NicoPlayerHohoema.Models
 		/// </summary>
 		/// <param name="req"></param>
 		/// <returns></returns>
-		internal async Task AddCacheRequest(string rawVideoId, NicoVideoQuality quality)
+		internal void AddCacheRequest(string rawVideoId, NicoVideoQuality quality)
 		{
-			await RemoveCacheRequest(rawVideoId, quality);
+			//RemoveCacheRequest(rawVideoId, quality);
 
-			_CacheRequestedItemsStack.Add(new NicoVideoCacheRequest()
+			if (false == CheckHasCacheRequest(rawVideoId, quality))
 			{
-				RawVideoid = rawVideoId,
-				Quality = quality,
-			});
+				_CacheRequestedItemsStack.Add(new NicoVideoCacheRequest()
+				{
+					RawVideoid = rawVideoId,
+					Quality = quality,
+				});
+			}
 
-			await SaveDownloadRequestItems();
+			CacheRequestDb.RequestCache(rawVideoId, quality);
 		}
 
 
-		public async Task<bool> RemoveCacheRequest(string rawVideoId, NicoVideoQuality quality)
+		public bool RemoveCacheRequest(string rawVideoId, NicoVideoQuality quality)
 		{
 			var removeTarget = _CacheRequestedItemsStack.SingleOrDefault(x => x.RawVideoid == rawVideoId && x.Quality == quality);
 			if (removeTarget != null)
 			{
 				_CacheRequestedItemsStack.Remove(removeTarget);
-				await SaveDownloadRequestItems();
+
+				CacheRequestDb.CancelRequest(rawVideoId, quality);
 
 				return true;
 			}
 			else
 			{
-				return true;
+				return false;
 			}
 		}
 
 		public bool CheckHasCacheRequest(string rawVideoId, NicoVideoQuality quality)
 		{
-			return _CacheRequestedItemsStack.Any(x => x.RawVideoid == rawVideoId && x.Quality == quality);
+			return CacheRequestDb.CheckCacheRequested(rawVideoId, quality);
 		}
 
 
@@ -273,34 +261,18 @@ namespace NicoPlayerHohoema.Models
 			Debug.WriteLine("done");
 		}
 
-		public async Task SaveDownloadRequestItems()
+		
+
+
+		public IList<NicoVideoCacheRequest> LoadDownloadRequestItems()
 		{
-			if (HasDownloadQueue)
+			var cachedItems = CacheRequestDb.GetList();
+			return cachedItems.Select(x => new NicoVideoCacheRequest()
 			{
-				await _CacheRequestedItemsFileAccessor.Save(_CacheRequestedItemsStack);
-
-				Debug.WriteLine("ダウンロード待ち状況を保存しました。");
-			}
-			else
-			{
-				if (await _CacheRequestedItemsFileAccessor.Delete())
-				{
-					Debug.WriteLine("ダウンロード待ちがないため、状況ファイルを削除しました。");
-				}
-			}
-		}
-
-		public async Task<IList<NicoVideoCacheRequest>> LoadDownloadRequestItems()
-		{
-			if (await _CacheRequestedItemsFileAccessor.ExistFile())
-			{
-				return await _CacheRequestedItemsFileAccessor.Load();
-			}
-			else
-			{
-				return new List<NicoVideoCacheRequest>();
-			}
-
+				RawVideoid = x.ThreadId,
+				Quality = x.Quality,
+			})
+			.ToList();
 		}
 
 		#endregion
@@ -331,7 +303,40 @@ namespace NicoPlayerHohoema.Models
 	}
 
 
+	public static class CacheReqeustMigrateHelper
+	{
+		const string CACHE_REQUESTED_FILENAME = "cache_requested.json";
 
+		public static async Task<int> ResqueOldRequestItems(HohoemaApp app)
+		{
+			int resqueCount = 0;
+			foreach (var entry in Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Entries)
+			{
+				var folder = await Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.GetItemAsync(entry.Token) as StorageFolder;
+				if (folder != null)
+				{
+					var videoSaveFolder = await folder.GetItemAsync("video/") as StorageFolder;
+					var fileAccessor = new FileAccessor<IList<NicoVideoCacheRequest>>(videoSaveFolder, CACHE_REQUESTED_FILENAME);
+
+					var items = await fileAccessor.Load();
+					if (items != null)
+					{
+						foreach (var item in items)
+						{
+							CacheRequestDb.RequestCache(item.RawVideoid, item.Quality);
+						}
+
+						await fileAccessor.Delete();
+
+						resqueCount += items.Count;
+					}
+				}
+			}
+			
+
+			return resqueCount;
+		}
+	}
 
 
 	

@@ -186,13 +186,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 				list.Add(vm);
 			}
-
-
-			foreach (var item in list)
-			{
-				await item.LoadThumbnail();
-			}
-
+			
 			return list;
 		}
 

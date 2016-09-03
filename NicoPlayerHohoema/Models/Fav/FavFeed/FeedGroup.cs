@@ -196,9 +196,8 @@ namespace NicoPlayerHohoema.Models
 					try
 					{
 						var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideo(addItem.VideoId);
-						var thumbnail = await nicoVideo.GetThumbnailResponse();
-
-						addItem.SubmitDate = thumbnail.PostedAt.DateTime;
+						
+						addItem.SubmitDate = nicoVideo.Info.PostedAt;
 					}
 					catch (Exception ex)
 					{

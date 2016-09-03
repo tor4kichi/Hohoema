@@ -7,6 +7,9 @@ using Mntone.Nico2.Users.User;
 using Mntone.Nico2.Users.Video;
 using Mntone.Nico2.Videos.Histories;
 using Mntone.Nico2.Videos.Ranking;
+using Mntone.Nico2.Videos.Thumbnail;
+using Mntone.Nico2.Videos.WatchAPI;
+using NicoPlayerHohoema.Models.Db;
 using NicoPlayerHohoema.Util;
 using Prism.Mvvm;
 using System;
@@ -34,6 +37,51 @@ namespace NicoPlayerHohoema.Models
 			return Task.CompletedTask;
 		}
 
+		public async Task<ThumbnailResponse> GetThumbnailResponse(string rawVideoId)
+		{
+			ThumbnailResponse res = null;
+			try
+			{
+				res = await Util.ConnectionRetryUtil.TaskWithRetry(async () =>
+				{
+					return await _HohoemaApp.NiconicoContext.Video.GetThumbnailAsync(rawVideoId);
+				});
+			}
+			catch (Exception e) when (e.Message.Contains("delete"))
+			{
+				VideoInfoDb.Deleted(rawVideoId);
+			}
+
+			if (res != null)
+			{
+				UserInfoDb.AddOrReplace(res.UserId.ToString(), res.UserName, res.UserIconUrl.AbsoluteUri);
+				VideoInfoDb.UpdateWithThumbnail(rawVideoId, res);
+			}
+
+			return res;
+		}
+
+		public async Task<WatchApiResponse> GetWatchApiResponse(string rawVideoId, bool forceLowQuality = false, HarmfulContentReactionType harmfulContentReaction = HarmfulContentReactionType.None)
+		{
+			var res = await Util.ConnectionRetryUtil.TaskWithRetry(() =>
+			{
+				return _HohoemaApp.NiconicoContext.Video.GetWatchApiAsync(
+					rawVideoId
+					, forceLowQuality: forceLowQuality
+					, harmfulReactType: harmfulContentReaction
+					);
+			});
+
+			if (res != null)
+			{
+				var uploaderInfo = res.UploaderInfo;
+				UserInfoDb.AddOrReplace(uploaderInfo.id, uploaderInfo.nickname, uploaderInfo.icon_url);
+				VideoInfoDb.UpdateWithWatchApiResponse(rawVideoId, res);
+			}
+
+			return res;
+		}
+
 
 		public async Task<User> GetUserInfo(string userId)
 		{
@@ -44,7 +92,7 @@ namespace NicoPlayerHohoema.Models
 
 			if (user != null)
 			{
-				await UserInfo.UserInfoDbContext.AddOrReplaceAsync(userId, user.Nickname, user.ThumbnailUrl);
+				await UserInfoDb.AddOrReplaceAsync(userId, user.Nickname, user.ThumbnailUrl);
 			}
 
 			return user;
@@ -59,7 +107,7 @@ namespace NicoPlayerHohoema.Models
 
 			if (userDetail != null)
 			{
-				await UserInfo.UserInfoDbContext.AddOrReplaceAsync(userId, userDetail.Nickname, userDetail.ThumbnailUri);
+				await UserInfoDb.AddOrReplaceAsync(userId, userDetail.Nickname, userDetail.ThumbnailUri);
 			}
 
 			return userDetail;

@@ -15,26 +15,28 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 	public class SummaryVideoInfoContentViewModel : MediaInfoViewModel
 	{
 
-		public SummaryVideoInfoContentViewModel(ThumbnailResponse thumbnail, Uri descriptionHtmlUri, PageManager pageManager)
+		public SummaryVideoInfoContentViewModel(NicoVideo nicoVideo, Uri descriptionHtmlUri, PageManager pageManager)
 		{
-			_ThumbnailResponse = thumbnail;
 			_PageManager = pageManager;
 
-			UserName = thumbnail.UserName;
-			UserIconUrl = thumbnail.UserIconUrl.AbsoluteUri;
-			SubmitDate = thumbnail.PostedAt.LocalDateTime;
+			var user = Models.Db.UserInfoDb.Get(nicoVideo.VideoOwnerId.ToString());
+
+			
+			UserName = user.Name;
+			UserIconUrl = user.IconUri;
+			SubmitDate = nicoVideo.Info.PostedAt;
 
 			//			UserName = response.UserName;
 
-			PlayCount = thumbnail.ViewCount;
-			CommentCount = thumbnail.CommentCount;
-			MylistCount = thumbnail.MylistCount;
+			PlayCount = nicoVideo.Info.ViewCount;
+			CommentCount = nicoVideo.Info.CommentCount;
+			MylistCount = nicoVideo.Info.MylistCount;
 
 			
 			VideoDescriptionUri = descriptionHtmlUri;
 
 
-			Tags = thumbnail.Tags.Value
+			Tags = nicoVideo.Info.GetTags()
 				.Select(x => new TagViewModel(x, _PageManager))
 				.ToList();
 		}
