@@ -114,6 +114,9 @@
     <Compile Include="Events\PlayNicoVideoEvent.cs" />
     <Compile Include="Models\BackgroundUpdater.cs" />
     <Compile Include="Models\CommentCommandPermissionType.cs" />
+    <Compile Include="Models\Db\History\HistoryDbContext.cs" />
+    <Compile Include="Models\Db\History\PlayHistoryDb.cs" />
+    <Compile Include="Models\Db\History\SearchHistoryDb.cs" />
     <Compile Include="Models\Db\NicoVideo\CommentDb.cs" />
     <Compile Include="Models\Db\NicoVideo\VideoInfoDb.cs" />
     <Compile Include="Models\Db\NicoVideo\UserInfoDb.cs" />

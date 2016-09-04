@@ -738,5 +738,6 @@ namespace NicoPlayerHohoema.Models
 		VideoId,
 		UserId,
 		Keyword,
+		Tag,
 	}
 }
