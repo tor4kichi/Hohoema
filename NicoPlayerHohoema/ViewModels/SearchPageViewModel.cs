@@ -19,6 +19,7 @@ using System.Threading;
 using Windows.UI.Xaml;
 using Mntone.Nico2;
 using Mntone.Nico2.Searches.Video;
+using NicoPlayerHohoema.Models.Db;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -300,8 +301,9 @@ namespace NicoPlayerHohoema.ViewModels
 				if (SearchText.Value.Length == 0) { return; }
 
 				// キーワードを検索履歴を記録
-				var searchSettings = HohoemaApp.UserSettings.SearchSettings;
-				searchSettings.UpdateSearchHistory(SearchText.Value, SelectedTarget.Value);
+//				var searchSettings = HohoemaApp.UserSettings.SearchSettings;
+//				searchSettings.UpdateSearchHistory(SearchText.Value, SelectedTarget.Value);
+				SearchHistoryDb.Searched(SearchText.Value, SelectedTarget.Value);
 
 				var searchOption = new SearchOption()
 				{
@@ -334,7 +336,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		}
 
-		internal void OnSearchHistorySelected(SearchHistoryItem item)
+		internal void OnSearchHistorySelected(SearchHistory item)
 		{
 			SearchText.Value = item.Keyword;
 			SelectedTarget.Value = TargetListItems.Single(x => x == item.Target);
@@ -525,14 +527,14 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-	public class SearchHistoryListItem : SelectableItem<SearchHistoryItem>
+	public class SearchHistoryListItem : SelectableItem<SearchHistory>
 	{
 		public string Keyword { get; private set; }
 		public SearchTarget Target { get; private set; }
 
 
 
-		public SearchHistoryListItem(SearchHistoryItem source, Action<SearchHistoryItem> selectedAction) : base(source, selectedAction)
+		public SearchHistoryListItem(SearchHistory source, Action<SearchHistory> selectedAction) : base(source, selectedAction)
 		{
 			Keyword = source.Keyword;
 			Target = source.Target;

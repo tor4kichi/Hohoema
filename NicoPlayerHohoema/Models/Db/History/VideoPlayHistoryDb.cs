@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NicoPlayerHohoema.Models.Db.History
+namespace NicoPlayerHohoema.Models.Db
 {
 	public static class VideoPlayHistoryDb
 	{
@@ -20,6 +20,7 @@ namespace NicoPlayerHohoema.Models.Db.History
 					{
 						RawVideoId = rawVideoId,
 						PlayCount = 1,
+						LastPlayed = DateTime.Now
 					};
 
 					db.VideoPlayHistory.Add(videoHistory);
@@ -27,6 +28,8 @@ namespace NicoPlayerHohoema.Models.Db.History
 				else
 				{
 					videoHistory.PlayCount++;
+					videoHistory.LastPlayed = DateTime.Now;
+					db.VideoPlayHistory.Update(videoHistory);
 				}
 
 				db.SaveChanges();

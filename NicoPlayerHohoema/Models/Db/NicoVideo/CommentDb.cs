@@ -23,12 +23,14 @@ namespace NicoPlayerHohoema.Models.Db
 						CommentCount = commentRes.GetCommentCount()
 					};
 
-					db.Add(comment);
+					db.Comments.Add(comment);
 				}
 				else
 				{
 					comment.CommentCount = commentRes.GetCommentCount();
 					comment.SetComments(commentRes.Chat);
+
+					db.Comments.Update(comment);
 				}
 
 				db.SaveChanges();
@@ -42,7 +44,7 @@ namespace NicoPlayerHohoema.Models.Db
 			{
 				var comment = db.Comments.SingleOrDefault(x => x.ThreadId == threadId);
 
-				db.Remove(comment);
+				db.Comments.Remove(comment);
 				db.SaveChanges();
 			}
 		}

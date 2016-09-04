@@ -4,10 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NicoPlayerHohoema.Models.Db.History
+namespace NicoPlayerHohoema.Models.Db
 {
 	public static class SearchHistoryDb
 	{
+
+		public static int GetHistoryCount()
+		{
+			using (var db = new HistoryDbContext())
+			{
+				return db.SearchHistory.Count();
+			}
+		}
+
 		public static void Searched(string keyword, SearchTarget target)
 		{
 			using (var db = new HistoryDbContext())
@@ -21,6 +30,7 @@ namespace NicoPlayerHohoema.Models.Db.History
 						Keyword = keyword,
 						Target = target,
 						SearchCount = 1,
+						LastUpdated = DateTime.Now
 					};
 
 					db.SearchHistory.Add(searchHistory);
@@ -28,11 +38,23 @@ namespace NicoPlayerHohoema.Models.Db.History
 				else
 				{
 					searchHistory.SearchCount++;
+					searchHistory.LastUpdated = DateTime.Now;
+
+					db.SearchHistory.Update(searchHistory);
 				}
 
 				db.SaveChanges();
 			}
 		}
+
+		public static List<SearchHistory> GetHistoryItems()
+		{
+			using (var db = new HistoryDbContext())
+			{
+				return db.SearchHistory.ToList();
+			}
+		}
+
 
 		public static bool RemoveHistory(string keyword, SearchTarget target)
 		{
@@ -52,6 +74,17 @@ namespace NicoPlayerHohoema.Models.Db.History
 			}
 
 			return removeSuccess;
+		}
+
+
+		public static void Clear()
+		{
+			using (var db = new HistoryDbContext())
+			{
+				var items = db.SearchHistory.ToList();
+				db.SearchHistory.RemoveRange(items);
+				db.SaveChanges();
+			}
 		}
 	}
 }

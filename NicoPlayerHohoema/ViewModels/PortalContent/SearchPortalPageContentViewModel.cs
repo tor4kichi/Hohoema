@@ -1,4 +1,5 @@
 ﻿using NicoPlayerHohoema.Models;
+using NicoPlayerHohoema.Models.Db;
 using NicoPlayerHohoema.Views.Service;
 using Prism.Commands;
 using Prism.Windows.Mvvm;
@@ -38,16 +39,16 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 			}
 		}
 
-		public ReadOnlyReactiveCollection<PortalSearchHisotryItem> HistoryKeywords { get; private set; }
+		public List<PortalSearchHisotryItem> HistoryKeywords { get; private set; }
 
 		protected override Task NavigateTo()
 		{
-			var searchSettings = _HohoemaApp.UserSettings.SearchSettings;
-
-			HistoryKeywords = searchSettings.SearchHistory
-				.ToReadOnlyReactiveCollection(x =>
+			HistoryKeywords = SearchHistoryDb.GetHistoryItems()
+				.Take(5)
+				.Select(x =>
 					new PortalSearchHisotryItem(x.Keyword, x.Target, PageManager)
-				);
+				)
+				.ToList();
 			OnPropertyChanged(nameof(HistoryKeywords));
 
 			return base.NavigateTo();

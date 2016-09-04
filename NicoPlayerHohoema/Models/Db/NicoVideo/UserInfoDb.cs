@@ -10,30 +10,7 @@ namespace NicoPlayerHohoema.Models.Db
 {
 	public static class UserInfoDb
 	{
-		public static void AddOrReplace(string userId, string name, string iconUrl = null)
-		{
-			bool isAlreadHasUser = Get(userId) != null;
-
-			using (var db = new NicoVideoDbContext())
-			{
-				var info = new UserInfo()
-				{
-					UserId = userId,
-					Name = name,
-					IconUri = iconUrl
-				};
-				if (isAlreadHasUser)
-				{
-					db.Users.Update(info);
-				}
-				else
-				{
-					db.Users.Add(info);
-				}
-				db.SaveChanges();
-			}
-		}
-
+		
 		public static async Task AddOrReplaceAsync(string userId, string name, string iconUrl = null)
 		{
 			bool isAlreadHasUser = await GetAsync(userId) != null;
@@ -51,6 +28,8 @@ namespace NicoPlayerHohoema.Models.Db
 					{
 						info.IconUri = iconUrl;
 					}
+
+					db.Users.Update(info);
 				}
 				else
 				{

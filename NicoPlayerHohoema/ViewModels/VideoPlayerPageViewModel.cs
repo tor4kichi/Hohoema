@@ -4,6 +4,7 @@ using Mntone.Nico2.Videos.Flv;
 using Mntone.Nico2.Videos.Thumbnail;
 using Mntone.Nico2.Videos.WatchAPI;
 using NicoPlayerHohoema.Models;
+using NicoPlayerHohoema.Models.Db;
 using NicoPlayerHohoema.Util;
 using NicoPlayerHohoema.ViewModels.VideoInfoContent;
 using NicoPlayerHohoema.Views;
@@ -1171,6 +1172,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 				// 再生ストリームの準備を開始する
 				await PlayingQualityChangeAction();
+
+
+				// 再生履歴に反映
+				VideoPlayHistoryDb.VideoPlayed(Video.RawVideoId);
 			}
 
 			_SidePaneContentCache.Clear();

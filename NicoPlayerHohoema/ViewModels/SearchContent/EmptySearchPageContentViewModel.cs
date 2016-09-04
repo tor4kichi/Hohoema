@@ -8,6 +8,7 @@ using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using Prism.Commands;
 using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Models.Db;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -25,11 +26,11 @@ namespace NicoPlayerHohoema.ViewModels
 				return _DeleteAllSearchHistoryCommand
 					?? (_DeleteAllSearchHistoryCommand = new DelegateCommand(async () => 
 					{
-						await HohoemaApp.UserSettings.SearchSettings.RemoveAllSearchHistory();
+						SearchHistoryDb.Clear();
 
 						await ResetList();
 					},
-					() => HohoemaApp.UserSettings.SearchSettings.SearchHistory.Count > 0
+					() => SearchHistoryDb.GetHistoryCount() > 0
 					));
 			}
 		}
@@ -45,10 +46,8 @@ namespace NicoPlayerHohoema.ViewModels
 					{
 						foreach (var item in SelectedItems)
 						{
-							await HohoemaApp.UserSettings.SearchSettings.RemoveSearchHistory(item.Keyword, item.Target, false);
+							SearchHistoryDb.RemoveHistory(item.Keyword, item.Target);
 						}
-
-						await HohoemaApp.UserSettings.SearchSettings.Save();
 
 						await ResetList();
 					}
@@ -104,7 +103,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public Task<IEnumerable<SearchHistoryListItem>> GetPagedItems(uint head, uint count)
 		{
-			var items = _HohoemaApp.UserSettings.SearchSettings.SearchHistory.Skip((int)head - 1).Take((int)count)
+			var items = SearchHistoryDb.GetHistoryItems().Skip((int)head - 1).Take((int)count)
 				.Select(x => new SearchHistoryListItem(x, _SearchPageViewModel.OnSearchHistorySelected))
 				.ToArray();
 
@@ -113,7 +112,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public Task<int> ResetSource()
 		{
-			return Task.FromResult(_HohoemaApp.UserSettings.SearchSettings.SearchHistory.Count);
+			return Task.FromResult(SearchHistoryDb.GetHistoryCount());
 		}
 	}
 }

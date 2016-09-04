@@ -22,11 +22,18 @@ namespace NicoPlayerHohoema.Models.Db
 			optionsBuilder.UseSqlite(new SqliteConnection(connectionString));
 		}
 
-		public static Task InitializeAsync()
+		protected override void OnModelCreating(ModelBuilder modelBuilder)
+		{
+			modelBuilder.Entity<SearchHistory>()
+				.HasKey(x => new { x.Keyword, x.Target });
+		}
+
+		public static async Task InitializeAsync()
 		{
 			using (var db = new HistoryDbContext())
 			{
-				return db.Database.MigrateAsync();
+				await db.Database.EnsureCreatedAsync();
+				await db.Database.MigrateAsync();
 			}
 		}
 	}
@@ -39,21 +46,17 @@ namespace NicoPlayerHohoema.Models.Db
 
 		public uint PlayCount { get; set; }
 
-		[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-		public DateTime LastUpdated { get; set; }
+		public DateTime LastPlayed { get; set; }
 	}
 
 	public class SearchHistory
 	{
-		[Key]
 		public string Keyword { get; set; }
 
-		[Key]
 		public SearchTarget Target { get; set; }
 
 		public uint SearchCount { get; set; }
 
-		[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
 		public DateTime LastUpdated { get; set; }
 	}
 }

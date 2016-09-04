@@ -30,7 +30,6 @@ namespace NicoPlayerHohoema.Models
 			var ranking = await SettingsBase.Load<RankingSettings>(RankingSettingsFileName, userFolder);
 			var player = await SettingsBase.Load<PlayerSettings>(PlayerSettingsFileName, userFolder);
 			var ng = await SettingsBase.Load<NGSettings>(NGSettingsFileName, userFolder);
-			var search = await SettingsBase.Load<SearchSeetings>(SearchSettingsFileName, userFolder);
 			var cache = await SettingsBase.Load<CacheSettings>(CacheSettingsFileName, userFolder);
 
 			return new HohoemaUserSettings()
@@ -38,7 +37,6 @@ namespace NicoPlayerHohoema.Models
 				RankingSettings = ranking,
 				PlayerSettings = player,
 				NGSettings = ng,
-				SearchSettings = search,
 				CacheSettings = cache
 			};
 		}
@@ -48,7 +46,6 @@ namespace NicoPlayerHohoema.Models
 			await RankingSettings.Save();
 			await PlayerSettings.Save();
 			await NGSettings.Save();
-			await SearchSettings.Save();
 			await CacheSettings.Save();
 		}
 
@@ -57,8 +54,6 @@ namespace NicoPlayerHohoema.Models
 		public PlayerSettings PlayerSettings { get; private set; }
 
 		public NGSettings NGSettings { get; private set; }
-
-		public SearchSeetings SearchSettings { get; private set; }
 
 		public CacheSettings CacheSettings { get; private set; }
 

@@ -25,7 +25,7 @@ namespace NicoPlayerHohoema.Models.Db
 						RawVideoId = rawVideoId,
 					};
 
-					db.Add(info);
+					db.VideoInfos.Add(info);
 					db.SaveChanges();
 				}
 
@@ -33,7 +33,7 @@ namespace NicoPlayerHohoema.Models.Db
 			}
 		}
 
-		public static void UpdateWithThumbnail(string rawVideoId, ThumbnailResponse thumbnailRes)
+		public static async Task UpdateWithThumbnailAsync(string rawVideoId, ThumbnailResponse thumbnailRes)
 		{
 			using (var db = new NicoVideoDbContext())
 			{
@@ -61,12 +61,14 @@ namespace NicoPlayerHohoema.Models.Db
 				info.CommentCount = thumbnailRes.CommentCount;
 				info.SetTags(thumbnailRes.Tags.Value.ToList());
 
-				db.SaveChanges();
+				db.VideoInfos.Update(info);
+
+				await db.SaveChangesAsync();
 			}
 		}
 
 
-		public static void UpdateWithWatchApiResponse(string rawVideoId, WatchApiResponse res)
+		public static async Task UpdateWithWatchApiResponseAsync(string rawVideoId, WatchApiResponse res)
 		{
 			using (var db = new NicoVideoDbContext())
 			{
@@ -86,7 +88,9 @@ namespace NicoPlayerHohoema.Models.Db
 
 				info.PrivateReasonType = res.PrivateReason;
 
-				db.SaveChanges();
+				db.VideoInfos.Update(info);
+
+				await db.SaveChangesAsync();
 			}
 		}
 
@@ -100,6 +104,7 @@ namespace NicoPlayerHohoema.Models.Db
 				if (info != null)
 				{
 					info.IsDeleted = true;
+					db.VideoInfos.Update(info);
 					db.SaveChanges();
 				}
 			}
@@ -128,7 +133,7 @@ namespace NicoPlayerHohoema.Models.Db
 
 			using (var db = new NicoVideoDbContext())
 			{
-				db.Remove(nicoVideoInfo);
+				db.VideoInfos.Remove(nicoVideoInfo);
 				db.SaveChanges();
 			}
 		}
@@ -139,7 +144,7 @@ namespace NicoPlayerHohoema.Models.Db
 
 			using (var db = new NicoVideoDbContext())
 			{
-				db.Remove(nicoVideoInfo);
+				db.VideoInfos.Remove(nicoVideoInfo);
 				await db.SaveChangesAsync();
 			}
 		}

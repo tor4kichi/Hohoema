@@ -147,6 +147,7 @@ namespace NicoPlayerHohoema
 		protected override async Task OnInitializeAsync(IActivatedEventArgs args)
 		{
 			await Models.Db.NicoVideoDbContext.InitializeAsync();
+			await Models.Db.HistoryDbContext.InitializeAsync();
 
 			await RegisterTypes();
 
