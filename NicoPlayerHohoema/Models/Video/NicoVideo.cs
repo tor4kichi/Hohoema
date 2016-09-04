@@ -150,8 +150,6 @@ namespace NicoPlayerHohoema.Models
 				CachedWatchApiResponse = watchApiRes;
 
 				ProtocolType = MediaProtocolTypeHelper.ParseMediaProtocolType(watchApiRes.VideoUrl);
-
-				VideoInfoDb.UpdateWithWatchApiResponse(RawVideoId, CachedWatchApiResponse);
 			}
 
 			return watchApiRes;

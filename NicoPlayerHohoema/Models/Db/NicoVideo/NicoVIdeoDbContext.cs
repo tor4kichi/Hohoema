@@ -20,7 +20,6 @@ namespace NicoPlayerHohoema.Models.Db
 		public DbSet<NicoVideoInfo> VideoInfos { get; set; }
 		public DbSet<UserInfo> Users { get; set; }
 		public DbSet<NicoVideoComment> Comments { get; set; }
-		public DbSet<PlayHistory> PlayHistories { get; set; }
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
@@ -32,11 +31,12 @@ namespace NicoPlayerHohoema.Models.Db
 		{
 		}
 
-		public static Task InitializeAsync()
+		public static async Task InitializeAsync()
 		{
 			using (var db = new NicoVideoDbContext())
 			{
-				return db.Database.EnsureCreatedAsync();
+				await db.Database.EnsureCreatedAsync();
+				await db.Database.MigrateAsync();
 			}
 		}
 	}
@@ -126,13 +126,5 @@ namespace NicoPlayerHohoema.Models.Db
 	}
 
 
-	public class PlayHistory
-	{
-		[Key]
-		public string ThreadId { get; set; }
-
-		public uint PlayCount { get; set; }
-
-		public DateTime LastPlayed { get; set; }
-	}
+	
 }

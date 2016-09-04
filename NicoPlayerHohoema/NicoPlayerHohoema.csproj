@@ -114,6 +114,9 @@
     <Compile Include="Events\PlayNicoVideoEvent.cs" />
     <Compile Include="Models\BackgroundUpdater.cs" />
     <Compile Include="Models\CommentCommandPermissionType.cs" />
+    <Compile Include="Models\Db\History\HistoryDbContext.cs" />
+    <Compile Include="Models\Db\History\VideoPlayHistoryDb.cs" />
+    <Compile Include="Models\Db\History\SearchHistoryDb.cs" />
     <Compile Include="Models\Db\NicoVideo\CommentDb.cs" />
     <Compile Include="Models\Db\NicoVideo\VideoInfoDb.cs" />
     <Compile Include="Models\Db\NicoVideo\UserInfoDb.cs" />
@@ -166,7 +169,6 @@
     <Compile Include="Models\Settings\NGSettings.cs" />
     <Compile Include="Models\Settings\PlayerSettings.cs" />
     <Compile Include="Models\Settings\RankingSettings.cs" />
-    <Compile Include="Models\Settings\SearchSettings.cs" />
     <Compile Include="Models\VideoDescriptionHelper.cs" />
     <Compile Include="Models\VideoPlayPayload.cs" />
     <Compile Include="Models\Video\NicoVideoQuality.cs" />

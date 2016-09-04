@@ -54,8 +54,8 @@ namespace NicoPlayerHohoema.Models
 
 			if (res != null)
 			{
-				UserInfoDb.AddOrReplace(res.UserId.ToString(), res.UserName, res.UserIconUrl.AbsoluteUri);
-				VideoInfoDb.UpdateWithThumbnail(rawVideoId, res);
+				await UserInfoDb.AddOrReplaceAsync(res.UserId.ToString(), res.UserName, res.UserIconUrl.AbsoluteUri);
+				await VideoInfoDb.UpdateWithThumbnailAsync(rawVideoId, res);
 			}
 
 			return res;
@@ -75,8 +75,8 @@ namespace NicoPlayerHohoema.Models
 			if (res != null)
 			{
 				var uploaderInfo = res.UploaderInfo;
-				UserInfoDb.AddOrReplace(uploaderInfo.id, uploaderInfo.nickname, uploaderInfo.icon_url);
-				VideoInfoDb.UpdateWithWatchApiResponse(rawVideoId, res);
+				await UserInfoDb.AddOrReplaceAsync(uploaderInfo.id, uploaderInfo.nickname, uploaderInfo.icon_url);
+				await VideoInfoDb.UpdateWithWatchApiResponseAsync(rawVideoId, res);
 			}
 
 			return res;
