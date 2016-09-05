@@ -58,11 +58,13 @@ namespace NicoPlayerHohoema.Models
 
 			Info = VideoInfoDb.GetEnsureNicoVideoInfo(RawVideoId);
 
-			await OriginalQuality.SetupDownloadProgress();
-			await LowQuality.SetupDownloadProgress();
+			if (!this.IsDeleted)
+			{
+				await OriginalQuality.SetupDownloadProgress();
+				await LowQuality.SetupDownloadProgress();
 
-			await CheckCacheStatus();
-
+				await CheckCacheStatus();
+			}
 		}
 
 

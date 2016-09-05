@@ -101,22 +101,42 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<NicoVideo> GetNicoVideo(string rawVideoId)
 		{
+			NicoVideo nicoVideo = null;
 			try
 			{
 				await _NicoVideoSemaphore.WaitAsync();
 
-				if (!VideoIdToNicoVideo.ContainsKey(rawVideoId))
+				if (VideoIdToNicoVideo.ContainsKey(rawVideoId))
 				{
-					var nicoVideo = await NicoVideo.Create(_HohoemaApp, rawVideoId, Context);
-					VideoIdToNicoVideo.Add(rawVideoId, nicoVideo);
+					nicoVideo = VideoIdToNicoVideo[rawVideoId];
 				}
 
-				return VideoIdToNicoVideo[rawVideoId];
 			}
 			finally
 			{
 				_NicoVideoSemaphore.Release();
 			}
+
+			if (nicoVideo == null)
+			{
+				nicoVideo = await NicoVideo.Create(_HohoemaApp, rawVideoId, Context);
+
+				try
+				{
+					await _NicoVideoSemaphore.WaitAsync();
+
+					if (!VideoIdToNicoVideo.ContainsKey(rawVideoId))
+					{
+						VideoIdToNicoVideo.Add(rawVideoId, nicoVideo);
+					}
+				}
+				finally
+				{
+					_NicoVideoSemaphore.Release();
+				}
+			}
+
+			return nicoVideo;
 		}
 
 
