@@ -165,7 +165,6 @@
     <Compile Include="Models\PlayerDisplayMode.cs" />
     <Compile Include="Models\SearchOption.cs" />
     <Compile Include="Models\SearchTarget.cs" />
-    <Compile Include="Models\Settings\AccountSettings.cs" />
     <Compile Include="Models\Settings\NGSettings.cs" />
     <Compile Include="Models\Settings\PlayerSettings.cs" />
     <Compile Include="Models\Settings\RankingSettings.cs" />

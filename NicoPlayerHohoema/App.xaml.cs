@@ -32,6 +32,7 @@ using Prism.Windows.AppModel;
 using Prism.Windows.Mvvm;
 //using BackgroundAudioShared;
 using Windows.Media;
+using NicoPlayerHohoema.Models.Db;
 
 namespace NicoPlayerHohoema
 {
@@ -159,6 +160,21 @@ namespace NicoPlayerHohoema
 			await Models.Db.HistoryDbContext.InitializeAsync();
 
 			await RegisterTypes();
+
+			var cachedList = VideoInfoDb.GetAll();
+
+			var hohoemaApp = Container.Resolve<HohoemaApp>();
+
+			TimeSpan expirationTimeSpan = TimeSpan.FromDays(3);
+			DateTime expirationDate = DateTime.Now.Subtract(expirationTimeSpan);
+			foreach (var cachedInfo in cachedList)
+			{
+				if (cachedInfo.LastUpdated < expirationDate)
+				if (!hohoemaApp.MediaManager.CacheRequestedItemsStack.Any(x => cachedInfo.VideoId == x.RawVideoid))
+				{
+					await VideoInfoDb.RemoveAsync(cachedInfo);
+				}
+			}
 
 			//			var playNicoVideoEvent = EventAggregator.GetEvent<PlayNicoVideoEvent>();
 			//			playNicoVideoEvent.Subscribe(PlayNicoVideoInPlayerWindow);

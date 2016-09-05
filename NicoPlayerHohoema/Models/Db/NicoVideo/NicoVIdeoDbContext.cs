@@ -35,8 +35,8 @@ namespace NicoPlayerHohoema.Models.Db
 		{
 			using (var db = new NicoVideoDbContext())
 			{
-				await db.Database.EnsureCreatedAsync();
 				await db.Database.MigrateAsync();
+				await db.Database.EnsureCreatedAsync();
 			}
 		}
 	}
@@ -77,6 +77,8 @@ namespace NicoPlayerHohoema.Models.Db
 		public string DescriptionWithHtml { get; set; }
 
 		public PrivateReasonType PrivateReasonType { get; set; }
+
+		public DateTime LastUpdated { get; set; }
 
 
 		public List<Tag> GetTags()

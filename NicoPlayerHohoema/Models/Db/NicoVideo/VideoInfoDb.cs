@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Mntone.Nico2;
 using Mntone.Nico2.Videos.Thumbnail;
 using Mntone.Nico2.Videos.WatchAPI;
@@ -7,11 +8,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WinRTXamlToolkit.Async;
 
 namespace NicoPlayerHohoema.Models.Db
 {
 	public static class VideoInfoDb
 	{
+		public static readonly AsyncLock _AsyncLock = new AsyncLock();
+
+		public static IReadOnlyList<NicoVideoInfo> GetAll()
+		{
+			using (var db = new NicoVideoDbContext())
+			{
+				return db.VideoInfos.ToList();
+			}
+		}
+
 		public static NicoVideoInfo GetEnsureNicoVideoInfo(string rawVideoId)
 		{
 			using (var db = new NicoVideoDbContext())
@@ -23,6 +35,7 @@ namespace NicoPlayerHohoema.Models.Db
 					info = new NicoVideoInfo()
 					{
 						RawVideoId = rawVideoId,
+						LastUpdated = DateTime.Now
 					};
 
 					db.VideoInfos.Add(info);
@@ -35,6 +48,7 @@ namespace NicoPlayerHohoema.Models.Db
 
 		public static async Task UpdateWithThumbnailAsync(string rawVideoId, ThumbnailResponse thumbnailRes)
 		{
+			using (var releaser = await _AsyncLock.LockAsync())
 			using (var db = new NicoVideoDbContext())
 			{
 				var info = db.VideoInfos.SingleOrDefault(x => x.RawVideoId == rawVideoId);
@@ -60,6 +74,7 @@ namespace NicoPlayerHohoema.Models.Db
 				info.MylistCount = thumbnailRes.MylistCount;
 				info.CommentCount = thumbnailRes.CommentCount;
 				info.SetTags(thumbnailRes.Tags.Value.ToList());
+				info.LastUpdated = DateTime.Now;
 
 				db.VideoInfos.Update(info);
 
@@ -70,6 +85,7 @@ namespace NicoPlayerHohoema.Models.Db
 
 		public static async Task UpdateWithWatchApiResponseAsync(string rawVideoId, WatchApiResponse res)
 		{
+			using (var releaser = await _AsyncLock.LockAsync())
 			using (var db = new NicoVideoDbContext())
 			{
 				var info = db.VideoInfos.SingleOrDefault(x => x.RawVideoId == rawVideoId);
@@ -87,6 +103,8 @@ namespace NicoPlayerHohoema.Models.Db
 				info.ViewCount = (uint)res.videoDetail.commentCount.Value;
 
 				info.PrivateReasonType = res.PrivateReason;
+
+				info.LastUpdated = DateTime.Now;
 
 				db.VideoInfos.Update(info);
 
@@ -118,11 +136,12 @@ namespace NicoPlayerHohoema.Models.Db
 			}
 		}
 
-		public static Task<NicoVideoInfo> GetAsync(string threadId)
+		public static async Task<NicoVideoInfo> GetAsync(string threadId)
 		{
+			using (var releaser = await _AsyncLock.LockAsync())
 			using (var db = new NicoVideoDbContext())
 			{
-				return db.VideoInfos.SingleOrDefaultAsync(x => x.RawVideoId == threadId);
+				return await db.VideoInfos.SingleOrDefaultAsync(x => x.RawVideoId == threadId);
 			}
 		}
 
@@ -138,15 +157,25 @@ namespace NicoPlayerHohoema.Models.Db
 			}
 		}
 
-		public static async Task RemoveAsync(string rawVideoId)
+		public static async Task RemoveAsync(NicoVideoInfo nicoVideoInfo)
 		{
-			var nicoVideoInfo = await GetAsync(rawVideoId);
-
+			using (var releaser = await _AsyncLock.LockAsync())
 			using (var db = new NicoVideoDbContext())
 			{
-				db.VideoInfos.Remove(nicoVideoInfo);
+				db.Entry(nicoVideoInfo).State = EntityState.Deleted;
 				await db.SaveChangesAsync();
 			}
 		}
+
+		public static async Task RemoveRangeAsync(IEnumerable<NicoVideoInfo> removeTargets)
+		{
+			using (var releaser = await _AsyncLock.LockAsync())
+			using (var db = new NicoVideoDbContext())
+			{
+				db.VideoInfos.RemoveRange(removeTargets);
+				await db.SaveChangesAsync();
+			}
+		}
+
 	}
 }
