@@ -69,7 +69,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			get
 			{
-				return VideoSearchSource.OneTimeLoadSearchItemCount / 2;
+				return 20;
 			}
 		}
 

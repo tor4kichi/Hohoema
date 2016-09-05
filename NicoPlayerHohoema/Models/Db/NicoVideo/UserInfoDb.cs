@@ -15,11 +15,12 @@ namespace NicoPlayerHohoema.Models.Db
 
 		public static async Task AddOrReplaceAsync(string userId, string name, string iconUrl = null)
 		{
-			bool isAlreadHasUser = await GetAsync(userId) != null;
 
 			using (var releaser = await _AsyncLock.LockAsync())
 			using (var db = new NicoVideoDbContext())
 			{
+				bool isAlreadHasUser = db.Users.Any(x => x.UserId == userId);
+
 				if (isAlreadHasUser)
 				{
 					var info = await db.Users.SingleAsync(x => x.UserId == userId);
