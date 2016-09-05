@@ -99,7 +99,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override uint IncrementalLoadCount
 		{
-			get { return 20; }
+			get { return 5; }
 		}
 
 		
@@ -187,7 +187,7 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 			}
 
-			await SchedulePreloading(realHead + (int)count - 1, (int)count);
+			await SchedulePreloading(realHead + (int)count, (int)count);
 
 			return list;
 		}

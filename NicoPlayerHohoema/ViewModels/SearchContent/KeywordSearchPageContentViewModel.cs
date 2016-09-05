@@ -69,7 +69,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			get
 			{
-				return 20;
+				return 5;
 			}
 		}
 

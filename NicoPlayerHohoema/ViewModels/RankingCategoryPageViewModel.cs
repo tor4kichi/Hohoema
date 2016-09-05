@@ -185,7 +185,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				// 検索ベースランキングの場合は30個ずつ
 				// （ニコ動の検索一回あたりの取得件数が30固定のため）
-				return CanChangeRankingParameter.Value ? 20u : 30u;
+				return CanChangeRankingParameter.Value ? 5u : 30u;
 			}
 		}
 
@@ -251,7 +251,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			RankingRss = await NiconicoRanking.GetRankingData(_Target, _TimeSpan, _Category);
 
-			await SchedulePreloading(0, 20);
+			await SchedulePreloading(0, 10);
 
 			return RankingRss.Channel.Items.Count;
 		}
@@ -319,7 +319,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 
 			
-			await SchedulePreloading(tail - 1, 20);
+			await SchedulePreloading(tail - 1, 10);
 
 			return items;			
 		}
