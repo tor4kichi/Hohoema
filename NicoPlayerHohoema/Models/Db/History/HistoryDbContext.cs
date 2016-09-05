@@ -13,7 +13,7 @@ namespace NicoPlayerHohoema.Models.Db
 {
 	public sealed class HistoryDbContext : DbContext
 	{
-		public DbSet<VideoPlayHistory> VideoPlayHistory { get; set; }
+//		public DbSet<VideoPlayHistory> VideoPlayHistory { get; set; }
 		public DbSet<SearchHistory> SearchHistory { get; set; }
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

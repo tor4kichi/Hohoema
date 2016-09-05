@@ -1175,7 +1175,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 				// 再生履歴に反映
-				VideoPlayHistoryDb.VideoPlayed(Video.RawVideoId);
+				//VideoPlayHistoryDb.VideoPlayed(Video.RawVideoId);
 			}
 
 			_SidePaneContentCache.Clear();

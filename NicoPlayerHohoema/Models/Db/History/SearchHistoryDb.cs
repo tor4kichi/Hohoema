@@ -17,6 +17,8 @@ namespace NicoPlayerHohoema.Models.Db
 			}
 		}
 
+		public const uint MaxSearchHistoryCount = 30;
+
 		public static void Searched(string keyword, SearchTarget target)
 		{
 			using (var db = new HistoryDbContext())
@@ -34,7 +36,16 @@ namespace NicoPlayerHohoema.Models.Db
 					};
 
 					db.SearchHistory.Add(searchHistory);
+
+
+					if ( db.SearchHistory.Count() > MaxSearchHistoryCount)
+					{
+						// 一番古いアイテムを削除
+						var recentItem = db.SearchHistory.OrderBy(x => x.LastUpdated).First();
+						db.SearchHistory.Remove(recentItem);
+					}
 				}
+
 				else
 				{
 					searchHistory.SearchCount++;
