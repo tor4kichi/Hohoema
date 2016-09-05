@@ -54,15 +54,22 @@ namespace NicoPlayerHohoema.Models
 		{
 			Info = VideoInfoDb.GetEnsureNicoVideoInfo(RawVideoId);
 
-			await UpdateWithThumbnail();
+			if (Info.IsDeleted) { return; }
 
-			Info = VideoInfoDb.GetEnsureNicoVideoInfo(RawVideoId);
+			if (Util.InternetConnection.IsInternet())
+			{
+				await UpdateWithThumbnail();
 
-			await OriginalQuality.SetupDownloadProgress();
-			await LowQuality.SetupDownloadProgress();
+				Info = VideoInfoDb.GetEnsureNicoVideoInfo(RawVideoId);
+			}
 
-			await CheckCacheStatus();
+			if (false == Info.IsDeleted)
+			{
+				await OriginalQuality.SetupDownloadProgress();
+				await LowQuality.SetupDownloadProgress();
 
+				await CheckCacheStatus();
+			}
 		}
 
 

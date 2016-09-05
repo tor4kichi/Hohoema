@@ -99,7 +99,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override uint IncrementalLoadCount
 		{
-			get { return 20; }
+			get { return 5; }
 		}
 
 		
@@ -120,6 +120,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class FeedVideoIncrementalSource : IIncrementalSource<FeedVideoInfoControlViewModel>
 	{
+		HohoemaApp _HohoemaApp;
 		FeedManager _FavFeedManager;
 		NiconicoMediaManager _NiconicoMediaManager;
 		PageManager _PageManager;
@@ -128,6 +129,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public FeedVideoIncrementalSource(FeedGroup feedGroup, FeedManager favFeedManager, NiconicoMediaManager mediaManager, PageManager pageManager)
 		{
+			_HohoemaApp = feedGroup.HohoemaApp;
 			_FeedGroup = feedGroup;
 			_FavFeedManager = favFeedManager;
 			_NiconicoMediaManager = mediaManager;
@@ -138,15 +140,37 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			await _FeedGroup.Refresh();
 
+			await SchedulePreloading(0, 20);
+
 			return _FeedGroup.FeedItems.Count;
 		}
 
-		public async Task<IEnumerable<FeedVideoInfoControlViewModel>> GetPagedItems(uint pageIndex, uint pageSize)
+		private Task SchedulePreloading(int start, int count)
+		{
+			// 先頭20件を先行ロード
+			return _FavFeedManager.HohoemaApp.ThumbnailBackgroundLoader.Schedule(
+				new SimpleBackgroundUpdate("FeedGroup:" + _FeedGroup.Label + $" [{start} - {count}]"
+				, () => UpdateItemsThumbnailInfo(start, count)
+				)
+				);
+		}
+
+		private async Task UpdateItemsThumbnailInfo(int start, int count)
+		{
+			foreach (var item in _FeedGroup.FeedItems.AsParallel().Skip(start).Take(count))
+			{
+				if (!_HohoemaApp.IsLoggedIn) { return; }
+
+				await _HohoemaApp.MediaManager.GetNicoVideo(item.VideoId);
+			}
+		}
+
+		public async Task<IEnumerable<FeedVideoInfoControlViewModel>> GetPagedItems(uint head, uint count)
 		{
 			var list = new List<FeedVideoInfoControlViewModel>();
 
-			var head = pageIndex - 1;
-			var currentItems = _FeedGroup.FeedItems.Skip((int)head).Take((int)pageSize).ToList();
+			var realHead = (int)head - 1;
+			var currentItems = _FeedGroup.FeedItems.Skip((int)head - 1).Take((int)count).ToList();
 
 			foreach (var feed in currentItems)
 			{
@@ -162,6 +186,8 @@ namespace NicoPlayerHohoema.ViewModels
 					Debug.Fail("FeedListのアイテムのNicoVideoの取得に失敗しました。", ex.Message);
 				}
 			}
+
+			await SchedulePreloading(realHead + (int)count, (int)count);
 
 			return list;
 		}

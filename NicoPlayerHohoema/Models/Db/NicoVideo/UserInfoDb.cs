@@ -5,18 +5,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WinRTXamlToolkit.Async;
 
 namespace NicoPlayerHohoema.Models.Db
 {
 	public static class UserInfoDb
 	{
-		
+		readonly static AsyncLock _AsyncLock = new AsyncLock();
+
 		public static async Task AddOrReplaceAsync(string userId, string name, string iconUrl = null)
 		{
-			bool isAlreadHasUser = await GetAsync(userId) != null;
 
+			using (var releaser = await _AsyncLock.LockAsync())
 			using (var db = new NicoVideoDbContext())
 			{
+				bool isAlreadHasUser = db.Users.Any(x => x.UserId == userId);
+
 				if (isAlreadHasUser)
 				{
 					var info = await db.Users.SingleAsync(x => x.UserId == userId);
@@ -43,6 +47,7 @@ namespace NicoPlayerHohoema.Models.Db
 					db.Users.Add(info);
 				}
 
+				
 				await db.SaveChangesAsync();
 			}
 		}
@@ -55,11 +60,12 @@ namespace NicoPlayerHohoema.Models.Db
 			}
 		}
 
-		public static Task<UserInfo> GetAsync(string userId)
+		public static async Task<UserInfo> GetAsync(string userId)
 		{
+			using (var releaser = await _AsyncLock.LockAsync())
 			using (var db = new NicoVideoDbContext())
 			{
-				return db.Users.SingleOrDefaultAsync(x => x.UserId == userId);
+				return await db.Users.SingleOrDefaultAsync(x => x.UserId == userId);
 			}
 		}
 

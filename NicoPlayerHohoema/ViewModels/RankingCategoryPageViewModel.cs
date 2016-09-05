@@ -185,7 +185,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				// 検索ベースランキングの場合は30個ずつ
 				// （ニコ動の検索一回あたりの取得件数が30固定のため）
-				return CanChangeRankingParameter.Value ? 20u : 30u;
+				return CanChangeRankingParameter.Value ? 5u : 30u;
 			}
 		}
 
@@ -251,43 +251,26 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			RankingRss = await NiconicoRanking.GetRankingData(_Target, _TimeSpan, _Category);
 
-			// 先頭20件を先行ロード
-			await _HohoemaApp.ThumbnailBackgroundLoader.Schedule(
-				new SimpleBackgroundUpdate("Ranking_First_" + _Category.ToString()
-				, () => UpdateItemsThumbnailInfo_First()
-				)
-				);
+			await SchedulePreloading(0, 10);
 
 			return RankingRss.Channel.Items.Count;
 		}
 
-		private async Task UpdateItemsThumbnailInfo_First()
+		private Task SchedulePreloading(int start, int count)
 		{
-			if (RankingRss != null)
-			{
-				foreach (var item in RankingRss.Channel.Items.Take(20))
-				{
-					if (!_HohoemaApp.IsLoggedIn) { return; }
-
-					await _HohoemaApp.MediaManager.GetNicoVideo(item.GetVideoId());
-				}
-
-				if (!_HohoemaApp.IsLoggedIn) { return; }
-
-				// 次以降のデータをバックグラウンドで読み込み
-				await _HohoemaApp.ThumbnailBackgroundLoader.Schedule(
-					new SimpleBackgroundUpdate("Ranking_Second_" + _Category.ToString()
-					, () => UpdateItemsThumbnailInfo_Second()
-					)
-					);
-			}
+			// 先頭20件を先行ロード
+			return _HohoemaApp.ThumbnailBackgroundLoader.Schedule(
+				new SimpleBackgroundUpdate("Ranking_" + _Category.ToString() + $"[{start} - {count}]"
+				, () => UpdateItemsThumbnailInfo(start, count)
+				)
+				);
 		}
-
-		private async Task UpdateItemsThumbnailInfo_Second()
+	
+		private async Task UpdateItemsThumbnailInfo(int start, int count)
 		{
 			if (RankingRss != null)
 			{
-				foreach (var item in RankingRss.Channel.Items.Skip(20))
+				foreach (var item in RankingRss.Channel.Items.AsParallel().Skip(start).Take(count))
 				{
 					if (!_HohoemaApp.IsLoggedIn) { return; }
 
@@ -310,7 +293,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 			var head = (int)(position);
-			var tail = head + pageSize;
+			var tail = head + (int)pageSize;
 
 			List<RankedVideoInfoControlViewModel> items = new List<RankedVideoInfoControlViewModel>();
 			for (int i = head; i < tail; ++i)
@@ -335,7 +318,8 @@ namespace NicoPlayerHohoema.ViewModels
 				items.Add(vm);
 			}
 
-
+			
+			await SchedulePreloading(tail - 1, 10);
 
 			return items;			
 		}
