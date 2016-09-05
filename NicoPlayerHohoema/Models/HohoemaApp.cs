@@ -23,6 +23,11 @@ namespace NicoPlayerHohoema.Models
 	public class HohoemaApp : BindableBase, IDisposable
 	{
 		public static CoreDispatcher UIDispatcher { get; private set; }
+		
+		// v0.3.9 以前との互換性のために残しています
+		const string RECENT_LOGIN_ACCOUNT = "recent_login_account";
+
+		const string PRIMARY_ACCOUNT = "primary_account";
 
 
 		public static HohoemaApp Create(IEventAggregator ea)
@@ -50,7 +55,6 @@ namespace NicoPlayerHohoema.Models
 			LoggingChannel = new LoggingChannel("HohoemaLog", new LoggingChannelOptions(HohoemaLoggerGroupGuid));
 
 			FavManager = null;
-			CurrentAccount = new AccountSettings();
 
 			LoadRecentLoginAccount();
 			ThumbnailBackgroundLoader = new BackgroundUpdater(ThumbnailLoadBackgroundTaskId);
@@ -59,41 +63,108 @@ namespace NicoPlayerHohoema.Models
 
 		public void LoadRecentLoginAccount()
 		{
+			var vault = new Windows.Security.Credentials.PasswordVault();
+
+			// v0.3.9 以前との互換性
 			if (ApplicationData.Current.LocalSettings.Containers.ContainsKey(RECENT_LOGIN_ACCOUNT))
 			{
-				// load
 				var container = ApplicationData.Current.LocalSettings.Containers[RECENT_LOGIN_ACCOUNT];
 				var prop = container.Values.FirstOrDefault();
-				CurrentAccount.MailOrTelephone = prop.Key ?? "";
 
-				CurrentAccount.Password = prop.Value as string ?? "";
+				var id = prop.Key;
+				var password = prop.Value as string ?? "";
+
+				try
+				{
+					AddOrUpdateAccount(id, password);
+				}
+				catch { }
+
+				ApplicationData.Current.LocalSettings.DeleteContainer(RECENT_LOGIN_ACCOUNT);
+
+				SetPrimaryAccountId(id);
 			}
-			else
-			{
-			}
+
+			
 		}
 
-		public void SaveAccount(bool isRemenberPassword)
+		public static void SetPrimaryAccountId(string mailAddress)
 		{
-			ApplicationDataContainer container = null;
-			if (ApplicationData.Current.LocalSettings.Containers.ContainsKey(RECENT_LOGIN_ACCOUNT))
-			{
-				container = ApplicationData.Current.LocalSettings.Containers[RECENT_LOGIN_ACCOUNT];
-			}
-			else
-			{
-				container = ApplicationData.Current.LocalSettings.CreateContainer(RECENT_LOGIN_ACCOUNT, ApplicationDataCreateDisposition.Always);
-			}
-			container.Values.Clear();
-			var id = CurrentAccount.MailOrTelephone;
-			var password = isRemenberPassword ? CurrentAccount.Password : "";
-			container.Values[id] = password;
-			ApplicationData.Current.SignalDataChanged();
-
+			var container = ApplicationData.Current.LocalSettings.CreateContainer(PRIMARY_ACCOUNT, ApplicationDataCreateDisposition.Always);
+			container.Values["primary_id"] = mailAddress;
 		}
 
+		public static string GetPrimaryAccountId()
+		{
+			var container = ApplicationData.Current.LocalSettings.CreateContainer(PRIMARY_ACCOUNT, ApplicationDataCreateDisposition.Always);
+			return container.Values["primary_id"] as string;
+		}
 
+		public static bool HasPrimaryAccount()
+		{
+			var container = ApplicationData.Current.LocalSettings.CreateContainer(PRIMARY_ACCOUNT, ApplicationDataCreateDisposition.Always);
+			return container.Values["primary_id"] as string != null;
+		}
 
+		public static void AddOrUpdateAccount(string mailAddress, string password)
+		{
+			var id = mailAddress;
+			
+			if (String.IsNullOrWhiteSpace(mailAddress) || String.IsNullOrWhiteSpace(password))
+			{
+				throw new Exception();
+			}
+
+			var vault = new Windows.Security.Credentials.PasswordVault();
+			try
+			{
+				var credential = vault.Retrieve(nameof(HohoemaApp), id);
+				credential.Password = password;
+			}
+			catch
+			{
+				var credential = new Windows.Security.Credentials.PasswordCredential(nameof(HohoemaApp), id, password);
+				vault.Add(credential);
+			}
+		}
+		
+
+		public static Tuple<string, string> GetPrimaryAccount()
+		{
+			if (HasPrimaryAccount())
+			{
+				var vault = new Windows.Security.Credentials.PasswordVault();
+				try
+				{
+					var primary_id = GetPrimaryAccountId();
+					var credential = vault.Retrieve(nameof(HohoemaApp), primary_id);
+					credential.RetrievePassword();
+					return new Tuple<string, string>(credential.UserName, credential.Password);
+				}
+				catch { }
+			}
+
+			return null;
+		}
+
+		public static List<string> GetAccountIds()
+		{
+			try
+			{
+				var vault = new Windows.Security.Credentials.PasswordVault();
+
+				var items = vault.FindAllByResource(nameof(HohoemaApp));
+
+				return items.Select(x => x.UserName)
+					.ToList();
+			}
+			catch
+			{
+				
+			}
+
+			return new List<string>();
+		}
 
 
 		public async Task LoadUserSettings(string userId)
@@ -107,21 +178,26 @@ namespace NicoPlayerHohoema.Models
 			await UserSettings?.Save();
 		}
 
-		public async Task<NiconicoSignInStatus> SignInToRecentLoginUserAccount()
+		public async Task<NiconicoSignInStatus> SignInWithPrimaryAccount()
 		{
-			if (CurrentAccount == null)
+			// 資格情報からログインパラメータを取得
+			string primaryAccount_id = null;
+			string primaryAccount_Password = null;
+
+			var account = GetPrimaryAccount();
+			if (account != null)
+			{
+				primaryAccount_id = account.Item1;
+				primaryAccount_Password = account.Item2;
+			}
+
+			if (String.IsNullOrWhiteSpace(primaryAccount_id) || String.IsNullOrWhiteSpace(primaryAccount_Password))
 			{
 				return NiconicoSignInStatus.Failed;
 			}
 
-			if (CurrentAccount.IsValidMailOreTelephone && CurrentAccount.IsValidPassword)
-			{
-				return await SignIn(CurrentAccount.MailOrTelephone, CurrentAccount.Password);
-			}
-			else
-			{
-				return NiconicoSignInStatus.Failed;
-			}
+			
+			return await SignIn(primaryAccount_id, primaryAccount_Password);
 		}
 
 		/// <summary>
@@ -688,9 +764,6 @@ namespace NicoPlayerHohoema.Models
 		public const string HohoemaUserAgent = "Hohoema_UWP";
 
 		public IEventAggregator EventAggregator { get; private set; }
-
-		const string RECENT_LOGIN_ACCOUNT = "recent_login_account";
-		public AccountSettings CurrentAccount { get; private set; }
 
 
 		public BackgroundUpdater BackgroundUpdater { get; private set; }

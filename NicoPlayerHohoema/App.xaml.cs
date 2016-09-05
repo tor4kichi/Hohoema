@@ -136,7 +136,16 @@ namespace NicoPlayerHohoema
 				Microsoft.Toolkit.Uwp.UI.ImageCache.CacheDuration = TimeSpan.FromHours(24);
 
 				var pm = Container.Resolve<PageManager>();
-				pm.OpenPage(HohoemaPageType.Login, true /* Enable auto login */);
+
+//				var hohoemaApp = Container.Resolve<HohoemaApp>();
+//				if (HohoemaApp.HasPrimaryAccount())
+//				{
+//					pm.OpenPage(HohoemaPageType.Portal);
+//				}
+//				else
+				{
+					pm.OpenPage(HohoemaPageType.Login, true /* Enable auto login */);
+				}
 			}
 
 			return Task.CompletedTask;

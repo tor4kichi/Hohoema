@@ -155,7 +155,7 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					if (!await CheckSignIn())
 					{
-						var result = await HohoemaApp.SignInToRecentLoginUserAccount();
+						var result = await HohoemaApp.SignInWithPrimaryAccount();
 
 						if (result != Mntone.Nico2.NiconicoSignInStatus.Success)
 						{
@@ -186,7 +186,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				if (!await CheckSignIn())
 				{
-					var result = await HohoemaApp.SignInToRecentLoginUserAccount();
+					var result = await HohoemaApp.SignInWithPrimaryAccount();
 
 					if (result != Mntone.Nico2.NiconicoSignInStatus.Success)
 					{
