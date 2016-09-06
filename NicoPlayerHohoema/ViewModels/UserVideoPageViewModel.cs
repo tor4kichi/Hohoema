@@ -130,7 +130,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			User = await ContentFinder.GetUserDetail(UserId.ToString());
 
-			await SchedulePreloading(0, 10);
+//			await SchedulePreloading(0, 10);
 
 			return (int)User.TotalVideoCount;
 		}
@@ -165,7 +165,7 @@ namespace NicoPlayerHohoema.ViewModels
 				Debug.WriteLine(ex.Message);
 			}
 
-			await SchedulePreloading((int)(head + count - 1), (int)count);
+//			await SchedulePreloading((int)(head + count - 1), (int)count);
 
 			return list;
 		}
@@ -192,7 +192,7 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					if (!HohoemaApp.IsLoggedIn) { return; }
 
-					await HohoemaApp.MediaManager.EnsureNicoVideoObjectAsync(item.VideoId);
+					await HohoemaApp.MediaManager.GetNicoVideoAsync(item.VideoId);
 				}
 			}
 			catch  { }

@@ -153,33 +153,34 @@ namespace NicoPlayerHohoema.Models
 				CacheState = null;
 			}
 
-
 			IsCacheRequested = _Context.CheckCacheRequested(this.RawVideoId, Quality);
 
-			var existVideo = await ExistVideo();
-			if (existVideo
-				&& (Progress.CheckComplete()))
+			if (IsCacheRequested)
 			{
-				CacheState = NicoVideoCacheState.Cached;
-			}
-			else if (_Context.CheckVideoDownloading(this.RawVideoId, Quality))
-			{
-				CacheState = NicoVideoCacheState.NowDownloading;
-			}
-			else if (existVideo)
-			{
-				CacheState = NicoVideoCacheState.CacheProgress;
-			}
-			else // if (NicoVideoCachedStream.ExistIncompleteOriginalQuorityVideo(CachedWatchApiResponse, saveFolder))
-			{
-				CacheState = null;
-			}
+				var existVideo = await ExistVideo();
+				if (existVideo
+					&& (Progress.CheckComplete()))
+				{
+					CacheState = NicoVideoCacheState.Cached;
+				}
+				else if (_Context.CheckVideoDownloading(this.RawVideoId, Quality))
+				{
+					CacheState = NicoVideoCacheState.NowDownloading;
+				}
+				else if (existVideo)
+				{
+					CacheState = NicoVideoCacheState.CacheProgress;
+				}
+				else // if (NicoVideoCachedStream.ExistIncompleteOriginalQuorityVideo(CachedWatchApiResponse, saveFolder))
+				{
+					CacheState = null;
+				}
 
-
-			OnPropertyChanged(nameof(CanRequestDownload));
-			OnPropertyChanged(nameof(CanPlay));
-			OnPropertyChanged(nameof(IsCached));
-			OnPropertyChanged(nameof(CanPlay));
+				OnPropertyChanged(nameof(CanRequestDownload));
+				OnPropertyChanged(nameof(CanPlay));
+				OnPropertyChanged(nameof(IsCached));
+				OnPropertyChanged(nameof(CanPlay));
+			}
 		}
 
 
@@ -398,7 +399,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			get
 			{
-				return NicoVideo.Info.LowSize;
+				return NicoVideo.SizeLow;
 			}
 		}
 
@@ -423,7 +424,7 @@ namespace NicoPlayerHohoema.Models
 				// キャッシュ済みじゃないか
 				if (CacheState == NicoVideoCacheState.Cached) { return false; }
 
-				if (NicoVideo.Info.MovieType != Mntone.Nico2.Videos.Thumbnail.MovieType.Mp4)
+				if (NicoVideo.ContentType != Mntone.Nico2.Videos.Thumbnail.MovieType.Mp4)
 				{
 					return false;
 				}
@@ -478,7 +479,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			get
 			{
-				return NicoVideo.Info.HighSize;
+				return NicoVideo.SizeHigh;
 			}
 		}
 
@@ -501,7 +502,7 @@ namespace NicoPlayerHohoema.Models
 				// キャッシュ済みじゃないか
 				if (CacheState == NicoVideoCacheState.Cached) { return false; }
 
-				if (NicoVideo.Info.MovieType != Mntone.Nico2.Videos.Thumbnail.MovieType.Mp4)
+				if (NicoVideo.ContentType != Mntone.Nico2.Videos.Thumbnail.MovieType.Mp4)
 				{
 					return false;
 				}

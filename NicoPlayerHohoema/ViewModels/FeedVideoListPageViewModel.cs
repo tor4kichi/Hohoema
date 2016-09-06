@@ -140,7 +140,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			await _FeedGroup.Refresh();
 
-			await SchedulePreloading(0, 20);
+//			await SchedulePreloading(0, 10);
 
 			return _FeedGroup.FeedItems.Count;
 		}
@@ -161,7 +161,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				if (!_HohoemaApp.IsLoggedIn) { return; }
 
-				await _HohoemaApp.MediaManager.EnsureNicoVideoObjectAsync(item.VideoId);
+				await _HohoemaApp.MediaManager.GetNicoVideoAsync(item.VideoId);
 			}
 		}
 
@@ -186,7 +186,7 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 			}
 
-			await SchedulePreloading(head + count, count);
+//			await SchedulePreloading(head + count, count);
 
 			return list;
 		}

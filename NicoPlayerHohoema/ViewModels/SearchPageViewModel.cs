@@ -460,7 +460,7 @@ namespace NicoPlayerHohoema.ViewModels
 				totalCount = (int)res.GetTotalCount();
 			}
 
-			await SchedulePreloading(0, OneTimeLoadSearchItemCount);
+//			await SchedulePreloading(0, OneTimeLoadSearchItemCount);
 
 			return totalCount;
 		}
@@ -480,7 +480,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			foreach (var item in res.VideoInfoItems)
 			{
-				await _HohoemaApp.MediaManager.EnsureNicoVideoObjectAsync(item.Video.Id);
+				await _HohoemaApp.MediaManager.GetNicoVideoAsync(item.Video.Id);
 			}
 		}
 
@@ -536,7 +536,7 @@ namespace NicoPlayerHohoema.ViewModels
 					items.Add(videoInfoVM);
 				}
 
-				await SchedulePreloading(head + count, count);
+//				await SchedulePreloading(head + count, count);
 			}
 
 

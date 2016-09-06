@@ -125,7 +125,7 @@ namespace NicoPlayerHohoema.ViewModels
 			
 
 
-			PrivateReasonText = nicoVideo.Info.PrivateReasonType.ToString() ?? "";
+			PrivateReasonText = nicoVideo.PrivateReasonType.ToString() ?? "";
 			IsRequireConfirmDelete = new ReactiveProperty<bool>(nicoVideo.IsRequireConfirmDelete);
 			IsForceDisplayNGVideo = true;
 		}
