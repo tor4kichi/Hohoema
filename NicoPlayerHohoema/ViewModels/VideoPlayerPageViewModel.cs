@@ -1057,11 +1057,11 @@ namespace NicoPlayerHohoema.ViewModels
 					IsNotSupportVideoType = true;
 					CannotPlayReason = videoInfo.ProtocolType.ToString() + " はHohoemaでサポートされないデータ通信形式です";
 				}
-				else if (videoInfo.Info.MovieType != MovieType.Mp4)
+				else if (videoInfo.ContentType != MovieType.Mp4)
 				{
 					// サポートしていない動画タイプです
 					IsNotSupportVideoType = true;
-					CannotPlayReason = videoInfo.Info.MovieType.ToString() + " はHohoemaでサポートされない動画形式です";
+					CannotPlayReason = videoInfo.ContentType.ToString() + " はHohoemaでサポートされない動画形式です";
 				}
 				else
 				{
@@ -1180,7 +1180,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			_SidePaneContentCache.Clear();
 
-			_VideoDescriptionHtmlUri = await VideoDescriptionHelper.PartHtmlOutputToCompletlyHtml(VideoId, Video.Info.DescriptionWithHtml);
+			_VideoDescriptionHtmlUri = await VideoDescriptionHelper.PartHtmlOutputToCompletlyHtml(VideoId, Video.DescriptionWithHtml);
 
 			if (SelectedSidePaneType.Value == MediaInfoDisplayType.Summary)
 			{
@@ -1352,7 +1352,7 @@ namespace NicoPlayerHohoema.ViewModels
 						break;
 
 					case MediaInfoDisplayType.Mylist:
-						vm = new MylistVideoInfoContentViewModel(VideoId, Video.Info.ThreadId, HohoemaApp.UserMylistManager);
+						vm = new MylistVideoInfoContentViewModel(VideoId, Video.ThreadId, HohoemaApp.UserMylistManager);
 						break;
 
 					case MediaInfoDisplayType.Comment:

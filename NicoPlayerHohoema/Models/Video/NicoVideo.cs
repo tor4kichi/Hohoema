@@ -52,18 +52,16 @@ namespace NicoPlayerHohoema.Models
 
 		private async Task Initialize()
 		{
-			Info = await VideoInfoDb.GetEnsureNicoVideoInfoAsync(RawVideoId);
-
-			if (Info.IsDeleted) { return; }
-
 			if (Util.InternetConnection.IsInternet())
 			{
 				await UpdateWithThumbnail();
+			}
+			else
+			{
 
-				Info = await VideoInfoDb.GetEnsureNicoVideoInfoAsync(RawVideoId);
 			}
 
-			if (false == Info.IsDeleted)
+			if (false == IsDeleted)
 			{
 				await OriginalQuality.SetupDownloadProgress();
 				await LowQuality.SetupDownloadProgress();
@@ -75,8 +73,6 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task CheckCacheStatus()
 		{
-			var saveFolder = _Context.VideoSaveFolder;
-
 			await OriginalQuality.CheckCacheStatus();
 			await LowQuality.CheckCacheStatus();
 		}
@@ -113,13 +109,41 @@ namespace NicoPlayerHohoema.Models
 
 		
 
-		private Task UpdateWithThumbnail()
+		private async Task UpdateWithThumbnail()
 		{
 			// 動画のサムネイル情報にアクセスさせて、アプリ内部DBを更新
-			return HohoemaApp.ContentFinder.GetThumbnailResponse(RawVideoId);
+			try
+			{
+				var res = await HohoemaApp.ContentFinder.GetThumbnailResponse(RawVideoId);
+
+				this.VideoId = res.Id;
+				this.VideoLength = res.Length;
+				this.SizeLow = (uint)res.SizeLow;
+				this.SizeHigh = (uint)res.SizeHigh;
+				this.Title = res.Title;
+				this.VideoOwnerId = res.UserId;
+				this.ContentType = res.MovieType;
+				this.PostedAt = res.PostedAt.DateTime;
+				this.Tags = res.Tags.Value.ToList();
+				this.ViewCount = res.ViewCount;
+				this.MylistCount = res.MylistCount;
+				this.CommentCount = res.CommentCount;
+				this.ThumbnailUrl = res.ThumbnailUrl.AbsoluteUri;
+			}
+			catch (Exception e) when (e.Message.Contains("delete"))
+			{
+				this.IsDeleted = true;
+				await DeletedTeardown();
+			}
+
+			if (!this.IsDeleted && OriginalQuality.IsCacheRequested || LowQuality.IsCacheRequested)
+			{
+				// キャッシュ情報を最新の状態に更新
+				await OnCacheRequested();
+			}
 		}
 
-		
+
 
 		// 動画情報のキャッシュまたはオンラインからの取得と更新
 
@@ -131,7 +155,6 @@ namespace NicoPlayerHohoema.Models
 		private async Task<WatchApiResponse> GetWatchApiResponse(bool forceLoqQuality = false)
 		{
 			WatchApiResponse watchApiRes = null;
-
 
 			try
 			{
@@ -157,9 +180,17 @@ namespace NicoPlayerHohoema.Models
 				CachedWatchApiResponse = watchApiRes;
 
 				ProtocolType = MediaProtocolTypeHelper.ParseMediaProtocolType(watchApiRes.VideoUrl);
-			}
 
-			Info = await VideoInfoDb.GetAsync(RawVideoId);
+				DescriptionWithHtml = watchApiRes.videoDetail.description;
+				ThreadId = watchApiRes.ThreadId.ToString();
+				PrivateReasonType = watchApiRes.PrivateReason;
+
+				this.IsDeleted = watchApiRes.IsDeleted;
+				if (IsDeleted)
+				{
+					await DeletedTeardown();
+				}
+			}
 
 			return watchApiRes;
 		}
@@ -244,8 +275,9 @@ namespace NicoPlayerHohoema.Models
 			// キャッシュリクエストされている場合このタイミングでコメントを取得
 			if (_Context.CheckCacheRequested(RawVideoId, quality))
 			{
-				var commentRes = await GetCommentResponse();
-				CommentDb.AddOrUpdate(RawVideoId, commentRes);
+				await OnCacheRequested();
+//				var commentRes = await GetCommentResponse();
+//				CommentDb.AddOrUpdate(RawVideoId, commentRes);
 			}
 		}
 		
@@ -296,6 +328,16 @@ namespace NicoPlayerHohoema.Models
 				await CancelCacheRequest(NicoVideoQuality.Low);
 				await CancelCacheRequest(NicoVideoQuality.Original);
 			}
+
+
+			if (!OriginalQuality.IsCacheRequested 
+				&& !LowQuality.IsCacheRequested)
+			{
+				var info = await VideoInfoDb.GetEnsureNicoVideoInfoAsync(RawVideoId);
+				await VideoInfoDb.RemoveAsync(info);
+
+				CommentDb.Remove(RawVideoId);
+			}
 		}
 
 
@@ -338,6 +380,24 @@ namespace NicoPlayerHohoema.Models
 				var commentRes = await GetCommentResponse();
 				CommentDb.AddOrUpdate(RawVideoId, commentRes);
 			}
+
+			var info = await VideoInfoDb.GetEnsureNicoVideoInfoAsync(RawVideoId);
+
+			info.VideoId = this.VideoId;
+			info.Length = this.VideoLength;
+			info.LowSize = (uint)this.SizeLow;
+			info.HighSize = (uint)this.SizeHigh;
+			info.Title = this.Title;
+			info.UserId = this.VideoOwnerId;
+			info.MovieType = this.ContentType;
+			info.PostedAt = this.PostedAt;
+			info.SetTags(this.Tags);
+			info.ViewCount = this.ViewCount;
+			info.MylistCount = this.MylistCount;
+			info.CommentCount = this.CommentCount;
+			info.ThumbnailUrl = this.ThumbnailUrl;
+
+			await VideoInfoDb.UpdateAsync(info);
 		}
 
 
@@ -353,6 +413,7 @@ namespace NicoPlayerHohoema.Models
 			await LowQuality.DeletedTeardown();
 
 			CommentDb.Remove(RawVideoId);
+			VideoInfoDb.Deleted(RawVideoId);
 		}
 
 
@@ -369,37 +430,38 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public NGResult CheckUserNGVideo(NicoVideoInfo info)
+		public NGResult CheckUserNGVideo()
 		{
-			return HohoemaApp.UserSettings?.NGSettings.IsNgVideo(info);
+			return HohoemaApp.UserSettings?.NGSettings.IsNgVideo(this);
 		}
 
 
 		public string RawVideoId { get; private set; }
+		public string VideoId { get; private set; }
+
+		public bool IsDeleted { get; private set; }
+
+		public MovieType ContentType { get; private set; }
+		public string Title { get; private set; }
+		public TimeSpan VideoLength { get; private set; }
+		public DateTime PostedAt { get; private set; }
+		public uint VideoOwnerId { get; private set; }
+		public bool IsOriginalQualityOnly => SizeLow == 0;
+		public List<Tag> Tags { get; private set; }
+		public uint SizeLow { get; private set; }
+		public uint SizeHigh { get; private set; }
+		public uint ViewCount { get; internal set; }
+		public uint CommentCount { get; internal set; }
+		public uint MylistCount { get; internal set; }
+		public string ThumbnailUrl { get; internal set; }
 
 		public string ThreadId { get; private set; }
-
-		public string VideoId => Info.VideoId;
-
-		public bool IsDeleted => Info.IsDeleted;
-
-
-		public MediaProtocolType ProtocolType { get; private set; }
-
-		public MovieType ContentType => Info.MovieType;
-
-
-
-		public string Title => Info.Title;
-
-		public TimeSpan VideoLength => Info.Length;
-
+		public string DescriptionWithHtml { get; private set; }
 		public bool NowLowQualityOnly { get; private set; }
+		public MediaProtocolType ProtocolType { get; private set; }
+		public PrivateReasonType PrivateReasonType { get; private set; } 
 
-		public bool IsOriginalQualityOnly => Info.LowSize == 0;
 
-
-		public uint VideoOwnerId => Info.UserId;
 
 
 		public bool IsNeedPayment { get; private set; }
@@ -422,7 +484,7 @@ namespace NicoPlayerHohoema.Models
 		
 
 
-		internal NicoVideoInfo Info { get; private set; }
+//		internal NicoVideoInfo Info { get; private set; }
 
 //		internal ThumbnailResponseCache ThumbnailResponseCache { get; private set; }
 //		internal WatchApiResponseCache WatchApiResponseCache { get; private set; }

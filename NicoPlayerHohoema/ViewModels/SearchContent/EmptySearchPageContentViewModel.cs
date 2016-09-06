@@ -103,7 +103,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public Task<IEnumerable<SearchHistoryListItem>> GetPagedItems(int head, int count)
 		{
-			var items = SearchHistoryDb.GetHistoryItems().Skip(head - 1).Take(count)
+			var items = SearchHistoryDb.GetHistoryItems().Skip(head).Take(count)
 				.Select(x => new SearchHistoryListItem(x, _SearchPageViewModel.OnSearchHistorySelected))
 				.ToArray();
 

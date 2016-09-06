@@ -31,11 +31,11 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public NGResult IsNgVideo(NicoVideoInfo info)
+		public NGResult IsNgVideo(NicoVideo info)
 		{
 			NGResult result = null;
 
-			result = IsNgVideoOwnerId(info.UserId.ToString());
+			result = IsNgVideoOwnerId(info.VideoOwnerId.ToString());
 			if (result != null) return result;
 
 			result = IsNGVideoId(info.RawVideoId);

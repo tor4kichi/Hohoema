@@ -251,7 +251,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			RankingRss = await NiconicoRanking.GetRankingData(_Target, _TimeSpan, _Category);
 
-			await SchedulePreloading(0, 5);
+//			await SchedulePreloading(0, 20);
 
 			return RankingRss.Channel.Items.Count;
 		}
@@ -274,7 +274,7 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					if (!_HohoemaApp.IsLoggedIn) { return; }
 
-					await _HohoemaApp.MediaManager.EnsureNicoVideoObjectAsync(item.GetVideoId());
+					await _HohoemaApp.MediaManager.GetNicoVideoAsync(item.GetVideoId());
 				}
 			}
 		}
@@ -319,7 +319,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			if (head < tail)
 			{
-				await SchedulePreloading(tail, 5);
+//				await SchedulePreloading(tail, 20);
 			}
 
 			return items;			

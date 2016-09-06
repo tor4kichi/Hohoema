@@ -40,22 +40,15 @@ namespace NicoPlayerHohoema.Models
 		public async Task<ThumbnailResponse> GetThumbnailResponse(string rawVideoId)
 		{
 			ThumbnailResponse res = null;
-			try
+		
+			res = await Util.ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
-				res = await Util.ConnectionRetryUtil.TaskWithRetry(async () =>
-				{
-					return await _HohoemaApp.NiconicoContext.Video.GetThumbnailAsync(rawVideoId);
-				});
-			}
-			catch (Exception e) when (e.Message.Contains("delete"))
-			{
-				VideoInfoDb.Deleted(rawVideoId);
-			}
+				return await _HohoemaApp.NiconicoContext.Video.GetThumbnailAsync(rawVideoId);
+			});
 
 			if (res != null)
 			{
 				await UserInfoDb.AddOrReplaceAsync(res.UserId.ToString(), res.UserName, res.UserIconUrl.AbsoluteUri);
-				await VideoInfoDb.UpdateWithThumbnailAsync(rawVideoId, res);
 			}
 
 			return res;
@@ -76,7 +69,6 @@ namespace NicoPlayerHohoema.Models
 			{
 				var uploaderInfo = res.UploaderInfo;
 				await UserInfoDb.AddOrReplaceAsync(uploaderInfo.id, uploaderInfo.nickname, uploaderInfo.icon_url);
-				await VideoInfoDb.UpdateWithWatchApiResponseAsync(rawVideoId, res);
 			}
 
 			return res;

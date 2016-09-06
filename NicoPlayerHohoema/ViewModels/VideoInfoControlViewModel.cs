@@ -97,28 +97,27 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactiveProperty()
 				.AddTo(_CompositeDisposable);
 
-			SetupFromThumbnail(nicoVideo.Info);
+			SetupFromThumbnail(nicoVideo);
 
 
 			IsForceDisplayNGVideo = false;
 			IsStillNotWatch = true;
 		}
 
-		private void SetupFromThumbnail(NicoVideoInfo info)
+		private void SetupFromThumbnail(NicoVideo info)
 		{
 			Title = info.Title;
 			ViewCount = info.ViewCount;
 			CommentCount = info.CommentCount;
 			MylistCount = info.MylistCount;
-			OwnerComment = info.Description;
 			PostAt = info.PostedAt;
 			ThumbnailImageUrl = IsNotGoodVideo ? null : info.ThumbnailUrl;
-			MovieLength = info.Length;
+			MovieLength = info.VideoLength;
 
 			VideoId = info.RawVideoId;
 
 			// NG判定
-			var ngResult = NicoVideo.CheckUserNGVideo(info);
+			var ngResult = NicoVideo.CheckUserNGVideo();
 			IsNotGoodVideo = ngResult != null;
 			NGVideoReason = ngResult?.GetReasonText() ?? "";
 

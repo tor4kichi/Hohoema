@@ -9,17 +9,17 @@ namespace NicoPlayerHohoema.Models.Db
 {
 	public static class CommentDb
 	{
-		public static void AddOrUpdate(string threadId, CommentResponse commentRes)
+		public static void AddOrUpdate(string rawVideoId, CommentResponse commentRes)
 		{
 			using (var db = new NicoVideoDbContext())
 			{
-				var comment = db.Comments.SingleOrDefault(x => x.ThreadId == threadId);
+				var comment = db.Comments.SingleOrDefault(x => x.ThreadId == rawVideoId);
 
 				if (comment == null)
 				{
 					comment = new NicoVideoComment()
 					{
-						ThreadId = threadId,
+						ThreadId = rawVideoId,
 						CommentCount = commentRes.GetCommentCount()
 					};
 
@@ -38,11 +38,11 @@ namespace NicoPlayerHohoema.Models.Db
 		}
 
 
-		public static void Remove(string threadId)
+		public static void Remove(string rawVideoId)
 		{
 			using (var db = new NicoVideoDbContext())
 			{
-				var comment = db.Comments.SingleOrDefault(x => x.ThreadId == threadId);
+				var comment = db.Comments.SingleOrDefault(x => x.ThreadId == rawVideoId);
 
 				db.Comments.Remove(comment);
 				db.SaveChanges();

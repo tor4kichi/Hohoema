@@ -46,13 +46,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 			cancelToken.ThrowIfCancellationRequested();
 
-			SubmitDate = NicoVideo.Info.PostedAt;
+			SubmitDate = NicoVideo.PostedAt;
 			OnPropertyChanged(nameof(SubmitDate));
 			Title = NicoVideo.Title;
 			OnPropertyChanged(nameof(Title));
 
 			Tags.Clear();
-			foreach (var tag in NicoVideo.Info.GetTags())
+			foreach (var tag in NicoVideo.Tags)
 			{
 				Tags.Add(tag.Value);
 			}

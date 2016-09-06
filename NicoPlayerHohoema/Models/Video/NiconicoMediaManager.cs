@@ -91,7 +91,7 @@ namespace NicoPlayerHohoema.Models
 
 			foreach (var cachedFile in cachedFiles)
 			{
-				await EnsureNicoVideoObjectAsync(cachedFile);
+				await GetNicoVideoAsync(cachedFile);
 
 				await Task.Delay(50);
 			}
@@ -101,18 +101,21 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<NicoVideo> GetNicoVideoAsync(string rawVideoId)
 		{
-			await EnsureNicoVideoObjectAsync(rawVideoId);
-
 			NicoVideo nicoVideo = null;
 			try
 			{
 				await _NicoVideoSemaphore.WaitAsync();
 
-				if (VideoIdToNicoVideo.ContainsKey(rawVideoId))
+				if (false == VideoIdToNicoVideo.ContainsKey(rawVideoId))
+				{
+					nicoVideo = await NicoVideo.Create(_HohoemaApp, rawVideoId, Context);
+
+					VideoIdToNicoVideo.Add(rawVideoId, nicoVideo);
+				}
+				else
 				{
 					nicoVideo = VideoIdToNicoVideo[rawVideoId];
 				}
-
 			}
 			finally
 			{
@@ -120,26 +123,6 @@ namespace NicoPlayerHohoema.Models
 			}
 
 			return nicoVideo;
-		}
-
-		public async Task EnsureNicoVideoObjectAsync(string rawVideoId)
-		{
-			try
-			{
-				await _NicoVideoSemaphore.WaitAsync();
-
-				if (false == VideoIdToNicoVideo.ContainsKey(rawVideoId))
-				{
-					var nicoVideo = await NicoVideo.Create(_HohoemaApp, rawVideoId, Context);
-
-					VideoIdToNicoVideo.Add(rawVideoId, nicoVideo);
-				}
-			}
-			finally
-			{
-				_NicoVideoSemaphore.Release();
-			}
-
 		}
 
 
@@ -232,7 +215,7 @@ namespace NicoPlayerHohoema.Models
 			}
 			else
 			{
-				return true;
+				return false;
 			}
 		}
 

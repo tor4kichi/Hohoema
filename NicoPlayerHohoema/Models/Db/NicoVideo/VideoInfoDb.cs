@@ -16,6 +16,40 @@ namespace NicoPlayerHohoema.Models.Db
 	{
 		public static readonly AsyncLock _AsyncLock = new AsyncLock();
 
+		public static void UpdateNicoVideoInfo(NicoVideoInfo info, ThumbnailResponse thumbnailRes)
+		{
+			info.VideoId = thumbnailRes.Id;
+			info.HighSize = (uint)thumbnailRes.SizeHigh;
+			info.LowSize = (uint)thumbnailRes.SizeLow;
+			info.Length = thumbnailRes.Length;
+			info.MovieType = thumbnailRes.MovieType;
+			info.PostedAt = thumbnailRes.PostedAt.DateTime;
+			info.UserId = thumbnailRes.UserId;
+			info.UserType = thumbnailRes.UserType;
+			info.Description = thumbnailRes.Description;
+			info.ThumbnailUrl = thumbnailRes.ThumbnailUrl.AbsoluteUri;
+
+			info.Title = thumbnailRes.Title;
+			info.ViewCount = thumbnailRes.ViewCount;
+			info.MylistCount = thumbnailRes.MylistCount;
+			info.CommentCount = thumbnailRes.CommentCount;
+			info.SetTags(thumbnailRes.Tags.Value.ToList());
+
+		}
+
+
+		public static void UpdateNicoVideoInfo(NicoVideoInfo info, WatchApiResponse watchApiRes)
+		{
+			info.DescriptionWithHtml = watchApiRes.videoDetail.description;
+
+			info.ThreadId = watchApiRes.ThreadId.ToString();
+			info.ViewCount = (uint)watchApiRes.videoDetail.viewCount.Value;
+			info.MylistCount = (uint)watchApiRes.videoDetail.mylistCount.Value;
+			info.ViewCount = (uint)watchApiRes.videoDetail.commentCount.Value;
+
+			info.PrivateReasonType = watchApiRes.PrivateReason;
+		}
+
 		public static IReadOnlyList<NicoVideoInfo> GetAll()
 		{
 			using (var db = new NicoVideoDbContext())
@@ -26,7 +60,6 @@ namespace NicoPlayerHohoema.Models.Db
 
 		public static async Task<NicoVideoInfo> GetEnsureNicoVideoInfoAsync(string rawVideoId)
 		{
-			using(var releaser = await _AsyncLock.LockAsync())
 			using (var db = new NicoVideoDbContext())
 			{
 				var info = db.VideoInfos.SingleOrDefault(x => x.RawVideoId == rawVideoId);
@@ -39,42 +72,22 @@ namespace NicoPlayerHohoema.Models.Db
 						LastUpdated = DateTime.Now
 					};
 
-					db.VideoInfos.Add(info);
-					db.SaveChanges();
+					using (var releaser = await _AsyncLock.LockAsync())
+					{
+						db.VideoInfos.Add(info);
+						await db.SaveChangesAsync();
+					}
 				}
 
 				return info;
 			}
 		}
 
-		public static async Task UpdateWithThumbnailAsync(string rawVideoId, ThumbnailResponse thumbnailRes)
+		public static async Task UpdateAsync(NicoVideoInfo info)
 		{
 			using (var releaser = await _AsyncLock.LockAsync())
 			using (var db = new NicoVideoDbContext())
 			{
-				var info = db.VideoInfos.SingleOrDefault(x => x.RawVideoId == rawVideoId);
-
-				if (info == null)
-				{
-					throw new Exception();
-				}
-
-				info.VideoId = thumbnailRes.Id;
-				info.HighSize = (uint)thumbnailRes.SizeHigh;
-				info.LowSize = (uint)thumbnailRes.SizeLow;
-				info.Length = thumbnailRes.Length;
-				info.MovieType = thumbnailRes.MovieType;
-				info.PostedAt = thumbnailRes.PostedAt.DateTime;
-				info.UserId = thumbnailRes.UserId;
-				info.UserType = thumbnailRes.UserType;
-				info.Description = thumbnailRes.Description;
-				info.ThumbnailUrl = thumbnailRes.ThumbnailUrl.AbsoluteUri;
-
-				info.Title = thumbnailRes.Title;
-				info.ViewCount = thumbnailRes.ViewCount;
-				info.MylistCount = thumbnailRes.MylistCount;
-				info.CommentCount = thumbnailRes.CommentCount;
-				info.SetTags(thumbnailRes.Tags.Value.ToList());
 				info.LastUpdated = DateTime.Now;
 
 				db.VideoInfos.Update(info);
@@ -83,35 +96,6 @@ namespace NicoPlayerHohoema.Models.Db
 			}
 		}
 
-
-		public static async Task UpdateWithWatchApiResponseAsync(string rawVideoId, WatchApiResponse res)
-		{
-			using (var releaser = await _AsyncLock.LockAsync())
-			using (var db = new NicoVideoDbContext())
-			{
-				var info = db.VideoInfos.SingleOrDefault(x => x.RawVideoId == rawVideoId);
-				
-				if (info == null)
-				{
-					throw new Exception();
-				}
-
-				info.DescriptionWithHtml = res.videoDetail.description;
-
-				info.ThreadId = res.ThreadId.ToString();
-				info.ViewCount = (uint)res.videoDetail.viewCount.Value;
-				info.MylistCount = (uint)res.videoDetail.mylistCount.Value;
-				info.ViewCount = (uint)res.videoDetail.commentCount.Value;
-
-				info.PrivateReasonType = res.PrivateReason;
-
-				info.LastUpdated = DateTime.Now;
-
-				db.VideoInfos.Update(info);
-
-				await db.SaveChangesAsync();
-			}
-		}
 
 
 		public static void Deleted(string rawVideoId)
@@ -163,7 +147,7 @@ namespace NicoPlayerHohoema.Models.Db
 			using (var releaser = await _AsyncLock.LockAsync())
 			using (var db = new NicoVideoDbContext())
 			{
-				db.Entry(nicoVideoInfo).State = EntityState.Deleted;
+				db.VideoInfos.Remove(nicoVideoInfo);
 				await db.SaveChangesAsync();
 			}
 		}

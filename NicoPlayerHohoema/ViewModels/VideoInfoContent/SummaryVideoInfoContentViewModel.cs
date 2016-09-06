@@ -24,19 +24,19 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 			
 			UserName = user.Name;
 			UserIconUrl = user.IconUri;
-			SubmitDate = nicoVideo.Info.PostedAt;
+			SubmitDate = nicoVideo.PostedAt;
 
 			//			UserName = response.UserName;
 
-			PlayCount = nicoVideo.Info.ViewCount;
-			CommentCount = nicoVideo.Info.CommentCount;
-			MylistCount = nicoVideo.Info.MylistCount;
+			PlayCount = nicoVideo.ViewCount;
+			CommentCount = nicoVideo.CommentCount;
+			MylistCount = nicoVideo.MylistCount;
 
 			
 			VideoDescriptionUri = descriptionHtmlUri;
 
 
-			Tags = nicoVideo.Info.GetTags()
+			Tags = nicoVideo.Tags
 				.Select(x => new TagViewModel(x, _PageManager))
 				.ToList();
 		}
