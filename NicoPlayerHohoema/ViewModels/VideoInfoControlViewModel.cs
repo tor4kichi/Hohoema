@@ -117,7 +117,7 @@ namespace NicoPlayerHohoema.ViewModels
 			VideoId = info.RawVideoId;
 
 			// NG判定
-			var ngResult = NicoVideo.CheckUserNGVideo(info);
+			var ngResult = NicoVideo.CheckUserNGVideo();
 			IsNotGoodVideo = ngResult != null;
 			NGVideoReason = ngResult?.GetReasonText() ?? "";
 

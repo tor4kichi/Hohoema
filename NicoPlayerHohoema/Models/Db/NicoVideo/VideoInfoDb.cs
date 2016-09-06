@@ -83,29 +83,11 @@ namespace NicoPlayerHohoema.Models.Db
 			}
 		}
 
-		public static async Task UpdateWithThumbnailAsync(NicoVideoInfo info, ThumbnailResponse thumbnailRes)
+		public static async Task UpdateAsync(NicoVideoInfo info)
 		{
 			using (var releaser = await _AsyncLock.LockAsync())
 			using (var db = new NicoVideoDbContext())
 			{
-				UpdateNicoVideoInfo(info, thumbnailRes);
-
-				db.VideoInfos.Update(info);
-
-				info.LastUpdated = DateTime.Now;
-
-				await db.SaveChangesAsync();
-			}
-		}
-
-
-		public static async Task UpdateWithWatchApiResponseAsync(NicoVideoInfo info, WatchApiResponse res)
-		{
-			using (var releaser = await _AsyncLock.LockAsync())
-			using (var db = new NicoVideoDbContext())
-			{
-				UpdateNicoVideoInfo(info, res);
-
 				info.LastUpdated = DateTime.Now;
 
 				db.VideoInfos.Update(info);
@@ -113,6 +95,7 @@ namespace NicoPlayerHohoema.Models.Db
 				await db.SaveChangesAsync();
 			}
 		}
+
 
 
 		public static void Deleted(string rawVideoId)
@@ -164,7 +147,7 @@ namespace NicoPlayerHohoema.Models.Db
 			using (var releaser = await _AsyncLock.LockAsync())
 			using (var db = new NicoVideoDbContext())
 			{
-				db.Entry(nicoVideoInfo).State = EntityState.Deleted;
+				db.VideoInfos.Remove(nicoVideoInfo);
 				await db.SaveChangesAsync();
 			}
 		}

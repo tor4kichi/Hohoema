@@ -215,7 +215,7 @@ namespace NicoPlayerHohoema.Models
 			}
 			else
 			{
-				return true;
+				return false;
 			}
 		}
 

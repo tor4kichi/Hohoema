@@ -181,6 +181,10 @@ namespace NicoPlayerHohoema.Models
 				OnPropertyChanged(nameof(IsCached));
 				OnPropertyChanged(nameof(CanPlay));
 			}
+			else
+			{
+				CacheState = null;
+			}
 		}
 
 

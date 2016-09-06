@@ -133,6 +133,13 @@ namespace NicoPlayerHohoema.Models
 			catch (Exception e) when (e.Message.Contains("delete"))
 			{
 				this.IsDeleted = true;
+				await DeletedTeardown();
+			}
+
+			if (!this.IsDeleted && OriginalQuality.IsCacheRequested || LowQuality.IsCacheRequested)
+			{
+				// キャッシュ情報を最新の状態に更新
+				await OnCacheRequested();
 			}
 		}
 
@@ -177,6 +184,12 @@ namespace NicoPlayerHohoema.Models
 				DescriptionWithHtml = watchApiRes.videoDetail.description;
 				ThreadId = watchApiRes.ThreadId.ToString();
 				PrivateReasonType = watchApiRes.PrivateReason;
+
+				this.IsDeleted = watchApiRes.IsDeleted;
+				if (IsDeleted)
+				{
+					await DeletedTeardown();
+				}
 			}
 
 			return watchApiRes;
@@ -262,8 +275,9 @@ namespace NicoPlayerHohoema.Models
 			// キャッシュリクエストされている場合このタイミングでコメントを取得
 			if (_Context.CheckCacheRequested(RawVideoId, quality))
 			{
-				var commentRes = await GetCommentResponse();
-				CommentDb.AddOrUpdate(RawVideoId, commentRes);
+				await OnCacheRequested();
+//				var commentRes = await GetCommentResponse();
+//				CommentDb.AddOrUpdate(RawVideoId, commentRes);
 			}
 		}
 		
@@ -314,6 +328,16 @@ namespace NicoPlayerHohoema.Models
 				await CancelCacheRequest(NicoVideoQuality.Low);
 				await CancelCacheRequest(NicoVideoQuality.Original);
 			}
+
+
+			if (!OriginalQuality.IsCacheRequested 
+				&& !LowQuality.IsCacheRequested)
+			{
+				var info = await VideoInfoDb.GetEnsureNicoVideoInfoAsync(RawVideoId);
+				await VideoInfoDb.RemoveAsync(info);
+
+				CommentDb.Remove(RawVideoId);
+			}
 		}
 
 
@@ -356,6 +380,24 @@ namespace NicoPlayerHohoema.Models
 				var commentRes = await GetCommentResponse();
 				CommentDb.AddOrUpdate(RawVideoId, commentRes);
 			}
+
+			var info = await VideoInfoDb.GetEnsureNicoVideoInfoAsync(RawVideoId);
+
+			info.VideoId = this.VideoId;
+			info.Length = this.VideoLength;
+			info.LowSize = (uint)this.SizeLow;
+			info.HighSize = (uint)this.SizeHigh;
+			info.Title = this.Title;
+			info.UserId = this.VideoOwnerId;
+			info.MovieType = this.ContentType;
+			info.PostedAt = this.PostedAt;
+			info.SetTags(this.Tags);
+			info.ViewCount = this.ViewCount;
+			info.MylistCount = this.MylistCount;
+			info.CommentCount = this.CommentCount;
+			info.ThumbnailUrl = this.ThumbnailUrl;
+
+			await VideoInfoDb.UpdateAsync(info);
 		}
 
 
@@ -371,6 +413,7 @@ namespace NicoPlayerHohoema.Models
 			await LowQuality.DeletedTeardown();
 
 			CommentDb.Remove(RawVideoId);
+			VideoInfoDb.Deleted(RawVideoId);
 		}
 
 
@@ -387,9 +430,9 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public NGResult CheckUserNGVideo(NicoVideo info)
+		public NGResult CheckUserNGVideo()
 		{
-			return HohoemaApp.UserSettings?.NGSettings.IsNgVideo(info);
+			return HohoemaApp.UserSettings?.NGSettings.IsNgVideo(this);
 		}
 
 
