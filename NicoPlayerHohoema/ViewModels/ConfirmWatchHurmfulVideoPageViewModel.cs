@@ -42,7 +42,7 @@ namespace NicoPlayerHohoema.ViewModels
 			VideoId = payload.VideoId;
 			Quality = payload.Quality;
 
-			NicoVideo = await HohoemaApp.MediaManager.GetNicoVideo(VideoId);
+			NicoVideo = await HohoemaApp.MediaManager.GetNicoVideoAsync(VideoId);
 
 			cancelToken.ThrowIfCancellationRequested();
 

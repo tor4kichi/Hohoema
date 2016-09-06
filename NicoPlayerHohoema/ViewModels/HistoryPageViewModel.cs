@@ -166,14 +166,12 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		public async Task<IEnumerable<HistoryVideoInfoControlViewModel>> GetPagedItems(uint pageIndex, uint pageSize)
+		public async Task<IEnumerable<HistoryVideoInfoControlViewModel>> GetPagedItems(int head, int count)
 		{
-			
-			var head = (int)pageIndex - 1;
 			var list = new List<HistoryVideoInfoControlViewModel>();
-			foreach (var history in _HistoriesResponse.Histories.Skip(head).Take((int)pageSize))
+			foreach (var history in _HistoriesResponse.Histories.Skip(head).Take((int)count))
 			{
-				var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(history.Id);
+				var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideoAsync(history.Id);
 				var vm = new HistoryVideoInfoControlViewModel(
 					history.WatchCount
 					, nicoVideo

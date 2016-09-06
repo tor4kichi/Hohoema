@@ -16,7 +16,7 @@ namespace NicoPlayerHohoema.Util
 	public interface IIncrementalSource<T>
 	{
 		Task<int> ResetSource();
-		Task<IEnumerable<T>> GetPagedItems(uint head, uint count);
+		Task<IEnumerable<T>> GetPagedItems(int head, int count);
 	}
 
 	public class IncrementalLoadingCollection<T, I> : ObservableCollection<I>,
@@ -40,7 +40,7 @@ namespace NicoPlayerHohoema.Util
 
 		private SemaphoreSlim _LoadingLock;
 
-		public IncrementalLoadingCollection(T source, uint itemsPerPage = 20, uint firstHeadPosition = 1)
+		public IncrementalLoadingCollection(T source, uint itemsPerPage = 20, uint firstHeadPosition = 0)
 		{
 			this._Source = source;
 			this._ItemsPerPage = itemsPerPage;
@@ -69,7 +69,7 @@ namespace NicoPlayerHohoema.Util
 					List<I> resultItems = null;
 					try
 					{
-						var items = await _Source.GetPagedItems(_Position, _ItemsPerPage);
+						var items = await _Source.GetPagedItems((int)_Position, (int)_ItemsPerPage);
 						resultItems = items?.ToList();
 					}
 					catch (Exception ex)

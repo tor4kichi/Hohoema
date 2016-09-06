@@ -251,7 +251,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			RankingRss = await NiconicoRanking.GetRankingData(_Target, _TimeSpan, _Category);
 
-			await SchedulePreloading(0, 10);
+			await SchedulePreloading(0, 5);
 
 			return RankingRss.Channel.Items.Count;
 		}
@@ -274,14 +274,14 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					if (!_HohoemaApp.IsLoggedIn) { return; }
 
-					await _HohoemaApp.MediaManager.GetNicoVideo(item.GetVideoId());
+					await _HohoemaApp.MediaManager.EnsureNicoVideoObjectAsync(item.GetVideoId());
 				}
 			}
 		}
 
 
 
-		public async Task<IEnumerable<RankedVideoInfoControlViewModel>> GetPagedItems(uint position, uint pageSize)
+		public async Task<IEnumerable<RankedVideoInfoControlViewModel>> GetPagedItems(int head, int count)
 		{
 			while(_HohoemaApp.MediaManager == null)
 			{
@@ -292,8 +292,7 @@ namespace NicoPlayerHohoema.ViewModels
 			var mediaManager = _HohoemaApp.MediaManager;
 
 
-			var head = (int)(position);
-			var tail = head + (int)pageSize;
+			var tail = Math.Min(head + count, 100);
 
 			List<RankedVideoInfoControlViewModel> items = new List<RankedVideoInfoControlViewModel>();
 			for (int i = head; i < tail; ++i)
@@ -305,12 +304,12 @@ namespace NicoPlayerHohoema.ViewModels
 					break;
 				}
 
-				var item = RankingRss.Channel.Items[rank-1];
-				var nicoVideo = await mediaManager.GetNicoVideo(item.GetVideoId());
+				var item = RankingRss.Channel.Items[rank];
+				var nicoVideo = await mediaManager.GetNicoVideoAsync(item.GetVideoId());
 
 
 				var vm = new RankedVideoInfoControlViewModel(
-					(uint)(rank)
+					(uint)(rank + 1)
 					, nicoVideo
 					, _PageManager
 				);
@@ -318,8 +317,10 @@ namespace NicoPlayerHohoema.ViewModels
 				items.Add(vm);
 			}
 
-			
-			await SchedulePreloading(tail - 1, 10);
+			if (head < tail)
+			{
+				await SchedulePreloading(tail, 5);
+			}
 
 			return items;			
 		}
@@ -356,24 +357,24 @@ namespace NicoPlayerHohoema.ViewModels
 			return (int)res.GetTotalCount();
 		}
 
-		public async Task<IEnumerable<RankedVideoInfoControlViewModel>> GetPagedItems(uint head, uint pageSize)
+		public async Task<IEnumerable<RankedVideoInfoControlViewModel>> GetPagedItems(int head, int count)
 		{
 			var contentFinder = _HohoemaApp.ContentFinder;
 			var mediaManager = _HohoemaApp.MediaManager;
 
-			var response = await _HohoemaApp.ContentFinder.GetKeywordSearch(_Parameter, head, pageSize, Sort.Popurarity);
+			var response = await _HohoemaApp.ContentFinder.GetKeywordSearch(_Parameter, (uint)head, (uint)count, Sort.Popurarity);
 
 
 			List<RankedVideoInfoControlViewModel> items = new List<RankedVideoInfoControlViewModel>();
 
-			var count = response.VideoInfoItems.Count();
-			for (int i = 0; i < count; ++i)
+			var itemCount = response.VideoInfoItems.Count();
+			for (int i = 0; i < itemCount; ++i)
 			{
 				var item = response.VideoInfoItems[i];
-				var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(item.Video.Id);
+				var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideoAsync(item.Video.Id);
 
 				var videoInfoVM = new RankedVideoInfoControlViewModel(
-					(uint)(i + 1)
+					(uint)(head + i + 1)
 					, nicoVideo
 					, _PageManager
 					);

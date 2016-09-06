@@ -207,7 +207,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			foreach (var req in mediaManager.CacheRequestedItemsStack.ToArray())
 			{
-				var item = await mediaManager.GetNicoVideo(req.RawVideoid);
+				var item = await mediaManager.GetNicoVideoAsync(req.RawVideoid);
 
 				await item.CheckCacheStatus();
 
@@ -228,10 +228,10 @@ namespace NicoPlayerHohoema.ViewModels
 			return RawList.Count;
 		}
 
-		public Task<IEnumerable<CacheVideoViewModel>> GetPagedItems(uint pageIndex, uint pageSize)
+		public Task<IEnumerable<CacheVideoViewModel>> GetPagedItems(int head, int count)
 		{
-			int head = (int)((pageIndex - 1) * pageSize);
-			return Task.FromResult(RawList.Skip(head).Take((int)pageSize));
+//			int head = (int)((head - 1) * count);
+			return Task.FromResult(RawList.Skip(head).Take((int)count));
 		}
 
 		private async Task<CacheVideoViewModel> ToCacheVideoViewModel(string videoId, NicoVideoQuality quality)
@@ -248,7 +248,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			var mediaManager = _HohoemaApp.MediaManager;
 
-			var nicoVideo = await mediaManager.GetNicoVideo(req.RawVideoid);
+			var nicoVideo = await mediaManager.GetNicoVideoAsync(req.RawVideoid);
 
 			var vm = new CacheVideoViewModel(nicoVideo, req.Quality, _PageManager);
 

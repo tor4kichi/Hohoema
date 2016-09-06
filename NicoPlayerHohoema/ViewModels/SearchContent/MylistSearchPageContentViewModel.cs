@@ -154,12 +154,18 @@ namespace NicoPlayerHohoema.ViewModels
 
 		
 
-		public async Task<IEnumerable<MylistSearchListingItem>> GetPagedItems(uint head, uint count)
+		public async Task<IEnumerable<MylistSearchListingItem>> GetPagedItems(int head, int count)
 		{
 			var items = new List<MylistSearchListingItem>();
 
 
-			var response = await _HohoemaApp.NiconicoContext.Search.MylistSearchAsync(SearchOption.Keyword, head, count, SearchOption.Sort, SearchOption.Order);
+			var response = await _HohoemaApp.NiconicoContext.Search.MylistSearchAsync(
+				SearchOption.Keyword
+				, (uint)head
+				, (uint)count
+				, SearchOption.Sort
+				, SearchOption.Order
+			);
 
 
 			foreach (var item in response.MylistGroupItems)

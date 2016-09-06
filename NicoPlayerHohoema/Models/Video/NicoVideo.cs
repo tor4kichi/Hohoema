@@ -52,7 +52,7 @@ namespace NicoPlayerHohoema.Models
 
 		private async Task Initialize()
 		{
-			Info = VideoInfoDb.GetEnsureNicoVideoInfo(RawVideoId);
+			Info = await VideoInfoDb.GetEnsureNicoVideoInfoAsync(RawVideoId);
 
 			if (Info.IsDeleted) { return; }
 
@@ -60,7 +60,7 @@ namespace NicoPlayerHohoema.Models
 			{
 				await UpdateWithThumbnail();
 
-				Info = VideoInfoDb.GetEnsureNicoVideoInfo(RawVideoId);
+				Info = await VideoInfoDb.GetEnsureNicoVideoInfoAsync(RawVideoId);
 			}
 
 			if (false == Info.IsDeleted)
@@ -158,6 +158,8 @@ namespace NicoPlayerHohoema.Models
 
 				ProtocolType = MediaProtocolTypeHelper.ParseMediaProtocolType(watchApiRes.VideoUrl);
 			}
+
+			Info = await VideoInfoDb.GetAsync(RawVideoId);
 
 			return watchApiRes;
 		}

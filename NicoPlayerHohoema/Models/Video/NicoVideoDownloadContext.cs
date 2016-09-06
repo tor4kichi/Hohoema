@@ -339,7 +339,7 @@ namespace NicoPlayerHohoema.Models
 
 			foreach (var req in _MediaManager.CacheRequestedItemsStack)
 			{
-				var nicoVideo = await _MediaManager.GetNicoVideo(req.RawVideoid);
+				var nicoVideo = await _MediaManager.GetNicoVideoAsync(req.RawVideoid);
 
 				bool isCached = false;
 				switch (req.Quality)
@@ -464,7 +464,7 @@ namespace NicoPlayerHohoema.Models
 
 		private async Task<NicoVideoDownloader> CreateDownloader(string rawVideoid, NicoVideoQuality quality)
 		{
-			var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(rawVideoid).ConfigureAwait(false);
+			var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideoAsync(rawVideoid).ConfigureAwait(false);
 
 			return await CreateDownloader(nicoVideo, quality);
 		}

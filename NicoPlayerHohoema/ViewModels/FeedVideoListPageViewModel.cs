@@ -161,22 +161,21 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				if (!_HohoemaApp.IsLoggedIn) { return; }
 
-				await _HohoemaApp.MediaManager.GetNicoVideo(item.VideoId);
+				await _HohoemaApp.MediaManager.EnsureNicoVideoObjectAsync(item.VideoId);
 			}
 		}
 
-		public async Task<IEnumerable<FeedVideoInfoControlViewModel>> GetPagedItems(uint head, uint count)
+		public async Task<IEnumerable<FeedVideoInfoControlViewModel>> GetPagedItems(int head, int count)
 		{
 			var list = new List<FeedVideoInfoControlViewModel>();
 
-			var realHead = (int)head - 1;
-			var currentItems = _FeedGroup.FeedItems.Skip((int)head - 1).Take((int)count).ToList();
+			var currentItems = _FeedGroup.FeedItems.Skip(head).Take(count).ToList();
 
 			foreach (var feed in currentItems)
 			{
 				try
 				{
-					var nicoVideo = await _NiconicoMediaManager.GetNicoVideo(feed.VideoId);
+					var nicoVideo = await _NiconicoMediaManager.GetNicoVideoAsync(feed.VideoId);
 					var vm = new FeedVideoInfoControlViewModel(feed, _FeedGroup, nicoVideo, _PageManager);
 
 					list.Add(vm);
@@ -187,7 +186,7 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 			}
 
-			await SchedulePreloading(realHead + (int)count, (int)count);
+			await SchedulePreloading(head + count, count);
 
 			return list;
 		}

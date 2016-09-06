@@ -35,7 +35,6 @@ namespace NicoPlayerHohoema.Models.Db
 		{
 			using (var db = new NicoVideoDbContext())
 			{
-				await db.Database.MigrateAsync();
 				await db.Database.EnsureCreatedAsync();
 			}
 		}

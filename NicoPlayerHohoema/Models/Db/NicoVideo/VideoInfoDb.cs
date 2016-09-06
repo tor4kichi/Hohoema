@@ -24,8 +24,9 @@ namespace NicoPlayerHohoema.Models.Db
 			}
 		}
 
-		public static NicoVideoInfo GetEnsureNicoVideoInfo(string rawVideoId)
+		public static async Task<NicoVideoInfo> GetEnsureNicoVideoInfoAsync(string rawVideoId)
 		{
+			using(var releaser = await _AsyncLock.LockAsync())
 			using (var db = new NicoVideoDbContext())
 			{
 				var info = db.VideoInfos.SingleOrDefault(x => x.RawVideoId == rawVideoId);
