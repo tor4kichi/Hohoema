@@ -159,6 +159,8 @@ namespace NicoPlayerHohoema.Models
 				ProtocolType = MediaProtocolTypeHelper.ParseMediaProtocolType(watchApiRes.VideoUrl);
 			}
 
+			Info = await VideoInfoDb.GetAsync(RawVideoId);
+
 			return watchApiRes;
 		}
 

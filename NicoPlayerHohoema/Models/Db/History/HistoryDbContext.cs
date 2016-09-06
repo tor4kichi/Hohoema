@@ -33,7 +33,6 @@ namespace NicoPlayerHohoema.Models.Db
 			using (var db = new HistoryDbContext())
 			{
 				await db.Database.EnsureCreatedAsync();
-				await db.Database.MigrateAsync();
 			}
 		}
 	}
