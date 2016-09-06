@@ -216,7 +216,7 @@ namespace NicoPlayerHohoema.ViewModels
 				var userVideos = await HohoemaApp.ContentFinder.GetUserVideos(uint.Parse(UserId), 1);
 				foreach (var item in userVideos.Items.Take(5))
 				{
-					var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideo(item.VideoId);
+					var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideoAsync(item.VideoId);
 					VideoInfoItems.Add(new VideoInfoControlViewModel(nicoVideo, PageManager));
 				}
 			}

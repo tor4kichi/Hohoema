@@ -71,7 +71,7 @@ namespace NicoPlayerHohoema.Models
 			var list = await LoadDownloadRequestItems();
 			foreach (var req in list)
 			{
-				var nicoVideo = await GetNicoVideo(req.RawVideoid);
+				var nicoVideo = await GetNicoVideoAsync(req.RawVideoid);
 				_CacheRequestedItemsStack.Add(req);
 				await nicoVideo.CheckCacheStatus();
 				Debug.Write(".");
@@ -91,7 +91,7 @@ namespace NicoPlayerHohoema.Models
 
 			foreach (var cachedFile in cachedFiles)
 			{
-				await GetNicoVideo(cachedFile);
+				await EnsureNicoVideoObjectAsync(cachedFile);
 
 				await Task.Delay(50);
 			}
@@ -99,8 +99,10 @@ namespace NicoPlayerHohoema.Models
 
 		}
 
-		public async Task<NicoVideo> GetNicoVideo(string rawVideoId)
+		public async Task<NicoVideo> GetNicoVideoAsync(string rawVideoId)
 		{
+			await EnsureNicoVideoObjectAsync(rawVideoId);
+
 			NicoVideo nicoVideo = null;
 			try
 			{
@@ -117,28 +119,28 @@ namespace NicoPlayerHohoema.Models
 				_NicoVideoSemaphore.Release();
 			}
 
-			if (nicoVideo == null)
-			{
-				nicoVideo = await NicoVideo.Create(_HohoemaApp, rawVideoId, Context);
-
-				try
-				{
-					await _NicoVideoSemaphore.WaitAsync();
-
-					if (!VideoIdToNicoVideo.ContainsKey(rawVideoId))
-					{
-						VideoIdToNicoVideo.Add(rawVideoId, nicoVideo);
-					}
-				}
-				finally
-				{
-					_NicoVideoSemaphore.Release();
-				}
-			}
-
 			return nicoVideo;
 		}
 
+		public async Task EnsureNicoVideoObjectAsync(string rawVideoId)
+		{
+			try
+			{
+				await _NicoVideoSemaphore.WaitAsync();
+
+				if (false == VideoIdToNicoVideo.ContainsKey(rawVideoId))
+				{
+					var nicoVideo = await NicoVideo.Create(_HohoemaApp, rawVideoId, Context);
+
+					VideoIdToNicoVideo.Add(rawVideoId, nicoVideo);
+				}
+			}
+			finally
+			{
+				_NicoVideoSemaphore.Release();
+			}
+
+		}
 
 
 		public void Dispose()
@@ -170,7 +172,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			foreach (var req in _CacheRequestedItemsStack)
 			{
-				var nicoVideo = await GetNicoVideo(req.RawVideoid);
+				var nicoVideo = await GetNicoVideoAsync(req.RawVideoid);
 
 				await nicoVideo.CheckCacheStatus();
 

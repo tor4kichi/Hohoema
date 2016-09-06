@@ -136,7 +136,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		public async Task<IEnumerable<VideoInfoControlViewModel>> GetPagedItems(uint head, uint count)
+		public async Task<IEnumerable<VideoInfoControlViewModel>> GetPagedItems(int head, int count)
 		{
 			if (User.TotalVideoCount < head)
 			{
@@ -145,8 +145,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 			var list = new List<VideoInfoControlViewModel>();
-			var page = ((head - 1) / 30) + 1;
-			var realHead = head - 1 - ((page - 1) * 30);
+			uint page = (uint)(head / 30) + 1;
+			var realHead = head - ((page - 1) * 30);
 
 			try
 			{
@@ -154,7 +154,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 				foreach (var item in res.Items.Skip((int)realHead).Take((int)count))
 				{
-					var nicoVideo = await MediaManager.GetNicoVideo(item.VideoId);
+					var nicoVideo = await MediaManager.GetNicoVideoAsync(item.VideoId);
 					var vm = new VideoInfoControlViewModel(nicoVideo, PageManager);
 
 					list.Add(vm);
@@ -192,7 +192,7 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					if (!HohoemaApp.IsLoggedIn) { return; }
 
-					await HohoemaApp.MediaManager.GetNicoVideo(item.VideoId);
+					await HohoemaApp.MediaManager.EnsureNicoVideoObjectAsync(item.VideoId);
 				}
 			}
 			catch  { }

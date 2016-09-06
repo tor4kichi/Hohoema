@@ -996,7 +996,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			try
 			{
-				var videoInfo = await HohoemaApp.MediaManager.GetNicoVideo(VideoId);
+				var videoInfo = await HohoemaApp.MediaManager.GetNicoVideoAsync(VideoId);
 
 				// 内部状態を更新
 				await videoInfo.VisitWatchPage();
