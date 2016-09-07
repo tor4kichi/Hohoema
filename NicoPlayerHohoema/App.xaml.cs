@@ -227,6 +227,7 @@ namespace NicoPlayerHohoema
 			Container.RegisterInstance(new Views.Service.ToastNotificationService());
 			Container.RegisterInstance(new Views.Service.MylistRegistrationDialogService(hohoemaApp));
 			Container.RegisterInstance(new Views.Service.EditMylistGroupDialogService());
+			Container.RegisterInstance(new Views.Service.AcceptCacheUsaseDialogContext());
 
 			return Task.CompletedTask;
 		}

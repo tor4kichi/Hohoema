@@ -132,6 +132,13 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			base.OnNavigatedTo(e, viewModelState);
 
+
+			
+			// 再生中動画のキャッシュクリアの除外条件をクリア
+			HohoemaApp.MediaManager?.ClearPrevnetDeleteCacheOnPlayingVideo();
+
+
+
 			// サインインステータスチェック
 			_NavigatedToTaskCancelToken = new CancellationTokenSource();
 

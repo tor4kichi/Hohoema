@@ -179,6 +179,8 @@ namespace NicoPlayerHohoema.Models
 			{
 				CachedWatchApiResponse = watchApiRes;
 
+				VideoUrl = watchApiRes.VideoUrl;
+
 				ProtocolType = MediaProtocolTypeHelper.ParseMediaProtocolType(watchApiRes.VideoUrl);
 
 				DescriptionWithHtml = watchApiRes.videoDetail.description;
@@ -204,13 +206,20 @@ namespace NicoPlayerHohoema.Models
 		/// 動画ストリームの取得します
 		/// 他にダウンロードされているアイテムは強制的に一時停止し、再生終了後に再開されます
 		/// </summary>
-		public async Task<NicoVideoCachedStream> GetVideoStream(NicoVideoQuality quality)
+		public async Task<IRandomAccessStream> GetVideoStream(NicoVideoQuality quality)
 		{
 			IfVideoDeletedThrowException();
 
-			NicoVideoDownloader = await _Context.GetPlayingDownloader(this, quality);
+			if (await _Context.CanAccessVideoCacheFolder())
+			{
+				NicoVideoDownloader = await _Context.GetPlayingDownloader(this, quality);
 
-			NicoVideoCachedStream = new NicoVideoCachedStream(NicoVideoDownloader);
+				NicoVideoCachedStream = new NicoVideoCachedStream(NicoVideoDownloader);
+			}
+			else if (Util.InternetConnection.IsInternet())
+			{
+				NicoVideoCachedStream = await HttpRandomAccessStream.CreateAsync(HohoemaApp.NiconicoContext.HttpClient, VideoUrl);
+			}
 
 			return NicoVideoCachedStream;
 		}
@@ -455,6 +464,7 @@ namespace NicoPlayerHohoema.Models
 		public uint MylistCount { get; internal set; }
 		public string ThumbnailUrl { get; internal set; }
 
+		public Uri VideoUrl { get; private set; }
 		public string ThreadId { get; private set; }
 		public string DescriptionWithHtml { get; private set; }
 		public bool NowLowQualityOnly { get; private set; }
@@ -492,7 +502,7 @@ namespace NicoPlayerHohoema.Models
 
 		public NicoVideoDownloader NicoVideoDownloader { get; private set; }
 
-		public NicoVideoCachedStream NicoVideoCachedStream { get; private set; }
+		public IRandomAccessStream NicoVideoCachedStream { get; private set; }
 
 
 		private Dictionary<NicoVideoQuality, DividedQualityNicoVideo> _InterfaceByQuality;

@@ -23,11 +23,11 @@ namespace NicoPlayerHohoema.Models
 		public HohoemaApp HohoemaApp { get; private set; }
 
 
-		public FavInfoGroupBase(HohoemaApp hohoemaApp, List<FavInfo> items)
+		public FavInfoGroupBase(HohoemaApp hohoemaApp)
 		{
 			HohoemaApp = hohoemaApp;
 
-			_FavInfoList = new ObservableCollection<FavInfo>(items);
+			_FavInfoList = new ObservableCollection<FavInfo>();
 			FavInfoItems = new ReadOnlyObservableCollection<FavInfo>(_FavInfoList);
 		}
 

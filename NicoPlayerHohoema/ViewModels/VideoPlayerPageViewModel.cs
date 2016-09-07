@@ -547,6 +547,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 			var stream = await Video.GetVideoStream(x);
 
+			if (stream == null)
+			{
+				return;
+			}
 
 			if (IsDisposed)
 			{
@@ -572,16 +576,26 @@ namespace NicoPlayerHohoema.ViewModels
 					break;
 			}
 
-
-			stream.Downloader.OnCacheProgress += Downloader_OnCacheProgress;
-			_TempProgress = stream.Downloader.DownloadProgress.Clone();
-
-			ProgressFragments.Clear();
-			var invertedTotalSize = 1.0 / (x == NicoVideoQuality.Original ? Video.OriginalQuality.VideoSize : Video.LowQuality.VideoSize);
-			foreach (var cachedRange in _TempProgress.CachedRanges.ToArray())
+			if (stream is NicoVideoCachedStream)
 			{
-				ProgressFragments.Add(new ProgressFragment(invertedTotalSize, cachedRange.Key, cachedRange.Value));
+				// キャッシュ機能経由の再生
+				var cachedStream = stream as NicoVideoCachedStream;
+				cachedStream.Downloader.OnCacheProgress += Downloader_OnCacheProgress;
+				_TempProgress = cachedStream.Downloader.DownloadProgress.Clone();
+
+				ProgressFragments.Clear();
+				var invertedTotalSize = 1.0 / (x == NicoVideoQuality.Original ? Video.OriginalQuality.VideoSize : Video.LowQuality.VideoSize);
+				foreach (var cachedRange in _TempProgress.CachedRanges.ToArray())
+				{
+					ProgressFragments.Add(new ProgressFragment(invertedTotalSize, cachedRange.Key, cachedRange.Value));
+				}
 			}
+			else
+			{
+				// 完全なオンライン再生
+			}
+
+			
 		}
 
 		private void InitializeBufferingMonitor()

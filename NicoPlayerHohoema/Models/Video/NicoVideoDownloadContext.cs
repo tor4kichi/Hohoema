@@ -24,8 +24,6 @@ namespace NicoPlayerHohoema.Models
 			var context = new NicoVideoDownloadContext(hohoemaApp);
 			context._MediaManager = mediaMan;
 
-			context.VideoSaveFolder = await hohoemaApp.GetCurrentUserVideoDataFolder();
-
 			return context;
 		}
 
@@ -42,6 +40,17 @@ namespace NicoPlayerHohoema.Models
 
 			_StreamControlLock = new SemaphoreSlim(1, 1);
 			_ExternalAccessControlLock = new SemaphoreSlim(1, 1);
+		}
+
+
+		public Task<bool> CanAccessVideoCacheFolder()
+		{
+			return _HohoemaApp.CanAccessVideoCacheFolder();
+		}
+
+		public Task<StorageFolder> GetVideoCacheFolder()
+		{
+			return _HohoemaApp.GetVideoCacheFolder();
 		}
 
 
@@ -331,7 +340,12 @@ namespace NicoPlayerHohoema.Models
 				return false;
 			}
 
-			
+			if (false == await _HohoemaApp.CanAccessVideoCacheFolder())
+			{
+				Debug.WriteLine("ダウンロードキャッシュフォルダにアクセスできないのでDL処理をスキップ");
+				return false;
+			}
+
 			if (!_MediaManager.HasDownloadQueue)
 			{
 				return false;
@@ -598,8 +612,6 @@ namespace NicoPlayerHohoema.Models
 				SetProperty(ref _CurrentDownloader, value);
 			}
 		}
-
-		public StorageFolder VideoSaveFolder { get; private set; }
 
 		NiconicoMediaManager _MediaManager;
 		HohoemaApp _HohoemaApp;

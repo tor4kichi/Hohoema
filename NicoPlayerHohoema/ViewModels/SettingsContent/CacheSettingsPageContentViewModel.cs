@@ -19,27 +19,54 @@ namespace NicoPlayerHohoema.ViewModels
 	{
 		// Note: ログインしていない場合は利用できない
 
-		public CacheSettingsPageContentViewModel(HohoemaApp hohoemaApp, string title, EditAutoCacheConditionDialogService editDialogService)
+		public ReactiveProperty<bool> IsUserAcceptRegalNotice { get; private set; }
+		public ReactiveProperty<bool> IsAutoCacheOnPlayEnable { get; private set; }
+
+
+
+		public DelegateCommand ReadCacheAcceptTextCommand { get; private set; }
+		public DelegateCommand AddAutoCacheConditionCommand { get; private set; }
+		public DelegateCommand<AutoCacheConditionViewModel> EditAutoCacheConditionCommnad { get; private set; }
+
+		public ReadOnlyReactiveCollection<AutoCacheConditionViewModel> AutoCacheConditions { get; private set; }
+
+		public ReactiveProperty<string> CacheSaveFolderPath { get; private set; }
+		public DelegateCommand OpenCurrentCacheFolderCommand { get; private set; }
+		public ReactiveProperty<string> CacheFolderStateDescription { get; private set; }
+
+		public DelegateCommand ChangeCacheFolderCommand { get; private set; }
+
+		public ReactiveProperty<bool> IsEnableCache { get; private set; }
+		public ReactiveProperty<bool> IsCacheFolderSelectedButNotExist { get; private set; }
+		public DelegateCommand CheckExistCacheFolderCommand { get; private set; }
+
+		HohoemaApp _HohoemaApp;
+		CacheSettings _CacheSettings;
+		EditAutoCacheConditionDialogService _EditDialogService;
+		AcceptCacheUsaseDialogService _AcceptCacheUsaseDialogService;
+
+		public CacheSettingsPageContentViewModel(
+			HohoemaApp hohoemaApp
+			, string title
+			, EditAutoCacheConditionDialogService editDialogService
+			, AcceptCacheUsaseDialogService cacheConfirmDialogService
+			)
 			: base(title)
 		{
 			_HohoemaApp = hohoemaApp;
 			_CacheSettings = _HohoemaApp.UserSettings.CacheSettings;
 			_EditDialogService = editDialogService;
+			_AcceptCacheUsaseDialogService = cacheConfirmDialogService;
 
 			IsAutoCacheOnPlayEnable = _CacheSettings.ToReactivePropertyAsSynchronized(x => x.IsAutoCacheOnPlayEnable);
-				
 			IsUserAcceptRegalNotice = _CacheSettings.ToReactivePropertyAsSynchronized(x => x.IsUserAcceptedCache);
-			IsShowRegalNotice = new ReactiveProperty<bool>(!_CacheSettings.IsUserAcceptedCache);
+			IsCacheFolderSelectedButNotExist = new ReactiveProperty<bool>(false);
 
-			IsTempAcceptChecked = new ReactiveProperty<bool>(_CacheSettings.IsUserAcceptedCache);
-			AcceptCommand = IsTempAcceptChecked
-				.ToReactiveCommand();
-
-			AcceptCommand.Subscribe(_ => 
+			ReadCacheAcceptTextCommand = new DelegateCommand(async () =>
 			{
-				_CacheSettings.IsUserAcceptedCache = true;
-				IsShowRegalNotice.Value = false;
+				await cacheConfirmDialogService.ShowAcceptCacheTextDialog();
 			});
+
 
 			AddAutoCacheConditionCommand = new DelegateCommand(() => 
 			{
@@ -68,36 +95,107 @@ namespace NicoPlayerHohoema.ViewModels
 					await _CacheSettings.Save().ConfigureAwait(false);
 				});
 
+			CacheFolderStateDescription = new ReactiveProperty<string>("");
 			CacheSaveFolderPath = new ReactiveProperty<string>("");
 
 			OpenCurrentCacheFolderCommand = new DelegateCommand(async () =>
 			{
-				var folder = await _HohoemaApp.GetCurrentUserDataFolder();
+				await RefreshCacheSaveFolderStatus();
+
+				var folder = await _HohoemaApp.GetVideoCacheFolder();
 				if (folder != null)
 				{
 					await Launcher.LaunchFolderAsync(folder);
 				}
 			});
+
+			IsEnableCache = _HohoemaApp.UserSettings
+				.CacheSettings.ToReactivePropertyAsSynchronized(x => x.IsEnableCache);
+
+			IsEnableCache
+				.Where(x => x)
+				.Where(_ => false == _HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache)
+				.Subscribe(async x => 
+			{
+				// ユーザーがキャッシュ機能利用に対する承諾を行っていない場合に
+				// 確認のダイアログを表示する
+				var result = await _AcceptCacheUsaseDialogService.ShowConfirmAcceptCacheDialog();
+
+				if (result)
+				{
+					_HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache = true;
+
+					await RefreshCacheSaveFolderStatus();
+				}
+				else
+				{
+					IsEnableCache.Value = false;
+				}
+			});
+
+			IsEnableCache.Subscribe(async _ =>
+			{
+				await RefreshCacheSaveFolderStatus();
+			});
+
+			ChangeCacheFolderCommand = new DelegateCommand(async () => 
+			{
+				if (await _HohoemaApp.ChangeUserDataFolder())
+				{
+					await RefreshCacheSaveFolderStatus();
+				}
+			});
+
+			
 		}
 
 		public override async void OnEnter()
 		{
 			base.OnEnter();
-			await ResetCacheSaveFolderNameDisplay();
+			await RefreshCacheSaveFolderStatus();
 		}
 
-		private async Task ResetCacheSaveFolderNameDisplay()
+		public override void OnLeave()
 		{
-			var folder = await _HohoemaApp.GetCurrentUserDataFolder();
+			_CacheSettings.Save().ConfigureAwait(false);
+		}
 
+
+		private async Task RefreshCacheSaveFolderStatus()
+		{
+			var cacheFolderAccessState = await _HohoemaApp.GetVideoCacheFolderState();
+			
+			CacheSaveFolderPath.Value = "";
+			switch (cacheFolderAccessState)
+			{
+				case CacheFolderAccessState.NotAccepted:
+					CacheFolderStateDescription.Value = "キャッシュ利用の同意が必要です。 上の「キャッシュを有効にする」ボタンを押すと同意文書が表示されます。";
+					break;
+				case CacheFolderAccessState.NotEnabled:
+					CacheFolderStateDescription.Value = "キャッシュの有効化が必要です";
+					break;
+				case CacheFolderAccessState.NotSelected:
+					CacheFolderStateDescription.Value = "フォルダを選択するとキャッシュ機能が使えるようになります";
+					break;
+				case CacheFolderAccessState.SelectedButNotExist:
+					CacheFolderStateDescription.Value = "選択されたフォルダが確認できません。外付けストレージを再接続するか、キャッシュ先フォルダを再選択してください。";
+					CacheSaveFolderPath.Value = "?????";
+					break;
+				case CacheFolderAccessState.Exist:
+					CacheFolderStateDescription.Value = "キャッシュ利用の準備ができました";
+					break;
+				default:
+					break;
+			}
+
+			var folder = await _HohoemaApp.GetVideoCacheFolder();
 			if (folder != null)
 			{
-				CacheSaveFolderPath.Value = $".../Downloads/Hohoema/{folder.DisplayName}/";
+				CacheSaveFolderPath.Value = $"{folder.Path}";
 			}
-			else
-			{
-				throw new Exception("キャッシュ保存先フォルダがありません");
-			}
+
+
+			IsCacheFolderSelectedButNotExist.Value = cacheFolderAccessState == CacheFolderAccessState.SelectedButNotExist;
 		}
 
 		private async Task EditAutoCacheCondition(AutoCacheConditionViewModel conditionVM)
@@ -134,28 +232,8 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		public override void OnLeave()
-		{
-			_CacheSettings.Save().ConfigureAwait(false);
-		}
+		
 
-		public ReactiveProperty<bool> IsTempAcceptChecked { get; private set; }
-		public ReactiveProperty<bool> IsShowRegalNotice { get; private set; }
-		public ReactiveProperty<bool> IsUserAcceptRegalNotice { get; private set; }
-		public ReactiveProperty<bool> IsAutoCacheOnPlayEnable { get; private set; }
-
-		public ReactiveCommand AcceptCommand { get; private set; }
-		public DelegateCommand AddAutoCacheConditionCommand { get; private set; }
-		public DelegateCommand<AutoCacheConditionViewModel> EditAutoCacheConditionCommnad { get; private set; }
-
-		public ReadOnlyReactiveCollection<AutoCacheConditionViewModel> AutoCacheConditions { get; private set; }
-
-		public ReactiveProperty<string> CacheSaveFolderPath { get; private set; }
-		public DelegateCommand OpenCurrentCacheFolderCommand { get; private set; }
-
-		EditAutoCacheConditionDialogService _EditDialogService;
-		CacheSettings _CacheSettings;
-		HohoemaApp _HohoemaApp;
 	}
 
 

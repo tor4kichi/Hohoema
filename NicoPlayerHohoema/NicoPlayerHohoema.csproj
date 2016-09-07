@@ -356,6 +356,10 @@
     <Compile Include="Views\MenuNavigatePageBase.xaml.cs">
       <DependentUpon>MenuNavigatePageBase.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Service\AcceptCacheUsaseDialog.xaml.cs">
+      <DependentUpon>AcceptCacheUsaseDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Service\AcceptCacheUsaseDialogService.cs" />
     <Compile Include="Views\Service\DislikeRankingCtegoryChoiceDialog.xaml.cs">
       <DependentUpon>DislikeRankingCtegoryChoiceDialog.xaml</DependentUpon>
     </Compile>
@@ -635,6 +639,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SearchContent\TagSearchPageContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Service\AcceptCacheUsaseDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

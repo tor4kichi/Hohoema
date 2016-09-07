@@ -10,8 +10,8 @@ namespace NicoPlayerHohoema.Models
 {
 	public class UserFavInfoGroup : FavInfoGroupWithFavData
 	{
-		public UserFavInfoGroup(HohoemaApp hohoemaApp, List<FavInfo> items)
-			: base(hohoemaApp, items)
+		public UserFavInfoGroup(HohoemaApp hohoemaApp)
+			: base(hohoemaApp)
 		{
 
 		}
