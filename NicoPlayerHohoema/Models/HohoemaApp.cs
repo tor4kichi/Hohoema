@@ -804,6 +804,11 @@ namespace NicoPlayerHohoema.Models
 				return CacheFolderAccessState.NotAccepted;
 			}
 
+			if (false == UserSettings.CacheSettings.IsEnableCache)
+			{
+				return CacheFolderAccessState.NotEnabled;
+			}
+
 			try
 			{
 				var videoFolder = await GetEnsureVideoFolder();
@@ -940,6 +945,7 @@ namespace NicoPlayerHohoema.Models
 	public enum CacheFolderAccessState
 	{
 		NotAccepted,
+		NotEnabled,
 		NotSelected,
 		SelectedButNotExist,
 		Exist

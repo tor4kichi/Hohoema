@@ -40,20 +40,27 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> IsCacheFolderSelectedButNotExist { get; private set; }
 		public DelegateCommand CheckExistCacheFolderCommand { get; private set; }
 
-		EditAutoCacheConditionDialogService _EditDialogService;
-		CacheSettings _CacheSettings;
 		HohoemaApp _HohoemaApp;
+		CacheSettings _CacheSettings;
+		EditAutoCacheConditionDialogService _EditDialogService;
+		AcceptCacheUsaseDialogService _AcceptCacheUsaseDialogService;
 
-		public CacheSettingsPageContentViewModel(HohoemaApp hohoemaApp, string title, EditAutoCacheConditionDialogService editDialogService, AcceptCacheUsaseDialogService cacheConfirmDialogService)
+		public CacheSettingsPageContentViewModel(
+			HohoemaApp hohoemaApp
+			, string title
+			, EditAutoCacheConditionDialogService editDialogService
+			, AcceptCacheUsaseDialogService cacheConfirmDialogService
+			)
 			: base(title)
 		{
 			_HohoemaApp = hohoemaApp;
 			_CacheSettings = _HohoemaApp.UserSettings.CacheSettings;
 			_EditDialogService = editDialogService;
+			_AcceptCacheUsaseDialogService = cacheConfirmDialogService;
 
 			IsAutoCacheOnPlayEnable = _CacheSettings.ToReactivePropertyAsSynchronized(x => x.IsAutoCacheOnPlayEnable);
-				
 			IsUserAcceptRegalNotice = _CacheSettings.ToReactivePropertyAsSynchronized(x => x.IsUserAcceptedCache);
+			IsCacheFolderSelectedButNotExist = new ReactiveProperty<bool>(false);
 
 			ReadCacheAcceptTextCommand = new DelegateCommand(async () =>
 			{
@@ -112,7 +119,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				// ユーザーがキャッシュ機能利用に対する承諾を行っていない場合に
 				// 確認のダイアログを表示する
-				var result = await cacheConfirmDialogService.ShowConfirmAcceptCacheDialog();
+				var result = await _AcceptCacheUsaseDialogService.ShowConfirmAcceptCacheDialog();
 
 				if (result)
 				{
@@ -126,6 +133,11 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 			});
 
+			IsEnableCache.Subscribe(async _ =>
+			{
+				await RefreshCacheSaveFolderStatus();
+			});
+
 			ChangeCacheFolderCommand = new DelegateCommand(async () => 
 			{
 				if (await _HohoemaApp.ChangeUserDataFolder())
@@ -134,7 +146,6 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 			});
 
-			IsCacheFolderSelectedButNotExist = new ReactiveProperty<bool>(false);
 			
 		}
 
@@ -144,39 +155,45 @@ namespace NicoPlayerHohoema.ViewModels
 			await RefreshCacheSaveFolderStatus();
 		}
 
+		public override void OnLeave()
+		{
+			_CacheSettings.Save().ConfigureAwait(false);
+		}
+
+
 		private async Task RefreshCacheSaveFolderStatus()
 		{
 			var cacheFolderAccessState = await _HohoemaApp.GetVideoCacheFolderState();
-			var folder = await _HohoemaApp.GetVideoCacheFolder();
-
+			
 			CacheSaveFolderPath.Value = "";
 			switch (cacheFolderAccessState)
 			{
 				case CacheFolderAccessState.NotAccepted:
-					CacheFolderStateDescription.Value = "キャッシュ利用の承諾が必要";
+					CacheFolderStateDescription.Value = "キャッシュ利用の同意が必要です。 上の「キャッシュを有効にする」ボタンを押すと同意文書が表示されます。";
+					break;
+				case CacheFolderAccessState.NotEnabled:
+					CacheFolderStateDescription.Value = "キャッシュの有効化が必要です";
 					break;
 				case CacheFolderAccessState.NotSelected:
-					CacheFolderStateDescription.Value = "フォルダを選択してください";
+					CacheFolderStateDescription.Value = "フォルダを選択するとキャッシュ機能が使えるようになります";
 					break;
 				case CacheFolderAccessState.SelectedButNotExist:
-					CacheFolderStateDescription.Value = "選択済みだがフォルダが検出できない";
+					CacheFolderStateDescription.Value = "選択されたフォルダが確認できません。外付けストレージを再接続するか、キャッシュ先フォルダを再選択してください。";
 					CacheSaveFolderPath.Value = "?????";
 					break;
 				case CacheFolderAccessState.Exist:
-					CacheFolderStateDescription.Value = "";
-					if (folder != null)
-					{
-						CacheSaveFolderPath.Value = $"{folder.Path}";
-					}
-					else
-					{
-						CacheFolderStateDescription.Value = "";
-						throw new Exception("キャッシュ保存先フォルダがありません");
-					}
+					CacheFolderStateDescription.Value = "キャッシュ利用の準備ができました";
 					break;
 				default:
 					break;
 			}
+
+			var folder = await _HohoemaApp.GetVideoCacheFolder();
+			if (folder != null)
+			{
+				CacheSaveFolderPath.Value = $"{folder.Path}";
+			}
+
 
 			IsCacheFolderSelectedButNotExist.Value = cacheFolderAccessState == CacheFolderAccessState.SelectedButNotExist;
 		}
@@ -215,10 +232,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		public override void OnLeave()
-		{
-			_CacheSettings.Save().ConfigureAwait(false);
-		}
+		
 
 	}
 

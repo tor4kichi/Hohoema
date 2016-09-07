@@ -14,18 +14,16 @@
     d:DesignHeight="1800"
     d:DesignWidth="600">
 
-    <Grid>
-        
-        <ScrollViewer >
-            <StackPanel >
 
-                <StackPanel Visibility="{Binding IsUserAcceptRegalNotice.Value, Converter={StaticResource BooleanToVisibility}}"
+    <ScrollViewer >
+
+        <StackPanel 
                     Margin="8" MinWidth="400" HorizontalAlignment="Left"
                             >
 
-                    <!-- キャッシュ設定 -->
-                    <StackPanel Margin="8 8">
-                        <TextBlock Text="キャッシュ設定"
+            <!-- キャッシュ設定 -->
+            <StackPanel Margin="8 8">
+                <TextBlock Text="キャッシュ設定"
                            Margin="0 0 0 4"
                             FontSize="18"
                            FontWeight="SemiBold"
@@ -33,57 +31,51 @@
                        />
 
 
-                        <toolkit:DockPanel Margin="8">
-                            <TextBlock Text="キャッシュを有効にする"
+                <toolkit:DockPanel Margin="8">
+                    <TextBlock Text="キャッシュを有効にする"
                                toolkit:DockPanel.Dock="Left"
                                VerticalAlignment="Center"
                            />
-                            <ToggleButton Width="32" Height="32" 
+                    <ToggleButton Width="32" Height="32" 
                                   Margin="0 0 8 0"
                                   IsChecked="{Binding IsEnableCache.Value, Mode=TwoWay}"
                                   HorizontalAlignment="Right"
                                           />
-                        </toolkit:DockPanel>
+                </toolkit:DockPanel>
 
-                        <toolkit:DockPanel Margin="8">
-                            <Button Content="キャッシュ機能利用の確認文を読む" 
-                                    Command="{Binding }"
-                                    Visibility="{Binding IsUserAcceptRegalNotice.Value, Converter={StaticResource BooleanToVisibility}}"
-                                    />
-                        </toolkit:DockPanel>
-                        
-
-                        <toolkit:DockPanel Margin="8">
+                <toolkit:DockPanel Margin="8">
 
 
-                            <Button Content="キャッシュ保存フォルダを変更"
+                    <Button Content="キャッシュ保存フォルダを変更"
                                     Command="{Binding ChangeCacheFolderCommand}"
                                     HorizontalAlignment="Center"
                                      toolkit:DockPanel.Dock="Bottom"
                                     
                                     >
-                            </Button>
-                            
-                            <TextBlock Text="キャッシュ保存フォルダ"
+                    </Button>
+
+                    <TextBlock Text="キャッシュ保存フォルダ"
                                        VerticalAlignment="Center"
                                        HorizontalAlignment="Left"
-                                       toolkit:DockPanel.Dock="Left"
+                                       toolkit:DockPanel.Dock="Top"
                                />
 
 
 
-                            <StackPanel toolkit:DockPanel.Dock="Right">
+                    <StackPanel>
 
-                                <HyperlinkButton Command="{Binding OpenCurrentCacheFolderCommand}"
+                        <HyperlinkButton Command="{Binding OpenCurrentCacheFolderCommand}"
                                              HorizontalAlignment="Right"
                                              Margin="8 8 0 8"
                                              >
-                                    <TextBlock Text="{Binding CacheSaveFolderPath.Value}"
+                            <TextBlock Text="{Binding CacheSaveFolderPath.Value}"
                                            TextWrapping="Wrap"
                                            />
-                                </HyperlinkButton>
+                        </HyperlinkButton>
 
-                                <TextBlock Text="↑ のリンクをクリック/タップするとフォルダを確認します" 
+                        
+
+                        <TextBlock Text="↑ のリンクをクリック/タップするとフォルダを確認します" 
                                            FontSize="12"
                                            Foreground="DimGray"
                                            HorizontalAlignment="Right"
@@ -91,14 +83,44 @@
                                            />
 
 
-                            </StackPanel>
+                    </StackPanel>
 
-                            <Border />
-                            
-                        </toolkit:DockPanel>
+                </toolkit:DockPanel>
+
+                <toolkit:DockPanel Margin="8">
+
+                    <TextBlock Text="{Binding CacheFolderStateDescription.Value}" 
+                                Opacity="0.9"
+                                 TextWrapping="Wrap"
+                               toolkit:DockPanel.Dock="Bottom"
+                               HorizontalAlignment="Right"
+                                   />
+                    
+                    <TextBlock Text="キャッシュ利用のためのヒント："
+                               Margin="0 0 0 8"
+                               />
+                </toolkit:DockPanel>
 
 
-                        <!--
+
+                <Border Margin="0 8"
+                        BorderBrush="Gray"
+                        BorderThickness="0 1 0 0"
+                        />
+
+
+                <toolkit:DockPanel Margin="8">
+                    <Button Content="キャッシュ機能利用の確認文を読む" 
+                                    Command="{Binding ReadCacheAcceptTextCommand}"
+                                    Visibility="{Binding IsUserAcceptRegalNotice.Value, Converter={StaticResource BooleanToVisibility}}"
+                            HorizontalAlignment="Center"
+                                    />
+                </toolkit:DockPanel>
+
+
+
+
+                <!--
                     <StackPanel Margin="16 0 0 0">
 
                         <toolkit:DockPanel Margin="8">
@@ -165,22 +187,18 @@
                     </StackPanel>
                     
                     -->
-                    </StackPanel>
-
-
-
-
-                </StackPanel>
-
-                
-                
             </StackPanel>
-            
-
-        </ScrollViewer>
 
 
-        
-    </Grid>
-    
+
+
+        </StackPanel>
+
+
+
+
+    </ScrollViewer>
+
+
+
 </UserControl>

@@ -33,6 +33,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			RankingChoiceDialogService = rakingChoiceDialog;
 			EditAutoCacheConditionDialogService = editAutoCacheDialog;
+			AcceptCacheUsaseDialogService = cacheAcceptDialogService;
 			SettingKindToVM = new Dictionary<HohoemaSettingsKind, SettingsPageContentViewModel>();
 
 			SettingItems = ((IEnumerable<HohoemaSettingsKind>)Enum.GetValues(typeof(HohoemaSettingsKind)))
