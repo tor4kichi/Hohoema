@@ -22,7 +22,13 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class SettingsPageViewModel : HohoemaViewModelBase
 	{
-		public SettingsPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, RankingChoiceDialogService rakingChoiceDialog, EditAutoCacheConditionDialogService editAutoCacheDialog)
+		public SettingsPageViewModel(
+			HohoemaApp hohoemaApp
+			, PageManager pageManager
+			, RankingChoiceDialogService rakingChoiceDialog
+			, EditAutoCacheConditionDialogService editAutoCacheDialog
+			, AcceptCacheUsaseDialogService cacheAcceptDialogService
+			)
 			: base(hohoemaApp, pageManager, isRequireSignIn:true)
 		{
 			RankingChoiceDialogService = rakingChoiceDialog;
@@ -73,7 +79,7 @@ namespace NicoPlayerHohoema.ViewModels
 						vm = new VideoPlaySettingsPageContentViewModel(HohoemaApp, title);
 						break;
 					case HohoemaSettingsKind.Cache:
-						vm = new CacheSettingsPageContentViewModel(HohoemaApp, title, EditAutoCacheConditionDialogService);
+						vm = new CacheSettingsPageContentViewModel(HohoemaApp, title, EditAutoCacheConditionDialogService, AcceptCacheUsaseDialogService);
 						break;
 					default:
 						break;
@@ -150,6 +156,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public EditAutoCacheConditionDialogService EditAutoCacheConditionDialogService { get; private set;}
 		public RankingChoiceDialogService RankingChoiceDialogService { get; private set; }
+		public AcceptCacheUsaseDialogService AcceptCacheUsaseDialogService { get; private set; }
 	}
 
 

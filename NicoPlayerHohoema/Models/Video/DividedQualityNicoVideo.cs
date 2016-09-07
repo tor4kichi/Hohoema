@@ -36,6 +36,8 @@ namespace NicoPlayerHohoema.Models
 			protected set { SetProperty(ref _CacheState, value); }
 		}
 
+		public bool IsReadyOfflinePlay { get; private set; }
+
 
 		
 		/// <summary>
@@ -58,24 +60,33 @@ namespace NicoPlayerHohoema.Models
 			NicoVideo = nicoVideo;
 			_Context = context;
 
-			_DownloadProgressFileAccessor = new FileAccessor<VideoDownloadProgress>(_Context.VideoSaveFolder, ProgressFileName);
 		}
 
 		public async Task SetupDownloadProgress()
 		{
 			// DLが途中の場合はこのロードが成功しProgressが埋まる
-			Progress = await _DownloadProgressFileAccessor.Load();
-
-			if (Progress == null)
+			if (await _Context.CanAccessVideoCacheFolder())
 			{
-				Progress = new VideoDownloadProgress(VideoSize);
+				_DownloadProgressFileAccessor = new FileAccessor<VideoDownloadProgress>(await _Context.GetVideoCacheFolder(), ProgressFileName);
+				Progress = await _DownloadProgressFileAccessor.Load();
+
+				if (Progress == null)
+				{
+					Progress = new VideoDownloadProgress(VideoSize);
+				}
+				else
+				{
+					CacheProgressSize = Progress.BufferedSize();
+				}
+
+				IsReadyOfflinePlay = Progress.CheckComplete();
+
+				await CheckCacheStatus();
 			}
 			else
 			{
-				CacheProgressSize = Progress.BufferedSize();
+				IsReadyOfflinePlay = false;
 			}
-
-			await CheckCacheStatus();
 		}
 
 
@@ -134,9 +145,17 @@ namespace NicoPlayerHohoema.Models
 
 
 
-		public Task<bool> ExistVideo()
+		public async Task<bool> ExistVideo()
 		{
-			return _Context.VideoSaveFolder.ExistFile(VideoFileName);
+			var cacheFolder = await _Context.GetVideoCacheFolder();
+			if (cacheFolder != null)
+			{
+				return await cacheFolder.ExistFile(VideoFileName);
+			}
+			else
+			{
+				return false;
+			}
 		}
 
 
@@ -254,7 +273,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			if (!IsAvailable) { return; }
 
-			var saveFolder = _Context.VideoSaveFolder;
+			var saveFolder = await _Context.GetVideoCacheFolder();
 			var fileName = VideoFileName;
 			try
 			{
@@ -296,7 +315,10 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<StorageFile> GetCacheFile()
 		{
-			return await _Context.VideoSaveFolder.CreateFileAsync(VideoFileName, CreationCollisionOption.OpenIfExists);
+			var folder = await _Context.GetVideoCacheFolder();
+			if (folder == null) { return null; }
+
+			return await folder.CreateFileAsync(VideoFileName, CreationCollisionOption.OpenIfExists);
 		}
 
 		public Task DeletedTeardown()

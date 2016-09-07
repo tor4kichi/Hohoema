@@ -32,7 +32,7 @@ namespace NicoPlayerHohoema.Models
 
 
 			// キャッシュリクエストファイルのアクセサーを初期化
-			var videoSaveFolder = await app.GetCurrentUserVideoDataFolder();
+			var videoSaveFolder = await app.GetApplicationLocalDataFolder();
 			man._CacheRequestedItemsFileAccessor = new FileAccessor<IList<NicoVideoCacheRequest>>(videoSaveFolder, CACHE_REQUESTED_FILENAME);
 
 			// ダウンロードコンテキストを作成
@@ -79,24 +79,48 @@ namespace NicoPlayerHohoema.Models
 
 			Debug.WriteLine("");
 			Debug.WriteLine($"{list.Count} 件のダウンロードリクエストを復元");
+		}
 
-			// キャッシュ済み動画情報のNicoVideoオブジェクトの作成
-			// キャッシュリクエスト対象でなかった場合でも異常動作で終了していた場合に対応するため
-			var saveFolder = Context.VideoSaveFolder;
-			var files = await saveFolder.GetFilesAsync();
 
-			var cachedFiles = files
-				.Where(x => x.Name.EndsWith("_info.json"))
-				.Select(x => new String(x.Name.TakeWhile(y => y != '_').ToArray()));
-
-			foreach (var cachedFile in cachedFiles)
+		public async Task RestoreCacheRequestFromCurrentVideoCacheFolder()
+		{
+			var dlFolder = await Context.GetVideoCacheFolder();
+			if (dlFolder != null)
 			{
-				await GetNicoVideoAsync(cachedFile);
+				var files = await dlFolder.GetFilesAsync();
 
-				await Task.Delay(50);
+				var videoIdList = files.Where(x => x.FileType == ".mp4")
+					.Select<StorageFile, Tuple<string, NicoVideoQuality>>(x =>
+					{
+						// ファイル名の最後方にある[]の中身の文字列を取得
+						// (動画タイトルに[]が含まれる可能性に配慮)
+						return new Tuple<string, NicoVideoQuality>(new String(x.Name
+								.Reverse()
+								.SkipWhile(y => y != ']')
+								.TakeWhile(y => y != '[')
+								.Reverse()
+								.ToArray()
+								),
+							x.Name.EndsWith(".low.mp4") ? NicoVideoQuality.Low : NicoVideoQuality.Original
+						);
+					});
+
+				foreach (var req in videoIdList)
+				{
+					var alreadyAdded = _CacheRequestedItemsStack.Any(x => x.RawVideoid == req.Item1 && x.Quality == req.Item2);
+					if (!alreadyAdded)
+					{
+						var nicoVideo = await GetNicoVideoAsync(req.Item1);
+						_CacheRequestedItemsStack.Add(new NicoVideoCacheRequest()
+						{
+							RawVideoid = req.Item1,
+							Quality = req.Item2
+						});
+						await nicoVideo.CheckCacheStatus();
+						Debug.Write(".");
+					}
+				}
 			}
-
-
 		}
 
 		public async Task<NicoVideo> GetNicoVideoAsync(string rawVideoId)
@@ -306,6 +330,14 @@ namespace NicoPlayerHohoema.Models
 			PreventDeleteOnPlayingVideoId = rawVideoId;
 		}
 
+
+		public async Task CheckAllNicoVideoCacheState()
+		{
+			foreach (var nicoVideo in VideoIdToNicoVideo.Values)
+			{
+				await nicoVideo.CheckCacheStatus();
+			}
+		}
 
 
 		private FileAccessor<IList<NicoVideoCacheRequest>> _CacheRequestedItemsFileAccessor;

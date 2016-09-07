@@ -16,8 +16,6 @@
 
     <Grid>
         
-
-
         <ScrollViewer >
             <StackPanel >
 
@@ -35,26 +33,68 @@
                        />
 
 
+                        <toolkit:DockPanel Margin="8">
+                            <TextBlock Text="キャッシュを有効にする"
+                               toolkit:DockPanel.Dock="Left"
+                               VerticalAlignment="Center"
+                           />
+                            <ToggleButton Width="32" Height="32" 
+                                  Margin="0 0 8 0"
+                                  IsChecked="{Binding IsEnableCache.Value, Mode=TwoWay}"
+                                  HorizontalAlignment="Right"
+                                          />
+                        </toolkit:DockPanel>
+
+                        <toolkit:DockPanel Margin="8">
+                            <Button Content="キャッシュ機能利用の確認文を読む" 
+                                    Command="{Binding }"
+                                    Visibility="{Binding IsUserAcceptRegalNotice.Value, Converter={StaticResource BooleanToVisibility}}"
+                                    />
+                        </toolkit:DockPanel>
+                        
 
                         <toolkit:DockPanel Margin="8">
 
 
-                            <HyperlinkButton Command="{Binding OpenCurrentCacheFolderCommand}"
-                               toolkit:DockPanel.Dock="Bottom"
-                                             HorizontalAlignment="Right"
-                                             Margin="0 8 0 0"
-                                             >
-                                <TextBlock Text="{Binding CacheSaveFolderPath.Value}"
-                                           TextWrapping="Wrap"
-                                           />
-                            </HyperlinkButton>
-
-                            <TextBlock Text="キャッシュ保存先"
-                               VerticalAlignment="Center"
+                            <Button Content="キャッシュ保存フォルダを変更"
+                                    Command="{Binding ChangeCacheFolderCommand}"
+                                    HorizontalAlignment="Center"
+                                     toolkit:DockPanel.Dock="Bottom"
+                                    
+                                    >
+                            </Button>
+                            
+                            <TextBlock Text="キャッシュ保存フォルダ"
+                                       VerticalAlignment="Center"
                                        HorizontalAlignment="Left"
+                                       toolkit:DockPanel.Dock="Left"
                                />
 
-                           
+
+
+                            <StackPanel toolkit:DockPanel.Dock="Right">
+
+                                <HyperlinkButton Command="{Binding OpenCurrentCacheFolderCommand}"
+                                             HorizontalAlignment="Right"
+                                             Margin="8 8 0 8"
+                                             >
+                                    <TextBlock Text="{Binding CacheSaveFolderPath.Value}"
+                                           TextWrapping="Wrap"
+                                           />
+                                </HyperlinkButton>
+
+                                <TextBlock Text="↑ のリンクをクリック/タップするとフォルダを確認します" 
+                                           FontSize="12"
+                                           Foreground="DimGray"
+                                           HorizontalAlignment="Right"
+                                           Visibility="{Binding IsCacheFolderSelectedButNotExist.Value, Converter={StaticResource BooleanToVisibility}}"
+                                           />
+
+
+                            </StackPanel>
+
+                            <Border />
+                            
                         </toolkit:DockPanel>
 
 
@@ -128,112 +168,12 @@
                     </StackPanel>
 
 
-                    <Border BorderBrush="DarkGray" BorderThickness="0 1 0 0" 
-                    Margin="8"
-                    />
-
-                    <ToggleButton IsChecked="{Binding IsShowRegalNotice.Value, Mode=TwoWay}"
-                              Content="「キャッシュ機能利用に関する確認」を表示"
-                              HorizontalAlignment="Center"
-                              Margin="8"
-                              />
-
-
 
 
                 </StackPanel>
 
                 
-                <!-- 通知と合意 -->
-                <Border Padding="32" 
-                    Background="WhiteSmoke"
-                    Visibility="{Binding IsShowRegalNotice.Value, Converter={StaticResource BooleanToVisibility}}"
-                    MinWidth="400" HorizontalAlignment="Left"
-                    >
-                    <toolkit:DockPanel 
-                               >
-
-                        <Border toolkit:DockPanel.Dock="Top">
-                            <TextBlock Text="キャッシュ機能の利用に関する確認"
-                               FontWeight="SemiBold"
-                               FontStyle="Italic"
-                               FontSize="20"
-                               >
-
-                            </TextBlock>
-                        </Border>
-
-
-
-
-
-                        <StackPanel Margin="16">
-                            <TextBlock Text="Hohoemaのキャッシュ機能は、通信量を抑えるために動画のファイルデータをローカルストレージにキャッシュすることができるHohoemaの機能です。" 
-                                TextWrapping="Wrap"
-                                Margin="0 8"
-                                />
-                            <TextBlock Text="あなたがHohoemaアプリ内でキャッシュ化を要求した動画について、Hohoemaは権利者及び利用者保護のため、以下の条件の元であなたの確認なく削除出来ます。" 
-                                TextWrapping="Wrap"
-                                Margin="0 8"
-                                />
-
-                            <TextBlock Text="・ニコニコ動画、動画権利者、動画アップロード者等によってニコニコ動画サーバー上から動画が削除された時" 
-                                TextWrapping="Wrap"
-                                Margin="16 4"
-                                />
-
-                            <TextBlock Text="なお、上記条件の元でHohoema内から削除された動画については、動画のタイトルと削除理由をあなたに伝えるよう努めます" 
-                                TextWrapping="Wrap"
-                                Margin="0 8"
-                                />
-
-
-                            <Border Margin="0 24" 
-                            Visibility="{Binding IsUserAcceptRegalNotice.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                            >
-                                <StackPanel>
-
-                                    <StackPanel Orientation="Horizontal" Margin="0 0 0 8">
-                                        <ToggleButton IsChecked="{Binding IsTempAcceptChecked.Value, Mode=TwoWay}" 
-                                                    
-                                                Width="32"
-                                                Height="32"
-                                                Margin="8"
-                                                />
-
-                                        <TextBlock Text="「キャッシュ機能利用に関する確認」に同意します" 
-                                            TextWrapping="Wrap"
-                                            Width="220"
-                                            />
-                                    </StackPanel>
-
-                                    <Button Content="キャッシュ機能を利用する"
-                                Command="{Binding AcceptCommand}"
-                                HorizontalAlignment="Right"
-                                    
-                            />
-
-
-                                </StackPanel>
-                            </Border>
-
-
-                            <Button 
-                            Content="閉じる"
-                            HorizontalAlignment="Center"
-                            Margin="8"
-                            Visibility="{Binding IsUserAcceptRegalNotice.Value, Converter={StaticResource BooleanToVisibility}}"
-                            >
-                                <i:Interaction.Behaviors>
-                                    <core:EventTriggerBehavior EventName="Tapped">
-                                        <core:ChangePropertyAction TargetObject="{Binding IsShowRegalNotice}" PropertyName="Value" Value="False" />
-                                    </core:EventTriggerBehavior>
-                                </i:Interaction.Behaviors>
-                            </Button>
-                        </StackPanel>
-                    </toolkit:DockPanel>
-
-                </Border>
+                
             </StackPanel>
             
 

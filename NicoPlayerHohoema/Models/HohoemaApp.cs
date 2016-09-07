@@ -39,6 +39,10 @@ namespace NicoPlayerHohoema.Models
 			app.UserMylistManager = new UserMylistManager(app);
 
 			UIDispatcher = Window.Current.CoreWindow.Dispatcher;
+
+
+			
+
 			return app;
 		}
 
@@ -60,6 +64,9 @@ namespace NicoPlayerHohoema.Models
 			ThumbnailBackgroundLoader = new BackgroundUpdater(ThumbnailLoadBackgroundTaskId);
 			_SigninLock = new SemaphoreSlim(1, 1);
 		}
+
+		#region SignIn/Out 
+
 
 		public void LoadRecentLoginAccount()
 		{
@@ -498,11 +505,13 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
-		public async Task<StorageFolder> GetCurrentUserFolder()
-		{
-			return await ApplicationData.Current.LocalFolder.CreateFolderAsync(LoginUserId.ToString(), CreationCollisionOption.OpenIfExists);
-		}
 
+
+		#endregion
+
+
+
+		
 		
 
 		StorageFolder _DownloadFolder;
@@ -516,9 +525,9 @@ namespace NicoPlayerHohoema.Models
 
 
 		
-		private async Task CacheFolderMigration(StorageFolder newFolder)
+		private async Task CacheFolderMigration(StorageFolder newVideoFolder)
 		{
-			if (_DownloadFolder?.Path != newFolder.Path)
+			if (_DownloadFolder?.Path != newVideoFolder.Path)
 			{
 				// フォルダーの移行作業を開始
 
@@ -528,21 +537,33 @@ namespace NicoPlayerHohoema.Models
 					await MediaManager?.Context?.Suspending();
 				}
 
+				// v0.4.0以降の移行処理
+				if (_DownloadFolder != null)
+				{
+					await MoveFiles(_DownloadFolder, newVideoFolder);
+				}
+
+
+				// v0.3.9以前 からの移行処理
 				if (_DownloadFolder != null)
 				{
 					var oldSaveFolder = _DownloadFolder;
 					var oldVideoSaveFolder = (await oldSaveFolder.TryGetItemAsync("video")) as StorageFolder;
 					if (oldVideoSaveFolder != null)
 					{
-						var newVideoSaveFolder = await newFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
+						var newVideoSaveFolder = newVideoFolder;
 						await MoveFiles(oldVideoSaveFolder, newVideoSaveFolder);
 					}
 
+					// DL/Hohoema/{Userid}/Fav/Feed の内容を AppData/Hohoema/LocalState/Feedに移動
 					var oldFavSaveFolder = (await oldSaveFolder.TryGetItemAsync("fav")) as StorageFolder;
 					if (oldFavSaveFolder != null)
 					{
-						var newFavSaveFolder = await newFolder.CreateFolderAsync("fav", CreationCollisionOption.OpenIfExists);
-						await MoveFiles(oldFavSaveFolder, newFavSaveFolder);
+						var oldFeedSaveFolder = (await oldFavSaveFolder.TryGetItemAsync("feed")) as StorageFolder;
+						if (oldFeedSaveFolder != null)
+						{
+							await MoveFiles(oldFeedSaveFolder, await GetFeedDataFolder());
+						}
 					}
 				}
 
@@ -555,24 +576,34 @@ namespace NicoPlayerHohoema.Models
 				// _DownlaodFolderに移動させます
 
 				{
-					var oldVersionDataFolder = await GetCurrentUserFolder();
-					var oldVideoSaveFolder = (await oldVersionDataFolder.TryGetItemAsync("video")) as StorageFolder;
-					if (oldVideoSaveFolder != null)
+					var oldVersionDataFolder = await GetLegacyUserDataFolder(LoginUserId.ToString());
+					if (oldVersionDataFolder != null)
 					{
-						var newVideoSaveFolder = await newFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
-						await MoveFiles(oldVideoSaveFolder, newVideoSaveFolder);
+						var oldVideoSaveFolder = (await oldVersionDataFolder.TryGetItemAsync("video")) as StorageFolder;
+						if (oldVideoSaveFolder != null)
+						{
+							//						var newVideoSaveFolder = await newVideoFolder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
+							await MoveFiles(oldVideoSaveFolder, newVideoFolder);
+						}
 					}
 
-					var oldFavSaveFolder = (await oldVersionDataFolder.TryGetItemAsync("fav")) as StorageFolder;
-					if (oldFavSaveFolder != null)
+					// favの保存は v0.3.10 or v0.4.0からは廃止しています
+					//					var oldFavSaveFolder = (await oldVersionDataFolder.TryGetItemAsync("fav")) as StorageFolder;
+					//					if (oldFavSaveFolder != null)
 					{
-						var newFavSaveFolder = await newFolder.CreateFolderAsync("fav", CreationCollisionOption.OpenIfExists);
-						await MoveFiles(oldFavSaveFolder, newFavSaveFolder);
+//						var newFavSaveFolder = await newVideoFolder.CreateFolderAsync("fav", CreationCollisionOption.OpenIfExists);
+//						await MoveFiles(oldFavSaveFolder, newFavSaveFolder);
 					}
 				}
 
 				#endregion
 
+
+				try
+				{
+					await MediaManager.CheckAllNicoVideoCacheState();
+				}
+				catch (Exception ex) { Debug.WriteLine(ex.ToString()); }
 
 				// ダウンロードタスクを再開
 				if (MediaManager != null && MediaManager.Context != null)
@@ -581,7 +612,7 @@ namespace NicoPlayerHohoema.Models
 				}
 			}
 
-			_DownloadFolder = newFolder;
+			_DownloadFolder = newVideoFolder;
 		}
 
 
@@ -613,98 +644,220 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
-		public async Task<StorageFolder> ResetDefaultUserDataFolder()
-		{
-			var folderAccessToken = LoginUserId.ToString();
+		
 
-			// ユーザー名とランダムな英数字文字列から新しいフォルダアクセストークンを作成
-			var folderName = LoginUserName.ToSafeDirectoryPath() + "_" + Path.GetFileNameWithoutExtension(Path.GetRandomFileName());
-			var folder = await DownloadsFolder.CreateFolderAsync(folderName, CreationCollisionOption.FailIfExists);
-			Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.AddOrReplace(folderAccessToken, folder);
 
-			try
-			{
-				await CacheFolderMigration(folder);
-			}
-			catch
-			{
-			}
-
-			return _DownloadFolder;
-		}
-
-		/*
-		public async Task<StorageFolder> ChangeUserDataFolder()
+		
+		public async Task<bool> ChangeUserDataFolder()
 		{
 			var folderPicker = new Windows.Storage.Pickers.FolderPicker();
 			folderPicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Downloads;
 			folderPicker.FileTypeFilter.Add("*");
-
+			
 			var folder = await folderPicker.PickSingleFolderAsync();
 			if (folder != null && folder.Path != _DownloadFolder?.Path)
 			{
-				var loginUserId = LoginUserId.ToString();
-				Windows.Storage.AccessCache.StorageApplicationPermissions.
-				FutureAccessList.AddOrReplace(loginUserId, folder);
-
-				await CacheFolderMigration(folder);
-
-				await UserSettings.CacheSettings.UserSelectedCacheFolder();
-			}
-
-			return _DownloadFolder;
-		}
-		*/
-
-		public async Task<StorageFolder> GetCurrentUserDataFolder()
-		{
-			if (_DownloadFolder == null)
-			{
-				var folderAccessToken = LoginUserId.ToString();
 				try
 				{
-					// v0.3.4以前のバージョンでの動作との整合性を取るためのコード
-					// 以前はログインユーザーIDで
-
-					if (Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.ContainsItem(folderAccessToken))
-					{
-						// 既にフォルダを指定済みの場合
-						_DownloadFolder = await Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.GetFolderAsync(folderAccessToken);
-					}
+					await CacheFolderMigration(folder);
 				}
 				catch (Exception ex)
 				{
-					Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Remove(folderAccessToken);
-
 					Debug.WriteLine(ex.ToString());
 				}
 
-				// フォルダが無い場合、デフォルトフォルダに作成
-				if (_DownloadFolder == null)
+				if (false == String.IsNullOrWhiteSpace(CurrentFolderAccessToken))
 				{
-					await ResetDefaultUserDataFolder();
+					Windows.Storage.AccessCache.StorageApplicationPermissions.
+					FutureAccessList.Remove(CurrentFolderAccessToken);
+					CurrentFolderAccessToken = null;
 				}
+
+				Windows.Storage.AccessCache.StorageApplicationPermissions.
+				FutureAccessList.AddOrReplace(FolderAccessToken, folder);
+
+				_DownloadFolder = folder;
+
+				CurrentFolderAccessToken = FolderAccessToken;
+
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		
+
+		
+		
+
+
+		#region lagacy user data folder access
+
+		private static async Task<StorageFolder> GetLegacyUserDataFolder(string loginUserId)
+		{
+			var folderAccessToken = loginUserId;
+			try
+			{
+				// v0.3.9以前のバージョンでの動作との整合性を取るためのコード
+				// 以前はログインユーザーIDで
+
+				if (Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.ContainsItem(folderAccessToken))
+				{
+					// 既にフォルダを指定済みの場合
+					return await Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.GetFolderAsync(folderAccessToken);
+				}
+			}
+			catch (Exception ex)
+			{
+				Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Remove(folderAccessToken);
+
+				Debug.WriteLine(ex.ToString());
+			}
+
+			return null;
+		}
+
+		private static async Task<bool> RemoveLegacyUserDataFolder(string loginUserId)
+		{
+			var folderAccessToken = loginUserId;
+			try
+			{
+				// v0.3.9以前のバージョンでの動作との整合性を取るためのコード
+				if (Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.ContainsItem(folderAccessToken))
+				{
+					var folder = await Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.GetFolderAsync(folderAccessToken);
+
+					await folder.DeleteAsync();
+
+					Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Remove(folderAccessToken);
+					
+					return true;
+				}
+			}
+			catch (Exception ex)
+			{
+				Debug.WriteLine(ex.ToString());
+			}
+
+			return false;
+		}
+
+
+		#endregion
+
+
+		const string FolderAccessToken = "HohoemaVideoCache";
+
+		// 旧バージョンで指定されたフォルダーでも動くようにするためにFolderAccessTokenを動的に扱う
+		// 0.4.0以降はFolderAccessTokenで指定したトークンだが、
+		// それ以前では ログインユーザーIDをトークンとして DL/Hohoema/ログインユーザーIDフォルダ/ をDLフォルダとして指定していた
+		string CurrentFolderAccessToken = null;
+
+		private async Task<StorageFolder> GetEnsureVideoFolder()
+		{
+			if (_DownloadFolder == null)
+			{
+				try
+				{
+					// 既にフォルダを指定済みの場合
+					if (Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.ContainsItem(FolderAccessToken))
+					{
+						_DownloadFolder = await Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.GetFolderAsync(FolderAccessToken);
+						CurrentFolderAccessToken = FolderAccessToken;
+					}
+				}
+				catch (FileNotFoundException)
+				{
+					Windows.Storage.AccessCache.StorageApplicationPermissions.MostRecentlyUsedList.Clear();
+					throw;
+				}
+				catch (Exception ex)
+				{
+					//					Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Remove(FolderAccessToken);
+					Debug.WriteLine(ex.ToString());
+				}
+			}
+
+			// 旧バージョン利用ユーザーが新バージョンを利用しても問題なくDLフォルダにアクセスできるようにする
+			if (_DownloadFolder == null && Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.ContainsItem(LoginUserId.ToString()))
+			{
+				var token = LoginUserId.ToString();
+				_DownloadFolder = await Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.GetFolderAsync(token);
+				CurrentFolderAccessToken = token;
 			}
 
 			return _DownloadFolder;
 		}
 
-		public async Task<StorageFolder> GetCurrentUserVideoDataFolder()
+
+		public async Task<bool> CanAccessVideoCacheFolder()
 		{
-			var folder = await GetCurrentUserDataFolder();
-
-			if (folder == null) { return null; }
-
-			return await folder.CreateFolderAsync("video", CreationCollisionOption.OpenIfExists);
+			return await GetVideoCacheFolderState() == CacheFolderAccessState.Exist;
 		}
 
-		public async Task<StorageFolder> GetCurrentUserFavDataFolder()
+		public async Task<CacheFolderAccessState> GetVideoCacheFolderState()
 		{
-			var folder = await GetCurrentUserDataFolder();
+			if (false == UserSettings.CacheSettings.IsUserAcceptedCache)
+			{
+				return CacheFolderAccessState.NotAccepted;
+			}
+
+			try
+			{
+				var videoFolder = await GetEnsureVideoFolder();
+
+				if (videoFolder == null)
+				{
+					return CacheFolderAccessState.NotSelected;
+				}
+				else
+				{
+					return CacheFolderAccessState.Exist;
+				}
+			}
+			catch (FileNotFoundException)
+			{
+				return CacheFolderAccessState.SelectedButNotExist;
+			}
+
+		}
+
+	
+
+		public async Task<StorageFolder> GetVideoCacheFolder()
+		{
+			try
+			{
+				return await GetEnsureVideoFolder();
+			}
+			catch (FileNotFoundException)
+			{
+				return null;
+			}
+		}
+
+
+
+		public Task<StorageFolder> GetApplicationLocalDataFolder()
+		{
+			return Task.FromResult(ApplicationData.Current.LocalFolder);
+		}
+
+
+		public Task<StorageFolder> GetCurrentUserDataFolder()
+		{
+			return ApplicationData.Current.LocalFolder.CreateFolderAsync(LoginUserId.ToString(), CreationCollisionOption.OpenIfExists).AsTask();
+		}
+
+		public async Task<StorageFolder> GetFeedDataFolder()
+		{
+			var folder = await GetApplicationLocalDataFolder();
 
 			if (folder == null) { return null; }
 
-			return await folder.CreateFolderAsync("fav", CreationCollisionOption.OpenIfExists);
+			return await folder.CreateFolderAsync("feed", CreationCollisionOption.OpenIfExists);
 		}
 
 
@@ -783,6 +936,14 @@ namespace NicoPlayerHohoema.Models
 
 	}
 
+
+	public enum CacheFolderAccessState
+	{
+		NotAccepted,
+		NotSelected,
+		SelectedButNotExist,
+		Exist
+	}
 
 	public class NGResult
 	{
