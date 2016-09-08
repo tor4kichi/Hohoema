@@ -94,7 +94,6 @@ namespace NicoPlayerHohoema.ViewModels
 			: base(nicoVideo, pageManager)
 		{
 			Quality = quality;
-			CacheRequestTime = nicoVideo.CacheRequestTime;
 
 			DividedQualityNicoVideo qualityNicoVideo;
 
@@ -122,7 +121,8 @@ namespace NicoPlayerHohoema.ViewModels
 				.Select(x => x == NicoVideoCacheState.NowDownloading)
 				.ToReactiveProperty(CacheManagementPageViewModel.scheduler)
 				.AddTo(_CompositeDisposable);
-			
+
+			CacheRequestTime = qualityNicoVideo.VideoFileCreatedAt;
 
 
 			PrivateReasonText = nicoVideo.PrivateReasonType.ToString() ?? "";

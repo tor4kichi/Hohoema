@@ -45,7 +45,6 @@ namespace NicoPlayerHohoema.Models
 			RawVideoId = rawVideoid;
 			_Context = context;
 
-			CacheRequestTime = DateTime.MinValue;
 			_InterfaceByQuality = new Dictionary<NicoVideoQuality, DividedQualityNicoVideo>();
 		}
 
@@ -478,8 +477,6 @@ namespace NicoPlayerHohoema.Models
 
 
 		public bool IsRequireConfirmDelete { get; private set; }
-
-		public DateTime CacheRequestTime { get; private set; }
 
 		public HohoemaApp HohoemaApp { get; private set; }
 		NicoVideoDownloadContext _Context;
