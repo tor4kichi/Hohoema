@@ -100,6 +100,8 @@ namespace NicoPlayerHohoema.Models
 		abstract public bool CanRequestDownload { get; }
 
 		public abstract uint VideoSize { get; }
+		
+		public DateTime VideoFileCreatedAt { get; private set; }
 
 
 		public bool CanPlay
@@ -176,7 +178,10 @@ namespace NicoPlayerHohoema.Models
 
 			if (IsCacheRequested)
 			{
-				var existVideo = await ExistVideo();
+				var videoCacheFolder = await _Context.GetVideoCacheFolder();
+				var videoFile = await videoCacheFolder.TryGetItemAsync(VideoFileName) as StorageFile;
+				var existVideo = videoFile != null;
+
 				if (existVideo
 					&& (Progress.CheckComplete()))
 				{
@@ -199,11 +204,19 @@ namespace NicoPlayerHohoema.Models
 				OnPropertyChanged(nameof(CanPlay));
 				OnPropertyChanged(nameof(IsCached));
 				OnPropertyChanged(nameof(CanPlay));
+
+				// キャッシュの日付を取得
+				if (existVideo)
+				{
+					VideoFileCreatedAt = videoFile.DateCreated.LocalDateTime;
+				}
 			}
 			else
 			{
 				CacheState = null;
+				VideoFileCreatedAt = default(DateTime);
 			}
+
 		}
 
 
