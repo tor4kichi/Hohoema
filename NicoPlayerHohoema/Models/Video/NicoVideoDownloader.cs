@@ -28,6 +28,9 @@ namespace NicoPlayerHohoema.Models
 
 	public class NicoVideoDownloader : Util.HttpRandomAccessStream
 	{
+		public static readonly TimeSpan DownloadDelay = TimeSpan.FromMilliseconds(50);
+
+
 		public uint CurrentDownloadHead { get; private set; }
 		private Task _DownloadTask;
 		private CancellationTokenSource _DownloadTaskCancelToken;
@@ -86,9 +89,7 @@ namespace NicoPlayerHohoema.Models
 			DividedQualityNicoVideo = qualityNicoVideo;
 			IsPremiumUser = watchApiRes.IsPremium;
 			DownloadProgress = qualityNicoVideo.Progress;
-			DownloadInterval = IsPremiumUser ?
-				TimeSpan.FromSeconds(BUFFER_SIZE / (float)PremiumUserDownload_kbps + 0.2) :
-				TimeSpan.FromSeconds(BUFFER_SIZE / (float)IppanUserDownload_kbps + 0.2);
+			DownloadInterval = DownloadDelay;
 			CacheFile = cacheFile;
 			Size = qualityNicoVideo.VideoSize;
 
@@ -453,7 +454,7 @@ namespace NicoPlayerHohoema.Models
 			IBuffer resultBuffer = null;
 			for (int i = 0; i < 3; i++)
 			{
-				using (var cancelTokenSource = new CancellationTokenSource(10000))
+				using (var cancelTokenSource = new CancellationTokenSource(30000))
 				{
 					resultBuffer = await inputStream.ReadAsync(DownloadBuffer, readSize, InputStreamOptions.None).AsTask(cancelTokenSource.Token);
 				}
