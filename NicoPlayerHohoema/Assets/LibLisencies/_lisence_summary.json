@@ -46,9 +46,23 @@
     {
       "name": "Material Design Icons",
       "site": "https://materialdesignicons.com/",
-      "author": ["Austin Andrews", "Google"],
+      "author": [ "Austin Andrews", "Google" ],
       "lisence_type": "SIL_OFL_v1_1",
       "lisence_page_url": "https://github.com/Templarian/MaterialDesign/blob/master/license.txt"
+    },
+    {
+      "name": "Entity Framework Core",
+      "site": "https://github.com/aspnet/EntityFramework",
+      "author": [".NET Foundation"],
+      "lisence_type": "Apache_v2",
+      "lisence_page_url": "https://github.com/aspnet/EntityFramework/blob/master/LICENSE.txt"
+    },
+    {
+      "name": "UWP Community Toolkit",
+      "site": "https://github.com/Microsoft/UWPCommunityToolkit",
+      "author": ["Microsoft Corporation"],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/Microsoft/UWPCommunityToolkit/blob/master/license.md"
     }
   ]
 
