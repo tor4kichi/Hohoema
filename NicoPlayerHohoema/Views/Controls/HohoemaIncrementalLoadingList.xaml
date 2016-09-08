@@ -62,7 +62,16 @@
     </UserControl.Resources>
 
     <Grid>
-        
+
+        <ProgressRing Visibility="{Binding NowLoadingItems.Value, Converter={StaticResource BooleanToVisibility}}"
+                      IsActive="{Binding NowLoadingItems.Value}"
+                      Width="48"
+                      Height="48"
+                      HorizontalAlignment="Right"
+                      VerticalAlignment="Top"
+                      Margin="16"
+                            >
+        </ProgressRing>
     
         <rlv:RefreshableListView ItemsSource="{Binding IncrementalLoadingItems}"
                                  SelectionMode="Multiple"

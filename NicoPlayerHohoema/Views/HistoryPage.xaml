@@ -18,10 +18,6 @@
     mc:Ignorable="d">
 
     <Grid>
-        <ProgressRing Visibility="{Binding NowLoadingItems.Value, Converter={StaticResource BooleanToVisibility}}"
-                      IsActive="{Binding NowLoadingItems.Value}"
-                      Style="{StaticResource VideoListProgressRingStyle}"
-                                  />
 
         <toolkit:DockPanel >
 

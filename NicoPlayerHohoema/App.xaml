@@ -29,7 +29,6 @@
             
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Styles/RefreshableListViewStyles.xaml" />
-                <ResourceDictionary Source="/Styles/VideoListProgressRingStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </prism:PrismUnityApplication.Resources>
