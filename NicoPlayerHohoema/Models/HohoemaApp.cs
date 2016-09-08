@@ -30,11 +30,12 @@ namespace NicoPlayerHohoema.Models
 		const string PRIMARY_ACCOUNT = "primary_account";
 
 
-		public static HohoemaApp Create(IEventAggregator ea)
+		public static async Task<HohoemaApp> Create(IEventAggregator ea)
 		{
 			var app = new HohoemaApp(ea);
 
 			app.UserSettings = new HohoemaUserSettings();
+			await app.LoadUserSettings();
 			app.ContentFinder = new NiconicoContentFinder(app);
 			app.UserMylistManager = new UserMylistManager(app);
 
@@ -174,10 +175,34 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public async Task LoadUserSettings(string userId)
+		public async Task LoadUserSettings()
 		{
-			var folder = await ApplicationData.Current.LocalFolder.CreateFolderAsync(userId, CreationCollisionOption.OpenIfExists);
+			var folder = ApplicationData.Current.LocalFolder;
 			UserSettings = await HohoemaUserSettings.LoadSettings(folder);
+		}
+
+		/// <summary>
+		/// ユーザーIDに基づいたユーザー設定を0.4.0以降のユーザー設定として移行します。
+		/// すでに0.4.0環境のユーザー設定が存在する場合や
+		/// ユーザーIDに基づいたユーザー設定が存在しない場合は何もしません。
+		/// 読み込みに成功するとUserSettingsが上書き更新されます。
+		/// ユーザーIDに基づいたユーザー設定はフォルダごと削除されます。
+		/// </summary>
+		/// <param name="userId"></param>
+		/// <returns></returns>
+		public async Task MigrateLegacyUserSettings(string userId)
+		{
+			var folder = await ApplicationData.Current.LocalFolder.TryGetItemAsync(userId) as StorageFolder;
+			if (folder != null)
+			{
+				var fileAccessor = new FileAccessor<CacheSettings>(ApplicationData.Current.LocalFolder, HohoemaUserSettings.CacheSettingsFileName);
+				if (false == await fileAccessor.ExistFile())
+				{
+					await MoveFiles(folder, ApplicationData.Current.LocalFolder);
+
+					await LoadUserSettings();
+				}
+			}
 		}
 
 		public async Task SaveUserSettings()
@@ -317,21 +342,9 @@ namespace NicoPlayerHohoema.Models
 
 							Debug.WriteLine("user id is : " + LoginUserId);
 
-							try
-							{
-								loginActivityLogger.LogEvent("initialize user settings");
-								await LoadUserSettings(LoginUserId.ToString());
-							}
-							catch
-							{
-								LoginErrorText = "[Failed]: load user settings failed.";
-								Debug.WriteLine(LoginErrorText);
-								loginActivityLogger.LogEvent(LoginErrorText, fields, LoggingLevel.Error);
-								NiconicoContext.Dispose();
-								NiconicoContext = null;
-								return NiconicoSignInStatus.Failed;
-							}
 
+							// 0.4.0以前のバージョンからのログインユーザー情報の移行処理
+							await MigrateLegacyUserSettings(LoginUserId.ToString());
 
 
 							try
@@ -405,6 +418,11 @@ namespace NicoPlayerHohoema.Models
 							Debug.WriteLine("Login done.");
 							loginActivityLogger.LogEvent("[Success]: Login done");
 						}
+
+
+
+						await (App.Current as App).CheckVideoCacheFolderState();
+
 
 						OnSignin?.Invoke();
 
@@ -601,7 +619,7 @@ namespace NicoPlayerHohoema.Models
 
 				try
 				{
-					await MediaManager.CheckAllNicoVideoCacheState();
+					await MediaManager.OnCacheFolderChanged();
 				}
 				catch (Exception ex) { Debug.WriteLine(ex.ToString()); }
 
@@ -650,42 +668,58 @@ namespace NicoPlayerHohoema.Models
 		
 		public async Task<bool> ChangeUserDataFolder()
 		{
-			var folderPicker = new Windows.Storage.Pickers.FolderPicker();
-			folderPicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Downloads;
-			folderPicker.FileTypeFilter.Add("*");
-			
-			var folder = await folderPicker.PickSingleFolderAsync();
-			if (folder != null && folder.Path != _DownloadFolder?.Path)
+			if (MediaManager != null && MediaManager.Context != null)
 			{
-				try
-				{
-					await CacheFolderMigration(folder);
-				}
-				catch (Exception ex)
-				{
-					Debug.WriteLine(ex.ToString());
-				}
+				await MediaManager.Context.Suspending();
+			}
 
-				if (false == String.IsNullOrWhiteSpace(CurrentFolderAccessToken))
+			try
+			{
+				var folderPicker = new Windows.Storage.Pickers.FolderPicker();
+				folderPicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Downloads;
+				folderPicker.FileTypeFilter.Add("*");
+
+				var folder = await folderPicker.PickSingleFolderAsync();
+				if (folder != null && folder.Path != _DownloadFolder?.Path)
 				{
+					try
+					{
+						await CacheFolderMigration(folder);
+					}
+					catch (Exception ex)
+					{
+						Debug.WriteLine(ex.ToString());
+					}
+
+					if (false == String.IsNullOrWhiteSpace(CurrentFolderAccessToken))
+					{
+						Windows.Storage.AccessCache.StorageApplicationPermissions.
+						FutureAccessList.Remove(CurrentFolderAccessToken);
+						CurrentFolderAccessToken = null;
+					}
+
 					Windows.Storage.AccessCache.StorageApplicationPermissions.
-					FutureAccessList.Remove(CurrentFolderAccessToken);
-					CurrentFolderAccessToken = null;
+					FutureAccessList.AddOrReplace(FolderAccessToken, folder);
+
+					_DownloadFolder = folder;
+
+					CurrentFolderAccessToken = FolderAccessToken;
+
+					return true;
 				}
-
-				Windows.Storage.AccessCache.StorageApplicationPermissions.
-				FutureAccessList.AddOrReplace(FolderAccessToken, folder);
-
-				_DownloadFolder = folder;
-
-				CurrentFolderAccessToken = FolderAccessToken;
-
-				return true;
+				else
+				{
+					return false;
+				}
 			}
-			else
+			finally
 			{
-				return false;
+				if (MediaManager != null && MediaManager.Context != null)
+				{
+					await MediaManager.Context.Resume();
+				}
 			}
+			
 		}
 		
 
@@ -770,7 +804,6 @@ namespace NicoPlayerHohoema.Models
 				}
 				catch (FileNotFoundException)
 				{
-					Windows.Storage.AccessCache.StorageApplicationPermissions.MostRecentlyUsedList.Clear();
 					throw;
 				}
 				catch (Exception ex)

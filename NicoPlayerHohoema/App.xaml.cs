@@ -100,6 +100,15 @@ namespace NicoPlayerHohoema
 
 			try
 			{
+				await CheckVideoCacheFolderState();
+			}
+			catch
+			{
+				Debug.WriteLine("キャッシュフォルダチェックに失敗しました。");
+			}
+
+			try
+			{
 				if (hohoemaApp.MediaManager != null && hohoemaApp.MediaManager.Context != null)
 				{
 					await hohoemaApp.MediaManager.Context.Resume();
@@ -114,7 +123,7 @@ namespace NicoPlayerHohoema
 
 		}
 
-		protected override Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args)
+		protected override async Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args)
 		{
 #if DEBUG
 			DebugSettings.IsBindingTracingEnabled = true;
@@ -138,6 +147,7 @@ namespace NicoPlayerHohoema
 
 				var pm = Container.Resolve<PageManager>();
 
+				
 //				var hohoemaApp = Container.Resolve<HohoemaApp>();
 //				if (HohoemaApp.HasPrimaryAccount())
 //				{
@@ -149,11 +159,36 @@ namespace NicoPlayerHohoema
 				}
 			}
 
-			return Task.CompletedTask;
+//			return Task.CompletedTask;
 		}
 
-		
+		/// <summary>
+		/// 動画キャッシュ保存先フォルダをチェックします
+		/// 選択済みだがフォルダが見つからない場合に、トースト通知を行います。
+		/// </summary>
+		/// <returns></returns>
+		public async Task CheckVideoCacheFolderState()
+		{
+			var hohoemaApp = Container.Resolve<HohoemaApp>();
+			var cacheFolderState = await hohoemaApp.GetVideoCacheFolderState();
 
+			if (cacheFolderState == CacheFolderAccessState.SelectedButNotExist)
+			{
+				var toastService = Container.Resolve<Views.Service.ToastNotificationService>();
+				toastService.ShowText(
+					"キャッシュが利用できません"
+					, "キャッシュ保存先フォルダが見つかりません。（ここをタップで設定画面を表示）"
+					, duration: Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Long
+					, toastActivatedAction: async () =>
+					{
+						await HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
+						{
+							var pm = Container.Resolve<PageManager>();
+							pm.OpenPage(HohoemaPageType.Settings, HohoemaSettingsKind.Cache.ToString());
+						});
+					});
+			}
+		}
 		protected override async Task OnInitializeAsync(IActivatedEventArgs args)
 		{
 			await Models.Db.NicoVideoDbContext.InitializeAsync();
@@ -190,10 +225,10 @@ namespace NicoPlayerHohoema
 		}
 
 
-		private Task RegisterTypes()
+		private async Task RegisterTypes()
 		{
 			// Models
-			var hohoemaApp = HohoemaApp.Create(EventAggregator);
+			var hohoemaApp = await HohoemaApp.Create(EventAggregator);
 			Container.RegisterInstance(hohoemaApp);
 			Container.RegisterInstance(new PageManager(NavigationService));
 			Container.RegisterInstance(hohoemaApp.ContentFinder);
@@ -229,7 +264,7 @@ namespace NicoPlayerHohoema
 			Container.RegisterInstance(new Views.Service.EditMylistGroupDialogService());
 			Container.RegisterInstance(new Views.Service.AcceptCacheUsaseDialogContext());
 
-			return Task.CompletedTask;
+//			return Task.CompletedTask;
 		}
 
 
