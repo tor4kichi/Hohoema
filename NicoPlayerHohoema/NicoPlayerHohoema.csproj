@@ -198,6 +198,7 @@
     <Compile Include="ViewModels\FeedGroupManagePageViewModel.cs" />
     <Compile Include="ViewModels\FeedGroupPageViewModel.cs" />
     <Compile Include="ViewModels\HistoryPageViewModel.cs" />
+    <Compile Include="ViewModels\HohoemaIncrementalSourceBase.cs" />
     <Compile Include="ViewModels\HohoemaListingPageItemBase.cs" />
     <Compile Include="ViewModels\HohoemaListingPageViewModelBase.cs" />
     <Compile Include="ViewModels\HohoemaVideoListingPageViewModelBase.cs" />

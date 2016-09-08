@@ -41,14 +41,6 @@ namespace NicoPlayerHohoema.ViewModels
 			UpdateTitle($"マイリスト検索: {searchOption.Keyword} - {optionText}");
 		}
 
-		protected override uint IncrementalLoadCount
-		{
-			get
-			{
-				return 5;
-			}
-		}
-
 		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
 		{
 			var source = IncrementalLoadingItems.Source as MylistSearchSource;
@@ -123,17 +115,16 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class MylistSearchSource : IIncrementalSource<MylistSearchListingItem>
 	{
-		public const uint MaxPagenationCount = 50;
-		public const int OneTimeLoadSearchItemCount = 32;
-
 		public int MaxPageCount { get; private set; }
 
 		HohoemaApp _HohoemaApp;
 		PageManager _PageManager;
 		public SearchOption SearchOption { get; private set; }
 
-
+		
 		private MylistSearchResponse _MylistGroupResponse;
+
+
 
 		public MylistSearchSource(SearchOption searchOption, HohoemaApp hohoemaApp, PageManager pageManager)
 		{
@@ -142,6 +133,19 @@ namespace NicoPlayerHohoema.ViewModels
 			SearchOption = searchOption;
 
 		}
+
+
+
+
+
+		public uint OneTimeLoadCount
+		{
+			get
+			{
+				return 10;
+			}
+		}
+
 
 		public async Task<int> ResetSource()
 		{

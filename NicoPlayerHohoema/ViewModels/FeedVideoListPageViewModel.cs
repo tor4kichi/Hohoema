@@ -97,17 +97,9 @@ namespace NicoPlayerHohoema.ViewModels
 			return base.CheckNeedUpdateOnNavigateTo(mode);
 		}
 
-		protected override uint IncrementalLoadCount
-		{
-			get { return 5; }
-		}
-
-		
-	
-
 		protected override IIncrementalSource<FeedVideoInfoControlViewModel> GenerateIncrementalSource()
 		{
-			return new FeedVideoIncrementalSource(FeedGroup, HohoemaApp.FeedManager, HohoemaApp.MediaManager, PageManager);
+			return new FeedVideoIncrementalSource(FeedGroup, HohoemaApp, PageManager);
 		}
 
 
@@ -118,54 +110,48 @@ namespace NicoPlayerHohoema.ViewModels
 	}
 
 
-	public class FeedVideoIncrementalSource : IIncrementalSource<FeedVideoInfoControlViewModel>
+	public class FeedVideoIncrementalSource : HohoemaPreloadingIncrementalSourceBase<FeedVideoInfoControlViewModel>
 	{
-		HohoemaApp _HohoemaApp;
 		FeedManager _FavFeedManager;
 		NiconicoMediaManager _NiconicoMediaManager;
 		PageManager _PageManager;
 		FeedGroup _FeedGroup;
 
 
-		public FeedVideoIncrementalSource(FeedGroup feedGroup, FeedManager favFeedManager, NiconicoMediaManager mediaManager, PageManager pageManager)
+		public FeedVideoIncrementalSource(FeedGroup feedGroup, HohoemaApp hohoemaApp, PageManager pageManager)
+			: base(hohoemaApp, "Feed_" + feedGroup.Label)
 		{
-			_HohoemaApp = feedGroup.HohoemaApp;
 			_FeedGroup = feedGroup;
-			_FavFeedManager = favFeedManager;
-			_NiconicoMediaManager = mediaManager;
+			_FavFeedManager = hohoemaApp.FeedManager;
+			_NiconicoMediaManager = hohoemaApp.MediaManager;
 			_PageManager = pageManager;
 		}
 
-		public async Task<int> ResetSource()
+
+
+		#region Implements HohoemaPreloadingIncrementalSourceBase		
+
+
+		protected override async Task Preload(int start, int count)
+		{
+			foreach (var item in _FeedGroup.FeedItems.AsParallel().Skip(start).Take(count))
+			{
+				if (!HohoemaApp.IsLoggedIn) { return; }
+
+				await HohoemaApp.MediaManager.GetNicoVideoAsync(item.VideoId);
+			}
+		}
+
+
+		protected override async Task<int> ResetSourceImpl()
 		{
 			await _FeedGroup.Refresh();
-
-//			await SchedulePreloading(0, 10);
 
 			return _FeedGroup.FeedItems.Count;
 		}
 
-		private Task SchedulePreloading(int start, int count)
-		{
-			// 先頭20件を先行ロード
-			return _FavFeedManager.HohoemaApp.ThumbnailBackgroundLoader.Schedule(
-				new SimpleBackgroundUpdate("FeedGroup:" + _FeedGroup.Label + $" [{start} - {count}]"
-				, () => UpdateItemsThumbnailInfo(start, count)
-				)
-				);
-		}
 
-		private async Task UpdateItemsThumbnailInfo(int start, int count)
-		{
-			foreach (var item in _FeedGroup.FeedItems.AsParallel().Skip(start).Take(count))
-			{
-				if (!_HohoemaApp.IsLoggedIn) { return; }
-
-				await _HohoemaApp.MediaManager.GetNicoVideoAsync(item.VideoId);
-			}
-		}
-
-		public async Task<IEnumerable<FeedVideoInfoControlViewModel>> GetPagedItems(int head, int count)
+		protected override async Task<IEnumerable<FeedVideoInfoControlViewModel>> GetPagedItemsImpl(int head, int count)
 		{
 			var list = new List<FeedVideoInfoControlViewModel>();
 
@@ -186,9 +172,9 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 			}
 
-//			await SchedulePreloading(head + count, count);
-
 			return list;
 		}
+
+		#endregion
 	}
 }

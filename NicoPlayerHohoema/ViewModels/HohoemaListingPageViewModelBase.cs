@@ -25,6 +25,7 @@ namespace NicoPlayerHohoema.ViewModels
 	abstract public class HohoemaListingPageViewModelBase<ITEM_VM> : HohoemaViewModelBase
 		where ITEM_VM : HohoemaListingPageItemBase
 	{
+
 		public HohoemaListingPageViewModelBase(HohoemaApp app, PageManager pageManager, bool isRequireSignIn = true)
 			: base(app, pageManager, isRequireSignIn)
 		{
@@ -201,7 +202,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 				MaxItemsCount.Value = await source.ResetSource();
 
-				IncrementalLoadingItems = new IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM>(source, IncrementalLoadCount);
+				IncrementalLoadingItems = new IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM>(source);
 				OnPropertyChanged(nameof(IncrementalLoadingItems));
 
 				IncrementalLoadingItems.BeginLoading += BeginLoadingItems;
@@ -232,8 +233,6 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 		protected virtual void PostResetList() { }
-
-		protected abstract uint IncrementalLoadCount { get; }
 
 		abstract protected IIncrementalSource<ITEM_VM> GenerateIncrementalSource();
 

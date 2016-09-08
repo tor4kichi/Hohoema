@@ -153,14 +153,7 @@ namespace NicoPlayerHohoema.ViewModels
 			UpdateTitle($"{target}検索: {searchOption.Keyword} - {optionText}");
 		}
 
-		protected override uint IncrementalLoadCount
-		{
-			get
-			{
-				return 5;
-			}
-		}
-
+		
 		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
 		{
 			var source = IncrementalLoadingItems.Source as VideoSearchSource;

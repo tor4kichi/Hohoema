@@ -75,16 +75,6 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		protected override uint IncrementalLoadCount
-		{
-			get
-			{
-				return 5;
-			}
-		}
-
-
-		
 		protected override async Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			_HistoriesResponse = await HohoemaApp.ContentFinder.GetHistory();
@@ -152,6 +142,17 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class HistoryIncrementalLoadingSource : IIncrementalSource<HistoryVideoInfoControlViewModel>
 	{
+
+		HistoriesResponse _HistoriesResponse;
+
+		HohoemaApp _HohoemaApp;
+		PageManager _PageManager;
+
+
+
+		
+
+
 		public HistoryIncrementalLoadingSource(HohoemaApp hohoemaApp, PageManager pageManager, HistoriesResponse historyRes)
 		{
 			_HohoemaApp = hohoemaApp;
@@ -159,6 +160,16 @@ namespace NicoPlayerHohoema.ViewModels
 			_HistoriesResponse = historyRes;
 		}
 
+
+
+
+		public uint OneTimeLoadCount
+		{
+			get
+			{
+				return 10;
+			}
+		}
 
 		public Task<int> ResetSource()
 		{
@@ -187,11 +198,6 @@ namespace NicoPlayerHohoema.ViewModels
 			
 			return list;
 		}
-
-		HistoriesResponse _HistoriesResponse;
-	
-		HohoemaApp _HohoemaApp;
-		PageManager _PageManager;
 
 	}
 }

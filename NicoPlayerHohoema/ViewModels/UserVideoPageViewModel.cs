@@ -37,14 +37,6 @@ namespace NicoPlayerHohoema.ViewModels
 			User = await HohoemaApp.ContentFinder.GetUserDetail(UserId);			
 		}
 
-		protected override uint IncrementalLoadCount
-		{
-			get
-			{
-				return 5;
-			}
-		}
-
 		protected override void PostResetList()
 		{
 			base.PostResetList();
@@ -104,10 +96,9 @@ namespace NicoPlayerHohoema.ViewModels
 	}
 
 
-	public class UserVideoIncrementalSource : IIncrementalSource<VideoInfoControlViewModel>
+	public class UserVideoIncrementalSource : HohoemaPreloadingIncrementalSourceBase<VideoInfoControlViewModel>
 	{
 		public uint UserId { get; private set; }
-		public HohoemaApp HohoemaApp { get; private set; }
 		public NiconicoContentFinder ContentFinder { get; private set; }
 		public NiconicoMediaManager MediaManager { get; private set; }
 		public PageManager PageManager { get; private set; }
@@ -117,26 +108,43 @@ namespace NicoPlayerHohoema.ViewModels
 
 		
 		public UserVideoIncrementalSource(string userId, UserDetail userDetail, HohoemaApp hohoemaApp, PageManager pageManager)
+			: base(hohoemaApp, "UserVideo_" + userId)
 		{
 			UserId = uint.Parse(userId);
 			User = userDetail;
-			HohoemaApp = hohoemaApp;
 			ContentFinder = HohoemaApp.ContentFinder;
 			MediaManager = HohoemaApp.MediaManager;
 			PageManager = pageManager;
 		}
 
-		public async Task<int> ResetSource()
+		#region Implements HohoemaPreloadingIncrementalSourceBase		
+
+		protected override async Task Preload(int start, int count)
+		{
+			try
+			{
+				var page = ((start) / 30) + 1;
+				var res = await ContentFinder.GetUserVideos(UserId, (uint)page);
+				var head = start - page * count;
+
+				foreach (var item in res.Items.AsParallel().Skip(head).Take(count))
+				{
+					if (!HohoemaApp.IsLoggedIn) { return; }
+
+					await HohoemaApp.MediaManager.GetNicoVideoAsync(item.VideoId);
+				}
+			}
+			catch { }
+		}
+
+		protected override async Task<int> ResetSourceImpl()
 		{
 			User = await ContentFinder.GetUserDetail(UserId.ToString());
-
-//			await SchedulePreloading(0, 10);
-
 			return (int)User.TotalVideoCount;
 		}
 
 
-		public async Task<IEnumerable<VideoInfoControlViewModel>> GetPagedItems(int head, int count)
+		protected override async Task<IEnumerable<VideoInfoControlViewModel>> GetPagedItemsImpl(int head, int count)
 		{
 			if (User.TotalVideoCount < head)
 			{
@@ -165,37 +173,9 @@ namespace NicoPlayerHohoema.ViewModels
 				Debug.WriteLine(ex.Message);
 			}
 
-//			await SchedulePreloading((int)(head + count - 1), (int)count);
-
 			return list;
 		}
 
-		private Task SchedulePreloading(int start, int count)
-		{
-			// 先頭20件を先行ロード
-			return HohoemaApp.ThumbnailBackgroundLoader.Schedule(
-				new SimpleBackgroundUpdate("UserVideo:" + User.Nickname + $" [{start} - {count}]"
-				, () => UpdateItemsThumbnailInfo(start, count)
-				)
-				);
-		}
-
-		private async Task UpdateItemsThumbnailInfo(int start, int count)
-		{
-			try
-			{
-				var page = ((start) / 30) + 1;
-				var res = await ContentFinder.GetUserVideos(UserId, (uint)page);
-				var head = start - page * count;
-
-				foreach (var item in res.Items.AsParallel().Skip(head).Take(count))
-				{
-					if (!HohoemaApp.IsLoggedIn) { return; }
-
-					await HohoemaApp.MediaManager.GetNicoVideoAsync(item.VideoId);
-				}
-			}
-			catch  { }
-		}
+		#endregion
 	}
 }

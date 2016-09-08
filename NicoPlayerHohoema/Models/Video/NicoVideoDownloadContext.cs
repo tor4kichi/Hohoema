@@ -447,7 +447,7 @@ namespace NicoPlayerHohoema.Models
 
 		private async Task<NicoVideoDownloader> CreateDownloader(NicoVideo nicoVideo, NicoVideoQuality quality)
 		{
-
+			
 			await nicoVideo.SetupWatchPageVisit(quality);
 
 

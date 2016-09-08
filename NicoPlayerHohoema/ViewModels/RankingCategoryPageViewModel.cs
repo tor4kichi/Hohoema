@@ -179,16 +179,6 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		protected override uint IncrementalLoadCount
-		{
-			get
-			{
-				// 検索ベースランキングの場合は30個ずつ
-				// （ニコ動の検索一回あたりの取得件数が30固定のため）
-				return CanChangeRankingParameter.Value ? 5u : 30u;
-			}
-		}
-
 		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
 		{
 			if (RequireCategoryInfo != null)
@@ -235,9 +225,20 @@ namespace NicoPlayerHohoema.ViewModels
 	}
 
 
-	public class CategoryRankingLoadingSource : IIncrementalSource<RankedVideoInfoControlViewModel>
+	public class CategoryRankingLoadingSource : HohoemaPreloadingIncrementalSourceBase<RankedVideoInfoControlViewModel>
 	{
+
+		NiconicoRankingRss RankingRss;
+		HohoemaApp _HohoemaApp;
+		PageManager _PageManager;
+		RankingCategory _Category;
+		RankingTarget _Target;
+		RankingTimeSpan _TimeSpan;
+
+		
+
 		public CategoryRankingLoadingSource(HohoemaApp app, PageManager pageManager, RankingCategory category, RankingTarget target, RankingTimeSpan timeSpan)
+			: base(app, "CategoryRanking_" + category.ToString())
 		{
 			_HohoemaApp = app;
 			_PageManager = pageManager;
@@ -247,26 +248,12 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		public async Task<int> ResetSource()
-		{
-			RankingRss = await NiconicoRanking.GetRankingData(_Target, _TimeSpan, _Category);
 
-//			await SchedulePreloading(0, 20);
 
-			return RankingRss.Channel.Items.Count;
-		}
+		#region Implements HohoemaPreloadingIncrementalSourceBase		
 
-		private Task SchedulePreloading(int start, int count)
-		{
-			// 先頭20件を先行ロード
-			return _HohoemaApp.ThumbnailBackgroundLoader.Schedule(
-				new SimpleBackgroundUpdate("Ranking_" + _Category.ToString() + $"[{start} - {count}]"
-				, () => UpdateItemsThumbnailInfo(start, count)
-				)
-				);
-		}
-	
-		private async Task UpdateItemsThumbnailInfo(int start, int count)
+
+		protected override async Task Preload(int start, int count)
 		{
 			if (RankingRss != null)
 			{
@@ -280,8 +267,15 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
+		protected override async Task<int> ResetSourceImpl()
+		{
+			RankingRss = await NiconicoRanking.GetRankingData(_Target, _TimeSpan, _Category);
+			return RankingRss.Channel.Items.Count;
+		}
 
-		public async Task<IEnumerable<RankedVideoInfoControlViewModel>> GetPagedItems(int head, int count)
+
+
+		protected override async Task<IEnumerable<RankedVideoInfoControlViewModel>> GetPagedItemsImpl(int head, int count)
 		{
 			while(_HohoemaApp.MediaManager == null)
 			{
@@ -317,33 +311,45 @@ namespace NicoPlayerHohoema.ViewModels
 				items.Add(vm);
 			}
 
-			if (head < tail)
-			{
-//				await SchedulePreloading(tail, 20);
-			}
-
 			return items;			
 		}
 
 
-		NiconicoRankingRss RankingRss;
-		HohoemaApp _HohoemaApp;
-		PageManager _PageManager;
-		RankingCategory _Category;
-		RankingTarget _Target;
-		RankingTimeSpan _TimeSpan;
+		#endregion
+
+
+		
+
 	}
 
 
 
 	public class CustomRankingLoadingSource : IIncrementalSource<RankedVideoInfoControlViewModel>
 	{
+		HohoemaApp _HohoemaApp;
+		PageManager _PageManager;
+		string _Parameter;
+
+	
 		public CustomRankingLoadingSource(HohoemaApp app, PageManager pageManager, string parameter)
 		{
 			_HohoemaApp = app;
 			_PageManager = pageManager;
 			_Parameter = parameter;
 		}
+
+
+		#region Implements IIncrementalSource
+
+
+		public uint OneTimeLoadCount
+		{
+			get
+			{
+				return 30;
+			}
+		}
+
 
 		public async Task<int> ResetSource()
 		{
@@ -385,10 +391,7 @@ namespace NicoPlayerHohoema.ViewModels
 			return items;
 		}
 
-		
-		HohoemaApp _HohoemaApp;
-		PageManager _PageManager;
-		string _Parameter;
+		#endregion
 
 	}
 

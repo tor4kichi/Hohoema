@@ -426,11 +426,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 	}
 
-	public class VideoSearchSource : IIncrementalSource<VideoInfoControlViewModel>
+	public class VideoSearchSource : HohoemaPreloadingIncrementalSourceBase<VideoInfoControlViewModel>
 	{
-		public const uint MaxPagenationCount = 50;
-		public const int OneTimeLoadSearchItemCount = 20;
-
 		public int MaxPageCount { get; private set; }
 
 		HohoemaApp _HohoemaApp;
@@ -439,33 +436,18 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		public VideoSearchSource(SearchOption searchOption, HohoemaApp hohoemaApp, PageManager pageManager)
+			: base(hohoemaApp
+				  , $"Search_{searchOption.SearchTarget.ToString()}_{searchOption.Keyword}"
+				  )
 		{
 			_HohoemaApp = hohoemaApp;
 			_PageManager = pageManager;
 			SearchOption = searchOption;
 		}
 
-		public async Task<int> ResetSource()
-		{
-			int totalCount = 0;
-			if (SearchOption.SearchTarget == SearchTarget.Keyword)
-			{
-				var res = await _HohoemaApp.ContentFinder.GetKeywordSearch(SearchOption.Keyword, 0, 2);
-				totalCount = (int)res.GetTotalCount();
+		#region Implements HohoemaPreloadingIncrementalSourceBase		
 
-			}
-			else if (SearchOption.SearchTarget == SearchTarget.Tag)
-			{
-				var res = await _HohoemaApp.ContentFinder.GetTagSearch(SearchOption.Keyword, 0, 2);
-				totalCount = (int)res.GetTotalCount();
-			}
-
-//			await SchedulePreloading(0, OneTimeLoadSearchItemCount);
-
-			return totalCount;
-		}
-
-		private async Task UpdateItemsThumbnailInfo(int start, int count)
+		protected override async Task Preload(int start, int count)
 		{
 			// 最初の検索結果だけ先行してThumbnail情報を読みこませる
 			VideoListingResponse res = null;
@@ -484,16 +466,29 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		private Task SchedulePreloading(int start, int count)
+
+		protected override async Task<int> ResetSourceImpl()
 		{
-			return _HohoemaApp.ThumbnailBackgroundLoader.Schedule(
-				new SimpleBackgroundUpdate("Search_" + SearchOption.Keyword + $"[{start} - {count}]"
-				, () => UpdateItemsThumbnailInfo(start, count)
-				)
-				);
+			int totalCount = 0;
+			if (SearchOption.SearchTarget == SearchTarget.Keyword)
+			{
+				var res = await _HohoemaApp.ContentFinder.GetKeywordSearch(SearchOption.Keyword, 0, 2);
+				totalCount = (int)res.GetTotalCount();
+
+			}
+			else if (SearchOption.SearchTarget == SearchTarget.Tag)
+			{
+				var res = await _HohoemaApp.ContentFinder.GetTagSearch(SearchOption.Keyword, 0, 2);
+				totalCount = (int)res.GetTotalCount();
+			}
+
+			return totalCount;
 		}
 
-		public async Task<IEnumerable<VideoInfoControlViewModel>> GetPagedItems(int head, int count)
+
+
+
+		protected override async Task<IEnumerable<VideoInfoControlViewModel>> GetPagedItemsImpl(int head, int count)
 		{
 			var items = new List<VideoInfoControlViewModel>();
 
@@ -535,13 +530,15 @@ namespace NicoPlayerHohoema.ViewModels
 
 					items.Add(videoInfoVM);
 				}
-
-//				await SchedulePreloading(head + count, count);
 			}
 
 
 			return items;
 		}
+
+		#endregion
+
+
 	}
 
 

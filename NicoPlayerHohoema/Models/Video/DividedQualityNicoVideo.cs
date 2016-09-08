@@ -232,6 +232,10 @@ namespace NicoPlayerHohoema.Models
 				throw new Exception("");
 			}
 
+			if (Progress == null)
+			{
+				await SetupDownloadProgress();
+			}
 
 			var file = await GetCacheFile();
 			var downloader = new NicoVideoDownloader(

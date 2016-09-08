@@ -64,14 +64,7 @@ namespace NicoPlayerHohoema.ViewModels
 			var optionText = Util.SortHelper.ToCulturizedText(searchOption.Sort, searchOption.Order);
 			UpdateTitle($"{target}検索: {searchOption.Keyword} - {optionText}");
 		}
-
-		protected override uint IncrementalLoadCount
-		{
-			get
-			{
-				return 5;
-			}
-		}
+		
 
 		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
 		{
