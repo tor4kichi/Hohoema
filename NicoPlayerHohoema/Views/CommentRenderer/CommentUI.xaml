@@ -24,7 +24,7 @@
                 TextLineBounds="Tight"
             >
             <TextBlock.RenderTransform>
-                <TranslateTransform X="1" Y="1" />
+                <TranslateTransform X="{Binding TextBGOffset}" Y="{Binding TextBGOffset}" />
             </TextBlock.RenderTransform>
         </TextBlock>
         
