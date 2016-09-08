@@ -51,7 +51,7 @@ namespace NicoPlayerHohoema.Views.Service
 
 		public AcceptCacheUsaseDialogContext(bool withConfirm = true)
 		{
-			ComfirmButtonText = withConfirm ? "同意してキャッシュ機能を利用する" : "";
+			ComfirmButtonText = withConfirm ? "同意して動画キャッシュを利用" : "";
 		}
 	}
 }
