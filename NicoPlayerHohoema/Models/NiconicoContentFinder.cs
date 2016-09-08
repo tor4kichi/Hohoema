@@ -65,8 +65,8 @@ namespace NicoPlayerHohoema.Models
 					);
 			});
 
-			if (res != null)
-			{
+			if (res != null && res.UploaderInfo != null)
+			{ 			
 				var uploaderInfo = res.UploaderInfo;
 				await UserInfoDb.AddOrReplaceAsync(uploaderInfo.id, uploaderInfo.nickname, uploaderInfo.icon_url);
 			}
