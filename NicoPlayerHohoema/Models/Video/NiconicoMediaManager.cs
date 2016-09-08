@@ -388,10 +388,12 @@ namespace NicoPlayerHohoema.Models
 		
 
 
-		public async Task CheckAllNicoVideoCacheState()
+		public async Task OnCacheFolderChanged()
 		{
 			foreach (var nicoVideo in VideoIdToNicoVideo.Values)
 			{
+				await nicoVideo.LowQuality.SetupDownloadProgress();
+				await nicoVideo.OriginalQuality.SetupDownloadProgress();
 				await nicoVideo.CheckCacheStatus();
 			}
 		}

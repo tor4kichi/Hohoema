@@ -13,13 +13,16 @@ namespace NicoPlayerHohoema.Views.Service
 	public class ToastNotificationService
 	{
 		ToastNotifier _Nofifier;
+
+		
+
 		public ToastNotificationService()
 		{
 			_Nofifier = ToastNotificationManager.CreateToastNotifier();
 		}
 
 
-		public void ShowText(string title, string content, ToastDuration duration = ToastDuration.Short, bool isSuppress = false)
+		public void ShowText(string title, string content, ToastDuration duration = ToastDuration.Short, bool isSuppress = false, Action toastActivatedAction = null)
 		{
 			var toust = new ToastContent();
 			toust.Visual = new ToastVisual()
@@ -43,17 +46,19 @@ namespace NicoPlayerHohoema.Views.Service
 				}
 			};
 
-
-			toust.Duration = ToastDuration.Long;
+			
+			toust.Duration = duration;
 			
 
 			var toast = new ToastNotification(toust.GetXml());
 			toast.SuppressPopup = isSuppress;
-			
+
+			if (toastActivatedAction != null)
+			{
+				toast.Activated += (ToastNotification sender, object args) => toastActivatedAction();
+			}
+
 			_Nofifier.Show(toast);
 		}
-		
-
-
 	}
 }

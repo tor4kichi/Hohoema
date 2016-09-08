@@ -419,6 +419,11 @@ namespace NicoPlayerHohoema.Models
 							loginActivityLogger.LogEvent("[Success]: Login done");
 						}
 
+
+
+						await (App.Current as App).CheckVideoCacheFolderState();
+
+
 						OnSignin?.Invoke();
 
 						MediaManager.Context.StartBackgroundDownload();
@@ -614,7 +619,7 @@ namespace NicoPlayerHohoema.Models
 
 				try
 				{
-					await MediaManager.CheckAllNicoVideoCacheState();
+					await MediaManager.OnCacheFolderChanged();
 				}
 				catch (Exception ex) { Debug.WriteLine(ex.ToString()); }
 
@@ -663,42 +668,58 @@ namespace NicoPlayerHohoema.Models
 		
 		public async Task<bool> ChangeUserDataFolder()
 		{
-			var folderPicker = new Windows.Storage.Pickers.FolderPicker();
-			folderPicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Downloads;
-			folderPicker.FileTypeFilter.Add("*");
-			
-			var folder = await folderPicker.PickSingleFolderAsync();
-			if (folder != null && folder.Path != _DownloadFolder?.Path)
+			if (MediaManager != null && MediaManager.Context != null)
 			{
-				try
-				{
-					await CacheFolderMigration(folder);
-				}
-				catch (Exception ex)
-				{
-					Debug.WriteLine(ex.ToString());
-				}
+				await MediaManager.Context.Suspending();
+			}
 
-				if (false == String.IsNullOrWhiteSpace(CurrentFolderAccessToken))
+			try
+			{
+				var folderPicker = new Windows.Storage.Pickers.FolderPicker();
+				folderPicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Downloads;
+				folderPicker.FileTypeFilter.Add("*");
+
+				var folder = await folderPicker.PickSingleFolderAsync();
+				if (folder != null && folder.Path != _DownloadFolder?.Path)
 				{
+					try
+					{
+						await CacheFolderMigration(folder);
+					}
+					catch (Exception ex)
+					{
+						Debug.WriteLine(ex.ToString());
+					}
+
+					if (false == String.IsNullOrWhiteSpace(CurrentFolderAccessToken))
+					{
+						Windows.Storage.AccessCache.StorageApplicationPermissions.
+						FutureAccessList.Remove(CurrentFolderAccessToken);
+						CurrentFolderAccessToken = null;
+					}
+
 					Windows.Storage.AccessCache.StorageApplicationPermissions.
-					FutureAccessList.Remove(CurrentFolderAccessToken);
-					CurrentFolderAccessToken = null;
+					FutureAccessList.AddOrReplace(FolderAccessToken, folder);
+
+					_DownloadFolder = folder;
+
+					CurrentFolderAccessToken = FolderAccessToken;
+
+					return true;
 				}
-
-				Windows.Storage.AccessCache.StorageApplicationPermissions.
-				FutureAccessList.AddOrReplace(FolderAccessToken, folder);
-
-				_DownloadFolder = folder;
-
-				CurrentFolderAccessToken = FolderAccessToken;
-
-				return true;
+				else
+				{
+					return false;
+				}
 			}
-			else
+			finally
 			{
-				return false;
+				if (MediaManager != null && MediaManager.Context != null)
+				{
+					await MediaManager.Context.Resume();
+				}
 			}
+			
 		}
 		
 
