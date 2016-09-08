@@ -1308,6 +1308,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 				if (res.Chat_result.Status == ChatResult.Success)
 				{
+					_ToastService.ShowText("コメント投稿完了", $"{VideoId}に「{WritingComment.Value}」をコメント投稿しました");
+
 					Debug.WriteLine("コメントの投稿に成功: " + res.Chat_result.No);
 
 					var commentVM = new Comment(this)
