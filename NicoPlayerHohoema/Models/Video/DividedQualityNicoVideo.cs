@@ -302,6 +302,7 @@ namespace NicoPlayerHohoema.Models
 		protected Task DeleteDownloadProgress()
 		{
 			if (!IsAvailable) { return Task.CompletedTask; }
+			if (_DownloadProgressFileAccessor == null) { return Task.CompletedTask; }
 
 			return _DownloadProgressFileAccessor.Delete();
 		}
