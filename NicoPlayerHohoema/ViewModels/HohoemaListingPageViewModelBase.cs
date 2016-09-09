@@ -98,7 +98,22 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			IncrementalLoadingItems?.Dispose();
 		}
+		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		{
 
+			if (CheckNeedUpdateOnNavigateTo(e.NavigationMode))
+			{
+				IncrementalLoadingItems?.Clear();
+				IncrementalLoadingItems = null;
+			}
+			else
+			{
+				ListViewVerticalOffset.Value = _LastListViewOffset;
+				ChangeCanIncmentalLoading(true);
+			}
+
+			base.OnNavigatedTo(e, viewModelState);
+		}
 
 
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
@@ -111,29 +126,18 @@ namespace NicoPlayerHohoema.ViewModels
 
 			await ListPageNavigatedToAsync(cancelToken, e, viewModelState);
 
-			if (_IncrementalLoadingItems != null)
-			{
-				IncrementalLoadingItems = _IncrementalLoadingItems;
-				_IncrementalLoadingItems = null;
-			}
-
 			if (IncrementalLoadingItems == null
 				|| CheckNeedUpdateOnNavigateTo(e.NavigationMode))
 			{
 				await ResetList();
 			}
-			else
-			{
-				OnPropertyChanged(nameof(IncrementalLoadingItems));
+		}
 
-				await Task.Delay(100);
+		protected override Task OnResumed()
+		{
+			ChangeCanIncmentalLoading(true);
 
-				ListViewVerticalOffset.Value = _LastListViewOffset + 0.1;
-				ChangeCanIncmentalLoading(true);
-
-				LoadedItemsCount.Value = IncrementalLoadingItems?.Count ?? 0;
-				HasItem.Value = LoadedItemsCount.Value > 0;
-			}
+			return base.OnResumed();
 		}
 
 		protected virtual Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
@@ -150,9 +154,6 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				_LastListViewOffset = ListViewVerticalOffset.Value;
 				ChangeCanIncmentalLoading(false);
-
-				_IncrementalLoadingItems = IncrementalLoadingItems;
-				IncrementalLoadingItems = null;
 			}
 		}
 
@@ -204,7 +205,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 				IncrementalLoadingItems = new IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM>(source);
 				OnPropertyChanged(nameof(IncrementalLoadingItems));
-
+				
 				IncrementalLoadingItems.BeginLoading += BeginLoadingItems;
 				IncrementalLoadingItems.DoneLoading += CompleteLoadingItems;
 
@@ -306,7 +307,6 @@ namespace NicoPlayerHohoema.ViewModels
 		public ObservableCollection<ITEM_VM> SelectedItems { get; private set; }
 
 		public IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> IncrementalLoadingItems { get; private set; }
-		private IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> _IncrementalLoadingItems;
 
 		public ReactiveProperty<double> ListViewVerticalOffset { get; private set; }
 		private double _LastListViewOffset;
@@ -317,7 +317,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<bool> HasItem { get; private set; }
 
-		
+
 		public bool PageIsRequireSignIn { get; private set; }
 		public bool NowSignedIn { get; private set; }
 

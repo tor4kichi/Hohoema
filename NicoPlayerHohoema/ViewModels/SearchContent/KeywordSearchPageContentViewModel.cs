@@ -68,7 +68,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
 		{
-			var source = IncrementalLoadingItems.Source as VideoSearchSource;
+			var source = IncrementalLoadingItems?.Source as VideoSearchSource;
+			if (source == null) { return true; }
 
 			if (RequireSearchOption != null)
 			{

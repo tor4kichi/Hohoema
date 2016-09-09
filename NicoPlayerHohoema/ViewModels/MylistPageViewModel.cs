@@ -23,6 +23,7 @@ using Microsoft.Practices.Unity;
 using Windows.UI;
 using Mntone.Nico2.Live.PlayerStatus;
 using System.Runtime.InteropServices.WindowsRuntime;
+using NicoPlayerHohoema.Models.Db;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -338,6 +339,11 @@ namespace NicoPlayerHohoema.ViewModels
 			base.OnNavigatedTo(e, viewModelState);
 		}
 
+		protected override Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		{
+			return base.NavigatedToAsync(cancelToken, e, viewModelState);
+		}
+
 		protected override async Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			if (MylistGroupId == null)
@@ -392,10 +398,17 @@ namespace NicoPlayerHohoema.ViewModels
 
 					OwnerUserId = mylistGroupDetail.UserId;
 
-					await Task.Delay(500);
-
-					var userDetail = await HohoemaApp.ContentFinder.GetUserDetail(OwnerUserId);
-					UserName = userDetail.Nickname;
+					var user = await UserInfoDb.GetAsync(OwnerUserId);
+					if (user != null)
+					{
+						UserName = user.Name;
+					}
+					else
+					{
+						await Task.Delay(500);
+						var userDetail = await HohoemaApp.ContentFinder.GetUserDetail(OwnerUserId);
+						UserName = userDetail.Nickname;
+					}
 				}
 
 			}

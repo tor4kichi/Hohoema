@@ -14,6 +14,7 @@
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:rlv="using:RefreshableListView"
+    xmlns:uwpToolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
     mc:Ignorable="d"    
     d:DesignHeight="300"
     d:DesignWidth="400">
@@ -72,23 +73,23 @@
                       Margin="16"
                             >
         </ProgressRing>
-    
-        <rlv:RefreshableListView ItemsSource="{Binding IncrementalLoadingItems}"
+
+        <uwpToolkit:PullToRefreshListView ItemsSource="{Binding IncrementalLoadingItems}"
                                  SelectionMode="Multiple"
                                  IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
                                  IncrementalLoadingTrigger="Edge"
-                                 AutoRefresh="False"
                                  RefreshCommand="{Binding RefreshCommand}"
-                                    PullThreshold="85"
+                                    PullThreshold="85"                                 
                                 >
         
             <i:Interaction.Behaviors>
                 <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedItems, Mode=TwoWay}" />
 
+                
                 <mybehavior:ListViewVerticalOffsetGetter
                                 VerticalOffset="{Binding ListViewVerticalOffset.Value, Mode=TwoWay}"
                                 />
-
+                
                 <mybehavior:KeyboardTrigger Key="F5">
                     <mybehavior:KeyboardTrigger.Actions>
                         <core:InvokeCommandAction Command="{Binding RefreshCommand}" />
@@ -106,13 +107,13 @@
                                     Value="Stretch" 
                                         />
                     <Setter Property="Margin"
-                                    Value="0 0 0 8" 
+                                    Value="8 0 8 8" 
                                     />
                     <Setter Property="Padding" Value="0 1 0 2" />
                 </Style>
             </ListView.ItemContainerStyle>
 
-            <rlv:RefreshableListView.RefreshIndicatorContent>
+            <uwpToolkit:PullToRefreshListView.RefreshIndicatorContent>
                 <StackPanel  Margin="0 32 0 0" >
                     <Border Margin="0 16 0 0" BorderThickness="0 0 0 1" BorderBrush="Gray" />
                     <SymbolIcon Symbol="Refresh" VerticalAlignment="Bottom" Height="48" Width="48" Margin="0 24 0 8"
@@ -122,7 +123,7 @@
                                 Visibility="{Binding NowRefreshable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                 />
                 </StackPanel>
-            </rlv:RefreshableListView.RefreshIndicatorContent>
+            </uwpToolkit:PullToRefreshListView.RefreshIndicatorContent>
         
             <ListView.ItemTemplate>
 
@@ -149,7 +150,7 @@
             
             </ListView.ItemTemplate>
 
-        </rlv:RefreshableListView>
+        </uwpToolkit:PullToRefreshListView>
 
         <Border Visibility="{Binding NowLoadingItems.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
             <Border Visibility="{Binding HasItem.Value, Converter={StaticResource BooleanToVisibilityInverted}}"

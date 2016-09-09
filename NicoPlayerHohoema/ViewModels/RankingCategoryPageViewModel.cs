@@ -100,6 +100,24 @@ namespace NicoPlayerHohoema.ViewModels
 				RequireCategoryInfo = null;
 			}
 
+			if (RequireCategoryInfo.RankingSource == RankingSource.CategoryRanking)
+			{
+				RankingCategory category;
+				if (Enum.TryParse(RequireCategoryInfo.Parameter, out category))
+				{
+					var text = RankingCategoryExtention.ToCultulizedText(category);
+					UpdateTitle($"{text} のランキング ");
+				}
+				else
+				{
+					UpdateTitle($"{RequireCategoryInfo.Parameter} のランキング");
+				}
+			}
+			else
+			{
+				UpdateTitle($"{CategoryInfo.Parameter} のランキング");
+			}
+
 			base.OnNavigatedTo(e, viewModelState);
 		}
 
@@ -159,23 +177,7 @@ namespace NicoPlayerHohoema.ViewModels
 				CategoryInfo = RequireCategoryInfo;
 				RequireCategoryInfo = null;
 
-				if (CategoryInfo.RankingSource == RankingSource.CategoryRanking)
-				{
-					RankingCategory category;
-					if (Enum.TryParse(CategoryInfo.Parameter, out category))
-					{
-						var text = RankingCategoryExtention.ToCultulizedText(category);
-						UpdateTitle($"{text} のランキング ");
-					}
-					else
-					{
-						UpdateTitle($"{CategoryInfo.Parameter} のランキング");
-					}
-				}
-				else
-				{
-					UpdateTitle($"{CategoryInfo.Parameter} のランキング");
-				}
+				
 			}
 		}
 
@@ -184,11 +186,11 @@ namespace NicoPlayerHohoema.ViewModels
 			if (RequireCategoryInfo != null)
 			{
 				return !RequireCategoryInfo.Equals(CategoryInfo)
-					|| mode != NavigationMode.Back;
+					|| !(mode == NavigationMode.Back || mode == NavigationMode.Forward);
 			}
 			else
 			{
-				return mode != NavigationMode.Back;
+				return !(mode == NavigationMode.Back || mode == NavigationMode.Forward);
 			}
 		}
 
