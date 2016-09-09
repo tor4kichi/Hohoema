@@ -104,19 +104,6 @@ namespace NicoPlayerHohoema
 				Debug.WriteLine("キャッシュフォルダチェックに失敗しました。");
 			}
 
-			try
-			{
-				if (hohoemaApp.MediaManager != null && hohoemaApp.MediaManager.Context != null)
-				{
-					await hohoemaApp.MediaManager.Context.Resume();
-				}
-			}
-			catch
-			{
-				Debug.WriteLine("MediaManager.Contextの復帰に失敗しました。");
-			}
-
-
 
 		}
 

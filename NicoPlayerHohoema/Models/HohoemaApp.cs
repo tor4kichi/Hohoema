@@ -621,12 +621,6 @@ namespace NicoPlayerHohoema.Models
 					await MediaManager.OnCacheFolderChanged();
 				}
 				catch (Exception ex) { Debug.WriteLine(ex.ToString()); }
-
-				// ダウンロードタスクを再開
-				if (MediaManager != null && MediaManager.Context != null)
-				{
-					await MediaManager.Context.Resume();
-				}
 			}
 
 			_DownloadFolder = newVideoFolder;
@@ -703,27 +697,34 @@ namespace NicoPlayerHohoema.Models
 					_DownloadFolder = folder;
 
 					CurrentFolderAccessToken = FolderAccessToken;
-
-					return true;
 				}
 				else
 				{
 					return false;
 				}
 			}
+			catch
+			{
+
+			}
 			finally
 			{
-				if (MediaManager != null && MediaManager.Context != null)
+				try
 				{
-					await MediaManager.Context.Resume();
+					if (MediaManager != null && MediaManager.Context != null)
+					{
+						await MediaManager.OnCacheFolderChanged();
+					}
 				}
+				catch { }
 			}
-			
-		}
-		
 
-		
-		
+			return true;
+		}
+
+
+
+
 
 
 		#region lagacy user data folder access

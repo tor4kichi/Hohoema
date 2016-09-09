@@ -66,11 +66,6 @@ namespace NicoPlayerHohoema.Models
 			await ClearDurtyCachedNicoVideo();
 		}
 
-		public async Task Resume()
-		{
-			await TryBeginNextDownloadRequest();
-		}
-
 		public void Dispose()
 		{
 			var task = Suspending();
