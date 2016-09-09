@@ -452,8 +452,6 @@ namespace NicoPlayerHohoema.Models
 			{
 				await MediaManager.Context.Suspending();
 			}
-
-			await SaveUserSettings();
 		}
 
 

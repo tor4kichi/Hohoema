@@ -110,7 +110,7 @@ namespace NicoPlayerHohoema.Models
 			_DurtyCachedNicoVideo.Add(nicoVideo);
 		}
 
-		private async Task ClearDurtyCachedNicoVideo()
+		public async Task ClearDurtyCachedNicoVideo()
 		{
 			var preventDeleteVideoId = PreventDeleteOnPlayingVideoId;
 

@@ -210,6 +210,11 @@ namespace NicoPlayerHohoema.ViewModels
 				OnSignin();
 			}
 
+			if (HohoemaApp.MediaManager != null && HohoemaApp.MediaManager.Context != null)
+			{
+				await HohoemaApp.MediaManager.Context.ClearDurtyCachedNicoVideo();
+			}
+
 			await NavigatedToAsync(cancelToken, e, viewModelState);
 		}
 
