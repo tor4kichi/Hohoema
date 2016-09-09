@@ -454,10 +454,6 @@ namespace NicoPlayerHohoema.Models
 			}
 
 			await SaveUserSettings();
-			if (MediaManager != null)
-			{
-				await MediaManager.DeleteUnrequestedVideos();
-			}
 		}
 
 

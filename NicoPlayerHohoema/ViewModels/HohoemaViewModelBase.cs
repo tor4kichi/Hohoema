@@ -135,7 +135,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 			
 			// 再生中動画のキャッシュクリアの除外条件をクリア
-			HohoemaApp.MediaManager?.ClearPrevnetDeleteCacheOnPlayingVideo();
+			if (HohoemaApp.MediaManager != null && HohoemaApp.MediaManager.Context != null)
+			{
+				HohoemaApp.MediaManager.Context.ClearPreventDeleteCacheOnPlayingVideo();
+			}
 
 
 
@@ -156,6 +159,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		private void _OnResumed()
 		{
+
 			HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
 			{
 				if (IsRequireSignIn)
