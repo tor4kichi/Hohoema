@@ -445,6 +445,22 @@ namespace NicoPlayerHohoema.Models
 			
 		}
 
+
+		public async Task OnSuspending()
+		{
+			if (MediaManager != null && MediaManager.Context != null)
+			{
+				await MediaManager.Context.Suspending();
+			}
+
+			await SaveUserSettings();
+			if (MediaManager != null)
+			{
+				await MediaManager.DeleteUnrequestedVideos();
+			}
+		}
+
+
 		public async Task<NiconicoSignInStatus> SignOut()
 		{
 			try
@@ -463,23 +479,12 @@ namespace NicoPlayerHohoema.Models
 
 					NiconicoContext.Dispose();
 
-					if (MediaManager != null && MediaManager.Context != null)
-					{
-						await MediaManager.Context.Suspending();
-					}
-
-					await SaveUserSettings();
-					if (MediaManager != null)
-					{
-						await MediaManager.DeleteUnrequestedVideos();
-					}
-
+					await OnSuspending();
 				}
 				finally
 				{
 					NiconicoContext = null;
 					FavManager = null;
-					UserSettings = null;
 					LoginUserId = uint.MaxValue;
 					MediaManager = null;
 					BackgroundUpdater?.Dispose();
