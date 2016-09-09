@@ -222,13 +222,13 @@ namespace NicoPlayerHohoema.Models
 				{
 					if (!CheckCacheRequested(_CurrentDownloader.RawVideoId, _CurrentDownloader.Quality))
 					{
-						await CloseCurrentDownloadStream().ConfigureAwait(false);
-						await TryBeginNextDownloadRequest().ConfigureAwait(false);
+						await CloseCurrentDownloadStream();
+						await TryBeginNextDownloadRequest();
 					}
 				}
 				else
 				{
-					await CurrentPlayingDownloader.StopDownload().ConfigureAwait(false);
+					await CurrentPlayingDownloader.StopDownload();
 
 					CurrentPlayingDownloader.Dispose();
 				}

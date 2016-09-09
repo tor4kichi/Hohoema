@@ -65,11 +65,23 @@ namespace NicoPlayerHohoema.ViewModels
 			
 		}
 
-		
-		
+
+
 
 		#endregion
 
+		private DelegateCommand _ResumeCacheCommand;
+		public DelegateCommand ResumeCacheCommand
+		{
+			get
+			{
+				return _ResumeCacheCommand
+					?? (_ResumeCacheCommand = new DelegateCommand(() =>
+					{
+						_MediaManager.Context.StartBackgroundDownload();
+					}));
+			}
+		}
 
 
 		public DelegateCommand OpenCacheSettingsCommand { get; private set; }
@@ -161,7 +173,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-
+		
 		public string PrivateReasonText { get; private set; }
 
 
