@@ -120,7 +120,7 @@ namespace NicoPlayerHohoema
 
 		}
 
-		protected override async Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args)
+		protected override Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args)
 		{
 #if DEBUG
 			DebugSettings.IsBindingTracingEnabled = true;
@@ -156,7 +156,7 @@ namespace NicoPlayerHohoema
 				}
 			}
 
-//			return Task.CompletedTask;
+			return Task.CompletedTask;
 		}
 
 		/// <summary>
