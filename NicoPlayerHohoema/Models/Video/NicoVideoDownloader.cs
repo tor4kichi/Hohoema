@@ -416,6 +416,8 @@ namespace NicoPlayerHohoema.Models
 				}
 			}, retryInterval: 250);
 
+			if (IsClosed) { return; }
+
 			// バッファーの最大サイズに合わせてsizeを分割してダウンロードする
 			var division = size / BUFFER_SIZE;
 			for (uint i = 0; i < division; i++)
@@ -426,6 +428,7 @@ namespace NicoPlayerHohoema.Models
 				}
 
 				token.ThrowIfCancellationRequested();
+				if (IsClosed) { return; }
 
 				ulong head = start + i * BUFFER_SIZE;
 				await DownloadAndWriteToFile(inputStream, head, BUFFER_SIZE);
@@ -434,6 +437,7 @@ namespace NicoPlayerHohoema.Models
 			}
 
 			token.ThrowIfCancellationRequested();
+			if (IsClosed) { return; }
 
 			// 終端のデータだけ別処理
 			var finalFragmentSize = size % BUFFER_SIZE;
@@ -467,13 +471,16 @@ namespace NicoPlayerHohoema.Models
 				throw new Exception();
 			}
 
-			await WriteToVideoFile(head, resultBuffer);
+			if (!IsClosed)
+			{
+				await WriteToVideoFile(head, resultBuffer);
 
-			RecordProgress((uint)head, resultBuffer.Length);
+				RecordProgress((uint)head, resultBuffer.Length);
 
-			OnCacheProgress?.Invoke(RawVideoId, Quality, (uint)head, resultBuffer.Length);
+				OnCacheProgress?.Invoke(RawVideoId, Quality, (uint)head, resultBuffer.Length);
 
-			Debug.WriteLine($"download:{head}~{head + resultBuffer.Length}");
+				Debug.WriteLine($"download:{head}~{head + resultBuffer.Length}");
+			}			
 		}
 
 		private async Task WriteToVideoFile(ulong position, IBuffer buffer)
@@ -482,6 +489,7 @@ namespace NicoPlayerHohoema.Models
 			{
 				await _CacheWriteSemaphore.WaitAsync().ConfigureAwait(false);
 
+				if (IsClosed) { return; }
 				if (CacheFile == null)
 				{
 					return;

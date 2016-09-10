@@ -183,7 +183,7 @@ namespace NicoPlayerHohoema.Models
 				var existVideo = videoFile != null;
 
 				if (existVideo
-					&& (Progress.CheckComplete()))
+					&& (Progress?.CheckComplete() ?? false))
 				{
 					CacheState = NicoVideoCacheState.Cached;
 				}
@@ -290,6 +290,13 @@ namespace NicoPlayerHohoema.Models
 		{
 			if (!IsAvailable) { return; }
 
+			if (_NicoVideoDownloader != null)
+			{
+				await _NicoVideoDownloader.StopDownload();
+				_NicoVideoDownloader?.Dispose();
+				_NicoVideoDownloader = null;
+			}
+
 			var saveFolder = await _Context.GetVideoCacheFolder();
 			var fileName = VideoFileName;
 			try
@@ -308,6 +315,7 @@ namespace NicoPlayerHohoema.Models
 			if (!IsAvailable) { return Task.CompletedTask; }
 			if (_DownloadProgressFileAccessor == null) { return Task.CompletedTask; }
 
+			Progress = new VideoDownloadProgress(VideoSize);
 			return _DownloadProgressFileAccessor.Delete();
 		}
 

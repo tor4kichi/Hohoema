@@ -22,7 +22,7 @@ namespace NicoPlayerHohoema.Views.Service
 		}
 
 
-		public void ShowText(string title, string content, ToastDuration duration = ToastDuration.Short, bool isSuppress = false, Action toastActivatedAction = null)
+		public void ShowText(string title, string content, ToastDuration duration = ToastDuration.Short, bool isSuppress = false, string luanchContent = null, Action toastActivatedAction = null)
 		{
 			var toust = new ToastContent();
 			toust.Visual = new ToastVisual()
@@ -38,15 +38,16 @@ namespace NicoPlayerHohoema.Views.Service
 
 						new AdaptiveText()
 						{
-							Text = content
+							Text = content,
+							
 						},
 
+						
 					}
-
 				}
 			};
 
-			
+			toust.Launch = luanchContent;
 			toust.Duration = duration;
 			
 
@@ -57,7 +58,7 @@ namespace NicoPlayerHohoema.Views.Service
 			{
 				toast.Activated += (ToastNotification sender, object args) => toastActivatedAction();
 			}
-
+			
 			_Nofifier.Show(toast);
 		}
 	}

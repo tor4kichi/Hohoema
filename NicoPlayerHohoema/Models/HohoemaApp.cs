@@ -859,7 +859,6 @@ namespace NicoPlayerHohoema.Models
 			{
 				return CacheFolderAccessState.SelectedButNotExist;
 			}
-
 		}
 
 	

@@ -60,7 +60,7 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task Suspending()
 		{
-			await CloseCurrentPlayingStream();
+			await CloseCurrentPlayingStream(false);
 			await CloseCurrentDownloadStream();
 
 			await ClearDurtyCachedNicoVideo();
@@ -213,7 +213,7 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
-		private async Task CloseCurrentPlayingStream()
+		private async Task CloseCurrentPlayingStream(bool conitnueDownload = true)
 		{
 			if (CurrentPlayingDownloader != null)
 			{
@@ -223,7 +223,10 @@ namespace NicoPlayerHohoema.Models
 					if (!CheckCacheRequested(_CurrentDownloader.RawVideoId, _CurrentDownloader.Quality))
 					{
 						await CloseCurrentDownloadStream();
-						await TryBeginNextDownloadRequest();
+						if (conitnueDownload)
+						{
+							await TryBeginNextDownloadRequest();
+						}
 					}
 				}
 				else
@@ -393,7 +396,7 @@ namespace NicoPlayerHohoema.Models
 
 					try
 					{
-						var stream = await CreateDownloader(req.RawVideoid, req.Quality).ConfigureAwait(false);
+						var stream = await CreateDownloader(req.RawVideoid, req.Quality);
 						stream.IsCacheRequested = true;
 
 						Debug.WriteLine($"{req.RawVideoid}:{req.Quality}のダウンロードを開始");
@@ -603,7 +606,7 @@ namespace NicoPlayerHohoema.Models
 
 		public void ClearPreventDeleteCacheOnPlayingVideo()
 		{
-			PreventDeleteOnPlayingVideoId = "";
+			PreventDeleteOnPlayingVideoId = null;
 		}
 
 		public void OncePreventDeleteCacheOnPlayingVideo(string rawVideoId)

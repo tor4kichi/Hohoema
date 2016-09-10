@@ -13,14 +13,12 @@ using Windows.UI.Xaml;
 using Windows.Foundation;
 using NicoPlayerHohoema.Util;
 using System.Runtime.InteropServices.WindowsRuntime;
+using WinRTXamlToolkit.Async;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	abstract public class HohoemaViewModelBase : ViewModelBase, IDisposable
 	{
-		// TODO: サインインライフサイクルの確実な呼び出しをサポートする
-
-		// Note: サインイン後にHohoemaViewModelBaseが呼び出された場合、OnSigninが呼び出されない。これに対処する
 
 
 		public HohoemaViewModelBase(HohoemaApp hohoemaApp, PageManager pageManager, bool isRequireSignIn = true)
@@ -39,8 +37,6 @@ namespace NicoPlayerHohoema.ViewModels
 			_CompositeDisposable = new CompositeDisposable();
 
 			_UserSettingsCompositeDisposable = new CompositeDisposable();
-
-			HohoemaApp.OnResumed += _OnResumed;
 
 		}
 
@@ -132,14 +128,14 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			base.OnNavigatedTo(e, viewModelState);
 
+			HohoemaApp.OnResumed += _OnResumed;
 
-			
+
 			// 再生中動画のキャッシュクリアの除外条件をクリア
 			if (HohoemaApp.MediaManager != null && HohoemaApp.MediaManager.Context != null)
 			{
 				HohoemaApp.MediaManager.Context.ClearPreventDeleteCacheOnPlayingVideo();
 			}
-
 
 
 			// サインインステータスチェック
@@ -155,13 +151,14 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				PageManager.PageTitle = PageManager.CurrentDefaultPageTitle();
 			}
+
+			
 		}
 
 		private void _OnResumed()
 		{
-
 			HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
-			{
+			{	
 				if (IsRequireSignIn)
 				{
 					if (!await CheckSignIn())
@@ -178,7 +175,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 					OnSignin();
 				}
-
+				
+					
 				await OnResumed();
 			})
 			.AsTask()
@@ -226,6 +224,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
+			HohoemaApp.OnResumed -= _OnResumed;
+
 			_NavigatedToTaskCancelToken?.Cancel();
 
 			var task = _NavigatedToTask.WaitToCompelation();
