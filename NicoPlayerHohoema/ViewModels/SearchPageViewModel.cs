@@ -426,7 +426,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 	}
 
-	public class VideoSearchSource : HohoemaPreloadingIncrementalSourceBase<VideoInfoControlViewModel>
+	public class VideoSearchSource : HohoemaVideoPreloadingIncrementalSourceBase<VideoInfoControlViewModel>
 	{
 		public int MaxPageCount { get; private set; }
 
@@ -445,12 +445,14 @@ namespace NicoPlayerHohoema.ViewModels
 			SearchOption = searchOption;
 		}
 
+		VideoListingResponse res;
+
 		#region Implements HohoemaPreloadingIncrementalSourceBase		
 
-		protected override async Task Preload(int start, int count)
+		protected override async Task<IEnumerable<string>> PreloadVideoIds(int start, int count)
 		{
 			// 最初の検索結果だけ先行してThumbnail情報を読みこませる
-			VideoListingResponse res = null;
+//			VideoListingResponse res = null;
 			if (SearchOption.SearchTarget == SearchTarget.Keyword)
 			{
 				res = await _HohoemaApp.ContentFinder.GetKeywordSearch(SearchOption.Keyword, (uint)start, (uint)count);
@@ -460,9 +462,13 @@ namespace NicoPlayerHohoema.ViewModels
 				res = await _HohoemaApp.ContentFinder.GetTagSearch(SearchOption.Keyword, (uint)start, (uint)count);
 			}
 
-			foreach (var item in res.VideoInfoItems)
+			if (res == null && res.VideoInfoItems == null)
 			{
-				await _HohoemaApp.MediaManager.GetNicoVideoAsync(item.Video.Id);
+				return Enumerable.Empty<string>();
+			}
+			else
+			{
+				return res.VideoInfoItems.Select(x => x.Video.Id);
 			}
 		}
 
@@ -488,52 +494,12 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		protected override async Task<IEnumerable<VideoInfoControlViewModel>> GetPagedItemsImpl(int head, int count)
+		protected override VideoInfoControlViewModel NicoVideoToTemplatedItem(
+			NicoVideo sourceItem
+			, int index
+			)
 		{
-			var items = new List<VideoInfoControlViewModel>();
-
-			var contentFinder = _HohoemaApp.ContentFinder;
-			VideoListingResponse response = null;
-			switch (SearchOption.SearchTarget)
-			{
-				case SearchTarget.Keyword:
-					response = await contentFinder.GetKeywordSearch(
-						SearchOption.Keyword
-						, (uint)head
-						, (uint)count
-						, SearchOption.Sort
-						, SearchOption.Order
-					);
-					break;
-				case SearchTarget.Tag:
-					response = await contentFinder.GetTagSearch(
-						SearchOption.Keyword
-						, (uint)head
-						, (uint)count
-						, SearchOption.Sort
-						, SearchOption.Order
-					);
-					break;
-				default:
-					break;
-			}
-
-			if (response.GetCount() > 0)
-			{
-				foreach (var item in response.VideoInfoItems)
-				{
-					var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideoAsync(item.Video.Id);
-					var videoInfoVM = new VideoInfoControlViewModel(
-								nicoVideo
-								, _PageManager
-							);
-
-					items.Add(videoInfoVM);
-				}
-			}
-
-
-			return items;
+			return new VideoInfoControlViewModel(sourceItem, _PageManager);
 		}
 
 		#endregion

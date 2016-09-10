@@ -153,6 +153,7 @@
     <Compile Include="Models\Db\NicoVideo\NicoVIdeoDbContext.cs" />
     <Compile Include="Models\Video\NicoVideoDownloader.cs" />
     <Compile Include="Models\Video\VideoDownloadProgress.cs" />
+    <Compile Include="Util\AsyncLock.cs" />
     <Compile Include="Util\Cacheable.cs" />
     <Compile Include="Models\Video\NicoVideo.cs" />
     <Compile Include="Models\Video\NicoVideoCacheRequest.cs" />

@@ -227,7 +227,7 @@ namespace NicoPlayerHohoema.ViewModels
 	}
 
 
-	public class CategoryRankingLoadingSource : HohoemaPreloadingIncrementalSourceBase<RankedVideoInfoControlViewModel>
+	public class CategoryRankingLoadingSource : HohoemaVideoPreloadingIncrementalSourceBase<RankedVideoInfoControlViewModel>
 	{
 
 		NiconicoRankingRss RankingRss;
@@ -255,16 +255,15 @@ namespace NicoPlayerHohoema.ViewModels
 		#region Implements HohoemaPreloadingIncrementalSourceBase		
 
 
-		protected override async Task Preload(int start, int count)
+		protected override Task<IEnumerable<string>> PreloadVideoIds(int start, int count)
 		{
 			if (RankingRss != null)
 			{
-				foreach (var item in RankingRss.Channel.Items.AsParallel().Skip(start).Take(count))
-				{
-					if (!_HohoemaApp.IsLoggedIn) { return; }
-
-					await _HohoemaApp.MediaManager.GetNicoVideoAsync(item.GetVideoId());
-				}
+				return Task.FromResult(RankingRss.Channel.Items.Skip(start).Take(count).Select(x => x.GetVideoId()));
+			}
+			else
+			{
+				return Task.FromResult(Enumerable.Empty<string>());
 			}
 		}
 
@@ -277,43 +276,16 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		protected override async Task<IEnumerable<RankedVideoInfoControlViewModel>> GetPagedItemsImpl(int head, int count)
+		protected override RankedVideoInfoControlViewModel NicoVideoToTemplatedItem(
+			NicoVideo itemSource
+			, int index
+			)
 		{
-			while(_HohoemaApp.MediaManager == null)
-			{
-				await Task.Delay(100);
-			}
-
-			var contentFinder = _HohoemaApp.ContentFinder;
-			var mediaManager = _HohoemaApp.MediaManager;
-
-
-			var tail = Math.Min(head + count, 100);
-
-			List<RankedVideoInfoControlViewModel> items = new List<RankedVideoInfoControlViewModel>();
-			for (int i = head; i < tail; ++i)
-			{
-				var rank = i;
-
-				if (rank > RankingRss.Channel.Items.Count)
-				{
-					break;
-				}
-
-				var item = RankingRss.Channel.Items[rank];
-				var nicoVideo = await mediaManager.GetNicoVideoAsync(item.GetVideoId());
-
-
-				var vm = new RankedVideoInfoControlViewModel(
-					(uint)(rank + 1)
-					, nicoVideo
+			return new RankedVideoInfoControlViewModel(
+					(uint)(index + 1)
+					, itemSource
 					, _PageManager
 				);
-
-				items.Add(vm);
-			}
-
-			return items;			
 		}
 
 

@@ -10,7 +10,7 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	abstract public class HohoemaIncrementalSourceBase<T> : IIncrementalSource<T>
 	{
-		public const uint DefaultOneTimeLoadCount = 10;
+		public const uint DefaultOneTimeLoadCount = 7;
 
 		public virtual uint OneTimeLoadCount => DefaultOneTimeLoadCount;
 
@@ -79,6 +79,63 @@ namespace NicoPlayerHohoema.ViewModels
 				)
 				);
 		}
+
+	}
+
+
+	abstract public class HohoemaVideoPreloadingIncrementalSourceBase<T> : HohoemaPreloadingIncrementalSourceBase<T>
+	{
+		private List<NicoVideo> _VideoItems;
+
+		private AsyncLock _VideoItemsLock = new AsyncLock();
+
+		public HohoemaVideoPreloadingIncrementalSourceBase(HohoemaApp hohoemaApp, string preloadScheduleLabel)
+			: base(hohoemaApp, preloadScheduleLabel)
+		{
+			_VideoItems = new List<NicoVideo>();
+		}
+
+
+		
+		abstract protected Task<IEnumerable<string>> PreloadVideoIds(int start, int count);
+		abstract protected T NicoVideoToTemplatedItem(NicoVideo sourceNicoVideos, int index);
+
+
+		protected override async Task Preload(int start, int count)
+		{
+			var items = await PreloadVideoIds(start, count);
+
+			using (var releaser = await _VideoItemsLock.LockAsync())
+			{
+				var videos = await HohoemaApp.MediaManager.GetNicoVideoItemsAsync(items.ToArray());
+				_VideoItems.AddRange(videos);
+			}
+		}
+
+
+		protected override sealed async Task<IEnumerable<T>> GetPagedItemsImpl(int head, int count)
+		{
+			var tail = head + count;
+
+			while (_VideoItems.Count < tail)
+			{
+				await Task.Delay(5);
+			}
+
+			List<T> items = new List<T>();
+			using (var releaser = await _VideoItemsLock.LockAsync())
+			{
+				for (int i = head; i < tail; i++)
+				{
+					var nicoVideo = _VideoItems.ElementAt(i);
+					var vm = NicoVideoToTemplatedItem(nicoVideo, i);
+					items.Add(vm);
+				}
+			}
+			
+			return items;
+		}
+
 
 	}
 }

@@ -37,7 +37,6 @@ namespace NicoPlayerHohoema.ViewModels
 			_CompositeDisposable = new CompositeDisposable();
 
 			_UserSettingsCompositeDisposable = new CompositeDisposable();
-
 		}
 
 		private void OnSignin()

@@ -116,8 +116,6 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 		// タグ
 		public List<TagViewModel> Tags { get; private set; }
 
-
-		ThumbnailResponse _ThumbnailResponse;
 		PageManager _PageManager;
 	}
 }

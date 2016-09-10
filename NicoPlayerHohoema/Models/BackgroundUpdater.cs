@@ -1,4 +1,5 @@
-﻿using Prism.Mvvm;
+﻿using NicoPlayerHohoema.Util;
+using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -61,7 +62,7 @@ namespace NicoPlayerHohoema.Models
 		private bool _IsClosed;
 
 		public List<IBackgroundUpdateable> UpdateTargetStack { get; private set; }
-		private SemaphoreSlim _ScheduleUpdateLock;
+		private AsyncLock _ScheduleUpdateLock;
 
 		public IBackgroundUpdateable CurrentUpdateTarget { get; private set; }
 		private Task _CurrentUpdateTargetTask;
@@ -72,16 +73,44 @@ namespace NicoPlayerHohoema.Models
 		public event BackgroundUpdateCompletedEventHandler BackgroundUpdateCompletedEvent;
 		public event BackgroundUpdateCanceledEventHandler BackgroundUpdateCanceledEvent;
 
-
-
 		public BackgroundUpdater(string id)
 		{
 			Id = id;
 			UpdateTargetStack = new List<IBackgroundUpdateable>();
 
-			_ScheduleUpdateLock = new SemaphoreSlim(1, 1);
+			_ScheduleUpdateLock = new AsyncLock();
+
+			App.Current.Resuming += Current_Resuming;
+			App.Current.Suspending += Current_Suspending;
 		}
 
+		private async void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
+		{
+			var deferral = e.SuspendingOperation.GetDeferral();
+
+			Debug.WriteLine($"BGUpdater[{Id}]の処理を中断");
+			await PauseBackgroundUpdate();
+
+			deferral.Complete();
+		}
+
+		private async void Current_Resuming(object sender, object e)
+		{
+			Debug.WriteLine($"BGUpdater[{Id}]の処理を再開");
+			await TryBeginNext().ConfigureAwait(false);
+		}
+
+
+		public async Task PauseBackgroundUpdate()
+		{
+			using (var releaser = await _ScheduleUpdateLock.LockAsync())
+			{
+				if (_CancelTokenSource != null)
+				{
+					_CancelTokenSource.Cancel();
+				}
+			}
+		}
 
 		public void Dispose()
 		{
@@ -95,7 +124,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			await PushItem(item, priorityUpdate);
 
-			await TryBeginNext();
+			await TryBeginNext().ConfigureAwait(false);
 		}
 
 
@@ -114,34 +143,38 @@ namespace NicoPlayerHohoema.Models
 			var nextItem = await PopItem();
 			if (nextItem != null)
 			{
-				await RegistrationRunningTask(nextItem);
+				try
+				{
+					await RegistrationRunningTask(nextItem).ConfigureAwait(false);
+				}
+				catch (OperationCanceledException)
+				{
+					Debug.WriteLine($"{nextItem.Label} の処理が中断されました。");
+					await Schedule(nextItem, true);
+				}
 			}
 		}
 
 		private async Task<bool> CheckTaskRunning()
 		{
-			try
+			using (var releaser = await _ScheduleUpdateLock.LockAsync())
 			{
-				await _ScheduleUpdateLock.WaitAsync();
-
 				return _CurrentUpdateTargetTask != null;
-			}
-			finally
-			{
-				_ScheduleUpdateLock.Release();
 			}
 		}
 
 
 		private async Task RegistrationRunningTask(IBackgroundUpdateable item)
 		{
-			try
+			using (var releaser = await _ScheduleUpdateLock.LockAsync())
 			{
-				await _ScheduleUpdateLock.WaitAsync();
-
 				CurrentUpdateTarget = item;
 				_CancelTokenSource = new CancellationTokenSource();
-				_CurrentUpdateTargetTask = item.Update().AsTask(_CancelTokenSource.Token)
+				_CurrentUpdateTargetTask =
+					Task.Run(async () =>
+					{
+						await item.Update();
+					})
 					.ContinueWith(OnTaskComplete);
 
 				// キャンセル時の処理
@@ -151,18 +184,12 @@ namespace NicoPlayerHohoema.Models
 
 				BackgroundUpdateStartedEvent?.Invoke(item);
 			}
-			finally
-			{
-				_ScheduleUpdateLock.Release();
-			}
 		}
 
 		private async void OnTaskCanceled()
 		{
-			try
+			using (var releaser = await _ScheduleUpdateLock.LockAsync())
 			{
-				await _ScheduleUpdateLock.WaitAsync();
-
 				if (CurrentUpdateTarget == null) { return; }
 
 				Debug.WriteLine($"BGTask[{Id}]: update complete {CurrentUpdateTarget.Label}");
@@ -175,19 +202,13 @@ namespace NicoPlayerHohoema.Models
 				_CancelTokenSource = null;
 				_CurrentUpdateTargetTask = null;
 			}
-			finally
-			{
-				_ScheduleUpdateLock.Release();
-			}
-
+			
 		}
 
 		private async Task OnTaskComplete(Task task)
 		{
-			try
+			using (var releaser = await _ScheduleUpdateLock.LockAsync())
 			{
-				await _ScheduleUpdateLock.WaitAsync();
-
 				if (CurrentUpdateTarget == null) { return; }
 
 				Debug.WriteLine($"BGTask[{Id}]: update complete {CurrentUpdateTarget.Label}");
@@ -202,12 +223,9 @@ namespace NicoPlayerHohoema.Models
 				_CancelTokenSource?.Dispose();
 				_CancelTokenSource = null;
 			}
-			finally
-			{
-				_ScheduleUpdateLock.Release();
-			}
 
-			await TryBeginNext();
+			await Task.Delay(100);
+			await TryBeginNext().ConfigureAwait(false);
 		}
 
 
@@ -215,10 +233,8 @@ namespace NicoPlayerHohoema.Models
 
 		private async Task PushItem(IBackgroundUpdateable item, bool pushToTop)
 		{
-			try
+			using (var releaser = await _ScheduleUpdateLock.LockAsync())
 			{
-				await _ScheduleUpdateLock.WaitAsync();
-
 				if (pushToTop)
 				{
 					UpdateTargetStack.Insert(0, item);
@@ -228,32 +244,21 @@ namespace NicoPlayerHohoema.Models
 					UpdateTargetStack.Add(item);
 				}
 			}
-			finally
-			{
-				_ScheduleUpdateLock.Release();
-			}
+			
 		}
 
 		private async Task<bool> HasNextItem()
 		{
-			try
+			using (var releaser = await _ScheduleUpdateLock.LockAsync())
 			{
-				await _ScheduleUpdateLock.WaitAsync();
-
 				return UpdateTargetStack.Count > 0;
-			}
-			finally
-			{
-				_ScheduleUpdateLock.Release();
 			}
 		}
 
 		private async Task<IBackgroundUpdateable> PopItem()
 		{
-			try
+			using (var releaser = await _ScheduleUpdateLock.LockAsync())
 			{
-				await _ScheduleUpdateLock.WaitAsync();
-
 				var item = UpdateTargetStack.FirstOrDefault();
 				if (item != null)
 				{
@@ -261,10 +266,6 @@ namespace NicoPlayerHohoema.Models
 				}
 
 				return item;
-			}
-			finally
-			{
-				_ScheduleUpdateLock.Release();
 			}
 		}
 

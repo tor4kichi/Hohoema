@@ -596,7 +596,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			var mylistGroup = HohoemaApp.UserMylistManager.GetMylistGroup("0");
 			var items = mylistGroup.VideoItems;
-			foreach (var item in items.AsParallel().Skip(start).Take(count))
+			foreach (var item in items.Skip(start).Take(count))
 			{
 				if (!HohoemaApp.IsLoggedIn) { return; }
 
@@ -664,7 +664,7 @@ namespace NicoPlayerHohoema.ViewModels
 				var mylistGroup = mylistManager.GetMylistGroup(MylistGroupId);
 				var items = mylistGroup.VideoItems;
 
-				foreach (var videoId in items.AsParallel().Skip((int)start).Take((int)count))
+				foreach (var videoId in items.Skip((int)start).Take((int)count))
 				{
 					await HohoemaApp.MediaManager.GetNicoVideoAsync(videoId);
 				}

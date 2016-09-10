@@ -54,7 +54,8 @@ namespace NicoPlayerHohoema.Models
 
 			VideoIdToNicoVideo = new Dictionary<string, NicoVideo>();
 
-			_NicoVideoSemaphore = new SemaphoreSlim(1, 1);
+			_Lock = new AsyncLock();
+
 			_CacheRequestedItemsStack = new ObservableCollection<NicoVideoCacheRequest>();
 			CacheRequestedItemsStack = new ReadOnlyObservableCollection<NicoVideoCacheRequest>(_CacheRequestedItemsStack);
 
@@ -110,30 +111,63 @@ namespace NicoPlayerHohoema.Models
 		public async Task<NicoVideo> GetNicoVideoAsync(string rawVideoId)
 		{
 			NicoVideo nicoVideo = null;
-			try
+			bool isFirstGet = false;
+			using (var releaser = await _Lock.LockAsync())
 			{
-				await _NicoVideoSemaphore.WaitAsync();
-
 				if (false == VideoIdToNicoVideo.ContainsKey(rawVideoId))
 				{
-					nicoVideo = await NicoVideo.Create(_HohoemaApp, rawVideoId, Context);
-
+					nicoVideo = new NicoVideo(_HohoemaApp, rawVideoId, Context);
 					VideoIdToNicoVideo.Add(rawVideoId, nicoVideo);
+					isFirstGet = true;
 				}
 				else
 				{
 					nicoVideo = VideoIdToNicoVideo[rawVideoId];
 				}
 			}
-			finally
+
+			if (isFirstGet)
 			{
-				_NicoVideoSemaphore.Release();
+				using (var releaser = await _NicoVideoUpdateLock.LockAsync())
+				{
+					await nicoVideo.Initialize();
+				}
 			}
 
 			return nicoVideo;
 		}
 
 
+		public async Task<List<NicoVideo>> GetNicoVideoItemsAsync(params string[] idList)
+		{
+			List<NicoVideo> videos = new List<NicoVideo>();
+
+			using (var releaser = await _Lock.LockAsync())
+			{
+				foreach (var id in idList)
+				{
+					NicoVideo nicoVideo = null;
+					if (false == VideoIdToNicoVideo.ContainsKey(id))
+					{
+						nicoVideo = new NicoVideo(_HohoemaApp, id, Context);
+						VideoIdToNicoVideo.Add(id, nicoVideo);
+					}
+					else
+					{
+						nicoVideo = VideoIdToNicoVideo[id];
+					}
+
+					videos.Add(nicoVideo);
+				}
+			}
+
+			foreach (var video in videos.AsParallel())
+			{
+				await video.Initialize().ConfigureAwait(false);
+			}
+
+			return videos;
+		}
 
 
 		public async Task RestoreCacheRequestFromCurrentVideoCacheFolder()
@@ -323,9 +357,8 @@ namespace NicoPlayerHohoema.Models
 		private ObservableCollection<NicoVideoCacheRequest> _CacheRequestedItemsStack;
 		public ReadOnlyObservableCollection<NicoVideoCacheRequest> CacheRequestedItemsStack { get; private set; }
 
-
-
-		private SemaphoreSlim _NicoVideoSemaphore;
+		private AsyncLock _Lock;
+		private AsyncLock _NicoVideoUpdateLock = new AsyncLock();
 
 		public Dictionary<string, NicoVideo> VideoIdToNicoVideo { get; private set; }
 

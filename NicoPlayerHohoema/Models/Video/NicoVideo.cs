@@ -22,24 +22,15 @@ namespace NicoPlayerHohoema.Models
 {
 	public class NicoVideo : BindableBase
 	{
-		internal static async Task<NicoVideo> Create(HohoemaApp app, string rawVideoid, NicoVideoDownloadContext context)
-		{
-			Debug.WriteLine("start initialize : " + rawVideoid);
-			var nicoVideo = new NicoVideo(app, rawVideoid, context);
-
-			await nicoVideo.Initialize();
-
-			return nicoVideo;
-		}
-
 
 		private CommentResponse _CachedCommentResponse;
-		private NicoVideoQuality _VisitedPageType;
+		private NicoVideoQuality _VisitedPageType = NicoVideoQuality.Low;
 
 		internal WatchApiResponse CachedWatchApiResponse { get; private set; }
 
+		bool _IsInitialized = false;
 
-		private NicoVideo(HohoemaApp app, string rawVideoid, NicoVideoDownloadContext context)
+		public NicoVideo(HohoemaApp app, string rawVideoid, NicoVideoDownloadContext context)
 		{
 			HohoemaApp = app;
 			RawVideoId = rawVideoid;
@@ -49,8 +40,14 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		private async Task Initialize()
+		internal async Task Initialize()
 		{
+			if (_IsInitialized) { return; }
+
+			_IsInitialized = true;
+
+			Debug.WriteLine("start initialize : " + RawVideoId);
+
 			if (Util.InternetConnection.IsInternet())
 			{
 				await UpdateWithThumbnail();
