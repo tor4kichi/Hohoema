@@ -10,7 +10,7 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	abstract public class HohoemaIncrementalSourceBase<T> : IIncrementalSource<T>
 	{
-		public const uint DefaultOneTimeLoadCount = 7;
+		public const uint DefaultOneTimeLoadCount = 10;
 
 		public virtual uint OneTimeLoadCount => DefaultOneTimeLoadCount;
 
@@ -85,6 +85,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 	abstract public class HohoemaVideoPreloadingIncrementalSourceBase<T> : HohoemaPreloadingIncrementalSourceBase<T>
+		where T : VideoInfoControlViewModel
 	{
 		private List<NicoVideo> _VideoItems;
 
@@ -98,25 +99,29 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		
-		abstract protected Task<IEnumerable<string>> PreloadVideoIds(int start, int count);
+		abstract protected Task<IEnumerable<NicoVideo>> PreloadNicoVideo(int start, int count);
 		abstract protected T NicoVideoToTemplatedItem(NicoVideo sourceNicoVideos, int index);
 
 
+		protected async Task<NicoVideo> ToNicoVideo(string videoId)
+		{
+			return await HohoemaApp.MediaManager.GetNicoVideoAsync(videoId, withInitialize:false);
+		}
+
 		protected override async Task Preload(int start, int count)
 		{
-			var items = await PreloadVideoIds(start, count);
+			var items = await PreloadNicoVideo(start, count);
 
 			using (var releaser = await _VideoItemsLock.LockAsync())
 			{
-				var videos = await HohoemaApp.MediaManager.GetNicoVideoItemsAsync(items.ToArray());
-				_VideoItems.AddRange(videos);
+				_VideoItems.AddRange(items);
 			}
 		}
 
 
 		protected override sealed async Task<IEnumerable<T>> GetPagedItemsImpl(int head, int count)
 		{
-			var tail = head + count;
+			var tail = Math.Min(head + count, TotalCount);
 
 			while (_VideoItems.Count < tail)
 			{
@@ -133,8 +138,36 @@ namespace NicoPlayerHohoema.ViewModels
 					items.Add(vm);
 				}
 			}
-			
+
+			await ScheduleDefferedNicoVideoInitialize(items);
+
 			return items;
+		}
+
+
+		private Task ScheduleDefferedNicoVideoInitialize(List<T> items)
+		{
+			return HohoemaApp.BackgroundUpdater.Schedule(
+				new SimpleBackgroundUpdate($"{PreloadScheduleLabel} defferd init"
+				, () => DefferedNicoVideoInitialize(items)
+				)
+				);
+		}
+
+		private async Task DefferedNicoVideoInitialize(List<T> items)
+		{
+			foreach (var item in items)
+			{
+				await item.NicoVideo.Initialize()
+					.ContinueWith(async prevResult => 
+					{
+						await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
+						{
+							item.SetupFromThumbnail(item.NicoVideo);
+						});
+					})
+					.ConfigureAwait(false);
+			}
 		}
 
 

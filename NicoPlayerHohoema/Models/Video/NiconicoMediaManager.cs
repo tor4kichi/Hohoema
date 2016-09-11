@@ -108,7 +108,7 @@ namespace NicoPlayerHohoema.Models
 		
 
 
-		public async Task<NicoVideo> GetNicoVideoAsync(string rawVideoId)
+		public async Task<NicoVideo> GetNicoVideoAsync(string rawVideoId, bool withInitialize = true)
 		{
 			NicoVideo nicoVideo = null;
 			bool isFirstGet = false;
@@ -126,9 +126,9 @@ namespace NicoPlayerHohoema.Models
 				}
 			}
 
-			if (isFirstGet)
+			if (isFirstGet && withInitialize)
 			{
-				using (var releaser = await _NicoVideoUpdateLock.LockAsync())
+				using (var releaser = await _Lock.LockAsync())
 				{
 					await nicoVideo.Initialize();
 				}

@@ -255,15 +255,29 @@ namespace NicoPlayerHohoema.ViewModels
 		#region Implements HohoemaPreloadingIncrementalSourceBase		
 
 
-		protected override Task<IEnumerable<string>> PreloadVideoIds(int start, int count)
+		protected override async Task<IEnumerable<NicoVideo>> PreloadNicoVideo(int start, int count)
 		{
 			if (RankingRss != null)
 			{
-				return Task.FromResult(RankingRss.Channel.Items.Skip(start).Take(count).Select(x => x.GetVideoId()));
+				var items = RankingRss.Channel.Items.Skip(start).Take(count);
+
+				List<NicoVideo> videos = new List<NicoVideo>();
+				foreach (var item in items)
+				{
+					var videoId = item.GetVideoId();
+					var nicoVideo = await ToNicoVideo(videoId);
+
+					nicoVideo.PreSetTitle(item.Title);
+					nicoVideo.PreSetPostAt(DateTime.Parse(item.PubDate));
+
+					videos.Add(nicoVideo);
+				}
+
+				return videos;
 			}
 			else
 			{
-				return Task.FromResult(Enumerable.Empty<string>());
+				return Enumerable.Empty<NicoVideo>();
 			}
 		}
 

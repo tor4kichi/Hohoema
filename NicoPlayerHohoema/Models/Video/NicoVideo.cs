@@ -40,7 +40,7 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		internal async Task Initialize()
+		public async Task Initialize()
 		{
 			if (_IsInitialized) { return; }
 
@@ -65,6 +65,9 @@ namespace NicoPlayerHohoema.Models
 				await CheckCacheStatus();
 			}
 		}
+
+
+		
 
 
 		public async Task CheckCacheStatus()
@@ -443,6 +446,55 @@ namespace NicoPlayerHohoema.Models
 		public NGResult CheckUserNGVideo()
 		{
 			return HohoemaApp.UserSettings?.NGSettings.IsNgVideo(this);
+		}
+
+
+		// Initializeが呼ばれるまで有効
+		public void PreSetTitle(string title)
+		{
+			if (_IsInitialized) { return; }
+
+			Title = title;
+		}
+
+		public void PreSetPostAt(DateTime dateTime)
+		{
+			if (_IsInitialized) { return; }
+
+			PostedAt = dateTime;
+		}
+
+		public void PreSetVideoLength(TimeSpan length)
+		{
+			if (_IsInitialized) { return; }
+
+			VideoLength = length;
+		}
+
+		public void PreSetCommentCount(uint count)
+		{
+			if (_IsInitialized) { return; }
+
+			CommentCount = count;
+		}
+		public void PreSetViewCount(uint count)
+		{
+			if (_IsInitialized) { return; }
+
+			ViewCount = count;
+		}
+		public void PreSetMylistCount(uint count)
+		{
+			if (_IsInitialized) { return; }
+
+			MylistCount = count;
+		}
+
+		public void PreSetThumbnailUrl(string thumbnailUrl)
+		{
+			if (_IsInitialized) { return; }
+
+			ThumbnailUrl = thumbnailUrl;
 		}
 
 

@@ -449,7 +449,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		#region Implements HohoemaPreloadingIncrementalSourceBase		
 
-		protected override async Task<IEnumerable<string>> PreloadVideoIds(int start, int count)
+		protected override async Task<IEnumerable<NicoVideo>> PreloadNicoVideo(int start, int count)
 		{
 			// 最初の検索結果だけ先行してThumbnail情報を読みこませる
 //			VideoListingResponse res = null;
@@ -464,11 +464,27 @@ namespace NicoPlayerHohoema.ViewModels
 
 			if (res == null && res.VideoInfoItems == null)
 			{
-				return Enumerable.Empty<string>();
+				return Enumerable.Empty<NicoVideo>();
 			}
 			else
 			{
-				return res.VideoInfoItems.Select(x => x.Video.Id);
+				List<NicoVideo> videos = new List<NicoVideo>();
+				foreach (var item in res.VideoInfoItems)
+				{
+					var nicoVideo = await ToNicoVideo(item.Video.Id);
+
+					nicoVideo.PreSetTitle(item.Video.Title);
+					nicoVideo.PreSetPostAt(item.Video.UploadTime);
+					nicoVideo.PreSetThumbnailUrl(item.Video.ThumbnailUrl.AbsoluteUri);
+					nicoVideo.PreSetVideoLength(item.Video.Length);
+					nicoVideo.PreSetViewCount(item.Video.ViewCount);
+					nicoVideo.PreSetCommentCount(item.Thread.GetCommentCount());
+					nicoVideo.PreSetMylistCount(item.Video.MylistCount);
+
+					videos.Add(nicoVideo);
+				}
+
+				return videos;
 			}
 		}
 

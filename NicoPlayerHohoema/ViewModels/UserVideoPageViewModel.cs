@@ -121,7 +121,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		#region Implements HohoemaPreloadingIncrementalSourceBase		
 
-		protected override async Task<IEnumerable<string>> PreloadVideoIds(int start, int count)
+		protected override async Task<IEnumerable<NicoVideo>> PreloadNicoVideo(int start, int count)
 		{
 			var rawPage = ((start) / 30);
 			var page = rawPage + 1;
@@ -135,13 +135,27 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 				catch
 				{
-					return Enumerable.Empty<string>();
+					return Enumerable.Empty<NicoVideo>();
 				}
 				_ResList.Add(res);
 			}
 
 			var head = start - rawPage * count;
-			return res.Items.Skip(head).Take(count).Select(x => x.VideoId);
+
+			var items = res.Items.Skip(head).Take(count);
+			List<NicoVideo> videos = new List<NicoVideo>();
+			foreach (var item in items)
+			{
+				var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideoAsync(item.VideoId);
+
+				nicoVideo.PreSetTitle(item.Title);
+				nicoVideo.PreSetThumbnailUrl(item.ThumbnailUrl.AbsoluteUri);
+				nicoVideo.PreSetVideoLength(item.Length);
+
+				videos.Add(nicoVideo);
+			}
+
+			return videos;
 		}
 
 		protected override async Task<int> ResetSourceImpl()
