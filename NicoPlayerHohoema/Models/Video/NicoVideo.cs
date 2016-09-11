@@ -214,7 +214,12 @@ namespace NicoPlayerHohoema.Models
 			}
 			else if (Util.InternetConnection.IsInternet())
 			{
-				NicoVideoCachedStream = await HttpRandomAccessStream.CreateAsync(HohoemaApp.NiconicoContext.HttpClient, VideoUrl);
+				var size = (quality == NicoVideoQuality.Original ? SizeHigh : SizeLow);
+				NicoVideoCachedStream = await HttpRandomAccessStream.CreateAsync(
+					HohoemaApp.NiconicoContext.HttpClient
+					, VideoUrl
+					, size
+					);
 			}
 
 			return NicoVideoCachedStream;

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Storage.Streams;
@@ -20,21 +21,33 @@ namespace NicoPlayerHohoema.Util
 		private string _LastModifiedHeader;
 		private Uri _RequestedUri;
 
+		SemaphoreSlim _DownloadTaskAccessLock = new SemaphoreSlim(1, 1);
+		Windows.Foundation.IAsyncOperationWithProgress<IBuffer, uint> _DownloadTask;
+
+		AsyncLock _StreamAccessLock = new AsyncLock();
+		IInputStream _InputStream;
+		CancellationTokenSource _CancelTokenSource;
+		
 		// No public constructor, factory methods instead to handle async tasks.
-		protected HttpRandomAccessStream(HttpClient client, Uri uri)
+		protected HttpRandomAccessStream(HttpClient client, Uri uri, ulong size)
 		{
 			this._Client = client;
 			_RequestedUri = uri;
+			_Size = size;
 			_CurrentPosition = 0;
 		}
 
-		static public IAsyncOperation<HttpRandomAccessStream> CreateAsync(HttpClient client, Uri uri)
+		static public IAsyncOperation<HttpRandomAccessStream> CreateAsync(HttpClient client, Uri uri, ulong size = 0)
 		{
-			HttpRandomAccessStream randomStream = new HttpRandomAccessStream(client, uri);
-
+			HttpRandomAccessStream randomStream = new HttpRandomAccessStream(client, uri, size);
 			return AsyncInfo.Run<HttpRandomAccessStream>(async (cancellationToken) =>
 			{
-				await randomStream.ReadRequestAsync(0).ConfigureAwait(false);
+				if (randomStream.Size == 0)
+				{
+					var stream = await randomStream.ReadRequestAsync(0);
+					stream?.Dispose();
+				}
+
 				return randomStream;
 			});
 		}
@@ -63,6 +76,10 @@ namespace NicoPlayerHohoema.Util
 					return await _Client.SendRequestAsync(
 						request,
 						HttpCompletionOption.ResponseHeadersRead);
+				}
+				catch (System.Exception e) when (e.Message.StartsWith("Http server does not support range requests"))
+				{
+					throw new System.Net.WebException(" failed video content donwload. position:" + position, e);
 				}
 				catch (System.Runtime.InteropServices.COMException e)
 				{
@@ -151,12 +168,14 @@ namespace NicoPlayerHohoema.Util
 			}
 		}
 
-		public virtual void Seek(ulong position)
+		public virtual async void Seek(ulong position)
 		{
 			if (_CurrentPosition != position)
 			{
 				Debug.WriteLine($"Seek: {_CurrentPosition:N0} -> {position:N0}");
 				_CurrentPosition = position;
+
+				await ResetInputStream();
 			}
 		}
 
@@ -172,39 +191,79 @@ namespace NicoPlayerHohoema.Util
 			}
 		}
 
-		public virtual void Dispose()
+		public virtual async void Dispose()
 		{
-			
+			try
+			{
+				_DownloadTaskAccessLock.Wait();
+
+				if (_DownloadTask != null)
+				{
+					_DownloadTask.Cancel();
+
+					await _DownloadTask;
+				}
+			}
+			finally
+			{
+				_DownloadTaskAccessLock.Release();
+			}
+
+			using (var releaser = await _StreamAccessLock.LockAsync())
+			{
+				_InputStream?.Dispose();
+				_InputStream = null;
+			}
 		}
 
 
 		public virtual Windows.Foundation.IAsyncOperationWithProgress<IBuffer, uint> ReadAsync(IBuffer buffer, uint count, InputStreamOptions options)
 		{
-			return AsyncInfo.Run<IBuffer, uint>(async (cancellationToken, progress) =>
+			try
 			{
-				IInputStream inputStream;
-				try
+				_DownloadTaskAccessLock.Wait();
+
+				var task = AsyncInfo.Run<IBuffer, uint>(async (cancellationToken, progress) =>
 				{
-					inputStream = await ReadRequestAsync(_CurrentPosition).ConfigureAwait(false);
-				}
-				catch (Exception ex)
-				{
-					Debug.WriteLine(ex);
-					throw;
-				}
+					using (var releaser = await _StreamAccessLock.LockAsync())
+					{
+						cancellationToken.ThrowIfCancellationRequested();
 
-				var result = await inputStream.ReadAsync(buffer, count, options).AsTask(cancellationToken, progress).ConfigureAwait(false);
-				
-				// Move position forward.
-				_CurrentPosition += result.Length;
-				Debug.WriteLine("requestedPosition = {0:N0}", _CurrentPosition);
+						if (_InputStream == null)
+						{
+							_InputStream = await ReadRequestAsync(_CurrentPosition).ConfigureAwait(false);
+						}
 
-				inputStream.Dispose();
+						var result = await _InputStream.ReadAsync(buffer, count, options).AsTask(cancellationToken, progress).ConfigureAwait(false);
 
-				return result;
-			});
+						cancellationToken.ThrowIfCancellationRequested();
+
+						// Move position forward.
+						_CurrentPosition += result.Length;
+						Debug.WriteLine("requestedPosition = {0:N0}", _CurrentPosition);
+
+						return result;
+					}
+				});
+				_DownloadTask = task;
+
+				return task;
+			}
+			finally
+			{
+				_DownloadTaskAccessLock.Release();
+			}				
 		}
 
+		
+		private async Task ResetInputStream()
+		{
+			using (var releaser = await _StreamAccessLock.LockAsync())
+			{				
+				_InputStream?.Dispose();
+				_InputStream = null;
+			}
+		}
 		
 
 	

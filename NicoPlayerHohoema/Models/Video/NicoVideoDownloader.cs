@@ -84,14 +84,13 @@ namespace NicoPlayerHohoema.Models
 
 
 		public NicoVideoDownloader(DividedQualityNicoVideo qualityNicoVideo, HttpClient client,  WatchApiResponse watchApiRes, StorageFile cacheFile)
-			: base(client, watchApiRes.VideoUrl)
+			: base(client, watchApiRes.VideoUrl, qualityNicoVideo.VideoSize)
 		{
 			DividedQualityNicoVideo = qualityNicoVideo;
 			IsPremiumUser = watchApiRes.IsPremium;
 			DownloadProgress = qualityNicoVideo.Progress;
 			DownloadInterval = DownloadDelay;
 			CacheFile = cacheFile;
-			Size = qualityNicoVideo.VideoSize;
 
 			_DownloadTaskLock = new SemaphoreSlim(1, 1);
 			_CacheWriteSemaphore = new SemaphoreSlim(1, 1);
