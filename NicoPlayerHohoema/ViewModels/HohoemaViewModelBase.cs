@@ -154,9 +154,9 @@ namespace NicoPlayerHohoema.ViewModels
 			
 		}
 
-		private void _OnResumed()
+		private async void _OnResumed()
 		{
-			HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
 			{	
 				if (IsRequireSignIn)
 				{
@@ -177,9 +177,7 @@ namespace NicoPlayerHohoema.ViewModels
 				
 					
 				await OnResumed();
-			})
-			.AsTask()
-			.ConfigureAwait(false);
+			});
 		}
 
 		protected virtual Task OnResumed()

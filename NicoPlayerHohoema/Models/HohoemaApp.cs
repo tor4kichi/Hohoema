@@ -126,15 +126,38 @@ namespace NicoPlayerHohoema.Models
 			try
 			{
 				var credential = vault.Retrieve(nameof(HohoemaApp), id);
-				credential.Password = password;
+				vault.Remove(credential);
 			}
 			catch
+			{
+			}
+
 			{
 				var credential = new Windows.Security.Credentials.PasswordCredential(nameof(HohoemaApp), id, password);
 				vault.Add(credential);
 			}
 		}
-		
+
+		public static void RemoveAccount(string mailAddress)
+		{
+			var id = mailAddress;
+
+			if (String.IsNullOrWhiteSpace(mailAddress))
+			{
+				return;
+			}
+
+			var vault = new Windows.Security.Credentials.PasswordVault();
+			try
+			{
+				var credential = vault.Retrieve(nameof(HohoemaApp), id);
+				vault.Remove(credential);
+			}
+			catch
+			{
+			}
+		}
+
 
 		public static Tuple<string, string> GetPrimaryAccount()
 		{

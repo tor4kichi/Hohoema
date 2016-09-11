@@ -30,8 +30,9 @@ namespace NicoPlayerHohoema.ViewModels
 				.AddTo(_CompositeDisposable);
 
 			var account = HohoemaApp.GetPrimaryAccount();
+			string id = account?.Item1 ?? HohoemaApp.GetPrimaryAccountId();
 
-			MailOrTelephone = new ReactiveProperty<string>(account?.Item1 ?? "")
+			MailOrTelephone = new ReactiveProperty<string>(id)
 				.AddTo(_CompositeDisposable);
 			Password = new ReactiveProperty<string>(account?.Item2 ?? "")
 				.AddTo(_CompositeDisposable);
@@ -65,7 +66,15 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 			LoginErrorText = new ReactiveProperty<string>();
-			
+
+
+
+			IsRememberPassword
+				.Where(x => !x)
+				.Subscribe(_ => 
+				{
+					HohoemaApp.RemoveAccount(MailOrTelephone.Value);
+				});
 		}
 
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
@@ -142,6 +151,10 @@ namespace NicoPlayerHohoema.ViewModels
 				if (IsRememberPassword.Value)
 				{
 					HohoemaApp.AddOrUpdateAccount(MailOrTelephone.Value, Password.Value);
+				}
+				else
+				{
+					HohoemaApp.RemoveAccount(MailOrTelephone.Value);
 				}
 
 				HohoemaApp.SetPrimaryAccountId(MailOrTelephone.Value);
