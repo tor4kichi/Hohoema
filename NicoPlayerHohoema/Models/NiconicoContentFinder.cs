@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Models
@@ -26,6 +27,10 @@ namespace NicoPlayerHohoema.Models
 	/// </summary>
 	public class NiconicoContentFinder : BindableBase
 	{
+		AsyncLock _NicoPageAccessLock = new AsyncLock();
+
+		SemaphoreSlim _ThumbnailAccessLock = new SemaphoreSlim(1, 3);
+
 		public NiconicoContentFinder(HohoemaApp app)
 		{
 			_HohoemaApp = app;
@@ -39,39 +44,51 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<ThumbnailResponse> GetThumbnailResponse(string rawVideoId)
 		{
-			ThumbnailResponse res = null;
-		
-			res = await Util.ConnectionRetryUtil.TaskWithRetry(async () =>
+			try
 			{
-				return await _HohoemaApp.NiconicoContext.Video.GetThumbnailAsync(rawVideoId);
-			});
+				await _ThumbnailAccessLock.WaitAsync();
+				ThumbnailResponse res = null;
 
-			if (res != null)
-			{
-				await UserInfoDb.AddOrReplaceAsync(res.UserId.ToString(), res.UserName, res.UserIconUrl.AbsoluteUri);
+				res = await Util.ConnectionRetryUtil.TaskWithRetry(async () =>
+				{
+					return await _HohoemaApp.NiconicoContext.Video.GetThumbnailAsync(rawVideoId);
+				});
+
+				if (res != null)
+				{
+					await UserInfoDb.AddOrReplaceAsync(res.UserId.ToString(), res.UserName, res.UserIconUrl.AbsoluteUri);
+				}
+
+				return res;
 			}
-
-			return res;
+			finally
+			{
+				_ThumbnailAccessLock.Release();
+			}
 		}
 
 		public async Task<WatchApiResponse> GetWatchApiResponse(string rawVideoId, bool forceLowQuality = false, HarmfulContentReactionType harmfulContentReaction = HarmfulContentReactionType.None)
 		{
-			var res = await Util.ConnectionRetryUtil.TaskWithRetry(() =>
+			using (var releaser = await _NicoPageAccessLock.LockAsync())
 			{
-				return _HohoemaApp.NiconicoContext.Video.GetWatchApiAsync(
-					rawVideoId
-					, forceLowQuality: forceLowQuality
-					, harmfulReactType: harmfulContentReaction
-					);
-			});
+				var res = await Util.ConnectionRetryUtil.TaskWithRetry(() =>
+				{
+					return _HohoemaApp.NiconicoContext.Video.GetWatchApiAsync(
+						rawVideoId
+						, forceLowQuality: forceLowQuality
+						, harmfulReactType: harmfulContentReaction
+						);
+				});
 
-			if (res != null && res.UploaderInfo != null)
-			{ 			
-				var uploaderInfo = res.UploaderInfo;
-				await UserInfoDb.AddOrReplaceAsync(uploaderInfo.id, uploaderInfo.nickname, uploaderInfo.icon_url);
+				if (res != null && res.UploaderInfo != null)
+				{
+					var uploaderInfo = res.UploaderInfo;
+					await UserInfoDb.AddOrReplaceAsync(uploaderInfo.id, uploaderInfo.nickname, uploaderInfo.icon_url);
+				}
+
+				return res;
 			}
-
-			return res;
+			
 		}
 
 
@@ -215,25 +232,37 @@ namespace NicoPlayerHohoema.Models
 		
 		public async Task<List<FavData>> GetFavUsers()
 		{
-			return await _HohoemaApp.NiconicoContext.User.GetFavUsersAsync();
+			using (var releaser = await _NicoPageAccessLock.LockAsync())
+			{
+				return await _HohoemaApp.NiconicoContext.User.GetFavUsersAsync();
+			}
 		}
 
 
 		public async Task<List<string>> GetFavTags()
 		{
-			return await _HohoemaApp.NiconicoContext.User.GetFavTagsAsync();
+			using (var releaser = await _NicoPageAccessLock.LockAsync())
+			{
+				return await _HohoemaApp.NiconicoContext.User.GetFavTagsAsync();
+			}
 		}
 
 		public async Task<List<FavData>> GetFavMylists()
 		{
-			return await _HohoemaApp.NiconicoContext.User.GetFavMylistsAsync();
+			using (var releaser = await _NicoPageAccessLock.LockAsync())
+			{
+				return await _HohoemaApp.NiconicoContext.User.GetFavMylistsAsync();
+			}
 		}
 
 
 
 		public async Task<UserVideoResponse> GetUserVideos(uint userId, uint page, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
 		{
-			return await _HohoemaApp.NiconicoContext.User.GetUserVideos(userId, page, sort, order);
+			using (var releaser = await _NicoPageAccessLock.LockAsync())
+			{
+				return await _HohoemaApp.NiconicoContext.User.GetUserVideos(userId, page, sort, order);
+			}
 		}
 
 		public async Task<NicoVideoResponse> GetRelatedVideos(string videoId, uint from, uint limit, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
