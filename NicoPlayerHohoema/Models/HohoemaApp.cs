@@ -62,7 +62,6 @@ namespace NicoPlayerHohoema.Models
 			FavManager = null;
 
 			LoadRecentLoginAccount();
-			ThumbnailBackgroundLoader = new BackgroundUpdater(ThumbnailLoadBackgroundTaskId);
 			_SigninLock = new SemaphoreSlim(1, 1);
 		}
 
@@ -482,10 +481,8 @@ namespace NicoPlayerHohoema.Models
 					LoginUserId = uint.MaxValue;
 					MediaManager = null;
 					BackgroundUpdater?.Dispose();
-					BackgroundUpdater = null;
-					ThumbnailBackgroundLoader?.Dispose();
-					ThumbnailBackgroundLoader = new BackgroundUpdater(ThumbnailLoadBackgroundTaskId);
-					
+					BackgroundUpdater = new BackgroundUpdater("HohoemaBG1");
+
 					FavManager = null;
 					FeedManager = null;
 
@@ -957,7 +954,6 @@ namespace NicoPlayerHohoema.Models
 
 
 		public BackgroundUpdater BackgroundUpdater { get; private set; }
-		public BackgroundUpdater ThumbnailBackgroundLoader { get; private set; }
 
 
 		public LoggingChannel LoggingChannel { get; private set; }

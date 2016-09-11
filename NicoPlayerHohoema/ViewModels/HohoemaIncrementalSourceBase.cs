@@ -73,10 +73,11 @@ namespace NicoPlayerHohoema.ViewModels
 		private Task SchedulePreloading(int start, int count)
 		{
 			// 先頭20件を先行ロード
-			return HohoemaApp.ThumbnailBackgroundLoader.Schedule(
+			return HohoemaApp.BackgroundUpdater.Schedule(
 				new SimpleBackgroundUpdate($"{PreloadScheduleLabel}[{start} - {start + count}]"
 				, () => Preload(start, count)
 				)
+				, priorityUpdate: true
 				);
 		}
 
