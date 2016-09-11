@@ -424,7 +424,7 @@ namespace NicoPlayerHohoema
 
 			await WriteErrorFile(e.Exception);
 
-			ShowErrorToast();
+//			ShowErrorToast();
 		}
 
 		public async Task WriteErrorFile(Exception e)
