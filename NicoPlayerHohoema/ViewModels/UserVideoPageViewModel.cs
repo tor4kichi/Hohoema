@@ -140,7 +140,7 @@ namespace NicoPlayerHohoema.ViewModels
 				_ResList.Add(res);
 			}
 
-			var head = start - page * count;
+			var head = start - rawPage * count;
 			return res.Items.Skip(head).Take(count).Select(x => x.VideoId);
 		}
 
