@@ -75,16 +75,6 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		protected override uint IncrementalLoadCount
-		{
-			get
-			{
-				return 20;
-			}
-		}
-
-
-		
 		protected override async Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			_HistoriesResponse = await HohoemaApp.ContentFinder.GetHistory();
@@ -152,6 +142,17 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class HistoryIncrementalLoadingSource : IIncrementalSource<HistoryVideoInfoControlViewModel>
 	{
+
+		HistoriesResponse _HistoriesResponse;
+
+		HohoemaApp _HohoemaApp;
+		PageManager _PageManager;
+
+
+
+		
+
+
 		public HistoryIncrementalLoadingSource(HohoemaApp hohoemaApp, PageManager pageManager, HistoriesResponse historyRes)
 		{
 			_HohoemaApp = hohoemaApp;
@@ -160,20 +161,28 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
+
+
+		public uint OneTimeLoadCount
+		{
+			get
+			{
+				return 10;
+			}
+		}
+
 		public Task<int> ResetSource()
 		{
 			return Task.FromResult(_HistoriesResponse.Histories.Count);
 		}
 
 
-		public async Task<IEnumerable<HistoryVideoInfoControlViewModel>> GetPagedItems(uint pageIndex, uint pageSize)
+		public async Task<IEnumerable<HistoryVideoInfoControlViewModel>> GetPagedItems(int head, int count)
 		{
-			
-			var head = (int)pageIndex - 1;
 			var list = new List<HistoryVideoInfoControlViewModel>();
-			foreach (var history in _HistoriesResponse.Histories.Skip(head).Take((int)pageSize))
+			foreach (var history in _HistoriesResponse.Histories.Skip(head).Take((int)count))
 			{
-				var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(history.Id);
+				var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideoAsync(history.Id);
 				var vm = new HistoryVideoInfoControlViewModel(
 					history.WatchCount
 					, nicoVideo
@@ -182,24 +191,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 				vm.LastWatchedAt = history.WatchedAt.DateTime;
 				vm.MovieLength = history.Length;
-				vm.ThumbnailImageUrl = history.ThumbnailUrl;
+				vm.ThumbnailImageUrl = history.ThumbnailUrl.AbsoluteUri;
 
 				list.Add(vm);
 			}
-
-
-			foreach (var item in list)
-			{
-				await item.LoadThumbnail();
-			}
-
+			
 			return list;
 		}
-
-		HistoriesResponse _HistoriesResponse;
-	
-		HohoemaApp _HohoemaApp;
-		PageManager _PageManager;
 
 	}
 }

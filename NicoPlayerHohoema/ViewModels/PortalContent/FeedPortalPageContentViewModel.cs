@@ -101,7 +101,7 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 			
 			foreach (var feed in FeedGroup.FeedItems.Where(x => x.IsUnread).Take(5))
 			{
-				var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideo(feed.VideoId);
+				var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideoAsync(feed.VideoId);
 				FeedItems.Add(new FeedVideoInfoControlViewModel(feed, FeedGroup, nicoVideo, PageManager));
 			}
 

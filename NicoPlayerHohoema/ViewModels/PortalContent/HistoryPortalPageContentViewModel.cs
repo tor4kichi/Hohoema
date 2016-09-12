@@ -29,7 +29,7 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 
 			foreach (var history in histories.Histories.Take(5))
 			{
-				var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(history.Id);
+				var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideoAsync(history.Id);
 				var vm = new HistoryVideoInfoControlViewModel(
 					history.WatchCount
 					, nicoVideo
@@ -38,7 +38,7 @@ namespace NicoPlayerHohoema.ViewModels.PortalContent
 
 				vm.LastWatchedAt = history.WatchedAt.DateTime;
 				vm.MovieLength = history.Length;
-				vm.ThumbnailImageUrl = history.ThumbnailUrl;
+				vm.ThumbnailImageUrl = history.ThumbnailUrl.AbsoluteUri;
 
 				HisotoryVideoInfoItems.Add(vm);
 			}

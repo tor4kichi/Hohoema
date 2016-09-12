@@ -12,6 +12,8 @@ namespace NicoPlayerHohoema.Util
 	{
 		public static Task<bool> ExistFile(this StorageFolder folder, string filename)
 		{
+			if (folder == null) { return Task.FromResult(false); }
+
 			var path = Path.Combine(folder.Path, filename);
 			return Task.Run<bool>(() => { return File.Exists(path); });
 		}

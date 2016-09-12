@@ -53,9 +53,9 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<StorageFolder> GetFeedGroupFolder()
 		{
-			var favFolder = await HohoemaApp.GetCurrentUserFavDataFolder();
+			var folder = await HohoemaApp.GetApplicationLocalDataFolder();
 
-			return await favFolder.CreateFolderAsync("feed", CreationCollisionOption.OpenIfExists);
+			return await folder.CreateFolderAsync("feed", CreationCollisionOption.OpenIfExists);
 		}
 		
 		internal async Task Initialize()

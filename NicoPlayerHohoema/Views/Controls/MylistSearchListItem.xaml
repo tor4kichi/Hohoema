@@ -14,7 +14,7 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <toolkit:DockPanel Margin="0 8">
+    <toolkit:DockPanel Margin="0 8" Background="Transparent" IsHitTestVisible="True">
 
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="TopBarStateGroup">

@@ -4,6 +4,7 @@ using Mntone.Nico2.Videos.Flv;
 using Mntone.Nico2.Videos.Thumbnail;
 using Mntone.Nico2.Videos.WatchAPI;
 using NicoPlayerHohoema.Models;
+using NicoPlayerHohoema.Models.Db;
 using NicoPlayerHohoema.Util;
 using NicoPlayerHohoema.ViewModels.VideoInfoContent;
 using NicoPlayerHohoema.Views;
@@ -546,10 +547,17 @@ namespace NicoPlayerHohoema.ViewModels
 
 			var stream = await Video.GetVideoStream(x);
 
+			if (stream == null)
+			{
+				return;
+			}
 
 			if (IsDisposed)
 			{
-				await Video?.StopPlay();
+				if (Video != null)
+				{
+					await Video.StopPlay();
+				}
 				return;
 			}
 
@@ -568,16 +576,26 @@ namespace NicoPlayerHohoema.ViewModels
 					break;
 			}
 
-
-			stream.Downloader.OnCacheProgress += Downloader_OnCacheProgress;
-			_TempProgress = stream.Downloader.DownloadProgress.Clone();
-
-			ProgressFragments.Clear();
-			var invertedTotalSize = 1.0 / (x == NicoVideoQuality.Original ? Video.OriginalQuality.VideoSize : Video.LowQuality.VideoSize);
-			foreach (var cachedRange in _TempProgress.CachedRanges.ToArray())
+			if (stream is NicoVideoCachedStream)
 			{
-				ProgressFragments.Add(new ProgressFragment(invertedTotalSize, cachedRange.Key, cachedRange.Value));
+				// キャッシュ機能経由の再生
+				var cachedStream = stream as NicoVideoCachedStream;
+				cachedStream.Downloader.OnCacheProgress += Downloader_OnCacheProgress;
+				_TempProgress = cachedStream.Downloader.DownloadProgress.Clone();
+
+				ProgressFragments.Clear();
+				var invertedTotalSize = 1.0 / (x == NicoVideoQuality.Original ? Video.OriginalQuality.VideoSize : Video.LowQuality.VideoSize);
+				foreach (var cachedRange in _TempProgress.CachedRanges.ToArray())
+				{
+					ProgressFragments.Add(new ProgressFragment(invertedTotalSize, cachedRange.Key, cachedRange.Value));
+				}
 			}
+			else
+			{
+				// 完全なオンライン再生
+			}
+
+			
 		}
 
 		private void InitializeBufferingMonitor()
@@ -666,6 +684,8 @@ namespace NicoPlayerHohoema.ViewModels
 			
 			var oldCount = _TempProgress.CachedRanges.Count;
 			_TempProgress.Update(head, length);
+
+		
 
 			if (oldCount != _TempProgress.CachedRanges.Count)
 			{
@@ -992,14 +1012,14 @@ namespace NicoPlayerHohoema.ViewModels
 
 			try
 			{
-				var videoInfo = await HohoemaApp.MediaManager.GetNicoVideo(VideoId);
+				var videoInfo = await HohoemaApp.MediaManager.GetNicoVideoAsync(VideoId);
 
 				// 内部状態を更新
-				await videoInfo.GetWatchApiResponse(requireLatest:true);
+				await videoInfo.VisitWatchPage();
 				await videoInfo.CheckCacheStatus();
 
 				// 動画が削除されていた場合
-				if (videoInfo.ThumbnailResponseCache.IsDeleted || (videoInfo.WatchApiResponseCache.CachedItem?.IsDeleted ?? false))
+				if (videoInfo.IsDeleted)
 				{
 					Debug.WriteLine($"cant playback{VideoId}. due to denied access to watch page, or connection offline.");
 
@@ -1029,7 +1049,7 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 
 				// 有害動画へのアクセスに対して意思確認された場合
-				if (videoInfo.WatchApiResponseCache.IsBlockedHarmfulVideo)
+				if (videoInfo.IsBlockedHarmfulVideo)
 				{
 					// 有害動画を視聴するか確認するページを表示
 					PageManager.OpenPage(HohoemaPageType.ConfirmWatchHurmfulVideo,
@@ -1047,17 +1067,17 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 				// ビデオタイプとプロトコルタイプをチェックする
-				if (videoInfo.WatchApiResponseCache.MediaProtocolType != MediaProtocolType.RTSPoverHTTP)
+				if (videoInfo.ProtocolType != MediaProtocolType.RTSPoverHTTP)
 				{
 					// サポートしていないプロトコルです
 					IsNotSupportVideoType = true;
-					CannotPlayReason = videoInfo.WatchApiResponseCache.MediaProtocolType.ToString() + " はHohoemaでサポートされないデータ通信形式です";
+					CannotPlayReason = videoInfo.ProtocolType.ToString() + " はHohoemaでサポートされないデータ通信形式です";
 				}
-				else if (videoInfo.ThumbnailResponseCache.MovieType != MovieType.Mp4)
+				else if (videoInfo.ContentType != MovieType.Mp4)
 				{
 					// サポートしていない動画タイプです
 					IsNotSupportVideoType = true;
-					CannotPlayReason = videoInfo.ThumbnailResponseCache.MovieType.ToString() + " はHohoemaでサポートされない動画形式です";
+					CannotPlayReason = videoInfo.ContentType.ToString() + " はHohoemaでサポートされない動画形式です";
 				}
 				else
 				{
@@ -1168,12 +1188,15 @@ namespace NicoPlayerHohoema.ViewModels
 
 				// 再生ストリームの準備を開始する
 				await PlayingQualityChangeAction();
+
+
+				// 再生履歴に反映
+				//VideoPlayHistoryDb.VideoPlayed(Video.RawVideoId);
 			}
 
 			_SidePaneContentCache.Clear();
 
-			var watchApiRes = await Video.WatchApiResponseCache.GetItem();
-			_VideoDescriptionHtmlUri = await VideoDescriptionHelper.PartHtmlOutputToCompletlyHtml(VideoId, watchApiRes.videoDetail.description);
+			_VideoDescriptionHtmlUri = await VideoDescriptionHelper.PartHtmlOutputToCompletlyHtml(VideoId, Video.DescriptionWithHtml);
 
 			if (SelectedSidePaneType.Value == MediaInfoDisplayType.Summary)
 			{
@@ -1210,7 +1233,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 				// 再生中動画のキャッシュがサスペンドから復帰後にも利用できるように
 				// 削除を抑制するように要請する
-				HohoemaApp.MediaManager.OncePrevnetDeleteCacheOnPlayingVideo(Video.RawVideoId);
+				HohoemaApp.MediaManager.Context.OncePreventDeleteCacheOnPlayingVideo(Video.RawVideoId);
 
 				viewModelState[nameof(VideoId)] = VideoId;
 				viewModelState[nameof(CurrentVideoPosition)] = CurrentVideoPosition.Value.TotalSeconds;
@@ -1287,16 +1310,29 @@ namespace NicoPlayerHohoema.ViewModels
 
 				if (res.Chat_result.Status == ChatResult.Success)
 				{
+					_ToastService.ShowText("コメント投稿完了", $"{VideoId}に「{WritingComment.Value}」をコメント投稿しました");
+
 					Debug.WriteLine("コメントの投稿に成功: " + res.Chat_result.No);
 
 					var commentVM = new Comment(this)
 					{
 						CommentId = (uint)res.Chat_result.No,
 						VideoPosition = vpos,
+						EndPosition = vpos + default_DisplayTime,
 						UserId = base.HohoemaApp.LoginUserId.ToString(),
 						CommentText = WritingComment.Value,
+						FontScale = default_fontSize,
+						Color = null
 					};
-//					CommentDecorateFromCommands(commentVM, commands);
+
+					var commentCommands = CommandEditerVM.MakeCommands();
+					CommentDecorateFromCommands(commentVM, commentCommands);
+
+					if (CommandEditerVM.IsPickedColor.Value)
+					{
+						var color = CommandEditerVM.FreePickedColor.Value;
+						commentVM.Color = color;
+					}
 
 					Comments.Add(commentVM);
 
@@ -1341,12 +1377,11 @@ namespace NicoPlayerHohoema.ViewModels
 				switch (type)
 				{
 					case MediaInfoDisplayType.Summary:
-						vm = new SummaryVideoInfoContentViewModel(Video.ThumbnailResponseCache.CachedItem, _VideoDescriptionHtmlUri, PageManager);
+						vm = new SummaryVideoInfoContentViewModel(Video, _VideoDescriptionHtmlUri, PageManager);
 						break;
 
 					case MediaInfoDisplayType.Mylist:
-						var threadId = Video.WatchApiResponseCache.CachedItem.ThreadId.ToString();
-						vm = new MylistVideoInfoContentViewModel(VideoId, threadId, HohoemaApp.UserMylistManager);
+						vm = new MylistVideoInfoContentViewModel(VideoId, Video.ThreadId, HohoemaApp.UserMylistManager);
 						break;
 
 					case MediaInfoDisplayType.Comment:

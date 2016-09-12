@@ -36,20 +36,9 @@ namespace NicoPlayerHohoema.Models
 		#endregion
 
 
-		public const string TagFavFileName = "tag.json";
-		public const string MylistFavFileName = "mylist.json";
-		public const string UserFavFileName = "user.json";
-
-
 		public static async Task<FavManager> Create(HohoemaApp hohoemaApp, uint userId)
 		{
 			var favManager = new FavManager(hohoemaApp, userId);
-
-			var favDataFolder = await hohoemaApp.GetCurrentUserFavDataFolder();
-
-			favManager._TagFavFileAccessor = new Util.FileAccessor<List<FavInfo>>(favDataFolder, TagFavFileName);
-			favManager._MylistFavFileAccessor = new Util.FileAccessor<List<FavInfo>>(favDataFolder, MylistFavFileName);
-			favManager._UserFavFileAccessor = new Util.FileAccessor<List<FavInfo>>(favDataFolder, UserFavFileName);
 
 			var updater = new SimpleBackgroundUpdate("favmanager_" + userId, () => favManager.Initialize());
 			await hohoemaApp.BackgroundUpdater.Schedule(updater);
@@ -75,11 +64,6 @@ namespace NicoPlayerHohoema.Models
 
 		HohoemaApp _HohoemaApp;
 
-		private Util.FileAccessor<List<FavInfo>> _TagFavFileAccessor;
-		private Util.FileAccessor<List<FavInfo>> _MylistFavFileAccessor;
-		private Util.FileAccessor<List<FavInfo>> _UserFavFileAccessor;
-
-
 		#endregion
 
 		internal FavManager(HohoemaApp hohoemaApp, uint userId)
@@ -91,18 +75,9 @@ namespace NicoPlayerHohoema.Models
 
 		private async Task Initialize()
 		{
-			{
-				var tagItems = await _TagFavFileAccessor.Load() ?? new List<FavInfo>();
-				Tag = new TagFavInfoGroup(_HohoemaApp, tagItems);
-			}
-			{
-				var mylistItems = await _MylistFavFileAccessor.Load() ?? new List<FavInfo>();
-				Mylist = new MylistFavInfoGroup(_HohoemaApp, mylistItems);
-			}
-			{
-				var userItems = await _UserFavFileAccessor.Load() ?? new List<FavInfo>();
-				User = new UserFavInfoGroup(_HohoemaApp, userItems);
-			}
+			Tag = new TagFavInfoGroup(_HohoemaApp);
+			Mylist = new MylistFavInfoGroup(_HohoemaApp);
+			User = new UserFavInfoGroup(_HohoemaApp);
 
 			await SyncAll();
 		}
@@ -142,44 +117,7 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public async Task SaveAll()
-		{
-			await SaveTag();
-			await SaveMylist();
-			await SaveUser();
-		}
-
-		public Task Save(FavoriteItemType itemType)
-		{
-			switch (itemType)
-			{
-				case FavoriteItemType.Tag:
-					return SaveTag();
-				case FavoriteItemType.Mylist:
-					return SaveMylist();
-				case FavoriteItemType.User:
-					return SaveUser();
-				default:
-					return Task.CompletedTask;
-			}
-		}
-
-
-		private Task SaveTag()
-		{
-			return _TagFavFileAccessor.Save(Tag.FavInfoItems.ToList());
-		}
-
-		private Task SaveMylist()
-		{
-			return _MylistFavFileAccessor.Save(Mylist.FavInfoItems.ToList());
-		}
-
-		private Task SaveUser()
-		{
-			return _UserFavFileAccessor.Save(User.FavInfoItems.ToList());
-		}
-
+	
 
 		public async Task SyncAll()
 		{
@@ -209,14 +147,7 @@ namespace NicoPlayerHohoema.Models
 
 		private async Task Sync(IFavInfoGroup group)
 		{
-			var isNothingItem = group.FavInfoItems.Count == 0;
-
 			await group.Sync();
-
-			if (group.FavInfoItems.Count > 0 && isNothingItem)
-			{
-				await Save(group.FavoriteItemType);
-			}
 		}
 
 		private Task SyncTag()
@@ -247,12 +178,7 @@ namespace NicoPlayerHohoema.Models
 			var group = GetFavInfoGroup(itemType);
 
 			var result = await group.AddFav(name, id);
-
-			if (result == ContentManageResult.Success)
-			{
-				await Save(itemType);
-			}
-
+		
 			return result;
 		}
 
@@ -261,11 +187,6 @@ namespace NicoPlayerHohoema.Models
 			var group = GetFavInfoGroup(itemType);
 
 			var result = await group.RemoveFav(id);
-
-			if (result == ContentManageResult.Success)
-			{
-				await Save(itemType);
-			}
 
 			return result;
 		}

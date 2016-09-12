@@ -14,9 +14,19 @@ namespace NicoPlayerHohoema.Models
 	{
 		public CacheSettings()
 		{
+			IsEnableCache = false;
 			IsUserAcceptedCache = false;
 			IsAutoCacheOnPlayEnable = false;
 			CacheOnPlayTagConditions = new ObservableCollection<TagCondition>();
+		}
+
+		private bool _IsEnableCache;
+
+		[DataMember]
+		public bool IsEnableCache
+		{
+			get { return _IsEnableCache; }
+			set { SetProperty(ref _IsEnableCache, value); }
 		}
 
 		private bool _IsUserAcceptRegalNotice;

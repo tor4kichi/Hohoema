@@ -19,6 +19,7 @@ using System.Threading;
 using Windows.UI.Xaml;
 using Mntone.Nico2;
 using Mntone.Nico2.Searches.Video;
+using NicoPlayerHohoema.Models.Db;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -300,8 +301,7 @@ namespace NicoPlayerHohoema.ViewModels
 				if (SearchText.Value.Length == 0) { return; }
 
 				// キーワードを検索履歴を記録
-				var searchSettings = HohoemaApp.UserSettings.SearchSettings;
-				searchSettings.UpdateSearchHistory(SearchText.Value, SelectedTarget.Value);
+				SearchHistoryDb.Searched(SearchText.Value, SelectedTarget.Value);
 
 				var searchOption = new SearchOption()
 				{
@@ -334,7 +334,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		}
 
-		internal void OnSearchHistorySelected(SearchHistoryItem item)
+		internal void OnSearchHistorySelected(SearchHistory item)
 		{
 			SearchText.Value = item.Keyword;
 			SelectedTarget.Value = TargetListItems.Single(x => x == item.Target);
@@ -426,11 +426,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 	}
 
-	public class VideoSearchSource : IIncrementalSource<VideoInfoControlViewModel>
+	public class VideoSearchSource : HohoemaVideoPreloadingIncrementalSourceBase<VideoInfoControlViewModel>
 	{
-		public const uint MaxPagenationCount = 50;
-		public const int OneTimeLoadSearchItemCount = 32;
-
 		public int MaxPageCount { get; private set; }
 
 		HohoemaApp _HohoemaApp;
@@ -439,105 +436,103 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		public VideoSearchSource(SearchOption searchOption, HohoemaApp hohoemaApp, PageManager pageManager)
+			: base(hohoemaApp
+				  , $"Search_{searchOption.SearchTarget.ToString()}_{searchOption.Keyword}"
+				  )
 		{
 			_HohoemaApp = hohoemaApp;
 			_PageManager = pageManager;
 			SearchOption = searchOption;
 		}
 
-		public async Task<int> ResetSource()
+		VideoListingResponse res;
+
+		#region Implements HohoemaPreloadingIncrementalSourceBase		
+
+		protected override async Task<IEnumerable<NicoVideo>> PreloadNicoVideo(int start, int count)
 		{
+			// 最初の検索結果だけ先行してThumbnail情報を読みこませる
+//			VideoListingResponse res = null;
 			if (SearchOption.SearchTarget == SearchTarget.Keyword)
 			{
-				_FirstResponse = await _HohoemaApp.ContentFinder.GetKeywordSearch(SearchOption.Keyword, 0, OneTimeLoadSearchItemCount);
+				res = await _HohoemaApp.ContentFinder.GetKeywordSearch(SearchOption.Keyword, (uint)start, (uint)count);
 			}
 			else if (SearchOption.SearchTarget == SearchTarget.Tag)
 			{
-				_FirstResponse = await _HohoemaApp.ContentFinder.GetTagSearch(SearchOption.Keyword, 0, OneTimeLoadSearchItemCount);
+				res = await _HohoemaApp.ContentFinder.GetTagSearch(SearchOption.Keyword, (uint)start, (uint)count);
 			}
 
-			if (_FirstResponse != null)
+			if (res == null && res.VideoInfoItems == null)
 			{
-				// 最初の検索結果だけ先行してThumbnail情報を読みこませる
-				await _HohoemaApp.ThumbnailBackgroundLoader.Schedule(
-					new SimpleBackgroundUpdate("Search_" + SearchOption.Keyword
-					, () => UpdateItemsThumbnailInfo()
-					)
-					);
-
-				return (int)_FirstResponse.GetTotalCount();
+				return Enumerable.Empty<NicoVideo>();
 			}
 			else
 			{
-				throw new Exception();
+				List<NicoVideo> videos = new List<NicoVideo>();
+				foreach (var item in res.VideoInfoItems)
+				{
+					var nicoVideo = await ToNicoVideo(item.Video.Id);
+
+					nicoVideo.PreSetTitle(item.Video.Title);
+					nicoVideo.PreSetPostAt(item.Video.UploadTime);
+					nicoVideo.PreSetThumbnailUrl(item.Video.ThumbnailUrl.AbsoluteUri);
+					nicoVideo.PreSetVideoLength(item.Video.Length);
+					nicoVideo.PreSetViewCount(item.Video.ViewCount);
+					nicoVideo.PreSetCommentCount(item.Thread.GetCommentCount());
+					nicoVideo.PreSetMylistCount(item.Video.MylistCount);
+
+					videos.Add(nicoVideo);
+				}
+
+				return videos;
 			}
 		}
 
-		VideoListingResponse _FirstResponse;
 
-		private async Task UpdateItemsThumbnailInfo()
+		protected override async Task<int> ResetSourceImpl()
 		{
-			if (_FirstResponse != null)
+			int totalCount = 0;
+			if (SearchOption.SearchTarget == SearchTarget.Keyword)
 			{
-				foreach (var item in _FirstResponse.VideoInfoItems.Take(16))
-				{
-					await _HohoemaApp.MediaManager.GetNicoVideo(item.Video.Id);
-				}
+				var res = await _HohoemaApp.ContentFinder.GetKeywordSearch(SearchOption.Keyword, 0, 2);
+				totalCount = (int)res.GetTotalCount();
+
 			}
+			else if (SearchOption.SearchTarget == SearchTarget.Tag)
+			{
+				var res = await _HohoemaApp.ContentFinder.GetTagSearch(SearchOption.Keyword, 0, 2);
+				totalCount = (int)res.GetTotalCount();
+			}
+
+			return totalCount;
 		}
 
 
-		public async Task<IEnumerable<VideoInfoControlViewModel>> GetPagedItems(uint head, uint count)
+
+
+		protected override VideoInfoControlViewModel NicoVideoToTemplatedItem(
+			NicoVideo sourceItem
+			, int index
+			)
 		{
-			var items = new List<VideoInfoControlViewModel>();
-
-			var contentFinder = _HohoemaApp.ContentFinder;
-			VideoListingResponse response = null;
-			switch (SearchOption.SearchTarget)
-			{
-				case SearchTarget.Keyword:
-					response = await contentFinder.GetKeywordSearch(SearchOption.Keyword, head, count, SearchOption.Sort, SearchOption.Order);
-					break;
-				case SearchTarget.Tag:
-					response = await contentFinder.GetTagSearch(SearchOption.Keyword, head, count, SearchOption.Sort, SearchOption.Order);
-					break;
-				default:
-					break;
-			}
-
-			if (response.GetCount() > 0)
-			{
-				foreach (var item in response.VideoInfoItems)
-				{
-					var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(item.Video.Id);
-					var videoInfoVM = new VideoInfoControlViewModel(
-								nicoVideo
-								, _PageManager
-							);
-
-					items.Add(videoInfoVM);
-				}
-
-				foreach (var item in items)
-				{
-					await item.LoadThumbnail().ConfigureAwait(false);
-				}
-			}
-
-			return items;
+			return new VideoInfoControlViewModel(sourceItem, _PageManager);
 		}
+
+		#endregion
+
+
 	}
 
 
 
-	public class SearchHistoryListItem : SelectableItem<SearchHistoryItem>
+	public class SearchHistoryListItem : SelectableItem<SearchHistory>
 	{
 		public string Keyword { get; private set; }
 		public SearchTarget Target { get; private set; }
 
 
 
-		public SearchHistoryListItem(SearchHistoryItem source, Action<SearchHistoryItem> selectedAction) : base(source, selectedAction)
+		public SearchHistoryListItem(SearchHistory source, Action<SearchHistory> selectedAction) : base(source, selectedAction)
 		{
 			Keyword = source.Keyword;
 			Target = source.Target;

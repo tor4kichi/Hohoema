@@ -42,18 +42,17 @@ namespace NicoPlayerHohoema.ViewModels
 			VideoId = payload.VideoId;
 			Quality = payload.Quality;
 
-			NicoVideo = await HohoemaApp.MediaManager.GetNicoVideo(VideoId);
-
-			var thumbnailInfo = await NicoVideo.GetThumbnailResponse();
+			NicoVideo = await HohoemaApp.MediaManager.GetNicoVideoAsync(VideoId);
 
 			cancelToken.ThrowIfCancellationRequested();
 
-			SubmitDate = thumbnailInfo.PostedAt.DateTime;
-			Title = thumbnailInfo.Title;
-
+			SubmitDate = NicoVideo.PostedAt;
+			OnPropertyChanged(nameof(SubmitDate));
+			Title = NicoVideo.Title;
+			OnPropertyChanged(nameof(Title));
 
 			Tags.Clear();
-			foreach (var tag in thumbnailInfo.Tags.Value)
+			foreach (var tag in NicoVideo.Tags)
 			{
 				Tags.Add(tag.Value);
 			}
@@ -102,7 +101,7 @@ namespace NicoPlayerHohoema.ViewModels
 					?? (_ContinueWatchVideoCommand = new DelegateCommand(() =>
 					{
 
-						NicoVideo.WatchApiResponseCache.HarmfulContentReactionType = IsNoMoreConfirmHarmfulVideo.Value ? Mntone.Nico2.HarmfulContentReactionType.ContinueWithNotMoreConfirm : Mntone.Nico2.HarmfulContentReactionType.ContinueOnce;
+						NicoVideo.HarmfulContentReactionType = IsNoMoreConfirmHarmfulVideo.Value ? Mntone.Nico2.HarmfulContentReactionType.ContinueWithNotMoreConfirm : Mntone.Nico2.HarmfulContentReactionType.ContinueOnce;
 						PageManager.OpenPage(HohoemaPageType.VideoPlayer,
 							new VideoPlayPayload()
 							{

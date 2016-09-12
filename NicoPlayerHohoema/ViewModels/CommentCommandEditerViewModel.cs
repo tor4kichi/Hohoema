@@ -12,6 +12,7 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.UI;
+using NicoPlayerHohoema.Views;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -175,7 +176,37 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				IsAnonymousComment.Value = false;
 			}
+		}		
+
+
+		public IEnumerable<CommandType> MakeCommands()
+		{
+			if (IsAnonymousComment.Value)
+			{
+				yield return CommandType._184;
+			}
+
+			if (SizeSelectedItem.Value.HasValue)
+			{
+				yield return SizeSelectedItem.Value.Value;
+			}
+
+			if (AlingmentSelectedItem.Value.HasValue)
+			{
+				yield return AlingmentSelectedItem.Value.Value;
+			}
+
+			if (IsPickedColor.Value)
+			{
+				
+			}
+			else if (ColorSelectedItem.Value.HasValue)
+			{
+				yield return ColorSelectedItem.Value.Value;
+			}
 		}
+
+		
 
 		public string MakeCommandsString()
 		{

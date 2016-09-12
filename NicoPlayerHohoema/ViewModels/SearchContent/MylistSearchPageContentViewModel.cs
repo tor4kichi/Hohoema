@@ -41,17 +41,10 @@ namespace NicoPlayerHohoema.ViewModels
 			UpdateTitle($"マイリスト検索: {searchOption.Keyword} - {optionText}");
 		}
 
-		protected override uint IncrementalLoadCount
-		{
-			get
-			{
-				return 15;
-			}
-		}
-
 		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
 		{
-			var source = IncrementalLoadingItems.Source as MylistSearchSource;
+			var source = IncrementalLoadingItems?.Source as MylistSearchSource;
+			if (source == null) { return true; }
 
 			if (SearchOption != null)
 			{
@@ -123,17 +116,16 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class MylistSearchSource : IIncrementalSource<MylistSearchListingItem>
 	{
-		public const uint MaxPagenationCount = 50;
-		public const int OneTimeLoadSearchItemCount = 32;
-
 		public int MaxPageCount { get; private set; }
 
 		HohoemaApp _HohoemaApp;
 		PageManager _PageManager;
 		public SearchOption SearchOption { get; private set; }
 
-
+		
 		private MylistSearchResponse _MylistGroupResponse;
+
+
 
 		public MylistSearchSource(SearchOption searchOption, HohoemaApp hohoemaApp, PageManager pageManager)
 		{
@@ -142,6 +134,19 @@ namespace NicoPlayerHohoema.ViewModels
 			SearchOption = searchOption;
 
 		}
+
+
+
+
+
+		public uint OneTimeLoadCount
+		{
+			get
+			{
+				return 10;
+			}
+		}
+
 
 		public async Task<int> ResetSource()
 		{
@@ -154,12 +159,18 @@ namespace NicoPlayerHohoema.ViewModels
 
 		
 
-		public async Task<IEnumerable<MylistSearchListingItem>> GetPagedItems(uint head, uint count)
+		public async Task<IEnumerable<MylistSearchListingItem>> GetPagedItems(int head, int count)
 		{
 			var items = new List<MylistSearchListingItem>();
 
 
-			var response = await _HohoemaApp.NiconicoContext.Search.MylistSearchAsync(SearchOption.Keyword, head, count, SearchOption.Sort, SearchOption.Order);
+			var response = await _HohoemaApp.NiconicoContext.Search.MylistSearchAsync(
+				SearchOption.Keyword
+				, (uint)head
+				, (uint)count
+				, SearchOption.Sort
+				, SearchOption.Order
+			);
 
 
 			foreach (var item in response.MylistGroupItems)

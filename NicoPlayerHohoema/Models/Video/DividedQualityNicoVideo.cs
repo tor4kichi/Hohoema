@@ -36,6 +36,8 @@ namespace NicoPlayerHohoema.Models
 			protected set { SetProperty(ref _CacheState, value); }
 		}
 
+		public bool IsReadyOfflinePlay { get; private set; }
+
 
 		
 		/// <summary>
@@ -58,24 +60,33 @@ namespace NicoPlayerHohoema.Models
 			NicoVideo = nicoVideo;
 			_Context = context;
 
-			_DownloadProgressFileAccessor = new FileAccessor<VideoDownloadProgress>(_Context.VideoSaveFolder, ProgressFileName);
 		}
 
 		public async Task SetupDownloadProgress()
 		{
 			// DLが途中の場合はこのロードが成功しProgressが埋まる
-			Progress = await _DownloadProgressFileAccessor.Load();
-
-			if (Progress == null)
+			if (await _Context.CanAccessVideoCacheFolder())
 			{
-				Progress = new VideoDownloadProgress(VideoSize);
+				_DownloadProgressFileAccessor = new FileAccessor<VideoDownloadProgress>(await _Context.GetVideoCacheFolder(), ProgressFileName);
+				Progress = await _DownloadProgressFileAccessor.Load();
+
+				if (Progress == null)
+				{
+					Progress = new VideoDownloadProgress(VideoSize);
+				}
+				else
+				{
+					CacheProgressSize = Progress.BufferedSize();
+				}
+
+				IsReadyOfflinePlay = Progress.CheckComplete();
+
+				await CheckCacheStatus();
 			}
 			else
 			{
-				CacheProgressSize = Progress.BufferedSize();
+				IsReadyOfflinePlay = false;
 			}
-
-			await CheckCacheStatus();
 		}
 
 
@@ -89,6 +100,8 @@ namespace NicoPlayerHohoema.Models
 		abstract public bool CanRequestDownload { get; }
 
 		public abstract uint VideoSize { get; }
+		
+		public DateTime VideoFileCreatedAt { get; private set; }
 
 
 		public bool CanPlay
@@ -134,9 +147,17 @@ namespace NicoPlayerHohoema.Models
 
 
 
-		public Task<bool> ExistVideo()
+		public async Task<bool> ExistVideo()
 		{
-			return _Context.VideoSaveFolder.ExistFile(VideoFileName);
+			var cacheFolder = await _Context.GetVideoCacheFolder();
+			if (cacheFolder != null)
+			{
+				return await cacheFolder.ExistFile(VideoFileName);
+			}
+			else
+			{
+				return false;
+			}
 		}
 
 
@@ -153,33 +174,49 @@ namespace NicoPlayerHohoema.Models
 				CacheState = null;
 			}
 
-
 			IsCacheRequested = _Context.CheckCacheRequested(this.RawVideoId, Quality);
 
-			var existVideo = await ExistVideo();
-			if (existVideo
-				&& (Progress.CheckComplete()))
+			if (IsCacheRequested)
 			{
-				CacheState = NicoVideoCacheState.Cached;
+				var videoCacheFolder = await _Context.GetVideoCacheFolder();
+				var videoFile = await videoCacheFolder.TryGetItemAsync(VideoFileName) as StorageFile;
+				var existVideo = videoFile != null;
+
+				if (existVideo
+					&& (Progress?.CheckComplete() ?? false))
+				{
+					CacheState = NicoVideoCacheState.Cached;
+				}
+				else if (_Context.CheckVideoDownloading(this.RawVideoId, Quality))
+				{
+					CacheState = NicoVideoCacheState.NowDownloading;
+				}
+				else if (existVideo)
+				{
+					CacheState = NicoVideoCacheState.CacheProgress;
+				}
+				else // if (NicoVideoCachedStream.ExistIncompleteOriginalQuorityVideo(CachedWatchApiResponse, saveFolder))
+				{
+					CacheState = null;
+				}
+
+				OnPropertyChanged(nameof(CanRequestDownload));
+				OnPropertyChanged(nameof(CanPlay));
+				OnPropertyChanged(nameof(IsCached));
+				OnPropertyChanged(nameof(CanPlay));
+
+				// キャッシュの日付を取得
+				if (existVideo)
+				{
+					VideoFileCreatedAt = videoFile.DateCreated.LocalDateTime;
+				}
 			}
-			else if (_Context.CheckVideoDownloading(this.RawVideoId, Quality))
-			{
-				CacheState = NicoVideoCacheState.NowDownloading;
-			}
-			else if (existVideo)
-			{
-				CacheState = NicoVideoCacheState.CacheProgress;
-			}
-			else // if (NicoVideoCachedStream.ExistIncompleteOriginalQuorityVideo(CachedWatchApiResponse, saveFolder))
+			else
 			{
 				CacheState = null;
+				VideoFileCreatedAt = default(DateTime);
 			}
 
-
-			OnPropertyChanged(nameof(CanRequestDownload));
-			OnPropertyChanged(nameof(CanPlay));
-			OnPropertyChanged(nameof(IsCached));
-			OnPropertyChanged(nameof(CanPlay));
 		}
 
 
@@ -195,12 +232,16 @@ namespace NicoPlayerHohoema.Models
 				throw new Exception("");
 			}
 
+			if (Progress == null)
+			{
+				await SetupDownloadProgress();
+			}
 
 			var file = await GetCacheFile();
 			var downloader = new NicoVideoDownloader(
 				this
 				, NicoVideo.HohoemaApp.NiconicoContext.HttpClient
-				, NicoVideo.WatchApiResponseCache.CachedItem
+				, NicoVideo.CachedWatchApiResponse
 				, file
 				);
 
@@ -224,9 +265,6 @@ namespace NicoPlayerHohoema.Models
 			await DeleteDownloadProgress();
 
 			await CheckCacheStatus();
-
-
-			await NicoVideo.OnDeleteCache();
 
 			Debug.WriteLine($".完了");
 		}
@@ -252,7 +290,14 @@ namespace NicoPlayerHohoema.Models
 		{
 			if (!IsAvailable) { return; }
 
-			var saveFolder = _Context.VideoSaveFolder;
+			if (_NicoVideoDownloader != null)
+			{
+				await _NicoVideoDownloader.StopDownload();
+				_NicoVideoDownloader?.Dispose();
+				_NicoVideoDownloader = null;
+			}
+
+			var saveFolder = await _Context.GetVideoCacheFolder();
 			var fileName = VideoFileName;
 			try
 			{
@@ -268,7 +313,9 @@ namespace NicoPlayerHohoema.Models
 		protected Task DeleteDownloadProgress()
 		{
 			if (!IsAvailable) { return Task.CompletedTask; }
+			if (_DownloadProgressFileAccessor == null) { return Task.CompletedTask; }
 
+			Progress = new VideoDownloadProgress(VideoSize);
 			return _DownloadProgressFileAccessor.Delete();
 		}
 
@@ -294,12 +341,15 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<StorageFile> GetCacheFile()
 		{
-			return await _Context.VideoSaveFolder.CreateFileAsync(VideoFileName, CreationCollisionOption.OpenIfExists);
+			var folder = await _Context.GetVideoCacheFolder();
+			if (folder == null) { return null; }
+
+			return await folder.CreateFileAsync(VideoFileName, CreationCollisionOption.OpenIfExists);
 		}
 
-		public void DeletedTeardown()
+		public Task DeletedTeardown()
 		{
-
+			return _Context.CacnelDownloadRequest(RawVideoId, this.Quality);
 		}
 
 
@@ -401,7 +451,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			get
 			{
-				return NicoVideo.ThumbnailResponseCache.LowQualityVideoSize;
+				return NicoVideo.SizeLow;
 			}
 		}
 
@@ -409,7 +459,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			get
 			{
-				return !NicoVideo.ThumbnailResponseCache.IsOriginalQualityOnly;
+				return !NicoVideo.IsOriginalQualityOnly;
 			}
 		}
 
@@ -426,14 +476,9 @@ namespace NicoPlayerHohoema.Models
 				// キャッシュ済みじゃないか
 				if (CacheState == NicoVideoCacheState.Cached) { return false; }
 
-				if (NicoVideo.ThumbnailResponseCache.MovieType != Mntone.Nico2.Videos.Thumbnail.MovieType.Mp4)
+				if (NicoVideo.ContentType != Mntone.Nico2.Videos.Thumbnail.MovieType.Mp4)
 				{
 					return false;
-				}
-
-				if (!NicoVideo.ThumbnailResponseCache.HasCache)
-				{
-					throw new Exception();
 				}
 
 				// オリジナル画質しか存在しない動画
@@ -486,7 +531,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			get
 			{
-				return NicoVideo.ThumbnailResponseCache.OriginalQualityVideoSize;
+				return NicoVideo.SizeHigh;
 			}
 		}
 
@@ -509,19 +554,19 @@ namespace NicoPlayerHohoema.Models
 				// キャッシュ済みじゃないか
 				if (CacheState == NicoVideoCacheState.Cached) { return false; }
 
-				if (NicoVideo.ThumbnailResponseCache.MovieType != Mntone.Nico2.Videos.Thumbnail.MovieType.Mp4)
+				if (NicoVideo.ContentType != Mntone.Nico2.Videos.Thumbnail.MovieType.Mp4)
 				{
 					return false;
 				}
 
 				// 
-				if (NicoVideo.ThumbnailResponseCache.IsOriginalQualityOnly)
+				if (NicoVideo.IsOriginalQualityOnly)
 				{
 					return true;
 				}
 
 				// オリジナル画質DL可能時間帯か
-				if (WatchApiResponseCache.NowLowQualityOnly)
+				if (NicoVideo.NowLowQualityOnly)
 				{
 					return false;
 				}

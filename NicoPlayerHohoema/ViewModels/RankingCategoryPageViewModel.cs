@@ -100,6 +100,24 @@ namespace NicoPlayerHohoema.ViewModels
 				RequireCategoryInfo = null;
 			}
 
+			if (RequireCategoryInfo.RankingSource == RankingSource.CategoryRanking)
+			{
+				RankingCategory category;
+				if (Enum.TryParse(RequireCategoryInfo.Parameter, out category))
+				{
+					var text = RankingCategoryExtention.ToCultulizedText(category);
+					UpdateTitle($"{text} のランキング ");
+				}
+				else
+				{
+					UpdateTitle($"{RequireCategoryInfo.Parameter} のランキング");
+				}
+			}
+			else
+			{
+				UpdateTitle($"{CategoryInfo.Parameter} のランキング");
+			}
+
 			base.OnNavigatedTo(e, viewModelState);
 		}
 
@@ -159,33 +177,7 @@ namespace NicoPlayerHohoema.ViewModels
 				CategoryInfo = RequireCategoryInfo;
 				RequireCategoryInfo = null;
 
-				if (CategoryInfo.RankingSource == RankingSource.CategoryRanking)
-				{
-					RankingCategory category;
-					if (Enum.TryParse(CategoryInfo.Parameter, out category))
-					{
-						var text = RankingCategoryExtention.ToCultulizedText(category);
-						UpdateTitle($"{text} のランキング ");
-					}
-					else
-					{
-						UpdateTitle($"{CategoryInfo.Parameter} のランキング");
-					}
-				}
-				else
-				{
-					UpdateTitle($"{CategoryInfo.Parameter} のランキング");
-				}
-			}
-		}
-
-		protected override uint IncrementalLoadCount
-		{
-			get
-			{
-				// 検索ベースランキングの場合は30個ずつ
-				// （ニコ動の検索一回あたりの取得件数が30固定のため）
-				return CanChangeRankingParameter.Value ? 20u : 30u;
+				
 			}
 		}
 
@@ -194,11 +186,11 @@ namespace NicoPlayerHohoema.ViewModels
 			if (RequireCategoryInfo != null)
 			{
 				return !RequireCategoryInfo.Equals(CategoryInfo)
-					|| mode != NavigationMode.Back;
+					|| !(mode == NavigationMode.Back || mode == NavigationMode.Forward);
 			}
 			else
 			{
-				return mode != NavigationMode.Back;
+				return !(mode == NavigationMode.Back || mode == NavigationMode.Forward);
 			}
 		}
 
@@ -235,9 +227,20 @@ namespace NicoPlayerHohoema.ViewModels
 	}
 
 
-	public class CategoryRankingLoadingSource : IIncrementalSource<RankedVideoInfoControlViewModel>
+	public class CategoryRankingLoadingSource : HohoemaVideoPreloadingIncrementalSourceBase<RankedVideoInfoControlViewModel>
 	{
+
+		NiconicoRankingRss RankingRss;
+		HohoemaApp _HohoemaApp;
+		PageManager _PageManager;
+		RankingCategory _Category;
+		RankingTarget _Target;
+		RankingTimeSpan _TimeSpan;
+
+		
+
 		public CategoryRankingLoadingSource(HohoemaApp app, PageManager pageManager, RankingCategory category, RankingTarget target, RankingTimeSpan timeSpan)
+			: base(app, "CategoryRanking_" + category.ToString())
 		{
 			_HohoemaApp = app;
 			_PageManager = pageManager;
@@ -247,120 +250,94 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		public async Task<int> ResetSource()
+
+
+		#region Implements HohoemaPreloadingIncrementalSourceBase		
+
+
+		protected override async Task<IEnumerable<NicoVideo>> PreloadNicoVideo(int start, int count)
+		{
+			if (RankingRss != null)
+			{
+				var items = RankingRss.Channel.Items.Skip(start).Take(count);
+
+				List<NicoVideo> videos = new List<NicoVideo>();
+				foreach (var item in items)
+				{
+					var videoId = item.GetVideoId();
+					var nicoVideo = await ToNicoVideo(videoId);
+
+					nicoVideo.PreSetTitle(item.Title);
+					nicoVideo.PreSetPostAt(DateTime.Parse(item.PubDate));
+
+					videos.Add(nicoVideo);
+				}
+
+				return videos;
+			}
+			else
+			{
+				return Enumerable.Empty<NicoVideo>();
+			}
+		}
+
+
+		protected override async Task<int> ResetSourceImpl()
 		{
 			RankingRss = await NiconicoRanking.GetRankingData(_Target, _TimeSpan, _Category);
-
-			// 先頭20件を先行ロード
-			await _HohoemaApp.ThumbnailBackgroundLoader.Schedule(
-				new SimpleBackgroundUpdate("Ranking_First_" + _Category.ToString()
-				, () => UpdateItemsThumbnailInfo_First()
-				)
-				);
-
 			return RankingRss.Channel.Items.Count;
 		}
 
-		private async Task UpdateItemsThumbnailInfo_First()
+
+
+		protected override RankedVideoInfoControlViewModel NicoVideoToTemplatedItem(
+			NicoVideo itemSource
+			, int index
+			)
 		{
-			if (RankingRss != null)
-			{
-				foreach (var item in RankingRss.Channel.Items.Take(20))
-				{
-					if (!_HohoemaApp.IsLoggedIn) { return; }
-
-					await _HohoemaApp.MediaManager.GetNicoVideo(item.GetVideoId());
-				}
-
-				if (!_HohoemaApp.IsLoggedIn) { return; }
-
-				// 次以降のデータをバックグラウンドで読み込み
-				await _HohoemaApp.ThumbnailBackgroundLoader.Schedule(
-					new SimpleBackgroundUpdate("Ranking_Second_" + _Category.ToString()
-					, () => UpdateItemsThumbnailInfo_Second()
-					)
-					);
-			}
-		}
-
-		private async Task UpdateItemsThumbnailInfo_Second()
-		{
-			if (RankingRss != null)
-			{
-				foreach (var item in RankingRss.Channel.Items.Skip(20))
-				{
-					if (!_HohoemaApp.IsLoggedIn) { return; }
-
-					await _HohoemaApp.MediaManager.GetNicoVideo(item.GetVideoId());
-				}
-			}
-		}
-
-
-
-		public async Task<IEnumerable<RankedVideoInfoControlViewModel>> GetPagedItems(uint position, uint pageSize)
-		{
-			while(_HohoemaApp.MediaManager == null)
-			{
-				await Task.Delay(100);
-			}
-
-			var contentFinder = _HohoemaApp.ContentFinder;
-			var mediaManager = _HohoemaApp.MediaManager;
-
-
-			var head = (int)(position);
-			var tail = head + pageSize;
-
-			List<RankedVideoInfoControlViewModel> items = new List<RankedVideoInfoControlViewModel>();
-			for (int i = head; i < tail; ++i)
-			{
-				var rank = i;
-
-				if (rank > RankingRss.Channel.Items.Count)
-				{
-					break;
-				}
-
-				var item = RankingRss.Channel.Items[rank-1];
-				var nicoVideo = await mediaManager.GetNicoVideo(item.GetVideoId());
-
-
-				var vm = new RankedVideoInfoControlViewModel(
-					(uint)(rank)
-					, nicoVideo
+			return new RankedVideoInfoControlViewModel(
+					(uint)(index + 1)
+					, itemSource
 					, _PageManager
 				);
-
-				await vm.LoadThumbnail();
-
-				items.Add(vm);
-			}
-
-
-
-			return items;			
 		}
 
 
-		NiconicoRankingRss RankingRss;
-		HohoemaApp _HohoemaApp;
-		PageManager _PageManager;
-		RankingCategory _Category;
-		RankingTarget _Target;
-		RankingTimeSpan _TimeSpan;
+		#endregion
+
+
+		
+
 	}
 
 
 
 	public class CustomRankingLoadingSource : IIncrementalSource<RankedVideoInfoControlViewModel>
 	{
+		HohoemaApp _HohoemaApp;
+		PageManager _PageManager;
+		string _Parameter;
+
+	
 		public CustomRankingLoadingSource(HohoemaApp app, PageManager pageManager, string parameter)
 		{
 			_HohoemaApp = app;
 			_PageManager = pageManager;
 			_Parameter = parameter;
 		}
+
+
+		#region Implements IIncrementalSource
+
+
+		public uint OneTimeLoadCount
+		{
+			get
+			{
+				return 30;
+			}
+		}
+
 
 		public async Task<int> ResetSource()
 		{
@@ -374,24 +351,24 @@ namespace NicoPlayerHohoema.ViewModels
 			return (int)res.GetTotalCount();
 		}
 
-		public async Task<IEnumerable<RankedVideoInfoControlViewModel>> GetPagedItems(uint head, uint pageSize)
+		public async Task<IEnumerable<RankedVideoInfoControlViewModel>> GetPagedItems(int head, int count)
 		{
 			var contentFinder = _HohoemaApp.ContentFinder;
 			var mediaManager = _HohoemaApp.MediaManager;
 
-			var response = await _HohoemaApp.ContentFinder.GetKeywordSearch(_Parameter, head, pageSize, Sort.Popurarity);
+			var response = await _HohoemaApp.ContentFinder.GetKeywordSearch(_Parameter, (uint)head, (uint)count, Sort.Popurarity);
 
 
 			List<RankedVideoInfoControlViewModel> items = new List<RankedVideoInfoControlViewModel>();
 
-			var count = response.VideoInfoItems.Count();
-			for (int i = 0; i < count; ++i)
+			var itemCount = response.VideoInfoItems.Count();
+			for (int i = 0; i < itemCount; ++i)
 			{
 				var item = response.VideoInfoItems[i];
-				var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideo(item.Video.Id);
+				var nicoVideo = await _HohoemaApp.MediaManager.GetNicoVideoAsync(item.Video.Id);
 
 				var videoInfoVM = new RankedVideoInfoControlViewModel(
-					(uint)(i + 1)
+					(uint)(head + i + 1)
 					, nicoVideo
 					, _PageManager
 					);
@@ -399,19 +376,10 @@ namespace NicoPlayerHohoema.ViewModels
 				items.Add(videoInfoVM);
 			}
 
-			
-			foreach (var item in items)
-			{
-				await item.LoadThumbnail();
-			}
-
 			return items;
 		}
 
-		
-		HohoemaApp _HohoemaApp;
-		PageManager _PageManager;
-		string _Parameter;
+		#endregion
 
 	}
 

@@ -64,18 +64,12 @@ namespace NicoPlayerHohoema.ViewModels
 			var optionText = Util.SortHelper.ToCulturizedText(searchOption.Sort, searchOption.Order);
 			UpdateTitle($"{target}検索: {searchOption.Keyword} - {optionText}");
 		}
-
-		protected override uint IncrementalLoadCount
-		{
-			get
-			{
-				return VideoSearchSource.OneTimeLoadSearchItemCount / 2;
-			}
-		}
+		
 
 		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
 		{
-			var source = IncrementalLoadingItems.Source as VideoSearchSource;
+			var source = IncrementalLoadingItems?.Source as VideoSearchSource;
+			if (source == null) { return true; }
 
 			if (RequireSearchOption != null)
 			{

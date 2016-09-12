@@ -18,11 +18,11 @@ namespace NicoPlayerHohoema.Models
 {
 	public class HohoemaUserSettings
 	{
-		const string RankingSettingsFileName = "ranking.json";
-		const string PlayerSettingsFileName = "player.json";
-		const string NGSettingsFileName = "ng.json";
-		const string SearchSettingsFileName = "search.json";
-		const string CacheSettingsFileName = "cache.json";
+		public const string RankingSettingsFileName = "ranking.json";
+		public const string PlayerSettingsFileName = "player.json";
+		public const string NGSettingsFileName = "ng.json";
+		public const string SearchSettingsFileName = "search.json";
+		public const string CacheSettingsFileName = "cache.json";
 
 
 		public static async Task<HohoemaUserSettings> LoadSettings(StorageFolder userFolder)
@@ -30,7 +30,6 @@ namespace NicoPlayerHohoema.Models
 			var ranking = await SettingsBase.Load<RankingSettings>(RankingSettingsFileName, userFolder);
 			var player = await SettingsBase.Load<PlayerSettings>(PlayerSettingsFileName, userFolder);
 			var ng = await SettingsBase.Load<NGSettings>(NGSettingsFileName, userFolder);
-			var search = await SettingsBase.Load<SearchSeetings>(SearchSettingsFileName, userFolder);
 			var cache = await SettingsBase.Load<CacheSettings>(CacheSettingsFileName, userFolder);
 
 			return new HohoemaUserSettings()
@@ -38,7 +37,6 @@ namespace NicoPlayerHohoema.Models
 				RankingSettings = ranking,
 				PlayerSettings = player,
 				NGSettings = ng,
-				SearchSettings = search,
 				CacheSettings = cache
 			};
 		}
@@ -48,7 +46,6 @@ namespace NicoPlayerHohoema.Models
 			await RankingSettings.Save();
 			await PlayerSettings.Save();
 			await NGSettings.Save();
-			await SearchSettings.Save();
 			await CacheSettings.Save();
 		}
 
@@ -57,8 +54,6 @@ namespace NicoPlayerHohoema.Models
 		public PlayerSettings PlayerSettings { get; private set; }
 
 		public NGSettings NGSettings { get; private set; }
-
-		public SearchSeetings SearchSettings { get; private set; }
 
 		public CacheSettings CacheSettings { get; private set; }
 
@@ -87,33 +82,41 @@ namespace NicoPlayerHohoema.Models
 		public static async Task<T> Load<T>(string filename, StorageFolder folder)
 			where T : SettingsBase, new()
 		{
-			var file = await folder.CreateFileAsync(filename, CreationCollisionOption.OpenIfExists);
-
-			var rawText = await FileIO.ReadTextAsync(file);
-			if (!String.IsNullOrEmpty(rawText))
+			var file = await folder.TryGetItemAsync(filename) as StorageFile;
+			if (file != null)
 			{
-				try
+				var rawText = await FileIO.ReadTextAsync(file);
+				if (!String.IsNullOrEmpty(rawText))
 				{
-					var obj = JsonConvert.DeserializeObject<T>(rawText);
-					obj.FileName = filename;
-					obj.Folder = folder;
-					return obj;
+					try
+					{
+						var obj = JsonConvert.DeserializeObject<T>(rawText);
+						obj.FileName = filename;
+						obj.Folder = folder;
+						return obj;
+					}
+					catch
+					{
+						await file.DeleteAsync();
+					}
 				}
-				catch
-				{
-					await file.DeleteAsync();
-				}
+
+				return null;
 			}
-
-			var newInstance = new T()
+			else
 			{
-				FileName = filename,
-				Folder = folder
-			};
 
-			newInstance.OnInitialize();
+				var newInstance = new T()
+				{
+					FileName = filename,
+					Folder = folder
+				};
 
-			return newInstance;
+				newInstance.OnInitialize();
+
+				return newInstance;
+
+			}
 		}
 
 

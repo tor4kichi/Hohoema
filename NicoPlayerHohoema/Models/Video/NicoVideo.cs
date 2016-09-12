@@ -2,6 +2,7 @@
 using Mntone.Nico2.Videos.Comment;
 using Mntone.Nico2.Videos.Thumbnail;
 using Mntone.Nico2.Videos.WatchAPI;
+using NicoPlayerHohoema.Models.Db;
 using NicoPlayerHohoema.Util;
 using Prism.Mvvm;
 using System;
@@ -22,87 +23,179 @@ namespace NicoPlayerHohoema.Models
 	public class NicoVideo : BindableBase
 	{
 
-		internal static async Task<NicoVideo> Create(HohoemaApp app, string rawVideoid, NicoVideoDownloadContext context)
-		{
-			Debug.WriteLine("start initialize : " + rawVideoid);
-			var nicoVideo = new NicoVideo(app, rawVideoid, context);
+		private CommentResponse _CachedCommentResponse;
+		private NicoVideoQuality _VisitedPageType = NicoVideoQuality.Low;
 
-			await nicoVideo.ThumbnailResponseCache.Update();
-			await nicoVideo.WatchApiResponseCache.UpdateFromLocal();
+		internal WatchApiResponse CachedWatchApiResponse { get; private set; }
 
-			await nicoVideo.OriginalQuality.SetupDownloadProgress();
-			await nicoVideo.LowQuality.SetupDownloadProgress();
+		bool _IsInitialized = false;
 
-			await nicoVideo.CheckCacheStatus();
-
-			return nicoVideo;
-		}
-
-		
-		
-
-		private NicoVideo(HohoemaApp app, string rawVideoid, NicoVideoDownloadContext context)
+		public NicoVideo(HohoemaApp app, string rawVideoid, NicoVideoDownloadContext context)
 		{
 			HohoemaApp = app;
 			RawVideoId = rawVideoid;
 			_Context = context;
 
-			CacheRequestTime = DateTime.MinValue;
 			_InterfaceByQuality = new Dictionary<NicoVideoQuality, DividedQualityNicoVideo>();
-
-			ThumbnailResponseCache = new ThumbnailResponseCache(RawVideoId, HohoemaApp, context.VideoSaveFolder, $"{RawVideoId}_thumb.json");
-			WatchApiResponseCache = new WatchApiResponseCache(RawVideoId, HohoemaApp, context.VideoSaveFolder, $"{RawVideoId}_info.json");
-			CommentResponseCache = new CommentResponseCache(WatchApiResponseCache, HohoemaApp, context.VideoSaveFolder, $"{RawVideoId}_comment.json");
 		}
 
+
+		public async Task Initialize()
+		{
+			if (_IsInitialized) { return; }
+
+			_IsInitialized = true;
+
+			Debug.WriteLine("start initialize : " + RawVideoId);
+
+			if (Util.InternetConnection.IsInternet())
+			{
+				await UpdateWithThumbnail();
+			}
+			else
+			{
+
+			}
+
+			if (false == IsDeleted)
+			{
+				await OriginalQuality.SetupDownloadProgress();
+				await LowQuality.SetupDownloadProgress();
+
+				await CheckCacheStatus();
+			}
+		}
+
+
+		
 
 
 		public async Task CheckCacheStatus()
 		{
-			var saveFolder = _Context.VideoSaveFolder;
-
 			await OriginalQuality.CheckCacheStatus();
 			await LowQuality.CheckCacheStatus();
-
-			
-			if (await WatchApiResponseCache.ExistCachedFile())
-			{
-				DateTime time = DateTime.MinValue;
-				await WatchApiResponseCache.DoCacheFileAction((file) => 
-				{
-					time = file.DateCreated.DateTime;
-				});
-				CacheRequestTime = time;
-			}
 		}
 
 		// コメントのキャッシュまたはオンラインからの取得と更新
-		public Task<CommentResponse> GetCommentResponse(bool requierLatest = false)
+		public async Task<CommentResponse> GetCommentResponse(bool requierLatest = false)
 		{
-			return CommentResponseCache.GetItem(requierLatest);
+			if (CachedWatchApiResponse == null)
+			{
+				throw new Exception("コメントを取得するには先にWatchPageへのアクセスが必要です");
+			}
+
+			CommentResponse commentRes = null;
+			try
+			{
+				commentRes = await ConnectionRetryUtil.TaskWithRetry(async () =>
+				{
+					return await this.HohoemaApp.NiconicoContext.Video
+						.GetCommentAsync(CachedWatchApiResponse);
+				});
+
+				if (commentRes != null)
+				{
+					_CachedCommentResponse = commentRes;
+				}
+
+				return _CachedCommentResponse;
+			}
+			catch
+			{
+				return _CachedCommentResponse;
+			}
 		}
 
 		
 
-		public async Task<ThumbnailResponse> GetThumbnailResponse()
+		private async Task UpdateWithThumbnail()
 		{
-			var res = await ThumbnailResponseCache.GetItem();
-
-			if (ThumbnailResponseCache.IsDeleted)
+			// 動画のサムネイル情報にアクセスさせて、アプリ内部DBを更新
+			try
 			{
+				var res = await HohoemaApp.ContentFinder.GetThumbnailResponse(RawVideoId);
+
+				this.VideoId = res.Id;
+				this.VideoLength = res.Length;
+				this.SizeLow = (uint)res.SizeLow;
+				this.SizeHigh = (uint)res.SizeHigh;
+				this.Title = res.Title;
+				this.VideoOwnerId = res.UserId;
+				this.ContentType = res.MovieType;
+				this.PostedAt = res.PostedAt.DateTime;
+				this.Tags = res.Tags.Value.ToList();
+				this.ViewCount = res.ViewCount;
+				this.MylistCount = res.MylistCount;
+				this.CommentCount = res.CommentCount;
+				this.ThumbnailUrl = res.ThumbnailUrl.AbsoluteUri;
+			}
+			catch (Exception e) when (e.Message.Contains("delete"))
+			{
+				this.IsDeleted = true;
 				await DeletedTeardown();
 			}
 
-			return res;
+			if (!this.IsDeleted && OriginalQuality.IsCacheRequested || LowQuality.IsCacheRequested)
+			{
+				// キャッシュ情報を最新の状態に更新
+				await OnCacheRequested();
+			}
 		}
 
-		
+
 
 		// 動画情報のキャッシュまたはオンラインからの取得と更新
 
-		public async Task<WatchApiResponse> GetWatchApiResponse(bool requireLatest = false)
+		public Task VisitWatchPage(bool forceLowQuality = false)
 		{
-			return await WatchApiResponseCache.GetItem(requireLatest);
+			return GetWatchApiResponse(forceLowQuality);
+		}
+
+		private async Task<WatchApiResponse> GetWatchApiResponse(bool forceLoqQuality = false)
+		{
+			WatchApiResponse watchApiRes = null;
+
+			try
+			{
+				watchApiRes = await HohoemaApp.ContentFinder.GetWatchApiResponse(RawVideoId, forceLoqQuality, HarmfulContentReactionType);
+			}
+			catch (AggregateException ea) when (ea.Flatten().InnerExceptions.Any(e => e is ContentZoningException))
+			{
+				IsBlockedHarmfulVideo = true;
+			}
+			catch (ContentZoningException)
+			{
+				IsBlockedHarmfulVideo = true;
+			}
+			catch { }
+
+			if (!forceLoqQuality && watchApiRes != null)
+			{
+				NowLowQualityOnly = watchApiRes.VideoUrl.AbsoluteUri.EndsWith("low");
+			}
+
+			_VisitedPageType = watchApiRes.VideoUrl.AbsoluteUri.EndsWith("low") ? NicoVideoQuality.Low : NicoVideoQuality.Original;
+			
+			if (watchApiRes != null)
+			{
+				CachedWatchApiResponse = watchApiRes;
+
+				VideoUrl = watchApiRes.VideoUrl;
+
+				ProtocolType = MediaProtocolTypeHelper.ParseMediaProtocolType(watchApiRes.VideoUrl);
+
+				DescriptionWithHtml = watchApiRes.videoDetail.description;
+				ThreadId = watchApiRes.ThreadId.ToString();
+				PrivateReasonType = watchApiRes.PrivateReason;
+
+				this.IsDeleted = watchApiRes.IsDeleted;
+				if (IsDeleted)
+				{
+					await DeletedTeardown();
+				}
+			}
+
+			return watchApiRes;
 		}
 
 
@@ -114,13 +207,25 @@ namespace NicoPlayerHohoema.Models
 		/// 動画ストリームの取得します
 		/// 他にダウンロードされているアイテムは強制的に一時停止し、再生終了後に再開されます
 		/// </summary>
-		public async Task<NicoVideoCachedStream> GetVideoStream(NicoVideoQuality quality)
+		public async Task<IRandomAccessStream> GetVideoStream(NicoVideoQuality quality)
 		{
 			IfVideoDeletedThrowException();
 
-			NicoVideoDownloader = await _Context.GetPlayingDownloader(this, quality);
+			if (await _Context.CanAccessVideoCacheFolder())
+			{
+				NicoVideoDownloader = await _Context.GetPlayingDownloader(this, quality);
 
-			NicoVideoCachedStream = new NicoVideoCachedStream(NicoVideoDownloader);
+				NicoVideoCachedStream = new NicoVideoCachedStream(NicoVideoDownloader);
+			}
+			else if (Util.InternetConnection.IsInternet())
+			{
+				var size = (quality == NicoVideoQuality.Original ? SizeHigh : SizeLow);
+				NicoVideoCachedStream = await HttpRandomAccessStream.CreateAsync(
+					HohoemaApp.NiconicoContext.HttpClient
+					, VideoUrl
+					, size
+					);
+			}
 
 			return NicoVideoCachedStream;
 		}
@@ -133,49 +238,46 @@ namespace NicoPlayerHohoema.Models
 			{
 				if (OriginalQuality.IsCached)
 				{
-					res = await WatchApiResponseCache.GetItem();
+					res = await GetWatchApiResponse();
 				}
 				// オリジナル画質の視聴ページにアクセスしたWacthApiResponseを取得する
-				else if (WatchApiResponseCache.HasCache
-					&& WatchApiResponseCache.VisitedPageType == NicoVideoQuality.Original
+				else if (CachedWatchApiResponse != null
+					&& _VisitedPageType == NicoVideoQuality.Original
 					)
 				{
 					// すでに
-					res = WatchApiResponseCache.CachedItem;
+					res = CachedWatchApiResponse;
 				}
 				else
 				{
-					res = await WatchApiResponseCache.GetItem(requireLatest: true);
+					res = await GetWatchApiResponse();
 				}
 
 				// ないです				
-				if (WatchApiResponseCache.VisitedPageType == NicoVideoQuality.Low)
+				if (_VisitedPageType == NicoVideoQuality.Low)
 				{
 					throw new Exception("cant download original quality video.");
 				}
-
-
 			}
 			else
 			{
 				// 低画質動画キャッシュ済みの場合
 				if (LowQuality.IsCached)
 				{
-					res = await WatchApiResponseCache.GetItem();
+					res = await GetWatchApiResponse();
 				}
 				// 低画質の視聴ページへアクセスしたWatchApiResponseを取得する
-				else if (WatchApiResponseCache.HasCache
-					&& WatchApiResponseCache.VisitedPageType == NicoVideoQuality.Low
+				else if (CachedWatchApiResponse != null
+					&& _VisitedPageType == NicoVideoQuality.Low
 					)
 				{
 					// すでに
-					res = WatchApiResponseCache.CachedItem;
+					res = CachedWatchApiResponse;
 				}
 				else
 				{
 					// まだなので、低画質を指定してアクセスする
-					WatchApiResponseCache.OnceSetForceLowQualityForcing();
-					res = await WatchApiResponseCache.GetItem(requireLatest: true);
+					res = await GetWatchApiResponse( forceLoqQuality:true );
 				}
 			}
 
@@ -184,6 +286,14 @@ namespace NicoPlayerHohoema.Models
 				throw new Exception("");
 			}
 
+
+			// キャッシュリクエストされている場合このタイミングでコメントを取得
+			if (_Context.CheckCacheRequested(RawVideoId, quality))
+			{
+				await OnCacheRequested();
+//				var commentRes = await GetCommentResponse();
+//				CommentDb.AddOrUpdate(RawVideoId, commentRes);
+			}
 		}
 		
 		public async Task StopPlay()
@@ -233,6 +343,16 @@ namespace NicoPlayerHohoema.Models
 				await CancelCacheRequest(NicoVideoQuality.Low);
 				await CancelCacheRequest(NicoVideoQuality.Original);
 			}
+
+
+			if (!OriginalQuality.IsCacheRequested 
+				&& !LowQuality.IsCacheRequested)
+			{
+				var info = await VideoInfoDb.GetEnsureNicoVideoInfoAsync(RawVideoId);
+				await VideoInfoDb.RemoveAsync(info);
+
+				CommentDb.Remove(RawVideoId);
+			}
 		}
 
 
@@ -241,8 +361,13 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<PostCommentResponse> SubmitComment(string comment, TimeSpan position, string commands)
 		{
-			var commentRes = await CommentResponseCache.GetItem();
-			var watchApiRes = await WatchApiResponseCache.GetItem();
+			var commentRes = _CachedCommentResponse;
+			var watchApiRes = CachedWatchApiResponse;
+
+			if (commentRes == null && watchApiRes == null)
+			{
+				throw new Exception("コメント投稿には事前に動画ページへのアクセスとコメント情報取得が必要です");
+			}
 
 			try
 			{
@@ -265,32 +390,29 @@ namespace NicoPlayerHohoema.Models
 		{
 			IfVideoDeletedThrowException();
 
-			await CommentResponseCache.Update();
-			await CommentResponseCache.Save();
-			await WatchApiResponseCache.Save();
-			await ThumbnailResponseCache.Save();
-		}
-
-
-
-		/// <summary>
-		/// キャッシュ削除の後処理を実行します
-		/// DividedQualityNicoVideoから呼び出されます
-		/// </summary>
-		/// <returns></returns>
-		internal async Task OnDeleteCache()
-		{
-			// 動画キャッシュがすべて削除されたらコメントなどの情報も削除
-			if (!OriginalQuality.IsCached
-				&& !LowQuality.IsCached)
+			if (CachedWatchApiResponse != null)
 			{
-				// jsonファイルを削除
-				await WatchApiResponseCache.Delete();
-				await ThumbnailResponseCache.Delete();
-				await CommentResponseCache.Delete();
+				var commentRes = await GetCommentResponse();
+				CommentDb.AddOrUpdate(RawVideoId, commentRes);
 			}
 
-			Debug.WriteLine($".完了");
+			var info = await VideoInfoDb.GetEnsureNicoVideoInfoAsync(RawVideoId);
+
+			info.VideoId = this.VideoId;
+			info.Length = this.VideoLength;
+			info.LowSize = (uint)this.SizeLow;
+			info.HighSize = (uint)this.SizeHigh;
+			info.Title = this.Title;
+			info.UserId = this.VideoOwnerId;
+			info.MovieType = this.ContentType;
+			info.PostedAt = this.PostedAt;
+			info.SetTags(this.Tags);
+			info.ViewCount = this.ViewCount;
+			info.MylistCount = this.MylistCount;
+			info.CommentCount = this.CommentCount;
+			info.ThumbnailUrl = this.ThumbnailUrl;
+
+			await VideoInfoDb.UpdateAsync(info);
 		}
 
 
@@ -300,35 +422,13 @@ namespace NicoPlayerHohoema.Models
 		/// </summary>
 		private async Task DeletedTeardown()
 		{
-			// コンテキスト内から動画のキャッシュリクエストを削除
-			// 古いWatchApiResponseの削除
-			// IsDeletedを示すWatchApiResponseの取得
-			// WatchApiResponseを.deleteをつけて保存
+			// キャッシュした動画データと動画コメントの削除
 
-			// コメントの削除
-			// ThumbnailInfoの削除
-			var cacheRequested = _Context.CheckCacheRequested(RawVideoId, NicoVideoQuality.Original)
-				|| _Context.CheckCacheRequested(RawVideoId, NicoVideoQuality.Low);
+			await OriginalQuality.DeletedTeardown();
+			await LowQuality.DeletedTeardown();
 
-			OriginalQuality.DeletedTeardown();
-			LowQuality.DeletedTeardown();
-
-			// キャッシュリクエストがされていた場合はユーザーに伝えるために情報を残す
-			if (cacheRequested)
-			{
-				// GetVideoInfo内で削除済みを示すWatchApiResponseを取得しています。
-				// オンラインから動画情報を取得
-				await WatchApiResponseCache.Update(requireLatest: true);
-
-				var res = await WatchApiResponseCache.GetItem();
-
-				if (!res.IsDeleted)
-				{
-					throw new Exception("Thumbnail情報では削除済みを示していますが、動画ページ上では削除されていないとなっています");
-				}
-
-				await WatchApiResponseCache.Save();
-			}
+			CommentDb.Remove(RawVideoId);
+			VideoInfoDb.Deleted(RawVideoId);
 		}
 
 
@@ -345,117 +445,94 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public NGResult CheckUserNGVideo(ThumbnailResponse thumb)
+		public NGResult CheckUserNGVideo()
 		{
-			return HohoemaApp.UserSettings?.NGSettings.IsNgVideo(thumb);
+			return HohoemaApp.UserSettings?.NGSettings.IsNgVideo(this);
+		}
+
+
+		// Initializeが呼ばれるまで有効
+		public void PreSetTitle(string title)
+		{
+			if (_IsInitialized) { return; }
+
+			Title = title;
+		}
+
+		public void PreSetPostAt(DateTime dateTime)
+		{
+			if (_IsInitialized) { return; }
+
+			PostedAt = dateTime;
+		}
+
+		public void PreSetVideoLength(TimeSpan length)
+		{
+			if (_IsInitialized) { return; }
+
+			VideoLength = length;
+		}
+
+		public void PreSetCommentCount(uint count)
+		{
+			if (_IsInitialized) { return; }
+
+			CommentCount = count;
+		}
+		public void PreSetViewCount(uint count)
+		{
+			if (_IsInitialized) { return; }
+
+			ViewCount = count;
+		}
+		public void PreSetMylistCount(uint count)
+		{
+			if (_IsInitialized) { return; }
+
+			MylistCount = count;
+		}
+
+		public void PreSetThumbnailUrl(string thumbnailUrl)
+		{
+			if (_IsInitialized) { return; }
+
+			ThumbnailUrl = thumbnailUrl;
 		}
 
 
 		public string RawVideoId { get; private set; }
+		public string VideoId { get; private set; }
+
+		public bool IsDeleted { get; private set; }
+
+		public MovieType ContentType { get; private set; }
+		public string Title { get; private set; }
+		public TimeSpan VideoLength { get; private set; }
+		public DateTime PostedAt { get; private set; }
+		public uint VideoOwnerId { get; private set; }
+		public bool IsOriginalQualityOnly => SizeLow == 0;
+		public List<Tag> Tags { get; private set; }
+		public uint SizeLow { get; private set; }
+		public uint SizeHigh { get; private set; }
+		public uint ViewCount { get; internal set; }
+		public uint CommentCount { get; internal set; }
+		public uint MylistCount { get; internal set; }
+		public string ThumbnailUrl { get; internal set; }
+
+		public Uri VideoUrl { get; private set; }
+		public string ThreadId { get; private set; }
+		public string DescriptionWithHtml { get; private set; }
+		public bool NowLowQualityOnly { get; private set; }
+		public MediaProtocolType ProtocolType { get; private set; }
+		public PrivateReasonType PrivateReasonType { get; private set; } 
 
 
-		public string VideoId
-		{
-			get
-			{
-				if (ThumbnailResponseCache.HasCache)
-				{
-					return ThumbnailResponseCache.CachedItem.Id;
-				}
-				if (WatchApiResponseCache.HasCache)
-				{
-					return WatchApiResponseCache.CachedItem.videoDetail.id;
-				}
-
-				return null;
-			}
-		}
-
-		public bool IsDeleted
-		{
-			get
-			{
-				return ThumbnailResponseCache.IsDeleted 
-					|| (WatchApiResponseCache.CachedItem?.IsDeleted ?? false);
-			}
-		}
-
-
-		public MediaProtocolType ProtocolType
-		{
-			get
-			{
-				return WatchApiResponseCache.MediaProtocolType;
-			}
-		}
-
-		public MovieType ContentType
-		{
-			get
-			{
-				return ThumbnailResponseCache.MovieType;
-			}
-		}
-
-		
-
-		public string Title
-		{
-			get
-			{
-				if (ThumbnailResponseCache.HasCache)
-				{
-					return ThumbnailResponseCache.CachedItem.Title;
-				}
-				if (WatchApiResponseCache.HasCache)
-				{
-					return WatchApiResponseCache.CachedItem.videoDetail.title;
-				}
-
-				return "";
-			}
-		}
-
-		public TimeSpan VideoLength
-		{
-			get
-			{
-				return ThumbnailResponseCache.CachedItem.Length;
-			}
-		}
-
-		public bool NowLowQualityOnly
-		{
-			get
-			{
-				return WatchApiResponseCache.NowLowQualityOnly;
-			}
-		}
-
-		public bool IsOriginalQualityOnly
-		{
-			get
-			{
-				return ThumbnailResponseCache.IsOriginalQualityOnly;
-			}
-		}
-
-
-		public uint VideoOwnerId
-		{
-			get
-			{
-				return ThumbnailResponseCache.CachedItem.UserId;
-			}
-		}
 
 
 		public bool IsNeedPayment { get; private set; }
 
 
 		public bool IsRequireConfirmDelete { get; private set; }
-
-		public DateTime CacheRequestTime { get; private set; }
 
 		public HohoemaApp HohoemaApp { get; private set; }
 		NicoVideoDownloadContext _Context;
@@ -464,34 +541,21 @@ namespace NicoPlayerHohoema.Models
 
 
 		// 有害動画への対応
-		public bool IsBlockedHarmfulVideo
-		{
-			get
-			{
-				return WatchApiResponseCache.HasCache ? WatchApiResponseCache.IsBlockedHarmfulVideo : false;
-			}
-		}
+		public bool IsBlockedHarmfulVideo { get; private set; }
 
-		public HarmfulContentReactionType HarmfulContentReactionType
-		{
-			get
-			{
-				return WatchApiResponseCache.HarmfulContentReactionType;
-			}
-			set
-			{
-				WatchApiResponseCache.HarmfulContentReactionType = value;
-			}
-		}
+		public HarmfulContentReactionType HarmfulContentReactionType { get; set; }
+		
 
 
-		public ThumbnailResponseCache ThumbnailResponseCache { get; private set; }
-		public WatchApiResponseCache WatchApiResponseCache { get; private set; }
-		public CommentResponseCache CommentResponseCache { get; private set; }
+//		internal NicoVideoInfo Info { get; private set; }
+
+//		internal ThumbnailResponseCache ThumbnailResponseCache { get; private set; }
+//		internal WatchApiResponseCache WatchApiResponseCache { get; private set; }
+//		internal CommentResponseCache CommentResponseCache { get; private set; }
 
 		public NicoVideoDownloader NicoVideoDownloader { get; private set; }
 
-		public NicoVideoCachedStream NicoVideoCachedStream { get; private set; }
+		public IRandomAccessStream NicoVideoCachedStream { get; private set; }
 
 
 		private Dictionary<NicoVideoQuality, DividedQualityNicoVideo> _InterfaceByQuality;

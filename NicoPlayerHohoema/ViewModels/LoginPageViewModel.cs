@@ -23,14 +23,18 @@ namespace NicoPlayerHohoema.ViewModels
 		public LoginPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
 			 : base(hohoemaApp, pageManager, false)
 		{
-			AccountSettings = HohoemaApp.CurrentAccount;
+
+
 
 			CanChangeValue = new ReactiveProperty<bool>(true)
 				.AddTo(_CompositeDisposable);
 
-			MailOrTelephone = new ReactiveProperty<string>(AccountSettings.MailOrTelephone)
+			var account = HohoemaApp.GetPrimaryAccount();
+			string id = account?.Item1 ?? HohoemaApp.GetPrimaryAccountId();
+
+			MailOrTelephone = new ReactiveProperty<string>(id)
 				.AddTo(_CompositeDisposable);
-			Password = new ReactiveProperty<string>(AccountSettings.Password)
+			Password = new ReactiveProperty<string>(account?.Item2 ?? "")
 				.AddTo(_CompositeDisposable);
 
 			// すでにパスワード保存済みの場合は「パスワードを保存する」をチェックした状態にする
@@ -62,7 +66,15 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 			LoginErrorText = new ReactiveProperty<string>();
-			
+
+
+
+			IsRememberPassword
+				.Where(x => !x)
+				.Subscribe(_ => 
+				{
+					HohoemaApp.RemoveAccount(MailOrTelephone.Value);
+				});
 		}
 
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
@@ -81,17 +93,18 @@ namespace NicoPlayerHohoema.ViewModels
 				PageManager.ClearNavigateHistory();
 			}
 
-			if (e.Parameter is bool && HohoemaApp.CurrentAccount != null)
+			if (e.Parameter is bool)
 			{
 				var canAutoLogin = (bool)e.Parameter;
 
-				if (canAutoLogin && !String.IsNullOrEmpty(HohoemaApp.CurrentAccount.Password))
+				var account = HohoemaApp.GetPrimaryAccount();
+				if (canAutoLogin && account != null)
 				{
 					await CheckLoginAndGo();
 				}
 			}
 
-//			return base.NavigatedToAsync(cancelToken, e, viewModelState);
+			//			return base.NavigatedToAsync(cancelToken, e, viewModelState);
 		}
 
 
@@ -135,11 +148,16 @@ namespace NicoPlayerHohoema.ViewModels
 
 			if (signinResult == NiconicoSignInStatus.Success)
 			{
-				AccountSettings.MailOrTelephone = MailOrTelephone.Value;
-				AccountSettings.Password = Password.Value;
+				if (IsRememberPassword.Value)
+				{
+					HohoemaApp.AddOrUpdateAccount(MailOrTelephone.Value, Password.Value);
+				}
+				else
+				{
+					HohoemaApp.RemoveAccount(MailOrTelephone.Value);
+				}
 
-				// アカウント情報をアプリケーションデータとして保存
-				HohoemaApp.SaveAccount(IsRememberPassword.Value);
+				HohoemaApp.SetPrimaryAccountId(MailOrTelephone.Value);
 
 				// ログインページにバックキーで戻れないようにページ履歴削除
 				PageManager.ClearNavigateHistory();
@@ -181,8 +199,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveCommand CheckLoginCommand { get; private set; }
 
-
-		public AccountSettings AccountSettings { get; private set; }
 
 		public ReactiveProperty<string> LoginErrorText { get; private set; }
 

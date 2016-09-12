@@ -22,11 +22,18 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class SettingsPageViewModel : HohoemaViewModelBase
 	{
-		public SettingsPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, RankingChoiceDialogService rakingChoiceDialog, EditAutoCacheConditionDialogService editAutoCacheDialog)
+		public SettingsPageViewModel(
+			HohoemaApp hohoemaApp
+			, PageManager pageManager
+			, RankingChoiceDialogService rakingChoiceDialog
+			, EditAutoCacheConditionDialogService editAutoCacheDialog
+			, AcceptCacheUsaseDialogService cacheAcceptDialogService
+			)
 			: base(hohoemaApp, pageManager, isRequireSignIn:true)
 		{
 			RankingChoiceDialogService = rakingChoiceDialog;
 			EditAutoCacheConditionDialogService = editAutoCacheDialog;
+			AcceptCacheUsaseDialogService = cacheAcceptDialogService;
 			SettingKindToVM = new Dictionary<HohoemaSettingsKind, SettingsPageContentViewModel>();
 
 			SettingItems = ((IEnumerable<HohoemaSettingsKind>)Enum.GetValues(typeof(HohoemaSettingsKind)))
@@ -73,7 +80,7 @@ namespace NicoPlayerHohoema.ViewModels
 						vm = new VideoPlaySettingsPageContentViewModel(HohoemaApp, title);
 						break;
 					case HohoemaSettingsKind.Cache:
-						vm = new CacheSettingsPageContentViewModel(HohoemaApp, title, EditAutoCacheConditionDialogService);
+						vm = new CacheSettingsPageContentViewModel(HohoemaApp, title, EditAutoCacheConditionDialogService, AcceptCacheUsaseDialogService);
 						break;
 					default:
 						break;
@@ -150,6 +157,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public EditAutoCacheConditionDialogService EditAutoCacheConditionDialogService { get; private set;}
 		public RankingChoiceDialogService RankingChoiceDialogService { get; private set; }
+		public AcceptCacheUsaseDialogService AcceptCacheUsaseDialogService { get; private set; }
 	}
 
 
@@ -173,9 +181,9 @@ namespace NicoPlayerHohoema.ViewModels
 				case HohoemaSettingsKind.Comment:
 					return "コメント";
 				case HohoemaSettingsKind.VideoPlay:
-					return "動画再生";
+					return "プレイヤー";
 				case HohoemaSettingsKind.Cache:
-					return "動画キャッシュ";
+					return "キャッシュ";
 				default:
 					throw new NotSupportedException($"not support {nameof(HohoemaSettingsKind)}.{kind.ToString()}");
 			}

@@ -32,6 +32,9 @@ using Prism.Windows.AppModel;
 using Prism.Windows.Mvvm;
 //using BackgroundAudioShared;
 using Windows.Media;
+using NicoPlayerHohoema.Models.Db;
+using Windows.Storage;
+using System.Text;
 
 namespace NicoPlayerHohoema
 {
@@ -43,6 +46,9 @@ namespace NicoPlayerHohoema
 		public PlayerWindowManager PlayerWindow { get; private set; }
 
 		private bool _IsPreLaunch;
+
+
+		public const string ACTIVATION_WITH_ERROR = "error";
 
 		static App()
 		{
@@ -57,26 +63,32 @@ namespace NicoPlayerHohoema
 			UnhandledException += PrismUnityApplication_UnhandledException;
 
 			this.Resuming += App_Resuming;
-			this.Suspending += App_Suspending;
-			
+			//			this.Suspending += App_Suspending;
+
 			this.InitializeComponent();
 		}
 
+
+		/*
 		private async void App_Suspending(object sender, SuspendingEventArgs e)
+		{
+			
+			var deferral = e.SuspendingOperation.GetDeferral();
+			var hohoemaApp = Container.Resolve<HohoemaApp>();
+			
+			deferral.Complete();
+		}
+		*/
+
+		protected override async Task OnSuspendingApplicationAsync()
 		{
 			if (_IsPreLaunch) { return; }
 
-			var deferral = e.SuspendingOperation.GetDeferral();
 			var hohoemaApp = Container.Resolve<HohoemaApp>();
+			await hohoemaApp.OnSuspending();
 
-			if (hohoemaApp.IsLoggedIn)
-			{
-				await hohoemaApp.SignOut();
-			}
-
-			deferral.Complete();
+//			return base.OnSuspendingApplicationAsync();
 		}
-
 
 		private async void App_Resuming(object sender, object e)
 		{
@@ -99,21 +111,17 @@ namespace NicoPlayerHohoema
 
 			try
 			{
-				if (hohoemaApp.MediaManager != null && hohoemaApp.MediaManager.Context != null)
-				{
-					await hohoemaApp.MediaManager.Context.Resume();
-				}
+				await CheckVideoCacheFolderState();
 			}
 			catch
 			{
-				Debug.WriteLine("MediaManager.Contextの復帰に失敗しました。");
+				Debug.WriteLine("キャッシュフォルダチェックに失敗しました。");
 			}
-
 
 
 		}
 
-		protected override Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args)
+		protected override async Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args)
 		{
 #if DEBUG
 			DebugSettings.IsBindingTracingEnabled = true;
@@ -126,24 +134,139 @@ namespace NicoPlayerHohoema
 				
 			}
 
-
+			
 			if (!args.PrelaunchActivated)
 			{
 				// メディアバックグラウンドタスクの動作状態を初期化
 				//				ApplicationSettingsHelper.ReadResetSettingsValue(ApplicationSettingsConstants.AppState);
 
-				var pm = Container.Resolve<PageManager>();
-				pm.OpenPage(HohoemaPageType.Login, true /* Enable auto login */);
-			}
 
-			return Task.CompletedTask;
+				Microsoft.Toolkit.Uwp.UI.ImageCache.CacheDuration = TimeSpan.FromHours(24);
+
+
+				if (args.Kind == ActivationKind.ToastNotification)
+				{
+					//Get the pre-defined arguments and user inputs from the eventargs;
+					var toastArgs = args as IActivatedEventArgs as ToastNotificationActivatedEventArgs;
+					var arguments = toastArgs.Argument;
+					//				var input = toastArgs.UserInput["1"];
+					if (arguments == ACTIVATION_WITH_ERROR)
+					{
+						await ShowErrorLog();
+					}
+
+				}
+
+				var pm = Container.Resolve<PageManager>();
+
+				//				var hohoemaApp = Container.Resolve<HohoemaApp>();
+				//				if (HohoemaApp.HasPrimaryAccount())
+				//				{
+				//					pm.OpenPage(HohoemaPageType.Portal);
+				//				}
+				//				else
+				{
+					pm.OpenPage(HohoemaPageType.Login, true /* Enable auto login */);
+				}
+
+				
+				
+			}			
+
+//			return Task.CompletedTask;
 		}
 
-		
+		public async Task<string> GetMostRecentErrorText()
+		{
+			var folder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("error", CreationCollisionOption.OpenIfExists);
+			var errorFiles = await folder.GetItemsAsync();
+
+			var errorFile = errorFiles
+				.Where(x => x.Name.StartsWith("hohoema_error"))
+				.OrderBy(x => x.DateCreated)
+				.LastOrDefault()
+				as StorageFile;
+
+			if (errorFile != null)
+			{
+				return await FileIO.ReadTextAsync(errorFile);
+			}
+			else
+			{
+				return null;
+			}
+		}
+		private async Task ShowErrorLog()
+		{
+			var text = await GetMostRecentErrorText();
+
+			if (text != null)
+			{ 
+
+				var contentDialog = new ContentDialog();
+				contentDialog.Title = "Hohoemaで発生したエラー詳細";
+				contentDialog.PrimaryButtonText = "OK";
+				contentDialog.Content = new TextBox()
+				{
+					Text = text,
+					IsReadOnly = true,
+					TextWrapping = TextWrapping.Wrap,
+				};
+
+				await contentDialog.ShowAsync().AsTask();
+			}
+		}
+
+		/// <summary>
+		/// 動画キャッシュ保存先フォルダをチェックします
+		/// 選択済みだがフォルダが見つからない場合に、トースト通知を行います。
+		/// </summary>
+		/// <returns></returns>
+		public async Task CheckVideoCacheFolderState()
+		{
+			var hohoemaApp = Container.Resolve<HohoemaApp>();
+			var cacheFolderState = await hohoemaApp.GetVideoCacheFolderState();
+
+			if (cacheFolderState == CacheFolderAccessState.SelectedButNotExist)
+			{
+				var toastService = Container.Resolve<Views.Service.ToastNotificationService>();
+				toastService.ShowText(
+					"キャッシュが利用できません"
+					, "キャッシュ保存先フォルダが見つかりません。（ここをタップで設定画面を表示）"
+					, duration: Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Long
+					, toastActivatedAction: async () =>
+					{
+						await HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
+						{
+							var pm = Container.Resolve<PageManager>();
+							pm.OpenPage(HohoemaPageType.Settings, HohoemaSettingsKind.Cache.ToString());
+						});
+					});
+			}
+		}
+
 
 		protected override async Task OnInitializeAsync(IActivatedEventArgs args)
 		{
+			await Models.Db.NicoVideoDbContext.InitializeAsync();
+			await Models.Db.HistoryDbContext.InitializeAsync();
+
 			await RegisterTypes();
+
+			var cachedList = VideoInfoDb.GetAll();
+
+			var hohoemaApp = Container.Resolve<HohoemaApp>();
+
+			TimeSpan expirationTimeSpan = TimeSpan.FromDays(3);
+			DateTime expirationDate = DateTime.Now.Subtract(expirationTimeSpan);
+			foreach (var cachedInfo in cachedList)
+			{
+				if (cachedInfo.LastUpdated < expirationDate)
+				if (!hohoemaApp.MediaManager.CacheRequestedItemsStack.Any(x => cachedInfo.VideoId == x.RawVideoid))
+				{
+					await VideoInfoDb.RemoveAsync(cachedInfo);
+				}
+			}
 
 			//			var playNicoVideoEvent = EventAggregator.GetEvent<PlayNicoVideoEvent>();
 			//			playNicoVideoEvent.Subscribe(PlayNicoVideoInPlayerWindow);
@@ -159,17 +282,17 @@ namespace NicoPlayerHohoema
 		}
 
 
-		private Task RegisterTypes()
+		private async Task RegisterTypes()
 		{
 			// Models
-			var hohoemaApp = HohoemaApp.Create(EventAggregator);
+			var hohoemaApp = await HohoemaApp.Create(EventAggregator);
 			Container.RegisterInstance(hohoemaApp);
 			Container.RegisterInstance(new PageManager(NavigationService));
 			Container.RegisterInstance(hohoemaApp.ContentFinder);
 
 			// TODO: プレイヤーウィンドウ上で管理する
-			var backgroundTask = MediaBackgroundTask.Create();
-			Container.RegisterInstance(backgroundTask);
+//			var backgroundTask = MediaBackgroundTask.Create();
+//			Container.RegisterInstance(backgroundTask);
 
 
 			// ViewModels
@@ -196,8 +319,9 @@ namespace NicoPlayerHohoema
 			Container.RegisterInstance(new Views.Service.ToastNotificationService());
 			Container.RegisterInstance(new Views.Service.MylistRegistrationDialogService(hohoemaApp));
 			Container.RegisterInstance(new Views.Service.EditMylistGroupDialogService());
-
-			return Task.CompletedTask;
+			Container.RegisterInstance(new Views.Service.AcceptCacheUsaseDialogService());
+			Container.RegisterInstance(new Views.Service.TextInputDialogService());
+//			return Task.CompletedTask;
 		}
 
 
@@ -293,12 +417,48 @@ namespace NicoPlayerHohoema
 		}
 
 
-		private void PrismUnityApplication_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+		private async void PrismUnityApplication_UnhandledException(object sender, UnhandledExceptionEventArgs e)
 		{
 			e.Handled = true;
 
 			Debug.Write(e.Message);
-			Debugger.Break();
+
+			await WriteErrorFile(e.Exception);
+
+//			ShowErrorToast();
+		}
+
+		public async Task WriteErrorFile(Exception e)
+		{
+			try
+			{
+				var folder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("error", CreationCollisionOption.OpenIfExists);
+				var errorFile = await folder.CreateFileAsync($"hohoema_error_{DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss")}.txt", CreationCollisionOption.OpenIfExists);
+
+				var version = Package.Current.Id.Version;
+				var versionText = $"{version.Major}.{version.Minor}.{version.Build}";
+				var stringBuilder = new StringBuilder();
+				var pageManager = Container.Resolve<PageManager>();
+				stringBuilder.AppendLine($"Hohoema {versionText}");
+				stringBuilder.AppendLine("開いていたページ:" + pageManager.CurrentPageType.ToString());
+				stringBuilder.AppendLine("");
+				stringBuilder.AppendLine("= = = = = = = = = = = = = = = =");
+				stringBuilder.AppendLine("");
+				stringBuilder.AppendLine(e.ToString());
+
+				await FileIO.WriteTextAsync(errorFile, stringBuilder.ToString());
+			}
+			catch { }
+		}
+
+		public void ShowErrorToast()
+		{
+			var toast = Container.Resolve<Views.Service.ToastNotificationService>();
+			toast.ShowText("Hohoema実行中に不明なエラーが発生しました"
+				, "ここをタップすると再起動できます。"
+				, Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Long
+				, luanchContent: ACTIVATION_WITH_ERROR
+				);
 		}
 
 		

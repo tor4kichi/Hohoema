@@ -10,8 +10,8 @@ namespace NicoPlayerHohoema.Models
 	abstract public class FavInfoGroupWithFavData : FavInfoGroupBaseTemplate<FavData>
 	{
 
-		public FavInfoGroupWithFavData(HohoemaApp hohoemaApp, List<FavInfo> items)
-			: base(hohoemaApp, items)
+		public FavInfoGroupWithFavData(HohoemaApp hohoemaApp)
+			: base(hohoemaApp)
 		{
 		}
 		protected override FavInfo ConvertToFavInfo(FavData source)

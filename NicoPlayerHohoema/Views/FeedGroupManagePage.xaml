@@ -66,7 +66,16 @@
                 <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left" Margin="0">
 
                     <AppBarButton Icon="Add" 
-                                  Label="フィードグループ 作成">
+                                  Label="フィードグループ 作成"
+                                  Command="{Binding CreateFeedGroupCommand}"
+                                  >
+                        <!-- 
+                            Note:
+                                AnniversaryUpdate適用後ではバグで
+                                Flyout上のTextBoxにフォーカスが移らない
+                                このためContentDialogを表示するCommand呼び出しで応急対応している
+                        -->
+                        <!--
                         <AppBarButton.Flyout>
                             <Flyout>
                                 <StackPanel Orientation="Horizontal">
@@ -90,6 +99,7 @@
                                 </StackPanel>
                             </Flyout>
                         </AppBarButton.Flyout>
+                        -->
                     </AppBarButton>
 
                 </StackPanel>

@@ -65,17 +65,23 @@ namespace NicoPlayerHohoema.ViewModels
 			
 		}
 
-		protected override uint IncrementalLoadCount
-		{
-			get
-			{
-				return 20u;
-			}
-		}
-		
+
+
 
 		#endregion
 
+		private DelegateCommand _ResumeCacheCommand;
+		public DelegateCommand ResumeCacheCommand
+		{
+			get
+			{
+				return _ResumeCacheCommand
+					?? (_ResumeCacheCommand = new DelegateCommand(() =>
+					{
+						_MediaManager.Context.StartBackgroundDownload();
+					}));
+			}
+		}
 
 
 		public DelegateCommand OpenCacheSettingsCommand { get; private set; }
@@ -94,7 +100,6 @@ namespace NicoPlayerHohoema.ViewModels
 			: base(nicoVideo, pageManager)
 		{
 			Quality = quality;
-			CacheRequestTime = nicoVideo.CacheRequestTime;
 
 			DividedQualityNicoVideo qualityNicoVideo;
 
@@ -122,10 +127,11 @@ namespace NicoPlayerHohoema.ViewModels
 				.Select(x => x == NicoVideoCacheState.NowDownloading)
 				.ToReactiveProperty(CacheManagementPageViewModel.scheduler)
 				.AddTo(_CompositeDisposable);
-			
+
+			CacheRequestTime = qualityNicoVideo.VideoFileCreatedAt;
 
 
-			PrivateReasonText = nicoVideo.WatchApiResponseCache?.CachedItem?.PrivateReason.ToString() ?? "";
+			PrivateReasonText = nicoVideo.PrivateReasonType.ToString() ?? "";
 			IsRequireConfirmDelete = new ReactiveProperty<bool>(nicoVideo.IsRequireConfirmDelete);
 			IsForceDisplayNGVideo = true;
 		}
@@ -167,7 +173,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-
+		
 		public string PrivateReasonText { get; private set; }
 
 
@@ -191,6 +197,23 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class CacheVideoInfoLoadingSource : IIncrementalSource<CacheVideoViewModel>
 	{
+		
+		HohoemaApp _HohoemaApp;
+		PageManager _PageManager;
+
+
+		public List<CacheVideoViewModel> RawList { get; private set; }
+
+		public uint OneTimeLoadCount
+		{
+			get
+			{
+				return 10;
+			}
+		}
+
+
+
 		public CacheVideoInfoLoadingSource(HohoemaApp app, PageManager pageManager)
 		{
 			_HohoemaApp = app;
@@ -207,10 +230,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 			foreach (var req in mediaManager.CacheRequestedItemsStack.ToArray())
 			{
-				var item = await mediaManager.GetNicoVideo(req.RawVideoid);
+				var item = await mediaManager.GetNicoVideoAsync(req.RawVideoid);
 
 				await item.CheckCacheStatus();
-				await item.WatchApiResponseCache.UpdateFromLocal();
 
 				if (req.Quality == NicoVideoQuality.Original)
 				{
@@ -229,11 +251,14 @@ namespace NicoPlayerHohoema.ViewModels
 			return RawList.Count;
 		}
 
-		public Task<IEnumerable<CacheVideoViewModel>> GetPagedItems(uint pageIndex, uint pageSize)
+		public Task<IEnumerable<CacheVideoViewModel>> GetPagedItems(int head, int count)
 		{
-			int head = (int)((pageIndex - 1) * pageSize);
-			return Task.FromResult(RawList.Skip(head).Take((int)pageSize));
+			return Task.FromResult(RawList.Skip(head).Take((int)count));
 		}
+
+
+
+
 
 		private async Task<CacheVideoViewModel> ToCacheVideoViewModel(string videoId, NicoVideoQuality quality)
 		{
@@ -249,11 +274,10 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			var mediaManager = _HohoemaApp.MediaManager;
 
-			var nicoVideo = await mediaManager.GetNicoVideo(req.RawVideoid);
+			var nicoVideo = await mediaManager.GetNicoVideoAsync(req.RawVideoid);
 
 			var vm = new CacheVideoViewModel(nicoVideo, req.Quality, _PageManager);
 
-			await vm.LoadThumbnail();
 			return vm;
 
 		}
@@ -261,11 +285,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		public List<CacheVideoViewModel> RawList { get; private set; }
-
-		HohoemaApp _HohoemaApp;
-		PageManager _PageManager;
-
+		
 	}
 
 }

@@ -144,7 +144,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 				var user = userInfo;
 				UserName = user.Nickname;
-				UserIconUri = new Uri(user.ThumbnailUri);
+				UserIconUri = user.ThumbnailUri;
 				Description = user.Description;
 
 				BirthDay = user.BirthDay;
@@ -216,7 +216,7 @@ namespace NicoPlayerHohoema.ViewModels
 				var userVideos = await HohoemaApp.ContentFinder.GetUserVideos(uint.Parse(UserId), 1);
 				foreach (var item in userVideos.Items.Take(5))
 				{
-					var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideo(item.VideoId);
+					var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideoAsync(item.VideoId);
 					VideoInfoItems.Add(new VideoInfoControlViewModel(nicoVideo, PageManager));
 				}
 			}
@@ -321,8 +321,8 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		private Uri _UserIconUri;
-		public Uri UserIconUri
+		private string _UserIconUri;
+		public string UserIconUri
 		{
 			get { return _UserIconUri; }
 			set { SetProperty(ref _UserIconUri, value); }

@@ -127,20 +127,7 @@
 
 
         <StackPanel Margin="8" MinWidth="400" HorizontalAlignment="Left">
-            <StackPanel>
-                <TextBlock Text="※ この設定はHohoemaアプリ上でのみ適用されます"
-                           Style="{StaticResource DescriptionTextStyle}"
-                           HorizontalAlignment="Right"
-                           Margin="8 0"
-                           />
-            </StackPanel>
             
-            
-            
-            <Border Margin="0 8" 
-                    BorderThickness="0 1 0 0"
-                    BorderBrush="Gray"
-                    />
 
 
             <StackPanel Orientation="Horizontal" Margin="8 8 0 8">
@@ -406,11 +393,6 @@
                     <!-- NG共有スコア -->
                     <toolkit:DockPanel Margin="8">
                         
-                        <TextBlock Text="NGスコアとは：コメントは投稿時はスコア０、NG評価で減少する値です。"
-                                       Style="{StaticResource DescriptionTextStyle}"
-                                       Margin="32 4 0 4"
-                                       toolkit:DockPanel.Dock="Bottom"
-                                       />
                         <TextBlock Text="共有NGスコア設定" 
                                        toolkit:DockPanel.Dock="Left"
                                        VerticalAlignment="Center"

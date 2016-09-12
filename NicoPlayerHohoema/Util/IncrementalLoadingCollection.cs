@@ -15,8 +15,9 @@ namespace NicoPlayerHohoema.Util
 {
 	public interface IIncrementalSource<T>
 	{
+		uint OneTimeLoadCount { get; }
 		Task<int> ResetSource();
-		Task<IEnumerable<T>> GetPagedItems(uint head, uint count);
+		Task<IEnumerable<T>> GetPagedItems(int head, int count);
 	}
 
 	public class IncrementalLoadingCollection<T, I> : ObservableCollection<I>,
@@ -34,18 +35,16 @@ namespace NicoPlayerHohoema.Util
 		// なおPage.NavigationFromでIncrementalLoadingCollectionをItemsSourceから外すとより確実に読み込みを一時停止できます
 		public bool IsPuaseLoading { get; set; }
 		private T _Source;
-		private uint _ItemsPerPage;
 		private bool _HasMoreItems;
 		private uint _Position;
 
 		private SemaphoreSlim _LoadingLock;
 
-		public IncrementalLoadingCollection(T source, uint itemsPerPage = 20, uint firstHeadPosition = 1)
+		public IncrementalLoadingCollection(T source)
 		{
 			this._Source = source;
-			this._ItemsPerPage = itemsPerPage;
 			this._HasMoreItems = true;
-			_Position = firstHeadPosition;
+			_Position = 0;
 			IsPuaseLoading = false;
 			_LoadingLock = new SemaphoreSlim(1, 1);
 		}
@@ -69,7 +68,7 @@ namespace NicoPlayerHohoema.Util
 					List<I> resultItems = null;
 					try
 					{
-						var items = await _Source.GetPagedItems(_Position, _ItemsPerPage);
+						var items = await _Source.GetPagedItems((int)_Position, (int)_Source.OneTimeLoadCount).ConfigureAwait(false);
 						resultItems = items?.ToList();
 					}
 					catch (Exception ex)
@@ -132,7 +131,7 @@ namespace NicoPlayerHohoema.Util
 			// Note: PullToRefresh等で要素を削除した時のための対応
 			// IIncrementalSourceの実装で head == 1 の時に
 			// 強制的にアイテムソースのリストを更新させるよう対応してください
-			_Position = 1;		
+			_Position = 0;		
 		}
 
 		public void Dispose()
