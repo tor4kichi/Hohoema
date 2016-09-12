@@ -11,7 +11,7 @@
     <AssemblyName>NicoPlayerHohoema</AssemblyName>
     <DefaultLanguage>ja-JP</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
-    <TargetPlatformVersion>10.0.10586.0</TargetPlatformVersion>
+    <TargetPlatformVersion>10.0.14393.0</TargetPlatformVersion>
     <TargetPlatformMinVersion>10.0.10240.0</TargetPlatformMinVersion>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
@@ -153,6 +153,7 @@
     <Compile Include="Models\Db\NicoVideo\NicoVIdeoDbContext.cs" />
     <Compile Include="Models\Video\NicoVideoDownloader.cs" />
     <Compile Include="Models\Video\VideoDownloadProgress.cs" />
+    <Compile Include="Util\AsyncLock.cs" />
     <Compile Include="Util\Cacheable.cs" />
     <Compile Include="Models\Video\NicoVideo.cs" />
     <Compile Include="Models\Video\NicoVideoCacheRequest.cs" />
@@ -198,6 +199,7 @@
     <Compile Include="ViewModels\FeedGroupManagePageViewModel.cs" />
     <Compile Include="ViewModels\FeedGroupPageViewModel.cs" />
     <Compile Include="ViewModels\HistoryPageViewModel.cs" />
+    <Compile Include="ViewModels\HohoemaIncrementalSourceBase.cs" />
     <Compile Include="ViewModels\HohoemaListingPageItemBase.cs" />
     <Compile Include="ViewModels\HohoemaListingPageViewModelBase.cs" />
     <Compile Include="ViewModels\HohoemaVideoListingPageViewModelBase.cs" />
@@ -304,7 +306,6 @@
     <Compile Include="Views\RankingChoiceContentDialog.xaml.cs">
       <DependentUpon>RankingChoiceContentDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\RefreshableListView.cs" />
     <Compile Include="Views\SearchContent\EmptySearchPageContent.xaml.cs">
       <DependentUpon>EmptySearchPageContent.xaml</DependentUpon>
     </Compile>
@@ -375,6 +376,10 @@
     </Compile>
     <Compile Include="Views\Service\MylistRegistrationDialogService.cs" />
     <Compile Include="Views\Service\RankingChoiceDialogService.cs" />
+    <Compile Include="Views\Service\TextInputDialog.xaml.cs">
+      <DependentUpon>TextInputDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Service\TextInputDialogService.cs" />
     <Compile Include="Views\Service\ToastNotificationService.cs" />
     <Compile Include="Views\SettingsPageContent\CacheSettingsPageContent.xaml.cs">
       <DependentUpon>CacheSettingsPageContent.xaml</DependentUpon>
@@ -515,15 +520,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="Styles\RefreshableListViewStyles.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Styles\VideoListProgressRingStyle.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Page>
     <Page Include="Views\AboutPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -660,6 +656,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\Service\TextInputDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\SettingsPageContent\CacheSettingsPageContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -768,7 +768,9 @@
       <Name>VideoBackgroundTask</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Styles\" />
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

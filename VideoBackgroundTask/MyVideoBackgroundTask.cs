@@ -156,8 +156,8 @@ namespace VideoBackgroundTask
 				backgroundTaskStarted.Reset();
 
 				// save state
-//				ApplicationSettingsHelper.SaveSettingsValue(ApplicationSettingsConstants.TrackId, GetCurrentTrackId() == null ? null : GetCurrentTrackId().ToString());
-				ApplicationSettingsHelper.SaveSettingsValue(ApplicationSettingsConstants.Position, BackgroundMediaPlayer.Current.Position.ToString());
+				//				ApplicationSettingsHelper.SaveSettingsValue(ApplicationSettingsConstants.TrackId, GetCurrentTrackId() == null ? null : GetCurrentTrackId().ToString());
+				ApplicationSettingsHelper.SaveSettingsValue(ApplicationSettingsConstants.Position, BackgroundMediaPlayer.Current.PlaybackSession.Position.ToString());
 				ApplicationSettingsHelper.SaveSettingsValue(ApplicationSettingsConstants.BackgroundTaskState, BackgroundTaskState.Canceled.ToString());
 				ApplicationSettingsHelper.SaveSettingsValue(ApplicationSettingsConstants.AppState, Enum.GetName(typeof(AppState), foregroundAppState));
 
@@ -327,15 +327,15 @@ namespace VideoBackgroundTask
 
 		private void Current_CurrentStateChanged(MediaPlayer sender, object args)
 		{
-			if (sender.CurrentState == MediaPlayerState.Playing)
+			if (sender.PlaybackSession.PlaybackState == MediaPlaybackState.Playing)
 			{
 				smtc.PlaybackStatus = MediaPlaybackStatus.Playing;
 			}
-			else if (sender.CurrentState == MediaPlayerState.Paused)
+			else if (sender.PlaybackSession.PlaybackState == MediaPlaybackState.Paused)
 			{
 				smtc.PlaybackStatus = MediaPlaybackStatus.Paused;
 			}
-			else if (sender.CurrentState == MediaPlayerState.Closed)
+			else if (sender.PlaybackSession.PlaybackState == MediaPlaybackState.None)
 			{
 				smtc.PlaybackStatus = MediaPlaybackStatus.Closed;
 			}

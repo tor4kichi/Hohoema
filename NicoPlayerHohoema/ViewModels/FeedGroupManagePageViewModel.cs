@@ -13,6 +13,7 @@ using System.Collections.ObjectModel;
 using Prism.Windows.Navigation;
 using System.Reactive.Linq;
 using Reactive.Bindings.Extensions;
+using NicoPlayerHohoema.Views.Service;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -29,9 +30,13 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveCommand AddFeedGroupCommand { get; private set; }
 
 
-		public FeedGroupManagePageViewModel(HohoemaApp hohoemaApp, PageManager pageManager) 
+		private TextInputDialogService _TextInputDialogService;
+
+		public FeedGroupManagePageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, TextInputDialogService textInputDialog) 
 			: base(hohoemaApp, pageManager, isRequireSignIn:true)
 		{
+			_TextInputDialogService = textInputDialog;
+
 			FeedGroupItems = new ObservableCollection<FeedGroupListItem>();
 			HasFeedGroupItems = FeedGroupItems.ObserveProperty(x => x.Count)
 				.Select(x => x > 0)
@@ -98,8 +103,36 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-	
+		
+		private DelegateCommand _CreateFeedGroupCommand;
+		public DelegateCommand CreateFeedGroupCommand
+		{
+			get
+			{
+				return _CreateFeedGroupCommand
+					?? (_CreateFeedGroupCommand = new DelegateCommand(async () =>
+					{
+						var newFeedGroupName = await _TextInputDialogService.GetTextAsync(
+							"フィードグループを作成"
+							, "フィードグループ名"
+							, (name) =>
+							{
+								if (String.IsNullOrWhiteSpace(name)) { return false; }
 
+								if (!HohoemaApp.FeedManager.CanAddLabel(name)) { return false; }
+
+								return true;
+							});
+
+						if (newFeedGroupName != null)
+						{
+							var feedGroup = await HohoemaApp.FeedManager.AddFeedGroup(newFeedGroupName);
+
+							PageManager.OpenPage(HohoemaPageType.FeedGroup, feedGroup.Id);
+						}
+					}));
+			}
+		}
 
 
 		private DelegateCommand _RemoveFeedGroupCommand;

@@ -43,9 +43,11 @@ namespace NicoPlayerHohoema.Models.Db
 			using (var db = new NicoVideoDbContext())
 			{
 				var comment = db.Comments.SingleOrDefault(x => x.ThreadId == rawVideoId);
-
-				db.Comments.Remove(comment);
-				db.SaveChanges();
+				if (comment != null)
+				{
+					db.Comments.Remove(comment);
+					db.SaveChanges();
+				}
 			}
 		}
 	}

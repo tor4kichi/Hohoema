@@ -80,9 +80,13 @@ namespace NicoPlayerHohoema.Views
 			}
 		}
 
+
+		public double TextBGOffset { get; set; }
+
 		public Comment(VideoPlayerPageViewModel videoPlayerPageVM)
 		{
 			_VideoPlayerPageViewModel = videoPlayerPageVM;
+			TextBGOffset = 1.0;
 		}
 
 

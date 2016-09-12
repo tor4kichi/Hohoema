@@ -62,7 +62,6 @@ namespace NicoPlayerHohoema.Models
 			FavManager = null;
 
 			LoadRecentLoginAccount();
-			ThumbnailBackgroundLoader = new BackgroundUpdater(ThumbnailLoadBackgroundTaskId);
 			_SigninLock = new SemaphoreSlim(1, 1);
 		}
 
@@ -127,15 +126,38 @@ namespace NicoPlayerHohoema.Models
 			try
 			{
 				var credential = vault.Retrieve(nameof(HohoemaApp), id);
-				credential.Password = password;
+				vault.Remove(credential);
 			}
 			catch
+			{
+			}
+
 			{
 				var credential = new Windows.Security.Credentials.PasswordCredential(nameof(HohoemaApp), id, password);
 				vault.Add(credential);
 			}
 		}
-		
+
+		public static void RemoveAccount(string mailAddress)
+		{
+			var id = mailAddress;
+
+			if (String.IsNullOrWhiteSpace(mailAddress))
+			{
+				return;
+			}
+
+			var vault = new Windows.Security.Credentials.PasswordVault();
+			try
+			{
+				var credential = vault.Retrieve(nameof(HohoemaApp), id);
+				vault.Remove(credential);
+			}
+			catch
+			{
+			}
+		}
+
 
 		public static Tuple<string, string> GetPrimaryAccount()
 		{
@@ -445,6 +467,16 @@ namespace NicoPlayerHohoema.Models
 			
 		}
 
+
+		public async Task OnSuspending()
+		{
+			if (MediaManager != null && MediaManager.Context != null)
+			{
+				await MediaManager.Context.Suspending();
+			}
+		}
+
+
 		public async Task<NiconicoSignInStatus> SignOut()
 		{
 			try
@@ -463,30 +495,17 @@ namespace NicoPlayerHohoema.Models
 
 					NiconicoContext.Dispose();
 
-					if (MediaManager != null && MediaManager.Context != null)
-					{
-						await MediaManager.Context.Suspending();
-					}
-
-					await SaveUserSettings();
-					if (MediaManager != null)
-					{
-						await MediaManager.DeleteUnrequestedVideos();
-					}
-
+					await OnSuspending();
 				}
 				finally
 				{
 					NiconicoContext = null;
 					FavManager = null;
-					UserSettings = null;
 					LoginUserId = uint.MaxValue;
 					MediaManager = null;
 					BackgroundUpdater?.Dispose();
-					BackgroundUpdater = null;
-					ThumbnailBackgroundLoader?.Dispose();
-					ThumbnailBackgroundLoader = new BackgroundUpdater(ThumbnailLoadBackgroundTaskId);
-					
+					BackgroundUpdater = new BackgroundUpdater("HohoemaBG1");
+
 					FavManager = null;
 					FeedManager = null;
 
@@ -622,12 +641,6 @@ namespace NicoPlayerHohoema.Models
 					await MediaManager.OnCacheFolderChanged();
 				}
 				catch (Exception ex) { Debug.WriteLine(ex.ToString()); }
-
-				// ダウンロードタスクを再開
-				if (MediaManager != null && MediaManager.Context != null)
-				{
-					await MediaManager.Context.Resume();
-				}
 			}
 
 			_DownloadFolder = newVideoFolder;
@@ -704,27 +717,34 @@ namespace NicoPlayerHohoema.Models
 					_DownloadFolder = folder;
 
 					CurrentFolderAccessToken = FolderAccessToken;
-
-					return true;
 				}
 				else
 				{
 					return false;
 				}
 			}
+			catch
+			{
+
+			}
 			finally
 			{
-				if (MediaManager != null && MediaManager.Context != null)
+				try
 				{
-					await MediaManager.Context.Resume();
+					if (MediaManager != null && MediaManager.Context != null)
+					{
+						await MediaManager.OnCacheFolderChanged();
+					}
 				}
+				catch { }
 			}
-			
-		}
-		
 
-		
-		
+			return true;
+		}
+
+
+
+
 
 
 		#region lagacy user data folder access
@@ -859,7 +879,6 @@ namespace NicoPlayerHohoema.Models
 			{
 				return CacheFolderAccessState.SelectedButNotExist;
 			}
-
 		}
 
 	
@@ -958,7 +977,6 @@ namespace NicoPlayerHohoema.Models
 
 
 		public BackgroundUpdater BackgroundUpdater { get; private set; }
-		public BackgroundUpdater ThumbnailBackgroundLoader { get; private set; }
 
 
 		public LoggingChannel LoggingChannel { get; private set; }

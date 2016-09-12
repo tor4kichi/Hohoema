@@ -134,6 +134,7 @@ namespace NicoPlayerHohoema.Models.Db
 		public static void Remove(string rawVideoId)
 		{
 			var nicoVideoInfo = Get(rawVideoId);
+			if (nicoVideoInfo == null) { return; }
 
 			using (var db = new NicoVideoDbContext())
 			{

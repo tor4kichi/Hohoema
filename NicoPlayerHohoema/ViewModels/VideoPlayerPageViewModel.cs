@@ -685,6 +685,8 @@ namespace NicoPlayerHohoema.ViewModels
 			var oldCount = _TempProgress.CachedRanges.Count;
 			_TempProgress.Update(head, length);
 
+		
+
 			if (oldCount != _TempProgress.CachedRanges.Count)
 			{
 				// 追加されている場合
@@ -1231,7 +1233,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 				// 再生中動画のキャッシュがサスペンドから復帰後にも利用できるように
 				// 削除を抑制するように要請する
-				HohoemaApp.MediaManager.OncePrevnetDeleteCacheOnPlayingVideo(Video.RawVideoId);
+				HohoemaApp.MediaManager.Context.OncePreventDeleteCacheOnPlayingVideo(Video.RawVideoId);
 
 				viewModelState[nameof(VideoId)] = VideoId;
 				viewModelState[nameof(CurrentVideoPosition)] = CurrentVideoPosition.Value.TotalSeconds;

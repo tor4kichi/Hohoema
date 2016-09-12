@@ -18,12 +18,7 @@
 
 
     <Grid>
-        
-        <ProgressRing Visibility="{Binding NowLoadingItems.Value, Converter={StaticResource BooleanToVisibility}}"
-                      IsActive="{Binding NowLoadingItems.Value}"
-                      Style="{StaticResource VideoListProgressRingStyle}"
-                                  />
-        
+               
         <toolkit:DockPanel >
 
 
@@ -55,7 +50,17 @@
                               />
                 </StackPanel>
 
-                
+
+                <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left"  Margin="8 0">
+
+                    <AppBarButton Label="キャッシュ再開"
+                                  Icon="Download"
+                                  Command="{Binding ResumeCacheCommand}"
+                                  />
+
+                </StackPanel>
+
+
 
                 <Border>
                     <TextBlock Text=":)" Padding="16 8" HorizontalAlignment="Center" VerticalAlignment="Center">

@@ -26,7 +26,6 @@ namespace NicoPlayerHohoema.Models
 	{
 		const string CACHE_REQUESTED_FILENAME = "cache_requested.json";
 
-		const string ONCE_PREVCENT_VIDEO_ID_SETTING_KEY = "prevent_delete_video_id";
 
 		static internal async Task<NiconicoMediaManager> Create(HohoemaApp app)
 		{
@@ -55,7 +54,8 @@ namespace NicoPlayerHohoema.Models
 
 			VideoIdToNicoVideo = new Dictionary<string, NicoVideo>();
 
-			_NicoVideoSemaphore = new SemaphoreSlim(1, 1);
+			_Lock = new AsyncLock();
+
 			_CacheRequestedItemsStack = new ObservableCollection<NicoVideoCacheRequest>();
 			CacheRequestedItemsStack = new ReadOnlyObservableCollection<NicoVideoCacheRequest>(_CacheRequestedItemsStack);
 
@@ -91,7 +91,7 @@ namespace NicoPlayerHohoema.Models
 
 
 			// 前回削除を防止した動画を復旧させる
-			var recentPreventDeleteVideoId = ReadAndClearOncePreventDeleteVideoId();
+			var recentPreventDeleteVideoId = NicoVideoDownloadContext.ReadAndClearOncePreventDeleteVideoId();
 			if (false == string .IsNullOrWhiteSpace(recentPreventDeleteVideoId))
 			{
 				await GetNicoVideoAsync(recentPreventDeleteVideoId);
@@ -102,76 +102,72 @@ namespace NicoPlayerHohoema.Models
 
 
 
-		#region Once Prevent Delete Video
-
-		public void ClearPrevnetDeleteCacheOnPlayingVideo()
-		{
-			PreventDeleteOnPlayingVideoId = "";
-		}
-
-		public void OncePrevnetDeleteCacheOnPlayingVideo(string rawVideoId)
-		{
-			PreventDeleteOnPlayingVideoId = rawVideoId;
-		}
-		private static string ReadAndClearOncePreventDeleteVideoId()
-		{
-			if (ApplicationData.Current.LocalSettings.Values.ContainsKey(ONCE_PREVCENT_VIDEO_ID_SETTING_KEY))
-			{
-				var videoId = (string)ApplicationData.Current.LocalSettings.Values[ONCE_PREVCENT_VIDEO_ID_SETTING_KEY];
-				ApplicationData.Current.LocalSettings.Values.Remove(ONCE_PREVCENT_VIDEO_ID_SETTING_KEY);
-
-				return videoId;
-			}
-			else
-			{
-				return null;
-			}
-		}
-
-		private static void WriteOncePreventDeleteVideoId(string videoId)
-		{
-			if (ApplicationData.Current.LocalSettings.Values.ContainsKey(ONCE_PREVCENT_VIDEO_ID_SETTING_KEY))
-			{
-				ApplicationData.Current.LocalSettings.Values.Remove(ONCE_PREVCENT_VIDEO_ID_SETTING_KEY);
-			}
-
-			ApplicationData.Current.LocalSettings.Values.Add(ONCE_PREVCENT_VIDEO_ID_SETTING_KEY, videoId);
-		}
-
-
-		#endregion
+		
 
 
 		
 
 
-		public async Task<NicoVideo> GetNicoVideoAsync(string rawVideoId)
+		public async Task<NicoVideo> GetNicoVideoAsync(string rawVideoId, bool withInitialize = true)
 		{
 			NicoVideo nicoVideo = null;
-			try
+			bool isFirstGet = false;
+			using (var releaser = await _Lock.LockAsync())
 			{
-				await _NicoVideoSemaphore.WaitAsync();
-
 				if (false == VideoIdToNicoVideo.ContainsKey(rawVideoId))
 				{
-					nicoVideo = await NicoVideo.Create(_HohoemaApp, rawVideoId, Context);
-
+					nicoVideo = new NicoVideo(_HohoemaApp, rawVideoId, Context);
 					VideoIdToNicoVideo.Add(rawVideoId, nicoVideo);
+					isFirstGet = true;
 				}
 				else
 				{
 					nicoVideo = VideoIdToNicoVideo[rawVideoId];
 				}
 			}
-			finally
+
+			if (isFirstGet && withInitialize)
 			{
-				_NicoVideoSemaphore.Release();
+				using (var releaser = await _Lock.LockAsync())
+				{
+					await nicoVideo.Initialize();
+				}
 			}
 
 			return nicoVideo;
 		}
 
 
+		public async Task<List<NicoVideo>> GetNicoVideoItemsAsync(params string[] idList)
+		{
+			List<NicoVideo> videos = new List<NicoVideo>();
+
+			using (var releaser = await _Lock.LockAsync())
+			{
+				foreach (var id in idList)
+				{
+					NicoVideo nicoVideo = null;
+					if (false == VideoIdToNicoVideo.ContainsKey(id))
+					{
+						nicoVideo = new NicoVideo(_HohoemaApp, id, Context);
+						VideoIdToNicoVideo.Add(id, nicoVideo);
+					}
+					else
+					{
+						nicoVideo = VideoIdToNicoVideo[id];
+					}
+
+					videos.Add(nicoVideo);
+				}
+			}
+
+			foreach (var video in videos.AsParallel())
+			{
+				await video.Initialize().ConfigureAwait(false);
+			}
+
+			return videos;
+		}
 
 
 		public async Task RestoreCacheRequestFromCurrentVideoCacheFolder()
@@ -308,49 +304,7 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public async Task DeleteUnrequestedVideos()
-		{
-			var removeTargets = new List<string>();
-			var preventDeleteVideoId = PreventDeleteOnPlayingVideoId;
-			foreach (var item in VideoIdToNicoVideo.Values.ToArray())
-			{
-				if (preventDeleteVideoId != null && item.RawVideoId == preventDeleteVideoId)
-				{
-					Debug.WriteLine("再生中だった " + item.Title + " の動画キャッシュ削除を抑制");
-					continue;
-				}
-
-				if (!item.OriginalQuality.IsCacheRequested)
-				{
-					await item.OriginalQuality.DeleteCache();
-				}
-
-				if (!item.LowQuality.IsCacheRequested)
-				{
-					await item.LowQuality.DeleteCache();
-				}
-
-				if (!item.OriginalQuality.IsCached
-					&& !item.LowQuality.IsCached)
-				{
-					removeTargets.Add(item.RawVideoId);
-				}
-			}
-
-			// 不要になったNicoVideoオブジェクトを破棄
-			Debug.WriteLine("不要なNiciVideoオブジェクト破棄");
-			foreach (var id in removeTargets)
-			{
-				VideoIdToNicoVideo.Remove(id);
-
-				Debug.Write($"[{id}]");
-			}
-
-			WriteOncePreventDeleteVideoId(preventDeleteVideoId);
-			PreventDeleteOnPlayingVideoId = null;
-
-			Debug.WriteLine("done");
-		}
+		
 
 		public async Task SaveDownloadRequestItems()
 		{
@@ -403,17 +357,13 @@ namespace NicoPlayerHohoema.Models
 		private ObservableCollection<NicoVideoCacheRequest> _CacheRequestedItemsStack;
 		public ReadOnlyObservableCollection<NicoVideoCacheRequest> CacheRequestedItemsStack { get; private set; }
 
-
-
-		private SemaphoreSlim _NicoVideoSemaphore;
+		private AsyncLock _Lock;
+		private AsyncLock _NicoVideoUpdateLock = new AsyncLock();
 
 		public Dictionary<string, NicoVideo> VideoIdToNicoVideo { get; private set; }
 
 		public NicoVideoDownloadContext Context { get; private set; }
 		HohoemaApp _HohoemaApp;
-
-
-		public string PreventDeleteOnPlayingVideoId { get; private set; }
 	}
 
 

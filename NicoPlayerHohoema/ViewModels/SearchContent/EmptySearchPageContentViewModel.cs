@@ -56,14 +56,6 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		protected override uint IncrementalLoadCount
-		{
-			get
-			{
-				return 100;
-			}
-		}
-
 		protected override void PostResetList()
 		{
 			DeleteAllSearchHistoryCommand.RaiseCanExecuteChanged();
@@ -100,6 +92,8 @@ namespace NicoPlayerHohoema.ViewModels
 			_HohoemaApp = hohoemaApp;
 			_SearchPageViewModel = parentPage;
 		}
+
+		public uint OneTimeLoadCount => 100;
 
 		public Task<IEnumerable<SearchHistoryListItem>> GetPagedItems(int head, int count)
 		{

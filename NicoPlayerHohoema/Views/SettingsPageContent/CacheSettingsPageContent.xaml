@@ -23,7 +23,7 @@
 
             <!-- キャッシュ設定 -->
             <StackPanel Margin="8 8">
-                <TextBlock Text="キャッシュ設定"
+                <TextBlock Text="動画キャッシュ設定"
                            Margin="0 0 0 4"
                             FontSize="18"
                            FontWeight="SemiBold"
@@ -32,7 +32,7 @@
 
 
                 <toolkit:DockPanel Margin="8">
-                    <TextBlock Text="キャッシュを有効にする"
+                    <TextBlock Text="動画キャッシュを有効にする"
                                toolkit:DockPanel.Dock="Left"
                                VerticalAlignment="Center"
                            />
@@ -46,7 +46,7 @@
                 <toolkit:DockPanel Margin="8">
 
 
-                    <Button Content="キャッシュ保存フォルダを変更"
+                    <Button Content="動画キャッシュ保存フォルダを変更"
                                     Command="{Binding ChangeCacheFolderCommand}"
                                     HorizontalAlignment="Center"
                                      toolkit:DockPanel.Dock="Bottom"
@@ -54,7 +54,7 @@
                                     >
                     </Button>
 
-                    <TextBlock Text="キャッシュ保存フォルダ"
+                    <TextBlock Text="動画キャッシュ保存フォルダ"
                                        VerticalAlignment="Center"
                                        HorizontalAlignment="Left"
                                        toolkit:DockPanel.Dock="Top"
@@ -95,8 +95,8 @@
                                toolkit:DockPanel.Dock="Bottom"
                                HorizontalAlignment="Right"
                                    />
-                    
-                    <TextBlock Text="キャッシュ利用のためのヒント："
+
+                    <TextBlock Text="動画キャッシュ利用のためのヒント："
                                Margin="0 0 0 8"
                                />
                 </toolkit:DockPanel>
@@ -110,7 +110,7 @@
 
 
                 <toolkit:DockPanel Margin="8">
-                    <Button Content="キャッシュ機能利用の確認文を読む" 
+                    <Button Content="動画キャッシュ機能利用の確認文を読む" 
                                     Command="{Binding ReadCacheAcceptTextCommand}"
                                     Visibility="{Binding IsUserAcceptRegalNotice.Value, Converter={StaticResource BooleanToVisibility}}"
                             HorizontalAlignment="Center"

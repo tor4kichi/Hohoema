@@ -1,4 +1,5 @@
-﻿using Microsoft.Xaml.Interactivity;
+﻿using Microsoft.Toolkit.Uwp.UI.Controls;
+using Microsoft.Xaml.Interactivity;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,7 +10,7 @@ using Windows.UI.Xaml;
 
 namespace NicoPlayerHohoema.Views.Behaviors
 {
-	public class RefreshableListViewRefreshableGetter : Behavior<RefreshableListView.RefreshableListView>
+	public class RefreshableListViewRefreshableGetter : Behavior<PullToRefreshListView>
 	{
 		public static readonly DependencyProperty IsRefreshableProperty =
 		DependencyProperty.RegisterAttached(
@@ -30,19 +31,19 @@ namespace NicoPlayerHohoema.Views.Behaviors
 		{
 			base.OnAttached();
 
-			this.AssociatedObject.PullProgressChanged += AssociatedObject_PullProgressChanged;
+			this.AssociatedObject.PullProgressChanged += AssociatedObject_PullProgressChanged1;
 		}
+
 
 		protected override void OnDetaching()
 		{
 			base.OnDetaching();
-			this.AssociatedObject.PullProgressChanged -= AssociatedObject_PullProgressChanged;
+			this.AssociatedObject.PullProgressChanged -= AssociatedObject_PullProgressChanged1;
 		}
 
-
-		private void AssociatedObject_PullProgressChanged(object sender, RefreshableListView.RefreshProgressEventArgs e)
+		private void AssociatedObject_PullProgressChanged1(object sender, RefreshProgressEventArgs e)
 		{
-			IsRefreshable = e.IsRefreshable;
+			IsRefreshable = e.PullProgress == 1.0;
 		}
 
 

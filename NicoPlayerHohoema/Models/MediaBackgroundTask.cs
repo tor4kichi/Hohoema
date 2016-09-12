@@ -152,9 +152,9 @@ namespace NicoPlayerHohoema.Models
 
 
 
-		private void UpdateTransportControls(MediaPlayerState state)
+		private void UpdateTransportControls(MediaPlaybackState state)
 		{
-			if (state == MediaPlayerState.Playing)
+			if (state == MediaPlaybackState.Playing)
 			{
 
 			}
@@ -197,7 +197,7 @@ namespace NicoPlayerHohoema.Models
 				// Send message to background task that app is resumed so it can start sending notifications again
 				MessageService.SendMessageToBackground(new AppResumedMessage());
 
-				UpdateTransportControls(CurrentPlayer.CurrentState);
+				UpdateTransportControls(CurrentPlayer.PlaybackSession.PlaybackState);
 
 				var trackId = GetCurrentTrackIdAfterAppResume();
 				//				txtCurrentTrack.Text = trackId == null ? string.Empty : playlistView.GetSongById(trackId).Title;
@@ -333,9 +333,9 @@ namespace NicoPlayerHohoema.Models
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="args"></param>
-		async void MediaPlayer_CurrentStateChanged(MediaPlayer sender, object args)
+		void MediaPlayer_CurrentStateChanged(MediaPlayer sender, object args)
 		{
-			var currentState = sender.CurrentState; // cache outside of completion or you might get a different value
+			var currentState = sender.PlaybackSession.PlaybackState; // cache outside of completion or you might get a different value
 													//			await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
 													//			{
 													// Update state label
@@ -399,7 +399,7 @@ namespace NicoPlayerHohoema.Models
 		private void UpdatePlayingMedia(string videoId)
 		{
 			// Start the background task if it wasn't running
-			if (!IsMyBackgroundTaskRunning || MediaPlayerState.Closed == CurrentPlayer.CurrentState)
+			if (!IsMyBackgroundTaskRunning || CurrentPlayer.PlaybackSession.PlaybackState == MediaPlaybackState.None)
 			{
 				// First update the persisted start track
 				ApplicationSettingsHelper.SaveSettingsValue(ApplicationSettingsConstants.VideoId, videoId);
@@ -416,7 +416,7 @@ namespace NicoPlayerHohoema.Models
 
 			}
 
-			if (MediaPlayerState.Paused == CurrentPlayer.CurrentState)
+			if (CurrentPlayer.PlaybackSession.PlaybackState == MediaPlaybackState.Playing)
 			{
 				//                CurrentPlayer.Play();
 			}

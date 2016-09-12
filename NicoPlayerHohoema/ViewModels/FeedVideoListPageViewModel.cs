@@ -97,17 +97,9 @@ namespace NicoPlayerHohoema.ViewModels
 			return base.CheckNeedUpdateOnNavigateTo(mode);
 		}
 
-		protected override uint IncrementalLoadCount
-		{
-			get { return 5; }
-		}
-
-		
-	
-
 		protected override IIncrementalSource<FeedVideoInfoControlViewModel> GenerateIncrementalSource()
 		{
-			return new FeedVideoIncrementalSource(FeedGroup, HohoemaApp.FeedManager, HohoemaApp.MediaManager, PageManager);
+			return new FeedVideoIncrementalSource(FeedGroup, HohoemaApp, PageManager);
 		}
 
 
@@ -118,77 +110,61 @@ namespace NicoPlayerHohoema.ViewModels
 	}
 
 
-	public class FeedVideoIncrementalSource : IIncrementalSource<FeedVideoInfoControlViewModel>
+	public class FeedVideoIncrementalSource : HohoemaVideoPreloadingIncrementalSourceBase<FeedVideoInfoControlViewModel>
 	{
-		HohoemaApp _HohoemaApp;
 		FeedManager _FavFeedManager;
 		NiconicoMediaManager _NiconicoMediaManager;
 		PageManager _PageManager;
 		FeedGroup _FeedGroup;
 
 
-		public FeedVideoIncrementalSource(FeedGroup feedGroup, FeedManager favFeedManager, NiconicoMediaManager mediaManager, PageManager pageManager)
+		public FeedVideoIncrementalSource(FeedGroup feedGroup, HohoemaApp hohoemaApp, PageManager pageManager)
+			: base(hohoemaApp, "Feed_" + feedGroup.Label)
 		{
-			_HohoemaApp = feedGroup.HohoemaApp;
 			_FeedGroup = feedGroup;
-			_FavFeedManager = favFeedManager;
-			_NiconicoMediaManager = mediaManager;
+			_FavFeedManager = hohoemaApp.FeedManager;
+			_NiconicoMediaManager = hohoemaApp.MediaManager;
 			_PageManager = pageManager;
 		}
 
-		public async Task<int> ResetSource()
+
+
+		#region Implements HohoemaPreloadingIncrementalSourceBase		
+
+
+		protected override async Task<IEnumerable<NicoVideo>> PreloadNicoVideo(int start, int count)
+		{
+			var items = _FeedGroup.FeedItems.Skip(start).Take(count);
+
+			List<NicoVideo> videos = new List<NicoVideo>();
+			foreach (var item in items)
+			{
+				var nicoVideo = await ToNicoVideo(item.VideoId);
+
+				nicoVideo.PreSetTitle(item.Title);
+				nicoVideo.PreSetPostAt(item.SubmitDate);
+				
+				videos.Add(nicoVideo);
+			}
+
+			return videos;
+		}
+
+
+		protected override async Task<int> ResetSourceImpl()
 		{
 			await _FeedGroup.Refresh();
-
-//			await SchedulePreloading(0, 10);
 
 			return _FeedGroup.FeedItems.Count;
 		}
 
-		private Task SchedulePreloading(int start, int count)
+
+		protected override FeedVideoInfoControlViewModel NicoVideoToTemplatedItem(NicoVideo itemSource, int index)
 		{
-			// 先頭20件を先行ロード
-			return _FavFeedManager.HohoemaApp.ThumbnailBackgroundLoader.Schedule(
-				new SimpleBackgroundUpdate("FeedGroup:" + _FeedGroup.Label + $" [{start} - {count}]"
-				, () => UpdateItemsThumbnailInfo(start, count)
-				)
-				);
+			var currentItem = _FeedGroup.FeedItems.ElementAtOrDefault(index);
+			return new FeedVideoInfoControlViewModel(currentItem, _FeedGroup, itemSource, _PageManager);
 		}
 
-		private async Task UpdateItemsThumbnailInfo(int start, int count)
-		{
-			foreach (var item in _FeedGroup.FeedItems.AsParallel().Skip(start).Take(count))
-			{
-				if (!_HohoemaApp.IsLoggedIn) { return; }
-
-				await _HohoemaApp.MediaManager.GetNicoVideoAsync(item.VideoId);
-			}
-		}
-
-		public async Task<IEnumerable<FeedVideoInfoControlViewModel>> GetPagedItems(int head, int count)
-		{
-			var list = new List<FeedVideoInfoControlViewModel>();
-
-			var currentItems = _FeedGroup.FeedItems.Skip(head).Take(count).ToList();
-
-			foreach (var feed in currentItems)
-			{
-				try
-				{
-					var nicoVideo = await _NiconicoMediaManager.GetNicoVideoAsync(feed.VideoId);
-					var vm = new FeedVideoInfoControlViewModel(feed, _FeedGroup, nicoVideo, _PageManager);
-
-					list.Add(vm);
-				}
-				catch (Exception ex)
-				{
-					Debug.Fail("FeedListのアイテムのNicoVideoの取得に失敗しました。", ex.Message);
-				}
-			}
-
-//			await SchedulePreloading(head + count, count);
-
-			return list;
-		}
+		#endregion
 	}
 }

@@ -104,7 +104,7 @@ namespace NicoPlayerHohoema.ViewModels
 			IsStillNotWatch = true;
 		}
 
-		private void SetupFromThumbnail(NicoVideo info)
+		public void SetupFromThumbnail(NicoVideo info)
 		{
 			Title = info.Title;
 			ViewCount = info.ViewCount;

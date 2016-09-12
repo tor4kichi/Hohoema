@@ -65,17 +65,23 @@ namespace NicoPlayerHohoema.ViewModels
 			
 		}
 
-		protected override uint IncrementalLoadCount
-		{
-			get
-			{
-				return 20u;
-			}
-		}
-		
+
+
 
 		#endregion
 
+		private DelegateCommand _ResumeCacheCommand;
+		public DelegateCommand ResumeCacheCommand
+		{
+			get
+			{
+				return _ResumeCacheCommand
+					?? (_ResumeCacheCommand = new DelegateCommand(() =>
+					{
+						_MediaManager.Context.StartBackgroundDownload();
+					}));
+			}
+		}
 
 
 		public DelegateCommand OpenCacheSettingsCommand { get; private set; }
@@ -167,7 +173,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-
+		
 		public string PrivateReasonText { get; private set; }
 
 
@@ -191,6 +197,23 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class CacheVideoInfoLoadingSource : IIncrementalSource<CacheVideoViewModel>
 	{
+		
+		HohoemaApp _HohoemaApp;
+		PageManager _PageManager;
+
+
+		public List<CacheVideoViewModel> RawList { get; private set; }
+
+		public uint OneTimeLoadCount
+		{
+			get
+			{
+				return 10;
+			}
+		}
+
+
+
 		public CacheVideoInfoLoadingSource(HohoemaApp app, PageManager pageManager)
 		{
 			_HohoemaApp = app;
@@ -230,9 +253,12 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public Task<IEnumerable<CacheVideoViewModel>> GetPagedItems(int head, int count)
 		{
-//			int head = (int)((head - 1) * count);
 			return Task.FromResult(RawList.Skip(head).Take((int)count));
 		}
+
+
+
+
 
 		private async Task<CacheVideoViewModel> ToCacheVideoViewModel(string videoId, NicoVideoQuality quality)
 		{
@@ -259,11 +285,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		public List<CacheVideoViewModel> RawList { get; private set; }
-
-		HohoemaApp _HohoemaApp;
-		PageManager _PageManager;
-
+		
 	}
 
 }

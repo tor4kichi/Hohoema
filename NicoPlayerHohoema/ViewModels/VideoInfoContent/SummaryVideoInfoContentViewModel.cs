@@ -21,7 +21,7 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 
 			var user = Models.Db.UserInfoDb.Get(nicoVideo.VideoOwnerId.ToString());
 
-			
+			OwnerId = user.UserId;
 			UserName = user.Name;
 			UserIconUrl = user.IconUri;
 			SubmitDate = nicoVideo.PostedAt;
@@ -50,7 +50,7 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 				return _OpenUserInfoCommand
 					?? (_OpenUserInfoCommand = new DelegateCommand(() =>
 					{
-						_PageManager.OpenPage(HohoemaPageType.UserInfo, _ThumbnailResponse.UserId);
+						_PageManager.OpenPage(HohoemaPageType.UserInfo, OwnerId);
 					}));
 			}
 		}
@@ -92,6 +92,7 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 			}
 		}
 
+		public string OwnerId { get; private set; }
 		public string UserName { get; private set; }
 		public string UserIconUrl { get; private set; }
 
@@ -115,8 +116,6 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 		// タグ
 		public List<TagViewModel> Tags { get; private set; }
 
-
-		ThumbnailResponse _ThumbnailResponse;
 		PageManager _PageManager;
 	}
 }

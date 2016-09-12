@@ -22,24 +22,15 @@ namespace NicoPlayerHohoema.Models
 {
 	public class NicoVideo : BindableBase
 	{
-		internal static async Task<NicoVideo> Create(HohoemaApp app, string rawVideoid, NicoVideoDownloadContext context)
-		{
-			Debug.WriteLine("start initialize : " + rawVideoid);
-			var nicoVideo = new NicoVideo(app, rawVideoid, context);
-
-			await nicoVideo.Initialize();
-
-			return nicoVideo;
-		}
-
 
 		private CommentResponse _CachedCommentResponse;
-		private NicoVideoQuality _VisitedPageType;
+		private NicoVideoQuality _VisitedPageType = NicoVideoQuality.Low;
 
 		internal WatchApiResponse CachedWatchApiResponse { get; private set; }
 
+		bool _IsInitialized = false;
 
-		private NicoVideo(HohoemaApp app, string rawVideoid, NicoVideoDownloadContext context)
+		public NicoVideo(HohoemaApp app, string rawVideoid, NicoVideoDownloadContext context)
 		{
 			HohoemaApp = app;
 			RawVideoId = rawVideoid;
@@ -49,8 +40,14 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		private async Task Initialize()
+		public async Task Initialize()
 		{
+			if (_IsInitialized) { return; }
+
+			_IsInitialized = true;
+
+			Debug.WriteLine("start initialize : " + RawVideoId);
+
 			if (Util.InternetConnection.IsInternet())
 			{
 				await UpdateWithThumbnail();
@@ -68,6 +65,9 @@ namespace NicoPlayerHohoema.Models
 				await CheckCacheStatus();
 			}
 		}
+
+
+		
 
 
 		public async Task CheckCacheStatus()
@@ -174,6 +174,8 @@ namespace NicoPlayerHohoema.Models
 				NowLowQualityOnly = watchApiRes.VideoUrl.AbsoluteUri.EndsWith("low");
 			}
 
+			_VisitedPageType = watchApiRes.VideoUrl.AbsoluteUri.EndsWith("low") ? NicoVideoQuality.Low : NicoVideoQuality.Original;
+			
 			if (watchApiRes != null)
 			{
 				CachedWatchApiResponse = watchApiRes;
@@ -217,7 +219,12 @@ namespace NicoPlayerHohoema.Models
 			}
 			else if (Util.InternetConnection.IsInternet())
 			{
-				NicoVideoCachedStream = await HttpRandomAccessStream.CreateAsync(HohoemaApp.NiconicoContext.HttpClient, VideoUrl);
+				var size = (quality == NicoVideoQuality.Original ? SizeHigh : SizeLow);
+				NicoVideoCachedStream = await HttpRandomAccessStream.CreateAsync(
+					HohoemaApp.NiconicoContext.HttpClient
+					, VideoUrl
+					, size
+					);
 			}
 
 			return NicoVideoCachedStream;
@@ -441,6 +448,55 @@ namespace NicoPlayerHohoema.Models
 		public NGResult CheckUserNGVideo()
 		{
 			return HohoemaApp.UserSettings?.NGSettings.IsNgVideo(this);
+		}
+
+
+		// Initializeが呼ばれるまで有効
+		public void PreSetTitle(string title)
+		{
+			if (_IsInitialized) { return; }
+
+			Title = title;
+		}
+
+		public void PreSetPostAt(DateTime dateTime)
+		{
+			if (_IsInitialized) { return; }
+
+			PostedAt = dateTime;
+		}
+
+		public void PreSetVideoLength(TimeSpan length)
+		{
+			if (_IsInitialized) { return; }
+
+			VideoLength = length;
+		}
+
+		public void PreSetCommentCount(uint count)
+		{
+			if (_IsInitialized) { return; }
+
+			CommentCount = count;
+		}
+		public void PreSetViewCount(uint count)
+		{
+			if (_IsInitialized) { return; }
+
+			ViewCount = count;
+		}
+		public void PreSetMylistCount(uint count)
+		{
+			if (_IsInitialized) { return; }
+
+			MylistCount = count;
+		}
+
+		public void PreSetThumbnailUrl(string thumbnailUrl)
+		{
+			if (_IsInitialized) { return; }
+
+			ThumbnailUrl = thumbnailUrl;
 		}
 
 

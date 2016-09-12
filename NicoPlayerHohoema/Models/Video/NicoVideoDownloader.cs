@@ -28,6 +28,9 @@ namespace NicoPlayerHohoema.Models
 
 	public class NicoVideoDownloader : Util.HttpRandomAccessStream
 	{
+		public static readonly TimeSpan DownloadDelay = TimeSpan.FromMilliseconds(50);
+
+
 		public uint CurrentDownloadHead { get; private set; }
 		private Task _DownloadTask;
 		private CancellationTokenSource _DownloadTaskCancelToken;
@@ -81,16 +84,13 @@ namespace NicoPlayerHohoema.Models
 
 
 		public NicoVideoDownloader(DividedQualityNicoVideo qualityNicoVideo, HttpClient client,  WatchApiResponse watchApiRes, StorageFile cacheFile)
-			: base(client, watchApiRes.VideoUrl)
+			: base(client, watchApiRes.VideoUrl, qualityNicoVideo.VideoSize)
 		{
 			DividedQualityNicoVideo = qualityNicoVideo;
 			IsPremiumUser = watchApiRes.IsPremium;
 			DownloadProgress = qualityNicoVideo.Progress;
-			DownloadInterval = IsPremiumUser ?
-				TimeSpan.FromSeconds(BUFFER_SIZE / (float)PremiumUserDownload_kbps + 0.2) :
-				TimeSpan.FromSeconds(BUFFER_SIZE / (float)IppanUserDownload_kbps + 0.2);
+			DownloadInterval = DownloadDelay;
 			CacheFile = cacheFile;
-			Size = qualityNicoVideo.VideoSize;
 
 			_DownloadTaskLock = new SemaphoreSlim(1, 1);
 			_CacheWriteSemaphore = new SemaphoreSlim(1, 1);
@@ -415,6 +415,8 @@ namespace NicoPlayerHohoema.Models
 				}
 			}, retryInterval: 250);
 
+			if (IsClosed) { return; }
+
 			// バッファーの最大サイズに合わせてsizeを分割してダウンロードする
 			var division = size / BUFFER_SIZE;
 			for (uint i = 0; i < division; i++)
@@ -425,6 +427,7 @@ namespace NicoPlayerHohoema.Models
 				}
 
 				token.ThrowIfCancellationRequested();
+				if (IsClosed) { return; }
 
 				ulong head = start + i * BUFFER_SIZE;
 				await DownloadAndWriteToFile(inputStream, head, BUFFER_SIZE);
@@ -433,6 +436,7 @@ namespace NicoPlayerHohoema.Models
 			}
 
 			token.ThrowIfCancellationRequested();
+			if (IsClosed) { return; }
 
 			// 終端のデータだけ別処理
 			var finalFragmentSize = size % BUFFER_SIZE;
@@ -453,7 +457,7 @@ namespace NicoPlayerHohoema.Models
 			IBuffer resultBuffer = null;
 			for (int i = 0; i < 3; i++)
 			{
-				using (var cancelTokenSource = new CancellationTokenSource(10000))
+				using (var cancelTokenSource = new CancellationTokenSource(30000))
 				{
 					resultBuffer = await inputStream.ReadAsync(DownloadBuffer, readSize, InputStreamOptions.None).AsTask(cancelTokenSource.Token);
 				}
@@ -466,13 +470,16 @@ namespace NicoPlayerHohoema.Models
 				throw new Exception();
 			}
 
-			await WriteToVideoFile(head, resultBuffer);
+			if (!IsClosed)
+			{
+				await WriteToVideoFile(head, resultBuffer);
 
-			RecordProgress((uint)head, resultBuffer.Length);
+				RecordProgress((uint)head, resultBuffer.Length);
 
-			OnCacheProgress?.Invoke(RawVideoId, Quality, (uint)head, resultBuffer.Length);
+				OnCacheProgress?.Invoke(RawVideoId, Quality, (uint)head, resultBuffer.Length);
 
-			Debug.WriteLine($"download:{head}~{head + resultBuffer.Length}");
+				Debug.WriteLine($"download:{head}~{head + resultBuffer.Length}");
+			}			
 		}
 
 		private async Task WriteToVideoFile(ulong position, IBuffer buffer)
@@ -481,6 +488,7 @@ namespace NicoPlayerHohoema.Models
 			{
 				await _CacheWriteSemaphore.WaitAsync().ConfigureAwait(false);
 
+				if (IsClosed) { return; }
 				if (CacheFile == null)
 				{
 					return;

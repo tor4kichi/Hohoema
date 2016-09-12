@@ -181,9 +181,9 @@ namespace NicoPlayerHohoema.ViewModels
 				case HohoemaSettingsKind.Comment:
 					return "コメント";
 				case HohoemaSettingsKind.VideoPlay:
-					return "動画再生";
+					return "プレイヤー";
 				case HohoemaSettingsKind.Cache:
-					return "動画キャッシュ";
+					return "キャッシュ";
 				default:
 					throw new NotSupportedException($"not support {nameof(HohoemaSettingsKind)}.{kind.ToString()}");
 			}
