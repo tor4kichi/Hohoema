@@ -685,6 +685,8 @@ namespace NicoPlayerHohoema.ViewModels
 			var oldCount = _TempProgress.CachedRanges.Count;
 			_TempProgress.Update(head, length);
 
+		
+
 			if (oldCount != _TempProgress.CachedRanges.Count)
 			{
 				// 追加されている場合

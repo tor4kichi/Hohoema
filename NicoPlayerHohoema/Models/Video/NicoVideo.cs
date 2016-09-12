@@ -174,6 +174,8 @@ namespace NicoPlayerHohoema.Models
 				NowLowQualityOnly = watchApiRes.VideoUrl.AbsoluteUri.EndsWith("low");
 			}
 
+			_VisitedPageType = watchApiRes.VideoUrl.AbsoluteUri.EndsWith("low") ? NicoVideoQuality.Low : NicoVideoQuality.Original;
+			
 			if (watchApiRes != null)
 			{
 				CachedWatchApiResponse = watchApiRes;
