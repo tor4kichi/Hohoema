@@ -156,6 +156,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 		private async void _OnResumed()
 		{
+			await Task.Delay(300);
+
 			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
 			{	
 				if (IsRequireSignIn)
