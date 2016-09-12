@@ -376,6 +376,10 @@
     </Compile>
     <Compile Include="Views\Service\MylistRegistrationDialogService.cs" />
     <Compile Include="Views\Service\RankingChoiceDialogService.cs" />
+    <Compile Include="Views\Service\TextInputDialog.xaml.cs">
+      <DependentUpon>TextInputDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Service\TextInputDialogService.cs" />
     <Compile Include="Views\Service\ToastNotificationService.cs" />
     <Compile Include="Views\SettingsPageContent\CacheSettingsPageContent.xaml.cs">
       <DependentUpon>CacheSettingsPageContent.xaml</DependentUpon>
@@ -651,6 +655,10 @@
     <Page Include="Views\Service\MylistRegistrationDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\Service\TextInputDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SettingsPageContent\CacheSettingsPageContent.xaml">
       <SubType>Designer</SubType>

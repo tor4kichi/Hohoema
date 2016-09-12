@@ -63,10 +63,11 @@ namespace NicoPlayerHohoema
 			UnhandledException += PrismUnityApplication_UnhandledException;
 
 			this.Resuming += App_Resuming;
-//			this.Suspending += App_Suspending;
-			
+			//			this.Suspending += App_Suspending;
+
 			this.InitializeComponent();
 		}
+
 
 		/*
 		private async void App_Suspending(object sender, SuspendingEventArgs e)
@@ -290,8 +291,8 @@ namespace NicoPlayerHohoema
 			Container.RegisterInstance(hohoemaApp.ContentFinder);
 
 			// TODO: プレイヤーウィンドウ上で管理する
-			var backgroundTask = MediaBackgroundTask.Create();
-			Container.RegisterInstance(backgroundTask);
+//			var backgroundTask = MediaBackgroundTask.Create();
+//			Container.RegisterInstance(backgroundTask);
 
 
 			// ViewModels
@@ -318,8 +319,8 @@ namespace NicoPlayerHohoema
 			Container.RegisterInstance(new Views.Service.ToastNotificationService());
 			Container.RegisterInstance(new Views.Service.MylistRegistrationDialogService(hohoemaApp));
 			Container.RegisterInstance(new Views.Service.EditMylistGroupDialogService());
-			Container.RegisterInstance(new Views.Service.AcceptCacheUsaseDialogContext());
-
+			Container.RegisterInstance(new Views.Service.AcceptCacheUsaseDialogService());
+			Container.RegisterInstance(new Views.Service.TextInputDialogService());
 //			return Task.CompletedTask;
 		}
 

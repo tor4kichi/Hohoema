@@ -97,7 +97,7 @@ namespace NicoPlayerHohoema.Models
 		private async void Current_Resuming(object sender, object e)
 		{
 			Debug.WriteLine($"BGUpdater[{Id}]の処理を再開");
-			await TryBeginNext().ConfigureAwait(false);
+			await TryBeginNext();
 		}
 
 
@@ -124,7 +124,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			await PushItem(item, priorityUpdate);
 
-			await TryBeginNext().ConfigureAwait(false);
+			await TryBeginNext();
 		}
 
 
@@ -138,6 +138,7 @@ namespace NicoPlayerHohoema.Models
 				return;
 			}
 
+			Debug.WriteLine("bg task check.");
 
 			// タスクの開始処理
 			var nextItem = await PopItem();
@@ -145,7 +146,7 @@ namespace NicoPlayerHohoema.Models
 			{
 				try
 				{
-					await RegistrationRunningTask(nextItem).ConfigureAwait(false);
+					await RegistrationRunningTask(nextItem);
 				}
 				catch (OperationCanceledException)
 				{
