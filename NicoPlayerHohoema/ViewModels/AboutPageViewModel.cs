@@ -108,6 +108,8 @@ namespace NicoPlayerHohoema.ViewModels
 					return "Microsoft Public Lisence";
 				case Models.LisenceType.Apache_v2:
 					return "Apache Lisence version 2.0";
+				case Models.LisenceType.GPL_v3:
+					return "GNU General Public License Version 3";
 				case Models.LisenceType.Simplified_BSD:
 					return "二条項BSDライセンス";
 				case Models.LisenceType.CC_BY_40:

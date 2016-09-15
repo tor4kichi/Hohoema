@@ -102,6 +102,8 @@
     <Content Include="Assets\BadgeLogo.scale-200.png" />
     <Content Include="Assets\BadgeLogo.scale-400.png" />
     <Content Include="Assets\LibLisencies\Entity Framework Core.txt" />
+    <Content Include="Assets\LibLisencies\FFmpeg.txt" />
+    <Content Include="Assets\LibLisencies\FFmpegInterop.txt" />
     <Content Include="Assets\LibLisencies\Material Design Icons.txt" />
     <Content Include="Assets\LibLisencies\UWP Community Toolkit.txt" />
     <Content Include="Assets\LibLisencies\_lisence_summary.json" />
