@@ -60,9 +60,23 @@
     {
       "name": "UWP Community Toolkit",
       "site": "https://github.com/Microsoft/UWPCommunityToolkit",
-      "author": ["Microsoft Corporation"],
+      "author": [ "Microsoft Corporation" ],
       "lisence_type": "MIT",
       "lisence_page_url": "https://github.com/Microsoft/UWPCommunityToolkit/blob/master/license.md"
+    },
+    {
+      "name": "FFmpegInterop",
+      "site": "https://github.com/Microsoft/FFmpegInterop",
+      "author": [ "Microsoft Corporation" ],
+      "lisence_type": "Apache_v2",
+      "lisence_page_url": "https://github.com/Microsoft/FFmpegInterop/blob/master/LICENSE"
+    },
+    {
+      "name": "FFmpeg",
+      "site": "https://github.com/FFmpeg/FFmpeg",
+      "author": [ "Free Software Foundation, Inc" ],
+      "lisence_type": "GPL_v3",
+      "lisence_page_url": "https://github.com/FFmpeg/FFmpeg/blob/master/COPYING.GPLv3"
     }
   ]
 

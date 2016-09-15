@@ -110,7 +110,7 @@ namespace NicoPlayerHohoema.Models
 			var preventDeleteVideoId = PreventDeleteOnPlayingVideoId;
 
 			// すでにキャッシュリクエストされたNicoVideoのキャッシュを消さないように注意する
-			foreach (var nicoVideo in _DurtyCachedNicoVideo)
+			foreach (var nicoVideo in _DurtyCachedNicoVideo.ToArray())
 			{
 				if (preventDeleteVideoId != null && nicoVideo.RawVideoId == preventDeleteVideoId)
 				{

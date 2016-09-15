@@ -14,18 +14,18 @@ namespace NicoPlayerHohoema.Views
 	{
 		#region CustomStream Attached Behavior
 
-		public static IRandomAccessStream GetCustomStream(DependencyObject obj)
+		public static object GetCustomStream(DependencyObject obj)
 		{
-			return (IRandomAccessStream)obj.GetValue(CustomStreamProperty);
+			return (object)obj.GetValue(CustomStreamProperty);
 		}
 
-		public static void SetCustomStream(DependencyObject obj, IRandomAccessStream value)
+		public static void SetCustomStream(DependencyObject obj, object value)
 		{
 			obj.SetValue(CustomStreamProperty, value);
 		}
 
 		public static readonly DependencyProperty CustomStreamProperty =
-			DependencyProperty.RegisterAttached("CustomStream", typeof(IRandomAccessStream), typeof(MediaElementExtention), new PropertyMetadata(default(IRandomAccessStream), CustomStreamPropertyChanged));
+			DependencyProperty.RegisterAttached("CustomStream", typeof(object), typeof(MediaElementExtention), new PropertyMetadata(default(IRandomAccessStream), CustomStreamPropertyChanged));
 
 
 		public static void CustomStreamPropertyChanged(DependencyObject s, DependencyPropertyChangedEventArgs e)
@@ -34,25 +34,36 @@ namespace NicoPlayerHohoema.Views
 			{
 				var mediaElement = s as MediaElement;
 
-				var stream = e.NewValue as IRandomAccessStream;
-
-				string contentType = "";
-				if (stream is Util.HttpRandomAccessStream)
+				if (e.NewValue is IRandomAccessStream)
 				{
-					contentType = (stream as Util.HttpRandomAccessStream).ContentType;
+					var stream = e.NewValue as IRandomAccessStream;
+
+					string contentType = "";
+					if (stream is Util.HttpRandomAccessStream)
+					{
+						contentType = (stream as Util.HttpRandomAccessStream).ContentType;
+					}
+
+
+
+					if (stream == null)
+					{
+						mediaElement.Stop();
+					}
+					else
+					{
+						mediaElement.SetSource(stream, contentType);
+					}
 				}
-
-				
-
-				if (stream == null)
+				else if (e.NewValue is FFmpegInterop.FFmpegInteropMSS)
 				{
 					mediaElement.Stop();
-				}
-				else
-				{
-					mediaElement.SetSource(stream, contentType);
+
+					var mss = e.NewValue as FFmpegInterop.FFmpegInteropMSS;
+					mediaElement.SetMediaStreamSource(mss.GetMediaStreamSource());
 				}
 			}
+
 		}
 
 		#endregion

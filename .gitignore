@@ -217,3 +217,7 @@ ModelManifest.xml
 /NicoPlayerHohoema/BundleArtifacts
 /NicoPlayerHohoema/_pkginfo.txt
 /NicoPlayerHohoema/*.appx
+*.db
+/NicoPlayerHohoema/lib/FFmpegInterop/ARM/FFmpegInterop.winmd
+/NicoPlayerHohoema/lib/FFmpegInterop/ARM/FFmpegInterop.pri
+/NicoPlayerHohoema/lib/FFmpegInterop/ARM/FFmpegInterop.exp
