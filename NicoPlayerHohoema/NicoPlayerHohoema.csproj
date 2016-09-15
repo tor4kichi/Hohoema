@@ -514,13 +514,6 @@
     <Content Include="Assets\Square150x150Logo.scale-200.png" />
     <Content Include="Assets\Square44x44Logo.scale-200.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
-    <Content Include="$(SolutionDir)ffmpeg\Build\Windows10\$(PlatformTarget)\bin\avcodec-57.dll" />
-    <Content Include="$(SolutionDir)ffmpeg\Build\Windows10\$(PlatformTarget)\bin\avdevice-57.dll" />
-    <Content Include="$(SolutionDir)ffmpeg\Build\Windows10\$(PlatformTarget)\bin\avfilter-6.dll" />
-    <Content Include="$(SolutionDir)ffmpeg\Build\Windows10\$(PlatformTarget)\bin\avformat-57.dll" />
-    <Content Include="$(SolutionDir)ffmpeg\Build\Windows10\$(PlatformTarget)\bin\avutil-55.dll" />
-    <Content Include="$(SolutionDir)ffmpeg\Build\Windows10\$(PlatformTarget)\bin\swresample-2.dll" />
-    <Content Include="$(SolutionDir)ffmpeg\Build\Windows10\$(PlatformTarget)\bin\swscale-4.dll" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -761,11 +754,16 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="FFmpegInterop">
-      <HintPath>..\..\..\..\Repo\FFmpegInterop\Release\FFmpegInterop\FFmpegInterop.winmd</HintPath>
-    </Reference>
     <Reference Include="Mntone.Nico2.UWP">
       <HintPath>lib\Mntone.Nico2.UWP.dll</HintPath>
+    </Reference>
+    <Reference Include="FFmpegInterop">
+      <HintPath Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">.\lib\FFmpegInterop\ARM\FFmpegInterop.winmd</HintPath>
+      <HintPath Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">.\lib\FFmpegInterop\ARM\FFmpegInterop.winmd</HintPath>
+      <HintPath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\lib\FFmpegInterop\x64\FFmpegInterop.winmd</HintPath>
+      <HintPath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\lib\FFmpegInterop\x64\FFmpegInterop.winmd</HintPath>
+      <HintPath Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">.\lib\FFmpegInterop\x86\FFmpegInterop.winmd</HintPath>
+      <HintPath Condition="'$(Configuration)|$(Platform)'=='Release|x86'">.\lib\FFmpegInterop\x86\FFmpegInterop.winmd</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

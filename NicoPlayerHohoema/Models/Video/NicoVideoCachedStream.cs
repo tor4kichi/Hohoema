@@ -31,6 +31,7 @@ namespace NicoPlayerHohoema.Models
 			Downloader = downloader;
 			_ReaderAssignLock = new SemaphoreSlim(1, 1);
 			_SeekLock = new SemaphoreSlim(1, 1);
+			
 		}
 
 		private ulong _CurrentPosition;
@@ -46,7 +47,7 @@ namespace NicoPlayerHohoema.Models
 			try
 			{
 				await _SeekLock.WaitAsync();
-
+					
 				if (_CurrentPosition != position)
 				{
 					Debug.WriteLine($"Seek: {_CurrentPosition:N0} -> {position:N0}");
