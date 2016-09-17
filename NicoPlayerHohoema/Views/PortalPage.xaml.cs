@@ -28,4 +28,24 @@ namespace NicoPlayerHohoema.Views
 		}
 	}
 	
+
+	public class AppMapItemDataTemplateSelector : DataTemplateSelector
+	{
+		public DataTemplate Container { get; set; }
+		public DataTemplate Item { get; set; }
+
+		protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
+		{
+			if (item is ViewModels.AppMapContainerViewModel)
+			{
+				return Container;
+			}
+			else if (item is ViewModels.AppMapItemViewModel)
+			{
+				return Item;
+			}
+
+			return base.SelectTemplateCore(item, container);
+		}
+	}
 }

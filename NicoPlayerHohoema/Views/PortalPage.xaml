@@ -5,10 +5,10 @@
     xmlns:local="using:NicoPlayerHohoema.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:portalContent="using:NicoPlayerHohoema.Views.PortalContent"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
@@ -16,103 +16,74 @@
     d:DesignHeight="600"
     >
 
+    <Page.Resources>
 
-    <!-- PortalContentをまとめるだけ 
-    -->
-
-    
-
-    <Grid >
-
-        <Border>
-
-            <VisualStateManager.VisualStateGroups>
-                <VisualStateGroup>
-
-                    <VisualState>
-                        <VisualState.StateTriggers>
-                            <AdaptiveTrigger MinWindowHeight="800" />
-                        </VisualState.StateTriggers>
-                        <VisualState.Setters>
-                            <Setter Target="AccountPanel.(RelativePanel.Above)" Value="SearchPanel" />
-                            <Setter Target="AccountPanel.(RelativePanel.AlignRightWith)" Value="SearchPanel" />
-                        </VisualState.Setters>
-                    </VisualState>
-                   
-                    <VisualState>
-                        <VisualState.StateTriggers>
-                            <AdaptiveTrigger MinWindowHeight="0" />
-                        </VisualState.StateTriggers>
-                        <VisualState.Setters>
-                            <Setter Target="AccountPanel.(RelativePanel.LeftOf)" Value="SearchPanel" />
-                            <Setter Target="AccountPanel.(RelativePanel.AlignBottomWith)" Value="SearchPanel" />
-                        </VisualState.Setters>
-                    </VisualState>
-                </VisualStateGroup>
-            </VisualStateManager.VisualStateGroups>
-
-            <toolkit:DockPanel>
-
-
-                <ScrollViewer VerticalScrollMode="Disabled"
-                              VerticalScrollBarVisibility="Hidden"
-                              HorizontalScrollMode="Enabled"
-                              HorizontalScrollBarVisibility="Auto"
-                              x:Name="RootScrollViewer"
-                              >
-
-                    <ItemsControl>
-
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal"
-                                            Margin="0 16 0 0"
-                                            />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-
-                        <ItemsControl.ItemContainerStyle>
-                            <Style TargetType="UserControl">
-                                <Setter Property="Margin" Value="32 0" />
-                            </Style>
-                        </ItemsControl.ItemContainerStyle>
-
-
-
-                        <portalContent:SearchPortalPageContent
-                            Height="{Binding ElementName=RootScrollViewer, Path=ActualHeight}"
-                            VerticalAlignment="Top"
-                            />
-
-                        <portalContent:RankingPortalPageContent
-                            Height="{Binding ElementName=RootScrollViewer, Path=ActualHeight}"
-                            VerticalAlignment="Top"
-                            />
-
-                        <portalContent:FeedPortalPageContent
-                            Height="{Binding ElementName=RootScrollViewer, Path=ActualHeight}"
-                            VerticalAlignment="Top"
-                            />
-
-                        <portalContent:MylistPortalPageContent
-                            Height="{Binding ElementName=RootScrollViewer, Path=ActualHeight}"                            
-                            VerticalAlignment="Top"
-                            />
-
-                        <portalContent:HistoryPortalPageContent
-                            Height="{Binding ElementName=RootScrollViewer, Path=ActualHeight}"
-                            VerticalAlignment="Top"
-                            />
-                        
-                        <portalContent:AppPortalPageContent />
-
-                    </ItemsControl>
-                </ScrollViewer>
-
-            </toolkit:DockPanel>
-
-        </Border>
         
-        
-    </Grid>
+
+
+        <DataTemplate x:Key="ContainerTemplate">
+
+            <Grid MaxWidth="400">
+
+                <Border Background="{Binding Item.ThemeColor, Converter={StaticResource ColorToBrush}}"
+                        Opacity="0.5"
+                        ></Border>
+                
+                <toolkit:DockPanel>
+
+                    <Border Margin="0 0 0 4" 
+                        Visibility="{Binding IsHiddenLabel, Converter={StaticResource BooleanToVisibilityInverted}}"
+                        toolkit:DockPanel.Dock="Top"
+                        >
+                        <Button Content="{Binding Item.Label}"
+                               Margin="8"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                Command="{Binding OpenItemPageCommand}"
+                               />
+                    </Border>
+
+                    <uwptoolkit:AdaptiveGridView ItemsSource="{Binding Items}"
+                                                 ItemTemplate="{StaticResource ItemTemplate}"
+                                                 ItemHeight="48"
+                                                 DesiredWidth="130"
+                                                 HorizontalContentAlignment="Left"
+                                             />
+                </toolkit:DockPanel>
+
+            </Grid>
+            
+        </DataTemplate>
+
+
+        <DataTemplate x:Key="ItemTemplate">
+            <Button Content="{Binding Item.Label}"
+                    Command="{Binding OpenItemPageCommand}"
+                    Background="{Binding Item.ThemeColor, Converter={StaticResource ColorToBrush}}"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"
+                    >
+
+            </Button>
+        </DataTemplate>
+
+        <local:AppMapItemDataTemplateSelector x:Key="AppMapItemDataTemplateSelector"
+                                              Container="{StaticResource ContainerTemplate}"
+                                              Item="{StaticResource ItemTemplate}"
+                                              />
+    </Page.Resources>
+
+
+
+    <ScrollViewer>
+
+        <ItemsControl ItemsSource="{Binding Root.Items}"
+                      ItemTemplateSelector="{StaticResource AppMapItemDataTemplateSelector}"
+                                               
+                                             />
+    </ScrollViewer>
+
+
 </Page>
