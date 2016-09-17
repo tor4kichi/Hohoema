@@ -23,7 +23,7 @@
 
         <DataTemplate x:Key="ContainerTemplate">
 
-            <Grid MaxWidth="400">
+            <Grid MaxWidth="400" BorderBrush="DimGray" BorderThickness="1" CornerRadius="8" >
 
                 <Border Background="{Binding Item.ThemeColor, Converter={StaticResource ColorToBrush}}"
                         Opacity="0.5"
@@ -35,7 +35,7 @@
                         Visibility="{Binding IsHiddenLabel, Converter={StaticResource BooleanToVisibilityInverted}}"
                         toolkit:DockPanel.Dock="Top"
                         >
-                        <Button Content="{Binding Item.Label}"
+                        <Button Content="{Binding Item.PrimaryLabel}"
                                Margin="8"
                                 HorizontalAlignment="Stretch"
                                 HorizontalContentAlignment="Left"
@@ -57,7 +57,7 @@
 
 
         <DataTemplate x:Key="ItemTemplate">
-            <Button Content="{Binding Item.Label}"
+            <Button Content="{Binding Item.PrimaryLabel}"
                     Command="{Binding OpenItemPageCommand}"
                     Background="{Binding Item.ThemeColor, Converter={StaticResource ColorToBrush}}"
                     HorizontalAlignment="Stretch"

@@ -119,9 +119,13 @@
     <Compile Include="Models\AppMap\AppMap.cs" />
     <Compile Include="Models\AppMap\AppMapItem.cs" />
     <Compile Include="Models\AppMap\AppMapContainerBase.cs" />
+    <Compile Include="Models\AppMap\CachedVideoAppMapContainer.cs" />
     <Compile Include="Models\AppMap\FavAppMapContainer.cs" />
+    <Compile Include="Models\AppMap\FeedGroupAppMapContainer.cs" />
+    <Compile Include="Models\AppMap\UserMylistAppMapContainer.cs" />
     <Compile Include="Models\AppMap\RankingCategoriesAppMapContainer.cs" />
     <Compile Include="Models\AppMap\SearchAppMapContainer.cs" />
+    <Compile Include="Models\AppMap\VideoPlayHistoryAppMapContainer.cs" />
     <Compile Include="Models\BackgroundUpdater.cs" />
     <Compile Include="Models\CommentCommandPermissionType.cs" />
     <Compile Include="Models\Db\History\HistoryDbContext.cs" />

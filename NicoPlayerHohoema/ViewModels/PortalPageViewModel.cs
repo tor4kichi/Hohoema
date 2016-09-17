@@ -19,18 +19,37 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class PortalPageViewModel : HohoemaViewModelBase
 	{
-		public AppMapContainerViewModel Root { get; private set; }
+		public SelectableAppMapContainerViewModel Root { get; private set; }
 
 		public PortalPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
 			: base(hohoemaApp, pageManager)
 		{
-			Root = new AppMapContainerViewModel(HohoemaApp.AppMapManager.Root, PageManager);
+			Root = new SelectableAppMapContainerViewModel(HohoemaApp.AppMapManager.Root, PageManager);
 		}
 
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			await HohoemaApp.AppMapManager.Refresh();
 		}
+
+
+		internal static AppMapItemViewModel AppMapObjectToViewModel(IAppMapItem item, PageManager pageManager)
+		{
+			if (item is ISelectableAppMapContainer)
+			{
+				return new SelectableAppMapContainerViewModel(item as ISelectableAppMapContainer, pageManager);
+			}
+			else if (item is ISelfGenerateAppMapContainer)
+			{
+				return new SelfGenerateAppMapContainerViewModel(item as ISelfGenerateAppMapContainer, pageManager);
+			}
+			else
+			{
+				return new AppMapItemViewModel(item, pageManager);
+			}
+		}
+
+
 	}
 
 
@@ -68,19 +87,23 @@ namespace NicoPlayerHohoema.ViewModels
 		
 	}
 
-	public class AppMapContainerViewModel : AppMapItemViewModel, IDisposable
+
+	abstract public class AppMapContainerViewModelBase : AppMapItemViewModel, IDisposable
 	{
-		public SelectableAppMapContainerBase Container { get; private set; }
+
+		public IAppMapContainer OriginalContainer { get; set; }
 
 		public ReadOnlyReactiveCollection<AppMapItemViewModel> Items { get; private set; }
 
 		IDisposable _CollectionDisposer;
-		public AppMapContainerViewModel(SelectableAppMapContainerBase container, PageManager pageManager)
-			: base (container, pageManager)
+
+		public AppMapContainerViewModelBase(IAppMapContainer container, PageManager pageManager)
+			: base(container, pageManager)
 		{
-			Container = container;
+			OriginalContainer = container;
+
 			Items = container.DisplayItems
-				.ToReadOnlyReactiveCollection(x => AppMapObjectToViewModel(x));
+				.ToReadOnlyReactiveCollection(x => PortalPageViewModel.AppMapObjectToViewModel(x, pageManager));
 
 			_CollectionDisposer = Items.CollectionChangedAsObservable()
 				.Subscribe(x =>
@@ -100,19 +123,37 @@ namespace NicoPlayerHohoema.ViewModels
 			Items?.Dispose();
 			_CollectionDisposer?.Dispose();
 		}
+	}
 
-		private AppMapItemViewModel AppMapObjectToViewModel(IAppMapItem item)
+
+	public class SelectableAppMapContainerViewModel : AppMapContainerViewModelBase
+	{
+		public ISelectableAppMapContainer Container { get; private set; }
+
+		public SelectableAppMapContainerViewModel(ISelectableAppMapContainer container, PageManager pageManager)
+			: base (container, pageManager)
 		{
-			if (item is SelectableAppMapContainerBase)
-			{
-				return new AppMapContainerViewModel(item as SelectableAppMapContainerBase, PageManager);
-			}
-			else 
-			{
-				return new AppMapItemViewModel(item, PageManager);
-			}
+			Container = container;
+			
 		}
 
 		
+
+		
+	}
+
+
+
+	public class SelfGenerateAppMapContainerViewModel : AppMapContainerViewModelBase
+	{
+		public ISelfGenerateAppMapContainer Container { get; private set; }
+
+		public SelfGenerateAppMapContainerViewModel(ISelfGenerateAppMapContainer container, PageManager pageManager)
+			: base(container, pageManager)
+		{
+			Container = container;
+			
+		}
+
 	}
 }
