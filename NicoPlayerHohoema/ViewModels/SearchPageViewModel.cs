@@ -111,13 +111,15 @@ namespace NicoPlayerHohoema.ViewModels
 					Order = Mntone.Nico2.Order.Ascending,
 					Sort = Sort.MylistCount,
 				},
-
+				// V1APIだとサポートしてない
+				/* 
 				new SearchSortOptionListItem()
 				{
 					Label = "人気の高い順",
 					Sort = Sort.Popurarity,
 					Order = Mntone.Nico2.Order.Descending,
 				},
+				*/
 			};
 			#endregion
 
@@ -455,11 +457,11 @@ namespace NicoPlayerHohoema.ViewModels
 //			VideoListingResponse res = null;
 			if (SearchOption.SearchTarget == SearchTarget.Keyword)
 			{
-				res = await _HohoemaApp.ContentFinder.GetKeywordSearch(SearchOption.Keyword, (uint)start, (uint)count);
+				res = await _HohoemaApp.ContentFinder.GetKeywordSearch(SearchOption.Keyword, (uint)start, (uint)count, SearchOption.Sort, SearchOption.Order);
 			}
 			else if (SearchOption.SearchTarget == SearchTarget.Tag)
 			{
-				res = await _HohoemaApp.ContentFinder.GetTagSearch(SearchOption.Keyword, (uint)start, (uint)count);
+				res = await _HohoemaApp.ContentFinder.GetTagSearch(SearchOption.Keyword, (uint)start, (uint)count, SearchOption.Sort, SearchOption.Order);
 			}
 
 			if (res == null && res.VideoInfoItems == null)
@@ -494,13 +496,13 @@ namespace NicoPlayerHohoema.ViewModels
 			int totalCount = 0;
 			if (SearchOption.SearchTarget == SearchTarget.Keyword)
 			{
-				var res = await _HohoemaApp.ContentFinder.GetKeywordSearch(SearchOption.Keyword, 0, 2);
+				var res = await _HohoemaApp.ContentFinder.GetKeywordSearch(SearchOption.Keyword, 0, 2, SearchOption.Sort, SearchOption.Order);
 				totalCount = (int)res.GetTotalCount();
 
 			}
 			else if (SearchOption.SearchTarget == SearchTarget.Tag)
 			{
-				var res = await _HohoemaApp.ContentFinder.GetTagSearch(SearchOption.Keyword, 0, 2);
+				var res = await _HohoemaApp.ContentFinder.GetTagSearch(SearchOption.Keyword, 0, 2, SearchOption.Sort, SearchOption.Order);
 				totalCount = (int)res.GetTotalCount();
 			}
 
