@@ -253,20 +253,8 @@ namespace NicoPlayerHohoema
 
 			await RegisterTypes();
 
-			var cachedList = VideoInfoDb.GetAll();
-
 			var hohoemaApp = Container.Resolve<HohoemaApp>();
 
-			TimeSpan expirationTimeSpan = TimeSpan.FromDays(3);
-			DateTime expirationDate = DateTime.Now.Subtract(expirationTimeSpan);
-			foreach (var cachedInfo in cachedList)
-			{
-				if (cachedInfo.LastUpdated < expirationDate)
-				if (!hohoemaApp.MediaManager.CacheRequestedItemsStack.Any(x => cachedInfo.VideoId == x.RawVideoid))
-				{
-					await VideoInfoDb.RemoveAsync(cachedInfo);
-				}
-			}
 
 			//			var playNicoVideoEvent = EventAggregator.GetEvent<PlayNicoVideoEvent>();
 			//			playNicoVideoEvent.Subscribe(PlayNicoVideoInPlayerWindow);
@@ -300,7 +288,6 @@ namespace NicoPlayerHohoema
 
 			Container.RegisterType<ViewModels.RankingCategoryPageViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.HistoryPageViewModel>(new ContainerControlledLifetimeManager());
-			//			Container.RegisterType<ViewModels.SubscriptionPageViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.UserVideoPageViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.SearchPageViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.MylistPageViewModel>(new ContainerControlledLifetimeManager());
@@ -308,10 +295,7 @@ namespace NicoPlayerHohoema
 			Container.RegisterType<ViewModels.FeedVideoListPageViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.UserMylistPageViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.CacheManagementPageViewModel>(new ContainerControlledLifetimeManager());
-			//			Container.RegisterType<ViewModels.PortalContent.MylistPortalPageContentViewModel>(new ContainerControlledLifetimeManager());
-			//			Container.RegisterType<ViewModels.PortalContent.FavPortalPageContentViewModel>(new ContainerControlledLifetimeManager());
-			//			Container.RegisterType<ViewModels.PortalContent.HistoryPortalPageContentViewModel>(new ContainerControlledLifetimeManager());
-
+			Container.RegisterType<ViewModels.PortalPageViewModel>(new ContainerControlledLifetimeManager());
 
 
 			// Service

@@ -116,6 +116,16 @@
     </Compile>
     <Compile Include="Events\PlayerClosedEvent.cs" />
     <Compile Include="Events\PlayNicoVideoEvent.cs" />
+    <Compile Include="Models\AppMap\AppMap.cs" />
+    <Compile Include="Models\AppMap\AppMapItem.cs" />
+    <Compile Include="Models\AppMap\AppMapContainerBase.cs" />
+    <Compile Include="Models\AppMap\CachedVideoAppMapContainer.cs" />
+    <Compile Include="Models\AppMap\FavAppMapContainer.cs" />
+    <Compile Include="Models\AppMap\FeedGroupAppMapContainer.cs" />
+    <Compile Include="Models\AppMap\UserMylistAppMapContainer.cs" />
+    <Compile Include="Models\AppMap\RankingCategoriesAppMapContainer.cs" />
+    <Compile Include="Models\AppMap\SearchAppMapContainer.cs" />
+    <Compile Include="Models\AppMap\VideoPlayHistoryAppMapContainer.cs" />
     <Compile Include="Models\BackgroundUpdater.cs" />
     <Compile Include="Models\CommentCommandPermissionType.cs" />
     <Compile Include="Models\Db\History\HistoryDbContext.cs" />
@@ -148,6 +158,7 @@
     <Compile Include="Models\HohoemaPageType.cs" />
     <Compile Include="Models\LisenceSummary.cs" />
     <Compile Include="Models\MediaBackgroundTask.cs" />
+    <Compile Include="Models\Settings\AppMapSettings.cs" />
     <Compile Include="Models\Settings\CacheSettings.cs" />
     <Compile Include="Models\UserMylistManager.cs" />
     <Compile Include="Models\Video\DividedQualityNicoVideo.cs" />
@@ -209,7 +220,6 @@
     <Compile Include="ViewModels\LoginPageViewModel.cs" />
     <Compile Include="ViewModels\MenuNavigatePageBaseViewModel.cs" />
     <Compile Include="ViewModels\MylistPageViewModel.cs" />
-    <Compile Include="ViewModels\PortalContent\HistoryPortalPageContentViewModel.cs" />
     <Compile Include="ViewModels\SearchContent\EmptySearchPageContentViewModel.cs" />
     <Compile Include="ViewModels\SearchContent\KeywordSearchPageContentViewModel.cs" />
     <Compile Include="ViewModels\SearchContent\MylistSearchPageContentViewModel.cs" />
@@ -302,9 +312,6 @@
     <Compile Include="Views\MylistPage.xaml.cs">
       <DependentUpon>MylistPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\PortalContent\HistoryPortalPageContent.xaml.cs">
-      <DependentUpon>HistoryPortalPageContent.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\RankingChoiceContentDialog.xaml.cs">
       <DependentUpon>RankingChoiceContentDialog.xaml</DependentUpon>
     </Compile>
@@ -321,11 +328,6 @@
       <DependentUpon>TagSearchPageContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\VideoPlayerPageViewModel.cs" />
-    <Compile Include="ViewModels\PortalContent\AppPortalPageContentViewModel.cs" />
-    <Compile Include="ViewModels\PortalContent\FeedPortalPageContentViewModel.cs" />
-    <Compile Include="ViewModels\PortalContent\MylistPortalPageContentViewModel.cs" />
-    <Compile Include="ViewModels\PortalContent\RankingPortalPageContentViewModel.cs" />
-    <Compile Include="ViewModels\PortalContent\SearchPortalPageContentViewModel.cs" />
     <Compile Include="ViewModels\PortalPageViewModel.cs" />
     <Compile Include="ViewModels\RankingCategoryListPageViewModel.cs" />
     <Compile Include="ViewModels\RankingCategoryPageViewModel.cs" />
@@ -406,21 +408,6 @@
     </Compile>
     <Compile Include="Views\VideoPlayerPage.xaml.cs">
       <DependentUpon>VideoPlayerPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\PortalContent\AppPortalPageContent.xaml.cs">
-      <DependentUpon>AppPortalPageContent.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\PortalContent\FeedPortalPageContent.xaml.cs">
-      <DependentUpon>FeedPortalPageContent.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\PortalContent\MylistPortalPageContent.xaml.cs">
-      <DependentUpon>MylistPortalPageContent.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\PortalContent\RankingPortalPageContent.xaml.cs">
-      <DependentUpon>RankingPortalPageContent.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\PortalContent\SearchPortalPageContent.xaml.cs">
-      <DependentUpon>SearchPortalPageContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\PortalPage.xaml.cs">
       <DependentUpon>PortalPage.xaml</DependentUpon>
@@ -618,10 +605,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\PortalContent\HistoryPortalPageContent.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\RankingChoiceContentDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -691,26 +674,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\VideoPlayerPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\PortalContent\AppPortalPageContent.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\PortalContent\FeedPortalPageContent.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\PortalContent\MylistPortalPageContent.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\PortalContent\RankingPortalPageContent.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\PortalContent\SearchPortalPageContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
