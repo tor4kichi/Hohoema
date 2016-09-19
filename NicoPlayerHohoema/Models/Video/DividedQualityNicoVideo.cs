@@ -179,6 +179,11 @@ namespace NicoPlayerHohoema.Models
 			if (IsCacheRequested)
 			{
 				var videoCacheFolder = await _Context.GetVideoCacheFolder();
+				if (videoCacheFolder == null)
+				{
+					return;
+				}
+
 				var videoFile = await videoCacheFolder.TryGetItemAsync(VideoFileName) as StorageFile;
 				var existVideo = videoFile != null;
 
