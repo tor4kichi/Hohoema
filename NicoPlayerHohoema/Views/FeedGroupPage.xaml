@@ -70,7 +70,8 @@
                     <Button.Flyout>
                         <Flyout>
                             <StackPanel Orientation="Horizontal">
-                                <TextBox Text="{Binding FeedGroupName.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="120">
+                                <TextBox Text="{Binding FeedGroupName.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="120"
+                                         >
                                     <i:Interaction.Behaviors>
                                         <mybehavior:KeyboardTrigger Key="Enter">
                                             <mybehavior:KeyboardTrigger.Actions>
@@ -147,7 +148,15 @@
                                              GroupName="MylistFavSelctionGroup"
                                              IsChecked="{Binding SelectFromFavItems.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource InvertBoolean}}"
                                              toolkit:DockPanel.Dock="Left"
-                                             />
+                                             >
+                                        <i:Interaction.Behaviors>
+                                            <!-- Note: AU済み端末でテキストボックスへのフォーカスができない問題への応急措置 -->
+                                            <core:EventTriggerBehavior EventName="Tapped">
+                                                <mybehavior:SetFocus TargetObject="{Binding ElementName=MylistCustomText}" />
+                                            </core:EventTriggerBehavior>
+                                        </i:Interaction.Behaviors>
+
+                                    </RadioButton>
 
                                     <StackPanel Orientation="Horizontal" 
                                                 toolkit:DockPanel.Dock="Bottom"
@@ -171,6 +180,7 @@
                                              HorizontalAlignment="Right"
                                              MinWidth="120"
                                              IsEnabled="{Binding SelectFromFavItems.Value, Converter={StaticResource InvertBoolean}}"
+                                             x:Name="MylistCustomText"
                                              />
                                 </toolkit:DockPanel>
 
@@ -281,13 +291,21 @@
                                              GroupName="TagFavSelctionGroup"
                                              IsChecked="{Binding SelectFromFavItems.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource InvertBoolean}}"
                                              toolkit:DockPanel.Dock="Left"
-                                             />
+                                             >
+                                        <i:Interaction.Behaviors>
+                                            <!-- Note: AU済み端末でテキストボックスへのフォーカスができない問題への応急措置 -->
+                                            <core:EventTriggerBehavior EventName="Tapped">
+                                                <mybehavior:SetFocus TargetObject="{Binding ElementName=TagCustomText}" />
+                                            </core:EventTriggerBehavior>
+                                        </i:Interaction.Behaviors>
+                                    </RadioButton>
 
                                     <TextBox Text="{Binding FeedSourceId.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                                              ext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
                                              HorizontalAlignment="Right"
                                              MinWidth="120"
                                              IsEnabled="{Binding SelectFromFavItems.Value, Converter={StaticResource InvertBoolean}}"
+                                             x:Name="TagCustomText"
                                              />
                                 </toolkit:DockPanel>
 
@@ -387,7 +405,6 @@
                                               DisplayMemberPath="Name" 
                                               HorizontalAlignment="Right"
                                               MinWidth="120"
-                                              IsEnabled="{Binding SelectFromFavItems.Value}"
                                           />
 
                                 </toolkit:DockPanel>
@@ -397,7 +414,14 @@
                                              GroupName="TagFavSelctionGroup"
                                              IsChecked="{Binding SelectFromFavItems.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource InvertBoolean}}"
                                              toolkit:DockPanel.Dock="Left"
-                                             />
+                                             >
+                                        <i:Interaction.Behaviors>
+                                            <!-- Note: AU済み端末でテキストボックスへのフォーカスができない問題への応急措置 -->
+                                            <core:EventTriggerBehavior EventName="Tapped">
+                                                <mybehavior:SetFocus TargetObject="{Binding ElementName=UserCustomText}" />
+                                            </core:EventTriggerBehavior>
+                                        </i:Interaction.Behaviors>
+                                    </RadioButton>
 
                                     <StackPanel Orientation="Horizontal" 
                                                 toolkit:DockPanel.Dock="Bottom"
@@ -408,6 +432,7 @@
                                                    FontSize="12"
                                                    Opacity="0.7"
                                                    Visibility="{Binding CanUseFeedSource.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                                   
                                                    />
 
                                         <TextBlock>
@@ -415,13 +440,16 @@
                                         </TextBlock>
 
                                     </StackPanel>
-                                    
+
                                     <TextBox Text="{Binding FeedSourceId.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                                              ext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
                                              HorizontalAlignment="Right"
                                              MinWidth="120"
                                              IsEnabled="{Binding SelectFromFavItems.Value, Converter={StaticResource InvertBoolean}}"
-                                             />
+                                             x:Name="UserCustomText"
+                                             >
+                                        
+                                    </TextBox>
                                 </toolkit:DockPanel>
 
                                 <Button Content="追加" 
