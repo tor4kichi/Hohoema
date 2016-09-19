@@ -233,7 +233,7 @@
                                 />
 
 
-                   
+                    
 
 
 
@@ -304,7 +304,7 @@
                         </Border>
                     </Grid>
 
-                    
+
 
                     <toolkit:DockPanel HorizontalAlignment="Stretch"
                            VerticalAlignment="Stretch"
@@ -322,7 +322,10 @@
                                     <core:EventTriggerBehavior SourceObject="{Binding ElementName=MediaControl}" EventName="Tapped">
                                         <core:CallMethodAction TargetObject="{Binding ElementName=AutoHideBehavior}" MethodName="PreventAutoHide" />
                                     </core:EventTriggerBehavior>
-                                    <core:EventTriggerBehavior SourceObject="{Binding ElementName=MediaControl}" EventName="PointerMoved">
+                                    <core:EventTriggerBehavior SourceObject="{Binding ElementName=TopMouseMoveContainer}" EventName="PointerMoved">
+                                        <core:CallMethodAction TargetObject="{Binding ElementName=AutoHideBehavior}" MethodName="PreventAutoHide" />
+                                    </core:EventTriggerBehavior>
+                                    <core:EventTriggerBehavior SourceObject="{Binding ElementName=BottomMouseMoveContainer}" EventName="PointerMoved">
                                         <core:CallMethodAction TargetObject="{Binding ElementName=AutoHideBehavior}" MethodName="PreventAutoHide" />
                                     </core:EventTriggerBehavior>
 
@@ -339,9 +342,10 @@
 
                         <!-- トップバー -->
                         <toolkit:DockPanel toolkit:DockPanel.Dock="Top"
-                                          
                                    >
 
+                            
+                            
                             <StackPanel x:Name="TopBarControlButtons_Short"
                                         toolkit:DockPanel.Dock="Bottom"
                                         HorizontalAlignment="Right"
@@ -820,6 +824,19 @@
 
                     </Grid>
 
+
+                    <!-- 上側のマウス移動の検知用コリジョン -->
+                    <Border VerticalAlignment="Top" x:Name="TopMouseMoveContainer" Background="Transparent"
+                            Height="64"
+                            >
+
+                    </Border>
+                    <!-- 下側のマウス移動の検知用コリジョン -->
+                    <Border VerticalAlignment="Bottom" x:Name="BottomMouseMoveContainer" Background="Transparent"
+                            Height="96"
+                            >
+
+                    </Border>
 
 
                     <!-- サポートされていないプロトコル・動画形式 -->
