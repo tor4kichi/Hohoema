@@ -106,9 +106,9 @@
                                     Value="Stretch" 
                                         />
                     <Setter Property="Margin"
-                                    Value="0 0 0 8" 
+                                    Value="0 0 0 0" 
                                     />
-                    <Setter Property="Padding" Value="0 1 16 2" />
+                    <Setter Property="Padding" Value="0 0 16 0" />
                 </Style>
             </ListView.ItemContainerStyle>
 
@@ -128,7 +128,7 @@
 
                 <DataTemplate>
 
-                    <Grid>
+                    <Grid BorderBrush="{ThemeResource AppBarBorderThemeBrush}" BorderThickness="0 0 0 1" >
 
                         <i:Interaction.Behaviors>
                             <core:EventTriggerBehavior EventName="Tapped">
@@ -142,8 +142,8 @@
                                         ContentTemplateSelector="{StaticResource listItemTemplateSelector}"
                                         HorizontalContentAlignment="Stretch"
                                         VerticalContentAlignment="Stretch"
+                                        Margin="0 4"
                                         />
-
                     </Grid>
                 </DataTemplate>
             
