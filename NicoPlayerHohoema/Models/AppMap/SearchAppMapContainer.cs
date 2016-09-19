@@ -13,6 +13,8 @@ namespace NicoPlayerHohoema.Models.AppMap
 			
 		}
 
+		public override ContainerItemDisplayType ItemDisplayType => ContainerItemDisplayType.Card;
+
 		protected override Task<IEnumerable<IAppMapItem>> GenerateItems(int count)
 		{
 			var histories = Db.SearchHistoryDb.GetHistoryItems();

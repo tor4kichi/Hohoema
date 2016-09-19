@@ -16,6 +16,9 @@ namespace NicoPlayerHohoema.Models.AppMap
 		{
 		}
 
+		public override ContainerItemDisplayType ItemDisplayType => ContainerItemDisplayType.Card;
+
+
 		protected override Task<IEnumerable<IAppMapItem>> MakeAllItems()
 		{
 			var rankingCategories = Enum.GetValues(typeof(RankingCategory)).Cast<RankingCategory>();

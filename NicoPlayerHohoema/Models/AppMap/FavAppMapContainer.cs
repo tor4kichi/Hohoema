@@ -17,6 +17,10 @@ namespace NicoPlayerHohoema.Models.AppMap
 			FavManager = favManager;
 		}
 
+
+		public override ContainerItemDisplayType ItemDisplayType => ContainerItemDisplayType.Card;
+
+
 		protected override Task<IEnumerable<IAppMapItem>> MakeAllItems()
 		{
 			// TODO: FavManagerを最新の情報に更新

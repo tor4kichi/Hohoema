@@ -21,14 +21,63 @@
         
 
 
-        <DataTemplate x:Key="ContainerTemplate">
+        
+        <DataTemplate x:Key="CardContainerTemplate">
 
-            <Grid MaxWidth="400" BorderBrush="DimGray" BorderThickness="1" CornerRadius="8" >
+            <Grid Margin="0 0 0 0">
 
-                <Border Background="{Binding Item.ThemeColor, Converter={StaticResource ColorToBrush}}"
-                        Opacity="0.5"
-                        ></Border>
-                
+                <toolkit:DockPanel>
+
+                    <Border Margin="0 0 0 0" 
+                        Visibility="{Binding IsHiddenLabel, Converter={StaticResource BooleanToVisibilityInverted}}"
+                        toolkit:DockPanel.Dock="Top"
+                        >
+                        <Button Content="{Binding Item.PrimaryLabel}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                Height="48"
+                                FontSize="20"
+                                Command="{Binding OpenItemPageCommand}"
+                                Background="{Binding OriginalContainer.ThemeColor, Converter={StaticResource ColorToBrush}}"
+                               />
+                    </Border>
+
+
+                    <ListView ItemsSource="{Binding Items}"
+                              ItemTemplate="{StaticResource ItemTemplate}"
+                              Margin="4 4 0 0"
+                              VerticalContentAlignment="Top"
+                              ScrollViewer.VerticalScrollMode="Disabled"
+                              ScrollViewer.HorizontalScrollMode="Enabled"
+                                >
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <toolkit:WrapPanel Orientation="Horizontal"
+                                                   />
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
+
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Margin" Value="0 0 4 4" />
+                                <Setter Property="Padding" Value="0" />
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+
+                    </ListView>
+
+                </toolkit:DockPanel>
+
+            </Grid>
+
+        </DataTemplate>
+        
+        <DataTemplate x:Key="TextContainerTemplate">
+
+            <Grid Margin="0 0 0 0">
+
                 <toolkit:DockPanel>
 
                     <Border Margin="0 0 0 4" 
@@ -36,54 +85,239 @@
                         toolkit:DockPanel.Dock="Top"
                         >
                         <Button Content="{Binding Item.PrimaryLabel}"
-                               Margin="8"
                                 HorizontalAlignment="Stretch"
                                 HorizontalContentAlignment="Left"
+                                Height="48"
+                                FontSize="20"
                                 Command="{Binding OpenItemPageCommand}"
+                                Background="{Binding OriginalContainer.ThemeColor, Converter={StaticResource ColorToBrush}}"
                                />
                     </Border>
 
-                    <uwptoolkit:AdaptiveGridView ItemsSource="{Binding Items}"
-                                                 ItemTemplate="{StaticResource ItemTemplate}"
-                                                 ItemHeight="48"
-                                                 DesiredWidth="130"
-                                                 HorizontalContentAlignment="Left"
-                                             />
+
+                    <ListView ItemsSource="{Binding Items}"
+                                    ItemTemplate="{StaticResource ItemTemplate}"
+                                  
+                                    Margin="0 0 0 0"
+                                >
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Margin" Value="0 0 0 1" />
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+
+                    </ListView>
+
                 </toolkit:DockPanel>
 
             </Grid>
-            
+
         </DataTemplate>
 
 
+        <DataTemplate x:Key="MobileCardContainerTemplate">
+
+            <toolkit:DockPanel>
+
+                <Button Content="{Binding Item.PrimaryLabel}"
+                        toolkit:DockPanel.Dock="Top"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        HorizontalContentAlignment="Left"
+                        FontSize="20"
+                        Command="{Binding OpenItemPageCommand}"
+                        Background="{Binding OriginalContainer.ThemeColor, Converter={StaticResource ColorToBrush}}"
+                        Margin="0 0 0 0"
+                        />
+
+                <ListView ItemsSource="{Binding Items}"
+                                    ItemTemplate="{StaticResource ItemTemplate}"
+                                  VerticalContentAlignment="Bottom"
+                              Margin="4 4 0 0"
+                              
+                              ScrollViewer.VerticalScrollMode="Disabled"
+                              ScrollViewer.HorizontalScrollMode="Enabled"
+                                >
+                    <ListView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <toolkit:WrapPanel Orientation="Horizontal"
+                                                />
+                        </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
+
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="Margin" Value="0 0 4 4" />
+                            <Setter Property="Padding" Value="0" />
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+
+                </ListView>
+
+
+            </toolkit:DockPanel>
+
+        </DataTemplate>
+
+        <DataTemplate x:Key="MobileTextContainerTemplate">
+
+            <toolkit:DockPanel>
+
+                <Button Content="{Binding Item.PrimaryLabel}"
+                        toolkit:DockPanel.Dock="Top"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        HorizontalContentAlignment="Left"
+                        FontSize="20"
+                        Command="{Binding OpenItemPageCommand}"
+                        Background="{Binding OriginalContainer.ThemeColor, Converter={StaticResource ColorToBrush}}"
+                        Margin="0 0 0 4"
+                        />
+
+                <ListView ItemsSource="{Binding Items}"
+                          ItemTemplate="{StaticResource ItemTemplate}"        
+                          Margin="0 0 0 0"
+                          >
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="Margin" Value="0 0 0 1" />
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                </ListView>
+
+
+            </toolkit:DockPanel>
+
+        </DataTemplate>
+
         <DataTemplate x:Key="ItemTemplate">
-            <Button Content="{Binding Item.PrimaryLabel}"
-                    Command="{Binding OpenItemPageCommand}"
-                    Background="{Binding Item.ThemeColor, Converter={StaticResource ColorToBrush}}"
+            <Button Command="{Binding OpenItemPageCommand}"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
                     HorizontalContentAlignment="Center"
                     VerticalContentAlignment="Center"
+                    Margin="0 0 0 0"
                     >
 
+                <StackPanel>
+                    <TextBlock Text="{Binding Item.PrimaryLabel}"
+                               HorizontalAlignment="Center"
+                               TextWrapping="Wrap"
+                               />
+                    <TextBlock Text="{Binding Item.SecondaryLabel}"
+                               Opacity="0.8"
+                               FontSize="12"
+                               Visibility="{Binding IsHiddenSecondaryLabel, Converter={StaticResource BooleanToVisibilityInverted}}"
+                               HorizontalAlignment="Center"
+                               />
+                </StackPanel>
             </Button>
+
         </DataTemplate>
 
         <local:AppMapItemDataTemplateSelector x:Key="AppMapItemDataTemplateSelector"
-                                              Container="{StaticResource ContainerTemplate}"
+                                              CardContainer="{StaticResource CardContainerTemplate}"
+                                              TextListContainer="{StaticResource TextContainerTemplate}"
+                                              Item="{StaticResource ItemTemplate}"
+                                              />
+
+        <local:AppMapItemDataTemplateSelector x:Key="Mobile_AppMapItemDataTemplateSelector"
+                                              CardContainer="{StaticResource MobileCardContainerTemplate}"
+                                              TextListContainer="{StaticResource MobileTextContainerTemplate}"
                                               Item="{StaticResource ItemTemplate}"
                                               />
     </Page.Resources>
 
 
 
-    <ScrollViewer>
+    <Grid>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="TopBarStateGroup">
 
-        <ItemsControl ItemsSource="{Binding Root.Items}"
-                      ItemTemplateSelector="{StaticResource AppMapItemDataTemplateSelector}"
-                                               
-                                             />
-    </ScrollViewer>
+                <!-- 一番幅が広いとき -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="721" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="DesktopGridView.Visibility" Value="Visible" />
+                        <Setter Target="MobileGridView.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+                <!-- 中ぐらい -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="521" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="DesktopGridView.Visibility" Value="Visible" />
+                        <Setter Target="MobileGridView.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+                <!-- 超狭い -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="DesktopGridView.Visibility" Value="Collapsed" />
+                        <Setter Target="MobileGridView.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
 
+
+        <ScrollViewer>
+            <StackPanel>
+                <ItemsControl      x:Name="DesktopGridView"      
+                           ItemsSource="{Binding Root.Items}"
+                           ItemTemplateSelector="{StaticResource AppMapItemDataTemplateSelector}"
+                                   Margin="8 8 0 0"
+            >
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ContentPresenter">
+                            <Setter Property="Margin" Value="0 0 8 8" />
+                            <Setter Property="MinWidth" Value="280" />
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+                    <ItemsControl.ItemsPanel>
+
+                        <ItemsPanelTemplate>
+                            <toolkit:WrapPanel 
+                                    >
+                            </toolkit:WrapPanel>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+
+                <ItemsControl  x:Name="MobileGridView"
+                                ItemsSource="{Binding Root.Items}"
+                           ItemTemplateSelector="{StaticResource Mobile_AppMapItemDataTemplateSelector}"
+                                    >
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ContentPresenter">
+                            <Setter Property="Margin" Value="0 0 0 8" />
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+
+                </ItemsControl>
+
+                <Border Height="32" />
+            </StackPanel>
+           
+
+        </ScrollViewer>
+        
+    </Grid>
+
+    
+       
 
 </Page>

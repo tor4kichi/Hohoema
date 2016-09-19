@@ -16,6 +16,8 @@ namespace NicoPlayerHohoema.Models.AppMap
 			UserMylistManager = mylistManager;
 		}
 
+		public override ContainerItemDisplayType ItemDisplayType => ContainerItemDisplayType.Card;
+
 		protected override Task<IEnumerable<IAppMapItem>> MakeAllItems()
 		{
 			var mylists = UserMylistManager.UserMylists.ToArray();

@@ -60,9 +60,9 @@ namespace NicoPlayerHohoema.Models.AppMap
 				HohoemaPageType.RankingCategoryList,
 				HohoemaPageType.FavoriteManage,
 				HohoemaPageType.UserMylist,
-				HohoemaPageType.History,
 				HohoemaPageType.FeedGroupManage,
 				HohoemaPageType.CacheManagement,
+				HohoemaPageType.History,
 			};
 
 		public HohoemaApp HohoemaApp { get; private set; }

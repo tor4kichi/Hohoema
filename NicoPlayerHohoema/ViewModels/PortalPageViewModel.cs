@@ -59,6 +59,9 @@ namespace NicoPlayerHohoema.ViewModels
 		public IAppMapItem Item { get; private set; }
 
 		public bool IsHiddenLabel { get; private set; }
+		public bool IsHiddenSecondaryLabel { get; private set; }
+
+
 
 		public PageManager PageManager { get; private set; }
 
@@ -68,6 +71,7 @@ namespace NicoPlayerHohoema.ViewModels
 			PageManager = pageManager;
 
 			IsHiddenLabel = Item.PageType == HohoemaPageType.Portal;
+			IsHiddenSecondaryLabel = String.IsNullOrWhiteSpace(Item.SecondaryLabel);
 		}
 
 
@@ -90,12 +94,15 @@ namespace NicoPlayerHohoema.ViewModels
 
 	abstract public class AppMapContainerViewModelBase : AppMapItemViewModel, IDisposable
 	{
-
 		public IAppMapContainer OriginalContainer { get; set; }
 
 		public ReadOnlyReactiveCollection<AppMapItemViewModel> Items { get; private set; }
 
 		IDisposable _CollectionDisposer;
+
+
+		public int ItemWidth { get; private set; }
+		public int ItemHeight { get; private set; }
 
 		public AppMapContainerViewModelBase(IAppMapContainer container, PageManager pageManager)
 			: base(container, pageManager)
@@ -116,6 +123,24 @@ namespace NicoPlayerHohoema.ViewModels
 						}
 					}
 				});
+
+			switch (OriginalContainer.ItemDisplayType)
+			{
+				case ContainerItemDisplayType.Normal:
+					ItemWidth = 200;
+					ItemHeight = 48;
+					break;
+				case ContainerItemDisplayType.Card:
+					ItemWidth = 80;
+					ItemHeight = 80;
+					break;
+				case ContainerItemDisplayType.TwoLineText:
+					ItemWidth = 392;
+					ItemHeight = 56;
+					break;
+				default:
+					break;
+			}
 		}
 
 		public void Dispose()

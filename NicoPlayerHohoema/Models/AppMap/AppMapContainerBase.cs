@@ -9,11 +9,20 @@ using Windows.UI;
 
 namespace NicoPlayerHohoema.Models.AppMap
 {
+	public enum ContainerItemDisplayType
+	{
+		Normal,
+		Card,
+		TwoLineText,
+	}
+
 	public interface IAppMapContainer : IAppMapItem
 	{
 		ReadOnlyObservableCollection<IAppMapItem> DisplayItems { get; }
 		uint ItemsCount { get; }
 		Windows.UI.Color ThemeColor { get; }
+
+		ContainerItemDisplayType ItemDisplayType { get; }
 
 		Task Refresh();
 	}
@@ -34,15 +43,15 @@ namespace NicoPlayerHohoema.Models.AppMap
 		public HohoemaPageType PageType { get; private set; }
 		[DataMember]
 		public string Parameter { get; private set; }
-		[DataMember]
-		public Windows.UI.Color ThemeColor { get; private set; }
 
+		public virtual Windows.UI.Color ThemeColor => PageType.ToHohoemaPageTypeToDefaultColor();
+
+		public virtual ContainerItemDisplayType ItemDisplayType => ContainerItemDisplayType.Normal;
 
 		public AppMapContainerBase(HohoemaPageType pageType, string parameter = null, string label = null)
 		{
 			DisplayItems = new ReadOnlyObservableCollection<IAppMapItem>(_DisplayItems);
 			PrimaryLabel = label == null ? PageManager.PageTypeToTitle(pageType) : label;
-			ThemeColor = pageType.ToHohoemaPageTypeToDefaultColor();
 			PageType = pageType;
 			Parameter = parameter;
 
@@ -131,9 +140,9 @@ namespace NicoPlayerHohoema.Models.AppMap
 
 			foreach (var selected in DisplayItems)
 			{
-				if (selected is SelectableAppMapContainerBase)
-				{
-					await (selected as SelectableAppMapContainerBase).Refresh();
+				if (selected is IAppMapContainer)
+				{ 
+					await (selected as IAppMapContainer).Refresh();
 				}
 			}
 
@@ -197,7 +206,7 @@ namespace NicoPlayerHohoema.Models.AppMap
 	[DataContract]
 	abstract public class SelfGenerateAppMapContainerBase : AppMapContainerBase, ISelfGenerateAppMapContainer
 	{
-		public virtual int DefaultDisplayCount => 5;
+		public virtual int DefaultDisplayCount => 10;
 
 		[DataMember]
 		public int DisplayCount { get; set; }
@@ -209,6 +218,7 @@ namespace NicoPlayerHohoema.Models.AppMap
 			DisplayCount = DefaultDisplayCount;
 		}
 
+		public override ContainerItemDisplayType ItemDisplayType => ContainerItemDisplayType.TwoLineText;
 
 		abstract protected Task<IEnumerable<IAppMapItem>> GenerateItems(int count);
 
