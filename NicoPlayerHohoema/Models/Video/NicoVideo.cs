@@ -188,6 +188,7 @@ namespace NicoPlayerHohoema.Models
 				ThreadId = watchApiRes.ThreadId.ToString();
 				PrivateReasonType = watchApiRes.PrivateReason;
 
+
 				this.IsDeleted = watchApiRes.IsDeleted;
 				if (IsDeleted)
 				{
@@ -537,7 +538,7 @@ namespace NicoPlayerHohoema.Models
 		public TimeSpan VideoLength { get; private set; }
 		public DateTime PostedAt { get; private set; }
 		public uint VideoOwnerId { get; private set; }
-		public bool IsOriginalQualityOnly => SizeLow == 0;
+		public bool IsOriginalQualityOnly => SizeLow == 0 || ContentType != MovieType.Mp4;
 		public List<Tag> Tags { get; private set; }
 		public uint SizeLow { get; private set; }
 		public uint SizeHigh { get; private set; }

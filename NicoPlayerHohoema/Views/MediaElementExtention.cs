@@ -34,6 +34,8 @@ namespace NicoPlayerHohoema.Views
 			{
 				var mediaElement = s as MediaElement;
 
+				mediaElement.Stop();
+
 				if (e.NewValue is IRandomAccessStream)
 				{
 					var stream = e.NewValue as IRandomAccessStream;
@@ -48,7 +50,7 @@ namespace NicoPlayerHohoema.Views
 
 					if (stream == null)
 					{
-						mediaElement.Stop();
+//						mediaElement.Stop();
 					}
 					else
 					{
@@ -57,7 +59,7 @@ namespace NicoPlayerHohoema.Views
 				}
 				else if (e.NewValue is FFmpegInterop.FFmpegInteropMSS)
 				{
-					mediaElement.Stop();
+//					mediaElement.Stop();
 
 					var mss = e.NewValue as FFmpegInterop.FFmpegInteropMSS;
 					mediaElement.SetMediaStreamSource(mss.GetMediaStreamSource());

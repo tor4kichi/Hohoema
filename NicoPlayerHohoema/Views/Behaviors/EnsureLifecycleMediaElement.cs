@@ -12,6 +12,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
 {
 	public class EnsureLifecycleMediaElement : Behavior<MediaElement>
 	{
+		public bool RecentlyPlayed { get; private set; }
 		protected override void OnAttached()
 		{
 			base.OnAttached();
@@ -21,19 +22,43 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
 		private void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
 		{
-			ApplicationView.GetForCurrentView().Consolidated += EnsureLifecycleMediaElement_Consolidated;
+			Window.Current.VisibilityChanged += Current_VisibilityChanged;
 			
+		}
+
+		private void Current_VisibilityChanged(object sender, Windows.UI.Core.VisibilityChangedEventArgs e)
+		{
+			if (e.Visible)
+			{
+				if (RecentlyPlayed)
+				{
+					this.AssociatedObject.Play();
+					RecentlyPlayed = false;
+				}
+			}
+			else
+			{
+				RecentlyPlayed = AssociatedObject.CurrentState == Windows.UI.Xaml.Media.MediaElementState.Playing
+					|| AssociatedObject.CurrentState == Windows.UI.Xaml.Media.MediaElementState.Opening
+					|| AssociatedObject.CurrentState == Windows.UI.Xaml.Media.MediaElementState.Buffering;
+
+				if (this.AssociatedObject.CanPause)
+				{
+					this.AssociatedObject.Pause();
+				}
+			}
 		}
 
 		private void EnsureLifecycleMediaElement_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)
 		{
-			this.AssociatedObject.Stop();
+			
 		}
 
 		protected override void OnDetaching()
 		{
 			base.OnDetaching();
 
+			Window.Current.VisibilityChanged -= Current_VisibilityChanged;
 		}
 	}
 }

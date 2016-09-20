@@ -211,7 +211,9 @@
                             <!-- MediaElementのバッファリング/再生の状態を読み取る -->
                             <mybehavior:MediaElementStateGetter State="{Binding CurrentState.Value, Mode=TwoWay}" />
 
-
+                            <!-- アプリライフサイクルに合わせて動画の再生と一時停止を行う
+                                
+                            -->
                             <mybehavior:EnsureLifecycleMediaElement />
 
                             <mybehavior:MediaElementContentHeightGetter ContentHeight="{Binding CommentCanvasHeight.Value, Mode=TwoWay}"
@@ -245,6 +247,19 @@
                                   VerticalAlignment="Top"
                                   Margin="24 88"      
                                   />
+
+                    <!-- 上側のマウス移動の検知用コリジョン -->
+                    <Border VerticalAlignment="Top" x:Name="TopMouseMoveContainer" Background="Transparent"
+                            Height="64"
+                            >
+
+                    </Border>
+                    <!-- 下側のマウス移動の検知用コリジョン -->
+                    <Border VerticalAlignment="Bottom" x:Name="BottomMouseMoveContainer" Background="Transparent"
+                            Height="96"
+                            >
+
+                    </Border>
 
                     <!-- playback toggle screen -->
                     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
@@ -318,6 +333,12 @@
                                          >
                                 <i:Interaction.Behaviors>
 
+                                    <core:EventTriggerBehavior SourceObject="{Binding ElementName=ControlUIRoot}" EventName="Tapped">
+                                        <core:CallMethodAction TargetObject="{Binding ElementName=AutoHideBehavior}" MethodName="PreventAutoHide" />
+                                    </core:EventTriggerBehavior>
+                                    <core:EventTriggerBehavior SourceObject="{Binding ElementName=ControlUIRoot}" EventName="PointerMoved">
+                                        <core:CallMethodAction TargetObject="{Binding ElementName=AutoHideBehavior}" MethodName="PreventAutoHide" />
+                                    </core:EventTriggerBehavior>
 
                                     <core:EventTriggerBehavior SourceObject="{Binding ElementName=MediaControl}" EventName="Tapped">
                                         <core:CallMethodAction TargetObject="{Binding ElementName=AutoHideBehavior}" MethodName="PreventAutoHide" />
@@ -825,18 +846,7 @@
                     </Grid>
 
 
-                    <!-- 上側のマウス移動の検知用コリジョン -->
-                    <Border VerticalAlignment="Top" x:Name="TopMouseMoveContainer" Background="Transparent"
-                            Height="64"
-                            >
-
-                    </Border>
-                    <!-- 下側のマウス移動の検知用コリジョン -->
-                    <Border VerticalAlignment="Bottom" x:Name="BottomMouseMoveContainer" Background="Transparent"
-                            Height="96"
-                            >
-
-                    </Border>
+                   
 
 
                     <!-- サポートされていないプロトコル・動画形式 -->
