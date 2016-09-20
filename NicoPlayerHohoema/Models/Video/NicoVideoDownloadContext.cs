@@ -449,7 +449,7 @@ namespace NicoPlayerHohoema.Models
 
 				if (_CurrentDownloader != null)
 				{
-					await _CurrentDownloader.StopDownload();
+					await _CurrentDownloader.StopDownload().ConfigureAwait(false);
 
 					_CurrentDownloader.OnCacheComplete -= DownloadCompleteAction;
 					_CurrentDownloader.OnCacheCanceled -= _CurrentDownloader_OnCacheCanceled;

@@ -75,20 +75,23 @@ namespace NicoPlayerHohoema
 			
 			var deferral = e.SuspendingOperation.GetDeferral();
 			var hohoemaApp = Container.Resolve<HohoemaApp>();
-			
+			await hohoemaApp.OnSuspending();
+
 			deferral.Complete();
 		}
 		*/
-
+		
+		
 		protected override async Task OnSuspendingApplicationAsync()
 		{
 			if (_IsPreLaunch) { return; }
 
 			var hohoemaApp = Container.Resolve<HohoemaApp>();
-			await hohoemaApp.OnSuspending();
+			await hohoemaApp.OnSuspending().ConfigureAwait(false);
 
-//			return base.OnSuspendingApplicationAsync();
+			await base.OnSuspendingApplicationAsync();
 		}
+		
 
 		private async void App_Resuming(object sender, object e)
 		{

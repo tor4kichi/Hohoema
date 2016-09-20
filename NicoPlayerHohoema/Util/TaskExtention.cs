@@ -17,7 +17,7 @@ namespace NicoPlayerHohoema.Util
 					break;
 				}
 
-				await Task.Delay(interval).ConfigureAwait(false);
+				await Task.Delay(interval);
 			}
 		}
 	}
