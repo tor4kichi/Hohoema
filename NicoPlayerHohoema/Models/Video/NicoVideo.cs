@@ -188,6 +188,7 @@ namespace NicoPlayerHohoema.Models
 				ThreadId = watchApiRes.ThreadId.ToString();
 				PrivateReasonType = watchApiRes.PrivateReason;
 
+
 				this.IsDeleted = watchApiRes.IsDeleted;
 				if (IsDeleted)
 				{
@@ -199,9 +200,12 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		
 
 
+		public bool CanGetVideoStream()
+		{
+			return ProtocolType == MediaProtocolType.RTSPoverHTTP;
+		}
 
 		/// <summary>
 		/// 動画ストリームの取得します
@@ -211,21 +215,45 @@ namespace NicoPlayerHohoema.Models
 		{
 			IfVideoDeletedThrowException();
 
-			if (await _Context.CanAccessVideoCacheFolder())
+			// キャッシュ済みの場合は
+			if (quality == NicoVideoQuality.Original && OriginalQuality.IsCached)
 			{
-				NicoVideoDownloader = await _Context.GetPlayingDownloader(this, quality);
+				var file = await OriginalQuality.GetCacheFile();
+				NicoVideoCachedStream = await file.OpenReadAsync();
+			}
+			else if (quality == NicoVideoQuality.Low && LowQuality.IsCached)
+			{
+				var file = await LowQuality.GetCacheFile();
+				NicoVideoCachedStream = await file.OpenReadAsync();
+			}
 
-				NicoVideoCachedStream = new NicoVideoCachedStream(NicoVideoDownloader);
-			}
-			else if (Util.InternetConnection.IsInternet())
+			if (ProtocolType == MediaProtocolType.RTSPoverHTTP)
 			{
-				var size = (quality == NicoVideoQuality.Original ? SizeHigh : SizeLow);
-				NicoVideoCachedStream = await HttpRandomAccessStream.CreateAsync(
-					HohoemaApp.NiconicoContext.HttpClient
-					, VideoUrl
-					, size
-					);
+				if (await _Context.CanAccessVideoCacheFolder()
+					&& (
+						ContentType == MovieType.Mp4 
+//						|| ContentType == MovieType.Flv
+						)
+					)
+				{
+					NicoVideoDownloader = await _Context.GetPlayingDownloader(this, quality);
+
+					NicoVideoCachedStream = new NicoVideoCachedStream(NicoVideoDownloader);
+				}
+				else if (Util.InternetConnection.IsInternet())
+				{
+					var size = (quality == NicoVideoQuality.Original ? SizeHigh : SizeLow);
+					NicoVideoCachedStream = await HttpSequencialAccessStream.CreateAsync(
+						HohoemaApp.NiconicoContext.HttpClient
+						, VideoUrl
+						);
+				}
 			}
+			else
+			{
+				throw new NotSupportedException();
+			}
+			
 
 			return NicoVideoCachedStream;
 		}
@@ -510,7 +538,7 @@ namespace NicoPlayerHohoema.Models
 		public TimeSpan VideoLength { get; private set; }
 		public DateTime PostedAt { get; private set; }
 		public uint VideoOwnerId { get; private set; }
-		public bool IsOriginalQualityOnly => SizeLow == 0;
+		public bool IsOriginalQualityOnly => SizeLow == 0 || ContentType != MovieType.Mp4;
 		public List<Tag> Tags { get; private set; }
 		public uint SizeLow { get; private set; }
 		public uint SizeHigh { get; private set; }

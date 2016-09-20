@@ -51,13 +51,18 @@ namespace NicoPlayerHohoema.Models
 	
 		public void OpenPage(HohoemaPageType pageType, object parameter = null)
 		{
-			var oldPageType = CurrentPageType;
-			CurrentPageType = pageType;
-
-			if (!NavigationService.Navigate(pageType.ToString(), parameter))
+			HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
 			{
-				CurrentPageType = oldPageType;
-			}
+				var oldPageType = CurrentPageType;
+				CurrentPageType = pageType;
+
+				if (!NavigationService.Navigate(pageType.ToString(), parameter))
+				{
+					CurrentPageType = oldPageType;
+				}
+			})
+			.AsTask()
+			.ConfigureAwait(false);
 		}
 
 

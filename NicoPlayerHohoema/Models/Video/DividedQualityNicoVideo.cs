@@ -179,6 +179,11 @@ namespace NicoPlayerHohoema.Models
 			if (IsCacheRequested)
 			{
 				var videoCacheFolder = await _Context.GetVideoCacheFolder();
+				if (videoCacheFolder == null)
+				{
+					return;
+				}
+
 				var videoFile = await videoCacheFolder.TryGetItemAsync(VideoFileName) as StorageFile;
 				var existVideo = videoFile != null;
 
@@ -476,11 +481,6 @@ namespace NicoPlayerHohoema.Models
 				// キャッシュ済みじゃないか
 				if (CacheState == NicoVideoCacheState.Cached) { return false; }
 
-				if (NicoVideo.ContentType != Mntone.Nico2.Videos.Thumbnail.MovieType.Mp4)
-				{
-					return false;
-				}
-
 				// オリジナル画質しか存在しない動画
 				if (!IsAvailable)
 				{
@@ -553,11 +553,6 @@ namespace NicoPlayerHohoema.Models
 
 				// キャッシュ済みじゃないか
 				if (CacheState == NicoVideoCacheState.Cached) { return false; }
-
-				if (NicoVideo.ContentType != Mntone.Nico2.Videos.Thumbnail.MovieType.Mp4)
-				{
-					return false;
-				}
 
 				// 
 				if (NicoVideo.IsOriginalQualityOnly)

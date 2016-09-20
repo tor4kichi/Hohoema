@@ -1,5 +1,6 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Videos.Thumbnail;
+using NicoPlayerHohoema.Models.AppMap;
 using NicoPlayerHohoema.Util;
 using Prism.Events;
 using Prism.Mvvm;
@@ -38,11 +39,9 @@ namespace NicoPlayerHohoema.Models
 			await app.LoadUserSettings();
 			app.ContentFinder = new NiconicoContentFinder(app);
 			app.UserMylistManager = new UserMylistManager(app);
+			app.AppMapManager = new AppMapManager(app);
 
 			UIDispatcher = Window.Current.CoreWindow.Dispatcher;
-
-
-			
 
 			return app;
 		}
@@ -448,7 +447,7 @@ namespace NicoPlayerHohoema.Models
 
 						OnSignin?.Invoke();
 
-						MediaManager.Context.StartBackgroundDownload();
+						await MediaManager.Context.StartBackgroundDownload();
 					}
 					else
 					{
@@ -965,10 +964,9 @@ namespace NicoPlayerHohoema.Models
 			set { SetProperty(ref _FeedManager, value); }
 		}
 
-		
-
-
 		public UserMylistManager UserMylistManager { get; private set; }
+
+		public AppMapManager AppMapManager { get; private set; }
 
 
 		public const string HohoemaUserAgent = "Hohoema_UWP";

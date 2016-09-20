@@ -83,6 +83,7 @@ namespace NicoPlayerHohoema.Models
 			where T : SettingsBase, new()
 		{
 			var file = await folder.TryGetItemAsync(filename) as StorageFile;
+			T result = null;
 			if (file != null)
 			{
 				var rawText = await FileIO.ReadTextAsync(file);
@@ -93,19 +94,17 @@ namespace NicoPlayerHohoema.Models
 						var obj = JsonConvert.DeserializeObject<T>(rawText);
 						obj.FileName = filename;
 						obj.Folder = folder;
-						return obj;
+						result = obj;
 					}
 					catch
 					{
 						await file.DeleteAsync();
 					}
 				}
-
-				return null;
 			}
-			else
-			{
 
+			if (result == null)
+			{
 				var newInstance = new T()
 				{
 					FileName = filename,
@@ -114,9 +113,10 @@ namespace NicoPlayerHohoema.Models
 
 				newInstance.OnInitialize();
 
-				return newInstance;
-
+				result = newInstance;
 			}
+
+			return result;
 		}
 
 

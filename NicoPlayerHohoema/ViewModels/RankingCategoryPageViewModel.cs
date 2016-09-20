@@ -67,15 +67,16 @@ namespace NicoPlayerHohoema.ViewModels
 				.AddTo(_CompositeDisposable);
 
 			Observable.CombineLatest(
-				SelectedRankingTarget.ToUnit(),
-				SelectedRankingTimeSpan.ToUnit()
+				SelectedRankingTimeSpan.ToUnit(),
+				SelectedRankingTarget.ToUnit()
 				)
 				.SubscribeOnUIDispatcher()
-				.Subscribe(x => 
+				.Subscribe(async x => 
 				{
-					if (RequireCategoryInfo!= null)
+					// NavigateToが呼ばれた後
+					if (RequireCategoryInfo != null || CategoryInfo != null)
 					{
-						ResetList();
+						await ResetList();
 					}
 				})
 				.AddTo(_CompositeDisposable);

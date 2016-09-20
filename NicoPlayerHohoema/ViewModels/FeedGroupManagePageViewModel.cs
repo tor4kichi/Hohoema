@@ -76,6 +76,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
+			if (HohoemaApp.FeedManager == null)
+			{
+				return;
+			}
+
 			var items = HohoemaApp.FeedManager.FeedGroups
 				.Select(x => new FeedGroupListItem(x, PageManager))
 				.ToList();

@@ -72,6 +72,12 @@ namespace NicoPlayerHohoema.ViewModels
 
 				FeedGroup = HohoemaApp.FeedManager.GetFeedGroup(feedGroupId);
 			}
+			else if (e.Parameter is string)
+			{
+				var feedGroupId = Guid.Parse(e.Parameter as string);
+
+				FeedGroup = HohoemaApp.FeedManager.GetFeedGroup(feedGroupId);
+			}
 
 			if (FeedGroup == null)
 			{

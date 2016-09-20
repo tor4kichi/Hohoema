@@ -20,7 +20,7 @@ namespace NicoPlayerHohoema.Util
 				try
 				{
 					// Calling external service.
-					return await func();
+					return await func().ConfigureAwait(false);
 				}
 				catch (Exception ex)
 				{
@@ -37,7 +37,7 @@ namespace NicoPlayerHohoema.Util
 						throw;
 					}
 
-					await Task.Delay(retryInterval);
+					await Task.Delay(retryInterval).ConfigureAwait(false);
 				}
 
 				// Wait to retry the operation.

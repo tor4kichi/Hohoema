@@ -75,13 +75,13 @@ namespace NicoPlayerHohoema.Models
 		#endregion
 
 
-		public void StartBackgroundDownload()
+		public async Task StartBackgroundDownload()
 		{
 			try
 			{
 				_ExternalAccessControlLock.Wait();
 
-				TryBeginNextDownloadRequest().ConfigureAwait(false);
+				await TryBeginNextDownloadRequest().ConfigureAwait(false);
 			}
 			finally
 			{
@@ -110,7 +110,7 @@ namespace NicoPlayerHohoema.Models
 			var preventDeleteVideoId = PreventDeleteOnPlayingVideoId;
 
 			// すでにキャッシュリクエストされたNicoVideoのキャッシュを消さないように注意する
-			foreach (var nicoVideo in _DurtyCachedNicoVideo)
+			foreach (var nicoVideo in _DurtyCachedNicoVideo.ToArray())
 			{
 				if (preventDeleteVideoId != null && nicoVideo.RawVideoId == preventDeleteVideoId)
 				{
@@ -449,12 +449,12 @@ namespace NicoPlayerHohoema.Models
 
 				if (_CurrentDownloader != null)
 				{
-					await _CurrentDownloader.StopDownload();
-					_CurrentDownloader.Dispose();
+					await _CurrentDownloader.StopDownload().ConfigureAwait(false);
 
 					_CurrentDownloader.OnCacheComplete -= DownloadCompleteAction;
 					_CurrentDownloader.OnCacheCanceled -= _CurrentDownloader_OnCacheCanceled;
 					_CurrentDownloader.OnCacheProgress -= _CurrentDownloadStream_OnCacheProgress;
+					_CurrentDownloader.Dispose();
 					_CurrentDownloader = null;
 				}
 			}

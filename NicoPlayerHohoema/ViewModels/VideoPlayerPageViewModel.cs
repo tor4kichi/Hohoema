@@ -41,6 +41,8 @@ using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
+using FFmpegInterop;
+using Windows.Foundation.Collections;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -73,7 +75,7 @@ namespace NicoPlayerHohoema.ViewModels
 			_SidePaneContentCache = new Dictionary<MediaInfoDisplayType, MediaInfoViewModel>();
 
 
-			VideoStream = new ReactiveProperty<IRandomAccessStream>(PlayerWindowUIDispatcherScheduler)
+			VideoStream = new ReactiveProperty<object>(PlayerWindowUIDispatcherScheduler)
 				.AddTo(_CompositeDisposable);
 			CurrentVideoPosition = new ReactiveProperty<TimeSpan>(PlayerWindowUIDispatcherScheduler, TimeSpan.Zero)
 				.AddTo(_CompositeDisposable);
@@ -497,9 +499,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 			CommandEditerVM.OnCommandChanged += () => UpdateCommandString();
 
-			CanDownload = HohoemaApp.UserSettings?.CacheSettings?.IsUserAcceptedCache ?? false;
-
-
 
 		}
 
@@ -545,57 +544,82 @@ namespace NicoPlayerHohoema.ViewModels
 				PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
 			}
 
-			var stream = await Video.GetVideoStream(x);
-
-			if (stream == null)
+			// キャッシュサポートされたメディアの再生
+			if (Video.CanGetVideoStream())
 			{
-				return;
-			}
+				var stream = await Video.GetVideoStream(x);
 
-			if (IsDisposed)
-			{
-				if (Video != null)
+				if (stream == null)
 				{
-					await Video.StopPlay();
+					return;
 				}
-				return;
-			}
 
-			VideoStream.Value = stream;
-
-			switch (x)
-			{
-				case NicoVideoQuality.Original:
-					IsSaveRequestedCurrentQualityCache.Value = Video.OriginalQuality.IsCacheRequested;
-					break;
-				case NicoVideoQuality.Low:
-					IsSaveRequestedCurrentQualityCache.Value = Video.LowQuality.IsCacheRequested;
-					break;
-				default:
-					IsSaveRequestedCurrentQualityCache.Value = false;
-					break;
-			}
-
-			if (stream is NicoVideoCachedStream)
-			{
-				// キャッシュ機能経由の再生
-				var cachedStream = stream as NicoVideoCachedStream;
-				cachedStream.Downloader.OnCacheProgress += Downloader_OnCacheProgress;
-				_TempProgress = cachedStream.Downloader.DownloadProgress.Clone();
-
-				ProgressFragments.Clear();
-				var invertedTotalSize = 1.0 / (x == NicoVideoQuality.Original ? Video.OriginalQuality.VideoSize : Video.LowQuality.VideoSize);
-				foreach (var cachedRange in _TempProgress.CachedRanges.ToArray())
+				if (IsDisposed)
 				{
-					ProgressFragments.Add(new ProgressFragment(invertedTotalSize, cachedRange.Key, cachedRange.Value));
+					if (Video != null)
+					{
+						await Video.StopPlay();
+					}
+					return;
+				}
+
+				if (Video.ContentType == MovieType.Mp4)
+				{
+					VideoStream.Value = stream;
+				}
+				else
+				{
+					var mss = FFmpegInteropMSS.CreateFFmpegInteropMSSFromStream(stream, false, false);
+
+					if (mss != null)
+					{
+						VideoStream.Value = mss;
+					}
+					else
+					{
+						throw new NotSupportedException();
+					}
+				}
+
+				switch (x)
+				{
+					case NicoVideoQuality.Original:
+						IsSaveRequestedCurrentQualityCache.Value = Video.OriginalQuality.IsCacheRequested;
+						break;
+					case NicoVideoQuality.Low:
+						IsSaveRequestedCurrentQualityCache.Value = Video.LowQuality.IsCacheRequested;
+						break;
+					default:
+						IsSaveRequestedCurrentQualityCache.Value = false;
+						break;
+				}
+
+				if (stream is NicoVideoCachedStream)
+				{
+					// キャッシュ機能経由の再生
+					var cachedStream = stream as NicoVideoCachedStream;
+					cachedStream.Downloader.OnCacheProgress += Downloader_OnCacheProgress;
+					_TempProgress = cachedStream.Downloader.DownloadProgress.Clone();
+
+					ProgressFragments.Clear();
+					var invertedTotalSize = 1.0 / (x == NicoVideoQuality.Original ? Video.OriginalQuality.VideoSize : Video.LowQuality.VideoSize);
+					foreach (var cachedRange in _TempProgress.CachedRanges.ToArray())
+					{
+						ProgressFragments.Add(new ProgressFragment(invertedTotalSize, cachedRange.Key, cachedRange.Value));
+					}
+				}
+				else
+				{
+					// 完全なオンライン再生
 				}
 			}
 			else
 			{
-				// 完全なオンライン再生
+				// キャッシュがサポートされていない
+				throw new Exception();
 			}
 
-			
+
 		}
 
 		private void InitializeBufferingMonitor()
@@ -1044,7 +1068,6 @@ namespace NicoPlayerHohoema.ViewModels
 					.AsTask()
 					.ConfigureAwait(false);
 
-
 					return;
 				}
 
@@ -1067,23 +1090,25 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 				// ビデオタイプとプロトコルタイプをチェックする
+				
 				if (videoInfo.ProtocolType != MediaProtocolType.RTSPoverHTTP)
 				{
 					// サポートしていないプロトコルです
 					IsNotSupportVideoType = true;
 					CannotPlayReason = videoInfo.ProtocolType.ToString() + " はHohoemaでサポートされないデータ通信形式です";
 				}
-				else if (videoInfo.ContentType != MovieType.Mp4)
-				{
+//				else if (videoInfo.ContentType != MovieType.Mp4)
+//				{
 					// サポートしていない動画タイプです
-					IsNotSupportVideoType = true;
-					CannotPlayReason = videoInfo.ContentType.ToString() + " はHohoemaでサポートされない動画形式です";
-				}
+//					IsNotSupportVideoType = true;
+//					CannotPlayReason = videoInfo.ContentType.ToString() + " はHohoemaでサポートされない動画形式です";
+//				}
 				else
 				{
 					IsNotSupportVideoType = false;
 					CannotPlayReason = "";
 				}
+				
 
 				Video = videoInfo;
 			}
@@ -1189,6 +1214,10 @@ namespace NicoPlayerHohoema.ViewModels
 				// 再生ストリームの準備を開始する
 				await PlayingQualityChangeAction();
 
+				
+				// Note: 0.4.1現在ではキャッシュはmp4のみ対応
+				var isCanCache = Video.ContentType == MovieType.Mp4;
+				CanDownload = (HohoemaApp.UserSettings?.CacheSettings?.IsUserAcceptedCache ?? false) && isCanCache;
 
 				// 再生履歴に反映
 				//VideoPlayHistoryDb.VideoPlayed(Video.RawVideoId);
@@ -1572,7 +1601,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<string> Title { get; private set; }
 
-		public ReactiveProperty<IRandomAccessStream> VideoStream { get; private set; }
+		public ReactiveProperty<object> VideoStream { get; private set; }
 
 		public ReactiveProperty<NicoVideoQuality> CurrentVideoQuality { get; private set; }
 		public ReactiveProperty<bool> CanToggleCurrentQualityCacheState { get; private set; }

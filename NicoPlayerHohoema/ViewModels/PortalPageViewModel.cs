@@ -1,4 +1,5 @@
 ﻿using NicoPlayerHohoema.Models;
+using NicoPlayerHohoema.Models.AppMap;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Windows.Mvvm;
@@ -10,65 +11,174 @@ using System.Reactive.Disposables;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
+using Prism.Windows.Navigation;
+using System.Threading;
+using Reactive.Bindings;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	public class PortalPageViewModel : HohoemaViewModelBase
 	{
+		public SelectableAppMapContainerViewModel Root { get; private set; }
+
 		public PortalPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
 			: base(hohoemaApp, pageManager)
 		{
-			
+			Root = new SelectableAppMapContainerViewModel(HohoemaApp.AppMapManager.Root, PageManager);
 		}
+
+		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		{
+			await HohoemaApp.AppMapManager.Refresh();
+		}
+
+
+		internal static AppMapItemViewModel AppMapObjectToViewModel(IAppMapItem item, PageManager pageManager)
+		{
+			if (item is ISelectableAppMapContainer)
+			{
+				return new SelectableAppMapContainerViewModel(item as ISelectableAppMapContainer, pageManager);
+			}
+			else if (item is ISelfGenerateAppMapContainer)
+			{
+				return new SelfGenerateAppMapContainerViewModel(item as ISelfGenerateAppMapContainer, pageManager);
+			}
+			else
+			{
+				return new AppMapItemViewModel(item, pageManager);
+			}
+		}
+
+
 	}
 
-	abstract public class PotalPageContentViewModel : BindableBase, IDisposable
+
+
+	public class AppMapItemViewModel
 	{
-		public PotalPageContentViewModel(PageManager pageManager)
+		public IAppMapItem Item { get; private set; }
+
+		public bool IsHiddenLabel { get; private set; }
+		public bool IsHiddenSecondaryLabel { get; private set; }
+
+
+
+		public PageManager PageManager { get; private set; }
+
+		public AppMapItemViewModel(IAppMapItem item, PageManager pageManager)
 		{
+			Item = item;
 			PageManager = pageManager;
-			_Disposer = new CompositeDisposable();
 
-			var dispatcher = Window.Current.CoreWindow.Dispatcher;
-			pageManager.ObserveProperty(x => x.CurrentPageType, isPushCurrentValueAtFirst: true)
-				.Subscribe(async x =>
+			IsHiddenLabel = Item.PageType == HohoemaPageType.Portal;
+			IsHiddenSecondaryLabel = String.IsNullOrWhiteSpace(Item.SecondaryLabel);
+		}
+
+
+		private DelegateCommand _OpenItemPageCommand;
+		public DelegateCommand OpenItemPageCommand
+		{
+			get
+			{
+				return _OpenItemPageCommand
+					?? (_OpenItemPageCommand = new DelegateCommand(() => 
+					{
+						PageManager.OpenPage(Item.PageType, Item.Parameter);
+					}));
+			}
+		}
+
+		
+	}
+
+
+	abstract public class AppMapContainerViewModelBase : AppMapItemViewModel, IDisposable
+	{
+		public IAppMapContainer OriginalContainer { get; set; }
+
+		public ReadOnlyReactiveCollection<AppMapItemViewModel> Items { get; private set; }
+
+		IDisposable _CollectionDisposer;
+
+
+		public int ItemWidth { get; private set; }
+		public int ItemHeight { get; private set; }
+
+		public AppMapContainerViewModelBase(IAppMapContainer container, PageManager pageManager)
+			: base(container, pageManager)
+		{
+			OriginalContainer = container;
+
+			Items = container.DisplayItems
+				.ToReadOnlyReactiveCollection(x => PortalPageViewModel.AppMapObjectToViewModel(x, pageManager));
+
+			_CollectionDisposer = Items.CollectionChangedAsObservable()
+				.Subscribe(x =>
 				{
-					if (x == HohoemaPageType.Portal)
+					if (x.OldItems != null && x.OldItems.Count > 0)
 					{
-						await dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+						foreach (var oldItem in x.OldItems)
 						{
-							await NavigateTo();
-						});
+							(oldItem as IDisposable)?.Dispose();
+						}
 					}
-					else
-					{
-						await dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
-						{
-							await NavigateFrom();
-						});
-					}
-				})
-				.AddTo(_Disposer);
-				
-		}
+				});
 
-		protected virtual Task NavigateTo()
-		{
-			return Task.CompletedTask;
-		}
-
-		protected virtual Task NavigateFrom()
-		{
-			return Task.CompletedTask;
+			switch (OriginalContainer.ItemDisplayType)
+			{
+				case ContainerItemDisplayType.Normal:
+					ItemWidth = 200;
+					ItemHeight = 48;
+					break;
+				case ContainerItemDisplayType.Card:
+					ItemWidth = 80;
+					ItemHeight = 80;
+					break;
+				case ContainerItemDisplayType.TwoLineText:
+					ItemWidth = 392;
+					ItemHeight = 56;
+					break;
+				default:
+					break;
+			}
 		}
 
 		public void Dispose()
 		{
-			_Disposer.Dispose();
+			Items?.Dispose();
+			_CollectionDisposer?.Dispose();
+		}
+	}
+
+
+	public class SelectableAppMapContainerViewModel : AppMapContainerViewModelBase
+	{
+		public ISelectableAppMapContainer Container { get; private set; }
+
+		public SelectableAppMapContainerViewModel(ISelectableAppMapContainer container, PageManager pageManager)
+			: base (container, pageManager)
+		{
+			Container = container;
+			
 		}
 
-		private CompositeDisposable _Disposer;
-		public PageManager PageManager { get; private set; }
+		
+
+		
+	}
+
+
+
+	public class SelfGenerateAppMapContainerViewModel : AppMapContainerViewModelBase
+	{
+		public ISelfGenerateAppMapContainer Container { get; private set; }
+
+		public SelfGenerateAppMapContainerViewModel(ISelfGenerateAppMapContainer container, PageManager pageManager)
+			: base(container, pageManager)
+		{
+			Container = container;
+			
+		}
 
 	}
 }

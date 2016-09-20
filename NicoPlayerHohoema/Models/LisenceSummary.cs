@@ -94,6 +94,7 @@ namespace NicoPlayerHohoema.Models
 		Simplified_BSD,
 		CC_BY_40,
 		SIL_OFL_v1_1,
+		GPL_v3,
 	}
 
 }
