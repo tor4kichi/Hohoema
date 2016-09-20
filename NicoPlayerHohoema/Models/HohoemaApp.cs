@@ -447,7 +447,7 @@ namespace NicoPlayerHohoema.Models
 
 						OnSignin?.Invoke();
 
-						MediaManager.Context.StartBackgroundDownload();
+						await MediaManager.Context.StartBackgroundDownload();
 					}
 					else
 					{
