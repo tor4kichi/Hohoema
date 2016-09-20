@@ -75,13 +75,13 @@ namespace NicoPlayerHohoema.Models
 		#endregion
 
 
-		public void StartBackgroundDownload()
+		public async Task StartBackgroundDownload()
 		{
 			try
 			{
 				_ExternalAccessControlLock.Wait();
 
-				TryBeginNextDownloadRequest().ConfigureAwait(false);
+				await TryBeginNextDownloadRequest().ConfigureAwait(false);
 			}
 			finally
 			{

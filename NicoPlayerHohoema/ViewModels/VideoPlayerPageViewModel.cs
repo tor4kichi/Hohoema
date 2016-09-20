@@ -499,9 +499,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 			CommandEditerVM.OnCommandChanged += () => UpdateCommandString();
 
-			CanDownload = HohoemaApp.UserSettings?.CacheSettings?.IsUserAcceptedCache ?? false;
-
-
 
 		}
 
@@ -1071,7 +1068,6 @@ namespace NicoPlayerHohoema.ViewModels
 					.AsTask()
 					.ConfigureAwait(false);
 
-
 					return;
 				}
 
@@ -1218,6 +1214,10 @@ namespace NicoPlayerHohoema.ViewModels
 				// 再生ストリームの準備を開始する
 				await PlayingQualityChangeAction();
 
+				
+				// Note: 0.4.1現在ではキャッシュはmp4のみ対応
+				var isCanCache = Video.ContentType == MovieType.Mp4;
+				CanDownload = (HohoemaApp.UserSettings?.CacheSettings?.IsUserAcceptedCache ?? false) && isCanCache;
 
 				// 再生履歴に反映
 				//VideoPlayHistoryDb.VideoPlayed(Video.RawVideoId);
