@@ -58,9 +58,9 @@ namespace NicoPlayerHohoema.Models.AppMap
 			{
 				HohoemaPageType.Search,
 				HohoemaPageType.RankingCategoryList,
+				HohoemaPageType.FeedGroupManage,
 				HohoemaPageType.FavoriteManage,
 				HohoemaPageType.UserMylist,
-				HohoemaPageType.FeedGroupManage,
 				HohoemaPageType.CacheManagement,
 				HohoemaPageType.History,
 			};
