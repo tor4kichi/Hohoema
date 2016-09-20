@@ -484,7 +484,7 @@ namespace NicoPlayerHohoema.Util
 			{
 				_StreamAccessLock.Wait();
 				_CurrentPosition += count;
-				return _InputStream.ReadAsync(buffer, count, options);
+				return _InputStream?.ReadAsync(buffer, count, options);
 			}
 			finally
 			{
