@@ -1,6 +1,7 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Mylist;
 using Mntone.Nico2.Mylist.MylistGroup;
+using Mntone.Nico2.Searches.Community;
 using Mntone.Nico2.Searches.Video;
 using Mntone.Nico2.Users.Fav;
 using Mntone.Nico2.Users.User;
@@ -270,6 +271,25 @@ namespace NicoPlayerHohoema.Models
 			return await _HohoemaApp.NiconicoContext.Video.GetRelatedVideoAsync(videoId, from, limit, sort, order);
 		}
 
+
+
+
+		public async Task<CommunitySearchResponse> SearchCommunity(
+			string keyword
+			, uint page
+			, CommunitySearchSort sort = CommunitySearchSort.CreatedAt
+			, Order order = Order.Descending
+			, CommunitySearchMode mode = CommunitySearchMode.Keyword
+			)
+		{
+			return await ConnectionRetryUtil.TaskWithRetry(async () =>
+			{
+				using (var releaser = await _NicoPageAccessLock.LockAsync())
+				{
+					return await _HohoemaApp.NiconicoContext.Search.CommunitySearchAsync(keyword, page, sort, order, mode);
+				}
+			});
+		}
 
 
 		HohoemaApp _HohoemaApp;
