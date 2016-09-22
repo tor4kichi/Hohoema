@@ -65,10 +65,9 @@ namespace NicoPlayerHohoema.Models.AppMap
 			{
 				case FavoriteItemType.Tag:
 					PageType = HohoemaPageType.Search;
-					Parameter = new SearchOption()
+					Parameter = new TagSearchPagePayloadContent()
 					{
 						Keyword = favInfo.Id,
-						SearchTarget = SearchTarget.Tag,
 						Sort = Mntone.Nico2.Sort.FirstRetrieve,
 						Order = Mntone.Nico2.Order.Descending
 					}

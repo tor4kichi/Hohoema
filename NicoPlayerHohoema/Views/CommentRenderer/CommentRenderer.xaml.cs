@@ -640,7 +640,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		{
 			CommentRenderer me = sender as CommentRenderer;
 
-			me.ResetRenderingTimer();
+			me.ResetRenderingTimer().ConfigureAwait(false);
 		}
 
 

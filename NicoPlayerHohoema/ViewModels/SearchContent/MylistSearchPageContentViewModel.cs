@@ -11,19 +11,34 @@ using NicoPlayerHohoema.Views.Service;
 using Windows.UI.Xaml.Navigation;
 using Mntone.Nico2.Searches.Mylist;
 using Prism.Commands;
+using Mntone.Nico2;
+using Prism.Windows.Navigation;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	public class MylistSearchPageContentViewModel : HohoemaListingPageViewModelBase<MylistSearchListingItem>
 	{
-		public SearchOption SearchOption { get; private set; }
+		public MylistSearchPagePayloadContent SearchOption { get; private set; }
 
-		public MylistSearchPageContentViewModel(HohoemaApp hohoemaApp, PageManager pageManager, SearchOption searchOption) 
+		public MylistSearchPageContentViewModel(
+			MylistSearchPagePayloadContent searchOption
+			, HohoemaApp hohoemaApp
+			, PageManager pageManager
+			) 
 			: base(hohoemaApp, pageManager)
 		{
 			SearchOption = searchOption;
 		}
 
+
+		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		{
+			var target = "マイリスト";
+			var optionText = Util.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
+			UpdateTitle($"{SearchOption.Keyword} - {target}/{optionText}");
+
+			base.OnNavigatedTo(e, viewModelState);
+		}
 
 		#region Implement HohoemaVideListViewModelBase
 
@@ -31,14 +46,6 @@ namespace NicoPlayerHohoema.ViewModels
 		protected override IIncrementalSource<MylistSearchListingItem> GenerateIncrementalSource()
 		{
 			return new MylistSearchSource(SearchOption, HohoemaApp, PageManager);
-		}
-
-		protected override void PostResetList()
-		{
-			var source = IncrementalLoadingItems.Source as MylistSearchSource;
-			var searchOption = source.SearchOption;
-			var optionText = Util.SortHelper.ToCulturizedText(searchOption.Sort, searchOption.Order);
-			UpdateTitle($"マイリスト検索: {searchOption.Keyword} - {optionText}");
 		}
 
 		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
@@ -120,19 +127,17 @@ namespace NicoPlayerHohoema.ViewModels
 
 		HohoemaApp _HohoemaApp;
 		PageManager _PageManager;
-		public SearchOption SearchOption { get; private set; }
-
+		public MylistSearchPagePayloadContent SearchOption { get; private set; }
 		
 		private MylistSearchResponse _MylistGroupResponse;
 
 
 
-		public MylistSearchSource(SearchOption searchOption, HohoemaApp hohoemaApp, PageManager pageManager)
+		public MylistSearchSource(MylistSearchPagePayloadContent searchOption, HohoemaApp hohoemaApp, PageManager pageManager)
 		{
 			_HohoemaApp = hohoemaApp;
 			_PageManager = pageManager;
 			SearchOption = searchOption;
-
 		}
 
 
@@ -151,7 +156,13 @@ namespace NicoPlayerHohoema.ViewModels
 		public async Task<int> ResetSource()
 		{
 			// Note: 件数が1だとJsonのParseがエラーになる
-			_MylistGroupResponse = await _HohoemaApp.NiconicoContext.Search.MylistSearchAsync(SearchOption.Keyword, 0, 2, SearchOption.Sort, SearchOption.Order);
+			_MylistGroupResponse = await _HohoemaApp.NiconicoContext.Search.MylistSearchAsync(
+				SearchOption.Keyword,
+				0,
+				2,
+				SearchOption.Sort, 
+				SearchOption.Order
+				);
 
 			return (int)_MylistGroupResponse.GetTotalCount();
 		}

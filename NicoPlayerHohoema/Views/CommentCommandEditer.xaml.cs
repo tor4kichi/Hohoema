@@ -113,7 +113,6 @@ namespace NicoPlayerHohoema.Views
 						return Pink2;
 					case CommandType.orange2:
 						return Orange2;
-						break;
 					case CommandType.passionorange:
 						break;
 					case CommandType.yellow2:

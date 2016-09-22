@@ -29,6 +29,30 @@ namespace NicoPlayerHohoema.Views
 	}
 
 
+	public class SearchTargetContentTemplateSelector : DataTemplateSelector
+	{
+		public DataTemplate Video { get; set; }
+		public DataTemplate Mylist { get; set; }
+		public DataTemplate Community { get; set; }
+
+		protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
+		{
+			if (item is ViewModels.VideoSearchOptionViewModelBase)
+			{
+				return Video;
+			}
+			else if (item is ViewModels.MylistSearchOptionViewModel)
+			{
+				return Mylist;
+			}
+			else if (item is ViewModels.CommunitySearchOptionViewModel)
+			{
+				return Community;
+			}
+
+			return base.SelectTemplateCore(item, container);
+		}
+	}
 
 
 	public class SearchPageContentTemplateSelector : DataTemplateSelector
@@ -37,6 +61,7 @@ namespace NicoPlayerHohoema.Views
 		public DataTemplate Tag { get; set; }
 		public DataTemplate Keyword { get; set; }
 		public DataTemplate Mylist { get; set; }
+		public DataTemplate Community { get; set; }
 
 		protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
 		{
@@ -56,8 +81,10 @@ namespace NicoPlayerHohoema.Views
 			{
 				return Mylist;
 			}
-
-		
+			else if (item is ViewModels.CommunitySearchPageContentViewModel)
+			{
+				return Community;
+			}
 
 			return base.SelectTemplateCore(item, container);
 		}
