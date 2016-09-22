@@ -1049,7 +1049,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 					var dispatcher = Window.Current.CoreWindow.Dispatcher;
 
-					dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+					await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
 					{
 						await Task.Delay(100);
 						PageManager.NavigationService.GoBack();
@@ -1741,14 +1741,19 @@ namespace NicoPlayerHohoema.ViewModels
 				return _OpenSearchPageWithTagCommand
 					?? (_OpenSearchPageWithTagCommand = new DelegateCommand(() => 
 					{
-						_PageManager.OpenPage(HohoemaPageType.Search, new Models.SearchOption()
-						{
-							SearchTarget = SearchTarget.Tag,
-							Keyword = _Tag.Value,
-							Sort = Sort.FirstRetrieve,
-							Order = Order.Descending
-						}
-						.ToParameterString());
+						var payload = new SearchPagePayload(
+							new Models.TagSearchPagePayloadContent()
+							{
+								Keyword = _Tag.Value,
+								Sort = Sort.FirstRetrieve,
+								Order = Order.Descending
+							}
+							);
+
+						_PageManager.OpenPage(
+							HohoemaPageType.Search
+							, payload.ToParameterString()
+							);
 					}));
 			}
 		}

@@ -221,6 +221,7 @@
     <Compile Include="ViewModels\LoginPageViewModel.cs" />
     <Compile Include="ViewModels\MenuNavigatePageBaseViewModel.cs" />
     <Compile Include="ViewModels\MylistPageViewModel.cs" />
+    <Compile Include="ViewModels\SearchContent\CommunitySearchPageContentViewModel.cs" />
     <Compile Include="ViewModels\SearchContent\EmptySearchPageContentViewModel.cs" />
     <Compile Include="ViewModels\SearchContent\KeywordSearchPageContentViewModel.cs" />
     <Compile Include="ViewModels\SearchContent\MylistSearchPageContentViewModel.cs" />
@@ -269,6 +270,9 @@
     <Compile Include="Views\Controls\CacheManagementListItem.xaml.cs">
       <DependentUpon>CacheManagementListItem.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Controls\CommunityInfoControl.xaml.cs">
+      <DependentUpon>CommunityInfoControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Controls\FavoriteFeedListItem.xaml.cs">
       <DependentUpon>FavoriteFeedListItem.xaml</DependentUpon>
     </Compile>
@@ -316,6 +320,9 @@
     </Compile>
     <Compile Include="Views\RankingChoiceContentDialog.xaml.cs">
       <DependentUpon>RankingChoiceContentDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SearchContent\CommunitySearchPageContent.xaml.cs">
+      <DependentUpon>CommunitySearchPageContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SearchContent\EmptySearchPageContent.xaml.cs">
       <DependentUpon>EmptySearchPageContent.xaml</DependentUpon>
@@ -538,6 +545,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Controls\CommunityInfoControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Controls\FavoriteFeedListItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -607,6 +618,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\RankingChoiceContentDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SearchContent\CommunitySearchPageContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

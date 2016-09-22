@@ -47,6 +47,11 @@
             <local:SearchHistoryListItem />
         </DataTemplate>
 
+        <DataTemplate x:Key="CommuniyListItemTemplate">
+            <local:CommunityInfoControl />
+        </DataTemplate>
+
+
         <local:IncrementalLoadingListItemTemplateSelector x:Key="listItemTemplateSelector"
                                                           Default="{StaticResource DefaultListItemTemplate}"
                                                           History="{StaticResource HistoryListItemTemplate}"
@@ -55,6 +60,7 @@
                                                           FavFeed="{StaticResource FavFeedListItemTemplate}"
                                                           Mylist="{StaticResource MylistListItemTemplate}"
                                                           SearchHistory="{StaticResource SearchHistoryListItemTemplate}"
+                                                          Community="{StaticResource CommuniyListItemTemplate}"
                                                           >
             
             

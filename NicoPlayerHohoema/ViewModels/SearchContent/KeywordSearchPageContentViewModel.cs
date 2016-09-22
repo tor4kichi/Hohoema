@@ -18,13 +18,18 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<bool> FailLoading { get; private set; }
 
-		public SearchOption RequireSearchOption { get; private set; }
+		public KeywordSearchPagePayloadContent SearchOption { get; private set; }
 		public ReactiveProperty<int> LoadedPage { get; private set; }
 
 		NiconicoContentFinder _ContentFinder;
 
 
-		public KeywordSearchPageContentViewModel(HohoemaApp hohoemaApp, PageManager pageManager, MylistRegistrationDialogService mylistDialogService, SearchOption searchOption) 
+		public KeywordSearchPageContentViewModel(
+			KeywordSearchPagePayloadContent searchOption,
+			HohoemaApp hohoemaApp, 
+			PageManager pageManager, 
+			MylistRegistrationDialogService mylistDialogService
+			) 
 			: base(hohoemaApp, pageManager, mylistDialogService)
 		{
 			_ContentFinder = HohoemaApp.ContentFinder;
@@ -35,15 +40,15 @@ namespace NicoPlayerHohoema.ViewModels
 			LoadedPage = new ReactiveProperty<int>(1)
 				.AddTo(_CompositeDisposable);
 
-			RequireSearchOption = searchOption;
+			SearchOption = searchOption;
 		}
+
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			if (e.Parameter is string)
-			{
-				RequireSearchOption = SearchOption.FromParameterString(e.Parameter as string);
-			}
+			var target = "キーワード";
+			var optionText = Util.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
+			UpdateTitle($"{SearchOption.Keyword} - {target}/{optionText}");
 
 			base.OnNavigatedTo(e, viewModelState);
 		}
@@ -51,18 +56,14 @@ namespace NicoPlayerHohoema.ViewModels
 		#region Implement HohoemaVideListViewModelBase
 
 
+
 		protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
 		{
-			return new VideoSearchSource(RequireSearchOption, HohoemaApp, PageManager);
+			return new VideoSearchSource(SearchOption, HohoemaApp, PageManager);
 		}
 
 		protected override void PostResetList()
 		{
-			var source = IncrementalLoadingItems.Source as VideoSearchSource;
-			var searchOption = source.SearchOption;
-			var target = searchOption.SearchTarget == SearchTarget.Keyword ? "キーワード" : "タグ";
-			var optionText = Util.SortHelper.ToCulturizedText(searchOption.Sort, searchOption.Order);
-			UpdateTitle($"{target}検索: {searchOption.Keyword} - {optionText}");
 		}
 		
 
@@ -71,9 +72,9 @@ namespace NicoPlayerHohoema.ViewModels
 			var source = IncrementalLoadingItems?.Source as VideoSearchSource;
 			if (source == null) { return true; }
 
-			if (RequireSearchOption != null)
+			if (SearchOption != null)
 			{
-				return !RequireSearchOption.Equals(source.SearchOption);
+				return !SearchOption.Equals(source.SearchOption);
 			}
 			else
 			{

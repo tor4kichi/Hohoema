@@ -42,14 +42,54 @@ namespace NicoPlayerHohoema.Models.AppMap
 		{
 			PrimaryLabel = history.Keyword;
 			SecondaryLabel = history.Target.ToString();
-			Parameter = new SearchOption()
+
+
+			ISearchPagePayloadContent content = null;
+			switch (history.Target)
 			{
-				Keyword = history.Keyword,
-				SearchTarget = history.Target,
-				Sort = Mntone.Nico2.Sort.FirstRetrieve,
-				Order = Mntone.Nico2.Order.Descending
+				case SearchTarget.Keyword:
+					content = new KeywordSearchPagePayloadContent()
+					{
+						Keyword = history.Keyword,
+						Sort = Mntone.Nico2.Sort.FirstRetrieve,
+						Order = Mntone.Nico2.Order.Descending
+					};
+					break;
+				case SearchTarget.Tag:
+					content = new TagSearchPagePayloadContent()
+					{
+						Keyword = history.Keyword,
+						Sort = Mntone.Nico2.Sort.FirstRetrieve,
+						Order = Mntone.Nico2.Order.Descending
+					};
+					break;
+				case SearchTarget.Mylist:
+					content = new MylistSearchPagePayloadContent()
+					{
+						Keyword = history.Keyword,
+						Sort = Mntone.Nico2.Sort.FirstRetrieve,
+						Order = Mntone.Nico2.Order.Descending
+					};
+					break;
+				case SearchTarget.Community:
+					content = new CommunitySearchPagePayloadContent()
+					{
+						Keyword = history.Keyword,
+						Sort = Mntone.Nico2.Searches.Community.CommunitySearchSort.CreatedAt,
+						Order = Mntone.Nico2.Order.Descending,
+						Mode = Mntone.Nico2.Searches.Community.CommunitySearchMode.Keyword
+					};
+					break;
+				case SearchTarget.Niconama:
+					break;
+				default:
+					break;
 			}
-			.ToParameterString();
+
+			if (content == null) { throw new NotSupportedException(history.Target.ToString()); }
+
+			var payload = new SearchPagePayload(content);
+			Parameter = payload.ToParameterString();
 		}
 	}
 }
