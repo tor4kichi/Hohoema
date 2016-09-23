@@ -329,6 +329,7 @@ namespace NicoPlayerHohoema.Models
 
 							var fields = new LoggingFields();
 
+							await Task.Delay(500);
 							try
 							{
 								loginActivityLogger.LogEvent("getting UserInfo.");
@@ -344,9 +345,9 @@ namespace NicoPlayerHohoema.Models
 
 								loginActivityLogger.LogEvent("[Success]:get UserInfo.", fields, LoggingLevel.Information);
 							}
-							catch
+							catch (Exception ex)
 							{
-								LoginErrorText = "[Failed]:get UserInfo.";
+								LoginErrorText = $"ユーザー情報の取得に失敗しました。再起動をお試しください。（{ex.Message}）";
 
 								fields.AddString("mail", mailOrTelephone);
 								loginActivityLogger.LogEvent(LoginErrorText, fields, LoggingLevel.Warning);
@@ -365,7 +366,16 @@ namespace NicoPlayerHohoema.Models
 
 
 							// 0.4.0以前のバージョンからのログインユーザー情報の移行処理
-							await MigrateLegacyUserSettings(LoginUserId.ToString());
+							try
+							{
+								await MigrateLegacyUserSettings(LoginUserId.ToString());
+							}
+							catch
+							{
+								LoginErrorText = "ユーザー設定の過去バージョンとの統合処理に失敗しました。";
+
+								return NiconicoSignInStatus.Failed;
+							}
 
 
 							try
@@ -376,7 +386,7 @@ namespace NicoPlayerHohoema.Models
 							}
 							catch
 							{
-								LoginErrorText = "[Failed] user favorite initialize failed.";
+								LoginErrorText = "お気に入り情報の取得に失敗しました。再起動をお試しください。";
 								Debug.WriteLine(LoginErrorText);
 								loginActivityLogger.LogEvent(LoginErrorText, fields, LoggingLevel.Error);
 								NiconicoContext.Dispose();
@@ -395,7 +405,7 @@ namespace NicoPlayerHohoema.Models
 							}
 							catch
 							{
-								LoginErrorText = "[Failed] user FavFeedUpdater initialize failed.";
+								LoginErrorText = "フィード機能の初期化に失敗しました。再起動をお試しください。";
 								Debug.WriteLine(LoginErrorText);
 								loginActivityLogger.LogEvent(LoginErrorText, fields, LoggingLevel.Error);
 								NiconicoContext.Dispose();
@@ -411,6 +421,7 @@ namespace NicoPlayerHohoema.Models
 							}
 							catch
 							{
+								LoginErrorText = "マイリストの取得に失敗しました。再起動をお試しください。";
 								Debug.WriteLine(LoginErrorText = "[Failed] user mylist");
 								loginActivityLogger.LogEvent("[Failed] user mylist", fields, LoggingLevel.Error);
 								NiconicoContext.Dispose();
@@ -428,7 +439,7 @@ namespace NicoPlayerHohoema.Models
 							}
 							catch
 							{
-								LoginErrorText = "[Failed] local cache initialize failed.";
+								LoginErrorText = "キャッシュ情報の構築に失敗しました。再起動をお試しください。";
 								Debug.WriteLine(LoginErrorText);
 								loginActivityLogger.LogEvent(LoginErrorText, fields, LoggingLevel.Error);
 								NiconicoContext.Dispose();
