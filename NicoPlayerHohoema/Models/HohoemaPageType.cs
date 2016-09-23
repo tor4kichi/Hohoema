@@ -32,6 +32,8 @@ namespace NicoPlayerHohoema.Models
 		UserInfo,
 		UserVideo,
 
+		Community,
+
 		Login,
 
 	}

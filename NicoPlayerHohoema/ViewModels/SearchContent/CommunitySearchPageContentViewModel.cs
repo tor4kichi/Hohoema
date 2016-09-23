@@ -11,6 +11,7 @@ using System.Windows.Input;
 using Mntone.Nico2.Searches.Community;
 using Mntone.Nico2;
 using Prism.Windows.Navigation;
+using Prism.Commands;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -40,7 +41,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override IIncrementalSource<CommunityInfoControlViewModel> GenerateIncrementalSource()
 		{
-			return new CommunitySearchSource(SearchOption, HohoemaApp);
+			return new CommunitySearchSource(SearchOption, HohoemaApp, PageManager);
 		}
 	}
 
@@ -49,6 +50,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public uint OneTimeLoadCount => 20;
 
 		public HohoemaApp HohoemaApp { get; private set; }
+		public PageManager PageManager { get; private set; }
 
 		public uint TotalCount { get; private set; }
 		public CommunitySearchResponse FirstResponse { get; private set; }
@@ -61,9 +63,11 @@ namespace NicoPlayerHohoema.ViewModels
 		public CommunitySearchSource(
 			CommunitySearchPagePayloadContent searchOption
 			, HohoemaApp app
+			, PageManager pageManager
 			)
 		{
 			HohoemaApp = app;
+			PageManager = pageManager;
 			SearchKeyword = searchOption.Keyword;
 			Mode = searchOption.Mode;
 			Sort = searchOption.Sort;
@@ -122,7 +126,7 @@ namespace NicoPlayerHohoema.ViewModels
 			var items = new List<CommunityInfoControlViewModel>();
 			foreach (var commu in res.Communities)
 			{
-				var commuVM = new CommunityInfoControlViewModel(commu);
+				var commuVM = new CommunityInfoControlViewModel(commu, PageManager);
 				items.Add(commuVM);
 			}
 
@@ -141,9 +145,14 @@ namespace NicoPlayerHohoema.ViewModels
 		public uint MemberCount { get; private set; }
 		public uint VideoCount { get; private set; }
 
+		public string CommunityId { get; private set; }
 
-		public CommunityInfoControlViewModel(Mntone.Nico2.Searches.Community.NicoCommynity commu)
+		public PageManager PageManager { get; private set; }
+
+		public CommunityInfoControlViewModel(Mntone.Nico2.Searches.Community.NicoCommynity commu, PageManager pageManager)
 		{
+			PageManager = pageManager;
+			CommunityId = commu.Id;
 			Name = commu.Name;
 			ShortDescription = commu.ShortDescription;
 			UpdateDate = commu.DateTime;
@@ -153,12 +162,17 @@ namespace NicoPlayerHohoema.ViewModels
 			VideoCount = commu.VideoCount;
 		}
 
+		private DelegateCommand _OpenCommunityPageCommand;
 		public override ICommand SelectedCommand
 		{
 			get
 			{
 				// TODO: コミュニティの概要ページ作成後に開くコマンドを作成
-				throw new NotImplementedException();
+				return _OpenCommunityPageCommand
+					?? (_OpenCommunityPageCommand = new DelegateCommand(() => 
+					{
+						PageManager.OpenPage(HohoemaPageType.Community, CommunityId);
+					}));
 			}
 		}
 

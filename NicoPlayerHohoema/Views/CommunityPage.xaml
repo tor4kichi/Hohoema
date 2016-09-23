@@ -1,0 +1,103 @@
+﻿<Page
+    x:Class="NicoPlayerHohoema.Views.CommunityPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+
+    <ScrollViewer>
+        <StackPanel>
+
+            <!-- 放送の状態表示 -->
+            <Border BorderBrush="Gray" BorderThickness="1 0 1 1" CornerRadius="8">
+                <toolkit:DockPanel Margin="32 16">
+                    <TextBlock Text="放送状態をここに表示"
+                               toolkit:DockPanel.Dock="Left"
+                               />
+
+                    <Border Width="32" />
+                    
+                    <Button Content="Go" Width="80" Height="48" />
+                    
+                </toolkit:DockPanel>
+                
+                <!-- 予約された放送もここに表示する？ -->
+            </Border>
+            
+            <Border Height="32" />
+
+            <!-- コミュニティの情報 -->
+            <Border BorderBrush="Gray" BorderThickness="1 1 1 0" CornerRadius="8">
+                <StackPanel>
+
+                    <toolkit:DockPanel>
+
+                        <!-- コミュニティ名 -->
+                        <Border BorderBrush="Black" BorderThickness="0 0 0 1" Margin="8"
+                                toolkit:DockPanel.Dock="Top"
+                                >
+                            <TextBlock Text="{Binding CommunityName}" 
+                                       />
+                        </Border>
+
+                        <!-- コミュニティアイコン -->
+                        <Border toolkit:DockPanel.Dock="Right" BorderBrush="DimGray" BorderThickness="1"
+                                Margin="4 8"
+                                >
+                            <Image Source="{Binding ThumbnailUrl}"
+                                   Width="120"
+                                   Height="120"
+                                   />
+                        </Border>
+
+
+                        <!-- コミュニティの細かい情報 -->
+                        <StackPanel>
+                            <TextBlock>
+                                <Run Text="Level: " />
+                                <Run Text="{Binding CommunityLevel}" />
+                            </TextBlock>
+                            <TextBlock>
+                                <Run Text="メンバー: " />
+                                <Run Text="{Binding UserCount}" />
+                            </TextBlock>
+
+                            
+                        </StackPanel>
+
+                        
+                        
+                        
+                    </toolkit:DockPanel>
+
+
+                    <!-- コミュニティのプロフィール -->
+                    <Border>
+                        
+                    </Border>
+
+                    <!-- コミュニティのお知らせ -->
+                    <Border>
+
+                    </Border>
+
+
+                </StackPanel>
+
+            </Border>
+            
+        </StackPanel>
+    </ScrollViewer>
+</Page>
