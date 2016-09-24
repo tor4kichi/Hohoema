@@ -145,6 +145,7 @@
     <Compile Include="Models\Fav\FavFeed\UserFeedSource.cs" />
     <Compile Include="Models\Fav\FavInfo.cs" />
     <Compile Include="Models\Fav\FavFeed\MylistFeedSource.cs" />
+    <Compile Include="Models\Fav\FavInfoGroup\CommunityFavInfoGroup.cs" />
     <Compile Include="Models\Fav\FavInfoGroup\FavInfoGroupBase.cs" />
     <Compile Include="Models\Fav\FavInfoGroup\FavInfoGroupWithFavData.cs" />
     <Compile Include="Models\Fav\FavInfoGroup\MylistFavInfoGroup.cs" />
