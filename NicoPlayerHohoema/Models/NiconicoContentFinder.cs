@@ -1,4 +1,6 @@
 ﻿using Mntone.Nico2;
+using Mntone.Nico2.Communities.Detail;
+using Mntone.Nico2.Communities.Info;
 using Mntone.Nico2.Mylist;
 using Mntone.Nico2.Mylist.MylistGroup;
 using Mntone.Nico2.Searches.Community;
@@ -287,6 +289,28 @@ namespace NicoPlayerHohoema.Models
 				using (var releaser = await _NicoPageAccessLock.LockAsync())
 				{
 					return await _HohoemaApp.NiconicoContext.Search.CommunitySearchAsync(keyword, page, sort, order, mode);
+				}
+			});
+		}
+
+
+		public Task<NicovideoCommunityResponse> GetCommunityInfo(
+			string communityId
+			)
+		{
+			return _HohoemaApp.NiconicoContext.Community.GetCommunifyInfoAsync(communityId);
+		}
+
+
+		public Task<CommunityDetailResponse> GetCommunityDetail(
+			string communityId
+			)
+		{
+			return ConnectionRetryUtil.TaskWithRetry(async () =>
+			{
+				using (var releaser = await _NicoPageAccessLock.LockAsync())
+				{
+					return await _HohoemaApp.NiconicoContext.Community.GetCommunityDetailAsync(communityId);
 				}
 			});
 		}

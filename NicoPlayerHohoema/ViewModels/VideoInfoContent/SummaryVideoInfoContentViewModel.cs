@@ -65,29 +65,7 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 					{
 						System.Diagnostics.Debug.WriteLine($"script notified: {parameter}");
 
-						var path = parameter.AbsoluteUri;
-						// is mylist url?
-						if (path.StartsWith("https://www.nicovideo.jp/mylist/"))
-						{
-							var mylistId = parameter.AbsolutePath.Split('/').Last();
-							System.Diagnostics.Debug.WriteLine($"open Mylist: {mylistId}");
-							_PageManager.OpenPage(HohoemaPageType.Mylist, mylistId);
-						}
-
-						// is nico video url?
-						if (path.StartsWith("https://www.nicovideo.jp/watch/"))
-						{
-							var videoId = parameter.AbsolutePath.Split('/').Last();
-							System.Diagnostics.Debug.WriteLine($"open Video: {videoId}");
-							_PageManager.OpenPage(HohoemaPageType.VideoPlayer,
-								new VideoPlayPayload()
-								{
-									VideoId = videoId
-								}
-								.ToParameterString()
-								);
-						}
-
+						_PageManager.OpenPage(parameter);
 					}));
 			}
 		}

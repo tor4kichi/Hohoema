@@ -185,7 +185,7 @@
     <Compile Include="Models\Settings\NGSettings.cs" />
     <Compile Include="Models\Settings\PlayerSettings.cs" />
     <Compile Include="Models\Settings\RankingSettings.cs" />
-    <Compile Include="Models\VideoDescriptionHelper.cs" />
+    <Compile Include="Util\HtmlFileHelper.cs" />
     <Compile Include="Models\VideoPlayPayload.cs" />
     <Compile Include="Models\Video\NicoVideoQuality.cs" />
     <Compile Include="Util\ColorExtention.cs" />
@@ -206,6 +206,7 @@
     <Compile Include="ViewModels\CacheManagementPageViewModel.cs" />
     <Compile Include="ViewModels\CommentCommandEditerViewModel.cs" />
     <Compile Include="ViewModels\CommentStreamingViewModel.cs" />
+    <Compile Include="ViewModels\CommunityPageViewModel.cs" />
     <Compile Include="ViewModels\ConfirmWatchHurmfulVideoPageViewModel.cs" />
     <Compile Include="ViewModels\FeedVideoListPageViewModel.cs" />
     <Compile Include="ViewModels\FavoriteManagePageViewModel.cs" />
@@ -263,6 +264,9 @@
     </Compile>
     <Compile Include="Views\CommentCommandEditer.xaml.cs">
       <DependentUpon>CommentCommandEditer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CommunityPage.xaml.cs">
+      <DependentUpon>CommunityPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ConfirmWatchHurmfulVideoPage.xaml.cs">
       <DependentUpon>ConfirmWatchHurmfulVideoPage.xaml</DependentUpon>
@@ -499,7 +503,7 @@
     <Content Include="Assets\Square71x71Logo.scale-150.png" />
     <Content Include="Assets\Square71x71Logo.scale-200.png" />
     <Content Include="Assets\Square71x71Logo.scale-400.png" />
-    <Content Include="Assets\VideoDescription\VideoDescription.html" />
+    <Content Include="Assets\html\template.html" />
     <Content Include="Assets\Wide310x150Logo.scale-100.png" />
     <Content Include="Assets\Wide310x150Logo.scale-125.png" />
     <Content Include="Assets\Wide310x150Logo.scale-150.png" />
@@ -534,6 +538,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\CommentRenderer\CommentUI.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\CommunityPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
