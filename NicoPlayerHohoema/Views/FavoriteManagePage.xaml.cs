@@ -44,6 +44,8 @@ namespace NicoPlayerHohoema.Views
 					case FavoriteItemType.Mylist:
 						return Symbol.List;
 					case FavoriteItemType.User:
+						return Symbol.Contact;
+					case FavoriteItemType.Community:
 						return Symbol.People;
 					default:
 						throw new NotSupportedException();

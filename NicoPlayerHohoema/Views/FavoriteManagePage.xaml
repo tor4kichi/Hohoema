@@ -16,19 +16,10 @@
 
     <Page.Resources>
         <DataTemplate x:Key="FavoriteItemTemplate">
-            <Border Background="Transparent" Margin="8">
-                <i:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="Tapped">
-                        <core:InvokeCommandAction Command="{Binding SelectedCommand}" />
-                    </core:EventTriggerBehavior>
-
-                </i:Interaction.Behaviors>
-                
-                <TextBlock Text="{Binding Title}"
-                           VerticalAlignment="Center"
-                           />
-                
-            </Border>
+            <Button Content="{Binding Title}"
+                    Command="{Binding SelectedCommand}"
+                    >
+            </Button>
         </DataTemplate>
 
 
@@ -37,10 +28,6 @@
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
         <ScrollViewer x:Name="ScrollList"
-                      HorizontalScrollMode="Enabled"
-                      HorizontalScrollBarVisibility="Auto"
-                      VerticalScrollMode="Disabled"
-                      VerticalScrollBarVisibility="Hidden"
                       >
             <Border Margin="16">
                 <ItemsControl ItemsSource="{Binding Lists}">

@@ -13,6 +13,7 @@ namespace NicoPlayerHohoema.Models
 		Tag,
 		Mylist,
 		User,
+		Community,
 	}
 
 
@@ -28,6 +29,8 @@ namespace NicoPlayerHohoema.Models
 					return NiconicoItemType.Mylist;					
 				case FavoriteItemType.User:
 					return NiconicoItemType.User;
+				case FavoriteItemType.Community:
+					return null;
 				default:
 					throw new NotSupportedException();
 			}

@@ -59,6 +59,15 @@ namespace NicoPlayerHohoema.ViewModels
 					.ToList()
 			});
 
+			Lists.Add(new FavoriteListViewModel()
+			{
+				Name = "コミュニティ",
+				FavType = FavoriteItemType.Community,
+				Items = HohoemaApp.FavManager.Community.FavInfoItems
+					.Select(x => new FavoriteItemViewModel(x, PageManager))
+					.ToList()
+			});
+
 		}
 
 		public ObservableCollection<FavoriteListViewModel> Lists { get; private set; }
@@ -113,6 +122,9 @@ namespace NicoPlayerHohoema.ViewModels
 								break;
 							case FavoriteItemType.User:								
 								_PageManager.OpenPage(HohoemaPageType.UserInfo, this.SourceId);
+								break;
+							case FavoriteItemType.Community:
+								_PageManager.OpenPage(HohoemaPageType.Community, this.SourceId);
 								break;
 							default:
 								break;

@@ -6,6 +6,7 @@ using Mntone.Nico2.Mylist.MylistGroup;
 using Mntone.Nico2.Searches.Community;
 using Mntone.Nico2.Searches.Video;
 using Mntone.Nico2.Users.Fav;
+using Mntone.Nico2.Users.FavCommunity;
 using Mntone.Nico2.Users.User;
 using Mntone.Nico2.Users.Video;
 using Mntone.Nico2.Videos.Histories;
@@ -258,6 +259,14 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
+
+		public async Task<FavCommunityResponse> GetFavCommunities()
+		{
+			using (var releaser = await _NicoPageAccessLock.LockAsync())
+			{
+				return await _HohoemaApp.NiconicoContext.User.GetFavCommunityAsync();
+			}
+		}
 
 
 		public async Task<UserVideoResponse> GetUserVideos(uint userId, uint page, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
