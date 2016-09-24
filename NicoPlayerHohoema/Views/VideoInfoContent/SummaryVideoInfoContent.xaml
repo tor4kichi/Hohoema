@@ -87,13 +87,11 @@
                 <!-- 
             <mybehavior:WebViewAutoResizeToContent />
             -->
+                
                 <mybehavior:WebViewNotifyUriClicked
                             Command="{Binding ScriptNotifyCommand}"
                             />
 
-                <core:EventTriggerBehavior EventName="ScriptNotify">
-                    <core:InvokeCommandAction Command="{Binding ScriptNotifyCommand}" />
-                </core:EventTriggerBehavior>
             </i:Interaction.Behaviors>
 
         </WebView>

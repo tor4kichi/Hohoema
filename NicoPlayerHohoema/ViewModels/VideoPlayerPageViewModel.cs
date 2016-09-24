@@ -1225,7 +1225,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			_SidePaneContentCache.Clear();
 
-			_VideoDescriptionHtmlUri = await VideoDescriptionHelper.PartHtmlOutputToCompletlyHtml(VideoId, Video.DescriptionWithHtml);
+			_VideoDescriptionHtmlUri = await HtmlFileHelper.PartHtmlOutputToCompletlyHtml(VideoId, Video.DescriptionWithHtml);
 
 			if (SelectedSidePaneType.Value == MediaInfoDisplayType.Summary)
 			{
@@ -1718,19 +1718,29 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class TagViewModel
 	{
-		public TagViewModel(Tag tag, PageManager pageManager)
-		{
-			_Tag = tag;
-			_PageManager = pageManager;
-
-			TagText = _Tag.Value;
-			IsCategoryTag = _Tag.Category;
-			IsLock = _Tag.Lock;
-		}
-
 		public string TagText { get; private set; }
 		public bool IsCategoryTag { get; private set; }
 		public bool IsLock { get; private set; }
+		PageManager _PageManager;
+
+
+		public TagViewModel(string tag, PageManager pageManager)
+		{
+			_PageManager = pageManager;
+
+			TagText = tag;
+			IsCategoryTag = false;
+			IsLock = false;
+		}
+
+		public TagViewModel(Tag tag, PageManager pageManager)
+		{
+			_PageManager = pageManager;
+
+			TagText = tag.Value;
+			IsCategoryTag = tag.Category;
+			IsLock = tag.Lock;
+		}
 
 
 		private DelegateCommand _OpenSearchPageWithTagCommand;
@@ -1744,7 +1754,7 @@ namespace NicoPlayerHohoema.ViewModels
 						var payload = new SearchPagePayload(
 							new Models.TagSearchPagePayloadContent()
 							{
-								Keyword = _Tag.Value,
+								Keyword = TagText,
 								Sort = Sort.FirstRetrieve,
 								Order = Order.Descending
 							}
@@ -1772,8 +1782,6 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		Tag _Tag;
-		PageManager _PageManager;
 	}
 
 

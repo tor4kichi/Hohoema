@@ -6,18 +6,18 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
 
-namespace NicoPlayerHohoema.Models
+namespace NicoPlayerHohoema.Util
 {
-	public static class VideoDescriptionHelper
+	public static class HtmlFileHelper
 	{
 		
 
-		public static async Task<Uri> PartHtmlOutputToCompletlyHtml(string videoId, string descriptionHtml)
+		public static async Task<Uri> PartHtmlOutputToCompletlyHtml(string id, string html)
 		{
 			// Note: WebViewに渡すHTMLファイルをテンポラリフォルダを経由してアクセスします。
 			// WebView.Sourceの仕様上、テンポラリフォルダにサブフォルダを作成し、そのサブフォルダにコンテンツを配置しなければなりません。
 
-			const string VideDescHTMLFolderName = "VideoDesctiptionHTML";
+			const string VideDescHTMLFolderName = "html";
 			// ファイルとして動画説明HTMLを書き出す
 			var outputFolder = await ApplicationData.Current.TemporaryFolder.CreateFolderAsync(VideDescHTMLFolderName, CreationCollisionOption.OpenIfExists);
 
@@ -28,7 +28,7 @@ namespace NicoPlayerHohoema.Models
 
 			// ファイルのテンプレートになるHTMLテキストを取得して
 			var templateHtmlFileStorage = await StorageFile.GetFileFromApplicationUriAsync(
-				new Uri("ms-appx:///Assets/VideoDescription/VideoDescription.html")
+				new Uri("ms-appx:///Assets/html/template.html")
 				);
 
 			// テンプレートHTMLに動画説明を埋め込んだテキストを作成
@@ -37,13 +37,13 @@ namespace NicoPlayerHohoema.Models
 			{
 				var templateText = textReader.ReadToEnd();
 				descJoinedHtmlText = templateText
-					.Replace("{Description}", descriptionHtml)
+					.Replace("{content}", html)
 					.Replace("http://", "https://");
 			}
 
 
 			// テンポラリストレージ空間に動画説明HTMLファイルを書き込み
-			var filename = videoId + ".html";
+			var filename = id + ".html";
 			var savedVideoDescHtmlFile = await outputFolder.CreateFileAsync(filename, CreationCollisionOption.ReplaceExisting);
 			using (var stream = await savedVideoDescHtmlFile.OpenStreamForWriteAsync())
 			using (var writer = new StreamWriter(stream))
