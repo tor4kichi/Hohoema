@@ -73,8 +73,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public bool HasNews { get; private set; }
 
-		// TODO: 生放送
+		// 生放送
+		public List<CurrentLiveInfoViewModel> CurrentLiveInfoList { get; private set; }
 
+		public bool HasCurrentLiveInfo { get; private set; }
 
 		private bool _NowLoading;
 		public bool NowLoading
@@ -161,6 +163,12 @@ namespace NicoPlayerHohoema.ViewModels
 
 					HasNews = NewsList.Count > 0;
 
+
+					CurrentLiveInfoList = CommunityDetail.CurrentLiveList.Select(x => new CurrentLiveInfoViewModel(x, PageManager))
+						.ToList();
+
+					HasCurrentLiveInfo = CurrentLiveInfoList.Count > 0;
+
 					OnPropertyChanged(nameof(VideoCount));
 					OnPropertyChanged(nameof(PrivilegeDescription));
 					OnPropertyChanged(nameof(IsJoinAutoAccept));
@@ -175,6 +183,8 @@ namespace NicoPlayerHohoema.ViewModels
 					OnPropertyChanged(nameof(FutureLiveList));
 					OnPropertyChanged(nameof(NewsList));
 					OnPropertyChanged(nameof(HasNews));
+					OnPropertyChanged(nameof(CurrentLiveInfoList));
+					OnPropertyChanged(nameof(HasCurrentLiveInfo));
 
 
 				}
@@ -212,6 +222,41 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 	}
+
+
+	public class CurrentLiveInfoViewModel
+	{
+		public PageManager PageManager { get; private set; }
+
+		public string LiveTitle { get; private set; }
+		public string LiveId { get; private set; }
+		public string ShortDesc { get; private set; }
+
+		public CurrentLiveInfoViewModel(CommunityLiveInfo liveInfo, PageManager pageManager)
+		{
+			PageManager = pageManager;
+
+			LiveTitle = liveInfo.LiveTitle;
+			LiveId = liveInfo.LiveId;
+			ShortDesc = liveInfo.ShortDesc;
+		}
+
+		private DelegateCommand _OpenLivePageCommand;
+		public DelegateCommand OpenLivePageCommand
+		{
+			get
+			{
+				return _OpenLivePageCommand
+					?? (_OpenLivePageCommand = new DelegateCommand(() =>
+					{
+						// TODO: 生放送ページを開く lv0000000
+
+					}));
+			}
+		}
+	}
+
+
 	public class CommunityNewsViewModel
 	{
 		public static async Task<CommunityNewsViewModel> Create(

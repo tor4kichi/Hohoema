@@ -78,22 +78,47 @@
         <StackPanel Margin="16">
 
             <!-- 放送の状態表示 -->
-            <Border BorderBrush="Gray" BorderThickness="1 1 1 1" CornerRadius="8" Margin="0 8">
-                <toolkit:DockPanel Margin="32 16">
-                    <TextBlock Text="放送状態をここに表示"
-                               toolkit:DockPanel.Dock="Left"
-                               />
+            <Border BorderBrush="Gray" BorderThickness="1 1 1 1" CornerRadius="8" Margin="0 8"
+                    Visibility="{Binding HasCurrentLiveInfo, Converter={StaticResource BooleanToVisibility}}"
+                    >
 
-                    <Border Width="32" />
+                <StackPanel>
+
+                    <TextBlock Text="ただいま生放送中！" />
                     
-                    <Button Content="Go" Width="80" Height="48" />
                     
-                </toolkit:DockPanel>
+                    <ItemsControl ItemsSource="{Binding CurrentLiveInfoList}">
+
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="32 16">
+
+                                    <HyperlinkButton Command="{Binding OpenLivePageCommand}"
+                                                     >
+                                        <TextBlock Text="{Binding LiveTitle}"
+                                                   FontSize="18"
+                                           />
+                                    </HyperlinkButton>
+                                    
+
+                                    <TextBlock Text="{Binding ShortDesc}" />
+
+
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <Border Height="16" />
+                    
+                </StackPanel>
+                
+               
                 
                 <!-- 予約された放送もここに表示する？ -->
+                
             </Border>
             
-            <Border Height="32" />
 
             <!-- コミュニティの情報 -->
             <Border BorderBrush="Gray" BorderThickness="1 1 1 1" CornerRadius="8" Margin="0 8">
