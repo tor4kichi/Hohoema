@@ -82,11 +82,41 @@
                 </ComboBox>
             </StackPanel>
         </DataTemplate>
-        
+
+        <DataTemplate x:Key="LiveVideoSearchTargetTemplate">
+
+            <StackPanel Orientation="Horizontal" >
+                <ComboBox ItemsSource="{Binding LiveSearchSortOptionListItems}"
+                                  DisplayMemberPath="Label"
+                                  SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}"
+                                  Margin="0"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Center"
+                                  IsTabStop="True"
+                                  Width="150"
+                              >
+
+                </ComboBox>
+
+                <ComboBox ItemsSource="{Binding LiveSearchModeOptionListItems}"
+                                  DisplayMemberPath="Label"
+                                  SelectedItem="{Binding SelectedSearchMode.Value, Mode=TwoWay}"
+                                  Margin="16 0 0 0"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Center"
+                                  IsTabStop="True"
+                                  Width="150"
+                              >
+                </ComboBox>
+            </StackPanel>
+        </DataTemplate>
+
+
         <local:SearchTargetContentTemplateSelector x:Key="SearchTargetContentTemplateSelector"
                                                    Video="{StaticResource VideoSearchTargetTemplate}"
                                                    Mylist="{StaticResource MylistSearchTargetTemplate}"
                                                    Community="{StaticResource CommunitySearchTargetTemplate}"
+                                                   LiveVideo="{StaticResource LiveVideoSearchTargetTemplate}"
                                                    />
 
 
@@ -116,6 +146,9 @@
             <searchContent:CommunitySearchPageContent />
         </DataTemplate>
 
+        <DataTemplate x:Key="LiveVideoSearchContentTemplate">
+            <searchContent:LiveSearchPageContent />
+        </DataTemplate>
 
         <local:SearchPageContentTemplateSelector x:Key="SearchPageContentTemplateSelector"
                                                  Empty="{StaticResource EmptySearchContentTemplate}" 
@@ -123,6 +156,7 @@
                                                  Keyword="{StaticResource KeywordSearchContentTemplate}"
                                                  Mylist="{StaticResource MylistSearchContentTemplate}"
                                                  Community="{StaticResource CommunitySearchContentTemplate}"
+                                                 LiveVideo="{StaticResource LiveVideoSearchContentTemplate}"
                                                  />
     </Page.Resources>
 

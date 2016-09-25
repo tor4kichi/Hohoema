@@ -66,7 +66,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public List<TagViewModel> Tags { get; private set; }
 
 		// 生放送予定の表示
-		public List<LiveInfoViewModel> FutureLiveList { get; private set; }
+		public List<CommunityLiveInfoViewModel> FutureLiveList { get; private set; }
 
 		// コミュニティのお知らせ
 		public List<CommunityNewsViewModel> NewsList { get; private set; }
@@ -151,7 +151,7 @@ namespace NicoPlayerHohoema.ViewModels
 					Tags = CommunityDetail.Tags.Select(x => new TagViewModel(x, PageManager))
 						.ToList();
 
-					FutureLiveList = CommunityDetail.FutureLiveList.Select(x => new LiveInfoViewModel(x, PageManager))
+					FutureLiveList = CommunityDetail.FutureLiveList.Select(x => new CommunityLiveInfoViewModel(x, PageManager))
 						.ToList();
 
 					NewsList = new List<CommunityNewsViewModel>();
@@ -334,7 +334,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 	}
 
-	public class LiveInfoViewModel
+	public class CommunityLiveInfoViewModel
 	{
 		public LiveInfo LiveInfo { get; private set; }
 		public PageManager PageManager { get; private set; }
@@ -346,7 +346,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public DateTime StartTime { get; private set; }
 
 
-		public LiveInfoViewModel(LiveInfo info, PageManager pageManager)
+		public CommunityLiveInfoViewModel(LiveInfo info, PageManager pageManager)
 		{
 			LiveInfo = info;
 			PageManager = pageManager;

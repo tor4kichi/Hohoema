@@ -167,7 +167,6 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			get
 			{
-				// TODO: コミュニティの概要ページ作成後に開くコマンドを作成
 				return _OpenCommunityPageCommand
 					?? (_OpenCommunityPageCommand = new DelegateCommand(() => 
 					{

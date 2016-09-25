@@ -22,6 +22,7 @@ using Mntone.Nico2.Searches.Video;
 using NicoPlayerHohoema.Models.Db;
 using Mntone.Nico2.Searches.Community;
 using System.Runtime.Serialization;
+using Mntone.Nico2.Searches.Live;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -44,43 +45,23 @@ namespace NicoPlayerHohoema.ViewModels
 		public Dictionary<SearchTarget, SearchOptionViewModelBase> SearchOptionVMDict { get; private set; }
 		public ReactiveProperty<SearchOptionViewModelBase> SearchOptionVM { get; private set; }
 
-		public bool IsSearchKeyword
-		{
-			get
-			{
-				return RequireSearchOption is KeywordSearchPagePayloadContent;
-			}
-		}
+		public bool IsSearchKeyword => RequireSearchOption is KeywordSearchPagePayloadContent;
 
-		public bool IsSearchTag
-		{
-			get
-			{
-				return RequireSearchOption is TagSearchPagePayloadContent;
-			}
-		}
+		public bool IsSearchTag => RequireSearchOption is TagSearchPagePayloadContent;
 
-		public bool IsSearchMylist
-		{
-			get
-			{
-				return RequireSearchOption is MylistSearchPagePayloadContent;
-			}
-		}
+		public bool IsSearchMylist => RequireSearchOption is MylistSearchPagePayloadContent;
 
-		public bool IsSearchCommunity 
-		{
-			get
-			{
-				return RequireSearchOption is CommunitySearchPagePayloadContent;
-			}
-		}
+		public bool IsSearchCommunity => RequireSearchOption is CommunitySearchPagePayloadContent;
+
+		public bool IsSearchNiconama => RequireSearchOption is LiveSearchPagePayloadContent;
 
 		private void RaiseSearchTargetFlags()
 		{
 			OnPropertyChanged(nameof(IsSearchKeyword));
 			OnPropertyChanged(nameof(IsSearchTag));
 			OnPropertyChanged(nameof(IsSearchMylist));
+			OnPropertyChanged(nameof(IsSearchCommunity));
+			OnPropertyChanged(nameof(IsSearchNiconama));
 		}
 
 		public SearchPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
@@ -99,6 +80,7 @@ namespace NicoPlayerHohoema.ViewModels
 				SearchTarget.Tag,
 				SearchTarget.Mylist,
 				SearchTarget.Community,
+				SearchTarget.Niconama,
 			};
 
 			SelectedTarget = new ReactiveProperty<SearchTarget>(TargetListItems[0])
@@ -241,6 +223,14 @@ namespace NicoPlayerHohoema.ViewModels
 							, PageManager
 							);
 				}
+				else if (IsSearchNiconama)
+				{
+					contentVM = new LiveSearchPageContentViewModel(
+							RequireSearchOption as LiveSearchPagePayloadContent
+							, HohoemaApp
+							, PageManager
+						);
+				}
 				else
 				{
 					contentVM = new EmptySearchPageContentViewModel(
@@ -285,7 +275,7 @@ namespace NicoPlayerHohoema.ViewModels
 				case SearchTarget.Community:
 					return new CommunitySearchOptionViewModel();
 				case SearchTarget.Niconama:
-					break;
+					return new LiveSearchOptionViewModel();
 				default:
 					break;
 			}
@@ -614,6 +604,107 @@ namespace NicoPlayerHohoema.ViewModels
 				Sort = SelectedSearchSort.Value.Sort,
 				Order = SelectedSearchSort.Value.Order,
 				Mode = SelectedSearchMode.Value.Mode,
+			};
+		}
+	}
+
+
+
+	public class LiveSearchOptionViewModel : SearchOptionViewModelBase
+	{
+		public class LiveSearchSortOptionListItem
+		{
+			public string Label { get; set; }
+			public NicoliveSearchSort Sort { get; set; }
+			public Order Order { get; set; }
+		}
+
+		public class LiveSearchModeOptionListItem
+		{
+			public string Label { get; set; }
+			public NicoliveSearchMode? Mode { get; set; }
+		}
+
+		public static IReadOnlyList<LiveSearchSortOptionListItem> LiveSearchSortOptionListItems { get; private set; }
+		public static IReadOnlyList<LiveSearchModeOptionListItem> LiveSearchModeOptionListItems { get; private set; }
+
+		static LiveSearchOptionViewModel()
+		{
+			var sortList = new[]
+			{
+				NicoliveSearchSort.Recent,
+				NicoliveSearchSort.Comment,
+			};
+
+			LiveSearchSortOptionListItems = sortList.SelectMany(x =>
+			{
+				return new List<LiveSearchSortOptionListItem>()
+				{
+					new LiveSearchSortOptionListItem()
+					{
+						Sort = x,
+						Order = Order.Descending,
+					},
+					new LiveSearchSortOptionListItem()
+					{
+						Sort = x,
+						Order = Order.Ascending,
+					},
+				};
+			})
+			.ToList();
+
+			foreach (var item in LiveSearchSortOptionListItems)
+			{
+				item.Label = Util.SortHelper.ToCulturizedText(item.Sort, item.Order);
+			}
+
+
+			LiveSearchModeOptionListItems = new List<LiveSearchModeOptionListItem>()
+			{
+				new LiveSearchModeOptionListItem()
+				{
+					Label = "放送中",
+					Mode = NicoliveSearchMode.OnAir
+				},
+				new LiveSearchModeOptionListItem()
+				{
+					Label = "放送予定",
+					Mode = NicoliveSearchMode.Reserved
+				},
+				new LiveSearchModeOptionListItem()
+				{
+					Label = "放送終了",
+					Mode = NicoliveSearchMode.Closed
+				},
+				new LiveSearchModeOptionListItem()
+				{
+					Label = "すべて",
+					Mode = null
+				},
+			};
+		}
+
+		public ReactiveProperty<LiveSearchSortOptionListItem> SelectedSearchSort { get; private set; }
+		public ReactiveProperty<LiveSearchModeOptionListItem> SelectedSearchMode { get; private set; }
+		public ReactiveProperty<bool> IsTagSearch { get; private set; }
+
+		public LiveSearchOptionViewModel()
+		{
+			SelectedSearchSort = new ReactiveProperty<LiveSearchSortOptionListItem>(LiveSearchSortOptionListItems[0]);
+			SelectedSearchMode = new ReactiveProperty<LiveSearchModeOptionListItem>(LiveSearchModeOptionListItems[0]);
+			IsTagSearch = new ReactiveProperty<bool>(false);
+		}
+
+		public override ISearchPagePayloadContent MakePayload()
+		{
+			return new LiveSearchPagePayloadContent()
+			{
+				Keyword = Keyword,
+				Sort = SelectedSearchSort.Value.Sort,
+				Order = SelectedSearchSort.Value.Order,
+				Mode = SelectedSearchMode.Value.Mode,
+				IsTagSearch = IsTagSearch.Value
 			};
 		}
 	}

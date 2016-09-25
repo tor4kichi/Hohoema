@@ -81,6 +81,13 @@ namespace NicoPlayerHohoema.Models.AppMap
 					};
 					break;
 				case SearchTarget.Niconama:
+					content = new LiveSearchPagePayloadContent()
+					{
+						Keyword = history.Keyword,
+						Sort = Mntone.Nico2.Searches.Live.NicoliveSearchSort.Recent,
+						Order = Mntone.Nico2.Order.Ascending,
+						Mode = Mntone.Nico2.Searches.Live.NicoliveSearchMode.OnAir,
+					};
 					break;
 				default:
 					break;

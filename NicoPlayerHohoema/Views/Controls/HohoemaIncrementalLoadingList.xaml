@@ -51,6 +51,10 @@
             <local:CommunityInfoControl />
         </DataTemplate>
 
+        <DataTemplate x:Key="LiveVideoListItemTemplate">
+            <local:LiveVideoListItem />
+        </DataTemplate>
+
 
         <local:IncrementalLoadingListItemTemplateSelector x:Key="listItemTemplateSelector"
                                                           Default="{StaticResource DefaultListItemTemplate}"
@@ -61,6 +65,7 @@
                                                           Mylist="{StaticResource MylistListItemTemplate}"
                                                           SearchHistory="{StaticResource SearchHistoryListItemTemplate}"
                                                           Community="{StaticResource CommuniyListItemTemplate}"
+                                                          Live="{StaticResource LiveVideoListItemTemplate}"
                                                           >
             
             
