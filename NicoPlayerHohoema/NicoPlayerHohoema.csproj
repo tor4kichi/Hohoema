@@ -220,6 +220,7 @@
     <Compile Include="ViewModels\HohoemaListingPageViewModelBase.cs" />
     <Compile Include="ViewModels\HohoemaVideoListingPageViewModelBase.cs" />
     <Compile Include="ViewModels\HohoemaViewModelBase.cs" />
+    <Compile Include="ViewModels\LiveVideoPlayerPageViewModel.cs" />
     <Compile Include="ViewModels\LoginPageViewModel.cs" />
     <Compile Include="ViewModels\MenuNavigatePageBaseViewModel.cs" />
     <Compile Include="ViewModels\MylistPageViewModel.cs" />
@@ -323,6 +324,9 @@
     </Compile>
     <Compile Include="Views\FeedGroupPage.xaml.cs">
       <DependentUpon>FeedGroupPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\LiveVideoPlayerPage.xaml.cs">
+      <DependentUpon>LiveVideoPlayerPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MylistPage.xaml.cs">
       <DependentUpon>MylistPage.xaml</DependentUpon>
@@ -625,6 +629,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\LiveVideoPlayerPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\LoginPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -775,6 +783,10 @@
     <ProjectReference Include="..\BackgroundAudioShared\VideoBackgroundShared.csproj">
       <Project>{62c43640-d9fb-41b8-81b7-a02be8facd09}</Project>
       <Name>VideoBackgroundShared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NicoVideoRtmpClient\NicoVideoRtmpClient.csproj">
+      <Project>{4fa97e39-99df-423b-9de0-0d6662e98e7e}</Project>
+      <Name>NicoVideoRtmpClient</Name>
     </ProjectReference>
     <ProjectReference Include="..\VideoBackgroundTask\VideoBackgroundTask.csproj">
       <Project>{03e0d8ba-4f1d-4f35-8335-81b641bbbac1}</Project>

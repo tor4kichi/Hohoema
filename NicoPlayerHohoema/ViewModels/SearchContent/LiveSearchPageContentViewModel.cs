@@ -88,7 +88,7 @@ namespace NicoPlayerHohoema.ViewModels
 			)
 		{
 			HohoemaApp = app;
-			PageManager = PageManager;
+			PageManager = pageManager;
 			SearchOption = searchOption;
 		}
 
@@ -170,10 +170,10 @@ namespace NicoPlayerHohoema.ViewModels
 			LiveVideoInfo = liveVideoInfo;
 			PageManager = pageManager;
 
-
-			CommunityName = LiveVideoInfo.Community.Name;
-			CommunityThumbnail = LiveVideoInfo.Community.Thumbnail;
-			CommunityGlobalId = LiveVideoInfo.Community.GlobalId;
+			LiveId = liveVideoInfo.Video.Id;
+			CommunityName = LiveVideoInfo.Community?.Name;
+			CommunityThumbnail = LiveVideoInfo.Community?.Thumbnail;
+			CommunityGlobalId = LiveVideoInfo.Community?.GlobalId;
 			CommunityType = LiveVideoInfo.Video.ProviderType;
 
 			LiveTitle = LiveVideoInfo.Video.Title;
@@ -226,7 +226,7 @@ namespace NicoPlayerHohoema.ViewModels
 				return _OpenLiveVideoPageCommand
 					?? (_OpenLiveVideoPageCommand = new DelegateCommand(() =>
 					{
-//						PageManager.OpenPage(HohoemaPageType.LiveVideoPlayer, LiveId);
+						PageManager.OpenPage(HohoemaPageType.LiveVideoPlayer, LiveId);
 					}));
 			}
 		}
