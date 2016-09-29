@@ -151,7 +151,7 @@ namespace NicoPlayerHohoema.ViewModels
 				PageManager.PageTitle = PageManager.CurrentDefaultPageTitle();
 			}
 
-			
+
 		}
 
 		private async void _OnResumed()
@@ -223,8 +223,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
-			HohoemaApp.OnResumed -= _OnResumed;
-
+			if (!suspending)
+			{
+				HohoemaApp.OnResumed -= _OnResumed;
+			}
 			_NavigatedToTaskCancelToken?.Cancel();
 
 			var task = _NavigatedToTask.WaitToCompelation();
@@ -262,7 +264,7 @@ namespace NicoPlayerHohoema.ViewModels
 			HohoemaApp.OnSignout -= OnSignout;
 			HohoemaApp.OnSignin -= OnSignin;
 
-			HohoemaApp.OnResumed -= _OnResumed;
+
 		}
 
 

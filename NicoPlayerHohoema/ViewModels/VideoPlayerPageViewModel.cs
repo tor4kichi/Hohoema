@@ -1276,6 +1276,10 @@ namespace NicoPlayerHohoema.ViewModels
 				// Note: VideoStopPlayによってストリームの管理が行われます
 				// これは再生後もダウンロードしている場合に対応するためです
 				// stream.Dispose();
+				if (Video != null)
+				{
+					Video.StopPlay().ConfigureAwait(false);
+				}
 			}
 
 			_SidePaneContentCache.Clear();
@@ -1284,10 +1288,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			Comments.Clear();
 
-			if (Video != null)
-			{
-				Video.StopPlay().ConfigureAwait(false);				
-			}
+			
 
 			_BufferingMonitorDisposable?.Dispose();
 
@@ -1308,10 +1309,8 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				VideoStream.Value = null;
 
-//				Video.StopPlay().ConfigureAwait(false);
+				Video.StopPlay().ConfigureAwait(false);
 			}
-
-			Video = null;
 
 			_BufferingMonitorDisposable?.Dispose();
 		}
