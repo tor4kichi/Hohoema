@@ -478,6 +478,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 									MylistDescription = data.Description;
 
+									await ResetList();
 									// TODO: IsPublicなどの情報を表示
 
 									break;
@@ -581,13 +582,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 		PageManager _PageManager;
 
-
 		public DeflistMylistIncrementalSource(HohoemaApp hohoemaApp, PageManager pageManager)
 			: base(hohoemaApp, "DeflistMylist")
 		{
 			_PageManager = pageManager;
 		}
 
+		
 
 		#region Implements HohoemaPreloadingIncrementalSourceBase		
 
