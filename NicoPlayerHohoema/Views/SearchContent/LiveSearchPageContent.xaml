@@ -1,5 +1,5 @@
 ﻿<UserControl
-    x:Class="NicoPlayerHohoema.Views.SearchContent.CommunitySearchPageContent"
+    x:Class="NicoPlayerHohoema.Views.SearchContent.LiveSearchPageContent"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:NicoPlayerHohoema.Views.SearchContent"
@@ -34,6 +34,7 @@
 
 
                     <!-- 複数選択のON/OFF -->
+                    
                     <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Right" Margin="8">
                         <StackPanel Orientation="Horizontal" Margin="16 0">
 
@@ -52,6 +53,7 @@
                             <Run Text="{Binding MaxItemsCount.Value}" />
                             </TextBlock>
                         </StackPanel>
+
                         <!--
                         <ToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                       Content="選択モード"

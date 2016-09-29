@@ -34,6 +34,8 @@ namespace NicoPlayerHohoema.Models
 
 		Community,
 
+		LiveVideoPlayer,
+
 		Login,
 
 	}

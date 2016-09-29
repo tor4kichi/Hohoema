@@ -34,6 +34,7 @@ namespace NicoPlayerHohoema.Views
 		public DataTemplate Video { get; set; }
 		public DataTemplate Mylist { get; set; }
 		public DataTemplate Community { get; set; }
+		public DataTemplate LiveVideo { get; set; }
 
 		protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
 		{
@@ -49,6 +50,10 @@ namespace NicoPlayerHohoema.Views
 			{
 				return Community;
 			}
+			else if (item is ViewModels.LiveSearchOptionViewModel)
+			{
+				return LiveVideo;
+			}
 
 			return base.SelectTemplateCore(item, container);
 		}
@@ -62,6 +67,7 @@ namespace NicoPlayerHohoema.Views
 		public DataTemplate Keyword { get; set; }
 		public DataTemplate Mylist { get; set; }
 		public DataTemplate Community { get; set; }
+		public DataTemplate LiveVideo { get; set; }
 
 		protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
 		{
@@ -84,6 +90,10 @@ namespace NicoPlayerHohoema.Views
 			else if (item is ViewModels.CommunitySearchPageContentViewModel)
 			{
 				return Community;
+			}
+			else if (item is ViewModels.LiveSearchPageContentViewModel)
+			{
+				return LiveVideo;
 			}
 
 			return base.SelectTemplateCore(item, container);

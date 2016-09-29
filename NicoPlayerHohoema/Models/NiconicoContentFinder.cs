@@ -163,6 +163,34 @@ namespace NicoPlayerHohoema.Models
 			}, retryInterval:2000);
 		}
 
+
+		public async Task<Mntone.Nico2.Searches.Live.NicoliveVideoResponse> LiveSearchAsync(
+			string word,
+			bool isTagSearch,
+			Mntone.Nico2.Live.CommunityType? provider = null,
+			uint from = 0,
+			uint length = 30,
+			Order? order = null,
+			Mntone.Nico2.Searches.Live.NicoliveSearchSort? sort = null,
+			Mntone.Nico2.Searches.Live.NicoliveSearchMode? mode = null
+			)
+		{
+			using (var releaser = await _NicoPageAccessLock.LockAsync())
+			{
+				return await _HohoemaApp.NiconicoContext.Search.LiveSearchAsync(
+					word,
+					isTagSearch,
+					provider,
+					from,
+					length,
+					order,
+					sort,
+					mode
+					);
+			}
+		}
+
+
 		public Task<List<LoginUserMylistGroup>> GetLoginUserMylistGroups()
 		{
 			return ConnectionRetryUtil.TaskWithRetry(() =>

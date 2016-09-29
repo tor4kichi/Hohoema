@@ -1,5 +1,6 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Searches.Community;
+using Mntone.Nico2.Searches.Live;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -57,6 +58,20 @@ namespace NicoPlayerHohoema.Util
 					return isAscending ? "登録メンバーが少ない順" : "登録メンバーが多い順";
 				case CommunitySearchSort.VideoCount:
 					return isAscending ? "投稿動画数が少ない順" : "投稿動画数が多い順";
+				default:
+					throw new NotSupportedException();
+			}
+		}
+
+		public static string ToCulturizedText(NicoliveSearchSort sort, Order order)
+		{
+			var isAscending = order == Order.Ascending;
+			switch (sort)
+			{
+				case NicoliveSearchSort.Recent:
+					return isAscending ? "放送日時が近い順" : "放送日時が遠い順";
+				case NicoliveSearchSort.Comment:
+					return isAscending ? "コメントが少ない順" : "コメントが多い順";
 				default:
 					throw new NotSupportedException();
 			}

@@ -36,6 +36,7 @@ namespace NicoPlayerHohoema.Views.Controls
 		public DataTemplate Mylist { get; set; }
 		public DataTemplate SearchHistory { get; set; }
 		public DataTemplate Community { get; set; }
+		public DataTemplate Live { get; set; }
 
 
 
@@ -72,6 +73,10 @@ namespace NicoPlayerHohoema.Views.Controls
 			else if (item is ViewModels.CommunityInfoControlViewModel)
 			{
 				return Community;
+			}
+			else if (item is ViewModels.LiveInfoViewModel)
+			{
+				return Live;
 			}
 
 

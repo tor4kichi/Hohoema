@@ -1,5 +1,7 @@
 ﻿using Mntone.Nico2;
+using Mntone.Nico2.Live;
 using Mntone.Nico2.Searches.Community;
+using Mntone.Nico2.Searches.Live;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,6 +55,10 @@ namespace NicoPlayerHohoema.Models
 			{
 				SearchTarget = SearchTarget.Community;
 			}
+			else if (content is LiveSearchPagePayloadContent)
+			{
+				SearchTarget = SearchTarget.Niconama;
+			}
 
 			ContentJson = content.ToParameterString();
 		}
@@ -84,6 +90,7 @@ namespace NicoPlayerHohoema.Models
 					_Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CommunitySearchPagePayloadContent>(ContentJson);
 					break;
 				case SearchTarget.Niconama:
+					_Content = Newtonsoft.Json.JsonConvert.DeserializeObject<LiveSearchPagePayloadContent>(ContentJson);
 					break;
 				default:
 					break;
@@ -108,7 +115,7 @@ namespace NicoPlayerHohoema.Models
 				case SearchTarget.Community:
 					return new CommunitySearchPagePayloadContent();
 				case SearchTarget.Niconama:
-					break;
+					return new LiveSearchPagePayloadContent();
 				default:
 					break;
 			}
@@ -208,5 +215,24 @@ namespace NicoPlayerHohoema.Models
 
 		[DataMember]
 		public CommunitySearchMode Mode { get; set; }
+	}
+
+
+	public class LiveSearchPagePayloadContent : SearchPagePayloadContent
+	{
+		public override SearchTarget SearchTarget => SearchTarget.Niconama;
+
+
+		[DataMember]
+		public bool IsTagSearch { get; set; }
+
+		[DataMember]
+		public Mntone.Nico2.Order Order { get; set; }
+
+		[DataMember]
+		public NicoliveSearchSort Sort { get; set; }
+
+		[DataMember]
+		public NicoliveSearchMode? Mode { get; set; }
 	}
 }

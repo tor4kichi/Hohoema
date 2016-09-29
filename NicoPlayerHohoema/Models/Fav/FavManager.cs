@@ -140,7 +140,7 @@ namespace NicoPlayerHohoema.Models
 			{
 				await Sync(favInfoGroup);
 
-				await Task.Delay(500);
+				await Task.Delay(1000);
 			}
 		}
 
