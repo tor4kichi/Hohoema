@@ -15,75 +15,76 @@
 
     <Page.Resources>
         <DataTemplate x:Key="CategoryListItemTemplate">
-            <Border Background="Transparent" Margin="8">
-                <i:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="Tapped">
-                        <core:InvokeCommandAction Command="{Binding SelectedCommand}" />
-                    </core:EventTriggerBehavior>
-                </i:Interaction.Behaviors>
-                
+
+            <Button Command="{Binding SelectedCommand}"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    >
                 <TextBlock Text="{Binding Label}"
                            VerticalAlignment="Center"
                            HorizontalAlignment="Center"
                            FontWeight="{Binding FontWeight, Mode=OneTime}"
-                           >
+                           />
 
-                </TextBlock>
-            </Border>
+            </Button>
+                
         </DataTemplate>
     </Page.Resources>
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" >
+    <Grid x:Name="ContentLayoutRoot">
         <ScrollViewer VerticalScrollMode="Disabled" 
                       VerticalScrollBarVisibility="Hidden"
                       HorizontalScrollMode="Enabled" 
                       HorizontalScrollBarVisibility="Auto"
                       Margin="0 0 0 0">
-            <StackPanel Orientation="Horizontal">
 
-                <ItemsControl ItemsSource="{Binding RankingCategoryItems}"
+            <ItemsControl ItemsSource="{Binding RankingCategoryItems}"
+                          Height="{Binding ElementName=ContentLayoutRoot, Path=ActualHeight}"
                           >
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal"
-                                        Margin="16 16 16 0"
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"
+                                        Margin="8 8 8 0"
                                         />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
 
-                            <toolkit:DockPanel Margin="0 0">
-                          
-                                <ListView ItemsSource="{Binding}"
+                        <toolkit:DockPanel Margin="8 0">
+
+                            <ItemsControl ItemsSource="{Binding}"
                                           ItemTemplate="{StaticResource CategoryListItemTemplate}"
-                                          SelectionMode="None"
-                                          ScrollViewer.VerticalScrollMode="Auto"
-                                          ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                                          Height="{Binding ElementName=ContentLayoutRoot, Path=ActualHeight}"
+                                          
                                           >
-                                    <ListView.ItemContainerStyle>
-                                        <Style TargetType="ListViewItem">
-                                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                            <Setter Property="VerticalContentAlignment" Value="Stretch" />
-                                        </Style>
-                                    </ListView.ItemContainerStyle>
+                                <ItemsControl.ItemContainerStyle>
+                                    <Style TargetType="ContentPresenter">
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                                        <Setter Property="MinWidth" Value="150" />
+                                        <Setter Property="Padding" Value="0" />
+                                        <Setter Property="Margin" Value="0 0 4 4" />
+                                    </Style>
+                                </ItemsControl.ItemContainerStyle>
 
-                                    <ListView.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <StackPanel Orientation="Vertical" />
-                                        </ItemsPanelTemplate>
-                                    </ListView.ItemsPanel>
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <toolkit:WrapPanel Orientation="Vertical"
+                                                           ItemHeight="48"
+                                                               />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
 
-                                </ListView>
-                                
-                            </toolkit:DockPanel>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
+                            </ItemsControl>
 
-                </ItemsControl>
+                        </toolkit:DockPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
 
-                
-            </StackPanel>
+            </ItemsControl>
+
+
         </ScrollViewer>
     </Grid>
 </Page>
