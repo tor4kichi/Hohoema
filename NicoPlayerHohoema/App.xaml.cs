@@ -65,6 +65,8 @@ namespace NicoPlayerHohoema
 			this.Resuming += App_Resuming;
 			//			this.Suspending += App_Suspending;
 
+			RequestedTheme = GetTheme();
+
 			this.InitializeComponent();
 		}
 
@@ -80,8 +82,35 @@ namespace NicoPlayerHohoema
 			deferral.Complete();
 		}
 		*/
-		
-		
+
+		const string ThemeTypeKey = "Theme";
+
+		public static void SetTheme(ApplicationTheme theme)
+		{
+			if (ApplicationData.Current.LocalSettings.Values.ContainsKey(ThemeTypeKey))
+			{
+				ApplicationData.Current.LocalSettings.Values[ThemeTypeKey] = theme.ToString();
+			}
+			else
+			{
+				ApplicationData.Current.LocalSettings.Values.Add(ThemeTypeKey, theme.ToString());
+			}
+		}
+
+		public static ApplicationTheme GetTheme()
+		{
+			try
+			{
+				if (ApplicationData.Current.LocalSettings.Values.ContainsKey(ThemeTypeKey))
+				{
+					return (ApplicationTheme)Enum.Parse(typeof(ApplicationTheme), (string)ApplicationData.Current.LocalSettings.Values[ThemeTypeKey]);
+				}
+			}
+			catch { }
+
+			return ApplicationTheme.Dark;
+		}
+
 		protected override async Task OnSuspendingApplicationAsync()
 		{
 			if (_IsPreLaunch) { return; }
