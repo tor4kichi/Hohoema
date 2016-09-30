@@ -231,6 +231,7 @@
     <Compile Include="ViewModels\SearchContent\MylistSearchPageContentViewModel.cs" />
     <Compile Include="ViewModels\SearchContent\VideoSearchSortOptionListItem.cs" />
     <Compile Include="ViewModels\SearchContent\TagSearchPageContentViewModel.cs" />
+    <Compile Include="ViewModels\SettingsContent\AppDisplaySettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\CacheSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\CommentSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\VideoListSettingsPageContentViewModel.cs" />
@@ -410,6 +411,9 @@
     </Compile>
     <Compile Include="Views\Service\TextInputDialogService.cs" />
     <Compile Include="Views\Service\ToastNotificationService.cs" />
+    <Compile Include="Views\SettingsPageContent\AppDisplaySettingsPageContent.xaml.cs">
+      <DependentUpon>AppDisplaySettingsPageContent.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\SettingsPageContent\CacheSettingsPageContent.xaml.cs">
       <DependentUpon>CacheSettingsPageContent.xaml</DependentUpon>
     </Compile>
@@ -690,6 +694,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\Service\TextInputDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SettingsPageContent\AppDisplaySettingsPageContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

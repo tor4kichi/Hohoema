@@ -42,6 +42,14 @@
                     <settingsContent:CacheSettingsPageContent />
                 </DataTemplate>
             </view:SettingContentTemplateSelector.CacheTemplate>
+
+            <!-- AppDisplay -->
+            <view:SettingContentTemplateSelector.AppDisplayTemplate>
+                <DataTemplate>
+                    <settingsContent:AppDisplaySettingsPageContent />
+                </DataTemplate>
+            </view:SettingContentTemplateSelector.AppDisplayTemplate>
+            
         </view:SettingContentTemplateSelector>
     </Page.Resources>
     
