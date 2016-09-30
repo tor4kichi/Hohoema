@@ -38,7 +38,7 @@ namespace NicoPlayerHohoema.Models
 
 		public bool CanMoreAddFavorite()
 		{
-			return _FavInfoList.Count > MaxFavItemCount;
+			return _FavInfoList.Count < MaxFavItemCount;
 		}
 
 
