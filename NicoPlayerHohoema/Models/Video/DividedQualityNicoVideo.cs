@@ -11,7 +11,7 @@ using Windows.Storage;
 
 namespace NicoPlayerHohoema.Models
 {
-	abstract public class DividedQualityNicoVideo : BindableBase
+	public abstract class DividedQualityNicoVideo : BindableBase
 	{
 		// Note: ThumbnailResponseが初期化されていないと利用できない
 
@@ -44,7 +44,7 @@ namespace NicoPlayerHohoema.Models
 		/// このクオリティは利用可能か
 		/// (オリジナル画質しか存在しない動画の場合、true)
 		/// </summary>
-		abstract public bool IsAvailable { get; }
+		public abstract bool IsAvailable { get; }
 
 		public uint CacheProgressSize { get; private set; }
 
@@ -91,13 +91,13 @@ namespace NicoPlayerHohoema.Models
 
 
 
-		abstract public string VideoFileName { get; }
+		public abstract string VideoFileName { get; }
 
-		abstract public string ProgressFileName { get; }
+		public abstract string ProgressFileName { get; }
 
 
 
-		abstract public bool CanRequestDownload { get; }
+		public abstract bool CanRequestDownload { get; }
 
 		public abstract uint VideoSize { get; }
 		

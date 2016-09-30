@@ -287,7 +287,7 @@ namespace NicoPlayerHohoema.ViewModels
 	// SearchOptionのViewModel
 
 
-	abstract public class SearchOptionViewModelBase : BindableBase
+	public abstract class SearchOptionViewModelBase : BindableBase
 	{
 		private string _Keyword;
 		public string Keyword
@@ -296,11 +296,11 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _Keyword, value); }
 		}
 
-		abstract public ISearchPagePayloadContent MakePayload();
+		public abstract ISearchPagePayloadContent MakePayload();
 	}
 
 
-	abstract public class VideoSearchOptionViewModelBase : SearchOptionViewModelBase
+	public abstract class VideoSearchOptionViewModelBase : SearchOptionViewModelBase
 	{
 		private static List<SearchSortOptionListItem> _VideoSearchOptionListItems = new List<SearchSortOptionListItem>()
 		{

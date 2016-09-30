@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Models
 {
-	abstract public class FavInfoGroupBaseTemplate<FAV_SOURCE> : FavInfoGroupBase
+	public abstract class FavInfoGroupBaseTemplate<FAV_SOURCE> : FavInfoGroupBase
 	{
 		public FavInfoGroupBaseTemplate(HohoemaApp hohoemaApp) 
 			: base(hohoemaApp)
@@ -16,9 +16,9 @@ namespace NicoPlayerHohoema.Models
 
 		}
 
-		abstract protected Task<List<FAV_SOURCE>> GetFavSource();
-		abstract protected string FavSourceToItemId(FAV_SOURCE source);
-		abstract protected FavInfo ConvertToFavInfo(FAV_SOURCE source);
+		protected abstract Task<List<FAV_SOURCE>> GetFavSource();
+		protected abstract string FavSourceToItemId(FAV_SOURCE source);
+		protected abstract FavInfo ConvertToFavInfo(FAV_SOURCE source);
 
 
 		

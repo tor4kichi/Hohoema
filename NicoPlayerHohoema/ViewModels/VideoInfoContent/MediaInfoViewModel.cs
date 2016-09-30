@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 {
-	abstract public class MediaInfoViewModel : BindableBase, IDisposable
+	public abstract class MediaInfoViewModel : BindableBase, IDisposable
 	{
 		protected CompositeDisposable _CompositeDisposable;
 

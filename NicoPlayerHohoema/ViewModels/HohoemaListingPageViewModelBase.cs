@@ -22,7 +22,7 @@ using Microsoft.Practices.Unity;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	abstract public class HohoemaListingPageViewModelBase<ITEM_VM> : HohoemaViewModelBase
+	public abstract class HohoemaListingPageViewModelBase<ITEM_VM> : HohoemaViewModelBase
 		where ITEM_VM : HohoemaListingPageItemBase
 	{
 
@@ -235,7 +235,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected virtual void PostResetList() { }
 
-		abstract protected IIncrementalSource<ITEM_VM> GenerateIncrementalSource();
+		protected abstract IIncrementalSource<ITEM_VM> GenerateIncrementalSource();
 
 		protected virtual bool CheckNeedUpdateOnNavigateTo(NavigationMode mode) { return mode != NavigationMode.Back; }
 

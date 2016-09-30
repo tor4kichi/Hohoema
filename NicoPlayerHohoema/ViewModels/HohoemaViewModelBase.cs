@@ -17,7 +17,7 @@ using WinRTXamlToolkit.Async;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	abstract public class HohoemaViewModelBase : ViewModelBase, IDisposable
+	public abstract class HohoemaViewModelBase : ViewModelBase, IDisposable
 	{
 
 

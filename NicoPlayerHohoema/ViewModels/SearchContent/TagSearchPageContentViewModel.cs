@@ -138,8 +138,8 @@ namespace NicoPlayerHohoema.ViewModels
 			// お気に入り登録されているかチェック
 			var favManager = HohoemaApp.FavManager;
 			IsFavoriteTag.Value = favManager.IsFavoriteItem(FavoriteItemType.Tag, SearchOption.Keyword);
-			CanChangeFavoriteTagState.Value = favManager.CanMoreAddFavorite(FavoriteItemType.Tag);
-			
+			CanChangeFavoriteTagState.Value = IsFavoriteTag.Value == true || HohoemaApp.FavManager.CanMoreAddFavorite(FavoriteItemType.Tag);
+
 			_NowProcessFavorite = false;
 
 			return base.ListPageNavigatedToAsync(cancelToken, e, viewModelState);

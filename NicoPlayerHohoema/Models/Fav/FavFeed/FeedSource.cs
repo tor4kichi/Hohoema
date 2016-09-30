@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace NicoPlayerHohoema.Models
 {
 	[DataContract]
-	abstract public class FeedSource : IFeedSource
+	public abstract class FeedSource : IFeedSource
 	{
 		public FeedSource(string name, string id)
 		{
@@ -23,9 +23,9 @@ namespace NicoPlayerHohoema.Models
 		[DataMember(Name = "name")]
 		public string Name { get; set; }
 
-		abstract public FavoriteItemType FavoriteItemType { get; }
+		public abstract FavoriteItemType FavoriteItemType { get; }
 
-		abstract public Task<IEnumerable<FavFeedItem>> GetLatestItems(HohoemaApp hohoemaApp);
+		public abstract Task<IEnumerable<FavFeedItem>> GetLatestItems(HohoemaApp hohoemaApp);
 
 	}
 }

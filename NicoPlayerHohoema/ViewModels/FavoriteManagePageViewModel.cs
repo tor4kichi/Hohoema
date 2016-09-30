@@ -36,6 +36,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				Name = "ユーザー",
 				FavType = FavoriteItemType.User,
+				MaxItemCount = HohoemaApp.FavManager.User.MaxFavItemCount,
 				Items = HohoemaApp.FavManager.User.FavInfoItems
 					.Select(x => new FavoriteItemViewModel(x, PageManager))
 					.ToList()
@@ -45,6 +46,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				Name = "マイリスト",
 				FavType = FavoriteItemType.Mylist,
+				MaxItemCount = HohoemaApp.FavManager.Mylist.MaxFavItemCount,
 				Items = HohoemaApp.FavManager.Mylist.FavInfoItems
 					.Select(x => new FavoriteItemViewModel(x, PageManager))
 					.ToList()
@@ -54,6 +56,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				Name = "タグ",
 				FavType = FavoriteItemType.Tag,
+				MaxItemCount = HohoemaApp.FavManager.Tag.MaxFavItemCount,
 				Items = HohoemaApp.FavManager.Tag.FavInfoItems
 					.Select(x => new FavoriteItemViewModel(x, PageManager))
 					.ToList()
@@ -63,6 +66,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				Name = "コミュニティ",
 				FavType = FavoriteItemType.Community,
+				MaxItemCount = HohoemaApp.FavManager.Community.MaxFavItemCount,
 				Items = HohoemaApp.FavManager.Community.FavInfoItems
 					.Select(x => new FavoriteItemViewModel(x, PageManager))
 					.ToList()
@@ -77,6 +81,8 @@ namespace NicoPlayerHohoema.ViewModels
 	{
 		public FavoriteItemType FavType { get; set; }
 		public string Name { get; set; }
+		public uint MaxItemCount { get; set; }
+		public int ItemCount => Items.Count;
 
 		public List<FavoriteItemViewModel> Items { get; set; }
 	}

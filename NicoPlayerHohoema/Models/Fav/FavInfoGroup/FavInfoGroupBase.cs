@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Models
 {
-	abstract public class FavInfoGroupBase : IFavInfoGroup
+	public abstract class FavInfoGroupBase : IFavInfoGroup
 	{
 		#region Fields
 
@@ -33,15 +33,20 @@ namespace NicoPlayerHohoema.Models
 
 
 
-		abstract public FavoriteItemType FavoriteItemType { get; }
-		abstract public bool CanMoreAddFavorite();
+		public abstract FavoriteItemType FavoriteItemType { get; }
+		public abstract uint MaxFavItemCount { get; }
+
+		public bool CanMoreAddFavorite()
+		{
+			return _FavInfoList.Count < MaxFavItemCount;
+		}
 
 
-		abstract protected Task<ContentManageResult> AddFav_Internal(string id);
-		abstract protected Task<ContentManageResult> RemoveFav_Internal(string id);
+		protected abstract Task<ContentManageResult> AddFav_Internal(string id);
+		protected abstract Task<ContentManageResult> RemoveFav_Internal(string id);
 
 
-		abstract public Task Sync();
+		public abstract Task Sync();
 
 
 		public bool IsFavoriteItem(string id)

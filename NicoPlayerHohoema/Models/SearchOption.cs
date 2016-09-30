@@ -134,16 +134,16 @@ namespace NicoPlayerHohoema.Models
 	}
 
 	[DataContract]
-	abstract public class SearchPagePayloadContent : PagePayloadBase, ISearchPagePayloadContent
+	public abstract class SearchPagePayloadContent : PagePayloadBase, ISearchPagePayloadContent
 	{
 		[DataMember]
 		public string Keyword { get; set; }
 
-		abstract public SearchTarget SearchTarget { get; }
+		public abstract SearchTarget SearchTarget { get; }
 	}
 
 	[DataContract]
-	abstract public class VideoSearchOption : SearchPagePayloadContent, IEquatable<VideoSearchOption>
+	public abstract class VideoSearchOption : SearchPagePayloadContent, IEquatable<VideoSearchOption>
 	{
 		[DataMember]
 		public Mntone.Nico2.Order Order { get; set; }

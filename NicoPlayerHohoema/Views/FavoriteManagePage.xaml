@@ -25,7 +25,7 @@
 
         <local:FavTypeToSymbolIconConverter x:Key="FavTypeToSymbol" />
     </Page.Resources>
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid>
 
         <ScrollViewer x:Name="ScrollList"
                       >
@@ -48,14 +48,26 @@
                                            toolkit:DockPanel.Dock="Top"                                            
                                             >
                                     <SymbolIcon Symbol="{Binding FavType, Converter={StaticResource FavTypeToSymbol}}" 
-                                                Margin="8 8 16 8"
+                                                Margin="0 8 8 8"
+                                                VerticalAlignment="Center"
                                                 />
 
                                     <TextBlock Text="{Binding Name}" 
-                                           Margin="0 0 0 8"
+                                           Margin="8 0 "
                                            FontSize="20"
                                                VerticalAlignment="Center"
                                            />
+
+                                    <TextBlock 
+                                               VerticalAlignment="Center"
+                                               Opacity="0.8"
+                                               FontSize="13"
+                                               Margin="8 0"
+                                               >
+                                        <Run Text="{Binding ItemCount}" />
+                                        <Run Text="/" />
+                                        <Run Text="{Binding MaxItemCount}" />
+                                    </TextBlock>
 
                                 </StackPanel>
 

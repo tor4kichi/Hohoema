@@ -215,7 +215,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		virtual public void OnEnter() { }
 
-		abstract public void OnLeave();
+		public abstract void OnLeave();
 
 	}
 
