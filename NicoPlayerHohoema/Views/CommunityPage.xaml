@@ -264,7 +264,7 @@
                                     HorizontalAlignment="Stretch"
                                     VerticalAlignment="Stretch"
                                  
-                                    DefaultBackgroundColor="Transparent"
+                                    DefaultBackgroundColor="WhiteSmoke"
                                  >
                             <i:Interaction.Behaviors>
                                 <mybehavior:WebViewAutoResizeToContent />
@@ -319,7 +319,7 @@
                                         <WebView Source="{Binding ContentHtmlFileUri}"
                                                 HorizontalAlignment="Stretch"
                                                 VerticalAlignment="Stretch"
-                                                DefaultBackgroundColor="Transparent"
+                                                DefaultBackgroundColor="WhiteSmoke"
                                                  Margin="16 8 8 8"
                                              >
                                             <i:Interaction.Behaviors>
