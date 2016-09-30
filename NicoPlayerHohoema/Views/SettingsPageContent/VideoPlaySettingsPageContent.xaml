@@ -91,6 +91,7 @@
                                     Minimum="0.0"
                                     Maximum="1.0"
                                     HorizontalAlignment="Right"
+                                           Foreground="{ThemeResource ApplicationForegroundThemeBrush}"
                                     />
 
                 </toolkit:DockPanel>

@@ -28,45 +28,50 @@
 
                 <toolkit:DockPanel>
 
-                    <Border Margin="0 0 0 0" 
+                    <toolkit:DockPanel Margin="0 0 0 0" 
                         Visibility="{Binding IsHiddenLabel, Converter={StaticResource BooleanToVisibilityInverted}}"
-                        toolkit:DockPanel.Dock="Top"
+                        toolkit:DockPanel.Dock="Top"                                
+                                HorizontalAlignment="Stretch"
                         >
+                        <Border Background="{Binding OriginalContainer.ThemeColor, Converter={StaticResource ColorToBrush}}"
+                            toolkit:DockPanel.Dock="Left"   
+                            Width="8"
+                            Margin="0 0 4 0"
+                                />
                         <Button Content="{Binding Item.PrimaryLabel}"
                                 HorizontalAlignment="Stretch"
                                 HorizontalContentAlignment="Left"
                                 Height="48"
                                 FontSize="20"
                                 Command="{Binding OpenItemPageCommand}"
-                                Background="{Binding OriginalContainer.ThemeColor, Converter={StaticResource ColorToBrush}}"
                                />
-                    </Border>
+                    </toolkit:DockPanel>
 
 
-                    <ListView ItemsSource="{Binding Items}"
+                    <ItemsControl ItemsSource="{Binding Items}"
                               ItemTemplate="{StaticResource ItemTemplate}"
-                              Margin="4 4 0 0"
+                              Margin="12 4 0 0"
                               VerticalContentAlignment="Top"
                               ScrollViewer.VerticalScrollMode="Disabled"
                               ScrollViewer.HorizontalScrollMode="Enabled"
                                 >
-                        <ListView.ItemsPanel>
+                        <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <toolkit:WrapPanel Orientation="Horizontal"
                                                    />
                             </ItemsPanelTemplate>
-                        </ListView.ItemsPanel>
+                        </ItemsControl.ItemsPanel>
 
-                        <ListView.ItemContainerStyle>
-                            <Style TargetType="ListViewItem">
+                        <ItemsControl.ItemContainerStyle>
+                            <Style TargetType="ContentPresenter">
                                 <Setter Property="Margin" Value="0 0 4 4" />
                                 <Setter Property="Padding" Value="0" />
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                 <Setter Property="VerticalContentAlignment" Value="Stretch" />
                             </Style>
-                        </ListView.ItemContainerStyle>
+                        </ItemsControl.ItemContainerStyle>
 
-                    </ListView>
+                    </ItemsControl>
 
                 </toolkit:DockPanel>
 
@@ -80,35 +85,41 @@
 
                 <toolkit:DockPanel>
 
-                    <Border Margin="0 0 0 4" 
+                    <toolkit:DockPanel Margin="0 0 0 0" 
                         Visibility="{Binding IsHiddenLabel, Converter={StaticResource BooleanToVisibilityInverted}}"
-                        toolkit:DockPanel.Dock="Top"
+                        toolkit:DockPanel.Dock="Top"                                
+                                HorizontalAlignment="Stretch"
                         >
+                        <Border Background="{Binding OriginalContainer.ThemeColor, Converter={StaticResource ColorToBrush}}"
+                            toolkit:DockPanel.Dock="Left"   
+                            Width="8"
+                            Margin="0 0 4 0"
+                                />
                         <Button Content="{Binding Item.PrimaryLabel}"
                                 HorizontalAlignment="Stretch"
                                 HorizontalContentAlignment="Left"
                                 Height="48"
                                 FontSize="20"
                                 Command="{Binding OpenItemPageCommand}"
-                                Background="{Binding OriginalContainer.ThemeColor, Converter={StaticResource ColorToBrush}}"
                                />
-                    </Border>
+                    </toolkit:DockPanel>
 
 
-                    <ListView ItemsSource="{Binding Items}"
+                    <ItemsControl ItemsSource="{Binding Items}"
                                     ItemTemplate="{StaticResource ItemTemplate}"
                                   
-                                    Margin="0 0 0 0"
+                                    Margin="12 4 0 0"
                                 >
-                        <ListView.ItemContainerStyle>
-                            <Style TargetType="ListViewItem">
-                                <Setter Property="Margin" Value="0 0 0 1" />
+                        <ItemsControl.ItemContainerStyle>
+                            <Style TargetType="ContentPresenter">
+                                <Setter Property="Margin" Value="0 0 0 4" />
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                 <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                                <Setter Property="Height" Value="32" />
                             </Style>
-                        </ListView.ItemContainerStyle>
+                        </ItemsControl.ItemContainerStyle>
 
-                    </ListView>
+                    </ItemsControl>
 
                 </toolkit:DockPanel>
 
@@ -121,42 +132,50 @@
 
             <toolkit:DockPanel>
 
-                <Button Content="{Binding Item.PrimaryLabel}"
-                        toolkit:DockPanel.Dock="Top"
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Stretch"
-                        HorizontalContentAlignment="Left"
-                        FontSize="20"
-                        Command="{Binding OpenItemPageCommand}"
-                        Background="{Binding OriginalContainer.ThemeColor, Converter={StaticResource ColorToBrush}}"
-                        Margin="0 0 0 0"
-                        />
+                <toolkit:DockPanel Margin="0 0 0 0" 
+                        Visibility="{Binding IsHiddenLabel, Converter={StaticResource BooleanToVisibilityInverted}}"
+                        toolkit:DockPanel.Dock="Top"                                
+                                HorizontalAlignment="Stretch"
+                        >
+                    <Border Background="{Binding OriginalContainer.ThemeColor, Converter={StaticResource ColorToBrush}}"
+                            toolkit:DockPanel.Dock="Left"   
+                            Width="8"
+                            Margin="0 0 4 0"
+                                />
+                    <Button Content="{Binding Item.PrimaryLabel}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                Height="48"
+                                FontSize="20"
+                                Command="{Binding OpenItemPageCommand}"
+                               />
+                </toolkit:DockPanel>
 
-                <ListView ItemsSource="{Binding Items}"
+                <ItemsControl ItemsSource="{Binding Items}"
                                     ItemTemplate="{StaticResource ItemTemplate}"
                                   VerticalContentAlignment="Bottom"
-                              Margin="4 4 0 0"
+                              Margin="12 4 0 0"
                               
                               ScrollViewer.VerticalScrollMode="Disabled"
                               ScrollViewer.HorizontalScrollMode="Enabled"
                                 >
-                    <ListView.ItemsPanel>
+                    <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <toolkit:WrapPanel Orientation="Horizontal"
                                                 />
                         </ItemsPanelTemplate>
-                    </ListView.ItemsPanel>
+                    </ItemsControl.ItemsPanel>
 
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ContentPresenter">
                             <Setter Property="Margin" Value="0 0 4 4" />
                             <Setter Property="Padding" Value="0" />
                             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                             <Setter Property="VerticalContentAlignment" Value="Stretch" />
                         </Style>
-                    </ListView.ItemContainerStyle>
+                    </ItemsControl.ItemContainerStyle>
 
-                </ListView>
+                </ItemsControl>
 
 
             </toolkit:DockPanel>
@@ -167,29 +186,38 @@
 
             <toolkit:DockPanel>
 
-                <Button Content="{Binding Item.PrimaryLabel}"
-                        toolkit:DockPanel.Dock="Top"
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Stretch"
-                        HorizontalContentAlignment="Left"
-                        FontSize="20"
-                        Command="{Binding OpenItemPageCommand}"
-                        Background="{Binding OriginalContainer.ThemeColor, Converter={StaticResource ColorToBrush}}"
-                        Margin="0 0 0 4"
-                        />
+                <toolkit:DockPanel Margin="0 0 0 0" 
+                        Visibility="{Binding IsHiddenLabel, Converter={StaticResource BooleanToVisibilityInverted}}"
+                        toolkit:DockPanel.Dock="Top"                                
+                                HorizontalAlignment="Stretch"
+                        >
+                    <Border Background="{Binding OriginalContainer.ThemeColor, Converter={StaticResource ColorToBrush}}"
+                            toolkit:DockPanel.Dock="Left"   
+                            Width="8"
+                            Margin="0 0 4 0"
+                                />
+                    <Button Content="{Binding Item.PrimaryLabel}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                Height="48"
+                                FontSize="20"
+                                Command="{Binding OpenItemPageCommand}"
+                               />
+                </toolkit:DockPanel>
 
-                <ListView ItemsSource="{Binding Items}"
+                <ItemsControl ItemsSource="{Binding Items}"
                           ItemTemplate="{StaticResource ItemTemplate}"        
-                          Margin="0 0 0 0"
+                          Margin="12 4 0 0"
                           >
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
-                            <Setter Property="Margin" Value="0 0 0 1" />
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ContentPresenter">
+                            <Setter Property="Margin" Value="0 0 0 4" />
                             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                             <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                            <Setter Property="Height" Value="32" />
                         </Style>
-                    </ListView.ItemContainerStyle>
-                </ListView>
+                    </ItemsControl.ItemContainerStyle>
+                </ItemsControl>
 
 
             </toolkit:DockPanel>
@@ -276,14 +304,14 @@
 
         <ScrollViewer>
             <StackPanel>
-                <ItemsControl      x:Name="DesktopGridView"      
-                           ItemsSource="{Binding Root.Items}"
-                           ItemTemplateSelector="{StaticResource AppMapItemDataTemplateSelector}"
+                <ItemsControl  x:Name="DesktopGridView"      
+                               ItemsSource="{Binding Root.Items}"
+                               ItemTemplateSelector="{StaticResource AppMapItemDataTemplateSelector}"
                                    Margin="8 8 0 0"
-            >
+                              >
                     <ItemsControl.ItemContainerStyle>
                         <Style TargetType="ContentPresenter">
-                            <Setter Property="Margin" Value="0 0 8 8" />
+                            <Setter Property="Margin" Value="0 0 16 16" />
                             <Setter Property="MinWidth" Value="280" />
                         </Style>
                     </ItemsControl.ItemContainerStyle>
@@ -300,10 +328,11 @@
                 <ItemsControl  x:Name="MobileGridView"
                                 ItemsSource="{Binding Root.Items}"
                            ItemTemplateSelector="{StaticResource Mobile_AppMapItemDataTemplateSelector}"
+                               Margin="4 0 4 0"
                                     >
                     <ItemsControl.ItemContainerStyle>
                         <Style TargetType="ContentPresenter">
-                            <Setter Property="Margin" Value="0 0 0 8" />
+                            <Setter Property="Margin" Value="0 0 0 16" />
                         </Style>
                     </ItemsControl.ItemContainerStyle>
 

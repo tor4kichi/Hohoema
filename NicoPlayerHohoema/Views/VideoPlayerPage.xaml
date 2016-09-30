@@ -529,7 +529,6 @@
                                 <TextBlock Text="{Binding Title.Value}" 
                                            VerticalAlignment="Center"
                                            Margin="8 0"
-                                           Foreground="Black"
                                            TextWrapping="Wrap"
                                            
                                    />
@@ -627,7 +626,6 @@
                                         </Slider>
                                         <TextBlock Text="音量" 
                                                    VerticalAlignment="Center"
-                                                   Foreground="Black"
                                                    Margin="8 0 0 0"
                                                    HorizontalAlignment="Center"
                                                    FontSize="12"
