@@ -12,6 +12,7 @@ namespace NicoPlayerHohoema.Models
 	{
 		ReadOnlyObservableCollection<FavInfo> FavInfoItems { get; }
 		FavoriteItemType FavoriteItemType { get; }
+		uint MaxFavItemCount { get; }
 
 		bool CanMoreAddFavorite();
 		bool IsFavoriteItem(string id);

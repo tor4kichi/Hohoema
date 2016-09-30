@@ -36,6 +36,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				Name = "ユーザー",
 				FavType = FavoriteItemType.User,
+				MaxItemCount = HohoemaApp.FavManager.User.
 				Items = HohoemaApp.FavManager.User.FavInfoItems
 					.Select(x => new FavoriteItemViewModel(x, PageManager))
 					.ToList()
@@ -77,6 +78,8 @@ namespace NicoPlayerHohoema.ViewModels
 	{
 		public FavoriteItemType FavType { get; set; }
 		public string Name { get; set; }
+		public int MaxItemCount { get; set; }
+		public int ItemCount => Items.Count;
 
 		public List<FavoriteItemViewModel> Items { get; set; }
 	}

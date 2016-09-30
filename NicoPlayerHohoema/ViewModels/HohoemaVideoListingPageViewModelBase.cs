@@ -23,7 +23,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	abstract public class HohoemaVideoListingPageViewModelBase<VIDEO_INFO_VM> : HohoemaListingPageViewModelBase<VIDEO_INFO_VM>
+	public abstract class HohoemaVideoListingPageViewModelBase<VIDEO_INFO_VM> : HohoemaListingPageViewModelBase<VIDEO_INFO_VM>
 		where VIDEO_INFO_VM : VideoInfoControlViewModel
 	{
 		public HohoemaVideoListingPageViewModelBase(HohoemaApp app, PageManager pageManager, MylistRegistrationDialogService mylistDialogService, bool isRequireSignIn = true)

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	abstract public class HohoemaIncrementalSourceBase<T> : IIncrementalSource<T>
+	public abstract class HohoemaIncrementalSourceBase<T> : IIncrementalSource<T>
 	{
 		public const uint DefaultOneTimeLoadCount = 10;
 
@@ -20,7 +20,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-	abstract public class HohoemaPreloadingIncrementalSourceBase<T> : HohoemaIncrementalSourceBase<T>
+	public abstract class HohoemaPreloadingIncrementalSourceBase<T> : HohoemaIncrementalSourceBase<T>
 	{
 		public HohoemaApp HohoemaApp { get; private set; }
 		public int TotalCount { get; private set; }
@@ -35,10 +35,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public string PreloadScheduleLabel { get; private set; }
 
-		abstract protected Task Preload(int start, int count);
+		protected abstract Task Preload(int start, int count);
 
-		abstract protected Task<int> ResetSourceImpl();
-		abstract protected Task<IEnumerable<T>> GetPagedItemsImpl(int start, int count);
+		protected abstract Task<int> ResetSourceImpl();
+		protected abstract Task<IEnumerable<T>> GetPagedItemsImpl(int start, int count);
 
 
 
@@ -84,7 +84,7 @@ namespace NicoPlayerHohoema.ViewModels
 	}
 
 
-	abstract public class HohoemaVideoPreloadingIncrementalSourceBase<T> : HohoemaPreloadingIncrementalSourceBase<T>
+	public abstract class HohoemaVideoPreloadingIncrementalSourceBase<T> : HohoemaPreloadingIncrementalSourceBase<T>
 		where T : VideoInfoControlViewModel
 	{
 		private List<NicoVideo> _VideoItems;
@@ -99,8 +99,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		
-		abstract protected Task<IEnumerable<NicoVideo>> PreloadNicoVideo(int start, int count);
-		abstract protected T NicoVideoToTemplatedItem(NicoVideo sourceNicoVideos, int index);
+		protected abstract Task<IEnumerable<NicoVideo>> PreloadNicoVideo(int start, int count);
+		protected abstract T NicoVideoToTemplatedItem(NicoVideo sourceNicoVideos, int index);
 
 
 		protected async Task<NicoVideo> ToNicoVideo(string videoId)

@@ -11,7 +11,7 @@ using Windows.Storage;
 
 namespace NicoPlayerHohoema.Util
 {
-	abstract public class Cacheable<T>
+	public abstract class Cacheable<T>
 //		where T : new()
 	{
 		// WatchApiとかThumbnailInfoを管理するベースクラス
@@ -57,7 +57,7 @@ namespace NicoPlayerHohoema.Util
 		protected virtual bool CanGetLatest { get { return true; } }
 
 
-		abstract protected Task<T> GetLatest();
+		protected abstract Task<T> GetLatest();
 
 
 		protected virtual void UpdateToRecent(T item) { }

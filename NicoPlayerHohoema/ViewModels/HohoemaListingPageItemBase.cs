@@ -8,7 +8,7 @@ using System.Windows.Input;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	abstract public class HohoemaListingPageItemBase : BindableBase, IDisposable
+	public abstract class HohoemaListingPageItemBase : BindableBase, IDisposable
 	{
 		public abstract ICommand SelectedCommand { get; }
 
