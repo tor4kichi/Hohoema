@@ -397,6 +397,10 @@
       <DependentUpon>AcceptCacheUsaseDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Service\AcceptCacheUsaseDialogService.cs" />
+    <Compile Include="Views\Service\ContentSelectDialog.xaml.cs">
+      <DependentUpon>ContentSelectDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Service\ContentSelectDialogSeraice.cs" />
     <Compile Include="Views\Service\DislikeRankingCtegoryChoiceDialog.xaml.cs">
       <DependentUpon>DislikeRankingCtegoryChoiceDialog.xaml</DependentUpon>
     </Compile>
@@ -686,6 +690,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Service\AcceptCacheUsaseDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Service\ContentSelectDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -1,0 +1,80 @@
+﻿<ContentDialog
+    x:Class="NicoPlayerHohoema.Views.Service.ContentSelectDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views.Service"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    mc:Ignorable="d"
+    Title="{Binding Title}"
+    PrimaryButtonText="キャンセル"
+    SecondaryButtonText="選択"
+    IsSecondaryButtonEnabled="{Binding IsValidItemSelected.Value}"
+    >
+
+    <ContentDialog.Resources>
+
+        <DataTemplate x:Key="ChoiceFromListTemplate">
+            
+            <ListView ItemsSource="{Binding Items}"
+                      DisplayMemberPath="Label"
+                      SelectedItem="{Binding SelectedItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                      />
+            
+        </DataTemplate>
+
+        <DataTemplate x:Key="InputTextTemplate">
+
+            <StackPanel>
+                <TextBox Text="{Binding Text.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     MinWidth="200"
+                     />
+
+                <TextBlock Text="{Binding ErrorText.Value}" 
+                           Visibility="{Binding HasError.Value, Converter={StaticResource BooleanToVisibility}}"
+                           Foreground="Red"
+                           Opacity="0.8"
+                           Margin="0 4"
+                           />
+
+            </StackPanel>
+
+            
+        </DataTemplate>
+
+        <local:ContentSelectContainerTemplateSelector x:Key="ContentSelectContainerTemplateSelector"
+                                                      List="{StaticResource ChoiceFromListTemplate}"
+                                                      InputText="{StaticResource InputTextTemplate}"
+                                                      />
+
+    </ContentDialog.Resources>
+
+    <Grid>
+
+        <toolkit:DockPanel Margin="0 16">
+
+            <TextBlock Text="選択方法" 
+                       toolkit:DockPanel.Dock="Left"
+                       VerticalAlignment="Center"
+                       />
+
+            <ComboBox ItemsSource="{Binding SelectableContainerList}"
+                      DisplayMemberPath="Label"
+                      HorizontalAlignment="Right"
+                  >
+            </ComboBox>
+
+        </toolkit:DockPanel>
+
+        <ContentControl Content="{Binding SelectedContainer.Value}"
+                        ContentTemplate="{StaticResource ContentSelectContainerTemplateSelector}"
+                        HorizontalContentAlignment="Stretch"
+                        VerticalContentAlignment="Stretch"
+                        />
+
+    </Grid>
+</ContentDialog>
