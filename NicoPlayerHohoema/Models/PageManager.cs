@@ -165,6 +165,8 @@ namespace NicoPlayerHohoema.Models
 					return "設定";
 				case HohoemaPageType.About:
 					return "このアプリについて";
+				case HohoemaPageType.Feedback:
+					return "フィードバック";
 				case HohoemaPageType.VideoInfomation:
 					return "動画情報";
 				case HohoemaPageType.VideoPlayer:

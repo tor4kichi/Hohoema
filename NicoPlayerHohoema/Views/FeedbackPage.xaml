@@ -1,0 +1,90 @@
+﻿<Page
+    x:Class="NicoPlayerHohoema.Views.FeedbackPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"    
+    mc:Ignorable="d">
+
+    <Grid>
+
+        <StackPanel Margin="16 8 16 16" 
+                    MaxWidth="600" 
+                    HorizontalAlignment="Left">
+
+            <Button Content="アプリの評価・レビューを行う"
+                    Margin="0 16"
+                    Command="{Binding LaunchAppReviewCommand}"
+                    />
+
+            <TextBlock Margin="16 8 8 8"
+                       TextWrapping="Wrap"                       
+                       >
+                <Run>Windows10のストアアプリを起動して評価・レビューの記入を開始します。</Run>
+            </TextBlock>
+
+            
+            
+
+            <Border HorizontalAlignment="Stretch"
+                    BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                    BorderThickness="1 1 0 0"
+                    Margin="0 16"
+                    />
+
+            
+            
+            
+            <Button Content="フィードバックHubで問題点・改善点を共有する" 
+                    Margin="0 16"
+                    Command="{Binding LaunchFeedbackHubCommand}"
+                    Visibility="{Binding IsSupportedFeedbackHub, Converter={StaticResource BooleanToVisibility}}"
+                    >
+
+            </Button>
+
+            <TextBlock Margin="16 8 8 8"
+                       TextWrapping="Wrap"
+                       >
+                <Run>アプリに対するフィードバックをWindows10特有のフィードバックHUBを通じて行います。</Run>
+                <Run>フィードバックHUBで共有された課題、必要とされる機能などは開発の優先度合いに影響を与えます。</Run>
+            </TextBlock>
+            
+            
+            
+            
+            
+            <Border HorizontalAlignment="Stretch"
+                    BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                    BorderThickness="1 1 0 0"
+                    Margin="0 16"
+                    />
+            
+            <Button Content="開発者が認識している課題一覧を見る"
+                    Margin="0 16"
+                    Command="{Binding ShowIssuesWithBrowserCommand}"
+                    >
+
+            </Button>
+
+            <TextBlock Margin="16 8 8 8"
+                       TextWrapping="Wrap"
+                       >
+                <Run>Hohoemaの課題の一覧を表示します。</Run>
+                <Run>現在どんな課題があって、いつ頃に解決する見通しなのか大まかに知ることができます。</Run>
+                <Run>フィードバックHUB等に報告された課題を、一度開発者が整理した上で課題一覧に追加します。</Run>
+            </TextBlock>
+            
+
+        </StackPanel>
+        <!-- フィードバックの説明 -->
+        
+        <!-- 既に認識されている問題の一覧 -->
+    </Grid>
+</Page>
