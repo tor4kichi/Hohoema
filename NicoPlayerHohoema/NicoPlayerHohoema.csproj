@@ -108,6 +108,7 @@
     <Content Include="Assets\LibLisencies\Material Design Icons.txt" />
     <Content Include="Assets\LibLisencies\UWP Community Toolkit.txt" />
     <Content Include="Assets\LibLisencies\_lisence_summary.json" />
+    <None Include="Assets\OAuth\twitter.json" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <None Include="project.json" />
   </ItemGroup>
