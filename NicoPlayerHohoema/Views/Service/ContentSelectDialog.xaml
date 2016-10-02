@@ -20,7 +20,7 @@
 
         <DataTemplate x:Key="ChoiceFromListTemplate">
             
-            <ListView ItemsSource="{Binding Items}"
+            <ComboBox ItemsSource="{Binding Items}"
                       DisplayMemberPath="Label"
                       SelectedItem="{Binding SelectedItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                       />
@@ -34,12 +34,23 @@
                      MinWidth="200"
                      />
 
-                <TextBlock Text="{Binding ErrorText.Value}" 
-                           Visibility="{Binding HasError.Value, Converter={StaticResource BooleanToVisibility}}"
-                           Foreground="Red"
-                           Opacity="0.8"
-                           Margin="0 4"
-                           />
+                <ListView ItemsSource="{Binding CandidateItems}"
+                          SelectedItem="{Binding SelectedItem.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                          DisplayMemberPath="Label"
+                          Visibility="{Binding IsSelectFromCandidate, Converter={StaticResource BooleanToVisibility}}"
+                          MinHeight="150"
+                          >
+                    <ListView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <toolkit:WrapPanel Orientation="Horizontal"
+                                               >
+                                
+                            </toolkit:WrapPanel>
+                        </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
+                    
+                </ListView>
+                
 
             </StackPanel>
 
@@ -53,7 +64,7 @@
 
     </ContentDialog.Resources>
 
-    <Grid>
+    <StackPanel>
 
         <toolkit:DockPanel Margin="0 16">
 
@@ -63,6 +74,7 @@
                        />
 
             <ComboBox ItemsSource="{Binding SelectableContainerList}"
+                      SelectedItem="{Binding SelectedContainer.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                       DisplayMemberPath="Label"
                       HorizontalAlignment="Right"
                   >
@@ -71,10 +83,10 @@
         </toolkit:DockPanel>
 
         <ContentControl Content="{Binding SelectedContainer.Value}"
-                        ContentTemplate="{StaticResource ContentSelectContainerTemplateSelector}"
+                        ContentTemplateSelector="{StaticResource ContentSelectContainerTemplateSelector}"
                         HorizontalContentAlignment="Stretch"
                         VerticalContentAlignment="Stretch"
                         />
 
-    </Grid>
+    </StackPanel>
 </ContentDialog>

@@ -30,8 +30,8 @@ namespace NicoPlayerHohoema.Views.Service
 
 	public class ContentSelectContainerTemplateSelector : DataTemplateSelector
 	{
-		public DataTemplate List { get; private set; }
-		public DataTemplate InputText { get; private set; }
+		public DataTemplate List { get; set; }
+		public DataTemplate InputText { get; set; }
 
 
 		protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)

@@ -1,4 +1,5 @@
-﻿using Prism.Mvvm;
+﻿using NicoPlayerHohoema.Util;
+using Prism.Mvvm;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -6,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,9 +21,9 @@ namespace NicoPlayerHohoema.Views.Service
 		public string DialogTitle { get; set; }
 		public string ChoiceListTitle { get; set; }
 		public List<SelectDialogPayload> ChoiceList { get; set; }
-		public string CustomTextTitle { get; set; }
 
-		public Func<string, string> CustomTextValidater { get; set; }
+		public string TextInputTitle { get; set; }
+		public Func<string, Task<List<SelectDialogPayload>>> GenerateCandiateList { get; set; }
 	}
 
 	public sealed class ContentSelectDialogService
@@ -29,7 +31,7 @@ namespace NicoPlayerHohoema.Views.Service
 		public Task<SelectDialogPayload> ShowDialog(ContentSelectDialogDefaultSet dialogContentSet)
 		{
 			var choiceListContainer = new ChoiceFromListSelectableContainer(dialogContentSet.ChoiceListTitle, dialogContentSet.ChoiceList);
-			var customTextContainer = new TextInputSelectableContainer(dialogContentSet.CustomTextTitle, dialogContentSet.CustomTextValidater);
+			var customTextContainer = new TextInputSelectableContainer(dialogContentSet.TextInputTitle, dialogContentSet.GenerateCandiateList);
 
 			var containers = new ISelectableContainer[] { choiceListContainer, customTextContainer };
 
@@ -230,56 +232,123 @@ namespace NicoPlayerHohoema.Views.Service
 
 		IDisposable _TextErrorSubscriptionDisposer;
 
-		public TextInputSelectableContainer(string label, Func<string, string> validater, string defaultText = "")
+		public Func<string, Task<List<SelectDialogPayload>>> GenerateCandidateList { get; private set; }
+		AsyncLock _UpdateCandidateListLock = new AsyncLock();
+
+		CompositeDisposable _CompositeDisposable;
+
+		public TextInputSelectableContainer(string label, Func<string, Task<List<SelectDialogPayload>>> generateCandiateList, string defaultText = "")
 			: base(label)
 		{
-			_TextValidater = validater != null ? validater : (s) => null;
+			_CompositeDisposable = new CompositeDisposable();
+			IsSelectFromCandidate = generateCandiateList != null;
+			GenerateCandidateList = generateCandiateList;
+			NowUpdateCandidateList = new ReactiveProperty<bool>(false)
+				.AddTo(_CompositeDisposable);
+
 			Text = new ReactiveProperty<string>(defaultText)
-				.SetValidateNotifyError(_TextValidater);
+				.AddTo(_CompositeDisposable);
+			CandidateItems = new ObservableCollection<SelectDialogPayload>();
+			SelectedItem = new ReactiveProperty<SelectDialogPayload>()
+				.AddTo(_CompositeDisposable);
 
-			_TextErrorSubscriptionDisposer = Text.ObserveErrorChanged
-				.Subscribe(x => 
+			if (IsSelectFromCandidate)
 			{
-				ErrorText.Value = x?.Cast<string>().FirstOrDefault();
-				HasError.Value = !string.IsNullOrEmpty(ErrorText.Value);
+				var dispatcher = Windows.UI.Xaml.Window.Current.Dispatcher;
+				Text
+					.Throttle(TimeSpan.FromSeconds(0.5))
+					.Where(x => !string.IsNullOrWhiteSpace(x))
+					.Subscribe(async x => 
+				{
+					using (var releaser = await _UpdateCandidateListLock.LockAsync())
+					{
+						NowUpdateCandidateList.Value = true;
 
-				_IsValidatedSelection = !HasError.Value;
-				OnPropertyChanged(nameof(IsValidatedSelection));
+						var list = await GenerateCandidateList.Invoke(x);
 
-				SelectionItemChanged?.Invoke(this);
+						// 表示候補を取得
+						await dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+						{
+							SelectedItem.Value = null;
 
-			});
+							CandidateItems.Clear();
+
+							if (list == null) { return; }
+
+							foreach (var item in list)
+							{
+								CandidateItems.Add(item);
+							}
+
+							// 候補が一つだけの場合は予め選択
+							if (CandidateItems.Count == 1)
+							{
+								SelectedItem.Value = CandidateItems.First();
+							}
+						});
+
+						NowUpdateCandidateList.Value = false;
+					}
+				})
+				.AddTo(_CompositeDisposable);
+
+				SelectedItem.Subscribe(x => 
+				{
+					_IsValidatedSelection = x != null;
+					OnPropertyChanged(nameof(IsValidatedSelection));
+
+					SelectionItemChanged?.Invoke(this);
+				})
+				.AddTo(_CompositeDisposable);
+			}
+			else
+			{
+				Text.Subscribe(x => 
+				{
+					_IsValidatedSelection = !string.IsNullOrEmpty(x);
+					OnPropertyChanged(nameof(IsValidatedSelection));
+
+					SelectionItemChanged?.Invoke(this);
+				})
+				.AddTo(_CompositeDisposable);
+			}
 		}
 
 
 		public override void Dispose()
 		{
-			Text.Dispose();
-			_TextErrorSubscriptionDisposer?.Dispose();
-
+			_CompositeDisposable.Dispose();
 			base.Dispose();
 		}
-
-		private Func<string, string> _TextValidater;
-
-		public ReactiveProperty<bool> HasError { get; private set; }
-		public ReactiveProperty<string> ErrorText { get; private set; }
 
 		private bool _IsValidatedSelection;
 		public override bool IsValidatedSelection => _IsValidatedSelection;
 
 		public ReactiveProperty<string> Text { get; private set; }
 
+
+		public bool IsSelectFromCandidate { get; private set; }
+		public ObservableCollection<SelectDialogPayload> CandidateItems { get; private set; }
+		public ReactiveProperty<SelectDialogPayload> SelectedItem { get; private set; }
+		public ReactiveProperty<bool> NowUpdateCandidateList { get; private set; }
+
+
 		public override event Action<ISelectableContainer> SelectionItemChanged;
 
 		public override SelectDialogPayload GetResult()
 		{
-			return new SelectDialogPayload()
+			if (IsSelectFromCandidate)
 			{
-				Label = Text.Value,
-				Id = Text.Value
-			};
-
+				return SelectedItem.Value;
+			}
+			else
+			{
+				return new SelectDialogPayload()
+				{
+					Label = Text.Value,
+					Id = Text.Value
+				};
+			}
 		}
 	}
 

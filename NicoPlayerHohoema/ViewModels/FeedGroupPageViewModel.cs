@@ -46,9 +46,13 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> IsPublicFeedSource { get; private set; }
 		
 
-		public FeedGroupPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager) 
+		public Views.Service.ContentSelectDialogService ContentSelectDialogService { get; private set; }
+
+		public FeedGroupPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.ContentSelectDialogService contentSelectDialogService) 
 			: base(hohoemaApp, pageManager, isRequireSignIn:true )
 		{
+			ContentSelectDialogService = contentSelectDialogService;
+
 			IsDeleted = new ReactiveProperty<bool>();
 
 			FeedGroupName = new ReactiveProperty<string>();
@@ -468,6 +472,227 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 
 		}
+
+
+		private DelegateCommand _AddTagFeedSourceCommand;
+		public DelegateCommand AddTagFeedSourceCommand
+		{
+			get
+			{
+				return _AddTagFeedSourceCommand
+					?? (_AddTagFeedSourceCommand = new DelegateCommand(async () =>
+					{
+						/// 
+						var defaultSet = new Views.Service.ContentSelectDialogDefaultSet()
+						{
+							DialogTitle = "タグからフィード元を選択",
+							ChoiceListTitle = "お気に入りタグから選ぶ",
+							ChoiceList = HohoemaApp.FavManager.Tag.FavInfoItems.Select(x =>
+								new Views.Service.SelectDialogPayload()
+								{
+									Label = x.Name,
+									Id = x.Id
+								}
+							).ToList(),
+							TextInputTitle = "タグを直接入力",
+							GenerateCandiateList = null
+						};
+
+						var result = await ContentSelectDialogService.ShowDialog(defaultSet);
+
+						if (result != null)
+						{
+							var item = FeedGroup.AddTagFeedSource(result.Id);
+
+							TagFeedSources.Add(new FeedItemSourceListItem(item, this));
+
+							System.Diagnostics.Debug.WriteLine($"{FeedGroup.Label} にタグ「{result.Id}」を追加");
+
+							await HohoemaApp.FeedManager.SaveOne(FeedGroup);
+						}
+					}));
+			}
+		}
+
+
+		private DelegateCommand _AddMylistFeedSourceCommand;
+		public DelegateCommand AddMylistFeedSourceCommand
+		{
+			get
+			{
+				return _AddMylistFeedSourceCommand
+					?? (_AddMylistFeedSourceCommand = new DelegateCommand(async () =>
+					{
+						/// 
+						var defaultSet = new Views.Service.ContentSelectDialogDefaultSet()
+						{
+							DialogTitle = "マイリストのフィード元を選択",
+							ChoiceListTitle = "お気に入りマイリストから選ぶ",
+							ChoiceList = HohoemaApp.FavManager.Mylist.FavInfoItems.Select(x =>
+								new Views.Service.SelectDialogPayload()
+								{
+									Label = x.Name,
+									Id = x.Id
+								}
+							).ToList(),
+							TextInputTitle = "マイリストIDまたはキーワード",
+							GenerateCandiateList = GenerateMylistCandidateList
+						};
+
+						var result = await ContentSelectDialogService.ShowDialog(defaultSet);
+
+						if (result != null)
+						{
+							var item = FeedGroup.AddMylistFeedSource(result.Label, result.Id);
+
+							MylistFeedSources.Add(new FeedItemSourceListItem(item, this));
+
+							System.Diagnostics.Debug.WriteLine($"{FeedGroup.Label} にマイリスト「{result.Label}({result.Id})」を追加");
+
+							await HohoemaApp.FeedManager.SaveOne(FeedGroup);
+						}
+					}));
+			}
+		}
+
+		private async Task<List<Views.Service.SelectDialogPayload>> GenerateMylistCandidateList(string word)
+		{
+			var list = new List<Views.Service.SelectDialogPayload>();
+			// word is numbers
+			int maybeMylistId;
+			if (int.TryParse(word, out maybeMylistId))
+			{
+				// マイリストが実在するかチェック
+				var mylistId = word;
+				try
+				{
+					var mylistDetail = await HohoemaApp.ContentFinder.GetMylistGroupDetail(mylistId);
+					if (mylistDetail != null)
+					{
+						var result = new Views.Service.SelectDialogPayload()
+						{
+							Id = mylistId,
+							Label = mylistDetail.MylistGroup.Name
+						};
+
+						list.Add(result);
+					}
+				}
+				catch { }
+			}
+			// word is text
+			else
+			{
+				// マイリスト検索の上位10件を取得
+				var searchResult = await HohoemaApp.NiconicoContext.Search.MylistSearchAsync(word, limit: 10);
+				if (searchResult != null && searchResult.IsOK && searchResult.MylistGroupItems != null)
+				{
+					foreach (var searchItem in searchResult.MylistGroupItems)
+					{
+						list.Add(new Views.Service.SelectDialogPayload()
+						{
+							Id = searchItem.Id,
+							Label = searchItem.Name
+						});
+					}
+				}
+			}
+
+
+			return list;
+		}
+
+
+		private DelegateCommand _AddUserFeedSourceCommand;
+		public DelegateCommand AddUserFeedSourceCommand
+		{
+			get
+			{
+				return _AddUserFeedSourceCommand
+					?? (_AddUserFeedSourceCommand = new DelegateCommand(async () =>
+					{
+						/// 
+						var defaultSet = new Views.Service.ContentSelectDialogDefaultSet()
+						{
+							DialogTitle = "ユーザー投稿動画のフィード元を選択",
+							ChoiceListTitle = "お気に入りユーザーから選ぶ",
+							ChoiceList = HohoemaApp.FavManager.User.FavInfoItems.Select(x =>
+								new Views.Service.SelectDialogPayload()
+								{
+									Label = x.Name,
+									Id = x.Id
+								}
+							).ToList(),
+							TextInputTitle = "ユーザーIDを入力",
+							GenerateCandiateList = GenerateUserCandidateList
+						};
+
+						var result = await ContentSelectDialogService.ShowDialog(defaultSet);
+
+						if (result != null)
+						{
+							var item = FeedGroup.AddUserFeedSource(result.Label, result.Id);
+
+							UserFeedSources.Add(new FeedItemSourceListItem(item, this));
+
+							System.Diagnostics.Debug.WriteLine($"{FeedGroup.Label} にユーザー「{result.Label}({result.Id})」を追加");
+
+							await HohoemaApp.FeedManager.SaveOne(FeedGroup);
+						}
+					}));
+			}
+		}
+
+		private async Task<List<Views.Service.SelectDialogPayload>> GenerateUserCandidateList(string word)
+		{
+			var list = new List<Views.Service.SelectDialogPayload>();
+			// word is numbers
+			int maybeMylistId;
+			if (int.TryParse(word, out maybeMylistId))
+			{
+				// ユーザーが存在するかチェック
+				var userId = word;
+				try
+				{
+					var userInfo= await HohoemaApp.ContentFinder.GetUserInfo(userId);
+					if (userInfo != null)
+					{
+						var result = new Views.Service.SelectDialogPayload()
+						{
+							Id = userId,
+							Label = userInfo.Nickname
+						};
+
+						list.Add(result);
+					}
+				}
+				catch { }
+			}
+			// word is text
+			else
+			{
+				// TODO: ユーザーのローカルDBから選択候補ユーザーの検索
+				/*
+				Models.Db.UserInfoDb.
+				var searchResult = await HohoemaApp.NiconicoContext.Search.MylistSearchAsync(word, limit: 10);
+				if (searchResult != null && searchResult.IsOK && searchResult.MylistGroupItems != null)
+				{
+					foreach (var searchItem in searchResult.MylistGroupItems)
+					{
+						list.Add(new Views.Service.SelectDialogPayload()
+						{
+							Id = searchItem.Id,
+							Label = searchItem.Name
+						});
+					}
+				}
+				*/
+			}
+
+
+			return list;
+		}
+
 	}
 
 	public class FeedItemSourceListItem
