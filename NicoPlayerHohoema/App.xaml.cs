@@ -337,6 +337,8 @@ namespace NicoPlayerHohoema
 			Container.RegisterInstance(new Views.Service.EditMylistGroupDialogService());
 			Container.RegisterInstance(new Views.Service.AcceptCacheUsaseDialogService());
 			Container.RegisterInstance(new Views.Service.TextInputDialogService());
+			Container.RegisterInstance(new Views.Service.ContentSelectDialogDefaultSet());
+
 //			return Task.CompletedTask;
 		}
 
