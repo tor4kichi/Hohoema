@@ -120,7 +120,7 @@ namespace NicoPlayerHohoema.ViewModels
 						var newFeedGroupName = await _TextInputDialogService.GetTextAsync(
 							"フィードグループを作成"
 							, "フィードグループ名"
-							, (name) =>
+							, validater: (name) =>
 							{
 								if (String.IsNullOrWhiteSpace(name)) { return false; }
 

@@ -36,6 +36,12 @@
             <videoInfo:CommentVideoInfoContent 
                                                />
         </DataTemplate>
+
+
+        <DataTemplate x:Key="ShereVideoInfoContentTemplate">
+            <videoInfo:ShereVideoInfoContent />
+        </DataTemplate>
+        
         <DataTemplate x:Key="SettingsVideoInfoContentTemplate" >
             <videoInfo:SettingsVideoInfoContent
                                                />
@@ -47,6 +53,7 @@
                                                 Summary="{StaticResource SummaryVideoInfoContentTemplate}"
                                                 Mylist="{StaticResource MylistVideoInfoContentTemplate}"
                                                 Comment="{StaticResource CommentVideoInfoContentTemplate}"
+                                                Shere="{StaticResource ShereVideoInfoContentTemplate}"
                                                 Settings="{StaticResource SettingsVideoInfoContentTemplate}"
                                                 
                                                 >
@@ -912,7 +919,9 @@
 
                     <ScrollViewer>
                         <ContentControl Content="{Binding SidePaneContent.Value}"
-                                    ContentTemplateSelector="{StaticResource VideoInfoContentTemplateSelector}"
+                                        ContentTemplateSelector="{StaticResource VideoInfoContentTemplateSelector}"
+                                        HorizontalContentAlignment="Stretch"
+                                        VerticalContentAlignment="Stretch"
                                     />
                     </ScrollViewer>
 

@@ -108,6 +108,7 @@
     <Content Include="Assets\LibLisencies\Material Design Icons.txt" />
     <Content Include="Assets\LibLisencies\UWP Community Toolkit.txt" />
     <Content Include="Assets\LibLisencies\_lisence_summary.json" />
+    <Content Include="Assets\OAuth\twitter.json" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <None Include="project.json" />
   </ItemGroup>
@@ -203,6 +204,7 @@
     <Compile Include="Util\SortMethodHelper.cs" />
     <Compile Include="Util\StorageFolderExtention.cs" />
     <Compile Include="Util\TaskExtention.cs" />
+    <Compile Include="Util\TwitterHelper.cs" />
     <Compile Include="ViewModels\AboutPageViewModel.cs" />
     <Compile Include="ViewModels\CacheManagementPageViewModel.cs" />
     <Compile Include="ViewModels\CommentCommandEditerViewModel.cs" />
@@ -235,6 +237,7 @@
     <Compile Include="ViewModels\SettingsContent\AppDisplaySettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\CacheSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\CommentSettingsPageContentViewModel.cs" />
+    <Compile Include="ViewModels\SettingsContent\ShereSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\VideoListSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\VideoPlaySettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\UserInfoPageViewModel.cs" />
@@ -244,6 +247,7 @@
     <Compile Include="ViewModels\VideoInfoContent\MediaInfoViewModel.cs" />
     <Compile Include="ViewModels\VideoInfoContent\MylistVideoInfoContentViewModel.cs" />
     <Compile Include="ViewModels\VideoInfoContent\SettingsVideoInfoContentViewModel.cs" />
+    <Compile Include="ViewModels\VideoInfoContent\ShereVideoInfoContentViewModel.cs" />
     <Compile Include="Views\AboutPage.xaml.cs">
       <DependentUpon>AboutPage.xaml</DependentUpon>
     </Compile>
@@ -425,6 +429,9 @@
     <Compile Include="Views\SettingsPageContent\CacheSettingsPageContent.xaml.cs">
       <DependentUpon>CacheSettingsPageContent.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\SettingsPageContent\ShereSettingsPageContent.xaml.cs">
+      <DependentUpon>ShereSettingsPageContent.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\UserInfoPage.xaml.cs">
       <DependentUpon>UserInfoPage.xaml</DependentUpon>
     </Compile>
@@ -442,6 +449,9 @@
     </Compile>
     <Compile Include="Views\VideoInfoContent\SettingsVideoInfoContent.xaml.cs">
       <DependentUpon>SettingsVideoInfoContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\VideoInfoContent\ShereVideoInfoContent.xaml.cs">
+      <DependentUpon>ShereVideoInfoContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\VideoPlayerPage.xaml.cs">
       <DependentUpon>VideoPlayerPage.xaml</DependentUpon>
@@ -721,6 +731,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\SettingsPageContent\ShereSettingsPageContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\UserInfoPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -742,6 +756,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\VideoInfoContent\SettingsVideoInfoContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\VideoInfoContent\ShereVideoInfoContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

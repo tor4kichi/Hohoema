@@ -87,6 +87,9 @@ namespace NicoPlayerHohoema.ViewModels
 					case HohoemaSettingsKind.AppDisplay:
 						vm = new AppDisplaySettingsPageContentViewModel(ToastNotificationService);
 						break;
+					case HohoemaSettingsKind.Shere:
+						vm = new ShereSettingsPageContentViewModel();
+						break;
 					default:
 						break;
 				}
@@ -174,6 +177,7 @@ namespace NicoPlayerHohoema.ViewModels
 		Comment,
 		Cache,
 		AppDisplay,
+		Shere,
 	}
 
 
@@ -193,6 +197,8 @@ namespace NicoPlayerHohoema.ViewModels
 					return "キャッシュ";
 				case HohoemaSettingsKind.AppDisplay:
 					return "表示スタイル";
+				case HohoemaSettingsKind.Shere:
+					return "SNS連携";
 				default:
 					throw new NotSupportedException($"not support {nameof(HohoemaSettingsKind)}.{kind.ToString()}");
 			}
