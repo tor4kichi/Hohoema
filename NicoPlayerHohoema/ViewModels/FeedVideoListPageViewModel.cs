@@ -18,7 +18,7 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class FeedVideoListPageViewModel : HohoemaVideoListingPageViewModelBase<FeedVideoInfoControlViewModel>
 	{
-		public FeedGroup FeedGroup { get; private set; }
+		public IFeedGroup FeedGroup { get; private set; }
 
 
 		public FeedVideoListPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
@@ -121,10 +121,10 @@ namespace NicoPlayerHohoema.ViewModels
 		FeedManager _FavFeedManager;
 		NiconicoMediaManager _NiconicoMediaManager;
 		PageManager _PageManager;
-		FeedGroup _FeedGroup;
+		IFeedGroup _FeedGroup;
 
 
-		public FeedVideoIncrementalSource(FeedGroup feedGroup, HohoemaApp hohoemaApp, PageManager pageManager)
+		public FeedVideoIncrementalSource(IFeedGroup feedGroup, HohoemaApp hohoemaApp, PageManager pageManager)
 			: base(hohoemaApp, "Feed_" + feedGroup.Label)
 		{
 			_FeedGroup = feedGroup;

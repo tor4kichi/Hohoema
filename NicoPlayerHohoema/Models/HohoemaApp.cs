@@ -196,9 +196,41 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
+		public async Task<StorageFolder> GetFeedRoamingSettingsFolder()
+		{
+			return await ApplicationData.Current.RoamingFolder.CreateFolderAsync("feed", CreationCollisionOption.OpenIfExists);
+		}
+
+		public async Task<StorageFolder> GetLegacyFeedSettingsFolder()
+		{
+			return await ApplicationData.Current.LocalFolder.CreateFolderAsync("feed", CreationCollisionOption.OpenIfExists);
+		}
+
 		public async Task LoadUserSettings()
 		{
-			var folder = ApplicationData.Current.LocalFolder;
+			var folder = await ApplicationData.Current.RoamingFolder.CreateFolderAsync("settings", CreationCollisionOption.OpenIfExists);
+			var filesRoamingSettings = await folder.GetFilesAsync();
+
+			// ローミングの設定フォルダにファイルが無い場合はローカルの設定データのコピーを試行する
+			if (filesRoamingSettings.Count == 0)
+			{
+				var localSettingsFolder = ApplicationData.Current.LocalFolder;
+
+				var files = await localSettingsFolder.GetFilesAsync();
+				foreach (var oldFile in files.Where(x => x.FileType == ".json"))
+				{
+					await oldFile.CopyAsync(folder);
+				}
+			}
+
+			UserSettings = await HohoemaUserSettings.LoadSettings(folder);
+
+			ApplicationData.Current.DataChanged += Current_DataChanged;
+		}
+
+		private async void Current_DataChanged(ApplicationData sender, object args)
+		{
+			var folder = await ApplicationData.Current.RoamingFolder.CreateFolderAsync("settings", CreationCollisionOption.OpenIfExists);
 			UserSettings = await HohoemaUserSettings.LoadSettings(folder);
 		}
 

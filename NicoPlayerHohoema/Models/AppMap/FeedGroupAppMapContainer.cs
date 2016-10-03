@@ -32,9 +32,9 @@ namespace NicoPlayerHohoema.Models.AppMap
 
 	public class FeedGroupAppMapContainer : SelfGenerateAppMapContainerBase
 	{
-		public FeedGroup FeedGroup { get; private set; }
+		public IFeedGroup FeedGroup { get; private set; }
 
-		public FeedGroupAppMapContainer(FeedGroup group)
+		public FeedGroupAppMapContainer(IFeedGroup group)
 			: base(HohoemaPageType.FeedVideoList, parameter:group.Id.ToString(), label:group.Label)
 		{
 			FeedGroup = group;

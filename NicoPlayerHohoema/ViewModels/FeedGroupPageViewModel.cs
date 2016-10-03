@@ -15,7 +15,7 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class FeedGroupPageViewModel : HohoemaViewModelBase
 	{
-		public FeedGroup FeedGroup { get; private set; }
+		public IFeedGroup FeedGroup { get; private set; }
 
 		public ReactiveProperty<string> FeedGroupName { get; private set; }
 

@@ -141,6 +141,7 @@
     <Compile Include="Models\Fav\FavFeed\FeedItemComparer.cs" />
     <Compile Include="Models\Fav\FavFeed\FeedManager.cs" />
     <Compile Include="Models\Fav\FavFeed\FeedSource.cs" />
+    <Compile Include="Models\Fav\FavFeed\IFeedGroup.cs" />
     <Compile Include="Models\Fav\FavFeed\IFeedSource.cs" />
     <Compile Include="Models\Fav\FavFeed\TagFeedSource.cs" />
     <Compile Include="Models\Fav\FavFeed\UserFeedSource.cs" />

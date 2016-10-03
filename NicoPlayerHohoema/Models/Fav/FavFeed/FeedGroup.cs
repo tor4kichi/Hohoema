@@ -1,4 +1,5 @@
-﻿using Prism.Mvvm;
+﻿using NicoPlayerHohoema.Util;
+using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -7,6 +8,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Storage;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -15,9 +17,9 @@ namespace NicoPlayerHohoema.Models
 	[KnownType(typeof(TagFeedSource))]
 	[KnownType(typeof(MylistFeedSource))]
 	[KnownType(typeof(UserFeedSource))]
-	public class FeedGroup : BindableBase
+	public class FeedGroup2 : BindableBase, IFeedGroup
 	{
-
+		public const int MaxFeedItemsCount = 50;
 
 		#region Properties
 
@@ -55,7 +57,6 @@ namespace NicoPlayerHohoema.Models
 
 
 
-		[DataMember(Name = "feed_items")]
 		public List<FavFeedItem> FeedItems { get; private set; }
 
 		[DataMember(Name = "update_time")]
@@ -81,8 +82,17 @@ namespace NicoPlayerHohoema.Models
 		private SemaphoreSlim _RefreshingLock;
 
 
+		public FeedGroup2()
+		{
+			Id = Guid.NewGuid();
+			Label = "";
+			_FeedSourceList = new List<IFeedSource>();
+			FeedItems = new List<FavFeedItem>();
+			IsNeedRefresh = true;
+			_RefreshingLock = new SemaphoreSlim(1, 1);
+		}
 
-		public FeedGroup(string label)
+		public FeedGroup2(string label)
 		{
 			Id = Guid.NewGuid();
 			Label = label;
@@ -91,6 +101,18 @@ namespace NicoPlayerHohoema.Models
 			IsNeedRefresh = true;
 			_RefreshingLock = new SemaphoreSlim(1, 1);
 		}
+
+		public FeedGroup2(FeedGroup legacy)
+		{
+			Id = legacy.Id;
+			Label = legacy.Label;
+			_FeedSourceList = legacy.FeedSourceList.ToList();
+			FeedItems = new List<FavFeedItem>();
+			IsNeedRefresh = legacy.IsNeedRefresh;
+			_UpdateTime = legacy.UpdateTime;
+			_RefreshingLock = new SemaphoreSlim(1, 1);
+		}
+
 
 
 		public IFeedSource AddTagFeedSource(string tag)
@@ -165,7 +187,7 @@ namespace NicoPlayerHohoema.Models
 
 			var latestOrderedItems = latestItems
 				.OrderBy(x => x.SubmitDate)
-				.Take(100)
+				.Take(MaxFeedItemsCount)
 				.ToList();
 
 			foreach (var item in latestOrderedItems)
@@ -248,7 +270,7 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
-		internal bool MarkAsRead(string videoId)
+		public bool MarkAsRead(string videoId)
 		{
 			bool isChanged = false;
 			foreach (var item in FeedItems)
@@ -293,6 +315,93 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
+
+
+		public async Task<bool> LoadFeedStream(FileAccessor<List<FavFeedItem>> fileAccessor)
+		{
+			try
+			{
+				var items = await fileAccessor.Load();
+				this.FeedItems = items ?? new List<FavFeedItem>();
+
+				return true;
+			}
+			catch
+			{
+				return false;
+			}
+		}
+
+	}
+
+	[DataContract]
+	[KnownType(typeof(TagFeedSource))]
+	[KnownType(typeof(MylistFeedSource))]
+	[KnownType(typeof(UserFeedSource))]
+	public class FeedGroup : BindableBase
+	{
+		public const int MaxFeedItemsCount = 50;
+
+		#region Properties
+
+		public HohoemaApp HohoemaApp { get; internal set; }
+		public FeedManager FeedManager { get; internal set; }
+
+		[DataMember(Name = "id")]
+		private Guid _Id;
+		public Guid Id
+		{
+			get { return _Id; }
+			private set { SetProperty(ref _Id, value); }
+		}
+
+		[DataMember(Name = "label")]
+		private string _Label;
+		public string Label
+		{
+			get { return _Label; }
+			internal set { SetProperty(ref _Label, value); }
+		}
+
+
+		[DataMember(Name = "feed_source_list")]
+		private List<IFeedSource> _FeedSourceList = new List<IFeedSource>();
+
+
+		public IReadOnlyList<IFeedSource> FeedSourceList
+		{
+			get
+			{
+				return _FeedSourceList;
+			}
+		}
+
+
+
+		[DataMember(Name = "feed_items")]
+		public List<FavFeedItem> FeedItems { get; private set; }
+
+		[DataMember(Name = "update_time")]
+		private DateTime _UpdateTime;
+		public DateTime UpdateTime
+		{
+			get { return _UpdateTime; }
+			private set { SetProperty(ref _UpdateTime, value); }
+		}
+
+		[DataMember(Name = "is_need_refresh")]
+		private bool _IsNeedRefresh;
+		public bool IsNeedRefresh
+		{
+			get { return _IsNeedRefresh; }
+			internal set { SetProperty(ref _IsNeedRefresh, value); }
+		}
+
+
+		#endregion
+
+
+		
 
 	}
 }
