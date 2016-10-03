@@ -68,6 +68,7 @@ namespace NicoPlayerHohoema
 
 			RequestedTheme = GetTheme();
 
+
 			this.InitializeComponent();
 		}
 
@@ -154,7 +155,7 @@ namespace NicoPlayerHohoema
 
 		}
 
-		protected override async Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args)
+		protected override Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args)
 		{
 #if DEBUG
 			DebugSettings.IsBindingTracingEnabled = true;
@@ -163,40 +164,18 @@ namespace NicoPlayerHohoema
 
 			if (args.PreviousExecutionState == ApplicationExecutionState.Terminated)
 			{
-				//TODO: Load state from previously suspended application
-				
+				//TODO: Load state from previously suspended application	
 			}
 
-			
-			if (!args.PrelaunchActivated)
+			var pageManager = Container.Resolve<PageManager>();
+
+
+			if (!args.PrelaunchActivated && args.Kind == ActivationKind.Launch)
 			{
 				// メディアバックグラウンドタスクの動作状態を初期化
 				//				ApplicationSettingsHelper.ReadResetSettingsValue(ApplicationSettingsConstants.AppState);
 
 				
-				Microsoft.Toolkit.Uwp.UI.ImageCache.CacheDuration = TimeSpan.FromHours(24);
-
-				// TwitterAPIの初期化
-
-				await TwitterHelper.Initialize();
-				
-
-
-				if (args.Kind == ActivationKind.ToastNotification)
-				{
-					//Get the pre-defined arguments and user inputs from the eventargs;
-					var toastArgs = args as IActivatedEventArgs as ToastNotificationActivatedEventArgs;
-					var arguments = toastArgs.Argument;
-					//				var input = toastArgs.UserInput["1"];
-					if (arguments == ACTIVATION_WITH_ERROR)
-					{
-						await ShowErrorLog();
-					}
-
-				}
-
-				var pm = Container.Resolve<PageManager>();
-
 				//				var hohoemaApp = Container.Resolve<HohoemaApp>();
 				//				if (HohoemaApp.HasPrimaryAccount())
 				//				{
@@ -204,14 +183,85 @@ namespace NicoPlayerHohoema
 				//				}
 				//				else
 				{
-					pm.OpenPage(HohoemaPageType.Login, true /* Enable auto login */);
+					pageManager.OpenPage(HohoemaPageType.Login, true /* Enable auto login */);
 				}
 
 				
 				
-			}			
+			}
 
-//			return Task.CompletedTask;
+			
+			return Task.CompletedTask;
+		}
+
+
+		protected override async Task OnActivateApplicationAsync(IActivatedEventArgs args)
+		{
+			var pageManager = Container.Resolve<PageManager>();
+
+			if (args.Kind == ActivationKind.ToastNotification)
+			{
+				//Get the pre-defined arguments and user inputs from the eventargs;
+				var toastArgs = args as IActivatedEventArgs as ToastNotificationActivatedEventArgs;
+				var arguments = toastArgs.Argument;
+				//				var input = toastArgs.UserInput["1"];
+				if (arguments == ACTIVATION_WITH_ERROR)
+				{
+					await ShowErrorLog().ConfigureAwait(false);
+				}
+			}
+
+			if (args.Kind == ActivationKind.Protocol)
+			{
+				var param = (args as IActivatedEventArgs) as ProtocolActivatedEventArgs;
+				var uri = param.Uri;
+				var maybeNicoContentId = new string(uri.OriginalString.Skip("niconico://".Length).TakeWhile(x => x != '?' && x != '/').ToArray());
+
+				
+				if (Mntone.Nico2.NiconicoRegex.IsVideoId(maybeNicoContentId)
+					|| maybeNicoContentId.All(x => x >= '0' && x <= '9'))
+				{
+					HohoemaApp hohoemaApp = null;
+					try
+					{
+						hohoemaApp = Container.Resolve<HohoemaApp>();
+					}
+					catch { }
+					
+					if (!hohoemaApp?.IsLoggedIn ?? false)
+					{
+						var loginRedirect = new LoginRedirectPayload()
+						{
+							RedirectPageType = HohoemaPageType.VideoPlayer,
+							RedirectParamter = new VideoPlayPayload()
+							{
+								VideoId = maybeNicoContentId,
+							}.ToParameterString()
+						}.ToParameterString();
+
+						pageManager.OpenPage(HohoemaPageType.Login, loginRedirect);
+					}
+					else
+					{
+						pageManager.OpenPage(HohoemaPageType.VideoPlayer, new VideoPlayPayload()
+						{
+							VideoId = maybeNicoContentId
+						}.ToParameterString());
+					}
+				}
+				else if (Mntone.Nico2.NiconicoRegex.IsLiveId(maybeNicoContentId))
+				{
+					// TODO: 
+				}
+			}
+
+
+			await base.OnActivateApplicationAsync(args);
+		}
+		protected override void OnActivated(IActivatedEventArgs args)
+		{
+			
+			base.OnActivated(args);
 		}
 
 		public async Task<string> GetMostRecentErrorText()
@@ -288,6 +338,12 @@ namespace NicoPlayerHohoema
 		{
 			await Models.Db.NicoVideoDbContext.InitializeAsync();
 			await Models.Db.HistoryDbContext.InitializeAsync();
+
+
+			Microsoft.Toolkit.Uwp.UI.ImageCache.CacheDuration = TimeSpan.FromHours(24);
+
+			// TwitterAPIの初期化
+			await TwitterHelper.Initialize();
 
 			await RegisterTypes();
 
