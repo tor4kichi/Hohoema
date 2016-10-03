@@ -11,9 +11,9 @@
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     mc:Ignorable="d"
     Title="{Binding Title}"
-    PrimaryButtonText="キャンセル"
-    SecondaryButtonText="選択"
-    IsSecondaryButtonEnabled="{Binding IsValidItemSelected.Value}"
+    PrimaryButtonText="選択"
+    SecondaryButtonText="キャンセル"
+    IsPrimaryButtonEnabled="{Binding IsValidItemSelected.Value}"
     >
 
     <ContentDialog.Resources>

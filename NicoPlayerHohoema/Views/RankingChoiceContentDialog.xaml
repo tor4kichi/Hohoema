@@ -15,8 +15,8 @@
     d:DesignWidth="500"
     Width="500"
     VerticalAlignment="Center"
-    PrimaryButtonText="キャンセル"
-    SecondaryButtonText="選択"
+    PrimaryButtonText="選択"
+    SecondaryButtonText="キャンセル"
     Title="ランキングカテゴリを選択"
     >
 

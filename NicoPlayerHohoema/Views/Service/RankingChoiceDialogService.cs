@@ -33,7 +33,7 @@ namespace NicoPlayerHohoema.Views.Service
 
 			var result = await dialog.ShowAsync();
 
-			if (result == Windows.UI.Xaml.Controls.ContentDialogResult.Secondary)
+			if (result == Windows.UI.Xaml.Controls.ContentDialogResult.Primary)
 			{
 				return _Context.GetResult();
 			}
@@ -59,7 +59,7 @@ namespace NicoPlayerHohoema.Views.Service
 			{
 				var result = await dialog.ShowAsync();
 
-				if (result == Windows.UI.Xaml.Controls.ContentDialogResult.Secondary)
+				if (result == Windows.UI.Xaml.Controls.ContentDialogResult.Primary)
 				{
 					return context.GetResult();
 				}

@@ -14,9 +14,9 @@
     d:DesignHeight="300"
     d:DesignWidth="400"
     VerticalAlignment="Center"
-    PrimaryButtonText="キャンセル"
-    SecondaryButtonText="選択"
-    IsSecondaryButtonEnabled="{Binding IsSelectedItem}"
+    PrimaryButtonText="選択"
+    SecondaryButtonText="キャンセル"
+    IsPrimaryButtonEnabled="{Binding IsSelectedItem}"
     Title="ランキングカテゴリを選択"
     
     >

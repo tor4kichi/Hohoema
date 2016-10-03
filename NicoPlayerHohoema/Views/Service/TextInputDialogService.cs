@@ -33,7 +33,7 @@ namespace NicoPlayerHohoema.Views.Service
 			// 仮想入力キーボードを閉じる
 			Windows.UI.ViewManagement.InputPane.GetForCurrentView().TryHide();
 
-			if (result == Windows.UI.Xaml.Controls.ContentDialogResult.Secondary)
+			if (result == Windows.UI.Xaml.Controls.ContentDialogResult.Primary)
 			{
 				return context.GetValidText();
 			}

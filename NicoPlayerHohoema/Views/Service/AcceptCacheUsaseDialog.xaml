@@ -11,8 +11,8 @@
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     mc:Ignorable="d"
     Title="キャッシュ利用前の確認"
-    PrimaryButtonText="キャンセル"
-    SecondaryButtonText="{Binding ComfirmButtonText}"
+    PrimaryButtonText="{Binding ComfirmButtonText}"
+    SecondaryButtonText="キャンセル"
     >
 
     <Grid>

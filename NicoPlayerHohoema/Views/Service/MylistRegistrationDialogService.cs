@@ -35,7 +35,7 @@ namespace NicoPlayerHohoema.Views.Service
 			{
 				var result = await dialog.ShowAsync();
 
-				if (result == Windows.UI.Xaml.Controls.ContentDialogResult.Secondary)
+				if (result == Windows.UI.Xaml.Controls.ContentDialogResult.Primary)
 				{
 					return await context.GetResult();
 				}
@@ -62,13 +62,13 @@ namespace NicoPlayerHohoema.Views.Service
 				DataContext = context
 			};
 
-			dialog.SecondaryButtonText = "選択";
+			dialog.PrimaryButtonText = "選択";
 
 			try
 			{
 				var result = await dialog.ShowAsync();
 
-				if (result == Windows.UI.Xaml.Controls.ContentDialogResult.Secondary)
+				if (result == Windows.UI.Xaml.Controls.ContentDialogResult.Primary)
 				{
 					var tuple = await context.GetResult();
 					return tuple.Item1;
