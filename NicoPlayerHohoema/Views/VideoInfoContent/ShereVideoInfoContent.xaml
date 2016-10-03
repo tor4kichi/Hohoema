@@ -15,11 +15,19 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <StackPanel>
+    <StackPanel Margin="16"
+                HorizontalAlignment="Stretch"
+                >
 
-        <Button Content="Twitterで共有" 
+        <Border Height="16" />
+        
+        <StackPanel HorizontalAlignment="Right">
+            <Button Content="Twitterで共有" 
                 Command="{Binding ShereWithTwitterCommand}"
+                Height="48"
+                MinWidth="200"
                 />
+        </StackPanel>
 
     </StackPanel>
 </UserControl>

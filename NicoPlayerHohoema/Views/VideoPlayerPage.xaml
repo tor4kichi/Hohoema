@@ -919,7 +919,9 @@
 
                     <ScrollViewer>
                         <ContentControl Content="{Binding SidePaneContent.Value}"
-                                    ContentTemplateSelector="{StaticResource VideoInfoContentTemplateSelector}"
+                                        ContentTemplateSelector="{StaticResource VideoInfoContentTemplateSelector}"
+                                        HorizontalContentAlignment="Stretch"
+                                        VerticalContentAlignment="Stretch"
                                     />
                     </ScrollViewer>
 

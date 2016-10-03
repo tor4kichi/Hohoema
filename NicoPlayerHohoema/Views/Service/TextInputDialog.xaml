@@ -15,6 +15,7 @@
     <Grid Margin="0 16">
         <TextBox Text="{Binding Text.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                  PlaceholderText="{Binding PlaceholderText}"
+                 TextWrapping="Wrap"
                  />
     </Grid>
 </ContentDialog>

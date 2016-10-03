@@ -55,7 +55,8 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 						if (TwitterHelper.IsLoggedIn)
 						{
 							var text = $"{_NicoVideo.Title} http://nico.ms/{_NicoVideo.VideoId} #{_NicoVideo.VideoId}";
-							var customText = await _TextInputDialogService.GetTextAsync("Twitterへ投稿", "", text);
+							var twitterLoginUserName = TwitterHelper.TwitterUser.ScreenName;
+							var customText = await _TextInputDialogService.GetTextAsync($"{twitterLoginUserName} としてTwitterへ投稿", "", text);
 
 							if (customText != null)
 							{
