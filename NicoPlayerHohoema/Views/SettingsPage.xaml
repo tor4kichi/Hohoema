@@ -49,7 +49,14 @@
                     <settingsContent:AppDisplaySettingsPageContent />
                 </DataTemplate>
             </view:SettingContentTemplateSelector.AppDisplayTemplate>
-            
+
+            <!-- Shere -->
+            <view:SettingContentTemplateSelector.ShereTemplate>
+                <DataTemplate>
+                    <settingsContent:ShereSettingsPageContent />
+                </DataTemplate>
+            </view:SettingContentTemplateSelector.ShereTemplate>
+
         </view:SettingContentTemplateSelector>
     </Page.Resources>
     

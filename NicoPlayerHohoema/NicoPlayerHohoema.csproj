@@ -237,6 +237,7 @@
     <Compile Include="ViewModels\SettingsContent\AppDisplaySettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\CacheSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\CommentSettingsPageContentViewModel.cs" />
+    <Compile Include="ViewModels\SettingsContent\ShereSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\VideoListSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\VideoPlaySettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\UserInfoPageViewModel.cs" />
@@ -427,6 +428,9 @@
     </Compile>
     <Compile Include="Views\SettingsPageContent\CacheSettingsPageContent.xaml.cs">
       <DependentUpon>CacheSettingsPageContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SettingsPageContent\ShereSettingsPageContent.xaml.cs">
+      <DependentUpon>ShereSettingsPageContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\UserInfoPage.xaml.cs">
       <DependentUpon>UserInfoPage.xaml</DependentUpon>
@@ -724,6 +728,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SettingsPageContent\CacheSettingsPageContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SettingsPageContent\ShereSettingsPageContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

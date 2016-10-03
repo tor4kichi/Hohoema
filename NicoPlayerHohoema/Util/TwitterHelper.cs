@@ -51,7 +51,7 @@ namespace NicoPlayerHohoema.Util
 		public static async Task<bool> LoginOrRefreshToken()
 		{
 			if (!IsAvailableTwitterService) { return false; }
-
+			
 			var result = false;
 			if (result = await TwitterService.Instance.LoginAsync())
 			{

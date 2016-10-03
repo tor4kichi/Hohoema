@@ -179,6 +179,7 @@ namespace NicoPlayerHohoema
 				// TwitterAPIの初期化
 
 				await TwitterHelper.Initialize();
+				
 
 
 				if (args.Kind == ActivationKind.ToastNotification)

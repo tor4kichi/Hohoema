@@ -1,6 +1,7 @@
 ﻿using Microsoft.Toolkit.Uwp.Services.Twitter;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.ViewModels;
 using NicoPlayerHohoema.Views.Service;
 using Prism.Commands;
 using Reactive.Bindings;

@@ -36,6 +36,7 @@ namespace NicoPlayerHohoema.Views
 		public DataTemplate PlayerTemplate { get; set; }
 		public DataTemplate CacheTemplate { get; set; }
 		public DataTemplate AppDisplayTemplate { get; set; }
+		public DataTemplate ShereTemplate { get; set; }
 
 		protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
 		{
@@ -58,6 +59,10 @@ namespace NicoPlayerHohoema.Views
 			else if (item is ViewModels.AppDisplaySettingsPageContentViewModel)
 			{
 				return AppDisplayTemplate;
+			}
+			else if (item is ViewModels.ShereSettingsPageContentViewModel)
+			{
+				return ShereTemplate;
 			}
 
 			return base.SelectTemplateCore(item, container);
