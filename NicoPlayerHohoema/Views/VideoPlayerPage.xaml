@@ -36,6 +36,12 @@
             <videoInfo:CommentVideoInfoContent 
                                                />
         </DataTemplate>
+
+
+        <DataTemplate x:Key="ShereVideoInfoContentTemplate">
+            <videoInfo:ShereVideoInfoContent />
+        </DataTemplate>
+        
         <DataTemplate x:Key="SettingsVideoInfoContentTemplate" >
             <videoInfo:SettingsVideoInfoContent
                                                />
@@ -47,6 +53,7 @@
                                                 Summary="{StaticResource SummaryVideoInfoContentTemplate}"
                                                 Mylist="{StaticResource MylistVideoInfoContentTemplate}"
                                                 Comment="{StaticResource CommentVideoInfoContentTemplate}"
+                                                Shere="{StaticResource ShereVideoInfoContentTemplate}"
                                                 Settings="{StaticResource SettingsVideoInfoContentTemplate}"
                                                 
                                                 >

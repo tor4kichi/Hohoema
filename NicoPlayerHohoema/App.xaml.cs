@@ -35,6 +35,7 @@ using Windows.Media;
 using NicoPlayerHohoema.Models.Db;
 using Windows.Storage;
 using System.Text;
+using NicoPlayerHohoema.Util;
 
 namespace NicoPlayerHohoema
 {
@@ -172,8 +173,12 @@ namespace NicoPlayerHohoema
 				// メディアバックグラウンドタスクの動作状態を初期化
 				//				ApplicationSettingsHelper.ReadResetSettingsValue(ApplicationSettingsConstants.AppState);
 
-
+				
 				Microsoft.Toolkit.Uwp.UI.ImageCache.CacheDuration = TimeSpan.FromHours(24);
+
+				// TwitterAPIの初期化
+
+				await TwitterHelper.Initialize();
 
 
 				if (args.Kind == ActivationKind.ToastNotification)

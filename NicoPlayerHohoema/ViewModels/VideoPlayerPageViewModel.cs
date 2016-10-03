@@ -67,10 +67,17 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		public VideoPlayerPageViewModel(HohoemaApp hohoemaApp, EventAggregator ea, PageManager pageManager, ToastNotificationService toast)
+		public VideoPlayerPageViewModel(
+			HohoemaApp hohoemaApp, 
+			EventAggregator ea,
+			PageManager pageManager, 
+			ToastNotificationService toast,
+			TextInputDialogService textInputDialog
+			)
 			: base(hohoemaApp, pageManager, isRequireSignIn:true)
 		{
 			_ToastService = toast;
+			_TextInputDialogService = textInputDialog;
 
 			_SidePaneContentCache = new Dictionary<MediaInfoDisplayType, MediaInfoViewModel>();
 
@@ -398,6 +405,7 @@ namespace NicoPlayerHohoema.ViewModels
 				MediaInfoDisplayType.Summary,
 				MediaInfoDisplayType.Mylist,
 //				MediaInfoDisplayType.Comment,
+				MediaInfoDisplayType.Shere,
 				MediaInfoDisplayType.Settings,
 			};
 
@@ -1416,6 +1424,10 @@ namespace NicoPlayerHohoema.ViewModels
 						vm = new CommentVideoInfoContentViewModel(HohoemaApp.UserSettings, Comments);
 						break;
 
+					case MediaInfoDisplayType.Shere:
+						vm = new ShereVideoInfoContentViewModel(Video, _TextInputDialogService, _ToastService);
+						break;
+
 					case MediaInfoDisplayType.Settings:
 						vm = new SettingsVideoInfoContentViewModel(HohoemaApp.UserSettings.PlayerSettings);
 						break;
@@ -1536,6 +1548,11 @@ namespace NicoPlayerHohoema.ViewModels
 					));
 			}
 		}
+
+
+		
+
+
 
 		#endregion
 
@@ -1684,6 +1701,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		ToastNotificationService _ToastService;
+		TextInputDialogService _TextInputDialogService;
+
+
+
 		// TODO: コメントのNGユーザー登録
 		internal Task AddNgUser(Comment commentViewModel)
 		{
@@ -1789,6 +1810,7 @@ namespace NicoPlayerHohoema.ViewModels
 		Summary,
 		Mylist,
 		Comment,
+		Shere,
 		Settings,
 	}
 
