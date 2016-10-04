@@ -120,6 +120,9 @@ namespace NicoPlayerHohoema
 			var hohoemaApp = Container.Resolve<HohoemaApp>();
 			hohoemaApp.OnSuspending().ConfigureAwait(false);
 
+			await HohoemaApp.SyncToRoamingData();
+
+			
 			await base.OnSuspendingApplicationAsync();
 		}
 		

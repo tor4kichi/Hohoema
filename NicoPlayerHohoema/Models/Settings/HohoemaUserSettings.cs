@@ -114,6 +114,8 @@ namespace NicoPlayerHohoema.Models
 				newInstance.OnInitialize();
 
 				result = newInstance;
+
+				await result.Save();
 			}
 
 			return result;
