@@ -18,6 +18,7 @@
         <DataTemplate x:Key="FavoriteItemTemplate">
             <Button Content="{Binding Title}"
                     Command="{Binding SelectedCommand}"
+                    Padding="16 8"
                     >
             </Button>
         </DataTemplate>
@@ -71,26 +72,27 @@
 
                                 </StackPanel>
 
-                                <ListView ItemsSource="{Binding Items}"
+                                <ItemsControl ItemsSource="{Binding Items}"
                                           ItemTemplate="{StaticResource FavoriteItemTemplate}"
                                           Margin="8 0"
                                           >
-                                    <ListView.ItemContainerStyle>
-                                        <Style TargetType="ListViewItem">
+                                    <ItemsControl.ItemContainerStyle>
+                                        <Style TargetType="ContentPresenter">
                                             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                             <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                                            <Setter Property="Margin" Value="8" />
                                         </Style>
-                                    </ListView.ItemContainerStyle>
+                                    </ItemsControl.ItemContainerStyle>
 
-                                    <ListView.ItemsPanel>
+                                    <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <toolkit:WrapPanel 
                                                                />
                                             
                                         </ItemsPanelTemplate>
-                                    </ListView.ItemsPanel>
+                                    </ItemsControl.ItemsPanel>
                                     
-                                </ListView>
+                                </ItemsControl>
                                 
                             </toolkit:DockPanel>
                         </DataTemplate>
