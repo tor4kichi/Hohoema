@@ -72,7 +72,7 @@
         </local:IncrementalLoadingListItemTemplateSelector>
     </UserControl.Resources>
 
-    <Grid>
+    <Grid >
 
         <ProgressRing Visibility="{Binding NowLoadingItems.Value, Converter={StaticResource BooleanToVisibility}}"
                       IsActive="{Binding NowLoadingItems.Value}"
@@ -119,7 +119,7 @@
                     <Setter Property="Margin"
                                     Value="0 0 0 0" 
                                     />
-                    <Setter Property="Padding" Value="0 0 16 0" />
+                    <Setter Property="Padding" Value="0 0 24 0" />
                 </Style>
             </ListView.ItemContainerStyle>
 

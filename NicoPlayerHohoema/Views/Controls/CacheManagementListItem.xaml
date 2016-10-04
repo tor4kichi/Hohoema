@@ -16,7 +16,7 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <toolkit:DockPanel Margin="8">
+    <toolkit:DockPanel Margin="0">
 
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup>
