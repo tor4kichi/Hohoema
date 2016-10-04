@@ -155,7 +155,7 @@ namespace NicoPlayerHohoema.Models.AppMap
 			switch (pageType)
 			{
 				case HohoemaPageType.RankingCategoryList:
-					container = new RankingCategoriesAppMapContainer();
+					container = new RankingCategoriesAppMapContainer(HohoemaApp.UserSettings.RankingSettings);
 					break;
 				case HohoemaPageType.UserMylist:
 					container = new UserMylistAppMapContainer(HohoemaApp.UserMylistManager);
