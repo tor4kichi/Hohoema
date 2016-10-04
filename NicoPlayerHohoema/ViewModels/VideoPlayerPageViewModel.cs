@@ -1092,6 +1092,8 @@ namespace NicoPlayerHohoema.ViewModels
 					return;
 				}
 
+				cancelToken.ThrowIfCancellationRequested();
+
 				// 有害動画へのアクセスに対して意思確認された場合
 				if (videoInfo.IsBlockedHarmfulVideo)
 				{
@@ -1106,6 +1108,9 @@ namespace NicoPlayerHohoema.ViewModels
 						);
 					return;
 				}
+
+				cancelToken.ThrowIfCancellationRequested();
+
 
 				Title.Value = videoInfo.Title;
 
@@ -1150,6 +1155,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 
 
+			cancelToken.ThrowIfCancellationRequested();
 
 			if (IsNotSupportVideoType)
 			{
@@ -1235,7 +1241,8 @@ namespace NicoPlayerHohoema.ViewModels
 				// 再生ストリームの準備を開始する
 				await PlayingQualityChangeAction();
 
-				
+				cancelToken.ThrowIfCancellationRequested();
+
 				// Note: 0.4.1現在ではキャッシュはmp4のみ対応
 				var isCanCache = Video.ContentType == MovieType.Mp4;
 				CanDownload = (HohoemaApp.UserSettings?.CacheSettings?.IsUserAcceptedCache ?? false) && isCanCache;
@@ -1257,7 +1264,9 @@ namespace NicoPlayerHohoema.ViewModels
 				SelectedSidePaneType.Value = MediaInfoDisplayType.Summary;
 			}
 
-		
+			cancelToken.ThrowIfCancellationRequested();
+
+
 			Debug.WriteLine("VideoPlayer OnNavigatedToAsync done.");
 
 		}

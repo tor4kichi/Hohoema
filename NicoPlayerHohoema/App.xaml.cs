@@ -118,7 +118,7 @@ namespace NicoPlayerHohoema
 			if (_IsPreLaunch) { return; }
 
 			var hohoemaApp = Container.Resolve<HohoemaApp>();
-			await hohoemaApp.OnSuspending().ConfigureAwait(false);
+			hohoemaApp.OnSuspending().ConfigureAwait(false);
 
 			await base.OnSuspendingApplicationAsync();
 		}
