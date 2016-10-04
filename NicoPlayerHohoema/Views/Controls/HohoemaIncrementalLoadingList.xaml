@@ -119,7 +119,7 @@
                     <Setter Property="Margin"
                                     Value="0 0 0 0" 
                                     />
-                    <Setter Property="Padding" Value="0 0 24 0" />
+                    <Setter Property="Padding" Value="0 0 0 0" />
                 </Style>
             </ListView.ItemContainerStyle>
 
@@ -139,7 +139,7 @@
 
                 <DataTemplate>
 
-                    <Grid BorderBrush="{ThemeResource AppBarBorderThemeBrush}" BorderThickness="0 0 0 1" >
+                    <StackPanel >
 
                         <i:Interaction.Behaviors>
                             <core:EventTriggerBehavior EventName="Tapped">
@@ -154,8 +154,15 @@
                                         HorizontalContentAlignment="Stretch"
                                         VerticalContentAlignment="Stretch"
                                         Margin="0 4"
+                                        Padding="0 0 16 0"
                                         />
-                    </Grid>
+                        
+                        <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" BorderThickness="0 0 0 1"
+                                Height="1"
+                                Opacity="0.15"
+                                />
+
+                    </StackPanel>
                 </DataTemplate>
             
             </ListView.ItemTemplate>
