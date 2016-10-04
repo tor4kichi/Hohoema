@@ -19,7 +19,7 @@ namespace NicoPlayerHohoema.Models
 	[KnownType(typeof(UserFeedSource))]
 	public class FeedGroup2 : BindableBase, IFeedGroup
 	{
-		public const int MaxFeedItemsCount = 50;
+		public const int MaxFeedItemsCount = 100;
 
 		#region Properties
 
@@ -181,12 +181,15 @@ namespace NicoPlayerHohoema.Models
 			foreach (var feedSource in _FeedSourceList)
 			{
 				var items = await feedSource.GetLatestItems(HohoemaApp);
-				latestItems.AddRange(items);
+				foreach (var item in items)
+				{
+					latestItems.Add(item);
+				}
 			}
 
 
 			var latestOrderedItems = latestItems
-				.OrderBy(x => x.SubmitDate)
+				.OrderByDescending(x => x.SubmitDate)
 				.Take(MaxFeedItemsCount)
 				.ToList();
 

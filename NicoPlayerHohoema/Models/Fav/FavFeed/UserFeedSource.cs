@@ -29,6 +29,7 @@ namespace NicoPlayerHohoema.Models
 					{
 						Title = x.Title,
 						VideoId = x.VideoId,
+						SubmitDate = x.SubmitTime,
 					})
 					.ToList();
 
