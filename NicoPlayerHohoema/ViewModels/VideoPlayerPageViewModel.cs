@@ -127,7 +127,9 @@ namespace NicoPlayerHohoema.ViewModels
 			NowCommentWriting.Subscribe(x => Debug.WriteLine("NowCommentWriting:" + NowCommentWriting.Value))
 				.AddTo(_CompositeDisposable);
 
-		
+			IsPlayWithCache = new ReactiveProperty<bool>(false)
+				.AddTo(_CompositeDisposable);
+
 			CanResumeOnExitWritingComment = new ReactiveProperty<bool>();
 
 			NowCommentWriting
@@ -615,10 +617,13 @@ namespace NicoPlayerHohoema.ViewModels
 					{
 						ProgressFragments.Add(new ProgressFragment(invertedTotalSize, cachedRange.Key, cachedRange.Value));
 					}
+
+					IsPlayWithCache.Value = true;
 				}
 				else
 				{
 					// 完全なオンライン再生
+					IsPlayWithCache.Value = false;
 				}
 			}
 			else
@@ -782,16 +787,24 @@ namespace NicoPlayerHohoema.ViewModels
 
 			var playerSettings = HohoemaApp.UserSettings.PlayerSettings;
 
-			var decodedText = comment.GetDecodedText();
+			string commentText = "";
+			try
+			{
+				commentText = comment.GetDecodedText();
+			}
+			catch
+			{
+				commentText = comment.Text;
+			}
 
 			// 自動芝刈り機
 			if (playerSettings.CommentGlassMowerEnable)
 			{
 				foreach (var someGlassChar in glassChars)
 				{
-					if (decodedText.Last() == someGlassChar)
+					if (commentText.Last() == someGlassChar)
 					{
-						decodedText = new String(decodedText.Reverse().SkipWhile(x => x == someGlassChar).Reverse().ToArray()) + someGlassChar;
+						commentText = new String(commentText.Reverse().SkipWhile(x => x == someGlassChar).Reverse().ToArray()) + someGlassChar;
 						break;
 					}
 				}
@@ -805,7 +818,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			var commentVM = new Comment(this)
 			{
-				CommentText = decodedText,
+				CommentText = commentText,
 				CommentId = comment.GetCommentNo(),
 				FontScale = default_fontSize,
 				Color = null,
@@ -1624,6 +1637,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> IsSaveRequestedCurrentQualityCache { get; private set; }
 		public ReactiveProperty<string> ToggleQualityText { get; private set; }
 
+		public ReactiveProperty<bool> IsPlayWithCache { get; private set; }
 		public ReactiveProperty<bool> DownloadCompleted { get; private set; }
 		public ReactiveProperty<double> ProgressPercent { get; private set; }
 
