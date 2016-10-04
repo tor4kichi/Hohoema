@@ -21,6 +21,9 @@ namespace NicoPlayerHohoema.Models
 
 	public class FeedManager
 	{
+		public const string FeedStreamFolderName = "feed_stream";
+
+
 		static Newtonsoft.Json.JsonSerializerSettings FeedGroupSerializerSettings = new Newtonsoft.Json.JsonSerializerSettings()
 		{
 			TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Objects
@@ -28,8 +31,6 @@ namespace NicoPlayerHohoema.Models
 
 
 		public HohoemaApp HohoemaApp { get; private set; }
-
-		public uint UserId { get; private set; }
 
 		public Dictionary<Guid, FileAccessor<List<FavFeedItem>>> FeedStreamFileAccessors { get; private set; }
 
@@ -44,10 +45,9 @@ namespace NicoPlayerHohoema.Models
 		
 
 
-		public FeedManager(HohoemaApp hohoemaApp, uint userId)
+		public FeedManager(HohoemaApp hohoemaApp)
 		{
 			HohoemaApp = hohoemaApp;
-			UserId = userId;
 			FeedGroupDict = new Dictionary<IFeedGroup, FileAccessor<FeedGroup2>>();
 			FeedStreamFileAccessors = new Dictionary<Guid, FileAccessor<List<FavFeedItem>>>();
 		}
@@ -57,47 +57,27 @@ namespace NicoPlayerHohoema.Models
 		{
 			var folder = await HohoemaApp.GetApplicationLocalDataFolder();
 
-			return await folder.CreateFolderAsync("feed", CreationCollisionOption.OpenIfExists);
+			return await folder.CreateFolderAsync(FeedStreamFolderName, CreationCollisionOption.OpenIfExists);
 		}
 
 		public Task<StorageFolder> GetFeedGroupFolder()
 		{
-			return HohoemaApp.GetFeedRoamingSettingsFolder();
+			return HohoemaApp.GetFeedSettingsFolder();
 		}
 		
 		internal async Task Initialize()
 		{
 			var feedGroupFolder = await GetFeedGroupFolder();
-//			var feedStreamDataFolder = await GetFeedStreamDataFolder();
 
 			var files = await feedGroupFolder.GetFilesAsync();
 
-			if (files.Count == 0)
-			{
-				// ローミング設定ないにデータが無い場合はアプリローカルからロードできないか試行する
-				var legacyFeedSettingsFolder = await HohoemaApp.GetLegacyFeedSettingsFolder();
-				files = await legacyFeedSettingsFolder.GetFilesAsync();
-
-				await Load(files);
-
-				// ローカル設定から読み込まれたデータがあればローミング設定に保存
-				if (FeedGroups.Count > 0)
-				{
-					await Save();
-				}
-			}
-			else
-			{
-				// ローミングフォルダからフィードを読み込む
-				await Load(files);
-			}
-
-			
+			// ローミングフォルダからフィードを読み込む
+			await Load(files);
 
 			Debug.WriteLine($"FeedManager: {FeedGroupDict.Count} 件のFeedGroupを読み込みました。");
 
 
-			var updater = new SimpleBackgroundUpdate("feedManager_" + UserId, () => Refresh());
+			var updater = new SimpleBackgroundUpdate("feedManager", () => Refresh());
 			await HohoemaApp.BackgroundUpdater.Schedule(updater);
 		}
 
@@ -106,7 +86,7 @@ namespace NicoPlayerHohoema.Models
 			var feedGroupFolder = await GetFeedGroupFolder();
 			var feedStreamDataFolder = await GetFeedStreamDataFolder();
 
-			var legacyFeedSettingsFolder = await HohoemaApp.GetLegacyFeedSettingsFolder();
+			var legacyFeedSettingsFolder = await HohoemaApp.GetFeedSettingsFolder();
 
 			foreach (var file in files)
 			{
@@ -119,6 +99,7 @@ namespace NicoPlayerHohoema.Models
 					{
 						var item = await fileAccessor.Load(FeedGroupSerializerSettings);
 
+						bool isLoadFromLegacyFile = false;
 						if (item == null)
 						{
 							var legacyFeedGroupFileAccessor = new FileAccessor<FeedGroup>(legacyFeedSettingsFolder, fileName);
@@ -127,6 +108,8 @@ namespace NicoPlayerHohoema.Models
 							if (item_legacy != null)
 							{
 								item = new FeedGroup2(item_legacy);
+
+								isLoadFromLegacyFile = true;
 							}
 						}
 
@@ -141,6 +124,12 @@ namespace NicoPlayerHohoema.Models
 							FeedStreamFileAccessors.Add(item.Id, streamFileAccessor);
 
 							await item.LoadFeedStream(streamFileAccessor);
+
+							// 古いファイルは新しいフォーマットで上書きして消しておく
+							if (isLoadFromLegacyFile)
+							{
+								await SaveOne(item);
+							}
 
 							Debug.WriteLine($"FeedManager: [Sucesss] load {item.Label}");
 						}

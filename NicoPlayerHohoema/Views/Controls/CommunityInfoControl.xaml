@@ -16,7 +16,7 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <toolkit:DockPanel>
+    <toolkit:DockPanel Margin="12 0 0 0">
 
         <Grid Height="80" Width="80" toolkit:DockPanel.Dock="Left">
 

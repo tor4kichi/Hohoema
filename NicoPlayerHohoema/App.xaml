@@ -26,7 +26,13 @@
 
             <myconv:VideoPositionToTimeConverter x:Key="VPosToTime" />
             <myconv:ToUserFriendlyNumber x:Key="ToUserFriendlyNumber" />
-            
+
+
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Dark">
+                    <Color x:Key="SystemBaseHighColor">#CEFFFFFF</Color>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
         </ResourceDictionary>
     </prism:PrismUnityApplication.Resources>
 

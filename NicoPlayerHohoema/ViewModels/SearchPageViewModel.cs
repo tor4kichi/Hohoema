@@ -79,8 +79,8 @@ namespace NicoPlayerHohoema.ViewModels
 				SearchTarget.Keyword,
 				SearchTarget.Tag,
 				SearchTarget.Mylist,
-				SearchTarget.Community,
-				SearchTarget.Niconama,
+//				SearchTarget.Community,
+//				SearchTarget.Niconama,
 			};
 
 			SelectedTarget = new ReactiveProperty<SearchTarget>(TargetListItems[0])
@@ -188,6 +188,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			if (!(prevSearchOption?.Equals(RequireSearchOption) ?? false))
 			{
+				SearchTarget searchTarget = SearchTarget.Keyword;
 				HohoemaViewModelBase contentVM = null;
 				if (IsSearchKeyword)
 				{
@@ -197,6 +198,7 @@ namespace NicoPlayerHohoema.ViewModels
 							, PageManager
 							, _MylistDialogService
 							);
+					searchTarget = SearchTarget.Keyword;
 				}
 				else if (IsSearchTag)
 				{
@@ -206,6 +208,7 @@ namespace NicoPlayerHohoema.ViewModels
 							, PageManager
 							, _MylistDialogService
 							);
+					searchTarget = SearchTarget.Tag;
 				}
 				else if (IsSearchMylist)
 				{
@@ -214,6 +217,7 @@ namespace NicoPlayerHohoema.ViewModels
 							, HohoemaApp
 							, PageManager
 							);
+					searchTarget = SearchTarget.Mylist;
 				}
 				else if (IsSearchCommunity)
 				{
@@ -222,6 +226,7 @@ namespace NicoPlayerHohoema.ViewModels
 							, HohoemaApp
 							, PageManager
 							);
+					searchTarget = SearchTarget.Community;
 				}
 				else if (IsSearchNiconama)
 				{
@@ -230,6 +235,7 @@ namespace NicoPlayerHohoema.ViewModels
 							, HohoemaApp
 							, PageManager
 						);
+					searchTarget = SearchTarget.Niconama;
 				}
 				else
 				{
@@ -241,6 +247,10 @@ namespace NicoPlayerHohoema.ViewModels
 				}				
 
 				ContentVM.Value = contentVM;
+
+
+				SearchText.Value = RequireSearchOption?.Keyword ?? "";
+				SelectedTarget.Value = searchTarget;
 			}
 
 			ContentVM.Value?.OnNavigatedTo(e, viewModelState);

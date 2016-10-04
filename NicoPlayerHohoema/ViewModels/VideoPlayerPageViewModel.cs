@@ -127,7 +127,9 @@ namespace NicoPlayerHohoema.ViewModels
 			NowCommentWriting.Subscribe(x => Debug.WriteLine("NowCommentWriting:" + NowCommentWriting.Value))
 				.AddTo(_CompositeDisposable);
 
-		
+			IsPlayWithCache = new ReactiveProperty<bool>(false)
+				.AddTo(_CompositeDisposable);
+
 			CanResumeOnExitWritingComment = new ReactiveProperty<bool>();
 
 			NowCommentWriting
@@ -615,10 +617,13 @@ namespace NicoPlayerHohoema.ViewModels
 					{
 						ProgressFragments.Add(new ProgressFragment(invertedTotalSize, cachedRange.Key, cachedRange.Value));
 					}
+
+					IsPlayWithCache.Value = true;
 				}
 				else
 				{
 					// 完全なオンライン再生
+					IsPlayWithCache.Value = false;
 				}
 			}
 			else
@@ -782,16 +787,24 @@ namespace NicoPlayerHohoema.ViewModels
 
 			var playerSettings = HohoemaApp.UserSettings.PlayerSettings;
 
-			var decodedText = comment.GetDecodedText();
+			string commentText = "";
+			try
+			{
+				commentText = comment.GetDecodedText();
+			}
+			catch
+			{
+				commentText = comment.Text;
+			}
 
 			// 自動芝刈り機
 			if (playerSettings.CommentGlassMowerEnable)
 			{
 				foreach (var someGlassChar in glassChars)
 				{
-					if (decodedText.Last() == someGlassChar)
+					if (commentText.Last() == someGlassChar)
 					{
-						decodedText = new String(decodedText.Reverse().SkipWhile(x => x == someGlassChar).Reverse().ToArray()) + someGlassChar;
+						commentText = new String(commentText.Reverse().SkipWhile(x => x == someGlassChar).Reverse().ToArray()) + someGlassChar;
 						break;
 					}
 				}
@@ -805,7 +818,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			var commentVM = new Comment(this)
 			{
-				CommentText = decodedText,
+				CommentText = commentText,
 				CommentId = comment.GetCommentNo(),
 				FontScale = default_fontSize,
 				Color = null,
@@ -1079,6 +1092,8 @@ namespace NicoPlayerHohoema.ViewModels
 					return;
 				}
 
+				cancelToken.ThrowIfCancellationRequested();
+
 				// 有害動画へのアクセスに対して意思確認された場合
 				if (videoInfo.IsBlockedHarmfulVideo)
 				{
@@ -1093,6 +1108,9 @@ namespace NicoPlayerHohoema.ViewModels
 						);
 					return;
 				}
+
+				cancelToken.ThrowIfCancellationRequested();
+
 
 				Title.Value = videoInfo.Title;
 
@@ -1137,6 +1155,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 
 
+			cancelToken.ThrowIfCancellationRequested();
 
 			if (IsNotSupportVideoType)
 			{
@@ -1222,7 +1241,8 @@ namespace NicoPlayerHohoema.ViewModels
 				// 再生ストリームの準備を開始する
 				await PlayingQualityChangeAction();
 
-				
+				cancelToken.ThrowIfCancellationRequested();
+
 				// Note: 0.4.1現在ではキャッシュはmp4のみ対応
 				var isCanCache = Video.ContentType == MovieType.Mp4;
 				CanDownload = (HohoemaApp.UserSettings?.CacheSettings?.IsUserAcceptedCache ?? false) && isCanCache;
@@ -1244,7 +1264,9 @@ namespace NicoPlayerHohoema.ViewModels
 				SelectedSidePaneType.Value = MediaInfoDisplayType.Summary;
 			}
 
-		
+			cancelToken.ThrowIfCancellationRequested();
+
+
 			Debug.WriteLine("VideoPlayer OnNavigatedToAsync done.");
 
 		}
@@ -1624,6 +1646,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> IsSaveRequestedCurrentQualityCache { get; private set; }
 		public ReactiveProperty<string> ToggleQualityText { get; private set; }
 
+		public ReactiveProperty<bool> IsPlayWithCache { get; private set; }
 		public ReactiveProperty<bool> DownloadCompleted { get; private set; }
 		public ReactiveProperty<double> ProgressPercent { get; private set; }
 

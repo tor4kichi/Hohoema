@@ -26,7 +26,7 @@
             <TextBlock Margin="16 8 8 8"
                        TextWrapping="Wrap"                       
                        >
-                <Run>Windows10のストアアプリを起動して評価・レビューの記入を開始します。</Run>
+                <Run>Windows10のストアアプリを起動してHohoemaアプリへの評価・レビューの記入を開始します。</Run>
             </TextBlock>
 
             
@@ -39,9 +39,8 @@
                     />
 
             
-            
-            
-            <Button Content="フィードバックHubで問題点・改善点を共有する" 
+                       
+            <Button Content="フィードバックHubでアプリの問題点・改善点を共有する" 
                     Margin="0 16"
                     Command="{Binding LaunchFeedbackHubCommand}"
                     Visibility="{Binding IsSupportedFeedbackHub, Converter={StaticResource BooleanToVisibility}}"
@@ -52,21 +51,26 @@
             <TextBlock Margin="16 8 8 8"
                        TextWrapping="Wrap"
                        >
-                <Run>アプリに対するフィードバックをWindows10特有のフィードバックHUBを通じて行います。</Run>
-                <Run>フィードバックHUBで共有された課題、必要とされる機能などは開発の優先度合いに影響を与えます。</Run>
+                <Run>Hohoemaアプリに対するフィードバックをWindows10特有の「フィードバックHub」を通じて行います。</Run>
+                <Run>フィードバックHubで共有された課題、必要とされる機能などはHohoemaの課題一覧にまとめられます。</Run>
             </TextBlock>
+
+            <HyperlinkButton Content="フィードバックHubのダウンロード（ストアアプリが開きます）"
+                             NavigateUri="ms-windows-store://pdp/?productid=9NBLGGH4R32N"
+                             Margin="0 8"
+                             />
             
-            
-            
-            
-            
+
+
+
+
             <Border HorizontalAlignment="Stretch"
                     BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                     BorderThickness="1 1 0 0"
                     Margin="0 16"
                     />
             
-            <Button Content="開発者が認識している課題一覧を見る"
+            <Button Content="Hohoemaの課題一覧を見る"
                     Margin="0 16"
                     Command="{Binding ShowIssuesWithBrowserCommand}"
                     >
@@ -76,15 +80,12 @@
             <TextBlock Margin="16 8 8 8"
                        TextWrapping="Wrap"
                        >
-                <Run>Hohoemaの課題の一覧を表示します。</Run>
-                <Run>現在どんな課題があって、いつ頃に解決する見通しなのか大まかに知ることができます。</Run>
-                <Run>フィードバックHUB等に報告された課題を、一度開発者が整理した上で課題一覧に追加します。</Run>
+                <Run>Hohoemaに現在どんな課題があって、いつ頃に解決する見通しなのか大まかに知ることができます。</Run>
+                <Run>課題一覧に新たに登録される課題はフィードバックHub等に報告された項目を一旦開発者が整理した上で追加されます。</Run>
             </TextBlock>
             
-
+            
         </StackPanel>
-        <!-- フィードバックの説明 -->
         
-        <!-- 既に認識されている問題の一覧 -->
     </Grid>
 </Page>

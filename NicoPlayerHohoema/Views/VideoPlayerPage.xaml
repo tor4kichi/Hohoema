@@ -688,11 +688,13 @@
                                                 VerticalAlignment="Bottom"
                                             Width="60"
                                             Margin="24 0 0 0"
+                                            Visibility="{Binding IsPlayWithCache.Value, Converter={StaticResource BooleanToVisibility}}"
                                             >
                                         <TextBlock  
-                                                Foreground="DarkGray"
+                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                 IsHitTestVisible="False"
                                                 HorizontalAlignment="Right"
+                                            
                                                     >
                                             <Run Text="{Binding ProgressPercent.Value}" />
                                             <Run Text="%" />
@@ -704,7 +706,7 @@
                                     <TextBlock  HorizontalAlignment="Right"
                                                VerticalAlignment="Bottom"
                                                IsHitTestVisible="False"
-                                               Foreground="DarkGray"
+                                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                Margin="0 0 24 0"
                                             >
                                         
