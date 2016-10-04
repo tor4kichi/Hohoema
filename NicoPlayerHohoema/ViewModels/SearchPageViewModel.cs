@@ -79,8 +79,8 @@ namespace NicoPlayerHohoema.ViewModels
 				SearchTarget.Keyword,
 				SearchTarget.Tag,
 				SearchTarget.Mylist,
-				SearchTarget.Community,
-				SearchTarget.Niconama,
+//				SearchTarget.Community,
+//				SearchTarget.Niconama,
 			};
 
 			SelectedTarget = new ReactiveProperty<SearchTarget>(TargetListItems[0])
