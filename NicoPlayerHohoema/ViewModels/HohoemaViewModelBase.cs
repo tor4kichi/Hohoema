@@ -20,7 +20,7 @@ namespace NicoPlayerHohoema.ViewModels
 	public abstract class HohoemaViewModelBase : ViewModelBase, IDisposable
 	{
 
-		Util.AsyncLock _NavigationLock = new Util.AsyncLock();
+		static Util.AsyncLock _NavigationLock = new Util.AsyncLock();
 
 		public HohoemaViewModelBase(HohoemaApp hohoemaApp, PageManager pageManager, bool isRequireSignIn = true)
 		{
