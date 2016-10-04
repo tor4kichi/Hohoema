@@ -67,10 +67,17 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		public VideoPlayerPageViewModel(HohoemaApp hohoemaApp, EventAggregator ea, PageManager pageManager, ToastNotificationService toast)
+		public VideoPlayerPageViewModel(
+			HohoemaApp hohoemaApp, 
+			EventAggregator ea,
+			PageManager pageManager, 
+			ToastNotificationService toast,
+			TextInputDialogService textInputDialog
+			)
 			: base(hohoemaApp, pageManager, isRequireSignIn:true)
 		{
 			_ToastService = toast;
+			_TextInputDialogService = textInputDialog;
 
 			_SidePaneContentCache = new Dictionary<MediaInfoDisplayType, MediaInfoViewModel>();
 
@@ -120,7 +127,9 @@ namespace NicoPlayerHohoema.ViewModels
 			NowCommentWriting.Subscribe(x => Debug.WriteLine("NowCommentWriting:" + NowCommentWriting.Value))
 				.AddTo(_CompositeDisposable);
 
-		
+			IsPlayWithCache = new ReactiveProperty<bool>(false)
+				.AddTo(_CompositeDisposable);
+
 			CanResumeOnExitWritingComment = new ReactiveProperty<bool>();
 
 			NowCommentWriting
@@ -398,6 +407,7 @@ namespace NicoPlayerHohoema.ViewModels
 				MediaInfoDisplayType.Summary,
 				MediaInfoDisplayType.Mylist,
 //				MediaInfoDisplayType.Comment,
+				MediaInfoDisplayType.Shere,
 				MediaInfoDisplayType.Settings,
 			};
 
@@ -607,10 +617,13 @@ namespace NicoPlayerHohoema.ViewModels
 					{
 						ProgressFragments.Add(new ProgressFragment(invertedTotalSize, cachedRange.Key, cachedRange.Value));
 					}
+
+					IsPlayWithCache.Value = true;
 				}
 				else
 				{
 					// 完全なオンライン再生
+					IsPlayWithCache.Value = false;
 				}
 			}
 			else
@@ -774,16 +787,24 @@ namespace NicoPlayerHohoema.ViewModels
 
 			var playerSettings = HohoemaApp.UserSettings.PlayerSettings;
 
-			var decodedText = comment.GetDecodedText();
+			string commentText = "";
+			try
+			{
+				commentText = comment.GetDecodedText();
+			}
+			catch
+			{
+				commentText = comment.Text;
+			}
 
 			// 自動芝刈り機
 			if (playerSettings.CommentGlassMowerEnable)
 			{
 				foreach (var someGlassChar in glassChars)
 				{
-					if (decodedText.Last() == someGlassChar)
+					if (commentText.Last() == someGlassChar)
 					{
-						decodedText = new String(decodedText.Reverse().SkipWhile(x => x == someGlassChar).Reverse().ToArray()) + someGlassChar;
+						commentText = new String(commentText.Reverse().SkipWhile(x => x == someGlassChar).Reverse().ToArray()) + someGlassChar;
 						break;
 					}
 				}
@@ -797,7 +818,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			var commentVM = new Comment(this)
 			{
-				CommentText = decodedText,
+				CommentText = commentText,
 				CommentId = comment.GetCommentNo(),
 				FontScale = default_fontSize,
 				Color = null,
@@ -1049,7 +1070,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 					var dispatcher = Window.Current.CoreWindow.Dispatcher;
 
-					dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+					await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
 					{
 						await Task.Delay(100);
 						PageManager.NavigationService.GoBack();
@@ -1071,6 +1092,8 @@ namespace NicoPlayerHohoema.ViewModels
 					return;
 				}
 
+				cancelToken.ThrowIfCancellationRequested();
+
 				// 有害動画へのアクセスに対して意思確認された場合
 				if (videoInfo.IsBlockedHarmfulVideo)
 				{
@@ -1085,6 +1108,9 @@ namespace NicoPlayerHohoema.ViewModels
 						);
 					return;
 				}
+
+				cancelToken.ThrowIfCancellationRequested();
+
 
 				Title.Value = videoInfo.Title;
 
@@ -1129,6 +1155,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 
 
+			cancelToken.ThrowIfCancellationRequested();
 
 			if (IsNotSupportVideoType)
 			{
@@ -1214,7 +1241,8 @@ namespace NicoPlayerHohoema.ViewModels
 				// 再生ストリームの準備を開始する
 				await PlayingQualityChangeAction();
 
-				
+				cancelToken.ThrowIfCancellationRequested();
+
 				// Note: 0.4.1現在ではキャッシュはmp4のみ対応
 				var isCanCache = Video.ContentType == MovieType.Mp4;
 				CanDownload = (HohoemaApp.UserSettings?.CacheSettings?.IsUserAcceptedCache ?? false) && isCanCache;
@@ -1225,7 +1253,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			_SidePaneContentCache.Clear();
 
-			_VideoDescriptionHtmlUri = await VideoDescriptionHelper.PartHtmlOutputToCompletlyHtml(VideoId, Video.DescriptionWithHtml);
+			_VideoDescriptionHtmlUri = await HtmlFileHelper.PartHtmlOutputToCompletlyHtml(VideoId, Video.DescriptionWithHtml);
 
 			if (SelectedSidePaneType.Value == MediaInfoDisplayType.Summary)
 			{
@@ -1236,7 +1264,9 @@ namespace NicoPlayerHohoema.ViewModels
 				SelectedSidePaneType.Value = MediaInfoDisplayType.Summary;
 			}
 
-		
+			cancelToken.ThrowIfCancellationRequested();
+
+
 			Debug.WriteLine("VideoPlayer OnNavigatedToAsync done.");
 
 		}
@@ -1276,6 +1306,10 @@ namespace NicoPlayerHohoema.ViewModels
 				// Note: VideoStopPlayによってストリームの管理が行われます
 				// これは再生後もダウンロードしている場合に対応するためです
 				// stream.Dispose();
+				if (Video != null)
+				{
+					Video.StopPlay().ConfigureAwait(false);
+				}
 			}
 
 			_SidePaneContentCache.Clear();
@@ -1284,10 +1318,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			Comments.Clear();
 
-			if (Video != null)
-			{
-				Video.StopPlay().ConfigureAwait(false);				
-			}
+			
 
 			_BufferingMonitorDisposable?.Dispose();
 
@@ -1308,10 +1339,8 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				VideoStream.Value = null;
 
-//				Video.StopPlay().ConfigureAwait(false);
+				Video.StopPlay().ConfigureAwait(false);
 			}
-
-			Video = null;
 
 			_BufferingMonitorDisposable?.Dispose();
 		}
@@ -1415,6 +1444,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 					case MediaInfoDisplayType.Comment:
 						vm = new CommentVideoInfoContentViewModel(HohoemaApp.UserSettings, Comments);
+						break;
+
+					case MediaInfoDisplayType.Shere:
+						vm = new ShereVideoInfoContentViewModel(Video, _TextInputDialogService, _ToastService);
 						break;
 
 					case MediaInfoDisplayType.Settings:
@@ -1538,6 +1571,11 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+
+		
+
+
+
 		#endregion
 
 
@@ -1608,6 +1646,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> IsSaveRequestedCurrentQualityCache { get; private set; }
 		public ReactiveProperty<string> ToggleQualityText { get; private set; }
 
+		public ReactiveProperty<bool> IsPlayWithCache { get; private set; }
 		public ReactiveProperty<bool> DownloadCompleted { get; private set; }
 		public ReactiveProperty<double> ProgressPercent { get; private set; }
 
@@ -1685,6 +1724,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		ToastNotificationService _ToastService;
+		TextInputDialogService _TextInputDialogService;
+
+
+
 		// TODO: コメントのNGユーザー登録
 		internal Task AddNgUser(Comment commentViewModel)
 		{
@@ -1718,19 +1761,29 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class TagViewModel
 	{
-		public TagViewModel(Tag tag, PageManager pageManager)
-		{
-			_Tag = tag;
-			_PageManager = pageManager;
-
-			TagText = _Tag.Value;
-			IsCategoryTag = _Tag.Category;
-			IsLock = _Tag.Lock;
-		}
-
 		public string TagText { get; private set; }
 		public bool IsCategoryTag { get; private set; }
 		public bool IsLock { get; private set; }
+		PageManager _PageManager;
+
+
+		public TagViewModel(string tag, PageManager pageManager)
+		{
+			_PageManager = pageManager;
+
+			TagText = tag;
+			IsCategoryTag = false;
+			IsLock = false;
+		}
+
+		public TagViewModel(Tag tag, PageManager pageManager)
+		{
+			_PageManager = pageManager;
+
+			TagText = tag.Value;
+			IsCategoryTag = tag.Category;
+			IsLock = tag.Lock;
+		}
 
 
 		private DelegateCommand _OpenSearchPageWithTagCommand;
@@ -1741,14 +1794,19 @@ namespace NicoPlayerHohoema.ViewModels
 				return _OpenSearchPageWithTagCommand
 					?? (_OpenSearchPageWithTagCommand = new DelegateCommand(() => 
 					{
-						_PageManager.OpenPage(HohoemaPageType.Search, new Models.SearchOption()
-						{
-							SearchTarget = SearchTarget.Tag,
-							Keyword = _Tag.Value,
-							Sort = Sort.FirstRetrieve,
-							Order = Order.Descending
-						}
-						.ToParameterString());
+						var payload = new SearchPagePayload(
+							new Models.TagSearchPagePayloadContent()
+							{
+								Keyword = TagText,
+								Sort = Sort.FirstRetrieve,
+								Order = Order.Descending
+							}
+							);
+
+						_PageManager.OpenPage(
+							HohoemaPageType.Search
+							, payload.ToParameterString()
+							);
 					}));
 			}
 		}
@@ -1767,8 +1825,6 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		Tag _Tag;
-		PageManager _PageManager;
 	}
 
 
@@ -1777,6 +1833,7 @@ namespace NicoPlayerHohoema.ViewModels
 		Summary,
 		Mylist,
 		Comment,
+		Shere,
 		Settings,
 	}
 

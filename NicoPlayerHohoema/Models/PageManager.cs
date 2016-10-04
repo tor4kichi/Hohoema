@@ -16,6 +16,46 @@ namespace NicoPlayerHohoema.Models
 {
 	public class PageManager : BindableBase
 	{
+		public void OpenPage(Uri uri)
+		{
+			var path = uri.AbsoluteUri;
+			// is mylist url?
+			if (path.StartsWith("https://www.nicovideo.jp/mylist/"))
+			{
+				var mylistId = uri.AbsolutePath.Split('/').Last();
+				System.Diagnostics.Debug.WriteLine($"open Mylist: {mylistId}");
+				OpenPage(HohoemaPageType.Mylist, mylistId);
+
+				return;
+			}			
+
+
+			if (path.StartsWith("https://www.nicovideo.jp/watch/"))
+			{
+				// is nico video url?
+				var videoId = uri.AbsolutePath.Split('/').Last();
+				System.Diagnostics.Debug.WriteLine($"open Video: {videoId}");
+				OpenPage(HohoemaPageType.VideoPlayer,
+					new VideoPlayPayload()
+					{
+						VideoId = videoId
+					}
+					.ToParameterString()
+					);
+
+				return;
+			}
+
+			if (path.StartsWith("https://com.nicovideo.jp/community/"))
+			{
+				var communityId = uri.AbsolutePath.Split('/').Last();
+				OpenPage(HohoemaPageType.Community, communityId);
+
+				return;
+			}
+		}
+
+
 
 		public readonly IReadOnlyList<HohoemaPageType> DontNeedMenuPageTypes = new List<HohoemaPageType>
 		{
@@ -125,6 +165,8 @@ namespace NicoPlayerHohoema.Models
 					return "設定";
 				case HohoemaPageType.About:
 					return "このアプリについて";
+				case HohoemaPageType.Feedback:
+					return "フィードバック";
 				case HohoemaPageType.VideoInfomation:
 					return "動画情報";
 				case HohoemaPageType.VideoPlayer:
@@ -141,6 +183,10 @@ namespace NicoPlayerHohoema.Models
 					return "ユーザー情報";
 				case HohoemaPageType.UserVideo:
 					return "ユーザー投稿動画一覧";
+				case HohoemaPageType.Community:
+					return "コミュニティ情報";
+				case HohoemaPageType.LiveVideoPlayer:
+					return "生放送プレイヤー";
 				case HohoemaPageType.Login:
 					return "ログイン";
 				default:

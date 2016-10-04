@@ -17,9 +17,10 @@ using WinRTXamlToolkit.Async;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	abstract public class HohoemaViewModelBase : ViewModelBase, IDisposable
+	public abstract class HohoemaViewModelBase : ViewModelBase, IDisposable
 	{
 
+		static Util.AsyncLock _NavigationLock = new Util.AsyncLock();
 
 		public HohoemaViewModelBase(HohoemaApp hohoemaApp, PageManager pageManager, bool isRequireSignIn = true)
 		{
@@ -151,7 +152,7 @@ namespace NicoPlayerHohoema.ViewModels
 				PageManager.PageTitle = PageManager.CurrentDefaultPageTitle();
 			}
 
-			
+
 		}
 
 		private async void _OnResumed()
@@ -190,29 +191,32 @@ namespace NicoPlayerHohoema.ViewModels
 
 		private async Task __NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			if (IsRequireSignIn)
+			using (var releaser = await _NavigationLock.LockAsync())
 			{
-				if (!await CheckSignIn())
+				if (IsRequireSignIn)
 				{
-					var result = await HohoemaApp.SignInWithPrimaryAccount();
-
-					if (result != Mntone.Nico2.NiconicoSignInStatus.Success)
+					if (!await CheckSignIn())
 					{
-						// サインイン出来ない場合はログインページへ戻す
-						PageManager.OpenPage(HohoemaPageType.Login);
-						return;
+						var result = await HohoemaApp.SignInWithPrimaryAccount();
+
+						if (result != Mntone.Nico2.NiconicoSignInStatus.Success)
+						{
+							// サインイン出来ない場合はログインページへ戻す
+							PageManager.OpenPage(HohoemaPageType.Login);
+							return;
+						}
 					}
+
+					OnSignin();
 				}
 
-				OnSignin();
-			}
+				if (HohoemaApp.MediaManager != null && HohoemaApp.MediaManager.Context != null)
+				{
+					await HohoemaApp.MediaManager.Context.ClearDurtyCachedNicoVideo();
+				}
 
-			if (HohoemaApp.MediaManager != null && HohoemaApp.MediaManager.Context != null)
-			{
-				await HohoemaApp.MediaManager.Context.ClearDurtyCachedNicoVideo();
+				await NavigatedToAsync(cancelToken, e, viewModelState);
 			}
-
-			await NavigatedToAsync(cancelToken, e, viewModelState);
 		}
 
 		protected virtual Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
@@ -221,21 +225,25 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+		public override async void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
-			HohoemaApp.OnResumed -= _OnResumed;
+			using (var releaser = await _NavigationLock.LockAsync())
+			{
+				if (!suspending)
+				{
+					HohoemaApp.OnResumed -= _OnResumed;
+				}
+				_NavigatedToTaskCancelToken?.Cancel();
 
-			_NavigatedToTaskCancelToken?.Cancel();
+				var task = _NavigatedToTask.WaitToCompelation();
 
-			var task = _NavigatedToTask.WaitToCompelation();
+				task.Wait();
 
-			task.Wait();
+				_NavigatedToTaskCancelToken?.Dispose();
+				_NavigatedToTaskCancelToken = null;
 
-			_NavigatedToTaskCancelToken?.Dispose();
-			_NavigatedToTaskCancelToken = null;
-
-			base.OnNavigatingFrom(e, viewModelState, suspending);
-
+				base.OnNavigatingFrom(e, viewModelState, suspending);
+			}
 		}
 
 	
@@ -245,25 +253,27 @@ namespace NicoPlayerHohoema.ViewModels
 			PageManager.UpdateTitle(title);
 		}
 
-		public void Dispose()
+		public async void Dispose()
 		{
-			IsDisposed = true;
-			
-			if (IsRequireSignIn)
+			using (var releaser = await _NavigationLock.LockAsync())
 			{
-				OnSignout();
+				IsDisposed = true;
+
+				if (IsRequireSignIn)
+				{
+					OnSignout();
+				}
+
+				OnDispose();
+
+				_CompositeDisposable?.Dispose();
+				_UserSettingsCompositeDisposable?.Dispose();
+
+				HohoemaApp.OnSignout -= OnSignout;
+				HohoemaApp.OnSignin -= OnSignin;
 			}
-
-			OnDispose();
-
-			_CompositeDisposable?.Dispose();
-			_UserSettingsCompositeDisposable?.Dispose();
-
-			HohoemaApp.OnSignout -= OnSignout;
-			HohoemaApp.OnSignin -= OnSignin;
-
-			HohoemaApp.OnResumed -= _OnResumed;
 		}
+
 
 
 		CancellationTokenSource _NavigatedToTaskCancelToken;

@@ -176,42 +176,44 @@
 
                     <DataTemplate>
 
-                        <Grid Height="48" Background="Transparent" IsHitTestVisible="True" Margin="0 8">
+                        <toolkit:DockPanel Height="48" Margin="0 8">
 
-                            <i:Interaction.Behaviors>
-                                <core:EventTriggerBehavior EventName="Tapped">
-                                    <core:InvokeCommandAction Command="{Binding ElementName=PageRoot, Path=DataContext.OpenFeedVideoPageCommand}"
-                                                          CommandParameter="{Binding}"
-                                                          />
-                                </core:EventTriggerBehavior>
-                            </i:Interaction.Behaviors>
-
-
-                            
-                            <toolkit:DockPanel>
-
-                                <StackPanel toolkit:DockPanel.Dock="Right"
+                            <StackPanel toolkit:DockPanel.Dock="Right"
                                             Orientation="Horizontal"
                                             >
 
 
-                                    
-                                    <Border Margin="8 0">
-                                        <TextBlock VerticalAlignment="Center"
+
+                                <Border Margin="8 0">
+                                    <TextBlock VerticalAlignment="Center"
                                                     Margin="8"
                                                 >
                                                 <Run Text="{Binding UnreadItemCount}" />
-                                        </TextBlock>
-                                    </Border>
+                                    </TextBlock>
+                                </Border>
 
-                                    <AppBarButton Icon="Edit" 
+                                <AppBarButton Icon="Edit" 
                                             IsCompact="True"
                                             Command="{Binding SecondaryActionCommand}"
                                             />
-                                    
-                                    
-                                </StackPanel>
 
+
+                            </StackPanel>
+
+
+
+
+
+                            <toolkit:DockPanel Background="Transparent" IsHitTestVisible="True" >
+
+
+                                <i:Interaction.Behaviors>
+                                    <core:EventTriggerBehavior EventName="Tapped">
+                                        <core:InvokeCommandAction Command="{Binding ElementName=PageRoot, Path=DataContext.OpenFeedVideoPageCommand}"
+                                                          CommandParameter="{Binding}"
+                                                          />
+                                    </core:EventTriggerBehavior>
+                                </i:Interaction.Behaviors>
 
                                 <ItemsControl ItemsSource="{Binding SourceItems}"
                                           ItemTemplateSelector="{StaticResource feedItemSourceTemplateSelector}"
@@ -240,7 +242,7 @@
                             </toolkit:DockPanel>
 
 
-                        </Grid>
+                        </toolkit:DockPanel>
                     </DataTemplate>
 
                 </ListView.ItemTemplate>

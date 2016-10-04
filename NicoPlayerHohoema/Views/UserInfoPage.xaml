@@ -21,7 +21,8 @@
     <ScrollViewer>
         <StackPanel Margin="8 8 16 8">
 
-            <Border BorderBrush="Black" BorderThickness="2">
+            <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                    BorderThickness="2">
                 <toolkit:DockPanel>
                     <uwpUI:ImageEx Width="128" Height="128" Source="{Binding UserIconUri}" 
                                         IsCacheEnabled="True"

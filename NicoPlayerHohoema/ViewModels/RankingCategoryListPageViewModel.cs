@@ -67,6 +67,7 @@ namespace NicoPlayerHohoema.ViewModels
 					RankingCategory.g_culture2,
 					RankingCategory.anime,
 					RankingCategory.game,
+					RankingCategory.jikkyo,
 					RankingCategory.toho,
 					RankingCategory.imas,
 					RankingCategory.radio,

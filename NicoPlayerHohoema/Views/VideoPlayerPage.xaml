@@ -36,6 +36,12 @@
             <videoInfo:CommentVideoInfoContent 
                                                />
         </DataTemplate>
+
+
+        <DataTemplate x:Key="ShereVideoInfoContentTemplate">
+            <videoInfo:ShereVideoInfoContent />
+        </DataTemplate>
+        
         <DataTemplate x:Key="SettingsVideoInfoContentTemplate" >
             <videoInfo:SettingsVideoInfoContent
                                                />
@@ -47,6 +53,7 @@
                                                 Summary="{StaticResource SummaryVideoInfoContentTemplate}"
                                                 Mylist="{StaticResource MylistVideoInfoContentTemplate}"
                                                 Comment="{StaticResource CommentVideoInfoContentTemplate}"
+                                                Shere="{StaticResource ShereVideoInfoContentTemplate}"
                                                 Settings="{StaticResource SettingsVideoInfoContentTemplate}"
                                                 
                                                 >
@@ -529,7 +536,6 @@
                                 <TextBlock Text="{Binding Title.Value}" 
                                            VerticalAlignment="Center"
                                            Margin="8 0"
-                                           Foreground="Black"
                                            TextWrapping="Wrap"
                                            
                                    />
@@ -627,7 +633,6 @@
                                         </Slider>
                                         <TextBlock Text="音量" 
                                                    VerticalAlignment="Center"
-                                                   Foreground="Black"
                                                    Margin="8 0 0 0"
                                                    HorizontalAlignment="Center"
                                                    FontSize="12"
@@ -683,11 +688,13 @@
                                                 VerticalAlignment="Bottom"
                                             Width="60"
                                             Margin="24 0 0 0"
+                                            Visibility="{Binding IsPlayWithCache.Value, Converter={StaticResource BooleanToVisibility}}"
                                             >
                                         <TextBlock  
-                                                Foreground="DarkGray"
+                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                 IsHitTestVisible="False"
                                                 HorizontalAlignment="Right"
+                                            
                                                     >
                                             <Run Text="{Binding ProgressPercent.Value}" />
                                             <Run Text="%" />
@@ -699,7 +706,7 @@
                                     <TextBlock  HorizontalAlignment="Right"
                                                VerticalAlignment="Bottom"
                                                IsHitTestVisible="False"
-                                               Foreground="DarkGray"
+                                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                Margin="0 0 24 0"
                                             >
                                         
@@ -914,7 +921,9 @@
 
                     <ScrollViewer>
                         <ContentControl Content="{Binding SidePaneContent.Value}"
-                                    ContentTemplateSelector="{StaticResource VideoInfoContentTemplateSelector}"
+                                        ContentTemplateSelector="{StaticResource VideoInfoContentTemplateSelector}"
+                                        HorizontalContentAlignment="Stretch"
+                                        VerticalContentAlignment="Stretch"
                                     />
                     </ScrollViewer>
 

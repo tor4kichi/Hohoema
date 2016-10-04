@@ -20,6 +20,7 @@ namespace NicoPlayerHohoema.Models
 		CacheManagement,
 		Settings,
 		About,
+		Feedback,
 
 		VideoInfomation,
 		VideoPlayer,
@@ -31,6 +32,10 @@ namespace NicoPlayerHohoema.Models
 
 		UserInfo,
 		UserVideo,
+
+		Community,
+
+		LiveVideoPlayer,
 
 		Login,
 

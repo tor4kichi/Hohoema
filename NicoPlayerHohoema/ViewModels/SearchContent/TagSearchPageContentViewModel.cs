@@ -27,15 +27,20 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<bool> FailLoading { get; private set; }
 
-		public SearchOption RequireSearchOption { get; private set; }
+		public TagSearchPagePayloadContent SearchOption { get; private set; }
 		public ReactiveProperty<int> LoadedPage { get; private set; }
 
 		NiconicoContentFinder _ContentFinder;
 
-		public TagSearchPageContentViewModel(HohoemaApp hohoemaApp, PageManager pageManager, MylistRegistrationDialogService mylistDialogService, SearchOption searchOption) 
+		public TagSearchPageContentViewModel(
+			TagSearchPagePayloadContent searchOption,
+			HohoemaApp hohoemaApp, 
+			PageManager pageManager, 
+			MylistRegistrationDialogService mylistDialogService
+			) 
 			: base(hohoemaApp, pageManager, mylistDialogService)
 		{
-			RequireSearchOption = searchOption;
+			SearchOption = searchOption;
 
 			_ContentFinder = HohoemaApp.ContentFinder;
 			FailLoading = new ReactiveProperty<bool>(false)
@@ -70,12 +75,12 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					if (await FavoriteTag())
 					{
-						Debug.WriteLine(RequireSearchOption.Keyword + "のタグをお気に入り登録しました.");
+						Debug.WriteLine(SearchOption.Keyword + "のタグをお気に入り登録しました.");
 					}
 					else
 					{
 						// お気に入り登録に失敗した場合は状態を差し戻し
-						Debug.WriteLine(RequireSearchOption.Keyword + "のタグをお気に入り登録に失敗");
+						Debug.WriteLine(SearchOption.Keyword + "のタグをお気に入り登録に失敗");
 						IsFavoriteTag.Value = false;
 					}
 				}
@@ -83,12 +88,12 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					if (await UnfavoriteTag())
 					{
-						Debug.WriteLine(RequireSearchOption.Keyword + "のタグをお気に入り解除しました.");
+						Debug.WriteLine(SearchOption.Keyword + "のタグをお気に入り解除しました.");
 					}
 					else
 					{
 						// お気に入り解除に失敗した場合は状態を差し戻し
-						Debug.WriteLine(RequireSearchOption.Keyword + "のタグをお気に入り解除に失敗");
+						Debug.WriteLine(SearchOption.Keyword + "のタグをお気に入り解除に失敗");
 						IsFavoriteTag.Value = true;
 					}
 				}
@@ -116,21 +121,25 @@ namespace NicoPlayerHohoema.ViewModels
 
 			_NowProcessFavorite = false;
 
+			var target = "タグ";
+			var optionText = Util.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
+			UpdateTitle($"{SearchOption.Keyword} - {target}/{optionText}");
+
 			base.OnNavigatedTo(e, viewModelState);
 		}
 
 
 		protected override Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			if (RequireSearchOption == null) { return Task.CompletedTask; }
+			if (SearchOption == null) { return Task.CompletedTask; }
 
 			_NowProcessFavorite = true;
 			
 			// お気に入り登録されているかチェック
 			var favManager = HohoemaApp.FavManager;
-			IsFavoriteTag.Value = favManager.IsFavoriteItem(FavoriteItemType.Tag, RequireSearchOption.Keyword);
-			CanChangeFavoriteTagState.Value = favManager.CanMoreAddFavorite(FavoriteItemType.Tag);
-			
+			IsFavoriteTag.Value = favManager.IsFavoriteItem(FavoriteItemType.Tag, SearchOption.Keyword);
+			CanChangeFavoriteTagState.Value = IsFavoriteTag.Value == true || HohoemaApp.FavManager.CanMoreAddFavorite(FavoriteItemType.Tag);
+
 			_NowProcessFavorite = false;
 
 			return base.ListPageNavigatedToAsync(cancelToken, e, viewModelState);
@@ -140,17 +149,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
 		{
-			return new VideoSearchSource(RequireSearchOption, HohoemaApp, PageManager);
-		}
-
-
-		protected override void PostResetList()
-		{
-			var source = IncrementalLoadingItems.Source as VideoSearchSource;
-			var searchOption = source.SearchOption;
-			var target = searchOption.SearchTarget == SearchTarget.Keyword ? "キーワード" : "タグ";
-			var optionText = Util.SortHelper.ToCulturizedText(searchOption.Sort, searchOption.Order);
-			UpdateTitle($"{target}検索: {searchOption.Keyword} - {optionText}");
+			return new VideoSearchSource(SearchOption, HohoemaApp, PageManager);
 		}
 
 		
@@ -159,9 +158,9 @@ namespace NicoPlayerHohoema.ViewModels
 			var source = IncrementalLoadingItems?.Source as VideoSearchSource;
 			if (source == null) { return true; }
 
-			if (RequireSearchOption != null)
+			if (SearchOption != null)
 			{
-				return !RequireSearchOption.Equals(source.SearchOption);
+				return !SearchOption.Equals(source.SearchOption);
 			}
 			else
 			{
@@ -175,7 +174,7 @@ namespace NicoPlayerHohoema.ViewModels
 		private async Task<bool> FavoriteTag()
 		{
 			var favManager = HohoemaApp.FavManager;
-			var result = await favManager.AddFav(FavoriteItemType.Tag, RequireSearchOption.Keyword, RequireSearchOption.Keyword);
+			var result = await favManager.AddFav(FavoriteItemType.Tag, SearchOption.Keyword, SearchOption.Keyword);
 
 			return result == Mntone.Nico2.ContentManageResult.Success || result == Mntone.Nico2.ContentManageResult.Exist;
 		}
@@ -183,7 +182,7 @@ namespace NicoPlayerHohoema.ViewModels
 		private async Task<bool> UnfavoriteTag()
 		{
 			var favManager = HohoemaApp.FavManager;
-			var result = await favManager.RemoveFav(FavoriteItemType.Tag, RequireSearchOption.Keyword);
+			var result = await favManager.RemoveFav(FavoriteItemType.Tag, SearchOption.Keyword);
 
 			return result == Mntone.Nico2.ContentManageResult.Success;
 		}

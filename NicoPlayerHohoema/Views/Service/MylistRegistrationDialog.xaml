@@ -14,9 +14,9 @@
     d:DesignHeight="500"
     d:DesignWidth="400"
     Title="マイリストに登録"
-    PrimaryButtonText="キャンセル"
-    SecondaryButtonText="登録"
-    IsSecondaryButtonEnabled="{Binding CanCompleteSelection.Value}"
+    PrimaryButtonText="登録"
+    SecondaryButtonText="キャンセル"
+    IsPrimaryButtonEnabled="{Binding CanCompleteSelection.Value}"
     >
 
     <Grid>

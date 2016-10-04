@@ -36,6 +36,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				Name = "ユーザー",
 				FavType = FavoriteItemType.User,
+				MaxItemCount = HohoemaApp.FavManager.User.MaxFavItemCount,
 				Items = HohoemaApp.FavManager.User.FavInfoItems
 					.Select(x => new FavoriteItemViewModel(x, PageManager))
 					.ToList()
@@ -45,6 +46,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				Name = "マイリスト",
 				FavType = FavoriteItemType.Mylist,
+				MaxItemCount = HohoemaApp.FavManager.Mylist.MaxFavItemCount,
 				Items = HohoemaApp.FavManager.Mylist.FavInfoItems
 					.Select(x => new FavoriteItemViewModel(x, PageManager))
 					.ToList()
@@ -54,7 +56,18 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				Name = "タグ",
 				FavType = FavoriteItemType.Tag,
+				MaxItemCount = HohoemaApp.FavManager.Tag.MaxFavItemCount,
 				Items = HohoemaApp.FavManager.Tag.FavInfoItems
+					.Select(x => new FavoriteItemViewModel(x, PageManager))
+					.ToList()
+			});
+
+			Lists.Add(new FavoriteListViewModel()
+			{
+				Name = "コミュニティ",
+				FavType = FavoriteItemType.Community,
+				MaxItemCount = HohoemaApp.FavManager.Community.MaxFavItemCount,
+				Items = HohoemaApp.FavManager.Community.FavInfoItems
 					.Select(x => new FavoriteItemViewModel(x, PageManager))
 					.ToList()
 			});
@@ -68,6 +81,8 @@ namespace NicoPlayerHohoema.ViewModels
 	{
 		public FavoriteItemType FavType { get; set; }
 		public string Name { get; set; }
+		public uint MaxItemCount { get; set; }
+		public int ItemCount => Items.Count;
 
 		public List<FavoriteItemViewModel> Items { get; set; }
 	}
@@ -97,13 +112,14 @@ namespace NicoPlayerHohoema.ViewModels
 						switch (ItemType)
 						{
 							case FavoriteItemType.Tag:
-								var param = new SearchOption()
-								{
-									Keyword = this.SourceId,
-									SearchTarget = SearchTarget.Tag,
-									Sort = Mntone.Nico2.Sort.FirstRetrieve,
-									Order = Mntone.Nico2.Order.Descending,
-								}.ToParameterString();
+								var param = new SearchPagePayload(
+									new TagSearchPagePayloadContent()
+									{
+										Keyword = this.SourceId,
+										Sort = Mntone.Nico2.Sort.FirstRetrieve,
+										Order = Mntone.Nico2.Order.Descending,
+									}
+									).ToParameterString();
 
 								_PageManager.OpenPage(HohoemaPageType.Search, param);
 								break;
@@ -112,6 +128,9 @@ namespace NicoPlayerHohoema.ViewModels
 								break;
 							case FavoriteItemType.User:								
 								_PageManager.OpenPage(HohoemaPageType.UserInfo, this.SourceId);
+								break;
+							case FavoriteItemType.Community:
+								_PageManager.OpenPage(HohoemaPageType.Community, this.SourceId);
 								break;
 							default:
 								break;

@@ -1,8 +1,12 @@
 ﻿using Mntone.Nico2;
+using Mntone.Nico2.Communities.Detail;
+using Mntone.Nico2.Communities.Info;
 using Mntone.Nico2.Mylist;
 using Mntone.Nico2.Mylist.MylistGroup;
+using Mntone.Nico2.Searches.Community;
 using Mntone.Nico2.Searches.Video;
 using Mntone.Nico2.Users.Fav;
+using Mntone.Nico2.Users.FavCommunity;
 using Mntone.Nico2.Users.User;
 using Mntone.Nico2.Users.Video;
 using Mntone.Nico2.Videos.Histories;
@@ -159,6 +163,34 @@ namespace NicoPlayerHohoema.Models
 			}, retryInterval:2000);
 		}
 
+
+		public async Task<Mntone.Nico2.Searches.Live.NicoliveVideoResponse> LiveSearchAsync(
+			string word,
+			bool isTagSearch,
+			Mntone.Nico2.Live.CommunityType? provider = null,
+			uint from = 0,
+			uint length = 30,
+			Order? order = null,
+			Mntone.Nico2.Searches.Live.NicoliveSearchSort? sort = null,
+			Mntone.Nico2.Searches.Live.NicoliveSearchMode? mode = null
+			)
+		{
+			using (var releaser = await _NicoPageAccessLock.LockAsync())
+			{
+				return await _HohoemaApp.NiconicoContext.Search.LiveSearchAsync(
+					word,
+					isTagSearch,
+					provider,
+					from,
+					length,
+					order,
+					sort,
+					mode
+					);
+			}
+		}
+
+
 		public Task<List<LoginUserMylistGroup>> GetLoginUserMylistGroups()
 		{
 			return ConnectionRetryUtil.TaskWithRetry(() =>
@@ -256,6 +288,14 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
+		public async Task<FavCommunityResponse> GetFavCommunities()
+		{
+			using (var releaser = await _NicoPageAccessLock.LockAsync())
+			{
+				return await _HohoemaApp.NiconicoContext.User.GetFavCommunityAsync();
+			}
+		}
+
 
 		public async Task<UserVideoResponse> GetUserVideos(uint userId, uint page, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
 		{
@@ -270,6 +310,47 @@ namespace NicoPlayerHohoema.Models
 			return await _HohoemaApp.NiconicoContext.Video.GetRelatedVideoAsync(videoId, from, limit, sort, order);
 		}
 
+
+
+
+		public async Task<CommunitySearchResponse> SearchCommunity(
+			string keyword
+			, uint page
+			, CommunitySearchSort sort = CommunitySearchSort.CreatedAt
+			, Order order = Order.Descending
+			, CommunitySearchMode mode = CommunitySearchMode.Keyword
+			)
+		{
+			return await ConnectionRetryUtil.TaskWithRetry(async () =>
+			{
+				using (var releaser = await _NicoPageAccessLock.LockAsync())
+				{
+					return await _HohoemaApp.NiconicoContext.Search.CommunitySearchAsync(keyword, page, sort, order, mode);
+				}
+			});
+		}
+
+
+		public Task<NicovideoCommunityResponse> GetCommunityInfo(
+			string communityId
+			)
+		{
+			return _HohoemaApp.NiconicoContext.Community.GetCommunifyInfoAsync(communityId);
+		}
+
+
+		public Task<CommunityDetailResponse> GetCommunityDetail(
+			string communityId
+			)
+		{
+			return ConnectionRetryUtil.TaskWithRetry(async () =>
+			{
+				using (var releaser = await _NicoPageAccessLock.LockAsync())
+				{
+					return await _HohoemaApp.NiconicoContext.Community.GetCommunityDetailAsync(communityId);
+				}
+			});
+		}
 
 
 		HohoemaApp _HohoemaApp;

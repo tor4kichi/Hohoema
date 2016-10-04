@@ -16,31 +16,19 @@
 
     <Page.Resources>
         <DataTemplate x:Key="FavoriteItemTemplate">
-            <Border Background="Transparent" Margin="8">
-                <i:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="Tapped">
-                        <core:InvokeCommandAction Command="{Binding SelectedCommand}" />
-                    </core:EventTriggerBehavior>
-
-                </i:Interaction.Behaviors>
-                
-                <TextBlock Text="{Binding Title}"
-                           VerticalAlignment="Center"
-                           />
-                
-            </Border>
+            <Button Content="{Binding Title}"
+                    Command="{Binding SelectedCommand}"
+                    Padding="16 8"
+                    >
+            </Button>
         </DataTemplate>
 
 
         <local:FavTypeToSymbolIconConverter x:Key="FavTypeToSymbol" />
     </Page.Resources>
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid>
 
         <ScrollViewer x:Name="ScrollList"
-                      HorizontalScrollMode="Enabled"
-                      HorizontalScrollBarVisibility="Auto"
-                      VerticalScrollMode="Disabled"
-                      VerticalScrollBarVisibility="Hidden"
                       >
             <Border Margin="16">
                 <ItemsControl ItemsSource="{Binding Lists}">
@@ -61,37 +49,50 @@
                                            toolkit:DockPanel.Dock="Top"                                            
                                             >
                                     <SymbolIcon Symbol="{Binding FavType, Converter={StaticResource FavTypeToSymbol}}" 
-                                                Margin="8 8 16 8"
+                                                Margin="0 8 8 8"
+                                                VerticalAlignment="Center"
                                                 />
 
                                     <TextBlock Text="{Binding Name}" 
-                                           Margin="0 0 0 8"
+                                           Margin="8 0 "
                                            FontSize="20"
                                                VerticalAlignment="Center"
                                            />
 
+                                    <TextBlock 
+                                               VerticalAlignment="Center"
+                                               Opacity="0.8"
+                                               FontSize="13"
+                                               Margin="8 0"
+                                               >
+                                        <Run Text="{Binding ItemCount}" />
+                                        <Run Text="/" />
+                                        <Run Text="{Binding MaxItemCount}" />
+                                    </TextBlock>
+
                                 </StackPanel>
 
-                                <ListView ItemsSource="{Binding Items}"
+                                <ItemsControl ItemsSource="{Binding Items}"
                                           ItemTemplate="{StaticResource FavoriteItemTemplate}"
                                           Margin="8 0"
                                           >
-                                    <ListView.ItemContainerStyle>
-                                        <Style TargetType="ListViewItem">
+                                    <ItemsControl.ItemContainerStyle>
+                                        <Style TargetType="ContentPresenter">
                                             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                             <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                                            <Setter Property="Margin" Value="8" />
                                         </Style>
-                                    </ListView.ItemContainerStyle>
+                                    </ItemsControl.ItemContainerStyle>
 
-                                    <ListView.ItemsPanel>
+                                    <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <toolkit:WrapPanel 
                                                                />
                                             
                                         </ItemsPanelTemplate>
-                                    </ListView.ItemsPanel>
+                                    </ItemsControl.ItemsPanel>
                                     
-                                </ListView>
+                                </ItemsControl>
                                 
                             </toolkit:DockPanel>
                         </DataTemplate>

@@ -42,6 +42,21 @@
                     <settingsContent:CacheSettingsPageContent />
                 </DataTemplate>
             </view:SettingContentTemplateSelector.CacheTemplate>
+
+            <!-- AppDisplay -->
+            <view:SettingContentTemplateSelector.AppDisplayTemplate>
+                <DataTemplate>
+                    <settingsContent:AppDisplaySettingsPageContent />
+                </DataTemplate>
+            </view:SettingContentTemplateSelector.AppDisplayTemplate>
+
+            <!-- Shere -->
+            <view:SettingContentTemplateSelector.ShereTemplate>
+                <DataTemplate>
+                    <settingsContent:ShereSettingsPageContent />
+                </DataTemplate>
+            </view:SettingContentTemplateSelector.ShereTemplate>
+
         </view:SettingContentTemplateSelector>
     </Page.Resources>
     
@@ -54,6 +69,9 @@
                       ItemsSource="{Binding SettingItems}"
                       SelectedItem="{Binding CurrentSettingsKind.Value, Mode=TwoWay}"
                       DisplayMemberPath="Label"
+                      ScrollViewer.VerticalScrollMode="Disabled"
+                      ScrollViewer.HorizontalScrollMode="Enabled"
+                      ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                       >
                 <ListView.ItemsPanel>
                     <ItemsPanelTemplate>

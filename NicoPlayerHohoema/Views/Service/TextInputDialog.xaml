@@ -7,14 +7,15 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Title="{Binding Title}"
-    PrimaryButtonText="キャンセル"
-    SecondaryButtonText="OK"
-    IsSecondaryButtonEnabled="{Binding IsValid.Value}"
+    PrimaryButtonText="OK"
+    SecondaryButtonText="キャンセル"
+    IsPrimaryButtonEnabled="{Binding IsValid.Value}"
     >
 
     <Grid Margin="0 16">
         <TextBox Text="{Binding Text.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                  PlaceholderText="{Binding PlaceholderText}"
+                 TextWrapping="Wrap"
                  />
     </Grid>
 </ContentDialog>

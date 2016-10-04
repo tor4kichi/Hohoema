@@ -11,9 +11,13 @@ namespace NicoPlayerHohoema.Models.AppMap
 {
 	public class RankingCategoriesAppMapContainer : SelectableAppMapContainerBase		
 	{
-		public RankingCategoriesAppMapContainer()
+
+		public RankingSettings RankingSettings { get; private set; }
+
+		public RankingCategoriesAppMapContainer(RankingSettings rankingSettings)
 			: base(HohoemaPageType.RankingCategoryList, label:"ランキング")
 		{
+			RankingSettings = rankingSettings;
 		}
 
 		public override ContainerItemDisplayType ItemDisplayType => ContainerItemDisplayType.Card;
@@ -31,9 +35,16 @@ namespace NicoPlayerHohoema.Models.AppMap
 				items.Add(new RankingCategoryAppMapItem(cat));
 			}
 
+//			foreach (var custom in RankingSettings.HighPriorityCategory.Where(x => x.RankingSource == RankingSource.SearchWithMostPopular))
+//			{
+//				items.Add(new RankingCategoryAppMapItem(custom.Parameter));
+//			}
+
 			return Task.FromResult(items.AsEnumerable());
 		}
 	}
+
+
 
 	public class RankingCategoryAppMapItem : IAppMapItem
 	{
@@ -54,6 +65,18 @@ namespace NicoPlayerHohoema.Models.AppMap
 				DisplayLabel = PrimaryLabel
 			}.ToParameterString();
 				
+		}
+
+		public RankingCategoryAppMapItem(string keyword)
+		{
+			PrimaryLabel = keyword;
+			Parameter = new RankingCategoryInfo()
+			{
+				RankingSource = RankingSource.SearchWithMostPopular,
+				Parameter = keyword,
+				DisplayLabel = PrimaryLabel
+			}.ToParameterString();
+
 		}
 	}
 }

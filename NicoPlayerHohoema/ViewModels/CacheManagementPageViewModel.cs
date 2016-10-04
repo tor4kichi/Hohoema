@@ -76,9 +76,9 @@ namespace NicoPlayerHohoema.ViewModels
 			get
 			{
 				return _ResumeCacheCommand
-					?? (_ResumeCacheCommand = new DelegateCommand(() =>
+					?? (_ResumeCacheCommand = new DelegateCommand(async () =>
 					{
-						_MediaManager.Context.StartBackgroundDownload();
+						await _MediaManager.Context.StartBackgroundDownload();
 					}));
 			}
 		}

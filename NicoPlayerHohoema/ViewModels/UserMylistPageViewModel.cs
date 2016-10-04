@@ -230,6 +230,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 		}
 
+		
+
+
 		protected void ClearSelection()
 		{
 			SelectedMylistGroupItems.Clear();

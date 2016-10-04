@@ -16,18 +16,8 @@ namespace NicoPlayerHohoema.Models
 
 		public override FavoriteItemType FavoriteItemType => FavoriteItemType.Tag;
 
-
-		public override bool CanMoreAddFavorite()
-		{
-			if (HohoemaApp.IsPremiumUser)
-			{
-				return FavInfoItems.Count < FavManager.PREMIUM_FAV_TAG_MAX_COUNT;
-			}
-			else
-			{
-				return FavInfoItems.Count < FavManager.FAV_TAG_MAX_COUNT;
-			}
-		}
+		public override uint MaxFavItemCount =>
+			HohoemaApp.IsPremiumUser ? FavManager.PREMIUM_FAV_TAG_MAX_COUNT : FavManager.FAV_TAG_MAX_COUNT;
 
 		protected override FavInfo ConvertToFavInfo(string source)
 		{

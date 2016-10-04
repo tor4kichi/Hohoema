@@ -11,34 +11,19 @@
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     mc:Ignorable="d"
     Title="キャッシュ利用前の確認"
-    PrimaryButtonText="キャンセル"
-    SecondaryButtonText="{Binding ComfirmButtonText}"
+    PrimaryButtonText="{Binding ComfirmButtonText}"
+    SecondaryButtonText="キャンセル"
     >
 
     <Grid>
         <!-- 通知と合意 -->
         <Border Padding="32" 
-                    Background="WhiteSmoke"
                     MinWidth="400" HorizontalAlignment="Left"
                     >
             <toolkit:DockPanel 
                                >
 
-                <Border toolkit:DockPanel.Dock="Top">
-                    <TextBlock Text="キャッシュ機能の利用に関する確認"
-                               FontWeight="SemiBold"
-                               FontStyle="Italic"
-                               FontSize="20"
-                               >
-
-                    </TextBlock>
-                </Border>
-
-
-
-
-
-                <StackPanel Margin="16">
+                <StackPanel Margin="8" >
                     <TextBlock Text="Hohoemaのキャッシュ機能は、通信量を抑えるために動画のファイルデータをローカルストレージにキャッシュすることができるHohoemaの機能です。" 
                                 TextWrapping="Wrap"
                                 Margin="0 8"

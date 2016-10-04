@@ -120,7 +120,7 @@ namespace NicoPlayerHohoema.ViewModels
 						var newFeedGroupName = await _TextInputDialogService.GetTextAsync(
 							"フィードグループを作成"
 							, "フィードグループ名"
-							, (name) =>
+							, validater: (name) =>
 							{
 								if (String.IsNullOrWhiteSpace(name)) { return false; }
 
@@ -159,7 +159,7 @@ namespace NicoPlayerHohoema.ViewModels
 	public class FeedGroupListItem : HohoemaListingPageItemBase
 	{
 		PageManager _PageManager;
-		public FeedGroup FeedGroup { get; private set; }
+		public IFeedGroup FeedGroup { get; private set; }
 
 
 		public string Label { get; private set; }
@@ -168,7 +168,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public List<FeedItemSourceViewModel> SourceItems { get; private set; }
 
-		public FeedGroupListItem(FeedGroup feedGroup, PageManager pageManager)
+		public FeedGroupListItem(IFeedGroup feedGroup, PageManager pageManager)
 		{
 			FeedGroup = feedGroup;
 			_PageManager = pageManager;

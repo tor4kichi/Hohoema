@@ -15,13 +15,116 @@
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
-    xmlns:rlv="using:RefreshableListView"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     
     mc:Ignorable="d">
 
     <Page.Resources>
+
+
+        <DataTemplate x:Key="VideoSearchTargetTemplate">
+            <ComboBox ItemsSource="{Binding VideoSearchOptionListItems}"
+                                  DisplayMemberPath="Label"
+                                  SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}"
+                                  Margin="0"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Center"
+                                  TabIndex="2"
+                                  IsTabStop="True"
+                                  Width="150"
+                              >
+
+            </ComboBox>
+
+        </DataTemplate>
+        
+        <DataTemplate x:Key="MylistSearchTargetTemplate">
+            <ComboBox ItemsSource="{Binding MylistSearchOptionListItems}"
+                                  DisplayMemberPath="Label"
+                                  SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}"
+                                  Margin="0"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Center"
+                                  TabIndex="2"
+                                  IsTabStop="True"
+                                  Width="150"
+                              >
+
+            </ComboBox>
+
+        </DataTemplate>
+
+        <DataTemplate x:Key="CommunitySearchTargetTemplate">
+
+            <StackPanel Orientation="Horizontal" >
+                <ComboBox ItemsSource="{Binding CommunitySearchSortOptionListItems}"
+                                  DisplayMemberPath="Label"
+                                  SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}"
+                                  Margin="0"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Center"
+                                  IsTabStop="True"
+                                  Width="150"
+                              >
+
+                </ComboBox>
+
+                <ComboBox ItemsSource="{Binding CommunitySearchModeOptionListItems}"
+                                  DisplayMemberPath="Label"
+                                  SelectedItem="{Binding SelectedSearchMode.Value, Mode=TwoWay}"
+                                  Margin="16 0 0 0"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Center"
+                                  IsTabStop="True"
+                                  Width="150"
+                              >
+                </ComboBox>
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate x:Key="LiveVideoSearchTargetTemplate">
+
+            <StackPanel Orientation="Horizontal" >
+                <ComboBox ItemsSource="{Binding LiveSearchSortOptionListItems}"
+                                  DisplayMemberPath="Label"
+                                  SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}"
+                                  Margin="0"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Center"
+                                  IsTabStop="True"
+                                  Width="150"
+                              >
+
+                </ComboBox>
+
+                <ComboBox ItemsSource="{Binding LiveSearchModeOptionListItems}"
+                                  DisplayMemberPath="Label"
+                                  SelectedItem="{Binding SelectedSearchMode.Value, Mode=TwoWay}"
+                                  Margin="16 0 0 0"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Center"
+                                  IsTabStop="True"
+                                  Width="150"
+                              >
+                </ComboBox>
+            </StackPanel>
+        </DataTemplate>
+
+
+        <local:SearchTargetContentTemplateSelector x:Key="SearchTargetContentTemplateSelector"
+                                                   Video="{StaticResource VideoSearchTargetTemplate}"
+                                                   Mylist="{StaticResource MylistSearchTargetTemplate}"
+                                                   Community="{StaticResource CommunitySearchTargetTemplate}"
+                                                   LiveVideo="{StaticResource LiveVideoSearchTargetTemplate}"
+                                                   />
+
+
+
+
+
+
+
 
         <DataTemplate x:Key="EmptySearchContentTemplate">
             <searchContent:EmptySearchPageContent />
@@ -39,13 +142,21 @@
         <DataTemplate x:Key="MylistSearchContentTemplate">
             <searchContent:MylistSearchPageContent />
         </DataTemplate>
+        <DataTemplate x:Key="CommunitySearchContentTemplate">
+            <searchContent:CommunitySearchPageContent />
+        </DataTemplate>
 
+        <DataTemplate x:Key="LiveVideoSearchContentTemplate">
+            <searchContent:LiveSearchPageContent />
+        </DataTemplate>
 
         <local:SearchPageContentTemplateSelector x:Key="SearchPageContentTemplateSelector"
                                                  Empty="{StaticResource EmptySearchContentTemplate}" 
                                                  Tag="{StaticResource TagSearchContentTemplate}"
                                                  Keyword="{StaticResource KeywordSearchContentTemplate}"
                                                  Mylist="{StaticResource MylistSearchContentTemplate}"
+                                                 Community="{StaticResource CommunitySearchContentTemplate}"
+                                                 LiveVideo="{StaticResource LiveVideoSearchContentTemplate}"
                                                  />
     </Page.Resources>
 
@@ -128,19 +239,11 @@
                     <Border Width="54" />
                     <!-- Vidoe系検索のサーチオプション -->
                     <Border toolkit:DockPanel.Dock="Left" Margin="8 0">
-                        <ComboBox ItemsSource="{Binding SearchOptioinItems}"
-                                  DisplayMemberPath="Label"
-                                  SelectedItem="{Binding SelectedSearchOption.Value, Mode=TwoWay}"
-                                  Margin="0"
-                                  HorizontalAlignment="Stretch"
-                                  VerticalAlignment="Center"
-                                  TabIndex="2"
-                                  IsTabStop="True"
-                                  Width="150"
-                              >
-
-                        </ComboBox>
-
+                        <ContentControl Content="{Binding SearchOptionVM.Value}"
+                                        ContentTemplateSelector="{StaticResource SearchTargetContentTemplateSelector}" 
+                                        HorizontalContentAlignment="Stretch"
+                                        VerticalContentAlignment="Stretch"
+                                        />
                     </Border>
                     
                     <Border />

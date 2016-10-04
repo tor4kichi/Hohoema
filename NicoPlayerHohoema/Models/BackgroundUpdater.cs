@@ -19,7 +19,7 @@ namespace NicoPlayerHohoema.Models
 		IAsyncAction Update();
 	}
 
-	abstract public class BackgroundUpdateItemBase : BindableBase, IBackgroundUpdateable
+	public abstract class BackgroundUpdateItemBase : BindableBase, IBackgroundUpdateable
 	{
 		public BackgroundUpdateItemBase(string label)
 		{

@@ -21,6 +21,9 @@ namespace NicoPlayerHohoema.Models
 
 	public class FeedManager
 	{
+		public const string FeedStreamFolderName = "feed_stream";
+
+
 		static Newtonsoft.Json.JsonSerializerSettings FeedGroupSerializerSettings = new Newtonsoft.Json.JsonSerializerSettings()
 		{
 			TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Objects
@@ -29,11 +32,10 @@ namespace NicoPlayerHohoema.Models
 
 		public HohoemaApp HohoemaApp { get; private set; }
 
-		public uint UserId { get; private set; }
+		public Dictionary<Guid, FileAccessor<List<FavFeedItem>>> FeedStreamFileAccessors { get; private set; }
 
-
-		public Dictionary<FeedGroup, FileAccessor<FeedGroup>> FeedGroupDict { get; private set; }
-		public IReadOnlyCollection<FeedGroup> FeedGroups
+		public Dictionary<IFeedGroup, FileAccessor<FeedGroup2>> FeedGroupDict { get; private set; }
+		public IReadOnlyCollection<IFeedGroup> FeedGroups
 		{
 			get
 			{
@@ -43,19 +45,24 @@ namespace NicoPlayerHohoema.Models
 		
 
 
-		public FeedManager(HohoemaApp hohoemaApp, uint userId)
+		public FeedManager(HohoemaApp hohoemaApp)
 		{
 			HohoemaApp = hohoemaApp;
-			UserId = userId;
-			FeedGroupDict = new Dictionary<FeedGroup, FileAccessor<FeedGroup>>();
+			FeedGroupDict = new Dictionary<IFeedGroup, FileAccessor<FeedGroup2>>();
+			FeedStreamFileAccessors = new Dictionary<Guid, FileAccessor<List<FavFeedItem>>>();
 		}
 		
 
-		public async Task<StorageFolder> GetFeedGroupFolder()
+		public async Task<StorageFolder> GetFeedStreamDataFolder()
 		{
 			var folder = await HohoemaApp.GetApplicationLocalDataFolder();
 
-			return await folder.CreateFolderAsync("feed", CreationCollisionOption.OpenIfExists);
+			return await folder.CreateFolderAsync(FeedStreamFolderName, CreationCollisionOption.OpenIfExists);
+		}
+
+		public Task<StorageFolder> GetFeedGroupFolder()
+		{
+			return HohoemaApp.GetFeedSettingsFolder();
 		}
 		
 		internal async Task Initialize()
@@ -64,24 +71,72 @@ namespace NicoPlayerHohoema.Models
 
 			var files = await feedGroupFolder.GetFilesAsync();
 
+			// ローミングフォルダからフィードを読み込む
+			await Load(files);
+
+			Debug.WriteLine($"FeedManager: {FeedGroupDict.Count} 件のFeedGroupを読み込みました。");
+
+
+			var updater = new SimpleBackgroundUpdate("feedManager", () => Refresh());
+			await HohoemaApp.BackgroundUpdater.Schedule(updater);
+		}
+
+		public async Task Load(IReadOnlyList<StorageFile> files)
+		{
+			var feedGroupFolder = await GetFeedGroupFolder();
+			var feedStreamDataFolder = await GetFeedStreamDataFolder();
+
+			var legacyFeedSettingsFolder = await HohoemaApp.GetFeedSettingsFolder();
+
 			foreach (var file in files)
 			{
 				if (file.FileType == ".json")
 				{
 					var fileName = file.Name;
-					var fileAccessor = new FileAccessor<FeedGroup>(feedGroupFolder, fileName);
+					var fileAccessor = new FileAccessor<FeedGroup2>(feedGroupFolder, fileName);
 
 					try
 					{
 						var item = await fileAccessor.Load(FeedGroupSerializerSettings);
+
+						bool isLoadFromLegacyFile = false;
+						if (item == null)
+						{
+							var legacyFeedGroupFileAccessor = new FileAccessor<FeedGroup>(legacyFeedSettingsFolder, fileName);
+							var item_legacy = await legacyFeedGroupFileAccessor.Load(FeedGroupSerializerSettings);
+
+							if (item_legacy != null)
+							{
+								item = new FeedGroup2(item_legacy);
+
+								isLoadFromLegacyFile = true;
+							}
+						}
+
 						if (item != null)
 						{
 							item.HohoemaApp = this.HohoemaApp;
 							item.FeedManager = this;
 							FeedGroupDict.Add(item, fileAccessor);
-						}
-						Debug.WriteLine($"FeedManager: [Sucesss] load {item.Label}");
+							var itemId = item.Id.ToString();
 
+							var streamFileAccessor = new FileAccessor<List<FavFeedItem>>(feedStreamDataFolder, $"{itemId}.json");
+							FeedStreamFileAccessors.Add(item.Id, streamFileAccessor);
+
+							await item.LoadFeedStream(streamFileAccessor);
+
+							// 古いファイルは新しいフォーマットで上書きして消しておく
+							if (isLoadFromLegacyFile)
+							{
+								await SaveOne(item);
+							}
+
+							Debug.WriteLine($"FeedManager: [Sucesss] load {item.Label}");
+						}
+						else
+						{
+							Debug.WriteLine($"FeedManager: [?] .json but not FeedGroup file < {fileName}");
+						}
 					}
 					catch
 					{
@@ -89,16 +144,10 @@ namespace NicoPlayerHohoema.Models
 					}
 				}
 			}
-
-			Debug.WriteLine($"FeedManager: {FeedGroupDict.Count} 件のFeedGroupを読み込みました。");
-
-
-			var updater = new SimpleBackgroundUpdate("feedManager_" + UserId, () => Refresh());
-			await HohoemaApp.BackgroundUpdater.Schedule(updater);
 		}
 
 
-		public FeedGroup GetFeedGroup(Guid id)
+		public IFeedGroup GetFeedGroup(Guid id)
 		{
 			return FeedGroups.SingleOrDefault(x => x.Id == id);
 		}
@@ -116,10 +165,13 @@ namespace NicoPlayerHohoema.Models
 
 		
 
-		private Task _Save(KeyValuePair<FeedGroup, FileAccessor<FeedGroup>> feedItem)
+		private async Task _Save(KeyValuePair<IFeedGroup, FileAccessor<FeedGroup2>> feedItem)
 		{
 			var fileAccessor = feedItem.Value;
-			return fileAccessor.Save(feedItem.Key, FeedGroupSerializerSettings);
+			await fileAccessor.Save(feedItem.Key as FeedGroup2, FeedGroupSerializerSettings);
+
+			var feedStreamFileAccessor = FeedStreamFileAccessors[feedItem.Key.Id];
+			await feedStreamFileAccessor.Save(feedItem.Key.FeedItems);
 		}
 
 		public async Task Save()
@@ -130,22 +182,27 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
-		public Task SaveOne(FeedGroup group)
+		public Task SaveOne(IFeedGroup group)
 		{
 			var target = FeedGroupDict.SingleOrDefault(x => x.Key.Id == group.Id);
 			return _Save(target);
 		}
 
-		public async Task<FeedGroup> AddFeedGroup(string label)
+		public async Task<IFeedGroup> AddFeedGroup(string label)
 		{
 			var folder = await GetFeedGroupFolder();
+			var feedStreamDataFolder = await GetFeedStreamDataFolder();
 
-			var feedGroup = new FeedGroup(label);
-			var fileAccessor = new FileAccessor<FeedGroup>(folder, label + ".json");
+			var feedGroup = new FeedGroup2(label);
+			var fileAccessor = new FileAccessor<FeedGroup2>(folder, label + ".json");
 
 			feedGroup.HohoemaApp = this.HohoemaApp;
 			feedGroup.FeedManager = this;
 			FeedGroupDict.Add(feedGroup, fileAccessor);
+
+			var itemId = feedGroup.Id.ToString();
+			var streamFileAccessor = new FileAccessor<List<FavFeedItem>>(feedStreamDataFolder, $"{itemId}.json");
+			FeedStreamFileAccessors.Add(feedGroup.Id, streamFileAccessor);
 
 			await fileAccessor.Save(feedGroup);
 			return feedGroup;
@@ -161,7 +218,7 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public async Task<bool> RemoveFeedGroup(FeedGroup group)
+		public async Task<bool> RemoveFeedGroup(IFeedGroup group)
 		{
 			var removeTarget = FeedGroups.SingleOrDefault(x => x.Id == group.Id);
 
@@ -169,6 +226,10 @@ namespace NicoPlayerHohoema.Models
 			{
 				var fileAccessor = FeedGroupDict[removeTarget];
 				await fileAccessor.Delete(StorageDeleteOption.PermanentDelete);
+
+				var feedStreamFileAccesssor = FeedStreamFileAccessors[group.Id];
+				await feedStreamFileAccesssor.Delete(StorageDeleteOption.PermanentDelete);
+
 				return FeedGroupDict.Remove(removeTarget);
 			}
 			else
@@ -178,7 +239,7 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		internal Task<bool> RenameFeedGroup(FeedGroup group, string newLabel)
+		internal Task<bool> RenameFeedGroup(IFeedGroup group, string newLabel)
 		{
 			var target = FeedGroups.SingleOrDefault(x => x.Id == group.Id);
 

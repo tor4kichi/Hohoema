@@ -103,6 +103,15 @@ namespace NicoPlayerHohoema.ViewModels
 					await CheckLoginAndGo();
 				}
 			}
+			else if (e.Parameter is string)
+			{
+				_LoginRedirectPayload = PagePayloadBase.FromParameterString<LoginRedirectPayload>(e.Parameter as string);
+				var account = HohoemaApp.GetPrimaryAccount();
+				if (account != null)
+				{
+					await CheckLoginAndGo();
+				}
+			}
 
 			//			return base.NavigatedToAsync(cancelToken, e, viewModelState);
 		}
@@ -162,8 +171,16 @@ namespace NicoPlayerHohoema.ViewModels
 				// ログインページにバックキーで戻れないようにページ履歴削除
 				PageManager.ClearNavigateHistory();
 
-				// ポータルページへGO
-				PageManager.OpenPage(HohoemaPageType.Portal);
+				if (_LoginRedirectPayload == null)
+				{
+					// ポータルページへGO
+					PageManager.OpenPage(HohoemaPageType.Portal);
+				}
+				else 
+				{
+					PageManager.OpenPage(_LoginRedirectPayload.RedirectPageType, _LoginRedirectPayload.RedirectParamter);
+				}
+
 				IsServiceUnavailable.Value = false;
 			}
 			else if (signinResult == NiconicoSignInStatus.Failed)
@@ -203,5 +220,8 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<string> LoginErrorText { get; private set; }
 
 		public string VersionText { get; private set; }
+
+
+		private LoginRedirectPayload _LoginRedirectPayload;
 	}
 }

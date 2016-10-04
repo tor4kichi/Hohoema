@@ -28,7 +28,7 @@ namespace NicoPlayerHohoema.Models.AppMap
 	}
 
 	[DataContract]
-	abstract public class AppMapContainerBase : IAppMapContainer
+	public abstract class AppMapContainerBase : IAppMapContainer
 	{
 		protected ObservableCollection<IAppMapItem> _DisplayItems = new ObservableCollection<IAppMapItem>();
 		public ReadOnlyObservableCollection<IAppMapItem> DisplayItems { get; private set; }
@@ -95,7 +95,7 @@ namespace NicoPlayerHohoema.Models.AppMap
 	}
 
 	[DataContract]
-	abstract public class SelectableAppMapContainerBase : AppMapContainerBase, ISelectableAppMapContainer
+	public abstract class SelectableAppMapContainerBase : AppMapContainerBase, ISelectableAppMapContainer
 	{
 		// シリアライズ
 		[DataMember]
@@ -121,7 +121,7 @@ namespace NicoPlayerHohoema.Models.AppMap
 		}
 
 
-		abstract protected Task<IEnumerable<IAppMapItem>> MakeAllItems();
+		protected abstract Task<IEnumerable<IAppMapItem>> MakeAllItems();
 
 		public override async Task Refresh()
 		{
@@ -204,7 +204,7 @@ namespace NicoPlayerHohoema.Models.AppMap
 	}
 
 	[DataContract]
-	abstract public class SelfGenerateAppMapContainerBase : AppMapContainerBase, ISelfGenerateAppMapContainer
+	public abstract class SelfGenerateAppMapContainerBase : AppMapContainerBase, ISelfGenerateAppMapContainer
 	{
 		public virtual int DefaultDisplayCount => 10;
 
@@ -220,7 +220,7 @@ namespace NicoPlayerHohoema.Models.AppMap
 
 		public override ContainerItemDisplayType ItemDisplayType => ContainerItemDisplayType.TwoLineText;
 
-		abstract protected Task<IEnumerable<IAppMapItem>> GenerateItems(int count);
+		protected abstract Task<IEnumerable<IAppMapItem>> GenerateItems(int count);
 
 		public override async Task Refresh()
 		{

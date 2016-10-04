@@ -43,6 +43,7 @@ namespace NicoPlayerHohoema.Views
 		public DataTemplate Summary { get; set; }
 		public DataTemplate Mylist { get; set; }
 		public DataTemplate Comment { get; set; }
+		public DataTemplate Shere { get; set; }
 		public DataTemplate Settings { get; set; }
 
 
@@ -59,6 +60,10 @@ namespace NicoPlayerHohoema.Views
 			else if (item is ViewModels.VideoInfoContent.CommentVideoInfoContentViewModel)
 			{
 				return Comment;
+			}
+			else if (item is ViewModels.VideoInfoContent.ShereVideoInfoContentViewModel)
+			{
+				return Shere;
 			}
 			else if (item is ViewModels.VideoInfoContent.SettingsVideoInfoContentViewModel)
 			{

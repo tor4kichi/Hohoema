@@ -28,12 +28,14 @@ namespace NicoPlayerHohoema.ViewModels
 			, RankingChoiceDialogService rakingChoiceDialog
 			, EditAutoCacheConditionDialogService editAutoCacheDialog
 			, AcceptCacheUsaseDialogService cacheAcceptDialogService
+			, ToastNotificationService toastService
 			)
 			: base(hohoemaApp, pageManager, isRequireSignIn:true)
 		{
 			RankingChoiceDialogService = rakingChoiceDialog;
 			EditAutoCacheConditionDialogService = editAutoCacheDialog;
 			AcceptCacheUsaseDialogService = cacheAcceptDialogService;
+			ToastNotificationService = toastService;
 			SettingKindToVM = new Dictionary<HohoemaSettingsKind, SettingsPageContentViewModel>();
 
 			SettingItems = ((IEnumerable<HohoemaSettingsKind>)Enum.GetValues(typeof(HohoemaSettingsKind)))
@@ -81,6 +83,12 @@ namespace NicoPlayerHohoema.ViewModels
 						break;
 					case HohoemaSettingsKind.Cache:
 						vm = new CacheSettingsPageContentViewModel(HohoemaApp, title, EditAutoCacheConditionDialogService, AcceptCacheUsaseDialogService);
+						break;
+					case HohoemaSettingsKind.AppDisplay:
+						vm = new AppDisplaySettingsPageContentViewModel(ToastNotificationService);
+						break;
+					case HohoemaSettingsKind.Shere:
+						vm = new ShereSettingsPageContentViewModel();
 						break;
 					default:
 						break;
@@ -158,6 +166,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public EditAutoCacheConditionDialogService EditAutoCacheConditionDialogService { get; private set;}
 		public RankingChoiceDialogService RankingChoiceDialogService { get; private set; }
 		public AcceptCacheUsaseDialogService AcceptCacheUsaseDialogService { get; private set; }
+		public ToastNotificationService ToastNotificationService { get; private set; }
 	}
 
 
@@ -167,6 +176,8 @@ namespace NicoPlayerHohoema.ViewModels
 		VideoPlay,
 		Comment,
 		Cache,
+		AppDisplay,
+		Shere,
 	}
 
 
@@ -184,6 +195,10 @@ namespace NicoPlayerHohoema.ViewModels
 					return "プレイヤー";
 				case HohoemaSettingsKind.Cache:
 					return "キャッシュ";
+				case HohoemaSettingsKind.AppDisplay:
+					return "表示スタイル";
+				case HohoemaSettingsKind.Shere:
+					return "SNS連携";
 				default:
 					throw new NotSupportedException($"not support {nameof(HohoemaSettingsKind)}.{kind.ToString()}");
 			}
@@ -215,7 +230,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		virtual public void OnEnter() { }
 
-		abstract public void OnLeave();
+		public abstract void OnLeave();
 
 	}
 

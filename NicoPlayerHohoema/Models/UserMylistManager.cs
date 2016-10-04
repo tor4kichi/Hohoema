@@ -221,15 +221,6 @@ namespace NicoPlayerHohoema.Models
 
 	public class MylistGroupInfo 
 	{
-		public MylistGroupInfo(string groupId, HohoemaApp hohoemaApp, UserMylistManager mylistManager)
-		{
-			GroupId = groupId;
-			IsDeflist = GroupId == "0";
-			HohoemaApp = hohoemaApp;
-			MylistManager = mylistManager;
-			_VideoIdToThreadIdMap = new Dictionary<string, string>();
-		}
-
 		public HohoemaApp HohoemaApp { get; private set; }
 		public UserMylistManager MylistManager { get; private set; }
 
@@ -241,6 +232,18 @@ namespace NicoPlayerHohoema.Models
 		public IconType IconType { get; set; }
 		public MylistDefaultSort Sort { get; set; }
 
+		public MylistGroupInfo(string groupId, HohoemaApp hohoemaApp, UserMylistManager mylistManager)
+		{
+			GroupId = groupId;
+			IsDeflist = GroupId == "0";
+			HohoemaApp = hohoemaApp;
+			MylistManager = mylistManager;
+			_VideoItems = new List<string>();
+			_VideoIdToThreadIdMap = new Dictionary<string, string>();
+		}
+
+		
+
 		public Windows.UI.Color ThemeColor
 		{
 			get
@@ -250,13 +253,10 @@ namespace NicoPlayerHohoema.Models
 		}
 
 		private Dictionary<string, string> _VideoIdToThreadIdMap;
-		public IReadOnlyCollection<string> VideoItems
-		{
-			get
-			{
-				return _VideoIdToThreadIdMap.Keys;
-			}
-		}
+
+
+		private List<string> _VideoItems;
+		public IReadOnlyList<string> VideoItems => _VideoItems;
 		
 
 		public int ItemCount
@@ -285,6 +285,8 @@ namespace NicoPlayerHohoema.Models
 				throw new Exception();
 			}
 
+			var sortChanged = default_sort != Sort;
+
 			var result = await HohoemaApp.NiconicoContext.User.UpdateMylistGroupAsync(GroupId, name, description, is_public, default_sort, iconType);
 
 			if (result == ContentManageResult.Success)
@@ -294,6 +296,12 @@ namespace NicoPlayerHohoema.Models
 				IsPublic = is_public;
 				IconType = iconType;
 				Sort = default_sort;
+
+
+				if (sortChanged)
+				{
+					await Refresh();
+				}
 			}
 
 			return result;
@@ -405,6 +413,7 @@ namespace NicoPlayerHohoema.Models
 			var itemCountPerMylist = HohoemaApp.IsPremiumUser ? 500u : 100u;
 
 			_VideoIdToThreadIdMap.Clear();
+			_VideoItems.Clear();
 
 			if (IsDeflist)
 			{
@@ -413,19 +422,21 @@ namespace NicoPlayerHohoema.Models
 				foreach (var item in defMylist)
 				{
 					_VideoIdToThreadIdMap.Add(item.WatchId, item.ItemId);
+					_VideoItems.Add(item.WatchId);
 				}
 
 				MylistManager.DeflistUpdated();
 			}
 			else
 			{
-				if (!IsPublic && UserId == HohoemaApp.LoginUserId.ToString())
+				if (UserId == HohoemaApp.LoginUserId.ToString())
 				{
 					var res = await HohoemaApp.NiconicoContext.User.GetMylistItemListAsync(GroupId);
 
 					foreach (var item in res)
 					{
 						_VideoIdToThreadIdMap.Add(item.WatchId, item.ItemId);
+						_VideoItems.Add(item.WatchId);
 					}
 
 					MylistManager.MylistUpdated();
@@ -434,17 +445,86 @@ namespace NicoPlayerHohoema.Models
 				{
 					var res = await HohoemaApp.ContentFinder.GetMylistGroupVideo(GroupId, 0, itemCountPerMylist);
 
+
 					if (res.GetCount() > 0)
 					{
 						foreach (var item in res.MylistVideoInfoItems)
 						{
 							_VideoIdToThreadIdMap.Add(item.Video.Id, item.Thread.Id);
+							_VideoItems.Add(item.Video.Id);
 						}
 					}
 				}
 			}
 
 			await Task.Delay(100);
+		}
+
+
+		
+		private static void SortMylistData(ref List<MylistData> mylist, MylistDefaultSort sort)
+		{
+			switch (sort)
+			{
+				case MylistDefaultSort.Old:
+					mylist.Sort((x, y) => DateTime.Compare(x.UpdateTime, y.UpdateTime));
+					break;
+				case MylistDefaultSort.Latest:
+					mylist.Sort((x, y) => -DateTime.Compare(x.UpdateTime, y.UpdateTime));
+					break;
+				case MylistDefaultSort.Memo_Ascending:
+					mylist.Sort((x, y) => string.Compare(x.Description, y.Description));
+					break;
+				case MylistDefaultSort.Memo_Descending:
+					mylist.Sort((x, y) => -string.Compare(x.Description, y.Description));
+					break;
+				case MylistDefaultSort.Title_Ascending:
+					mylist.Sort((x, y) => string.Compare(x.Title, y.Title));
+					break;
+				case MylistDefaultSort.Title_Descending:
+					mylist.Sort((x, y) => -string.Compare(x.Title, y.Title));
+					break;
+				case MylistDefaultSort.FirstRetrieve_Ascending:
+					mylist.Sort((x, y) => DateTime.Compare(x.FirstRetrieve, y.FirstRetrieve));
+					break;
+				case MylistDefaultSort.FirstRetrieve_Descending:
+					mylist.Sort((x, y) => - DateTime.Compare(x.FirstRetrieve, y.FirstRetrieve));
+					break;
+				case MylistDefaultSort.View_Ascending:
+					mylist.Sort((x, y) => (int)(x.ViewCount - y.ViewCount));
+					break;
+				case MylistDefaultSort.View_Descending:
+					mylist.Sort((x, y) => -(int)(x.ViewCount - y.ViewCount));
+					break;
+				case MylistDefaultSort.Comment_New:
+					// Note: コメント順は非対応
+					mylist.Sort((x, y) => (int)(x.CommentCount - y.CommentCount));
+					break;
+				case MylistDefaultSort.Comment_Old:
+					// Note: コメント順は非対応
+					mylist.Sort((x, y) => -(int)(x.CommentCount - y.CommentCount));
+					break;
+				case MylistDefaultSort.CommentCount_Ascending:
+					mylist.Sort((x, y) => (int)(x.CommentCount - y.CommentCount));
+					break;
+				case MylistDefaultSort.CommentCount_Descending:
+					mylist.Sort((x, y) => -(int)(x.CommentCount - y.CommentCount));
+					break;
+				case MylistDefaultSort.MylistCount_Ascending:
+					mylist.Sort((x, y) => (int)(x.MylistCount - y.MylistCount));
+					break;
+				case MylistDefaultSort.MylistCount_Descending:
+					mylist.Sort((x, y) => -(int)(x.MylistCount - y.MylistCount));
+					break;
+				case MylistDefaultSort.Length_Ascending:
+					mylist.Sort((x, y) => TimeSpan.Compare(x.Length, y.Length));
+					break;
+				case MylistDefaultSort.Length_Descending:
+					mylist.Sort((x, y) => -TimeSpan.Compare(x.Length, y.Length));
+					break;
+				default:
+					break;
+			}
 		}
 	}
 }

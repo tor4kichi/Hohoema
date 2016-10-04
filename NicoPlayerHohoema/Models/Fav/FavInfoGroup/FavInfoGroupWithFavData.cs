@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Models
 {
-	abstract public class FavInfoGroupWithFavData : FavInfoGroupBaseTemplate<FavData>
+	public abstract class FavInfoGroupWithFavData : FavInfoGroupBaseTemplate<FavData>
 	{
 
 		public FavInfoGroupWithFavData(HohoemaApp hohoemaApp)

@@ -62,7 +62,22 @@ namespace NicoPlayerHohoema.Models
 
 			LoadRecentLoginAccount();
 			_SigninLock = new SemaphoreSlim(1, 1);
+
+			ApplicationData.Current.DataChanged += Current_DataChanged;
 		}
+
+
+
+		public async Task OnSuspending()
+		{
+			if (MediaManager != null && MediaManager.Context != null)
+			{
+				await MediaManager.Context.Suspending();
+			}
+
+//			await SyncToRoamingData();
+		}
+
 
 		#region SignIn/Out 
 
@@ -196,10 +211,129 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
+		public async Task<StorageFolder> GetFeedSettingsFolder()
+		{
+			return await ApplicationData.Current.LocalFolder.CreateFolderAsync("feed", CreationCollisionOption.OpenIfExists);
+		}
+
 		public async Task LoadUserSettings()
 		{
 			var folder = ApplicationData.Current.LocalFolder;
+
 			UserSettings = await HohoemaUserSettings.LoadSettings(folder);
+		}
+
+		private static string[] IgnoreSyncFolderNames = new[] { FeedManager.FeedStreamFolderName };
+		private static string[] IgnoreSyncExtentionNames = new string[] {  };
+		private static string[] IgnoreSyncFileNames = new[] 
+		{
+			"_sessionState.xml",
+			"History.db",
+			"NicoVideo.db",
+		};
+
+		public static async Task SyncToRoamingData()
+		{
+			var romingFolder = ApplicationData.Current.RoamingFolder;
+			var folder = ApplicationData.Current.LocalFolder;
+
+			await SyncFolders(folder, romingFolder);
+		}
+
+		private static async Task SyncFolders(StorageFolder masterFolder, StorageFolder slaveFolder)
+		{
+			Debug.WriteLine($"{masterFolder.Name}のローカルとローミングデータの同期を開始");
+
+			foreach (var file in await masterFolder.GetFilesAsync())
+			{
+				// 処理しない拡張子名をチェック
+				if (IgnoreSyncExtentionNames.Any(x => x == file.FileType))
+				{
+					Debug.WriteLine($"{file.Name} の処理をスキップ（スキップ理由：拡張子）");
+					continue;
+				}
+
+				// 処理しないファイル名をチェック
+				if (IgnoreSyncFileNames.Any(x => x == file.Name))
+				{
+					Debug.WriteLine($"{file.Name} の処理をスキップ（スキップ理由：ファイル名）");
+					continue;
+				}
+
+				// 
+				var slaveItem = await slaveFolder.TryGetItemAsync(file.Name) as StorageFile;
+				if (slaveItem != null)
+				{
+					var fileProp = await file.GetBasicPropertiesAsync();
+					var slaveFileProp = await slaveItem.GetBasicPropertiesAsync();
+					if (fileProp.DateModified > slaveFileProp.DateModified)
+					{
+						// マスター側のファイルをスレーブ側にコピー
+						Debug.WriteLine($"{file.Name} をローミングへコピー");
+						await file.CopyAndReplaceAsync(slaveItem);
+					}
+					else if (fileProp.DateModified < slaveFileProp.DateModified)
+					{
+						Debug.WriteLine($"{file.Name} をローカルへコピー");
+						await slaveItem.CopyAndReplaceAsync(file);
+					}
+				}
+				else
+				{
+					// マスター側のファイルをコピー
+					Debug.WriteLine($"{file.Name} をローミングへコピー");
+					await file.CopyAsync(slaveFolder);
+				}
+			}
+
+
+			// 子フォルダを再帰呼び出しで処理していく
+			foreach (var folder in await masterFolder.GetFoldersAsync())
+			{
+				// 処理しないフォルダ名のチェック
+				if (IgnoreSyncFolderNames.Any(x => x == folder.Name))
+				{
+					continue;
+				}
+
+				var slaveItem = await slaveFolder.TryGetItemAsync(folder.Name) as StorageFolder;
+				if (slaveItem == null)
+				{
+					slaveItem = await slaveFolder.CreateFolderAsync(folder.Name);
+				}
+
+				await SyncFolders(folder, slaveItem);
+			}
+
+			Debug.WriteLine($"{masterFolder.Name}のローカルとローミングデータの同期を完了");
+		}
+
+
+
+
+		private async void Current_DataChanged(ApplicationData sender, object args)
+		{
+			Debug.WriteLine("ローミングデータの同期：開始");
+			await SyncToRoamingData();
+			Debug.WriteLine("ローミングデータの同期：完了");
+
+			// ローカルフォルダを利用する機能を再初期化
+			try
+			{
+				await _SigninLock.WaitAsync();
+
+				await LoadUserSettings();
+				if (IsLoggedIn)
+				{
+					FeedManager = new FeedManager(this);
+					await FeedManager.Initialize();
+				}
+			}
+			finally
+			{
+				_SigninLock.Release();
+			}
+			
 		}
 
 		/// <summary>
@@ -400,7 +534,7 @@ namespace NicoPlayerHohoema.Models
 								Debug.WriteLine("initilize: feed");
 								loginActivityLogger.LogEvent("initialize feed");
 
-								FeedManager = new FeedManager(this, LoginUserId);
+								FeedManager = new FeedManager(this);
 								await FeedManager.Initialize();
 							}
 							catch
@@ -478,13 +612,7 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public async Task OnSuspending()
-		{
-			if (MediaManager != null && MediaManager.Context != null)
-			{
-				await MediaManager.Context.Suspending();
-			}
-		}
+		
 
 
 		public async Task<NiconicoSignInStatus> SignOut()

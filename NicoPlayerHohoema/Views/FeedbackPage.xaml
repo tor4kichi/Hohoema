@@ -1,0 +1,91 @@
+﻿<Page
+    x:Class="NicoPlayerHohoema.Views.FeedbackPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"    
+    mc:Ignorable="d">
+
+    <Grid>
+
+        <StackPanel Margin="16 8 16 16" 
+                    MaxWidth="600" 
+                    HorizontalAlignment="Left">
+
+            <Button Content="アプリの評価・レビューを行う"
+                    Margin="0 16"
+                    Command="{Binding LaunchAppReviewCommand}"
+                    />
+
+            <TextBlock Margin="16 8 8 8"
+                       TextWrapping="Wrap"                       
+                       >
+                <Run>Windows10のストアアプリを起動してHohoemaアプリへの評価・レビューの記入を開始します。</Run>
+            </TextBlock>
+
+            
+            
+
+            <Border HorizontalAlignment="Stretch"
+                    BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                    BorderThickness="1 1 0 0"
+                    Margin="0 16"
+                    />
+
+            
+                       
+            <Button Content="フィードバックHubでアプリの問題点・改善点を共有する" 
+                    Margin="0 16"
+                    Command="{Binding LaunchFeedbackHubCommand}"
+                    Visibility="{Binding IsSupportedFeedbackHub, Converter={StaticResource BooleanToVisibility}}"
+                    >
+
+            </Button>
+
+            <TextBlock Margin="16 8 8 8"
+                       TextWrapping="Wrap"
+                       >
+                <Run>Hohoemaアプリに対するフィードバックをWindows10特有の「フィードバックHub」を通じて行います。</Run>
+                <Run>フィードバックHubで共有された課題、必要とされる機能などはHohoemaの課題一覧にまとめられます。</Run>
+            </TextBlock>
+
+            <HyperlinkButton Content="フィードバックHubのダウンロード（ストアアプリが開きます）"
+                             NavigateUri="ms-windows-store://pdp/?productid=9NBLGGH4R32N"
+                             Margin="0 8"
+                             />
+            
+
+
+
+
+            <Border HorizontalAlignment="Stretch"
+                    BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                    BorderThickness="1 1 0 0"
+                    Margin="0 16"
+                    />
+            
+            <Button Content="Hohoemaの課題一覧を見る"
+                    Margin="0 16"
+                    Command="{Binding ShowIssuesWithBrowserCommand}"
+                    >
+
+            </Button>
+
+            <TextBlock Margin="16 8 8 8"
+                       TextWrapping="Wrap"
+                       >
+                <Run>Hohoemaに現在どんな課題があって、いつ頃に解決する見通しなのか大まかに知ることができます。</Run>
+                <Run>課題一覧に新たに登録される課題はフィードバックHub等に報告された項目を一旦開発者が整理した上で追加されます。</Run>
+            </TextBlock>
+            
+            
+        </StackPanel>
+        
+    </Grid>
+</Page>

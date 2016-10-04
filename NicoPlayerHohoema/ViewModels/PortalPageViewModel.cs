@@ -92,7 +92,7 @@ namespace NicoPlayerHohoema.ViewModels
 	}
 
 
-	abstract public class AppMapContainerViewModelBase : AppMapItemViewModel, IDisposable
+	public abstract class AppMapContainerViewModelBase : AppMapItemViewModel, IDisposable
 	{
 		public IAppMapContainer OriginalContainer { get; set; }
 

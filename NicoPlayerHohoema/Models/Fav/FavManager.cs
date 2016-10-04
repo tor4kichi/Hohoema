@@ -23,6 +23,7 @@ namespace NicoPlayerHohoema.Models
 
 		#region Niconico fav constants
 
+		// Note: 2016/10/31 から お気に入りユーザー枠は一般プレミアムどちらも600に変更
 		public const uint FAV_USER_MAX_COUNT = 50;
 		public const uint PREMIUM_FAV_USER_MAX_COUNT = 400;
 
@@ -32,6 +33,8 @@ namespace NicoPlayerHohoema.Models
 		public const uint FAV_TAG_MAX_COUNT = 10;
 		public const uint PREMIUM_FAV_TAG_MAX_COUNT = 10;
 
+		public const uint FAV_COMMUNITY_MAX_COUNT = 50;
+		public const uint PREMIUM_FAV_COMMUNITY_MAX_COUNT = 300;
 
 		#endregion
 
@@ -55,7 +58,17 @@ namespace NicoPlayerHohoema.Models
 		public IFavInfoGroup Tag { get; private set; }
 		public IFavInfoGroup Mylist { get; private set; }
 		public IFavInfoGroup User { get; private set; }
+		public IFavInfoGroup Community { get; private set; }
 
+
+		public IReadOnlyList<IFavInfoGroup> GetAllFavInfoGroups() => new[] 
+		{
+			Tag,
+			Mylist,
+			User,
+			Community
+		};
+			
 
 		#endregion
 
@@ -78,6 +91,7 @@ namespace NicoPlayerHohoema.Models
 			Tag = new TagFavInfoGroup(_HohoemaApp);
 			Mylist = new MylistFavInfoGroup(_HohoemaApp);
 			User = new UserFavInfoGroup(_HohoemaApp);
+			Community = new CommunityFavInfoGroup(_HohoemaApp);
 
 			await SyncAll();
 		}
@@ -92,6 +106,8 @@ namespace NicoPlayerHohoema.Models
 					return Mylist;
 				case FavoriteItemType.User:
 					return User;
+				case FavoriteItemType.Community:
+					return Community;
 				default:
 					throw new Exception();
 			}
@@ -121,11 +137,12 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task SyncAll()
 		{
-			await SyncTag();
-			await Task.Delay(500);
-			await SyncMylist();
-			await Task.Delay(500);
-			await SyncUser();
+			foreach (var favInfoGroup in GetAllFavInfoGroups())
+			{
+				await Sync(favInfoGroup);
+
+				await Task.Delay(1000);
+			}
 		}
 
 
@@ -134,11 +151,13 @@ namespace NicoPlayerHohoema.Models
 			switch (itemType)
 			{
 				case FavoriteItemType.Tag:
-					return SyncTag();
+					return Sync(Tag);
 				case FavoriteItemType.Mylist:
-					return SyncMylist();
+					return Sync(Mylist);
 				case FavoriteItemType.User:
-					return SyncUser();
+					return Sync(User);
+				case FavoriteItemType.Community:
+					return Sync(Community);
 				default:
 					return Task.CompletedTask;
 			}
@@ -150,21 +169,7 @@ namespace NicoPlayerHohoema.Models
 			await group.Sync();
 		}
 
-		private Task SyncTag()
-		{
-			return Sync(Tag);
-		}
-
-		private Task SyncMylist()
-		{
-			return Sync(Mylist);
-		}
 		
-		private Task SyncUser()
-		{
-			return Sync(User);
-		}
-
 
 
 

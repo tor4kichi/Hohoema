@@ -162,6 +162,8 @@ namespace NicoPlayerHohoema.Util
 					return "アニメ";
 				case RankingCategory.game:
 					return "ゲーム";
+				case RankingCategory.jikkyo:
+					return "実況プレイ動画";
 				case RankingCategory.toho:
 					return "東方";
 				case RankingCategory.imas:

@@ -1,0 +1,52 @@
+﻿<Page
+    x:Class="NicoPlayerHohoema.Views.LiveVideoPlayerPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:videoInfo="using:NicoPlayerHohoema.Views.VideoInfoContent"
+    xmlns:comment="using:NicoPlayerHohoema.Views.CommentRenderer"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    mc:Ignorable="d">
+
+    <Grid >
+
+        <MediaElement x:Name="mediaElem"
+                                local:MediaElementExtention.CustomStream="{Binding VideoStreamSource}"
+                                AudioCategory="Movie"
+                                AutoPlay="True"
+                            >
+            <i:Interaction.Behaviors>
+
+                <!-- 動画の再生位置を取り出す -->
+                <!--
+                <mybehavior:MediaElementExtractPositionBehavior 
+                                    Position="{Binding ReadVideoPosition.Value, Mode=TwoWay}"
+                                    Interval="00:00:00.008" 
+                                    />
+                -->
+                <!-- MediaElementのバッファリング/再生の状態を読み取る -->
+                <!--
+                <mybehavior:MediaElementStateGetter State="{Binding CurrentState.Value, Mode=TwoWay}" />
+                -->
+                <!-- アプリライフサイクルに合わせて動画の再生と一時停止を行う
+                                
+                            -->
+                <mybehavior:EnsureLifecycleMediaElement />
+
+                <!--
+                <mybehavior:MediaElementContentHeightGetter ContentHeight="{Binding CommentCanvasHeight.Value, Mode=TwoWay}"
+                                                                        />
+                -->
+
+            </i:Interaction.Behaviors>
+        </MediaElement>
+    </Grid>
+</Page>

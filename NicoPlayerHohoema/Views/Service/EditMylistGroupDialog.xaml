@@ -15,9 +15,9 @@
     d:DesignHeight="500"
     d:DesignWidth="400"
     Title="{Binding DialogTitle}"
-    PrimaryButtonText="キャンセル"
-    SecondaryButtonText="OK"
-    IsSecondaryButtonEnabled="{Binding CanEditCompletion.Value}"
+    PrimaryButtonText="完了"
+    SecondaryButtonText="キャンセル"
+    IsPrimaryButtonEnabled="{Binding CanEditCompletion.Value}"
     Width="400"
     
     >

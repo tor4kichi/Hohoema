@@ -24,7 +24,7 @@ namespace NicoPlayerHohoema.Views.Service
 
 			var result = await dialog.ShowAsync();
 
-			if (result == Windows.UI.Xaml.Controls.ContentDialogResult.Secondary)
+			if (result == Windows.UI.Xaml.Controls.ContentDialogResult.Primary)
 			{
 				return true;
 			}

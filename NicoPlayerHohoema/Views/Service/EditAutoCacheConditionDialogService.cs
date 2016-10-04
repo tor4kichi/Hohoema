@@ -19,7 +19,7 @@ namespace NicoPlayerHohoema.Views.Service
 			};
 
 			var result = await dialog.ShowAsync();
-			return result == Windows.UI.Xaml.Controls.ContentDialogResult.Secondary;
+			return result == Windows.UI.Xaml.Controls.ContentDialogResult.Primary;
 		}
 	}
 

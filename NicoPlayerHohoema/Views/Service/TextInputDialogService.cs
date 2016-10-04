@@ -15,13 +15,13 @@ namespace NicoPlayerHohoema.Views.Service
 
 		}
 
-		public async Task<string> GetTextAsync(string title, string placeholder, Func<string, bool> validater = null)
+		public async Task<string> GetTextAsync(string title, string placeholder, string defaultText = "", Func<string, bool> validater = null)
 		{
 			if (validater == null)
 			{
 				validater = EmptyValidater;
 			}
-			var context = new TextInputDialogContext(title, placeholder, validater);
+			var context = new TextInputDialogContext(title, placeholder, defaultText, validater);
 
 			var dialog = new Views.Service.TextInputDialog()
 			{
@@ -33,7 +33,7 @@ namespace NicoPlayerHohoema.Views.Service
 			// 仮想入力キーボードを閉じる
 			Windows.UI.ViewManagement.InputPane.GetForCurrentView().TryHide();
 
-			if (result == Windows.UI.Xaml.Controls.ContentDialogResult.Secondary)
+			if (result == Windows.UI.Xaml.Controls.ContentDialogResult.Primary)
 			{
 				return context.GetValidText();
 			}
@@ -52,11 +52,11 @@ namespace NicoPlayerHohoema.Views.Service
 
 	public class TextInputDialogContext
 	{
-		public TextInputDialogContext(string title, string placeholder, Func<string, bool> validater)
+		public TextInputDialogContext(string title, string placeholder, string defaultText, Func<string, bool> validater)
 		{
 			Title = title;
 			PlaceholderText = placeholder;
-			Text = new ReactiveProperty<string>("");
+			Text = new ReactiveProperty<string>(defaultText);
 			IsValid = Text.Select(validater)
 				.ToReactiveProperty();
 		}

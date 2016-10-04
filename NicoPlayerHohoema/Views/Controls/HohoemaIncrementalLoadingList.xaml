@@ -47,6 +47,15 @@
             <local:SearchHistoryListItem />
         </DataTemplate>
 
+        <DataTemplate x:Key="CommuniyListItemTemplate">
+            <local:CommunityInfoControl />
+        </DataTemplate>
+
+        <DataTemplate x:Key="LiveVideoListItemTemplate">
+            <local:LiveVideoListItem />
+        </DataTemplate>
+
+
         <local:IncrementalLoadingListItemTemplateSelector x:Key="listItemTemplateSelector"
                                                           Default="{StaticResource DefaultListItemTemplate}"
                                                           History="{StaticResource HistoryListItemTemplate}"
@@ -55,13 +64,15 @@
                                                           FavFeed="{StaticResource FavFeedListItemTemplate}"
                                                           Mylist="{StaticResource MylistListItemTemplate}"
                                                           SearchHistory="{StaticResource SearchHistoryListItemTemplate}"
+                                                          Community="{StaticResource CommuniyListItemTemplate}"
+                                                          Live="{StaticResource LiveVideoListItemTemplate}"
                                                           >
             
             
         </local:IncrementalLoadingListItemTemplateSelector>
     </UserControl.Resources>
 
-    <Grid>
+    <Grid >
 
         <ProgressRing Visibility="{Binding NowLoadingItems.Value, Converter={StaticResource BooleanToVisibility}}"
                       IsActive="{Binding NowLoadingItems.Value}"
@@ -108,7 +119,7 @@
                     <Setter Property="Margin"
                                     Value="0 0 0 0" 
                                     />
-                    <Setter Property="Padding" Value="0 0 16 0" />
+                    <Setter Property="Padding" Value="0 0 0 0" />
                 </Style>
             </ListView.ItemContainerStyle>
 
@@ -128,7 +139,7 @@
 
                 <DataTemplate>
 
-                    <Grid BorderBrush="{ThemeResource AppBarBorderThemeBrush}" BorderThickness="0 0 0 1" >
+                    <StackPanel >
 
                         <i:Interaction.Behaviors>
                             <core:EventTriggerBehavior EventName="Tapped">
@@ -143,8 +154,15 @@
                                         HorizontalContentAlignment="Stretch"
                                         VerticalContentAlignment="Stretch"
                                         Margin="0 4"
+                                        Padding="0 0 16 0"
                                         />
-                    </Grid>
+                        
+                        <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" BorderThickness="0 0 0 1"
+                                Height="1"
+                                Opacity="0.15"
+                                />
+
+                    </StackPanel>
                 </DataTemplate>
             
             </ListView.ItemTemplate>
