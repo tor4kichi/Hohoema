@@ -87,6 +87,7 @@ namespace NicoPlayerHohoema.Models
 			var feedStreamDataFolder = await GetFeedStreamDataFolder();
 
 			var legacyFeedSettingsFolder = await HohoemaApp.GetFeedSettingsFolder();
+			
 
 			foreach (var file in files)
 			{
@@ -128,7 +129,7 @@ namespace NicoPlayerHohoema.Models
 							// 古いファイルは新しいフォーマットで上書きして消しておく
 							if (isLoadFromLegacyFile)
 							{
-								await SaveOne(item);
+								await SaveOne(item, isSkipSyncRoaming:true);
 							}
 
 							Debug.WriteLine($"FeedManager: [Sucesss] load {item.Label}");
@@ -144,6 +145,9 @@ namespace NicoPlayerHohoema.Models
 					}
 				}
 			}
+
+
+			await HohoemaApp.SyncToRoamingData();
 		}
 
 
@@ -165,27 +169,34 @@ namespace NicoPlayerHohoema.Models
 
 		
 
-		private async Task _Save(KeyValuePair<IFeedGroup, FileAccessor<FeedGroup2>> feedItem)
+		private async Task _Save(KeyValuePair<IFeedGroup, FileAccessor<FeedGroup2>> feedItem, bool isSkipSyncRoaming = false)
 		{
 			var fileAccessor = feedItem.Value;
 			await fileAccessor.Save(feedItem.Key as FeedGroup2, FeedGroupSerializerSettings);
 
 			var feedStreamFileAccessor = FeedStreamFileAccessors[feedItem.Key.Id];
 			await feedStreamFileAccessor.Save(feedItem.Key.FeedItems);
+
+			if (!isSkipSyncRoaming)
+			{
+				await HohoemaApp.SyncToRoamingData();
+			}
 		}
 
 		public async Task Save()
 		{
 			foreach (var feedGroupTuple in FeedGroupDict)
 			{
-				await _Save(feedGroupTuple);
+				await _Save(feedGroupTuple, isSkipSyncRoaming:true);
 			}
+
+			await HohoemaApp.SyncToRoamingData();
 		}
 
-		public Task SaveOne(IFeedGroup group)
+		public Task SaveOne(IFeedGroup group, bool isSkipSyncRoaming = false)
 		{
 			var target = FeedGroupDict.SingleOrDefault(x => x.Key.Id == group.Id);
-			return _Save(target);
+			return _Save(target, isSkipSyncRoaming);
 		}
 
 		public async Task<IFeedGroup> AddFeedGroup(string label)

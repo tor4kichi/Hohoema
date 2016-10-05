@@ -223,6 +223,7 @@ namespace NicoPlayerHohoema.Models
 			UserSettings = await HohoemaUserSettings.LoadSettings(folder);
 		}
 
+		private static AsyncLock _RoamingDataSyncLock = new AsyncLock();
 		private static string[] IgnoreSyncFolderNames = new[] { FeedManager.FeedStreamFolderName };
 		private static string[] IgnoreSyncExtentionNames = new string[] {  };
 		private static string[] IgnoreSyncFileNames = new[] 
@@ -236,15 +237,17 @@ namespace NicoPlayerHohoema.Models
 		{
 			var romingFolder = ApplicationData.Current.RoamingFolder;
 			var folder = ApplicationData.Current.LocalFolder;
-
-			await SyncFolders(folder, romingFolder);
+			using (var releaser = await _RoamingDataSyncLock.LockAsync())
+			{
+				await SyncFolders(folder, romingFolder);
+			}
 		}
 
 		private static async Task SyncFolders(StorageFolder masterFolder, StorageFolder slaveFolder)
 		{
 			Debug.WriteLine($"{masterFolder.Name}のローカルとローミングデータの同期を開始");
 
-			foreach (var file in await masterFolder.GetFilesAsync())
+			foreach (var file in await masterFolder.GetFilesAsync().AsTask().ConfigureAwait(false))
 			{
 				// 処理しない拡張子名をチェック
 				if (IgnoreSyncExtentionNames.Any(x => x == file.FileType))
