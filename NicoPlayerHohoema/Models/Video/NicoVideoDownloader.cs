@@ -50,7 +50,6 @@ namespace NicoPlayerHohoema.Models
 		public bool IsPremiumUser { get; private set; }
 		public TimeSpan DownloadInterval { get; private set; }
 
-
 		public bool IsClosed { get; private set; }
 
 		public string RawVideoId
@@ -81,6 +80,10 @@ namespace NicoPlayerHohoema.Models
 
 		const uint PremiumUserDownload_kbps = 262144 * 2;
 		const uint IppanUserDownload_kbps = 262144;
+
+
+		private IAsyncOperation<IBuffer> _ReadAsyncAction;
+
 
 
 		public NicoVideoDownloader(DividedQualityNicoVideo qualityNicoVideo, HttpClient client,  WatchApiResponse watchApiRes, StorageFile cacheFile)
@@ -114,7 +117,7 @@ namespace NicoPlayerHohoema.Models
 
 		public IAsyncOperation<IBuffer> Read(IBuffer buffer, uint position, uint count, InputStreamOptions options)
 		{
-			return AsyncInfo.Run<IBuffer>(async cancellationToken => 
+			return _ReadAsyncAction = AsyncInfo.Run<IBuffer>(async cancellationToken => 
 			{
 				IBuffer videoFragmentBuffer = buffer;
 				// まだキャッシュが終わってない場合は指定区間のダウンロード完了を待つ
@@ -124,7 +127,7 @@ namespace NicoPlayerHohoema.Models
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					await Task.Delay(250).ConfigureAwait(false);
+					await Task.Delay(250);
 
 					Debug.Write("キャッシュ待ち...");
 
@@ -239,14 +242,14 @@ namespace NicoPlayerHohoema.Models
 
 				_DownloadTaskCancelToken?.Cancel();
 
-				//				_ReadAsyncAction?.Cancel();
-				//				_ReadAsyncAction = null;
+				_ReadAsyncAction?.Cancel();
+				_ReadAsyncAction = null;
 
 
 				Debug.Write("ダウンロードキャンセルを待機中");
 
 				
-				await _DownloadTask.ConfigureAwait(false);
+//				await _DownloadTask;
 
 
 				_DownloadTask = null;

@@ -75,7 +75,7 @@ namespace NicoPlayerHohoema.Models
 				await MediaManager.Context.Suspending();
 			}
 
-//			await SyncToRoamingData();
+			await SyncToRoamingData();
 		}
 
 
