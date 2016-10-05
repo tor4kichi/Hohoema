@@ -97,8 +97,8 @@ namespace NicoPlayerHohoema.ViewModels
 				return _RankingSettings.HighPriorityCategory.Any(x => x.RankingSource == RankingSource.CategoryRanking && x.Parameter == cat.ToString());
 			};
 
-			
-			
+
+			RankingCategoryItems = new ObservableCollection<List<RankingCategoryListPageListItem>>();
 		}
 
 		RankingCategoryListPageListItem CreateRankingCategryListItem(RankingCategory category)
@@ -108,11 +108,9 @@ namespace NicoPlayerHohoema.ViewModels
 			return new RankingCategoryListPageListItem(categoryInfo, isFavoriteCategory, OnRankingCategorySelected);
 		}
 
-		protected override void OnSignIn(ICollection<IDisposable> userSessionDisposer)
+		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			// ランキングのカテゴリ
-			RankingCategoryItems = new List<List<RankingCategoryListPageListItem>>();
-
+			RankingCategoryItems.Clear();
 			foreach (var categoryList in RankingCategories)
 			{
 				// 非表示ランキングを除外したカテゴリリストを作成
@@ -130,16 +128,16 @@ namespace NicoPlayerHohoema.ViewModels
 
 			OnPropertyChanged(nameof(RankingCategoryItems));
 
-			base.OnSignIn(userSessionDisposer);
+			base.OnNavigatedTo(e, viewModelState);
 		}
-
+		
 		internal void OnRankingCategorySelected(RankingCategoryInfo info)
 		{
 			PageManager.OpenPage(HohoemaPageType.RankingCategory, info.ToParameterString());
 		}
 
 
-		public List<List<RankingCategoryListPageListItem>> RankingCategoryItems { get; private set; }
+		public ObservableCollection<List<RankingCategoryListPageListItem>> RankingCategoryItems { get; private set; }
 
 		RankingSettings _RankingSettings;
 	}
