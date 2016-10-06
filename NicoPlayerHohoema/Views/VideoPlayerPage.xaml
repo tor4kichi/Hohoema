@@ -226,6 +226,12 @@
                             <mybehavior:MediaElementContentHeightGetter ContentHeight="{Binding CommentCanvasHeight.Value, Mode=TwoWay}"
                                                                         />
 
+                            <mybehavior:KeyboardTrigger Key="Space" >
+                                <mybehavior:KeyboardTrigger.Actions>
+                                    <mybehavior:MediaElementTogglePlayback TargetObject="{Binding ElementName=mediaElem}" />
+                                </mybehavior:KeyboardTrigger.Actions>
+                            </mybehavior:KeyboardTrigger>
+
                         </i:Interaction.Behaviors>
                     </MediaElement>
 
