@@ -245,6 +245,7 @@
                                 CommentSizeScale="{Binding CommentFontScale.Value}"
                                 Height="{Binding CommentCanvasHeight.Value}"
                                 CommentDefaultColor="{Binding CommentDefaultColor.Value}"
+                                DefaultDisplayDuration="{Binding RequestCommentDisplayDuration.Value}"
                                 />
 
 

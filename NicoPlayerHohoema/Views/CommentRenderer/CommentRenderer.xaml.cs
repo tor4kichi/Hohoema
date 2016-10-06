@@ -261,7 +261,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 					comment.FontSize = (uint)Math.Ceiling(scaledFontSize);
 
 					comment.TextBGOffset = FontSize * TextBGOffsetBias;
-
+					comment.EndPosition = comment.VideoPosition + ((uint)DefaultDisplayDuration * 100);
 
 					if (comment.Color == null)
 					{
@@ -643,6 +643,20 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			me.ResetRenderingTimer().ConfigureAwait(false);
 		}
 
+
+
+		public static readonly DependencyProperty DefaultDisplayDurationProperty =
+			DependencyProperty.Register("DefaultDisplayDuration"
+				, typeof(double)
+				, typeof(CommentRenderer)
+				, new PropertyMetadata(4.0)
+				);
+
+		public double DefaultDisplayDuration
+		{
+			get { return (double)GetValue(DefaultDisplayDurationProperty); }
+			set { SetValue(DefaultDisplayDurationProperty, value); }
+		}
 
 
 		public static readonly DependencyProperty SelectedCommentIdProperty =

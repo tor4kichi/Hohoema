@@ -11,6 +11,9 @@ namespace NicoPlayerHohoema.Models
 	[DataContract]
 	public class PlayerSettings : SettingsBase
 	{
+		public static TimeSpan DefaultCommentDisplayDuration { get; private set; } = TimeSpan.FromSeconds(4);
+
+
 		public PlayerSettings()
 			: base()
 		{
@@ -23,6 +26,7 @@ namespace NicoPlayerHohoema.Models
 			IncrementReadablityOwnerComment = true;
 			PauseWithCommentWriting = true;
 			CommentRenderingFPS = 24;
+			CommentDisplayDuration = DefaultCommentDisplayDuration;
 			DefaultCommentFontScale = 1.0;
 			CommentCommandPermission = CommentCommandPermissionType.Owner | CommentCommandPermissionType.User | CommentCommandPermissionType.Anonymous;
 			CommentGlassMowerEnable = false;
@@ -131,6 +135,18 @@ namespace NicoPlayerHohoema.Models
 			get { return _CommentRenderingFPS; }
 			set { SetProperty(ref _CommentRenderingFPS, value); }
 		}
+
+
+		private TimeSpan _CommentDisplayDuration;
+
+
+		[DataMember]
+		public TimeSpan CommentDisplayDuration
+		{
+			get { return _CommentDisplayDuration; }
+			set { SetProperty(ref _CommentDisplayDuration, value); }
+		}
+
 
 
 		private double _DefaultCommentFontScale;
