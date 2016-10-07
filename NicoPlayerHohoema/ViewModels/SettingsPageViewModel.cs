@@ -150,6 +150,8 @@ namespace NicoPlayerHohoema.ViewModels
 				viewModelState[nameof(CurrentSettingsKind)] = CurrentSettingsKind.Value.Kind.ToString();
 			}
 
+			HohoemaApp.SyncToRoamingData().ConfigureAwait(false);
+
 			base.OnNavigatingFrom(e, viewModelState, suspending);
 		}
 

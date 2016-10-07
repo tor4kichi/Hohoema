@@ -118,9 +118,12 @@ namespace NicoPlayerHohoema
 			if (_IsPreLaunch) { return; }
 
 			var hohoemaApp = Container.Resolve<HohoemaApp>();
-			hohoemaApp.OnSuspending().ConfigureAwait(false);
+			
+			// Note: ここで呼び出すとスレッドロックが発生するので
+			// HohoemaViewModelBaseのNavigationFrom内でサスペンドの処理を行っています
 
-			await HohoemaApp.SyncToRoamingData();
+//			await hohoemaApp.OnSuspending().ConfigureAwait(false);
+//			await HohoemaApp.SyncToRoamingData().ConfigureAwait(false);
 
 			
 			await base.OnSuspendingApplicationAsync();

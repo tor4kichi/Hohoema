@@ -152,7 +152,7 @@ namespace NicoPlayerHohoema.Models
 		public Sort Sort { get; set; }
 
 
-		
+
 
 		public override bool Equals(object obj)
 		{
@@ -171,6 +171,7 @@ namespace NicoPlayerHohoema.Models
 			if (other == null) { return false; }
 
 			return this.Keyword == other.Keyword
+				&& this.SearchTarget == other.SearchTarget
 				&& this.Order == other.Order
 				&& this.Sort == other.Sort;
 		}

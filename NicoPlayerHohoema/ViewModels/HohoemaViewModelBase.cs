@@ -242,6 +242,11 @@ namespace NicoPlayerHohoema.ViewModels
 				_NavigatedToTaskCancelToken?.Dispose();
 				_NavigatedToTaskCancelToken = null;
 
+				if (suspending)
+				{
+					await HohoemaApp.OnSuspending();
+				}
+
 				base.OnNavigatingFrom(e, viewModelState, suspending);
 			}
 		}

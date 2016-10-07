@@ -38,6 +38,8 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 				.AddTo(_CompositeDisposable);
 			CommentRenderingFPS = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentRenderingFPS)
 				.AddTo(_CompositeDisposable);
+			CommentDisplayDuration = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentDisplayDuration, x => x.TotalSeconds, x => TimeSpan.FromSeconds(x))
+				.AddTo(_CompositeDisposable);
 			CommentFontScale = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCommentFontScale)
 				.AddTo(_CompositeDisposable);
 			CommentColor = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentColor)
@@ -52,6 +54,7 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 			Observable.Merge(
 				DefaultCommentDisplay.ToUnit(),
 				CommentRenderingFPS.ToUnit(),
+				CommentDisplayDuration.ToUnit(),
 				CommentFontScale.ToUnit(),
 				CommentColor.ToUnit(),
 				IsKeepDisplayInPlayback.ToUnit(),
@@ -71,6 +74,7 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 
 		public ReactiveProperty<bool> DefaultCommentDisplay { get; private set; }
 		public ReactiveProperty<uint> CommentRenderingFPS { get; private set; }
+		public ReactiveProperty<double> CommentDisplayDuration { get; private set; }
 		public ReactiveProperty<double> CommentFontScale { get; private set; }
 		public ReactiveProperty<Color> CommentColor { get; private set; }
 		public ReactiveProperty<bool> IsPauseWithCommentWriting { get; private set; }

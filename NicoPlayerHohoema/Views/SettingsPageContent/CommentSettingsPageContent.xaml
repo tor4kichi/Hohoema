@@ -216,6 +216,35 @@
 
                 </toolkit:DockPanel>
 
+                <toolkit:DockPanel Margin="8">
+
+                    <TextBlock Text="デフォルトは4秒"
+                           toolkit:DockPanel.Dock="Bottom"
+                           VerticalAlignment="Center"
+                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                               FontSize="12"
+                           />
+                    
+                    <TextBlock Text="コメントの表示時間"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+
+                    <toolkit:NumericUpDown Value="{Binding CommentDisplayDuration.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            Maximum="10"
+                            Minimum="1"
+                            SmallChange="0.5"
+                          HorizontalAlignment="Right"
+                            MinWidth="200"
+                            Foreground="{ThemeResource ApplicationForegroundThemeBrush}"               
+                          >
+
+                    </toolkit:NumericUpDown>
+
+
+                </toolkit:DockPanel>
+
+
 
                 <toolkit:DockPanel Margin="8 16">
 
