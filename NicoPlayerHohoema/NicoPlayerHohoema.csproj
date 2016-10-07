@@ -256,6 +256,7 @@
     <Compile Include="Views\Behaviors\CloseFlyoutAction.cs" />
     <Compile Include="Views\Behaviors\EnsureLifecycleMediaElement.cs" />
     <Compile Include="Views\Behaviors\FlyoutBehavior.cs" />
+    <Compile Include="Views\Behaviors\ForceRotateToCurrentOrientation.cs" />
     <Compile Include="Views\Behaviors\KeyboardTrigger.cs" />
     <Compile Include="Views\Behaviors\ListViewSelectedItemsGetter.cs" />
     <Compile Include="Views\Behaviors\MediaElementActualContentHeight.cs" />

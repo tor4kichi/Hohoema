@@ -279,11 +279,17 @@
                     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                           Visibility="{Binding ElementName=ControlUIRoot, Path=Visibility}"
                           >
-                        <Border Background="Transparent" IsHitTestVisible="True">
+                        <Border Background="Transparent" IsHitTestVisible="True" IsDoubleTapEnabled="True">
                             <i:Interaction.Behaviors>
                                 <core:EventTriggerBehavior EventName="Tapped">
                                     <mybehavior:MediaElementTogglePlayback TargetObject="{Binding ElementName=mediaElem}"  />
                                 </core:EventTriggerBehavior>
+
+                                <!--
+                                <core:EventTriggerBehavior EventName="DoubleTapped">
+                                    <mybehavior:ForceRotateToCurrentOrientation Target="{Binding ElementName=SplitView}"  />
+                                </core:EventTriggerBehavior>
+                                -->
                             </i:Interaction.Behaviors>
 
                             <Grid Margin="0 0 0 48" >
