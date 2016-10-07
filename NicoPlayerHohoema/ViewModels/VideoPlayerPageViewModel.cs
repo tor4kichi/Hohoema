@@ -481,18 +481,25 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-			CommentFontScale = HohoemaApp.UserSettings.PlayerSettings
-				.ObserveProperty(x => x.DefaultCommentFontScale)
-				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
-				.AddTo(userSessionDisposer);
-			OnPropertyChanged(nameof(CommentFontScale));
-
-
+			
 			RequestFPS = HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.CommentRenderingFPS)
 				.Select(x => (int)x)
 				.ToReactiveProperty()
 				.AddTo(userSessionDisposer);
 			OnPropertyChanged(nameof(RequestFPS));
+
+			RequestCommentDisplayDuration = HohoemaApp.UserSettings.PlayerSettings
+				.ObserveProperty(x => x.CommentDisplayDuration)
+				.Select(x => x.TotalSeconds)
+				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
+				.AddTo(userSessionDisposer);
+			OnPropertyChanged(nameof(RequestCommentDisplayDuration));
+
+			CommentFontScale = HohoemaApp.UserSettings.PlayerSettings
+				.ObserveProperty(x => x.DefaultCommentFontScale)
+				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
+				.AddTo(userSessionDisposer);
+			OnPropertyChanged(nameof(CommentFontScale));
 
 
 			HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.IsKeepDisplayInPlayback)
@@ -1674,6 +1681,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		// Settings
 		public ReactiveProperty<int> RequestFPS { get; private set; }
+		public ReactiveProperty<double> RequestCommentDisplayDuration { get; private set; }
 		public ReactiveProperty<double> CommentFontScale { get; private set; }
 		public ReactiveProperty<bool> IsFullScreen { get; private set; }
 

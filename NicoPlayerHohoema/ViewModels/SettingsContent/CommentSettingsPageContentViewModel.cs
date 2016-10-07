@@ -71,6 +71,7 @@ namespace NicoPlayerHohoema.ViewModels
 			CommentColor = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentColor);
 			IsPauseWithCommentWriting = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.PauseWithCommentWriting);
 			CommentRenderingFPS = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentRenderingFPS);
+			CommentDisplayDuration = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentDisplayDuration, x => x.TotalSeconds, x => TimeSpan.FromSeconds(x));
 			CommentFontScale = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCommentFontScale);
 			CommentGlassMowerEnable = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentGlassMowerEnable);
 			IsDefaultCommentWithAnonymous = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsDefaultCommentWithAnonymous);
@@ -145,6 +146,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> IsDefaultCommentWithAnonymous { get; private set; }
 		public ReactiveProperty<bool> DefaultCommentDisplay { get; private set; }
 		public ReactiveProperty<uint> CommentRenderingFPS { get; private set; }
+		public ReactiveProperty<double> CommentDisplayDuration { get; private set; }
 		public ReactiveProperty<double> CommentFontScale { get; private set; }
 		public ReactiveProperty<Color> CommentColor { get; private set; }
 		public ReactiveProperty<bool> IsPauseWithCommentWriting { get; private set; }

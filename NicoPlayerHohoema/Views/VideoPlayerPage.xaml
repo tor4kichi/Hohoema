@@ -226,6 +226,12 @@
                             <mybehavior:MediaElementContentHeightGetter ContentHeight="{Binding CommentCanvasHeight.Value, Mode=TwoWay}"
                                                                         />
 
+                            <mybehavior:KeyboardTrigger Key="Space" >
+                                <mybehavior:KeyboardTrigger.Actions>
+                                    <mybehavior:MediaElementTogglePlayback TargetObject="{Binding ElementName=mediaElem}" />
+                                </mybehavior:KeyboardTrigger.Actions>
+                            </mybehavior:KeyboardTrigger>
+
                         </i:Interaction.Behaviors>
                     </MediaElement>
 
@@ -239,6 +245,7 @@
                                 CommentSizeScale="{Binding CommentFontScale.Value}"
                                 Height="{Binding CommentCanvasHeight.Value}"
                                 CommentDefaultColor="{Binding CommentDefaultColor.Value}"
+                                DefaultDisplayDuration="{Binding RequestCommentDisplayDuration.Value}"
                                 />
 
 
@@ -272,11 +279,17 @@
                     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                           Visibility="{Binding ElementName=ControlUIRoot, Path=Visibility}"
                           >
-                        <Border Background="Transparent" IsHitTestVisible="True">
+                        <Border Background="Transparent" IsHitTestVisible="True" IsDoubleTapEnabled="True">
                             <i:Interaction.Behaviors>
                                 <core:EventTriggerBehavior EventName="Tapped">
                                     <mybehavior:MediaElementTogglePlayback TargetObject="{Binding ElementName=mediaElem}"  />
                                 </core:EventTriggerBehavior>
+
+                                <!--
+                                <core:EventTriggerBehavior EventName="DoubleTapped">
+                                    <mybehavior:ForceRotateToCurrentOrientation Target="{Binding ElementName=SplitView}"  />
+                                </core:EventTriggerBehavior>
+                                -->
                             </i:Interaction.Behaviors>
 
                             <Grid Margin="0 0 0 48" >
