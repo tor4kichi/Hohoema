@@ -33,7 +33,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		AsyncLock _HeartbeatTimerLock = new AsyncLock();
 		Timer _HeartbeatTimer;
-		TimeSpan _HeartbeatInterval = TimeSpan.FromSeconds(45);
+		TimeSpan _HeartbeatInterval = TimeSpan.FromSeconds(15);
 
 
 		NicovideoRtmpClient _RtmpClient;
@@ -96,7 +96,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 
 
-			await StartLiveSubscribeAction();
+			
 		}
 
 		private async Task OpenRtmpConnection(PlayerStatusResponse res)
@@ -182,11 +182,12 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					var res = await HohoemaApp.NiconicoContext.Live.HeartbeatAsync(LiveId);
 
-					
+					Debug.WriteLine("heartbeat to " + LiveId);
+
 					await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
 					{
 						// TODO: 視聴者数やコメント数の更新
-
+						
 						await Task.Delay(0);
 					});
 				}
@@ -208,10 +209,12 @@ namespace NicoPlayerHohoema.ViewModels
 				_HeartbeatTimer = new Timer(
 					async state => await TryHeartbeat(),
 					null, 
-					TimeSpan.Zero, 
+					TimeSpan.FromSeconds(1), // いきなりハートビートを叩くとダメっぽいので最初は遅らせる
 					_HeartbeatInterval
 					);
 			}
+
+			Debug.WriteLine("start heartbeat to " + LiveId);
 		}
 
 
@@ -223,6 +226,8 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					_HeartbeatTimer.Dispose();
 					_HeartbeatTimer = null;
+
+					Debug.WriteLine("exit heartbeat to " + LiveId);
 				}
 			}
 		} 

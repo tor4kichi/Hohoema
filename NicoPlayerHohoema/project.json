@@ -1,5 +1,6 @@
 ﻿{
   "dependencies": {
+    "ActionMessageFormat.UWP": "1.0.0",
     "FFmpeg.Win10": "3.1.3",
     "HtmlAgilityPack": "1.4.9.5",
     "Microsoft.EntityFrameworkCore.Sqlite": "1.0.0",
@@ -13,7 +14,7 @@
     "Prism.Unity": "6.2.0",
     "Prism.Windows": "6.0.2",
     "ReactiveProperty": "3.0.1",
-    "RtmpClient.UWP": "1.0.0",
+    "RtmpClient.UWP": "1.1.0",
     "WinRTXamlToolkit.UWP": "2.0.0"
   },
   "frameworks": {

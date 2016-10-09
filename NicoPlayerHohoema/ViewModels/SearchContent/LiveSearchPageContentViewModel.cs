@@ -97,9 +97,9 @@ namespace NicoPlayerHohoema.ViewModels
 			return HohoemaApp.ContentFinder.LiveSearchAsync(
 					SearchOption.Keyword,
 					SearchOption.IsTagSearch,
-					provider: null,
 					from: from,
 					length: length,
+					provider: SearchOption.Provider,
 					sort: SearchOption.Sort,
 					order: SearchOption.Order,
 					mode: SearchOption.Mode
@@ -129,7 +129,12 @@ namespace NicoPlayerHohoema.ViewModels
 				return Enumerable.Empty<LiveInfoViewModel>();
 			}
 
-			Tags = res.Tags.Tag.ToList();
+			Tags = res.Tags?.Tag.ToList();
+
+			if (res.VideoInfo == null)
+			{
+				return Enumerable.Empty<LiveInfoViewModel>();
+			}
 
 			return res.VideoInfo.Select(x =>
 			{

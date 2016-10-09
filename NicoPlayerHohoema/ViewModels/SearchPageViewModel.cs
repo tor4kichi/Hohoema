@@ -80,7 +80,7 @@ namespace NicoPlayerHohoema.ViewModels
 				SearchTarget.Tag,
 				SearchTarget.Mylist,
 //				SearchTarget.Community,
-//				SearchTarget.Niconama,
+				SearchTarget.Niconama,
 			};
 
 			SelectedTarget = new ReactiveProperty<SearchTarget>(TargetListItems[0])
@@ -635,8 +635,15 @@ namespace NicoPlayerHohoema.ViewModels
 			public NicoliveSearchMode? Mode { get; set; }
 		}
 
+		public class LiveSearchProviderOptionListItem
+		{
+			public string Label { get; set; }
+			public Mntone.Nico2.Live.CommunityType? Provider { get; set; }
+		}
+
 		public static IReadOnlyList<LiveSearchSortOptionListItem> LiveSearchSortOptionListItems { get; private set; }
 		public static IReadOnlyList<LiveSearchModeOptionListItem> LiveSearchModeOptionListItems { get; private set; }
+		public static IReadOnlyList<LiveSearchProviderOptionListItem> LiveSearchProviderOptionListItems { get; private set; }
 
 		static LiveSearchOptionViewModel()
 		{
@@ -693,16 +700,44 @@ namespace NicoPlayerHohoema.ViewModels
 					Mode = null
 				},
 			};
+
+
+			LiveSearchProviderOptionListItems = new List<LiveSearchProviderOptionListItem>()
+			{
+				new LiveSearchProviderOptionListItem()
+				{
+					Label = "公式",
+					Provider = Mntone.Nico2.Live.CommunityType.Official,
+				},
+				new LiveSearchProviderOptionListItem()
+				{
+					Label = "チャンネル",
+					Provider = Mntone.Nico2.Live.CommunityType.Channel,
+				},
+				new LiveSearchProviderOptionListItem()
+				{
+					Label = "ユーザー",
+					Provider = Mntone.Nico2.Live.CommunityType.Community,
+				},
+				
+				new LiveSearchProviderOptionListItem()
+				{
+					Label = "すべて",
+					Provider = null,
+				},
+			};
 		}
 
 		public ReactiveProperty<LiveSearchSortOptionListItem> SelectedSearchSort { get; private set; }
 		public ReactiveProperty<LiveSearchModeOptionListItem> SelectedSearchMode { get; private set; }
 		public ReactiveProperty<bool> IsTagSearch { get; private set; }
+		public ReactiveProperty<LiveSearchProviderOptionListItem> SelectedProvider { get; private set; }
 
 		public LiveSearchOptionViewModel()
 		{
 			SelectedSearchSort = new ReactiveProperty<LiveSearchSortOptionListItem>(LiveSearchSortOptionListItems[0]);
 			SelectedSearchMode = new ReactiveProperty<LiveSearchModeOptionListItem>(LiveSearchModeOptionListItems[0]);
+			SelectedProvider = new ReactiveProperty<LiveSearchProviderOptionListItem>(LiveSearchProviderOptionListItems[0]);
 			IsTagSearch = new ReactiveProperty<bool>(false);
 		}
 
@@ -714,6 +749,7 @@ namespace NicoPlayerHohoema.ViewModels
 				Sort = SelectedSearchSort.Value.Sort,
 				Order = SelectedSearchSort.Value.Order,
 				Mode = SelectedSearchMode.Value.Mode,
+				Provider = SelectedProvider.Value.Provider,
 				IsTagSearch = IsTagSearch.Value
 			};
 		}
