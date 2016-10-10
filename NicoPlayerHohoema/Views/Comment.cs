@@ -89,6 +89,11 @@ namespace NicoPlayerHohoema.Views
 			TextBGOffset = 1.0;
 		}
 
+		public Comment()
+		{
+//			_VideoPlayerPageViewModel = videoPlayerPageVM;
+			TextBGOffset = 1.0;
+		}
 
 
 		private DelegateCommand _AddNgUserCommand;
@@ -99,7 +104,10 @@ namespace NicoPlayerHohoema.Views
 				return _AddNgUserCommand
 					?? (_AddNgUserCommand = new DelegateCommand(async () =>
 					{
-						await _VideoPlayerPageViewModel.AddNgUser(this);
+						if (_VideoPlayerPageViewModel != null)
+						{
+							await _VideoPlayerPageViewModel.AddNgUser(this);
+						}
 					}));
 			}
 		}

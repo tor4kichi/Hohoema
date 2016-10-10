@@ -19,7 +19,7 @@
     <Grid >
 
         <MediaElement x:Name="mediaElem"
-                                local:MediaElementExtention.CustomStream="{Binding VideoStreamSource}"
+                                local:MediaElementExtention.CustomStream="{Binding VideoStream.Value}"
                                 AudioCategory="Movie"
                                 AutoPlay="True"
                             >
@@ -41,12 +41,27 @@
                             -->
                 <mybehavior:EnsureLifecycleMediaElement />
 
-                <!--
+                
                 <mybehavior:MediaElementContentHeightGetter ContentHeight="{Binding CommentCanvasHeight.Value, Mode=TwoWay}"
                                                                         />
-                -->
+                
 
             </i:Interaction.Behaviors>
         </MediaElement>
+
+
+        <comment:CommentRenderer 
+                                x:Name="CommentRederer"
+                                Comments="{Binding LiveComments}"
+                                VideoPosition="{Binding CurrentTime}"                                     
+                                Visibility="{Binding IsVisibleComment.Value, Converter={StaticResource BooleanToVisibility}}"
+                                RequestFPS="{Binding CommentRenderFPS.Value}"
+                                CommentSizeScale="{Binding CommentFontScale.Value}"
+                                Height="{Binding CommentCanvasHeight.Value}"
+                                CommentDefaultColor="{Binding CommentDefaultColor.Value}"
+                                DefaultDisplayDuration="{Binding RequestCommentDisplayDuration.Value}"
+                                />
+
+        <TextBlock Text="{Binding CurrentTime}" />
     </Grid>
 </Page>

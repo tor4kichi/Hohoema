@@ -5,6 +5,7 @@ using Mntone.Rtmp.Client;
 using Mntone.Rtmp.Command;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -15,6 +16,9 @@ using Windows.Media.MediaProperties;
 
 namespace NicoVideoRtmpClient
 {
+	// see@ http://nico-lab.net/nicolive_rtmpdump_commands/
+
+	// rtmp options see@ https://www.ffmpeg.org/ffmpeg-protocols.html#rtmp
 
 	public interface INicoVideoRtmpConnection
 	{
@@ -94,7 +98,7 @@ namespace NicoVideoRtmpClient
 			{
 				var str = splited[i];
 				i++;
-				var url = WebUtility.UrlDecode(splited[i]).Remove(0, "limelight:".Length);
+				var url = WebUtility.UrlDecode(splited[i]).Remove(0, splited[i].IndexOf(':'));
 				var splitUrl = url.Split(',');
 				var rtmpUri = splitUrl[0];
 				var liveId = splitUrl[1];
@@ -201,7 +205,7 @@ namespace NicoVideoRtmpClient
 				// TcUrl は RtmpUriのInstanceを省いた文字列
 				command.TcUrl = $"{Uri.Scheme.ToString().ToLower()}://{Uri.Host}:{Uri.Port}/{Uri.App}";
 				command.FlashVersion = "WIN 23,0,0,162";
-				// Rtmpのconnectのextrasとして PlayerStatus.Stream.Ticket の値を追加
+				// Rtmpのconnectメソッドのextrasとして PlayerStatus.Stream.Ticket の値を追加
 				var amfArray = new AmfArray();
 				amfArray.Add(AmfValue.CreateStringValue($"{PlayerStatus.Stream.Ticket}"));
 
@@ -248,10 +252,16 @@ namespace NicoVideoRtmpClient
 #endif
 			var nlplaynoticeParameter = new AmfArray();
 
+			// 先頭にnullを入れる
 			command.OptionalArguments.Add(new AmfValue());
+
 			command.OptionalArguments.Add(AmfValue.CreateStringValue(nlplaypath));
 			command.OptionalArguments.Add(AmfValue.CreateStringValue(nltoken));
 			command.OptionalArguments.Add(AmfValue.CreateStringValue(nlid));
+
+			// これがわからない
+			// パケットキャプチャした結果を真似しているだけで
+			// 意図を理解して追加しているわけではないです
 			command.OptionalArguments.Add(AmfValue.CreateNumberValue(-2));
 
 
@@ -517,6 +527,8 @@ namespace NicoVideoRtmpClient
 					Started?.Invoke(new NicovideoRtmpClientStartedEventArgs(_MediaStreamSource));
 				}
 			}
+
+			Debug.WriteLine($"{nameof(NicovideoRtmpClient)}: {prop.ToString()}");
 		}
 
 
@@ -555,12 +567,14 @@ namespace NicoVideoRtmpClient
 					Started?.Invoke(new NicovideoRtmpClientStartedEventArgs(_MediaStreamSource));
 				}
 			}
+
+			Debug.WriteLine($"{nameof(NicovideoRtmpClient)}: {prop.ToString()}");
 		}
 
-#endregion
+		#endregion
 
 
-#region MediaStreamSource
+		#region MediaStreamSource
 
 		private void OnStarting(MediaStreamSource sender, MediaStreamSourceStartingEventArgs args)
 		{

@@ -13,36 +13,72 @@ using System.Diagnostics;
 using Windows.Foundation.Collections;
 using NicoVideoRtmpClient;
 using Mntone.Nico2.Live.PlayerStatus;
+using NicoPlayerHohoema.Models.Live;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
+using Windows.UI;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	public class LiveVideoPlayerPageViewModel : HohoemaViewModelBase, IDisposable
 	{
 		// TODO: MediaElementがCloseになった場合に対応する
-		
+
+
+		/// <summary>
+		/// 生放送の再生時間をローカルで更新する頻度
+		/// </summary>
+		public static TimeSpan VPosUpdateInterval { get; private set; } 
+			= TimeSpan.FromSeconds(0.008);
+
+
+
 
 		public string LiveId { get; private set; }
 
-		
-		private MediaStreamSource _VideoStreamSource;
-		public MediaStreamSource VideoStreamSource
+		NicoLiveVideo _NicoLiveVideo;
+
+
+
+		public ReactiveProperty<object> VideoStream { get; private set; }
+
+		public ReadOnlyReactiveCollection<Views.Comment> LiveComments { get; private set; }
+
+
+
+		private TimeSpan _CurrentTime;
+		public TimeSpan CurrentTime
 		{
-			get { return _VideoStreamSource; }
-			set { SetProperty(ref _VideoStreamSource, value); }
+			get { return _CurrentTime; }
+			set { SetProperty(ref _CurrentTime, value); }
 		}
 
-		AsyncLock _HeartbeatTimerLock = new AsyncLock();
-		Timer _HeartbeatTimer;
-		TimeSpan _HeartbeatInterval = TimeSpan.FromSeconds(15);
+		AsyncLock _VPosIncrementTimingTimerLock = new AsyncLock();
+		Timer _VPosIncrementTimingTimer;
 
 
-		NicovideoRtmpClient _RtmpClient;
+		public ReactiveProperty<bool> IsVisibleComment { get; private set; }
+		public ReactiveProperty<int> CommentRenderFPS { get; private set; }
+		public ReactiveProperty<double> RequestCommentDisplayDuration { get; private set; }
+		public ReactiveProperty<double> CommentFontScale { get; private set; }
 
+		public ReactiveProperty<double> CommentCanvasHeight { get; private set; }
+		public ReactiveProperty<Color> CommentDefaultColor { get; private set; }
+		
 
 		public LiveVideoPlayerPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager) 
 			: base(hohoemaApp, pageManager, isRequireSignIn:true)
 		{
-			
+
+			VideoStream = new ReactiveProperty<object>();
+
+			IsVisibleComment = new ReactiveProperty<bool>(true);
+			CommentRenderFPS = new ReactiveProperty<int>(60);
+			RequestCommentDisplayDuration = new ReactiveProperty<double>(5.0);
+			CommentFontScale = new ReactiveProperty<double>(1.0);
+
+			CommentCanvasHeight = new ReactiveProperty<double>(0.0);
+			CommentDefaultColor = new ReactiveProperty<Color>(Colors.White);
 		}
 
 
@@ -52,16 +88,36 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				LiveId = e.Parameter as string;
 			}
+			
+			if (LiveId != null)
+			{
+				_NicoLiveVideo = new NicoLiveVideo(LiveId, HohoemaApp);
+				_NicoLiveVideo.ObserveProperty(x => x.VideoStreamSource)
+					.Subscribe(x => VideoStream.Value = x)
+					.AddTo(_NavigatingCompositeDisposable);
+				LiveComments = _NicoLiveVideo.LiveComments.ToReadOnlyReactiveCollection(x =>
+				{
+					var comment = new Views.Comment();
+
+					comment.CommentText = x.Text;
+					comment.CommentId = x.GetCommentNo();
+					comment.IsAnonimity = x.GetAnonymity();
+					comment.VideoPosition = Math.Max(0,  x.GetVpos());
+					comment.EndPosition = comment.VideoPosition + 1000;
+					// TODO: LiveCommentのコマンドの解析
+
+					return comment;
+				});
+
+				OnPropertyChanged(nameof(LiveComments));
+			}
 
 			base.OnNavigatedTo(e, viewModelState);
 		}
 
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			if (LiveId == null) { return; }
-
 			await TryStartViewing();
-
 
 			await base.NavigatedToAsync(cancelToken, e, viewModelState);
 		}
@@ -69,168 +125,76 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
-			EndLiveSubscribeAction().ConfigureAwait(false);
+			_NicoLiveVideo.Dispose();
+			_NicoLiveVideo = null;
+
+			_VPosIncrementTimingTimer?.Dispose();
+			_VPosIncrementTimingTimer = null;
 
 			base.OnNavigatingFrom(e, viewModelState, suspending);
 		}
 
 
-		// see@ http://nico-lab.net/nicolive_rtmpdump_commands/
-
-		// options is see@ https://www.ffmpeg.org/ffmpeg-protocols.html#rtmp
-
+		
 		private async Task TryStartViewing()
 		{
+			if (_NicoLiveVideo == null) { return; }
+
 			try
 			{
-				var res = await HohoemaApp.NiconicoContext.Live.GetPlayerStatusAsync(LiveId);
+				var success = await _NicoLiveVideo.SetupLive();
 
-				if (res == null) { return; }
+				// 放送の再生位置を初期化
+				CurrentTime = DateTime.Now - _NicoLiveVideo.PlayerStatusResponse.Program.BaseAt;
 
-				await OpenRtmpConnection(res);
+				using (var releaser = await _VPosIncrementTimingTimerLock.LockAsync())
+				{
+					_VPosIncrementTimingTimer = new Timer(TimeIncrement
+					, null,
+					TimeSpan.Zero,
+					VPosUpdateInterval
+					);
+				}
+
+				if (!success)
+				{
+					Debug.WriteLine("生放送情報の取得失敗しました "  + LiveId);
+					return;
+				}
 			}
 			catch (Exception ex)
 			{
 				Debug.WriteLine(ex.ToString());
 				return;
 			}
-
-
-			
 		}
 
-		private async Task OpenRtmpConnection(PlayerStatusResponse res)
+		
+		async void TimeIncrement(object state)
 		{
-			_RtmpClient = new NicovideoRtmpClient();
-
-			_RtmpClient.Started += _RtmpClient_Started;
-			_RtmpClient.Stopped += _RtmpClient_Stopped;
-
-			await _RtmpClient.ConnectAsync(res);
-		}
-
-		private void CloseRtmpConnection()
-		{
-			if (_RtmpClient != null)
+			using (var releaser = await _VPosIncrementTimingTimerLock.LockAsync())
 			{
-				_RtmpClient.Started -= _RtmpClient_Started;
-				_RtmpClient.Stopped -= _RtmpClient_Stopped;
+				if (_VPosIncrementTimingTimer == null ) { return; }
 
-				_RtmpClient?.Dispose();
+				if (_NicoLiveVideo == null) { return; }
+
+				await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
+				{
+					if (_NicoLiveVideo == null) { return; }
+
+					CurrentTime = DateTime.Now -_NicoLiveVideo.PlayerStatusResponse.Program.BaseAt;
+				});
 			}
 		}
+		
 
+		
 
-		private async void _RtmpClient_Started(NicovideoRtmpClientStartedEventArgs args)
-		{
-			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () => 
-			{
-				VideoStreamSource = args.MediaStreamSource;
-
-				await StartLiveSubscribeAction();
-			});
-		}
-
-		private async void _RtmpClient_Stopped(NicovideoRtmpClientStoppedEventArgs args)
-		{
-			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
-			{
-				VideoStreamSource = null;
-
-				await EndLiveSubscribeAction();
-			});
-		}
-
-		private async Task StartLiveSubscribeAction()
-		{
-			// 定期的にHeartbeatAPIを叩く処理を開始する
-			await StartHeartbeatTimer();
-		}
 
 
 		
-		private async Task EndLiveSubscribeAction()
-		{
-			if (LiveId == null) { return; }
 
-			// UI上での映像の再生を止める
-			VideoStreamSource = null;
-
-			// HeartbeatAPIへのアクセスを停止
-			await ExitHeartbeatTimer();
-
-			// ニコ生サーバーとのコネクションを切断
-			CloseRtmpConnection();
-
-			// 放送からの離脱APIを叩く
-			await HohoemaApp.NiconicoContext.Live.LeaveAsync(LiveId);
-		}
-
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns></returns>
-		/// <remarks>https://www59.atwiki.jp/nicoapi/pages/19.html</remarks>
-		private async Task TryHeartbeat()
-		{
-			using (var releaser = await _HeartbeatTimerLock.LockAsync())
-			{
-				if (LiveId == null) { return; }
-
-				try
-				{
-					var res = await HohoemaApp.NiconicoContext.Live.HeartbeatAsync(LiveId);
-
-					Debug.WriteLine("heartbeat to " + LiveId);
-
-					await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
-					{
-						// TODO: 視聴者数やコメント数の更新
-						
-						await Task.Delay(0);
-					});
-				}
-				catch
-				{
-					// ハートビートに失敗した場合は、放送終了か追い出された
-					await EndLiveSubscribeAction();
-				}
-			}
-		}
-
-
-		private async Task StartHeartbeatTimer()
-		{
-			await ExitHeartbeatTimer();
-
-			using (var releaser = await _HeartbeatTimerLock.LockAsync())
-			{
-				_HeartbeatTimer = new Timer(
-					async state => await TryHeartbeat(),
-					null, 
-					TimeSpan.FromSeconds(1), // いきなりハートビートを叩くとダメっぽいので最初は遅らせる
-					_HeartbeatInterval
-					);
-			}
-
-			Debug.WriteLine("start heartbeat to " + LiveId);
-		}
-
-
-		private async Task ExitHeartbeatTimer()
-		{
-			using (var releaser = await _HeartbeatTimerLock.LockAsync())
-			{
-				if (_HeartbeatTimer != null)
-				{
-					_HeartbeatTimer.Dispose();
-					_HeartbeatTimer = null;
-
-					Debug.WriteLine("exit heartbeat to " + LiveId);
-				}
-			}
-		} 
 		
+
 	}
 }
