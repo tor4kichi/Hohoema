@@ -118,12 +118,12 @@ namespace NicoPlayerHohoema.Models.Live
 			{
 				_LiveCommentServerRecieveCancelSource?.Cancel();
 
-				await Task.Delay(1000);
+				await Task.Delay(250);
 
 				_LiveCommentServerRecieveCancelSource?.Dispose();
 				_LiveCommentServerRecieveCancelSource = null;
 
-				_NetworkStream?.Dispose();
+				// 生成元となったTcpClientをDisposeすると一緒にDisposeされる
 				_NetworkStream = null;
 			}
 
@@ -187,22 +187,56 @@ namespace NicoPlayerHohoema.Models.Live
 
 			try
 			{
-				var recieveByteCount = 0;
-
-				while ((recieveByteCount = await _NetworkStream.ReadAsync(_Buffer, 0, _Buffer.Length, _LiveCommentServerRecieveCancelSource.Token)) != 0)
+				bool isEndConnect = false;
+				while (!isEndConnect)
 				{
-					var s = Encoding.UTF8.GetString(_Buffer);
+					// データが来るまで待つ
+					while (true)
+					{
+						_LiveCommentServerRecieveCancelSource.Token.ThrowIfCancellationRequested();
 
-					Debug.WriteLine($"コメントサーバーから受信:{_Buffer.Length}B");
+						using (var releaser = await _NetworkStreamLock.LockAsync())
+						{
+							if (_NetworkStream.DataAvailable)
+							{
+								break;
+							}
+						}
 
-					var nullStrStart = s.IndexOf('\0');
-					ParseLiveCommentServerResponse(s.Remove(nullStrStart));
+						_LiveCommentServerRecieveCancelSource.Token.ThrowIfCancellationRequested();
 
-					Array.Clear(_Buffer, 0, _Buffer.Length);
-					await Task.Delay(50);
+						await Task.Delay(50);
+
+						_LiveCommentServerRecieveCancelSource.Token.ThrowIfCancellationRequested();
+					}
+
+					// 受信したデータをバッファに読み込む
+					using (var releaser = await _NetworkStreamLock.LockAsync())
+					{
+						isEndConnect = await _NetworkStream.ReadAsync(_Buffer, 0, _Buffer.Length) == 0;
+					}
+
+					if (!isEndConnect)
+					{
+						// バッファに詰め込まれた文字列を解析する
+						var recievedRawString = Encoding.UTF8.GetString(_Buffer);
+
+						Debug.Write($"recieve comment data -> ");
+
+						var nullStrStart = recievedRawString.IndexOf('\0');
+						var trimEmptyString = recievedRawString.Remove(nullStrStart);
+						ParseLiveCommentServerResponse(trimEmptyString);
+
+						Debug.WriteLine($" -> end");
+
+						Array.Clear(_Buffer, 0, _Buffer.Length);
+					}					
 				}
 			}
-			catch { }
+			catch (Exception ex)
+			{
+				Debug.WriteLine(ex.ToString());
+			}
 
 			Debug.WriteLine("exit comment recieve.");
 		}
@@ -212,24 +246,24 @@ namespace NicoPlayerHohoema.Models.Live
 		{
 			if (string.IsNullOrWhiteSpace(recievedString))
 			{
-				Debug.WriteLine($"受信した文字列が無効");
+				Debug.Write($"IGNORE");
 				return;
 			}
 
-			Debug.WriteLine(recievedString);
-
 			if (!recievedString.StartsWith("<") || !recievedString.EndsWith(">"))
 			{
-				Debug.WriteLine($"受信した文字列はXml形式ではない");
+				Debug.Write($"illigal format, required XML");
 				return;
 			}
 
 			var xmlDoc = XDocument.Parse(recievedString);
 			var xmlRoot = xmlDoc.Root;
 			var elementName = xmlRoot.Name.LocalName;
+			Debug.Write(elementName);
+			Debug.Write(" -> ");
 			if (elementName == "thread")
 			{
-				Debug.WriteLine("threadとして解析開始");
+				Debug.Write("connect success");
 				IsCommentServerConnected = true;
 
 				// <thread ticket="{チケット}" server_time="{サーバー時刻}" last_res="{送信される過去のコメント数？(NECOで使用してないので不明)}">
@@ -247,7 +281,6 @@ namespace NicoPlayerHohoema.Models.Live
 			}
 			else if (elementName == "chat_result")
 			{
-				Debug.WriteLine("chat_resultとして解析開始");
 				// <chat_result status="{コメント投稿要求の返答}" />
 				var result = xmlRoot.Attribute(XName.Get("status")).Value;
 
@@ -256,11 +289,14 @@ namespace NicoPlayerHohoema.Models.Live
 				1 = 投稿に失敗した(短時間に同じ内容のコメントを投稿しようとした、パラメータが間違っている、他)
 				4 = 投稿に失敗した(ごく短時間にコメントを連投しようとした、パラメータが間違っている、他)
 					*/
+
+				Debug.Write(result);
+				Debug.Write(result == "0" ? " (success)" : " (failed)");
+
 				CommentPosted?.Invoke(result == "0");
 			}
 			else if (elementName == "chat")
 			{
-				Debug.WriteLine("chatとして解析開始");
 
 				// _LiveComments.Add(chat);
 				// <chat anonymity="{184か}" no="{コメントの番号}" date="{コメントが投稿されたリアル時間？}" mail="{コマンド}" premium="{プレミアムID}"　thread="{スレッドID}" user_id="{ユーザーID}" vpos="{コメントが投稿された生放送の時間}" score="{NGスコア}">{コメント}</chat>\0
@@ -272,6 +308,7 @@ namespace NicoPlayerHohoema.Models.Live
 						var chat = chatSerializer.Deserialize(readerStream) as Chat;
 						if (chat != null)
 						{
+							Debug.Write(chat.Text);
 							CommentRecieved?.Invoke(chat);
 						}
 					}
@@ -280,7 +317,9 @@ namespace NicoPlayerHohoema.Models.Live
 			}
 			else
 			{
-				Debug.WriteLine($"受信した文字列はサポートされてません。");
+				Debug.WriteLine($"not supproted");
+				Debug.Write(" -> ");
+				Debug.Write(recievedString);
 			}
 
 		}
