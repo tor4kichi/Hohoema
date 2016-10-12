@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Media.Core;
@@ -98,7 +99,8 @@ namespace NicoVideoRtmpClient
 			{
 				var str = splited[i];
 				i++;
-				var url = WebUtility.UrlDecode(splited[i]).Remove(0, splited[i].IndexOf(':'));
+				var decoded = WebUtility.UrlDecode(splited[i]);
+				var url = decoded.Remove(0, decoded.IndexOf(':') + 1);
 				var splitUrl = url.Split(',');
 				var rtmpUri = splitUrl[0];
 				var liveId = splitUrl[1];
@@ -200,17 +202,14 @@ namespace NicoVideoRtmpClient
 			get
 			{
 				var command = new NetConnectionConnectCommand(Uri.App);
-				command.SwfUrl = "http://live.nicovideo.jp/nicoliveplayer.swf?20130722";
+				command.SwfUrl = "http://live.nicovideo.jp/nicoliveplayer.swf?160530135720";
 				command.PageUrl = "http://live.nicovideo.jp/watch/" + PlayerStatus.Program.Id;
 				// TcUrl は RtmpUriのInstanceを省いた文字列
 				command.TcUrl = $"{Uri.Scheme.ToString().ToLower()}://{Uri.Host}:{Uri.Port}/{Uri.App}";
 				command.FlashVersion = "WIN 23,0,0,162";
 				// Rtmpのconnectメソッドのextrasとして PlayerStatus.Stream.Ticket の値を追加
-				var amfArray = new AmfArray();
-				amfArray.Add(AmfValue.CreateStringValue($"{PlayerStatus.Stream.Ticket}"));
-
-				command.OptionalUserArguments = amfArray;
-
+				command.OptionalUserArguments = AmfValue.CreateStringValue($"{PlayerStatus.Stream.Ticket}");
+				
 				return command;
 			}
 		}
@@ -453,11 +452,14 @@ namespace NicoVideoRtmpClient
 				_Stream.VideoStarted += OnVideoStarted;
 
 				_BufferingHelper = new BufferingHelper(_Stream);
-				await _Stream.AttachAsync(_Connection);
+
 
 				await _ConnectionImpl.PostConnectionProcess(_Connection);
 
-				await Task.Delay(100);
+				// connectとnlPlayNoticeのresultを受け取ってからStreamにアタッチする
+				await Task.Delay(250);
+
+				await _Stream.AttachAsync(_Connection);
 			}
 			else if ((ncs & NetStatusCodeType.Level2Mask) == NetStatusCodeType.NetConnectionConnect)
 			{
@@ -516,7 +518,15 @@ namespace NicoVideoRtmpClient
 			var desc = new AudioStreamDescriptor(prop);
 			if (_MediaStreamSource != null)
 			{
-				_MediaStreamSource.AddStreamDescriptor(desc);
+				try
+				{
+					_MediaStreamSource.AddStreamDescriptor(desc);
+				}
+				catch (Exception ex)
+				{
+					Debug.WriteLine(ex.ToString());
+				}
+
 				Started?.Invoke(new NicovideoRtmpClientStartedEventArgs(_MediaStreamSource));
 			}
 			else
@@ -532,7 +542,7 @@ namespace NicoVideoRtmpClient
 		}
 
 
-		void OnVideoStarted(object sender, NetStreamVideoStartedEventArgs args)
+		private void OnVideoStarted(object sender, NetStreamVideoStartedEventArgs args)
 		{
 			var info = args.Info;
 			VideoEncodingProperties prop = null;
@@ -540,7 +550,7 @@ namespace NicoVideoRtmpClient
 			{
 				prop = VideoEncodingProperties.CreateH264();
 				prop.ProfileId = (int)info.ProfileIndication;
-			}			
+			}
 			else
 			{
 				if (_MediaStreamSource != null)
@@ -569,6 +579,7 @@ namespace NicoVideoRtmpClient
 			}
 
 			Debug.WriteLine($"{nameof(NicovideoRtmpClient)}: {prop.ToString()}");
+
 		}
 
 		#endregion
@@ -591,7 +602,7 @@ namespace NicoVideoRtmpClient
 			{
 				await _BufferingHelper.GetAudioAsync()
 					.AsTask()
-					.ContinueWith(prevTask => 
+					.ContinueWith(prevTask =>
 					{
 						request.Sample = prevTask.Result;
 						deferral.Complete();

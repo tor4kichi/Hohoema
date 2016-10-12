@@ -79,7 +79,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public List<Tag> Tags { get; private set; }
 
-		public uint OneTimeLoadCount => 30;
+		public uint OneTimeLoadCount => 10;
 
 		public LiveSearchSource(
 			LiveSearchPagePayloadContent searchOption,

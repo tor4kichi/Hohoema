@@ -1,4 +1,5 @@
-﻿using Mntone.Nico2.Live.PlayerStatus;
+﻿using Mntone.Nico2.Live;
+using Mntone.Nico2.Live.PlayerStatus;
 using Mntone.Nico2.Videos.Comment;
 using NicoPlayerHohoema.Util;
 using NicoVideoRtmpClient;
@@ -33,6 +34,8 @@ namespace NicoPlayerHohoema.Models.Live
 
 
 		private MediaStreamSource _VideoStreamSource;
+		private AsyncLock _VideoStreamSrouceAssignLock = new AsyncLock();
+
 
 		/// <summary>
 		/// 生放送の動画ストリーム<br />
@@ -53,6 +56,23 @@ namespace NicoPlayerHohoema.Models.Live
 		/// </summary>
 		/// <remarks>NicoLiveCommentClient.CommentRecieved</remarks>
 		public ReadOnlyObservableCollection<Chat> LiveComments { get; private set; }
+
+
+
+
+		private uint _CommentCount;
+		public uint CommentCount
+		{
+			get { return _CommentCount; }
+			private set { SetProperty(ref _CommentCount, value); }
+		}
+
+		private uint _WatchCount;
+		public uint WatchCount
+		{
+			get { return _WatchCount; }
+			private set { SetProperty(ref _WatchCount, value); }
+		}
 
 
 		/// <summary>
@@ -97,11 +117,22 @@ namespace NicoPlayerHohoema.Models.Live
 
 		public async Task<bool> SetupLive()
 		{
+			if (PlayerStatusResponse != null)
+			{
+				PlayerStatusResponse = null;
+
+				await EndLiveSubscribe();
+
+				await Task.Delay(TimeSpan.FromSeconds(1));
+			}
+
 			PlayerStatusResponse = await HohoemaApp.NiconicoContext.Live.GetPlayerStatusAsync(LiveId);
 
 			if (PlayerStatusResponse != null)
 			{
-				await OpenRtmpConnection(PlayerStatusResponse);				
+				await OpenRtmpConnection(PlayerStatusResponse);
+
+				await StartLiveSubscribe();
 			}
 
 			return PlayerStatusResponse != null;
@@ -139,6 +170,41 @@ namespace NicoPlayerHohoema.Models.Live
 
 
 
+		// 
+		public async Task<Uri> MakeLiveSummaryHtmlUri()
+		{
+			if (PlayerStatusResponse == null) { return null; }
+
+			var desc = PlayerStatusResponse.Program.Description;
+
+			return await HtmlFileHelper.PartHtmlOutputToCompletlyHtml(LiveId, desc);
+		}
+
+
+
+
+
+		#region PlayerStatusResponse projection Properties
+
+
+		public string LiveTitle => PlayerStatusResponse?.Program.Title;
+
+		public string BroadcasterName => PlayerStatusResponse?.Program.BroadcasterName;
+
+		public CommunityType? BroadcasterCommunityType => PlayerStatusResponse?.Program.CommunityType;
+
+		public Uri BroadcasterCommunityImageUri => PlayerStatusResponse?.Program.CommunityImageUrl;
+
+		public string BroadcasterCommunityId => PlayerStatusResponse?.Program.CommunityId;
+
+		
+
+		#endregion
+
+
+
+
+
 		#region LiveVideo RTMP
 
 		private async Task OpenRtmpConnection(PlayerStatusResponse res)
@@ -166,13 +232,11 @@ namespace NicoPlayerHohoema.Models.Live
 
 		private async void _RtmpClient_Started(NicovideoRtmpClientStartedEventArgs args)
 		{
-			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
 			{
 				VideoStreamSource = args.MediaStreamSource;
 
 				Debug.WriteLine("recieve start live stream: " + LiveId);
-
-				await StartLiveSubscribe();
 			});
 		}
 
@@ -180,7 +244,10 @@ namespace NicoPlayerHohoema.Models.Live
 		{
 			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
 			{
-				VideoStreamSource = null;
+				using (var releaser = await _VideoStreamSrouceAssignLock.LockAsync())
+				{
+					VideoStreamSource = null;
+				}
 
 				Debug.WriteLine("recieve exit live stream: " + LiveId);
 
@@ -209,12 +276,15 @@ namespace NicoPlayerHohoema.Models.Live
 			await EndCommentClientConnection();
 
 			var baseTime = PlayerStatusResponse.Program.BaseAt;
-			_NicoLiveCommentClient = new NicoLiveCommentClient(baseTime, PlayerStatusResponse.Comment.Server, HohoemaApp.NiconicoContext);
+			_NicoLiveCommentClient = new NicoLiveCommentClient(LiveId, baseTime, PlayerStatusResponse.Comment.Server, HohoemaApp.NiconicoContext);
 			_NicoLiveCommentClient.CommentServerConnected += _NicoLiveCommentReciever_CommentServerConnected;
 			_NicoLiveCommentClient.CommentRecieved += _NicoLiveCommentReciever_CommentRecieved;
+			_NicoLiveCommentClient.Heartbeat += _NicoLiveCommentClient_Heartbeat;
 			
 			await _NicoLiveCommentClient.Start();
 		}
+
+		
 
 		private async Task EndCommentClientConnection()
 		{
@@ -257,6 +327,15 @@ namespace NicoPlayerHohoema.Models.Live
 			{
 				Debug.WriteLine("コメント失敗 " + LiveId);
 			}
+		}
+
+		private async void _NicoLiveCommentClient_Heartbeat(uint commentCount, uint watchCount)
+		{
+			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+			{
+				CommentCount = commentCount;
+				WatchCount = watchCount;
+			});
 		}
 
 

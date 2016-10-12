@@ -25,6 +25,8 @@ namespace NicoPlayerHohoema.Models.Live
 	public delegate void NicoLiveCommentRecievedEventHandler(Chat chat);
 	public delegate void NicoLiveCommentServerConnectedEventHandler();
 
+	public delegate void NicoLiveHeartbeatEventHandler(uint commentCount, uint watchCount);
+
 	public delegate void NicoLiveEndConnectedEventHandler();
 
 
@@ -52,6 +54,8 @@ namespace NicoPlayerHohoema.Models.Live
 		public event NicoLiveCommentRecievedEventHandler CommentRecieved;
 		public event NicoLiveCommentPostedEventHandler CommentPosted;
 
+		public event NicoLiveHeartbeatEventHandler Heartbeat;
+
 		public event NicoLiveEndConnectedEventHandler EndConnect;
 
 		private DateTimeOffset _BaseTime;
@@ -62,12 +66,14 @@ namespace NicoPlayerHohoema.Models.Live
 
 		AsyncLock _HeartbeatTimerLock = new AsyncLock();
 		Timer _HeartbeatTimer;
-		TimeSpan _HeartbeatInterval = TimeSpan.FromSeconds(30);
+		TimeSpan _HeartbeatInterval = TimeSpan.FromSeconds(90);
 
 		public uint CommentCount { get; private set; }
+		public uint WatchCount { get; private set; }
 
-		public NicoLiveCommentClient(DateTimeOffset baseTime, CommentServer commentServer, NiconicoContext context)
+		public NicoLiveCommentClient(string liveId, DateTimeOffset baseTime, CommentServer commentServer, NiconicoContext context)
 		{
+			LiveId = liveId;
 			NiconicoContext = context;
 			ThreadIdNumber = commentServer.ThreadIds.ElementAt(0);
 			Host = commentServer.Host;
@@ -189,7 +195,8 @@ namespace NicoPlayerHohoema.Models.Live
 
 					Debug.WriteLine($"コメントサーバーから受信:{_Buffer.Length}B");
 
-					ParseLiveCommentServerResponse(s.TrimEnd('\0'));
+					var nullStrStart = s.IndexOf('\0');
+					ParseLiveCommentServerResponse(s.Remove(nullStrStart));
 
 					Array.Clear(_Buffer, 0, _Buffer.Length);
 					await Task.Delay(50);
@@ -211,10 +218,16 @@ namespace NicoPlayerHohoema.Models.Live
 
 			Debug.WriteLine(recievedString);
 
+			if (!recievedString.StartsWith("<") || !recievedString.EndsWith(">"))
+			{
+				Debug.WriteLine($"受信した文字列はXml形式ではない");
+				return;
+			}
+
 			var xmlDoc = XDocument.Parse(recievedString);
 			var xmlRoot = xmlDoc.Root;
-			var xmlName = xmlRoot.Name.LocalName;
-			if (xmlName == "thread")
+			var elementName = xmlRoot.Name.LocalName;
+			if (elementName == "thread")
 			{
 				Debug.WriteLine("threadとして解析開始");
 				IsCommentServerConnected = true;
@@ -232,7 +245,7 @@ namespace NicoPlayerHohoema.Models.Live
 
 				CommentServerConnected?.Invoke();
 			}
-			else if (xmlName == "chat_result")
+			else if (elementName == "chat_result")
 			{
 				Debug.WriteLine("chat_resultとして解析開始");
 				// <chat_result status="{コメント投稿要求の返答}" />
@@ -245,7 +258,7 @@ namespace NicoPlayerHohoema.Models.Live
 					*/
 				CommentPosted?.Invoke(result == "0");
 			}
-			else if (xmlName == "chat")
+			else if (elementName == "chat")
 			{
 				Debug.WriteLine("chatとして解析開始");
 
@@ -277,7 +290,8 @@ namespace NicoPlayerHohoema.Models.Live
 
 
 		/// <summary>
-		/// 
+		/// ニコ生へのコメント送信の有効性を保つために
+		/// LiveAPIのハートビートへ定期的にアクセスする<br />
 		/// </summary>
 		/// <returns></returns>
 		/// <remarks>https://www59.atwiki.jp/nicoapi/pages/19.html</remarks>
@@ -296,11 +310,14 @@ namespace NicoPlayerHohoema.Models.Live
 					await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
 					{
 						// TODO: 視聴者数やコメント数の更新
-						CommentCount = res.CommentCount;						
+						CommentCount = res.CommentCount;
+						WatchCount = res.WatchCount;
+						Heartbeat?.Invoke(res.CommentCount, res.WatchCount);
 					});
 				}
-				catch
+				catch (Exception ex)
 				{
+					Debug.WriteLine(ex.ToString());
 					// ハートビートに失敗した場合は、放送終了か追い出された
 					EndConnect?.Invoke();
 				}
@@ -317,7 +334,7 @@ namespace NicoPlayerHohoema.Models.Live
 				_HeartbeatTimer = new Timer(
 					async state => await TryHeartbeat(),
 					null,
-					TimeSpan.FromSeconds(1), // いきなりハートビートを叩くとダメっぽいので最初は遅らせる
+					TimeSpan.FromSeconds(5), // いきなりハートビートを叩くとダメっぽいので最初は遅らせる
 					_HeartbeatInterval
 					);
 			}
