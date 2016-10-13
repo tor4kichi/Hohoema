@@ -17,6 +17,11 @@
 
     <Grid>
 
+        <TextBlock HorizontalAlignment="Right" Margin="16"
+                   Text="{Binding CommunityType}"
+                   Foreground="DimGray"
+                   />
+
         <toolkit:DockPanel x:Name="VideoInfo" IsHitTestVisible="True" Background="Transparent">
 
             

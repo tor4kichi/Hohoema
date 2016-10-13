@@ -1,0 +1,102 @@
+﻿<UserControl
+    x:Class="NicoPlayerHohoema.Views.LiveInfoContent.SummaryLiveInfoContent"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views.LiveInfoContent"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:wrExt="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:uwpUI="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+
+    <StackPanel>
+
+
+        <!-- 投稿ユーザー -->
+        <toolkit:DockPanel>
+
+            <i:Interaction.Behaviors>
+                <core:EventTriggerBehavior EventName="Tapped">
+                    <core:InvokeCommandAction Command="{Binding OpenBroadcasterInfoCommand}" />
+                </core:EventTriggerBehavior>
+            </i:Interaction.Behaviors>
+
+
+            <StackPanel Background="Gray" Orientation="Horizontal" 
+                        Padding="8" Margin="0 8"
+                        toolkit:DockPanel.Dock="Left"
+                        >
+
+                <uwpUI:ImageEx Height="64" Width="64" Source="{Binding BroadcasterImageUrl}"
+                               IsCacheEnabled="False"
+                               />
+
+                <TextBlock Text="{Binding BroadcasterName}"
+                           VerticalAlignment="Center"
+                           Margin="16 0 8 0"
+                           />
+
+            </StackPanel>
+
+            <Border />
+
+        </toolkit:DockPanel>
+
+        <StackPanel HorizontalAlignment="Left"
+                    Margin="8 0 16 0" Opacity="0.7">
+            <TextBlock>
+                <Run Text="  開場  : " />
+                <Run Text="{Binding OpenAt}" />
+            </TextBlock>
+
+            <TextBlock>
+                <Run Text="放送開始:" />
+                <Run Text="{Binding StartAt}" />
+            </TextBlock>
+
+            <TextBlock>
+                <Run Text="放送終了:" />
+                <Run Text="{Binding EndAt}" />
+            </TextBlock>
+        </StackPanel>
+
+        <Border Height="16" />
+
+
+        <TextBlock Text="{Binding Description}"
+                   TextWrapping="Wrap" 
+                   Margin="8 0"
+                   />
+        
+        <!-- 動画説明文 -->
+        <!--
+        <WebView Source="{Binding DescriptionHtmlFileUri, Mode=OneWay}" 
+                         HorizontalAlignment="Stretch"
+                         VerticalAlignment="Stretch"
+                 DefaultBackgroundColor="WhiteSmoke"
+             Width="{Binding ElementName=ControlRoot, Path=ActualWidth}"
+             Height="{Binding ElementName=ControlRoot, Path=ActualHeight}"
+                            >
+
+            <i:Interaction.Behaviors>
+                <mybehavior:WebViewNotifyUriClicked
+                            Command="{Binding ScriptNotifyCommand}"
+                            />
+
+            </i:Interaction.Behaviors>
+
+        </WebView>
+        -->
+
+        <Border Height="16" />
+
+
+       
+    </StackPanel>
+</UserControl>

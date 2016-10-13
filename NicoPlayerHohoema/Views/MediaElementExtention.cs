@@ -64,6 +64,10 @@ namespace NicoPlayerHohoema.Views
 					var mss = e.NewValue as FFmpegInterop.FFmpegInteropMSS;
 					mediaElement.SetMediaStreamSource(mss.GetMediaStreamSource());
 				}
+				else if (e.NewValue is MediaStreamSource)
+				{
+					mediaElement.SetMediaStreamSource(e.NewValue as MediaStreamSource);
+				}
 			}
 
 		}

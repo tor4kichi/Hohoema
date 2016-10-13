@@ -27,4 +27,35 @@ namespace NicoPlayerHohoema.Views
 			this.InitializeComponent();
 		}
 	}
+
+
+	public class LiveInfoContentTemplateSelector : DataTemplateSelector
+	{
+		public DataTemplate Summary { get; set; }
+		public DataTemplate Comment { get; set; }
+		public DataTemplate Shere { get; set; }
+		public DataTemplate Settings { get; set; }
+
+		protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
+		{
+			if (item is ViewModels.LiveVideoInfoContent.SummaryLiveInfoContentViewModel)
+			{
+				return Summary;
+			}
+			else if (item is ViewModels.LiveVideoInfoContent.CommentLiveInfoContentViewModel)
+			{
+				return Comment;
+			}
+			else if (item is ViewModels.LiveVideoInfoContent.ShereLiveInfoContentViewModel)
+			{
+				return Shere;
+			}
+			else if (item is ViewModels.LiveVideoInfoContent.SettingsLiveInfoContentViewModel)
+			{
+				return Settings;
+			}
+
+			return base.SelectTemplateCore(item, container);
+		}
+	}
 }

@@ -228,6 +228,9 @@ namespace NicoPlayerHohoema.Models
 		public bool IsTagSearch { get; set; }
 
 		[DataMember]
+		public Mntone.Nico2.Live.CommunityType? Provider { get; set; }
+
+		[DataMember]
 		public Mntone.Nico2.Order Order { get; set; }
 
 		[DataMember]

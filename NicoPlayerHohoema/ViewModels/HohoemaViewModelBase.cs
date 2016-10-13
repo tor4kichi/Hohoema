@@ -36,7 +36,7 @@ namespace NicoPlayerHohoema.ViewModels
 			HohoemaApp.OnSignin += OnSignin;
 
 			_CompositeDisposable = new CompositeDisposable();
-
+			_NavigatingCompositeDisposable = new CompositeDisposable();
 			_UserSettingsCompositeDisposable = new CompositeDisposable();
 		}
 
@@ -229,6 +229,9 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			using (var releaser = await _NavigationLock.LockAsync())
 			{
+				_NavigatingCompositeDisposable?.Dispose();
+				_NavigatingCompositeDisposable = new CompositeDisposable();
+
 				if (!suspending)
 				{
 					HohoemaApp.OnResumed -= _OnResumed;
@@ -304,6 +307,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public PageManager PageManager { get; private set; }
 
 		protected CompositeDisposable _CompositeDisposable { get; private set; }
+		protected CompositeDisposable _NavigatingCompositeDisposable { get; private set; }
 		protected CompositeDisposable _UserSettingsCompositeDisposable { get; private set; }
 	}
 }

@@ -79,7 +79,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public List<Tag> Tags { get; private set; }
 
-		public uint OneTimeLoadCount => 30;
+		public uint OneTimeLoadCount => 10;
 
 		public LiveSearchSource(
 			LiveSearchPagePayloadContent searchOption,
@@ -97,9 +97,9 @@ namespace NicoPlayerHohoema.ViewModels
 			return HohoemaApp.ContentFinder.LiveSearchAsync(
 					SearchOption.Keyword,
 					SearchOption.IsTagSearch,
-					provider: null,
 					from: from,
 					length: length,
+					provider: SearchOption.Provider,
 					sort: SearchOption.Sort,
 					order: SearchOption.Order,
 					mode: SearchOption.Mode
@@ -129,7 +129,12 @@ namespace NicoPlayerHohoema.ViewModels
 				return Enumerable.Empty<LiveInfoViewModel>();
 			}
 
-			Tags = res.Tags.Tag.ToList();
+			Tags = res.Tags?.Tag.ToList();
+
+			if (res.VideoInfo == null)
+			{
+				return Enumerable.Empty<LiveInfoViewModel>();
+			}
 
 			return res.VideoInfo.Select(x =>
 			{
@@ -226,7 +231,14 @@ namespace NicoPlayerHohoema.ViewModels
 				return _OpenLiveVideoPageCommand
 					?? (_OpenLiveVideoPageCommand = new DelegateCommand(() =>
 					{
-						PageManager.OpenPage(HohoemaPageType.LiveVideoPlayer, LiveId);
+						var parameter = new Models.Live.LiveVidePagePayload(LiveId)
+						{
+							LiveTitle = LiveTitle,
+							CommunityId = CommunityGlobalId,
+							CommunityName = CommunityName
+						};
+
+						PageManager.OpenPage(HohoemaPageType.LiveVideoPlayer, parameter.ToParameterString());
 					}));
 			}
 		}
