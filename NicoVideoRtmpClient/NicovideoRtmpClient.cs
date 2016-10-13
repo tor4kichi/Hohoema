@@ -184,6 +184,9 @@ namespace NicoVideoRtmpClient
 
 	public class ChannelLiveNiconamaRtmpConnection : LiveNiconamaRtmpConnectionBase
 	{
+		private NetConnectionCallCommand _NlPlayNoticeCommand;
+
+
 		public ChannelLiveNiconamaRtmpConnection(PlayerStatusResponse res) : base(res)
 		{
 			var uri = PlayerStatus.Stream.RtmpUrl.OriginalString;
@@ -193,7 +196,8 @@ namespace NicoVideoRtmpClient
 			rtmpUri.App = string.Join("/", pp[3], pp[4]);
 			rtmpUri.Instance = PlayerStatus.Program.Id;
 			_Uri = rtmpUri;
-			
+
+			_NlPlayNoticeCommand = MakeNLPlayNoticeCommand();
 		}
 
 
@@ -225,7 +229,7 @@ namespace NicoVideoRtmpClient
 
 		public override async Task PostConnectionProcess(NetConnection connection)
 		{
-			await connection.CallAsync(MakeNLPlayNoticeCommand());
+			await connection.CallAsync(_NlPlayNoticeCommand);
 		}
 
 
@@ -433,12 +437,12 @@ namespace NicoVideoRtmpClient
 				await _Connection.ConnectAsync(_ConnectionImpl.Uri);
 			}
 
-			
+
 		}
 
-#endregion
+		#endregion
 
-#region NetConnection
+		#region NetConnection
 
 		private async void OnNetConnectionStatusUpdated(object sender, NetStatusUpdatedEventArgs args)
 		{
@@ -453,11 +457,7 @@ namespace NicoVideoRtmpClient
 
 				_BufferingHelper = new BufferingHelper(_Stream);
 
-
 				await _ConnectionImpl.PostConnectionProcess(_Connection);
-
-				// connectとnlPlayNoticeのresultを受け取ってからStreamにアタッチする
-				await Task.Delay(250);
 
 				await _Stream.AttachAsync(_Connection);
 			}
