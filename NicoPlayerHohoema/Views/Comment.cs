@@ -238,9 +238,6 @@ namespace NicoPlayerHohoema.Views
 					default:
 						break;
 				}
-
-
-
 			}
 
 			// TODO: 投稿者のコメント表示時間を伸ばす？（3秒→５秒）

@@ -1,4 +1,5 @@
-﻿using Mntone.Nico2.Live;
+﻿using Mntone.Nico2;
+using Mntone.Nico2.Live;
 using Mntone.Nico2.Live.PlayerStatus;
 using Mntone.Nico2.Videos.Comment;
 using NicoPlayerHohoema.Util;
@@ -75,6 +76,14 @@ namespace NicoPlayerHohoema.Models.Live
 		}
 
 
+		
+		private LiveStatusType? _LiveStatusType;
+		public LiveStatusType? LiveStatusType
+		{
+			get { return _LiveStatusType; }
+			private set { SetProperty(ref _LiveStatusType, value); }
+		}
+
 		/// <summary>
 		/// 生放送動画をRTMPで受け取るための通信クライアント<br />
 		/// RTMPで正常に動画が受信できる状態になった場合 VideoStreamSource にインスタンスが渡される
@@ -112,10 +121,60 @@ namespace NicoPlayerHohoema.Models.Live
 			EndLiveSubscribe().ConfigureAwait(false);
 		}
 
+		public async Task<LiveStatusType?> UpdateLiveStatus()
+		{
+			LiveStatusType = null;
+
+			try
+			{
+				PlayerStatusResponse = await HohoemaApp.NiconicoContext.Live.GetPlayerStatusAsync(LiveId);
+			}
+			catch (Exception ex)
+			{
+				if (ex.HResult == NiconicoHResult.ELiveNotFound)
+				{
+					LiveStatusType = Live.LiveStatusType.NotFound;
+				}
+				else if (ex.HResult == NiconicoHResult.ELiveClosed)
+				{
+					LiveStatusType = Live.LiveStatusType.Closed;
+				}
+				else if (ex.HResult == NiconicoHResult.ELiveComingSoon)
+				{
+					LiveStatusType = Live.LiveStatusType.ComingSoon;
+				}
+				else if (ex.HResult == NiconicoHResult.EMaintenance)
+				{
+					LiveStatusType = Live.LiveStatusType.Maintenance;
+				}
+				else if (ex.HResult == NiconicoHResult.ELiveCommunityMemberOnly)
+				{
+					LiveStatusType = Live.LiveStatusType.CommunityMemberOnly;
+				}
+				else if (ex.HResult == NiconicoHResult.ELiveFull)
+				{
+					LiveStatusType = Live.LiveStatusType.Full;
+				}
+				else if (ex.HResult == NiconicoHResult.ELivePremiumOnly)
+				{
+					LiveStatusType = Live.LiveStatusType.PremiumOnly;
+				}
+				else if (ex.HResult == NiconicoHResult.ENotSigningIn)
+				{
+					LiveStatusType = Live.LiveStatusType.NotLogin;
+				}
+			}
+
+			if (LiveStatusType != null)
+			{
+				await EndLiveSubscribe();
+			}
+
+			return LiveStatusType;
+		}
 
 
-
-		public async Task<bool> SetupLive()
+		public async Task<LiveStatusType?> SetupLive()
 		{
 			if (PlayerStatusResponse != null)
 			{
@@ -126,16 +185,16 @@ namespace NicoPlayerHohoema.Models.Live
 				await Task.Delay(TimeSpan.FromSeconds(1));
 			}
 
-			PlayerStatusResponse = await HohoemaApp.NiconicoContext.Live.GetPlayerStatusAsync(LiveId);
+			var status = await UpdateLiveStatus();
 
-			if (PlayerStatusResponse != null)
+			if (PlayerStatusResponse != null && status == null)
 			{
 				await OpenRtmpConnection(PlayerStatusResponse);
 
 				await StartLiveSubscribe();
 			}
 
-			return PlayerStatusResponse != null;
+			return status;
 		}
 
 		private async Task StartLiveSubscribe()
@@ -151,7 +210,7 @@ namespace NicoPlayerHohoema.Models.Live
 		/// HeartbeatAPIへの定期アクセスの停止、及びLeaveAPIへのアクセス
 		/// </summary>
 		/// <returns></returns>
-		private async Task EndLiveSubscribe()
+		public async Task EndLiveSubscribe()
 		{
 			using (var releaser = await _LiveSubscribeLock.LockAsync())
 			{
@@ -304,7 +363,6 @@ namespace NicoPlayerHohoema.Models.Live
 		private void _NicoLiveCommentReciever_CommentServerConnected()
 		{
 			_NicoLiveCommentClient.CommentPosted += _NicoLiveCommentReciever_CommentPosted;
-			Debug.WriteLine("コメントサーバーに接続 " + LiveId);
 		}
 
 		private async void _NicoLiveCommentReciever_CommentRecieved(Chat chat)
@@ -312,8 +370,6 @@ namespace NicoPlayerHohoema.Models.Live
 			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
 			{
 				_LiveComments.Add(chat);
-
-				Debug.WriteLine("recieve comment:" + chat.Text);
 			});
 		}
 
@@ -321,11 +377,9 @@ namespace NicoPlayerHohoema.Models.Live
 		{
 			if (isSuccess)
 			{
-				Debug.WriteLine("コメント完了 " + LiveId);
 			}
 			else
 			{
-				Debug.WriteLine("コメント失敗 " + LiveId);
 			}
 		}
 

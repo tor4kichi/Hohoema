@@ -17,8 +17,19 @@ using System.Xml.Serialization;
 
 namespace NicoPlayerHohoema.Models.Live
 {
-	// nico live comment -> see@ http://blog.ingen084.net/blog/1691
+	// Note: NetworkStreamはスレッドセーフではないようので、こちらで非同期ロックを噛ませた操作をしています
 
+	// Note: NetworkStream.ReadAsyncに渡したキャンセルトークンは
+	// キャンセルをしてもReadAsync内部ではOperationCanceledExceptionをトリガーしません。
+	// このため、NetworkStream.DataAvailableをチェックしながらデータ到着を待機した上で
+	// 到着したタイミングに限定してNetworkStream.ReadAsyncを実行することで
+	// ネットワークデータ読み取りのキャンセルを実現しています
+
+	// Note: ハートビートはコメント送信権の活性化のために行っています
+	// ハートビートを送っていない場合は３分でコメント送信権がなくなるようです
+	// ハートビートのレスポンスのWaitDurationに合わせて90秒ごとにハートビートを送っています
+
+	// nico live comment -> see@ http://blog.ingen084.net/blog/1691
 
 
 	public delegate void NicoLiveCommentPostedEventHandler(bool isSuccess);
@@ -45,11 +56,14 @@ namespace NicoPlayerHohoema.Models.Live
 		public string Host { get; private set; }
 		public ushort Port { get; private set; }
 
-		CancellationTokenSource _LiveCommentServerRecieveCancelSource;
-		Task _LiveCommentServerRecieveTask;
+		CancellationTokenSource _LiveCommentRecieveCancelSource;
+		Task _LiveCommentRecievingTask;
 
 		AsyncLock _NetworkStreamLock = new AsyncLock();
 		NetworkStream _NetworkStream;
+
+
+
 		public event NicoLiveCommentServerConnectedEventHandler CommentServerConnected;
 		public event NicoLiveCommentRecievedEventHandler CommentRecieved;
 		public event NicoLiveCommentPostedEventHandler CommentPosted;
@@ -90,13 +104,15 @@ namespace NicoPlayerHohoema.Models.Live
 
 			await _Client.ConnectAsync(Host, Port);
 
-			_LiveCommentServerRecieveCancelSource = new CancellationTokenSource();
+			_LiveCommentRecieveCancelSource = new CancellationTokenSource();
 			using (var releaser = await _NetworkStreamLock.LockAsync())
 			{
 				_NetworkStream = _Client.GetStream();
 
-				_LiveCommentServerRecieveTask = DataRecivingAction();
+				// TCP接続による受信タスクを開始
+				_LiveCommentRecievingTask = DataRecivingTask();
 
+				// コメントサーバーに接続開始データを送信
 				var s = $"<thread thread=\"{ThreadIdNumber}\" version=\"20061206\" res_from=\"-0\" />\0";
 				var writer = new StreamWriter(_NetworkStream, Encoding.UTF8);
 				await writer.WriteAsync(s);
@@ -116,18 +132,18 @@ namespace NicoPlayerHohoema.Models.Live
 		{
 			using (var releaser = await _NetworkStreamLock.LockAsync())
 			{
-				_LiveCommentServerRecieveCancelSource?.Cancel();
+				_LiveCommentRecieveCancelSource?.Cancel();
 
 				await Task.Delay(250);
 
-				_LiveCommentServerRecieveCancelSource?.Dispose();
-				_LiveCommentServerRecieveCancelSource = null;
+				_LiveCommentRecieveCancelSource?.Dispose();
+				_LiveCommentRecieveCancelSource = null;
 
 				// 生成元となったTcpClientをDisposeすると一緒にDisposeされる
 				_NetworkStream = null;
 			}
 
-			_LiveCommentServerRecieveTask = null;
+			_LiveCommentRecievingTask = null;
 
 			await ExitHeartbeatTimer();
 		}
@@ -179,7 +195,7 @@ namespace NicoPlayerHohoema.Models.Live
 
 
 
-		private async Task DataRecivingAction()
+		private async Task DataRecivingTask()
 		{
 			if (_NetworkStream == null ) { return; }
 
@@ -193,7 +209,7 @@ namespace NicoPlayerHohoema.Models.Live
 					// データが来るまで待つ
 					while (true)
 					{
-						_LiveCommentServerRecieveCancelSource.Token.ThrowIfCancellationRequested();
+						_LiveCommentRecieveCancelSource.Token.ThrowIfCancellationRequested();
 
 						using (var releaser = await _NetworkStreamLock.LockAsync())
 						{
@@ -203,11 +219,9 @@ namespace NicoPlayerHohoema.Models.Live
 							}
 						}
 
-						_LiveCommentServerRecieveCancelSource.Token.ThrowIfCancellationRequested();
+						_LiveCommentRecieveCancelSource.Token.ThrowIfCancellationRequested();
 
 						await Task.Delay(50);
-
-						_LiveCommentServerRecieveCancelSource.Token.ThrowIfCancellationRequested();
 					}
 
 					// 受信したデータをバッファに読み込む
@@ -215,6 +229,8 @@ namespace NicoPlayerHohoema.Models.Live
 					{
 						isEndConnect = await _NetworkStream.ReadAsync(_Buffer, 0, _Buffer.Length) == 0;
 					}
+
+					_LiveCommentRecieveCancelSource.Token.ThrowIfCancellationRequested();
 
 					if (!isEndConnect)
 					{
@@ -239,6 +255,8 @@ namespace NicoPlayerHohoema.Models.Live
 			}
 
 			Debug.WriteLine("exit comment recieve.");
+
+			IsCommentServerConnected = false;
 		}
 
 
@@ -252,6 +270,8 @@ namespace NicoPlayerHohoema.Models.Live
 
 			if (!recievedString.StartsWith("<") || !recievedString.EndsWith(">"))
 			{
+				// Note: 寄り厳密にXMLフォーマットチェックをやるなら
+				// <>の数が同数であることをチェックする
 				Debug.Write($"illigal format, required XML");
 				return;
 			}
@@ -398,6 +418,10 @@ namespace NicoPlayerHohoema.Models.Live
 
 	}
 
+	/// <summary>
+	/// ニコニコ生放送での送信用コメントデータ<br />
+	/// コメントの送信は、このクラスをXMLにシリアライズしてTcpClientを通して送信されます。
+	/// </summary>
 	[XmlRoot(ElementName = "chat")]
 	public class PostChat
 	{

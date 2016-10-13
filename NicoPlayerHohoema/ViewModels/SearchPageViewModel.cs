@@ -706,6 +706,12 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				new LiveSearchProviderOptionListItem()
 				{
+					Label = "すべて",
+					Provider = null,
+				},
+
+				new LiveSearchProviderOptionListItem()
+				{
 					Label = "公式",
 					Provider = Mntone.Nico2.Live.CommunityType.Official,
 				},
@@ -719,12 +725,7 @@ namespace NicoPlayerHohoema.ViewModels
 					Label = "ユーザー",
 					Provider = Mntone.Nico2.Live.CommunityType.Community,
 				},
-				
-				new LiveSearchProviderOptionListItem()
-				{
-					Label = "すべて",
-					Provider = null,
-				},
+							
 			};
 		}
 

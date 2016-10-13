@@ -11,11 +11,50 @@
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
-    xmlns:videoInfo="using:NicoPlayerHohoema.Views.VideoInfoContent"
+    xmlns:liveInfo="using:NicoPlayerHohoema.Views.LiveInfoContent"
     xmlns:comment="using:NicoPlayerHohoema.Views.CommentRenderer"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
+    <Page.Resources>
+        <!-- PaneContent -->
+        <local:LiveInfoContentTemplateSelector
+            x:Key="LiveInfoContentTemplateSelector"
+            >
+            <local:LiveInfoContentTemplateSelector.Summary>
+                <DataTemplate>
+                    <liveInfo:SummaryLiveInfoContent />
+                </DataTemplate>
+            </local:LiveInfoContentTemplateSelector.Summary>
+
+
+            <local:LiveInfoContentTemplateSelector.Comment>
+                <DataTemplate>
+                    <liveInfo:CommentLiveInfoContent />
+                </DataTemplate>
+            </local:LiveInfoContentTemplateSelector.Comment>
+
+
+            <local:LiveInfoContentTemplateSelector.Shere>
+                <DataTemplate>
+                    <liveInfo:ShereLiveInfoContent />
+
+                </DataTemplate>
+            </local:LiveInfoContentTemplateSelector.Shere>
+
+
+            <local:LiveInfoContentTemplateSelector.Settings>
+                <DataTemplate>
+                    <liveInfo:SettingsLiveInfoContent />
+                </DataTemplate>
+            </local:LiveInfoContentTemplateSelector.Settings>
+
+        </local:LiveInfoContentTemplateSelector>
+        <!-- PaneContent End -->
+        
+        
+        
+    </Page.Resources>
 
     <Grid>
         <VisualStateManager.VisualStateGroups>
@@ -242,7 +281,7 @@
                                 <AppBarButton Icon="Refresh" Label="更新"
                                               Command="{Binding UpdateCommand}"
                                               VerticalAlignment="Stretch"
-                                              IsEnabled="{Binding NowPlaying.Value}"
+                                              IsEnabled="{Binding NowUpdating.Value, Converter={StaticResource InvertBoolean}}"
                                               />
 
                                 <AppBarToggleButton IsChecked="{Binding IsVisibleComment.Value, Mode=TwoWay}" 
@@ -274,7 +313,7 @@
                                     <AppBarButton Icon="Refresh" Label="更新"
                                                   Command="{Binding UpdateCommand}"
                                                   VerticalAlignment="Stretch"
-                                                  IsEnabled="{Binding NowPlaying.Value}"
+                                                  IsEnabled="{Binding NowUpdating.Value, Converter={StaticResource InvertBoolean}}"
                                               />
 
                                     <AppBarToggleButton IsChecked="{Binding IsVisibleComment.Value, Mode=TwoWay}" 
@@ -301,7 +340,7 @@
                                               >
                                     <i:Interaction.Behaviors>
                                         <core:EventTriggerBehavior EventName="Tapped">
-                                            <core:ChangePropertyAction TargetObject="{Binding SelectedSidePaneType}" PropertyName="Value" Value="Summary" />
+                                            <core:ChangePropertyAction TargetObject="{Binding SelectedPaneContent}" PropertyName="Value" Value="Summary" />
                                             <core:ChangePropertyAction TargetObject="{Binding ElementName=SplitView}" PropertyName="IsPaneOpen" Value="True" />
                                         </core:EventTriggerBehavior>
                                     </i:Interaction.Behaviors>
@@ -321,7 +360,7 @@
                                               Command="{Binding BackCommand}"
                                               VerticalAlignment="Stretch"
                                       />
-                                <TextBlock Text="{Binding NicoLiveVideo.LiveTitle}" 
+                                <TextBlock Text="{Binding LiveTitle}" 
                                            VerticalAlignment="Center"
                                            Margin="8 0"
                                            TextWrapping="Wrap"
@@ -617,19 +656,54 @@
 
                     </toolkit:DockPanel>
 
+                    <Border Margin="16 80 0 0"
+                            Visibility="{Binding HasSuggestion.Value, Converter={StaticResource BooleanToVisibility}}"
+                            Background="{ThemeResource AppBarItemBackgroundThemeBrush}"
+                            >
+                        <StackPanel Margin="16">
+                            <TextBlock Text="{Binding Suggestion.Value.Title}"
+                                       FontSize="18"
+                                       
+                                       />
+
+                            
+                            <ItemsControl ItemsSource="{Binding Suggestion.Value.Actions}"
+                                          Margin="16 8 0 0"
+                                          >
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <HyperlinkButton Content="{Binding Label}"
+                                                         Command="{Binding SuggestActionCommand}"
+                                                         Margin="0 8"
+                                                         />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                        </StackPanel>
+                    </Border>
                 </Grid>
             </SplitView.Content>
             <SplitView.Pane>
                 <toolkit:DockPanel>
 
                     <ListView toolkit:DockPanel.Dock="Top"
-                          ItemsSource="{Binding }"
+                              ItemsSource="{Binding PaneContentTypes}"
+                              SelectionMode="Single"
+                              SelectedItem="{Binding SelectedPaneContent.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                           >
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
 
                     </ListView>
 
-                    <ContentControl Content="{Binding LiveInfoPaneContent.Value}" 
-                                
+                    <ContentControl Content="{Binding PaneContent.Value}" 
+                                    ContentTemplateSelector="{StaticResource LiveInfoContentTemplateSelector}"
+                                    HorizontalContentAlignment="Stretch"
+                                    VerticalContentAlignment="Stretch"
                                 />
 
                 </toolkit:DockPanel>

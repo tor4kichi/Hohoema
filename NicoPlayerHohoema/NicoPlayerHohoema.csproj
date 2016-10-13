@@ -161,6 +161,9 @@
     <Compile Include="Models\HohoemaApp.cs" />
     <Compile Include="Models\HohoemaPageType.cs" />
     <Compile Include="Models\LisenceSummary.cs" />
+    <Compile Include="Models\Live\LiveStatusType.cs" />
+    <Compile Include="Models\Live\LiveSuggestion.cs" />
+    <Compile Include="Models\Live\LiveVidePagePayload.cs" />
     <Compile Include="Models\Live\NicoLiveCommentClient.cs" />
     <Compile Include="Models\Live\NicoLiveVideo.cs" />
     <Compile Include="Models\LoginRedirectPayload.cs" />
@@ -227,7 +230,10 @@
     <Compile Include="ViewModels\HohoemaListingPageViewModelBase.cs" />
     <Compile Include="ViewModels\HohoemaVideoListingPageViewModelBase.cs" />
     <Compile Include="ViewModels\HohoemaViewModelBase.cs" />
+    <Compile Include="ViewModels\LiveVideoInfoContent\CommentLiveInfoContentViewModel.cs" />
     <Compile Include="ViewModels\LiveVideoInfoContent\LiveInfoContentViewModelBase.cs" />
+    <Compile Include="ViewModels\LiveVideoInfoContent\SettingsLiveInfoContentViewModel.cs" />
+    <Compile Include="ViewModels\LiveVideoInfoContent\ShereLiveInfoContentViewModel.cs" />
     <Compile Include="ViewModels\LiveVideoInfoContent\SummaryLiveInfoContentViewModel.cs" />
     <Compile Include="ViewModels\LiveVideoPlayerPageViewModel.cs" />
     <Compile Include="ViewModels\LoginPageViewModel.cs" />
@@ -339,6 +345,18 @@
     </Compile>
     <Compile Include="Views\FeedGroupPage.xaml.cs">
       <DependentUpon>FeedGroupPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\LiveInfoContent\CommentLiveInfoContent.xaml.cs">
+      <DependentUpon>CommentLiveInfoContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\LiveInfoContent\SettingsLiveInfoContent.xaml.cs">
+      <DependentUpon>SettingsLiveInfoContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\LiveInfoContent\ShereLiveInfoContent.xaml.cs">
+      <DependentUpon>ShereLiveInfoContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\LiveInfoContent\SummaryLiveInfoContent.xaml.cs">
+      <DependentUpon>SummaryLiveInfoContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\LiveVideoPlayerPage.xaml.cs">
       <DependentUpon>LiveVideoPlayerPage.xaml</DependentUpon>
@@ -660,6 +678,22 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\HistoryPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\LiveInfoContent\CommentLiveInfoContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\LiveInfoContent\SettingsLiveInfoContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\LiveInfoContent\ShereLiveInfoContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\LiveInfoContent\SummaryLiveInfoContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

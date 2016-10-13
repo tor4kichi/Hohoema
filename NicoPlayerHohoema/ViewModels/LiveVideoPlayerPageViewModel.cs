@@ -21,6 +21,8 @@ using Prism.Commands;
 using System.Reactive.Concurrency;
 using Windows.UI.ViewManagement;
 using System.Reactive.Linq;
+using NicoPlayerHohoema.ViewModels.LiveVideoInfoContent;
+using NicoPlayerHohoema.Views.Service;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -47,7 +49,33 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
+		public TextInputDialogService TextInputDialogService { get; private set; }
+
+
+
 		public string LiveId { get; private set; }
+
+
+		private string _LiveTitle;
+		public string LiveTitle
+		{
+			get { return _LiveTitle; }
+			set { SetProperty(ref _LiveTitle, value); }
+		}
+
+		private string _CommunityId;
+		public string CommunityId
+		{
+			get { return _CommunityId; }
+			set { SetProperty(ref _CommunityId, value); }
+		}
+
+		private string _CommunityName;
+		public string CommunityName
+		{
+			get { return _CommunityName; }
+			set { SetProperty(ref _CommunityName, value); }
+		}
 
 		public NicoLiveVideo NicoLiveVideo { get; private set; }
 
@@ -71,9 +99,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		private DateTimeOffset _BaseAt;
+		private DateTimeOffset _EndAt;
 
 		// play
 		public ReactiveProperty<bool> NowPlaying { get; private set; }
+		public ReactiveProperty<bool> NowUpdating { get; private set; }
 
 		public ReactiveProperty<uint> CommentCount { get; private set; }
 		public ReactiveProperty<uint> WatchCount { get; private set; }
@@ -99,14 +129,35 @@ namespace NicoPlayerHohoema.ViewModels
 		// ui
 		public ReactiveProperty<bool> IsAutoHideEnable { get; private set; }
 
+		// pane content
+		private Dictionary<LiveVideoPaneContentType, LiveInfoContentViewModelBase> _PaneContentCache;
 
-		public LiveVideoPlayerPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager) 
+		public static List<LiveVideoPaneContentType> PaneContentTypes { get; private set; } =
+			Enum.GetValues(typeof(LiveVideoPaneContentType))
+			.Cast<LiveVideoPaneContentType>()
+			.ToList();
+		public ReactiveProperty<LiveVideoPaneContentType> SelectedPaneContent { get; private set; }
+		public ReactiveProperty<LiveInfoContentViewModelBase> PaneContent { get; private set; }
+
+
+		// suggestion
+		public ReactiveProperty<LiveSuggestion> Suggestion { get; private set; }
+		public ReactiveProperty<bool> HasSuggestion { get; private set; }
+
+
+
+		public LiveVideoPlayerPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, TextInputDialogService textInputDialogService) 
 			: base(hohoemaApp, pageManager, isRequireSignIn:true)
 		{
+			TextInputDialogService = textInputDialogService;
+
 
 			VideoStream = new ReactiveProperty<object>();
 
-			NowPlaying = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
+			NowPlaying = VideoStream.Select(x => x != null)
+				.ToReactiveProperty();
+
+			NowUpdating = new ReactiveProperty<bool>(false);
 
 			IsVisibleComment = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, true).AddTo(_CompositeDisposable);
 			CommentRenderFPS = new ReactiveProperty<int>(PlayerWindowUIDispatcherScheduler, 60).AddTo(_CompositeDisposable);
@@ -146,8 +197,44 @@ namespace NicoPlayerHohoema.ViewModels
 				.Select(x => x.All(y => y))
 				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
 				.AddTo(_CompositeDisposable);
+
+			_PaneContentCache = new Dictionary<LiveVideoPaneContentType, LiveInfoContentViewModelBase>();
+			SelectedPaneContent = new ReactiveProperty<LiveVideoPaneContentType>(PaneContentTypes.First(), mode:ReactivePropertyMode.DistinctUntilChanged);
+			PaneContent = SelectedPaneContent
+				.Select(x =>
+				{
+					LiveInfoContentViewModelBase vm = null;
+					if (!_PaneContentCache.ContainsKey(x))
+					{
+						vm = CreateLiveVideoPaneContent(x);
+						_PaneContentCache.Add(x, vm);
+					}
+					else
+					{
+						vm = _PaneContentCache[x];
+					}
+
+					if (vm != null)
+					{
+						var oldVm = PaneContent?.Value;
+						if (oldVm != null)
+						{
+							oldVm.OnLeave();
+						}
+					}
+
+					return vm;
+				})
+				.ToReactiveProperty();
+
+			Suggestion = new ReactiveProperty<LiveSuggestion>();
+			HasSuggestion = Suggestion.Select(x => x != null)
+				.ToReactiveProperty();
 		}
 
+		
+
+		
 
 		#region Command
 
@@ -219,7 +306,13 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			if (e.Parameter is string)
 			{
-				LiveId = e.Parameter as string;
+				var json = e.Parameter as string;
+				var payload = LiveVidePagePayload.FromParameterString(json);
+
+				LiveId = payload.LiveId;
+				LiveTitle = payload.LiveTitle;
+				CommunityId = payload.CommunityId;
+				CommunityName = payload.CommunityName;
 			}
 			
 			if (LiveId != null)
@@ -258,6 +351,9 @@ namespace NicoPlayerHohoema.ViewModels
 					.AddTo(_NavigatingCompositeDisposable);
 				OnPropertyChanged(nameof(WatchCount));
 
+				CommunityId = NicoLiveVideo.BroadcasterCommunityId;
+				CommunityName = NicoLiveVideo.BroadcasterName;
+				
 			}
 
 			base.OnNavigatedTo(e, viewModelState);
@@ -266,6 +362,12 @@ namespace NicoPlayerHohoema.ViewModels
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			await TryStartViewing();
+
+			var vm = CreateLiveVideoPaneContent(LiveVideoPaneContentType.Summary);
+			await vm.OnEnter();
+			_PaneContentCache.Add(LiveVideoPaneContentType.Summary, vm);
+
+			SelectedPaneContent.ForceNotify();
 
 			await base.NavigatedToAsync(cancelToken, e, viewModelState);
 		}
@@ -282,40 +384,86 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		
+		/// <summary>
+		/// 生放送情報を取得してライブストリームの受信を開始します。<br />
+		/// 配信受信処理のハードリセット動作として機能します。
+		/// </summary>
+		/// <returns></returns>
 		private async Task TryStartViewing()
 		{
 			if (NicoLiveVideo == null) { return; }
 
 			try
 			{
-				NowPlaying.Value = false;
+				NowUpdating.Value = true;
 
 
+				var liveStatus = await NicoLiveVideo.SetupLive();
 
-				var success = await NicoLiveVideo.SetupLive();
-
-				if (success)
+				if (liveStatus == null)
 				{
 					_BaseAt = NicoLiveVideo.PlayerStatusResponse.Program.BaseAt;
+					_EndAt = NicoLiveVideo.PlayerStatusResponse.Program.EndedAt;
 
 					await StartLiveElapsedTimer();
 
 					OnPropertyChanged(nameof(NicoLiveVideo));
-
-					NowPlaying.Value = true;
 				}
 				else
 				{
 					Debug.WriteLine("生放送情報の取得失敗しました "  + LiveId);
-					return;
+				}
+
+				ResetSuggestion(liveStatus);
+			}
+			catch (Exception ex)
+			{
+				Debug.WriteLine(ex.ToString());
+			}
+			finally
+			{
+				NowUpdating.Value = false;
+			}
+		}
+
+
+		/// <summary>
+		/// 生放送情報だけを更新し、配信ストリームの更新は行いません。
+		/// </summary>
+		/// <returns></returns>
+		private async Task<bool> TryUpdateLiveStatus()
+		{
+			if (NicoLiveVideo == null) { return false; }
+
+			LiveStatusType? liveStatus = null;
+			try
+			{
+				NowUpdating.Value = true;
+
+
+				liveStatus = await NicoLiveVideo.UpdateLiveStatus();
+
+				if (liveStatus == null)
+				{
+					_BaseAt = NicoLiveVideo.PlayerStatusResponse.Program.BaseAt;
+					_EndAt = NicoLiveVideo.PlayerStatusResponse.Program.EndedAt;
+				}
+				else
+				{
 				}
 			}
 			catch (Exception ex)
 			{
 				Debug.WriteLine(ex.ToString());
-				return;
 			}
+			finally
+			{
+				NowUpdating.Value = false;
+			}
+
+			ResetSuggestion(liveStatus);
+
+			return liveStatus == null;
 		}
 
 
@@ -351,7 +499,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-
+		bool _IsEndMarked;
 		/// <summary>
 		/// 放送開始からの経過時間を更新します
 		/// </summary>
@@ -360,23 +508,97 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			using (var releaser = await _LiveElapsedTimeUpdateTimerLock.LockAsync())
 			{
-				await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
+				await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () => 
 				{
 					// ローカルの現在時刻から放送開始のベース時間を引いて
 					// 放送経過時間の絶対値を求める
 					LiveElapsedTime = DateTime.Now - _BaseAt;
+
+					// 終了時刻を過ぎたら生放送情報を更新する
+					if (!_IsEndMarked && DateTime.Now > _EndAt)
+					{
+						_IsEndMarked = true;
+
+						if (await TryUpdateLiveStatus())
+						{
+							// 放送が延長されていた場合は継続
+							// _EndAtもTryUpdateLiveStatus内で更新されているはず
+							_IsEndMarked = false;
+						}
+					}
 				});
 			}
 		}
-		
-
-		
 
 
 
-		
 
-		
+		/// <summary>
+		/// サイドペインに表示するコンテンツVMを作成します
+		/// </summary>
+		/// <param name="type"></param>
+		/// <returns></returns>
+		private LiveInfoContentViewModelBase CreateLiveVideoPaneContent(LiveVideoPaneContentType type)
+		{
+			LiveInfoContentViewModelBase vm = null;
+			switch (type)
+			{
+				case LiveVideoPaneContentType.Summary:
+					vm = new SummaryLiveInfoContentViewModel(NicoLiveVideo, PageManager);
+					break;
+				case LiveVideoPaneContentType.Comment:
+					vm = new CommentLiveInfoContentViewModel(NicoLiveVideo, LiveComments);
+					break;
+				case LiveVideoPaneContentType.Shere:
+					vm = new ShereLiveInfoContentViewModel(NicoLiveVideo, TextInputDialogService);
+					break;
+				case LiveVideoPaneContentType.Settings:
+					vm = new SettingsLiveInfoContentViewModel(NicoLiveVideo, HohoemaApp);
+					break;
+				default:
+					Debug.WriteLine("CreateLiveVideoPaneContent not support type: " + type.ToString());
+					break;
+			}
 
+			return vm;
+		}
+
+
+		/// <summary>
+		/// 生放送終了後などに表示するユーザーアクションの候補を再設定します。
+		/// </summary>
+		/// <param name="liveStatus"></param>
+		private void ResetSuggestion(LiveStatusType? liveStatus)
+		{
+			if (liveStatus == null)
+			{
+				Suggestion.Value = null;
+			}
+			else
+			{
+				LiveSuggestion suggestion = null;
+
+				suggestion = liveStatus.Value.Make(NicoLiveVideo, PageManager);
+
+				if (suggestion == null)
+				{
+					Debug.WriteLine("live suggestion not support : " + liveStatus.Value.ToString());
+				}
+
+				Suggestion.Value = suggestion;
+			}
+		}
 	}
+
+
+
+	public enum LiveVideoPaneContentType
+	{
+		Summary,
+		Comment,
+		Shere,
+		Settings,
+	}
+
+	
 }

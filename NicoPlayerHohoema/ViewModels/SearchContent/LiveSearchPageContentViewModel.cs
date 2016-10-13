@@ -231,7 +231,14 @@ namespace NicoPlayerHohoema.ViewModels
 				return _OpenLiveVideoPageCommand
 					?? (_OpenLiveVideoPageCommand = new DelegateCommand(() =>
 					{
-						PageManager.OpenPage(HohoemaPageType.LiveVideoPlayer, LiveId);
+						var parameter = new Models.Live.LiveVidePagePayload(LiveId)
+						{
+							LiveTitle = LiveTitle,
+							CommunityId = CommunityGlobalId,
+							CommunityName = CommunityName
+						};
+
+						PageManager.OpenPage(HohoemaPageType.LiveVideoPlayer, parameter.ToParameterString());
 					}));
 			}
 		}
