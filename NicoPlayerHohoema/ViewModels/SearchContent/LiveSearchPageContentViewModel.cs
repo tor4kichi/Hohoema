@@ -166,7 +166,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public DateTime EndTime { get; private set; }
 		public string DurationText { get; private set; }
 		public bool IsTimeshiftEnabled { get; private set; }
-
+		public bool IsCommunityMemberOnly { get; private set; }
 
 
 
@@ -188,6 +188,7 @@ namespace NicoPlayerHohoema.ViewModels
 			StartTime = LiveVideoInfo.Video.StartTime;
 			EndTime = LiveVideoInfo.Video.EndTime;
 			IsTimeshiftEnabled = LiveVideoInfo.Video.TimeshiftEnabled;
+			IsCommunityMemberOnly = LiveVideoInfo.Video.CommunityOnly;
 
 			var duration = EndTime - StartTime;
 			if (LiveVideoInfo.Video.StartTime < DateTime.Now)
