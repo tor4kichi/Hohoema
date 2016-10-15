@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.ViewModels
@@ -14,8 +15,46 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public virtual uint OneTimeLoadCount => DefaultOneTimeLoadCount;
 
-		public abstract Task<IEnumerable<T>> GetPagedItems(int head, int count);
-		public abstract Task<int> ResetSource();
+		public async Task<IEnumerable<T>> GetPagedItems(int head, int count)
+		{
+			try
+			{
+				var result = await GetPagedItemsImpl(head, count);
+				HasError = false;
+				return result;
+			}
+			catch
+			{
+				Error?.Invoke();
+				return Enumerable.Empty<T>();
+			}
+		}
+
+		public Task<int> ResetSource()
+		{
+			HasError = false;
+			try
+			{
+				return ResetSourceImpl();
+			}
+			catch
+			{
+				Error?.Invoke();
+				return Task.FromResult(0);
+			}
+		}
+
+		protected abstract Task<IEnumerable<T>> GetPagedItemsImpl(int head, int count);
+		protected abstract Task<int> ResetSourceImpl();
+
+		public bool HasError { get; private set; }
+		public event Action Error;
+
+		protected void TriggerError(Exception ex)
+		{
+			HasError = true;
+			Error?.Invoke();
+		}
 	}
 
 
@@ -37,15 +76,15 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected abstract Task Preload(int start, int count);
 
-		protected abstract Task<int> ResetSourceImpl();
-		protected abstract Task<IEnumerable<T>> GetPagedItemsImpl(int start, int count);
+		protected abstract Task<int> HohoemaPreloadingResetSourceImpl();
+		protected abstract Task<IEnumerable<T>> HohoemaPreloadingGetPagedItemsImpl(int start, int count);
 
 
 
 
-		public override sealed async Task<IEnumerable<T>> GetPagedItems(int head, int count)
+		protected override sealed async Task<IEnumerable<T>> GetPagedItemsImpl(int head, int count)
 		{
-			var items = await GetPagedItemsImpl(head, count);
+			var items = await HohoemaPreloadingGetPagedItemsImpl(head, count);
 
 			var tail = head + items.Count();
 			if (tail != head && tail < TotalCount)
@@ -56,9 +95,9 @@ namespace NicoPlayerHohoema.ViewModels
 			return items;
 		}
 
-		public override sealed async Task<int> ResetSource()
+		protected override sealed async Task<int> ResetSourceImpl()
 		{
-			TotalCount = await ResetSourceImpl();
+			TotalCount = await HohoemaPreloadingResetSourceImpl();
 
 			if (TotalCount > 0)
 			{
@@ -110,25 +149,56 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override async Task Preload(int start, int count)
 		{
-			var items = await PreloadNicoVideo(start, count);
-
-			using (var releaser = await _VideoItemsLock.LockAsync())
+			try
 			{
-				_VideoItems.AddRange(items);
+				var items = await PreloadNicoVideo(start, count);
+
+				using (var releaser = await _VideoItemsLock.LockAsync())
+				{
+					_VideoItems.AddRange(items);
+				}
+			}
+			catch (Exception ex)
+			{
+				TriggerError(ex);
 			}
 		}
 
 
-		protected override sealed async Task<IEnumerable<T>> GetPagedItemsImpl(int head, int count)
+		protected override sealed async Task<IEnumerable<T>> HohoemaPreloadingGetPagedItemsImpl(int head, int count)
 		{
 			var tail = Math.Min(head + count, TotalCount);
+			List<T> items = new List<T>();
 
-			while (_VideoItems.Count < tail)
+			using (var token = new CancellationTokenSource(5000))
 			{
-				await Task.Delay(5);
+				try
+				{
+					while (_VideoItems.Count < tail)
+					{
+						await Task.Delay(10);
+
+						token.Token.ThrowIfCancellationRequested();
+					}
+				}
+				catch (OperationCanceledException ex)
+				{
+					try
+					{
+						var result = await PreloadNicoVideo(head, count);
+
+						using (var releaser = await _VideoItemsLock.LockAsync())
+						{
+							_VideoItems.AddRange(result);
+						}
+					}
+					catch
+					{
+						throw ex;
+					}
+				}
 			}
 
-			List<T> items = new List<T>();
 			using (var releaser = await _VideoItemsLock.LockAsync())
 			{
 				for (int i = head; i < tail; i++)

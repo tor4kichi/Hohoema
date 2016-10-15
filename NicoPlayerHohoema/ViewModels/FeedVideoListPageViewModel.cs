@@ -157,7 +157,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		protected override async Task<int> ResetSourceImpl()
+		protected override async Task<int> HohoemaPreloadingResetSourceImpl()
 		{
 			await _FeedGroup.Refresh();
 

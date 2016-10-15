@@ -784,7 +784,7 @@ namespace NicoPlayerHohoema.ViewModels
 		protected override async Task<IEnumerable<NicoVideo>> PreloadNicoVideo(int start, int count)
 		{
 			// 最初の検索結果だけ先行してThumbnail情報を読みこませる
-//			VideoListingResponse res = null;
+			//			VideoListingResponse res = null;
 			if (SearchOption.SearchTarget == SearchTarget.Keyword)
 			{
 				res = await _HohoemaApp.ContentFinder.GetKeywordSearch(SearchOption.Keyword, (uint)start, (uint)count, SearchOption.Sort, SearchOption.Order);
@@ -793,6 +793,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				res = await _HohoemaApp.ContentFinder.GetTagSearch(SearchOption.Keyword, (uint)start, (uint)count, SearchOption.Sort, SearchOption.Order);
 			}
+
 
 			if (res == null && res.VideoInfoItems == null)
 			{
@@ -821,7 +822,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		protected override async Task<int> ResetSourceImpl()
+		protected override async Task<int> HohoemaPreloadingResetSourceImpl()
 		{
 			int totalCount = 0;
 			if (SearchOption.SearchTarget == SearchTarget.Keyword)

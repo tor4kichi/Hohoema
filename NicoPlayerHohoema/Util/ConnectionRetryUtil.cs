@@ -14,7 +14,7 @@ namespace NicoPlayerHohoema.Util
 		{
 			int currentRetry = 0;
 
-			
+			Exception lastError = null;
 			for (;;)
 			{
 				try
@@ -37,6 +37,8 @@ namespace NicoPlayerHohoema.Util
 						throw;
 					}
 
+					lastError = ex;
+
 					await Task.Delay(retryInterval).ConfigureAwait(false);
 				}
 
@@ -47,7 +49,7 @@ namespace NicoPlayerHohoema.Util
 			
 			}
 
-			throw new Exception("connection retry rimit.");
+			throw new Exception("connection retry rimit.", lastError);
 		}
 
 

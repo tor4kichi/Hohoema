@@ -283,7 +283,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		protected override async Task<int> ResetSourceImpl()
+		protected override async Task<int> HohoemaPreloadingResetSourceImpl()
 		{
 			RankingRss = await NiconicoRanking.GetRankingData(_Target, _TimeSpan, _Category);
 			return RankingRss.Channel.Items.Count;
@@ -354,7 +354,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		protected override async Task<int> ResetSourceImpl()
+		protected override async Task<int> HohoemaPreloadingResetSourceImpl()
 		{
 			var contentFinder = HohoemaApp.ContentFinder;
 
