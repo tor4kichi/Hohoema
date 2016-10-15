@@ -230,6 +230,20 @@ namespace NicoPlayerHohoema.ViewModels
 			Suggestion = new ReactiveProperty<LiveSuggestion>();
 			HasSuggestion = Suggestion.Select(x => x != null)
 				.ToReactiveProperty();
+
+
+			NowPlaying.Subscribe(x => 
+			{
+				if (x)
+				{
+					DisplayRequestHelper.RequestKeepDisplay();
+				}
+				else
+				{
+					DisplayRequestHelper.StopKeepDisplay();
+				}
+			});
+
 		}
 
 		
@@ -378,6 +392,8 @@ namespace NicoPlayerHohoema.ViewModels
 			NicoLiveVideo.Dispose();
 			NicoLiveVideo = null;
 
+			VideoStream.Value = null;
+
 			StopLiveElapsedTimer().ConfigureAwait(false);
 
 			base.OnNavigatingFrom(e, viewModelState, suspending);
@@ -412,6 +428,7 @@ namespace NicoPlayerHohoema.ViewModels
 				else
 				{
 					Debug.WriteLine("生放送情報の取得失敗しました "  + LiveId);
+					VideoStream.Value = null;
 				}
 
 				ResetSuggestion(liveStatus);
@@ -450,6 +467,7 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 				else
 				{
+					VideoStream.Value = null;
 				}
 			}
 			catch (Exception ex)
@@ -473,10 +491,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 			using (var releaser = await _LiveElapsedTimeUpdateTimerLock.LockAsync())
 			{
-				_LiveElapsedTimeUpdateTimer = new Timer(UpdateLiveElapsedTime
-				, null,
-				TimeSpan.Zero,
-				LiveElapsedTimeUpdateInterval
+				_LiveElapsedTimeUpdateTimer = new Timer(UpdateLiveElapsedTime,
+					null,
+					TimeSpan.Zero,
+					LiveElapsedTimeUpdateInterval
 				);
 			}
 

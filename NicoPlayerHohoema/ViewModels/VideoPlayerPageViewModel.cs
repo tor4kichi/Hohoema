@@ -1444,13 +1444,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 			if (HohoemaApp.UserSettings.PlayerSettings.IsKeepDisplayInPlayback)
 			{
-				DisplayRequestHelper.StartVideoPlayback();
+				DisplayRequestHelper.RequestKeepDisplay();
 			}
 		}
 
 		void ExitKeepDisplay()
 		{
-			DisplayRequestHelper.StopVideoPlayback();
+			DisplayRequestHelper.StopKeepDisplay();
 		}
 
 
