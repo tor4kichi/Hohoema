@@ -1124,9 +1124,12 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override async Task OnResumed()
 		{
-			InitializeBufferingMonitor();
+			if (NowSignIn)
+			{
+				InitializeBufferingMonitor();
 
-			await PlayingQualityChangeAction();
+				await PlayingQualityChangeAction();
+			}
 		}
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
@@ -1172,6 +1175,7 @@ namespace NicoPlayerHohoema.ViewModels
 			
 
 			_BufferingMonitorDisposable?.Dispose();
+			_BufferingMonitorDisposable = new CompositeDisposable();
 
 			base.OnNavigatingFrom(e, viewModelState, suspending);
 

@@ -682,36 +682,45 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<NiconicoSignInStatus> CheckSignedInStatus()
 		{
+			if (!Util.InternetConnection.IsInternet())
+			{
+				return NiconicoSignInStatus.Failed;
+			}
+
 			try
 			{
 				await _SigninLock.WaitAsync();
 
-
 				if (NiconicoContext != null)
 				{
-					return await NiconicoContext.GetIsSignedInAsync();
+					return await ConnectionRetryUtil.TaskWithRetry(
+						() => NiconicoContext.GetIsSignedInAsync()
+						, retryInterval:1000
+						);
 				}
-				else
-				{
-					return NiconicoSignInStatus.Failed;
-				}
+			}
+			catch
+			{
+				return NiconicoSignInStatus.Failed;
 			}
 			finally
 			{
 				_SigninLock.Release();
 			}
+
+			return NiconicoSignInStatus.Failed;
 		}
 
 
 
-		#endregion
+#endregion
 
 
 
-		
-		
 
-		StorageFolder _DownloadFolder;
+
+
+StorageFolder _DownloadFolder;
 
 		public async Task<bool> IsAvailableUserDataFolder()
 		{
