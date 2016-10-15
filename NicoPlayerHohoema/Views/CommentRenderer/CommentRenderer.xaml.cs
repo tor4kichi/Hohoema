@@ -52,7 +52,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		/// テキストの影をどれだけずらすかの量
 		/// 実際に使われるのはフォントサイズにTextBGOffsetBiasを乗算した値
 		/// </summary>
-		const double TextBGOffsetBias = 0.05;
+		const double TextBGOffsetBias = 0.10;
 
 		/// <summary>
 		/// 表示時間で昇順にソートされたコメントVMのディクショナリ <br />

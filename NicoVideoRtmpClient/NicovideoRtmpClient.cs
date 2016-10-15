@@ -379,6 +379,8 @@ namespace NicoVideoRtmpClient
 		{
 			if (_MediaStreamSource != null)
 			{
+				
+
 				_MediaStreamSource.Starting -= OnStarting;
 				_MediaStreamSource.SampleRequested -= OnSampleRequested;
 				
@@ -388,15 +390,32 @@ namespace NicoVideoRtmpClient
 				_Stream.StatusUpdated -= OnNetStreamStatusUpdated;
 				_Stream.AudioStarted -= OnAudioStarted;
 				_Stream.VideoStarted -= OnVideoStarted;
-				_BufferingHelper.Stop();
+				try
+				{
+					_BufferingHelper.Stop();
+				}
+				catch (Exception ex)
+				{
+					Debug.WriteLine(ex.ToString());
+				}
 
 				
 				_BufferingHelper = null;
 				_Stream = null;
 				
 				_Connection.StatusUpdated -= OnNetConnectionStatusUpdated;
-				_Connection.Close();
-				_Connection = null;
+				try
+				{
+					_Connection.Close();
+				}
+				catch (Exception ex)
+				{
+					Debug.WriteLine(ex.ToString());
+				}
+				finally
+				{
+					_Connection = null;
+				}
 			}
 		}
 
@@ -458,6 +477,8 @@ namespace NicoVideoRtmpClient
 				_BufferingHelper = new BufferingHelper(_Stream);
 
 				await _ConnectionImpl.PostConnectionProcess(_Connection);
+
+				await Task.Delay(50);
 
 				await _Stream.AttachAsync(_Connection);
 			}

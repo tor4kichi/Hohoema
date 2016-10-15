@@ -2,7 +2,7 @@
   "dependencies": {
     "ActionMessageFormat.UWP": "1.0.0",
     "Microsoft.NETCore.UniversalWindowsPlatform": "5.2.2",
-    "RtmpClient.UWP": "1.1.0"
+    "RtmpClient.UWP": "1.2.0"
   },
   "frameworks": {
     "uap10.0": {}

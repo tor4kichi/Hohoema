@@ -30,6 +30,7 @@ namespace NicoPlayerHohoema.Models
 
 		const string PRIMARY_ACCOUNT = "primary_account";
 
+		private static DateTime LastSyncRoamingData = DateTime.MinValue;
 
 		public static async Task<HohoemaApp> Create(IEventAggregator ea)
 		{
@@ -321,10 +322,18 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-
+		static TimeSpan SyncIgnoreTimeSpan = TimeSpan.FromMinutes(3);
 
 		private async void Current_DataChanged(ApplicationData sender, object args)
 		{
+			if (LastSyncRoamingData + SyncIgnoreTimeSpan > DateTime.Now)
+			{
+				Debug.WriteLine("ローミングデータの同期：一定時間内の同期をキャンセル");
+				return;
+			}
+
+			LastSyncRoamingData = DateTime.Now;
+
 			Debug.WriteLine("ローミングデータの同期：開始");
 			await SyncToRoamingData();
 			Debug.WriteLine("ローミングデータの同期：完了");
@@ -345,7 +354,8 @@ namespace NicoPlayerHohoema.Models
 			{
 				_SigninLock.Release();
 			}
-			
+		
+				
 		}
 
 		/// <summary>
