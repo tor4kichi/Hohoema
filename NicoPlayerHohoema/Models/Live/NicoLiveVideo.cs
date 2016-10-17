@@ -217,6 +217,8 @@ namespace NicoPlayerHohoema.Models.Live
 				// ニコ生サーバーから切断
 				CloseRtmpConnection();
 
+				// ネイティブコード上のRTMP接続を即座にDisposeさせるためにGC実行が必要
+//				GC.Collect();
 
 				// HeartbeatAPIへのアクセスを停止
 				await EndCommentClientConnection();

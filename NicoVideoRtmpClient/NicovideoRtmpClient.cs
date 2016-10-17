@@ -379,8 +379,6 @@ namespace NicoVideoRtmpClient
 		{
 			if (_MediaStreamSource != null)
 			{
-				
-
 				_MediaStreamSource.Starting -= OnStarting;
 				_MediaStreamSource.SampleRequested -= OnSampleRequested;
 				
