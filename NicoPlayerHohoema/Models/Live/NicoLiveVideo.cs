@@ -114,6 +114,9 @@ namespace NicoPlayerHohoema.Models.Live
 		/// RTMPで正常に動画が受信できる状態になった場合 VideoStreamSource にインスタンスが渡される
 		/// </summary>
 		NicovideoRtmpClient _RtmpClient;
+		AsyncLock _RtmpClientAssignLock = new AsyncLock();
+
+
 
 		Timer _EnsureStartLiveTimer;
 		AsyncLock _EnsureStartLiveTimerLock = new AsyncLock();
@@ -244,10 +247,7 @@ namespace NicoPlayerHohoema.Models.Live
 				await ExitEnsureOpenRtmpConnection();
 
 				// ニコ生サーバーから切断
-				CloseRtmpConnection();
-
-				// ネイティブコード上のRTMP接続を即座にDisposeさせるためにGC実行が必要
-//				GC.Collect();
+				await CloseRtmpConnection();
 
 				// HeartbeatAPIへのアクセスを停止
 				await EndCommentClientConnection();
@@ -391,9 +391,7 @@ namespace NicoPlayerHohoema.Models.Live
 
 				await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
 				{
-					CloseRtmpConnection();
-
-					await Task.Delay(250);
+					await CloseRtmpConnection();
 
 					await OpenRtmpConnection(PlayerStatusResponse);
 				});
@@ -409,24 +407,36 @@ namespace NicoPlayerHohoema.Models.Live
 
 		private async Task OpenRtmpConnection(PlayerStatusResponse res)
 		{
-			_RtmpClient = new NicovideoRtmpClient();
+			await CloseRtmpConnection();
 
-			_RtmpClient.Started += _RtmpClient_Started;
-			_RtmpClient.Stopped += _RtmpClient_Stopped;
+			using (var releaser = await _RtmpClientAssignLock.LockAsync())
+			{
+				if (_RtmpClient == null)
+				{
+					_RtmpClient = new NicovideoRtmpClient();
 
+					_RtmpClient.Started += _RtmpClient_Started;
+					_RtmpClient.Stopped += _RtmpClient_Stopped;
 
-			await _RtmpClient.ConnectAsync(res);
+					await _RtmpClient.ConnectAsync(res);
+				}
+			}
 		}
 
-		private void CloseRtmpConnection()
+		private async Task CloseRtmpConnection()
 		{
-			if (_RtmpClient != null)
+			using (var releaser = await _RtmpClientAssignLock.LockAsync())
 			{
-				_RtmpClient.Started -= _RtmpClient_Started;
-				_RtmpClient.Stopped -= _RtmpClient_Stopped;
+				if (_RtmpClient != null)
+				{
+					_RtmpClient.Started -= _RtmpClient_Started;
+					_RtmpClient.Stopped -= _RtmpClient_Stopped;
 
-				_RtmpClient?.Dispose();
-				_RtmpClient = null;
+					_RtmpClient?.Dispose();
+					_RtmpClient = null;
+
+					await Task.Delay(500);
+				}
 			}
 		}
 
@@ -451,8 +461,6 @@ namespace NicoPlayerHohoema.Models.Live
 				}
 
 				Debug.WriteLine("recieve exit live stream: " + LiveId);
-
-				await EndLiveSubscribe();
 
 				await StartNextLiveSubscribe(DefaultNextLiveSubscribeDuration);
 			});
@@ -648,9 +656,15 @@ namespace NicoPlayerHohoema.Models.Live
 						}
 						break;
 					case NicoLiveOperationCommandType.Disconnect:
-						
+
 						// 放送者側からの切断要請
-						CloseRtmpConnection();
+
+						// Note: RTMPによる動画受信の停止はDisconnect後の
+						// RtmpClient.Closedイベントによって処理されます。
+						// また、RtmpClientがクローズ中にここでRtmpClient.Close()を行うと
+						// スレッドセーフではないためか、例外が発生します。
+						
+						//						await CloseRtmpConnection();
 
 						// 次枠の自動巡回を開始
 						await StartNextLiveSubscribe(DefaultNextLiveSubscribeDuration);
