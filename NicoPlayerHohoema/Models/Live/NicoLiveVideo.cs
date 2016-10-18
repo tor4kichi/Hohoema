@@ -59,6 +59,12 @@ namespace NicoPlayerHohoema.Models.Live
 		public ReadOnlyObservableCollection<Chat> LiveComments { get; private set; }
 
 
+		private string _PermanentDisplayText;
+		public string PermanentDisplayText
+		{
+			get { return _PermanentDisplayText; }
+			private set { SetProperty(ref _PermanentDisplayText, value); }
+		}
 
 
 		private uint _CommentCount;
@@ -83,6 +89,7 @@ namespace NicoPlayerHohoema.Models.Live
 			get { return _LiveStatusType; }
 			private set { SetProperty(ref _LiveStatusType, value); }
 		}
+
 
 		/// <summary>
 		/// 生放送動画をRTMPで受け取るための通信クライアント<br />
@@ -230,7 +237,6 @@ namespace NicoPlayerHohoema.Models.Live
 
 
 
-
 		// 
 		public async Task<Uri> MakeLiveSummaryHtmlUri()
 		{
@@ -267,6 +273,24 @@ namespace NicoPlayerHohoema.Models.Live
 
 
 		#region LiveVideo RTMP
+
+		public async Task RetryRtmpConnection()
+		{
+			if (PlayerStatusResponse == null)
+			{
+				if (await UpdateLiveStatus() != null)
+				{
+					return;
+				}
+			}
+
+			CloseRtmpConnection();
+
+			await Task.Delay(250);
+
+			await OpenRtmpConnection(PlayerStatusResponse);
+		}
+
 
 		private async Task OpenRtmpConnection(PlayerStatusResponse res)
 		{
@@ -322,9 +346,12 @@ namespace NicoPlayerHohoema.Models.Live
 
 		#region Live Comment 
 
+		public bool CanPostComment => !(PlayerStatusResponse?.Program.IsArchive ?? true);
 
-		private async Task PostComment(string message, string command)
+		public async Task PostComment(string message, string command)
 		{
+			if (!CanPostComment) { return; }
+
 			if (_NicoLiveCommentClient != null)
 			{
 				var userId = PlayerStatusResponse.User.Id;
@@ -339,13 +366,13 @@ namespace NicoPlayerHohoema.Models.Live
 			var baseTime = PlayerStatusResponse.Program.BaseAt;
 			_NicoLiveCommentClient = new NicoLiveCommentClient(LiveId, baseTime, PlayerStatusResponse.Comment.Server, HohoemaApp.NiconicoContext);
 			_NicoLiveCommentClient.CommentServerConnected += _NicoLiveCommentReciever_CommentServerConnected;
-			_NicoLiveCommentClient.CommentRecieved += _NicoLiveCommentReciever_CommentRecieved;
 			_NicoLiveCommentClient.Heartbeat += _NicoLiveCommentClient_Heartbeat;
-			
+
+			_NicoLiveCommentClient.CommentRecieved += _NicoLiveCommentReciever_CommentRecieved;
+			_NicoLiveCommentClient.OperationCommandRecieved += _NicoLiveCommentClient_OperationCommandRecieved;
+
 			await _NicoLiveCommentClient.Start();
 		}
-
-		
 
 		private async Task EndCommentClientConnection()
 		{
@@ -367,21 +394,21 @@ namespace NicoPlayerHohoema.Models.Live
 			_NicoLiveCommentClient.CommentPosted += _NicoLiveCommentReciever_CommentPosted;
 		}
 
-		private async void _NicoLiveCommentReciever_CommentRecieved(Chat chat)
-		{
-			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-			{
-				_LiveComments.Add(chat);
-			});
-		}
+		
 
 		private void _NicoLiveCommentReciever_CommentPosted(bool isSuccess)
 		{
+			Debug.WriteLine("コメント投稿結果：+" + isSuccess);
+
 			if (isSuccess)
 			{
+				// コメント書き込みを許可
+				// コメント削除
 			}
 			else
 			{
+				// コメント書き込みを許可
+				// コメントはそのまま
 			}
 		}
 
@@ -395,6 +422,126 @@ namespace NicoPlayerHohoema.Models.Live
 		}
 
 
+		private async void _NicoLiveCommentReciever_CommentRecieved(Chat chat)
+		{
+			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+			{
+				_LiveComments.Add(chat);
+			});
+		}
+
+		private async void _NicoLiveCommentClient_OperationCommandRecieved(NicoLiveCommentClient sender, NicoLiveOperationCommandEventArgs args)
+		{
+			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+			{
+				switch (args.CommandType)
+				{
+					case NicoLiveOperationCommandType.Play:
+						break;
+					case NicoLiveOperationCommandType.PlaySound:
+						break;
+					case NicoLiveOperationCommandType.PermanentDisplay:
+						if (args.Arguments.Length > 0)
+						{
+							PermanentDisplayText = args.Arguments[0];
+						}
+						break;
+					case NicoLiveOperationCommandType.ClearPermanentDisplay:
+						PermanentDisplayText = null;
+						break;
+					case NicoLiveOperationCommandType.Vote:
+						break;
+					case NicoLiveOperationCommandType.CommentMode:
+						break;
+					case NicoLiveOperationCommandType.Call:
+						break;
+					case NicoLiveOperationCommandType.Free:
+						break;
+					case NicoLiveOperationCommandType.Reset:
+
+						// 動画接続のリセット
+						if (PlayerStatusResponse != null)
+						{
+							CloseRtmpConnection();
+							await Task.Delay(500);
+							await OpenRtmpConnection(PlayerStatusResponse);
+						}
+
+						break;
+					case NicoLiveOperationCommandType.Info:
+
+						// 1:市場登録　2:コミュニティ参加　3:延長　4,5:未確認　6,7:地震速報　8:現在の放送ランキングの順位
+						// /info 数字 "表示内容"
+						
+						if (args.Arguments.Length >= 2)
+						{
+							int infoType;
+							if (int.TryParse(args.Arguments[0], out infoType))
+							{
+								var nicoLiveInfoType = (NicoLiveInfoType)infoType;
+
+								args.Chat.Text = args.Arguments[1];
+								args.Chat.Mail = "shita";
+								
+								_LiveComments.Add(args.Chat);
+							}
+						}
+						break;
+					case NicoLiveOperationCommandType.Press:
+
+						// http://dic.nicovideo.jp/a/%E3%83%90%E3%83%83%E3%82%AF%E3%82%B9%E3%83%86%E3%83%BC%E3%82%B8%E3%83%91%E3%82%B9
+						// TODO: BSPユーザーによるコメントに対応
+						// BSPコメへの風当たりはやや強いのでオプションでON/OFF切り替え対応必要かも
+						if (args.Arguments.Length >= 4)
+						{
+							args.Chat.Mail = args.Arguments[1];
+							args.Chat.Text = args.Arguments[2];
+							var name = args.Arguments[4];
+
+							_LiveComments.Add(args.Chat);
+						}
+						break;
+					case NicoLiveOperationCommandType.Disconnect:
+						
+						// 放送者側からの切断要請
+						await EndLiveSubscribe();
+
+						break;
+					case NicoLiveOperationCommandType.Koukoku:
+						break;
+					case NicoLiveOperationCommandType.Telop:
+
+						/*
+							on ニコ生クルーズ(リンク付き)/ニコニコ実況コメント
+							show クルーズが到着/実況に接続
+							show0 実際に流れているコメント
+							perm ニコ生クルーズが去って行きました＜改行＞(降りた人の名前、人数)
+							off (プレイヤー下部のテロップを消去) 
+						*/
+
+						if (args.Arguments.Length >= 2)
+						{
+							// TODO: 
+							
+						}
+
+						break;
+					case NicoLiveOperationCommandType.Hidden:
+						break;
+					case NicoLiveOperationCommandType.CommentLock:
+						break;
+					default:
+						break;
+				}
+			});
+		}
+
+
+
+
 		#endregion
 	}
+
+
+	
 }

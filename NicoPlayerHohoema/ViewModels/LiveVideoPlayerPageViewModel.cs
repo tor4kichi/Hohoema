@@ -110,7 +110,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		// comment
 
-
+		
 		public ReactiveProperty<bool> IsVisibleComment { get; private set; }
 		public ReactiveProperty<int> CommentRenderFPS { get; private set; }
 		public ReactiveProperty<double> RequestCommentDisplayDuration { get; private set; }
@@ -120,6 +120,15 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<double> CommentCanvasHeight { get; private set; }
 		public ReactiveProperty<Color> CommentDefaultColor { get; private set; }
 
+		// operation command
+
+		/// <summary>
+		/// 運営コマンドで発行される時間経過で非表示にならないテキスト
+		/// 放送のお知らせなどに利用される
+		/// </summary>
+		public ReactiveProperty<string> PermanentDisplayText { get; private set; }
+
+
 
 		// sound
 		public ReactiveProperty<bool> IsMuted { get; private set; }
@@ -128,6 +137,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 		// ui
 		public ReactiveProperty<bool> IsAutoHideEnable { get; private set; }
+
+
 
 		// pane content
 		private Dictionary<LiveVideoPaneContentType, LiveInfoContentViewModelBase> _PaneContentCache;
@@ -167,6 +178,11 @@ namespace NicoPlayerHohoema.ViewModels
 			CommentCanvasHeight = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0.0).AddTo(_CompositeDisposable);
 			CommentDefaultColor = new ReactiveProperty<Color>(PlayerWindowUIDispatcherScheduler, Colors.White).AddTo(_CompositeDisposable);
 
+			// operation command
+			PermanentDisplayText = new ReactiveProperty<string>(PlayerWindowUIDispatcherScheduler, "").AddTo(_CompositeDisposable);
+
+
+			// sound
 			IsMuted = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false).AddTo(_CompositeDisposable);
 			SoundVolume = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0.5).AddTo(_CompositeDisposable);
 
@@ -261,7 +277,7 @@ namespace NicoPlayerHohoema.ViewModels
 				return _UpdateCommand
 					?? (_UpdateCommand = new DelegateCommand(async () =>
 					{
-						await TryStartViewing();
+						await UpdateLiveVideoConnection();
 					}));
 			}
 		}
@@ -345,7 +361,7 @@ namespace NicoPlayerHohoema.ViewModels
 					comment.CommentText = x.Text;
 					comment.CommentId = x.No != null ? x.GetCommentNo() : 0;
 					comment.IsAnonimity = x.GetAnonymity();
-					comment.VideoPosition = Math.Max(0,  x.GetVpos());
+					comment.VideoPosition = Math.Max(0,  x.GetVpos()); // PCでも遅れて表示されることがあるので、やや遅らせて表示
 					comment.EndPosition = comment.VideoPosition + 1000; // コメントレンダラが再計算するが、仮置きしないと表示対象として処理されない
 
 					comment.ApplyCommands(x.GetCommandTypes());
@@ -367,7 +383,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 				CommunityId = NicoLiveVideo.BroadcasterCommunityId;
 				CommunityName = NicoLiveVideo.BroadcasterName;
-				
+
+
+				// operation command
+				PermanentDisplayText = NicoLiveVideo.ObserveProperty(x => x.PermanentDisplayText)
+					.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
+					.AddTo(_NavigatingCompositeDisposable);
+				OnPropertyChanged(nameof(PermanentDisplayText));
 			}
 
 			base.OnNavigatedTo(e, viewModelState);
@@ -484,6 +506,15 @@ namespace NicoPlayerHohoema.ViewModels
 			return liveStatus == null;
 		}
 
+
+
+		private async Task UpdateLiveVideoConnection()
+		{
+			if (await TryUpdateLiveStatus())
+			{
+				await NicoLiveVideo.RetryRtmpConnection();
+			}
+		}
 
 		private async Task StartLiveElapsedTimer()
 		{

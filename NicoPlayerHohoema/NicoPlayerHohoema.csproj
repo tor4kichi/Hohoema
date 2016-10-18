@@ -165,6 +165,7 @@
     <Compile Include="Models\Live\LiveSuggestion.cs" />
     <Compile Include="Models\Live\LiveVidePagePayload.cs" />
     <Compile Include="Models\Live\NicoLiveCommentClient.cs" />
+    <Compile Include="Models\Live\NicoLiveInfoType.cs" />
     <Compile Include="Models\Live\NicoLiveVideo.cs" />
     <Compile Include="Models\LoginRedirectPayload.cs" />
     <Compile Include="Models\MediaBackgroundTask.cs" />

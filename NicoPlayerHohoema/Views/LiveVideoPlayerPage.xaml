@@ -193,17 +193,31 @@
                     </MediaElement>
 
 
-                    <comment:CommentRenderer 
+                    <Grid Height="{Binding CommentCanvasHeight.Value}">
+                        
+                        <comment:CommentRenderer 
                                     x:Name="CommentRederer"
                                     Comments="{Binding LiveComments}"
                                     VideoPosition="{Binding LiveElapsedTime}"                                     
                                     Visibility="{Binding IsVisibleComment.Value, Converter={StaticResource BooleanToVisibility}}"
                                     RequestFPS="{Binding CommentRenderFPS.Value}"
                                     CommentSizeScale="{Binding CommentFontScale.Value}"
-                                    Height="{Binding CommentCanvasHeight.Value}"
+                                    
                                     CommentDefaultColor="{Binding CommentDefaultColor.Value}"
                                     DefaultDisplayDuration="{Binding RequestCommentDisplayDuration.Value}"
                                     />
+
+                        <Border  VerticalAlignment="Bottom"
+                                 HorizontalAlignment="Left"
+                                 Background="#AA000000"
+                                 >
+                            <TextBlock Text="{Binding PermanentDisplayText.Value}" 
+                                   TextWrapping="Wrap"
+                                   />
+
+                        </Border>
+
+                    </Grid>
 
 
 
