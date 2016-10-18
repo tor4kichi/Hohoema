@@ -13,6 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Windows.Media.Core;
 
 namespace NicoPlayerHohoema.Models.Live
@@ -20,13 +21,18 @@ namespace NicoPlayerHohoema.Models.Live
 
 	public delegate void CommentPostedEventHandler(NicoLiveVideo sender, bool postSuccess);
 
+	public delegate void DetectNextLiveEventHandler(NicoLiveVideo sender, string liveId);
+
 	public class NicoLiveVideo : BindableBase, IDisposable
 	{
+		public static readonly TimeSpan DefaultNextLiveSubscribeDuration = TimeSpan.FromMinutes(1);
+
 		public HohoemaApp HohoemaApp { get; private set; }
 
 
 		public event CommentPostedEventHandler PostCommentResult;
 
+		public event DetectNextLiveEventHandler NextLive;
 
 
 		/// <summary>
@@ -96,6 +102,11 @@ namespace NicoPlayerHohoema.Models.Live
 			private set { SetProperty(ref _LiveStatusType, value); }
 		}
 
+
+		public string NextLiveId { get; private set; }
+
+		Timer _NextLiveSubscriveTimer;
+		AsyncLock _NextLiveSubscriveLock = new AsyncLock();
 
 		/// <summary>
 		/// 生放送動画をRTMPで受け取るための通信クライアント<br />
@@ -238,6 +249,8 @@ namespace NicoPlayerHohoema.Models.Live
 
 				// 放送からの離脱APIを叩く
 				await HohoemaApp.NiconicoContext.Live.LeaveAsync(LiveId);
+
+				await StopNextLiveSubscribe();
 			}
 		}
 
@@ -262,6 +275,16 @@ namespace NicoPlayerHohoema.Models.Live
 
 		public string LiveTitle => PlayerStatusResponse?.Program.Title;
 
+		private string _BroadcasterId;
+		public string BroadcasterId
+		{
+			get
+			{
+				return _BroadcasterId ??
+					(_BroadcasterId = PlayerStatusResponse?.Program.BroadcasterId.ToString());
+			}
+		}
+
 		public string BroadcasterName => PlayerStatusResponse?.Program.BroadcasterName;
 
 		public CommunityType? BroadcasterCommunityType => PlayerStatusResponse?.Program.CommunityType;
@@ -269,6 +292,7 @@ namespace NicoPlayerHohoema.Models.Live
 		public Uri BroadcasterCommunityImageUri => PlayerStatusResponse?.Program.CommunityImageUrl;
 
 		public string BroadcasterCommunityId => PlayerStatusResponse?.Program.CommunityId;
+
 
 		
 
@@ -429,7 +453,44 @@ namespace NicoPlayerHohoema.Models.Live
 			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
 			{
 				_LiveComments.Add(chat);
+
+				
 			});
+
+			if (chat.User_id == BroadcasterId)
+			{
+				if (chat.Text.Contains("href"))
+				{
+					var root = XDocument.Parse(chat.Text);
+					var anchor = root.Element("a");
+					if (anchor != null)
+					{
+						var href = anchor.Attribute("href");
+						var link = href.Value;
+
+						if (chat.Text.Contains("次"))
+						{
+							var liveId = link.Split('/').LastOrDefault();
+							if (NiconicoRegex.IsLiveId(liveId))
+							{
+								// TODO: liveIdの放送情報を取得して、配信者が同一ユーザーかチェックする
+								using (var releaser = await _NextLiveSubscriveLock.LockAsync())
+								{
+									await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+									{
+										NextLiveId = liveId;
+										NextLive?.Invoke(this, NextLiveId);
+									});
+
+								}
+							}
+						}
+
+						// TODO: linkをブラウザで開けるようにする
+					}
+				}
+			}
+			
 		}
 
 		private async void _NicoLiveCommentClient_OperationCommandRecieved(NicoLiveCommentClient sender, NicoLiveOperationCommandEventArgs args)
@@ -506,7 +567,10 @@ namespace NicoPlayerHohoema.Models.Live
 					case NicoLiveOperationCommandType.Disconnect:
 						
 						// 放送者側からの切断要請
-						await EndLiveSubscribe();
+						CloseRtmpConnection();
+
+						// 次枠の自動巡回を開始
+						await StartNextLiveSubscribe(DefaultNextLiveSubscribeDuration);
 
 						break;
 					case NicoLiveOperationCommandType.Koukoku:
@@ -542,8 +606,133 @@ namespace NicoPlayerHohoema.Models.Live
 
 
 		#endregion
+
+
+
+		#region
+
+		TimeSpan NextLiveSubscribeDuration;
+		private DateTime NextLiveSubscribeStartTime;
+
+
+		public async Task StartNextLiveSubscribe(TimeSpan duration)
+		{
+			using (var releaser = await _NextLiveSubscriveLock.LockAsync())
+			{
+				if (_NextLiveSubscriveTimer == null)
+				{
+					_NextLiveSubscriveTimer = new Timer(
+						NextLiveSubscribe,
+						this,
+						TimeSpan.Zero,
+						TimeSpan.FromSeconds(10)
+						);
+					NextLiveSubscribeStartTime = DateTime.Now;
+				}
+
+				NextLiveSubscribeDuration = duration;
+
+				Debug.WriteLine("start detect next live.");
+			}
+		}
+
+		private async Task StopNextLiveSubscribe()
+		{
+			using (var releaser = await _NextLiveSubscriveLock.LockAsync())
+			{
+				_NextLiveSubscriveTimer?.Dispose();
+				_NextLiveSubscriveTimer = null;
+
+				Debug.WriteLine("stop detect next live.");
+			}
+		}
+
+		private async void NextLiveSubscribe(object state = null)
+		{
+			bool isDone = false;
+			using (var releaser = await _NextLiveSubscriveLock.LockAsync())
+			{
+				if (NextLiveId != null)
+				{
+					isDone = true;
+				}
+			}
+
+
+			if (isDone)
+			{
+				Debug.WriteLine("exit detect next live. (success with operation comment) : " + NextLiveId);
+				await StopNextLiveSubscribe();
+				return;
+			}
+			// ※ Timerスレッドで呼ばれる
+
+			// コミュニティページを取得して、放送中のLiveIdを取得する
+			try
+			{
+				var commuDetail = await HohoemaApp.ContentFinder.GetCommunityDetail(BroadcasterCommunityId);
+
+				// this.LiveIdと異なるLiveIdが一つだけの場合はそのIDを次の枠として処理
+				var liveIds = commuDetail.CommunitySammary.CommunityDetail.CurrentLiveList.Select(x => x.LiveId);
+				foreach (var nextLiveId in liveIds)
+				{
+					if (nextLiveId != LiveId)
+					{
+						using (var releaser = await _NextLiveSubscriveLock.LockAsync())
+						{
+							await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
+							{
+								NextLiveId = nextLiveId;
+								NextLive?.Invoke(this, NextLiveId);
+								Debug.WriteLine("exit detect next live. (success) : " + NextLiveId);
+
+								isDone = true;
+							});
+
+						}						
+
+						break;
+					}
+				}
+
+				
+
+			}
+			catch
+			{
+				Debug.WriteLine("exit detect next live. (failed community page access)");
+
+				await StopNextLiveSubscribe();
+				return;
+			}
+
+			// this.LiveIdと異なるLiveIdが複数ある場合は、それぞれの放送情報を取得して、
+			// 放送主のIDがBroadcasterIdと一致する方を次の枠として選択する
+			// （配信タイトルの似てる方で選択してもよさそう？）
+
+
+
+			// 定期チェックの終了時刻
+			using (var releaser = await _NextLiveSubscriveLock.LockAsync())
+			{
+				if (NextLiveSubscribeStartTime + NextLiveSubscribeDuration > DateTime.Now)
+				{
+					isDone = true;
+
+					Debug.WriteLine("detect next live time over");
+				}
+			}
+
+			if (isDone)
+			{
+				await StopNextLiveSubscribe();
+				return;
+			}
+		}
+
+		#endregion
 	}
 
 
-	
+
 }

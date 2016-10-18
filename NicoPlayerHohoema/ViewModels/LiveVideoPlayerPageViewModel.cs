@@ -320,7 +320,16 @@ namespace NicoPlayerHohoema.ViewModels
 				return _UpdateCommand
 					?? (_UpdateCommand = new DelegateCommand(async () =>
 					{
-						await UpdateLiveVideoConnection();
+						if (DateTime.Now < _EndAt)
+						{
+							await UpdateLiveVideoConnection();
+						}
+						else
+						{
+							await NicoLiveVideo.StartNextLiveSubscribe(NicoLiveVideo.DefaultNextLiveSubscribeDuration);
+						}
+
+
 					}));
 			}
 		}
@@ -436,12 +445,15 @@ namespace NicoPlayerHohoema.ViewModels
 					.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
 					.AddTo(_NavigatingCompositeDisposable);
 				OnPropertyChanged(nameof(PermanentDisplayText));
+
+
+				// next live
+				NicoLiveVideo.NextLive += NicoLiveVideo_NextLive;
 			}
 
 			base.OnNavigatedTo(e, viewModelState);
 		}
 
-		
 
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
@@ -627,6 +639,10 @@ namespace NicoPlayerHohoema.ViewModels
 							// _EndAtもTryUpdateLiveStatus内で更新されているはず
 							_IsEndMarked = false;
 						}
+						else
+						{
+							await NicoLiveVideo.StartNextLiveSubscribe(NicoLiveVideo.DefaultNextLiveSubscribeDuration);
+						}
 					}
 				});
 			}
@@ -714,6 +730,26 @@ namespace NicoPlayerHohoema.ViewModels
 				WritingComment.Value = "";
 			}
 		}
+
+
+
+		// 配信の次枠を自動で開く
+		private void NicoLiveVideo_NextLive(NicoLiveVideo sender, string liveId)
+		{
+			var livePagePayload = new LiveVidePagePayload(liveId)
+			{
+				LiveTitle = this.LiveTitle,
+				CommunityId = this.CommunityId,
+				CommunityName = this.CommunityName
+			};
+
+			PageManager.OpenPage(
+				HohoemaPageType.LiveVideoPlayer,
+				livePagePayload.ToParameterString()
+				);
+		}
+
+
 
 		#endregion
 
