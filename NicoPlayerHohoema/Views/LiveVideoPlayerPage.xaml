@@ -215,6 +215,14 @@
 
                     </Grid>
 
+                    <ProgressRing Visibility="{Binding NowConnecting.Value, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}"
+                                  IsActive="{Binding NowConnecting.Value, Mode=OneWay}"
+                                  Width="48"
+                                  Height="48"
+                                  HorizontalAlignment="Right"
+                                  VerticalAlignment="Top"
+                                  Margin="24 88"      
+                                  />
 
 
                     <!-- 上側のマウス移動の検知用コリジョン -->

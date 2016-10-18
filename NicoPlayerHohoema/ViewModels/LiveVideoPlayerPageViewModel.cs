@@ -104,6 +104,7 @@ namespace NicoPlayerHohoema.ViewModels
 		// play
 		public ReactiveProperty<bool> NowPlaying { get; private set; }
 		public ReactiveProperty<bool> NowUpdating { get; private set; }
+		public ReactiveProperty<bool> NowConnecting { get; private set; }
 
 		public ReactiveProperty<uint> CommentCount { get; private set; }
 		public ReactiveProperty<uint> WatchCount { get; private set; }
@@ -320,11 +321,18 @@ namespace NicoPlayerHohoema.ViewModels
 				return _UpdateCommand
 					?? (_UpdateCommand = new DelegateCommand(async () =>
 					{
-						if (DateTime.Now < _EndAt)
+						if (await TryUpdateLiveStatus())
 						{
-							await UpdateLiveVideoConnection();
+							await NicoLiveVideo.RetryRtmpConnection();
 						}
 						else
+						{
+							// 配信時間内に別の枠を取り直していた場合に対応する
+							await NicoLiveVideo.StartNextLiveSubscribe(NicoLiveVideo.DefaultNextLiveSubscribeDuration);
+						}
+
+						// 配信終了１分前であれば次枠検出をスタートさせる
+						if (DateTime.Now < _EndAt - TimeSpan.FromMinutes(1))
 						{
 							await NicoLiveVideo.StartNextLiveSubscribe(NicoLiveVideo.DefaultNextLiveSubscribeDuration);
 						}
@@ -407,6 +415,16 @@ namespace NicoPlayerHohoema.ViewModels
 						VideoStream.Value = x;
 					})
 					.AddTo(_NavigatingCompositeDisposable);
+
+				NowConnecting = Observable.CombineLatest(
+					NicoLiveVideo.ObserveProperty(x => x.VideoStreamSource).Select(x => x == null),
+					NicoLiveVideo.ObserveProperty(x => x.LiveStatusType).Select(x => x == null)
+					)
+					.Select(x => x.All(y => y))
+					.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
+					.AddTo(_NavigatingCompositeDisposable);
+				OnPropertyChanged(nameof(NowConnecting));
+
 				LiveComments = NicoLiveVideo.LiveComments.ToReadOnlyReactiveCollection(x =>
 				{
 					var comment = new Views.Comment();
@@ -475,6 +493,8 @@ namespace NicoPlayerHohoema.ViewModels
 			NicoLiveVideo = null;
 
 			VideoStream.Value = null;
+
+			DisplayRequestHelper.StopKeepDisplay();
 
 			StopLiveElapsedTimer().ConfigureAwait(false);
 
@@ -573,13 +593,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		private async Task UpdateLiveVideoConnection()
-		{
-			if (await TryUpdateLiveStatus())
-			{
-				await NicoLiveVideo.RetryRtmpConnection();
-			}
-		}
+	
 
 		private async Task StartLiveElapsedTimer()
 		{
@@ -734,7 +748,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		// 配信の次枠を自動で開く
-		private void NicoLiveVideo_NextLive(NicoLiveVideo sender, string liveId)
+		private async void NicoLiveVideo_NextLive(NicoLiveVideo sender, string liveId)
 		{
 			var livePagePayload = new LiveVidePagePayload(liveId)
 			{
@@ -742,6 +756,8 @@ namespace NicoPlayerHohoema.ViewModels
 				CommunityId = this.CommunityId,
 				CommunityName = this.CommunityName
 			};
+
+			await Task.Delay(TimeSpan.FromSeconds(1));
 
 			PageManager.OpenPage(
 				HohoemaPageType.LiveVideoPlayer,
