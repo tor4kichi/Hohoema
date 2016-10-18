@@ -324,20 +324,18 @@ namespace NicoPlayerHohoema.ViewModels
 						if (await TryUpdateLiveStatus())
 						{
 							await NicoLiveVideo.RetryRtmpConnection();
+
+							// 配信終了１分前であれば次枠検出をスタートさせる
+							if (DateTime.Now < _EndAt - TimeSpan.FromMinutes(1))
+							{
+								await NicoLiveVideo.StartNextLiveSubscribe(NicoLiveVideo.DefaultNextLiveSubscribeDuration);
+							}
 						}
 						else
 						{
 							// 配信時間内に別の枠を取り直していた場合に対応する
 							await NicoLiveVideo.StartNextLiveSubscribe(NicoLiveVideo.DefaultNextLiveSubscribeDuration);
 						}
-
-						// 配信終了１分前であれば次枠検出をスタートさせる
-						if (DateTime.Now < _EndAt - TimeSpan.FromMinutes(1))
-						{
-							await NicoLiveVideo.StartNextLiveSubscribe(NicoLiveVideo.DefaultNextLiveSubscribeDuration);
-						}
-
-
 					}));
 			}
 		}

@@ -388,11 +388,14 @@ namespace NicoPlayerHohoema.Models.Live
 			{
 				Debug.WriteLine("AGEIN ensure open rtmp connection ");
 
-				CloseRtmpConnection();
+				await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+				{
+					CloseRtmpConnection();
 
-				await Task.Delay(250);
+					await Task.Delay(250);
 
-				await OpenRtmpConnection(PlayerStatusResponse);
+					await OpenRtmpConnection(PlayerStatusResponse);
+				});
 			}
 			else
 			{
@@ -713,7 +716,10 @@ namespace NicoPlayerHohoema.Models.Live
 
 				Debug.WriteLine("start detect next live.");
 
-				PermanentDisplayText = "*次枠を探しています...";
+				await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+				{
+					PermanentDisplayText = "*次枠を探しています...";
+				});
 			}
 		}
 
@@ -726,7 +732,10 @@ namespace NicoPlayerHohoema.Models.Live
 					_NextLiveSubscriveTimer.Dispose();
 					_NextLiveSubscriveTimer = null;
 
-					PermanentDisplayText = "*次枠は見つかりませんでした";
+					await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+					{
+						PermanentDisplayText = "*次枠は見つかりませんでした";
+					});
 
 					Debug.WriteLine("stop detect next live.");
 				}
@@ -735,38 +744,36 @@ namespace NicoPlayerHohoema.Models.Live
 
 		private async void NextLiveSubscribe(object state = null)
 		{
-			bool isDone = false;
-			using (var releaser = await _NextLiveSubscriveLock.LockAsync())
+			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
 			{
-				if (NextLiveId != null)
+
+				bool isDone = false;
+				using (var releaser = await _NextLiveSubscriveLock.LockAsync())
 				{
-					isDone = true;
+					isDone = NextLiveId != null;
+
 				}
-			}
 
 
-			if (isDone)
-			{
-				Debug.WriteLine("exit detect next live. (success with operation comment) : " + NextLiveId);
-				await StopNextLiveSubscribe();
-				return;
-			}
-			// ※ Timerスレッドで呼ばれる
-
-			// コミュニティページを取得して、放送中のLiveIdを取得する
-			try
-			{
-				var commuDetail = await HohoemaApp.ContentFinder.GetCommunityDetail(BroadcasterCommunityId);
-
-				// this.LiveIdと異なるLiveIdが一つだけの場合はそのIDを次の枠として処理
-				var liveIds = commuDetail.CommunitySammary.CommunityDetail.CurrentLiveList.Select(x => x.LiveId);
-				foreach (var nextLiveId in liveIds)
+				if (isDone)
 				{
-					if (nextLiveId != LiveId)
+					Debug.WriteLine("exit detect next live. (success with operation comment) : " + NextLiveId);
+					await StopNextLiveSubscribe();
+					return;
+				}
+
+				// コミュニティページを取得して、放送中のLiveIdを取得する
+				try
+				{
+					var commuDetail = await HohoemaApp.ContentFinder.GetCommunityDetail(BroadcasterCommunityId);
+
+					// this.LiveIdと異なるLiveIdが一つだけの場合はそのIDを次の枠として処理
+					var liveIds = commuDetail.CommunitySammary.CommunityDetail.CurrentLiveList.Select(x => x.LiveId);
+					foreach (var nextLiveId in liveIds)
 					{
-						using (var releaser = await _NextLiveSubscriveLock.LockAsync())
+						if (nextLiveId != LiveId)
 						{
-							await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
+							using (var releaser = await _NextLiveSubscriveLock.LockAsync())
 							{
 								NextLiveId = nextLiveId;
 
@@ -777,47 +784,43 @@ namespace NicoPlayerHohoema.Models.Live
 
 
 								isDone = true;
-							});
+							}
 
-						}						
+							break;
+						}
+					}
+				}
+				catch
+				{
+					Debug.WriteLine("exit detect next live. (failed community page access)");
 
-						break;
+					await StopNextLiveSubscribe();
+					return;
+				}
+
+				// this.LiveIdと異なるLiveIdが複数ある場合は、それぞれの放送情報を取得して、
+				// 放送主のIDがBroadcasterIdと一致する方を次の枠として選択する
+				// （配信タイトルの似てる方で選択してもよさそう？）
+
+
+
+				// 定期チェックの終了時刻
+				using (var releaser = await _NextLiveSubscriveLock.LockAsync())
+				{
+					if (NextLiveSubscribeStartTime + NextLiveSubscribeDuration < DateTime.Now)
+					{
+						isDone = true;
+
+						Debug.WriteLine("detect next live time over");
 					}
 				}
 
-				
-
-			}
-			catch
-			{
-				Debug.WriteLine("exit detect next live. (failed community page access)");
-
-				await StopNextLiveSubscribe();
-				return;
-			}
-
-			// this.LiveIdと異なるLiveIdが複数ある場合は、それぞれの放送情報を取得して、
-			// 放送主のIDがBroadcasterIdと一致する方を次の枠として選択する
-			// （配信タイトルの似てる方で選択してもよさそう？）
-
-
-
-			// 定期チェックの終了時刻
-			using (var releaser = await _NextLiveSubscriveLock.LockAsync())
-			{
-				if (NextLiveSubscribeStartTime + NextLiveSubscribeDuration > DateTime.Now)
+				if (isDone)
 				{
-					isDone = true;
-
-					Debug.WriteLine("detect next live time over");
+					await StopNextLiveSubscribe();
+					return;
 				}
-			}
-
-			if (isDone)
-			{
-				await StopNextLiveSubscribe();
-				return;
-			}
+			});
 		}
 
 		#endregion
