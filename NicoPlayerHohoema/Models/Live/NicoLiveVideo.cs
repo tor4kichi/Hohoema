@@ -17,9 +17,16 @@ using Windows.Media.Core;
 
 namespace NicoPlayerHohoema.Models.Live
 {
+
+	public delegate void CommentPostedEventHandler(NicoLiveVideo sender, bool postSuccess);
+
 	public class NicoLiveVideo : BindableBase, IDisposable
 	{
 		public HohoemaApp HohoemaApp { get; private set; }
+
+
+		public event CommentPostedEventHandler PostCommentResult;
+
 
 
 		/// <summary>
@@ -82,7 +89,6 @@ namespace NicoPlayerHohoema.Models.Live
 		}
 
 
-		
 		private LiveStatusType? _LiveStatusType;
 		public LiveStatusType? LiveStatusType
 		{
@@ -350,7 +356,11 @@ namespace NicoPlayerHohoema.Models.Live
 
 		public async Task PostComment(string message, string command)
 		{
-			if (!CanPostComment) { return; }
+			if (!CanPostComment)
+			{
+				PostCommentResult?.Invoke(this, false);
+				return;
+			}
 
 			if (_NicoLiveCommentClient != null)
 			{
@@ -394,22 +404,14 @@ namespace NicoPlayerHohoema.Models.Live
 			_NicoLiveCommentClient.CommentPosted += _NicoLiveCommentReciever_CommentPosted;
 		}
 
-		
-
-		private void _NicoLiveCommentReciever_CommentPosted(bool isSuccess)
+		private async void _NicoLiveCommentReciever_CommentPosted(bool isSuccess)
 		{
 			Debug.WriteLine("コメント投稿結果：+" + isSuccess);
 
-			if (isSuccess)
+			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
 			{
-				// コメント書き込みを許可
-				// コメント削除
-			}
-			else
-			{
-				// コメント書き込みを許可
-				// コメントはそのまま
-			}
+				PostCommentResult?.Invoke(this, isSuccess);
+			});
 		}
 
 		private async void _NicoLiveCommentClient_Heartbeat(uint commentCount, uint watchCount)

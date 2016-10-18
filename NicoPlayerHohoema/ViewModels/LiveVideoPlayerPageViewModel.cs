@@ -120,6 +120,16 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<double> CommentCanvasHeight { get; private set; }
 		public ReactiveProperty<Color> CommentDefaultColor { get; private set; }
 
+		// post comment
+		public ReactiveProperty<string> WritingComment { get; private set; }
+		public ReactiveProperty<bool> NowCommentWriting { get; private set; }
+		public ReactiveProperty<bool> NowSubmittingComment { get; private set; }
+
+		public CommentCommandEditerViewModel CommandEditerVM { get; private set; }
+		public ReactiveProperty<string> CommandString { get; private set; }
+
+		public ReactiveCommand CommentSubmitCommand { get; private set; }
+
 		// operation command
 
 		/// <summary>
@@ -178,6 +188,37 @@ namespace NicoPlayerHohoema.ViewModels
 			CommentCanvasHeight = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0.0).AddTo(_CompositeDisposable);
 			CommentDefaultColor = new ReactiveProperty<Color>(PlayerWindowUIDispatcherScheduler, Colors.White).AddTo(_CompositeDisposable);
 
+			// post comment
+			WritingComment = new ReactiveProperty<string>(PlayerWindowUIDispatcherScheduler, "").AddTo(_CompositeDisposable);
+			NowCommentWriting = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler).AddTo(_CompositeDisposable);
+			NowSubmittingComment = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler).AddTo(_CompositeDisposable);
+			
+				// TODO: ニコ生での匿名コメント設定
+			CommandEditerVM = new CommentCommandEditerViewModel(true /* isDefaultAnnonymous */);
+			CommandEditerVM.ChangeEnableAnonymity(true);
+			CommandEditerVM.IsAnonymousComment.Value = false;
+			CommandString = new ReactiveProperty<string>(PlayerWindowUIDispatcherScheduler, "").AddTo(_CompositeDisposable);
+
+			CommandEditerVM.OnCommandChanged += CommandEditerVM_OnCommandChanged;
+
+			CommentSubmitCommand = Observable.CombineLatest(
+				WritingComment.Select(x => !string.IsNullOrEmpty(x)),
+				NowSubmittingComment.Select(x => !x)
+				)
+				.Select(x => x.All(y => y))
+				.ToReactiveCommand(PlayerWindowUIDispatcherScheduler)
+				.AddTo(_CompositeDisposable);
+
+			CommentSubmitCommand.Subscribe(async x =>
+			{
+				if (NicoLiveVideo != null)
+				{
+					NowSubmittingComment.Value = true;
+					await NicoLiveVideo.PostComment(WritingComment.Value, CommandString.Value);
+				}
+			});
+
+
 			// operation command
 			PermanentDisplayText = new ReactiveProperty<string>(PlayerWindowUIDispatcherScheduler, "").AddTo(_CompositeDisposable);
 
@@ -208,7 +249,7 @@ namespace NicoPlayerHohoema.ViewModels
 			IsAutoHideEnable =
 				Observable.CombineLatest(
 					NowPlaying
-					//, NowCommentWriting.Select(x => !x)
+					, NowCommentWriting.Select(x => !x)
 					)
 				.Select(x => x.All(y => y))
 				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
@@ -262,9 +303,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 		}
 
-		
+	
 
-		
+
+
+
 
 		#region Command
 
@@ -331,6 +374,7 @@ namespace NicoPlayerHohoema.ViewModels
 		#endregion
 
 
+		
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
@@ -361,7 +405,7 @@ namespace NicoPlayerHohoema.ViewModels
 					comment.CommentText = x.Text;
 					comment.CommentId = x.No != null ? x.GetCommentNo() : 0;
 					comment.IsAnonimity = x.GetAnonymity();
-					comment.VideoPosition = Math.Max(0,  x.GetVpos()); // PCでも遅れて表示されることがあるので、やや遅らせて表示
+					comment.VideoPosition = Math.Max(0,  x.GetVpos()); 
 					comment.EndPosition = comment.VideoPosition + 1000; // コメントレンダラが再計算するが、仮置きしないと表示対象として処理されない
 
 					comment.ApplyCommands(x.GetCommandTypes());
@@ -384,6 +428,8 @@ namespace NicoPlayerHohoema.ViewModels
 				CommunityId = NicoLiveVideo.BroadcasterCommunityId;
 				CommunityName = NicoLiveVideo.BroadcasterName;
 
+				// post comment 
+				NicoLiveVideo.PostCommentResult += NicoLiveVideo_PostCommentResult;
 
 				// operation command
 				PermanentDisplayText = NicoLiveVideo.ObserveProperty(x => x.PermanentDisplayText)
@@ -394,6 +440,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 			base.OnNavigatedTo(e, viewModelState);
 		}
+
+		
 
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
@@ -463,6 +511,9 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				NowUpdating.Value = false;
 			}
+
+			// コメント送信中にコメントクライアント切断した場合に対応
+			NowSubmittingComment.Value = false;
 		}
 
 
@@ -502,6 +553,8 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 
 			ResetSuggestion(liveStatus);
+
+			NowSubmittingComment.Value = false;
 
 			return liveStatus == null;
 		}
@@ -637,6 +690,33 @@ namespace NicoPlayerHohoema.ViewModels
 				Suggestion.Value = suggestion;
 			}
 		}
+
+
+
+		#region Event Handling
+
+
+		// コメントコマンドの変更を受け取る
+		private void CommandEditerVM_OnCommandChanged()
+		{
+			CommandString.Value = CommandEditerVM.MakeCommandsString();
+		}
+
+
+
+		// コメント投稿の結果を受け取る
+		private void NicoLiveVideo_PostCommentResult(NicoLiveVideo sender, bool postSuccess)
+		{
+			NowSubmittingComment.Value = false;
+
+			if (postSuccess)
+			{
+				WritingComment.Value = "";
+			}
+		}
+
+		#endregion
+
 	}
 
 

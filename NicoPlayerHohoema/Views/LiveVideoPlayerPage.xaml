@@ -82,11 +82,10 @@
                         <Setter Target="TopBarControlButtons_Wide.Visibility" Value="Visible" />
                         <Setter Target="TopBarControlButtons_Short.Visibility" Value="Collapsed" />
 
-                        <!--
                         <Setter Target="CommentButtons_Short.Visibility" Value="Collapsed" />
                         <Setter Target="CommentSubmitButton_Wide.Visibility" Value="Visible" />
                         <Setter Target="CommentCommandEditButton_Wide.Visibility" Value="Visible" />
-                        -->
+                        
                     </VisualState.Setters>
                 </VisualState>
                 <!-- 超狭い -->
@@ -100,12 +99,9 @@
                         <Setter Target="TopBarControlButtons_Wide.Visibility" Value="Collapsed" />
                         <Setter Target="TopBarControlButtons_Short.Visibility" Value="Visible" />
 
-                        <!--
                         <Setter Target="CommentButtons_Short.Visibility" Value="Visible" />
                         <Setter Target="CommentSubmitButton_Wide.Visibility" Value="Collapsed" />
                         <Setter Target="CommentCommandEditButton_Wide.Visibility" Value="Collapsed" />
-                        -->
-
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -147,13 +143,13 @@
                 <Grid Background="#FF0C0C0C" x:Name="MediaControl">
 
                     <i:Interaction.Behaviors>
-                        <!--
-                    <mybehavior:KeyboardTrigger Key="Enter" IsEnabled="{Binding NowCommentWriting.Value, Converter={StaticResource InvertBoolean}}">
-                        <mybehavior:KeyboardTrigger.Actions>
-                            <mybehavior:SetFocus TargetObject="{Binding ElementName=CommentTextBox}" />
-                        </mybehavior:KeyboardTrigger.Actions>
-                    </mybehavior:KeyboardTrigger>
-                    -->
+                        
+                        <mybehavior:KeyboardTrigger Key="Enter" IsEnabled="{Binding NowCommentWriting.Value, Converter={StaticResource InvertBoolean}}">
+                            <mybehavior:KeyboardTrigger.Actions>
+                                <mybehavior:SetFocus TargetObject="{Binding ElementName=CommentTextBox}" />
+                            </mybehavior:KeyboardTrigger.Actions>
+                        </mybehavior:KeyboardTrigger>
+                    
 
                         <mybehavior:MouseWheelTrigger>
                             <mybehavior:MouseWheelTrigger.UpActions>
@@ -550,50 +546,50 @@
 
                             <!-- Comment関連 -->
 
-                            <!--
-                        <toolkit:DockPanel Background="#AA777777" x:Name="CommentLayoutRoot">
 
-                            <Grid toolkit:DockPanel.Dock="Bottom" 
+                            <toolkit:DockPanel Background="#AA777777" x:Name="CommentLayoutRoot">
+
+                                <Grid toolkit:DockPanel.Dock="Bottom" 
                                       x:Name="CommentButtons_Short"
                                       Margin="0 8"
                                       >
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
 
-                                <Button Content="{Binding CommandString.Value}" 
+                                    <Button Content="{Binding CommandString.Value}" 
                                             Margin="16 0 8 0"
                                             Height="40"
                                             DataContext="{Binding}"
                                             HorizontalAlignment="Stretch"
                                         >
-                                    <Button.Flyout>
-                                        <Flyout>
-                                            <local:CommentCommandEditer DataContext="{Binding CommandEditerVM}" />
-                                        </Flyout>
-                                    </Button.Flyout>
-                                </Button>
+                                        <Button.Flyout>
+                                            <Flyout>
+                                                <local:CommentCommandEditer DataContext="{Binding CommandEditerVM}" />
+                                            </Flyout>
+                                        </Button.Flyout>
+                                    </Button>
 
-                                <Button Content="投稿"  Margin="8 0 16 0" 
+                                    <Button Content="投稿"  Margin="8 0 16 0" 
                                              Height="40"
                                             HorizontalAlignment="Stretch"
                                             Command="{Binding CommentSubmitCommand}"
                                             Grid.Column="1"
                                         />
 
-                            </Grid>
+                                </Grid>
 
-                            
-                            <toolkit:DockPanel Margin="8" MaxWidth="960">
-                                <Button Content="投稿"  Margin="16 0" 
+
+                                <toolkit:DockPanel Margin="8" MaxWidth="960">
+                                    <Button Content="投稿"  Margin="16 0" 
                                         Width="80" Height="40"
                                         Command="{Binding CommentSubmitCommand}"
                                         x:Name="CommentSubmitButton_Wide"
                                             toolkit:DockPanel.Dock="Right"
                                         />
 
-                                <Button Content="{Binding CommandString.Value}" 
+                                    <Button Content="{Binding CommandString.Value}" 
                                             toolkit:DockPanel.Dock="Left"
                                             Margin="16 0"
                                             MinWidth="120"
@@ -601,14 +597,14 @@
                                             DataContext="{Binding}"
                                             x:Name="CommentCommandEditButton_Wide"
                                         >
-                                    <Button.Flyout>
-                                        <Flyout>
-                                            <local:CommentCommandEditer DataContext="{Binding CommandEditerVM}" />
-                                        </Flyout>
-                                    </Button.Flyout>
-                                </Button>
+                                        <Button.Flyout>
+                                            <Flyout>
+                                                <local:CommentCommandEditer DataContext="{Binding CommandEditerVM}" />
+                                            </Flyout>
+                                        </Button.Flyout>
+                                    </Button>
 
-                                <TextBox x:Name="CommentTextBox" 
+                                    <TextBox x:Name="CommentTextBox" 
                                              Text="{Binding WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              FontSize="18"
                                              VerticalAlignment="Center"
@@ -618,44 +614,40 @@
                                              PlaceholderText="コメント"
                                              HorizontalAlignment="Stretch"
                                              >
-                                    <i:Interaction.Behaviors>
-                                        <core:EventTriggerBehavior EventName="GotFocus">
-                                            <core:ChangePropertyAction TargetObject="{Binding NowCommentWriting}" PropertyName="Value" Value="True" />
-                                            <mybehavior:MediaElementPauseAction TargetObject="{Binding ElementName=mediaElem}" 
-                                                                                   IsEnabled="{Binding IsPauseWithCommentWriting.Value}" />
-                                        </core:EventTriggerBehavior>
-                                        <core:EventTriggerBehavior EventName="LostFocus" >
-                                            <core:ChangePropertyAction TargetObject="{Binding NowCommentWriting}" PropertyName="Value" Value="False" />
-                                            <mybehavior:MediaElementPlayAction TargetObject="{Binding ElementName=mediaElem}" 
-                                                                                   IsEnabled="{Binding CanResumeOnExitWritingComment.Value}" />
-                                        </core:EventTriggerBehavior>
+                                        <i:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="GotFocus">
+                                                <core:ChangePropertyAction TargetObject="{Binding NowCommentWriting}" PropertyName="Value" Value="True" />
+                                            </core:EventTriggerBehavior>
+                                            <core:EventTriggerBehavior EventName="LostFocus" >
+                                                <core:ChangePropertyAction TargetObject="{Binding NowCommentWriting}" PropertyName="Value" Value="False" />
+                                            </core:EventTriggerBehavior>
 
-                                        <mybehavior:KeyboardTrigger Key="Escape">
-                                            <mybehavior:KeyboardTrigger.Actions>
-                                                <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="False" />
-                                                <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="True" />
-                                            </mybehavior:KeyboardTrigger.Actions>
-                                        </mybehavior:KeyboardTrigger>
+                                            <mybehavior:KeyboardTrigger Key="Escape">
+                                                <mybehavior:KeyboardTrigger.Actions>
+                                                    <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="False" />
+                                                    <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="True" />
+                                                </mybehavior:KeyboardTrigger.Actions>
+                                            </mybehavior:KeyboardTrigger>
 
-                                        <mybehavior:KeyboardTrigger Key="Enter">
-                                            <mybehavior:KeyboardTrigger.Actions>
-                                                <core:InvokeCommandAction Command="{Binding CommentSubmitCommand}" />
-                                                <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="False" />
-                                                <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="True" />
-                                            </mybehavior:KeyboardTrigger.Actions>
-                                        </mybehavior:KeyboardTrigger>
+                                            <mybehavior:KeyboardTrigger Key="Enter">
+                                                <mybehavior:KeyboardTrigger.Actions>
+                                                    <core:InvokeCommandAction Command="{Binding CommentSubmitCommand}" />
+                                                    <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="False" />
+                                                    <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="True" />
+                                                </mybehavior:KeyboardTrigger.Actions>
+                                            </mybehavior:KeyboardTrigger>
 
-                                    </i:Interaction.Behaviors>
-                                </TextBox>
+                                        </i:Interaction.Behaviors>
+                                    </TextBox>
 
 
+
+
+                                </toolkit:DockPanel>
 
 
                             </toolkit:DockPanel>
-                            
 
-                        </toolkit:DockPanel>
-                        -->
 
 
 
@@ -670,6 +662,18 @@
 
                     </toolkit:DockPanel>
 
+
+                    <!-- タップバリア
+                         コメントテキストを書いたあとに画面のどこかをタップしたら
+                         ロストフォーカスさせるためのやつ -->
+                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0 0 0 56" 
+                          Background="Transparent"
+                          IsHitTestVisible="True"
+                          Visibility="{Binding NowCommentWriting.Value, Converter={StaticResource BooleanToVisibility}}"
+                          >
+
+                    </Grid>
+                    
                     <Border Margin="16 80 0 0"
                             Visibility="{Binding HasSuggestion.Value, Converter={StaticResource BooleanToVisibility}}"
                             Background="{ThemeResource AppBarItemBackgroundThemeBrush}"
