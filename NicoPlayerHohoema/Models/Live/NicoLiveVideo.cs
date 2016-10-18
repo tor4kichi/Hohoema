@@ -25,7 +25,8 @@ namespace NicoPlayerHohoema.Models.Live
 
 	public class NicoLiveVideo : BindableBase, IDisposable
 	{
-		public static readonly TimeSpan DefaultNextLiveSubscribeDuration = TimeSpan.FromMinutes(1);
+		public static readonly TimeSpan DefaultNextLiveSubscribeDuration =
+			TimeSpan.FromMinutes(3);
 
 		public HohoemaApp HohoemaApp { get; private set; }
 
