@@ -98,7 +98,7 @@ namespace NicoPlayerHohoema.ViewModels
 		Timer _LiveElapsedTimeUpdateTimer;
 
 
-		private DateTimeOffset _BaseAt;
+		private DateTimeOffset _StartAt;
 		private DateTimeOffset _EndAt;
 
 		// play
@@ -518,7 +518,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 				if (liveStatus == null)
 				{
-					_BaseAt = NicoLiveVideo.PlayerStatusResponse.Program.BaseAt;
+					_StartAt = NicoLiveVideo.PlayerStatusResponse.Program.StartedAt;
 					_EndAt = NicoLiveVideo.PlayerStatusResponse.Program.EndedAt;
 
 					await StartLiveElapsedTimer();
@@ -565,7 +565,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 				if (liveStatus == null)
 				{
-					_BaseAt = NicoLiveVideo.PlayerStatusResponse.Program.BaseAt;
+					_StartAt = NicoLiveVideo.PlayerStatusResponse.Program.StartedAt;
 					_EndAt = NicoLiveVideo.PlayerStatusResponse.Program.EndedAt;
 				}
 				else
@@ -638,7 +638,7 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					// ローカルの現在時刻から放送開始のベース時間を引いて
 					// 放送経過時間の絶対値を求める
-					LiveElapsedTime = DateTime.Now - _BaseAt;
+					LiveElapsedTime = DateTime.Now - _StartAt;
 
 					// 終了時刻を過ぎたら生放送情報を更新する
 					if (!_IsEndMarked && DateTime.Now > _EndAt)
