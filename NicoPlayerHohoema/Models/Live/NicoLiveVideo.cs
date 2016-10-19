@@ -753,11 +753,6 @@ namespace NicoPlayerHohoema.Models.Live
 					_NextLiveSubscriveTimer.Dispose();
 					_NextLiveSubscriveTimer = null;
 
-					await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-					{
-						PermanentDisplayText = "*次枠は見つかりませんでした";
-					});
-
 					Debug.WriteLine("stop detect next live.");
 				}
 			}
@@ -816,6 +811,12 @@ namespace NicoPlayerHohoema.Models.Live
 					Debug.WriteLine("exit detect next live. (failed community page access)");
 
 					await StopNextLiveSubscribe();
+
+					await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+					{
+						PermanentDisplayText = "コミュニティ情報が取得できませんでした";
+					});
+
 					return;
 				}
 
@@ -832,6 +833,8 @@ namespace NicoPlayerHohoema.Models.Live
 					{
 						isDone = true;
 
+						PermanentDisplayText = "コミュニティ情報が取得できませんでした";
+
 						Debug.WriteLine("detect next live time over");
 					}
 				}
@@ -839,6 +842,7 @@ namespace NicoPlayerHohoema.Models.Live
 				if (isDone)
 				{
 					await StopNextLiveSubscribe();
+
 					return;
 				}
 			});
