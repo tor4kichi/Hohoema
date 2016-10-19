@@ -668,7 +668,7 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					// ローカルの現在時刻から放送開始のベース時間を引いて
 					// 放送経過時間の絶対値を求める
-					_LiveElapsedTime = DateTime.Now - _StartAt;
+					LiveElapsedTime = DateTime.Now - _StartAt;
 
 					// 終了時刻を過ぎたら生放送情報を更新する
 					if (!_IsEndMarked && DateTime.Now > _EndAt)
