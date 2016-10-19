@@ -42,6 +42,9 @@ namespace NicoPlayerHohoema.Models.Live
 		public string LiveId { get; private set; }
 
 
+		string _CommunityId;
+
+
 		/// <summary>
 		/// 生放送の配信・視聴のためのメタ情報
 		/// </summary>
@@ -136,9 +139,10 @@ namespace NicoPlayerHohoema.Models.Live
 		AsyncLock _LiveSubscribeLock = new AsyncLock();
 		
 
-		public NicoLiveVideo(string liveId, HohoemaApp hohoemaApp)
+		public NicoLiveVideo(string liveId, HohoemaApp hohoemaApp, string communityId = null)
 		{
 			LiveId = liveId;
+			_CommunityId = communityId;
 			HohoemaApp = hohoemaApp;
 
 			_LiveComments = new ObservableCollection<Chat>();
@@ -157,6 +161,8 @@ namespace NicoPlayerHohoema.Models.Live
 			try
 			{
 				PlayerStatusResponse = await HohoemaApp.NiconicoContext.Live.GetPlayerStatusAsync(LiveId);
+
+				_CommunityId = PlayerStatusResponse.Program.CommunityId;
 			}
 			catch (Exception ex)
 			{
@@ -297,7 +303,7 @@ namespace NicoPlayerHohoema.Models.Live
 
 		public Uri BroadcasterCommunityImageUri => PlayerStatusResponse?.Program.CommunityImageUrl;
 
-		public string BroadcasterCommunityId => PlayerStatusResponse?.Program.CommunityId;
+		public string BroadcasterCommunityId => _CommunityId;
 
 
 		
@@ -664,10 +670,10 @@ namespace NicoPlayerHohoema.Models.Live
 						// また、RtmpClientがクローズ中にここでRtmpClient.Close()を行うと
 						// スレッドセーフではないためか、例外が発生します。
 						
-						//						await CloseRtmpConnection();
+						//await CloseRtmpConnection();
 
 						// 次枠の自動巡回を開始
-						await StartNextLiveSubscribe(DefaultNextLiveSubscribeDuration);
+//						await StartNextLiveSubscribe(DefaultNextLiveSubscribeDuration);
 
 						break;
 					case NicoLiveOperationCommandType.Koukoku:
@@ -721,7 +727,7 @@ namespace NicoPlayerHohoema.Models.Live
 					_NextLiveSubscriveTimer = new Timer(
 						NextLiveSubscribe,
 						this,
-						TimeSpan.Zero,
+						TimeSpan.FromSeconds(3),
 						TimeSpan.FromSeconds(10)
 						);
 					NextLiveSubscribeStartTime = DateTime.Now;
