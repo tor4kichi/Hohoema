@@ -106,32 +106,34 @@
                        toolkit:DockPanel.Dock="Top"
                        Margin="0 0 0 8"
                        />
+                <!--
                 <TextBlock Text="{Binding Description}"
                        TextWrapping="Wrap" 
                    />
+                -->
+                <!-- 動画説明文 -->
+                <WebView Source="{Binding DescriptionHtmlFileUri, Mode=OneWay}" 
+                         HorizontalAlignment="Stretch"
+                         VerticalAlignment="Stretch"
+                         DefaultBackgroundColor="WhiteSmoke"
+                                    >
+
+                    <i:Interaction.Behaviors>
+                        <mybehavior:WebViewNotifyUriClicked
+                                    Command="{Binding ScriptNotifyCommand}"
+                                    />
+
+                        <mybehavior:WebViewAutoResizeToContent 
+                            />
+
+                    </i:Interaction.Behaviors>
+
+                </WebView>
             </toolkit:DockPanel>
 
 
 
-            <!-- 動画説明文 -->
-            <!--
-        <WebView Source="{Binding DescriptionHtmlFileUri, Mode=OneWay}" 
-                         HorizontalAlignment="Stretch"
-                         VerticalAlignment="Stretch"
-                 DefaultBackgroundColor="WhiteSmoke"
-             Width="{Binding ElementName=ControlRoot, Path=ActualWidth}"
-             Height="{Binding ElementName=ControlRoot, Path=ActualHeight}"
-                            >
-
-            <i:Interaction.Behaviors>
-                <mybehavior:WebViewNotifyUriClicked
-                            Command="{Binding ScriptNotifyCommand}"
-                            />
-
-            </i:Interaction.Behaviors>
-
-        </WebView>
-        -->
+            
 
             <Border Height="16" />
 

@@ -22,7 +22,7 @@ namespace NicoPlayerHohoema.ViewModels.LiveVideoInfoContent
 
 		public string BroadcasterName { get; private set; }
 
-//		public Uri DescriptionHtmlFileUri { get; private set; }
+		public Uri DescriptionHtmlFileUri { get; private set; }
 		public string Description { get; private set; }
 
 		public DateTime OpenAt { get; private set; }
@@ -54,7 +54,8 @@ namespace NicoPlayerHohoema.ViewModels.LiveVideoInfoContent
 
 		public override async Task OnEnter()
 		{
-//			DescriptionHtmlFileUri = await NicoLiveVideo.MakeLiveSummaryHtmlUri();
+			DescriptionHtmlFileUri = await NicoLiveVideo.MakeLiveSummaryHtmlUri();
+			OnPropertyChanged(nameof(DescriptionHtmlFileUri));
 		}
 
 
