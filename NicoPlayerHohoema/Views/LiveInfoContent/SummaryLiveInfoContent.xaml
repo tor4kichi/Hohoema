@@ -46,6 +46,7 @@
             </toolkit:DockPanel>
 
             <toolkit:DockPanel Margin="8 8"
+                               Visibility="{Binding IsCommunityLive, Converter={StaticResource BooleanToVisibility}}"
                     >
 
                 <TextBlock Text="配信ユーザー" 

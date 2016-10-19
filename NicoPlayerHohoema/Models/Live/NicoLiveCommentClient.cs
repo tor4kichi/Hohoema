@@ -481,17 +481,18 @@ namespace NicoPlayerHohoema.Models.Live
 
 
 			
-			if (command.CommandType == NicoLiveOperationCommandType.Ignore)
-			{
-				command = null;
-				arguments = null;
-				return false;
-			}
-
+			
 			bool hasCommand = command != null;
 
 			if (hasCommand)
 			{
+				if (command.CommandType == NicoLiveOperationCommandType.Ignore)
+				{
+					command = null;
+					arguments = null;
+					return false;
+				}
+
 				// Note: ダブルクォーテーションを含む空白区切りの文字列を分解して
 				// argumentsに代入します
 

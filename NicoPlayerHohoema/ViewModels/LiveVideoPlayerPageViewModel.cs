@@ -77,6 +77,9 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _CommunityName, value); }
 		}
 
+
+		public bool IsCommunityLive => LiveId.StartsWith("co");
+
 		public NicoLiveVideo NicoLiveVideo { get; private set; }
 
 
@@ -434,7 +437,7 @@ namespace NicoPlayerHohoema.ViewModels
 					comment.CommentId = x.No != null ? x.GetCommentNo() : 0;
 					comment.IsAnonimity = x.GetAnonymity();
 					comment.UserId = x.User_id;
-					comment.IsOwnerComment = x.User_id == NicoLiveVideo.BroadcasterId;
+					comment.IsOwnerComment = x.User_id == NicoLiveVideo?.BroadcasterId;
 
 					//x.GetVposでサーバー上のコメント位置が取れるが、
 					// 受け取った順で表示したいのでローカルの放送時間からコメント位置を割り当てる
@@ -544,6 +547,10 @@ namespace NicoPlayerHohoema.ViewModels
 					_EndAt = NicoLiveVideo.PlayerStatusResponse.Program.EndedAt;
 
 					await StartLiveElapsedTimer();
+
+					LiveTitle = NicoLiveVideo.LiveTitle;
+					CommunityId = NicoLiveVideo.BroadcasterCommunityId;
+					
 
 					OnPropertyChanged(nameof(NicoLiveVideo));
 				}
