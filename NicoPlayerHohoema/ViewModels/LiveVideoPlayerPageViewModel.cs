@@ -202,7 +202,7 @@ namespace NicoPlayerHohoema.ViewModels
 				// TODO: ニコ生での匿名コメント設定
 			CommandEditerVM = new CommentCommandEditerViewModel(true /* isDefaultAnnonymous */);
 			CommandEditerVM.ChangeEnableAnonymity(true);
-			CommandEditerVM.IsAnonymousComment.Value = false;
+			CommandEditerVM.IsAnonymousComment.Value = true;
 			CommandString = new ReactiveProperty<string>(PlayerWindowUIDispatcherScheduler, "").AddTo(_CompositeDisposable);
 
 			CommandEditerVM.OnCommandChanged += CommandEditerVM_OnCommandChanged;
@@ -654,6 +654,8 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 		bool _IsEndMarked;
+		bool _IsNextLiveSubscribeStarted;
+		
 		/// <summary>
 		/// 放送開始からの経過時間を更新します
 		/// </summary>
@@ -666,7 +668,7 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					// ローカルの現在時刻から放送開始のベース時間を引いて
 					// 放送経過時間の絶対値を求める
-					LiveElapsedTime = DateTime.Now - _StartAt;
+					_LiveElapsedTime = DateTime.Now - _StartAt;
 
 					// 終了時刻を過ぎたら生放送情報を更新する
 					if (!_IsEndMarked && DateTime.Now > _EndAt)
@@ -679,10 +681,14 @@ namespace NicoPlayerHohoema.ViewModels
 							// _EndAtもTryUpdateLiveStatus内で更新されているはず
 							_IsEndMarked = false;
 						}
-						else
-						{
-							await NicoLiveVideo.StartNextLiveSubscribe(NicoLiveVideo.DefaultNextLiveSubscribeDuration);
-						}
+					}
+
+					// 終了時刻の３０秒前から
+					if (!_IsNextLiveSubscribeStarted && DateTime.Now > _EndAt - TimeSpan.FromSeconds(30))
+					{
+						_IsNextLiveSubscribeStarted = true;
+
+						await NicoLiveVideo.StartNextLiveSubscribe(NicoLiveVideo.DefaultNextLiveSubscribeDuration);
 					}
 				});
 			}
