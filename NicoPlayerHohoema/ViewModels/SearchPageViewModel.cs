@@ -162,6 +162,8 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			SearchText.Value = item.Keyword;
 			SelectedTarget.Value = TargetListItems.Single(x => x == item.Target);
+
+			DoSearchCommand.Execute();
 		}
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
