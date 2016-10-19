@@ -30,6 +30,7 @@ namespace NicoPlayerHohoema.Models
 
 		const string PRIMARY_ACCOUNT = "primary_account";
 
+		private static DateTime LastSyncRoamingData = DateTime.MinValue;
 
 		public static async Task<HohoemaApp> Create(IEventAggregator ea)
 		{
@@ -224,7 +225,11 @@ namespace NicoPlayerHohoema.Models
 		}
 
 		private static AsyncLock _RoamingDataSyncLock = new AsyncLock();
-		private static string[] IgnoreSyncFolderNames = new[] { FeedManager.FeedStreamFolderName };
+		private static string[] IgnoreSyncFolderNames = new[] 
+		{
+			FeedManager.FeedStreamFolderName,
+			"error"
+		};
 		private static string[] IgnoreSyncExtentionNames = new string[] {  };
 		private static string[] IgnoreSyncFileNames = new[] 
 		{
@@ -269,6 +274,11 @@ namespace NicoPlayerHohoema.Models
 				{
 					var fileProp = await file.GetBasicPropertiesAsync();
 					var slaveFileProp = await slaveItem.GetBasicPropertiesAsync();
+					if (fileProp.DateModified == slaveFileProp.DateModified)
+					{
+						Debug.WriteLine($"{file.Name} は更新されていません");
+						continue;
+					}
 					if (fileProp.DateModified > slaveFileProp.DateModified)
 					{
 						// マスター側のファイルをスレーブ側にコピー
@@ -312,10 +322,18 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-
+		static TimeSpan SyncIgnoreTimeSpan = TimeSpan.FromMinutes(3);
 
 		private async void Current_DataChanged(ApplicationData sender, object args)
 		{
+			if (LastSyncRoamingData + SyncIgnoreTimeSpan > DateTime.Now)
+			{
+				Debug.WriteLine("ローミングデータの同期：一定時間内の同期をキャンセル");
+				return;
+			}
+
+			LastSyncRoamingData = DateTime.Now;
+
 			Debug.WriteLine("ローミングデータの同期：開始");
 			await SyncToRoamingData();
 			Debug.WriteLine("ローミングデータの同期：完了");
@@ -336,7 +354,8 @@ namespace NicoPlayerHohoema.Models
 			{
 				_SigninLock.Release();
 			}
-			
+		
+				
 		}
 
 		/// <summary>
@@ -663,36 +682,45 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<NiconicoSignInStatus> CheckSignedInStatus()
 		{
+			if (!Util.InternetConnection.IsInternet())
+			{
+				return NiconicoSignInStatus.Failed;
+			}
+
 			try
 			{
 				await _SigninLock.WaitAsync();
 
-
 				if (NiconicoContext != null)
 				{
-					return await NiconicoContext.GetIsSignedInAsync();
+					return await ConnectionRetryUtil.TaskWithRetry(
+						() => NiconicoContext.GetIsSignedInAsync()
+						, retryInterval:1000
+						);
 				}
-				else
-				{
-					return NiconicoSignInStatus.Failed;
-				}
+			}
+			catch
+			{
+				return NiconicoSignInStatus.Failed;
 			}
 			finally
 			{
 				_SigninLock.Release();
 			}
+
+			return NiconicoSignInStatus.Failed;
 		}
 
 
 
-		#endregion
+#endregion
 
 
 
-		
-		
 
-		StorageFolder _DownloadFolder;
+
+
+StorageFolder _DownloadFolder;
 
 		public async Task<bool> IsAvailableUserDataFolder()
 		{

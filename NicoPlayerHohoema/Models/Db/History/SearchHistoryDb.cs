@@ -62,7 +62,7 @@ namespace NicoPlayerHohoema.Models.Db
 		{
 			using (var db = new HistoryDbContext())
 			{
-				return db.SearchHistory.ToList();
+				return db.SearchHistory.OrderByDescending(x => x.LastUpdated).ToList();
 			}
 		}
 

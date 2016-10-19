@@ -5,8 +5,11 @@ using Mntone.Rtmp.Client;
 using Mntone.Rtmp.Command;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Media.Core;
@@ -14,6 +17,9 @@ using Windows.Media.MediaProperties;
 
 namespace NicoVideoRtmpClient
 {
+	// see@ http://nico-lab.net/nicolive_rtmpdump_commands/
+
+	// rtmp options see@ https://www.ffmpeg.org/ffmpeg-protocols.html#rtmp
 
 	public interface INicoVideoRtmpConnection
 	{
@@ -35,24 +41,8 @@ namespace NicoVideoRtmpClient
 		{
 			get
 			{
-				var uri = new RtmpUri(PlayerStatus.Stream.RtmpUrl);
-				var command = new NetConnectionConnectCommand(uri.App);
-
-				var nlplaynoticeText = PlayerStatus.Stream.Contents[0].Value;
-
-				var split = nlplaynoticeText.Split(',', '?');
-				var nlplaypath = split[0];
-				var nlid = split[1];
-				var nltoken = split[2];
-
-				var nlplaynoticeParameter = new AmfArray();
-				nlplaynoticeParameter.Add(AmfValue.CreateStringValue(nlplaypath));
-				nlplaynoticeParameter.Add(AmfValue.CreateStringValue(nltoken));
-				nlplaynoticeParameter.Add(AmfValue.CreateStringValue(nlid));
-
-
-				command.OptionalUserArguments = AmfValue.CreateStringValue($"S:{PlayerStatus.Stream.Ticket}");
-
+				var command = new NetConnectionConnectCommand(Uri.App);
+				command.TcUrl = Uri.ToString();
 				return command;
 			}
 		}
@@ -70,57 +60,103 @@ namespace NicoVideoRtmpClient
 			return Task.CompletedTask;
 		}
 
-		protected NetConnectionCallCommand MakeConnCommand()
-		{
-			var command = new NetConnectionCallCommand("NLPlayNotice");
+		
 
-			command.CommandObject = AmfValue.CreateStringValue($"S:{PlayerStatus.Stream.Ticket}"); ;
-
-			return command;
-		}
-
-	
 	}
 
 	abstract public class LiveNiconamaRtmpConnectionBase : NiconamaRtmpConnectionBase
 	{
-
-
 		public LiveNiconamaRtmpConnectionBase(PlayerStatusResponse res)
 			: base(res)
 		{
+			
 
+			
 		}
-		public override NetConnectionConnectCommand Command
-		{
-			get
-			{
-				var uri = new RtmpUri(PlayerStatus.Stream.RtmpUrl);
-				var command = new NetConnectionConnectCommand(uri.App);
-//				command.OptionalUserArguments = AmfValue.CreateStringValue($"S:{PlayerStatus.Stream.Ticket}");
-
-				return command;
-			}
-		}
-
-
-
-
 	}
 
 
 	public class OfficalLiveNiconamaRtmpConnection : LiveNiconamaRtmpConnectionBase
 	{
+		public static readonly Uri OfficailNiconamaBaseUri = new Uri("rtmp://nlakmjpk.live.nicovideo.jp:1935/live");
+
+		public static readonly Uri OfficialNiconamaBase = new Uri("rtmp://smilevideo.fc.llnwd.net:1935/smilevideo");
+
+		public RtmpUri RtmpUri { get; private set; }
+		public string BaseUri = null;
+		public string sLiveId = "";
+
+
 		public OfficalLiveNiconamaRtmpConnection(PlayerStatusResponse res) 
 			: base(res)
 		{
+			// "case:sp:limelight%3Artmp%3A%2F%2Fsmilevideo.fc.llnwd.net%3A1935%2Fsmilevideo%2Cs_lv277498614,mobile:limelight%3Artmp%3A%2F%2Fsmilevideo.fc.llnwd.net%3A1935%2Fsmilevideo%2Cs_lv277498614_sub1,premium:limelight%3Artmp%3A%2F%2Fsmilevideo.fc.llnwd.net%3A1935%2Fsmilevideo%2Cs_lv277498614_sub1,default:limelight%3Artmp%3A%2F%2Fsmilevideo.fc.llnwd.net%3A1935%2Fsmilevideo%2Cs_lv277498614"
+
+			var content = res.Stream.Contents.ElementAt(0);
+			var splited = content.Value.Split(':', ',');
+			var decodedSplit = splited.Select(x => WebUtility.UrlDecode(x));
+			for (int i = 1; i < splited.Length; i++)
+			{
+				var str = splited[i];
+				i++;
+				var decoded = WebUtility.UrlDecode(splited[i]);
+				var url = decoded.Remove(0, decoded.IndexOf(':') + 1);
+				var splitUrl = url.Split(',');
+				var rtmpUri = splitUrl[0];
+				var liveId = splitUrl[1];
+				switch (str)
+				{
+					case "sp":
+						break;
+
+					case "mobile":
+						break;
+
+					case "premium":
+						if (res.User.IsPremium)
+						{
+							BaseUri = rtmpUri;
+						}
+						sLiveId = liveId;
+						break;
+
+					case "default":
+						BaseUri = rtmpUri;
+						sLiveId = liveId;
+						break;
+				}
+
+				if (BaseUri != null)
+				{
+					break;
+				}
+			}
+
+
+			var ticket = PlayerStatus.Stream.Tickets.ElementAt(0);
+			var playpath = $"{ticket.Key}?{ticket.Value}";
+
+			if (PlayerStatus.Stream.Contents.Count == 3)
+			{
+				BaseUri = BaseUri != null ? BaseUri : OfficailNiconamaBaseUri.OriginalString;
+				RtmpUri = new RtmpUri(BaseUri);
+
+				RtmpUri.Instance = playpath;
+			}
+			else
+			{
+				BaseUri = BaseUri != null ? BaseUri : OfficialNiconamaBase.OriginalString;
+				RtmpUri = new RtmpUri(BaseUri);
+
+				RtmpUri.Instance = playpath;
+			}
 		}
 
 		public override RtmpUri Uri
 		{
 			get
 			{
-				return base.Uri;
+				return RtmpUri;
 			}
 		}
 	}
@@ -148,25 +184,91 @@ namespace NicoVideoRtmpClient
 
 	public class ChannelLiveNiconamaRtmpConnection : LiveNiconamaRtmpConnectionBase
 	{
+		private NetConnectionCallCommand _NlPlayNoticeCommand;
+
+
 		public ChannelLiveNiconamaRtmpConnection(PlayerStatusResponse res) : base(res)
 		{
+			var uri = PlayerStatus.Stream.RtmpUrl.OriginalString;
+			var rtmpUri = new RtmpUri(uri);
+			var pp = uri.Split('/');
+
+			rtmpUri.App = string.Join("/", pp[3], pp[4]);
+			rtmpUri.Instance = PlayerStatus.Program.Id;
+			_Uri = rtmpUri;
+
+			_NlPlayNoticeCommand = MakeNLPlayNoticeCommand();
 		}
 
+
+		public override NetConnectionConnectCommand Command
+		{
+			get
+			{
+				var command = new NetConnectionConnectCommand(Uri.App);
+				command.SwfUrl = "http://live.nicovideo.jp/nicoliveplayer.swf?160530135720";
+				command.PageUrl = "http://live.nicovideo.jp/watch/" + PlayerStatus.Program.Id;
+				// TcUrl は RtmpUriのInstanceを省いた文字列
+				command.TcUrl = $"{Uri.Scheme.ToString().ToLower()}://{Uri.Host}:{Uri.Port}/{Uri.App}";
+				command.FlashVersion = "WIN 23,0,0,162";
+				// Rtmpのconnectメソッドのextrasとして PlayerStatus.Stream.Ticket の値を追加
+				command.OptionalUserArguments = AmfValue.CreateStringValue($"{PlayerStatus.Stream.Ticket}");
+				
+				return command;
+			}
+		}
+
+		private RtmpUri _Uri;
 		public override RtmpUri Uri
 		{
 			get
 			{
-				var uri = PlayerStatus.Stream.RtmpUrl.OriginalString;
-				return new RtmpUri($"{uri}/{PlayerStatus.Program.Id}");
+				return _Uri;
 			}
 		}
 
 		public override async Task PostConnectionProcess(NetConnection connection)
 		{
-			//			var nlplaynoticeCommand = MakeNLPlayNoticeCommnad();
+			await connection.CallAsync(_NlPlayNoticeCommand);
+		}
 
-			//			await connection.CallAsync(nlplaynoticeCommand);
-			await Task.Delay(0);
+
+		protected NetConnectionCallCommand MakeNLPlayNoticeCommand()
+		{
+			var command = new NetConnectionCallCommand("nlPlayNotice");
+
+			// TODO: コンテンツが生放送ではなくて動画IDになっている場合がある
+			// smile:sm0000000
+			var nlplaynoticeText = PlayerStatus.Stream.Contents[0].Value;
+
+#if true
+			var split = nlplaynoticeText.Split(',');
+			var nlplaypath = split[0].Remove(0, "rtmp:".Length);
+			var nltoken = split[1];
+
+			var nlid = split[1].Split('?').ElementAt(0);
+#else
+			var split = nlplaynoticeText.Split(',', '?');
+			var nlplaypath = split[0].Remove(0, "rtmp:".Length);
+			var nlid = split[1];
+			var nltoken = split[2];
+#endif
+			var nlplaynoticeParameter = new AmfArray();
+
+			// 先頭にnullを入れる
+			command.OptionalArguments.Add(new AmfValue());
+
+			command.OptionalArguments.Add(AmfValue.CreateStringValue(nlplaypath));
+			command.OptionalArguments.Add(AmfValue.CreateStringValue(nltoken));
+			command.OptionalArguments.Add(AmfValue.CreateStringValue(nlid));
+
+			// これがわからない
+			// パケットキャプチャした結果を真似しているだけで
+			// 意図を理解して追加しているわけではないです
+			command.OptionalArguments.Add(AmfValue.CreateNumberValue(-2));
+
+
+			return command;
 		}
 	}
 
@@ -279,18 +381,39 @@ namespace NicoVideoRtmpClient
 			{
 				_MediaStreamSource.Starting -= OnStarting;
 				_MediaStreamSource.SampleRequested -= OnSampleRequested;
+				
 				_MediaStreamSource = null;
 
 				_Stream.Attached -= OnAttached;
 				_Stream.StatusUpdated -= OnNetStreamStatusUpdated;
 				_Stream.AudioStarted -= OnAudioStarted;
 				_Stream.VideoStarted -= OnVideoStarted;
-				_BufferingHelper.Stop();
+				try
+				{
+					_BufferingHelper.Stop();
+				}
+				catch (Exception ex)
+				{
+					Debug.WriteLine(ex.ToString());
+				}
+
+				
 				_BufferingHelper = null;
 				_Stream = null;
-
+				
 				_Connection.StatusUpdated -= OnNetConnectionStatusUpdated;
-				_Connection = null;
+				try
+				{
+					_Connection.Close();
+				}
+				catch (Exception ex)
+				{
+					Debug.WriteLine(ex.ToString());
+				}
+				finally
+				{
+					_Connection = null;
+				}
 			}
 		}
 
@@ -300,7 +423,7 @@ namespace NicoVideoRtmpClient
 			Close();
 
 			_MediaStreamSource = new MediaStreamSource(descriptor);
-			_MediaStreamSource.BufferTime = new TimeSpan(5 * 10000000);
+			_MediaStreamSource.BufferTime = new TimeSpan(2 * 10000000);
 			_MediaStreamSource.Duration = TimeSpan.MaxValue;
 
 			_MediaStreamSource.Starting += OnStarting;
@@ -310,33 +433,28 @@ namespace NicoVideoRtmpClient
 
 		#region Connection
 
-
+		INicoVideoRtmpConnection _ConnectionImpl;
 		public async Task ConnectAsync(PlayerStatusResponse res)
 		{
 			_Connection = new NetConnection();
 
-
-
-			string rtmpuri = null;
-
-
-			var s = NicoVideoRtmpConnectionHelper.MakeConnectionImpl(res);
+			_ConnectionImpl = NicoVideoRtmpConnectionHelper.MakeConnectionImpl(res);
 
 			_Connection.StatusUpdated += new EventHandler<NetStatusUpdatedEventArgs>(OnNetConnectionStatusUpdated);
 
 
-			var uri = s.Uri;
-			var command = s.Command;
+			var uri = _ConnectionImpl.Uri;
+			var command = _ConnectionImpl.Command;
 			if (command != null)
 			{
-				await _Connection.ConnectAsync(s.Uri, command);
+				await _Connection.ConnectAsync(_ConnectionImpl.Uri, command);
 			}
 			else
 			{
-				await _Connection.ConnectAsync(s.Uri);
+				await _Connection.ConnectAsync(_ConnectionImpl.Uri);
 			}
 
-			await s.PostConnectionProcess(_Connection);			
+
 		}
 
 		#endregion
@@ -355,6 +473,11 @@ namespace NicoVideoRtmpClient
 				_Stream.VideoStarted += OnVideoStarted;
 
 				_BufferingHelper = new BufferingHelper(_Stream);
+
+				await _ConnectionImpl.PostConnectionProcess(_Connection);
+
+				await Task.Delay(50);
+
 				await _Stream.AttachAsync(_Connection);
 			}
 			else if ((ncs & NetStatusCodeType.Level2Mask) == NetStatusCodeType.NetConnectionConnect)
@@ -366,10 +489,10 @@ namespace NicoVideoRtmpClient
 
 
 
-		#endregion
+#endregion
 
 
-		#region NetStream
+#region NetStream
 
 		private async void OnAttached(object sender, NetStreamAttachedEventArgs args)
 		{
@@ -414,7 +537,15 @@ namespace NicoVideoRtmpClient
 			var desc = new AudioStreamDescriptor(prop);
 			if (_MediaStreamSource != null)
 			{
-				_MediaStreamSource.AddStreamDescriptor(desc);
+				try
+				{
+					_MediaStreamSource.AddStreamDescriptor(desc);
+				}
+				catch (Exception ex)
+				{
+					Debug.WriteLine(ex.ToString());
+				}
+
 				Started?.Invoke(new NicovideoRtmpClientStartedEventArgs(_MediaStreamSource));
 			}
 			else
@@ -425,10 +556,12 @@ namespace NicoVideoRtmpClient
 					Started?.Invoke(new NicovideoRtmpClientStartedEventArgs(_MediaStreamSource));
 				}
 			}
+
+			Debug.WriteLine($"{nameof(NicovideoRtmpClient)}: {prop.ToString()}");
 		}
 
 
-		void OnVideoStarted(object sender, NetStreamVideoStartedEventArgs args)
+		private void OnVideoStarted(object sender, NetStreamVideoStartedEventArgs args)
 		{
 			var info = args.Info;
 			VideoEncodingProperties prop = null;
@@ -436,7 +569,7 @@ namespace NicoVideoRtmpClient
 			{
 				prop = VideoEncodingProperties.CreateH264();
 				prop.ProfileId = (int)info.ProfileIndication;
-			}			
+			}
 			else
 			{
 				if (_MediaStreamSource != null)
@@ -463,6 +596,9 @@ namespace NicoVideoRtmpClient
 					Started?.Invoke(new NicovideoRtmpClientStartedEventArgs(_MediaStreamSource));
 				}
 			}
+
+			Debug.WriteLine($"{nameof(NicovideoRtmpClient)}: {prop.ToString()}");
+
 		}
 
 		#endregion
@@ -485,7 +621,7 @@ namespace NicoVideoRtmpClient
 			{
 				await _BufferingHelper.GetAudioAsync()
 					.AsTask()
-					.ContinueWith(prevTask => 
+					.ContinueWith(prevTask =>
 					{
 						request.Sample = prevTask.Result;
 						deferral.Complete();
@@ -503,7 +639,7 @@ namespace NicoVideoRtmpClient
 			}
 		}
 
-		#endregion
+#endregion
 
 
 

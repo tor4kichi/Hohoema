@@ -12,7 +12,7 @@ namespace NicoPlayerHohoema.Util
 		private static DisplayRequest dispRequest = null;
 
 
-		public static void StartVideoPlayback()
+		public static void RequestKeepDisplay()
 		{
 			if (dispRequest == null)
 			{
@@ -28,7 +28,7 @@ namespace NicoPlayerHohoema.Util
 		}
 
 
-		public static void StopVideoPlayback()
+		public static void StopKeepDisplay()
 		{
 			// Insert your own code here to stop the video.
 

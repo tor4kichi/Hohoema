@@ -141,7 +141,8 @@ namespace NicoPlayerHohoema.Models
 			return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
 				return await _HohoemaApp.NiconicoContext.Search.VideoSearchWithKeywordAsync(keyword, from, limit, sort, order);
-			});
+			}
+			, retryInterval:1000);
 		}
 
 		public async Task<VideoListingResponse> GetTagSearch(string tag, uint from, uint limit, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
@@ -160,7 +161,7 @@ namespace NicoPlayerHohoema.Models
 							return prevTask.Result;
 						}
 					});
-			}, retryInterval:2000);
+			}, retryInterval: 1000);
 		}
 
 

@@ -115,7 +115,6 @@
                                 <Setter Property="Margin" Value="0 0 0 4" />
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                 <Setter Property="VerticalContentAlignment" Value="Stretch" />
-                                <Setter Property="Height" Value="32" />
                             </Style>
                         </ItemsControl.ItemContainerStyle>
 
@@ -214,7 +213,6 @@
                             <Setter Property="Margin" Value="0 0 0 4" />
                             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                             <Setter Property="VerticalContentAlignment" Value="Stretch" />
-                            <Setter Property="Height" Value="32" />
                         </Style>
                     </ItemsControl.ItemContainerStyle>
                 </ItemsControl>
@@ -231,6 +229,8 @@
                     HorizontalContentAlignment="Center"
                     VerticalContentAlignment="Center"
                     Margin="0 0 0 0"
+                    MinWidth="80"
+                    MinHeight="48"
                     >
 
                 <StackPanel>

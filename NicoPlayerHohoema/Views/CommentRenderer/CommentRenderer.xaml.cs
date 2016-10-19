@@ -52,7 +52,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		/// テキストの影をどれだけずらすかの量
 		/// 実際に使われるのはフォントサイズにTextBGOffsetBiasを乗算した値
 		/// </summary>
-		const double TextBGOffsetBias = 0.05;
+		const double TextBGOffsetBias = 0.10;
 
 		/// <summary>
 		/// 表示時間で昇順にソートされたコメントVMのディクショナリ <br />
@@ -701,12 +701,12 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		{
 			CommentRenderer me = sender as CommentRenderer;
 
-			var old = e.OldValue as ObservableCollection<Comment>;
+			var old = e.OldValue as INotifyCollectionChanged;
 
 			if (old != null)
 				old.CollectionChanged -= me.OnCommentCollectionChanged;
 
-			var n = e.NewValue as ObservableCollection<Comment>;
+			var n = e.NewValue as INotifyCollectionChanged;
 
 			if (n != null)
 				n.CollectionChanged += me.OnCommentCollectionChanged;

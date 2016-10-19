@@ -35,6 +35,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 			HasItem = new ReactiveProperty<bool>(true);
 
+			HasError = new ReactiveProperty<bool>(false);
+
 			ListViewVerticalOffset = new ReactiveProperty<double>(0.0)
 				.AddTo(_CompositeDisposable);
 			_LastListViewOffset = 0;
@@ -96,6 +98,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override void OnDispose()
 		{
+			if (IncrementalLoadingItems.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
+			{
+				(IncrementalLoadingItems.Source as HohoemaIncrementalSourceBase<ITEM_VM>).Error -= HohoemaIncrementalSource_Error;
+			}
 			IncrementalLoadingItems?.Dispose();
 		}
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
@@ -190,6 +196,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 			if (IncrementalLoadingItems != null)
 			{
+				if (IncrementalLoadingItems.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
+				{
+					(IncrementalLoadingItems.Source as HohoemaIncrementalSourceBase<ITEM_VM>).Error -= HohoemaIncrementalSource_Error;
+				}
 				IncrementalLoadingItems.BeginLoading -= BeginLoadingItems;
 				IncrementalLoadingItems.DoneLoading -= CompleteLoadingItems;
 				IncrementalLoadingItems.Dispose();
@@ -205,23 +215,35 @@ namespace NicoPlayerHohoema.ViewModels
 
 				IncrementalLoadingItems = new IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM>(source);
 				OnPropertyChanged(nameof(IncrementalLoadingItems));
-				
+
 				IncrementalLoadingItems.BeginLoading += BeginLoadingItems;
 				IncrementalLoadingItems.DoneLoading += CompleteLoadingItems;
+
+				if (IncrementalLoadingItems.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
+				{
+					(IncrementalLoadingItems.Source as HohoemaIncrementalSourceBase<ITEM_VM>).Error += HohoemaIncrementalSource_Error;
+				}
 
 				PostResetList();
 			}
 			catch
 			{
 				IncrementalLoadingItems = null;
-				HasItem.Value = false;
+				NowLoadingItems.Value = false;
+				HasItem.Value = true;
+				HasError.Value = true;
 				Debug.WriteLine("failed GenerateIncrementalSource.");
 			}
 		}
 
+		private void HohoemaIncrementalSource_Error()
+		{
+			HasError.Value = true;
+		}
 
 		private void BeginLoadingItems()
 		{
+			HasError.Value = false;
 			NowLoadingItems.Value = true;
 		}
 
@@ -291,9 +313,9 @@ namespace NicoPlayerHohoema.ViewModels
 			get
 			{
 				return _RefreshCommand
-					?? (_RefreshCommand = new DelegateCommand(() => 
+					?? (_RefreshCommand = new DelegateCommand(async () => 
 					{
-						IncrementalLoadingItems.Clear();
+						await ResetList();
 					}));
 			}
 		}
@@ -316,6 +338,8 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> NowRefreshable { get; private set; }
 
 		public ReactiveProperty<bool> HasItem { get; private set; }
+
+		public ReactiveProperty<bool> HasError { get; private set; }
 
 
 		public bool PageIsRequireSignIn { get; private set; }

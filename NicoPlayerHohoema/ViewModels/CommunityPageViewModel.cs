@@ -39,22 +39,23 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public string ThumbnailUrl => CommunityInfo?.Thumbnail;
 
-		public Uri TopUrl => CommunityInfo.TopUrl != null ? new Uri(CommunityInfo.TopUrl) : null;
+		public Uri TopUrl => CommunityInfo?.TopUrl != null ? new Uri(CommunityInfo.TopUrl) : null;
 
 
 
 		public CommunityDetail CommunityDetail { get; private set; }
 
+		public string CommunityOwnerName => CommunityDetail?.OwnerUserName;
 
 		public uint VideoCount => CommunityDetail?.VideoCount ?? 0;
 
 		public string PrivilegeDescription => CommunityDetail?.PrivilegeDescription;
 
-		public bool IsJoinAutoAccept => CommunityDetail?.Option.IsJoinAutoAccept ?? false;
-		public bool IsJoinWithoutPrivacyInfo => CommunityDetail?.Option.IsJoinWithoutPrivacyInfo ?? false;
-		public bool IsCanLiveOnlyPrivilege => CommunityDetail?.Option.IsCanLiveOnlyPrivilege ?? false;
-		public bool IsCanAcceptJoinOnlyPrivilege => CommunityDetail?.Option.IsCanAcceptJoinOnlyPrivilege ?? false;
-		public bool IsCanSubmitVideoOnlyPrivilege => CommunityDetail?.Option.IsCanSubmitVideoOnlyPrivilege ?? false;
+//		public bool IsJoinAutoAccept => CommunityDetail?.Option.IsJoinAutoAccept ?? false;
+//		public bool IsJoinWithoutPrivacyInfo => CommunityDetail?.Option.IsJoinWithoutPrivacyInfo ?? false;
+//		public bool IsCanLiveOnlyPrivilege => CommunityDetail?.Option.IsCanLiveOnlyPrivilege ?? false;
+//		public bool IsCanAcceptJoinOnlyPrivilege => CommunityDetail?.Option.IsCanAcceptJoinOnlyPrivilege ?? false;
+//		public bool IsCanSubmitVideoOnlyPrivilege => CommunityDetail?.Option.IsCanSubmitVideoOnlyPrivilege ?? false;
 
 		// プロフィールHTMLの表示
 		public Uri ProfileHtmlFileUri { get; set; }
@@ -64,9 +65,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 		// タグ
 		public List<TagViewModel> Tags { get; private set; }
-
+		
 		// 生放送予定の表示
 		public List<CommunityLiveInfoViewModel> FutureLiveList { get; private set; }
+
+		// 生放送予定の表示
+		public List<CommunityLiveInfoViewModel> RecentLiveList { get; private set; }
+
 
 		// コミュニティのお知らせ
 		public List<CommunityNewsViewModel> NewsList { get; private set; }
@@ -154,12 +159,17 @@ namespace NicoPlayerHohoema.ViewModels
 					FutureLiveList = CommunityDetail.FutureLiveList.Select(x => new CommunityLiveInfoViewModel(x, PageManager))
 						.ToList();
 
+					RecentLiveList = CommunityDetail.RecentLiveList.Select(x => new CommunityLiveInfoViewModel(x, PageManager))
+						.ToList();
+
 					NewsList = new List<CommunityNewsViewModel>();
 					foreach (var news in CommunityDetail.NewsList)
 					{
 						var newsVM = await CommunityNewsViewModel.Create(CommunityId, news.Title, news.PostAuthor, news.PostDate, news.ContentHtml, PageManager);
 						NewsList.Add(newsVM);
 					}
+
+
 
 					HasNews = NewsList.Count > 0;
 
@@ -169,13 +179,14 @@ namespace NicoPlayerHohoema.ViewModels
 
 					HasCurrentLiveInfo = CurrentLiveInfoList.Count > 0;
 
+					OnPropertyChanged(nameof(CommunityOwnerName));
 					OnPropertyChanged(nameof(VideoCount));
 					OnPropertyChanged(nameof(PrivilegeDescription));
-					OnPropertyChanged(nameof(IsJoinAutoAccept));
-					OnPropertyChanged(nameof(IsJoinWithoutPrivacyInfo));
-					OnPropertyChanged(nameof(IsCanLiveOnlyPrivilege));
-					OnPropertyChanged(nameof(IsCanAcceptJoinOnlyPrivilege));
-					OnPropertyChanged(nameof(IsCanSubmitVideoOnlyPrivilege));
+//					OnPropertyChanged(nameof(IsJoinAutoAccept));
+//					OnPropertyChanged(nameof(IsJoinWithoutPrivacyInfo));
+//					OnPropertyChanged(nameof(IsCanLiveOnlyPrivilege));
+//					OnPropertyChanged(nameof(IsCanAcceptJoinOnlyPrivilege));
+//					OnPropertyChanged(nameof(IsCanSubmitVideoOnlyPrivilege));
 
 					OnPropertyChanged(nameof(ProfileHtmlFileUri));
 					OnPropertyChanged(nameof(OwnerUserInfo));
@@ -202,7 +213,7 @@ namespace NicoPlayerHohoema.ViewModels
 			// UpdateTitle
 			if (!IsFailed)
 			{
-				UpdateTitle($"{CommunityName} のコミュニティ情報");
+				UpdateTitle($"コミュニティ");
 			}
 		}
 
@@ -230,7 +241,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public string LiveTitle { get; private set; }
 		public string LiveId { get; private set; }
-		public string ShortDesc { get; private set; }
 
 		public CurrentLiveInfoViewModel(CommunityLiveInfo liveInfo, PageManager pageManager)
 		{
@@ -238,7 +248,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 			LiveTitle = liveInfo.LiveTitle;
 			LiveId = liveInfo.LiveId;
-			ShortDesc = liveInfo.ShortDesc;
 		}
 
 		private DelegateCommand _OpenLivePageCommand;
@@ -250,7 +259,12 @@ namespace NicoPlayerHohoema.ViewModels
 					?? (_OpenLivePageCommand = new DelegateCommand(() =>
 					{
 						// TODO: 生放送ページを開く lv0000000
+						var livePagePayload = new Models.Live.LiveVidePagePayload(LiveId)
+						{
+							LiveTitle = LiveTitle
+						};
 
+						PageManager.OpenPage(HohoemaPageType.LiveVideoPlayer, livePagePayload.ToParameterString());
 					}));
 			}
 		}

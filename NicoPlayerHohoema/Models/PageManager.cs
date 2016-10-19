@@ -61,6 +61,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			HohoemaPageType.Login,
 			HohoemaPageType.VideoPlayer,
+			HohoemaPageType.LiveVideoPlayer,
 		};
 
 

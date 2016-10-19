@@ -212,7 +212,7 @@ namespace NicoPlayerHohoema.Models
 			{
 				if (CurrentUpdateTarget == null) { return; }
 
-				Debug.WriteLine($"BGTask[{Id}]: update complete {CurrentUpdateTarget.Label}");
+				Debug.WriteLine($"BGTask[{Id}]: update {task.Status.ToString()} {CurrentUpdateTarget.Label}");
 
 				// 完了イベント呼び出し
 				BackgroundUpdateCompletedEvent?.Invoke(CurrentUpdateTarget);

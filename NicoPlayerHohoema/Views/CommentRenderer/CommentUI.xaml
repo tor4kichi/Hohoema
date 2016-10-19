@@ -16,7 +16,7 @@
         <TextBlock 
                 Text="{Binding CommentText}"
                 Foreground="{Binding BackColor, Converter={StaticResource ColorToBrush}}"
-                Opacity="0.5"
+                Opacity="0.75"
                 FontSize="{Binding FontSize}"
                 Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibility}}"
                 TextWrapping="{Binding TextWrapping}"

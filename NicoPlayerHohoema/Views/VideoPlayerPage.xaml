@@ -285,11 +285,6 @@
                                     <mybehavior:MediaElementTogglePlayback TargetObject="{Binding ElementName=mediaElem}"  />
                                 </core:EventTriggerBehavior>
 
-                                <!--
-                                <core:EventTriggerBehavior EventName="DoubleTapped">
-                                    <mybehavior:ForceRotateToCurrentOrientation Target="{Binding ElementName=SplitView}"  />
-                                </core:EventTriggerBehavior>
-                                -->
                             </i:Interaction.Behaviors>
 
                             <Grid Margin="0 0 0 48" >

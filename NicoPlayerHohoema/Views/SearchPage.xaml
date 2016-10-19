@@ -80,6 +80,8 @@
                                   Width="150"
                               >
                 </ComboBox>
+
+                
             </StackPanel>
         </DataTemplate>
 
@@ -101,6 +103,17 @@
                 <ComboBox ItemsSource="{Binding LiveSearchModeOptionListItems}"
                                   DisplayMemberPath="Label"
                                   SelectedItem="{Binding SelectedSearchMode.Value, Mode=TwoWay}"
+                                  Margin="16 0 0 0"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Center"
+                                  IsTabStop="True"
+                                  Width="150"
+                              >
+                </ComboBox>
+
+                <ComboBox ItemsSource="{Binding LiveSearchProviderOptionListItems}"
+                                  DisplayMemberPath="Label"
+                                  SelectedItem="{Binding SelectedProvider.Value, Mode=TwoWay}"
                                   Margin="16 0 0 0"
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Center"

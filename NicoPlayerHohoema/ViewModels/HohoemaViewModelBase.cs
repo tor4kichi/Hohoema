@@ -32,15 +32,15 @@ namespace NicoPlayerHohoema.ViewModels
 			IsRequireSignIn = isRequireSignIn;
 			NowSignIn = false;
 
-			HohoemaApp.OnSignout += OnSignout;
-			HohoemaApp.OnSignin += OnSignin;
+			HohoemaApp.OnSignout += __OnSignout;
+			HohoemaApp.OnSignin += __OnSignin;
 
 			_CompositeDisposable = new CompositeDisposable();
-
+			_NavigatingCompositeDisposable = new CompositeDisposable();
 			_UserSettingsCompositeDisposable = new CompositeDisposable();
 		}
 
-		private void OnSignin()
+		private void __OnSignin()
 		{
 			try
 			{
@@ -62,13 +62,13 @@ namespace NicoPlayerHohoema.ViewModels
 			}			
 		}
 
-		private void OnSignout()
+		private void __OnSignout()
 		{
 			try
 			{
 				_SignStatusLock.Wait();
 
-				if (NowSignIn && !HohoemaApp.IsLoggedIn)
+				if (IsRequireSignIn)
 				{
 					NowSignIn = false;
 
@@ -165,7 +165,15 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					if (!await CheckSignIn())
 					{
-						var result = await HohoemaApp.SignInWithPrimaryAccount();
+						Mntone.Nico2.NiconicoSignInStatus result;
+						try
+						{
+							result = await HohoemaApp.SignInWithPrimaryAccount();
+						}
+						catch
+						{
+							result = Mntone.Nico2.NiconicoSignInStatus.Failed;
+						}
 
 						if (result != Mntone.Nico2.NiconicoSignInStatus.Success)
 						{
@@ -173,9 +181,10 @@ namespace NicoPlayerHohoema.ViewModels
 							PageManager.OpenPage(HohoemaPageType.Login);
 							return;
 						}
+
 					}
 
-					OnSignin();
+					__OnSignin();
 				}
 				
 					
@@ -207,7 +216,7 @@ namespace NicoPlayerHohoema.ViewModels
 						}
 					}
 
-					OnSignin();
+					__OnSignin();
 				}
 
 				if (HohoemaApp.MediaManager != null && HohoemaApp.MediaManager.Context != null)
@@ -229,6 +238,9 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			using (var releaser = await _NavigationLock.LockAsync())
 			{
+				_NavigatingCompositeDisposable?.Dispose();
+				_NavigatingCompositeDisposable = new CompositeDisposable();
+
 				if (!suspending)
 				{
 					HohoemaApp.OnResumed -= _OnResumed;
@@ -266,7 +278,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 				if (IsRequireSignIn)
 				{
-					OnSignout();
+					__OnSignout();
 				}
 
 				OnDispose();
@@ -274,8 +286,8 @@ namespace NicoPlayerHohoema.ViewModels
 				_CompositeDisposable?.Dispose();
 				_UserSettingsCompositeDisposable?.Dispose();
 
-				HohoemaApp.OnSignout -= OnSignout;
-				HohoemaApp.OnSignin -= OnSignin;
+				HohoemaApp.OnSignout -= __OnSignout;
+				HohoemaApp.OnSignin -= __OnSignin;
 			}
 		}
 
@@ -304,6 +316,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public PageManager PageManager { get; private set; }
 
 		protected CompositeDisposable _CompositeDisposable { get; private set; }
+		protected CompositeDisposable _NavigatingCompositeDisposable { get; private set; }
 		protected CompositeDisposable _UserSettingsCompositeDisposable { get; private set; }
 	}
 }

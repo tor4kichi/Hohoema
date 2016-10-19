@@ -158,7 +158,7 @@ namespace NicoPlayerHohoema.ViewModels
 			return videos;
 		}
 
-		protected override async Task<int> ResetSourceImpl()
+		protected override async Task<int> HohoemaPreloadingResetSourceImpl()
 		{
 			User = await ContentFinder.GetUserDetail(UserId.ToString());
 			return (int)User.TotalVideoCount;

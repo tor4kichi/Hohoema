@@ -69,7 +69,7 @@ namespace NicoPlayerHohoema.Util
 			switch (sort)
 			{
 				case NicoliveSearchSort.Recent:
-					return isAscending ? "放送日時が近い順" : "放送日時が遠い順";
+					return isAscending ? "放送日時が遠い順" : "放送日時が近い順";
 				case NicoliveSearchSort.Comment:
 					return isAscending ? "コメントが少ない順" : "コメントが多い順";
 				default:
