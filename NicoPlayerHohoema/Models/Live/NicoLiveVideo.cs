@@ -151,6 +151,9 @@ namespace NicoPlayerHohoema.Models.Live
 
 		public void Dispose()
 		{
+			// 次枠検出を終了
+			StopNextLiveSubscribe().ConfigureAwait(false);
+
 			EndLiveSubscribe().ConfigureAwait(false);
 		}
 
@@ -260,9 +263,6 @@ namespace NicoPlayerHohoema.Models.Live
 
 				// 放送からの離脱APIを叩く
 				await HohoemaApp.NiconicoContext.Live.LeaveAsync(LiveId);
-
-				// 次枠検出を終了
-				await StopNextLiveSubscribe();
 			}
 		}
 
