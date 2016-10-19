@@ -430,8 +430,14 @@ namespace NicoPlayerHohoema.ViewModels
 					comment.CommentText = x.Text;
 					comment.CommentId = x.No != null ? x.GetCommentNo() : 0;
 					comment.IsAnonimity = x.GetAnonymity();
-					comment.VideoPosition = Math.Max(0,  x.GetVpos()); 
-					comment.EndPosition = comment.VideoPosition + 1000; // コメントレンダラが再計算するが、仮置きしないと表示対象として処理されない
+					comment.UserId = x.User_id;
+					comment.IsOwnerComment = x.User_id == NicoLiveVideo.BroadcasterId;
+
+					//x.GetVposでサーバー上のコメント位置が取れるが、
+					// 受け取った順で表示したいのでローカルの放送時間からコメント位置を割り当てる
+					comment.VideoPosition = (uint)(LiveElapsedTime.TotalMilliseconds * 0.1);
+					// EndPositionはコメントレンダラが再計算するが、仮置きしないと表示対象として処理されない
+					comment.EndPosition = comment.VideoPosition + 1000;
 
 					comment.ApplyCommands(x.GetCommandTypes());
 

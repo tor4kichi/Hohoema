@@ -15,18 +15,65 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
+    <UserControl.Resources>
+        <Style x:Key="CommentSubContentStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Foreground" Value="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" />
+        </Style>
+    </UserControl.Resources>
     <Grid>
         <ListView ItemsSource="{Binding LiveComments}">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem" >
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                </Style>
+            </ListView.ItemContainerStyle>
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <toolkit:DockPanel>
-                        <TextBlock Text="{Binding CommentId}"
-                                   toolkit:DockPanel.Dock="Left"
-                                   />
+                    <toolkit:DockPanel Margin="0 4">
+                        <toolkit:DockPanel 
+                            toolkit:DockPanel.Dock="Bottom" 
+                            Margin="0 0 0 0"
+                            >
+                            
+                            <TextBlock toolkit:DockPanel.Dock="Left"
+                                       Style="{StaticResource CommentSubContentStyle}"
+                                       >
+                                <Run Text="No. " />
+                                <Run Text="{Binding CommentId}" />
+                            </TextBlock>
 
-                        <TextBlock Text="{Binding CommentText}" />
-                        <TextBlock Text="{Binding UserId}"
-                                   toolkit:DockPanel.Dock="Right"
+                            <TextBlock toolkit:DockPanel.Dock="Right"
+                                       Style="{StaticResource CommentSubContentStyle}"
+                                       >
+                                <Run Text="ID: " />
+                                <Run Text="{Binding UserId}" />
+                            </TextBlock>
+
+                            <StackPanel Margin="0 0 0 0">
+                                <!-- 属性 -->
+                                <Border Visibility="{Binding IsOwnerComment, Converter={StaticResource BooleanToVisibility}}">
+                                    <TextBlock Text="オーナー" 
+                                               Style="{StaticResource CommentSubContentStyle}"
+                                               />
+                                </Border>
+                                <Border Visibility="{Binding IsOperationCommand, Converter={StaticResource BooleanToVisibility}}">
+                                    <TextBlock Text="運営コマンド"
+                                               Style="{StaticResource CommentSubContentStyle}"
+                                               />
+                                </Border>
+                                <Border Visibility="{Binding IsAnonimity, Converter={StaticResource BooleanToVisibility}}">
+                                    <TextBlock Text="匿名"
+                                               Style="{StaticResource CommentSubContentStyle}"
+                                               />
+                                </Border>
+                            </StackPanel>
+
+                        </toolkit:DockPanel>
+
+                        <TextBlock Text="{Binding CommentText}"
+                                   TextWrapping="Wrap"
                                    />
 
                     </toolkit:DockPanel>
