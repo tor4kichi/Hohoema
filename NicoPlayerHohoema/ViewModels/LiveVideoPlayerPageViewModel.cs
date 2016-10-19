@@ -78,7 +78,6 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		public bool IsCommunityLive => LiveId.StartsWith("co");
 
 		public NicoLiveVideo NicoLiveVideo { get; private set; }
 

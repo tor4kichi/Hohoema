@@ -14,6 +14,8 @@ namespace NicoPlayerHohoema.ViewModels.LiveVideoInfoContent
 		public NicoLiveVideo NicoLiveVideo { get; private set; }
 		public PageManager PageManager { get; private set; }
 
+		public bool IsCommunityLive { get; private set; }
+
 		public string CommunityName { get; private set; }
 
 		public string BroadcasterImageUrl { get; private set; }
@@ -33,6 +35,8 @@ namespace NicoPlayerHohoema.ViewModels.LiveVideoInfoContent
 			PageManager = pageManager;
 
 			CommunityName = communityName;
+
+			IsCommunityLive = liveVideo.LiveId.StartsWith("co");
 
 			var playerStatus = NicoLiveVideo.PlayerStatusResponse;
 			if (playerStatus != null)

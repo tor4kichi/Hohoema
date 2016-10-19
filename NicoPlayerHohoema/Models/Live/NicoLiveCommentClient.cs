@@ -453,6 +453,7 @@ namespace NicoPlayerHohoema.Models.Live
 			new OperationCommnad("koukoku", NicoLiveOperationCommandType.Koukoku),
 
 			new OperationCommnad("keepalive", NicoLiveOperationCommandType.Ignore),
+			new OperationCommnad("hb", NicoLiveOperationCommandType.Ignore),
 		};
 
 		private static bool ChcekOfficialOperationComment(Chat chat, out OperationCommnad command, out string[] arguments)
@@ -486,13 +487,6 @@ namespace NicoPlayerHohoema.Models.Live
 
 			if (hasCommand)
 			{
-				if (command.CommandType == NicoLiveOperationCommandType.Ignore)
-				{
-					command = null;
-					arguments = null;
-					return false;
-				}
-
 				// Note: ダブルクォーテーションを含む空白区切りの文字列を分解して
 				// argumentsに代入します
 
