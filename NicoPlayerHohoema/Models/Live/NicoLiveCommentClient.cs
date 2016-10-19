@@ -79,6 +79,8 @@ namespace NicoPlayerHohoema.Models.Live
 
 		Hidden,
 		CommentLock,
+
+		Ignore, 
 	}
 
 	public class NicoLiveOperationCommandEventArgs
@@ -449,6 +451,8 @@ namespace NicoPlayerHohoema.Models.Live
 			new OperationCommnad("press", NicoLiveOperationCommandType.Press),
 			new OperationCommnad("commentlock", NicoLiveOperationCommandType.CommentLock),
 			new OperationCommnad("koukoku", NicoLiveOperationCommandType.Koukoku),
+
+			new OperationCommnad("keepalive", NicoLiveOperationCommandType.Ignore),
 		};
 
 		private static bool ChcekOfficialOperationComment(Chat chat, out OperationCommnad command, out string[] arguments)
@@ -476,7 +480,16 @@ namespace NicoPlayerHohoema.Models.Live
 			command = OfficialCommands.SingleOrDefault(x => x.Text == maybeCommandText);
 
 
+			
+			if (command.CommandType == NicoLiveOperationCommandType.Ignore)
+			{
+				command = null;
+				arguments = null;
+				return false;
+			}
+
 			bool hasCommand = command != null;
+
 			if (hasCommand)
 			{
 				// Note: ダブルクォーテーションを含む空白区切りの文字列を分解して
