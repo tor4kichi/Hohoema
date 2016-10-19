@@ -14,6 +14,8 @@ namespace NicoPlayerHohoema.ViewModels.LiveVideoInfoContent
 		public NicoLiveVideo NicoLiveVideo { get; private set; }
 		public PageManager PageManager { get; private set; }
 
+		public string CommunityName { get; private set; }
+
 		public string BroadcasterImageUrl { get; private set; }
 
 		public string BroadcasterName { get; private set; }
@@ -25,10 +27,12 @@ namespace NicoPlayerHohoema.ViewModels.LiveVideoInfoContent
 		public DateTime StartAt { get; private set; }
 		public DateTime EndAt { get; private set; }
 
-		public SummaryLiveInfoContentViewModel(NicoLiveVideo liveVideo, PageManager pageManager)
+		public SummaryLiveInfoContentViewModel(string communityName, NicoLiveVideo liveVideo, PageManager pageManager)
 		{
 			NicoLiveVideo = liveVideo;
 			PageManager = pageManager;
+
+			CommunityName = communityName;
 
 			var playerStatus = NicoLiveVideo.PlayerStatusResponse;
 			if (playerStatus != null)
@@ -63,6 +67,21 @@ namespace NicoPlayerHohoema.ViewModels.LiveVideoInfoContent
 
 						// TODO: チャンネルと公式に対応
 						PageManager.OpenPage(HohoemaPageType.Community, NicoLiveVideo.BroadcasterCommunityId);
+					}));
+			}
+		}
+
+		private DelegateCommand _OpenBroadcasterUserCommand;
+		public DelegateCommand OpenBroadcasterUserCommand
+		{
+			get
+			{
+				return _OpenBroadcasterUserCommand
+					?? (_OpenBroadcasterUserCommand = new DelegateCommand(() =>
+					{
+						if (NicoLiveVideo.BroadcasterId == null) { return; }
+
+						PageManager.OpenPage(HohoemaPageType.UserInfo, NicoLiveVideo.BroadcasterId);
 					}));
 			}
 		}

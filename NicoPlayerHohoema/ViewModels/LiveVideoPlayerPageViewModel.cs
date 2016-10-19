@@ -451,7 +451,6 @@ namespace NicoPlayerHohoema.ViewModels
 				OnPropertyChanged(nameof(WatchCount));
 
 				CommunityId = NicoLiveVideo.BroadcasterCommunityId;
-				CommunityName = NicoLiveVideo.BroadcasterName;
 
 				// post comment 
 				NicoLiveVideo.PostCommentResult += NicoLiveVideo_PostCommentResult;
@@ -474,6 +473,20 @@ namespace NicoPlayerHohoema.ViewModels
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			await TryStartViewing();
+
+
+			if (CommunityName == null)
+			{
+				try
+				{
+					var communityDetail = await HohoemaApp.ContentFinder.GetCommunityInfo(CommunityId);
+					if (communityDetail.IsStatusOK)
+					{
+						CommunityName = communityDetail.Community.Name;
+					}
+				}
+				catch { }
+			}
 
 			var vm = CreateLiveVideoPaneContent(LiveVideoPaneContentType.Summary);
 			await vm.OnEnter();
@@ -674,7 +687,7 @@ namespace NicoPlayerHohoema.ViewModels
 			switch (type)
 			{
 				case LiveVideoPaneContentType.Summary:
-					vm = new SummaryLiveInfoContentViewModel(NicoLiveVideo, PageManager);
+					vm = new SummaryLiveInfoContentViewModel(CommunityName, NicoLiveVideo, PageManager);
 					break;
 				case LiveVideoPaneContentType.Comment:
 					vm = new CommentLiveInfoContentViewModel(NicoLiveVideo, LiveComments);

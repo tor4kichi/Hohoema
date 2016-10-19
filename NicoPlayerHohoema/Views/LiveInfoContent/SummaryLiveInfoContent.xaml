@@ -15,67 +15,106 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <StackPanel>
+    <ScrollViewer>
+        <StackPanel Margin="0 16 8 16">
 
 
-        <!-- 投稿ユーザー -->
-        <toolkit:DockPanel>
+            <!-- 投稿ユーザー -->
+            <toolkit:DockPanel Margin="8 8"
+                    
+                    >
+                <TextBlock Text="コミュニティ" 
+                       toolkit:DockPanel.Dock="Top"
+                       Margin="0 0 0 8"
+                       />
 
-            <i:Interaction.Behaviors>
-                <core:EventTriggerBehavior EventName="Tapped">
-                    <core:InvokeCommandAction Command="{Binding OpenBroadcasterInfoCommand}" />
-                </core:EventTriggerBehavior>
-            </i:Interaction.Behaviors>
+                <Button Command="{Binding OpenBroadcasterInfoCommand}" HorizontalAlignment="Stretch">
+                    <toolkit:DockPanel>
+                        <uwpUI:ImageEx Height="48" Width="48" Source="{Binding BroadcasterImageUrl}"
+                            IsCacheEnabled="False"
+                            toolkit:DockPanel.Dock="Left"
+                            />
 
+                        <TextBlock Text="{Binding CommunityName}"
+                                VerticalAlignment="Center"
+                                Margin="16 0 8 0"
+                               HorizontalAlignment="Center"
+                               TextWrapping="Wrap"
+                        />
+                    </toolkit:DockPanel>
+                </Button>
+            </toolkit:DockPanel>
 
-            <StackPanel Background="Gray" Orientation="Horizontal" 
-                        Padding="8" Margin="0 8"
-                        toolkit:DockPanel.Dock="Left"
-                        >
+            <toolkit:DockPanel Margin="8 8"
+                    >
 
-                <uwpUI:ImageEx Height="64" Width="64" Source="{Binding BroadcasterImageUrl}"
-                               IsCacheEnabled="False"
-                               />
+                <TextBlock Text="配信ユーザー" 
+                       toolkit:DockPanel.Dock="Left"
+                       Margin="0 0 0 8"
+                       VerticalAlignment="Center"
+                       />
 
-                <TextBlock Text="{Binding BroadcasterName}"
-                           VerticalAlignment="Center"
-                           Margin="16 0 8 0"
-                           />
+                <Button Content="{Binding BroadcasterName}" 
+                    Command="{Binding OpenBroadcasterUserCommand}"
+                    HorizontalAlignment="Right"
+                    MinHeight="48"
+                    MinWidth="80"
+                    />
 
-            </StackPanel>
+            </toolkit:DockPanel>
 
-            <Border />
+            <Border Height="16" />
 
-        </toolkit:DockPanel>
+            <toolkit:DockPanel Margin="8 0 8 4"
+                           >
+                <TextBlock Text="オープン" 
+                       toolkit:DockPanel.Dock="Left"
+                       Margin="0 0 0 8"
+                       />
+                <TextBlock HorizontalAlignment="Right"
+                       Text="{Binding OpenAt}"
+                       />
+            </toolkit:DockPanel>
 
-        <StackPanel HorizontalAlignment="Left"
-                    Margin="8 0 16 0" Opacity="0.7">
-            <TextBlock>
-                <Run Text="  開場  : " />
-                <Run Text="{Binding OpenAt}" />
-            </TextBlock>
+            <toolkit:DockPanel Margin="8 0 8 4"
+                           >
+                <TextBlock Text="放送開始" 
+                       toolkit:DockPanel.Dock="Left"
+                       Margin="0 0 0 8"
+                       />
+                <TextBlock HorizontalAlignment="Right"
+                       Text="{Binding StartAt}"
+                       />
+            </toolkit:DockPanel>
 
-            <TextBlock>
-                <Run Text="放送開始:" />
-                <Run Text="{Binding StartAt}" />
-            </TextBlock>
+            <toolkit:DockPanel Margin="8 0 8 8"
+                           >
+                <TextBlock Text="放送終了" 
+                       toolkit:DockPanel.Dock="Left"
+                       Margin="0 0 0 8"
+                       />
+                <TextBlock HorizontalAlignment="Right"
+                       Text="{Binding EndAt}"
+                       />
+            </toolkit:DockPanel>
 
-            <TextBlock>
-                <Run Text="放送終了:" />
-                <Run Text="{Binding EndAt}" />
-            </TextBlock>
-        </StackPanel>
+            <Border Height="16" />
 
-        <Border Height="16" />
-
-
-        <TextBlock Text="{Binding Description}"
-                   TextWrapping="Wrap" 
-                   Margin="8 0"
+            <toolkit:DockPanel Margin="8 8"
+                           >
+                <TextBlock Text="説明" 
+                       toolkit:DockPanel.Dock="Top"
+                       Margin="0 0 0 8"
+                       />
+                <TextBlock Text="{Binding Description}"
+                       TextWrapping="Wrap" 
                    />
-        
-        <!-- 動画説明文 -->
-        <!--
+            </toolkit:DockPanel>
+
+
+
+            <!-- 動画説明文 -->
+            <!--
         <WebView Source="{Binding DescriptionHtmlFileUri, Mode=OneWay}" 
                          HorizontalAlignment="Stretch"
                          VerticalAlignment="Stretch"
@@ -94,9 +133,11 @@
         </WebView>
         -->
 
-        <Border Height="16" />
+            <Border Height="16" />
 
 
-       
-    </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+    
 </UserControl>
