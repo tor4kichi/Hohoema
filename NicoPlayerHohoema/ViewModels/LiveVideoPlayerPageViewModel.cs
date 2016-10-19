@@ -154,10 +154,13 @@ namespace NicoPlayerHohoema.ViewModels
 		// pane content
 		private Dictionary<LiveVideoPaneContentType, LiveInfoContentViewModelBase> _PaneContentCache;
 
-		public static List<LiveVideoPaneContentType> PaneContentTypes { get; private set; } =
-			Enum.GetValues(typeof(LiveVideoPaneContentType))
-			.Cast<LiveVideoPaneContentType>()
-			.ToList();
+		public static List<LiveVideoPaneContentType> PaneContentTypes { get; private set; } = new[] {
+				LiveVideoPaneContentType.Summary,
+				LiveVideoPaneContentType.Comment,
+				LiveVideoPaneContentType.Shere
+			}.ToList();
+
+			
 		public ReactiveProperty<LiveVideoPaneContentType> SelectedPaneContent { get; private set; }
 		public ReactiveProperty<LiveInfoContentViewModelBase> PaneContent { get; private set; }
 
