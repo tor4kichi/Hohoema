@@ -39,7 +39,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public string ThumbnailUrl => CommunityInfo?.Thumbnail;
 
-		public Uri TopUrl => CommunityInfo.TopUrl != null ? new Uri(CommunityInfo.TopUrl) : null;
+		public Uri TopUrl => CommunityInfo?.TopUrl != null ? new Uri(CommunityInfo.TopUrl) : null;
 
 
 

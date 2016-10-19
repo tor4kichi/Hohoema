@@ -77,6 +77,8 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _CommunityName, value); }
 		}
 
+
+
 		public NicoLiveVideo NicoLiveVideo { get; private set; }
 
 
@@ -98,7 +100,7 @@ namespace NicoPlayerHohoema.ViewModels
 		Timer _LiveElapsedTimeUpdateTimer;
 
 
-		private DateTimeOffset _BaseAt;
+		private DateTimeOffset _StartAt;
 		private DateTimeOffset _EndAt;
 
 		// play
@@ -154,10 +156,13 @@ namespace NicoPlayerHohoema.ViewModels
 		// pane content
 		private Dictionary<LiveVideoPaneContentType, LiveInfoContentViewModelBase> _PaneContentCache;
 
-		public static List<LiveVideoPaneContentType> PaneContentTypes { get; private set; } =
-			Enum.GetValues(typeof(LiveVideoPaneContentType))
-			.Cast<LiveVideoPaneContentType>()
-			.ToList();
+		public static List<LiveVideoPaneContentType> PaneContentTypes { get; private set; } = new[] {
+				LiveVideoPaneContentType.Summary,
+				LiveVideoPaneContentType.Comment,
+				LiveVideoPaneContentType.Shere
+			}.ToList();
+
+			
 		public ReactiveProperty<LiveVideoPaneContentType> SelectedPaneContent { get; private set; }
 		public ReactiveProperty<LiveInfoContentViewModelBase> PaneContent { get; private set; }
 
@@ -197,7 +202,7 @@ namespace NicoPlayerHohoema.ViewModels
 				// TODO: ニコ生での匿名コメント設定
 			CommandEditerVM = new CommentCommandEditerViewModel(true /* isDefaultAnnonymous */);
 			CommandEditerVM.ChangeEnableAnonymity(true);
-			CommandEditerVM.IsAnonymousComment.Value = false;
+			CommandEditerVM.IsAnonymousComment.Value = true;
 			CommandString = new ReactiveProperty<string>(PlayerWindowUIDispatcherScheduler, "").AddTo(_CompositeDisposable);
 
 			CommandEditerVM.OnCommandChanged += CommandEditerVM_OnCommandChanged;
@@ -430,8 +435,14 @@ namespace NicoPlayerHohoema.ViewModels
 					comment.CommentText = x.Text;
 					comment.CommentId = x.No != null ? x.GetCommentNo() : 0;
 					comment.IsAnonimity = x.GetAnonymity();
-					comment.VideoPosition = Math.Max(0,  x.GetVpos()); 
-					comment.EndPosition = comment.VideoPosition + 1000; // コメントレンダラが再計算するが、仮置きしないと表示対象として処理されない
+					comment.UserId = x.User_id;
+					comment.IsOwnerComment = x.User_id == NicoLiveVideo?.BroadcasterId;
+
+					//x.GetVposでサーバー上のコメント位置が取れるが、
+					// 受け取った順で表示したいのでローカルの放送時間からコメント位置を割り当てる
+					comment.VideoPosition = (uint)(LiveElapsedTime.TotalMilliseconds * 0.1);
+					// EndPositionはコメントレンダラが再計算するが、仮置きしないと表示対象として処理されない
+					comment.EndPosition = comment.VideoPosition + 1000;
 
 					comment.ApplyCommands(x.GetCommandTypes());
 
@@ -451,7 +462,6 @@ namespace NicoPlayerHohoema.ViewModels
 				OnPropertyChanged(nameof(WatchCount));
 
 				CommunityId = NicoLiveVideo.BroadcasterCommunityId;
-				CommunityName = NicoLiveVideo.BroadcasterName;
 
 				// post comment 
 				NicoLiveVideo.PostCommentResult += NicoLiveVideo_PostCommentResult;
@@ -474,6 +484,20 @@ namespace NicoPlayerHohoema.ViewModels
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			await TryStartViewing();
+
+
+			if (CommunityName == null)
+			{
+				try
+				{
+					var communityDetail = await HohoemaApp.ContentFinder.GetCommunityInfo(CommunityId);
+					if (communityDetail.IsStatusOK)
+					{
+						CommunityName = communityDetail.Community.Name;
+					}
+				}
+				catch { }
+			}
 
 			var vm = CreateLiveVideoPaneContent(LiveVideoPaneContentType.Summary);
 			await vm.OnEnter();
@@ -518,10 +542,14 @@ namespace NicoPlayerHohoema.ViewModels
 
 				if (liveStatus == null)
 				{
-					_BaseAt = NicoLiveVideo.PlayerStatusResponse.Program.BaseAt;
+					_StartAt = NicoLiveVideo.PlayerStatusResponse.Program.StartedAt;
 					_EndAt = NicoLiveVideo.PlayerStatusResponse.Program.EndedAt;
 
 					await StartLiveElapsedTimer();
+
+					LiveTitle = NicoLiveVideo.LiveTitle;
+					CommunityId = NicoLiveVideo.BroadcasterCommunityId;
+					
 
 					OnPropertyChanged(nameof(NicoLiveVideo));
 				}
@@ -565,7 +593,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 				if (liveStatus == null)
 				{
-					_BaseAt = NicoLiveVideo.PlayerStatusResponse.Program.BaseAt;
+					_StartAt = NicoLiveVideo.PlayerStatusResponse.Program.StartedAt;
 					_EndAt = NicoLiveVideo.PlayerStatusResponse.Program.EndedAt;
 				}
 				else
@@ -626,6 +654,8 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 		bool _IsEndMarked;
+		bool _IsNextLiveSubscribeStarted;
+		
 		/// <summary>
 		/// 放送開始からの経過時間を更新します
 		/// </summary>
@@ -638,7 +668,7 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					// ローカルの現在時刻から放送開始のベース時間を引いて
 					// 放送経過時間の絶対値を求める
-					LiveElapsedTime = DateTime.Now - _BaseAt;
+					_LiveElapsedTime = DateTime.Now - _StartAt;
 
 					// 終了時刻を過ぎたら生放送情報を更新する
 					if (!_IsEndMarked && DateTime.Now > _EndAt)
@@ -651,10 +681,14 @@ namespace NicoPlayerHohoema.ViewModels
 							// _EndAtもTryUpdateLiveStatus内で更新されているはず
 							_IsEndMarked = false;
 						}
-						else
-						{
-							await NicoLiveVideo.StartNextLiveSubscribe(NicoLiveVideo.DefaultNextLiveSubscribeDuration);
-						}
+					}
+
+					// 終了時刻の３０秒前から
+					if (!_IsNextLiveSubscribeStarted && DateTime.Now > _EndAt - TimeSpan.FromSeconds(30))
+					{
+						_IsNextLiveSubscribeStarted = true;
+
+						await NicoLiveVideo.StartNextLiveSubscribe(NicoLiveVideo.DefaultNextLiveSubscribeDuration);
 					}
 				});
 			}
@@ -674,7 +708,7 @@ namespace NicoPlayerHohoema.ViewModels
 			switch (type)
 			{
 				case LiveVideoPaneContentType.Summary:
-					vm = new SummaryLiveInfoContentViewModel(NicoLiveVideo, PageManager);
+					vm = new SummaryLiveInfoContentViewModel(CommunityName, NicoLiveVideo, PageManager);
 					break;
 				case LiveVideoPaneContentType.Comment:
 					vm = new CommentLiveInfoContentViewModel(NicoLiveVideo, LiveComments);

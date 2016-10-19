@@ -79,6 +79,8 @@ namespace NicoPlayerHohoema.Models.Live
 
 		Hidden,
 		CommentLock,
+
+		Ignore, 
 	}
 
 	public class NicoLiveOperationCommandEventArgs
@@ -449,6 +451,9 @@ namespace NicoPlayerHohoema.Models.Live
 			new OperationCommnad("press", NicoLiveOperationCommandType.Press),
 			new OperationCommnad("commentlock", NicoLiveOperationCommandType.CommentLock),
 			new OperationCommnad("koukoku", NicoLiveOperationCommandType.Koukoku),
+
+			new OperationCommnad("keepalive", NicoLiveOperationCommandType.Ignore),
+			new OperationCommnad("hb", NicoLiveOperationCommandType.Ignore),
 		};
 
 		private static bool ChcekOfficialOperationComment(Chat chat, out OperationCommnad command, out string[] arguments)
@@ -476,7 +481,10 @@ namespace NicoPlayerHohoema.Models.Live
 			command = OfficialCommands.SingleOrDefault(x => x.Text == maybeCommandText);
 
 
+			
+			
 			bool hasCommand = command != null;
+
 			if (hasCommand)
 			{
 				// Note: ダブルクォーテーションを含む空白区切りの文字列を分解して
@@ -591,7 +599,7 @@ namespace NicoPlayerHohoema.Models.Live
 				_HeartbeatTimer = new Timer(
 					async state => await TryHeartbeat(),
 					null,
-					TimeSpan.FromSeconds(5), // いきなりハートビートを叩くとダメっぽいので最初は遅らせる
+					TimeSpan.FromSeconds(1), // いきなりハートビートを叩くとダメっぽいので最初は遅らせる
 					_HeartbeatInterval
 					);
 			}

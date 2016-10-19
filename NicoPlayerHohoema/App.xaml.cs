@@ -249,15 +249,41 @@ namespace NicoPlayerHohoema
 					}
 					else
 					{
-						pageManager.OpenPage(HohoemaPageType.VideoPlayer, new VideoPlayPayload()
-						{
-							VideoId = maybeNicoContentId
-						}.ToParameterString());
+						pageManager.OpenPage(HohoemaPageType.VideoPlayer, 
+							new VideoPlayPayload()
+							{
+								VideoId = maybeNicoContentId
+							}.ToParameterString()
+						);
 					}
 				}
 				else if (Mntone.Nico2.NiconicoRegex.IsLiveId(maybeNicoContentId))
 				{
-					// TODO: 
+					HohoemaApp hohoemaApp = null;
+					try
+					{
+						hohoemaApp = Container.Resolve<HohoemaApp>();
+					}
+					catch { }
+
+					if (!hohoemaApp?.IsLoggedIn ?? false)
+					{
+						var loginRedirect = new LoginRedirectPayload()
+						{
+							RedirectPageType = HohoemaPageType.LiveVideoPlayer,
+							RedirectParamter = new Models.Live.LiveVidePagePayload(maybeNicoContentId)
+								.ToParameterString()
+						}.ToParameterString();
+
+						pageManager.OpenPage(HohoemaPageType.Login, loginRedirect);
+					}
+					else
+					{
+						pageManager.OpenPage(HohoemaPageType.LiveVideoPlayer, 
+							new Models.Live.LiveVidePagePayload(maybeNicoContentId)
+							.ToParameterString()
+							);
+					}
 				}
 			}
 

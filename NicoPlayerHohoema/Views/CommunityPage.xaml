@@ -23,8 +23,13 @@
         
         <StackPanel Margin="16" MaxWidth="960">
 
-            
-            
+
+            <HyperlinkButton NavigateUri="{Binding TopUrl}" 
+                             Content="コミュニティ情報をブラウザで確認する"
+                             HorizontalAlignment="Right"
+                             Margin="8 0 8 8"
+                             />
+
 
             <!-- コミュニティの情報 -->
 

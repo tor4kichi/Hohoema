@@ -25,7 +25,8 @@ namespace NicoPlayerHohoema.Models.Live
 
 	public class NicoLiveVideo : BindableBase, IDisposable
 	{
-		public static readonly TimeSpan DefaultNextLiveSubscribeDuration = TimeSpan.FromMinutes(1);
+		public static readonly TimeSpan DefaultNextLiveSubscribeDuration =
+			TimeSpan.FromMinutes(3);
 
 		public HohoemaApp HohoemaApp { get; private set; }
 
@@ -39,6 +40,9 @@ namespace NicoPlayerHohoema.Models.Live
 		/// 生放送コンテンツID
 		/// </summary>
 		public string LiveId { get; private set; }
+
+
+		string _CommunityId;
 
 
 		/// <summary>
@@ -113,6 +117,9 @@ namespace NicoPlayerHohoema.Models.Live
 		/// RTMPで正常に動画が受信できる状態になった場合 VideoStreamSource にインスタンスが渡される
 		/// </summary>
 		NicovideoRtmpClient _RtmpClient;
+		AsyncLock _RtmpClientAssignLock = new AsyncLock();
+
+
 
 		Timer _EnsureStartLiveTimer;
 		AsyncLock _EnsureStartLiveTimerLock = new AsyncLock();
@@ -132,9 +139,10 @@ namespace NicoPlayerHohoema.Models.Live
 		AsyncLock _LiveSubscribeLock = new AsyncLock();
 		
 
-		public NicoLiveVideo(string liveId, HohoemaApp hohoemaApp)
+		public NicoLiveVideo(string liveId, HohoemaApp hohoemaApp, string communityId = null)
 		{
 			LiveId = liveId;
+			_CommunityId = communityId;
 			HohoemaApp = hohoemaApp;
 
 			_LiveComments = new ObservableCollection<Chat>();
@@ -143,6 +151,9 @@ namespace NicoPlayerHohoema.Models.Live
 
 		public void Dispose()
 		{
+			// 次枠検出を終了
+			StopNextLiveSubscribe().ConfigureAwait(false);
+
 			EndLiveSubscribe().ConfigureAwait(false);
 		}
 
@@ -153,6 +164,8 @@ namespace NicoPlayerHohoema.Models.Live
 			try
 			{
 				PlayerStatusResponse = await HohoemaApp.NiconicoContext.Live.GetPlayerStatusAsync(LiveId);
+
+				_CommunityId = PlayerStatusResponse.Program.CommunityId;
 			}
 			catch (Exception ex)
 			{
@@ -243,19 +256,13 @@ namespace NicoPlayerHohoema.Models.Live
 				await ExitEnsureOpenRtmpConnection();
 
 				// ニコ生サーバーから切断
-				CloseRtmpConnection();
-
-				// ネイティブコード上のRTMP接続を即座にDisposeさせるためにGC実行が必要
-//				GC.Collect();
+				await CloseRtmpConnection();
 
 				// HeartbeatAPIへのアクセスを停止
 				await EndCommentClientConnection();
 
 				// 放送からの離脱APIを叩く
 				await HohoemaApp.NiconicoContext.Live.LeaveAsync(LiveId);
-
-				// 次枠検出を終了
-				await StopNextLiveSubscribe();
 			}
 		}
 
@@ -296,7 +303,7 @@ namespace NicoPlayerHohoema.Models.Live
 
 		public Uri BroadcasterCommunityImageUri => PlayerStatusResponse?.Program.CommunityImageUrl;
 
-		public string BroadcasterCommunityId => PlayerStatusResponse?.Program.CommunityId;
+		public string BroadcasterCommunityId => _CommunityId;
 
 
 		
@@ -390,9 +397,7 @@ namespace NicoPlayerHohoema.Models.Live
 
 				await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
 				{
-					CloseRtmpConnection();
-
-					await Task.Delay(250);
+					await CloseRtmpConnection();
 
 					await OpenRtmpConnection(PlayerStatusResponse);
 				});
@@ -408,24 +413,36 @@ namespace NicoPlayerHohoema.Models.Live
 
 		private async Task OpenRtmpConnection(PlayerStatusResponse res)
 		{
-			_RtmpClient = new NicovideoRtmpClient();
+			await CloseRtmpConnection();
 
-			_RtmpClient.Started += _RtmpClient_Started;
-			_RtmpClient.Stopped += _RtmpClient_Stopped;
+			using (var releaser = await _RtmpClientAssignLock.LockAsync())
+			{
+				if (_RtmpClient == null)
+				{
+					_RtmpClient = new NicovideoRtmpClient();
 
+					_RtmpClient.Started += _RtmpClient_Started;
+					_RtmpClient.Stopped += _RtmpClient_Stopped;
 
-			await _RtmpClient.ConnectAsync(res);
+					await _RtmpClient.ConnectAsync(res);
+				}
+			}
 		}
 
-		private void CloseRtmpConnection()
+		private async Task CloseRtmpConnection()
 		{
-			if (_RtmpClient != null)
+			using (var releaser = await _RtmpClientAssignLock.LockAsync())
 			{
-				_RtmpClient.Started -= _RtmpClient_Started;
-				_RtmpClient.Stopped -= _RtmpClient_Stopped;
+				if (_RtmpClient != null)
+				{
+					_RtmpClient.Started -= _RtmpClient_Started;
+					_RtmpClient.Stopped -= _RtmpClient_Stopped;
 
-				_RtmpClient?.Dispose();
-				_RtmpClient = null;
+					_RtmpClient?.Dispose();
+					_RtmpClient = null;
+
+					await Task.Delay(500);
+				}
 			}
 		}
 
@@ -450,8 +467,6 @@ namespace NicoPlayerHohoema.Models.Live
 				}
 
 				Debug.WriteLine("recieve exit live stream: " + LiveId);
-
-				await EndLiveSubscribe();
 
 				await StartNextLiveSubscribe(DefaultNextLiveSubscribeDuration);
 			});
@@ -647,12 +662,18 @@ namespace NicoPlayerHohoema.Models.Live
 						}
 						break;
 					case NicoLiveOperationCommandType.Disconnect:
-						
+
 						// 放送者側からの切断要請
-						CloseRtmpConnection();
+
+						// Note: RTMPによる動画受信の停止はDisconnect後の
+						// RtmpClient.Closedイベントによって処理されます。
+						// また、RtmpClientがクローズ中にここでRtmpClient.Close()を行うと
+						// スレッドセーフではないためか、例外が発生します。
+						
+						//await CloseRtmpConnection();
 
 						// 次枠の自動巡回を開始
-						await StartNextLiveSubscribe(DefaultNextLiveSubscribeDuration);
+//						await StartNextLiveSubscribe(DefaultNextLiveSubscribeDuration);
 
 						break;
 					case NicoLiveOperationCommandType.Koukoku:
@@ -706,7 +727,7 @@ namespace NicoPlayerHohoema.Models.Live
 					_NextLiveSubscriveTimer = new Timer(
 						NextLiveSubscribe,
 						this,
-						TimeSpan.Zero,
+						TimeSpan.FromSeconds(3),
 						TimeSpan.FromSeconds(10)
 						);
 					NextLiveSubscribeStartTime = DateTime.Now;
@@ -731,11 +752,6 @@ namespace NicoPlayerHohoema.Models.Live
 				{
 					_NextLiveSubscriveTimer.Dispose();
 					_NextLiveSubscriveTimer = null;
-
-					await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-					{
-						PermanentDisplayText = "*次枠は見つかりませんでした";
-					});
 
 					Debug.WriteLine("stop detect next live.");
 				}
@@ -795,6 +811,12 @@ namespace NicoPlayerHohoema.Models.Live
 					Debug.WriteLine("exit detect next live. (failed community page access)");
 
 					await StopNextLiveSubscribe();
+
+					await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+					{
+						PermanentDisplayText = "コミュニティ情報が取得できませんでした";
+					});
+
 					return;
 				}
 
@@ -811,6 +833,8 @@ namespace NicoPlayerHohoema.Models.Live
 					{
 						isDone = true;
 
+						PermanentDisplayText = "コミュニティ情報が取得できませんでした";
+
 						Debug.WriteLine("detect next live time over");
 					}
 				}
@@ -818,6 +842,7 @@ namespace NicoPlayerHohoema.Models.Live
 				if (isDone)
 				{
 					await StopNextLiveSubscribe();
+
 					return;
 				}
 			});
