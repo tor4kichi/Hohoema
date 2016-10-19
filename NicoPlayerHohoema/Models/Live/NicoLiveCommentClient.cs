@@ -604,7 +604,7 @@ namespace NicoPlayerHohoema.Models.Live
 				_HeartbeatTimer = new Timer(
 					async state => await TryHeartbeat(),
 					null,
-					TimeSpan.FromSeconds(5), // いきなりハートビートを叩くとダメっぽいので最初は遅らせる
+					TimeSpan.FromSeconds(1), // いきなりハートビートを叩くとダメっぽいので最初は遅らせる
 					_HeartbeatInterval
 					);
 			}
