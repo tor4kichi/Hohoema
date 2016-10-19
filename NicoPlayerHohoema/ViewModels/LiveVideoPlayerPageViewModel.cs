@@ -230,9 +230,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 			// sound
-			IsMuted = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false).AddTo(_CompositeDisposable);
-			SoundVolume = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0.5).AddTo(_CompositeDisposable);
-
 			IsFullScreen = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false).AddTo(_CompositeDisposable);
 			IsFullScreen
 				.Subscribe(isFullScreen =>
@@ -509,6 +506,23 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
+
+		protected override void OnSignIn(ICollection<IDisposable> userSessionDisposer)
+		{
+			IsMuted = HohoemaApp.UserSettings.PlayerSettings
+				.ToReactivePropertyAsSynchronized(x => x.IsMute, PlayerWindowUIDispatcherScheduler)
+				.AddTo(userSessionDisposer);
+			OnPropertyChanged(nameof(IsMuted));
+
+			SoundVolume = HohoemaApp.UserSettings.PlayerSettings
+				.ToReactivePropertyAsSynchronized(x => x.SoundVolume, PlayerWindowUIDispatcherScheduler)
+				.AddTo(userSessionDisposer);
+			OnPropertyChanged(nameof(SoundVolume));
+
+			base.OnSignIn(userSessionDisposer);
+		}
+
+
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
 			NicoLiveVideo.Dispose();
@@ -517,6 +531,8 @@ namespace NicoPlayerHohoema.ViewModels
 			VideoStream.Value = null;
 
 			DisplayRequestHelper.StopKeepDisplay();
+
+			IsFullScreen.Value = false;
 
 			StopLiveElapsedTimer().ConfigureAwait(false);
 
