@@ -36,7 +36,7 @@ namespace NicoPlayerHohoema.ViewModels.LiveVideoInfoContent
 
 			CommunityName = communityName;
 
-			IsCommunityLive = liveVideo.LiveId.StartsWith("co");
+			IsCommunityLive = liveVideo.BroadcasterCommunityId.StartsWith("co");
 
 			var playerStatus = NicoLiveVideo.PlayerStatusResponse;
 			if (playerStatus != null)

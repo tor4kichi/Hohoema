@@ -16,11 +16,10 @@
     d:DesignWidth="400">
 
     <ScrollViewer>
-        <StackPanel Margin="0 16 8 16">
+        <StackPanel Margin="8 16 16 16">
 
 
-            <!-- 投稿ユーザー -->
-            <toolkit:DockPanel Margin="8 8"
+            <toolkit:DockPanel Margin="0 0 0 8"
                     
                     >
                 <TextBlock Text="コミュニティ" 
@@ -45,7 +44,7 @@
                 </Button>
             </toolkit:DockPanel>
 
-            <toolkit:DockPanel Margin="8 8"
+            <toolkit:DockPanel Margin="0 0 0 0"
                                Visibility="{Binding IsCommunityLive, Converter={StaticResource BooleanToVisibility}}"
                     >
 
@@ -66,7 +65,7 @@
 
             <Border Height="16" />
 
-            <toolkit:DockPanel Margin="8 0 8 4"
+            <toolkit:DockPanel Margin="0 0 0 4"
                            >
                 <TextBlock Text="オープン" 
                        toolkit:DockPanel.Dock="Left"
@@ -77,7 +76,7 @@
                        />
             </toolkit:DockPanel>
 
-            <toolkit:DockPanel Margin="8 0 8 4"
+            <toolkit:DockPanel Margin="0 0 0 4"
                            >
                 <TextBlock Text="放送開始" 
                        toolkit:DockPanel.Dock="Left"
@@ -88,7 +87,7 @@
                        />
             </toolkit:DockPanel>
 
-            <toolkit:DockPanel Margin="8 0 8 8"
+            <toolkit:DockPanel Margin="0 0 0 0"
                            >
                 <TextBlock Text="放送終了" 
                        toolkit:DockPanel.Dock="Left"
@@ -101,7 +100,7 @@
 
             <Border Height="16" />
 
-            <toolkit:DockPanel Margin="8 8"
+            <toolkit:DockPanel Margin="0 0"
                            >
                 <TextBlock Text="説明" 
                        toolkit:DockPanel.Dock="Top"
