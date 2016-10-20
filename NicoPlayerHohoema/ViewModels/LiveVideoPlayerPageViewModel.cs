@@ -560,7 +560,6 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				NowUpdating.Value = true;
 
-
 				var liveStatus = await NicoLiveVideo.SetupLive();
 
 				if (liveStatus == null)
