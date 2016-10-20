@@ -68,6 +68,11 @@
                                                Style="{StaticResource CommentSubContentStyle}"
                                                />
                                 </Border>
+                                <Border Visibility="{Binding IsLoginUserComment, Converter={StaticResource BooleanToVisibility}}">
+                                    <TextBlock Text="自分"
+                                               Style="{StaticResource CommentSubContentStyle}"
+                                               />
+                                </Border>
                             </StackPanel>
 
                         </toolkit:DockPanel>

@@ -399,6 +399,8 @@ namespace NicoPlayerHohoema.Models.Live
 				{
 					await CloseRtmpConnection();
 
+					await Task.Delay(250);
+
 					await OpenRtmpConnection(PlayerStatusResponse);
 				});
 			}
@@ -550,6 +552,7 @@ namespace NicoPlayerHohoema.Models.Live
 						No = "",
 						Mail = chat.Mail,
 						Text = chat.Comment,
+						Anonymity = (chat.Mail?.Contains("184") ?? false) ? "true" : null
 					});
 				}
 			});

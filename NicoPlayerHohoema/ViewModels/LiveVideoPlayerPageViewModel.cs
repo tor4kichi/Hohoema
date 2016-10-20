@@ -198,14 +198,16 @@ namespace NicoPlayerHohoema.ViewModels
 			WritingComment = new ReactiveProperty<string>(PlayerWindowUIDispatcherScheduler, "").AddTo(_CompositeDisposable);
 			NowCommentWriting = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler).AddTo(_CompositeDisposable);
 			NowSubmittingComment = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler).AddTo(_CompositeDisposable);
-			
-				// TODO: ニコ生での匿名コメント設定
+
+			// TODO: ニコ生での匿名コメント設定
+			CommandString = new ReactiveProperty<string>(PlayerWindowUIDispatcherScheduler, "").AddTo(_CompositeDisposable);
 			CommandEditerVM = new CommentCommandEditerViewModel(true /* isDefaultAnnonymous */);
+			CommandEditerVM.OnCommandChanged += CommandEditerVM_OnCommandChanged;
 			CommandEditerVM.ChangeEnableAnonymity(true);
 			CommandEditerVM.IsAnonymousComment.Value = true;
-			CommandString = new ReactiveProperty<string>(PlayerWindowUIDispatcherScheduler, "").AddTo(_CompositeDisposable);
 
-			CommandEditerVM.OnCommandChanged += CommandEditerVM_OnCommandChanged;
+			CommandEditerVM_OnCommandChanged();
+
 
 			CommentSubmitCommand = Observable.CombineLatest(
 				WritingComment.Select(x => !string.IsNullOrEmpty(x)),
@@ -434,6 +436,11 @@ namespace NicoPlayerHohoema.ViewModels
 					comment.IsAnonimity = !string.IsNullOrEmpty(x.Anonymity) ? x.GetAnonymity() : false;
 					comment.UserId = x.User_id;
 					comment.IsOwnerComment = x.User_id == NicoLiveVideo?.BroadcasterId;
+					try
+					{
+						comment.IsLoginUserComment = !comment.IsAnonimity ? uint.Parse(x.User_id) == HohoemaApp.LoginUserId : false;
+					}
+					catch { }
 
 					//x.GetVposでサーバー上のコメント位置が取れるが、
 					// 受け取った順で表示したいのでローカルの放送時間からコメント位置を割り当てる
@@ -777,7 +784,8 @@ namespace NicoPlayerHohoema.ViewModels
 		// コメントコマンドの変更を受け取る
 		private void CommandEditerVM_OnCommandChanged()
 		{
-			CommandString.Value = CommandEditerVM.MakeCommandsString();
+			var commandString = CommandEditerVM.MakeCommandsString();
+			CommandString.Value = string.IsNullOrEmpty(commandString) ? "コマンド" : commandString;
 		}
 
 
