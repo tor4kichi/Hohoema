@@ -13,14 +13,18 @@ namespace NicoPlayerHohoema.Views.Converters
 		{
 			var seconds = value is TimeSpan ? (TimeSpan)value : TimeSpan.FromSeconds(System.Convert.ToInt32(value));
 
+			bool isNegative = seconds.TotalSeconds < 0;
+			string timeText;
 			if (seconds.Hours > 0)
 			{
-				return seconds.ToString(@"hh\:mm\:ss");
+				timeText = seconds.ToString(@"hh\:mm\:ss");
 			}
 			else
 			{
-				return seconds.ToString(@"mm\:ss");
+				timeText = seconds.ToString(@"mm\:ss");
 			}
+
+			return isNegative ? "-" + timeText : timeText;
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, string language)
