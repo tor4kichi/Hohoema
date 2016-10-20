@@ -220,7 +220,7 @@ namespace NicoPlayerHohoema.ViewModels
 				if (NicoLiveVideo != null)
 				{
 					NowSubmittingComment.Value = true;
-					await NicoLiveVideo.PostComment(WritingComment.Value, CommandString.Value);
+					await NicoLiveVideo.PostComment(WritingComment.Value, CommandString.Value, LiveElapsedTime);
 				}
 			});
 
@@ -430,8 +430,8 @@ namespace NicoPlayerHohoema.ViewModels
 					var comment = new Views.Comment();
 
 					comment.CommentText = x.Text;
-					comment.CommentId = x.No != null ? x.GetCommentNo() : 0;
-					comment.IsAnonimity = x.GetAnonymity();
+					comment.CommentId = !string.IsNullOrEmpty(x.No) ? x.GetCommentNo() : 0;
+					comment.IsAnonimity = !string.IsNullOrEmpty(x.Anonymity) ? x.GetAnonymity() : false;
 					comment.UserId = x.User_id;
 					comment.IsOwnerComment = x.User_id == NicoLiveVideo?.BroadcasterId;
 

@@ -32,7 +32,7 @@ namespace NicoPlayerHohoema.Models.Live
 	// nico live comment -> see@ http://blog.ingen084.net/blog/1691
 
 
-	public delegate void NicoLiveCommentPostedEventHandler(bool isSuccess);
+	public delegate void NicoLiveCommentPostedEventHandler(bool isSuccess, PostChat chat);
 	public delegate void NicoLiveCommentRecievedEventHandler(Chat chat);
 	public delegate void NicoLiveCommentServerConnectedEventHandler();
 
@@ -203,24 +203,27 @@ namespace NicoPlayerHohoema.Models.Live
 		}
 
 
-		public async Task PostComment(string comment, uint userId, string command)
+		private PostChat _LastPostChat = null;
+		public async Task PostComment(string comment, uint userId, string command, TimeSpan elapsedTime)
 		{
 			var postkey = await NiconicoContext.Live.GetPostKeyAsync(ThreadIdNumber, CommentCount / 100);
 			if (string.IsNullOrEmpty(postkey))
 			{
-				CommentPosted?.Invoke(false /* failed post comment */);
+				CommentPosted?.Invoke(false /* failed post comment */, null);
 				return;
 			}
 
 			PostChat chat = new PostChat();
-			chat.Comment = Uri.EscapeUriString(comment);
+			chat.Comment = comment;
 			chat.ThreadId = ThreadId;
 			chat.PostKey = postkey;
 			chat.Ticket = _Ticket;
 			chat.Mail = command;
 			chat.Premium = "";
 			chat.UserId = userId.ToString();
-			chat.Vpos = ((_ServerTime - _BaseTime.Ticks) * 100).ToString();
+			
+			var time = (uint)((elapsedTime + TimeSpan.FromSeconds(1)).TotalSeconds * 100);
+			chat.Vpos = time.ToString();
 			try
 			{
 				var chatSerializer = new XmlSerializer(typeof(PostChat));
@@ -232,12 +235,14 @@ namespace NicoPlayerHohoema.Models.Live
 					writer.WriteByte(0);
 					writer.Flush();
 				}
+
+				_LastPostChat = chat;
 			}
 			catch (Exception ex)
 			{
 				Debug.WriteLine(ex.ToString());
 
-				CommentPosted?.Invoke(false /* failed post comment */);
+				CommentPosted?.Invoke(false /* failed post comment */, null);
 			}
 		}
 
@@ -373,7 +378,8 @@ namespace NicoPlayerHohoema.Models.Live
 				Debug.Write(result);
 				Debug.Write(result == "0" ? " (success)" : " (failed)");
 
-				CommentPosted?.Invoke(result == "0");
+				CommentPosted?.Invoke(result == "0", _LastPostChat);
+				_LastPostChat = null;
 			}
 			else if (elementName == "chat")
 			{

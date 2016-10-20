@@ -480,7 +480,9 @@ namespace NicoPlayerHohoema.Models.Live
 
 		public bool CanPostComment => !(PlayerStatusResponse?.Program.IsArchive ?? true);
 
-		public async Task PostComment(string message, string command)
+		private string _LastCommentText;
+
+		public async Task PostComment(string message, string command, TimeSpan elapsedTime)
 		{
 			if (!CanPostComment)
 			{
@@ -491,7 +493,8 @@ namespace NicoPlayerHohoema.Models.Live
 			if (_NicoLiveCommentClient != null)
 			{
 				var userId = PlayerStatusResponse.User.Id;
-				await _NicoLiveCommentClient.PostComment(message, userId, command);
+				_LastCommentText = message;
+				await _NicoLiveCommentClient.PostComment(message, userId, command, elapsedTime);
 			}
 		}
 
@@ -530,13 +533,25 @@ namespace NicoPlayerHohoema.Models.Live
 			_NicoLiveCommentClient.CommentPosted += _NicoLiveCommentReciever_CommentPosted;
 		}
 
-		private async void _NicoLiveCommentReciever_CommentPosted(bool isSuccess)
+		private async void _NicoLiveCommentReciever_CommentPosted(bool isSuccess, PostChat chat)
 		{
 			Debug.WriteLine("コメント投稿結果：+" + isSuccess);
 
 			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
 			{
 				PostCommentResult?.Invoke(this, isSuccess);
+
+				if (isSuccess)
+				{
+					_LiveComments.Add(new Chat()
+					{
+						User_id = chat.UserId,
+						Vpos = chat.Vpos,
+						No = "",
+						Mail = chat.Mail,
+						Text = chat.Comment,
+					});
+				}
 			});
 		}
 
