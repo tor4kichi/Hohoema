@@ -701,7 +701,9 @@ namespace NicoPlayerHohoema.Models.Live
 						// また、RtmpClientがクローズ中にここでRtmpClient.Close()を行うと
 						// スレッドセーフではないためか、例外が発生します。
 						
-						//await CloseRtmpConnection();
+						await CloseRtmpConnection();
+
+						await Task.Delay(500);
 
 						// 次枠の自動巡回を開始
 //						await StartNextLiveSubscribe(DefaultNextLiveSubscribeDuration);
