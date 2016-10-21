@@ -53,14 +53,12 @@
 
                 <StackPanel Visibility="{Binding IsLoginFailed.Value, Converter={StaticResource BooleanToVisibility}}">
                     <TextBlock HorizontalAlignment="Center" Margin="0 0 0 8" >
-                        <Run Text="ログインに失敗しました。" />
-                    </TextBlock>
-                    <TextBlock HorizontalAlignment="Center" Margin="0 0 0 8" >
-                        <Run Text="メールアドレスやパスワードが正しいか確認してみてください。" />
+                        <Run Text="ログインに失敗" />
                     </TextBlock>
 
                     <TextBlock HorizontalAlignment="Center" Margin="0 0 0 8"
                                Opacity="0.8"
+                               TextWrapping="Wrap"
                                >
                         <Run Text="追加情報：" />
                         <Run Text="{Binding LoginErrorText.Value}" />

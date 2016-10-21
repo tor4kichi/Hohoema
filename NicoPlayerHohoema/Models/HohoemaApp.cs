@@ -493,7 +493,23 @@ namespace NicoPlayerHohoema.Models
 
 								LoginUserId = userInfo.Id;
 								IsPremiumUser = userInfo.IsPremium;
-								LoginUserName = userInfo.Name;
+
+								if (!string.IsNullOrEmpty(userInfo.Name))
+								{
+									LoginUserName = userInfo.Name;
+								}
+								else
+								{
+									try
+									{
+										var user = await NiconicoContext.User.GetUserAsync(LoginUserId.ToString());
+										LoginUserName = user.Nickname;
+									}
+									catch (Exception ex)
+									{
+										throw new Exception("ユーザー名取得のフォールバック処理に失敗 + " + LoginUserId, ex);
+									}
+								}
 
 								fields.AddString("user id", LoginUserId.ToString());
 								fields.AddString("user name", LoginUserName);
@@ -510,6 +526,7 @@ namespace NicoPlayerHohoema.Models
 
 								NiconicoContext.Dispose();
 								NiconicoContext = null;
+
 								return NiconicoSignInStatus.Failed;
 							}
 
