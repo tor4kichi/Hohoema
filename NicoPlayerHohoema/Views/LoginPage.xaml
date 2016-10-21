@@ -16,116 +16,117 @@
 
     <Grid>
 
-
-        <toolkit:DockPanel HorizontalAlignment="Center"
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <toolkit:DockPanel HorizontalAlignment="Center"
                            VerticalAlignment="Center"
+                               Margin="0 8 0 0"
                            >
 
-            <StackPanel toolkit:DockPanel.Dock="Top">
-                <TextBlock>
+                <StackPanel toolkit:DockPanel.Dock="Top">
+                    <TextBlock>
                     <Run Text="Nico Video Player" />
-                </TextBlock>
+                    </TextBlock>
 
-                <TextBlock Text="Hohoema" 
+                    <TextBlock Text="Hohoema" 
                            FontSize="50"
                            />
-            </StackPanel>
+                </StackPanel>
 
-            <Border Margin="0 0 0 16" toolkit:DockPanel.Dock="Top"/>
+                <Border Margin="0 0 0 16" toolkit:DockPanel.Dock="Top"/>
 
-            <StackPanel Height="48" Margin="8 16 8 8" toolkit:DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center">
+                <StackPanel Height="48" Margin="8 16 8 8" toolkit:DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center">
 
-                <ProgressRing IsActive="{Binding CanChangeValue.Value, Converter={StaticResource InvertBoolean}}"
+                    <ProgressRing IsActive="{Binding CanChangeValue.Value, Converter={StaticResource InvertBoolean}}"
                               Visibility="{Binding CanChangeValue.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                               Width="48"
                               Height="48"
                               Margin="16 0"
                               />
 
-                <TextBlock Text="ログイン中"
+                    <TextBlock Text="ログイン中"
                            VerticalAlignment="Center"
                            Visibility="{Binding CanChangeValue.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                            />
 
-            </StackPanel>
+                </StackPanel>
 
-            <StackPanel Margin="8 16" toolkit:DockPanel.Dock="Bottom">
+                <StackPanel Margin="8 16" toolkit:DockPanel.Dock="Bottom">
 
-                <StackPanel Visibility="{Binding IsLoginFailed.Value, Converter={StaticResource BooleanToVisibility}}">
-                    <TextBlock HorizontalAlignment="Center" Margin="0 0 0 8" >
+                    <StackPanel Visibility="{Binding IsLoginFailed.Value, Converter={StaticResource BooleanToVisibility}}">
+                        <TextBlock HorizontalAlignment="Center" Margin="0 0 0 8" >
                         <Run Text="ログインに失敗" />
-                    </TextBlock>
+                        </TextBlock>
 
-                    <TextBlock HorizontalAlignment="Center" Margin="0 0 0 8"
+                        <TextBlock HorizontalAlignment="Center" Margin="0 0 0 8"
                                Opacity="0.8"
                                TextWrapping="Wrap"
                                >
                         <Run Text="追加情報：" />
                         <Run Text="{Binding LoginErrorText.Value}" />
-                    </TextBlock>
+                        </TextBlock>
 
-                </StackPanel>
+                    </StackPanel>
 
-                <StackPanel Visibility="{Binding IsServiceUnavailable.Value, Converter={StaticResource BooleanToVisibility}}">
-                    <TextBlock HorizontalAlignment="Center" Margin="0 0 0 8" >
+                    <StackPanel Visibility="{Binding IsServiceUnavailable.Value, Converter={StaticResource BooleanToVisibility}}">
+                        <TextBlock HorizontalAlignment="Center" Margin="0 0 0 8" >
                         <Run Text="ニコニコ動画のサービスが利用できない状況です。" />
-                    </TextBlock>
-                    <TextBlock HorizontalAlignment="Center" Margin="0 0 0 8" >
+                        </TextBlock>
+                        <TextBlock HorizontalAlignment="Center" Margin="0 0 0 8" >
                         <Run Text="時間を置いてからアクセスしてみてください。" />
 
-                    </TextBlock>
-                    <TextBlock HorizontalAlignment="Center" Margin="0 0 0 8" >
+                        </TextBlock>
+                        <TextBlock HorizontalAlignment="Center" Margin="0 0 0 8" >
                         <Hyperlink NavigateUri="http://www.nicovideo.jp/">
                             <Run Text="ブラウザでニコニコ動画をチェックする"/>
                         </Hyperlink>
-                    </TextBlock>
+                        </TextBlock>
+                    </StackPanel>
+
                 </StackPanel>
 
-            </StackPanel>
 
-
-            <StackPanel>
-                <toolkit:DockPanel Margin="0 0 0 8">
-                    <Border toolkit:DockPanel.Dock="Right" MinWidth="200">
-                        <TextBox Text="{Binding MailOrTelephone.Value, Mode=TwoWay}"
+                <StackPanel>
+                    <toolkit:DockPanel Margin="0 0 0 8">
+                        <Border toolkit:DockPanel.Dock="Right" MinWidth="200">
+                            <TextBox Text="{Binding MailOrTelephone.Value, Mode=TwoWay}"
                                  IsEnabled="{Binding CanChangeValue.Value}"
                                  InputScope="EmailSmtpAddress"
                                  >
 
-                        </TextBox>
-                    </Border>
-                    <TextBlock Text="メールアドレス" 
+                            </TextBox>
+                        </Border>
+                        <TextBlock Text="メールアドレス" 
                                VerticalAlignment="Center"
                                HorizontalAlignment="Right"
                                Margin="16 0"
                                
                                />
-                </toolkit:DockPanel>
+                    </toolkit:DockPanel>
 
-                <toolkit:DockPanel Margin="0 0 0 8">
-                    <Border toolkit:DockPanel.Dock="Right" MinWidth="200">
-                        <PasswordBox Password="{Binding Password.Value, Mode=TwoWay}"
+                    <toolkit:DockPanel Margin="0 0 0 8">
+                        <Border toolkit:DockPanel.Dock="Right" MinWidth="200">
+                            <PasswordBox Password="{Binding Password.Value, Mode=TwoWay}"
                                      IsEnabled="{Binding CanChangeValue.Value}"
                                      >
 
-                        </PasswordBox>
-                    </Border>
-                    <TextBlock Text="パスワード" 
+                            </PasswordBox>
+                        </Border>
+                        <TextBlock Text="パスワード" 
                                VerticalAlignment="Center"
                                HorizontalAlignment="Right"
                                Margin="16 0"
                                />
-                </toolkit:DockPanel>
+                    </toolkit:DockPanel>
 
-                <Border HorizontalAlignment="Right">
-                    <HyperlinkButton Content="パスワードを忘れた方は再発行の手続きへ" 
+                    <Border HorizontalAlignment="Right">
+                        <HyperlinkButton Content="パスワードを忘れた方は再発行の手続きへ" 
                                      NavigateUri="https://account.nicovideo.jp/password/reset"
                                      IsEnabled="{Binding CanChangeValue.Value}"
                                      />
-                </Border>
+                    </Border>
 
-                <StackPanel Orientation="Horizontal" Margin="0 0 0 8">
-                    <ToggleButton 
+                    <StackPanel Orientation="Horizontal" Margin="0 0 0 8">
+                        <ToggleButton 
                         IsChecked="{Binding IsRememberPassword.Value, Mode=TwoWay}"
                         IsEnabled="{Binding CanChangeValue.Value}"
                         Content="パスワードを保存する"
@@ -133,23 +134,27 @@
                         Margin="8 8" />
 
 
-                </StackPanel>
+                    </StackPanel>
 
-                <Button Content="Login"
+                    <Button Content="Login"
                         Width="150"
                         Height="48"
                         HorizontalAlignment="Center"
                                     Command="{Binding CheckLoginCommand}"
                                     ></Button>
 
-            </StackPanel>
+                </StackPanel>
 
 
-        </toolkit:DockPanel>
+            </toolkit:DockPanel>
+        </ScrollViewer>
+
+        
+        
 
         <Border HorizontalAlignment="Left"
                 VerticalAlignment="Bottom"
-                Margin="16"
+                Margin="16 0 16 16"
                 >
             <HyperlinkButton Content="アカウントを新しく作成する場合はこちら" 
                                     NavigateUri="https://account.nicovideo.jp/register"
@@ -159,7 +164,7 @@
 
         <Border HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
-                Margin="16"
+                Margin="16 0 16 16"
                 >
             <TextBlock Foreground="DimGray"
                        >
