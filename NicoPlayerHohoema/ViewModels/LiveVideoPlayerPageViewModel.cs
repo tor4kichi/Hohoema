@@ -711,6 +711,8 @@ namespace NicoPlayerHohoema.ViewModels
 						_IsNextLiveSubscribeStarted = true;
 
 						await NicoLiveVideo.StartNextLiveSubscribe(NicoLiveVideo.DefaultNextLiveSubscribeDuration);
+
+						Debug.WriteLine("s");
 					}
 				});
 			}

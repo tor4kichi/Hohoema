@@ -508,11 +508,22 @@ namespace NicoPlayerHohoema.Models.Live
 			_NicoLiveCommentClient = new NicoLiveCommentClient(LiveId, baseTime, PlayerStatusResponse.Comment.Server, HohoemaApp.NiconicoContext);
 			_NicoLiveCommentClient.CommentServerConnected += _NicoLiveCommentReciever_CommentServerConnected;
 			_NicoLiveCommentClient.Heartbeat += _NicoLiveCommentClient_Heartbeat;
+			_NicoLiveCommentClient.EndConnect += _NicoLiveCommentClient_EndConnect;
 
 			_NicoLiveCommentClient.CommentRecieved += _NicoLiveCommentReciever_CommentRecieved;
 			_NicoLiveCommentClient.OperationCommandRecieved += _NicoLiveCommentClient_OperationCommandRecieved;
 
 			await _NicoLiveCommentClient.Start();
+		}
+
+		private async void _NicoLiveCommentClient_EndConnect()
+		{
+			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+			{
+				PermanentDisplayText = "*コメントサーバーとの通信を終了";
+
+				await StartNextLiveSubscribe(DefaultNextLiveSubscribeDuration);
+			});
 		}
 
 		private async Task EndCommentClientConnection()
@@ -527,6 +538,8 @@ namespace NicoPlayerHohoema.Models.Live
 				_NicoLiveCommentClient.Dispose();
 
 				_NicoLiveCommentClient = null;
+
+				
 			}
 		}
 
@@ -740,11 +753,16 @@ namespace NicoPlayerHohoema.Models.Live
 		{
 			using (var releaser = await _NextLiveSubscriveLock.LockAsync())
 			{
+				if (NextLiveId != null)
+				{
+					return;
+				}
+
 				if (_NextLiveSubscriveTimer == null)
 				{
 					_NextLiveSubscriveTimer = new Timer(
 						NextLiveSubscribe,
-						this,
+						null,
 						TimeSpan.FromSeconds(3),
 						TimeSpan.FromSeconds(10)
 						);

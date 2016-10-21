@@ -480,8 +480,6 @@ namespace NicoVideoRtmpClient
 
 				await _ConnectionImpl.PostConnectionProcess(_Connection);
 
-				await Task.Delay(50);
-
 				await _Stream.AttachAsync(_Connection);
 			}
 			else if ((ncs & NetStatusCodeType.Level2Mask) == NetStatusCodeType.NetConnectionConnect)
@@ -514,9 +512,11 @@ namespace NicoVideoRtmpClient
 			}
 		}
 
-
+		bool isAlreadHaveAudio = false;
 		private void OnAudioStarted(object sender, NetStreamAudioStartedEventArgs args)
 		{
+			if (isAlreadHaveAudio) { return; }
+
 			var info = args.Info;
 			AudioEncodingProperties prop;
 			if (info.Format == Mntone.Rtmp.Media.AudioFormat.Mp3)
@@ -561,12 +561,17 @@ namespace NicoVideoRtmpClient
 				}
 			}
 
+			isAlreadHaveAudio = true;
+
 			Debug.WriteLine($"{nameof(NicovideoRtmpClient)}: {prop.ToString()}");
 		}
 
-
+		bool isAlreadHaveVideo = false;
 		private void OnVideoStarted(object sender, NetStreamVideoStartedEventArgs args)
 		{
+			if (isAlreadHaveVideo) { return; }
+
+
 			var info = args.Info;
 			VideoEncodingProperties prop = null;
 			if (info.Format == Mntone.Rtmp.Media.VideoFormat.Avc)
@@ -600,6 +605,8 @@ namespace NicoVideoRtmpClient
 					Started?.Invoke(new NicovideoRtmpClientStartedEventArgs(_MediaStreamSource));
 				}
 			}
+
+			isAlreadHaveVideo = true;
 
 			Debug.WriteLine($"{nameof(NicovideoRtmpClient)}: {prop.ToString()}");
 
