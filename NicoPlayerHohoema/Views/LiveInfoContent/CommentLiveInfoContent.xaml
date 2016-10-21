@@ -19,6 +19,7 @@
         <Style x:Key="CommentSubContentStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="12" />
             <Setter Property="Foreground" Value="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" />
+            <Setter Property="Margin" Value="8 0" />
         </Style>
     </UserControl.Resources>
     <Grid>
@@ -40,18 +41,18 @@
                             <TextBlock toolkit:DockPanel.Dock="Left"
                                        Style="{StaticResource CommentSubContentStyle}"
                                        >
-                                <Run Text="No. " />
+                                <Run Text="No." />
                                 <Run Text="{Binding CommentId}" />
                             </TextBlock>
 
                             <TextBlock toolkit:DockPanel.Dock="Right"
                                        Style="{StaticResource CommentSubContentStyle}"
                                        >
-                                <Run Text="ID: " />
+                                <Run Text="ID:" />
                                 <Run Text="{Binding UserId}" />
                             </TextBlock>
 
-                            <StackPanel Margin="0 0 0 0">
+                            <StackPanel Margin="8 0 0 0">
                                 <!-- 属性 -->
                                 <Border Visibility="{Binding IsOwnerComment, Converter={StaticResource BooleanToVisibility}}">
                                     <TextBlock Text="オーナー" 
@@ -65,6 +66,11 @@
                                 </Border>
                                 <Border Visibility="{Binding IsAnonimity, Converter={StaticResource BooleanToVisibility}}">
                                     <TextBlock Text="匿名"
+                                               Style="{StaticResource CommentSubContentStyle}"
+                                               />
+                                </Border>
+                                <Border Visibility="{Binding IsLoginUserComment, Converter={StaticResource BooleanToVisibility}}">
+                                    <TextBlock Text="自分"
                                                Style="{StaticResource CommentSubContentStyle}"
                                                />
                                 </Border>

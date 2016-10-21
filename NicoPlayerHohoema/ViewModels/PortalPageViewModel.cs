@@ -29,6 +29,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
+			await Task.Delay(500);
 			await HohoemaApp.AppMapManager.Refresh();
 		}
 

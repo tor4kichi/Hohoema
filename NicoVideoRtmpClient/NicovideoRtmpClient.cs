@@ -87,69 +87,69 @@ namespace NicoVideoRtmpClient
 		public string sLiveId = "";
 
 
+		class LiveContentInfo
+		{
+			public string PlayEnvType { get; set; }
+			public string ServerType { get; set; }
+			public string RtmpUri { get; set; }
+			public string sLiveId { get; set; }
+		}
+
+
 		public OfficalLiveNiconamaRtmpConnection(PlayerStatusResponse res) 
 			: base(res)
 		{
-			// "case:sp:limelight%3Artmp%3A%2F%2Fsmilevideo.fc.llnwd.net%3A1935%2Fsmilevideo%2Cs_lv277498614,mobile:limelight%3Artmp%3A%2F%2Fsmilevideo.fc.llnwd.net%3A1935%2Fsmilevideo%2Cs_lv277498614_sub1,premium:limelight%3Artmp%3A%2F%2Fsmilevideo.fc.llnwd.net%3A1935%2Fsmilevideo%2Cs_lv277498614_sub1,default:limelight%3Artmp%3A%2F%2Fsmilevideo.fc.llnwd.net%3A1935%2Fsmilevideo%2Cs_lv277498614"
+			// res.Stream.ContentsのValueに入ってる値
+			// アニメなどの高画質放送
+				// "case:sp:akamai%3Artmp%3A%2F%2Fnlakmjpk.live.nicovideo.jp%3A1935%2Flive%2Cnlarr_25%40s28582,mobile:akamai%3Artmp%3A%2F%2Fnlakmjpk.live.nicovideo.jp%3A1935%2Flive%2Cnlarr_26%40s18564,premium:akamai%3Artmp%3A%2F%2Fnlakmjpk.live.nicovideo.jp%3A1935%2Flive%2Cnlarr_26%40s18564,default:akamai%3Artmp%3A%2F%2Fnlakmjpk.live.nicovideo.jp%3A1935%2Flive%2Cnlarr_25%40s28582"
+			// その他の公式放送
+				// "case:sp:limelight%3Artmp%3A%2F%2Fsmilevideo.fc.llnwd.net%3A1935%2Fsmilevideo%2Cs_lv276840177,mobile:limelight%3Artmp%3A%2F%2Fsmilevideo.fc.llnwd.net%3A1935%2Fsmilevideo%2Cs_lv276840177_sub1,premium:limelight%3Artmp%3A%2F%2Fsmilevideo.fc.llnwd.net%3A1935%2Fsmilevideo%2Cs_lv276840177_sub1,default:limelight%3Artmp%3A%2F%2Fsmilevideo.fc.llnwd.net%3A1935%2Fsmilevideo%2Cs_lv276840177"
 
 			var content = res.Stream.Contents.ElementAt(0);
-			var splited = content.Value.Split(':', ',');
-			var decodedSplit = splited.Select(x => WebUtility.UrlDecode(x));
-			for (int i = 1; i < splited.Length; i++)
+			var splited = content.Value.Split(',');
+			var decodedSplit = splited.Select(x => WebUtility.UrlDecode(x)).ToList();
+
+			var contentInfoList = decodedSplit.Select(x => 
 			{
-				var str = splited[i];
-				i++;
-				var decoded = WebUtility.UrlDecode(splited[i]);
-				var url = decoded.Remove(0, decoded.IndexOf(':') + 1);
-				var splitUrl = url.Split(',');
-				var rtmpUri = splitUrl[0];
-				var liveId = splitUrl[1];
-				switch (str)
+				var uriFragments = x.Split(':');
+				
+				if (uriFragments.Length == 6)
 				{
-					case "sp":
-						break;
-
-					case "mobile":
-						break;
-
-					case "premium":
-						if (res.User.IsPremium)
-						{
-							BaseUri = rtmpUri;
-						}
-						sLiveId = liveId;
-						break;
-
-					case "default":
-						BaseUri = rtmpUri;
-						sLiveId = liveId;
-						break;
+					uriFragments = uriFragments.Skip(1).ToArray();
 				}
 
-				if (BaseUri != null)
+				if (uriFragments.Length == 5)
 				{
-					break;
-				}
-			}
+					var type = uriFragments[0];
+					var serverType = uriFragments[1];
+					var uriAndLiveId = string.Join(":", uriFragments.Skip(2)).Split(',');
+					var uri = uriAndLiveId[0];
+					var sliveId = uriAndLiveId[1];
 
+					return new LiveContentInfo()
+					{
+						PlayEnvType = type,
+						ServerType = serverType,
+						RtmpUri = uri,
+						sLiveId = sliveId
+					};
+				}
+				else
+				{
+					throw new Exception();
+				}
+			});
 
 			var ticket = PlayerStatus.Stream.Tickets.ElementAt(0);
 			var playpath = $"{ticket.Key}?{ticket.Value}";
 
-			if (PlayerStatus.Stream.Contents.Count == 3)
-			{
-				BaseUri = BaseUri != null ? BaseUri : OfficailNiconamaBaseUri.OriginalString;
-				RtmpUri = new RtmpUri(BaseUri);
+			var contentInfo = contentInfoList.First();
+			BaseUri = contentInfo.RtmpUri;
+			sLiveId = contentInfo.sLiveId;
 
-				RtmpUri.Instance = playpath;
-			}
-			else
-			{
-				BaseUri = BaseUri != null ? BaseUri : OfficialNiconamaBase.OriginalString;
-				RtmpUri = new RtmpUri(BaseUri);
+			RtmpUri = new RtmpUri(BaseUri);
 
-				RtmpUri.Instance = playpath;
-			}
+			RtmpUri.Instance = playpath;
 		}
 
 		public override RtmpUri Uri
@@ -241,6 +241,10 @@ namespace NicoVideoRtmpClient
 			// smile:sm0000000
 			var nlplaynoticeText = PlayerStatus.Stream.Contents[0].Value;
 
+			if (nlplaynoticeText.StartsWith("smile:"))
+			{
+				throw new Exception("cant play with live player -> " + nlplaynoticeText);
+			}
 #if true
 			var split = nlplaynoticeText.Split(',');
 			var nlplaypath = split[0].Remove(0, "rtmp:".Length);
@@ -474,11 +478,11 @@ namespace NicoVideoRtmpClient
 
 				_BufferingHelper = new BufferingHelper(_Stream);
 
-				await _ConnectionImpl.PostConnectionProcess(_Connection);
-
-				await Task.Delay(50);
-
+				// createStream
 				await _Stream.AttachAsync(_Connection);
+
+				// nlPlayNotice(チャンネル/ユーザー生放送のライブ配信のみ)
+				await _ConnectionImpl.PostConnectionProcess(_Connection);
 			}
 			else if ((ncs & NetStatusCodeType.Level2Mask) == NetStatusCodeType.NetConnectionConnect)
 			{
@@ -496,6 +500,9 @@ namespace NicoVideoRtmpClient
 
 		private async void OnAttached(object sender, NetStreamAttachedEventArgs args)
 		{
+			// createStreamとplayの間にnlPlayNoticeを挟むための待ち
+			await Task.Delay(500);
+
 			await _Stream.PlayAsync(_Connection.Uri.Instance);
 		}
 
@@ -510,9 +517,11 @@ namespace NicoVideoRtmpClient
 			}
 		}
 
-
+		bool isAlreadHaveAudio = false;
 		private void OnAudioStarted(object sender, NetStreamAudioStartedEventArgs args)
 		{
+			if (isAlreadHaveAudio) { return; }
+
 			var info = args.Info;
 			AudioEncodingProperties prop;
 			if (info.Format == Mntone.Rtmp.Media.AudioFormat.Mp3)
@@ -557,12 +566,17 @@ namespace NicoVideoRtmpClient
 				}
 			}
 
+			isAlreadHaveAudio = true;
+
 			Debug.WriteLine($"{nameof(NicovideoRtmpClient)}: {prop.ToString()}");
 		}
 
-
+		bool isAlreadHaveVideo = false;
 		private void OnVideoStarted(object sender, NetStreamVideoStartedEventArgs args)
 		{
+			if (isAlreadHaveVideo) { return; }
+
+
 			var info = args.Info;
 			VideoEncodingProperties prop = null;
 			if (info.Format == Mntone.Rtmp.Media.VideoFormat.Avc)
@@ -596,6 +610,8 @@ namespace NicoVideoRtmpClient
 					Started?.Invoke(new NicovideoRtmpClientStartedEventArgs(_MediaStreamSource));
 				}
 			}
+
+			isAlreadHaveVideo = true;
 
 			Debug.WriteLine($"{nameof(NicovideoRtmpClient)}: {prop.ToString()}");
 

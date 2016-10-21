@@ -77,6 +77,19 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _CommunityName, value); }
 		}
 
+		private string _SeetType;
+		public string RoomName
+		{
+			get { return _SeetType; }
+			set { SetProperty(ref _SeetType, value); }
+		}
+
+		private uint _SeetNumber;
+		public uint SeetId
+		{
+			get { return _SeetNumber; }
+			set { SetProperty(ref _SeetNumber, value); }
+		}
 
 
 		public NicoLiveVideo NicoLiveVideo { get; private set; }
@@ -198,14 +211,16 @@ namespace NicoPlayerHohoema.ViewModels
 			WritingComment = new ReactiveProperty<string>(PlayerWindowUIDispatcherScheduler, "").AddTo(_CompositeDisposable);
 			NowCommentWriting = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler).AddTo(_CompositeDisposable);
 			NowSubmittingComment = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler).AddTo(_CompositeDisposable);
-			
-				// TODO: ニコ生での匿名コメント設定
+
+			// TODO: ニコ生での匿名コメント設定
+			CommandString = new ReactiveProperty<string>(PlayerWindowUIDispatcherScheduler, "").AddTo(_CompositeDisposable);
 			CommandEditerVM = new CommentCommandEditerViewModel(true /* isDefaultAnnonymous */);
+			CommandEditerVM.OnCommandChanged += CommandEditerVM_OnCommandChanged;
 			CommandEditerVM.ChangeEnableAnonymity(true);
 			CommandEditerVM.IsAnonymousComment.Value = true;
-			CommandString = new ReactiveProperty<string>(PlayerWindowUIDispatcherScheduler, "").AddTo(_CompositeDisposable);
 
-			CommandEditerVM.OnCommandChanged += CommandEditerVM_OnCommandChanged;
+			CommandEditerVM_OnCommandChanged();
+
 
 			CommentSubmitCommand = Observable.CombineLatest(
 				WritingComment.Select(x => !string.IsNullOrEmpty(x)),
@@ -220,7 +235,7 @@ namespace NicoPlayerHohoema.ViewModels
 				if (NicoLiveVideo != null)
 				{
 					NowSubmittingComment.Value = true;
-					await NicoLiveVideo.PostComment(WritingComment.Value, CommandString.Value);
+					await NicoLiveVideo.PostComment(WritingComment.Value, CommandString.Value, LiveElapsedTime);
 				}
 			});
 
@@ -230,9 +245,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 			// sound
-			IsMuted = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false).AddTo(_CompositeDisposable);
-			SoundVolume = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0.5).AddTo(_CompositeDisposable);
-
 			IsFullScreen = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false).AddTo(_CompositeDisposable);
 			IsFullScreen
 				.Subscribe(isFullScreen =>
@@ -331,7 +343,7 @@ namespace NicoPlayerHohoema.ViewModels
 							await NicoLiveVideo.RetryRtmpConnection();
 
 							// 配信終了１分前であれば次枠検出をスタートさせる
-							if (DateTime.Now < _EndAt - TimeSpan.FromMinutes(1))
+							if (DateTime.Now > _EndAt - TimeSpan.FromMinutes(1))
 							{
 								await NicoLiveVideo.StartNextLiveSubscribe(NicoLiveVideo.DefaultNextLiveSubscribeDuration);
 							}
@@ -433,10 +445,15 @@ namespace NicoPlayerHohoema.ViewModels
 					var comment = new Views.Comment();
 
 					comment.CommentText = x.Text;
-					comment.CommentId = x.No != null ? x.GetCommentNo() : 0;
-					comment.IsAnonimity = x.GetAnonymity();
+					comment.CommentId = !string.IsNullOrEmpty(x.No) ? x.GetCommentNo() : 0;
+					comment.IsAnonimity = !string.IsNullOrEmpty(x.Anonymity) ? x.GetAnonymity() : false;
 					comment.UserId = x.User_id;
 					comment.IsOwnerComment = x.User_id == NicoLiveVideo?.BroadcasterId;
+					try
+					{
+						comment.IsLoginUserComment = !comment.IsAnonimity ? uint.Parse(x.User_id) == HohoemaApp.LoginUserId : false;
+					}
+					catch { }
 
 					//x.GetVposでサーバー上のコメント位置が取れるが、
 					// 受け取った順で表示したいのでローカルの放送時間からコメント位置を割り当てる
@@ -462,6 +479,7 @@ namespace NicoPlayerHohoema.ViewModels
 				OnPropertyChanged(nameof(WatchCount));
 
 				CommunityId = NicoLiveVideo.BroadcasterCommunityId;
+
 
 				// post comment 
 				NicoLiveVideo.PostCommentResult += NicoLiveVideo_PostCommentResult;
@@ -509,6 +527,23 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
+
+		protected override void OnSignIn(ICollection<IDisposable> userSessionDisposer)
+		{
+			IsMuted = HohoemaApp.UserSettings.PlayerSettings
+				.ToReactivePropertyAsSynchronized(x => x.IsMute, PlayerWindowUIDispatcherScheduler)
+				.AddTo(userSessionDisposer);
+			OnPropertyChanged(nameof(IsMuted));
+
+			SoundVolume = HohoemaApp.UserSettings.PlayerSettings
+				.ToReactivePropertyAsSynchronized(x => x.SoundVolume, PlayerWindowUIDispatcherScheduler)
+				.AddTo(userSessionDisposer);
+			OnPropertyChanged(nameof(SoundVolume));
+
+			base.OnSignIn(userSessionDisposer);
+		}
+
+
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
 			NicoLiveVideo.Dispose();
@@ -517,6 +552,8 @@ namespace NicoPlayerHohoema.ViewModels
 			VideoStream.Value = null;
 
 			DisplayRequestHelper.StopKeepDisplay();
+
+			IsFullScreen.Value = false;
 
 			StopLiveElapsedTimer().ConfigureAwait(false);
 
@@ -537,7 +574,6 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				NowUpdating.Value = true;
 
-
 				var liveStatus = await NicoLiveVideo.SetupLive();
 
 				if (liveStatus == null)
@@ -549,7 +585,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 					LiveTitle = NicoLiveVideo.LiveTitle;
 					CommunityId = NicoLiveVideo.BroadcasterCommunityId;
-					
+
+					// seet
+					RoomName = NicoLiveVideo.PlayerStatusResponse.Room.Name;
+					SeetId = NicoLiveVideo.PlayerStatusResponse.Room.SeatId;
 
 					OnPropertyChanged(nameof(NicoLiveVideo));
 				}
@@ -668,13 +707,14 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					// ローカルの現在時刻から放送開始のベース時間を引いて
 					// 放送経過時間の絶対値を求める
-					_LiveElapsedTime = DateTime.Now - _StartAt;
+					LiveElapsedTime = DateTime.Now - _StartAt;
 
 					// 終了時刻を過ぎたら生放送情報を更新する
 					if (!_IsEndMarked && DateTime.Now > _EndAt)
 					{
 						_IsEndMarked = true;
 
+						await Task.Delay(TimeSpan.FromSeconds(3));
 						if (await TryUpdateLiveStatus())
 						{
 							// 放送が延長されていた場合は継続
@@ -684,7 +724,7 @@ namespace NicoPlayerHohoema.ViewModels
 					}
 
 					// 終了時刻の３０秒前から
-					if (!_IsNextLiveSubscribeStarted && DateTime.Now > _EndAt - TimeSpan.FromSeconds(30))
+					if (!_IsNextLiveSubscribeStarted && DateTime.Now > _EndAt - TimeSpan.FromSeconds(10))
 					{
 						_IsNextLiveSubscribeStarted = true;
 
@@ -761,7 +801,8 @@ namespace NicoPlayerHohoema.ViewModels
 		// コメントコマンドの変更を受け取る
 		private void CommandEditerVM_OnCommandChanged()
 		{
-			CommandString.Value = CommandEditerVM.MakeCommandsString();
+			var commandString = CommandEditerVM.MakeCommandsString();
+			CommandString.Value = string.IsNullOrEmpty(commandString) ? "コマンド" : commandString;
 		}
 
 
@@ -789,7 +830,7 @@ namespace NicoPlayerHohoema.ViewModels
 				CommunityName = this.CommunityName
 			};
 
-			await Task.Delay(TimeSpan.FromSeconds(1));
+			await Task.Delay(TimeSpan.FromSeconds(3));
 
 			PageManager.OpenPage(
 				HohoemaPageType.LiveVideoPlayer,

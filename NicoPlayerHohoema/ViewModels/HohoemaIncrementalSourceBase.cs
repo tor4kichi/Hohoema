@@ -170,7 +170,7 @@ namespace NicoPlayerHohoema.ViewModels
 			var tail = Math.Min(head + count, TotalCount);
 			List<T> items = new List<T>();
 
-			using (var token = new CancellationTokenSource(5000))
+			using (var token = new CancellationTokenSource(15000))
 			{
 				try
 				{

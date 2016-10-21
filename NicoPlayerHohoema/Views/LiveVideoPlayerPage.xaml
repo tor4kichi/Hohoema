@@ -494,17 +494,22 @@
                             <toolkit:DockPanel toolkit:DockPanel.Dock="Top"
                                                Background="#AA777777"
                                                >
-                                <toolkit:DockPanel
+                                
+                                <StackPanel Orientation="Horizontal"
+                                            toolkit:DockPanel.Dock="Left"
+                                            >
+                                    <!-- 放送時間 -->
+                                    <toolkit:DockPanel
                                      Margin="16"
-                                    toolkit:DockPanel.Dock="Left"
+                                    
                                      >
 
-                                    <SymbolIcon Symbol="Clock" 
+                                        <SymbolIcon Symbol="Clock" 
                                                 Margin="8 0"
                                                 Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                 />
 
-                                    <TextBlock  HorizontalAlignment="Right"
+                                        <TextBlock  HorizontalAlignment="Right"
                                                VerticalAlignment="Bottom"
                                                IsHitTestVisible="False"
                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
@@ -512,41 +517,63 @@
                                                 FontSize="18"
                                             >
                                         <Run Text="{Binding LiveElapsedTime, Converter={StaticResource TimeToMovieLengthConverter}}" />
-                                    </TextBlock>
-                                </toolkit:DockPanel>
+                                        </TextBlock>
+                                    </toolkit:DockPanel>
 
-                                <StackPanel Orientation="Horizontal"
-                                            toolkit:DockPanel.Dock="Right"
+                                    <!-- 来場者数・コメント数 -->
+                                    <StackPanel Orientation="Horizontal"
                                             >
-                                    <SymbolIcon Symbol="View" 
+                                        <SymbolIcon Symbol="View" 
                                                 Margin="8 0"
                                                 Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                 />
 
-                                    <TextBlock VerticalAlignment="Center"
+                                        <TextBlock VerticalAlignment="Center"
                                                IsHitTestVisible="False"
                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                Margin="0 0 24 0"
                                                 FontSize="18"
                                             >
                                         <Run Text="{Binding WatchCount.Value, Converter={StaticResource ToUserFriendlyNumber}}" />
-                                    </TextBlock>
+                                        </TextBlock>
 
-                                    <SymbolIcon Symbol="Comment" 
+                                        <SymbolIcon Symbol="Comment" 
                                                 Margin="8 0"
                                                 Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                 />
 
-                                    <TextBlock VerticalAlignment="Center"
+                                        <TextBlock VerticalAlignment="Center"
                                                IsHitTestVisible="False"
                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                Margin="0 0 8 0"
                                                 FontSize="18"
                                             >
                                         <Run Text="{Binding CommentCount.Value, Converter={StaticResource ToUserFriendlyNumber}}" />
-                                    </TextBlock>
+                                        </TextBlock>
 
+                                    </StackPanel>
                                 </StackPanel>
+
+
+                                <StackPanel Orientation="Horizontal"
+                                            toolkit:DockPanel.Dock="Right"
+                                            Margin="0 0 16 0"
+                                            >
+                                    <TextBlock VerticalAlignment="Center"
+                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                FontSize="18"
+                                               >
+                                        <Run Text="{Binding RoomName}" />
+                                        <Run Text="-" />
+                                        <Run Text="{Binding SeetId}" />
+                                        <Run Text="番" />
+                                    </TextBlock>
+                                </StackPanel>
+
+                                <Border />
+
+
+
 
                             </toolkit:DockPanel>
 

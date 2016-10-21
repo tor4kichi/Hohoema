@@ -350,7 +350,7 @@ namespace NicoPlayerHohoema.Models.Live
 						EnsureOpenRtmpConnectionInntenal,
 						this,
 						TimeSpan.FromSeconds(0),
-						TimeSpan.FromSeconds(3)
+						TimeSpan.FromSeconds(4)
 						);
 					EnsureOpenRtmpStartTime = DateTime.Now;
 
@@ -398,6 +398,8 @@ namespace NicoPlayerHohoema.Models.Live
 				await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
 				{
 					await CloseRtmpConnection();
+
+					await Task.Delay(1000);
 
 					await OpenRtmpConnection(PlayerStatusResponse);
 				});
@@ -480,7 +482,9 @@ namespace NicoPlayerHohoema.Models.Live
 
 		public bool CanPostComment => !(PlayerStatusResponse?.Program.IsArchive ?? true);
 
-		public async Task PostComment(string message, string command)
+		private string _LastCommentText;
+
+		public async Task PostComment(string message, string command, TimeSpan elapsedTime)
 		{
 			if (!CanPostComment)
 			{
@@ -491,7 +495,8 @@ namespace NicoPlayerHohoema.Models.Live
 			if (_NicoLiveCommentClient != null)
 			{
 				var userId = PlayerStatusResponse.User.Id;
-				await _NicoLiveCommentClient.PostComment(message, userId, command);
+				_LastCommentText = message;
+				await _NicoLiveCommentClient.PostComment(message, userId, command, elapsedTime);
 			}
 		}
 
@@ -503,11 +508,22 @@ namespace NicoPlayerHohoema.Models.Live
 			_NicoLiveCommentClient = new NicoLiveCommentClient(LiveId, baseTime, PlayerStatusResponse.Comment.Server, HohoemaApp.NiconicoContext);
 			_NicoLiveCommentClient.CommentServerConnected += _NicoLiveCommentReciever_CommentServerConnected;
 			_NicoLiveCommentClient.Heartbeat += _NicoLiveCommentClient_Heartbeat;
+			_NicoLiveCommentClient.EndConnect += _NicoLiveCommentClient_EndConnect;
 
 			_NicoLiveCommentClient.CommentRecieved += _NicoLiveCommentReciever_CommentRecieved;
 			_NicoLiveCommentClient.OperationCommandRecieved += _NicoLiveCommentClient_OperationCommandRecieved;
 
 			await _NicoLiveCommentClient.Start();
+		}
+
+		private async void _NicoLiveCommentClient_EndConnect()
+		{
+			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+			{
+				PermanentDisplayText = "*コメントサーバーとの通信を終了";
+
+				await StartNextLiveSubscribe(DefaultNextLiveSubscribeDuration);
+			});
 		}
 
 		private async Task EndCommentClientConnection()
@@ -522,6 +538,8 @@ namespace NicoPlayerHohoema.Models.Live
 				_NicoLiveCommentClient.Dispose();
 
 				_NicoLiveCommentClient = null;
+
+				
 			}
 		}
 
@@ -530,13 +548,26 @@ namespace NicoPlayerHohoema.Models.Live
 			_NicoLiveCommentClient.CommentPosted += _NicoLiveCommentReciever_CommentPosted;
 		}
 
-		private async void _NicoLiveCommentReciever_CommentPosted(bool isSuccess)
+		private async void _NicoLiveCommentReciever_CommentPosted(bool isSuccess, PostChat chat)
 		{
 			Debug.WriteLine("コメント投稿結果：+" + isSuccess);
 
 			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
 			{
 				PostCommentResult?.Invoke(this, isSuccess);
+
+				if (isSuccess)
+				{
+					_LiveComments.Add(new Chat()
+					{
+						User_id = chat.UserId,
+						Vpos = chat.Vpos,
+						No = "",
+						Mail = chat.Mail,
+						Text = chat.Comment,
+						Anonymity = (chat.Mail?.Contains("184") ?? false) ? "true" : null
+					});
+				}
 			});
 		}
 
@@ -670,7 +701,9 @@ namespace NicoPlayerHohoema.Models.Live
 						// また、RtmpClientがクローズ中にここでRtmpClient.Close()を行うと
 						// スレッドセーフではないためか、例外が発生します。
 						
-						//await CloseRtmpConnection();
+						await CloseRtmpConnection();
+
+						await Task.Delay(500);
 
 						// 次枠の自動巡回を開始
 //						await StartNextLiveSubscribe(DefaultNextLiveSubscribeDuration);
@@ -722,11 +755,16 @@ namespace NicoPlayerHohoema.Models.Live
 		{
 			using (var releaser = await _NextLiveSubscriveLock.LockAsync())
 			{
+				if (NextLiveId != null)
+				{
+					return;
+				}
+
 				if (_NextLiveSubscriveTimer == null)
 				{
 					_NextLiveSubscriveTimer = new Timer(
 						NextLiveSubscribe,
-						this,
+						null,
 						TimeSpan.FromSeconds(3),
 						TimeSpan.FromSeconds(10)
 						);
@@ -793,7 +831,7 @@ namespace NicoPlayerHohoema.Models.Live
 							{
 								NextLiveId = nextLiveId;
 
-								PermanentDisplayText = "次枠を検出しました → " + NextLiveId;
+								PermanentDisplayText = "*次枠を検出しました → " + NextLiveId;
 
 								NextLive?.Invoke(this, NextLiveId);
 								Debug.WriteLine("exit detect next live. (success) : " + NextLiveId);
