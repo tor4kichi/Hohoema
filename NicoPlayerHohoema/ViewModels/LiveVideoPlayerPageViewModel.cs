@@ -77,6 +77,19 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _CommunityName, value); }
 		}
 
+		private string _SeetType;
+		public string RoomName
+		{
+			get { return _SeetType; }
+			set { SetProperty(ref _SeetType, value); }
+		}
+
+		private uint _SeetNumber;
+		public uint SeetId
+		{
+			get { return _SeetNumber; }
+			set { SetProperty(ref _SeetNumber, value); }
+		}
 
 
 		public NicoLiveVideo NicoLiveVideo { get; private set; }
@@ -467,6 +480,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 				CommunityId = NicoLiveVideo.BroadcasterCommunityId;
 
+
 				// post comment 
 				NicoLiveVideo.PostCommentResult += NicoLiveVideo_PostCommentResult;
 
@@ -571,7 +585,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 					LiveTitle = NicoLiveVideo.LiveTitle;
 					CommunityId = NicoLiveVideo.BroadcasterCommunityId;
-					
+
+					// seet
+					RoomName = NicoLiveVideo.PlayerStatusResponse.Room.Name;
+					SeetId = NicoLiveVideo.PlayerStatusResponse.Room.SeatId;
 
 					OnPropertyChanged(nameof(NicoLiveVideo));
 				}
