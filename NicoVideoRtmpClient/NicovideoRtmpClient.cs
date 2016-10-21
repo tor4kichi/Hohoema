@@ -478,9 +478,11 @@ namespace NicoVideoRtmpClient
 
 				_BufferingHelper = new BufferingHelper(_Stream);
 
-				await _ConnectionImpl.PostConnectionProcess(_Connection);
-
+				// createStream
 				await _Stream.AttachAsync(_Connection);
+
+				// nlPlayNotice(チャンネル/ユーザー生放送のライブ配信のみ)
+				await _ConnectionImpl.PostConnectionProcess(_Connection);
 			}
 			else if ((ncs & NetStatusCodeType.Level2Mask) == NetStatusCodeType.NetConnectionConnect)
 			{
@@ -498,6 +500,9 @@ namespace NicoVideoRtmpClient
 
 		private async void OnAttached(object sender, NetStreamAttachedEventArgs args)
 		{
+			// createStreamとplayの間にnlPlayNoticeを挟むための待ち
+			await Task.Delay(500);
+
 			await _Stream.PlayAsync(_Connection.Uri.Instance);
 		}
 
