@@ -278,6 +278,12 @@ namespace NicoPlayerHohoema.Models.Live
 
 						using (var releaser = await _NetworkStreamLock.LockAsync())
 						{
+							if (_NetworkStream == null)
+							{
+								isEndConnect = true;
+								break;
+							}
+
 							if (_NetworkStream.DataAvailable)
 							{
 								break;
@@ -288,6 +294,10 @@ namespace NicoPlayerHohoema.Models.Live
 
 						await Task.Delay(50);
 					}
+
+					if (isEndConnect) { break; }
+
+					_LiveCommentRecieveCancelSource.Token.ThrowIfCancellationRequested();
 
 					// 受信したデータをバッファに読み込む
 					using (var releaser = await _NetworkStreamLock.LockAsync())
