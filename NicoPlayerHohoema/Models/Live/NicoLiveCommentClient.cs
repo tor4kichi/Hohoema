@@ -508,11 +508,19 @@ namespace NicoPlayerHohoema.Models.Live
 				{
 					var isOpenString = str.StartsWith("\"");
 					var isCloseString = str.EndsWith("\"");
-					
+
+					// 00 or 11の場合はワンフレーズで文字列が閉じていると判断
 					if (!(isOpenString ^ isCloseString))
 					{
-						// 00 or 11の場合はワンフレーズで文字列が閉じていると判断
-						finalArguments.Add(str.Trim('\"'));
+						// 文字列中の文字の場合
+						if (unclosedStrings.Count > 0)
+						{
+							unclosedStrings.Add(str);
+						}
+						else
+						{
+							finalArguments.Add(str.Trim('\"'));
+						}
 					}
 					else if (isOpenString)
 					{
