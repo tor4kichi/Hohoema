@@ -59,6 +59,9 @@ namespace NicoPlayerHohoema.Views
 
 		public bool IsOperationCommand { get; set; }
 
+		public bool IsLoginUserComment { get; set; } = false;
+
+
 		private bool _IsVisible = true;
 		public bool IsVisible
 		{
