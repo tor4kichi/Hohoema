@@ -399,7 +399,7 @@ namespace NicoPlayerHohoema.Models.Live
 				{
 					await CloseRtmpConnection();
 
-					await Task.Delay(250);
+					await Task.Delay(1000);
 
 					await OpenRtmpConnection(PlayerStatusResponse);
 				});
@@ -829,7 +829,7 @@ namespace NicoPlayerHohoema.Models.Live
 							{
 								NextLiveId = nextLiveId;
 
-								PermanentDisplayText = "次枠を検出しました → " + NextLiveId;
+								PermanentDisplayText = "*次枠を検出しました → " + NextLiveId;
 
 								NextLive?.Invoke(this, NextLiveId);
 								Debug.WriteLine("exit detect next live. (success) : " + NextLiveId);

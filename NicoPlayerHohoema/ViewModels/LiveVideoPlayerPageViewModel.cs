@@ -330,7 +330,7 @@ namespace NicoPlayerHohoema.ViewModels
 							await NicoLiveVideo.RetryRtmpConnection();
 
 							// 配信終了１分前であれば次枠検出をスタートさせる
-							if (DateTime.Now < _EndAt - TimeSpan.FromMinutes(1))
+							if (DateTime.Now > _EndAt - TimeSpan.FromMinutes(1))
 							{
 								await NicoLiveVideo.StartNextLiveSubscribe(NicoLiveVideo.DefaultNextLiveSubscribeDuration);
 							}
@@ -697,6 +697,7 @@ namespace NicoPlayerHohoema.ViewModels
 					{
 						_IsEndMarked = true;
 
+						await Task.Delay(TimeSpan.FromSeconds(3));
 						if (await TryUpdateLiveStatus())
 						{
 							// 放送が延長されていた場合は継続
@@ -706,13 +707,11 @@ namespace NicoPlayerHohoema.ViewModels
 					}
 
 					// 終了時刻の３０秒前から
-					if (!_IsNextLiveSubscribeStarted && DateTime.Now > _EndAt - TimeSpan.FromSeconds(30))
+					if (!_IsNextLiveSubscribeStarted && DateTime.Now > _EndAt - TimeSpan.FromSeconds(10))
 					{
 						_IsNextLiveSubscribeStarted = true;
 
 						await NicoLiveVideo.StartNextLiveSubscribe(NicoLiveVideo.DefaultNextLiveSubscribeDuration);
-
-						Debug.WriteLine("s");
 					}
 				});
 			}
@@ -814,7 +813,7 @@ namespace NicoPlayerHohoema.ViewModels
 				CommunityName = this.CommunityName
 			};
 
-			await Task.Delay(TimeSpan.FromSeconds(1));
+			await Task.Delay(TimeSpan.FromSeconds(3));
 
 			PageManager.OpenPage(
 				HohoemaPageType.LiveVideoPlayer,
