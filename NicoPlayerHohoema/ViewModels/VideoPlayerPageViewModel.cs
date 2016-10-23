@@ -486,7 +486,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 			RequestCommentDisplayDuration = HohoemaApp.UserSettings.PlayerSettings
 				.ObserveProperty(x => x.CommentDisplayDuration)
-				.Select(x => x.TotalSeconds)
 				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
 				.AddTo(userSessionDisposer);
 			OnPropertyChanged(nameof(RequestCommentDisplayDuration));
@@ -1528,7 +1527,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		// Settings
 		public ReactiveProperty<int> RequestFPS { get; private set; }
-		public ReactiveProperty<double> RequestCommentDisplayDuration { get; private set; }
+		public ReactiveProperty<TimeSpan> RequestCommentDisplayDuration { get; private set; }
 		public ReactiveProperty<double> CommentFontScale { get; private set; }
 		public ReactiveProperty<bool> IsFullScreen { get; private set; }
 
