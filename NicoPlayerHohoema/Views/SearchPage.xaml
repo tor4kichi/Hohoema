@@ -95,7 +95,7 @@
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Center"
                                   IsTabStop="True"
-                                  Width="150"
+                                  Width="180"
                               >
 
                 </ComboBox>
@@ -107,7 +107,7 @@
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Center"
                                   IsTabStop="True"
-                                  Width="150"
+                                  Width="100"
                               >
                 </ComboBox>
 
@@ -118,7 +118,7 @@
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Center"
                                   IsTabStop="True"
-                                  Width="150"
+                                  Width="100"
                               >
                 </ComboBox>
             </StackPanel>
@@ -181,14 +181,7 @@
                 <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
                    
 
-                    <!-- 検索履歴 -->
-                    <Border toolkit:DockPanel.Dock="Right" Margin="8 0 0 0">
-                        <AppBarButton Icon="Clock" 
-                                      Label="検索履歴"
-                                      Command="{Binding ShowSearchHistoryCommand}"
-                                      >
-                        </AppBarButton>
-                    </Border>
+                    
 
                     <!-- ターゲット（Keyword, Tag etc） -->
                     <Border toolkit:DockPanel.Dock="Left" Margin="8 0">
@@ -247,9 +240,8 @@
 
                 </toolkit:DockPanel>
 
-                <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
+                <toolkit:DockPanel toolkit:DockPanel.Dock="Top" Margin="8">
 
-                    <Border Width="54" />
                     <!-- Vidoe系検索のサーチオプション -->
                     <Border toolkit:DockPanel.Dock="Left" Margin="8 0">
                         <ContentControl Content="{Binding SearchOptionVM.Value}"
@@ -263,12 +255,23 @@
                     
                 </toolkit:DockPanel>
 
-                <ContentControl Content="{Binding ContentVM.Value}" 
+                <toolkit:DockPanel>
+                    <!-- 検索履歴 -->
+                    <Border toolkit:DockPanel.Dock="Left" Margin="8 0 0 0">
+                        <AppBarButton Icon="Clock" 
+                                      Label="検索履歴"
+                                      Command="{Binding ShowSearchHistoryCommand}"
+                                      >
+                        </AppBarButton>
+                    </Border>
+
+                    <ContentControl Content="{Binding ContentVM.Value}" 
                         ContentTemplateSelector="{StaticResource SearchPageContentTemplateSelector}"
                         HorizontalContentAlignment="Stretch"
                         VerticalContentAlignment="Stretch"
                         />
 
+                </toolkit:DockPanel>
 
             </toolkit:DockPanel>
         </Border>

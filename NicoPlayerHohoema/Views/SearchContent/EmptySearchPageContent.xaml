@@ -11,7 +11,6 @@
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
-    xmlns:rlv="using:RefreshableListView"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     mc:Ignorable="d"
     d:DesignHeight="300"
@@ -21,29 +20,6 @@
         <toolkit:DockPanel>
 
             <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
-
-
-
-
-
-                <!--  -->
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" 
-                            Margin="8"
-                            >
-                    <AppBarButton Label="検索履歴を全て削除"
-                                  Icon="Delete"
-                                  IsEnabled="{Binding HasItem.Value}"
-                                  >
-                        <AppBarButton.Flyout>
-                            <Flyout>
-                                <Button Content="【確認】検索履歴を全て削除します" 
-                                        Command="{Binding DeleteAllSearchHistoryCommand}"
-                                        />
-                            </Flyout>
-                        </AppBarButton.Flyout>
-                    </AppBarButton>
-                </StackPanel>
-
 
                 <!-- 複数選択のON/OFF -->
                 <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Right" Margin="8">
@@ -89,6 +65,27 @@
                             Height="72"
                             Margin="8 0"                               
                         >
+
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center"
+                            toolkit:DockPanel.Dock="Left">
+                    
+                    <!-- 検索履歴の削除 -->
+                    <AppBarButton Label="検索履歴を全て削除"
+                                Icon="Delete"
+                                IsEnabled="{Binding HasItem.Value}"
+                                >
+                        <AppBarButton.Flyout>
+                            <Flyout>
+                                <Button Content="【確認】検索履歴を全て削除します" 
+                                    Command="{Binding DeleteAllSearchHistoryCommand}"
+                                    />
+                            </Flyout>
+                        </AppBarButton.Flyout>
+                    </AppBarButton>
+
+
+                </StackPanel>
                 <StackPanel Orientation="Horizontal"
                             VerticalAlignment="Center"
                             toolkit:DockPanel.Dock="Right"
