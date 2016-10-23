@@ -11,6 +11,7 @@
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:hardwareTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
     d:DesignHeight="300"
@@ -121,6 +122,25 @@
                         </VisualState>
                     </VisualStateGroup>
 
+                    <VisualStateGroup>
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <hardwareTrigger:DeviceFamilyTrigger Condition="Mobile" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="RootLayoutContainer.Margin" Value="0 8 0 0" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <VisualState>
+                            <VisualState.Setters>
+                                <Setter Target="RootLayoutContainer.Margin" Value="0 0 0 0" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                    </VisualStateGroup>
+                    
 
 
 
@@ -131,7 +151,7 @@
 
                 </VisualStateManager.VisualStateGroups>
                 
-                <toolkit:DockPanel>
+                <toolkit:DockPanel x:Name="RootLayoutContainer">
 
 
                    
