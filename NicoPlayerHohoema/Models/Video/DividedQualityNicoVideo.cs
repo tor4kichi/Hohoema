@@ -113,14 +113,6 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
-		public bool NowPlaying
-		{
-			get
-			{
-				return _Context.CheckVideoPlaying(RawVideoId, Quality);
-			}
-		}
-
 		public bool IsCached
 		{
 			get
@@ -249,6 +241,9 @@ namespace NicoPlayerHohoema.Models
 				, NicoVideo.CachedWatchApiResponse
 				, file
 				);
+
+			// キャッシュリクエスト済みか
+			downloader.IsCacheRequested = _Context.CheckCacheRequested(RawVideoId, Quality);
 
 			System.Diagnostics.Debug.WriteLine($"size:{downloader.Size}");
 

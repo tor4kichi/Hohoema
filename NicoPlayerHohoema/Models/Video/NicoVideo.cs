@@ -44,17 +44,15 @@ namespace NicoPlayerHohoema.Models
 		{
 			if (_IsInitialized) { return; }
 
-			_IsInitialized = true;
-
-			Debug.WriteLine("start initialize : " + RawVideoId);
-
-			if (Util.InternetConnection.IsInternet())
+			if (HohoemaApp.IsLoggedIn && Util.InternetConnection.IsInternet())
 			{
+				Debug.WriteLine("start initialize : " + RawVideoId);
+
 				await UpdateWithThumbnail();
 			}
 			else
 			{
-
+				return;
 			}
 
 			if (false == IsDeleted)
@@ -64,14 +62,19 @@ namespace NicoPlayerHohoema.Models
 
 				await CheckCacheStatus();
 			}
+
+			_IsInitialized = true;
+
 		}
 
 
-		
+
 
 
 		public async Task CheckCacheStatus()
 		{
+			if (!_IsInitialized) { return; }
+
 			await OriginalQuality.CheckCacheStatus();
 			await LowQuality.CheckCacheStatus();
 		}
@@ -226,8 +229,7 @@ namespace NicoPlayerHohoema.Models
 				var file = await LowQuality.GetCacheFile();
 				NicoVideoCachedStream = await file.OpenReadAsync();
 			}
-
-			if (ProtocolType == MediaProtocolType.RTSPoverHTTP)
+			else if (ProtocolType == MediaProtocolType.RTSPoverHTTP)
 			{
 				if (await _Context.CanAccessVideoCacheFolder()
 					&& (
@@ -236,7 +238,7 @@ namespace NicoPlayerHohoema.Models
 						)
 					)
 				{
-					NicoVideoDownloader = await _Context.GetPlayingDownloader(this, quality);
+					NicoVideoDownloader = await _Context.GetDownloader(this, quality);
 
 					NicoVideoCachedStream = new NicoVideoCachedStream(NicoVideoDownloader);
 				}
@@ -331,11 +333,17 @@ namespace NicoPlayerHohoema.Models
 			NicoVideoCachedStream?.Dispose();
 			NicoVideoCachedStream = null;
 
-			await _Context.ClosePlayingStream(this.RawVideoId);
-
 			if (NicoVideoDownloader != null)
 			{
-				await NicoVideoDownloader.DividedQualityNicoVideo.SaveProgress();
+				if (NicoVideoDownloader.IsCacheRequested)
+				{
+					await NicoVideoDownloader.DividedQualityNicoVideo.SaveProgress();
+				}
+				else
+				{
+					await _Context.StopDownload(NicoVideoDownloader.DividedQualityNicoVideo.RawVideoId, NicoVideoDownloader.DividedQualityNicoVideo.Quality);
+				}
+
 				NicoVideoDownloader = null;
 			}
 

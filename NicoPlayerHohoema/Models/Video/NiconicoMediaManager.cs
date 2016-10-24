@@ -39,10 +39,7 @@ namespace NicoPlayerHohoema.Models
 			// ダウンロードコンテキストを作成
 			man.Context = await NicoVideoDownloadContext.Create(app, man);
 
-			// 初期化をバックグラウンドタスクに登録
-			var updater = new SimpleBackgroundUpdate("NicoMediaManager", () => man.Initialize());
-			await app.BackgroundUpdater.Schedule(updater);
-
+			
 			return man;
 		}
 
@@ -59,8 +56,15 @@ namespace NicoPlayerHohoema.Models
 			_CacheRequestedItemsStack = new ObservableCollection<NicoVideoCacheRequest>();
 			CacheRequestedItemsStack = new ReadOnlyObservableCollection<NicoVideoCacheRequest>(_CacheRequestedItemsStack);
 
+			_HohoemaApp.OnSignin += _HohoemaApp_OnSignin;
 		}
 
+		private async void _HohoemaApp_OnSignin()
+		{
+			// 初期化をバックグラウンドタスクに登録
+			var updater = new SimpleBackgroundUpdate("NicoMediaManager", () => Initialize());
+			await _HohoemaApp.BackgroundUpdater.Schedule(updater);
+		}
 
 		public void Dispose()
 		{
@@ -71,7 +75,6 @@ namespace NicoPlayerHohoema.Models
 
 		private async Task Initialize()
 		{
-
 			Debug.Write($"ダウンロードリクエストの復元を開始");
 
 
@@ -81,7 +84,7 @@ namespace NicoPlayerHohoema.Models
 			foreach (var req in list)
 			{
 				var nicoVideo = await GetNicoVideoAsync(req.RawVideoid);
-				_CacheRequestedItemsStack.Add(req);
+				_CacheRequestedItemsStack.Insert(0, req);
 				await nicoVideo.CheckCacheStatus();
 				Debug.Write(".");
 			}
@@ -96,6 +99,9 @@ namespace NicoPlayerHohoema.Models
 			{
 				await GetNicoVideoAsync(recentPreventDeleteVideoId);
 			}
+
+			// 
+			await Context.StartBackgroundDownload();
 		}
 
 
@@ -272,7 +278,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			await RemoveCacheRequest(rawVideoId, quality);
 
-			_CacheRequestedItemsStack.Add(new NicoVideoCacheRequest()
+			_CacheRequestedItemsStack.Insert(0, new NicoVideoCacheRequest()
 			{
 				RawVideoid = rawVideoId,
 				Quality = quality,
@@ -312,13 +318,13 @@ namespace NicoPlayerHohoema.Models
 			{
 				await _CacheRequestedItemsFileAccessor.Save(_CacheRequestedItemsStack);
 
-				Debug.WriteLine("ダウンロード待ち状況を保存しました。");
+				Debug.WriteLine("ダウンロードリクエストを保存しました。");
 			}
 			else
 			{
 				if (await _CacheRequestedItemsFileAccessor.Delete())
 				{
-					Debug.WriteLine("ダウンロード待ちがないため、状況ファイルを削除しました。");
+					Debug.WriteLine("ダウンロードリクエストがないため、ファイルを削除しました。");
 				}
 			}
 		}

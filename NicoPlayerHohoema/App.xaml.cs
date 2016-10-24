@@ -381,11 +381,48 @@ namespace NicoPlayerHohoema
 
 			var hohoemaApp = Container.Resolve<HohoemaApp>();
 
+			hohoemaApp.MediaManager.Context.DoneDownload += Context_DoneDownload;
+			hohoemaApp.MediaManager.Context.StartDownload += (sender, a) => 
+			{
+				Debug.WriteLine("ダウンロードを開始" + a.RawVideoId);
+			};
+			hohoemaApp.MediaManager.Context.CancelDownload += (sender, a) =>
+			{
+				Debug.WriteLine("ダウンロードをキャンセル:" + a.RawVideoId);
+			};
 
 			//			var playNicoVideoEvent = EventAggregator.GetEvent<PlayNicoVideoEvent>();
 			//			playNicoVideoEvent.Subscribe(PlayNicoVideoInPlayerWindow);
 
 			await base.OnInitializeAsync(args);
+		}
+
+		private void Context_DoneDownload(NicoVideoDownloadContext sender, NiconicoDownloadEventArgs args)
+		{
+			var hohoemaApp = Container.Resolve<HohoemaApp>();
+			var toastService = Container.Resolve<Views.Service.ToastNotificationService>();
+			var pageManager = Container.Resolve<PageManager>();
+
+			try
+			{
+				var videoData = Models.Db.VideoInfoDb.Get(args.RawVideoId);
+
+				toastService.ShowText(
+					videoData.Title,
+					$"キャッシュが完了、このメッセージをタップして再生開始",
+					toastActivatedAction: () =>
+					{
+						// 再生
+						var videoPagePayload = new VideoPlayPayload()
+						{
+							VideoId = args.RawVideoId,
+							Quality = args.Quality
+						};
+						pageManager.OpenPage(HohoemaPageType.VideoPlayer, videoPagePayload.ToParameterString());
+					}
+					);
+			}
+			catch { }
 		}
 
 		private async void PlayNicoVideoInPlayerWindow(string videoUrl)

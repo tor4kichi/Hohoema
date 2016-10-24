@@ -16,6 +16,16 @@ using Windows.Storage;
 namespace NicoPlayerHohoema.Models
 {
 
+	
+	public class NiconicoDownloadEventArgs
+	{
+		public string RawVideoId { get; set; }
+		public NicoVideoQuality Quality { get; set; }
+	}
+
+	public delegate void StartDownloadEventHandler(NicoVideoDownloadContext sender, NiconicoDownloadEventArgs args);
+	public delegate void DoneDownloadEventHandler(NicoVideoDownloadContext sender, NiconicoDownloadEventArgs args);
+	public delegate void CancelDownloadEventHandler(NicoVideoDownloadContext sender, NiconicoDownloadEventArgs args);
 
 	public sealed class NicoVideoDownloadContext : BindableBase, IDisposable
 	{
@@ -35,7 +45,6 @@ namespace NicoPlayerHohoema.Models
 		{
 			_HohoemaApp = hohoemaApp;
 
-			CurrentPlayingDownloader = null;
 			CurrentDownloader = null;
 
 			_StreamControlLock = new SemaphoreSlim(1, 1);
@@ -60,7 +69,6 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task Suspending()
 		{
-			await CloseCurrentPlayingStream(false);
 			await CloseCurrentDownloadStream();
 
 			await ClearDurtyCachedNicoVideo();
@@ -128,10 +136,8 @@ namespace NicoPlayerHohoema.Models
 			_DurtyCachedNicoVideo.Clear();
 		}
 
-
-		#region Video Playback management
-
-		public async Task<NicoVideoDownloader> GetPlayingDownloader(NicoVideo nicoVideo, NicoVideoQuality quality)
+		
+		public async Task<NicoVideoDownloader> GetDownloader(NicoVideo nicoVideo, NicoVideoQuality quality)
 		{
 			try
 			{
@@ -143,18 +149,12 @@ namespace NicoPlayerHohoema.Models
 					)
 				{
 					downloader = CurrentDownloader;
-
-					// 再生ストリームを作成します
-					await AssignPlayingStream(downloader);
 				}
 				else
 				{
 					await CloseCurrentDownloadStream();
 
 					downloader = await CreateDownloader(nicoVideo, quality);
-
-					// 再生ストリームを作成します
-					await AssignPlayingStream(downloader);
 
 					if (!downloader.IsCacheComplete)
 					{
@@ -175,76 +175,6 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
-		private async Task AssignPlayingStream(NicoVideoDownloader stream)
-		{
-			try
-			{
-				await _StreamControlLock.WaitAsync();
-
-				CurrentPlayingDownloader = stream;
-
-				if (stream != null)
-				{
-					AddDurtyCachedNicoVideo(stream.DividedQualityNicoVideo);
-				}
-			}
-			finally
-			{
-				_StreamControlLock.Release();
-			}
-		}
-
-		
-		internal async Task ClosePlayingStream(string rawVideoId)
-		{
-			try
-			{
-				await _ExternalAccessControlLock.WaitAsync();
-
-				if (CurrentPlayingDownloader != null &&
-					CurrentPlayingDownloader.RawVideoId == rawVideoId)
-				{
-					await CloseCurrentPlayingStream().ConfigureAwait(false);
-				}
-			}
-			finally
-			{
-				_ExternalAccessControlLock.Release();
-			}
-		}
-
-		private async Task CloseCurrentPlayingStream(bool conitnueDownload = true)
-		{
-			if (CurrentPlayingDownloader != null)
-			{
-				// 再生ストリームが再生終了後に継続ダウンロードの必要がなければ、閉じる
-				if (CurrentPlayingDownloader == _CurrentDownloader)
-				{
-					if (!CheckCacheRequested(_CurrentDownloader.RawVideoId, _CurrentDownloader.Quality))
-					{
-						await CloseCurrentDownloadStream();
-						if (conitnueDownload)
-						{
-							await TryBeginNextDownloadRequest();
-						}
-					}
-				}
-				else
-				{
-					await CurrentPlayingDownloader.StopDownload();
-
-					CurrentPlayingDownloader.Dispose();
-				}
-
-
-				await AssignPlayingStream(null);
-			}
-		}
-
-
-		#endregion
-
-
 		#region Video Downloading management
 
 		public bool CheckCacheRequested(string rawVideoId, NicoVideoQuality quality)
@@ -254,12 +184,7 @@ namespace NicoPlayerHohoema.Models
 
 
 
-		public bool CheckVideoPlaying(string rawVideoId, NicoVideoQuality quality)
-		{
-			if (CurrentPlayingDownloader == null) { return false; }
-
-			return CurrentPlayingDownloader.RawVideoId == rawVideoId && CurrentPlayingDownloader.Quality == quality;
-		}
+		
 
 		public bool CheckVideoDownloading(string rawVideoId, NicoVideoQuality quality)
 		{
@@ -299,6 +224,34 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
+		public async Task<bool> StopDownload(string rawVideoId, NicoVideoQuality quality)
+		{
+			try
+			{
+				await _ExternalAccessControlLock.WaitAsync();
+
+				if (CurrentDownloader != null)
+				{
+					if (CurrentDownloader.RawVideoId == rawVideoId && CurrentDownloader.Quality == quality)
+					{
+						await CloseCurrentDownloadStream();
+					}
+
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+
+			}
+			finally
+			{
+				_ExternalAccessControlLock.Release();
+			}
+		}
+
+		//
 		internal async Task<bool> CacnelDownloadRequest(string rawVideoId, NicoVideoQuality quality)
 		{
 			try
@@ -312,12 +265,7 @@ namespace NicoPlayerHohoema.Models
 					successRemove = await _MediaManager.RemoveCacheRequest(rawVideoId, quality);
 				}
 
-				if (CheckVideoPlaying(rawVideoId, quality))
-				{
-					// 再生中のアイテムをキャンセルする
-					CurrentPlayingDownloader.IsCacheRequested = false;
-				}
-				else if (CheckVideoDownloading(rawVideoId, quality))
+				if (CheckVideoDownloading(rawVideoId, quality))
 				{
 					// ダウンロード中のアイテムをキャンセルする
 					CurrentDownloader.IsCacheRequested = false;
@@ -336,8 +284,11 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-
 		
+
+
+
+
 
 		private Task AddCacheRequest(string rawVideoid, NicoVideoQuality quality)
 		{
@@ -433,6 +384,13 @@ namespace NicoPlayerHohoema.Models
 				}
 
 				await _CurrentDownloader.Download();
+
+				// ダウンロード開始イベントをトリガー
+				StartDownload?.Invoke(this, new NiconicoDownloadEventArgs()
+				{
+					RawVideoId = downloadStream.RawVideoId,
+					Quality = downloadStream.Quality
+				});
 			}
 			finally
 			{
@@ -454,8 +412,40 @@ namespace NicoPlayerHohoema.Models
 					_CurrentDownloader.OnCacheComplete -= DownloadCompleteAction;
 					_CurrentDownloader.OnCacheCanceled -= _CurrentDownloader_OnCacheCanceled;
 					_CurrentDownloader.OnCacheProgress -= _CurrentDownloadStream_OnCacheProgress;
+
+					try
+					{
+						if (!CurrentDownloader.IsCacheComplete)
+						{
+							if (CurrentDownloader.IsCacheRequested)
+							{
+								await CurrentDownloader.DividedQualityNicoVideo.SaveProgress();
+							}
+
+							// ダウンロードキャンセルイベントをトリガー
+							CancelDownload?.Invoke(this, new NiconicoDownloadEventArgs()
+							{
+								RawVideoId = _CurrentDownloader.RawVideoId,
+								Quality = _CurrentDownloader.Quality
+							});
+						}
+						else
+						{
+							// ダウンロード完了イベントをトリガー
+							DoneDownload?.Invoke(this, new NiconicoDownloadEventArgs()
+							{
+								RawVideoId = _CurrentDownloader.RawVideoId,
+								Quality = _CurrentDownloader.Quality
+							});
+						}
+					}
+					catch (Exception ex)
+					{
+						Debug.WriteLine(ex.ToString());
+					}
+					
 					_CurrentDownloader.Dispose();
-					_CurrentDownloader = null;
+					CurrentDownloader = null;
 				}
 			}
 			finally
@@ -533,19 +523,9 @@ namespace NicoPlayerHohoema.Models
 				if (_CurrentDownloader != null &&
 				_CurrentDownloader.RawVideoId == rawVideoid)
 				{
-					_CurrentDownloader.OnCacheComplete -= DownloadCompleteAction;
-					_CurrentDownloader.OnCacheCanceled -= _CurrentDownloader_OnCacheCanceled;
-					_CurrentDownloader.OnCacheProgress -= _CurrentDownloadStream_OnCacheProgress;
+					Debug.WriteLine($"{rawVideoid}:{_CurrentDownloader.Quality.ToString()} のダウンロード完了");
 
-					if (_CurrentDownloader != _CurrentPlayingDownloader)
-					{
-						_CurrentDownloader.Dispose();
-					}
-
-					var quality = _CurrentDownloader.Quality;
-					CurrentDownloader = null;
-
-					Debug.WriteLine($"{rawVideoid}:{quality.ToString()} のダウンロード完了");
+					await CloseCurrentDownloadStream();
 					
 					await TryBeginNextDownloadRequest().ConfigureAwait(false);
 				}
@@ -571,19 +551,14 @@ namespace NicoPlayerHohoema.Models
 				if (_CurrentDownloader != null &&
 					_CurrentDownloader.RawVideoId == rawVideoId)
 				{
+					Debug.WriteLine($"{rawVideoId}:{_CurrentDownloader.Quality.ToString()} のダウンロードをキャンセル");
+
 					_CurrentDownloader.OnCacheComplete -= DownloadCompleteAction;
 					_CurrentDownloader.OnCacheCanceled -= _CurrentDownloader_OnCacheCanceled;
 					_CurrentDownloader.OnCacheProgress -= _CurrentDownloadStream_OnCacheProgress;
-
-					if (_CurrentDownloader != _CurrentPlayingDownloader)
-					{
-						_CurrentDownloader.Dispose();
-					}
-
-					var quality = _CurrentDownloader.Quality;
+					
+					_CurrentDownloader.Dispose();
 					CurrentDownloader = null;
-
-					Debug.WriteLine($"{rawVideoId}:{quality.ToString()} のダウンロードをキャンセル");
 
 					await TryBeginNextDownloadRequest().ConfigureAwait(false);
 				}
@@ -642,26 +617,16 @@ namespace NicoPlayerHohoema.Models
 
 		#endregion
 
+		public event StartDownloadEventHandler StartDownload;
+		public event CancelDownloadEventHandler CancelDownload;
+		public event DoneDownloadEventHandler DoneDownload;
+
 
 		// Donwload/Playingのストリームのアサイン、破棄のタイミング同期用ロック
 		private SemaphoreSlim _StreamControlLock;
 
 		// 外部からの呼び出しによる非同期アクセスからデータを保護するロック
 		private SemaphoreSlim _ExternalAccessControlLock;
-
-
-		private NicoVideoDownloader _CurrentPlayingDownloader;
-		public NicoVideoDownloader CurrentPlayingDownloader
-		{
-			get
-			{
-				return _CurrentPlayingDownloader;
-			}
-			private set
-			{
-				SetProperty(ref _CurrentPlayingDownloader, value);
-			}
-		}
 
 		private NicoVideoDownloader _CurrentDownloader;
 		public NicoVideoDownloader CurrentDownloader
