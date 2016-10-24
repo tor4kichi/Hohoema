@@ -99,6 +99,9 @@ namespace NicoPlayerHohoema.Models
 			{
 				await GetNicoVideoAsync(recentPreventDeleteVideoId);
 			}
+
+			// 
+			await Context.StartBackgroundDownload();
 		}
 
 
