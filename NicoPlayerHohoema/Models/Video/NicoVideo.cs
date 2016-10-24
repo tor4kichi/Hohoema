@@ -236,9 +236,16 @@ namespace NicoPlayerHohoema.Models
 						)
 					)
 				{
-					NicoVideoDownloader = await _Context.GetPlayingDownloader(this, quality);
+					NicoVideoDownloader = await _Context.GetDownloader(this, quality);
 
-					NicoVideoCachedStream = new NicoVideoCachedStream(NicoVideoDownloader);
+					if (NicoVideoDownloader.IsCacheComplete)
+					{
+						NicoVideoCachedStream = await NicoVideoDownloader.CacheFile.OpenReadAsync();
+					}
+					else
+					{
+						NicoVideoCachedStream = new NicoVideoCachedStream(NicoVideoDownloader);
+					}
 				}
 				else if (Util.InternetConnection.IsInternet())
 				{
@@ -331,11 +338,17 @@ namespace NicoPlayerHohoema.Models
 			NicoVideoCachedStream?.Dispose();
 			NicoVideoCachedStream = null;
 
-			await _Context.ClosePlayingStream(this.RawVideoId);
-
 			if (NicoVideoDownloader != null)
 			{
-				await NicoVideoDownloader.DividedQualityNicoVideo.SaveProgress();
+				if (NicoVideoDownloader.IsCacheRequested)
+				{
+					await NicoVideoDownloader.DividedQualityNicoVideo.SaveProgress();
+				}
+				else
+				{
+					await _Context.StopDownload(NicoVideoDownloader.DividedQualityNicoVideo.RawVideoId, NicoVideoDownloader.DividedQualityNicoVideo.Quality);
+				}
+
 				NicoVideoDownloader = null;
 			}
 

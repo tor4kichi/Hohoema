@@ -312,13 +312,13 @@ namespace NicoPlayerHohoema.Models
 			{
 				await _CacheRequestedItemsFileAccessor.Save(_CacheRequestedItemsStack);
 
-				Debug.WriteLine("ダウンロード待ち状況を保存しました。");
+				Debug.WriteLine("ダウンロードリクエストを保存しました。");
 			}
 			else
 			{
 				if (await _CacheRequestedItemsFileAccessor.Delete())
 				{
-					Debug.WriteLine("ダウンロード待ちがないため、状況ファイルを削除しました。");
+					Debug.WriteLine("ダウンロードリクエストがないため、ファイルを削除しました。");
 				}
 			}
 		}
