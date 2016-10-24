@@ -593,13 +593,16 @@ namespace NicoPlayerHohoema.ViewModels
 					}
 				}
 
+				var isCurrentQualityCacheDownloadCompleted = false;
 				switch (x)
 				{
 					case NicoVideoQuality.Original:
 						IsSaveRequestedCurrentQualityCache.Value = Video.OriginalQuality.IsCacheRequested;
+						isCurrentQualityCacheDownloadCompleted = Video.OriginalQuality.IsCached;
 						break;
 					case NicoVideoQuality.Low:
 						IsSaveRequestedCurrentQualityCache.Value = Video.LowQuality.IsCacheRequested;
+						isCurrentQualityCacheDownloadCompleted = Video.LowQuality.IsCached;
 						break;
 					default:
 						IsSaveRequestedCurrentQualityCache.Value = false;
@@ -622,8 +625,19 @@ namespace NicoPlayerHohoema.ViewModels
 
 					IsPlayWithCache.Value = true;
 				}
-				else
+				else if (isCurrentQualityCacheDownloadCompleted)
 				{
+					// CachedStreamを使わずに直接ファイルから再生している場合
+					// キャッシュ済みとして表示する
+					ProgressFragments.Clear();
+					var size = (x == NicoVideoQuality.Original ? Video.OriginalQuality.VideoSize : Video.LowQuality.VideoSize);
+					var invertedTotalSize = 1.0 / size;
+					ProgressFragments.Add(new ProgressFragment(invertedTotalSize, 0, size));
+
+					IsPlayWithCache.Value = true;
+				}
+				else
+				{ 
 					// 完全なオンライン再生
 					IsPlayWithCache.Value = false;
 				}
