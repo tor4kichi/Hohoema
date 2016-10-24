@@ -229,8 +229,7 @@ namespace NicoPlayerHohoema.Models
 				var file = await LowQuality.GetCacheFile();
 				NicoVideoCachedStream = await file.OpenReadAsync();
 			}
-
-			if (ProtocolType == MediaProtocolType.RTSPoverHTTP)
+			else if (ProtocolType == MediaProtocolType.RTSPoverHTTP)
 			{
 				if (await _Context.CanAccessVideoCacheFolder()
 					&& (
@@ -241,14 +240,7 @@ namespace NicoPlayerHohoema.Models
 				{
 					NicoVideoDownloader = await _Context.GetDownloader(this, quality);
 
-					if (NicoVideoDownloader.IsCacheComplete)
-					{
-						NicoVideoCachedStream = await NicoVideoDownloader.CacheFile.OpenReadAsync();
-					}
-					else
-					{
-						NicoVideoCachedStream = new NicoVideoCachedStream(NicoVideoDownloader);
-					}
+					NicoVideoCachedStream = new NicoVideoCachedStream(NicoVideoDownloader);
 				}
 				else if (Util.InternetConnection.IsInternet())
 				{
