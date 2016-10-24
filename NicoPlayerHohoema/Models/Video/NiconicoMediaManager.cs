@@ -84,7 +84,7 @@ namespace NicoPlayerHohoema.Models
 			foreach (var req in list)
 			{
 				var nicoVideo = await GetNicoVideoAsync(req.RawVideoid);
-				_CacheRequestedItemsStack.Add(req);
+				_CacheRequestedItemsStack.Insert(0, req);
 				await nicoVideo.CheckCacheStatus();
 				Debug.Write(".");
 			}
@@ -278,7 +278,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			await RemoveCacheRequest(rawVideoId, quality);
 
-			_CacheRequestedItemsStack.Add(new NicoVideoCacheRequest()
+			_CacheRequestedItemsStack.Insert(0, new NicoVideoCacheRequest()
 			{
 				RawVideoid = rawVideoId,
 				Quality = quality,
