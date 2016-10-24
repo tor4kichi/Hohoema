@@ -407,11 +407,6 @@ namespace NicoPlayerHohoema.Models
 
 				if (_CurrentDownloader != null)
 				{
-					if (CurrentDownloader.IsCacheRequested)
-					{
-						await CurrentDownloader.DividedQualityNicoVideo.SaveProgress();
-					}
-
 					await _CurrentDownloader.StopDownload().ConfigureAwait(false);
 
 					_CurrentDownloader.OnCacheComplete -= DownloadCompleteAction;
@@ -422,6 +417,11 @@ namespace NicoPlayerHohoema.Models
 					{
 						if (!CurrentDownloader.IsCacheComplete)
 						{
+							if (CurrentDownloader.IsCacheRequested)
+							{
+								await CurrentDownloader.DividedQualityNicoVideo.SaveProgress();
+							}
+
 							// ダウンロードキャンセルイベントをトリガー
 							CancelDownload?.Invoke(this, new NiconicoDownloadEventArgs()
 							{
