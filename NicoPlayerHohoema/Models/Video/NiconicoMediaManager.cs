@@ -39,10 +39,7 @@ namespace NicoPlayerHohoema.Models
 			// ダウンロードコンテキストを作成
 			man.Context = await NicoVideoDownloadContext.Create(app, man);
 
-			// 初期化をバックグラウンドタスクに登録
-			var updater = new SimpleBackgroundUpdate("NicoMediaManager", () => man.Initialize());
-			await app.BackgroundUpdater.Schedule(updater);
-
+			
 			return man;
 		}
 
@@ -59,8 +56,15 @@ namespace NicoPlayerHohoema.Models
 			_CacheRequestedItemsStack = new ObservableCollection<NicoVideoCacheRequest>();
 			CacheRequestedItemsStack = new ReadOnlyObservableCollection<NicoVideoCacheRequest>(_CacheRequestedItemsStack);
 
+			_HohoemaApp.OnSignin += _HohoemaApp_OnSignin;
 		}
 
+		private async void _HohoemaApp_OnSignin()
+		{
+			// 初期化をバックグラウンドタスクに登録
+			var updater = new SimpleBackgroundUpdate("NicoMediaManager", () => Initialize());
+			await _HohoemaApp.BackgroundUpdater.Schedule(updater);
+		}
 
 		public void Dispose()
 		{
@@ -71,7 +75,6 @@ namespace NicoPlayerHohoema.Models
 
 		private async Task Initialize()
 		{
-
 			Debug.Write($"ダウンロードリクエストの復元を開始");
 
 

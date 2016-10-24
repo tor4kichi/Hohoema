@@ -44,17 +44,15 @@ namespace NicoPlayerHohoema.Models
 		{
 			if (_IsInitialized) { return; }
 
-			_IsInitialized = true;
-
-			Debug.WriteLine("start initialize : " + RawVideoId);
-
-			if (Util.InternetConnection.IsInternet())
+			if (HohoemaApp.IsLoggedIn && Util.InternetConnection.IsInternet())
 			{
+				Debug.WriteLine("start initialize : " + RawVideoId);
+
 				await UpdateWithThumbnail();
 			}
 			else
 			{
-
+				return;
 			}
 
 			if (false == IsDeleted)
@@ -64,14 +62,19 @@ namespace NicoPlayerHohoema.Models
 
 				await CheckCacheStatus();
 			}
+
+			_IsInitialized = true;
+
 		}
 
 
-		
+
 
 
 		public async Task CheckCacheStatus()
 		{
+			if (!_IsInitialized) { return; }
+
 			await OriginalQuality.CheckCacheStatus();
 			await LowQuality.CheckCacheStatus();
 		}

@@ -16,6 +16,16 @@ using Windows.Storage;
 namespace NicoPlayerHohoema.Models
 {
 
+	
+	public class NiconicoDownloadEventArgs
+	{
+		public string RawVideoId { get; set; }
+		public NicoVideoQuality Quality { get; set; }
+	}
+
+	public delegate void StartDownloadEventHandler(NicoVideoDownloadContext sender, NiconicoDownloadEventArgs args);
+	public delegate void DoneDownloadEventHandler(NicoVideoDownloadContext sender, NiconicoDownloadEventArgs args);
+	public delegate void CancelDownloadEventHandler(NicoVideoDownloadContext sender, NiconicoDownloadEventArgs args);
 
 	public sealed class NicoVideoDownloadContext : BindableBase, IDisposable
 	{
@@ -374,6 +384,13 @@ namespace NicoPlayerHohoema.Models
 				}
 
 				await _CurrentDownloader.Download();
+
+				// ダウンロード開始イベントをトリガー
+				StartDownload?.Invoke(this, new NiconicoDownloadEventArgs()
+				{
+					RawVideoId = downloadStream.RawVideoId,
+					Quality = downloadStream.Quality
+				});
 			}
 			finally
 			{
@@ -400,6 +417,33 @@ namespace NicoPlayerHohoema.Models
 					_CurrentDownloader.OnCacheComplete -= DownloadCompleteAction;
 					_CurrentDownloader.OnCacheCanceled -= _CurrentDownloader_OnCacheCanceled;
 					_CurrentDownloader.OnCacheProgress -= _CurrentDownloadStream_OnCacheProgress;
+
+					try
+					{
+						if (!CurrentDownloader.IsCacheComplete)
+						{
+							// ダウンロードキャンセルイベントをトリガー
+							CancelDownload?.Invoke(this, new NiconicoDownloadEventArgs()
+							{
+								RawVideoId = _CurrentDownloader.RawVideoId,
+								Quality = _CurrentDownloader.Quality
+							});
+						}
+						else
+						{
+							// ダウンロード完了イベントをトリガー
+							DoneDownload?.Invoke(this, new NiconicoDownloadEventArgs()
+							{
+								RawVideoId = _CurrentDownloader.RawVideoId,
+								Quality = _CurrentDownloader.Quality
+							});
+						}
+					}
+					catch (Exception ex)
+					{
+						Debug.WriteLine(ex.ToString());
+					}
+					
 					_CurrentDownloader.Dispose();
 					CurrentDownloader = null;
 				}
@@ -481,13 +525,7 @@ namespace NicoPlayerHohoema.Models
 				{
 					Debug.WriteLine($"{rawVideoid}:{_CurrentDownloader.Quality.ToString()} のダウンロード完了");
 
-					_CurrentDownloader.OnCacheComplete -= DownloadCompleteAction;
-					_CurrentDownloader.OnCacheCanceled -= _CurrentDownloader_OnCacheCanceled;
-					_CurrentDownloader.OnCacheProgress -= _CurrentDownloadStream_OnCacheProgress;
-
-					// ダウンロードしているだけなのか、再生を伴っているのかでDisposeできるか変わってくる
-					_CurrentDownloader.Dispose();
-					CurrentDownloader = null;
+					await CloseCurrentDownloadStream();
 					
 					await TryBeginNextDownloadRequest().ConfigureAwait(false);
 				}
@@ -578,6 +616,10 @@ namespace NicoPlayerHohoema.Models
 
 
 		#endregion
+
+		public event StartDownloadEventHandler StartDownload;
+		public event CancelDownloadEventHandler CancelDownload;
+		public event DoneDownloadEventHandler DoneDownload;
 
 
 		// Donwload/Playingのストリームのアサイン、破棄のタイミング同期用ロック
