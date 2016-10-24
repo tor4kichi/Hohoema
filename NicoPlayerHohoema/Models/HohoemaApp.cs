@@ -236,6 +236,7 @@ namespace NicoPlayerHohoema.Models
 			"_sessionState.xml",
 			"History.db",
 			"NicoVideo.db",
+			"cache_requested.json"
 		};
 
 		public static async Task SyncToRoamingData()
