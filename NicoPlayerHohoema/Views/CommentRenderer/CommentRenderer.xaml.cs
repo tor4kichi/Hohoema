@@ -25,6 +25,11 @@ using Windows.UI.Xaml.Navigation;
 
 namespace NicoPlayerHohoema.Views.CommentRenderer
 {
+	struct LastStreamedComment
+	{
+		public uint EndTime { get; set; }
+		public CommentUI Comment { get; set; }
+	}
 	public sealed partial class CommentRenderer : UserControl
 	{
 
@@ -76,7 +81,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		public Dictionary<Comment, CommentUI> RenderComments { get; private set; }
 
 
-		public List<uint> LastCommentDisplayEndTime { get; private set; }
+		private List<LastStreamedComment> LastCommentDisplayEndTime;
 		public List<CommentUI> NextVerticalPosition { get; private set; }
 		public List<CommentUI> TopAlignNextVerticalPosition { get; private set; }
 		public List<CommentUI> BottomAlignNextVerticalPosition { get; private set; }
@@ -105,7 +110,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			TimeSequescailComments = new SortedDictionary<uint, List<Comment>>();
 			RenderComments = new Dictionary<Comment, CommentUI>();
 
-			LastCommentDisplayEndTime = new List<uint>();
+			LastCommentDisplayEndTime = new List<LastStreamedComment>();
 			NextVerticalPosition = new List<CommentUI>();
 			TopAlignNextVerticalPosition = new List<CommentUI>();
 			BottomAlignNextVerticalPosition = new List<CommentUI>();
@@ -475,22 +480,31 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 							{
 								verticalAlignList[i] = commentUI;
 								commentVerticalPos = totalHeight;
-								LastCommentDisplayEndTime.Add(Math.Max(displayEndTime + 5, 0));
+								LastCommentDisplayEndTime.Add(new LastStreamedComment()
+								{
+									EndTime = Math.Max(displayEndTime + 5, 0),
+									Comment = commentUI
+								});
 								break;
 							}
 							// 前のコメントが有る場合、
 							// 前コメの表示終了時間より後に終わる場合はコメ追加可能
-							else if (LastCommentDisplayEndTime[i] < currentTimeBaseReachToLeftTime)
+							else if (LastCommentDisplayEndTime[i].EndTime < currentTimeBaseReachToLeftTime)
 							{
 								verticalAlignList[i] = commentUI;
 								commentVerticalPos = totalHeight;
-								LastCommentDisplayEndTime[i] = Math.Max(displayEndTime + 5, 0);
+								LastCommentDisplayEndTime[i] = new LastStreamedComment()
+								{
+									EndTime = Math.Max(displayEndTime + 5, 0),
+									Comment = commentUI
+								};
 								break;
 							}
 							else
 							{
+								var prevComment = LastCommentDisplayEndTime[i].Comment;
 								//Debug.WriteLine("前コメと衝突を回避");
-								totalHeight += (int)commentUI.DesiredSize.Height + CommentVerticalMargin + (int)(commentUI.DesiredSize.Height * 0.35);
+								totalHeight += (int)prevComment.DesiredSize.Height + CommentVerticalMargin + (int)(prevComment.DesiredSize.Height * 0.35);
 							}
 						}
 						else
