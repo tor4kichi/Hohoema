@@ -403,7 +403,9 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 
 		private int CalcAndRegisterCommentVerticalPosition(CommentUI commentUI, CommentRenderFrameData frame)
-		{	
+		{
+			const double TextSizeToMargin = 0.425;
+
 			// コメントの縦位置ごとの「空き段」を管理するリストを探す
 			List<CommentUI> verticalAlignList;
 			VerticalAlignment? _valign = (commentUI.DataContext as Comment).VAlign;
@@ -437,7 +439,8 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			}
 			else
 			{
-				totalHeight += (int)(commentUI.DesiredSize.Height * 0.35);
+				// 一番上の余白、上にコメントがこないので半分（* 0.5）として計算
+				totalHeight += (int)(commentUI.DesiredSize.Height * TextSizeToMargin * 0.5);
 			}
 
 
@@ -504,7 +507,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 							{
 								var prevComment = LastCommentDisplayEndTime[i].Comment;
 								//Debug.WriteLine("前コメと衝突を回避");
-								totalHeight += (int)prevComment.DesiredSize.Height + CommentVerticalMargin + (int)(prevComment.DesiredSize.Height * 0.35);
+								totalHeight += (int)prevComment.DesiredSize.Height + CommentVerticalMargin + (int)(prevComment.DesiredSize.Height * TextSizeToMargin);
 							}
 						}
 						else
@@ -519,7 +522,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 				}
 				else
 				{
-					totalHeight += (int)next.DesiredSize.Height + CommentVerticalMargin + (int)(next.DesiredSize.Height * 0.35);
+					totalHeight += (int)next.DesiredSize.Height + CommentVerticalMargin + (int)(next.DesiredSize.Height * TextSizeToMargin);
 				}
 			}
 
