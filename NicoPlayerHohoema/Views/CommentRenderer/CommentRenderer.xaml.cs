@@ -336,7 +336,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 					var verticalPos = CalcAndRegisterCommentVerticalPosition(renderComment, frame);
 
-					if (verticalPos < 0 || verticalPos > canvasHeight)
+					if (verticalPos < 0 || (verticalPos + renderComment.DesiredSize.Height) > canvasHeight)
 					{
 						renderComment.Visibility = Visibility.Collapsed;
 
