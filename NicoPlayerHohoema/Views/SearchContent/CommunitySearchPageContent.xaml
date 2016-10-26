@@ -40,6 +40,14 @@
 
 
                     <!-- 複数選択のON/OFF -->
+                    <!-- 
+                    <controls:ListingSelectionControl 
+                        Margin="8 0"
+                        toolkit:DockPanel.Dock="Right"
+                        />
+                    -->
+
+                    <!-- 複数選択のON/OFF -->
                     <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Right" Margin="8">
                         <StackPanel Orientation="Horizontal" Margin="16 0">
 

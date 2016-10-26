@@ -60,33 +60,13 @@
         <Border>
             <toolkit:DockPanel>
                 <toolkit:DockPanel toolkit:DockPanel.Dock="Top" Margin="0 8" >
-                    
-                    <StackPanel Orientation="Horizontal" Margin="8 0"
-                                toolkit:DockPanel.Dock="Right"
-                                >
-                        <StackPanel Orientation="Horizontal" Margin="16 0">
 
-                            <TextBlock VerticalAlignment="Center" Foreground="DimGray">
-                                <Run Text="{Binding LoadedItemsCount.Value}" />
-                                <Run Text="/" />
-                                <Run Text="{Binding MaxItemsCount.Value}" />
-                            </TextBlock>
+                    <!-- 複数選択のON/OFF -->
+                    <controls:ListingSelectionControl 
+                        Margin="8 0"
+                        toolkit:DockPanel.Dock="Right"
+                        />
 
-                            <TextBlock Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
-                                   VerticalAlignment="Center"
-                                   Margin="8 0"
-                                   Foreground="DimGray"
-                                   >
-                                <Run Text="(" />
-                                <Run Text="{Binding SelectedItemsCount.Value}" />
-                                <Run Text=")" />
-                            </TextBlock>
-                        </StackPanel>
-                        
-                        <ToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                              Content="選択モード"
-                              />
-                    </StackPanel>
 
                     <StackPanel Orientation="Horizontal"
                                 toolkit:DockPanel.Dock="Left"
