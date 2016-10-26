@@ -38,7 +38,6 @@ namespace NicoPlayerHohoema.ViewModels
 		public List<SearchTarget> TargetListItems { get; private set; }
 		public ReactiveProperty<SearchTarget> SelectedTarget { get; private set; }
 		
-		public ReactiveCommand ShowSearchHistoryCommand { get; private set; }
 
 		public ReactiveProperty<HohoemaViewModelBase> ContentVM { get; private set; }
 
@@ -149,14 +148,22 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 			})
 			.AddTo(_CompositeDisposable);
-
-			ShowSearchHistoryCommand = new ReactiveCommand();
-			ShowSearchHistoryCommand.Subscribe(_ => 
-			{
-				PageManager.OpenPage(HohoemaPageType.Search);
-			});
-
 		}
+
+
+		private DelegateCommand _ShowSearchHistoryCommand;
+		public DelegateCommand ShowSearchHistoryCommand
+		{
+			get
+			{
+				return _ShowSearchHistoryCommand
+					?? (_ShowSearchHistoryCommand = new DelegateCommand(() => 
+					{
+						PageManager.OpenPage(HohoemaPageType.Search);
+					}));
+			}
+		}
+
 
 		internal void OnSearchHistorySelected(SearchHistory item)
 		{

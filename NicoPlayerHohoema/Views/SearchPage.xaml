@@ -255,23 +255,13 @@
                     
                 </toolkit:DockPanel>
 
-                <toolkit:DockPanel>
-                    <!-- 検索履歴 -->
-                    <Border toolkit:DockPanel.Dock="Left" Margin="8 0 0 0">
-                        <AppBarButton Icon="Clock" 
-                                      Label="検索履歴"
-                                      Command="{Binding ShowSearchHistoryCommand}"
-                                      >
-                        </AppBarButton>
-                    </Border>
 
-                    <ContentControl Content="{Binding ContentVM.Value}" 
-                        ContentTemplateSelector="{StaticResource SearchPageContentTemplateSelector}"
-                        HorizontalContentAlignment="Stretch"
-                        VerticalContentAlignment="Stretch"
-                        />
+                <ContentControl Content="{Binding ContentVM.Value}" 
+                    ContentTemplateSelector="{StaticResource SearchPageContentTemplateSelector}"
+                    HorizontalContentAlignment="Stretch"
+                    VerticalContentAlignment="Stretch"
+                    />
 
-                </toolkit:DockPanel>
 
             </toolkit:DockPanel>
         </Border>

@@ -22,29 +22,10 @@
             <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
 
                 <!-- 複数選択のON/OFF -->
-                <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Right" Margin="8">
-                    <StackPanel Orientation="Horizontal" Margin="16 0">
-
-                        <TextBlock Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
-                                VerticalAlignment="Center"
-                                Margin="8 0"
-                                Foreground="DimGray"
-                                >
-                        <Run Text="{Binding SelectedItemsCount.Value}" />
-                        <Run Text="個を選択中" />
-                        </TextBlock>
-
-                        <TextBlock VerticalAlignment="Center" Foreground="DimGray">
-                        <Run Text="{Binding LoadedItemsCount.Value}" />
-                        <Run Text="/" />
-                        <Run Text="{Binding MaxItemsCount.Value}" />
-                        </TextBlock>
-                    </StackPanel>
-
-                    <ToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                            Content="選択モード"
-                            />
-                </StackPanel>
+                <controls:ListingSelectionControl 
+                        Margin="8 0"
+                        toolkit:DockPanel.Dock="Right"
+                        />
 
                 <Border>
                     <TextBlock Text=":)" Padding="16 8" HorizontalAlignment="Center" VerticalAlignment="Center">

@@ -1,0 +1,36 @@
+﻿<UserControl
+    x:Class="NicoPlayerHohoema.Views.Controls.ListingSelectionControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <StackPanel Orientation="Horizontal"
+                                >
+        <StackPanel Orientation="Horizontal" Margin="16 0" >
+
+            <TextBlock VerticalAlignment="Center" Foreground="DimGray">
+                <Run Text="{Binding LoadedItemsCount.Value}" />
+                <Run Text="/" />
+                <Run Text="{Binding MaxItemsCount.Value}" />
+            </TextBlock>
+
+            <TextBlock Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                        VerticalAlignment="Center"
+                        Margin="8 0"
+                        Foreground="DimGray"
+                        >
+                <Run Text="(" />
+                <Run Text="{Binding SelectedItemsCount.Value}" />
+                <Run Text=")" />
+            </TextBlock>
+        </StackPanel>
+
+        <ToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Content="選択モード"
+                        />
+        
+    </StackPanel>
+</UserControl>
