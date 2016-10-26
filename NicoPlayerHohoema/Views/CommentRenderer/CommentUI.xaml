@@ -5,14 +5,13 @@
     xmlns:local="using:NicoPlayerHohoema.Views.CommentRenderer"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:win2d="using:Microsoft.Graphics.Canvas.UI.Xaml"
-    xmlns:myeffect="using:NicoPlayerHohoema.Views.UIEffects"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400"
     >
 
     <Grid>
+        
         <TextBlock 
                 Text="{Binding CommentText}"
                 Foreground="{Binding BackColor, Converter={StaticResource ColorToBrush}}"
@@ -50,6 +49,26 @@
             />
         </myeffect:GlowEffectHostControl>
         -->
+
+        <StackPanel Visibility="Collapsed"
+                    Orientation="Horizontal"
+                    Background="Black"
+                    >
+            <TextBlock 
+                   FontSize="14"
+                   >
+                <Run Text="S:" />
+                <Run Text="{Binding VideoPosition}" />
+            </TextBlock>
+            <TextBlock 
+                   FontSize="14"
+                   >
+                <Run Text="E:" />
+                <Run Text="{Binding EndPosition}" />
+            </TextBlock>
+
+        </StackPanel>
+
     </Grid>
         
 </UserControl>
