@@ -24,6 +24,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 			IsKeepDisplayInPlayback = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsKeepDisplayInPlayback);
 			ScrollVolumeFrequency = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.ScrollVolumeFrequency);
+
+
+			AutoHideDelayTime = _PlayerSettings.ToReactivePropertyAsSynchronized(x => 
+				x.AutoHidePlayerControlUIPreventTime
+				, x => x.TotalSeconds
+				, x => TimeSpan.FromSeconds(x)
+				);
 		}
 
 		public override void OnLeave()
@@ -37,6 +44,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> IsKeepDisplayInPlayback { get; private set; }
 		public ReactiveProperty<double> ScrollVolumeFrequency { get; private set; }
 
+		public ReactiveProperty<double> AutoHideDelayTime { get; private set; }
 
 		private PlayerSettings _PlayerSettings;
 	}

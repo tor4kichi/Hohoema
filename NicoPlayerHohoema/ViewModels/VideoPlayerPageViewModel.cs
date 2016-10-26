@@ -446,6 +446,12 @@ namespace NicoPlayerHohoema.ViewModels
 				.AddTo(userSessionDisposer);
 			OnPropertyChanged(nameof(IsPauseWithCommentWriting));
 
+			AutoHideDelayTime = HohoemaApp.UserSettings.PlayerSettings
+				.ToReactivePropertyAsSynchronized(x => x.AutoHidePlayerControlUIPreventTime, PlayerWindowUIDispatcherScheduler)
+				.AddTo(userSessionDisposer);
+			OnPropertyChanged(nameof(AutoHideDelayTime));
+
+
 			IsMuted = HohoemaApp.UserSettings.PlayerSettings
 				.ToReactivePropertyAsSynchronized(x => x.IsMute, PlayerWindowUIDispatcherScheduler)
 				.AddTo(userSessionDisposer);
@@ -1531,6 +1537,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> IsEnableRepeat { get; private set; }
 
 		public ReactiveProperty<bool> IsAutoHideEnable { get; private set; }
+		public ReactiveProperty<TimeSpan> AutoHideDelayTime { get; private set; }
 
 		private TimeSpan _PreviosPlayingVideoPosition;
 

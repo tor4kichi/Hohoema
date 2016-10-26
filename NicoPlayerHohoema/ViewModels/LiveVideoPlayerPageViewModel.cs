@@ -163,6 +163,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		// ui
 		public ReactiveProperty<bool> IsAutoHideEnable { get; private set; }
+		public ReactiveProperty<TimeSpan> AutoHideDelayTime { get; private set; }
 
 
 
@@ -527,6 +528,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override void OnSignIn(ICollection<IDisposable> userSessionDisposer)
 		{
+			AutoHideDelayTime = HohoemaApp.UserSettings.PlayerSettings
+				.ToReactivePropertyAsSynchronized(x => x.AutoHidePlayerControlUIPreventTime, PlayerWindowUIDispatcherScheduler)
+				.AddTo(userSessionDisposer);
+			OnPropertyChanged(nameof(AutoHideDelayTime));
+
+
+
 			IsMuted = HohoemaApp.UserSettings.PlayerSettings
 				.ToReactivePropertyAsSynchronized(x => x.IsMute, PlayerWindowUIDispatcherScheduler)
 				.AddTo(userSessionDisposer);

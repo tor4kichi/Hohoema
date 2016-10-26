@@ -34,6 +34,8 @@ namespace NicoPlayerHohoema.Models
 			IsKeepFrontsideInPlayback = true;
 			IsDefaultCommentWithAnonymous = true;
 			CommentColor = Colors.WhiteSmoke;
+			IsAutoHidePlayerControlUI = true;
+			AutoHidePlayerControlUIPreventTime = TimeSpan.FromSeconds(3);
 		}
 
 
@@ -218,6 +220,26 @@ namespace NicoPlayerHohoema.Models
 		{
 			get { return _CommentColor; }
 			set { SetProperty(ref _CommentColor, value); }
+		}
+
+
+
+		private bool _IsAutoHidePlayerControlUI;
+
+		[DataMember]
+		public bool IsAutoHidePlayerControlUI
+		{
+			get { return _IsAutoHidePlayerControlUI; }
+			set { SetProperty(ref _IsAutoHidePlayerControlUI, value); }
+		}
+
+		private TimeSpan _AutoHidePlayerControlUIPreventTime;
+
+		[DataMember]
+		public TimeSpan AutoHidePlayerControlUIPreventTime
+		{
+			get { return _AutoHidePlayerControlUIPreventTime; }
+			set { SetProperty(ref _AutoHidePlayerControlUIPreventTime, value); }
 		}
 	}
 }
