@@ -71,6 +71,25 @@
 
                 </toolkit:DockPanel>
 
+
+                <toolkit:DockPanel Margin="8">
+
+                    <TextBlock Text="UIが非表示になるまでの時間（秒）"
+                        toolkit:DockPanel.Dock="Left"
+                        VerticalAlignment="Center"
+                        />
+
+                    <toolkit:NumericUpDown Value="{Binding AutoHideDelayTime.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    SmallChange="0.5"
+                                    LargeChange="3.0"
+                                    Minimum="1.0"
+                                    Maximum="15.0"
+                                    HorizontalAlignment="Right"
+                                           Foreground="{ThemeResource ApplicationForegroundThemeBrush}"
+                                    />
+                    
+                </toolkit:DockPanel>
+
                 <toolkit:DockPanel Margin="8">
 
                     <TextBlock Text="※音量は 0.0 ～ 1.0 の間に設定されます"
