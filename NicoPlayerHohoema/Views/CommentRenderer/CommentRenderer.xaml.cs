@@ -68,7 +68,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		/// テキストの影をどれだけずらすかの量
 		/// 実際に使われるのはフォントサイズにTextBGOffsetBiasを乗算した値
 		/// </summary>
-		const double TextBGOffsetBias = 0.10;
+		const double TextBGOffsetBias = 0.15;
 
 		/// <summary>
 		/// 表示時間で昇順にソートされたコメントVMのディクショナリ <br />
@@ -408,26 +408,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 			// コメントの縦位置ごとの「空き段」を管理するリストを探す
 			List<CommentUI> verticalAlignList;
-			VerticalAlignment? _valign = (commentUI.DataContext as Comment).VAlign;
-			if (_valign.HasValue)
-			{
-				if (_valign.Value == VerticalAlignment.Bottom)
-				{
-					verticalAlignList = BottomAlignNextVerticalPosition;
-				}
-				else if (_valign.Value == VerticalAlignment.Top)
-				{
-					verticalAlignList = TopAlignNextVerticalPosition;
-				}
-				else
-				{
-					verticalAlignList = NextVerticalPosition;
-				}
-			}
-			else
-			{
-				verticalAlignList = NextVerticalPosition;
-			}
+			VerticalAlignment? _valign = (commentUI.DataContext as Comment).VAlign;			
 
 			int? commentVerticalPos = null;
 			int totalHeight = 0;
@@ -454,104 +435,121 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			var canvasByCommentWidthRatio = canvasWidth / (commentUI.DesiredSize.Width + canvasWidth);
 			var reachToLeftTime = (uint)Math.Floor(displayDuration * canvasByCommentWidthRatio);
 
-			var currentTimeBaseReachToLeftTime = currentVpos + reachToLeftTime;
-			var displayEndTime = currentVpos + displayDuration;
+			var currentTimeBaseReachToLeftTime = commentUI.CommentData.VideoPosition + reachToLeftTime;
+			var displayEndTime = commentUI.CommentData.EndPosition;
 
+			Debug.WriteLine($"{reachToLeftTime}");
 
-			for (int i = 0; i< verticalAlignList.Count; ++i)
+			if (_valign.HasValue && _valign.Value == VerticalAlignment.Bottom)
 			{
-				var next = verticalAlignList[i];
-				if (next == null)
+				verticalAlignList = BottomAlignNextVerticalPosition;
+				for (int i = 0; i < verticalAlignList.Count; ++i)
 				{
-					if (_valign.HasValue && _valign.Value == VerticalAlignment.Bottom)
+					var next = verticalAlignList[i];
+					if (next == null)
 					{
 						commentVerticalPos = (int)this.ActualHeight - (int)commentUI.DesiredSize.Height - totalHeight;
-						//						Debug.WriteLine("is bottom");
 						verticalAlignList[i] = commentUI;
 					}
 					else
 					{
-						if (!_valign.HasValue)
-						{
-							// 流れるコメントを前のコメントと被らないようにする
+						totalHeight += (int)next.DesiredSize.Height + CommentVerticalMargin + (int)(next.DesiredSize.Height * TextSizeToMargin);
+					}
+				}
 
-							// 前コメントの表示完了時間と追加したいコメントの表示完了時間を比較し
-							// 追加したいコメントの表示完了時間
-							
-							// 前のコメントがない場合は、常に追加可能
-							if (LastCommentDisplayEndTime.Count <= i)
+				if (!commentVerticalPos.HasValue)
+				{
+					commentVerticalPos = (int)this.ActualHeight - (int)commentUI.DesiredSize.Height - totalHeight;
+					verticalAlignList.Add(commentUI);
+				}
+			}
+			else if (_valign.HasValue && _valign.Value == VerticalAlignment.Top)
+			{
+				// 上コメ
+				verticalAlignList = TopAlignNextVerticalPosition;
+				for (int i = 0; i < verticalAlignList.Count; ++i)
+				{
+					var next = verticalAlignList[i];
+					if (next == null)
+					{
+						verticalAlignList[i] = commentUI;
+						commentVerticalPos = totalHeight;
+					}
+					else
+					{
+						totalHeight += (int)next.DesiredSize.Height + CommentVerticalMargin + (int)(next.DesiredSize.Height * TextSizeToMargin);
+					}
+				}
+
+				if (!commentVerticalPos.HasValue)
+				{
+					commentVerticalPos = totalHeight;
+					verticalAlignList.Add(commentUI);
+				}
+			}
+			else
+			{
+				// 流れるコメント
+				verticalAlignList = NextVerticalPosition;
+				for (int i = 0; i < verticalAlignList.Count; ++i)
+				{
+					var next = verticalAlignList[i];
+					if (next == null)
+					{
+						// 流れるコメントを前のコメントと被らないようにする
+
+						// 前コメントの表示完了時間と追加したいコメントの表示完了時間を比較し
+						// 追加したいコメントの表示完了時間
+
+						// 前のコメントがない場合は、常に追加可能
+						if (LastCommentDisplayEndTime.Count <= i)
+						{
+							verticalAlignList[i] = commentUI;
+							commentVerticalPos = totalHeight;
+							LastCommentDisplayEndTime.Add(new LastStreamedComment()
 							{
-								verticalAlignList[i] = commentUI;
-								commentVerticalPos = totalHeight;
-								LastCommentDisplayEndTime.Add(new LastStreamedComment()
-								{
-									EndTime = Math.Max(displayEndTime + 5, 0),
-									Comment = commentUI
-								});
-								break;
-							}
-							// 前のコメントが有る場合、
-							// 前コメの表示終了時間より後に終わる場合はコメ追加可能
-							else if (LastCommentDisplayEndTime[i].EndTime < currentTimeBaseReachToLeftTime)
+								EndTime = Math.Max(displayEndTime + 5, 0),
+								Comment = commentUI
+							});
+							break;
+						}
+						// 前のコメントが有る場合、
+						// 前コメの表示終了時間より後に終わる場合はコメ追加可能
+						else if (LastCommentDisplayEndTime[i].EndTime < currentTimeBaseReachToLeftTime)
+						{
+							verticalAlignList[i] = commentUI;
+							commentVerticalPos = totalHeight;
+							LastCommentDisplayEndTime[i] = new LastStreamedComment()
 							{
-								verticalAlignList[i] = commentUI;
-								commentVerticalPos = totalHeight;
-								LastCommentDisplayEndTime[i] = new LastStreamedComment()
-								{
-									EndTime = Math.Max(displayEndTime + 5, 0),
-									Comment = commentUI
-								};
-								break;
-							}
-							else
-							{
-								var prevComment = LastCommentDisplayEndTime[i].Comment;
-								//Debug.WriteLine("前コメと衝突を回避");
-								totalHeight += (int)prevComment.DesiredSize.Height + CommentVerticalMargin + (int)(prevComment.DesiredSize.Height * TextSizeToMargin);
-							}
+								EndTime = Math.Max(displayEndTime + 5, 0),
+								Comment = commentUI
+							};
+							break;
 						}
 						else
 						{
-							// 上コメ
-							verticalAlignList[i] = commentUI;
-							commentVerticalPos = totalHeight;
-							break;
+							var prevComment = LastCommentDisplayEndTime[i].Comment;
+							totalHeight += (int)prevComment.DesiredSize.Height + CommentVerticalMargin + (int)(prevComment.DesiredSize.Height * TextSizeToMargin);
+
+							//Debug.WriteLine("前コメと衝突を回避 " + prevComment.CommentData.CommentText);
 						}
-						
-					}					
+					}
+					else
+					{
+						totalHeight += (int)next.DesiredSize.Height + CommentVerticalMargin + (int)(next.DesiredSize.Height * TextSizeToMargin);
+					}
 				}
-				else
-				{
-					totalHeight += (int)next.DesiredSize.Height + CommentVerticalMargin + (int)(next.DesiredSize.Height * TextSizeToMargin);
-				}
-			}
 
-
-			if (!commentVerticalPos.HasValue)
-			{
-				if (_valign.HasValue && _valign.Value == VerticalAlignment.Bottom)
-				{
-					commentVerticalPos = (int)this.ActualHeight - (int)commentUI.DesiredSize.Height - totalHeight;
-//					Debug.WriteLine("is bottom");
-				}
-				else
+				if (!commentVerticalPos.HasValue)
 				{
 					commentVerticalPos = totalHeight;
+					verticalAlignList.Add(commentUI);
 				}
-				verticalAlignList.Add(commentUI);
 			}
 
 			return commentVerticalPos.Value;
 		}
 
-
-
-
-		// 前方方向にシークした場合に利用する
-		private void ClearLastCommentTime()
-		{
-
-		}
 
 		private void UpdateCommentVerticalPositionList(uint currentVPos)
 		{
