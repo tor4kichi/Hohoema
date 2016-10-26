@@ -31,6 +31,13 @@
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" 
                                 >
 
+                        <!-- 検索履歴 -->
+                        <AppBarButton Icon="Clock" 
+                                      Label="検索履歴"
+                                      Command="{Binding ShowSearchHistoryCommand}"
+                                      >
+                        </AppBarButton>
+                        
                     </StackPanel>
 
 

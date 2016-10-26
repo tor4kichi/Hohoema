@@ -11,7 +11,6 @@
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
-    xmlns:rlv="using:RefreshableListView"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     mc:Ignorable="d"
     d:DesignHeight="300"
@@ -30,6 +29,13 @@
                     <!--  -->
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" 
                                 >
+                        
+                        <!-- 検索履歴 -->
+                        <AppBarButton Icon="Clock" 
+                                      Label="検索履歴"
+                                      Command="{Binding ShowSearchHistoryCommand}"
+                                      >
+                        </AppBarButton>
 
                     </StackPanel>
 

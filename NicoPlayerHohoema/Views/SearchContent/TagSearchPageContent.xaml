@@ -37,6 +37,13 @@
                                             Label="お気に入り"
                                             />
 
+                        <!-- 検索履歴 -->
+                        <AppBarButton Icon="Clock" 
+                                      Label="検索履歴"
+                                      Command="{Binding ShowSearchHistoryCommand}"
+                                      >
+                        </AppBarButton>
+                        
                     </StackPanel>
 
 
@@ -49,14 +56,14 @@
                                    Margin="8 0"
                                    Foreground="DimGray"
                                    >
-                            <Run Text="{Binding SelectedItemsCount.Value}" />
-                            <Run Text="個を選択中" />
+                                <Run Text="{Binding SelectedItemsCount.Value}" />
+                                <Run Text="個を選択中" />
                             </TextBlock>
 
                             <TextBlock VerticalAlignment="Center" Foreground="DimGray">
-                            <Run Text="{Binding LoadedItemsCount.Value}" />
-                            <Run Text="/" />
-                            <Run Text="{Binding MaxItemsCount.Value}" />
+                                <Run Text="{Binding LoadedItemsCount.Value}" />
+                                <Run Text="/" />
+                                <Run Text="{Binding MaxItemsCount.Value}" />
                             </TextBlock>
                         </StackPanel>
 
