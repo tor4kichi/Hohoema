@@ -30,7 +30,20 @@ namespace NicoPlayerHohoema.ViewModels
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			await Task.Delay(500);
+
 			await HohoemaApp.AppMapManager.Refresh();
+
+			if (Root == null)
+			{
+				Root = new SelectableAppMapContainerViewModel(HohoemaApp.AppMapManager.Root, PageManager);
+				OnPropertyChanged(nameof(Root));
+			}
+		}
+
+		protected override void OnSignOut()
+		{
+			Root = null;
+			base.OnSignOut();
 		}
 
 

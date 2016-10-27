@@ -604,7 +604,10 @@ namespace NicoPlayerHohoema.Models
 								return NiconicoSignInStatus.Failed;
 							}
 
-							
+
+							// ホーム画面で表示するアプリマップ情報をリセット
+							await AppMapManager.Root.Reset();
+
 
 
 							Debug.WriteLine("Login done.");
@@ -671,6 +674,7 @@ namespace NicoPlayerHohoema.Models
 
 					FavManager = null;
 					FeedManager = null;
+
 
 					OnSignout?.Invoke();
 				}
