@@ -232,6 +232,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			var halfCanvasWidth = canvasWidth / 2;
 			var fontScale = (float)CommentSizeScale;
 			var commentDefaultColor = CommentDefaultColor;
+			var commentDisplayDuration = GetCommentDisplayDurationVposUnit();
 
 			var frame = new CommentRenderFrameData()
 			{
@@ -270,7 +271,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 			// 表示すべきコメントを抽出して、表示対象として未登録のコメントを登録処理する
 
-			var search = BinarySearch(currentVpos);
+			var search = BinarySearch(currentVpos, commentDisplayDuration);
 
 			foreach (var comment in search)
 			{
@@ -296,8 +297,8 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 					var scaledFontSize = baseSize * fontScale * comment.FontScale * PixelToPoint;
 					comment.FontSize = (uint)Math.Ceiling(scaledFontSize);
 
-					comment.TextBGOffset = FontSize * TextBGOffsetBias;
-					comment.EndPosition = comment.VideoPosition + GetCommentDisplayDurationVposUnit();
+					comment.TextBGOffset = Math.Floor(FontSize * TextBGOffsetBias);
+					comment.EndPosition = comment.VideoPosition + commentDisplayDuration;
 
 					if (comment.Color == null)
 					{
@@ -644,9 +645,9 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		
 
 
-		private IEnumerable<Comment> BinarySearch(uint currentVpos)
+		private IEnumerable<Comment> BinarySearch(uint currentVpos, uint commentDisplayDuration)
 		{
-			int skipVpos = (int)currentVpos - CommentDisplayMaxTime;
+			int skipVpos = (int)currentVpos - (int)commentDisplayDuration;
 			return TimeSequescailComments.Keys
 				.SkipWhile(x => x < skipVpos)
 				.TakeWhile(x => x < currentVpos)
