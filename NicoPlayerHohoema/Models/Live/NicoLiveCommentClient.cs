@@ -96,7 +96,7 @@ namespace NicoPlayerHohoema.Models.Live
 	{
 		public NiconicoContext NiconicoContext { get; private set; }
 
-		private byte[] _Buffer = new byte[1024];
+		private byte[] _Buffer = new byte[1024 * 2];
 
 		TcpClient _Client;
 
@@ -139,13 +139,14 @@ namespace NicoPlayerHohoema.Models.Live
 		public uint CommentCount { get; private set; }
 		public uint WatchCount { get; private set; }
 
-		public NicoLiveCommentClient(string liveId, DateTimeOffset baseTime, CommentServer commentServer, NiconicoContext context)
+		public NicoLiveCommentClient(string liveId, uint commentCount, DateTimeOffset baseTime, CommentServer commentServer, NiconicoContext context)
 		{
 			LiveId = liveId;
 			NiconicoContext = context;
 			ThreadIdNumber = commentServer.ThreadIds.ElementAt(0);
 			Host = commentServer.Host;
 			Port = commentServer.Port;
+			CommentCount = commentCount;
 
 			_BaseTime = baseTime;
 
@@ -167,7 +168,7 @@ namespace NicoPlayerHohoema.Models.Live
 				_LiveCommentRecievingTask = DataRecivingTask();
 
 				// コメントサーバーに接続開始データを送信
-				var s = $"<thread thread=\"{ThreadIdNumber}\" version=\"20061206\" res_from=\"-0\" />\0";
+				var s = $"<thread thread=\"{ThreadIdNumber}\" version=\"20061206\" res_from=\"-{Math.Min(CommentCount, 50)}\" />\0";
 				var writer = new StreamWriter(_NetworkStream, Encoding.UTF8);
 				await writer.WriteAsync(s);
 				writer.Flush();
@@ -268,8 +269,7 @@ namespace NicoPlayerHohoema.Models.Live
 
 			try
 			{
-				bool isEndConnect = false;
-				while (!isEndConnect)
+				while (true)
 				{
 					// データが来るまで待つ
 					while (true)
@@ -278,12 +278,6 @@ namespace NicoPlayerHohoema.Models.Live
 
 						using (var releaser = await _NetworkStreamLock.LockAsync())
 						{
-							if (_NetworkStream == null)
-							{
-								isEndConnect = true;
-								break;
-							}
-
 							if (_NetworkStream.DataAvailable)
 							{
 								break;
@@ -295,33 +289,38 @@ namespace NicoPlayerHohoema.Models.Live
 						await Task.Delay(50);
 					}
 
-					if (isEndConnect) { break; }
-
 					_LiveCommentRecieveCancelSource.Token.ThrowIfCancellationRequested();
 
+
 					// 受信したデータをバッファに読み込む
+					var sb = new StringBuilder();
 					using (var releaser = await _NetworkStreamLock.LockAsync())
 					{
-						isEndConnect = await _NetworkStream.ReadAsync(_Buffer, 0, _Buffer.Length) == 0;
+						while (await _NetworkStream.ReadAsync(_Buffer, 0, _Buffer.Length) != 0)
+						{
+							var recievedRawString = Encoding.UTF8.GetString(_Buffer);
+
+							sb.Append(recievedRawString.TrimEnd('\0'));
+
+							Array.Clear(_Buffer, 0, _Buffer.Length);
+
+							if (!_NetworkStream.DataAvailable) { break; }
+						}
 					}
 
 					_LiveCommentRecieveCancelSource.Token.ThrowIfCancellationRequested();
 
-					if (!isEndConnect)
+					// バッファに詰め込まれた文字列を解析する
+					var xmlStrings = sb.ToString().Split('\0');
+					foreach (var xmlString in xmlStrings)
 					{
-						// バッファに詰め込まれた文字列を解析する
-						var recievedRawString = Encoding.UTF8.GetString(_Buffer);
+						Debug.Write($"recieve data -> ");
 
-						Debug.Write($"recieve comment data -> ");
-
-						var nullStrStart = recievedRawString.IndexOf('\0');
-						var trimEmptyString = recievedRawString.Remove(nullStrStart);
-						ParseLiveCommentServerResponse(trimEmptyString);
+						ParseLiveCommentServerResponse(xmlString);
 
 						Debug.WriteLine($" -> end");
-
-						Array.Clear(_Buffer, 0, _Buffer.Length);
-					}					
+					}
+								
 				}
 			}
 			catch (Exception ex)
@@ -348,6 +347,8 @@ namespace NicoPlayerHohoema.Models.Live
 				// Note: 寄り厳密にXMLフォーマットチェックをやるなら
 				// <>の数が同数であることをチェックする
 				Debug.Write($"illigal format, required XML");
+				Debug.Write($" -> ");
+				Debug.Write(recievedString);
 				return;
 			}
 
