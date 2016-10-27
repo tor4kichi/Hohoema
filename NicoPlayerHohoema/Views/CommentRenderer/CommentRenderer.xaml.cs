@@ -313,7 +313,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 					// 色から輝度を求めて輝度を反転させて影色とする
 					var baseColor = comment.RealColor;
 					byte c = (byte)(byte.MaxValue - (byte)(0.299f * baseColor.R + 0.587f * baseColor.G + 0.114f * baseColor.B));
-					c = c > 127 ? byte.MaxValue : byte.MinValue;
+					c = c > 196 ? byte.MaxValue : byte.MinValue;
 
 					comment.BackColor = new Color()
 					{
