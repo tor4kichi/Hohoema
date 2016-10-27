@@ -482,6 +482,12 @@ namespace NicoPlayerHohoema.Models
 					return false;
 				}
 
+				// キャッシュが有効か
+				if (!NicoVideo.HohoemaApp.UserSettings.CacheSettings.IsEnableCache)
+				{
+					return false;
+				}
+
 				return true;
 			}
 		}
@@ -557,6 +563,12 @@ namespace NicoPlayerHohoema.Models
 
 				// オリジナル画質DL可能時間帯か
 				if (NicoVideo.NowLowQualityOnly)
+				{
+					return false;
+				}
+
+				// キャッシュが有効か
+				if (!NicoVideo.HohoemaApp.UserSettings.CacheSettings.IsEnableCache)
 				{
 					return false;
 				}

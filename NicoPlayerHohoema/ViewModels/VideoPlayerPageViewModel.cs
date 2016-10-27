@@ -1115,7 +1115,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 				// Note: 0.4.1現在ではキャッシュはmp4のみ対応
 				var isCanCache = Video.ContentType == MovieType.Mp4;
-				CanDownload = (HohoemaApp.UserSettings?.CacheSettings?.IsUserAcceptedCache ?? false) && isCanCache;
+				var isAcceptedCache = HohoemaApp.UserSettings?.CacheSettings?.IsUserAcceptedCache ?? false;
+				CanDownload = isAcceptedCache && isCanCache;
 
 				// 再生履歴に反映
 				//VideoPlayHistoryDb.VideoPlayed(Video.RawVideoId);
