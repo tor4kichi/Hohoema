@@ -230,28 +230,35 @@ namespace NicoPlayerHohoema.Models
 				NicoVideoCachedStream = await file.OpenReadAsync();
 			}
 			else if (ProtocolType == MediaProtocolType.RTSPoverHTTP)
-			{
-				if (await _Context.CanAccessVideoCacheFolder()
-					&& (
-						ContentType == MovieType.Mp4 
-//						|| ContentType == MovieType.Flv
+			{				
+				if (Util.InternetConnection.IsInternet())
+				{
+					// キャッシュ保存フォルダに書き込み権限でアクセスできれば
+					// キャッシュを伴ったダウンロード再生ストリームを作成
+					if (await _Context.CanWriteAccessVideoCacheFolder()
+						&& (
+							ContentType == MovieType.Mp4
+							//						|| ContentType == MovieType.Flv
+							)
 						)
-					)
-				{
-					NicoVideoDownloader = await _Context.GetDownloader(this, quality);
+					{
+						NicoVideoDownloader = await _Context.GetDownloader(this, quality);
 
-					NicoVideoCachedStream = new NicoVideoCachedStream(NicoVideoDownloader);
-				}
-				else if (Util.InternetConnection.IsInternet())
-				{
-					var size = (quality == NicoVideoQuality.Original ? SizeHigh : SizeLow);
-					NicoVideoCachedStream = await HttpSequencialAccessStream.CreateAsync(
-						HohoemaApp.NiconicoContext.HttpClient
-						, VideoUrl
-						);
+						NicoVideoCachedStream = new NicoVideoCachedStream(NicoVideoDownloader);
+					}
+					// キャッシュしない（出来ない）場合、キャッシュ無しでストリーミング再生
+					else
+					{
+						var size = (quality == NicoVideoQuality.Original ? SizeHigh : SizeLow);
+						NicoVideoCachedStream = await HttpSequencialAccessStream.CreateAsync(
+							HohoemaApp.NiconicoContext.HttpClient
+							, VideoUrl
+							);
+					}
 				}
 			}
-			else
+
+			if (NicoVideoCachedStream == null)
 			{
 				throw new NotSupportedException();
 			}

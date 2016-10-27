@@ -247,7 +247,7 @@ namespace NicoPlayerHohoema.Models
 				if (req.Quality == NicoVideoQuality.Original)
 				{
 					if (nicoVideo.OriginalQuality.IsCacheRequested
-						&& nicoVideo.OriginalQuality.CanRequestDownload
+						&& nicoVideo.OriginalQuality.CanRequestCache
 						)
 					{
 						return req;
@@ -256,7 +256,7 @@ namespace NicoPlayerHohoema.Models
 				else
 				{
 					if (nicoVideo.LowQuality.IsCacheRequested
-						&& nicoVideo.LowQuality.CanRequestDownload
+						&& nicoVideo.LowQuality.CanRequestCache
 						)
 					{
 						return req;

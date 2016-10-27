@@ -168,7 +168,7 @@ namespace NicoPlayerHohoema.ViewModels
 							}
 							else
 							{
-								return Video.OriginalQuality.CanRequestDownload;
+								return Video.OriginalQuality.CanRequestCache;
 							}
 						case NicoVideoQuality.Low:
 							if (Video.LowQuality.IsCacheRequested)
@@ -178,7 +178,7 @@ namespace NicoPlayerHohoema.ViewModels
 							}
 							else
 							{
-								return Video.LowQuality.CanRequestDownload;
+								return Video.LowQuality.CanRequestCache;
 							}
 						default:
 							throw new NotSupportedException(x.ToString());

@@ -1021,9 +1021,16 @@ StorageFolder _DownloadFolder;
 		}
 
 
-		public async Task<bool> CanAccessVideoCacheFolder()
+		public async Task<bool> CanReadAccessVideoCacheFolder()
 		{
-			return await GetVideoCacheFolderState() == CacheFolderAccessState.Exist;
+			var status = await GetVideoCacheFolderState();
+			return status == CacheFolderAccessState.Exist || status == CacheFolderAccessState.NotEnabled;
+		}
+
+		public async Task<bool> CanWriteAccessVideoCacheFolder()
+		{
+			var status = await GetVideoCacheFolderState();
+			return status == CacheFolderAccessState.Exist;
 		}
 
 		public async Task<CacheFolderAccessState> GetVideoCacheFolderState()
@@ -1031,11 +1038,6 @@ StorageFolder _DownloadFolder;
 			if (false == UserSettings.CacheSettings.IsUserAcceptedCache)
 			{
 				return CacheFolderAccessState.NotAccepted;
-			}
-
-			if (false == UserSettings.CacheSettings.IsEnableCache)
-			{
-				return CacheFolderAccessState.NotEnabled;
 			}
 
 			try
@@ -1046,18 +1048,23 @@ StorageFolder _DownloadFolder;
 				{
 					return CacheFolderAccessState.NotSelected;
 				}
-				else
-				{
-					return CacheFolderAccessState.Exist;
-				}
 			}
 			catch (FileNotFoundException)
 			{
 				return CacheFolderAccessState.SelectedButNotExist;
 			}
+
+			if (false == UserSettings.CacheSettings.IsEnableCache)
+			{
+				return CacheFolderAccessState.NotEnabled;
+			}
+			else
+			{
+				return CacheFolderAccessState.Exist;
+			}
 		}
 
-	
+
 
 		public async Task<StorageFolder> GetVideoCacheFolder()
 		{

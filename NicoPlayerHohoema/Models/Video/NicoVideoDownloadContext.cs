@@ -54,9 +54,14 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public Task<bool> CanAccessVideoCacheFolder()
+		public Task<bool> CanReadAccessVideoCacheFolder()
 		{
-			return _HohoemaApp.CanAccessVideoCacheFolder();
+			return _HohoemaApp.CanReadAccessVideoCacheFolder();
+		}
+
+		public Task<bool> CanWriteAccessVideoCacheFolder()
+		{
+			return _HohoemaApp.CanWriteAccessVideoCacheFolder();
 		}
 
 		public Task<StorageFolder> GetVideoCacheFolder()
@@ -310,7 +315,7 @@ namespace NicoPlayerHohoema.Models
 				return false;
 			}
 
-			if (false == await _HohoemaApp.CanAccessVideoCacheFolder())
+			if (false == await _HohoemaApp.CanReadAccessVideoCacheFolder())
 			{
 				Debug.WriteLine("ダウンロードキャッシュフォルダにアクセスできないのでDL処理をスキップ");
 				return false;
@@ -461,11 +466,11 @@ namespace NicoPlayerHohoema.Models
 
 
 			// オリジナル画質が必要で
-			// オリジナル画質のダウンロードリクエストができなくて
+			// オリジナル画質のダウンロードができなくて
 			// オリジナル画質がキャッシュされていない場合
 			// 例外を投げる
 			if (quality == NicoVideoQuality.Original
-				&& !nicoVideo.OriginalQuality.CanRequestDownload
+				&& !nicoVideo.OriginalQuality.CanDownload
 				&& !nicoVideo.OriginalQuality.IsCached
 				)
 			{
