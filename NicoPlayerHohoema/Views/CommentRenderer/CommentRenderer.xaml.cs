@@ -368,7 +368,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 				}
 				else
 				{
-					if (!comment.VAlign.HasValue)
+					if (!comment.VAlign.HasValue || comment.VAlign == VerticalAlignment.Center)
 					{
 						var ui = RenderComments[comment];
 						if (ui.Visibility == Visibility.Visible)
@@ -400,7 +400,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			{
 				var ui = renderComment.Value;
 				var comment = renderComment.Key;
-				if (!comment.VAlign.HasValue)
+				if (!comment.VAlign.HasValue || comment.VAlign == VerticalAlignment.Center)
 				{
 					Canvas.SetLeft(ui, canvasWidth - ui.HorizontalPosition);
 				}
