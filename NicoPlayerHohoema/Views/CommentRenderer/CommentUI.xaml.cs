@@ -36,19 +36,16 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			this.InitializeComponent();
 		}
 
-		
+		public bool IsInsideScreen { get; private set; }
+		public int HorizontalPosition { get; private set; }
+
 
 		public bool IsEndDisplay(uint currentVpos)
 		{
 			return CommentData.EndPosition <= currentVpos;
 		}
 
-		public bool IsCompleteInsideScreen(int screenWidth, uint currentVPos)
-		{
-			return GetHorizontalPosition(screenWidth, currentVPos) > DesiredSize.Width;
-		}
-
-		public int GetHorizontalPosition(int screenWidth, uint currentVpos)
+		public void Update(int screenWidth, uint currentVpos)
 		{
 			// (Comment.EndPositioin - Comment.VideoPosition) の長さまでにコメント全体を表示しなければいけない
 			// コメントの移動距離＝ screenWidth + Width
@@ -77,7 +74,12 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 			// 理論的にlocalVposはdisplayTimeを越えることはない
 
-			return (int)Math.Floor(distance * lerp);
+			var result = (int)Math.Floor(distance * lerp);
+
+			IsInsideScreen = result > DesiredSize.Width;
+
+			HorizontalPosition = result;
 		}
+
 	}
 }

@@ -25,8 +25,24 @@ using Windows.UI.Xaml.Navigation;
 
 namespace NicoPlayerHohoema.Views.CommentRenderer
 {
+	struct LastStreamedComment
+	{
+		public uint EndTime { get; set; }
+		public CommentUI Comment { get; set; }
+	}
 	public sealed partial class CommentRenderer : UserControl
 	{
+
+		class CommentRenderFrameData
+		{
+			public uint CurrentVpos { get; set; }// (uint)Math.Floor(VideoPosition.TotalMilliseconds * 0.1);
+			public int CanvasWidth { get; set; }// (int)CommentCanvas.ActualWidth;
+			public uint CanvasHeight { get; set; } //= (uint)CommentCanvas.ActualHeight;
+			public double CalfCanvasWidth { get; set; } //= canvasWidth / 2;
+			public float FontScale { get; set; } //= (float)CommentSizeScale;
+			public Color CommentDefaultColor { get; set; } //= CommentDefaultColor;
+		}
+
 		/// <summary>
 		/// コメントUIのView使いまわし
 		/// </summary>
@@ -52,7 +68,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		/// テキストの影をどれだけずらすかの量
 		/// 実際に使われるのはフォントサイズにTextBGOffsetBiasを乗算した値
 		/// </summary>
-		const double TextBGOffsetBias = 0.10;
+		const double TextBGOffsetBias = 0.15;
 
 		/// <summary>
 		/// 表示時間で昇順にソートされたコメントVMのディクショナリ <br />
@@ -65,6 +81,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		public Dictionary<Comment, CommentUI> RenderComments { get; private set; }
 
 
+		private List<LastStreamedComment> LastCommentDisplayEndTime;
 		public List<CommentUI> NextVerticalPosition { get; private set; }
 		public List<CommentUI> TopAlignNextVerticalPosition { get; private set; }
 		public List<CommentUI> BottomAlignNextVerticalPosition { get; private set; }
@@ -93,6 +110,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			TimeSequescailComments = new SortedDictionary<uint, List<Comment>>();
 			RenderComments = new Dictionary<Comment, CommentUI>();
 
+			LastCommentDisplayEndTime = new List<LastStreamedComment>();
 			NextVerticalPosition = new List<CommentUI>();
 			TopAlignNextVerticalPosition = new List<CommentUI>();
 			BottomAlignNextVerticalPosition = new List<CommentUI>();
@@ -146,11 +164,11 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			_RenderingTimingTimer = new Timer(TimerCallback, this, 100, (int)(1000 / RequestFPS));
 		}
 
-		private void TimerCallback(object state)
+		private async void TimerCallback(object state)
 		{
 			try
 			{
-				_UpdateLock.Wait();
+				await _UpdateLock.WaitAsync();
 
 				if (_NowUpdating)
 				{
@@ -165,7 +183,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 				_UpdateLock.Release();
 			}
 
-			var task = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+			await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
 			{
 				// 更新済みの位置であれば処理をスキップ
 				var videoPosition = VideoPosition;
@@ -174,19 +192,26 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 					return;
 				}
 
+				if (_PreviousVideoPosition > videoPosition)
+				{
+					// 前方向にシークしていた場合
+					LastCommentDisplayEndTime.Clear();
+				}
+
 				OnUpdate();
 
 				_PreviousVideoPosition = videoPosition;
-				
-			})
-			.AsTask();
 
-			task.Wait();
+			});
 
 			try
 			{
-				_UpdateLock.Wait();
+				await _UpdateLock.WaitAsync();
 
+				if (_RenderingSkipCount > 0)
+				{
+					Debug.WriteLine("コメント描画を" + _RenderingSkipCount  + "フレームスキップ");
+				}
 				_NowUpdating = false;
 				_RenderingSkipCount = 0;
 			}
@@ -206,6 +231,17 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			var halfCanvasWidth = canvasWidth / 2;
 			var fontScale = (float)CommentSizeScale;
 			var commentDefaultColor = CommentDefaultColor;
+			var commentDisplayDuration = GetCommentDisplayDurationVposUnit();
+
+			var frame = new CommentRenderFrameData()
+			{
+				CurrentVpos = currentVpos,
+				CanvasWidth = canvasWidth,
+				CanvasHeight = canvasHeight,
+				CalfCanvasWidth = halfCanvasWidth,
+				FontScale = fontScale,
+				CommentDefaultColor = commentDefaultColor
+			};
 
 			// 非表示時は処理を行わない
 			if (Visibility == Visibility.Collapsed)
@@ -228,15 +264,13 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 
 
-
+			// コメントの上下位置を管理するリストを更新
 			UpdateCommentVerticalPositionList(currentVpos);
 
 
 			// 表示すべきコメントを抽出して、表示対象として未登録のコメントを登録処理する
-
-			var search = BinarySearch(currentVpos);
-
-			foreach (var comment in search)
+			var displayComments = GetDisplayCommentsOnCurrentVPos(currentVpos, commentDisplayDuration);
+			foreach (var comment in displayComments)
 			{
 				if (!RenderComments.ContainsKey(comment))
 				{
@@ -260,9 +294,13 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 					var scaledFontSize = baseSize * fontScale * comment.FontScale * PixelToPoint;
 					comment.FontSize = (uint)Math.Ceiling(scaledFontSize);
 
-					comment.TextBGOffset = FontSize * TextBGOffsetBias;
-					comment.EndPosition = comment.VideoPosition + ((uint)DefaultDisplayDuration * 100);
+					// フォントの影のオフセット量
+					comment.TextBGOffset = Math.Floor(FontSize * TextBGOffsetBias);
 
+					// コメントの終了位置を更新
+					comment.EndPosition = comment.VideoPosition + commentDisplayDuration;
+
+					// コメントカラー
 					if (comment.Color == null)
 					{
 						comment.RealColor = commentDefaultColor;
@@ -276,7 +314,10 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 					// 色から輝度を求めて輝度を反転させて影色とする
 					var baseColor = comment.RealColor;
 					byte c = (byte)(byte.MaxValue - (byte)(0.299f * baseColor.R + 0.587f * baseColor.G + 0.114f * baseColor.B));
-					c = c > 127 ? byte.MaxValue : byte.MinValue;
+
+					// 赤や黄色など多少再度が高い色でも黒側に寄せるよう
+					// 127ではなく196をしきい値に利用
+					c = c > 196 ? byte.MaxValue : byte.MinValue;
 
 					comment.BackColor = new Color()
 					{
@@ -288,19 +329,21 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 
 					renderComment.DataContext = comment;
-
-
 					renderComment.Visibility = Visibility.Visible;
 
 					// 表示対象に登録
 					RenderComments.Add(comment, renderComment);
-
 					CommentCanvas.Children.Add(renderComment);
+					
+					// コメントの表示サイズを得るために強制更新
 					renderComment.UpdateLayout();
 
-					var verticalPos = CalcAndRegisterCommentVerticalPosition(renderComment);
+					// コメントを配置可能な高さを取得
+					var verticalPos = CalcAndRegisterCommentVerticalPosition(renderComment, frame);
 
-					if (verticalPos < 0 || verticalPos > canvasHeight)
+					// コメントが画面の中に収まっている場合は表示
+					// 少しでも見切れる場合は非表示
+					if (verticalPos < 0 || (verticalPos + renderComment.DesiredSize.Height) > canvasHeight)
 					{
 						renderComment.Visibility = Visibility.Collapsed;
 
@@ -308,31 +351,31 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 					}
 					else
 					{
-
+						// コメントの縦の表示位置を設定
 						Canvas.SetTop(renderComment, verticalPos);
+
 						var left = halfCanvasWidth - (int)(renderComment.DesiredSize.Width * 0.5);
 //						Debug.WriteLine($"V={verticalPos}: [{renderComment.CommentData.CommentText}] [{left}] [{comment.FontSize}]");
 
-						if (comment.VAlign.HasValue)
+						if (comment.VAlign == VerticalAlignment.Bottom 
+							|| comment.VAlign == VerticalAlignment.Top)
 						{
-							switch (comment.VAlign.Value)
-							{
-								case VerticalAlignment.Top:
-								case VerticalAlignment.Bottom:
-									Canvas.SetLeft(renderComment, left);
-									break;
-								case VerticalAlignment.Center:
-								case VerticalAlignment.Stretch:
-								default:
-									break;
-							}
+							Canvas.SetLeft(renderComment, left);
 						}
 
+						renderComment.Update(canvasWidth, currentVpos);
 					}
-
-
-
-
+				}
+				else
+				{
+					if (!comment.VAlign.HasValue || comment.VAlign == VerticalAlignment.Center)
+					{
+						var ui = RenderComments[comment];
+						if (ui.Visibility == Visibility.Visible)
+						{
+							ui.Update(canvasWidth, currentVpos);
+						}
+					}
 				}
 			}
 
@@ -357,38 +400,22 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			{
 				var ui = renderComment.Value;
 				var comment = renderComment.Key;
-				if (comment.VAlign != VerticalAlignment.Bottom && comment.VAlign != VerticalAlignment.Top)
+				if (!comment.VAlign.HasValue || comment.VAlign == VerticalAlignment.Center)
 				{
-					Canvas.SetLeft(ui, canvasWidth - ui.GetHorizontalPosition(canvasWidth, currentVpos));
+					Canvas.SetLeft(ui, canvasWidth - ui.HorizontalPosition);
 				}
 			}
 		}
 
 
 
-		private int CalcAndRegisterCommentVerticalPosition(CommentUI commentUI)
-		{	
+		private int CalcAndRegisterCommentVerticalPosition(CommentUI commentUI, CommentRenderFrameData frame)
+		{
+			const double TextSizeToMargin = 0.425;
+
+			// コメントの縦位置ごとの「空き段」を管理するリストを探す
 			List<CommentUI> verticalAlignList;
-			VerticalAlignment? _valign = (commentUI.DataContext as Comment).VAlign;
-			if (_valign.HasValue)
-			{
-				if (_valign.Value == VerticalAlignment.Bottom)
-				{
-					verticalAlignList = BottomAlignNextVerticalPosition;
-				}
-				else if (_valign.Value == VerticalAlignment.Top)
-				{
-					verticalAlignList = TopAlignNextVerticalPosition;
-				}
-				else
-				{
-					verticalAlignList = NextVerticalPosition;
-				}
-			}
-			else
-			{
-				verticalAlignList = NextVerticalPosition;
-			}
+			VerticalAlignment? _valign = (commentUI.DataContext as Comment).VAlign;			
 
 			int? commentVerticalPos = null;
 			int totalHeight = 0;
@@ -400,45 +427,131 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			}
 			else
 			{
-				totalHeight += (int)(commentUI.DesiredSize.Height * 0.35);
+				// 一番上の余白、上にコメントがこないので半分（* 0.5）として計算
+				totalHeight += (int)(commentUI.DesiredSize.Height * TextSizeToMargin * 0.5);
 			}
 
-			for (int i = 0; i< verticalAlignList.Count; ++i)
+
+			// 流れるコメント用の計算パラメータ
+			// for文の中だと何度も計算する場合があるので
+			// forスコープの外に出してます
+			var currentVpos = frame.CurrentVpos;
+			var canvasWidth = frame.CanvasWidth;
+			var displayDuration = GetCommentDisplayDurationVposUnit();
+
+			var canvasByCommentWidthRatio = canvasWidth / (commentUI.DesiredSize.Width + canvasWidth);
+			var reachToLeftTime = (uint)Math.Floor(displayDuration * canvasByCommentWidthRatio);
+
+			var currentTimeBaseReachToLeftTime = commentUI.CommentData.VideoPosition + reachToLeftTime;
+			var displayEndTime = commentUI.CommentData.EndPosition;
+
+			Debug.WriteLine($"{reachToLeftTime}");
+
+			if (_valign.HasValue && _valign.Value == VerticalAlignment.Bottom)
 			{
-				var next = verticalAlignList[i];
-				if (next == null)
+				verticalAlignList = BottomAlignNextVerticalPosition;
+				for (int i = 0; i < verticalAlignList.Count; ++i)
 				{
-					if (_valign.HasValue && _valign.Value == VerticalAlignment.Bottom)
+					var next = verticalAlignList[i];
+					if (next == null)
 					{
 						commentVerticalPos = (int)this.ActualHeight - (int)commentUI.DesiredSize.Height - totalHeight;
-//						Debug.WriteLine("is bottom");
+						verticalAlignList[i] = commentUI;
 					}
 					else
 					{
-						commentVerticalPos = totalHeight;
+						totalHeight += (int)next.DesiredSize.Height + CommentVerticalMargin + (int)(next.DesiredSize.Height * TextSizeToMargin);
 					}
-					verticalAlignList[i] = commentUI;
-					break;
 				}
-				else
-				{
-					totalHeight += (int)next.DesiredSize.Height + CommentVerticalMargin + (int)(next.DesiredSize.Height * 0.35);
-				}
-			}
 
-
-			if (!commentVerticalPos.HasValue)
-			{
-				if (_valign.HasValue && _valign.Value == VerticalAlignment.Bottom)
+				if (!commentVerticalPos.HasValue)
 				{
 					commentVerticalPos = (int)this.ActualHeight - (int)commentUI.DesiredSize.Height - totalHeight;
-//					Debug.WriteLine("is bottom");
+					verticalAlignList.Add(commentUI);
 				}
-				else
+			}
+			else if (_valign.HasValue && _valign.Value == VerticalAlignment.Top)
+			{
+				// 上コメ
+				verticalAlignList = TopAlignNextVerticalPosition;
+				for (int i = 0; i < verticalAlignList.Count; ++i)
+				{
+					var next = verticalAlignList[i];
+					if (next == null)
+					{
+						verticalAlignList[i] = commentUI;
+						commentVerticalPos = totalHeight;
+					}
+					else
+					{
+						totalHeight += (int)next.DesiredSize.Height + CommentVerticalMargin + (int)(next.DesiredSize.Height * TextSizeToMargin);
+					}
+				}
+
+				if (!commentVerticalPos.HasValue)
 				{
 					commentVerticalPos = totalHeight;
+					verticalAlignList.Add(commentUI);
 				}
-				verticalAlignList.Add(commentUI);
+			}
+			else
+			{
+				// 流れるコメント
+				verticalAlignList = NextVerticalPosition;
+				for (int i = 0; i < verticalAlignList.Count; ++i)
+				{
+					var next = verticalAlignList[i];
+					if (next == null)
+					{
+						// 流れるコメントを前のコメントと被らないようにする
+
+						// 前コメントの表示完了時間と追加したいコメントの表示完了時間を比較し
+						// 追加したいコメントの表示完了時間
+
+						// 前のコメントがない場合は、常に追加可能
+						if (LastCommentDisplayEndTime.Count <= i)
+						{
+							verticalAlignList[i] = commentUI;
+							commentVerticalPos = totalHeight;
+							LastCommentDisplayEndTime.Add(new LastStreamedComment()
+							{
+								EndTime = Math.Max(displayEndTime + 5, 0),
+								Comment = commentUI
+							});
+							break;
+						}
+						// 前のコメントが有る場合、
+						// 前コメの表示終了時間より後に終わる場合はコメ追加可能
+						else if (LastCommentDisplayEndTime[i].EndTime < currentTimeBaseReachToLeftTime)
+						{
+							verticalAlignList[i] = commentUI;
+							commentVerticalPos = totalHeight;
+							LastCommentDisplayEndTime[i] = new LastStreamedComment()
+							{
+								EndTime = Math.Max(displayEndTime + 5, 0),
+								Comment = commentUI
+							};
+							break;
+						}
+						else
+						{
+							var prevComment = LastCommentDisplayEndTime[i].Comment;
+							totalHeight += (int)prevComment.DesiredSize.Height + CommentVerticalMargin + (int)(prevComment.DesiredSize.Height * TextSizeToMargin);
+
+							//Debug.WriteLine("前コメと衝突を回避 " + prevComment.CommentData.CommentText);
+						}
+					}
+					else
+					{
+						totalHeight += (int)next.DesiredSize.Height + CommentVerticalMargin + (int)(next.DesiredSize.Height * TextSizeToMargin);
+					}
+				}
+
+				if (!commentVerticalPos.HasValue)
+				{
+					commentVerticalPos = totalHeight;
+					verticalAlignList.Add(commentUI);
+				}
 			}
 
 			return commentVerticalPos.Value;
@@ -476,13 +589,11 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			var removeTargets = list
 				.Where(x =>
 				{
-					if (x == null) { return false; }
-
-					var comment = x.CommentData;
+					var comment = x?.CommentData;
 
 					if (comment == null) { return true; }
 
-					return x.IsCompleteInsideScreen((int)this.ActualWidth, Math.Max(currentVPos, 0));
+					return x.IsInsideScreen;
 				})
 				.ToArray();
 
@@ -498,7 +609,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 		private bool CommentIsEndDisplay(Comment comment, uint currentVpos)
 		{
-			return !(comment.VideoPosition <= currentVpos && currentVpos <= comment.EndPosition);
+			return comment.VideoPosition > currentVpos || currentVpos > comment.EndPosition;
 		}
 
 		
@@ -535,17 +646,26 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		}
 
 
+		
 
 
-		private IEnumerable<Comment> BinarySearch(uint currentVpos)
+		private IEnumerable<Comment> GetDisplayCommentsOnCurrentVPos(uint currentVpos, uint commentDisplayDuration)
 		{
-			int skipVpos = (int)currentVpos - CommentDisplayMaxTime;
+			int skipVpos = (int)currentVpos - (int)commentDisplayDuration;
 			return TimeSequescailComments.Keys
 				.SkipWhile(x => x < skipVpos)
 				.TakeWhile(x => x < currentVpos)
 				.Select(x => TimeSequescailComments[x])
 				.SelectMany(x => x.Where(y => currentVpos < y.EndPosition && !y.IsNGComment));
 		}
+
+
+		public uint GetCommentDisplayDurationVposUnit()
+		{
+			return (uint)(DefaultDisplayDuration.TotalSeconds * 100);
+		}
+
+
 
 
 		#region Dependency Properties
@@ -647,14 +767,14 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 		public static readonly DependencyProperty DefaultDisplayDurationProperty =
 			DependencyProperty.Register("DefaultDisplayDuration"
-				, typeof(double)
+				, typeof(TimeSpan)
 				, typeof(CommentRenderer)
-				, new PropertyMetadata(4.0)
+				, new PropertyMetadata(TimeSpan.FromSeconds(4))
 				);
 
-		public double DefaultDisplayDuration
+		public TimeSpan DefaultDisplayDuration
 		{
-			get { return (double)GetValue(DefaultDisplayDurationProperty); }
+			get { return (TimeSpan)GetValue(DefaultDisplayDurationProperty); }
 			set { SetValue(DefaultDisplayDurationProperty, value); }
 		}
 

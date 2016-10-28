@@ -65,7 +65,7 @@ namespace NicoPlayerHohoema.Models
 		public async Task SetupDownloadProgress()
 		{
 			// DLが途中の場合はこのロードが成功しProgressが埋まる
-			if (await _Context.CanAccessVideoCacheFolder())
+			if (await _Context.CanReadAccessVideoCacheFolder())
 			{
 				_DownloadProgressFileAccessor = new FileAccessor<VideoDownloadProgress>(await _Context.GetVideoCacheFolder(), ProgressFileName);
 				Progress = await _DownloadProgressFileAccessor.Load();
@@ -96,8 +96,7 @@ namespace NicoPlayerHohoema.Models
 		public abstract string ProgressFileName { get; }
 
 
-
-		public abstract bool CanRequestDownload { get; }
+		public abstract bool CanDownload { get; }
 
 		public abstract uint VideoSize { get; }
 		
@@ -108,16 +107,28 @@ namespace NicoPlayerHohoema.Models
 		{
 			get
 			{
-				return CanRequestDownload
-					|| CacheState == NicoVideoCacheState.Cached;
+				return CacheState == NicoVideoCacheState.Cached 
+					|| CanDownload;
 			}
 		}
 
-		public bool NowPlaying
+		public bool CanRequestCache
 		{
 			get
 			{
-				return _Context.CheckVideoPlaying(RawVideoId, Quality);
+				// ダウンロード可能か
+				if (!CanDownload)
+				{
+					return false;
+				}
+
+				// キャッシュが有効か
+				if (!NicoVideo.HohoemaApp.UserSettings.CacheSettings.IsEnableCache)
+				{
+					return false;
+				}
+
+				return true;
 			}
 		}
 
@@ -205,7 +216,7 @@ namespace NicoPlayerHohoema.Models
 					CacheState = null;
 				}
 
-				OnPropertyChanged(nameof(CanRequestDownload));
+				OnPropertyChanged(nameof(CanRequestCache));
 				OnPropertyChanged(nameof(CanPlay));
 				OnPropertyChanged(nameof(IsCached));
 				OnPropertyChanged(nameof(CanPlay));
@@ -232,7 +243,7 @@ namespace NicoPlayerHohoema.Models
 				throw new Exception("");
 			}
 
-			if (!CanPlay && !CanRequestDownload)
+			if (!CanPlay && !CanRequestCache)
 			{
 				throw new Exception("");
 			}
@@ -249,6 +260,9 @@ namespace NicoPlayerHohoema.Models
 				, NicoVideo.CachedWatchApiResponse
 				, file
 				);
+
+			// キャッシュリクエスト済みか
+			downloader.IsCacheRequested = _Context.CheckCacheRequested(RawVideoId, Quality);
 
 			System.Diagnostics.Debug.WriteLine($"size:{downloader.Size}");
 
@@ -469,9 +483,7 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-
-		
-		public override bool CanRequestDownload
+		public override bool CanDownload
 		{
 			get
 			{
@@ -490,6 +502,8 @@ namespace NicoPlayerHohoema.Models
 				return true;
 			}
 		}
+
+		
 
 
 		
@@ -544,7 +558,7 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public override bool CanRequestDownload
+		public override bool CanDownload
 		{
 			get
 			{

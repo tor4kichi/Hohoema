@@ -129,7 +129,7 @@ namespace NicoPlayerHohoema.ViewModels
 		
 		public ReactiveProperty<bool> IsVisibleComment { get; private set; }
 		public ReactiveProperty<int> CommentRenderFPS { get; private set; }
-		public ReactiveProperty<double> RequestCommentDisplayDuration { get; private set; }
+		public ReactiveProperty<TimeSpan> RequestCommentDisplayDuration { get; private set; }
 		public ReactiveProperty<double> CommentFontScale { get; private set; }
 		public ReactiveProperty<bool> IsFullScreen { get; private set; }
 
@@ -163,6 +163,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		// ui
 		public ReactiveProperty<bool> IsAutoHideEnable { get; private set; }
+		public ReactiveProperty<TimeSpan> AutoHideDelayTime { get; private set; }
 
 
 
@@ -200,9 +201,6 @@ namespace NicoPlayerHohoema.ViewModels
 			NowUpdating = new ReactiveProperty<bool>(false);
 
 			IsVisibleComment = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, true).AddTo(_CompositeDisposable);
-			CommentRenderFPS = new ReactiveProperty<int>(PlayerWindowUIDispatcherScheduler, 60).AddTo(_CompositeDisposable);
-			RequestCommentDisplayDuration = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 5.0).AddTo(_CompositeDisposable);
-			CommentFontScale = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 1.0).AddTo(_CompositeDisposable);
 
 			CommentCanvasHeight = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0.0).AddTo(_CompositeDisposable);
 			CommentDefaultColor = new ReactiveProperty<Color>(PlayerWindowUIDispatcherScheduler, Colors.White).AddTo(_CompositeDisposable);
@@ -530,6 +528,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override void OnSignIn(ICollection<IDisposable> userSessionDisposer)
 		{
+			AutoHideDelayTime = HohoemaApp.UserSettings.PlayerSettings
+				.ToReactivePropertyAsSynchronized(x => x.AutoHidePlayerControlUIPreventTime, PlayerWindowUIDispatcherScheduler)
+				.AddTo(userSessionDisposer);
+			OnPropertyChanged(nameof(AutoHideDelayTime));
+
+
+
 			IsMuted = HohoemaApp.UserSettings.PlayerSettings
 				.ToReactivePropertyAsSynchronized(x => x.IsMute, PlayerWindowUIDispatcherScheduler)
 				.AddTo(userSessionDisposer);
@@ -539,6 +544,24 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactivePropertyAsSynchronized(x => x.SoundVolume, PlayerWindowUIDispatcherScheduler)
 				.AddTo(userSessionDisposer);
 			OnPropertyChanged(nameof(SoundVolume));
+
+			CommentRenderFPS = HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.CommentRenderingFPS)
+				.Select(x => (int)x)
+				.ToReactiveProperty()
+				.AddTo(userSessionDisposer);
+			OnPropertyChanged(nameof(CommentRenderFPS));
+
+			RequestCommentDisplayDuration = HohoemaApp.UserSettings.PlayerSettings
+				.ObserveProperty(x => x.CommentDisplayDuration)
+				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
+				.AddTo(userSessionDisposer);
+			OnPropertyChanged(nameof(RequestCommentDisplayDuration));
+
+			CommentFontScale = HohoemaApp.UserSettings.PlayerSettings
+				.ObserveProperty(x => x.DefaultCommentFontScale)
+				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
+				.AddTo(userSessionDisposer);
+			OnPropertyChanged(nameof(CommentFontScale));
 
 			base.OnSignIn(userSessionDisposer);
 		}

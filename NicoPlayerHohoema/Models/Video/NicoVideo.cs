@@ -44,17 +44,15 @@ namespace NicoPlayerHohoema.Models
 		{
 			if (_IsInitialized) { return; }
 
-			_IsInitialized = true;
-
-			Debug.WriteLine("start initialize : " + RawVideoId);
-
-			if (Util.InternetConnection.IsInternet())
+			if (HohoemaApp.IsLoggedIn && Util.InternetConnection.IsInternet())
 			{
+				Debug.WriteLine("start initialize : " + RawVideoId);
+
 				await UpdateWithThumbnail();
 			}
 			else
 			{
-
+				return;
 			}
 
 			if (false == IsDeleted)
@@ -64,14 +62,19 @@ namespace NicoPlayerHohoema.Models
 
 				await CheckCacheStatus();
 			}
+
+			_IsInitialized = true;
+
 		}
 
 
-		
+
 
 
 		public async Task CheckCacheStatus()
 		{
+			if (!_IsInitialized) { return; }
+
 			await OriginalQuality.CheckCacheStatus();
 			await LowQuality.CheckCacheStatus();
 		}
@@ -226,30 +229,36 @@ namespace NicoPlayerHohoema.Models
 				var file = await LowQuality.GetCacheFile();
 				NicoVideoCachedStream = await file.OpenReadAsync();
 			}
-
-			if (ProtocolType == MediaProtocolType.RTSPoverHTTP)
-			{
-				if (await _Context.CanAccessVideoCacheFolder()
-					&& (
-						ContentType == MovieType.Mp4 
-//						|| ContentType == MovieType.Flv
+			else if (ProtocolType == MediaProtocolType.RTSPoverHTTP)
+			{				
+				if (Util.InternetConnection.IsInternet())
+				{
+					// キャッシュ保存フォルダに書き込み権限でアクセスできれば
+					// キャッシュを伴ったダウンロード再生ストリームを作成
+					if (await _Context.CanWriteAccessVideoCacheFolder()
+						&& (
+							ContentType == MovieType.Mp4
+							//						|| ContentType == MovieType.Flv
+							)
 						)
-					)
-				{
-					NicoVideoDownloader = await _Context.GetPlayingDownloader(this, quality);
+					{
+						NicoVideoDownloader = await _Context.GetDownloader(this, quality);
 
-					NicoVideoCachedStream = new NicoVideoCachedStream(NicoVideoDownloader);
-				}
-				else if (Util.InternetConnection.IsInternet())
-				{
-					var size = (quality == NicoVideoQuality.Original ? SizeHigh : SizeLow);
-					NicoVideoCachedStream = await HttpSequencialAccessStream.CreateAsync(
-						HohoemaApp.NiconicoContext.HttpClient
-						, VideoUrl
-						);
+						NicoVideoCachedStream = new NicoVideoCachedStream(NicoVideoDownloader);
+					}
+					// キャッシュしない（出来ない）場合、キャッシュ無しでストリーミング再生
+					else
+					{
+						var size = (quality == NicoVideoQuality.Original ? SizeHigh : SizeLow);
+						NicoVideoCachedStream = await HttpSequencialAccessStream.CreateAsync(
+							HohoemaApp.NiconicoContext.HttpClient
+							, VideoUrl
+							);
+					}
 				}
 			}
-			else
+
+			if (NicoVideoCachedStream == null)
 			{
 				throw new NotSupportedException();
 			}
@@ -331,11 +340,17 @@ namespace NicoPlayerHohoema.Models
 			NicoVideoCachedStream?.Dispose();
 			NicoVideoCachedStream = null;
 
-			await _Context.ClosePlayingStream(this.RawVideoId);
-
 			if (NicoVideoDownloader != null)
 			{
-				await NicoVideoDownloader.DividedQualityNicoVideo.SaveProgress();
+				if (NicoVideoDownloader.IsCacheRequested)
+				{
+					await NicoVideoDownloader.DividedQualityNicoVideo.SaveProgress();
+				}
+				else
+				{
+					await _Context.StopDownload(NicoVideoDownloader.DividedQualityNicoVideo.RawVideoId, NicoVideoDownloader.DividedQualityNicoVideo.Quality);
+				}
+
 				NicoVideoDownloader = null;
 			}
 

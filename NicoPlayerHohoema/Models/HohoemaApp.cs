@@ -41,6 +41,7 @@ namespace NicoPlayerHohoema.Models
 			app.ContentFinder = new NiconicoContentFinder(app);
 			app.UserMylistManager = new UserMylistManager(app);
 			app.AppMapManager = new AppMapManager(app);
+			app.MediaManager = await NiconicoMediaManager.Create(app);
 
 			UIDispatcher = Window.Current.CoreWindow.Dispatcher;
 
@@ -63,6 +64,8 @@ namespace NicoPlayerHohoema.Models
 
 			LoadRecentLoginAccount();
 			_SigninLock = new SemaphoreSlim(1, 1);
+
+			BackgroundUpdater = new BackgroundUpdater("HohoemaBG");
 
 			ApplicationData.Current.DataChanged += Current_DataChanged;
 		}
@@ -236,6 +239,7 @@ namespace NicoPlayerHohoema.Models
 			"_sessionState.xml",
 			"History.db",
 			"NicoVideo.db",
+			"cache_requested.json"
 		};
 
 		public static async Task SyncToRoamingData()
@@ -474,8 +478,6 @@ namespace NicoPlayerHohoema.Models
 
 						NiconicoContext = context;
 
-						// バックグラウンド処理機能を生成
-						BackgroundUpdater = new BackgroundUpdater("HohoemaBG1");
 
 
 						using (var loginActivityLogger = LoggingChannel.StartActivity("login process"))
@@ -603,22 +605,10 @@ namespace NicoPlayerHohoema.Models
 							}
 
 
+							// ホーム画面で表示するアプリマップ情報をリセット
+							await AppMapManager.Root.Reset();
 
-							try
-							{
-								Debug.WriteLine("initilize: local cache ");
-								loginActivityLogger.LogEvent("initialize user local cache");
-								MediaManager = await NiconicoMediaManager.Create(this);
-							}
-							catch
-							{
-								LoginErrorText = "キャッシュ情報の構築に失敗しました。再起動をお試しください。";
-								Debug.WriteLine(LoginErrorText);
-								loginActivityLogger.LogEvent(LoginErrorText, fields, LoggingLevel.Error);
-								NiconicoContext.Dispose();
-								NiconicoContext = null;
-								return NiconicoSignInStatus.Failed;
-							}
+
 
 							Debug.WriteLine("Login done.");
 							loginActivityLogger.LogEvent("[Success]: Login done");
@@ -679,12 +669,12 @@ namespace NicoPlayerHohoema.Models
 					NiconicoContext = null;
 					FavManager = null;
 					LoginUserId = uint.MaxValue;
-					MediaManager = null;
-					BackgroundUpdater?.Dispose();
-					BackgroundUpdater = new BackgroundUpdater("HohoemaBG1");
+
+					// TODO: BackgroundUpdateのキャンセル
 
 					FavManager = null;
 					FeedManager = null;
+
 
 					OnSignout?.Invoke();
 				}
@@ -1031,9 +1021,16 @@ StorageFolder _DownloadFolder;
 		}
 
 
-		public async Task<bool> CanAccessVideoCacheFolder()
+		public async Task<bool> CanReadAccessVideoCacheFolder()
 		{
-			return await GetVideoCacheFolderState() == CacheFolderAccessState.Exist;
+			var status = await GetVideoCacheFolderState();
+			return status == CacheFolderAccessState.Exist || status == CacheFolderAccessState.NotEnabled;
+		}
+
+		public async Task<bool> CanWriteAccessVideoCacheFolder()
+		{
+			var status = await GetVideoCacheFolderState();
+			return status == CacheFolderAccessState.Exist;
 		}
 
 		public async Task<CacheFolderAccessState> GetVideoCacheFolderState()
@@ -1041,11 +1038,6 @@ StorageFolder _DownloadFolder;
 			if (false == UserSettings.CacheSettings.IsUserAcceptedCache)
 			{
 				return CacheFolderAccessState.NotAccepted;
-			}
-
-			if (false == UserSettings.CacheSettings.IsEnableCache)
-			{
-				return CacheFolderAccessState.NotEnabled;
 			}
 
 			try
@@ -1056,18 +1048,23 @@ StorageFolder _DownloadFolder;
 				{
 					return CacheFolderAccessState.NotSelected;
 				}
-				else
-				{
-					return CacheFolderAccessState.Exist;
-				}
 			}
 			catch (FileNotFoundException)
 			{
 				return CacheFolderAccessState.SelectedButNotExist;
 			}
+
+			if (false == UserSettings.CacheSettings.IsEnableCache)
+			{
+				return CacheFolderAccessState.NotEnabled;
+			}
+			else
+			{
+				return CacheFolderAccessState.Exist;
+			}
 		}
 
-	
+
 
 		public async Task<StorageFolder> GetVideoCacheFolder()
 		{
@@ -1108,6 +1105,7 @@ StorageFolder _DownloadFolder;
 		{
 			MediaManager?.Dispose();
 			LoggingChannel?.Dispose();
+			BackgroundUpdater?.Dispose();
 		}
 
 

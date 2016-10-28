@@ -1,6 +1,7 @@
 ﻿using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Util;
 using NicoPlayerHohoema.Views.Service;
+using Prism.Commands;
 using Prism.Windows.Navigation;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -107,7 +108,23 @@ namespace NicoPlayerHohoema.ViewModels
 
 		}
 
+		#region Commands
 
+
+		private DelegateCommand _ShowSearchHistoryCommand;
+		public DelegateCommand ShowSearchHistoryCommand
+		{
+			get
+			{
+				return _ShowSearchHistoryCommand
+					?? (_ShowSearchHistoryCommand = new DelegateCommand(() =>
+					{
+						PageManager.OpenPage(HohoemaPageType.Search);
+					}));
+			}
+		}
+
+		#endregion
 
 		bool _NowProcessFavorite = false;
 

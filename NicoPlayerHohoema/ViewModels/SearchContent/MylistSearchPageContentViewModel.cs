@@ -31,6 +31,25 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
+		#region Commands
+
+
+		private DelegateCommand _ShowSearchHistoryCommand;
+		public DelegateCommand ShowSearchHistoryCommand
+		{
+			get
+			{
+				return _ShowSearchHistoryCommand
+					?? (_ShowSearchHistoryCommand = new DelegateCommand(() =>
+					{
+						PageManager.OpenPage(HohoemaPageType.Search);
+					}));
+			}
+		}
+
+		#endregion
+
+
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			var target = "マイリスト";

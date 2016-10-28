@@ -226,7 +226,8 @@
                             <mybehavior:MediaElementContentHeightGetter ContentHeight="{Binding CommentCanvasHeight.Value, Mode=TwoWay}"
                                                                         />
 
-                            <mybehavior:KeyboardTrigger Key="Space" >
+                            <mybehavior:KeyboardTrigger Key="Space"
+                                                        IsEnabled="{Binding ElementName=SplitView, Path=IsPaneOpen, Converter={StaticResource InvertBoolean}}" >
                                 <mybehavior:KeyboardTrigger.Actions>
                                     <mybehavior:MediaElementTogglePlayback TargetObject="{Binding ElementName=mediaElem}" />
                                 </mybehavior:KeyboardTrigger.Actions>
@@ -343,7 +344,7 @@
                         <i:Interaction.Behaviors>
                             <mybehavior:AutoHide x:Name="AutoHideBehavior"
                                          IsEnable="{Binding IsAutoHideEnable.Value}"
-                                         Delay="00:00:02" 
+                                         Delay="{Binding AutoHideDelayTime.Value}" 
                                          WithCursor="False"
                                          >
                                 <i:Interaction.Behaviors>

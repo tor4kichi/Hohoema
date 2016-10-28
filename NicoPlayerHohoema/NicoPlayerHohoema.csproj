@@ -102,10 +102,12 @@
     <Content Include="Assets\BadgeLogo.scale-200.png" />
     <Content Include="Assets\BadgeLogo.scale-400.png" />
     <Content Include="Assets\hohoema-icon-final.png" />
+    <Content Include="Assets\LibLisencies\AdaptiveTriggerLibrary.txt" />
     <Content Include="Assets\LibLisencies\Entity Framework Core.txt" />
     <Content Include="Assets\LibLisencies\FFmpeg.txt" />
     <Content Include="Assets\LibLisencies\FFmpegInterop.txt" />
     <Content Include="Assets\LibLisencies\Material Design Icons.txt" />
+    <Content Include="Assets\LibLisencies\RtmpClient.UWP.txt" />
     <Content Include="Assets\LibLisencies\UWP Community Toolkit.txt" />
     <Content Include="Assets\LibLisencies\_lisence_summary.json" />
     <Content Include="Assets\OAuth\twitter.json" />
@@ -307,6 +309,9 @@
     </Compile>
     <Compile Include="Views\Controls\HohoemaIncrementalLoadingList.xaml.cs">
       <DependentUpon>HohoemaIncrementalLoadingList.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\ListingSelectionControl.xaml.cs">
+      <DependentUpon>ListingSelectionControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\LiveVideoListItem.xaml.cs">
       <DependentUpon>LiveVideoListItem.xaml</DependentUpon>
@@ -521,7 +526,7 @@
     <None Include="NicoPlayerHohoema_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Assets\LibLisencies\HtmlAgilityPack.txt" />
+    <Content Include="Assets\LibLisencies\HtmlAgilityPack.NetCore.txt" />
     <Content Include="Assets\LibLisencies\Newtonsoft.Json.txt" />
     <Content Include="Assets\LibLisencies\OpenNiconico2.txt" />
     <Content Include="Assets\LibLisencies\Prism.txt" />
@@ -627,6 +632,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Controls\HohoemaIncrementalLoadingList.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\ListingSelectionControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -505,7 +505,7 @@ namespace NicoPlayerHohoema.Models.Live
 			await EndCommentClientConnection();
 
 			var baseTime = PlayerStatusResponse.Program.BaseAt;
-			_NicoLiveCommentClient = new NicoLiveCommentClient(LiveId, baseTime, PlayerStatusResponse.Comment.Server, HohoemaApp.NiconicoContext);
+			_NicoLiveCommentClient = new NicoLiveCommentClient(LiveId, PlayerStatusResponse.Program.CommentCount, baseTime, PlayerStatusResponse.Comment.Server, HohoemaApp.NiconicoContext);
 			_NicoLiveCommentClient.CommentServerConnected += _NicoLiveCommentReciever_CommentServerConnected;
 			_NicoLiveCommentClient.Heartbeat += _NicoLiveCommentClient_Heartbeat;
 			_NicoLiveCommentClient.EndConnect += _NicoLiveCommentClient_EndConnect;
@@ -585,9 +585,7 @@ namespace NicoPlayerHohoema.Models.Live
 		{
 			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
 			{
-				_LiveComments.Add(chat);
-
-				
+				_LiveComments.Insert(0, chat);
 			});
 
 			if (chat.User_id == BroadcasterId)

@@ -168,7 +168,7 @@ namespace NicoPlayerHohoema.ViewModels
 							}
 							else
 							{
-								return Video.OriginalQuality.CanRequestDownload;
+								return Video.OriginalQuality.CanRequestCache;
 							}
 						case NicoVideoQuality.Low:
 							if (Video.LowQuality.IsCacheRequested)
@@ -178,7 +178,7 @@ namespace NicoPlayerHohoema.ViewModels
 							}
 							else
 							{
-								return Video.LowQuality.CanRequestDownload;
+								return Video.LowQuality.CanRequestCache;
 							}
 						default:
 							throw new NotSupportedException(x.ToString());
@@ -446,6 +446,12 @@ namespace NicoPlayerHohoema.ViewModels
 				.AddTo(userSessionDisposer);
 			OnPropertyChanged(nameof(IsPauseWithCommentWriting));
 
+			AutoHideDelayTime = HohoemaApp.UserSettings.PlayerSettings
+				.ToReactivePropertyAsSynchronized(x => x.AutoHidePlayerControlUIPreventTime, PlayerWindowUIDispatcherScheduler)
+				.AddTo(userSessionDisposer);
+			OnPropertyChanged(nameof(AutoHideDelayTime));
+
+
 			IsMuted = HohoemaApp.UserSettings.PlayerSettings
 				.ToReactivePropertyAsSynchronized(x => x.IsMute, PlayerWindowUIDispatcherScheduler)
 				.AddTo(userSessionDisposer);
@@ -486,7 +492,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 			RequestCommentDisplayDuration = HohoemaApp.UserSettings.PlayerSettings
 				.ObserveProperty(x => x.CommentDisplayDuration)
-				.Select(x => x.TotalSeconds)
 				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
 				.AddTo(userSessionDisposer);
 			OnPropertyChanged(nameof(RequestCommentDisplayDuration));
@@ -594,13 +599,16 @@ namespace NicoPlayerHohoema.ViewModels
 					}
 				}
 
+				var isCurrentQualityCacheDownloadCompleted = false;
 				switch (x)
 				{
 					case NicoVideoQuality.Original:
 						IsSaveRequestedCurrentQualityCache.Value = Video.OriginalQuality.IsCacheRequested;
+						isCurrentQualityCacheDownloadCompleted = Video.OriginalQuality.IsCached;
 						break;
 					case NicoVideoQuality.Low:
 						IsSaveRequestedCurrentQualityCache.Value = Video.LowQuality.IsCacheRequested;
+						isCurrentQualityCacheDownloadCompleted = Video.LowQuality.IsCached;
 						break;
 					default:
 						IsSaveRequestedCurrentQualityCache.Value = false;
@@ -623,8 +631,19 @@ namespace NicoPlayerHohoema.ViewModels
 
 					IsPlayWithCache.Value = true;
 				}
-				else
+				else if (isCurrentQualityCacheDownloadCompleted)
 				{
+					// CachedStreamを使わずに直接ファイルから再生している場合
+					// キャッシュ済みとして表示する
+					ProgressFragments.Clear();
+					var size = (x == NicoVideoQuality.Original ? Video.OriginalQuality.VideoSize : Video.LowQuality.VideoSize);
+					var invertedTotalSize = 1.0 / size;
+					ProgressFragments.Add(new ProgressFragment(invertedTotalSize, 0, size));
+
+					IsPlayWithCache.Value = true;
+				}
+				else
+				{ 
 					// 完全なオンライン再生
 					IsPlayWithCache.Value = false;
 				}
@@ -1096,7 +1115,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 				// Note: 0.4.1現在ではキャッシュはmp4のみ対応
 				var isCanCache = Video.ContentType == MovieType.Mp4;
-				CanDownload = (HohoemaApp.UserSettings?.CacheSettings?.IsUserAcceptedCache ?? false) && isCanCache;
+				var isAcceptedCache = HohoemaApp.UserSettings?.CacheSettings?.IsUserAcceptedCache ?? false;
+				CanDownload = isAcceptedCache && isCanCache;
 
 				// 再生履歴に反映
 				//VideoPlayHistoryDb.VideoPlayed(Video.RawVideoId);
@@ -1518,6 +1538,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> IsEnableRepeat { get; private set; }
 
 		public ReactiveProperty<bool> IsAutoHideEnable { get; private set; }
+		public ReactiveProperty<TimeSpan> AutoHideDelayTime { get; private set; }
 
 		private TimeSpan _PreviosPlayingVideoPosition;
 
@@ -1528,7 +1549,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		// Settings
 		public ReactiveProperty<int> RequestFPS { get; private set; }
-		public ReactiveProperty<double> RequestCommentDisplayDuration { get; private set; }
+		public ReactiveProperty<TimeSpan> RequestCommentDisplayDuration { get; private set; }
 		public ReactiveProperty<double> CommentFontScale { get; private set; }
 		public ReactiveProperty<bool> IsFullScreen { get; private set; }
 
