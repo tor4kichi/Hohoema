@@ -102,10 +102,12 @@
     <Content Include="Assets\BadgeLogo.scale-200.png" />
     <Content Include="Assets\BadgeLogo.scale-400.png" />
     <Content Include="Assets\hohoema-icon-final.png" />
+    <Content Include="Assets\LibLisencies\AdaptiveTriggerLibrary.txt" />
     <Content Include="Assets\LibLisencies\Entity Framework Core.txt" />
     <Content Include="Assets\LibLisencies\FFmpeg.txt" />
     <Content Include="Assets\LibLisencies\FFmpegInterop.txt" />
     <Content Include="Assets\LibLisencies\Material Design Icons.txt" />
+    <Content Include="Assets\LibLisencies\RtmpClient.UWP.txt" />
     <Content Include="Assets\LibLisencies\UWP Community Toolkit.txt" />
     <Content Include="Assets\LibLisencies\_lisence_summary.json" />
     <Content Include="Assets\OAuth\twitter.json" />
@@ -524,7 +526,7 @@
     <None Include="NicoPlayerHohoema_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Assets\LibLisencies\HtmlAgilityPack.txt" />
+    <Content Include="Assets\LibLisencies\HtmlAgilityPack.NetCore.txt" />
     <Content Include="Assets\LibLisencies\Newtonsoft.Json.txt" />
     <Content Include="Assets\LibLisencies\OpenNiconico2.txt" />
     <Content Include="Assets\LibLisencies\Prism.txt" />

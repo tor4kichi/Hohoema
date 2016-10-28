@@ -226,7 +226,8 @@
                             <mybehavior:MediaElementContentHeightGetter ContentHeight="{Binding CommentCanvasHeight.Value, Mode=TwoWay}"
                                                                         />
 
-                            <mybehavior:KeyboardTrigger Key="Space" >
+                            <mybehavior:KeyboardTrigger Key="Space"
+                                                        IsEnabled="{Binding ElementName=SplitView, Path=IsPaneOpen, Converter={StaticResource InvertBoolean}}" >
                                 <mybehavior:KeyboardTrigger.Actions>
                                     <mybehavior:MediaElementTogglePlayback TargetObject="{Binding ElementName=mediaElem}" />
                                 </mybehavior:KeyboardTrigger.Actions>

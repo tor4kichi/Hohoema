@@ -178,11 +178,11 @@ namespace NicoPlayerHohoema.ViewModels
 					{
 						foreach (var item in EnumerateCanDownloadVideoItem(/*画質指定なし*/))
 						{
-							if (item.NicoVideo.OriginalQuality.CanRequestDownload)
+							if (item.NicoVideo.OriginalQuality.CanRequestCache)
 							{
 								await item.NicoVideo.OriginalQuality.RequestCache();
 							}
-							else if (item.NicoVideo.LowQuality.CanRequestDownload)
+							else if (item.NicoVideo.LowQuality.CanRequestCache)
 							{
 								await item.NicoVideo.LowQuality.RequestCache();
 							}
@@ -338,11 +338,11 @@ namespace NicoPlayerHohoema.ViewModels
 				return SelectedItems.Where(x =>
 				{
 					var video = x.NicoVideo;
-					if (video.OriginalQuality.CanRequestDownload && video.OriginalQuality.CacheState != NicoVideoCacheState.NowDownloading)
+					if (video.OriginalQuality.CanRequestCache && video.OriginalQuality.CacheState != NicoVideoCacheState.NowDownloading)
 					{
 						return true;
 					}
-					else if (video.LowQuality.CanRequestDownload && video.LowQuality.CacheState != NicoVideoCacheState.NowDownloading)
+					else if (video.LowQuality.CanRequestCache && video.LowQuality.CacheState != NicoVideoCacheState.NowDownloading)
 					{
 						return true;
 					}
@@ -355,9 +355,9 @@ namespace NicoPlayerHohoema.ViewModels
 			switch (quality)
 			{
 				case NicoVideoQuality.Original:
-					return SelectedItems.Where(x => x.NicoVideo.OriginalQuality.CanRequestDownload && x.NicoVideo.OriginalQuality.CacheState != NicoVideoCacheState.NowDownloading);
+					return SelectedItems.Where(x => x.NicoVideo.OriginalQuality.CanRequestCache && x.NicoVideo.OriginalQuality.CacheState != NicoVideoCacheState.NowDownloading);
 				case NicoVideoQuality.Low:
-					return SelectedItems.Where(x => x.NicoVideo.LowQuality.CanRequestDownload && x.NicoVideo.LowQuality.CacheState != NicoVideoCacheState.NowDownloading);
+					return SelectedItems.Where(x => x.NicoVideo.LowQuality.CanRequestCache && x.NicoVideo.LowQuality.CacheState != NicoVideoCacheState.NowDownloading);
 				default:
 					return Enumerable.Empty<VideoInfoControlViewModel>();
 			}
