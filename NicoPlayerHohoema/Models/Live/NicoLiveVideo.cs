@@ -350,7 +350,7 @@ namespace NicoPlayerHohoema.Models.Live
 						EnsureOpenRtmpConnectionInntenal,
 						this,
 						TimeSpan.FromSeconds(0),
-						TimeSpan.FromSeconds(4)
+						TimeSpan.FromSeconds(7)
 						);
 					EnsureOpenRtmpStartTime = DateTime.Now;
 
