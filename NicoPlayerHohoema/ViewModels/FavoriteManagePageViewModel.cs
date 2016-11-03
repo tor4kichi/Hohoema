@@ -34,7 +34,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			Lists.Add(new FavoriteListViewModel()
 			{
-				Name = "ユーザー",
+				Name = "フォロー",
 				FavType = FavoriteItemType.User,
 				MaxItemCount = HohoemaApp.FavManager.User.MaxFavItemCount,
 				Items = HohoemaApp.FavManager.User.FavInfoItems
