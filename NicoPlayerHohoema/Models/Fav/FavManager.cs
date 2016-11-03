@@ -24,8 +24,8 @@ namespace NicoPlayerHohoema.Models
 		#region Niconico fav constants
 
 		// Note: 2016/10/31 から お気に入りユーザー枠は一般プレミアムどちらも600に変更
-		public const uint FAV_USER_MAX_COUNT = 50;
-		public const uint PREMIUM_FAV_USER_MAX_COUNT = 400;
+		public const uint FAV_USER_MAX_COUNT = 600;
+		public const uint PREMIUM_FAV_USER_MAX_COUNT = 600;
 
 		public const uint FAV_MYLIST_MAX_COUNT = 20;
 		public const uint PREMIUM_FAV_MYLIST_MAX_COUNT = 50;
