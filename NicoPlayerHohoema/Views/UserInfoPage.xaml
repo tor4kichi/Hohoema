@@ -48,7 +48,7 @@
                             <AppBarToggleButton Icon="Favorite"
                                                 IsChecked="{Binding IsFavorite.Value, Mode=TwoWay}"
                                                 IsEnabled="{Binding CanChangeFavoriteState.Value}"
-                                                Label="お気に入り"
+                                                Label="フォロー"
                                                 Visibility="{Binding IsLoginUser, Converter={StaticResource BooleanToVisibilityInverted}}"
                                 />
 
