@@ -147,29 +147,8 @@ namespace NicoPlayerHohoema.ViewModels
 				UserIconUri = user.ThumbnailUri;
 				Description = user.Description;
 
-				BirthDay = user.BirthDay;
-				FavCount = user.FavCount;
+				FollowerCount = user.FollowerCount;
 				StampCount = user.StampCount;
-				if (user.Gender == null)
-				{
-					Gender = "未公開";
-				}
-				else
-				{
-					switch (user.Gender.Value)
-					{
-						case Sex.Male:
-							Gender = "男性";
-							break;
-						case Sex.Female:
-							Gender = "女性";
-							break;
-						default:
-							break;
-					}
-				}
-
-				Region = user.Region;
 				VideoCount = user.TotalVideoCount;
 				IsVideoPrivate = user.IsOwnerVideoPrivate;
 			}
@@ -358,7 +337,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		private uint _FavCount;
-		public uint FavCount
+		public uint FollowerCount
 		{
 			get { return _FavCount; }
 			set { SetProperty(ref _FavCount, value); }

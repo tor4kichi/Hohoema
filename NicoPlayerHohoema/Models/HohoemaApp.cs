@@ -496,6 +496,7 @@ namespace NicoPlayerHohoema.Models
 								LoginUserId = userInfo.Id;
 								IsPremiumUser = userInfo.IsPremium;
 
+
 								if (!string.IsNullOrEmpty(userInfo.Name))
 								{
 									LoginUserName = userInfo.Name;

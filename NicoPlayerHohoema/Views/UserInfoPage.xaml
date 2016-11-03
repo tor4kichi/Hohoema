@@ -58,34 +58,16 @@
 
                         <StackPanel Orientation="Horizontal"
                                     Margin="0 8" 
-                            >
-                            <TextBlock Margin="0 0 8 0">
-                        <Run Text="性別:" />
-                        <Run Text="{Binding Gender}" />
-                            </TextBlock>
-                            <TextBlock Margin="0 0 8 0">
-                        <Run Text="生年月日:" />
-                        <Run Text="{Binding BirthDay}" />
-                            </TextBlock>
-                            <TextBlock Margin="0 0 8 0">
-                        <Run Text="地域:" />
-                        <Run Text="{Binding Region}" />
-                            </TextBlock>
-                        </StackPanel>
-
-                        <StackPanel Orientation="Horizontal"
-                                    Margin="0 8" 
                                     >
                             <TextBlock Margin="0 0 8 0">
-                            <Run Text="お気に入り:" />
-                            <Run Text="{Binding FavCount}" />
+                                <Run Text="フォロワー:" />
+                                <Run Text="{Binding FollowerCount}" />
                             </TextBlock>
                             <TextBlock Margin="0 0 8 0">
-                            <Run Text="スタンプ:" />
-                            <Run Text="{Binding StampCount}" />
+                                <Run Text="スタンプ:" />
+                                <Run Text="{Binding StampCount}" />
                             </TextBlock>
                         </StackPanel>
-
                         <!-- TODO: ユーザーの紹介文をHTMLを含めて正しく表示されるように -->
                         <!--
                     <Border>
@@ -199,11 +181,16 @@
                         </ListView.ItemTemplate>
                     </ListView>
 
-                    <StackPanel Visibility="{Binding IsLoginUser, Converter={StaticResource BooleanToVisibilityInverted}}">
+
+                    <Border Height="8" />
+
+                    <StackPanel Visibility="{Binding IsLoginUser, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                >
                         
                         <!-- NG登録中の表示 -->
                         <Border Visibility="{Binding IsNGVideoOwner.Value, Converter={StaticResource BooleanToVisibility}}"
-                            Background="LightPink"
+                                BorderBrush="Red"
+                                BorderThickness="3"
                             Padding="16"
                             >
                             <StackPanel>
@@ -227,8 +214,9 @@
 
                         <!-- NG登録 前 の表示 -->
                         <Border Visibility="{Binding IsNGVideoOwner.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                            Background="LightPink"
                             Padding="16"
+                                BorderBrush="Green"
+                                BorderThickness="3"
                             >
 
                             <StackPanel>
