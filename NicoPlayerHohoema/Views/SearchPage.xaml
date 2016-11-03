@@ -178,17 +178,19 @@
 
             <toolkit:DockPanel>
 
-                <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
+                <toolkit:WrapPanel Orientation="Horizontal" 
+                                   toolkit:DockPanel.Dock="Top"
+                                   Margin="16 0 0 0"
+                                   >
                    
 
                     
 
                     <!-- ターゲット（Keyword, Tag etc） -->
-                    <Border toolkit:DockPanel.Dock="Left" Margin="8 0">
+                    <Border Margin="0 0 8 0">
                         
                         <ComboBox ItemsSource="{Binding TargetListItems}"
                                   SelectedItem="{Binding SelectedTarget.Value, Mode=TwoWay}"
-                                  Margin="8 0 0 0"
                                   HorizontalAlignment="Stretch"
                                   TabIndex="1"
                                   IsTabStop="True"
@@ -200,7 +202,6 @@
 
                     <!-- 検索 -->
                     <StackPanel Orientation="Horizontal">
-
                         <TextBox Text="{Binding SearchText.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                                     Height="32"
                                     Width="160"
@@ -209,6 +210,7 @@
                                     VerticalAlignment="Center"
                                     InputScope="Search"
                                     x:Name="SearchTextBox"
+                             Margin="0 0 8 0"
                                 >
                             <i:Interaction.Behaviors>
                                 <mybehavior:KeyboardTrigger Key="Enter">
@@ -222,9 +224,10 @@
                         </TextBox>
 
                         <Button Content="検索" 
-                                Margin="8 0"
+                                Margin="0 0 8 0"
                                 VerticalAlignment="Center"
-                                Width="80"
+                                Width="100"
+                            Height="40"
                                 >
                             <i:Interaction.Behaviors>
                                 <core:EventTriggerBehavior EventName="Tapped">
@@ -234,11 +237,10 @@
                             </i:Interaction.Behaviors>
 
                         </Button>
-
                     </StackPanel>
+                    
 
-
-                </toolkit:DockPanel>
+                </toolkit:WrapPanel>
 
                 <toolkit:DockPanel toolkit:DockPanel.Dock="Top" Margin="8">
 
