@@ -95,6 +95,9 @@
                         <Setter Target="CommentButtons_Short.Visibility" Value="Collapsed" />
                         <Setter Target="CommentSubmitButton_Wide.Visibility" Value="Visible" />
                         <Setter Target="CommentCommandEditButton_Wide.Visibility" Value="Visible" />
+
+                        <Setter Target="PanePinnedToggleButton.Visibility" Value="Visible" />
+
                     </VisualState.Setters>
                 </VisualState>
                 <!-- 超狭い -->
@@ -112,6 +115,9 @@
                         <Setter Target="CommentButtons_Short.Visibility" Value="Visible" />
                         <Setter Target="CommentSubmitButton_Wide.Visibility" Value="Collapsed" />
                         <Setter Target="CommentCommandEditButton_Wide.Visibility" Value="Collapsed" />
+
+                        <Setter Target="PanePinnedToggleButton.Visibility" Value="Collapsed" />
+                        <Setter Target="PanePinnedToggleButton.IsChecked" Value="False" />
 
                     </VisualState.Setters>
                 </VisualState>
@@ -160,7 +166,25 @@
                 </VisualState>
             </VisualStateGroup>
 
-
+            <!-- 情報ペインのピン留め -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding ElementName=PanePinnedToggleButton, Path=IsChecked}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="SplitView.DisplayMode" Value="Inline" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding ElementName=PanePinnedToggleButton, Path=IsChecked, Converter={StaticResource InvertBoolean}}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="SplitView.DisplayMode" Value="Overlay" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
             
         </VisualStateManager.VisualStateGroups>
 
@@ -910,6 +934,40 @@
                 <toolkit:DockPanel>
 
                     <!-- サブコンテンツのセレクタ -->
+
+                    <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom">
+                        <ToggleButton x:Name="PanePinnedToggleButton"
+                                      toolkit:DockPanel.Dock="Left"
+                                      Width="80"
+                                      Height="32"
+                                      >
+                            <SymbolIcon Symbol="Pin"  Margin="0 0 4 0"/>
+                        </ToggleButton>
+                        <Button 
+                                        toolkit:DockPanel.Dock="Right"
+                                        Height="32"
+                                        Width="80"
+                                        VerticalAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Background="Transparent"
+                                        Padding="8 0"
+                                        >
+                            <i:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <core:ChangePropertyAction TargetObject="{Binding ElementName=SplitView}" 
+                                                               PropertyName="IsPaneOpen" 
+                                                               Value="False" />
+                                </core:EventTriggerBehavior>
+                            </i:Interaction.Behaviors>
+
+                            <SymbolIcon Symbol="Clear" />
+
+                        </Button>
+
+                        <Border />
+                        
+                    </toolkit:DockPanel>
+                    
                     <ListView toolkit:DockPanel.Dock="Top"
                               ItemsSource="{Binding Types}"
                               SelectionMode="Single"
@@ -933,6 +991,7 @@
                                         ContentTemplateSelector="{StaticResource VideoInfoContentTemplateSelector}"
                                         HorizontalContentAlignment="Stretch"
                                         VerticalContentAlignment="Stretch"
+                                        Margin="0 0 0 16"
                                     />
                     </ScrollViewer>
 
