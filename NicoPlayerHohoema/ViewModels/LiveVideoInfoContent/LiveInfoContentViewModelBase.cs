@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.ViewModels.LiveVideoInfoContent
 {
-	abstract public class LiveInfoContentViewModelBase : ViewModelBase
+	abstract public class LiveInfoContentViewModelBase : VideoInfoContent.MediaInfoViewModel
 	{
 		virtual public Task OnEnter() { return Task.CompletedTask; }
 		virtual public void OnLeave() { }

@@ -162,6 +162,7 @@
         <SplitView x:Name="SplitView"
                 PanePlacement="Right"
                DisplayMode="Overlay"
+                   OpenPaneLength="400"
                >
             <SplitView.Content>
                 <Grid Background="#FF0C0C0C" x:Name="MediaControl">
