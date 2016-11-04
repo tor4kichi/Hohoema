@@ -127,7 +127,7 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public async Task<NiconicoRankingRss> GetCategoryRanking(RankingCategory category, RankingTarget target, RankingTimeSpan timeSpan)
+		public async Task<NiconicoVideoRss> GetCategoryRanking(RankingCategory category, RankingTarget target, RankingTimeSpan timeSpan)
 		{
 			return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
