@@ -173,7 +173,8 @@ namespace NicoPlayerHohoema.ViewModels
 		public static List<LiveVideoPaneContentType> PaneContentTypes { get; private set; } = new[] {
 				LiveVideoPaneContentType.Summary,
 				LiveVideoPaneContentType.Comment,
-				LiveVideoPaneContentType.Shere
+				LiveVideoPaneContentType.Shere,
+				LiveVideoPaneContentType.Settings
 			}.ToList();
 
 			
@@ -579,6 +580,11 @@ namespace NicoPlayerHohoema.ViewModels
 			IsFullScreen.Value = false;
 
 			StopLiveElapsedTimer().ConfigureAwait(false);
+
+			foreach (var paneContent in _PaneContentCache.Values)
+			{
+				paneContent.Dispose();
+			}
 
 			base.OnNavigatingFrom(e, viewModelState, suspending);
 		}
