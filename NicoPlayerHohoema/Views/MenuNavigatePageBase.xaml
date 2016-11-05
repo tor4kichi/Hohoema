@@ -11,6 +11,8 @@
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:logicalTrigger="using:AdaptiveTriggerLibrary.Triggers.LogicalTriggers"
+    xmlns:uiTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInterfaceTriggers"
     xmlns:hardwareTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
@@ -122,14 +124,35 @@
                         </VisualState>
                     </VisualStateGroup>
 
+                    <!--
                     <VisualStateGroup>
                         <VisualState>
                             <VisualState.StateTriggers>
-                                <hardwareTrigger:DeviceFamilyTrigger Condition="Mobile" />
+                                <logicalTrigger:MultiTrigger>
+                                    <logicalTrigger:MultiTrigger.Triggers>
+                                        <hardwareTrigger:DeviceFamilyTrigger Condition="Mobile" />
+                                        <uiTrigger:OrientationTrigger Condition="Portrait" />
+                                    </logicalTrigger:MultiTrigger.Triggers>
+                                </logicalTrigger:MultiTrigger>
                             </VisualState.StateTriggers>
 
                             <VisualState.Setters>
-                                <Setter Target="RootLayoutContainer.Margin" Value="0 8 0 0" />
+                                <Setter Target="RootLayoutContainer.Margin" Value="0 24 0 48" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <logicalTrigger:MultiTrigger>
+                                    <logicalTrigger:MultiTrigger.Triggers>
+                                        <hardwareTrigger:DeviceFamilyTrigger Condition="Mobile" />
+                                        <uiTrigger:OrientationTrigger Condition="Landscape" />
+                                    </logicalTrigger:MultiTrigger.Triggers>
+                                </logicalTrigger:MultiTrigger>
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="RootLayoutContainer.Margin" Value="0 0 48 0" />
                             </VisualState.Setters>
                         </VisualState>
 
@@ -140,6 +163,8 @@
                         </VisualState>
 
                     </VisualStateGroup>
+                    
+                    -->
                     
 
 
