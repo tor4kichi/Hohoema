@@ -570,23 +570,31 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
-			NicoLiveVideo.Dispose();
-			NicoLiveVideo = null;
-
-			VideoStream.Value = null;
-
-			DisplayRequestHelper.StopKeepDisplay();
-
-			IsFullScreen.Value = false;
-
-			StopLiveElapsedTimer().ConfigureAwait(false);
-
-			foreach (var paneContent in _PaneContentCache.Values)
+			if (!suspending)
 			{
-				paneContent.Dispose();
+				NicoLiveVideo.Dispose();
+				NicoLiveVideo = null;
+
+				foreach (var paneContent in _PaneContentCache.Values)
+				{
+					paneContent.Dispose();
+				}
 			}
 
+			VideoStream.Value = null;
+			DisplayRequestHelper.StopKeepDisplay();
+			IsFullScreen.Value = false;
+			StopLiveElapsedTimer().ConfigureAwait(false);
+
 			base.OnNavigatingFrom(e, viewModelState, suspending);
+		}
+
+
+		protected override async Task OnResumed()
+		{
+			await TryStartViewing();
+
+//			return base.OnResumed();
 		}
 
 
@@ -685,9 +693,8 @@ namespace NicoPlayerHohoema.ViewModels
 			return liveStatus == null;
 		}
 
-
-
 	
+
 
 		private async Task StartLiveElapsedTimer()
 		{

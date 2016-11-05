@@ -17,7 +17,7 @@
     PrimaryButtonText="選択"
     SecondaryButtonText="キャンセル"
     IsPrimaryButtonEnabled="{Binding IsSelectedItem}"
-    Title="ランキングカテゴリを選択"
+    Title="{Binding Title}"
     
     >
 
@@ -25,7 +25,7 @@
             DisplayMemberPath="DisplayLabel"
             SelectionMode="Multiple"
               IsMultiSelectCheckBoxEnabled="True"
-            Height="260"    
+            Height="340"    
              Margin="0 16 0 0">
         <i:Interaction.Behaviors>
             <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedItems}" />
