@@ -127,7 +127,7 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public async Task<NiconicoRankingRss> GetCategoryRanking(RankingCategory category, RankingTarget target, RankingTimeSpan timeSpan)
+		public async Task<NiconicoVideoRss> GetCategoryRanking(RankingCategory category, RankingTarget target, RankingTimeSpan timeSpan)
 		{
 			return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
@@ -353,6 +353,17 @@ namespace NicoPlayerHohoema.Models
 			});
 		}
 
+
+		public Task<NiconicoVideoRss> GetCommunityVideo(
+			string communityId,
+			uint page
+			)
+		{
+			return ConnectionRetryUtil.TaskWithRetry(async () =>
+			{
+				return await _HohoemaApp.NiconicoContext.Community.GetCommunityVideoAsync(communityId, page);
+			});
+		}
 
 		HohoemaApp _HohoemaApp;
 	}

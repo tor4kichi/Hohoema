@@ -81,6 +81,10 @@ namespace NicoPlayerHohoema.ViewModels
 		// 生放送
 		public List<CurrentLiveInfoViewModel> CurrentLiveInfoList { get; private set; }
 
+		// 動画
+		public List<CommunityVideoInfoViewModel> CommunityVideoSamples { get; private set; }
+
+
 		public bool HasCurrentLiveInfo { get; private set; }
 
 		private bool _NowLoading;
@@ -179,6 +183,15 @@ namespace NicoPlayerHohoema.ViewModels
 
 					HasCurrentLiveInfo = CurrentLiveInfoList.Count > 0;
 
+					CommunityVideoSamples = new List<CommunityVideoInfoViewModel>();
+					foreach (var sampleVideo in CommunityDetail.VideoList)
+					{
+						var videoInfoVM = new CommunityVideoInfoViewModel(sampleVideo, PageManager);
+
+						CommunityVideoSamples.Add(videoInfoVM);
+					}
+					
+
 					OnPropertyChanged(nameof(CommunityOwnerName));
 					OnPropertyChanged(nameof(VideoCount));
 					OnPropertyChanged(nameof(PrivilegeDescription));
@@ -196,6 +209,7 @@ namespace NicoPlayerHohoema.ViewModels
 					OnPropertyChanged(nameof(HasNews));
 					OnPropertyChanged(nameof(CurrentLiveInfoList));
 					OnPropertyChanged(nameof(HasCurrentLiveInfo));
+					OnPropertyChanged(nameof(CommunityVideoSamples));
 
 
 				}
@@ -214,6 +228,20 @@ namespace NicoPlayerHohoema.ViewModels
 			if (!IsFailed)
 			{
 				UpdateTitle($"コミュニティ");
+			}
+		}
+
+		
+		private DelegateCommand _OpenCommunityVideoListPageCommand;
+		public DelegateCommand OpenCommunityVideoListPageCommand
+		{
+			get
+			{
+				return _OpenCommunityVideoListPageCommand
+					?? (_OpenCommunityVideoListPageCommand = new DelegateCommand(() =>
+					{
+						PageManager.OpenPage(HohoemaPageType.CommunityVideo, CommunityId);
+					}));
 			}
 		}
 
@@ -383,6 +411,47 @@ namespace NicoPlayerHohoema.ViewModels
 					{
 						// TODO: 生放送ページを開く lv0000000
 
+					}));
+			}
+		}
+	}
+
+	public class CommunityVideoInfoViewModel
+	{
+		public CommunityVideo VideoInfo { get; private set; }
+		public PageManager PageManager { get; private set; }
+
+
+		public string Title { get; private set; }
+
+
+		public CommunityVideoInfoViewModel(CommunityVideo info, PageManager pageManager)
+		{
+			VideoInfo = info;
+			PageManager = pageManager;
+
+			Title = VideoInfo.Title;
+		}
+
+
+
+		private DelegateCommand _OpenVideoPageCommand;
+		public DelegateCommand OpenVideoPageCommand
+		{
+			get
+			{
+				return _OpenVideoPageCommand
+					?? (_OpenVideoPageCommand = new DelegateCommand(() =>
+					{
+						var videoPagePayload = new Models.VideoPlayPayload()
+						{
+							VideoId = VideoInfo.VideoId
+						};
+
+						PageManager.OpenPage(
+							HohoemaPageType.VideoPlayer
+							, videoPagePayload.ToParameterString()
+							);
 					}));
 			}
 		}

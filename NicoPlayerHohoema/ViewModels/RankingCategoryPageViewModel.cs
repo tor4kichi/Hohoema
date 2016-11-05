@@ -230,8 +230,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class CategoryRankingLoadingSource : HohoemaVideoPreloadingIncrementalSourceBase<RankedVideoInfoControlViewModel>
 	{
-
-		NiconicoRankingRss RankingRss;
+		NiconicoVideoRss RankingRss;
 		HohoemaApp _HohoemaApp;
 		PageManager _PageManager;
 		RankingCategory _Category;

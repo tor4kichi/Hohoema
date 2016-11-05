@@ -35,10 +35,12 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 			
 			VideoDescriptionUri = descriptionHtmlUri;
 
-
-			Tags = nicoVideo.Tags
-				.Select(x => new TagViewModel(x, _PageManager))
-				.ToList();
+			if (nicoVideo.Tags != null)
+			{
+				Tags = nicoVideo.Tags
+					.Select(x => new TagViewModel(x, _PageManager))
+					.ToList();
+			}
 		}
 
 
