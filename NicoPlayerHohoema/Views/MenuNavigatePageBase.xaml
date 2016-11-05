@@ -80,6 +80,8 @@
 
                                 <Setter Target="ContentTopBarPanel.Visibility" Value="Collapsed" />
                                 <Setter Target="TopBar.Visibility" Value="Collapsed" />
+
+                                <Setter Target="MenuPaneRoot.Margin" Value="0 0 0 0" />
                             </VisualState.Setters>
                         </VisualState>
 
@@ -94,6 +96,8 @@
 
                                 <Setter Target="ContentTopBarPanel.Visibility" Value="Visible" />
                                 <Setter Target="TopBar.Visibility" Value="Collapsed" />
+
+                                <Setter Target="MenuPaneRoot.Margin" Value="0 48 0 0" />
                             </VisualState.Setters>
                         </VisualState>
                         <!-- 中ぐらい -->
@@ -107,6 +111,8 @@
 
                                 <Setter Target="ContentTopBarPanel.Visibility" Value="Visible" />
                                 <Setter Target="TopBar.Visibility" Value="Collapsed" />
+
+                                <Setter Target="MenuPaneRoot.Margin" Value="0 48 0 0" />
                             </VisualState.Setters>
                         </VisualState>
                         <!-- 超狭い -->
@@ -120,6 +126,8 @@
 
                                 <Setter Target="ContentTopBarPanel.Visibility" Value="Collapsed" />
                                 <Setter Target="TopBar.Visibility" Value="Visible" />
+
+                                <Setter Target="MenuPaneRoot.Margin" Value="0 0 0 0" />
                             </VisualState.Setters>
                         </VisualState>
                     </VisualStateGroup>
@@ -184,12 +192,14 @@
                     <toolkit:DockPanel x:Name="TopBar" 
                                    toolkit:DockPanel.Dock="Top"
                                    Visibility="{Binding IsVisibleMenu.Value, Converter={StaticResource BooleanToVisibility}}"
+                                       Margin="16 0 0 0"
                                    >
                         <AppBarButton
                           x:Name="OpenPaneButton"
                           Icon="OpenPane"
                           toolkit:DockPanel.Dock="Left"
                           Height="48"
+                            Margin="0 0 0 0"
                           >
                             <i:Interaction.Behaviors>
                                 <core:EventTriggerBehavior EventName="Tapped">
@@ -217,7 +227,7 @@
                                VerticalAlignment="Center"
                                FontSize="24"
                                toolkit:DockPanel.Dock="Top"
-                               Margin="16 0"
+                               Margin="0 0"
                                FontWeight="SemiLight"
                                >
 
@@ -237,7 +247,7 @@
                                       VerticalScrollMode="Auto"
                                       VerticalScrollBarVisibility="Hidden"
                                       >
-                                <StackPanel>
+                                <StackPanel x:Name="MenuPaneRoot">
 
                                     <ListBox ItemsSource="{Binding MenuItems}"
                                       SelectionMode="Single"
@@ -296,14 +306,16 @@
 
                                 <toolkit:DockPanel x:Name="ContentTopBarPanel"
                                                toolkit:DockPanel.Dock="Top"
+                                                   Margin="16 0 0 0"
                                                >
 
                                     <AppBarButton
-                                  Icon="OpenPane"
-                                  toolkit:DockPanel.Dock="Left"
-                                  Height="48"
-                                  Visibility="{Binding ElementName=SplitView, Path=IsPaneOpen, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                  >
+                                      Icon="OpenPane"
+                                      toolkit:DockPanel.Dock="Left"
+                                      Height="48"
+                                             Margin="0 0 0 0"
+                                      Visibility="{Binding ElementName=SplitView, Path=IsPaneOpen, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                      > 
                                         <i:Interaction.Behaviors>
                                             <core:EventTriggerBehavior EventName="Tapped">
                                                 <core:ChangePropertyAction TargetObject="{Binding ElementName=SplitView}"
@@ -316,20 +328,20 @@
 
 
                                     <StackPanel 
-                                    Orientation="Horizontal"
-                                    toolkit:DockPanel.Dock="Right"
-                                    >
+                                            Orientation="Horizontal"
+                                            toolkit:DockPanel.Dock="Right"
+                                            >
 
 
                                     </StackPanel>
 
                                     <TextBlock 
-                                   Text="{Binding TitleText}"
-                                   VerticalAlignment="Center"
-                                   FontSize="24"
-                                   Margin="16 8 0 8"
-                                   FontWeight="SemiLight"
-                                   >
+                                           Text="{Binding TitleText}"
+                                           VerticalAlignment="Center"
+                                           FontSize="24"
+                                           Margin="0 8 0 8"
+                                           FontWeight="SemiLight"
+                                           >
 
                                     </TextBlock>
                                 </toolkit:DockPanel>
