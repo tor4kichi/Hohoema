@@ -65,12 +65,12 @@ namespace NicoPlayerHohoema.Models.AppMap
 			{
 				case FavoriteItemType.Tag:
 					PageType = HohoemaPageType.Search;
-					Parameter = new TagSearchPagePayloadContent()
+					Parameter = new SearchPagePayload(new TagSearchPagePayloadContent()
 					{
 						Keyword = favInfo.Id,
 						Sort = Mntone.Nico2.Sort.FirstRetrieve,
 						Order = Mntone.Nico2.Order.Descending
-					}
+					})
 					.ToParameterString();
 					break;
 				case FavoriteItemType.Mylist:
