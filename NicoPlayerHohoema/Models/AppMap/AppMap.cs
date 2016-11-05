@@ -59,7 +59,7 @@ namespace NicoPlayerHohoema.Models.AppMap
 				HohoemaPageType.Search,
 				HohoemaPageType.RankingCategoryList,
 				HohoemaPageType.FeedGroupManage,
-				HohoemaPageType.FavoriteManage,
+				HohoemaPageType.FollowManage,
 				HohoemaPageType.UserMylist,
 				HohoemaPageType.CacheManagement,
 				HohoemaPageType.History,
@@ -126,7 +126,7 @@ namespace NicoPlayerHohoema.Models.AppMap
 						userMylistContainer.Add(item);
 					}
 					break;
-				case HohoemaPageType.FavoriteManage:
+				case HohoemaPageType.FollowManage:
 					var favContainer = container as ISelectableAppMapContainer;
 					foreach (var item in favContainer.AllItems.ToArray())
 					{
@@ -160,8 +160,8 @@ namespace NicoPlayerHohoema.Models.AppMap
 				case HohoemaPageType.UserMylist:
 					container = new UserMylistAppMapContainer(HohoemaApp.UserMylistManager);
 					break;
-				case HohoemaPageType.FavoriteManage:
-					container = new FavAppMapContainer(HohoemaApp.FavManager);
+				case HohoemaPageType.FollowManage:
+					container = new FollowAppMapContainer(HohoemaApp.FollowManager);
 					break;
 				case HohoemaPageType.History:
 					container = new VideoPlayHistoryAppMapContainer(HohoemaApp);

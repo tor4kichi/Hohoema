@@ -42,11 +42,11 @@ namespace NicoPlayerHohoema.Views
 
 				switch (itemSourceVM.ItemType)
 				{
-					case Models.FavoriteItemType.Tag:
+					case Models.FollowItemType.Tag:
 						return Tag;
-					case Models.FavoriteItemType.Mylist:
+					case Models.FollowItemType.Mylist:
 						return Mylist;
-					case Models.FavoriteItemType.User:
+					case Models.FollowItemType.User:
 						return User;
 					default:
 						break;

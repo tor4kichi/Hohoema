@@ -60,7 +60,7 @@ namespace NicoPlayerHohoema.Models
 			LoginUserId = uint.MaxValue;
 			LoggingChannel = new LoggingChannel("HohoemaLog", new LoggingChannelOptions(HohoemaLoggerGroupGuid));
 
-			FavManager = null;
+			FollowManager = null;
 
 			LoadRecentLoginAccount();
 			_SigninLock = new SemaphoreSlim(1, 1);
@@ -558,7 +558,7 @@ namespace NicoPlayerHohoema.Models
 							{
 								Debug.WriteLine("initilize: fav");
 								loginActivityLogger.LogEvent("initialize user favorite");
-								FavManager = await FavManager.Create(this, LoginUserId);
+								FollowManager = await FollowManager.Create(this, LoginUserId);
 							}
 							catch
 							{
@@ -668,12 +668,12 @@ namespace NicoPlayerHohoema.Models
 				finally
 				{
 					NiconicoContext = null;
-					FavManager = null;
+					FollowManager = null;
 					LoginUserId = uint.MaxValue;
 
 					// TODO: BackgroundUpdateのキャンセル
 
-					FavManager = null;
+					FollowManager = null;
 					FeedManager = null;
 
 
@@ -1136,11 +1136,11 @@ StorageFolder _DownloadFolder;
 
 		public NiconicoContentFinder ContentFinder { get; private set; }
 
-		private FavManager _FavManager;
-		public FavManager FavManager
+		private FollowManager _FollowManager;
+		public FollowManager FollowManager
 		{
-			get { return _FavManager; }
-			set { SetProperty(ref _FavManager, value); }
+			get { return _FollowManager; }
+			set { SetProperty(ref _FollowManager, value); }
 		}
 
 		private FeedManager _FeedManager;

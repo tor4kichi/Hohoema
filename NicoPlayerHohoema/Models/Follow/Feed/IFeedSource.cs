@@ -5,10 +5,10 @@ namespace NicoPlayerHohoema.Models
 {
 	public interface IFeedSource
 	{
-		FavoriteItemType FavoriteItemType { get; }
+		FollowItemType FollowItemType { get; }
 		string Id { get; }
 		string Name { get; set; }
 
-		Task<IEnumerable<FavFeedItem>> GetLatestItems(HohoemaApp hohoemaApp);
+		Task<IEnumerable<FeedItem>> GetLatestItems(HohoemaApp hohoemaApp);
 	}
 }

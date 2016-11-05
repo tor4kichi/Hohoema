@@ -12,7 +12,7 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class FeedVideoInfoControlViewModel : VideoInfoControlViewModel
 	{
-		public FeedVideoInfoControlViewModel(FavFeedItem feedItem, IFeedGroup feedGroup, NicoVideo nicoVideo, PageManager pageMan)
+		public FeedVideoInfoControlViewModel(FeedItem feedItem, IFeedGroup feedGroup, NicoVideo nicoVideo, PageManager pageMan)
 			: base(nicoVideo, pageMan)
 		{
 			IsUnread = feedItem.ToReactivePropertyAsSynchronized(x => x.IsUnread)
@@ -22,11 +22,11 @@ namespace NicoPlayerHohoema.ViewModels
 			_FeedGroup = feedGroup;
 		}
 
-		FavFeedItem _FafFeedItem;
+		FeedItem _FafFeedItem;
 		IFeedGroup _FeedGroup;
 
 		public ReactiveProperty<bool> IsUnread { get; private set; }
-		public FavoriteItemType SourceType { get; private set; }
+		public FollowItemType SourceType { get; private set; }
 		public string SourceTitle { get; private set; }
 	}
 

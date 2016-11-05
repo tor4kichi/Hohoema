@@ -10,16 +10,16 @@ using System.Threading.Tasks;
 namespace NicoPlayerHohoema.Models
 {
 	[DataContract]
-	public class FavInfo
+	public class FollowItemInfo
 	{
-		public FavInfo()
+		public FollowItemInfo()
 		{
 		}
 
 
 
 		[DataMember(Name = "item_type")]
-		public FavoriteItemType FavoriteItemType { get; set; }
+		public FollowItemType FollowItemType { get; set; }
 
 
 		[DataMember(Name = "id")]

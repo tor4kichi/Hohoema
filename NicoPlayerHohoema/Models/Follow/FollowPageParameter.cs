@@ -6,25 +6,25 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Models
 {
-	public class FavoritePageParameter
+	public class FollowPageParameter
 	{
-		public FavoritePageParameter()
+		public FollowPageParameter()
 		{
 
 		}
 
 		public string Id { get; set; }
-		public FavoriteItemType ItemType { get; set; }
+		public FollowItemType ItemType { get; set; }
 
 
-		public static string ToJson(FavoritePageParameter parameter)
+		public static string ToJson(FollowPageParameter parameter)
 		{
 			return Newtonsoft.Json.JsonConvert.SerializeObject(parameter);
 		}
 
-		public static FavoritePageParameter FromJson(string json)
+		public static FollowPageParameter FromJson(string json)
 		{
-			return Newtonsoft.Json.JsonConvert.DeserializeObject<FavoritePageParameter>(json);
+			return Newtonsoft.Json.JsonConvert.DeserializeObject<FollowPageParameter>(json);
 		}
 
 		public string ToJson()

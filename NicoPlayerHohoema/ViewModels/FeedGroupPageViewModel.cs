@@ -33,13 +33,13 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> SelectFromFavItems { get; private set; }
 
 
-		public ReactiveProperty<FavInfo> SelectedFavInfo { get; private set; }
+		public ReactiveProperty<FollowItemInfo> SelectedFavInfo { get; private set; }
 
-		public ObservableCollection<FavInfo> MylistFavItems { get; private set; }
-		public ObservableCollection<FavInfo> TagFavItems { get; private set; }
-		public ObservableCollection<FavInfo> UserFavItems { get; private set; }
+		public ObservableCollection<FollowItemInfo> MylistFavItems { get; private set; }
+		public ObservableCollection<FollowItemInfo> TagFavItems { get; private set; }
+		public ObservableCollection<FollowItemInfo> UserFavItems { get; private set; }
 
-		public ReactiveProperty<FavoriteItemType> FavItemType { get; private set; }
+		public ReactiveProperty<FollowItemType> FavItemType { get; private set; }
 		public ReactiveProperty<string> FeedSourceId { get; private set; }
 		public ReactiveProperty<string> FeedSourceItemName { get; private set; }
 		public ReactiveProperty<bool> ExistFeedSource { get; private set; }
@@ -71,14 +71,14 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReadOnlyReactiveProperty();
 
 
-			MylistFavItems = new ObservableCollection<FavInfo>();
-			TagFavItems = new ObservableCollection<FavInfo>();
-			UserFavItems = new ObservableCollection<FavInfo>();
+			MylistFavItems = new ObservableCollection<FollowItemInfo>();
+			TagFavItems = new ObservableCollection<FollowItemInfo>();
+			UserFavItems = new ObservableCollection<FollowItemInfo>();
 
 			SelectFromFavItems = new ReactiveProperty<bool>(true);
-			SelectedFavInfo = new ReactiveProperty<FavInfo>();
+			SelectedFavInfo = new ReactiveProperty<FollowItemInfo>();
 
-			FavItemType = new ReactiveProperty<FavoriteItemType>();
+			FavItemType = new ReactiveProperty<FollowItemType>();
 			FeedSourceId = new ReactiveProperty<string>();
 			FeedSourceItemName = new ReactiveProperty<string>();
 			ExistFeedSource = new ReactiveProperty<bool>();
@@ -102,13 +102,13 @@ namespace NicoPlayerHohoema.ViewModels
 				// お気に入りアイテムがある場合は、「お気に入りから選択」をデフォルトに
 				switch (x)
 				{
-					case FavoriteItemType.Tag:
+					case FollowItemType.Tag:
 						SelectFromFavItems.Value = TagFavItems.Count > 0;
 						break;
-					case FavoriteItemType.Mylist:
+					case FollowItemType.Mylist:
 						SelectFromFavItems.Value = MylistFavItems.Count > 0;
 						break;
-					case FavoriteItemType.User:
+					case FollowItemType.User:
 						SelectFromFavItems.Value = UserFavItems.Count > 0;
 						break;
 					default:
@@ -145,7 +145,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 					ExistFeedSource.Value = false;
 
-					if (FavItemType.Value == FavoriteItemType.Tag)
+					if (FavItemType.Value == FollowItemType.Tag)
 					{
 						ExistFeedSource.Value = !string.IsNullOrWhiteSpace(FeedSourceId.Value);
 						IsPublicFeedSource.Value = true;
@@ -159,7 +159,7 @@ namespace NicoPlayerHohoema.ViewModels
 						}
 						else
 						{
-							if (FavItemType.Value == FavoriteItemType.Mylist)
+							if (FavItemType.Value == FollowItemType.Mylist)
 							{
 								try
 								{
@@ -179,7 +179,7 @@ namespace NicoPlayerHohoema.ViewModels
 								}
 
 							}
-							else if (FavItemType.Value == FavoriteItemType.User)
+							else if (FavItemType.Value == FollowItemType.User)
 							{
 								try
 								{
@@ -225,7 +225,7 @@ namespace NicoPlayerHohoema.ViewModels
 					name = favInfo.Name;
 					id = favInfo.Id;
 
-					if (favInfo.FavoriteItemType != FavItemType.Value)
+					if (favInfo.FollowItemType != FavItemType.Value)
 					{
 						throw new Exception();
 					}
@@ -241,17 +241,17 @@ namespace NicoPlayerHohoema.ViewModels
 					FeedSourceId.Value = "";
 				}
 
-				var favManager = HohoemaApp.FavManager;
+				var favManager = HohoemaApp.FollowManager;
 				var feedManager = HohoemaApp.FeedManager;
 				IFeedSource feedSource;
 				switch (FavItemType.Value)
 				{
-					case FavoriteItemType.Tag:
+					case FollowItemType.Tag:
 
 						feedSource = FeedGroup.AddTagFeedSource(id);
 						if (feedSource != null)
 						{
-							var favInfo = favManager.Tag.FavInfoItems.SingleOrDefault(x => x.Id == id);
+							var favInfo = favManager.Tag.FollowInfoItems.SingleOrDefault(x => x.Id == id);
 							if (favInfo != null)
 							{
 								TagFavItems.Remove(favInfo);
@@ -263,12 +263,12 @@ namespace NicoPlayerHohoema.ViewModels
 						}
 
 						break;
-					case FavoriteItemType.Mylist:
+					case FollowItemType.Mylist:
 
 						feedSource = FeedGroup.AddMylistFeedSource(name, id);
 						if (feedSource != null)
 						{
-							var favInfo = favManager.Mylist.FavInfoItems.SingleOrDefault(x => x.Id == id);
+							var favInfo = favManager.Mylist.FollowInfoItems.SingleOrDefault(x => x.Id == id);
 							if (favInfo != null)
 							{
 								MylistFavItems.Remove(favInfo);
@@ -278,12 +278,12 @@ namespace NicoPlayerHohoema.ViewModels
 						}
 
 						break;
-					case FavoriteItemType.User:
+					case FollowItemType.User:
 
 						feedSource = FeedGroup.AddUserFeedSource(name, id);
 						if (feedSource != null)
 						{
-							var favInfo = favManager.User.FavInfoItems.SingleOrDefault(x => x.Id == id);
+							var favInfo = favManager.User.FollowInfoItems.SingleOrDefault(x => x.Id == id);
 							if (favInfo != null)
 							{
 								UserFavItems.Remove(favInfo);
@@ -348,37 +348,37 @@ namespace NicoPlayerHohoema.ViewModels
 				FeedGroupName.Value = FeedGroup.Label;
 
 				MylistFeedSources.Clear();
-				foreach (var mylistFeedSrouce in FeedGroup.FeedSourceList.Where(x => x.FavoriteItemType == FavoriteItemType.Mylist))
+				foreach (var mylistFeedSrouce in FeedGroup.FeedSourceList.Where(x => x.FollowItemType == FollowItemType.Mylist))
 				{
 					MylistFeedSources.Add(new FeedItemSourceListItem(mylistFeedSrouce, this));
 				}
 
 				MylistFavItems.Clear();
-				foreach (var mylistFavInfo in HohoemaApp.FavManager.Mylist.FavInfoItems.Where(x => MylistFeedSources.All(y => x.Id != y.FeedSource.Id)))
+				foreach (var mylistFavInfo in HohoemaApp.FollowManager.Mylist.FollowInfoItems.Where(x => MylistFeedSources.All(y => x.Id != y.FeedSource.Id)))
 				{
 					MylistFavItems.Add(mylistFavInfo);
 				}
 
 				TagFeedSources.Clear();
-				foreach (var tagFeedSrouce in FeedGroup.FeedSourceList.Where(x => x.FavoriteItemType == FavoriteItemType.Tag))
+				foreach (var tagFeedSrouce in FeedGroup.FeedSourceList.Where(x => x.FollowItemType == FollowItemType.Tag))
 				{
 					TagFeedSources.Add(new FeedItemSourceListItem(tagFeedSrouce, this));
 				}
 
 				TagFavItems.Clear();
-				foreach (var tagFavInfo in HohoemaApp.FavManager.Tag.FavInfoItems.Where(x => TagFeedSources.All(y => x.Id != y.FeedSource.Id)))
+				foreach (var tagFavInfo in HohoemaApp.FollowManager.Tag.FollowInfoItems.Where(x => TagFeedSources.All(y => x.Id != y.FeedSource.Id)))
 				{
 					TagFavItems.Add(tagFavInfo);
 				}
 
 				UserFeedSources.Clear();
-				foreach (var userFeedSrouce in FeedGroup.FeedSourceList.Where(x => x.FavoriteItemType == FavoriteItemType.User))
+				foreach (var userFeedSrouce in FeedGroup.FeedSourceList.Where(x => x.FollowItemType == FollowItemType.User))
 				{
 					UserFeedSources.Add(new FeedItemSourceListItem(userFeedSrouce, this));
 				}
 
 				UserFavItems.Clear();
-				foreach (var userFavInfo in HohoemaApp.FavManager.User.FavInfoItems.Where(x => UserFeedSources.All(y => x.Id != y.FeedSource.Id)))
+				foreach (var userFavInfo in HohoemaApp.FollowManager.User.FollowInfoItems.Where(x => UserFeedSources.All(y => x.Id != y.FeedSource.Id)))
 				{
 					UserFavItems.Add(userFavInfo);
 				}
@@ -435,32 +435,32 @@ namespace NicoPlayerHohoema.ViewModels
 			var feedSource = feedSourceListItem.FeedSource;
 			FeedGroup.RemoveUserFeedSource(feedSource);
 
-			switch (feedSource.FavoriteItemType)
+			switch (feedSource.FollowItemType)
 			{
-				case FavoriteItemType.Tag:
+				case FollowItemType.Tag:
 					if (TagFeedSources.Remove(feedSourceListItem))
 					{
-						var favInfo = HohoemaApp.FavManager.Tag.FavInfoItems.SingleOrDefault(x => x.Id == feedSource.Id);
+						var favInfo = HohoemaApp.FollowManager.Tag.FollowInfoItems.SingleOrDefault(x => x.Id == feedSource.Id);
 						if (favInfo != null)
 						{
 							TagFavItems.Add(favInfo);
 						}
 					}
 					break;
-				case FavoriteItemType.Mylist:
+				case FollowItemType.Mylist:
 					if (MylistFeedSources.Remove(feedSourceListItem))
 					{
-						var favInfo = HohoemaApp.FavManager.Mylist.FavInfoItems.SingleOrDefault(x => x.Id == feedSource.Id);
+						var favInfo = HohoemaApp.FollowManager.Mylist.FollowInfoItems.SingleOrDefault(x => x.Id == feedSource.Id);
 						if (favInfo != null)
 						{
 							MylistFavItems.Add(favInfo);
 						}
 					}
 					break;
-				case FavoriteItemType.User:
+				case FollowItemType.User:
 					if (UserFeedSources.Remove(feedSourceListItem))
 					{
-						var favInfo = HohoemaApp.FavManager.User.FavInfoItems.SingleOrDefault(x => x.Id == feedSource.Id);
+						var favInfo = HohoemaApp.FollowManager.User.FollowInfoItems.SingleOrDefault(x => x.Id == feedSource.Id);
 						if (favInfo != null)
 						{
 							UserFavItems.Add(favInfo);
@@ -487,7 +487,7 @@ namespace NicoPlayerHohoema.ViewModels
 						{
 							DialogTitle = "タグからフィード元を選択",
 							ChoiceListTitle = "お気に入りタグから選ぶ",
-							ChoiceList = HohoemaApp.FavManager.Tag.FavInfoItems.Select(x =>
+							ChoiceList = HohoemaApp.FollowManager.Tag.FollowInfoItems.Select(x =>
 								new Views.Service.SelectDialogPayload()
 								{
 									Label = x.Name,
@@ -528,7 +528,7 @@ namespace NicoPlayerHohoema.ViewModels
 						{
 							DialogTitle = "マイリストのフィード元を選択",
 							ChoiceListTitle = "お気に入りマイリストから選ぶ",
-							ChoiceList = HohoemaApp.FavManager.Mylist.FavInfoItems.Select(x =>
+							ChoiceList = HohoemaApp.FollowManager.Mylist.FollowInfoItems.Select(x =>
 								new Views.Service.SelectDialogPayload()
 								{
 									Label = x.Name,
@@ -616,7 +616,7 @@ namespace NicoPlayerHohoema.ViewModels
 						{
 							DialogTitle = "ユーザー投稿動画のフィード元を選択",
 							ChoiceListTitle = "お気に入りユーザーから選ぶ",
-							ChoiceList = HohoemaApp.FavManager.User.FavInfoItems.Select(x =>
+							ChoiceList = HohoemaApp.FollowManager.User.FollowInfoItems.Select(x =>
 								new Views.Service.SelectDialogPayload()
 								{
 									Label = x.Name,

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace NicoPlayerHohoema.Models
 {
 	[DataContract]
-	public class FavFeedItem : BindableBase, IEquatable<FavFeedItem>, IComparable<FavFeedItem>
+	public class FeedItem : BindableBase, IEquatable<FeedItem>, IComparable<FeedItem>
 	{
 
 		string _VideoId;
@@ -74,12 +74,12 @@ namespace NicoPlayerHohoema.Models
 
 
 
-		public bool Equals(FavFeedItem other)
+		public bool Equals(FeedItem other)
 		{
 			return VideoId == other.VideoId;
 		}
 
-		public int CompareTo(FavFeedItem other)
+		public int CompareTo(FeedItem other)
 		{
 			return (int)(this.SubmitDate.Ticks - other.SubmitDate.Ticks);
 		}

@@ -21,31 +21,31 @@ namespace NicoPlayerHohoema.Views
 	/// <summary>
 	/// それ自体で使用できる空白ページまたはフレーム内に移動できる空白ページ。
 	/// </summary>
-	public sealed partial class FavoriteManagePage : Page
+	public sealed partial class FollowManagePage : Page
 	{
-		public FavoriteManagePage()
+		public FollowManagePage()
 		{
 			this.InitializeComponent();
 		}
 	}
 
-	public class FavTypeToSymbolIconConverter : IValueConverter
+	public class FollowTypeToSymbolIconConverter : IValueConverter
 	{
 		public object Convert(object value, Type targetType, object parameter, string language)
 		{
-			if (value is FavoriteItemType)
+			if (value is FollowItemType)
 			{
-				var type = (FavoriteItemType)value;
+				var type = (FollowItemType)value;
 
 				switch (type)
 				{
-					case FavoriteItemType.Tag:
+					case FollowItemType.Tag:
 						return Symbol.Tag;
-					case FavoriteItemType.Mylist:
+					case FollowItemType.Mylist:
 						return Symbol.List;
-					case FavoriteItemType.User:
+					case FollowItemType.User:
 						return Symbol.Contact;
-					case FavoriteItemType.Community:
+					case FollowItemType.Community:
 						return Symbol.People;
 					default:
 						throw new NotSupportedException();

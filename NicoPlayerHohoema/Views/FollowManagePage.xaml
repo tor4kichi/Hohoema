@@ -1,5 +1,5 @@
 ﻿<Page
-    x:Class="NicoPlayerHohoema.Views.FavoriteManagePage"
+    x:Class="NicoPlayerHohoema.Views.FollowManagePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:NicoPlayerHohoema.Views"
@@ -24,7 +24,7 @@
         </DataTemplate>
 
 
-        <local:FavTypeToSymbolIconConverter x:Key="FavTypeToSymbol" />
+        <local:FollowTypeToSymbolIconConverter x:Key="FavTypeToSymbol" />
     </Page.Resources>
     <Grid>
 

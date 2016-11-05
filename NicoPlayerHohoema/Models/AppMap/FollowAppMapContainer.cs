@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Models.AppMap
 {
-	public class FavAppMapContainer : SelectableAppMapContainerBase
+	public class FollowAppMapContainer : SelectableAppMapContainerBase
 	{
 
-		public FavManager FavManager { get; private set; }
+		public FollowManager FollowManager { get; private set; }
 
-		public FavAppMapContainer(FavManager favManager)
-			: base(HohoemaPageType.FavoriteManage, label:"お気に入り")
+		public FollowAppMapContainer(FollowManager FollowManager)
+			: base(HohoemaPageType.FollowManage, label:"フォロー")
 		{
-			FavManager = favManager;
+			this.FollowManager = FollowManager;
 		}
 
 
@@ -28,9 +28,9 @@ namespace NicoPlayerHohoema.Models.AppMap
 
 			List<IAppMapItem> items = new List<IAppMapItem>();
 
-			var userFavItems = FavManager.User.FavInfoItems;
-			var mylistFavItems = FavManager.Mylist.FavInfoItems;
-			var tagFavItems = FavManager.Tag.FavInfoItems;
+			var userFavItems = FollowManager.User.FollowInfoItems;
+			var mylistFavItems = FollowManager.Mylist.FollowInfoItems;
+			var tagFavItems = FollowManager.Tag.FollowInfoItems;
 
 			var allFavItems = userFavItems
 				.Union(mylistFavItems)
@@ -38,7 +38,7 @@ namespace NicoPlayerHohoema.Models.AppMap
 
 			foreach (var fav in allFavItems)
 			{
-				var favAppMapItem = new FavAppMapItem(fav);
+				var favAppMapItem = new FollowAppMapItem(fav);
 				items.Add(favAppMapItem);
 			}
 
@@ -46,7 +46,7 @@ namespace NicoPlayerHohoema.Models.AppMap
 		}
 	}
 
-	public class FavAppMapItem : IAppMapItem
+	public class FollowAppMapItem : IAppMapItem
 	{
 		public string PrimaryLabel { get; private set; }
 		public string SecondaryLabel { get; private set; }
@@ -54,32 +54,32 @@ namespace NicoPlayerHohoema.Models.AppMap
 		public HohoemaPageType PageType { get; private set; }
 		public string Parameter { get; private set; }
 
-		public FavoriteItemType FavType { get; private set; }
+		public FollowItemType FollowItemType { get; private set; }
 
-		public FavAppMapItem(FavInfo favInfo)
+		public FollowAppMapItem(FollowItemInfo followInfo)
 		{
-			PrimaryLabel = favInfo.Name;
-			SecondaryLabel = favInfo.FavoriteItemType.ToString();
-			FavType = favInfo.FavoriteItemType;
-			switch (FavType)
+			PrimaryLabel = followInfo.Name;
+			SecondaryLabel = followInfo.FollowItemType.ToString();
+			FollowItemType = followInfo.FollowItemType;
+			switch (FollowItemType)
 			{
-				case FavoriteItemType.Tag:
+				case FollowItemType.Tag:
 					PageType = HohoemaPageType.Search;
 					Parameter = new SearchPagePayload(new TagSearchPagePayloadContent()
 					{
-						Keyword = favInfo.Id,
+						Keyword = followInfo.Id,
 						Sort = Mntone.Nico2.Sort.FirstRetrieve,
 						Order = Mntone.Nico2.Order.Descending
 					})
 					.ToParameterString();
 					break;
-				case FavoriteItemType.Mylist:
+				case FollowItemType.Mylist:
 					PageType = HohoemaPageType.Mylist;
-					Parameter = favInfo.Id;
+					Parameter = followInfo.Id;
 					break;
-				case FavoriteItemType.User:
+				case FollowItemType.User:
 					PageType = HohoemaPageType.UserVideo;
-					Parameter = favInfo.Id;
+					Parameter = followInfo.Id;
 					break;
 				default:
 					throw new Exception();

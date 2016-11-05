@@ -36,7 +36,7 @@ namespace NicoPlayerHohoema.Models.AppMap
 				case HohoemaPageType.Mylist:
 					
 					break;
-				case HohoemaPageType.FavoriteManage:
+				case HohoemaPageType.FollowManage:
 					color = Util.ColorExtention.HexStringToColor("#f7edd3");
 					break;
 				case HohoemaPageType.History:

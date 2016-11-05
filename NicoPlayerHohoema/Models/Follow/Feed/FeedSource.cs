@@ -23,9 +23,9 @@ namespace NicoPlayerHohoema.Models
 		[DataMember(Name = "name")]
 		public string Name { get; set; }
 
-		public abstract FavoriteItemType FavoriteItemType { get; }
+		public abstract FollowItemType FollowItemType { get; }
 
-		public abstract Task<IEnumerable<FavFeedItem>> GetLatestItems(HohoemaApp hohoemaApp);
+		public abstract Task<IEnumerable<FeedItem>> GetLatestItems(HohoemaApp hohoemaApp);
 
 	}
 }

@@ -124,7 +124,7 @@
     <Compile Include="Models\AppMap\AppMapItem.cs" />
     <Compile Include="Models\AppMap\AppMapContainerBase.cs" />
     <Compile Include="Models\AppMap\CachedVideoAppMapContainer.cs" />
-    <Compile Include="Models\AppMap\FavAppMapContainer.cs" />
+    <Compile Include="Models\AppMap\FollowAppMapContainer.cs" />
     <Compile Include="Models\AppMap\FeedGroupAppMapContainer.cs" />
     <Compile Include="Models\AppMap\UserMylistAppMapContainer.cs" />
     <Compile Include="Models\AppMap\RankingCategoriesAppMapContainer.cs" />
@@ -138,28 +138,28 @@
     <Compile Include="Models\Db\NicoVideo\CommentDb.cs" />
     <Compile Include="Models\Db\NicoVideo\VideoInfoDb.cs" />
     <Compile Include="Models\Db\NicoVideo\UserInfoDb.cs" />
-    <Compile Include="Models\Fav\FavFeed\FeedGroup.cs" />
-    <Compile Include="Models\Fav\FavFeed\FeedItem.cs" />
-    <Compile Include="Models\Fav\FavFeed\FeedItemComparer.cs" />
-    <Compile Include="Models\Fav\FavFeed\FeedManager.cs" />
-    <Compile Include="Models\Fav\FavFeed\FeedSource.cs" />
-    <Compile Include="Models\Fav\FavFeed\IFeedGroup.cs" />
-    <Compile Include="Models\Fav\FavFeed\IFeedSource.cs" />
-    <Compile Include="Models\Fav\FavFeed\TagFeedSource.cs" />
-    <Compile Include="Models\Fav\FavFeed\UserFeedSource.cs" />
-    <Compile Include="Models\Fav\FavInfo.cs" />
-    <Compile Include="Models\Fav\FavFeed\MylistFeedSource.cs" />
-    <Compile Include="Models\Fav\FavInfoGroup\CommunityFavInfoGroup.cs" />
-    <Compile Include="Models\Fav\FavInfoGroup\FavInfoGroupBase.cs" />
-    <Compile Include="Models\Fav\FavInfoGroup\FavInfoGroupWithFavData.cs" />
-    <Compile Include="Models\Fav\FavInfoGroup\MylistFavInfoGroup.cs" />
-    <Compile Include="Models\Fav\FavInfoGroup\TagFavInfoGroup.cs" />
-    <Compile Include="Models\Fav\FavInfoGroup\FavInfoGroupBaseTemplate.cs" />
-    <Compile Include="Models\Fav\FavInfoGroup\UserFavInfoGroup.cs" />
-    <Compile Include="Models\Fav\FavManager.cs" />
-    <Compile Include="Models\Fav\FavoriteItemType.cs" />
-    <Compile Include="Models\Fav\FavoritePageParameter.cs" />
-    <Compile Include="Models\Fav\IFavInfoGroup.cs" />
+    <Compile Include="Models\Follow\Feed\FeedGroup.cs" />
+    <Compile Include="Models\Follow\Feed\FeedItem.cs" />
+    <Compile Include="Models\Follow\Feed\FeedItemComparer.cs" />
+    <Compile Include="Models\Follow\Feed\FeedManager.cs" />
+    <Compile Include="Models\Follow\Feed\FeedSource.cs" />
+    <Compile Include="Models\Follow\Feed\IFeedGroup.cs" />
+    <Compile Include="Models\Follow\Feed\IFeedSource.cs" />
+    <Compile Include="Models\Follow\Feed\TagFeedSource.cs" />
+    <Compile Include="Models\Follow\Feed\UserFeedSource.cs" />
+    <Compile Include="Models\Follow\FollowItemInfo.cs" />
+    <Compile Include="Models\Follow\Feed\MylistFeedSource.cs" />
+    <Compile Include="Models\Follow\FollowInfoGroup\CommunityFollowInfoGroup.cs" />
+    <Compile Include="Models\Follow\FollowInfoGroup\FollowInfoGroupBase.cs" />
+    <Compile Include="Models\Follow\FollowInfoGroup\FollowInfoGroupWithFavData.cs" />
+    <Compile Include="Models\Follow\FollowInfoGroup\MylistFollowInfoGroup.cs" />
+    <Compile Include="Models\Follow\FollowInfoGroup\TagFollowInfoGroup.cs" />
+    <Compile Include="Models\Follow\FollowInfoGroup\FollowInfoGroupBaseTemplate.cs" />
+    <Compile Include="Models\Follow\FollowInfoGroup\UserFollowInfoGroup.cs" />
+    <Compile Include="Models\Follow\FollowManager.cs" />
+    <Compile Include="Models\Follow\FollowItemType.cs" />
+    <Compile Include="Models\Follow\FollowPageParameter.cs" />
+    <Compile Include="Models\Follow\IFollowInfoGroup.cs" />
     <Compile Include="Models\HohoemaApp.cs" />
     <Compile Include="Models\HohoemaPageType.cs" />
     <Compile Include="Models\LisenceSummary.cs" />
@@ -224,7 +224,7 @@
     <Compile Include="ViewModels\ConfirmWatchHurmfulVideoPageViewModel.cs" />
     <Compile Include="ViewModels\FeedbackPageViewModel.cs" />
     <Compile Include="ViewModels\FeedVideoListPageViewModel.cs" />
-    <Compile Include="ViewModels\FavoriteManagePageViewModel.cs" />
+    <Compile Include="ViewModels\FollowManagePageViewModel.cs" />
     <Compile Include="ViewModels\FeedVideoInfoControlViewModel.cs" />
     <Compile Include="ViewModels\FeedGroupManagePageViewModel.cs" />
     <Compile Include="ViewModels\FeedGroupPageViewModel.cs" />
@@ -350,8 +350,8 @@
     <Compile Include="Views\FeedVideoListPage.xaml.cs">
       <DependentUpon>FeedVideoListPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\FavoriteManagePage.xaml.cs">
-      <DependentUpon>FavoriteManagePage.xaml</DependentUpon>
+    <Compile Include="Views\FollowManagePage.xaml.cs">
+      <DependentUpon>FollowManagePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\FeedGroupManagePage.xaml.cs">
       <DependentUpon>FeedGroupManagePage.xaml</DependentUpon>
@@ -690,7 +690,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\FavoriteManagePage.xaml">
+    <Page Include="Views\FollowManagePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

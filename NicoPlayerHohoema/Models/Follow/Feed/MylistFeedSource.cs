@@ -17,16 +17,16 @@ namespace NicoPlayerHohoema.Models
 
 		}
 
-		public override FavoriteItemType FavoriteItemType => FavoriteItemType.Mylist;
+		public override FollowItemType FollowItemType => FollowItemType.Mylist;
 
-		public override async Task<IEnumerable<FavFeedItem>> GetLatestItems(HohoemaApp hohoemaApp)
+		public override async Task<IEnumerable<FeedItem>> GetLatestItems(HohoemaApp hohoemaApp)
 		{
 			var items = await hohoemaApp.ContentFinder.GetMylistGroupVideo(this.Id, 0, 32);
 
 			if (items?.MylistVideoInfoItems != null)
 			{
 				return items.MylistVideoInfoItems.Select(x =>
-					new FavFeedItem()
+					new FeedItem()
 					{
 						Title = x.Video.Title,
 						VideoId = x.Video.Id,
@@ -38,7 +38,7 @@ namespace NicoPlayerHohoema.Models
 			}
 			else
 			{
-				return new List<FavFeedItem>();
+				return new List<FeedItem>();
 			}
 		}
 
