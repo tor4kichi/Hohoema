@@ -155,7 +155,7 @@ namespace NicoPlayerHohoema.Models
 				case HohoemaPageType.Mylist:
 					return "マイリスト";
 				case HohoemaPageType.FavoriteManage:
-					return "お気に入り管理";
+					return "フォロー";
 				case HohoemaPageType.History:
 					return "視聴履歴";
 				case HohoemaPageType.Search:
