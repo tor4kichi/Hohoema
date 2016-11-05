@@ -16,7 +16,7 @@ using System.Windows.Input;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class CommunityVideoPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
+	public class CommunityVideoPageViewModel : HohoemaListingPageViewModelBase<CommunityVideoInfoControlViewModel>
 	{
 		public string CommunityId { get; private set; }
 
@@ -35,7 +35,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		public CommunityVideoPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
-			: base(hohoemaApp, pageManager, mylistDialogService, isRequireSignIn: true)
+			: base(hohoemaApp, pageManager, isRequireSignIn: true)
 		{
 		}
 
@@ -87,7 +87,7 @@ namespace NicoPlayerHohoema.ViewModels
 			await base.ListPageNavigatedToAsync(cancelToken, e, viewModelState);
 		}
 
-		protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
+		protected override IIncrementalSource<CommunityVideoInfoControlViewModel> GenerateIncrementalSource()
 		{
 			if (false == IsValidCommunity)
 			{
@@ -115,9 +115,9 @@ namespace NicoPlayerHohoema.ViewModels
 	}
 
 
-	public class CommunityVideoIncrementalSource : HohoemaVideoPreloadingIncrementalSourceBase<VideoInfoControlViewModel>
+	public class CommunityVideoIncrementalSource : HohoemaIncrementalSourceBase<CommunityVideoInfoControlViewModel>
 	{
-
+		HohoemaApp HohoemaApp;
 		PageManager _PageManager;
 
 		public string CommunityId { get; private set; }
@@ -126,8 +126,9 @@ namespace NicoPlayerHohoema.ViewModels
 		public List<NiconicoVideoRssItem> Items { get; private set; } = new List<NiconicoVideoRssItem>();
 
 		public CommunityVideoIncrementalSource(string communityId, int videoCount, HohoemaApp hohoemaApp, PageManager pageManager)
-			: base(hohoemaApp, "CommunityVideo")
+			: base()
 		{
+			HohoemaApp = hohoemaApp;
 			_PageManager = pageManager;
 			CommunityId = communityId;
 			VideoCount = videoCount;
@@ -138,15 +139,15 @@ namespace NicoPlayerHohoema.ViewModels
 
 		#region Implements HohoemaPreloadingIncrementalSourceBase		
 
-		public override uint OneTimeLoadCount => 10; // RSSの一回のページアイテム数が18個なので、表示スピード考えてその半分
+		public override uint OneTimeLoadCount => 20; // RSSの一回のページアイテム数が18個なので、表示スピード考えてその半分
 
-		protected override Task<int> HohoemaPreloadingResetSourceImpl()
+		protected override Task<int> ResetSourceImpl()
 		{
 			Items = new List<NiconicoVideoRssItem>();
 			return Task.FromResult(VideoCount);
 		}
 
-		protected override async Task<IEnumerable<NicoVideo>> PreloadNicoVideo(int start, int count)
+		protected override async Task<IEnumerable<CommunityVideoInfoControlViewModel>> GetPagedItemsImpl(int start, int count)
 		{
 			if (count >= VideoCount)
 			{
@@ -174,24 +175,13 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 
 
-			List<NicoVideo> videos = new List<NicoVideo>();
+			var videos = new List<CommunityVideoInfoControlViewModel>();
 			foreach (var item in Items.Skip(start).Take(count))
 			{
-				var videoId = item.GetVideoId();
-				var nicoVideo = await ToNicoVideo(videoId);
-
-				nicoVideo.PreSetTitle(item.Title);
-//				nicoVideo.PreSetPostAt(DateTime.Parse(item.PubDate));
-
-				videos.Add(nicoVideo);
+				videos.Add(new CommunityVideoInfoControlViewModel(item, _PageManager));
 			}
 
 			return videos.AsEnumerable();
-		}
-
-		protected override VideoInfoControlViewModel NicoVideoToTemplatedItem(NicoVideo sourceNicoVideo, int index)
-		{
-			return new CommunityVideoInfoControlViewModel(sourceNicoVideo, _PageManager);
 		}
 
 
@@ -199,14 +189,45 @@ namespace NicoPlayerHohoema.ViewModels
 	}
 
 
-	public class CommunityVideoInfoControlViewModel : VideoInfoControlViewModel
+	public class CommunityVideoInfoControlViewModel : HohoemaListingPageItemBase
 	{
-		public CommunityVideoInfoControlViewModel(NicoVideo nicoVideo, PageManager pageManager)
-			: base(nicoVideo, pageManager)
+		public PageManager PageManager { get; private set; }
+		public NiconicoVideoRssItem RssItem { get; private set; }
+
+
+		public string Title => RssItem.Title;
+		public string VideoId => RssItem.GetVideoId();
+
+		public CommunityVideoInfoControlViewModel(NiconicoVideoRssItem rssItem, PageManager pageManager)
+			: base()
+		{
+			PageManager = pageManager;
+			RssItem = rssItem;
+		}
+
+		private DelegateCommand _SelectedCommand;
+		public override ICommand SelectedCommand
+		{
+			get
+			{
+				return _SelectedCommand
+					?? (_SelectedCommand = new DelegateCommand(() => 
+					{
+						var payload = new Models.VideoPlayPayload()
+						{
+							VideoId = this.VideoId
+						};
+
+						PageManager.OpenPage(HohoemaPageType.VideoPlayer, payload.ToParameterString());
+					}));
+			}
+		}
+
+		public override void Dispose()
 		{
 			
 		}
-		
-		// TODO: コミュ限動画等の表示
 	}
+
+	
 }
