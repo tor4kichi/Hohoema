@@ -21,7 +21,7 @@
 
         
         
-        <StackPanel Margin="16" MaxWidth="960">
+        <StackPanel Margin="16 0 16 16" MaxWidth="960">
 
 
             <HyperlinkButton NavigateUri="{Binding TopUrl}" 

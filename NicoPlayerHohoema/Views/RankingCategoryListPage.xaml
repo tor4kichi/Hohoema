@@ -49,7 +49,7 @@
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Horizontal"
-                                        Margin="8 8 8 0"
+                                        Margin="8 0 8 0"
                                     VerticalAlignment="Stretch"
                                                            
                                         />
