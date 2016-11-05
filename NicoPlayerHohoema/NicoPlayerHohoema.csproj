@@ -220,6 +220,7 @@
     <Compile Include="ViewModels\CommentCommandEditerViewModel.cs" />
     <Compile Include="ViewModels\CommentStreamingViewModel.cs" />
     <Compile Include="ViewModels\CommunityPageViewModel.cs" />
+    <Compile Include="ViewModels\CommunityVideoPageViewModel.cs" />
     <Compile Include="ViewModels\ConfirmWatchHurmfulVideoPageViewModel.cs" />
     <Compile Include="ViewModels\FeedbackPageViewModel.cs" />
     <Compile Include="ViewModels\FeedVideoListPageViewModel.cs" />
@@ -291,6 +292,9 @@
     </Compile>
     <Compile Include="Views\CommunityPage.xaml.cs">
       <DependentUpon>CommunityPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CommunityVideoPage.xaml.cs">
+      <DependentUpon>CommunityVideoPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ConfirmWatchHurmfulVideoPage.xaml.cs">
       <DependentUpon>ConfirmWatchHurmfulVideoPage.xaml</DependentUpon>
@@ -608,6 +612,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\CommunityPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\CommunityVideoPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

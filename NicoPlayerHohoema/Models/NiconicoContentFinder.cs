@@ -354,6 +354,17 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
+		public Task<NiconicoVideoRss> GetCommunityVideo(
+			string communityId,
+			uint page
+			)
+		{
+			return ConnectionRetryUtil.TaskWithRetry(async () =>
+			{
+				return await _HohoemaApp.NiconicoContext.Community.GetCommunityVideoAsync(communityId, page);
+			});
+		}
+
 		HohoemaApp _HohoemaApp;
 	}
 }

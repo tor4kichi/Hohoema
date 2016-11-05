@@ -262,11 +262,12 @@
             <StackPanel>
 
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="コミュニティ動画" />
+                    <TextBlock Text="コミュニティ動画" VerticalAlignment="Center" />
 
                     <HyperlinkButton Content="一覧" 
                                      Command="{Binding OpenCommunityVideoListPageCommand}"
                                      Margin="16 0 0 0"
+                                     VerticalAlignment="Center"
                                      />
 
                 </StackPanel>
@@ -276,10 +277,11 @@
                 <ItemsControl ItemsSource="{Binding CommunityVideoSamples}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel>
+                            <StackPanel Margin="0 0 0 8">
                                 <Button Content="{Binding Title}"
-                                                 Command="{Binding OpenVideoPageCommand}"
+                                        Command="{Binding OpenVideoPageCommand}"
                                         HorizontalAlignment="Stretch"
+                                        Height="32"
                                                  />
                             </StackPanel>
                         </DataTemplate>
