@@ -1,4 +1,5 @@
 ﻿<Page
+    x:Name="PageRoot"
     x:Class="NicoPlayerHohoema.Views.LiveVideoPlayerPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -204,6 +205,8 @@
 
         <toolkit:LayoutTransformControl
                 x:Name="LayoutTransform"
+                MaxHeight="{Binding ElementName=PageRoot, Path=ActualHeight}"
+                MaxWidth="{Binding ElementName=PageRoot, Path=ActualWidth}"
                 >
             <toolkit:LayoutTransformControl.Transform>
                 <RotateTransform x:Name="LayoutRotateTranform" Angle="0" />
