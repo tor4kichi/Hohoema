@@ -13,9 +13,9 @@
     <ScrollViewer 
         HorizontalAlignment="Stretch"
         >
-        <ItemsControl Margin="8" MinWidth="400" HorizontalAlignment="Left">
+        <ItemsControl Margin="16 8 8 8" MinWidth="400" HorizontalAlignment="Left">
 
-            <StackPanel Orientation="Horizontal" Margin="8 8 0 8">
+            <StackPanel Orientation="Horizontal" Margin="0 8">
                 <TextBlock Text="動画プレイヤーの設定"
                              FontSize="18"
                              VerticalAlignment="Center"
@@ -29,7 +29,7 @@
                 
 
                 
-                <toolkit:DockPanel Margin="8">
+                <toolkit:DockPanel Margin="0 8">
 
                     <TextBlock Text="低画質モードをデフォルトに設定する"
                                toolkit:DockPanel.Dock="Left"
@@ -43,7 +43,7 @@
 
                 </toolkit:DockPanel>
 
-                <toolkit:DockPanel Margin="8">
+                <toolkit:DockPanel Margin="0 8">
 
                     <TextBlock Text="全画面表示をデフォルトに設定する"
                                toolkit:DockPanel.Dock="Left"
@@ -57,7 +57,7 @@
 
                 </toolkit:DockPanel>
 
-                <toolkit:DockPanel Margin="8">
+                <toolkit:DockPanel Margin="0 8">
 
                     <TextBlock Text="再生中は画面を点灯したままにする"
                         toolkit:DockPanel.Dock="Left"
@@ -75,7 +75,7 @@
                 
 
 
-                <toolkit:DockPanel Margin="8">
+                <toolkit:DockPanel Margin="0 8">
 
                     <TextBlock Text="UIが非表示になるまでの時間（秒）"
                         toolkit:DockPanel.Dock="Left"
@@ -96,29 +96,37 @@
                 
             </StackPanel>
 
+            <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                    BorderThickness="0 1 0 0" 
+                    Margin="0 8"
+                    />
 
-            <StackPanel x:Name="DesktopPlayerSettingsLayout">
-
-
-                <StackPanel Orientation="Horizontal" Margin="8 8 0 8">
-                    <TextBlock Text="マウス操作のプレイヤー設定"
+            <StackPanel Orientation="Horizontal" Margin="0 8">
+                <TextBlock Text="マウス操作時のプレイヤー設定"
                              FontSize="18"
                              VerticalAlignment="Center"
                            FontWeight="SemiBold"
                            />
 
-                </StackPanel>
+            </StackPanel>
+
+            <StackPanel x:Name="DesktopPlayerSettingsLayout"
+                        Margin="8 0 0 0"
+                        >
+
+
                 
-                <toolkit:DockPanel Margin="8">
+                
+                <toolkit:DockPanel Margin="0 8">
 
                     <TextBlock Text="※音量は 0.0 ～ 1.0 の間に設定されます"
-                        toolkit:DockPanel.Dock="Bottom"
-                        VerticalAlignment="Center"
-                        FontSize="12"
-                        Foreground="Gray"
-                        />
+                                toolkit:DockPanel.Dock="Bottom"
+                                VerticalAlignment="Center"
+                                FontSize="12"
+                                Foreground="Gray"
+                                />
 
-                    <TextBlock Text="マウススクロール時の音量変更量"
+                    <TextBlock Text="マウススクロールの音量変更量"
                         toolkit:DockPanel.Dock="Left"
                         VerticalAlignment="Center"
                         />
@@ -136,18 +144,26 @@
 
             </StackPanel>
 
-            <StackPanel x:Name="MobilePlayerSettingsLayout">
+            
+            <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                    BorderThickness="0 1 0 0" 
+                    Margin="0 8"
+                    />
 
-                <StackPanel Orientation="Horizontal" Margin="8 8 0 8">
-                    <TextBlock Text="タッチ操作のプレイヤー設定"
+            <StackPanel Orientation="Horizontal" Margin="0 8">
+                <TextBlock Text="タッチ操作時のプレイヤー設定"
                              FontSize="18"
                              VerticalAlignment="Center"
                            FontWeight="SemiBold"
                            />
 
-                </StackPanel>
-                
-                <toolkit:DockPanel Margin="8">
+            </StackPanel>
+
+            <StackPanel x:Name="MobilePlayerSettingsLayout"
+                        Margin="8 0 0 0"
+                        >
+
+                <toolkit:DockPanel Margin="0 8">
 
                     <TextBlock Text="横持ち表示をデフォルトにする"
                                toolkit:DockPanel.Dock="Left"
