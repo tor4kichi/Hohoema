@@ -1467,7 +1467,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			ExitKeepDisplay();
 
-			if (HohoemaApp.UserSettings.PlayerSettings.IsKeepDisplayInPlayback)
+//			if (HohoemaApp.UserSettings.PlayerSettings.IsKeepDisplayInPlayback)
 			{
 				DisplayRequestHelper.RequestKeepDisplay();
 			}
