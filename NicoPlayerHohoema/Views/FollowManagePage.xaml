@@ -1,0 +1,104 @@
+﻿<Page
+    x:Class="NicoPlayerHohoema.Views.FollowManagePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:view="using:NicoPlayerHohoema.Views"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <DataTemplate x:Key="FavoriteItemTemplate">
+            <Button Content="{Binding Title}"
+                    Command="{Binding SelectedCommand}"
+                    Padding="16 8"
+                    >
+            </Button>
+        </DataTemplate>
+
+
+        <local:FollowTypeToSymbolIconConverter x:Key="FavTypeToSymbol" />
+    </Page.Resources>
+    <Grid>
+
+        <ScrollViewer x:Name="ScrollList"
+                      >
+            <Border Margin="16 0 16 16">
+                <ItemsControl ItemsSource="{Binding Lists}">
+
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            
+                            <toolkit:DockPanel Margin="0 0 0 16">
+
+
+                                <StackPanel Orientation="Horizontal"
+                                           toolkit:DockPanel.Dock="Top"                                            
+                                            >
+                                    <SymbolIcon Symbol="{Binding FavType, Converter={StaticResource FavTypeToSymbol}}" 
+                                                Margin="0 0 8 0"
+                                                VerticalAlignment="Center"
+                                                />
+
+                                    <TextBlock Text="{Binding Name}" 
+                                           Margin="8 0"
+                                           FontSize="20"
+                                               VerticalAlignment="Center"
+                                           />
+
+                                    <TextBlock 
+                                               VerticalAlignment="Center"
+                                               Opacity="0.8"
+                                               FontSize="13"
+                                               Margin="8 0"
+                                               >
+                                        <Run Text="{Binding ItemCount}" />
+                                        <Run Text="/" />
+                                        <Run Text="{Binding MaxItemCount}" />
+                                    </TextBlock>
+
+                                </StackPanel>
+
+                                <ItemsControl ItemsSource="{Binding Items}"
+                                          ItemTemplate="{StaticResource FavoriteItemTemplate}"
+                                          Margin="0 8 0 0"
+                                          >
+                                    <ItemsControl.ItemContainerStyle>
+                                        <Style TargetType="ContentPresenter">
+                                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                                            <Setter Property="Margin" Value="0 0 8 8" />
+                                        </Style>
+                                    </ItemsControl.ItemContainerStyle>
+
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <toolkit:WrapPanel 
+                                                               />
+                                            
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    
+                                </ItemsControl>
+                                
+                            </toolkit:DockPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Border>
+        </ScrollViewer>
+    </Grid>
+</Page>
