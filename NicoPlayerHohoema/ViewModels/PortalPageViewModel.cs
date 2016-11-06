@@ -32,12 +32,18 @@ namespace NicoPlayerHohoema.ViewModels
 			await Task.Delay(500);
 
 			await HohoemaApp.AppMapManager.Refresh();
+		}
 
+
+		protected override void OnSignIn(ICollection<IDisposable> userSessionDisposer)
+		{
 			if (Root == null)
 			{
 				Root = new SelectableAppMapContainerViewModel(HohoemaApp.AppMapManager.Root, PageManager);
 				OnPropertyChanged(nameof(Root));
 			}
+
+			base.OnSignIn(userSessionDisposer);
 		}
 
 		protected override void OnSignOut()
