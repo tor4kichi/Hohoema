@@ -72,6 +72,9 @@
                 </toolkit:DockPanel>
 
 
+                
+
+
                 <toolkit:DockPanel Margin="8">
 
                     <TextBlock Text="UIが非表示になるまでの時間（秒）"
@@ -90,6 +93,22 @@
                     
                 </toolkit:DockPanel>
 
+                
+            </StackPanel>
+
+
+            <StackPanel x:Name="DesktopPlayerSettingsLayout">
+
+
+                <StackPanel Orientation="Horizontal" Margin="8 8 0 8">
+                    <TextBlock Text="マウス操作のプレイヤー設定"
+                             FontSize="18"
+                             VerticalAlignment="Center"
+                           FontWeight="SemiBold"
+                           />
+
+                </StackPanel>
+                
                 <toolkit:DockPanel Margin="8">
 
                     <TextBlock Text="※音量は 0.0 ～ 1.0 の間に設定されます"
@@ -117,6 +136,33 @@
 
             </StackPanel>
 
+            <StackPanel x:Name="MobilePlayerSettingsLayout">
+
+                <StackPanel Orientation="Horizontal" Margin="8 8 0 8">
+                    <TextBlock Text="タッチ操作のプレイヤー設定"
+                             FontSize="18"
+                             VerticalAlignment="Center"
+                           FontWeight="SemiBold"
+                           />
+
+                </StackPanel>
+                
+                <toolkit:DockPanel Margin="8">
+
+                    <TextBlock Text="横持ち表示をデフォルトにする"
+                               toolkit:DockPanel.Dock="Left"
+                               VerticalAlignment="Center"
+                               />
+
+                    <ToggleButton Width="32" Height="32"
+                                  IsChecked="{Binding IsForceLandscapeDefault.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                  HorizontalAlignment="Right"
+                                  />
+
+                </toolkit:DockPanel>
+                
+            </StackPanel>
+            
         </ItemsControl>
     </ScrollViewer>
 </UserControl>

@@ -518,6 +518,8 @@ namespace NicoPlayerHohoema.ViewModels
 			CommandEditerVM.OnCommandChanged += () => UpdateCommandString();
 
 
+			IsForceLandscape = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, HohoemaApp.UserSettings.PlayerSettings.IsForceLandscapeDefault);
+			OnPropertyChanged(nameof(IsForceLandscape));
 		}
 
 
@@ -1552,6 +1554,8 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<TimeSpan> RequestCommentDisplayDuration { get; private set; }
 		public ReactiveProperty<double> CommentFontScale { get; private set; }
 		public ReactiveProperty<bool> IsFullScreen { get; private set; }
+		public ReactiveProperty<bool> IsForceLandscape { get; private set; }
+
 
 
 
