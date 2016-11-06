@@ -131,7 +131,6 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<int> CommentRenderFPS { get; private set; }
 		public ReactiveProperty<TimeSpan> RequestCommentDisplayDuration { get; private set; }
 		public ReactiveProperty<double> CommentFontScale { get; private set; }
-		public ReactiveProperty<bool> IsFullScreen { get; private set; }
 
 		public ReactiveProperty<double> CommentCanvasHeight { get; private set; }
 		public ReactiveProperty<Color> CommentDefaultColor { get; private set; }
@@ -164,6 +163,8 @@ namespace NicoPlayerHohoema.ViewModels
 		// ui
 		public ReactiveProperty<bool> IsAutoHideEnable { get; private set; }
 		public ReactiveProperty<TimeSpan> AutoHideDelayTime { get; private set; }
+		public ReactiveProperty<bool> IsFullScreen { get; private set; }
+		public ReactiveProperty<bool> IsForceLandscape { get; private set; }
 
 
 
@@ -563,6 +564,11 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
 				.AddTo(userSessionDisposer);
 			OnPropertyChanged(nameof(CommentFontScale));
+
+
+			IsForceLandscape = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, HohoemaApp.UserSettings.PlayerSettings.IsForceLandscapeDefault);
+			OnPropertyChanged(nameof(IsForceLandscape));
+
 
 			base.OnSignIn(userSessionDisposer);
 		}
