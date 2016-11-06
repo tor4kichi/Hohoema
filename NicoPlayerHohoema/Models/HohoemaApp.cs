@@ -74,7 +74,11 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task OnSuspending()
 		{
-			await SignOut();
+			// 現在あるダウンロードタスクは必ず終了させる必要があります
+			if (MediaManager != null && MediaManager.Context != null)
+			{
+				await MediaManager?.Context?.Suspending();
+			}
 
 			await SyncToRoamingData();
 		}
