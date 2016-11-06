@@ -521,6 +521,7 @@ namespace NicoPlayerHohoema
 
 		private void RootFrame_Navigating(object sender, NavigatingCancelEventArgs e)
 		{
+			// Note: 有害動画の確認ページへの進む動作を防止する
 			if (e.NavigationMode == NavigationMode.Forward)
 			{
 				if (e.SourcePageType.Name.EndsWith("Page"))
@@ -538,33 +539,6 @@ namespace NicoPlayerHohoema
 					}
 				}
 			}
-
-
-			if (e.NavigationMode == NavigationMode.Back || e.NavigationMode == NavigationMode.Forward)
-			{
-				if (e.SourcePageType.Name.EndsWith("Page"))
-				{
-					var pageTypeString = e.SourcePageType.Name.Remove(e.SourcePageType.Name.IndexOf("Page"));
-
-					HohoemaPageType pageType;
-					if (Enum.TryParse(pageTypeString, out pageType))
-					{
-						var pageManager = Container.Resolve<PageManager>();
-						pageManager.OnNavigated(pageType);
-
-						Debug.WriteLine($"navigated : {pageType.ToString()}");
-					}
-					else
-					{
-						throw new NotSupportedException();
-					}
-				}
-				else
-				{
-					throw new Exception();
-				}
-			}
-
 		}
 
 

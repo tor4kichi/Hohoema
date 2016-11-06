@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.UI.Core;
+using Windows.UI.Xaml.Navigation;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -117,9 +118,31 @@ namespace NicoPlayerHohoema.Models
 		/// <summary>
 		/// 外部で戻る処理が行われた際にPageManager上での整合性を取ります
 		/// </summary>
-		public void OnNavigated(HohoemaPageType pageType)
+		public void OnNavigated(NavigatedToEventArgs e)
 		{
-			CurrentPageType = pageType;
+			if (e.NavigationMode == NavigationMode.Back || e.NavigationMode == NavigationMode.Forward)
+			{
+				if (e.SourcePageType.Name.EndsWith("Page"))
+				{
+					var pageTypeString = e.SourcePageType.Name.Remove(e.SourcePageType.Name.IndexOf("Page"));
+
+					HohoemaPageType pageType;
+					if (Enum.TryParse(pageTypeString, out pageType))
+					{
+						CurrentPageType = pageType;
+
+						System.Diagnostics.Debug.WriteLine($"navigated : {pageType.ToString()}");
+					}
+					else
+					{
+						throw new NotSupportedException();
+					}
+				}
+				else
+				{
+					throw new Exception();
+				}
+			}
 		}
 
 
