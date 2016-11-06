@@ -1154,7 +1154,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+		public override async void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
 			Debug.WriteLine("VideoPlayer OnNavigatingFromAsync start.");
 
@@ -1184,6 +1184,7 @@ namespace NicoPlayerHohoema.ViewModels
 				// stream.Dispose();
 				if (Video != null)
 				{
+					await Task.Delay(1000);
 					Video.StopPlay().ConfigureAwait(false);
 				}
 			}
@@ -1208,7 +1209,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		protected override void OnDispose()
+		protected override async void OnDispose()
 		{
 			base.OnDispose();
 
@@ -1216,7 +1217,9 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				VideoStream.Value = null;
 
-				Video.StopPlay().ConfigureAwait(false);
+				await Task.Delay(1000);
+
+				await Video.StopPlay().ConfigureAwait(false);
 			}
 
 			_BufferingMonitorDisposable?.Dispose();
