@@ -204,7 +204,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				if (IsRequireSignIn)
 				{
-					if (!await CheckSignIn())
+					if (!NowSignIn && !await CheckSignIn())
 					{
 						var result = await HohoemaApp.SignInWithPrimaryAccount();
 
