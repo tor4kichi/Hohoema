@@ -38,7 +38,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				new PageTypeSelectableItem(HohoemaPageType.Portal             , OnMenuItemSelected, "ホーム", Symbol.Home),
 				new PageTypeSelectableItem(HohoemaPageType.RankingCategoryList, OnMenuItemSelected, "ランキング", Symbol.Flag),
-				new PageTypeSelectableItem(HohoemaPageType.FeedGroupManage    , OnMenuItemSelected, "フィード", Symbol.List),
+				new PageTypeSelectableItem(HohoemaPageType.FollowManage     , OnMenuItemSelected, "フォロー", Symbol.OutlineStar),
 				new PageTypeSelectableItem(HohoemaPageType.UserMylist		  , OnMenuItemSelected, "マイリスト", Symbol.Bookmarks),
 				new PageTypeSelectableItem(HohoemaPageType.History			  , OnMenuItemSelected, "視聴履歴", Symbol.Clock),
 				new PageTypeSelectableItem(HohoemaPageType.Search             , OnMenuItemSelected, "検索", Symbol.Find),
@@ -46,11 +46,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 			PersonalMenuItems = new List<PageTypeSelectableItem>()
 			{
+				new PageTypeSelectableItem(HohoemaPageType.FeedGroupManage    , OnMenuItemSelected, "フィード", Symbol.List),
 				new PageTypeSelectableItem(HohoemaPageType.CacheManagement	  , OnMenuItemSelected, "キャッシュ管理", Symbol.Download),
-				new PageTypeSelectableItem(HohoemaPageType.FavoriteManage     , OnMenuItemSelected, "お気に入り管理", Symbol.OutlineStar),
 				new PageTypeSelectableItem(HohoemaPageType.Settings			  , OnMenuItemSelected, "設定", Symbol.Setting),
 				new PageTypeSelectableItem(HohoemaPageType.About			  , OnMenuItemSelected, "このアプリについて", Symbol.Help),
-				new PageTypeSelectableItem(HohoemaPageType.Feedback              , OnMenuItemSelected, "フィードバック", Symbol.Comment),
+				new PageTypeSelectableItem(HohoemaPageType.Feedback           , OnMenuItemSelected, "フィードバック", Symbol.Comment),
 				new PageTypeSelectableItem(HohoemaPageType.Login	          , OnMenuItemSelected, "ログアウト", Symbol.LeaveChat),
 			};
 

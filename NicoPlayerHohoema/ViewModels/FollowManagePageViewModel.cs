@@ -13,9 +13,9 @@ using System.Threading;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class FavoriteManagePageViewModel : HohoemaViewModelBase
+	public class FollowManagePageViewModel : HohoemaViewModelBase
 	{
-		public FavoriteManagePageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
+		public FollowManagePageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
 			: base(hohoemaApp, pageManager)
 		{
 			Lists = new ObservableCollection<FavoriteListViewModel>();
@@ -24,7 +24,7 @@ namespace NicoPlayerHohoema.ViewModels
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 
-			while (HohoemaApp.FavManager == null)
+			while (HohoemaApp.FollowManager == null)
 			{
 				await Task.Delay(100);
 			}
@@ -34,10 +34,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 			Lists.Add(new FavoriteListViewModel()
 			{
-				Name = "フォロー",
-				FavType = FavoriteItemType.User,
-				MaxItemCount = HohoemaApp.FavManager.User.MaxFavItemCount,
-				Items = HohoemaApp.FavManager.User.FavInfoItems
+				Name = "ユーザー",
+				FavType = FollowItemType.User,
+				MaxItemCount = HohoemaApp.FollowManager.User.MaxFollowItemCount,
+				Items = HohoemaApp.FollowManager.User.FollowInfoItems
 					.Select(x => new FavoriteItemViewModel(x, PageManager))
 					.ToList()
 			});
@@ -45,9 +45,9 @@ namespace NicoPlayerHohoema.ViewModels
 			Lists.Add(new FavoriteListViewModel()
 			{
 				Name = "マイリスト",
-				FavType = FavoriteItemType.Mylist,
-				MaxItemCount = HohoemaApp.FavManager.Mylist.MaxFavItemCount,
-				Items = HohoemaApp.FavManager.Mylist.FavInfoItems
+				FavType = FollowItemType.Mylist,
+				MaxItemCount = HohoemaApp.FollowManager.Mylist.MaxFollowItemCount,
+				Items = HohoemaApp.FollowManager.Mylist.FollowInfoItems
 					.Select(x => new FavoriteItemViewModel(x, PageManager))
 					.ToList()
 			});
@@ -55,9 +55,9 @@ namespace NicoPlayerHohoema.ViewModels
 			Lists.Add(new FavoriteListViewModel()
 			{
 				Name = "タグ",
-				FavType = FavoriteItemType.Tag,
-				MaxItemCount = HohoemaApp.FavManager.Tag.MaxFavItemCount,
-				Items = HohoemaApp.FavManager.Tag.FavInfoItems
+				FavType = FollowItemType.Tag,
+				MaxItemCount = HohoemaApp.FollowManager.Tag.MaxFollowItemCount,
+				Items = HohoemaApp.FollowManager.Tag.FollowInfoItems
 					.Select(x => new FavoriteItemViewModel(x, PageManager))
 					.ToList()
 			});
@@ -65,9 +65,9 @@ namespace NicoPlayerHohoema.ViewModels
 			Lists.Add(new FavoriteListViewModel()
 			{
 				Name = "コミュニティ",
-				FavType = FavoriteItemType.Community,
-				MaxItemCount = HohoemaApp.FavManager.Community.MaxFavItemCount,
-				Items = HohoemaApp.FavManager.Community.FavInfoItems
+				FavType = FollowItemType.Community,
+				MaxItemCount = HohoemaApp.FollowManager.Community.MaxFollowItemCount,
+				Items = HohoemaApp.FollowManager.Community.FollowInfoItems
 					.Select(x => new FavoriteItemViewModel(x, PageManager))
 					.ToList()
 			});
@@ -79,7 +79,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class FavoriteListViewModel : BindableBase
 	{
-		public FavoriteItemType FavType { get; set; }
+		public FollowItemType FavType { get; set; }
 		public string Name { get; set; }
 		public uint MaxItemCount { get; set; }
 		public int ItemCount => Items.Count;
@@ -90,10 +90,10 @@ namespace NicoPlayerHohoema.ViewModels
 	public class FavoriteItemViewModel : BindableBase
 	{
 		
-		public FavoriteItemViewModel(FavInfo feedList, PageManager pageManager)
+		public FavoriteItemViewModel(FollowItemInfo feedList, PageManager pageManager)
 		{
 			Title = feedList.Name;
-			ItemType = feedList.FavoriteItemType;
+			ItemType = feedList.FollowItemType;
 			SourceId = feedList.Id;
 
 			_PageManager = pageManager;
@@ -111,7 +111,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 						switch (ItemType)
 						{
-							case FavoriteItemType.Tag:
+							case FollowItemType.Tag:
 								var param = new SearchPagePayload(
 									new TagSearchPagePayloadContent()
 									{
@@ -123,13 +123,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 								_PageManager.OpenPage(HohoemaPageType.Search, param);
 								break;
-							case FavoriteItemType.Mylist:
+							case FollowItemType.Mylist:
 								_PageManager.OpenPage(HohoemaPageType.Mylist, this.SourceId);
 								break;
-							case FavoriteItemType.User:								
+							case FollowItemType.User:								
 								_PageManager.OpenPage(HohoemaPageType.UserInfo, this.SourceId);
 								break;
-							case FavoriteItemType.Community:
+							case FollowItemType.Community:
 								_PageManager.OpenPage(HohoemaPageType.Community, this.SourceId);
 								break;
 							default:
@@ -140,7 +140,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 		public string Title { get; set; }
-		public FavoriteItemType ItemType { get; set; }
+		public FollowItemType ItemType { get; set; }
 		public string SourceId { get; set; }
 
 		PageManager _PageManager;

@@ -162,7 +162,8 @@
             </StackPanel>
 
 
-            <Border BorderBrush="DarkGray" BorderThickness="0 1 0 0" 
+            <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                    BorderThickness="0 1 0 0" 
                     Margin="8"
                     />
 
@@ -200,7 +201,8 @@
 
             </StackPanel>
 
-            <Border BorderBrush="DarkGray" BorderThickness="0 1 0 0" 
+            <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                    BorderThickness="0 1 0 0" 
                     Margin="8"
                     />
 

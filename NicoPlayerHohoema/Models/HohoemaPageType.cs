@@ -13,7 +13,7 @@ namespace NicoPlayerHohoema.Models
 		RankingCategory,
 		UserMylist,
 		Mylist,
-		FavoriteManage,
+		FollowManage,
 		History,
 		Search,
 

@@ -172,7 +172,13 @@
 
                 
             </StackPanel>
-            
+
+
+            <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                    BorderThickness="0 1 0 0" 
+                    Margin="8"
+                    />
+
 
             <StackPanel Orientation="Horizontal" Margin="8 8 0 8">
                 <TextBlock Text="コメントの表示設定"
@@ -288,8 +294,14 @@
                     </ComboBox>
                 </toolkit:DockPanel>
             </StackPanel>
-            
 
+
+            <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                    BorderThickness="0 1 0 0" 
+                    Margin="8"
+                    />
+
+            
             <StackPanel Margin="0 8 0 8">
 
                 <StackPanel Orientation="Horizontal" Margin="8 8 0 0">
@@ -340,6 +352,11 @@
                 
             </StackPanel>
 
+
+            <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                    BorderThickness="0 1 0 0" 
+                    Margin="8"
+                    />
 
 
             <StackPanel Margin="0 8 0 8">
@@ -404,6 +421,11 @@
 
             </StackPanel>
 
+
+            <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                    BorderThickness="0 1 0 0" 
+                    Margin="8"
+                    />
 
             <!-- NGコメント -->
             <StackPanel>

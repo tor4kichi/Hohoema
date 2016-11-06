@@ -99,7 +99,7 @@ namespace NicoPlayerHohoema.ViewModels
 					}
 				}
 
-				CanChangeFavoriteTagState.Value = IsFavoriteTag.Value == true || HohoemaApp.FavManager.CanMoreAddFavorite(FavoriteItemType.Tag);
+				CanChangeFavoriteTagState.Value = IsFavoriteTag.Value == true || HohoemaApp.FollowManager.CanMoreAddFollow(FollowItemType.Tag);
 
 
 				_NowProcessFavorite = false;
@@ -153,9 +153,9 @@ namespace NicoPlayerHohoema.ViewModels
 			_NowProcessFavorite = true;
 			
 			// お気に入り登録されているかチェック
-			var favManager = HohoemaApp.FavManager;
-			IsFavoriteTag.Value = favManager.IsFavoriteItem(FavoriteItemType.Tag, SearchOption.Keyword);
-			CanChangeFavoriteTagState.Value = IsFavoriteTag.Value == true || HohoemaApp.FavManager.CanMoreAddFavorite(FavoriteItemType.Tag);
+			var favManager = HohoemaApp.FollowManager;
+			IsFavoriteTag.Value = favManager.IsFollowItem(FollowItemType.Tag, SearchOption.Keyword);
+			CanChangeFavoriteTagState.Value = IsFavoriteTag.Value == true || HohoemaApp.FollowManager.CanMoreAddFollow(FollowItemType.Tag);
 
 			_NowProcessFavorite = false;
 
@@ -190,16 +190,16 @@ namespace NicoPlayerHohoema.ViewModels
 
 		private async Task<bool> FavoriteTag()
 		{
-			var favManager = HohoemaApp.FavManager;
-			var result = await favManager.AddFav(FavoriteItemType.Tag, SearchOption.Keyword, SearchOption.Keyword);
+			var favManager = HohoemaApp.FollowManager;
+			var result = await favManager.AddFollow(FollowItemType.Tag, SearchOption.Keyword, SearchOption.Keyword);
 
 			return result == Mntone.Nico2.ContentManageResult.Success || result == Mntone.Nico2.ContentManageResult.Exist;
 		}
 
 		private async Task<bool> UnfavoriteTag()
 		{
-			var favManager = HohoemaApp.FavManager;
-			var result = await favManager.RemoveFav(FavoriteItemType.Tag, SearchOption.Keyword);
+			var favManager = HohoemaApp.FollowManager;
+			var result = await favManager.RemoveFollow(FollowItemType.Tag, SearchOption.Keyword);
 
 			return result == Mntone.Nico2.ContentManageResult.Success;
 		}

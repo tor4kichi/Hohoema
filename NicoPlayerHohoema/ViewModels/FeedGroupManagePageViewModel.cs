@@ -179,7 +179,7 @@ namespace NicoPlayerHohoema.ViewModels
 				.Select(x => new FeedItemSourceViewModel()
 				{
 					Name = x.Name,
-					ItemType = x.FavoriteItemType
+					ItemType = x.FollowItemType
 				})
 				.ToList();
 		}
@@ -221,6 +221,6 @@ namespace NicoPlayerHohoema.ViewModels
 	public class FeedItemSourceViewModel
 	{
 		public string Name { get; set; }
-		public FavoriteItemType ItemType { get; set; }
+		public FollowItemType ItemType { get; set; }
 	}
 }

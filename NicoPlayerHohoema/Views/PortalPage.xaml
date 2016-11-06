@@ -307,7 +307,7 @@
                 <ItemsControl  x:Name="DesktopGridView"      
                                ItemsSource="{Binding Root.Items}"
                                ItemTemplateSelector="{StaticResource AppMapItemDataTemplateSelector}"
-                                   Margin="8 8 0 0"
+                                   Margin="8 0 0 0"
                               >
                     <ItemsControl.ItemContainerStyle>
                         <Style TargetType="ContentPresenter">

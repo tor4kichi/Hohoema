@@ -32,7 +32,7 @@ namespace NicoPlayerHohoema.Models
 
 		public HohoemaApp HohoemaApp { get; private set; }
 
-		public Dictionary<Guid, FileAccessor<List<FavFeedItem>>> FeedStreamFileAccessors { get; private set; }
+		public Dictionary<Guid, FileAccessor<List<FeedItem>>> FeedStreamFileAccessors { get; private set; }
 
 		public Dictionary<IFeedGroup, FileAccessor<FeedGroup2>> FeedGroupDict { get; private set; }
 		public IReadOnlyCollection<IFeedGroup> FeedGroups
@@ -49,7 +49,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			HohoemaApp = hohoemaApp;
 			FeedGroupDict = new Dictionary<IFeedGroup, FileAccessor<FeedGroup2>>();
-			FeedStreamFileAccessors = new Dictionary<Guid, FileAccessor<List<FavFeedItem>>>();
+			FeedStreamFileAccessors = new Dictionary<Guid, FileAccessor<List<FeedItem>>>();
 		}
 		
 
@@ -121,7 +121,7 @@ namespace NicoPlayerHohoema.Models
 							FeedGroupDict.Add(item, fileAccessor);
 							var itemId = item.Id.ToString();
 
-							var streamFileAccessor = new FileAccessor<List<FavFeedItem>>(feedStreamDataFolder, $"{itemId}.json");
+							var streamFileAccessor = new FileAccessor<List<FeedItem>>(feedStreamDataFolder, $"{itemId}.json");
 							FeedStreamFileAccessors.Add(item.Id, streamFileAccessor);
 
 							await item.LoadFeedStream(streamFileAccessor);
@@ -212,7 +212,7 @@ namespace NicoPlayerHohoema.Models
 			FeedGroupDict.Add(feedGroup, fileAccessor);
 
 			var itemId = feedGroup.Id.ToString();
-			var streamFileAccessor = new FileAccessor<List<FavFeedItem>>(feedStreamDataFolder, $"{itemId}.json");
+			var streamFileAccessor = new FileAccessor<List<FeedItem>>(feedStreamDataFolder, $"{itemId}.json");
 			FeedStreamFileAccessors.Add(feedGroup.Id, streamFileAccessor);
 
 			await fileAccessor.Save(feedGroup);

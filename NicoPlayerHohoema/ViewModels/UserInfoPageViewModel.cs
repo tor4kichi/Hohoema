@@ -69,7 +69,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 					CanChangeFavoriteState.Value =
 						IsFavorite.Value == true
-						|| HohoemaApp.FavManager.CanMoreAddFavorite(FavoriteItemType.User);
+						|| HohoemaApp.FollowManager.CanMoreAddFollow(FollowItemType.User);
 
 
 					_NowProcessFavorite = false;
@@ -179,12 +179,12 @@ namespace NicoPlayerHohoema.ViewModels
 			// お気に入り状態の取得
 			_NowProcessFavorite = true;
 
-			var favManager = HohoemaApp.FavManager;
-			IsFavorite.Value = favManager.IsFavoriteItem(FavoriteItemType.User, UserId);
+			var favManager = HohoemaApp.FollowManager;
+			IsFavorite.Value = favManager.IsFollowItem(FollowItemType.User, UserId);
 
 			CanChangeFavoriteState.Value =
 				IsFavorite.Value == true
-				|| favManager.CanMoreAddFavorite(FavoriteItemType.User);
+				|| favManager.CanMoreAddFollow(FollowItemType.User);
 
 			_NowProcessFavorite = false;
 
@@ -253,8 +253,8 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			if (UserId == null) { return false; }
 
-			var favManager = HohoemaApp.FavManager;
-			var result = await favManager.AddFav(FavoriteItemType.User, UserId, UserName);
+			var favManager = HohoemaApp.FollowManager;
+			var result = await favManager.AddFollow(FollowItemType.User, UserId, UserName);
 
 			return result == ContentManageResult.Success || result == ContentManageResult.Exist;
 		}
@@ -263,8 +263,8 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			if (UserId == null) { return false; }
 
-			var favManager = HohoemaApp.FavManager;
-			var result = await favManager.RemoveFav(FavoriteItemType.User, UserId);
+			var favManager = HohoemaApp.FollowManager;
+			var result = await favManager.RemoveFollow(FollowItemType.User, UserId);
 
 			return result == ContentManageResult.Success;
 

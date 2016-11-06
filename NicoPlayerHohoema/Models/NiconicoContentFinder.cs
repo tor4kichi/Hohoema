@@ -5,8 +5,8 @@ using Mntone.Nico2.Mylist;
 using Mntone.Nico2.Mylist.MylistGroup;
 using Mntone.Nico2.Searches.Community;
 using Mntone.Nico2.Searches.Video;
-using Mntone.Nico2.Users.Fav;
-using Mntone.Nico2.Users.FavCommunity;
+using Mntone.Nico2.Users.Follow;
+using Mntone.Nico2.Users.FollowCommunity;
 using Mntone.Nico2.Users.User;
 using Mntone.Nico2.Users.Video;
 using Mntone.Nico2.Videos.Histories;
@@ -263,11 +263,11 @@ namespace NicoPlayerHohoema.Models
 		}
 
 		
-		public async Task<List<FavData>> GetFavUsers()
+		public async Task<List<FollowData>> GetFollowUsers()
 		{
 			using (var releaser = await _NicoPageAccessLock.LockAsync())
 			{
-				return await _HohoemaApp.NiconicoContext.User.GetFavUsersAsync();
+				return await _HohoemaApp.NiconicoContext.User.GetFollowUsersAsync();
 			}
 		}
 
@@ -276,24 +276,24 @@ namespace NicoPlayerHohoema.Models
 		{
 			using (var releaser = await _NicoPageAccessLock.LockAsync())
 			{
-				return await _HohoemaApp.NiconicoContext.User.GetFavTagsAsync();
+				return await _HohoemaApp.NiconicoContext.User.GetFollowTagsAsync();
 			}
 		}
 
-		public async Task<List<FavData>> GetFavMylists()
+		public async Task<List<FollowData>> GetFavMylists()
 		{
 			using (var releaser = await _NicoPageAccessLock.LockAsync())
 			{
-				return await _HohoemaApp.NiconicoContext.User.GetFavMylistsAsync();
+				return await _HohoemaApp.NiconicoContext.User.GetFollowMylistsAsync();
 			}
 		}
 
 
-		public async Task<FavCommunityResponse> GetFavCommunities()
+		public async Task<FollowCommunityResponse> GetFavCommunities()
 		{
 			using (var releaser = await _NicoPageAccessLock.LockAsync())
 			{
-				return await _HohoemaApp.NiconicoContext.User.GetFavCommunityAsync();
+				return await _HohoemaApp.NiconicoContext.User.GetFollowCommunityAsync();
 			}
 		}
 

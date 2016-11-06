@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace NicoPlayerHohoema.Models
 {
 
-	public enum FavoriteItemType
+	public enum FollowItemType
 	{
 		Tag,
 		Mylist,
@@ -17,43 +17,43 @@ namespace NicoPlayerHohoema.Models
 	}
 
 
-	public static class FavoriteItemTypeExtention
+	public static class FollowItemTypeExtention
 	{
-		public static NiconicoItemType? ToNiconicoItemType(this FavoriteItemType favorite)
+		public static NiconicoItemType? ToNiconicoItemType(this FollowItemType favorite)
 		{
 			switch (favorite)
 			{
-				case FavoriteItemType.Tag:
+				case FollowItemType.Tag:
 					return null;
-				case FavoriteItemType.Mylist:
+				case FollowItemType.Mylist:
 					return NiconicoItemType.Mylist;					
-				case FavoriteItemType.User:
+				case FollowItemType.User:
 					return NiconicoItemType.User;
-				case FavoriteItemType.Community:
+				case FollowItemType.Community:
 					return null;
 				default:
 					throw new NotSupportedException();
 			}
 		}
 
-		public static FavoriteItemType FromNiconicoItemType(NiconicoItemType? niconicoItemType)
+		public static FollowItemType FromNiconicoItemType(NiconicoItemType? niconicoItemType)
 		{
 			if (niconicoItemType.HasValue)
 			{
 				switch (niconicoItemType.Value)
 				{
 					case NiconicoItemType.Mylist:
-						return FavoriteItemType.Mylist;
+						return FollowItemType.Mylist;
 
 					case NiconicoItemType.User:
-						return FavoriteItemType.User;
+						return FollowItemType.User;
 					default:
 						throw new NotSupportedException();
 				}
 			}
 			else
 			{
-				return FavoriteItemType.Tag;
+				return FollowItemType.Tag;
 			}
 		}
 	}

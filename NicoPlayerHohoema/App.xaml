@@ -7,6 +7,7 @@
     xmlns:conv="using:WinRTXamlToolkit.Converters"
     xmlns:myconv="using:NicoPlayerHohoema.Views.Converters"
     xmlns:view="using:NicoPlayerHohoema.Views"
+    xmlns:logicalModifier="using:AdaptiveTriggerLibrary.ConditionModifiers.LogicalModifiers"
     >
 
     <prism:PrismUnityApplication.Resources>
@@ -27,6 +28,11 @@
             <myconv:VideoPositionToTimeConverter x:Key="VPosToTime" />
             <myconv:ToUserFriendlyNumber x:Key="ToUserFriendlyNumber" />
 
+            
+            <!-- Logical Modifier-->
+            <logicalModifier:AndModifier x:Key="AndModifier" />
+            <logicalModifier:OrModifier x:Key="OrModifier" />
+            <logicalModifier:XORModifier x:Key="XORModifier" />
 
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Dark">

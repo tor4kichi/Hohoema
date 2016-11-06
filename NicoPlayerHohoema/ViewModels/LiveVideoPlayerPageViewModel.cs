@@ -131,7 +131,6 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<int> CommentRenderFPS { get; private set; }
 		public ReactiveProperty<TimeSpan> RequestCommentDisplayDuration { get; private set; }
 		public ReactiveProperty<double> CommentFontScale { get; private set; }
-		public ReactiveProperty<bool> IsFullScreen { get; private set; }
 
 		public ReactiveProperty<double> CommentCanvasHeight { get; private set; }
 		public ReactiveProperty<Color> CommentDefaultColor { get; private set; }
@@ -164,6 +163,8 @@ namespace NicoPlayerHohoema.ViewModels
 		// ui
 		public ReactiveProperty<bool> IsAutoHideEnable { get; private set; }
 		public ReactiveProperty<TimeSpan> AutoHideDelayTime { get; private set; }
+		public ReactiveProperty<bool> IsFullScreen { get; private set; }
+		public ReactiveProperty<bool> IsForceLandscape { get; private set; }
 
 
 
@@ -564,29 +565,42 @@ namespace NicoPlayerHohoema.ViewModels
 				.AddTo(userSessionDisposer);
 			OnPropertyChanged(nameof(CommentFontScale));
 
+
+			IsForceLandscape = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, HohoemaApp.UserSettings.PlayerSettings.IsForceLandscapeDefault);
+			OnPropertyChanged(nameof(IsForceLandscape));
+
+
 			base.OnSignIn(userSessionDisposer);
 		}
 
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
-			NicoLiveVideo.Dispose();
-			NicoLiveVideo = null;
-
-			VideoStream.Value = null;
-
-			DisplayRequestHelper.StopKeepDisplay();
-
-			IsFullScreen.Value = false;
-
-			StopLiveElapsedTimer().ConfigureAwait(false);
-
-			foreach (var paneContent in _PaneContentCache.Values)
+			if (!suspending)
 			{
-				paneContent.Dispose();
+				NicoLiveVideo.Dispose();
+				NicoLiveVideo = null;
+
+				foreach (var paneContent in _PaneContentCache.Values)
+				{
+					paneContent.Dispose();
+				}
 			}
 
+			VideoStream.Value = null;
+			DisplayRequestHelper.StopKeepDisplay();
+			IsFullScreen.Value = false;
+			StopLiveElapsedTimer().ConfigureAwait(false);
+
 			base.OnNavigatingFrom(e, viewModelState, suspending);
+		}
+
+
+		protected override async Task OnResumed()
+		{
+			await TryStartViewing();
+
+//			return base.OnResumed();
 		}
 
 
@@ -685,9 +699,8 @@ namespace NicoPlayerHohoema.ViewModels
 			return liveStatus == null;
 		}
 
-
-
 	
+
 
 		private async Task StartLiveElapsedTimer()
 		{

@@ -75,7 +75,9 @@ namespace NicoPlayerHohoema.ViewModels.LiveVideoInfoContent
 
 						// TODO: チャンネルと公式に対応
 						PageManager.OpenPage(HohoemaPageType.Community, NicoLiveVideo.BroadcasterCommunityId);
-					}));
+					},
+					() => IsCommunityLive
+					));
 			}
 		}
 

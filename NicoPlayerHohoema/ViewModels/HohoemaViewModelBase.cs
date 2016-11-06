@@ -14,6 +14,8 @@ using Windows.Foundation;
 using NicoPlayerHohoema.Util;
 using System.Runtime.InteropServices.WindowsRuntime;
 using WinRTXamlToolkit.Async;
+using Windows.UI.Xaml.Navigation;
+using System.Diagnostics;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -126,6 +128,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
+			// PageManagerにナビゲーション動作を伝える
+			PageManager.OnNavigated(e);
+
+
 			base.OnNavigatedTo(e, viewModelState);
 
 			HohoemaApp.OnResumed += _OnResumed;
@@ -204,7 +210,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				if (IsRequireSignIn)
 				{
-					if (!await CheckSignIn())
+					if (!HohoemaApp.IsLoggedIn && !await CheckSignIn())
 					{
 						var result = await HohoemaApp.SignInWithPrimaryAccount();
 

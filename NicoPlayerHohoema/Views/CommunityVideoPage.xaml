@@ -30,13 +30,13 @@
 
 
                 <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left" 
+                            Margin="16 0 0 0"
                             >
 
                     <HyperlinkButton Command="{Binding OpenCommunityPageCommand}"
                                      >
                         <TextBlock>
                             <Run Text="{Binding CommunityName}" />
-                            <Run Text="の動画" />
                         </TextBlock>
                     </HyperlinkButton>
 

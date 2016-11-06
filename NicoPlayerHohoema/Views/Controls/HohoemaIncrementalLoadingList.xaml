@@ -51,6 +51,10 @@
             <local:CommunityInfoControl />
         </DataTemplate>
 
+        <DataTemplate x:Key="CommuniyVideoListItemTemplate">
+            <local:CommunityVideoListItem />
+        </DataTemplate>
+
         <DataTemplate x:Key="LiveVideoListItemTemplate">
             <local:LiveVideoListItem />
         </DataTemplate>
@@ -65,6 +69,7 @@
                                                           Mylist="{StaticResource MylistListItemTemplate}"
                                                           SearchHistory="{StaticResource SearchHistoryListItemTemplate}"
                                                           Community="{StaticResource CommuniyListItemTemplate}"
+                                                          CommunityVideo="{StaticResource CommuniyVideoListItemTemplate}"
                                                           Live="{StaticResource LiveVideoListItemTemplate}"
                                                           >
             

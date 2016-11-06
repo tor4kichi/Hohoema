@@ -95,7 +95,7 @@
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Center"
                                   IsTabStop="True"
-                                  Width="180"
+                                  Width="160"
                               >
 
                 </ComboBox>

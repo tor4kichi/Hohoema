@@ -6,21 +6,21 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Models
 {
-	public class FavFeedItemComparer : IEqualityComparer<FavFeedItem>, IComparer<FavFeedItem>
+	public class FeedItemComparer : IEqualityComparer<FeedItem>, IComparer<FeedItem>
 	{
-		public static FavFeedItemComparer Default = new FavFeedItemComparer();
+		public static FeedItemComparer Default = new FeedItemComparer();
 
-		public int Compare(FavFeedItem x, FavFeedItem y)
+		public int Compare(FeedItem x, FeedItem y)
 		{
 			return (int)y.SubmitDate.Subtract(x.SubmitDate).TotalMinutes;
 		}
 
-		public bool Equals(FavFeedItem x, FavFeedItem y)
+		public bool Equals(FeedItem x, FeedItem y)
 		{
 			return x.VideoId == y.VideoId;
 		}
 
-		public int GetHashCode(FavFeedItem obj)
+		public int GetHashCode(FeedItem obj)
 		{
 			return obj.VideoId.GetHashCode();
 		}

@@ -19,7 +19,7 @@
         
 
     <ScrollViewer>
-        <StackPanel Margin="8 8 16 8">
+        <StackPanel Margin="8 0 16 8">
 
             <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                     BorderThickness="2">

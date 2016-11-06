@@ -34,7 +34,7 @@
                         <AppBarToggleButton Icon="Favorite" 
                                             IsChecked="{Binding IsFavoriteTag.Value, Mode=TwoWay}"
                                             IsEnabled="{Binding CanChangeFavoriteTagState.Value}"
-                                            Label="お気に入り"
+                                            Label="フォロー"
                                             />
 
                         <!-- 検索履歴 -->

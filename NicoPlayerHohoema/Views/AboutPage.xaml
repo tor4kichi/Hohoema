@@ -20,7 +20,6 @@
         </Style>
 
         <Style x:Key="ContentTextStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="14" />
             <Setter Property="Margin" Value="0 0 0 8" />
             <Setter Property="TextWrapping" Value="Wrap" />
 
@@ -29,7 +28,7 @@
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
         <ScrollViewer>
-            <StackPanel Margin="24 16 16 16">
+            <StackPanel Margin="16 16 16 16">
 
                 
 
@@ -39,12 +38,11 @@
 
                 <StackPanel Margin="16 8">
                     <TextBlock Style="{StaticResource ContentTextStyle}">
-                        <Run>
-                            "Hohoema" はWindows 10向けのニコニコ動画プレイヤーです。
-                        </Run>
+                        <Run>"Hohoema" は Windows 10 向けのニコニコ動画プレイヤーです。</Run>
+                        <LineBreak />
+                        <Run></Run>
                     </TextBlock>
 
-                    
                 </StackPanel>
 
                 <TextBlock Text="バージョン情報"
@@ -68,7 +66,7 @@
                 <StackPanel Margin="16 8">
                     <TextBlock Style="{StaticResource ContentTextStyle}">
                         <Run>
-                            @tor4kichi
+                            tor4kichi (とらきち)
                         </Run>
                     </TextBlock>
                 </StackPanel>
@@ -141,7 +139,7 @@
                                     
                                 </StackPanel>
 
-                                <StackPanel Orientation="Horizontal" Margin="8 8 0 0">
+                                <StackPanel Orientation="Horizontal" Margin="16 8 0 0">
 
                                     <TextBlock Text="Author:" Foreground="Gray"  />
 

@@ -57,7 +57,7 @@ namespace NicoPlayerHohoema.Models
 
 
 
-		public List<FavFeedItem> FeedItems { get; private set; }
+		public List<FeedItem> FeedItems { get; private set; }
 
 		[DataMember(Name = "update_time")]
 		private DateTime _UpdateTime;
@@ -87,7 +87,7 @@ namespace NicoPlayerHohoema.Models
 			Id = Guid.NewGuid();
 			Label = "";
 			_FeedSourceList = new List<IFeedSource>();
-			FeedItems = new List<FavFeedItem>();
+			FeedItems = new List<FeedItem>();
 			IsNeedRefresh = true;
 			_RefreshingLock = new SemaphoreSlim(1, 1);
 		}
@@ -97,7 +97,7 @@ namespace NicoPlayerHohoema.Models
 			Id = Guid.NewGuid();
 			Label = label;
 			_FeedSourceList = new List<IFeedSource>();
-			FeedItems = new List<FavFeedItem>();
+			FeedItems = new List<FeedItem>();
 			IsNeedRefresh = true;
 			_RefreshingLock = new SemaphoreSlim(1, 1);
 		}
@@ -107,7 +107,7 @@ namespace NicoPlayerHohoema.Models
 			Id = legacy.Id;
 			Label = legacy.Label;
 			_FeedSourceList = legacy.FeedSourceList.ToList();
-			FeedItems = new List<FavFeedItem>();
+			FeedItems = new List<FeedItem>();
 			IsNeedRefresh = legacy.IsNeedRefresh;
 			_UpdateTime = legacy.UpdateTime;
 			_RefreshingLock = new SemaphoreSlim(1, 1);
@@ -117,7 +117,7 @@ namespace NicoPlayerHohoema.Models
 
 		public IFeedSource AddTagFeedSource(string tag)
 		{			
-			if (ExistFeedSource(FavoriteItemType.Tag, tag)) { return null; }
+			if (ExistFeedSource(FollowItemType.Tag, tag)) { return null; }
 
 			var feedSource = new TagFeedSource(tag);
 			_FeedSourceList.Add(feedSource);
@@ -129,7 +129,7 @@ namespace NicoPlayerHohoema.Models
 
 		public IFeedSource AddMylistFeedSource(string name, string mylistGroupId)
 		{
-			if (ExistFeedSource(FavoriteItemType.Mylist, mylistGroupId)) { return null; }
+			if (ExistFeedSource(FollowItemType.Mylist, mylistGroupId)) { return null; }
 
 			var feedSource = new MylistFeedSource(name, mylistGroupId);
 			_FeedSourceList.Add(feedSource);
@@ -141,7 +141,7 @@ namespace NicoPlayerHohoema.Models
 
 		public IFeedSource AddUserFeedSource(string name, string userId)
 		{
-			if (ExistFeedSource(FavoriteItemType.User, userId)) { return null; }
+			if (ExistFeedSource(FollowItemType.User, userId)) { return null; }
 
 			var feedSource = new UserFeedSource(name, userId);
 			_FeedSourceList.Add(feedSource);
@@ -160,9 +160,9 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public bool ExistFeedSource(FavoriteItemType itemType, string id)
+		public bool ExistFeedSource(FollowItemType itemType, string id)
 		{
-			return _FeedSourceList.Any(x => x.FavoriteItemType == itemType && x.Id == id);
+			return _FeedSourceList.Any(x => x.FollowItemType == itemType && x.Id == id);
 		}
 
 		public Task Refresh()
@@ -177,7 +177,7 @@ namespace NicoPlayerHohoema.Models
 			Debug.WriteLine($"{Label} starting update feed.");
 
 			var updateTime = DateTime.Now;
-			var latestItems = new List<FavFeedItem>();
+			var latestItems = new List<FeedItem>();
 			foreach (var feedSource in _FeedSourceList)
 			{
 				var items = await feedSource.GetLatestItems(HohoemaApp);
@@ -198,12 +198,12 @@ namespace NicoPlayerHohoema.Models
 				item.CheckedTime = updateTime;
 			}
 
-			var exceptItems = latestOrderedItems.Except(FeedItems, FavFeedItemComparer.Default).ToList();
+			var exceptItems = latestOrderedItems.Except(FeedItems, FeedItemComparer.Default).ToList();
 
 			var addedItems = exceptItems.Where(x => x.CheckedTime == updateTime);
 
 			var removedItems = FeedItems
-				.Except(latestOrderedItems, FavFeedItemComparer.Default)
+				.Except(latestOrderedItems, FeedItemComparer.Default)
 				.Where(x => x.CheckedTime != updateTime)
 				.ToList();
 
@@ -245,7 +245,7 @@ namespace NicoPlayerHohoema.Models
 
 			}
 
-			FeedItems.Sort(FavFeedItemComparer.Default);
+			FeedItems.Sort(FeedItemComparer.Default);
 
 			UpdateTime = updateTime;
 
@@ -320,12 +320,12 @@ namespace NicoPlayerHohoema.Models
 
 
 
-		public async Task<bool> LoadFeedStream(FileAccessor<List<FavFeedItem>> fileAccessor)
+		public async Task<bool> LoadFeedStream(FileAccessor<List<FeedItem>> fileAccessor)
 		{
 			try
 			{
 				var items = await fileAccessor.Load();
-				this.FeedItems = items ?? new List<FavFeedItem>();
+				this.FeedItems = items ?? new List<FeedItem>();
 
 				return true;
 			}
@@ -382,7 +382,7 @@ namespace NicoPlayerHohoema.Models
 
 
 		[DataMember(Name = "feed_items")]
-		public List<FavFeedItem> FeedItems { get; private set; }
+		public List<FeedItem> FeedItems { get; private set; }
 
 		[DataMember(Name = "update_time")]
 		private DateTime _UpdateTime;

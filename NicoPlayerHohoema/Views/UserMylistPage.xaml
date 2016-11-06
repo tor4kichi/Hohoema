@@ -20,14 +20,14 @@
     <toolkit:DockPanel>
 
        
-        <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
+        <toolkit:DockPanel toolkit:DockPanel.Dock="Top" Margin="0 0 0 8">
 
-            <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left" Margin="8">
+            <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left" Margin="8 0">
                 <AppBarButton Icon="Add" Label="マイリスト作成" Command="{Binding AddMylistGroupCommand}" />
             </StackPanel>
             
             <!-- 複数選択のON/OFF -->
-            <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Right"  Margin="8">
+            <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Right"  Margin="8 0">
                 <ToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               Content="選択モード"
                               />
