@@ -201,9 +201,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 			using (var releaser = await _VideoItemsLock.LockAsync())
 			{
-				for (int i = head; i < tail; i++)
+				foreach (var nicoVideo in _VideoItems.Skip(head).Take(count))
 				{
-					var nicoVideo = _VideoItems.ElementAt(i);
+					var i = _VideoItems.IndexOf(nicoVideo);
 					var vm = NicoVideoToTemplatedItem(nicoVideo, i);
 					items.Add(vm);
 				}

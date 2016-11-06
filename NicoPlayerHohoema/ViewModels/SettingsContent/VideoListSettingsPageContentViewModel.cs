@@ -42,17 +42,20 @@ namespace NicoPlayerHohoema.ViewModels
 			AddFavRankingCategory = new DelegateCommand(async () =>
 			{
 				var items = _RankingSettings.MiddlePriorityCategory.ToArray();
-				var choiceItem = await _RankingChoiceDialogService.ShowDialog(items);
+				var choiceItems = await _RankingChoiceDialogService.ShowRankingCategoryChoiceDialog("好きなカテゴリを選択", items);
 
-				if (choiceItem != null)
+				if (choiceItems != null)
 				{
-					if (choiceItem.RankingSource == RankingSource.CategoryRanking)
+					foreach (var choiceItem in choiceItems)
 					{
-						var removeTarget = SelectableCategories.SingleOrDefault(x => x.CategoryInfo == choiceItem);
-						SelectableCategories.Remove(removeTarget);
-					}
+						if (choiceItem.RankingSource == RankingSource.CategoryRanking)
+						{
+							var removeTarget = SelectableCategories.SingleOrDefault(x => x.CategoryInfo == choiceItem);
+							SelectableCategories.Remove(removeTarget);
+						}
 
-					FavCategories.Add(new RankingCategorySettingsListItem(choiceItem, this));
+						FavCategories.Add(new RankingCategorySettingsListItem(choiceItem, this));
+					}
 				}
 
 				ApplyAllPriorityCategoriesToRankingSettings();
@@ -68,7 +71,7 @@ namespace NicoPlayerHohoema.ViewModels
 			AddDislikeRankingCategory = new DelegateCommand(async () =>
 			{
 				var items = _RankingSettings.MiddlePriorityCategory.ToArray();
-				var choiceItems = await _RankingChoiceDialogService.ShowDislikeRankingCategoryChoiceDialog(items);
+				var choiceItems = await _RankingChoiceDialogService.ShowRankingCategoryChoiceDialog("非表示にするカテゴリを選択", items);
 
 				if (choiceItems != null)
 				{

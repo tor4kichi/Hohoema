@@ -518,6 +518,8 @@ namespace NicoPlayerHohoema.ViewModels
 			CommandEditerVM.OnCommandChanged += () => UpdateCommandString();
 
 
+			IsForceLandscape = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, HohoemaApp.UserSettings.PlayerSettings.IsForceLandscapeDefault);
+			OnPropertyChanged(nameof(IsForceLandscape));
 		}
 
 
@@ -1152,7 +1154,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+		public override async void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
 			Debug.WriteLine("VideoPlayer OnNavigatingFromAsync start.");
 
@@ -1182,6 +1184,7 @@ namespace NicoPlayerHohoema.ViewModels
 				// stream.Dispose();
 				if (Video != null)
 				{
+					await Task.Delay(1000);
 					Video.StopPlay().ConfigureAwait(false);
 				}
 			}
@@ -1206,7 +1209,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		protected override void OnDispose()
+		protected override async void OnDispose()
 		{
 			base.OnDispose();
 
@@ -1214,7 +1217,9 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				VideoStream.Value = null;
 
-				Video.StopPlay().ConfigureAwait(false);
+				await Task.Delay(1000);
+
+				await Video.StopPlay().ConfigureAwait(false);
 			}
 
 			_BufferingMonitorDisposable?.Dispose();
@@ -1462,7 +1467,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			ExitKeepDisplay();
 
-			if (HohoemaApp.UserSettings.PlayerSettings.IsKeepDisplayInPlayback)
+//			if (HohoemaApp.UserSettings.PlayerSettings.IsKeepDisplayInPlayback)
 			{
 				DisplayRequestHelper.RequestKeepDisplay();
 			}
@@ -1552,6 +1557,8 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<TimeSpan> RequestCommentDisplayDuration { get; private set; }
 		public ReactiveProperty<double> CommentFontScale { get; private set; }
 		public ReactiveProperty<bool> IsFullScreen { get; private set; }
+		public ReactiveProperty<bool> IsForceLandscape { get; private set; }
+
 
 
 

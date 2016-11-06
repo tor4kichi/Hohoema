@@ -62,7 +62,7 @@ namespace NicoPlayerHohoema.Models.AppMap
 		public HohoemaPageType PageType { get; private set; }
 		public string Parameter { get; private set; }
 
-		public FeedAppMapItem(FavFeedItem feedItem)
+		public FeedAppMapItem(FeedItem feedItem)
 		{
 			PrimaryLabel = feedItem.Title;
 			SecondaryLabel = feedItem.IsUnread ? "New" : null;

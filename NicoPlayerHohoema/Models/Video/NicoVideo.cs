@@ -29,6 +29,7 @@ namespace NicoPlayerHohoema.Models
 		internal WatchApiResponse CachedWatchApiResponse { get; private set; }
 
 		bool _IsInitialized = false;
+		bool _thumbnailInitialized = false;
 
 		public NicoVideo(HohoemaApp app, string rawVideoid, NicoVideoDownloadContext context)
 		{
@@ -113,6 +114,8 @@ namespace NicoPlayerHohoema.Models
 
 		private async Task UpdateWithThumbnail()
 		{
+			if (_thumbnailInitialized) { return; }
+
 			// 動画のサムネイル情報にアクセスさせて、アプリ内部DBを更新
 			try
 			{
@@ -131,11 +134,17 @@ namespace NicoPlayerHohoema.Models
 				this.MylistCount = res.MylistCount;
 				this.CommentCount = res.CommentCount;
 				this.ThumbnailUrl = res.ThumbnailUrl.AbsoluteUri;
+
+				_thumbnailInitialized = true;
 			}
 			catch (Exception e) when (e.Message.Contains("delete"))
 			{
 				this.IsDeleted = true;
 				await DeletedTeardown();
+			}
+			catch (Exception e) when (e.Message.Contains("community"))
+			{
+				this.IsCommunity = true;
 			}
 
 			if (!this.IsDeleted && OriginalQuality.IsCacheRequested || LowQuality.IsCacheRequested)
@@ -190,6 +199,25 @@ namespace NicoPlayerHohoema.Models
 				DescriptionWithHtml = watchApiRes.videoDetail.description;
 				ThreadId = watchApiRes.ThreadId.ToString();
 				PrivateReasonType = watchApiRes.PrivateReason;
+
+				if (!_thumbnailInitialized)
+				{
+					RawVideoId = watchApiRes.videoDetail.id;
+					await UpdateWithThumbnail();
+				}
+				IsCommunity = watchApiRes.flashvars.is_community_video == "1";
+				
+
+				// TODO: 
+//				Tags = watchApiRes.videoDetail.tagList.Select(x => new Tag()
+//				{
+					
+//				}).ToList();
+
+				if (watchApiRes.UploaderInfo != null)
+				{
+					VideoOwnerId = uint.Parse(watchApiRes.UploaderInfo.id);
+				}
 
 
 				this.IsDeleted = watchApiRes.IsDeleted;
@@ -547,6 +575,7 @@ namespace NicoPlayerHohoema.Models
 		public string VideoId { get; private set; }
 
 		public bool IsDeleted { get; private set; }
+		public bool IsCommunity { get; private set; }
 
 		public MovieType ContentType { get; private set; }
 		public string Title { get; private set; }

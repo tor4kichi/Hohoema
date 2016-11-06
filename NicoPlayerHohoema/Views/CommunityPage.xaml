@@ -21,7 +21,7 @@
 
         
         
-        <StackPanel Margin="16" MaxWidth="960">
+        <StackPanel Margin="16 0 16 16" MaxWidth="960">
 
 
             <HyperlinkButton NavigateUri="{Binding TopUrl}" 
@@ -259,6 +259,37 @@
 
             </StackPanel>
 
+            <StackPanel>
+
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="コミュニティ動画" VerticalAlignment="Center" />
+
+                    <HyperlinkButton Content="一覧" 
+                                     Command="{Binding OpenCommunityVideoListPageCommand}"
+                                     Margin="16 0 0 0"
+                                     VerticalAlignment="Center"
+                                     />
+
+                </StackPanel>
+
+                <Border Height="8" />
+
+                <ItemsControl ItemsSource="{Binding CommunityVideoSamples}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="0 0 0 8">
+                                <Button Content="{Binding Title}"
+                                        Command="{Binding OpenVideoPageCommand}"
+                                        HorizontalAlignment="Stretch"
+                                        Height="32"
+                                                 />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+            </StackPanel>
+            
             <StackPanel>
 
                 <TextBlock Text="最近行われた生放送" />

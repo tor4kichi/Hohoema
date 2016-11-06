@@ -21,13 +21,13 @@
 
             <toolkit:DockPanel Margin="8">
 
-                <TextBlock Text="デフォルトでコメントを表示する"
+                <TextBlock Text="コメントを書き始めたら動画を一時停止する"
                         toolkit:DockPanel.Dock="Left"
                         VerticalAlignment="Center"
                         />
 
                 <ToggleButton Width="32" Height="32"
-                            IsChecked="{Binding DefaultCommentDisplay.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                            IsChecked="{Binding IsPauseWithCommentWriting.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                             HorizontalAlignment="Right"
                             />
 
@@ -120,36 +120,7 @@
                 </ComboBox>
             </toolkit:DockPanel>
 
-            <toolkit:DockPanel Margin="8">
-
-                <TextBlock Text="コメントを書き始めたら動画を一時停止する"
-                        toolkit:DockPanel.Dock="Left"
-                        VerticalAlignment="Center"
-                        />
-
-                <ToggleButton Width="32" Height="32"
-                            IsChecked="{Binding IsPauseWithCommentWriting.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                            HorizontalAlignment="Right"
-                            />
-
-            </toolkit:DockPanel>
-
-            <toolkit:DockPanel Margin="8">
-
-                <TextBlock Text="再生中は画面を点灯したままにする"
-                        toolkit:DockPanel.Dock="Left"
-                        VerticalAlignment="Center"
-                        />
-
-                <ToggleButton Width="32" Height="32"
-                            IsChecked="{Binding IsKeepDisplayInPlayback.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                            HorizontalAlignment="Right"
-                            />
-
-            </toolkit:DockPanel>
-
-
-
+            
             <toolkit:DockPanel Margin="8">
 
                 <TextBlock Text="※音量は 0.0 ～ 1.0 の間に設定されます"
@@ -174,33 +145,6 @@
                                     />
 
             </toolkit:DockPanel>
-
-            
-            
-            <!--
-        <toolkit:DockPanel Margin="8">
-
-            <TextBlock Text="（デスクトップ表示の時だけ有効です）"
-                        toolkit:DockPanel.Dock="Bottom"
-                        VerticalAlignment="Top"
-                        HorizontalAlignment="Left"
-                        FontSize="11"
-                        Foreground="DarkGray"
-                        />
-                
-            <TextBlock Text="再生中はウィンドウを最前面に表示する"
-                        toolkit:DockPanel.Dock="Left"
-                        VerticalAlignment="Center"
-                        />
-               
-
-            <ToggleButton Width="32" Height="32"
-                            IsChecked="{Binding IsKeepFrontsideInPlayback.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                            HorizontalAlignment="Right"
-                            />
-
-        </toolkit:DockPanel>
--->
 
         </ItemsControl>
     </StackPanel>

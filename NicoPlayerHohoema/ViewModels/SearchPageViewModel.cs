@@ -78,7 +78,7 @@ namespace NicoPlayerHohoema.ViewModels
 				SearchTarget.Keyword,
 				SearchTarget.Tag,
 				SearchTarget.Mylist,
-//				SearchTarget.Community,
+				SearchTarget.Community,
 				SearchTarget.Niconama,
 			};
 

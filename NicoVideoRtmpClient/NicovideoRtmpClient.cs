@@ -198,25 +198,19 @@ namespace NicoVideoRtmpClient
 			_Uri = rtmpUri;
 
 			_NlPlayNoticeCommand = MakeNLPlayNoticeCommand();
+
+			_Command = new NetConnectionConnectCommand(Uri.App);
+			_Command.SwfUrl = "http://live.nicovideo.jp/nicoliveplayer.swf?160530135720";
+			_Command.PageUrl = "http://live.nicovideo.jp/watch/" + PlayerStatus.Program.Id;
+			// TcUrl は RtmpUriのInstanceを省いた文字列
+			_Command.TcUrl = $"{Uri.Scheme.ToString().ToLower()}://{Uri.Host}:{Uri.Port}/{Uri.App}";
+			_Command.FlashVersion = "WIN 23,0,0,162";
+			// Rtmpのconnectメソッドのextrasとして PlayerStatus.Stream.Ticket の値を追加
+			_Command.OptionalUserArguments = AmfValue.CreateStringValue($"{PlayerStatus.Stream.Ticket}");
 		}
 
-
-		public override NetConnectionConnectCommand Command
-		{
-			get
-			{
-				var command = new NetConnectionConnectCommand(Uri.App);
-				command.SwfUrl = "http://live.nicovideo.jp/nicoliveplayer.swf?160530135720";
-				command.PageUrl = "http://live.nicovideo.jp/watch/" + PlayerStatus.Program.Id;
-				// TcUrl は RtmpUriのInstanceを省いた文字列
-				command.TcUrl = $"{Uri.Scheme.ToString().ToLower()}://{Uri.Host}:{Uri.Port}/{Uri.App}";
-				command.FlashVersion = "WIN 23,0,0,162";
-				// Rtmpのconnectメソッドのextrasとして PlayerStatus.Stream.Ticket の値を追加
-				command.OptionalUserArguments = AmfValue.CreateStringValue($"{PlayerStatus.Stream.Ticket}");
-				
-				return command;
-			}
-		}
+		private NetConnectionConnectCommand _Command;
+		public override NetConnectionConnectCommand Command => _Command;
 
 		private RtmpUri _Uri;
 		public override RtmpUri Uri
@@ -369,9 +363,13 @@ namespace NicoVideoRtmpClient
 		private BufferingHelper _BufferingHelper;
 
 
+		bool _IsClosed;
+
+		static int _IdSeed;
+		int ClientId;
 		public NicovideoRtmpClient()
 		{
-
+			ClientId = _IdSeed++;
 		}
 
 		public void Dispose()
@@ -385,26 +383,26 @@ namespace NicoVideoRtmpClient
 			{
 				_MediaStreamSource.Starting -= OnStarting;
 				_MediaStreamSource.SampleRequested -= OnSampleRequested;
-				
-				_MediaStreamSource = null;
 
+				_MediaStreamSource = null;
+			}
+			if (_Stream != null)
+			{
 				_Stream.Attached -= OnAttached;
 				_Stream.StatusUpdated -= OnNetStreamStatusUpdated;
 				_Stream.AudioStarted -= OnAudioStarted;
 				_Stream.VideoStarted -= OnVideoStarted;
-				try
-				{
-					_BufferingHelper.Stop();
-				}
-				catch (Exception ex)
-				{
-					Debug.WriteLine(ex.ToString());
-				}
-
-				
-				_BufferingHelper = null;
 				_Stream = null;
-				
+			}
+			if (_BufferingHelper != null)
+			{
+				_BufferingHelper.Stop();
+				_BufferingHelper = null;
+			}
+
+
+			if (_Connection != null)
+			{
 				_Connection.StatusUpdated -= OnNetConnectionStatusUpdated;
 				try
 				{
@@ -419,12 +417,21 @@ namespace NicoVideoRtmpClient
 					_Connection = null;
 				}
 			}
+
+			_IsClosed = true;
+
+			Debug.WriteLine($"RTMP : {ClientId} closed.");
 		}
 
 
 		private void CreateMediaStream(IMediaStreamDescriptor descriptor)
 		{
-			Close();
+			//			Close();
+
+			if (_MediaStreamSource != null)
+			{
+				throw new Exception();
+			}
 
 			_MediaStreamSource = new MediaStreamSource(descriptor);
 			_MediaStreamSource.BufferTime = new TimeSpan(2 * 10000000);
@@ -432,6 +439,8 @@ namespace NicoVideoRtmpClient
 
 			_MediaStreamSource.Starting += OnStarting;
 			_MediaStreamSource.SampleRequested += OnSampleRequested;
+
+			Debug.WriteLine($"RTMP : {ClientId} media stream created.");
 		}
 
 
@@ -520,6 +529,15 @@ namespace NicoVideoRtmpClient
 		bool isAlreadHaveAudio = false;
 		private void OnAudioStarted(object sender, NetStreamAudioStartedEventArgs args)
 		{
+			if (_IsClosed)
+			{
+				throw new Exception();
+			}
+			if (_Connection == null)
+			{
+				Debug.WriteLine("すでに閉じられたRTMP接続です");
+				return;
+			}
 			if (isAlreadHaveAudio) { return; }
 
 			var info = args.Info;
@@ -568,13 +586,26 @@ namespace NicoVideoRtmpClient
 
 			isAlreadHaveAudio = true;
 
-			Debug.WriteLine($"{nameof(NicovideoRtmpClient)}: {prop.ToString()}");
+			Debug.WriteLine($"{nameof(NicovideoRtmpClient)}: audio : id:{ClientId}");
 		}
 
 		bool isAlreadHaveVideo = false;
 		private void OnVideoStarted(object sender, NetStreamVideoStartedEventArgs args)
 		{
-			if (isAlreadHaveVideo) { return; }
+			if (_IsClosed)
+			{
+				throw new Exception();
+			}
+			if (_Connection == null)
+			{
+				Debug.WriteLine("すでに閉じられたRTMP接続です");
+				return;
+			}
+			if (isAlreadHaveVideo)
+			{
+				Debug.WriteLine("すでにビデオプロパティは初期化済み");
+				return;
+			}
 
 
 			var info = args.Info;
@@ -613,7 +644,7 @@ namespace NicoVideoRtmpClient
 
 			isAlreadHaveVideo = true;
 
-			Debug.WriteLine($"{nameof(NicovideoRtmpClient)}: {prop.ToString()}");
+			Debug.WriteLine($"{nameof(NicovideoRtmpClient)}: video : id:{ClientId}");
 
 		}
 

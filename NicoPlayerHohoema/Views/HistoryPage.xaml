@@ -30,8 +30,28 @@
                 <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left">
                     <AppBarButton Icon="Delete" 
                                   Label="全ての履歴を削除"
-                                  Command="{Binding RemoveAllHistoryCommand}"
-                                  />
+                                  IsEnabled="{Binding HasItem.Value}"
+                                  >
+                        <AppBarButton.Flyout>
+                            <Flyout>
+                                <StackPanel Margin="8" Width="240">
+                                    <TextBlock Margin="0 0 0 16"
+                                               LineHeight="20"
+                                               TextWrapping="Wrap"
+                                               >
+                                        <Run>視聴履歴を全て削除します</Run>
+                                        <LineBreak />
+                                        <Run>本当に削除してもいいですか？</Run>
+                                    </TextBlock>
+
+                                    <Button Content="本当に削除" 
+                                            Command="{Binding RemoveAllHistoryCommand}"
+                                            HorizontalAlignment="Stretch"
+                                            />
+                                </StackPanel>
+                            </Flyout>
+                        </AppBarButton.Flyout>
+                    </AppBarButton>
                 </StackPanel>
 
                 <!-- 複数選択のON/OFF -->

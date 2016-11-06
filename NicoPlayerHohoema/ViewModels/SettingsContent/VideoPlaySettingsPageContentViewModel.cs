@@ -24,7 +24,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			IsKeepDisplayInPlayback = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsKeepDisplayInPlayback);
 			ScrollVolumeFrequency = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.ScrollVolumeFrequency);
-
+			IsForceLandscapeDefault = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsForceLandscapeDefault);
 
 			AutoHideDelayTime = _PlayerSettings.ToReactivePropertyAsSynchronized(x => 
 				x.AutoHidePlayerControlUIPreventTime
@@ -40,11 +40,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<bool> IsDefaultPlayWithLowQuality { get; private set; }
 		public ReactiveProperty<bool> IsFullScreenDefault { get; private set; }
+		public ReactiveProperty<bool> IsForceLandscapeDefault { get; private set; }
 
 		public ReactiveProperty<bool> IsKeepDisplayInPlayback { get; private set; }
 		public ReactiveProperty<double> ScrollVolumeFrequency { get; private set; }
 
 		public ReactiveProperty<double> AutoHideDelayTime { get; private set; }
+
 
 		private PlayerSettings _PlayerSettings;
 	}
