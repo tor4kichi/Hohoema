@@ -57,6 +57,8 @@
 
                 </toolkit:DockPanel>
 
+                <!--
+                BGM再生機能が利用可能になるまで利用できなくします
                 <toolkit:DockPanel Margin="0 8">
 
                     <TextBlock Text="再生中は画面を点灯したままにする"
@@ -71,7 +73,7 @@
 
                 </toolkit:DockPanel>
 
-
+                -->
                 
 
 
