@@ -74,10 +74,7 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task OnSuspending()
 		{
-			if (MediaManager != null && MediaManager.Context != null)
-			{
-				await MediaManager.Context.Suspending();
-			}
+			await SignOut();
 
 			await SyncToRoamingData();
 		}
@@ -659,11 +656,18 @@ namespace NicoPlayerHohoema.Models
 
 				try
 				{
+					if (MediaManager != null && MediaManager.Context != null)
+					{
+						await MediaManager.Context.Suspending();
+					}
+				}
+				catch { }
+
+				try
+				{
 					result = await NiconicoContext.SignOutOffAsync();
 
 					NiconicoContext.Dispose();
-
-					await OnSuspending();
 				}
 				finally
 				{
