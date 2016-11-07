@@ -566,7 +566,7 @@ namespace NicoPlayerHohoema.ViewModels
 			OnPropertyChanged(nameof(CommentFontScale));
 
 
-			IsForceLandscape = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, HohoemaApp.UserSettings.PlayerSettings.IsForceLandscapeDefault);
+			IsForceLandscape = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, HohoemaApp.UserSettings.PlayerSettings.IsForceLandscape);
 			OnPropertyChanged(nameof(IsForceLandscape));
 
 

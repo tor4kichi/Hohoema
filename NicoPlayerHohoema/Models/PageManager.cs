@@ -84,23 +84,50 @@ namespace NicoPlayerHohoema.Models
 			set { SetProperty(ref _PageTitle, value); }
 		}
 
+
+		private bool _PageNavigating;
+		public bool PageNavigating
+		{
+			get { return _PageNavigating; }
+			set { SetProperty(ref _PageNavigating, value); }
+		}
+
+
+
+
 		public PageManager(INavigationService ns)
 		{
 			NavigationService = ns;
-			CurrentPageType = HohoemaPageType.RankingCategoryList;
+			CurrentPageType = HohoemaPageType.Portal;
 		}
 		
 	
 		public void OpenPage(HohoemaPageType pageType, object parameter = null)
 		{
-			HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+			HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
 			{
-				var oldPageType = CurrentPageType;
-				CurrentPageType = pageType;
-
-				if (!NavigationService.Navigate(pageType.ToString(), parameter))
+				try
 				{
-					CurrentPageType = oldPageType;
+					PageNavigating = true;
+
+					await Task.Delay(30);
+
+					var oldPageTitle = PageTitle;
+					PageTitle = "";
+					var oldPageType = CurrentPageType;
+					CurrentPageType = pageType;
+
+					await Task.Delay(30);
+
+					if (!NavigationService.Navigate(pageType.ToString(), parameter))
+					{
+						CurrentPageType = oldPageType;
+						PageTitle = oldPageTitle;
+					}
+				}
+				finally
+				{
+					PageNavigating = false;
 				}
 			})
 			.AsTask()
@@ -118,10 +145,11 @@ namespace NicoPlayerHohoema.Models
 		/// <summary>
 		/// 外部で戻る処理が行われた際にPageManager上での整合性を取ります
 		/// </summary>
-		public void OnNavigated(NavigatedToEventArgs e)
+		public async void OnNavigated(NavigatedToEventArgs e)
 		{
 			if (e.NavigationMode == NavigationMode.Back || e.NavigationMode == NavigationMode.Forward)
 			{
+				
 				if (e.SourcePageType.Name.EndsWith("Page"))
 				{
 					var pageTypeString = e.SourcePageType.Name.Remove(e.SourcePageType.Name.IndexOf("Page"));
@@ -129,7 +157,18 @@ namespace NicoPlayerHohoema.Models
 					HohoemaPageType pageType;
 					if (Enum.TryParse(pageTypeString, out pageType))
 					{
-						CurrentPageType = pageType;
+						try
+						{
+							PageNavigating = true;
+
+							CurrentPageType = pageType;
+
+							await Task.Delay(250);
+						}
+						finally
+						{
+							PageNavigating = false;
+						}
 
 						System.Diagnostics.Debug.WriteLine($"navigated : {pageType.ToString()}");
 					}

@@ -36,7 +36,7 @@ namespace NicoPlayerHohoema.Models
 			CommentColor = Colors.WhiteSmoke;
 			IsAutoHidePlayerControlUI = true;
 			AutoHidePlayerControlUIPreventTime = TimeSpan.FromSeconds(3);
-			IsForceLandscapeDefault = true;
+			IsForceLandscape = false;
 		}
 
 
@@ -247,7 +247,7 @@ namespace NicoPlayerHohoema.Models
 		private bool _IsForceLandscapeDefault;
 
 		[DataMember]
-		public bool IsForceLandscapeDefault
+		public bool IsForceLandscape
 		{
 			get { return _IsForceLandscapeDefault; }
 			set { SetProperty(ref _IsForceLandscapeDefault, value); }
