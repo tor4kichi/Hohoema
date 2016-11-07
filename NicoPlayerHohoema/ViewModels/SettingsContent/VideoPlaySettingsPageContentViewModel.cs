@@ -24,7 +24,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			IsKeepDisplayInPlayback = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsKeepDisplayInPlayback);
 			ScrollVolumeFrequency = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.ScrollVolumeFrequency);
-			IsForceLandscapeDefault = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsForceLandscapeDefault);
+			IsForceLandscapeDefault = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsForceLandscape);
 
 			AutoHideDelayTime = _PlayerSettings.ToReactivePropertyAsSynchronized(x => 
 				x.AutoHidePlayerControlUIPreventTime
