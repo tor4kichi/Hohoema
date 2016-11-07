@@ -177,7 +177,7 @@
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding ElementName=ForceRotateToggleButton, Path=IsChecked, Converter={StaticResource InvertBoolean}}" />
+                        <StateTrigger IsActive="{Binding IsForceLandscape.Value, Converter={StaticResource InvertBoolean}}" />
 
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
@@ -205,8 +205,6 @@
 
         <toolkit:LayoutTransformControl
                 x:Name="LayoutTransform"
-                MaxHeight="{Binding ElementName=PageRoot, Path=ActualHeight}"
-                MaxWidth="{Binding ElementName=PageRoot, Path=ActualWidth}"
                 >
             <toolkit:LayoutTransformControl.Transform>
                 <RotateTransform x:Name="LayoutRotateTranform" Angle="0" />

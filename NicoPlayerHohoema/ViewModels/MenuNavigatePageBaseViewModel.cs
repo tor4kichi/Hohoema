@@ -121,7 +121,8 @@ namespace NicoPlayerHohoema.ViewModels
 				})
 				.ToReactiveProperty();
 
-
+			NowNavigating = PageManager.ObserveProperty(x => x.PageNavigating)
+				.ToReactiveProperty();
 
 
 			PageManager.StartWork += PageManager_StartWork;
@@ -172,6 +173,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<bool> IsPersonalPage { get; private set; }
 
+		public ReactiveProperty<bool> NowNavigating { get; private set; }
 
 		/// <summary>
 		/// 表示サイズによるPane表示方法の違い
