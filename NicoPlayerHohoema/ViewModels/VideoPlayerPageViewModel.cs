@@ -518,7 +518,7 @@ namespace NicoPlayerHohoema.ViewModels
 			CommandEditerVM.OnCommandChanged += () => UpdateCommandString();
 
 
-			IsForceLandscape = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, HohoemaApp.UserSettings.PlayerSettings.IsForceLandscapeDefault);
+			IsForceLandscape = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, HohoemaApp.UserSettings.PlayerSettings.IsForceLandscape);
 			OnPropertyChanged(nameof(IsForceLandscape));
 		}
 

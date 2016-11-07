@@ -306,12 +306,13 @@
                         </SplitView.Pane>
                         <SplitView.Content>
 
-                            <toolkit:DockPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+                            <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-                                <ContentPresenter />
+                                <ContentPresenter
+                                    Visibility="{Binding NowNavigating.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                    />
 
-
-                            </toolkit:DockPanel>
+                            </Grid>
                         </SplitView.Content>
                     </SplitView>
 
