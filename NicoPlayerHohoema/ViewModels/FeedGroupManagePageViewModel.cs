@@ -133,6 +133,8 @@ namespace NicoPlayerHohoema.ViewModels
 						{
 							var feedGroup = await HohoemaApp.FeedManager.AddFeedGroup(newFeedGroupName);
 
+							RefreshAllFeedGroupCommand.RaiseCanExecuteChanged();
+
 							PageManager.OpenPage(HohoemaPageType.FeedGroup, feedGroup.Id);
 						}
 					}));
@@ -148,7 +150,26 @@ namespace NicoPlayerHohoema.ViewModels
 				return _RemoveFeedGroupCommand
 					?? (_RemoveFeedGroupCommand = new DelegateCommand(() =>
 					{
+						RefreshAllFeedGroupCommand.RaiseCanExecuteChanged();
 					}));
+			}
+		}
+
+		private DelegateCommand _RefreshAllFeedGroupCommand;
+		public DelegateCommand RefreshAllFeedGroupCommand
+		{
+			get
+			{
+				return _RefreshAllFeedGroupCommand
+					?? (_RefreshAllFeedGroupCommand = new DelegateCommand(async () =>
+					{
+						foreach (var feedGroup in HohoemaApp.FeedManager.FeedGroups)
+						{
+							await feedGroup.Refresh();
+						}
+					}, 
+					() => HohoemaApp.FeedManager.FeedGroups.Count > 0
+					));
 			}
 		}
 
@@ -182,6 +203,7 @@ namespace NicoPlayerHohoema.ViewModels
 					ItemType = x.FollowItemType
 				})
 				.ToList();
+			
 		}
 
 		private DelegateCommand _SelectedCommand;

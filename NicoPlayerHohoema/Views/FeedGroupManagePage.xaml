@@ -103,7 +103,14 @@
                     </AppBarButton>
 
                 </StackPanel>
-                
+
+                <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Right">
+
+                    <AppBarButton Icon="Refresh" 
+                                  Label="全て更新"
+                                  Command="{Binding RefreshAllFeedGroupCommand}"
+                                  />
+                </StackPanel>
                 
                 <Border />
                 
