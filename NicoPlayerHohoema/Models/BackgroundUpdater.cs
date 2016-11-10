@@ -90,7 +90,7 @@ namespace NicoPlayerHohoema.Models
 
 	public class BackgroundUpdater : IDisposable
 	{
-		public uint TaskSlotCount = 2;
+		public static uint MaxTaskSlotCount = 2;
 
 
 		private bool _IsActive;
@@ -108,10 +108,9 @@ namespace NicoPlayerHohoema.Models
 		public event BackgroundUpdateCompletedEventHandler BackgroundUpdateCompletedEvent;
 		public event BackgroundUpdateCanceledEventHandler BackgroundUpdateCanceledEvent;
 
-		public BackgroundUpdater(string id, CoreDispatcher uiDispatcher, uint maxTaskSlotCount = 2)
+		public BackgroundUpdater(string id, CoreDispatcher uiDispatcher)
 		{
 			Id = id;
-			TaskSlotCount = maxTaskSlotCount;
 			UIDispatcher = uiDispatcher;
 			UpdateTargetStack = new List<BackgroundUpdateInfo>();
 			_RunningTasks = new List<RunningTaskInfo>();
@@ -234,6 +233,8 @@ namespace NicoPlayerHohoema.Models
 
 		public async void CancelFromGroupId(string groupId)
 		{
+			Debug.WriteLine("cancel bg update : " + groupId);
+
 			using (var releaser = await _ScheduleUpdateLock.LockAsync())
 			{
 				UpdateTargetStack.RemoveAll(x => x.GroupId == groupId);
@@ -246,6 +247,8 @@ namespace NicoPlayerHohoema.Models
 		}
 		public async void CancelFromId(params string[] idList)
 		{
+			Debug.WriteLine("cancel bg update : " + idList);
+
 			using (var releaser = await _ScheduleUpdateLock.LockAsync())
 			{
 				UpdateTargetStack.RemoveAll(x => idList.Any(y => y == x.Id));
@@ -261,7 +264,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			using (var releaser = await _ScheduleUpdateLock.LockAsync())
 			{
-				return _RunningTasks.Count < this.TaskSlotCount;
+				return _RunningTasks.Count < BackgroundUpdater.MaxTaskSlotCount;
 			}
 		}
 
@@ -302,18 +305,21 @@ namespace NicoPlayerHohoema.Models
 
 		private async void StartTaskAndRegistration(BackgroundUpdateInfo item)
 		{
+			var cancelTokenSource = new CancellationTokenSource();
 			var taskInfo = new RunningTaskInfo()
 			{
 				Target = item.Target,
 				Item = item,
-				CancelTokenSource = new CancellationTokenSource(),
+				CancelTokenSource = cancelTokenSource,
 				CurrentUpdateTargetTask =
 					Task.Run(async () =>
 					{
-						await item.Target.BackgroundUpdate(UIDispatcher);
+						await item.Target.BackgroundUpdate(UIDispatcher)
+							.AsTask(cancelTokenSource.Token);
 						return item;
-					})
-					.ContinueWith(OnTaskComplete)
+					}
+					)
+					.ContinueWith(OnContinueTask)
 			};
 
 
@@ -351,29 +357,34 @@ namespace NicoPlayerHohoema.Models
 			{
 				_RunningTasks.Remove(taskInfo);
 			}
-			
 		}
 
-		private async Task OnTaskComplete(Task<BackgroundUpdateInfo> task)
+		private async Task OnContinueTask(Task<BackgroundUpdateInfo> task)
 		{
-			var updateTarget = task.Result;
-
-			Debug.WriteLine($"BGTask[{Id}]: update {task.Status.ToString()} {updateTarget.Id}");
-			(updateTarget as BackgroundUpdateInfo)?.Complete(UIDispatcher);
-
-			// 完了イベント呼び出し
-			BackgroundUpdateCompletedEvent?.Invoke(updateTarget);
-
-			using (var releaser = await _ScheduleUpdateLock.LockAsync())
+			if (task.IsCompleted && !task.IsCanceled)
 			{
-				var taskInfo = _RunningTasks.First(x => x.Item == updateTarget);
-				// タスク管理のクリーンナップ
-				taskInfo.CancelTokenSource?.Dispose();
+				var updateTarget = task.Result;
 
-				_RunningTasks.Remove(taskInfo);
+				Debug.WriteLine($"BGTask[{Id}]: update {task.Status.ToString()} {updateTarget.Id}");
+				(updateTarget as BackgroundUpdateInfo)?.Complete(UIDispatcher);
+
+				// 完了イベント呼び出し
+				BackgroundUpdateCompletedEvent?.Invoke(updateTarget);
+
+				using (var releaser = await _ScheduleUpdateLock.LockAsync())
+				{
+					var taskInfo = _RunningTasks.FirstOrDefault(x => x.Item == updateTarget);
+					if (taskInfo != null)
+					{
+						// タスク管理のクリーンナップ
+						taskInfo.CancelTokenSource?.Dispose();
+
+						_RunningTasks.Remove(taskInfo);
+					}
+				}
+
+				await TryBeginNext().ConfigureAwait(false);
 			}
-
-			await TryBeginNext().ConfigureAwait(false);
 		}
 
 

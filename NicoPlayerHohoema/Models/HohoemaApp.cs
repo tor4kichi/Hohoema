@@ -608,8 +608,7 @@ namespace NicoPlayerHohoema.Models
 
 
 							// ホーム画面で表示するアプリマップ情報をリセット
-							await AppMapManager.Root.Reset();
-
+							var appMapManagerUpdateInfo = BackgroundUpdater.CreateBackgroundUpdateInfo(AppMapManager, nameof(AppMapManager), priority: -1);
 
 
 							Debug.WriteLine("Login done.");

@@ -213,7 +213,15 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			var updater = new DefferedNicoVideoVMUpdate<T>(items);
 			HohoemaApp.BackgroundUpdater.CreateBackgroundUpdateInfoWithImmidiateSchedule(
-				updater, $"{PreloadScheduleLabel}_" + TotalCount);
+				updater, 
+				$"{PreloadScheduleLabel}_" + TotalCount,
+				PreloadScheduleLabel
+				);
+		}
+
+		public void CancelPreloading()
+		{
+			HohoemaApp.BackgroundUpdater.CancelFromGroupId(PreloadScheduleLabel);
 		}
 	}
 
@@ -228,10 +236,12 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public IAsyncAction BackgroundUpdate(CoreDispatcher uiDispatcher)
 		{
-			return AsyncInfo.Run(async (cancel) => 
+			return AsyncInfo.Run(async (cancelToken) => 
 			{
 				foreach (var item in Items)
 				{
+					cancelToken.ThrowIfCancellationRequested();
+
 					await item.NicoVideo.Initialize()
 						.ContinueWith(async prevResult =>
 						{
@@ -241,8 +251,9 @@ namespace NicoPlayerHohoema.ViewModels
 							});
 
 							await Task.Delay(10);
-						})
-						.ConfigureAwait(false);
+						});
+
+					cancelToken.ThrowIfCancellationRequested();
 				}
 			});
 			

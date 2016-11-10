@@ -321,6 +321,18 @@ namespace NicoPlayerHohoema.ViewModels
 
 		}
 
+		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+		{
+			base.OnNavigatingFrom(e, viewModelState, suspending);
+
+			if (IncrementalLoadingItems != null
+				&& IncrementalLoadingItems.Source is HohoemaVideoPreloadingIncrementalSourceBase<VIDEO_INFO_VM>)
+			{
+				var preloadSource = IncrementalLoadingItems.Source as HohoemaVideoPreloadingIncrementalSourceBase<VIDEO_INFO_VM>;
+				preloadSource.CancelPreloading();
+			}
+		}
+
 		private IEnumerable<VideoInfoControlViewModel> EnumerateCacheRequestedVideoItems()
 		{
 			return SelectedItems.Where(x =>
