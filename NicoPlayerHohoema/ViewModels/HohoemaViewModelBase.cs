@@ -195,6 +195,9 @@ namespace NicoPlayerHohoema.ViewModels
 				
 					
 				await OnResumed();
+
+				// BG更新処理を再開
+				HohoemaApp.BackgroundUpdater.Activate();
 			});
 		}
 
@@ -231,6 +234,10 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 
 				await NavigatedToAsync(cancelToken, e, viewModelState);
+
+
+				// BG更新処理を再開
+				HohoemaApp.BackgroundUpdater.Activate();
 			}
 		}
 
@@ -265,6 +272,9 @@ namespace NicoPlayerHohoema.ViewModels
 					await HohoemaApp.OnSuspending();
 				}
 
+				HohoemaApp.BackgroundUpdater.Deactivate();
+
+				// BG更新処理を中断
 				base.OnNavigatingFrom(e, viewModelState, suspending);
 			}
 		}

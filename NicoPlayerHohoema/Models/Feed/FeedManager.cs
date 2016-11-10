@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.Foundation;
+using Windows.UI.Core;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -19,7 +21,7 @@ namespace NicoPlayerHohoema.Models
 
 	// フィードの保存処理をコントロールする
 
-	public class FeedManager
+	public class FeedManager : IBackgroundUpdateable
 	{
 		public const string FeedStreamFolderName = "feed_stream";
 
@@ -50,8 +52,20 @@ namespace NicoPlayerHohoema.Models
 			HohoemaApp = hohoemaApp;
 			FeedGroupDict = new Dictionary<IFeedGroup, FileAccessor<FeedGroup2>>();
 			FeedStreamFileAccessors = new Dictionary<Guid, FileAccessor<List<FeedItem>>>();
+
+			// 非同期な初期化処理の遅延実行をスケジュール
+			var updater = HohoemaApp.BackgroundUpdater.CreateBackgroundUpdateInfoWithImmidiateSchedule(this, "feedManager");
 		}
-		
+
+		#region interface IBackgroundUpdateable
+
+		public IAsyncAction BackgroundUpdate(CoreDispatcher uiDispatcher)
+		{
+			return Initialize()
+				.AsAsyncAction();
+		}
+
+		#endregion
 
 		public async Task<StorageFolder> GetFeedStreamDataFolder()
 		{
@@ -76,9 +90,7 @@ namespace NicoPlayerHohoema.Models
 
 			Debug.WriteLine($"FeedManager: {FeedGroupDict.Count} 件のFeedGroupを読み込みました。");
 
-
-			var updater = new SimpleBackgroundUpdate("feedManager", () => Refresh());
-			await HohoemaApp.BackgroundUpdater.Schedule(updater);
+			await Refresh();
 		}
 
 		public async Task Load(IReadOnlyList<StorageFile> files)
@@ -289,6 +301,6 @@ namespace NicoPlayerHohoema.Models
 				await _Save(group);				
 			}
 		}
-		
+
 	}
 }

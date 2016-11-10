@@ -15,10 +15,11 @@ using Windows.Storage;
 using Windows.Foundation;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Prism.Mvvm;
+using Windows.UI.Core;
 
 namespace NicoPlayerHohoema.Models
 {
-	public class FollowManager
+	public class FollowManager : IBackgroundUpdateable
 	{
 
 		#region Niconico follow constants
@@ -39,14 +40,13 @@ namespace NicoPlayerHohoema.Models
 		#endregion
 
 
-		public static async Task<FollowManager> Create(HohoemaApp hohoemaApp, uint userId)
+		public static Task<FollowManager> Create(HohoemaApp hohoemaApp, uint userId)
 		{
 			var followManager = new FollowManager(hohoemaApp, userId);
 
-			var updater = new SimpleBackgroundUpdate("followmanager_" + userId, () => followManager.Initialize());
-			await hohoemaApp.BackgroundUpdater.Schedule(updater);
+			var updater = hohoemaApp.BackgroundUpdater.CreateBackgroundUpdateInfoWithImmidiateSchedule(followManager, "followmanager_" + userId);
 
-			return followManager;
+			return Task.FromResult(followManager);
 		}
 
 
@@ -84,6 +84,17 @@ namespace NicoPlayerHohoema.Models
 			_HohoemaApp = hohoemaApp;
 			UserId = userId;
 		}
+
+
+		#region interface IBackgroundUpdateable
+
+		public IAsyncAction BackgroundUpdate(CoreDispatcher uiDispatcher)
+		{
+			return Initialize()
+				.AsAsyncAction();
+		}
+
+		#endregion
 
 
 		private async Task Initialize()
@@ -195,8 +206,6 @@ namespace NicoPlayerHohoema.Models
 
 			return result;
 		}
-
-
 
 	}
 

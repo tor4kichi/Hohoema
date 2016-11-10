@@ -34,6 +34,8 @@ namespace NicoPlayerHohoema.Models
 
 		public static async Task<HohoemaApp> Create(IEventAggregator ea)
 		{
+			HohoemaApp.UIDispatcher = Window.Current.CoreWindow.Dispatcher;
+
 			var app = new HohoemaApp(ea);
 
 			app.UserSettings = new HohoemaUserSettings();
@@ -42,8 +44,6 @@ namespace NicoPlayerHohoema.Models
 			app.UserMylistManager = new UserMylistManager(app);
 			app.AppMapManager = new AppMapManager(app);
 			app.MediaManager = await NiconicoMediaManager.Create(app);
-
-			UIDispatcher = Window.Current.CoreWindow.Dispatcher;
 
 			return app;
 		}
@@ -65,7 +65,7 @@ namespace NicoPlayerHohoema.Models
 			LoadRecentLoginAccount();
 			_SigninLock = new SemaphoreSlim(1, 1);
 
-			BackgroundUpdater = new BackgroundUpdater("HohoemaBG");
+			BackgroundUpdater = new BackgroundUpdater("HohoemaBG", UIDispatcher);
 
 			ApplicationData.Current.DataChanged += Current_DataChanged;
 		}
@@ -578,7 +578,7 @@ namespace NicoPlayerHohoema.Models
 								loginActivityLogger.LogEvent("initialize feed");
 
 								FeedManager = new FeedManager(this);
-								await FeedManager.Initialize();
+								// 非同期な初期化処理の遅延実行をスケジュール
 							}
 							catch
 							{

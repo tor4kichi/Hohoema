@@ -9,6 +9,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation;
+using Windows.UI.Core;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -116,8 +117,7 @@ namespace NicoPlayerHohoema.Models
 				};
 				_UserMylists.Add(Deflist);
 
-				var updater = new SimpleBackgroundUpdate("mylist_deflist", () => Deflist.Refresh());
-				await HohoemaApp.BackgroundUpdater.Schedule(updater);
+				var updater = HohoemaApp.BackgroundUpdater.CreateBackgroundUpdateInfoWithImmidiateSchedule(Deflist, "mylist_deflist");
 			}
 
 
@@ -135,8 +135,7 @@ namespace NicoPlayerHohoema.Models
 				var addedMylistGroupInfo = MylistGroupInfo.FromMylistGroupData(userMylist, HohoemaApp, this);
 				_UserMylists.Add(addedMylistGroupInfo);
 
-				var updater = new SimpleBackgroundUpdate("mylist_" + addedMylistGroupInfo.Name, () => addedMylistGroupInfo.Refresh());
-				await HohoemaApp.BackgroundUpdater.Schedule(updater);
+				var updater = HohoemaApp.BackgroundUpdater.CreateBackgroundUpdateInfoWithImmidiateSchedule(addedMylistGroupInfo, "mylist_" + addedMylistGroupInfo.Name);
 			}
 
 			// 削除分だけ検出してUserMylistから削除
@@ -219,7 +218,7 @@ namespace NicoPlayerHohoema.Models
 		public string ThreadId { get; set; }
 	}
 
-	public class MylistGroupInfo 
+	public class MylistGroupInfo : IBackgroundUpdateable
 	{
 		public HohoemaApp HohoemaApp { get; private set; }
 		public UserMylistManager MylistManager { get; private set; }
@@ -268,6 +267,18 @@ namespace NicoPlayerHohoema.Models
 		}
 
 		public bool IsDeflist { get; private set; }
+
+
+		#region interface IBackgroundUpdateable
+
+		public IAsyncAction BackgroundUpdate(CoreDispatcher uiDispatcher)
+		{
+			return Refresh()
+				.AsAsyncAction();
+		}
+
+		#endregion
+
 
 		/// <summary>
 		/// [非推奨] 基本的にBackgroundUpdaterから更新されます
