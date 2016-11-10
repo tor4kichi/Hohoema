@@ -608,8 +608,9 @@ namespace NicoPlayerHohoema.Models
 
 
 							// ホーム画面で表示するアプリマップ情報をリセット
-							var appMapManagerUpdateInfo = BackgroundUpdater.CreateBackgroundUpdateInfo(AppMapManager, nameof(AppMapManager), priority: -1);
-
+							AppMapManagerUpdater = 
+								BackgroundUpdater.CreateBackgroundUpdateInfo(AppMapManager, nameof(AppMapManager), priority: -1);
+//							AppMapManagerUpdater.ScheduleUpdate();
 
 							Debug.WriteLine("Login done.");
 							loginActivityLogger.LogEvent("[Success]: Login done");
@@ -656,6 +657,9 @@ namespace NicoPlayerHohoema.Models
 				{
 					return result;
 				}
+
+				// 全てのバックグラウンド処理をキャンセル
+				BackgroundUpdater.CancelAll();
 
 				try
 				{
@@ -1160,6 +1164,7 @@ StorageFolder _DownloadFolder;
 		public UserMylistManager UserMylistManager { get; private set; }
 
 		public AppMapManager AppMapManager { get; private set; }
+		public BackgroundUpdateInfo AppMapManagerUpdater { get; private set; }
 
 
 		public const string HohoemaUserAgent = "Hohoema_UWP";

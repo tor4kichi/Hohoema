@@ -448,7 +448,7 @@ namespace NicoPlayerHohoema
 			BackgroundUpdater.MaxTaskSlotCount = deviceFamily.EndsWith("Mobile") ? 1u : 2u;
 
 #if DEBUG
-			BackgroundUpdater.MaxTaskSlotCount = 1;
+//			BackgroundUpdater.MaxTaskSlotCount = 1;
 #endif
 			// TODO: プレイヤーウィンドウ上で管理する
 			//			var backgroundTask = MediaBackgroundTask.Create();

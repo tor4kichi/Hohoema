@@ -181,7 +181,7 @@ namespace NicoPlayerHohoema.Models
 		#region Control background task running
 
 
-		public async Task Stop()
+		private async Task Stop()
 		{
 			using (var releaser = await _ScheduleUpdateLock.LockAsync())
 			{
@@ -231,6 +231,19 @@ namespace NicoPlayerHohoema.Models
 			await TryBeginNext();
 		}
 
+		public async void CancelAll()
+		{
+			using (var releaser = await _ScheduleUpdateLock.LockAsync())
+			{
+				UpdateTargetStack.RemoveAll(x => true);
+
+				foreach (var cancelRunningTask in _RunningTasks.ToArray())
+				{
+					cancelRunningTask.CancelTokenSource.Cancel();
+				}
+			}
+		}
+
 		public async void CancelFromGroupId(string groupId)
 		{
 			Debug.WriteLine("cancel bg update : " + groupId);
@@ -264,7 +277,22 @@ namespace NicoPlayerHohoema.Models
 		{
 			using (var releaser = await _ScheduleUpdateLock.LockAsync())
 			{
-				return _RunningTasks.Count < BackgroundUpdater.MaxTaskSlotCount;
+				if (_RunningTasks.Count >= BackgroundUpdater.MaxTaskSlotCount)
+				{
+					return false;
+				}
+				// 次のタスクと今実行中のタスクの優先度が異なる場合は、開始できない
+				var nextTask = UpdateTargetStack.FirstOrDefault();
+				var currentTask = _RunningTasks.FirstOrDefault();
+				if (currentTask != null && nextTask != null)
+				{
+					if (currentTask.Item.Priority != nextTask.Priority)
+					{
+						return false;
+					}
+				}
+
+				return true;
 			}
 		}
 
@@ -357,6 +385,8 @@ namespace NicoPlayerHohoema.Models
 			{
 				_RunningTasks.Remove(taskInfo);
 			}
+
+			await TryBeginNext().ConfigureAwait(false);
 		}
 
 		private async Task OnContinueTask(Task<BackgroundUpdateInfo> task)
@@ -398,7 +428,7 @@ namespace NicoPlayerHohoema.Models
 				if (UpdateTargetStack.All(x => x != item))
 				{
 					UpdateTargetStack.Add(item);
-					UpdateTargetStack.Sort((a, b) => a.Priority - b.Priority);
+					UpdateTargetStack.Sort((a, b) => b.Priority - a.Priority);
 				}
 
 			}

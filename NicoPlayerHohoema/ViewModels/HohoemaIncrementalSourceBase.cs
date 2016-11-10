@@ -120,6 +120,8 @@ namespace NicoPlayerHohoema.ViewModels
 	public abstract class HohoemaVideoPreloadingIncrementalSourceBase<T> : HohoemaPreloadingIncrementalSourceBase<T>
 		where T : VideoInfoControlViewModel
 	{
+		public static int VideoListingBackgroundTaskPriority = 10;
+
 		private List<NicoVideo> _VideoItems;
 
 		private AsyncLock _VideoItemsLock = new AsyncLock();
@@ -215,7 +217,8 @@ namespace NicoPlayerHohoema.ViewModels
 			HohoemaApp.BackgroundUpdater.CreateBackgroundUpdateInfoWithImmidiateSchedule(
 				updater, 
 				$"{PreloadScheduleLabel}_" + TotalCount,
-				PreloadScheduleLabel
+				PreloadScheduleLabel,
+				priority: VideoListingBackgroundTaskPriority
 				);
 		}
 

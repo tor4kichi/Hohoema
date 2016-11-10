@@ -21,10 +21,10 @@ namespace NicoPlayerHohoema.Models.AppMap
 		public override ContainerItemDisplayType ItemDisplayType => ContainerItemDisplayType.Card;
 
 
-		protected override Task<IEnumerable<IAppMapItem>> MakeAllItems()
+		protected override async Task<IEnumerable<IAppMapItem>> MakeAllItems()
 		{
 			// TODO: FavManagerを最新の情報に更新
-
+			
 
 			List<IAppMapItem> items = new List<IAppMapItem>();
 
@@ -42,7 +42,7 @@ namespace NicoPlayerHohoema.Models.AppMap
 				items.Add(favAppMapItem);
 			}
 
-			return Task.FromResult(items.AsEnumerable());
+			return items.AsEnumerable();
 		}
 	}
 
