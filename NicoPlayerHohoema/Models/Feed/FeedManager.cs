@@ -57,7 +57,11 @@ namespace NicoPlayerHohoema.Models
 			_FeedGroupUpdaters = new Dictionary<IFeedGroup, BackgroundUpdateInfo>();
 
 			// 非同期な初期化処理の遅延実行をスケジュール
-			var updater = HohoemaApp.BackgroundUpdater.CreateBackgroundUpdateInfoWithImmidiateSchedule(this, "feedManager");
+			var updater = HohoemaApp.BackgroundUpdater.CreateBackgroundUpdateInfoWithImmidiateSchedule(
+				this,
+				"feedManager",
+				label: "フィード初期化"
+				);
 
 
 		}
@@ -150,7 +154,10 @@ namespace NicoPlayerHohoema.Models
 							}
 
 							// FeedGroupの更新処理情報を構築
-							_FeedGroupUpdaters.Add(item, HohoemaApp.BackgroundUpdater.CreateBackgroundUpdateInfo(item, item.Label, nameof(FeedGroup)));
+							_FeedGroupUpdaters.Add(item,
+								HohoemaApp.BackgroundUpdater.CreateBackgroundUpdateInfo(
+									item, item.Label, nameof(FeedGroup), label:$"FeedGroup:{item.Label}")
+								);
 
 							Debug.WriteLine($"FeedManager: [Sucesss] load {item.Label}");
 						}

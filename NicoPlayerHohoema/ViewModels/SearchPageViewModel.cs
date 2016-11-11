@@ -778,7 +778,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public VideoSearchSource(VideoSearchOption searchOption, HohoemaApp hohoemaApp, PageManager pageManager)
 			: base(hohoemaApp
-				  , $"Search_{searchOption.SearchTarget}_{searchOption.Keyword}"
+				  , $"{searchOption.SearchTarget} Search: {searchOption.Keyword}"
 				  )
 		{
 			_HohoemaApp = hohoemaApp;

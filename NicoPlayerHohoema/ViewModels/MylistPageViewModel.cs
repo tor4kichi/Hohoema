@@ -651,7 +651,7 @@ namespace NicoPlayerHohoema.ViewModels
 		PageManager _PageManager;
 
 		public MylistIncrementalSource(string mylistGroupId, HohoemaApp hohoemaApp, PageManager pageManager)
-			: base(hohoemaApp, "Mylist_" + mylistGroupId)
+			: base(hohoemaApp, "Mylist:"+mylistGroupId)
 		{
 			MylistGroupId = mylistGroupId;
 

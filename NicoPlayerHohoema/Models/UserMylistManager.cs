@@ -117,7 +117,9 @@ namespace NicoPlayerHohoema.Models
 				};
 				_UserMylists.Add(Deflist);
 
-				var updater = HohoemaApp.BackgroundUpdater.CreateBackgroundUpdateInfoWithImmidiateSchedule(Deflist, "mylist_deflist");
+				var updater = HohoemaApp.BackgroundUpdater.CreateBackgroundUpdateInfoWithImmidiateSchedule(Deflist, "mylist_deflist", 
+					label: "とりあえずマイリスト"
+					);
 			}
 
 
@@ -135,7 +137,9 @@ namespace NicoPlayerHohoema.Models
 				var addedMylistGroupInfo = MylistGroupInfo.FromMylistGroupData(userMylist, HohoemaApp, this);
 				_UserMylists.Add(addedMylistGroupInfo);
 
-				var updater = HohoemaApp.BackgroundUpdater.CreateBackgroundUpdateInfoWithImmidiateSchedule(addedMylistGroupInfo, "mylist_" + addedMylistGroupInfo.Name);
+				var updater = HohoemaApp.BackgroundUpdater.CreateBackgroundUpdateInfoWithImmidiateSchedule(addedMylistGroupInfo, "mylist_" + addedMylistGroupInfo.Name,
+					label: "Mylist:" + addedMylistGroupInfo.Name
+					);
 			}
 
 			// 削除分だけ検出してUserMylistから削除

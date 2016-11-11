@@ -48,7 +48,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 			HohoemaApp.AppMapManagerUpdater.Completed -= AppMapManagerUpdater_Completed;
 		}
-		private void AppMapManagerUpdater_Completed(BackgroundUpdateInfo item)
+
+		private void AppMapManagerUpdater_Completed(object sender, BackgroundUpdateInfo item)
 		{
 			if (Root == null)
 			{

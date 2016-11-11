@@ -63,8 +63,12 @@ namespace NicoPlayerHohoema.Models
 		private void _HohoemaApp_OnSignin()
 		{
 			// 初期化をバックグラウンドタスクに登録
-			var updater = _HohoemaApp.BackgroundUpdater.CreateBackgroundUpdateInfoWithImmidiateSchedule(this, "NicoMediaManager");
-			updater.Completed += (sender) => 
+			var updater = _HohoemaApp.BackgroundUpdater.CreateBackgroundUpdateInfoWithImmidiateSchedule(
+				this, 
+				"NicoMediaManager",
+				label:"キャッシュ"
+				);
+			updater.Completed += (sender, item) => 
 			{
 				IsInitialized = true;
 			};

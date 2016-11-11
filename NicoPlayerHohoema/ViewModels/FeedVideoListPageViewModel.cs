@@ -125,7 +125,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		public FeedVideoIncrementalSource(IFeedGroup feedGroup, HohoemaApp hohoemaApp, PageManager pageManager)
-			: base(hohoemaApp, "Feed_" + feedGroup.Label)
+			: base(hohoemaApp, "Feed:" + feedGroup.Label)
 		{
 			_FeedGroup = feedGroup;
 			_FavFeedManager = hohoemaApp.FeedManager;

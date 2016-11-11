@@ -169,13 +169,14 @@ namespace NicoPlayerHohoema.ViewModels
 							feedGroup.UpdateStarted();
 						}
 
-						await Task.Delay(3000);
-
 						foreach (var feedGroup in FeedGroupItems)
 						{
-							await feedGroup.FeedGroup.Refresh();
-
-							feedGroup.UpdateCompleted();
+							await feedGroup.FeedGroup.Refresh()
+								.ContinueWith(prevTask => 
+								{
+									feedGroup.UpdateCompleted();
+								})
+								.ConfigureAwait(false);
 						}
 					}, 
 					() => HohoemaApp.FeedManager.FeedGroups.Count > 0

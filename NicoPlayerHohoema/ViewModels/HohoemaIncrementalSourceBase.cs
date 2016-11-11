@@ -203,7 +203,7 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 			}
 
-			ScheduleDefferedNicoVideoInitialize(items);
+			ScheduleDefferedNicoVideoInitialize(items, head);
 
 			return items;
 		}
@@ -211,14 +211,17 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		private void ScheduleDefferedNicoVideoInitialize(List<T> items)
+		private void ScheduleDefferedNicoVideoInitialize(List<T> items, int head)
 		{
+			var start = head + 1;
+			var end = Math.Min(start + items.Count, TotalCount);
 			var updater = new DefferedNicoVideoVMUpdate<T>(items);
 			HohoemaApp.BackgroundUpdater.CreateBackgroundUpdateInfoWithImmidiateSchedule(
 				updater, 
 				$"{PreloadScheduleLabel}_" + TotalCount,
 				PreloadScheduleLabel,
-				priority: VideoListingBackgroundTaskPriority
+				priority: VideoListingBackgroundTaskPriority,
+				label: $"{PreloadScheduleLabel} ({start} - {end})"
 				);
 		}
 

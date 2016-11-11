@@ -44,7 +44,11 @@ namespace NicoPlayerHohoema.Models
 		{
 			var followManager = new FollowManager(hohoemaApp, userId);
 
-			var updater = hohoemaApp.BackgroundUpdater.CreateBackgroundUpdateInfoWithImmidiateSchedule(followManager, "followmanager_" + userId);
+			var updater = hohoemaApp.BackgroundUpdater.CreateBackgroundUpdateInfoWithImmidiateSchedule(
+				followManager, 
+				"followmanager_" + userId,
+				"フォロー"
+				);
 
 			return Task.FromResult(followManager);
 		}
