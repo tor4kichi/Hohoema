@@ -171,12 +171,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 						foreach (var feedGroup in FeedGroupItems)
 						{
-							await feedGroup.FeedGroup.Refresh()
-								.ContinueWith(prevTask => 
-								{
-									feedGroup.UpdateCompleted();
-								})
-								.ConfigureAwait(false);
+							await feedGroup.FeedGroup.Refresh();
+
+							feedGroup.UpdateCompleted();	
 						}
 					}, 
 					() => HohoemaApp.FeedManager.FeedGroups.Count > 0
@@ -263,6 +260,8 @@ namespace NicoPlayerHohoema.ViewModels
 		public void UpdateCompleted()
 		{
 			NowUpdate.Value = false;
+			UnreadItemCount = FeedGroup.GetUnreadItemCount();
+			OnPropertyChanged(nameof(UnreadItemCount));
 			LastUpdate.Value = FeedGroup.UpdateTime;
 		}
 	}

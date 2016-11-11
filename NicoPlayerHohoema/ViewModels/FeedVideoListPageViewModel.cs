@@ -24,6 +24,8 @@ namespace NicoPlayerHohoema.ViewModels
 		public FeedVideoListPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
 			: base(hohoemaApp, pageManager, mylistDialogService, isRequireSignIn: true)
 		{
+			LastUpdate = new ReactiveProperty<DateTime>();
+
 			AllMarkAsReadCommand = new DelegateCommand(async () =>
 			{
 				FeedGroup.ForceMarkAsRead();
@@ -88,6 +90,8 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				UpdateTitle(FeedGroup.Label);
 
+				LastUpdate.Value = FeedGroup.UpdateTime;
+
 				AllMarkAsReadCommand.RaiseCanExecuteChanged();
 			}
 
@@ -103,11 +107,20 @@ namespace NicoPlayerHohoema.ViewModels
 			return base.CheckNeedUpdateOnNavigateTo(mode);
 		}
 
+		protected override void PostResetList()
+		{
+			LastUpdate.Value = FeedGroup.UpdateTime;
+
+			base.PostResetList();
+		}
+
 		protected override IIncrementalSource<FeedVideoInfoControlViewModel> GenerateIncrementalSource()
 		{
 			return new FeedVideoIncrementalSource(FeedGroup, HohoemaApp, PageManager);
 		}
 
+
+		public ReactiveProperty<DateTime> LastUpdate { get; private set; }
 
 		public DelegateCommand AllMarkAsReadCommand { get; private set; }
 		public ReactiveCommand SelectedItemsMarkAsReadCommand { get; private set; }

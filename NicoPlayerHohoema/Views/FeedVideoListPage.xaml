@@ -54,6 +54,12 @@
                                       Icon="Accept"
                                       Command="{Binding AllMarkAsReadCommand}" />
 
+                        <TextBlock Margin="8 0" 
+                                   Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                   VerticalAlignment="Center">
+                            <Run Text="最終更新:" />
+                            <Run Text="{Binding LastUpdate.Value, Converter={StaticResource ToRelationalTime}}" />
+                        </TextBlock>
                     </StackPanel>
 
 

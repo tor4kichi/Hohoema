@@ -251,6 +251,12 @@ namespace NicoPlayerHohoema.Models
 			var streamFileAccessor = new FileAccessor<List<FeedItem>>(feedStreamDataFolder, $"{itemId}.json");
 			FeedStreamFileAccessors.Add(feedGroup.Id, streamFileAccessor);
 
+			_FeedGroupUpdaters.Add(feedGroup,
+				HohoemaApp.BackgroundUpdater.CreateBackgroundUpdateInfo(
+					feedGroup, feedGroup.Label, nameof(FeedGroup), label: $"FeedGroup:{feedGroup.Label}")
+				);
+
+
 			await fileAccessor.Save(feedGroup);
 			return feedGroup;
 		}
@@ -271,6 +277,8 @@ namespace NicoPlayerHohoema.Models
 
 			if (removeTarget != null)
 			{
+				_FeedGroupUpdaters.Remove(group);
+
 				var fileAccessor = FeedGroupDict[removeTarget];
 				await fileAccessor.Delete(StorageDeleteOption.PermanentDelete);
 

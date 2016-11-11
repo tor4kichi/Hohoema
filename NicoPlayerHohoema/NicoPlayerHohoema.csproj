@@ -332,6 +332,7 @@
     <Compile Include="Views\Controls\SearchHistoryListItem.xaml.cs">
       <DependentUpon>SearchHistoryListItem.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Converters\RelationalDateTimeConverter.cs" />
     <Compile Include="Views\Converters\ToUserFriendlyNumber.cs" />
     <Compile Include="Views\Converters\VideoPositionToTimeConverter.cs" />
     <Compile Include="Views\DownloadProgress\DownloadProgressBar.xaml.cs">
