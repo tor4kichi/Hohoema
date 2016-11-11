@@ -24,7 +24,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		static Util.AsyncLock _NavigationLock = new Util.AsyncLock();
 
-		public HohoemaViewModelBase(HohoemaApp hohoemaApp, PageManager pageManager, bool isRequireSignIn = true)
+		public HohoemaViewModelBase(HohoemaApp hohoemaApp, PageManager pageManager, bool isRequireSignIn = true, bool canActivateBackgroundUpdate = true)
 		{
 			_SignStatusLock = new SemaphoreSlim(1, 1);
 			_NavigationToLock = new SemaphoreSlim(1, 1);
@@ -33,6 +33,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 			IsRequireSignIn = isRequireSignIn;
 			NowSignIn = false;
+
+			CanActivateBackgroundUpdate = canActivateBackgroundUpdate;
 
 			HohoemaApp.OnSignout += __OnSignout;
 			HohoemaApp.OnSignin += __OnSignin;
@@ -163,8 +165,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 		private async void _OnResumed()
 		{
-			await Task.Delay(300);
-
 			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
 			{	
 				if (IsRequireSignIn)
@@ -197,7 +197,14 @@ namespace NicoPlayerHohoema.ViewModels
 				await OnResumed();
 
 				// BG更新処理を再開
-				HohoemaApp.BackgroundUpdater.Activate();
+				if (CanActivateBackgroundUpdate)
+				{
+					HohoemaApp.BackgroundUpdater.Activate();
+				}
+				else
+				{
+					HohoemaApp.BackgroundUpdater.Deactivate();
+				}
 			});
 		}
 
@@ -237,7 +244,14 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 				// BG更新処理を再開
-				HohoemaApp.BackgroundUpdater.Activate();
+				if (CanActivateBackgroundUpdate)
+				{
+					HohoemaApp.BackgroundUpdater.Activate();
+				}
+				else
+				{
+					HohoemaApp.BackgroundUpdater.Deactivate();
+				}
 			}
 		}
 
@@ -271,10 +285,7 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					await HohoemaApp.OnSuspending();
 				}
-
-				HohoemaApp.BackgroundUpdater.Deactivate();
-
-				// BG更新処理を中断
+				
 				base.OnNavigatingFrom(e, viewModelState, suspending);
 			}
 		}
@@ -325,6 +336,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public bool IsRequireSignIn { get; private set; }
 		public bool NowSignIn { get; private set; }
+
+		public bool CanActivateBackgroundUpdate { get; private set; }
 
 		private string _Title;
 

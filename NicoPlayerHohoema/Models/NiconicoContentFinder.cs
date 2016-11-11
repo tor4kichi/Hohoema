@@ -50,7 +50,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			try
 			{
-				await _ThumbnailAccessLock.WaitAsync();
+//				await _ThumbnailAccessLock.WaitAsync();
 				ThumbnailResponse res = null;
 
 				res = await Util.ConnectionRetryUtil.TaskWithRetry(async () =>
@@ -67,7 +67,7 @@ namespace NicoPlayerHohoema.Models
 			}
 			finally
 			{
-				_ThumbnailAccessLock.Release();
+//				_ThumbnailAccessLock.Release();
 			}
 		}
 

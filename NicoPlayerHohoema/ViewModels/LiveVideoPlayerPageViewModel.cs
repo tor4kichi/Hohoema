@@ -190,7 +190,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		public LiveVideoPlayerPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, TextInputDialogService textInputDialogService) 
-			: base(hohoemaApp, pageManager, isRequireSignIn:true)
+			: base(hohoemaApp, pageManager, isRequireSignIn:true, canActivateBackgroundUpdate:false)
 		{
 			TextInputDialogService = textInputDialogService;
 

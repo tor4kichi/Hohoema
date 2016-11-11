@@ -157,8 +157,8 @@ namespace NicoPlayerHohoema.ViewModels
 				.SubscribeOnUIDispatcher()
 				.Subscribe(async _ =>
 				{
-				// 低画質限定を指定されている場合はそれに従う
-				if (HohoemaApp.UserSettings.PlayerSettings.IsLowQualityDeafult)
+					// 低画質限定を指定されている場合はそれに従う
+					if (HohoemaApp.UserSettings.PlayerSettings.IsLowQualityDeafult)
 					{
 						foreach (var item in EnumerateCanDownloadVideoItem())
 						{
@@ -173,8 +173,8 @@ namespace NicoPlayerHohoema.ViewModels
 						}
 					}
 
-				// そうでない場合は、オリジナル画質を優先して現在ダウンロード可能な画質でキャッシュリクエスト
-				else
+					// そうでない場合は、オリジナル画質を優先して現在ダウンロード可能な画質でキャッシュリクエスト
+					else
 					{
 						foreach (var item in EnumerateCanDownloadVideoItem(/*画質指定なし*/))
 						{
@@ -325,7 +325,9 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			base.OnNavigatingFrom(e, viewModelState, suspending);
 
-			if (IncrementalLoadingItems != null
+			// 戻る時だけ
+			if (e.NavigationMode == NavigationMode.Back 
+				&& IncrementalLoadingItems != null
 				&& IncrementalLoadingItems.Source is HohoemaVideoPreloadingIncrementalSourceBase<VIDEO_INFO_VM>)
 			{
 				var preloadSource = IncrementalLoadingItems.Source as HohoemaVideoPreloadingIncrementalSourceBase<VIDEO_INFO_VM>;
