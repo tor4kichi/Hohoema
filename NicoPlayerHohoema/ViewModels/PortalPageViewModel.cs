@@ -14,6 +14,7 @@ using Windows.UI.Xaml;
 using Prism.Windows.Navigation;
 using System.Threading;
 using Reactive.Bindings;
+using System.Diagnostics;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -24,16 +25,40 @@ namespace NicoPlayerHohoema.ViewModels
 		public PortalPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
 			: base(hohoemaApp, pageManager)
 		{
-			Root = new SelectableAppMapContainerViewModel(HohoemaApp.AppMapManager.Root, PageManager);
 		}
 
-		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			await Task.Delay(500);
+			base.OnNavigatedTo(e, viewModelState);
 
-			await HohoemaApp.AppMapManager.Refresh();
+			if (Root == null)
+			{
+				Root = new SelectableAppMapContainerViewModel(HohoemaApp.AppMapManager.Root, PageManager);
+				OnPropertyChanged(nameof(Root));
+			}
+
+			HohoemaApp.AppMapManagerUpdater.ScheduleUpdate();
+
+			HohoemaApp.AppMapManagerUpdater.Completed += AppMapManagerUpdater_Completed;
 		}
 
+		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+		{
+			base.OnNavigatingFrom(e, viewModelState, suspending);
+
+			HohoemaApp.AppMapManagerUpdater.Completed -= AppMapManagerUpdater_Completed;
+		}
+
+		private void AppMapManagerUpdater_Completed(object sender, BackgroundUpdateInfo item)
+		{
+			if (Root == null)
+			{
+				Root = new SelectableAppMapContainerViewModel(HohoemaApp.AppMapManager.Root, PageManager);
+				OnPropertyChanged(nameof(Root));
+			}
+
+			Debug.WriteLine("AppMapManager update done");
+		}
 
 		protected override void OnSignIn(ICollection<IDisposable> userSessionDisposer)
 		{

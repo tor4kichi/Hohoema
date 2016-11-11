@@ -133,6 +133,8 @@ namespace NicoPlayerHohoema.ViewModels
 						{
 							var feedGroup = await HohoemaApp.FeedManager.AddFeedGroup(newFeedGroupName);
 
+							RefreshAllFeedGroupCommand.RaiseCanExecuteChanged();
+
 							PageManager.OpenPage(HohoemaPageType.FeedGroup, feedGroup.Id);
 						}
 					}));
@@ -148,7 +150,34 @@ namespace NicoPlayerHohoema.ViewModels
 				return _RemoveFeedGroupCommand
 					?? (_RemoveFeedGroupCommand = new DelegateCommand(() =>
 					{
+						RefreshAllFeedGroupCommand.RaiseCanExecuteChanged();
 					}));
+			}
+		}
+
+		private DelegateCommand _RefreshAllFeedGroupCommand;
+		public DelegateCommand RefreshAllFeedGroupCommand
+		{
+			get
+			{
+				return _RefreshAllFeedGroupCommand
+					?? (_RefreshAllFeedGroupCommand = new DelegateCommand(async () =>
+					{
+
+						foreach (var feedGroup in FeedGroupItems)
+						{
+							feedGroup.UpdateStarted();
+						}
+
+						foreach (var feedGroup in FeedGroupItems)
+						{
+							await feedGroup.FeedGroup.Refresh();
+
+							feedGroup.UpdateCompleted();	
+						}
+					}, 
+					() => HohoemaApp.FeedManager.FeedGroups.Count > 0
+					));
 			}
 		}
 
@@ -162,11 +191,15 @@ namespace NicoPlayerHohoema.ViewModels
 		public IFeedGroup FeedGroup { get; private set; }
 
 
+		
 		public string Label { get; private set; }
 
 		public int UnreadItemCount { get; private set; }
 
 		public List<FeedItemSourceViewModel> SourceItems { get; private set; }
+
+		public ReactiveProperty<DateTime> LastUpdate { get; private set; }
+		public ReactiveProperty<bool> NowUpdate { get; private set; }
 
 		public FeedGroupListItem(IFeedGroup feedGroup, PageManager pageManager)
 		{
@@ -182,6 +215,8 @@ namespace NicoPlayerHohoema.ViewModels
 					ItemType = x.FollowItemType
 				})
 				.ToList();
+			LastUpdate = new ReactiveProperty<DateTime>(FeedGroup.UpdateTime);
+			NowUpdate = new ReactiveProperty<bool>(false);
 		}
 
 		private DelegateCommand _SelectedCommand;
@@ -214,6 +249,20 @@ namespace NicoPlayerHohoema.ViewModels
 		public override void Dispose()
 		{
 			
+		}
+
+
+		public void UpdateStarted()
+		{
+			NowUpdate.Value = true;
+		}
+
+		public void UpdateCompleted()
+		{
+			NowUpdate.Value = false;
+			UnreadItemCount = FeedGroup.GetUnreadItemCount();
+			OnPropertyChanged(nameof(UnreadItemCount));
+			LastUpdate.Value = FeedGroup.UpdateTime;
 		}
 	}
 

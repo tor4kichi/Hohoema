@@ -34,6 +34,8 @@ namespace NicoPlayerHohoema.Models
 
 		public static async Task<HohoemaApp> Create(IEventAggregator ea)
 		{
+			HohoemaApp.UIDispatcher = Window.Current.CoreWindow.Dispatcher;
+
 			var app = new HohoemaApp(ea);
 
 			app.UserSettings = new HohoemaUserSettings();
@@ -42,8 +44,6 @@ namespace NicoPlayerHohoema.Models
 			app.UserMylistManager = new UserMylistManager(app);
 			app.AppMapManager = new AppMapManager(app);
 			app.MediaManager = await NiconicoMediaManager.Create(app);
-
-			UIDispatcher = Window.Current.CoreWindow.Dispatcher;
 
 			return app;
 		}
@@ -65,7 +65,7 @@ namespace NicoPlayerHohoema.Models
 			LoadRecentLoginAccount();
 			_SigninLock = new SemaphoreSlim(1, 1);
 
-			BackgroundUpdater = new BackgroundUpdater("HohoemaBG");
+			BackgroundUpdater = new BackgroundUpdater("HohoemaBG", UIDispatcher);
 
 			ApplicationData.Current.DataChanged += Current_DataChanged;
 		}
@@ -578,7 +578,7 @@ namespace NicoPlayerHohoema.Models
 								loginActivityLogger.LogEvent("initialize feed");
 
 								FeedManager = new FeedManager(this);
-								await FeedManager.Initialize();
+								// 非同期な初期化処理の遅延実行をスケジュール
 							}
 							catch
 							{
@@ -608,9 +608,14 @@ namespace NicoPlayerHohoema.Models
 
 
 							// ホーム画面で表示するアプリマップ情報をリセット
-							await AppMapManager.Root.Reset();
-
-
+							AppMapManagerUpdater = 
+								BackgroundUpdater.CreateBackgroundUpdateInfo(
+									AppMapManager
+									, nameof(AppMapManager)
+									, priority: -1
+									, label: "ホーム画面情報"
+									);
+//							AppMapManagerUpdater.ScheduleUpdate();
 
 							Debug.WriteLine("Login done.");
 							loginActivityLogger.LogEvent("[Success]: Login done");
@@ -657,6 +662,9 @@ namespace NicoPlayerHohoema.Models
 				{
 					return result;
 				}
+
+				// 全てのバックグラウンド処理をキャンセル
+				BackgroundUpdater.CancelAll();
 
 				try
 				{
@@ -1161,6 +1169,7 @@ StorageFolder _DownloadFolder;
 		public UserMylistManager UserMylistManager { get; private set; }
 
 		public AppMapManager AppMapManager { get; private set; }
+		public BackgroundUpdateInfo AppMapManagerUpdater { get; private set; }
 
 
 		public const string HohoemaUserAgent = "Hohoema_UWP";

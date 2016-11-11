@@ -312,6 +312,18 @@
                                     Visibility="{Binding NowNavigating.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                     />
 
+
+                                <Border Visibility="{Binding HasBGUpdateText.Value, Converter={StaticResource BooleanToVisibility}}"
+                                        Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Bottom"
+                                        Padding="2"
+                                        >
+                                    <TextBlock Text="{Binding BGUpdateText.Value}"
+                                               FontSize="12"
+                                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                               />
+                                </Border>
                             </Grid>
                         </SplitView.Content>
                     </SplitView>

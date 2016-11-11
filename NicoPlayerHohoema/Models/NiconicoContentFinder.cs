@@ -32,12 +32,26 @@ namespace NicoPlayerHohoema.Models
 	public class NiconicoContentFinder : BindableBase
 	{
 		AsyncLock _NicoPageAccessLock = new AsyncLock();
+		DateTime LastPageApiAccessTime = DateTime.MinValue;
+		static TimeSpan PageAccessMinimumInterval = TimeSpan.FromSeconds(3);
+
 
 		SemaphoreSlim _ThumbnailAccessLock = new SemaphoreSlim(1, 3);
 
 		public NiconicoContentFinder(HohoemaApp app)
 		{
 			_HohoemaApp = app;
+		}
+
+		private async Task WaitNicoPageAccess()
+		{
+			var duration = DateTime.Now - LastPageApiAccessTime;
+			if (duration < PageAccessMinimumInterval)
+			{
+				await Task.Delay(PageAccessMinimumInterval - duration);
+			}
+
+			LastPageApiAccessTime = DateTime.Now;
 		}
 
 
@@ -50,7 +64,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			try
 			{
-				await _ThumbnailAccessLock.WaitAsync();
+//				await _ThumbnailAccessLock.WaitAsync();
 				ThumbnailResponse res = null;
 
 				res = await Util.ConnectionRetryUtil.TaskWithRetry(async () =>
@@ -67,12 +81,16 @@ namespace NicoPlayerHohoema.Models
 			}
 			finally
 			{
-				_ThumbnailAccessLock.Release();
+//				_ThumbnailAccessLock.Release();
 			}
 		}
 
 		public async Task<WatchApiResponse> GetWatchApiResponse(string rawVideoId, bool forceLowQuality = false, HarmfulContentReactionType harmfulContentReaction = HarmfulContentReactionType.None)
 		{
+
+			await WaitNicoPageAccess();
+
+
 			using (var releaser = await _NicoPageAccessLock.LockAsync())
 			{
 				var res = await Util.ConnectionRetryUtil.TaskWithRetry(() =>
@@ -98,6 +116,11 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<User> GetUserInfo(string userId)
 		{
+
+			await WaitNicoPageAccess();
+
+
+
 			var user = await ConnectionRetryUtil.TaskWithRetry(() =>
 			{
 				return _HohoemaApp.NiconicoContext.User.GetUserAsync(userId);
@@ -138,6 +161,10 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<VideoListingResponse> GetKeywordSearch(string keyword, uint from, uint limit, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
 		{
+			await WaitNicoPageAccess();
+
+
+
 			return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
 				return await _HohoemaApp.NiconicoContext.Search.VideoSearchWithKeywordAsync(keyword, from, limit, sort, order);
@@ -147,6 +174,9 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<VideoListingResponse> GetTagSearch(string tag, uint from, uint limit, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
 		{
+			await WaitNicoPageAccess();
+
+
 			return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
 				return await _HohoemaApp.NiconicoContext.Search.VideoSearchWithTagAsync(tag, from, limit, sort, order)
@@ -192,9 +222,12 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public Task<List<LoginUserMylistGroup>> GetLoginUserMylistGroups()
+		public async Task<List<LoginUserMylistGroup>> GetLoginUserMylistGroups()
 		{
-			return ConnectionRetryUtil.TaskWithRetry(() =>
+			await WaitNicoPageAccess();
+
+
+			return await ConnectionRetryUtil.TaskWithRetry(() =>
 			{
 				return _HohoemaApp.NiconicoContext.User.GetMylistGroupListAsync();
 			})
@@ -205,9 +238,12 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public Task<List<MylistGroupData>> GetUserMylistGroups(string userId)
+		public async Task<List<MylistGroupData>> GetUserMylistGroups(string userId)
 		{
-			return ConnectionRetryUtil.TaskWithRetry(async () =>
+			await WaitNicoPageAccess();
+
+
+			return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
 				try
 				{
@@ -256,6 +292,9 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<HistoriesResponse> GetHistory()
 		{
+			await WaitNicoPageAccess();
+
+
 			return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
 				return await _HohoemaApp.NiconicoContext.Video.GetHistoriesAsync();
@@ -265,6 +304,9 @@ namespace NicoPlayerHohoema.Models
 		
 		public async Task<List<FollowData>> GetFollowUsers()
 		{
+			await WaitNicoPageAccess();
+
+
 			using (var releaser = await _NicoPageAccessLock.LockAsync())
 			{
 				return await _HohoemaApp.NiconicoContext.User.GetFollowUsersAsync();
@@ -274,6 +316,9 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<List<string>> GetFavTags()
 		{
+			await WaitNicoPageAccess();
+
+
 			using (var releaser = await _NicoPageAccessLock.LockAsync())
 			{
 				return await _HohoemaApp.NiconicoContext.User.GetFollowTagsAsync();
@@ -282,6 +327,9 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<List<FollowData>> GetFavMylists()
 		{
+			await WaitNicoPageAccess();
+
+
 			using (var releaser = await _NicoPageAccessLock.LockAsync())
 			{
 				return await _HohoemaApp.NiconicoContext.User.GetFollowMylistsAsync();
@@ -291,6 +339,9 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<FollowCommunityResponse> GetFavCommunities()
 		{
+			await WaitNicoPageAccess();
+
+
 			using (var releaser = await _NicoPageAccessLock.LockAsync())
 			{
 				return await _HohoemaApp.NiconicoContext.User.GetFollowCommunityAsync();
@@ -340,11 +391,14 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public Task<CommunityDetailResponse> GetCommunityDetail(
+		public async Task<CommunityDetailResponse> GetCommunityDetail(
 			string communityId
 			)
 		{
-			return ConnectionRetryUtil.TaskWithRetry(async () =>
+			await WaitNicoPageAccess();
+
+
+			return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
 				using (var releaser = await _NicoPageAccessLock.LockAsync())
 				{

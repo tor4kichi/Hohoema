@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.Foundation;
+using Windows.UI.Core;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -19,7 +21,7 @@ namespace NicoPlayerHohoema.Models
 
 	// フィードの保存処理をコントロールする
 
-	public class FeedManager
+	public class FeedManager : IBackgroundUpdateable
 	{
 		public const string FeedStreamFolderName = "feed_stream";
 
@@ -42,6 +44,8 @@ namespace NicoPlayerHohoema.Models
 				return FeedGroupDict.Keys;
 			}
 		}
+
+		private Dictionary<IFeedGroup, BackgroundUpdateInfo> _FeedGroupUpdaters;
 		
 
 
@@ -50,8 +54,27 @@ namespace NicoPlayerHohoema.Models
 			HohoemaApp = hohoemaApp;
 			FeedGroupDict = new Dictionary<IFeedGroup, FileAccessor<FeedGroup2>>();
 			FeedStreamFileAccessors = new Dictionary<Guid, FileAccessor<List<FeedItem>>>();
+			_FeedGroupUpdaters = new Dictionary<IFeedGroup, BackgroundUpdateInfo>();
+
+			// 非同期な初期化処理の遅延実行をスケジュール
+			var updater = HohoemaApp.BackgroundUpdater.CreateBackgroundUpdateInfoWithImmidiateSchedule(
+				this,
+				"feedManager",
+				label: "フィード初期化"
+				);
+
+
 		}
-		
+
+		#region interface IBackgroundUpdateable
+
+		public IAsyncAction BackgroundUpdate(CoreDispatcher uiDispatcher)
+		{
+			return Initialize()
+				.AsAsyncAction();
+		}
+
+		#endregion
 
 		public async Task<StorageFolder> GetFeedStreamDataFolder()
 		{
@@ -76,9 +99,7 @@ namespace NicoPlayerHohoema.Models
 
 			Debug.WriteLine($"FeedManager: {FeedGroupDict.Count} 件のFeedGroupを読み込みました。");
 
-
-			var updater = new SimpleBackgroundUpdate("feedManager", () => Refresh());
-			await HohoemaApp.BackgroundUpdater.Schedule(updater);
+			Refresh();
 		}
 
 		public async Task Load(IReadOnlyList<StorageFile> files)
@@ -132,6 +153,12 @@ namespace NicoPlayerHohoema.Models
 								await SaveOne(item, isSkipSyncRoaming:true);
 							}
 
+							// FeedGroupの更新処理情報を構築
+							_FeedGroupUpdaters.Add(item,
+								HohoemaApp.BackgroundUpdater.CreateBackgroundUpdateInfo(
+									item, item.Label, nameof(FeedGroup), label:$"FeedGroup:{item.Label}")
+								);
+
 							Debug.WriteLine($"FeedManager: [Sucesss] load {item.Label}");
 						}
 						else
@@ -157,16 +184,25 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		private async Task Refresh()
+		private void Refresh()
 		{
-			foreach (var items in FeedGroups)
+			foreach (var pair in _FeedGroupUpdaters)
 			{
-				await Task.Delay(500);
-
-				await items.Refresh();
+				pair.Value.ScheduleUpdate();
 			}
 		}
 
+
+		internal async Task RefreshOneAsync(IFeedGroup feedGroup)
+		{
+			if (_FeedGroupUpdaters.ContainsKey(feedGroup))
+			{
+				var updater = _FeedGroupUpdaters[feedGroup];
+				updater.ScheduleUpdate();
+
+				await updater.WaitUpdate();
+			}
+		}
 		
 
 		private async Task _Save(KeyValuePair<IFeedGroup, FileAccessor<FeedGroup2>> feedItem, bool isSkipSyncRoaming = false)
@@ -215,6 +251,12 @@ namespace NicoPlayerHohoema.Models
 			var streamFileAccessor = new FileAccessor<List<FeedItem>>(feedStreamDataFolder, $"{itemId}.json");
 			FeedStreamFileAccessors.Add(feedGroup.Id, streamFileAccessor);
 
+			_FeedGroupUpdaters.Add(feedGroup,
+				HohoemaApp.BackgroundUpdater.CreateBackgroundUpdateInfo(
+					feedGroup, feedGroup.Label, nameof(FeedGroup), label: $"FeedGroup:{feedGroup.Label}")
+				);
+
+
 			await fileAccessor.Save(feedGroup);
 			return feedGroup;
 		}
@@ -235,6 +277,8 @@ namespace NicoPlayerHohoema.Models
 
 			if (removeTarget != null)
 			{
+				_FeedGroupUpdaters.Remove(group);
+
 				var fileAccessor = FeedGroupDict[removeTarget];
 				await fileAccessor.Delete(StorageDeleteOption.PermanentDelete);
 
@@ -289,6 +333,6 @@ namespace NicoPlayerHohoema.Models
 				await _Save(group);				
 			}
 		}
-		
+
 	}
 }

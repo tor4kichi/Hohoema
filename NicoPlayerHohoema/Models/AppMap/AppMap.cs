@@ -9,10 +9,12 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.UI;
+using Windows.Foundation;
+using Windows.UI.Core;
 
 namespace NicoPlayerHohoema.Models.AppMap
 {
-	public class AppMapManager : BindableBase
+	public class AppMapManager : BindableBase, IBackgroundUpdateable
 	{
 		// Note: アプリのメニューやホーム画面で表示する内容の元になるモデルデータ
 
@@ -48,6 +50,14 @@ namespace NicoPlayerHohoema.Models.AppMap
 			{
 				Root.Add(selectable);
 			}
+		}
+
+		public IAsyncAction BackgroundUpdate(CoreDispatcher uiDispatcher)
+		{
+			return uiDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => 
+			{
+				await Refresh();
+			});
 		}
 	}
 

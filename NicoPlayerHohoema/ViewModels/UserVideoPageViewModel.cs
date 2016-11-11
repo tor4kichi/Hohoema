@@ -109,7 +109,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public List<UserVideoResponse> _ResList;
 		
 		public UserVideoIncrementalSource(string userId, UserDetail userDetail, HohoemaApp hohoemaApp, PageManager pageManager)
-			: base(hohoemaApp, "UserVideo_" + userId)
+			: base(hohoemaApp, "UserVideo:" + userId)
 		{
 			UserId = uint.Parse(userId);
 			User = userDetail;

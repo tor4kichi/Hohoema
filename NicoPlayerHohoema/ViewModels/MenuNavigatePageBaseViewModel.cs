@@ -22,11 +22,13 @@ namespace NicoPlayerHohoema.ViewModels
 	public class MenuNavigatePageBaseViewModel : BindableBase
 	{
 		public PageManager PageManager { get; private set; }
+		public HohoemaApp HohoemaApp { get; private set; }
 
-		
-		public MenuNavigatePageBaseViewModel(PageManager pageManager)
+
+		public MenuNavigatePageBaseViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
 		{
 			PageManager = pageManager;
+			HohoemaApp = hohoemaApp;
 
 			// Symbol see@ https://msdn.microsoft.com/library/windows/apps/dn252842
 			SplitViewDisplayMode = new ReactiveProperty<Windows.UI.Xaml.Controls.SplitViewDisplayMode>();
@@ -129,6 +131,52 @@ namespace NicoPlayerHohoema.ViewModels
 			PageManager.ProgressWork += PageManager_ProgressWork;
 			PageManager.CompleteWork += PageManager_CompleteWork;
 			PageManager.CancelWork += PageManager_CancelWork;
+
+
+
+			var updater = HohoemaApp.BackgroundUpdater;
+
+			var bgUpdateStartedObserver = Observable.FromEventPattern<BackgroundUpdateInfo>(
+				handler => updater.BackgroundUpdateStartedEvent += handler,
+				handler => updater.BackgroundUpdateStartedEvent -= handler
+				);
+
+			var bgUpdateCompletedObserver = Observable.FromEventPattern<BackgroundUpdateInfo>(
+				handler => updater.BackgroundUpdateCompletedEvent += handler,
+				handler => updater.BackgroundUpdateCompletedEvent -= handler
+				);
+				
+
+			var bgUpdateCanceledObserver = Observable.FromEventPattern<BackgroundUpdateInfo>(
+				handler => updater.BackgroundUpdateCanceledEvent += handler,
+				handler => updater.BackgroundUpdateCanceledEvent -= handler
+				);
+
+			BGUpdateText = new ReactiveProperty<string>();
+			HasBGUpdateText = BGUpdateText.Select(x => !string.IsNullOrEmpty(x))
+				.ToReactiveProperty();
+			bgUpdateStartedObserver.Subscribe(x =>
+			{
+				if (!string.IsNullOrEmpty(x.EventArgs.Label))
+				{
+					BGUpdateText.Value = $"{x.EventArgs.Label} を処理中...";
+				}
+				else
+				{
+					BGUpdateText.Value = $"{x.EventArgs.Id} を処理中...";
+				}
+			});
+
+
+			Observable.Merge(
+				bgUpdateCompletedObserver,
+				bgUpdateCanceledObserver
+				)
+				.Subscribe(async x => 
+				{
+					await Task.Delay(1000);
+					BGUpdateText.Value = null;
+				});
 		}
 
 		private void PageManager_StartWork(string title, uint totalCount)
@@ -219,6 +267,11 @@ namespace NicoPlayerHohoema.ViewModels
 			get { return _WorkTotalCount; }
 			set { SetProperty(ref _WorkTotalCount, value); }
 		}
+
+
+		public ReactiveProperty<bool> HasBGUpdateText { get; private set; }
+		public ReactiveProperty<string> BGUpdateText { get; private set; }
+
 
 
 		public ReactiveProperty<PageTypeSelectableItem> SelectedItem { get; private set; }

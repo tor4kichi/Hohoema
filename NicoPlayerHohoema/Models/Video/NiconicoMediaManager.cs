@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Storage;
 using Windows.UI.Xaml;
+using Windows.UI.Core;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -22,7 +23,7 @@ namespace NicoPlayerHohoema.Models
 	/// ニコニコ動画の動画やサムネイル画像、
 	/// 動画情報など動画に関わるメディアを管理します
 	/// </summary>
-	public class NiconicoMediaManager : BindableBase, IDisposable
+	public class NiconicoMediaManager : BindableBase, IDisposable, IBackgroundUpdateable
 	{
 		const string CACHE_REQUESTED_FILENAME = "cache_requested.json";
 
@@ -59,11 +60,18 @@ namespace NicoPlayerHohoema.Models
 			_HohoemaApp.OnSignin += _HohoemaApp_OnSignin;
 		}
 
-		private async void _HohoemaApp_OnSignin()
+		private void _HohoemaApp_OnSignin()
 		{
 			// 初期化をバックグラウンドタスクに登録
-			var updater = new SimpleBackgroundUpdate("NicoMediaManager", () => Initialize());
-			await _HohoemaApp.BackgroundUpdater.Schedule(updater);
+			var updater = _HohoemaApp.BackgroundUpdater.CreateBackgroundUpdateInfoWithImmidiateSchedule(
+				this, 
+				"NicoMediaManager",
+				label:"キャッシュ"
+				);
+			updater.Completed += (sender, item) => 
+			{
+				IsInitialized = true;
+			};
 		}
 
 		public void Dispose()
@@ -71,6 +79,16 @@ namespace NicoPlayerHohoema.Models
 			Context.Dispose();
 		}
 
+
+		#region interface IBackgroundUpdateable
+
+		public IAsyncAction BackgroundUpdate(CoreDispatcher uiDispatcher)
+		{
+			return Initialize()
+				.AsAsyncAction();
+		}
+
+		#endregion
 
 
 		private async Task Initialize()
@@ -358,6 +376,7 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
+	
 
 		private FileAccessor<IList<NicoVideoCacheRequest>> _CacheRequestedItemsFileAccessor;
 		private ObservableCollection<NicoVideoCacheRequest> _CacheRequestedItemsStack;
@@ -370,6 +389,7 @@ namespace NicoPlayerHohoema.Models
 
 		public NicoVideoDownloadContext Context { get; private set; }
 		HohoemaApp _HohoemaApp;
+		public bool IsInitialized { get; private set; }
 	}
 
 
