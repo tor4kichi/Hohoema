@@ -9,6 +9,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.Foundation;
+using Windows.UI.Core;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -17,7 +19,7 @@ namespace NicoPlayerHohoema.Models
 	[KnownType(typeof(TagFeedSource))]
 	[KnownType(typeof(MylistFeedSource))]
 	[KnownType(typeof(UserFeedSource))]
-	public class FeedGroup2 : BindableBase, IFeedGroup
+	public class FeedGroup2 : BindableBase, IFeedGroup, IBackgroundUpdateable
 	{
 		public const int MaxFeedItemsCount = 100;
 
@@ -114,6 +116,13 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
+		public IAsyncAction BackgroundUpdate(CoreDispatcher uiDispatcher)
+		{
+			IsNeedRefresh = true;
+			return RefreshAction(() => _Refresh()).AsAsyncAction();
+		}
+
+
 
 		public IFeedSource AddTagFeedSource(string tag)
 		{			
@@ -165,9 +174,12 @@ namespace NicoPlayerHohoema.Models
 			return _FeedSourceList.Any(x => x.FollowItemType == itemType && x.Id == id);
 		}
 
-		public Task Refresh()
+
+
+		public async Task Refresh()
 		{
-			return RefreshAction(() => _Refresh());
+			IsNeedRefresh = true;
+			await FeedManager.RefreshOneAsync(this);
 		}
 
 		private async Task _Refresh()
@@ -335,6 +347,7 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
+		
 	}
 
 	[DataContract]

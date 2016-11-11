@@ -163,9 +163,19 @@ namespace NicoPlayerHohoema.ViewModels
 				return _RefreshAllFeedGroupCommand
 					?? (_RefreshAllFeedGroupCommand = new DelegateCommand(async () =>
 					{
-						foreach (var feedGroup in HohoemaApp.FeedManager.FeedGroups)
+
+						foreach (var feedGroup in FeedGroupItems)
 						{
-							await feedGroup.Refresh();
+							feedGroup.UpdateStarted();
+						}
+
+						await Task.Delay(3000);
+
+						foreach (var feedGroup in FeedGroupItems)
+						{
+							await feedGroup.FeedGroup.Refresh();
+
+							feedGroup.UpdateCompleted();
 						}
 					}, 
 					() => HohoemaApp.FeedManager.FeedGroups.Count > 0
@@ -183,11 +193,15 @@ namespace NicoPlayerHohoema.ViewModels
 		public IFeedGroup FeedGroup { get; private set; }
 
 
+		
 		public string Label { get; private set; }
 
 		public int UnreadItemCount { get; private set; }
 
 		public List<FeedItemSourceViewModel> SourceItems { get; private set; }
+
+		public ReactiveProperty<DateTime> LastUpdate { get; private set; }
+		public ReactiveProperty<bool> NowUpdate { get; private set; }
 
 		public FeedGroupListItem(IFeedGroup feedGroup, PageManager pageManager)
 		{
@@ -203,7 +217,8 @@ namespace NicoPlayerHohoema.ViewModels
 					ItemType = x.FollowItemType
 				})
 				.ToList();
-			
+			LastUpdate = new ReactiveProperty<DateTime>(FeedGroup.UpdateTime);
+			NowUpdate = new ReactiveProperty<bool>(false);
 		}
 
 		private DelegateCommand _SelectedCommand;
@@ -236,6 +251,18 @@ namespace NicoPlayerHohoema.ViewModels
 		public override void Dispose()
 		{
 			
+		}
+
+
+		public void UpdateStarted()
+		{
+			NowUpdate.Value = true;
+		}
+
+		public void UpdateCompleted()
+		{
+			NowUpdate.Value = false;
+			LastUpdate.Value = FeedGroup.UpdateTime;
 		}
 	}
 

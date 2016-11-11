@@ -3,6 +3,7 @@ using Prism.Mvvm;
 using Reactive.Bindings;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -48,35 +49,89 @@ namespace NicoPlayerHohoema.Models
 		public string GroupId { get; private set; }
 		public int Priority { get; private set; }
 
+		private bool _IsRunning;
+		private bool _IsLastTaskCompleted;
+
 		public event BackgroundUpdateStartedEventHandler Started;
 		public event BackgroundUpdateCompletedEventHandler Completed;
 		public event BackgroundUpdateCanceledEventHandler Canceled;
 
-		internal void Start(CoreDispatcher uiDispatcher)
+		private AsyncLock _Lock = new AsyncLock();
+
+		internal async void Start(CoreDispatcher uiDispatcher)
 		{
+			using (var releaser = await _Lock.LockAsync())
+			{
+				_IsRunning = true;
+				_IsLastTaskCompleted = false;
+			}
+
 			Started?.Invoke(this);
 		}
 
-		internal void Complete(CoreDispatcher uiDispatcher)
+		internal async void Complete(CoreDispatcher uiDispatcher)
 		{
+			using (var releaser = await _Lock.LockAsync())
+			{
+				_IsRunning = false;
+				_IsLastTaskCompleted = true;
+			}
+
 			Completed?.Invoke(this);
 		}
 
-		internal void Cancel(CoreDispatcher uiDispatcher)
+		internal async void Cancel(CoreDispatcher uiDispatcher)
 		{
+			using (var releaser = await _Lock.LockAsync())
+			{
+				_IsRunning = false;
+				_IsLastTaskCompleted = false;
+			}
+
 			Canceled?.Invoke(this);
 		}
 
-		public void ScheduleUpdate()
+		public async void ScheduleUpdate()
 		{
+			using (var releaser = await _Lock.LockAsync())
+			{
+				_IsRunning = true;
+				_IsLastTaskCompleted = false;
+			}
+
 			Owner.Schedule(this);
 		}
 
-		public void Cancel()
+		public async void Cancel()
 		{
+			using (var releaser = await _Lock.LockAsync())
+			{
+				_IsRunning = false;
+				_IsLastTaskCompleted = false;
+			}
+
 			Owner.CancelFromId(Id);
 		}
 
+		public async Task<bool> WaitUpdate()
+		{
+			bool isLastTaskCompleted = false;
+			while(true)
+			{
+				using (var releaser = await _Lock.LockAsync())
+				{
+					isLastTaskCompleted = _IsLastTaskCompleted;
+					if (!_IsRunning)
+					{
+						break;
+					}
+				}
+
+				await Task.Delay(30);
+			}
+
+			return isLastTaskCompleted;
+		}
 	}
 
 	class RunningTaskInfo
