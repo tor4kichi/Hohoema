@@ -108,6 +108,15 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NicoRtmpConnection\Archive\ChannelArchiveNiconamaRtmpConnection.cs" />
+    <Compile Include="NicoRtmpConnection\Archive\CommunityArchiveNiconamaRtmpConnection.cs" />
+    <Compile Include="NicoRtmpConnection\Archive\OfficalArchiveNiconamaRtmpConnection.cs" />
+    <Compile Include="INicoVideoRtmpConnection.cs" />
+    <Compile Include="NicoRtmpConnection\Live\ChannelLiveNiconamaRtmpConnection.cs" />
+    <Compile Include="NicoRtmpConnection\Live\CommunityLiveNiconamaRtmpConnection.cs" />
+    <Compile Include="NicoRtmpConnection\NiconamaRtmpConnectionBase.cs" />
+    <Compile Include="NicoRtmpConnection\Live\OfficialLiveNiconamaRtmpConnection.cs" />
+    <Compile Include="NicoVideoRtmpConnectionHelper.cs" />
     <Compile Include="NicovideoRtmpClient.cs" />
     <Compile Include="NicovideoRtmpClientStartedEventArgs.cs" />
     <Compile Include="NicovideoRtmpClientStoppedEventArgs.cs" />
