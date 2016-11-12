@@ -91,7 +91,9 @@
                         <Setter Target="CommentCommandEditButton_Wide.Visibility" Value="Visible" />
 
                         <Setter Target="PanePinnedToggleButton.Visibility" Value="Visible" />
-                        
+                    
+                        <Setter Target="SplitView.OpenPaneLength" Value="400" />
+
                     </VisualState.Setters>
                 </VisualState>
                 <!-- 超狭い -->
@@ -112,6 +114,7 @@
                         <Setter Target="PanePinnedToggleButton.Visibility" Value="Collapsed" />
                         <Setter Target="PanePinnedToggleButton.IsChecked" Value="False" />
 
+                        <Setter Target="SplitView.OpenPaneLength" Value="320" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -213,7 +216,7 @@
             <SplitView x:Name="SplitView"
                        PanePlacement="Right"
                        DisplayMode="Overlay"
-                       OpenPaneLength="400"
+                       OpenPaneLength="320"
                        >
                 <SplitView.Content>
                     <Grid Background="#FF0C0C0C" x:Name="MediaControl">

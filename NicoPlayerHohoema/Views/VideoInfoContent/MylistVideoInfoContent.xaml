@@ -15,7 +15,7 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <StackPanel Width="380">
+    <StackPanel HorizontalAlignment="Stretch">
 
         <Border >
             <toolkit:DockPanel>
