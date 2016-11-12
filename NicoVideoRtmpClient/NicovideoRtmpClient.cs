@@ -510,7 +510,6 @@ namespace NicoVideoRtmpClient
 		private async void OnAttached(object sender, NetStreamAttachedEventArgs args)
 		{
 			// createStreamとplayの間にnlPlayNoticeを挟むための待ち
-			await Task.Delay(500);
 
 			await _Stream.PlayAsync(_Connection.Uri.Instance);
 		}
