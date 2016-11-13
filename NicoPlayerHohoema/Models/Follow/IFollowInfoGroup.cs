@@ -20,7 +20,14 @@ namespace NicoPlayerHohoema.Models
 		Task Sync();
 
 
-		Task<ContentManageResult> AddFollow(string name, string id);
-		Task<ContentManageResult> RemoveFollow(string id);
+		Task<ContentManageResult> AddFollow(string name, string id, object token = null);
+
+		/// <summary>
+		/// フォローを解除します
+		/// </summary>
+		/// <param name="id"></param>
+		/// <param name="token">コミュニティのフォロー解除時に必要となるCommunityLeaveTokenを指定するための引数です</param>
+		/// <returns></returns>
+		Task<ContentManageResult> RemoveFollow(string id, object token = null);
 	}
 }
