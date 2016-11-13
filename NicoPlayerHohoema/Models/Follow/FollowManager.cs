@@ -197,20 +197,20 @@ namespace NicoPlayerHohoema.Models
 			return GetFollowInfoGroup(itemType).FollowInfoItems.SingleOrDefault(x => x.Id == id);
 		}
 
-		public async Task<ContentManageResult> AddFollow(FollowItemType itemType, string id, string name)
+		public async Task<ContentManageResult> AddFollow(FollowItemType itemType, string id, string name, object token = null)
 		{
 			var group = GetFollowInfoGroup(itemType);
 
-			var result = await group.AddFollow(name, id);
+			var result = await group.AddFollow(name, id, token);
 		
 			return result;
 		}
 
-		public async Task<ContentManageResult> RemoveFollow(FollowItemType itemType, string id)
+		public async Task<ContentManageResult> RemoveFollow(FollowItemType itemType, string id, object token = null)
 		{
 			var group = GetFollowInfoGroup(itemType);
 
-			var result = await group.RemoveFollow(id);
+			var result = await group.RemoveFollow(id, token);
 
 			return result;
 		}

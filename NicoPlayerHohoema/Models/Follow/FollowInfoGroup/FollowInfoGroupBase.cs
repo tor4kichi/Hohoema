@@ -54,9 +54,9 @@ namespace NicoPlayerHohoema.Models
 			return _FollowInfoList.Any(x => x.Id == id);
 		}
 
-		public async Task<ContentManageResult> AddFollow(string name, string id)
+		public async Task<ContentManageResult> AddFollow(string name, string id, object token = null)
 		{
-			var result = await AddFollow_Internal(id);
+			var result = await AddFollow_Internal(id, token);
 
 			if (result == ContentManageResult.Success)
 			{
