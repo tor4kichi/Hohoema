@@ -26,11 +26,11 @@ namespace NicoPlayerHohoema.Models
 		{
 			return HohoemaApp.ContentFinder.GetFavMylists();
 		}
-		protected override Task<ContentManageResult> AddFollow_Internal(string id)
+		protected override Task<ContentManageResult> AddFollow_Internal(string id, object token)
 		{
 			return HohoemaApp.NiconicoContext.User.AddUserFollowAsync(NiconicoItemType.Mylist, id);
 		}
-		protected override Task<ContentManageResult> RemoveFollow_Internal(string id)
+		protected override Task<ContentManageResult> RemoveFollow_Internal(string id, object token)
 		{
 			return HohoemaApp.NiconicoContext.User.RemoveUserFollowAsync(NiconicoItemType.Mylist, id);
 		}

@@ -147,6 +147,7 @@
     <Compile Include="Models\Feed\IFeedSource.cs" />
     <Compile Include="Models\Feed\TagFeedSource.cs" />
     <Compile Include="Models\Feed\UserFeedSource.cs" />
+    <Compile Include="Models\Follow\FollowInfoGroup\CommunituFollowAdditionalInfo.cs" />
     <Compile Include="Models\Follow\FollowItemInfo.cs" />
     <Compile Include="Models\Feed\MylistFeedSource.cs" />
     <Compile Include="Models\Follow\FollowInfoGroup\CommunityFollowInfoGroup.cs" />
