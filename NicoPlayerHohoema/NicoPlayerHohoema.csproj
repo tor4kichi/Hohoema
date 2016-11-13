@@ -471,6 +471,7 @@
     <Compile Include="Views\SettingsPageContent\ShereSettingsPageContent.xaml.cs">
       <DependentUpon>ShereSettingsPageContent.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\StateTrigger\WindowActiveTrigger.cs" />
     <Compile Include="Views\UserInfoPage.xaml.cs">
       <DependentUpon>UserInfoPage.xaml</DependentUpon>
     </Compile>
