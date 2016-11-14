@@ -57,17 +57,9 @@ namespace NicoPlayerHohoema.ViewModels
 				Tags.Add(tag.Value);
 			}
 
-			// このページに来る前のプレイヤーを忘れされる
-			// ユーザーが戻るナビゲーションを行った時は、動画ページを飛ばしてさらに前のリスト系ページ等に戻る
-			var dispatcher = Window.Current.CoreWindow.Dispatcher;
-			await Task.Delay(100).
-				ContinueWith(async prevResult =>
-				{
-					await dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-					{
-						PageManager.ForgetLastPage();
-					});
-				});
+
+			// Note: PageMaanger内でこのページへのナビゲーション記録は削除されます
+			// see@ PageManager.ForgetLastPage
 		}
 	
 
@@ -110,8 +102,6 @@ namespace NicoPlayerHohoema.ViewModels
 							}
 							.ToParameterString()
 						);
-
-						PageManager.ForgetLastPage();
 					}));
 			}
 		}
