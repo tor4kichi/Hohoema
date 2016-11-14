@@ -122,10 +122,6 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				if (SearchText.Value.Length == 0) { return; }
 
-				// キーワードを検索履歴を記録
-				SearchHistoryDb.Searched(SearchText.Value, SelectedTarget.Value);
-
-
 				// Note: Keywordの管理はSearchPage側で行うべき？
 				SearchOptionVM.Value.Keyword = SearchText.Value;
 
@@ -260,9 +256,17 @@ namespace NicoPlayerHohoema.ViewModels
 
 				SearchText.Value = RequireSearchOption?.Keyword ?? "";
 				SelectedTarget.Value = searchTarget;
+
+				// キーワードを検索履歴を記録
+				if (!string.IsNullOrWhiteSpace(SearchText.Value))
+				{
+					SearchHistoryDb.Searched(SearchText.Value, SelectedTarget.Value);
+				}
 			}
 
 			ContentVM.Value?.OnNavigatedTo(e, viewModelState);
+
+			
 		}
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
