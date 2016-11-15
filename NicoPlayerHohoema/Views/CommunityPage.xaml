@@ -73,7 +73,7 @@
 
             <!-- コミュニティの情報 -->
 
-            <StackPanel Margin="0 8">
+            <StackPanel Margin="0 8" HorizontalAlignment="Stretch">
 
                 <toolkit:DockPanel Margin="0 0 0 0">
 
@@ -165,38 +165,36 @@
 
 
                 <!-- 放送の状態表示 -->
-                <Border BorderBrush="#f61e1e" BorderThickness="0 4 0 0" CornerRadius="8" Margin="0 8"
+                <Border Margin="0 16 0 8"
                     Visibility="{Binding HasCurrentLiveInfo, Converter={StaticResource BooleanToVisibility}}"
                     >
 
-                    <StackPanel>
+                    <StackPanel HorizontalAlignment="Stretch">
 
-                        <ItemsControl ItemsSource="{Binding CurrentLiveInfoList}">
+                        <TextBlock Text="現在放送中" 
+                                   FontSize="18"
+                                   />
+
+                        <ItemsControl ItemsSource="{Binding CurrentLiveInfoList}"
+                                      HorizontalContentAlignment="Stretch"
+                                      HorizontalAlignment="Stretch"
+                                      Margin="0 8"
+                                      >
 
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Button Command="{Binding OpenLivePageCommand}"
+                                    <Border BorderBrush="#f61e1e" BorderThickness="8 0 0 0" Padding="4 0 0 0">
+                                        <Button Command="{Binding OpenLivePageCommand}"
+                                            Height="40"
                                            >
-                                        <toolkit:DockPanel>
-                                            <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Right">
-                                                <Border >
-                                                    <TextBlock Text="視聴する"
-                                                           />
-                                                </Border>
-                                            </StackPanel>
                                             <StackPanel Orientation="Horizontal" >
                                                 <TextBlock Text="{Binding LiveTitle}" />
                                             </StackPanel>
-
-
-                                            
-                                        </toolkit:DockPanel>
-                                    </Button>
+                                        </Button>
+                                    </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-
-                        <Border Height="16" />
 
                     </StackPanel>
 
