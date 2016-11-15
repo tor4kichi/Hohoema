@@ -28,9 +28,9 @@ namespace NicoPlayerHohoema.Models
 	/// <summary>
 	/// use BackgroundUpdater.CreateBackgroundUpdateInfo instance method.
 	/// </summary>
-	public class BackgroundUpdateInfo
+	public class BackgroundUpdateScheduleHandler
 	{
-		internal BackgroundUpdateInfo(
+		internal BackgroundUpdateScheduleHandler(
 			IBackgroundUpdateable target, 
 			BackgroundUpdater owner, 
 			string id, 
@@ -57,11 +57,13 @@ namespace NicoPlayerHohoema.Models
 		private bool _IsRunning;
 		private bool _IsLastTaskCompleted;
 
-		public event EventHandler<BackgroundUpdateInfo> Started;
-		public event EventHandler<BackgroundUpdateInfo> Completed;
-		public event EventHandler<BackgroundUpdateInfo> Canceled;
+		public event EventHandler<BackgroundUpdateScheduleHandler> Started;
+		public event EventHandler<BackgroundUpdateScheduleHandler> Completed;
+		public event EventHandler<BackgroundUpdateScheduleHandler> Canceled;
 
 		private AsyncLock _Lock = new AsyncLock();
+
+		private uint _UpdateCompletedCount = 0;
 
 		internal async void Start(CoreDispatcher uiDispatcher)
 		{
@@ -80,6 +82,7 @@ namespace NicoPlayerHohoema.Models
 			{
 				_IsRunning = false;
 				_IsLastTaskCompleted = true;
+				_UpdateCompletedCount++;
 			}
 
 			Completed?.Invoke(this, this);
@@ -137,12 +140,15 @@ namespace NicoPlayerHohoema.Models
 
 			return isLastTaskCompleted;
 		}
+
+
+		public bool IsOneOrMoreUpdateCompleted => _UpdateCompletedCount >= 1;
 	}
 
 	class RunningTaskInfo
 	{
 		public IBackgroundUpdateable Target { get; set; }
-		public BackgroundUpdateInfo Item;
+		public BackgroundUpdateScheduleHandler Item;
 		public Task CurrentUpdateTargetTask { get; set; }
 		public CancellationTokenSource CancelTokenSource { get; set; }
 	}
@@ -159,22 +165,26 @@ namespace NicoPlayerHohoema.Models
 		public string Id { get; private set; }
 		public CoreDispatcher UIDispatcher { get; private set; }
 
-		public List<BackgroundUpdateInfo> UpdateTargetStack { get; private set; }
+		public List<BackgroundUpdateScheduleHandler> UpdateTargetStack { get; private set; }
 		private AsyncLock _ScheduleUpdateLock;
 
 		private List<RunningTaskInfo> _RunningTasks;
 
-		public event EventHandler<BackgroundUpdateInfo> BackgroundUpdateStartedEvent;
-		public event EventHandler<BackgroundUpdateInfo> BackgroundUpdateCompletedEvent;
-		public event EventHandler<BackgroundUpdateInfo> BackgroundUpdateCanceledEvent;
+		public event EventHandler<BackgroundUpdateScheduleHandler> BackgroundUpdateStartedEvent;
+		public event EventHandler<BackgroundUpdateScheduleHandler> BackgroundUpdateCompletedEvent;
+		public event EventHandler<BackgroundUpdateScheduleHandler> BackgroundUpdateCanceledEvent;
+
+
+		private Dictionary<IBackgroundUpdateable, BackgroundUpdateScheduleHandler> _UpdateInfoMap;
 
 		public BackgroundUpdater(string id, CoreDispatcher uiDispatcher)
 		{
 			Id = id;
 			UIDispatcher = uiDispatcher;
-			UpdateTargetStack = new List<BackgroundUpdateInfo>();
+			UpdateTargetStack = new List<BackgroundUpdateScheduleHandler>();
 			_RunningTasks = new List<RunningTaskInfo>();
 			_ScheduleUpdateLock = new AsyncLock();
+			_UpdateInfoMap = new Dictionary<IBackgroundUpdateable, BackgroundUpdateScheduleHandler>();
 
 			App.Current.Resuming += Current_Resuming;
 			App.Current.Suspending += Current_Suspending;
@@ -189,7 +199,7 @@ namespace NicoPlayerHohoema.Models
 			Stop().ConfigureAwait(false);
 		}
 
-		public BackgroundUpdateInfo CreateBackgroundUpdateInfo(
+		public BackgroundUpdateScheduleHandler RegistrationBackgroundUpdateScheduleHandler(
 			IBackgroundUpdateable target, 
 			string id, 
 			string groupId = null, 
@@ -199,11 +209,21 @@ namespace NicoPlayerHohoema.Models
 		{
 			// Note: ここで予めBGUpdateInfo同士の
 			// 依存関係解決の元になる情報を構築することもできる
+			BackgroundUpdateScheduleHandler handler;
+			if (_UpdateInfoMap.ContainsKey(target))
+			{
+				handler = _UpdateInfoMap[target];
+			}
+			else
+			{
+				handler = new BackgroundUpdateScheduleHandler(target, this, id, groupId, priority, label);
+				_UpdateInfoMap.Add(target, handler);
+			}
 
-			return new BackgroundUpdateInfo(target, this, id, groupId, priority, label);
+			return handler;
 		}
 
-		public BackgroundUpdateInfo CreateBackgroundUpdateInfoWithImmidiateSchedule(
+		public BackgroundUpdateScheduleHandler InstantBackgroundUpdateScheduling(
 			IBackgroundUpdateable target,
 			string id,
 			string groupId = null,
@@ -211,13 +231,19 @@ namespace NicoPlayerHohoema.Models
 			string label = null
 			)
 		{
-			// Note: ここで予めBGUpdateInfo同士の
-			// 依存関係解決の元になる情報を構築することもできる
-
-			var info = new BackgroundUpdateInfo(target, this, id, groupId, priority, label);
-			info.ScheduleUpdate();
-			return info;
+			var handler = new BackgroundUpdateScheduleHandler(target, this, id, groupId, priority, label);
+			handler.ScheduleUpdate();
+			return handler;
 		}
+
+
+		public BackgroundUpdateScheduleHandler GetBackgroundUpdateScheduleHandler(
+			IBackgroundUpdateable target
+			)
+		{
+			return _UpdateInfoMap[target];
+		}
+
 
 		#region Application Lifecycle Handling
 
@@ -286,7 +312,7 @@ namespace NicoPlayerHohoema.Models
 		/// BackgroundUpdateInfo から呼ばれます
 		/// </summary>
 		/// <param name="item"></param>
-		internal async void Schedule(BackgroundUpdateInfo item)
+		internal async void Schedule(BackgroundUpdateScheduleHandler item)
 		{
 			await PushItem(item);
 
@@ -393,7 +419,7 @@ namespace NicoPlayerHohoema.Models
 
 		
 
-		private async void StartTaskAndRegistration(BackgroundUpdateInfo item)
+		private async void StartTaskAndRegistration(BackgroundUpdateScheduleHandler item)
 		{
 			var cancelTokenSource = new CancellationTokenSource();
 			var taskInfo = new RunningTaskInfo()
@@ -418,15 +444,14 @@ namespace NicoPlayerHohoema.Models
 
 			Debug.WriteLine($"BGTask[{Id}]: begining update {taskInfo.Item.Id}");
 
-			(item as BackgroundUpdateInfo)?.Start(UIDispatcher);
+			(item as BackgroundUpdateScheduleHandler)?.Start(UIDispatcher);
 
 			BackgroundUpdateStartedEvent?.Invoke(this, item);
 
 			using (var releaser = await _ScheduleUpdateLock.LockAsync())
 			{
 				_RunningTasks.Add(taskInfo);
-			}
-			
+			}			
 		}
 
 		private async void OnTaskCanceled(object a)
@@ -436,7 +461,7 @@ namespace NicoPlayerHohoema.Models
 
 			Debug.WriteLine($"BGTask[{Id}]: update complete {taskInfo.Item.Id}");
 
-			(taskInfo.Target as BackgroundUpdateInfo)?.Cancel(UIDispatcher);
+			(taskInfo.Target as BackgroundUpdateScheduleHandler)?.Cancel(UIDispatcher);
 
 			BackgroundUpdateCanceledEvent?.Invoke(this, taskInfo.Item);
 
@@ -451,14 +476,14 @@ namespace NicoPlayerHohoema.Models
 			await TryBeginNext().ConfigureAwait(false);
 		}
 
-		private async Task OnContinueTask(Task<BackgroundUpdateInfo> task)
+		private async Task OnContinueTask(Task<BackgroundUpdateScheduleHandler> task)
 		{
 			if (task.IsCompleted && !task.IsCanceled)
 			{
 				var updateTarget = task.Result;
 
 				Debug.WriteLine($"BGTask[{Id}]: update {task.Status.ToString()} {updateTarget.Id}");
-				(updateTarget as BackgroundUpdateInfo)?.Complete(UIDispatcher);
+				(updateTarget as BackgroundUpdateScheduleHandler)?.Complete(UIDispatcher);
 
 				// 完了イベント呼び出し
 				BackgroundUpdateCompletedEvent?.Invoke(this, updateTarget);
@@ -482,7 +507,7 @@ namespace NicoPlayerHohoema.Models
 
 		#region Schedule Item Stack Management
 
-		private async Task PushItem(BackgroundUpdateInfo item)
+		private async Task PushItem(BackgroundUpdateScheduleHandler item)
 		{
 			using (var releaser = await _ScheduleUpdateLock.LockAsync())
 			{
@@ -504,7 +529,7 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
-		private async Task<BackgroundUpdateInfo> PopItem()
+		private async Task<BackgroundUpdateScheduleHandler> PopItem()
 		{
 			using (var releaser = await _ScheduleUpdateLock.LockAsync())
 			{

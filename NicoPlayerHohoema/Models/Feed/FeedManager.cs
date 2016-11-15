@@ -45,7 +45,7 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
-		private Dictionary<IFeedGroup, BackgroundUpdateInfo> _FeedGroupUpdaters;
+		private Dictionary<IFeedGroup, BackgroundUpdateScheduleHandler> _FeedGroupUpdaters;
 		
 
 
@@ -54,16 +54,7 @@ namespace NicoPlayerHohoema.Models
 			HohoemaApp = hohoemaApp;
 			FeedGroupDict = new Dictionary<IFeedGroup, FileAccessor<FeedGroup2>>();
 			FeedStreamFileAccessors = new Dictionary<Guid, FileAccessor<List<FeedItem>>>();
-			_FeedGroupUpdaters = new Dictionary<IFeedGroup, BackgroundUpdateInfo>();
-
-			// 非同期な初期化処理の遅延実行をスケジュール
-			var updater = HohoemaApp.BackgroundUpdater.CreateBackgroundUpdateInfoWithImmidiateSchedule(
-				this,
-				"feedManager",
-				label: "フィード初期化"
-				);
-
-
+			_FeedGroupUpdaters = new Dictionary<IFeedGroup, BackgroundUpdateScheduleHandler>();
 		}
 
 		#region interface IBackgroundUpdateable
@@ -98,8 +89,6 @@ namespace NicoPlayerHohoema.Models
 			await Load(files);
 
 			Debug.WriteLine($"FeedManager: {FeedGroupDict.Count} 件のFeedGroupを読み込みました。");
-
-			Refresh();
 		}
 
 		public async Task Load(IReadOnlyList<StorageFile> files)
@@ -155,7 +144,7 @@ namespace NicoPlayerHohoema.Models
 
 							// FeedGroupの更新処理情報を構築
 							_FeedGroupUpdaters.Add(item,
-								HohoemaApp.BackgroundUpdater.CreateBackgroundUpdateInfo(
+								HohoemaApp.BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(
 									item, item.Label, nameof(FeedGroup), label:$"FeedGroup:{item.Label}")
 								);
 
@@ -252,7 +241,7 @@ namespace NicoPlayerHohoema.Models
 			FeedStreamFileAccessors.Add(feedGroup.Id, streamFileAccessor);
 
 			_FeedGroupUpdaters.Add(feedGroup,
-				HohoemaApp.BackgroundUpdater.CreateBackgroundUpdateInfo(
+				HohoemaApp.BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(
 					feedGroup, feedGroup.Label, nameof(FeedGroup), label: $"FeedGroup:{feedGroup.Label}")
 				);
 

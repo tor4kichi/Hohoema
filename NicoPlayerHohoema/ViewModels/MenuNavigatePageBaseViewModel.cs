@@ -136,18 +136,18 @@ namespace NicoPlayerHohoema.ViewModels
 
 			var updater = HohoemaApp.BackgroundUpdater;
 
-			var bgUpdateStartedObserver = Observable.FromEventPattern<BackgroundUpdateInfo>(
+			var bgUpdateStartedObserver = Observable.FromEventPattern<BackgroundUpdateScheduleHandler>(
 				handler => updater.BackgroundUpdateStartedEvent += handler,
 				handler => updater.BackgroundUpdateStartedEvent -= handler
 				);
 
-			var bgUpdateCompletedObserver = Observable.FromEventPattern<BackgroundUpdateInfo>(
+			var bgUpdateCompletedObserver = Observable.FromEventPattern<BackgroundUpdateScheduleHandler>(
 				handler => updater.BackgroundUpdateCompletedEvent += handler,
 				handler => updater.BackgroundUpdateCompletedEvent -= handler
 				);
 				
 
-			var bgUpdateCanceledObserver = Observable.FromEventPattern<BackgroundUpdateInfo>(
+			var bgUpdateCanceledObserver = Observable.FromEventPattern<BackgroundUpdateScheduleHandler>(
 				handler => updater.BackgroundUpdateCanceledEvent += handler,
 				handler => updater.BackgroundUpdateCanceledEvent -= handler
 				);

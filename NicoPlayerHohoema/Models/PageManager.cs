@@ -114,10 +114,10 @@ namespace NicoPlayerHohoema.Models
 		{
 			HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
 			{
+				PageNavigating = true;
+
 				try
 				{
-					PageNavigating = true;
-
 					await Task.Delay(30);
 
 					var oldPageTitle = PageTitle;
@@ -144,6 +144,7 @@ namespace NicoPlayerHohoema.Models
 				{
 					PageNavigating = false;
 				}
+
 			})
 			.AsTask()
 			.ConfigureAwait(false);
@@ -201,7 +202,6 @@ namespace NicoPlayerHohoema.Models
 				}
 			}
 		}
-
 
 		/// <summary>
 		/// 画面遷移の履歴を消去します
@@ -287,7 +287,7 @@ namespace NicoPlayerHohoema.Models
 
 				ProgressWork?.Invoke(1);
 
-				await Task.Delay(2000);
+				await Task.Delay(1000);
 
 				if (cancelSource.IsCancellationRequested)
 				{

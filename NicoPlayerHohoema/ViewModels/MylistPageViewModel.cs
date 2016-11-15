@@ -581,24 +581,30 @@ namespace NicoPlayerHohoema.ViewModels
 	{
 
 		PageManager _PageManager;
-
+		MylistGroupInfo _MylistGroupInfo;
 		public DeflistMylistIncrementalSource(HohoemaApp hohoemaApp, PageManager pageManager)
 			: base(hohoemaApp, "DeflistMylist")
 		{
 			_PageManager = pageManager;
+			_MylistGroupInfo = HohoemaApp.UserMylistManager.GetMylistGroup("0");
+
 		}
 
-		
+
 
 		#region Implements HohoemaPreloadingIncrementalSourceBase		
 
+		protected override async Task<int> HohoemaPreloadingResetSourceImpl()
+		{
+			await _MylistGroupInfo.Refresh();
+			return await Task.FromResult(_MylistGroupInfo.ItemCount);
+		}
 
 		protected override async Task Preload(int start, int count)
 		{
 			try
 			{
-				var mylistGroup = HohoemaApp.UserMylistManager.GetMylistGroup("0");
-				var items = mylistGroup.VideoItems;
+				var items = _MylistGroupInfo.VideoItems;
 				foreach (var item in items.Skip(start).Take(count))
 				{
 					if (!HohoemaApp.IsLoggedIn) { return; }
@@ -612,17 +618,13 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		protected override Task<int> HohoemaPreloadingResetSourceImpl()
-		{
-			return Task.FromResult(HohoemaApp.UserMylistManager.GetMylistGroup("0").ItemCount);
-		}
+		
 
 		protected override async Task<IEnumerable<VideoInfoControlViewModel>> HohoemaPreloadingGetPagedItemsImpl(int head, int count)
 		{
 			List<VideoInfoControlViewModel> list = new List<VideoInfoControlViewModel>();
 
-			var mylistGroup = HohoemaApp.UserMylistManager.GetMylistGroup("0");
-			var items = mylistGroup.VideoItems;
+			var items = _MylistGroupInfo.VideoItems;
 
 			if (items.Count <= head)
 			{
@@ -663,6 +665,25 @@ namespace NicoPlayerHohoema.ViewModels
 
 		#region Implements HohoemaPreloadingIncrementalSourceBase		
 
+		protected override async Task<int> HohoemaPreloadingResetSourceImpl()
+		{
+			var count = 0;
+			var mylistManager = HohoemaApp.UserMylistManager;
+			if (mylistManager.HasMylistGroup(MylistGroupId))
+			{
+				var mylistGroup = mylistManager.GetMylistGroup(MylistGroupId);
+				await mylistGroup.Refresh();
+				count = mylistGroup.ItemCount;
+			}
+			else
+			{
+				var res = await HohoemaApp.ContentFinder.GetMylistGroupVideo(MylistGroupId, 0, 1);
+				count = (int)res.GetTotalCount();
+			}
+
+			return count;
+		}
+
 
 		protected override async Task Preload(int start, int count)
 		{
@@ -673,7 +694,6 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					var mylistGroup = mylistManager.GetMylistGroup(MylistGroupId);
 					var items = mylistGroup.VideoItems;
-
 					foreach (var videoId in items.Skip((int)start).Take((int)count))
 					{
 						await HohoemaApp.MediaManager.GetNicoVideoAsync(videoId);
@@ -699,23 +719,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		protected override async Task<int> HohoemaPreloadingResetSourceImpl()
-		{
-			var count = 0;
-			var mylistManager = HohoemaApp.UserMylistManager;
-			if (mylistManager.HasMylistGroup(MylistGroupId))
-			{
-				count = mylistManager.GetMylistGroup(MylistGroupId).ItemCount;
-			}
-			else
-			{
-				var res = await HohoemaApp.ContentFinder.GetMylistGroupVideo(MylistGroupId, 0, 1);
-				count = (int)res.GetTotalCount();
-			}
-
-			return count;
-		}
-
+		
 		protected override async Task<IEnumerable<VideoInfoControlViewModel>> HohoemaPreloadingGetPagedItemsImpl(int head, int count)
 		{
 			List<VideoInfoControlViewModel> list = new List<VideoInfoControlViewModel>();

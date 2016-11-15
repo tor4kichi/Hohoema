@@ -22,58 +22,51 @@ namespace NicoPlayerHohoema.ViewModels
 	{
 		public SelectableAppMapContainerViewModel Root { get; private set; }
 
+		private BackgroundUpdateScheduleHandler _AppMapManagerUpdateScheduleHandler;
+
 		public PortalPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
 			: base(hohoemaApp, pageManager)
 		{
+			_AppMapManagerUpdateScheduleHandler = HohoemaApp.AppMapManagerUpdater;
+
+			Root = new SelectableAppMapContainerViewModel(HohoemaApp.AppMapManager.Root, PageManager);
 		}
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			base.OnNavigatedTo(e, viewModelState);
-
-			if (Root == null)
-			{
-				Root = new SelectableAppMapContainerViewModel(HohoemaApp.AppMapManager.Root, PageManager);
-				OnPropertyChanged(nameof(Root));
-			}
+			HohoemaApp.AppMapManagerUpdater.Completed += AppMapManagerUpdater_Completed;
 
 			HohoemaApp.AppMapManagerUpdater.ScheduleUpdate();
 
-			HohoemaApp.AppMapManagerUpdater.Completed += AppMapManagerUpdater_Completed;
+			base.OnNavigatedTo(e, viewModelState);
+		}
+
+		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		{
+			await HohoemaApp.AppMapManagerUpdater.WaitUpdate();
+
+			await base.NavigatedToAsync(cancelToken, e, viewModelState);
 		}
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
-			base.OnNavigatingFrom(e, viewModelState, suspending);
-
 			HohoemaApp.AppMapManagerUpdater.Completed -= AppMapManagerUpdater_Completed;
+
+			base.OnNavigatingFrom(e, viewModelState, suspending);
 		}
 
-		private void AppMapManagerUpdater_Completed(object sender, BackgroundUpdateInfo item)
+		private void AppMapManagerUpdater_Completed(object sender, BackgroundUpdateScheduleHandler item)
 		{
-			if (Root == null)
-			{
-				Root = new SelectableAppMapContainerViewModel(HohoemaApp.AppMapManager.Root, PageManager);
-				OnPropertyChanged(nameof(Root));
-			}
-
 			Debug.WriteLine("AppMapManager update done");
 		}
 
 		protected override void OnSignIn(ICollection<IDisposable> userSessionDisposer)
 		{
-			if (Root == null)
-			{
-				Root = new SelectableAppMapContainerViewModel(HohoemaApp.AppMapManager.Root, PageManager);
-				OnPropertyChanged(nameof(Root));
-			}
-
 			base.OnSignIn(userSessionDisposer);
 		}
 
 		protected override void OnSignOut()
 		{
-			Root = null;
 			base.OnSignOut();
 		}
 

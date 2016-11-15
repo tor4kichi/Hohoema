@@ -33,7 +33,7 @@ namespace NicoPlayerHohoema.Models
 	{
 		AsyncLock _NicoPageAccessLock = new AsyncLock();
 		DateTime LastPageApiAccessTime = DateTime.MinValue;
-		static TimeSpan PageAccessMinimumInterval = TimeSpan.FromSeconds(3);
+		static TimeSpan PageAccessMinimumInterval = TimeSpan.FromSeconds(0.3);
 
 
 		SemaphoreSlim _ThumbnailAccessLock = new SemaphoreSlim(1, 3);
@@ -161,10 +161,6 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<VideoListingResponse> GetKeywordSearch(string keyword, uint from, uint limit, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
 		{
-			await WaitNicoPageAccess();
-
-
-
 			return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
 				return await _HohoemaApp.NiconicoContext.Search.VideoSearchWithKeywordAsync(keyword, from, limit, sort, order);
@@ -174,9 +170,6 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<VideoListingResponse> GetTagSearch(string tag, uint from, uint limit, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
 		{
-			await WaitNicoPageAccess();
-
-
 			return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
 				return await _HohoemaApp.NiconicoContext.Search.VideoSearchWithTagAsync(tag, from, limit, sort, order)
