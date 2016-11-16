@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Diagnostics;
 using Windows.Storage;
+using Windows.System.Power;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 
@@ -37,13 +38,11 @@ namespace NicoPlayerHohoema.Models
 			HohoemaApp.UIDispatcher = Window.Current.CoreWindow.Dispatcher;
 
 			var app = new HohoemaApp(ea);
-
-			app.UserSettings = new HohoemaUserSettings();
-			await app.LoadUserSettings();
-			app.ContentFinder = new NiconicoContentFinder(app);
-			app.UserMylistManager = new UserMylistManager(app);
-			app.AppMapManager = new AppMapManager(app);
 			app.MediaManager = await NiconicoMediaManager.Create(app);
+
+			await app.LoadUserSettings();
+
+			app.RagistrationBackgroundUpdateHandle();
 
 			return app;
 		}
@@ -59,6 +58,11 @@ namespace NicoPlayerHohoema.Models
 			EventAggregator = ea;
 			LoginUserId = uint.MaxValue;
 			LoggingChannel = new LoggingChannel("HohoemaLog", new LoggingChannelOptions(HohoemaLoggerGroupGuid));
+			UserSettings = new HohoemaUserSettings();
+			ContentFinder = new NiconicoContentFinder(this);
+			UserMylistManager = new UserMylistManager(this);
+			AppMapManager = new AppMapManager(this);
+			FeedManager = new FeedManager(this);
 
 			FollowManager = null;
 
@@ -70,6 +74,38 @@ namespace NicoPlayerHohoema.Models
 			ApplicationData.Current.DataChanged += Current_DataChanged;
 		}
 
+
+		private void RagistrationBackgroundUpdateHandle()
+		{
+			// ホーム画面で表示するアプリマップ情報をリセット
+			AppMapManagerUpdater =
+				BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(
+					AppMapManager
+					, nameof(AppMapManager)
+					, priority: -1
+					, label: "ホーム画面情報"
+					);
+
+			// 非同期な初期化処理の遅延実行をスケジュール
+			FeedManagerUpdater = BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(
+				FeedManager,
+				"FeedManager",
+				label: "フィード"
+				);
+
+			MediaManagerUpdater = BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(
+				MediaManager,
+				"NicoMediaManager",
+				label: "キャッシュ"
+				);
+
+			MylistManagerUpdater = BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(
+				UserMylistManager,
+				"MylistManagerManager",
+				label: "マイリスト一覧"
+				);
+
+		}
 
 
 		public async Task OnSuspending()
@@ -479,8 +515,6 @@ namespace NicoPlayerHohoema.Models
 
 						NiconicoContext = context;
 
-
-
 						using (var loginActivityLogger = LoggingChannel.StartActivity("login process"))
 						{
 
@@ -571,63 +605,32 @@ namespace NicoPlayerHohoema.Models
 								return NiconicoSignInStatus.Failed;
 							}
 
+							FollowManagerUpdater = BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(
+								FollowManager,
+								"FollowManager",
+								label: "フォロー"
+							);
 
-							try
-							{
-								Debug.WriteLine("initilize: feed");
-								loginActivityLogger.LogEvent("initialize feed");
-
-								FeedManager = new FeedManager(this);
-								// 非同期な初期化処理の遅延実行をスケジュール
-							}
-							catch
-							{
-								LoginErrorText = "フィード機能の初期化に失敗しました。再起動をお試しください。";
-								Debug.WriteLine(LoginErrorText);
-								loginActivityLogger.LogEvent(LoginErrorText, fields, LoggingLevel.Error);
-								NiconicoContext.Dispose();
-								NiconicoContext = null;
-								return NiconicoSignInStatus.Failed;
-							}
-
-							try
-							{
-								Debug.WriteLine("initilize: mylist");
-								loginActivityLogger.LogEvent(LoginErrorText);
-								await UserMylistManager.UpdateUserMylists();
-							}
-							catch
-							{
-								LoginErrorText = "マイリストの取得に失敗しました。再起動をお試しください。";
-								Debug.WriteLine(LoginErrorText = "[Failed] user mylist");
-								loginActivityLogger.LogEvent("[Failed] user mylist", fields, LoggingLevel.Error);
-								NiconicoContext.Dispose();
-								NiconicoContext = null;
-								return NiconicoSignInStatus.Failed;
-							}
-
-
-							// ホーム画面で表示するアプリマップ情報をリセット
-							AppMapManagerUpdater = 
-								BackgroundUpdater.CreateBackgroundUpdateInfo(
-									AppMapManager
-									, nameof(AppMapManager)
-									, priority: -1
-									, label: "ホーム画面情報"
-									);
-//							AppMapManagerUpdater.ScheduleUpdate();
 
 							Debug.WriteLine("Login done.");
 							loginActivityLogger.LogEvent("[Success]: Login done");
 						}
 
+						// バッテリー節約設定が無効な場合はBG読み込みを行う
+						bool nowPowerSaving = PowerManager.EnergySaverStatus == EnergySaverStatus.On;
+						if (!nowPowerSaving)
+						{
+							UpdateAllComponent();
+						}
 
-
+						// 動画のキャッシュフォルダの選択状態をチェック
 						await (App.Current as App).CheckVideoCacheFolderState();
 
 
+						// サインイン完了
 						OnSignin?.Invoke();
 
+						// 途中だった動画のダウンロードを再開
 						await MediaManager.Context.StartBackgroundDownload();
 					}
 					else
@@ -647,8 +650,16 @@ namespace NicoPlayerHohoema.Models
 			
 		}
 
+		public void UpdateAllComponent()
+		{
+			FollowManagerUpdater.ScheduleUpdate();
+			MylistManagerUpdater.ScheduleUpdate();
+			FeedManagerUpdater.ScheduleUpdate();
+			MediaManagerUpdater.ScheduleUpdate();
+			AppMapManagerUpdater.ScheduleUpdate();
+		}
 
-		
+
 
 
 		public async Task<NiconicoSignInStatus> SignOut()
@@ -1126,6 +1137,9 @@ StorageFolder _DownloadFolder;
 		}
 
 
+		
+
+
 		public bool IsLoggedIn
 		{
 			get
@@ -1169,7 +1183,7 @@ StorageFolder _DownloadFolder;
 		public UserMylistManager UserMylistManager { get; private set; }
 
 		public AppMapManager AppMapManager { get; private set; }
-		public BackgroundUpdateInfo AppMapManagerUpdater { get; private set; }
+
 
 
 		public const string HohoemaUserAgent = "Hohoema_UWP";
@@ -1179,6 +1193,12 @@ StorageFolder _DownloadFolder;
 
 		public BackgroundUpdater BackgroundUpdater { get; private set; }
 
+		public BackgroundUpdateScheduleHandler AppMapManagerUpdater { get; private set; }
+		public BackgroundUpdateScheduleHandler MylistManagerUpdater { get; private set; }
+		public BackgroundUpdateScheduleHandler FeedManagerUpdater { get; private set; }
+		public BackgroundUpdateScheduleHandler FollowManagerUpdater { get; private set; }
+		public BackgroundUpdateScheduleHandler MediaManagerUpdater { get; private set; }
+		
 
 		public LoggingChannel LoggingChannel { get; private set; }
 

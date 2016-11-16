@@ -67,7 +67,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 						if (result == Mntone.Nico2.ContentManageResult.Success)
 						{
-							UpdateUserMylist();
+							await UpdateUserMylist();
 							break;
 						}
 					}
@@ -100,7 +100,7 @@ namespace NicoPlayerHohoema.ViewModels
 					await Task.Delay(500);
 				}
 
-				UpdateUserMylist();
+				await UpdateUserMylist();
 			});
 
 
@@ -206,7 +206,7 @@ namespace NicoPlayerHohoema.ViewModels
 				// ログインユーザーのマイリスト一覧を表示
 				UserName = HohoemaApp.LoginUserName;
 
-				UpdateUserMylist();
+				await UpdateUserMylist();
 			}
 
 			
@@ -216,9 +216,15 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		private void UpdateUserMylist()
+		private async Task UpdateUserMylist()
 		{
 			MylistGroupItems.Clear();
+
+			if (!HohoemaApp.MylistManagerUpdater.IsOneOrMoreUpdateCompleted)
+			{
+				HohoemaApp.MylistManagerUpdater.ScheduleUpdate();
+				await HohoemaApp.MylistManagerUpdater.WaitUpdate();
+			}
 
 			var listItems = HohoemaApp.UserMylistManager.UserMylists
 				.Select(x => new MylistGroupListItem(x, PageManager));

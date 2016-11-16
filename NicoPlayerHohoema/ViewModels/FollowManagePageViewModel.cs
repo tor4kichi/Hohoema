@@ -31,6 +31,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 			Lists.Clear();
 
+			if (!HohoemaApp.FollowManagerUpdater.IsOneOrMoreUpdateCompleted)
+			{
+				HohoemaApp.FollowManagerUpdater.ScheduleUpdate();
+				await HohoemaApp.FollowManagerUpdater.WaitUpdate();
+			}
 
 			Lists.Add(new FavoriteListViewModel()
 			{

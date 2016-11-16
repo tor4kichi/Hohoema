@@ -160,7 +160,6 @@ namespace NicoPlayerHohoema.ViewModels
 				PageManager.PageTitle = PageManager.CurrentDefaultPageTitle();
 			}
 
-
 		}
 
 		private async void _OnResumed()
@@ -241,7 +240,6 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 
 				await NavigatedToAsync(cancelToken, e, viewModelState);
-
 
 				// BG更新処理を再開
 				if (CanActivateBackgroundUpdate)

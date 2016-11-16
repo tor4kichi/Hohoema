@@ -28,6 +28,9 @@ namespace NicoPlayerHohoema.Models.AppMap
 
 			List<IAppMapItem> items = new List<IAppMapItem>();
 
+
+			if (FollowManager.User == null) { return Enumerable.Empty<IAppMapItem>(); }
+
 			var userFavItems = FollowManager.User.FollowInfoItems;
 			var mylistFavItems = FollowManager.Mylist.FollowInfoItems;
 			var tagFavItems = FollowManager.Tag.FollowInfoItems;

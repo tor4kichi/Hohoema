@@ -216,7 +216,7 @@ namespace NicoPlayerHohoema.ViewModels
 			var start = head + 1;
 			var end = Math.Min(start + items.Count, TotalCount);
 			var updater = new DefferedNicoVideoVMUpdate<T>(items);
-			HohoemaApp.BackgroundUpdater.CreateBackgroundUpdateInfoWithImmidiateSchedule(
+			HohoemaApp.BackgroundUpdater.InstantBackgroundUpdateScheduling(
 				updater, 
 				$"{PreloadScheduleLabel}_" + TotalCount,
 				PreloadScheduleLabel,
@@ -251,12 +251,10 @@ namespace NicoPlayerHohoema.ViewModels
 					await item.NicoVideo.Initialize()
 						.ContinueWith(async prevResult =>
 						{
-							await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Low, () =>
+							await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
 							{
 								item.SetupFromThumbnail(item.NicoVideo);
 							});
-
-							await Task.Delay(10);
 						});
 
 					cancelToken.ThrowIfCancellationRequested();

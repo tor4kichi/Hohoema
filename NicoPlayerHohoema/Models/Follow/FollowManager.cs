@@ -44,12 +44,6 @@ namespace NicoPlayerHohoema.Models
 		{
 			var followManager = new FollowManager(hohoemaApp, userId);
 
-			var updater = hohoemaApp.BackgroundUpdater.CreateBackgroundUpdateInfoWithImmidiateSchedule(
-				followManager, 
-				"followmanager_" + userId,
-				"フォロー"
-				);
-
 			return Task.FromResult(followManager);
 		}
 
@@ -159,8 +153,7 @@ namespace NicoPlayerHohoema.Models
 
 				token.ThrowIfCancellationRequested();
 
-
-				await Task.Delay(1000);
+				await Task.Delay(100);
 			}
 		}
 

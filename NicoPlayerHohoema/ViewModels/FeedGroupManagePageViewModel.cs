@@ -14,12 +14,12 @@ using Prism.Windows.Navigation;
 using System.Reactive.Linq;
 using Reactive.Bindings.Extensions;
 using NicoPlayerHohoema.Views.Service;
+using System.Threading;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	public class FeedGroupManagePageViewModel : HohoemaViewModelBase
 	{
-
 		public ReactiveProperty<bool> IsSelectionModeEnable { get; private set; }
 		public ReactiveProperty<FeedGroupListItem> SelectedFeedGroupItem { get; private set; }
 
@@ -81,6 +81,19 @@ namespace NicoPlayerHohoema.ViewModels
 				return;
 			}
 
+			
+
+			base.OnNavigatedTo(e, viewModelState);
+		}
+
+		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		{
+			if (!HohoemaApp.FeedManagerUpdater.IsOneOrMoreUpdateCompleted)
+			{
+				HohoemaApp.FeedManagerUpdater.ScheduleUpdate();
+				await HohoemaApp.FeedManagerUpdater.WaitUpdate();
+			}
+
 			var items = HohoemaApp.FeedManager.FeedGroups
 				.Select(x => new FeedGroupListItem(x, PageManager))
 				.ToList();
@@ -90,7 +103,7 @@ namespace NicoPlayerHohoema.ViewModels
 				FeedGroupItems.Add(feedItemListItem);
 			}
 
-			base.OnNavigatedTo(e, viewModelState);
+			await base.NavigatedToAsync(cancelToken, e, viewModelState);
 		}
 
 
