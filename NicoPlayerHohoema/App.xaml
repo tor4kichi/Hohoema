@@ -27,8 +27,9 @@
 
             <myconv:VideoPositionToTimeConverter x:Key="VPosToTime" />
             <myconv:ToUserFriendlyNumber x:Key="ToUserFriendlyNumber" />
+            <myconv:RelationalDateTimeConverter x:Key="ToRelationalTime" />
 
-            
+
             <!-- Logical Modifier-->
             <logicalModifier:AndModifier x:Key="AndModifier" />
             <logicalModifier:OrModifier x:Key="OrModifier" />

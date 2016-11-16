@@ -10,6 +10,10 @@ using Mntone.Nico2.Communities.Info;
 using System.Diagnostics;
 using Mntone.Nico2.Communities.Detail;
 using Prism.Commands;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
+using System.Reactive.Linq;
+using Mntone.Nico2;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -51,11 +55,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public string PrivilegeDescription => CommunityDetail?.PrivilegeDescription;
 
-//		public bool IsJoinAutoAccept => CommunityDetail?.Option.IsJoinAutoAccept ?? false;
-//		public bool IsJoinWithoutPrivacyInfo => CommunityDetail?.Option.IsJoinWithoutPrivacyInfo ?? false;
-//		public bool IsCanLiveOnlyPrivilege => CommunityDetail?.Option.IsCanLiveOnlyPrivilege ?? false;
-//		public bool IsCanAcceptJoinOnlyPrivilege => CommunityDetail?.Option.IsCanAcceptJoinOnlyPrivilege ?? false;
-//		public bool IsCanSubmitVideoOnlyPrivilege => CommunityDetail?.Option.IsCanSubmitVideoOnlyPrivilege ?? false;
+		public string CanNotFollowReason { get; private set; }
+
+		//		public bool IsJoinAutoAccept => CommunityDetail?.Option.IsJoinAutoAccept ?? false;
+		//		public bool IsJoinWithoutPrivacyInfo => CommunityDetail?.Option.IsJoinWithoutPrivacyInfo ?? false;
+		//		public bool IsCanLiveOnlyPrivilege => CommunityDetail?.Option.IsCanLiveOnlyPrivilege ?? false;
+		//		public bool IsCanAcceptJoinOnlyPrivilege => CommunityDetail?.Option.IsCanAcceptJoinOnlyPrivilege ?? false;
+		//		public bool IsCanSubmitVideoOnlyPrivilege => CommunityDetail?.Option.IsCanSubmitVideoOnlyPrivilege ?? false;
 
 		// プロフィールHTMLの表示
 		public Uri ProfileHtmlFileUri { get; set; }
@@ -101,9 +107,89 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _IsFailed, value); }
 		}
 
+
+
+		public ReactiveProperty<bool> IsFollowCommunity { get; private set; }
+		public ReactiveProperty<bool> CanChangeFollowCommunityState { get; private set; }
+
+		bool _NowProcessCommunity;
+
 		public CommunityPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
 			: base(hohoemaApp, pageManager, isRequireSignIn: true)
 		{
+			IsFollowCommunity = new ReactiveProperty<bool>(mode: ReactivePropertyMode.DistinctUntilChanged)
+				.AddTo(_CompositeDisposable);
+			CanChangeFollowCommunityState = new ReactiveProperty<bool>()
+				.AddTo(_CompositeDisposable);
+
+			IsFollowCommunity
+				.Where(x => CommunityId != null)
+				.Subscribe(async x =>
+				{
+					if (_NowProcessCommunity) { return; }
+
+					_NowProcessCommunity = true;
+
+					CanChangeFollowCommunityState.Value = false;
+					if (x)
+					{
+						if (await FollowCommunity())
+						{
+							Debug.WriteLine(CommunityName + "のコミュニティをお気に入り登録しました.");
+						}
+						else
+						{
+							// お気に入り登録に失敗した場合は状態を差し戻し
+							Debug.WriteLine(CommunityName + "のコミュニティをお気に入り登録に失敗");
+							IsFollowCommunity.Value = false;
+						}
+					}
+					else
+					{
+						if (await UnfollowCommunity())
+						{
+							Debug.WriteLine(CommunityName + "のコミュニティをお気に入り解除しました.");
+						}
+						else
+						{
+							// お気に入り解除に失敗した場合は状態を差し戻し
+							Debug.WriteLine(CommunityName + "のコミュニティをお気に入り解除に失敗");
+							IsFollowCommunity.Value = true;
+						}
+					}
+
+					var isAutoJoinAccept = CommunityInfo.IsPublic;
+					var isJoinRequireUserInfo = CommunityInfo.option_flag_details.CommunityPrivUserAuth == "1";
+					CanChangeFollowCommunityState.Value =
+						IsFollowCommunity.Value == true
+						|| (HohoemaApp.FollowManager.CanMoreAddFollow(FollowItemType.Community) && isAutoJoinAccept && !isJoinRequireUserInfo);
+
+					_NowProcessCommunity = false;
+
+					UpdateCanNotFollowReason();
+				})
+				.AddTo(_CompositeDisposable);
+		}
+
+
+		private async Task<bool> FollowCommunity()
+		{
+			if (CommunityId == null) { return false; }
+
+			var favManager = HohoemaApp.FollowManager;
+			var result = await favManager.AddFollow(FollowItemType.Community, CommunityId, CommunityName);
+
+			return result == ContentManageResult.Success || result == ContentManageResult.Exist;
+		}
+
+		private async Task<bool> UnfollowCommunity()
+		{
+			if (CommunityId == null) { return false; }
+
+			var favManager = HohoemaApp.FollowManager;
+			var result = await favManager.RemoveFollow(FollowItemType.Community, CommunityId);
+
+			return result == ContentManageResult.Success;
 
 		}
 
@@ -212,6 +298,22 @@ namespace NicoPlayerHohoema.ViewModels
 					OnPropertyChanged(nameof(CommunityVideoSamples));
 
 
+					// お気に入り状態の取得
+					_NowProcessCommunity = true;
+
+					var favManager = HohoemaApp.FollowManager;
+					IsFollowCommunity.Value = favManager.IsFollowItem(FollowItemType.Community, CommunityId);
+
+					// 
+					var isAutoJoinAccept = CommunityInfo.IsPublic;
+					var isJoinRequireUserInfo = CommunityInfo.option_flag_details.CommunityPrivUserAuth == "1";
+					CanChangeFollowCommunityState.Value =
+						IsFollowCommunity.Value == true
+						|| (favManager.CanMoreAddFollow(FollowItemType.Community) && isAutoJoinAccept && !isJoinRequireUserInfo);
+
+					_NowProcessCommunity = false;
+
+					UpdateCanNotFollowReason();
 				}
 			}
 			catch (Exception ex)
@@ -260,6 +362,32 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+
+
+		private void UpdateCanNotFollowReason()
+		{
+			if (HohoemaApp.FollowManager.IsFollowItem(FollowItemType.Community, CommunityId))
+			{
+				CanNotFollowReason = null;
+			}
+			else
+			{
+				if (!CommunityInfo.IsPublic)
+				{
+					CanNotFollowReason = "参加には承認が必要";
+				}
+				else if (CommunityInfo.option_flag_details.CommunityPrivUserAuth == "1")
+				{
+					CanNotFollowReason = "参加には個人情報公開が必要";
+				}
+				else
+				{
+					CanNotFollowReason = null;
+				}
+			}
+
+			OnPropertyChanged(nameof(CanNotFollowReason));
+		}
 	}
 
 

@@ -15,10 +15,11 @@ using Windows.Storage;
 using Windows.Foundation;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Prism.Mvvm;
+using Windows.UI.Core;
 
 namespace NicoPlayerHohoema.Models
 {
-	public class FollowManager
+	public class FollowManager : IBackgroundUpdateable
 	{
 
 		#region Niconico follow constants
@@ -39,14 +40,11 @@ namespace NicoPlayerHohoema.Models
 		#endregion
 
 
-		public static async Task<FollowManager> Create(HohoemaApp hohoemaApp, uint userId)
+		public static Task<FollowManager> Create(HohoemaApp hohoemaApp, uint userId)
 		{
 			var followManager = new FollowManager(hohoemaApp, userId);
 
-			var updater = new SimpleBackgroundUpdate("followmanager_" + userId, () => followManager.Initialize());
-			await hohoemaApp.BackgroundUpdater.Schedule(updater);
-
-			return followManager;
+			return Task.FromResult(followManager);
 		}
 
 
@@ -86,14 +84,24 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		private async Task Initialize()
+		#region interface IBackgroundUpdateable
+
+		public IAsyncAction BackgroundUpdate(CoreDispatcher uiDispatcher)
+		{
+			return AsyncInfo.Run(Initialize);
+		}
+
+		#endregion
+
+
+		private async Task Initialize(CancellationToken cancelToken)
 		{
 			Tag = new TagFollowInfoGroup(_HohoemaApp);
 			Mylist = new MylistFollowInfoGroup(_HohoemaApp);
 			User = new UserFollowInfoGroup(_HohoemaApp);
 			Community = new CommunityFollowInfoGroup(_HohoemaApp);
 
-			await SyncAll();
+			await SyncAll(cancelToken);
 		}
 
 		private IFollowInfoGroup GetFollowInfoGroup(FollowItemType itemType)
@@ -135,13 +143,17 @@ namespace NicoPlayerHohoema.Models
 
 	
 
-		public async Task SyncAll()
+		public async Task SyncAll(CancellationToken token)
 		{
 			foreach (var followInfoGroup in GetAllFollowInfoGroups())
 			{
+				token.ThrowIfCancellationRequested();
+
 				await Sync(followInfoGroup);
 
-				await Task.Delay(1000);
+				token.ThrowIfCancellationRequested();
+
+				await Task.Delay(100);
 			}
 		}
 
@@ -178,25 +190,23 @@ namespace NicoPlayerHohoema.Models
 			return GetFollowInfoGroup(itemType).FollowInfoItems.SingleOrDefault(x => x.Id == id);
 		}
 
-		public async Task<ContentManageResult> AddFollow(FollowItemType itemType, string id, string name)
+		public async Task<ContentManageResult> AddFollow(FollowItemType itemType, string id, string name, object token = null)
 		{
 			var group = GetFollowInfoGroup(itemType);
 
-			var result = await group.AddFollow(name, id);
+			var result = await group.AddFollow(name, id, token);
 		
 			return result;
 		}
 
-		public async Task<ContentManageResult> RemoveFollow(FollowItemType itemType, string id)
+		public async Task<ContentManageResult> RemoveFollow(FollowItemType itemType, string id, object token = null)
 		{
 			var group = GetFollowInfoGroup(itemType);
 
-			var result = await group.RemoveFollow(id);
+			var result = await group.RemoveFollow(id, token);
 
 			return result;
 		}
-
-
 
 	}
 

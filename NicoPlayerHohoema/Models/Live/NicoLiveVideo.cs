@@ -166,6 +166,9 @@ namespace NicoPlayerHohoema.Models.Live
 				PlayerStatusResponse = await HohoemaApp.NiconicoContext.Live.GetPlayerStatusAsync(LiveId);
 
 				_CommunityId = PlayerStatusResponse.Program.CommunityId;
+
+				Debug.WriteLine(PlayerStatusResponse.Stream.RtmpUrl);
+				Debug.WriteLine(PlayerStatusResponse.Stream.Contents.Count);
 			}
 			catch (Exception ex)
 			{
@@ -350,7 +353,7 @@ namespace NicoPlayerHohoema.Models.Live
 						EnsureOpenRtmpConnectionInntenal,
 						this,
 						TimeSpan.FromSeconds(0),
-						TimeSpan.FromSeconds(7)
+						TimeSpan.FromSeconds(5)
 						);
 					EnsureOpenRtmpStartTime = DateTime.Now;
 

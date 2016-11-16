@@ -3,9 +3,12 @@ using NicoPlayerHohoema.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Foundation;
+using Windows.UI.Core;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -89,7 +92,7 @@ namespace NicoPlayerHohoema.ViewModels
 			var tail = head + items.Count();
 			if (tail != head && tail < TotalCount)
 			{
-				await SchedulePreloading(head + count, (int)OneTimeLoadCount);
+				await Preload(head + count, (int)OneTimeLoadCount);
 			}
 
 			return items;
@@ -101,7 +104,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			if (TotalCount > 0)
 			{
-				await SchedulePreloading(0, (int)OneTimeLoadCount);
+				await Preload(0, (int)OneTimeLoadCount);
 			}
 
 			await Task.Delay(200);
@@ -109,16 +112,7 @@ namespace NicoPlayerHohoema.ViewModels
 			return TotalCount;
 		}
 
-		private Task SchedulePreloading(int start, int count)
-		{
-			// 先頭20件を先行ロード
-			return HohoemaApp.BackgroundUpdater.Schedule(
-				new SimpleBackgroundUpdate($"{PreloadScheduleLabel}[{start} - {start + count}]"
-				, () => Preload(start, count)
-				)
-				, priorityUpdate: true
-				);
-		}
+		
 
 	}
 
@@ -126,6 +120,8 @@ namespace NicoPlayerHohoema.ViewModels
 	public abstract class HohoemaVideoPreloadingIncrementalSourceBase<T> : HohoemaPreloadingIncrementalSourceBase<T>
 		where T : VideoInfoControlViewModel
 	{
+		public static int VideoListingBackgroundTaskPriority = 10;
+
 		private List<NicoVideo> _VideoItems;
 
 		private AsyncLock _VideoItemsLock = new AsyncLock();
@@ -136,8 +132,6 @@ namespace NicoPlayerHohoema.ViewModels
 			_VideoItems = new List<NicoVideo>();
 		}
 
-
-		
 		protected abstract Task<IEnumerable<NicoVideo>> PreloadNicoVideo(int start, int count);
 		protected abstract T NicoVideoToTemplatedItem(NicoVideo sourceNicoVideos, int index);
 
@@ -209,39 +203,64 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 			}
 
-			await ScheduleDefferedNicoVideoInitialize(items);
+			ScheduleDefferedNicoVideoInitialize(items, head);
 
 			return items;
 		}
 
 
-		private Task ScheduleDefferedNicoVideoInitialize(List<T> items)
+
+
+		private void ScheduleDefferedNicoVideoInitialize(List<T> items, int head)
 		{
-			return HohoemaApp.BackgroundUpdater.Schedule(
-				new SimpleBackgroundUpdate($"{PreloadScheduleLabel} defferd init"
-				, () => DefferedNicoVideoInitialize(items)
-				)
+			var start = head + 1;
+			var end = Math.Min(start + items.Count, TotalCount);
+			var updater = new DefferedNicoVideoVMUpdate<T>(items);
+			HohoemaApp.BackgroundUpdater.InstantBackgroundUpdateScheduling(
+				updater, 
+				$"{PreloadScheduleLabel}_" + TotalCount,
+				PreloadScheduleLabel,
+				priority: VideoListingBackgroundTaskPriority,
+				label: $"{PreloadScheduleLabel} ({start} - {end})"
 				);
 		}
 
-		private async Task DefferedNicoVideoInitialize(List<T> items)
+		public void CancelPreloading()
 		{
-			foreach (var item in items)
-			{
-				await item.NicoVideo.Initialize()
-					.ContinueWith(async prevResult => 
-					{
-						await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Low, () => 
-						{
-							item.SetupFromThumbnail(item.NicoVideo);
-						});
+			HohoemaApp.BackgroundUpdater.CancelFromGroupId(PreloadScheduleLabel);
+		}
+	}
 
-						await Task.Delay(10);
-					})
-					.ConfigureAwait(false);
-			}
+	public class DefferedNicoVideoVMUpdate<T> : IBackgroundUpdateable
+		where T : VideoInfoControlViewModel
+	{
+		public List<T> Items { get; private set; }
+		public DefferedNicoVideoVMUpdate(List<T> items)
+		{
+			Items = items;
 		}
 
+		public IAsyncAction BackgroundUpdate(CoreDispatcher uiDispatcher)
+		{
+			return AsyncInfo.Run(async (cancelToken) => 
+			{
+				foreach (var item in Items)
+				{
+					cancelToken.ThrowIfCancellationRequested();
 
+					await item.NicoVideo.Initialize()
+						.ContinueWith(async prevResult =>
+						{
+							await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+							{
+								item.SetupFromThumbnail(item.NicoVideo);
+							});
+						});
+
+					cancelToken.ThrowIfCancellationRequested();
+				}
+			});
+			
+		}
 	}
 }

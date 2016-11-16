@@ -15,138 +15,144 @@
     d:DesignHeight="800"
     d:DesignWidth="800">
 
-    <StackPanel Width="380">
-        <ItemsControl Margin="0 0 0 0">
+    <ItemsControl Margin="0 0 0 0" HorizontalContentAlignment="Stretch">
 
 
-            <toolkit:DockPanel Margin="8">
+        <toolkit:DockPanel Margin="8">
 
-                <TextBlock Text="コメントを書き始めたら動画を一時停止する"
-                        toolkit:DockPanel.Dock="Left"
-                        VerticalAlignment="Center"
-                        />
+            <TextBlock Text="コメントを書き始めたら動画を一時停止する"
+                    toolkit:DockPanel.Dock="Left"
+                    VerticalAlignment="Center"
+                    />
 
-                <ToggleButton Width="32" Height="32"
-                            IsChecked="{Binding IsPauseWithCommentWriting.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                            HorizontalAlignment="Right"
-                            />
-
-            </toolkit:DockPanel>
-
-            <toolkit:DockPanel Margin="8">
-
-                <TextBlock Text="コメントの一秒あたりの描画回数"
-                        toolkit:DockPanel.Dock="Left"
-                        VerticalAlignment="Center"
-                        />
-
-                <ComboBox ItemsSource="{Binding CommentRenderringFPSList}"
-                        SelectedItem="{Binding CommentRenderingFPS.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            <ToggleButton Width="32" Height="32"
+                        IsChecked="{Binding IsPauseWithCommentWriting.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         HorizontalAlignment="Right"
-                        >
-
-                </ComboBox>
-
-
-            </toolkit:DockPanel>
-
-            <toolkit:DockPanel Margin="8">
-
-                <TextBlock Text="デフォルトは4秒"
-                           toolkit:DockPanel.Dock="Bottom"
-                           VerticalAlignment="Center"
-                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                               FontSize="12"
-                           />
-
-                <TextBlock Text="コメントの表示時間"
-                           toolkit:DockPanel.Dock="Left"
-                           VerticalAlignment="Center"
-                           />
-
-                <toolkit:NumericUpDown Value="{Binding CommentDisplayDuration.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                            Maximum="10"
-                            Minimum="1"
-                            SmallChange="0.5"
-                          HorizontalAlignment="Right"
-                            MinWidth="200"
-                            Foreground="{ThemeResource ApplicationForegroundThemeBrush}"               
-                          >
-
-                </toolkit:NumericUpDown>
-
-
-            </toolkit:DockPanel>
-
-
-            <toolkit:DockPanel Margin="8 16">
-
-                <TextBlock Text="コメントの表示サイズ"
-                        toolkit:DockPanel.Dock="Left"
-                        VerticalAlignment="Center"
                         />
 
-                <toolkit:NumericUpDown Value="{Binding CommentFontScale.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                    SmallChange="0.05"
-                                    LargeChange="1.0"
-                                    Minimum="0.1"
-                                    Maximum="2.0"
-                                    HorizontalAlignment="Right"
-                                       Foreground="{ThemeResource ApplicationForegroundThemeBrush}"
-                                    />
+        </toolkit:DockPanel>
 
-            </toolkit:DockPanel>
+        <toolkit:DockPanel Margin="8">
 
-            <toolkit:DockPanel Margin="8">
+            <TextBlock Text="コメントの一秒あたりの描画回数"
+                    toolkit:DockPanel.Dock="Left"
+                    VerticalAlignment="Center"
+                    />
+
+            <ComboBox ItemsSource="{Binding CommentRenderringFPSList}"
+                    SelectedItem="{Binding CommentRenderingFPS.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    HorizontalAlignment="Right"
+                    >
+
+            </ComboBox>
 
 
-                <TextBlock Text="デフォルトのコメント色"
-                        toolkit:DockPanel.Dock="Left"
-                        VerticalAlignment="Center"
-                        />
+        </toolkit:DockPanel>
 
-                <ComboBox ItemsSource="{Binding CommentColorList}"
-                          SelectedItem="{Binding CommentColor.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                          HorizontalAlignment="Right"
-                          >
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate>
-                            <Border Background="{Binding Converter={StaticResource ColorToBrush}}"
-                                    Width="80"
-                                    Height="32"
-                                    />
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
-            </toolkit:DockPanel>
+        <toolkit:DockPanel Margin="8">
 
-            
-            <toolkit:DockPanel Margin="8">
-
-                <TextBlock Text="※音量は 0.0 ～ 1.0 の間に設定されます"
+            <TextBlock Text="デフォルトは4秒"
                         toolkit:DockPanel.Dock="Bottom"
                         VerticalAlignment="Center"
-                        FontSize="12"
-                        Foreground="Gray"
+                            Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                            FontSize="12"
                         />
 
-                <TextBlock Text="マウススクロール時の音量変更量"
+            <TextBlock Text="コメントの表示時間"
                         toolkit:DockPanel.Dock="Left"
                         VerticalAlignment="Center"
                         />
 
-                <toolkit:NumericUpDown Value="{Binding ScrollVolumeFrequency.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                    SmallChange="0.01"
-                                    LargeChange="0.05"
-                                    Minimum="0.0"
-                                    Maximum="1.0"
-                                    HorizontalAlignment="Right"
-                                       Foreground="{ThemeResource ApplicationForegroundThemeBrush}"
-                                    />
+            <toolkit:NumericUpDown Value="{Binding CommentDisplayDuration.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Maximum="10"
+                        Minimum="1"
+                        SmallChange="0.5"
+                        HorizontalAlignment="Right"
+                        Foreground="{ThemeResource ApplicationForegroundThemeBrush}"               
+                        >
 
-            </toolkit:DockPanel>
+            </toolkit:NumericUpDown>
 
-        </ItemsControl>
-    </StackPanel>
+
+        </toolkit:DockPanel>
+
+
+        <toolkit:DockPanel Margin="8 16">
+
+            <TextBlock Text="コメントの表示サイズ"
+                    toolkit:DockPanel.Dock="Left"
+                    VerticalAlignment="Center"
+                    />
+
+            <toolkit:NumericUpDown Value="{Binding CommentFontScale.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                SmallChange="0.05"
+                                LargeChange="1.0"
+                                Minimum="0.1"
+                                Maximum="2.0"
+                                HorizontalAlignment="Right"
+                                    Foreground="{ThemeResource ApplicationForegroundThemeBrush}"
+                                />
+
+        </toolkit:DockPanel>
+
+        <toolkit:DockPanel Margin="8">
+
+
+            <TextBlock Text="デフォルトのコメント色"
+                    toolkit:DockPanel.Dock="Left"
+                    VerticalAlignment="Center"
+                    />
+
+            <ComboBox ItemsSource="{Binding CommentColorList}"
+                        SelectedItem="{Binding CommentColor.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        HorizontalAlignment="Right"
+                        >
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="{Binding Converter={StaticResource ColorToBrush}}"
+                                Width="80"
+                                Height="32"
+                                />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </toolkit:DockPanel>
+
+            
+        <StackPanel Margin="8">
+
+
+            <TextBlock Text="マウススクロールの音量変更量"
+                    toolkit:DockPanel.Dock="Left"
+                    VerticalAlignment="Center"
+                       Margin="0 0 0 8"
+                    />
+
+            <toolkit:NumericUpDown Value="{Binding ScrollVolumeFrequency.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                SmallChange="0.01"
+                                LargeChange="0.05"
+                                Minimum="0.0"
+                                Maximum="1.0"
+                                   toolkit:DockPanel.Dock="Bottom"
+                                HorizontalAlignment="Right"
+                                    Foreground="{ThemeResource ApplicationForegroundThemeBrush}"
+                                   Margin="0 0 0 8"
+                                />
+
+            <TextBlock Text="※音量は 0.0 ～ 1.0 の間に設定されます"
+                    toolkit:DockPanel.Dock="Bottom"
+                    VerticalAlignment="Center"
+                    FontSize="12"
+                    Foreground="Gray"
+                       HorizontalAlignment="Right"
+                       Margin="0 0 0 8"
+                    />
+
+
+            <Border />
+            
+        </StackPanel>
+
+    </ItemsControl>
     
 </UserControl>

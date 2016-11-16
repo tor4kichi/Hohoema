@@ -55,17 +55,17 @@
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
                     Margin="8 0 16 0" Opacity="0.7">
-            <TextBlock>
+            <TextBlock Margin="0 0 8 0">
                 <Run Text="再生" />
                 <Run Text="{Binding PlayCount, Converter={StaticResource ToUserFriendlyNumber}}" />
             </TextBlock>
 
-            <TextBlock>
+            <TextBlock Margin="0 0 8 0">
                 <Run Text="コメント" />
                 <Run Text="{Binding CommentCount, Converter={StaticResource ToUserFriendlyNumber}}" />
             </TextBlock>
 
-            <TextBlock>
+            <TextBlock Margin="0 0 8 0">
                 <Run Text="マイ" />
                 <Run Text="{Binding MylistCount, Converter={StaticResource ToUserFriendlyNumber}}" />
             </TextBlock>

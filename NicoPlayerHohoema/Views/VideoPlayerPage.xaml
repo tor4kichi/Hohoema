@@ -17,6 +17,7 @@
     xmlns:logicalTrigger="using:AdaptiveTriggerLibrary.Triggers.LogicalTriggers"
     xmlns:intractionTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInteractionTriggers"
     xmlns:uiTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInterfaceTriggers"
+    xmlns:myTrigger ="using:NicoPlayerHohoema.Views.StateTrigger"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
     d:DesignHeight="480"
@@ -26,13 +27,11 @@
 
     <Page.Resources>
         <DataTemplate x:Key="SummaryVideoInfoContentTemplate" >
-            <videoInfo:SummaryVideoInfoContent Width="400"
-                                               />
+            <videoInfo:SummaryVideoInfoContent />
         </DataTemplate>
 
         <DataTemplate x:Key="MylistVideoInfoContentTemplate" >
-            <videoInfo:MylistVideoInfoContent Width="400"
-                                               />
+            <videoInfo:MylistVideoInfoContent />
         </DataTemplate>
 
         <DataTemplate x:Key="CommentVideoInfoContentTemplate" >
@@ -101,6 +100,8 @@
 
                         <Setter Target="PanePinnedToggleButton.Visibility" Value="Visible" />
 
+                        <Setter Target="SplitView.OpenPaneLength" Value="400" />
+                        
                     </VisualState.Setters>
                 </VisualState>
                 <!-- 超狭い -->
@@ -121,6 +122,8 @@
 
                         <Setter Target="PanePinnedToggleButton.Visibility" Value="Collapsed" />
                         <Setter Target="PanePinnedToggleButton.IsChecked" Value="False" />
+
+                        <Setter Target="SplitView.OpenPaneLength" Value="320" />
 
                     </VisualState.Setters>
                 </VisualState>
@@ -228,6 +231,27 @@
                 </VisualState>
             </VisualStateGroup>
 
+            <!-- ウィンドウ非アクティブ時にマウス移動に反応するエリアを拡大する -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <myTrigger:WindowActiveTrigger Inverted="True" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="WindowDeactiveMouseMoveDetectWall.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <myTrigger:WindowActiveTrigger Inverted="False" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="WindowDeactiveMouseMoveDetectWall.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
 
         </VisualStateManager.VisualStateGroups>
 
@@ -243,7 +267,7 @@
 
 
             <SplitView x:Name="SplitView" PanePlacement="Right" PaneBackground="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-                   OpenPaneLength="400"
+                   OpenPaneLength="320"
                    >
                 <SplitView.Content>
 
@@ -340,6 +364,12 @@
                                   Margin="24 88"      
                                   />
 
+                        <!-- ウィンドウ非アクティブ時に画面全体をマウス移動の反応対象にするためのコリジョン-->
+                        <Border x:Name="WindowDeactiveMouseMoveDetectWall" Background="Transparent"
+                            >
+
+                        </Border>
+                        
                         <!-- 上側のマウス移動の検知用コリジョン -->
                         <Border VerticalAlignment="Top" x:Name="TopMouseMoveContainer" Background="Transparent"
                             Height="64"
@@ -443,6 +473,9 @@
                                             <core:CallMethodAction TargetObject="{Binding ElementName=AutoHideBehavior}" MethodName="PreventAutoHide" />
                                         </core:EventTriggerBehavior>
 
+                                        <core:EventTriggerBehavior SourceObject="{Binding ElementName=WindowDeactiveMouseMoveDetectWall}" EventName="PointerMoved">
+                                            <core:CallMethodAction TargetObject="{Binding ElementName=AutoHideBehavior}" MethodName="PreventAutoHide" />
+                                        </core:EventTriggerBehavior>
 
 
 
@@ -1053,7 +1086,7 @@
                                         ContentTemplateSelector="{StaticResource VideoInfoContentTemplateSelector}"
                                         HorizontalContentAlignment="Stretch"
                                         VerticalContentAlignment="Stretch"
-                                        Margin="0 0 0 16"
+                                        Margin="0 0 16 16"
                                     />
                         </ScrollViewer>
 

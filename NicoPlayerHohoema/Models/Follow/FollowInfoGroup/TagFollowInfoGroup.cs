@@ -41,11 +41,11 @@ namespace NicoPlayerHohoema.Models
 
 
 
-		protected override Task<ContentManageResult> AddFollow_Internal(string id)
+		protected override Task<ContentManageResult> AddFollow_Internal(string id, object token)
 		{
 			return HohoemaApp.NiconicoContext.User.AddFollowTagAsync(id);
 		}
-		protected override Task<ContentManageResult> RemoveFollow_Internal(string id)
+		protected override Task<ContentManageResult> RemoveFollow_Internal(string id, object token)
 		{
 			return HohoemaApp.NiconicoContext.User.RemoveFollowTagAsync(id);
 		}

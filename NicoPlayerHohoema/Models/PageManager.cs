@@ -17,45 +17,15 @@ namespace NicoPlayerHohoema.Models
 {
 	public class PageManager : BindableBase
 	{
-		public void OpenPage(Uri uri)
+		
+
+		public static List<HohoemaPageType> IgnoreRecordNavigationStack = new List<HohoemaPageType>
 		{
-			var path = uri.AbsoluteUri;
-			// is mylist url?
-			if (path.StartsWith("https://www.nicovideo.jp/mylist/"))
-			{
-				var mylistId = uri.AbsolutePath.Split('/').Last();
-				System.Diagnostics.Debug.WriteLine($"open Mylist: {mylistId}");
-				OpenPage(HohoemaPageType.Mylist, mylistId);
-
-				return;
-			}			
-
-
-			if (path.StartsWith("https://www.nicovideo.jp/watch/"))
-			{
-				// is nico video url?
-				var videoId = uri.AbsolutePath.Split('/').Last();
-				System.Diagnostics.Debug.WriteLine($"open Video: {videoId}");
-				OpenPage(HohoemaPageType.VideoPlayer,
-					new VideoPlayPayload()
-					{
-						VideoId = videoId
-					}
-					.ToParameterString()
-					);
-
-				return;
-			}
-
-			if (path.StartsWith("https://com.nicovideo.jp/community/"))
-			{
-				var communityId = uri.AbsolutePath.Split('/').Last();
-				OpenPage(HohoemaPageType.Community, communityId);
-
-				return;
-			}
-		}
-
+			HohoemaPageType.Login,
+			HohoemaPageType.ConfirmWatchHurmfulVideo,
+			HohoemaPageType.VideoPlayer,
+			HohoemaPageType.LiveVideoPlayer
+		};
 
 
 		public readonly IReadOnlyList<HohoemaPageType> DontNeedMenuPageTypes = new List<HohoemaPageType>
@@ -100,16 +70,54 @@ namespace NicoPlayerHohoema.Models
 			NavigationService = ns;
 			CurrentPageType = HohoemaPageType.Portal;
 		}
-		
-	
+
+		public void OpenPage(Uri uri)
+		{
+			var path = uri.AbsoluteUri;
+			// is mylist url?
+			if (path.StartsWith("https://www.nicovideo.jp/mylist/"))
+			{
+				var mylistId = uri.AbsolutePath.Split('/').Last();
+				System.Diagnostics.Debug.WriteLine($"open Mylist: {mylistId}");
+				OpenPage(HohoemaPageType.Mylist, mylistId);
+
+				return;
+			}
+
+
+			if (path.StartsWith("https://www.nicovideo.jp/watch/"))
+			{
+				// is nico video url?
+				var videoId = uri.AbsolutePath.Split('/').Last();
+				System.Diagnostics.Debug.WriteLine($"open Video: {videoId}");
+				OpenPage(HohoemaPageType.VideoPlayer,
+					new VideoPlayPayload()
+					{
+						VideoId = videoId
+					}
+					.ToParameterString()
+					);
+
+				return;
+			}
+
+			if (path.StartsWith("https://com.nicovideo.jp/community/"))
+			{
+				var communityId = uri.AbsolutePath.Split('/').Last();
+				OpenPage(HohoemaPageType.Community, communityId);
+
+				return;
+			}
+		}
+
 		public void OpenPage(HohoemaPageType pageType, object parameter = null)
 		{
 			HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
 			{
+				PageNavigating = true;
+
 				try
 				{
-					PageNavigating = true;
-
 					await Task.Delay(30);
 
 					var oldPageTitle = PageTitle;
@@ -124,17 +132,28 @@ namespace NicoPlayerHohoema.Models
 						CurrentPageType = oldPageType;
 						PageTitle = oldPageTitle;
 					}
+					else
+					{
+						if (IsIgnoreRecordPageType(oldPageType))
+						{
+							ForgetLastPage();
+						}
+					}
 				}
 				finally
 				{
 					PageNavigating = false;
 				}
+
 			})
 			.AsTask()
 			.ConfigureAwait(false);
 		}
 
-
+		public bool IsIgnoreRecordPageType(HohoemaPageType pageType)
+		{
+			return IgnoreRecordNavigationStack.Any(x => x == pageType);
+		}
 
 		public void ForgetLastPage()
 		{
@@ -183,7 +202,6 @@ namespace NicoPlayerHohoema.Models
 				}
 			}
 		}
-
 
 		/// <summary>
 		/// 画面遷移の履歴を消去します
@@ -269,7 +287,7 @@ namespace NicoPlayerHohoema.Models
 
 				ProgressWork?.Invoke(1);
 
-				await Task.Delay(2000);
+				await Task.Delay(1000);
 
 				if (cancelSource.IsCancellationRequested)
 				{

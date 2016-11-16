@@ -29,6 +29,7 @@
             <Border Margin="8 0">
                 <TextBlock Text="{Binding Name}" 
                            Style="{StaticResource FeedItemSourceTextBlockStyle}"
+                           VerticalAlignment="Center"
                            />
             </Border>
         </DataTemplate>
@@ -37,6 +38,7 @@
             <Border Margin="8 0">
                 <TextBlock Text="{Binding Name}"
                            Style="{StaticResource FeedItemSourceTextBlockStyle}"
+                           VerticalAlignment="Center"
                            />
             </Border>
         </DataTemplate>
@@ -45,6 +47,7 @@
             <Border Margin="8 0">
                 <TextBlock Text="{Binding Name}"
                            Style="{StaticResource FeedItemSourceTextBlockStyle}"
+                           VerticalAlignment="Center"
                            />
             </Border>
         </DataTemplate>
@@ -103,7 +106,14 @@
                     </AppBarButton>
 
                 </StackPanel>
-                
+
+                <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Right">
+
+                    <AppBarButton Icon="Refresh" 
+                                  Label="全て更新"
+                                  Command="{Binding RefreshAllFeedGroupCommand}"
+                                  />
+                </StackPanel>
                 
                 <Border />
                 
@@ -166,7 +176,7 @@
                                     Value="Stretch" 
                                         />
                         <Setter Property="Margin"
-                                    Value="8 0 8 8" 
+                                    Value="8 0 8 0" 
                                     />
                     </Style>
                 </ListView.ItemContainerStyle>
@@ -183,14 +193,28 @@
                                             >
 
 
+                                <ProgressRing IsActive="{Binding NowUpdate.Value}"
+                                               Visibility="{Binding NowUpdate.Value, Converter={StaticResource BooleanToVisibility}}"
+                                                  Width="24"
+                                                  Height="24"
+                                                  />
 
-                                <Border Margin="8 0">
+                                <StackPanel Margin="8 0">
                                     <TextBlock VerticalAlignment="Center"
-                                                    Margin="8"
+                                               HorizontalAlignment="Right"
                                                 >
                                                 <Run Text="{Binding UnreadItemCount}" />
                                     </TextBlock>
-                                </Border>
+                                    
+                                    <TextBlock VerticalAlignment="Center"
+                                               HorizontalAlignment="Right"
+                                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                               >
+                                        <Run Text="最終更新:" />
+                                        <Run Text="{Binding LastUpdate.Value, Converter={StaticResource ToRelationalTime}}" />
+                                    </TextBlock>
+
+                                </StackPanel>
 
                                 <AppBarButton Icon="Edit" 
                                             IsCompact="True"
@@ -217,11 +241,12 @@
 
                                 <ItemsControl ItemsSource="{Binding SourceItems}"
                                           ItemTemplateSelector="{StaticResource feedItemSourceTemplateSelector}"
-                                          toolkit:DockPanel.Dock="Bottom"
+                                              toolkit:DockPanel.Dock="Bottom"
+                                              VerticalAlignment="Top"
                                             >
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
-                                            <StackPanel Orientation="Horizontal" />
+                                            <toolkit:WrapPanel Orientation="Horizontal" />
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
                                     
@@ -231,7 +256,7 @@
 
                                 
                                 <StackPanel>
-                                    <TextBlock Text="{Binding Label}" Margin="8"
+                                    <TextBlock Text="{Binding Label}" 
                                                VerticalAlignment="Center"
                                                />
 

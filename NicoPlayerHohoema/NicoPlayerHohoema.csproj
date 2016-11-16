@@ -138,17 +138,18 @@
     <Compile Include="Models\Db\NicoVideo\CommentDb.cs" />
     <Compile Include="Models\Db\NicoVideo\VideoInfoDb.cs" />
     <Compile Include="Models\Db\NicoVideo\UserInfoDb.cs" />
-    <Compile Include="Models\Follow\Feed\FeedGroup.cs" />
-    <Compile Include="Models\Follow\Feed\FeedItem.cs" />
-    <Compile Include="Models\Follow\Feed\FeedItemComparer.cs" />
-    <Compile Include="Models\Follow\Feed\FeedManager.cs" />
-    <Compile Include="Models\Follow\Feed\FeedSource.cs" />
-    <Compile Include="Models\Follow\Feed\IFeedGroup.cs" />
-    <Compile Include="Models\Follow\Feed\IFeedSource.cs" />
-    <Compile Include="Models\Follow\Feed\TagFeedSource.cs" />
-    <Compile Include="Models\Follow\Feed\UserFeedSource.cs" />
+    <Compile Include="Models\Feed\FeedGroup.cs" />
+    <Compile Include="Models\Feed\FeedItem.cs" />
+    <Compile Include="Models\Feed\FeedItemComparer.cs" />
+    <Compile Include="Models\Feed\FeedManager.cs" />
+    <Compile Include="Models\Feed\FeedSource.cs" />
+    <Compile Include="Models\Feed\IFeedGroup.cs" />
+    <Compile Include="Models\Feed\IFeedSource.cs" />
+    <Compile Include="Models\Feed\TagFeedSource.cs" />
+    <Compile Include="Models\Feed\UserFeedSource.cs" />
+    <Compile Include="Models\Follow\FollowInfoGroup\CommunituFollowAdditionalInfo.cs" />
     <Compile Include="Models\Follow\FollowItemInfo.cs" />
-    <Compile Include="Models\Follow\Feed\MylistFeedSource.cs" />
+    <Compile Include="Models\Feed\MylistFeedSource.cs" />
     <Compile Include="Models\Follow\FollowInfoGroup\CommunityFollowInfoGroup.cs" />
     <Compile Include="Models\Follow\FollowInfoGroup\FollowInfoGroupBase.cs" />
     <Compile Include="Models\Follow\FollowInfoGroup\FollowInfoGroupWithFavData.cs" />
@@ -332,6 +333,7 @@
     <Compile Include="Views\Controls\SearchHistoryListItem.xaml.cs">
       <DependentUpon>SearchHistoryListItem.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Converters\RelationalDateTimeConverter.cs" />
     <Compile Include="Views\Converters\ToUserFriendlyNumber.cs" />
     <Compile Include="Views\Converters\VideoPositionToTimeConverter.cs" />
     <Compile Include="Views\DownloadProgress\DownloadProgressBar.xaml.cs">
@@ -469,6 +471,7 @@
     <Compile Include="Views\SettingsPageContent\ShereSettingsPageContent.xaml.cs">
       <DependentUpon>ShereSettingsPageContent.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\StateTrigger\WindowActiveTrigger.cs" />
     <Compile Include="Views\UserInfoPage.xaml.cs">
       <DependentUpon>UserInfoPage.xaml</DependentUpon>
     </Compile>

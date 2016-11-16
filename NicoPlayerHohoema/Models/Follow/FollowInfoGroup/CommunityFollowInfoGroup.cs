@@ -44,14 +44,38 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		protected override Task<ContentManageResult> AddFollow_Internal(string id)
+		protected override async Task<ContentManageResult> AddFollow_Internal(string id, object token)
 		{
-			throw new NotImplementedException();
+			var title = "";
+			var comment = "";
+			var notify = false;
+
+			if (token is CommunituFollowAdditionalInfo)
+			{
+				var additionalInfo = token as CommunituFollowAdditionalInfo;
+				title = additionalInfo.Title;
+				comment = additionalInfo.Comment;
+				notify = additionalInfo.Notify;
+			}
+
+			var result = await HohoemaApp.NiconicoContext.User.AddFollowCommunityAsync(id, title, comment, notify);
+
+			return result ? ContentManageResult.Success : ContentManageResult.Failed;
 		}
 
-		protected override Task<ContentManageResult> RemoveFollow_Internal(string id)
+		protected override async Task<ContentManageResult> RemoveFollow_Internal(string id, object token)
 		{
-			throw new NotImplementedException();
+			if (token is CommunityLeaveToken)
+			{
+				var leaveToken = token as CommunityLeaveToken;
+				var result = await HohoemaApp.NiconicoContext.User.RemoveFollowCommunityAsync(leaveToken);
+
+				return result ? ContentManageResult.Success : ContentManageResult.Failed;
+			}
+			else
+			{
+				return ContentManageResult.Failed;
+			}
 		}
 	}
 }

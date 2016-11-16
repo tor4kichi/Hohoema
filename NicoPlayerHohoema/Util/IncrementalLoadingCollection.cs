@@ -143,6 +143,8 @@ namespace NicoPlayerHohoema.Util
 					(item as IDisposable).Dispose();
 				}
 			}
+
+			(Source as IDisposable)?.Dispose();
 		}
 
 		public bool HasMoreItems

@@ -15,7 +15,7 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <StackPanel Margin="16"
+    <StackPanel Margin="16 16 16 0"
                 HorizontalAlignment="Stretch"
                 >
 

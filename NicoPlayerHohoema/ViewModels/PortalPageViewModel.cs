@@ -14,6 +14,7 @@ using Windows.UI.Xaml;
 using Prism.Windows.Navigation;
 using System.Threading;
 using Reactive.Bindings;
+using System.Diagnostics;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -21,34 +22,51 @@ namespace NicoPlayerHohoema.ViewModels
 	{
 		public SelectableAppMapContainerViewModel Root { get; private set; }
 
+		private BackgroundUpdateScheduleHandler _AppMapManagerUpdateScheduleHandler;
+
 		public PortalPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
 			: base(hohoemaApp, pageManager)
 		{
+			_AppMapManagerUpdateScheduleHandler = HohoemaApp.AppMapManagerUpdater;
+
 			Root = new SelectableAppMapContainerViewModel(HohoemaApp.AppMapManager.Root, PageManager);
+		}
+
+		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		{
+			HohoemaApp.AppMapManagerUpdater.Completed += AppMapManagerUpdater_Completed;
+
+			HohoemaApp.AppMapManagerUpdater.ScheduleUpdate();
+
+			base.OnNavigatedTo(e, viewModelState);
 		}
 
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			await Task.Delay(500);
+			await HohoemaApp.AppMapManagerUpdater.WaitUpdate();
 
-			await HohoemaApp.AppMapManager.Refresh();
+			await base.NavigatedToAsync(cancelToken, e, viewModelState);
 		}
 
+		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+		{
+			HohoemaApp.AppMapManagerUpdater.Completed -= AppMapManagerUpdater_Completed;
+
+			base.OnNavigatingFrom(e, viewModelState, suspending);
+		}
+
+		private void AppMapManagerUpdater_Completed(object sender, BackgroundUpdateScheduleHandler item)
+		{
+			Debug.WriteLine("AppMapManager update done");
+		}
 
 		protected override void OnSignIn(ICollection<IDisposable> userSessionDisposer)
 		{
-			if (Root == null)
-			{
-				Root = new SelectableAppMapContainerViewModel(HohoemaApp.AppMapManager.Root, PageManager);
-				OnPropertyChanged(nameof(Root));
-			}
-
 			base.OnSignIn(userSessionDisposer);
 		}
 
 		protected override void OnSignOut()
 		{
-			Root = null;
 			base.OnSignOut();
 		}
 

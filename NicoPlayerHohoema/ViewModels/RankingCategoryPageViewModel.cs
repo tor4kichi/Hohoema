@@ -240,7 +240,7 @@ namespace NicoPlayerHohoema.ViewModels
 		
 
 		public CategoryRankingLoadingSource(HohoemaApp app, PageManager pageManager, RankingCategory category, RankingTarget target, RankingTimeSpan timeSpan)
-			: base(app, "CategoryRanking_" + category.ToString())
+			: base(app, $"Ranking:{category.ToCultulizedText()}")
 		{
 			_HohoemaApp = app;
 			_PageManager = pageManager;
