@@ -239,7 +239,8 @@ namespace NicoPlayerHohoema.ViewModels
 					await HohoemaApp.MediaManager.Context.ClearDurtyCachedNicoVideo();
 				}
 
-				await NavigatedToAsync(cancelToken, e, viewModelState);
+				// Note: BGUpdateの再有効化はナビゲーション処理より前で行う
+				// ナビゲーション処理内でBGUpdate待ちをした場合に、デッドロックする可能性がでる
 
 				// BG更新処理を再開
 				if (CanActivateBackgroundUpdate)
@@ -250,6 +251,9 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					HohoemaApp.BackgroundUpdater.Deactivate();
 				}
+
+				await NavigatedToAsync(cancelToken, e, viewModelState);
+
 			}
 		}
 
@@ -272,9 +276,7 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 				_NavigatedToTaskCancelToken?.Cancel();
 
-				var task = _NavigatedToTask.WaitToCompelation();
-
-				task.Wait();
+				await _NavigatedToTask.WaitToCompelation();
 
 				_NavigatedToTaskCancelToken?.Dispose();
 				_NavigatedToTaskCancelToken = null;
