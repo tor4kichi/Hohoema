@@ -445,8 +445,6 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			var currentTimeBaseReachToLeftTime = commentUI.CommentData.VideoPosition + reachToLeftTime;
 			var displayEndTime = commentUI.CommentData.EndPosition;
 
-			Debug.WriteLine($"{reachToLeftTime}");
-
 			if (_valign.HasValue && _valign.Value == VerticalAlignment.Bottom)
 			{
 				verticalAlignList = BottomAlignNextVerticalPosition;

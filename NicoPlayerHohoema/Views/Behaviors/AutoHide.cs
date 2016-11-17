@@ -55,7 +55,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
 			DependencyProperty.Register("Delay"
 					, typeof(TimeSpan)
 					, typeof(AutoHide)
-					, new PropertyMetadata(default(double))
+					, new PropertyMetadata(default(TimeSpan))
 				);
 
 		public TimeSpan Delay

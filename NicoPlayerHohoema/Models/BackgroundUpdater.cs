@@ -294,6 +294,8 @@ namespace NicoPlayerHohoema.Models
 			using (var releaser = await _ScheduleUpdateLock.LockAsync())
 			{
 				_IsActive = true;
+
+				Debug.WriteLine("bg update acitvated");
 			}
 
 			await TryBeginNext();
@@ -304,6 +306,8 @@ namespace NicoPlayerHohoema.Models
 			using (var releaser = await _ScheduleUpdateLock.LockAsync())
 			{
 				_IsActive = false;
+
+				Debug.WriteLine("bg update deacitvated");
 			}
 		}
 
