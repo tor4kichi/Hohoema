@@ -409,20 +409,23 @@ namespace NicoPlayerHohoema
 			{
 				var videoData = Models.Db.VideoInfoDb.Get(args.RawVideoId);
 
-				toastService.ShowText(
-					videoData.Title,
-					$"キャッシュが完了、このメッセージをタップして再生開始",
-					toastActivatedAction: () =>
-					{
+				if (videoData != null)
+				{
+					toastService.ShowText(
+						videoData.Title,
+						$"キャッシュが完了、このメッセージをタップして再生開始",
+						toastActivatedAction: () =>
+						{
 						// 再生
 						var videoPagePayload = new VideoPlayPayload()
-						{
-							VideoId = args.RawVideoId,
-							Quality = args.Quality
-						};
-						pageManager.OpenPage(HohoemaPageType.VideoPlayer, videoPagePayload.ToParameterString());
-					}
-					);
+							{
+								VideoId = args.RawVideoId,
+								Quality = args.Quality
+							};
+							pageManager.OpenPage(HohoemaPageType.VideoPlayer, videoPagePayload.ToParameterString());
+						}
+						);
+				}
 			}
 			catch { }
 		}
