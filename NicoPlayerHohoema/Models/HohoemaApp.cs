@@ -616,12 +616,8 @@ namespace NicoPlayerHohoema.Models
 							loginActivityLogger.LogEvent("[Success]: Login done");
 						}
 
-						// バッテリー節約設定が無効な場合はBG読み込みを行う
-						bool nowPowerSaving = PowerManager.EnergySaverStatus == EnergySaverStatus.On;
-						if (!nowPowerSaving)
-						{
-							UpdateAllComponent();
-						}
+                        // BG更新をスケジュール
+						UpdateAllComponent();
 
 						// 動画のキャッシュフォルダの選択状態をチェック
 						await (App.Current as App).CheckVideoCacheFolderState();
@@ -652,11 +648,11 @@ namespace NicoPlayerHohoema.Models
 
 		public void UpdateAllComponent()
 		{
-			FollowManagerUpdater.ScheduleUpdate();
-			MylistManagerUpdater.ScheduleUpdate();
-			FeedManagerUpdater.ScheduleUpdate();
-			MediaManagerUpdater.ScheduleUpdate();
-			AppMapManagerUpdater.ScheduleUpdate();
+            FollowManagerUpdater.ScheduleUpdate();
+            MylistManagerUpdater.ScheduleUpdate();
+            FeedManagerUpdater.ScheduleUpdate();
+            MediaManagerUpdater.ScheduleUpdate();
+            AppMapManagerUpdater.ScheduleUpdate();
 		}
 
 

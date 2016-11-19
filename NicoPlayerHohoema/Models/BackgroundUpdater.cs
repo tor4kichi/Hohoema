@@ -69,7 +69,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			using (var releaser = await _Lock.LockAsync())
 			{
-				_IsRunning = true;
+                _IsRunning = true;
 				_IsLastTaskCompleted = false;
 			}
 
@@ -99,14 +99,8 @@ namespace NicoPlayerHohoema.Models
 			Canceled?.Invoke(this, this);
 		}
 
-		public async void ScheduleUpdate()
+		public void ScheduleUpdate()
 		{
-			using (var releaser = await _Lock.LockAsync())
-			{
-				_IsRunning = true;
-				_IsLastTaskCompleted = false;
-			}
-
 			Owner.Schedule(this);
 		}
 
@@ -124,21 +118,31 @@ namespace NicoPlayerHohoema.Models
 		public async Task<bool> WaitUpdate()
 		{
 			bool isLastTaskCompleted = false;
-			while(true)
-			{
-				using (var releaser = await _Lock.LockAsync())
-				{
-					isLastTaskCompleted = _IsLastTaskCompleted;
-					if (!_IsRunning)
-					{
-						break;
-					}
-				}
+            try
+            {
+                using (var source = new CancellationTokenSource(5000))
+                {
+                    while (true)
+                    {
+                        using (var releaser = await _Lock.LockAsync())
+                        {
+                            isLastTaskCompleted = _IsLastTaskCompleted;
+                            if (!_IsRunning)
+                            {
+                                break;
+                            }
+                        }
 
-				await Task.Delay(30);
-			}
+                        await Task.Delay(30, source.Token);
+                    }
+                }
+            }
+            catch
+            {
 
-			return isLastTaskCompleted;
+            }
+
+            return isLastTaskCompleted;
 		}
 
 
@@ -503,10 +507,13 @@ namespace NicoPlayerHohoema.Models
 						_RunningTasks.Remove(taskInfo);
 					}
 				}
-
-				await TryBeginNext().ConfigureAwait(false);
 			}
-		}
+
+            if (!task.IsCanceled)
+            {
+                await TryBeginNext().ConfigureAwait(false);
+            }
+        }
 
 
 		#region Schedule Item Stack Management

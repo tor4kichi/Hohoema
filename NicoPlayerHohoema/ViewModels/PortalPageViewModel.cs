@@ -36,16 +36,16 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			HohoemaApp.AppMapManagerUpdater.Completed += AppMapManagerUpdater_Completed;
 
-			HohoemaApp.AppMapManagerUpdater.ScheduleUpdate();
+            HohoemaApp.AppMapManagerUpdater.ScheduleUpdate();
 
 			base.OnNavigatedTo(e, viewModelState);
 		}
 
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			await HohoemaApp.AppMapManagerUpdater.WaitUpdate();
+            await HohoemaApp.AppMapManagerUpdater.WaitUpdate();
 
-			await base.NavigatedToAsync(cancelToken, e, viewModelState);
+            await base.NavigatedToAsync(cancelToken, e, viewModelState);
 		}
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
@@ -73,7 +73,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 		internal static AppMapItemViewModel AppMapObjectToViewModel(IAppMapItem item, PageManager pageManager)
 		{
-			if (item is ISelectableAppMapContainer)
+            Debug.WriteLine(item.PrimaryLabel);
+
+            if (item is ISelectableAppMapContainer)
 			{
 				return new SelectableAppMapContainerViewModel(item as ISelectableAppMapContainer, pageManager);
 			}

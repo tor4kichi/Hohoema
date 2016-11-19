@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
@@ -140,16 +141,25 @@ namespace NicoPlayerHohoema.Models.AppMap
 
 			foreach (var selected in DisplayItems)
 			{
-				if (selected is IAppMapContainer)
-				{ 
-					await (selected as IAppMapContainer).Refresh();
-				}
-			}
+                try
+                {
+                    if (selected is IAppMapContainer)
+                    {
+                        await (selected as IAppMapContainer).Refresh();
+                    }
+                }
+                catch
+                {
+                    Debug.WriteLine(selected.PrimaryLabel + "の更新に失敗");
+                }
+            }
 
 			// itemsからSelectedItemsを差し引いた SelectableItems を作成
 			_SelectableItems.Clear();
 			var selectableItems = _AllItems.Where(x => !DisplayItems.Any(y => EqualAppMapItem(x, y)));
 			_SelectableItems.AddRange(selectableItems);
+
+            Debug.WriteLine(PrimaryLabel + "を更新");
 		}
 
 		protected override async Task OnReset()
