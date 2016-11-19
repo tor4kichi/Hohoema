@@ -12,11 +12,11 @@
     mvvm:ViewModelLocator.AutoWireViewModel="True"    
     mc:Ignorable="d">
 
-    <Grid>
+    <ScrollViewer>
 
         <StackPanel Margin="16 8 16 16" 
-                    MaxWidth="600" 
-                    HorizontalAlignment="Left">
+                    HorizontalAlignment="Stretch"
+                    >
 
             <Button Content="アプリの評価・レビューを行う"
                     Margin="0 16"
@@ -87,5 +87,5 @@
             
         </StackPanel>
         
-    </Grid>
+    </ScrollViewer>
 </Page>
