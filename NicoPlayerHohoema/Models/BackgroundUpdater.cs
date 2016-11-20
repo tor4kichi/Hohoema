@@ -139,7 +139,7 @@ namespace NicoPlayerHohoema.Models
             }
             catch
             {
-
+                _IsRunning = false;
             }
 
             return isLastTaskCompleted;
@@ -440,7 +440,10 @@ namespace NicoPlayerHohoema.Models
 					{
 						await item.Target.BackgroundUpdate(UIDispatcher)
 							.AsTask(cancelTokenSource.Token);
-						return item;
+#if DEBUG
+                        await Task.Delay(500);
+#endif
+                        return item;
 					}
 					)
 					.ContinueWith(OnContinueTask)
