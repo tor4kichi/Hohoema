@@ -168,13 +168,13 @@ namespace NicoPlayerHohoema.ViewModels
 			});
 
 
-			Observable.Merge(
-				bgUpdateCompletedObserver,
-				bgUpdateCanceledObserver
-				)
-				.Subscribe(async x => 
+            Observable.Merge(
+                bgUpdateCompletedObserver,
+                bgUpdateCanceledObserver
+                )
+                .Throttle(TimeSpan.FromSeconds(2))
+                .Subscribe(x => 
 				{
-					await Task.Delay(1000);
 					BGUpdateText.Value = null;
 				});
 		}

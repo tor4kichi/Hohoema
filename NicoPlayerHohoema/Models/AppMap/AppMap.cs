@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Windows.UI;
 using Windows.Foundation;
 using Windows.UI.Core;
+using NicoPlayerHohoema.Util;
 
 namespace NicoPlayerHohoema.Models.AppMap
 {
@@ -33,6 +34,7 @@ namespace NicoPlayerHohoema.Models.AppMap
 
 		public RootAppMapContainer Root { get; private set; }
 
+        private AsyncLock _RefreshLock = new AsyncLock();
 
 		public AppMapManager(HohoemaApp hohoemaApp)
 		{
@@ -44,13 +46,16 @@ namespace NicoPlayerHohoema.Models.AppMap
 
 		public async Task Refresh()
 		{
-			await Root.Refresh();
+            using (var releaser = await _RefreshLock.LockAsync())
+            {
+                await Root.Refresh();
 
-			foreach (var selectable in Root.SelectableItems.ToArray())
-			{
-				Root.Add(selectable);
-			}
-		}
+                foreach (var selectable in Root.SelectableItems.ToArray())
+                {
+                    Root.Add(selectable);
+                }
+            }
+        }
 
 		public IAsyncAction BackgroundUpdate(CoreDispatcher uiDispatcher)
 		{
