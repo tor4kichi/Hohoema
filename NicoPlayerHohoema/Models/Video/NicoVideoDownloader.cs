@@ -255,7 +255,7 @@ namespace NicoPlayerHohoema.Models
 				_DownloadTask = null;
 				_DownloadTaskCancelToken.Dispose();
 				_DownloadTaskCancelToken = null;
-			}
+            }
 			finally
 			{
 				_DownloadTaskLock.Release();
