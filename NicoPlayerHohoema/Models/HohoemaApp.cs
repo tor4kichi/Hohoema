@@ -652,7 +652,6 @@ namespace NicoPlayerHohoema.Models
             MylistManagerUpdater.ScheduleUpdate();
             FeedManagerUpdater.ScheduleUpdate();
             MediaManagerUpdater.ScheduleUpdate();
-            AppMapManagerUpdater.ScheduleUpdate();
 		}
 
 

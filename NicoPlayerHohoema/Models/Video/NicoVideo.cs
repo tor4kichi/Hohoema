@@ -246,6 +246,9 @@ namespace NicoPlayerHohoema.Models
 		{
 			IfVideoDeletedThrowException();
 
+            // キャッシュの状態を確認
+            await CheckCacheStatus();
+
 			// キャッシュ済みの場合は
 			if (quality == NicoVideoQuality.Original && OriginalQuality.IsCached)
 			{

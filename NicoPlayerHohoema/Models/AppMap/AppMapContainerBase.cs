@@ -139,19 +139,11 @@ namespace NicoPlayerHohoema.Models.AppMap
 				}
 			}
 
-			foreach (var selected in DisplayItems)
-			{
-                try
-                {
-                    if (selected is IAppMapContainer)
-                    {
-                        await (selected as IAppMapContainer).Refresh();
-                    }
-                }
-                catch
-                {
-                    Debug.WriteLine(selected.PrimaryLabel + "の更新に失敗");
-                }
+            var newDisplayItems = DisplayItems.Select(x => _AllItems.First(y => x.PrimaryLabel == y.PrimaryLabel)).ToArray();
+            _DisplayItems.Clear();
+            foreach (var newDisplayItem in newDisplayItems)
+            {
+                _DisplayItems.Add(newDisplayItem);
             }
 
 			// itemsからSelectedItemsを差し引いた SelectableItems を作成

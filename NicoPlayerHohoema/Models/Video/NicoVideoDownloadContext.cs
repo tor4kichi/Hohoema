@@ -420,13 +420,14 @@ namespace NicoPlayerHohoema.Models
 
 					try
 					{
-						if (!CurrentDownloader.IsCacheComplete)
-						{
-							if (CurrentDownloader.IsCacheRequested)
-							{
-								await CurrentDownloader.DividedQualityNicoVideo.SaveProgress();
-							}
+                        // キャッシュリクエスト済みの場合はDL進捗を保存
+                        if (CurrentDownloader.IsCacheRequested)
+                        {
+                            await CurrentDownloader.DividedQualityNicoVideo.SaveProgress();
+                        }
 
+                        if (!CurrentDownloader.IsCacheComplete)
+						{
 							// ダウンロードキャンセルイベントをトリガー
 							CancelDownload?.Invoke(this, new NiconicoDownloadEventArgs()
 							{

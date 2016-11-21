@@ -27,37 +27,24 @@ namespace NicoPlayerHohoema.ViewModels
 		public PortalPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
 			: base(hohoemaApp, pageManager)
 		{
-			_AppMapManagerUpdateScheduleHandler = HohoemaApp.AppMapManagerUpdater;
-
 			Root = new SelectableAppMapContainerViewModel(HohoemaApp.AppMapManager.Root, PageManager);
 		}
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			HohoemaApp.AppMapManagerUpdater.Completed += AppMapManagerUpdater_Completed;
-
-            HohoemaApp.AppMapManagerUpdater.ScheduleUpdate();
-
 			base.OnNavigatedTo(e, viewModelState);
 		}
 
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-            await HohoemaApp.AppMapManagerUpdater.WaitUpdate();
+            await HohoemaApp.AppMapManager.Refresh();
 
             await base.NavigatedToAsync(cancelToken, e, viewModelState);
 		}
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
-			HohoemaApp.AppMapManagerUpdater.Completed -= AppMapManagerUpdater_Completed;
-
 			base.OnNavigatingFrom(e, viewModelState, suspending);
-		}
-
-		private void AppMapManagerUpdater_Completed(object sender, BackgroundUpdateScheduleHandler item)
-		{
-			Debug.WriteLine("AppMapManager update done");
 		}
 
 		protected override void OnSignIn(ICollection<IDisposable> userSessionDisposer)
@@ -70,8 +57,21 @@ namespace NicoPlayerHohoema.ViewModels
 			base.OnSignOut();
 		}
 
+        private DelegateCommand _RefreshCommand;
+        public DelegateCommand RefreshCommand
+        {
+            get
+            {
+                return _RefreshCommand
+                    ?? (_RefreshCommand = new DelegateCommand(async () =>
+                    {
+                        await HohoemaApp.AppMapManager.Refresh();
+                    }));
+            }
+        }
 
-		internal static AppMapItemViewModel AppMapObjectToViewModel(IAppMapItem item, PageManager pageManager)
+
+        internal static AppMapItemViewModel AppMapObjectToViewModel(IAppMapItem item, PageManager pageManager)
 		{
             Debug.WriteLine(item.PrimaryLabel);
 
@@ -188,6 +188,10 @@ namespace NicoPlayerHohoema.ViewModels
 			Items?.Dispose();
 			_CollectionDisposer?.Dispose();
 		}
+
+
+       
+        
 	}
 
 
