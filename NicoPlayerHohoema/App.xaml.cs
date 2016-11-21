@@ -470,7 +470,7 @@ namespace NicoPlayerHohoema
 			Container.RegisterType<ViewModels.FeedVideoListPageViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.UserMylistPageViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.CacheManagementPageViewModel>(new ContainerControlledLifetimeManager());
-			Container.RegisterType<ViewModels.PortalPageViewModel>(new ContainerControlledLifetimeManager());
+//			Container.RegisterType<ViewModels.PortalPageViewModel>(new ContainerControlledLifetimeManager());
 
 
 			// Service

@@ -304,6 +304,23 @@
 
         <ScrollViewer>
             <StackPanel>
+
+                <toolkit:DockPanel Margin="0 0 0 8">
+                    <StackPanel Orientation="Horizontal"
+                                toolkit:DockPanel.Dock="Right"
+                                >
+                        <AppBarButton Label="更新"
+                              Icon="Refresh"
+                              Command="{Binding RefreshCommand}" 
+                              Margin="0"
+                              />
+                    </StackPanel>
+
+                    <Border />
+
+                </toolkit:DockPanel>
+                
+
                 <ItemsControl  x:Name="DesktopGridView"      
                                ItemsSource="{Binding Root.Items}"
                                ItemTemplateSelector="{StaticResource AppMapItemDataTemplateSelector}"
@@ -338,12 +355,19 @@
 
                 </ItemsControl>
 
+                
+                
                 <Border Height="32" />
+
+                
             </StackPanel>
            
+            
 
         </ScrollViewer>
-        
+
+       
+
     </Grid>
 
     
