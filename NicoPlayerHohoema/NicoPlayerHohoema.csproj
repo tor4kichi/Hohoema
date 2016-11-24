@@ -162,6 +162,7 @@
     <Compile Include="Models\Follow\FollowPageParameter.cs" />
     <Compile Include="Models\Follow\IFollowInfoGroup.cs" />
     <Compile Include="Models\HohoemaApp.cs" />
+    <Compile Include="Models\HohoemaAppServiceStatus.cs" />
     <Compile Include="Models\HohoemaPageType.cs" />
     <Compile Include="Models\LisenceSummary.cs" />
     <Compile Include="Models\Live\LiveStatusType.cs" />

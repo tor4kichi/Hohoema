@@ -15,6 +15,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Diagnostics;
+using Windows.Networking.Connectivity;
 using Windows.Storage;
 using Windows.System.Power;
 using Windows.UI.Core;
@@ -72,10 +73,28 @@ namespace NicoPlayerHohoema.Models
 			BackgroundUpdater = new BackgroundUpdater("HohoemaBG", UIDispatcher);
 
 			ApplicationData.Current.DataChanged += Current_DataChanged;
-		}
 
 
-		private void RagistrationBackgroundUpdateHandle()
+            UpdateServiceStatus();
+            NetworkInformation.NetworkStatusChanged += NetworkInformation_NetworkStatusChanged;
+            
+
+        }
+
+        private async void NetworkInformation_NetworkStatusChanged(object sender)
+        {
+            var isInternet = Util.InternetConnection.IsInternet();
+            if (isInternet)
+            {
+                await SignInWithPrimaryAccount();
+            }
+            else
+            {
+                await SignOut();
+            }
+        }
+
+        private void RagistrationBackgroundUpdateHandle()
 		{
 			// ホーム画面で表示するアプリマップ情報をリセット
 			AppMapManagerUpdater =
@@ -478,8 +497,8 @@ namespace NicoPlayerHohoema.Models
 			return AsyncInfo.Run<NiconicoSignInStatus>(async (cancelToken) => 
 			{
 				if (NiconicoContext != null 
-				&& NiconicoContext.AuthenticationToken.MailOrTelephone == mailOrTelephone 
-				&& NiconicoContext.AuthenticationToken.Password == password)
+				    && NiconicoContext.AuthenticationToken.MailOrTelephone == mailOrTelephone 
+				    && NiconicoContext.AuthenticationToken.Password == password)
 				{
 					return NiconicoSignInStatus.Success;
 				}
@@ -628,7 +647,10 @@ namespace NicoPlayerHohoema.Models
 
 						// 途中だった動画のダウンロードを再開
 						await MediaManager.Context.StartBackgroundDownload();
-					}
+
+                        // アプリのサービス状態をログイン中に更新
+                        UpdateServiceStatus(isLoggedIn:true);
+                    }
 					else
 					{
 						Debug.WriteLine("login failed");
@@ -707,14 +729,30 @@ namespace NicoPlayerHohoema.Models
 			finally
 			{
 				_SigninLock.Release();
-			}
+
+                UpdateServiceStatus();
+            }
 		}
 
-		public async Task<NiconicoSignInStatus> CheckSignedInStatus()
+        private void UpdateServiceStatus(bool isLoggedIn = false)
+        {
+            if (isLoggedIn)
+            {
+                ServiceStatus = HohoemaAppServiceStatus.LoggedIn;
+            }
+            else
+            {
+                ServiceStatus = Util.InternetConnection.IsInternet() ? HohoemaAppServiceStatus.OnlineWithoutLoggedIn : HohoemaAppServiceStatus.Offline;
+            }
+        }
+
+        public async Task<NiconicoSignInStatus> CheckSignedInStatus()
 		{
 			if (!Util.InternetConnection.IsInternet())
 			{
-				return NiconicoSignInStatus.Failed;
+                ServiceStatus = HohoemaAppServiceStatus.Offline;
+
+                return NiconicoSignInStatus.Failed;
 			}
 
 			try
@@ -1139,7 +1177,7 @@ StorageFolder _DownloadFolder;
 		{
 			get
 			{
-				return LoginUserId != uint.MaxValue;
+				return ServiceStatus == HohoemaAppServiceStatus.LoggedIn;
 			}
 		}
 
@@ -1175,7 +1213,14 @@ StorageFolder _DownloadFolder;
 			set { SetProperty(ref _FeedManager, value); }
 		}
 
-		public UserMylistManager UserMylistManager { get; private set; }
+        private HohoemaAppServiceStatus _ServiceStatus;
+        public HohoemaAppServiceStatus ServiceStatus
+        {
+            get { return _ServiceStatus; }
+            set { SetProperty(ref _ServiceStatus, value); }
+        }
+
+        public UserMylistManager UserMylistManager { get; private set; }
 
 		public AppMapManager AppMapManager { get; private set; }
 
