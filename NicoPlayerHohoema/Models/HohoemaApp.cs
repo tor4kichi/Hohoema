@@ -469,11 +469,34 @@ namespace NicoPlayerHohoema.Models
 			return await SignIn(primaryAccount_id, primaryAccount_Password);
 		}
 
-		/// <summary>
-		/// Appから呼び出します
-		/// 他の場所からは呼ばないようにしてください
-		/// </summary>
-		public void Resumed()
+
+        public bool CanSignInWithPrimaryAccount()
+        {
+            string primaryAccount_id = null;
+            string primaryAccount_Password = null;
+
+            var account = GetPrimaryAccount();
+            if (account != null)
+            {
+                primaryAccount_id = account.Item1;
+                primaryAccount_Password = account.Item2;
+            }
+
+            if (String.IsNullOrWhiteSpace(primaryAccount_id) || String.IsNullOrWhiteSpace(primaryAccount_Password))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Appから呼び出します
+        /// 他の場所からは呼ばないようにしてください
+        /// </summary>
+        public void Resumed()
 		{
 			OnResumed?.Invoke();
 		}
