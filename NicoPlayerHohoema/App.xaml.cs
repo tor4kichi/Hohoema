@@ -161,7 +161,7 @@ namespace NicoPlayerHohoema
 
 		}
 
-		protected override Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args)
+		protected override async Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args)
 		{
 #if DEBUG
 			DebugSettings.IsBindingTracingEnabled = true;
@@ -188,11 +188,14 @@ namespace NicoPlayerHohoema
                 //					pm.OpenPage(HohoemaPageType.Portal);
                 //				}
                 //				else
+
+                await hohoemaApp.SignInWithPrimaryAccount();
+
                 pageManager.OpenPage(HohoemaPageType.Portal);
 			}
 
 			
-			return Task.CompletedTask;
+//			return Task.CompletedTask;
 		}
 
 		protected override async Task OnActivateApplicationAsync(IActivatedEventArgs args)
