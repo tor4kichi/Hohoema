@@ -233,7 +233,6 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
-
 		public static Tuple<string, string> GetPrimaryAccount()
 		{
 			if (HasPrimaryAccount())

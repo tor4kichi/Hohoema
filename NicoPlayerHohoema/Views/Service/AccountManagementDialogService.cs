@@ -43,7 +43,9 @@ namespace NicoPlayerHohoema.Views.Service
 
         public ReactiveProperty<bool> IsValidAccount { get; private set; }
         public ReactiveProperty<bool> NowProcessLoggedIn { get; private set; }
-        public ReactiveProperty<bool> ServiceUnavailable { get; private set; }
+
+        public ReactiveProperty<bool> IsAuthoricationFailed { get; private set; }
+        public ReactiveProperty<bool> IsServiceUnavailable { get; private set; }
 
         public ReactiveCommand ValidateCommand { get; private set; }
         public ReactiveCommand ApplyCommand { get; private set; }
@@ -58,9 +60,10 @@ namespace NicoPlayerHohoema.Views.Service
 
             IsValidAccount = new ReactiveProperty<bool>(hohoemaApp.IsLoggedIn);
             NowProcessLoggedIn = new ReactiveProperty<bool>(false);
-            ServiceUnavailable = new ReactiveProperty<bool>(!Util.InternetConnection.IsInternet());
+            IsAuthoricationFailed = new ReactiveProperty<bool>(false);
+            IsServiceUnavailable = new ReactiveProperty<bool>(false);
 
-
+            // メールかパスワードが変更されたらログイン検証されていないアカウントとしてマーク
             Observable.Merge(
                 Mail.ToUnit(),
                 Password.ToUnit()
@@ -83,14 +86,7 @@ namespace NicoPlayerHohoema.Views.Service
 
                 try
                 {
-                    var mail = Mail.Value;
-                    var password = Password.Value;
-                    var signinResult = await HohoemaApp.SignIn(mail, password);
-
-                    await Task.Delay(2000);
-
-                    IsValidAccount.Value = signinResult == Mntone.Nico2.NiconicoSignInStatus.Success;
-                    ServiceUnavailable.Value = signinResult == Mntone.Nico2.NiconicoSignInStatus.ServiceUnavailable;
+                    await ValidateAccount();
                 }
                 finally
                 {
@@ -98,15 +94,14 @@ namespace NicoPlayerHohoema.Views.Service
                 }
             });
 
-            ApplyCommand = NowProcessLoggedIn.Select(x => !x)
+            ApplyCommand = IsValidAccount
                 .ToReactiveCommand();
             ApplyCommand.Subscribe(async _ => 
             {
                 HohoemaApp.SetPrimaryAccountId(Mail.Value);
                 HohoemaApp.AddOrUpdateAccount(Mail.Value, Password.Value);
 
-                var signinResult = await HohoemaApp.SignInWithPrimaryAccount();
-                IsValidAccount.Value = signinResult == Mntone.Nico2.NiconicoSignInStatus.Success;
+                await HohoemaApp.SignInWithPrimaryAccount();
             });
 
             CancelCommand = NowProcessLoggedIn.Select(x => !x)
@@ -114,14 +109,28 @@ namespace NicoPlayerHohoema.Views.Service
             CancelCommand.Subscribe(async _ =>
             {
                 // ログイン状態をダイアログを開いた前の状態に復帰
-                var signinResult = await HohoemaApp.SignInWithPrimaryAccount();
-                IsValidAccount.Value = signinResult == Mntone.Nico2.NiconicoSignInStatus.Success;
+                await HohoemaApp.SignInWithPrimaryAccount();
             });
         }
 
-        
+        private async Task ValidateAccount()
+        {
+            // Note: NiconicoContextのインスタンスを作成してサインインを試行すると
+            // HttpClientのキャッシュ削除がされていない状態で試行されてしまい
+            // 正常な結果を得られません。
+            // HohoemaApp上で管理しているNiconicoContextのみに限定することで
+            // HttpClientのキャッシュが残る挙動に対処しています
+
+            IsAuthoricationFailed.Value = false;
+            IsServiceUnavailable.Value = false;
+
+            var result = await HohoemaApp.SignIn(Mail.Value, Password.Value);
+            IsValidAccount.Value = result == Mntone.Nico2.NiconicoSignInStatus.Success;
+            IsAuthoricationFailed.Value = result == Mntone.Nico2.NiconicoSignInStatus.Failed;
+            IsServiceUnavailable.Value = result == Mntone.Nico2.NiconicoSignInStatus.ServiceUnavailable;
+        }
 
 
-        
+
     }
 }
