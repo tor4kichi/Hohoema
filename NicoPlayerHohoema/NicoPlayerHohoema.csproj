@@ -242,7 +242,6 @@
     <Compile Include="ViewModels\LiveVideoInfoContent\ShereLiveInfoContentViewModel.cs" />
     <Compile Include="ViewModels\LiveVideoInfoContent\SummaryLiveInfoContentViewModel.cs" />
     <Compile Include="ViewModels\LiveVideoPlayerPageViewModel.cs" />
-    <Compile Include="ViewModels\LoginPageViewModel.cs" />
     <Compile Include="ViewModels\MenuNavigatePageBaseViewModel.cs" />
     <Compile Include="ViewModels\MylistPageViewModel.cs" />
     <Compile Include="ViewModels\SearchContent\CommunitySearchPageContentViewModel.cs" />
@@ -431,9 +430,6 @@
     </Compile>
     <Compile Include="Views\Behaviors\MediaElementExtractPositionBehavior.cs" />
     <Compile Include="Views\Behaviors\MediaElementSeekAfterAutoPlayBehavior.cs" />
-    <Compile Include="Views\LoginPage.xaml.cs">
-      <DependentUpon>LoginPage.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\MenuNavigatePageBase.xaml.cs">
       <DependentUpon>MenuNavigatePageBase.xaml</DependentUpon>
     </Compile>
@@ -731,10 +727,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\LiveVideoPlayerPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\LoginPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
