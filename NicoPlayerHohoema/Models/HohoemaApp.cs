@@ -521,8 +521,8 @@ namespace NicoPlayerHohoema.Models
 			return AsyncInfo.Run<NiconicoSignInStatus>(async (cancelToken) => 
 			{
 				if (NiconicoContext != null 
-				    && NiconicoContext.AuthenticationToken.MailOrTelephone == mailOrTelephone 
-				    && NiconicoContext.AuthenticationToken.Password == password)
+				    && NiconicoContext.AuthenticationToken?.MailOrTelephone == mailOrTelephone 
+				    && NiconicoContext.AuthenticationToken?.Password == password)
 				{
 					return NiconicoSignInStatus.Success;
 				}
@@ -551,9 +551,10 @@ namespace NicoPlayerHohoema.Models
 						LoginErrorText = "サインインに失敗、再起動をお試しください";
 					}
 
+                    UpdateServiceStatus();
+
                     NiconicoContext = context;
 
-                    UpdateServiceStatus();
 
                     if (result == NiconicoSignInStatus.Success)
 					{
@@ -608,9 +609,9 @@ namespace NicoPlayerHohoema.Models
 								loginActivityLogger.LogEvent(LoginErrorText, fields, LoggingLevel.Warning);
 
 								NiconicoContext.Dispose();
-								NiconicoContext = null;
+                                NiconicoContext = new NiconicoContext();
 
-								return NiconicoSignInStatus.Failed;
+                                return NiconicoSignInStatus.Failed;
 							}
 
 							fields.Clear();
@@ -646,8 +647,8 @@ namespace NicoPlayerHohoema.Models
 								Debug.WriteLine(LoginErrorText);
 								loginActivityLogger.LogEvent(LoginErrorText, fields, LoggingLevel.Error);
 								NiconicoContext.Dispose();
-								NiconicoContext = null;
-								return NiconicoSignInStatus.Failed;
+                                NiconicoContext = new NiconicoContext();
+                                return NiconicoSignInStatus.Failed;
 							}
 
 							FollowManagerUpdater = BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(
@@ -661,8 +662,11 @@ namespace NicoPlayerHohoema.Models
 							loginActivityLogger.LogEvent("[Success]: Login done");
 						}
 
+                        // アプリのサービス状態をログイン済みに更新
+                        UpdateServiceStatus(isLoggedIn: true);
+
                         // BG更新をスケジュール
-						UpdateAllComponent();
+                        UpdateAllComponent();
 
 						// 動画のキャッシュフォルダの選択状態をチェック
 						await (App.Current as App).CheckVideoCacheFolderState();
@@ -674,8 +678,7 @@ namespace NicoPlayerHohoema.Models
 						// 途中だった動画のダウンロードを再開
 						await MediaManager.Context.StartBackgroundDownload();
 
-                        // アプリのサービス状態をログイン中に更新
-                        UpdateServiceStatus(isLoggedIn:true);
+                        
 
                         // ニコニコサービスの裏で取得させたいので強制的に待ちを挟む
                         await Task.Delay(1000);
@@ -743,11 +746,6 @@ namespace NicoPlayerHohoema.Models
 
 					FollowManager = null;
 					LoginUserId = uint.MaxValue;
-
-					// TODO: BackgroundUpdateのキャンセル
-
-					FollowManager = null;
-					FeedManager = null;
 
 
 					OnSignout?.Invoke();
