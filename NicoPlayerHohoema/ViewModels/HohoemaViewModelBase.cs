@@ -125,9 +125,9 @@ namespace NicoPlayerHohoema.ViewModels
        
         private Task CallAppServiceLevelOffline(CancellationToken cancelToken)
         {
-            if (AvailableServiceLevel <= HohoemaAppServiceLevel.Offline)
+            if (AvailableServiceLevel >= HohoemaAppServiceLevel.Offline)
             {
-                if (HohoemaApp.ServiceStatus <= HohoemaAppServiceLevel.Offline)
+                if (HohoemaApp.ServiceStatus >= HohoemaAppServiceLevel.Offline)
                 {
                     return OnOffline(_NavigatingCompositeDisposable, cancelToken);
                 }
@@ -137,9 +137,9 @@ namespace NicoPlayerHohoema.ViewModels
         }
         private Task CallAppServiceLevelOnlineWithoutLoggedIn(CancellationToken cancelToken)
         {
-            if (AvailableServiceLevel <= HohoemaAppServiceLevel.OnlineWithoutLoggedIn)
+            if (AvailableServiceLevel >= HohoemaAppServiceLevel.OnlineWithoutLoggedIn)
             {
-                if (HohoemaApp.ServiceStatus <= HohoemaAppServiceLevel.OnlineWithoutLoggedIn)
+                if (HohoemaApp.ServiceStatus >= HohoemaAppServiceLevel.OnlineWithoutLoggedIn)
                 {
                     return OnOnlineWithoutSignIn(_NavigatingCompositeDisposable, cancelToken);
                 }
@@ -150,9 +150,9 @@ namespace NicoPlayerHohoema.ViewModels
 
         private Task CallAppServiceLevelSignIn(CancellationToken cancelToken)
         {
-            if (AvailableServiceLevel <= HohoemaAppServiceLevel.LoggedIn)
+            if (AvailableServiceLevel >= HohoemaAppServiceLevel.LoggedIn)
             {
-                if (HohoemaApp.ServiceStatus <= HohoemaAppServiceLevel.LoggedIn)
+                if (HohoemaApp.ServiceStatus >= HohoemaAppServiceLevel.LoggedIn)
                 {
                     return OnSignIn(_UserSettingsCompositeDisposable, cancelToken);
                 }

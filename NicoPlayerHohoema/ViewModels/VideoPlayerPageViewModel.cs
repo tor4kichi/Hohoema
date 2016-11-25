@@ -86,8 +86,6 @@ namespace NicoPlayerHohoema.ViewModels
 //				.AddTo(_CompositeDisposable);
 			CommentVideoPosition = new ReactiveProperty<TimeSpan>(PlayerWindowUIDispatcherScheduler, TimeSpan.Zero)
 				.AddTo(_CompositeDisposable);
-			CommentData = new ReactiveProperty<CommentResponse>(PlayerWindowUIDispatcherScheduler)
-				.AddTo(_CompositeDisposable);
 			NowSubmittingComment = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler)
 				.AddTo(_CompositeDisposable);
 			SliderVideoPosition = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0)
@@ -267,48 +265,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 			
 
-			this.ObserveProperty(x => x.Video)
-				.Where(x => !IsDisposed)
-				.Subscribe(async x =>
-				{
-					if (x != null && !IsNotSupportVideoType)
-					{
-						var comment = await GetComment();
-						if (IsDisposed) { return; }
-						CommentData.Value = comment;
-						VideoLength.Value = x.VideoLength.TotalSeconds;
-						CurrentVideoPosition.Value = TimeSpan.Zero;
-					}
-				})
-				.AddTo(_CompositeDisposable);
+			
 
-
-			CommentData.Subscribe(x => 
-			{
-				Comments.Clear();
-
-				if (x == null)
-				{
-					return;
-				}
-
-				var list = x.Chat
-					.Where(y => y != null)
-					.Select(ChatToComment)
-					.Where(y => y != null)
-					.OrderBy(y => y.VideoPosition);
-
-				foreach (var comment in list)
-				{
-					Comments.Add(comment);
-				}
-
-				UpdateCommentNGStatus();
-
-				System.Diagnostics.Debug.WriteLine($"コメント数:{Comments.Count}");
-			})
-			.AddTo(_CompositeDisposable);
-
+			
 
 			SliderVideoPosition.Subscribe(x =>
 			{
@@ -466,6 +425,8 @@ namespace NicoPlayerHohoema.ViewModels
 
                 if (playWithCache)
                 {
+                    await UpdateComments();
+
                     _SidePaneContentCache.Clear();
 
                     _VideoDescriptionHtmlUri = await HtmlFileHelper.PartHtmlOutputToCompletlyHtml(VideoId, Video.DescriptionWithHtml);
@@ -713,11 +674,15 @@ namespace NicoPlayerHohoema.ViewModels
 
                 cancelToken.ThrowIfCancellationRequested();
 
+                // コメント送信を有効に
+                CanSubmitComment.Value = true;
 
-                
+                // コメントのコマンドエディタを初期化
+                CommandEditerVM = new CommentCommandEditerViewModel(isAnonymousDefault: HohoemaApp.UserSettings.PlayerSettings.IsDefaultCommentWithAnonymous)
+                    .AddTo(userSessionDisposer);
+                OnPropertyChanged(nameof(CommandEditerVM));
 
-
-
+                CommandEditerVM.OnCommandChanged += () => UpdateCommandString();
                 CommandEditerVM.IsPremiumUser = base.HohoemaApp.IsPremiumUser;
 
                 // TODO: チャンネル動画やコミュニティ動画の検知			
@@ -753,6 +718,8 @@ namespace NicoPlayerHohoema.ViewModels
 
                 CanDownload = isAcceptedCache && isEnabledCache && isCanCache;
 
+                await UpdateComments();
+
                 // 再生履歴に反映
                 //VideoPlayHistoryDb.VideoPlayed(Video.RawVideoId);
             }
@@ -780,15 +747,7 @@ namespace NicoPlayerHohoema.ViewModels
 			OnPropertyChanged(nameof(IsPauseWithCommentWriting));
 
 			
-            // コメントのコマンドエディタを初期化
-			CommandEditerVM = new CommentCommandEditerViewModel(isAnonymousDefault: HohoemaApp.UserSettings.PlayerSettings.IsDefaultCommentWithAnonymous)
-				.AddTo(userSessionDisposer);
-			OnPropertyChanged(nameof(CommandEditerVM));
-
-			CommandEditerVM.OnCommandChanged += () => UpdateCommandString();
-
-            // コメント送信を有効に
-            CanSubmitComment.Value = true;
+            
 
             IsForceLandscape = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, HohoemaApp.UserSettings.PlayerSettings.IsForceLandscape);
 			OnPropertyChanged(nameof(IsForceLandscape));
@@ -1200,6 +1159,9 @@ namespace NicoPlayerHohoema.ViewModels
 
             Video = videoInfo;
 
+            VideoLength.Value = Video.VideoLength.TotalSeconds;
+            CurrentVideoPosition.Value = TimeSpan.Zero;
+
             cancelToken.ThrowIfCancellationRequested();
 
             if (viewModelState.ContainsKey(nameof(CurrentVideoPosition)))
@@ -1214,6 +1176,34 @@ namespace NicoPlayerHohoema.ViewModels
             ChangeRequireServiceLevel(HohoemaAppServiceLevel.LoggedIn);
             
 		}
+
+        private async Task UpdateComments()
+        {
+            Comments.Clear();
+
+            var comments = await Video.GetComments(true);
+
+            if (comments == null)
+            {
+                System.Diagnostics.Debug.WriteLine("コメントは取得できませんでした");
+                return;
+            }
+
+            var list = comments
+                .Where(y => y != null)
+                .Select(ChatToComment)
+                .Where(y => y != null)
+                .OrderBy(y => y.VideoPosition);
+
+            foreach (var comment in list)
+            {
+                Comments.Add(comment);
+            }
+
+            UpdateCommentNGStatus();
+
+            System.Diagnostics.Debug.WriteLine($"コメント数:{Comments.Count}");
+        }
 
 		protected override async Task OnResumed()
 		{
@@ -1296,14 +1286,6 @@ namespace NicoPlayerHohoema.ViewModels
 			_BufferingMonitorDisposable?.Dispose();
 		}
 
-		private async Task<CommentResponse> GetComment()
-		{
-			if (Video == null) { return null; }
-
-			return await Video.GetCommentResponse(true);
-			//			return await this._HohoemaApp.NiconicoContext.Video
-			//					.GetCommentAsync(response);
-		}
 
 
 		private async Task SubmitComment()
@@ -1557,7 +1539,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 		#endregion
 
-		public ReactiveProperty<CommentResponse> CommentData { get; private set; }
 
 		private NicoVideo _Video;
 		public NicoVideo Video

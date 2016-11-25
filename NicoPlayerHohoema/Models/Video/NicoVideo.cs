@@ -81,34 +81,45 @@ namespace NicoPlayerHohoema.Models
 		}
 
 		// コメントのキャッシュまたはオンラインからの取得と更新
-		public async Task<CommentResponse> GetCommentResponse(bool requierLatest = false)
+		public async Task<List<Chat>> GetComments(bool requierLatest = false)
 		{
-			if (CachedWatchApiResponse == null)
-			{
-				throw new Exception("コメントを取得するには先にWatchPageへのアクセスが必要です");
-			}
+            CommentResponse commentRes = null;
+            if (requierLatest || _CachedCommentResponse == null)
+            {
+                if (HohoemaApp.ServiceStatus == HohoemaAppServiceLevel.LoggedIn)
+                {
+                    try
+                    {
+                        commentRes = await ConnectionRetryUtil.TaskWithRetry(async () =>
+                        {
+                            return await this.HohoemaApp.NiconicoContext.Video
+                                .GetCommentAsync(CachedWatchApiResponse);
+                        });
 
-			CommentResponse commentRes = null;
-			try
-			{
-				commentRes = await ConnectionRetryUtil.TaskWithRetry(async () =>
-				{
-					return await this.HohoemaApp.NiconicoContext.Video
-						.GetCommentAsync(CachedWatchApiResponse);
-				});
+                        if (commentRes != null)
+                        {
+                            _CachedCommentResponse = commentRes;
+                        }
+                    }
+                    catch { }
+                }
+            }
 
-				if (commentRes != null)
-				{
-					_CachedCommentResponse = commentRes;
-				}
+            if (commentRes == null && _CachedCommentResponse != null)
+            {
+                commentRes = _CachedCommentResponse;
+            }
 
-				return _CachedCommentResponse;
-			}
-			catch
+            if (commentRes == null)
 			{
-				return _CachedCommentResponse;
+                var j = CommentDb.Get(RawVideoId);
+                return j.GetComments();
 			}
-		}
+            else
+            {
+                return commentRes?.Chat;
+            }
+        }
 
 		
 
@@ -466,9 +477,16 @@ namespace NicoPlayerHohoema.Models
 
 			if (CachedWatchApiResponse != null)
 			{
-				var commentRes = await GetCommentResponse();
-				CommentDb.AddOrUpdate(RawVideoId, commentRes);
-			}
+                if (_CachedCommentResponse == null)
+                {
+                    await GetComments(true);
+                }
+
+                if (_CachedCommentResponse != null)
+                {
+                    CommentDb.AddOrUpdate(RawVideoId, _CachedCommentResponse);
+                }
+            }
 
 			var info = await VideoInfoDb.GetEnsureNicoVideoInfoAsync(RawVideoId);
 
