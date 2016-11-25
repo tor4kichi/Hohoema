@@ -47,15 +47,6 @@ namespace NicoPlayerHohoema.ViewModels
 			base.OnNavigatingFrom(e, viewModelState, suspending);
 		}
 
-		protected override void OnSignIn(ICollection<IDisposable> userSessionDisposer)
-		{
-			base.OnSignIn(userSessionDisposer);
-		}
-
-		protected override void OnSignOut()
-		{
-			base.OnSignOut();
-		}
 
         private DelegateCommand _RefreshCommand;
         public DelegateCommand RefreshCommand

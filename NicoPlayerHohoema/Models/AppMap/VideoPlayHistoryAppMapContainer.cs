@@ -20,6 +20,10 @@ namespace NicoPlayerHohoema.Models.AppMap
 		protected override async Task<IEnumerable<IAppMapItem>> GenerateItems(int count)
 		{
 			var playedHistories = await HohoemaApp.ContentFinder.GetHistory();
+            if (playedHistories == null)
+            {
+                return Enumerable.Empty<IAppMapItem>();
+            }
 
 			List<IAppMapItem> items = new List<IAppMapItem>();
 			var histories = playedHistories.Histories.Take(count);

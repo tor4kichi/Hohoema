@@ -57,6 +57,7 @@ namespace NicoPlayerHohoema.Models
 		private HohoemaApp(IEventAggregator ea)
 		{
 			EventAggregator = ea;
+            NiconicoContext = new NiconicoContext();
 			LoginUserId = uint.MaxValue;
 			LoggingChannel = new LoggingChannel("HohoemaLog", new LoggingChannelOptions(HohoemaLoggerGroupGuid));
 			UserSettings = new HohoemaUserSettings();
@@ -548,14 +549,16 @@ namespace NicoPlayerHohoema.Models
 					catch
 					{
 						LoginErrorText = "サインインに失敗、再起動をお試しください";
-						context?.Dispose();
 					}
 
-					if (result == NiconicoSignInStatus.Success)
+                    NiconicoContext = context;
+
+                    UpdateServiceStatus();
+
+                    if (result == NiconicoSignInStatus.Success)
 					{
 						Debug.WriteLine("login success");
 
-						NiconicoContext = context;
 
 						using (var loginActivityLogger = LoggingChannel.StartActivity("login process"))
 						{
@@ -673,11 +676,13 @@ namespace NicoPlayerHohoema.Models
 
                         // アプリのサービス状態をログイン中に更新
                         UpdateServiceStatus(isLoggedIn:true);
+
+                        // ニコニコサービスの裏で取得させたいので強制的に待ちを挟む
+                        await Task.Delay(1000);
                     }
 					else
 					{
 						Debug.WriteLine("login failed");
-						context?.Dispose();
 					}
 
 					return result;
@@ -734,7 +739,8 @@ namespace NicoPlayerHohoema.Models
 				}
 				finally
 				{
-					NiconicoContext = null;
+                    NiconicoContext = new NiconicoContext();
+
 					FollowManager = null;
 					LoginUserId = uint.MaxValue;
 
@@ -761,11 +767,11 @@ namespace NicoPlayerHohoema.Models
         {
             if (isLoggedIn)
             {
-                ServiceStatus = HohoemaAppServiceStatus.LoggedIn;
+                ServiceStatus = HohoemaAppServiceLevel.LoggedIn;
             }
             else
             {
-                ServiceStatus = Util.InternetConnection.IsInternet() ? HohoemaAppServiceStatus.OnlineWithoutLoggedIn : HohoemaAppServiceStatus.Offline;
+                ServiceStatus = Util.InternetConnection.IsInternet() ? HohoemaAppServiceLevel.OnlineWithoutLoggedIn : HohoemaAppServiceLevel.Offline;
             }
         }
 
@@ -773,7 +779,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			if (!Util.InternetConnection.IsInternet())
 			{
-                ServiceStatus = HohoemaAppServiceStatus.Offline;
+                ServiceStatus = HohoemaAppServiceLevel.Offline;
 
                 return NiconicoSignInStatus.Failed;
 			}
@@ -1200,7 +1206,7 @@ StorageFolder _DownloadFolder;
 		{
 			get
 			{
-				return ServiceStatus == HohoemaAppServiceStatus.LoggedIn;
+				return ServiceStatus == HohoemaAppServiceLevel.LoggedIn;
 			}
 		}
 
@@ -1236,8 +1242,8 @@ StorageFolder _DownloadFolder;
 			set { SetProperty(ref _FeedManager, value); }
 		}
 
-        private HohoemaAppServiceStatus _ServiceStatus;
-        public HohoemaAppServiceStatus ServiceStatus
+        private HohoemaAppServiceLevel _ServiceStatus;
+        public HohoemaAppServiceLevel ServiceStatus
         {
             get { return _ServiceStatus; }
             set { SetProperty(ref _ServiceStatus, value); }

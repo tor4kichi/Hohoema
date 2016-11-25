@@ -16,6 +16,10 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using WinRTXamlToolkit.Async;
 using Windows.UI.Xaml.Navigation;
 using System.Diagnostics;
+using Microsoft.Practices.Unity;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
+using System.Reactive.Linq;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -24,25 +28,47 @@ namespace NicoPlayerHohoema.ViewModels
 
 		static Util.AsyncLock _NavigationLock = new Util.AsyncLock();
 
-		public HohoemaViewModelBase(HohoemaApp hohoemaApp, PageManager pageManager, bool isRequireSignIn = true, bool canActivateBackgroundUpdate = true)
+        private Views.Service.AccountManagementDialogService _AccountManageDialogService;
+
+        /// <summary>
+        /// このページが利用可能になるアプリサービス状態を指定します。
+        /// NavigatedToAsync内で変更されれば、その後アプリサービス状態ごとの
+        /// 準備メソッドが呼び出されます。
+        /// </summary>
+        public HohoemaAppServiceLevel AvailableServiceLevel { get; private set; }
+
+
+        public ReactiveProperty<bool> IsPageAvailable { get; private set; }
+
+        public HohoemaViewModelBase(
+            HohoemaApp hohoemaApp,
+            PageManager pageManager, 
+            bool canActivateBackgroundUpdate = true
+            )
 		{
-			_SignStatusLock = new SemaphoreSlim(1, 1);
+            _AccountManageDialogService = App.Current.Container.Resolve<Views.Service.AccountManagementDialogService>();
+
+            AvailableServiceLevel = HohoemaAppServiceLevel.Offline;
+
+            _SignStatusLock = new SemaphoreSlim(1, 1);
 			_NavigationToLock = new SemaphoreSlim(1, 1);
 			HohoemaApp = hohoemaApp;
 			PageManager = pageManager;
 
-			IsRequireSignIn = isRequireSignIn;
 			NowSignIn = false;
 
 			CanActivateBackgroundUpdate = canActivateBackgroundUpdate;
 
-			HohoemaApp.OnSignout += __OnSignout;
-			HohoemaApp.OnSignin += __OnSignin;
-
-			_CompositeDisposable = new CompositeDisposable();
+            _CompositeDisposable = new CompositeDisposable();
 			_NavigatingCompositeDisposable = new CompositeDisposable();
 			_UserSettingsCompositeDisposable = new CompositeDisposable();
-		}
+
+            IsPageAvailable = HohoemaApp.ObserveProperty(x => x.ServiceStatus)
+                .Select(x => x >= AvailableServiceLevel)
+                .ToReactiveProperty()
+                .AddTo(_CompositeDisposable);
+
+        }
 
 		private void __OnSignin()
 		{
@@ -52,12 +78,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 				if (!NowSignIn && HohoemaApp.IsLoggedIn)
 				{
-					_UserSettingsCompositeDisposable?.Dispose();
-					_UserSettingsCompositeDisposable = new CompositeDisposable();
+					NowSignIn = HohoemaApp.IsLoggedIn;
 
-					NowSignIn = true;
-
-					OnSignIn(_UserSettingsCompositeDisposable);
+                    CallAppServiceLevelSignIn(_NavigatedToTaskCancelToken.Token);
 				}
 			}
 			finally
@@ -72,35 +95,93 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				_SignStatusLock.Wait();
 
-				if (IsRequireSignIn)
-				{
-					NowSignIn = false;
+				NowSignIn = false;
 
-					OnSignOut();
-
-					_UserSettingsCompositeDisposable?.Dispose();
-					_UserSettingsCompositeDisposable = null;
-				}
-			}
-			finally
+				_UserSettingsCompositeDisposable?.Dispose();
+                _UserSettingsCompositeDisposable = new CompositeDisposable();
+            }
+            finally
 			{
 				_SignStatusLock.Release();
 			}
 		}
 
-		
+        protected virtual Task OnOffline(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
+        {
+            return Task.CompletedTask;
+        }
 
-		protected virtual void OnSignIn(ICollection<IDisposable> userSessionDisposer)
+        protected virtual Task OnOnlineWithoutSignIn(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
+        {
+            return Task.CompletedTask;
+        }
+
+        protected virtual Task OnSignIn(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
 		{
+            return Task.CompletedTask;
 		}
 
-		protected virtual void OnSignOut()
-		{
-		}
+        
+       
+        private Task CallAppServiceLevelOffline(CancellationToken cancelToken)
+        {
+            if (AvailableServiceLevel <= HohoemaAppServiceLevel.Offline)
+            {
+                if (HohoemaApp.ServiceStatus <= HohoemaAppServiceLevel.Offline)
+                {
+                    return OnOffline(_NavigatingCompositeDisposable, cancelToken);
+                }
+            }
+
+            return Task.CompletedTask;
+        }
+        private Task CallAppServiceLevelOnlineWithoutLoggedIn(CancellationToken cancelToken)
+        {
+            if (AvailableServiceLevel <= HohoemaAppServiceLevel.OnlineWithoutLoggedIn)
+            {
+                if (HohoemaApp.ServiceStatus <= HohoemaAppServiceLevel.OnlineWithoutLoggedIn)
+                {
+                    return OnOnlineWithoutSignIn(_NavigatingCompositeDisposable, cancelToken);
+                }
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private Task CallAppServiceLevelSignIn(CancellationToken cancelToken)
+        {
+            if (AvailableServiceLevel <= HohoemaAppServiceLevel.LoggedIn)
+            {
+                if (HohoemaApp.ServiceStatus <= HohoemaAppServiceLevel.LoggedIn)
+                {
+                    return OnSignIn(_UserSettingsCompositeDisposable, cancelToken);
+                }
+            }
+
+            return Task.CompletedTask;
+        }
+
 
 		protected async Task<bool> CheckSignIn()
 		{
-			return await HohoemaApp.CheckSignedInStatus() == Mntone.Nico2.NiconicoSignInStatus.Success;
+            if (IsRequireSignIn)
+            {
+                var isSignIn = await HohoemaApp.CheckSignedInStatus() == Mntone.Nico2.NiconicoSignInStatus.Success;
+                if (!HohoemaApp.IsLoggedIn && !isSignIn)
+                {
+                    var result = await HohoemaApp.SignInWithPrimaryAccount();
+
+                    if (result == Mntone.Nico2.NiconicoSignInStatus.Failed)
+                    {
+                        // サインイン出来ない場合はアカウント画面を表示する
+                        await _AccountManageDialogService.ShowChangeAccountDialogAsync();
+                    }
+                }
+
+                __OnSignin();
+            }
+
+            return HohoemaApp.IsLoggedIn;
 		}
 
 		private DelegateCommand _BackCommand;
@@ -165,33 +246,12 @@ namespace NicoPlayerHohoema.ViewModels
 		private async void _OnResumed()
 		{
 			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
-			{	
-				if (IsRequireSignIn)
-				{
-					if (!await CheckSignIn())
-					{
-						Mntone.Nico2.NiconicoSignInStatus result;
-						try
-						{
-							result = await HohoemaApp.SignInWithPrimaryAccount();
-						}
-						catch
-						{
-							result = Mntone.Nico2.NiconicoSignInStatus.Failed;
-						}
+			{
+                await CallAppServiceLevelOffline(_NavigatedToTaskCancelToken.Token);
 
-						if (result != Mntone.Nico2.NiconicoSignInStatus.Success)
-						{
-							// サインイン出来ない場合はログインページへ戻す
-							PageManager.OpenPage(HohoemaPageType.Login);
-							return;
-						}
+                await CallAppServiceLevelOnlineWithoutLoggedIn(_NavigatedToTaskCancelToken.Token);
 
-					}
-
-					__OnSignin();
-				}
-				
+                await CheckSignIn();
 					
 				await OnResumed();
 
@@ -217,24 +277,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			using (var releaser = await _NavigationLock.LockAsync())
 			{
-				if (IsRequireSignIn)
-				{
-					if (!HohoemaApp.IsLoggedIn && !await CheckSignIn())
-					{
-						var result = await HohoemaApp.SignInWithPrimaryAccount();
-
-						if (result != Mntone.Nico2.NiconicoSignInStatus.Success)
-						{
-							// サインイン出来ない場合はログインページへ戻す
-							PageManager.OpenPage(HohoemaPageType.Login);
-							return;
-						}
-					}
-
-					__OnSignin();
-				}
-
-				if (HohoemaApp.MediaManager != null && HohoemaApp.MediaManager.Context != null)
+                if (HohoemaApp.MediaManager != null && HohoemaApp.MediaManager.Context != null)
 				{
 					await HohoemaApp.MediaManager.Context.ClearDurtyCachedNicoVideo();
 				}
@@ -254,8 +297,21 @@ namespace NicoPlayerHohoema.ViewModels
 
 				await NavigatedToAsync(cancelToken, e, viewModelState);
 
-			}
-		}
+
+
+                await CallAppServiceLevelOffline(_NavigatedToTaskCancelToken.Token);
+
+                await CallAppServiceLevelOnlineWithoutLoggedIn(_NavigatedToTaskCancelToken.Token);
+
+                await CheckSignIn();
+
+                if (IsRequireSignIn)
+                {
+                    HohoemaApp.OnSignout += __OnSignout;
+                    HohoemaApp.OnSignin += __OnSignin;
+                }
+            }
+        }
 
 		protected virtual Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
@@ -289,6 +345,13 @@ namespace NicoPlayerHohoema.ViewModels
 				base.OnNavigatingFrom(e, viewModelState, suspending);
 			}
 		}
+
+        protected void ChangeRequireServiceLevel(HohoemaAppServiceLevel serviceLevel)
+        {
+            AvailableServiceLevel = serviceLevel;
+
+            Debug.WriteLine(_Title + " require service level: " + AvailableServiceLevel.ToString());
+        }
 
 	
 		protected void UpdateTitle(string title)
@@ -334,8 +397,9 @@ namespace NicoPlayerHohoema.ViewModels
 		private SemaphoreSlim _SignStatusLock;
 
 
-		public bool IsRequireSignIn { get; private set; }
-		public bool NowSignIn { get; private set; }
+        public bool IsRequireSignIn => AvailableServiceLevel == HohoemaAppServiceLevel.LoggedIn;
+
+        public bool NowSignIn { get; private set; }
 
 		public bool CanActivateBackgroundUpdate { get; private set; }
 

@@ -45,7 +45,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			if (_IsInitialized) { return; }
 
-			if (HohoemaApp.IsLoggedIn && Util.InternetConnection.IsInternet())
+			if (HohoemaApp.ServiceStatus >= HohoemaAppServiceLevel.OnlineWithoutLoggedIn)
 			{
 				Debug.WriteLine("start initialize : " + RawVideoId);
 

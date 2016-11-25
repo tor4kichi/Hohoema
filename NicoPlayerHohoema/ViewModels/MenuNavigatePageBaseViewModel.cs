@@ -23,15 +23,16 @@ namespace NicoPlayerHohoema.ViewModels
 	{
 		public PageManager PageManager { get; private set; }
 		public HohoemaApp HohoemaApp { get; private set; }
+        public AccountManagementDialogService AccountManagementDialogService { get; private set; }
 
-
-		public MenuNavigatePageBaseViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
+        public MenuNavigatePageBaseViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.AccountManagementDialogService accountManageDlgService)
 		{
 			PageManager = pageManager;
 			HohoemaApp = hohoemaApp;
+            AccountManagementDialogService = accountManageDlgService;
 
-			// Symbol see@ https://msdn.microsoft.com/library/windows/apps/dn252842
-			SplitViewDisplayMode = new ReactiveProperty<Windows.UI.Xaml.Controls.SplitViewDisplayMode>();
+            // Symbol see@ https://msdn.microsoft.com/library/windows/apps/dn252842
+            SplitViewDisplayMode = new ReactiveProperty<Windows.UI.Xaml.Controls.SplitViewDisplayMode>();
 			CanClosePane = SplitViewDisplayMode.Select(x => x != Windows.UI.Xaml.Controls.SplitViewDisplayMode.Inline)
 				.ToReactiveProperty();
 
@@ -53,7 +54,7 @@ namespace NicoPlayerHohoema.ViewModels
 				new PageTypeSelectableItem(HohoemaPageType.Settings			  , OnMenuItemSelected, "設定", Symbol.Setting),
 				new PageTypeSelectableItem(HohoemaPageType.About			  , OnMenuItemSelected, "このアプリについて", Symbol.Help),
 				new PageTypeSelectableItem(HohoemaPageType.Feedback           , OnMenuItemSelected, "フィードバック", Symbol.Comment),
-				new PageTypeSelectableItem(HohoemaPageType.Login	          , OnMenuItemSelected, "ログアウト", Symbol.LeaveChat),
+				new PageTypeSelectableItem(HohoemaPageType.About	          , OnAccountMenuItemSelected, "アカウント", Symbol.Account),
 			};
 
 			SelectedItem = new ReactiveProperty<PageTypeSelectableItem>(MenuItems[0], mode: ReactivePropertyMode.DistinctUntilChanged);
@@ -62,8 +63,8 @@ namespace NicoPlayerHohoema.ViewModels
 				.Where(x => x != null)
 				.Subscribe(x => 
 			{
-				OnMenuItemSelected(x.Source);
-			});
+                x.SelectedAction(x.Source);
+            });
 
 
 			PageManager.ObserveProperty(x => x.CurrentPageType)
@@ -213,7 +214,12 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		public List<PageTypeSelectableItem> MenuItems { get; private set; }
+        internal async void OnAccountMenuItemSelected(HohoemaPageType pageType)
+        {
+            await AccountManagementDialogService.ShowChangeAccountDialogAsync();
+        }
+
+        public List<PageTypeSelectableItem> MenuItems { get; private set; }
 
 		public List<PageTypeSelectableItem> PersonalMenuItems { get; private set; }
 

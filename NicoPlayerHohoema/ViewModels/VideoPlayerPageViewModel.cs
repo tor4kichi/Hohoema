@@ -70,7 +70,7 @@ namespace NicoPlayerHohoema.ViewModels
 			ToastNotificationService toast,
 			TextInputDialogService textInputDialog
 			)
-			: base(hohoemaApp, pageManager, isRequireSignIn:true, canActivateBackgroundUpdate:false)
+			: base(hohoemaApp, pageManager, canActivateBackgroundUpdate:false)
 		{
 			_ToastService = toast;
 			_TextInputDialogService = textInputDialog;
@@ -98,7 +98,9 @@ namespace NicoPlayerHohoema.ViewModels
 				.AddTo(_CompositeDisposable);
 			NowQualityChanging = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
 			Comments = new ObservableCollection<Comment>();
-			NowCommentWriting = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false)
+
+            CanSubmitComment = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
+            NowCommentWriting = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false)
 				.AddTo(_CompositeDisposable);
 			NowSoundChanging = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false)
 				.AddTo(_CompositeDisposable);
@@ -437,88 +439,358 @@ namespace NicoPlayerHohoema.ViewModels
 
 		}
 
+        protected override async Task OnOffline(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
+        {
+            // キャッシュから再生する
+            if (HohoemaApp.ServiceStatus <= HohoemaAppServiceLevel.OnlineWithoutLoggedIn)
+            {
+                var playWithCache = false;
+                // キャッシュされた動画から再生
+                if (CurrentVideoQuality.Value == NicoVideoQuality.Original)
+                {
+                    if (Video.OriginalQuality.IsCached)
+                    {
+                        await PlayingQualityChangeAction();
+                        playWithCache = true;
+                    }
+                }
+                else
+                {
+                    if (Video.LowQuality.IsCached)
+                    {
+                        await PlayingQualityChangeAction();
+                        playWithCache = true;
+                    }
+                }
 
 
-		protected override void OnSignIn(ICollection<IDisposable> userSessionDisposer)
+                if (playWithCache)
+                {
+                    _SidePaneContentCache.Clear();
+
+                    _VideoDescriptionHtmlUri = await HtmlFileHelper.PartHtmlOutputToCompletlyHtml(VideoId, Video.DescriptionWithHtml);
+
+                    if (SelectedSidePaneType.Value == MediaInfoDisplayType.Summary)
+                    {
+                        SelectedSidePaneType.ForceNotify();
+                    }
+                    else
+                    {
+                        SelectedSidePaneType.Value = MediaInfoDisplayType.Summary;
+                    }
+                }
+            }
+
+
+
+            AutoHideDelayTime = HohoemaApp.UserSettings.PlayerSettings
+                .ToReactivePropertyAsSynchronized(x => x.AutoHidePlayerControlUIPreventTime, PlayerWindowUIDispatcherScheduler)
+                .AddTo(userSessionDisposer);
+            OnPropertyChanged(nameof(AutoHideDelayTime));
+
+
+            IsMuted = HohoemaApp.UserSettings.PlayerSettings
+                .ToReactivePropertyAsSynchronized(x => x.IsMute, PlayerWindowUIDispatcherScheduler)
+                .AddTo(userSessionDisposer);
+            OnPropertyChanged(nameof(IsMuted));
+
+            SoundVolume = HohoemaApp.UserSettings.PlayerSettings
+                .ToReactivePropertyAsSynchronized(x => x.SoundVolume, PlayerWindowUIDispatcherScheduler)
+                .AddTo(userSessionDisposer);
+            OnPropertyChanged(nameof(SoundVolume));
+
+            CommentDefaultColor = HohoemaApp.UserSettings.PlayerSettings
+                .ToReactivePropertyAsSynchronized(x => x.CommentColor, PlayerWindowUIDispatcherScheduler)
+                .AddTo(userSessionDisposer);
+            OnPropertyChanged(nameof(CommentDefaultColor));
+
+
+            Observable.Merge(
+                IsMuted.ToUnit(),
+                SoundVolume.ToUnit(),
+                CommentDefaultColor.ToUnit()
+                )
+                .Throttle(TimeSpan.FromSeconds(5))
+                .Where(x => !IsDisposed)
+                .Subscribe(_ =>
+                {
+                    HohoemaApp.UserSettings.PlayerSettings.Save().ConfigureAwait(false);
+                })
+                .AddTo(userSessionDisposer);
+
+
+
+
+            RequestFPS = HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.CommentRenderingFPS)
+                .Select(x => (int)x)
+                .ToReactiveProperty()
+                .AddTo(userSessionDisposer);
+            OnPropertyChanged(nameof(RequestFPS));
+
+            RequestCommentDisplayDuration = HohoemaApp.UserSettings.PlayerSettings
+                .ObserveProperty(x => x.CommentDisplayDuration)
+                .ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
+                .AddTo(userSessionDisposer);
+            OnPropertyChanged(nameof(RequestCommentDisplayDuration));
+
+            CommentFontScale = HohoemaApp.UserSettings.PlayerSettings
+                .ObserveProperty(x => x.DefaultCommentFontScale)
+                .ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
+                .AddTo(userSessionDisposer);
+            OnPropertyChanged(nameof(CommentFontScale));
+
+
+            HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.IsKeepDisplayInPlayback)
+                .Subscribe(isKeepDisplay =>
+                {
+                    SetKeepDisplayWithCurrentState();
+                })
+                .AddTo(userSessionDisposer);
+
+
+
+
+
+            // お気に入りフィード上の動画を既読としてマーク
+            await HohoemaApp.FeedManager.MarkAsRead(Video.VideoId);
+            await HohoemaApp.FeedManager.MarkAsRead(Video.RawVideoId);
+
+            cancelToken.ThrowIfCancellationRequested();
+
+
+            //            return base.OnOffline(userSessionDisposer, cancelToken);
+        }
+
+        protected override async Task OnSignIn(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
 		{
-			IsPauseWithCommentWriting = HohoemaApp.UserSettings.PlayerSettings
+            var currentUIDispatcher = Window.Current.Dispatcher;
+
+            // TODO: キャッシュから再生済みの場合にキャッシュの更新をキャンセルして
+            // 動画情報の取得だけ行う
+
+            try
+            {
+                var videoInfo = await HohoemaApp.MediaManager.GetNicoVideoAsync(VideoId);
+
+                // 内部状態を更新
+                await videoInfo.VisitWatchPage();
+                await videoInfo.CheckCacheStatus();
+
+                // 動画が削除されていた場合
+                if (videoInfo.IsDeleted)
+                {
+                    Debug.WriteLine($"cant playback{VideoId}. due to denied access to watch page, or connection offline.");
+
+                    var dispatcher = Window.Current.CoreWindow.Dispatcher;
+
+                    await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                    {
+                        await Task.Delay(100);
+                        PageManager.NavigationService.GoBack();
+
+                        string toastContent = "";
+                        if (!String.IsNullOrEmpty(videoInfo.Title))
+                        {
+                            toastContent = $"\"{videoInfo.Title}\" は削除された動画です";
+                        }
+                        else
+                        {
+                            toastContent = $"削除された動画です";
+                        }
+                        _ToastService.ShowText($"動画 {VideoId} は再生できません", toastContent);
+                    })
+                    .AsTask()
+                    .ConfigureAwait(false);
+
+                    return;
+                }
+
+                cancelToken.ThrowIfCancellationRequested();
+
+                // 有害動画へのアクセスに対して意思確認された場合
+                if (videoInfo.IsBlockedHarmfulVideo)
+                {
+                    // 有害動画を視聴するか確認するページを表示
+                    PageManager.OpenPage(HohoemaPageType.ConfirmWatchHurmfulVideo,
+                        new VideoPlayPayload()
+                        {
+                            VideoId = VideoId,
+                            Quality = Quality,
+                        }
+                        .ToParameterString()
+                        );
+
+                    return;
+                }
+
+                cancelToken.ThrowIfCancellationRequested();
+
+
+                Title.Value = videoInfo.Title;
+
+
+                // ビデオタイプとプロトコルタイプをチェックする
+
+                if (videoInfo.ProtocolType != MediaProtocolType.RTSPoverHTTP)
+                {
+                    // サポートしていないプロトコルです
+                    IsNotSupportVideoType = true;
+                    CannotPlayReason = videoInfo.ProtocolType.ToString() + " はHohoemaでサポートされないデータ通信形式です";
+                }
+                //				else if (videoInfo.ContentType != MovieType.Mp4)
+                //				{
+                // サポートしていない動画タイプです
+                //					IsNotSupportVideoType = true;
+                //					CannotPlayReason = videoInfo.ContentType.ToString() + " はHohoemaでサポートされない動画形式です";
+                //				}
+                else
+                {
+                    IsNotSupportVideoType = false;
+                    CannotPlayReason = "";
+                }
+            }
+            catch (Exception exception)
+            {
+                // 動画情報の取得に失敗
+                System.Diagnostics.Debug.Write(exception.Message);
+                return;
+            }
+
+            cancelToken.ThrowIfCancellationRequested();
+
+
+            // 全画面表示の設定を反映
+            if (HohoemaApp.UserSettings.PlayerSettings.IsFullScreenDefault)
+            {
+                IsFullScreen.Value = true;
+            }
+
+
+            cancelToken.ThrowIfCancellationRequested();
+
+            if (IsNotSupportVideoType)
+            {
+                // コメント入力不可
+                NowSubmittingComment.Value = true;
+            }
+            else
+            {
+                // ビデオクオリティをトリガーにしてビデオ関連の情報を更新させる
+                // CurrentVideoQualityは代入時に常にNotifyが発行される設定になっている
+
+                NicoVideoQuality realQuality = NicoVideoQuality.Low;
+                if ((Quality == null || Quality == NicoVideoQuality.Original)
+                    && Video.OriginalQuality.IsCached)
+                {
+                    realQuality = NicoVideoQuality.Original;
+                }
+                else if ((Quality == null || Quality == NicoVideoQuality.Low)
+                    && Video.LowQuality.IsCached)
+                {
+                    realQuality = NicoVideoQuality.Low;
+                }
+                // 低画質動画が存在しない場合はオリジナル画質を選択
+                else if (Video.IsOriginalQualityOnly)
+                {
+                    realQuality = NicoVideoQuality.Original;
+                }
+                // エコノミー時間帯でオリジナル画質が未保存の場合
+                else if (!HohoemaApp.IsPremiumUser
+                    && Video.NowLowQualityOnly
+                    && !Video.OriginalQuality.IsCached)
+                {
+                    realQuality = NicoVideoQuality.Low;
+                }
+                else if (!Quality.HasValue)
+                {
+                    // 画質指定がない場合、ユーザー設定から低画質がリクエストされてないかチェック
+                    var defaultLowQuality = HohoemaApp.UserSettings.PlayerSettings.IsLowQualityDeafult;
+                    realQuality = defaultLowQuality ? NicoVideoQuality.Low : NicoVideoQuality.Original;
+                }
+
+                // CurrentVideoQualityは同一値の代入でもNotifyがトリガーされるようになっている
+                CurrentVideoQuality.Value = realQuality;
+
+                cancelToken.ThrowIfCancellationRequested();
+
+
+                
+
+
+
+                CommandEditerVM.IsPremiumUser = base.HohoemaApp.IsPremiumUser;
+
+                // TODO: チャンネル動画やコミュニティ動画の検知			
+                CommandEditerVM.ChangeEnableAnonymity(true);
+
+                UpdateCommandString();
+
+
+                cancelToken.ThrowIfCancellationRequested();
+
+
+                // PlayerSettings
+                var playerSettings = HohoemaApp.UserSettings.PlayerSettings;
+                IsVisibleComment.Value = playerSettings.DefaultCommentDisplay;
+
+
+
+                cancelToken.ThrowIfCancellationRequested();
+
+                
+                // バッファリング状態のモニターが使うタイマーだけはページ稼働中のみ動くようにする
+                InitializeBufferingMonitor();
+
+                // 再生ストリームの準備を開始する
+                await PlayingQualityChangeAction();
+
+                cancelToken.ThrowIfCancellationRequested();
+
+                // Note: 0.4.1現在ではキャッシュはmp4のみ対応
+                var isCanCache = Video.ContentType == MovieType.Mp4;
+                var isAcceptedCache = HohoemaApp.UserSettings?.CacheSettings?.IsUserAcceptedCache ?? false;
+                var isEnabledCache = (HohoemaApp.UserSettings?.CacheSettings?.IsEnableCache ?? false) || IsSaveRequestedCurrentQualityCache.Value;
+
+                CanDownload = isAcceptedCache && isEnabledCache && isCanCache;
+
+                // 再生履歴に反映
+                //VideoPlayHistoryDb.VideoPlayed(Video.RawVideoId);
+            }
+
+            _SidePaneContentCache.Clear();
+
+            _VideoDescriptionHtmlUri = await HtmlFileHelper.PartHtmlOutputToCompletlyHtml(VideoId, Video.DescriptionWithHtml);
+
+            if (SelectedSidePaneType.Value == MediaInfoDisplayType.Summary)
+            {
+                SelectedSidePaneType.ForceNotify();
+            }
+            else
+            {
+                SelectedSidePaneType.Value = MediaInfoDisplayType.Summary;
+            }
+
+
+
+
+
+            IsPauseWithCommentWriting = HohoemaApp.UserSettings.PlayerSettings
 				.ToReactivePropertyAsSynchronized(x => x.PauseWithCommentWriting, PlayerWindowUIDispatcherScheduler)
 				.AddTo(userSessionDisposer);
 			OnPropertyChanged(nameof(IsPauseWithCommentWriting));
 
-			AutoHideDelayTime = HohoemaApp.UserSettings.PlayerSettings
-				.ToReactivePropertyAsSynchronized(x => x.AutoHidePlayerControlUIPreventTime, PlayerWindowUIDispatcherScheduler)
-				.AddTo(userSessionDisposer);
-			OnPropertyChanged(nameof(AutoHideDelayTime));
-
-
-			IsMuted = HohoemaApp.UserSettings.PlayerSettings
-				.ToReactivePropertyAsSynchronized(x => x.IsMute, PlayerWindowUIDispatcherScheduler)
-				.AddTo(userSessionDisposer);
-			OnPropertyChanged(nameof(IsMuted));
-
-			SoundVolume = HohoemaApp.UserSettings.PlayerSettings
-				.ToReactivePropertyAsSynchronized(x => x.SoundVolume, PlayerWindowUIDispatcherScheduler)
-				.AddTo(userSessionDisposer);
-			OnPropertyChanged(nameof(SoundVolume));
-
-			CommentDefaultColor = HohoemaApp.UserSettings.PlayerSettings
-				.ToReactivePropertyAsSynchronized(x => x.CommentColor, PlayerWindowUIDispatcherScheduler)
-				.AddTo(userSessionDisposer);
-			OnPropertyChanged(nameof(CommentDefaultColor));
-
-
-			Observable.Merge(
-				IsMuted.ToUnit(),
-				SoundVolume.ToUnit(),
-				CommentDefaultColor.ToUnit()
-				)
-				.Throttle(TimeSpan.FromSeconds(5))
-				.Where(x => !IsDisposed)
-				.Subscribe(_ =>
-				{
-					HohoemaApp.UserSettings.PlayerSettings.Save().ConfigureAwait(false);
-				})
-				.AddTo(userSessionDisposer);
-
-
-
 			
-			RequestFPS = HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.CommentRenderingFPS)
-				.Select(x => (int)x)
-				.ToReactiveProperty()
-				.AddTo(userSessionDisposer);
-			OnPropertyChanged(nameof(RequestFPS));
-
-			RequestCommentDisplayDuration = HohoemaApp.UserSettings.PlayerSettings
-				.ObserveProperty(x => x.CommentDisplayDuration)
-				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
-				.AddTo(userSessionDisposer);
-			OnPropertyChanged(nameof(RequestCommentDisplayDuration));
-
-			CommentFontScale = HohoemaApp.UserSettings.PlayerSettings
-				.ObserveProperty(x => x.DefaultCommentFontScale)
-				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
-				.AddTo(userSessionDisposer);
-			OnPropertyChanged(nameof(CommentFontScale));
-
-
-			HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.IsKeepDisplayInPlayback)
-				.Subscribe(isKeepDisplay =>
-				{
-					SetKeepDisplayWithCurrentState();
-				})
-				.AddTo(userSessionDisposer);
-
-
+            // コメントのコマンドエディタを初期化
 			CommandEditerVM = new CommentCommandEditerViewModel(isAnonymousDefault: HohoemaApp.UserSettings.PlayerSettings.IsDefaultCommentWithAnonymous)
 				.AddTo(userSessionDisposer);
 			OnPropertyChanged(nameof(CommandEditerVM));
 
 			CommandEditerVM.OnCommandChanged += () => UpdateCommandString();
 
+            // コメント送信を有効に
+            CanSubmitComment.Value = true;
 
-			IsForceLandscape = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, HohoemaApp.UserSettings.PlayerSettings.IsForceLandscape);
+            IsForceLandscape = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, HohoemaApp.UserSettings.PlayerSettings.IsForceLandscape);
 			OnPropertyChanged(nameof(IsForceLandscape));
 		}
 
@@ -911,12 +1183,11 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			Debug.WriteLine("VideoPlayer OnNavigatedToAsync start.");
 
-			NicoVideoQuality? quality = null;
 			if (e?.Parameter is string)
 			{
 				var payload = VideoPlayPayload.FromParameterString(e.Parameter as string);
 				VideoId = payload.VideoId;
-				quality = payload.Quality;
+                Quality = payload.Quality;
 			}
 			else if (viewModelState.ContainsKey(nameof(VideoId)))
 			{
@@ -925,225 +1196,23 @@ namespace NicoPlayerHohoema.ViewModels
 
 			cancelToken.ThrowIfCancellationRequested();
 
-			var currentUIDispatcher = Window.Current.Dispatcher;
+            var videoInfo = await HohoemaApp.MediaManager.GetNicoVideoAsync(VideoId);
 
-			try
-			{
-				var videoInfo = await HohoemaApp.MediaManager.GetNicoVideoAsync(VideoId);
+            Video = videoInfo;
 
-				// 内部状態を更新
-				await videoInfo.VisitWatchPage();
-				await videoInfo.CheckCacheStatus();
+            cancelToken.ThrowIfCancellationRequested();
 
-				// 動画が削除されていた場合
-				if (videoInfo.IsDeleted)
-				{
-					Debug.WriteLine($"cant playback{VideoId}. due to denied access to watch page, or connection offline.");
+            if (viewModelState.ContainsKey(nameof(CurrentVideoPosition)))
+            {
+                CurrentVideoPosition.Value = TimeSpan.FromSeconds((double)viewModelState[nameof(CurrentVideoPosition)]);
+            }
 
-					var dispatcher = Window.Current.CoreWindow.Dispatcher;
+            Debug.WriteLine("VideoPlayer OnNavigatedToAsync done.");
 
-					await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-					{
-						await Task.Delay(100);
-						PageManager.NavigationService.GoBack();
-
-						string toastContent = "";
-						if (!String.IsNullOrEmpty(videoInfo.Title))
-						{
-							toastContent = $"\"{videoInfo.Title}\" は削除された動画です";
-						}
-						else
-						{
-							toastContent = $"削除された動画です";
-						}
-						_ToastService.ShowText($"動画 {VideoId} は再生できません", toastContent);
-					})
-					.AsTask()
-					.ConfigureAwait(false);
-
-					return;
-				}
-
-				cancelToken.ThrowIfCancellationRequested();
-
-				// 有害動画へのアクセスに対して意思確認された場合
-				if (videoInfo.IsBlockedHarmfulVideo)
-				{
-					// 有害動画を視聴するか確認するページを表示
-					PageManager.OpenPage(HohoemaPageType.ConfirmWatchHurmfulVideo,
-						new VideoPlayPayload()
-						{
-							VideoId = VideoId,
-							Quality = quality,
-						}
-						.ToParameterString()
-						);
-					return;
-				}
-
-				cancelToken.ThrowIfCancellationRequested();
-
-
-				Title.Value = videoInfo.Title;
-
-
-				// ビデオタイプとプロトコルタイプをチェックする
-				
-				if (videoInfo.ProtocolType != MediaProtocolType.RTSPoverHTTP)
-				{
-					// サポートしていないプロトコルです
-					IsNotSupportVideoType = true;
-					CannotPlayReason = videoInfo.ProtocolType.ToString() + " はHohoemaでサポートされないデータ通信形式です";
-				}
-//				else if (videoInfo.ContentType != MovieType.Mp4)
-//				{
-					// サポートしていない動画タイプです
-//					IsNotSupportVideoType = true;
-//					CannotPlayReason = videoInfo.ContentType.ToString() + " はHohoemaでサポートされない動画形式です";
-//				}
-				else
-				{
-					IsNotSupportVideoType = false;
-					CannotPlayReason = "";
-				}
-				
-
-				Video = videoInfo;
-			}
-			catch (Exception exception)
-			{
-				// 動画情報の取得に失敗
-				System.Diagnostics.Debug.Write(exception.Message);
-
-			}
-
-			cancelToken.ThrowIfCancellationRequested();
-
-
-			// 全画面表示の設定を反映
-			if (HohoemaApp.UserSettings.PlayerSettings.IsFullScreenDefault)
-			{
-				IsFullScreen.Value = true;
-			}
-
-
-			cancelToken.ThrowIfCancellationRequested();
-
-			if (IsNotSupportVideoType)
-			{
-				// コメント入力不可
-				NowSubmittingComment.Value = true;
-			}
-			else
-			{
-				// ビデオクオリティをトリガーにしてビデオ関連の情報を更新させる
-				// CurrentVideoQualityは代入時に常にNotifyが発行される設定になっている
-
-				NicoVideoQuality realQuality = NicoVideoQuality.Low;
-				if ((quality == null || quality == NicoVideoQuality.Original)
-					&& Video.OriginalQuality.IsCached)
-				{
-					realQuality = NicoVideoQuality.Original;
-				}
-				else if ((quality == null || quality == NicoVideoQuality.Low)
-					&& Video.LowQuality.IsCached)
-				{
-					realQuality = NicoVideoQuality.Low;
-				}
-				// 低画質動画が存在しない場合はオリジナル画質を選択
-				else if (Video.IsOriginalQualityOnly)
-				{
-					realQuality = NicoVideoQuality.Original;
-				}
-				// エコノミー時間帯でオリジナル画質が未保存の場合
-				else if (!HohoemaApp.IsPremiumUser
-					&& Video.NowLowQualityOnly
-					&& !Video.OriginalQuality.IsCached)
-				{
-					realQuality = NicoVideoQuality.Low;
-				}
-				else if (!quality.HasValue)
-				{
-					// 画質指定がない場合、ユーザー設定から低画質がリクエストされてないかチェック
-					var defaultLowQuality = HohoemaApp.UserSettings.PlayerSettings.IsLowQualityDeafult;
-					realQuality = defaultLowQuality ? NicoVideoQuality.Low : NicoVideoQuality.Original;
-				}
-
-				// CurrentVideoQualityは同一値の代入でもNotifyがトリガーされるようになっている
-				CurrentVideoQuality.Value = realQuality;
-
-				cancelToken.ThrowIfCancellationRequested();
-
-
-				if (viewModelState.ContainsKey(nameof(CurrentVideoPosition)))
-				{
-					CurrentVideoPosition.Value = TimeSpan.FromSeconds((double)viewModelState[nameof(CurrentVideoPosition)]);
-				}
-
-				
-
-				CommandEditerVM.IsPremiumUser = base.HohoemaApp.IsPremiumUser;
-
-				// TODO: チャンネル動画やコミュニティ動画の検知			
-				CommandEditerVM.ChangeEnableAnonymity(true);
-
-				UpdateCommandString();
-
-
-				cancelToken.ThrowIfCancellationRequested();
-
-
-				// PlayerSettings
-				var playerSettings = HohoemaApp.UserSettings.PlayerSettings;
-				IsVisibleComment.Value = playerSettings.DefaultCommentDisplay;
-
-
-
-				cancelToken.ThrowIfCancellationRequested();
-
-				// お気に入りフィード上の動画を既読としてマーク
-				await HohoemaApp.FeedManager.MarkAsRead(Video.VideoId);
-				await HohoemaApp.FeedManager.MarkAsRead(Video.RawVideoId);
-
-				cancelToken.ThrowIfCancellationRequested();
-
-				// バッファリング状態のモニターが使うタイマーだけはページ稼働中のみ動くようにする
-				InitializeBufferingMonitor();
-
-				// 再生ストリームの準備を開始する
-				await PlayingQualityChangeAction();
-
-				cancelToken.ThrowIfCancellationRequested();
-
-				// Note: 0.4.1現在ではキャッシュはmp4のみ対応
-				var isCanCache = Video.ContentType == MovieType.Mp4;
-				var isAcceptedCache = HohoemaApp.UserSettings?.CacheSettings?.IsUserAcceptedCache ?? false;
-                var isEnabledCache = (HohoemaApp.UserSettings?.CacheSettings?.IsEnableCache ?? false) || IsSaveRequestedCurrentQualityCache.Value;
-
-                CanDownload = isAcceptedCache && isEnabledCache && isCanCache;
-
-				// 再生履歴に反映
-				//VideoPlayHistoryDb.VideoPlayed(Video.RawVideoId);
-			}
-
-			_SidePaneContentCache.Clear();
-
-			_VideoDescriptionHtmlUri = await HtmlFileHelper.PartHtmlOutputToCompletlyHtml(VideoId, Video.DescriptionWithHtml);
-
-			if (SelectedSidePaneType.Value == MediaInfoDisplayType.Summary)
-			{
-				SelectedSidePaneType.ForceNotify();
-			}
-			else
-			{
-				SelectedSidePaneType.Value = MediaInfoDisplayType.Summary;
-			}
-
-			cancelToken.ThrowIfCancellationRequested();
-
-
-			Debug.WriteLine("VideoPlayer OnNavigatedToAsync done.");
-
+            // 基本的にオンラインで再生、
+            // オフラインの場合でキャッシュがあるようならキャッシュで再生できる
+            ChangeRequireServiceLevel(HohoemaAppServiceLevel.LoggedIn);
+            
 		}
 
 		protected override async Task OnResumed()
@@ -1504,9 +1573,16 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _VideoId, value); }
 		}
 
+        private NicoVideoQuality? _Quality;
+        public NicoVideoQuality? Quality
+        {
+            get { return _Quality; }
+            set { SetProperty(ref _Quality, value); }
+        }
 
 
-		private bool _CanDownload;
+
+        private bool _CanDownload;
 		public bool CanDownload
 		{
 			get { return _CanDownload; }
@@ -1564,7 +1640,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		public ReactiveProperty<bool> NowSubmittingComment { get; private set; }
+        public ReactiveProperty<bool> CanSubmitComment { get; private set; }
+        public ReactiveProperty<bool> NowSubmittingComment { get; private set; }
 		public ReactiveProperty<string> WritingComment { get; private set; }
 		public ReactiveProperty<bool> IsVisibleComment { get; private set; }
 		public ReactiveProperty<bool> NowCommentWriting { get; private set; }

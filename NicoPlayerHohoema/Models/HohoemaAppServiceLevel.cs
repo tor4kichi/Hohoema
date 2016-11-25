@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Models
 {
-    public enum HohoemaAppServiceStatus
+    public enum HohoemaAppServiceLevel
     {
         Offline,
         OnlineWithoutLoggedIn,

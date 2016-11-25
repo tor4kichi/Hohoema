@@ -607,8 +607,6 @@ namespace NicoPlayerHohoema.ViewModels
 				var items = _MylistGroupInfo.VideoItems;
 				foreach (var item in items.Skip(start).Take(count))
 				{
-					if (!HohoemaApp.IsLoggedIn) { return; }
-
 					await HohoemaApp.MediaManager.GetNicoVideoAsync(item);
 				}
 			}

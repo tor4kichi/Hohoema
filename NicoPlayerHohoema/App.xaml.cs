@@ -178,27 +178,17 @@ namespace NicoPlayerHohoema
 
 			if (!args.PrelaunchActivated && args.Kind == ActivationKind.Launch)
 			{
-				// メディアバックグラウンドタスクの動作状態を初期化
-				//				ApplicationSettingsHelper.ReadResetSettingsValue(ApplicationSettingsConstants.AppState);
+                // メディアバックグラウンドタスクの動作状態を初期化
+                //				ApplicationSettingsHelper.ReadResetSettingsValue(ApplicationSettingsConstants.AppState);
 
-				
-				//				var hohoemaApp = Container.Resolve<HohoemaApp>();
-				//				if (HohoemaApp.HasPrimaryAccount())
-				//				{
-				//					pm.OpenPage(HohoemaPageType.Portal);
-				//				}
-				//				else
-                if (hohoemaApp.CanSignInWithPrimaryAccount())
-                {
-                    pageManager.OpenPage(HohoemaPageType.Portal);
-                }
-                else 
-				{
-					pageManager.OpenPage(HohoemaPageType.Login, true /* Enable auto login */);
-				}
 
-				
-				
+                //				var hohoemaApp = Container.Resolve<HohoemaApp>();
+                //				if (HohoemaApp.HasPrimaryAccount())
+                //				{
+                //					pm.OpenPage(HohoemaPageType.Portal);
+                //				}
+                //				else
+                pageManager.OpenPage(HohoemaPageType.Portal);
 			}
 
 			
@@ -241,29 +231,12 @@ namespace NicoPlayerHohoema
 					}
 					catch { }
 
-					if (hohoemaApp.CanSignInWithPrimaryAccount())
-                    {
-                        pageManager.OpenPage(HohoemaPageType.VideoPlayer,
-                            new VideoPlayPayload()
-                            {
-                                VideoId = maybeNicoContentId
-                            }.ToParameterString()
-                        );
-                    }
-                    else
-					{
-                        // TODO: ログインページの削除
-						var loginRedirect = new LoginRedirectPayload()
-						{
-							RedirectPageType = HohoemaPageType.VideoPlayer,
-							RedirectParamter = new VideoPlayPayload()
-							{
-								VideoId = maybeNicoContentId,
-							}.ToParameterString()
-						}.ToParameterString();
-
-						pageManager.OpenPage(HohoemaPageType.Login, loginRedirect);
-					}
+                    pageManager.OpenPage(HohoemaPageType.VideoPlayer,
+                        new VideoPlayPayload()
+                        {
+                            VideoId = maybeNicoContentId
+                        }.ToParameterString()
+                    );
 				}
 				else if (Mntone.Nico2.NiconicoRegex.IsLiveId(maybeNicoContentId))
 				{
@@ -274,24 +247,11 @@ namespace NicoPlayerHohoema
 					}
 					catch { }
 
-					if (!hohoemaApp?.IsLoggedIn ?? false)
-					{
-						var loginRedirect = new LoginRedirectPayload()
-						{
-							RedirectPageType = HohoemaPageType.LiveVideoPlayer,
-							RedirectParamter = new Models.Live.LiveVidePagePayload(maybeNicoContentId)
-								.ToParameterString()
-						}.ToParameterString();
-
-						pageManager.OpenPage(HohoemaPageType.Login, loginRedirect);
-					}
-					else
-					{
-						pageManager.OpenPage(HohoemaPageType.LiveVideoPlayer, 
-							new Models.Live.LiveVidePagePayload(maybeNicoContentId)
-							.ToParameterString()
-							);
-					}
+					pageManager.OpenPage(HohoemaPageType.LiveVideoPlayer, 
+						new Models.Live.LiveVidePagePayload(maybeNicoContentId)
+						.ToParameterString()
+						);
+					
 				}
 			}
 
@@ -487,9 +447,10 @@ namespace NicoPlayerHohoema
 			Container.RegisterInstance(new Views.Service.AcceptCacheUsaseDialogService());
 			Container.RegisterInstance(new Views.Service.TextInputDialogService());
 			Container.RegisterInstance(new Views.Service.ContentSelectDialogDefaultSet());
-
+            Container.RegisterInstance(new Views.Service.AccountManagementDialogService(hohoemaApp));
+            
 //			return Task.CompletedTask;
-		}
+        }
 
 
 		protected override void ConfigureViewModelLocator()

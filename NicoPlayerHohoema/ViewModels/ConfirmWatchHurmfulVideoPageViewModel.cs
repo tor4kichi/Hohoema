@@ -16,7 +16,7 @@ namespace NicoPlayerHohoema.ViewModels
 	public class ConfirmWatchHurmfulVideoPageViewModel : HohoemaViewModelBase
 	{
 		public ConfirmWatchHurmfulVideoPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager) 
-			: base(hohoemaApp, pageManager, true)
+			: base(hohoemaApp, pageManager)
 		{
 			IsNoMoreConfirmHarmfulVideo = new ReactiveProperty<bool>(false);
 			Tags = new ObservableCollection<string>();

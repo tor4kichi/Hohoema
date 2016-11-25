@@ -190,7 +190,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		public LiveVideoPlayerPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, TextInputDialogService textInputDialogService) 
-			: base(hohoemaApp, pageManager, isRequireSignIn:true, canActivateBackgroundUpdate:false)
+			: base(hohoemaApp, pageManager, canActivateBackgroundUpdate:false)
 		{
 			TextInputDialogService = textInputDialogService;
 
@@ -501,36 +501,45 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			await TryStartViewing();
-
-
-			if (CommunityName == null)
-			{
-				try
-				{
-					var communityDetail = await HohoemaApp.ContentFinder.GetCommunityInfo(CommunityId);
-					if (communityDetail.IsStatusOK)
-					{
-						CommunityName = communityDetail.Community.Name;
-					}
-				}
-				catch { }
-			}
-
-			var vm = CreateLiveVideoPaneContent(LiveVideoPaneContentType.Summary);
-			await vm.OnEnter();
-			_PaneContentCache.Add(LiveVideoPaneContentType.Summary, vm);
-
-			SelectedPaneContent.ForceNotify();
-
+            ChangeRequireServiceLevel(HohoemaAppServiceLevel.LoggedIn);
+			
 			await base.NavigatedToAsync(cancelToken, e, viewModelState);
 		}
 
+        protected override async Task OnOnlineWithoutSignIn(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
+        {
+            if (CommunityName == null)
+            {
+                try
+                {
+                    var communityDetail = await HohoemaApp.ContentFinder.GetCommunityInfo(CommunityId);
+                    if (communityDetail.IsStatusOK)
+                    {
+                        CommunityName = communityDetail.Community.Name;
+                    }
+                }
+                catch { }
+            }
+
+//            base.OnOnlineWithoutSignIn(userSessionDisposer);
+        }
 
 
-		protected override void OnSignIn(ICollection<IDisposable> userSessionDisposer)
-		{
-			AutoHideDelayTime = HohoemaApp.UserSettings.PlayerSettings
+
+        protected override async Task OnSignIn(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
+        {
+            {
+                await TryStartViewing();
+
+                var vm = CreateLiveVideoPaneContent(LiveVideoPaneContentType.Summary);
+                await vm.OnEnter();
+                _PaneContentCache.Add(LiveVideoPaneContentType.Summary, vm);
+
+                SelectedPaneContent.ForceNotify();
+            }
+
+
+            AutoHideDelayTime = HohoemaApp.UserSettings.PlayerSettings
 				.ToReactivePropertyAsSynchronized(x => x.AutoHidePlayerControlUIPreventTime, PlayerWindowUIDispatcherScheduler)
 				.AddTo(userSessionDisposer);
 			OnPropertyChanged(nameof(AutoHideDelayTime));
@@ -570,7 +579,7 @@ namespace NicoPlayerHohoema.ViewModels
 			OnPropertyChanged(nameof(IsForceLandscape));
 
 
-			base.OnSignIn(userSessionDisposer);
+//			base.OnSignIn(userSessionDisposer);
 		}
 
 

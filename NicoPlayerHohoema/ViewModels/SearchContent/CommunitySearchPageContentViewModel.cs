@@ -23,11 +23,13 @@ namespace NicoPlayerHohoema.ViewModels
 	{
 		public CommunitySearchPagePayloadContent SearchOption { get; private set; }
 
-		public CommunitySearchPageContentViewModel(CommunitySearchPagePayloadContent searchOption, HohoemaApp app, PageManager pageManager) 
-			: base(app, pageManager, isRequireSignIn:true)
-		{
-			SearchOption = searchOption;
-		}
+        public CommunitySearchPageContentViewModel(CommunitySearchPagePayloadContent searchOption, HohoemaApp app, PageManager pageManager)
+            : base(app, pageManager)
+        {
+            SearchOption = searchOption;
+            ChangeRequireServiceLevel(HohoemaAppServiceLevel.LoggedIn);
+        }
+		
 
 
 		#region Commands

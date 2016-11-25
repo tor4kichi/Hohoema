@@ -64,7 +64,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 		public EmptySearchPageContentViewModel(HohoemaApp hohoemaApp, PageManager pageManager, SearchPageViewModel parentPage) 
-			: base(hohoemaApp, pageManager, isRequireSignIn:false)
+			: base(hohoemaApp, pageManager)
 		{
 			SearchPageViewModel = parentPage;
 
