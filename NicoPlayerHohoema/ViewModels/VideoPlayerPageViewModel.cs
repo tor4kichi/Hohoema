@@ -359,16 +359,16 @@ namespace NicoPlayerHohoema.ViewModels
 			SelectedSidePaneType = new ReactiveProperty<MediaInfoDisplayType>(PlayerWindowUIDispatcherScheduler, MediaInfoDisplayType.Summary, ReactivePropertyMode.DistinctUntilChanged)
 				.AddTo(_CompositeDisposable);
 
-			Types = new List<MediaInfoDisplayType>()
-			{
-				MediaInfoDisplayType.Summary,
-				MediaInfoDisplayType.Mylist,
+            Types = new List<MediaInfoDisplayType>()
+            {
+                MediaInfoDisplayType.Summary,
+                MediaInfoDisplayType.Mylist,
 //				MediaInfoDisplayType.Comment,
 				MediaInfoDisplayType.Shere,
-				MediaInfoDisplayType.Settings,
-			};
+                MediaInfoDisplayType.Settings,
+            };
 
-			SidePaneContent = SelectedSidePaneType
+            SidePaneContent = SelectedSidePaneType
 				.SelectMany(x => GetMediaInfoVM(x))
 				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
 				.AddTo(_CompositeDisposable);
@@ -427,9 +427,16 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     await UpdateComments();
 
-                    _SidePaneContentCache.Clear();
+                    Types = new List<MediaInfoDisplayType>()
+                    {
+                        MediaInfoDisplayType.Summary,
+                        MediaInfoDisplayType.Settings,
+                    };
+                    OnPropertyChanged(nameof(Types));
 
                     _VideoDescriptionHtmlUri = await HtmlFileHelper.PartHtmlOutputToCompletlyHtml(VideoId, Video.DescriptionWithHtml);
+
+                    _SidePaneContentCache.Clear();
 
                     if (SelectedSidePaneType.Value == MediaInfoDisplayType.Summary)
                     {
@@ -439,6 +446,10 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         SelectedSidePaneType.Value = MediaInfoDisplayType.Summary;
                     }
+
+                    ChangeRequireServiceLevel(HohoemaAppServiceLevel.Offline);
+
+
                 }
             }
 
@@ -509,7 +520,8 @@ namespace NicoPlayerHohoema.ViewModels
                 .AddTo(userSessionDisposer);
 
 
-
+            IsForceLandscape = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, HohoemaApp.UserSettings.PlayerSettings.IsForceLandscape);
+            OnPropertyChanged(nameof(IsForceLandscape));
 
 
             // お気に入りフィード上の動画を既読としてマーク
@@ -536,6 +548,8 @@ namespace NicoPlayerHohoema.ViewModels
                 // 内部状態を更新
                 await videoInfo.VisitWatchPage();
                 await videoInfo.CheckCacheStatus();
+
+                await videoInfo.Initialize();
 
                 // 動画が削除されていた場合
                 if (videoInfo.IsDeleted)
@@ -724,9 +738,10 @@ namespace NicoPlayerHohoema.ViewModels
                 //VideoPlayHistoryDb.VideoPlayed(Video.RawVideoId);
             }
 
-            _SidePaneContentCache.Clear();
 
             _VideoDescriptionHtmlUri = await HtmlFileHelper.PartHtmlOutputToCompletlyHtml(VideoId, Video.DescriptionWithHtml);
+
+            _SidePaneContentCache.Clear();
 
             if (SelectedSidePaneType.Value == MediaInfoDisplayType.Summary)
             {
@@ -745,12 +760,6 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactivePropertyAsSynchronized(x => x.PauseWithCommentWriting, PlayerWindowUIDispatcherScheduler)
 				.AddTo(userSessionDisposer);
 			OnPropertyChanged(nameof(IsPauseWithCommentWriting));
-
-			
-            
-
-            IsForceLandscape = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, HohoemaApp.UserSettings.PlayerSettings.IsForceLandscape);
-			OnPropertyChanged(nameof(IsForceLandscape));
 		}
 
 
@@ -790,12 +799,14 @@ namespace NicoPlayerHohoema.ViewModels
 
 			var x = CurrentVideoQuality.Value;
 
+            var qualityVideo = x == NicoVideoQuality.Original ? Video.OriginalQuality : Video.LowQuality;
+
 			if (PreviousVideoPosition == 0.0)
 			{
 				PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
 			}
 
-			// キャッシュサポートされたメディアの再生
+			// サポートされたメディアの再生
 			if (Video.CanGetVideoStream())
 			{
 				var stream = await Video.GetVideoStream(x);
@@ -881,11 +892,58 @@ namespace NicoPlayerHohoema.ViewModels
 					IsPlayWithCache.Value = false;
 				}
 			}
-			else
+			else if (qualityVideo.IsCached)
 			{
-				// キャッシュがサポートされていない
-				throw new Exception();
-			}
+                var stream = await Video.GetVideoStream(x);
+
+                if (stream == null)
+                {
+                    return;
+                }
+
+                if (IsDisposed)
+                {
+                    if (Video != null)
+                    {
+                        await Video.StopPlay();
+                    }
+                    return;
+                }
+
+                if (Video.ContentType == MovieType.Mp4)
+                {
+                    VideoStream.Value = stream;
+                }
+                else
+                {
+                    var mss = FFmpegInteropMSS.CreateFFmpegInteropMSSFromStream(stream, false, false);
+
+                    if (mss != null)
+                    {
+                        VideoStream.Value = mss;
+                    }
+                    else
+                    {
+                        throw new NotSupportedException();
+                    }
+                }
+
+                // CachedStreamを使わずに直接ファイルから再生している場合
+                // キャッシュ済みとして表示する
+                ProgressFragments.Clear();
+                var size = qualityVideo.VideoSize;
+                var invertedTotalSize = 1.0 / size;
+                ProgressFragments.Add(new ProgressFragment(invertedTotalSize, 0, size));
+
+                ProgressPercent.Value = 100.0;
+                IsPlayWithCache.Value = true;
+                IsSaveRequestedCurrentQualityCache.Value = true;
+                Title.Value = Video.Title;
+            }
+            else
+            {
+                throw new Exception();
+            }
 
 
 		}

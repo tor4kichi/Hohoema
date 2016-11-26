@@ -78,8 +78,8 @@ namespace NicoPlayerHohoema.Models
 
             UpdateServiceStatus();
             NetworkInformation.NetworkStatusChanged += NetworkInformation_NetworkStatusChanged;
-            
 
+            
         }
 
         private async void NetworkInformation_NetworkStatusChanged(object sender)
@@ -125,7 +125,8 @@ namespace NicoPlayerHohoema.Models
 				label: "マイリスト一覧"
 				);
 
-		}
+            MediaManagerUpdater.ScheduleUpdate();
+        }
 
 
 		public async Task OnSuspending()
@@ -519,7 +520,14 @@ namespace NicoPlayerHohoema.Models
 		{
 			return AsyncInfo.Run<NiconicoSignInStatus>(async (cancelToken) => 
 			{
-				if (NiconicoContext != null 
+                if (!Util.InternetConnection.IsInternet())
+                {
+                    NiconicoContext?.Dispose();
+                    NiconicoContext = new NiconicoContext();
+                    return NiconicoSignInStatus.Failed;
+                }
+
+                if (NiconicoContext != null 
 				    && NiconicoContext.AuthenticationToken?.MailOrTelephone == mailOrTelephone 
 				    && NiconicoContext.AuthenticationToken?.Password == password)
 				{
@@ -531,6 +539,8 @@ namespace NicoPlayerHohoema.Models
 				try
 				{
 					await _SigninLock.WaitAsync();
+
+                    
 
 					var context = new NiconicoContext(new NiconicoAuthenticationToken(mailOrTelephone, password));
 
@@ -703,7 +713,6 @@ namespace NicoPlayerHohoema.Models
             FollowManagerUpdater.ScheduleUpdate();
             MylistManagerUpdater.ScheduleUpdate();
             FeedManagerUpdater.ScheduleUpdate();
-            MediaManagerUpdater.ScheduleUpdate();
 		}
 
 
@@ -724,8 +733,9 @@ namespace NicoPlayerHohoema.Models
 				// 全てのバックグラウンド処理をキャンセル
 				BackgroundUpdater.CancelAll();
 
-				try
-				{
+                
+                try
+                {
 					if (MediaManager != null && MediaManager.Context != null)
 					{
 						await MediaManager.Context.Suspending();
@@ -735,9 +745,16 @@ namespace NicoPlayerHohoema.Models
 
 				try
 				{
-					result = await NiconicoContext.SignOutOffAsync();
+                    if (Util.InternetConnection.IsInternet())
+                    {
+                        result = await NiconicoContext.SignOutOffAsync();
+                    }
+                    else
+                    {
+                        result = NiconicoSignInStatus.Success;
+                    }
 
-					NiconicoContext.Dispose();
+                    NiconicoContext.Dispose();
 				}
 				finally
 				{

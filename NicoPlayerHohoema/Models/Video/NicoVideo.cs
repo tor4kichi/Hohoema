@@ -50,22 +50,40 @@ namespace NicoPlayerHohoema.Models
 				Debug.WriteLine("start initialize : " + RawVideoId);
 
 				await UpdateWithThumbnail();
-			}
-			else
-			{
-				return;
-			}
 
-			if (false == IsDeleted)
+                _IsInitialized = true;
+            }
+
+            if (!_thumbnailInitialized && HohoemaApp.ServiceStatus == HohoemaAppServiceLevel.Offline)
+            {
+                var videoData = VideoInfoDb.Get(RawVideoId);
+                if (videoData != null)
+                {
+                    // オフライン再生に備えてDBからビデオ情報を取得
+                    this.VideoId = videoData.VideoId;
+                    this.VideoLength = videoData.Length;
+                    this.SizeLow = (uint)videoData.LowSize;
+                    this.SizeHigh = (uint)videoData.HighSize;
+                    this.Title = videoData.Title;
+                    this.VideoOwnerId = videoData.UserId;
+                    this.ContentType = videoData.MovieType;
+                    this.PostedAt = videoData.PostedAt;
+                    this.Tags = videoData.GetTags();
+                    this.ViewCount = videoData.ViewCount;
+                    this.MylistCount = videoData.MylistCount;
+                    this.CommentCount = videoData.CommentCount;
+                    this.ThumbnailUrl = videoData.ThumbnailUrl;
+                    this.DescriptionWithHtml = videoData.DescriptionWithHtml;
+                }
+            }
+
+            if (false == IsDeleted)
 			{
 				await OriginalQuality.SetupDownloadProgress();
 				await LowQuality.SetupDownloadProgress();
 
 				await CheckCacheStatus();
 			}
-
-			_IsInitialized = true;
-
 		}
 
 
@@ -74,8 +92,6 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task CheckCacheStatus()
 		{
-			if (!_IsInitialized) { return; }
-
 			await OriginalQuality.CheckCacheStatus();
 			await LowQuality.CheckCacheStatus();
 		}
@@ -504,7 +520,7 @@ namespace NicoPlayerHohoema.Models
 			info.CommentCount = this.CommentCount;
 			info.ThumbnailUrl = this.ThumbnailUrl;
 
-			await VideoInfoDb.UpdateAsync(info);
+            await VideoInfoDb.UpdateAsync(info);
 		}
 
 

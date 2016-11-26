@@ -16,7 +16,7 @@ namespace NicoPlayerHohoema.Models.Db
 	{
 		public static readonly AsyncLock _AsyncLock = new AsyncLock();
 
-		public static void UpdateNicoVideoInfo(NicoVideoInfo info, ThumbnailResponse thumbnailRes)
+		public static async Task UpdateNicoVideoInfo(NicoVideoInfo info, ThumbnailResponse thumbnailRes)
 		{
 			info.VideoId = thumbnailRes.Id;
 			info.HighSize = (uint)thumbnailRes.SizeHigh;
@@ -35,19 +35,22 @@ namespace NicoPlayerHohoema.Models.Db
 			info.CommentCount = thumbnailRes.CommentCount;
 			info.SetTags(thumbnailRes.Tags.Value.ToList());
 
-		}
+            await UpdateAsync(info);
+        }
 
 
-		public static void UpdateNicoVideoInfo(NicoVideoInfo info, WatchApiResponse watchApiRes)
+		public static async Task UpdateNicoVideoInfo(NicoVideoInfo info, WatchApiResponse watchApiRes)
 		{
 			info.DescriptionWithHtml = watchApiRes.videoDetail.description;
 
 			info.ThreadId = watchApiRes.ThreadId.ToString();
 			info.ViewCount = (uint)watchApiRes.videoDetail.viewCount.Value;
 			info.MylistCount = (uint)watchApiRes.videoDetail.mylistCount.Value;
-			info.ViewCount = (uint)watchApiRes.videoDetail.commentCount.Value;
+			info.CommentCount = (uint)watchApiRes.videoDetail.commentCount.Value;
 
 			info.PrivateReasonType = watchApiRes.PrivateReason;
+
+            await UpdateAsync(info);
 		}
 
 		public static IReadOnlyList<NicoVideoInfo> GetAll()

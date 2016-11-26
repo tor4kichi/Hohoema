@@ -851,7 +851,9 @@
                                 <!-- Comment関連 -->
 
 
-                                <toolkit:DockPanel Background="#AA777777" x:Name="CommentLayoutRoot">
+                                <toolkit:DockPanel Background="#AA777777" x:Name="CommentLayoutRoot"
+                                                   Visibility="{Binding CanSubmitComment.Value, Converter={StaticResource BooleanToVisibility}}"
+                                                   >
 
                                     <Grid toolkit:DockPanel.Dock="Bottom" 
                                       x:Name="CommentButtons_Short"

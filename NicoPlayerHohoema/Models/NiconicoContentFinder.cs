@@ -123,6 +123,13 @@ namespace NicoPlayerHohoema.Models
 					await UserInfoDb.AddOrReplaceAsync(uploaderInfo.id, uploaderInfo.nickname, uploaderInfo.icon_url);
 				}
 
+                if (res != null)
+                {
+                    var data = VideoInfoDb.Get(rawVideoId);
+                    VideoInfoDb.UpdateNicoVideoInfo(data, res);
+
+                }
+
 				return res;
 			}
 			

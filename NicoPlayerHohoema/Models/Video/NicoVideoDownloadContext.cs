@@ -302,6 +302,11 @@ namespace NicoPlayerHohoema.Models
 
 		private async Task<bool> TryBeginNextDownloadRequest()
 		{
+            if (!_HohoemaApp.IsLoggedIn)
+            {
+                return false;
+            }
+
 			if (_HohoemaApp.MediaManager == null)
 			{
 				return false;
