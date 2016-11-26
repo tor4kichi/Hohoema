@@ -64,7 +64,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 		public SearchPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
-			: base(hohoemaApp, pageManager, isRequireSignIn:true)
+			: base(hohoemaApp, pageManager)
 		{
 			_MylistDialogService = mylistDialogService;
 
@@ -185,7 +185,15 @@ namespace NicoPlayerHohoema.ViewModels
 				RequireSearchOption = null;
 			}
 			
-			
+			// コミュニティ検索はログインが必要
+            if (IsSearchCommunity)
+            {
+                ChangeRequireServiceLevel(HohoemaAppServiceLevel.LoggedIn);
+            }
+            else
+            {
+                ChangeRequireServiceLevel(HohoemaAppServiceLevel.OnlineWithoutLoggedIn);
+            }
 
 			// ContentVM側のページタイトルが後で呼び出されるように、SearchPage側を先に呼び出す
 			base.OnNavigatedTo(e, viewModelState);

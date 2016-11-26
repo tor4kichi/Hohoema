@@ -115,7 +115,7 @@ namespace NicoPlayerHohoema.ViewModels
 		bool _NowProcessCommunity;
 
 		public CommunityPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
-			: base(hohoemaApp, pageManager, isRequireSignIn: true)
+			: base(hohoemaApp, pageManager)
 		{
 			IsFollowCommunity = new ReactiveProperty<bool>(mode: ReactivePropertyMode.DistinctUntilChanged)
 				.AddTo(_CompositeDisposable);

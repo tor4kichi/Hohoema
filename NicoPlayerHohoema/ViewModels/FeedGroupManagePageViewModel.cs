@@ -33,7 +33,7 @@ namespace NicoPlayerHohoema.ViewModels
 		private TextInputDialogService _TextInputDialogService;
 
 		public FeedGroupManagePageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, TextInputDialogService textInputDialog) 
-			: base(hohoemaApp, pageManager, isRequireSignIn:true)
+			: base(hohoemaApp, pageManager)
 		{
 			_TextInputDialogService = textInputDialog;
 

@@ -161,7 +161,7 @@ namespace NicoPlayerHohoema
 
 		}
 
-		protected override Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args)
+		protected override async Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args)
 		{
 #if DEBUG
 			DebugSettings.IsBindingTracingEnabled = true;
@@ -174,30 +174,28 @@ namespace NicoPlayerHohoema
 			}
 
 			var pageManager = Container.Resolve<PageManager>();
-
+            var hohoemaApp = Container.Resolve<HohoemaApp>();
 
 			if (!args.PrelaunchActivated && args.Kind == ActivationKind.Launch)
 			{
-				// メディアバックグラウンドタスクの動作状態を初期化
-				//				ApplicationSettingsHelper.ReadResetSettingsValue(ApplicationSettingsConstants.AppState);
+                // メディアバックグラウンドタスクの動作状態を初期化
+                //				ApplicationSettingsHelper.ReadResetSettingsValue(ApplicationSettingsConstants.AppState);
 
-				
-				//				var hohoemaApp = Container.Resolve<HohoemaApp>();
-				//				if (HohoemaApp.HasPrimaryAccount())
-				//				{
-				//					pm.OpenPage(HohoemaPageType.Portal);
-				//				}
-				//				else
-				{
-					pageManager.OpenPage(HohoemaPageType.Login, true /* Enable auto login */);
-				}
 
-				
-				
+                //				var hohoemaApp = Container.Resolve<HohoemaApp>();
+                //				if (HohoemaApp.HasPrimaryAccount())
+                //				{
+                //					pm.OpenPage(HohoemaPageType.Portal);
+                //				}
+                //				else
+
+                await hohoemaApp.SignInWithPrimaryAccount();
+
+                pageManager.OpenPage(HohoemaPageType.Portal);
 			}
 
 			
-			return Task.CompletedTask;
+//			return Task.CompletedTask;
 		}
 
 		protected override async Task OnActivateApplicationAsync(IActivatedEventArgs args)
@@ -235,29 +233,13 @@ namespace NicoPlayerHohoema
 						hohoemaApp = Container.Resolve<HohoemaApp>();
 					}
 					catch { }
-					
-					if (!hohoemaApp?.IsLoggedIn ?? false)
-					{
-						var loginRedirect = new LoginRedirectPayload()
-						{
-							RedirectPageType = HohoemaPageType.VideoPlayer,
-							RedirectParamter = new VideoPlayPayload()
-							{
-								VideoId = maybeNicoContentId,
-							}.ToParameterString()
-						}.ToParameterString();
 
-						pageManager.OpenPage(HohoemaPageType.Login, loginRedirect);
-					}
-					else
-					{
-						pageManager.OpenPage(HohoemaPageType.VideoPlayer, 
-							new VideoPlayPayload()
-							{
-								VideoId = maybeNicoContentId
-							}.ToParameterString()
-						);
-					}
+                    pageManager.OpenPage(HohoemaPageType.VideoPlayer,
+                        new VideoPlayPayload()
+                        {
+                            VideoId = maybeNicoContentId
+                        }.ToParameterString()
+                    );
 				}
 				else if (Mntone.Nico2.NiconicoRegex.IsLiveId(maybeNicoContentId))
 				{
@@ -268,24 +250,11 @@ namespace NicoPlayerHohoema
 					}
 					catch { }
 
-					if (!hohoemaApp?.IsLoggedIn ?? false)
-					{
-						var loginRedirect = new LoginRedirectPayload()
-						{
-							RedirectPageType = HohoemaPageType.LiveVideoPlayer,
-							RedirectParamter = new Models.Live.LiveVidePagePayload(maybeNicoContentId)
-								.ToParameterString()
-						}.ToParameterString();
-
-						pageManager.OpenPage(HohoemaPageType.Login, loginRedirect);
-					}
-					else
-					{
-						pageManager.OpenPage(HohoemaPageType.LiveVideoPlayer, 
-							new Models.Live.LiveVidePagePayload(maybeNicoContentId)
-							.ToParameterString()
-							);
-					}
+					pageManager.OpenPage(HohoemaPageType.LiveVideoPlayer, 
+						new Models.Live.LiveVidePagePayload(maybeNicoContentId)
+						.ToParameterString()
+						);
+					
 				}
 			}
 
@@ -481,9 +450,10 @@ namespace NicoPlayerHohoema
 			Container.RegisterInstance(new Views.Service.AcceptCacheUsaseDialogService());
 			Container.RegisterInstance(new Views.Service.TextInputDialogService());
 			Container.RegisterInstance(new Views.Service.ContentSelectDialogDefaultSet());
-
+            Container.RegisterInstance(new Views.Service.AccountManagementDialogService(hohoemaApp));
+            
 //			return Task.CompletedTask;
-		}
+        }
 
 
 		protected override void ConfigureViewModelLocator()

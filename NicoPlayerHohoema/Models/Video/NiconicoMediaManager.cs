@@ -97,9 +97,8 @@ namespace NicoPlayerHohoema.Models
 			var list = await LoadDownloadRequestItems();
 			foreach (var req in list)
 			{
-				var nicoVideo = await GetNicoVideoAsync(req.RawVideoid);
-				_CacheRequestedItemsStack.Insert(0, req);
-				await nicoVideo.CheckCacheStatus();
+                _CacheRequestedItemsStack.Insert(0, req);
+                var nicoVideo = await GetNicoVideoAsync(req.RawVideoid);
 				Debug.Write(".");
 			}
 

@@ -19,7 +19,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public bool IsSupportedFeedbackHub { get; private set; }
 
 		public FeedbackPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
-			: base(hohoemaApp, pageManager, isRequireSignIn:false)
+			: base(hohoemaApp, pageManager)
 		{
 			IsSupportedFeedbackHub = StoreServicesFeedbackLauncher.IsSupported();
 		}

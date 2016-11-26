@@ -162,6 +162,7 @@
     <Compile Include="Models\Follow\FollowPageParameter.cs" />
     <Compile Include="Models\Follow\IFollowInfoGroup.cs" />
     <Compile Include="Models\HohoemaApp.cs" />
+    <Compile Include="Models\HohoemaAppServiceLevel.cs" />
     <Compile Include="Models\HohoemaPageType.cs" />
     <Compile Include="Models\LisenceSummary.cs" />
     <Compile Include="Models\Live\LiveStatusType.cs" />
@@ -241,7 +242,6 @@
     <Compile Include="ViewModels\LiveVideoInfoContent\ShereLiveInfoContentViewModel.cs" />
     <Compile Include="ViewModels\LiveVideoInfoContent\SummaryLiveInfoContentViewModel.cs" />
     <Compile Include="ViewModels\LiveVideoPlayerPageViewModel.cs" />
-    <Compile Include="ViewModels\LoginPageViewModel.cs" />
     <Compile Include="ViewModels\MenuNavigatePageBaseViewModel.cs" />
     <Compile Include="ViewModels\MylistPageViewModel.cs" />
     <Compile Include="ViewModels\SearchContent\CommunitySearchPageContentViewModel.cs" />
@@ -430,9 +430,6 @@
     </Compile>
     <Compile Include="Views\Behaviors\MediaElementExtractPositionBehavior.cs" />
     <Compile Include="Views\Behaviors\MediaElementSeekAfterAutoPlayBehavior.cs" />
-    <Compile Include="Views\LoginPage.xaml.cs">
-      <DependentUpon>LoginPage.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\MenuNavigatePageBase.xaml.cs">
       <DependentUpon>MenuNavigatePageBase.xaml</DependentUpon>
     </Compile>
@@ -440,6 +437,10 @@
       <DependentUpon>AcceptCacheUsaseDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Service\AcceptCacheUsaseDialogService.cs" />
+    <Compile Include="Views\Service\AccountManagementdDialog.xaml.cs">
+      <DependentUpon>AccountManagementdDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Service\AccountManagementDialogService.cs" />
     <Compile Include="Views\Service\ContentSelectDialog.xaml.cs">
       <DependentUpon>ContentSelectDialog.xaml</DependentUpon>
     </Compile>
@@ -729,10 +730,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\LoginPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\MenuNavigatePageBase.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -770,6 +767,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Service\AcceptCacheUsaseDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Service\AccountManagementdDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

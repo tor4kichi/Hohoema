@@ -15,6 +15,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Diagnostics;
+using Windows.Networking.Connectivity;
 using Windows.Storage;
 using Windows.System.Power;
 using Windows.UI.Core;
@@ -56,6 +57,7 @@ namespace NicoPlayerHohoema.Models
 		private HohoemaApp(IEventAggregator ea)
 		{
 			EventAggregator = ea;
+            NiconicoContext = new NiconicoContext();
 			LoginUserId = uint.MaxValue;
 			LoggingChannel = new LoggingChannel("HohoemaLog", new LoggingChannelOptions(HohoemaLoggerGroupGuid));
 			UserSettings = new HohoemaUserSettings();
@@ -72,10 +74,28 @@ namespace NicoPlayerHohoema.Models
 			BackgroundUpdater = new BackgroundUpdater("HohoemaBG", UIDispatcher);
 
 			ApplicationData.Current.DataChanged += Current_DataChanged;
-		}
 
 
-		private void RagistrationBackgroundUpdateHandle()
+            UpdateServiceStatus();
+            NetworkInformation.NetworkStatusChanged += NetworkInformation_NetworkStatusChanged;
+
+            
+        }
+
+        private async void NetworkInformation_NetworkStatusChanged(object sender)
+        {
+            var isInternet = Util.InternetConnection.IsInternet();
+            if (isInternet)
+            {
+                await SignInWithPrimaryAccount();
+            }
+            else
+            {
+                await SignOut();
+            }
+        }
+
+        private void RagistrationBackgroundUpdateHandle()
 		{
 			// ホーム画面で表示するアプリマップ情報をリセット
 			AppMapManagerUpdater =
@@ -105,7 +125,8 @@ namespace NicoPlayerHohoema.Models
 				label: "マイリスト一覧"
 				);
 
-		}
+            MediaManagerUpdater.ScheduleUpdate();
+        }
 
 
 		public async Task OnSuspending()
@@ -212,7 +233,6 @@ namespace NicoPlayerHohoema.Models
 			{
 			}
 		}
-
 
 		public static Tuple<string, string> GetPrimaryAccount()
 		{
@@ -450,11 +470,34 @@ namespace NicoPlayerHohoema.Models
 			return await SignIn(primaryAccount_id, primaryAccount_Password);
 		}
 
-		/// <summary>
-		/// Appから呼び出します
-		/// 他の場所からは呼ばないようにしてください
-		/// </summary>
-		public void Resumed()
+
+        public bool CanSignInWithPrimaryAccount()
+        {
+            string primaryAccount_id = null;
+            string primaryAccount_Password = null;
+
+            var account = GetPrimaryAccount();
+            if (account != null)
+            {
+                primaryAccount_id = account.Item1;
+                primaryAccount_Password = account.Item2;
+            }
+
+            if (String.IsNullOrWhiteSpace(primaryAccount_id) || String.IsNullOrWhiteSpace(primaryAccount_Password))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Appから呼び出します
+        /// 他の場所からは呼ばないようにしてください
+        /// </summary>
+        public void Resumed()
 		{
 			OnResumed?.Invoke();
 		}
@@ -477,9 +520,16 @@ namespace NicoPlayerHohoema.Models
 		{
 			return AsyncInfo.Run<NiconicoSignInStatus>(async (cancelToken) => 
 			{
-				if (NiconicoContext != null 
-				&& NiconicoContext.AuthenticationToken.MailOrTelephone == mailOrTelephone 
-				&& NiconicoContext.AuthenticationToken.Password == password)
+                if (!Util.InternetConnection.IsInternet())
+                {
+                    NiconicoContext?.Dispose();
+                    NiconicoContext = new NiconicoContext();
+                    return NiconicoSignInStatus.Failed;
+                }
+
+                if (NiconicoContext != null 
+				    && NiconicoContext.AuthenticationToken?.MailOrTelephone == mailOrTelephone 
+				    && NiconicoContext.AuthenticationToken?.Password == password)
 				{
 					return NiconicoSignInStatus.Success;
 				}
@@ -489,6 +539,8 @@ namespace NicoPlayerHohoema.Models
 				try
 				{
 					await _SigninLock.WaitAsync();
+
+                    
 
 					var context = new NiconicoContext(new NiconicoAuthenticationToken(mailOrTelephone, password));
 
@@ -506,14 +558,17 @@ namespace NicoPlayerHohoema.Models
 					catch
 					{
 						LoginErrorText = "サインインに失敗、再起動をお試しください";
-						context?.Dispose();
 					}
 
-					if (result == NiconicoSignInStatus.Success)
+                    UpdateServiceStatus();
+
+                    NiconicoContext = context;
+
+
+                    if (result == NiconicoSignInStatus.Success)
 					{
 						Debug.WriteLine("login success");
 
-						NiconicoContext = context;
 
 						using (var loginActivityLogger = LoggingChannel.StartActivity("login process"))
 						{
@@ -563,9 +618,9 @@ namespace NicoPlayerHohoema.Models
 								loginActivityLogger.LogEvent(LoginErrorText, fields, LoggingLevel.Warning);
 
 								NiconicoContext.Dispose();
-								NiconicoContext = null;
+                                NiconicoContext = new NiconicoContext();
 
-								return NiconicoSignInStatus.Failed;
+                                return NiconicoSignInStatus.Failed;
 							}
 
 							fields.Clear();
@@ -601,8 +656,8 @@ namespace NicoPlayerHohoema.Models
 								Debug.WriteLine(LoginErrorText);
 								loginActivityLogger.LogEvent(LoginErrorText, fields, LoggingLevel.Error);
 								NiconicoContext.Dispose();
-								NiconicoContext = null;
-								return NiconicoSignInStatus.Failed;
+                                NiconicoContext = new NiconicoContext();
+                                return NiconicoSignInStatus.Failed;
 							}
 
 							FollowManagerUpdater = BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(
@@ -616,8 +671,11 @@ namespace NicoPlayerHohoema.Models
 							loginActivityLogger.LogEvent("[Success]: Login done");
 						}
 
+                        // アプリのサービス状態をログイン済みに更新
+                        UpdateServiceStatus(isLoggedIn: true);
+
                         // BG更新をスケジュール
-						UpdateAllComponent();
+                        UpdateAllComponent();
 
 						// 動画のキャッシュフォルダの選択状態をチェック
 						await (App.Current as App).CheckVideoCacheFolderState();
@@ -628,11 +686,15 @@ namespace NicoPlayerHohoema.Models
 
 						// 途中だった動画のダウンロードを再開
 						await MediaManager.Context.StartBackgroundDownload();
-					}
+
+                        
+
+                        // ニコニコサービスの裏で取得させたいので強制的に待ちを挟む
+                        await Task.Delay(1000);
+                    }
 					else
 					{
 						Debug.WriteLine("login failed");
-						context?.Dispose();
 					}
 
 					return result;
@@ -651,7 +713,6 @@ namespace NicoPlayerHohoema.Models
             FollowManagerUpdater.ScheduleUpdate();
             MylistManagerUpdater.ScheduleUpdate();
             FeedManagerUpdater.ScheduleUpdate();
-            MediaManagerUpdater.ScheduleUpdate();
 		}
 
 
@@ -672,8 +733,9 @@ namespace NicoPlayerHohoema.Models
 				// 全てのバックグラウンド処理をキャンセル
 				BackgroundUpdater.CancelAll();
 
-				try
-				{
+                
+                try
+                {
 					if (MediaManager != null && MediaManager.Context != null)
 					{
 						await MediaManager.Context.Suspending();
@@ -683,20 +745,23 @@ namespace NicoPlayerHohoema.Models
 
 				try
 				{
-					result = await NiconicoContext.SignOutOffAsync();
+                    if (Util.InternetConnection.IsInternet())
+                    {
+                        result = await NiconicoContext.SignOutOffAsync();
+                    }
+                    else
+                    {
+                        result = NiconicoSignInStatus.Success;
+                    }
 
-					NiconicoContext.Dispose();
+                    NiconicoContext.Dispose();
 				}
 				finally
 				{
-					NiconicoContext = null;
+                    NiconicoContext = new NiconicoContext();
+
 					FollowManager = null;
 					LoginUserId = uint.MaxValue;
-
-					// TODO: BackgroundUpdateのキャンセル
-
-					FollowManager = null;
-					FeedManager = null;
 
 
 					OnSignout?.Invoke();
@@ -707,14 +772,30 @@ namespace NicoPlayerHohoema.Models
 			finally
 			{
 				_SigninLock.Release();
-			}
+
+                UpdateServiceStatus();
+            }
 		}
 
-		public async Task<NiconicoSignInStatus> CheckSignedInStatus()
+        private void UpdateServiceStatus(bool isLoggedIn = false)
+        {
+            if (isLoggedIn)
+            {
+                ServiceStatus = HohoemaAppServiceLevel.LoggedIn;
+            }
+            else
+            {
+                ServiceStatus = Util.InternetConnection.IsInternet() ? HohoemaAppServiceLevel.OnlineWithoutLoggedIn : HohoemaAppServiceLevel.Offline;
+            }
+        }
+
+        public async Task<NiconicoSignInStatus> CheckSignedInStatus()
 		{
 			if (!Util.InternetConnection.IsInternet())
 			{
-				return NiconicoSignInStatus.Failed;
+                ServiceStatus = HohoemaAppServiceLevel.Offline;
+
+                return NiconicoSignInStatus.Failed;
 			}
 
 			try
@@ -1139,7 +1220,7 @@ StorageFolder _DownloadFolder;
 		{
 			get
 			{
-				return LoginUserId != uint.MaxValue;
+				return ServiceStatus == HohoemaAppServiceLevel.LoggedIn;
 			}
 		}
 
@@ -1175,7 +1256,14 @@ StorageFolder _DownloadFolder;
 			set { SetProperty(ref _FeedManager, value); }
 		}
 
-		public UserMylistManager UserMylistManager { get; private set; }
+        private HohoemaAppServiceLevel _ServiceStatus;
+        public HohoemaAppServiceLevel ServiceStatus
+        {
+            get { return _ServiceStatus; }
+            set { SetProperty(ref _ServiceStatus, value); }
+        }
+
+        public UserMylistManager UserMylistManager { get; private set; }
 
 		public AppMapManager AppMapManager { get; private set; }
 

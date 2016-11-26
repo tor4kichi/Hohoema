@@ -45,27 +45,45 @@ namespace NicoPlayerHohoema.Models
 		{
 			if (_IsInitialized) { return; }
 
-			if (HohoemaApp.IsLoggedIn && Util.InternetConnection.IsInternet())
+			if (HohoemaApp.ServiceStatus >= HohoemaAppServiceLevel.OnlineWithoutLoggedIn)
 			{
 				Debug.WriteLine("start initialize : " + RawVideoId);
 
 				await UpdateWithThumbnail();
-			}
-			else
-			{
-				return;
-			}
 
-			if (false == IsDeleted)
+                _IsInitialized = true;
+            }
+
+            if (!_thumbnailInitialized && HohoemaApp.ServiceStatus == HohoemaAppServiceLevel.Offline)
+            {
+                var videoData = VideoInfoDb.Get(RawVideoId);
+                if (videoData != null)
+                {
+                    // オフライン再生に備えてDBからビデオ情報を取得
+                    this.VideoId = videoData.VideoId;
+                    this.VideoLength = videoData.Length;
+                    this.SizeLow = (uint)videoData.LowSize;
+                    this.SizeHigh = (uint)videoData.HighSize;
+                    this.Title = videoData.Title;
+                    this.VideoOwnerId = videoData.UserId;
+                    this.ContentType = videoData.MovieType;
+                    this.PostedAt = videoData.PostedAt;
+                    this.Tags = videoData.GetTags();
+                    this.ViewCount = videoData.ViewCount;
+                    this.MylistCount = videoData.MylistCount;
+                    this.CommentCount = videoData.CommentCount;
+                    this.ThumbnailUrl = videoData.ThumbnailUrl;
+                    this.DescriptionWithHtml = videoData.DescriptionWithHtml;
+                }
+            }
+
+            if (false == IsDeleted)
 			{
 				await OriginalQuality.SetupDownloadProgress();
 				await LowQuality.SetupDownloadProgress();
 
 				await CheckCacheStatus();
 			}
-
-			_IsInitialized = true;
-
 		}
 
 
@@ -74,41 +92,50 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task CheckCacheStatus()
 		{
-			if (!_IsInitialized) { return; }
-
 			await OriginalQuality.CheckCacheStatus();
 			await LowQuality.CheckCacheStatus();
 		}
 
 		// コメントのキャッシュまたはオンラインからの取得と更新
-		public async Task<CommentResponse> GetCommentResponse(bool requierLatest = false)
+		public async Task<List<Chat>> GetComments(bool requierLatest = false)
 		{
-			if (CachedWatchApiResponse == null)
-			{
-				throw new Exception("コメントを取得するには先にWatchPageへのアクセスが必要です");
-			}
+            CommentResponse commentRes = null;
+            if (requierLatest || _CachedCommentResponse == null)
+            {
+                if (HohoemaApp.ServiceStatus == HohoemaAppServiceLevel.LoggedIn)
+                {
+                    try
+                    {
+                        commentRes = await ConnectionRetryUtil.TaskWithRetry(async () =>
+                        {
+                            return await this.HohoemaApp.NiconicoContext.Video
+                                .GetCommentAsync(CachedWatchApiResponse);
+                        });
 
-			CommentResponse commentRes = null;
-			try
-			{
-				commentRes = await ConnectionRetryUtil.TaskWithRetry(async () =>
-				{
-					return await this.HohoemaApp.NiconicoContext.Video
-						.GetCommentAsync(CachedWatchApiResponse);
-				});
+                        if (commentRes != null)
+                        {
+                            _CachedCommentResponse = commentRes;
+                        }
+                    }
+                    catch { }
+                }
+            }
 
-				if (commentRes != null)
-				{
-					_CachedCommentResponse = commentRes;
-				}
+            if (commentRes == null && _CachedCommentResponse != null)
+            {
+                commentRes = _CachedCommentResponse;
+            }
 
-				return _CachedCommentResponse;
-			}
-			catch
+            if (commentRes == null)
 			{
-				return _CachedCommentResponse;
+                var j = CommentDb.Get(RawVideoId);
+                return j.GetComments();
 			}
-		}
+            else
+            {
+                return commentRes?.Chat;
+            }
+        }
 
 		
 
@@ -466,9 +493,16 @@ namespace NicoPlayerHohoema.Models
 
 			if (CachedWatchApiResponse != null)
 			{
-				var commentRes = await GetCommentResponse();
-				CommentDb.AddOrUpdate(RawVideoId, commentRes);
-			}
+                if (_CachedCommentResponse == null)
+                {
+                    await GetComments(true);
+                }
+
+                if (_CachedCommentResponse != null)
+                {
+                    CommentDb.AddOrUpdate(RawVideoId, _CachedCommentResponse);
+                }
+            }
 
 			var info = await VideoInfoDb.GetEnsureNicoVideoInfoAsync(RawVideoId);
 
@@ -486,7 +520,7 @@ namespace NicoPlayerHohoema.Models
 			info.CommentCount = this.CommentCount;
 			info.ThumbnailUrl = this.ThumbnailUrl;
 
-			await VideoInfoDb.UpdateAsync(info);
+            await VideoInfoDb.UpdateAsync(info);
 		}
 
 

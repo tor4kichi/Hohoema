@@ -69,8 +69,6 @@ namespace NicoPlayerHohoema.Models.AppMap
 					break;
 				case HohoemaPageType.UserVideo:
 					break;
-				case HohoemaPageType.Login:
-					break;
 				default:
 					throw new NotSupportedException();
 			}

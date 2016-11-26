@@ -22,9 +22,10 @@ namespace NicoPlayerHohoema.ViewModels
 			HohoemaApp app,
 			PageManager pageManager
 			) 
-			: base(app, pageManager, isRequireSignIn:true)
+			: base(app, pageManager)
 		{
 			SearchOption = searchOption;
+            ChangeRequireServiceLevel(HohoemaAppServiceLevel.OnlineWithoutLoggedIn);
 		}
 
 		#region Commands

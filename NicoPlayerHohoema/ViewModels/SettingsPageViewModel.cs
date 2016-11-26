@@ -30,7 +30,7 @@ namespace NicoPlayerHohoema.ViewModels
 			, AcceptCacheUsaseDialogService cacheAcceptDialogService
 			, ToastNotificationService toastService
 			)
-			: base(hohoemaApp, pageManager, isRequireSignIn:true)
+			: base(hohoemaApp, pageManager)
 		{
 			RankingChoiceDialogService = rakingChoiceDialog;
 			EditAutoCacheConditionDialogService = editAutoCacheDialog;

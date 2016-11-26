@@ -27,7 +27,7 @@ namespace NicoPlayerHohoema.ViewModels
 		where VIDEO_INFO_VM : VideoInfoControlViewModel
 	{
 		public HohoemaVideoListingPageViewModelBase(HohoemaApp app, PageManager pageManager, MylistRegistrationDialogService mylistDialogService, bool isRequireSignIn = true)
-			: base(app, pageManager, true)
+			: base(app, pageManager)
 		{
 			MylistDialogService = mylistDialogService;
 
@@ -293,22 +293,17 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		protected override void OnSignIn(ICollection<IDisposable> disposer)
-		{
-			base.OnSignIn(disposer);
+		protected override Task OnSignIn(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
+        {
 
 			HohoemaApp.UserSettings.CacheSettings.ObserveProperty(x => x.IsUserAcceptedCache)
 				.Subscribe(x => CanDownload = x)
-				.AddTo(disposer);
+				.AddTo(userSessionDisposer);
 
+            return base.OnSignIn(userSessionDisposer, cancelToken);
+        }
 
-		}
-
-		protected override void OnSignOut()
-		{
-			base.OnSignOut();
-		}
-
+       
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			base.OnNavigatedTo(e, viewModelState);
