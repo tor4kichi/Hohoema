@@ -31,6 +31,8 @@ namespace NicoPlayerHohoema.ViewModels
 			HohoemaApp = hohoemaApp;
             AccountManagementDialogService = accountManageDlgService;
 
+            IsOpenPane = new ReactiveProperty<bool>(false);
+
             // Symbol see@ https://msdn.microsoft.com/library/windows/apps/dn252842
             SplitViewDisplayMode = new ReactiveProperty<Windows.UI.Xaml.Controls.SplitViewDisplayMode>();
 			CanClosePane = SplitViewDisplayMode.Select(x => x != Windows.UI.Xaml.Controls.SplitViewDisplayMode.Inline)
@@ -39,25 +41,25 @@ namespace NicoPlayerHohoema.ViewModels
 
 			MenuItems = new List<PageTypeSelectableItem>()
 			{
-				new PageTypeSelectableItem(HohoemaPageType.Portal             , OnMenuItemSelected, "ホーム", Symbol.Home),
-				new PageTypeSelectableItem(HohoemaPageType.RankingCategoryList, OnMenuItemSelected, "ランキング", Symbol.Flag),
-				new PageTypeSelectableItem(HohoemaPageType.FollowManage     , OnMenuItemSelected, "フォロー", Symbol.OutlineStar),
+                new PageTypeSelectableItem(HohoemaPageType.Portal             , OnMenuItemSelected, "ホーム", Symbol.Home),
+                new PageTypeSelectableItem(HohoemaPageType.Search             , OnMenuItemSelected, "検索", Symbol.Find),
+                new PageTypeSelectableItem(HohoemaPageType.RankingCategoryList, OnMenuItemSelected, "ランキング", Symbol.Flag),
+				new PageTypeSelectableItem(HohoemaPageType.FollowManage       , OnMenuItemSelected, "フォロー", Symbol.OutlineStar),
 				new PageTypeSelectableItem(HohoemaPageType.UserMylist		  , OnMenuItemSelected, "マイリスト", Symbol.Bookmarks),
 				new PageTypeSelectableItem(HohoemaPageType.History			  , OnMenuItemSelected, "視聴履歴", Symbol.Clock),
-				new PageTypeSelectableItem(HohoemaPageType.Search             , OnMenuItemSelected, "検索", Symbol.Find),
-			};
+                new PageTypeSelectableItem(HohoemaPageType.FeedGroupManage    , OnMenuItemSelected, "フィード", Symbol.List),
+                new PageTypeSelectableItem(HohoemaPageType.CacheManagement    , OnMenuItemSelected, "キャッシュ管理", Symbol.Download),
+            };
 
-			PersonalMenuItems = new List<PageTypeSelectableItem>()
-			{
-				new PageTypeSelectableItem(HohoemaPageType.FeedGroupManage    , OnMenuItemSelected, "フィード", Symbol.List),
-				new PageTypeSelectableItem(HohoemaPageType.CacheManagement	  , OnMenuItemSelected, "キャッシュ管理", Symbol.Download),
-				new PageTypeSelectableItem(HohoemaPageType.Settings			  , OnMenuItemSelected, "設定", Symbol.Setting),
-				new PageTypeSelectableItem(HohoemaPageType.About			  , OnMenuItemSelected, "このアプリについて", Symbol.Help),
-				new PageTypeSelectableItem(HohoemaPageType.Feedback           , OnMenuItemSelected, "フィードバック", Symbol.Comment),
-				new PageTypeSelectableItem(HohoemaPageType.About	          , OnAccountMenuItemSelected, "アカウント", Symbol.Account),
-			};
+            SubMenuItems = new List<PageTypeSelectableItem>()
+            {
+                new PageTypeSelectableItem(HohoemaPageType.Settings             , OnMenuItemSelected, "設定", Symbol.Setting),
+                new PageTypeSelectableItem(HohoemaPageType.VideoPlayer          , OnAccountMenuItemSelected, "アカウント", Symbol.Account),
+                new PageTypeSelectableItem(HohoemaPageType.About                , OnMenuItemSelected, "このアプリについて", Symbol.AllApps),
+                new PageTypeSelectableItem(HohoemaPageType.Feedback             , OnMenuItemSelected, "フィードバック", Symbol.Send),
+            };
 
-			SelectedItem = new ReactiveProperty<PageTypeSelectableItem>(MenuItems[0], mode: ReactivePropertyMode.DistinctUntilChanged);
+            SelectedItem = new ReactiveProperty<PageTypeSelectableItem>(MenuItems[0], mode: ReactivePropertyMode.DistinctUntilChanged);
 
 			SelectedItem
 				.Where(x => x != null)
@@ -74,11 +76,12 @@ namespace NicoPlayerHohoema.ViewModels
 					{
 						item.IsSelected = item.Source == pageType;
 					}
-					foreach (var item in PersonalMenuItems)
-					{
-						item.IsSelected = item.Source == pageType;
-					}
 
+                    foreach (var item in SubMenuItems)
+                    {
+                        item.IsSelected = item.Source == pageType;
+                    }
+					
 					SelectedItem.Value = null;
 
 					foreach (var item in MenuItems)
@@ -90,19 +93,22 @@ namespace NicoPlayerHohoema.ViewModels
 						}
 					}
 
-					foreach (var item in PersonalMenuItems)
-					{
-						if (item.IsSelected)
-						{
-							SelectedItem.Value = item;
-							break;
-						}
-					}
-				});
-				
+                    foreach (var item in SubMenuItems)
+                    {
+                        if (item.IsSelected)
+                        {
+                            SelectedItem.Value = item;
+                            break;
+                        }
+                    }
+
+                });
+
+            
 
 
-			IsPersonalPage = SelectedItem.Select(x =>
+
+            IsPersonalPage = SelectedItem.Select(x =>
 			{
 				return MenuItems.All(y => x != y);
 			})
@@ -219,15 +225,31 @@ namespace NicoPlayerHohoema.ViewModels
             await AccountManagementDialogService.ShowChangeAccountDialogAsync();
         }
 
+        private DelegateCommand _TogglePaneOpenCommand;
+        public DelegateCommand TogglePaneOpenCommand
+        {
+            get
+            {
+                return _TogglePaneOpenCommand
+                    ?? (_TogglePaneOpenCommand = new DelegateCommand(() => 
+                    {
+                        IsOpenPane.Value = !IsOpenPane.Value;
+                    }));
+            }
+        }
+
+
         public List<PageTypeSelectableItem> MenuItems { get; private set; }
 
-		public List<PageTypeSelectableItem> PersonalMenuItems { get; private set; }
+        public List<PageTypeSelectableItem> SubMenuItems { get; private set; }
 
-		public ReactiveProperty<bool> IsVisibleMenu { get; private set; }
+        public ReactiveProperty<bool> IsVisibleMenu { get; private set; }
 
 		public ReactiveProperty<bool> IsPersonalPage { get; private set; }
 
 		public ReactiveProperty<bool> NowNavigating { get; private set; }
+
+        public ReactiveProperty<bool> IsOpenPane { get; private set; }
 
 		/// <summary>
 		/// 表示サイズによるPane表示方法の違い

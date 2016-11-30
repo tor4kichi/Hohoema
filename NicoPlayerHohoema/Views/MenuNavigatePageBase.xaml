@@ -1,4 +1,5 @@
 ﻿<ContentControl
+    x:Name="RootLayout"
     x:Class="NicoPlayerHohoema.Views.MenuNavigatePageBase"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -14,6 +15,7 @@
     xmlns:logicalTrigger="using:AdaptiveTriggerLibrary.Triggers.LogicalTriggers"
     xmlns:uiTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInterfaceTriggers"
     xmlns:hardwareTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
+    xmlns:iconPack="using:MahApps.Metro.IconPacks"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
     d:DesignHeight="300"
@@ -23,8 +25,6 @@
     <ContentControl.Resources>
         <DataTemplate x:Key="MenuItemTemplate">
             <StackPanel>
-                
-
                 <Border Background="Transparent" 
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
@@ -59,6 +59,16 @@
             </StackPanel>
             
         </DataTemplate>
+
+
+        <DataTemplate x:Key="MenuTemplate">
+            
+
+        </DataTemplate>
+
+        <DataTemplate x:Key="HohoemaContentTemplate">
+            
+        </DataTemplate>
     </ContentControl.Resources>
     
     
@@ -75,23 +85,20 @@
                                 <StateTrigger IsActive="{Binding IsVisibleMenu.Value, Converter={StaticResource InvertBoolean}}" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter Target="SplitView.DisplayMode" Value="Overlay" />
-                                <Setter Target="SplitView.IsPaneOpen" Value="False" />
-
-                                <Setter Target="TopBar.Visibility" Value="Collapsed" />
-
-                                <Setter Target="MenuPaneRoot.Margin" Value="0 0 0 0" />
+                                <Setter Target="PaneLayout.DisplayMode" Value="Overlay" />
+                                <Setter Target="PaneLayout.IsPaneOpen" Value="False" />
                             </VisualState.Setters>
                         </VisualState>
 
                         <!-- 一番幅が広いとき -->
+                        <!--
                         <VisualState>
                             <VisualState.StateTriggers>
                                 <AdaptiveTrigger MinWindowWidth="721" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter Target="SplitView.DisplayMode" Value="Inline" />
-                                <Setter Target="SplitView.IsPaneOpen" Value="True" />
+                                <Setter Target="LeftMenuSplitView.DisplayMode" Value="Inline" />
+                                <Setter Target="LeftMenuSplitView.IsPaneOpen" Value="True" />
 
                                 <Setter Target="TopBar.Visibility" Value="Visible" />
                                 <Setter Target="OpenPaneButton.Visibility" Value="Collapsed" />
@@ -100,36 +107,24 @@
                                 <Setter Target="MenuPaneRoot.Margin" Value="0 0 0 0" />
                             </VisualState.Setters>
                         </VisualState>
-                        <!-- 中ぐらい -->
+                        -->
+                        <!-- 中ぐらい PaneOpen -->
                         <VisualState>
                             <VisualState.StateTriggers>
                                 <AdaptiveTrigger MinWindowWidth="521" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter Target="SplitView.DisplayMode" Value="CompactOverlay" />
-                                <Setter Target="SplitView.IsPaneOpen" Value="False" />
-
-                                <Setter Target="TopBar.Visibility" Value="Visible" />
-                                <Setter Target="OpenPaneButton.Visibility" Value="Visible" />
-                                <Setter Target="OpenPaneButtonTemp.Visibility" Value="Collapsed" />
-
-                                <Setter Target="MenuPaneRoot.Margin" Value="0 0 0 0" />
+                                <Setter Target="SplitView.DisplayMode" Value="CompactInline" />
                             </VisualState.Setters>
                         </VisualState>
-                        <!-- 超狭い -->
+                        
+                        <!-- 狭い -->
                         <VisualState>
                             <VisualState.StateTriggers>
                                 <AdaptiveTrigger MinWindowWidth="0" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter Target="SplitView.DisplayMode" Value="Overlay" />
-                                <Setter Target="SplitView.IsPaneOpen" Value="False" />
-
-                                <Setter Target="TopBar.Visibility" Value="Visible" />
-                                <Setter Target="OpenPaneButton.Visibility" Value="Visible" />
-                                <Setter Target="OpenPaneButtonTemp.Visibility" Value="Collapsed" />
-
-                                <Setter Target="MenuPaneRoot.Margin" Value="0 0 0 0" />
+                                <Setter Target="SplitView.DisplayMode" Value="CompactOverlay" />
                             </VisualState.Setters>
                         </VisualState>
                     </VisualStateGroup>
@@ -185,150 +180,115 @@
 
 
                 </VisualStateManager.VisualStateGroups>
-                
-                <toolkit:DockPanel x:Name="RootLayoutContainer">
 
 
-                   
-
-                    <toolkit:DockPanel x:Name="TopBar" 
-                                       toolkit:DockPanel.Dock="Top"
-                                       Visibility="{Binding IsVisibleMenu.Value, Converter={StaticResource BooleanToVisibility}}"
-                                       Margin="0"
-                                        Height="48"
-                                   >
-                        <AppBarButton
-                              x:Name="OpenPaneButton"
-                              Icon="OpenPane"
-                              toolkit:DockPanel.Dock="Left"
-                                Margin="0 0 0 0"
-                            Height="48"
-                            Width="48"
-                              >
-                            <i:Interaction.Behaviors>
-                                <core:EventTriggerBehavior EventName="Tapped">
-                                    <core:ChangePropertyAction TargetObject="{Binding ElementName=SplitView}"
-                                                           PropertyName="IsPaneOpen"
-                                                           Value="True"
-                                                       />
-                                </core:EventTriggerBehavior>
-                            </i:Interaction.Behaviors>
-                        </AppBarButton>
-
-                        <Border x:Name="OpenPaneButtonTemp" 
-                                Width="180"
-                                />
-
-
-                        <!-- Topbar Right-->
-                        <StackPanel 
-                                Orientation="Horizontal"
-                                toolkit:DockPanel.Dock="Right"
-                                >
-
-
-                        </StackPanel>
-
-
-                        <TextBlock x:Name="TopBarTitle"
-                               Text="{Binding TitleText}"
-                               VerticalAlignment="Center"
-                               FontSize="24"
-                               Margin="16 8 0 8"
-                               FontWeight="SemiLight"
-                               >
-
-                        </TextBlock>
-
-
-
-                    </toolkit:DockPanel>
-
-                    <SplitView x:Name="SplitView" 
-                           CompactPaneLength="48"
-                           OpenPaneLength="180"
-                           DisplayMode="CompactInline"
+                <SplitView x:Name="SplitView" 
+                            CompactPaneLength="48"
+                            OpenPaneLength="180"
+                            DisplayMode="Inline"
+                            IsPaneOpen="{Binding IsOpenPane.Value, Mode=TwoWay}"
+                           
                            >
-                        <SplitView.Pane>
+                    <SplitView.Pane>
+                        <toolkit:DockPanel x:Name="PaneLayout">
+
+                            
+                            <Button toolkit:DockPanel.Dock="Top"
+                                    Command="{Binding TogglePaneOpenCommand}"
+                                    Height="48"
+                                    Width="48"
+                                    Background="Transparent"
+                                >
+                                <iconPack:PackIconMaterial Kind="Menu" />
+                            </Button>
+
+
+                            <Border toolkit:DockPanel.Dock="Bottom"
+                                    BorderBrush="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                                    BorderThickness="0 1 0 0"
+                                >
+                                <StackPanel >
+
+                                    <ListView ItemsSource="{Binding SubMenuItems}"
+                                            SelectionMode="Single"
+                                            SelectedValue="{Binding SelectedItem.Value, Mode=TwoWay}"
+                                            ItemTemplate="{StaticResource MenuItemTemplate}"
+                                            >
+                                        <ListView.ItemContainerStyle>
+                                            <Style TargetType="ListViewItem">
+                                                <Setter Property="Padding" Value="6 12 10 12" />
+                                                <Setter Property="Margin" Value="0" />
+                                            </Style>
+                                        </ListView.ItemContainerStyle>
+
+                                        <i:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="SelectionChanged">
+                                                <mybehavior:SplitViewClosePane SplitView="{Binding ElementName=SplitView}" 
+                                                        />
+                                            </core:EventTriggerBehavior>
+                                        </i:Interaction.Behaviors>
+                                    </ListView>
+
+                                </StackPanel>
+                            </Border>
+
                             <ScrollViewer HorizontalScrollMode="Disabled"
-                                      VerticalScrollMode="Auto"
-                                      VerticalScrollBarVisibility="Hidden"
-                                      >
-                                <StackPanel x:Name="MenuPaneRoot">
+                                VerticalScrollMode="Auto"
+                                VerticalScrollBarVisibility="Hidden"
+                                >
+                                <StackPanel >
 
-                                    <ListBox ItemsSource="{Binding MenuItems}"
-                                      SelectionMode="Single"
-                                      SelectedValue="{Binding SelectedItem.Value, Mode=TwoWay}"
-                                      ItemTemplate="{StaticResource MenuItemTemplate}"
-                                      >
-                                        <ListBox.ItemContainerStyle>
-                                            <Style TargetType="ListBoxItem">
+                                    <ListView ItemsSource="{Binding MenuItems}"
+                                            SelectionMode="Single"
+                                            SelectedValue="{Binding SelectedItem.Value, Mode=TwoWay}"
+                                            ItemTemplate="{StaticResource MenuItemTemplate}"
+                                            >
+                                        <ListView.ItemContainerStyle>
+                                            <Style TargetType="ListViewItem">
                                                 <Setter Property="Padding" Value="6 12 10 12" />
                                                 <Setter Property="Margin" Value="0" />
                                             </Style>
-                                        </ListBox.ItemContainerStyle>
+                                        </ListView.ItemContainerStyle>
 
                                         <i:Interaction.Behaviors>
                                             <core:EventTriggerBehavior EventName="SelectionChanged">
                                                 <mybehavior:SplitViewClosePane SplitView="{Binding ElementName=SplitView}" 
-                                                                       />
+                                                        />
                                             </core:EventTriggerBehavior>
                                         </i:Interaction.Behaviors>
-                                    </ListBox>
-
-                                    <Border BorderBrush="Gray"
-                                    BorderThickness="0 1 0 0" />
-
-
-                                    <ListBox ItemsSource="{Binding PersonalMenuItems}" 
-                                      SelectionMode="Single"
-                                      SelectedValue="{Binding SelectedItem.Value, Mode=TwoWay}"
-                                      ItemTemplate="{StaticResource MenuItemTemplate}"
-                                              >
-                                        <ListBox.ItemContainerStyle>
-                                            <Style TargetType="ListBoxItem">
-                                                <Setter Property="Padding" Value="6 12 10 12" />
-                                                <Setter Property="Margin" Value="0" />
-                                            </Style>
-                                        </ListBox.ItemContainerStyle>
-
-                                        <i:Interaction.Behaviors>
-                                            <core:EventTriggerBehavior EventName="SelectionChanged">
-                                                <mybehavior:SplitViewClosePane SplitView="{Binding ElementName=SplitView}" 
-                                                                       />
-                                            </core:EventTriggerBehavior>
-                                        </i:Interaction.Behaviors>
-                                    </ListBox>
+                                    </ListView>
 
                                 </StackPanel>
                             </ScrollViewer>
-
-                        </SplitView.Pane>
-                        <SplitView.Content>
-
-                            <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+                        </toolkit:DockPanel>
+                    </SplitView.Pane>
+                    <SplitView.Content>
+                        <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+                            <toolkit:DockPanel >
 
                                 <ContentPresenter
-                                    Visibility="{Binding NowNavigating.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                    />
+                                Visibility="{Binding NowNavigating.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                />
 
+                            </toolkit:DockPanel>
+                            <Border Visibility="{Binding HasBGUpdateText.Value, Converter={StaticResource BooleanToVisibility}}"
+                                Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Bottom"
+                                Padding="2"
+                                >
+                                <TextBlock Text="{Binding BGUpdateText.Value}"
+                                        FontSize="12"
+                                        Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                        />
+                            </Border>
 
-                                <Border Visibility="{Binding HasBGUpdateText.Value, Converter={StaticResource BooleanToVisibility}}"
-                                        Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Bottom"
-                                        Padding="2"
-                                        >
-                                    <TextBlock Text="{Binding BGUpdateText.Value}"
-                                               FontSize="12"
-                                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                               />
-                                </Border>
-                            </Grid>
-                        </SplitView.Content>
-                    </SplitView>
+                        </Grid>
 
-                </toolkit:DockPanel>
+                    </SplitView.Content>
+                </SplitView>
+
+                
 
 
 
