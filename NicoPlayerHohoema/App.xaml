@@ -13,6 +13,10 @@
     <prism:PrismUnityApplication.Resources>
        
         <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Styles/DefaultStyle.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            
             <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
             <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibilityInverted"
                                            IsInversed="True"
@@ -38,8 +42,11 @@
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Dark">
                     <Color x:Key="SystemBaseHighColor">#CEFFFFFF</Color>
+                    <Color x:Key="ApplicationPageBackgroundThemeBrush">#FF191919</Color>
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
+
+            
         </ResourceDictionary>
     </prism:PrismUnityApplication.Resources>
 

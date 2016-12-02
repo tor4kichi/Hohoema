@@ -204,7 +204,7 @@
 
 
                             <Border toolkit:DockPanel.Dock="Bottom"
-                                    BorderBrush="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
                                     BorderThickness="0 1 0 0"
                                 >
                                 <StackPanel >

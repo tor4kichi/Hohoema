@@ -13,9 +13,13 @@
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:mytrigger="using:NicoPlayerHohoema.Views.StateTrigger"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
+    <Page.Resources>
+    </Page.Resources>
 
     <Grid>
 
@@ -29,8 +33,6 @@
                         <AdaptiveTrigger MinWindowWidth="521" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="RankingTimeSpanLabel.Visibility" Value="Visible" />
-                        <Setter Target="RankingTargetLabel.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
                 <!-- 超狭い -->
@@ -39,14 +41,34 @@
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="RankingTimeSpanLabel.Visibility" Value="Collapsed" />
-                        <Setter Target="RankingTargetLabel.Visibility" Value="Collapsed" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
 
-           
 
+
+            <VisualStateGroup x:Name="SearchTextBoxVisualStateGroup">
+
+                <!-- 検索テキストボックスがフォーカスを得ている状態 -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <mytrigger:FocusTrigger Target="{Binding ElementName=SearchTextBox}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="SearchButtonBorder.BorderBrush" Value="Transparent" />
+                    </VisualState.Setters>
+                </VisualState>
+                
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <mytrigger:PointerFocusTrigger Target="{Binding ElementName=SearchButtonBorder}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="SearchButtonBorder.BorderBrush" Value="{ThemeResource SystemControlHighlightBaseMediumLowBrush}" />
+                    </VisualState.Setters>
+                </VisualState>
+
+            </VisualStateGroup>
 
 
 
@@ -59,92 +81,176 @@
 
         <Border>
             <toolkit:DockPanel>
-                <toolkit:DockPanel toolkit:DockPanel.Dock="Top" Margin="0 0 0 8" >
+                <Border toolkit:DockPanel.Dock="Top" 
+                        BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
+                        BorderThickness="0 0 0 1"
+                        >
+                    <toolkit:DockPanel>
 
-                    <!-- 複数選択のON/OFF -->
-                    <controls:ListingSelectionControl 
-                        Margin="8 0"
-                        toolkit:DockPanel.Dock="Right"
-                        />
+                        <Border toolkit:DockPanel.Dock="Right"
+                                >
+                            <ToggleButton Background="Transparent"
+                                          IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          >
+                                <SymbolIcon Symbol="List" />
+                            </ToggleButton>
 
 
-                    <StackPanel Orientation="Horizontal"
-                                toolkit:DockPanel.Dock="Left"
+                        </Border>
+                        
+                        <Border 
+                                toolkit:DockPanel.Dock="Right"
+                                BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
+                                BorderThickness="1 0 0 0"
+                                 Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                >
+                            <Button Background="Transparent">
+                                <SymbolIcon Symbol="Refresh" />
+                            </Button>
+
+                        </Border>
+
+                        
+                        
+
+                        
+
+
+                        <Grid
+                            
+                            >
+                            <toolkit:DockPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                                           >
+                                <StackPanel Orientation="Horizontal"
+                                    toolkit:DockPanel.Dock="Right"                                        
+                                    >
+                                    <Button Command="{Binding RegistratioMylistCommand}"
+                                            Background="Transparent"
+                                            >
+                                        <StackPanel Orientation="Horizontal">
+                                            <SymbolIcon Symbol="Add" />
+                                            <TextBlock Text="マイリスト登録"
+                                                   VerticalAlignment="Center"
+                                                   />
+                                        </StackPanel>
+                                    </Button>
+                                    <StackPanel Orientation="Horizontal" >
+                                        <Button Command="{Binding RequestCacheDownload}"
+                                                Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
+                                                Background="Transparent"
+                                                >
+                                            <StackPanel Orientation="Horizontal">
+                                                <SymbolIcon Symbol="Download" />
+                                                <TextBlock Text="キャッシュ"
+                                                   VerticalAlignment="Center"
+                                                   />
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+
+                                </StackPanel>
+
+                                <Border />
+
+                            </toolkit:DockPanel>
+
+                            <toolkit:DockPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
+                                
+                                <Grid x:Name="SearchButtonBorder"
+                                      BorderThickness="1"
+                                      >
+                                    
+                                    
+                                    <TextBox x:Name="SearchTextBox"
+                                        PlaceholderText="ページ内検索"
+                                        InputScope="SearchIncremental"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Top"
+                                        Height="47"
+                                        Padding="24 8 0 8"
+                                        Margin="0 0 48 0"
+                                        BorderThickness="0"
+                                        >
+
+                                    </TextBox>
+
+                                    <Button HorizontalAlignment="Right"
+                                            Background="Transparent"
+                                        >
+                                        <SymbolIcon Symbol="Find"  />
+                                    </Button>
+                                </Grid>
+
+                            </toolkit:DockPanel>
+                        </Grid>
+
+                        
+
+
+                    </toolkit:DockPanel>
+                </Border>
+                    
+
+                <Border toolkit:DockPanel.Dock="Top" 
+                        BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
+                        BorderThickness="0 0 0 1"
+                        >
+                    <toolkit:DockPanel >
+
+
+                        <StackPanel Orientation="Horizontal"
+                                toolkit:DockPanel.Dock="Right"
                                 Visibility="{Binding CanChangeRankingParameter.Value, Converter={StaticResource BooleanToVisibility}}"
                                 >
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="対象" 
-                                       Margin="8 0 0 0"
-                                       VerticalAlignment="Center"
-                                       Foreground="DimGray"
-                                       x:Name="RankingTargetLabel"
-                                       />
-                            <ComboBox ItemsSource="{Binding RankingTargetItems}"
-                                      SelectedItem="{Binding SelectedRankingTarget.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                      DisplayMemberPath="Label"
-                                      MinWidth="80"
-                                      IsEnabled="{Binding NowLoadingItems.Value, Converter={StaticResource InvertBoolean}}"
-                                      Margin="8 0 0 0"
+                            <StackPanel Orientation="Horizontal">
+                                <ComboBox ItemsSource="{Binding RankingTargetItems}"
+                                          SelectedItem="{Binding SelectedRankingTarget.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          DisplayMemberPath="Label"
+                                          MinWidth="80"
+                                          IsEnabled="{Binding NowLoadingItems.Value, Converter={StaticResource InvertBoolean}}"
+                                          Margin="0 0 0 0"
+                                          Background="Transparent"
                                       />
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal">
+                                <ComboBox ItemsSource="{Binding RankingTimeSpanItems}"
+                                          SelectedItem="{Binding SelectedRankingTimeSpan.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          DisplayMemberPath="Label"
+                                          MinWidth="80"
+                                          IsEnabled="{Binding NowLoadingItems.Value, Converter={StaticResource InvertBoolean}}"
+                                          Margin="0 0 0 0"
+                                          Background="Transparent"
+                                      />
+                            </StackPanel>
                         </StackPanel>
 
-                        <Border Width="8" />
-
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="集計期間"
+                        <Border Background="Transparent" IsHitTestVisible="True"
+                                Margin="24 0 0 0"
+                                >
+                            
+                            <TextBlock Text="{Binding Title}" 
                                        VerticalAlignment="Center"
-                                       Margin="8 0 0 0"
-                                       Foreground="DimGray"
-                                       x:Name="RankingTimeSpanLabel"
-                                       />
-                            <ComboBox ItemsSource="{Binding RankingTimeSpanItems}"
-                                      SelectedItem="{Binding SelectedRankingTimeSpan.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                      DisplayMemberPath="Label"
-                                      MinWidth="80"
-                                      IsEnabled="{Binding NowLoadingItems.Value, Converter={StaticResource InvertBoolean}}"
-                                      Margin="8 0 0 0"
-                                      />
-                        </StackPanel>
-                    </StackPanel>
-
-                    <Border>
-                        <TextBlock Text=":)" Padding="16 8" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                       Style="{StaticResource SubtitleTextBlockStyle}"
+                                       >
+                                
                             <i:Interaction.Behaviors>
                                 <core:EventTriggerBehavior EventName="Tapped">
                                     <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0" />
                                 </core:EventTriggerBehavior>
                             </i:Interaction.Behaviors>
 
-                        </TextBlock>
-                    </Border>
-
-                   
-                </toolkit:DockPanel>
+                            </TextBlock>
+                        </Border>
 
 
+                    </toolkit:DockPanel>
+                </Border>
+                
 
-          
-                <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom" 
-                           Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
-                                Height="72"
-                                Margin="8 0"                               
-                           >
-                    <StackPanel Orientation="Horizontal"
-                        toolkit:DockPanel.Dock="Right"
-                        >
-                        <AppBarButton Icon="Add" Label="マイリスト登録" Command="{Binding RegistratioMylistCommand}" />
-                        <StackPanel Orientation="Horizontal" Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}">
-                            <AppBarSeparator />
-                            <AppBarButton Icon="Download" Label="キャッシュ取得" Command="{Binding RequestCacheDownload}" />
-                            <AppBarSeparator />
-                            <AppBarButton Icon="Cancel" Label="キャッシュ取消" Command="{Binding CancelCacheDownloadRequest}" />
-                        </StackPanel>
 
-                    </StackPanel>
 
-                    <Border />
-
-                </toolkit:DockPanel>
+                
 
 
 

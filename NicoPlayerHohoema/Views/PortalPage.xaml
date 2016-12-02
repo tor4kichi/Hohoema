@@ -29,14 +29,14 @@
                 <toolkit:DockPanel>
 
                     <toolkit:DockPanel Margin="0 0 0 0" 
-                        Visibility="{Binding IsHiddenLabel, Converter={StaticResource BooleanToVisibilityInverted}}"
-                        toolkit:DockPanel.Dock="Top"                                
+                                Visibility="{Binding IsHiddenLabel, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                toolkit:DockPanel.Dock="Top"                                
                                 HorizontalAlignment="Stretch"
                         >
                         <Border Background="{Binding OriginalContainer.ThemeColor, Converter={StaticResource ColorToBrush}}"
-                            toolkit:DockPanel.Dock="Left"   
-                            Width="8"
-                            Margin="0 0 4 0"
+                                toolkit:DockPanel.Dock="Left"   
+                                Width="8"
+                                Margin="0 0 4 0"
                                 />
                         <Button Content="{Binding Item.PrimaryLabel}"
                                 HorizontalAlignment="Stretch"
@@ -44,7 +44,7 @@
                                 Height="48"
                                 FontSize="20"
                                 Command="{Binding OpenItemPageCommand}"
-                               />
+                                />
                     </toolkit:DockPanel>
 
 
@@ -101,6 +101,7 @@
                                 Height="48"
                                 FontSize="20"
                                 Command="{Binding OpenItemPageCommand}"
+                                Background="{ThemeResource SystemControlBackgroundBaseLowBrush}"
                                />
                     </toolkit:DockPanel>
 
@@ -344,7 +345,7 @@
 
                 <ItemsControl  x:Name="MobileGridView"
                                 ItemsSource="{Binding Root.Items}"
-                           ItemTemplateSelector="{StaticResource Mobile_AppMapItemDataTemplateSelector}"
+                            ItemTemplateSelector="{StaticResource Mobile_AppMapItemDataTemplateSelector}"
                                Margin="4 0 4 0"
                                     >
                     <ItemsControl.ItemContainerStyle>

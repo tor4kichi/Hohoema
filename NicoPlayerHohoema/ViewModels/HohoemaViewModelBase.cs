@@ -232,9 +232,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 			_NavigatedToTask = __NavigatedToAsync(_NavigatedToTaskCancelToken.Token, e, viewModelState);
 
-			if (!String.IsNullOrEmpty(_Title))
+			if (!String.IsNullOrEmpty(Title))
 			{
-				PageManager.PageTitle = _Title;
+				PageManager.PageTitle = Title;
 			}
 			else
 			{
@@ -350,13 +350,13 @@ namespace NicoPlayerHohoema.ViewModels
         {
             AvailableServiceLevel = serviceLevel;
 
-            Debug.WriteLine(_Title + " require service level: " + AvailableServiceLevel.ToString());
+            Debug.WriteLine(Title + " require service level: " + AvailableServiceLevel.ToString());
         }
 
 	
 		protected void UpdateTitle(string title)
 		{
-			_Title = title;
+			Title = title;
 			PageManager.UpdateTitle(title);
 		}
 
@@ -404,6 +404,11 @@ namespace NicoPlayerHohoema.ViewModels
 		public bool CanActivateBackgroundUpdate { get; private set; }
 
 		private string _Title;
+        public string Title
+        {
+            get { return _Title; }
+            set { SetProperty(ref _Title, value); }
+        }
 
 		public HohoemaApp HohoemaApp { get; private set; }
 		public PageManager PageManager { get; private set; }
