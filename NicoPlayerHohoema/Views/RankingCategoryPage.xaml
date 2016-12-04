@@ -15,6 +15,7 @@
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:mytrigger="using:NicoPlayerHohoema.Views.StateTrigger"
+    xmlns:iconPack="using:MahApps.Metro.IconPacks"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
@@ -81,6 +82,64 @@
 
         <Border>
             <toolkit:DockPanel>
+
+
+                <Border toolkit:DockPanel.Dock="Top" 
+                        BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
+                        BorderThickness="0 0 0 1"
+                        >
+                    <toolkit:DockPanel >
+
+
+                        <StackPanel Orientation="Horizontal"
+                                toolkit:DockPanel.Dock="Right"
+                                Visibility="{Binding CanChangeRankingParameter.Value, Converter={StaticResource BooleanToVisibility}}"
+                                >
+                            <StackPanel Orientation="Horizontal">
+                                <ComboBox ItemsSource="{Binding RankingTargetItems}"
+                                          SelectedItem="{Binding SelectedRankingTarget.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          DisplayMemberPath="Label"
+                                          MinWidth="80"
+                                          IsEnabled="{Binding CanChangeSort.Value}"
+                                          Margin="0 0 0 0"
+                                          Background="Transparent"
+                                      />
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal">
+                                <ComboBox ItemsSource="{Binding RankingTimeSpanItems}"
+                                          SelectedItem="{Binding SelectedRankingTimeSpan.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          DisplayMemberPath="Label"
+                                          MinWidth="80"
+                                          IsEnabled="{Binding CanChangeSort.Value}"
+                                          Margin="0 0 0 0"
+                                          Background="Transparent"
+                                      />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Border Background="Transparent" IsHitTestVisible="True"
+                                Margin="24 0 0 0"
+                                >
+
+                            <TextBlock Text="{Binding Title}" 
+                                       VerticalAlignment="Center"
+                                       Style="{StaticResource SubtitleTextBlockStyle}"
+                                       >
+                                
+                            <i:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0" />
+                                </core:EventTriggerBehavior>
+                            </i:Interaction.Behaviors>
+
+                            </TextBlock>
+                        </Border>
+
+
+                    </toolkit:DockPanel>
+                </Border>
+
                 <Border toolkit:DockPanel.Dock="Top" 
                         BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
                         BorderThickness="0 0 0 1"
@@ -91,8 +150,9 @@
                                 >
                             <ToggleButton Background="Transparent"
                                           IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          ToolTipService.ToolTip="選択"
                                           >
-                                <SymbolIcon Symbol="List" />
+                                <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" />
                             </ToggleButton>
 
 
@@ -104,7 +164,11 @@
                                 BorderThickness="1 0 0 0"
                                  Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                 >
-                            <Button Background="Transparent">
+                            <Button Background="Transparent" 
+                                    Command="{Binding RefreshCommand}"
+                                    IsEnabled="{Binding CanChangeSort.Value}"
+                                    ToolTipService.ToolTip="更新"
+                                    >
                                 <SymbolIcon Symbol="Refresh" />
                             </Button>
 
@@ -154,8 +218,10 @@
 
                             </toolkit:DockPanel>
 
+                            
                             <toolkit:DockPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
-                                
+
+                                <!--
                                 <Grid x:Name="SearchButtonBorder"
                                       BorderThickness="1"
                                       >
@@ -180,8 +246,9 @@
                                         <SymbolIcon Symbol="Find"  />
                                     </Button>
                                 </Grid>
-
+                                -->
                             </toolkit:DockPanel>
+
                         </Grid>
 
                         
@@ -191,61 +258,7 @@
                 </Border>
                     
 
-                <Border toolkit:DockPanel.Dock="Top" 
-                        BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
-                        BorderThickness="0 0 0 1"
-                        >
-                    <toolkit:DockPanel >
-
-
-                        <StackPanel Orientation="Horizontal"
-                                toolkit:DockPanel.Dock="Right"
-                                Visibility="{Binding CanChangeRankingParameter.Value, Converter={StaticResource BooleanToVisibility}}"
-                                >
-                            <StackPanel Orientation="Horizontal">
-                                <ComboBox ItemsSource="{Binding RankingTargetItems}"
-                                          SelectedItem="{Binding SelectedRankingTarget.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          DisplayMemberPath="Label"
-                                          MinWidth="80"
-                                          IsEnabled="{Binding NowLoadingItems.Value, Converter={StaticResource InvertBoolean}}"
-                                          Margin="0 0 0 0"
-                                          Background="Transparent"
-                                      />
-                            </StackPanel>
-
-                            <StackPanel Orientation="Horizontal">
-                                <ComboBox ItemsSource="{Binding RankingTimeSpanItems}"
-                                          SelectedItem="{Binding SelectedRankingTimeSpan.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          DisplayMemberPath="Label"
-                                          MinWidth="80"
-                                          IsEnabled="{Binding NowLoadingItems.Value, Converter={StaticResource InvertBoolean}}"
-                                          Margin="0 0 0 0"
-                                          Background="Transparent"
-                                      />
-                            </StackPanel>
-                        </StackPanel>
-
-                        <Border Background="Transparent" IsHitTestVisible="True"
-                                Margin="24 0 0 0"
-                                >
-                            
-                            <TextBlock Text="{Binding Title}" 
-                                       VerticalAlignment="Center"
-                                       Style="{StaticResource SubtitleTextBlockStyle}"
-                                       >
-                                
-                            <i:Interaction.Behaviors>
-                                <core:EventTriggerBehavior EventName="Tapped">
-                                    <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0" />
-                                </core:EventTriggerBehavior>
-                            </i:Interaction.Behaviors>
-
-                            </TextBlock>
-                        </Border>
-
-
-                    </toolkit:DockPanel>
-                </Border>
+                
                 
 
 

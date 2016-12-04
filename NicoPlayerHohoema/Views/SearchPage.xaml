@@ -182,9 +182,64 @@
                                    toolkit:DockPanel.Dock="Top"
                                    Margin="16 0 0 0"
                                    >
-                   
 
-                    
+
+                    <Border toolkit:DockPanel.Dock="Top" 
+                        BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
+                        BorderThickness="0 0 0 1"
+                        >
+                        <toolkit:DockPanel >
+
+
+                            <StackPanel Orientation="Horizontal"
+                                toolkit:DockPanel.Dock="Right"
+                                Visibility="{Binding CanChangeRankingParameter.Value, Converter={StaticResource BooleanToVisibility}}"
+                                >
+                                <StackPanel Orientation="Horizontal">
+                                    <ComboBox ItemsSource="{Binding RankingTargetItems}"
+                                          SelectedItem="{Binding SelectedRankingTarget.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          DisplayMemberPath="Label"
+                                          MinWidth="80"
+                                          IsEnabled="{Binding NowLoadingItems.Value, Converter={StaticResource InvertBoolean}}"
+                                          Margin="0 0 0 0"
+                                          Background="Transparent"
+                                      />
+                                </StackPanel>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <ComboBox ItemsSource="{Binding RankingTimeSpanItems}"
+                                          SelectedItem="{Binding SelectedRankingTimeSpan.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          DisplayMemberPath="Label"
+                                          MinWidth="80"
+                                          IsEnabled="{Binding NowLoadingItems.Value, Converter={StaticResource InvertBoolean}}"
+                                          Margin="0 0 0 0"
+                                          Background="Transparent"
+                                      />
+                                </StackPanel>
+                            </StackPanel>
+
+                            <Border Background="Transparent" IsHitTestVisible="True"
+                                Margin="24 0 0 0"
+                                >
+
+                                <TextBlock Text="{Binding Title}" 
+                                       VerticalAlignment="Center"
+                                       Style="{StaticResource SubtitleTextBlockStyle}"
+                                       >
+                                
+                            <i:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0" />
+                                </core:EventTriggerBehavior>
+                            </i:Interaction.Behaviors>
+
+                                </TextBlock>
+                            </Border>
+
+
+                        </toolkit:DockPanel>
+                    </Border>
+
 
                     <!-- ターゲット（Keyword, Tag etc） -->
                     <Border Margin="0 0 8 0">
