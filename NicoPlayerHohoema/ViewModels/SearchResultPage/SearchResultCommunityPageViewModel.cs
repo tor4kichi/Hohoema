@@ -12,6 +12,7 @@ using Mntone.Nico2.Searches.Community;
 using Mntone.Nico2;
 using Prism.Windows.Navigation;
 using Prism.Commands;
+using Windows.UI.Xaml.Navigation;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -19,14 +20,13 @@ namespace NicoPlayerHohoema.ViewModels
 	// Note: Communityの検索はページベースで行います。
 	// また、ログインが必要です。
 
-	public class CommunitySearchPageContentViewModel : HohoemaListingPageViewModelBase<CommunityInfoControlViewModel>
+	public class SearchResultCommunityPageViewModel : HohoemaListingPageViewModelBase<CommunityInfoControlViewModel>
 	{
 		public CommunitySearchPagePayloadContent SearchOption { get; private set; }
 
-        public CommunitySearchPageContentViewModel(CommunitySearchPagePayloadContent searchOption, HohoemaApp app, PageManager pageManager)
+        public SearchResultCommunityPageViewModel(HohoemaApp app, PageManager pageManager)
             : base(app, pageManager)
         {
-            SearchOption = searchOption;
             ChangeRequireServiceLevel(HohoemaAppServiceLevel.LoggedIn);
         }
 		
@@ -53,7 +53,20 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			var target = "コミュニティ";
+            if (e.Parameter is string)
+            {
+                SearchOption = PagePayloadBase.FromParameterString<CommunitySearchPagePayloadContent>(e.Parameter as string);
+            }
+
+            if (SearchOption == null)
+            {
+                throw new Exception("コミュニティ検索");
+            }
+
+
+            Models.Db.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
+
+            var target = "コミュニティ";
 			var optionText = Util.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
 			var mode = SearchOption.Mode == CommunitySearchMode.Keyword ? "キーワード" : "タグ";
 			UpdateTitle($"{SearchOption.Keyword} - {target}/{optionText}({mode})");

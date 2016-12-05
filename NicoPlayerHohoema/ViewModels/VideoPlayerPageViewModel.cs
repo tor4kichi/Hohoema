@@ -1795,19 +1795,16 @@ namespace NicoPlayerHohoema.ViewModels
 				return _OpenSearchPageWithTagCommand
 					?? (_OpenSearchPageWithTagCommand = new DelegateCommand(() => 
 					{
-						var payload = new SearchPagePayload(
+						var payload = 
 							new Models.TagSearchPagePayloadContent()
 							{
 								Keyword = TagText,
 								Sort = Sort.FirstRetrieve,
 								Order = Order.Descending
 							}
-							);
+							;
 
-						_PageManager.OpenPage(
-							HohoemaPageType.Search
-							, payload.ToParameterString()
-							);
+                        _PageManager.Search(payload);
 					}));
 			}
 		}

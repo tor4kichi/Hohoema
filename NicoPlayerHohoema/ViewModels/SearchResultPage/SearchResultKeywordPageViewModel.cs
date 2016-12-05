@@ -14,7 +14,7 @@ using Prism.Commands;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class KeywordSearchPageContentViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
+	public class SearchResultKeywordPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
 	{
 
 		public ReactiveProperty<bool> FailLoading { get; private set; }
@@ -25,8 +25,7 @@ namespace NicoPlayerHohoema.ViewModels
 		NiconicoContentFinder _ContentFinder;
 
 
-		public KeywordSearchPageContentViewModel(
-			KeywordSearchPagePayloadContent searchOption,
+		public SearchResultKeywordPageViewModel(
 			HohoemaApp hohoemaApp, 
 			PageManager pageManager, 
 			MylistRegistrationDialogService mylistDialogService
@@ -41,7 +40,6 @@ namespace NicoPlayerHohoema.ViewModels
 			LoadedPage = new ReactiveProperty<int>(1)
 				.AddTo(_CompositeDisposable);
 
-			SearchOption = searchOption;
 		}
 
 
@@ -67,7 +65,21 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			var target = "キーワード";
+            if (e.Parameter is string)
+            {
+                SearchOption = PagePayloadBase.FromParameterString<KeywordSearchPagePayloadContent>(e.Parameter as string);
+            }
+
+            if (SearchOption == null)
+            {
+                throw new Exception("コミュニティ検索");
+            }
+
+
+            Models.Db.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
+
+
+            var target = "キーワード";
 			var optionText = Util.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
 			UpdateTitle($"{SearchOption.Keyword} - {target}/{optionText}");
 

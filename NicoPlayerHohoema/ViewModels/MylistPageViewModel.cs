@@ -509,7 +509,37 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		public ReactiveCommand UnregistrationMylistCommand { get; private set; }
+        private DelegateCommand _DeleteMylistCommand;
+        public DelegateCommand DeleteMylistCommand
+        {
+            get
+            {
+                return _DeleteMylistCommand
+                    ?? (_DeleteMylistCommand = new DelegateCommand(async () =>
+                    {
+                        if (IsLoginUserOwnedMylist)
+                        {
+                            var result = await HohoemaApp.UserMylistManager.RemoveMylist(this.MylistGroupId);
+                            
+                            if (result == ContentManageResult.Success)
+                            {
+                                PageManager.ForgetLastPage();
+                                if (PageManager.NavigationService.CanGoBack())
+                                {
+                                    PageManager.NavigationService.GoBack();
+                                }
+                                else
+                                {
+                                    PageManager.OpenPage(HohoemaPageType.UserMylist);
+                                }
+                            }
+                        }
+                    }));
+            }
+        }
+
+
+        public ReactiveCommand UnregistrationMylistCommand { get; private set; }
 		public ReactiveCommand CopyMylistCommand { get; private set; }
 		public ReactiveCommand MoveMylistCommand { get; private set; }
 

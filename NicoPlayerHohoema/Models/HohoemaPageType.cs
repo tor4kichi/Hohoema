@@ -15,7 +15,14 @@ namespace NicoPlayerHohoema.Models
 		Mylist,
 		FollowManage,
 		History,
+
 		Search,
+
+        SearchResultCommunity,
+        SearchResultTag,
+        SearchResultKeyword,
+        SearchResultMylist,
+        SearchResultLive,
 
 		CacheManagement,
 		Settings,

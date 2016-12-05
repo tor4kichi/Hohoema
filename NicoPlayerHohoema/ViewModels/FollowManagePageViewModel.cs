@@ -117,16 +117,15 @@ namespace NicoPlayerHohoema.ViewModels
 						switch (ItemType)
 						{
 							case FollowItemType.Tag:
-								var param = new SearchPagePayload(
-									new TagSearchPagePayloadContent()
-									{
-										Keyword = this.SourceId,
-										Sort = Mntone.Nico2.Sort.FirstRetrieve,
-										Order = Mntone.Nico2.Order.Descending,
-									}
-									).ToParameterString();
+                                var param =
+                                    new TagSearchPagePayloadContent()
+                                    {
+                                        Keyword = this.SourceId,
+                                        Sort = Mntone.Nico2.Sort.FirstRetrieve,
+                                        Order = Mntone.Nico2.Order.Descending,
+                                    };
 
-								_PageManager.OpenPage(HohoemaPageType.Search, param);
+                                _PageManager.Search(param);
 								break;
 							case FollowItemType.Mylist:
 								_PageManager.OpenPage(HohoemaPageType.Mylist, this.SourceId);

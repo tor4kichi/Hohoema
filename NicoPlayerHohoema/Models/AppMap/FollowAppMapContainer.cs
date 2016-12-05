@@ -67,13 +67,13 @@ namespace NicoPlayerHohoema.Models.AppMap
 			switch (FollowItemType)
 			{
 				case FollowItemType.Tag:
-					PageType = HohoemaPageType.Search;
-					Parameter = new SearchPagePayload(new TagSearchPagePayloadContent()
+					PageType = HohoemaPageType.SearchResultTag;
+					Parameter = new TagSearchPagePayloadContent()
 					{
 						Keyword = followInfo.Id,
 						Sort = Mntone.Nico2.Sort.FirstRetrieve,
 						Order = Mntone.Nico2.Order.Descending
-					})
+					}
 					.ToParameterString();
 					break;
 				case FollowItemType.Mylist:

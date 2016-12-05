@@ -310,6 +310,11 @@ namespace NicoPlayerHohoema.ViewModels
                     HohoemaApp.OnSignout += __OnSignout;
                     HohoemaApp.OnSignin += __OnSignin;
                 }
+
+                if (string.IsNullOrEmpty(Title))
+                {
+                    UpdateTitle(PageManager.CurrentDefaultPageTitle());
+                }
             }
         }
 

@@ -173,6 +173,7 @@
     <Compile Include="Models\Live\NicoLiveVideo.cs" />
     <Compile Include="Models\LoginRedirectPayload.cs" />
     <Compile Include="Models\MediaBackgroundTask.cs" />
+    <Compile Include="Models\PageManagerSearchExtention.cs" />
     <Compile Include="Models\Settings\AppMapSettings.cs" />
     <Compile Include="Models\Settings\CacheSettings.cs" />
     <Compile Include="Models\UserMylistManager.cs" />
@@ -244,13 +245,12 @@
     <Compile Include="ViewModels\LiveVideoPlayerPageViewModel.cs" />
     <Compile Include="ViewModels\MenuNavigatePageBaseViewModel.cs" />
     <Compile Include="ViewModels\MylistPageViewModel.cs" />
-    <Compile Include="ViewModels\SearchContent\CommunitySearchPageContentViewModel.cs" />
-    <Compile Include="ViewModels\SearchContent\EmptySearchPageContentViewModel.cs" />
-    <Compile Include="ViewModels\SearchContent\KeywordSearchPageContentViewModel.cs" />
-    <Compile Include="ViewModels\SearchContent\LiveSearchPageContentViewModel.cs" />
-    <Compile Include="ViewModels\SearchContent\MylistSearchPageContentViewModel.cs" />
-    <Compile Include="ViewModels\SearchContent\VideoSearchSortOptionListItem.cs" />
-    <Compile Include="ViewModels\SearchContent\TagSearchPageContentViewModel.cs" />
+    <Compile Include="ViewModels\SearchResultPage\SearchResultCommunityPageViewModel.cs" />
+    <Compile Include="ViewModels\SearchResultPage\SearchResultKeywordPageViewModel.cs" />
+    <Compile Include="ViewModels\SearchResultPage\SearchResultLivePageViewModel.cs" />
+    <Compile Include="ViewModels\SearchResultPage\SearchResultMylistPageViewModel.cs" />
+    <Compile Include="ViewModels\VideoSearchSortOptionListItem.cs" />
+    <Compile Include="ViewModels\SearchResultPage\SearchResultTagPageViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\AppDisplaySettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\CacheSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\CommentSettingsPageContentViewModel.cs" />
@@ -382,23 +382,20 @@
     <Compile Include="Views\RankingChoiceContentDialog.xaml.cs">
       <DependentUpon>RankingChoiceContentDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\SearchContent\CommunitySearchPageContent.xaml.cs">
-      <DependentUpon>CommunitySearchPageContent.xaml</DependentUpon>
+    <Compile Include="Views\SearchResultPage\SearchResultCommunityPage.xaml.cs">
+      <DependentUpon>SearchResultCommunityPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\SearchContent\EmptySearchPageContent.xaml.cs">
-      <DependentUpon>EmptySearchPageContent.xaml</DependentUpon>
+    <Compile Include="Views\SearchResultPage\SearchResultKeywordPage.xaml.cs">
+      <DependentUpon>SearchResultKeywordPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\SearchContent\KeywordSearchPageContent.xaml.cs">
-      <DependentUpon>KeywordSearchPageContent.xaml</DependentUpon>
+    <Compile Include="Views\SearchResultPage\SearchResultLivePage.xaml.cs">
+      <DependentUpon>SearchResultLivePage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\SearchContent\LiveSearchPageContent.xaml.cs">
-      <DependentUpon>LiveSearchPageContent.xaml</DependentUpon>
+    <Compile Include="Views\SearchResultPage\SearchResultMylistPage.xaml.cs">
+      <DependentUpon>SearchResultMylistPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\SearchContent\MylistSearchPageContent.xaml.cs">
-      <DependentUpon>MylistSearchPageContent.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\SearchContent\TagSearchPageContent.xaml.cs">
-      <DependentUpon>TagSearchPageContent.xaml</DependentUpon>
+    <Compile Include="Views\SearchResultPage\SearchResultTagPage.xaml.cs">
+      <DependentUpon>SearchResultTagPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\VideoPlayerPageViewModel.cs" />
     <Compile Include="ViewModels\PortalPageViewModel.cs" />
@@ -751,27 +748,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\SearchContent\CommunitySearchPageContent.xaml">
+    <Page Include="Views\SearchResultPage\SearchResultCommunityPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\SearchContent\EmptySearchPageContent.xaml">
+    <Page Include="Views\SearchResultPage\SearchResultKeywordPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\SearchContent\KeywordSearchPageContent.xaml">
+    <Page Include="Views\SearchResultPage\SearchResultLivePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\SearchContent\LiveSearchPageContent.xaml">
+    <Page Include="Views\SearchResultPage\SearchResultMylistPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\SearchContent\MylistSearchPageContent.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\SearchContent\TagSearchPageContent.xaml">
+    <Page Include="Views\SearchResultPage\SearchResultTagPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

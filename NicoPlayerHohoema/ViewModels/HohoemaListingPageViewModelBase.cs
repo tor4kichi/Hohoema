@@ -25,7 +25,6 @@ namespace NicoPlayerHohoema.ViewModels
 	public abstract class HohoemaListingPageViewModelBase<ITEM_VM> : HohoemaViewModelBase
 		where ITEM_VM : HohoemaListingPageItemBase
 	{
-
 		public HohoemaListingPageViewModelBase(HohoemaApp app, PageManager pageManager)
 			: base(app, pageManager)
 		{

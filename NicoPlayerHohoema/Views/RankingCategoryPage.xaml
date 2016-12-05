@@ -188,16 +188,7 @@
                                 <StackPanel Orientation="Horizontal"
                                     toolkit:DockPanel.Dock="Right"                                        
                                     >
-                                    <Button Command="{Binding RegistratioMylistCommand}"
-                                            Background="Transparent"
-                                            >
-                                        <StackPanel Orientation="Horizontal">
-                                            <SymbolIcon Symbol="Add" />
-                                            <TextBlock Text="マイリスト登録"
-                                                   VerticalAlignment="Center"
-                                                   />
-                                        </StackPanel>
-                                    </Button>
+                                    
                                     <StackPanel Orientation="Horizontal" >
                                         <Button Command="{Binding RequestCacheDownload}"
                                                 Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
