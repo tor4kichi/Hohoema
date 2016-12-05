@@ -54,7 +54,7 @@ namespace NicoPlayerHohoema.ViewModels
             SubMenuItems = new List<PageTypeSelectableItem>()
             {
                 new PageTypeSelectableItem(HohoemaPageType.Settings             , OnMenuItemSelected, "設定", Symbol.Setting),
-                new PageTypeSelectableItem(HohoemaPageType.VideoPlayer          , OnAccountMenuItemSelected, "アカウント", Symbol.Account),
+                new PageTypeSelectableItem(HohoemaPageType.VideoInfomation      , OnAccountMenuItemSelected, "アカウント", Symbol.Account),
                 new PageTypeSelectableItem(HohoemaPageType.About                , OnMenuItemSelected, "このアプリについて", Symbol.AllApps),
                 new PageTypeSelectableItem(HohoemaPageType.Feedback             , OnMenuItemSelected, "フィードバック", Symbol.Send),
             };
