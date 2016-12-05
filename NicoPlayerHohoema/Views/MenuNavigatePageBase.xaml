@@ -115,6 +115,8 @@
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
                                 <Setter Target="SplitView.DisplayMode" Value="CompactInline" />
+                                <Setter Target="ClosePaneBehavior1.IsEnable" Value="False" />
+                                <Setter Target="ClosePaneBehavior2.IsEnable" Value="False" />
                             </VisualState.Setters>
                         </VisualState>
                         
@@ -125,6 +127,8 @@
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
                                 <Setter Target="SplitView.DisplayMode" Value="CompactOverlay" />
+                                <Setter Target="ClosePaneBehavior1.IsEnable" Value="True" />
+                                <Setter Target="ClosePaneBehavior2.IsEnable" Value="True" />
                             </VisualState.Setters>
                         </VisualState>
                     </VisualStateGroup>
@@ -223,8 +227,11 @@
 
                                         <i:Interaction.Behaviors>
                                             <core:EventTriggerBehavior EventName="SelectionChanged">
+                                                
                                                 <mybehavior:SplitViewClosePane SplitView="{Binding ElementName=SplitView}" 
+                                                                               x:Name="ClosePaneBehavior1"
                                                         />
+                                                
                                             </core:EventTriggerBehavior>
                                         </i:Interaction.Behaviors>
                                     </ListView>
@@ -252,8 +259,11 @@
 
                                         <i:Interaction.Behaviors>
                                             <core:EventTriggerBehavior EventName="SelectionChanged">
+                                                
                                                 <mybehavior:SplitViewClosePane SplitView="{Binding ElementName=SplitView}" 
+                                                                               x:Name="ClosePaneBehavior2"
                                                         />
+                                                
                                             </core:EventTriggerBehavior>
                                         </i:Interaction.Behaviors>
                                     </ListView>
