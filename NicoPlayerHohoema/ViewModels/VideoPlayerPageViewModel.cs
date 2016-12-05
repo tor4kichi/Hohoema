@@ -107,9 +107,6 @@ namespace NicoPlayerHohoema.ViewModels
 			IsEnableRepeat = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false)
 				.AddTo(_CompositeDisposable);
 			
-
-			Title = new ReactiveProperty<string>("")
-				.AddTo(_CompositeDisposable);
 			WritingComment = new ReactiveProperty<string>("")
 				.AddTo(_CompositeDisposable);
 
@@ -601,7 +598,7 @@ namespace NicoPlayerHohoema.ViewModels
                 cancelToken.ThrowIfCancellationRequested();
 
 
-                Title.Value = videoInfo.Title;
+                Title = videoInfo.Title;
 
 
                 // ビデオタイプとプロトコルタイプをチェックする
@@ -938,7 +935,7 @@ namespace NicoPlayerHohoema.ViewModels
                 ProgressPercent.Value = 100.0;
                 IsPlayWithCache.Value = true;
                 IsSaveRequestedCurrentQualityCache.Value = true;
-                Title.Value = Video.Title;
+                Title = Video.Title;
             }
             else
             {
@@ -1632,8 +1629,6 @@ namespace NicoPlayerHohoema.ViewModels
 		// Note: 新しいReactivePropertyを追加したときの注意点
 		// ReactivePorpertyの初期化にPlayerWindowUIDispatcherSchedulerを使うこと
 
-
-		public ReactiveProperty<string> Title { get; private set; }
 
 		public ReactiveProperty<object> VideoStream { get; private set; }
 
