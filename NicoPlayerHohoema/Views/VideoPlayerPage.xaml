@@ -661,7 +661,7 @@
                                               Command="{Binding BackCommand}"
                                               VerticalAlignment="Stretch"
                                       />
-                                    <TextBlock Text="{Binding Title.Value}" 
+                                    <TextBlock Text="{Binding Title}" 
                                                VerticalAlignment="Center"
                                                Margin="8 0"
                                                TextWrapping="Wrap"

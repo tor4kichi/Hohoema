@@ -12,19 +12,17 @@ using System.Windows.Input;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class LiveSearchPageContentViewModel : HohoemaListingPageViewModelBase<LiveInfoViewModel>
+	public class SearchResultLivePageViewModel : HohoemaListingPageViewModelBase<LiveInfoViewModel>
 	{
 		public LiveSearchPagePayloadContent SearchOption { get; private set; }
 
 
-		public LiveSearchPageContentViewModel(
-			LiveSearchPagePayloadContent searchOption,
+		public SearchResultLivePageViewModel(
 			HohoemaApp app,
 			PageManager pageManager
 			) 
 			: base(app, pageManager)
 		{
-			SearchOption = searchOption;
             ChangeRequireServiceLevel(HohoemaAppServiceLevel.OnlineWithoutLoggedIn);
 		}
 
@@ -49,7 +47,19 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			var target = "生放送";
+            if (e.Parameter is string)
+            {
+                SearchOption = PagePayloadBase.FromParameterString<LiveSearchPagePayloadContent>(e.Parameter as string);
+            }
+
+            if (SearchOption == null)
+            {
+                throw new Exception();
+            }
+
+            Models.Db.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
+
+            var target = "生放送";
 			var optionText = Util.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
 
 			string mode = "";

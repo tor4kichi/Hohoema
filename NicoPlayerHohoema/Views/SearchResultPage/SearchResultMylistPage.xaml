@@ -1,9 +1,8 @@
 ﻿<Page
-    x:Name="PageRoot"
-    x:Class="NicoPlayerHohoema.Views.FeedVideoListPage"
+    x:Class="NicoPlayerHohoema.Views.SearchResultMylistPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:local="using:NicoPlayerHohoema.Views.SearchContent"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
@@ -12,31 +11,22 @@
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
-    xmlns:iconPack="using:MahApps.Metro.IconPacks"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
-    mc:Ignorable="d">
-
-    <Page.Resources>
-        <DataTemplate x:Key="FavoriteVideoInfoTemplate">
-            <Grid>
-                <TextBlock Text="New" 
-                           HorizontalAlignment="Right"
-                           VerticalAlignment="Top"
-                           Visibility="{Binding IsNewItem, Converter={StaticResource BooleanToVisibility}}"
-                           />
-
-                <local:VideoInfoControl />
-            </Grid>
-        </DataTemplate>
-    </Page.Resources>
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
 
     <Grid>
+
         <Border>
             <toolkit:DockPanel>
+
                 <Border toolkit:DockPanel.Dock="Top" 
                     BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
                     BorderThickness="0 0 0 1"
+                        MinHeight="48"
                     >
                     <toolkit:DockPanel >
 
@@ -45,34 +35,11 @@
                                 Orientation="Horizontal"
                                 >
 
-                                                   
-                            
-                            <Button Command="{Binding AllMarkAsReadCommand}"
-                                    Background="Transparent"
-                                    ToolTipService.ToolTip="全てチェック済みにする"
-                                    >
-                                <StackPanel Orientation="Horizontal">
-                                    <iconPack:PackIconMaterial Kind="CheckAll" />
-                                </StackPanel>
-                            </Button>
-
-                            <Border Width="8" />
-
-                            <Button Command="{Binding OpenFeedGroupPageCommand}"
-                                    Background="Transparent"
-                                    ToolTipService.ToolTip="フィードの編集画面を開く"
-                                    >
-                                <StackPanel Orientation="Horizontal">
-                                    <SymbolIcon Symbol="Edit" />
-                                </StackPanel>
-                            </Button>
-
-
                         </StackPanel>
 
                         <Border Background="Transparent" IsHitTestVisible="True"
-                                Margin="24 0 0 0"
-                                >
+                            Margin="24 0 0 0"
+                            >
 
                             <TextBlock Text="{Binding Title}" 
                                     VerticalAlignment="Center"
@@ -96,13 +63,12 @@
                 </Border>
 
                 
-               
 
                 <controls:HohoemaIncrementalLoadingList />
 
 
+
             </toolkit:DockPanel>
         </Border>
-
     </Grid>
 </Page>

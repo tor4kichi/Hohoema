@@ -13,103 +13,246 @@
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:iconPack="using:MahApps.Metro.IconPacks"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
     <Grid>
         <toolkit:DockPanel >
 
-
-            <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
-
-                <Border Background="{Binding ThemeColor, Converter={StaticResource ColorToBrush}}" Width="4" 
-                    toolkit:DockPanel.Dock="Left"
-                        Margin="0 0 8 0"
-                    />
+            <Border toolkit:DockPanel.Dock="Top" 
+                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
+                    BorderThickness="0 0 0 1"
+                    >
+                <toolkit:DockPanel >
 
 
-                <!-- 複数選択のON/OFF -->
-                <controls:ListingSelectionControl 
-                        Margin="8 0"
-                        toolkit:DockPanel.Dock="Right"
-                        />
-
-                
-                <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left" 
-                            >
-                    <AppBarButton Icon="Edit"
-                                  Label="マイリスト編集"
-                                  Command="{Binding EditMylistGroupCommand}"
-                                  Visibility="{Binding IsLoginUserOwnedMylist, Converter={StaticResource BooleanToVisibility}}"
-                                    />
-                    <AppBarToggleButton Icon="Favorite"
-                                        IsChecked="{Binding IsFavoriteMylist.Value, Mode=TwoWay}"
-                                        IsEnabled="{Binding CanChangeFavoriteMylistState.Value}"
-                                        Label="フォロー"
-                                        Visibility="{Binding IsLoginUserOwnedMylist, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                    />
-
-                    <Border Width="16" />
-
-                    <HyperlinkButton Command="{Binding OpenUserPageCommand}"
+                    <StackPanel toolkit:DockPanel.Dock="Right" Margin="8 0"
+                                Orientation="Horizontal"
+                                >
+                        
+                        <Button Command="{Binding OpenUserPageCommand}"
+                                Background="Transparent"
                                      >
-                        <TextBlock>
-                            <Run Text="{Binding UserName}" />
-                            <Run Text=" さんのマイリスト" />
-                        </TextBlock>
-                    </HyperlinkButton>
+                            <SymbolIcon Symbol="People" />
+                        </Button>
 
-                    <TextBlock Text="非公開"
+                        <Button Command="{Binding EditMylistGroupCommand}"
+                                Visibility="{Binding IsLoginUserOwnedMylist, Converter={StaticResource BooleanToVisibility}}"
+                                Background="Transparent"
+                                    >
+                            <StackPanel Orientation="Horizontal">
+                                <SymbolIcon Symbol="Edit" />
+                            </StackPanel>
+                        </Button>
+                        <ToggleButton IsChecked="{Binding IsFavoriteMylist.Value, Mode=TwoWay}"
+                                      IsEnabled="{Binding CanChangeFavoriteMylistState.Value}"
+                                      Visibility="{Binding IsLoginUserOwnedMylist, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                      Background="Transparent"
+                                    >
+                            <StackPanel Orientation="Horizontal">
+                                <SymbolIcon Symbol="Favorite" />
+                            </StackPanel>
+                        </ToggleButton>
+
+                        <Border Visibility="{Binding IsLoginUserDeflist, Converter={StaticResource BooleanToVisibilityInverted}}">
+                            <Button Command="{Binding DeleteMylistCommand}"
+                                    Visibility="{Binding IsLoginUserOwnedMylist, Converter={StaticResource BooleanToVisibility}}"
+                                    Background="Transparent"
+                                    >
+                                <StackPanel Orientation="Horizontal">
+                                    <SymbolIcon Symbol="Delete"
+                                            Foreground="DarkRed"
+                                            />
+                                </StackPanel>
+                            </Button>
+                        </Border>
+
+                    </StackPanel>
+
+                    <Border Background="Transparent" IsHitTestVisible="True"
+                            Margin="24 0 0 0"
+                            >
+
+                        <TextBlock Text="{Binding Title}" 
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource SubtitleTextBlockStyle}"
+                                    >
+                                
+                        <i:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="Tapped">
+                                <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0" />
+                            </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
+
+                            
+                        </TextBlock>
+                    </Border>
+                    
+                    
+
+
+                </toolkit:DockPanel>
+            </Border>
+
+            <Border toolkit:DockPanel.Dock="Top" 
+                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
+                    BorderThickness="0 0 0 1"
+                    >
+                <toolkit:DockPanel>
+
+                    <Border toolkit:DockPanel.Dock="Right"
+                            >
+                        <ToggleButton Background="Transparent"
+                                        IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        ToolTipService.ToolTip="選択"
+                                        >
+                            <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" />
+                        </ToggleButton>
+
+
+                    </Border>
+
+                    <Border 
+                            toolkit:DockPanel.Dock="Right"
+                            BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
+                            BorderThickness="1 0 0 0"
+                                Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                            >
+                        <Button Background="Transparent" 
+                                Command="{Binding RefreshCommand}"
+                                IsEnabled="{Binding CanChangeSort.Value}"
+                                ToolTipService.ToolTip="更新"
+                                >
+                            <SymbolIcon Symbol="Refresh" />
+                        </Button>
+
+                    </Border>
+                    
+                    
+                    <Grid
+                            
+                        >
+                        <toolkit:DockPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                                        >
+
+                            <StackPanel Orientation="Horizontal"
+                                toolkit:DockPanel.Dock="Right"                                        
+                                >
+                                <Button Command="{Binding RegistratioMylistCommand}"
+                                            Background="Transparent"
+                                        Visibility="{Binding IsLoginUserOwnedMylist, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                            >
+                                    <StackPanel Orientation="Horizontal">
+                                        <SymbolIcon Symbol="Add" />
+                                        <TextBlock Text="マイリスト登録"
+                                                   VerticalAlignment="Center"
+                                                   />
+                                    </StackPanel>
+                                </Button>
+                                <Button Command="{Binding CopyMylistCommand}"
+                                        Background="Transparent"
+                                        Visibility="{Binding IsLoginUserOwnedMylist, Converter={StaticResource BooleanToVisibility}}"
+                                        >
+                                    <StackPanel Orientation="Horizontal">
+                                        <SymbolIcon Symbol="Add" />
+                                        <TextBlock Text="コピー"
+                                                VerticalAlignment="Center"
+                                                />
+                                    </StackPanel>
+                                </Button>
+                                <Button Command="{Binding MoveMylistCommand}"
+                                        Background="Transparent"
+                                        Visibility="{Binding IsLoginUserOwnedMylist, Converter={StaticResource BooleanToVisibility}}"
+                                        >
+                                    <StackPanel Orientation="Horizontal">
+                                        <SymbolIcon Symbol="Add" />
+                                        <TextBlock Text="移動"
+                                                VerticalAlignment="Center"
+                                                />
+                                    </StackPanel>
+                                </Button>
+                                <Button Command="{Binding UnregistrationMylistCommand}"
+                                        Background="Transparent"
+                                        Visibility="{Binding IsLoginUserOwnedMylist, Converter={StaticResource BooleanToVisibility}}"
+                                        >
+                                    <StackPanel Orientation="Horizontal">
+                                        <SymbolIcon Symbol="Add" />
+                                        <TextBlock Text="解除"
+                                                VerticalAlignment="Center"
+                                                />
+                                    </StackPanel>
+                                </Button>
+                                
+                                <StackPanel Orientation="Horizontal" >
+                                    <Button Command="{Binding RequestCacheDownload}"
+                                            Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
+                                            Background="Transparent"
+                                            >
+                                        <StackPanel Orientation="Horizontal">
+                                            <SymbolIcon Symbol="Download" />
+                                            <TextBlock Text="キャッシュ"
+                                                VerticalAlignment="Center"
+                                                />
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+
+                            </StackPanel>
+
+                            <Border />
+
+                        </toolkit:DockPanel>
+
+
+                        <toolkit:DockPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
+
+                            <TextBlock Text="非公開マイリスト"
                                Margin="16 0"
                                VerticalAlignment="Center"
                                Visibility="{Binding IsPublic, Converter={StaticResource BooleanToVisibilityInverted}}"
                                />
-                </StackPanel>
+                            <TextBlock Text="公開マイリスト"
+                               Margin="16 0"
+                               VerticalAlignment="Center"
+                               Visibility="{Binding IsPublic, Converter={StaticResource BooleanToVisibility}}"
+                               />
+                            <!--
+                            <Grid x:Name="SearchButtonBorder"
+                                    BorderThickness="1"
+                                    >
+                                    
+                                    
+                                <TextBox x:Name="SearchTextBox"
+                                    PlaceholderText="ページ内検索"
+                                    InputScope="SearchIncremental"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Top"
+                                    Height="47"
+                                    Padding="24 8 0 8"
+                                    Margin="0 0 48 0"
+                                    BorderThickness="0"
+                                    >
+
+                                </TextBox>
+
+                                <Button HorizontalAlignment="Right"
+                                        Background="Transparent"
+                                    >
+                                    <SymbolIcon Symbol="Find"  />
+                                </Button>
+                            </Grid>
+                            -->
+                        </toolkit:DockPanel>
+
+                    </Grid>
 
 
 
-                <Border>
-                    <TextBlock Text=":)" Padding="16 8" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <i:Interaction.Behaviors>
-                                <core:EventTriggerBehavior EventName="Tapped">
-                                    <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0" />
-                                </core:EventTriggerBehavior>
-                            </i:Interaction.Behaviors>
 
-                    </TextBlock>
-                </Border>
-
-
-            </toolkit:DockPanel>
-
-            <!-- 選択アクション -->
-            <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom" 
-                               Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
-                                Height="72"
-                                Margin="8 0"                               
-                           >
-                <StackPanel Orientation="Horizontal"
-                            VerticalAlignment="Center"
-                        toolkit:DockPanel.Dock="Right"
-                        >
-                    <AppBarButton Icon="Copy" Label="マイリストコピー" Command="{Binding CopyMylistCommand}" />
-                    <AppBarButton Icon="Preview" Label="マイリスト移動" Command="{Binding UnregistrationMylistCommand}" />
-                    <AppBarSeparator />
-                    <AppBarButton Icon="Remove" Label="マイリスト解除" Command="{Binding UnregistrationMylistCommand}" />
-                    <StackPanel Orientation="Horizontal" Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}">
-                        <AppBarSeparator />
-                        <AppBarButton Icon="Download" Label="キャッシュ取得" Command="{Binding RequestCacheDownload}" />
-                        <AppBarSeparator />
-                        <AppBarButton Icon="Cancel" Label="キャッシュ取消" Command="{Binding CancelCacheDownloadRequest}" />
-                    </StackPanel>
-
-                </StackPanel>
-
-                <Border />
-
-            </toolkit:DockPanel>
-
-
+                </toolkit:DockPanel>
+            </Border>
+            
 
             <controls:HohoemaIncrementalLoadingList />
 

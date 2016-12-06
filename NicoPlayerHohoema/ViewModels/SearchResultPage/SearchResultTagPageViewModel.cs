@@ -16,7 +16,7 @@ using Windows.UI.Xaml.Navigation;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class TagSearchPageContentViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
+	public class SearchResultTagPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
 	{
 		public ReactiveProperty<bool> IsFavoriteTag { get; private set; }
 		public ReactiveProperty<bool> CanChangeFavoriteTagState { get; private set; }
@@ -33,16 +33,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 		NiconicoContentFinder _ContentFinder;
 
-		public TagSearchPageContentViewModel(
-			TagSearchPagePayloadContent searchOption,
+		public SearchResultTagPageViewModel(
 			HohoemaApp hohoemaApp, 
 			PageManager pageManager, 
 			MylistRegistrationDialogService mylistDialogService
 			) 
 			: base(hohoemaApp, pageManager, mylistDialogService)
 		{
-			SearchOption = searchOption;
-
 			_ContentFinder = HohoemaApp.ContentFinder;
 			FailLoading = new ReactiveProperty<bool>(false)
 				.AddTo(_CompositeDisposable);
@@ -131,14 +128,26 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			_NowProcessFavorite = true;
+            if (e.Parameter is string)
+            {
+                SearchOption = PagePayloadBase.FromParameterString<TagSearchPagePayloadContent>(e.Parameter as string);
+            }
+
+            _NowProcessFavorite = true;
 
 			IsFavoriteTag.Value = false;
 			CanChangeFavoriteTagState.Value = false;
 
 			_NowProcessFavorite = false;
 
-			var target = "タグ";
+            if (SearchOption == null)
+            {
+                throw new Exception();
+            }
+
+            Models.Db.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
+
+            var target = "タグ";
 			var optionText = Util.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
 			UpdateTitle($"{SearchOption.Keyword} - {target}/{optionText}");
 

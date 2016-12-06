@@ -15,11 +15,11 @@ using Windows.UI.Xaml.Navigation;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
-namespace NicoPlayerHohoema.Views.SearchContent
+namespace NicoPlayerHohoema.Views
 {
-	public sealed partial class LiveSearchPageContent : UserControl
+	public sealed partial class SearchResultTagPage : Page
 	{
-		public LiveSearchPageContent()
+		public SearchResultTagPage()
 		{
 			this.InitializeComponent();
 		}

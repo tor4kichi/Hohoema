@@ -28,7 +28,7 @@
             </TextBlock>
         </StackPanel>
 
-        <ToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+        <ToggleButton 
                         Content="選択モード"
                         />
         

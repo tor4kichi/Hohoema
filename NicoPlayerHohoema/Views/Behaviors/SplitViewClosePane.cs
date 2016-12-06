@@ -11,9 +11,9 @@ namespace NicoPlayerHohoema.Views.Behaviors
 {
 	public class SplitViewClosePane : Behavior<DependencyObject>, IAction
 	{
-		#region IsEnable Property
+        #region SplitView Property
 
-		public static readonly DependencyProperty SplitViewProperty =
+        public static readonly DependencyProperty SplitViewProperty =
 			DependencyProperty.Register(
 					nameof(SplitView)
 					, typeof(SplitView)

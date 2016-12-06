@@ -7,10 +7,8 @@ using Windows.UI.Xaml;
 
 namespace NicoPlayerHohoema.Views.StateTrigger
 {
-	public class WindowActiveTrigger : StateTriggerBase
+	public class WindowActiveTrigger : InvertibleStateTrigger
 	{
-		public bool Inverted { get; set; } = false;
-
 		public WindowActiveTrigger()
 		{
 			Window.Current.Activated += Current_Activated;
@@ -25,7 +23,7 @@ namespace NicoPlayerHohoema.Views.StateTrigger
 
 		private void SetWindowActive(bool isWindowActive)
 		{
-			SetActive(Inverted ? !isWindowActive : isWindowActive);
+            SetActiveInvertible(isWindowActive);
 		}
 	}
 }

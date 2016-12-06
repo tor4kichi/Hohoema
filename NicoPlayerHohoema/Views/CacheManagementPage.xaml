@@ -13,6 +13,7 @@
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:iconPack="using:MahApps.Metro.IconPacks"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
@@ -22,64 +23,174 @@
         <toolkit:DockPanel >
 
 
-            <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
-
-                <!-- 複数選択のON/OFF -->
-                <controls:ListingSelectionControl 
-                    Margin="8 0"
-                    toolkit:DockPanel.Dock="Right"
-                    />
+            <Border toolkit:DockPanel.Dock="Top" 
+                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
+                    BorderThickness="0 0 0 1"
+                    >
+                <toolkit:DockPanel >
 
 
+                    <StackPanel toolkit:DockPanel.Dock="Right" Margin="8 0"
+                                Orientation="Horizontal"
+                                >
+
+                        <Button Command="{Binding ResumeCacheCommand}"
+                                    Background="Transparent"
+                                    ToolTipService.ToolTip="キャッシュ再開"
+                                    >
+                            <StackPanel Orientation="Horizontal">
+                                <iconPack:PackIconMaterial Kind="Download" />
+                            </StackPanel>
+                        </Button>
 
 
-                <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left"  Margin="8 0">
 
-                    <AppBarButton Label="キャッシュ再開"
-                                  Icon="Download"
-                                  Command="{Binding ResumeCacheCommand}"
-                                  />
+                    </StackPanel>
 
-                </StackPanel>
+                    <Border Background="Transparent" IsHitTestVisible="True"
+                                Margin="24 0 0 0"
+                                >
+
+                        <TextBlock Text="{Binding Title}" 
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource SubtitleTextBlockStyle}"
+                                    >
+                                
+                                <i:Interaction.Behaviors>
+                                    <core:EventTriggerBehavior EventName="Tapped">
+                                        <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0" />
+                                    </core:EventTriggerBehavior>
+                                </i:Interaction.Behaviors>
+
+
+                        </TextBlock>
+                    </Border>
 
 
 
-                <Border>
-                    <TextBlock Text=":)" Padding="16 8" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <i:Interaction.Behaviors>
-                            <core:EventTriggerBehavior EventName="Tapped">
-                                <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0" />
-                            </core:EventTriggerBehavior>
-                        </i:Interaction.Behaviors>
 
-                    </TextBlock>
-                </Border>
-                
-            </toolkit:DockPanel>
+                </toolkit:DockPanel>
+            </Border>
 
-            <!-- 選択アクション -->
-            <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom" 
-                               Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
-                               Height="72"
-                               Margin="8 0"
-                           >
-                <StackPanel Orientation="Horizontal"
-                            VerticalAlignment="Center"
+            <Border toolkit:DockPanel.Dock="Top" 
+                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
+                    BorderThickness="0 0 0 1"
+                    >
+                <toolkit:DockPanel>
+
+                    <Border toolkit:DockPanel.Dock="Right"
+                            >
+                        <ToggleButton Background="Transparent"
+                                        IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        ToolTipService.ToolTip="選択"
+                                        >
+                            <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" />
+                        </ToggleButton>
+
+
+                    </Border>
+
+                    <Border 
                             toolkit:DockPanel.Dock="Right"
+                            BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
+                            BorderThickness="1 0 0 0"
+                                Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                            >
+                        <Button Background="Transparent" 
+                                Command="{Binding RefreshCommand}"
+                                ToolTipService.ToolTip="更新"
+                                >
+                            <SymbolIcon Symbol="Refresh" />
+                        </Button>
+
+                    </Border>
+
+
+
+
+
+
+
+                    <Grid
                             
                         >
+                        <toolkit:DockPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                                        >
 
-                    <AppBarButton Icon="Add" Label="マイリスト登録" Command="{Binding RegistratioMylistCommand}" />
-                    <AppBarSeparator />
-                    <AppBarButton Icon="Download" Label="キャッシュ取得" Command="{Binding RequestCacheDownload}" />
-                    <AppBarSeparator />
-                    <AppBarButton Icon="Cancel" Label="キャッシュ取消" Command="{Binding CancelCacheDownloadRequest}" />
-                </StackPanel>
+                            <StackPanel Orientation="Horizontal"
+                                toolkit:DockPanel.Dock="Right"                                        
+                                >
 
-                <Border />
+                                <Button Command="{Binding RegistratioMylistCommand}"
+                                            Background="Transparent"
+                                            >
+                                    <StackPanel Orientation="Horizontal">
+                                        <SymbolIcon Symbol="Add" />
+                                        <TextBlock Text="マイリスト登録"
+                                                   VerticalAlignment="Center"
+                                                   />
+                                    </StackPanel>
+                                </Button>
 
-            </toolkit:DockPanel>
+                                <StackPanel Orientation="Horizontal" >
+                                    <Button Command="{Binding CancelCacheDownloadRequest}"
+                                            Background="Transparent"
+                                            >
+                                        <StackPanel Orientation="Horizontal">
+                                            <SymbolIcon Symbol="Download" />
+                                            <TextBlock Text="キャッシュ削除"
+                                                VerticalAlignment="Center"
+                                                />
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
 
+                            </StackPanel>
+
+                            <Border />
+
+                        </toolkit:DockPanel>
+
+
+                        <toolkit:DockPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
+
+                            <!--
+                            <Grid x:Name="SearchButtonBorder"
+                                    BorderThickness="1"
+                                    >
+                                    
+                                    
+                                <TextBox x:Name="SearchTextBox"
+                                    PlaceholderText="ページ内検索"
+                                    InputScope="SearchIncremental"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Top"
+                                    Height="47"
+                                    Padding="24 8 0 8"
+                                    Margin="0 0 48 0"
+                                    BorderThickness="0"
+                                    >
+
+                                </TextBox>
+
+                                <Button HorizontalAlignment="Right"
+                                        Background="Transparent"
+                                    >
+                                    <SymbolIcon Symbol="Find"  />
+                                </Button>
+                            </Grid>
+                            -->
+                        </toolkit:DockPanel>
+
+                    </Grid>
+
+
+
+
+                </toolkit:DockPanel>
+            </Border>
+
+           
 
             <controls:HohoemaIncrementalLoadingList />
 
@@ -87,7 +198,7 @@
         </toolkit:DockPanel>
 
 
-        <Grid Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibilityInverted}}" 
+        <Grid Visibility="{Binding IsCacheUserAccepted, Converter={StaticResource BooleanToVisibilityInverted}}" 
               HorizontalAlignment="Stretch"
               VerticalAlignment="Stretch"
               Background="#77FFFFFF"

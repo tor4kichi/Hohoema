@@ -116,7 +116,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		public DateTime SubmitDate { get; private set; }
-		public string Title { get; private set; }
 		public ObservableCollection<string> Tags { get; private set; }
 	}
 }

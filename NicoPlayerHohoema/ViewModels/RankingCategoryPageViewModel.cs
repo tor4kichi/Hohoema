@@ -30,6 +30,8 @@ namespace NicoPlayerHohoema.ViewModels
 		public RankingCategoryPageViewModel(HohoemaApp hohoemaApp, EventAggregator ea, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
 			: base(hohoemaApp, pageManager, mylistDialogService)
 		{
+            this.ChangeRequireServiceLevel(HohoemaAppServiceLevel.LoggedIn);
+
 			ContentFinder = HohoemaApp.ContentFinder;
 			_EventAggregator = ea;
 

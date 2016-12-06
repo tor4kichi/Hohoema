@@ -57,11 +57,11 @@ namespace NicoPlayerHohoema.ViewModels
 				// プレイリストを空にしてから選択動画を登録
 
 				//				SelectedVideoInfoItems.First()?.PlayCommand.Execute();
-			})
-			.AddTo(_CompositeDisposable);
+			    })
+			    .AddTo(_CompositeDisposable);
 
 			CancelCacheDownloadRequest = SelectionItemsChanged
-				.Select(_ => EnumerateCacheRequestedVideoItems().Count() > 0)
+				.Select(_ => SelectedItems.Count > 0)
 				.ToReactiveCommand(false)
 				.AddTo(_CompositeDisposable);
 
@@ -97,59 +97,10 @@ namespace NicoPlayerHohoema.ViewModels
 			)
 			.AddTo(_CompositeDisposable);
 
-			RequestOriginalQualityCacheDownload = SelectionItemsChanged
-				.Select(_ =>
-				{
-					return EnumerateCanDownloadVideoItem(NicoVideoQuality.Original).Count() > 0
-						&& HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache;
-				}
-				)
-				.ToReactiveCommand(false)
-				.AddTo(_CompositeDisposable);
 
-			RequestOriginalQualityCacheDownload
-				.SubscribeOnUIDispatcher()
-				.Subscribe(async _ =>
-				{
-					foreach (var item in EnumerateCanDownloadVideoItem(NicoVideoQuality.Original))
-					{
-						await item.NicoVideo.OriginalQuality.RequestCache();
-					}
-
-					ClearSelection();
-					await UpdateList();
-				})
-			.AddTo(_CompositeDisposable);
-
-			RequestLowQualityCacheDownload = SelectionItemsChanged
-				.Select(_ =>
-				{
-					return EnumerateCanDownloadVideoItem(NicoVideoQuality.Low).Count() > 0
-						&& HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache;
-				})
-				.ToReactiveCommand(false)
-				.AddTo(_CompositeDisposable);
-
-			RequestLowQualityCacheDownload
-				.SubscribeOnUIDispatcher()
-				.Subscribe(async _ =>
-				{
-					foreach (var item in EnumerateCanDownloadVideoItem(NicoVideoQuality.Low))
-					{
-						await item.NicoVideo.LowQuality.RequestCache();
-					}
-
-					ClearSelection();
-					await UpdateList();
-
-				})
-			.AddTo(_CompositeDisposable);
-
-
-
-			// クオリティ指定無しのキャッシュDLリクエスト
-			RequestCacheDownload = SelectionItemsChanged
-				.Select(_ => EnumerateCanDownloadVideoItem().Count() > 0 && HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache)
+            // クオリティ指定無しのキャッシュDLリクエスト
+            RequestCacheDownload = SelectionItemsChanged
+                .Select(_ => SelectedItems.Count > 0 && CanDownload)
 				.ToReactiveCommand(false)
 				.AddTo(_CompositeDisposable);
 
@@ -295,15 +246,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override Task OnSignIn(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
         {
-
-			HohoemaApp.UserSettings.CacheSettings.ObserveProperty(x => x.IsUserAcceptedCache)
-				.Subscribe(x => CanDownload = x)
-				.AddTo(userSessionDisposer);
+            ReflectCanDownloadStatus();
 
             return base.OnSignIn(userSessionDisposer, cancelToken);
         }
 
-       
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			base.OnNavigatedTo(e, viewModelState);
@@ -314,7 +261,8 @@ namespace NicoPlayerHohoema.ViewModels
 				//				ResetList();
 			}
 
-		}
+            ReflectCanDownloadStatus();
+        }
 
 		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
@@ -347,11 +295,11 @@ namespace NicoPlayerHohoema.ViewModels
 				return SelectedItems.Where(x =>
 				{
 					var video = x.NicoVideo;
-					if (video.OriginalQuality.CanRequestCache && video.OriginalQuality.CacheState != NicoVideoCacheState.NowDownloading)
+					if (video.OriginalQuality.CanRequestCache && !video.OriginalQuality.IsCached)
 					{
 						return true;
 					}
-					else if (video.LowQuality.CanRequestCache && video.LowQuality.CacheState != NicoVideoCacheState.NowDownloading)
+					else if (video.LowQuality.CanRequestCache && !video.LowQuality.IsCached)
 					{
 						return true;
 					}
@@ -361,16 +309,19 @@ namespace NicoPlayerHohoema.ViewModels
 					}
 				});
 			}
-			switch (quality)
-			{
-				case NicoVideoQuality.Original:
-					return SelectedItems.Where(x => x.NicoVideo.OriginalQuality.CanRequestCache && x.NicoVideo.OriginalQuality.CacheState != NicoVideoCacheState.NowDownloading);
-				case NicoVideoQuality.Low:
-					return SelectedItems.Where(x => x.NicoVideo.LowQuality.CanRequestCache && x.NicoVideo.LowQuality.CacheState != NicoVideoCacheState.NowDownloading);
-				default:
-					return Enumerable.Empty<VideoInfoControlViewModel>();
-			}
-		}
+            else
+            {
+                switch (quality)
+                {
+                    case NicoVideoQuality.Original:
+                        return SelectedItems.Where(x => x.NicoVideo.OriginalQuality.CanRequestCache && !x.NicoVideo.OriginalQuality.IsCached);
+                    case NicoVideoQuality.Low:
+                        return SelectedItems.Where(x => x.NicoVideo.LowQuality.CanRequestCache && !x.NicoVideo.LowQuality.IsCached);
+                    default:
+                        return Enumerable.Empty<VideoInfoControlViewModel>();
+                }
+            }
+        }
 
 		private IEnumerable<VideoInfoControlViewModel> EnumerateCachedVideoItem(NicoVideoQuality quality)
 		{
@@ -397,13 +348,21 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+        private void ReflectCanDownloadStatus()
+        {
+            CanDownload = HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache 
+                && HohoemaApp.UserSettings.CacheSettings.IsEnableCache
+                && HohoemaApp.IsLoggedIn
+                ;
+        }
 
 
-	
 
 
 
-		private bool _CanDownload;
+
+
+        private bool _CanDownload;
 		public bool CanDownload
 		{
 			get { return _CanDownload; }
@@ -415,8 +374,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveCommand PlayAllCommand { get; private set; }
 		public ReactiveCommand CancelCacheDownloadRequest { get; private set; }
-		public ReactiveCommand RequestOriginalQualityCacheDownload { get; private set; }
-		public ReactiveCommand RequestLowQualityCacheDownload { get; private set; }
 		public ReactiveCommand DeleteOriginalQualityCache { get; private set; }
 		public ReactiveCommand DeleteLowQualityCache { get; private set; }
 

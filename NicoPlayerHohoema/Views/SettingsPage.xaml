@@ -8,6 +8,7 @@
     xmlns:view="using:NicoPlayerHohoema.Views"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:settingsContent="using:NicoPlayerHohoema.Views.SettingsPageContent"
+    xmlns:iconPack="using:MahApps.Metro.IconPacks"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
 
     mc:Ignorable="d">
@@ -63,6 +64,31 @@
     
     
     <toolkit:DockPanel>
+        <Border toolkit:DockPanel.Dock="Top" 
+                BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
+                BorderThickness="0 0 0 1"
+                Height="48"
+                    >
+            <toolkit:DockPanel >
+                <StackPanel toolkit:DockPanel.Dock="Right" Margin="8 0"
+                                Orientation="Horizontal"
+                                >
+                </StackPanel>
+
+                <Border Background="Transparent" IsHitTestVisible="True"
+                                Margin="24 0 0 0"
+                                >
+
+                    <TextBlock Text="{Binding Title}" 
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource SubtitleTextBlockStyle}"
+                                    >
+
+                    </TextBlock>
+                </Border>
+            </toolkit:DockPanel>
+        </Border>
+
         <Border toolkit:DockPanel.Dock="Top">
             <ListView x:Name="SettingItemsList"
                       SelectionMode="Single"
@@ -87,10 +113,7 @@
                             ContentTemplateSelector="{StaticResource settingContentTemplateSelector}"
                             VerticalContentAlignment="Stretch"
                             HorizontalContentAlignment="Stretch"
-                            
                             >
-
-
             </ContentControl>
         </Border>
     </toolkit:DockPanel>

@@ -25,15 +25,16 @@ namespace NicoPlayerHohoema.ViewModels
 	public abstract class HohoemaListingPageViewModelBase<ITEM_VM> : HohoemaViewModelBase
 		where ITEM_VM : HohoemaListingPageItemBase
 	{
-
 		public HohoemaListingPageViewModelBase(HohoemaApp app, PageManager pageManager)
 			: base(app, pageManager)
 		{
 			NowLoadingItems = new ReactiveProperty<bool>(true)
 				.AddTo(_CompositeDisposable);
-			SelectedItems = new ObservableCollection<ITEM_VM>();
+            
+            SelectedItems = new ObservableCollection<ITEM_VM>();
 
-			HasItem = new ReactiveProperty<bool>(true);
+            
+            HasItem = new ReactiveProperty<bool>(true);
 
 			HasError = new ReactiveProperty<bool>(false);
 
@@ -50,9 +51,9 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactiveProperty(0)
 				.AddTo(_CompositeDisposable);
 
+           
 
-
-			NowRefreshable = new ReactiveProperty<bool>(false);
+            NowRefreshable = new ReactiveProperty<bool>(false);
 
 			// 複数選択モード
 			IsSelectionModeEnable = new ReactiveProperty<bool>(false)
@@ -91,12 +92,19 @@ namespace NicoPlayerHohoema.ViewModels
 				});
 #endif
 
+            // 読み込み厨または選択中はソートを変更できない
+            CanChangeSort = Observable.CombineLatest(
+                NowLoadingItems,
+                IsSelectionModeEnable
+                )
+                .Select(x => !x.Any(y => y))
+                .ToReactiveProperty();
 
-			
-		}
+
+        }
 
 
-		protected override void OnDispose()
+        protected override void OnDispose()
 		{
 			if (IncrementalLoadingItems.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
 			{
@@ -334,8 +342,9 @@ namespace NicoPlayerHohoema.ViewModels
 		private double _LastListViewOffset;
 
 		public ReactiveProperty<bool> NowLoadingItems { get; private set; }
+        public ReactiveProperty<bool> CanChangeSort { get; private set; }
 
-		public ReactiveProperty<bool> NowRefreshable { get; private set; }
+        public ReactiveProperty<bool> NowRefreshable { get; private set; }
 
 		public ReactiveProperty<bool> HasItem { get; private set; }
 

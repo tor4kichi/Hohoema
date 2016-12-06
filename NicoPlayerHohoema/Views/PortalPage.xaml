@@ -29,14 +29,14 @@
                 <toolkit:DockPanel>
 
                     <toolkit:DockPanel Margin="0 0 0 0" 
-                        Visibility="{Binding IsHiddenLabel, Converter={StaticResource BooleanToVisibilityInverted}}"
-                        toolkit:DockPanel.Dock="Top"                                
+                                Visibility="{Binding IsHiddenLabel, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                toolkit:DockPanel.Dock="Top"                                
                                 HorizontalAlignment="Stretch"
                         >
                         <Border Background="{Binding OriginalContainer.ThemeColor, Converter={StaticResource ColorToBrush}}"
-                            toolkit:DockPanel.Dock="Left"   
-                            Width="8"
-                            Margin="0 0 4 0"
+                                toolkit:DockPanel.Dock="Left"   
+                                Width="8"
+                                Margin="0 0 4 0"
                                 />
                         <Button Content="{Binding Item.PrimaryLabel}"
                                 HorizontalAlignment="Stretch"
@@ -44,7 +44,7 @@
                                 Height="48"
                                 FontSize="20"
                                 Command="{Binding OpenItemPageCommand}"
-                               />
+                                />
                     </toolkit:DockPanel>
 
 
@@ -101,6 +101,7 @@
                                 Height="48"
                                 FontSize="20"
                                 Command="{Binding OpenItemPageCommand}"
+                                Background="{ThemeResource SystemControlBackgroundBaseLowBrush}"
                                />
                     </toolkit:DockPanel>
 
@@ -264,7 +265,7 @@
 
 
 
-    <Grid>
+    <toolkit:DockPanel>
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="TopBarStateGroup">
 
@@ -301,25 +302,46 @@
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
+        <Border toolkit:DockPanel.Dock="Top" 
+                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
+                    BorderThickness="0 0 0 1"
+                    >
+            <toolkit:DockPanel >
+
+
+                <StackPanel toolkit:DockPanel.Dock="Right" Margin="8 0"
+                            Orientation="Horizontal"
+                            >
+                    <Button Background="Transparent" 
+                                Command="{Binding RefreshCommand}"
+                                ToolTipService.ToolTip="更新"
+                                >
+                        <SymbolIcon Symbol="Refresh" />
+                    </Button>
+                </StackPanel>
+
+                <Border Background="Transparent" IsHitTestVisible="True"
+                                Margin="24 0 0 0"
+                                >
+                    <TextBlock Text="{Binding Title}" 
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource SubtitleTextBlockStyle}"
+                                    >
+                                
+                                <i:Interaction.Behaviors>
+                                    <core:EventTriggerBehavior EventName="Tapped">
+                                        <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0" />
+                                    </core:EventTriggerBehavior>
+                                </i:Interaction.Behaviors>
+
+
+                    </TextBlock>
+                </Border>
+            </toolkit:DockPanel>
+        </Border>
 
         <ScrollViewer>
-            <StackPanel>
-
-                <toolkit:DockPanel Margin="0 0 0 8">
-                    <StackPanel Orientation="Horizontal"
-                                toolkit:DockPanel.Dock="Right"
-                                >
-                        <AppBarButton Label="更新"
-                              Icon="Refresh"
-                              Command="{Binding RefreshCommand}" 
-                              Margin="0"
-                              />
-                    </StackPanel>
-
-                    <Border />
-
-                </toolkit:DockPanel>
-                
+            <StackPanel Margin="0 8 0 0">
 
                 <ItemsControl  x:Name="DesktopGridView"      
                                ItemsSource="{Binding Root.Items}"
@@ -344,7 +366,7 @@
 
                 <ItemsControl  x:Name="MobileGridView"
                                 ItemsSource="{Binding Root.Items}"
-                           ItemTemplateSelector="{StaticResource Mobile_AppMapItemDataTemplateSelector}"
+                            ItemTemplateSelector="{StaticResource Mobile_AppMapItemDataTemplateSelector}"
                                Margin="4 0 4 0"
                                     >
                     <ItemsControl.ItemContainerStyle>
@@ -368,7 +390,7 @@
 
        
 
-    </Grid>
+    </toolkit:DockPanel>
 
     
        

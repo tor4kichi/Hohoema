@@ -16,18 +16,16 @@ using Prism.Windows.Navigation;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class MylistSearchPageContentViewModel : HohoemaListingPageViewModelBase<MylistSearchListingItem>
+	public class SearchResultMylistPageViewModel : HohoemaListingPageViewModelBase<MylistSearchListingItem>
 	{
 		public MylistSearchPagePayloadContent SearchOption { get; private set; }
 
-		public MylistSearchPageContentViewModel(
-			MylistSearchPagePayloadContent searchOption
-			, HohoemaApp hohoemaApp
+		public SearchResultMylistPageViewModel(
+			HohoemaApp hohoemaApp
 			, PageManager pageManager
 			) 
 			: base(hohoemaApp, pageManager)
 		{
-			SearchOption = searchOption;
 		}
 
 
@@ -52,7 +50,21 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			var target = "マイリスト";
+            if (e.Parameter is string)
+            {
+                SearchOption = PagePayloadBase.FromParameterString<MylistSearchPagePayloadContent>(e.Parameter as string);
+            }
+
+            if (SearchOption == null)
+            {
+                throw new Exception();
+            }
+
+
+            Models.Db.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
+
+
+            var target = "マイリスト";
 			var optionText = Util.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
 			UpdateTitle($"{SearchOption.Keyword} - {target}/{optionText}");
 

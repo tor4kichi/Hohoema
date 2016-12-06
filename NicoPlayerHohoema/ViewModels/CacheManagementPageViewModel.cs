@@ -41,10 +41,17 @@ namespace NicoPlayerHohoema.ViewModels
 			});
 		}
 
-		
-		#region Implement HohoemaVideListViewModelBase
 
-		protected override IIncrementalSource<CacheVideoViewModel> GenerateIncrementalSource()
+        #region Implement HohoemaVideListViewModelBase
+
+        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        {
+            IsCacheUserAccepted = HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache;
+
+            base.OnNavigatedTo(e, viewModelState);
+        }
+
+        protected override IIncrementalSource<CacheVideoViewModel> GenerateIncrementalSource()
 		{
 			return new CacheVideoInfoLoadingSource(HohoemaApp, PageManager);
 		}
@@ -68,7 +75,16 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		#endregion
+        #endregion
+
+
+        private bool _IsCacheUserAccepted;
+        public bool IsCacheUserAccepted
+        {
+            get { return _IsCacheUserAccepted; }
+            set { SetProperty(ref _IsCacheUserAccepted, value); }
+        }
+
 
 		private DelegateCommand _ResumeCacheCommand;
 		public DelegateCommand ResumeCacheCommand
