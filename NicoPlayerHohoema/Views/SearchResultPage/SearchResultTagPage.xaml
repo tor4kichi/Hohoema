@@ -35,6 +35,12 @@
                         <StackPanel toolkit:DockPanel.Dock="Right" Margin="8 0"
                                 Orientation="Horizontal"
                                 >
+                            <Button Background="Transparent"
+                                    Command="{Binding AddFeedSourceCommand}"
+                                    >
+                                <TextBlock Text="フィード登録" />
+                            </Button>
+                            
                             <ToggleButton Background="Transparent"
                                           IsChecked="{Binding IsFavoriteTag.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                           IsEnabled="{Binding CanChangeFavoriteTagState.Value}"

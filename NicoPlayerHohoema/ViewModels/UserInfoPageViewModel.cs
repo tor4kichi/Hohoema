@@ -12,15 +12,25 @@ using System.Reactive.Linq;
 using Reactive.Bindings.Extensions;
 using System.Diagnostics;
 using System.Threading;
+using Prism.Commands;
+using NicoPlayerHohoema.Views.Service;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	public class UserInfoPageViewModel : HohoemaViewModelBase
 	{
-		public UserInfoPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager) 
+        ContentSelectDialogService _ContentSelectDialogService;
+
+        public UserInfoPageViewModel(
+            HohoemaApp hohoemaApp
+            , PageManager pageManager
+            , Views.Service.ContentSelectDialogService contentSelectDialogService
+            ) 
 			: base(hohoemaApp, pageManager)
 		{
-			HasOwnerVideo = true;
+            _ContentSelectDialogService = contentSelectDialogService;
+
+            HasOwnerVideo = true;
 
 			MylistGroups = new ObservableCollection<MylistGroupListItem>();
 			VideoInfoItems = new ObservableCollection<VideoInfoControlViewModel>();
@@ -275,12 +285,36 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
+        private DelegateCommand _AddFeedSourceCommand;
+        public DelegateCommand AddFeedSourceCommand
+        {
+            get
+            {
+                return _AddFeedSourceCommand
+                    ?? (_AddFeedSourceCommand = new DelegateCommand(async () =>
+                    {
+                        var result = await _ContentSelectDialogService.ShowDialog(new ContentSelectDialogDefaultSet()
+                        {
+                            DialogTitle = UserName + "をフィードに追加",
+                            ChoiceListTitle = "フィードグループ",
+                            ChoiceList = HohoemaApp.FeedManager.FeedGroups
+                                .Select(x => new SelectDialogPayload() { Id = x.Id.ToString(), Label = x.Label })
+                                .ToList()
+                        });
+
+                        if (result != null)
+                        {
+                            var feedGroup = HohoemaApp.FeedManager.GetFeedGroup(Guid.Parse(result.Id));
+                            feedGroup.AddUserFeedSource(UserName, UserId);
+                        }
+                    }));
+            }
+        }
 
 
 
 
-
-		public string UserId { get; private set; }
+        public string UserId { get; private set; }
 		public bool IsLoadFailed { get; private set; }
 
 

@@ -33,15 +33,20 @@ namespace NicoPlayerHohoema.ViewModels
 
 		NiconicoContentFinder _ContentFinder;
 
-		public SearchResultTagPageViewModel(
+        ContentSelectDialogService _ContentSelectDialogService;
+
+        public SearchResultTagPageViewModel(
 			HohoemaApp hohoemaApp, 
 			PageManager pageManager, 
-			MylistRegistrationDialogService mylistDialogService
-			) 
+			MylistRegistrationDialogService mylistDialogService,
+            ContentSelectDialogService contentSelectDialogService
+            ) 
 			: base(hohoemaApp, pageManager, mylistDialogService)
 		{
 			_ContentFinder = HohoemaApp.ContentFinder;
-			FailLoading = new ReactiveProperty<bool>(false)
+            _ContentSelectDialogService = contentSelectDialogService;
+
+            FailLoading = new ReactiveProperty<bool>(false)
 				.AddTo(_CompositeDisposable);
 
 			LoadedPage = new ReactiveProperty<int>(1)
@@ -121,9 +126,37 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		#endregion
 
-		bool _NowProcessFavorite = false;
+        private DelegateCommand _AddFeedSourceCommand;
+        public DelegateCommand AddFeedSourceCommand
+        {
+            get
+            {
+                return _AddFeedSourceCommand
+                    ?? (_AddFeedSourceCommand = new DelegateCommand(async () =>
+                    {
+                        var result = await _ContentSelectDialogService.ShowDialog(new ContentSelectDialogDefaultSet()
+                        {
+                            DialogTitle = SearchOption.Keyword + "をフィードに追加",
+                            ChoiceListTitle = "フィードグループ",
+                            ChoiceList = HohoemaApp.FeedManager.FeedGroups
+                                .Select(x => new SelectDialogPayload() { Id = x.Id.ToString(), Label = x.Label })
+                                .ToList()
+                        });
+
+                        if (result != null)
+                        {
+                            var feedGroup = HohoemaApp.FeedManager.GetFeedGroup(Guid.Parse(result.Id));
+                            feedGroup.AddTagFeedSource(SearchOption.Keyword);
+                        }
+                    }));
+            }
+        }
+        
+
+        #endregion
+
+        bool _NowProcessFavorite = false;
 
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
