@@ -31,8 +31,12 @@
                                 Orientation="Horizontal"
                                 >
 
+                    <Button Background="Transparent"
+                                    Command="{Binding AddFeedSourceCommand}"
+                                    >
+                        <TextBlock Text="フィード登録" />
+                    </Button>
 
-                    
                     <ToggleButton Background="Transparent"
                                 IsChecked="{Binding IsFavorite.Value, Mode=TwoWay}"
                                 IsEnabled="{Binding CanChangeFavoriteState.Value}"
