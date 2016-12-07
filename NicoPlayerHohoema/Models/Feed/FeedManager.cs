@@ -46,8 +46,9 @@ namespace NicoPlayerHohoema.Models
 		}
 
 		private Dictionary<IFeedGroup, BackgroundUpdateScheduleHandler> _FeedGroupUpdaters;
-		
 
+
+        private bool _IsInitiliazed;
 
 		public FeedManager(HohoemaApp hohoemaApp)
 		{
@@ -81,6 +82,8 @@ namespace NicoPlayerHohoema.Models
 		
 		internal async Task Initialize()
 		{
+            if (_IsInitiliazed) { return; }
+
 			var feedGroupFolder = await GetFeedGroupFolder();
 
 			var files = await feedGroupFolder.GetFilesAsync();
@@ -89,7 +92,9 @@ namespace NicoPlayerHohoema.Models
 			await Load(files);
 
 			Debug.WriteLine($"FeedManager: {FeedGroupDict.Count} 件のFeedGroupを読み込みました。");
-		}
+
+            _IsInitiliazed = true;
+        }
 
 		public async Task Load(IReadOnlyList<StorageFile> files)
 		{
