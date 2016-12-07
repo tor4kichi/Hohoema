@@ -29,10 +29,20 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class MylistPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
 	{
-		public MylistPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
+
+        ContentSelectDialogService _ContentSelectDialogService;
+
+        public MylistPageViewModel(
+            HohoemaApp hohoemaApp
+            , PageManager pageManager
+            , Views.Service.MylistRegistrationDialogService mylistDialogService
+            , Views.Service.ContentSelectDialogService contentSelectDialogService
+            )
 			: base(hohoemaApp, pageManager, mylistDialogService, isRequireSignIn: true)
 		{
-			IsFavoriteMylist = new ReactiveProperty<bool>(mode:ReactivePropertyMode.DistinctUntilChanged)
+            _ContentSelectDialogService = contentSelectDialogService;
+
+            IsFavoriteMylist = new ReactiveProperty<bool>(mode:ReactivePropertyMode.DistinctUntilChanged)
 				.AddTo(_CompositeDisposable);
 			CanChangeFavoriteMylistState = new ReactiveProperty<bool>()
 				.AddTo(_CompositeDisposable);
@@ -539,9 +549,38 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
+        private DelegateCommand _AddFeedSourceCommand;
+        public DelegateCommand AddFeedSourceCommand
+        {
+            get
+            {
+                return _AddFeedSourceCommand
+                    ?? (_AddFeedSourceCommand = new DelegateCommand(async () =>
+                    {
+                        var result = await _ContentSelectDialogService.ShowDialog(new ContentSelectDialogDefaultSet()
+                        {
+                            DialogTitle = MylistTitle + "をフィードに追加",
+                            ChoiceListTitle = "フィードグループ",
+                            ChoiceList = HohoemaApp.FeedManager.FeedGroups
+                                .Select(x => new SelectDialogPayload() { Id = x.Id.ToString(), Label = x.Label })
+                                .ToList()
+                        });
+
+                        if (result != null)
+                        {
+                            var feedGroup = HohoemaApp.FeedManager.GetFeedGroup(Guid.Parse(result.Id));
+                            feedGroup.AddMylistFeedSource(MylistTitle, MylistGroupId);
+                        }
+                    }));
+            }
+        }
+
+
+
         public ReactiveCommand UnregistrationMylistCommand { get; private set; }
 		public ReactiveCommand CopyMylistCommand { get; private set; }
 		public ReactiveCommand MoveMylistCommand { get; private set; }
+
 
 
 
