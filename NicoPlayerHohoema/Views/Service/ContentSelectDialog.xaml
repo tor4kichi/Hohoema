@@ -23,6 +23,7 @@
             <ComboBox ItemsSource="{Binding Items}"
                       DisplayMemberPath="Label"
                       SelectedItem="{Binding SelectedItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                      PlaceholderText="選択"
                       />
             
         </DataTemplate>
@@ -66,7 +67,7 @@
 
     <StackPanel>
 
-        <toolkit:DockPanel Margin="0 16">
+        <toolkit:DockPanel Margin="0 8" Visibility="{Binding IsSingleContainer, Converter={StaticResource BooleanToVisibilityInverted}}">
 
             <TextBlock Text="選択方法" 
                        toolkit:DockPanel.Dock="Left"
@@ -86,6 +87,10 @@
                         ContentTemplateSelector="{StaticResource ContentSelectContainerTemplateSelector}"
                         HorizontalContentAlignment="Stretch"
                         VerticalContentAlignment="Stretch"
+                        HorizontalAlignment="Stretch"
+                        Margin="0 8"
+                        MinWidth="200"
+                        
                         />
 
     </StackPanel>
