@@ -362,10 +362,12 @@ namespace NicoPlayerHohoema
 				Debug.WriteLine("ダウンロードをキャンセル:" + a.RawVideoId);
 			};
 
-			//			var playNicoVideoEvent = EventAggregator.GetEvent<PlayNicoVideoEvent>();
-			//			playNicoVideoEvent.Subscribe(PlayNicoVideoInPlayerWindow);
+            //			var playNicoVideoEvent = EventAggregator.GetEvent<PlayNicoVideoEvent>();
+            //			playNicoVideoEvent.Subscribe(PlayNicoVideoInPlayerWindow);
 
-			await base.OnInitializeAsync(args);
+            SetTitleBar();
+
+            await base.OnInitializeAsync(args);
 		}
 
 		private void Context_DoneDownload(NicoVideoDownloadContext sender, NiconicoDownloadEventArgs args)
@@ -414,6 +416,8 @@ namespace NicoPlayerHohoema
 			Container.RegisterInstance(hohoemaApp);
 			Container.RegisterInstance(new PageManager(NavigationService));
 			Container.RegisterInstance(hohoemaApp.ContentFinder);
+
+            
 
 			// 非同期更新機能の同時実行タスク数を指定
 			var deviceFamily = Windows.System.Profile.AnalyticsInfo.VersionInfo.DeviceFamily;
@@ -582,7 +586,28 @@ namespace NicoPlayerHohoema
 
 			await PlayerWindow.ShowFront(currentViewId);
 		}
-	}
+
+
+        // 独自のタイトルバーを表示するメソッド
+        private void SetTitleBar()
+        {
+            var coreTitleBar
+              = Windows.ApplicationModel.Core.CoreApplication
+                .GetCurrentView().TitleBar;
+
+            var appTitleBar
+              = Windows.UI.ViewManagement.ApplicationView
+                .GetForCurrentView().TitleBar;
+
+            // タイトルバーの領域までアプリの表示を拡張する
+            coreTitleBar.ExtendViewIntoTitleBar = false;
+
+            // ［×］ボタンなどの背景色を設定する
+//            appTitleBar.ButtonBackgroundColor = Windows.UI.Colors.Transparent;
+            // 他にButtonInactiveBackgroundColorなども指定するとよい
+            // また、ボタンの前景色も同様にして指定できる
+        }
+    }
 
 
 

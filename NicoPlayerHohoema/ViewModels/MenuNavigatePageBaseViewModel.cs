@@ -31,92 +31,55 @@ namespace NicoPlayerHohoema.ViewModels
 			HohoemaApp = hohoemaApp;
             AccountManagementDialogService = accountManageDlgService;
 
+            IsForceXInputModeEnable = new ReactiveProperty<bool>(false);
             IsOpenPane = new ReactiveProperty<bool>(false);
 
-            // Symbol see@ https://msdn.microsoft.com/library/windows/apps/dn252842
-            SplitViewDisplayMode = new ReactiveProperty<Windows.UI.Xaml.Controls.SplitViewDisplayMode>();
-			CanClosePane = SplitViewDisplayMode.Select(x => x != Windows.UI.Xaml.Controls.SplitViewDisplayMode.Inline)
-				.ToReactiveProperty();
-
-
-			MenuItems = new List<PageTypeSelectableItem>()
+            MenuItems = new List<PageTypeSelectableItem>()
 			{
                 new PageTypeSelectableItem(HohoemaPageType.Portal             , OnMenuItemSelected, "ホーム", Symbol.Home),
-                new PageTypeSelectableItem(HohoemaPageType.Search             , OnMenuItemSelected, "検索", Symbol.Find),
                 new PageTypeSelectableItem(HohoemaPageType.RankingCategoryList, OnMenuItemSelected, "ランキング", Symbol.Flag),
-				new PageTypeSelectableItem(HohoemaPageType.FollowManage       , OnMenuItemSelected, "フォロー", Symbol.OutlineStar),
 				new PageTypeSelectableItem(HohoemaPageType.UserMylist		  , OnMenuItemSelected, "マイリスト", Symbol.Bookmarks),
-				new PageTypeSelectableItem(HohoemaPageType.History			  , OnMenuItemSelected, "視聴履歴", Symbol.Clock),
+                new PageTypeSelectableItem(HohoemaPageType.FollowManage       , OnMenuItemSelected, "フォロー", Symbol.OutlineStar),
                 new PageTypeSelectableItem(HohoemaPageType.FeedGroupManage    , OnMenuItemSelected, "フィード", Symbol.List),
-                new PageTypeSelectableItem(HohoemaPageType.CacheManagement    , OnMenuItemSelected, "キャッシュ管理", Symbol.Download),
             };
 
             SubMenuItems = new List<PageTypeSelectableItem>()
             {
+                new PageTypeSelectableItem(HohoemaPageType.CacheManagement    , OnMenuItemSelected, "キャッシュ管理", Symbol.Download),
+                new PageTypeSelectableItem(HohoemaPageType.History            , OnMenuItemSelected, "視聴履歴", Symbol.Clock),
                 new PageTypeSelectableItem(HohoemaPageType.Settings             , OnMenuItemSelected, "設定", Symbol.Setting),
-                new PageTypeSelectableItem(HohoemaPageType.VideoInfomation      , OnAccountMenuItemSelected, "アカウント", Symbol.Account),
-                new PageTypeSelectableItem(HohoemaPageType.About                , OnMenuItemSelected, "このアプリについて", Symbol.AllApps),
-                new PageTypeSelectableItem(HohoemaPageType.Feedback             , OnMenuItemSelected, "フィードバック", Symbol.Send),
+                new PageTypeSelectableItem(HohoemaPageType.VideoInfomation      , OnAccountMenuItemSelected, "アカウントを表示", Symbol.Account),
+                new PageTypeSelectableItem(HohoemaPageType.About                , OnMenuItemSelected, "アプリについて", Symbol.AllApps),
+                new PageTypeSelectableItem(HohoemaPageType.Feedback             , OnMenuItemSelected, "フィードバックを送信", Symbol.Send),
             };
 
-            SelectedItem = new ReactiveProperty<PageTypeSelectableItem>(MenuItems[0], mode: ReactivePropertyMode.DistinctUntilChanged);
-
-			SelectedItem
-				.Where(x => x != null)
-				.Subscribe(x => 
-			{
-                x.SelectedAction(x.Source);
-            });
+            MainSelectedItem = new ReactiveProperty<PageTypeSelectableItem>(MenuItems[0]);
+            SubSelectedItem = new ReactiveProperty<PageTypeSelectableItem>();
 
 
-			PageManager.ObserveProperty(x => x.CurrentPageType)
+            MainSelectedItem.Where(x => x != null).Subscribe(x => SubSelectedItem.Value = null);
+            SubSelectedItem.Where(x => x != null).Subscribe(x => MainSelectedItem.Value = null);
+
+            Observable.Merge(
+                MainSelectedItem, 
+                SubSelectedItem
+                )
+                .Where(x => x != null)
+                .Subscribe(x => PageManager.OpenPage(x.Source));
+            
+            PageManager.ObserveProperty(x => x.CurrentPageType)
 				.Subscribe(pageType => 
 				{
-					foreach (var item in MenuItems)
-					{
-						item.IsSelected = item.Source == pageType;
-					}
-
-                    foreach (var item in SubMenuItems)
-                    {
-                        item.IsSelected = item.Source == pageType;
-                    }
-					
-					SelectedItem.Value = null;
-
-					foreach (var item in MenuItems)
-					{
-						if (item.IsSelected)
-						{
-							SelectedItem.Value = item;
-							break;
-						}
-					}
-
-                    foreach (var item in SubMenuItems)
-                    {
-                        if (item.IsSelected)
-                        {
-                            SelectedItem.Value = item;
-                            break;
-                        }
-                    }
-
+                    IsOpenPane.Value = false;
                 });
 
-            
+            IsSubMenuItemPage = PageManager.ObserveProperty(x => x.CurrentPageType)
+                .Select(x => SubMenuItems.Any(y => y.Source == x))
+                .ToReactiveProperty();
 
 
 
-            IsPersonalPage = SelectedItem.Select(x =>
-			{
-				return MenuItems.All(y => x != y);
-			})
-			.ToReactiveProperty();
-
-			IsPersonalPage.ForceNotify();
-
-			PageManager.ObserveProperty(x => x.PageTitle)
+            PageManager.ObserveProperty(x => x.PageTitle)
 				.Subscribe(x =>
 				{
 					TitleText = x;
@@ -243,22 +206,20 @@ namespace NicoPlayerHohoema.ViewModels
 
         public List<PageTypeSelectableItem> SubMenuItems { get; private set; }
 
-        public ReactiveProperty<bool> IsVisibleMenu { get; private set; }
+        public ReactiveProperty<PageTypeSelectableItem> MainSelectedItem { get; private set; }
+        public ReactiveProperty<PageTypeSelectableItem> SubSelectedItem { get; private set; }
 
-		public ReactiveProperty<bool> IsPersonalPage { get; private set; }
+        public ReactiveProperty<bool> IsVisibleMenu { get; private set; }
 
 		public ReactiveProperty<bool> NowNavigating { get; private set; }
 
         public ReactiveProperty<bool> IsOpenPane { get; private set; }
 
-		/// <summary>
-		/// 表示サイズによるPane表示方法の違い
-		/// </summary>
-		public ReactiveProperty<bool> CanClosePane { get; private set; }
-		public ReactiveProperty<SplitViewDisplayMode> SplitViewDisplayMode { get; private set; }
+        public ReactiveProperty<bool> IsForceXInputModeEnable { get; private set; }
 
+        public ReactiveProperty<bool> IsSubMenuItemPage { get; private set; }
 
-		private string _TitleText;
+        private string _TitleText;
 		public string TitleText
 		{
 			get { return _TitleText; }
@@ -299,10 +260,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<bool> HasBGUpdateText { get; private set; }
 		public ReactiveProperty<string> BGUpdateText { get; private set; }
-
-
-
-		public ReactiveProperty<PageTypeSelectableItem> SelectedItem { get; private set; }
 	}
 
 	public class PageTypeSelectableItem : SelectableItem<HohoemaPageType>
