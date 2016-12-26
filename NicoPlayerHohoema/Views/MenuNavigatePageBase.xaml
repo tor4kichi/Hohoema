@@ -11,6 +11,7 @@
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:mytrigger="using:NicoPlayerHohoema.Views.StateTrigger"
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:logicalTrigger="using:AdaptiveTriggerLibrary.Triggers.LogicalTriggers"
     xmlns:uiTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInterfaceTriggers"
@@ -25,8 +26,68 @@
     >
 
     <ContentControl.Resources>
-        
 
+
+        <DataTemplate x:Key="SearchBarTemplate" >
+            <toolkit:DockPanel HorizontalAlignment="Stretch">
+                
+                <StackPanel Orientation="Horizontal"
+                            toolkit:DockPanel.Dock="Right"
+                            >
+                    <Button Height="48" Width="48" 
+                            Background="Transparent"
+                            Command="{Binding SearchCommand}"
+                            >
+                        <SymbolIcon Symbol="Find" />
+                    </Button>
+                    <Button Width="24">
+                        <iconPack:PackIconMaterial Kind="ArrowDown" />
+
+                        <Button.Flyout>
+                            <Flyout>
+                                <StackPanel>
+                                    <ListView ItemsSource="{Binding SearchTargetItems}"
+                                            SelectedItem="{Binding SearchTarget.Value, Mode=TwoWay}"
+                                            >
+                                    </ListView>
+
+                                    <Border BorderThickness="0 1 0 0" Margin="0 8"/>
+
+                                    <Button Background="Transparent" 
+                                            Command="{Binding OpenSearchPageCommand}"
+                                            Content="詳細を指定して検索"
+                                            >
+                                        <i:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Tapped">
+                                                <mybehavior:CloseFlyoutAction />
+                                            </core:EventTriggerBehavior>
+                                        </i:Interaction.Behaviors>
+                                    </Button>
+
+
+                                </StackPanel>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
+                </StackPanel>
+
+                <TextBox Text="{Binding SearchKeyword.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                             PlaceholderText="動画を検索"
+                                             FontSize="20"
+                                             MinWidth="200"
+                                             ext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
+                                              >
+                    <i:Interaction.Behaviors>
+                        <mybehavior:KeyboardTrigger Key="Enter" >
+                            <mybehavior:KeyboardTrigger.Actions>
+                                <core:InvokeCommandAction Command="{Binding SearchCommand}" />
+                            </mybehavior:KeyboardTrigger.Actions>
+                        </mybehavior:KeyboardTrigger>
+                    </i:Interaction.Behaviors>
+                </TextBox>
+            </toolkit:DockPanel>
+
+        </DataTemplate>
         <DataTemplate x:Key="HohoemaContentTemplate">
             
         </DataTemplate>
@@ -185,18 +246,13 @@
                                     </Button.Flyout>
                                 </Button>
 
-                                <StackPanel Orientation="Horizontal" Margin="8 0 0 0">
-                                    <TextBox Text="{Binding SearchText}" 
-                                            PlaceholderText="動画を検索"   
-                                             Width="200"
-                                               />
-                                    <Button Height="48" Width="48">
-                                        <SymbolIcon Symbol="Find" />
-                                    </Button>
-                                    <Button Width="24">
-                                        <iconPack:PackIconMaterial Kind="ArrowDown" />
-                                    </Button>
-                                </StackPanel>
+                                <ContentControl Content="{Binding}" 
+                                                ContentTemplate="{StaticResource SearchBarTemplate}" 
+                                                HorizontalContentAlignment="Stretch"
+                                                VerticalContentAlignment="Stretch"
+                                                />
+                                
+                                
                                 
                             </StackPanel>
 
@@ -224,7 +280,10 @@
                         <!-- モバイル時のトップバー -->
                         <Grid x:Name="MobileTopBar"
                             toolkit:DockPanel.Dock="Top">
-                            <toolkit:DockPanel>
+                            
+                            <toolkit:DockPanel x:Name="MobileTopBarDefaultContent"
+                                               Visibility="{Binding IsMobileNowSearching, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                               >
                                 <Button toolkit:DockPanel.Dock="Left"
                                     Height="48"
                                     Width="48"
@@ -244,8 +303,14 @@
                                         Height="48"
                                         Width="48"
                                         Background="Transparent"
+                                        Command="{Binding StartMobileSearchCommand}"
                                         >
                                     <SymbolIcon Symbol="Find" />
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Tapped">
+                                            <mybehavior:SetFocus TargetObject="{Binding ElementName=MobileSearchContent}" />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
                                 </Button>
                                         
                                 <TextBlock Text="{Binding TitleText}"
@@ -255,6 +320,20 @@
                                            />
                                 
                             </toolkit:DockPanel>
+
+                            <Border x:Name="MobileTopBarSearchContent" 
+                                    Visibility="{Binding IsMobileNowSearching, Converter={StaticResource BooleanToVisibility}}"
+                                    HorizontalAlignment="Stretch"
+                                    >
+                                <ContentControl Content="{Binding}" 
+                                                ContentTemplate="{StaticResource SearchBarTemplate}" 
+                                                HorizontalAlignment="Stretch"
+                                                HorizontalContentAlignment="Stretch"
+                                                VerticalAlignment="Stretch"
+                                                VerticalContentAlignment="Stretch"
+                                                x:Name="MobileSearchContent"
+                                                />
+                            </Border>
 
                         </Grid>
                         
@@ -351,6 +430,19 @@
                                             FontSize="12"
                                             Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                             />
+                                    </Border>
+
+
+                                    <Border x:Name="MobileSearchTapBarrier" 
+                                            Visibility="{Binding IsMobileNowSearching, Converter={StaticResource BooleanToVisibility}}"
+                                            Background="Black"
+                                            Opacity="0.5"
+                                            >
+                                        <i:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Tapped">
+                                                <core:InvokeCommandAction Command="{Binding StartMobileSearchCommand}" />
+                                            </core:EventTriggerBehavior>
+                                        </i:Interaction.Behaviors>
                                     </Border>
 
                                 </Grid>
