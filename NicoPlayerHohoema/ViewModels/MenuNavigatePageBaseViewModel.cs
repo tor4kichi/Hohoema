@@ -65,7 +65,7 @@ namespace NicoPlayerHohoema.ViewModels
                 SubSelectedItem
                 )
                 .Where(x => x != null)
-                .Subscribe(x => PageManager.OpenPage(x.Source));
+                .Subscribe(x => x.SelectedAction(x.Source));
             
             PageManager.ObserveProperty(x => x.CurrentPageType)
 				.Subscribe(pageType => 
@@ -147,9 +147,22 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					BGUpdateText.Value = null;
 				});
-		}
 
-		private void PageManager_StartWork(string title, uint totalCount)
+            HohoemaApp.ObserveProperty(x => x.IsLoggedIn)
+                .Subscribe(x => IsLoggedIn = x);
+
+            HohoemaApp.ObserveProperty(x => x.LoginUserName)
+                .Subscribe(x =>
+                {
+                    UserName = x;
+                    UserMail = HohoemaApp.GetPrimaryAccountId();
+                });
+
+            HohoemaApp.ObserveProperty(x => x.UserIconUrl)
+                .Subscribe(x => UserIconUrl = x);
+        }
+
+        private void PageManager_StartWork(string title, uint totalCount)
 		{
 			WorkTitle = title;
 			WorkTotalCount = totalCount;
@@ -185,6 +198,8 @@ namespace NicoPlayerHohoema.ViewModels
 
         internal async void OnAccountMenuItemSelected(HohoemaPageType pageType)
         {
+            SubSelectedItem.Value = null;
+
             await AccountManagementDialogService.ShowChangeAccountDialogAsync();
         }
 
@@ -197,6 +212,19 @@ namespace NicoPlayerHohoema.ViewModels
                     ?? (_TogglePaneOpenCommand = new DelegateCommand(() => 
                     {
                         IsOpenPane.Value = !IsOpenPane.Value;
+                    }));
+            }
+        }
+
+        private DelegateCommand _OpenAccountInfoCommand;
+        public DelegateCommand OpenAccountInfoCommand
+        {
+            get
+            {
+                return _OpenAccountInfoCommand
+                    ?? (_OpenAccountInfoCommand = new DelegateCommand(() =>
+                    {
+                        OnAccountMenuItemSelected(HohoemaPageType.About);
                     }));
             }
         }
@@ -226,9 +254,38 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _TitleText, value); }
 		}
 
+        private string _UserIconUrl;
+        public string UserIconUrl
+        {
+            get { return _UserIconUrl; }
+            set { SetProperty(ref _UserIconUrl, value); }
+        }
+
+        private string _UserName;
+        public string UserName
+        {
+            get { return _UserName; }
+            set { SetProperty(ref _UserName, value); }
+        }
+
+        private string _UserMail;
+        public string UserMail
+        {
+            get { return _UserMail; }
+            set { SetProperty(ref _UserMail, value); }
+        }
 
 
-		private bool _NowWorking;
+        private bool _IsLoggedIn;
+        public bool IsLoggedIn
+        {
+            get { return _IsLoggedIn; }
+            set { SetProperty(ref _IsLoggedIn, value); }
+        }
+
+
+
+        private bool _NowWorking;
 		public bool NowWorking
 		{
 			get { return _NowWorking; }

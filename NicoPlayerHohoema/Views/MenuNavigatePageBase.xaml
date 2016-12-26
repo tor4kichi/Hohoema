@@ -67,15 +67,13 @@
                                 <Setter Target="XboxTopBar.Visibility" Value="Visible" />
                                 <Setter Target="DesktopTopBar.Visibility" Value="Collapsed" />
                                 <Setter Target="MobileTopBar.Visibility" Value="Collapsed" />
-
-                                <Setter Target="RootLayout.Margin" Value="64" />
                             </VisualState.Setters>
                         </VisualState>
 
                         <!-- マウス操作時、または画面が大きい時 -->
                         <VisualState>
                             <VisualState.StateTriggers>
-                                <AdaptiveTrigger MinWindowWidth="720" />
+                                <AdaptiveTrigger MinWindowWidth="800" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
                                 <Setter Target="XboxTopBar.Visibility" Value="Collapsed" />
@@ -132,24 +130,41 @@
                                         >
                                 <Button>
 
-                                    <SymbolIcon Symbol="People" Height="48" Width="48" />
 
+
+                                    <StackPanel>
+                                        <SymbolIcon Symbol="People" Height="48" Width="48"
+                                                    Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                                    />
+                                        <Image Source="{Binding UserIconUrl}" 
+                                               toolkit:DockPanel.Dock="Left"
+                                               Height="32" Width="32"
+                                               Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibility}}"
+                                                               />
+                                    </StackPanel>
+                                    
                                     <Button.Flyout>
                                         <Flyout>
                                             <StackPanel>
 
                                                 <!-- アカウント -->
 
-                                                <Button Background="Transparent">
-                                                    <toolkit:DockPanel>
+                                                <Button Background="Transparent" 
+                                                        Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibility}}"
+                                                        Command="{Binding OpenAccountInfoCommand}"
+                                                        >
+                                                    <toolkit:DockPanel Margin="0 4">
 
                                                         <Image Source="{Binding UserIconUrl}" 
                                                                toolkit:DockPanel.Dock="Left"
+                                                               Height="32" Width="32"
+                                                               Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibility}}"
+                                                               Margin="0 0 8 0"
                                                                />
 
                                                         <StackPanel>
                                                             <TextBlock Text="{Binding UserName}" />
-                                                            <TextBlock Text="{Binding UserMail}" />
+                                                            <TextBlock Text="{Binding UserMail}" FontWeight="Light" />
                                                         </StackPanel>
                                                     </toolkit:DockPanel>
                                                 </Button>
@@ -247,20 +262,34 @@
                        
                         <SplitView x:Name="SplitView" 
                             CompactPaneLength="48"
-                            OpenPaneLength="180"
+                            OpenPaneLength="220"
                             DisplayMode="Overlay"
                             IsPaneOpen="{Binding IsOpenPane.Value, Mode=TwoWay}"
-                           
                            >
                             <SplitView.Pane>
                                 <toolkit:DockPanel x:Name="PaneLayout">
 
-                                    <StackPanel toolkit:DockPanel.Dock="Bottom">
-                                        <TextBlock Text="{Binding UserName}" />
-                                        <TextBlock Text="{Binding UserMail}" />
-                                    </StackPanel>
+                                    <Button Background="Transparent" 
+                                            Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibility}}"
+                                            Command="{Binding OpenAccountInfoCommand}"
+                                            toolkit:DockPanel.Dock="Bottom"
+                                            HorizontalAlignment="Stretch"
+                                                        >
+                                        <toolkit:DockPanel Margin="0 0">
 
-                                    
+                                            <Image Source="{Binding UserIconUrl}" 
+                                                   toolkit:DockPanel.Dock="Left"
+                                                   Height="32" Width="32"
+                                                   Margin="0 0 8 0"
+                                                               />
+
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding UserName}" />
+                                                <TextBlock Text="{Binding UserMail}" FontWeight="Light" />
+                                            </StackPanel>
+                                        </toolkit:DockPanel>
+                                    </Button>
+
 
                                     <ScrollViewer HorizontalScrollMode="Disabled"
                                         VerticalScrollMode="Auto"

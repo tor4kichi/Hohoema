@@ -564,7 +564,6 @@ namespace NicoPlayerHohoema.Models
 
                     NiconicoContext = context;
 
-
                     if (result == NiconicoSignInStatus.Success)
 					{
 						Debug.WriteLine("login success");
@@ -586,18 +585,16 @@ namespace NicoPlayerHohoema.Models
 								LoginUserId = userInfo.Id;
 								IsPremiumUser = userInfo.IsPremium;
 
-
-								if (!string.IsNullOrEmpty(userInfo.Name))
-								{
-									LoginUserName = userInfo.Name;
-								}
-								else
 								{
 									try
 									{
-										var user = await NiconicoContext.User.GetUserAsync(LoginUserId.ToString());
+										var user = await NiconicoContext.User.GetUserDetail(LoginUserId.ToString());
 										LoginUserName = user.Nickname;
-									}
+                                        UserIconUrl = user.ThumbnailUri;
+
+                                        OnPropertyChanged(nameof(LoginUserName));
+                                        OnPropertyChanged(nameof(UserIconUrl));
+                                    }
 									catch (Exception ex)
 									{
 										throw new Exception("ユーザー名取得のフォールバック処理に失敗 + " + LoginUserId, ex);
@@ -787,6 +784,8 @@ namespace NicoPlayerHohoema.Models
             {
                 ServiceStatus = Util.InternetConnection.IsInternet() ? HohoemaAppServiceLevel.OnlineWithoutLoggedIn : HohoemaAppServiceLevel.Offline;
             }
+
+            OnPropertyChanged(nameof(IsLoggedIn));
         }
 
         public async Task<NiconicoSignInStatus> CheckSignedInStatus()
@@ -1230,6 +1229,7 @@ StorageFolder _DownloadFolder;
 		public uint LoginUserId { get; private set; }
 		public bool IsPremiumUser { get; private set; }
 		public string LoginUserName { get; private set; }
+        public string UserIconUrl { get; private set; }
 
 		private NiconicoContext _NiconicoContext;
 		public NiconicoContext NiconicoContext
