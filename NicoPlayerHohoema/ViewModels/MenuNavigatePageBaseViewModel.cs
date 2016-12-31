@@ -31,7 +31,9 @@ namespace NicoPlayerHohoema.ViewModels
 			HohoemaApp = hohoemaApp;
             AccountManagementDialogService = accountManageDlgService;
 
-            IsForceXInputModeEnable = new ReactiveProperty<bool>(false);
+            IsForceXboxDisplayMode = PageManager.ObserveProperty(x => x.IsForceXboxDisplayMode)
+                .ToReactiveProperty();
+
             IsOpenPane = new ReactiveProperty<bool>(false);
 
             MenuItems = new List<PageTypeSelectableItem>()
@@ -286,9 +288,10 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactiveProperty<bool> IsOpenPane { get; private set; }
 
-        public ReactiveProperty<bool> IsForceXInputModeEnable { get; private set; }
-
+        public ReactiveProperty<bool> IsForceXboxDisplayMode { get; private set; }
         public ReactiveProperty<bool> IsSubMenuItemPage { get; private set; }
+
+
 
         private string _TitleText;
 		public string TitleText

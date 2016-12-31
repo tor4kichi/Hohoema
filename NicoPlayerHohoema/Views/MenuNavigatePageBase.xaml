@@ -91,6 +91,18 @@
         <DataTemplate x:Key="HohoemaContentTemplate">
             
         </DataTemplate>
+
+        <DataTemplate x:Key="MobileTemplate">
+            <ContentPresenter />
+        </DataTemplate>
+
+        <DataTemplate x:Key="DesktopTemplate">
+            <ContentPresenter />
+        </DataTemplate>
+
+        <DataTemplate x:Key="XboxTemplate">
+            <ContentPresenter />
+        </DataTemplate>
     </ContentControl.Resources>
     
     
@@ -112,6 +124,10 @@
                                 <Setter Target="XboxTopBar.Visibility" Value="Collapsed" />
                                 <Setter Target="DesktopTopBar.Visibility" Value="Collapsed" />
                                 <Setter Target="MobileTopBar.Visibility" Value="Collapsed" />
+
+                                <Setter Target="SplitView.DisplayMode" Value="Overlay" />
+                                <Setter Target="SplitView.IsPaneOpen" Value="False" />
+
                             </VisualState.Setters>
                         </VisualState>
 
@@ -120,7 +136,7 @@
                             <VisualState.StateTriggers>
                                 
                                 <hardwareTrigger:DeviceFamilyTrigger Condition="Xbox" />
-                                <StateTrigger IsActive="{Binding IsForceXInputModeEnable.Value}" />
+                                <StateTrigger IsActive="{Binding IsForceXboxDisplayMode.Value}" />
                                 
                                 <AdaptiveTrigger MinWindowWidth="1366" />
                             </VisualState.StateTriggers>
@@ -128,6 +144,10 @@
                                 <Setter Target="XboxTopBar.Visibility" Value="Visible" />
                                 <Setter Target="DesktopTopBar.Visibility" Value="Collapsed" />
                                 <Setter Target="MobileTopBar.Visibility" Value="Collapsed" />
+
+
+                                <Setter Target="SplitView.DisplayMode" Value="CompactInline" />
+                                <Setter Target="SplitView.IsPaneOpen" Value="False" />
                             </VisualState.Setters>
                         </VisualState>
 
@@ -140,6 +160,9 @@
                                 <Setter Target="XboxTopBar.Visibility" Value="Collapsed" />
                                 <Setter Target="DesktopTopBar.Visibility" Value="Visible" />
                                 <Setter Target="MobileTopBar.Visibility" Value="Collapsed" />
+
+                                <Setter Target="SplitView.DisplayMode" Value="Overlay" />
+                                <Setter Target="SplitView.IsPaneOpen" Value="False" />
                             </VisualState.Setters>
                         </VisualState>
                         
@@ -152,6 +175,10 @@
                                 <Setter Target="XboxTopBar.Visibility" Value="Collapsed" />
                                 <Setter Target="DesktopTopBar.Visibility" Value="Collapsed" />
                                 <Setter Target="MobileTopBar.Visibility" Value="Visible" />
+
+                                <Setter Target="SplitView.DisplayMode" Value="Overlay" />
+                                <Setter Target="SplitView.IsPaneOpen" Value="False" />
+
                             </VisualState.Setters>
                         </VisualState>
                     </VisualStateGroup>
@@ -166,21 +193,6 @@
 
                     <toolkit:DockPanel>
 
-                        <!-- Xbox表示時のトップエリア -->
-                        <toolkit:DockPanel x:Name="XboxTopBar"
-                            toolkit:DockPanel.Dock="Top"
-                                           Margin="0 0 0 48"
-                                           >
-                            <TextBlock Text="{Binding TitleText}"
-                                       toolkit:DockPanel.Dock="Left"
-                                       Style="{StaticResource HeaderTextBlockStyle}"
-                                       />
-
-                            <!-- アカウント情報やフィードの動画件数？ -->
-
-                        </toolkit:DockPanel>
-
-                        
                         <!-- デスクトップ時のトップバー -->
                         <toolkit:DockPanel x:Name="DesktopTopBar"
                             toolkit:DockPanel.Dock="Top" >
@@ -327,9 +339,7 @@
                                     >
                                 <ContentControl Content="{Binding}" 
                                                 ContentTemplate="{StaticResource SearchBarTemplate}" 
-                                                HorizontalAlignment="Stretch"
                                                 HorizontalContentAlignment="Stretch"
-                                                VerticalAlignment="Stretch"
                                                 VerticalContentAlignment="Stretch"
                                                 x:Name="MobileSearchContent"
                                                 />
@@ -415,11 +425,14 @@
                                 <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" >
                                     <toolkit:DockPanel x:Name="ContentLayout">
 
+                                        <!-- ページ毎のコンテンツ -->
                                         <ContentPresenter
                                                 Visibility="{Binding NowNavigating.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                                 />
 
                                     </toolkit:DockPanel>
+                                    
+                                    
                                     <Border Visibility="{Binding HasBGUpdateText.Value, Converter={StaticResource BooleanToVisibility}}"
                                             Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
                                             HorizontalAlignment="Left"

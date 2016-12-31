@@ -68,6 +68,9 @@ namespace NicoPlayerHohoema.ViewModels
                 .ToReactiveProperty()
                 .AddTo(_CompositeDisposable);
 
+            IsForceXboxDisplayMode = PageManager.ObserveProperty(x => x.IsForceXboxDisplayMode)
+                .ToReactiveProperty();
+
         }
 
 		private void __OnSignin()
@@ -415,7 +418,10 @@ namespace NicoPlayerHohoema.ViewModels
             set { SetProperty(ref _Title, value); }
         }
 
-		public HohoemaApp HohoemaApp { get; private set; }
+        public ReactiveProperty<bool> IsForceXboxDisplayMode { get; private set; }
+
+
+        public HohoemaApp HohoemaApp { get; private set; }
 		public PageManager PageManager { get; private set; }
 
 		protected CompositeDisposable _CompositeDisposable { get; private set; }
