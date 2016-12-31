@@ -25,107 +25,110 @@
 
         </Style>
     </Page.Resources>
-    <toolkit:DockPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    
+    
+    <local:MenuNavigatePageBase>
+        <toolkit:DockPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-        <Border toolkit:DockPanel.Dock="Top" 
+            <Border toolkit:DockPanel.Dock="Top" 
                     BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
                     BorderThickness="0 0 0 1"
                 Height="48"
                     >
-            <toolkit:DockPanel >
+                <toolkit:DockPanel >
 
 
-                <StackPanel toolkit:DockPanel.Dock="Right" Margin="8 0"
+                    <StackPanel toolkit:DockPanel.Dock="Right" Margin="8 0"
                             Orientation="Horizontal"
                             >
-                </StackPanel>
+                    </StackPanel>
 
-                <Border Background="Transparent" IsHitTestVisible="True"
+                    <Border Background="Transparent" IsHitTestVisible="True"
                                 Margin="24 0 0 0"
                                 >
-                    <TextBlock Text="{Binding Title}" 
+                        <TextBlock Text="{Binding Title}" 
                                     VerticalAlignment="Center"
                                     Style="{StaticResource SubtitleTextBlockStyle}"
                                     >
-                    </TextBlock>
-                </Border>
-            </toolkit:DockPanel>
-        </Border>
-        
-        <ScrollViewer>
-            <StackPanel Margin="16 16 16 16">
+                        </TextBlock>
+                    </Border>
+                </toolkit:DockPanel>
+            </Border>
 
-                
+            <ScrollViewer>
+                <StackPanel Margin="16 16 16 16">
 
-                <TextBlock Text="このアプリについて"
+
+
+                    <TextBlock Text="このアプリについて"
                        Style="{StaticResource SubTitleStyle}"
                    ></TextBlock>
 
-                <StackPanel Margin="16 8">
-                    <TextBlock Style="{StaticResource ContentTextStyle}">
+                    <StackPanel Margin="16 8">
+                        <TextBlock Style="{StaticResource ContentTextStyle}">
                         <Run>"Hohoema" は Windows 10 向けのニコニコ動画プレイヤーです。</Run>
                         <LineBreak />
                         <Run></Run>
-                    </TextBlock>
+                        </TextBlock>
 
-                </StackPanel>
+                    </StackPanel>
 
-                <TextBlock Text="バージョン情報"
+                    <TextBlock Text="バージョン情報"
                        Style="{StaticResource SubTitleStyle}"
                    ></TextBlock>
 
-                <StackPanel Margin="16 8">
-                    <TextBlock Style="{StaticResource ContentTextStyle}">
+                    <StackPanel Margin="16 8">
+                        <TextBlock Style="{StaticResource ContentTextStyle}">
                         <Run Text="ver" />
                         <Run Text="{Binding VersionText}" />
-                    </TextBlock>
+                        </TextBlock>
 
 
-                </StackPanel>
+                    </StackPanel>
 
 
-                <TextBlock Text="作った人"
+                    <TextBlock Text="作った人"
                        Style="{StaticResource SubTitleStyle}"
                        />
 
-                <StackPanel Margin="16 8">
-                    <TextBlock Style="{StaticResource ContentTextStyle}">
+                    <StackPanel Margin="16 8">
+                        <TextBlock Style="{StaticResource ContentTextStyle}">
                         <Run>
                             tor4kichi (とらきち)
                         </Run>
-                    </TextBlock>
-                </StackPanel>
-                
-                
-                
-                
-                <TextBlock Text="ソースコード"
+                        </TextBlock>
+                    </StackPanel>
+
+
+
+
+                    <TextBlock Text="ソースコード"
                        Style="{StaticResource SubTitleStyle}"
                        />
 
-                <StackPanel Margin="16 8">
-                    <TextBlock Style="{StaticResource ContentTextStyle}">
+                    <StackPanel Margin="16 8">
+                        <TextBlock Style="{StaticResource ContentTextStyle}">
                         <Hyperlink NavigateUri="https://github.com/tor4kichi/Hohoema">
                             https://github.com/tor4kichi/Hohoema
                         </Hyperlink>
-                    </TextBlock>
+                        </TextBlock>
 
-                    <TextBlock Style="{StaticResource ContentTextStyle}">
+                        <TextBlock Style="{StaticResource ContentTextStyle}">
                         <Run Foreground="Gray">
                             ※ このアプリはGPL v3ライセンスの元、オープンソースで開発しています。
                         </Run>
-                    </TextBlock>
-                </StackPanel>
-                
-                
-                
-                
-                <TextBlock Text="使用ライブラリのライセンス表示"
+                        </TextBlock>
+                    </StackPanel>
+
+
+
+
+                    <TextBlock Text="使用ライブラリのライセンス表示"
                        Style="{StaticResource SubTitleStyle}"
                        />
 
 
-                <TextBlock 
+                    <TextBlock 
                        Style="{StaticResource ContentTextStyle}"
                            Foreground="Gray"
                     Margin="16 8"
@@ -133,112 +136,114 @@
                     <Run Text="これらのライブラリ、ソフトウェアのおかげでHohoemaが実現しています。" />
                     <LineBreak />
                     <Run Text="開発者、貢献者の方々の活動に深く感謝しています。" />
-                </TextBlock>
+                    </TextBlock>
 
 
-                <ItemsControl ItemsSource="{Binding LisenceItems}"
+                    <ItemsControl ItemsSource="{Binding LisenceItems}"
                               Margin="0 8 8 8"
                               >
 
-                    
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Margin="0 0 0 0">
-                                <TextBlock Text="{Binding Name}" 
+
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0 0 0 0">
+                                    <TextBlock Text="{Binding Name}" 
                                            FontWeight="Bold"
                                            Margin="0 8 0 0"
                                            />
 
-                                <StackPanel Orientation="Horizontal"
+                                    <StackPanel Orientation="Horizontal"
                                             Margin="8 8 0 0"                                            
                                             >
-                                    <TextBlock
+                                        <TextBlock
                                            >
                                         <Run Text="Lisence:" Foreground="Gray"  />
                                         <Run Text="{Binding LisenceType}"
                                             >
                                 
                                         </Run>
-                                    </TextBlock>
+                                        </TextBlock>
 
-                                    
-                                </StackPanel>
 
-                                <StackPanel Orientation="Horizontal" Margin="16 8 0 0">
+                                    </StackPanel>
 
-                                    <TextBlock Text="Author:" Foreground="Gray"  />
+                                    <StackPanel Orientation="Horizontal" Margin="16 8 0 0">
 
-                                    <ItemsControl ItemsSource="{Binding Authors}">
+                                        <TextBlock Text="Author:" Foreground="Gray"  />
 
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <StackPanel Orientation="Vertical">
+                                        <ItemsControl ItemsSource="{Binding Authors}">
 
-                                                </StackPanel>
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Text="{Binding}"
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <StackPanel Orientation="Vertical">
+
+                                                    </StackPanel>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding}"
                                                        Margin="8 0 0 1"
                                                        />
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
 
 
-                                </StackPanel>
+                                    </StackPanel>
 
-                                <StackPanel Orientation="Horizontal"
+                                    <StackPanel Orientation="Horizontal"
                                             Margin="8 8 0 0"                                            
                                             >
-                                    <TextBlock>
+                                        <TextBlock>
                                         <Run Text="Project Site:" Foreground="Gray" />
                                         <Hyperlink NavigateUri="{Binding Site}">
                                             <Run Text="{Binding Site}" />                                                                            
                                         </Hyperlink>
-                                    </TextBlock>
-                                </StackPanel>
+                                        </TextBlock>
+                                    </StackPanel>
 
 
-                                <Button Content="ライセンスの全文を表示"
+                                    <Button Content="ライセンスの全文を表示"
                                             Margin="8 16 8 16"
                                             >
-                                    <Button.Flyout>
-                                        <Flyout Placement="Full">
-                                            <StackPanel>
+                                        <Button.Flyout>
+                                            <Flyout Placement="Full">
+                                                <StackPanel>
 
-                                                <TextBlock Margin="0 32" HorizontalAlignment="Center" TextWrapping="Wrap">
+                                                    <TextBlock Margin="0 32" HorizontalAlignment="Center" TextWrapping="Wrap">
                                                     <Run Text="原文"></Run>
                                                     <Hyperlink NavigateUri="{Binding LisencePageUrl}"
                                                                >
                                                         <Run Text="{Binding LisencePageUrl}" />
                                                     </Hyperlink>
-                                                </TextBlock>
-                                                
-                                                
-                                                
-
-                                                <Border Height="0 8" BorderBrush="Black" BorderThickness="0 1 0 0" />
-
-                                                <TextBlock Text="{Binding LisenceText}" MaxWidth="400" TextWrapping="Wrap" />
-
-                                            </StackPanel>
-                                        </Flyout>
-                                    </Button.Flyout>
-                                </Button>
+                                                    </TextBlock>
 
 
-                                <Border
+
+
+                                                    <Border Height="0 8" BorderBrush="Black" BorderThickness="0 1 0 0" />
+
+                                                    <TextBlock Text="{Binding LisenceText}" MaxWidth="400" TextWrapping="Wrap" />
+
+                                                </StackPanel>
+                                            </Flyout>
+                                        </Button.Flyout>
+                                    </Button>
+
+
+                                    <Border
                                     Margin="0 8"
                                     BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" BorderThickness="0 1 0 0" />
-                            </StackPanel>
+                                </StackPanel>
 
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
 
-        </ScrollViewer>
-    </toolkit:DockPanel>
+            </ScrollViewer>
+        </toolkit:DockPanel>
+    </local:MenuNavigatePageBase>
+ 
 </Page>

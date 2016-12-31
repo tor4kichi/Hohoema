@@ -49,7 +49,7 @@ namespace NicoPlayerHohoema
 
 		private bool _IsPreLaunch;
 
-        public bool IsForceXboxLayoutMode { get; set; } = true;
+        public bool IsForceXboxLayoutMode { get; set; } = false;
 
 		public const string ACTIVATION_WITH_ERROR = "error";
 

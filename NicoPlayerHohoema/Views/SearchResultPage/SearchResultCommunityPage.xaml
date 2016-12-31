@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="using:NicoPlayerHohoema.Views"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
@@ -16,7 +17,7 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <Grid>
+    <local:MenuNavigatePageBase>
 
         <Border>
             <toolkit:DockPanel>
@@ -63,5 +64,5 @@
 
             </toolkit:DockPanel>
         </Border>
-    </Grid>
+    </local:MenuNavigatePageBase>
 </Page>

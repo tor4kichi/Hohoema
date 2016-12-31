@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="using:NicoPlayerHohoema.Views"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:view="using:NicoPlayerHohoema.Views"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
@@ -60,37 +61,38 @@
 
         </view:SettingContentTemplateSelector>
     </Page.Resources>
-    
-    
-    
-    <toolkit:DockPanel>
-        <Border toolkit:DockPanel.Dock="Top" 
+
+
+
+    <local:MenuNavigatePageBase>
+        <toolkit:DockPanel>
+            <Border toolkit:DockPanel.Dock="Top" 
                 BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
                 BorderThickness="0 0 0 1"
                 Height="48"
                     >
-            <toolkit:DockPanel >
-                <StackPanel toolkit:DockPanel.Dock="Right" Margin="8 0"
+                <toolkit:DockPanel >
+                    <StackPanel toolkit:DockPanel.Dock="Right" Margin="8 0"
                                 Orientation="Horizontal"
                                 >
-                </StackPanel>
+                    </StackPanel>
 
-                <Border Background="Transparent" IsHitTestVisible="True"
+                    <Border Background="Transparent" IsHitTestVisible="True"
                                 Margin="24 0 0 0"
                                 >
 
-                    <TextBlock Text="{Binding Title}" 
+                        <TextBlock Text="{Binding Title}" 
                                     VerticalAlignment="Center"
                                     Style="{StaticResource SubtitleTextBlockStyle}"
                                     >
 
-                    </TextBlock>
-                </Border>
-            </toolkit:DockPanel>
-        </Border>
+                        </TextBlock>
+                    </Border>
+                </toolkit:DockPanel>
+            </Border>
 
-        <Border toolkit:DockPanel.Dock="Top">
-            <ListView x:Name="SettingItemsList"
+            <Border toolkit:DockPanel.Dock="Top">
+                <ListView x:Name="SettingItemsList"
                       SelectionMode="Single"
                       ItemsSource="{Binding SettingItems}"
                       SelectedItem="{Binding CurrentSettingsKind.Value, Mode=TwoWay}"
@@ -99,23 +101,25 @@
                       ScrollViewer.HorizontalScrollMode="Enabled"
                       ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                       >
-                <ListView.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal" />
-                    </ItemsPanelTemplate>
-                </ListView.ItemsPanel>
-                
-            </ListView>
-        </Border>
+                    <ListView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
 
-        <Border>
-            <ContentControl Content="{Binding CurrentSettingsContent.Value}"
+                </ListView>
+            </Border>
+
+            <Border>
+                <ContentControl Content="{Binding CurrentSettingsContent.Value}"
                             ContentTemplateSelector="{StaticResource settingContentTemplateSelector}"
                             VerticalContentAlignment="Stretch"
                             HorizontalContentAlignment="Stretch"
                             >
-            </ContentControl>
-        </Border>
-    </toolkit:DockPanel>
-    
+                </ContentControl>
+            </Border>
+        </toolkit:DockPanel>
+
+    </local:MenuNavigatePageBase>
+   
 </Page>

@@ -15,7 +15,7 @@
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <local:MenuNavigatePageBase Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
         <Border>
             <ScrollViewer>
@@ -90,5 +90,5 @@
         </Border>
 
 
-    </Grid>
+    </local:MenuNavigatePageBase>
 </Page>

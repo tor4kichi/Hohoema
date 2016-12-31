@@ -35,7 +35,7 @@
         </DataTemplate>
     </Page.Resources>
 
-    <Grid x:Name="ContentLayoutRoot">
+    <local:MenuNavigatePageBase x:Name="ContentLayoutRoot">
 
         <toolkit:DockPanel>
             <Border toolkit:DockPanel.Dock="Top" 
@@ -162,5 +162,5 @@
 
 
         
-    </Grid>
+    </local:MenuNavigatePageBase>
 </Page>

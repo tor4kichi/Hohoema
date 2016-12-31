@@ -111,7 +111,6 @@
                                 <StateTrigger IsActive="{Binding IsVisibleMenu.Value, Converter={StaticResource InvertBoolean}}" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter Target="XboxTopBar.Visibility" Value="Collapsed" />
                                 <Setter Target="DesktopTopBar.Visibility" Value="Collapsed" />
                                 <Setter Target="MobileTopBar.Visibility" Value="Collapsed" />
 
@@ -121,33 +120,12 @@
                             </VisualState.Setters>
                         </VisualState>
 
-                        <!-- Xbox または XInput画面の強制表示 -->
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                
-                                <hardwareTrigger:DeviceFamilyTrigger Condition="Xbox" />
-                                <StateTrigger IsActive="{Binding IsForceXboxDisplayMode.Value}" />
-                                
-                                <AdaptiveTrigger MinWindowWidth="1366" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-                                <Setter Target="XboxTopBar.Visibility" Value="Visible" />
-                                <Setter Target="DesktopTopBar.Visibility" Value="Collapsed" />
-                                <Setter Target="MobileTopBar.Visibility" Value="Collapsed" />
-
-
-                                <Setter Target="SplitView.DisplayMode" Value="CompactInline" />
-                                <Setter Target="SplitView.IsPaneOpen" Value="False" />
-                            </VisualState.Setters>
-                        </VisualState>
-
                         <!-- マウス操作時、または画面が大きい時 -->
                         <VisualState>
                             <VisualState.StateTriggers>
                                 <AdaptiveTrigger MinWindowWidth="800" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter Target="XboxTopBar.Visibility" Value="Collapsed" />
                                 <Setter Target="DesktopTopBar.Visibility" Value="Visible" />
                                 <Setter Target="MobileTopBar.Visibility" Value="Collapsed" />
 

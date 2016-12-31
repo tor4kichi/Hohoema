@@ -60,7 +60,8 @@
                                               User="{StaticResource UserFeedItemSourceTemplate}"
             />
     </Page.Resources>
-    <Grid>
+
+    <local:MenuNavigatePageBase>
 
         <toolkit:DockPanel >
 
@@ -289,6 +290,6 @@
 
 
         
-    </Grid>
+    </local:MenuNavigatePageBase>
 
 </Page>
