@@ -92,17 +92,7 @@
             
         </DataTemplate>
 
-        <DataTemplate x:Key="MobileTemplate">
-            <ContentPresenter />
-        </DataTemplate>
-
-        <DataTemplate x:Key="DesktopTemplate">
-            <ContentPresenter />
-        </DataTemplate>
-
-        <DataTemplate x:Key="XboxTemplate">
-            <ContentPresenter />
-        </DataTemplate>
+       
     </ContentControl.Resources>
     
     
