@@ -41,11 +41,14 @@
                                 Margin="24 0 0 0"
                                 >
 
+                        <!--
                         <TextBlock Text="{Binding Title}" 
                                     VerticalAlignment="Center"
                                     Style="{StaticResource SubtitleTextBlockStyle}"
                                     >
                         </TextBlock>
+                        
+                        -->
                     </Border>
                 </toolkit:DockPanel>
             </Border>
@@ -81,8 +84,7 @@
 
                             <i:Interaction.Behaviors>
                                 <core:EventTriggerBehavior EventName="Tapped">
-                                    <core:InvokeCommandAction Command="{Binding ElementName=PageRoot, Path=DataContext.OpenMylistCommand}"
-                                                          CommandParameter="{Binding}"
+                                    <core:InvokeCommandAction Command="{Binding OpenMylistCommand}"
                                                           />
                                 </core:EventTriggerBehavior>
                             </i:Interaction.Behaviors>

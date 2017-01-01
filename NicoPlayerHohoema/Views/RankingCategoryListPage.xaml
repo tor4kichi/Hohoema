@@ -37,130 +37,70 @@
 
     <local:MenuNavigatePageBase x:Name="ContentLayoutRoot">
 
-        <toolkit:DockPanel>
-            <Border toolkit:DockPanel.Dock="Top" 
-                        BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
-                        BorderThickness="0 0 0 1"
-                        >
-                <toolkit:DockPanel>
-
-                    
-
-
-
-
-
-
-                    
-
-
-
-                </toolkit:DockPanel>
-            </Border>
-
-
-            <Border toolkit:DockPanel.Dock="Top" 
-                        BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
-                        BorderThickness="0 0 0 1"
-                    Height="48"
-                        >
-                <toolkit:DockPanel >
-
-
-                    <StackPanel Orientation="Horizontal"
-                                toolkit:DockPanel.Dock="Right"
-                                >
-                        
-                    </StackPanel>
-
-                    <Border Background="Transparent" IsHitTestVisible="True"
-                                Margin="24 0 0 0"
-                                >
-
-                        <TextBlock Text="ランキングカテゴリ一覧" 
-                                       VerticalAlignment="Center"
-                                       Style="{StaticResource SubtitleTextBlockStyle}"
-                                       >
-                                
-                        </TextBlock>
-                    </Border>
-
-
-                </toolkit:DockPanel>
-            </Border>
-
-
-
-
-
-
-
-
-            <Grid x:Name="ContentLayout">
-                <ScrollViewer VerticalScrollMode="Disabled" 
+        <Grid x:Name="ContentLayout">
+            <ScrollViewer VerticalScrollMode="Disabled" 
                       VerticalScrollBarVisibility="Hidden"
                       HorizontalScrollMode="Enabled" 
                       HorizontalScrollBarVisibility="Auto"
                           HorizontalContentAlignment="Stretch"
                       Margin="0 8 0 0">
 
-                    <ItemsControl ItemsSource="{Binding RankingCategoryItems}"
+                <ItemsControl ItemsSource="{Binding RankingCategoryItems}"
                           Height="{Binding ElementName=ContentLayout, Path=ActualHeight, Mode=OneWay}"
                           >
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal"
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"
                                         Margin="8 0 8 0"
                                     VerticalAlignment="Stretch"
                                                            
                                         />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
 
-                                <toolkit:DockPanel Margin="8 0">
+                            <toolkit:DockPanel Margin="8 0">
 
-                                    <ItemsControl ItemsSource="{Binding}"
+                                <ItemsControl ItemsSource="{Binding}"
                                           ItemTemplate="{StaticResource CategoryListItemTemplate}"
                                                                                     
                                           >
-                                        <ItemsControl.ItemContainerStyle>
-                                            <Style TargetType="ContentPresenter">
-                                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                                <Setter Property="VerticalContentAlignment" Value="Stretch" />
-                                                <Setter Property="MinWidth" Value="150" />
-                                                <Setter Property="Padding" Value="0" />
-                                                <Setter Property="Margin" Value="0 0 4 4" />
-                                            </Style>
-                                        </ItemsControl.ItemContainerStyle>
+                                    <ItemsControl.ItemContainerStyle>
+                                        <Style TargetType="ContentPresenter">
+                                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                                            <Setter Property="MinWidth" Value="150" />
+                                            <Setter Property="Padding" Value="0" />
+                                            <Setter Property="Margin" Value="0 0 4 4" />
+                                        </Style>
+                                    </ItemsControl.ItemContainerStyle>
 
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <toolkit:WrapPanel Orientation="Vertical"
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <toolkit:WrapPanel Orientation="Vertical"
                                                            VerticalAlignment="Stretch"
                                                            ItemHeight="48"                                                           
                                                                />
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
 
-                                    </ItemsControl>
+                                </ItemsControl>
 
-                                </toolkit:DockPanel>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
+                            </toolkit:DockPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
 
-                    </ItemsControl>
-
-
-                </ScrollViewer>
-
-            </Grid>
-            
-        </toolkit:DockPanel>
-        
+                </ItemsControl>
 
 
-        
+            </ScrollViewer>
+
+        </Grid>
+
+
+
+
+
     </local:MenuNavigatePageBase>
 </Page>

@@ -297,39 +297,45 @@
                     <VisualState.Setters>
                         <Setter Target="DesktopGridView.Visibility" Value="Collapsed" />
                         <Setter Target="MobileGridView.Visibility" Value="Visible" />
+
+                        <Setter Target="PageTitleText.Visibility" Value="Collapsed" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-        
-        <toolkit:DockPanel>
-            
 
 
-            <Border toolkit:DockPanel.Dock="Top" 
-                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
-                    BorderThickness="0 0 0 1"
-                    >
-                <toolkit:DockPanel >
+        <ScrollViewer>
+            <StackPanel Margin="0 0 0 0">
+
+                <Border toolkit:DockPanel.Dock="Top" 
+                        BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
+                        BorderThickness="0 0 0 0"
+                        Margin="0 8 0 8"
+                        >
+                    <toolkit:DockPanel >
 
 
-                    <StackPanel toolkit:DockPanel.Dock="Right" Margin="8 0"
+                        <StackPanel toolkit:DockPanel.Dock="Right" Margin="8 0"
                             Orientation="Horizontal"
                             >
-                        <Button Background="Transparent" 
+                            <Button Background="Transparent" 
                                 Command="{Binding RefreshCommand}"
                                 ToolTipService.ToolTip="更新"
                                 >
-                            <SymbolIcon Symbol="Refresh" />
-                        </Button>
-                    </StackPanel>
+                                <SymbolIcon Symbol="Refresh" />
+                            </Button>
+                        </StackPanel>
 
-                    <Border Background="Transparent" IsHitTestVisible="True"
+                        <Border Background="Transparent" IsHitTestVisible="True"
                                 Margin="24 0 0 0"
+                            
                                 >
-                        <TextBlock Text="{Binding Title}" 
+                            <!--
+                            <TextBlock Text="{Binding Title}" 
                                     VerticalAlignment="Center"
                                     Style="{StaticResource SubtitleTextBlockStyle}"
+                                   x:Name="PageTitleText"
                                     >
                                 
                                 <i:Interaction.Behaviors>
@@ -339,62 +345,59 @@
                                 </i:Interaction.Behaviors>
 
 
-                        </TextBlock>
-                    </Border>
-                </toolkit:DockPanel>
-            </Border>
+                            </TextBlock>
+                            -->
+                        </Border>
+                    </toolkit:DockPanel>
+                </Border>
 
-            <ScrollViewer>
-                <StackPanel Margin="0 8 0 0">
-
-                    <ItemsControl  x:Name="DesktopGridView"      
+                <ItemsControl  x:Name="DesktopGridView"      
                                ItemsSource="{Binding Root.Items}"
                                ItemTemplateSelector="{StaticResource AppMapItemDataTemplateSelector}"
                                    Margin="8 0 0 0"
                               >
-                        <ItemsControl.ItemContainerStyle>
-                            <Style TargetType="ContentPresenter">
-                                <Setter Property="Margin" Value="0 0 16 16" />
-                                <Setter Property="MinWidth" Value="280" />
-                            </Style>
-                        </ItemsControl.ItemContainerStyle>
-                        <ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ContentPresenter">
+                            <Setter Property="Margin" Value="0 0 16 16" />
+                            <Setter Property="MinWidth" Value="280" />
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+                    <ItemsControl.ItemsPanel>
 
-                            <ItemsPanelTemplate>
-                                <toolkit:WrapPanel 
+                        <ItemsPanelTemplate>
+                            <toolkit:WrapPanel 
                                     >
-                                </toolkit:WrapPanel>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                    </ItemsControl>
+                            </toolkit:WrapPanel>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
 
-                    <ItemsControl  x:Name="MobileGridView"
+                <ItemsControl  x:Name="MobileGridView"
                                 ItemsSource="{Binding Root.Items}"
                             ItemTemplateSelector="{StaticResource Mobile_AppMapItemDataTemplateSelector}"
                                Margin="4 0 4 0"
                                     >
-                        <ItemsControl.ItemContainerStyle>
-                            <Style TargetType="ContentPresenter">
-                                <Setter Property="Margin" Value="0 0 0 16" />
-                            </Style>
-                        </ItemsControl.ItemContainerStyle>
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ContentPresenter">
+                            <Setter Property="Margin" Value="0 0 0 16" />
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
 
-                    </ItemsControl>
-
-
-
-                    <Border Height="32" />
-
-
-                </StackPanel>
+                </ItemsControl>
 
 
 
-            </ScrollViewer>
+                <Border Height="32" />
+
+
+            </StackPanel>
 
 
 
-        </toolkit:DockPanel>
+        </ScrollViewer>
+
+
+
 
     </local:MenuNavigatePageBase>
 
