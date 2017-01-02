@@ -268,14 +268,9 @@
                                     Height="48"
                                     Width="48"
                                     Background="Transparent"
+                                     Command="{Binding TogglePaneOpenCommand}"
                                 >
                                     <iconPack:PackIconMaterial Kind="Menu" />
-
-                                    <i:Interaction.Behaviors>
-                                        <core:EventTriggerBehavior EventName="Tapped">
-                                            <core:InvokeCommandAction Command="{Binding TogglePaneOpenCommand}" />
-                                        </core:EventTriggerBehavior>
-                                    </i:Interaction.Behaviors>
                                 </Button>
 
                                 <!-- モバイルレイアウトの検索開始ボタン -->
