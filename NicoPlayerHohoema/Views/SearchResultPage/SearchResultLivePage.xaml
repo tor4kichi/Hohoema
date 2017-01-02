@@ -17,7 +17,7 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <Grid>
+    <local:MenuNavigatePageBase>
 
         <Border>
             <toolkit:DockPanel>
@@ -67,5 +67,5 @@
 
             </toolkit:DockPanel>
         </Border>
-    </Grid>
+    </local:MenuNavigatePageBase>
 </Page>

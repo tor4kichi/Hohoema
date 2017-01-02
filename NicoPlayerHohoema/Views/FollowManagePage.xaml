@@ -26,64 +26,68 @@
 
         <local:FollowTypeToSymbolIconConverter x:Key="FavTypeToSymbol" />
     </Page.Resources>
-    <toolkit:DockPanel>
+    <local:MenuNavigatePageBase>
+        <toolkit:DockPanel>
 
-        <Border toolkit:DockPanel.Dock="Top" 
+            <Border toolkit:DockPanel.Dock="Top" 
                     BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
                     BorderThickness="0 0 0 1"
                 Height="48"
                     >
-            <toolkit:DockPanel >
-                <StackPanel toolkit:DockPanel.Dock="Right" Margin="8 0"
+                <toolkit:DockPanel >
+                    <StackPanel toolkit:DockPanel.Dock="Right" Margin="8 0"
                                 Orientation="Horizontal"
                                 >
-                </StackPanel>
+                    </StackPanel>
 
-                <Border Background="Transparent" IsHitTestVisible="True"
+                    <Border Background="Transparent" IsHitTestVisible="True"
                                 Margin="24 0 0 0"
                                 >
+                        <!--
 
-                    <TextBlock Text="{Binding Title}" 
+                        <TextBlock Text="{Binding Title}" 
                                     VerticalAlignment="Center"
                                     Style="{StaticResource SubtitleTextBlockStyle}"
                                     >
-                    </TextBlock>
-                </Border>
-            </toolkit:DockPanel>
-        </Border>
+                        </TextBlock>
+                        
+                        -->
+                    </Border>
+                </toolkit:DockPanel>
+            </Border>
 
-        <ScrollViewer x:Name="ScrollList"
+            <ScrollViewer x:Name="ScrollList"
                       >
-            <Border Margin="16 0 16 16">
-                <ItemsControl ItemsSource="{Binding Lists}">
+                <Border Margin="16 0 16 16">
+                    <ItemsControl ItemsSource="{Binding Lists}">
 
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Vertical" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            
-                            <toolkit:DockPanel Margin="0 0 0 16">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Vertical" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+
+                                <toolkit:DockPanel Margin="0 0 0 16">
 
 
-                                <StackPanel Orientation="Horizontal"
+                                    <StackPanel Orientation="Horizontal"
                                            toolkit:DockPanel.Dock="Top"                                            
                                             >
-                                    <SymbolIcon Symbol="{Binding FavType, Converter={StaticResource FavTypeToSymbol}}" 
+                                        <SymbolIcon Symbol="{Binding FavType, Converter={StaticResource FavTypeToSymbol}}" 
                                                 Margin="0 0 8 0"
                                                 VerticalAlignment="Center"
                                                 />
 
-                                    <TextBlock Text="{Binding Name}" 
+                                        <TextBlock Text="{Binding Name}" 
                                            Margin="8 0"
                                            FontSize="20"
                                                VerticalAlignment="Center"
                                            />
 
-                                    <TextBlock 
+                                        <TextBlock 
                                                VerticalAlignment="Center"
                                                Opacity="0.8"
                                                FontSize="13"
@@ -92,37 +96,39 @@
                                         <Run Text="{Binding ItemCount}" />
                                         <Run Text="/" />
                                         <Run Text="{Binding MaxItemCount}" />
-                                    </TextBlock>
+                                        </TextBlock>
 
-                                </StackPanel>
+                                    </StackPanel>
 
-                                <ItemsControl ItemsSource="{Binding Items}"
+                                    <ItemsControl ItemsSource="{Binding Items}"
                                           ItemTemplate="{StaticResource FavoriteItemTemplate}"
                                           Margin="0 8 0 0"
                                           >
-                                    <ItemsControl.ItemContainerStyle>
-                                        <Style TargetType="ContentPresenter">
-                                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                            <Setter Property="VerticalContentAlignment" Value="Stretch" />
-                                            <Setter Property="Margin" Value="0 0 8 8" />
-                                        </Style>
-                                    </ItemsControl.ItemContainerStyle>
+                                        <ItemsControl.ItemContainerStyle>
+                                            <Style TargetType="ContentPresenter">
+                                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                                <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                                                <Setter Property="Margin" Value="0 0 8 8" />
+                                            </Style>
+                                        </ItemsControl.ItemContainerStyle>
 
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <toolkit:WrapPanel 
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <toolkit:WrapPanel 
                                                                />
-                                            
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    
-                                </ItemsControl>
-                                
-                            </toolkit:DockPanel>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </Border>
-        </ScrollViewer>
-    </toolkit:DockPanel>
+
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+
+                                    </ItemsControl>
+
+                                </toolkit:DockPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Border>
+            </ScrollViewer>
+        </toolkit:DockPanel>
+    </local:MenuNavigatePageBase>
+    
 </Page>

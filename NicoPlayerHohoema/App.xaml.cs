@@ -36,6 +36,7 @@ using NicoPlayerHohoema.Models.Db;
 using Windows.Storage;
 using System.Text;
 using NicoPlayerHohoema.Util;
+using Windows.ApplicationModel.Resources;
 
 namespace NicoPlayerHohoema
 {
@@ -48,6 +49,7 @@ namespace NicoPlayerHohoema
 
 		private bool _IsPreLaunch;
 
+        public bool IsForceXboxLayoutMode { get; set; } = false;
 
 		public const string ACTIVATION_WITH_ERROR = "error";
 
@@ -343,7 +345,7 @@ namespace NicoPlayerHohoema
 			await Models.Db.HistoryDbContext.InitializeAsync();
 
 
-			Microsoft.Toolkit.Uwp.UI.ImageCache.CacheDuration = TimeSpan.FromHours(24);
+			Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.CacheDuration = TimeSpan.FromHours(24);
 
 			// TwitterAPIの初期化
 			await TwitterHelper.Initialize();
@@ -362,10 +364,12 @@ namespace NicoPlayerHohoema
 				Debug.WriteLine("ダウンロードをキャンセル:" + a.RawVideoId);
 			};
 
-			//			var playNicoVideoEvent = EventAggregator.GetEvent<PlayNicoVideoEvent>();
-			//			playNicoVideoEvent.Subscribe(PlayNicoVideoInPlayerWindow);
+            //			var playNicoVideoEvent = EventAggregator.GetEvent<PlayNicoVideoEvent>();
+            //			playNicoVideoEvent.Subscribe(PlayNicoVideoInPlayerWindow);
 
-			await base.OnInitializeAsync(args);
+            SetTitleBar();
+
+            await base.OnInitializeAsync(args);
 		}
 
 		private void Context_DoneDownload(NicoVideoDownloadContext sender, NiconicoDownloadEventArgs args)
@@ -415,6 +419,8 @@ namespace NicoPlayerHohoema
 			Container.RegisterInstance(new PageManager(NavigationService));
 			Container.RegisterInstance(hohoemaApp.ContentFinder);
 
+            
+
 			// 非同期更新機能の同時実行タスク数を指定
 			var deviceFamily = Windows.System.Profile.AnalyticsInfo.VersionInfo.DeviceFamily;
 			BackgroundUpdater.MaxTaskSlotCount = deviceFamily.EndsWith("Mobile") ? 1u : 2u;
@@ -456,13 +462,70 @@ namespace NicoPlayerHohoema
         }
 
 
-		protected override void ConfigureViewModelLocator()
-		{
-			base.ConfigureViewModelLocator();
-		}
+        protected override void ConfigureViewModelLocator()
+        {
+
+            ViewModelLocationProvider.SetDefaultViewTypeToViewModelTypeResolver(viewType => 
+            {
+                var pageToken = viewType.Name;
+
+                if (pageToken.EndsWith("_xbox"))
+                {
+                    pageToken = pageToken.Remove(pageToken.IndexOf("_xbox"));
+                }
+
+                var assemblyQualifiedAppType = viewType.AssemblyQualifiedName;
+
+                var pageNameWithParameter = assemblyQualifiedAppType.Replace(viewType.FullName, "NicoPlayerHohoema.ViewModels.{0}ViewModel");
+
+                var viewModelFullName = string.Format(CultureInfo.InvariantCulture, pageNameWithParameter, pageToken);
+                var viewModelType = Type.GetType(viewModelFullName);
+
+                if (viewModelType == null)
+                {
+                    throw new ArgumentException(
+                        string.Format(CultureInfo.InvariantCulture, pageToken, this.GetType().Namespace + ".ViewModels"),
+                        "pageToken");
+                }
+
+                return viewModelType;
+
+            });
+
+            base.ConfigureViewModelLocator();
+        }
+
+        protected override Type GetPageType(string pageToken)
+        {
+            if (IsForceXboxLayoutMode || Util.DeviceTypeHelper.IsXbox)
+            {
+                // pageTokenに対応するXbox表示用のページの型を取得
+                try
+                {
+                    var assemblyQualifiedAppType = this.GetType().AssemblyQualifiedName;
+
+                    var pageNameWithParameter = assemblyQualifiedAppType.Replace(this.GetType().FullName, this.GetType().Namespace + ".Views.{0}Page_xbox");
+
+                    var viewFullName = string.Format(CultureInfo.InvariantCulture, pageNameWithParameter, pageToken);
+                    var viewType = Type.GetType(viewFullName);
+
+                    if (viewType == null)
+                    {
+                        throw new ArgumentException(
+                            string.Format(CultureInfo.InvariantCulture, pageToken, this.GetType().Namespace + ".Views"),
+                            "pageToken");
+                    }
+
+                    return viewType;
+                }
+                catch { }
+            }
+
+            return base.GetPageType(pageToken);
+        }
 
 
-		protected override void OnWindowCreated(WindowCreatedEventArgs args)
+        protected override void OnWindowCreated(WindowCreatedEventArgs args)
 		{
 			base.OnWindowCreated(args);
 			
@@ -487,16 +550,9 @@ namespace NicoPlayerHohoema
 
 		protected override UIElement CreateShell(Frame rootFrame)
 		{
-			var menu = new Views.MenuNavigatePageBase();
-
-			var viewModel = Container.Resolve<ViewModels.MenuNavigatePageBaseViewModel>();
-			menu.DataContext = viewModel;
-
-			menu.Content = rootFrame;
-
 			rootFrame.Navigating += RootFrame_Navigating;
 			
-			return menu;
+			return rootFrame;
 		}
 
 		private void RootFrame_Navigating(object sender, NavigatingCancelEventArgs e)
@@ -582,7 +638,28 @@ namespace NicoPlayerHohoema
 
 			await PlayerWindow.ShowFront(currentViewId);
 		}
-	}
+
+
+        // 独自のタイトルバーを表示するメソッド
+        private void SetTitleBar()
+        {
+            var coreTitleBar
+              = Windows.ApplicationModel.Core.CoreApplication
+                .GetCurrentView().TitleBar;
+
+            var appTitleBar
+              = Windows.UI.ViewManagement.ApplicationView
+                .GetForCurrentView().TitleBar;
+
+            // タイトルバーの領域までアプリの表示を拡張する
+            coreTitleBar.ExtendViewIntoTitleBar = false;
+
+            // ［×］ボタンなどの背景色を設定する
+//            appTitleBar.ButtonBackgroundColor = Windows.UI.Colors.Transparent;
+            // 他にButtonInactiveBackgroundColorなども指定するとよい
+            // また、ボタンの前景色も同様にして指定できる
+        }
+    }
 
 
 

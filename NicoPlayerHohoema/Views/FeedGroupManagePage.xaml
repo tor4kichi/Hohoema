@@ -60,7 +60,8 @@
                                               User="{StaticResource UserFeedItemSourceTemplate}"
             />
     </Page.Resources>
-    <Grid>
+
+    <local:MenuNavigatePageBase>
 
         <toolkit:DockPanel >
 
@@ -101,14 +102,18 @@
                     <Border Background="Transparent" IsHitTestVisible="True"
                                 Margin="24 0 0 0"
                                 >
-
+                        <!-- 
                         <TextBlock Text="{Binding Title}" 
                                     VerticalAlignment="Center"
                                     Style="{StaticResource SubtitleTextBlockStyle}"
+                                   
                                     >
                                 
 
                         </TextBlock>
+                        
+                        -->
+                        
                     </Border>
 
 
@@ -289,6 +294,6 @@
 
 
         
-    </Grid>
+    </local:MenuNavigatePageBase>
 
 </Page>

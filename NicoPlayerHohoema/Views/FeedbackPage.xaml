@@ -12,52 +12,53 @@
     mvvm:ViewModelLocator.AutoWireViewModel="True"    
     mc:Ignorable="d">
 
-    <toolkit:DockPanel>
-        <Border toolkit:DockPanel.Dock="Top" 
+    <local:MenuNavigatePageBase>
+        <toolkit:DockPanel>
+            <Border toolkit:DockPanel.Dock="Top" 
                     BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
                     BorderThickness="0 0 0 1"
                 Height="48"
                     >
-            <toolkit:DockPanel >
-                <StackPanel toolkit:DockPanel.Dock="Right" Margin="8 0"
+                <toolkit:DockPanel >
+                    <StackPanel toolkit:DockPanel.Dock="Right" Margin="8 0"
                                 Orientation="Horizontal"
                                 >
-                </StackPanel>
+                    </StackPanel>
 
-                <Border Background="Transparent" IsHitTestVisible="True"
+                    <Border Background="Transparent" IsHitTestVisible="True"
                                 Margin="24 0 0 0"
                                 >
 
-                    <TextBlock Text="{Binding Title}" 
+                        <TextBlock Text="{Binding Title}" 
                                     VerticalAlignment="Center"
                                     Style="{StaticResource SubtitleTextBlockStyle}"
                                     >
-                    </TextBlock>
-                </Border>
-            </toolkit:DockPanel>
-        </Border>
+                        </TextBlock>
+                    </Border>
+                </toolkit:DockPanel>
+            </Border>
 
-        <ScrollViewer>
+            <ScrollViewer>
 
-            <StackPanel Margin="16 8 16 16" 
+                <StackPanel Margin="16 8 16 16" 
                     HorizontalAlignment="Stretch"
                     >
 
-                <Button Content="アプリの評価・レビューを行う"
+                    <Button Content="アプリの評価・レビューを行う"
                     Margin="0 16"
                     Command="{Binding LaunchAppReviewCommand}"
                     />
 
-                <TextBlock Margin="16 8 8 8"
+                    <TextBlock Margin="16 8 8 8"
                        TextWrapping="Wrap"                       
                        >
                 <Run>Windows10のストアアプリを起動してHohoemaアプリへの評価・レビューの記入を開始します。</Run>
-                </TextBlock>
+                    </TextBlock>
 
 
 
 
-                <Border HorizontalAlignment="Stretch"
+                    <Border HorizontalAlignment="Stretch"
                     BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                     BorderThickness="1 1 0 0"
                     Margin="0 16"
@@ -65,22 +66,22 @@
 
 
 
-                <Button Content="フィードバックHubでアプリの問題点・改善点を共有する" 
+                    <Button Content="フィードバックHubでアプリの問題点・改善点を共有する" 
                     Margin="0 16"
                     Command="{Binding LaunchFeedbackHubCommand}"
                     Visibility="{Binding IsSupportedFeedbackHub, Converter={StaticResource BooleanToVisibility}}"
                     >
 
-                </Button>
+                    </Button>
 
-                <TextBlock Margin="16 8 8 8"
+                    <TextBlock Margin="16 8 8 8"
                        TextWrapping="Wrap"
                        >
                 <Run>Hohoemaアプリに対するフィードバックをWindows10特有の「フィードバックHub」を通じて行います。</Run>
                 <Run>フィードバックHubで共有された課題、必要とされる機能などはHohoemaの課題一覧にまとめられます。</Run>
-                </TextBlock>
+                    </TextBlock>
 
-                <HyperlinkButton Content="フィードバックHubのダウンロード（ストアアプリが開きます）"
+                    <HyperlinkButton Content="フィードバックHubのダウンロード（ストアアプリが開きます）"
                              NavigateUri="ms-windows-store://pdp/?productid=9NBLGGH4R32N"
                              Margin="0 8"
                              />
@@ -89,31 +90,33 @@
 
 
 
-                <Border HorizontalAlignment="Stretch"
+                    <Border HorizontalAlignment="Stretch"
                     BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                     BorderThickness="1 1 0 0"
                     Margin="0 16"
                     />
 
-                <Button Content="Hohoemaの課題一覧を見る"
+                    <Button Content="Hohoemaの課題一覧を見る"
                     Margin="0 16"
                     Command="{Binding ShowIssuesWithBrowserCommand}"
                     >
 
-                </Button>
+                    </Button>
 
-                <TextBlock Margin="16 8 8 8"
+                    <TextBlock Margin="16 8 8 8"
                        TextWrapping="Wrap"
                        >
                 <Run>Hohoemaに現在どんな課題があって、いつ頃に解決する見通しなのか大まかに知ることができます。</Run>
                 <Run>課題一覧に新たに登録される課題はフィードバックHub等に報告された項目を一旦開発者が整理した上で追加されます。</Run>
-                </TextBlock>
+                    </TextBlock>
 
 
-            </StackPanel>
+                </StackPanel>
 
-        </ScrollViewer>
+            </ScrollViewer>
 
-    </toolkit:DockPanel>
+        </toolkit:DockPanel>
+
+    </local:MenuNavigatePageBase>
     
 </Page>

@@ -18,40 +18,41 @@
     mc:Ignorable="d">
 
 
-    <Grid>
-               
-        <toolkit:DockPanel >
+    <local:MenuNavigatePageBase>
+        <Grid>
+
+            <toolkit:DockPanel >
 
 
-            <Border toolkit:DockPanel.Dock="Top" 
+                <Border toolkit:DockPanel.Dock="Top" 
                     BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
                     BorderThickness="0 0 0 1"
                     >
-                <toolkit:DockPanel >
+                    <toolkit:DockPanel >
 
 
-                    <StackPanel toolkit:DockPanel.Dock="Right" Margin="8 0"
+                        <StackPanel toolkit:DockPanel.Dock="Right" Margin="8 0"
                                 Orientation="Horizontal"
                                 >
 
-                        <Button Command="{Binding ResumeCacheCommand}"
+                            <Button Command="{Binding ResumeCacheCommand}"
                                     Background="Transparent"
                                     ToolTipService.ToolTip="キャッシュ再開"
                                     >
-                            <StackPanel Orientation="Horizontal">
-                                <iconPack:PackIconMaterial Kind="Download" />
-                            </StackPanel>
-                        </Button>
+                                <StackPanel Orientation="Horizontal">
+                                    <iconPack:PackIconMaterial Kind="Download" />
+                                </StackPanel>
+                            </Button>
 
 
 
-                    </StackPanel>
+                        </StackPanel>
 
-                    <Border Background="Transparent" IsHitTestVisible="True"
+                        <Border Background="Transparent" IsHitTestVisible="True"
                                 Margin="24 0 0 0"
                                 >
 
-                        <TextBlock Text="{Binding Title}" 
+                            <TextBlock Text="{Binding Title}" 
                                     VerticalAlignment="Center"
                                     Style="{StaticResource SubtitleTextBlockStyle}"
                                     >
@@ -63,98 +64,98 @@
                                 </i:Interaction.Behaviors>
 
 
-                        </TextBlock>
-                    </Border>
+                            </TextBlock>
+                        </Border>
 
 
 
 
-                </toolkit:DockPanel>
-            </Border>
+                    </toolkit:DockPanel>
+                </Border>
 
-            <Border toolkit:DockPanel.Dock="Top" 
+                <Border toolkit:DockPanel.Dock="Top" 
                     BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
                     BorderThickness="0 0 0 1"
                     >
-                <toolkit:DockPanel>
+                    <toolkit:DockPanel>
 
-                    <Border toolkit:DockPanel.Dock="Right"
+                        <Border toolkit:DockPanel.Dock="Right"
                             >
-                        <ToggleButton Background="Transparent"
+                            <ToggleButton Background="Transparent"
                                         IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                         ToolTipService.ToolTip="選択"
                                         >
-                            <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" />
-                        </ToggleButton>
+                                <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" />
+                            </ToggleButton>
 
 
-                    </Border>
+                        </Border>
 
-                    <Border 
+                        <Border 
                             toolkit:DockPanel.Dock="Right"
                             BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
                             BorderThickness="1 0 0 0"
                                 Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                             >
-                        <Button Background="Transparent" 
+                            <Button Background="Transparent" 
                                 Command="{Binding RefreshCommand}"
                                 ToolTipService.ToolTip="更新"
                                 >
-                            <SymbolIcon Symbol="Refresh" />
-                        </Button>
+                                <SymbolIcon Symbol="Refresh" />
+                            </Button>
 
-                    </Border>
-
-
+                        </Border>
 
 
 
 
 
-                    <Grid
+
+
+                        <Grid
                             
                         >
-                        <toolkit:DockPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                            <toolkit:DockPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
                                         >
 
-                            <StackPanel Orientation="Horizontal"
+                                <StackPanel Orientation="Horizontal"
                                 toolkit:DockPanel.Dock="Right"                                        
                                 >
 
-                                <Button Command="{Binding RegistratioMylistCommand}"
-                                            Background="Transparent"
-                                            >
-                                    <StackPanel Orientation="Horizontal">
-                                        <SymbolIcon Symbol="Add" />
-                                        <TextBlock Text="マイリスト登録"
-                                                   VerticalAlignment="Center"
-                                                   />
-                                    </StackPanel>
-                                </Button>
-
-                                <StackPanel Orientation="Horizontal" >
-                                    <Button Command="{Binding CancelCacheDownloadRequest}"
+                                    <Button Command="{Binding RegistratioMylistCommand}"
                                             Background="Transparent"
                                             >
                                         <StackPanel Orientation="Horizontal">
-                                            <SymbolIcon Symbol="Download" />
-                                            <TextBlock Text="キャッシュ削除"
-                                                VerticalAlignment="Center"
-                                                />
+                                            <SymbolIcon Symbol="Add" />
+                                            <TextBlock Text="マイリスト登録"
+                                                   VerticalAlignment="Center"
+                                                   />
                                         </StackPanel>
                                     </Button>
+
+                                    <StackPanel Orientation="Horizontal" >
+                                        <Button Command="{Binding CancelCacheDownloadRequest}"
+                                            Background="Transparent"
+                                            >
+                                            <StackPanel Orientation="Horizontal">
+                                                <SymbolIcon Symbol="Download" />
+                                                <TextBlock Text="キャッシュ削除"
+                                                VerticalAlignment="Center"
+                                                />
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+
                                 </StackPanel>
 
-                            </StackPanel>
+                                <Border />
 
-                            <Border />
-
-                        </toolkit:DockPanel>
+                            </toolkit:DockPanel>
 
 
-                        <toolkit:DockPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
+                            <toolkit:DockPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
 
-                            <!--
+                                <!--
                             <Grid x:Name="SearchButtonBorder"
                                     BorderThickness="1"
                                     >
@@ -180,48 +181,50 @@
                                 </Button>
                             </Grid>
                             -->
-                        </toolkit:DockPanel>
+                            </toolkit:DockPanel>
 
-                    </Grid>
-
-
+                        </Grid>
 
 
-                </toolkit:DockPanel>
-            </Border>
-
-           
-
-            <controls:HohoemaIncrementalLoadingList />
 
 
-        </toolkit:DockPanel>
+                    </toolkit:DockPanel>
+                </Border>
 
 
-        <Grid Visibility="{Binding IsCacheUserAccepted, Converter={StaticResource BooleanToVisibilityInverted}}" 
+
+                <controls:HohoemaIncrementalLoadingList />
+
+
+            </toolkit:DockPanel>
+
+
+            <Grid Visibility="{Binding IsCacheUserAccepted, Converter={StaticResource BooleanToVisibilityInverted}}" 
               HorizontalAlignment="Stretch"
               VerticalAlignment="Stretch"
               Background="#77FFFFFF"
               >
-            <StackPanel HorizontalAlignment="Center"
+                <StackPanel HorizontalAlignment="Center"
                         VerticalAlignment="Center">
-                <TextBlock Margin="4">キャッシュ機能を有効にするには</TextBlock>
+                    <TextBlock Margin="4">キャッシュ機能を有効にするには</TextBlock>
 
-                
-                <TextBlock Margin="4">
+
+                    <TextBlock Margin="4">
                     <Run>「キャッシュ機能の利用に関する確認」への同意が必要です</Run>
-                </TextBlock>
+                    </TextBlock>
 
 
-                <Button Content="「キャッシュ機能の利用に関する確認」を表示する" 
+                    <Button Content="「キャッシュ機能の利用に関する確認」を表示する" 
                         Command="{Binding OpenCacheSettingsCommand}" 
                         Margin="8 16 8 8"
                          />
 
-            </StackPanel>
-            
-            
+                </StackPanel>
+
+
+            </Grid>
         </Grid>
-    </Grid>
+    </local:MenuNavigatePageBase>
+   
     
 </Page>

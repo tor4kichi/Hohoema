@@ -15,7 +15,7 @@
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
-    <Grid>
+    <local:MenuNavigatePageBase>
         <toolkit:DockPanel >
 
 
@@ -91,5 +91,5 @@
 
 
         </toolkit:DockPanel>
-    </Grid>
+    </local:MenuNavigatePageBase>
 </Page>

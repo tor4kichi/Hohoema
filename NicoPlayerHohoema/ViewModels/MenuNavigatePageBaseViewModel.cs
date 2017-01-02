@@ -31,92 +31,82 @@ namespace NicoPlayerHohoema.ViewModels
 			HohoemaApp = hohoemaApp;
             AccountManagementDialogService = accountManageDlgService;
 
+            IsForceXboxDisplayMode = PageManager.ObserveProperty(x => x.IsForceXboxDisplayMode)
+                .ToReactiveProperty();
+
             IsOpenPane = new ReactiveProperty<bool>(false);
 
-            // Symbol see@ https://msdn.microsoft.com/library/windows/apps/dn252842
-            SplitViewDisplayMode = new ReactiveProperty<Windows.UI.Xaml.Controls.SplitViewDisplayMode>();
-			CanClosePane = SplitViewDisplayMode.Select(x => x != Windows.UI.Xaml.Controls.SplitViewDisplayMode.Inline)
-				.ToReactiveProperty();
-
-
-			MenuItems = new List<PageTypeSelectableItem>()
+            MenuItems = new List<PageTypeSelectableItem>()
 			{
                 new PageTypeSelectableItem(HohoemaPageType.Portal             , OnMenuItemSelected, "ホーム", Symbol.Home),
-                new PageTypeSelectableItem(HohoemaPageType.Search             , OnMenuItemSelected, "検索", Symbol.Find),
                 new PageTypeSelectableItem(HohoemaPageType.RankingCategoryList, OnMenuItemSelected, "ランキング", Symbol.Flag),
-				new PageTypeSelectableItem(HohoemaPageType.FollowManage       , OnMenuItemSelected, "フォロー", Symbol.OutlineStar),
 				new PageTypeSelectableItem(HohoemaPageType.UserMylist		  , OnMenuItemSelected, "マイリスト", Symbol.Bookmarks),
-				new PageTypeSelectableItem(HohoemaPageType.History			  , OnMenuItemSelected, "視聴履歴", Symbol.Clock),
+                new PageTypeSelectableItem(HohoemaPageType.FollowManage       , OnMenuItemSelected, "フォロー", Symbol.OutlineStar),
                 new PageTypeSelectableItem(HohoemaPageType.FeedGroupManage    , OnMenuItemSelected, "フィード", Symbol.List),
-                new PageTypeSelectableItem(HohoemaPageType.CacheManagement    , OnMenuItemSelected, "キャッシュ管理", Symbol.Download),
             };
 
             SubMenuItems = new List<PageTypeSelectableItem>()
             {
+                new PageTypeSelectableItem(HohoemaPageType.CacheManagement    , OnMenuItemSelected, "キャッシュ管理", Symbol.Download),
+                new PageTypeSelectableItem(HohoemaPageType.History            , OnMenuItemSelected, "視聴履歴", Symbol.Clock),
                 new PageTypeSelectableItem(HohoemaPageType.Settings             , OnMenuItemSelected, "設定", Symbol.Setting),
-                new PageTypeSelectableItem(HohoemaPageType.VideoInfomation      , OnAccountMenuItemSelected, "アカウント", Symbol.Account),
-                new PageTypeSelectableItem(HohoemaPageType.About                , OnMenuItemSelected, "このアプリについて", Symbol.AllApps),
-                new PageTypeSelectableItem(HohoemaPageType.Feedback             , OnMenuItemSelected, "フィードバック", Symbol.Send),
+                new PageTypeSelectableItem(HohoemaPageType.VideoInfomation      , OnAccountMenuItemSelected, "アカウントを表示", Symbol.Account),
+                new PageTypeSelectableItem(HohoemaPageType.About                , OnMenuItemSelected, "アプリについて", Symbol.AllApps),
+                new PageTypeSelectableItem(HohoemaPageType.Feedback             , OnMenuItemSelected, "フィードバックを送信", Symbol.Send),
             };
 
-            SelectedItem = new ReactiveProperty<PageTypeSelectableItem>(MenuItems[0], mode: ReactivePropertyMode.DistinctUntilChanged);
+            MainSelectedItem = new ReactiveProperty<PageTypeSelectableItem>(MenuItems[0]);
+            SubSelectedItem = new ReactiveProperty<PageTypeSelectableItem>();
 
-			SelectedItem
-				.Where(x => x != null)
-				.Subscribe(x => 
-			{
-                x.SelectedAction(x.Source);
-            });
-
-
-			PageManager.ObserveProperty(x => x.CurrentPageType)
+            Observable.Merge(
+                MainSelectedItem, 
+                SubSelectedItem
+                )
+                .Where(x => x != null)
+                .Subscribe(x => x.SelectedAction(x.Source));
+            
+            PageManager.ObserveProperty(x => x.CurrentPageType)
 				.Subscribe(pageType => 
 				{
-					foreach (var item in MenuItems)
-					{
-						item.IsSelected = item.Source == pageType;
-					}
+                    IsOpenPane.Value = false;
 
-                    foreach (var item in SubMenuItems)
+                    bool isMenuItemOpened = false;
+                    foreach (var item in MenuItems)
                     {
-                        item.IsSelected = item.Source == pageType;
-                    }
-					
-					SelectedItem.Value = null;
-
-					foreach (var item in MenuItems)
-					{
-						if (item.IsSelected)
-						{
-							SelectedItem.Value = item;
-							break;
-						}
-					}
-
-                    foreach (var item in SubMenuItems)
-                    {
-                        if (item.IsSelected)
+                        if (item.Source == pageType)
                         {
-                            SelectedItem.Value = item;
+                            MainSelectedItem.Value = item;
+                            SubSelectedItem.Value = null;
+                            isMenuItemOpened = true;
                             break;
                         }
                     }
 
+                    foreach (var item in SubMenuItems)
+                    {
+                        if (item.Source == pageType)
+                        {
+                            SubSelectedItem.Value = item;
+                            MainSelectedItem.Value = null;
+                            isMenuItemOpened = true;
+                            break;
+                        }
+                    }
+
+                    if (!isMenuItemOpened)
+                    {
+                        MainSelectedItem.Value = null;
+                        SubSelectedItem.Value = null;
+                    }
                 });
 
-            
+            IsSubMenuItemPage = PageManager.ObserveProperty(x => x.CurrentPageType)
+                .Select(x => SubMenuItems.Any(y => y.Source == x))
+                .ToReactiveProperty();
 
 
 
-            IsPersonalPage = SelectedItem.Select(x =>
-			{
-				return MenuItems.All(y => x != y);
-			})
-			.ToReactiveProperty();
-
-			IsPersonalPage.ForceNotify();
-
-			PageManager.ObserveProperty(x => x.PageTitle)
+            PageManager.ObserveProperty(x => x.PageTitle)
 				.Subscribe(x =>
 				{
 					TitleText = x;
@@ -184,9 +174,40 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					BGUpdateText.Value = null;
 				});
-		}
 
-		private void PageManager_StartWork(string title, uint totalCount)
+            HohoemaApp.ObserveProperty(x => x.IsLoggedIn)
+                .Subscribe(x => IsLoggedIn = x);
+
+            HohoemaApp.ObserveProperty(x => x.LoginUserName)
+                .Subscribe(x =>
+                {
+                    UserName = x;
+                    UserMail = HohoemaApp.GetPrimaryAccountId();
+                });
+
+            HohoemaApp.ObserveProperty(x => x.UserIconUrl)
+                .Subscribe(x => UserIconUrl = x);
+
+
+
+            // 検索
+            SearchKeyword = new ReactiveProperty<string>("");
+            SearchTarget = new ReactiveProperty<Models.SearchTarget>(Models.SearchTarget.Keyword);
+
+            SearchCommand = SearchKeyword
+                .Select(x => !string.IsNullOrWhiteSpace(x))
+                .ToReactiveCommand();
+            SearchCommand.Subscribe(_ => 
+            {
+                ISearchPagePayloadContent searchContent =
+                    SearchPagePayloadContentHelper.CreateDefault(SearchTarget.Value, SearchKeyword.Value);
+                PageManager.Search(searchContent);
+
+                IsMobileNowSearching = false;
+            });
+        }
+
+        private void PageManager_StartWork(string title, uint totalCount)
 		{
 			WorkTitle = title;
 			WorkTotalCount = totalCount;
@@ -222,6 +243,8 @@ namespace NicoPlayerHohoema.ViewModels
 
         internal async void OnAccountMenuItemSelected(HohoemaPageType pageType)
         {
+            SubSelectedItem.Value = null;
+
             await AccountManagementDialogService.ShowChangeAccountDialogAsync();
         }
 
@@ -238,36 +261,77 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+        private DelegateCommand _OpenAccountInfoCommand;
+        public DelegateCommand OpenAccountInfoCommand
+        {
+            get
+            {
+                return _OpenAccountInfoCommand
+                    ?? (_OpenAccountInfoCommand = new DelegateCommand(() =>
+                    {
+                        OnAccountMenuItemSelected(HohoemaPageType.About);
+                    }));
+            }
+        }
+
 
         public List<PageTypeSelectableItem> MenuItems { get; private set; }
 
         public List<PageTypeSelectableItem> SubMenuItems { get; private set; }
 
-        public ReactiveProperty<bool> IsVisibleMenu { get; private set; }
+        public ReactiveProperty<PageTypeSelectableItem> MainSelectedItem { get; private set; }
+        public ReactiveProperty<PageTypeSelectableItem> SubSelectedItem { get; private set; }
 
-		public ReactiveProperty<bool> IsPersonalPage { get; private set; }
+        public ReactiveProperty<bool> IsVisibleMenu { get; private set; }
 
 		public ReactiveProperty<bool> NowNavigating { get; private set; }
 
         public ReactiveProperty<bool> IsOpenPane { get; private set; }
 
-		/// <summary>
-		/// 表示サイズによるPane表示方法の違い
-		/// </summary>
-		public ReactiveProperty<bool> CanClosePane { get; private set; }
-		public ReactiveProperty<SplitViewDisplayMode> SplitViewDisplayMode { get; private set; }
+        public ReactiveProperty<bool> IsForceXboxDisplayMode { get; private set; }
+        public ReactiveProperty<bool> IsSubMenuItemPage { get; private set; }
 
 
-		private string _TitleText;
+
+        private string _TitleText;
 		public string TitleText
 		{
 			get { return _TitleText; }
 			set { SetProperty(ref _TitleText, value); }
 		}
 
+        private string _UserIconUrl;
+        public string UserIconUrl
+        {
+            get { return _UserIconUrl; }
+            set { SetProperty(ref _UserIconUrl, value); }
+        }
+
+        private string _UserName;
+        public string UserName
+        {
+            get { return _UserName; }
+            set { SetProperty(ref _UserName, value); }
+        }
+
+        private string _UserMail;
+        public string UserMail
+        {
+            get { return _UserMail; }
+            set { SetProperty(ref _UserMail, value); }
+        }
 
 
-		private bool _NowWorking;
+        private bool _IsLoggedIn;
+        public bool IsLoggedIn
+        {
+            get { return _IsLoggedIn; }
+            set { SetProperty(ref _IsLoggedIn, value); }
+        }
+
+
+
+        private bool _NowWorking;
 		public bool NowWorking
 		{
 			get { return _NowWorking; }
@@ -302,10 +366,68 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		public ReactiveProperty<PageTypeSelectableItem> SelectedItem { get; private set; }
-	}
 
-	public class PageTypeSelectableItem : SelectableItem<HohoemaPageType>
+        #region Search
+
+
+        public static List<SearchTarget> SearchTargetItems { get; private set; } = new List<Models.SearchTarget>()
+        {
+            Models.SearchTarget.Keyword,
+            Models.SearchTarget.Tag,
+            Models.SearchTarget.Mylist,
+            Models.SearchTarget.Community,
+            Models.SearchTarget.Niconama,
+        };
+
+       
+
+        public ReactiveProperty<string> SearchKeyword { get; private set; }
+        public ReactiveProperty<SearchTarget> SearchTarget { get; private set; }
+
+        public ReactiveCommand SearchCommand { get; private set; }
+
+        private DelegateCommand _OpenSearchPageCommand;
+        public DelegateCommand OpenSearchPageCommand
+        {
+            get
+            {
+                return _OpenSearchPageCommand
+                    ?? (_OpenSearchPageCommand = new DelegateCommand(() =>
+                    {
+                        PageManager.OpenPage(HohoemaPageType.Search);
+
+                        IsMobileNowSearching = false;
+                    }));
+            }
+        }
+
+        private bool _IsMobileNowSearching;
+        public bool IsMobileNowSearching
+        {
+            get { return _IsMobileNowSearching; }
+            set { SetProperty(ref _IsMobileNowSearching, value); }
+        }
+
+        private DelegateCommand _StartMobileSearchCommand;
+        public DelegateCommand StartMobileSearchCommand
+        {
+            get
+            {
+                return _StartMobileSearchCommand
+                    ?? (_StartMobileSearchCommand = new DelegateCommand(() =>
+                    {
+                        IsMobileNowSearching = !IsMobileNowSearching;
+                    }));
+            }
+        }
+
+
+        #endregion
+
+
+    }
+
+    public class PageTypeSelectableItem : SelectableItem<HohoemaPageType>
 	{
 		public PageTypeSelectableItem(HohoemaPageType pageType, Action<HohoemaPageType> onSelected, string label, Symbol iconType)
 			: base(pageType, onSelected)

@@ -200,6 +200,7 @@
     <Compile Include="Models\Settings\NGSettings.cs" />
     <Compile Include="Models\Settings\PlayerSettings.cs" />
     <Compile Include="Models\Settings\RankingSettings.cs" />
+    <Compile Include="Util\DeviceTypeHelper.cs" />
     <Compile Include="Util\HtmlFileHelper.cs" />
     <Compile Include="Models\VideoPlayPayload.cs" />
     <Compile Include="Models\Video\NicoVideoQuality.cs" />
@@ -378,6 +379,9 @@
     </Compile>
     <Compile Include="Views\MylistPage.xaml.cs">
       <DependentUpon>MylistPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PortalPage_xbox.xaml.cs">
+      <DependentUpon>PortalPage_xbox.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\RankingChoiceContentDialog.xaml.cs">
       <DependentUpon>RankingChoiceContentDialog.xaml</DependentUpon>
@@ -741,6 +745,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\MylistPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PortalPage_xbox.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

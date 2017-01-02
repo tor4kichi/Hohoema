@@ -136,7 +136,7 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public async Task<User> GetUserInfo(string userId)
+		public async Task<UserDetail> GetUserInfo(string userId)
 		{
             if (_HohoemaApp.NiconicoContext == null)
             {
@@ -149,12 +149,12 @@ namespace NicoPlayerHohoema.Models
 
 			var user = await ConnectionRetryUtil.TaskWithRetry(() =>
 			{
-				return _HohoemaApp.NiconicoContext.User.GetUserAsync(userId);
+				return _HohoemaApp.NiconicoContext.User.GetUserDetail(userId);
 			});
 
 			if (user != null)
 			{
-				await UserInfoDb.AddOrReplaceAsync(userId, user.Nickname, user.ThumbnailUrl);
+				await UserInfoDb.AddOrReplaceAsync(userId, user.Nickname, user.ThumbnailUri);
 			}
 
 			return user;

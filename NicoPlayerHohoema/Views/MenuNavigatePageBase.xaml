@@ -11,10 +11,13 @@
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:mytrigger="using:NicoPlayerHohoema.Views.StateTrigger"
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:logicalTrigger="using:AdaptiveTriggerLibrary.Triggers.LogicalTriggers"
     xmlns:uiTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInterfaceTriggers"
+    xmlns:interactionTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInteractionTriggers"
     xmlns:hardwareTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
+    xmlns:softwareTrigger="using:AdaptiveTriggerLibrary.Triggers.SoftwareInterfaceTriggers"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
@@ -23,52 +26,73 @@
     >
 
     <ContentControl.Resources>
-        <DataTemplate x:Key="MenuItemTemplate">
-            <StackPanel>
-                <Border Background="Transparent" 
-                    HorizontalAlignment="Stretch"
-                    VerticalAlignment="Stretch"
-                    >
 
 
-                    <!--
-                <i:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="Tapped">
-                        <core:InvokeCommandAction Command="{Binding SelectedCommand}" />
-                    </core:EventTriggerBehavior>
-                </i:Interaction.Behaviors>
-                -->
-                    <StackPanel Orientation="Horizontal">
+        <DataTemplate x:Key="SearchBarTemplate" >
+            <toolkit:DockPanel HorizontalAlignment="Stretch">
+                
+                <StackPanel Orientation="Horizontal"
+                            toolkit:DockPanel.Dock="Right"
+                            >
+                    <Button Height="48" Width="48" 
+                            Background="Transparent"
+                            Command="{Binding SearchCommand}"
+                            >
+                        <SymbolIcon Symbol="Find" />
+                    </Button>
+                    <Button Width="24">
+                        <iconPack:PackIconMaterial Kind="ArrowDown" />
 
-                        <SymbolIcon x:Name="Icon"
-                                Symbol="{Binding IconType}"  
-                                
-                                Margin="8 0"
-                        />
+                        <Button.Flyout>
+                            <Flyout>
+                                <StackPanel>
+                                    <ListView ItemsSource="{Binding SearchTargetItems}"
+                                            SelectedItem="{Binding SearchTarget.Value, Mode=TwoWay}"
+                                            >
+                                    </ListView>
 
-                        <TextBlock x:Name="LabelTextBlock"
-                               Text="{Binding Label}" 
-                               VerticalAlignment="Center"
-                                   Margin="8 0"
-                               />
+                                    <Border BorderThickness="0 1 0 0" Margin="0 8"/>
+
+                                    <Button Background="Transparent" 
+                                            Command="{Binding OpenSearchPageCommand}"
+                                            Content="詳細を指定して検索"
+                                            >
+                                        <i:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Tapped">
+                                                <mybehavior:CloseFlyoutAction />
+                                            </core:EventTriggerBehavior>
+                                        </i:Interaction.Behaviors>
+                                    </Button>
 
 
+                                </StackPanel>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
+                </StackPanel>
 
-                    </StackPanel>
-                </Border>
-            </StackPanel>
-            
+                <TextBox Text="{Binding SearchKeyword.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                             PlaceholderText="動画を検索"
+                                             FontSize="20"
+                                             MinWidth="200"
+                                             ext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
+                                              >
+                    <i:Interaction.Behaviors>
+                        <mybehavior:KeyboardTrigger Key="Enter" >
+                            <mybehavior:KeyboardTrigger.Actions>
+                                <core:InvokeCommandAction Command="{Binding SearchCommand}" />
+                            </mybehavior:KeyboardTrigger.Actions>
+                        </mybehavior:KeyboardTrigger>
+                    </i:Interaction.Behaviors>
+                </TextBox>
+            </toolkit:DockPanel>
+
         </DataTemplate>
-
-
-        <DataTemplate x:Key="MenuTemplate">
-            
-
-        </DataTemplate>
-
         <DataTemplate x:Key="HohoemaContentTemplate">
             
         </DataTemplate>
+
+       
     </ContentControl.Resources>
     
     
@@ -80,43 +104,33 @@
                 <VisualStateManager.VisualStateGroups>
                     <VisualStateGroup x:Name="TopBarStateGroup">
 
+                        
+                        <!-- トップメニュー非表示 -->
                         <VisualState>
                             <VisualState.StateTriggers>
                                 <StateTrigger IsActive="{Binding IsVisibleMenu.Value, Converter={StaticResource InvertBoolean}}" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter Target="PaneLayout.DisplayMode" Value="Overlay" />
-                                <Setter Target="PaneLayout.IsPaneOpen" Value="False" />
+                                <Setter Target="DesktopTopBar.Visibility" Value="Collapsed" />
+                                <Setter Target="MobileTopBar.Visibility" Value="Collapsed" />
+
+                                <Setter Target="SplitView.DisplayMode" Value="Overlay" />
+                                <Setter Target="SplitView.IsPaneOpen" Value="False" />
+
                             </VisualState.Setters>
                         </VisualState>
 
-                        <!-- 一番幅が広いとき -->
-                        <!--
+                        <!-- マウス操作時、または画面が大きい時 -->
                         <VisualState>
                             <VisualState.StateTriggers>
-                                <AdaptiveTrigger MinWindowWidth="721" />
+                                <AdaptiveTrigger MinWindowWidth="800" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter Target="LeftMenuSplitView.DisplayMode" Value="Inline" />
-                                <Setter Target="LeftMenuSplitView.IsPaneOpen" Value="True" />
+                                <Setter Target="DesktopTopBar.Visibility" Value="Visible" />
+                                <Setter Target="MobileTopBar.Visibility" Value="Collapsed" />
 
-                                <Setter Target="TopBar.Visibility" Value="Visible" />
-                                <Setter Target="OpenPaneButton.Visibility" Value="Collapsed" />
-                                <Setter Target="OpenPaneButtonTemp.Visibility" Value="Visible" />
-
-                                <Setter Target="MenuPaneRoot.Margin" Value="0 0 0 0" />
-                            </VisualState.Setters>
-                        </VisualState>
-                        -->
-                        <!-- 中ぐらい PaneOpen -->
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <AdaptiveTrigger MinWindowWidth="521" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-                                <Setter Target="SplitView.DisplayMode" Value="CompactInline" />
-                                <Setter Target="ClosePaneBehavior1.IsEnable" Value="False" />
-                                <Setter Target="ClosePaneBehavior2.IsEnable" Value="False" />
+                                <Setter Target="SplitView.DisplayMode" Value="Overlay" />
+                                <Setter Target="SplitView.IsPaneOpen" Value="False" />
                             </VisualState.Setters>
                         </VisualState>
                         
@@ -126,179 +140,296 @@
                                 <AdaptiveTrigger MinWindowWidth="0" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter Target="SplitView.DisplayMode" Value="CompactOverlay" />
-                                <Setter Target="ClosePaneBehavior1.IsEnable" Value="True" />
-                                <Setter Target="ClosePaneBehavior2.IsEnable" Value="True" />
+                                <Setter Target="XboxTopBar.Visibility" Value="Collapsed" />
+                                <Setter Target="DesktopTopBar.Visibility" Value="Collapsed" />
+                                <Setter Target="MobileTopBar.Visibility" Value="Visible" />
+
+                                <Setter Target="SplitView.DisplayMode" Value="Overlay" />
+                                <Setter Target="SplitView.IsPaneOpen" Value="False" />
+
                             </VisualState.Setters>
                         </VisualState>
                     </VisualStateGroup>
-
-                    <!--
-                    <VisualStateGroup>
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <logicalTrigger:MultiTrigger>
-                                    <logicalTrigger:MultiTrigger.Triggers>
-                                        <hardwareTrigger:DeviceFamilyTrigger Condition="Mobile" />
-                                        <uiTrigger:OrientationTrigger Condition="Portrait" />
-                                    </logicalTrigger:MultiTrigger.Triggers>
-                                </logicalTrigger:MultiTrigger>
-                            </VisualState.StateTriggers>
-
-                            <VisualState.Setters>
-                                <Setter Target="RootLayoutContainer.Margin" Value="0 24 0 48" />
-                            </VisualState.Setters>
-                        </VisualState>
-
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <logicalTrigger:MultiTrigger>
-                                    <logicalTrigger:MultiTrigger.Triggers>
-                                        <hardwareTrigger:DeviceFamilyTrigger Condition="Mobile" />
-                                        <uiTrigger:OrientationTrigger Condition="Landscape" />
-                                    </logicalTrigger:MultiTrigger.Triggers>
-                                </logicalTrigger:MultiTrigger>
-                            </VisualState.StateTriggers>
-
-                            <VisualState.Setters>
-                                <Setter Target="RootLayoutContainer.Margin" Value="0 0 48 0" />
-                            </VisualState.Setters>
-                        </VisualState>
-
-                        <VisualState>
-                            <VisualState.Setters>
-                                <Setter Target="RootLayoutContainer.Margin" Value="0 0 0 0" />
-                            </VisualState.Setters>
-                        </VisualState>
-
-                    </VisualStateGroup>
-                    
-                    -->
-                    
-
-
-
-
-
-
-
 
                 </VisualStateManager.VisualStateGroups>
 
+               
 
-                <SplitView x:Name="SplitView" 
-                            CompactPaneLength="48"
-                            OpenPaneLength="180"
-                            DisplayMode="Inline"
-                            IsPaneOpen="{Binding IsOpenPane.Value, Mode=TwoWay}"
-                           
-                           >
-                    <SplitView.Pane>
-                        <toolkit:DockPanel x:Name="PaneLayout">
+                
 
+                <Border x:Name="RootLayout">
+
+                    <toolkit:DockPanel>
+
+                        <!-- デスクトップ時のトップバー -->
+                        <toolkit:DockPanel x:Name="DesktopTopBar"
+                            toolkit:DockPanel.Dock="Top" >
+
+                            <!-- デスクトップのトップエリア、サブ項目 -->
+                            <StackPanel toolkit:DockPanel.Dock="Right"
+                                        Orientation="Horizontal"
+                                        >
+                                <Button>
+
+
+
+                                    <StackPanel>
+                                        <SymbolIcon Symbol="People" Height="48" Width="48"
+                                                    Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                                    />
+                                        <Image Source="{Binding UserIconUrl}" 
+                                               toolkit:DockPanel.Dock="Left"
+                                               Height="32" Width="32"
+                                               Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibility}}"
+                                                               />
+                                    </StackPanel>
+                                    
+                                    <Button.Flyout>
+                                        <Flyout>
+                                            <StackPanel>
+
+                                                <!-- アカウント -->
+
+                                                <Button Background="Transparent" 
+                                                        Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibility}}"
+                                                        Command="{Binding OpenAccountInfoCommand}"
+                                                        >
+                                                    <toolkit:DockPanel Margin="0 4">
+
+                                                        <Image Source="{Binding UserIconUrl}" 
+                                                               toolkit:DockPanel.Dock="Left"
+                                                               Height="32" Width="32"
+                                                               Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibility}}"
+                                                               Margin="0 0 8 0"
+                                                               />
+
+                                                        <StackPanel>
+                                                            <TextBlock Text="{Binding UserName}" />
+                                                            <TextBlock Text="{Binding UserMail}" FontWeight="Light" />
+                                                        </StackPanel>
+                                                    </toolkit:DockPanel>
+                                                </Button>
+
+                                                <ListView ItemsSource="{Binding SubMenuItems}"
+                                                          SelectedItem="{Binding SubSelectedItem.Value, Mode=TwoWay}"
+                                                          SelectionMode="Single"
+                                                          DisplayMemberPath="Label"
+                                                    >
+                                                    <ListView.ItemContainerStyle>
+                                                        <Style TargetType="ListViewItem">
+                                                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                                        </Style>
+                                                    </ListView.ItemContainerStyle>
+                                                </ListView>
+                                            </StackPanel>
+                                        </Flyout>
+                                    </Button.Flyout>
+                                </Button>
+
+                                <ContentControl Content="{Binding}" 
+                                                ContentTemplate="{StaticResource SearchBarTemplate}" 
+                                                HorizontalContentAlignment="Stretch"
+                                                VerticalContentAlignment="Stretch"
+                                                />
+                                
+                                
+                                
+                            </StackPanel>
+
+                            <!-- デスクトップのトップエリア、メイン項目 -->
+                            <ListView ItemsSource="{Binding MenuItems}"
+                                      SelectedItem="{Binding MainSelectedItem.Value, Mode=TwoWay}"
+                                      SelectionMode="Single"
+                                      DisplayMemberPath="Label"
+                                          >
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="ListViewItem">
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                                <ListView.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ListView.ItemsPanel>
+
+                            </ListView>
+
+                        </toolkit:DockPanel>
+
+                        <!-- モバイル時のトップバー -->
+                        <Grid x:Name="MobileTopBar"
+                            toolkit:DockPanel.Dock="Top">
                             
-                            <Button toolkit:DockPanel.Dock="Top"
-                                    Command="{Binding TogglePaneOpenCommand}"
+                            <toolkit:DockPanel x:Name="MobileTopBarDefaultContent"
+                                               Visibility="{Binding IsMobileNowSearching, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                               >
+                                <Button toolkit:DockPanel.Dock="Left"
                                     Height="48"
                                     Width="48"
                                     Background="Transparent"
+                                     Command="{Binding TogglePaneOpenCommand}"
                                 >
-                                <iconPack:PackIconMaterial Kind="Menu" />
-                            </Button>
+                                    <iconPack:PackIconMaterial Kind="Menu" />
+                                </Button>
 
-
-                            <Border toolkit:DockPanel.Dock="Bottom"
-                                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
-                                    BorderThickness="0 1 0 0"
-                                >
-                                <StackPanel >
-
-                                    <ListView ItemsSource="{Binding SubMenuItems}"
-                                            SelectionMode="Single"
-                                            SelectedValue="{Binding SelectedItem.Value, Mode=TwoWay}"
-                                            ItemTemplate="{StaticResource MenuItemTemplate}"
-                                            >
-                                        <ListView.ItemContainerStyle>
-                                            <Style TargetType="ListViewItem">
-                                                <Setter Property="Padding" Value="6 12 10 12" />
-                                                <Setter Property="Margin" Value="0" />
-                                            </Style>
-                                        </ListView.ItemContainerStyle>
-
-                                        <i:Interaction.Behaviors>
-                                            <core:EventTriggerBehavior EventName="SelectionChanged">
-                                                
-                                                <mybehavior:SplitViewClosePane SplitView="{Binding ElementName=SplitView}" 
-                                                                               x:Name="ClosePaneBehavior1"
-                                                        />
-                                                
-                                            </core:EventTriggerBehavior>
-                                        </i:Interaction.Behaviors>
-                                    </ListView>
-
-                                </StackPanel>
-                            </Border>
-
-                            <ScrollViewer HorizontalScrollMode="Disabled"
-                                VerticalScrollMode="Auto"
-                                VerticalScrollBarVisibility="Hidden"
-                                >
-                                <StackPanel >
-
-                                    <ListView ItemsSource="{Binding MenuItems}"
-                                            SelectionMode="Single"
-                                            SelectedValue="{Binding SelectedItem.Value, Mode=TwoWay}"
-                                            ItemTemplate="{StaticResource MenuItemTemplate}"
-                                            >
-                                        <ListView.ItemContainerStyle>
-                                            <Style TargetType="ListViewItem">
-                                                <Setter Property="Padding" Value="6 12 10 12" />
-                                                <Setter Property="Margin" Value="0" />
-                                            </Style>
-                                        </ListView.ItemContainerStyle>
-
-                                        <i:Interaction.Behaviors>
-                                            <core:EventTriggerBehavior EventName="SelectionChanged">
-                                                
-                                                <mybehavior:SplitViewClosePane SplitView="{Binding ElementName=SplitView}" 
-                                                                               x:Name="ClosePaneBehavior2"
-                                                        />
-                                                
-                                            </core:EventTriggerBehavior>
-                                        </i:Interaction.Behaviors>
-                                    </ListView>
-
-                                </StackPanel>
-                            </ScrollViewer>
-                        </toolkit:DockPanel>
-                    </SplitView.Pane>
-                    <SplitView.Content>
-                        <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-                            <toolkit:DockPanel >
-
-                                <ContentPresenter
-                                Visibility="{Binding NowNavigating.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                />
-
+                                <!-- モバイルレイアウトの検索開始ボタン -->
+                                <Button toolkit:DockPanel.Dock="Right"
+                                        Height="48"
+                                        Width="48"
+                                        Background="Transparent"
+                                        Command="{Binding StartMobileSearchCommand}"
+                                        >
+                                    <SymbolIcon Symbol="Find" />
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Tapped">
+                                            <mybehavior:SetFocus TargetObject="{Binding ElementName=MobileSearchContent}" />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
+                                </Button>
+                                        
+                                <TextBlock Text="{Binding TitleText}"
+                                           Margin="8 0 0 0"
+                                           Style="{StaticResource TitleTextBlockStyle}"
+                                           VerticalAlignment="Center"
+                                           />
+                                
                             </toolkit:DockPanel>
-                            <Border Visibility="{Binding HasBGUpdateText.Value, Converter={StaticResource BooleanToVisibility}}"
-                                Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Bottom"
-                                Padding="2"
-                                >
-                                <TextBlock Text="{Binding BGUpdateText.Value}"
-                                        FontSize="12"
-                                        Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                        />
+
+                            <Border x:Name="MobileTopBarSearchContent" 
+                                    Visibility="{Binding IsMobileNowSearching, Converter={StaticResource BooleanToVisibility}}"
+                                    HorizontalAlignment="Stretch"
+                                    >
+                                <ContentControl Content="{Binding}" 
+                                                ContentTemplate="{StaticResource SearchBarTemplate}" 
+                                                HorizontalContentAlignment="Stretch"
+                                                VerticalContentAlignment="Stretch"
+                                                x:Name="MobileSearchContent"
+                                                />
                             </Border>
 
                         </Grid>
+                        
+                        
+                       
+                        <SplitView x:Name="SplitView" 
+                            CompactPaneLength="48"
+                            OpenPaneLength="220"
+                            DisplayMode="Overlay"
+                            IsPaneOpen="{Binding IsOpenPane.Value, Mode=TwoWay}"
+                           >
+                            <SplitView.Pane>
+                                <toolkit:DockPanel x:Name="PaneLayout">
 
-                    </SplitView.Content>
-                </SplitView>
+                                    <Button Background="Transparent" 
+                                            Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibility}}"
+                                            Command="{Binding OpenAccountInfoCommand}"
+                                            toolkit:DockPanel.Dock="Bottom"
+                                            HorizontalAlignment="Stretch"
+                                                        >
+                                        <toolkit:DockPanel Margin="0 0">
 
-                
+                                            <Image Source="{Binding UserIconUrl}" 
+                                                   toolkit:DockPanel.Dock="Left"
+                                                   Height="32" Width="32"
+                                                   Margin="0 0 8 0"
+                                                               />
+
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding UserName}" />
+                                                <TextBlock Text="{Binding UserMail}" FontWeight="Light" />
+                                            </StackPanel>
+                                        </toolkit:DockPanel>
+                                    </Button>
+
+
+                                    <ScrollViewer HorizontalScrollMode="Disabled"
+                                        VerticalScrollMode="Auto"
+                                        VerticalScrollBarVisibility="Hidden"
+                                        >
+
+                                        <StackPanel>
+
+                                            <ListView ItemsSource="{Binding MenuItems}"
+                                                      SelectedItem="{Binding MainSelectedItem.Value, Mode=TwoWay}"
+                                                      SelectionMode="Single"
+                                                      DisplayMemberPath="Label"
+                                                  >
+                                                <ListView.ItemContainerStyle>
+                                                    <Style TargetType="ListViewItem">
+                                                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                                    </Style>
+                                                </ListView.ItemContainerStyle>
+                                            </ListView>
+
+                                            <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                    BorderThickness="0 1 0 0" />
+
+                                            <ListView ItemsSource="{Binding SubMenuItems}"
+                                                      SelectedItem="{Binding SubSelectedItem.Value, Mode=TwoWay}"
+                                                      SelectionMode="Single"
+                                                      DisplayMemberPath="Label"
+                                                  >
+                                                <ListView.ItemContainerStyle>
+                                                    <Style TargetType="ListViewItem">
+                                                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                                    </Style>
+                                                </ListView.ItemContainerStyle>
+                                            </ListView>
+
+                                        </StackPanel>
+
+
+
+                                    </ScrollViewer>
+                                </toolkit:DockPanel>
+                            </SplitView.Pane>
+                            <SplitView.Content>
+                                <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" >
+                                    <toolkit:DockPanel x:Name="ContentLayout">
+
+                                        <!-- ページ毎のコンテンツ -->
+                                        <ContentPresenter
+                                                Visibility="{Binding NowNavigating.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                                />
+
+                                    </toolkit:DockPanel>
+                                    
+                                    
+                                    <Border Visibility="{Binding HasBGUpdateText.Value, Converter={StaticResource BooleanToVisibility}}"
+                                            Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Bottom"
+                                            Padding="2"
+                                            >
+                                        <TextBlock Text="{Binding BGUpdateText.Value}"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                            />
+                                    </Border>
+
+
+                                    <Border x:Name="MobileSearchTapBarrier" 
+                                            Visibility="{Binding IsMobileNowSearching, Converter={StaticResource BooleanToVisibility}}"
+                                            Background="Black"
+                                            Opacity="0.5"
+                                            >
+                                        <i:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Tapped">
+                                                <core:InvokeCommandAction Command="{Binding StartMobileSearchCommand}" />
+                                            </core:EventTriggerBehavior>
+                                        </i:Interaction.Behaviors>
+                                    </Border>
+
+                                </Grid>
+
+                            </SplitView.Content>
+                        </SplitView>
+
+                    </toolkit:DockPanel>
+
+                    
+                </Border>
 
 
 
