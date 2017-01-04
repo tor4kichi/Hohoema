@@ -8,6 +8,7 @@
     xmlns:myconv="using:NicoPlayerHohoema.Views.Converters"
     xmlns:view="using:NicoPlayerHohoema.Views"
     xmlns:logicalModifier="using:AdaptiveTriggerLibrary.ConditionModifiers.LogicalModifiers"
+    xmlns:compareModifier="using:AdaptiveTriggerLibrary.ConditionModifiers.ComparableModifiers"
     >
 
     <prism:PrismUnityApplication.Resources>
@@ -38,6 +39,14 @@
             <logicalModifier:AndModifier x:Key="AndModifier" />
             <logicalModifier:OrModifier x:Key="OrModifier" />
             <logicalModifier:XORModifier x:Key="XORModifier" />
+
+            <compareModifier:EqualToModifier x:Key="EqualToModifier" />
+            <compareModifier:NotEqualToModifier x:Key="NotEqualToModifier" />
+            <compareModifier:GreaterThanEqualToModifier x:Key="GreaterThanEqualToModifier" />
+            <compareModifier:GreaterThanModifier x:Key="GreaterThanModifier" />
+            <compareModifier:LessThanEqualToModifier x:Key="LessThanEqualToModifier" />
+            <compareModifier:LessThanModifier x:Key="LessThanModifier" />
+
 
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Dark">

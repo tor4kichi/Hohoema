@@ -189,9 +189,9 @@ namespace NicoPlayerHohoema.ViewModels
 					, _PageManager
 					);
 
-				vm.LastWatchedAt = history.WatchedAt.DateTime;
-				vm.MovieLength = history.Length;
-				vm.ThumbnailImageUrl = history.ThumbnailUrl.AbsoluteUri;
+//				vm.LastWatchedAt = history.WatchedAt.DateTime;
+//				vm.MovieLength = history.Length;
+//				vm.image = history.ThumbnailUrl.AbsoluteUri;
 
 				list.Add(vm);
 			}

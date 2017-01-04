@@ -164,6 +164,7 @@
     <Compile Include="Models\HohoemaApp.cs" />
     <Compile Include="Models\HohoemaAppServiceLevel.cs" />
     <Compile Include="Models\HohoemaPageType.cs" />
+    <Compile Include="Models\IHohoemaListItem.cs" />
     <Compile Include="Models\LisenceSummary.cs" />
     <Compile Include="Models\Live\LiveStatusType.cs" />
     <Compile Include="Models\Live\LiveSuggestion.cs" />
@@ -319,6 +320,9 @@
     <Compile Include="Views\Controls\HohoemaIncrementalLoadingList.xaml.cs">
       <DependentUpon>HohoemaIncrementalLoadingList.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\HohoemaListItem.xaml.cs">
+      <DependentUpon>HohoemaListItem.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Controls\ListingSelectionControl.xaml.cs">
       <DependentUpon>ListingSelectionControl.xaml</DependentUpon>
     </Compile>
@@ -361,6 +365,15 @@
     </Compile>
     <Compile Include="Views\FeedGroupPage.xaml.cs">
       <DependentUpon>FeedGroupPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\HohoemaListItem\HohoemaListItemCard.xaml.cs">
+      <DependentUpon>HohoemaListItemCard.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\HohoemaListItem\HohoemaListItemMiniCard.xaml.cs">
+      <DependentUpon>HohoemaListItemMiniCard.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\HohoemaListItem\HohoemaListItemVideo.xaml.cs">
+      <DependentUpon>HohoemaListItemVideo.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\LiveInfoContent\CommentLiveInfoContent.xaml.cs">
       <DependentUpon>CommentLiveInfoContent.xaml</DependentUpon>
@@ -664,6 +677,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\HohoemaListItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Controls\ListingSelectionControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -717,6 +734,18 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\HistoryPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\HohoemaListItem\HohoemaListItemCard.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\HohoemaListItem\HohoemaListItemMiniCard.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\HohoemaListItem\HohoemaListItemVideo.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -10,6 +10,7 @@ using Prism.Mvvm;
 using Prism.Commands;
 using System.Collections.ObjectModel;
 using System.Threading;
+using System.Windows.Input;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -92,7 +93,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public List<FavoriteItemViewModel> Items { get; set; }
 	}
 
-	public class FavoriteItemViewModel : BindableBase
+	public class FavoriteItemViewModel : HohoemaListingPageItemBase
 	{
 		
 		public FavoriteItemViewModel(FollowItemInfo feedList, PageManager pageManager)
@@ -106,7 +107,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		private DelegateCommand _SelectedCommand;
-		public DelegateCommand SelectedCommand
+		public override ICommand PrimaryCommand
 		{
 			get
 			{
@@ -143,7 +144,6 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		public string Title { get; set; }
 		public FollowItemType ItemType { get; set; }
 		public string SourceId { get; set; }
 

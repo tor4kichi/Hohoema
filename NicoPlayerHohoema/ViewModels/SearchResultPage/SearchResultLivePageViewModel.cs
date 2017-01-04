@@ -254,7 +254,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		private DelegateCommand _OpenLiveVideoPageCommand;
-		public override ICommand SelectedCommand
+		public override ICommand PrimaryCommand
 		{
 			get
 			{
@@ -273,9 +273,5 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		public override void Dispose()
-		{
-
-		}
 	}
 }

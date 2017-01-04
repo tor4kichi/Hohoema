@@ -149,7 +149,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 			PrivateReasonText = nicoVideo.PrivateReasonType.ToString() ?? "";
 			IsRequireConfirmDelete = new ReactiveProperty<bool>(nicoVideo.IsRequireConfirmDelete);
-			IsForceDisplayNGVideo = true;
 		}
 
 		private float ProgressToPercent(uint size, uint totalSize)

@@ -11,6 +11,7 @@
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:mycontrols="using:NicoPlayerHohoema.Views.Controls"
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
@@ -70,7 +71,6 @@
                     BorderThickness="0 0 0 1"
                     >
                 <toolkit:DockPanel >
-
 
                     <StackPanel toolkit:DockPanel.Dock="Right" Margin="8 0"
                                 Orientation="Horizontal"
@@ -183,6 +183,8 @@
                       IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
                       SelectedItem="{Binding SelectedFeedGroupItem.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                       SelectionMode="Single"
+                      MaxWidth="960"
+                      HorizontalAlignment="Center"
                   >
 
                 <ListView.ItemContainerStyle>
@@ -193,9 +195,15 @@
                         <Setter Property="Margin"
                                     Value="8 0 8 0" 
                                     />
+                        
                     </Style>
                 </ListView.ItemContainerStyle>
 
+                <ListView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <toolkit:WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
 
                 <ListView.ItemTemplate>
 
@@ -213,24 +221,6 @@
                                                   Width="24"
                                                   Height="24"
                                                   />
-
-                                <StackPanel Margin="8 0">
-                                    <TextBlock VerticalAlignment="Center"
-                                               HorizontalAlignment="Right"
-                                                >
-                                                <Run Text="{Binding UnreadItemCount}" />
-                                    </TextBlock>
-                                    
-                                    <TextBlock VerticalAlignment="Center"
-                                               HorizontalAlignment="Right"
-                                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                               >
-                                        <Run Text="最終更新:" />
-                                        <Run Text="{Binding LastUpdate.Value, Converter={StaticResource ToRelationalTime}}" />
-                                    </TextBlock>
-
-                                </StackPanel>
-
                                 <AppBarButton Icon="Edit" 
                                             IsCompact="True"
                                             Command="{Binding SecondaryActionCommand}"
@@ -246,38 +236,8 @@
                             <toolkit:DockPanel Background="Transparent" IsHitTestVisible="True" >
 
 
-                                <i:Interaction.Behaviors>
-                                    <core:EventTriggerBehavior EventName="Tapped">
-                                        <core:InvokeCommandAction Command="{Binding ElementName=PageRoot, Path=DataContext.OpenFeedVideoPageCommand}"
-                                                          CommandParameter="{Binding}"
-                                                          />
-                                    </core:EventTriggerBehavior>
-                                </i:Interaction.Behaviors>
 
-                                <ItemsControl ItemsSource="{Binding SourceItems}"
-                                          ItemTemplateSelector="{StaticResource feedItemSourceTemplateSelector}"
-                                              toolkit:DockPanel.Dock="Bottom"
-                                              VerticalAlignment="Top"
-                                            >
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <toolkit:WrapPanel Orientation="Horizontal" />
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    
-                                    
-
-                                </ItemsControl>
-
-                                
-                                <StackPanel>
-                                    <TextBlock Text="{Binding Label}" 
-                                               VerticalAlignment="Center"
-                                               />
-
-                                </StackPanel>
-
-
+                                <mycontrols:HohoemaListItem />
 
                             </toolkit:DockPanel>
 

@@ -122,6 +122,10 @@ namespace NicoPlayerHohoema.Models
 			// ユーザーのマイリストグループの一覧を取得
 			var mylistGroupDataLists = await HohoemaApp.ContentFinder.GetLoginUserMylistGroups();
 
+            if (mylistGroupDataLists == null)
+            {
+                return;
+            }
 
 			// 追加分だけを検出してUserMylistに追加
 			var addedMylistGroups = mylistGroupDataLists

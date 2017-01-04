@@ -18,6 +18,7 @@ using NicoPlayerHohoema.Views.Service;
 using Microsoft.Practices.Unity;
 using System.Reactive.Linq;
 using Windows.UI;
+using System.Windows.Input;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -277,7 +278,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-	public class MylistGroupListItem : BindableBase
+	public class MylistGroupListItem : HohoemaListingPageItemBase
 	{
 		public MylistGroupListItem(MylistGroupInfo info, PageManager pageManager)
 		{
@@ -295,13 +296,20 @@ namespace NicoPlayerHohoema.ViewModels
 			Title = mylistGroup.Name;
 			Description = mylistGroup.Description;
 			GroupId = mylistGroup.Id;
-			IsPublic = mylistGroup.GetIsPublic();
-			ItemCount = mylistGroup.Count;
-			ThemeColor = mylistGroup.GetIconType().ToColor();
-		}
+            OptionText = (mylistGroup.GetIsPublic() ? "公開" : "非公開") + $" - {mylistGroup.Count}件";
+
+            ThemeColor = mylistGroup.GetIconType().ToColor();
+            if (mylistGroup.ThumbnailUrls != null)
+            {
+                foreach (var thumbnailUri in mylistGroup.ThumbnailUrls)
+                {
+                    ImageUrlsSource.Add(thumbnailUri.OriginalString);
+                }
+            }
+        }
 
 		private DelegateCommand _OpenMylistCommand;
-		public DelegateCommand OpenMylistCommand
+		public override ICommand PrimaryCommand
 		{
 			get
 			{
@@ -318,28 +326,15 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			Title = info.Name;
 			Description = info.Description;
-			IsPublic = info.IsPublic;
-			ItemCount = info.VideoItems.Count;
-			ThemeColor = info.IconType.ToColor();
+			OptionText = (info.IsPublic ? "公開" : "非公開") + $" - {info.VideoItems.Count}件";
 
-			OnPropertyChanged(nameof(Title));
-			OnPropertyChanged(nameof(Description));
-			OnPropertyChanged(nameof(IsPublic));
-			OnPropertyChanged(nameof(ItemCount));
-			OnPropertyChanged(nameof(ThemeColor));
-		}
+            ThemeColor = info.IconType.ToColor();
 
-		public bool IsPublic { get; set; }
-
-		public string Title { get; set; }
-
-		public string Description { get; set; }
+            // ユーザーマイリストの情報はそのままではサムネが取れない
+            // マイリスト内の動画からサムネを取得する？
+        }
 
 		public string GroupId { get; private set; }
-
-		public int ItemCount { get; private set; }
-
-		public Color ThemeColor { get; private set; }
 
 		PageManager _PageManager;
 	}

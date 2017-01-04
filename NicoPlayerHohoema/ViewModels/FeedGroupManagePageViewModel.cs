@@ -233,7 +233,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 		private DelegateCommand _SelectedCommand;
-		public override ICommand SelectedCommand
+        public override ICommand PrimaryCommand
 		{
 			get
 			{
@@ -258,12 +258,6 @@ namespace NicoPlayerHohoema.ViewModels
 					}));
 			}
 		}
-
-		public override void Dispose()
-		{
-			
-		}
-
 
 		public void UpdateStarted()
 		{

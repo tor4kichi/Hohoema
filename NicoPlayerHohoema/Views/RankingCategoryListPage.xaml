@@ -20,7 +20,7 @@
     <Page.Resources>
         <DataTemplate x:Key="CategoryListItemTemplate">
 
-            <Button Command="{Binding SelectedCommand}"
+            <Button Command="{Binding PrimaryCommand}"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
                     >

@@ -24,7 +24,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public Action<T> SelectedAction { get; private set; }
 
 		private DelegateCommand _SelectedCommand;
-		public override ICommand SelectedCommand
+        public override ICommand PrimaryCommand
 		{
 			get
 			{
@@ -34,11 +34,6 @@ namespace NicoPlayerHohoema.ViewModels
 						SelectedAction(Source);
 					}));
 			}
-		}
-
-		public override void Dispose()
-		{
-			// do nothing.
 		}
 	}
 

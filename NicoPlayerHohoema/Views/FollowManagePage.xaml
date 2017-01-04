@@ -16,11 +16,10 @@
 
     <Page.Resources>
         <DataTemplate x:Key="FavoriteItemTemplate">
-            <Button Content="{Binding Title}"
-                    Command="{Binding SelectedCommand}"
-                    Padding="16 8"
-                    >
-            </Button>
+
+            <Grid>
+                <controls:HohoemaListItem DisplayType="MiniCard" />
+            </Grid>
         </DataTemplate>
 
 
@@ -100,27 +99,28 @@
 
                                     </StackPanel>
 
-                                    <ItemsControl ItemsSource="{Binding Items}"
+                                    <ListView ItemsSource="{Binding Items}"
                                           ItemTemplate="{StaticResource FavoriteItemTemplate}"
                                           Margin="0 8 0 0"
+                                              ScrollViewer.VerticalScrollMode="Disabled"
+                                              ScrollViewer.HorizontalScrollMode="Enabled"
                                           >
-                                        <ItemsControl.ItemContainerStyle>
-                                            <Style TargetType="ContentPresenter">
+                                        <ListView.ItemContainerStyle>
+                                            <Style TargetType="ListViewItem">
                                                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                                 <Setter Property="VerticalContentAlignment" Value="Stretch" />
                                                 <Setter Property="Margin" Value="0 0 8 8" />
                                             </Style>
-                                        </ItemsControl.ItemContainerStyle>
+                                        </ListView.ItemContainerStyle>
 
-                                        <ItemsControl.ItemsPanel>
+                                        <ListView.ItemsPanel>
                                             <ItemsPanelTemplate>
-                                                <toolkit:WrapPanel 
-                                                               />
+                                                <StackPanel Orientation="Horizontal" />
 
                                             </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
+                                        </ListView.ItemsPanel>
 
-                                    </ItemsControl>
+                                    </ListView>
 
                                 </toolkit:DockPanel>
                             </DataTemplate>

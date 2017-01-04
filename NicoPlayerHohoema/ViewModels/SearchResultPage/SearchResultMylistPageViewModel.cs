@@ -137,17 +137,12 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		public override ICommand SelectedCommand
+        public override ICommand PrimaryCommand
 		{
 			get
 			{
 				return OpenMylistCommand;
 			}
-		}
-
-		public override void Dispose()
-		{
-			
 		}
 	}
 
