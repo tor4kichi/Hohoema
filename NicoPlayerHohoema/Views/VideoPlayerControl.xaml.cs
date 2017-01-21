@@ -21,9 +21,9 @@ namespace NicoPlayerHohoema.Views
 	/// <summary>
 	/// それ自体で使用できる空白ページまたはフレーム内に移動できる空白ページ。
 	/// </summary>
-	public sealed partial class VideoPlayerPage : Page
-	{
-		public VideoPlayerPage()
+	public sealed partial class VideoPlayerControl : UserControl
+    {
+		public VideoPlayerControl()
 		{
 			this.InitializeComponent();
 

@@ -10,13 +10,23 @@ namespace NicoPlayerHohoema.Models.AppMap
 	{
 		public FeedManager FeedManager { get; private set; }
 
-		public FeedAppMapContainer(FeedManager feedManager)
+		public FeedAppMapContainer()
 			: base(HohoemaPageType.FeedGroupManage, label:"フィード")
 		{
-			FeedManager = feedManager;
+			FeedManager = HohoemaApp.FeedManager;
 		}
 
-		protected override Task<IEnumerable<IAppMapItem>> MakeAllItems()
+        public override Task Refresh()
+        {
+            foreach (var item in AllItems.ToArray())
+            {
+                Add(item);
+            }
+
+            return base.Refresh();
+        }
+
+        protected override Task<IEnumerable<IAppMapItem>> MakeAllItems()
 		{
 			var items = new List<IAppMapItem>();
 			var feedGroups = FeedManager.FeedGroups;
@@ -55,25 +65,13 @@ namespace NicoPlayerHohoema.Models.AppMap
 		}
 	}
 
-	public class FeedAppMapItem : IAppMapItem
-	{
-		public string PrimaryLabel { get; private set; }
-		public string SecondaryLabel { get; protected set; }
-		public HohoemaPageType PageType { get; private set; }
-		public string Parameter { get; private set; }
-
-		public FeedAppMapItem(FeedItem feedItem)
+	public class FeedAppMapItem : VideoAppMapItemBase
+    {
+        public FeedAppMapItem(FeedItem feedItem)
 		{
-			PrimaryLabel = feedItem.Title;
+            PrimaryLabel = feedItem.Title;
 			SecondaryLabel = feedItem.IsUnread ? "New" : null;
-			PageType = HohoemaPageType.VideoPlayer;
-
-			Parameter = new VideoPlayPayload()
-			{
-				VideoId = feedItem.VideoId
-			}
-			.ToParameterString();
-
+            Parameter = feedItem.VideoId;
 		}
 	}
 }

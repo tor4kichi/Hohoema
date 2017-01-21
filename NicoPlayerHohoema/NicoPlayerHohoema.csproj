@@ -164,6 +164,7 @@
     <Compile Include="Models\HohoemaApp.cs" />
     <Compile Include="Models\HohoemaAppServiceLevel.cs" />
     <Compile Include="Models\HohoemaPageType.cs" />
+    <Compile Include="Models\HohoemaPlaylist.cs" />
     <Compile Include="Models\IHohoemaListItem.cs" />
     <Compile Include="Models\LisenceSummary.cs" />
     <Compile Include="Models\Live\LiveStatusType.cs" />
@@ -213,6 +214,7 @@
     <Compile Include="Util\HttpRandomAccessStream.cs" />
     <Compile Include="Util\IncrementalLoadingCollection.cs" />
     <Compile Include="Util\InternetConnection.cs" />
+    <Compile Include="Util\ListExtention.cs" />
     <Compile Include="Util\MediaPlaybackBackgroundTaskHelper.cs" />
     <Compile Include="Util\NiconicoRankingExtention.cs" />
     <Compile Include="Util\NicoVideoRssItemExtention.cs" />
@@ -247,6 +249,8 @@
     <Compile Include="ViewModels\LiveVideoPlayerPageViewModel.cs" />
     <Compile Include="ViewModels\MenuNavigatePageBaseViewModel.cs" />
     <Compile Include="ViewModels\MylistPageViewModel.cs" />
+    <Compile Include="ViewModels\PlayerWithPageContainerViewModel.cs" />
+    <Compile Include="ViewModels\PlaylistPageViewModel.cs" />
     <Compile Include="ViewModels\SearchResultPage\SearchResultCommunityPageViewModel.cs" />
     <Compile Include="ViewModels\SearchResultPage\SearchResultKeywordPageViewModel.cs" />
     <Compile Include="ViewModels\SearchResultPage\SearchResultLivePageViewModel.cs" />
@@ -314,12 +318,15 @@
     <Compile Include="Views\Controls\FavoriteFeedListItem.xaml.cs">
       <DependentUpon>FavoriteFeedListItem.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Controls\FloatContentContainer\FloatContentContainer.Event.cs" />
+    <Compile Include="Views\Controls\FloatContentContainer\FloatContentContainer.Properties.cs" />
     <Compile Include="Views\Controls\HistoryListItem.xaml.cs">
       <DependentUpon>HistoryListItem.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\HohoemaIncrementalLoadingList.xaml.cs">
       <DependentUpon>HohoemaIncrementalLoadingList.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Controls\FloatContentContainer\FloatContentContainer.cs" />
     <Compile Include="Views\HohoemaListItem.xaml.cs">
       <DependentUpon>HohoemaListItem.xaml</DependentUpon>
     </Compile>
@@ -393,6 +400,12 @@
     <Compile Include="Views\MylistPage.xaml.cs">
       <DependentUpon>MylistPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\PlayerWithPageContainer.xaml.cs">
+      <DependentUpon>PlayerWithPageContainer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PlaylistPage.xaml.cs">
+      <DependentUpon>PlaylistPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\PortalPage_xbox.xaml.cs">
       <DependentUpon>PortalPage_xbox.xaml</DependentUpon>
     </Compile>
@@ -414,7 +427,7 @@
     <Compile Include="Views\SearchResultPage\SearchResultTagPage.xaml.cs">
       <DependentUpon>SearchResultTagPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ViewModels\VideoPlayerPageViewModel.cs" />
+    <Compile Include="ViewModels\VideoPlayerControlViewModel.cs" />
     <Compile Include="ViewModels\PortalPageViewModel.cs" />
     <Compile Include="ViewModels\RankingCategoryListPageViewModel.cs" />
     <Compile Include="ViewModels\RankingCategoryPageViewModel.cs" />
@@ -512,8 +525,8 @@
     <Compile Include="Views\VideoInfoContent\ShereVideoInfoContent.xaml.cs">
       <DependentUpon>ShereVideoInfoContent.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\VideoPlayerPage.xaml.cs">
-      <DependentUpon>VideoPlayerPage.xaml</DependentUpon>
+    <Compile Include="Views\VideoPlayerControl.xaml.cs">
+      <DependentUpon>VideoPlayerControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\PortalPage.xaml.cs">
       <DependentUpon>PortalPage.xaml</DependentUpon>
@@ -620,6 +633,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
+    <Page Include="Views\Controls\FloatContentContainer\FloatContentContainer.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\AboutPage.xaml">
       <SubType>Designer</SubType>
@@ -777,6 +794,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\PlayerWithPageContainer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PlaylistPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\PortalPage_xbox.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -873,7 +898,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\VideoPlayerPage.xaml">
+    <Page Include="Views\VideoPlayerControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -945,7 +970,9 @@
       <Name>VideoBackgroundTask</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Themes\" />
+  </ItemGroup>
   <ItemGroup>
     <SDKReference Include="Microsoft.Services.Store.Engagement, Version=10.0">
       <Name>Microsoft Engagement Framework</Name>

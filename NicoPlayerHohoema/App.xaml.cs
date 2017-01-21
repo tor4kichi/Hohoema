@@ -37,6 +37,7 @@ using Windows.Storage;
 using System.Text;
 using NicoPlayerHohoema.Util;
 using Windows.ApplicationModel.Resources;
+using NicoPlayerHohoema.Models.AppMap;
 
 namespace NicoPlayerHohoema
 {
@@ -236,12 +237,7 @@ namespace NicoPlayerHohoema
 					}
 					catch { }
 
-                    pageManager.OpenPage(HohoemaPageType.VideoPlayer,
-                        new VideoPlayPayload()
-                        {
-                            VideoId = maybeNicoContentId
-                        }.ToParameterString()
-                    );
+                    hohoemaApp.Playlist.DefaultPlaylist.AddVideo(maybeNicoContentId, "");
 				}
 				else if (Mntone.Nico2.NiconicoRegex.IsLiveId(maybeNicoContentId))
 				{
@@ -372,7 +368,7 @@ namespace NicoPlayerHohoema
             await base.OnInitializeAsync(args);
 		}
 
-		private void Context_DoneDownload(NicoVideoDownloadContext sender, NiconicoDownloadEventArgs args)
+        private void Context_DoneDownload(NicoVideoDownloadContext sender, NiconicoDownloadEventArgs args)
 		{
 			var hohoemaApp = Container.Resolve<HohoemaApp>();
 			var toastService = Container.Resolve<Views.Service.ToastNotificationService>();
@@ -389,13 +385,7 @@ namespace NicoPlayerHohoema
 						$"キャッシュが完了、このメッセージをタップして再生開始",
 						toastActivatedAction: () =>
 						{
-						// 再生
-						var videoPagePayload = new VideoPlayPayload()
-							{
-								VideoId = args.RawVideoId,
-								Quality = args.Quality
-							};
-							pageManager.OpenPage(HohoemaPageType.VideoPlayer, videoPagePayload.ToParameterString());
+                            hohoemaApp.Playlist.DefaultPlaylist.AddVideo(args.RawVideoId, "", args.Quality);
 						}
 						);
 				}
@@ -416,13 +406,22 @@ namespace NicoPlayerHohoema
 			// Models
 			var hohoemaApp = await HohoemaApp.Create(EventAggregator);
 			Container.RegisterInstance(hohoemaApp);
-			Container.RegisterInstance(new PageManager(NavigationService));
+			Container.RegisterInstance(new PageManager(NavigationService, hohoemaApp.Playlist));
 			Container.RegisterInstance(hohoemaApp.ContentFinder);
-
+            Container.RegisterInstance(hohoemaApp.Playlist);
+            var appMapManager = new AppMapManager(hohoemaApp);
+            Container.RegisterInstance(appMapManager);
             
+            hohoemaApp.BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(
+                    appMapManager
+                    , nameof(AppMapManager)
+                    , priority: -1
+                    , label: "ホーム画面情報"
+                    );
 
-			// 非同期更新機能の同時実行タスク数を指定
-			var deviceFamily = Windows.System.Profile.AnalyticsInfo.VersionInfo.DeviceFamily;
+
+            // 非同期更新機能の同時実行タスク数を指定
+            var deviceFamily = Windows.System.Profile.AnalyticsInfo.VersionInfo.DeviceFamily;
 			BackgroundUpdater.MaxTaskSlotCount = deviceFamily.EndsWith("Mobile") ? 1u : 2u;
 
 #if DEBUG
@@ -551,8 +550,12 @@ namespace NicoPlayerHohoema
 		protected override UIElement CreateShell(Frame rootFrame)
 		{
 			rootFrame.Navigating += RootFrame_Navigating;
-			
-			return rootFrame;
+
+            var container = new Views.PlayerWithPageContainer();
+
+            container.Content = rootFrame;
+
+            return container;
 		}
 
 		private void RootFrame_Navigating(object sender, NavigatingCancelEventArgs e)
@@ -695,9 +698,9 @@ namespace NicoPlayerHohoema
 				ns = new FrameNavigationService(frameFacade
 					, (pageToken) =>
 					{
-						if (pageToken == nameof(Views.VideoPlayerPage))
+						if (pageToken == nameof(Views.VideoPlayerControl))
 						{
-							return typeof(Views.VideoPlayerPage);
+							return typeof(Views.VideoPlayerControl);
 						}
 						else
 						{
@@ -729,7 +732,7 @@ namespace NicoPlayerHohoema
 			// サブウィンドウをアクティベートして、サブウィンドウにPlayerページナビゲーションを飛ばす
 			await View.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
 			{
-				if (!NavigationService.Navigate(nameof(Views.VideoPlayerPage), videoUrl))
+				if (!NavigationService.Navigate(nameof(Views.VideoPlayerControl), videoUrl))
 				{
 					System.Diagnostics.Debug.WriteLine("Failed open player.");
 				}

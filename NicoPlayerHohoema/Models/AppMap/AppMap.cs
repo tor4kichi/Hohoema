@@ -29,7 +29,7 @@ namespace NicoPlayerHohoema.Models.AppMap
 		// シリアライズが必要になるデザインアップデートまでは
 		// 常にアプリ起動時にリセットさせます
 
-
+        
 		public HohoemaApp HohoemaApp { get; private set; }
 
 		public RootAppMapContainer Root { get; private set; }
@@ -40,7 +40,7 @@ namespace NicoPlayerHohoema.Models.AppMap
 		{
 			HohoemaApp = hohoemaApp;
 
-			Root = new RootAppMapContainer(HohoemaApp);
+			Root = new RootAppMapContainer();
 		}
 
 
@@ -80,15 +80,12 @@ namespace NicoPlayerHohoema.Models.AppMap
 				HohoemaPageType.History,
 			};
 
-		public HohoemaApp HohoemaApp { get; private set; }
-
 		public AppMapSettings AppMapSettings { get; private set; }
 
 
-		public RootAppMapContainer(HohoemaApp hohoemaApp) 
+		public RootAppMapContainer() 
 			: base(HohoemaPageType.Portal)
 		{
-			HohoemaApp = hohoemaApp;
 		}
 
 
@@ -107,7 +104,7 @@ namespace NicoPlayerHohoema.Models.AppMap
 
 					// Note: デザインアップデートで削除する
 					// アプリ設定等からコンテナを初期化する
-					UpdateFromAppSettings(container);
+//					UpdateFromAppSettings(container);
 
 					items.Add(container);
 				}
@@ -118,77 +115,31 @@ namespace NicoPlayerHohoema.Models.AppMap
 		}
 
 
-		private void UpdateFromAppSettings(IAppMapContainer container)
-		{
-			switch (container.PageType)
-			{
-				case HohoemaPageType.RankingCategoryList:
-					var selectableContainer = container as ISelectableAppMapContainer;
-					foreach (var cat in HohoemaApp.UserSettings.RankingSettings.HighPriorityCategory)
-					{
-						var parameter = cat.ToParameterString();
-						var item = selectableContainer.AllItems.SingleOrDefault(x => x.Parameter == parameter);
-						if (item != null)
-						{
-							selectableContainer.Add(item);
-						}
-					}
-					break;
-				case HohoemaPageType.UserMylist:
-					var userMylistContainer = container as ISelectableAppMapContainer;
-					foreach (var item in userMylistContainer.AllItems.ToArray())
-					{
-						userMylistContainer.Add(item);
-					}
-					break;
-				case HohoemaPageType.FollowManage:
-					var favContainer = container as ISelectableAppMapContainer;
-					foreach (var item in favContainer.AllItems.ToArray())
-					{
-						favContainer.Add(item);
-					}
-					break;
-				case HohoemaPageType.History:
-					break;
-				case HohoemaPageType.Search:
-					break;
-				case HohoemaPageType.CacheManagement:
-					break;
-				case HohoemaPageType.FeedGroupManage:
-					var feedGroupContainer = container as ISelectableAppMapContainer;
-					foreach (var item in feedGroupContainer.AllItems.ToArray())
-					{
-						feedGroupContainer.Add(item);
-					}
-					break;
-			}
-		}
-
 		private IAppMapContainer PageTypeToContainer(HohoemaPageType pageType)
 		{
 			IAppMapContainer container = null;
 			switch (pageType)
 			{
 				case HohoemaPageType.RankingCategoryList:
-					container = new RankingCategoriesAppMapContainer(HohoemaApp.UserSettings.RankingSettings);
+					container = new RankingCategoriesAppMapContainer();
 					break;
 				case HohoemaPageType.UserMylist:
-					container = new UserMylistAppMapContainer(HohoemaApp.UserMylistManager);
+					container = new UserMylistAppMapContainer();
 					break;
 				case HohoemaPageType.FollowManage:
-					container = new FollowAppMapContainer(HohoemaApp.FollowManager);
+					container = new FollowAppMapContainer();
 					break;
 				case HohoemaPageType.History:
-					container = new VideoPlayHistoryAppMapContainer(HohoemaApp);
+					container = new VideoPlayHistoryAppMapContainer();
 					break;
 				case HohoemaPageType.Search:
 					container = new SearchAppMapContainer();
 					break;
 				case HohoemaPageType.CacheManagement:
-					container = new CachedVideoAppMapContainer(HohoemaApp);
+					container = new CachedVideoAppMapContainer();
 					break;
 				case HohoemaPageType.FeedGroupManage:
-					container = new FeedAppMapContainer(HohoemaApp.FeedManager);
+					container = new FeedAppMapContainer();
 					break;
 				default:
 					break;

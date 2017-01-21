@@ -7,6 +7,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.UI;
+using Microsoft.Practices.Unity;
 
 namespace NicoPlayerHohoema.Models.AppMap
 {
@@ -28,28 +29,71 @@ namespace NicoPlayerHohoema.Models.AppMap
 		Task Refresh();
 	}
 
-	[DataContract]
-	public abstract class AppMapContainerBase : IAppMapContainer
-	{
+
+    [DataContract]
+    public abstract class AppMapItemBase : IAppMapItem
+    {
+        [DataMember]
+        public string PrimaryLabel { get; protected set; }
+        [DataMember]
+        public string SecondaryLabel { get; protected set; }
+
+        [DataMember]
+        public string Parameter { get; protected set; }
+
+
+        public HohoemaApp HohoemaApp { get; private set; }
+
+        public PageManager PageManager { get; private set; }
+
+        public AppMapItemBase()
+        {
+            HohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
+            PageManager = App.Current.Container.Resolve<PageManager>();
+        }
+
+        public abstract void SelectedAction();
+    }
+
+
+    public abstract class VideoAppMapItemBase : AppMapItemBase
+    {
+        public HohoemaPlaylist Playlist { get; private set; }
+
+        public NicoVideoQuality? Quality { get; protected set; }
+
+        public VideoAppMapItemBase()
+        {
+            Playlist = HohoemaApp.Playlist;
+        }
+
+        public override void SelectedAction()
+        {
+            Playlist.DefaultPlaylist.AddVideo(Parameter, PrimaryLabel, Quality);
+        }
+    }
+
+    [DataContract]
+	public abstract class AppMapContainerBase : AppMapItemBase, IAppMapContainer
+    {
 		protected ObservableCollection<IAppMapItem> _DisplayItems = new ObservableCollection<IAppMapItem>();
 		public ReadOnlyObservableCollection<IAppMapItem> DisplayItems { get; private set; }
 
 		public uint ItemsCount => (uint)_DisplayItems.Count;
 
 		[DataMember]
-		public string PrimaryLabel { get; private set; }
-		[DataMember]
-		public string SecondaryLabel { get; protected set; }
-		[DataMember]
 		public HohoemaPageType PageType { get; private set; }
-		[DataMember]
-		public string Parameter { get; private set; }
 
 		public virtual Windows.UI.Color ThemeColor => PageType.ToHohoemaPageTypeToDefaultColor();
 
 		public virtual ContainerItemDisplayType ItemDisplayType => ContainerItemDisplayType.Normal;
 
-		public AppMapContainerBase(HohoemaPageType pageType, string parameter = null, string label = null)
+        public AppMapContainerBase()
+        {
+        }
+
+        public AppMapContainerBase(HohoemaPageType pageType, string parameter = null, string label = null)
+            : this()
 		{
 			DisplayItems = new ReadOnlyObservableCollection<IAppMapItem>(_DisplayItems);
 			PrimaryLabel = label == null ? PageManager.PageTypeToTitle(pageType) : label;
@@ -58,7 +102,15 @@ namespace NicoPlayerHohoema.Models.AppMap
 
 		}
 
-		public abstract Task Refresh();
+
+        public override void SelectedAction()
+        {
+            PageManager.OpenPage(PageType, Parameter);
+        }
+
+
+
+        public abstract Task Refresh();
 
 
 		public async Task Reset()
@@ -77,7 +129,7 @@ namespace NicoPlayerHohoema.Models.AppMap
 
 		protected bool EqualAppMapItem(IAppMapItem left, IAppMapItem right)
 		{
-			return left.PageType == right.PageType && left.Parameter == right.Parameter;
+			return left.PrimaryLabel == right.PrimaryLabel && left.Parameter == right.Parameter;
 		}
 
 		
@@ -123,6 +175,10 @@ namespace NicoPlayerHohoema.Models.AppMap
 
 
 		protected abstract Task<IEnumerable<IAppMapItem>> MakeAllItems();
+
+
+        
+
 
 		public override async Task Refresh()
 		{

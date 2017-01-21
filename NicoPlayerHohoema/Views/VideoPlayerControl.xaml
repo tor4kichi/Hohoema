@@ -1,6 +1,6 @@
-﻿<Page
+﻿<UserControl
     x:Name="PageRoot"
-    x:Class="NicoPlayerHohoema.Views.VideoPlayerPage"
+    x:Class="NicoPlayerHohoema.Views.VideoPlayerControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:NicoPlayerHohoema.Views"
@@ -18,14 +18,13 @@
     xmlns:intractionTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInteractionTriggers"
     xmlns:uiTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInterfaceTriggers"
     xmlns:myTrigger ="using:NicoPlayerHohoema.Views.StateTrigger"
-    mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
     d:DesignHeight="480"
     d:DesignWidth="720"
     
     >
 
-    <Page.Resources>
+    <UserControl.Resources>
         <DataTemplate x:Key="SummaryVideoInfoContentTemplate" >
             <videoInfo:SummaryVideoInfoContent />
         </DataTemplate>
@@ -61,7 +60,7 @@
                                                 >
 
         </local:VideoInfoContentTemplateSelector>
-    </Page.Resources>
+    </UserControl.Resources>
 
 
 
@@ -1102,4 +1101,4 @@
 
         </toolkit:LayoutTransformControl>
     </Border>
-</Page>
+</UserControl>

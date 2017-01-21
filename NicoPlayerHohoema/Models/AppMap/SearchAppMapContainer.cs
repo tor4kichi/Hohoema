@@ -25,7 +25,7 @@ namespace NicoPlayerHohoema.Models.AppMap
 
 		private IAppMapItem MakeAppMapItemFromSearchHistory(Db.SearchHistory history)
 		{
-			return new SearchHistoryAppMapItem(history);
+			return new SearchHistoryAppMapItem(history, PageManager);
 		}
 	}
 
@@ -37,10 +37,12 @@ namespace NicoPlayerHohoema.Models.AppMap
 
 		public HohoemaPageType PageType => HohoemaPageType.Search;
 
+        public PageManager PageManager { get; private set; }
 
-		public SearchHistoryAppMapItem(Db.SearchHistory history)
+        public SearchHistoryAppMapItem(Db.SearchHistory history, PageManager pageManager)
 		{
-			PrimaryLabel = history.Keyword;
+            PageManager = pageManager;
+            PrimaryLabel = history.Keyword;
 			SecondaryLabel = history.Target.ToString();
 
 
@@ -98,5 +100,11 @@ namespace NicoPlayerHohoema.Models.AppMap
 			var payload = new SearchPagePayload(content);
 			Parameter = payload.ToParameterString();
 		}
+
+
+        public void SelectedAction()
+        {
+            PageManager.OpenPage(PageType, Parameter);
+        }
 	}
 }

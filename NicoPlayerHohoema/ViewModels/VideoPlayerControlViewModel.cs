@@ -46,9 +46,12 @@ using Windows.Foundation.Collections;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class VideoPlayerPageViewModel : HohoemaViewModelBase, IDisposable
+	public class VideoPlayerControlViewModel : HohoemaViewModelBase, IDisposable
 	{
-		
+		// TODO: HohoemaViewModelBaseとの依存性を排除（ViewModelBaseとの関係性は維持）
+
+
+
 		const uint default_DisplayTime = 400; // 1 = 10ms, 400 = 4000ms = 4.0 Seconds
 
 
@@ -63,7 +66,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		public VideoPlayerPageViewModel(
+		public VideoPlayerControlViewModel(
 			HohoemaApp hohoemaApp, 
 			EventAggregator ea,
 			PageManager pageManager, 
