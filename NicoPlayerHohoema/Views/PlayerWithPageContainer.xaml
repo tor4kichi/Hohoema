@@ -54,13 +54,7 @@
                                             />
 
                             <Grid x:Name="FillPlayerLayout" Visibility="Collapsed" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                                <Button Background="Transparent" Width="64" Height="64" 
-                                        Command="{Binding ClosePlayerCommand}"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Top"
-                                        >
-                                    <SymbolIcon Symbol="Remove" />
-                                </Button>
+                                
                             </Grid>
 
                             <Grid x:Name="FloatPlayerLayout" Visibility="Collapsed">
