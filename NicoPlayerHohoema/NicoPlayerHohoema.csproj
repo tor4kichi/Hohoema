@@ -255,6 +255,7 @@
     <Compile Include="ViewModels\SearchResultPage\SearchResultKeywordPageViewModel.cs" />
     <Compile Include="ViewModels\SearchResultPage\SearchResultLivePageViewModel.cs" />
     <Compile Include="ViewModels\SearchResultPage\SearchResultMylistPageViewModel.cs" />
+    <Compile Include="ViewModels\VideoInfomationPageViewModel.cs" />
     <Compile Include="ViewModels\VideoSearchSortOptionListItem.cs" />
     <Compile Include="ViewModels\SearchResultPage\SearchResultTagPageViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\AppDisplaySettingsPageContentViewModel.cs" />
@@ -524,6 +525,9 @@
     </Compile>
     <Compile Include="Views\VideoInfoContent\ShereVideoInfoContent.xaml.cs">
       <DependentUpon>ShereVideoInfoContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\VideoInfomationPage.xaml.cs">
+      <DependentUpon>VideoInfomationPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\VideoPlayerControl.xaml.cs">
       <DependentUpon>VideoPlayerControl.xaml</DependentUpon>
@@ -895,6 +899,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\VideoInfoContent\ShereVideoInfoContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\VideoInfomationPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

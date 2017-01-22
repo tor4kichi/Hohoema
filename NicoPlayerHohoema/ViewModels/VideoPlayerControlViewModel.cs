@@ -1561,20 +1561,63 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+        private DelegateCommand _PlayerSmallWindowDisplayCommand;
+        public DelegateCommand PlayerSmallWindowDisplayCommand
+        {
+            get
+            {
+                return _PlayerSmallWindowDisplayCommand
+                    ?? (_PlayerSmallWindowDisplayCommand = new DelegateCommand(() =>
+                    {
+                        HohoemaApp.Playlist.IsPlayerFloatingModeEnable = true;
+                    }
+                    ));
+            }
+        }
 
-		
+        private DelegateCommand _OpenPlayerSettingCommand;
+        public DelegateCommand OpenPlayerSettingCommand
+        {
+            get
+            {
+                return _OpenPlayerSettingCommand
+                    ?? (_OpenPlayerSettingCommand = new DelegateCommand(() =>
+                    {
+                        PageManager.OpenPage(HohoemaPageType.Settings, HohoemaSettingsKind.VideoPlay.ToString());
+                        HohoemaApp.Playlist.IsPlayerFloatingModeEnable = true;
+                    }
+                    ));
+            }
+        }
+
+        private DelegateCommand _OpenVideoInfoCommand;
+        public DelegateCommand OpenVideoInfoCommand
+        {
+            get
+            {
+                return _OpenVideoInfoCommand
+                    ?? (_OpenVideoInfoCommand = new DelegateCommand(() =>
+                    {
+                        PageManager.OpenPage(HohoemaPageType.VideoInfomation, VideoId);
+                        HohoemaApp.Playlist.IsPlayerFloatingModeEnable = true;
+                    }
+                    ));
+            }
+        }
+
+
+        
+
+
+        #endregion
 
 
 
-		#endregion
+
+        #region player settings method
 
 
-
-
-		#region player settings method
-
-
-		void SetKeepDisplayIfEnable()
+        void SetKeepDisplayIfEnable()
 		{
 			ExitKeepDisplay();
 

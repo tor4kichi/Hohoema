@@ -62,6 +62,7 @@
                                 <Button Command="{Binding PlayerFillDisplayCommand}"
                                         HorizontalAlignment="Stretch"
                                         VerticalAlignment="Stretch"
+                                        Background="Transparent"
                                         >
                                     
                                 </Button>

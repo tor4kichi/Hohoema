@@ -18,6 +18,7 @@
     xmlns:intractionTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInteractionTriggers"
     xmlns:uiTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInterfaceTriggers"
     xmlns:myTrigger ="using:NicoPlayerHohoema.Views.StateTrigger"
+    xmlns:media="using:Microsoft.Xaml.Interactions.Media"
     mc:Ignorable="d"
     d:DesignHeight="480"
     d:DesignWidth="720"
@@ -29,9 +30,12 @@
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="LabelPosition" Value="Collapsed" />
         </Style>
+
+
+
     </UserControl.Resources>
 
-    <Border>
+    <Border x:Name="LayoutRoot">
 
         <VisualStateManager.VisualStateGroups>
 
@@ -67,8 +71,6 @@
                 </VisualState>
             </VisualStateGroup>
 
-
-
             <!-- リピートの有効・無効 -->
             <VisualStateGroup>
                 <VisualState>
@@ -78,6 +80,8 @@
                     <VisualState.Setters>
                         <Setter Target="RepeatButton.Icon" Value="RepeatAll" />
                     </VisualState.Setters>
+
+                   
                 </VisualState>
                 <VisualState>
                     <VisualState.StateTriggers>
@@ -90,6 +94,20 @@
             </VisualStateGroup>
 
 
+            <!-- 再生・停止 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding NowPlaying.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PlayPauseButton.Icon" Value="Stop" />
+
+                        <Setter Target="TitleLayout.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+            
             <!-- ミュートの有効・無効 -->
             <VisualStateGroup>
                 <VisualState>
@@ -303,6 +321,10 @@
                         </Border.Background>
                     </Border>
 
+                    <StackPanel x:Name="TitleLayout" Background="#AA000000">
+                        <TextBlock Text="{Binding Title}" FontSize="24" />
+                    </StackPanel>
+                    
                     <!-- シークバー -->
                     <StackPanel Background="#AA000000">
                         <Grid 
@@ -379,6 +401,8 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Orientation="Horizontal">
+                            
+                            <!-- 音量 -->
                             <AppBarButton Icon="Mute" 
                                               x:Name="VolumeButton"
                                               >
@@ -444,12 +468,14 @@
                                     </Flyout>
                                 </AppBarButton.Flyout>
                             </AppBarButton>
+                            
+                            <!-- コメント -->
                             <AppBarButton Icon="Comment" 
                                               >
                                 <AppBarButton.Flyout>
                                     <MenuFlyout>
-                                        <ToggleMenuFlyoutItem Text="コメントを表示" />
-                                        <MenuFlyoutItem Text="新しいコメントを書く" />
+                                        <ToggleMenuFlyoutItem Text="コメントを表示" IsChecked="{Binding IsVisibleComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        <ToggleMenuFlyoutItem Text="新しいコメントを書く" IsChecked="{Binding NowCommentWriting.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                     </MenuFlyout>
                                 </AppBarButton.Flyout>
                             </AppBarButton>
@@ -459,26 +485,48 @@
                         <StackPanel Orientation="Horizontal" x:Name="MiddleUIControlLayout"
                                         Grid.Column="1"
                                         >
-                            <AppBarButton Icon="Play">
 
+                            <!-- 再生 -->
+                            <Button Background="Transparent">
+                                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3C;" 
+                                           FontSize="18"
+                                           />
+                            </Button>
+                            <AppBarButton x:Name="PlayPauseButton" Icon="Play"
+                                          >
+                                <i:Interaction.Behaviors>
+                                    <core:EventTriggerBehavior EventName="Tapped">
+                                        <mybehavior:MediaElementTogglePlayback TargetObject="{Binding ElementName=mediaElem}" />
+                                    </core:EventTriggerBehavior>
+                                </i:Interaction.Behaviors>
                             </AppBarButton>
+
+                            <Button Background="Transparent">
+                                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3D;"
+                                           FontSize="18"
+                                           
+                                           />
+                            </Button>
+
                         </StackPanel>
 
                         <StackPanel Orientation="Horizontal"
                                         Grid.Column="2"
                                     HorizontalAlignment="Right"
                                         >
-                            <AppBarButton Icon="FullScreen" />
+                            <AppBarButton Icon="FullScreen" Command="{Binding ToggleFullScreenCommand}" />
+
+                            <AppBarButton Label="Small" Command="{Binding PlayerSmallWindowDisplayCommand}" />
 
                             <AppBarButton Icon="More">
                                 <AppBarButton.Flyout>
                                     <MenuFlyout>
-                                        <MenuFlyoutItem Text="動画情報" />
+                                        <MenuFlyoutItem Text="動画情報" Command="{Binding OpenVideoInfoCommand}" />
                                         <MenuFlyoutSeparator />
                                         <MenuFlyoutItem Text="マイリスト登録" />
                                         <MenuFlyoutItem Text="共有" />
                                         <MenuFlyoutSeparator />
-                                        <MenuFlyoutItem Text="プレイヤー設定" />
+                                        <MenuFlyoutItem Text="プレイヤー設定" Command="{Binding OpenPlayerSettingCommand}" />
                                         <ToggleMenuFlyoutItem Text="横持ち固定" 
                                                               x:Name="ForceRotateToggleButton" 
                                                               Visibility="Collapsed"
@@ -491,22 +539,34 @@
                         </StackPanel>
 
                     </Grid>
-                </StackPanel>
 
 
+                    <!-- コメントを書く -->
+                    <Grid Visibility="{Binding NowCommentWriting.Value, Converter={StaticResource BooleanToVisibility}}" 
+                          x:Name="CommentLayout"
+                          Background="#AA000000"
+                          >
 
-                <!-- コメントを書く -->
-                <Grid Visibility="Collapsed">
-                    <toolkit:DockPanel>
+                        <toolkit:DockPanel>
 
-                        <Button Content="投稿"  Margin="16 0" 
+                            <Button Content="閉じる"
+                                toolkit:DockPanel.Dock="Left"
+                                >
+                                <i:Interaction.Behaviors>
+                                    <core:EventTriggerBehavior EventName="Tapped">
+                                        <core:ChangePropertyAction TargetObject="{Binding NowCommentWriting}" PropertyName="Value" Value="False" />
+                                    </core:EventTriggerBehavior>
+                                </i:Interaction.Behaviors>
+                            </Button>
+
+                            <Button Content="投稿"  Margin="16 0" 
                                                 Width="80" Height="40"
                                                 Command="{Binding CommentSubmitCommand}"
                                                 x:Name="CommentSubmitButton_Wide"
                                                     toolkit:DockPanel.Dock="Right"
                                                 />
 
-                        <Button Content="{Binding CommandString.Value}" 
+                            <Button Content="{Binding CommandString.Value}" 
                                                 toolkit:DockPanel.Dock="Left"
                                                 Margin="16 0"
                                                 MinWidth="120"
@@ -514,14 +574,14 @@
                                                 DataContext="{Binding}"
                                                 x:Name="CommentCommandEditButton_Wide"
                                             >
-                            <Button.Flyout>
-                                <Flyout>
-                                    <local:CommentCommandEditer DataContext="{Binding CommandEditerVM}" />
-                                </Flyout>
-                            </Button.Flyout>
-                        </Button>
+                                <Button.Flyout>
+                                    <Flyout>
+                                        <local:CommentCommandEditer DataContext="{Binding CommandEditerVM}" />
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
 
-                        <TextBox x:Name="CommentTextBox" 
+                            <TextBox x:Name="CommentTextBox" 
                                                  Text="{Binding WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                  FontSize="18"
                                                  VerticalAlignment="Center"
@@ -531,58 +591,33 @@
                                                  PlaceholderText="コメント"
                                                  HorizontalAlignment="Stretch"
                                                  >
-                            <i:Interaction.Behaviors>
-                                <core:EventTriggerBehavior EventName="GotFocus">
-                                    <core:ChangePropertyAction TargetObject="{Binding NowCommentWriting}" PropertyName="Value" Value="True" />
-                                    <mybehavior:MediaElementPauseAction TargetObject="{Binding ElementName=mediaElem}" 
-                                                                                   IsEnabled="{Binding IsPauseWithCommentWriting.Value}" />
-                                </core:EventTriggerBehavior>
-                                <core:EventTriggerBehavior EventName="LostFocus" >
-                                    <core:ChangePropertyAction TargetObject="{Binding NowCommentWriting}" PropertyName="Value" Value="False" />
-                                    <mybehavior:MediaElementPlayAction TargetObject="{Binding ElementName=mediaElem}" 
-                                                                                   IsEnabled="{Binding CanResumeOnExitWritingComment.Value}" />
-                                </core:EventTriggerBehavior>
+                                <i:Interaction.Behaviors>
+                                    <mybehavior:KeyboardTrigger Key="Escape">
+                                        <mybehavior:KeyboardTrigger.Actions>
+                                            <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="False" />
+                                            <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="True" />
+                                        </mybehavior:KeyboardTrigger.Actions>
+                                    </mybehavior:KeyboardTrigger>
 
-                                <mybehavior:KeyboardTrigger Key="Escape">
-                                    <mybehavior:KeyboardTrigger.Actions>
-                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="False" />
-                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="True" />
-                                    </mybehavior:KeyboardTrigger.Actions>
-                                </mybehavior:KeyboardTrigger>
+                                    <mybehavior:KeyboardTrigger Key="Enter">
+                                        <mybehavior:KeyboardTrigger.Actions>
+                                            <core:InvokeCommandAction Command="{Binding CommentSubmitCommand}" />
+                                            <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="False" />
+                                            <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="True" />
+                                        </mybehavior:KeyboardTrigger.Actions>
+                                    </mybehavior:KeyboardTrigger>
 
-                                <mybehavior:KeyboardTrigger Key="Enter">
-                                    <mybehavior:KeyboardTrigger.Actions>
-                                        <core:InvokeCommandAction Command="{Binding CommentSubmitCommand}" />
-                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="False" />
-                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="True" />
-                                    </mybehavior:KeyboardTrigger.Actions>
-                                </mybehavior:KeyboardTrigger>
-
-                            </i:Interaction.Behaviors>
-                        </TextBox>
+                                </i:Interaction.Behaviors>
+                            </TextBox>
 
 
 
 
-                    </toolkit:DockPanel>
-
-                    
-                </Grid>
-
-                <!-- タップバリア
-                         コメントテキストを書いたあとに画面のどこかをタップしたら
-                         ロストフォーカスさせるためのやつ -->
-                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0 0 0 56" 
-                              Background="Transparent"
-                              IsHitTestVisible="True"
-                              Visibility="{Binding NowCommentWriting.Value, Converter={StaticResource BooleanToVisibility}}"
-                              >
-
-                </Grid>
+                        </toolkit:DockPanel>
 
 
-
-
+                    </Grid>
+                </StackPanel>
 
                 <!-- サポートされていないプロトコル・動画形式 -->
                 <Border HorizontalAlignment="Left"
