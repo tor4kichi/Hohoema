@@ -210,7 +210,7 @@
             
 
                     <!-- Media Control -->
-            <Grid Background="#FF0C0C0C" x:Name="MediaControl">
+            <Grid x:Name="MediaControl">
 
                 <i:Interaction.Behaviors>
                     <mybehavior:KeyboardTrigger Key="Enter" IsEnabled="{Binding NowCommentWriting.Value, Converter={StaticResource InvertBoolean}}">
