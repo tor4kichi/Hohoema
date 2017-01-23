@@ -4,6 +4,9 @@ using System.Threading;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 
+using Microsoft.Toolkit.Uwp.UI.Animations;
+using System.Diagnostics;
+
 namespace NicoPlayerHohoema.Views.Behaviors
 {
 	public class AutoHide : Behavior<FrameworkElement>
@@ -68,8 +71,6 @@ namespace NicoPlayerHohoema.Views.Behaviors
 		public static void OnDelayPropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
 		{
 			AutoHide source = (AutoHide)sender;
-
-			source._NextHideTime = source._PrevPreventTime + source.Delay;
 		}
 
 		#endregion
@@ -93,23 +94,33 @@ namespace NicoPlayerHohoema.Views.Behaviors
 			set { SetValue(WithCursorProperty, value); }
 		}
 
-		#endregion
+        #endregion
 
 
+        AnimationSet _FadeInAnimation;
+        AnimationSet _AutoFadeOutAnimation;
 
+        CoreCursor _EmptyCursor;
+        CoreCursor _DefaultCursor;
 
+        bool _isAutoFadeOutStarted = false;
 
-
-
-		public void PreventAutoHide()
+        public void PreventAutoHide()
 		{
-			_PrevPreventTime = DateTime.Now;
-			_NextHideTime = _PrevPreventTime + Delay;
+            if (IsEnable && !_isAutoFadeOutStarted)
+            {
+                this.AssociatedObject.Visibility = Visibility.Visible;
+                CoreWindow.GetForCurrentThread().PointerCursor = _DefaultCursor;
 
-			this.AssociatedObject.Visibility = Visibility.Visible;
-
-			CoreWindow.GetForCurrentThread().PointerCursor = _CoreCursor;
-		}
+                _FadeInAnimation.Stop();
+                _isAutoFadeOutStarted = false;
+                _AutoFadeOutAnimation.Stop();
+                _isAutoFadeOutStarted = true;
+                _AutoFadeOutAnimation.Start();
+                
+//                Debug.WriteLine("UIの自動非表示開始を延長");
+            }
+        }
 
 
 
@@ -120,17 +131,44 @@ namespace NicoPlayerHohoema.Views.Behaviors
 		{
 			base.OnAttached();
 
-			_CoreCursor = CoreWindow.GetForCurrentThread().PointerCursor;
-		}
+            _FadeInAnimation = AssociatedObject.Fade(1, 500);
+            _AutoFadeOutAnimation = AssociatedObject.Fade(1, 500)
+                .Then()
+                .Fade(0, 500, Delay.TotalMilliseconds);
+            _AutoFadeOutAnimation.Completed += _FadeOutAnimation_Completed;
 
-		protected override void OnDetaching()
+            _DefaultCursor = CoreWindow.GetForCurrentThread().PointerCursor;
+            _EmptyCursor = new CoreCursor(CoreCursorType.Custom, 1);
+        }
+
+        private void _FadeOutAnimation_Completed(object sender, EventArgs e)
+        {
+            Debug.WriteLine("UIの自動非表示完了");
+
+            if (IsEnable && _isAutoFadeOutStarted)
+            {
+                this.AssociatedObject.Visibility = Visibility.Collapsed;
+                if (WithCursor)
+                {
+//                    CoreWindow.GetForCurrentThread().PointerCursor = _EmptyCursor;
+                }
+            }
+
+            _isAutoFadeOutStarted = false;
+        }
+
+        protected override void OnDetaching()
 		{
 			base.OnDetaching();
 
-			_Timer?.Dispose();
-			_Timer = null;
+            _FadeInAnimation?.Dispose();
+            _AutoFadeOutAnimation?.Dispose();
 
-			CoreWindow.GetForCurrentThread().PointerCursor = _CoreCursor;
+            this.AssociatedObject.Visibility = Visibility.Visible;
+            if (WithCursor)
+            {
+                CoreWindow.GetForCurrentThread().PointerCursor = _DefaultCursor;
+            }
 		}
 
 
@@ -138,51 +176,25 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
 		private void EnableAutoHide()
 		{
-			_NextHideTime = DateTime.Now + Delay;
+            Debug.WriteLine("UIの自動非表示を 有効 に");
 
-			tokenSource = new CancellationTokenSource();
-			
-			_Timer = new Timer(async (state) => 
-			{
-				await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Low, () =>
-				{
-					if (AssociatedObject == null)
-					{
-						return;
-					}
-
-					if (this.AssociatedObject.Visibility == Visibility.Visible &&
-						_NextHideTime < DateTime.Now)
-					{
-						this.AssociatedObject.Visibility = Visibility.Collapsed;
-
-						if (WithCursor)
-						{
-							CoreWindow.GetForCurrentThread().PointerCursor = null;
-						}
-					}
-				});
-			}
-			, this, Delay, TimeSpan.FromMilliseconds(25));
-
-		}
+            PreventAutoHide();
+        }
 
 		private void DisableteAutoHide()
 		{
-			_Timer?.Dispose();
-			_Timer = null;
+            Debug.WriteLine("UIの自動非表示を 無効 に");
 
-			this.AssociatedObject.Visibility = Visibility.Visible;
-			CoreWindow.GetForCurrentThread().PointerCursor = _CoreCursor;
+            _AutoFadeOutAnimation.Stop();
+            _FadeInAnimation.Start();
+
+            _isAutoFadeOutStarted = false;
+
+            this.AssociatedObject.Visibility = Visibility.Visible;
+			CoreWindow.GetForCurrentThread().PointerCursor = _DefaultCursor;
 			
 		}
 
-
-		CancellationTokenSource tokenSource;
-
-		CoreCursor _CoreCursor;
-		DateTime _PrevPreventTime;
-		DateTime _NextHideTime;
-		Timer _Timer;
+		
 	}
 }

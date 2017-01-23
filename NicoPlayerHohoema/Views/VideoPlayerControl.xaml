@@ -19,6 +19,7 @@
     xmlns:uiTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInterfaceTriggers"
     xmlns:myTrigger ="using:NicoPlayerHohoema.Views.StateTrigger"
     xmlns:media="using:Microsoft.Xaml.Interactions.Media"
+    xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Animations.Behaviors"
     mc:Ignorable="d"
     d:DesignHeight="480"
     d:DesignWidth="720"
@@ -30,8 +31,6 @@
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="LabelPosition" Value="Collapsed" />
         </Style>
-
-
 
     </UserControl.Resources>
 
@@ -104,10 +103,16 @@
                         <Setter Target="PlayPauseButton.Icon" Value="Stop" />
 
                         <Setter Target="TitleLayout.Visibility" Value="Collapsed" />
+
+                        <Setter Target="UIControlFade.Value" Value="" />
                     </VisualState.Setters>
                 </VisualState>
+                
+
             </VisualStateGroup>
+
             
+
             <!-- ミュートの有効・無効 -->
             <VisualStateGroup>
                 <VisualState>
@@ -222,14 +227,23 @@
                     <mybehavior:MouseWheelTrigger>
                         <mybehavior:MouseWheelTrigger.UpActions>
                             <core:InvokeCommandAction Command="{Binding VolumeUpCommand}" />
-                            <core:CallMethodAction TargetObject="{Binding ElementName=AutoHideBehavior}" MethodName="PreventAutoHide" />
+
+                            <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="PreventAutoHide" />
                         </mybehavior:MouseWheelTrigger.UpActions>
                         <mybehavior:MouseWheelTrigger.DownActions>
                             <core:InvokeCommandAction Command="{Binding VolumeDownCommand}" />
-                            <core:CallMethodAction TargetObject="{Binding ElementName=AutoHideBehavior}" MethodName="PreventAutoHide" />
+
+                            <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="PreventAutoHide" />
                         </mybehavior:MouseWheelTrigger.DownActions>
                     </mybehavior:MouseWheelTrigger>
 
+                    <core:EventTriggerBehavior EventName="PointerMoved">
+                        <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="PreventAutoHide" />
+                    </core:EventTriggerBehavior>
+                    <core:EventTriggerBehavior EventName="Tapped">
+                        <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="PreventAutoHide" />
+                    </core:EventTriggerBehavior>
+                    
                 </i:Interaction.Behaviors>
 
 
@@ -271,7 +285,7 @@
                                 <mybehavior:MediaElementTogglePlayback TargetObject="{Binding ElementName=mediaElem}" />
                             </mybehavior:KeyboardTrigger.Actions>
                         </mybehavior:KeyboardTrigger>
-
+                        
                     </i:Interaction.Behaviors>
                 </MediaElement>
 
@@ -310,8 +324,15 @@
 
 
                 <StackPanel VerticalAlignment="Bottom"
-                            
+                            x:Name="UIControlLayout"
                             >
+
+                    <i:Interaction.Behaviors>
+                        <mybehavior:AutoHide x:Name="PlayerControlAutoHide" 
+                                             Delay="{Binding AutoHideDelayTime.Value}"
+                                             IsEnable="{Binding NowPlaying.Value}"
+                        />
+                    </i:Interaction.Behaviors>
                     <Border Height="64">
                         <Border.Background>
                             <LinearGradientBrush x:Name="ControlPanelBackgroundBrush" StartPoint="1, 0" EndPoint="1, 1">

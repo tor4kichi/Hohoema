@@ -13,6 +13,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Microsoft.Toolkit.Uwp.UI.Animations;
 
 // 空白ページのアイテム テンプレートについては、http://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 
@@ -34,7 +35,9 @@ namespace NicoPlayerHohoema.Views
 		{
 			(this.DataContext as IDisposable)?.Dispose();
 		}
-	}
+
+        
+    }
 
 
 
