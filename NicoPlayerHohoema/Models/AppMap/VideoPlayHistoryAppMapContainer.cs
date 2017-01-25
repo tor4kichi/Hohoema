@@ -9,13 +9,11 @@ namespace NicoPlayerHohoema.Models.AppMap
 {
 	public class VideoPlayHistoryAppMapContainer : SelfGenerateAppMapContainerBase
 	{
-		public HohoemaApp HohoemaApp { get; private set; }
-
-		public VideoPlayHistoryAppMapContainer(HohoemaApp hohoemaApp)
+        public VideoPlayHistoryAppMapContainer()
 			: base(HohoemaPageType.History, label:"視聴履歴")
 		{
-			HohoemaApp = hohoemaApp;
-		}
+
+        }
 
 		protected override async Task<IEnumerable<IAppMapItem>> GenerateItems(int count)
 		{
@@ -29,13 +27,15 @@ namespace NicoPlayerHohoema.Models.AppMap
 			var histories = playedHistories.Histories.Take(count);
 			foreach (var history in histories)
 			{
-				var historyAppMapItem = new VideoPlayHistoryAppMapItem(history);
+				var historyAppMapItem = new VideoPlayHistoryAppMapItem(history, HohoemaApp.Playlist);
 				items.Add(historyAppMapItem);
 			}
 
 			return items;
 		}
-	}
+
+        
+    }
 
 
 	public class VideoPlayHistoryAppMapItem : IAppMapItem
@@ -44,12 +44,17 @@ namespace NicoPlayerHohoema.Models.AppMap
 		public string SecondaryLabel { get; private set; }
 		public string Parameter { get; private set; }
 
-		public HohoemaPageType PageType => HohoemaPageType.VideoPlayer;
+        public HohoemaPlaylist HohoemaPlaylist { get; private set; }
 
+        public void SelectedAction()
+        {
+            
+        }
 
-		public VideoPlayHistoryAppMapItem(History history)
+		public VideoPlayHistoryAppMapItem(History history, HohoemaPlaylist playlist)
 		{
-			PrimaryLabel = history.Title;
+            HohoemaPlaylist = playlist;
+            PrimaryLabel = history.Title;
 
 			SecondaryLabel = null;
 

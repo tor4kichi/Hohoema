@@ -10,15 +10,24 @@ namespace NicoPlayerHohoema.Models.AppMap
 	{
 		public UserMylistManager UserMylistManager { get; private set; }
 
-		public UserMylistAppMapContainer(UserMylistManager mylistManager)
+		public UserMylistAppMapContainer()
 			: base(HohoemaPageType.UserMylist, label:"マイリスト")
 		{
-			UserMylistManager = mylistManager;
+			UserMylistManager = HohoemaApp.UserMylistManager;
 		}
 
 		public override ContainerItemDisplayType ItemDisplayType => ContainerItemDisplayType.Card;
 
-		protected override Task<IEnumerable<IAppMapItem>> MakeAllItems()
+        public override Task Refresh()
+        {
+            foreach (var item in AllItems.ToArray())
+            {
+                Add(item);
+            }
+            return base.Refresh();
+        }
+
+        protected override Task<IEnumerable<IAppMapItem>> MakeAllItems()
 		{
 			var mylists = UserMylistManager.UserMylists.ToArray();
 			var items = new List<IAppMapItem>();

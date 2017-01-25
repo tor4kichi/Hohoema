@@ -125,9 +125,11 @@ namespace NicoPlayerHohoema.Models
 
                 if (res != null)
                 {
-                    var data = VideoInfoDb.Get(rawVideoId);
-                    VideoInfoDb.UpdateNicoVideoInfo(data, res);
-
+                    var data = await VideoInfoDb.GetEnsureNicoVideoInfoAsync(rawVideoId);
+                    if (data != null)
+                    {
+                        await VideoInfoDb.UpdateNicoVideoInfo(data, res);
+                    }
                 }
 
 				return res;

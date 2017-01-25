@@ -1,0 +1,86 @@
+﻿<Page
+    x:Class="NicoPlayerHohoema.Views.PlaylistPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    mc:Ignorable="d">
+
+    <local:MenuNavigatePageBase>
+        <Grid>
+            <uwptoolkit:MasterDetailsView ItemsSource="{Binding Playlists}"
+                                          NoSelectionContent="No Selection"
+                                          
+                                          >
+
+                <uwptoolkit:MasterDetailsView.MasterHeader>
+                    <toolkit:DockPanel>
+                        <Button Content="Add" HorizontalAlignment="Center"
+                                Command="{Binding CreatePlaylistCommand}"
+                                />
+                    </toolkit:DockPanel>
+                </uwptoolkit:MasterDetailsView.MasterHeader>
+                
+                <uwptoolkit:MasterDetailsView.DetailsTemplate>
+                    <DataTemplate>
+                        <toolkit:DockPanel>
+
+                            <!-- タップでプレイリスト名の変更 -->
+                            <TextBlock Text="{Binding PlaylistName.Value}" Margin="8" />
+                            
+                            <CommandBar toolkit:DockPanel.Dock="Bottom">
+                                <AppBarButton Icon="Play" />
+
+                                <CommandBar.SecondaryCommands>
+                                    <AppBarButton Label="このプレイリストを削除"
+                                                  Icon="Delete"
+                                                  Command="{Binding DeletePlaylistCommand}"
+                                                  >
+                                        
+                                    </AppBarButton>
+
+                                </CommandBar.SecondaryCommands>
+                            </CommandBar>
+
+                            <!-- TODO: 入れ替え -->
+                            
+                            <ListView ItemsSource="{Binding PlaylistItems}">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <toolkit:DockPanel>
+
+                                            <i:Interaction.Behaviors>
+                                                <core:EventTriggerBehavior EventName="Tapped">
+                                                    <core:InvokeCommandAction Command="{Binding }" />
+                                                </core:EventTriggerBehavior>
+                                            </i:Interaction.Behaviors>
+                                            <SymbolIcon Symbol="Up" toolkit:DockPanel.Dock="Left" />
+                                            <TextBlock Text="{Binding VideoName}" />
+                                        </toolkit:DockPanel>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                            
+                        </toolkit:DockPanel>
+                    </DataTemplate>
+                </uwptoolkit:MasterDetailsView.DetailsTemplate>
+
+                <uwptoolkit:MasterDetailsView.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding PlaylistName.Value}" />
+                    </DataTemplate>
+                </uwptoolkit:MasterDetailsView.ItemTemplate>
+               
+
+                
+            </uwptoolkit:MasterDetailsView>
+        </Grid>
+    </local:MenuNavigatePageBase>
+</Page>

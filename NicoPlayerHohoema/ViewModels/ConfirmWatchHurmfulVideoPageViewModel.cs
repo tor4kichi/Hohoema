@@ -92,8 +92,10 @@ namespace NicoPlayerHohoema.ViewModels
 				return _ContinueWatchVideoCommand
 					?? (_ContinueWatchVideoCommand = new DelegateCommand(() =>
 					{
-
 						NicoVideo.HarmfulContentReactionType = IsNoMoreConfirmHarmfulVideo.Value ? Mntone.Nico2.HarmfulContentReactionType.ContinueWithNotMoreConfirm : Mntone.Nico2.HarmfulContentReactionType.ContinueOnce;
+
+//                        HohoemaApp.Playlist.
+                        /*
 						PageManager.OpenPage(HohoemaPageType.VideoPlayer,
 							new VideoPlayPayload()
 							{
@@ -102,6 +104,7 @@ namespace NicoPlayerHohoema.ViewModels
 							}
 							.ToParameterString()
 						);
+                        */
 					}));
 			}
 		}

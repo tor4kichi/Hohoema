@@ -9,12 +9,9 @@ namespace NicoPlayerHohoema.Models.AppMap
 {
 	public class CachedVideoAppMapContainer : SelfGenerateAppMapContainerBase
 	{
-		public HohoemaApp HohoemaApp { get; private set; }
-
-		public CachedVideoAppMapContainer(HohoemaApp hohoemaApp)
+		public CachedVideoAppMapContainer()
 			: base(HohoemaPageType.CacheManagement, label:"キャッシュ動画")
 		{
-			HohoemaApp = hohoemaApp;
 		}
 
 		protected override Task<IEnumerable<IAppMapItem>> GenerateItems(int count)
@@ -37,24 +34,14 @@ namespace NicoPlayerHohoema.Models.AppMap
 		}
 	}
 
-	public class CachedVideoAppMapItem : IAppMapItem
-	{
-		public string PrimaryLabel { get; private set; }
-		public string SecondaryLabel { get; private set; }
-		public string Parameter { get; private set; }
-
-		public HohoemaPageType PageType => HohoemaPageType.VideoPlayer;
-
+	public class CachedVideoAppMapItem : VideoAppMapItemBase
+    {
 		public CachedVideoAppMapItem(NicoVideoCacheRequest cacheReq, NicoVideoInfo info)
 		{
 			PrimaryLabel = info.Title;
 			SecondaryLabel = cacheReq.Quality.ToString();
-			Parameter = new VideoPlayPayload()
-			{
-				VideoId = cacheReq.RawVideoid,
-				Quality = cacheReq.Quality
-			}
-			.ToParameterString();
+            Parameter = cacheReq.RawVideoid;
+            Quality = cacheReq.Quality;
 		}
 	}
 }

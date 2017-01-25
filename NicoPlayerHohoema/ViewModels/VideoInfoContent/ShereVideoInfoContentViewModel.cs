@@ -27,51 +27,10 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 			_TextInputDialogService = textInputService;
 			_ToastNotificationService = toastService;
 
-			IsStillLoggedInTwitter = new ReactiveProperty<bool>(!TwitterHelper.IsLoggedIn)
-				.AddTo(_CompositeDisposable);
+			
 		}
 
 
-		public ReactiveProperty<bool> IsStillLoggedInTwitter { get; private set; }
-
-		private DelegateCommand _ShereWithTwitterCommand;
-		public DelegateCommand ShereWithTwitterCommand
-		{
-			get
-			{
-				return _ShereWithTwitterCommand
-					?? (_ShereWithTwitterCommand = new DelegateCommand(async () =>
-					{
-						if (!TwitterHelper.IsLoggedIn)
-						{
-							
-							if (!await TwitterHelper.LoginOrRefreshToken())
-							{
-								return;
-							}
-						}
-
-						IsStillLoggedInTwitter.Value = !TwitterHelper.IsLoggedIn;
-
-						if (TwitterHelper.IsLoggedIn)
-						{
-							var text = $"{_NicoVideo.Title} http://nico.ms/{_NicoVideo.VideoId} #{_NicoVideo.VideoId}";
-							var twitterLoginUserName = TwitterHelper.TwitterUser.ScreenName;
-							var customText = await _TextInputDialogService.GetTextAsync($"{twitterLoginUserName} としてTwitterへ投稿", "", text);
-
-							if (customText != null)
-							{
-								var result = await TwitterHelper.SubmitTweet(customText);
-
-								if (!result)
-								{
-									_ToastNotificationService.ShowText("ツイートに失敗しました", "もう一度お試しください");
-								}
-							}
-						}
-					}
-					));
-			}
-		}
+		
 	}
 }

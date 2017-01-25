@@ -97,7 +97,7 @@ namespace NicoPlayerHohoema.Views
 
 		public double TextBGOffset { get; set; }
 
-		public Comment(VideoPlayerPageViewModel videoPlayerPageVM)
+		public Comment(VideoPlayerControlViewModel videoPlayerPageVM)
 		{
 			_VideoPlayerPageViewModel = videoPlayerPageVM;
 			TextBGOffset = 1.0;
@@ -316,6 +316,6 @@ namespace NicoPlayerHohoema.Views
 
 
 
-		private VideoPlayerPageViewModel _VideoPlayerPageViewModel;
+		private VideoPlayerControlViewModel _VideoPlayerPageViewModel;
 	}
 }

@@ -71,7 +71,12 @@ namespace NicoPlayerHohoema.ViewModels
             IsForceXboxDisplayMode = PageManager.ObserveProperty(x => x.IsForceXboxDisplayMode)
                 .ToReactiveProperty();
 
+            SubstitutionBackNavigation = new Dictionary<string, Action>();
+
+            
         }
+
+        
 
 		private void __OnSignin()
 		{
@@ -229,9 +234,32 @@ namespace NicoPlayerHohoema.ViewModels
 				HohoemaApp.MediaManager.Context.ClearPreventDeleteCacheOnPlayingVideo();
 			}
 
+            // TODO: プレイヤーを別ウィンドウにしている場合に、プレイヤーの表示状態変更を抑制する
+            // プレイヤーがフィル表示している時にバックキーのアクションを再定義する
+            Observable.CombineLatest(
+                HohoemaApp.Playlist.ObserveProperty(x => x.IsPlayerFloatingModeEnable).Select(x => !x),
+                HohoemaApp.Playlist.ObserveProperty(x => x.IsDisplayPlayer)
+                )
+                .Select(x => x.All(y => y))
+                .Subscribe(isBackNavigationClosePlayer =>
+                {
+                    const string PlayerFillModeBackNavigationCancel = "fill_mode_cancel";
+                    if (isBackNavigationClosePlayer)
+                    {
+                        AddSubsitutionBackNavigateAction(PlayerFillModeBackNavigationCancel, () =>
+                        {
+                            HohoemaApp.Playlist.IsDisplayPlayer = false;
+                        });
+                    }
+                    else
+                    {
+                        RemoveSubsitutionBackNavigateAction(PlayerFillModeBackNavigationCancel);
+                    }
+                })
+                .AddTo(_NavigatingCompositeDisposable);
 
-			// サインインステータスチェック
-			_NavigatedToTaskCancelToken = new CancellationTokenSource();
+            // サインインステータスチェック
+            _NavigatedToTaskCancelToken = new CancellationTokenSource();
 
 			_NavigatedToTask = __NavigatedToAsync(_NavigatedToTaskCancelToken.Token, e, viewModelState);
 
@@ -331,6 +359,18 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			using (var releaser = await _NavigationLock.LockAsync())
 			{
+                if (!suspending && SubstitutionBackNavigation.Count > 0)
+                {
+                    var substitutionBackNavPair = SubstitutionBackNavigation.Last();
+                    SubstitutionBackNavigation.Remove(substitutionBackNavPair.Key);
+                    var action = substitutionBackNavPair.Value;
+                    action?.Invoke();
+
+                    e.Cancel = true;
+                    return;
+                }
+
+
 				_NavigatingCompositeDisposable?.Dispose();
 				_NavigatingCompositeDisposable = new CompositeDisposable();
 
@@ -391,7 +431,28 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		CancellationTokenSource _NavigatedToTaskCancelToken;
+        protected void AddSubsitutionBackNavigateAction(string id, Action action)
+        {
+            if (!SubstitutionBackNavigation.ContainsKey(id))
+            {
+                SubstitutionBackNavigation.Add(id, action);
+            }
+        }
+
+        protected bool RemoveSubsitutionBackNavigateAction(string id)
+        {
+            if (SubstitutionBackNavigation.ContainsKey(id))
+            {
+                return SubstitutionBackNavigation.Remove(id);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
+        CancellationTokenSource _NavigatedToTaskCancelToken;
 		Task _NavigatedToTask;
 
 		private SemaphoreSlim _NavigationToLock;
@@ -419,6 +480,9 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         public ReactiveProperty<bool> IsForceXboxDisplayMode { get; private set; }
+
+
+        public Dictionary<string, Action> SubstitutionBackNavigation { get; private set; }
 
 
         public HohoemaApp HohoemaApp { get; private set; }

@@ -81,7 +81,8 @@ namespace NicoPlayerHohoema.ViewModels
 		public VideoInfoControlViewModel(NicoVideo nicoVideo, PageManager pageManager)
 		{
 			PageManager = pageManager;
-			NicoVideo = nicoVideo;
+            HohoemaPlaylist = nicoVideo.HohoemaApp.Playlist;
+            NicoVideo = nicoVideo;
 			_CompositeDisposable = new CompositeDisposable();
 
 			Title = nicoVideo.Title;
@@ -191,9 +192,10 @@ namespace NicoPlayerHohoema.ViewModels
 				return _PlayCommand
 					?? (_PlayCommand = new DelegateCommand(() =>
 					{
-						var payload = MakeVideoPlayPayload();
+                        HohoemaPlaylist.PlayVideo(RawVideoId, Title);
 
-						PageManager.OpenPage(HohoemaPageType.VideoPlayer, payload.ToParameterString());
+//                        var payload = MakeVideoPlayPayload();
+//						PageManager.OpenPage(HohoemaPageType.VideoPlayer, payload.ToParameterString());
 					}));
 			}
 		}
@@ -201,7 +203,8 @@ namespace NicoPlayerHohoema.ViewModels
 		protected CompositeDisposable _CompositeDisposable { get; private set; }
 
 		public NicoVideo NicoVideo { get; private set; }
-		public PageManager PageManager { get; private set; }
+        public HohoemaPlaylist HohoemaPlaylist { get; private set; }
+        public PageManager PageManager { get; private set; }
 	}
 
 

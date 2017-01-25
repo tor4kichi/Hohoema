@@ -63,10 +63,10 @@ namespace NicoPlayerHohoema.Models
 			UserSettings = new HohoemaUserSettings();
 			ContentFinder = new NiconicoContentFinder(this);
 			UserMylistManager = new UserMylistManager(this);
-			AppMapManager = new AppMapManager(this);
 			FeedManager = new FeedManager(this);
+            Playlist = new HohoemaPlaylist();
 
-			FollowManager = null;
+            FollowManager = null;
 
 			LoadRecentLoginAccount();
 			_SigninLock = new SemaphoreSlim(1, 1);
@@ -98,13 +98,8 @@ namespace NicoPlayerHohoema.Models
         private void RagistrationBackgroundUpdateHandle()
 		{
 			// ホーム画面で表示するアプリマップ情報をリセット
-			AppMapManagerUpdater =
-				BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(
-					AppMapManager
-					, nameof(AppMapManager)
-					, priority: -1
-					, label: "ホーム画面情報"
-					);
+			//AppMapManagerUpdater =
+				
 
 			// 非同期な初期化処理の遅延実行をスケジュール
 			FeedManagerUpdater = BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(
@@ -1263,9 +1258,10 @@ StorageFolder _DownloadFolder;
             set { SetProperty(ref _ServiceStatus, value); }
         }
 
-        public UserMylistManager UserMylistManager { get; private set; }
 
-		public AppMapManager AppMapManager { get; private set; }
+        public HohoemaPlaylist Playlist { get; private set; }
+
+        public UserMylistManager UserMylistManager { get; private set; }
 
 
 
@@ -1276,7 +1272,6 @@ StorageFolder _DownloadFolder;
 
 		public BackgroundUpdater BackgroundUpdater { get; private set; }
 
-		public BackgroundUpdateScheduleHandler AppMapManagerUpdater { get; private set; }
 		public BackgroundUpdateScheduleHandler MylistManagerUpdater { get; private set; }
 		public BackgroundUpdateScheduleHandler FeedManagerUpdater { get; private set; }
 		public BackgroundUpdateScheduleHandler FollowManagerUpdater { get; private set; }

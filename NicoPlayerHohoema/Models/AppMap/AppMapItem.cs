@@ -12,7 +12,9 @@ namespace NicoPlayerHohoema.Models.AppMap
 		string PrimaryLabel { get; }
 		string SecondaryLabel { get; }
 
-		HohoemaPageType PageType { get; }
+        void SelectedAction();
+
+//		HohoemaPageType PageType { get; }
 		string Parameter { get; }
 	}
 
@@ -53,8 +55,6 @@ namespace NicoPlayerHohoema.Models.AppMap
 				case HohoemaPageType.About:
 					break;
 				case HohoemaPageType.VideoInfomation:
-					break;
-				case HohoemaPageType.VideoPlayer:
 					break;
 				case HohoemaPageType.ConfirmWatchHurmfulVideo:
 					break;

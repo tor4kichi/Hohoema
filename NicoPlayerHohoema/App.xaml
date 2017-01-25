@@ -16,6 +16,8 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Styles/DefaultStyle.xaml"/>
+                
+                <ResourceDictionary Source="Views/Controls/FloatContentContainer/FloatContentContainer.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             
             <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />

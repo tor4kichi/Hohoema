@@ -20,14 +20,14 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class PortalPageViewModel : HohoemaViewModelBase
 	{
-		public SelectableAppMapContainerViewModel Root { get; private set; }
+        public AppMapManager AppMapManager { get; private set; }
+        public SelectableAppMapContainerViewModel Root { get; private set; }
 
-		private BackgroundUpdateScheduleHandler _AppMapManagerUpdateScheduleHandler;
-
-		public PortalPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
+		public PortalPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, AppMapManager appMapManager)
 			: base(hohoemaApp, pageManager)
 		{
-			Root = new SelectableAppMapContainerViewModel(HohoemaApp.AppMapManager.Root, PageManager);
+            AppMapManager = appMapManager;
+            Root = new SelectableAppMapContainerViewModel(AppMapManager.Root, PageManager);
 		}
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
@@ -37,7 +37,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-            await HohoemaApp.AppMapManager.Refresh();
+            await AppMapManager.Refresh();
 
             await base.NavigatedToAsync(cancelToken, e, viewModelState);
 		}
@@ -56,7 +56,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _RefreshCommand
                     ?? (_RefreshCommand = new DelegateCommand(async () =>
                     {
-                        await HohoemaApp.AppMapManager.Refresh();
+                        await AppMapManager.Refresh();
                     }));
             }
         }
@@ -101,7 +101,7 @@ namespace NicoPlayerHohoema.ViewModels
 			Item = item;
 			PageManager = pageManager;
 
-			IsHiddenLabel = Item.PageType == HohoemaPageType.Portal;
+//			IsHiddenLabel = Item.PageType == HohoemaPageType.Portal;
 			IsHiddenSecondaryLabel = String.IsNullOrWhiteSpace(Item.SecondaryLabel);
 		}
 
@@ -114,7 +114,9 @@ namespace NicoPlayerHohoema.ViewModels
 				return _OpenItemPageCommand
 					?? (_OpenItemPageCommand = new DelegateCommand(() => 
 					{
-						PageManager.OpenPage(Item.PageType, Item.Parameter);
+                        Item.SelectedAction();
+
+//                        PageManager.OpenPage(Item.PageType, Item.Parameter);
 					}));
 			}
 		}

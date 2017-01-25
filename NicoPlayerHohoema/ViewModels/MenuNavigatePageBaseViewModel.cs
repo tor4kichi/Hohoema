@@ -47,6 +47,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             SubMenuItems = new List<PageTypeSelectableItem>()
             {
+                new PageTypeSelectableItem(HohoemaPageType.Playlist           , OnMenuItemSelected, "プレイリスト", Symbol.Play),
                 new PageTypeSelectableItem(HohoemaPageType.CacheManagement    , OnMenuItemSelected, "キャッシュ管理", Symbol.Download),
                 new PageTypeSelectableItem(HohoemaPageType.History            , OnMenuItemSelected, "視聴履歴", Symbol.Clock),
                 new PageTypeSelectableItem(HohoemaPageType.Settings             , OnMenuItemSelected, "設定", Symbol.Setting),

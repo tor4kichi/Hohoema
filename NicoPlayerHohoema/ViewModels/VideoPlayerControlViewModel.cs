@@ -43,12 +43,16 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using FFmpegInterop;
 using Windows.Foundation.Collections;
+using Windows.ApplicationModel.DataTransfer;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class VideoPlayerPageViewModel : HohoemaViewModelBase, IDisposable
+	public class VideoPlayerControlViewModel : HohoemaViewModelBase, IDisposable
 	{
-		
+		// TODO: HohoemaViewModelBaseとの依存性を排除（ViewModelBaseとの関係性は維持）
+
+
+
 		const uint default_DisplayTime = 400; // 1 = 10ms, 400 = 4000ms = 4.0 Seconds
 
 
@@ -63,19 +67,21 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		public VideoPlayerPageViewModel(
+		public VideoPlayerControlViewModel(
 			HohoemaApp hohoemaApp, 
 			EventAggregator ea,
 			PageManager pageManager, 
 			ToastNotificationService toast,
-			TextInputDialogService textInputDialog
+			TextInputDialogService textInputDialog,
+            MylistRegistrationDialogService mylistDialog
 			)
 			: base(hohoemaApp, pageManager, canActivateBackgroundUpdate:false)
 		{
 			_ToastService = toast;
 			_TextInputDialogService = textInputDialog;
+            _MylistResistrationDialogService = mylistDialog;
 
-			_SidePaneContentCache = new Dictionary<MediaInfoDisplayType, MediaInfoViewModel>();
+            _SidePaneContentCache = new Dictionary<MediaInfoDisplayType, MediaInfoViewModel>();
 
 
 			VideoStream = new ReactiveProperty<object>(PlayerWindowUIDispatcherScheduler)
@@ -393,7 +399,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 			ProgressFragments = new ObservableCollection<ProgressFragment>();
 
-		}
+            IsStillLoggedInTwitter = new ReactiveProperty<bool>(!TwitterHelper.IsLoggedIn)
+                .AddTo(_CompositeDisposable);
+        }
 
         protected override async Task OnOffline(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
         {
@@ -1558,20 +1566,141 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+        private DelegateCommand _PlayerSmallWindowDisplayCommand;
+        public DelegateCommand PlayerSmallWindowDisplayCommand
+        {
+            get
+            {
+                return _PlayerSmallWindowDisplayCommand
+                    ?? (_PlayerSmallWindowDisplayCommand = new DelegateCommand(() =>
+                    {
+                        HohoemaApp.Playlist.IsPlayerFloatingModeEnable = true;
+                    }
+                    ));
+            }
+        }
 
-		
+        private DelegateCommand _OpenPlayerSettingCommand;
+        public DelegateCommand OpenPlayerSettingCommand
+        {
+            get
+            {
+                return _OpenPlayerSettingCommand
+                    ?? (_OpenPlayerSettingCommand = new DelegateCommand(() =>
+                    {
+                        PageManager.OpenPage(HohoemaPageType.Settings, HohoemaSettingsKind.VideoPlay.ToString());
+                        HohoemaApp.Playlist.IsPlayerFloatingModeEnable = true;
+                    }
+                    ));
+            }
+        }
+
+        private DelegateCommand _OpenVideoInfoCommand;
+        public DelegateCommand OpenVideoInfoCommand
+        {
+            get
+            {
+                return _OpenVideoInfoCommand
+                    ?? (_OpenVideoInfoCommand = new DelegateCommand(() =>
+                    {
+                        PageManager.OpenPage(HohoemaPageType.VideoInfomation, VideoId);
+                        HohoemaApp.Playlist.IsPlayerFloatingModeEnable = true;
+                    }
+                    ));
+            }
+        }
+
+
+        public ReactiveProperty<bool> IsStillLoggedInTwitter { get; private set; }
+
+        private DelegateCommand _ShereWithTwitterCommand;
+        public DelegateCommand ShereWithTwitterCommand
+        {
+            get
+            {
+                return _ShereWithTwitterCommand
+                    ?? (_ShereWithTwitterCommand = new DelegateCommand(async () =>
+                    {
+                        if (!TwitterHelper.IsLoggedIn)
+                        {
+
+                            if (!await TwitterHelper.LoginOrRefreshToken())
+                            {
+                                return;
+                            }
+                        }
+
+                        IsStillLoggedInTwitter.Value = !TwitterHelper.IsLoggedIn;
+
+                        if (TwitterHelper.IsLoggedIn)
+                        {
+                            var text = $"{Video.Title} http://nico.ms/{Video.VideoId} #{Video.VideoId}";
+                            var twitterLoginUserName = TwitterHelper.TwitterUser.ScreenName;
+                            var customText = await _TextInputDialogService.GetTextAsync($"{twitterLoginUserName} としてTwitterへ投稿", "", text);
+
+                            if (customText != null)
+                            {
+                                var result = await TwitterHelper.SubmitTweet(customText);
+
+                                if (!result)
+                                {
+                                    _ToastService.ShowText("ツイートに失敗しました", "もう一度お試しください");
+                                }
+                            }
+                        }
+                    }
+                    ));
+            }
+        }
+
+        private DelegateCommand _ShareWithClipboardCommand;
+        public DelegateCommand ShareWithClipboardCommand
+        {
+            get
+            {
+                return _ShareWithClipboardCommand
+                    ?? (_ShareWithClipboardCommand = new DelegateCommand(() =>
+                    {
+                        var videoUrl = $"http://nico.ms/{Video.VideoId}";
+                        var text = $"{Video.Title} {videoUrl} #{Video.VideoId}";
+                        var datapackage = new DataPackage();
+                        datapackage.SetText(text);
+                        datapackage.SetWebLink(new Uri(videoUrl));
+
+                        Clipboard.SetContent(datapackage);
+                    }
+                    ));
+            }
+        }
+
+
+        private DelegateCommand _AddMylistCommand;
+        public DelegateCommand AddMylistCommand
+        {
+            get
+            {
+                return _AddMylistCommand
+                    ?? (_AddMylistCommand = new DelegateCommand(async () =>
+                    {
+                        var groupAndComment = await _MylistResistrationDialogService.ShowDialog(1);
+                        if (groupAndComment != null)
+                        {
+                            await groupAndComment.Item1.Registration(VideoId, groupAndComment.Item2);
+                        }
+                    }
+                    ));
+            }
+        }
+
+        #endregion
 
 
 
-		#endregion
+
+        #region player settings method
 
 
-
-
-		#region player settings method
-
-
-		void SetKeepDisplayIfEnable()
+        void SetKeepDisplayIfEnable()
 		{
 			ExitKeepDisplay();
 
@@ -1721,11 +1850,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 		ToastNotificationService _ToastService;
 		TextInputDialogService _TextInputDialogService;
+        MylistRegistrationDialogService _MylistResistrationDialogService;
 
 
-
-		// TODO: コメントのNGユーザー登録
-		internal Task AddNgUser(Comment commentViewModel)
+        // TODO: コメントのNGユーザー登録
+        internal Task AddNgUser(Comment commentViewModel)
 		{
 			if (commentViewModel.UserId == null) { return Task.CompletedTask; }
 

@@ -155,7 +155,7 @@ namespace NicoPlayerHohoema.ViewModels
 				.SubscribeOnUIDispatcher()
 				.Subscribe(async _ =>
 				{
-					var result = await MylistDialogService.ShowDialog(SelectedItems);
+					var result = await MylistDialogService.ShowDialog(SelectedItems.Count);
 
 					if (result == null) { return; }
 

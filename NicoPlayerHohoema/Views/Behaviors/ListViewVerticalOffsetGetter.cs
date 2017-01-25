@@ -66,10 +66,13 @@ namespace NicoPlayerHohoema.Views.Behaviors
 			var border = VisualTreeHelper.GetChild(AssociatedObject, 0);
 			_ScrollViewer = VisualTreeHelper.GetChild(border, 0) as ScrollViewer;
 
-			_ScrollViewer.ViewChanged += AssociatedObject_ViewChanged;
+            if (_ScrollViewer != null)
+            {
+                _ScrollViewer.ViewChanged += AssociatedObject_ViewChanged;
 
-			ResetVerticalOffset();
-		}
+                ResetVerticalOffset();
+            }
+        }
 
 
 

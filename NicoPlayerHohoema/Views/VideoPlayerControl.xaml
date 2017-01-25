@@ -1,0 +1,732 @@
+﻿<UserControl
+    x:Name="PageRoot"
+    x:Class="NicoPlayerHohoema.Views.VideoPlayerControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:comment="using:NicoPlayerHohoema.Views.CommentRenderer"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:videoInfo="using:NicoPlayerHohoema.Views.VideoInfoContent"
+    xmlns:logicalTrigger="using:AdaptiveTriggerLibrary.Triggers.LogicalTriggers"
+    xmlns:intractionTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInteractionTriggers"
+    xmlns:uiTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInterfaceTriggers"
+    xmlns:myTrigger ="using:NicoPlayerHohoema.Views.StateTrigger"
+    xmlns:media="using:Microsoft.Xaml.Interactions.Media"
+    xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Animations.Behaviors"
+    mc:Ignorable="d"
+    d:DesignHeight="480"
+    d:DesignWidth="720"
+    
+    >
+
+    <UserControl.Resources>
+        <Style TargetType="AppBarButton">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="LabelPosition" Value="Collapsed" />
+        </Style>
+
+    </UserControl.Resources>
+
+    <Border x:Name="LayoutRoot">
+
+        <VisualStateManager.VisualStateGroups>
+
+            <!-- 画面サイズごとの表示・非表示に切り替え -->
+            <VisualStateGroup>
+                <!-- 一番幅が広いとき -->
+                <!--
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="721" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                    </VisualState.Setters>
+                </VisualState>
+                -->
+                <!-- 中ぐらい -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="521" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        
+                    </VisualState.Setters>
+                </VisualState>
+                <!-- 超狭い -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+            <!-- リピートの有効・無効 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsEnableRepeat.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="RepeatButton.Icon" Value="RepeatAll" />
+                    </VisualState.Setters>
+
+                   
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsEnableRepeat.Value, Converter={StaticResource InvertBoolean}}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="RepeatButton.Icon" Value="RepeatOne" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+
+            <!-- 再生・停止 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding NowPlaying.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PlayPauseButton.Icon" Value="Stop" />
+
+                        <Setter Target="TitleLayout.Visibility" Value="Collapsed" />
+
+                        <Setter Target="UIControlFade.Value" Value="" />
+                    </VisualState.Setters>
+                </VisualState>
+                
+
+            </VisualStateGroup>
+
+            
+
+            <!-- ミュートの有効・無効 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsMuted.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+
+                        <Setter Target="VolumeButton.Icon" Value="Mute" />
+                        <Setter Target="MuteToggleButton.Icon" Value="Mute" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsMuted.Value, Converter={StaticResource InvertBoolean}}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="VolumeButton.Icon" Value="Volume" />
+                        <Setter Target="MuteToggleButton.Icon" Value="Volume" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+            
+
+            <!-- Landscape固定ボタンの表示管理 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <intractionTrigger:InteractionModeTrigger Condition="Touch" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ForceRotateToggleButton.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+            <!-- モバイルの縦持ち時のLandscape固定処理 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsForceLandscape.Value, Converter={StaticResource InvertBoolean}}" />
+
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="LayoutRotateTranform.Angle" Value="0" />
+                    </VisualState.Setters>
+                </VisualState>
+                
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <logicalTrigger:MultiTrigger ConditionModifier="{StaticResource AndModifier}">
+                            <logicalTrigger:MultiTrigger.Triggers>
+                                <uiTrigger:OrientationTrigger Condition="Portrait" />
+                                <intractionTrigger:InteractionModeTrigger Condition="Touch" />
+                            </logicalTrigger:MultiTrigger.Triggers>
+                        </logicalTrigger:MultiTrigger>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="LayoutRotateTranform.Angle" Value="90" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+            <!-- ウィンドウ非アクティブ時にマウス移動に反応するエリアを拡大する -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <myTrigger:WindowActiveTrigger Inverted="True" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="WindowDeactiveMouseMoveDetectWall.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <myTrigger:WindowActiveTrigger Inverted="False" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="WindowDeactiveMouseMoveDetectWall.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+
+        </VisualStateManager.VisualStateGroups>
+
+        <toolkit:LayoutTransformControl
+                x:Name="LayoutTransform"
+                >
+            <toolkit:LayoutTransformControl.Transform>
+                <RotateTransform x:Name="LayoutRotateTranform" Angle="0" />
+            </toolkit:LayoutTransformControl.Transform>
+
+
+
+
+
+            
+
+                    <!-- Media Control -->
+            <Grid x:Name="MediaControl">
+
+                <i:Interaction.Behaviors>
+                    <mybehavior:KeyboardTrigger Key="Enter" IsEnabled="{Binding NowCommentWriting.Value, Converter={StaticResource InvertBoolean}}">
+                        <mybehavior:KeyboardTrigger.Actions>
+                            <mybehavior:SetFocus TargetObject="{Binding ElementName=CommentTextBox}" />
+                        </mybehavior:KeyboardTrigger.Actions>
+                    </mybehavior:KeyboardTrigger>
+
+                    <mybehavior:MouseWheelTrigger>
+                        <mybehavior:MouseWheelTrigger.UpActions>
+                            <core:InvokeCommandAction Command="{Binding VolumeUpCommand}" />
+
+                            <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="PreventAutoHide" />
+                        </mybehavior:MouseWheelTrigger.UpActions>
+                        <mybehavior:MouseWheelTrigger.DownActions>
+                            <core:InvokeCommandAction Command="{Binding VolumeDownCommand}" />
+
+                            <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="PreventAutoHide" />
+                        </mybehavior:MouseWheelTrigger.DownActions>
+                    </mybehavior:MouseWheelTrigger>
+
+                    <core:EventTriggerBehavior EventName="Tapped">
+                        <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Show" />
+                    </core:EventTriggerBehavior>
+                    <!--
+                    <core:EventTriggerBehavior EventName="PointerMoved">
+                        <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="PreventAutoHide" />
+                    </core:EventTriggerBehavior>
+                    -->
+                </i:Interaction.Behaviors>
+
+
+
+
+
+                <MediaElement x:Name="mediaElem"
+                                local:MediaElementExtention.CustomStream="{Binding VideoStream.Value}"
+                                Position="{Binding CurrentVideoPosition.Value}"
+                                AudioCategory="BackgroundCapableMedia"
+                                IsMuted="{Binding IsMuted.Value}"
+                                IsLooping="{Binding IsEnableRepeat.Value}"
+                                Volume="{Binding SoundVolume.Value}"
+                                  
+                                AutoPlay="True"
+                            >
+                    <i:Interaction.Behaviors>
+
+                        <!-- 動画の再生位置を取り出す -->
+                        <mybehavior:MediaElementExtractPositionBehavior 
+                                    Position="{Binding ReadVideoPosition.Value, Mode=TwoWay}"
+                                    Interval="00:00:00.008" 
+                                    />
+
+                        <!-- MediaElementのバッファリング/再生の状態を読み取る -->
+                        <mybehavior:MediaElementStateGetter State="{Binding CurrentState.Value, Mode=TwoWay}" />
+
+                        <!-- アプリライフサイクルに合わせて動画の再生と一時停止を行う
+                        <mybehavior:EnsureLifecycleMediaElement />
+                        -->
+                        <mybehavior:MediaElementContentHeightGetter ContentHeight="{Binding CommentCanvasHeight.Value, Mode=TwoWay}"
+                                                                        />
+
+                        <mybehavior:KeyboardTrigger Key="Space"
+                                                        IsEnabled="{Binding ElementName=SplitView, Path=IsPaneOpen, Converter={StaticResource InvertBoolean}}" >
+                            <mybehavior:KeyboardTrigger.Actions>
+                                <mybehavior:MediaElementTogglePlayback TargetObject="{Binding ElementName=mediaElem}" />
+                            </mybehavior:KeyboardTrigger.Actions>
+                        </mybehavior:KeyboardTrigger>
+
+                        
+
+                        <core:DataTriggerBehavior Binding="{Binding CurrentState.Value}" ComparisonCondition="Equal" Value="Opening">
+                            <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
+                        </core:DataTriggerBehavior>
+
+                        <core:DataTriggerBehavior Binding="{Binding CurrentState.Value}" ComparisonCondition="Equal" Value="Paused">
+                            <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Show" />
+                        </core:DataTriggerBehavior>
+                        
+                    </i:Interaction.Behaviors>
+                </MediaElement>
+
+
+                <comment:CommentRenderer 
+                                x:Name="CommentRederer"
+                                Comments="{Binding Comments}"
+                                VideoPosition="{Binding ReadVideoPosition.Value}"                                     
+                                Visibility="{Binding IsVisibleComment.Value, Converter={StaticResource BooleanToVisibility}}"
+                                RequestFPS="{Binding RequestFPS.Value}"
+                                CommentSizeScale="{Binding CommentFontScale.Value}"
+                                Height="{Binding CommentCanvasHeight.Value}"
+                                CommentDefaultColor="{Binding CommentDefaultColor.Value}"
+                                DefaultDisplayDuration="{Binding RequestCommentDisplayDuration.Value}"
+                                />
+
+
+
+
+
+
+                <ProgressRing Visibility="{Binding NowBuffering.Value, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}"
+                                  IsActive="{Binding NowBuffering.Value, Mode=OneWay}"
+                                  Width="48"
+                                  Height="48"
+                                  HorizontalAlignment="Right"
+                                  VerticalAlignment="Top"
+                                  Margin="24 88"      
+                                  />
+
+                <!-- ウィンドウ非アクティブ時に画面全体をマウス移動の反応対象にするためのコリジョン-->
+                <Border x:Name="WindowDeactiveMouseMoveDetectWall" Background="Transparent"
+                            >
+
+                </Border>
+
+
+                <toolkit:DockPanel 
+                            >
+                    
+                    <StackPanel toolkit:DockPanel.Dock="Bottom" x:Name="UIControlLayout">
+                        <i:Interaction.Behaviors>
+                            <mybehavior:VisiblityFadeChanger x:Name="PlayerControlAutoHide" 
+                                             Delay="{Binding AutoHideDelayTime.Value}"
+                        />
+                        </i:Interaction.Behaviors>
+
+                        <Border Height="48">
+                            <Border.Background>
+                                <LinearGradientBrush x:Name="ControlPanelBackgroundBrush" StartPoint="1, 0" EndPoint="1, 1">
+                                    <GradientStop Color="#00000000" Offset="0.0" x:Name="GradientStop1"/>
+                                    <GradientStop Color="#AA000000" Offset="1.0" x:Name="GradientStop2" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                        </Border>
+
+                        <StackPanel x:Name="TitleLayout" Background="#AA000000">
+                            <TextBlock Text="{Binding Title}" FontSize="24" Margin="8" HorizontalAlignment="Center" TextWrapping="Wrap" />
+                        </StackPanel>
+
+                        <!-- シークバー -->
+                        <StackPanel Background="#AA000000">
+                            <Grid 
+                                    x:Name="ControlPanel_Center"
+                                    Margin="0 0"
+                                    toolkit:DockPanel.Dock="Top"
+                                    
+                                     >
+
+                                <Grid Margin="24 0">
+
+                                    <local:DownloadProgressBar 
+                                            ProgressFragmentItems="{Binding ProgressFragments}"
+                                            Margin="0 20 0 0"
+                                            />
+
+
+                                    <Slider Minimum="0.0" 
+                                            Maximum="{Binding VideoLength.Value}"
+                                            Value="{Binding SliderVideoPosition.Value, Mode=TwoWay}"
+                                            StepFrequency="0.1"
+                                            IsThumbToolTipEnabled="True"
+                                            ThumbToolTipValueConverter="{StaticResource TimeToMovieLengthConverter}"
+                                            HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Stretch"
+                                            VerticalAlignment="Center"
+                                            IsEnabled="{Binding NowQualityChanging.Value, Converter={StaticResource InvertBoolean}}"
+                                        
+                                         >
+                                    </Slider>
+                                </Grid>
+
+
+                                <Border HorizontalAlignment="Left"          
+                                                VerticalAlignment="Bottom"
+                                            Width="60"
+                                            Margin="24 0 0 0"
+                                            Visibility="{Binding IsPlayWithCache.Value, Converter={StaticResource BooleanToVisibility}}"
+                                            >
+                                    <TextBlock  
+                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                IsHitTestVisible="False"
+                                                HorizontalAlignment="Right"
+                                            
+                                                    >
+                                            <Run Text="{Binding ProgressPercent.Value}" />
+                                            <Run Text="%" />
+                                    </TextBlock>
+
+                                </Border>
+
+
+                                <TextBlock  HorizontalAlignment="Right"
+                                        VerticalAlignment="Bottom"
+                                        IsHitTestVisible="False"
+                                        Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                        Margin="0 0 24 0"
+                                    >
+                                        
+                                <Run Text="{Binding SliderVideoPosition.Value, Converter={StaticResource TimeToMovieLengthConverter}}" />
+                                <Run Text="/" />
+                                <Run Text="{Binding VideoLength.Value, Converter={StaticResource TimeToMovieLengthConverter}}" />
+                                </TextBlock>
+                            </Grid>
+                        </StackPanel>
+
+                        <!-- 再生コントロール -->
+                        <Grid Background="#AA000000" Padding="8">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Orientation="Horizontal">
+
+                                <!-- 音量 -->
+                                <AppBarButton Icon="Mute" 
+                                              x:Name="VolumeButton"
+                                              >
+                                    <AppBarButton.Flyout>
+                                        <Flyout>
+                                            <toolkit:DockPanel
+                                                toolkit:DockPanel.Dock="Right"
+                                                Margin="0 0 16 0"
+                                                  Height="66"
+                                                >
+
+                                                <StackPanel Background="#AA777777"
+                                                toolkit:DockPanel.Dock="Left"
+                                                >
+                                                    <AppBarButton Icon="Volume" 
+                                                      Label="ミュート"
+                                                      VerticalAlignment="Stretch"
+                                                      x:Name="MuteToggleButton"
+                                                      Command="{Binding ToggleMuteCommand}"    
+                                                  >
+
+                                                    </AppBarButton>
+                                                </StackPanel>
+
+
+                                                <StackPanel Background="#AA777777" Margin="8 0" 
+                                                Orientation="Vertical">
+
+
+
+                                                    <Slider x:Name="VolumeSlider"
+                                                    Orientation="Horizontal"
+                                                    VerticalAlignment="Top"
+                                                    Margin="8 4"
+                                                    Value="{Binding SoundVolume.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                    IsThumbToolTipEnabled="True"
+                                                    ThumbToolTipValueConverter="{StaticResource ToUserFriendlySoubleVolume}"
+                                                    Maximum="1.0"
+                                                    Minimum="0.0"
+                                                    StepFrequency="0.01"
+                                                    Height="32"
+                                                    Width="160"
+                                                                
+                                                    >
+                                                        <i:Interaction.Behaviors>
+                                                            <core:EventTriggerBehavior EventName="ValueChanged" >
+                                                                <core:CallMethodAction TargetObject="{Binding ElementName=AutoHideBehavior}" MethodName="PreventAutoHide" />
+                                                            </core:EventTriggerBehavior>
+                                                        </i:Interaction.Behaviors>
+                                                    </Slider>
+                                                    <TextBlock Text="音量" 
+                                                   VerticalAlignment="Center"
+                                                   Margin="8 0 0 0"
+                                                   HorizontalAlignment="Center"
+                                                   FontSize="12"
+                                                   />
+
+                                                </StackPanel>
+
+
+
+                                            </toolkit:DockPanel>
+                                        </Flyout>
+                                    </AppBarButton.Flyout>
+                                </AppBarButton>
+
+                                <!-- コメント -->
+                                <AppBarButton Icon="Comment" 
+                                              >
+                                    <AppBarButton.Flyout>
+                                        <MenuFlyout>
+                                            <ToggleMenuFlyoutItem Text="コメントを表示" IsChecked="{Binding IsVisibleComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            <ToggleMenuFlyoutItem Text="新しいコメントを書く" IsChecked="{Binding NowCommentWriting.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        </MenuFlyout>
+                                    </AppBarButton.Flyout>
+                                </AppBarButton>
+
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" x:Name="MiddleUIControlLayout"
+                                        Grid.Column="1"
+                                        >
+
+                                <!-- 再生 -->
+                                <Button Background="Transparent">
+                                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3C;" 
+                                           FontSize="18"
+                                           />
+                                </Button>
+                                <AppBarButton x:Name="PlayPauseButton" Icon="Play"
+                                          >
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Tapped">
+                                            <mybehavior:MediaElementTogglePlayback TargetObject="{Binding ElementName=mediaElem}" />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
+                                </AppBarButton>
+
+                                <Button Background="Transparent">
+                                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3D;"
+                                           FontSize="18"
+                                           
+                                           />
+                                </Button>
+
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal"
+                                        Grid.Column="2"
+                                    HorizontalAlignment="Right"
+                                        >
+                                <AppBarButton Icon="FullScreen" Command="{Binding ToggleFullScreenCommand}" />
+
+                                <AppBarButton Label="Small" Command="{Binding PlayerSmallWindowDisplayCommand}" />
+
+                                <AppBarButton Icon="More">
+                                    <AppBarButton.Flyout>
+                                        <MenuFlyout>
+                                            <MenuFlyoutSubItem Text="画質">
+                                                <MenuFlyoutItem Text="低画質" IsEnabled="{Binding CanToggleCurrentQualityCacheState.Value}">
+                                                    <i:Interaction.Behaviors>
+                                                        <core:EventTriggerBehavior EventName="Tapped">
+                                                            <core:ChangePropertyAction />
+                                                        </core:EventTriggerBehavior>
+                                                    </i:Interaction.Behaviors>
+                                                </MenuFlyoutItem>
+                                                <MenuFlyoutItem Text="オリジナル画質" IsEnabled="{Binding CanToggleCurrentQualityCacheState.Value}">
+                                                    <i:Interaction.Behaviors>
+                                                        <core:EventTriggerBehavior EventName="Tapped">
+                                                            <core:ChangePropertyAction />
+                                                        </core:EventTriggerBehavior>
+                                                    </i:Interaction.Behaviors>
+                                                </MenuFlyoutItem>
+                                            </MenuFlyoutSubItem>
+                                            <ToggleMenuFlyoutItem Text="キャッシュ" IsChecked="{Binding IsSaveRequestedCurrentQualityCache.Value}"
+                                                              IsEnabled="{Binding CanToggleCurrentQualityCacheState.Value}"
+                                                              />
+                                            <MenuFlyoutSeparator />
+                                            <MenuFlyoutItem Text="動画情報" Command="{Binding OpenVideoInfoCommand}" />
+                                            <MenuFlyoutSeparator />
+                                            <MenuFlyoutItem Text="マイリスト登録" Command="{Binding AddMylistCommand}" />
+                                            <MenuFlyoutSubItem Text="共有" >
+                                                <MenuFlyoutItem Text="Twitterで共有" Command="{Binding ShereWithTwitterCommand}" />
+                                                <MenuFlyoutItem Text="クリップボードにコピー" Command="{Binding ShareWithClipboardCommand}" />
+                                            </MenuFlyoutSubItem>
+                                            <MenuFlyoutSeparator />
+                                            <MenuFlyoutItem Text="プレイヤー設定" Command="{Binding OpenPlayerSettingCommand}" />
+                                            <ToggleMenuFlyoutItem Text="横持ち固定" 
+                                                              x:Name="ForceRotateToggleButton" 
+                                                              Visibility="Collapsed"
+                                                              IsChecked="{Binding IsForceLandscape.Value, Mode=TwoWay}"
+                                                              />
+
+                                        </MenuFlyout>
+                                    </AppBarButton.Flyout>
+                                </AppBarButton>
+                            </StackPanel>
+
+                        </Grid>
+
+
+                        <!-- コメントを書く -->
+                        <Grid Visibility="{Binding NowCommentWriting.Value, Converter={StaticResource BooleanToVisibility}}" 
+                          x:Name="CommentLayout"
+                          Background="#AA000000"
+                          >
+
+                            <toolkit:DockPanel>
+
+                                <Button Content="閉じる"
+                                toolkit:DockPanel.Dock="Left"
+                                >
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Tapped">
+                                            <core:ChangePropertyAction TargetObject="{Binding NowCommentWriting}" PropertyName="Value" Value="False" />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
+                                </Button>
+
+                                <Button Content="投稿"  Margin="16 0" 
+                                                Width="80" Height="40"
+                                                Command="{Binding CommentSubmitCommand}"
+                                                x:Name="CommentSubmitButton_Wide"
+                                                    toolkit:DockPanel.Dock="Right"
+                                                />
+
+                                <Button Content="{Binding CommandString.Value}" 
+                                                toolkit:DockPanel.Dock="Left"
+                                                Margin="16 0"
+                                                MinWidth="120"
+                                                MinHeight="32"
+                                                DataContext="{Binding}"
+                                                x:Name="CommentCommandEditButton_Wide"
+                                            >
+                                    <Button.Flyout>
+                                        <Flyout>
+                                            <local:CommentCommandEditer DataContext="{Binding CommandEditerVM}" />
+                                        </Flyout>
+                                    </Button.Flyout>
+                                </Button>
+
+                                <TextBox x:Name="CommentTextBox" 
+                                                 Text="{Binding WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 FontSize="18"
+                                                 VerticalAlignment="Center"
+                                                 MaxLength="75"
+                                                 IsTabStop="True"
+                                                 toolkitext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
+                                                 PlaceholderText="コメント"
+                                                 HorizontalAlignment="Stretch"
+                                                 >
+                                    <i:Interaction.Behaviors>
+                                        <mybehavior:KeyboardTrigger Key="Escape">
+                                            <mybehavior:KeyboardTrigger.Actions>
+                                                <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="False" />
+                                                <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="True" />
+                                            </mybehavior:KeyboardTrigger.Actions>
+                                        </mybehavior:KeyboardTrigger>
+
+                                        <mybehavior:KeyboardTrigger Key="Enter">
+                                            <mybehavior:KeyboardTrigger.Actions>
+                                                <core:InvokeCommandAction Command="{Binding CommentSubmitCommand}" />
+                                                <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="False" />
+                                                <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="True" />
+                                            </mybehavior:KeyboardTrigger.Actions>
+                                        </mybehavior:KeyboardTrigger>
+
+                                    </i:Interaction.Behaviors>
+                                </TextBox>
+
+
+
+
+                            </toolkit:DockPanel>
+
+
+                        </Grid>
+                    </StackPanel>
+
+
+                    <Border IsHitTestVisible="True" Background="Transparent">
+                        <i:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="Tapped">
+                                <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
+                            </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
+
+                    </Border>
+                    
+                </toolkit:DockPanel>
+
+                <!-- サポートされていないプロトコル・動画形式 -->
+                <Border HorizontalAlignment="Left"
+                                  VerticalAlignment="Top"
+                                  Margin="24 88"
+                                  Visibility="{Binding IsNotSupportVideoType, Converter={StaticResource BooleanToVisibility}}"
+                                  Background="WhiteSmoke"
+                                Padding="16"
+                          >
+
+                    <StackPanel Orientation="Horizontal">
+
+                        <SymbolIcon Symbol="Important"
+                                        Foreground="Black"                                         
+                                        Margin="8 8 16 8"
+                                        />
+
+                        <StackPanel>
+                            <TextBlock Text="この動画は再生できません"
+                                   VerticalAlignment="Center"    
+                                           FontSize="18"
+                                           Margin="0 0 0 8"
+                                        Foreground="Black"                                         
+                                   />
+
+                            <TextBlock VerticalAlignment="Center"
+                                        Foreground="Black"                                         
+                                   >
+                                    <Run Text="{Binding CannotPlayReason}" />
+                            </TextBlock>
+
+                            <HyperlinkButton Content="ブラウザで動画を見る"
+                                                 Command="{Binding OpenVideoPageWithBrowser}"
+                                                 >
+                            </HyperlinkButton>
+
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+            </Grid>
+
+
+
+        </toolkit:LayoutTransformControl>
+    </Border>
+</UserControl>
