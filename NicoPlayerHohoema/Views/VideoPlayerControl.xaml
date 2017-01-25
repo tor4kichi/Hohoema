@@ -272,10 +272,8 @@
                         <mybehavior:MediaElementStateGetter State="{Binding CurrentState.Value, Mode=TwoWay}" />
 
                         <!-- アプリライフサイクルに合わせて動画の再生と一時停止を行う
-                                
-                            -->
                         <mybehavior:EnsureLifecycleMediaElement />
-
+                        -->
                         <mybehavior:MediaElementContentHeightGetter ContentHeight="{Binding CommentCanvasHeight.Value, Mode=TwoWay}"
                                                                         />
 
@@ -542,6 +540,26 @@
                             <AppBarButton Icon="More">
                                 <AppBarButton.Flyout>
                                     <MenuFlyout>
+                                        <MenuFlyoutSubItem Text="画質">
+                                            <MenuFlyoutItem Text="低画質" IsEnabled="{Binding CanToggleCurrentQualityCacheState.Value}">
+                                                <i:Interaction.Behaviors>
+                                                    <core:EventTriggerBehavior EventName="Tapped">
+                                                        <core:ChangePropertyAction />
+                                                    </core:EventTriggerBehavior>
+                                                </i:Interaction.Behaviors>
+                                            </MenuFlyoutItem>
+                                            <MenuFlyoutItem Text="オリジナル画質" IsEnabled="{Binding CanToggleCurrentQualityCacheState.Value}">
+                                                <i:Interaction.Behaviors>
+                                                    <core:EventTriggerBehavior EventName="Tapped">
+                                                        <core:ChangePropertyAction />
+                                                    </core:EventTriggerBehavior>
+                                                </i:Interaction.Behaviors>
+                                            </MenuFlyoutItem>
+                                        </MenuFlyoutSubItem>
+                                        <ToggleMenuFlyoutItem Text="キャッシュ" IsChecked="{Binding IsSaveRequestedCurrentQualityCache.Value}"
+                                                              IsEnabled="{Binding CanToggleCurrentQualityCacheState.Value}"
+                                                              />
+                                        <MenuFlyoutSeparator />
                                         <MenuFlyoutItem Text="動画情報" Command="{Binding OpenVideoInfoCommand}" />
                                         <MenuFlyoutSeparator />
                                         <MenuFlyoutItem Text="マイリスト登録" />
