@@ -351,8 +351,7 @@
                                x:Name="ControlUIRoot"
                            >
                             <i:Interaction.Behaviors>
-                                <mybehavior:AutoHide x:Name="AutoHideBehavior"
-                                         IsEnable="{Binding IsAutoHideEnable.Value}"
+                                <mybehavior:VisiblityFadeChanger x:Name="AutoHideBehavior"
                                          Delay="{Binding AutoHideDelayTime.Value}" 
                                          WithCursor="False"
                                          >
@@ -381,7 +380,7 @@
 
 
                                     </i:Interaction.Behaviors>
-                                </mybehavior:AutoHide>
+                                </mybehavior:VisiblityFadeChanger>
 
 
                             </i:Interaction.Behaviors>
