@@ -72,14 +72,16 @@ namespace NicoPlayerHohoema.ViewModels
 			EventAggregator ea,
 			PageManager pageManager, 
 			ToastNotificationService toast,
-			TextInputDialogService textInputDialog
+			TextInputDialogService textInputDialog,
+            MylistRegistrationDialogService mylistDialog
 			)
 			: base(hohoemaApp, pageManager, canActivateBackgroundUpdate:false)
 		{
 			_ToastService = toast;
 			_TextInputDialogService = textInputDialog;
+            _MylistResistrationDialogService = mylistDialog;
 
-			_SidePaneContentCache = new Dictionary<MediaInfoDisplayType, MediaInfoViewModel>();
+            _SidePaneContentCache = new Dictionary<MediaInfoDisplayType, MediaInfoViewModel>();
 
 
 			VideoStream = new ReactiveProperty<object>(PlayerWindowUIDispatcherScheduler)
@@ -1671,6 +1673,25 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+
+        private DelegateCommand _AddMylistCommand;
+        public DelegateCommand AddMylistCommand
+        {
+            get
+            {
+                return _AddMylistCommand
+                    ?? (_AddMylistCommand = new DelegateCommand(async () =>
+                    {
+                        var groupAndComment = await _MylistResistrationDialogService.ShowDialog(1);
+                        if (groupAndComment != null)
+                        {
+                            await groupAndComment.Item1.Registration(VideoId, groupAndComment.Item2);
+                        }
+                    }
+                    ));
+            }
+        }
+
         #endregion
 
 
@@ -1829,11 +1850,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 		ToastNotificationService _ToastService;
 		TextInputDialogService _TextInputDialogService;
+        MylistRegistrationDialogService _MylistResistrationDialogService;
 
 
-
-		// TODO: コメントのNGユーザー登録
-		internal Task AddNgUser(Comment commentViewModel)
+        // TODO: コメントのNGユーザー登録
+        internal Task AddNgUser(Comment commentViewModel)
 		{
 			if (commentViewModel.UserId == null) { return Task.CompletedTask; }
 

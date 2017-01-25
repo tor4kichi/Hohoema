@@ -178,7 +178,7 @@ namespace NicoPlayerHohoema.ViewModels
 				// ターゲットのマイリストを選択する
 				var targetMylist = await MylistDialogService
 				.ShowSelectSingleMylistDialog(
-					SelectedItems
+					SelectedItems.Count
 					, hideMylistGroupId: mylistGroup.GroupId
 				);
 
@@ -250,7 +250,7 @@ namespace NicoPlayerHohoema.ViewModels
 				// ターゲットのマイリストを選択する
 				var targetMylist = await MylistDialogService
 					.ShowSelectSingleMylistDialog(
-						SelectedItems
+						SelectedItems.Count
 						, hideMylistGroupId: mylistGroup.GroupId
 					);
 
