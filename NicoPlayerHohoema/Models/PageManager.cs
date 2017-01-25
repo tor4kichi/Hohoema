@@ -5,6 +5,7 @@ using Prism.Windows.Navigation;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -268,8 +269,11 @@ namespace NicoPlayerHohoema.Models
 					return "コミュニティ動画一覧";
 				case HohoemaPageType.LiveVideoPlayer:
 					return "生放送プレイヤー";
+                    
 				default:
-					throw new NotSupportedException("not support " + nameof(HohoemaPageType) + "." + pageType.ToString());
+                    Debug.WriteLine("not support " + nameof(HohoemaPageType) + "." + pageType.ToString());
+                    return pageType.ToString();
+//					throw new NotSupportedException();
 			}
 		}
 
