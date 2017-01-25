@@ -563,7 +563,10 @@
                                         <MenuFlyoutItem Text="動画情報" Command="{Binding OpenVideoInfoCommand}" />
                                         <MenuFlyoutSeparator />
                                         <MenuFlyoutItem Text="マイリスト登録" />
-                                        <MenuFlyoutItem Text="共有" />
+                                        <MenuFlyoutSubItem Text="共有" >
+                                            <MenuFlyoutItem Text="Twitterで共有" Command="{Binding ShereWithTwitterCommand}" />
+                                            <MenuFlyoutItem Text="クリップボードにコピー" Command="{Binding ShareWithClipboardCommand}" />
+                                        </MenuFlyoutSubItem>
                                         <MenuFlyoutSeparator />
                                         <MenuFlyoutItem Text="プレイヤー設定" Command="{Binding OpenPlayerSettingCommand}" />
                                         <ToggleMenuFlyoutItem Text="横持ち固定" 

@@ -43,6 +43,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using FFmpegInterop;
 using Windows.Foundation.Collections;
+using Windows.ApplicationModel.DataTransfer;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -396,7 +397,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 			ProgressFragments = new ObservableCollection<ProgressFragment>();
 
-		}
+            IsStillLoggedInTwitter = new ReactiveProperty<bool>(!TwitterHelper.IsLoggedIn)
+                .AddTo(_CompositeDisposable);
+        }
 
         protected override async Task OnOffline(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
         {
@@ -1606,8 +1609,67 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        
+        public ReactiveProperty<bool> IsStillLoggedInTwitter { get; private set; }
 
+        private DelegateCommand _ShereWithTwitterCommand;
+        public DelegateCommand ShereWithTwitterCommand
+        {
+            get
+            {
+                return _ShereWithTwitterCommand
+                    ?? (_ShereWithTwitterCommand = new DelegateCommand(async () =>
+                    {
+                        if (!TwitterHelper.IsLoggedIn)
+                        {
+
+                            if (!await TwitterHelper.LoginOrRefreshToken())
+                            {
+                                return;
+                            }
+                        }
+
+                        IsStillLoggedInTwitter.Value = !TwitterHelper.IsLoggedIn;
+
+                        if (TwitterHelper.IsLoggedIn)
+                        {
+                            var text = $"{Video.Title} http://nico.ms/{Video.VideoId} #{Video.VideoId}";
+                            var twitterLoginUserName = TwitterHelper.TwitterUser.ScreenName;
+                            var customText = await _TextInputDialogService.GetTextAsync($"{twitterLoginUserName} としてTwitterへ投稿", "", text);
+
+                            if (customText != null)
+                            {
+                                var result = await TwitterHelper.SubmitTweet(customText);
+
+                                if (!result)
+                                {
+                                    _ToastService.ShowText("ツイートに失敗しました", "もう一度お試しください");
+                                }
+                            }
+                        }
+                    }
+                    ));
+            }
+        }
+
+        private DelegateCommand _ShareWithClipboardCommand;
+        public DelegateCommand ShareWithClipboardCommand
+        {
+            get
+            {
+                return _ShareWithClipboardCommand
+                    ?? (_ShareWithClipboardCommand = new DelegateCommand(() =>
+                    {
+                        var videoUrl = $"http://nico.ms/{Video.VideoId}";
+                        var text = $"{Video.Title} {videoUrl} #{Video.VideoId}";
+                        var datapackage = new DataPackage();
+                        datapackage.SetText(text);
+                        datapackage.SetWebLink(new Uri(videoUrl));
+
+                        Clipboard.SetContent(datapackage);
+                    }
+                    ));
+            }
+        }
 
         #endregion
 
