@@ -415,7 +415,7 @@ namespace NicoPlayerHohoema.ViewModels
 					?? (_OpenLivePageCommand = new DelegateCommand(() =>
 					{
 						// TODO: 生放送ページを開く lv0000000
-						var livePagePayload = new Models.Live.LiveVidePagePayload(LiveId)
+						var livePagePayload = new Models.Live.LiveVideoPagePayload(LiveId)
 						{
 							LiveTitle = LiveTitle
 						};

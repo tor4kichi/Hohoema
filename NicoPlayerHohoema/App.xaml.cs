@@ -249,7 +249,7 @@ namespace NicoPlayerHohoema
 					catch { }
 
 					pageManager.OpenPage(HohoemaPageType.LiveVideoPlayer, 
-						new Models.Live.LiveVidePagePayload(maybeNicoContentId)
+						new Models.Live.LiveVideoPagePayload(maybeNicoContentId)
 						.ToParameterString()
 						);
 					

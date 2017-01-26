@@ -167,7 +167,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			return res.VideoInfo.Select(x =>
 			{
-				return new LiveInfoViewModel(x, PageManager);
+				return new LiveInfoViewModel(x, HohoemaApp.Playlist, PageManager);
 			});
 		}
 	}
@@ -175,6 +175,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class LiveInfoViewModel : HohoemaListingPageItemBase
 	{
+        public HohoemaPlaylist Playlist { get; private set; }
 		public VideoInfo LiveVideoInfo { get; private set; }
 		public PageManager PageManager { get; private set; }
 
@@ -199,12 +200,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		public LiveInfoViewModel(VideoInfo liveVideoInfo, PageManager pageManager)
+		public LiveInfoViewModel(VideoInfo liveVideoInfo, HohoemaPlaylist playlist, PageManager pageManager)
 		{
 			LiveVideoInfo = liveVideoInfo;
 			PageManager = pageManager;
+            Playlist = playlist;
 
-			LiveId = liveVideoInfo.Video.Id;
+            LiveId = liveVideoInfo.Video.Id;
 			CommunityName = LiveVideoInfo.Community?.Name;
 			CommunityThumbnail = LiveVideoInfo.Community?.Thumbnail;
 			CommunityGlobalId = LiveVideoInfo.Community?.GlobalId;
@@ -261,14 +263,7 @@ namespace NicoPlayerHohoema.ViewModels
 				return _OpenLiveVideoPageCommand
 					?? (_OpenLiveVideoPageCommand = new DelegateCommand(() =>
 					{
-						var parameter = new Models.Live.LiveVidePagePayload(LiveId)
-						{
-							LiveTitle = LiveTitle,
-							CommunityId = CommunityGlobalId,
-							CommunityName = CommunityName
-						};
-
-						PageManager.OpenPage(HohoemaPageType.LiveVideoPlayer, parameter.ToParameterString());
+                        Playlist.PlayLiveVideo(LiveId, LiveTitle);
 					}));
 			}
 		}

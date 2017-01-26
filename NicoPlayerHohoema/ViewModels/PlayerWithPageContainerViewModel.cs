@@ -13,6 +13,7 @@ using Microsoft.Practices.Unity;
 using Prism.Windows.Mvvm;
 using Windows.UI.Xaml.Navigation;
 using Prism.Commands;
+using NicoPlayerHohoema.Models.Live;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -72,6 +73,12 @@ namespace NicoPlayerHohoema.ViewModels
                     .ToParameterString();
                     break;
                 case PlaylistItemType.Live:
+                    newPlayerVM = App.Current.Container.Resolve<LiveVideoPlayerControlViewModel>();
+                    parameter = new LiveVideoPagePayload(item.ContentId)
+                    {
+                        LiveTitle = item.Title,
+                    }
+                    .ToParameterString();
                     break;
                 default:
                     break;

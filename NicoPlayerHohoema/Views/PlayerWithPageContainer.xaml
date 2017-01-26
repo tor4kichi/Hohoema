@@ -23,9 +23,14 @@
         <DataTemplate x:Key="VideoPlayerTemplate">
             <local:VideoPlayerControl />
         </DataTemplate>
-        
+
+        <DataTemplate x:Key="LiveVideoPlayerTemplate">
+            <local:LiveVideoPlayerControl />
+        </DataTemplate>
+
         <local:PlayerContentTemplateSelecter x:Key="PlayerContentTemplateSelecter" 
                                              VideoPlayer="{StaticResource VideoPlayerTemplate}"
+                                             LiveVideoPlayer="{StaticResource LiveVideoPlayerTemplate}"
                                              />
 
     </ContentControl.Resources>

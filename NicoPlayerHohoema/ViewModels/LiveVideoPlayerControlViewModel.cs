@@ -23,10 +23,12 @@ using Windows.UI.ViewManagement;
 using System.Reactive.Linq;
 using NicoPlayerHohoema.ViewModels.LiveVideoInfoContent;
 using NicoPlayerHohoema.Views.Service;
+using Windows.UI.Xaml.Media;
+using Windows.ApplicationModel.DataTransfer;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class LiveVideoPlayerPageViewModel : HohoemaViewModelBase, IDisposable
+	public class LiveVideoPlayerControlViewModel : HohoemaViewModelBase, IDisposable
 	{
 		
 		private SynchronizationContextScheduler _PlayerWindowUIDispatcherScheduler;
@@ -49,11 +51,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		public TextInputDialogService TextInputDialogService { get; private set; }
+		public TextInputDialogService _TextInputDialogService { get; private set; }
+        private ToastNotificationService _ToastNotificationService;
 
 
-
-		public string LiveId { get; private set; }
+        public string LiveId { get; private set; }
 
 
 		private string _LiveTitle;
@@ -116,8 +118,9 @@ namespace NicoPlayerHohoema.ViewModels
 		private DateTimeOffset _StartAt;
 		private DateTimeOffset _EndAt;
 
-		// play
-		public ReactiveProperty<bool> NowPlaying { get; private set; }
+        // play
+        public ReactiveProperty<MediaElementState> CurrentState { get; private set; }
+        public ReactiveProperty<bool> NowPlaying { get; private set; }
 		public ReactiveProperty<bool> NowUpdating { get; private set; }
 		public ReactiveProperty<bool> NowConnecting { get; private set; }
 
@@ -165,11 +168,12 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<TimeSpan> AutoHideDelayTime { get; private set; }
 		public ReactiveProperty<bool> IsFullScreen { get; private set; }
 		public ReactiveProperty<bool> IsForceLandscape { get; private set; }
+        public ReactiveProperty<bool> IsSmallWindowModeEnable { get; private set; }
 
 
 
-		// pane content
-		private Dictionary<LiveVideoPaneContentType, LiveInfoContentViewModelBase> _PaneContentCache;
+        // pane content
+        private Dictionary<LiveVideoPaneContentType, LiveInfoContentViewModelBase> _PaneContentCache;
 
 		public static List<LiveVideoPaneContentType> PaneContentTypes { get; private set; } = new[] {
 				LiveVideoPaneContentType.Summary,
@@ -189,15 +193,21 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		public LiveVideoPlayerPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, TextInputDialogService textInputDialogService) 
-			: base(hohoemaApp, pageManager, canActivateBackgroundUpdate:false)
+		public LiveVideoPlayerControlViewModel(
+            HohoemaApp hohoemaApp, 
+            PageManager pageManager, 
+            TextInputDialogService textInputDialogService,
+            ToastNotificationService toast
+            )
+            : base(hohoemaApp, pageManager, canActivateBackgroundUpdate:false)
 		{
-			TextInputDialogService = textInputDialogService;
+			_TextInputDialogService = textInputDialogService;
+            _ToastNotificationService = toast;
 
+            VideoStream = new ReactiveProperty<object>();
 
-			VideoStream = new ReactiveProperty<object>();
-
-			NowPlaying = VideoStream.Select(x => x != null)
+            CurrentState = new ReactiveProperty<MediaElementState>();
+            NowPlaying = VideoStream.Select(x => x != null)
 				.ToReactiveProperty();
 
 			NowUpdating = new ReactiveProperty<bool>(false);
@@ -264,7 +274,11 @@ namespace NicoPlayerHohoema.ViewModels
 				})
 			.AddTo(_CompositeDisposable);
 
-			IsAutoHideEnable =
+            IsSmallWindowModeEnable = HohoemaApp.Playlist
+                .ToReactivePropertyAsSynchronized(x => x.IsPlayerFloatingModeEnable);
+
+
+            IsAutoHideEnable =
 				Observable.CombineLatest(
 					NowPlaying
 					, NowCommentWriting.Select(x => !x)
@@ -319,7 +333,10 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 			});
 
-		}
+
+            IsStillLoggedInTwitter = new ReactiveProperty<bool>(!TwitterHelper.IsLoggedIn)
+                .AddTo(_CompositeDisposable);
+        }
 
 	
 
@@ -402,18 +419,143 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+        private DelegateCommand _ToggleFullScreenCommand;
+        public DelegateCommand ToggleFullScreenCommand
+        {
+            get
+            {
+                return _ToggleFullScreenCommand
+                    ?? (_ToggleFullScreenCommand = new DelegateCommand(() =>
+                    {
+                        IsFullScreen.Value = !IsFullScreen.Value;
+                    }
+                    ));
+            }
+        }
 
-		#endregion
+        private DelegateCommand _PlayerSmallWindowDisplayCommand;
+        public DelegateCommand PlayerSmallWindowDisplayCommand
+        {
+            get
+            {
+                return _PlayerSmallWindowDisplayCommand
+                    ?? (_PlayerSmallWindowDisplayCommand = new DelegateCommand(() =>
+                    {
+                        HohoemaApp.Playlist.IsPlayerFloatingModeEnable = true;
+                    }
+                    ));
+            }
+        }
 
 
-		
+        public ReactiveProperty<bool> IsStillLoggedInTwitter { get; private set; }
 
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        private DelegateCommand _ShereWithTwitterCommand;
+        public DelegateCommand ShereWithTwitterCommand
+        {
+            get
+            {
+                return _ShereWithTwitterCommand
+                    ?? (_ShereWithTwitterCommand = new DelegateCommand(async () =>
+                    {
+                        if (!TwitterHelper.IsLoggedIn)
+                        {
+
+                            if (!await TwitterHelper.LoginOrRefreshToken())
+                            {
+                                return;
+                            }
+                        }
+
+                        IsStillLoggedInTwitter.Value = !TwitterHelper.IsLoggedIn;
+
+                        if (TwitterHelper.IsLoggedIn)
+                        {
+                            var text = $"{NicoLiveVideo.LiveTitle} http://nico.ms/{NicoLiveVideo.LiveId} #{NicoLiveVideo.LiveId}";
+                            var twitterLoginUserName = TwitterHelper.TwitterUser.ScreenName;
+                            var customText = await _TextInputDialogService.GetTextAsync($"{twitterLoginUserName} としてTwitterへ投稿", "", text);
+
+                            if (customText != null)
+                            {
+                                var result = await TwitterHelper.SubmitTweet(customText);
+
+                                if (!result)
+                                {
+                                    _ToastNotificationService.ShowText("ツイートに失敗しました", "もう一度お試しください");
+                                }
+                            }
+                        }
+                    }
+                    ));
+            }
+        }
+
+        private DelegateCommand _ShareWithClipboardCommand;
+        public DelegateCommand ShareWithClipboardCommand
+        {
+            get
+            {
+                return _ShareWithClipboardCommand
+                    ?? (_ShareWithClipboardCommand = new DelegateCommand(() =>
+                    {
+                        var videoUrl = $"http://nico.ms/{NicoLiveVideo.LiveId}";
+                        var text = $"{NicoLiveVideo.LiveTitle} {videoUrl} #{NicoLiveVideo.LiveId}";
+                        var datapackage = new DataPackage();
+                        datapackage.SetText(text);
+                        datapackage.SetWebLink(new Uri(videoUrl));
+
+                        Clipboard.SetContent(datapackage);
+                    }
+                    ));
+            }
+        }
+
+
+
+        private DelegateCommand _OpenBroadcastCommunityCommand;
+        public DelegateCommand OpenBroadcastCommunityCommand
+        {
+            get
+            {
+                return _OpenBroadcastCommunityCommand
+                    ?? (_OpenBroadcastCommunityCommand = new DelegateCommand(() =>
+                    {
+                        PageManager.OpenPage(HohoemaPageType.Community, CommunityId);
+                        HohoemaApp.Playlist.IsPlayerFloatingModeEnable = true;
+                    }
+                    ));
+            }
+        }
+
+
+
+        private DelegateCommand _OpenPlayerSettingCommand;
+        public DelegateCommand OpenPlayerSettingCommand
+        {
+            get
+            {
+                return _OpenPlayerSettingCommand
+                    ?? (_OpenPlayerSettingCommand = new DelegateCommand(() =>
+                    {
+                        PageManager.OpenPage(HohoemaPageType.Settings, HohoemaSettingsKind.VideoPlay.ToString());
+                        HohoemaApp.Playlist.IsPlayerFloatingModeEnable = true;
+                    }
+                    ));
+            }
+        }
+
+
+        #endregion
+
+
+
+
+        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			if (e.Parameter is string)
 			{
 				var json = e.Parameter as string;
-				var payload = LiveVidePagePayload.FromParameterString(json);
+				var payload = LiveVideoPagePayload.FromParameterString(json);
 
 				LiveId = payload.LiveId;
 				LiveTitle = payload.LiveTitle;
@@ -506,25 +648,7 @@ namespace NicoPlayerHohoema.ViewModels
 			await base.NavigatedToAsync(cancelToken, e, viewModelState);
 		}
 
-        protected override async Task OnOnlineWithoutSignIn(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
-        {
-            if (CommunityName == null)
-            {
-                try
-                {
-                    var communityDetail = await HohoemaApp.ContentFinder.GetCommunityInfo(CommunityId);
-                    if (communityDetail.IsStatusOK)
-                    {
-                        CommunityName = communityDetail.Community.Name;
-                    }
-                }
-                catch { }
-            }
-
-//            base.OnOnlineWithoutSignIn(userSessionDisposer);
-        }
-
-
+       
 
         protected override async Task OnSignIn(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
         {
@@ -636,14 +760,33 @@ namespace NicoPlayerHohoema.ViewModels
 					await StartLiveElapsedTimer();
 
 					LiveTitle = NicoLiveVideo.LiveTitle;
-					CommunityId = NicoLiveVideo.BroadcasterCommunityId;
+                    Title = LiveTitle;
+                    CommunityId = NicoLiveVideo.BroadcasterCommunityId;
 
 					// seet
 					RoomName = NicoLiveVideo.PlayerStatusResponse.Room.Name;
 					SeetId = NicoLiveVideo.PlayerStatusResponse.Room.SeatId;
 
 					OnPropertyChanged(nameof(NicoLiveVideo));
-				}
+
+                    if (CommunityName == null)
+                    {
+                        if (CommunityId == null)
+                        {
+                            CommunityId = NicoLiveVideo.BroadcasterCommunityId;
+                        }
+
+                        try
+                        {
+                            var communityDetail = await HohoemaApp.ContentFinder.GetCommunityInfo(CommunityId);
+                            if (communityDetail.IsStatusOK)
+                            {
+                                CommunityName = communityDetail.Community.Name;
+                            }
+                        }
+                        catch { }
+                    }
+                }
 				else
 				{
 					Debug.WriteLine("生放送情報の取得失敗しました "  + LiveId);
@@ -805,7 +948,7 @@ namespace NicoPlayerHohoema.ViewModels
 					vm = new CommentLiveInfoContentViewModel(NicoLiveVideo, LiveComments);
 					break;
 				case LiveVideoPaneContentType.Shere:
-					vm = new ShereLiveInfoContentViewModel(NicoLiveVideo, TextInputDialogService);
+					vm = new ShereLiveInfoContentViewModel(NicoLiveVideo, _TextInputDialogService);
 					break;
 				case LiveVideoPaneContentType.Settings:
 					vm = new SettingsLiveInfoContentViewModel(NicoLiveVideo, HohoemaApp);
@@ -874,7 +1017,7 @@ namespace NicoPlayerHohoema.ViewModels
 		// 配信の次枠を自動で開く
 		private async void NicoLiveVideo_NextLive(NicoLiveVideo sender, string liveId)
 		{
-			var livePagePayload = new LiveVidePagePayload(liveId)
+			var livePagePayload = new LiveVideoPagePayload(liveId)
 			{
 				LiveTitle = this.LiveTitle,
 				CommunityId = this.CommunityId,

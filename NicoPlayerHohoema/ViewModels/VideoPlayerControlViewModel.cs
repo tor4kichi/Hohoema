@@ -397,7 +397,11 @@ namespace NicoPlayerHohoema.ViewModels
 			})
 			.AddTo(_CompositeDisposable);
 
-			ProgressFragments = new ObservableCollection<ProgressFragment>();
+            IsSmallWindowModeEnable = HohoemaApp.Playlist
+                .ToReactivePropertyAsSynchronized(x => x.IsPlayerFloatingModeEnable);
+
+
+            ProgressFragments = new ObservableCollection<ProgressFragment>();
 
             IsStillLoggedInTwitter = new ReactiveProperty<bool>(!TwitterHelper.IsLoggedIn)
                 .AddTo(_CompositeDisposable);
@@ -1798,7 +1802,8 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<TimeSpan> RequestCommentDisplayDuration { get; private set; }
 		public ReactiveProperty<double> CommentFontScale { get; private set; }
 		public ReactiveProperty<bool> IsFullScreen { get; private set; }
-		public ReactiveProperty<bool> IsForceLandscape { get; private set; }
+        public ReactiveProperty<bool> IsSmallWindowModeEnable { get; private set; }
+        public ReactiveProperty<bool> IsForceLandscape { get; private set; }
 
 
 

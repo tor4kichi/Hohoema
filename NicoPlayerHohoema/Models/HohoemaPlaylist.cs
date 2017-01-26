@@ -224,6 +224,15 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
+        public void PlayLiveVideo(string liveId, string title)
+        {
+            var newItem = DefaultPlaylist.AddLiveVideo(liveId, title);
+            //if (DefaultPlaylist.CurrentVideo == null)
+            {
+                PlayStart(DefaultPlaylist, newItem);
+            }
+        }
+
 
 
         public Playlist CreatePlaylist(string id, string name)
@@ -581,6 +590,28 @@ namespace NicoPlayerHohoema.Models
             return newItem;
         }
 
+        public PlaylistItem AddLiveVideo(string liveId, string liveName)
+        {
+            // すでに登録済みの場合
+            var alreadyAdded = _PlaylistItems.SingleOrDefault(x => x.Type == PlaylistItemType.Live && x.ContentId == liveId);
+            if (alreadyAdded != null)
+            {
+                // 何もしない
+                return alreadyAdded;
+            }
+
+            var newItem = new LiveVideoPlaylistItem()
+            {
+                Type = PlaylistItemType.Live,
+                ContentId = liveId,
+                Title = liveName,
+            };
+
+            _PlaylistItems.Insert(0, newItem);
+
+            return newItem;
+        }
+
         public bool Remove(PlaylistItem item)
         {
             if (PlaylistItems.Contains(item))
@@ -613,12 +644,17 @@ namespace NicoPlayerHohoema.Models
         
         
     }
-
+    
     public class QualityVideoPlaylistItem : PlaylistItem
     {
         internal QualityVideoPlaylistItem() { }
 
         public NicoVideoQuality? Quality { get; set; }
+    }
+
+    public class LiveVideoPlaylistItem : PlaylistItem
+    {
+        internal LiveVideoPlaylistItem() { }
     }
 
     public enum PlaylistItemType

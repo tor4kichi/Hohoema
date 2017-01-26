@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace NicoPlayerHohoema.Models.Live
 {
 
-	public class LiveVidePagePayload
+	public class LiveVideoPagePayload
 	{
 		public string LiveId { get; set; }
 
@@ -15,7 +15,7 @@ namespace NicoPlayerHohoema.Models.Live
 		public string CommunityId { get; set; }
 		public string CommunityName { get; set; }
 
-		public LiveVidePagePayload(string liveId)
+		public LiveVideoPagePayload(string liveId)
 		{
 			LiveId = liveId;
 		}
@@ -25,9 +25,9 @@ namespace NicoPlayerHohoema.Models.Live
 			return Newtonsoft.Json.JsonConvert.SerializeObject(this);
 		}
 
-		public static LiveVidePagePayload FromParameterString(string json)
+		public static LiveVideoPagePayload FromParameterString(string json)
 		{
-			return Newtonsoft.Json.JsonConvert.DeserializeObject<LiveVidePagePayload>(json);
+			return Newtonsoft.Json.JsonConvert.DeserializeObject<LiveVideoPagePayload>(json);
 		}
 
 	}

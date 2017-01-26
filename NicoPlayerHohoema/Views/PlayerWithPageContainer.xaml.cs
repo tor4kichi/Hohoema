@@ -28,13 +28,17 @@ namespace NicoPlayerHohoema.Views
     public sealed class PlayerContentTemplateSelecter : DataTemplateSelector
     {
         public DataTemplate VideoPlayer { get; set; }
-
+        public DataTemplate LiveVideoPlayer { get; set; }
 
         protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
         {
             if (item is ViewModels.VideoPlayerControlViewModel)
             {
                 return VideoPlayer;
+            }
+            else if (item is ViewModels.LiveVideoPlayerControlViewModel)
+            {
+                return LiveVideoPlayer;
             }
 
             return base.SelectTemplateCore(item, container);

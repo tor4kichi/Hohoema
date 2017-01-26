@@ -246,7 +246,7 @@
     <Compile Include="ViewModels\LiveVideoInfoContent\SettingsLiveInfoContentViewModel.cs" />
     <Compile Include="ViewModels\LiveVideoInfoContent\ShereLiveInfoContentViewModel.cs" />
     <Compile Include="ViewModels\LiveVideoInfoContent\SummaryLiveInfoContentViewModel.cs" />
-    <Compile Include="ViewModels\LiveVideoPlayerPageViewModel.cs" />
+    <Compile Include="ViewModels\LiveVideoPlayerControlViewModel.cs" />
     <Compile Include="ViewModels\MenuNavigatePageBaseViewModel.cs" />
     <Compile Include="ViewModels\MylistPageViewModel.cs" />
     <Compile Include="ViewModels\PlayerWithPageContainerViewModel.cs" />
@@ -395,8 +395,8 @@
     <Compile Include="Views\LiveInfoContent\SummaryLiveInfoContent.xaml.cs">
       <DependentUpon>SummaryLiveInfoContent.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\LiveVideoPlayerPage.xaml.cs">
-      <DependentUpon>LiveVideoPlayerPage.xaml</DependentUpon>
+    <Compile Include="Views\LiveVideoPlayerControl.xaml.cs">
+      <DependentUpon>LiveVideoPlayerControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MylistPage.xaml.cs">
       <DependentUpon>MylistPage.xaml</DependentUpon>
@@ -786,7 +786,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\LiveVideoPlayerPage.xaml">
+    <Page Include="Views\LiveVideoPlayerControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
