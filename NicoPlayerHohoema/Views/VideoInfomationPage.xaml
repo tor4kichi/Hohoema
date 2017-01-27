@@ -16,7 +16,7 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <local:MenuNavigatePageBase Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid >
         <TextBlock Text="VideoInfomation" />
-    </local:MenuNavigatePageBase>
+    </Grid>
 </Page>

@@ -22,8 +22,8 @@
     <Page.Resources>
     </Page.Resources>
 
-    
-    <local:MenuNavigatePageBase>
+
+    <Grid>
 
         <VisualStateManager.VisualStateGroups>
             
@@ -265,5 +265,5 @@
             </toolkit:DockPanel>
         </Border>
         
-    </local:MenuNavigatePageBase>
+    </Grid>
 </Page>

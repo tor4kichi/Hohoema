@@ -18,7 +18,7 @@
     mc:Ignorable="d">
 
 
-    <local:MenuNavigatePageBase>
+    <Grid>
         <Grid>
 
             <toolkit:DockPanel >
@@ -224,7 +224,7 @@
 
             </Grid>
         </Grid>
-    </local:MenuNavigatePageBase>
+    </Grid>
    
     
 </Page>

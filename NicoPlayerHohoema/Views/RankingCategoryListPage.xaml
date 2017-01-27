@@ -35,7 +35,7 @@
         </DataTemplate>
     </Page.Resources>
 
-    <local:MenuNavigatePageBase x:Name="ContentLayoutRoot">
+    <Grid x:Name="ContentLayoutRoot">
 
         <Grid x:Name="ContentLayout">
             <ScrollViewer VerticalScrollMode="Disabled" 
@@ -102,5 +102,5 @@
 
 
 
-    </local:MenuNavigatePageBase>
+    </Grid>
 </Page>

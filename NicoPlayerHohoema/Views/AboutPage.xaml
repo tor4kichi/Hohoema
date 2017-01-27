@@ -27,7 +27,7 @@
     </Page.Resources>
     
     
-    <local:MenuNavigatePageBase>
+    <Grid>
         <toolkit:DockPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
             <Border toolkit:DockPanel.Dock="Top" 
@@ -244,6 +244,6 @@
 
             </ScrollViewer>
         </toolkit:DockPanel>
-    </local:MenuNavigatePageBase>
+    </Grid>
  
 </Page>

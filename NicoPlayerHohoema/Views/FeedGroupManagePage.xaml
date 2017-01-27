@@ -62,7 +62,7 @@
             />
     </Page.Resources>
 
-    <local:MenuNavigatePageBase>
+    <Grid>
 
         <toolkit:DockPanel >
 
@@ -254,6 +254,6 @@
 
 
         
-    </local:MenuNavigatePageBase>
+    </Grid>
 
 </Page>

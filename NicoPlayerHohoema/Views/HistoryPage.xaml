@@ -18,7 +18,7 @@
     xmlns:win2d="win2d"
     mc:Ignorable="d">
 
-    <local:MenuNavigatePageBase>
+    <Grid>
 
         <toolkit:DockPanel >
 
@@ -227,7 +227,7 @@
 
 
         </toolkit:DockPanel>
-    </local:MenuNavigatePageBase>
+    </Grid>
     
     
 </Page>

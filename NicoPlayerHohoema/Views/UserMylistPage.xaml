@@ -19,7 +19,7 @@
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
-    <local:MenuNavigatePageBase>
+    <Grid>
 
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup>
@@ -185,6 +185,6 @@
             </Grid>
            
         </toolkit:DockPanel>
-    </local:MenuNavigatePageBase>
+    </Grid>
     
 </Page>

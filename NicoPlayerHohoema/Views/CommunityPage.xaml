@@ -17,7 +17,7 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <local:MenuNavigatePageBase>
+    <Grid>
         <toolkit:DockPanel>
             <Border toolkit:DockPanel.Dock="Top"
             BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
@@ -384,7 +384,7 @@
 
             </ScrollViewer>
         </toolkit:DockPanel>
-    </local:MenuNavigatePageBase>
+    </Grid>
     
    
 </Page>

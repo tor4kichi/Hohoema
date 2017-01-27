@@ -551,9 +551,11 @@ namespace NicoPlayerHohoema
 		{
 			rootFrame.Navigating += RootFrame_Navigating;
 
-            var container = new Views.PlayerWithPageContainer();
+            var menuPageBase = new Views.MenuNavigatePageBase();
+            menuPageBase.Content = rootFrame;
 
-            container.Content = rootFrame;
+            var container = new Views.PlayerWithPageContainer();
+            container.Content = menuPageBase;
 
             return container;
 		}

@@ -12,7 +12,7 @@
     mvvm:ViewModelLocator.AutoWireViewModel="True"    
     mc:Ignorable="d">
 
-    <local:MenuNavigatePageBase>
+    <Grid>
         <toolkit:DockPanel>
             <Border toolkit:DockPanel.Dock="Top" 
                     BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
@@ -117,6 +117,6 @@
 
         </toolkit:DockPanel>
 
-    </local:MenuNavigatePageBase>
+    </Grid>
     
 </Page>

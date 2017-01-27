@@ -142,7 +142,7 @@
         
     </Page.Resources>
 
-    <local:MenuNavigatePageBase>
+    <Grid>
         <Border>
 
             <toolkit:DockPanel>
@@ -367,5 +367,5 @@
 
             </toolkit:DockPanel>
         </Border>
-    </local:MenuNavigatePageBase>
+    </Grid>
 </Page>

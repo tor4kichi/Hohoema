@@ -25,7 +25,9 @@
 
         <local:FollowTypeToSymbolIconConverter x:Key="FavTypeToSymbol" />
     </Page.Resources>
-    <local:MenuNavigatePageBase>
+    
+    
+    <Grid>
         <toolkit:DockPanel>
 
             <Border toolkit:DockPanel.Dock="Top" 
@@ -129,6 +131,6 @@
                 </Border>
             </ScrollViewer>
         </toolkit:DockPanel>
-    </local:MenuNavigatePageBase>
+    </Grid>
     
 </Page>

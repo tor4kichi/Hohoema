@@ -69,7 +69,7 @@ namespace NicoPlayerHohoema.ViewModels
             PageManager.ObserveProperty(x => x.CurrentPageType)
 				.Subscribe(pageType => 
 				{
-                    IsOpenPane.Value = false;
+//                    IsOpenPane.Value = false;
 
                     bool isMenuItemOpened = false;
                     foreach (var item in MenuItems)

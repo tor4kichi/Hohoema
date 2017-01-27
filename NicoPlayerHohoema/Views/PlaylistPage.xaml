@@ -13,7 +13,7 @@
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
-    <local:MenuNavigatePageBase>
+    <Grid>
         <Grid>
             <uwptoolkit:MasterDetailsView ItemsSource="{Binding Playlists}"
                                           NoSelectionContent="No Selection"
@@ -82,5 +82,5 @@
                 
             </uwptoolkit:MasterDetailsView>
         </Grid>
-    </local:MenuNavigatePageBase>
+    </Grid>
 </Page>

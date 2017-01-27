@@ -70,7 +70,6 @@
                         <StateTrigger IsActive="{Binding IsMuted.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-
                         <Setter Target="VolumeButton.Icon" Value="Mute" />
                         <Setter Target="MuteToggleButton.Icon" Value="Mute" />
                     </VisualState.Setters>

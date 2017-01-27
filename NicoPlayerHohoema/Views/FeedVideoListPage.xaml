@@ -31,7 +31,7 @@
         </DataTemplate>
     </Page.Resources>
 
-    <local:MenuNavigatePageBase>
+    <Grid>
         <Border>
             <toolkit:DockPanel>
                 <Border toolkit:DockPanel.Dock="Top" 
@@ -104,5 +104,5 @@
             </toolkit:DockPanel>
         </Border>
 
-    </local:MenuNavigatePageBase>
+    </Grid>
 </Page>

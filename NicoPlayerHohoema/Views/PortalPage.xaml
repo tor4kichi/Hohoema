@@ -264,7 +264,7 @@
     </Page.Resources>
 
 
-    <local:MenuNavigatePageBase>
+    <Grid>
 
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="TopBarStateGroup">
@@ -399,7 +399,7 @@
 
 
 
-    </local:MenuNavigatePageBase>
+    </Grid>
 
     
     

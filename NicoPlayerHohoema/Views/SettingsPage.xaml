@@ -64,7 +64,7 @@
 
 
 
-    <local:MenuNavigatePageBase>
+    <Grid>
         <toolkit:DockPanel>
             <Border toolkit:DockPanel.Dock="Top" 
                 BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
@@ -120,6 +120,6 @@
             </Border>
         </toolkit:DockPanel>
 
-    </local:MenuNavigatePageBase>
+    </Grid>
    
 </Page>
