@@ -69,7 +69,7 @@ namespace NicoPlayerHohoema.Models.AppMap
 
         public override void SelectedAction()
         {
-            Playlist.DefaultPlaylist.AddVideo(Parameter, PrimaryLabel, Quality);
+            Playlist.PlayVideo(Parameter, PrimaryLabel, Quality);
         }
     }
 

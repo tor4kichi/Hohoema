@@ -56,12 +56,6 @@ namespace NicoPlayerHohoema.ViewModels
 			return new CacheVideoInfoLoadingSource(HohoemaApp, PageManager);
 		}
 
-
-		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
-		{
-			base.OnNavigatingFrom(e, viewModelState, suspending);
-		}
-
 		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
 		{
 			return true;

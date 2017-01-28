@@ -75,7 +75,7 @@ namespace NicoPlayerHohoema.ViewModels
 			TextInputDialogService textInputDialog,
             MylistRegistrationDialogService mylistDialog
 			)
-			: base(hohoemaApp, pageManager, canActivateBackgroundUpdate:false)
+			: base(hohoemaApp, pageManager, canActivateBackgroundUpdate:true)
 		{
 			_ToastService = toast;
 			_TextInputDialogService = textInputDialog;
@@ -611,7 +611,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
                 Title = videoInfo.Title;
-
+                VideoTitle = Title;
 
                 // ビデオタイプとプロトコルタイプをチェックする
 
@@ -1282,7 +1282,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		public override async void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+		protected override async void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
 			Debug.WriteLine("VideoPlayer OnNavigatingFromAsync start.");
 
@@ -1328,7 +1328,7 @@ namespace NicoPlayerHohoema.ViewModels
 			_BufferingMonitorDisposable?.Dispose();
 			_BufferingMonitorDisposable = new CompositeDisposable();
 
-			base.OnNavigatingFrom(e, viewModelState, suspending);
+			base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
 
 
 			Debug.WriteLine("VideoPlayer OnNavigatingFromAsync done.");
@@ -1747,6 +1747,13 @@ namespace NicoPlayerHohoema.ViewModels
         {
             get { return _Quality; }
             set { SetProperty(ref _Quality, value); }
+        }
+
+        private string _VideoTitle;
+        public string VideoTitle
+        {
+            get { return _VideoTitle; }
+            set { SetProperty(ref _VideoTitle, value); }
         }
 
 

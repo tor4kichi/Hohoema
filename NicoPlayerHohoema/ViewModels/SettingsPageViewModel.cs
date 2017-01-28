@@ -141,7 +141,7 @@ namespace NicoPlayerHohoema.ViewModels
 			return Task.CompletedTask;
 		}
 
-		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+		protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
 			CurrentSettingsContent.Value?.OnLeave();
 
@@ -152,7 +152,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			HohoemaApp.SyncToRoamingData().ConfigureAwait(false);
 
-			base.OnNavigatingFrom(e, viewModelState, suspending);
+			base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
 		}
 
 

@@ -20,6 +20,7 @@ using Microsoft.Practices.Unity;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
+using Windows.UI.Core;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -361,15 +362,18 @@ namespace NicoPlayerHohoema.ViewModels
 			{
                 if (!suspending && SubstitutionBackNavigation.Count > 0)
                 {
-                    var substitutionBackNavPair = SubstitutionBackNavigation.Last();
-                    SubstitutionBackNavigation.Remove(substitutionBackNavPair.Key);
-                    var action = substitutionBackNavPair.Value;
-                    action?.Invoke();
-
                     e.Cancel = true;
                     return;
                 }
 
+                try
+                {
+                    OnHohoemaNavigatingFrom(e, viewModelState, suspending);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.ToString());
+                }
 
 				_NavigatingCompositeDisposable?.Dispose();
 				_NavigatingCompositeDisposable = new CompositeDisposable();
@@ -393,6 +397,11 @@ namespace NicoPlayerHohoema.ViewModels
 				base.OnNavigatingFrom(e, viewModelState, suspending);
 			}
 		}
+
+        protected virtual void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+        {
+
+        }
 
         protected void ChangeRequireServiceLevel(HohoemaAppServiceLevel serviceLevel)
         {
@@ -436,6 +445,34 @@ namespace NicoPlayerHohoema.ViewModels
             if (!SubstitutionBackNavigation.ContainsKey(id))
             {
                 SubstitutionBackNavigation.Add(id, action);
+
+                var nav = Windows.UI.Core.SystemNavigationManager.GetForCurrentView();
+                nav.AppViewBackButtonVisibility = Windows.UI.Core.AppViewBackButtonVisibility.Visible;
+                nav.BackRequested += Nav_BackRequested;
+            }
+        }
+
+        private void Nav_BackRequested(object sender, BackRequestedEventArgs e)
+        {
+            if (SubstitutionBackNavigation.Count > 0)
+            {
+                var substitutionBackNavPair = SubstitutionBackNavigation.LastOrDefault();
+                SubstitutionBackNavigation.Remove(substitutionBackNavPair.Key);
+                var action = substitutionBackNavPair.Value;
+                action?.Invoke();
+            }
+
+            if (SubstitutionBackNavigation.Count == 0)
+            {
+                var nav = Windows.UI.Core.SystemNavigationManager.GetForCurrentView();
+                nav.BackRequested -= Nav_BackRequested;
+
+                // バックナビゲーションが出来ない場合にBackButtonを非表示に
+                var pageManager = App.Current.Container.Resolve<PageManager>();
+                if (!pageManager.NavigationService.CanGoBack())
+                {
+                    nav.AppViewBackButtonVisibility = Windows.UI.Core.AppViewBackButtonVisibility.Collapsed;
+                }
             }
         }
 
@@ -443,6 +480,19 @@ namespace NicoPlayerHohoema.ViewModels
         {
             if (SubstitutionBackNavigation.ContainsKey(id))
             {
+                if (SubstitutionBackNavigation.Count == 1)
+                {
+                    var nav = Windows.UI.Core.SystemNavigationManager.GetForCurrentView();
+                    nav.BackRequested -= Nav_BackRequested;
+
+                    // バックナビゲーションが出来ない場合にBackButtonを非表示に
+                    var pageManager = App.Current.Container.Resolve<PageManager>();
+                    if (!pageManager.NavigationService.CanGoBack())
+                    {
+                        nav.AppViewBackButtonVisibility = Windows.UI.Core.AppViewBackButtonVisibility.Collapsed;
+                    }
+                }
+
                 return SubstitutionBackNavigation.Remove(id);
             }
             else

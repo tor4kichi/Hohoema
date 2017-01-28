@@ -20,6 +20,9 @@
 
     <ContentControl.Resources>
 
+        <DataTemplate x:Key="EmptyTemplate">
+            
+        </DataTemplate>
         <DataTemplate x:Key="VideoPlayerTemplate">
             <local:VideoPlayerControl />
         </DataTemplate>
@@ -29,6 +32,7 @@
         </DataTemplate>
 
         <local:PlayerContentTemplateSelecter x:Key="PlayerContentTemplateSelecter" 
+                                             Empty="{StaticResource EmptyTemplate}"
                                              VideoPlayer="{StaticResource VideoPlayerTemplate}"
                                              LiveVideoPlayer="{StaticResource LiveVideoPlayerTemplate}"
                                              />

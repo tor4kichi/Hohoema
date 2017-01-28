@@ -125,11 +125,11 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 		
-		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+		protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
 			RankingSettings.Save().ConfigureAwait(false);
 
-			base.OnNavigatingFrom(e, viewModelState, suspending);
+			base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
 		}
 
 		#region Implement HohoemaVideListViewModelBase

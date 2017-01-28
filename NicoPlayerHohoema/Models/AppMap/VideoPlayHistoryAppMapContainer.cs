@@ -44,15 +44,18 @@ namespace NicoPlayerHohoema.Models.AppMap
 		public string SecondaryLabel { get; private set; }
 		public string Parameter { get; private set; }
 
+        History _History;
         public HohoemaPlaylist HohoemaPlaylist { get; private set; }
 
         public void SelectedAction()
         {
-            
+            HohoemaPlaylist.PlayVideo(_History.ItemId, _History.Title);
         }
 
 		public VideoPlayHistoryAppMapItem(History history, HohoemaPlaylist playlist)
 		{
+            _History = history;
+
             HohoemaPlaylist = playlist;
             PrimaryLabel = history.Title;
 

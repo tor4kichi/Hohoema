@@ -199,7 +199,7 @@ namespace NicoPlayerHohoema.ViewModels
             TextInputDialogService textInputDialogService,
             ToastNotificationService toast
             )
-            : base(hohoemaApp, pageManager, canActivateBackgroundUpdate:false)
+            : base(hohoemaApp, pageManager, canActivateBackgroundUpdate:true)
 		{
 			_TextInputDialogService = textInputDialogService;
             _ToastNotificationService = toast;
@@ -707,7 +707,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+		protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
 			if (!suspending)
 			{
@@ -725,7 +725,7 @@ namespace NicoPlayerHohoema.ViewModels
 			IsFullScreen.Value = false;
 			StopLiveElapsedTimer().ConfigureAwait(false);
 
-			base.OnNavigatingFrom(e, viewModelState, suspending);
+			base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
 		}
 
 
