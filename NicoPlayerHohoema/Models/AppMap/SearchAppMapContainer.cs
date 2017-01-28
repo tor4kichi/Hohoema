@@ -35,8 +35,8 @@ namespace NicoPlayerHohoema.Models.AppMap
 		public string SecondaryLabel { get; private set; }
 		public string Parameter { get; private set; }
 
-		public HohoemaPageType PageType => HohoemaPageType.Search;
-
+		public HohoemaPageType PageType { get; private set; }
+        
         public PageManager PageManager { get; private set; }
 
         public SearchHistoryAppMapItem(Db.SearchHistory history, PageManager pageManager)
@@ -50,7 +50,8 @@ namespace NicoPlayerHohoema.Models.AppMap
 			switch (history.Target)
 			{
 				case SearchTarget.Keyword:
-					content = new KeywordSearchPagePayloadContent()
+                    PageType = HohoemaPageType.SearchResultKeyword;
+                    content = new KeywordSearchPagePayloadContent()
 					{
 						Keyword = history.Keyword,
 						Sort = Mntone.Nico2.Sort.FirstRetrieve,
@@ -58,7 +59,8 @@ namespace NicoPlayerHohoema.Models.AppMap
 					};
 					break;
 				case SearchTarget.Tag:
-					content = new TagSearchPagePayloadContent()
+                    PageType = HohoemaPageType.SearchResultTag;
+                    content = new TagSearchPagePayloadContent()
 					{
 						Keyword = history.Keyword,
 						Sort = Mntone.Nico2.Sort.FirstRetrieve,
@@ -66,7 +68,8 @@ namespace NicoPlayerHohoema.Models.AppMap
 					};
 					break;
 				case SearchTarget.Mylist:
-					content = new MylistSearchPagePayloadContent()
+                    PageType = HohoemaPageType.SearchResultMylist;
+                    content = new MylistSearchPagePayloadContent()
 					{
 						Keyword = history.Keyword,
 						Sort = Mntone.Nico2.Sort.FirstRetrieve,
@@ -74,7 +77,8 @@ namespace NicoPlayerHohoema.Models.AppMap
 					};
 					break;
 				case SearchTarget.Community:
-					content = new CommunitySearchPagePayloadContent()
+                    PageType = HohoemaPageType.SearchResultCommunity;
+                    content = new CommunitySearchPagePayloadContent()
 					{
 						Keyword = history.Keyword,
 						Sort = Mntone.Nico2.Searches.Community.CommunitySearchSort.CreatedAt,
@@ -83,7 +87,8 @@ namespace NicoPlayerHohoema.Models.AppMap
 					};
 					break;
 				case SearchTarget.Niconama:
-					content = new LiveSearchPagePayloadContent()
+                    PageType = HohoemaPageType.SearchResultLive;
+                    content = new LiveSearchPagePayloadContent()
 					{
 						Keyword = history.Keyword,
 						Sort = Mntone.Nico2.Searches.Live.NicoliveSearchSort.Recent,
@@ -97,8 +102,10 @@ namespace NicoPlayerHohoema.Models.AppMap
 
 			if (content == null) { throw new NotSupportedException(history.Target.ToString()); }
 
-			var payload = new SearchPagePayload(content);
-			Parameter = payload.ToParameterString();
+            
+//            var payload = new SearchPagePayload(content);
+            
+            Parameter = content.ToParameterString();
 		}
 
 

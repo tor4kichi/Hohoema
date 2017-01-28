@@ -27,6 +27,7 @@ namespace NicoPlayerHohoema.Views
 
     public sealed class PlayerContentTemplateSelecter : DataTemplateSelector
     {
+        public DataTemplate Empty { get; set; }
         public DataTemplate VideoPlayer { get; set; }
         public DataTemplate LiveVideoPlayer { get; set; }
 
@@ -40,6 +41,12 @@ namespace NicoPlayerHohoema.Views
             {
                 return LiveVideoPlayer;
             }
+
+            if (Empty != null)
+            {
+                return Empty;
+            }
+
 
             return base.SelectTemplateCore(item, container);
         }
