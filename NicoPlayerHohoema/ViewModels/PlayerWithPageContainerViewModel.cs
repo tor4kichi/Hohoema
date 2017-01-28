@@ -14,6 +14,8 @@ using Prism.Windows.Mvvm;
 using Windows.UI.Xaml.Navigation;
 using Prism.Commands;
 using NicoPlayerHohoema.Models.Live;
+using Windows.UI.ViewManagement;
+using Windows.UI.Core;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -53,6 +55,15 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 ClosePlayer();
             });
+
+        }
+
+        private void Nav_BackRequested(object sender, BackRequestedEventArgs e)
+        {
+            if (IsFillFloatContent.Value)
+            {
+                ClosePlayer();
+            }
         }
 
         private void HohoemaPlaylist_OpenPlaylistItem(Playlist playlist, PlaylistItem item)
@@ -94,8 +105,6 @@ namespace NicoPlayerHohoema.ViewModels
                     }, viewModelState);
 
                 ContentVM.Value = newPlayerVM;
-
-                
             }
         }
 
