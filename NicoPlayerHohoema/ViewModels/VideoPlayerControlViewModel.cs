@@ -611,7 +611,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
                 Title = videoInfo.Title;
-
+                VideoTitle = Title;
 
                 // ビデオタイプとプロトコルタイプをチェックする
 
@@ -1747,6 +1747,13 @@ namespace NicoPlayerHohoema.ViewModels
         {
             get { return _Quality; }
             set { SetProperty(ref _Quality, value); }
+        }
+
+        private string _VideoTitle;
+        public string VideoTitle
+        {
+            get { return _VideoTitle; }
+            set { SetProperty(ref _VideoTitle, value); }
         }
 
 

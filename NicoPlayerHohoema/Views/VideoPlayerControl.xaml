@@ -358,7 +358,7 @@
                         </Border>
 
                         <StackPanel x:Name="TitleLayout" Background="#AA000000">
-                            <TextBlock Text="{Binding Title}" FontSize="24" Margin="8" HorizontalAlignment="Center" TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding VideoTitle}" FontSize="24" Margin="8" HorizontalAlignment="Center" TextWrapping="Wrap" />
                         </StackPanel>
 
                         <!-- シークバー -->
