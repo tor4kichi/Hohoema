@@ -264,9 +264,9 @@ namespace NicoPlayerHohoema.ViewModels
             ReflectCanDownloadStatus();
         }
 
-		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+		protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
-			base.OnNavigatingFrom(e, viewModelState, suspending);
+			base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
 
 			// 戻る時だけ
 			if (e.NavigationMode == NavigationMode.Back 

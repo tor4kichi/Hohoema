@@ -370,6 +370,14 @@ namespace NicoPlayerHohoema.ViewModels
                     return;
                 }
 
+                try
+                {
+                    OnHohoemaNavigatingFrom(e, viewModelState, suspending);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.ToString());
+                }
 
 				_NavigatingCompositeDisposable?.Dispose();
 				_NavigatingCompositeDisposable = new CompositeDisposable();
@@ -393,6 +401,11 @@ namespace NicoPlayerHohoema.ViewModels
 				base.OnNavigatingFrom(e, viewModelState, suspending);
 			}
 		}
+
+        protected virtual void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+        {
+
+        }
 
         protected void ChangeRequireServiceLevel(HohoemaAppServiceLevel serviceLevel)
         {

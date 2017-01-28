@@ -30,11 +30,6 @@ namespace NicoPlayerHohoema.ViewModels
             Root = new SelectableAppMapContainerViewModel(AppMapManager.Root, PageManager);
 		}
 
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-			base.OnNavigatedTo(e, viewModelState);
-		}
-
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
             await AppMapManager.Refresh();
@@ -42,10 +37,7 @@ namespace NicoPlayerHohoema.ViewModels
             await base.NavigatedToAsync(cancelToken, e, viewModelState);
 		}
 
-		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
-		{
-			base.OnNavigatingFrom(e, viewModelState, suspending);
-		}
+		
 
 
         private DelegateCommand _RefreshCommand;
