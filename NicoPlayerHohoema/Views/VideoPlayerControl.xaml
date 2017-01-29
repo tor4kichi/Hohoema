@@ -510,7 +510,7 @@
                                               >
                                     <AppBarButton.Flyout>
                                         <MenuFlyout>
-                                            <ToggleMenuFlyoutItem Text="コメントを表示" IsChecked="{Binding IsVisibleComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            <ToggleMenuFlyoutItem Text="コメントを表示" IsChecked="{Binding IsCommentDisplayEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                             <ToggleMenuFlyoutItem Text="新しいコメントを書く" IsChecked="{Binding NowCommentWriting.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                         </MenuFlyout>
                                     </AppBarButton.Flyout>

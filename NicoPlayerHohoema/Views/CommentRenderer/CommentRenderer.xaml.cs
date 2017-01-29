@@ -107,24 +107,30 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		{
 			this.InitializeComponent();
 
-			TimeSequescailComments = new SortedDictionary<uint, List<Comment>>();
-			RenderComments = new Dictionary<Comment, CommentUI>();
+            Initialize();
 
-			LastCommentDisplayEndTime = new List<LastStreamedComment>();
-			NextVerticalPosition = new List<CommentUI>();
-			TopAlignNextVerticalPosition = new List<CommentUI>();
-			BottomAlignNextVerticalPosition = new List<CommentUI>();
-
-			_CommentUIReserve = new List<CommentUI>();
-
-			for (var i = 0; i < 100; ++i)
-			{
-				_CommentUIReserve.Add(new CommentUI());
-			}
-
-			Loaded += CommentRenderer_Loaded;
+            Loaded += CommentRenderer_Loaded;
 			Unloaded += CommentRenderer_Unloaded;
 		}
+
+
+        private void Initialize()
+        {
+            TimeSequescailComments = new SortedDictionary<uint, List<Comment>>();
+            RenderComments = new Dictionary<Comment, CommentUI>();
+
+            LastCommentDisplayEndTime = new List<LastStreamedComment>();
+            NextVerticalPosition = new List<CommentUI>();
+            TopAlignNextVerticalPosition = new List<CommentUI>();
+            BottomAlignNextVerticalPosition = new List<CommentUI>();
+
+            _CommentUIReserve = new List<CommentUI>();
+
+            for (var i = 0; i < 100; ++i)
+            {
+                _CommentUIReserve.Add(new CommentUI());
+            }
+        }
 
 
 		#region Event Handler
@@ -838,7 +844,8 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 				// Clear and update entire collection
 				CommentCanvas.Children.Clear();
 
-			}
+                Initialize();
+            }
 
 			if (e.NewItems != null)
 			{

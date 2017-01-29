@@ -114,11 +114,11 @@ namespace NicoPlayerHohoema.ViewModels
             if (ContentVM.Value != null)
             {
                 var oldContent = ContentVM.Value;
-                ContentVM.Value = null;
                 oldContent.OnNavigatingFrom(new Prism.Windows.Navigation.NavigatingFromEventArgs()
                 {
                     NavigationMode = NavigationMode.New,
                 }, viewModelState, false);
+                ContentVM.Value = null;
                 (oldContent as IDisposable)?.Dispose();
             }
 

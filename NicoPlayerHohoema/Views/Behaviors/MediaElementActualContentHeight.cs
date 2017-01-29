@@ -68,12 +68,18 @@ namespace NicoPlayerHohoema.Views.Behaviors
 		private void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
 		{
 			this.AssociatedObject.SizeChanged += AssociatedObject_SizeChanged;
-
-			IsSizeChanged = true;
+            this.AssociatedObject.CurrentStateChanged += AssociatedObject_CurrentStateChanged;
+            IsSizeChanged = true;
 			StartEnsureResizeNotifyTimer();
 		}
 
-		private void AssociatedObject_SizeChanged(object sender, SizeChangedEventArgs e)
+        private void AssociatedObject_CurrentStateChanged(object sender, RoutedEventArgs e)
+        {
+            IsSizeChanged = true;
+            StartEnsureResizeNotifyTimer();
+        }
+
+        private void AssociatedObject_SizeChanged(object sender, SizeChangedEventArgs e)
 		{
 			IsSizeChanged = true;
 			StartEnsureResizeNotifyTimer();
@@ -81,7 +87,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
 
 
-		void StartEnsureResizeNotifyTimer()
+		public void StartEnsureResizeNotifyTimer()
 		{
 			if (IsSizeChanged == false)
 			{
