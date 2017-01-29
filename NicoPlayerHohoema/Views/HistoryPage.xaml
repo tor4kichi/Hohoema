@@ -23,61 +23,107 @@
         <toolkit:DockPanel >
 
 
-
             <Border toolkit:DockPanel.Dock="Top" 
                     BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
                     BorderThickness="0 0 0 1"
+                        Height="64"
                     >
                 <toolkit:DockPanel >
 
-
-                    <StackPanel toolkit:DockPanel.Dock="Right" Margin="8 0"
+                    <StackPanel toolkit:DockPanel.Dock="Right" 
                                 Orientation="Horizontal"
                                 >
 
-                        <Button Background="Transparent" 
+                        <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                    Orientation="Horizontal"
+                                    >
+                            <Button Background="Transparent" 
                                 IsEnabled="{Binding HasItem.Value}"
                                 ToolTipService.ToolTip="全ての履歴を削除"
                                 >
-                            <SymbolIcon Symbol="Delete" />
+                                <SymbolIcon Symbol="Delete" />
 
-                            <Button.Flyout>
-                                <Flyout>
-                                    <StackPanel Margin="8" Width="240">
-                                        <TextBlock Margin="0 0 0 16"
+                                <Button.Flyout>
+                                    <Flyout>
+                                        <StackPanel Margin="8" Width="240">
+                                            <TextBlock Margin="0 0 0 16"
                                                LineHeight="20"
                                                TextWrapping="Wrap"
                                                >
                                         <Run>視聴履歴を全て削除します</Run>
                                         <LineBreak />
                                         <Run>本当に削除してもいいですか？</Run>
-                                        </TextBlock>
+                                            </TextBlock>
 
-                                        <Button Content="本当に削除" 
+                                            <Button Content="本当に削除" 
                                             Command="{Binding RemoveAllHistoryCommand}"
                                             HorizontalAlignment="Stretch"
                                             />
-                                    </StackPanel>
-                                </Flyout>
-                            </Button.Flyout>
-                        </Button>
+                                        </StackPanel>
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
+
+                            <AppBarButton Background="Transparent" 
+                                        Command="{Binding RefreshCommand}"
+                                        ToolTipService.ToolTip="更新"
+                                              Icon="Refresh"
+                                        />
+                            
+                        </StackPanel>
+
+
+                        <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                                    Orientation="Horizontal"
+                                    >
+
+                            <AppBarButton Command="{Binding RegistratioMylistCommand}" 
+                                          Icon="Add"
+                                          Label="マイリスト登録"
+                                            />
+
+
+                            <AppBarButton Command="{Binding RemoveHistoryCommand}"
+                                          Icon="Remove"
+                                          Label="履歴削除"
+                                            />
+
+                            <AppBarButton Command="{Binding RequestCacheDownload}"
+                                          Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
+                                          Icon="Download"
+                                          Label="キャッシュ"
+                                        />
+                        </StackPanel>
+
+
+
+                        <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            HorizontalContentAlignment="Stretch"
+                                            VerticalContentAlignment="Stretch"
+                                            Label="選択"
+                                            >
+                            <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       />
+                        </AppBarToggleButton>
 
                     </StackPanel>
 
                     <Border Background="Transparent" IsHitTestVisible="True"
-                            Margin="24 0 0 0"
-                            >
+                                Margin="16 0 0 0"
+                                >
 
                         <TextBlock Text="{Binding Title}" 
                                     VerticalAlignment="Center"
                                     Style="{StaticResource SubtitleTextBlockStyle}"
                                     >
                                 
-                        <i:Interaction.Behaviors>
-                            <core:EventTriggerBehavior EventName="Tapped">
-                                <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0" />
-                            </core:EventTriggerBehavior>
-                        </i:Interaction.Behaviors>
+                                <i:Interaction.Behaviors>
+                                    <core:EventTriggerBehavior EventName="Tapped">
+                                        <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0" />
+                                    </core:EventTriggerBehavior>
+                                </i:Interaction.Behaviors>
 
 
                         </TextBlock>
@@ -88,137 +134,7 @@
 
                 </toolkit:DockPanel>
             </Border>
-
-            <Border toolkit:DockPanel.Dock="Top" 
-                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
-                    BorderThickness="0 0 0 1"
-                    >
-                <toolkit:DockPanel>
-
-                    <Border toolkit:DockPanel.Dock="Right"
-                            >
-                        <ToggleButton Background="Transparent"
-                                        IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                        ToolTipService.ToolTip="選択"
-                                        >
-                            <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" />
-                        </ToggleButton>
-
-
-                    </Border>
-
-                    <StackPanel 
-                            toolkit:DockPanel.Dock="Right"
-                            BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
-                            BorderThickness="1 0 0 0"
-                                Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                        Orientation="Horizontal"
-                            >
-                        <Button Background="Transparent" 
-                                Command="{Binding RefreshCommand}"
-                                IsEnabled="{Binding CanChangeSort.Value}"
-                                ToolTipService.ToolTip="更新"
-                                >
-                            <SymbolIcon Symbol="Refresh" />
-                        </Button>
-
-                        
-                                                
-                    </StackPanel>
-
-
-
-
-
-
-
-                    <Grid
-                            
-                        >
-                        <toolkit:DockPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
-                                        >
-
-                            <StackPanel Orientation="Horizontal"
-                                toolkit:DockPanel.Dock="Right"                                        
-                                >
-                                <Button Command="{Binding RegistratioMylistCommand}"
-                                            Background="Transparent"
-                                        Visibility="{Binding IsLoginUserOwnedMylist, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                            >
-                                    <StackPanel Orientation="Horizontal">
-                                        <SymbolIcon Symbol="Add" />
-                                        <TextBlock Text="マイリスト登録"
-                                                   VerticalAlignment="Center"
-                                                   />
-                                    </StackPanel>
-                                </Button>
-
-                                <Button Command="{Binding RemoveHistoryCommand}"
-                                        Background="Transparent"
-                                            >
-                                    <StackPanel Orientation="Horizontal">
-                                        <SymbolIcon Symbol="Remove" />
-                                        <TextBlock Text="視聴履歴削除"
-                                                   VerticalAlignment="Center"
-                                                   />
-                                    </StackPanel>
-                                </Button>
-
-                                <Button Command="{Binding RequestCacheDownload}"
-                                        Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
-                                        Background="Transparent"
-                                        >
-                                    <StackPanel Orientation="Horizontal">
-                                        <SymbolIcon Symbol="Download" />
-                                        <TextBlock Text="キャッシュ"
-                                            VerticalAlignment="Center"
-                                            />
-                                    </StackPanel>
-                                </Button>
-
-                            </StackPanel>
-
-                            <Border />
-
-                        </toolkit:DockPanel>
-
-
-                        <toolkit:DockPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
-
-                            
-                            <!--
-                            <Grid x:Name="SearchButtonBorder"
-                                    BorderThickness="1"
-                                    >
-                                    
-                                    
-                                <TextBox x:Name="SearchTextBox"
-                                    PlaceholderText="ページ内検索"
-                                    InputScope="SearchIncremental"
-                                    HorizontalAlignment="Stretch"
-                                    VerticalAlignment="Top"
-                                    Height="47"
-                                    Padding="24 8 0 8"
-                                    Margin="0 0 48 0"
-                                    BorderThickness="0"
-                                    >
-
-                                </TextBox>
-
-                                <Button HorizontalAlignment="Right"
-                                        Background="Transparent"
-                                    >
-                                    <SymbolIcon Symbol="Find"  />
-                                </Button>
-                            </Grid>
-                            -->
-                        </toolkit:DockPanel>
-
-
-                    </Grid>
-
-                </toolkit:DockPanel>
-            </Border>
+            
 
 
 

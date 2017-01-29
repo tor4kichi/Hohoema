@@ -27,29 +27,64 @@
                 <Border toolkit:DockPanel.Dock="Top" 
                     BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
                     BorderThickness="0 0 0 1"
+                        Height="64"
                     >
                     <toolkit:DockPanel >
 
 
-                        <StackPanel toolkit:DockPanel.Dock="Right" Margin="8 0"
+                        
+                        
+                        <StackPanel toolkit:DockPanel.Dock="Right"
                                 Orientation="Horizontal"
                                 >
 
-                            <Button Command="{Binding ResumeCacheCommand}"
-                                    Background="Transparent"
-                                    ToolTipService.ToolTip="キャッシュ再開"
+                            <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                    Orientation="Horizontal"
                                     >
-                                <StackPanel Orientation="Horizontal">
-                                    <iconPack:PackIconMaterial Kind="Download" />
-                                </StackPanel>
-                            </Button>
+                                <AppBarButton Background="Transparent" 
+                                        Command="{Binding RefreshCommand}"
+                                        ToolTipService.ToolTip="更新"
+                                              Icon="Refresh"
+                                        />
+
+                            </StackPanel>
 
 
+                            <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                                    Orientation="Horizontal"
+                                    >
+
+                                <AppBarButton Command="{Binding RegistratioMylistCommand}"
+                                              Label="マイリスト登録"
+                                              Icon="Add"
+                                            >
+                                </AppBarButton>
+
+                                <AppBarButton Command="{Binding CancelCacheDownloadRequest}"
+                                              Icon="Remove"
+                                              Label="キャッシュ削除"
+                                              
+                                            />
+
+                            </StackPanel>
+
+
+
+                            <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            HorizontalContentAlignment="Stretch"
+                                            VerticalContentAlignment="Stretch"
+                                            Label="選択"
+                                            >
+                                <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       />
+                            </AppBarToggleButton>
 
                         </StackPanel>
 
                         <Border Background="Transparent" IsHitTestVisible="True"
-                                Margin="24 0 0 0"
+                                Margin="16 0 0 0"
                                 >
 
                             <TextBlock Text="{Binding Title}" 
@@ -73,123 +108,7 @@
                     </toolkit:DockPanel>
                 </Border>
 
-                <Border toolkit:DockPanel.Dock="Top" 
-                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
-                    BorderThickness="0 0 0 1"
-                    >
-                    <toolkit:DockPanel>
-
-                        <Border toolkit:DockPanel.Dock="Right"
-                            >
-                            <ToggleButton Background="Transparent"
-                                        IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                        ToolTipService.ToolTip="選択"
-                                        >
-                                <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" />
-                            </ToggleButton>
-
-
-                        </Border>
-
-                        <Border 
-                            toolkit:DockPanel.Dock="Right"
-                            BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
-                            BorderThickness="1 0 0 0"
-                                Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                            >
-                            <Button Background="Transparent" 
-                                Command="{Binding RefreshCommand}"
-                                ToolTipService.ToolTip="更新"
-                                >
-                                <SymbolIcon Symbol="Refresh" />
-                            </Button>
-
-                        </Border>
-
-
-
-
-
-
-
-                        <Grid
-                            
-                        >
-                            <toolkit:DockPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
-                                        >
-
-                                <StackPanel Orientation="Horizontal"
-                                toolkit:DockPanel.Dock="Right"                                        
-                                >
-
-                                    <Button Command="{Binding RegistratioMylistCommand}"
-                                            Background="Transparent"
-                                            >
-                                        <StackPanel Orientation="Horizontal">
-                                            <SymbolIcon Symbol="Add" />
-                                            <TextBlock Text="マイリスト登録"
-                                                   VerticalAlignment="Center"
-                                                   />
-                                        </StackPanel>
-                                    </Button>
-
-                                    <StackPanel Orientation="Horizontal" >
-                                        <Button Command="{Binding CancelCacheDownloadRequest}"
-                                            Background="Transparent"
-                                            >
-                                            <StackPanel Orientation="Horizontal">
-                                                <SymbolIcon Symbol="Download" />
-                                                <TextBlock Text="キャッシュ削除"
-                                                VerticalAlignment="Center"
-                                                />
-                                            </StackPanel>
-                                        </Button>
-                                    </StackPanel>
-
-                                </StackPanel>
-
-                                <Border />
-
-                            </toolkit:DockPanel>
-
-
-                            <toolkit:DockPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
-
-                                <!--
-                            <Grid x:Name="SearchButtonBorder"
-                                    BorderThickness="1"
-                                    >
-                                    
-                                    
-                                <TextBox x:Name="SearchTextBox"
-                                    PlaceholderText="ページ内検索"
-                                    InputScope="SearchIncremental"
-                                    HorizontalAlignment="Stretch"
-                                    VerticalAlignment="Top"
-                                    Height="47"
-                                    Padding="24 8 0 8"
-                                    Margin="0 0 48 0"
-                                    BorderThickness="0"
-                                    >
-
-                                </TextBox>
-
-                                <Button HorizontalAlignment="Right"
-                                        Background="Transparent"
-                                    >
-                                    <SymbolIcon Symbol="Find"  />
-                                </Button>
-                            </Grid>
-                            -->
-                            </toolkit:DockPanel>
-
-                        </Grid>
-
-
-
-
-                    </toolkit:DockPanel>
-                </Border>
+                
 
 
 
