@@ -69,40 +69,43 @@
             <Border toolkit:DockPanel.Dock="Top" 
                     BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
                     BorderThickness="0 0 0 1"
+                    Height="64"
                     >
                 <toolkit:DockPanel >
 
-                    <StackPanel toolkit:DockPanel.Dock="Right" Margin="8 0"
+                    <StackPanel toolkit:DockPanel.Dock="Right" 
                                 Orientation="Horizontal"
                                 >
 
-                        <Button Command="{Binding CreateFeedGroupCommand}"
-                                Background="Transparent"
-                                ToolTipService.ToolTip="フィードグループを作成"
+                        <AppBarButton Command="{Binding CreateFeedGroupCommand}"
+                                    Background="Transparent"
+                                    ToolTipService.ToolTip="フィードグループを作成"
+                                      HorizontalContentAlignment="Stretch"
+                                      VerticalContentAlignment="Stretch"
                                 >
-                            <StackPanel Orientation="Horizontal">
-                                <iconPack:PackIconMaterial Kind="Plus" />
-                            </StackPanel>
-                        </Button>
+                            <iconPack:PackIconMaterial Kind="Plus"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       />
+                        </AppBarButton>
 
                         <Border Width="8" />
 
-                        <Button Command="{Binding RefreshAllFeedGroupCommand}"
+                        <AppBarButton Command="{Binding RefreshAllFeedGroupCommand}"
                                 Background="Transparent"
+                                      Icon="Refresh"
+                                      Label="更新"
                                 >
-                            <StackPanel Orientation="Horizontal">
-                                <iconPack:PackIconMaterial Kind="Refresh" />
-                            </StackPanel>
-                        </Button>
+                        </AppBarButton>
 
 
 
                     </StackPanel>
 
                     <Border Background="Transparent" IsHitTestVisible="True"
-                                Margin="24 0 0 0"
+                                Margin="16 0 0 0"
                                 >
-                        <!-- 
+                        
                         <TextBlock Text="{Binding Title}" 
                                     VerticalAlignment="Center"
                                     Style="{StaticResource SubtitleTextBlockStyle}"
@@ -111,8 +114,6 @@
                                 
 
                         </TextBlock>
-                        
-                        -->
                         
                     </Border>
 

@@ -37,41 +37,40 @@
                 <Border toolkit:DockPanel.Dock="Top" 
                     BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
                     BorderThickness="0 0 0 1"
+                        Height="64"
                     >
                     <toolkit:DockPanel >
 
 
-                        <StackPanel toolkit:DockPanel.Dock="Right" Margin="8 0"
+                        <StackPanel toolkit:DockPanel.Dock="Right" 
                                 Orientation="Horizontal"
                                 >
 
                                                    
                             
-                            <Button Command="{Binding AllMarkAsReadCommand}"
+                            <AppBarButton Command="{Binding AllMarkAsReadCommand}"
                                     Background="Transparent"
                                     ToolTipService.ToolTip="全てチェック済みにする"
                                     >
                                 <StackPanel Orientation="Horizontal">
                                     <iconPack:PackIconMaterial Kind="CheckAll" />
                                 </StackPanel>
-                            </Button>
+                            </AppBarButton>
 
                             <Border Width="8" />
 
-                            <Button Command="{Binding OpenFeedGroupPageCommand}"
+                            <AppBarButton Command="{Binding OpenFeedGroupPageCommand}"
                                     Background="Transparent"
                                     ToolTipService.ToolTip="フィードの編集画面を開く"
+                                          Icon="Edit"
                                     >
-                                <StackPanel Orientation="Horizontal">
-                                    <SymbolIcon Symbol="Edit" />
-                                </StackPanel>
-                            </Button>
+                            </AppBarButton>
 
 
                         </StackPanel>
 
                         <Border Background="Transparent" IsHitTestVisible="True"
-                                Margin="24 0 0 0"
+                                Margin="16 0 0 0"
                                 >
 
                             <TextBlock Text="{Binding Title}" 

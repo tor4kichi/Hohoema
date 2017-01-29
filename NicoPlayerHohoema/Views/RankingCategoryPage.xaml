@@ -84,7 +84,7 @@
         <Grid>
             <toolkit:DockPanel>
 
-                <toolkit:DockPanel toolkit:DockPanel.Dock="Top"  >
+                <toolkit:DockPanel toolkit:DockPanel.Dock="Top" >
 
 
                     
@@ -165,7 +165,7 @@
 
                     <Border>
                         <Border Background="Transparent" IsHitTestVisible="True"
-                            Margin="24 0 0 0"
+                            Margin="16 0 0 0"
                             >
 
                             <TextBlock Text="{Binding Title}" 
@@ -186,6 +186,10 @@
 
                 </toolkit:DockPanel>
 
+                <Border BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
+                        BorderThickness="0 1 0 0 "
+                        toolkit:DockPanel.Dock="Top"
+                        />
 
 
 

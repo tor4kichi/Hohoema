@@ -17,16 +17,16 @@
             <Border toolkit:DockPanel.Dock="Top" 
                     BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
                     BorderThickness="0 0 0 1"
-                Height="48"
+                    Height="64"
                     >
                 <toolkit:DockPanel >
-                    <StackPanel toolkit:DockPanel.Dock="Right" Margin="8 0"
+                    <StackPanel toolkit:DockPanel.Dock="Right" 
                                 Orientation="Horizontal"
                                 >
                     </StackPanel>
 
                     <Border Background="Transparent" IsHitTestVisible="True"
-                                Margin="24 0 0 0"
+                                Margin="16 0 0 0"
                                 >
 
                         <TextBlock Text="{Binding Title}" 
@@ -52,7 +52,7 @@
                     <TextBlock Margin="16 8 8 8"
                        TextWrapping="Wrap"                       
                        >
-                <Run>Windows10のストアアプリを起動してHohoemaアプリへの評価・レビューの記入を開始します。</Run>
+                         <Run>Windows10のストアアプリを起動してHohoemaアプリへの評価・レビューの記入を開始します。</Run>
                     </TextBlock>
 
 
