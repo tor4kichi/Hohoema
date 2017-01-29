@@ -10,6 +10,13 @@
     <SolidColorBrush x:Key="HohoemaControlBackgroundBrush"
                      Color="#99F8B500"
                      />
+
+
+    <Style TargetType="CommandBar">
+        <Setter Property="IsSticky" Value="True" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    
     <!-- Button
     
     https://msdn.microsoft.com/ja-jp/library/windows/apps/mt299109.aspx

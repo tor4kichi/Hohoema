@@ -35,9 +35,31 @@
         </DataTemplate>
     </Page.Resources>
 
+    
     <Grid x:Name="ContentLayoutRoot">
 
-        <Grid x:Name="ContentLayout">
+        <toolkit:DockPanel x:Name="ContentLayout">
+
+            <CommandBar toolkit:DockPanel.Dock="Top" IsSticky="True">
+                <CommandBar.Content>
+                    <TextBlock Text="{Binding Title}" 
+                                VerticalAlignment="Center"
+                                Style="{StaticResource SubtitleTextBlockStyle}"
+                                />
+                </CommandBar.Content>
+
+                <CommandBar.PrimaryCommands>
+                </CommandBar.PrimaryCommands>
+
+                <CommandBar.SecondaryCommands>
+                    <AppBarButton Icon="Edit" Label="編集" >
+
+                    </AppBarButton>
+
+                </CommandBar.SecondaryCommands>
+
+            </CommandBar>
+
             <ScrollViewer VerticalScrollMode="Disabled" 
                       VerticalScrollBarVisibility="Hidden"
                       HorizontalScrollMode="Enabled" 
@@ -96,7 +118,7 @@
 
             </ScrollViewer>
 
-        </Grid>
+        </toolkit:DockPanel>
 
 
 
