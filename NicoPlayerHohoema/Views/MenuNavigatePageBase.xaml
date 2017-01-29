@@ -81,7 +81,6 @@
                                 <AdaptiveTrigger MinWindowWidth="0" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter Target="MobileTopBar.Visibility" Value="Visible" />
                                 <Setter Target="MobileBottomBar.Visibility" Value="Visible" />
 
                                 <Setter Target="SplitView.DisplayMode" Value="Overlay" />
@@ -94,26 +93,6 @@
                 </VisualStateManager.VisualStateGroups>
 
                 <toolkit:DockPanel>
-                    <!-- モバイル時のトップバー -->
-                    <toolkit:DockPanel x:Name="MobileTopBar" Visibility="Collapsed" toolkit:DockPanel.Dock="Top" >
-
-                        <StackPanel     
-                                Orientation="Horizontal"
-                                        >
-
-
-                            <TextBlock Text="{Binding TitleText}"
-                                    Margin="8 0 0 0"
-                                    Style="{StaticResource TitleTextBlockStyle}"
-                                    VerticalAlignment="Center"
-                                    />
-
-                        </StackPanel>
-
-                        <Border />
-
-
-                    </toolkit:DockPanel>
 
                     <!-- モバイル時のボトムバー -->
                     <toolkit:DockPanel x:Name="MobileBottomBar" Visibility="Collapsed"
@@ -260,11 +239,6 @@
                                             />
 
                                 </toolkit:DockPanel>
-
-
-
-
-
 
                                 <Border Visibility="{Binding HasBGUpdateText.Value, Converter={StaticResource BooleanToVisibility}}"
                                                 Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
