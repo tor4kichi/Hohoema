@@ -58,13 +58,6 @@ namespace NicoPlayerHohoema.ViewModels
 
         }
 
-        private void Nav_BackRequested(object sender, BackRequestedEventArgs e)
-        {
-            if (IsFillFloatContent.Value)
-            {
-                ClosePlayer();
-            }
-        }
 
         private void HohoemaPlaylist_OpenPlaylistItem(Playlist playlist, PlaylistItem item)
         {

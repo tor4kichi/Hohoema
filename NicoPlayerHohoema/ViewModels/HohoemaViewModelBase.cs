@@ -456,23 +456,25 @@ namespace NicoPlayerHohoema.ViewModels
         {
             if (SubstitutionBackNavigation.Count > 0)
             {
-                var substitutionBackNavPair = SubstitutionBackNavigation.LastOrDefault();
+                var substitutionBackNavPair = SubstitutionBackNavigation.Last();
                 SubstitutionBackNavigation.Remove(substitutionBackNavPair.Key);
                 var action = substitutionBackNavPair.Value;
                 action?.Invoke();
-            }
 
-            if (SubstitutionBackNavigation.Count == 0)
-            {
-                var nav = Windows.UI.Core.SystemNavigationManager.GetForCurrentView();
-                nav.BackRequested -= Nav_BackRequested;
-
-                // バックナビゲーションが出来ない場合にBackButtonを非表示に
-                var pageManager = App.Current.Container.Resolve<PageManager>();
-                if (!pageManager.NavigationService.CanGoBack())
+                if (SubstitutionBackNavigation.Count == 0)
                 {
-                    nav.AppViewBackButtonVisibility = Windows.UI.Core.AppViewBackButtonVisibility.Collapsed;
+                    var nav = Windows.UI.Core.SystemNavigationManager.GetForCurrentView();
+                    nav.BackRequested -= Nav_BackRequested;
+
+                    // バックナビゲーションが出来ない場合にBackButtonを非表示に
+                    var pageManager = App.Current.Container.Resolve<PageManager>();
+                    if (!pageManager.NavigationService.CanGoBack())
+                    {
+                        nav.AppViewBackButtonVisibility = Windows.UI.Core.AppViewBackButtonVisibility.Collapsed;
+                    }
                 }
+
+                e.Handled = true;
             }
         }
 
