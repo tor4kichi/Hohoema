@@ -58,13 +58,6 @@ namespace NicoPlayerHohoema.ViewModels
 
         }
 
-        private void Nav_BackRequested(object sender, BackRequestedEventArgs e)
-        {
-            if (IsFillFloatContent.Value)
-            {
-                ClosePlayer();
-            }
-        }
 
         private void HohoemaPlaylist_OpenPlaylistItem(Playlist playlist, PlaylistItem item)
         {
@@ -114,11 +107,11 @@ namespace NicoPlayerHohoema.ViewModels
             if (ContentVM.Value != null)
             {
                 var oldContent = ContentVM.Value;
-                ContentVM.Value = null;
                 oldContent.OnNavigatingFrom(new Prism.Windows.Navigation.NavigatingFromEventArgs()
                 {
                     NavigationMode = NavigationMode.New,
                 }, viewModelState, false);
+                ContentVM.Value = null;
                 (oldContent as IDisposable)?.Dispose();
             }
 

@@ -108,8 +108,17 @@ namespace NicoPlayerHohoema.ViewModels
 				.AddTo(_CompositeDisposable);
 			NowSoundChanging = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false)
 				.AddTo(_CompositeDisposable);
-			IsVisibleComment = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, true)
-				.AddTo(_CompositeDisposable);
+            IsCommentDisplayEnable = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, true)
+                .AddTo(_CompositeDisposable);
+            // プレイヤーがフィル表示かつコメント表示を有効にしている場合のみ表示
+            IsVisibleComment =
+                Observable.CombineLatest(
+                    HohoemaApp.Playlist.ObserveProperty(x => x.IsPlayerFloatingModeEnable).Select(x => !x),
+                    IsCommentDisplayEnable
+                    )
+                    .Select(x => x.All(y => y))
+                    .ToReactiveProperty();
+
 			IsEnableRepeat = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false)
 				.AddTo(_CompositeDisposable);
 			
@@ -719,7 +728,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                 // PlayerSettings
                 var playerSettings = HohoemaApp.UserSettings.PlayerSettings;
-                IsVisibleComment.Value = playerSettings.DefaultCommentDisplay;
+                IsCommentDisplayEnable.Value = playerSettings.DefaultCommentDisplay;
 
 
 
@@ -1819,7 +1828,8 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<bool> NowSubmittingComment { get; private set; }
 		public ReactiveProperty<string> WritingComment { get; private set; }
 		public ReactiveProperty<bool> IsVisibleComment { get; private set; }
-		public ReactiveProperty<bool> NowCommentWriting { get; private set; }
+        public ReactiveProperty<bool> IsCommentDisplayEnable { get; private set; }
+        public ReactiveProperty<bool> NowCommentWriting { get; private set; }
 		public ObservableCollection<Comment> Comments { get; private set; }
 		public ReactiveProperty<bool> IsPauseWithCommentWriting { get; private set; }
 		public ReactiveProperty<bool> CanResumeOnExitWritingComment { get; private set; }
