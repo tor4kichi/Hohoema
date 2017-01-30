@@ -16,7 +16,7 @@
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
-    
+    xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -142,11 +142,19 @@
         
     </Page.Resources>
 
+    <i:Interaction.Behaviors>
+        <core:EventTriggerBehavior EventName="Loaded">
+            <mybehavior:SetFocus TargetObject="{Binding ElementName=SearchTextBox}" />
+        </core:EventTriggerBehavior>
+    </i:Interaction.Behaviors>
     <Grid>
         <Border>
 
+            
             <toolkit:DockPanel>
 
+                
+                
                 <Border toolkit:DockPanel.Dock="Top" 
                     BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
                     BorderThickness="0 0 0 1"
@@ -154,11 +162,39 @@
                     >
                     <toolkit:DockPanel >
 
-
-                        <StackPanel Orientation="Horizontal"
-                            toolkit:DockPanel.Dock="Right"
+                        
+                        <StackPanel toolkit:DockPanel.Dock="Right"
+                            Orientation="Horizontal"
                             >
+
+                            <StackPanel Orientation="Horizontal"
+                                Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                >
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal"
+                                Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                                >
+                                <AppBarButton Command="{Binding DeleteSelectedSearchHistoryCommand}"
+                                        Background="Transparent"
+                                                Label="履歴削除"
+                                                Icon="Delete"
+                                        />
+
+                            </StackPanel>
+
+
+
+                            <ToggleButton Background="Transparent"
+                                    IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    ToolTipService.ToolTip="選択"
+                                    >
+                                <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" />
+                            </ToggleButton>
+
+
                         </StackPanel>
+
 
                         <Border Background="Transparent" IsHitTestVisible="True"
                                 Margin="16 0 0 0"
@@ -183,20 +219,20 @@
                 </Border>
 
 
-                <!-- ターゲット（Keyword, Tag etc） -->
-                <Border toolkit:DockPanel.Dock="Top" 
-                        BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
-                        BorderThickness="0 0 0 1"
+                <StackPanel toolkit:DockPanel.Dock="Top" MaxWidth="640" Margin="16"
+                            Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                            >
+                    <!-- ターゲット（Keyword, Tag etc） -->
+                    <Border toolkit:DockPanel.Dock="Top" 
                         >
-                    <toolkit:DockPanel >
+                        <toolkit:DockPanel >
 
-
-                        <StackPanel Orientation="Horizontal"
+                            <StackPanel Orientation="Horizontal"
                                 toolkit:DockPanel.Dock="Left"
                                 >
-                            <Border Margin="0 0 8 0">
+                                <Border Margin="0 0 8 0">
 
-                                <ComboBox ItemsSource="{Binding TargetListItems}"
+                                    <ComboBox ItemsSource="{Binding TargetListItems}"
                                           SelectedItem="{Binding SelectedTarget.Value, Mode=TwoWay}"
                                           HorizontalAlignment="Stretch"
                                           TabIndex="1"
@@ -205,163 +241,77 @@
                                           VerticalAlignment="Center"
                                           IsEnabled="{Binding CanChangeSort.Value}"
                                          >
-                                </ComboBox>
-                            </Border>
-                        </StackPanel>
+                                    </ComboBox>
+                                </Border>
+                            </StackPanel>
 
 
-                        <Border Margin="0">
-                            <ContentControl Content="{Binding SearchOptionVM.Value}"
+                            <Border Margin="0">
+                                <ContentControl Content="{Binding SearchOptionVM.Value}"
                                         ContentTemplateSelector="{StaticResource SearchTargetContentTemplateSelector}" 
                                         HorizontalContentAlignment="Stretch"
                                         VerticalContentAlignment="Stretch"
                                             IsEnabled="{Binding CanChangeSort.Value}"
                                         />
-                        </Border>
+                            </Border>
 
 
 
-                    </toolkit:DockPanel>
-                </Border>
+                        </toolkit:DockPanel>
+                    </Border>
 
+                    <!-- 検索 -->
+                    <StackPanel>
 
+                        <TextBox Text="{Binding SearchText.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                        HorizontalAlignment="Stretch" 
+                                        ext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
+                                        VerticalAlignment="Stretch"
+                                        InputScope="Search"
+                                        x:Name="SearchTextBox"
+                                        Margin="0 8"
+                                    Height="48"
+                                    FontSize="18"
+                                    >
+                            <i:Interaction.Behaviors>
+                                <mybehavior:KeyboardTrigger Key="Enter" >
+                                    <mybehavior:KeyboardTrigger.Actions>
+                                        <core:InvokeCommandAction Command="{Binding DoSearchCommand}" />
+                                        <mybehavior:HideInputPaneAction />
+                                    </mybehavior:KeyboardTrigger.Actions>
+                                </mybehavior:KeyboardTrigger>
+                            </i:Interaction.Behaviors>
 
-                <Border toolkit:DockPanel.Dock="Top" 
-                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
-                    BorderThickness="0 0 0 1"
-                    >
-                    <toolkit:DockPanel>
-
-                        <Border toolkit:DockPanel.Dock="Right"
-                            >
-                            <ToggleButton Background="Transparent"
-                                        IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                        ToolTipService.ToolTip="選択"
-                                        >
-                                <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" />
-                            </ToggleButton>
-                        </Border>
-
-                        <Border 
-                            toolkit:DockPanel.Dock="Right"
-                            BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
-                            BorderThickness="1 0 0 0"
-                                Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                            >
-                            
-                        </Border>
-
-
-
-
-
-
-
-                        <Grid
-                            Margin="0 0 8 0"
-                        >
-                            <toolkit:DockPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
-                                        >
-
-                                <StackPanel Orientation="Horizontal"
-                                toolkit:DockPanel.Dock="Right"                                        
-                                >
-                                    <Button Command="{Binding DeleteSelectedSearchHistoryCommand}"
-                                            Background="Transparent"
+                        </TextBox>
+                        
+                            <Button Margin="0 0 0 0"
+                                            HorizontalAlignment="Right"
+                                            Command="{Binding DoSearchCommand}"
+                                    MinWidth="120"
                                             >
-                                        <StackPanel Orientation="Horizontal">
-                                            <iconPack:PackIconMaterial Kind="Delete" />
-                                            <TextBlock Text="履歴削除"
-                                                   VerticalAlignment="Center"
-                                                   />
-                                        </StackPanel>
-                                    </Button>
+                                <StackPanel Orientation="Horizontal">
 
-                                    
+                                    <TextBlock Text="検索" />
+                                    <Border Width="8" />
+                                    <SymbolIcon Symbol="Find" />
 
                                 </StackPanel>
+                            </Button>
 
-                                <Border />
-
-                            </toolkit:DockPanel>
+                            
 
 
-                            <toolkit:DockPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
-
-                                <Border Background="Transparent" IsHitTestVisible="True"
-                                    Margin="0 0 0 0"
-                                    >
-
-                                    <!-- 検索 -->
-                                    <toolkit:DockPanel >
-
-                                        <Button Margin="0 0 0 0"
-                                        toolkit:DockPanel.Dock="Right"
-                                        Command="{Binding DoSearchCommand}"
-                                        >
-                                            <SymbolIcon Symbol="Find" />
-                                        </Button>
-
-                                        <TextBox Text="{Binding SearchText.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                            HorizontalAlignment="Stretch" 
-                                            ext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
-                                            VerticalAlignment="Stretch"
-                                            InputScope="Search"
-                                            x:Name="SearchTextBox"
-                                            Margin="0 0 8 0"
-                                        >
-                                            <i:Interaction.Behaviors>
-                                                <mybehavior:KeyboardTrigger Key="Enter">
-                                                    <mybehavior:KeyboardTrigger.Actions>
-                                                        <core:InvokeCommandAction Command="{Binding DoSearchCommand}" />
-                                                        <mybehavior:HideInputPaneAction />
-                                                    </mybehavior:KeyboardTrigger.Actions>
-                                                </mybehavior:KeyboardTrigger>
-                                            </i:Interaction.Behaviors>
-
-                                        </TextBox>
-
-                                    </toolkit:DockPanel>
-                                </Border>
-                                
-                                <!--
-                            <Grid x:Name="SearchButtonBorder"
-                                    BorderThickness="1"
-                                    >
-                                    
-                                    
-                                <TextBox x:Name="SearchTextBox"
-                                    PlaceholderText="ページ内検索"
-                                    InputScope="SearchIncremental"
-                                    HorizontalAlignment="Stretch"
-                                    VerticalAlignment="Top"
-                                    Height="47"
-                                    Padding="24 8 0 8"
-                                    Margin="0 0 48 0"
-                                    BorderThickness="0"
-                                    >
-
-                                </TextBox>
-
-                                <Button HorizontalAlignment="Right"
-                                        Background="Transparent"
-                                    >
-                                    <SymbolIcon Symbol="Find"  />
-                                </Button>
-                            </Grid>
-                            -->
-                            </toolkit:DockPanel>
-
-                        </Grid>
+                    </StackPanel>
+                    
+                </StackPanel>
 
 
 
 
-                    </toolkit:DockPanel>
-                </Border>
 
 
-                <controls:HohoemaIncrementalLoadingList />
+
+                <controls:HohoemaIncrementalLoadingList MaxWidth="640"  />
 
 
 
