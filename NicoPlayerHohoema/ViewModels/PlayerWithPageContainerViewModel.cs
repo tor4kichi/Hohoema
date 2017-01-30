@@ -33,7 +33,7 @@ namespace NicoPlayerHohoema.ViewModels
         // 動画または生放送のVM
         public ReactiveProperty<ViewModelBase> ContentVM { get; private set; }
 
-        public PlayerWithPageContainerViewModel(HohoemaPlaylist playlist)
+        public PlayerWithPageContainerViewModel(HohoemaApp hohoemaApp, HohoemaPlaylist playlist)
         {
             HohoemaPlaylist = playlist;
 
@@ -57,7 +57,6 @@ namespace NicoPlayerHohoema.ViewModels
             });
 
         }
-
 
         private void HohoemaPlaylist_OpenPlaylistItem(Playlist playlist, PlaylistItem item)
         {

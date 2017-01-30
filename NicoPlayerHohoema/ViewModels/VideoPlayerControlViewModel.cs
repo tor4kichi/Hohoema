@@ -1250,8 +1250,22 @@ namespace NicoPlayerHohoema.ViewModels
             // 基本的にオンラインで再生、
             // オフラインの場合でキャッシュがあるようならキャッシュで再生できる
             ChangeRequireServiceLevel(HohoemaAppServiceLevel.LoggedIn);
-            
+
+            App.Current.Suspending += Current_Suspending;
 		}
+
+        private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
+        {
+            PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
+
+            IsFullScreen.Value = false;
+
+            VideoStream.Value = null;
+
+            _BufferingMonitorDisposable?.Dispose();
+            _BufferingMonitorDisposable = new CompositeDisposable();
+
+        }
 
         private async Task UpdateComments()
         {
@@ -1297,12 +1311,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 			PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
 
-			IsFullScreen.Value = false;
-
 			if (suspending)
 			{
-				VideoStream.Value = null;
-
+				
 				// 再生中動画のキャッシュがサスペンドから復帰後にも利用できるように
 				// 削除を抑制するように要請する
 				HohoemaApp.MediaManager.Context.OncePreventDeleteCacheOnPlayingVideo(Video.RawVideoId);
@@ -1324,7 +1335,9 @@ namespace NicoPlayerHohoema.ViewModels
 					await Task.Delay(1000);
 					Video.StopPlay().ConfigureAwait(false);
 				}
-			}
+
+                App.Current.Suspending -= Current_Suspending;
+            }
 
 			_SidePaneContentCache.Clear();
 
