@@ -15,30 +15,7 @@
 
     <Grid>
         <toolkit:DockPanel>
-            <Border toolkit:DockPanel.Dock="Top" 
-                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
-                    BorderThickness="0 0 0 1"
-                    Height="64"
-                    >
-                <toolkit:DockPanel >
-
-
-                    <StackPanel toolkit:DockPanel.Dock="Right" 
-                            Orientation="Horizontal"
-                            >
-                    </StackPanel>
-
-                    <Border Background="Transparent" IsHitTestVisible="True"
-                                Margin="16 0 0 0"
-                                >
-                        <TextBlock Text="{Binding Title}" 
-                                    VerticalAlignment="Center"
-                                    Style="{StaticResource SubtitleTextBlockStyle}"
-                                    >
-                        </TextBlock>
-                    </Border>
-                </toolkit:DockPanel>
-            </Border>
+            
             
             <uwptoolkit:MasterDetailsView ItemsSource="{Binding Playlists}"
                                           NoSelectionContent="No Selection"
@@ -46,34 +23,89 @@
                                           >
 
                 <uwptoolkit:MasterDetailsView.MasterHeader>
+
                     <toolkit:DockPanel>
-                        <Button Content="Add" HorizontalAlignment="Center"
-                                Command="{Binding CreatePlaylistCommand}"
-                                />
+
+                        <Border toolkit:DockPanel.Dock="Top" 
+                                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
+                                    BorderThickness="0 0 0 1"
+                                    Height="64"
+                                    >
+                            <toolkit:DockPanel >
+
+                                <StackPanel toolkit:DockPanel.Dock="Right" 
+                                        Orientation="Horizontal"
+                                        >
+
+                                    <AppBarButton Icon="Add"
+                                        Command="{Binding CreatePlaylistCommand}"
+                                        Background="Transparent" 
+                                                  />
+                                </StackPanel>
+
+                                <Border Background="Transparent" IsHitTestVisible="True"
+                                            Margin="16 0 0 0"
+                                            >
+                                    <!-- タップでプレイリスト名の変更 -->
+                                    <TextBlock Text="{Binding Title}" 
+                                                VerticalAlignment="Center"
+                                                Style="{StaticResource SubtitleTextBlockStyle}"
+                                                >
+                                    </TextBlock>
+                                </Border>
+                            </toolkit:DockPanel>
+                        </Border>
+
+
+                        
+
                     </toolkit:DockPanel>
+
+                    
                 </uwptoolkit:MasterDetailsView.MasterHeader>
                 
                 <uwptoolkit:MasterDetailsView.DetailsTemplate>
                     <DataTemplate>
                         <toolkit:DockPanel>
 
-                            <!-- タップでプレイリスト名の変更 -->
-                            <TextBlock Text="{Binding PlaylistName.Value}" Margin="8" />
+                            <Border toolkit:DockPanel.Dock="Top" 
+                                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
+                                    BorderThickness="0 0 0 1"
+                                    Height="64"
+                                    >
+                                <toolkit:DockPanel >
+
+                                    <StackPanel toolkit:DockPanel.Dock="Right" 
+                                        Orientation="Horizontal"
+                                        >
+
+                                        <AppBarButton Icon="Play" />
+
+                                        <AppBarButton Icon="More">
+                                            <AppBarButton.Flyout>
+                                                <MenuFlyout>
+                                                    <MenuFlyoutItem Text="このプレイリストを削除"
+                                                          Command="{Binding DeletePlaylistCommand}"
+                                                          />
+                                                </MenuFlyout>
+                                            </AppBarButton.Flyout>
+                                        </AppBarButton>
+                                    </StackPanel>
+
+                                    <Border Background="Transparent" IsHitTestVisible="True"
+                                            Margin="16 0 0 0"
+                                            >
+                                        <!-- タップでプレイリスト名の変更 -->
+                                        <TextBlock Text="{Binding PlaylistName.Value}" 
+                                                VerticalAlignment="Center"
+                                                Style="{StaticResource SubtitleTextBlockStyle}"
+                                                >
+                                        </TextBlock>
+                                    </Border>
+                                </toolkit:DockPanel>
+                            </Border>
                             
-                            <CommandBar toolkit:DockPanel.Dock="Bottom">
-                                <AppBarButton Icon="Play" />
-
-                                <CommandBar.SecondaryCommands>
-                                    <AppBarButton Label="このプレイリストを削除"
-                                                  Icon="Delete"
-                                                  Command="{Binding DeletePlaylistCommand}"
-                                                  >
-                                        
-                                    </AppBarButton>
-
-                                </CommandBar.SecondaryCommands>
-                            </CommandBar>
-
+                            
                             <!-- TODO: 入れ替え -->
                             
                             <ListView ItemsSource="{Binding PlaylistItems}">
@@ -83,11 +115,12 @@
 
                                             <i:Interaction.Behaviors>
                                                 <core:EventTriggerBehavior EventName="Tapped">
-                                                    <core:InvokeCommandAction Command="{Binding }" />
+                                                    <core:CallMethodAction TargetObject="{Binding}" MethodName="Play" />
                                                 </core:EventTriggerBehavior>
                                             </i:Interaction.Behaviors>
+                                            
                                             <SymbolIcon Symbol="Up" toolkit:DockPanel.Dock="Left" />
-                                            <TextBlock Text="{Binding VideoName}" />
+                                            <TextBlock Text="{Binding Title}" />
                                         </toolkit:DockPanel>
                                     </DataTemplate>
                                 </ListView.ItemTemplate>
@@ -99,7 +132,10 @@
 
                 <uwptoolkit:MasterDetailsView.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Text="{Binding PlaylistName.Value}" />
+                        <TextBlock Text="{Binding PlaylistName.Value}" 
+                                            VerticalAlignment="Center"
+                                            >
+                        </TextBlock>
                     </DataTemplate>
                 </uwptoolkit:MasterDetailsView.ItemTemplate>
                
