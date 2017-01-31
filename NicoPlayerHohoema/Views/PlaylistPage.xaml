@@ -111,17 +111,21 @@
                             <ListView ItemsSource="{Binding PlaylistItems}">
                                 <ListView.ItemTemplate>
                                     <DataTemplate>
-                                        <toolkit:DockPanel>
+                                        <Grid>
 
-                                            <i:Interaction.Behaviors>
-                                                <core:EventTriggerBehavior EventName="Tapped">
-                                                    <core:CallMethodAction TargetObject="{Binding}" MethodName="Play" />
-                                                </core:EventTriggerBehavior>
-                                            </i:Interaction.Behaviors>
-                                            
-                                            <SymbolIcon Symbol="Up" toolkit:DockPanel.Dock="Left" />
-                                            <TextBlock Text="{Binding Title}" />
-                                        </toolkit:DockPanel>
+                                            <toolkit:DockPanel IsHitTestVisible="True" Background="Transparent">
+
+                                                <i:Interaction.Behaviors>
+                                                    <core:EventTriggerBehavior EventName="Tapped">
+                                                        <core:CallMethodAction TargetObject="{Binding}" MethodName="Play" />
+                                                    </core:EventTriggerBehavior>
+                                                </i:Interaction.Behaviors>
+
+                                                <SymbolIcon Symbol="Sort" toolkit:DockPanel.Dock="Left" Margin="0 0 8 0" />
+
+                                                <TextBlock Text="{Binding Title}" />
+                                            </toolkit:DockPanel>
+                                        </Grid>
                                     </DataTemplate>
                                 </ListView.ItemTemplate>
                             </ListView>
