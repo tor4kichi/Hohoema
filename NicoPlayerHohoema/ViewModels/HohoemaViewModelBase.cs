@@ -361,7 +361,13 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			using (var releaser = await _NavigationLock.LockAsync())
 			{
-                if (!suspending && SubstitutionBackNavigation.Count > 0)
+                // バックナビゲーションが発生した時、
+                // かつ、代替バックナビゲーション動作が設定されている場合に、
+                // バックナビゲーションをキャンセルします。
+                if (!suspending 
+                    && e.NavigationMode == NavigationMode.Back 
+                    && SubstitutionBackNavigation.Count > 0
+                    )
                 {
                     e.Cancel = true;
                     return;

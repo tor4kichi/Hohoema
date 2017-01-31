@@ -9,6 +9,7 @@ using Prism.Mvvm;
 using Prism.Commands;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
+using System.Reactive.Linq;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -17,6 +18,7 @@ namespace NicoPlayerHohoema.ViewModels
         public HohoemaPlaylist Playlist { get; private set; }
         public ReadOnlyReactiveCollection<PlaylistViewModel> Playlists { get; private set; }
 
+        public ReactiveProperty<PlaylistViewModel> SelectedItem { get; private set; }
 
         public PlaylistPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager) 
             : base(hohoemaApp, pageManager, canActivateBackgroundUpdate:true)
@@ -25,6 +27,26 @@ namespace NicoPlayerHohoema.ViewModels
             Playlists = Playlist.Playlists.ToReadOnlyReactiveCollection(x => 
                 new PlaylistViewModel(HohoemaApp.Playlist, x)
                 );
+
+            SelectedItem = new ReactiveProperty<PlaylistViewModel>();
+
+            // MDVでコンテンツが選択済みの場合、戻る動作を常にコンテンツのクローズに割り当てます
+            // この仕様は仮です。
+            // 本来はディテールのみを表示している状態にフックして戻る動作をブロックすべきです。
+            // UWPCommunityToolkitの次期バージョン 1.3 で
+            // MasterDetailsView.ViewState プロパティが導入されるようなので、
+            // それがあればディテールのみ表示している状態が取得できるようになります。
+            SelectedItem.Select(x => x != null)
+                .Subscribe(isContentSelected => 
+                {
+                    if (isContentSelected)
+                    {
+                        AddSubsitutionBackNavigateAction("mdv_back", () => 
+                        {
+                            SelectedItem.Value = null;
+                        });
+                    }
+                });
         }
 
 

@@ -42,7 +42,7 @@
             
             <uwptoolkit:MasterDetailsView ItemsSource="{Binding Playlists}"
                                           NoSelectionContent="No Selection"
-                                          
+                                          SelectedItem="{Binding SelectedItem.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                           >
 
                 <uwptoolkit:MasterDetailsView.MasterHeader>
