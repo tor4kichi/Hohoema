@@ -1336,6 +1336,10 @@ namespace NicoPlayerHohoema.ViewModels
 					Video.StopPlay().ConfigureAwait(false);
 				}
 
+
+                // プレイリストへ再生完了を通知
+                HohoemaApp.Playlist.PlayDone();
+
                 App.Current.Suspending -= Current_Suspending;
             }
 

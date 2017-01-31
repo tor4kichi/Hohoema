@@ -259,6 +259,17 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
+        public void PlayDone()
+        {
+            // あとで見るプレイリストから再生完了したアイテムを削除する
+            if (DefaultPlaylist == CurrentPlaylist)
+            {
+                if (DefaultPlaylist.CurrentVideo != null)
+                {
+                    DefaultPlaylist.Remove(DefaultPlaylist.CurrentVideo);
+                }
+            }
+        }
     }
 
 
