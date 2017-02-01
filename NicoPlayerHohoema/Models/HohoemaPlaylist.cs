@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Util;
+﻿using NicoPlayerHohoema.Models.Settings;
+using NicoPlayerHohoema.Util;
 using Prism.Mvvm;
 using Reactive.Bindings.Extensions;
 using System;
@@ -6,9 +7,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Media;
+using Windows.Media.Playback;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -35,11 +39,15 @@ namespace NicoPlayerHohoema.Models
 
         // データの保存
 
+        
 
         public const string WatchAfterPlaylistId = "@view";
 
         public event OpenPlaylistItemEventHandler OpenPlaylistItem;
 
+
+        public MediaPlayer MediaPlayer { get; private set; }
+        public PlaylistSettings PlaylistSettings { get; private set; }
 
         public IPlaylistPlayer Player { get; private set; }
 
@@ -51,7 +59,7 @@ namespace NicoPlayerHohoema.Models
         /// <summary>
         /// Use for serialize only.
         /// </summary>
-        public string _CurrentPlaylistId { get; set; }
+        private string _CurrentPlaylistId { get; set; }
 
         private Playlist _CurrentPlaylist;
         public Playlist CurrentPlaylist
@@ -61,6 +69,7 @@ namespace NicoPlayerHohoema.Models
             {
                 if (SetProperty(ref _CurrentPlaylist, value))
                 {
+                    _CurrentPlaylistId = _CurrentPlaylist.Id;
                     MakePlayer();
                 }
             }
@@ -91,32 +100,8 @@ namespace NicoPlayerHohoema.Models
         }
 
 
-
-        private PlaybackMode _RepeatMode = PlaybackMode.Through;
-        public PlaybackMode RepeatMode
-        {
-            get { return _RepeatMode; }
-            set
-            {
-                if (SetProperty(ref _RepeatMode, value))
-                {
-                    MakePlayer();
-                }
-            }
-        }
-
-        private bool _IsShuffleEnable = false;
-        public bool IsShuffleEnable
-        {
-            get { return _IsShuffleEnable; }
-            set
-            {
-                if (SetProperty(ref _IsShuffleEnable, value))
-                {
-                    MakePlayer();
-                }
-            }
-        }
+        
+        
 
 
         private bool _IsDisplayPlayer = false;
@@ -136,15 +121,51 @@ namespace NicoPlayerHohoema.Models
 
 
 
-        public HohoemaPlaylist()
+        public HohoemaPlaylist(MediaPlayer mediaPlayer, PlaylistSettings playlistSettings)
         {
+            MediaPlayer = mediaPlayer;
+            PlaylistSettings = playlistSettings;
             DefaultPlaylist = CreatePlaylist("@view", "あとで見る");
             CurrentPlaylist = DefaultPlaylist;
 
+            Observable.Merge(
+                PlaylistSettings.ObserveProperty(x => x.IsShuffleEnable).ToUnit(),
+                PlaylistSettings.ObserveProperty(x => x.RepeatMode).ToUnit()
+                )
+                .Subscribe(x => MakePlayer());
+                        
             MakePlayer();
         }
 
-        public void MakePlayer()
+
+
+        [OnDeserialized]
+        public void OnSeralized(StreamingContext context)
+        {
+            if (_CurrentPlaylistId != null)
+            {
+                var currentPlaylist = Playlists.FirstOrDefault(x => x.Id == _CurrentPlaylistId);
+                if (currentPlaylist != null)
+                {
+                    _CurrentPlaylist = currentPlaylist;
+                }
+                else
+                {
+                    _CurrentPlaylistId = null;
+                }
+            }
+
+            foreach (var playlist in Playlists)
+            {
+                playlist.HohoemaPlaylist = this;
+            }
+        }
+
+
+
+
+
+        private void MakePlayer()
         {
             // プレイリストが同一なままPlayerが再生成された場合に
             // 再生中アイテムの引き継ぎを行う
@@ -153,28 +174,31 @@ namespace NicoPlayerHohoema.Models
             
 
             IPlaylistPlayer newPlayer = null;
-            if (RepeatMode == PlaybackMode.RepeatOne)
+            if (PlaylistSettings.RepeatMode == PlaybackMode.RepeatOne)
             {
                 newPlayer = new RepeatOnePlaylistPlayer(this, CurrentPlaylist);
             }
-            else if (IsShuffleEnable)
+            else if (PlaylistSettings.IsShuffleEnable)
             {
                 newPlayer = new ShufflePlaylistPlayer(this, CurrentPlaylist)
                 {
-                    IsRepeat = RepeatMode == PlaybackMode.RepeatAll
+                    IsRepeat = PlaylistSettings.RepeatMode == PlaybackMode.RepeatAll
                 };
             }
             else
             {
                 newPlayer = new ThroughPlaylistPlayer(this, CurrentPlaylist)
                 {
-                    IsRepeat = RepeatMode == PlaybackMode.RepeatAll
+                    IsRepeat = PlaylistSettings.RepeatMode == PlaybackMode.RepeatAll
                 };
             }
 
             if (Player != null && Player.Playlist == CurrentPlaylist)
             {
-                newPlayer.SetCurrent(Player.Current);
+                if (Player.Current != null)
+                {
+                    newPlayer.SetCurrent(Player.Current);
+                }
             }
 
             Player = newPlayer;
@@ -182,6 +206,8 @@ namespace NicoPlayerHohoema.Models
 
             OnPropertyChanged(nameof(CanGoBack));
             OnPropertyChanged(nameof(CanGoNext));
+
+            _CurrentPlaylistId = _CurrentPlaylist.Id;
         }
 
         internal void PlayStart(Playlist playlist, PlaylistItem item = null)
@@ -205,6 +231,11 @@ namespace NicoPlayerHohoema.Models
 
         private void OpenVideo(PlaylistItem item)
         {
+            if (item == null)
+            {
+                throw new NullReferenceException(nameof(PlaylistItem) + " is null.");
+            }
+
             Player.SetCurrent(item);
 
             OpenPlaylistItem?.Invoke(CurrentPlaylist, item);
@@ -223,6 +254,8 @@ namespace NicoPlayerHohoema.Models
                 PlayStart(DefaultPlaylist, newItem);
             }
         }
+
+
 
         public void PlayLiveVideo(string liveId, string title)
         {
@@ -517,31 +550,39 @@ namespace NicoPlayerHohoema.Models
         }
     }
 
-
+    [DataContract]
     public class Playlist : BindableBase, IDisposable
     {
         public HohoemaPlaylist HohoemaPlaylist { get; internal set; }
 
+        [DataMember]
         public string Id { get; private set; }
 
         private string _Name;
+
+        [DataMember]
         public string Name
         {
             get { return _Name; }
             set { SetProperty(ref _Name, value); }
         }
 
+        [DataMember]
         private ObservableCollection<PlaylistItem> _PlaylistItems { get; set; } = new ObservableCollection<PlaylistItem>();
         public ReadOnlyObservableCollection<PlaylistItem> PlaylistItems { get; private set; }
 
         IDisposable _ItemsChangedObserveDisposer;
 
+        [DataMember]
         public DateTime LastUpdate { get; private set; }
+
+        [DataMember]
         public DateTime LastPlayed { get; private set; }
 
         /// <summary>
         /// Use for serialize only.
         /// </summary>
+        [DataMember]
         public string _PlayingVideoId { get; set; }
 
         private PlaylistItem _CurrentVideo;
@@ -550,11 +591,16 @@ namespace NicoPlayerHohoema.Models
             get { return _CurrentVideo; }
             set { SetProperty(ref _CurrentVideo, value); }
         }
+        public Playlist()
+        {
+            Id = null;
+            PlaylistItems = new ReadOnlyObservableCollection<PlaylistItem>(_PlaylistItems);
+        }
 
         public Playlist(string id)
+            : this()
         {
             Id = id;
-            PlaylistItems = new ReadOnlyObservableCollection<PlaylistItem>(_PlaylistItems);
 
             _ItemsChangedObserveDisposer = PlaylistItems.CollectionChangedAsObservable()
                 .Subscribe(x => 
@@ -563,14 +609,51 @@ namespace NicoPlayerHohoema.Models
                 });
         }
 
-        // TODO: デシリアライズ時にPlaylistItemsを復元
-
-
 
         public void Dispose()
         {
             _ItemsChangedObserveDisposer?.Dispose();
         }
+
+
+        [OnDeserialized]
+        public void OnSeralized(StreamingContext context)
+        {
+
+            if (_PlayingVideoId != null)
+            {
+                var currentVideoItem = PlaylistItems.FirstOrDefault(x => x.ContentId == _PlayingVideoId);
+                if (currentVideoItem != null)
+                {
+                    _CurrentVideo = currentVideoItem;
+                }
+                else
+                {
+                    _PlayingVideoId = null;
+                }
+            }
+
+            foreach (var item in PlaylistItems)
+            {
+                item.Owner = this;
+            }
+
+            _ItemsChangedObserveDisposer?.Dispose();
+
+            if (_PlaylistItems == null)
+            {
+                _PlaylistItems = new ObservableCollection<PlaylistItem>();
+            }
+
+            PlaylistItems = new ReadOnlyObservableCollection<PlaylistItem>(_PlaylistItems);
+            _ItemsChangedObserveDisposer = PlaylistItems.CollectionChangedAsObservable()
+                .Subscribe(x =>
+                {
+                    LastUpdate = DateTime.Now;
+                });
+        }
+
+
 
 
         internal void Play(PlaylistItem item)

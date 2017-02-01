@@ -44,6 +44,7 @@ using Windows.UI.Xaml.Media;
 using FFmpegInterop;
 using Windows.Foundation.Collections;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.Media.Core;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -67,6 +68,10 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+
+        private IDisposable _CommentRenderUpdateTimerDisposer;
+
+
 		public VideoPlayerControlViewModel(
 			HohoemaApp hohoemaApp, 
 			EventAggregator ea,
@@ -83,10 +88,9 @@ namespace NicoPlayerHohoema.ViewModels
 
             _SidePaneContentCache = new Dictionary<MediaInfoDisplayType, MediaInfoViewModel>();
 
+            MediaPlayer = HohoemaApp.MediaPlayer;
 
-			VideoStream = new ReactiveProperty<object>(PlayerWindowUIDispatcherScheduler)
-				.AddTo(_CompositeDisposable);
-			CurrentVideoPosition = new ReactiveProperty<TimeSpan>(PlayerWindowUIDispatcherScheduler, TimeSpan.Zero)
+            CurrentVideoPosition = new ReactiveProperty<TimeSpan>(PlayerWindowUIDispatcherScheduler, TimeSpan.Zero)
 				.AddTo(_CompositeDisposable);
 			ReadVideoPosition = new ReactiveProperty<TimeSpan>(PlayerWindowUIDispatcherScheduler, TimeSpan.Zero);
 //				.AddTo(_CompositeDisposable);
@@ -98,7 +102,7 @@ namespace NicoPlayerHohoema.ViewModels
 				.AddTo(_CompositeDisposable);
 			VideoLength = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0)
 				.AddTo(_CompositeDisposable);
-			CurrentState = new ReactiveProperty<MediaElementState>(PlayerWindowUIDispatcherScheduler)
+			CurrentState = new ReactiveProperty<MediaPlaybackState>(PlayerWindowUIDispatcherScheduler)
 				.AddTo(_CompositeDisposable);
 			NowQualityChanging = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
 			Comments = new ObservableCollection<Comment>();
@@ -145,7 +149,7 @@ namespace NicoPlayerHohoema.ViewModels
 				.Subscribe(x => 
 			{
 				// TODO: ウィンドウの表示状態が最小化の時にも再開できないようにしたい
-				CanResumeOnExitWritingComment.Value = CurrentState.Value == MediaElementState.Playing
+				CanResumeOnExitWritingComment.Value = CurrentState.Value == MediaPlaybackState.Playing
 					&& (IsPauseWithCommentWriting?.Value ?? true);
 			})
 			.AddTo(_CompositeDisposable);
@@ -292,7 +296,8 @@ namespace NicoPlayerHohoema.ViewModels
 				if (!_NowReadingVideoPosition)
 				{
 					CurrentVideoPosition.Value = TimeSpan.FromSeconds(x);
-				}
+                    MediaPlayer.PlaybackSession.Position = TimeSpan.FromSeconds(x);
+                }
 
 				_NowControlSlider = false;
 			})
@@ -305,8 +310,7 @@ namespace NicoPlayerHohoema.ViewModels
 				_NowReadingVideoPosition = true;
 
 				SliderVideoPosition.Value = x.TotalSeconds;
-				CommentVideoPosition.Value = x;
-
+				
 				_NowReadingVideoPosition = false;
 			})
 			.AddTo(_CompositeDisposable);
@@ -315,41 +319,45 @@ namespace NicoPlayerHohoema.ViewModels
 				.Select(x =>
 				{
 					return
-						x == MediaElementState.Opening ||
-						x == MediaElementState.Buffering ||
-						x == MediaElementState.Playing;
+						x == MediaPlaybackState.Opening ||
+						x == MediaPlaybackState.Buffering ||
+						x == MediaPlaybackState.Playing;
 				})
 				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
 				.AddTo(_CompositeDisposable);
 
-			CurrentState.Subscribe(async x => 
+			CurrentState
+                .SubscribeOnUIDispatcher()
+                .Subscribe(async x => 
 			{
-				if (x == MediaElementState.Opening)
+				if (x == MediaPlaybackState.Opening)
 				{
 				}
-				else if (x == MediaElementState.Playing && NowQualityChanging.Value)
+				else if (x == MediaPlaybackState.Playing && NowQualityChanging.Value)
 				{
 					NowQualityChanging.Value = false;
 //					SliderVideoPosition.Value = PreviousVideoPosition;
 					CurrentVideoPosition.Value = TimeSpan.FromSeconds(PreviousVideoPosition);
 				}
-				else if (x == MediaElementState.Closed)
+				else if (x == MediaPlaybackState.None)
 				{
-					if (VideoStream.Value != null)
-					{
-						await Video.StopPlay();
+                    if (Video != null)
+                    {
+                        await Video.StopPlay();
 
-						// TODO: ユーザー手動の再読み込みに変更する
-						await Task.Delay(500);
+                        // TODO: ユーザー手動の再読み込みに変更する
+                        await Task.Delay(500);
 
-						await this.PlayingQualityChangeAction();
+                        await this.PlayingQualityChangeAction();
 
-						Debug.WriteLine("再生中に動画がClosedになったため、強制的に再初期化を実行しました。これは非常措置です。");
-					}
-				}
+                        Debug.WriteLine("再生中に動画がClosedになったため、強制的に再初期化を実行しました。これは非常措置です。");
+                    }
+                }
 
-
-				SetKeepDisplayWithCurrentState();
+                await HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
+                {
+                    SetKeepDisplayWithCurrentState();
+                });
 
 				Debug.WriteLine("player state :" + x.ToString());
 			})
@@ -509,6 +517,10 @@ namespace NicoPlayerHohoema.ViewModels
                 .AddTo(userSessionDisposer);
 
 
+            SoundVolume.Subscribe(volume => 
+            {
+                MediaPlayer.Volume = volume;
+            });
 
 
             RequestFPS = HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.CommentRenderingFPS)
@@ -516,6 +528,18 @@ namespace NicoPlayerHohoema.ViewModels
                 .ToReactiveProperty()
                 .AddTo(userSessionDisposer);
             OnPropertyChanged(nameof(RequestFPS));
+
+            RequestFPS.Subscribe(fps =>
+            {
+                var renderInterval = TimeSpan.FromSeconds(1.0 / fps);
+                _CommentRenderUpdateTimerDisposer?.Dispose();
+                _CommentRenderUpdateTimerDisposer = Observable.Timer(TimeSpan.Zero, renderInterval)
+                    .Subscribe(x =>
+                    {
+                        CommentVideoPosition.Value = MediaPlayer.PlaybackSession.Position;
+                    });
+            })
+            .AddTo(userSessionDisposer);
 
             RequestCommentDisplayDuration = HohoemaApp.UserSettings.PlayerSettings
                 .ObserveProperty(x => x.CommentDisplayDuration)
@@ -784,7 +808,7 @@ namespace NicoPlayerHohoema.ViewModels
 		private void SetKeepDisplayWithCurrentState()
 		{
 			var x = CurrentState.Value;
-			if (x == MediaElementState.Paused || x == MediaElementState.Stopped || x == MediaElementState.Closed)
+			if (x == MediaPlaybackState.Paused || x == MediaPlaybackState.None)
 			{
 				ExitKeepDisplay();
 			}
@@ -824,41 +848,19 @@ namespace NicoPlayerHohoema.ViewModels
 				PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
 			}
 
-			// サポートされたメディアの再生
-			if (Video.CanGetVideoStream())
+            
+            // サポートされたメディアの再生
+            if (Video.CanGetVideoStream())
 			{
-				var stream = await Video.GetVideoStream(x);
+                await Video.StartPlay(x);
 
-				if (stream == null)
-				{
-					return;
-				}
-
-				if (IsDisposed)
+                if (IsDisposed)
 				{
 					if (Video != null)
 					{
 						await Video.StopPlay();
 					}
 					return;
-				}
-
-				if (Video.ContentType == MovieType.Mp4)
-				{
-					VideoStream.Value = stream;
-				}
-				else
-				{
-					var mss = FFmpegInteropMSS.CreateFFmpegInteropMSSFromStream(stream, false, false);
-
-					if (mss != null)
-					{
-						VideoStream.Value = mss;
-					}
-					else
-					{
-						throw new NotSupportedException();
-					}
 				}
 
 				var isCurrentQualityCacheDownloadCompleted = false;
@@ -877,10 +879,10 @@ namespace NicoPlayerHohoema.ViewModels
 						break;
 				}
 
-				if (stream is NicoVideoCachedStream)
+				if (Video.NicoVideoCachedStream is NicoVideoCachedStream)
 				{
 					// キャッシュ機能経由の再生
-					var cachedStream = stream as NicoVideoCachedStream;
+					var cachedStream = Video.NicoVideoCachedStream as NicoVideoCachedStream;
 					cachedStream.Downloader.OnCacheProgress += Downloader_OnCacheProgress;
 					_TempProgress = cachedStream.Downloader.DownloadProgress.Clone();
 
@@ -912,12 +914,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 			else if (qualityVideo.IsCached)
 			{
-                var stream = await Video.GetVideoStream(x);
-
-                if (stream == null)
-                {
-                    return;
-                }
+                await Video.StartPlay(x);
 
                 if (IsDisposed)
                 {
@@ -927,24 +924,7 @@ namespace NicoPlayerHohoema.ViewModels
                     }
                     return;
                 }
-
-                if (Video.ContentType == MovieType.Mp4)
-                {
-                    VideoStream.Value = stream;
-                }
-                else
-                {
-                    var mss = FFmpegInteropMSS.CreateFFmpegInteropMSSFromStream(stream, false, false);
-
-                    if (mss != null)
-                    {
-                        VideoStream.Value = mss;
-                    }
-                    else
-                    {
-                        throw new NotSupportedException();
-                    }
-                }
+                
 
                 // CachedStreamを使わずに直接ファイルから再生している場合
                 // キャッシュ済みとして表示する
@@ -971,32 +951,27 @@ namespace NicoPlayerHohoema.ViewModels
 			_BufferingMonitorDisposable?.Dispose();
 			_BufferingMonitorDisposable = new CompositeDisposable();
 
-			NowBuffering =
-				Observable.Timer(TimeSpan.Zero, TimeSpan.FromMilliseconds(100), PlayerWindowUIDispatcherScheduler)
+			NowBuffering = 
+				Observable.Merge(
+                    CurrentState.ToUnit(),
+                    DownloadCompleted.ToUnit()
+                    )
 					.Select(x =>
 					{
 						if (DownloadCompleted.Value) { return false; }
 
-						if (CurrentState.Value == MediaElementState.Paused)
+						if (CurrentState.Value == MediaPlaybackState.Paused)
 						{
 							return false;
 						}
 
-						if (CurrentState.Value == MediaElementState.Buffering 
-						|| CurrentState.Value == MediaElementState.Opening)
+						if (CurrentState.Value == MediaPlaybackState.Buffering 
+						|| CurrentState.Value == MediaPlaybackState.Opening)
 						{
 							return true;
 						}
 
-						if (ReadVideoPosition.Value == _PreviosPlayingVideoPosition)
-						{
-							return true;
-						}
-						else
-						{
-							_PreviosPlayingVideoPosition = ReadVideoPosition.Value;
-							return false;
-						}
+                        return false;
 					}
 				)
 				.ObserveOnUIDispatcher()
@@ -1245,6 +1220,9 @@ namespace NicoPlayerHohoema.ViewModels
                 CurrentVideoPosition.Value = TimeSpan.FromSeconds((double)viewModelState[nameof(CurrentVideoPosition)]);
             }
 
+            HohoemaApp.MediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
+            HohoemaApp.MediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
+
             Debug.WriteLine("VideoPlayer OnNavigatedToAsync done.");
 
             // 基本的にオンラインで再生、
@@ -1254,13 +1232,30 @@ namespace NicoPlayerHohoema.ViewModels
             App.Current.Suspending += Current_Suspending;
 		}
 
+        private void PlaybackSession_PositionChanged(MediaPlaybackSession sender, object args)
+        {
+            if (IsDisposed) { return; }
+
+            ReadVideoPosition.Value = sender.Position;
+            _PreviosPlayingVideoPosition = ReadVideoPosition.Value;
+        }
+
+        private void PlaybackSession_PlaybackStateChanged(MediaPlaybackSession sender, object args)
+        {
+            if (IsDisposed) { return; }
+
+            CurrentState.Value = sender.PlaybackState;
+        }
+
         private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
         {
             PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
 
             IsFullScreen.Value = false;
 
-            VideoStream.Value = null;
+            HohoemaApp.MediaPlayer.Source = null;
+
+            // TODO: Video.StopVideo()の呼び出し必要？
 
             _BufferingMonitorDisposable?.Dispose();
             _BufferingMonitorDisposable = new CompositeDisposable();
@@ -1323,17 +1318,13 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 			else 
 			{
-				var stream = VideoStream.Value;
-				VideoStream.Value = null;
-
-
-				// Note: VideoStopPlayによってストリームの管理が行われます
-				// これは再生後もダウンロードしている場合に対応するためです
-				// stream.Dispose();
-				if (Video != null)
+                // Note: VideoStopPlayによってストリームの管理が行われます
+                // これは再生後もダウンロードしている場合に対応するためです
+                // stream.Dispose();
+                if (Video != null)
 				{
 					await Task.Delay(1000);
-					Video.StopPlay().ConfigureAwait(false);
+					await Video.StopPlay().ConfigureAwait(false);
 				}
 
 
@@ -1369,14 +1360,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 			if (Video != null)
 			{
-				VideoStream.Value = null;
-
-				await Task.Delay(1000);
-
 				await Video.StopPlay().ConfigureAwait(false);
 			}
 
-			_BufferingMonitorDisposable?.Dispose();
+            _CommentRenderUpdateTimerDisposer?.Dispose();
+            _BufferingMonitorDisposable?.Dispose();
 		}
 
 
@@ -1505,8 +1493,30 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+        
+        private DelegateCommand _TogglePlayPauseCommand;
+        public DelegateCommand TogglePlayPauseCommand
+        {
+            get
+            {
+                return _TogglePlayPauseCommand
+                    ?? (_TogglePlayPauseCommand = new DelegateCommand(() =>
+                    {
+                        var session = MediaPlayer.PlaybackSession;
+                        if (session.PlaybackState == MediaPlaybackState.Playing)
+                        {
+                            MediaPlayer.Pause();
+                        }
+                        else if (session.PlaybackState == MediaPlaybackState.Paused)
+                        {
+                            MediaPlayer.Play();
+                        }
+                    }));
+            }
+        }
 
-		private DelegateCommand _ToggleMuteCommand;
+
+        private DelegateCommand _ToggleMuteCommand;
 		public DelegateCommand ToggleMuteCommand
 		{
 			get
@@ -1515,7 +1525,8 @@ namespace NicoPlayerHohoema.ViewModels
 					?? (_ToggleMuteCommand = new DelegateCommand(() => 
 					{
 						IsMuted.Value = !IsMuted.Value;
-					}));
+                        MediaPlayer.IsMuted = IsMuted.Value;
+                    }));
 			}
 		}
 
@@ -1775,6 +1786,9 @@ namespace NicoPlayerHohoema.ViewModels
             set { SetProperty(ref _Quality, value); }
         }
 
+
+
+
         private string _VideoTitle;
         public string VideoTitle
         {
@@ -1796,7 +1810,7 @@ namespace NicoPlayerHohoema.ViewModels
 		// ReactivePorpertyの初期化にPlayerWindowUIDispatcherSchedulerを使うこと
 
 
-		public ReactiveProperty<object> VideoStream { get; private set; }
+        public MediaPlayer MediaPlayer { get; private set; }
 
 		public ReactiveProperty<NicoVideoQuality> CurrentVideoQuality { get; private set; }
 		public ReactiveProperty<bool> CanToggleCurrentQualityCacheState { get; private set; }
@@ -1814,7 +1828,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<double> SliderVideoPosition { get; private set; }
 		public ReactiveProperty<double> VideoLength { get; private set; }
-		public ReactiveProperty<MediaElementState> CurrentState { get; private set; }
+		public ReactiveProperty<MediaPlaybackState> CurrentState { get; private set; }
 		public ReactiveProperty<bool> NowBuffering { get; private set; }
 		public ReactiveProperty<bool> NowPlaying { get; private set; }
 		public ReactiveProperty<bool> NowQualityChanging { get; private set; }

@@ -149,8 +149,8 @@ namespace NicoPlayerHohoema.Util
 
 		public IRandomAccessStream CloneStream()
 		{
-			throw new NotImplementedException();
-		}
+            return this;
+        }
 
 		public IInputStream GetInputStreamAt(ulong position)
 		{
@@ -418,8 +418,8 @@ namespace NicoPlayerHohoema.Util
 
 		public IRandomAccessStream CloneStream()
 		{
-			throw new NotImplementedException();
-		}
+            return this;
+        }
 
 		public IInputStream GetInputStreamAt(ulong position)
 		{

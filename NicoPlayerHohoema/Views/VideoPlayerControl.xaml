@@ -215,7 +215,8 @@
             
 
                     <!-- Media Control -->
-            <Grid x:Name="MediaControl">
+            <Grid x:Name="MediaControl" HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch">
 
                 <i:Interaction.Behaviors>
                     <mybehavior:KeyboardTrigger Key="Enter" IsEnabled="{Binding NowCommentWriting.Value, Converter={StaticResource InvertBoolean}}">
@@ -227,13 +228,9 @@
                     <mybehavior:MouseWheelTrigger>
                         <mybehavior:MouseWheelTrigger.UpActions>
                             <core:InvokeCommandAction Command="{Binding VolumeUpCommand}" />
-
-                            <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="PreventAutoHide" />
                         </mybehavior:MouseWheelTrigger.UpActions>
                         <mybehavior:MouseWheelTrigger.DownActions>
                             <core:InvokeCommandAction Command="{Binding VolumeDownCommand}" />
-
-                            <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="PreventAutoHide" />
                         </mybehavior:MouseWheelTrigger.DownActions>
                     </mybehavior:MouseWheelTrigger>
 
@@ -251,66 +248,42 @@
 
 
 
-                <MediaElement x:Name="mediaElem"
-                                local:MediaElementExtention.CustomStream="{Binding VideoStream.Value}"
-                                Position="{Binding CurrentVideoPosition.Value}"
-                                AudioCategory="BackgroundCapableMedia"
-                                IsMuted="{Binding IsMuted.Value}"
-                                IsLooping="{Binding IsEnableRepeat.Value}"
-                                Volume="{Binding SoundVolume.Value}"
-                                  
-                                AutoPlay="True"
-                            >
+                <MediaPlayerElement x:Name="MediaPlayerElement" Stretch="Uniform"
+                                    AreTransportControlsEnabled="False"
+                                    >
                     <i:Interaction.Behaviors>
+                        <mybehavior:MediaPlayerSetter MediaPlayer="{Binding MediaPlayer}" />
 
-                        <!-- 動画の再生位置を取り出す -->
-                        <mybehavior:MediaElementExtractPositionBehavior 
-                                    Position="{Binding ReadVideoPosition.Value, Mode=TwoWay}"
-                                    Interval="00:00:00.008" 
-                                    />
-
-                        <!-- MediaElementのバッファリング/再生の状態を読み取る -->
-                        <mybehavior:MediaElementStateGetter State="{Binding CurrentState.Value, Mode=TwoWay}" />
-
-                        <!-- アプリライフサイクルに合わせて動画の再生と一時停止を行う
-                        <mybehavior:EnsureLifecycleMediaElement />
-                        -->
-                        <mybehavior:MediaElementContentHeightGetter ContentHeight="{Binding CommentCanvasHeight.Value, Mode=TwoWay}"
-                                                                        />
-
-                        <mybehavior:KeyboardTrigger Key="Space"
-                                                        IsEnabled="{Binding ElementName=SplitView, Path=IsPaneOpen, Converter={StaticResource InvertBoolean}}" >
-                            <mybehavior:KeyboardTrigger.Actions>
-                                <mybehavior:MediaElementTogglePlayback TargetObject="{Binding ElementName=mediaElem}" />
-                            </mybehavior:KeyboardTrigger.Actions>
-                        </mybehavior:KeyboardTrigger>
-
+                        <mybehavior:MediaPlayerElementContentHeightGetter ContentHeight="{Binding CommentCanvasHeight.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                         
-                        <!-- 再生開始時にUIを非表示に-->
+                        <!-- 再生開始時にUIを非表示に
                         <core:DataTriggerBehavior Binding="{Binding CurrentState.Value}" ComparisonCondition="Equal" Value="Opening">
                             <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
                         </core:DataTriggerBehavior>
-
-                        <!-- 再生停止時にUIを表示状態に切替-->
+-->
+                        <!-- 再生停止時にUIを表示状態に切替
                         <core:DataTriggerBehavior Binding="{Binding CurrentState.Value}" ComparisonCondition="Equal" Value="Paused">
                             <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Show" />
                         </core:DataTriggerBehavior>
-
+-->
                         <!-- 小窓表示時にUIを非表示に-->
                         <core:DataTriggerBehavior Binding="{Binding IsSmallWindowModeEnable.Value}" ComparisonCondition="Equal" Value="True">
                             <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
                         </core:DataTriggerBehavior>
-                        
                     </i:Interaction.Behaviors>
-                </MediaElement>
-
-
+                    
+                    <!-- TODO: 動画コンテンツのHeightを取得 -->
+                    
+                    <!-- TODO: スペースキー入力で再生停止の切り替え-->
+                        
+                </MediaPlayerElement>
+                
+                
                 <comment:CommentRenderer 
                                 x:Name="CommentRederer"
                                 Comments="{Binding Comments}"
-                                VideoPosition="{Binding ReadVideoPosition.Value}"                                     
+                                VideoPosition="{Binding CommentVideoPosition.Value}"                                     
                                 Visibility="{Binding IsVisibleComment.Value, Converter={StaticResource BooleanToVisibility}}"
-                                RequestFPS="{Binding RequestFPS.Value}"
                                 CommentSizeScale="{Binding CommentFontScale.Value}"
                                 Height="{Binding CommentCanvasHeight.Value}"
                                 CommentDefaultColor="{Binding CommentDefaultColor.Value}"
@@ -470,19 +443,19 @@
 
 
                                                     <Slider x:Name="VolumeSlider"
-                                                    Orientation="Horizontal"
-                                                    VerticalAlignment="Top"
-                                                    Margin="8 4"
-                                                    Value="{Binding SoundVolume.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                    IsThumbToolTipEnabled="True"
-                                                    ThumbToolTipValueConverter="{StaticResource ToUserFriendlySoubleVolume}"
-                                                    Maximum="1.0"
-                                                    Minimum="0.0"
-                                                    StepFrequency="0.01"
-                                                    Height="32"
-                                                    Width="160"
+                                                        Orientation="Horizontal"
+                                                        VerticalAlignment="Top"
+                                                        Margin="8 4"
+                                                        Value="{Binding SoundVolume.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                        IsThumbToolTipEnabled="True"
+                                                        ThumbToolTipValueConverter="{StaticResource ToUserFriendlySoubleVolume}"
+                                                        Maximum="1.0"
+                                                        Minimum="0.0"
+                                                        StepFrequency="0.01"
+                                                        Height="32"
+                                                        Width="160"
                                                                 
-                                                    >
+                                                        >
                                                         <i:Interaction.Behaviors>
                                                             <core:EventTriggerBehavior EventName="ValueChanged" >
                                                                 <core:CallMethodAction TargetObject="{Binding ElementName=AutoHideBehavior}" MethodName="PreventAutoHide" />
@@ -490,11 +463,11 @@
                                                         </i:Interaction.Behaviors>
                                                     </Slider>
                                                     <TextBlock Text="音量" 
-                                                   VerticalAlignment="Center"
-                                                   Margin="8 0 0 0"
-                                                   HorizontalAlignment="Center"
-                                                   FontSize="12"
-                                                   />
+                                                       VerticalAlignment="Center"
+                                                       Margin="8 0 0 0"
+                                                       HorizontalAlignment="Center"
+                                                       FontSize="12"
+                                                       />
 
                                                 </StackPanel>
 
@@ -528,13 +501,10 @@
                                            FontSize="18"
                                            />
                                 </Button>
+                                
                                 <AppBarButton x:Name="PlayPauseButton" Icon="Play"
+                                              Command="{Binding TogglePlayPauseCommand}"
                                           >
-                                    <i:Interaction.Behaviors>
-                                        <core:EventTriggerBehavior EventName="Tapped">
-                                            <mybehavior:MediaElementTogglePlayback TargetObject="{Binding ElementName=mediaElem}" />
-                                        </core:EventTriggerBehavior>
-                                    </i:Interaction.Behaviors>
                                 </AppBarButton>
 
                                 <Button Background="Transparent">

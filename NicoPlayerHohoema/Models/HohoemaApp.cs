@@ -15,6 +15,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Diagnostics;
+using Windows.Media.Playback;
 using Windows.Networking.Connectivity;
 using Windows.Storage;
 using Windows.System.Power;
@@ -43,7 +44,10 @@ namespace NicoPlayerHohoema.Models
 
 			await app.LoadUserSettings();
 
-			app.RagistrationBackgroundUpdateHandle();
+            // プレイリストはユーザー設定が必要
+            app.Playlist = new HohoemaPlaylist(MediaPlayer, app.UserSettings.PlaylistSettings);
+
+            app.RagistrationBackgroundUpdateHandle();
 
 			return app;
 		}
@@ -54,9 +58,15 @@ namespace NicoPlayerHohoema.Models
 		private SemaphoreSlim _SigninLock;
 		private const string ThumbnailLoadBackgroundTaskId = "ThumbnailLoader";
 
-		private HohoemaApp(IEventAggregator ea)
+        public static MediaPlayer MediaPlayer { get; private set; } = new MediaPlayer()
+        {
+            AutoPlay = true,
+            AudioCategory = MediaPlayerAudioCategory.Movie,            
+        };
+
+        private HohoemaApp(IEventAggregator ea)
 		{
-			EventAggregator = ea;
+            EventAggregator = ea;
             NiconicoContext = new NiconicoContext();
 			LoginUserId = uint.MaxValue;
 			LoggingChannel = new LoggingChannel("HohoemaLog", new LoggingChannelOptions(HohoemaLoggerGroupGuid));
@@ -64,7 +74,6 @@ namespace NicoPlayerHohoema.Models
 			ContentFinder = new NiconicoContentFinder(this);
 			UserMylistManager = new UserMylistManager(this);
 			FeedManager = new FeedManager(this);
-            Playlist = new HohoemaPlaylist();
 
             FollowManager = null;
 

@@ -203,7 +203,7 @@
                         <mybehavior:EnsureLifecycleMediaElement />
                         -->
 
-                        <mybehavior:MediaElementContentHeightGetter ContentHeight="{Binding CommentCanvasHeight.Value, Mode=TwoWay}"
+                        <mybehavior:MediaPlayerElementContentHeightGetter ContentHeight="{Binding CommentCanvasHeight.Value, Mode=TwoWay}"
                                                                             />
 
                         <!-- 再生開始時にUIを非表示に-->
@@ -232,9 +232,7 @@
                                     Comments="{Binding LiveComments}"
                                     VideoPosition="{Binding LiveElapsedTime}"                                     
                                     Visibility="{Binding IsVisibleComment.Value, Converter={StaticResource BooleanToVisibility}}"
-                                    RequestFPS="{Binding CommentRenderFPS.Value}"
                                     CommentSizeScale="{Binding CommentFontScale.Value}"
-                                    
                                     CommentDefaultColor="{Binding CommentDefaultColor.Value}"
                                     DefaultDisplayDuration="{Binding RequestCommentDisplayDuration.Value}"
                                     />

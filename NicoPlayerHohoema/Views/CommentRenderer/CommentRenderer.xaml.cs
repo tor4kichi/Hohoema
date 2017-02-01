@@ -93,10 +93,6 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 		private uint _RenderingSkipCount;
 
-		/// <summary>
-		/// コメントの描画タイミングを生み出すタイマー
-		/// </summary>
-		private Timer _RenderingTimingTimer;
 
 		private bool _NowUpdating;
 		private TimeSpan _PreviousVideoPosition = TimeSpan.Zero;
@@ -108,9 +104,6 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			this.InitializeComponent();
 
             Initialize();
-
-            Loaded += CommentRenderer_Loaded;
-			Unloaded += CommentRenderer_Unloaded;
 		}
 
 
@@ -135,42 +128,16 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 		#region Event Handler
 
-		private async void CommentRenderer_Loaded(object sender, RoutedEventArgs e)
-		{
-			await ResetRenderingTimer();
-		}
 
-
-
-		private void CommentRenderer_Unloaded(object sender, RoutedEventArgs e)
-		{
-			_RenderingTimingTimer?.Dispose();
-			_RenderingTimingTimer = null;
-		}
 
 
 		#endregion
 
 
 
-		private async Task ResetRenderingTimer()
-		{
-			_RenderingTimingTimer?.Dispose();
+		
 
-			uint MaxCount = 10000;
-			uint count = 0;
-			while (_NowUpdating && MaxCount > count)
-			{
-				await Task.Delay(10);
-
-				count++;
-				Debug.WriteLine("コメント描画の終了を待機中 " + count.ToString());				
-			}
-
-			_RenderingTimingTimer = new Timer(TimerCallback, this, 100, (int)(1000 / RequestFPS));
-		}
-
-		private async void TimerCallback(object state)
+		private async void UpdateCommentDisplay()
 		{
 			try
 			{
@@ -207,7 +174,6 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 				OnUpdate();
 
 				_PreviousVideoPosition = videoPosition;
-
 			});
 
 			try
@@ -740,32 +706,13 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		{
 			CommentRenderer me = sender as CommentRenderer;
 
-//			me.OnUpdate();
+            Task.Run(() => me.UpdateCommentDisplay()).ConfigureAwait(false);
 		}
 
 
 
 
-		public static readonly DependencyProperty RequestFPSProperty =
-			DependencyProperty.Register("RequestFPS"
-				, typeof(int)
-				, typeof(CommentRenderer)
-				, new PropertyMetadata(24, OnRequestFPSChanged)
-				);
-
-		public int RequestFPS
-		{
-			get { return (int)GetValue(RequestFPSProperty); }
-			set { SetValue(RequestFPSProperty, value); }
-		}
-
-
-		private static void OnRequestFPSChanged(object sender, DependencyPropertyChangedEventArgs e)
-		{
-			CommentRenderer me = sender as CommentRenderer;
-
-			me.ResetRenderingTimer().ConfigureAwait(false);
-		}
+		
 
 
 
