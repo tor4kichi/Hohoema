@@ -324,7 +324,8 @@ namespace NicoPlayerHohoema.Models
 			}
 
 
-            
+            HohoemaApp.MediaPlayer.PlaybackSession.Position = TimeSpan.Zero;
+
             if (ContentType == MovieType.Mp4)
             {
                 string contentType = null;

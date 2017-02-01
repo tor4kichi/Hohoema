@@ -496,7 +496,7 @@
                                         >
 
                                 <!-- 再生 -->
-                                <Button Background="Transparent">
+                                <Button Background="Transparent" Command="{Binding PreviewVideoPositionCommand}">
                                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3C;" 
                                            FontSize="18"
                                            />
@@ -507,7 +507,9 @@
                                           >
                                 </AppBarButton>
 
-                                <Button Background="Transparent">
+                                <Button Background="Transparent"
+                                        Command="{Binding ForwardVideoPositionCommand}"
+                                        >
                                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3D;"
                                            FontSize="18"
                                            

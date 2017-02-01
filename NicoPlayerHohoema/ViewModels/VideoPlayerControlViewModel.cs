@@ -1259,7 +1259,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             _BufferingMonitorDisposable?.Dispose();
             _BufferingMonitorDisposable = new CompositeDisposable();
-
         }
 
         private async Task UpdateComments()
@@ -1332,9 +1331,11 @@ namespace NicoPlayerHohoema.ViewModels
                 HohoemaApp.Playlist.PlayDone();
 
                 App.Current.Suspending -= Current_Suspending;
+                HohoemaApp.MediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
+                HohoemaApp.MediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
             }
 
-			_SidePaneContentCache.Clear();
+            _SidePaneContentCache.Clear();
 
 			ExitKeepDisplay();
 
@@ -1511,6 +1512,36 @@ namespace NicoPlayerHohoema.ViewModels
                         {
                             MediaPlayer.Play();
                         }
+                    }));
+            }
+        }
+
+        private DelegateCommand _ForwardVideoPositionCommand;
+        public DelegateCommand ForwardVideoPositionCommand
+        {
+            get
+            {
+                return _ForwardVideoPositionCommand
+                    ?? (_ForwardVideoPositionCommand = new DelegateCommand(() =>
+                    {
+                        var session = MediaPlayer.PlaybackSession;
+                        var time = session.Position + TimeSpan.FromSeconds(30);
+                        session.Position = time;
+                    }));
+            }
+        }
+
+        private DelegateCommand _PreviewVideoPositionCommand;
+        public DelegateCommand PreviewVideoPositionCommand
+        {
+            get
+            {
+                return _PreviewVideoPositionCommand
+                    ?? (_PreviewVideoPositionCommand = new DelegateCommand(() =>
+                    {
+                        var session = MediaPlayer.PlaybackSession;
+                        var time = session.Position - TimeSpan.FromSeconds(10);
+                        session.Position = time;
                     }));
             }
         }
