@@ -33,7 +33,11 @@ namespace NicoPlayerHohoema.Models
 
 		const string PRIMARY_ACCOUNT = "primary_account";
 
-		private static DateTime LastSyncRoamingData = DateTime.MinValue;
+
+        public const string PlaylistSaveFolderName = "Playlists";
+
+
+        private static DateTime LastSyncRoamingData = DateTime.MinValue;
 
 		public static async Task<HohoemaApp> Create(IEventAggregator ea)
 		{
@@ -42,10 +46,13 @@ namespace NicoPlayerHohoema.Models
 			var app = new HohoemaApp(ea);
 			app.MediaManager = await NiconicoMediaManager.Create(app);
 
-			await app.LoadUserSettings();
+            await app.LoadUserSettings();
 
-            // プレイリストはユーザー設定が必要
-            app.Playlist = new HohoemaPlaylist(MediaPlayer, app.UserSettings.PlaylistSettings);
+            var folder = ApplicationData.Current.LocalFolder;
+            var playlistFolder = await folder.CreateFolderAsync(PlaylistSaveFolderName, CreationCollisionOption.OpenIfExists);
+            app.Playlist = new HohoemaPlaylist(MediaPlayer, app.UserSettings.PlaylistSettings, playlistFolder);
+
+            await app.Playlist.Load();
 
             app.RagistrationBackgroundUpdateHandle();
 
@@ -281,7 +288,7 @@ namespace NicoPlayerHohoema.Models
 			return await ApplicationData.Current.LocalFolder.CreateFolderAsync("feed", CreationCollisionOption.OpenIfExists);
 		}
 
-		public async Task LoadUserSettings()
+		private async Task LoadUserSettings()
 		{
 			var folder = ApplicationData.Current.LocalFolder;
 

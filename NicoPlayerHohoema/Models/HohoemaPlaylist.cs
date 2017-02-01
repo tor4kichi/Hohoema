@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Media;
 using Windows.Media.Playback;
+using Windows.Storage;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -39,7 +40,8 @@ namespace NicoPlayerHohoema.Models
 
         // データの保存
 
-        
+        public StorageFolder PlaylistsSaveFolder { get; private set; }
+
 
         public const string WatchAfterPlaylistId = "@view";
 
@@ -53,6 +55,10 @@ namespace NicoPlayerHohoema.Models
 
 
         public ObservableCollection<Playlist> Playlists { get; private set; } = new ObservableCollection<Playlist>();
+
+
+        private Dictionary<string, FileAccessor<Playlist>> _PlaylistFileAccessorMap = new Dictionary<string, FileAccessor<Playlist>>();
+
 
         public Playlist DefaultPlaylist { get; private set; }
 
@@ -121,12 +127,11 @@ namespace NicoPlayerHohoema.Models
 
 
 
-        public HohoemaPlaylist(MediaPlayer mediaPlayer, PlaylistSettings playlistSettings)
+        public HohoemaPlaylist(MediaPlayer mediaPlayer, PlaylistSettings playlistSettings, StorageFolder playlistSaveFolder)
         {
             MediaPlayer = mediaPlayer;
             PlaylistSettings = playlistSettings;
-            DefaultPlaylist = CreatePlaylist("@view", "あとで見る");
-            CurrentPlaylist = DefaultPlaylist;
+            PlaylistsSaveFolder = playlistSaveFolder;
 
             Observable.Merge(
                 PlaylistSettings.ObserveProperty(x => x.IsShuffleEnable).ToUnit(),
@@ -134,7 +139,73 @@ namespace NicoPlayerHohoema.Models
                 )
                 .Subscribe(x => MakePlayer());
                         
-            MakePlayer();
+//            MakePlayer();
+        }
+
+
+
+        public async Task Load()
+        {
+            var files = await PlaylistsSaveFolder.GetFilesAsync();
+
+            // ファイルがない場合
+            if (files.Count == 0)
+            {
+                // デフォルトプレイリストを作成
+                MakeDefaultPlaylist();
+                CurrentPlaylist = DefaultPlaylist;
+
+                return;
+            }
+
+            _PlaylistFileAccessorMap.Clear();
+            Playlists.Clear();
+            DefaultPlaylist = null;
+            foreach (var file in files)
+            {
+                var playlistFileAccessor = new FileAccessor<Playlist>(PlaylistsSaveFolder, file.Name);
+                var playlist = await playlistFileAccessor.Load();
+
+                if (playlist != null)
+                {
+                    _PlaylistFileAccessorMap.Add(playlist.Id, playlistFileAccessor);
+                    Playlists.Add(playlist);
+                }
+
+                if (playlist.Id == WatchAfterPlaylistId)
+                {
+                    DefaultPlaylist = playlist;
+                }
+            }
+
+            // デフォルトプレイリストが削除されていた場合に対応
+            if (DefaultPlaylist == null)
+            {
+                MakeDefaultPlaylist();
+            }
+
+        }
+
+        private void MakeDefaultPlaylist()
+        {
+            DefaultPlaylist = CreatePlaylist(WatchAfterPlaylistId, "あとで見る");
+        }
+
+        public async Task Save()
+        {
+            foreach (var playlist in Playlists)
+            {
+                var fileAccessor = _PlaylistFileAccessorMap[playlist.Id];
+                await fileAccessor.Save(playlist);
+            }
+        }
+
+
+
+        internal Task RenamePlaylist(Playlist playlist, string newName)
+        {
+            var fileAccessor = _PlaylistFileAccessorMap[playlist.Id];
+            return fileAccessor.Rename(newName);
         }
 
 
@@ -172,7 +243,9 @@ namespace NicoPlayerHohoema.Models
             // （そもそも再生中アイテムをPlayerに持たせるべきか？）
 
             
+            // TODO: MediaPlayerへのプレイリスト設定を行う
 
+            /*
             IPlaylistPlayer newPlayer = null;
             if (PlaylistSettings.RepeatMode == PlaybackMode.RepeatOne)
             {
@@ -208,6 +281,7 @@ namespace NicoPlayerHohoema.Models
             OnPropertyChanged(nameof(CanGoNext));
 
             _CurrentPlaylistId = _CurrentPlaylist.Id;
+            */
         }
 
         internal void PlayStart(Playlist playlist, PlaylistItem item = null)
@@ -270,14 +344,17 @@ namespace NicoPlayerHohoema.Models
 
         public Playlist CreatePlaylist(string id, string name)
         {
-            var playlist = new Playlist(id)
+            var playlist = new Playlist(id, name)
             {
                 // TODO: Idの初期化
-                Name = name,
                 HohoemaPlaylist = this
             };
 
+            var playlistFileAccessor = new FileAccessor<Playlist>(PlaylistsSaveFolder, playlist.Name + ".json");
+            _PlaylistFileAccessorMap.Add(playlist.Id, playlistFileAccessor);
             Playlists.Add(playlist);
+
+            playlistFileAccessor.Save(playlist).ConfigureAwait(false);
 
             return playlist;
         }
@@ -287,6 +364,9 @@ namespace NicoPlayerHohoema.Models
             if (Playlists.Contains(playlist))
             {
                 Playlists.Remove(playlist);
+                var fileAccessor = _PlaylistFileAccessorMap[playlist.Id];
+                fileAccessor.Delete().ConfigureAwait(false);
+                _PlaylistFileAccessorMap.Remove(playlist.Id);
 
                 playlist.Dispose();
             }
@@ -331,11 +411,10 @@ namespace NicoPlayerHohoema.Models
         abstract public void GoBack();
         abstract public void GoNext();
 
-
         public PlaylistPlayerBase(HohoemaPlaylist parent, Playlist playlist)
         {
             Playlist = playlist;
-            Current = Playlist.CurrentVideo;
+            Current = Playlist?.CurrentVideo;
         }
 
         public void SetCurrent(PlaylistItem item)
@@ -558,13 +637,21 @@ namespace NicoPlayerHohoema.Models
         [DataMember]
         public string Id { get; private set; }
 
+
         private string _Name;
 
         [DataMember]
         public string Name
         {
             get { return _Name; }
-            set { SetProperty(ref _Name, value); }
+            set
+            {
+                if (SetProperty(ref _Name, value))
+                {
+                    // プレイリストの名前が変更されたらファイルの名前も変更
+                    HohoemaPlaylist.RenamePlaylist(this, _Name);
+                }
+            }
         }
 
         [DataMember]
@@ -597,10 +684,11 @@ namespace NicoPlayerHohoema.Models
             PlaylistItems = new ReadOnlyObservableCollection<PlaylistItem>(_PlaylistItems);
         }
 
-        public Playlist(string id)
+        public Playlist(string id, string name)
             : this()
         {
             Id = id;
+            _Name = name;
 
             _ItemsChangedObserveDisposer = PlaylistItems.CollectionChangedAsObservable()
                 .Subscribe(x => 
