@@ -1222,6 +1222,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             HohoemaApp.MediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
             HohoemaApp.MediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
+            
 
             Debug.WriteLine("VideoPlayer OnNavigatedToAsync done.");
 
@@ -1245,6 +1246,16 @@ namespace NicoPlayerHohoema.ViewModels
             if (IsDisposed) { return; }
 
             CurrentState.Value = sender.PlaybackState;
+
+            // TODO: 単品リピートモードが有効な場合には次送りをスキップする
+
+            // 最後まで到達していた場合
+            if (sender.PlaybackState == MediaPlaybackState.Paused
+                && sender.Position >= Video.VideoLength
+                )
+            {
+                HohoemaApp.Playlist.PlayDone();
+            }
         }
 
         private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)

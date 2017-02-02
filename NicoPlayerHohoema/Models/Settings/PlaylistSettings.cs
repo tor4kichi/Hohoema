@@ -4,16 +4,17 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Media;
 
 namespace NicoPlayerHohoema.Models
 {
     [DataContract]
     public class PlaylistSettings : SettingsBase
     {
-        private PlaybackMode _RepeatMode = PlaybackMode.Through;
+        private MediaPlaybackAutoRepeatMode _RepeatMode = MediaPlaybackAutoRepeatMode.List;
 
         [DataMember]
-        public PlaybackMode RepeatMode
+        public MediaPlaybackAutoRepeatMode RepeatMode
         {
             get { return _RepeatMode; }
 			set { SetProperty(ref _RepeatMode, value); }
