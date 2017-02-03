@@ -206,7 +206,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _PlayPlaylistCommand
                     ?? (_PlayPlaylistCommand = new DelegateCommand(() =>
                     {
-                        HohoemaPlaylist.PlayStart(this.Playlist);
+                        this.Playlist.Play();
                     }));
             }
         }

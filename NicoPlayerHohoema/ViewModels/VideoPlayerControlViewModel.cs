@@ -343,12 +343,12 @@ namespace NicoPlayerHohoema.ViewModels
 				{
                     if (Video != null)
                     {
-                        await Video.StopPlay();
+                        //await Video.StopPlay();
 
                         // TODO: ユーザー手動の再読み込みに変更する
-                        await Task.Delay(500);
+//                        await Task.Delay(500);
 
-                        await this.PlayingQualityChangeAction();
+//                        await this.PlayingQualityChangeAction();
 
                         Debug.WriteLine("再生中に動画がClosedになったため、強制的に再初期化を実行しました。これは非常措置です。");
                     }
@@ -1263,10 +1263,10 @@ namespace NicoPlayerHohoema.ViewModels
 
             // 最後まで到達していた場合
             if (sender.PlaybackState == MediaPlaybackState.Paused
-                && sender.Position >= Video.VideoLength
+                && sender.Position >= (Video.VideoLength - TimeSpan.FromSeconds(1))
                 )
             {
-                HohoemaApp.Playlist.PlayDone();
+                VideoPlayed(canPlayNext:true);
             }
         }
 
@@ -1349,9 +1349,8 @@ namespace NicoPlayerHohoema.ViewModels
 					await Video.StopPlay().ConfigureAwait(false);
 				}
 
-
                 // プレイリストへ再生完了を通知
-                HohoemaApp.Playlist.PlayDone();
+                VideoPlayed();
 
                 App.Current.Suspending -= Current_Suspending;
                 HohoemaApp.MediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
@@ -1375,6 +1374,22 @@ namespace NicoPlayerHohoema.ViewModels
 			Debug.WriteLine("VideoPlayer OnNavigatingFromAsync done.");
 		}
 
+
+        bool _IsVideoPlayed = false;
+        private void VideoPlayed(bool canPlayNext = false)
+        {
+            if (_IsVideoPlayed == false)
+            {
+                // Note: 次の再生用VMの作成を現在ウィンドウのUIDsipatcher上で行わないと同期コンテキストが拾えず再生に失敗する
+                // VideoPlayedはMediaPlayerが動作しているコンテキスト上から呼ばれる可能性がある
+                PlayerWindowUIDispatcherScheduler.Schedule(() => 
+                {
+                    HohoemaApp.Playlist.PlayDone(canPlayNext);
+                });
+
+                _IsVideoPlayed = true;
+            }
+        }
 
 
 

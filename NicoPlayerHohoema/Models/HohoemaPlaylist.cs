@@ -216,40 +216,19 @@ namespace NicoPlayerHohoema.Models
             await fileAccessor.Save(playlist);
         }
 
-        internal void PlayStart(Playlist playlist, PlaylistItem item = null)
+        internal void PlayStarted(Playlist playlist, PlaylistItem item)
         {
             // プレイリストアイテムが不正
-            if (item != null && !playlist.PlaylistItems.Contains(item))
+            if (playlist == null 
+                || item == null 
+                || !playlist.PlaylistItems.Contains(item)
+                )
             {
                 throw new Exception();
             }
 
             CurrentPlaylist = playlist;
-
-            if (item == null)
-            {
-                item = CurrentPlaylist.PlaylistItems.First();
-            }
-
-            OpenVideo(item);
-        }
-
-
-        private void OpenVideo(PlaylistItem item)
-        {
-            if (item == null)
-            {
-                throw new NullReferenceException(nameof(PlaylistItem) + " is null.");
-            }
-
-            if (item.ContentId == null)
-            {
-                item.Owner.Remove(item);
-                return;
-            }
-
-            Player.SetCurrent(item);
-
+           
             OpenPlaylistItem?.Invoke(CurrentPlaylist, item);
 
             IsDisplayPlayer = true;
@@ -314,10 +293,7 @@ namespace NicoPlayerHohoema.Models
         public void PlayVideo(string contentId, string title, NicoVideoQuality? quality = null)
         {
             var newItem = DefaultPlaylist.AddVideo(contentId, title, quality);
-            //if (DefaultPlaylist.CurrentVideo == null)
-            {
-                PlayStart(DefaultPlaylist, newItem);
-            }
+            DefaultPlaylist.Player.Play(newItem);
         }
 
 
@@ -325,10 +301,7 @@ namespace NicoPlayerHohoema.Models
         public void PlayLiveVideo(string liveId, string title)
         {
             var newItem = DefaultPlaylist.AddLiveVideo(liveId, title);
-            //if (DefaultPlaylist.CurrentVideo == null)
-            {
-                PlayStart(DefaultPlaylist, newItem);
-            }
+            DefaultPlaylist.Player.Play(newItem);
         }
 
 
@@ -366,7 +339,7 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
-        public void PlayDone()
+        public void PlayDone(bool canPlayNext = false)
         {
             // あとで見るプレイリストから再生完了したアイテムを削除する
             if (DefaultPlaylist == CurrentPlaylist)
@@ -378,7 +351,7 @@ namespace NicoPlayerHohoema.Models
             }
 
             // 次送りが出来る場合は次へ
-            if (Player?.CanGoNext ?? false)
+            if (canPlayNext && (Player?.CanGoNext ?? false))
             {
                 Player.GoNext();
             }
@@ -464,6 +437,11 @@ namespace NicoPlayerHohoema.Models
         }
 
 
+        public void Play(PlaylistItem item)
+        {
+            _InternalPlayer.Play(item);
+        }
+
         private void ResetPlayer()
         {
             IPlaylistPlayer newPlayer = null;
@@ -488,28 +466,17 @@ namespace NicoPlayerHohoema.Models
 
             if (newPlayer == null) { throw new Exception(); }
 
-            // 
-            var oldPlayer = _InternalPlayer;
             _InternalPlayer = newPlayer;
-            if (oldPlayer?.Current != null)
-            {
-                newPlayer.SetCurrent(oldPlayer.Current);
-            }
-        }
-
-        public void SetCurrent(PlaylistItem item)
-        {
-            _InternalPlayer.SetCurrent(item);
         }
 
         public void GoBack()
         {
-            _InternalPlayer.GoNext();
+            _InternalPlayer.GoBack();
         }
 
         public void GoNext()
         {
-            _InternalPlayer.GoBack();
+            _InternalPlayer.GoNext();
         }
     }
 
@@ -519,10 +486,10 @@ namespace NicoPlayerHohoema.Models
         Playlist Playlist { get; }
         PlaylistItem Current { get; }
 
+        void Play(PlaylistItem item);
+
         bool CanGoBack { get; }
         bool CanGoNext { get; }
-
-        void SetCurrent(PlaylistItem item);
 
         void GoBack();
         void GoNext();
@@ -536,22 +503,38 @@ namespace NicoPlayerHohoema.Models
         abstract public bool CanGoBack { get; }
         abstract public bool CanGoNext { get; }
 
-        abstract public void GoBack();
-        abstract public void GoNext();
+        public void Play(PlaylistItem item)
+        {
+            Playlist.CurrentVideo = item;
+            Current = item;
+
+            Playlist.HohoemaPlaylist.PlayStarted(Playlist, Current);
+        }
+
+        public void GoBack()
+        {
+            if (CanGoBack)
+            {
+                Play(GetPreviousItem());
+            }
+        }
+
+        public void GoNext()
+        {
+            if (CanGoNext)
+            {
+                Play(GetNextItem());
+            }
+        }
+
+        abstract protected PlaylistItem GetNextItem();
+
+        abstract protected PlaylistItem GetPreviousItem();
 
         public PlaylistPlayerBase(Playlist playlist)
         {
             Playlist = playlist;
             Current = Playlist?.CurrentVideo;
-        }
-
-        public void SetCurrent(PlaylistItem item)
-        {
-            if (Playlist.PlaylistItems.Contains(item))
-            {
-                Playlist.CurrentVideo = item;
-                Current = item;
-            }
         }
     }
 
@@ -586,18 +569,18 @@ namespace NicoPlayerHohoema.Models
 
         public bool IsRepeat { get; set; } = false;
 
-        public override void GoBack()
+        protected override PlaylistItem GetPreviousItem()
         {
             var currentIndex = Playlist.PlaylistItems.IndexOf(Current);
             var prevIndex = currentIndex - 1;
 
             if (prevIndex < 0) { throw new Exception(); }
 
-            SetCurrent(Playlist.PlaylistItems[prevIndex]);
+            return Playlist.PlaylistItems[prevIndex];
         }
 
 
-        public override void GoNext()
+        protected override PlaylistItem GetNextItem()
         {
             var currentIndex = Playlist.PlaylistItems.IndexOf(Current);
             var nextIndex = currentIndex + 1;
@@ -614,7 +597,7 @@ namespace NicoPlayerHohoema.Models
                 }
             }
 
-            SetCurrent(Playlist.PlaylistItems[nextIndex]);
+            return Playlist.PlaylistItems[nextIndex];
         }
     }
 
@@ -631,7 +614,7 @@ namespace NicoPlayerHohoema.Models
         public ShufflePlaylistPlayer(Playlist playlist)
             : base( playlist)
         {
-
+            
         }
 
         public bool IsRepeat { get; set; }
@@ -662,7 +645,7 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
-        public override void GoBack()
+        protected override PlaylistItem GetPreviousItem()
         {
             SyncPlaylistItems();
 
@@ -673,26 +656,37 @@ namespace NicoPlayerHohoema.Models
             {
                 RandamizedItems.Enqueue(Current);
 
-                SetCurrent(prevItem);
+                return prevItem;
+            }
+            else
+            {
+                throw new Exception();
             }
         }
 
-        public override void GoNext()
+        protected override PlaylistItem GetNextItem()
         {
             SyncPlaylistItems();
 
-            if (RandamizedItems.Count == 0 && IsRepeat)
+            if (RandamizedItems.Count == 0)
             {
-                // RandamizedItemsを再構成
-                PlayedItem.Clear();
+                if (IsRepeat)
+                {
+                    // RandamizedItemsを再構成
+                    PlayedItem.Clear();
 
-                SyncPlaylistItems();
+                    SyncPlaylistItems();
+                }
+                else
+                {
+                    throw new Exception();
+                }
             }
 
             var nextItem = RandamizedItems.Dequeue();
             PlayedItem.Push(Current);
 
-            SetCurrent(nextItem);
+            return nextItem;
         }
 
         private void SyncPlaylistItems()
@@ -742,18 +736,18 @@ namespace NicoPlayerHohoema.Models
             Current = playlist.CurrentVideo;
         }
 
-        public override bool CanGoBack => false;
+        public override bool CanGoBack => true;
 
-        public override bool CanGoNext => false;
+        public override bool CanGoNext => true;
 
-        public override void GoBack()
+        protected override PlaylistItem GetNextItem()
         {
-            throw new NotSupportedException();
+            return Current;
         }
 
-        public override void GoNext()
+        protected override PlaylistItem GetPreviousItem()
         {
-            throw new NotSupportedException();
+            return Current;
         }
     }
 
@@ -771,7 +765,6 @@ namespace NicoPlayerHohoema.Models
                 _PlaylistSettings = value;
                 Player = new PlaylistPlayer(this, _PlaylistSettings);
             }
-
         }
 
         public PlaylistPlayer Player { get; private set; }
@@ -894,12 +887,13 @@ namespace NicoPlayerHohoema.Models
         }
 
 
-
-
-        internal void Play(PlaylistItem item)
+        public void Play()
         {
-            HohoemaPlaylist.PlayStart(this, item);
+            if (PlaylistItems.Count == 0) { return; }
+
+            Player.Play(PlaylistItems.First());
         }
+        
 
         public PlaylistItem AddVideo(string videoId, string videoName, NicoVideoQuality? quality = null)
         {
@@ -987,7 +981,7 @@ namespace NicoPlayerHohoema.Models
 
         public void Play()
         {
-            Owner.Play(this);
+            Owner.Player.Play(this);
         }
         
         
