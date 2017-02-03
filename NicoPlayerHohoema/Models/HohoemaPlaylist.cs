@@ -50,7 +50,9 @@ namespace NicoPlayerHohoema.Models
         public IPlaylistPlayer Player => CurrentPlaylist?.Player;
 
 
-        public ObservableCollection<Playlist> Playlists { get; private set; } = new ObservableCollection<Playlist>();
+        private ObservableCollection<Playlist> _Playlists = new ObservableCollection<Playlist>();
+        public ReadOnlyObservableCollection<Playlist> Playlists { get; private set; }
+
 
 
         private Dictionary<string, FileAccessor<Playlist>> _PlaylistFileAccessorMap = new Dictionary<string, FileAccessor<Playlist>>();
@@ -104,6 +106,8 @@ namespace NicoPlayerHohoema.Models
             PlaylistSettings = playlistSettings;
             PlaylistsSaveFolder = playlistSaveFolder;
 
+            Playlists = new ReadOnlyObservableCollection<Playlist>(_Playlists);
+
             var smtc = MediaPlayer.SystemMediaTransportControls;
             smtc.AutoRepeatModeChangeRequested += Smtc_AutoRepeatModeChangeRequested;
             MediaPlayer.CommandManager.NextReceived += CommandManager_NextReceived;
@@ -119,7 +123,7 @@ namespace NicoPlayerHohoema.Models
 
         public void Dispose()
         {
-            foreach (var playlist in Playlists)
+            foreach (var playlist in _Playlists)
             {
                 playlist.Dispose();
             }
@@ -143,17 +147,18 @@ namespace NicoPlayerHohoema.Models
 
 
             // 古いデータを解放
-            foreach (var playlist in Playlists)
+            foreach (var playlist in _Playlists)
             {
                 playlist.Dispose();
             }
 
             _PlaylistFileAccessorMap.Clear();
-            Playlists.Clear();
+            _Playlists.Clear();
             DefaultPlaylist = null;
 
 
             // 読み込み
+            List<Playlist> loadedItem = new List<Playlist>();
             foreach (var file in files)
             {
                 var playlistFileAccessor = new FileAccessor<Playlist>(PlaylistsSaveFolder, file.Name);
@@ -165,7 +170,7 @@ namespace NicoPlayerHohoema.Models
                     playlist.PlaylistSettings = PlaylistSettings;
 
                     _PlaylistFileAccessorMap.Add(playlist.Id, playlistFileAccessor);
-                    Playlists.Add(playlist);
+                    loadedItem.Add(playlist);
                 }
 
                 if (playlist.Id == WatchAfterPlaylistId)
@@ -173,6 +178,14 @@ namespace NicoPlayerHohoema.Models
                     DefaultPlaylist = playlist;
                 }
             }
+
+            loadedItem.Sort((x, y) => x.SortIndex - x.SortIndex);
+
+            foreach (var sortedPlaylist in loadedItem)
+            {
+                _Playlists.Add(sortedPlaylist);
+            }
+            
 
             // デフォルトプレイリストが削除されていた場合に対応
             if (DefaultPlaylist == null)
@@ -185,7 +198,7 @@ namespace NicoPlayerHohoema.Models
 
         public async Task Save()
         {
-            foreach (var playlist in Playlists)
+            foreach (var playlist in _Playlists)
             {
                 var fileAccessor = _PlaylistFileAccessorMap[playlist.Id];
                 await fileAccessor.Save(playlist);
@@ -194,7 +207,7 @@ namespace NicoPlayerHohoema.Models
 
 
 
-        internal async Task RenamePlaylist(Playlist playlist, string newName)
+        internal async void RenamePlaylist(Playlist playlist, string newName)
         {
             var fileAccessor = _PlaylistFileAccessorMap[playlist.Id];
             var newFileName = Util.FilePathHelper.ToSafeFilePath(Path.ChangeExtension(newName, ".json"));
@@ -322,15 +335,18 @@ namespace NicoPlayerHohoema.Models
 
         public Playlist CreatePlaylist(string id, string name)
         {
+            var sortIndex = _Playlists.Count > 0 ? _Playlists.Max(x => x.SortIndex) + 1 : 0;
+
             var playlist = new Playlist(id, name)
             {
                 HohoemaPlaylist = this,
-                PlaylistSettings = PlaylistSettings
+                PlaylistSettings = PlaylistSettings,
+                SortIndex = sortIndex
             };
 
             var playlistFileAccessor = new FileAccessor<Playlist>(PlaylistsSaveFolder, playlist.Name + ".json");
             _PlaylistFileAccessorMap.Add(playlist.Id, playlistFileAccessor);
-            Playlists.Add(playlist);
+            _Playlists.Add(playlist);
 
             playlistFileAccessor.Save(playlist).ConfigureAwait(false);
 
@@ -339,9 +355,9 @@ namespace NicoPlayerHohoema.Models
 
         public void RemovePlaylist(Playlist playlist)
         {
-            if (Playlists.Contains(playlist))
+            if (_Playlists.Contains(playlist))
             {
-                Playlists.Remove(playlist);
+                _Playlists.Remove(playlist);
                 var fileAccessor = _PlaylistFileAccessorMap[playlist.Id];
                 fileAccessor.Delete().ConfigureAwait(false);
                 _PlaylistFileAccessorMap.Remove(playlist.Id);
@@ -760,6 +776,8 @@ namespace NicoPlayerHohoema.Models
 
         public PlaylistPlayer Player { get; private set; }
 
+        [DataMember]
+        public int SortIndex { get; internal set; }
 
 
         [DataMember]

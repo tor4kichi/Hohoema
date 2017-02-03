@@ -129,6 +129,7 @@ namespace NicoPlayerHohoema.ViewModels
 
     public class PlaylistViewModel : HohoemaVideoListingPageViewModelBase<PlaylistItemViewModel>
     {
+        public bool IsDefaultPlaylist { get; private set; }
         public ReadOnlyReactiveProperty<string> PlaylistName { get; private set; }
         public HohoemaPlaylist HohoemaPlaylist { get; private set; }
         public Playlist Playlist { get; private set; }
@@ -143,6 +144,7 @@ namespace NicoPlayerHohoema.ViewModels
         {
             HohoemaPlaylist = hohoemaApp.Playlist;
             Playlist = playlist;
+            IsDefaultPlaylist = Playlist.Id == HohoemaPlaylist.DefaultPlaylist.Id;
 
             PlaylistName = Playlist.ObserveProperty(x => x.Name)
                 .ToReadOnlyReactiveProperty();
@@ -195,6 +197,20 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+
+        private DelegateCommand _PlayPlaylistCommand;
+        public DelegateCommand PlayPlaylistCommand
+        {
+            get
+            {
+                return _PlayPlaylistCommand
+                    ?? (_PlayPlaylistCommand = new DelegateCommand(() =>
+                    {
+                        HohoemaPlaylist.PlayStart(this.Playlist);
+                    }));
+            }
+        }
+
         public ReactiveCommand RenamePlaylistCommand { get; private set; }
 
         internal void PlayItem(PlaylistItemViewModel itemVM)
@@ -205,6 +221,7 @@ namespace NicoPlayerHohoema.ViewModels
         internal void RemoveItem(PlaylistItemViewModel itemVM)
         {
             Playlist.Remove(itemVM.PlaylistItem);
+            IncrementalLoadingItems.Remove(itemVM);
         }
 
         protected override IIncrementalSource<PlaylistItemViewModel> GenerateIncrementalSource()

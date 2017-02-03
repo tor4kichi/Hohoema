@@ -34,7 +34,7 @@ namespace NicoPlayerHohoema.ViewModels
             SelectedItems = new ObservableCollection<ITEM_VM>();
 
             
-            HasItem = new ReactiveProperty<bool>(true);
+            HasItem = new ReactiveProperty<bool>(false);
 
 			HasError = new ReactiveProperty<bool>(false);
 
