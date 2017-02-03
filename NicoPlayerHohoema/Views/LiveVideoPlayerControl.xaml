@@ -195,9 +195,6 @@
                             >
                     <i:Interaction.Behaviors>
 
-                        <!-- MediaElementのバッファリング/再生の状態を読み取る -->
-                        <mybehavior:MediaElementStateGetter State="{Binding CurrentState.Value, Mode=TwoWay}" />
-                    
                         <!-- アプリライフサイクルに合わせて動画の再生と一時停止を行う 
                         
                         <mybehavior:EnsureLifecycleMediaElement />

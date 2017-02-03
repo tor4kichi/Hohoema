@@ -827,7 +827,6 @@ namespace NicoPlayerHohoema.ViewModels
 		private CompositeDisposable _BufferingMonitorDisposable;
 
 
-
 		/// <summary>
 		/// 再生処理
 		/// </summary>
@@ -1231,7 +1230,20 @@ namespace NicoPlayerHohoema.ViewModels
             ChangeRequireServiceLevel(HohoemaAppServiceLevel.LoggedIn);
 
             App.Current.Suspending += Current_Suspending;
+            App.Current.LeavingBackground += Current_LeavingBackground;
+            App.Current.EnteredBackground += Current_EnteredBackground;
 		}
+
+        private void Current_EnteredBackground(object sender, Windows.ApplicationModel.EnteredBackgroundEventArgs e)
+        {
+            _CommentRenderUpdateTimerDisposer?.Dispose();
+            _CommentRenderUpdateTimerDisposer = null;
+        }
+
+        private void Current_LeavingBackground(object sender, Windows.ApplicationModel.LeavingBackgroundEventArgs e)
+        {
+            RequestFPS.ForceNotify();
+        }
 
         private void PlaybackSession_PositionChanged(MediaPlaybackSession sender, object args)
         {

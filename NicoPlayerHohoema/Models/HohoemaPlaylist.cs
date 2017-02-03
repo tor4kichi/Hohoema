@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -104,7 +105,6 @@ namespace NicoPlayerHohoema.Models
             PlaylistsSaveFolder = playlistSaveFolder;
 
             var smtc = MediaPlayer.SystemMediaTransportControls;
-            smtc.ButtonPressed += Smtc_ButtonPressed;
             smtc.AutoRepeatModeChangeRequested += Smtc_AutoRepeatModeChangeRequested;
             MediaPlayer.CommandManager.NextReceived += CommandManager_NextReceived;
             MediaPlayer.CommandManager.PreviousReceived += CommandManager_PreviousReceived;
@@ -181,7 +181,7 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
-       
+        
 
         public async Task Save()
         {
@@ -194,10 +194,13 @@ namespace NicoPlayerHohoema.Models
 
 
 
-        internal Task RenamePlaylist(Playlist playlist, string newName)
+        internal async Task RenamePlaylist(Playlist playlist, string newName)
         {
             var fileAccessor = _PlaylistFileAccessorMap[playlist.Id];
-            return fileAccessor.Rename(newName);
+            var newFileName = Util.FilePathHelper.ToSafeFilePath(Path.ChangeExtension(newName, ".json"));
+            await fileAccessor.Rename(newFileName, forceReplace:true);
+            playlist.Name = newName;
+            await fileAccessor.Save(playlist);
         }
 
         internal void PlayStart(Playlist playlist, PlaylistItem item = null)
@@ -226,6 +229,12 @@ namespace NicoPlayerHohoema.Models
                 throw new NullReferenceException(nameof(PlaylistItem) + " is null.");
             }
 
+            if (item.ContentId == null)
+            {
+                item.Owner.Remove(item);
+                return;
+            }
+
             Player.SetCurrent(item);
 
             OpenPlaylistItem?.Invoke(CurrentPlaylist, item);
@@ -234,58 +243,32 @@ namespace NicoPlayerHohoema.Models
 
             ResetMediaPlayerCommand();
 
-            var smtc = MediaPlayer.SystemMediaTransportControls;
-            smtc.DisplayUpdater.Type = MediaPlaybackType.Video;
-            smtc.DisplayUpdater.VideoProperties.Title = item.Title;
-            smtc.IsEnabled = true;
-            smtc.IsPlayEnabled = true;
-            smtc.IsPauseEnabled = true;
-            smtc.DisplayUpdater.Update();
+            MediaPlayer.AudioCategory = MediaPlayerAudioCategory.Media;
         }
 
         private void CommandManager_PreviousReceived(MediaPlaybackCommandManager sender, MediaPlaybackCommandManagerPreviousReceivedEventArgs args)
         {
-            if (Player?.CanGoBack ?? false)
+            if (args.Handled != true)
             {
-                Player.GoBack();
+                args.Handled = true;
+
+                if (Player?.CanGoBack ?? false)
+                {
+                    Player.GoBack();
+                }
             }
         }
 
         private void CommandManager_NextReceived(MediaPlaybackCommandManager sender, MediaPlaybackCommandManagerNextReceivedEventArgs args)
         {
-            if (Player?.CanGoNext ?? false)
+            if (args.Handled != true)
             {
-                Player.GoNext();
-            }
-        }
+                args.Handled = true;
 
-        private void Smtc_ButtonPressed(SystemMediaTransportControls sender, SystemMediaTransportControlsButtonPressedEventArgs args)
-        {
-            Debug.WriteLine("smtc button pressed: " + args.Button.ToString());
-            switch (args.Button)
-            {
-                case SystemMediaTransportControlsButton.Play:
-                    break;
-                case SystemMediaTransportControlsButton.Pause:
-                    break;
-                case SystemMediaTransportControlsButton.Stop:
-                    break;
-                case SystemMediaTransportControlsButton.Record:
-                    break;
-                case SystemMediaTransportControlsButton.FastForward:
-                    break;
-                case SystemMediaTransportControlsButton.Rewind:
-                    break;
-                case SystemMediaTransportControlsButton.Next:
-                    break;
-                case SystemMediaTransportControlsButton.Previous:
-                    break;
-                case SystemMediaTransportControlsButton.ChannelUp:
-                    break;
-                case SystemMediaTransportControlsButton.ChannelDown:
-                    break;
-                default:
-                    break;
+                if (Player?.CanGoNext ?? false)
+                {
+                    Player.GoNext();
+                }
             }
         }
 
@@ -902,6 +885,8 @@ namespace NicoPlayerHohoema.Models
 
         public PlaylistItem AddVideo(string videoId, string videoName, NicoVideoQuality? quality = null)
         {
+            if (videoId == null) { throw new Exception(); }
+
             // すでに登録済みの場合
             var alreadyAdded = _PlaylistItems.SingleOrDefault(x => x.Type == PlaylistItemType.Video && x.ContentId == videoId);
             if (alreadyAdded != null)
@@ -915,7 +900,8 @@ namespace NicoPlayerHohoema.Models
                 Type = PlaylistItemType.Video,
                 ContentId = videoId,
                 Title = videoName,
-                Quality = quality
+                Quality = quality,
+                Owner = this,
             };
 
             _PlaylistItems.Insert(0, newItem);
@@ -940,6 +926,7 @@ namespace NicoPlayerHohoema.Models
                 Type = PlaylistItemType.Live,
                 ContentId = liveId,
                 Title = liveName,
+                Owner = this,
             };
 
             _PlaylistItems.Insert(0, newItem);
@@ -964,12 +951,18 @@ namespace NicoPlayerHohoema.Models
 
     }
 
+    [DataContract]
     public class PlaylistItem
     {
         internal PlaylistItem() { }
 
+        [DataMember]
         public PlaylistItemType Type { get; set; }
+
+        [DataMember]
         public string ContentId { get; set; }
+
+        [DataMember]
         public string Title { get; set; }
 
         public Playlist Owner { get; set; }

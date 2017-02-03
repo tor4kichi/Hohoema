@@ -235,7 +235,28 @@ namespace NicoPlayerHohoema.ViewModels
 					await PageManager.StartNoUIWork("マイリスト登録", items.Count, () => action);
 				}
 			);
-		}
+
+
+            AddPlaylistCommand = SelectionItemsChanged
+                .Select(x => SelectedItems.Count > 0)
+                .ToReactiveCommand<string>(false)
+                .AddTo(_CompositeDisposable);
+
+            AddPlaylistCommand.Subscribe(playlistId => 
+            {
+                var hohoemaPlaylist = HohoemaApp.Playlist;
+                var playlist = hohoemaPlaylist.Playlists.FirstOrDefault(x => x.Id == playlistId);
+
+                if (playlist == null) { return; }
+
+                foreach (var item in SelectedItems)
+                {
+                    playlist.AddVideo(item.RawVideoId, item.Title);
+                }
+            });
+
+            Playlists = HohoemaApp.Playlist.Playlists.ToReadOnlyReactiveCollection();
+        }
 
 
 		protected override void OnDispose()
@@ -369,11 +390,13 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _CanDownload, value); }
 		}
 
+        public ReadOnlyReactiveCollection<Playlist> Playlists { get; private set; }
 
 		public MylistRegistrationDialogService MylistDialogService { get; private set; }
 
 		public ReactiveCommand PlayAllCommand { get; private set; }
-		public ReactiveCommand CancelCacheDownloadRequest { get; private set; }
+        public ReactiveCommand<string> AddPlaylistCommand { get; private set; }
+        public ReactiveCommand CancelCacheDownloadRequest { get; private set; }
 		public ReactiveCommand DeleteOriginalQualityCache { get; private set; }
 		public ReactiveCommand DeleteLowQualityCache { get; private set; }
 

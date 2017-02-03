@@ -252,6 +252,7 @@
                                     AreTransportControlsEnabled="False"
                                     >
                     <i:Interaction.Behaviors>
+                        
                         <mybehavior:MediaPlayerSetter MediaPlayer="{Binding MediaPlayer}" />
 
                         <mybehavior:MediaPlayerElementContentHeightGetter ContentHeight="{Binding CommentCanvasHeight.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />

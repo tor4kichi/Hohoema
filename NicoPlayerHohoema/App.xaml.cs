@@ -67,16 +67,39 @@ namespace NicoPlayerHohoema
 			UnhandledException += PrismUnityApplication_UnhandledException;
 
 			this.Resuming += App_Resuming;
-			//			this.Suspending += App_Suspending;
+            //			this.Suspending += App_Suspending;
+            this.EnteredBackground += App_EnteredBackground;
+            this.LeavingBackground += App_LeavingBackground;
+            Windows.System.MemoryManager.AppMemoryUsageLimitChanging += MemoryManager_AppMemoryUsageLimitChanging;
 
-			RequestedTheme = GetTheme();
+
+             RequestedTheme = GetTheme();
 
 
 			this.InitializeComponent();
 		}
 
+        private void MemoryManager_AppMemoryUsageLimitChanging(object sender, Windows.System.AppMemoryUsageLimitChangingEventArgs e)
+        {
+            Debug.WriteLine($"Memory Limit: {e.OldLimit} -> {e.NewLimit}");
+            if (e.NewLimit < e.OldLimit)
+            {
+                GC.Collect();
+            }
+        }
 
-		/*
+        private void App_LeavingBackground(object sender, LeavingBackgroundEventArgs e)
+        {
+            Debug.WriteLine("Leave BG");
+        }
+
+        private void App_EnteredBackground(object sender, EnteredBackgroundEventArgs e)
+        {
+            Debug.WriteLine("Enter BG");
+        }
+
+
+        /*
 		private async void App_Suspending(object sender, SuspendingEventArgs e)
 		{
 			
@@ -88,7 +111,7 @@ namespace NicoPlayerHohoema
 		}
 		*/
 
-		const string ThemeTypeKey = "Theme";
+        const string ThemeTypeKey = "Theme";
 
 		public static void SetTheme(ApplicationTheme theme)
 		{
@@ -547,7 +570,9 @@ namespace NicoPlayerHohoema
 			}
 		}
 
-		protected override UIElement CreateShell(Frame rootFrame)
+        
+
+        protected override UIElement CreateShell(Frame rootFrame)
 		{
 			rootFrame.Navigating += RootFrame_Navigating;
 

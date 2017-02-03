@@ -282,9 +282,6 @@
     <Compile Include="Views\Behaviors\KeyboardTrigger.cs" />
     <Compile Include="Views\Behaviors\ListViewSelectedItemsGetter.cs" />
     <Compile Include="Views\Behaviors\MediaPlayerElementContentHeightGetter.cs" />
-    <Compile Include="Views\Behaviors\MediaElementPauseAction.cs" />
-    <Compile Include="Views\Behaviors\MediaElementPlayAction.cs" />
-    <Compile Include="Views\Behaviors\MediaElementTogglePlayback.cs" />
     <Compile Include="Views\Behaviors\MediaPlayerSetter.cs" />
     <Compile Include="Views\Behaviors\MouseWheelTrigger.cs" />
     <Compile Include="Views\Behaviors\OpenFlyout.cs" />
@@ -440,7 +437,6 @@
     <Compile Include="ViewModels\VideoInfoContent\SummaryVideoInfoContentViewModel.cs" />
     <Compile Include="ViewModels\VideoInfoControlViewModel.cs" />
     <Compile Include="Views\Behaviors\VisiblityFadeChanger.cs" />
-    <Compile Include="Views\Behaviors\MediaElementStateGetter.cs" />
     <Compile Include="Views\Behaviors\ShowFlyoutBehavior.cs" />
     <Compile Include="Views\Behaviors\WebViewAutoResizeToContent.cs" />
     <Compile Include="Views\Behaviors\WebViewNotifyUriClicked.cs" />
@@ -458,8 +454,6 @@
     <Compile Include="Views\HistoryPage.xaml.cs">
       <DependentUpon>HistoryPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Behaviors\MediaElementExtractPositionBehavior.cs" />
-    <Compile Include="Views\Behaviors\MediaElementSeekAfterAutoPlayBehavior.cs" />
     <Compile Include="Views\MenuNavigatePageBase.xaml.cs">
       <DependentUpon>MenuNavigatePageBase.xaml</DependentUpon>
     </Compile>

@@ -342,24 +342,38 @@ namespace NicoPlayerHohoema.Models
                 if (contentType == null) { throw new Exception("unknown movie content type"); }
 
                 HohoemaApp.MediaPlayer.Source = MediaSource.CreateFromStream(NicoVideoCachedStream, contentType);
+                HohoemaApp.MediaPlayer.BufferingStarted += MediaPlayer_BufferingStarted;
             }
             else
             {
-                var mss = FFmpegInteropMSS.CreateFFmpegInteropMSSFromStream(NicoVideoCachedStream, false, false);
+                var mss = FFmpegInteropMSS.CreateFFmpegInteropMSSFromStream(NicoVideoCachedStream, false, true);
 
                 if (mss != null)
                 {
-                    HohoemaApp.MediaPlayer.Source = MediaSource.CreateFromMediaStreamSource(mss.GetMediaStreamSource());
+                    var realMss = mss.GetMediaStreamSource();
+                    HohoemaApp.MediaPlayer.Source = MediaSource.CreateFromMediaStreamSource(realMss);
+                    HohoemaApp.MediaPlayer.BufferingStarted += MediaPlayer_BufferingStarted;
                 }
                 else
                 {
                     throw new NotSupportedException();
                 }
             }
-		}
+        }
 
+        private void MediaPlayer_BufferingStarted(Windows.Media.Playback.MediaPlayer sender, object args)
+        {
+            var smtc = HohoemaApp.MediaPlayer.SystemMediaTransportControls;
+//            smtc.DisplayUpdater.VideoProperties.Title = "";
+ //           smtc.DisplayUpdater.Thumbnail = RandomAccessStreamReference.CreateFromUri(new Uri(this.ThumbnailUrl));
+  //          smtc.IsPlayEnabled = true;
+   //         smtc.IsPauseEnabled = true;
+    //        smtc.DisplayUpdater.Update();
 
-		internal async Task SetupWatchPageVisit(NicoVideoQuality quality)
+            HohoemaApp.MediaPlayer.BufferingStarted -= MediaPlayer_BufferingStarted; 
+        }
+
+        internal async Task SetupWatchPageVisit(NicoVideoQuality quality)
 		{
 			WatchApiResponse res;
 			if (quality == NicoVideoQuality.Original)

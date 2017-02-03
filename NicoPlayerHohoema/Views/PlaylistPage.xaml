@@ -8,7 +8,10 @@
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:mycontrols="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
@@ -100,36 +103,47 @@
                                                 VerticalAlignment="Center"
                                                 Style="{StaticResource SubtitleTextBlockStyle}"
                                                 >
+                                            <FlyoutBase.AttachedFlyout>
+                                                <Flyout x:Name="PlaylistRenameFlyout">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBox Text="{Binding PlaylistNameCandidate.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                 ext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
+                                                                 >
+                                                            <i:Interaction.Behaviors>
+                                                                <mybehavior:KeyboardTrigger Key="Enter">
+                                                                    <mybehavior:KeyboardTrigger.Actions>
+                                                                        <core:InvokeCommandAction Command="{Binding RenamePlaylistCommand}" />
+                                                                        <core:CallMethodAction TargetObject="{Binding ElementName=PlaylistRenameFlyout}" MethodName="Hide" />
+                                                                    </mybehavior:KeyboardTrigger.Actions>   
+                                                                </mybehavior:KeyboardTrigger>
+                                                            </i:Interaction.Behaviors>
+                                                        </TextBox>
+                                                        <Border Width="8" />
+                                                        <Button Command="{Binding RenamePlaylistCommand}" 
+                                                                Content="名前を変更">
+                                                            <i:Interaction.Behaviors>
+                                                                <core:EventTriggerBehavior EventName="Tapped">
+                                                                    <core:CallMethodAction TargetObject="{Binding ElementName=PlaylistRenameFlyout}" MethodName="Hide" />
+                                                                </core:EventTriggerBehavior>
+                                                            </i:Interaction.Behaviors>
+                                                        </Button>
+                                                    </StackPanel>
+                                                </Flyout>
+                                            </FlyoutBase.AttachedFlyout>
+                                            
+                                            <i:Interaction.Behaviors>
+                                                <core:EventTriggerBehavior EventName="Tapped">
+                                                    <mybehavior:OpenFlyout />
+                                                </core:EventTriggerBehavior>
+                                            </i:Interaction.Behaviors>
                                         </TextBlock>
                                     </Border>
                                 </toolkit:DockPanel>
                             </Border>
                             
                             
-                            <!-- TODO: 入れ替え -->
-                            
-                            <ListView ItemsSource="{Binding PlaylistItems}">
-                                <ListView.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid>
+                            <mycontrols:HohoemaIncrementalLoadingList />
 
-                                            <toolkit:DockPanel IsHitTestVisible="True" Background="Transparent">
-
-                                                <i:Interaction.Behaviors>
-                                                    <core:EventTriggerBehavior EventName="Tapped">
-                                                        <core:CallMethodAction TargetObject="{Binding}" MethodName="Play" />
-                                                    </core:EventTriggerBehavior>
-                                                </i:Interaction.Behaviors>
-
-                                                <SymbolIcon Symbol="Sort" toolkit:DockPanel.Dock="Left" Margin="0 0 8 0" />
-
-                                                <TextBlock Text="{Binding Title}" />
-                                            </toolkit:DockPanel>
-                                        </Grid>
-                                    </DataTemplate>
-                                </ListView.ItemTemplate>
-                            </ListView>
-                            
                         </toolkit:DockPanel>
                     </DataTemplate>
                 </uwptoolkit:MasterDetailsView.DetailsTemplate>
