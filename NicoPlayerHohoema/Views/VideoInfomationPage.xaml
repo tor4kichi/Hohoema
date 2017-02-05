@@ -12,11 +12,185 @@
     xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
 
     <Grid >
-        <TextBlock Text="VideoInfomation" />
+        <toolkit:DockPanel>
+            <Border toolkit:DockPanel.Dock="Top" 
+                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
+                    BorderThickness="0 0 0 1"
+                    Height="64"
+                    >
+                <toolkit:DockPanel >
+
+                    <StackPanel toolkit:DockPanel.Dock="Right" 
+                            Orientation="Horizontal"
+                            >
+                        <AppBarButton Icon="List" Label="プレイリストに追加">
+                            <AppBarButton.Flyout>
+                                <Flyout x:Name="AddPlaylistFlyout">
+                                    <ItemsControl ItemsSource="{Binding Playlists}" x:Name="PlaylistFlyoutContext">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Button Content="{Binding Name}"
+                                                        Command="{Binding ElementName=AddPlaylistCommand, Path=PlaylistFlyoutContext}"
+                                                        CommandParameter="{Binding Id}"
+                                                        Background="Transparent"
+                                                        >
+                                                    <i:Interaction.Behaviors>
+                                                        <core:EventTriggerBehavior EventName="Tapped">
+                                                            <core:CallMethodAction TargetObject="{Binding ElementName=AddPlaylistFlyout}" MethodName="Hide" />
+                                                        </core:EventTriggerBehavior>
+                                                    </i:Interaction.Behaviors>
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Flyout>
+                            </AppBarButton.Flyout>
+                        </AppBarButton>
+                        <AppBarButton Icon="Add" Label="マイリストに追加"
+                                      Command="{Binding AddMylistCommand}"
+                                      >
+                        </AppBarButton>
+
+                        <Button Background="Transparent">
+                            <Button.Flyout>
+                                <MenuFlyout>
+                                    <MenuFlyoutItem Text="Tiwtterで共有" Command="{Binding ShereWithTwitterCommand}" />
+                                    <MenuFlyoutItem Text="動画タイトルとURLをコピー" Command="{Binding ShareWithClipboardCommand}"/>
+                                </MenuFlyout>
+                            </Button.Flyout>
+                        </Button>
+                        
+
+                    </StackPanel>
+
+                    <Border Background="Transparent" IsHitTestVisible="True"
+                                Margin="16 0 0 0"
+                                >
+                        <TextBlock Text="{Binding Title}" 
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource SubtitleTextBlockStyle}"
+                                    >
+                        </TextBlock>
+                    </Border>
+                </toolkit:DockPanel>
+            </Border>
+
+            <ScrollViewer>
+
+                <StackPanel Margin="16">
+
+                    <TextBlock>
+                        <Run Text="投稿日:" />
+                        <Run Text="{Binding SubmitDate}" />
+                    </TextBlock>
+                    
+                    <toolkit:DockPanel Margin="0 8">
+                        <Border Margin="0 0 0 0">
+                            <uwptoolkit:ImageEx Source="{Binding ThumbnailUrl}"
+                                                toolkit:DockPanel.Dock="Left"
+                                                Width="120"
+                                                Height="120"
+                                            >
+
+                            </uwptoolkit:ImageEx>
+
+                        </Border>
+
+
+                        <StackPanel Margin="8 0 0 0">
+                            <TextBlock Text="{Binding VideoTitle}" Style="{StaticResource  TitleTextBlockStyle}"
+                                       TextWrapping="Wrap"
+                                       />
+
+                            
+                            
+                        </StackPanel>
+
+                        
+
+                    </toolkit:DockPanel>
+
+                    <StackPanel Orientation="Horizontal">
+
+                        <TextBlock>
+                            <Run Text="再生:" />
+                            <Run Text="{Binding ViewCount, Converter={StaticResource ToUserFriendlyNumber}}" />
+                        </TextBlock>
+                        <TextBlock>
+                            <Run Text="コメ:" />
+                            <Run Text="{Binding CommentCount, Converter={StaticResource ToUserFriendlyNumber}}" />
+                        </TextBlock>
+                        <TextBlock>
+                            <Run Text="マイ:" />
+                            <Run Text="{Binding MylistCount, Converter={StaticResource ToUserFriendlyNumber}}" />
+                        </TextBlock>
+                    </StackPanel>
+
+                    <TextBlock>
+                        <Run Text="長さ:" />
+                        <Run Text="{Binding VideoLength, Converter={StaticResource TimeToMovieLengthConverter}}" />
+                    </TextBlock>
+                    
+
+                    <ItemsControl ItemsSource="{Binding Tags}"
+                                          Margin="0 8 0 0"
+                                          >
+
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <toolkit:WrapPanel Orientation="Horizontal">
+
+                                </toolkit:WrapPanel>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Margin="0 0 8 8">
+                                    <Button Content="{Binding TagText}"
+                                                    Command="{Binding OpenSearchPageWithTagCommand}"
+                                                    Background="Transparent"
+                                                >
+
+                                    </Button>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <HyperlinkButton Content="{Binding OwnerName}"
+                                         Command="{Binding OpenOwnerUserPageCommand}"
+                                         >
+
+                    </HyperlinkButton>
+
+                    <HyperlinkButton Content="動画一覧"
+                                         Command="{Binding OpenOwnerUserVideoPageCommand}"
+                                         >
+
+                    </HyperlinkButton>
+                    
+
+
+                    <WebView Source="{Binding DescriptionHtmlFileUri}">
+                        <i:Interaction.Behaviors>
+                            <mybehavior:WebViewNotifyUriClicked Command="{Binding ScriptNotifyCommand}"  />
+
+                            <mybehavior:WebViewAutoResizeToContent />
+                        </i:Interaction.Behaviors>
+                    </WebView>
+                    
+                    
+                </StackPanel>
+                
+            </ScrollViewer>
+            
+
+        </toolkit:DockPanel>
     </Grid>
 </Page>

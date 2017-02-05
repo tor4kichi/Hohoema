@@ -20,6 +20,14 @@
 
         <mycontrol:HohoemaListItem />
 
+        <Grid.ContextFlyout>
+            <MenuFlyout>
+                <MenuFlyoutItem Text="動画情報を開く"
+                                Command="{Binding OpenVideoInfoPageCommand}"
+                                />
+            </MenuFlyout>
+        </Grid.ContextFlyout>
+
     </Grid>
 
     

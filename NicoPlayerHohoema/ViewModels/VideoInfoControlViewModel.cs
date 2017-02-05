@@ -200,7 +200,21 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		protected CompositeDisposable _CompositeDisposable { get; private set; }
+
+        private DelegateCommand _OpenVideoInfoPageCommand;
+        public DelegateCommand OpenVideoInfoPageCommand
+        {
+            get
+            {
+                return _OpenVideoInfoPageCommand
+                    ?? (_OpenVideoInfoPageCommand = new DelegateCommand(() =>
+                    {
+                        PageManager.OpenPage(HohoemaPageType.VideoInfomation, RawVideoId);
+                    }));
+            }
+        }
+
+        protected CompositeDisposable _CompositeDisposable { get; private set; }
 
 		public NicoVideo NicoVideo { get; private set; }
         public HohoemaPlaylist HohoemaPlaylist { get; private set; }
