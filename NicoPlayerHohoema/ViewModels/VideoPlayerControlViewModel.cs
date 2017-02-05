@@ -45,6 +45,7 @@ using FFmpegInterop;
 using Windows.Foundation.Collections;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Media.Core;
+using Windows.Media;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -104,7 +105,36 @@ namespace NicoPlayerHohoema.ViewModels
 				.AddTo(_CompositeDisposable);
 			CurrentState = new ReactiveProperty<MediaPlaybackState>(PlayerWindowUIDispatcherScheduler)
 				.AddTo(_CompositeDisposable);
-			NowQualityChanging = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
+            LegacyCurrentState = CurrentState.Select(x =>
+            {
+                switch (x)
+                {
+                    case MediaPlaybackState.None:
+                        return MediaElementState.Closed;
+                    case MediaPlaybackState.Opening:
+                        return MediaElementState.Opening;
+                    case MediaPlaybackState.Buffering:
+                        return MediaElementState.Buffering;
+                    case MediaPlaybackState.Playing:
+                        return MediaElementState.Playing;
+                    case MediaPlaybackState.Paused:
+                        if (Video != null 
+                        && MediaPlayer.Source != null
+                        && MediaPlayer.PlaybackSession.Position >= (Video.VideoLength - TimeSpan.FromSeconds(1)))
+                        {
+                            return MediaElementState.Stopped;
+                        }
+                        else
+                        {
+                            return MediaElementState.Paused;
+                        }
+                    default:
+                        throw new Exception();
+                }
+            })
+            .ToReactiveProperty();
+
+            NowQualityChanging = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
 			Comments = new ObservableCollection<Comment>();
 
             CanSubmitComment = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
@@ -422,6 +452,28 @@ namespace NicoPlayerHohoema.ViewModels
 
             IsStillLoggedInTwitter = new ReactiveProperty<bool>(!TwitterHelper.IsLoggedIn)
                 .AddTo(_CompositeDisposable);
+
+
+            // playlist
+            CurrentPlaylistName = new ReactiveProperty<string>(HohoemaApp.Playlist.CurrentPlaylist?.Name);
+            IsShuffleEnabled = HohoemaApp.UserSettings.PlaylistSettings.ToReactivePropertyAsSynchronized(x => x.IsShuffleEnable);
+
+
+            
+            IsTrackRepeatModeEnable = HohoemaApp.UserSettings.PlaylistSettings.ObserveProperty(x => x.RepeatMode)
+                .Select(x => x == MediaPlaybackAutoRepeatMode.Track)
+                .ToReactiveProperty();
+            IsListRepeatModeEnable = HohoemaApp.UserSettings.PlaylistSettings.ObserveProperty(x => x.RepeatMode)
+                .Select(x => x == MediaPlaybackAutoRepeatMode.List)
+                .ToReactiveProperty();
+
+            IsTrackRepeatModeEnable.Subscribe(x => 
+            {
+                MediaPlayer.IsLoopingEnabled = x;
+            });
+
+            PlaylistCanGoBack = new ReactiveProperty<bool>(false);
+            PlaylistCanGoNext = new ReactiveProperty<bool>(false);
         }
 
         protected override async Task OnOffline(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
@@ -565,6 +617,8 @@ namespace NicoPlayerHohoema.ViewModels
             IsForceLandscape = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, HohoemaApp.UserSettings.PlayerSettings.IsForceLandscape);
             OnPropertyChanged(nameof(IsForceLandscape));
 
+
+                
 
             // お気に入りフィード上の動画を既読としてマーク
             await HohoemaApp.FeedManager.MarkAsRead(Video.VideoId);
@@ -942,8 +996,10 @@ namespace NicoPlayerHohoema.ViewModels
                 throw new Exception();
             }
 
+            PlaylistCanGoBack.Value = HohoemaApp.Playlist.Player.CanGoBack;
+            PlaylistCanGoNext.Value = HohoemaApp.Playlist.Player.CanGoNext;
 
-		}
+        }
 
 		private void InitializeBufferingMonitor()
 		{
@@ -1219,6 +1275,14 @@ namespace NicoPlayerHohoema.ViewModels
                 CurrentVideoPosition.Value = TimeSpan.FromSeconds((double)viewModelState[nameof(CurrentVideoPosition)]);
             }
 
+
+            if (HohoemaApp.Playlist.CurrentPlaylist == null)
+            {
+                throw new Exception();
+            }
+
+            CurrentPlaylistName.Value = HohoemaApp.Playlist.CurrentPlaylist.Name;
+
             HohoemaApp.MediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
             HohoemaApp.MediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
             
@@ -1257,9 +1321,13 @@ namespace NicoPlayerHohoema.ViewModels
         {
             if (IsDisposed) { return; }
 
-            CurrentState.Value = sender.PlaybackState;
 
-            // TODO: 単品リピートモードが有効な場合には次送りをスキップする
+            Debug.WriteLine(sender.PlaybackState);
+
+            PlayerWindowUIDispatcherScheduler.Schedule(() => 
+            {
+                CurrentState.Value = sender.PlaybackState;
+            });
 
             // 最後まで到達していた場合
             if (sender.PlaybackState == MediaPlaybackState.Paused
@@ -1802,6 +1870,114 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+
+
+
+        // Playlist
+
+        private DelegateCommand _OpenPreviousPlaylistItemCommand;
+        public DelegateCommand OpenPreviousPlaylistItemCommand
+        {
+            get
+            {
+                return _OpenPreviousPlaylistItemCommand
+                    ?? (_OpenPreviousPlaylistItemCommand = new DelegateCommand(() =>
+                    {
+                        var player = HohoemaApp.Playlist.Player;
+                        if (player != null)
+                        {
+                            if (player.CanGoBack)
+                            {
+                                player.GoBack();
+                            }
+                        }
+                    }
+                    , () => HohoemaApp.Playlist.Player?.CanGoBack ?? false
+                    ));
+            }
+        }
+
+        private DelegateCommand _OpenNextPlaylistItemCommand;
+        public DelegateCommand OpenNextPlaylistItemCommand
+        {
+            get
+            {
+                return _OpenNextPlaylistItemCommand
+                    ?? (_OpenNextPlaylistItemCommand = new DelegateCommand(() =>
+                    {
+                        var player = HohoemaApp.Playlist.Player;
+                        if (player != null)
+                        {
+                            if (player.CanGoNext)
+                            {
+                                player.GoNext();
+                            }
+                        }
+                    }
+                    , () => HohoemaApp.Playlist.Player?.CanGoNext ?? false
+                    ));
+            }
+        }
+
+        private DelegateCommand _OpenCurrentPlaylistPageCommand;
+        public DelegateCommand OpenCurrentPlaylistPageCommand
+        {
+            get
+            {
+                return _OpenCurrentPlaylistPageCommand
+                    ?? (_OpenCurrentPlaylistPageCommand = new DelegateCommand(() =>
+                    {
+                        HohoemaApp.Playlist.IsPlayerFloatingModeEnable = true;
+                        PageManager.OpenPage(HohoemaPageType.Playlist, HohoemaPlaylist.WatchAfterPlaylistId);
+                    }
+                    ));
+            }
+        }
+
+
+        private DelegateCommand _ToggleRepeatModeCommand;
+        public DelegateCommand ToggleRepeatModeCommand
+        {
+            get
+            {
+                return _ToggleRepeatModeCommand
+                    ?? (_ToggleRepeatModeCommand = new DelegateCommand(() =>
+                    {
+                        var playlistSettings = HohoemaApp.UserSettings.PlaylistSettings;
+                        switch (playlistSettings.RepeatMode)
+                        {
+                            case MediaPlaybackAutoRepeatMode.None:
+                                playlistSettings.RepeatMode = MediaPlaybackAutoRepeatMode.Track;
+                                break;
+                            case MediaPlaybackAutoRepeatMode.Track:
+                                playlistSettings.RepeatMode = MediaPlaybackAutoRepeatMode.List;
+                                break;
+                            case MediaPlaybackAutoRepeatMode.List:
+                                playlistSettings.RepeatMode = MediaPlaybackAutoRepeatMode.None;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    ));
+            }
+        }
+
+        private DelegateCommand _ToggleShuffleCommand;
+        public DelegateCommand ToggleShuffleCommand
+        {
+            get
+            {
+                return _ToggleShuffleCommand
+                    ?? (_ToggleShuffleCommand = new DelegateCommand(() =>
+                    {
+                        HohoemaApp.UserSettings.PlaylistSettings.IsShuffleEnable = !HohoemaApp.UserSettings.PlaylistSettings.IsShuffleEnable;
+                    }
+                    ));
+            }
+        }
+
+
         #endregion
 
 
@@ -1898,7 +2074,8 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<double> SliderVideoPosition { get; private set; }
 		public ReactiveProperty<double> VideoLength { get; private set; }
 		public ReactiveProperty<MediaPlaybackState> CurrentState { get; private set; }
-		public ReactiveProperty<bool> NowBuffering { get; private set; }
+        public ReactiveProperty<MediaElementState> LegacyCurrentState { get; private set; }
+        public ReactiveProperty<bool> NowBuffering { get; private set; }
 		public ReactiveProperty<bool> NowPlaying { get; private set; }
 		public ReactiveProperty<bool> NowQualityChanging { get; private set; }
 		public ReactiveProperty<bool> IsEnableRepeat { get; private set; }
@@ -1970,7 +2147,19 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		ToastNotificationService _ToastService;
+        // プレイリスト
+        public ReactiveProperty<string> CurrentPlaylistName { get; private set; }
+        public ReactiveProperty<bool> IsShuffleEnabled { get; private set; }
+        public ReactiveProperty<bool?> RepeatMode { get; private set; }
+        public ReactiveProperty<bool> IsTrackRepeatModeEnable { get; private set; }
+        public ReactiveProperty<bool> IsListRepeatModeEnable { get; private set; }
+        public ReactiveProperty<bool> PlaylistCanGoBack { get; private set; }
+        public ReactiveProperty<bool> PlaylistCanGoNext { get; private set; }
+
+
+
+
+        ToastNotificationService _ToastService;
 		TextInputDialogService _TextInputDialogService;
         MylistRegistrationDialogService _MylistResistrationDialogService;
 
