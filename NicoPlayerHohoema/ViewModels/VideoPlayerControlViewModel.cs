@@ -588,6 +588,8 @@ namespace NicoPlayerHohoema.ViewModels
                 _CommentRenderUpdateTimerDisposer = Observable.Timer(TimeSpan.Zero, renderInterval)
                     .Subscribe(x =>
                     {
+                        if (IsDisposed) { return; }
+
                         CommentVideoPosition.Value = MediaPlayer.PlaybackSession.Position;
                     });
             })
@@ -1306,7 +1308,10 @@ namespace NicoPlayerHohoema.ViewModels
 
         private void Current_LeavingBackground(object sender, Windows.ApplicationModel.LeavingBackgroundEventArgs e)
         {
-            RequestFPS.ForceNotify();
+            PlayerWindowUIDispatcherScheduler.Schedule(() =>
+            {
+                RequestFPS.ForceNotify();
+            });
         }
 
         private void PlaybackSession_PositionChanged(MediaPlaybackSession sender, object args)
@@ -1413,7 +1418,6 @@ namespace NicoPlayerHohoema.ViewModels
                 // stream.Dispose();
                 if (Video != null)
 				{
-					await Task.Delay(1000);
 					await Video.StopPlay().ConfigureAwait(false);
 				}
 

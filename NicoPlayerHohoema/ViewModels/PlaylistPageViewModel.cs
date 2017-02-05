@@ -13,6 +13,7 @@ using System.Reactive.Linq;
 using NicoPlayerHohoema.Util;
 using Microsoft.Practices.Unity;
 using Prism.Windows.Navigation;
+using System.Threading;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -112,9 +113,23 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        {
+            base.OnNavigatedTo(e, viewModelState);
 
+            if (e.Parameter != null && e.Parameter is string)
+            {
+                var maybePlaylistId = e.Parameter as string;
+                var playlist = Playlists.FirstOrDefault(x => x.Playlist.Id == maybePlaylistId);
 
-
+                if (playlist != null)
+                {
+                    // TODO: MasterDetailsViewの不具合で正常動作せず
+                    // UWP Community Toolkit v1.3で改善されるかも？
+//                    SelectedItem.Value = playlist;
+                }
+            }
+        }
 
         public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
         {
