@@ -14,6 +14,7 @@ using NicoPlayerHohoema.Util;
 using Microsoft.Practices.Unity;
 using Prism.Windows.Navigation;
 using System.Threading;
+using System.Windows.Input;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -260,8 +261,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         }
 
-
-
+        
         private DelegateCommand _PlayStartPlaylistCommand;
         public DelegateCommand PlayStartPlaylistCommand
         {
@@ -272,6 +272,15 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         PlaylistVM.PlayItem(this);
                     }));
+            }
+        }
+
+
+        public override ICommand PrimaryCommand
+        {
+            get
+            {
+                return PlayStartPlaylistCommand;
             }
         }
 
@@ -303,6 +312,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public PlaylistItemIncrementalSource(PlaylistViewModel playlistVM)
         {
+            PlaylistVM = playlistVM;
             Playlist = playlistVM.Playlist;
 
             HohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
