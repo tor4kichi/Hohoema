@@ -1785,7 +1785,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenVideoInfoCommand
                     ?? (_OpenVideoInfoCommand = new DelegateCommand(() =>
                     {
-                        PageManager.OpenPage(HohoemaPageType.VideoInfomation, VideoId);
+                        PageManager.OpenPage(HohoemaPageType.VideoInfomation, Video.RawVideoId);
                         HohoemaApp.Playlist.IsPlayerFloatingModeEnable = true;
                     }
                     ));
@@ -1876,6 +1876,21 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
+        private DelegateCommand _ClosePlayerCommand;
+        public DelegateCommand ClosePlayerCommand
+        {
+            get
+            {
+                return _ClosePlayerCommand
+                    ?? (_ClosePlayerCommand = new DelegateCommand(() =>
+                    {
+                        HohoemaApp.Playlist.IsDisplayPlayer = false;
+                    }
+                    ));
+            }
+        }
+
+
 
         // Playlist
 
@@ -1962,6 +1977,9 @@ namespace NicoPlayerHohoema.ViewModels
                             default:
                                 break;
                         }
+
+                        PlaylistCanGoBack.Value = HohoemaApp.Playlist.Player.CanGoBack;
+                        PlaylistCanGoNext.Value = HohoemaApp.Playlist.Player.CanGoNext;
                     }
                     ));
             }
@@ -1976,6 +1994,9 @@ namespace NicoPlayerHohoema.ViewModels
                     ?? (_ToggleShuffleCommand = new DelegateCommand(() =>
                     {
                         HohoemaApp.UserSettings.PlaylistSettings.IsShuffleEnable = !HohoemaApp.UserSettings.PlaylistSettings.IsShuffleEnable;
+
+                        PlaylistCanGoBack.Value = HohoemaApp.Playlist.Player.CanGoBack;
+                        PlaylistCanGoNext.Value = HohoemaApp.Playlist.Player.CanGoNext;
                     }
                     ));
             }

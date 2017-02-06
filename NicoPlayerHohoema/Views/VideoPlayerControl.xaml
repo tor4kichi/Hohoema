@@ -382,43 +382,24 @@
 
                         <toolkit:DockPanel Background="#AA000000">
 
-                            <StackPanel toolkit:DockPanel.Dock="Left"
-                                        Orientation="Horizontal"
-                                        >
-                                <Button Command="{Binding OpenPreviousPlaylistItemCommand}"
-                                        Background="Transparent"
-                                        Visibility="{Binding PlaylistCanGoBack.Value, Converter={StaticResource BooleanToVisibility}}"
-                                        >
-                                    <iconPack:PackIconMaterial Kind="ArrowLeftBold" />
-                                </Button>
-                            </StackPanel>
-                            <StackPanel toolkit:DockPanel.Dock="Right"
-                                        Orientation="Horizontal"
-                                        >
-                                <Button Command="{Binding OpenNextPlaylistItemCommand}"
-                                        Background="Transparent"
-                                        Visibility="{Binding PlaylistCanGoNext.Value, Converter={StaticResource BooleanToVisibility}}"
-                                        >
-                                    <iconPack:PackIconMaterial Kind="ArrowRightBold" />
-                                </Button>
-                            </StackPanel>
-
-
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Button Content="{Binding CurrentPlaylistName.Value}"
-                                        Command="{Binding OpenCurrentPlaylistPageCommand}"
-                                        Background="Transparent"
+                            <Button Command="{Binding ClosePlayerCommand}"
+                                    Background="Transparent"
+                                    toolkit:DockPanel.Dock="Left"
                                     >
+                                <iconPack:PackIconMaterial Kind="Close" />
+                            </Button>
 
-                                </Button>
 
-                                <Border Width="8" />
-
+                            <StackPanel Orientation="Horizontal"
+                                        toolkit:DockPanel.Dock="Right"
+                                        >
                                 <Button Background="Transparent"          
                                         Command="{Binding ToggleShuffleCommand}"
                                             >
                                     <iconPack:PackIconMaterial x:Name="ToggleShuffleButtonIcon"
-                                                Kind="Shuffle" />
+                                                Kind="Shuffle"
+                                                           FontSize="20"
+                                                           />
                                 </Button>
 
 
@@ -431,14 +412,58 @@
                                         Background="Transparent"
                                             >
                                     <iconPack:PackIconMaterial x:Name="RepeatModeToggleButtonIcon"
-                                                Kind="Repeat" />
+                                                Kind="Repeat" 
+                                                           
+                                                           />
                                 </Button>
 
+                            </StackPanel>
 
+
+
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+
+                                <StackPanel toolkit:DockPanel.Dock="Left"
+                                        Orientation="Horizontal"
+                                        >
+                                    <Button Command="{Binding OpenPreviousPlaylistItemCommand}"
+                                        Background="Transparent"
+                                        Visibility="{Binding PlaylistCanGoBack.Value, Converter={StaticResource BooleanToVisibility}}"
+                                        >
+                                        <iconPack:PackIconMaterial Kind="ArrowLeft" />
+                                    </Button>
+                                </StackPanel>
+
+                                <Border Width="16" />
+
+                                <Button 
+                                        Command="{Binding OpenCurrentPlaylistPageCommand}"
+                                        Background="Transparent"
+                                    >
+                                    <TextBlock Text="{Binding CurrentPlaylistName.Value}"
+                                               Style="{StaticResource SubtitleTextBlockStyle}"
+                                               />
+                                </Button>
+
+                                <Border Width="16" />
+
+                                <StackPanel toolkit:DockPanel.Dock="Right"
+                                        Orientation="Horizontal"
+                                        >
+                                    <Button Command="{Binding OpenNextPlaylistItemCommand}"
+                                        Background="Transparent"
+                                        Visibility="{Binding PlaylistCanGoNext.Value, Converter={StaticResource BooleanToVisibility}}"
+                                        >
+                                        <iconPack:PackIconMaterial Kind="ArrowRight" />
+                                    </Button>
+                                </StackPanel>
 
                             </StackPanel>
                             
                         </toolkit:DockPanel>
+
+                        
+
 
                         <Border Height="32">
                             
