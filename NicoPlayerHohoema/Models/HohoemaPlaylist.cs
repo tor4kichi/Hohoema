@@ -292,7 +292,7 @@ namespace NicoPlayerHohoema.Models
         // プレイリストが空だった場合、その場で再生を開始
         public void PlayVideo(string contentId, string title, NicoVideoQuality? quality = null)
         {
-            var newItem = DefaultPlaylist.AddVideo(contentId, title, quality);
+            var newItem = DefaultPlaylist.AddVideo(contentId, title, quality, addToFirst:true);
             DefaultPlaylist.Player.Play(newItem);
         }
 
@@ -300,7 +300,7 @@ namespace NicoPlayerHohoema.Models
 
         public void PlayLiveVideo(string liveId, string title)
         {
-            var newItem = DefaultPlaylist.AddLiveVideo(liveId, title);
+            var newItem = DefaultPlaylist.AddLiveVideo(liveId, title, addToFirst: true);
             DefaultPlaylist.Player.Play(newItem);
         }
 
@@ -883,7 +883,7 @@ namespace NicoPlayerHohoema.Models
         }
         
 
-        public PlaylistItem AddVideo(string videoId, string videoName, NicoVideoQuality? quality = null)
+        public PlaylistItem AddVideo(string videoId, string videoName, NicoVideoQuality? quality = null, bool addToFirst = false)
         {
             if (videoId == null) { throw new Exception(); }
 
@@ -904,14 +904,21 @@ namespace NicoPlayerHohoema.Models
                 Owner = this,
             };
 
-            _PlaylistItems.Insert(0, newItem);
+            if (addToFirst)
+            {
+                _PlaylistItems.Insert(0, newItem);
+            }
+            else
+            {
+                _PlaylistItems.Add(newItem);
+            }
 
             HohoemaPlaylist.Save().ConfigureAwait(false);
 
             return newItem;
         }
 
-        public PlaylistItem AddLiveVideo(string liveId, string liveName)
+        public PlaylistItem AddLiveVideo(string liveId, string liveName, bool addToFirst = false)
         {
             // すでに登録済みの場合
             var alreadyAdded = _PlaylistItems.SingleOrDefault(x => x.Type == PlaylistItemType.Live && x.ContentId == liveId);
@@ -929,7 +936,14 @@ namespace NicoPlayerHohoema.Models
                 Owner = this,
             };
 
-            _PlaylistItems.Insert(0, newItem);
+            if (addToFirst)
+            {
+                _PlaylistItems.Insert(0, newItem);
+            }
+            else
+            {
+                _PlaylistItems.Add(newItem);
+            }
 
             return newItem;
         }
