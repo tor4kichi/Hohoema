@@ -445,11 +445,7 @@ namespace NicoPlayerHohoema.Models
         private void ResetPlayer()
         {
             IPlaylistPlayer newPlayer = null;
-            if (PlaylistSettings.RepeatMode == MediaPlaybackAutoRepeatMode.Track)
-            {
-                newPlayer = new RepeatOnePlaylistPlayer(Playlist);
-            }
-            else if (PlaylistSettings.IsShuffleEnable)
+            if (PlaylistSettings.IsShuffleEnable)
             {
                 newPlayer = new ShufflePlaylistPlayer(Playlist)
                 {
@@ -554,6 +550,9 @@ namespace NicoPlayerHohoema.Models
         {
             get
             {
+                if (IsRepeat) { return true; }
+                if (Playlist.PlaylistItems.Count == 0) { return false; }
+
                 return Playlist.PlaylistItems.FirstOrDefault() != Current;
             }
         }
@@ -563,6 +562,8 @@ namespace NicoPlayerHohoema.Models
             get
             {
                 if (IsRepeat) { return true; }
+                if (Playlist.PlaylistItems.Count == 0) { return false; }
+
                 return Playlist.PlaylistItems.LastOrDefault() != Current;
             }
         }
@@ -574,7 +575,17 @@ namespace NicoPlayerHohoema.Models
             var currentIndex = Playlist.PlaylistItems.IndexOf(Current);
             var prevIndex = currentIndex - 1;
 
-            if (prevIndex < 0) { throw new Exception(); }
+            if (prevIndex < 0)
+            {
+                if (IsRepeat)
+                {
+                    prevIndex = Playlist.PlaylistItems.Count - 1;
+                }
+                else
+                {
+                    throw new Exception();
+                }
+            }
 
             return Playlist.PlaylistItems[prevIndex];
         }
@@ -725,29 +736,6 @@ namespace NicoPlayerHohoema.Models
         private bool IsRequireSync()
         {
             return LastSyncTime != Playlist.LastUpdate;
-        }
-    }
-
-    public class RepeatOnePlaylistPlayer : PlaylistPlayerBase
-    {
-        public RepeatOnePlaylistPlayer(Playlist playlist)
-            : base(playlist)
-        {
-            Current = playlist.CurrentVideo;
-        }
-
-        public override bool CanGoBack => true;
-
-        public override bool CanGoNext => true;
-
-        protected override PlaylistItem GetNextItem()
-        {
-            return Current;
-        }
-
-        protected override PlaylistItem GetPreviousItem()
-        {
-            return Current;
         }
     }
 
