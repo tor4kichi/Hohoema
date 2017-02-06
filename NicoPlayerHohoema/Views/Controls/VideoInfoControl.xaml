@@ -22,7 +22,16 @@
 
         <Grid.ContextFlyout>
             <MenuFlyout>
-                <MenuFlyoutItem Text="動画情報を開く"
+
+                <MenuFlyoutItem Text="あとで見る"
+                                Command="{Binding AddDefaultPlaylistCommand}"
+                                />
+
+                <MenuFlyoutItem Text="投稿者の動画一覧"
+                                Command="{Binding OpenOwnerVideoListPageCommand}"
+                                />
+
+                <MenuFlyoutItem Text="動画情報"
                                 Command="{Binding OpenVideoInfoPageCommand}"
                                 />
             </MenuFlyout>

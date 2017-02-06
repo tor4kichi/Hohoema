@@ -214,6 +214,36 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+
+        private DelegateCommand _AddDefaultPlaylistCommand;
+        public DelegateCommand AddDefaultPlaylistCommand
+        {
+            get
+            {
+                return _AddDefaultPlaylistCommand
+                    ?? (_AddDefaultPlaylistCommand = new DelegateCommand(() =>
+                    {
+                        var hohoemaApp = NicoVideo.HohoemaApp;
+                        hohoemaApp.Playlist.DefaultPlaylist.AddVideo(this.RawVideoId, this.Title);
+                    }));
+            }
+        }
+
+        private DelegateCommand _OpenOwnerVideoListPageCommand;
+        public DelegateCommand OpenOwnerVideoListPageCommand
+        {
+            get
+            {
+                return _OpenOwnerVideoListPageCommand
+                    ?? (_OpenOwnerVideoListPageCommand = new DelegateCommand(() =>
+                    {
+                        PageManager.OpenPage(HohoemaPageType.UserVideo, this.NicoVideo.VideoOwnerId.ToString());
+                    }));
+            }
+        }
+
+        
+
         protected CompositeDisposable _CompositeDisposable { get; private set; }
 
 		public NicoVideo NicoVideo { get; private set; }
