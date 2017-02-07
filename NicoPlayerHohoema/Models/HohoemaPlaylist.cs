@@ -179,7 +179,7 @@ namespace NicoPlayerHohoema.Models
                 }
             }
 
-            loadedItem.Sort((x, y) => x.SortIndex - x.SortIndex);
+            loadedItem.Sort((x, y) => x.SortIndex - y.SortIndex);
 
             foreach (var sortedPlaylist in loadedItem)
             {
