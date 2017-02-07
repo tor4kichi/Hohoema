@@ -76,13 +76,6 @@
                         <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
                                     Orientation="Horizontal"
                                     >
-
-                            <AppBarButton Command="{Binding RegistratioMylistCommand}" 
-                                          Icon="Add"
-                                          Label="マイリスト登録"
-                                            />
-
-
                             <AppBarButton Command="{Binding RemoveHistoryCommand}"
                                           Icon="Remove"
                                           Label="履歴削除"
@@ -93,6 +86,45 @@
                                           Icon="Download"
                                           Label="キャッシュ"
                                         />
+                            <AppBarButton Command="{Binding RegistratioMylistCommand}" 
+                                          Icon="Add"
+                                          Label="マイリスト登録"
+                                            />
+
+                            <AppBarButton 
+                                     IsEnabled="{Binding IsItemSelected.Value}"
+                                      Background="Transparent"
+                                      Label="プレイリスト追加"
+                                          Icon="List"
+                                >
+                                <AppBarButton.Flyout>
+                                    <Flyout >
+                                        <Border x:Name="PlaylistSelectFlyout">
+                                            <ItemsControl ItemsSource="{Binding Playlists}" >
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Button Background="Transparent" 
+                                                            Content="{Binding Name}"
+                                                            Command="{Binding ElementName=PlaylistSelectFlyout, Path=DataContext.AddPlaylistCommand}"
+                                                            CommandParameter="{Binding Id}"
+                                                            >
+                                                            <i:Interaction.Behaviors>
+                                                                <core:EventTriggerBehavior EventName="Tapped">
+                                                                    <mybehavior:CloseFlyoutAction />
+                                                                </core:EventTriggerBehavior>
+                                                            </i:Interaction.Behaviors>
+                                                        </Button>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+
+                                        </Border>
+                                    </Flyout>
+                                </AppBarButton.Flyout>
+                            </AppBarButton>
+
+                            
+
                         </StackPanel>
 
 

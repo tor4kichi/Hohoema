@@ -24,36 +24,109 @@
         <Border>
             <toolkit:DockPanel>
 
+
                 <Border toolkit:DockPanel.Dock="Top" 
                     BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
                     BorderThickness="0 0 0 1"
-                        MinHeight="48"
+                        Height="64"
                     >
                     <toolkit:DockPanel >
 
-
-                        <StackPanel toolkit:DockPanel.Dock="Right" Margin="8 0"
+                        <StackPanel toolkit:DockPanel.Dock="Right" 
                                 Orientation="Horizontal"
                                 >
-                            <Button Background="Transparent"
+
+                            <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                    Orientation="Horizontal"
+                                    >
+                                <Button Background="Transparent"
                                     Command="{Binding AddFeedSourceCommand}"
                                     >
-                                <TextBlock Text="フィード登録" />
-                            </Button>
-                            
-                            <ToggleButton Background="Transparent"
+                                    <TextBlock Text="フィード登録" />
+                                </Button>
+
+                                <ToggleButton Background="Transparent"
                                           IsChecked="{Binding IsFavoriteTag.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                           IsEnabled="{Binding CanChangeFavoriteTagState.Value}"
                                           ToolTipService.ToolTip="フォロー"
                                         >
-                                <StackPanel Orientation="Horizontal">
-                                    <SymbolIcon Symbol="Favorite" />
-                                </StackPanel>
-                            </ToggleButton>
+                                    <StackPanel Orientation="Horizontal">
+                                        <SymbolIcon Symbol="Favorite" />
+                                    </StackPanel>
+                                </ToggleButton>
+
+                            </StackPanel>
+
+
+                            <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                                    Orientation="Horizontal"
+                                    >
+
+                                <AppBarButton Command="{Binding RequestCacheDownload}"
+                                          Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
+                                          Icon="Download"
+                                          Label="キャッシュ"
+                                        />
+
+                                <AppBarButton Command="{Binding RegistratioMylistCommand}" 
+                                          Icon="Add"
+                                          Label="マイリスト登録"
+                                            />
+
+
+                                
+                                <AppBarButton 
+                                     IsEnabled="{Binding IsItemSelected.Value}"
+                                      Background="Transparent"
+                                      Label="プレイリスト追加"
+                                          Icon="List"
+                                >
+                                    <AppBarButton.Flyout>
+                                        <Flyout >
+                                            <Border x:Name="PlaylistSelectFlyout">
+                                                <ItemsControl ItemsSource="{Binding Playlists}" >
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Button Background="Transparent" 
+                                                            Content="{Binding Name}"
+                                                            Command="{Binding ElementName=PlaylistSelectFlyout, Path=DataContext.AddPlaylistCommand}"
+                                                            CommandParameter="{Binding Id}"
+                                                            >
+                                                                <i:Interaction.Behaviors>
+                                                                    <core:EventTriggerBehavior EventName="Tapped">
+                                                                        <mybehavior:CloseFlyoutAction />
+                                                                    </core:EventTriggerBehavior>
+                                                                </i:Interaction.Behaviors>
+                                                            </Button>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+
+                                            </Border>
+                                        </Flyout>
+                                    </AppBarButton.Flyout>
+                                </AppBarButton>
+
+
+                            </StackPanel>
+
+
+
+                            <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            HorizontalContentAlignment="Stretch"
+                                            VerticalContentAlignment="Stretch"
+                                            Label="選択"
+                                            >
+                                <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       />
+                            </AppBarToggleButton>
+
                         </StackPanel>
 
                         <Border Background="Transparent" IsHitTestVisible="True"
-                                Margin="24 0 0 0"
+                                Margin="16 0 0 0"
                                 >
 
                             <TextBlock Text="{Binding Title}" 
@@ -76,124 +149,6 @@
 
                     </toolkit:DockPanel>
                 </Border>
-
-
-                <Border toolkit:DockPanel.Dock="Top" 
-                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
-                    BorderThickness="0 0 0 1"
-                    >
-                    <toolkit:DockPanel>
-
-                        <Border toolkit:DockPanel.Dock="Right"
-                            >
-                            <ToggleButton Background="Transparent"
-                                        IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                        ToolTipService.ToolTip="選択"
-                                        >
-                                <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" />
-                            </ToggleButton>
-
-
-                        </Border>
-
-                        <Border 
-                                toolkit:DockPanel.Dock="Right"
-                                BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
-                                BorderThickness="1 0 0 0"
-                                Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                            >
-                            <Button Background="Transparent" 
-                                Command="{Binding RefreshCommand}"
-                                IsEnabled="{Binding CanChangeSort.Value}"
-                                ToolTipService.ToolTip="更新"
-                                >
-                                <SymbolIcon Symbol="Refresh" />
-                            </Button>
-
-                        </Border>
-
-
-                        <Grid
-                            
-                        >
-                            <toolkit:DockPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
-                                        >
-
-                                <StackPanel Orientation="Horizontal"
-                                toolkit:DockPanel.Dock="Right"                                        
-                                >
-                                    <Button Command="{Binding RegistratioMylistCommand}"
-                                            Background="Transparent"
-                                            >
-                                        <StackPanel Orientation="Horizontal">
-                                            <SymbolIcon Symbol="Add" />
-                                            <TextBlock Text="マイリスト登録"
-                                                   VerticalAlignment="Center"
-                                                   />
-                                        </StackPanel>
-                                    </Button>
-                                    <StackPanel Orientation="Horizontal" >
-                                        <Button Command="{Binding RequestCacheDownload}"
-                                            Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
-                                            Background="Transparent"
-                                            >
-                                            <StackPanel Orientation="Horizontal">
-                                                <SymbolIcon Symbol="Download" />
-                                                <TextBlock Text="キャッシュ"
-                                                VerticalAlignment="Center"
-                                                />
-                                            </StackPanel>
-                                        </Button>
-                                    </StackPanel>
-
-                                </StackPanel>
-
-                                <Border />
-
-                            </toolkit:DockPanel>
-
-
-                            <toolkit:DockPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
-
-                                <!--
-                            <Grid x:Name="SearchButtonBorder"
-                                    BorderThickness="1"
-                                    >
-                                    
-                                    
-                                <TextBox x:Name="SearchTextBox"
-                                    PlaceholderText="ページ内検索"
-                                    InputScope="SearchIncremental"
-                                    HorizontalAlignment="Stretch"
-                                    VerticalAlignment="Top"
-                                    Height="47"
-                                    Padding="24 8 0 8"
-                                    Margin="0 0 48 0"
-                                    BorderThickness="0"
-                                    >
-
-                                </TextBox>
-
-                                <Button HorizontalAlignment="Right"
-                                        Background="Transparent"
-                                    >
-                                    <SymbolIcon Symbol="Find"  />
-                                </Button>
-                            </Grid>
-                            -->
-                            </toolkit:DockPanel>
-
-                        </Grid>
-
-
-
-
-                    </toolkit:DockPanel>
-                </Border>
-
-
-                
-
 
                 <controls:HohoemaIncrementalLoadingList />
 

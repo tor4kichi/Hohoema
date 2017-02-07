@@ -137,6 +137,7 @@
                         <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
                                     Orientation="Horizontal"
                                     >
+
                             <AppBarButton Command="{Binding RequestCacheDownload}"
                                       
                                       IsEnabled="{Binding CanDownload.Value, Converter={StaticResource BooleanToVisibility}}"
@@ -144,6 +145,13 @@
                                       Label="キャッシュ"
                                           Icon="Download"
                                 >
+                            </AppBarButton>
+                                                        
+                            
+                            <AppBarButton Command="{Binding RegistratioMylistCommand}"
+                                              Label="マイリスト登録"
+                                              Icon="Add"
+                                            >
                             </AppBarButton>
 
                             <AppBarButton 
@@ -177,6 +185,7 @@
                                     </Flyout>
                                 </AppBarButton.Flyout>
                             </AppBarButton>
+
 
                         </StackPanel>
 
