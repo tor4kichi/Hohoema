@@ -1905,6 +1905,8 @@ namespace NicoPlayerHohoema.ViewModels
                         var player = HohoemaApp.Playlist.Player;
                         if (player != null)
                         {
+                            HohoemaApp.Playlist.PlayDone();
+
                             if (player.CanGoBack)
                             {
                                 player.GoBack();
@@ -1927,6 +1929,8 @@ namespace NicoPlayerHohoema.ViewModels
                         var player = HohoemaApp.Playlist.Player;
                         if (player != null)
                         {
+                            HohoemaApp.Playlist.PlayDone();
+
                             if (player.CanGoNext)
                             {
                                 player.GoNext();

@@ -244,6 +244,8 @@ namespace NicoPlayerHohoema.Models
             {
                 args.Handled = true;
 
+                PlayDone();
+
                 if (Player?.CanGoBack ?? false)
                 {
                     Player.GoBack();
@@ -256,6 +258,8 @@ namespace NicoPlayerHohoema.Models
             if (args.Handled != true)
             {
                 args.Handled = true;
+
+                PlayDone();
 
                 if (Player?.CanGoNext ?? false)
                 {
