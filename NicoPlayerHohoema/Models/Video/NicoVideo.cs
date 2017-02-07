@@ -1,4 +1,5 @@
-﻿using Mntone.Nico2;
+﻿using FFmpegInterop;
+using Mntone.Nico2;
 using Mntone.Nico2.Videos.Comment;
 using Mntone.Nico2.Videos.Thumbnail;
 using Mntone.Nico2.Videos.WatchAPI;
@@ -13,6 +14,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Media.Core;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI.Core;
@@ -269,7 +271,7 @@ namespace NicoPlayerHohoema.Models
 		/// 動画ストリームの取得します
 		/// 他にダウンロードされているアイテムは強制的に一時停止し、再生終了後に再開されます
 		/// </summary>
-		public async Task<IRandomAccessStream> GetVideoStream(NicoVideoQuality quality)
+		public async Task StartPlay(NicoVideoQuality quality)
 		{
 			IfVideoDeletedThrowException();
 
@@ -320,13 +322,58 @@ namespace NicoPlayerHohoema.Models
 			{
 				throw new NotSupportedException();
 			}
-			
-
-			return NicoVideoCachedStream;
-		}
 
 
-		internal async Task SetupWatchPageVisit(NicoVideoQuality quality)
+            HohoemaApp.MediaPlayer.PlaybackSession.Position = TimeSpan.Zero;
+
+            if (ContentType == MovieType.Mp4)
+            {
+                string contentType = null;
+
+                if (NicoVideoCachedStream is Util.HttpRandomAccessStream)
+                {
+                    contentType = (NicoVideoCachedStream as Util.HttpRandomAccessStream).ContentType;
+                }
+                else if (NicoVideoCachedStream is Util.HttpSequencialAccessStream)
+                {
+                    contentType = (NicoVideoCachedStream as Util.HttpSequencialAccessStream).ContentType;
+                }
+
+                if (contentType == null) { throw new Exception("unknown movie content type"); }
+
+                HohoemaApp.MediaPlayer.Source = MediaSource.CreateFromStream(NicoVideoCachedStream, contentType);
+                HohoemaApp.MediaPlayer.BufferingStarted += MediaPlayer_BufferingStarted;
+            }
+            else
+            {
+                var mss = FFmpegInteropMSS.CreateFFmpegInteropMSSFromStream(NicoVideoCachedStream, false, true);
+
+                if (mss != null)
+                {
+                    var realMss = mss.GetMediaStreamSource();
+                    HohoemaApp.MediaPlayer.Source = MediaSource.CreateFromMediaStreamSource(realMss);
+                    HohoemaApp.MediaPlayer.BufferingStarted += MediaPlayer_BufferingStarted;
+                }
+                else
+                {
+                    throw new NotSupportedException();
+                }
+            }
+        }
+
+        private void MediaPlayer_BufferingStarted(Windows.Media.Playback.MediaPlayer sender, object args)
+        {
+            var smtc = HohoemaApp.MediaPlayer.SystemMediaTransportControls;
+//            smtc.DisplayUpdater.VideoProperties.Title = "";
+ //           smtc.DisplayUpdater.Thumbnail = RandomAccessStreamReference.CreateFromUri(new Uri(this.ThumbnailUrl));
+  //          smtc.IsPlayEnabled = true;
+   //         smtc.IsPauseEnabled = true;
+    //        smtc.DisplayUpdater.Update();
+
+            HohoemaApp.MediaPlayer.BufferingStarted -= MediaPlayer_BufferingStarted; 
+        }
+
+        internal async Task SetupWatchPageVisit(NicoVideoQuality quality)
 		{
 			WatchApiResponse res;
 			if (quality == NicoVideoQuality.Original)
@@ -393,7 +440,10 @@ namespace NicoPlayerHohoema.Models
 		
 		public async Task StopPlay()
 		{
-			if (NicoVideoCachedStream == null) { return; }
+            HohoemaApp.MediaPlayer.Pause();
+            HohoemaApp.MediaPlayer.Source = null;
+
+            if (NicoVideoCachedStream == null) { return; }
 
 			NicoVideoCachedStream?.Dispose();
 			NicoVideoCachedStream = null;

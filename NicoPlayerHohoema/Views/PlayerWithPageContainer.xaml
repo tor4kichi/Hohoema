@@ -59,6 +59,8 @@
                                             ContentTemplateSelector="{StaticResource PlayerContentTemplateSelecter}"
                                             HorizontalContentAlignment="Stretch"
                                             VerticalContentAlignment="Stretch"
+                                            HorizontalAlignment="Stretch"
+                                            VerticalAlignment="Stretch"
                                             x:Name="PlayerContent"
                                             />
 

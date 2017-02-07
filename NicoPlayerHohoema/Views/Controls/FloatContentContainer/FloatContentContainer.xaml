@@ -34,8 +34,8 @@
                                               Content="{TemplateBinding FloatContent}"
                                               ContentTemplate="{TemplateBinding FloatContentTemplate}"
                                               Visibility="{TemplateBinding FloatContentVisiblity}"
-                                              HorizontalContentAlignment="Right"
-                                              VerticalContentAlignment="Bottom"
+                                              HorizontalContentAlignment="Stretch"
+                                              VerticalContentAlignment="Stretch"
                                               Background="#FF0C0C0C"
                                               />
                         </Grid>
@@ -44,9 +44,6 @@
                             <VisualStateGroup x:Name="FloatContentDisplayState">
                                 <VisualState x:Name="Fill">
                                     <VisualState.Setters>
-                                        <Setter Target="FloatContentPresenter.HorizontalAlignment" Value="Stretch" />
-                                        <Setter Target="FloatContentPresenter.VerticalAlignment" Value="Stretch" />
-
                                         <Setter Target="FloatContentPresenter.(Grid.Row)" Value="0" />
                                         <Setter Target="FloatContentPresenter.(Grid.Column)" Value="0" />
                                         <Setter Target="FloatContentPresenter.(Grid.RowSpan)" Value="2" />

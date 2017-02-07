@@ -134,7 +134,7 @@ namespace NicoPlayerHohoema.Util
 		/// </summary>
 		/// <param name="filename"></param>
 		/// <returns></returns>
-		public async Task<bool> Rename(string filename)
+		public async Task<bool> Rename(string filename, bool forceReplace = false)
 		{
 			try
 			{
@@ -147,7 +147,7 @@ namespace NicoPlayerHohoema.Util
 
 				var file = await Folder.GetFileAsync(FileName);
 
-				await file.RenameAsync(filename);
+                await file.RenameAsync(filename);
 
 				FileName = filename;
 			}

@@ -23,22 +23,25 @@ namespace NicoPlayerHohoema.Models
 		public const string NGSettingsFileName = "ng.json";
 		public const string SearchSettingsFileName = "search.json";
 		public const string CacheSettingsFileName = "cache.json";
+        public const string PlaylistSettingsFileName = "playlist.json";
 
 
-		public static async Task<HohoemaUserSettings> LoadSettings(StorageFolder userFolder)
+        public static async Task<HohoemaUserSettings> LoadSettings(StorageFolder userFolder)
 		{
 			var ranking = await SettingsBase.Load<RankingSettings>(RankingSettingsFileName, userFolder);
 			var player = await SettingsBase.Load<PlayerSettings>(PlayerSettingsFileName, userFolder);
 			var ng = await SettingsBase.Load<NGSettings>(NGSettingsFileName, userFolder);
 			var cache = await SettingsBase.Load<CacheSettings>(CacheSettingsFileName, userFolder);
+            var playlist = await SettingsBase.Load<PlaylistSettings>(PlaylistSettingsFileName, userFolder);
 
-			return new HohoemaUserSettings()
+            return new HohoemaUserSettings()
 			{
 				RankingSettings = ranking,
 				PlayerSettings = player,
 				NGSettings = ng,
-				CacheSettings = cache
-			};
+				CacheSettings = cache,
+                PlaylistSettings = playlist
+            };
 		}
 
 		public async Task Save()
@@ -47,17 +50,16 @@ namespace NicoPlayerHohoema.Models
 			await PlayerSettings.Save();
 			await NGSettings.Save();
 			await CacheSettings.Save();
-		}
+            await PlaylistSettings.Save();
+        }
 
 		public RankingSettings RankingSettings { get; private set; }
-
 		public PlayerSettings PlayerSettings { get; private set; }
-
 		public NGSettings NGSettings { get; private set; }
-
 		public CacheSettings CacheSettings { get; private set; }
+        public PlaylistSettings PlaylistSettings { get; private set; }
 
-		public HohoemaUserSettings()
+        public HohoemaUserSettings()
 		{
 		}
 	}

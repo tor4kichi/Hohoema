@@ -34,7 +34,7 @@ namespace NicoPlayerHohoema.ViewModels
             SelectedItems = new ObservableCollection<ITEM_VM>();
 
             
-            HasItem = new ReactiveProperty<bool>(true);
+            HasItem = new ReactiveProperty<bool>(false);
 
 			HasError = new ReactiveProperty<bool>(false);
 
@@ -51,7 +51,11 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactiveProperty(0)
 				.AddTo(_CompositeDisposable);
 
-           
+            IsItemSelected = SelectedItems.ObserveProperty(x => x.Count)
+                .Select(x => x > 0)
+                .ToReactiveProperty()
+                .AddTo(_CompositeDisposable);
+
 
             NowRefreshable = new ReactiveProperty<bool>(false);
 
@@ -332,9 +336,9 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<int> LoadedItemsCount { get; private set; }
 		public ReactiveProperty<int> SelectedItemsCount { get; private set; }
 
+        public ReactiveProperty<bool> IsItemSelected { get; private set; }
 
-
-		public ObservableCollection<ITEM_VM> SelectedItems { get; private set; }
+        public ObservableCollection<ITEM_VM> SelectedItems { get; private set; }
 
 		public IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> IncrementalLoadingItems { get; private set; }
 

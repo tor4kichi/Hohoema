@@ -5,12 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Media.Playback;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
 namespace NicoPlayerHohoema.Views.Behaviors
 {
-	public class MediaElementContentHeightGetter : Behavior<MediaElement>
+	public class MediaPlayerElementContentHeightGetter : Behavior<MediaPlayerElement>
 	{
 
 		#region ContentHeight
@@ -20,7 +21,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
 			DependencyProperty.RegisterAttached(
 				nameof(ContentHeight),
 				typeof(double),
-				typeof(MediaElementContentHeightGetter),
+				typeof(MediaPlayerElementContentHeightGetter),
 				new PropertyMetadata(default(double)));
 
 		public double ContentHeight
@@ -41,7 +42,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
 			DependencyProperty.RegisterAttached(
 				nameof(ContentWidth),
 				typeof(double),
-				typeof(MediaElementContentHeightGetter),
+				typeof(MediaPlayerElementContentHeightGetter),
 				new PropertyMetadata(default(double)));
 
 		// プログラムからアクセスするための添付プロパティのラッパー
@@ -65,19 +66,25 @@ namespace NicoPlayerHohoema.Views.Behaviors
 		private bool IsSizeChanged;
 		private Timer _Timer;
 
-		private void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
+        MediaPlayer _MediaPlayer;
+
+        private void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
 		{
-			this.AssociatedObject.SizeChanged += AssociatedObject_SizeChanged;
-            this.AssociatedObject.CurrentStateChanged += AssociatedObject_CurrentStateChanged;
+            _MediaPlayer = this.AssociatedObject.MediaPlayer;
+
+            this.AssociatedObject.SizeChanged += AssociatedObject_SizeChanged;
+            _MediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
+
             IsSizeChanged = true;
 			StartEnsureResizeNotifyTimer();
 		}
 
-        private void AssociatedObject_CurrentStateChanged(object sender, RoutedEventArgs e)
+        private void PlaybackSession_PlaybackStateChanged(MediaPlaybackSession sender, object args)
         {
             IsSizeChanged = true;
             StartEnsureResizeNotifyTimer();
         }
+        
 
         private void AssociatedObject_SizeChanged(object sender, SizeChangedEventArgs e)
 		{
@@ -114,12 +121,15 @@ namespace NicoPlayerHohoema.Views.Behaviors
 			{
 				if (AssociatedObject == null) { return; }
 
-				if (AssociatedObject.CurrentState == Windows.UI.Xaml.Media.MediaElementState.Closed)
+                var playbackSession = _MediaPlayer.PlaybackSession;
+
+
+                if (playbackSession.PlaybackState == MediaPlaybackState.None)
 				{
 					return;
 				}
 
-				if (AssociatedObject.NaturalVideoWidth == 0)
+				if (playbackSession.NaturalVideoWidth == 0)
 				{
 					return;
 				}
@@ -130,19 +140,19 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
 				// 縦に余白が出来ない時は、実際の表示領域の縦サイズそのまま使う
 
-				var naturalContentVHRatio = AssociatedObject.NaturalVideoWidth / (float)AssociatedObject.NaturalVideoHeight;
+				var naturalContentVHRatio = playbackSession.NaturalVideoWidth / (float)playbackSession.NaturalVideoHeight;
 				var canvasVHRatio = AssociatedObject.ActualWidth / AssociatedObject.ActualHeight;
 				if (naturalContentVHRatio > canvasVHRatio)
 				{
-					var ratio = AssociatedObject.ActualWidth / AssociatedObject.NaturalVideoWidth;
-					ContentHeight = AssociatedObject.NaturalVideoHeight * ratio;
+					var ratio = AssociatedObject.ActualWidth / playbackSession.NaturalVideoWidth;
+					ContentHeight = playbackSession.NaturalVideoHeight * ratio;
 
 					ContentWidth = AssociatedObject.ActualWidth;
 				}
 				else
 				{
-					var ratio = AssociatedObject.ActualHeight / AssociatedObject.NaturalVideoHeight;
-					ContentWidth = AssociatedObject.NaturalVideoWidth * ratio;
+					var ratio = AssociatedObject.ActualHeight / playbackSession.NaturalVideoHeight;
+					ContentWidth = playbackSession.NaturalVideoWidth * ratio;
 
 					ContentHeight = AssociatedObject.ActualHeight;
 				}

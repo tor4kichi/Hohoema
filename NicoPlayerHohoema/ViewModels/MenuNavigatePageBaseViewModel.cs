@@ -52,7 +52,7 @@ namespace NicoPlayerHohoema.ViewModels
                 new PageTypeSelectableItem(HohoemaPageType.CacheManagement    , OnMenuItemSelected, "キャッシュ管理", Symbol.Download),
                 new PageTypeSelectableItem(HohoemaPageType.History            , OnMenuItemSelected, "視聴履歴", Symbol.Clock),
                 new PageTypeSelectableItem(HohoemaPageType.Settings             , OnMenuItemSelected, "設定", Symbol.Setting),
-                new PageTypeSelectableItem(HohoemaPageType.VideoInfomation      , OnAccountMenuItemSelected, "アカウントを表示", Symbol.Account),
+                new PageTypeSelectableItem(HohoemaPageType.Account             , OnAccountMenuItemSelected, "アカウントを表示", Symbol.Account),
                 new PageTypeSelectableItem(HohoemaPageType.About                , OnMenuItemSelected, "アプリについて", Symbol.AllApps),
                 new PageTypeSelectableItem(HohoemaPageType.Feedback             , OnMenuItemSelected, "フィードバックを送信", Symbol.Send),
             };

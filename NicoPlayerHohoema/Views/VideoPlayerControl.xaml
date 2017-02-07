@@ -20,6 +20,7 @@
     xmlns:myTrigger ="using:NicoPlayerHohoema.Views.StateTrigger"
     xmlns:media="using:Microsoft.Xaml.Interactions.Media"
     xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Animations.Behaviors"
+    xmlns:iconPack="using:MahApps.Metro.IconPacks"
     mc:Ignorable="d"
     d:DesignHeight="480"
     d:DesignWidth="720"
@@ -199,6 +200,57 @@
             </VisualStateGroup>
 
 
+
+            <!-- リピートモード -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsTrackRepeatModeEnable.Value}"  />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+
+                        <Setter Target="RepeatModeToggleButtonIcon.Kind" Value="RepeatOnce" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsListRepeatModeEnable.Value}"  />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="RepeatModeToggleButtonIcon.Kind" Value="Repeat" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="True"  />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="RepeatModeToggleButtonIcon.Kind" Value="RepeatOff" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+            <!-- リピートモード -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsShuffleEnabled.Value}"  />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+
+                        <Setter Target="ToggleShuffleButtonIcon.Kind" Value="Shuffle" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="True"  />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ToggleShuffleButtonIcon.Kind" Value="ShuffleDisabled" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
         </VisualStateManager.VisualStateGroups>
 
         <toolkit:LayoutTransformControl
@@ -215,7 +267,8 @@
             
 
                     <!-- Media Control -->
-            <Grid x:Name="MediaControl">
+            <Grid x:Name="MediaControl" HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch">
 
                 <i:Interaction.Behaviors>
                     <mybehavior:KeyboardTrigger Key="Enter" IsEnabled="{Binding NowCommentWriting.Value, Converter={StaticResource InvertBoolean}}">
@@ -227,13 +280,9 @@
                     <mybehavior:MouseWheelTrigger>
                         <mybehavior:MouseWheelTrigger.UpActions>
                             <core:InvokeCommandAction Command="{Binding VolumeUpCommand}" />
-
-                            <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="PreventAutoHide" />
                         </mybehavior:MouseWheelTrigger.UpActions>
                         <mybehavior:MouseWheelTrigger.DownActions>
                             <core:InvokeCommandAction Command="{Binding VolumeDownCommand}" />
-
-                            <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="PreventAutoHide" />
                         </mybehavior:MouseWheelTrigger.DownActions>
                     </mybehavior:MouseWheelTrigger>
 
@@ -251,48 +300,27 @@
 
 
 
-                <MediaElement x:Name="mediaElem"
-                                local:MediaElementExtention.CustomStream="{Binding VideoStream.Value}"
-                                Position="{Binding CurrentVideoPosition.Value}"
-                                AudioCategory="BackgroundCapableMedia"
-                                IsMuted="{Binding IsMuted.Value}"
-                                IsLooping="{Binding IsEnableRepeat.Value}"
-                                Volume="{Binding SoundVolume.Value}"
-                                  
-                                AutoPlay="True"
-                            >
+                <MediaPlayerElement x:Name="MediaPlayerElement" Stretch="Uniform"
+                                    AreTransportControlsEnabled="False"
+                                    >
                     <i:Interaction.Behaviors>
-
-                        <!-- 動画の再生位置を取り出す -->
-                        <mybehavior:MediaElementExtractPositionBehavior 
-                                    Position="{Binding ReadVideoPosition.Value, Mode=TwoWay}"
-                                    Interval="00:00:00.008" 
-                                    />
-
-                        <!-- MediaElementのバッファリング/再生の状態を読み取る -->
-                        <mybehavior:MediaElementStateGetter State="{Binding CurrentState.Value, Mode=TwoWay}" />
-
-                        <!-- アプリライフサイクルに合わせて動画の再生と一時停止を行う
-                        <mybehavior:EnsureLifecycleMediaElement />
-                        -->
-                        <mybehavior:MediaElementContentHeightGetter ContentHeight="{Binding CommentCanvasHeight.Value, Mode=TwoWay}"
-                                                                        />
-
-                        <mybehavior:KeyboardTrigger Key="Space"
-                                                        IsEnabled="{Binding ElementName=SplitView, Path=IsPaneOpen, Converter={StaticResource InvertBoolean}}" >
-                            <mybehavior:KeyboardTrigger.Actions>
-                                <mybehavior:MediaElementTogglePlayback TargetObject="{Binding ElementName=mediaElem}" />
-                            </mybehavior:KeyboardTrigger.Actions>
-                        </mybehavior:KeyboardTrigger>
-
                         
-                        <!-- 再生開始時にUIを非表示に-->
-                        <core:DataTriggerBehavior Binding="{Binding CurrentState.Value}" ComparisonCondition="Equal" Value="Opening">
+                        <mybehavior:MediaPlayerSetter MediaPlayer="{Binding MediaPlayer}" />
+
+                        <mybehavior:MediaPlayerElementContentHeightGetter ContentHeight="{Binding CommentCanvasHeight.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <!-- LegacyCurrentState はMediaElementStateを利用している
+                           CurrentStateはMediaPlaybackStateを利用しているが、こちらだと
+                        XamlからのWindows.Media.Playbackへの参照がされないのか、実行時に例外と共にエラーとなり正常に動作しない
+                        回避策としてMediaElementStateを利用したLeagacyCurrentStateで代用している
+                        -->
+                        <!-- 再生開始時にUIを非表示に -->
+                        <core:DataTriggerBehavior Binding="{Binding LegacyCurrentState.Value}" ComparisonCondition="Equal" Value="Opening">
                             <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
                         </core:DataTriggerBehavior>
 
-                        <!-- 再生停止時にUIを表示状態に切替-->
-                        <core:DataTriggerBehavior Binding="{Binding CurrentState.Value}" ComparisonCondition="Equal" Value="Paused">
+                        <!-- 再生停止時にUIを表示状態に切替 -->
+                        <core:DataTriggerBehavior Binding="{Binding LegacyCurrentState.Value}" ComparisonCondition="Equal" Value="Stopped">
                             <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Show" />
                         </core:DataTriggerBehavior>
 
@@ -300,17 +328,18 @@
                         <core:DataTriggerBehavior Binding="{Binding IsSmallWindowModeEnable.Value}" ComparisonCondition="Equal" Value="True">
                             <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
                         </core:DataTriggerBehavior>
-                        
                     </i:Interaction.Behaviors>
-                </MediaElement>
-
-
+                                        
+                    <!-- TODO: スペースキー入力で再生停止の切り替え-->
+                        
+                </MediaPlayerElement>
+                
+                
                 <comment:CommentRenderer 
                                 x:Name="CommentRederer"
                                 Comments="{Binding Comments}"
-                                VideoPosition="{Binding ReadVideoPosition.Value}"                                     
+                                VideoPosition="{Binding CommentVideoPosition.Value}"                                     
                                 Visibility="{Binding IsVisibleComment.Value, Converter={StaticResource BooleanToVisibility}}"
-                                RequestFPS="{Binding RequestFPS.Value}"
                                 CommentSizeScale="{Binding CommentFontScale.Value}"
                                 Height="{Binding CommentCanvasHeight.Value}"
                                 CommentDefaultColor="{Binding CommentDefaultColor.Value}"
@@ -339,22 +368,138 @@
 
 
                 <toolkit:DockPanel 
+                    x:Name="UIControlLayout"
                             >
-                    
-                    <StackPanel toolkit:DockPanel.Dock="Bottom" x:Name="UIControlLayout">
-                        <i:Interaction.Behaviors>
-                            <mybehavior:VisiblityFadeChanger x:Name="PlayerControlAutoHide" 
+                    <i:Interaction.Behaviors>
+                        <mybehavior:VisiblityFadeChanger x:Name="PlayerControlAutoHide" 
                                              Delay="{Binding AutoHideDelayTime.Value}"
                         />
-                        </i:Interaction.Behaviors>
+                    </i:Interaction.Behaviors>
 
-                        <Border Height="48">
+
+                    <!-- プレイリスト 操作 -->
+                    <StackPanel toolkit:DockPanel.Dock="Top" >
+
+                        <toolkit:DockPanel Background="#AA000000">
+
+                            <Button Command="{Binding ClosePlayerCommand}"
+                                    Background="Transparent"
+                                    toolkit:DockPanel.Dock="Left"
+                                    >
+                                <iconPack:PackIconMaterial Kind="Close" />
+                            </Button>
+
+
+                            <StackPanel Orientation="Horizontal"
+                                        toolkit:DockPanel.Dock="Right"
+                                        >
+                                <Button Background="Transparent"          
+                                        Command="{Binding ToggleShuffleCommand}"
+                                            >
+                                    <iconPack:PackIconMaterial x:Name="ToggleShuffleButtonIcon"
+                                                Kind="Shuffle"
+                                                           FontSize="20"
+                                                           />
+                                </Button>
+
+
+                                <!-- リピートは「オフ」「単品リピート」「全体リピート」の３モードに対応したい -->
+                                <!-- IsChecked == null   => off -->
+                                <!-- IsChecked == false  => single track repeat enable -->
+                                <!-- IsChecked == true   => playlist repeat enable -->
+                                <!-- see@ https://msdn.microsoft.com/ja-jp/library/windows/apps/windows.ui.xaml.controls.primitives.togglebutton.isthreestate -->
+                                <Button Command="{Binding ToggleRepeatModeCommand}"
+                                        Background="Transparent"
+                                            >
+                                    <iconPack:PackIconMaterial x:Name="RepeatModeToggleButtonIcon"
+                                                Kind="Repeat" 
+                                                           
+                                                           />
+                                </Button>
+
+                            </StackPanel>
+
+
+
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+
+                                <StackPanel toolkit:DockPanel.Dock="Left"
+                                        Orientation="Horizontal"
+                                        >
+                                    <Button Command="{Binding OpenPreviousPlaylistItemCommand}"
+                                        Background="Transparent"
+                                        Visibility="{Binding PlaylistCanGoBack.Value, Converter={StaticResource BooleanToVisibility}}"
+                                        >
+                                        <iconPack:PackIconMaterial Kind="ArrowLeft" />
+                                    </Button>
+                                </StackPanel>
+
+                                <Border Width="16" />
+
+                                <Button 
+                                        Command="{Binding OpenCurrentPlaylistPageCommand}"
+                                        Background="Transparent"
+                                    >
+                                    <TextBlock Text="{Binding CurrentPlaylistName.Value}"
+                                               Style="{StaticResource SubtitleTextBlockStyle}"
+                                               />
+                                </Button>
+
+                                <Border Width="16" />
+
+                                <StackPanel toolkit:DockPanel.Dock="Right"
+                                        Orientation="Horizontal"
+                                        >
+                                    <Button Command="{Binding OpenNextPlaylistItemCommand}"
+                                        Background="Transparent"
+                                        Visibility="{Binding PlaylistCanGoNext.Value, Converter={StaticResource BooleanToVisibility}}"
+                                        >
+                                        <iconPack:PackIconMaterial Kind="ArrowRight" />
+                                    </Button>
+                                </StackPanel>
+
+                            </StackPanel>
+                            
+                        </toolkit:DockPanel>
+
+                        
+
+
+                        <Border Height="32">
+                            
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="1, 1" EndPoint="1, 0">
+                                    <GradientStop Color="#00000000" Offset="0.0" />
+                                    <GradientStop Color="#AA000000" Offset="1.0" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+
+                            <i:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
+                                </core:EventTriggerBehavior>
+                            </i:Interaction.Behaviors>
+                        </Border>
+
+                    </StackPanel>
+
+                    
+                    <!-- 動画コンテンツ 操作 -->
+                    <StackPanel toolkit:DockPanel.Dock="Bottom" >
+                        
+                        <Border Height="32">
                             <Border.Background>
                                 <LinearGradientBrush x:Name="ControlPanelBackgroundBrush" StartPoint="1, 0" EndPoint="1, 1">
                                     <GradientStop Color="#00000000" Offset="0.0" x:Name="GradientStop1"/>
                                     <GradientStop Color="#AA000000" Offset="1.0" x:Name="GradientStop2" />
                                 </LinearGradientBrush>
                             </Border.Background>
+
+                            <i:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
+                                </core:EventTriggerBehavior>
+                            </i:Interaction.Behaviors>
                         </Border>
 
                         <StackPanel x:Name="TitleLayout" Background="#AA000000">
@@ -441,6 +586,7 @@
                                 <!-- 音量 -->
                                 <AppBarButton Icon="Mute" 
                                               x:Name="VolumeButton"
+                                              Background="Transparent"
                                               >
                                     <AppBarButton.Flyout>
                                         <Flyout>
@@ -470,19 +616,19 @@
 
 
                                                     <Slider x:Name="VolumeSlider"
-                                                    Orientation="Horizontal"
-                                                    VerticalAlignment="Top"
-                                                    Margin="8 4"
-                                                    Value="{Binding SoundVolume.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                    IsThumbToolTipEnabled="True"
-                                                    ThumbToolTipValueConverter="{StaticResource ToUserFriendlySoubleVolume}"
-                                                    Maximum="1.0"
-                                                    Minimum="0.0"
-                                                    StepFrequency="0.01"
-                                                    Height="32"
-                                                    Width="160"
-                                                                
-                                                    >
+                                                        Orientation="Horizontal"
+                                                        VerticalAlignment="Top"
+                                                        Margin="8 4"
+                                                        Value="{Binding SoundVolume.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                        IsThumbToolTipEnabled="True"
+                                                        ThumbToolTipValueConverter="{StaticResource ToUserFriendlySoubleVolume}"
+                                                        Maximum="1.0"
+                                                        Minimum="0.0"
+                                                        StepFrequency="0.01"
+                                                        Height="32"
+                                                        Width="160"
+                                                                Background="Transparent"
+                                                        >
                                                         <i:Interaction.Behaviors>
                                                             <core:EventTriggerBehavior EventName="ValueChanged" >
                                                                 <core:CallMethodAction TargetObject="{Binding ElementName=AutoHideBehavior}" MethodName="PreventAutoHide" />
@@ -490,11 +636,11 @@
                                                         </i:Interaction.Behaviors>
                                                     </Slider>
                                                     <TextBlock Text="音量" 
-                                                   VerticalAlignment="Center"
-                                                   Margin="8 0 0 0"
-                                                   HorizontalAlignment="Center"
-                                                   FontSize="12"
-                                                   />
+                                                       VerticalAlignment="Center"
+                                                       Margin="8 0 0 0"
+                                                       HorizontalAlignment="Center"
+                                                       FontSize="12"
+                                                       />
 
                                                 </StackPanel>
 
@@ -523,21 +669,24 @@
                                         >
 
                                 <!-- 再生 -->
-                                <Button Background="Transparent">
+                                <Button Background="Transparent" Command="{Binding PreviewVideoPositionCommand}">
                                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3C;" 
                                            FontSize="18"
                                            />
                                 </Button>
+
+                                <Border Width="8" />
+                                
                                 <AppBarButton x:Name="PlayPauseButton" Icon="Play"
+                                              Command="{Binding TogglePlayPauseCommand}"
                                           >
-                                    <i:Interaction.Behaviors>
-                                        <core:EventTriggerBehavior EventName="Tapped">
-                                            <mybehavior:MediaElementTogglePlayback TargetObject="{Binding ElementName=mediaElem}" />
-                                        </core:EventTriggerBehavior>
-                                    </i:Interaction.Behaviors>
                                 </AppBarButton>
 
-                                <Button Background="Transparent">
+                                <Border Width="8" />
+                                
+                                <Button Background="Transparent"
+                                        Command="{Binding ForwardVideoPositionCommand}"
+                                        >
                                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3D;"
                                            FontSize="18"
                                            
@@ -552,18 +701,24 @@
                                         >
                                 <AppBarButton Icon="FullScreen" Command="{Binding ToggleFullScreenCommand}" />
 
-                                <AppBarButton Label="Small" Command="{Binding PlayerSmallWindowDisplayCommand}" >
-                                    <i:Interaction.Behaviors>
-                                        <core:EventTriggerBehavior EventName="Tapped">
-                                            <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
-                                        </core:EventTriggerBehavior>
-                                    </i:Interaction.Behaviors>
-                                </AppBarButton>
-
                                 <AppBarButton Icon="More">
                                     <AppBarButton.Flyout>
                                         <MenuFlyout>
+
+                                            <MenuFlyoutItem Text="小さく表示" Command="{Binding PlayerSmallWindowDisplayCommand}" >
+                                                <i:Interaction.Behaviors>
+                                                    <core:EventTriggerBehavior EventName="Tapped">
+                                                        <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
+                                                    </core:EventTriggerBehavior>
+                                                </i:Interaction.Behaviors>
+                                            </MenuFlyoutItem>
+
+                                            <MenuFlyoutSeparator />
+                                            
                                             <MenuFlyoutSubItem Text="画質">
+
+                                                
+                                                
                                                 <MenuFlyoutItem Text="低画質" IsEnabled="{Binding CanToggleCurrentQualityCacheState.Value}">
                                                     <i:Interaction.Behaviors>
                                                         <core:EventTriggerBehavior EventName="Tapped">

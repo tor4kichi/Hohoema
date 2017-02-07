@@ -15,6 +15,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Diagnostics;
+using Windows.Media.Playback;
 using Windows.Networking.Connectivity;
 using Windows.Storage;
 using Windows.System.Power;
@@ -32,7 +33,11 @@ namespace NicoPlayerHohoema.Models
 
 		const string PRIMARY_ACCOUNT = "primary_account";
 
-		private static DateTime LastSyncRoamingData = DateTime.MinValue;
+
+        public const string PlaylistSaveFolderName = "Playlists";
+
+
+        private static DateTime LastSyncRoamingData = DateTime.MinValue;
 
 		public static async Task<HohoemaApp> Create(IEventAggregator ea)
 		{
@@ -41,9 +46,15 @@ namespace NicoPlayerHohoema.Models
 			var app = new HohoemaApp(ea);
 			app.MediaManager = await NiconicoMediaManager.Create(app);
 
-			await app.LoadUserSettings();
+            await app.LoadUserSettings();
 
-			app.RagistrationBackgroundUpdateHandle();
+            var folder = ApplicationData.Current.LocalFolder;
+            var playlistFolder = await folder.CreateFolderAsync(PlaylistSaveFolderName, CreationCollisionOption.OpenIfExists);
+            app.Playlist = new HohoemaPlaylist(MediaPlayer, app.UserSettings.PlaylistSettings, playlistFolder);
+
+            await app.Playlist.Load();
+
+            app.RagistrationBackgroundUpdateHandle();
 
 			return app;
 		}
@@ -54,9 +65,15 @@ namespace NicoPlayerHohoema.Models
 		private SemaphoreSlim _SigninLock;
 		private const string ThumbnailLoadBackgroundTaskId = "ThumbnailLoader";
 
-		private HohoemaApp(IEventAggregator ea)
+        public static MediaPlayer MediaPlayer { get; private set; } = new MediaPlayer()
+        {
+            AutoPlay = true,
+            AudioCategory = MediaPlayerAudioCategory.Movie,            
+        };
+
+        private HohoemaApp(IEventAggregator ea)
 		{
-			EventAggregator = ea;
+            EventAggregator = ea;
             NiconicoContext = new NiconicoContext();
 			LoginUserId = uint.MaxValue;
 			LoggingChannel = new LoggingChannel("HohoemaLog", new LoggingChannelOptions(HohoemaLoggerGroupGuid));
@@ -64,7 +81,6 @@ namespace NicoPlayerHohoema.Models
 			ContentFinder = new NiconicoContentFinder(this);
 			UserMylistManager = new UserMylistManager(this);
 			FeedManager = new FeedManager(this);
-            Playlist = new HohoemaPlaylist();
 
             FollowManager = null;
 
@@ -272,7 +288,7 @@ namespace NicoPlayerHohoema.Models
 			return await ApplicationData.Current.LocalFolder.CreateFolderAsync("feed", CreationCollisionOption.OpenIfExists);
 		}
 
-		public async Task LoadUserSettings()
+		private async Task LoadUserSettings()
 		{
 			var folder = ApplicationData.Current.LocalFolder;
 

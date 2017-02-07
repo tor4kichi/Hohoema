@@ -8,98 +8,240 @@
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:mycontrols="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:iconPack="using:MahApps.Metro.IconPacks"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
+    <Page.Resources>
+        <Flyout x:Key="PlaylistRenameFlyout" x:Name="PlaylistRenameFlyout">
+            <StackPanel Orientation="Horizontal">
+                <TextBox Text="{Binding PlaylistNameCandidate.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         ext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
+                                                                 >
+                    <i:Interaction.Behaviors>
+                        <mybehavior:KeyboardTrigger Key="Enter">
+                            <mybehavior:KeyboardTrigger.Actions>
+                                <core:InvokeCommandAction Command="{Binding RenamePlaylistCommand}" />
+                                <core:CallMethodAction TargetObject="{Binding ElementName=PlaylistRenameFlyout}" MethodName="Hide" />
+                            </mybehavior:KeyboardTrigger.Actions>
+                        </mybehavior:KeyboardTrigger>
+                    </i:Interaction.Behaviors>
+                </TextBox>
+                <Border Width="8" />
+                <Button Command="{Binding RenamePlaylistCommand}" 
+                        Content="名前を変更">
+                    <i:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="Tapped">
+                            <core:CallMethodAction TargetObject="{Binding ElementName=PlaylistRenameFlyout}" MethodName="Hide" />
+                        </core:EventTriggerBehavior>
+                    </i:Interaction.Behaviors>
+                </Button>
+            </StackPanel>
+        </Flyout>
+    </Page.Resources>
     <Grid>
         <toolkit:DockPanel>
-            <Border toolkit:DockPanel.Dock="Top" 
-                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
-                    BorderThickness="0 0 0 1"
-                    Height="64"
-                    >
-                <toolkit:DockPanel >
-
-
-                    <StackPanel toolkit:DockPanel.Dock="Right" 
-                            Orientation="Horizontal"
-                            >
-                    </StackPanel>
-
-                    <Border Background="Transparent" IsHitTestVisible="True"
-                                Margin="16 0 0 0"
-                                >
-                        <TextBlock Text="{Binding Title}" 
-                                    VerticalAlignment="Center"
-                                    Style="{StaticResource SubtitleTextBlockStyle}"
-                                    >
-                        </TextBlock>
-                    </Border>
-                </toolkit:DockPanel>
-            </Border>
+            
             
             <uwptoolkit:MasterDetailsView ItemsSource="{Binding Playlists}"
                                           NoSelectionContent="No Selection"
-                                          
+                                          SelectedItem="{Binding SelectedItem.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                           >
 
                 <uwptoolkit:MasterDetailsView.MasterHeader>
+
                     <toolkit:DockPanel>
-                        <Button Content="Add" HorizontalAlignment="Center"
-                                Command="{Binding CreatePlaylistCommand}"
-                                />
+
+                        <Border toolkit:DockPanel.Dock="Top" 
+                                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
+                                    BorderThickness="0 0 0 1"
+                                    Height="64"
+                                    >
+                            <toolkit:DockPanel >
+
+                                <StackPanel toolkit:DockPanel.Dock="Right" 
+                                        Orientation="Horizontal"
+                                        >
+
+                                    <AppBarButton Icon="Add"
+                                        Command="{Binding CreatePlaylistCommand}"
+                                        Background="Transparent" 
+                                                  />
+                                </StackPanel>
+
+                                <Border Background="Transparent" IsHitTestVisible="True"
+                                            Margin="16 0 0 0"
+                                            >
+                                    <TextBlock Text="{Binding Title}" 
+                                                VerticalAlignment="Center"
+                                                Style="{StaticResource SubtitleTextBlockStyle}"
+                                                >
+                                    </TextBlock>
+                                </Border>
+                            </toolkit:DockPanel>
+                        </Border>
+
+
+                        
+
                     </toolkit:DockPanel>
+
+                    
                 </uwptoolkit:MasterDetailsView.MasterHeader>
                 
                 <uwptoolkit:MasterDetailsView.DetailsTemplate>
                     <DataTemplate>
                         <toolkit:DockPanel>
 
-                            <!-- タップでプレイリスト名の変更 -->
-                            <TextBlock Text="{Binding PlaylistName.Value}" Margin="8" />
-                            
-                            <CommandBar toolkit:DockPanel.Dock="Bottom">
-                                <AppBarButton Icon="Play" />
+                            <Border toolkit:DockPanel.Dock="Top" 
+                                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
+                                    BorderThickness="0 0 0 1"
+                                    Height="64"
+                                    >
+                                <toolkit:DockPanel>
+                                    <StackPanel Orientation="Horizontal" 
+                                                toolkit:DockPanel.Dock="Right"
+                                                >
 
-                                <CommandBar.SecondaryCommands>
-                                    <AppBarButton Label="このプレイリストを削除"
-                                                  Icon="Delete"
-                                                  Command="{Binding DeletePlaylistCommand}"
-                                                  >
+                                        <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                            Orientation="Horizontal"
+                                            >
+                                            <AppBarButton Icon="Play" Label="全て再生" Command="{Binding PlayPlaylistCommand}"
+                                                          IsEnabled="{Binding HasItem.Value}"
+                                                          />
+
+                                        </StackPanel>
+
+                                        <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                                            Orientation="Horizontal"
+                                            >
+
+                                            <AppBarButton Icon="Play" Label="再生" Command="{Binding PlayAllCommand}" />
+
+                                            
+                                            <AppBarButton Command="{Binding RegistratioMylistCommand}"
+                                              Label="マイリスト登録"
+                                              Icon="Add"
+                                            >
+                                            </AppBarButton>
+
+
+                                            <AppBarButton Command="{Binding RequestCacheDownload}"
+                                              Label="キャッシュ取得"
+                                              Icon="Download"
+                                            >
+                                            </AppBarButton>
+                                            
+                                            <AppBarButton Command="{Binding RemovePlaylistItemsCommand}"
+                                              Icon="Remove"
+                                              Label="プレイリストから削除"
+                                            />
+
+                                        </StackPanel>
+
+
+
+                                        <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                            IsEnabled="{Binding HasItem.Value}"
+                                            HorizontalContentAlignment="Stretch"
+                                            VerticalContentAlignment="Stretch"
+                                            Label="選択"
+                                            >
+                                            <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       />
+                                        </AppBarToggleButton>
+
                                         
-                                    </AppBarButton>
+                                    </StackPanel>
 
-                                </CommandBar.SecondaryCommands>
-                            </CommandBar>
 
-                            <!-- TODO: 入れ替え -->
+                                    <Border Background="Transparent" IsHitTestVisible="True"
+                                            Margin="16 0 0 0"
+                                            >
+                                        <!-- タップでプレイリスト名の変更 -->
+                                        <TextBlock Text="{Binding PlaylistName.Value}" 
+                                                    VerticalAlignment="Center"
+                                                    Style="{StaticResource SubtitleTextBlockStyle}"
+                                                   ContextFlyout="{StaticResource PlaylistRenameFlyout}"
+                                                >
+                                        </TextBlock>
+                                    </Border>
+                                </toolkit:DockPanel>
+                                
+                            </Border>
                             
-                            <ListView ItemsSource="{Binding PlaylistItems}">
-                                <ListView.ItemTemplate>
-                                    <DataTemplate>
-                                        <toolkit:DockPanel>
-
-                                            <i:Interaction.Behaviors>
-                                                <core:EventTriggerBehavior EventName="Tapped">
-                                                    <core:InvokeCommandAction Command="{Binding }" />
-                                                </core:EventTriggerBehavior>
-                                            </i:Interaction.Behaviors>
-                                            <SymbolIcon Symbol="Up" toolkit:DockPanel.Dock="Left" />
-                                            <TextBlock Text="{Binding VideoName}" />
-                                        </toolkit:DockPanel>
-                                    </DataTemplate>
-                                </ListView.ItemTemplate>
-                            </ListView>
                             
+                            <mycontrols:HohoemaIncrementalLoadingList />
+
                         </toolkit:DockPanel>
                     </DataTemplate>
                 </uwptoolkit:MasterDetailsView.DetailsTemplate>
 
                 <uwptoolkit:MasterDetailsView.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Text="{Binding PlaylistName.Value}" />
+                        <Border>
+                            <TextBlock Text="{Binding PlaylistName.Value}" 
+                                            VerticalAlignment="Center"
+                                            >
+                            <!-- 右クリックでフライアウト表示 -->
+                            <!-- プレイリストの削除 -->
+
+                            </TextBlock>
+
+                           
+                            <Border.ContextFlyout>
+                                <Flyout x:Name="PlaylistFlyout">
+
+                                    <StackPanel>
+
+                                        <Button Content="名前を変更"
+                                                Flyout="{StaticResource PlaylistRenameFlyout}"
+                                                Background="Transparent"
+                                                HorizontalAlignment="Stretch"
+                                                >
+                                            
+                                        </Button>
+
+                                        <Button Content="プレイリストを削除"
+                                                Background="Transparent"
+                                                HorizontalAlignment="Stretch"
+                                                Visibility="{Binding IsDefaultPlaylist, Converter={StaticResource InvertBoolean}}"
+                                            >
+                                            <Button.Flyout>
+                                                <Flyout x:Name="PlaylistEnsureRemoveFlyout">
+                                                    <StackPanel Width="260">
+                                                        <TextBlock TextWrapping="Wrap">
+                                                        プレイリストを削除すると元に戻せません。
+                                                        このプレイリストを完全に削除してもよろしいですか？
+                                                        </TextBlock>
+
+                                                        <Border Height="8" />
+                                                        <Button HorizontalAlignment="Right"
+                                                            Content="プレイリストを削除"
+                                                            Command="{Binding DeletePlaylistCommand}"
+                                                            >
+                                                            <i:Interaction.Behaviors>
+                                                                <core:EventTriggerBehavior EventName="Tapped">
+                                                                    <core:CallMethodAction TargetObject="{Binding ElementName=PlaylistEnsureRemoveFlyout}" MethodName="Hide" />
+                                                                </core:EventTriggerBehavior>
+                                                            </i:Interaction.Behaviors>
+                                                        </Button>
+                                                    </StackPanel>
+                                                </Flyout>
+                                            </Button.Flyout>
+
+                                        </Button>
+                                    </StackPanel>
+                                </Flyout>
+                            </Border.ContextFlyout>
+                        </Border>
                     </DataTemplate>
                 </uwptoolkit:MasterDetailsView.ItemTemplate>
                
