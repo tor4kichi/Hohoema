@@ -18,7 +18,9 @@
     xmlns:intractionTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInteractionTriggers"
     xmlns:uiTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInterfaceTriggers"
     xmlns:myTrigger ="using:NicoPlayerHohoema.Views.StateTrigger"
-    
+    xmlns:media="using:Microsoft.Xaml.Interactions.Media"
+    xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Animations.Behaviors"
+    xmlns:iconPack="using:MahApps.Metro.IconPacks"
     mc:Ignorable="d">
 
 
@@ -186,19 +188,12 @@
                     
                 </i:Interaction.Behaviors>
 
-                <MediaElement x:Name="mediaElem"
-                                  local:MediaElementExtention.CustomStream="{Binding VideoStream.Value}"
-                                  AudioCategory="Movie"
-                                  IsMuted="{Binding IsMuted.Value}"
-                                  Volume="{Binding SoundVolume.Value}"
+                <MediaPlayerElement x:Name="mediaElem"
                                   AutoPlay="True"
                             >
                     <i:Interaction.Behaviors>
 
-                        <!-- アプリライフサイクルに合わせて動画の再生と一時停止を行う 
-                        
-                        <mybehavior:EnsureLifecycleMediaElement />
-                        -->
+                        <mybehavior:MediaPlayerSetter MediaPlayer="{Binding MediaPlayer}" />
 
                         <mybehavior:MediaPlayerElementContentHeightGetter ContentHeight="{Binding CommentCanvasHeight.Value, Mode=TwoWay}"
                                                                             />
@@ -209,7 +204,7 @@
                         </core:DataTriggerBehavior>
 
                         <!-- 再生停止時にUIを表示状態に切替-->
-                        <core:DataTriggerBehavior Binding="{Binding CurrentState.Value}" ComparisonCondition="Equal" Value="Paused">
+                        <core:DataTriggerBehavior Binding="{Binding CurrentState.Value}" ComparisonCondition="Equal" Value="Closed">
                             <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Show" />
                         </core:DataTriggerBehavior>
 
@@ -219,7 +214,7 @@
                         </core:DataTriggerBehavior>
                         
                     </i:Interaction.Behaviors>
-                </MediaElement>
+                </MediaPlayerElement>
 
 
                 <Grid Height="{Binding CommentCanvasHeight.Value}">
@@ -263,20 +258,19 @@
                 </Border>
 
 
-                <toolkit:DockPanel 
-                           >
-                    <StackPanel x:Name="ControlUIRoot"
+                <toolkit:DockPanel x:Name="ControlUIRoot" >
+
+                    <i:Interaction.Behaviors>
+                        <mybehavior:VisiblityFadeChanger x:Name="PlayerControlAutoHide" 
+                                            Delay="{Binding AutoHideDelayTime.Value}"
+                           />
+                    </i:Interaction.Behaviors>
+
+                    
+                    <StackPanel 
                                 toolkit:DockPanel.Dock="Bottom"
                                 HorizontalAlignment="Stretch"
                                 >
-
-
-                        <i:Interaction.Behaviors>
-                            <mybehavior:VisiblityFadeChanger x:Name="PlayerControlAutoHide" 
-                                            Delay="{Binding AutoHideDelayTime.Value}"
-                           />
-                        </i:Interaction.Behaviors>
-
 
                         <Border Height="48">
                             <Border.Background>
@@ -285,10 +279,22 @@
                                     <GradientStop Color="#AA000000" Offset="1.0" x:Name="GradientStop2" />
                                 </LinearGradientBrush>
                             </Border.Background>
+
+                            <i:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
+                                </core:EventTriggerBehavior>
+                            </i:Interaction.Behaviors>
                         </Border>
 
                         <StackPanel x:Name="TitleLayout" Background="#AA000000">
                             <TextBlock Text="{Binding Title}" FontSize="24" Margin="8" HorizontalAlignment="Center" TextWrapping="Wrap" />
+
+                            <i:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
+                                </core:EventTriggerBehavior>
+                            </i:Interaction.Behaviors>
                         </StackPanel>
 
                      
@@ -376,7 +382,11 @@
                             <Border />
 
 
-
+                            <i:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
+                                </core:EventTriggerBehavior>
+                            </i:Interaction.Behaviors>
 
                         </toolkit:DockPanel>
 
@@ -397,6 +407,8 @@
                                 <!-- 音量 -->
                                 <AppBarButton Icon="Mute" 
                                               x:Name="VolumeButton"
+                                              Height="64"
+                                              Width="64"
                                               >
                                     <AppBarButton.Flyout>
                                         <Flyout>
@@ -498,24 +510,32 @@
                                         >
                                 <AppBarButton Icon="FullScreen" Command="{Binding ToggleFullScreenCommand}" />
 
-                                <AppBarButton Label="Small" Command="{Binding PlayerSmallWindowDisplayCommand}">
-                                    <i:Interaction.Behaviors>
-                                        <core:EventTriggerBehavior EventName="Tapped">
-                                            <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
-                                        </core:EventTriggerBehavior>
-                                    </i:Interaction.Behaviors>
-                                </AppBarButton>
+                                
 
                                 <AppBarButton Icon="More">
                                     <AppBarButton.Flyout>
                                         <MenuFlyout>
-                                            <MenuFlyoutItem Text="配信者情報" Command="{Binding OpenBroadcastCommunityCommand}" />
+                                            <MenuFlyoutItem Text="小さく表示" Command="{Binding PlayerSmallWindowDisplayCommand}">
+                                                <i:Interaction.Behaviors>
+                                                    <core:EventTriggerBehavior EventName="Tapped">
+                                                        <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
+                                                    </core:EventTriggerBehavior>
+                                                </i:Interaction.Behaviors>
+                                            </MenuFlyoutItem>
+                                            
                                             <MenuFlyoutSeparator />
+                                            
+                                            <MenuFlyoutItem Text="配信者情報" Command="{Binding OpenBroadcastCommunityCommand}" />
+
+                                            <MenuFlyoutSeparator />
+                                            
                                             <MenuFlyoutSubItem Text="共有" >
                                                 <MenuFlyoutItem Text="Twitterで共有" Command="{Binding ShereWithTwitterCommand}" />
                                                 <MenuFlyoutItem Text="クリップボードにコピー" Command="{Binding ShareWithClipboardCommand}" />
                                             </MenuFlyoutSubItem>
+                                            
                                             <MenuFlyoutSeparator />
+                                            
                                             <MenuFlyoutItem Text="プレイヤー設定" Command="{Binding OpenPlayerSettingCommand}" />
                                             <ToggleMenuFlyoutItem Text="横持ち固定" 
                                                               x:Name="ForceRotateToggleButton" 

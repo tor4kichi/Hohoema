@@ -151,11 +151,13 @@ namespace NicoPlayerHohoema.Models.Live
 
 		public void Dispose()
 		{
-			// 次枠検出を終了
-			StopNextLiveSubscribe().ConfigureAwait(false);
+            HohoemaApp.MediaPlayer.Source = null;
+
+            // 次枠検出を終了
+            StopNextLiveSubscribe().ConfigureAwait(false);
 
 			EndLiveSubscribe().ConfigureAwait(false);
-		}
+        }
 
 		public async Task<LiveStatusType?> UpdateLiveStatus()
 		{
@@ -457,8 +459,9 @@ namespace NicoPlayerHohoema.Models.Live
 			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
 			{
 				VideoStreamSource = args.MediaStreamSource;
+                HohoemaApp.MediaPlayer.Source = MediaSource.CreateFromMediaStreamSource(args.MediaStreamSource);
 
-				Debug.WriteLine("recieve start live stream: " + LiveId);
+                Debug.WriteLine("recieve start live stream: " + LiveId);
 			});
 		}
 
@@ -469,7 +472,8 @@ namespace NicoPlayerHohoema.Models.Live
 				using (var releaser = await _VideoStreamSrouceAssignLock.LockAsync())
 				{
 					VideoStreamSource = null;
-				}
+                    HohoemaApp.MediaPlayer.Source = null;
+                }
 
 				Debug.WriteLine("recieve exit live stream: " + LiveId);
 

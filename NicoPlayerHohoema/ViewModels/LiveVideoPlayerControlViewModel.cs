@@ -25,6 +25,7 @@ using NicoPlayerHohoema.ViewModels.LiveVideoInfoContent;
 using NicoPlayerHohoema.Views.Service;
 using Windows.UI.Xaml.Media;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.Media.Playback;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -54,6 +55,8 @@ namespace NicoPlayerHohoema.ViewModels
 		public TextInputDialogService _TextInputDialogService { get; private set; }
         private ToastNotificationService _ToastNotificationService;
 
+
+        public MediaPlayer MediaPlayer { get; private set; }
 
         public string LiveId { get; private set; }
 
@@ -171,22 +174,6 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<bool> IsSmallWindowModeEnable { get; private set; }
 
 
-
-        // pane content
-        private Dictionary<LiveVideoPaneContentType, LiveInfoContentViewModelBase> _PaneContentCache;
-
-		public static List<LiveVideoPaneContentType> PaneContentTypes { get; private set; } = new[] {
-				LiveVideoPaneContentType.Summary,
-				LiveVideoPaneContentType.Comment,
-				LiveVideoPaneContentType.Shere,
-				LiveVideoPaneContentType.Settings
-			}.ToList();
-
-			
-		public ReactiveProperty<LiveVideoPaneContentType> SelectedPaneContent { get; private set; }
-		public ReactiveProperty<LiveInfoContentViewModelBase> PaneContent { get; private set; }
-
-
 		// suggestion
 		public ReactiveProperty<LiveSuggestion> Suggestion { get; private set; }
 		public ReactiveProperty<bool> HasSuggestion { get; private set; }
@@ -203,6 +190,8 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			_TextInputDialogService = textInputDialogService;
             _ToastNotificationService = toast;
+
+            MediaPlayer = HohoemaApp.MediaPlayer;
 
             VideoStream = new ReactiveProperty<object>();
 
@@ -287,35 +276,6 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
 				.AddTo(_CompositeDisposable);
 
-			_PaneContentCache = new Dictionary<LiveVideoPaneContentType, LiveInfoContentViewModelBase>();
-			SelectedPaneContent = new ReactiveProperty<LiveVideoPaneContentType>(PaneContentTypes.First(), mode:ReactivePropertyMode.DistinctUntilChanged);
-			PaneContent = SelectedPaneContent
-				.Select(x =>
-				{
-					LiveInfoContentViewModelBase vm = null;
-					if (!_PaneContentCache.ContainsKey(x))
-					{
-						vm = CreateLiveVideoPaneContent(x);
-						_PaneContentCache.Add(x, vm);
-					}
-					else
-					{
-						vm = _PaneContentCache[x];
-					}
-
-					if (vm != null)
-					{
-						var oldVm = PaneContent?.Value;
-						if (oldVm != null)
-						{
-							oldVm.OnLeave();
-						}
-					}
-
-					return vm;
-				})
-				.ToReactiveProperty();
-
 			Suggestion = new ReactiveProperty<LiveSuggestion>();
 			HasSuggestion = Suggestion.Select(x => x != null)
 				.ToReactiveProperty();
@@ -332,6 +292,49 @@ namespace NicoPlayerHohoema.ViewModels
 					DisplayRequestHelper.StopKeepDisplay();
 				}
 			});
+
+            AutoHideDelayTime = HohoemaApp.UserSettings.PlayerSettings
+                .ToReactivePropertyAsSynchronized(x => x.AutoHidePlayerControlUIPreventTime, PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
+
+
+
+            IsMuted = HohoemaApp.UserSettings.PlayerSettings
+                .ToReactivePropertyAsSynchronized(x => x.IsMute, PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
+            IsMuted.Subscribe(isMuted => 
+            {
+                MediaPlayer.IsMuted = isMuted;
+            })
+            .AddTo(_CompositeDisposable);
+
+            SoundVolume = HohoemaApp.UserSettings.PlayerSettings
+                .ToReactivePropertyAsSynchronized(x => x.SoundVolume, PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
+            SoundVolume.Subscribe(volume =>
+            {
+                MediaPlayer.Volume = volume;
+            })
+            .AddTo(_CompositeDisposable);
+
+            CommentRenderFPS = HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.CommentRenderingFPS)
+                .Select(x => (int)x)
+                .ToReactiveProperty()
+                .AddTo(_CompositeDisposable);
+
+            RequestCommentDisplayDuration = HohoemaApp.UserSettings.PlayerSettings
+                .ObserveProperty(x => x.CommentDisplayDuration)
+                .ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
+
+            CommentFontScale = HohoemaApp.UserSettings.PlayerSettings
+                .ObserveProperty(x => x.DefaultCommentFontScale)
+                .ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
+
+
+            IsForceLandscape = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, HohoemaApp.UserSettings.PlayerSettings.IsForceLandscape);
+
 
 
             IsStillLoggedInTwitter = new ReactiveProperty<bool>(!TwitterHelper.IsLoggedIn)
@@ -386,7 +389,8 @@ namespace NicoPlayerHohoema.ViewModels
 					?? (_ToggleMuteCommand = new DelegateCommand(() =>
 					{
 						IsMuted.Value = !IsMuted.Value;
-					}));
+                        MediaPlayer.IsMuted = IsMuted.Value;
+                    }));
 			}
 		}
 
@@ -654,55 +658,8 @@ namespace NicoPlayerHohoema.ViewModels
         {
             {
                 await TryStartViewing();
-
-                var vm = CreateLiveVideoPaneContent(LiveVideoPaneContentType.Summary);
-                await vm.OnEnter();
-                _PaneContentCache.Add(LiveVideoPaneContentType.Summary, vm);
-
-                SelectedPaneContent.ForceNotify();
             }
-
-
-            AutoHideDelayTime = HohoemaApp.UserSettings.PlayerSettings
-				.ToReactivePropertyAsSynchronized(x => x.AutoHidePlayerControlUIPreventTime, PlayerWindowUIDispatcherScheduler)
-				.AddTo(userSessionDisposer);
-			OnPropertyChanged(nameof(AutoHideDelayTime));
-
-
-
-			IsMuted = HohoemaApp.UserSettings.PlayerSettings
-				.ToReactivePropertyAsSynchronized(x => x.IsMute, PlayerWindowUIDispatcherScheduler)
-				.AddTo(userSessionDisposer);
-			OnPropertyChanged(nameof(IsMuted));
-
-			SoundVolume = HohoemaApp.UserSettings.PlayerSettings
-				.ToReactivePropertyAsSynchronized(x => x.SoundVolume, PlayerWindowUIDispatcherScheduler)
-				.AddTo(userSessionDisposer);
-			OnPropertyChanged(nameof(SoundVolume));
-
-			CommentRenderFPS = HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.CommentRenderingFPS)
-				.Select(x => (int)x)
-				.ToReactiveProperty()
-				.AddTo(userSessionDisposer);
-			OnPropertyChanged(nameof(CommentRenderFPS));
-
-			RequestCommentDisplayDuration = HohoemaApp.UserSettings.PlayerSettings
-				.ObserveProperty(x => x.CommentDisplayDuration)
-				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
-				.AddTo(userSessionDisposer);
-			OnPropertyChanged(nameof(RequestCommentDisplayDuration));
-
-			CommentFontScale = HohoemaApp.UserSettings.PlayerSettings
-				.ObserveProperty(x => x.DefaultCommentFontScale)
-				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
-				.AddTo(userSessionDisposer);
-			OnPropertyChanged(nameof(CommentFontScale));
-
-
-			IsForceLandscape = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, HohoemaApp.UserSettings.PlayerSettings.IsForceLandscape);
-			OnPropertyChanged(nameof(IsForceLandscape));
-
-
+            
 //			base.OnSignIn(userSessionDisposer);
 		}
 
@@ -713,14 +670,11 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				NicoLiveVideo.Dispose();
 				NicoLiveVideo = null;
-
-				foreach (var paneContent in _PaneContentCache.Values)
-				{
-					paneContent.Dispose();
-				}
 			}
 
-			VideoStream.Value = null;
+            MediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
+
+            VideoStream.Value = null;
 			DisplayRequestHelper.StopKeepDisplay();
 			IsFullScreen.Value = false;
 			StopLiveElapsedTimer().ConfigureAwait(false);
@@ -748,6 +702,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 			try
 			{
+                MediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
+
 				NowUpdating.Value = true;
 
 				var liveStatus = await NicoLiveVideo.SetupLive();
@@ -808,12 +764,36 @@ namespace NicoPlayerHohoema.ViewModels
 			NowSubmittingComment.Value = false;
 		}
 
+        private void PlaybackSession_PlaybackStateChanged(MediaPlaybackSession sender, object args)
+        {
+            switch (sender.PlaybackState)
+            {
+                case MediaPlaybackState.None:
+                    CurrentState.Value = MediaElementState.Closed;
+                    break;
+                case MediaPlaybackState.Opening:
+                    CurrentState.Value = MediaElementState.Opening;
+                    break;
+                case MediaPlaybackState.Buffering:
+                    CurrentState.Value = MediaElementState.Buffering;
+                    break;
+                case MediaPlaybackState.Playing:
+                    CurrentState.Value = MediaElementState.Playing;
+                    break;
+                case MediaPlaybackState.Paused:
+                    CurrentState.Value = MediaElementState.Paused;
+                    break;
+                default:
+                    break;
+            }
+        }
 
-		/// <summary>
-		/// 生放送情報だけを更新し、配信ストリームの更新は行いません。
-		/// </summary>
-		/// <returns></returns>
-		private async Task<bool> TryUpdateLiveStatus()
+
+        /// <summary>
+        /// 生放送情報だけを更新し、配信ストリームの更新は行いません。
+        /// </summary>
+        /// <returns></returns>
+        private async Task<bool> TryUpdateLiveStatus()
 		{
 			if (NicoLiveVideo == null) { return false; }
 
