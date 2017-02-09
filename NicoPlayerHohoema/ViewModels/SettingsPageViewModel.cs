@@ -36,69 +36,61 @@ namespace NicoPlayerHohoema.ViewModels
 			EditAutoCacheConditionDialogService = editAutoCacheDialog;
 			AcceptCacheUsaseDialogService = cacheAcceptDialogService;
 			ToastNotificationService = toastService;
-			SettingKindToVM = new Dictionary<HohoemaSettingsKind, SettingsPageContentViewModel>();
 
 			SettingItems = ((IEnumerable<HohoemaSettingsKind>)Enum.GetValues(typeof(HohoemaSettingsKind)))
-				.Select(x =>
-				{
-					return new HohoemaSettingsKindListItem(x, x.ToCulturelizedText());
-				})
+				.Select(x => KindToVM(x, x.ToCulturelizedText()))
 				.ToList();
-			CurrentSettingsKind = new ReactiveProperty<HohoemaSettingsKindListItem>(SettingItems[0])
-				.AddTo(_CompositeDisposable);
+
+            CurrentSettingsContent = new ReactiveProperty<SettingsPageContentViewModel>();
 
 
-			CurrentSettingsContent = CurrentSettingsKind
-				.Select(x => KindToVM(x.Kind, x.Label))
-				.Do(x =>
-				{
-					CurrentSettingsContent?.Value?.OnLeave();
-					x?.OnEnter();
-				})
-				.ToReactiveProperty()
-				.AddTo(_CompositeDisposable);
-		}
+            CurrentSettingsContent.Subscribe(x =>
+            {
+                if (x != null)
+                {
+                    AddSubsitutionBackNavigateAction("settings_content_selection"
+                        , () => 
+                        {
+                            CurrentSettingsContent.Value = null;
+                        });
+                }
+                else
+                {
+                    RemoveSubsitutionBackNavigateAction("settings_content_selection");
+                }
+            });
+
+        }
 
 
 
-		private SettingsPageContentViewModel KindToVM(HohoemaSettingsKind kind, string title)
+        private SettingsPageContentViewModel KindToVM(HohoemaSettingsKind kind, string title)
 		{
 			SettingsPageContentViewModel vm = null;
-			if (SettingKindToVM.ContainsKey(kind))
+			switch (kind)
 			{
-				vm = SettingKindToVM[kind];
+				case HohoemaSettingsKind.VideoList:
+					vm = new VideoListSettingsPageContentViewModel(HohoemaApp, PageManager, title, RankingChoiceDialogService);
+					break;
+				case HohoemaSettingsKind.Comment:
+					vm = new CommentSettingsPageContentViewModel(HohoemaApp, title);
+					break;
+				case HohoemaSettingsKind.VideoPlay:
+					vm = new VideoPlaySettingsPageContentViewModel(HohoemaApp, title);
+					break;
+				case HohoemaSettingsKind.Cache:
+					vm = new CacheSettingsPageContentViewModel(HohoemaApp, title, EditAutoCacheConditionDialogService, AcceptCacheUsaseDialogService);
+					break;
+				case HohoemaSettingsKind.AppDisplay:
+					vm = new AppDisplaySettingsPageContentViewModel(ToastNotificationService);
+					break;
+				case HohoemaSettingsKind.Share:
+					vm = new ShereSettingsPageContentViewModel();
+					break;
+				default:
+					break;
 			}
-			else
-			{
-				switch (kind)
-				{
-					case HohoemaSettingsKind.VideoList:
-						vm = new VideoListSettingsPageContentViewModel(HohoemaApp, PageManager, title, RankingChoiceDialogService);
-						break;
-					case HohoemaSettingsKind.Comment:
-						vm = new CommentSettingsPageContentViewModel(HohoemaApp, title);
-						break;
-					case HohoemaSettingsKind.VideoPlay:
-						vm = new VideoPlaySettingsPageContentViewModel(HohoemaApp, title);
-						break;
-					case HohoemaSettingsKind.Cache:
-						vm = new CacheSettingsPageContentViewModel(HohoemaApp, title, EditAutoCacheConditionDialogService, AcceptCacheUsaseDialogService);
-						break;
-					case HohoemaSettingsKind.AppDisplay:
-						vm = new AppDisplaySettingsPageContentViewModel(ToastNotificationService);
-						break;
-					case HohoemaSettingsKind.Shere:
-						vm = new ShereSettingsPageContentViewModel();
-						break;
-					default:
-						break;
-				}
-
-				if (vm != null)
-				{
-					SettingKindToVM.Add(kind, vm);
-				}
-			}
+			
 
 			return vm;
 		}
@@ -112,15 +104,6 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				selectRequestKind = (HohoemaSettingsKind)e.Parameter;
 			}
-			else if (viewModelState.ContainsKey(nameof(CurrentSettingsKind)))
-			{
-				var kindString = viewModelState[nameof(CurrentSettingsKind)] as string;
-				HohoemaSettingsKind kind;
-				if (Enum.TryParse(kindString, out kind))
-				{
-					selectRequestKind = kind;
-				}
-			}
 			else if (e.Parameter is string)
 			{
 				HohoemaSettingsKind kind;
@@ -133,8 +116,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			if (selectRequestKind.HasValue)
 			{
-				var settingItem = SettingItems.Single(x => x.Kind == selectRequestKind);
-				CurrentSettingsKind.Value = settingItem;
+                SelectContent(selectRequestKind.Value);
 			}
 
 
@@ -147,7 +129,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			if (suspending)
 			{
-				viewModelState[nameof(CurrentSettingsKind)] = CurrentSettingsKind.Value.Kind.ToString();
+//				viewModelState[nameof(CurrentSettingsKind)] = CurrentSettingsKind.Value.Kind.ToString();
 			}
 
 			HohoemaApp.SyncToRoamingData().ConfigureAwait(false);
@@ -156,14 +138,17 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
+        private void SelectContent(HohoemaSettingsKind kind)
+        {
+            CurrentSettingsContent.Value = SettingItems.FirstOrDefault(x => x.Kind == kind);
+        }
 
 
 
-		public Dictionary<HohoemaSettingsKind, SettingsPageContentViewModel> SettingKindToVM { get; private set; }
-		public ReactiveProperty<HohoemaSettingsKindListItem> CurrentSettingsKind { get; private set; }
+
 		public ReactiveProperty<SettingsPageContentViewModel> CurrentSettingsContent { get; private set; }
 
-		public List<HohoemaSettingsKindListItem> SettingItems { get; private set; }
+		public List<SettingsPageContentViewModel> SettingItems { get; private set; }
 
 		public EditAutoCacheConditionDialogService EditAutoCacheConditionDialogService { get; private set;}
 		public RankingChoiceDialogService RankingChoiceDialogService { get; private set; }
@@ -179,7 +164,7 @@ namespace NicoPlayerHohoema.ViewModels
 		Comment,
 		Cache,
 		AppDisplay,
-		Shere,
+		Share,
 	}
 
 
@@ -199,7 +184,7 @@ namespace NicoPlayerHohoema.ViewModels
 					return "キャッシュ";
 				case HohoemaSettingsKind.AppDisplay:
 					return "表示スタイル";
-				case HohoemaSettingsKind.Shere:
+				case HohoemaSettingsKind.Share:
 					return "SNS連携";
 				default:
 					throw new NotSupportedException($"not support {nameof(HohoemaSettingsKind)}.{kind.ToString()}");
@@ -223,11 +208,13 @@ namespace NicoPlayerHohoema.ViewModels
 	public abstract class SettingsPageContentViewModel : ViewModelBase
 	{
 		public string Title { get; private set; }
+        public HohoemaSettingsKind Kind { get; private set; }
 
-		public SettingsPageContentViewModel(string title)
+		public SettingsPageContentViewModel(string title, HohoemaSettingsKind kind)
 		{
-			Title = title;
-		}
+            Title = title;
+            Kind = kind;
+        }
 
 
 		virtual public void OnEnter() { }

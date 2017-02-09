@@ -15,7 +15,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<string> TwitterAccountScreenName { get; private set; }
 
 		public ShereSettingsPageContentViewModel() 
-			: base("SNS連携")
+			: base("SNS連携", HohoemaSettingsKind.Share)
 		{
 			IsLoginTwitter = new ReactiveProperty<bool>(TwitterHelper.IsLoggedIn);
 			TwitterAccountScreenName = new ReactiveProperty<string>(TwitterHelper.TwitterUser?.ScreenName ?? "");

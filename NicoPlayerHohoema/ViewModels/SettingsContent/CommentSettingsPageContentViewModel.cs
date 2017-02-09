@@ -29,7 +29,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 		public CommentSettingsPageContentViewModel(HohoemaApp hohoemaApp, string title)
-			: base(title)
+			: base(title, HohoemaSettingsKind.Comment)
 		{
 			_HohoemaApp = hohoemaApp;
 			_NGSettings = _HohoemaApp.UserSettings.NGSettings;

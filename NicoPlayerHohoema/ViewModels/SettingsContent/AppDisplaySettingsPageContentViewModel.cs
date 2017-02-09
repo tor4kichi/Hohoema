@@ -19,7 +19,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public static bool ThemeChanged { get; private set; } = false;
 
 		public AppDisplaySettingsPageContentViewModel(Views.Service.ToastNotificationService toastService) 
-			: base("アプリのUI")
+			: base("アプリのUI", HohoemaSettingsKind.AppDisplay)
 		{
 
 			var currentTheme = App.GetTheme();

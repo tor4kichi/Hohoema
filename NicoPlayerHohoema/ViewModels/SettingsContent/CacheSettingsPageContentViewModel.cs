@@ -51,7 +51,7 @@ namespace NicoPlayerHohoema.ViewModels
 			, EditAutoCacheConditionDialogService editDialogService
 			, AcceptCacheUsaseDialogService cacheConfirmDialogService
 			)
-			: base(title)
+			: base(title, HohoemaSettingsKind.Cache)
 		{
 			_HohoemaApp = hohoemaApp;
 			_CacheSettings = _HohoemaApp.UserSettings.CacheSettings;

@@ -10,6 +10,7 @@
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:settingsContent="using:NicoPlayerHohoema.Views.SettingsPageContent"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
+    xmlns:uwptoolkitControl="using:Microsoft.Toolkit.Uwp.UI.Controls"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
 
     mc:Ignorable="d">
@@ -92,35 +93,30 @@
                     </Border>
                 </toolkit:DockPanel>
             </Border>
-            
 
-            <Border toolkit:DockPanel.Dock="Top">
-                <ListView x:Name="SettingItemsList"
-                          SelectionMode="Single"
-                          ItemsSource="{Binding SettingItems}"
-                          SelectedItem="{Binding CurrentSettingsKind.Value, Mode=TwoWay}"
-                          DisplayMemberPath="Label"
-                          ScrollViewer.VerticalScrollMode="Disabled"
-                          ScrollViewer.HorizontalScrollMode="Enabled"
-                          ScrollViewer.HorizontalScrollBarVisibility="Hidden"
-                          >
-                    <ListView.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ListView.ItemsPanel>
 
-                </ListView>
-            </Border>
-
-            <Border>
-                <ContentControl Content="{Binding CurrentSettingsContent.Value}"
+            <uwptoolkitControl:MasterDetailsView ItemsSource="{Binding SettingItems}"
+                                                 SelectedItem="{Binding CurrentSettingsContent.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 >
+                <uwptoolkitControl:MasterDetailsView.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Title}" />
+                    </DataTemplate>
+                </uwptoolkitControl:MasterDetailsView.ItemTemplate>
+                <uwptoolkitControl:MasterDetailsView.DetailsTemplate>
+                    <DataTemplate>
+                        <ContentControl Content="{Binding}"
                             ContentTemplateSelector="{StaticResource settingContentTemplateSelector}"
                             VerticalContentAlignment="Stretch"
                             HorizontalContentAlignment="Stretch"
                             >
-                </ContentControl>
-            </Border>
+                        </ContentControl>
+                    </DataTemplate>
+                </uwptoolkitControl:MasterDetailsView.DetailsTemplate>
+            </uwptoolkitControl:MasterDetailsView>
+
+
+            
         </toolkit:DockPanel>
 
     </Grid>

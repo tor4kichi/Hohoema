@@ -17,7 +17,7 @@ namespace NicoPlayerHohoema.ViewModels
 	public class VideoListSettingsPageContentViewModel : SettingsPageContentViewModel
 	{
 		public VideoListSettingsPageContentViewModel(HohoemaApp hohoemaApp, PageManager pageManager, string title, RankingChoiceDialogService rankingChoiceDialog)
-			: base(title)
+			: base(title, HohoemaSettingsKind.VideoList)
 		{
 			_HohoemaApp = hohoemaApp;
 			_NGSettings = _HohoemaApp.UserSettings.NGSettings;

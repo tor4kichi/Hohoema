@@ -13,7 +13,7 @@ namespace NicoPlayerHohoema.ViewModels
 	public class VideoPlaySettingsPageContentViewModel : SettingsPageContentViewModel
 	{
 		public VideoPlaySettingsPageContentViewModel(HohoemaApp hohoemaApp, string title)
-			: base(title)
+			: base(title, HohoemaSettingsKind.VideoPlay)
 		{
 			_PlayerSettings = hohoemaApp.UserSettings.PlayerSettings;
 
