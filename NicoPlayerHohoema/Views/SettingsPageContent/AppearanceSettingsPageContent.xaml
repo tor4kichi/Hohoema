@@ -1,5 +1,5 @@
 ﻿<UserControl
-    x:Class="NicoPlayerHohoema.Views.SettingsPageContent.AppDisplaySettingsPageContent"
+    x:Class="NicoPlayerHohoema.Views.SettingsPageContent.AppearanceSettingsPageContent"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:NicoPlayerHohoema.Views.SettingsPageContent"

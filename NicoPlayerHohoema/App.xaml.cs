@@ -260,7 +260,7 @@ namespace NicoPlayerHohoema
 					}
 					catch { }
 
-                    hohoemaApp.Playlist.DefaultPlaylist.AddVideo(maybeNicoContentId, "");
+                    hohoemaApp.Playlist.PlayVideo(maybeNicoContentId, "");
 				}
 				else if (Mntone.Nico2.NiconicoRegex.IsLiveId(maybeNicoContentId))
 				{
@@ -271,11 +271,7 @@ namespace NicoPlayerHohoema
 					}
 					catch { }
 
-					pageManager.OpenPage(HohoemaPageType.LiveVideoPlayer, 
-						new Models.Live.LiveVideoPagePayload(maybeNicoContentId)
-						.ToParameterString()
-						);
-					
+                    hohoemaApp.Playlist.PlayLiveVideo(maybeNicoContentId, "");					
 				}
 			}
 

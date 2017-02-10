@@ -23,13 +23,12 @@ namespace NicoPlayerHohoema.Models
 		public static List<HohoemaPageType> IgnoreRecordNavigationStack = new List<HohoemaPageType>
 		{
 			HohoemaPageType.ConfirmWatchHurmfulVideo,
-			HohoemaPageType.LiveVideoPlayer
 		};
 
 
 		public readonly IReadOnlyList<HohoemaPageType> DontNeedMenuPageTypes = new List<HohoemaPageType>
 		{
-			HohoemaPageType.LiveVideoPlayer,
+            HohoemaPageType.Account,
 		};
 
 
@@ -245,10 +244,6 @@ namespace NicoPlayerHohoema.Models
 					return "キャッシュ管理";
 				case HohoemaPageType.Settings:
 					return "設定";
-				case HohoemaPageType.About:
-					return "このアプリについて";
-				case HohoemaPageType.Feedback:
-					return "フィードバック";
 				case HohoemaPageType.VideoInfomation:
 					return "動画情報";
 				case HohoemaPageType.ConfirmWatchHurmfulVideo:
@@ -267,8 +262,6 @@ namespace NicoPlayerHohoema.Models
 					return "コミュニティ情報";
 				case HohoemaPageType.CommunityVideo:
 					return "コミュニティ動画一覧";
-				case HohoemaPageType.LiveVideoPlayer:
-					return "生放送プレイヤー";
                     
 				default:
                     Debug.WriteLine("not support " + nameof(HohoemaPageType) + "." + pageType.ToString());

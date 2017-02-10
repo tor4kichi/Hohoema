@@ -1770,7 +1770,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenPlayerSettingCommand
                     ?? (_OpenPlayerSettingCommand = new DelegateCommand(() =>
                     {
-                        PageManager.OpenPage(HohoemaPageType.Settings, HohoemaSettingsKind.VideoPlay.ToString());
+                        PageManager.OpenPage(HohoemaPageType.Settings, HohoemaSettingsKind.Player.ToString());
                         HohoemaApp.Playlist.IsPlayerFloatingModeEnable = true;
                     }
                     ));

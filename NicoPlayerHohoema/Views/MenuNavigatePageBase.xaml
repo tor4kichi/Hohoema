@@ -68,8 +68,6 @@
                                 <AdaptiveTrigger MinWindowWidth="800" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter Target="DesktopTopBar.Visibility" Value="Visible" />
-
                                 <Setter Target="SplitView.DisplayMode" Value="CompactInline" />
                                 <Setter Target="SplitView.IsPaneOpen" Value="True" />
                             </VisualState.Setters>

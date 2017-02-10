@@ -10,26 +10,13 @@
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:settingsContent="using:NicoPlayerHohoema.Views.SettingsPageContent"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
+    xmlns:uwptoolkitControl="using:Microsoft.Toolkit.Uwp.UI.Controls"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
 
     mc:Ignorable="d">
 
     <Page.Resources>
         <view:SettingContentTemplateSelector x:Key="settingContentTemplateSelector">
-            
-            <!-- Ranking -->
-            <view:SettingContentTemplateSelector.RankingTemplate>
-                <DataTemplate>
-                    <settingsContent:RankingSettingPageContent />
-                </DataTemplate>
-            </view:SettingContentTemplateSelector.RankingTemplate>
-            
-            <!-- NG -->
-            <view:SettingContentTemplateSelector.NGTemplate>
-                <DataTemplate>
-                    <settingsContent:NGSettingsPageContent />
-                </DataTemplate>
-            </view:SettingContentTemplateSelector.NGTemplate>
 
             <!-- Player -->
             <view:SettingContentTemplateSelector.PlayerTemplate>
@@ -37,6 +24,15 @@
                     <settingsContent:PlayerSettingsPageContent />
                 </DataTemplate>
             </view:SettingContentTemplateSelector.PlayerTemplate>
+            
+            
+            <!-- Filtering -->
+            <view:SettingContentTemplateSelector.FilteringTemplate>
+                <DataTemplate>
+                    <settingsContent:FilteringSettingPageContent />
+                </DataTemplate>
+            </view:SettingContentTemplateSelector.FilteringTemplate>
+
 
             <!-- Cache -->
             <view:SettingContentTemplateSelector.CacheTemplate>
@@ -45,12 +41,12 @@
                 </DataTemplate>
             </view:SettingContentTemplateSelector.CacheTemplate>
 
-            <!-- AppDisplay -->
-            <view:SettingContentTemplateSelector.AppDisplayTemplate>
+            <!-- Appearance -->
+            <view:SettingContentTemplateSelector.AppearanceTemplate>
                 <DataTemplate>
-                    <settingsContent:AppDisplaySettingsPageContent />
+                    <settingsContent:AppearanceSettingsPageContent />
                 </DataTemplate>
-            </view:SettingContentTemplateSelector.AppDisplayTemplate>
+            </view:SettingContentTemplateSelector.AppearanceTemplate>
 
             <!-- Shere -->
             <view:SettingContentTemplateSelector.ShereTemplate>
@@ -59,6 +55,19 @@
                 </DataTemplate>
             </view:SettingContentTemplateSelector.ShereTemplate>
 
+            <!-- Feedback -->
+            <view:SettingContentTemplateSelector.FeedbackTemplate>
+                <DataTemplate>
+                    <settingsContent:FeedbackSettingsPageContent />
+                </DataTemplate>
+            </view:SettingContentTemplateSelector.FeedbackTemplate>
+
+            <!-- About -->
+            <view:SettingContentTemplateSelector.AboutTemplate>
+                <DataTemplate>
+                    <settingsContent:AboutSettingsPageContent />
+                </DataTemplate>
+            </view:SettingContentTemplateSelector.AboutTemplate>
         </view:SettingContentTemplateSelector>
     </Page.Resources>
 
@@ -92,35 +101,31 @@
                     </Border>
                 </toolkit:DockPanel>
             </Border>
-            
 
-            <Border toolkit:DockPanel.Dock="Top">
-                <ListView x:Name="SettingItemsList"
-                          SelectionMode="Single"
-                          ItemsSource="{Binding SettingItems}"
-                          SelectedItem="{Binding CurrentSettingsKind.Value, Mode=TwoWay}"
-                          DisplayMemberPath="Label"
-                          ScrollViewer.VerticalScrollMode="Disabled"
-                          ScrollViewer.HorizontalScrollMode="Enabled"
-                          ScrollViewer.HorizontalScrollBarVisibility="Hidden"
-                          >
-                    <ListView.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ListView.ItemsPanel>
 
-                </ListView>
-            </Border>
-
-            <Border>
-                <ContentControl Content="{Binding CurrentSettingsContent.Value}"
+            <uwptoolkitControl:MasterDetailsView ItemsSource="{Binding SettingItems}"
+                                                 SelectedItem="{Binding CurrentSettingsContent.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 MasterPaneWidth="280"
+                                                 >
+                <uwptoolkitControl:MasterDetailsView.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Title}" />
+                    </DataTemplate>
+                </uwptoolkitControl:MasterDetailsView.ItemTemplate>
+                <uwptoolkitControl:MasterDetailsView.DetailsTemplate>
+                    <DataTemplate>
+                        <ContentControl Content="{Binding}"
                             ContentTemplateSelector="{StaticResource settingContentTemplateSelector}"
                             VerticalContentAlignment="Stretch"
                             HorizontalContentAlignment="Stretch"
                             >
-                </ContentControl>
-            </Border>
+                        </ContentControl>
+                    </DataTemplate>
+                </uwptoolkitControl:MasterDetailsView.DetailsTemplate>
+            </uwptoolkitControl:MasterDetailsView>
+
+
+            
         </toolkit:DockPanel>
 
     </Grid>

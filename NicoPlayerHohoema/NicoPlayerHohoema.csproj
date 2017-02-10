@@ -223,14 +223,12 @@
     <Compile Include="Util\StorageFolderExtention.cs" />
     <Compile Include="Util\TaskExtention.cs" />
     <Compile Include="Util\TwitterHelper.cs" />
-    <Compile Include="ViewModels\AboutPageViewModel.cs" />
     <Compile Include="ViewModels\CacheManagementPageViewModel.cs" />
     <Compile Include="ViewModels\CommentCommandEditerViewModel.cs" />
     <Compile Include="ViewModels\CommentStreamingViewModel.cs" />
     <Compile Include="ViewModels\CommunityPageViewModel.cs" />
     <Compile Include="ViewModels\CommunityVideoPageViewModel.cs" />
     <Compile Include="ViewModels\ConfirmWatchHurmfulVideoPageViewModel.cs" />
-    <Compile Include="ViewModels\FeedbackPageViewModel.cs" />
     <Compile Include="ViewModels\FeedVideoListPageViewModel.cs" />
     <Compile Include="ViewModels\FollowManagePageViewModel.cs" />
     <Compile Include="ViewModels\FeedVideoInfoControlViewModel.cs" />
@@ -256,15 +254,16 @@
     <Compile Include="ViewModels\SearchResultPage\SearchResultKeywordPageViewModel.cs" />
     <Compile Include="ViewModels\SearchResultPage\SearchResultLivePageViewModel.cs" />
     <Compile Include="ViewModels\SearchResultPage\SearchResultMylistPageViewModel.cs" />
+    <Compile Include="ViewModels\SettingsContent\AboutSettingsPageContentViewModel.cs" />
+    <Compile Include="ViewModels\SettingsContent\FeedbackSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\VideoInfomationPageViewModel.cs" />
     <Compile Include="ViewModels\VideoSearchSortOptionListItem.cs" />
     <Compile Include="ViewModels\SearchResultPage\SearchResultTagPageViewModel.cs" />
-    <Compile Include="ViewModels\SettingsContent\AppDisplaySettingsPageContentViewModel.cs" />
+    <Compile Include="ViewModels\SettingsContent\AppearanceSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\CacheSettingsPageContentViewModel.cs" />
-    <Compile Include="ViewModels\SettingsContent\CommentSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\ShereSettingsPageContentViewModel.cs" />
-    <Compile Include="ViewModels\SettingsContent\VideoListSettingsPageContentViewModel.cs" />
-    <Compile Include="ViewModels\SettingsContent\VideoPlaySettingsPageContentViewModel.cs" />
+    <Compile Include="ViewModels\SettingsContent\FilteringSettingsPageContentViewModel.cs" />
+    <Compile Include="ViewModels\SettingsContent\PlayerSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\UserInfoPageViewModel.cs" />
     <Compile Include="ViewModels\UserMylistPageViewModel.cs" />
     <Compile Include="ViewModels\UserVideoPageViewModel.cs" />
@@ -487,11 +486,17 @@
     </Compile>
     <Compile Include="Views\Service\TextInputDialogService.cs" />
     <Compile Include="Views\Service\ToastNotificationService.cs" />
-    <Compile Include="Views\SettingsPageContent\AppDisplaySettingsPageContent.xaml.cs">
-      <DependentUpon>AppDisplaySettingsPageContent.xaml</DependentUpon>
+    <Compile Include="Views\SettingsPageContent\AboutSettingsPageContent.xaml.cs">
+      <DependentUpon>AboutSettingsPageContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SettingsPageContent\AppearanceSettingsPageContent.xaml.cs">
+      <DependentUpon>AppearanceSettingsPageContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SettingsPageContent\CacheSettingsPageContent.xaml.cs">
       <DependentUpon>CacheSettingsPageContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SettingsPageContent\FeedbackSettingsPageContent.xaml.cs">
+      <DependentUpon>FeedbackSettingsPageContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SettingsPageContent\ShereSettingsPageContent.xaml.cs">
       <DependentUpon>ShereSettingsPageContent.xaml</DependentUpon>
@@ -545,14 +550,11 @@
     <Compile Include="Views\SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\SettingsPageContent\CommentSettingsPageContent.xaml.cs">
-      <DependentUpon>CommentSettingsPageContent.xaml</DependentUpon>
+    <Compile Include="Views\SettingsPageContent\PlayerSettingsPageContent.xaml.cs">
+      <DependentUpon>PlayerSettingsPageContent.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\SettingsPageContent\VideoPlaySettingsPageContent.xaml.cs">
-      <DependentUpon>VideoPlaySettingsPageContent.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\SettingsPageContent\VideoListSettingsPageContent.xaml.cs">
-      <DependentUpon>VideoListSettingsPageContent.xaml</DependentUpon>
+    <Compile Include="Views\SettingsPageContent\FilteringSettingsPageContent.xaml.cs">
+      <DependentUpon>FilteringSettingsPageContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\VideoInfoContent\SummaryVideoInfoContent.xaml.cs">
       <DependentUpon>SummaryVideoInfoContent.xaml</DependentUpon>
@@ -858,11 +860,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\SettingsPageContent\AppDisplaySettingsPageContent.xaml">
+    <Page Include="Views\SettingsPageContent\AboutSettingsPageContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SettingsPageContent\AppearanceSettingsPageContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SettingsPageContent\CacheSettingsPageContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SettingsPageContent\FeedbackSettingsPageContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -926,15 +936,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\SettingsPageContent\CommentSettingsPageContent.xaml">
+    <Page Include="Views\SettingsPageContent\PlayerSettingsPageContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\SettingsPageContent\VideoPlaySettingsPageContent.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\SettingsPageContent\VideoListSettingsPageContent.xaml">
+    <Page Include="Views\SettingsPageContent\FilteringSettingsPageContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

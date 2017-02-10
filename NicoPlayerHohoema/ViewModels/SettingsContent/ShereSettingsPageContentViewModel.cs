@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public sealed class ShereSettingsPageContentViewModel : SettingsPageContentViewModel
+	public sealed class ShareSettingsPageContentViewModel : SettingsPageContentViewModel
 	{
 		public ReactiveProperty<bool> IsLoginTwitter { get; private set; }
 		public ReactiveProperty<string> TwitterAccountScreenName { get; private set; }
 
-		public ShereSettingsPageContentViewModel() 
-			: base("SNS連携")
+		public ShareSettingsPageContentViewModel() 
+			: base("SNS連携", HohoemaSettingsKind.Share)
 		{
 			IsLoginTwitter = new ReactiveProperty<bool>(TwitterHelper.IsLoggedIn);
 			TwitterAccountScreenName = new ReactiveProperty<string>(TwitterHelper.TwitterUser?.ScreenName ?? "");

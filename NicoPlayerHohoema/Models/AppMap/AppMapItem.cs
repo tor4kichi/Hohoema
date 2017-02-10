@@ -52,8 +52,6 @@ namespace NicoPlayerHohoema.Models.AppMap
 					break;
 				case HohoemaPageType.Settings:
 					break;
-				case HohoemaPageType.About:
-					break;
 				case HohoemaPageType.VideoInfomation:
 					break;
 				case HohoemaPageType.ConfirmWatchHurmfulVideo:
