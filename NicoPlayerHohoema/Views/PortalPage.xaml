@@ -297,8 +297,6 @@
                     <VisualState.Setters>
                         <Setter Target="DesktopGridView.Visibility" Value="Collapsed" />
                         <Setter Target="MobileGridView.Visibility" Value="Visible" />
-
-                        <Setter Target="PageTitleText.Visibility" Value="Collapsed" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>

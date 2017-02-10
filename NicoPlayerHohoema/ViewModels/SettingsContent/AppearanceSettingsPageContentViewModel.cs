@@ -8,7 +8,7 @@ using Windows.UI.Xaml;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public sealed class AppDisplaySettingsPageContentViewModel : SettingsPageContentViewModel
+	public sealed class AppearanceSettingsPageContentViewModel : SettingsPageContentViewModel
 	{
 		public static List<string> ThemeList { get; private set; } =
 			Enum.GetValues(typeof(ApplicationTheme)).Cast<ApplicationTheme>()
@@ -18,8 +18,8 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<string> SelectedApplicationTheme { get; private set; }
 		public static bool ThemeChanged { get; private set; } = false;
 
-		public AppDisplaySettingsPageContentViewModel(Views.Service.ToastNotificationService toastService) 
-			: base("アプリのUI", HohoemaSettingsKind.AppDisplay)
+		public AppearanceSettingsPageContentViewModel(Views.Service.ToastNotificationService toastService) 
+			: base("アプリのUI", HohoemaSettingsKind.Appearance)
 		{
 
 			var currentTheme = App.GetTheme();

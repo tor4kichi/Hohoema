@@ -17,9 +17,9 @@ using Windows.UI.Xaml.Navigation;
 
 namespace NicoPlayerHohoema.Views.SettingsPageContent
 {
-	public sealed partial class AppDisplaySettingsPageContent : UserControl
+	public sealed partial class AppearanceSettingsPageContent : UserControl
 	{
-		public AppDisplaySettingsPageContent()
+		public AppearanceSettingsPageContent()
 		{
 			this.InitializeComponent();
 		}

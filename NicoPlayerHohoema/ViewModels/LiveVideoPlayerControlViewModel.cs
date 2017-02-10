@@ -541,7 +541,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenPlayerSettingCommand
                     ?? (_OpenPlayerSettingCommand = new DelegateCommand(() =>
                     {
-                        PageManager.OpenPage(HohoemaPageType.Settings, HohoemaSettingsKind.VideoPlay.ToString());
+                        PageManager.OpenPage(HohoemaPageType.Settings, HohoemaSettingsKind.Player.ToString());
                         HohoemaApp.Playlist.IsPlayerFloatingModeEnable = true;
                     }
                     ));
@@ -997,26 +997,16 @@ namespace NicoPlayerHohoema.ViewModels
 		// 配信の次枠を自動で開く
 		private async void NicoLiveVideo_NextLive(NicoLiveVideo sender, string liveId)
 		{
-			var livePagePayload = new LiveVideoPagePayload(liveId)
-			{
-				LiveTitle = this.LiveTitle,
-				CommunityId = this.CommunityId,
-				CommunityName = this.CommunityName
-			};
-
 			await Task.Delay(TimeSpan.FromSeconds(3));
 
-			PageManager.OpenPage(
-				HohoemaPageType.LiveVideoPlayer,
-				livePagePayload.ToParameterString()
-				);
-		}
+            HohoemaApp.Playlist.PlayLiveVideo(liveId, LiveTitle);
+        }
 
 
 
-		#endregion
+        #endregion
 
-	}
+    }
 
 
 

@@ -14,10 +14,10 @@ using NicoPlayerHohoema.Views.Service;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class VideoListSettingsPageContentViewModel : SettingsPageContentViewModel
+	public class FilteringSettingsPageContentViewModel : SettingsPageContentViewModel
 	{
-		public VideoListSettingsPageContentViewModel(HohoemaApp hohoemaApp, PageManager pageManager, string title, RankingChoiceDialogService rankingChoiceDialog)
-			: base(title, HohoemaSettingsKind.VideoList)
+		public FilteringSettingsPageContentViewModel(HohoemaApp hohoemaApp, PageManager pageManager, RankingChoiceDialogService rankingChoiceDialog)
+			: base("除外設定", HohoemaSettingsKind.Filtering)
 		{
 			_HohoemaApp = hohoemaApp;
 			_NGSettings = _HohoemaApp.UserSettings.NGSettings;
@@ -133,10 +133,37 @@ namespace NicoPlayerHohoema.ViewModels
 				});
 			});
 
-		}
+
+            NGCommentUserIdEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentUserIdEnable);
+            NGCommentUserIds = _NGSettings.NGCommentUserIds
+                .ToReadOnlyReactiveCollection(x =>
+                    RemovableSettingsListItemHelper.UserIdInfoToRemovableListItemVM(x, OnRemoveNGCommentUserIdFromList)
+                    );
+
+            NGCommentKeywordEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentKeywordEnable);
+            NGCommentKeywords = _NGSettings.NGCommentKeywords.ToReadOnlyReactiveCollection(
+                x => new NGKeywordViewModel(x, OnRemoveNGCommentKeyword)
+                );
 
 
-		public override void OnLeave()
+
+            NGCommentScoreTypes = ((IEnumerable<NGCommentScore>)Enum.GetValues(typeof(NGCommentScore))).ToList();
+
+            SelectedNGCommentScore = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentScoreType);
+
+            AddNewNGCommentKeywordCommand = new DelegateCommand(() =>
+            {
+                _NGSettings.NGCommentKeywords.Add(new NGKeyword()
+                {
+                    TestText = "",
+                    Keyword = ""
+                });
+            });
+
+        }
+
+
+        public override void OnLeave()
 		{
 			ApplyAllPriorityCategoriesToRankingSettings();
 
@@ -144,11 +171,30 @@ namespace NicoPlayerHohoema.ViewModels
 			_NGSettings.Save().ConfigureAwait(false);
 		}
 
-		
 
 
 
-		internal void UnfavRankingCategory(RankingCategorySettingsListItem userListItem)
+
+
+
+        internal void OnRemoveNGCommentKeyword(NGKeyword keywordInfo)
+        {
+            _NGSettings.NGCommentKeywords.Remove(keywordInfo);
+        }
+
+        private void OnRemoveNGCommentUserIdFromList(string userId)
+        {
+            var removeTarget = _NGSettings.NGCommentUserIds.First(x => x.UserId == userId);
+            _NGSettings.NGCommentUserIds.Remove(removeTarget);
+        }
+
+
+
+
+
+
+
+        internal void UnfavRankingCategory(RankingCategorySettingsListItem userListItem)
 		{
 			FavCategories.Remove(userListItem);
 
@@ -245,7 +291,24 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		NGSettings _NGSettings;
+
+
+        public DelegateCommand AddNewNGCommentKeywordCommand { get; private set; }
+
+        public ReactiveProperty<bool> NGCommentUserIdEnable { get; private set; }
+        public ReadOnlyReactiveCollection<RemovableListItem<string>> NGCommentUserIds { get; private set; }
+
+        public ReactiveProperty<bool> NGCommentKeywordEnable { get; private set; }
+        public ReadOnlyReactiveCollection<NGKeywordViewModel> NGCommentKeywords { get; private set; }
+
+        public List<NGCommentScore> NGCommentScoreTypes { get; private set; }
+        public ReactiveProperty<NGCommentScore> SelectedNGCommentScore { get; private set; }
+
+
+
+
+
+        NGSettings _NGSettings;
 		RankingSettings _RankingSettings;
 		HohoemaApp _HohoemaApp;
 		RankingChoiceDialogService _RankingChoiceDialogService;
@@ -259,7 +322,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class RankingCategorySettingsListItem : BindableBase
 	{
-		public RankingCategorySettingsListItem(RankingCategoryInfo info, VideoListSettingsPageContentViewModel parentVM)
+		public RankingCategorySettingsListItem(RankingCategoryInfo info, FilteringSettingsPageContentViewModel parentVM)
 		{
 			_ParentVM = parentVM;
 			CategoryInfo = info;
@@ -299,6 +362,6 @@ namespace NicoPlayerHohoema.ViewModels
 		public RankingCategoryInfo CategoryInfo { get; set; }
 		public ReactiveProperty<string> Parameter { get; private set; }
 
-		VideoListSettingsPageContentViewModel _ParentVM;
+		FilteringSettingsPageContentViewModel _ParentVM;
 	}
 }

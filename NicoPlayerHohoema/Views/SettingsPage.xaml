@@ -17,20 +17,6 @@
 
     <Page.Resources>
         <view:SettingContentTemplateSelector x:Key="settingContentTemplateSelector">
-            
-            <!-- Ranking -->
-            <view:SettingContentTemplateSelector.RankingTemplate>
-                <DataTemplate>
-                    <settingsContent:RankingSettingPageContent />
-                </DataTemplate>
-            </view:SettingContentTemplateSelector.RankingTemplate>
-            
-            <!-- NG -->
-            <view:SettingContentTemplateSelector.NGTemplate>
-                <DataTemplate>
-                    <settingsContent:NGSettingsPageContent />
-                </DataTemplate>
-            </view:SettingContentTemplateSelector.NGTemplate>
 
             <!-- Player -->
             <view:SettingContentTemplateSelector.PlayerTemplate>
@@ -38,6 +24,15 @@
                     <settingsContent:PlayerSettingsPageContent />
                 </DataTemplate>
             </view:SettingContentTemplateSelector.PlayerTemplate>
+            
+            
+            <!-- Filtering -->
+            <view:SettingContentTemplateSelector.FilteringTemplate>
+                <DataTemplate>
+                    <settingsContent:FilteringSettingPageContent />
+                </DataTemplate>
+            </view:SettingContentTemplateSelector.FilteringTemplate>
+
 
             <!-- Cache -->
             <view:SettingContentTemplateSelector.CacheTemplate>
@@ -46,12 +41,12 @@
                 </DataTemplate>
             </view:SettingContentTemplateSelector.CacheTemplate>
 
-            <!-- AppDisplay -->
-            <view:SettingContentTemplateSelector.AppDisplayTemplate>
+            <!-- Appearance -->
+            <view:SettingContentTemplateSelector.AppearanceTemplate>
                 <DataTemplate>
-                    <settingsContent:AppDisplaySettingsPageContent />
+                    <settingsContent:AppearanceSettingsPageContent />
                 </DataTemplate>
-            </view:SettingContentTemplateSelector.AppDisplayTemplate>
+            </view:SettingContentTemplateSelector.AppearanceTemplate>
 
             <!-- Shere -->
             <view:SettingContentTemplateSelector.ShereTemplate>
@@ -60,6 +55,19 @@
                 </DataTemplate>
             </view:SettingContentTemplateSelector.ShereTemplate>
 
+            <!-- Feedback -->
+            <view:SettingContentTemplateSelector.FeedbackTemplate>
+                <DataTemplate>
+                    <settingsContent:FeedbackSettingsPageContent />
+                </DataTemplate>
+            </view:SettingContentTemplateSelector.FeedbackTemplate>
+
+            <!-- About -->
+            <view:SettingContentTemplateSelector.AboutTemplate>
+                <DataTemplate>
+                    <settingsContent:AboutSettingsPageContent />
+                </DataTemplate>
+            </view:SettingContentTemplateSelector.AboutTemplate>
         </view:SettingContentTemplateSelector>
     </Page.Resources>
 
@@ -97,6 +105,7 @@
 
             <uwptoolkitControl:MasterDetailsView ItemsSource="{Binding SettingItems}"
                                                  SelectedItem="{Binding CurrentSettingsContent.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 MasterPaneWidth="280"
                                                  >
                 <uwptoolkitControl:MasterDetailsView.ItemTemplate>
                     <DataTemplate>

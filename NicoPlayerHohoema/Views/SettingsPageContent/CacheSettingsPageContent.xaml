@@ -22,85 +22,49 @@
                             >
 
             <!-- キャッシュ設定 -->
-            <StackPanel Margin="8 8">
+            <StackPanel Margin="8 0 0 0">
                 <TextBlock Text="動画キャッシュ設定"
-                           Margin="0 0 0 4"
+                           Margin="0 8"
                             FontSize="18"
                            FontWeight="SemiBold"
                            VerticalAlignment="Center"
                        />
-
-
-                <toolkit:DockPanel Margin="8">
-                    <TextBlock Text="動画キャッシュを有効にする"
-                               toolkit:DockPanel.Dock="Left"
-                               VerticalAlignment="Center"
-                           />
-                    <ToggleButton Width="32" Height="32" 
-                                  Margin="0 0 8 0"
-                                  IsChecked="{Binding IsEnableCache.Value, Mode=TwoWay}"
-                                  HorizontalAlignment="Right"
-                                          />
-                </toolkit:DockPanel>
-
-                <toolkit:DockPanel Margin="8">
-
-
-                    <Button Content="動画キャッシュ保存フォルダを変更"
-                                    Command="{Binding ChangeCacheFolderCommand}"
-                                    HorizontalAlignment="Center"
-                                     toolkit:DockPanel.Dock="Bottom"
-                                    
-                                    >
-                    </Button>
+                
+                <StackPanel Margin="0 8">
 
                     <TextBlock Text="動画キャッシュ保存フォルダ"
                                        VerticalAlignment="Center"
-                                       HorizontalAlignment="Left"
-                                       toolkit:DockPanel.Dock="Top"
                                />
 
+                    <HyperlinkButton Command="{Binding OpenCurrentCacheFolderCommand}"
+                                        Margin="0 8"
+                                            >
+                        <TextBlock Text="{Binding CacheSaveFolderPath.Value}"
+                                        TextWrapping="Wrap"
+                                        />
+                    </HyperlinkButton>
+
+                    <Button Content="保存先フォルダを変更"
+                                    Command="{Binding ChangeCacheFolderCommand}"
+                                    >
+                    </Button>
 
 
-                    <StackPanel>
+                </StackPanel>
 
-                        <HyperlinkButton Command="{Binding OpenCurrentCacheFolderCommand}"
-                                             HorizontalAlignment="Right"
-                                             Margin="8 8 0 8"
-                                             >
-                            <TextBlock Text="{Binding CacheSaveFolderPath.Value}"
-                                           TextWrapping="Wrap"
-                                           />
-                        </HyperlinkButton>
+                <Border>
+                    <StackPanel Margin="0 8">
 
-                        
-
-                        <TextBlock Text="↑ のリンクをクリック/タップするとフォルダを確認します" 
-                                           FontSize="12"
-                                           Foreground="DimGray"
-                                           HorizontalAlignment="Right"
-                                           Visibility="{Binding IsCacheFolderSelectedButNotExist.Value, Converter={StaticResource BooleanToVisibility}}"
-                                           />
-
-
-                    </StackPanel>
-
-                </toolkit:DockPanel>
-
-                <toolkit:DockPanel Margin="8">
-
-                    <TextBlock Text="{Binding CacheFolderStateDescription.Value}" 
-                                Opacity="0.9"
-                                 TextWrapping="Wrap"
-                               toolkit:DockPanel.Dock="Bottom"
-                               HorizontalAlignment="Right"
-                                   />
-
-                    <TextBlock Text="動画キャッシュ利用のためのヒント："
+                        <TextBlock Text="動画キャッシュ利用のためのヒント"
                                Margin="0 0 0 8"
                                />
-                </toolkit:DockPanel>
 
+                        <TextBlock Text="{Binding CacheFolderStateDescription.Value}" 
+                                 TextWrapping="Wrap"
+                                   />
+
+                    </StackPanel>
+                </Border>
 
 
                 <Border Margin="0 8"
@@ -109,11 +73,22 @@
                         />
 
 
+                <StackPanel Margin="0 8"   
+                            >
+                    <TextBlock Text="動画キャッシュを有効にする"
+                               VerticalAlignment="Center"
+                           />
+                    <ToggleSwitch 
+                                  IsOn="{Binding IsEnableCache.Value, Mode=TwoWay}"
+                                  
+                                          />
+                </StackPanel>
+
+
                 <toolkit:DockPanel Margin="8">
                     <Button Content="動画キャッシュ機能利用の確認文を読む" 
                                     Command="{Binding ReadCacheAcceptTextCommand}"
                                     Visibility="{Binding IsUserAcceptRegalNotice.Value, Converter={StaticResource BooleanToVisibility}}"
-                            HorizontalAlignment="Center"
                                     />
                 </toolkit:DockPanel>
 
