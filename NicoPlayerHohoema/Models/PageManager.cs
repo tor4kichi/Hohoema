@@ -28,7 +28,7 @@ namespace NicoPlayerHohoema.Models
 
 		public readonly IReadOnlyList<HohoemaPageType> DontNeedMenuPageTypes = new List<HohoemaPageType>
 		{
-            HohoemaPageType.Account,
+            HohoemaPageType.Login,
 		};
 
 

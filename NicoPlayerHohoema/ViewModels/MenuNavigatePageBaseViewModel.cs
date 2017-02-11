@@ -51,8 +51,8 @@ namespace NicoPlayerHohoema.ViewModels
                 new PageTypeSelectableItem(HohoemaPageType.Playlist           , OnMenuItemSelected, "プレイリスト", Symbol.Play),
                 new PageTypeSelectableItem(HohoemaPageType.CacheManagement    , OnMenuItemSelected, "キャッシュ管理", Symbol.Download),
                 new PageTypeSelectableItem(HohoemaPageType.History            , OnMenuItemSelected, "視聴履歴", Symbol.Clock),
-                new PageTypeSelectableItem(HohoemaPageType.Settings             , OnMenuItemSelected, "設定", Symbol.Setting),
-                new PageTypeSelectableItem(HohoemaPageType.Account             , OnAccountMenuItemSelected, "アカウントを表示", Symbol.Account),
+                new PageTypeSelectableItem(HohoemaPageType.Settings           , OnMenuItemSelected, "設定", Symbol.Setting),
+                new PageTypeSelectableItem(HohoemaPageType.UserInfo           , OnAccountMenuItemSelected, "アカウント", Symbol.Account),
             };
 
             MainSelectedItem = new ReactiveProperty<PageTypeSelectableItem>(MenuItems[0]);
@@ -241,12 +241,14 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-        internal async void OnAccountMenuItemSelected(HohoemaPageType pageType)
+        internal void OnAccountMenuItemSelected(HohoemaPageType pageType)
         {
-            SubSelectedItem.Value = null;
-
-            await AccountManagementDialogService.ShowChangeAccountDialogAsync();
+            if (pageType != PageManager.CurrentPageType)
+            {
+                PageManager.OpenPage(HohoemaPageType.UserInfo, HohoemaApp.LoginUserId.ToString());
+            }
         }
+
 
         private DelegateCommand _TogglePaneOpenCommand;
         public DelegateCommand TogglePaneOpenCommand
@@ -269,7 +271,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenAccountInfoCommand
                     ?? (_OpenAccountInfoCommand = new DelegateCommand(() =>
                     {
-                        OnAccountMenuItemSelected(HohoemaPageType.Account);
+                        PageManager.OpenPage(HohoemaPageType.UserInfo, HohoemaApp.LoginUserId.ToString());
                     }));
             }
         }

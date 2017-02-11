@@ -33,6 +33,19 @@
                                 Orientation="Horizontal"
                                 >
 
+                        <HyperlinkButton Content="ブラウザで開く"
+                                         Command="{Binding OpenUserAccountPageInBrowserCommand}"
+                                         VerticalAlignment="Center"
+                                         >
+                            
+                        </HyperlinkButton>
+                        
+                        <Button Content="ログアウト"
+                                Visibility="{Binding IsLoginUser, Converter={StaticResource BooleanToVisibility}}"
+                                Command="{Binding LogoutCommand}"
+                                Background="Transparent"
+                                />
+
                         <Button Background="Transparent"
                                     Command="{Binding AddFeedSourceCommand}"
                                     >
