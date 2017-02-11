@@ -38,10 +38,12 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			public uint CurrentVpos { get; set; }// (uint)Math.Floor(VideoPosition.TotalMilliseconds * 0.1);
 			public int CanvasWidth { get; set; }// (int)CommentCanvas.ActualWidth;
 			public uint CanvasHeight { get; set; } //= (uint)CommentCanvas.ActualHeight;
-			public double CalfCanvasWidth { get; set; } //= canvasWidth / 2;
+			public double HalfCanvasWidth { get; set; } //= canvasWidth / 2;
 			public float FontScale { get; set; } //= (float)CommentSizeScale;
 			public Color CommentDefaultColor { get; set; } //= CommentDefaultColor;
-		}
+            public Visibility Visibility { get; set; }
+            public uint CommentDisplayDuration { get; internal set; }
+        }
 
 		/// <summary>
 		/// コメントUIのView使いまわし
@@ -146,7 +148,8 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 				if (_NowUpdating)
 				{
 					_RenderingSkipCount++;
-					return;
+                    await Task.Delay(5);
+                    return;
 				}
 
 				_NowUpdating = true;
@@ -156,13 +159,13 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 				_UpdateLock.Release();
 			}
 
-			await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+			await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
 			{
 				// 更新済みの位置であれば処理をスキップ
 				var videoPosition = VideoPosition;
 				if (_PreviousVideoPosition == videoPosition)
 				{
-					return;
+                    return;
 				}
 
 				if (_PreviousVideoPosition > videoPosition)
@@ -171,12 +174,14 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 					LastCommentDisplayEndTime.Clear();
 				}
 
-				OnUpdate();
+                await OnUpdate();
 
-				_PreviousVideoPosition = videoPosition;
+                _PreviousVideoPosition = videoPosition;
 			});
 
-			try
+            await Task.Delay(5);
+
+            try
 			{
 				await _UpdateLock.WaitAsync();
 
@@ -193,41 +198,52 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			}
 		}
 
+        private async Task<CommentRenderFrameData> GetRenderFrameData()
+        {
+            CommentRenderFrameData frame = null;
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                var currentVpos = (uint)Math.Floor(VideoPosition.TotalMilliseconds * 0.1);
+                var canvasWidth = (int)CommentCanvas.ActualWidth;
+                var canvasHeight = (uint)CommentCanvas.ActualHeight;
+                var halfCanvasWidth = canvasWidth / 2;
+                var fontScale = (float)CommentSizeScale;
+                var commentDefaultColor = CommentDefaultColor;
+                var commentDisplayDuration = GetCommentDisplayDurationVposUnit();
 
+                frame = new CommentRenderFrameData()
+                {
+                    CurrentVpos = currentVpos,
+                    CanvasWidth = canvasWidth,
+                    CanvasHeight = canvasHeight,
+                    HalfCanvasWidth = halfCanvasWidth,
+                    FontScale = fontScale,
+                    CommentDefaultColor = commentDefaultColor,
+                    CommentDisplayDuration = commentDisplayDuration,
+                    Visibility = Visibility,
+                };
+            });
 
-		private void OnUpdate()
+            return frame;
+        }
+
+		private async Task OnUpdate()
 		{
-			var currentVpos = (uint)Math.Floor(VideoPosition.TotalMilliseconds * 0.1);
-			var canvasWidth = (int)CommentCanvas.ActualWidth;
-			var canvasHeight = (uint)CommentCanvas.ActualHeight;
-			var halfCanvasWidth = canvasWidth / 2;
-			var fontScale = (float)CommentSizeScale;
-			var commentDefaultColor = CommentDefaultColor;
-			var commentDisplayDuration = GetCommentDisplayDurationVposUnit();
+            var frame = await GetRenderFrameData();
 
-			var frame = new CommentRenderFrameData()
-			{
-				CurrentVpos = currentVpos,
-				CanvasWidth = canvasWidth,
-				CanvasHeight = canvasHeight,
-				CalfCanvasWidth = halfCanvasWidth,
-				FontScale = fontScale,
-				CommentDefaultColor = commentDefaultColor
-			};
-
-			// 非表示時は処理を行わない
-			if (Visibility == Visibility.Collapsed)
+            // 非表示時は処理を行わない
+            if (frame.Visibility == Visibility.Collapsed)
 			{
 				if (RenderComments.Count > 0)
 				{
-					foreach (var renderComment in RenderComments.ToArray())
-					{
-						RenderComments.Remove(renderComment.Key);
+                    foreach (var renderComment in RenderComments.ToArray())
+                    {
+                        RenderComments.Remove(renderComment.Key);
 
-						CommentCanvas.Children.Remove(renderComment.Value);
+                        CommentCanvas.Children.Remove(renderComment.Value);
 
-						renderComment.Value.DataContext = null;
-					}
+                        renderComment.Value.DataContext = null;
+                    }
 				}
 
 				return;
@@ -237,146 +253,157 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 
 			// コメントの上下位置を管理するリストを更新
-			UpdateCommentVerticalPositionList(currentVpos);
+			UpdateCommentVerticalPositionList(frame.CurrentVpos);
 
 
 			// 表示すべきコメントを抽出して、表示対象として未登録のコメントを登録処理する
-			var displayComments = GetDisplayCommentsOnCurrentVPos(currentVpos, commentDisplayDuration);
-			foreach (var comment in displayComments)
+			var displayComments = GetDisplayCommentsOnCurrentVPos(frame.CurrentVpos, frame.CommentDisplayDuration);
+            foreach (var comment in displayComments)
 			{
 				if (!RenderComments.ContainsKey(comment))
 				{
-					// リザーブからCommentUIを取得
+                    // リザーブからCommentUIを取得
 
-					CommentUI renderComment = null;
-					if (_CommentUIReserve.Count > 0)
-					{
-						renderComment = _CommentUIReserve.Last();
-						_CommentUIReserve.Remove(renderComment);
-					}
-					else
-					{
-						renderComment = new CommentUI();
-					}
+                    
+                    CommentUI renderComment = null;
+                    if (_CommentUIReserve.Count > 0)
+                    {
+                        renderComment = _CommentUIReserve.Last();
+                        _CommentUIReserve.Remove(renderComment);
+                    }
+                    else
+                    {
+                        renderComment = new CommentUI();
+                    }
 
-					// フォントサイズの計算
-					// 画面サイズの10分の１＊ベーススケール＊フォントスケール
-					var baseSize = canvasHeight / 10;
-					const float PixelToPoint = 0.75f;
-					var scaledFontSize = baseSize * fontScale * comment.FontScale * PixelToPoint;
-					comment.FontSize = (uint)Math.Ceiling(scaledFontSize);
+                    // フォントサイズの計算
+                    // 画面サイズの10分の１＊ベーススケール＊フォントスケール
+                    var baseSize = frame.CanvasHeight / 10;
+                    const float PixelToPoint = 0.75f;
+                    var scaledFontSize = baseSize * frame.FontScale * comment.FontScale * PixelToPoint;
+                    comment.FontSize = (uint)Math.Ceiling(scaledFontSize);
 
-					// フォントの影のオフセット量
-					comment.TextBGOffset = Math.Floor(FontSize * TextBGOffsetBias);
+                    // フォントの影のオフセット量
+                    comment.TextBGOffset = Math.Floor(FontSize * TextBGOffsetBias);
 
-					// コメントの終了位置を更新
-					comment.EndPosition = comment.VideoPosition + commentDisplayDuration;
+                    // コメントの終了位置を更新
+                    comment.EndPosition = comment.VideoPosition + frame.CommentDisplayDuration;
 
-					// コメントカラー
-					if (comment.Color == null)
-					{
-						comment.RealColor = commentDefaultColor;
-					}
-					else
-					{
-						comment.RealColor = comment.Color.Value;
-					}
+                    // コメントカラー
+                    if (comment.Color == null)
+                    {
+                        comment.RealColor = frame.CommentDefaultColor;
+                    }
+                    else
+                    {
+                        comment.RealColor = comment.Color.Value;
+                    }
 
-					// コメント背景の色を求める
-					// 色から輝度を求めて輝度を反転させて影色とする
-					var baseColor = comment.RealColor;
-					byte c = (byte)(byte.MaxValue - (byte)(0.299f * baseColor.R + 0.587f * baseColor.G + 0.114f * baseColor.B));
+                    // コメント背景の色を求める
+                    // 色から輝度を求めて輝度を反転させて影色とする
+                    var baseColor = comment.RealColor;
+                    byte c = (byte)(byte.MaxValue - (byte)(0.299f * baseColor.R + 0.587f * baseColor.G + 0.114f * baseColor.B));
 
-					// 赤や黄色など多少再度が高い色でも黒側に寄せるよう
-					// 127ではなく196をしきい値に利用
-					c = c > 196 ? byte.MaxValue : byte.MinValue;
+                    // 赤や黄色など多少再度が高い色でも黒側に寄せるよう
+                    // 127ではなく196をしきい値に利用
+                    c = c > 196 ? byte.MaxValue : byte.MinValue;
 
-					comment.BackColor = new Color()
-					{
-						R = c,
-						G = c,
-						B = c,
-						A = byte.MaxValue
-					};
+                    comment.BackColor = new Color()
+                    {
+                        R = c,
+                        G = c,
+                        B = c,
+                        A = byte.MaxValue
+                    };
 
 
-					renderComment.DataContext = comment;
-					renderComment.Visibility = Visibility.Visible;
+                    renderComment.DataContext = comment;
+                    renderComment.Visibility = Visibility.Visible;
 
-					// 表示対象に登録
-					RenderComments.Add(comment, renderComment);
-					CommentCanvas.Children.Add(renderComment);
-					
-					// コメントの表示サイズを得るために強制更新
-					renderComment.UpdateLayout();
+                    // 表示対象に登録
+                    RenderComments.Add(comment, renderComment);
+                    CommentCanvas.Children.Add(renderComment);
 
-					// コメントを配置可能な高さを取得
-					var verticalPos = CalcAndRegisterCommentVerticalPosition(renderComment, frame);
+                    // コメントの表示サイズを得るために強制更新
+                    renderComment.UpdateLayout();
 
-					// コメントが画面の中に収まっている場合は表示
-					// 少しでも見切れる場合は非表示
-					if (verticalPos < 0 || (verticalPos + renderComment.DesiredSize.Height) > canvasHeight)
-					{
-						renderComment.Visibility = Visibility.Collapsed;
+                    // コメントを配置可能な高さを取得
+                    var verticalPos = CalcAndRegisterCommentVerticalPosition(renderComment, frame);
 
-//						Debug.WriteLine("hide comment : " + comment.CommentText);
-					}
-					else
-					{
-						// コメントの縦の表示位置を設定
-						Canvas.SetTop(renderComment, verticalPos);
+                    // コメントが画面の中に収まっている場合は表示
+                    // 少しでも見切れる場合は非表示
+                    if (verticalPos < 0 || (verticalPos + renderComment.DesiredSize.Height) > frame.CanvasHeight)
+                    {
+                        renderComment.Visibility = Visibility.Collapsed;
 
-						var left = halfCanvasWidth - (int)(renderComment.DesiredSize.Width * 0.5);
-//						Debug.WriteLine($"V={verticalPos}: [{renderComment.CommentData.CommentText}] [{left}] [{comment.FontSize}]");
+                        //						Debug.WriteLine("hide comment : " + comment.CommentText);
+                    }
+                    else
+                    {
+                        // コメントの縦の表示位置を設定
+                        Canvas.SetTop(renderComment, verticalPos);
 
-						if (comment.VAlign == VerticalAlignment.Bottom 
-							|| comment.VAlign == VerticalAlignment.Top)
-						{
-							Canvas.SetLeft(renderComment, left);
-						}
+                        //						Debug.WriteLine($"V={verticalPos}: [{renderComment.CommentData.CommentText}] [{left}] [{comment.FontSize}]");
 
-						renderComment.Update(canvasWidth, currentVpos);
-					}
+                        if (comment.VAlign == VerticalAlignment.Bottom
+                            || comment.VAlign == VerticalAlignment.Top)
+                        {
+                            var left = frame.HalfCanvasWidth - (int)(renderComment.DesiredSize.Width * 0.5);
+                            Canvas.SetLeft(renderComment, left);
+                        }
+
+                        renderComment.Update(frame.CanvasWidth, frame.CurrentVpos);
+                    }
 				}
 				else
 				{
 					if (!comment.VAlign.HasValue || comment.VAlign == VerticalAlignment.Center)
 					{
 						var ui = RenderComments[comment];
-						if (ui.Visibility == Visibility.Visible)
-						{
-							ui.Update(canvasWidth, currentVpos);
-						}
-					}
+                        var isVisible = false;
+                        isVisible = ui.Visibility == Visibility.Visible;
+
+                        if (isVisible)
+                        {
+                            ui.Update(frame.CanvasWidth, frame.CurrentVpos);
+                        }
+                    }
 				}
 			}
 
-			// 表示区間をすぎたコメントを表示対象から削除
-			var removeRenderComments = RenderComments
-				.Where(x => CommentIsEndDisplay(x.Key, currentVpos) || x.Key.IsNGComment)
-				.ToArray();
-			foreach (var renderComment in removeRenderComments)
-			{
-				// 表示対象としての登録を解除
-				RenderComments.Remove(renderComment.Key);
+           
 
-				CommentCanvas.Children.Remove(renderComment.Value);
 
-				_CommentUIReserve.Add(renderComment.Value);
 
-				renderComment.Value.DataContext = null;
-			}
+            // 表示区間をすぎたコメントを表示対象から削除
+            var removeRenderComments = RenderComments
+                .Where(x => CommentIsEndDisplay(x.Key, frame.CurrentVpos) || x.Key.IsNGComment)
+                .ToArray();
+            foreach (var renderComment in removeRenderComments)
+            {
+                // 表示対象としての登録を解除
+                RenderComments.Remove(renderComment.Key);
 
-			// CommentUIの表示位置を更新
-			foreach (var renderComment in RenderComments)
-			{
-				var ui = renderComment.Value;
-				var comment = renderComment.Key;
-				if (!comment.VAlign.HasValue || comment.VAlign == VerticalAlignment.Center)
-				{
-					Canvas.SetLeft(ui, canvasWidth - ui.HorizontalPosition);
-				}
-			}
+                CommentCanvas.Children.Remove(renderComment.Value);
+                renderComment.Value.DataContext = null;
+
+                _CommentUIReserve.Add(renderComment.Value);
+
+            }
+
+
+            // CommentUIの表示位置を更新
+            foreach (var renderComment in RenderComments)
+            {
+                var ui = renderComment.Value;
+                var comment = renderComment.Key;
+                if (!comment.VAlign.HasValue || comment.VAlign == VerticalAlignment.Center)
+                {
+                    Canvas.SetLeft(ui, frame.CanvasWidth - ui.HorizontalPosition);
+                }
+            }
+
+			
 		}
 
 
@@ -706,7 +733,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		{
 			CommentRenderer me = sender as CommentRenderer;
 
-            Task.Run(() => me.UpdateCommentDisplay()).ConfigureAwait(false);
+            var timeout = new Timer(_ => me.UpdateCommentDisplay(), null, 0, -1);
 		}
 
 

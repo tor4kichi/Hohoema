@@ -1324,13 +1324,12 @@ namespace NicoPlayerHohoema.ViewModels
 
         private void PlaybackSession_PlaybackStateChanged(MediaPlaybackSession sender, object args)
         {
-            if (IsDisposed) { return; }
-
-
             Debug.WriteLine(sender.PlaybackState);
 
             PlayerWindowUIDispatcherScheduler.Schedule(() => 
             {
+                if (IsDisposed) { return; }
+
                 CurrentState.Value = sender.PlaybackState;
             });
 
