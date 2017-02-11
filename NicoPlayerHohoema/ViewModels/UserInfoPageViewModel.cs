@@ -14,6 +14,7 @@ using System.Diagnostics;
 using System.Threading;
 using Prism.Commands;
 using NicoPlayerHohoema.Views.Service;
+using Windows.System;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -326,7 +327,31 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-        
+
+        private DelegateCommand _OpenUserAccountPageInBrowserCommand;
+        public DelegateCommand OpenUserAccountPageInBrowserCommand
+        {
+            get
+            {
+                return _OpenUserAccountPageInBrowserCommand
+                    ?? (_OpenUserAccountPageInBrowserCommand = new DelegateCommand(async () =>
+                    {
+                        if (IsLoginUser)
+                        {
+                            Uri UserAccountPageUri = new Uri("http://www.nicovideo.jp/my/top");
+                            await Launcher.LaunchUriAsync(UserAccountPageUri);
+                        }
+                        else
+                        {
+                            // www.nicovideo.jp/user/3914961
+                            var userPageUri = new Uri(NiconicoUrls.UserPageUrlBase + UserId);
+                            await Launcher.LaunchUriAsync(userPageUri);
+                        }
+                    }));
+            }
+        }
+
+
 
 
         public string UserId { get; private set; }
