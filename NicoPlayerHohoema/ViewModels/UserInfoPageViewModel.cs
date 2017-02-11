@@ -311,7 +311,22 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+        private DelegateCommand _LogoutCommand;
+        public DelegateCommand LogoutCommand
+        {
+            get
+            {
+                return _LogoutCommand
+                    ?? (_LogoutCommand = new DelegateCommand(async () =>
+                    {
+                        await HohoemaApp.SignOut();
 
+                        PageManager.OpenPage(HohoemaPageType.Login);
+                    }));
+            }
+        }
+
+        
 
 
         public string UserId { get; private set; }
