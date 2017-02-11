@@ -41,6 +41,6 @@ namespace NicoPlayerHohoema.Models
         CacheManagement,
 
         Settings,
-        Account,
+        Login,
     }
 }
