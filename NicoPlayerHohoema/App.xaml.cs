@@ -369,24 +369,12 @@ namespace NicoPlayerHohoema
 
 			var hohoemaApp = Container.Resolve<HohoemaApp>();
 
-			hohoemaApp.MediaManager.Context.DoneDownload += Context_DoneDownload;
-			hohoemaApp.MediaManager.Context.StartDownload += (sender, a) => 
-			{
-				Debug.WriteLine("ダウンロードを開始" + a.RawVideoId);
-			};
-			hohoemaApp.MediaManager.Context.CancelDownload += (sender, a) =>
-			{
-				Debug.WriteLine("ダウンロードをキャンセル:" + a.RawVideoId);
-			};
-
-            //			var playNicoVideoEvent = EventAggregator.GetEvent<PlayNicoVideoEvent>();
-            //			playNicoVideoEvent.Subscribe(PlayNicoVideoInPlayerWindow);
-
             SetTitleBar();
 
             await base.OnInitializeAsync(args);
 		}
 
+        /*
         private void Context_DoneDownload(NicoVideoDownloadContext sender, NiconicoDownloadEventArgs args)
 		{
 			var hohoemaApp = Container.Resolve<HohoemaApp>();
@@ -411,6 +399,7 @@ namespace NicoPlayerHohoema
 			}
 			catch { }
 		}
+        */
 
 		private async void PlayNicoVideoInPlayerWindow(string videoUrl)
 		{

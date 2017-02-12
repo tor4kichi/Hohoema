@@ -33,11 +33,11 @@ namespace NicoPlayerHohoema.Models
 		bool _IsInitialized = false;
 		bool _thumbnailInitialized = false;
 
-		public NicoVideo(HohoemaApp app, string rawVideoid, NicoVideoDownloadContext context)
+		public NicoVideo(HohoemaApp app, string rawVideoid, NiconicoMediaManager manager)
 		{
 			HohoemaApp = app;
 			RawVideoId = rawVideoid;
-			_Context = context;
+			_NiconicoMediaManager = manager;
 
 			_InterfaceByQuality = new Dictionary<NicoVideoQuality, DividedQualityNicoVideo>();
 		}
@@ -81,9 +81,6 @@ namespace NicoPlayerHohoema.Models
 
             if (false == IsDeleted)
 			{
-				await OriginalQuality.SetupDownloadProgress();
-				await LowQuality.SetupDownloadProgress();
-
 				await CheckCacheStatus();
 			}
 		}
@@ -194,6 +191,9 @@ namespace NicoPlayerHohoema.Models
 
 		private async Task<WatchApiResponse> GetWatchApiResponse(bool forceLoqQuality = false)
 		{
+            if (!HohoemaApp.IsLoggedIn) { return null; }
+
+
 			WatchApiResponse watchApiRes = null;
 
 			try
@@ -295,26 +295,11 @@ namespace NicoPlayerHohoema.Models
 				{
 					// キャッシュ保存フォルダに書き込み権限でアクセスできれば
 					// キャッシュを伴ったダウンロード再生ストリームを作成
-					if (await _Context.CanWriteAccessVideoCacheFolder()
-						&& (
-							ContentType == MovieType.Mp4
-							//						|| ContentType == MovieType.Flv
-							)
-						)
-					{
-						NicoVideoDownloader = await _Context.GetDownloader(this, quality);
-
-						NicoVideoCachedStream = new NicoVideoCachedStream(NicoVideoDownloader);
-					}
-					// キャッシュしない（出来ない）場合、キャッシュ無しでストリーミング再生
-					else
-					{
-						var size = (quality == NicoVideoQuality.Original ? SizeHigh : SizeLow);
-						NicoVideoCachedStream = await HttpSequencialAccessStream.CreateAsync(
-							HohoemaApp.NiconicoContext.HttpClient
-							, VideoUrl
-							);
-					}
+					var size = (quality == NicoVideoQuality.Original ? SizeHigh : SizeLow);
+					NicoVideoCachedStream = await HttpSequencialAccessStream.CreateAsync(
+						HohoemaApp.NiconicoContext.HttpClient
+						, VideoUrl
+						);					
 				}
 			}
 
@@ -337,6 +322,10 @@ namespace NicoPlayerHohoema.Models
                 else if (NicoVideoCachedStream is Util.HttpSequencialAccessStream)
                 {
                     contentType = (NicoVideoCachedStream as Util.HttpSequencialAccessStream).ContentType;
+                }
+                else if (NicoVideoCachedStream is FileRandomAccessStream)
+                {
+                    contentType = "video/mp4";
                 }
 
                 if (contentType == null) { throw new Exception("unknown movie content type"); }
@@ -371,6 +360,38 @@ namespace NicoPlayerHohoema.Models
     //        smtc.DisplayUpdater.Update();
 
             HohoemaApp.MediaPlayer.BufferingStarted -= MediaPlayer_BufferingStarted; 
+        }
+
+
+        internal async Task<Uri> GetVideoUrl(NicoVideoQuality quality)
+        {
+            Uri videoUrl = null;
+            switch (quality)
+            {
+                case NicoVideoQuality.Original:
+                    await SetupWatchPageVisit(NicoVideoQuality.Original);
+                    if (NowLowQualityOnly) { return null; }
+                    
+                    videoUrl = CachedWatchApiResponse.VideoUrl;
+                    break;
+                case NicoVideoQuality.Low:
+                    if (IsOriginalQualityOnly) { return null; }
+
+                    await SetupWatchPageVisit(NicoVideoQuality.Low);
+
+                    videoUrl = CachedWatchApiResponse.VideoUrl;
+                    break;
+                case NicoVideoQuality.v2_Low:
+                    break;
+                case NicoVideoQuality.v2_Middle:
+                    break;
+                case NicoVideoQuality.v2_High:
+                    break;
+                default:
+                    break;
+            }
+
+            return videoUrl;
         }
 
         internal async Task SetupWatchPageVisit(NicoVideoQuality quality)
@@ -430,7 +451,7 @@ namespace NicoPlayerHohoema.Models
 
 
 			// キャッシュリクエストされている場合このタイミングでコメントを取得
-			if (_Context.CheckCacheRequested(RawVideoId, quality))
+			if (_NiconicoMediaManager.CheckCacheRequested(RawVideoId, quality))
 			{
 				await OnCacheRequested();
 //				var commentRes = await GetCommentResponse();
@@ -438,31 +459,13 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 		
-		public async Task StopPlay()
+		public void StopPlay()
 		{
             HohoemaApp.MediaPlayer.Pause();
             HohoemaApp.MediaPlayer.Source = null;
 
-            if (NicoVideoCachedStream == null) { return; }
-
 			NicoVideoCachedStream?.Dispose();
 			NicoVideoCachedStream = null;
-
-			if (NicoVideoDownloader != null)
-			{
-				if (NicoVideoDownloader.IsCacheRequested)
-				{
-					await NicoVideoDownloader.DividedQualityNicoVideo.SaveProgress();
-				}
-				else
-				{
-					await _Context.StopDownload(NicoVideoDownloader.DividedQualityNicoVideo.RawVideoId, NicoVideoDownloader.DividedQualityNicoVideo.Quality);
-				}
-
-				NicoVideoDownloader = null;
-			}
-
-			await CheckCacheStatus();
 		}
 
 		public Task RequestCache(NicoVideoQuality quality)
@@ -483,11 +486,11 @@ namespace NicoPlayerHohoema.Models
 		{
 			if (quality == NicoVideoQuality.Original)
 			{
-				await OriginalQuality.CancelCacheRequest();
+				await OriginalQuality.DeleteCache();
 			}
 			else if (quality == NicoVideoQuality.Low)
 			{
-				await LowQuality.CancelCacheRequest();
+				await LowQuality.DeleteCache();
 			}
 			else
 			{
@@ -582,8 +585,8 @@ namespace NicoPlayerHohoema.Models
 		{
 			// キャッシュした動画データと動画コメントの削除
 
-			await OriginalQuality.DeletedTeardown();
-			await LowQuality.DeletedTeardown();
+			await OriginalQuality.DeleteCache();
+			await LowQuality.DeleteCache();
 
 			CommentDb.Remove(RawVideoId);
 			VideoInfoDb.Deleted(RawVideoId);
@@ -694,7 +697,7 @@ namespace NicoPlayerHohoema.Models
 		public bool IsRequireConfirmDelete { get; private set; }
 
 		public HohoemaApp HohoemaApp { get; private set; }
-		NicoVideoDownloadContext _Context;
+        NiconicoMediaManager _NiconicoMediaManager;
 
 		public bool LastAccessIsLowQuality { get; private set; }
 
@@ -711,8 +714,6 @@ namespace NicoPlayerHohoema.Models
 //		internal ThumbnailResponseCache ThumbnailResponseCache { get; private set; }
 //		internal WatchApiResponseCache WatchApiResponseCache { get; private set; }
 //		internal CommentResponseCache CommentResponseCache { get; private set; }
-
-		public NicoVideoDownloader NicoVideoDownloader { get; private set; }
 
 		public IRandomAccessStream NicoVideoCachedStream { get; private set; }
 
@@ -748,10 +749,10 @@ namespace NicoPlayerHohoema.Models
 				switch (quality)
 				{
 					case NicoVideoQuality.Original:
-						_InterfaceByQuality.Add(quality, new OriginalQualityNicoVideo(this, _Context));
+						_InterfaceByQuality.Add(quality, new OriginalQualityNicoVideo(this, _NiconicoMediaManager));
 						break;
 					case NicoVideoQuality.Low:
-						_InterfaceByQuality.Add(quality, new LowQualityNicoVideo(this, _Context));
+						_InterfaceByQuality.Add(quality, new LowQualityNicoVideo(this, _NiconicoMediaManager));
 						break;
 					default:
 						break;

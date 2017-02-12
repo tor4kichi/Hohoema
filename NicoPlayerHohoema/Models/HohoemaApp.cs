@@ -113,21 +113,21 @@ namespace NicoPlayerHohoema.Models
 
         private void RagistrationBackgroundUpdateHandle()
 		{
-			// ホーム画面で表示するアプリマップ情報をリセット
-			//AppMapManagerUpdater =
-				
+            // ホーム画面で表示するアプリマップ情報をリセット
+            //AppMapManagerUpdater =
 
-			// 非同期な初期化処理の遅延実行をスケジュール
-			FeedManagerUpdater = BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(
+            // 非同期な初期化処理の遅延実行をスケジュール
+            MediaManagerUpdater = BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(
+                MediaManager,
+                "NicoMediaManager",
+                label: "キャッシュ"
+                );
+
+
+            FeedManagerUpdater = BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(
 				FeedManager,
 				"FeedManager",
 				label: "フィード"
-				);
-
-			MediaManagerUpdater = BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(
-				MediaManager,
-				"NicoMediaManager",
-				label: "キャッシュ"
 				);
 
 			MylistManagerUpdater = BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(
@@ -142,12 +142,6 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task OnSuspending()
 		{
-			// 現在あるダウンロードタスクは必ず終了させる必要があります
-			if (MediaManager != null && MediaManager.Context != null)
-			{
-				await MediaManager?.Context?.Suspending();
-			}
-
 			await SyncToRoamingData();
 		}
 
@@ -692,8 +686,8 @@ namespace NicoPlayerHohoema.Models
 						// サインイン完了
 						OnSignin?.Invoke();
 
-						// 途中だった動画のダウンロードを再開
-						await MediaManager.Context.StartBackgroundDownload();
+						// TODO: 途中だった動画のダウンロードを再開
+						// await MediaManager.StartBackgroundDownload();
 
                         
 
@@ -744,10 +738,7 @@ namespace NicoPlayerHohoema.Models
                 
                 try
                 {
-					if (MediaManager != null && MediaManager.Context != null)
-					{
-						await MediaManager.Context.Suspending();
-					}
+                    MediaManager.StopCacheDownload();
 				}
 				catch { }
 
@@ -856,16 +847,13 @@ StorageFolder _DownloadFolder;
 		{
 			if (_DownloadFolder?.Path != newVideoFolder.Path)
 			{
-				// フォルダーの移行作業を開始
+                // フォルダーの移行作業を開始
 
-				// 現在あるダウンロードタスクは必ず終了させる必要があります
-				if (MediaManager != null && MediaManager.Context != null)
-				{
-					await MediaManager?.Context?.Suspending();
-				}
+                // 現在あるダウンロードタスクは必ず終了させる必要があります
+                MediaManager?.StopCacheDownload();
 
-				// v0.4.0以降の移行処理
-				if (_DownloadFolder != null)
+                // v0.4.0以降の移行処理
+                if (_DownloadFolder != null)
 				{
 					await MoveFiles(_DownloadFolder, newVideoFolder);
 				}
@@ -971,10 +959,8 @@ StorageFolder _DownloadFolder;
 		
 		public async Task<bool> ChangeUserDataFolder()
 		{
-			if (MediaManager != null && MediaManager.Context != null)
-			{
-				await MediaManager.Context.Suspending();
-			}
+            MediaManager.StopCacheDownload();
+
 
 			try
 			{
@@ -1021,7 +1007,7 @@ StorageFolder _DownloadFolder;
 			{
 				try
 				{
-					if (MediaManager != null && MediaManager.Context != null)
+					if (MediaManager != null)
 					{
 						await MediaManager.OnCacheFolderChanged();
 					}

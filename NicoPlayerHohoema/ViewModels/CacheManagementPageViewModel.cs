@@ -88,7 +88,8 @@ namespace NicoPlayerHohoema.ViewModels
 				return _ResumeCacheCommand
 					?? (_ResumeCacheCommand = new DelegateCommand(async () =>
 					{
-						await _MediaManager.Context.StartBackgroundDownload();
+                        // TODO: バックグラウンドダウンロードの強制更新？
+						//await _MediaManager.StartBackgroundDownload();
 					}));
 			}
 		}
@@ -126,15 +127,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 
 			IsIncompleteCache = !qualityNicoVideo.IsCached;
-			ProgressPercent = qualityNicoVideo.ObserveProperty(x => x.CacheProgressSize)
-				.Select(x => ProgressToPercent(x, qualityNicoVideo.VideoSize))
-				.ToReactiveProperty(CacheManagementPageViewModel.scheduler)
-				.AddTo(_CompositeDisposable);
 			CacheState = qualityNicoVideo.ObserveProperty(x => x.CacheState)
-				.ToReactiveProperty(CacheManagementPageViewModel.scheduler)
-				.AddTo(_CompositeDisposable);
-			IsVisibleProgress = CacheState
-				.Select(x => x == NicoVideoCacheState.NowDownloading)
 				.ToReactiveProperty(CacheManagementPageViewModel.scheduler)
 				.AddTo(_CompositeDisposable);
 
@@ -193,10 +186,6 @@ namespace NicoPlayerHohoema.ViewModels
 		public NicoVideoQuality Quality { get; private set; }
 		public ReactiveProperty<NicoVideoCacheState?> CacheState { get; private set; }
 
-		public ReactiveProperty<float> ProgressPercent { get; private set; }
-
-		public ReactiveProperty<bool> IsVisibleProgress { get; private set; }
-
 		public ReactiveProperty<bool> IsRequireConfirmDelete { get; private set; }
 
 
@@ -239,7 +228,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			foreach (var req in mediaManager.CacheRequestedItemsStack.ToArray())
 			{
-				var item = await mediaManager.GetNicoVideoAsync(req.RawVideoid);
+				var item = await mediaManager.GetNicoVideoAsync(req.RawVideoId);
 
 				await item.CheckCacheStatus();
 
@@ -273,7 +262,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			return await ToCacheVideoViewModel(new NicoVideoCacheRequest()
 			{
-				RawVideoid = videoId,
+				RawVideoId = videoId,
 				Quality = quality
 			});
 		}
@@ -283,7 +272,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			var mediaManager = _HohoemaApp.MediaManager;
 
-			var nicoVideo = await mediaManager.GetNicoVideoAsync(req.RawVideoid);
+			var nicoVideo = await mediaManager.GetNicoVideoAsync(req.RawVideoId);
 
 			var vm = new CacheVideoViewModel(nicoVideo, req.Quality, _PageManager);
 

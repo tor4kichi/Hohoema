@@ -20,7 +20,7 @@ namespace NicoPlayerHohoema.Models.AppMap
 			var cacheReq = HohoemaApp.MediaManager.CacheRequestedItemsStack.Take(count);
 			foreach (var req in cacheReq)
 			{
-				var videoInfo = Db.VideoInfoDb.Get(req.RawVideoid);
+				var videoInfo = Db.VideoInfoDb.Get(req.RawVideoId);
 				if (videoInfo == null)
 				{
 					throw new Exception();
@@ -40,7 +40,7 @@ namespace NicoPlayerHohoema.Models.AppMap
 		{
 			PrimaryLabel = info.Title;
 			SecondaryLabel = cacheReq.Quality.ToString();
-            Parameter = cacheReq.RawVideoid;
+            Parameter = cacheReq.RawVideoId;
             Quality = cacheReq.Quality;
 		}
 	}

@@ -228,13 +228,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 			HohoemaApp.OnResumed += _OnResumed;
 
-
-			// 再生中動画のキャッシュクリアの除外条件をクリア
-			if (HohoemaApp.MediaManager != null && HohoemaApp.MediaManager.Context != null)
-			{
-				HohoemaApp.MediaManager.Context.ClearPreventDeleteCacheOnPlayingVideo();
-			}
-
             // TODO: プレイヤーを別ウィンドウにしている場合に、プレイヤーの表示状態変更を抑制する
             // プレイヤーがフィル表示している時にバックキーのアクションを再定義する
             Observable.CombineLatest(
@@ -310,11 +303,6 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			using (var releaser = await _NavigationLock.LockAsync())
 			{
-                if (HohoemaApp.MediaManager != null && HohoemaApp.MediaManager.Context != null)
-				{
-					await HohoemaApp.MediaManager.Context.ClearDurtyCachedNicoVideo();
-				}
-
 				// Note: BGUpdateの再有効化はナビゲーション処理より前で行う
 				// ナビゲーション処理内でBGUpdate待ちをした場合に、デッドロックする可能性がでる
 
