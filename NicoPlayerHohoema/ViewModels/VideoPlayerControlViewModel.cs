@@ -642,7 +642,6 @@ namespace NicoPlayerHohoema.ViewModels
 
                 // 内部状態を更新
                 await videoInfo.VisitWatchPage();
-                await videoInfo.CheckCacheStatus();
 
                 await videoInfo.Initialize();
 

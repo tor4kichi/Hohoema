@@ -49,8 +49,8 @@ namespace NicoPlayerHohoema.Models
 
         public static NicoVideoQuality NicoVideoQualityFromFileNameExtention(string filename)
         {
-            var nameLastPosition = Path.GetFileNameWithoutExtension(filename).Length;
-            var ext = filename.Substring(nameLastPosition);
+            var firstDotPosition = filename.IndexOf('.');
+            var ext = new string (filename.Skip(firstDotPosition).ToArray());
 
             if (ext.EndsWith(".low.mp4"))
             {

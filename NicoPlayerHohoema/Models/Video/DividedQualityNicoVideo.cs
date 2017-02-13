@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Networking.BackgroundTransfer;
 using Windows.Storage;
 
 namespace NicoPlayerHohoema.Models
@@ -18,6 +19,7 @@ namespace NicoPlayerHohoema.Models
         public NicoVideoQuality Quality { get; private set; }
         public NicoVideo NicoVideo { get; private set; }
         public NiconicoMediaManager NiconicoMediaManager { get; private set; }
+        public VideoDownloadManager VideoDownloadManager { get; private set; }
         public HohoemaApp HohoemaApp { get; private set; }
                 
 
@@ -30,11 +32,11 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		private NicoVideoCacheState? _CacheState;
-		public NicoVideoCacheState? CacheState
+		private NicoVideoCacheState _CacheState;
+		public NicoVideoCacheState CacheState
 		{
 			get { return _CacheState; }
-			protected set { SetProperty(ref _CacheState, value); }
+			internal set { SetProperty(ref _CacheState, value); }
 		}
 
 		public bool IsReadyOfflinePlay { get; private set; }
@@ -47,12 +49,13 @@ namespace NicoPlayerHohoema.Models
 		/// </summary>
 		public abstract bool IsAvailable { get; }
 
-		public DividedQualityNicoVideo(NicoVideoQuality quality, NicoVideo nicoVideo, NiconicoMediaManager context)
+		public DividedQualityNicoVideo(NicoVideoQuality quality, NicoVideo nicoVideo, NiconicoMediaManager mediaManager)
 		{
 			Quality = quality;
 			NicoVideo = nicoVideo;
             HohoemaApp = nicoVideo.HohoemaApp;
-            NiconicoMediaManager = context;
+            NiconicoMediaManager = mediaManager;
+            VideoDownloadManager = mediaManager.VideoDownloadManager;
 		}
 
 		
@@ -69,8 +72,10 @@ namespace NicoPlayerHohoema.Models
 		
 		public DateTime VideoFileCreatedAt { get; private set; }
 
+        public string CacheFilePath { get; internal set; }
 
-		public bool CanPlay
+
+        public bool CanPlay
 		{
 			get
 			{
@@ -99,28 +104,20 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
-		public bool IsCached
-		{
-			get
-			{
-				return CacheState == NicoVideoCacheState.Cached;
-			}
-		}
+        public bool IsNotCacheRequested => CacheState == NicoVideoCacheState.NotCacheRequested;
+        public bool NowCachePending => CacheState == NicoVideoCacheState.Pending;
+        public bool NowCacheDonwloading => CacheState == NicoVideoCacheState.Downloading;
+        public bool IsCached => CacheState == NicoVideoCacheState.Cached;
 
-		public bool HasCache
-		{
-			get
-			{
-				return CacheState.HasValue;
-			}
-		}
+        public bool HasCache => IsCached || NowCacheDonwloading;
 
 
-		private bool _IsCacheRequested;
+
+        private bool _IsCacheRequested;
 		public bool IsCacheRequested
 		{
 			get { return _IsCacheRequested; }
-			protected set { SetProperty(ref _IsCacheRequested, value); }
+			internal set { SetProperty(ref _IsCacheRequested, value); }
 		}
 
 
@@ -138,6 +135,15 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
+
+        internal void RestoreCache(string path)
+        {
+            CacheFilePath = path;
+            IsCacheRequested = !string.IsNullOrEmpty(path);
+            CacheState = NicoVideoCacheState.Cached;
+        }
+
+        /*
 		internal async Task CheckCacheStatus()
 		{
 			if (!IsAvailable)
@@ -147,41 +153,36 @@ namespace NicoPlayerHohoema.Models
 
 			IsCacheRequested = NiconicoMediaManager.CheckCacheRequested(this.RawVideoId, Quality);
             var isCacheCompleted = NiconicoMediaManager.CheckVideoCached(this.RawVideoId, Quality);
-
             if (isCacheCompleted)
             {
                 CacheState = NicoVideoCacheState.Cached;
+                var videoFile = await NiconicoMediaManager.GetCachedVideo(this.RawVideoId, Quality);
+                VideoFileCreatedAt = videoFile.DateCreated.LocalDateTime;
+
+                OnPropertyChanged(nameof(CanRequestCache));
+                OnPropertyChanged(nameof(CanPlay));
+                OnPropertyChanged(nameof(IsCached));
+                OnPropertyChanged(nameof(CanPlay));
+
             }
-			else if (IsCacheRequested)
+            else if (IsCacheRequested)
 			{
-				var videoCacheFolder = await HohoemaApp.GetVideoCacheFolder();
-				if (videoCacheFolder == null)
-				{
-					return;
-				}
-
-				var videoFile = await videoCacheFolder.TryGetItemAsync(VideoFileName) as StorageFile;
-				var existVideo = videoFile != null;
-
-				if (existVideo)
-				{
-					CacheState = NicoVideoCacheState.CacheProgress;
-				}
-				else // if (NicoVideoCachedStream.ExistIncompleteOriginalQuorityVideo(CachedWatchApiResponse, saveFolder))
-				{
-					CacheState = null;
-				}
+                var downloadOperation = NiconicoMediaManager.GetCacheProgressVideoStream(this.RawVideoId, Quality);
+                if (downloadOperation != null)
+                {
+                    CacheState = NicoVideoCacheState.Downloading;
+                    var videoFile = downloadOperation.ResultFile;
+                    VideoFileCreatedAt = videoFile.DateCreated.LocalDateTime;
+                }
+                else
+                {
+                    CacheState = NicoVideoCacheState.Pending;
+                }
 
 				OnPropertyChanged(nameof(CanRequestCache));
 				OnPropertyChanged(nameof(CanPlay));
 				OnPropertyChanged(nameof(IsCached));
 				OnPropertyChanged(nameof(CanPlay));
-
-				// キャッシュの日付を取得
-				if (existVideo)
-				{
-					VideoFileCreatedAt = videoFile.DateCreated.LocalDateTime;
-				}
 			}
 			else
 			{
@@ -190,7 +191,7 @@ namespace NicoPlayerHohoema.Models
 			}
 
 		}
-
+        */
         
 
 		
@@ -201,8 +202,6 @@ namespace NicoPlayerHohoema.Models
 
 			await DeleteCacheFile();
 
-			await CheckCacheStatus();
-
 			Debug.WriteLine($".完了");
 		}
 
@@ -210,14 +209,14 @@ namespace NicoPlayerHohoema.Models
 		{
 			if (!IsAvailable) { return; }
 
-			if (NiconicoMediaManager.CheckCacheRequested(NicoVideo.RawVideoId, Quality))
+			if (IsCached || NowCacheDonwloading)
 			{
+                // update cached time
+                await GetCacheFile();
 				return;
 			}
 
-			await NiconicoMediaManager.AddCacheRequest(NicoVideo.RawVideoId, Quality);
-
-			await CheckCacheStatus();
+            await VideoDownloadManager.AddCacheRequest(NicoVideo.RawVideoId, Quality);
 
 			await NicoVideo.OnCacheRequested();
 		}
@@ -226,7 +225,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			if (!IsAvailable) { return false; }
 
-            return await NiconicoMediaManager.RemoveCacheRequest(NicoVideo.RawVideoId, Quality);
+            return await VideoDownloadManager.RemoveCacheRequest(NicoVideo.RawVideoId, Quality);
 		}
 
 		protected string VideoFileNameBase
@@ -239,8 +238,43 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<StorageFile> GetCacheFile()
 		{
-            return await NiconicoMediaManager.GetCachedVideo(this.RawVideoId, Quality);
-		}
+            if (IsCached)
+            {
+                if (string.IsNullOrEmpty(CacheFilePath))
+                {
+                    throw new Exception();
+                }
+
+                var file = await StorageFile.GetFileFromPathAsync(CacheFilePath);
+
+                VideoFileCreatedAt = file.DateCreated.DateTime;
+
+                return file;
+            }
+            else if (NowCacheDonwloading)
+            {
+                var downloadOp = await VideoDownloadManager.GetDownloadingVideoOperation(this.RawVideoId, this.Quality);
+                if (downloadOp  != null)
+                {
+                    VideoFileCreatedAt = downloadOp.ResultFile.DateCreated.DateTime;
+                    return downloadOp.ResultFile as StorageFile;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+
+        public Task<DownloadOperation> GetDownloadOperation()
+        {
+            return VideoDownloadManager.GetDownloadingVideoOperation(this.RawVideoId, this.Quality);
+        }
 
 	}
 

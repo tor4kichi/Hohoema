@@ -183,6 +183,7 @@
     <Compile Include="Models\Video\DividedQualityNicoVideo.cs" />
     <Compile Include="Models\Video\MediaProtocolType.cs" />
     <Compile Include="Models\Db\NicoVideo\NicoVIdeoDbContext.cs" />
+    <Compile Include="Models\Video\VideoDownloadManager.cs" />
     <Compile Include="Util\AsyncLock.cs" />
     <Compile Include="Util\Cacheable.cs" />
     <Compile Include="Models\Video\NicoVideo.cs" />

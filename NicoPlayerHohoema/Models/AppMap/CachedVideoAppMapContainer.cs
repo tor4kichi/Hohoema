@@ -17,7 +17,7 @@ namespace NicoPlayerHohoema.Models.AppMap
 		protected override Task<IEnumerable<IAppMapItem>> GenerateItems(int count)
 		{
 			var items = new List<IAppMapItem>();
-			var cacheReq = HohoemaApp.MediaManager.CacheRequestedItemsStack.Take(count);
+			var cacheReq = HohoemaApp.MediaManager.CacheVideos.Take(count);
 			foreach (var req in cacheReq)
 			{
 				var videoInfo = Db.VideoInfoDb.Get(req.RawVideoId);
@@ -26,7 +26,7 @@ namespace NicoPlayerHohoema.Models.AppMap
 					throw new Exception();
 				}
 
-				var item = new CachedVideoAppMapItem(req, videoInfo);
+                var item = new CachedVideoAppMapItem(req, videoInfo);
 				items.Add(item);
 			}
 
@@ -36,12 +36,21 @@ namespace NicoPlayerHohoema.Models.AppMap
 
 	public class CachedVideoAppMapItem : VideoAppMapItemBase
     {
-		public CachedVideoAppMapItem(NicoVideoCacheRequest cacheReq, NicoVideoInfo info)
+		public CachedVideoAppMapItem(NicoVideo nicoVideo, NicoVideoInfo info)
 		{
 			PrimaryLabel = info.Title;
-			SecondaryLabel = cacheReq.Quality.ToString();
-            Parameter = cacheReq.RawVideoId;
-            Quality = cacheReq.Quality;
+            Parameter = nicoVideo.RawVideoId;
+
+            foreach (var divided in nicoVideo.GetAllQuality())
+            {
+                if (divided.IsCached)
+                {
+                    SecondaryLabel = divided.Quality.ToString();
+                    Quality = divided.Quality;
+
+                    break;
+                }
+            }
 		}
 	}
 }
