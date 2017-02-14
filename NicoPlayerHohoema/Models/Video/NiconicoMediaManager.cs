@@ -161,6 +161,8 @@ namespace NicoPlayerHohoema.Models
 
             // ダウンロード中の情報を復元
             await VideoDownloadManager.Initialize();
+
+            IsInitialized = true;
         }
 
 

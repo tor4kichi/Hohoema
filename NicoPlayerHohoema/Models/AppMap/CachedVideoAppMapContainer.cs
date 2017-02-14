@@ -14,23 +14,30 @@ namespace NicoPlayerHohoema.Models.AppMap
 		{
 		}
 
-		protected override Task<IEnumerable<IAppMapItem>> GenerateItems(int count)
+		protected override async Task<IEnumerable<IAppMapItem>> GenerateItems(int count)
 		{
 			var items = new List<IAppMapItem>();
-			var cacheReq = HohoemaApp.MediaManager.CacheVideos.Take(count);
+
+            while (!HohoemaApp.MediaManager.IsInitialized)
+            {
+                await Task.Delay(50);
+            }
+
+			var cacheReq = HohoemaApp.MediaManager.CacheVideos.Take(count).ToArray();
 			foreach (var req in cacheReq)
 			{
 				var videoInfo = Db.VideoInfoDb.Get(req.RawVideoId);
 				if (videoInfo == null)
 				{
-					throw new Exception();
+//					throw new Exception();
+                    continue;
 				}
 
                 var item = new CachedVideoAppMapItem(req, videoInfo);
 				items.Add(item);
 			}
 
-			return Task.FromResult(items.AsEnumerable());
+			return items.AsEnumerable();
 		}
 	}
 

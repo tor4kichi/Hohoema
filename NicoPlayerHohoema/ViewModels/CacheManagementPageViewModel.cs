@@ -145,7 +145,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			CacheRequestTime = DividedQualityNicoVideo.VideoFileCreatedAt;
 
-            ProgressPercent = new ReactiveProperty<float>(100.0f);
+            ProgressPercent = new ReactiveProperty<float>(DividedQualityNicoVideo.IsCached ? 100.0f : 0.0f);
             IsVisibleProgress = CacheState
                 .Select(x => x == NicoVideoCacheState.Downloading)
                 .ToReactiveProperty();
@@ -153,30 +153,17 @@ namespace NicoPlayerHohoema.ViewModels
 
             TransferStatus = new ReactiveProperty<BackgroundTransferStatus>(BackgroundTransferStatus.Idle);
 
-            CacheState.Subscribe(async x => 
+            CacheState.Subscribe(x => 
             {
                 if (x == NicoVideoCacheState.Downloading)
                 {
-                    var op = await DividedQualityNicoVideo.GetDownloadOperation();
-                    if(op != null)
-                    {
-                        _ProgressParcentageMoniterDisposer = Observable.Timer(TimeSpan.FromSeconds(3))
-                            .Subscribe(async _ => 
-                            {
-                                using (var releaser = await _ProgressMonitorLock.LockAsync())
-                                {
-                                    if (_ProgressParcentageMoniterDisposer == null) { return; }
-
-                                    TransferStatus.Value = op.Progress.Status;
-
-                                    var currentBytes = op.Progress.BytesReceived;
-                                    var total = op.Progress.TotalBytesToReceive;
-                                    var parcent = (float)Math.Round(((double)currentBytes / total) * 100.0, 1);
-
-                                    ProgressPercent.Value = parcent;
-                                }
-                            });
-                    }
+                    _ProgressParcentageMoniterDisposer?.Dispose();
+                    _ProgressParcentageMoniterDisposer =
+                        DividedQualityNicoVideo.ObserveProperty(y => y.CacheProgressSize)
+                        .Subscribe(y => 
+                        {
+                            ProgressPercent.Value = DividedQualityNicoVideo.GetDonwloadProgressParcentage();
+                        });
                 }
                 else
                 {
@@ -266,7 +253,13 @@ namespace NicoPlayerHohoema.ViewModels
 			var contentFinder = _HohoemaApp.ContentFinder;
 			var mediaManager = _HohoemaApp.MediaManager;
 
-			foreach (var item in mediaManager.CacheVideos.ToArray())
+            while (!mediaManager.IsInitialized)
+            {
+                await Task.Delay(50).ConfigureAwait(false);
+            }
+
+
+            foreach (var item in mediaManager.CacheVideos.ToArray())
 			{
                 foreach (var divided in item.GetAllQuality())
                 {

@@ -486,20 +486,20 @@ namespace NicoPlayerHohoema.Models
 			NicoVideoCachedStream = null;
 		}
 
-        public Task RestoreCache(NicoVideoQuality quality, string filepath)
+        public async Task RestoreCache(NicoVideoQuality quality, string filepath)
         {
             var divided = GetDividedQualityNicoVideo(quality);
 
-            divided.RestoreCache(filepath);
+            await divided.RestoreCache(filepath);
 
-            return divided.RequestCache();
+            await divided.RequestCache();
         }
 
         public Task RequestCache(NicoVideoQuality quality)
 		{
             var divided = GetDividedQualityNicoVideo(quality);
 
-            _NiconicoMediaManager.VideoCacheStateChanged += _NiconicoMediaManager_VideoCacheStateChanged;
+//            _NiconicoMediaManager.VideoCacheStateChanged += _NiconicoMediaManager_VideoCacheStateChanged;
 
             return divided.RequestCache();
 		}
