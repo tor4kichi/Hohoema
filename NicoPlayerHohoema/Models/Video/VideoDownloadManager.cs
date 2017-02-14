@@ -448,6 +448,10 @@ namespace NicoPlayerHohoema.Models
 
                 var info = NiconicoMediaManager.CacheRequestInfoFromFileName(op.ResultFile);
 
+                var div = await GetNicoVideo(info);
+
+                await op.ResultFile.RenameAsync(div.VideoFileName);
+
                 await RemoveDownloadOperation(info);
 
                 if (op.Progress.Status == BackgroundTransferStatus.Completed)
@@ -528,16 +532,27 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
+        private async Task<DividedQualityNicoVideo> GetNicoVideo(NicoVideoCacheRequest cacheRequest)
+        {
+            var nicoVideo = await MediaManager.GetNicoVideoAsync(cacheRequest.RawVideoId);
+            var div = nicoVideo.GetDividedQualityNicoVideo(cacheRequest.Quality);
+
+            return div;
+        }
+
         private async Task RestoreDonloadOperation(NicoVideoCacheRequest _info, DownloadOperation operation)
         {
-            var nicoVideo = await MediaManager.GetNicoVideoAsync(_info.RawVideoId);
-            var div = nicoVideo.GetDividedQualityNicoVideo(_info.Quality);
+            var div = await GetNicoVideo(_info);
 
             await AddDownloadOperation(_info, operation);
 
             await div.RestoreDownload(operation);
 
-            operation.AttachAsync().Progress = OnDownloadProgress;
+            var action = operation.AttachAsync();
+            action.Progress = OnDownloadProgress;
+            var task = action.AsTask()
+                .ContinueWith(OnDownloadCompleted)
+                .ConfigureAwait(false);
         }
 
         private async Task AddDownloadOperation(NicoVideoCacheRequest req, DownloadOperation op)
