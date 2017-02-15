@@ -33,6 +33,9 @@ namespace NicoPlayerHohoema.Models
         HohoemaApp _HohoemaApp;
         public bool IsInitialized { get; private set; }
 
+
+        private static readonly Regex NicoVideoIdRegex = new Regex("(?:(?:sm|so|lv)\\d*)");
+
         public VideoDownloadManager VideoDownloadManager { get; private set; }
 
 
@@ -53,7 +56,8 @@ namespace NicoPlayerHohoema.Models
         {
             // キャッシュリクエストを削除
             // 2重に拡張子を利用しているので二回GetFileNameWithoutExtensionを掛けることでIDを取得
-            var id = Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(file.Name));
+            var match = NicoVideoIdRegex.Match(file.Name);
+            var id = match.Value;
             var quality = NicoVideoQualityFileNameHelper.NicoVideoQualityFromFileNameExtention(file.Name);
 
             return new NicoVideoCacheRequest() { RawVideoId = id, Quality = quality };
@@ -249,8 +253,7 @@ namespace NicoPlayerHohoema.Models
                     }
                     // ファイル名の最後方にある[]の中身の文字列を取得
                     // (動画タイトルに[]が含まれる可能性に配慮)
-                    var regex = new Regex("(?:(?:sm|so|lv)\\d*)");
-                    var match = regex.Match(file.Name);
+                    var match = NicoVideoIdRegex.Match(file.Name);
                     var id = match.Value;
                     var quality = NicoVideoQualityFileNameHelper.NicoVideoQualityFromFileNameExtention(file.Name);
                     var info = new NicoVideoCacheRequest()

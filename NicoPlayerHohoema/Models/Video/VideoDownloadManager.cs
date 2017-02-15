@@ -1,13 +1,20 @@
-﻿using NicoPlayerHohoema.Util;
+﻿using Microsoft.Toolkit.Uwp.Notifications;
+using NicoPlayerHohoema.Util;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Activation;
+using Windows.ApplicationModel.Background;
+using Windows.ApplicationModel.Core;
 using Windows.Networking.BackgroundTransfer;
 using Windows.Storage;
+using Windows.UI.Notifications;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -17,6 +24,17 @@ namespace NicoPlayerHohoema.Models
     public delegate void VideoCacheDownloadProgressEventHandler(object sender, NicoVideoCacheRequest request, DownloadOperation op);
     public delegate void VideoCacheCompletedEventHandler(object sender, NicoVideoCacheRequest request, string filePath);
     public delegate void VideoCacheDownloadCanceledventHandler(object sender, NicoVideoCacheRequest request);
+
+
+
+    public struct BackgroundTransferCompletionInfo
+    {
+        public string Id { get; set; }
+        public BackgroundTaskRegistration TaskRegistration { get; set; }
+        public BackgroundDownloader Downloader { get; set; }
+        public BackgroundTransferCompletionGroup TransferCompletionGroup { get; set; }
+    }
+
 
     public class VideoDownloadManager 
     {
@@ -34,7 +52,6 @@ namespace NicoPlayerHohoema.Models
 
         // TryNextCacheRequestedVideoDownloadでPendingVideosからダウンロード中のリクエストを除外して
         // 次にダウンロードすべきアイテムを検索するようにしています
-
 
 
         const string CACHE_REQUESTED_FILENAME = "cache_requested.json";
@@ -59,12 +76,18 @@ namespace NicoPlayerHohoema.Models
         private ObservableCollection<NicoVideoCacheRequest> _CacheDownloadPendingVideos;
         public ReadOnlyObservableCollection<NicoVideoCacheRequest> CacheDownloadPendingVideos { get; private set; }
 
-        private BackgroundDownloader _BackgroundDownloader;
+//        private BackgroundTransferCompletionGroup _BTCG = new BackgroundTransferCompletionGroup();
+
+//        private BackgroundDownloader _BackgroundDownloader;
 
         private AsyncLock _DownloadOperationsLock = new AsyncLock();
         private Dictionary<NicoVideoCacheRequest, DownloadOperation> _DownloadOperations = new Dictionary<NicoVideoCacheRequest, DownloadOperation>();
 
         private AsyncLock _RegistrationBackgroundTaskLock = new AsyncLock();
+
+
+
+        private Dictionary<string, BackgroundTransferCompletionInfo> _BackgroundTransferCompletionInfoMap = new Dictionary<string, BackgroundTransferCompletionInfo>();
 
         // ダウンロードライン数
         // 通常会員は1ライン（再生DL含む）
@@ -88,6 +111,71 @@ namespace NicoPlayerHohoema.Models
         }
 
 
+        private static TileContent GetSuccessTileContent(string videoTitle, string videoId)
+        {
+            var tileTitle = "キャッシュ完了";
+            var tileSubject = videoTitle;
+            var tileBody = videoId;
+            return new TileContent()
+            {
+                Visual = new TileVisual()
+                {
+                    TileMedium = new TileBinding()
+                    {
+                        Content = new TileBindingContentAdaptive()
+                        {
+                            Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = tileTitle
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = tileSubject,
+                                    HintStyle = AdaptiveTextStyle.CaptionSubtle
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = tileBody,
+                                    HintStyle = AdaptiveTextStyle.CaptionSubtle
+                                }
+                            }
+                        }
+                    },
+
+                    TileWide = new TileBinding()
+                    {
+                        Content = new TileBindingContentAdaptive()
+                        {
+                            Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = tileTitle,
+                                    HintStyle = AdaptiveTextStyle.Subtitle
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = tileSubject,
+                                    HintStyle = AdaptiveTextStyle.CaptionSubtle
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = tileBody,
+                                    HintStyle = AdaptiveTextStyle.CaptionSubtle
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+        }
+
         public VideoDownloadManager(HohoemaApp hohoemaApp, NiconicoMediaManager mediaManager)
         {
             HohoemaApp = hohoemaApp;
@@ -96,9 +184,125 @@ namespace NicoPlayerHohoema.Models
             _CacheDownloadPendingVideos = new ObservableCollection<NicoVideoCacheRequest>();
             CacheDownloadPendingVideos = new ReadOnlyObservableCollection<NicoVideoCacheRequest>(_CacheDownloadPendingVideos);
 
-            _BackgroundDownloader = new BackgroundDownloader();
-
             HohoemaApp.OnSignin += HohoemaApp_OnSignin;
+
+            // ダウンロード完了をバックグラウンドで処理
+            CoreApplication.BackgroundActivated += CoreApplication_BackgroundActivated;
+
+        }
+
+        private void CoreApplication_BackgroundActivated(object sender, BackgroundActivatedEventArgs e)
+        {
+            var taskInstance = e.TaskInstance;
+            var deferral = taskInstance.GetDeferral();
+
+            var details = taskInstance.TriggerDetails as BackgroundTransferCompletionGroupTriggerDetails;
+
+            if (details == null) { return; }
+
+            IReadOnlyList<DownloadOperation> downloads = details.Downloads;
+
+
+
+            var notifier = ToastNotificationManager.CreateToastNotifier();
+
+            foreach (var dl in downloads)
+            {
+                try
+                {
+                    var file = dl.ResultFile;
+
+                    // ファイル名の最後方にある[]の中身の文字列を取得
+                    // (動画タイトルに[]が含まれる可能性に配慮)
+                    var regex = new Regex("(?:(?:sm|so|lv)\\d*)");
+                    var match = regex.Match(file.Name);
+                    var id = match.Value;
+
+                    // キャッシュファイルからタイトルを抜き出します
+                    // ファイルタイトルの決定は 
+                    // DividedQualityNicoVideo.VideoFileName プロパティの
+                    // 実装に依存します
+                    // 想定された形式は以下の形です
+
+                    // タイトル - [sm12345667].mp4
+                    // タイトル - [sm12345667].low.mp4
+
+                    var index = file.Name.LastIndexOf(" - [");
+                    var title = file.Name.Remove(index);
+
+                    // トーストのレイアウトを作成
+                    ToastContent content = new ToastContent()
+                    {
+                        Launch = "app-defined-string",
+
+                        Visual = new ToastVisual()
+                        {
+                            BindingGeneric = new ToastBindingGeneric()
+                            {
+                                Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = title,
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = "キャッシュ完了",
+                                    HintStyle = AdaptiveTextStyle.CaptionSubtle
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = "ここをタップして再生を開始",
+                                    HintStyle = AdaptiveTextStyle.CaptionSubtle
+                                }
+                            },
+                                /*
+                                AppLogoOverride = new ToastGenericAppLogo()
+                                {
+                                    Source = "oneAlarm.png"
+                                }
+                                */
+                            }
+                        },
+                        /*
+                        Actions = new ToastActionsCustom()
+                        {
+                            Buttons =
+                            {
+                                new ToastButton("check", "check")
+                                {
+                                    ImageUri = "check.png"
+                                },
+
+                                new ToastButton("cancel", "cancel")
+                                {
+                                    ImageUri = "cancel.png"
+                                }
+                            }
+                        },
+                        */
+                        /*
+                        Audio = new ToastAudio()
+                        {
+                            Src = new Uri("ms-winsoundevent:Notification.Reminder")
+                        }
+                        */
+                    };
+
+                    // トースト表示を実行
+                    ToastNotification notification = new ToastNotification(content.GetXml());
+                    notifier.Show(notification);
+
+                }
+                catch { }
+
+
+
+            }
+
+            deferral.Complete();
         }
 
         private async void HohoemaApp_OnSignin()
@@ -109,6 +313,10 @@ namespace NicoPlayerHohoema.Models
         internal async Task Initialize()
         {
             IsInitialized = false;
+
+
+            
+
 
             Debug.Write($"ダウンロードリクエストの復元を開始");
             // キャッシュリクエストファイルのアクセサーを初期化
@@ -126,7 +334,38 @@ namespace NicoPlayerHohoema.Models
             await TryNextCacheRequestedVideoDownload();
         }
 
+        private async Task<BackgroundDownloader> ResetDownloader()
+        {
+            await BackgroundExecutionManager.RequestAccessAsync();
 
+            const string BackgroundTransferCompletetionTaskNameBase = "HohoemaBGDLCompletion";
+            var _BTCG = new BackgroundTransferCompletionGroup();
+
+            var groupName = BackgroundTransferCompletetionTaskNameBase + Path.GetFileNameWithoutExtension(Path.GetRandomFileName());
+
+            BackgroundTaskBuilder builder = new BackgroundTaskBuilder();
+
+            builder.Name = groupName;
+            builder.SetTrigger(_BTCG.Trigger);
+
+            var status = BackgroundExecutionManager.GetAccessStatus();
+            BackgroundTaskRegistration downloadProcessingTask = builder.Register();
+
+            var _BackgroundDownloader = new BackgroundDownloader(_BTCG)
+            {
+                TransferGroup = BackgroundTransferGroup.CreateGroup(groupName)
+            };
+
+            _BackgroundTransferCompletionInfoMap.Add(groupName, new BackgroundTransferCompletionInfo()
+            {
+                Id = groupName,
+                Downloader = _BackgroundDownloader,
+                TaskRegistration = downloadProcessingTask,
+                TransferCompletionGroup = _BTCG
+            });
+
+            return _BackgroundDownloader;            
+        }
 
         private async Task RestoreCacheRequestedItems()
         {
@@ -391,11 +630,21 @@ namespace NicoPlayerHohoema.Models
                     }
                 }
 
-                var uri = await nicoVideo.GetVideoUrl(req.Quality);
-                if (uri == null)
+                Uri uri = null;
+                try
                 {
-                    throw new Exception($"can't download {req.Quality} quality Video, in {req.RawVideoId}.");
+                    uri = await nicoVideo.GetVideoUrl(req.Quality);
+                    if (uri == null)
+                    {
+                        throw new Exception($"can't download {req.Quality} quality Video, in {req.RawVideoId}.");
+                    }
                 }
+                catch
+                {
+                    return null;
+                }
+
+                var downloader = await ResetDownloader();
 
                 // 認証情報付きクッキーをダウンローダーのHttpヘッダにコピー
                 // 動画ページアクセス後のクッキーが必須になるため、サインイン時ではなく
@@ -403,16 +652,18 @@ namespace NicoPlayerHohoema.Models
                 var httpclinet = HohoemaApp.NiconicoContext.HttpClient;
                 foreach (var header in httpclinet.DefaultRequestHeaders)
                 {
-                    _BackgroundDownloader.SetRequestHeader(header.Key, header.Value);
+                    downloader.SetRequestHeader(header.Key, header.Value);
                 }
 
                 // 保存先ファイルの確保
-                var filename = req.Quality.FileNameWithQualityNameExtention(req.RawVideoId);
+                var filename = div.VideoFileName;
                 var videoFolder = await HohoemaApp.GetVideoCacheFolder();
                 var videoFile = await videoFolder.CreateFileAsync(filename, CreationCollisionOption.OpenIfExists);
 
                 // ダウンロード操作を作成
-                var operation = _BackgroundDownloader.CreateDownload(uri, videoFile);
+                var operation = downloader.CreateDownload(uri, videoFile);
+
+                downloader.CompletionGroup?.Enable();
 
                 await AddDownloadOperation(req, operation);
 
@@ -445,13 +696,7 @@ namespace NicoPlayerHohoema.Models
             if (prevTask.Result != null)
             {
                 var op = prevTask.Result;
-
                 var info = NiconicoMediaManager.CacheRequestInfoFromFileName(op.ResultFile);
-
-                var div = await GetNicoVideo(info);
-
-                await op.ResultFile.RenameAsync(div.VideoFileName);
-
                 await RemoveDownloadOperation(info);
 
                 if (op.Progress.Status == BackgroundTransferStatus.Completed)
@@ -471,7 +716,27 @@ namespace NicoPlayerHohoema.Models
 
                     await AddCacheRequest(info.RawVideoId, info.Quality, forceUpdate: true);
                 }
+
+                try
+                {
+                    if (op.TransferGroup != null 
+                        && _BackgroundTransferCompletionInfoMap.ContainsKey(op.TransferGroup.Name)
+                        )
+                    {
+                        var btcInfo = _BackgroundTransferCompletionInfoMap[op.TransferGroup.Name];
+                        btcInfo.TaskRegistration.Unregister(cancelTask: false);
+
+                        _BackgroundTransferCompletionInfoMap.Remove(op.TransferGroup.Name);
+                    }
+                }
+                catch
+                {
+                    Debug.WriteLine("failed unregister background download completion task.");
+                }
+
             }
+
+
 
             await TryNextCacheRequestedVideoDownload();
         }

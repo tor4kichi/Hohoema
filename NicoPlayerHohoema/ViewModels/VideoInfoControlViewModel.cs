@@ -1,5 +1,4 @@
-﻿using BackgroundAudioShared;
-using Mntone.Nico2;
+﻿using Mntone.Nico2;
 using Mntone.Nico2.Mylist;
 using Mntone.Nico2.Mylist.MylistGroup;
 using Mntone.Nico2.Searches.Video;
