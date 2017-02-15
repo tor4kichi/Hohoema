@@ -174,7 +174,6 @@
     <Compile Include="Models\Live\NicoLiveInfoType.cs" />
     <Compile Include="Models\Live\NicoLiveVideo.cs" />
     <Compile Include="Models\LoginRedirectPayload.cs" />
-    <Compile Include="Models\MediaBackgroundTask.cs" />
     <Compile Include="Models\PageManagerSearchExtention.cs" />
     <Compile Include="Models\Settings\AppMapSettings.cs" />
     <Compile Include="Models\Settings\CacheSettings.cs" />
@@ -183,19 +182,16 @@
     <Compile Include="Models\Video\DividedQualityNicoVideo.cs" />
     <Compile Include="Models\Video\MediaProtocolType.cs" />
     <Compile Include="Models\Db\NicoVideo\NicoVIdeoDbContext.cs" />
-    <Compile Include="Models\Video\NicoVideoDownloader.cs" />
-    <Compile Include="Models\Video\VideoDownloadProgress.cs" />
+    <Compile Include="Models\Video\VideoDownloadManager.cs" />
     <Compile Include="Util\AsyncLock.cs" />
     <Compile Include="Util\Cacheable.cs" />
     <Compile Include="Models\Video\NicoVideo.cs" />
     <Compile Include="Models\Video\NicoVideoCacheRequest.cs" />
     <Compile Include="Models\Video\NicoVideoCacheState.cs" />
     <Compile Include="Models\Video\NicoVideoCanNotDownloadReason.cs" />
-    <Compile Include="Models\Video\NicoVideoDownloadContext.cs" />
     <Compile Include="Models\Settings\HohoemaUserSettings.cs" />
     <Compile Include="Models\NiconicoContentFinder.cs" />
     <Compile Include="Models\Video\NiconicoMediaManager.cs" />
-    <Compile Include="Models\Video\NicoVideoCachedStream.cs" />
     <Compile Include="Models\PageManager.cs" />
     <Compile Include="Models\PlayerDisplayMode.cs" />
     <Compile Include="Models\SearchOption.cs" />
@@ -216,7 +212,6 @@
     <Compile Include="Util\IncrementalLoadingCollection.cs" />
     <Compile Include="Util\InternetConnection.cs" />
     <Compile Include="Util\ListExtention.cs" />
-    <Compile Include="Util\MediaPlaybackBackgroundTaskHelper.cs" />
     <Compile Include="Util\NiconicoRankingExtention.cs" />
     <Compile Include="Util\NicoVideoRssItemExtention.cs" />
     <Compile Include="Util\SortMethodHelper.cs" />
@@ -975,17 +970,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BackgroundAudioShared\VideoBackgroundShared.csproj">
-      <Project>{62c43640-d9fb-41b8-81b7-a02be8facd09}</Project>
-      <Name>VideoBackgroundShared</Name>
-    </ProjectReference>
     <ProjectReference Include="..\NicoVideoRtmpClient\NicoVideoRtmpClient.csproj">
       <Project>{4fa97e39-99df-423b-9de0-0d6662e98e7e}</Project>
       <Name>NicoVideoRtmpClient</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\VideoBackgroundTask\VideoBackgroundTask.csproj">
-      <Project>{03e0d8ba-4f1d-4f35-8335-81b641bbbac1}</Project>
-      <Name>VideoBackgroundTask</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

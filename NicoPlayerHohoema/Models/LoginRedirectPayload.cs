@@ -12,4 +12,6 @@ namespace NicoPlayerHohoema.Models
 		public HohoemaPageType RedirectPageType { get; set; }
 		public string RedirectParamter { get; set; }
 	}
+
+    
 }

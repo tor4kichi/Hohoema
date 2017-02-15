@@ -294,7 +294,7 @@ namespace NicoPlayerHohoema.Models
 
         // あとで見るプレイリストを通じての再生をサポート
         // プレイリストが空だった場合、その場で再生を開始
-        public void PlayVideo(string contentId, string title, NicoVideoQuality? quality = null)
+        public void PlayVideo(string contentId, string title = "", NicoVideoQuality? quality = null)
         {
             var newItem = DefaultPlaylist.AddVideo(contentId, title, quality, addToFirst:true);
             DefaultPlaylist.Player.Play(newItem);
@@ -302,7 +302,7 @@ namespace NicoPlayerHohoema.Models
 
 
 
-        public void PlayLiveVideo(string liveId, string title)
+        public void PlayLiveVideo(string liveId, string title = "")
         {
             var newItem = DefaultPlaylist.AddLiveVideo(liveId, title, addToFirst: true);
             DefaultPlaylist.Player.Play(newItem);

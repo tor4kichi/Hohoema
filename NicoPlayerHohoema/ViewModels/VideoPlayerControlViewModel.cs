@@ -87,8 +87,6 @@ namespace NicoPlayerHohoema.ViewModels
 			_TextInputDialogService = textInputDialog;
             _MylistResistrationDialogService = mylistDialog;
 
-            _SidePaneContentCache = new Dictionary<MediaInfoDisplayType, MediaInfoViewModel>();
-
             MediaPlayer = HohoemaApp.MediaPlayer;
 
             CurrentVideoPosition = new ReactiveProperty<TimeSpan>(PlayerWindowUIDispatcherScheduler, TimeSpan.Zero)
@@ -404,25 +402,6 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
 				.AddTo(_CompositeDisposable);
 
-
-
-			SelectedSidePaneType = new ReactiveProperty<MediaInfoDisplayType>(PlayerWindowUIDispatcherScheduler, MediaInfoDisplayType.Summary, ReactivePropertyMode.DistinctUntilChanged)
-				.AddTo(_CompositeDisposable);
-
-            Types = new List<MediaInfoDisplayType>()
-            {
-                MediaInfoDisplayType.Summary,
-                MediaInfoDisplayType.Mylist,
-//				MediaInfoDisplayType.Comment,
-				MediaInfoDisplayType.Shere,
-                MediaInfoDisplayType.Settings,
-            };
-
-            SidePaneContent = SelectedSidePaneType
-				.SelectMany(x => GetMediaInfoVM(x))
-				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
-				.AddTo(_CompositeDisposable);
-
 			DownloadCompleted = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
 			ProgressPercent = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0.0);
 			IsFullScreen = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
@@ -446,9 +425,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             IsSmallWindowModeEnable = HohoemaApp.Playlist
                 .ToReactivePropertyAsSynchronized(x => x.IsPlayerFloatingModeEnable);
-
-
-            ProgressFragments = new ObservableCollection<ProgressFragment>();
 
             IsStillLoggedInTwitter = new ReactiveProperty<bool>(!TwitterHelper.IsLoggedIn)
                 .AddTo(_CompositeDisposable);
@@ -505,31 +481,12 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     await UpdateComments();
 
-                    Types = new List<MediaInfoDisplayType>()
-                    {
-                        MediaInfoDisplayType.Summary,
-                        MediaInfoDisplayType.Settings,
-                    };
-                    OnPropertyChanged(nameof(Types));
-
-                    _VideoDescriptionHtmlUri = await HtmlFileHelper.PartHtmlOutputToCompletlyHtml(VideoId, Video.DescriptionWithHtml);
-
-                    _SidePaneContentCache.Clear();
-
-                    if (SelectedSidePaneType.Value == MediaInfoDisplayType.Summary)
-                    {
-                        SelectedSidePaneType.ForceNotify();
-                    }
-                    else
-                    {
-                        SelectedSidePaneType.Value = MediaInfoDisplayType.Summary;
-                    }
-
                     ChangeRequireServiceLevel(HohoemaAppServiceLevel.Offline);
-
-
                 }
+
+                // TODO : オフライン再生確定時にコメント投稿の無効化
             }
+
 
 
 
@@ -620,8 +577,6 @@ namespace NicoPlayerHohoema.ViewModels
             OnPropertyChanged(nameof(IsForceLandscape));
 
 
-                
-
             // お気に入りフィード上の動画を既読としてマーク
             await HohoemaApp.FeedManager.MarkAsRead(Video.VideoId);
             await HohoemaApp.FeedManager.MarkAsRead(Video.RawVideoId);
@@ -645,9 +600,6 @@ namespace NicoPlayerHohoema.ViewModels
 
                 // 内部状態を更新
                 await videoInfo.VisitWatchPage();
-                await videoInfo.CheckCacheStatus();
-
-                await videoInfo.Initialize();
 
                 // 動画が削除されていた場合
                 if (videoInfo.IsDeleted)
@@ -837,23 +789,6 @@ namespace NicoPlayerHohoema.ViewModels
             }
 
 
-            _VideoDescriptionHtmlUri = await HtmlFileHelper.PartHtmlOutputToCompletlyHtml(VideoId, Video.DescriptionWithHtml);
-
-            _SidePaneContentCache.Clear();
-
-            if (SelectedSidePaneType.Value == MediaInfoDisplayType.Summary)
-            {
-                SelectedSidePaneType.ForceNotify();
-            }
-            else
-            {
-                SelectedSidePaneType.Value = MediaInfoDisplayType.Summary;
-            }
-
-
-
-
-
             IsPauseWithCommentWriting = HohoemaApp.UserSettings.PlayerSettings
 				.ToReactivePropertyAsSynchronized(x => x.PauseWithCommentWriting, PlayerWindowUIDispatcherScheduler)
 				.AddTo(userSessionDisposer);
@@ -911,10 +846,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                 if (IsDisposed)
 				{
-					if (Video != null)
-					{
-						await Video.StopPlay();
-					}
+                    Video?.StopPlay();
 					return;
 				}
 
@@ -934,31 +866,10 @@ namespace NicoPlayerHohoema.ViewModels
 						break;
 				}
 
-				if (Video.NicoVideoCachedStream is NicoVideoCachedStream)
-				{
-					// キャッシュ機能経由の再生
-					var cachedStream = Video.NicoVideoCachedStream as NicoVideoCachedStream;
-					cachedStream.Downloader.OnCacheProgress += Downloader_OnCacheProgress;
-					_TempProgress = cachedStream.Downloader.DownloadProgress.Clone();
-
-					ProgressFragments.Clear();
-					var invertedTotalSize = 1.0 / (x == NicoVideoQuality.Original ? Video.OriginalQuality.VideoSize : Video.LowQuality.VideoSize);
-					foreach (var cachedRange in _TempProgress.CachedRanges.ToArray())
-					{
-						ProgressFragments.Add(new ProgressFragment(invertedTotalSize, cachedRange.Key, cachedRange.Value));
-					}
-
-					IsPlayWithCache.Value = true;
-				}
-				else if (isCurrentQualityCacheDownloadCompleted)
+				if (isCurrentQualityCacheDownloadCompleted)
 				{
 					// CachedStreamを使わずに直接ファイルから再生している場合
 					// キャッシュ済みとして表示する
-					ProgressFragments.Clear();
-					var size = (x == NicoVideoQuality.Original ? Video.OriginalQuality.VideoSize : Video.LowQuality.VideoSize);
-					var invertedTotalSize = 1.0 / size;
-					ProgressFragments.Add(new ProgressFragment(invertedTotalSize, 0, size));
-
 					IsPlayWithCache.Value = true;
 				}
 				else
@@ -973,22 +884,13 @@ namespace NicoPlayerHohoema.ViewModels
 
                 if (IsDisposed)
                 {
-                    if (Video != null)
-                    {
-                        await Video.StopPlay();
-                    }
+                    Video?.StopPlay();
                     return;
                 }
                 
 
                 // CachedStreamを使わずに直接ファイルから再生している場合
                 // キャッシュ済みとして表示する
-                ProgressFragments.Clear();
-                var size = qualityVideo.VideoSize;
-                var invertedTotalSize = 1.0 / size;
-                ProgressFragments.Add(new ProgressFragment(invertedTotalSize, 0, size));
-
-                ProgressPercent.Value = 100.0;
                 IsPlayWithCache.Value = true;
                 IsSaveRequestedCurrentQualityCache.Value = true;
                 Title = Video.Title;
@@ -1041,23 +943,7 @@ namespace NicoPlayerHohoema.ViewModels
 				.Subscribe(x => Debug.WriteLine(x ? "Buffering..." : "Playing..."))
 				.AddTo(_BufferingMonitorDisposable);
 #endif
-			Video.OriginalQuality.ObserveProperty(x => x.CacheProgressSize)
-				.Where(_ => CurrentVideoQuality.Value == NicoVideoQuality.Original)
-				.Subscribe(originalProgress => 
-				{
-					UpdadeProgress(Video.OriginalQuality.VideoSize, originalProgress);
-				})
-				.AddTo(_BufferingMonitorDisposable);
-
-			Video.LowQuality.ObserveProperty(x => x.CacheProgressSize)
-				.Where(_ => CurrentVideoQuality.Value == NicoVideoQuality.Low)
-				.Subscribe(lowProgress =>
-				{
-					UpdadeProgress(Video.LowQuality.VideoSize, lowProgress);
-
-					
-				})
-				.AddTo(_BufferingMonitorDisposable);
+			
 		}
 
 
@@ -1077,63 +963,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		}
 
-		private void Downloader_OnCacheProgress(string arg1, NicoVideoQuality quality, uint head, uint length)
-		{
-			
-			// TODO: 
-			
-			var oldCount = _TempProgress.CachedRanges.Count;
-			_TempProgress.Update(head, length);
-
 		
-
-			if (oldCount != _TempProgress.CachedRanges.Count)
-			{
-				// 追加されている場合
-				foreach (var cachedRange in _TempProgress.CachedRanges)
-				{
-					if (!ProgressFragments.Any(x => x.Start == cachedRange.Key))
-					{
-						var invertedTotalSize = 1.0 / (quality == NicoVideoQuality.Original ? Video.OriginalQuality.VideoSize : Video.LowQuality.VideoSize);
-						ProgressFragments.Add(new ProgressFragment(invertedTotalSize, cachedRange.Key, cachedRange.Value));
-					}
-				}
-
-				// 削除されている場合
-				var removeFragments = ProgressFragments.Where(x => _TempProgress.CachedRanges.All(y => x.Start != y.Key))
-					.ToArray();
-
-				foreach (var removeFrag in removeFragments)
-				{
-					ProgressFragments.Remove(removeFrag);
-				}
-			}
-			else
-			{
-				// 内部の更新だけ
-				foreach (var cachedRange in _TempProgress.CachedRanges)
-				{
-					var start = cachedRange.Key;
-					var end = cachedRange.Value;
-
-					if (start < head && head < end)
-					{
-						var fragment = ProgressFragments.SingleOrDefault(x => x.Start == start);
-						if (fragment != null)
-						{
-							fragment.End = end;
-						}
-						break;
-					}
-				}
-			}
-
-			
-		}
-
-
-
-
 
 
 
@@ -1394,7 +1224,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		protected override async void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+		protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
 			Debug.WriteLine("VideoPlayer OnNavigatingFromAsync start.");
 
@@ -1402,11 +1232,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 			if (suspending)
 			{
-				
-				// 再生中動画のキャッシュがサスペンドから復帰後にも利用できるように
-				// 削除を抑制するように要請する
-				HohoemaApp.MediaManager.Context.OncePreventDeleteCacheOnPlayingVideo(Video.RawVideoId);
-
 				viewModelState[nameof(VideoId)] = VideoId;
 				viewModelState[nameof(CurrentVideoPosition)] = CurrentVideoPosition.Value.TotalSeconds;
 			}
@@ -1415,10 +1240,7 @@ namespace NicoPlayerHohoema.ViewModels
                 // Note: VideoStopPlayによってストリームの管理が行われます
                 // これは再生後もダウンロードしている場合に対応するためです
                 // stream.Dispose();
-                if (Video != null)
-				{
-					await Video.StopPlay().ConfigureAwait(false);
-				}
+                Video?.StopPlay();
 
                 // プレイリストへ再生完了を通知
                 VideoPlayed();
@@ -1427,8 +1249,6 @@ namespace NicoPlayerHohoema.ViewModels
                 HohoemaApp.MediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
                 HohoemaApp.MediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
             }
-
-            _SidePaneContentCache.Clear();
 
 			ExitKeepDisplay();
 
@@ -1464,14 +1284,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		protected override async void OnDispose()
+		protected override void OnDispose()
 		{
 			base.OnDispose();
 
-			if (Video != null)
-			{
-				await Video.StopPlay().ConfigureAwait(false);
-			}
+            Video?.StopPlay();
 
             _CommentRenderUpdateTimerDisposer?.Dispose();
             _BufferingMonitorDisposable?.Dispose();
@@ -1545,46 +1362,6 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-
-		private Task<MediaInfoViewModel> GetMediaInfoVM(MediaInfoDisplayType type)
-		{
-			MediaInfoViewModel vm = null;
-			if (_SidePaneContentCache.ContainsKey(type))
-			{
-				vm = _SidePaneContentCache[type];
-			}
-			else 
-			{
-				switch (type)
-				{
-					case MediaInfoDisplayType.Summary:
-						vm = new SummaryVideoInfoContentViewModel(Video, _VideoDescriptionHtmlUri, PageManager);
-						break;
-
-					case MediaInfoDisplayType.Mylist:
-						vm = new MylistVideoInfoContentViewModel(VideoId, Video.ThreadId, HohoemaApp.UserMylistManager);
-						break;
-
-					case MediaInfoDisplayType.Comment:
-						vm = new CommentVideoInfoContentViewModel(HohoemaApp.UserSettings, Comments);
-						break;
-
-					case MediaInfoDisplayType.Shere:
-						vm = new ShereVideoInfoContentViewModel(Video, _TextInputDialogService, _ToastService);
-						break;
-
-					case MediaInfoDisplayType.Settings:
-						vm = new SettingsVideoInfoContentViewModel(HohoemaApp.UserSettings.PlayerSettings);
-						break;
-					default:
-						throw new NotSupportedException();
-				}
-
-				_SidePaneContentCache.Add(type, vm);
-			}
-
-			return Task.FromResult(vm);
-		}
 
 		#region Command	
 
@@ -2146,17 +1923,6 @@ namespace NicoPlayerHohoema.ViewModels
 		public CommentCommandEditerViewModel CommandEditerVM { get; private set; }
 		public ReactiveProperty<string> CommandString { get; private set; }
 
-		public ReactiveProperty<MediaInfoViewModel> SidePaneContent { get; private set; }
-		private Dictionary<MediaInfoDisplayType, MediaInfoViewModel> _SidePaneContentCache;
-		public ReactiveProperty<MediaInfoDisplayType> SelectedSidePaneType { get; private set; }
-		public List<MediaInfoDisplayType> Types { get; private set; }
-
-		private Uri _VideoDescriptionHtmlUri;
-
-
-		// プログレス
-		public ObservableCollection<ProgressFragment> ProgressFragments { get; private set; }
-		private VideoDownloadProgress _TempProgress;
 
 		// 再生できない場合の補助
 

@@ -173,6 +173,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public Task<int> ResetSource()
 		{
+            if (_HistoriesResponse == null) { return Task.FromResult(0); }
+
 			return Task.FromResult(_HistoriesResponse.Histories.Count);
 		}
 

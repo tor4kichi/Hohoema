@@ -82,6 +82,8 @@ namespace NicoPlayerHohoema.Models.Db
 
 		public List<Tag> GetTags()
 		{
+            if (TagsJson == null) { return new List<Tag>(); }
+
 			return Newtonsoft.Json.JsonConvert.DeserializeObject<List<Tag>>(TagsJson);
 		}
 
