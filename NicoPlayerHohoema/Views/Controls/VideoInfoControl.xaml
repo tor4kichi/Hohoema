@@ -35,7 +35,9 @@
         <toolkit:DockPanel>
             <Border toolkit:DockPanel.Dock="Bottom" >
 
-                <ItemsControl ItemsSource="{Binding QualityDividedVideos}">
+                <ItemsControl ItemsSource="{Binding QualityDividedVideos}"
+                              HorizontalContentAlignment="Stretch"
+                              >
 
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
@@ -47,31 +49,36 @@
                             キャッシュ済み -> 緑色
                             
                             -->
-                            <Grid Visibility="{Binding IsCacheDownloading.Value, Converter={StaticResource BooleanToVisibility}}"
-                               Margin="0 8"
+                            <toolkit:DockPanel Visibility="{Binding IsCacheDownloading.Value, Converter={StaticResource BooleanToVisibility}}"
+                               Margin="8 4"
                                >
+                                <TextBlock toolkit:DockPanel.Dock="Left" 
+                                           Margin="8 0"
+                                           FontSize="12"
+                                           VerticalAlignment="Center"
+                                                >
+                                    <Run Text="{Binding Quality}" />
+                                </TextBlock>
+                                
+                                <TextBlock toolkit:DockPanel.Dock="Right" 
+                                           Margin="8 0 0 0"
+                                           FontSize="12"
+                                           VerticalAlignment="Center"
+                                                >
+                                    <Run Text="{Binding ProgressPercent.Value}" />
+                                    <Run Text="%" />
+                                </TextBlock>
+                                
+                                
                                 <ProgressBar Maximum="100.0" 
                                      Minimum="0.0" 
                                      Value="{Binding ProgressPercent.Value}"
-                                     Margin="0 4"
                                      />
 
-                                <TextBlock HorizontalAlignment="Right" Margin="0 0 0 8"
-                                                >
-                                <Run Text="(" />
-                                <Run Text="{Binding ProgressPercent.Value}" />
-                                <Run Text="%)" />
-                                </TextBlock>
 
-                            </Grid>
+                            </toolkit:DockPanel>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
-
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
                 </ItemsControl>
 
                 
@@ -151,12 +158,12 @@
         <Grid x:Name="DeletedPanel" Background="#60ffffff" Visibility="Collapsed">
             
             <!-- キャッシュリクエストしていない、または削除確認済み -->
-            <StackPanel VerticalAlignment="Center" Visibility="{Binding IsCacheRequested, Converter={StaticResource BooleanToVisibility}}">
+            <StackPanel VerticalAlignment="Center" Visibility="{Binding IsCacheRequested.Value, Converter={StaticResource BooleanToVisibility}}">
 
             </StackPanel>
 
             <!-- キャッシュ済み、ユーザー削除未確認 -->
-            <StackPanel VerticalAlignment="Center" Visibility="{Binding IsCacheRequested, Converter={StaticResource BooleanToVisibilityInverted}}">
+            <StackPanel VerticalAlignment="Center" Visibility="{Binding IsCacheRequested.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
 
                 <TextBlock Text="削除理由" HorizontalAlignment="Center" FontSize="13"/>
                 <TextBlock Text="{Binding PrivateReasonText}" HorizontalAlignment="Center" Margin="0 8" />

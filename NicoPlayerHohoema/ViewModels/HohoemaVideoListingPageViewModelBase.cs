@@ -107,11 +107,11 @@ namespace NicoPlayerHohoema.ViewModels
 						{
 							if (item.NicoVideo.IsOriginalQualityOnly)
 							{
-								await item.NicoVideo.OriginalQuality.RequestCache();
+								await item.NicoVideo.RequestCache(NicoVideoQuality.Original);
 							}
 							else
 							{
-								await item.NicoVideo.LowQuality.RequestCache();
+								await item.NicoVideo.RequestCache(NicoVideoQuality.Low);
 							}
 						}
 					}
@@ -123,11 +123,11 @@ namespace NicoPlayerHohoema.ViewModels
 						{
 							if (item.NicoVideo.OriginalQuality.CanRequestCache)
 							{
-								await item.NicoVideo.OriginalQuality.RequestCache();
+								await item.NicoVideo.RequestCache(NicoVideoQuality.Original);
 							}
 							else if (item.NicoVideo.LowQuality.CanRequestCache)
 							{
-								await item.NicoVideo.LowQuality.RequestCache();
+								await item.NicoVideo.RequestCache(NicoVideoQuality.Low);
 							}
 						}
 					}

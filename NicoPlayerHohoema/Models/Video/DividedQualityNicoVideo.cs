@@ -189,8 +189,6 @@ namespace NicoPlayerHohoema.Models
         public async Task RestoreRequestCache(NicoVideoCacheRequest req)
         {
             VideoFileCreatedAt = req.RequestAt;
-            
-
 
             await RequestCache();
         }

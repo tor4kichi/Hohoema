@@ -49,23 +49,26 @@ namespace NicoPlayerHohoema.Models
             {
                 var divided = GetDividedQualityNicoVideo(request.Quality);
 
-                divided.CacheState = state;
+//                divided.CacheState = state;
 
                 Debug.WriteLine($"{request.RawVideoId}<{request.Quality}>: {state.ToString()}");
 
                 // update Cached time
                 await divided.GetCacheFile();
 
-                var requestAt = request.RequestAt;
-                foreach (var div in GetAllQuality())
+                if (state != NicoVideoCacheState.NotCacheRequested)
                 {
-                    if (div.VideoFileCreatedAt > requestAt)
+                    var requestAt = request.RequestAt;
+                    foreach (var div in GetAllQuality())
                     {
-                        requestAt = div.VideoFileCreatedAt;
+                        if (div.VideoFileCreatedAt > requestAt)
+                        {
+                            requestAt = div.VideoFileCreatedAt;
+                        }
                     }
-                }
 
-                CachedAt = requestAt;
+                    CachedAt = requestAt;
+                }
             }
         }
 
@@ -222,7 +225,7 @@ namespace NicoPlayerHohoema.Models
 				this.IsCommunity = true;
 			}
 
-			if (!this.IsDeleted && OriginalQuality.IsCacheRequested || LowQuality.IsCacheRequested)
+			if (!this.IsDeleted && CachedAt != default(DateTime))
 			{
 				// キャッシュ情報を最新の状態に更新
 				await OnCacheRequested();
@@ -517,7 +520,7 @@ namespace NicoPlayerHohoema.Models
 		{
             var divided = GetDividedQualityNicoVideo(quality);
 
-//            _NiconicoMediaManager.VideoCacheStateChanged += _NiconicoMediaManager_VideoCacheStateChanged;
+            _NiconicoMediaManager.VideoCacheStateChanged += _NiconicoMediaManager_VideoCacheStateChanged;
 
             return divided.RequestCache();
 		}
@@ -599,7 +602,7 @@ namespace NicoPlayerHohoema.Models
                 }
             }
 
-			var info = await VideoInfoDb.GetEnsureNicoVideoInfoAsync(RawVideoId);
+            var info = await VideoInfoDb.GetEnsureNicoVideoInfoAsync(RawVideoId);
             
             info.VideoId = this.VideoId;
 			info.Length = this.VideoLength;

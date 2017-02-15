@@ -108,6 +108,13 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 ResetQualityDivideVideosVM();
             }
+
+
+            IsCacheRequested = NicoVideo.QualityDividedVideos
+                .ObserveElementProperty(x => x.IsCacheRequested)
+                .Select(x => NicoVideo.QualityDividedVideos.Any(y => y.IsCacheRequested))
+                .ToReadOnlyReactiveProperty()
+                .AddTo(_CompositeDisposable);
         }
 
         private async void ResetQualityDivideVideosVM()
@@ -123,7 +130,6 @@ namespace NicoPlayerHohoema.ViewModels
                     QualityDividedVideos.Add(vm);
                 }
 
-                OnPropertyChanged(nameof(QualityDividedVideos));
             }
         }
 
@@ -263,6 +269,8 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
+
+        public ReadOnlyReactiveProperty<bool> IsCacheRequested { get; private set; }
 
         public ReactiveProperty<bool> IsRequireConfirmDelete { get; private set; }
         public string PrivateReasonText { get; private set; }
