@@ -520,6 +520,7 @@ namespace NicoPlayerHohoema.Models
 		{
             var divided = GetDividedQualityNicoVideo(quality);
 
+            _NiconicoMediaManager.VideoCacheStateChanged -= _NiconicoMediaManager_VideoCacheStateChanged;
             _NiconicoMediaManager.VideoCacheStateChanged += _NiconicoMediaManager_VideoCacheStateChanged;
 
             return divided.RequestCache();

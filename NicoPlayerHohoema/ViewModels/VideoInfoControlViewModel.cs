@@ -220,6 +220,54 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+        private DelegateCommand _CacheRequestCommand;
+        public DelegateCommand CacheRequestCommand
+        {
+            get
+            {
+                return _CacheRequestCommand
+                    ?? (_CacheRequestCommand = new DelegateCommand(() =>
+                    {
+                        if (NicoVideo.IsOriginalQualityOnly)
+                        {
+                            NicoVideo.RequestCache(NicoVideoQuality.Original);
+                        }
+                        else
+                        {
+                            if (NicoVideo.HohoemaApp.UserSettings.PlayerSettings.IsLowQualityDeafult)
+                            {
+                                NicoVideo.RequestCache(NicoVideoQuality.Low);
+                            }
+                            else
+                            {
+                                try
+                                {
+                                    NicoVideo.RequestCache(NicoVideoQuality.Original);
+                                }
+                                catch
+                                {
+                                    NicoVideo.RequestCache(NicoVideoQuality.Low);
+                                }
+                            }
+                        }
+                        
+                    }));
+            }
+        }
+
+        private DelegateCommand _RemoveCacheCommand;
+        public DelegateCommand RemoveCacheCommand
+        {
+            get
+            {
+                return _RemoveCacheCommand
+                    ?? (_RemoveCacheCommand = new DelegateCommand(async () =>
+                    {
+                        await NicoVideo.CancelCacheRequest();
+                    }));
+            }
+        }
+
 
         private DelegateCommand _AddDefaultPlaylistCommand;
         public DelegateCommand AddDefaultPlaylistCommand
@@ -267,7 +315,6 @@ namespace NicoPlayerHohoema.ViewModels
                     }));
             }
         }
-
 
 
         public ReadOnlyReactiveProperty<bool> IsCacheRequested { get; private set; }

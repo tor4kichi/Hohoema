@@ -272,6 +272,12 @@ namespace NicoPlayerHohoema.Models
 
             var result = await VideoDownloadManager.RemoveCacheRequest(NicoVideo.RawVideoId, Quality);
 
+            var file = await GetCacheFile();
+            await file.DeleteAsync();
+
+            CacheState = NicoVideoCacheState.NotCacheRequested;
+            CacheFilePath = null;
+            VideoFileCreatedAt = default(DateTime);
             IsCacheRequested = false;
 
             return result;

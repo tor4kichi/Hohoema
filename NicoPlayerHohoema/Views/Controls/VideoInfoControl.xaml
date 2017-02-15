@@ -147,6 +147,24 @@
                     <MenuFlyoutItem Text="動画情報"
                                 Command="{Binding OpenVideoInfoPageCommand}"
                                 />
+
+                    <MenuFlyoutSeparator />
+
+                    <MenuFlyoutItem Text="キャッシュ取得"
+                                Command="{Binding CacheRequestCommand}"
+                                />
+
+
+                    <MenuFlyoutSubItem Text="キャッシュ削除"
+                                       Visibility="{Binding IsCacheRequested.Value, Converter={StaticResource BooleanToVisibility}}"
+                                       >
+                        <MenuFlyoutItem Text="本当にキャッシュ削除"
+                                Command="{Binding RemoveCacheCommand}"
+                                        
+                                />
+                    </MenuFlyoutSubItem>
+                    
+
                 </MenuFlyout>
             </toolkit:DockPanel.ContextFlyout>
 
