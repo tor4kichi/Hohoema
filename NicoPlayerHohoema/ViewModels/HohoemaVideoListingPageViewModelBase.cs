@@ -75,15 +75,7 @@ namespace NicoPlayerHohoema.ViewModels
 						uint count = 0;
 						foreach (var item in items)
 						{
-							if (item is CacheVideoViewModel)
-							{
-								var quality = (item as CacheVideoViewModel).Quality;
-								await item.NicoVideo.CancelCacheRequest(quality);
-							}
-							else
-							{
-								await item.NicoVideo.CancelCacheRequest();
-							}
+        					await item.NicoVideo.CancelCacheRequest();
 
 							++count;
 							progress.Report(count);
@@ -344,30 +336,7 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-		private IEnumerable<VideoInfoControlViewModel> EnumerateCachedVideoItem(NicoVideoQuality quality)
-		{
-			var qualityFilterdVideoItems = SelectedItems
-				.Where(x =>
-				{
-					if (x is CacheVideoViewModel)
-					{
-						var cacheVideoVM = x as CacheVideoViewModel;
-						return cacheVideoVM.Quality == quality;
-					}
-					return true;
-				});
-			switch (quality)
-			{
-				case NicoVideoQuality.Original:
-					return qualityFilterdVideoItems
-						.Where(x => x.NicoVideo.OriginalQuality.IsCacheRequested);
-				case NicoVideoQuality.Low:
-					return qualityFilterdVideoItems
-						.Where(x => x.NicoVideo.LowQuality.IsCacheRequested);
-				default:
-					return Enumerable.Empty<VideoInfoControlViewModel>();
-			}
-		}
+		
 
         private void ReflectCanDownloadStatus()
         {

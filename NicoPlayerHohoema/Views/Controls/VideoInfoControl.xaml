@@ -18,26 +18,161 @@
 
     <Grid>
 
-        <mycontrol:HohoemaListItem />
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsRequireConfirmDelete.Value}" />
+                    </VisualState.StateTriggers>
 
-        <Grid.ContextFlyout>
-            <MenuFlyout>
+                    <VisualState.Setters>
+                        <Setter Target="DeletedPanel.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+        
+        <toolkit:DockPanel>
+            <Border toolkit:DockPanel.Dock="Bottom" >
 
-                <MenuFlyoutItem Text="あとで見る"
+                <ItemsControl ItemsSource="{Binding QualityDividedVideos}">
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <!-- 画質ごとのキャッシュ状態を表示 
+                            
+                            キャッシュリクエストされていない -> 非表示
+                            キャッシュ待機中 -> 灰色
+                            キャッシュDL中 -> 青色
+                            キャッシュ済み -> 緑色
+                            
+                            -->
+                            <Grid Visibility="{Binding IsCacheDownloading.Value, Converter={StaticResource BooleanToVisibility}}"
+                               Margin="0 8"
+                               >
+                                <ProgressBar Maximum="100.0" 
+                                     Minimum="0.0" 
+                                     Value="{Binding ProgressPercent.Value}"
+                                     Margin="0 4"
+                                     />
+
+                                <TextBlock HorizontalAlignment="Right" Margin="0 0 0 8"
+                                                >
+                                <Run Text="(" />
+                                <Run Text="{Binding ProgressPercent.Value}" />
+                                <Run Text="%)" />
+                                </TextBlock>
+
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+
+                
+            </Border>
+
+            <Grid >
+
+                <ItemsControl ItemsSource="{Binding QualityDividedVideos}"
+                              HorizontalAlignment="Right"
+                              VerticalAlignment="Bottom"
+                              >
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <!-- 画質ごとのキャッシュ状態を表示 
+                            
+                            キャッシュリクエストされていない -> 非表示
+                            キャッシュ待機中 -> 灰色
+                            キャッシュDL中 -> 青色
+                            キャッシュ済み -> 緑色
+                            
+                            -->
+                            <TextBlock Text="{Binding Quality}"
+                                       Visibility="{Binding IsNotCacheRequested.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                       FontSize="13"
+                                           Margin="0 0"
+                                           VerticalAlignment="Center"
+                                       >
+                                <i:Interaction.Behaviors>
+                                    <core:DataTriggerBehavior Binding="{Binding IsCachePending.Value}" ComparisonCondition="Equal" Value="True">
+                                        <core:ChangePropertyAction PropertyName="Foreground" Value="Gray" />
+                                    </core:DataTriggerBehavior>
+                                    <core:DataTriggerBehavior Binding="{Binding IsCacheDownloading.Value}" ComparisonCondition="Equal" Value="True">
+                                        <core:ChangePropertyAction PropertyName="Foreground" Value="Blue" />
+                                    </core:DataTriggerBehavior>
+                                    <core:DataTriggerBehavior Binding="{Binding IsCached.Value}" ComparisonCondition="Equal" Value="True">
+                                        <core:ChangePropertyAction PropertyName="Foreground" Value="Green" />
+                                    </core:DataTriggerBehavior>
+                                </i:Interaction.Behaviors>
+                            </TextBlock>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+
+
+                <mycontrol:HohoemaListItem />
+
+            </Grid>
+
+            <toolkit:DockPanel.ContextFlyout>
+                <MenuFlyout>
+
+                    <MenuFlyoutItem Text="あとで見る"
                                 Command="{Binding AddDefaultPlaylistCommand}"
                                 />
 
-                <MenuFlyoutItem Text="投稿者の動画一覧"
+                    <MenuFlyoutItem Text="投稿者の動画一覧"
                                 Command="{Binding OpenOwnerVideoListPageCommand}"
                                 />
 
-                <MenuFlyoutItem Text="動画情報"
+                    <MenuFlyoutItem Text="動画情報"
                                 Command="{Binding OpenVideoInfoPageCommand}"
                                 />
-            </MenuFlyout>
-        </Grid.ContextFlyout>
+                </MenuFlyout>
+            </toolkit:DockPanel.ContextFlyout>
+
+        </toolkit:DockPanel>
+
+
+
+        <!-- 削除済み動画 -->
+        <Grid x:Name="DeletedPanel" Background="#60ffffff" Visibility="Collapsed">
+            
+            <!-- キャッシュリクエストしていない、または削除確認済み -->
+            <StackPanel VerticalAlignment="Center" Visibility="{Binding IsCacheRequested, Converter={StaticResource BooleanToVisibility}}">
+
+            </StackPanel>
+
+            <!-- キャッシュ済み、ユーザー削除未確認 -->
+            <StackPanel VerticalAlignment="Center" Visibility="{Binding IsCacheRequested, Converter={StaticResource BooleanToVisibilityInverted}}">
+
+                <TextBlock Text="削除理由" HorizontalAlignment="Center" FontSize="13"/>
+                <TextBlock Text="{Binding PrivateReasonText}" HorizontalAlignment="Center" Margin="0 8" />
+
+                <Button Content="削除確認" 
+                                Command="{Binding ConfirmDeleteCommand}"
+                                VerticalAlignment="Center"
+                                Margin="8"
+                                >
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        
 
     </Grid>
-
+    
     
 </UserControl>

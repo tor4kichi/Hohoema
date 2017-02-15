@@ -8,6 +8,7 @@ using NicoPlayerHohoema.Util;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -39,6 +40,7 @@ namespace NicoPlayerHohoema.Models
 			_NiconicoMediaManager = manager;
 
 			_InterfaceByQuality = new Dictionary<NicoVideoQuality, DividedQualityNicoVideo>();
+            QualityDividedVideos = new ReadOnlyObservableCollection<DividedQualityNicoVideo>(_QualityDividedVideos);
         }
 
         private async void _NiconicoMediaManager_VideoCacheStateChanged(object sender, NicoVideoCacheRequest request, NicoVideoCacheState state)
@@ -62,6 +64,8 @@ namespace NicoPlayerHohoema.Models
                         requestAt = div.VideoFileCreatedAt;
                     }
                 }
+
+                CachedAt = requestAt;
             }
         }
 
@@ -105,22 +109,31 @@ namespace NicoPlayerHohoema.Models
 
         public DividedQualityNicoVideo GetDividedQualityNicoVideo(NicoVideoQuality quality)
         {
-            if (!_InterfaceByQuality.ContainsKey(quality))
+            DividedQualityNicoVideo qualityDividedVideo = null;
+
+            if (_InterfaceByQuality.ContainsKey(quality))
+            {
+                qualityDividedVideo = _InterfaceByQuality[quality];
+            }
+            else 
             {
                 switch (quality)
                 {
                     case NicoVideoQuality.Original:
-                        _InterfaceByQuality.Add(quality, new OriginalQualityNicoVideo(this, _NiconicoMediaManager));
+                        qualityDividedVideo = new OriginalQualityNicoVideo(this, _NiconicoMediaManager);
                         break;
                     case NicoVideoQuality.Low:
-                        _InterfaceByQuality.Add(quality, new LowQualityNicoVideo(this, _NiconicoMediaManager));
+                        qualityDividedVideo = new LowQualityNicoVideo(this, _NiconicoMediaManager);
                         break;
                     default:
-                        break;
+                        throw new NotSupportedException(quality.ToString());
                 }
+
+                _InterfaceByQuality.Add(quality, qualityDividedVideo);
+                _QualityDividedVideos.Add(qualityDividedVideo);
             }
 
-            return _InterfaceByQuality[quality];
+            return qualityDividedVideo;
         }
 
 
@@ -493,6 +506,11 @@ namespace NicoPlayerHohoema.Models
             await divided.RestoreCache(filepath);
 
             await divided.RequestCache();
+
+            if (divided.VideoFileCreatedAt > this.CachedAt)
+            {
+                this.CachedAt = divided.VideoFileCreatedAt;
+            }
         }
 
         public Task RequestCache(NicoVideoQuality quality)
@@ -710,9 +728,14 @@ namespace NicoPlayerHohoema.Models
 		public string DescriptionWithHtml { get; private set; }
 		public bool NowLowQualityOnly { get; private set; }
 		public MediaProtocolType ProtocolType { get; private set; }
-		public PrivateReasonType PrivateReasonType { get; private set; } 
+		public PrivateReasonType PrivateReasonType { get; private set; }
 
-        public DateTime CachedAt { get; private set; }
+        private DateTime _CachedAt;
+        public DateTime CachedAt
+        {
+            get { return _CachedAt; }
+            set { SetProperty(ref _CachedAt, value); }
+        }
 
 
 		public bool IsNeedPayment { get; private set; }
@@ -731,20 +754,17 @@ namespace NicoPlayerHohoema.Models
 
 		public HarmfulContentReactionType HarmfulContentReactionType { get; set; }
 		
-
-
-//		internal NicoVideoInfo Info { get; private set; }
-
-//		internal ThumbnailResponseCache ThumbnailResponseCache { get; private set; }
-//		internal WatchApiResponseCache WatchApiResponseCache { get; private set; }
-//		internal CommentResponseCache CommentResponseCache { get; private set; }
-
 		public IRandomAccessStream NicoVideoCachedStream { get; private set; }
 
 
 		private Dictionary<NicoVideoQuality, DividedQualityNicoVideo> _InterfaceByQuality;
 
-		private DividedQualityNicoVideo _OriginalQuality;
+
+        private ObservableCollection<DividedQualityNicoVideo> _QualityDividedVideos = new ObservableCollection<DividedQualityNicoVideo>();
+        public ReadOnlyObservableCollection<DividedQualityNicoVideo> QualityDividedVideos { get; private set; }
+
+
+        private DividedQualityNicoVideo _OriginalQuality;
 		public DividedQualityNicoVideo OriginalQuality
 		{
 			get

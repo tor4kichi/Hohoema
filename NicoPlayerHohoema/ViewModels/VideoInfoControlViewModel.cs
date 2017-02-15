@@ -12,6 +12,7 @@ using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
@@ -93,38 +94,38 @@ namespace NicoPlayerHohoema.ViewModels
                 Description = "Deleted";
             }
 
-            
+            IsRequireConfirmDelete = new ReactiveProperty<bool>(nicoVideo.IsRequireConfirmDelete);
+            PrivateReasonText = nicoVideo.PrivateReasonType.ToString() ?? "";
 
-            NicoVideo.OriginalQuality.ObserveProperty(x => x.IsCacheRequested)
-				.Subscribe(origcached => 
+            SetupFromThumbnail(nicoVideo);
+
+            QualityDividedVideos = new ObservableCollection<QualityDividedNicoVideoListItemViewModel>();
+            NicoVideo.QualityDividedVideos.CollectionChangedAsObservable()
+                .Subscribe(_ => ResetQualityDivideVideosVM())
+                .AddTo(_CompositeDisposable);
+
+            if (QualityDividedVideos.Count == 0 && NicoVideo.QualityDividedVideos.Count != 0)
+            {
+                ResetQualityDivideVideosVM();
+            }
+        }
+
+        private async void ResetQualityDivideVideosVM()
+        {
+            using (var releaser = await _QualityDividedVideosLock.LockAsync())
+            {
+                QualityDividedVideos.Clear();
+
+                foreach (var div in NicoVideo.QualityDividedVideos.ToArray())
                 {
-                    if (origcached)
-                    {
-                        VideoStatus |= VideoStatus.CachedHighLegacy;
-                    }
-                    else
-                    {
-                        VideoStatus &= ~VideoStatus.CachedHighLegacy;
-                    }
-                })
-				.AddTo(_CompositeDisposable);
+                    var vm = new QualityDividedNicoVideoListItemViewModel(div, HohoemaPlaylist)
+                        .AddTo(_CompositeDisposable);
+                    QualityDividedVideos.Add(vm);
+                }
 
-			NicoVideo.LowQuality.ObserveProperty(x => x.IsCacheRequested)
-				.Subscribe(lowLegacyCached => 
-                {
-                    if (lowLegacyCached)
-                    {
-                        VideoStatus |= VideoStatus.CachedLowLegacy;
-                    }
-                    else
-                    {
-                        VideoStatus &= ~VideoStatus.CachedLowLegacy;
-                    }
-                })
-				.AddTo(_CompositeDisposable);
-
-			SetupFromThumbnail(nicoVideo);
-		}
+                OnPropertyChanged(nameof(QualityDividedVideos));
+            }
+        }
 
 		public void SetupFromThumbnail(NicoVideo info)
 		{
@@ -241,7 +242,34 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-        
+
+        private DelegateCommand _ConfirmDeleteCommand;
+        public DelegateCommand ConfirmDeleteCommand
+        {
+            get
+            {
+                return _ConfirmDeleteCommand
+                    ?? (_ConfirmDeleteCommand = new DelegateCommand(() =>
+                    {
+                        try
+                        {
+                            // TODO: MediaManagerに削除動画の確認が済んだことを伝える
+                            //							NicoVideo.DeletedVideoConfirmedFromUser(NicoVideo).ConfigureAwait(false);
+                            IsRequireConfirmDelete.Value = false;
+                        }
+                        catch { }
+                    }));
+            }
+        }
+
+
+
+        public ReactiveProperty<bool> IsRequireConfirmDelete { get; private set; }
+        public string PrivateReasonText { get; private set; }
+
+
+        private Util.AsyncLock _QualityDividedVideosLock = new Util.AsyncLock();
+        public ObservableCollection<QualityDividedNicoVideoListItemViewModel> QualityDividedVideos { get; private set; }
 
         protected CompositeDisposable _CompositeDisposable { get; private set; }
 
@@ -251,17 +279,106 @@ namespace NicoPlayerHohoema.ViewModels
 	}
 
 
+    public class QualityDividedNicoVideoListItemViewModel  : BindableBase, IDisposable
+    {
+        public HohoemaPlaylist HohoemaPlaylist { get; private set; }
+        public DividedQualityNicoVideo DividedQualityNicoVideo { get; private set; }
+
+        public NicoVideoQuality Quality { get; private set; }
+
+        public ReadOnlyReactiveProperty<NicoVideoCacheState> CacheState { get; private set; }
+
+        public ReadOnlyReactiveProperty<bool> IsNotCacheRequested { get; private set; }
+        public ReadOnlyReactiveProperty<bool> IsCachePending { get; private set; }
+        public ReadOnlyReactiveProperty<bool> IsCacheDownloading { get; private set; }
+        public ReadOnlyReactiveProperty<bool> IsCached { get; private set; }
+
+        public ReactiveProperty<float> ProgressPercent { get; private set; }
+
+        IDisposable _ProgressParcentageMoniterDisposer;
+
+
+        private CompositeDisposable _CompositeDisposable = new CompositeDisposable();
+
+        public QualityDividedNicoVideoListItemViewModel(DividedQualityNicoVideo divQualityVideo, HohoemaPlaylist playlist)
+        {
+            DividedQualityNicoVideo = divQualityVideo;
+            HohoemaPlaylist = playlist;
+            Quality = DividedQualityNicoVideo.Quality;
+
+            CacheState = DividedQualityNicoVideo.ObserveProperty(x => x.CacheState)
+                .ToReadOnlyReactiveProperty()
+                .AddTo(_CompositeDisposable);
+
+            IsNotCacheRequested = CacheState.Select(x => x == NicoVideoCacheState.NotCacheRequested)
+                .ToReadOnlyReactiveProperty()
+                .AddTo(_CompositeDisposable);
+            IsCachePending = CacheState.Select(x => x == NicoVideoCacheState.Pending)
+                .ToReadOnlyReactiveProperty()
+                .AddTo(_CompositeDisposable);
+            IsCacheDownloading = CacheState.Select(x => x == NicoVideoCacheState.Downloading)
+                .ToReadOnlyReactiveProperty()
+                .AddTo(_CompositeDisposable);
+            IsCached = CacheState.Select(x => x == NicoVideoCacheState.Cached)
+                .ToReadOnlyReactiveProperty()
+                .AddTo(_CompositeDisposable);
+
+
+            ProgressPercent = new ReactiveProperty<float>(DividedQualityNicoVideo.IsCached ? 100.0f : 0.0f);
+
+            CacheState.Subscribe(x =>
+            {
+                if (x == NicoVideoCacheState.Downloading)
+                {
+                    _ProgressParcentageMoniterDisposer?.Dispose();
+                    _ProgressParcentageMoniterDisposer =
+                        DividedQualityNicoVideo.ObserveProperty(y => y.CacheProgressSize)
+                        .Subscribe(y =>
+                        {
+                            ProgressPercent.Value = DividedQualityNicoVideo.GetDonwloadProgressParcentage();
+                        });
+                }
+                else
+                {
+                    _ProgressParcentageMoniterDisposer?.Dispose();
+                    _ProgressParcentageMoniterDisposer = null;
+                }
+            });
+        }
+
+        public void Dispose()
+        {
+            _CompositeDisposable?.Dispose();
+            _CompositeDisposable = null;
+
+            _ProgressParcentageMoniterDisposer?.Dispose();
+        }
+
+
+        private DelegateCommand _PlayCommand;
+        public DelegateCommand PlayCommand
+        {
+            get
+            {
+                return _PlayCommand
+                    ?? (_PlayCommand = new DelegateCommand(() =>
+                    {
+                        HohoemaPlaylist.PlayVideo(DividedQualityNicoVideo.RawVideoId, DividedQualityNicoVideo.NicoVideo.Title, Quality);
+
+                        //                        var payload = MakeVideoPlayPayload();
+                        //						PageManager.OpenPage(HohoemaPageType.VideoPlayer, payload.ToParameterString());
+                    }));
+            }
+        }
+
+        
+    }
+
+
     [Flags]
     public enum VideoStatus
     {
         Watched = 0x0001,
-
-        CachedLowLegacy = 0x0010,
-        CachedHighLegacy = 0x0020,
-        CachedLow = 0x0100,
-        CachedMiddle = 0x0200,
-        CachedHigh = 0x0400,
-
         Filtered = 0x1000,
     }
 }

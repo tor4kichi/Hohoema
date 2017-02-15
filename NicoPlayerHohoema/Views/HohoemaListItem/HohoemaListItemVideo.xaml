@@ -15,9 +15,10 @@
     <Grid>
         <toolkit:DockPanel Margin="8 0">
 
-            <Grid Margin="0 0 8 0">
+            <Grid Margin="0 0 8 0"
+                  toolkit:DockPanel.Dock="Left"
+                  >
                 <Image Source="{Binding FirstImageUrl}" 
-                   toolkit:DockPanel.Dock="Left"
                    Height="60"
                    Width="80"
                    />
@@ -34,14 +35,21 @@
                 </Border>
             </Grid>
 
-            <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom" >
-                <TextBlock Text="{Binding Description}" 
-                           toolkit:DockPanel.Dock="Right"                       
+            <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
+
+                <TextBlock Text="{Binding OptionText}" 
                            Opacity="0.7"
                            FontSize="13"
                            />
 
-                <TextBlock Text="{Binding OptionText}" 
+                <Border />
+                
+            </toolkit:DockPanel>
+
+
+            <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom" >
+
+                <TextBlock Text="{Binding Description}" 
                            Opacity="0.7"
                            FontSize="13"
                        />

@@ -63,13 +63,13 @@ namespace NicoPlayerHohoema.Models
             return new NicoVideoCacheRequest() { RawVideoId = id, Quality = quality };
         }
 
-        static internal async Task<NiconicoMediaManager> Create(HohoemaApp app)
+        static internal Task<NiconicoMediaManager> Create(HohoemaApp app)
 		{
 			var man = new NiconicoMediaManager(app);
 
 //            await man.RetrieveCacheCompletedVideos();
 
-            return man;
+            return Task.FromResult(man);
 		}
 
 
@@ -118,7 +118,7 @@ namespace NicoPlayerHohoema.Models
             var nicoVideo = await GetNicoVideoAsync(request.RawVideoId);
             var div = nicoVideo.GetDividedQualityNicoVideo(request.Quality);
 
-            div.RestoreCache(filePath);
+            await div.RestoreCache(filePath);
             VideoCacheStateChanged?.Invoke(this, request, NicoVideoCacheState.Cached);
         }
 
@@ -251,6 +251,7 @@ namespace NicoPlayerHohoema.Models
                     {
                         continue;
                     }
+
                     // ファイル名の最後方にある[]の中身の文字列を取得
                     // (動画タイトルに[]が含まれる可能性に配慮)
                     var match = NicoVideoIdRegex.Match(file.Name);
@@ -261,6 +262,11 @@ namespace NicoPlayerHohoema.Models
                         RawVideoId = id,
                         Quality = quality,
                     };
+
+                    if (string.IsNullOrEmpty(id))
+                    {
+                        continue;
+                    }
 
 					var nicoVideo = await GetNicoVideoAsync(info.RawVideoId);
                     var div = nicoVideo.GetDividedQualityNicoVideo(quality);
