@@ -125,13 +125,24 @@ namespace NicoPlayerHohoema.ViewModels
             return Task.CompletedTask;
         }
 
+        protected virtual Task OnDisconnected()
+        {
+            return Task.CompletedTask;
+        }
+
         protected virtual Task OnSignIn(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
 		{
             return Task.CompletedTask;
 		}
 
-        
-       
+        protected virtual Task OnFailedSignIn()
+        {
+            PageManager.OpenPage(HohoemaPageType.Login);
+
+            return Task.CompletedTask;
+        }
+
+
         private Task CallAppServiceLevelOffline(CancellationToken cancelToken)
         {
             if (AvailableServiceLevel >= HohoemaAppServiceLevel.Offline)
@@ -152,6 +163,10 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     return OnOnlineWithoutSignIn(_NavigatingCompositeDisposable, cancelToken);
                 }
+                else
+                {
+                    return OnDisconnected();
+                }
             }
 
             return Task.CompletedTask;
@@ -164,6 +179,10 @@ namespace NicoPlayerHohoema.ViewModels
                 if (HohoemaApp.ServiceStatus >= HohoemaAppServiceLevel.LoggedIn)
                 {
                     return OnSignIn(_UserSettingsCompositeDisposable, cancelToken);
+                }
+                else
+                {
+                    return OnFailedSignIn();
                 }
             }
 
@@ -178,16 +197,20 @@ namespace NicoPlayerHohoema.ViewModels
                 var isSignIn = await HohoemaApp.CheckSignedInStatus() == Mntone.Nico2.NiconicoSignInStatus.Success;
                 if (!HohoemaApp.IsLoggedIn && !isSignIn)
                 {
-                    var result = await HohoemaApp.SignInWithPrimaryAccount();
-
-                    if (result == Mntone.Nico2.NiconicoSignInStatus.Failed)
+                    if (!HohoemaApp.HasPrimaryAccount())
                     {
-                        // サインイン出来ない場合はアカウント画面を表示する
-                        await _AccountManageDialogService.ShowChangeAccountDialogAsync();
+                        return false;
+                    }
+                    else
+                    {
+                        var result = await HohoemaApp.SignInWithPrimaryAccount();
+
+                        if (result == Mntone.Nico2.NiconicoSignInStatus.Failed)
+                        {
+                            return false;
+                        }
                     }
                 }
-
-                __OnSignin();
             }
 
             return HohoemaApp.IsLoggedIn;
@@ -319,12 +342,14 @@ namespace NicoPlayerHohoema.ViewModels
 				await NavigatedToAsync(cancelToken, e, viewModelState);
 
 
-
                 await CallAppServiceLevelOffline(_NavigatedToTaskCancelToken.Token);
 
                 await CallAppServiceLevelOnlineWithoutLoggedIn(_NavigatedToTaskCancelToken.Token);
 
-                await CheckSignIn();
+                if (await CheckSignIn())
+                {
+                    __OnSignin();
+                }
 
                 if (IsRequireSignIn)
                 {

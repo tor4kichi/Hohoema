@@ -261,7 +261,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             foreach (var item in mediaManager.CacheVideos.ToArray())
 			{
-                foreach (var divided in item.GetAllQuality())
+                foreach (var divided in item.GetAllQuality().ToArray())
                 {
                     if (divided.IsCacheRequested)
                     {

@@ -87,8 +87,6 @@ namespace NicoPlayerHohoema.ViewModels
 			_TextInputDialogService = textInputDialog;
             _MylistResistrationDialogService = mylistDialog;
 
-            _SidePaneContentCache = new Dictionary<MediaInfoDisplayType, MediaInfoViewModel>();
-
             MediaPlayer = HohoemaApp.MediaPlayer;
 
             CurrentVideoPosition = new ReactiveProperty<TimeSpan>(PlayerWindowUIDispatcherScheduler, TimeSpan.Zero)
@@ -404,25 +402,6 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
 				.AddTo(_CompositeDisposable);
 
-
-
-			SelectedSidePaneType = new ReactiveProperty<MediaInfoDisplayType>(PlayerWindowUIDispatcherScheduler, MediaInfoDisplayType.Summary, ReactivePropertyMode.DistinctUntilChanged)
-				.AddTo(_CompositeDisposable);
-
-            Types = new List<MediaInfoDisplayType>()
-            {
-                MediaInfoDisplayType.Summary,
-                MediaInfoDisplayType.Mylist,
-//				MediaInfoDisplayType.Comment,
-				MediaInfoDisplayType.Shere,
-                MediaInfoDisplayType.Settings,
-            };
-
-            SidePaneContent = SelectedSidePaneType
-				.SelectMany(x => GetMediaInfoVM(x))
-				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
-				.AddTo(_CompositeDisposable);
-
 			DownloadCompleted = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
 			ProgressPercent = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0.0);
 			IsFullScreen = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
@@ -502,31 +481,12 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     await UpdateComments();
 
-                    Types = new List<MediaInfoDisplayType>()
-                    {
-                        MediaInfoDisplayType.Summary,
-                        MediaInfoDisplayType.Settings,
-                    };
-                    OnPropertyChanged(nameof(Types));
-
-                    _VideoDescriptionHtmlUri = await HtmlFileHelper.PartHtmlOutputToCompletlyHtml(VideoId, Video.DescriptionWithHtml);
-
-                    _SidePaneContentCache.Clear();
-
-                    if (SelectedSidePaneType.Value == MediaInfoDisplayType.Summary)
-                    {
-                        SelectedSidePaneType.ForceNotify();
-                    }
-                    else
-                    {
-                        SelectedSidePaneType.Value = MediaInfoDisplayType.Summary;
-                    }
-
                     ChangeRequireServiceLevel(HohoemaAppServiceLevel.Offline);
-
-
                 }
+
+                // TODO : オフライン再生確定時にコメント投稿の無効化
             }
+
 
 
 
@@ -617,8 +577,6 @@ namespace NicoPlayerHohoema.ViewModels
             OnPropertyChanged(nameof(IsForceLandscape));
 
 
-                
-
             // お気に入りフィード上の動画を既読としてマーク
             await HohoemaApp.FeedManager.MarkAsRead(Video.VideoId);
             await HohoemaApp.FeedManager.MarkAsRead(Video.RawVideoId);
@@ -642,8 +600,6 @@ namespace NicoPlayerHohoema.ViewModels
 
                 // 内部状態を更新
                 await videoInfo.VisitWatchPage();
-
-                await videoInfo.Initialize();
 
                 // 動画が削除されていた場合
                 if (videoInfo.IsDeleted)
@@ -831,23 +787,6 @@ namespace NicoPlayerHohoema.ViewModels
                 // 再生履歴に反映
                 //VideoPlayHistoryDb.VideoPlayed(Video.RawVideoId);
             }
-
-
-            _VideoDescriptionHtmlUri = await HtmlFileHelper.PartHtmlOutputToCompletlyHtml(VideoId, Video.DescriptionWithHtml);
-
-            _SidePaneContentCache.Clear();
-
-            if (SelectedSidePaneType.Value == MediaInfoDisplayType.Summary)
-            {
-                SelectedSidePaneType.ForceNotify();
-            }
-            else
-            {
-                SelectedSidePaneType.Value = MediaInfoDisplayType.Summary;
-            }
-
-
-
 
 
             IsPauseWithCommentWriting = HohoemaApp.UserSettings.PlayerSettings
@@ -1311,8 +1250,6 @@ namespace NicoPlayerHohoema.ViewModels
                 HohoemaApp.MediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
             }
 
-            _SidePaneContentCache.Clear();
-
 			ExitKeepDisplay();
 
 			Comments.Clear();
@@ -1425,46 +1362,6 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-
-		private Task<MediaInfoViewModel> GetMediaInfoVM(MediaInfoDisplayType type)
-		{
-			MediaInfoViewModel vm = null;
-			if (_SidePaneContentCache.ContainsKey(type))
-			{
-				vm = _SidePaneContentCache[type];
-			}
-			else 
-			{
-				switch (type)
-				{
-					case MediaInfoDisplayType.Summary:
-						vm = new SummaryVideoInfoContentViewModel(Video, _VideoDescriptionHtmlUri, PageManager);
-						break;
-
-					case MediaInfoDisplayType.Mylist:
-						vm = new MylistVideoInfoContentViewModel(VideoId, Video.ThreadId, HohoemaApp.UserMylistManager);
-						break;
-
-					case MediaInfoDisplayType.Comment:
-						vm = new CommentVideoInfoContentViewModel(HohoemaApp.UserSettings, Comments);
-						break;
-
-					case MediaInfoDisplayType.Shere:
-						vm = new ShereVideoInfoContentViewModel(Video, _TextInputDialogService, _ToastService);
-						break;
-
-					case MediaInfoDisplayType.Settings:
-						vm = new SettingsVideoInfoContentViewModel(HohoemaApp.UserSettings.PlayerSettings);
-						break;
-					default:
-						throw new NotSupportedException();
-				}
-
-				_SidePaneContentCache.Add(type, vm);
-			}
-
-			return Task.FromResult(vm);
-		}
 
 		#region Command	
 
@@ -2025,13 +1922,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public CommentCommandEditerViewModel CommandEditerVM { get; private set; }
 		public ReactiveProperty<string> CommandString { get; private set; }
-
-		public ReactiveProperty<MediaInfoViewModel> SidePaneContent { get; private set; }
-		private Dictionary<MediaInfoDisplayType, MediaInfoViewModel> _SidePaneContentCache;
-		public ReactiveProperty<MediaInfoDisplayType> SelectedSidePaneType { get; private set; }
-		public List<MediaInfoDisplayType> Types { get; private set; }
-
-		private Uri _VideoDescriptionHtmlUri;
 
 
 		// 再生できない場合の補助

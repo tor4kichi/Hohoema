@@ -233,7 +233,7 @@ namespace NicoPlayerHohoema.Models
                     // トーストのレイアウトを作成
                     ToastContent content = new ToastContent()
                     {
-                        Launch = "app-defined-string",
+                        Launch = "niconico://" + id,
 
                         Visual = new ToastVisual()
                         {

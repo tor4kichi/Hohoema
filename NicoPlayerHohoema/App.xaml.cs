@@ -236,11 +236,21 @@ namespace NicoPlayerHohoema
 				//Get the pre-defined arguments and user inputs from the eventargs;
 				var toastArgs = args as IActivatedEventArgs as ToastNotificationActivatedEventArgs;
 				var arguments = toastArgs.Argument;
-				//				var input = toastArgs.UserInput["1"];
-				if (arguments == ACTIVATION_WITH_ERROR)
+
+                
+                if (arguments == ACTIVATION_WITH_ERROR)
 				{
 					await ShowErrorLog().ConfigureAwait(false);
 				}
+                else
+                {
+                    var videoId = Util.NicoVideoExtention.UrlToVideoId(arguments);
+
+                    if (videoId != null)
+                    {
+                        PlayVideoFromExternal(videoId);
+                    }
+                }
 			}
 
 			if (args.Kind == ActivationKind.Protocol)
@@ -253,32 +263,41 @@ namespace NicoPlayerHohoema
 				if (Mntone.Nico2.NiconicoRegex.IsVideoId(maybeNicoContentId)
 					|| maybeNicoContentId.All(x => x >= '0' && x <= '9'))
 				{
-					HohoemaApp hohoemaApp = null;
-					try
-					{
-						hohoemaApp = Container.Resolve<HohoemaApp>();
-					}
-					catch { }
-
-                    hohoemaApp.Playlist.PlayVideo(maybeNicoContentId, "");
+                    PlayVideoFromExternal(maybeNicoContentId);
 				}
 				else if (Mntone.Nico2.NiconicoRegex.IsLiveId(maybeNicoContentId))
 				{
-					HohoemaApp hohoemaApp = null;
-					try
-					{
-						hohoemaApp = Container.Resolve<HohoemaApp>();
-					}
-					catch { }
-
-                    hohoemaApp.Playlist.PlayLiveVideo(maybeNicoContentId, "");					
+                    await PlayLiveVideoFromExternal(maybeNicoContentId);
 				}
 			}
 
 
 			await base.OnActivateApplicationAsync(args);
 		}
-		protected override void OnActivated(IActivatedEventArgs args)
+
+        private void PlayVideoFromExternal(string videoId, string videoTitle = null, NicoVideoQuality? quality = null)
+        {
+            var pageManager = Container.Resolve<PageManager>();
+            var hohoemaApp = Container.Resolve<HohoemaApp>();
+
+            hohoemaApp.Playlist.PlayVideo(videoId, videoTitle, quality);
+        }
+        private async Task PlayLiveVideoFromExternal(string videoId)
+        {
+            var pageManager = Container.Resolve<PageManager>();
+            var hohoemaApp = Container.Resolve<HohoemaApp>();
+
+            if (!hohoemaApp.IsLoggedIn)
+            {
+                await hohoemaApp.SignInWithPrimaryAccount();
+                pageManager.OpenPage(HohoemaPageType.Portal);
+            }
+
+            hohoemaApp.Playlist.PlayLiveVideo(videoId);
+        }
+
+
+        protected override void OnActivated(IActivatedEventArgs args)
 		{
 			
 			base.OnActivated(args);
