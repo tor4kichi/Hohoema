@@ -50,7 +50,7 @@ namespace NicoPlayerHohoema.Models
 
 
         public event VideoCacheStateChangedEventHandler VideoCacheStateChanged;
-
+        public event BackgroundUpdateCompletedEventHandler Completed;
 
         public static NicoVideoCacheRequest CacheRequestInfoFromFileName(IStorageFile file)
         {
@@ -167,6 +167,8 @@ namespace NicoPlayerHohoema.Models
             await VideoDownloadManager.Initialize();
 
             IsInitialized = true;
+
+            Completed?.Invoke(this);
         }
 
 

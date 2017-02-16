@@ -21,7 +21,7 @@ namespace NicoPlayerHohoema.Models
 
 	// フィードの保存処理をコントロールする
 
-	public class FeedManager : IBackgroundUpdateable
+	public class FeedManager
 	{
 		public const string FeedStreamFolderName = "feed_stream";
 
@@ -57,16 +57,6 @@ namespace NicoPlayerHohoema.Models
 			FeedStreamFileAccessors = new Dictionary<Guid, FileAccessor<List<FeedItem>>>();
 			_FeedGroupUpdaters = new Dictionary<IFeedGroup, BackgroundUpdateScheduleHandler>();
 		}
-
-		#region interface IBackgroundUpdateable
-
-		public IAsyncAction BackgroundUpdate(CoreDispatcher uiDispatcher)
-		{
-			return Initialize()
-				.AsAsyncAction();
-		}
-
-		#endregion
 
 		public async Task<StorageFolder> GetFeedStreamDataFolder()
 		{

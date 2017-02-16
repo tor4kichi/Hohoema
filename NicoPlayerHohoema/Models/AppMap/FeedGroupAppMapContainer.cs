@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Models.AppMap
 {
-	public class FeedAppMapContainer : SelectableAppMapContainerBase
-	{
+	public class FeedAppMapContainer : AppMapContainerBase
+    {
 		public FeedManager FeedManager { get; private set; }
 
 		public FeedAppMapContainer()
@@ -16,32 +16,30 @@ namespace NicoPlayerHohoema.Models.AppMap
 			FeedManager = HohoemaApp.FeedManager;
 		}
 
-        public override Task Refresh()
+
+        protected override Task OnRefreshing()
         {
-            foreach (var item in AllItems.ToArray())
+            _DisplayItems.Clear();
+
+            
+            var items = new List<IAppMapItem>();
+            var feedGroups = FeedManager.FeedGroups;
+            foreach (var feedGroup in feedGroups)
             {
-                Add(item);
+                var feedGroupContainer = new FeedGroupAppMapContainer(feedGroup);
+                _DisplayItems.Add(feedGroupContainer);
             }
 
-            return base.Refresh();
+            return Task.CompletedTask;
         }
-
-        protected override Task<IEnumerable<IAppMapItem>> MakeAllItems()
-		{
-			var items = new List<IAppMapItem>();
-			var feedGroups = FeedManager.FeedGroups;
-			foreach (var feedGroup in feedGroups)
-			{
-				var feedGroupContainer = new FeedGroupAppMapContainer(feedGroup);
-				items.Add(feedGroupContainer);
-			}
-			return Task.FromResult(items.AsEnumerable());
-		}
+        
 	}
 
 
-	public class FeedGroupAppMapContainer : SelfGenerateAppMapContainerBase
-	{
+	public class FeedGroupAppMapContainer : AppMapContainerBase
+    {
+        public const int FeedItemDisplayCount = 3;
+
 		public IFeedGroup FeedGroup { get; private set; }
 
 		public FeedGroupAppMapContainer(IFeedGroup group)
@@ -49,20 +47,22 @@ namespace NicoPlayerHohoema.Models.AppMap
 		{
 			FeedGroup = group;
 			SecondaryLabel = FeedGroup.GetUnreadItemCount().ToString();
-		}
+        }
 
-		protected override Task<IEnumerable<IAppMapItem>> GenerateItems(int count)
-		{
-			var feedItems = FeedGroup.FeedItems.Take(count);
-			var items = new List<IAppMapItem>();
-			foreach (var feedItem in feedItems)
-			{
-				var item = new FeedAppMapItem(feedItem);
-				items.Add(item);
-			}
 
-			return Task.FromResult(items.AsEnumerable());
-		}
+        protected override Task OnRefreshing()
+        {
+            _DisplayItems.Clear();
+
+            var feedItems = FeedGroup.FeedItems.Take(FeedItemDisplayCount);
+            foreach (var feedItem in feedItems)
+            {
+                var item = new FeedAppMapItem(feedItem);
+                _DisplayItems.Add(item);
+            }
+
+            return Task.CompletedTask;
+        }
 	}
 
 	public class FeedAppMapItem : VideoAppMapItemBase

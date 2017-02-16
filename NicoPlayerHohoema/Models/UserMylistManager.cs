@@ -13,7 +13,7 @@ using Windows.UI.Core;
 
 namespace NicoPlayerHohoema.Models
 {
-	public class UserMylistManager : BindableBase, IBackgroundUpdateable
+	public class UserMylistManager : BackgroundUpdateableBase
 	{
 		public const int MaxUserMylistGroupCount = 25;
 
@@ -25,7 +25,8 @@ namespace NicoPlayerHohoema.Models
 		private ObservableCollection<MylistGroupInfo> _UserMylists;
 		public ReadOnlyObservableCollection<MylistGroupInfo> UserMylists { get; private set; }
 
-		public int DeflistRegistrationCapacity
+
+        public int DeflistRegistrationCapacity
 		{
 			get
 			{
@@ -229,15 +230,15 @@ namespace NicoPlayerHohoema.Models
 
 		internal void DeflistUpdated()
 		{
-			OnPropertyChanged(nameof(IsDeflistCapacityReached));
+//			OnPropertyChanged(nameof(IsDeflistCapacityReached));
 		}
 
 		internal void MylistUpdated()
 		{
-			OnPropertyChanged(nameof(CanAddMylistItem));
+//			OnPropertyChanged(nameof(CanAddMylistItem));
 		}
 
-		public IAsyncAction BackgroundUpdate(CoreDispatcher uiDispatcher)
+		public override IAsyncAction BackgroundUpdate(CoreDispatcher uiDispatcher)
 		{
 			return SyncMylistGroups().AsAsyncAction();
 		}
@@ -249,8 +250,8 @@ namespace NicoPlayerHohoema.Models
 		public string ThreadId { get; set; }
 	}
 
-	public class MylistGroupInfo : IBackgroundUpdateable
-	{
+	public class MylistGroupInfo : BackgroundUpdateableBase
+    {
 		public HohoemaApp HohoemaApp { get; private set; }
 		public UserMylistManager MylistManager { get; private set; }
 
@@ -262,7 +263,8 @@ namespace NicoPlayerHohoema.Models
 		public IconType IconType { get; set; }
 		public MylistDefaultSort Sort { get; set; }
 
-		public MylistGroupInfo(string groupId, HohoemaApp hohoemaApp, UserMylistManager mylistManager)
+
+        public MylistGroupInfo(string groupId, HohoemaApp hohoemaApp, UserMylistManager mylistManager)
 		{
 			GroupId = groupId;
 			IsDeflist = GroupId == "0";
@@ -302,7 +304,7 @@ namespace NicoPlayerHohoema.Models
 
 		#region interface IBackgroundUpdateable
 
-		public IAsyncAction BackgroundUpdate(CoreDispatcher uiDispatcher)
+		public override IAsyncAction BackgroundUpdate(CoreDispatcher uiDispatcher)
 		{
 			return Refresh()
 				.AsAsyncAction();

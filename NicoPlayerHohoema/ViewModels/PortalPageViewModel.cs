@@ -15,29 +15,35 @@ using Prism.Windows.Navigation;
 using System.Threading;
 using Reactive.Bindings;
 using System.Diagnostics;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	public class PortalPageViewModel : HohoemaViewModelBase
 	{
         public AppMapManager AppMapManager { get; private set; }
-        public SelectableAppMapContainerViewModel Root { get; private set; }
+        public AppMapContainerViewModel Root { get; private set; }
 
 		public PortalPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, AppMapManager appMapManager)
 			: base(hohoemaApp, pageManager)
 		{
             AppMapManager = appMapManager;
-            Root = new SelectableAppMapContainerViewModel(AppMapManager.Root, PageManager);
+            Root = new AppMapContainerViewModel(AppMapManager.Root, PageManager);
 		}
 
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
             await AppMapManager.Refresh();
 
-            await base.NavigatedToAsync(cancelToken, e, viewModelState);
-		}
+            while (AppMapManager.NowRefreshing)
+            {
+                await Task.Delay(50);
+            }
 
-		
+            await base.NavigatedToAsync(cancelToken, e, viewModelState);
+        }
+
+
 
 
         private DelegateCommand _RefreshCommand;
@@ -58,13 +64,9 @@ namespace NicoPlayerHohoema.ViewModels
 		{
             Debug.WriteLine(item.PrimaryLabel);
 
-            if (item is ISelectableAppMapContainer)
+            if (item is IAppMapContainer)
 			{
-				return new SelectableAppMapContainerViewModel(item as ISelectableAppMapContainer, pageManager);
-			}
-			else if (item is ISelfGenerateAppMapContainer)
-			{
-				return new SelfGenerateAppMapContainerViewModel(item as ISelfGenerateAppMapContainer, pageManager);
+				return new AppMapContainerViewModel(item as IAppMapContainer, pageManager);
 			}
 			else
 			{
@@ -117,7 +119,7 @@ namespace NicoPlayerHohoema.ViewModels
 	}
 
 
-	public abstract class AppMapContainerViewModelBase : AppMapItemViewModel, IDisposable
+	public class AppMapContainerViewModel : AppMapItemViewModel, IDisposable
 	{
 		public IAppMapContainer OriginalContainer { get; set; }
 
@@ -129,12 +131,12 @@ namespace NicoPlayerHohoema.ViewModels
 		public int ItemWidth { get; private set; }
 		public int ItemHeight { get; private set; }
 
-		public AppMapContainerViewModelBase(IAppMapContainer container, PageManager pageManager)
+		public AppMapContainerViewModel(IAppMapContainer container, PageManager pageManager)
 			: base(container, pageManager)
 		{
 			OriginalContainer = container;
 
-			Items = container.DisplayItems
+            Items = container.DisplayItems
 				.ToReadOnlyReactiveCollection(x => PortalPageViewModel.AppMapObjectToViewModel(x, pageManager));
 
 			_CollectionDisposer = Items.CollectionChangedAsObservable()
@@ -168,46 +170,31 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		public void Dispose()
+        public void Dispose()
 		{
 			Items?.Dispose();
 			_CollectionDisposer?.Dispose();
 		}
 
+        private DelegateCommand _RefreshCommand;
+        public DelegateCommand RefreshCommand
+        {
+            get
+            {
+                return _RefreshCommand
+                    ?? (_RefreshCommand = new DelegateCommand(async () =>
+                    {
+                        await OriginalContainer.Refresh();
+                    }));
+            }
+        }
 
-       
-        
-	}
+
+    }
 
 
-	public class SelectableAppMapContainerViewModel : AppMapContainerViewModelBase
-	{
-		public ISelectableAppMapContainer Container { get; private set; }
-
-		public SelectableAppMapContainerViewModel(ISelectableAppMapContainer container, PageManager pageManager)
-			: base (container, pageManager)
-		{
-			Container = container;
-			
-		}
-
-		
-
-		
-	}
+	
 
 
 
-	public class SelfGenerateAppMapContainerViewModel : AppMapContainerViewModelBase
-	{
-		public ISelfGenerateAppMapContainer Container { get; private set; }
-
-		public SelfGenerateAppMapContainerViewModel(ISelfGenerateAppMapContainer container, PageManager pageManager)
-			: base(container, pageManager)
-		{
-			Container = container;
-			
-		}
-
-	}
 }

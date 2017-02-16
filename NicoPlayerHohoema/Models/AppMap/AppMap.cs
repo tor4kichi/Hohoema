@@ -15,8 +15,8 @@ using NicoPlayerHohoema.Util;
 
 namespace NicoPlayerHohoema.Models.AppMap
 {
-	public class AppMapManager : BindableBase, IBackgroundUpdateable
-	{
+	public class AppMapManager : BackgroundUpdateableBase
+    {
 		// Note: アプリのメニューやホーム画面で表示する内容の元になるモデルデータ
 
 
@@ -36,7 +36,9 @@ namespace NicoPlayerHohoema.Models.AppMap
 
         private AsyncLock _RefreshLock = new AsyncLock();
 
-		public AppMapManager(HohoemaApp hohoemaApp)
+        public bool NowRefreshing { get; private set; }
+
+        public AppMapManager(HohoemaApp hohoemaApp)
 		{
 			HohoemaApp = hohoemaApp;
 
@@ -48,16 +50,15 @@ namespace NicoPlayerHohoema.Models.AppMap
 		{
             using (var releaser = await _RefreshLock.LockAsync())
             {
+                NowRefreshing = true;
+
                 await Root.Refresh();
 
-                foreach (var selectable in Root.SelectableItems.ToArray())
-                {
-                    Root.Add(selectable);
-                }
+                NowRefreshing = false;
             }
         }
 
-		public IAsyncAction BackgroundUpdate(CoreDispatcher uiDispatcher)
+		public override IAsyncAction BackgroundUpdate(CoreDispatcher uiDispatcher)
 		{
 			return uiDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => 
 			{
@@ -66,8 +67,8 @@ namespace NicoPlayerHohoema.Models.AppMap
 		}
 	}
 
-	public class RootAppMapContainer : SelectableAppMapContainerBase
-	{
+	public class RootAppMapContainer : AppMapContainerBase
+    {
 		public static IReadOnlyList<HohoemaPageType> SelectableListingPageTypes { get; private set; } =
 			new List<HohoemaPageType>()
 			{
@@ -83,39 +84,27 @@ namespace NicoPlayerHohoema.Models.AppMap
 		public AppMapSettings AppMapSettings { get; private set; }
 
 
-		public RootAppMapContainer() 
+        public RootAppMapContainer() 
 			: base(HohoemaPageType.Portal)
 		{
-		}
+            var items = SelectableListingPageTypes
+                .Select(x => PageTypeToContainer(x))
+                .ToList();
+            foreach (var item in items)
+            {
+                (item as AppMapContainerBase).ParentContainer = this;
+                _DisplayItems.Add(item);
+            }
+        }
 
 
-		protected override async Task<IEnumerable<IAppMapItem>> MakeAllItems()
-		{
-			// 現在の設定を下にアイテムを生成する
-
-			List<IAppMapItem> items = new List<IAppMapItem>();
-			foreach (var pageType in SelectableListingPageTypes)
-			{
-				var container = PageTypeToContainer(pageType);
-				
-				if (container !=null)
-				{
-					await container.Refresh();
-
-					// Note: デザインアップデートで削除する
-					// アプリ設定等からコンテナを初期化する
-//					UpdateFromAppSettings(container);
-
-					items.Add(container);
-				}
-			}
-
-//			return Task.FromResult(items.AsEnumerable());
-			return items;
-		}
+        protected override Task OnRefreshing()
+        {
+            return Task.CompletedTask;
+        }
 
 
-		private IAppMapContainer PageTypeToContainer(HohoemaPageType pageType)
+		private static IAppMapContainer PageTypeToContainer(HohoemaPageType pageType)
 		{
 			IAppMapContainer container = null;
 			switch (pageType)

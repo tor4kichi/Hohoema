@@ -7,34 +7,35 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Models.AppMap
 {
-	public class VideoPlayHistoryAppMapContainer : SelfGenerateAppMapContainerBase
-	{
+	public class VideoPlayHistoryAppMapContainer : AppMapContainerBase
+    {
+        public const int VideoPlayHistoryDisplayCount = 5;
+
+
         public VideoPlayHistoryAppMapContainer()
 			: base(HohoemaPageType.History, label:"視聴履歴")
 		{
-
+            
         }
 
-		protected override async Task<IEnumerable<IAppMapItem>> GenerateItems(int count)
-		{
-			var playedHistories = await HohoemaApp.ContentFinder.GetHistory();
+        protected override async Task OnRefreshing()
+        {
+            var playedHistories = await HohoemaApp.ContentFinder.GetHistory();
             if (playedHistories == null)
             {
-                return Enumerable.Empty<IAppMapItem>();
+                return;
             }
 
-			List<IAppMapItem> items = new List<IAppMapItem>();
-			var histories = playedHistories.Histories.Take(count);
-			foreach (var history in histories)
-			{
-				var historyAppMapItem = new VideoPlayHistoryAppMapItem(history, HohoemaApp.Playlist);
-				items.Add(historyAppMapItem);
-			}
+            _DisplayItems.Clear();
 
-			return items;
-		}
-
-        
+            List<IAppMapItem> items = new List<IAppMapItem>();
+            var histories = playedHistories.Histories.Take(VideoPlayHistoryDisplayCount);
+            foreach (var history in histories)
+            {
+                var historyAppMapItem = new VideoPlayHistoryAppMapItem(history, HohoemaApp.Playlist);
+                _DisplayItems.Add(historyAppMapItem);
+            }
+        }
     }
 
 

@@ -223,7 +223,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			if (!HohoemaApp.MylistManagerUpdater.IsOneOrMoreUpdateCompleted)
 			{
-				HohoemaApp.MylistManagerUpdater.ScheduleUpdate();
+//				HohoemaApp.MylistManagerUpdater.ScheduleUpdate();
 				await HohoemaApp.MylistManagerUpdater.WaitUpdate();
 			}
 

@@ -1140,6 +1140,7 @@ namespace NicoPlayerHohoema.ViewModels
         {
             PlayerWindowUIDispatcherScheduler.Schedule(() =>
             {
+                if (IsDisposed) { return; }
                 RequestFPS.ForceNotify();
             });
         }

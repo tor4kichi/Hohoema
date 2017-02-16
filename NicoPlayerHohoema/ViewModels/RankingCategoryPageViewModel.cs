@@ -97,30 +97,17 @@ namespace NicoPlayerHohoema.ViewModels
 			if (e.Parameter is string)
 			{
 				RequireCategoryInfo = RankingCategoryInfo.FromParameterString(e.Parameter as string);
-			}
+                var text = RankingCategoryExtention.ToCultulizedText(RequireCategoryInfo.Category);
+                UpdateTitle($"{text} のランキング ");
+                RankingCategory = RequireCategoryInfo.Category;
+            }
 			else
 			{
 				RequireCategoryInfo = null;
-			}
+                UpdateTitle($"? のランキング ");
+            }
 
-			if (RequireCategoryInfo.RankingSource == RankingSource.CategoryRanking)
-			{
-				RankingCategory category;
-				if (Enum.TryParse(RequireCategoryInfo.Parameter, out category))
-				{
-					var text = RankingCategoryExtention.ToCultulizedText(category);
-					UpdateTitle($"{text} のランキング ");
-				}
-				else
-				{
-					UpdateTitle($"{RequireCategoryInfo.Parameter} のランキング");
-				}
-			}
-			else
-			{
-				UpdateTitle($"{RequireCategoryInfo.Parameter} のランキング");
-			}
-
+			
 			base.OnNavigatedTo(e, viewModelState);
 		}
 
@@ -143,27 +130,13 @@ namespace NicoPlayerHohoema.ViewModels
 			IIncrementalSource <RankedVideoInfoControlViewModel> source = null;
 			try
 			{
-				switch (categoryInfo.RankingSource)
-				{
-					case RankingSource.CategoryRanking:
-						RankingCategory = (RankingCategory)Enum.Parse(typeof(RankingCategory), categoryInfo.Parameter);
-						var target = SelectedRankingTarget.Value.TargetType;
-						var timeSpan = SelectedRankingTimeSpan.Value.TimeSpan;
-						source = new CategoryRankingLoadingSource(HohoemaApp, PageManager, RankingCategory, target, timeSpan);
+                var target = SelectedRankingTarget.Value.TargetType;
+                var timeSpan = SelectedRankingTimeSpan.Value.TimeSpan;
+                source = new CategoryRankingLoadingSource(HohoemaApp, PageManager, RankingCategory, target, timeSpan);
 
-						CanChangeRankingParameter.Value = true;
-						break;
-					case RankingSource.SearchWithMostPopular:
-
-						source = new CustomRankingLoadingSource(HohoemaApp, PageManager, categoryInfo.Parameter);
-
-						CanChangeRankingParameter.Value = false;
-						break;
-					default:
-						throw new NotImplementedException();
-				}
-			}
-			catch
+                CanChangeRankingParameter.Value = true;
+            }
+            catch
 			{
 				IsFailedRefreshRanking.Value = true;
 			}

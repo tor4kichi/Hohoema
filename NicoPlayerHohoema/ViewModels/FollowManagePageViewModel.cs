@@ -34,7 +34,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 			if (!HohoemaApp.FollowManagerUpdater.IsOneOrMoreUpdateCompleted)
 			{
-				HohoemaApp.FollowManagerUpdater.ScheduleUpdate();
 				await HohoemaApp.FollowManagerUpdater.WaitUpdate();
 			}
 

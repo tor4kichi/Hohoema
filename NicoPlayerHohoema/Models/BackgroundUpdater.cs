@@ -15,20 +15,37 @@ using Windows.UI.Core;
 
 namespace NicoPlayerHohoema.Models
 {
-	// Note: 優先度付きのUIスレッド協調動作指向バックグラウンド更新
+    // Note: 優先度付きのUIスレッド協調動作指向バックグラウンド更新
 
-	// BackgroundUpdateItemBaseを更新機能を持つクラスとは別に派生クラスを作成して、
-	// その中で対象の更新を処理する
+    // BackgroundUpdateItemBaseを更新機能を持つクラスとは別に派生クラスを作成して、
+    // その中で対象の更新を処理する
+
+    public delegate void BackgroundUpdateCompletedEventHandler(object sender);
 
 	public interface IBackgroundUpdateable
 	{
 		IAsyncAction BackgroundUpdate(CoreDispatcher uiDispatcher);
+        event BackgroundUpdateCompletedEventHandler Completed;
 	}
 
-	/// <summary>
-	/// use BackgroundUpdater.CreateBackgroundUpdateInfo instance method.
-	/// </summary>
-	public class BackgroundUpdateScheduleHandler
+    public abstract class BackgroundUpdateableBase : IBackgroundUpdateable
+    {
+        public event BackgroundUpdateCompletedEventHandler Completed;
+
+        public abstract IAsyncAction BackgroundUpdate(CoreDispatcher uiDispatcher);
+
+        internal void Complete()
+        {
+            Completed?.Invoke(this);
+        }
+    }
+
+
+
+    /// <summary>
+    /// use BackgroundUpdater.CreateBackgroundUpdateInfo instance method.
+    /// </summary>
+    public class BackgroundUpdateScheduleHandler
 	{
 		internal BackgroundUpdateScheduleHandler(
 			IBackgroundUpdateable target, 
@@ -83,7 +100,9 @@ namespace NicoPlayerHohoema.Models
 				_IsRunning = false;
 				_IsLastTaskCompleted = true;
 				_UpdateCompletedCount++;
-			}
+
+                (Target as BackgroundUpdateableBase)?.Complete();
+            }
 
 			Completed?.Invoke(this, this);
 		}

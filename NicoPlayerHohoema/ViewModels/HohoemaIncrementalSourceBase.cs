@@ -231,7 +231,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 	}
 
-	public class DefferedNicoVideoVMUpdate<T> : IBackgroundUpdateable
+	public class DefferedNicoVideoVMUpdate<T> : BackgroundUpdateableBase
 		where T : VideoInfoControlViewModel
 	{
 		public List<T> Items { get; private set; }
@@ -240,7 +240,7 @@ namespace NicoPlayerHohoema.ViewModels
 			Items = items;
 		}
 
-		public IAsyncAction BackgroundUpdate(CoreDispatcher uiDispatcher)
+		public override IAsyncAction BackgroundUpdate(CoreDispatcher uiDispatcher)
 		{
 			return AsyncInfo.Run(async (cancelToken) => 
 			{

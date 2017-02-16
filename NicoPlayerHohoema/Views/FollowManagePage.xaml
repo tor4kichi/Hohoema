@@ -11,15 +11,16 @@
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:uwpcontrol="using:Microsoft.Toolkit.Uwp.UI.Controls"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
     <Page.Resources>
         <DataTemplate x:Key="FavoriteItemTemplate">
 
-            <Grid>
+            <Button Command="{Binding PrimaryCommand}">
                 <controls:HohoemaListItem DisplayType="MiniCard" />
-            </Grid>
+            </Button>
         </DataTemplate>
 
 
@@ -27,7 +28,7 @@
     </Page.Resources>
     
     
-    <Grid>
+    <Grid x:Name="PageRoot">
         <toolkit:DockPanel>
 
             <Border toolkit:DockPanel.Dock="Top" 
@@ -54,15 +55,11 @@
             </Border>
 
             <ScrollViewer x:Name="ScrollList"
+                          
                       >
-                <Border Margin="16 0 16 16">
-                    <ItemsControl ItemsSource="{Binding Lists}">
-
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Vertical" />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
+                <StackPanel Margin="16 16 16 16">
+                    <ItemsControl ItemsSource="{Binding Lists}" x:Name="FavListContainer"
+                                  >
 
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
@@ -100,8 +97,6 @@
                                     <ListView ItemsSource="{Binding Items}"
                                           ItemTemplate="{StaticResource FavoriteItemTemplate}"
                                           Margin="0 8 0 0"
-                                              ScrollViewer.VerticalScrollMode="Disabled"
-                                              ScrollViewer.HorizontalScrollMode="Enabled"
                                           >
                                         <ListView.ItemContainerStyle>
                                             <Style TargetType="ListViewItem">
@@ -113,7 +108,7 @@
 
                                         <ListView.ItemsPanel>
                                             <ItemsPanelTemplate>
-                                                <StackPanel Orientation="Horizontal" />
+                                                <toolkit:WrapPanel Orientation="Horizontal" />
 
                                             </ItemsPanelTemplate>
                                         </ListView.ItemsPanel>
@@ -124,7 +119,7 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-                </Border>
+                </StackPanel>
             </ScrollViewer>
         </toolkit:DockPanel>
     </Grid>
