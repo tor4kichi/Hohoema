@@ -9,8 +9,8 @@ using Windows.UI;
 
 namespace NicoPlayerHohoema.Models.AppMap
 {
-	public class RankingCategoriesAppMapContainer : SelectableAppMapContainerBase		
-	{
+	public class RankingCategoriesAppMapContainer : AppMapContainerBase
+    {
 
 		public RankingSettings RankingSettings { get; private set; }
 
@@ -22,40 +22,22 @@ namespace NicoPlayerHohoema.Models.AppMap
 
 		public override ContainerItemDisplayType ItemDisplayType => ContainerItemDisplayType.Card;
 
-        public override Task Refresh()
+        protected override Task OnRefreshing()
         {
+            _DisplayItems.Clear();
+
             foreach (var cat in RankingSettings.HighPriorityCategory)
             {
                 var parameter = cat.ToParameterString();
-                var item = AllItems.SingleOrDefault(x => x.Parameter == parameter);
+                var item = new RankingCategoryAppMapItem(cat.Category);
                 if (item != null)
                 {
-                    Add(item);
+                    _DisplayItems.Add(item);
                 }
             }
 
-            return base.Refresh();
+            return Task.CompletedTask;
         }
-
-        protected override Task<IEnumerable<IAppMapItem>> MakeAllItems()
-		{
-			var rankingCategories = Enum.GetValues(typeof(RankingCategory)).Cast<RankingCategory>();
-				
-
-			List<IAppMapItem> items = new List<IAppMapItem>();
-
-			foreach (var cat in rankingCategories)
-			{
-				items.Add(new RankingCategoryAppMapItem(cat));
-			}
-
-//			foreach (var custom in RankingSettings.HighPriorityCategory.Where(x => x.RankingSource == RankingSource.SearchWithMostPopular))
-//			{
-//				items.Add(new RankingCategoryAppMapItem(custom.Parameter));
-//			}
-
-			return Task.FromResult(items.AsEnumerable());
-		}
 	}
 
 
@@ -76,25 +58,8 @@ namespace NicoPlayerHohoema.Models.AppMap
 		public RankingCategoryAppMapItem(RankingCategory cat)
 		{
 			PrimaryLabel = Util.RankingCategoryExtention.ToCultulizedText(cat);
-			Parameter = new RankingCategoryInfo()
-			{
-				RankingSource = RankingSource.CategoryRanking,
-				Parameter = cat.ToString(),
-				DisplayLabel = PrimaryLabel
-			}.ToParameterString();
-				
-		}
-
-		public RankingCategoryAppMapItem(string keyword)
-		{
-			PrimaryLabel = keyword;
-			Parameter = new RankingCategoryInfo()
-			{
-				RankingSource = RankingSource.SearchWithMostPopular,
-				Parameter = keyword,
-				DisplayLabel = PrimaryLabel
-			}.ToParameterString();
-
+			Parameter = new RankingCategoryInfo(cat)
+                .ToParameterString();
 		}
 	}
 }

@@ -37,9 +37,9 @@ namespace NicoPlayerHohoema.Views
 
 		protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
 		{
-			if (item is ViewModels.AppMapContainerViewModelBase)
+			if (item is ViewModels.AppMapContainerViewModel)
 			{
-				var casted = item as ViewModels.AppMapContainerViewModelBase;
+				var casted = item as ViewModels.AppMapContainerViewModel;
 				if (casted.OriginalContainer.ItemDisplayType == Models.AppMap.ContainerItemDisplayType.Card)
 				{
 					return CardContainer;

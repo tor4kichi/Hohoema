@@ -6,22 +6,31 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Models.AppMap
 {
-	public class SearchAppMapContainer : SelfGenerateAppMapContainerBase
-	{
-		public SearchAppMapContainer() : base(HohoemaPageType.Search, label:"検索")
+	public class SearchAppMapContainer : AppMapContainerBase
+    {
+        public const int SearchHistoryDisplayCount = 20;
+
+		public SearchAppMapContainer() 
+            : base(HohoemaPageType.Search, label:"検索")
 		{
 			
 		}
 
 		public override ContainerItemDisplayType ItemDisplayType => ContainerItemDisplayType.Card;
 
-		protected override Task<IEnumerable<IAppMapItem>> GenerateItems(int count)
-		{
-			var histories = Db.SearchHistoryDb.GetHistoryItems();
+        protected override Task OnRefreshing()
+        {
+            _DisplayItems.Clear();
 
-			return Task.FromResult(histories.Take(count).Select(MakeAppMapItemFromSearchHistory));
-		}
+            var histories = Db.SearchHistoryDb.GetHistoryItems();
 
+            foreach (var history in histories.Take(SearchHistoryDisplayCount))
+            {
+                _DisplayItems.Add(MakeAppMapItemFromSearchHistory(history));
+            }
+
+            return Task.CompletedTask;
+        }
 
 		private IAppMapItem MakeAppMapItemFromSearchHistory(Db.SearchHistory history)
 		{

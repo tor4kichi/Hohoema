@@ -6,56 +6,58 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Models.AppMap
 {
-	public class FollowAppMapContainer : SelectableAppMapContainerBase
-	{
+	public class FollowAppMapContainer : AppMapContainerBase
+    {
+        // TODO: FollowManagrの初期化待ち
+        // TODO: フォローアイテムの変更をイベントで受け取りたい
 
 		public FollowManager FollowManager { get; private set; }
 
 		public FollowAppMapContainer()
 			: base(HohoemaPageType.FollowManage, label:"フォロー")
 		{
-			this.FollowManager = HohoemaApp.FollowManager;
-		}
-
-
-		public override ContainerItemDisplayType ItemDisplayType => ContainerItemDisplayType.Card;
-
-
-        public override Task Refresh()
-        {
-            foreach (var item in AllItems.ToArray())
-            {
-                Add(item);
-            }
-            return base.Refresh();
+            HohoemaApp.OnSignin += HohoemaApp_OnSignin;
         }
 
-        protected override async Task<IEnumerable<IAppMapItem>> MakeAllItems()
-		{
-			// TODO: FavManagerを最新の情報に更新
-			
+        private void HohoemaApp_OnSignin()
+        {
+            this.FollowManager = HohoemaApp.FollowManager;
+            FollowManager.Completed += FollowManager_Completed;
+        }
 
-			List<IAppMapItem> items = new List<IAppMapItem>();
+        private async void FollowManager_Completed(object sender)
+        {
+            await Refresh();
+        }
+
+        public override ContainerItemDisplayType ItemDisplayType => ContainerItemDisplayType.Card;
 
 
-			if (FollowManager?.User == null) { return Enumerable.Empty<IAppMapItem>(); }
+        protected override Task OnRefreshing()
+        {
+            _DisplayItems.Clear();
 
-			var userFavItems = FollowManager.User.FollowInfoItems;
-			var mylistFavItems = FollowManager.Mylist.FollowInfoItems;
-			var tagFavItems = FollowManager.Tag.FollowInfoItems;
+            List<IAppMapItem> items = new List<IAppMapItem>();
 
-			var allFavItems = userFavItems
-				.Union(mylistFavItems)
-				.Union(tagFavItems);
 
-			foreach (var fav in allFavItems)
-			{
-				var favAppMapItem = new FollowAppMapItem(fav);
-				items.Add(favAppMapItem);
-			}
+            if (FollowManager?.User == null) { return Task.CompletedTask; }
 
-			return items.AsEnumerable();
-		}
+            var userFavItems = FollowManager.User.FollowInfoItems;
+            var mylistFavItems = FollowManager.Mylist.FollowInfoItems;
+            var tagFavItems = FollowManager.Tag.FollowInfoItems;
+
+            var allFavItems = userFavItems
+                .Union(mylistFavItems)
+                .Union(tagFavItems);
+
+            foreach (var fav in allFavItems)
+            {
+                var favAppMapItem = new FollowAppMapItem(fav);
+                _DisplayItems.Add(favAppMapItem);
+            }
+
+            return Task.CompletedTask;
+        }
 	}
 
 	public class FollowAppMapItem : AppMapItemBase

@@ -45,8 +45,9 @@ namespace NicoPlayerHohoema.Models
 
 			var app = new HohoemaApp(ea);
 			app.MediaManager = await NiconicoMediaManager.Create(app);
-
+            
             await app.LoadUserSettings();
+            await app.FeedManager.Initialize();
 
             var folder = ApplicationData.Current.LocalFolder;
             var playlistFolder = await folder.CreateFolderAsync(PlaylistSaveFolderName, CreationCollisionOption.OpenIfExists);
@@ -123,12 +124,6 @@ namespace NicoPlayerHohoema.Models
                 label: "キャッシュ"
                 );
 
-
-            FeedManagerUpdater = BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(
-				FeedManager,
-				"FeedManager",
-				label: "フィード"
-				);
 
 			MylistManagerUpdater = BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(
 				UserMylistManager,
@@ -401,7 +396,7 @@ namespace NicoPlayerHohoema.Models
 			LastSyncRoamingData = DateTime.Now;
 
 			Debug.WriteLine("ローミングデータの同期：開始");
-			await SyncToRoamingData();
+//			await SyncToRoamingData();
 			Debug.WriteLine("ローミングデータの同期：完了");
 
 			// ローカルフォルダを利用する機能を再初期化
@@ -409,11 +404,11 @@ namespace NicoPlayerHohoema.Models
 			{
 				await _SigninLock.WaitAsync();
 
-				await LoadUserSettings();
+//				await LoadUserSettings();
 				if (IsLoggedIn)
 				{
-					FeedManager = new FeedManager(this);
-					await FeedManager.Initialize();
+//					FeedManager = new FeedManager(this);
+//					await FeedManager.Initialize();
 				}
 			}
 			finally
@@ -714,7 +709,6 @@ namespace NicoPlayerHohoema.Models
 		{
             FollowManagerUpdater.ScheduleUpdate();
             MylistManagerUpdater.ScheduleUpdate();
-            FeedManagerUpdater.ScheduleUpdate();
 		}
 
 

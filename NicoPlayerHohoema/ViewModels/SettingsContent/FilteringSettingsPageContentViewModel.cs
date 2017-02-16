@@ -48,11 +48,8 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					foreach (var choiceItem in choiceItems)
 					{
-						if (choiceItem.RankingSource == RankingSource.CategoryRanking)
-						{
-							var removeTarget = SelectableCategories.SingleOrDefault(x => x.CategoryInfo == choiceItem);
-							SelectableCategories.Remove(removeTarget);
-						}
+						var removeTarget = SelectableCategories.SingleOrDefault(x => x.CategoryInfo == choiceItem);
+						SelectableCategories.Remove(removeTarget);
 
 						FavCategories.Add(new RankingCategorySettingsListItem(choiceItem, this));
 					}
@@ -77,11 +74,8 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					foreach (var choiceItem in choiceItems)
 					{
-						if (choiceItem.RankingSource == RankingSource.CategoryRanking)
-						{
-							var removeTarget = SelectableCategories.SingleOrDefault(x => x.CategoryInfo == choiceItem);
-							SelectableCategories.Remove(removeTarget);
-						}
+						var removeTarget = SelectableCategories.SingleOrDefault(x => x.CategoryInfo == choiceItem);
+						SelectableCategories.Remove(removeTarget);
 
 						DislikeCategories.Add(new RankingCategorySettingsListItem(choiceItem, this));
 					}					
@@ -198,10 +192,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			FavCategories.Remove(userListItem);
 
-			if (userListItem.CategoryInfo.RankingSource == RankingSource.CategoryRanking)
-			{
-				SelectableCategories.Add(userListItem);
-			}
+			SelectableCategories.Add(userListItem);
 
 			ApplyAllPriorityCategoriesToRankingSettings();
 		}
@@ -210,10 +201,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			DislikeCategories.Remove(userListItem);
 
-			if (userListItem.CategoryInfo.RankingSource == RankingSource.CategoryRanking)
-			{
-				SelectableCategories.Add(userListItem);
-			}
+    		SelectableCategories.Add(userListItem);
 
 			ApplyAllPriorityCategoriesToRankingSettings();
 		}

@@ -66,7 +66,10 @@ namespace NicoPlayerHohoema.Models
 		public DateTime UpdateTime
 		{
 			get { return _UpdateTime; }
-			private set { SetProperty(ref _UpdateTime, value); }
+			private set
+            {
+                SetProperty(ref _UpdateTime, value);
+            }
 		}
 
 		[DataMember(Name = "is_need_refresh")]
@@ -83,8 +86,9 @@ namespace NicoPlayerHohoema.Models
 
 		private SemaphoreSlim _RefreshingLock;
 
+        public event BackgroundUpdateCompletedEventHandler Completed;
 
-		public FeedGroup2()
+        public FeedGroup2()
 		{
 			Id = Guid.NewGuid();
 			Label = "";
@@ -263,8 +267,9 @@ namespace NicoPlayerHohoema.Models
 
 			await FeedManager.SaveOne(this);
 
+            Completed?.Invoke(this);
 
-			IsNeedRefresh = false;
+            IsNeedRefresh = false;
 
 			Debug.WriteLine($"{Label} update feed done.");
 		}

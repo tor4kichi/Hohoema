@@ -88,11 +88,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			if (!HohoemaApp.FeedManagerUpdater.IsOneOrMoreUpdateCompleted)
-			{
-				HohoemaApp.FeedManagerUpdater.ScheduleUpdate();
-				await HohoemaApp.FeedManagerUpdater.WaitUpdate();
-			}
+			
 
 			var items = HohoemaApp.FeedManager.FeedGroups
 				.Select(x => new FeedGroupListItem(x, PageManager))
