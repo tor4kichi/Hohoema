@@ -517,9 +517,29 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
-        public Task RequestCache(NicoVideoQuality quality)
+        public Task RequestCache(NicoVideoQuality? quality = null)
 		{
-            var divided = GetDividedQualityNicoVideo(quality);
+            if (!quality.HasValue)
+            {
+                if (HohoemaApp.UserSettings.PlayerSettings.IsLowQualityDeafult)
+                {
+                    quality = NicoVideoQuality.Low;
+                }
+                else
+                {
+                    if (IsOriginalQualityOnly)
+                    {
+                        quality = NicoVideoQuality.Low;
+                    }
+                    else
+                    {
+                        quality = NicoVideoQuality.Original;
+                    }
+                }
+            }
+
+
+            var divided = GetDividedQualityNicoVideo(quality.Value);
 
             _NiconicoMediaManager.VideoCacheStateChanged -= _NiconicoMediaManager_VideoCacheStateChanged;
             _NiconicoMediaManager.VideoCacheStateChanged += _NiconicoMediaManager_VideoCacheStateChanged;

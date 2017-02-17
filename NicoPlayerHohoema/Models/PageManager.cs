@@ -96,7 +96,7 @@ namespace NicoPlayerHohoema.Models
 				// is nico video url?
 				var videoId = uri.AbsolutePath.Split('/').Last();
 				System.Diagnostics.Debug.WriteLine($"open Video: {videoId}");
-                HohoemaPlaylist.DefaultPlaylist.AddVideo(videoId, "");
+                HohoemaPlaylist.PlayVideo(videoId);
 
 				return;
 			}
