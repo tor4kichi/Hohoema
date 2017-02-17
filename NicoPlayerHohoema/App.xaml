@@ -35,6 +35,7 @@
             <myconv:VideoPositionToTimeConverter x:Key="VPosToTime" />
             <myconv:ToUserFriendlyNumber x:Key="ToUserFriendlyNumber" />
             <myconv:RelationalDateTimeConverter x:Key="ToRelationalTime" />
+            <myconv:NicoVideoQualityToCultualizedTextConverter x:Key="QualityToText" />
 
 
             <!-- Logical Modifier-->

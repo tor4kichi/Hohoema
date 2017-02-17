@@ -539,23 +539,37 @@
                                 </Grid>
 
 
-                                <Border HorizontalAlignment="Left"          
+                                <StackPanel HorizontalAlignment="Left"          
                                                 VerticalAlignment="Bottom"
-                                            Width="60"
+                                            Orientation="Horizontal"
                                             Margin="24 0 0 0"
-                                            Visibility="{Binding IsPlayWithCache.Value, Converter={StaticResource BooleanToVisibility}}"
-                                            >
-                                    <TextBlock  
-                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                                IsHitTestVisible="False"
-                                                HorizontalAlignment="Right"
                                             
+                                            >
+                                    
+                                    <TextBlock  Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                
                                                     >
-                                            <Run Text="{Binding ProgressPercent.Value}" />
-                                            <Run Text="%" />
+                                        <Run Text="{Binding CurrentVideoQuality.Value, Converter={StaticResource QualityToText}}"
+                                             
+                                             />
+                                        <Run Text="画質" />
+                                    </TextBlock>
+                                    
+                                    <Border Width="8" />
+
+                                    <TextBlock  Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                Visibility="{Binding IsPlayWithCache.Value, Converter={StaticResource BooleanToVisibility}}"
+                                                    >
+                                        <Run Text="(キャッシュ済み)"
+                                             />
+                                    </TextBlock>
+                                    <TextBlock  Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                Visibility="{Binding IsPlayWithCache.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                                    >
+                                        <Run Text="(オンライン再生)" />
                                     </TextBlock>
 
-                                </Border>
+                                </StackPanel>
 
 
                                 <TextBlock  HorizontalAlignment="Right"

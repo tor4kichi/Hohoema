@@ -383,6 +383,7 @@ namespace NicoPlayerHohoema.Models
                 if (mss != null)
                 {
                     var realMss = mss.GetMediaStreamSource();
+                    realMss.SetBufferedRange(TimeSpan.Zero, TimeSpan.Zero);
                     HohoemaApp.MediaPlayer.Source = MediaSource.CreateFromMediaStreamSource(realMss);
                     HohoemaApp.MediaPlayer.BufferingStarted += MediaPlayer_BufferingStarted;
                 }
