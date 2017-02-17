@@ -147,7 +147,7 @@
 
                                 <Button Command="{Binding OpenOwnerUserPageCommand}">
                                     <StackPanel Orientation="Horizontal">
-                                        <Image Source="{Binding OwnerUserIcon}"
+                                        <Image Source="{Binding OwnerIconUrl}"
                                            Height="36"
                                            Width="36"
                                            />

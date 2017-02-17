@@ -27,6 +27,7 @@ namespace NicoPlayerHohoema.ViewModels
         public IList<TagViewModel> Tags { get; private set; }
 
         public string OwnerName { get; private set; }
+        public string OwnerIconUrl { get; private set; }
 
         public TimeSpan VideoLength { get; private set; }
         
@@ -249,8 +250,21 @@ namespace NicoPlayerHohoema.ViewModels
 
             await Video.SetupWatchPageVisit(NicoVideoQuality.Low);
 
-            var userInfo = await HohoemaApp.ContentFinder.GetUserDetail(Video.VideoOwnerId.ToString());
-            OwnerName = userInfo.Nickname;
+            var ownerIsUser = Video.CachedWatchApiResponse.UploaderInfo != null;
+            var ownerIsChannel = Video.CachedWatchApiResponse.channelInfo != null;
+            if (ownerIsUser)
+            {
+                var uploader = Video.CachedWatchApiResponse.UploaderInfo;
+                OwnerName = uploader.nickname;
+                OwnerIconUrl = uploader.icon_url;
+            } 
+            else if (ownerIsChannel)
+            {
+                var channelInfo = Video.CachedWatchApiResponse.channelInfo;
+                OwnerName = channelInfo.name;
+                OwnerIconUrl = channelInfo.icon_url;
+            }
+
             VideoTitle = Video.Title;
             Tags = Video.Tags.Select(x => new TagViewModel(x, PageManager))
                 .ToList();
@@ -270,6 +284,7 @@ namespace NicoPlayerHohoema.ViewModels
             Playlists = HohoemaApp.Playlist.Playlists.ToList();
 
             OnPropertyChanged(nameof(OwnerName));
+            OnPropertyChanged(nameof(OwnerIconUrl));
             OnPropertyChanged(nameof(VideoTitle));
             OnPropertyChanged(nameof(Tags));
             OnPropertyChanged(nameof(DescriptionHtmlFileUri));

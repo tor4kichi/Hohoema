@@ -215,7 +215,8 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenVideoInfoPageCommand
                     ?? (_OpenVideoInfoPageCommand = new DelegateCommand(() =>
                     {
-                        PageManager.OpenPage(HohoemaPageType.VideoInfomation, RawVideoId);
+                        var videoId = VideoId != null ? VideoId : RawVideoId;
+                        PageManager.OpenPage(HohoemaPageType.VideoInfomation, videoId);
                     }));
             }
         }
