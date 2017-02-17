@@ -82,6 +82,20 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+        private DelegateCommand _CacheRequestCommand;
+        public DelegateCommand CacheRequestCommand
+        {
+            get
+            {
+                return _CacheRequestCommand
+                    ?? (_CacheRequestCommand = new DelegateCommand(() =>
+                    {
+                        Video.RequestCache();
+                    }
+                    ));
+            }
+        }
+
 
 
         public ReactiveProperty<bool> IsStillLoggedInTwitter { get; private set; }
