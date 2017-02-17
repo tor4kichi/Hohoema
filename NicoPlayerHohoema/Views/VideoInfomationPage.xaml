@@ -60,7 +60,7 @@
                         <Button Background="Transparent">
                             <Button.Flyout>
                                 <MenuFlyout>
-                                    <MenuFlyoutItem Text="Tiwtterで共有" Command="{Binding ShereWithTwitterCommand}" />
+                                    <MenuFlyoutItem Text="Twitterで共有" Command="{Binding ShereWithTwitterCommand}" />
                                     <MenuFlyoutItem Text="動画タイトルとURLをコピー" Command="{Binding ShareWithClipboardCommand}"/>
                                 </MenuFlyout>
                             </Button.Flyout>
