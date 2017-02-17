@@ -555,46 +555,45 @@
 
 
                         <!-- Comment関連 -->
+                        <!-- コメントを書く -->
                         <Grid Visibility="{Binding NowCommentWriting.Value, Converter={StaticResource BooleanToVisibility}}" 
                           x:Name="CommentLayout"
                           Background="#AA000000"
+                                Padding="0 8 0 0"
                           >
 
-                            <toolkit:DockPanel>
+                            <toolkit:DockPanel HorizontalAlignment="Center">
 
-                                <Button Content="閉じる"
-                                toolkit:DockPanel.Dock="Left"
+                                <AppBarButton Icon="Clear" 
+                                            toolkit:DockPanel.Dock="Left"
+                                              Background="Transparent"
+                                              VerticalAlignment="Center"
+                                              Margin="0 0 8 8"
                                 >
                                     <i:Interaction.Behaviors>
                                         <core:EventTriggerBehavior EventName="Tapped">
                                             <core:ChangePropertyAction TargetObject="{Binding NowCommentWriting}" PropertyName="Value" Value="False" />
                                         </core:EventTriggerBehavior>
                                     </i:Interaction.Behaviors>
-                                </Button>
+                                </AppBarButton>
 
-                                <Button Content="投稿"  Margin="16 0" 
-                                                Width="80" Height="40"
-                                                Command="{Binding CommentSubmitCommand}"
-                                                x:Name="CommentSubmitButton_Wide"
-                                                    toolkit:DockPanel.Dock="Right"
-                                                />
-
-                                <Button Content="{Binding CommandString.Value}" 
+                                <toolkit:WrapPanel Orientation="Horizontal">
+                                    <Button Content="{Binding CommandString.Value}" 
                                                 toolkit:DockPanel.Dock="Left"
-                                                Margin="16 0"
-                                                MinWidth="120"
-                                                MinHeight="32"
+                                                Margin="8 0 8 8"
+                                                MinWidth="160"
                                                 DataContext="{Binding}"
                                                 x:Name="CommentCommandEditButton_Wide"
+                                            Height="40"
                                             >
-                                    <Button.Flyout>
-                                        <Flyout>
-                                            <local:CommentCommandEditer DataContext="{Binding CommandEditerVM}" />
-                                        </Flyout>
-                                    </Button.Flyout>
-                                </Button>
+                                        <Button.Flyout>
+                                            <Flyout>
+                                                <local:CommentCommandEditer DataContext="{Binding CommandEditerVM}" />
+                                            </Flyout>
+                                        </Button.Flyout>
+                                    </Button>
 
-                                <TextBox x:Name="CommentTextBox" 
+                                    <TextBox x:Name="CommentTextBox" 
                                                  Text="{Binding WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                  FontSize="18"
                                                  VerticalAlignment="Center"
@@ -603,35 +602,40 @@
                                                  toolkitext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
                                                  PlaceholderText="コメント"
                                                  HorizontalAlignment="Stretch"
+                                             Margin="8 0 8 8"
+                                             MinWidth="300"
+                                             Height="40"
                                                  >
-                                    <i:Interaction.Behaviors>
-                                        <mybehavior:KeyboardTrigger Key="Escape">
-                                            <mybehavior:KeyboardTrigger.Actions>
-                                                <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="False" />
-                                                <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="True" />
-                                            </mybehavior:KeyboardTrigger.Actions>
-                                        </mybehavior:KeyboardTrigger>
+                                        <i:Interaction.Behaviors>
+                                            <mybehavior:KeyboardTrigger Key="Escape">
+                                                <mybehavior:KeyboardTrigger.Actions>
+                                                    <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="False" />
+                                                    <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="True" />
+                                                </mybehavior:KeyboardTrigger.Actions>
+                                            </mybehavior:KeyboardTrigger>
 
-                                        <mybehavior:KeyboardTrigger Key="Enter">
-                                            <mybehavior:KeyboardTrigger.Actions>
-                                                <core:InvokeCommandAction Command="{Binding CommentSubmitCommand}" />
-                                                <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="False" />
-                                                <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="True" />
-                                            </mybehavior:KeyboardTrigger.Actions>
-                                        </mybehavior:KeyboardTrigger>
+                                            <mybehavior:KeyboardTrigger Key="Enter">
+                                                <mybehavior:KeyboardTrigger.Actions>
+                                                    <core:InvokeCommandAction Command="{Binding CommentSubmitCommand}" />
+                                                    <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="False" />
+                                                    <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="True" />
+                                                </mybehavior:KeyboardTrigger.Actions>
+                                            </mybehavior:KeyboardTrigger>
 
-                                    </i:Interaction.Behaviors>
-                                </TextBox>
+                                        </i:Interaction.Behaviors>
+                                    </TextBox>
+
+                                    <Button Content="投稿"  Margin="8 0 8 8"
+                                            Width="160" Height="40"
+                                            Command="{Binding CommentSubmitCommand}"
+                                            x:Name="CommentSubmitButton_Wide"
+                                            HorizontalAlignment="Right"
+                                                />
 
 
-
-
+                                </toolkit:WrapPanel>
                             </toolkit:DockPanel>
-
-
                         </Grid>
-
-
                     </StackPanel>
 
 
