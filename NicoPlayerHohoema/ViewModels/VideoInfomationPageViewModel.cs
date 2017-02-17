@@ -37,6 +37,10 @@ namespace NicoPlayerHohoema.ViewModels
         public uint CommentCount { get; private set; }
         public uint MylistCount { get; private set; }
 
+        public Uri VideoPageUri { get; private set; }
+
+        public ReactiveProperty<bool> NowLoading { get; private set; }
+        public ReactiveProperty<bool> IsLoadFailed { get; private set; }
 
 
         private DelegateCommand _OpenOwnerUserPageCommand;
@@ -221,6 +225,19 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
+        private DelegateCommand _UpdateCommand;
+        public DelegateCommand UpdateCommand
+        {
+            get
+            {
+                return _UpdateCommand
+                    ?? (_UpdateCommand = new DelegateCommand(async () =>
+                    {
+                        await Update();
+                    }));
+            }
+        }
+
 
         public List<Playlist> Playlists { get; private set; }
 
@@ -232,6 +249,8 @@ namespace NicoPlayerHohoema.ViewModels
             ChangeRequireServiceLevel(HohoemaAppServiceLevel.OnlineWithoutLoggedIn);
 
             IsStillLoggedInTwitter = new ReactiveProperty<bool>(Util.TwitterHelper.IsLoggedIn);
+            NowLoading = new ReactiveProperty<bool>(false);
+            IsLoadFailed = new ReactiveProperty<bool>(false);
         }
 
 
@@ -245,58 +264,118 @@ namespace NicoPlayerHohoema.ViewModels
 
             if (Video == null)
             {
+                IsLoadFailed.Value = true;
                 throw new Exception();
             }
 
-            await Video.SetupWatchPageVisit(NicoVideoQuality.Low);
-
-            var ownerIsUser = Video.CachedWatchApiResponse.UploaderInfo != null;
-            var ownerIsChannel = Video.CachedWatchApiResponse.channelInfo != null;
-            if (ownerIsUser)
-            {
-                var uploader = Video.CachedWatchApiResponse.UploaderInfo;
-                OwnerName = uploader.nickname;
-                OwnerIconUrl = uploader.icon_url;
-            } 
-            else if (ownerIsChannel)
-            {
-                var channelInfo = Video.CachedWatchApiResponse.channelInfo;
-                OwnerName = channelInfo.name;
-                OwnerIconUrl = channelInfo.icon_url;
-            }
-
-            VideoTitle = Video.Title;
-            Tags = Video.Tags.Select(x => new TagViewModel(x, PageManager))
-                .ToList();
-            ThumbnailUrl = Video.ThumbnailUrl;
-
-            DescriptionHtmlFileUri = await Util.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(Video.RawVideoId, Video.DescriptionWithHtml);
-
-            VideoLength = Video.VideoLength;
-            SubmitDate = Video.PostedAt;
-            ViewCount = Video.ViewCount;
-            CommentCount = Video.CommentCount;
-            MylistCount = Video.MylistCount;
+            VideoPageUri = new Uri("http://nicovideo.jp/watch/" + Video.RawVideoId);
+            OnPropertyChanged(nameof(VideoPageUri));
 
 
-
-            var mylistResistrationDialogService = App.Current.Container.Resolve<Views.Service.MylistRegistrationDialogService>();
-            Playlists = HohoemaApp.Playlist.Playlists.ToList();
-
-            OnPropertyChanged(nameof(OwnerName));
-            OnPropertyChanged(nameof(OwnerIconUrl));
-            OnPropertyChanged(nameof(VideoTitle));
-            OnPropertyChanged(nameof(Tags));
-            OnPropertyChanged(nameof(DescriptionHtmlFileUri));
-            OnPropertyChanged(nameof(ThumbnailUrl));
-            OnPropertyChanged(nameof(VideoLength));
-            OnPropertyChanged(nameof(SubmitDate));
-            OnPropertyChanged(nameof(ViewCount));
-            OnPropertyChanged(nameof(CommentCount));
-            OnPropertyChanged(nameof(MylistCount));
-
+            await Update();
         }
 
 
+        private async Task Update()
+        {
+            if (Video == null)
+            {
+                return;
+            }
+
+            NowLoading.Value = true;
+            IsLoadFailed.Value = false;
+
+            try
+            {
+                try
+                {
+                    await Video.SetupWatchPageVisit(NicoVideoQuality.Low);
+
+                    VideoTitle = Video.Title;
+                    Tags = Video.Tags.Select(x => new TagViewModel(x, PageManager))
+                        .ToList();
+                    ThumbnailUrl = Video.ThumbnailUrl;
+                    VideoLength = Video.VideoLength;
+                    SubmitDate = Video.PostedAt;
+                    ViewCount = Video.ViewCount;
+                    CommentCount = Video.CommentCount;
+                    MylistCount = Video.MylistCount;
+
+                    OnPropertyChanged(nameof(VideoTitle));
+                    OnPropertyChanged(nameof(Tags));
+                    OnPropertyChanged(nameof(ThumbnailUrl));
+                    OnPropertyChanged(nameof(VideoLength));
+                    OnPropertyChanged(nameof(SubmitDate));
+                    OnPropertyChanged(nameof(ViewCount));
+                    OnPropertyChanged(nameof(CommentCount));
+                    OnPropertyChanged(nameof(MylistCount));
+
+                }
+                catch
+                {
+                    IsLoadFailed.Value = true;
+                    return;
+                }
+
+
+
+                try
+                {
+                    DescriptionHtmlFileUri = await Util.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(Video.RawVideoId, Video.DescriptionWithHtml);
+                    OnPropertyChanged(nameof(DescriptionHtmlFileUri));
+                }
+                catch
+                {
+                    IsLoadFailed.Value = true;
+                    return;
+                }
+
+                try
+                {
+                    var ownerIsUser = Video.CachedWatchApiResponse.UploaderInfo != null;
+                    var ownerIsChannel = Video.CachedWatchApiResponse.channelInfo != null;
+                    if (ownerIsUser)
+                    {
+                        var uploader = Video.CachedWatchApiResponse.UploaderInfo;
+                        OwnerName = uploader.nickname;
+                        OwnerIconUrl = uploader.icon_url;
+                    }
+                    else if (ownerIsChannel)
+                    {
+                        var channelInfo = Video.CachedWatchApiResponse.channelInfo;
+                        OwnerName = channelInfo.name;
+                        OwnerIconUrl = channelInfo.icon_url;
+                    }
+
+                    OnPropertyChanged(nameof(OwnerName));
+                    OnPropertyChanged(nameof(OwnerIconUrl));
+                }
+                catch
+                {
+                    IsLoadFailed.Value = true;
+                    return;
+                }
+
+                try
+                {
+                    Playlists = HohoemaApp.Playlist.Playlists.ToList();
+                }
+                catch
+                {
+                    IsLoadFailed.Value = true;
+                    return;
+                }
+
+
+            }
+            finally
+            {
+                NowLoading.Value = false;
+            }
+        }
+
+
+        
     }
 }
