@@ -69,8 +69,15 @@ namespace NicoPlayerHohoema.ViewModels
                 .ToReactiveProperty()
                 .AddTo(_CompositeDisposable);
 
-            IsForceXboxDisplayMode = PageManager.ObserveProperty(x => x.IsForceXboxDisplayMode)
-                .ToReactiveProperty();
+            if (Util.DeviceTypeHelper.IsXbox)
+            {
+                IsForceTVModeEnable = new ReactiveProperty<bool>(true);
+            }
+            else
+            {
+                IsForceTVModeEnable = HohoemaApp.UserSettings.AppearanceSettings.ObserveProperty(x => x.IsForceTVModeEnable)
+                    .ToReactiveProperty();
+            }
 
             SubstitutionBackNavigation = new Dictionary<string, Action>();
 
@@ -551,7 +558,7 @@ namespace NicoPlayerHohoema.ViewModels
             set { SetProperty(ref _Title, value); }
         }
 
-        public ReactiveProperty<bool> IsForceXboxDisplayMode { get; private set; }
+        public ReactiveProperty<bool> IsForceTVModeEnable { get; private set; }
 
 
         public Dictionary<string, Action> SubstitutionBackNavigation { get; private set; }

@@ -13,36 +13,74 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <ScrollViewer>
-        <StackPanel Margin="8" MinWidth="400" HorizontalAlignment="Left">
-            
-            <StackPanel Orientation="Horizontal" Margin="8 8 0 8">
-                <TextBlock Text="アプリの表示設定"
+    <Grid>
+
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState x:Name="Xbox">
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsXbox}" />
+                    </VisualState.StateTriggers>
+
+                    <VisualState.Setters>
+                        <Setter Target="TVModeSwitchLayout.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+        
+        <ScrollViewer>
+            <StackPanel Margin="8" MinWidth="400" HorizontalAlignment="Left">
+
+                <StackPanel Orientation="Horizontal" Margin="8 8 0 8">
+                    <TextBlock Text="アプリの表示設定"
                            FontSize="18"
                            VerticalAlignment="Center"
                            FontWeight="SemiBold"
                            />
-            </StackPanel>
-            
-            <toolkit:DockPanel Margin="8">
-                <TextBlock Text="テーマ"
+                </StackPanel>
+
+                <StackPanel Margin="8">
+                    <TextBlock Text="テーマ"
                            toolkit:DockPanel.Dock="Left"
                            VerticalAlignment="Center"
                            />
-                <ComboBox ItemsSource="{Binding ThemeList}"
+                    <ComboBox ItemsSource="{Binding ThemeList}"
                           SelectedItem="{Binding SelectedApplicationTheme.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                          HorizontalAlignment="Right"
+                              Margin="0 8 0 0"
                           >
-                </ComboBox>
-            </toolkit:DockPanel>
+                    </ComboBox>
+                </StackPanel>
 
-            <TextBlock Text="※テーマの適用にはアプリを再起動してください" 
+                <TextBlock Text="※テーマの適用にはアプリを再起動してください" 
                        Foreground="Red"
                        Margin="0 8"
                        Visibility="{Binding ThemeChanged, Converter={StaticResource BooleanToVisibility}}"
                        />
 
 
-        </StackPanel>
-    </ScrollViewer>
+
+                <!-- TODO: Xbox利用時にはTV Mode変更はできないため設定を非表示に -->
+                <StackPanel x:Name="TVModeSwitchLayout">
+                    <StackPanel Margin="8">
+                        <TextBlock Text="TV Modeを利用する"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+
+                        <ToggleSwitch IsOn="{Binding IsTVModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              
+                              />
+                    </StackPanel>
+                    <TextBlock Text="コントローラーを利用してアプリを操作するのに適しています。" 
+                       Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
+                       Visibility="{Binding ThemeChanged, Converter={StaticResource BooleanToVisibility}}"
+                       />
+                </StackPanel>
+
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+    
 </UserControl>

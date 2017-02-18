@@ -46,6 +46,8 @@ namespace NicoPlayerHohoema.ViewModels
 
             CurrentSettingsContent.Subscribe(x =>
             {
+                _PrevSettingsContent?.Leaved();
+
                 if (x != null)
                 {
                     AddSubsitutionBackNavigateAction("settings_content_selection"
@@ -58,6 +60,9 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     RemoveSubsitutionBackNavigateAction("settings_content_selection");
                 }
+
+                _PrevSettingsContent = x;
+                x?.Entered();                
             });
 
         }
@@ -79,7 +84,7 @@ namespace NicoPlayerHohoema.ViewModels
 					vm = new CacheSettingsPageContentViewModel(HohoemaApp, EditAutoCacheConditionDialogService, AcceptCacheUsaseDialogService);
 					break;
 				case HohoemaSettingsKind.Appearance:
-					vm = new AppearanceSettingsPageContentViewModel(ToastNotificationService);
+					vm = new AppearanceSettingsPageContentViewModel(HohoemaApp, ToastNotificationService);
 					break;
 				case HohoemaSettingsKind.Share:
 					vm = new ShareSettingsPageContentViewModel();
@@ -127,7 +132,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
-			CurrentSettingsContent.Value?.OnLeave();
+            CurrentSettingsContent.Value = null;
 
 			if (suspending)
 			{
@@ -147,8 +152,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-
-		public ReactiveProperty<SettingsPageContentViewModel> CurrentSettingsContent { get; private set; }
+        private SettingsPageContentViewModel _PrevSettingsContent;
+        public ReactiveProperty<SettingsPageContentViewModel> CurrentSettingsContent { get; private set; }
 
 		public List<SettingsPageContentViewModel> SettingItems { get; private set; }
 
@@ -170,23 +175,48 @@ namespace NicoPlayerHohoema.ViewModels
         About,
     }
 
-	public abstract class SettingsPageContentViewModel : ViewModelBase
+	public abstract class SettingsPageContentViewModel : ViewModelBase, IDisposable
 	{
 		public string Title { get; private set; }
         public HohoemaSettingsKind Kind { get; private set; }
 
-		public SettingsPageContentViewModel(string title, HohoemaSettingsKind kind)
+        protected CompositeDisposable _FocusingDisposable;
+
+
+        public SettingsPageContentViewModel(string title, HohoemaSettingsKind kind)
 		{
             Title = title;
             Kind = kind;
         }
 
+        
+        internal void Entered()
+        {
+            _FocusingDisposable = new CompositeDisposable();
 
-		virtual public void OnEnter() { }
+            OnEnter(_FocusingDisposable);
+        }
 
-		public abstract void OnLeave();
+        protected virtual void OnEnter(ICollection<IDisposable> focusingDispsable)
+        {
+        }
 
-	}
+        internal void Leaved()
+        {
+            _FocusingDisposable?.Dispose();
+
+            OnLeave();
+        }
+
+		protected virtual void OnLeave()
+        {
+        }
+
+        public void Dispose()
+        {
+            _FocusingDisposable?.Dispose();
+        }
+    }
 
 	
 

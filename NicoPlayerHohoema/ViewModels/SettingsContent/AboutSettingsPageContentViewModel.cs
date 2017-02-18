@@ -39,10 +39,6 @@ namespace NicoPlayerHohoema.ViewModels
                 });
         }
 
-        public override void OnLeave()
-        {
-            // do nothing
-        }
     }
 
     public class LisenceItemViewModel

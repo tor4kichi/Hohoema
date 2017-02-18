@@ -157,8 +157,8 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        public override void OnLeave()
-		{
+        protected override void OnLeave()
+        {
 			ApplyAllPriorityCategoriesToRankingSettings();
 
 			_RankingSettings.Save().ConfigureAwait(false);

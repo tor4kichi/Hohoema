@@ -12,6 +12,7 @@ using System.Diagnostics;
 using Windows.System;
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -148,14 +149,13 @@ namespace NicoPlayerHohoema.ViewModels
 			
 		}
 
-		public override async void OnEnter()
-		{
-			base.OnEnter();
+        protected override async void OnEnter(ICollection<IDisposable> focusingDisposable)
+        {
 			await RefreshCacheSaveFolderStatus();
 		}
 
-		public override void OnLeave()
-		{
+        protected override void OnLeave()
+        {
 			_CacheSettings.Save().ConfigureAwait(false);
 		}
 

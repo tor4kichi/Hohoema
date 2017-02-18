@@ -25,14 +25,29 @@ namespace NicoPlayerHohoema.ViewModels
 		public HohoemaApp HohoemaApp { get; private set; }
         public AccountManagementDialogService AccountManagementDialogService { get; private set; }
 
-        public MenuNavigatePageBaseViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.AccountManagementDialogService accountManageDlgService)
+
+        public ReactiveProperty<bool> IsTVModeEnable { get; private set; }
+
+        public MenuNavigatePageBaseViewModel(
+            HohoemaApp hohoemaApp, 
+            PageManager pageManager, 
+            Views.Service.AccountManagementDialogService accountManageDlgService
+            )
 		{
 			PageManager = pageManager;
 			HohoemaApp = hohoemaApp;
             AccountManagementDialogService = accountManageDlgService;
 
-            IsForceXboxDisplayMode = PageManager.ObserveProperty(x => x.IsForceXboxDisplayMode)
-                .ToReactiveProperty();
+            // TV Mode
+            if (Util.DeviceTypeHelper.IsXbox)
+            {
+                IsTVModeEnable = new ReactiveProperty<bool>(true);
+            }
+            else
+            {
+                IsTVModeEnable = HohoemaApp.UserSettings.AppearanceSettings.ObserveProperty(x => x.IsForceTVModeEnable)
+                    .ToReactiveProperty();
+            }
 
             IsOpenPane = new ReactiveProperty<bool>(false);
 

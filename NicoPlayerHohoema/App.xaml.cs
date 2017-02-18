@@ -50,8 +50,6 @@ namespace NicoPlayerHohoema
 
 		private bool _IsPreLaunch;
 
-        public bool IsForceXboxLayoutMode { get; set; } = false;
-
 		public const string ACTIVATION_WITH_ERROR = "error";
 
 		static App()
@@ -523,7 +521,10 @@ namespace NicoPlayerHohoema
 
         protected override Type GetPageType(string pageToken)
         {
-            if (IsForceXboxLayoutMode || Util.DeviceTypeHelper.IsXbox)
+            var hohoemaApp = Container.Resolve<HohoemaApp>();
+            var isForceTVModeEnable = hohoemaApp?.UserSettings?.AppearanceSettings.IsForceTVModeEnable ?? false;
+
+            if (isForceTVModeEnable || Util.DeviceTypeHelper.IsXbox)
             {
                 // pageTokenに対応するXbox表示用のページの型を取得
                 try

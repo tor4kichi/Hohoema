@@ -50,6 +50,20 @@
                     <VisualStateGroup x:Name="TopBarStateGroup">
 
 
+                        <!-- TV Mode -->
+
+                        
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <StateTrigger IsActive="{Binding IsTVModeEnable.Value}" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="SplitView.DisplayMode" Value="Overlay" />
+                                <Setter Target="SplitView.IsPaneOpen" Value="False" />
+
+                                <Setter Target="TVModeSideMenu.Visibility" Value="Visible" />
+                            </VisualState.Setters>
+                        </VisualState>
                         <!-- トップメニュー非表示 -->
                         <VisualState>
                             <VisualState.StateTriggers>
@@ -92,6 +106,38 @@
 
                 <toolkit:DockPanel>
 
+                    <!-- TV Mode side menu -->
+                    <StackPanel x:Name="TVModeSideMenu" Visibility="Collapsed">
+                        <ListView ItemsSource="{Binding MenuItems}"
+                                                    SelectedItem="{Binding MainSelectedItem.Value, Mode=TwoWay}"
+                                                    SelectionMode="Single"
+                                                    DisplayMemberPath="Label"
+                                                >
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                        </ListView>
+
+                        <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                BorderThickness="0 1 0 0" />
+
+                        <ListView ItemsSource="{Binding SubMenuItems}"
+                                                    SelectedItem="{Binding SubSelectedItem.Value, Mode=TwoWay}"
+                                                    SelectionMode="Single"
+                                                    DisplayMemberPath="Label"
+                                                >
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                        </ListView>
+
+                    </StackPanel>
+                    
+                    
                     <!-- モバイル時のボトムバー -->
                     <toolkit:DockPanel x:Name="MobileBottomBar" Visibility="Collapsed"
                                     toolkit:DockPanel.Dock="Bottom" 

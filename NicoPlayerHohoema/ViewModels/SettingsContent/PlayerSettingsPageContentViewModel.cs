@@ -123,7 +123,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         }
 
-        public override void OnLeave()
+        protected override void OnLeave()
 		{
             _NGSettings.Save().ConfigureAwait(false);
             _PlayerSettings.Save().ConfigureAwait(false);

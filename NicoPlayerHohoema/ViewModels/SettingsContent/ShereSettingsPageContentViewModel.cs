@@ -21,10 +21,7 @@ namespace NicoPlayerHohoema.ViewModels
 			TwitterAccountScreenName = new ReactiveProperty<string>(TwitterHelper.TwitterUser?.ScreenName ?? "");
 		}
 
-		public override void OnLeave()
-		{
-			
-		}
+		
 
 		private DelegateCommand _LogInToTwitterCommand;
 		public DelegateCommand LogInToTwitterCommand

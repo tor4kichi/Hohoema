@@ -35,14 +35,6 @@ namespace NicoPlayerHohoema.Models
 		public INavigationService NavigationService { get; private set; }
 
 
-        private bool _IsForceXboxDisplayMode = false;
-        public bool IsForceXboxDisplayMode
-        {
-            get { return _IsForceXboxDisplayMode; }
-            set { SetProperty(ref _IsForceXboxDisplayMode, value); }
-        }
-
-
 
         private HohoemaPageType _CurrentPageType;
 		public HohoemaPageType CurrentPageType
