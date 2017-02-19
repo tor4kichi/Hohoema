@@ -70,8 +70,9 @@ namespace NicoPlayerHohoema
             this.LeavingBackground += App_LeavingBackground;
             Windows.System.MemoryManager.AppMemoryUsageLimitChanging += MemoryManager_AppMemoryUsageLimitChanging;
 
+            this.RequiresPointerMode = Windows.UI.Xaml.ApplicationRequiresPointerMode.WhenRequested;
 
-             RequestedTheme = GetTheme();
+            RequestedTheme = GetTheme();
 
 
 			this.InitializeComponent();
