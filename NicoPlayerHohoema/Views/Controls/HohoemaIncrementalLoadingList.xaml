@@ -150,17 +150,29 @@
             </ProgressRing>
 
             <uwpToolkit:PullToRefreshListView ItemsSource="{Binding IncrementalLoadingItems}"
-                                 SelectionMode="Multiple"
                                  IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
                                  IncrementalLoadingTrigger="Edge"
                                  RefreshCommand="{Binding RefreshCommand}"
                                     PullThreshold="85"    
                                               x:Name="HohoemaListView"
                                               UseSystemFocusVisuals="True"
-                                              IsTabStop="False"
+                                              HorizontalContentAlignment="Stretch"
+                                              IsItemClickEnabled="{Binding IsSelectionModeEnable.Value, Converter={StaticResource InvertBoolean}}"
                                 >
+                
 
                 <i:Interaction.Behaviors>
+
+                    <core:EventTriggerBehavior EventName="ItemClick">
+                        <core:InvokeCommandAction Command="{Binding SelectItemCommand}" />
+                    </core:EventTriggerBehavior>
+                    
+                    <core:DataTriggerBehavior Binding="{Binding IsSelectionModeEnable.Value}" Value="True">
+                        <core:ChangePropertyAction TargetObject="{Binding ElementName=HohoemaListView}" PropertyName="SelectionMode"  Value="Multiple" />
+                    </core:DataTriggerBehavior>
+                    <core:DataTriggerBehavior Binding="{Binding IsSelectionModeEnable.Value}" Value="False">
+                        <core:ChangePropertyAction TargetObject="{Binding ElementName=HohoemaListView}" PropertyName="SelectionMode"  Value="Single" />
+                    </core:DataTriggerBehavior>
 
                     <mybehavior:FocusFirstItem IsEnabled="{x:Bind IsFocusFirstItemEnable}" />
 
@@ -191,6 +203,7 @@
                                     Value="0 0 0 0" 
                                     />
                         <Setter Property="Padding" Value="0 0 0 0" />
+                        <Setter Property="UseSystemFocusVisuals" Value="True" />
                     </Style>
                 </ListView.ItemContainerStyle>
 
@@ -210,17 +223,9 @@
 
                     <DataTemplate>
 
-                        <StackPanel >
-
-                            <i:Interaction.Behaviors>
-                                <core:EventTriggerBehavior EventName="Tapped">
-                                    <core:InvokeCommandAction Command="{Binding ElementName=ControlRoot, Path=DataContext.SelectItemCommand}"
-                                                          CommandParameter="{Binding}"
-                                                          />
-                                </core:EventTriggerBehavior>
-                            </i:Interaction.Behaviors>
-
-                            <ContentControl Content="{Binding}"
+                        <Border>
+                            <StackPanel>
+                                <ContentControl Content="{Binding}"
                                         ContentTemplateSelector="{StaticResource listItemTemplateSelector}"
                                         HorizontalContentAlignment="Stretch"
                                         VerticalContentAlignment="Stretch"
@@ -228,12 +233,15 @@
                                         Padding="0 0 16 0"
                                         />
 
-                            <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" BorderThickness="0 0 0 1"
-                                Height="1"
-                                Opacity="0.15"
-                                />
 
-                        </StackPanel>
+                                <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" BorderThickness="0 0 0 1"
+                                    Height="1"
+                                    Opacity="0.15"
+                                    />
+
+                            </StackPanel>
+
+                        </Border>
                     </DataTemplate>
 
                 </ListView.ItemTemplate>

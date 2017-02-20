@@ -70,26 +70,44 @@ namespace NicoPlayerHohoema.ViewModels
 			// 複数選択モードによって再生コマンドの呼び出しを制御する
 			SelectItemCommand = IsSelectionModeEnable
 				.Select(x => !x)
-				.ToReactiveCommand<ITEM_VM>()
+				.ToReactiveCommand<object>()
 				.AddTo(_CompositeDisposable);
 
 
-			SelectItemCommand.Subscribe(x =>
+			SelectItemCommand.Subscribe(item =>
 			{
-				if (x?.PrimaryCommand.CanExecute(null) ?? false)
-				{
-					x.PrimaryCommand.Execute(null);
-				}
-
-				ClearSelection();
-			})
+                var args = item as ItemClickEventArgs;
+                if (args?.ClickedItem is HohoemaListingPageItemBase)
+                {
+                    var listItem = args.ClickedItem as HohoemaListingPageItemBase;
+                    if (listItem?.PrimaryCommand.CanExecute(null) ?? false)
+                    {
+                        listItem.PrimaryCommand.Execute(null);
+                    }
+                }
+            })
 			.AddTo(_CompositeDisposable);
-
+            
 
 			var SelectionItemsChanged = SelectedItems.ToCollectionChanged().ToUnit();
-
+/*
+            SelectionItemsChanged.Subscribe(_ => 
+            {
+                if (!IsSelectionModeEnable.Value)
+                {
+                    var item = SelectedItems.FirstOrDefault();
+                    if (item != null)
+                    {
+                        if (item.PrimaryCommand.CanExecute(null))
+                        {
+                            item.PrimaryCommand.Execute(null);
+                        }
+                    }
+                }
+            });
+            */
 #if DEBUG
-			SelectedItems.CollectionChangedAsObservable()
+            SelectedItems.CollectionChangedAsObservable()
 				.Subscribe(x => 
 				{
 					Debug.WriteLine("Selected Count: " + SelectedItems.Count);
@@ -284,11 +302,10 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> IsSelectionModeEnable { get; private set; }
 		
 
-		public ReactiveCommand<ITEM_VM> SelectItemCommand { get; private set; }
+		public ReactiveCommand<object> SelectItemCommand { get; private set; }
 
-		
-
-		private DelegateCommand _EnableSelectionCommand;
+                
+        private DelegateCommand _EnableSelectionCommand;
 		public DelegateCommand EnableSelectionCommand
 		{
 			get
