@@ -23,6 +23,7 @@
             <Button Command="{Binding PrimaryCommand}"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
+                    UseSystemFocusVisuals="True"
                     >
                 <TextBlock Text="{Binding Label}"
                            VerticalAlignment="Center"
@@ -38,6 +39,12 @@
     
     <Grid x:Name="ContentLayoutRoot">
 
+        <i:Interaction.Behaviors>
+            <core:EventTriggerBehavior EventName="Loaded">
+                <mybehavior:SetFocus TargetObject="{Binding ElementName=CategoryItems}" />
+            </core:EventTriggerBehavior>
+        </i:Interaction.Behaviors>
+        
         <toolkit:DockPanel x:Name="ContentLayout">
 
             <Border toolkit:DockPanel.Dock="Top" 
@@ -69,10 +76,14 @@
                       HorizontalScrollMode="Enabled" 
                       HorizontalScrollBarVisibility="Auto"
                           HorizontalContentAlignment="Stretch"
-                      Margin="0 8 0 0">
+                      Margin="0 8 0 0"
+                          IsTabStop="False"
+                          >
 
                 <ItemsControl ItemsSource="{Binding RankingCategoryItems}"
                           Height="{Binding ElementName=ContentLayout, Path=ActualHeight, Mode=OneWay}"
+                              IsTabStop="False"
+                              x:Name="CategoryItems"
                           >
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -90,7 +101,7 @@
 
                                 <ItemsControl ItemsSource="{Binding}"
                                           ItemTemplate="{StaticResource CategoryListItemTemplate}"
-                                                                                    
+                                                    IsTabStop="False"                                
                                           >
                                     <ItemsControl.ItemContainerStyle>
                                         <Style TargetType="ContentPresenter">

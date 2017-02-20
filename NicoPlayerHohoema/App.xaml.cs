@@ -74,7 +74,6 @@ namespace NicoPlayerHohoema
 
             RequestedTheme = GetTheme();
 
-
 			this.InitializeComponent();
 		}
 
@@ -494,9 +493,9 @@ namespace NicoPlayerHohoema
             {
                 var pageToken = viewType.Name;
 
-                if (pageToken.EndsWith("_xbox"))
+                if (pageToken.EndsWith("_TV"))
                 {
-                    pageToken = pageToken.Remove(pageToken.IndexOf("_xbox"));
+                    pageToken = pageToken.Remove(pageToken.IndexOf("_TV"));
                 }
 
                 var assemblyQualifiedAppType = viewType.AssemblyQualifiedName;
@@ -532,7 +531,7 @@ namespace NicoPlayerHohoema
                 {
                     var assemblyQualifiedAppType = this.GetType().AssemblyQualifiedName;
 
-                    var pageNameWithParameter = assemblyQualifiedAppType.Replace(this.GetType().FullName, this.GetType().Namespace + ".Views.{0}Page_xbox");
+                    var pageNameWithParameter = assemblyQualifiedAppType.Replace(this.GetType().FullName, this.GetType().Namespace + ".Views.{0}Page_TV");
 
                     var viewFullName = string.Format(CultureInfo.InvariantCulture, pageNameWithParameter, pageToken);
                     var viewType = Type.GetType(viewFullName);
@@ -588,10 +587,19 @@ namespace NicoPlayerHohoema
             var container = new Views.PlayerWithPageContainer();
             container.Content = menuPageBase;
 
+#if DEBUG
+            container.FocusEngaged += Container_FocusEngaged;
+#endif
+
             return container;
 		}
 
-		private void RootFrame_Navigating(object sender, NavigatingCancelEventArgs e)
+        private void Container_FocusEngaged(Control sender, FocusEngagedEventArgs args)
+        {
+            Debug.WriteLine("focus engagad: " + args.OriginalSource.ToString());
+        }
+
+        private void RootFrame_Navigating(object sender, NavigatingCancelEventArgs e)
 		{
 			// Note: 有害動画の確認ページへの進む動作を防止する
 			if (e.NavigationMode == NavigationMode.Forward)

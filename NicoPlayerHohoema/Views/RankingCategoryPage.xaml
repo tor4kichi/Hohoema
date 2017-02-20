@@ -81,6 +81,8 @@
 
         </VisualStateManager.VisualStateGroups>
 
+        
+
         <Grid>
             <toolkit:DockPanel>
 
@@ -236,7 +238,7 @@
 
 
 
-                <controls:HohoemaIncrementalLoadingList />
+                <controls:HohoemaIncrementalLoadingList x:Name="IncrementalLoadingList" />
 
 
             </toolkit:DockPanel>

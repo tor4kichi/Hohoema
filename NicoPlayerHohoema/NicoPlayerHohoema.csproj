@@ -273,6 +273,7 @@
       <DependentUpon>AboutPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Behaviors\CloseFlyoutAction.cs" />
+    <Compile Include="Views\Behaviors\EngagePassToFirstChild.cs" />
     <Compile Include="Views\Behaviors\EnsureLifecycleMediaElement.cs" />
     <Compile Include="Views\Behaviors\FlyoutBehavior.cs" />
     <Compile Include="Views\Behaviors\KeyboardTrigger.cs" />
@@ -405,6 +406,9 @@
     </Compile>
     <Compile Include="Views\PlaylistPage.xaml.cs">
       <DependentUpon>PlaylistPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PortalPage_TV.xaml.cs">
+      <DependentUpon>PortalPage_TV.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\RankingChoiceContentDialog.xaml.cs">
       <DependentUpon>RankingChoiceContentDialog.xaml</DependentUpon>
@@ -803,6 +807,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\PlaylistPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PortalPage_TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

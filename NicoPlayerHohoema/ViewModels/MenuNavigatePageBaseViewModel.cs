@@ -292,6 +292,23 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
+        private DelegateCommand<PageTypeSelectableItem> _ItemSelectedCommand;
+        public DelegateCommand<PageTypeSelectableItem> ItemSelectedCommand
+        {
+            get
+            {
+                return _ItemSelectedCommand
+                    ?? (_ItemSelectedCommand = new DelegateCommand<PageTypeSelectableItem>((item) =>
+                    {
+                        if (item != null)
+                        {
+                            item.SelectedAction(item.Source);
+                        }
+                    }));
+            }
+        }
+
+
         public List<PageTypeSelectableItem> MenuItems { get; private set; }
 
         public List<PageTypeSelectableItem> SubMenuItems { get; private set; }
@@ -467,7 +484,8 @@ namespace NicoPlayerHohoema.ViewModels
 
         public bool HasChild { get; set; }
         public List<PageTypeSelectableItem> Children { get; set; }
-	}
+
+    }
 
 
 
