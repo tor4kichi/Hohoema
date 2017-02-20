@@ -11,6 +11,7 @@ using System.Collections.ObjectModel;
 using Reactive.Bindings;
 using Prism.Mvvm;
 using NicoPlayerHohoema.Views.Service;
+using System.Windows.Input;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -187,24 +188,29 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-
-        internal void UnfavRankingCategory(RankingCategorySettingsListItem userListItem)
+        /// <summary>
+        /// お気に入りや非表示に設定されたランキングカテゴリを元の状態に戻します
+        /// </summary>
+        /// <param name="userListItem"></param>
+        internal void ClearFavStateRankingCategory(RankingCategorySettingsListItem userListItem)
 		{
-			FavCategories.Remove(userListItem);
+            if (FavCategories.Contains(userListItem))
+            {
+                FavCategories.Remove(userListItem);
 
-			SelectableCategories.Add(userListItem);
+                SelectableCategories.Add(userListItem);
 
-			ApplyAllPriorityCategoriesToRankingSettings();
-		}
+                ApplyAllPriorityCategoriesToRankingSettings();
+            }
+            else if (DislikeCategories.Contains(userListItem))
+            {
+                DislikeCategories.Remove(userListItem);
 
-		internal void RemoveDislikeRankingCategory(RankingCategorySettingsListItem userListItem)
-		{
-			DislikeCategories.Remove(userListItem);
+                SelectableCategories.Add(userListItem);
 
-    		SelectableCategories.Add(userListItem);
-
-			ApplyAllPriorityCategoriesToRankingSettings();
-		}
+                ApplyAllPriorityCategoriesToRankingSettings();
+            }
+        }
 
 		private void ApplyAllPriorityCategoriesToRankingSettings()
 		{
@@ -308,39 +314,27 @@ namespace NicoPlayerHohoema.ViewModels
 
 	
 
-	public class RankingCategorySettingsListItem : BindableBase
-	{
+	public class RankingCategorySettingsListItem : BindableBase, IRemovableListItem
+    {
 		public RankingCategorySettingsListItem(RankingCategoryInfo info, FilteringSettingsPageContentViewModel parentVM)
 		{
 			_ParentVM = parentVM;
 			CategoryInfo = info;
 			DisplayLabel = info.ToReactivePropertyAsSynchronized(x => x.DisplayLabel);
 			Parameter = info.ToReactivePropertyAsSynchronized(x => x.Parameter);
-		}
+            Label = info.DisplayLabel;
 
-		private DelegateCommand _UnfavCategoryCommand;
-		public DelegateCommand UnfavCategoryCommand
+        }
+
+		private DelegateCommand _ClearFavStateRankingCategoryCommand;
+		public DelegateCommand ClearFavStateRankingCategoryCommand
 		{
 			get
 			{
-				return _UnfavCategoryCommand
-					?? (_UnfavCategoryCommand = new DelegateCommand(() =>
+				return _ClearFavStateRankingCategoryCommand
+                    ?? (_ClearFavStateRankingCategoryCommand = new DelegateCommand(() =>
 					{
-						_ParentVM.UnfavRankingCategory(this);
-					}));
-			}
-		}
-
-
-		private DelegateCommand _RemoveDislikeCategoryCommand;
-		public DelegateCommand RemoveDislikeCategoryCommand
-		{
-			get
-			{
-				return _RemoveDislikeCategoryCommand
-					?? (_RemoveDislikeCategoryCommand = new DelegateCommand(() =>
-					{
-						_ParentVM.RemoveDislikeRankingCategory(this);
+						_ParentVM.ClearFavStateRankingCategory(this);
 					}));
 			}
 		}
@@ -350,6 +344,10 @@ namespace NicoPlayerHohoema.ViewModels
 		public RankingCategoryInfo CategoryInfo { get; set; }
 		public ReactiveProperty<string> Parameter { get; private set; }
 
-		FilteringSettingsPageContentViewModel _ParentVM;
+        public string Label { get; private set; }
+
+        public ICommand RemoveCommand => ClearFavStateRankingCategoryCommand;
+
+        FilteringSettingsPageContentViewModel _ParentVM;
 	}
 }

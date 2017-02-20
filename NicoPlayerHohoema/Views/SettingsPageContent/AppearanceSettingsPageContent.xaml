@@ -28,8 +28,8 @@
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-        
-        <ScrollViewer>
+
+        <ScrollViewer IsTabStop="False">
             <StackPanel Margin="8" MinWidth="400" HorizontalAlignment="Left">
 
                 <StackPanel Orientation="Horizontal" Margin="8 8 0 8">

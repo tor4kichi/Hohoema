@@ -21,6 +21,7 @@
 
     <Grid>
 
+        
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup>
                 <!-- マウス操作時、または画面が大きい時 -->
@@ -89,6 +90,7 @@
                           HorizontalAlignment="Center"
                           MaxWidth="960"
                           Margin="16 0 0 0"
+                          IsTabStop="False"
                   >
 
                     <i:Interaction.Behaviors>

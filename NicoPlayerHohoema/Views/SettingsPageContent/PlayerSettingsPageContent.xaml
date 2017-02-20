@@ -20,8 +20,11 @@
     </UserControl.Resources>
     <ScrollViewer 
         HorizontalAlignment="Stretch"
+        IsTabStop="False"
         >
-        <ItemsControl Margin="16 8 8 8" MinWidth="400" HorizontalAlignment="Left">
+        <ItemsControl Margin="16 8 8 8" MinWidth="400" HorizontalAlignment="Left"
+                      IsTabStop="False"
+                      >
 
             <StackPanel Orientation="Horizontal" Margin="0 8">
                 <TextBlock Text="動画プレイヤーの設定"
@@ -164,6 +167,9 @@
                             MinWidth="200"
                             Foreground="{ThemeResource ApplicationForegroundThemeBrush}"               
                                            Margin="0 4"
+                                           IsFocusEngagementEnabled="True"
+                                           IsTabStop="False"
+                                           UseSystemFocusVisuals="True"
                           >
 
                     </toolkit:NumericUpDown>
@@ -194,6 +200,9 @@
                                        Maximum="2.0"
                                            Foreground="{ThemeResource ApplicationForegroundThemeBrush}"
                                            Margin="0 4"
+                                           IsTabStop="False"
+                                           IsFocusEngagementEnabled="True"
+                                           UseSystemFocusVisuals="True"
                                        />
 
                 </StackPanel>
@@ -385,6 +394,9 @@
                                     Maximum="1.0"
                                            Foreground="{ThemeResource ApplicationForegroundThemeBrush}"
                                                Margin="0 8"
+                                               IsFocusEngagementEnabled="True"
+                                               IsTabStop="False"
+                                               UseSystemFocusVisuals="True"
                                     />
 
                         <TextBlock Text="※音量は 0.0 ～ 1.0 の間に設定されます"

@@ -16,57 +16,35 @@
     <UserControl.Resources>
 
         
-        <DataTemplate x:Key="EditableListItemTemplate">
+        <DataTemplate x:Key="RemovableListItemTemplate">
 
-            <toolkit:DockPanel>
+            <Button Background="Transparent"
+                    UseSystemFocusVisuals="True"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Left"
+                    Padding="8 0 0 0"
+                    >
 
-                <AppBarButton Icon="Delete" 
-                              toolkit:DockPanel.Dock="Left"
-                              Command="{Binding UnfavCategoryCommand}"
-                              VerticalAlignment="Center"
-                              IsCompact="True"
-                              />
-
-                <toolkit:DockPanel Background="Transparent" Margin="16 0">
-
-                    <TextBlock Text="{Binding DisplayLabel.Value}"
-                               VerticalAlignment="Center"
-                               >
-                    </TextBlock>
-                    
-                </toolkit:DockPanel>
-                
-                <!-- TODO: ランキングソースの種類を表示 -->
-
-            </toolkit:DockPanel>
-        </DataTemplate>
-
-
-        <DataTemplate x:Key="DislikeCategoryListItemTemplate">
-
-            <toolkit:DockPanel>
-
-                <AppBarButton Icon="Delete" 
-                              toolkit:DockPanel.Dock="Left"
-                              Command="{Binding RemoveDislikeCategoryCommand}"
-                              VerticalAlignment="Center"
-                              IsCompact="True"
-                              />
+                <Button.Flyout>
+                    <MenuFlyout>
+                        <MenuFlyoutItem Text="削除" 
+                                        Command="{Binding RemoveCommand}"
+                                        />
+                    </MenuFlyout>
+                </Button.Flyout>
 
                 <toolkit:DockPanel Background="Transparent" Margin="16 0">
 
-                    <TextBlock Text="{Binding DisplayLabel.Value}"
-                               VerticalAlignment="Center"
-                               >
+                    <TextBlock Text="{Binding Label}"
+                            VerticalAlignment="Center"
+                            >
                     </TextBlock>
 
                 </toolkit:DockPanel>
 
-                <!-- TODO: ランキングソースの種類を表示 -->
+            </Button>
 
-            </toolkit:DockPanel>
         </DataTemplate>
-
 
 
 
@@ -219,9 +197,9 @@
 
 
     </UserControl.Resources>
-    
-    
-    <ScrollViewer HorizontalAlignment="Stretch">
+
+
+    <ScrollViewer HorizontalAlignment="Stretch" IsTabStop="False">
         <StackPanel Margin="16 8 8 8" MinWidth="400" HorizontalAlignment="Left">
 
             <!-- ランキング -->
@@ -240,13 +218,12 @@
                            TextWrapping="Wrap"
                        />
 
-                
-                <ListView ItemsSource="{Binding FavCategories}"
-                          ItemTemplate="{StaticResource EditableListItemTemplate}"
+
+                <ItemsControl ItemsSource="{Binding FavCategories}"
+                          ItemTemplate="{StaticResource RemovableListItemTemplate}"
                           Margin="0 8"
-                          ReorderMode="Enabled" 
-                          CanReorderItems="True"
                           AllowDrop="True"
+                          IsTabStop="False"
                           />
 
                 <TextBlock Text="※つまむと入れ替えできます"
@@ -260,8 +237,8 @@
 
                 <Button Content="好きなランキングを追加する" 
                     Command="{Binding AddFavRankingCategory}"
-                    HorizontalAlignment="Center"
                     Margin="0 8"
+                        UseSystemFocusVisuals="True"
                     />
 
 
@@ -290,18 +267,17 @@
                        />
 
 
-                <ListView ItemsSource="{Binding DislikeCategories}"
-                          ItemTemplate="{StaticResource DislikeCategoryListItemTemplate}"
+                <ItemsControl ItemsSource="{Binding DislikeCategories}"
+                          ItemTemplate="{StaticResource RemovableListItemTemplate}"
                           Margin="0 8"
-                          ReorderMode="Enabled" 
-                          CanReorderItems="True"
                           AllowDrop="True"
+                          IsTabStop="False"
                           />
 
                 <Button Content="非表示にするランキングを追加する" 
                     Command="{Binding AddDislikeRankingCategory}"
-                    HorizontalAlignment="Center"
                     Margin="0 8"
+                        UseSystemFocusVisuals="True"
                     />
 
 
@@ -365,18 +341,13 @@
                            VerticalAlignment="Center"
                                    Foreground="DimGray"
                            />
-                        <ListView ItemsSource="{Binding NGVideoOwnerUserIds}"
+                        <ItemsControl ItemsSource="{Binding NGVideoOwnerUserIds}"
                                   Margin="16 8"
-                                  SelectionMode="None"
+                                  IsTabStop="False"
+                                      HorizontalContentAlignment="Stretch"
                                   >
 
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem">
-                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                    <Setter Property="VerticalContentAlignment" Value="Stretch" />
-                                </Style>
-                            </ListView.ItemContainerStyle>
-                            <ListView.ItemTemplate>
+                            <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border Background="Transparent" IsHitTestVisible="True">
 
@@ -392,8 +363,8 @@
 
                                     </Border>
                                 </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                     </toolkit:DockPanel>
                     
                     
@@ -417,23 +388,18 @@
                     <toolkit:DockPanel >
                         <Button Content="動画タイトルのNGキーワードを追加" 
                                 Command="{Binding AddNewNGVideoTitleKeywordCommand}"
-                                HorizontalAlignment="Center"
+                                UseSystemFocusVisuals="True"
                                 toolkit:DockPanel.Dock="Bottom"
                                 />
 
-                        <ListView ItemsSource="{Binding NGVideoTitleKeywords}"
+                        <ItemsControl ItemsSource="{Binding NGVideoTitleKeywords}"
                                   Margin="0 8"
-                                  SelectionMode="None"
-                                  ItemTemplate="{StaticResource NGKeywordTemplate}"
+                                  ItemTemplate="{StaticResource RemovableListItemTemplate}"
+                                  IsTabStop="False"
+                                      HorizontalContentAlignment="Stretch"
                                   >
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem">
-                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                </Style>
-                            </ListView.ItemContainerStyle>
 
-
-                        </ListView>
+                        </ItemsControl>
 
 
                     </toolkit:DockPanel>
@@ -533,20 +499,15 @@
                     <StackPanel Margin="0 8">
                         <Button Content="NGコメントキーワードを追加" 
                                 Command="{Binding AddNewNGCommentKeywordCommand}"
-                                HorizontalAlignment="Center"
+                                UseSystemFocusVisuals="True"
                                 />
 
-                        <ListView ItemsSource="{Binding NGCommentKeywords}"
+                        <ItemsControl ItemsSource="{Binding NGCommentKeywords}"
                                   Margin="0 8"
-                                  SelectionMode="None"
-                                  ItemTemplate="{StaticResource NGKeywordTemplate}"
+                                  ItemTemplate="{StaticResource RemovableListItemTemplate}"
+                                      HorizontalContentAlignment="Stretch"
                                   >
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem">
-                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                </Style>
-                            </ListView.ItemContainerStyle>
-                        </ListView>
+                        </ItemsControl>
                     </StackPanel>
 
 

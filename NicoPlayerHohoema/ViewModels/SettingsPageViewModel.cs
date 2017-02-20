@@ -17,6 +17,7 @@ using System.Collections.ObjectModel;
 using Mntone.Nico2.Videos.Ranking;
 using NicoPlayerHohoema.Views.Service;
 using System.Threading;
+using System.Windows.Input;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -225,16 +226,17 @@ namespace NicoPlayerHohoema.ViewModels
 	
 
 
-	public class RemovableListItem<T>
-	{
+	public class RemovableListItem<T> : IRemovableListItem
+
+    {
 		public T Source { get; private set; }
 		public Action<T> OnRemove { get; private set; }
 
-		public string Content { get; private set; }
+		public string Label { get; private set; }
 		public RemovableListItem(T source, string content, Action<T> onRemovedAction)
 		{
 			Source = source;
-			Content = content;
+			Label = content;
 			OnRemove = onRemovedAction;
 
 			RemoveCommand = new DelegateCommand(() => 
@@ -244,18 +246,19 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		public DelegateCommand RemoveCommand { get; private set; }
+		public ICommand RemoveCommand { get; private set; }
 	}
 
 
-	public class NGKeywordViewModel : IDisposable
-	{
+	public class NGKeywordViewModel : IRemovableListItem, IDisposable
+    {
 		public NGKeywordViewModel(NGKeyword ngTitleInfo, Action<NGKeyword> onRemoveAction)
 		{
 			_NGKeywordInfo = ngTitleInfo;
 			_OnRemoveAction = onRemoveAction;
 
-			TestText = new ReactiveProperty<string>(_NGKeywordInfo.TestText);
+            Label = _NGKeywordInfo.Keyword;
+            TestText = new ReactiveProperty<string>(_NGKeywordInfo.TestText);
 			Keyword = new ReactiveProperty<string>(_NGKeywordInfo.Keyword);
 
 			TestText.Subscribe(x => 
@@ -284,7 +287,7 @@ namespace NicoPlayerHohoema.ViewModels
 			IsInvalidKeyword = IsValidKeyword.Select(x => !x)
 				.ToReactiveProperty();
 
-			RemoveKeywordCommand = new DelegateCommand(() => 
+            RemoveCommand = new DelegateCommand(() => 
 			{
 				_OnRemoveAction(this._NGKeywordInfo);
 			});
@@ -301,14 +304,15 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
+
 		public ReactiveProperty<string> TestText { get; private set; }
 		public ReactiveProperty<string> Keyword { get; private set; }
 
 		public ReactiveProperty<bool> IsValidKeyword { get; private set; }
 		public ReactiveProperty<bool> IsInvalidKeyword { get; private set; }
 
-
-		public DelegateCommand RemoveKeywordCommand { get; private set; }
+        public string Label { get; private set; }
+		public ICommand RemoveCommand { get; private set; }
 		
 		NGKeyword _NGKeywordInfo;
 		Action<NGKeyword> _OnRemoveAction;
@@ -329,7 +333,11 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 	}
 
-	
+	public interface IRemovableListItem
+    {
+        string Label { get; }
+        ICommand RemoveCommand { get; }
+    }
 
 	
 }

@@ -30,9 +30,9 @@
     <Grid>
         <toolkit:DockPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-            
 
-            <ScrollViewer>
+
+            <ScrollViewer IsTabStop="False">
                 <StackPanel Margin="16 16 16 16">
 
 
@@ -118,6 +118,7 @@
 
                     <ItemsControl ItemsSource="{Binding LisenceItems}"
                               Margin="0 8 8 8"
+                                  IsTabStop="False"
                               >
 
 
@@ -148,7 +149,9 @@
 
                                         <TextBlock Text="Author:" Foreground="Gray"  />
 
-                                        <ItemsControl ItemsSource="{Binding Authors}">
+                                        <ItemsControl ItemsSource="{Binding Authors}"
+                                                      IsTabStop="False"
+                                                      >
 
                                             <ItemsControl.ItemsPanel>
                                                 <ItemsPanelTemplate>
@@ -183,8 +186,9 @@
 
                                     <Button Content="ライセンスの全文を表示"
                                             Margin="8 16 8 16"
+                                            UseSystemFocusVisuals="True"
                                             >
-                                        <Button.Flyout>
+                                        <Button.ContextFlyout>
                                             <Flyout Placement="Full">
                                                 <StackPanel>
 
@@ -205,7 +209,7 @@
 
                                                 </StackPanel>
                                             </Flyout>
-                                        </Button.Flyout>
+                                        </Button.ContextFlyout>
                                     </Button>
 
 

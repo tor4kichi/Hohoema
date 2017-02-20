@@ -13,7 +13,7 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <ScrollViewer>
+    <ScrollViewer IsTabStop="False">
         <StackPanel Margin="8" MinWidth="400" HorizontalAlignment="Left">
 
             <StackPanel Orientation="Horizontal" Margin="8 8 0 8">
@@ -42,15 +42,15 @@
 
                     <Button Content="Twitterとの連携を設定する"
                             Command="{Binding LogInToTwitterCommand}"
-                            HorizontalAlignment="Right"
                             Visibility="{Binding IsLoginTwitter.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                             Margin="0 8"
+                            UseSystemFocusVisuals="True"
                           >
                     </Button>
                     
                     <Button Content="Twitterとの連携を解除する"
                             Command="{Binding LogoutTwitterCommand}"
-                            HorizontalAlignment="Right"
+                            UseSystemFocusVisuals="True"
                           >
                     </Button>
 
