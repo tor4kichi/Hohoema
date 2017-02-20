@@ -311,7 +311,8 @@
 
 
 
-                <controls:HohoemaIncrementalLoadingList MaxWidth="640"  />
+                <controls:HohoemaIncrementalLoadingList MaxWidth="640" 
+                                                        IsFocusFirstItemEnable="False"  />
 
 
 

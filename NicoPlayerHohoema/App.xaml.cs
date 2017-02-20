@@ -538,9 +538,10 @@ namespace NicoPlayerHohoema
 
                     if (viewType == null)
                     {
-                        throw new ArgumentException(
-                            string.Format(CultureInfo.InvariantCulture, pageToken, this.GetType().Namespace + ".Views"),
-                            "pageToken");
+                        return base.GetPageType(pageToken);
+//                        throw new ArgumentException(
+ //                           string.Format(CultureInfo.InvariantCulture, pageToken, this.GetType().Namespace + ".Views"),
+  //                          "pageToken");
                     }
 
                     return viewType;

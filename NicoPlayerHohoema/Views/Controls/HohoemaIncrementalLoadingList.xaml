@@ -156,9 +156,14 @@
                                  RefreshCommand="{Binding RefreshCommand}"
                                     PullThreshold="85"    
                                               x:Name="HohoemaListView"
+                                              UseSystemFocusVisuals="True"
+                                              IsTabStop="False"
                                 >
 
                 <i:Interaction.Behaviors>
+
+                    <mybehavior:FocusFirstItem IsEnabled="{x:Bind IsFocusFirstItemEnable}" />
+
                     <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedItems, Mode=TwoWay}" />
 
 

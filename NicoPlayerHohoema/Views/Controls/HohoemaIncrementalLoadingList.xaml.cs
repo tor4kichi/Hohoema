@@ -19,6 +19,9 @@ namespace NicoPlayerHohoema.Views.Controls
 {
 	public sealed partial class HohoemaIncrementalLoadingList : UserControl
 	{
+
+        public bool IsFocusFirstItemEnable { get; set; } = true;
+
 		public HohoemaIncrementalLoadingList()
 		{
 			this.InitializeComponent();
