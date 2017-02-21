@@ -185,6 +185,10 @@
                     <core:EventTriggerBehavior EventName="Tapped">
                         <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Show" />
                     </core:EventTriggerBehavior>
+
+                    <core:EventTriggerBehavior EventName="Loaded">
+                        <mybehavior:SetFocus TargetObject="{Binding ElementName=VolumeButton}" />
+                    </core:EventTriggerBehavior>
                     
                 </i:Interaction.Behaviors>
 
@@ -264,6 +268,13 @@
                         <mybehavior:VisiblityFadeChanger x:Name="PlayerControlAutoHide" 
                                             Delay="{Binding AutoHideDelayTime.Value}"
                            />
+
+                        <mybehavior:UINavigationTrigger Kind="View" 
+                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource InvertBoolean}}"
+                                                        >
+                            <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Toggle" />
+                            <mybehavior:SetFocus TargetObject="{Binding ElementName=RefreshButton}" />
+                        </mybehavior:UINavigationTrigger>
                     </i:Interaction.Behaviors>
 
                     
@@ -409,6 +420,7 @@
                                               x:Name="VolumeButton"
                                               Height="64"
                                               Width="64"
+                                              UseSystemFocusVisuals="True"
                                               >
                                     <AppBarButton.Flyout>
                                         <Flyout>
@@ -475,6 +487,7 @@
 
                                 <!-- コメント -->
                                 <AppBarButton Icon="Comment" 
+                                              UseSystemFocusVisuals="True"
                                               >
                                     <AppBarButton.Flyout>
                                         <MenuFlyout>
@@ -498,6 +511,8 @@
                                               Command="{Binding UpdateCommand}"
                                               VerticalAlignment="Stretch"
                                               IsEnabled="{Binding NowUpdating.Value, Converter={StaticResource InvertBoolean}}"
+                                              x:Name="RefreshButton"
+                                              UseSystemFocusVisuals="True"
                                               />
 
 
@@ -508,11 +523,15 @@
                                         Grid.Column="2"
                                     HorizontalAlignment="Right"
                                         >
-                                <AppBarButton Icon="FullScreen" Command="{Binding ToggleFullScreenCommand}" />
+                                <AppBarButton Icon="FullScreen" Command="{Binding ToggleFullScreenCommand}"
+                                              UseSystemFocusVisuals="True"
+                                              />
 
                                 
 
-                                <AppBarButton Icon="More">
+                                <AppBarButton Icon="More"
+                                              UseSystemFocusVisuals="True"
+                                              >
                                     <AppBarButton.Flyout>
                                         <MenuFlyout>
                                             <MenuFlyoutItem Text="小さく表示" Command="{Binding PlayerSmallWindowDisplayCommand}">
@@ -569,6 +588,7 @@
                                               Background="Transparent"
                                               VerticalAlignment="Center"
                                               Margin="0 0 8 8"
+                                              UseSystemFocusVisuals="True"
                                 >
                                     <i:Interaction.Behaviors>
                                         <core:EventTriggerBehavior EventName="Tapped">
@@ -585,6 +605,7 @@
                                                 DataContext="{Binding}"
                                                 x:Name="CommentCommandEditButton_Wide"
                                             Height="40"
+                                            UseSystemFocusVisuals="True"
                                             >
                                         <Button.Flyout>
                                             <Flyout>
@@ -630,6 +651,7 @@
                                             Command="{Binding CommentSubmitCommand}"
                                             x:Name="CommentSubmitButton_Wide"
                                             HorizontalAlignment="Right"
+                                            UseSystemFocusVisuals="True"
                                                 />
 
 
