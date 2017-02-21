@@ -289,6 +289,7 @@
     <Compile Include="Views\Behaviors\SetFocus.cs" />
     <Compile Include="Views\Behaviors\SplitViewClosePane.cs" />
     <Compile Include="Views\Behaviors\HideInputPaneAction.cs" />
+    <Compile Include="Views\Behaviors\UINavigationTrigger.cs" />
     <Compile Include="Views\CacheManagementPage.xaml.cs">
       <DependentUpon>CacheManagementPage.xaml</DependentUpon>
     </Compile>
