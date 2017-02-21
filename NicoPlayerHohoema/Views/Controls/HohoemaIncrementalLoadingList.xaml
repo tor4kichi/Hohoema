@@ -24,57 +24,6 @@
             <view:VideoInfoControl />
         </DataTemplate>
 
-        <DataTemplate x:Key="HistoryListItemTemplate">
-            <local:HistoryListItem />
-        </DataTemplate>
-
-        <DataTemplate x:Key="RankingListItemTemplate">
-            <local:RankingCategoryListItem />
-        </DataTemplate>
-        <DataTemplate x:Key="CacheManagementListItemTemplate">
-            <local:CacheManagementListItem />
-        </DataTemplate>
-
-        <DataTemplate x:Key="FavFeedListItemTemplate">
-            <local:FavoriteFeedListItem />
-        </DataTemplate>
-
-        <DataTemplate x:Key="MylistListItemTemplate">
-            <local:MylistSearchListItem />
-        </DataTemplate>
-
-        <DataTemplate x:Key="SearchHistoryListItemTemplate">
-            <local:SearchHistoryListItem />
-        </DataTemplate>
-
-        <DataTemplate x:Key="CommuniyListItemTemplate">
-            <local:CommunityInfoControl />
-        </DataTemplate>
-
-        <DataTemplate x:Key="CommuniyVideoListItemTemplate">
-            <local:CommunityVideoListItem />
-        </DataTemplate>
-
-        <DataTemplate x:Key="LiveVideoListItemTemplate">
-            <local:LiveVideoListItem />
-        </DataTemplate>
-
-
-        <local:IncrementalLoadingListItemTemplateSelector x:Key="listItemTemplateSelector"
-                                                          Default="{StaticResource DefaultListItemTemplate}"
-                                                          History="{StaticResource HistoryListItemTemplate}"
-                                                          Ranking="{StaticResource RankingListItemTemplate}"
-                                                          CacheManagement="{StaticResource CacheManagementListItemTemplate}"
-                                                          FavFeed="{StaticResource FavFeedListItemTemplate}"
-                                                          Mylist="{StaticResource MylistListItemTemplate}"
-                                                          SearchHistory="{StaticResource SearchHistoryListItemTemplate}"
-                                                          Community="{StaticResource CommuniyListItemTemplate}"
-                                                          CommunityVideo="{StaticResource CommuniyVideoListItemTemplate}"
-                                                          Live="{StaticResource LiveVideoListItemTemplate}"
-                                                          >
-            
-            
-        </local:IncrementalLoadingListItemTemplateSelector>
     </UserControl.Resources>
 
     <toolkit:DockPanel>
@@ -121,9 +70,9 @@
                                TextWrapping="Wrap"
                                VerticalAlignment="Center"
                                >
-                        <Run>おや、ちょっと電波が悪かったようです。</Run>
+                        <Run>データの取得に失敗しました</Run>
                         <LineBreak />
-                        <Run>時間をおいて更新してみてください。</Run>
+                        <Run>接続状態を確認して更新してください</Run>
                     </TextBlock>
 
                     <AppBarButton Icon="Refresh"
@@ -158,6 +107,8 @@
                                               UseSystemFocusVisuals="True"
                                               HorizontalContentAlignment="Stretch"
                                               IsItemClickEnabled="{Binding IsSelectionModeEnable.Value, Converter={StaticResource InvertBoolean}}"
+                                              ItemTemplate="{x:Bind ItemTemplate}"
+                                              ContextFlyout="{x:Bind ItemFlyout}"
                                 >
                 
 
@@ -202,8 +153,11 @@
                         <Setter Property="Margin"
                                     Value="0 0 0 0" 
                                     />
-                        <Setter Property="Padding" Value="0 0 0 0" />
+                        <Setter Property="Padding" Value="0 8 16 8" />
                         <Setter Property="UseSystemFocusVisuals" Value="True" />
+                        <Setter Property="BorderThickness" Value="0 0 0 1" />
+                        <Setter Property="BorderBrush" Value="#44707070" />
+
                     </Style>
                 </ListView.ItemContainerStyle>
 
@@ -218,33 +172,6 @@
                                 />
                     </StackPanel>
                 </uwpToolkit:PullToRefreshListView.RefreshIndicatorContent>
-
-                <ListView.ItemTemplate>
-
-                    <DataTemplate>
-
-                        <Border>
-                            <StackPanel>
-                                <ContentControl Content="{Binding}"
-                                        ContentTemplateSelector="{StaticResource listItemTemplateSelector}"
-                                        HorizontalContentAlignment="Stretch"
-                                        VerticalContentAlignment="Stretch"
-                                        Margin="0 4"
-                                        Padding="0 0 16 0"
-                                        />
-
-
-                                <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" BorderThickness="0 0 0 1"
-                                    Height="1"
-                                    Opacity="0.15"
-                                    />
-
-                            </StackPanel>
-
-                        </Border>
-                    </DataTemplate>
-
-                </ListView.ItemTemplate>
 
             </uwpToolkit:PullToRefreshListView>
 

@@ -7,6 +7,7 @@
     xmlns:conv="using:WinRTXamlToolkit.Converters"
     xmlns:myconv="using:NicoPlayerHohoema.Views.Converters"
     xmlns:view="using:NicoPlayerHohoema.Views"
+    xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:logicalModifier="using:AdaptiveTriggerLibrary.ConditionModifiers.LogicalModifiers"
     xmlns:compareModifier="using:AdaptiveTriggerLibrary.ConditionModifiers.ComparableModifiers"
     >
@@ -51,6 +52,9 @@
             <compareModifier:LessThanModifier x:Key="LessThanModifier" />
 
 
+            
+            <controls:VideoListItemFlyout x:Key="VideoListItemFlyout" />
+
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Dark">
                     <Color x:Key="SystemBaseHighColor">#CEFFFFFF</Color>
@@ -58,7 +62,8 @@
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
 
-            
+
+
         </ResourceDictionary>
     </prism:PrismUnityApplication.Resources>
 

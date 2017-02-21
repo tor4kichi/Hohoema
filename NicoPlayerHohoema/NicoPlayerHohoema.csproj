@@ -304,9 +304,6 @@
     <Compile Include="Views\ConfirmWatchHurmfulVideoPage.xaml.cs">
       <DependentUpon>ConfirmWatchHurmfulVideoPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Controls\CacheManagementListItem.xaml.cs">
-      <DependentUpon>CacheManagementListItem.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\Controls\CommunityInfoControl.xaml.cs">
       <DependentUpon>CommunityInfoControl.xaml</DependentUpon>
     </Compile>
@@ -325,6 +322,9 @@
       <DependentUpon>HohoemaIncrementalLoadingList.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\FloatContentContainer\FloatContentContainer.cs" />
+    <Compile Include="Views\Controls\VideoListItemFlyout.xaml.cs">
+      <DependentUpon>VideoListItemFlyout.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Converters\NicoVideoQualityToCultualizedTextConverter.cs" />
     <Compile Include="Views\HohoemaListItem.xaml.cs">
       <DependentUpon>HohoemaListItem.xaml</DependentUpon>
@@ -676,10 +676,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\Controls\CacheManagementListItem.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\Controls\CommunityInfoControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -697,6 +693,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Controls\HohoemaIncrementalLoadingList.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\VideoListItemFlyout.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

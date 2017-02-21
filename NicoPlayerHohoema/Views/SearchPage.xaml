@@ -314,7 +314,15 @@
 
 
                 <controls:HohoemaIncrementalLoadingList MaxWidth="640" 
-                                                        IsFocusFirstItemEnable="False"  />
+                                                        IsFocusFirstItemEnable="False"  
+                                                        
+                                                        >
+                    <controls:HohoemaIncrementalLoadingList.ItemTemplate>
+                        <DataTemplate>
+                            <controls:SearchHistoryListItem />
+                        </DataTemplate>
+                    </controls:HohoemaIncrementalLoadingList.ItemTemplate>
+                </controls:HohoemaIncrementalLoadingList>
 
 
 

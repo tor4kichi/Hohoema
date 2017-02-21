@@ -146,7 +146,19 @@
                     </toolkit:DockPanel>
                 </Border>
 
-                <controls:HohoemaIncrementalLoadingList />
+                <controls:HohoemaIncrementalLoadingList
+                    ItemFlyout="{StaticResource VideoListItemFlyout}"
+                    >
+                    <controls:HohoemaIncrementalLoadingList.ItemTemplate>
+                        <DataTemplate >
+                            <Grid>
+                                <local:VideoInfoControl />
+
+                            </Grid>
+                        </DataTemplate>
+                    </controls:HohoemaIncrementalLoadingList.ItemTemplate>
+                </controls:HohoemaIncrementalLoadingList>
+
 
 
             </toolkit:DockPanel>

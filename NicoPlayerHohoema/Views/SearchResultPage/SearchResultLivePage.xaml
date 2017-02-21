@@ -61,7 +61,13 @@
                     </toolkit:DockPanel>
                 </Border>
 
-                <controls:HohoemaIncrementalLoadingList />
+                <controls:HohoemaIncrementalLoadingList>
+                    <controls:HohoemaIncrementalLoadingList.ItemTemplate>
+                        <DataTemplate>
+                            <controls:LiveVideoListItem />
+                        </DataTemplate>
+                    </controls:HohoemaIncrementalLoadingList.ItemTemplate>
+                </controls:HohoemaIncrementalLoadingList>
 
 
 

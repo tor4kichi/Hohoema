@@ -263,7 +263,19 @@
             </Border>
 
 
-            <controls:HohoemaIncrementalLoadingList />
+            <controls:HohoemaIncrementalLoadingList
+                ItemFlyout="{StaticResource VideoListItemFlyout}"
+                >
+                <controls:HohoemaIncrementalLoadingList.ItemTemplate>
+                    <DataTemplate >
+                        
+                            <local:VideoInfoControl />
+
+                        
+                    </DataTemplate>
+                </controls:HohoemaIncrementalLoadingList.ItemTemplate>
+            </controls:HohoemaIncrementalLoadingList>
+            
 
 
 

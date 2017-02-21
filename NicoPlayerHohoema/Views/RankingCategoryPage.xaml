@@ -238,7 +238,14 @@
 
 
 
-                <controls:HohoemaIncrementalLoadingList x:Name="IncrementalLoadingList" />
+                <controls:HohoemaIncrementalLoadingList x:Name="IncrementalLoadingList" 
+                                                        ItemFlyout="{StaticResource VideoListItemFlyout}">
+                    <controls:HohoemaIncrementalLoadingList.ItemTemplate>
+                        <DataTemplate>
+                            <controls:RankingCategoryListItem />
+                        </DataTemplate>
+                    </controls:HohoemaIncrementalLoadingList.ItemTemplate>
+                </controls:HohoemaIncrementalLoadingList>
 
 
             </toolkit:DockPanel>

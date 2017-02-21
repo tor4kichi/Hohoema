@@ -17,11 +17,11 @@ using Windows.UI.Xaml.Navigation;
 
 namespace NicoPlayerHohoema.Views.Controls
 {
-	public sealed partial class CacheManagementListItem : UserControl
-	{
-		public CacheManagementListItem()
-		{
-			this.InitializeComponent();
-		}
-	}
+    public sealed partial class VideoListItemFlyout : MenuFlyout
+    {
+        public VideoListItemFlyout()
+        {
+            this.InitializeComponent();
+        }
+    }
 }
