@@ -25,7 +25,7 @@ namespace NicoPlayerHohoema.Views.Controls
         Float,
     }
 
-    public delegate void FloatContentDisplayModeChangedEventHandler(object sender, bool isFillFloatContent);
+    public delegate void FloatContentDisplayModeChangedEventHandler(object sender, bool isFillFloatContent, bool isDisplay);
 
     [TemplateVisualState(Name = FillDisplayModeState, GroupName = FloatContentDisplayModeStates)]
     [TemplateVisualState(Name = FloatDisplayModeState, GroupName = FloatContentDisplayModeStates)]
@@ -70,10 +70,19 @@ namespace NicoPlayerHohoema.Views.Controls
 
         private void SetContentDisplayMode()
         {
+            var isDisplayFloatContent = FloatContentVisiblity == Visibility.Visible;
             var isFill = IsFillFloatContent;
-            VisualStateManager.GoToState(this, isFill ? FillDisplayModeState : FloatDisplayModeState, true);
+            if (!isDisplayFloatContent)
+            {
+                VisualStateManager.GoToState(this, HiddenDisplayModeState, true);
+            }
+            else
+            {
 
-            OnDisplayModeChanged(isFill);
+                VisualStateManager.GoToState(this, isFill ? FillDisplayModeState : FloatDisplayModeState, true);
+            }
+
+            OnDisplayModeChanged(isFill, isDisplayFloatContent);
         }
     }
 }
