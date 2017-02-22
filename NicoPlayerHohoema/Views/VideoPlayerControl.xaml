@@ -268,7 +268,8 @@
 
                     <!-- Media Control -->
             <Grid x:Name="MediaControl" HorizontalAlignment="Stretch"
-                                    VerticalAlignment="Stretch">
+                                    VerticalAlignment="Stretch"
+                  >
 
                 <i:Interaction.Behaviors>
 
@@ -375,7 +376,8 @@
                             >
                     <i:Interaction.Behaviors>
                         <mybehavior:VisiblityFadeChanger x:Name="PlayerControlAutoHide" 
-                                             Delay="{Binding AutoHideDelayTime.Value}"
+                                                         Delay="{Binding AutoHideDelayTime.Value}"
+                                                         IsAnimationEnable="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource InvertBoolean}}"
                         />
 
                         <mybehavior:UINavigationTrigger Kind="View" 
@@ -736,7 +738,7 @@
 
                                 <AppBarButton Icon="More">
                                     <AppBarButton.Flyout>
-                                        <MenuFlyout>
+                                        <MenuFlyout x:Name="Menu">
 
                                             <MenuFlyoutItem Text="小さく表示" Command="{Binding PlayerSmallWindowDisplayCommand}" >
                                                 <i:Interaction.Behaviors>

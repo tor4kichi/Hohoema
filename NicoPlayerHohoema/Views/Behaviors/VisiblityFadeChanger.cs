@@ -38,6 +38,24 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
         #endregion
 
+        #region IsAnimationEnable Property
+
+        public static readonly DependencyProperty IsAnimationEnableProperty =
+            DependencyProperty.Register("IsAnimationEnable"
+                    , typeof(bool)
+                    , typeof(VisiblityFadeChanger)
+                    , new PropertyMetadata(true, OnDurationPropertyChanged)
+                );
+
+        public bool IsAnimationEnable
+        {
+            get { return (bool)GetValue(IsAnimationEnableProperty); }
+            set { SetValue(IsAnimationEnableProperty, value); }
+        }
+
+        #endregion
+
+
         #region Delay Property
 
         public static readonly DependencyProperty DelayProperty =
@@ -97,27 +115,48 @@ namespace NicoPlayerHohoema.Views.Behaviors
         AnimationSet _FadeInAnimation;
         AnimationSet _FadeOutAnimation;
 
-        CoreCursor _EmptyCursor;
-        CoreCursor _DefaultCursor;
-
         public void Show()
 		{
             if (!IsShow)
             {
                 this.AssociatedObject.Visibility = Visibility.Visible;
-                CoreWindow.GetForCurrentThread().PointerCursor = _DefaultCursor;
 
                 _FadeOutAnimation.Stop();
-                _FadeInAnimation.Start();
+                if (IsAnimationEnable)
+                {
+                    _FadeInAnimation.Start();
+                }
             }
         }
 
-        public void Hide()
+        public async void Hide()
         {
             if (IsShow)
             {
                 _FadeInAnimation.Stop();
-                _FadeOutAnimation.Start();
+                if (IsAnimationEnable)
+                {
+                    var dispatcher = Dispatcher;
+                    try
+                    {
+                        await _FadeOutAnimation.StartAsync()
+                            .ContinueWith(async prevTask =>
+                            {
+                                await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
+                                {
+                                    this.AssociatedObject.Visibility = Visibility.Collapsed;
+                                });
+                            });
+                    }
+                    catch
+                    {
+                        this.AssociatedObject.Visibility = Visibility.Collapsed;
+                    }
+                }
+                else
+                {
+                    this.AssociatedObject.Visibility = Visibility.Collapsed;
+                }
             }
         }
 
@@ -134,28 +173,12 @@ namespace NicoPlayerHohoema.Views.Behaviors
             }
         }
 
-
-
-        private void _FadeOutAnimation_Completed(object sender, EventArgs e)
-        {
-            this.AssociatedObject.Visibility = Visibility.Collapsed;
-            if (WithCursor)
-            {
-//                    CoreWindow.GetForCurrentThread().PointerCursor = _EmptyCursor;
-            }
-        }
-
-
         protected override void OnAttached()
         {
             base.OnAttached();
 
             _FadeInAnimation = AssociatedObject.Fade(1, Duration.TotalMilliseconds);
             _FadeOutAnimation = AssociatedObject.Fade(0, Duration.TotalMilliseconds);
-            _FadeOutAnimation.Completed += _FadeOutAnimation_Completed;
-
-            _DefaultCursor = CoreWindow.GetForCurrentThread().PointerCursor;
-            _EmptyCursor = new CoreCursor(CoreCursorType.Custom, 1);
         }
         
 
@@ -167,10 +190,6 @@ namespace NicoPlayerHohoema.Views.Behaviors
             _FadeOutAnimation?.Dispose();
 
             this.AssociatedObject.Visibility = Visibility.Visible;
-            if (WithCursor)
-            {
-                CoreWindow.GetForCurrentThread().PointerCursor = _DefaultCursor;
-            }
 		}
 
 

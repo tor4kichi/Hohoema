@@ -52,7 +52,7 @@
                 </i:Interaction.Behaviors>
 
                 <controls:FloatContentContainer x:Name="FloatContentContainer"
-                                                IsFillFloatContent="{Binding IsFillFloatContent.Value, Mode=TwoWay}"
+                                                IsFillFloatContent="{Binding IsFillFloatContent_DelayedRead.Value}"
                                                 FloatContentVisiblity="{Binding IsVisibleFloatContent.Value, Converter={StaticResource BooleanToVisibility}}"
                                                 >
                     <controls:FloatContentContainer.Content>

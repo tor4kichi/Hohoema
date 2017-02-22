@@ -30,7 +30,19 @@ namespace NicoPlayerHohoema.ViewModels
 
         private Dictionary<string, object> viewModelState = new Dictionary<string, object>();
 
+
+        /// <summary>
+        /// Playerの小窓状態の変化を遅延させて伝播させます、
+        /// 
+        /// 遅延させている理由は、Player上のFlyoutを閉じる前にリサイズが発生するとFlyoutが
+        /// ゴースト化（FlyoutのUIは表示されず閉じれないが、Visible状態と同じようなインタラクションだけは出来てしまう）
+        /// してしまうためです。（タブレット端末で発生、PCだと発生確認されず）
+        /// この問題を回避するためにFlyoutが閉じられた後にプレイヤーリサイズが走るように遅延を挟んでいます。
+        /// </summary>
+        public ReadOnlyReactiveProperty<bool> IsFillFloatContent_DelayedRead { get; private set; }
+
         
+
         // 動画または生放送のVM
         public ReactiveProperty<ViewModelBase> ContentVM { get; private set; }
 
@@ -44,6 +56,11 @@ namespace NicoPlayerHohoema.ViewModels
                     , (x) => !x
                     , (x) => !x
                     );
+
+            IsFillFloatContent_DelayedRead = IsFillFloatContent
+                .Delay(TimeSpan.FromMilliseconds(300))
+                .ToReadOnlyReactiveProperty();
+
 
             IsVisibleFloatContent = HohoemaPlaylist.ObserveProperty(x => x.IsDisplayPlayer)
                 .ToReactiveProperty();
