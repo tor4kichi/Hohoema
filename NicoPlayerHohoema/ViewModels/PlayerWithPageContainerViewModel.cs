@@ -26,9 +26,10 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<bool> IsFillFloatContent { get; private set; }
         public ReactiveProperty<bool> IsVisibleFloatContent { get; private set; }
 
+        public ReactiveProperty<bool> IsContentDisplayFloating { get; private set; }
+
         private Dictionary<string, object> viewModelState = new Dictionary<string, object>();
 
-        // TODO: プレイヤーのVMを管理する
         
         // 動画または生放送のVM
         public ReactiveProperty<ViewModelBase> ContentVM { get; private set; }
@@ -37,13 +38,23 @@ namespace NicoPlayerHohoema.ViewModels
         {
             HohoemaPlaylist = playlist;
 
-            IsFillFloatContent = HohoemaPlaylist.ObserveProperty(x => x.IsPlayerFloatingModeEnable)
-                .Select(x => !x)
-                .ToReactiveProperty();
+            IsFillFloatContent = HohoemaPlaylist
+                .ToReactivePropertyAsSynchronized(x => 
+                    x.IsPlayerFloatingModeEnable
+                    , (x) => !x
+                    , (x) => !x
+                    );
 
             IsVisibleFloatContent = HohoemaPlaylist.ObserveProperty(x => x.IsDisplayPlayer)
                 .ToReactiveProperty();
 
+            IsContentDisplayFloating = Observable.CombineLatest(
+                IsFillFloatContent.Select(x => !x),
+                IsVisibleFloatContent
+                )
+                .Select(x => x.All(y => y))
+                .ToReactiveProperty();
+                
             ContentVM = new ReactiveProperty<ViewModelBase>();
 
 

@@ -10,6 +10,7 @@
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
@@ -42,6 +43,13 @@
     <ContentControl.Template>
         <ControlTemplate>
             <Grid>
+                <i:Interaction.Behaviors>
+                    <mybehavior:UINavigationTrigger Kind="View" 
+                                                        IsEnabled="{Binding IsContentDisplayFloating.Value}"
+                                                        >
+                        <core:ChangePropertyAction TargetObject="{Binding IsFillFloatContent}" PropertyName="Value" Value="True" />
+                    </mybehavior:UINavigationTrigger>
+                </i:Interaction.Behaviors>
 
                 <controls:FloatContentContainer x:Name="FloatContentContainer"
                                                 IsFillFloatContent="{Binding IsFillFloatContent.Value, Mode=TwoWay}"
@@ -64,6 +72,7 @@
                                             x:Name="PlayerContent"
                                             />
 
+                            
                             <Grid x:Name="FillPlayerLayout" Visibility="Collapsed" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                                 
                             </Grid>

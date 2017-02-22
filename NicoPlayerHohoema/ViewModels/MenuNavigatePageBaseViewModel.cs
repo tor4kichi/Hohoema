@@ -25,14 +25,29 @@ namespace NicoPlayerHohoema.ViewModels
 		public HohoemaApp HohoemaApp { get; private set; }
         public AccountManagementDialogService AccountManagementDialogService { get; private set; }
 
-        public MenuNavigatePageBaseViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.AccountManagementDialogService accountManageDlgService)
+
+        public ReactiveProperty<bool> IsTVModeEnable { get; private set; }
+
+        public MenuNavigatePageBaseViewModel(
+            HohoemaApp hohoemaApp, 
+            PageManager pageManager, 
+            Views.Service.AccountManagementDialogService accountManageDlgService
+            )
 		{
 			PageManager = pageManager;
 			HohoemaApp = hohoemaApp;
             AccountManagementDialogService = accountManageDlgService;
 
-            IsForceXboxDisplayMode = PageManager.ObserveProperty(x => x.IsForceXboxDisplayMode)
-                .ToReactiveProperty();
+            // TV Mode
+            if (Util.DeviceTypeHelper.IsXbox)
+            {
+                IsTVModeEnable = new ReactiveProperty<bool>(true);
+            }
+            else
+            {
+                IsTVModeEnable = HohoemaApp.UserSettings.AppearanceSettings.ObserveProperty(x => x.IsForceTVModeEnable)
+                    .ToReactiveProperty();
+            }
 
             IsOpenPane = new ReactiveProperty<bool>(false);
 
@@ -41,16 +56,16 @@ namespace NicoPlayerHohoema.ViewModels
                 new PageTypeSelectableItem(HohoemaPageType.Portal             , OnMenuItemSelected, "ホーム", Symbol.Home),
                 new PageTypeSelectableItem(HohoemaPageType.Search             , OnMenuItemSelected, "検索", Symbol.Find),
                 new PageTypeSelectableItem(HohoemaPageType.RankingCategoryList, OnMenuItemSelected, "ランキング", Symbol.Flag),
-                new PageTypeSelectableItem(HohoemaPageType.FeedGroupManage    , OnMenuItemSelected, "フィード", Symbol.List),
+                new PageTypeSelectableItem(HohoemaPageType.FollowManage       , OnMenuItemSelected, "フォロー", Symbol.OutlineStar),
+                new PageTypeSelectableItem(HohoemaPageType.UserMylist         , OnMenuItemSelected, "マイリスト", Symbol.Bookmarks),
+                new PageTypeSelectableItem(HohoemaPageType.History            , OnMenuItemSelected, "視聴履歴", Symbol.Clock),
             };
 
             SubMenuItems = new List<PageTypeSelectableItem>()
             {
-                new PageTypeSelectableItem(HohoemaPageType.FollowManage       , OnMenuItemSelected, "フォロー", Symbol.OutlineStar),
-                new PageTypeSelectableItem(HohoemaPageType.UserMylist         , OnMenuItemSelected, "マイリスト", Symbol.Bookmarks),
+                new PageTypeSelectableItem(HohoemaPageType.FeedGroupManage    , OnMenuItemSelected, "フィード", Symbol.List),
                 new PageTypeSelectableItem(HohoemaPageType.Playlist           , OnMenuItemSelected, "プレイリスト", Symbol.Play),
                 new PageTypeSelectableItem(HohoemaPageType.CacheManagement    , OnMenuItemSelected, "キャッシュ管理", Symbol.Download),
-                new PageTypeSelectableItem(HohoemaPageType.History            , OnMenuItemSelected, "視聴履歴", Symbol.Clock),
                 new PageTypeSelectableItem(HohoemaPageType.Settings           , OnMenuItemSelected, "設定", Symbol.Setting),
                 new PageTypeSelectableItem(HohoemaPageType.UserInfo           , OnAccountMenuItemSelected, "アカウント", Symbol.Account),
             };
@@ -277,6 +292,23 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
+        private DelegateCommand<PageTypeSelectableItem> _ItemSelectedCommand;
+        public DelegateCommand<PageTypeSelectableItem> ItemSelectedCommand
+        {
+            get
+            {
+                return _ItemSelectedCommand
+                    ?? (_ItemSelectedCommand = new DelegateCommand<PageTypeSelectableItem>((item) =>
+                    {
+                        if (item != null)
+                        {
+                            item.SelectedAction(item.Source);
+                        }
+                    }));
+            }
+        }
+
+
         public List<PageTypeSelectableItem> MenuItems { get; private set; }
 
         public List<PageTypeSelectableItem> SubMenuItems { get; private set; }
@@ -452,7 +484,8 @@ namespace NicoPlayerHohoema.ViewModels
 
         public bool HasChild { get; set; }
         public List<PageTypeSelectableItem> Children { get; set; }
-	}
+
+    }
 
 
 

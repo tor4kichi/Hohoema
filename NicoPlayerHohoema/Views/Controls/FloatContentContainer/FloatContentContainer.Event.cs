@@ -16,9 +16,9 @@ namespace NicoPlayerHohoema.Views.Controls
     {
         public event FloatContentDisplayModeChangedEventHandler DisplayModeChanged;
 
-        private void OnDisplayModeChanged(bool isFillFloatContent)
+        private void OnDisplayModeChanged(bool isFillFloatContent, bool isDisplay)
         {
-            DisplayModeChanged?.Invoke(this, isFillFloatContent);
+            DisplayModeChanged?.Invoke(this, isFillFloatContent, isDisplay);
         }
     }
 }

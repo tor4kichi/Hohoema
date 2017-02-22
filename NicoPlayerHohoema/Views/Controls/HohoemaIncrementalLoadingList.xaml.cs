@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Gaming.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -19,73 +20,93 @@ namespace NicoPlayerHohoema.Views.Controls
 {
 	public sealed partial class HohoemaIncrementalLoadingList : UserControl
 	{
+        public DataTemplate ItemTemplate { get; set; }
+        public FlyoutBase ItemFlyout { get; set; }
+
+        public bool IsFocusFirstItemEnable { get; set; } = true;
+
 		public HohoemaIncrementalLoadingList()
 		{
-			this.InitializeComponent();
-		}
-	}
+            this.InitializeComponent();
+
+            if (this.ItemTemplate == null)
+            {
+                var defaultTemplate = Resources["DefaultListItemTemplate"] as DataTemplate;
+                ItemTemplate = defaultTemplate;
+            }
+            this.Loaded += HohoemaIncrementalLoadingList_Loaded;
+        }
 
 
-	public class IncrementalLoadingListItemTemplateSelector : DataTemplateSelector
-	{
-		public DataTemplate Default { get; set; }
-		public DataTemplate History { get; set; }
-		public DataTemplate Ranking { get; set; }
-		public DataTemplate CacheManagement { get; set; }
-		public DataTemplate FavFeed { get; set; }
-		public DataTemplate Mylist { get; set; }
-		public DataTemplate SearchHistory { get; set; }
-		public DataTemplate Community { get; set; }
-		public DataTemplate CommunityVideo { get; set; }
-		public DataTemplate Live { get; set; }
+        private void HohoemaIncrementalLoadingList_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (this.ItemFlyout != null)
+            {
+                HohoemaListView.RightTapped += HohoemaListView_RightTapped;
+                this.ItemFlyout.Opened += ItemFlyout_Opened;
+            }
+
+            if (this.ItemTemplate == null)
+            {
+                var defaultTemplate = Resources["DefaultListItemTemplate"] as DataTemplate;
+                ItemTemplate = defaultTemplate;
+            }
+        }
+
+        private void ItemFlyout_Opened(object sender, object e)
+        {
+            var selectedItem = HohoemaListView.SelectedItem;
+            if (selectedItem != null)
+            {
+                FlyoutSettingDataContext(this.ItemFlyout, selectedItem);
+            }
+        }
+
+        private void HohoemaListView_RightTapped(object sender, RightTappedRoutedEventArgs e)
+        {
+            var originalSource = e.OriginalSource;
+            var originalDataContext = (originalSource as FrameworkElement)?.DataContext;
+
+            if (originalDataContext == null) { return; }
+
+            FlyoutSettingDataContext(this.ItemFlyout, originalDataContext);
+        }
+
+        private static void FlyoutSettingDataContext(FlyoutBase flyoutbase, object dataContext)
+        {
+            if (flyoutbase is MenuFlyout)
+            {
+                var menuFlyout = flyoutbase as MenuFlyout;
+                foreach (var menuItem in menuFlyout.Items)
+                {
+                    RecurciveSettingDataContext(menuItem, dataContext);
+                }
+            }
+            else
+            {
+                var flyout = flyoutbase as Flyout;
+                if (flyout.Content is FrameworkElement)
+                {
+                    (flyout.Content as FrameworkElement).DataContext = dataContext;
+                }
+            }
+        }
+
+        private static void RecurciveSettingDataContext(MenuFlyoutItemBase item, object dataContext)
+        {
+            item.DataContext = dataContext;
+            if (item is MenuFlyoutSubItem)
+            {
+                var subItem = item as MenuFlyoutSubItem;
+                foreach (var child in subItem.Items)
+                {
+                    RecurciveSettingDataContext(child, dataContext);
+                }
+            }
+        }
+    }
 
 
-
-		protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
-		{
-			if (item is ViewModels.CacheVideoViewModel)
-			{
-				return CacheManagement;
-			}
-			else if (item is ViewModels.HistoryVideoInfoControlViewModel)
-			{
-				return History;
-			}
-			else if (item is ViewModels.RankedVideoInfoControlViewModel)
-			{
-				return Ranking;
-			}
-			else if (item is ViewModels.FeedVideoInfoControlViewModel)
-			{
-				return FavFeed;
-			}
-			else if (item is ViewModels.VideoInfoControlViewModel)
-			{
-				return Default;
-			}
-			else if (item is ViewModels.MylistSearchListingItem)
-			{
-				return Mylist;
-			}
-			else if (item is ViewModels.SearchHistoryListItem)
-			{
-				return SearchHistory;
-			}
-			else if (item is ViewModels.CommunityInfoControlViewModel)
-			{
-				return Community;
-			}
-			else if (item is ViewModels.CommunityVideoInfoControlViewModel)
-			{
-				return CommunityVideo;
-			}
-			else if (item is ViewModels.LiveInfoViewModel)
-			{
-				return Live;
-			}
-
-
-			return base.SelectTemplateCore(item, container);
-		}
-	}
+	
+	
 }

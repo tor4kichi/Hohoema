@@ -36,6 +36,7 @@
                         <HyperlinkButton Content="ブラウザで開く"
                                          Command="{Binding OpenUserAccountPageInBrowserCommand}"
                                          VerticalAlignment="Center"
+                                         UseSystemFocusVisuals="True"
                                          >
                             
                         </HyperlinkButton>
@@ -44,10 +45,12 @@
                                 Visibility="{Binding IsLoginUser, Converter={StaticResource BooleanToVisibility}}"
                                 Command="{Binding LogoutCommand}"
                                 Background="Transparent"
+                                UseSystemFocusVisuals="True"
                                 />
 
                         <Button Background="Transparent"
                                     Command="{Binding AddFeedSourceCommand}"
+                                UseSystemFocusVisuals="True"
                                     >
                             <TextBlock Text="フィード登録" />
                         </Button>
@@ -150,6 +153,7 @@
                                 </TextBlock>
                                 <ListView ItemsSource="{Binding VideoInfoItems}"
                                 Margin="0 8"
+                                          IsTabStop="False"
                                 >
                                     <ListView.ItemContainerStyle>
                                         <Style TargetType="ListViewItem">
@@ -177,11 +181,12 @@
                                 </ListView>
 
                                 <Button Content="投稿動画の一覧を見る" 
-                                Command="{Binding OpenUserVideoPageCommand}"
-                                Visibility="{Binding HasOwnerVideo, Converter={StaticResource BooleanToVisibility}}"
-                                HorizontalAlignment="Center"
-                                Margin="8"                            
-                                />
+                                    Command="{Binding OpenUserVideoPageCommand}"
+                                    Visibility="{Binding HasOwnerVideo, Converter={StaticResource BooleanToVisibility}}"
+                                    HorizontalAlignment="Center"
+                                    Margin="8"               
+                                        UseSystemFocusVisuals="True"
+                                    />
 
 
                                 <Border Visibility="{Binding HasOwnerVideo, Converter={StaticResource BooleanToVisibilityInverted}}"
@@ -206,6 +211,7 @@
                                 />
                             <ListView ItemsSource="{Binding MylistGroups}"
                                 Margin="0 8"
+                                      IsTabStop="False"
                                 >
                                 <ListView.ItemTemplate>
                                     <DataTemplate>
@@ -249,6 +255,7 @@
 
                                         <Button Content="NG動画投稿者を解除"
                                             Command="{Binding RemoveNGVideoOwnerCommand}"
+                                                UseSystemFocusVisuals="True"
                                             />
                                     </StackPanel>
 
@@ -275,6 +282,7 @@
 
                                         <Button Content="NG動画投稿者として指定する"
                                             Command="{Binding AddNGVideoOwnerCommand}"
+                                                UseSystemFocusVisuals="True"
                                             />
                                     </StackPanel>
 

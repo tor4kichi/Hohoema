@@ -17,19 +17,6 @@
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
-    <Page.Resources>
-        <DataTemplate x:Key="FavoriteVideoInfoTemplate">
-            <Grid>
-                <TextBlock Text="New" 
-                           HorizontalAlignment="Right"
-                           VerticalAlignment="Top"
-                           Visibility="{Binding IsNewItem, Converter={StaticResource BooleanToVisibility}}"
-                           />
-
-                <local:VideoInfoControl />
-            </Grid>
-        </DataTemplate>
-    </Page.Resources>
 
     <Grid>
         <Border>
@@ -159,9 +146,25 @@
                     </toolkit:DockPanel>
                 </Border>
 
-                
 
-                <controls:HohoemaIncrementalLoadingList />
+
+                <controls:HohoemaIncrementalLoadingList
+                    ItemFlyout="{StaticResource VideoListItemFlyout}"
+                    >
+                    <controls:HohoemaIncrementalLoadingList.ItemTemplate>
+                        <DataTemplate >
+                            <Grid>
+                                <TextBlock Text="New" 
+                                       HorizontalAlignment="Right"
+                                       VerticalAlignment="Top"
+                                       Visibility="{Binding IsNewItem, Converter={StaticResource BooleanToVisibility}}"
+                                       />
+
+                                <local:VideoInfoControl />
+                            </Grid>
+                        </DataTemplate>
+                    </controls:HohoemaIncrementalLoadingList.ItemTemplate>
+                </controls:HohoemaIncrementalLoadingList>
 
 
             </toolkit:DockPanel>

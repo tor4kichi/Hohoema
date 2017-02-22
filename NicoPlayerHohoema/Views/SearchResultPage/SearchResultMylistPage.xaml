@@ -62,9 +62,15 @@
                     </toolkit:DockPanel>
                 </Border>
 
-                
 
-                <controls:HohoemaIncrementalLoadingList />
+
+                <controls:HohoemaIncrementalLoadingList >
+                    <controls:HohoemaIncrementalLoadingList.ItemTemplate>
+                        <DataTemplate>
+                            <controls:MylistSearchListItem />
+                        </DataTemplate>
+                    </controls:HohoemaIncrementalLoadingList.ItemTemplate>
+                </controls:HohoemaIncrementalLoadingList>
 
 
 

@@ -19,6 +19,7 @@
     xmlns:hardwareTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     xmlns:softwareTrigger="using:AdaptiveTriggerLibrary.Triggers.SoftwareInterfaceTriggers"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
+    IsTabStop="False"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
     d:DesignHeight="300"
@@ -44,12 +45,26 @@
     <ContentControl.Template>
         <ControlTemplate>
 
-            <Grid x:Name="RootLayout">
+            <Grid x:Name="RootLayout" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
                 <VisualStateManager.VisualStateGroups>
                     <VisualStateGroup x:Name="TopBarStateGroup">
 
 
+                        <!-- TV Mode -->
+
+                        
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <StateTrigger IsActive="{Binding IsTVModeEnable.Value}" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="SplitView.DisplayMode" Value="Overlay" />
+                                <Setter Target="SplitView.IsPaneOpen" Value="False" />
+
+                                <Setter Target="TVModeSideMenu.Visibility" Value="Visible" />
+                            </VisualState.Setters>
+                        </VisualState>
                         <!-- トップメニュー非表示 -->
                         <VisualState>
                             <VisualState.StateTriggers>
@@ -92,6 +107,67 @@
 
                 <toolkit:DockPanel>
 
+                    <!-- TV Mode side menu -->
+                    <StackPanel x:Name="TVModeSideMenu" Visibility="Collapsed" Margin="0 64 0 0">
+                        <ItemsControl ItemsSource="{Binding MenuItems}"
+                                                    IsTabStop="False"
+                                      HorizontalContentAlignment="Stretch"
+                                                >
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Content="{Binding Label}"
+                                            Command="{Binding ElementName=RootLayout, Path=DataContext.ItemSelectedCommand}"
+                                            CommandParameter="{Binding}"
+                                            Background="Transparent"
+                                            UseSystemFocusVisuals="True" 
+                                            HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Left"
+                                            Margin="8 0"
+                                                            >
+                                        <i:Interaction.Behaviors>
+                                            <core:DataTriggerBehavior Binding="{Binding IsSelected}" ComparisonCondition="Equal" Value="True">
+                                                <core:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource Mode=Self}}" PropertyName="Foreground" Value="Green" />
+                                            </core:DataTriggerBehavior>
+                                            <core:DataTriggerBehavior Binding="{Binding IsSelected}" ComparisonCondition="Equal" Value="False">
+                                                <core:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource Mode=Self}}" PropertyName="Foreground" Value="{x:Null}" />
+                                            </core:DataTriggerBehavior>
+                                        </i:Interaction.Behaviors>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <ItemsControl ItemsSource="{Binding SubMenuItems}"
+                                                    IsTabStop="False"
+                                      HorizontalContentAlignment="Stretch"
+                                                >
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Content="{Binding Label}"
+                                            Command="{Binding ElementName=RootLayout, Path=DataContext.ItemSelectedCommand}"
+                                            CommandParameter="{Binding}"
+                                            Background="Transparent"
+                                            UseSystemFocusVisuals="True" 
+                                            HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Left"
+                                            Margin="8 0"
+                                            >
+                                        <i:Interaction.Behaviors>
+                                            <core:DataTriggerBehavior Binding="{Binding IsSelected}" ComparisonCondition="Equal" Value="True">
+                                                <core:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource Mode=Self}}" PropertyName="Foreground" Value="Green" />
+                                            </core:DataTriggerBehavior>
+                                            <core:DataTriggerBehavior Binding="{Binding IsSelected}" ComparisonCondition="Equal" Value="False">
+                                                <core:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource Mode=Self}}" PropertyName="Foreground" Value="{x:Null}" />
+                                            </core:DataTriggerBehavior>
+                                        </i:Interaction.Behaviors>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                    </StackPanel>
+                    
+                    
                     <!-- モバイル時のボトムバー -->
                     <toolkit:DockPanel x:Name="MobileBottomBar" Visibility="Collapsed"
                                     toolkit:DockPanel.Dock="Bottom" 
@@ -158,9 +234,10 @@
                         OpenPaneLength="220"
                         DisplayMode="Overlay"
                         IsPaneOpen="{Binding IsOpenPane.Value, Mode=TwoWay}"
+                               IsTabStop="False"
                         >
                         <SplitView.Pane>
-                            <toolkit:DockPanel x:Name="PaneLayout">
+                            <toolkit:DockPanel x:Name="PaneLayout" Margin="0 64 0 0">
 
                                 <Button Background="Transparent" 
                                         Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibility}}"
@@ -195,6 +272,7 @@
                                                     SelectedItem="{Binding MainSelectedItem.Value, Mode=TwoWay}"
                                                     SelectionMode="Single"
                                                     DisplayMemberPath="Label"
+                                                    IsTabStop="False"
                                                 >
                                             <ListView.ItemContainerStyle>
                                                 <Style TargetType="ListViewItem">
@@ -202,6 +280,7 @@
                                                 </Style>
                                             </ListView.ItemContainerStyle>
                                         </ListView>
+
 
                                         <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                 BorderThickness="0 1 0 0" />
@@ -226,7 +305,7 @@
                             </toolkit:DockPanel>
                         </SplitView.Pane>
                         <SplitView.Content>
-                            <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" >
+                            <Grid >
 
 
                                 <toolkit:DockPanel x:Name="ContentLayout">

@@ -145,11 +145,37 @@
                     </toolkit:DockPanel>
                 </Border>
 
-                
 
 
 
-                <controls:HohoemaIncrementalLoadingList />
+
+                <controls:HohoemaIncrementalLoadingList
+                    ItemFlyout="{StaticResource VideoListItemFlyout}"
+                    >
+                    <controls:HohoemaIncrementalLoadingList.ItemTemplate>
+                        <DataTemplate >
+                            <Grid>
+                                <!-- 状態 -->
+                                <Grid toolkit:DockPanel.Dock="Right" HorizontalAlignment="Right"
+                                    >
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding CacheRequestTime.Value}" 
+                                               Opacity="0.7"
+                                               Margin="0 0 0 4"
+                                               FontSize="12"
+                                               />
+                                    </StackPanel>
+
+                                </Grid>
+
+                                <!-- 操作 -->
+
+                                <local:VideoInfoControl />
+
+                            </Grid>
+                        </DataTemplate>
+                    </controls:HohoemaIncrementalLoadingList.ItemTemplate>
+                </controls:HohoemaIncrementalLoadingList>
 
 
             </toolkit:DockPanel>

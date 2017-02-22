@@ -48,6 +48,8 @@
                                         <Setter Target="FloatContentPresenter.(Grid.Column)" Value="0" />
                                         <Setter Target="FloatContentPresenter.(Grid.RowSpan)" Value="2" />
                                         <Setter Target="FloatContentPresenter.(Grid.ColumnSpan)" Value="2" />
+
+                                        <Setter Target="ContentPresenter.Visibility" Value="Collapsed" />
                                     </VisualState.Setters>
                                 </VisualState>
                                 <VisualState x:Name="Float">
@@ -65,6 +67,10 @@
                                         <Setter Target="FloatContentPresenter.(Grid.Column)" Value="1" />
                                         <Setter Target="FloatContentPresenter.(Grid.RowSpan)" Value="1" />
                                         <Setter Target="FloatContentPresenter.(Grid.ColumnSpan)" Value="1" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Hidden">
+                                    <VisualState.Setters>
                                     </VisualState.Setters>
                                 </VisualState>
                             </VisualStateGroup>

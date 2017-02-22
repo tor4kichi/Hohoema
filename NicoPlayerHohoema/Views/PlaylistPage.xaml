@@ -45,12 +45,22 @@
         </Flyout>
     </Page.Resources>
     <Grid>
+
+        <i:Interaction.Behaviors>
+            <core:EventTriggerBehavior EventName="Loaded">
+                <mybehavior:SetFocus TargetObject="{x:Bind mdv}" />
+            </core:EventTriggerBehavior>
+        </i:Interaction.Behaviors>
+        
+        
         <toolkit:DockPanel>
             
             
             <uwptoolkit:MasterDetailsView ItemsSource="{Binding Playlists}"
                                           NoSelectionContent="No Selection"
                                           SelectedItem="{Binding SelectedItem.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          IsTabStop="False"
+                                          x:Name="mdv"
                                           >
 
                 <uwptoolkit:MasterDetailsView.MasterHeader>
@@ -176,9 +186,22 @@
                                 </toolkit:DockPanel>
                                 
                             </Border>
-                            
-                            
-                            <mycontrols:HohoemaIncrementalLoadingList />
+
+
+                            <mycontrols:HohoemaIncrementalLoadingList
+                                ItemFlyout="{StaticResource VideoListItemFlyout}"
+                                >
+                                <mycontrols:HohoemaIncrementalLoadingList.ItemTemplate>
+                                    <DataTemplate >
+                                        <Grid>
+
+                                            <local:VideoInfoControl />
+
+                                        </Grid>
+                                    </DataTemplate>
+                                </mycontrols:HohoemaIncrementalLoadingList.ItemTemplate>
+                            </mycontrols:HohoemaIncrementalLoadingList>
+
 
                         </toolkit:DockPanel>
                     </DataTemplate>

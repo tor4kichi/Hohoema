@@ -271,6 +271,9 @@
                                     VerticalAlignment="Stretch">
 
                 <i:Interaction.Behaviors>
+
+                    
+                    
                     <mybehavior:KeyboardTrigger Key="Enter" IsEnabled="{Binding NowCommentWriting.Value, Converter={StaticResource InvertBoolean}}">
                         <mybehavior:KeyboardTrigger.Actions>
                             <mybehavior:SetFocus TargetObject="{Binding ElementName=CommentTextBox}" />
@@ -374,6 +377,13 @@
                         <mybehavior:VisiblityFadeChanger x:Name="PlayerControlAutoHide" 
                                              Delay="{Binding AutoHideDelayTime.Value}"
                         />
+
+                        <mybehavior:UINavigationTrigger Kind="View" 
+                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource InvertBoolean}}"
+                                                        >
+                            <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Toggle" />
+                            <mybehavior:SetFocus TargetObject="{Binding ElementName=PlayPauseButton}" />
+                        </mybehavior:UINavigationTrigger>
                     </i:Interaction.Behaviors>
 
 
@@ -385,6 +395,7 @@
                             <Button Command="{Binding ClosePlayerCommand}"
                                     Background="Transparent"
                                     toolkit:DockPanel.Dock="Left"
+                                    UseSystemFocusVisuals="True"
                                     >
                                 <iconPack:PackIconMaterial Kind="Close" />
                             </Button>
@@ -395,6 +406,7 @@
                                         >
                                 <Button Background="Transparent"          
                                         Command="{Binding ToggleShuffleCommand}"
+                                        UseSystemFocusVisuals="True"
                                             >
                                     <iconPack:PackIconMaterial x:Name="ToggleShuffleButtonIcon"
                                                 Kind="Shuffle"
@@ -410,6 +422,7 @@
                                 <!-- see@ https://msdn.microsoft.com/ja-jp/library/windows/apps/windows.ui.xaml.controls.primitives.togglebutton.isthreestate -->
                                 <Button Command="{Binding ToggleRepeatModeCommand}"
                                         Background="Transparent"
+                                        UseSystemFocusVisuals="True"
                                             >
                                     <iconPack:PackIconMaterial x:Name="RepeatModeToggleButtonIcon"
                                                 Kind="Repeat" 
@@ -429,6 +442,7 @@
                                     <Button Command="{Binding OpenPreviousPlaylistItemCommand}"
                                         Background="Transparent"
                                         Visibility="{Binding PlaylistCanGoBack.Value, Converter={StaticResource BooleanToVisibility}}"
+                                            UseSystemFocusVisuals="True"
                                         >
                                         <iconPack:PackIconMaterial Kind="ArrowLeft" />
                                     </Button>
@@ -439,6 +453,7 @@
                                 <Button 
                                         Command="{Binding OpenCurrentPlaylistPageCommand}"
                                         Background="Transparent"
+                                    UseSystemFocusVisuals="True"
                                     >
                                     <TextBlock Text="{Binding CurrentPlaylistName.Value}"
                                                Style="{StaticResource SubtitleTextBlockStyle}"
@@ -453,6 +468,7 @@
                                     <Button Command="{Binding OpenNextPlaylistItemCommand}"
                                         Background="Transparent"
                                         Visibility="{Binding PlaylistCanGoNext.Value, Converter={StaticResource BooleanToVisibility}}"
+                                            UseSystemFocusVisuals="True"
                                         >
                                         <iconPack:PackIconMaterial Kind="ArrowRight" />
                                     </Button>
@@ -683,7 +699,9 @@
                                         >
 
                                 <!-- 再生 -->
-                                <Button Background="Transparent" Command="{Binding PreviewVideoPositionCommand}">
+                                <Button Background="Transparent" Command="{Binding PreviewVideoPositionCommand}"
+                                        UseSystemFocusVisuals="True"
+                                        >
                                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3C;" 
                                            FontSize="18"
                                            />
@@ -700,6 +718,7 @@
                                 
                                 <Button Background="Transparent"
                                         Command="{Binding ForwardVideoPositionCommand}"
+                                        UseSystemFocusVisuals="True"
                                         >
                                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3D;"
                                            FontSize="18"
@@ -803,6 +822,7 @@
                                                 DataContext="{Binding}"
                                                 x:Name="CommentCommandEditButton_Wide"
                                             Height="40"
+                                            UseSystemFocusVisuals="True"
                                             >
                                         <Button.Flyout>
                                             <Flyout>
@@ -847,8 +867,8 @@
                                                 Width="160" Height="40"
                                                 Command="{Binding CommentSubmitCommand}"
                                                 x:Name="CommentSubmitButton_Wide"
-                                            
                                             HorizontalAlignment="Right"
+                                            UseSystemFocusVisuals="True"
                                             
                                                 />
 

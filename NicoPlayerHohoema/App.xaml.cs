@@ -50,8 +50,6 @@ namespace NicoPlayerHohoema
 
 		private bool _IsPreLaunch;
 
-        public bool IsForceXboxLayoutMode { get; set; } = false;
-
 		public const string ACTIVATION_WITH_ERROR = "error";
 
 		static App()
@@ -72,9 +70,9 @@ namespace NicoPlayerHohoema
             this.LeavingBackground += App_LeavingBackground;
             Windows.System.MemoryManager.AppMemoryUsageLimitChanging += MemoryManager_AppMemoryUsageLimitChanging;
 
+            this.RequiresPointerMode = Windows.UI.Xaml.ApplicationRequiresPointerMode.WhenRequested;
 
-             RequestedTheme = GetTheme();
-
+            RequestedTheme = GetTheme();
 
 			this.InitializeComponent();
 		}
@@ -495,9 +493,9 @@ namespace NicoPlayerHohoema
             {
                 var pageToken = viewType.Name;
 
-                if (pageToken.EndsWith("_xbox"))
+                if (pageToken.EndsWith("_TV"))
                 {
-                    pageToken = pageToken.Remove(pageToken.IndexOf("_xbox"));
+                    pageToken = pageToken.Remove(pageToken.IndexOf("_TV"));
                 }
 
                 var assemblyQualifiedAppType = viewType.AssemblyQualifiedName;
@@ -523,23 +521,27 @@ namespace NicoPlayerHohoema
 
         protected override Type GetPageType(string pageToken)
         {
-            if (IsForceXboxLayoutMode || Util.DeviceTypeHelper.IsXbox)
+            var hohoemaApp = Container.Resolve<HohoemaApp>();
+            var isForceTVModeEnable = hohoemaApp?.UserSettings?.AppearanceSettings.IsForceTVModeEnable ?? false;
+
+            if (isForceTVModeEnable || Util.DeviceTypeHelper.IsXbox)
             {
                 // pageTokenに対応するXbox表示用のページの型を取得
                 try
                 {
                     var assemblyQualifiedAppType = this.GetType().AssemblyQualifiedName;
 
-                    var pageNameWithParameter = assemblyQualifiedAppType.Replace(this.GetType().FullName, this.GetType().Namespace + ".Views.{0}Page_xbox");
+                    var pageNameWithParameter = assemblyQualifiedAppType.Replace(this.GetType().FullName, this.GetType().Namespace + ".Views.{0}Page_TV");
 
                     var viewFullName = string.Format(CultureInfo.InvariantCulture, pageNameWithParameter, pageToken);
                     var viewType = Type.GetType(viewFullName);
 
                     if (viewType == null)
                     {
-                        throw new ArgumentException(
-                            string.Format(CultureInfo.InvariantCulture, pageToken, this.GetType().Namespace + ".Views"),
-                            "pageToken");
+                        return base.GetPageType(pageToken);
+//                        throw new ArgumentException(
+ //                           string.Format(CultureInfo.InvariantCulture, pageToken, this.GetType().Namespace + ".Views"),
+  //                          "pageToken");
                     }
 
                     return viewType;
@@ -586,10 +588,19 @@ namespace NicoPlayerHohoema
             var container = new Views.PlayerWithPageContainer();
             container.Content = menuPageBase;
 
+#if DEBUG
+            container.FocusEngaged += Container_FocusEngaged;
+#endif
+
             return container;
 		}
 
-		private void RootFrame_Navigating(object sender, NavigatingCancelEventArgs e)
+        private void Container_FocusEngaged(Control sender, FocusEngagedEventArgs args)
+        {
+            Debug.WriteLine("focus engagad: " + args.OriginalSource.ToString());
+        }
+
+        private void RootFrame_Navigating(object sender, NavigatingCancelEventArgs e)
 		{
 			// Note: 有害動画の確認ページへの進む動作を防止する
 			if (e.NavigationMode == NavigationMode.Forward)

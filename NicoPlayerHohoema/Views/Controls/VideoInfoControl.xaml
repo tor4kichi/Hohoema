@@ -32,11 +32,15 @@
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
         
+        
         <toolkit:DockPanel>
+            
+
             <Border toolkit:DockPanel.Dock="Bottom" >
 
                 <ItemsControl ItemsSource="{Binding QualityDividedVideos}"
                               HorizontalContentAlignment="Stretch"
+                              IsTabStop="False"
                               >
 
                     <ItemsControl.ItemTemplate>
@@ -89,6 +93,7 @@
                 <ItemsControl ItemsSource="{Binding QualityDividedVideos}"
                               HorizontalAlignment="Right"
                               VerticalAlignment="Bottom"
+                              IsTabStop="False"
                               >
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
@@ -133,41 +138,7 @@
 
             </Grid>
 
-            <toolkit:DockPanel.ContextFlyout>
-                <MenuFlyout>
-
-                    <MenuFlyoutItem Text="あとで見る"
-                                Command="{Binding AddDefaultPlaylistCommand}"
-                                />
-
-                    <MenuFlyoutItem Text="投稿者の動画一覧"
-                                Command="{Binding OpenOwnerVideoListPageCommand}"
-                                />
-
-                    <MenuFlyoutItem Text="動画情報"
-                                Command="{Binding OpenVideoInfoPageCommand}"
-                                />
-
-                    <MenuFlyoutSeparator />
-
-                    <MenuFlyoutItem Text="キャッシュ取得"
-                                Command="{Binding CacheRequestCommand}"
-                                />
-
-
-                    <MenuFlyoutSubItem Text="キャッシュ削除"
-                                       Visibility="{Binding IsCacheRequested.Value, Converter={StaticResource BooleanToVisibility}}"
-                                       >
-                        <MenuFlyoutItem Text="本当にキャッシュ削除"
-                                Command="{Binding RemoveCacheCommand}"
-                                        
-                                />
-                    </MenuFlyoutSubItem>
-                    
-
-                </MenuFlyout>
-            </toolkit:DockPanel.ContextFlyout>
-
+            
         </toolkit:DockPanel>
 
 

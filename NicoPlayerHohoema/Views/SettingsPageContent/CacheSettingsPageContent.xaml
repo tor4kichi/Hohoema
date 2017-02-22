@@ -15,7 +15,7 @@
     d:DesignWidth="600">
 
 
-    <ScrollViewer >
+    <ScrollViewer IsTabStop="False">
 
         <StackPanel 
                     Margin="8" MinWidth="400" HorizontalAlignment="Left"
@@ -46,6 +46,7 @@
 
                     <Button Content="保存先フォルダを変更"
                                     Command="{Binding ChangeCacheFolderCommand}"
+                            UseSystemFocusVisuals="True"
                                     >
                     </Button>
 
@@ -89,6 +90,7 @@
                     <Button Content="動画キャッシュ機能利用の確認文を読む" 
                                     Command="{Binding ReadCacheAcceptTextCommand}"
                                     Visibility="{Binding IsUserAcceptRegalNotice.Value, Converter={StaticResource BooleanToVisibility}}"
+                            UseSystemFocusVisuals="True"
                                     />
                 </toolkit:DockPanel>
 

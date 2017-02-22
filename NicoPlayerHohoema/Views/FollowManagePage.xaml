@@ -7,6 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:view="using:NicoPlayerHohoema.Views"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
@@ -18,7 +19,10 @@
     <Page.Resources>
         <DataTemplate x:Key="FavoriteItemTemplate">
 
-            <Button Command="{Binding PrimaryCommand}">
+            <Button Command="{Binding PrimaryCommand}"
+                    UseSystemFocusVisuals="True"
+                    HorizontalAlignment="Stretch"
+                    >
                 <controls:HohoemaListItem DisplayType="MiniCard" />
             </Button>
         </DataTemplate>
@@ -29,12 +33,20 @@
     
     
     <Grid x:Name="PageRoot">
+
+        <i:Interaction.Behaviors>
+            <core:EventTriggerBehavior EventName="Loaded">
+                <mybehavior:SetFocus TargetObject="{x:Bind FavListContainer}" />
+            </core:EventTriggerBehavior>
+        </i:Interaction.Behaviors>
+        
+        
         <toolkit:DockPanel>
 
             <Border toolkit:DockPanel.Dock="Top" 
                     BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
                     BorderThickness="0 0 0 1"
-                Height="64"
+                    Height="64"
                     >
                 <toolkit:DockPanel >
                     <StackPanel toolkit:DockPanel.Dock="Right" 
@@ -55,10 +67,11 @@
             </Border>
 
             <ScrollViewer x:Name="ScrollList"
-                          
+                          IsTabStop="False"
                       >
                 <StackPanel Margin="16 16 16 16">
                     <ItemsControl ItemsSource="{Binding Lists}" x:Name="FavListContainer"
+                                  IsTabStop="False"
                                   >
 
                         <ItemsControl.ItemTemplate>
@@ -68,18 +81,18 @@
 
 
                                     <StackPanel Orientation="Horizontal"
-                                           toolkit:DockPanel.Dock="Top"                                            
-                                            >
+                                               toolkit:DockPanel.Dock="Top"                                            
+                                                >
                                         <SymbolIcon Symbol="{Binding FavType, Converter={StaticResource FavTypeToSymbol}}" 
-                                                Margin="0 0 8 0"
-                                                VerticalAlignment="Center"
-                                                />
+                                                    Margin="0 0 8 0"
+                                                    VerticalAlignment="Center"
+                                                    />
 
                                         <TextBlock Text="{Binding Name}" 
-                                           Margin="8 0"
-                                           FontSize="20"
-                                               VerticalAlignment="Center"
-                                           />
+                                                   Margin="8 0"
+                                                   FontSize="20"
+                                                   VerticalAlignment="Center"
+                                               />
 
                                         <TextBlock 
                                                VerticalAlignment="Center"
@@ -87,22 +100,26 @@
                                                FontSize="13"
                                                Margin="8 0"
                                                >
-                                        <Run Text="{Binding ItemCount}" />
-                                        <Run Text="/" />
-                                        <Run Text="{Binding MaxItemCount}" />
+                                            <Run Text="{Binding ItemCount}" />
+                                            <Run Text="/" />
+                                            <Run Text="{Binding MaxItemCount}" />
                                         </TextBlock>
 
                                     </StackPanel>
 
                                     <ListView ItemsSource="{Binding Items}"
-                                          ItemTemplate="{StaticResource FavoriteItemTemplate}"
-                                          Margin="0 8 0 0"
+                                              ItemTemplate="{StaticResource FavoriteItemTemplate}"
+                                              Margin="0 8 0 0"
+                                              IsTabStop="False"
+                                              SelectionMode="None"
+                                              HorizontalContentAlignment="Stretch"
                                           >
                                         <ListView.ItemContainerStyle>
                                             <Style TargetType="ListViewItem">
                                                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                                 <Setter Property="VerticalContentAlignment" Value="Stretch" />
-                                                <Setter Property="Margin" Value="0 0 8 8" />
+                                                <Setter Property="Margin" Value="0 0 0 0" />
+                                                <Setter Property="IsTabStop" Value="False" />
                                             </Style>
                                         </ListView.ItemContainerStyle>
 

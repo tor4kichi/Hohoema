@@ -17,11 +17,6 @@ namespace NicoPlayerHohoema.ViewModels
             IsSupportedFeedbackHub = StoreServicesFeedbackLauncher.IsSupported();
         }
 
-        public override void OnLeave()
-        {
-            // do nothing
-        }
-
         private static Uri AppIssuePageUri = new Uri("https://github.com/tor4kichi/Hohoema/issues");
         private static Uri AppReviewUri = new Uri("ms-windows-store://review/?ProductId=9nblggh4rxt6");
 

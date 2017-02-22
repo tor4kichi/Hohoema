@@ -17,6 +17,7 @@ using System.Collections.ObjectModel;
 using Mntone.Nico2.Videos.Ranking;
 using NicoPlayerHohoema.Views.Service;
 using System.Threading;
+using System.Windows.Input;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -46,6 +47,8 @@ namespace NicoPlayerHohoema.ViewModels
 
             CurrentSettingsContent.Subscribe(x =>
             {
+                _PrevSettingsContent?.Leaved();
+
                 if (x != null)
                 {
                     AddSubsitutionBackNavigateAction("settings_content_selection"
@@ -58,6 +61,9 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     RemoveSubsitutionBackNavigateAction("settings_content_selection");
                 }
+
+                _PrevSettingsContent = x;
+                x?.Entered();                
             });
 
         }
@@ -79,7 +85,7 @@ namespace NicoPlayerHohoema.ViewModels
 					vm = new CacheSettingsPageContentViewModel(HohoemaApp, EditAutoCacheConditionDialogService, AcceptCacheUsaseDialogService);
 					break;
 				case HohoemaSettingsKind.Appearance:
-					vm = new AppearanceSettingsPageContentViewModel(ToastNotificationService);
+					vm = new AppearanceSettingsPageContentViewModel(HohoemaApp, ToastNotificationService);
 					break;
 				case HohoemaSettingsKind.Share:
 					vm = new ShareSettingsPageContentViewModel();
@@ -127,7 +133,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
-			CurrentSettingsContent.Value?.OnLeave();
+            CurrentSettingsContent.Value = null;
 
 			if (suspending)
 			{
@@ -147,8 +153,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-
-		public ReactiveProperty<SettingsPageContentViewModel> CurrentSettingsContent { get; private set; }
+        private SettingsPageContentViewModel _PrevSettingsContent;
+        public ReactiveProperty<SettingsPageContentViewModel> CurrentSettingsContent { get; private set; }
 
 		public List<SettingsPageContentViewModel> SettingItems { get; private set; }
 
@@ -170,23 +176,48 @@ namespace NicoPlayerHohoema.ViewModels
         About,
     }
 
-	public abstract class SettingsPageContentViewModel : ViewModelBase
+	public abstract class SettingsPageContentViewModel : ViewModelBase, IDisposable
 	{
 		public string Title { get; private set; }
         public HohoemaSettingsKind Kind { get; private set; }
 
-		public SettingsPageContentViewModel(string title, HohoemaSettingsKind kind)
+        protected CompositeDisposable _FocusingDisposable;
+
+
+        public SettingsPageContentViewModel(string title, HohoemaSettingsKind kind)
 		{
             Title = title;
             Kind = kind;
         }
 
+        
+        internal void Entered()
+        {
+            _FocusingDisposable = new CompositeDisposable();
 
-		virtual public void OnEnter() { }
+            OnEnter(_FocusingDisposable);
+        }
 
-		public abstract void OnLeave();
+        protected virtual void OnEnter(ICollection<IDisposable> focusingDispsable)
+        {
+        }
 
-	}
+        internal void Leaved()
+        {
+            _FocusingDisposable?.Dispose();
+
+            OnLeave();
+        }
+
+		protected virtual void OnLeave()
+        {
+        }
+
+        public void Dispose()
+        {
+            _FocusingDisposable?.Dispose();
+        }
+    }
 
 	
 
@@ -195,16 +226,17 @@ namespace NicoPlayerHohoema.ViewModels
 	
 
 
-	public class RemovableListItem<T>
-	{
+	public class RemovableListItem<T> : IRemovableListItem
+
+    {
 		public T Source { get; private set; }
 		public Action<T> OnRemove { get; private set; }
 
-		public string Content { get; private set; }
+		public string Label { get; private set; }
 		public RemovableListItem(T source, string content, Action<T> onRemovedAction)
 		{
 			Source = source;
-			Content = content;
+			Label = content;
 			OnRemove = onRemovedAction;
 
 			RemoveCommand = new DelegateCommand(() => 
@@ -214,18 +246,19 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		public DelegateCommand RemoveCommand { get; private set; }
+		public ICommand RemoveCommand { get; private set; }
 	}
 
 
-	public class NGKeywordViewModel : IDisposable
-	{
+	public class NGKeywordViewModel : IRemovableListItem, IDisposable
+    {
 		public NGKeywordViewModel(NGKeyword ngTitleInfo, Action<NGKeyword> onRemoveAction)
 		{
 			_NGKeywordInfo = ngTitleInfo;
 			_OnRemoveAction = onRemoveAction;
 
-			TestText = new ReactiveProperty<string>(_NGKeywordInfo.TestText);
+            Label = _NGKeywordInfo.Keyword;
+            TestText = new ReactiveProperty<string>(_NGKeywordInfo.TestText);
 			Keyword = new ReactiveProperty<string>(_NGKeywordInfo.Keyword);
 
 			TestText.Subscribe(x => 
@@ -254,7 +287,7 @@ namespace NicoPlayerHohoema.ViewModels
 			IsInvalidKeyword = IsValidKeyword.Select(x => !x)
 				.ToReactiveProperty();
 
-			RemoveKeywordCommand = new DelegateCommand(() => 
+            RemoveCommand = new DelegateCommand(() => 
 			{
 				_OnRemoveAction(this._NGKeywordInfo);
 			});
@@ -271,14 +304,15 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
+
 		public ReactiveProperty<string> TestText { get; private set; }
 		public ReactiveProperty<string> Keyword { get; private set; }
 
 		public ReactiveProperty<bool> IsValidKeyword { get; private set; }
 		public ReactiveProperty<bool> IsInvalidKeyword { get; private set; }
 
-
-		public DelegateCommand RemoveKeywordCommand { get; private set; }
+        public string Label { get; private set; }
+		public ICommand RemoveCommand { get; private set; }
 		
 		NGKeyword _NGKeywordInfo;
 		Action<NGKeyword> _OnRemoveAction;
@@ -299,7 +333,11 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 	}
 
-	
+	public interface IRemovableListItem
+    {
+        string Label { get; }
+        ICommand RemoveCommand { get; }
+    }
 
 	
 }

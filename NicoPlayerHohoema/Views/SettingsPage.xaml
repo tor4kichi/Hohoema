@@ -7,6 +7,9 @@
     xmlns:local="using:NicoPlayerHohoema.Views"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:view="using:NicoPlayerHohoema.Views"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:settingsContent="using:NicoPlayerHohoema.Views.SettingsPageContent"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
@@ -75,6 +78,12 @@
 
     <Grid>
 
+        <i:Interaction.Behaviors>
+            <core:EventTriggerBehavior EventName="Loaded">
+                <mybehavior:SetFocus TargetObject="{x:Bind mdv}" />
+            </core:EventTriggerBehavior>
+        </i:Interaction.Behaviors>
+        
         <toolkit:DockPanel x:Name="ContentLayout">
 
             <Border toolkit:DockPanel.Dock="Top" 
@@ -106,6 +115,7 @@
             <uwptoolkitControl:MasterDetailsView ItemsSource="{Binding SettingItems}"
                                                  SelectedItem="{Binding CurrentSettingsContent.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                  MasterPaneWidth="280"
+                                                 x:Name="mdv"
                                                  >
                 <uwptoolkitControl:MasterDetailsView.ItemTemplate>
                     <DataTemplate>
@@ -118,6 +128,7 @@
                             ContentTemplateSelector="{StaticResource settingContentTemplateSelector}"
                             VerticalContentAlignment="Stretch"
                             HorizontalContentAlignment="Stretch"
+                                        IsTabStop="False"
                             >
                         </ContentControl>
                     </DataTemplate>

@@ -175,6 +175,7 @@
     <Compile Include="Models\Live\NicoLiveVideo.cs" />
     <Compile Include="Models\LoginRedirectPayload.cs" />
     <Compile Include="Models\PageManagerSearchExtention.cs" />
+    <Compile Include="Models\Settings\AppearanceSettings.cs" />
     <Compile Include="Models\Settings\AppMapSettings.cs" />
     <Compile Include="Models\Settings\CacheSettings.cs" />
     <Compile Include="Models\Settings\PlaylistSettings.cs" />
@@ -272,8 +273,10 @@
       <DependentUpon>AboutPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Behaviors\CloseFlyoutAction.cs" />
+    <Compile Include="Views\Behaviors\EngagePassToFirstChild.cs" />
     <Compile Include="Views\Behaviors\EnsureLifecycleMediaElement.cs" />
     <Compile Include="Views\Behaviors\FlyoutBehavior.cs" />
+    <Compile Include="Views\Behaviors\FocusFirstItem.cs" />
     <Compile Include="Views\Behaviors\KeyboardTrigger.cs" />
     <Compile Include="Views\Behaviors\ListViewSelectedItemsGetter.cs" />
     <Compile Include="Views\Behaviors\MediaPlayerElementContentHeightGetter.cs" />
@@ -286,6 +289,7 @@
     <Compile Include="Views\Behaviors\SetFocus.cs" />
     <Compile Include="Views\Behaviors\SplitViewClosePane.cs" />
     <Compile Include="Views\Behaviors\HideInputPaneAction.cs" />
+    <Compile Include="Views\Behaviors\UINavigationTrigger.cs" />
     <Compile Include="Views\CacheManagementPage.xaml.cs">
       <DependentUpon>CacheManagementPage.xaml</DependentUpon>
     </Compile>
@@ -300,9 +304,6 @@
     </Compile>
     <Compile Include="Views\ConfirmWatchHurmfulVideoPage.xaml.cs">
       <DependentUpon>ConfirmWatchHurmfulVideoPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Controls\CacheManagementListItem.xaml.cs">
-      <DependentUpon>CacheManagementListItem.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\CommunityInfoControl.xaml.cs">
       <DependentUpon>CommunityInfoControl.xaml</DependentUpon>
@@ -322,6 +323,9 @@
       <DependentUpon>HohoemaIncrementalLoadingList.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\FloatContentContainer\FloatContentContainer.cs" />
+    <Compile Include="Views\Controls\VideoListItemFlyout.xaml.cs">
+      <DependentUpon>VideoListItemFlyout.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Converters\NicoVideoQualityToCultualizedTextConverter.cs" />
     <Compile Include="Views\HohoemaListItem.xaml.cs">
       <DependentUpon>HohoemaListItem.xaml</DependentUpon>
@@ -405,8 +409,8 @@
     <Compile Include="Views\PlaylistPage.xaml.cs">
       <DependentUpon>PlaylistPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\PortalPage_xbox.xaml.cs">
-      <DependentUpon>PortalPage_xbox.xaml</DependentUpon>
+    <Compile Include="Views\PortalPage_TV.xaml.cs">
+      <DependentUpon>PortalPage_TV.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\RankingChoiceContentDialog.xaml.cs">
       <DependentUpon>RankingChoiceContentDialog.xaml</DependentUpon>
@@ -562,6 +566,7 @@
     <Compile Include="Views\Controls\VideoInfoControl.xaml.cs">
       <DependentUpon>VideoInfoControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\VisualTreeExtention.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -672,10 +677,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\Controls\CacheManagementListItem.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\Controls\CommunityInfoControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -693,6 +694,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Controls\HohoemaIncrementalLoadingList.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\VideoListItemFlyout.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -808,7 +813,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\PortalPage_xbox.xaml">
+    <Page Include="Views\PortalPage_TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
