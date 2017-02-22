@@ -182,6 +182,12 @@
                                                    ContextFlyout="{StaticResource PlaylistRenameFlyout}"
                                                 >
                                         </TextBlock>
+
+                                        <i:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Tapped">
+                                                <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0.0" />
+                                            </core:EventTriggerBehavior>
+                                        </i:Interaction.Behaviors>
                                     </Border>
                                 </toolkit:DockPanel>
                                 

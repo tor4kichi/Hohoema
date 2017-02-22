@@ -63,8 +63,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
 		private void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
 		{
-			var border = VisualTreeHelper.GetChild(AssociatedObject, 0);
-			_ScrollViewer = VisualTreeHelper.GetChild(border, 0) as ScrollViewer;
+            _ScrollViewer = AssociatedObject.FindFirstChild<ScrollViewer>();
 
             if (_ScrollViewer != null)
             {
