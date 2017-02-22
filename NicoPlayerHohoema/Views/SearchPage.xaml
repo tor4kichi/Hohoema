@@ -263,15 +263,29 @@
                     </Border>
 
                     <!-- 検索 -->
-                    <StackPanel>
+                    <toolkit:DockPanel>
 
+                        <Button Margin="0 0 0 0"            
+                                Command="{Binding DoSearchCommand}"
+                                MinWidth="120"
+                                toolkit:DockPanel.Dock="Right"
+                                UseSystemFocusVisuals="True"
+                                            >
+                            <StackPanel Orientation="Horizontal">
+
+                                <TextBlock Text="検索" />
+                                <Border Width="8" />
+                                <SymbolIcon Symbol="Find" />
+
+                            </StackPanel>
+                        </Button>
                         <TextBox Text="{Binding SearchText.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                                         HorizontalAlignment="Stretch" 
                                         ext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
                                         VerticalAlignment="Stretch"
                                         InputScope="Search"
                                         x:Name="SearchTextBox"
-                                        Margin="0 8"
+                                        Margin="0 8 8 8"
                                     Height="48"
                                     FontSize="18"
                                     >
@@ -286,24 +300,12 @@
 
                         </TextBox>
                         
-                            <Button Margin="0 0 0 0"
-                                            HorizontalAlignment="Right"
-                                            Command="{Binding DoSearchCommand}"
-                                    MinWidth="120"
-                                            >
-                                <StackPanel Orientation="Horizontal">
-
-                                    <TextBlock Text="検索" />
-                                    <Border Width="8" />
-                                    <SymbolIcon Symbol="Find" />
-
-                                </StackPanel>
-                            </Button>
+                            
 
                             
 
 
-                    </StackPanel>
+                    </toolkit:DockPanel>
                     
                 </StackPanel>
 
