@@ -80,12 +80,18 @@
                                 Orientation="Horizontal"
                                 >
 
+                        <AppBarButton Label="フィード一覧"
+                                      Icon="List"
+                                      Command="{Binding OpenFeedVideoListPageCommand}" />
+
 
                         <AppBarButton Background="Transparent">
                             <StackPanel Orientation="Horizontal">
                                 <iconPack:PackIconMaterial Kind="Delete" />
                             </StackPanel>
 
+                            
+                            
                             <Button.Flyout>
                                 <Flyout>
                                     <Button 
@@ -102,45 +108,7 @@
                                 Margin="16 0 0 0"
                                 >
 
-                        <TextBlock Text="{Binding Title}" 
-                                    VerticalAlignment="Center"
-                                    Style="{StaticResource SubtitleTextBlockStyle}"
-                                    >
-                                
-                                <i:Interaction.Behaviors>
-                                    <core:EventTriggerBehavior EventName="Tapped">
-                                        <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0" />
-                                    </core:EventTriggerBehavior>
-                                </i:Interaction.Behaviors>
-
-
-                        </TextBlock>
-                    </Border>
-
-
-
-
-                </toolkit:DockPanel>
-            </Border>
-
-            <ScrollViewer>
-                <StackPanel x:Name="LyaoutRoot" VerticalAlignment="Stretch" Margin="0">
-
-                    <toolkit:DockPanel>
-
-
-                        <StackPanel toolkit:DockPanel.Dock="Left">
-                            <AppBarButton Label="フィード一覧"
-                                      Icon="List"
-                                      Command="{Binding OpenFeedVideoListPageCommand}" />
-
-                        </StackPanel>
-
-                        <Button Content="名前の変更"
-                    toolkit:DockPanel.Dock="Right"
-                        VerticalAlignment="Center"
-                    Margin="8"
-                    >
+                        <Button Background="Transparent">
                             <Button.Flyout>
                                 <Flyout>
                                     <StackPanel Orientation="Horizontal">
@@ -157,8 +125,8 @@
                                         </TextBox>
 
                                         <Button Content="OK" Margin="8 0 0 0"
-                                    Command="{Binding RenameApplyCommand}"
-                                    >
+                                            Command="{Binding RenameApplyCommand}"
+                                            >
                                             <i:Interaction.Behaviors>
                                                 <core:EventTriggerBehavior EventName="Tapped">
                                                     <mybehavior:CloseFlyoutAction />
@@ -169,15 +137,59 @@
 
                                 </Flyout>
                             </Button.Flyout>
+
+                            <TextBlock Text="{Binding Title}" 
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource SubtitleTextBlockStyle}"
+                                    />
+
                         </Button>
+                        
 
-                        <Border />
 
-                    </toolkit:DockPanel>
+                        <i:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="Tapped">
+                                <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0" />
+                            </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
+
+
+                    </Border>
+
+
+
+
+                </toolkit:DockPanel>
+            </Border>
+
+            <ScrollViewer>
+                <StackPanel x:Name="LyaoutRoot" VerticalAlignment="Stretch" Margin="0">
+
+                    <Button Width="240" Margin="0 24">
+                        <Button.Flyout>
+                            <MenuFlyout>
+                                <MenuFlyoutItem Text="マイリストを追加"
+                                                Command="{Binding AddMylistFeedSourceCommand}"
+                                                />
+                                <MenuFlyoutItem Text="ユーザーを追加"
+                                                Command="{Binding AddUserFeedSourceCommand}"
+                                                />
+                                <MenuFlyoutItem Text="タグを追加"
+                                                Command="{Binding AddTagFeedSourceCommand}"
+                                                />
+                            </MenuFlyout>
+                        </Button.Flyout>
+
+                        <StackPanel Orientation="Horizontal">
+                            <SymbolIcon Symbol="Add" />
+                            <Border Width="8" />
+                            <TextBlock Text="追加" />
+                        </StackPanel>
+                    </Button>
 
 
                     <!-- マイリスト -->
-                    <StackPanel Orientation="Horizontal" Margin="16 8 16 0">
+                    <StackPanel Orientation="Horizontal" Margin="0 8">
 
                         <SymbolIcon Symbol="List" VerticalAlignment="Center" />
 
@@ -187,24 +199,19 @@
                            FontSize="20"
                            />
 
-                        <AppBarButton Icon="Add" 
-                              Label="追加"
-                              Command="{Binding AddMylistFeedSourceCommand}"
-                              >
-
-
-                        </AppBarButton>
                     </StackPanel>
 
                     <ListView ItemsSource="{Binding MylistFeedSources}"
                           ItemTemplate="{StaticResource FeedSourceTemplate}"
                           Margin="8 0"
                       SelectionMode="None"
+                              IsTabStop="False"
                           >
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                 <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                                <Setter Property="IsTabStop" Value="False" />
                             </Style>
                         </ListView.ItemContainerStyle>
 
@@ -227,10 +234,7 @@
                     >
                         <StackPanel Opacity="0.7">
                             <TextBlock Margin="0 0 0 8">
-                        <Run>No items.</Run>
-                            </TextBlock>
-                            <TextBlock Margin="0">
-                        <Run>＋ アイコンから追加できます</Run>
+                                    <Run>なし</Run>
                             </TextBlock>
                         </StackPanel>
                     </Border>
@@ -241,7 +245,7 @@
 
 
                     <!-- タグ -->
-                    <StackPanel Orientation="Horizontal" Margin="16 8 16 0">
+                    <StackPanel Orientation="Horizontal" Margin="0 8">
 
                         <SymbolIcon Symbol="Tag" VerticalAlignment="Center" />
 
@@ -251,11 +255,6 @@
                            FontSize="20"
                            />
 
-                        <AppBarButton Icon="Add" 
-                              Label="追加"
-                              Command="{Binding AddTagFeedSourceCommand}"
-                              >
-                        </AppBarButton>
                     </StackPanel>
 
                     <ListView ItemsSource="{Binding TagFeedSources}"
@@ -267,6 +266,7 @@
                             <Style TargetType="ListViewItem">
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                 <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                                <Setter Property="IsTabStop" Value="False" />
                             </Style>
                         </ListView.ItemContainerStyle>
 
@@ -289,10 +289,7 @@
                     >
                         <StackPanel Opacity="0.7">
                             <TextBlock Margin="0 0 0 8">
-                        <Run>No items.</Run>
-                            </TextBlock>
-                            <TextBlock Margin="0">
-                        <Run>＋ アイコンから追加できます</Run>
+                        <Run>なし</Run>
                             </TextBlock>
                         </StackPanel>
                     </Border>
@@ -302,7 +299,7 @@
 
 
                     <!-- ユーザー -->
-                    <StackPanel Orientation="Horizontal" Margin="16 8 16 0">
+                    <StackPanel Orientation="Horizontal" Margin="0 8">
 
                         <SymbolIcon Symbol="People" VerticalAlignment="Center" />
 
@@ -311,23 +308,19 @@
                            Margin="16 0 8 0"
                            FontSize="20"
                            />
-
-                        <AppBarButton Icon="Add" 
-                              Label="追加"
-                              Command="{Binding AddUserFeedSourceCommand}"
-                              >
-                        </AppBarButton>
+                        
                     </StackPanel>
 
                     <ListView ItemsSource="{Binding UserFeedSources}"
                           ItemTemplate="{StaticResource FeedSourceTemplate}"
                           Margin="8 0"
-                      SelectionMode="None"
+                        SelectionMode="None"
                           >
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                 <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                                <Setter Property="IsTabStop" Value="False" />
                             </Style>
                         </ListView.ItemContainerStyle>
                         <ListView.ItemsPanel>
@@ -348,10 +341,7 @@
                     >
                         <StackPanel Opacity="0.7">
                             <TextBlock Margin="0 0 0 8">
-                        <Run>No items.</Run>
-                            </TextBlock>
-                            <TextBlock Margin="0">
-                        <Run>＋ アイコンから追加できます</Run>
+                        <Run>なし</Run>
                             </TextBlock>
                         </StackPanel>
                     </Border>
