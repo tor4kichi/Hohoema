@@ -29,8 +29,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 		static Util.AsyncLock _NavigationLock = new Util.AsyncLock();
 
-        private Views.Service.AccountManagementDialogService _AccountManageDialogService;
-
         /// <summary>
         /// このページが利用可能になるアプリサービス状態を指定します。
         /// NavigatedToAsync内で変更されれば、その後アプリサービス状態ごとの
@@ -47,8 +45,6 @@ namespace NicoPlayerHohoema.ViewModels
             bool canActivateBackgroundUpdate = true
             )
 		{
-            _AccountManageDialogService = App.Current.Container.Resolve<Views.Service.AccountManagementDialogService>();
-
             AvailableServiceLevel = HohoemaAppServiceLevel.Offline;
 
             _SignStatusLock = new SemaphoreSlim(1, 1);

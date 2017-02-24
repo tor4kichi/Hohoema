@@ -124,10 +124,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
+            NowLoading = true;
 
-			NowLoading = true;
-
-			string userId = null;
+            string userId = null;
 			if(e.Parameter is string)
 			{
 				userId = e.Parameter as string;
@@ -141,6 +140,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			UserId = userId;
 
+            
 			// ログインユーザーと同じ場合、お気に入り表示をOFFに
 			IsLoginUser = HohoemaApp.LoginUserId.ToString() == userId;
 
@@ -148,6 +148,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			MylistGroups.Clear();
 			VideoInfoItems.Clear();
+
 
 			try
 			{

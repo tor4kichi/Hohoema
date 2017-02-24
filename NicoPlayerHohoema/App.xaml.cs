@@ -213,10 +213,16 @@ namespace NicoPlayerHohoema
                 //				}
                 //				else
 
-                await hohoemaApp.SignInWithPrimaryAccount();
-
-                pageManager.OpenPage(HohoemaPageType.Portal);
-			}
+                if (AccountManager.HasPrimaryAccount())
+                {
+                    await hohoemaApp.SignInWithPrimaryAccount();
+                    pageManager.OpenPage(HohoemaPageType.Portal);
+                }
+                else 
+                {
+                    pageManager.OpenPage(HohoemaPageType.Login);
+                }
+            }
 
 			
 //			return Task.CompletedTask;
@@ -480,7 +486,6 @@ namespace NicoPlayerHohoema
 			Container.RegisterInstance(new Views.Service.AcceptCacheUsaseDialogService());
 			Container.RegisterInstance(new Views.Service.TextInputDialogService());
 			Container.RegisterInstance(new Views.Service.ContentSelectDialogDefaultSet());
-            Container.RegisterInstance(new Views.Service.AccountManagementDialogService(hohoemaApp));
             
 //			return Task.CompletedTask;
         }

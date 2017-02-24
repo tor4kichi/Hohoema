@@ -222,3 +222,4 @@ ModelManifest.xml
 /NicoPlayerHohoema/lib/FFmpegInterop/ARM/FFmpegInterop.pri
 /NicoPlayerHohoema/lib/FFmpegInterop/ARM/FFmpegInterop.exp
 NicoPlayerHohoema/Assets/OAuth/twitter.json
+/NicoPlayerHohoema/Assets/xbox_encrypt_key.txt

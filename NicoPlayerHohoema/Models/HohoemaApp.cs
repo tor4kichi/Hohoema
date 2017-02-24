@@ -323,7 +323,7 @@ namespace NicoPlayerHohoema.Models
 			string primaryAccount_id = null;
 			string primaryAccount_Password = null;
 
-			var account = AccountManager.GetPrimaryAccount();
+			var account = await AccountManager.GetPrimaryAccount();
 			if (account != null)
 			{
 				primaryAccount_id = account.Item1;
@@ -340,12 +340,12 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-        public bool CanSignInWithPrimaryAccount()
+        public async Task<bool> CanSignInWithPrimaryAccount()
         {
             string primaryAccount_id = null;
             string primaryAccount_Password = null;
 
-            var account = AccountManager.GetPrimaryAccount();
+            var account = await AccountManager.GetPrimaryAccount();
             if (account != null)
             {
                 primaryAccount_id = account.Item1;

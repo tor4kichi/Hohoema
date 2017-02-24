@@ -7,6 +7,8 @@ using NicoPlayerHohoema.Models;
 using Reactive.Bindings;
 using System.Reactive.Linq;
 using Reactive.Bindings.Extensions;
+using Prism.Windows.Navigation;
+using System.Threading;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -35,9 +37,8 @@ namespace NicoPlayerHohoema.ViewModels
             var version = Windows.ApplicationModel.Package.Current.Id.Version;
             VersionText = $"{version.Major}.{version.Minor}.{version.Build}";
 
-            var accountInfo = AccountManager.GetPrimaryAccount();
-            Mail = new ReactiveProperty<string>(accountInfo?.Item1, mode: ReactivePropertyMode.DistinctUntilChanged);
-            Password = new ReactiveProperty<string>(accountInfo?.Item2, mode: ReactivePropertyMode.DistinctUntilChanged);
+            Mail = new ReactiveProperty<string>("", mode: ReactivePropertyMode.DistinctUntilChanged);
+            Password = new ReactiveProperty<string>("", mode: ReactivePropertyMode.DistinctUntilChanged);
 
             IsRememberPassword = new ReactiveProperty<bool>( !string.IsNullOrEmpty(Password.Value));
 
@@ -74,6 +75,21 @@ namespace NicoPlayerHohoema.ViewModels
 
         }
 
+
+        protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        {
+            var accountInfo = await AccountManager.GetPrimaryAccount();
+            if (accountInfo != null)
+            {
+                Mail.Value = accountInfo.Item1;
+                Password.Value = accountInfo.Item2;
+            }
+            else if (AccountManager.HasPrimaryAccount())
+            {
+                Mail.Value = AccountManager.GetPrimaryAccountId();
+            }
+        }
+
         private async Task TryLogin()
         {
             // Note: NiconicoContextのインスタンスを作成してサインインを試行すると
@@ -97,7 +113,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                 if (IsRememberPassword.Value)
                 {
-                    AccountManager.AddOrUpdateAccount(Mail.Value, Password.Value);
+                    await AccountManager.AddOrUpdateAccount(Mail.Value, Password.Value);
                 }
                 else
                 {

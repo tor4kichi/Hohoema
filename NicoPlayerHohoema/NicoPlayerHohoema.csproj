@@ -202,6 +202,7 @@
     <Compile Include="Models\Settings\PlayerSettings.cs" />
     <Compile Include="Models\Settings\RankingSettings.cs" />
     <Compile Include="Util\DeviceTypeHelper.cs" />
+    <Compile Include="Util\EncryptHelper.cs" />
     <Compile Include="Util\HtmlFileHelper.cs" />
     <Compile Include="Models\VideoPlayPayload.cs" />
     <Compile Include="Models\Video\NicoVideoQuality.cs" />
@@ -465,10 +466,6 @@
       <DependentUpon>AcceptCacheUsaseDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Service\AcceptCacheUsaseDialogService.cs" />
-    <Compile Include="Views\Service\AccountManagementdDialog.xaml.cs">
-      <DependentUpon>AccountManagementdDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Service\AccountManagementDialogService.cs" />
     <Compile Include="Views\Service\ContentSelectDialog.xaml.cs">
       <DependentUpon>ContentSelectDialog.xaml</DependentUpon>
     </Compile>
@@ -624,6 +621,7 @@
     <Content Include="Assets\Wide310x150Logo.scale-125.png" />
     <Content Include="Assets\Wide310x150Logo.scale-150.png" />
     <Content Include="Assets\Wide310x150Logo.scale-400.png" />
+    <Content Include="Assets\xbox_encrypt_key.txt" />
     <Content Include="lib\Mntone.Nico2.UWP.dll" />
     <None Include="Package.StoreAssociation.xml" />
     <Content Include="Properties\Default.rd.xml" />
@@ -843,10 +841,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Service\AcceptCacheUsaseDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\Service\AccountManagementdDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

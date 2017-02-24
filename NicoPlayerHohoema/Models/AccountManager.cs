@@ -18,6 +18,22 @@ namespace NicoPlayerHohoema.Models
 
         const string PRIMARY_ACCOUNT = "primary_account";
 
+        const string XBOX_ACCOUNT_PASSWORD_CONTAINER = "xbox_account";
+        public static Uri XboxEncryptKeyFileUri = new Uri("ms-appx:///Assets/xbox_encrypt_key.txt");
+
+#if DEBUG
+        const bool IsDebugXboxMode = false;
+
+#endif
+
+
+        private static async Task<string> GetXboxEncryptKey()
+        {
+            var file = await StorageFile.GetFileFromApplicationUriAsync(XboxEncryptKeyFileUri);
+            return await FileIO.ReadTextAsync(file);
+        }
+
+
         public static void LoadRecentLoginAccount()
         {
             if (!Util.DeviceTypeHelper.IsXbox)
@@ -64,15 +80,20 @@ namespace NicoPlayerHohoema.Models
             return container.Values["primary_id"] as string != null;
         }
 
-        public static void AddOrUpdateAccount(string mailAddress, string password)
+        public static Task AddOrUpdateAccount(string mailAddress, string password)
         {
+#if !DEBUG
             if (!Util.DeviceTypeHelper.IsXbox)
+#else
+            if (!IsDebugXboxMode && !Util.DeviceTypeHelper.IsXbox)
+#endif
             {
                 _AddOrUpdateAccount(mailAddress, password);
+                return Task.CompletedTask;
             }
             else
             {
-                _AddOrUpdateAccount_Xbox(mailAddress, password);
+                return _AddOrUpdateAccount_Xbox(mailAddress, password);
             }
         }
 
@@ -102,30 +123,47 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
-        private static void _AddOrUpdateAccount_Xbox(string mailAddress, string password)
+        private static async Task _AddOrUpdateAccount_Xbox(string mailAddress, string password)
         {
-            // TODO: 
+            var container = ApplicationData.Current.LocalSettings.CreateContainer(XBOX_ACCOUNT_PASSWORD_CONTAINER, ApplicationDataCreateDisposition.Always);
+            var encryptKey = await GetXboxEncryptKey();
+            var encryptedPassword = Util.EncryptHelper.EncryptStringHelper(password, encryptKey);
+            foreach (var pair in container.Values.ToArray())
+            {
+                var mail = pair.Key;
+                if (mail == mailAddress && container.Values.ContainsKey(mail))
+                {
+                    container.Values.Remove(mail);
+                    break;
+                }
+            }
+
+            container.Values.Add(mailAddress, encryptedPassword);
         }
 
-        public static void RemoveAccount(string mailAddress)
+        public static bool RemoveAccount(string mailAddress)
         {
+#if !DEBUG
             if (!Util.DeviceTypeHelper.IsXbox)
+#else
+            if (!IsDebugXboxMode && !Util.DeviceTypeHelper.IsXbox)
+#endif
             {
-                _RemoveAccount(mailAddress);
+                return _RemoveAccount(mailAddress);
             }
             else
             {
-                _RemoveAccount_Xbox(mailAddress);
+                return _RemoveAccount_Xbox(mailAddress);
             }
         }
 
-        private static void _RemoveAccount(string mailAddress)
+        private static bool _RemoveAccount(string mailAddress)
         {
             var id = mailAddress;
 
             if (String.IsNullOrWhiteSpace(mailAddress))
             {
-                return;
+                return false;
             }
 
             var vault = new Windows.Security.Credentials.PasswordVault();
@@ -133,26 +171,43 @@ namespace NicoPlayerHohoema.Models
             {
                 var credential = vault.Retrieve(nameof(HohoemaApp), id);
                 vault.Remove(credential);
+                return true;
             }
             catch
             {
             }
+
+            return false;
         }
 
 
-        private static void _RemoveAccount_Xbox(string mailAddress)
+        private static bool _RemoveAccount_Xbox(string mailAddress)
         {
-            // TODO: 
+            var container = ApplicationData.Current.LocalSettings.CreateContainer(XBOX_ACCOUNT_PASSWORD_CONTAINER, ApplicationDataCreateDisposition.Always);
+            foreach (var pair in container.Values.ToArray())
+            {
+                var mail = pair.Key;
+                if (mailAddress == mail && container.Values.ContainsKey(mail))
+                {
+                    return container.Values.Remove(mail);
+                }
+            }
+
+            return false;
         }
 
 
-        public static Tuple<string, string> GetPrimaryAccount()
+        public static Task<Tuple<string, string>> GetPrimaryAccount()
         {
             if (HasPrimaryAccount())
             {
+#if !DEBUG
                 if (!Util.DeviceTypeHelper.IsXbox)
+#else
+                if (!IsDebugXboxMode && !Util.DeviceTypeHelper.IsXbox)
+#endif
                 {
-                    return _GetPrimaryAccount();
+                    return Task.FromResult(_GetPrimaryAccount());
                 }
                 else
                 {
@@ -180,9 +235,19 @@ namespace NicoPlayerHohoema.Models
             return null;
         }
 
-        public static Tuple<string, string> _GetPrimaryAccount_Xbox()
+        public static async Task<Tuple<string, string>> _GetPrimaryAccount_Xbox()
         {
-            // TODO: 
+            var container = ApplicationData.Current.LocalSettings.CreateContainer(XBOX_ACCOUNT_PASSWORD_CONTAINER, ApplicationDataCreateDisposition.Always);
+            var encryptKey = await GetXboxEncryptKey();
+            foreach (var pair in container.Values)
+            {
+                var mail = pair.Key;
+                var encryptedPassword = (string)pair.Value;
+                var plainPassword = Util.EncryptHelper.DecryptStringHelper(encryptedPassword, encryptKey);
+
+                return new Tuple<string, string>(mail, plainPassword);
+            }
+
             return null;
         }
     }
