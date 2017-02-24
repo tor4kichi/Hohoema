@@ -201,13 +201,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		
-		public string Label { get; private set; }
-
-		public int UnreadItemCount { get; private set; }
-
 		public List<FeedItemSourceViewModel> SourceItems { get; private set; }
 
-		public ReactiveProperty<DateTime> LastUpdate { get; private set; }
 		public ReactiveProperty<bool> NowUpdate { get; private set; }
 
 		public FeedGroupListItem(IFeedGroup feedGroup, PageManager pageManager)
@@ -215,8 +210,8 @@ namespace NicoPlayerHohoema.ViewModels
 			FeedGroup = feedGroup;
 			_PageManager = pageManager;
 
-			Label = feedGroup.Label;
-			UnreadItemCount = feedGroup.GetUnreadItemCount();
+			Title = feedGroup.Label;
+            Description = feedGroup.GetUnreadItemCount().ToString();
 			SourceItems = FeedGroup.FeedSourceList
 				.Select(x => new FeedItemSourceViewModel()
 				{
@@ -224,7 +219,7 @@ namespace NicoPlayerHohoema.ViewModels
 					ItemType = x.FollowItemType
 				})
 				.ToList();
-			LastUpdate = new ReactiveProperty<DateTime>(FeedGroup.UpdateTime);
+            OptionText = FeedGroup.UpdateTime.ToString();
 			NowUpdate = new ReactiveProperty<bool>(false);
 		}
 
@@ -263,9 +258,8 @@ namespace NicoPlayerHohoema.ViewModels
 		public void UpdateCompleted()
 		{
 			NowUpdate.Value = false;
-			UnreadItemCount = FeedGroup.GetUnreadItemCount();
-			OnPropertyChanged(nameof(UnreadItemCount));
-			LastUpdate.Value = FeedGroup.UpdateTime;
+            Description = FeedGroup.GetUnreadItemCount().ToString();
+            OptionText = FeedGroup.UpdateTime.ToString();
 		}
 	}
 

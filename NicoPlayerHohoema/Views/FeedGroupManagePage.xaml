@@ -184,8 +184,6 @@
                       IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
                       SelectedItem="{Binding SelectedFeedGroupItem.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                       SelectionMode="Single"
-                      MaxWidth="960"
-                      HorizontalAlignment="Center"
                   >
 
                 <ListView.ItemContainerStyle>
@@ -200,34 +198,28 @@
                     </Style>
                 </ListView.ItemContainerStyle>
 
-                <ListView.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <toolkit:WrapPanel Orientation="Horizontal" />
-                    </ItemsPanelTemplate>
-                </ListView.ItemsPanel>
-
                 <ListView.ItemTemplate>
 
                     <DataTemplate>
 
-                        <toolkit:DockPanel Height="48" Margin="0 8">
+                        <Grid Margin="0 8">
 
-                            <StackPanel toolkit:DockPanel.Dock="Right"
+                            <i:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <core:InvokeCommandAction Command="{Binding PrimaryCommand}" />
+                                </core:EventTriggerBehavior>
+                            </i:Interaction.Behaviors>
+                            
+                            <StackPanel HorizontalAlignment="Right"
                                             Orientation="Horizontal"
+                                        VerticalAlignment="Center"
                                             >
-
 
                                 <ProgressRing IsActive="{Binding NowUpdate.Value}"
                                                Visibility="{Binding NowUpdate.Value, Converter={StaticResource BooleanToVisibility}}"
                                                   Width="24"
                                                   Height="24"
                                                   />
-                                <AppBarButton Icon="Edit" 
-                                            IsCompact="True"
-                                            Command="{Binding SecondaryActionCommand}"
-                                            />
-
-
                             </StackPanel>
 
 
@@ -243,7 +235,7 @@
                             </toolkit:DockPanel>
 
 
-                        </toolkit:DockPanel>
+                        </Grid>
                     </DataTemplate>
 
                 </ListView.ItemTemplate>
