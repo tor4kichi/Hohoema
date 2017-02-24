@@ -11,13 +11,31 @@
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
-    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
 
     <Grid >
+
+        <VisualStateManager.VisualStateGroups>
+            <!-- Xbox -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardTrigger:DeviceFamilyTrigger Condition="Windows.Xbox" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+
+                        <Setter Target="ShareSubButton.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+        
         <toolkit:DockPanel x:Name="ContentLayout" 
                            >
             <Border toolkit:DockPanel.Dock="Top" 
@@ -65,7 +83,7 @@
                                       >
                         </AppBarButton>
 
-                        <Button Background="Transparent">
+                        <Button Background="Transparent" x:Name="ShareSubButton">
                             <Button.Flyout>
                                 <MenuFlyout>
                                     <MenuFlyoutItem Text="Twitterで共有" Command="{Binding ShereWithTwitterCommand}" />
