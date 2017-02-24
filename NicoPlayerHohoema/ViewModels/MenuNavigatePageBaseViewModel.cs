@@ -197,7 +197,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .Subscribe(x =>
                 {
                     UserName = x;
-                    UserMail = HohoemaApp.GetPrimaryAccountId();
+                    UserMail = AccountManager.GetPrimaryAccountId();
                 });
 
             HohoemaApp.ObserveProperty(x => x.UserIconUrl)

@@ -8,36 +8,16 @@ namespace NicoPlayerHohoema.Util
 {
     public static class DeviceTypeHelper
     {
-        public static bool IsXbox
-        {
-            get
-            {
-                return Microsoft.Toolkit.Uwp.Helpers.SystemInformation.DeviceFamily.EndsWith("Xbox");
-            }
-        }
+        private static bool _IsXbox = Microsoft.Toolkit.Uwp.Helpers.SystemInformation.DeviceFamily.EndsWith("Xbox");
+        public static bool IsXbox => _IsXbox;
 
-        public static bool IsDesktop
-        {
-            get
-            {
-                return Microsoft.Toolkit.Uwp.Helpers.SystemInformation.DeviceFamily.EndsWith("Desktop");
-            }
-        }
+        private static bool _IsDesktop = Microsoft.Toolkit.Uwp.Helpers.SystemInformation.DeviceFamily.EndsWith("Desktop");
+        public static bool IsDesktop => _IsDesktop;
 
-        public static bool IsMobile
-        {
-            get
-            {
-                return Microsoft.Toolkit.Uwp.Helpers.SystemInformation.DeviceFamily.EndsWith("Mobile");
-            }
-        }
+        private static bool _IsMobile = Microsoft.Toolkit.Uwp.Helpers.SystemInformation.DeviceFamily.EndsWith("Mobile");
+        public static bool IsMobile => _IsMobile;
 
-        public static bool IsIot
-        {
-            get
-            {
-                return Microsoft.Toolkit.Uwp.Helpers.SystemInformation.DeviceFamily.EndsWith("Iot");
-            }
-        }
+        private static bool _IsIot = Microsoft.Toolkit.Uwp.Helpers.SystemInformation.DeviceFamily.EndsWith("Iot");
+        public static bool IsIot => _IsIot;
     }
 }

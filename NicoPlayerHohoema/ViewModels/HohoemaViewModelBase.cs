@@ -204,7 +204,7 @@ namespace NicoPlayerHohoema.ViewModels
                 var isSignIn = await HohoemaApp.CheckSignedInStatus() == Mntone.Nico2.NiconicoSignInStatus.Success;
                 if (!HohoemaApp.IsLoggedIn && !isSignIn)
                 {
-                    if (!HohoemaApp.HasPrimaryAccount())
+                    if (!AccountManager.HasPrimaryAccount())
                     {
                         return false;
                     }

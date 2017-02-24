@@ -54,7 +54,7 @@ namespace NicoPlayerHohoema.Views.Service
         public AccountManagementDialogContext(HohoemaApp hohoemaApp)
         {
             HohoemaApp = hohoemaApp;
-            var accountInfo = HohoemaApp.GetPrimaryAccount();
+            var accountInfo = AccountManager.GetPrimaryAccount();
             Mail = new ReactiveProperty<string>(accountInfo?.Item1, mode:ReactivePropertyMode.DistinctUntilChanged);
             Password = new ReactiveProperty<string>(accountInfo?.Item2, mode: ReactivePropertyMode.DistinctUntilChanged);
 
@@ -98,8 +98,8 @@ namespace NicoPlayerHohoema.Views.Service
                 .ToReactiveCommand();
             ApplyCommand.Subscribe(async _ => 
             {
-                HohoemaApp.SetPrimaryAccountId(Mail.Value);
-                HohoemaApp.AddOrUpdateAccount(Mail.Value, Password.Value);
+                AccountManager.SetPrimaryAccountId(Mail.Value);
+                AccountManager.AddOrUpdateAccount(Mail.Value, Password.Value);
 
                 await HohoemaApp.SignInWithPrimaryAccount();
             });

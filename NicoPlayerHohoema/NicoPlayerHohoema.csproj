@@ -120,6 +120,7 @@
     </Compile>
     <Compile Include="Events\PlayerClosedEvent.cs" />
     <Compile Include="Events\PlayNicoVideoEvent.cs" />
+    <Compile Include="Models\AccountManager.cs" />
     <Compile Include="Models\AppMap\AppMap.cs" />
     <Compile Include="Models\AppMap\AppMapItem.cs" />
     <Compile Include="Models\AppMap\AppMapContainerBase.cs" />

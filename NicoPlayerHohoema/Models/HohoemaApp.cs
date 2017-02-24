@@ -28,10 +28,6 @@ namespace NicoPlayerHohoema.Models
 	{
 		public static CoreDispatcher UIDispatcher { get; private set; }
 		
-		// v0.3.9 以前との互換性のために残しています
-		const string RECENT_LOGIN_ACCOUNT = "recent_login_account";
-
-		const string PRIMARY_ACCOUNT = "primary_account";
 
 
         public const string PlaylistSaveFolderName = "Playlists";
@@ -85,7 +81,6 @@ namespace NicoPlayerHohoema.Models
 
             FollowManager = null;
 
-			LoadRecentLoginAccount();
 			_SigninLock = new SemaphoreSlim(1, 1);
 
 			BackgroundUpdater = new BackgroundUpdater("HohoemaBG", UIDispatcher);
@@ -144,133 +139,7 @@ namespace NicoPlayerHohoema.Models
 		#region SignIn/Out 
 
 
-		public void LoadRecentLoginAccount()
-		{
-			var vault = new Windows.Security.Credentials.PasswordVault();
-
-			// v0.3.9 以前との互換性
-			if (ApplicationData.Current.LocalSettings.Containers.ContainsKey(RECENT_LOGIN_ACCOUNT))
-			{
-				var container = ApplicationData.Current.LocalSettings.Containers[RECENT_LOGIN_ACCOUNT];
-				var prop = container.Values.FirstOrDefault();
-
-				var id = prop.Key;
-				var password = prop.Value as string ?? "";
-
-				try
-				{
-					AddOrUpdateAccount(id, password);
-				}
-				catch { }
-
-				ApplicationData.Current.LocalSettings.DeleteContainer(RECENT_LOGIN_ACCOUNT);
-
-				SetPrimaryAccountId(id);
-			}
-
-			
-		}
-
-		public static void SetPrimaryAccountId(string mailAddress)
-		{
-			var container = ApplicationData.Current.LocalSettings.CreateContainer(PRIMARY_ACCOUNT, ApplicationDataCreateDisposition.Always);
-			container.Values["primary_id"] = mailAddress;
-		}
-
-		public static string GetPrimaryAccountId()
-		{
-			var container = ApplicationData.Current.LocalSettings.CreateContainer(PRIMARY_ACCOUNT, ApplicationDataCreateDisposition.Always);
-			return container.Values["primary_id"] as string;
-		}
-
-		public static bool HasPrimaryAccount()
-		{
-			var container = ApplicationData.Current.LocalSettings.CreateContainer(PRIMARY_ACCOUNT, ApplicationDataCreateDisposition.Always);
-			return container.Values["primary_id"] as string != null;
-		}
-
-		public static void AddOrUpdateAccount(string mailAddress, string password)
-		{
-			var id = mailAddress;
-			
-			if (String.IsNullOrWhiteSpace(mailAddress) || String.IsNullOrWhiteSpace(password))
-			{
-				throw new Exception();
-			}
-
-			var vault = new Windows.Security.Credentials.PasswordVault();
-			try
-			{
-				var credential = vault.Retrieve(nameof(HohoemaApp), id);
-				vault.Remove(credential);
-			}
-			catch
-			{
-			}
-
-			{
-				var credential = new Windows.Security.Credentials.PasswordCredential(nameof(HohoemaApp), id, password);
-				vault.Add(credential);
-			}
-		}
-
-		public static void RemoveAccount(string mailAddress)
-		{
-			var id = mailAddress;
-
-			if (String.IsNullOrWhiteSpace(mailAddress))
-			{
-				return;
-			}
-
-			var vault = new Windows.Security.Credentials.PasswordVault();
-			try
-			{
-				var credential = vault.Retrieve(nameof(HohoemaApp), id);
-				vault.Remove(credential);
-			}
-			catch
-			{
-			}
-		}
-
-		public static Tuple<string, string> GetPrimaryAccount()
-		{
-			if (HasPrimaryAccount())
-			{
-				var vault = new Windows.Security.Credentials.PasswordVault();
-				try
-				{
-					var primary_id = GetPrimaryAccountId();
-					var credential = vault.Retrieve(nameof(HohoemaApp), primary_id);
-					credential.RetrievePassword();
-					return new Tuple<string, string>(credential.UserName, credential.Password);
-				}
-				catch { }
-			}
-
-			return null;
-		}
-
-		public static List<string> GetAccountIds()
-		{
-			try
-			{
-				var vault = new Windows.Security.Credentials.PasswordVault();
-
-				var items = vault.FindAllByResource(nameof(HohoemaApp));
-
-				return items.Select(x => x.UserName)
-					.ToList();
-			}
-			catch
-			{
-				
-			}
-
-			return new List<string>();
-		}
-
+		
 
 		public async Task<StorageFolder> GetFeedSettingsFolder()
 		{
@@ -454,7 +323,7 @@ namespace NicoPlayerHohoema.Models
 			string primaryAccount_id = null;
 			string primaryAccount_Password = null;
 
-			var account = GetPrimaryAccount();
+			var account = AccountManager.GetPrimaryAccount();
 			if (account != null)
 			{
 				primaryAccount_id = account.Item1;
@@ -476,7 +345,7 @@ namespace NicoPlayerHohoema.Models
             string primaryAccount_id = null;
             string primaryAccount_Password = null;
 
-            var account = GetPrimaryAccount();
+            var account = AccountManager.GetPrimaryAccount();
             if (account != null)
             {
                 primaryAccount_id = account.Item1;
@@ -1214,8 +1083,7 @@ StorageFolder _DownloadFolder;
 			}
 		}
 
-
-		public HohoemaUserSettings UserSettings { get; private set; }
+        public HohoemaUserSettings UserSettings { get; private set; }
 
 		public uint LoginUserId { get; private set; }
 		public bool IsPremiumUser { get; private set; }

@@ -35,7 +35,7 @@ namespace NicoPlayerHohoema.ViewModels
             var version = Windows.ApplicationModel.Package.Current.Id.Version;
             VersionText = $"{version.Major}.{version.Minor}.{version.Build}";
 
-            var accountInfo = HohoemaApp.GetPrimaryAccount();
+            var accountInfo = AccountManager.GetPrimaryAccount();
             Mail = new ReactiveProperty<string>(accountInfo?.Item1, mode: ReactivePropertyMode.DistinctUntilChanged);
             Password = new ReactiveProperty<string>(accountInfo?.Item2, mode: ReactivePropertyMode.DistinctUntilChanged);
 
@@ -93,15 +93,15 @@ namespace NicoPlayerHohoema.ViewModels
 
             if (IsValidAccount.Value)
             {
-                HohoemaApp.SetPrimaryAccountId(Mail.Value);
+                AccountManager.SetPrimaryAccountId(Mail.Value);
 
                 if (IsRememberPassword.Value)
                 {
-                    HohoemaApp.AddOrUpdateAccount(Mail.Value, Password.Value);
+                    AccountManager.AddOrUpdateAccount(Mail.Value, Password.Value);
                 }
                 else
                 {
-                    HohoemaApp.RemoveAccount(Mail.Value);
+                    AccountManager.RemoveAccount(Mail.Value);
                 }
 
 
