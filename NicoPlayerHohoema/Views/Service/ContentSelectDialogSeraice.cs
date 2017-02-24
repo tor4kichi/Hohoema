@@ -114,9 +114,10 @@ namespace NicoPlayerHohoema.Views.Service
             IsSingleContainer = SelectableContainerList.Count == 1;
 
             SelectedContainer = new ReactiveProperty<ISelectableContainer>(firstSelected);
-			IsValidItemSelected = new ReactiveProperty<bool>(false);
+            IsValidItemSelected = SelectedContainer.Select(x => x?.IsValidatedSelection ?? false)
+                .ToReactiveProperty();
 
-			_ContainerItemChangedEventDisposer = SelectedContainer.Subscribe(x => 
+            _ContainerItemChangedEventDisposer = SelectedContainer.Subscribe(x => 
 			{
 				if (_Prev != null)
 				{
@@ -138,10 +139,31 @@ namespace NicoPlayerHohoema.Views.Service
 
 			});
 			
-			
-		}
 
-		private void SelectableContainer_SelectionItemChanged(ISelectableContainer obj)
+            foreach (var container in SelectableContainerList)
+            {
+                (container as SelectableContainer).PropertyChanged += ContentSelectDialogContext_PropertyChanged;
+            }
+
+            if (firstSelected != null)
+            {
+                (firstSelected as SelectableContainer).IsSelected = true;
+            }
+        }
+
+        private void ContentSelectDialogContext_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "IsSelected")
+            {
+                var container = sender as SelectableContainer;
+                if (container.IsSelected)
+                {
+                    SelectedContainer.Value = container;
+                }
+            }
+        }
+
+        private void SelectableContainer_SelectionItemChanged(ISelectableContainer obj)
 		{
 			IsValidItemSelected.Value = obj.IsValidatedSelection;
 		}

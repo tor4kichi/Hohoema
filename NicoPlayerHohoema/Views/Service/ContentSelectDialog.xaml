@@ -41,14 +41,6 @@
                           Visibility="{Binding IsSelectFromCandidate, Converter={StaticResource BooleanToVisibility}}"
                           MinHeight="150"
                           >
-                    <ListView.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <toolkit:WrapPanel Orientation="Horizontal"
-                                               >
-                                
-                            </toolkit:WrapPanel>
-                        </ItemsPanelTemplate>
-                    </ListView.ItemsPanel>
                     
                 </ListView>
                 
@@ -67,31 +59,33 @@
 
     <StackPanel>
 
-        <toolkit:DockPanel Margin="0 8" Visibility="{Binding IsSingleContainer, Converter={StaticResource BooleanToVisibilityInverted}}">
+        <ItemsControl ItemsSource="{Binding SelectableContainerList}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
 
-            <TextBlock Text="選択方法" 
-                       toolkit:DockPanel.Dock="Left"
-                       VerticalAlignment="Center"
-                       />
+                    <StackPanel Margin="0 8">
+                        <RadioButton IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" GroupName="_" Content="{Binding Label}"
+                                     toolkit:DockPanel.Dock="Left"
+                                     Margin="0 0 0 8"
+                                     />
 
-            <ComboBox ItemsSource="{Binding SelectableContainerList}"
-                      SelectedItem="{Binding SelectedContainer.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                      DisplayMemberPath="Label"
-                      HorizontalAlignment="Right"
-                  >
-            </ComboBox>
-
-        </toolkit:DockPanel>
-
-        <ContentControl Content="{Binding SelectedContainer.Value}"
-                        ContentTemplateSelector="{StaticResource ContentSelectContainerTemplateSelector}"
-                        HorizontalContentAlignment="Stretch"
-                        VerticalContentAlignment="Stretch"
-                        HorizontalAlignment="Stretch"
-                        Margin="0 8"
-                        MinWidth="200"
-                        
+                        <ContentControl Content="{Binding}"
+                            ContentTemplateSelector="{StaticResource ContentSelectContainerTemplateSelector}"
+                            HorizontalContentAlignment="Stretch"
+                            VerticalContentAlignment="Stretch"
+                            HorizontalAlignment="Stretch"
+                            Margin="32 0"
+                            MinWidth="200"
+                            IsEnabled="{Binding IsSelected}"
                         />
 
+                    </StackPanel>
+
+                    
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            
+        </ItemsControl>
+        
     </StackPanel>
 </ContentDialog>

@@ -535,7 +535,7 @@ namespace NicoPlayerHohoema.ViewModels
 									Id = x.Id
 								}
 							).ToList(),
-							TextInputTitle = "マイリストIDまたはキーワード",
+							TextInputTitle = "マイリストID またはキーワード",
 							GenerateCandiateList = GenerateMylistCandidateList
 						};
 
