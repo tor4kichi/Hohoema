@@ -21,16 +21,19 @@
                 <Image Source="{Binding FirstImageUrl}" 
                    Height="60"
                    Width="80"
+                       Visibility="{Binding HasImageUrl, Converter={StaticResource BooleanToVisibility}}"
                    />
 
                 <Border Background="#cc000000" 
                         HorizontalAlignment="Right" 
                         VerticalAlignment="Bottom"
+                        Visibility="{Binding HasImageCaption, Converter={StaticResource BooleanToVisibility}}"
                         >
                     <TextBlock Text="{Binding ImageCaption}" 
                                Padding="1 0 2 1" 
                                TextWrapping="Wrap" VerticalAlignment="Center" 
                                FontSize="13"
+                               
                                />
                 </Border>
             </Grid>

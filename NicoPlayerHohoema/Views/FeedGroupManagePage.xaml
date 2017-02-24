@@ -77,6 +77,17 @@
                                 Orientation="Horizontal"
                                 >
 
+
+                        <AppBarButton Command="{Binding RefreshAllFeedGroupCommand}"
+                                Background="Transparent"
+                                      Icon="Refresh"
+                                      Label="更新"
+                                      Visibility="{Binding HasFeedGroupItems.Value, Converter={StaticResource BooleanToVisibility}}"
+                                >
+                        </AppBarButton>
+
+                        <Border Width="8" />
+
                         <AppBarButton Command="{Binding CreateFeedGroupCommand}"
                                     Background="Transparent"
                                     ToolTipService.ToolTip="フィードグループを作成"
@@ -89,14 +100,7 @@
                                                        />
                         </AppBarButton>
 
-                        <Border Width="8" />
-
-                        <AppBarButton Command="{Binding RefreshAllFeedGroupCommand}"
-                                Background="Transparent"
-                                      Icon="Refresh"
-                                      Label="更新"
-                                >
-                        </AppBarButton>
+                        
 
 
 
@@ -180,74 +184,84 @@
             </Border>
 
 
-            <ListView ItemsSource="{Binding FeedGroupItems}"
-                      IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
-                      SelectedItem="{Binding SelectedFeedGroupItem.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                      SelectionMode="Single"
-                      MaxWidth="960"
-                      HorizontalAlignment="Center"
+            <ItemsControl ItemsSource="{Binding FeedGroupItems}"
+                          IsTabStop="False"
                   >
 
-                <ListView.ItemContainerStyle>
-                    <Style TargetType="ListViewItem">
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
                         <Setter Property="HorizontalContentAlignment"
                                     Value="Stretch" 
                                         />
                         <Setter Property="Margin"
                                     Value="8 0 8 0" 
                                     />
-                        
                     </Style>
-                </ListView.ItemContainerStyle>
+                </ItemsControl.ItemContainerStyle>
 
-                <ListView.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <toolkit:WrapPanel Orientation="Horizontal" />
-                    </ItemsPanelTemplate>
-                </ListView.ItemsPanel>
-
-                <ListView.ItemTemplate>
+                <ItemsControl.ItemTemplate>
 
                     <DataTemplate>
 
-                        <toolkit:DockPanel Height="48" Margin="0 8">
+                        <Button Margin="0 8" Background="Transparent"
+                                UseSystemFocusVisuals="True"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                Command="{Binding PrimaryCommand}"
+                                >
 
-                            <StackPanel toolkit:DockPanel.Dock="Right"
+
+                            <Button.ContextFlyout>
+                                <MenuFlyout>
+                                    <MenuFlyoutItem Text="更新"
+                                                    Command="{Binding UpdateCommand}"
+                                                    />
+                                    <MenuFlyoutItem Text="編集" 
+                                                    Command="{Binding OpenEditCommand}"
+                                                    />
+                                    <MenuFlyoutSeparator />
+                                    <MenuFlyoutSubItem Text="削除">
+                                        <MenuFlyoutItem Text="削除" 
+                                                        Command="{Binding ElementName=PageRoot, Path=DataContext.RemoveFeedGroupCommand}"
+                                                        CommandParameter="{Binding}"
+                                                        />
+                                    </MenuFlyoutSubItem>
+                                </MenuFlyout>
+                            </Button.ContextFlyout>
+
+                            <Grid>
+                                <StackPanel HorizontalAlignment="Right"
                                             Orientation="Horizontal"
+                                        VerticalAlignment="Center"
                                             >
 
-
-                                <ProgressRing IsActive="{Binding NowUpdate.Value}"
+                                    <ProgressRing IsActive="{Binding NowUpdate.Value}"
                                                Visibility="{Binding NowUpdate.Value, Converter={StaticResource BooleanToVisibility}}"
                                                   Width="24"
                                                   Height="24"
                                                   />
-                                <AppBarButton Icon="Edit" 
-                                            IsCompact="True"
-                                            Command="{Binding SecondaryActionCommand}"
-                                            />
-
-
-                            </StackPanel>
+                                </StackPanel>
 
 
 
 
 
-                            <toolkit:DockPanel Background="Transparent" IsHitTestVisible="True" >
+                                <toolkit:DockPanel Background="Transparent" IsHitTestVisible="True" >
 
 
 
-                                <mycontrols:HohoemaListItem />
+                                    <mycontrols:HohoemaListItem />
 
-                            </toolkit:DockPanel>
+                                </toolkit:DockPanel>
 
 
-                        </toolkit:DockPanel>
+
+                            </Grid>
+                        </Button>
                     </DataTemplate>
 
-                </ListView.ItemTemplate>
-            </ListView>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
 
 
 
