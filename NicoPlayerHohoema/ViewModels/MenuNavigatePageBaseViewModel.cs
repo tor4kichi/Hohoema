@@ -23,20 +23,17 @@ namespace NicoPlayerHohoema.ViewModels
 	{
 		public PageManager PageManager { get; private set; }
 		public HohoemaApp HohoemaApp { get; private set; }
-        public AccountManagementDialogService AccountManagementDialogService { get; private set; }
-
+        
 
         public ReactiveProperty<bool> IsTVModeEnable { get; private set; }
 
         public MenuNavigatePageBaseViewModel(
             HohoemaApp hohoemaApp, 
-            PageManager pageManager, 
-            Views.Service.AccountManagementDialogService accountManageDlgService
+            PageManager pageManager
             )
 		{
 			PageManager = pageManager;
 			HohoemaApp = hohoemaApp;
-            AccountManagementDialogService = accountManageDlgService;
 
             // TV Mode
             if (Util.DeviceTypeHelper.IsXbox)
@@ -197,7 +194,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .Subscribe(x =>
                 {
                     UserName = x;
-                    UserMail = HohoemaApp.GetPrimaryAccountId();
+                    UserMail = AccountManager.GetPrimaryAccountId();
                 });
 
             HohoemaApp.ObserveProperty(x => x.UserIconUrl)
@@ -286,7 +283,15 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenAccountInfoCommand
                     ?? (_OpenAccountInfoCommand = new DelegateCommand(() =>
                     {
-                        PageManager.OpenPage(HohoemaPageType.UserInfo, HohoemaApp.LoginUserId.ToString());
+                        if (HohoemaApp.IsLoggedIn)
+                        {
+                            PageManager.OpenPage(HohoemaPageType.UserInfo, HohoemaApp.LoginUserId.ToString());
+                        }
+                        else
+                        {
+                            PageManager.OpenPage(HohoemaPageType.Login);
+                        }
+                        
                     }));
             }
         }
