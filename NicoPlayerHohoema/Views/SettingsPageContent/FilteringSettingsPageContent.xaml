@@ -387,10 +387,40 @@
 
                     <toolkit:DockPanel >
                         <Button Content="動画タイトルのNGキーワードを追加" 
-                                Command="{Binding AddNewNGVideoTitleKeywordCommand}"
                                 UseSystemFocusVisuals="True"
                                 toolkit:DockPanel.Dock="Bottom"
-                                />
+                                >
+                            <Button.Flyout>
+                                <Flyout>
+                                    
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBox Text="{Binding NGVideoTitleKeyword.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 Width="200"
+                                                 >
+                                            <i:Interaction.Behaviors>
+                                                <mybehavior:KeyboardTrigger Key="Enter">
+                                                    <core:InvokeCommandAction Command="{Binding AddNewNGVideoTitleKeywordCommand}" />
+                                                    <mybehavior:CloseFlyoutAction />
+                                                </mybehavior:KeyboardTrigger>
+                                            </i:Interaction.Behaviors>
+                                        </TextBox>
+
+                                        <Border Width="8" />
+
+                                        <Button Content="追加" 
+                                                Command="{Binding AddNewNGVideoTitleKeywordCommand}"
+                                                >
+                                            <i:Interaction.Behaviors>
+                                                <core:EventTriggerBehavior EventName="Tapped">
+                                                    <mybehavior:CloseFlyoutAction />
+                                                </core:EventTriggerBehavior>
+                                            </i:Interaction.Behaviors>
+                                        </Button>
+
+                                    </StackPanel>
+                                </Flyout>
+                            </Button.Flyout>
+                        </Button>
 
                         <ItemsControl ItemsSource="{Binding NGVideoTitleKeywords}"
                                   Margin="0 8"
@@ -498,9 +528,39 @@
 
                     <StackPanel Margin="0 8">
                         <Button Content="NGコメントキーワードを追加" 
-                                Command="{Binding AddNewNGCommentKeywordCommand}"
                                 UseSystemFocusVisuals="True"
-                                />
+                                >
+                            <Button.Flyout>
+                                <Flyout>
+
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBox Text="{Binding NGCommentKeyword.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 Width="200"
+                                                 >
+                                            <i:Interaction.Behaviors>
+                                                <mybehavior:KeyboardTrigger Key="Enter">
+                                                    <core:InvokeCommandAction Command="{Binding AddNewNGCommentKeywordCommand}" />
+                                                    <mybehavior:CloseFlyoutAction />
+                                                </mybehavior:KeyboardTrigger>
+                                            </i:Interaction.Behaviors>
+                                        </TextBox>
+
+                                        <Border Width="8" />
+
+                                        <Button Content="追加" 
+                                                Command="{Binding AddNewNGCommentKeywordCommand}"
+                                                >
+                                            <i:Interaction.Behaviors>
+                                                <core:EventTriggerBehavior EventName="Tapped">
+                                                    <mybehavior:CloseFlyoutAction />
+                                                </core:EventTriggerBehavior>
+                                            </i:Interaction.Behaviors>
+                                        </Button>
+
+                                    </StackPanel>
+                                </Flyout>
+                            </Button.Flyout>
+                        </Button>
 
                         <ItemsControl ItemsSource="{Binding NGCommentKeywords}"
                                   Margin="0 8"

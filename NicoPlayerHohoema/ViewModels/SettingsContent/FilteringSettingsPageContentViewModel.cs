@@ -119,14 +119,22 @@ namespace NicoPlayerHohoema.ViewModels
 				);
 
 			// NG動画タイトルキーワードを追加するコマンド
-			AddNewNGVideoTitleKeywordCommand = new DelegateCommand(() =>
-			{
-				_NGSettings.NGVideoTitleKeywords.Add(new NGKeyword()
-				{
-					TestText = "",
-					Keyword = ""
-				});
-			});
+            NGVideoTitleKeyword = new ReactiveProperty<string>("");
+
+            AddNewNGVideoTitleKeywordCommand = NGVideoTitleKeyword
+                .Select(x => !string.IsNullOrWhiteSpace(x))
+                .ToReactiveCommand();
+
+            AddNewNGVideoTitleKeywordCommand.Subscribe(_ =>
+            {
+                _NGSettings.NGVideoTitleKeywords.Add(new NGKeyword()
+                {
+                    TestText = "",
+                    Keyword = NGVideoTitleKeyword.Value
+                });
+
+                NGVideoTitleKeyword.Value = "";
+            });
 
 
             NGCommentUserIdEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentUserIdEnable);
@@ -146,13 +154,20 @@ namespace NicoPlayerHohoema.ViewModels
 
             SelectedNGCommentScore = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentScoreType);
 
-            AddNewNGCommentKeywordCommand = new DelegateCommand(() =>
+            NGCommentKeyword = new ReactiveProperty<string>("");
+
+            AddNewNGCommentKeywordCommand = NGCommentKeyword
+                .Select(x => !string.IsNullOrWhiteSpace(x))
+                .ToReactiveCommand();
+
+            AddNewNGCommentKeywordCommand.Subscribe(_ => 
             {
                 _NGSettings.NGCommentKeywords.Add(new NGKeyword()
                 {
                     TestText = "",
-                    Keyword = ""
+                    Keyword = NGCommentKeyword.Value
                 });
+                NGCommentKeyword.Value = "";
             });
 
         }
@@ -272,7 +287,8 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _IsDisplayReorderText, value); }
 		}
 
-		public DelegateCommand AddNewNGVideoTitleKeywordCommand { get; private set; }
+        public ReactiveProperty<string> NGVideoTitleKeyword { get; private set; }
+        public ReactiveCommand AddNewNGVideoTitleKeywordCommand { get; private set; }
 
 		public ReactiveProperty<bool> NGVideoIdEnable { get; private set; }
 		public ReadOnlyReactiveCollection<RemovableListItem<string>> NGVideoIds { get; private set; }
@@ -287,7 +303,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-        public DelegateCommand AddNewNGCommentKeywordCommand { get; private set; }
+        public ReactiveProperty<string> NGCommentKeyword { get; private set; }
+        public ReactiveCommand AddNewNGCommentKeywordCommand { get; private set; }
 
         public ReactiveProperty<bool> NGCommentUserIdEnable { get; private set; }
         public ReadOnlyReactiveCollection<RemovableListItem<string>> NGCommentUserIds { get; private set; }
