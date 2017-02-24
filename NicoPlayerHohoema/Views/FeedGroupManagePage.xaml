@@ -213,12 +213,17 @@
 
                             <Button.ContextFlyout>
                                 <MenuFlyout>
-                                    <MenuFlyoutItem Text="更新" />
-                                    <MenuFlyoutItem Text="編集" />
+                                    <MenuFlyoutItem Text="更新"
+                                                    Command="{Binding UpdateCommand}"
+                                                    />
+                                    <MenuFlyoutItem Text="編集" 
+                                                    Command="{Binding OpenEditCommand}"
+                                                    />
                                     <MenuFlyoutSeparator />
                                     <MenuFlyoutSubItem Text="削除">
                                         <MenuFlyoutItem Text="削除" 
-                                                        
+                                                        Command="{Binding ElementName=PageRoot, Path=DataContext.RemoveFeedGroupCommand}"
+                                                        CommandParameter="{Binding}"
                                                         />
                                     </MenuFlyoutSubItem>
                                 </MenuFlyout>

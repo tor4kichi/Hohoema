@@ -151,15 +151,23 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		private DelegateCommand _RemoveFeedGroupCommand;
-		public DelegateCommand RemoveFeedGroupCommand
+		private DelegateCommand<FeedGroupListItem> _RemoveFeedGroupCommand;
+		public DelegateCommand<FeedGroupListItem> RemoveFeedGroupCommand
 		{
 			get
 			{
 				return _RemoveFeedGroupCommand
-					?? (_RemoveFeedGroupCommand = new DelegateCommand(() =>
+					?? (_RemoveFeedGroupCommand = new DelegateCommand<FeedGroupListItem>(async (feedGroupVM) =>
 					{
-						RefreshAllFeedGroupCommand.RaiseCanExecuteChanged();
+                        var result = await HohoemaApp.FeedManager.RemoveFeedGroup(feedGroupVM.FeedGroup);
+                        if (result)
+                        {
+                            var removeItem = FeedGroupItems.FirstOrDefault(x => x.FeedGroup.Id == feedGroupVM.FeedGroup.Id);
+                            if (removeItem != null)
+                            {
+                                FeedGroupItems.Remove(removeItem);
+                            }
+                        }
 					}));
 			}
 		}
@@ -250,7 +258,44 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		public void UpdateStarted()
+        private DelegateCommand _UpdateCommand;
+        public DelegateCommand UpdateCommand
+        {
+            get
+            {
+                return _UpdateCommand
+                    ?? (_UpdateCommand = new DelegateCommand(async () =>
+                    {
+                        UpdateStarted();
+                        try
+                        {
+                            await FeedGroup.Refresh();
+                        }
+                        finally
+                        {
+                            UpdateCompleted();
+                        }
+                    }));
+            }
+        }
+
+
+        private DelegateCommand _OpenEditCommand;
+        public DelegateCommand OpenEditCommand
+        {
+            get
+            {
+                return _OpenEditCommand
+                    ?? (_OpenEditCommand = new DelegateCommand(() =>
+                    {
+                        _PageManager.OpenPage(HohoemaPageType.FeedGroup, FeedGroup.Id);
+                    }));
+            }
+        }
+
+
+        
+        public void UpdateStarted()
 		{
 			NowUpdate.Value = true;
 		}
