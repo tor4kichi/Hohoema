@@ -23,6 +23,7 @@
                     </VisualState.StateTriggers>
 
                     <VisualState.Setters>
+                        <!-- Xbox利用時にはTV Mode変更はできないため設定を非表示に -->
                         <Setter Target="TVModeSwitchLayout.Visibility" Value="Collapsed" />
                     </VisualState.Setters>
                 </VisualState>
@@ -60,7 +61,7 @@
 
 
 
-                <!-- TODO: Xbox利用時にはTV Mode変更はできないため設定を非表示に -->
+                
                 <StackPanel x:Name="TVModeSwitchLayout">
                     <StackPanel Margin="8">
                         <TextBlock Text="TV Modeを利用する"
