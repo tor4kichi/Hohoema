@@ -18,6 +18,7 @@
     xmlns:intractionTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInteractionTriggers"
     xmlns:uiTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInterfaceTriggers"
     xmlns:myTrigger ="using:NicoPlayerHohoema.Views.StateTrigger"
+    xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     xmlns:media="using:Microsoft.Xaml.Interactions.Media"
     xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Animations.Behaviors"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
@@ -251,6 +252,20 @@
                 </VisualState>
             </VisualStateGroup>
 
+            <!-- Xbox -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardTrigger:DeviceFamilyTrigger Condition="Windows.Xbox" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+
+                        <Setter Target="MenuSubItem_Share.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+                
+            </VisualStateGroup>
+            
         </VisualStateManager.VisualStateGroups>
 
         <toolkit:LayoutTransformControl
@@ -774,7 +789,7 @@
                                             <MenuFlyoutItem Text="動画情報" Command="{Binding OpenVideoInfoCommand}" />
                                             <MenuFlyoutSeparator />
                                             <MenuFlyoutItem Text="マイリスト登録" Command="{Binding AddMylistCommand}" />
-                                            <MenuFlyoutSubItem Text="共有" >
+                                            <MenuFlyoutSubItem Text="共有" x:Name="MenuSubItem_Share" >
                                                 <MenuFlyoutItem Text="Twitterで共有" Command="{Binding ShereWithTwitterCommand}" />
                                                 <MenuFlyoutItem Text="クリップボードにコピー" Command="{Binding ShareWithClipboardCommand}" />
                                             </MenuFlyoutSubItem>
