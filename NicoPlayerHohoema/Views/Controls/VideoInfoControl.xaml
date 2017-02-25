@@ -105,24 +105,45 @@
                             キャッシュ済み -> 緑色
                             
                             -->
-                            <TextBlock Text="{Binding Quality}"
+                            <Border>
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup>
+                                        <VisualState>
+                                            <VisualState.StateTriggers>
+                                                <StateTrigger IsActive="{Binding IsCachePending.Value}" />
+                                            </VisualState.StateTriggers>
+                                            <VisualState.Setters>
+                                                <Setter Target="QualityText.Foreground" Value="Gray" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState>
+                                            <VisualState.StateTriggers>
+                                                <StateTrigger IsActive="{Binding IsCacheDownloading.Value}" />
+                                            </VisualState.StateTriggers>
+                                            <VisualState.Setters>
+                                                <Setter Target="QualityText.Foreground" Value="Blue" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState>
+                                            <VisualState.StateTriggers>
+                                                <StateTrigger IsActive="{Binding IsCached.Value}" />
+                                            </VisualState.StateTriggers>
+                                            <VisualState.Setters>
+                                                <Setter Target="QualityText.Foreground" Value="Green" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+                                <TextBlock Text="{Binding Quality}"
                                        Visibility="{Binding IsNotCacheRequested.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                        FontSize="13"
                                            Margin="0 0"
                                            VerticalAlignment="Center"
+                                           x:Name="QualityText"
                                        >
-                                <i:Interaction.Behaviors>
-                                    <core:DataTriggerBehavior Binding="{Binding IsCachePending.Value}" ComparisonCondition="Equal" Value="True">
-                                        <core:ChangePropertyAction PropertyName="Foreground" Value="Gray" />
-                                    </core:DataTriggerBehavior>
-                                    <core:DataTriggerBehavior Binding="{Binding IsCacheDownloading.Value}" ComparisonCondition="Equal" Value="True">
-                                        <core:ChangePropertyAction PropertyName="Foreground" Value="Blue" />
-                                    </core:DataTriggerBehavior>
-                                    <core:DataTriggerBehavior Binding="{Binding IsCached.Value}" ComparisonCondition="Equal" Value="True">
-                                        <core:ChangePropertyAction PropertyName="Foreground" Value="Green" />
-                                    </core:DataTriggerBehavior>
-                                </i:Interaction.Behaviors>
-                            </TextBlock>
+                                </TextBlock>
+                            </Border>
+                            
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
 

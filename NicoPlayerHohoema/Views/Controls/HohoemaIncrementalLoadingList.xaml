@@ -28,6 +28,21 @@
 
     <toolkit:DockPanel>
 
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsSelectionModeEnable.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="HohoemaListView.SelectionMode" Value="Multiple" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+        
+        
+        
         
         <!-- エラー表示-->
         <StackPanel Visibility="{Binding NowLoadingItems.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
@@ -109,6 +124,7 @@
                                               IsItemClickEnabled="{Binding IsSelectionModeEnable.Value, Converter={StaticResource InvertBoolean}}"
                                               ItemTemplate="{x:Bind ItemTemplate}"
                                               ContextFlyout="{x:Bind ItemFlyout}"
+                                              SelectionMode="Single"
                                 >
                 
 
@@ -117,13 +133,14 @@
                     <core:EventTriggerBehavior EventName="ItemClick">
                         <core:InvokeCommandAction Command="{Binding SelectItemCommand}" />
                     </core:EventTriggerBehavior>
-                    
+                    <!--
                     <core:DataTriggerBehavior Binding="{Binding IsSelectionModeEnable.Value}" Value="True">
                         <core:ChangePropertyAction TargetObject="{Binding ElementName=HohoemaListView}" PropertyName="SelectionMode"  Value="Multiple" />
                     </core:DataTriggerBehavior>
                     <core:DataTriggerBehavior Binding="{Binding IsSelectionModeEnable.Value}" Value="False">
                         <core:ChangePropertyAction TargetObject="{Binding ElementName=HohoemaListView}" PropertyName="SelectionMode"  Value="Single" />
                     </core:DataTriggerBehavior>
+                    -->
 
                     <mybehavior:FocusFirstItem IsEnabled="{x:Bind IsFocusFirstItemEnable}" />
 

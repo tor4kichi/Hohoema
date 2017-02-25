@@ -334,19 +334,24 @@
                         回避策としてMediaElementStateを利用したLeagacyCurrentStateで代用している
                         -->
                         <!-- 再生開始時にUIを非表示に -->
+                        <!--
                         <core:DataTriggerBehavior Binding="{Binding LegacyCurrentState.Value}" ComparisonCondition="Equal" Value="Opening">
                             <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
                         </core:DataTriggerBehavior>
+                        -->
 
                         <!-- 再生停止時にUIを表示状態に切替 -->
+                        <!--
                         <core:DataTriggerBehavior Binding="{Binding LegacyCurrentState.Value}" ComparisonCondition="Equal" Value="Stopped">
                             <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Show" />
                         </core:DataTriggerBehavior>
-
+                        -->
                         <!-- 小窓表示時にUIを非表示に-->
+                        <!--
                         <core:DataTriggerBehavior Binding="{Binding IsSmallWindowModeEnable.Value}" ComparisonCondition="Equal" Value="True">
                             <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
                         </core:DataTriggerBehavior>
+                        -->
                     </i:Interaction.Behaviors>
                                         
                     <!-- TODO: スペースキー入力で再生停止の切り替え-->
