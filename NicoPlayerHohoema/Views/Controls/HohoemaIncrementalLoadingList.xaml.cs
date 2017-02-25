@@ -43,7 +43,14 @@ namespace NicoPlayerHohoema.Views.Controls
             if (this.ItemFlyout != null)
             {
                 HohoemaListView.RightTapped += HohoemaListView_RightTapped;
-                this.ItemFlyout.Opened += ItemFlyout_Opened;
+
+                // Note: コントローラーのMenuボタンでフライアウト表示された時に対応する
+                // Menuボタン押下ではRightTappedが発火しないため
+                if (UINavigationController.UINavigationControllers.Count > 0)
+                {
+                    this.ItemFlyout.Opened += ItemFlyout_Opened;
+                    this.ItemFlyout.Closed += ItemFlyout_Closed;
+                }
             }
 
             if (this.ItemTemplate == null)
@@ -53,9 +60,20 @@ namespace NicoPlayerHohoema.Views.Controls
             }
         }
 
+        private void ItemFlyout_Closed(object sender, object e)
+        {
+            FlyoutSettingDataContext(this.ItemFlyout, null);
+        }
+
         private void ItemFlyout_Opened(object sender, object e)
         {
             var selectedItem = HohoemaListView.SelectedItem;
+
+            if (GetFlyoutDataContext(this.ItemFlyout) != null)
+            {
+                return;
+            }
+
             if (selectedItem != null)
             {
                 FlyoutSettingDataContext(this.ItemFlyout, selectedItem);
@@ -91,6 +109,26 @@ namespace NicoPlayerHohoema.Views.Controls
                 }
             }
         }
+
+        private static object GetFlyoutDataContext(FlyoutBase flyoutbase)
+        {
+            if (flyoutbase is MenuFlyout)
+            {
+                var menuFlyout = flyoutbase as MenuFlyout;
+                return menuFlyout.Items.FirstOrDefault()?.DataContext;
+            }
+            else
+            {
+                var flyout = flyoutbase as Flyout;
+                if (flyout.Content is FrameworkElement)
+                {
+                    return (flyout.Content as FrameworkElement).DataContext;
+                }
+            }
+
+            return null;
+        }
+
 
         private static void RecurciveSettingDataContext(MenuFlyoutItemBase item, object dataContext)
         {
