@@ -392,6 +392,8 @@ namespace NicoPlayerHohoema.Models
                     throw new NotSupportedException();
                 }
             }
+
+            divided.OnPlayStarted();
         }
 
         private void MediaPlayer_BufferingStarted(Windows.Media.Playback.MediaPlayer sender, object args)
@@ -502,10 +504,12 @@ namespace NicoPlayerHohoema.Models
 			NicoVideoCachedStream?.Dispose();
 			NicoVideoCachedStream = null;
 
-            if (_DeleteRequestPlayingCachedVideo.HasValue)
+            foreach (var div in GetAllQuality())
             {
-                CancelCacheRequest(_DeleteRequestPlayingCachedVideo).ConfigureAwait(false);
-                _DeleteRequestPlayingCachedVideo = null;
+                if (div.NowPlaying)
+                {
+                    div.OnPlayDone();
+                }
             }
 		}
 
@@ -556,18 +560,7 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task CancelCacheRequest(NicoVideoQuality? quality = null)
 		{
-            if (NicoVideoCachedStream != null)
-            {
-                if (quality.HasValue)
-                {
-                    var divided = GetDividedQualityNicoVideo(quality.Value);
-                    if (divided.IsCached)
-                    {
-                        _DeleteRequestPlayingCachedVideo = quality.Value;
-                    }
-                }
-            }
-            else if (quality.HasValue)
+            if (quality.HasValue)
             {
                 var divided = GetDividedQualityNicoVideo(quality.Value);
                 await divided.DeleteCache();
@@ -800,8 +793,6 @@ namespace NicoPlayerHohoema.Models
 
 
 		private Dictionary<NicoVideoQuality, DividedQualityNicoVideo> _InterfaceByQuality;
-
-        private NicoVideoQuality? _DeleteRequestPlayingCachedVideo;
 
 
         private ObservableCollection<DividedQualityNicoVideo> _QualityDividedVideos = new ObservableCollection<DividedQualityNicoVideo>();

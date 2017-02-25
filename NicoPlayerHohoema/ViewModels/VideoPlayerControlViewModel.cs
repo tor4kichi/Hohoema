@@ -202,31 +202,16 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					if (this.Video == null || IsDisposed) { return false; }
 
-					switch (x)
-					{
-						case NicoVideoQuality.Original:
-							if (Video.OriginalQuality.IsCacheRequested)
-							{
-								// DL中、DL済み
-								return true;
-							}
-							else
-							{
-								return Video.OriginalQuality.CanRequestCache;
-							}
-						case NicoVideoQuality.Low:
-							if (Video.LowQuality.IsCacheRequested)
-							{
-								// DL中、DL済み
-								return true;
-							}
-							else
-							{
-								return Video.LowQuality.CanRequestCache;
-							}
-						default:
-							throw new NotSupportedException(x.ToString());
-					}
+                    var div = Video.GetDividedQualityNicoVideo(x);
+
+                    if (div.IsCacheRequested)
+                    {
+                        return true;
+                    }
+                    else 
+                    {
+                        return div.CanRequestCache;
+                    }
 				})
 				.ToReactiveProperty()
 				.AddTo(_CompositeDisposable);

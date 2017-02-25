@@ -210,6 +210,16 @@ namespace NicoPlayerHohoema.Models
             {
                 try
                 {
+                    if (dl.Progress.BytesReceived != dl.Progress.TotalBytesToReceive)
+                    {
+                        continue;
+                    }
+
+                    if (dl.ResultFile == null)
+                    {
+                        continue;
+                    }
+
                     var file = dl.ResultFile;
 
                     // ファイル名の最後方にある[]の中身の文字列を取得
@@ -438,7 +448,14 @@ namespace NicoPlayerHohoema.Models
 
             using (var releaser = await _DownloadOperationsLock.LockAsync())
             {
-                return _DownloadOperations[req];
+                if (_DownloadOperations.ContainsKey(req))
+                {
+                    return _DownloadOperations[req];
+                }
+                else
+                {
+                    return null;
+                }                
             }
         }
 
@@ -568,7 +585,7 @@ namespace NicoPlayerHohoema.Models
 
             // ダウンロード中タスクを削除（DLのキャンセル）
 
-
+            bool removed = false;
             if (removeTarget != null)
             {
                 await RemoveDownloadOperation(removeTarget);
@@ -582,12 +599,12 @@ namespace NicoPlayerHohoema.Models
 
                 RequestCanceled?.Invoke(this, removeTarget);
 
-                return true;
+                removed = true;
             }
-            else
-            {
-                return false;
-            }
+
+            await TryNextCacheRequestedVideoDownload();
+
+            return removed;
         }
 
 
@@ -691,8 +708,11 @@ namespace NicoPlayerHohoema.Models
         // ダウンロード完了
         private async Task OnDownloadCompleted(Task<DownloadOperation> prevTask)
         {
+            if (prevTask.IsFaulted) { return; }
+
             Debug.WriteLine("キャッシュ完了");
 
+            
             if (prevTask.Result != null)
             {
                 var op = prevTask.Result;
@@ -701,9 +721,16 @@ namespace NicoPlayerHohoema.Models
 
                 if (op.Progress.Status == BackgroundTransferStatus.Completed)
                 {
-                    Debug.WriteLine("キャッシュ済み: " + op.ResultFile.Name);
-                    DownloadCompleted?.Invoke(this, info, op.ResultFile.Path);
-
+                    if (op.Progress.TotalBytesToReceive == op.Progress.BytesReceived)
+                    {
+                        Debug.WriteLine("キャッシュ済み: " + op.ResultFile.Name);
+                        DownloadCompleted?.Invoke(this, info, op.ResultFile.Path);
+                    }
+                    else
+                    {
+                        Debug.WriteLine("キャッシュキャンセル: " + op.ResultFile.Name);
+                        DownloadCanceled?.Invoke(this, info);
+                    }
                     using (var pendingVideoLockReleaser = await _CacheDownloadPendingVideosLock.LockAsync())
                     {
                         _CacheDownloadPendingVideos.Remove(info);
@@ -840,7 +867,11 @@ namespace NicoPlayerHohoema.Models
                 if (_DownloadOperations.ContainsKey(req))
                 {
                     op = _DownloadOperations[req];
-                    op.AttachAsync().Cancel();
+                    if (op.Progress.BytesReceived != op.Progress.TotalBytesToReceive)
+                    {
+                        op.AttachAsync().Cancel();
+                        await op.ResultFile.DeleteAsync();                        
+                    }
                     _DownloadOperations.Remove(req);
                     --CurrentDownloadTaskCount;
                 }
