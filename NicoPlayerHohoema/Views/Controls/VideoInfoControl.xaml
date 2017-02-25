@@ -16,6 +16,29 @@
     d:DesignHeight="60"
     d:DesignWidth="400">
 
+    <UserControl.Resources>
+        <DataTemplate x:Key="QualityVideoTemplate">
+            <!-- 画質ごとのキャッシュ状態を表示 
+                            
+            キャッシュリクエストされていない -> 非表示
+            キャッシュ待機中 -> 灰色
+            キャッシュDL中 -> 青色
+            キャッシュ済み -> 緑色
+                            
+            -->
+            <Border>
+                <TextBlock Text="{Binding Quality}"
+                            Visibility="{Binding IsNotCacheRequested.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                           Foreground="{Binding CacheState.Value, Converter={StaticResource CacheStateToColorBrush}}"
+                            FontSize="13"
+                            Margin="0 0"
+                            VerticalAlignment="Center"
+                            x:Name="QualityText"
+                            >
+                </TextBlock>
+            </Border>
+        </DataTemplate>
+    </UserControl.Resources>
     <Grid>
 
         <VisualStateManager.VisualStateGroups>
@@ -91,62 +114,11 @@
             <Grid >
 
                 <ItemsControl ItemsSource="{Binding QualityDividedVideos}"
+                              ItemTemplate="{StaticResource QualityVideoTemplate}"
                               HorizontalAlignment="Right"
                               VerticalAlignment="Bottom"
                               IsTabStop="False"
                               >
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <!-- 画質ごとのキャッシュ状態を表示 
-                            
-                            キャッシュリクエストされていない -> 非表示
-                            キャッシュ待機中 -> 灰色
-                            キャッシュDL中 -> 青色
-                            キャッシュ済み -> 緑色
-                            
-                            -->
-                            <Border>
-                                <VisualStateManager.VisualStateGroups>
-                                    <VisualStateGroup>
-                                        <VisualState>
-                                            <VisualState.StateTriggers>
-                                                <StateTrigger IsActive="{Binding IsCachePending.Value}" />
-                                            </VisualState.StateTriggers>
-                                            <VisualState.Setters>
-                                                <Setter Target="QualityText.Foreground" Value="Gray" />
-                                            </VisualState.Setters>
-                                        </VisualState>
-                                        <VisualState>
-                                            <VisualState.StateTriggers>
-                                                <StateTrigger IsActive="{Binding IsCacheDownloading.Value}" />
-                                            </VisualState.StateTriggers>
-                                            <VisualState.Setters>
-                                                <Setter Target="QualityText.Foreground" Value="Blue" />
-                                            </VisualState.Setters>
-                                        </VisualState>
-                                        <VisualState>
-                                            <VisualState.StateTriggers>
-                                                <StateTrigger IsActive="{Binding IsCached.Value}" />
-                                            </VisualState.StateTriggers>
-                                            <VisualState.Setters>
-                                                <Setter Target="QualityText.Foreground" Value="Green" />
-                                            </VisualState.Setters>
-                                        </VisualState>
-                                    </VisualStateGroup>
-                                </VisualStateManager.VisualStateGroups>
-                                <TextBlock Text="{Binding Quality}"
-                                       Visibility="{Binding IsNotCacheRequested.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                       FontSize="13"
-                                           Margin="0 0"
-                                           VerticalAlignment="Center"
-                                           x:Name="QualityText"
-                                       >
-                                </TextBlock>
-                            </Border>
-                            
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel Orientation="Horizontal" />

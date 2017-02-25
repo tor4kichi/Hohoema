@@ -328,6 +328,7 @@
     <Compile Include="Views\Controls\VideoListItemFlyout.xaml.cs">
       <DependentUpon>VideoListItemFlyout.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Converters\CacheStateToColorBrushConverter.cs" />
     <Compile Include="Views\Converters\NicoVideoQualityToCultualizedTextConverter.cs" />
     <Compile Include="Views\HohoemaListItem.xaml.cs">
       <DependentUpon>HohoemaListItem.xaml</DependentUpon>
