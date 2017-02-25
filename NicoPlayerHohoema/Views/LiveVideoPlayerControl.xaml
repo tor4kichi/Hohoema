@@ -219,19 +219,25 @@
                                                                             />
 
                         <!-- 再生開始時にUIを非表示に-->
+                        <!--
                         <core:DataTriggerBehavior Binding="{Binding CurrentState.Value}" ComparisonCondition="Equal" Value="Opening">
                             <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
                         </core:DataTriggerBehavior>
+                        -->
 
                         <!-- 再生停止時にUIを表示状態に切替-->
+                        <!--
                         <core:DataTriggerBehavior Binding="{Binding CurrentState.Value}" ComparisonCondition="Equal" Value="Closed">
                             <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Show" />
                         </core:DataTriggerBehavior>
+                        -->
 
                         <!-- 小窓表示時にUIを非表示に-->
+                        <!--
                         <core:DataTriggerBehavior Binding="{Binding IsSmallWindowModeEnable.Value}" ComparisonCondition="Equal" Value="True">
                             <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
                         </core:DataTriggerBehavior>
+                        -->
                         
                     </i:Interaction.Behaviors>
                 </MediaPlayerElement>

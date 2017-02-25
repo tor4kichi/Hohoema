@@ -16,6 +16,29 @@
     d:DesignHeight="60"
     d:DesignWidth="400">
 
+    <UserControl.Resources>
+        <DataTemplate x:Key="QualityVideoTemplate">
+            <!-- 画質ごとのキャッシュ状態を表示 
+                            
+            キャッシュリクエストされていない -> 非表示
+            キャッシュ待機中 -> 灰色
+            キャッシュDL中 -> 青色
+            キャッシュ済み -> 緑色
+                            
+            -->
+            <Border>
+                <TextBlock Text="{Binding Quality}"
+                            Visibility="{Binding IsNotCacheRequested.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                           Foreground="{Binding CacheState.Value, Converter={StaticResource CacheStateToColorBrush}}"
+                            FontSize="13"
+                            Margin="0 0"
+                            VerticalAlignment="Center"
+                            x:Name="QualityText"
+                            >
+                </TextBlock>
+            </Border>
+        </DataTemplate>
+    </UserControl.Resources>
     <Grid>
 
         <VisualStateManager.VisualStateGroups>
@@ -91,41 +114,11 @@
             <Grid >
 
                 <ItemsControl ItemsSource="{Binding QualityDividedVideos}"
+                              ItemTemplate="{StaticResource QualityVideoTemplate}"
                               HorizontalAlignment="Right"
                               VerticalAlignment="Bottom"
                               IsTabStop="False"
                               >
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <!-- 画質ごとのキャッシュ状態を表示 
-                            
-                            キャッシュリクエストされていない -> 非表示
-                            キャッシュ待機中 -> 灰色
-                            キャッシュDL中 -> 青色
-                            キャッシュ済み -> 緑色
-                            
-                            -->
-                            <TextBlock Text="{Binding Quality}"
-                                       Visibility="{Binding IsNotCacheRequested.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                       FontSize="13"
-                                           Margin="0 0"
-                                           VerticalAlignment="Center"
-                                       >
-                                <i:Interaction.Behaviors>
-                                    <core:DataTriggerBehavior Binding="{Binding IsCachePending.Value}" ComparisonCondition="Equal" Value="True">
-                                        <core:ChangePropertyAction PropertyName="Foreground" Value="Gray" />
-                                    </core:DataTriggerBehavior>
-                                    <core:DataTriggerBehavior Binding="{Binding IsCacheDownloading.Value}" ComparisonCondition="Equal" Value="True">
-                                        <core:ChangePropertyAction PropertyName="Foreground" Value="Blue" />
-                                    </core:DataTriggerBehavior>
-                                    <core:DataTriggerBehavior Binding="{Binding IsCached.Value}" ComparisonCondition="Equal" Value="True">
-                                        <core:ChangePropertyAction PropertyName="Foreground" Value="Green" />
-                                    </core:DataTriggerBehavior>
-                                </i:Interaction.Behaviors>
-                            </TextBlock>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel Orientation="Horizontal" />

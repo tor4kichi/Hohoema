@@ -31,7 +31,7 @@
 
             <myconv:SoundVolumeConveter x:Key="ToUserFriendlySoubleVolume" />
 
-            <myconv:CursorConverter x:Key="ToCoreCursor" />
+            <myconv:CacheStateToColorBrushConverter x:Key="CacheStateToColorBrush" />
 
             <myconv:VideoPositionToTimeConverter x:Key="VPosToTime" />
             <myconv:ToUserFriendlyNumber x:Key="ToUserFriendlyNumber" />
