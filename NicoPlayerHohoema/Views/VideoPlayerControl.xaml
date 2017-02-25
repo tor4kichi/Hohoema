@@ -265,7 +265,24 @@
                 </VisualState>
                 
             </VisualStateGroup>
-            
+
+
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding NowPlaying.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="UIControlLayout.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="True" />
+                    </VisualState.StateTriggers>
+                </VisualState>
+            </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
         <toolkit:LayoutTransformControl
@@ -328,30 +345,7 @@
 
                         <mybehavior:MediaPlayerElementContentHeightGetter ContentHeight="{Binding CommentCanvasHeight.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
-                        <!-- LegacyCurrentState はMediaElementStateを利用している
-                           CurrentStateはMediaPlaybackStateを利用しているが、こちらだと
-                        XamlからのWindows.Media.Playbackへの参照がされないのか、実行時に例外と共にエラーとなり正常に動作しない
-                        回避策としてMediaElementStateを利用したLeagacyCurrentStateで代用している
-                        -->
-                        <!-- 再生開始時にUIを非表示に -->
-                        <!--
-                        <core:DataTriggerBehavior Binding="{Binding LegacyCurrentState.Value}" ComparisonCondition="Equal" Value="Opening">
-                            <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
-                        </core:DataTriggerBehavior>
-                        -->
-
-                        <!-- 再生停止時にUIを表示状態に切替 -->
-                        <!--
-                        <core:DataTriggerBehavior Binding="{Binding LegacyCurrentState.Value}" ComparisonCondition="Equal" Value="Stopped">
-                            <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Show" />
-                        </core:DataTriggerBehavior>
-                        -->
-                        <!-- 小窓表示時にUIを非表示に-->
-                        <!--
-                        <core:DataTriggerBehavior Binding="{Binding IsSmallWindowModeEnable.Value}" ComparisonCondition="Equal" Value="True">
-                            <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
-                        </core:DataTriggerBehavior>
-                        -->
+                        
                     </i:Interaction.Behaviors>
                                         
                     <!-- TODO: スペースキー入力で再生停止の切り替え-->

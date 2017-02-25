@@ -842,6 +842,8 @@ namespace NicoPlayerHohoema.ViewModels
             // サポートされたメディアの再生
             if (Video.CanGetVideoStream())
 			{
+                CurrentState.Value = MediaPlaybackState.Opening;
+
                 await Video.StartPlay(x);
 
                 if (IsDisposed)

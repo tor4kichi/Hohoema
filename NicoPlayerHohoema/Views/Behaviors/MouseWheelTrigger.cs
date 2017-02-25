@@ -9,10 +9,8 @@ using Windows.UI.Xaml;
 
 namespace NicoPlayerHohoema.Views.Behaviors
 {
-	public class MouseWheelTrigger : DependencyObject, IBehavior
-	{
-		public DependencyObject AssociatedObject { get; private set; }
-
+	public class MouseWheelTrigger : Behavior<FrameworkElement>
+    {
 		public ActionCollection UpActions 
 		{
 			get
@@ -55,17 +53,15 @@ namespace NicoPlayerHohoema.Views.Behaviors
 				typeof(MouseWheelTrigger),
 				new PropertyMetadata(null));
 
-		public void Attach(DependencyObject associatedObject)
-		{
-			this.AssociatedObject = associatedObject;
-			this.Register();
-		}
+        protected override void OnAttached()
+        {
+            this.Register();
+        }
 
-		public void Detach()
-		{
-			this.Unregister();
-			this.AssociatedObject = null;
-		}
+        protected override void OnDetaching()
+        {
+            this.Unregister();
+        }
 
 
 		private void Register()

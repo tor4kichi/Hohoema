@@ -275,6 +275,7 @@
       <DependentUpon>AboutPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Behaviors\CloseFlyoutAction.cs" />
+    <Compile Include="Views\Behaviors\DataTriggerBehavior.cs" />
     <Compile Include="Views\Behaviors\EngagePassToFirstChild.cs" />
     <Compile Include="Views\Behaviors\EnsureLifecycleMediaElement.cs" />
     <Compile Include="Views\Behaviors\FlyoutBehavior.cs" />
@@ -504,6 +505,7 @@
     <Compile Include="Views\SettingsPageContent\ShereSettingsPageContent.xaml.cs">
       <DependentUpon>ShereSettingsPageContent.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\StateTrigger\ConditionStateTrigger.cs" />
     <Compile Include="Views\StateTrigger\FocusTrigger.cs" />
     <Compile Include="Views\StateTrigger\InvertibleStateTrigger.cs" />
     <Compile Include="Views\StateTrigger\PointerFocusTrigger.cs" />
