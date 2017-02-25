@@ -283,6 +283,24 @@
                     </VisualState.StateTriggers>
                 </VisualState>
             </VisualStateGroup>
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <myTrigger:EqualConditionStateTrigger Condition="Low" Value="{Binding CurrentVideoQuality.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ChangeToOrigialQualityButton.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <myTrigger:EqualConditionStateTrigger Condition="Original" Value="{Binding CurrentVideoQuality.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ChangeToLowQualityButton.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
         <toolkit:LayoutTransformControl
@@ -764,22 +782,21 @@
 
                                             <MenuFlyoutSeparator />
                                             
-                                            <MenuFlyoutSubItem Text="画質">
+                                            <MenuFlyoutSubItem Text="画質"
+                                                               Visibility="{Binding CanToggleCurrentQualityCacheState.Value, Converter={StaticResource BooleanToVisibility}}"
+                                                               >
 
-                                                <ToggleMenuFlyoutItem Text="低画質" IsEnabled="{Binding CanToggleCurrentQualityCacheState.Value}">
-                                                    <i:Interaction.Behaviors>
-                                                        <core:EventTriggerBehavior EventName="Tapped">
-                                                            <core:ChangePropertyAction />
-                                                        </core:EventTriggerBehavior>
-                                                    </i:Interaction.Behaviors>
-                                                </ToggleMenuFlyoutItem>
-                                                <MenuFlyoutItem Text="オリジナル画質" IsEnabled="{Binding CanToggleCurrentQualityCacheState.Value}">
-                                                    <i:Interaction.Behaviors>
-                                                        <core:EventTriggerBehavior EventName="Tapped">
-                                                            <core:ChangePropertyAction />
-                                                        </core:EventTriggerBehavior>
-                                                    </i:Interaction.Behaviors>
-                                                </MenuFlyoutItem>
+                                                <MenuFlyoutItem Text="低画質に変更" 
+                                                                      Command="{Binding TogglePlayQualityCommand}"
+                                                                      x:Name="ChangeToLowQualityButton"
+                                                                      Visibility="Collapsed"
+                                                                      />
+
+                                                <MenuFlyoutItem Text="オリジナル画質" 
+                                                                Command="{Binding TogglePlayQualityCommand}"
+                                                                x:Name="ChangeToOrigialQualityButton"
+                                                                Visibility="Collapsed"
+                                                                />
                                             </MenuFlyoutSubItem>
                                             <ToggleMenuFlyoutItem Text="キャッシュ" IsChecked="{Binding IsSaveRequestedCurrentQualityCache.Value}"
                                                               IsEnabled="{Binding CanToggleCurrentQualityCacheState.Value}"
