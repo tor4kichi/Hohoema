@@ -13,6 +13,7 @@ using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
@@ -140,7 +141,7 @@ namespace NicoPlayerHohoema.ViewModels
 			IsVisible = ngResult != null;
 
             Title = info.Title;
-            OptionText = info.PostedAt.ToString();
+            OptionText = info.PostedAt.ToString("yyyy/MM/dd HH:mm");
             if (!string.IsNullOrWhiteSpace(info.ThumbnailUrl))
             {
                 ImageUrlsSource.Add(info.ThumbnailUrl);
@@ -148,10 +149,19 @@ namespace NicoPlayerHohoema.ViewModels
 
             if (!info.IsDeleted)
             {
-                Description = $"再生:{info.ViewCount}";
+                Description = $"再生:{info.ViewCount.ToString("N0")} コメ:{info.CommentCount.ToString("N0")} マイ:{info.MylistCount.ToString("N0")}";
             }
 
-            ImageCaption = info.VideoLength.ToString(); // TODO: ユーザーフレンドリィ時間
+            string timeText;
+            if (info.VideoLength.Hours > 0)
+            {
+                timeText = info.VideoLength.ToString(@"hh\:mm\:ss");
+            }
+            else
+            {
+                timeText = info.VideoLength.ToString(@"mm\:ss");
+            }
+            ImageCaption = timeText;
         }
 
 
