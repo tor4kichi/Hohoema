@@ -1181,6 +1181,9 @@ namespace NicoPlayerHohoema.ViewModels
 
             IsFullScreen.Value = false;
 
+            ExitKeepDisplay();
+
+            HohoemaApp.MediaPlayer.Pause();
             HohoemaApp.MediaPlayer.Source = null;
 
             // TODO: Video.StopVideo()の呼び出し必要？
