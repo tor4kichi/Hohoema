@@ -501,6 +501,12 @@ namespace NicoPlayerHohoema.Models
 
 			NicoVideoCachedStream?.Dispose();
 			NicoVideoCachedStream = null;
+
+            if (_DeleteRequestPlayingCachedVideo.HasValue)
+            {
+                CancelCacheRequest(_DeleteRequestPlayingCachedVideo).ConfigureAwait(false);
+                _DeleteRequestPlayingCachedVideo = null;
+            }
 		}
 
         public async Task RestoreCache(NicoVideoQuality quality, string filepath)
@@ -550,7 +556,18 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task CancelCacheRequest(NicoVideoQuality? quality = null)
 		{
-            if (quality.HasValue)
+            if (NicoVideoCachedStream != null)
+            {
+                if (quality.HasValue)
+                {
+                    var divided = GetDividedQualityNicoVideo(quality.Value);
+                    if (divided.IsCached)
+                    {
+                        _DeleteRequestPlayingCachedVideo = quality.Value;
+                    }
+                }
+            }
+            else if (quality.HasValue)
             {
                 var divided = GetDividedQualityNicoVideo(quality.Value);
                 await divided.DeleteCache();
@@ -783,6 +800,8 @@ namespace NicoPlayerHohoema.Models
 
 
 		private Dictionary<NicoVideoQuality, DividedQualityNicoVideo> _InterfaceByQuality;
+
+        private NicoVideoQuality? _DeleteRequestPlayingCachedVideo;
 
 
         private ObservableCollection<DividedQualityNicoVideo> _QualityDividedVideos = new ObservableCollection<DividedQualityNicoVideo>();

@@ -798,8 +798,9 @@
                                                                 Visibility="Collapsed"
                                                                 />
                                             </MenuFlyoutSubItem>
-                                            <ToggleMenuFlyoutItem Text="キャッシュ" IsChecked="{Binding IsSaveRequestedCurrentQualityCache.Value}"
-                                                              IsEnabled="{Binding CanToggleCurrentQualityCacheState.Value}"
+                                            <ToggleMenuFlyoutItem Text="キャッシュ" 
+                                                                  IsChecked="{Binding IsSaveRequestedCurrentQualityCache.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                  IsEnabled="{Binding CanToggleCurrentQualityCacheState.Value}"
                                                               />
                                             <MenuFlyoutSeparator />
                                             <MenuFlyoutItem Text="動画情報" Command="{Binding OpenVideoInfoCommand}" />
