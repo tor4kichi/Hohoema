@@ -93,8 +93,6 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		/// </summary>
 		private List<CommentUI> _CommentUIReserve;
 
-		private uint _RenderingSkipCount;
-
 
 		private bool _NowUpdating;
 		private TimeSpan _PreviousVideoPosition = TimeSpan.Zero;
@@ -128,73 +126,99 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
         }
 
 
-		#region Event Handler
+        #region Event Handler
 
 
 
 
-		#endregion
+        #endregion
 
 
+        TimeSpan _PrevCommentRenderElapsedTime = TimeSpan.Zero;
+        int CommentRenderSkipCount = 0;
 
-		
-
-		private async void UpdateCommentDisplay()
+		private async Task UpdateCommentDisplay()
 		{
+            if (_NowUpdating)
+            {
+                Debug.WriteLine("skip comment rendering.");
+                return;
+            }
+
 			try
 			{
 				await _UpdateLock.WaitAsync();
 
-				if (_NowUpdating)
-				{
-					_RenderingSkipCount++;
-                    await Task.Delay(5);
-                    return;
-				}
-
 				_NowUpdating = true;
-			}
-			finally
-			{
-				_UpdateLock.Release();
-			}
-
-			await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
-			{
-				// 更新済みの位置であれば処理をスキップ
-				var videoPosition = VideoPosition;
-				if (_PreviousVideoPosition == videoPosition)
-				{
+                if (CommentRenderSkipCount > 0)
+                {
+                    CommentRenderSkipCount--;
                     return;
-				}
+                }
 
-				if (_PreviousVideoPosition > videoPosition)
+
+                var watch = Stopwatch.StartNew();
+
+                TimeSpan deltaVideoPosition = TimeSpan.Zero;
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+			    {
+				    // 更新済みの位置であれば処理をスキップ
+				    var videoPosition = VideoPosition;
+
+                    deltaVideoPosition = videoPosition - _PreviousVideoPosition;
+
+                    if (_PreviousVideoPosition == videoPosition)
+				    {
+                        return;
+				    }
+
+				    if (_PreviousVideoPosition > videoPosition)
+				    {
+					    // 前方向にシークしていた場合
+					    LastCommentDisplayEndTime.Clear();
+				    }
+
+
+
+                    await OnUpdate();
+
+
+
+                    _PreviousVideoPosition = videoPosition;
+			    });
+
+                watch.Stop();
+
+                Debug.WriteLine("comment render time: " + watch.Elapsed.ToString());
+
+                // ビデオ位置の差分よりコメント描画時間が長かったら
+                // 描画スキップを設定する
+                if (deltaVideoPosition < watch.Elapsed)
+                {
+                    var renderTime = watch.Elapsed.TotalMilliseconds;
+                    var requireRenderTime = deltaVideoPosition.TotalMilliseconds;
+                    if (requireRenderTime < renderTime)
+                    {
+                        // 要求描画時間を上回った時間を計算して
+                        // 要求描画時間何回分をスキップすればいいのかを算出
+                        var overRenderTime = renderTime - requireRenderTime;
+                        CommentRenderSkipCount = (int)Math.Ceiling(renderTime / requireRenderTime);
+                    }
+                }
+
+                _PrevCommentRenderElapsedTime = watch.Elapsed;
+
+                if (CommentRenderSkipCount > 0)
 				{
-					// 前方向にシークしていた場合
-					LastCommentDisplayEndTime.Clear();
+					Debug.WriteLine("set force comment render skip: " + CommentRenderSkipCount);
 				}
 
-                await OnUpdate();
-
-                _PreviousVideoPosition = videoPosition;
-			});
-
-            await Task.Delay(5);
-
-            try
-			{
-				await _UpdateLock.WaitAsync();
-
-				if (_RenderingSkipCount > 0)
-				{
-					Debug.WriteLine("コメント描画を" + _RenderingSkipCount  + "フレームスキップ");
-				}
-				_NowUpdating = false;
-				_RenderingSkipCount = 0;
-			}
+				
+            }
 			finally
 			{
-				_UpdateLock.Release();
+                _NowUpdating = false;
+                _UpdateLock.Release();
 			}
 		}
 
@@ -733,8 +757,8 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		{
 			CommentRenderer me = sender as CommentRenderer;
 
-            var timeout = new Timer(_ => me.UpdateCommentDisplay(), null, 0, -1);
-		}
+            me.UpdateCommentDisplay().ConfigureAwait(false);
+        }
 
 
 
