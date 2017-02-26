@@ -134,7 +134,7 @@
     
     <Style TargetType="TextBox">
 
-        <Setter Property="SelectionHighlightColor" Value="Transparent" />
+        <Setter Property="SelectionHighlightColor" Value="{ThemeResource SystemControlHighlightAccentBrush}" />
 
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Template">
@@ -241,12 +241,12 @@
                                 </VisualState>
                                 <VisualState x:Name="Focused">
                                     <Storyboard>
-                                        <!--
+                                        
                                         <ObjectAnimationUsingKeyFrames Storyboard.TargetName="PlaceholderTextContentPresenter"
                                                Storyboard.TargetProperty="Foreground">
                                             <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlPageTextChromeBlackMediumLowBrush}" />
                                         </ObjectAnimationUsingKeyFrames>
-                                        -->
+                                        
                                         <!--
                                         <ObjectAnimationUsingKeyFrames Storyboard.TargetName="BackgroundElement"
                                                Storyboard.TargetProperty="Background">
@@ -261,16 +261,17 @@
                                                Storyboard.TargetProperty="BorderBrush">
                                             <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlHighlightAccentBrush}" />
                                         </ObjectAnimationUsingKeyFrames>
+                                        
                                         <!--
                                         <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentElement"
                                                Storyboard.TargetProperty="Foreground">
                                             <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlForegroundChromeBlackHighBrush}" />
                                         </ObjectAnimationUsingKeyFrames>
-                                        -->
                                         <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentElement"
                                                Storyboard.TargetProperty="RequestedTheme">
-                                            <DiscreteObjectKeyFrame KeyTime="0" Value="Light" />
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="Dark" />
                                         </ObjectAnimationUsingKeyFrames>
+                                        -->
                                     </Storyboard>
                                 </VisualState>
                             </VisualStateGroup>
