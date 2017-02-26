@@ -257,7 +257,7 @@
 
                     <Border  VerticalAlignment="Bottom"
                                  HorizontalAlignment="Left"
-                                 Background="#AA000000"
+                                 Background="{ThemeResource SystemAltMediumColor}"
                                  >
                         <TextBlock Text="{Binding PermanentDisplayText.Value}" 
                                    TextWrapping="Wrap"
@@ -309,7 +309,7 @@
                             <Border.Background>
                                 <LinearGradientBrush x:Name="ControlPanelBackgroundBrush" StartPoint="1, 0" EndPoint="1, 1">
                                     <GradientStop Color="#00000000" Offset="0.0" x:Name="GradientStop1"/>
-                                    <GradientStop Color="#AA000000" Offset="1.0" x:Name="GradientStop2" />
+                                    <GradientStop Color="{ThemeResource SystemAltMediumColor}" Offset="1.0" x:Name="GradientStop2" />
                                 </LinearGradientBrush>
                             </Border.Background>
 
@@ -320,7 +320,7 @@
                             </i:Interaction.Behaviors>
                         </Border>
 
-                        <StackPanel x:Name="TitleLayout" Background="#AA000000">
+                        <StackPanel x:Name="TitleLayout" Background="{ThemeResource SystemAltMediumColor}">
                             <TextBlock Text="{Binding Title}" FontSize="24" Margin="8" HorizontalAlignment="Center" TextWrapping="Wrap" />
 
                             <i:Interaction.Behaviors>
@@ -334,7 +334,7 @@
 
                         <!-- 生放送情報 -->
                         <toolkit:DockPanel toolkit:DockPanel.Dock="Top"
-                                               Background="#AA000000"
+                                               Background="{ThemeResource SystemAltMediumColor}"
                                                >
 
                             <StackPanel Orientation="Horizontal"
@@ -427,7 +427,7 @@
 
 
                         <!-- 再生コントロール -->
-                        <Grid Background="#AA000000" Padding="8">
+                        <Grid Background="{ThemeResource SystemAltMediumColor}" Padding="8">
 
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -466,7 +466,7 @@
                                                 </StackPanel>
 
 
-                                                <StackPanel Background="#AA777777" Margin="8 0" 
+                                                <StackPanel Margin="8 0" 
                                                 Orientation="Vertical">
 
 
@@ -601,7 +601,7 @@
                         <!-- コメントを書く -->
                         <Grid Visibility="{Binding NowCommentWriting.Value, Converter={StaticResource BooleanToVisibility}}" 
                           x:Name="CommentLayout"
-                          Background="#AA000000"
+                          Background="{ThemeResource SystemAltMediumColor}"
                                 Padding="0 8 0 0"
                           >
 

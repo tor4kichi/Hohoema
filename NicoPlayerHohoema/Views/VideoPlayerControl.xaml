@@ -34,9 +34,11 @@
             <Setter Property="LabelPosition" Value="Collapsed" />
         </Style>
 
+        
+
     </UserControl.Resources>
 
-    <Border x:Name="LayoutRoot">
+    <Border x:Name="LayoutRoot" Background="{StaticResource AppBarBorderThemeBrush}">
 
         <VisualStateManager.VisualStateGroups>
 
@@ -356,6 +358,7 @@
 
                 <MediaPlayerElement x:Name="MediaPlayerElement" Stretch="Uniform"
                                     AreTransportControlsEnabled="False"
+                                    
                                     >
                     <i:Interaction.Behaviors>
                         
@@ -424,7 +427,7 @@
                     <!-- プレイリスト 操作 -->
                     <StackPanel toolkit:DockPanel.Dock="Top" >
 
-                        <toolkit:DockPanel Background="#AA000000">
+                        <toolkit:DockPanel Background="{ThemeResource SystemAltMediumColor}">
 
                             <Button Command="{Binding ClosePlayerCommand}"
                                     Background="Transparent"
@@ -520,7 +523,7 @@
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="1, 1" EndPoint="1, 0">
                                     <GradientStop Color="#00000000" Offset="0.0" />
-                                    <GradientStop Color="#AA000000" Offset="1.0" />
+                                    <GradientStop Color="{ThemeResource SystemAltMediumColor}" Offset="1.0" />
                                 </LinearGradientBrush>
                             </Border.Background>
 
@@ -541,7 +544,7 @@
                             <Border.Background>
                                 <LinearGradientBrush x:Name="ControlPanelBackgroundBrush" StartPoint="1, 0" EndPoint="1, 1">
                                     <GradientStop Color="#00000000" Offset="0.0" x:Name="GradientStop1"/>
-                                    <GradientStop Color="#AA000000" Offset="1.0" x:Name="GradientStop2" />
+                                    <GradientStop Color="{ThemeResource SystemAltMediumColor}" Offset="1.0" x:Name="GradientStop2" />
                                 </LinearGradientBrush>
                             </Border.Background>
 
@@ -552,12 +555,12 @@
                             </i:Interaction.Behaviors>
                         </Border>
 
-                        <StackPanel x:Name="TitleLayout" Background="#AA000000">
+                        <StackPanel x:Name="TitleLayout" Background="{ThemeResource SystemAltMediumColor}">
                             <TextBlock Text="{Binding VideoTitle}" FontSize="24" Margin="8" HorizontalAlignment="Center" TextWrapping="Wrap" />
                         </StackPanel>
 
                         <!-- シークバー -->
-                        <StackPanel Background="#AA000000">
+                        <StackPanel Background="{ThemeResource SystemAltMediumColor}">
                             <Grid 
                                     x:Name="ControlPanel_Center"
                                     Margin="0 0"
@@ -637,7 +640,7 @@
                         </StackPanel>
 
                         <!-- 再生コントロール -->
-                        <Grid Background="#AA000000" Padding="8">
+                        <Grid Background="{ThemeResource SystemAltMediumColor}" Padding="8">
 
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -831,7 +834,7 @@
                         <!-- コメントを書く -->
                         <Grid Visibility="{Binding NowCommentWriting.Value, Converter={StaticResource BooleanToVisibility}}" 
                           x:Name="CommentLayout"
-                          Background="#AA000000"
+                          Background="{ThemeResource SystemAltMediumColor}"
                                 Padding="0 8 0 0"
                           >
 
@@ -941,7 +944,7 @@
                                   VerticalAlignment="Top"
                                   Margin="24 88"
                                   Visibility="{Binding IsNotSupportVideoType, Converter={StaticResource BooleanToVisibility}}"
-                                  Background="WhiteSmoke"
+                                  Background="{StaticResource AppBarItemPointerOverBackgroundThemeBrush}"
                                 Padding="16"
                           >
 
