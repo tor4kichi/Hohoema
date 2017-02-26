@@ -24,13 +24,13 @@
                        Visibility="{Binding HasImageUrl, Converter={StaticResource BooleanToVisibility}}"
                    />
 
-                <Border Background="#cc000000" 
+                <Border Background="{ThemeResource SystemAltMediumColor}"
                         HorizontalAlignment="Right" 
                         VerticalAlignment="Bottom"
                         Visibility="{Binding HasImageCaption, Converter={StaticResource BooleanToVisibility}}"
                         >
                     <TextBlock Text="{Binding ImageCaption}" 
-                               Padding="1 0 2 1" 
+                               Padding="4 0 3 3" 
                                TextWrapping="Wrap" VerticalAlignment="Center" 
                                FontSize="13"
                                
