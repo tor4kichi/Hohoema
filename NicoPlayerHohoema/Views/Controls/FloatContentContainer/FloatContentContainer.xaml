@@ -14,7 +14,8 @@
                         <Grid x:Name="RootPanel">
 
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="2*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
                                 <RowDefinition Height="1*" />
                             </Grid.RowDefinitions>
 
@@ -26,7 +27,7 @@
                             <ContentPresenter x:Name="ContentPresenter" 
                                               Content="{TemplateBinding Content}"
                                               ContentTemplate="{TemplateBinding ContentTemplate}"
-                                              Grid.RowSpan="2"
+                                              Grid.RowSpan="3"
                                               Grid.ColumnSpan="2"
                                               />
 
@@ -46,7 +47,7 @@
                                     <VisualState.Setters>
                                         <Setter Target="FloatContentPresenter.(Grid.Row)" Value="0" />
                                         <Setter Target="FloatContentPresenter.(Grid.Column)" Value="0" />
-                                        <Setter Target="FloatContentPresenter.(Grid.RowSpan)" Value="2" />
+                                        <Setter Target="FloatContentPresenter.(Grid.RowSpan)" Value="3" />
                                         <Setter Target="FloatContentPresenter.(Grid.ColumnSpan)" Value="2" />
 
                                         <Setter Target="ContentPresenter.Visibility" Value="Collapsed" />
@@ -63,10 +64,30 @@
                                         <Setter Target="FloatContentPresenter.Height" Value="240" />
                                         -->
 
-                                        <Setter Target="FloatContentPresenter.(Grid.Row)" Value="1" />
+                                        <Setter Target="FloatContentPresenter.(Grid.Row)" Value="2" />
                                         <Setter Target="FloatContentPresenter.(Grid.Column)" Value="1" />
                                         <Setter Target="FloatContentPresenter.(Grid.RowSpan)" Value="1" />
                                         <Setter Target="FloatContentPresenter.(Grid.ColumnSpan)" Value="1" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Float_Small">
+                                    <VisualState.Setters>
+                                        <!--
+                                        <Setter Target="FloatContentPresenter.HorizontalAlignment" Value="Right" />
+                                        <Setter Target="FloatContentPresenter.VerticalAlignment" Value="Bottom" />
+
+                                        
+                                        <Setter Target="FloatContentPresenter.Width" Value="320" />
+                                        <Setter Target="FloatContentPresenter.Height" Value="240" />
+                                        -->
+                                        <Setter Target="ContentPresenter.(Grid.Row)" Value="1" />
+                                        <Setter Target="ContentPresenter.(Grid.RowSpan)" Value="2" />
+                                        
+
+                                        <Setter Target="FloatContentPresenter.(Grid.Row)" Value="0" />
+                                        <Setter Target="FloatContentPresenter.(Grid.Column)" Value="0" />
+                                        <Setter Target="FloatContentPresenter.(Grid.RowSpan)" Value="1" />
+                                        <Setter Target="FloatContentPresenter.(Grid.ColumnSpan)" Value="2" />
                                     </VisualState.Setters>
                                 </VisualState>
                                 <VisualState x:Name="Hidden">
