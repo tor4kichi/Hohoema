@@ -131,7 +131,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public HistoryVideoInfoControlViewModel(uint viewCount, NicoVideo nicoVideo, PageManager pageManager)
 			: base(nicoVideo, pageManager)
 		{
-			UserViewCount = viewCount;
+            UserViewCount = viewCount;
 		}
 
 
@@ -191,8 +191,8 @@ namespace NicoPlayerHohoema.ViewModels
 					, _PageManager
 					);
 
-//				vm.LastWatchedAt = history.WatchedAt.DateTime;
-//				vm.MovieLength = history.Length;
+				vm.LastWatchedAt = history.WatchedAt.DateTime;
+//				vm.Lengt = history.Length;
 //				vm.image = history.ThumbnailUrl.AbsoluteUri;
 
 				list.Add(vm);
