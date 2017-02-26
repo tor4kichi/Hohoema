@@ -160,12 +160,20 @@ namespace NicoPlayerHohoema.Models
 		{
 			if (e.NavigationMode == NavigationMode.Back || e.NavigationMode == NavigationMode.Forward)
 			{
-				
-				if (e.SourcePageType.Name.EndsWith("Page"))
-				{
-					var pageTypeString = e.SourcePageType.Name.Remove(e.SourcePageType.Name.IndexOf("Page"));
+                string pageTypeString = null;
 
-					HohoemaPageType pageType;
+                if (e.SourcePageType.Name.EndsWith("Page"))
+                {
+                    pageTypeString = e.SourcePageType.Name.Remove(e.SourcePageType.Name.IndexOf("Page"));
+                }
+                if (e.SourcePageType.Name.EndsWith("Page_TV"))
+                {
+                    pageTypeString = e.SourcePageType.Name.Remove(e.SourcePageType.Name.IndexOf("Page_TV"));
+                }
+
+                if (pageTypeString != null)
+                { 
+                    HohoemaPageType pageType;
 					if (Enum.TryParse(pageTypeString, out pageType))
 					{
 						try

@@ -624,7 +624,21 @@ namespace NicoPlayerHohoema
 						}
 					}
 				}
-			}
+                else if (e.SourcePageType.Name.EndsWith("Page_TV"))
+                {
+                    var pageTypeString = e.SourcePageType.Name.Remove(e.SourcePageType.Name.IndexOf("Page_TV"));
+
+                    HohoemaPageType pageType;
+                    if (Enum.TryParse(pageTypeString, out pageType))
+                    {
+                        if (pageType == HohoemaPageType.ConfirmWatchHurmfulVideo)
+                        {
+                            e.Cancel = true;
+                            return;
+                        }
+                    }
+                }
+            }
 		}
 
 
