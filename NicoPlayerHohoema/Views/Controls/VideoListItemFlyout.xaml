@@ -7,6 +7,10 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
+    <MenuFlyoutItem Text="小窓で再生"
+                                Command="{Binding PlayWithSmallPlayerCommand}"
+                                />
+    
     <MenuFlyoutItem Text="あとで見る"
                                 Command="{Binding AddDefaultPlaylistCommand}"
                                 />

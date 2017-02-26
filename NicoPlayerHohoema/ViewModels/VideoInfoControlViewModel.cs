@@ -266,6 +266,25 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+
+
+
+        private DelegateCommand _PlayWithSmallPlayerCommand;
+        public DelegateCommand PlayWithSmallPlayerCommand
+        {
+            get
+            {
+                return _PlayWithSmallPlayerCommand
+                    ?? (_PlayWithSmallPlayerCommand = new DelegateCommand(() =>
+                    {
+                        HohoemaPlaylist.IsPlayerFloatingModeEnable = true;
+                        HohoemaPlaylist.PlayVideo(RawVideoId, Title);
+                    }));
+            }
+        }
+        
+
+
         private DelegateCommand _RemoveCacheCommand;
         public DelegateCommand RemoveCacheCommand
         {
