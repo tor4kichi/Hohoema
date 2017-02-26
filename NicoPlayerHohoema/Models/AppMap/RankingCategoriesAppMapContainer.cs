@@ -11,8 +11,7 @@ namespace NicoPlayerHohoema.Models.AppMap
 {
 	public class RankingCategoriesAppMapContainer : AppMapContainerBase
     {
-
-		public RankingSettings RankingSettings { get; private set; }
+        public RankingSettings RankingSettings { get; private set; }
 
 		public RankingCategoriesAppMapContainer()
 			: base(HohoemaPageType.RankingCategoryList, label:"ランキング")
@@ -29,7 +28,7 @@ namespace NicoPlayerHohoema.Models.AppMap
             foreach (var cat in RankingSettings.HighPriorityCategory)
             {
                 var parameter = cat.ToParameterString();
-                var item = new RankingCategoryAppMapItem(cat.Category);
+                var item = new RankingCategoryAppMapItem(PageManager, cat.Category);
                 if (item != null)
                 {
                     _DisplayItems.Add(item);
@@ -44,7 +43,9 @@ namespace NicoPlayerHohoema.Models.AppMap
 
 	public class RankingCategoryAppMapItem : IAppMapItem
 	{
-		public string PrimaryLabel { get; private set; }
+
+        public PageManager PageManager { get; private set; }
+        public string PrimaryLabel { get; private set; }
 		public string SecondaryLabel => null;
 
 		public HohoemaPageType PageType => HohoemaPageType.RankingCategory;
@@ -52,12 +53,13 @@ namespace NicoPlayerHohoema.Models.AppMap
 
         public void SelectedAction()
         {
-
+            PageManager.OpenPage(PageType, Parameter);
         }
 
-		public RankingCategoryAppMapItem(RankingCategory cat)
+		public RankingCategoryAppMapItem(PageManager pageManager, RankingCategory cat)
 		{
-			PrimaryLabel = Util.RankingCategoryExtention.ToCultulizedText(cat);
+            PageManager = pageManager;
+            PrimaryLabel = Util.RankingCategoryExtention.ToCultulizedText(cat);
 			Parameter = new RankingCategoryInfo(cat)
                 .ToParameterString();
 		}
