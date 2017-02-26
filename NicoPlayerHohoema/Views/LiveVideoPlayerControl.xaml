@@ -472,18 +472,20 @@
 
 
                                                     <Slider x:Name="VolumeSlider"
-                                                    Orientation="Horizontal"
-                                                    VerticalAlignment="Top"
-                                                    Margin="8 4"
-                                                    Value="{Binding SoundVolume.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                    IsThumbToolTipEnabled="True"
-                                                    ThumbToolTipValueConverter="{StaticResource ToUserFriendlySoubleVolume}"
-                                                    Maximum="1.0"
-                                                    Minimum="0.0"
-                                                    StepFrequency="0.01"
-                                                    Height="32"
-                                                    Width="160"
-                                                                
+                                                            Orientation="Horizontal"
+                                                            VerticalAlignment="Top"
+                                                            Margin="8 4"
+                                                            Value="{Binding SoundVolume.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                            IsThumbToolTipEnabled="True"
+                                                            ThumbToolTipValueConverter="{StaticResource ToUserFriendlySoubleVolume}"
+                                                            Maximum="1.0"
+                                                            Minimum="0.0"
+                                                            StepFrequency="0.01"
+                                                            SmallChange="0.01"
+                                                            LargeChange="0.1"
+                                                            Height="32"
+                                                            Width="160"
+                                                            Background="Transparent"
                                                     >
                                                         <i:Interaction.Behaviors>
                                                             <core:EventTriggerBehavior EventName="ValueChanged" >
