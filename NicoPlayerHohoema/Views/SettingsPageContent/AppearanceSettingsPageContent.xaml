@@ -41,19 +41,20 @@
                            />
                 </StackPanel>
 
-                <StackPanel Margin="8">
-                    <TextBlock Text="テーマ"
+                <StackPanel Margin="8 0 0 0">
+                    <StackPanel Margin="8">
+                        <TextBlock Text="テーマ"
                            toolkit:DockPanel.Dock="Left"
                            VerticalAlignment="Center"
                            />
-                    <ComboBox ItemsSource="{Binding ThemeList}"
+                        <ComboBox ItemsSource="{Binding ThemeList}"
                           SelectedItem="{Binding SelectedApplicationTheme.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               Margin="0 8 0 0"
                           >
-                    </ComboBox>
-                </StackPanel>
+                        </ComboBox>
+                    </StackPanel>
 
-                <TextBlock Text="※テーマの適用にはアプリを再起動してください" 
+                    <TextBlock Text="※テーマの適用にはアプリを再起動してください" 
                        Foreground="Red"
                        Margin="0 8"
                        Visibility="{Binding ThemeChanged, Converter={StaticResource BooleanToVisibility}}"
@@ -61,23 +62,25 @@
 
 
 
-                
-                <StackPanel x:Name="TVModeSwitchLayout">
-                    <StackPanel Margin="8">
-                        <TextBlock Text="TV Modeを利用する"
+
+                    <StackPanel x:Name="TVModeSwitchLayout">
+                        <StackPanel Margin="8">
+                            <TextBlock Text="TV Modeを利用する"
                            toolkit:DockPanel.Dock="Left"
                            VerticalAlignment="Center"
                            />
 
-                        <ToggleSwitch IsOn="{Binding IsTVModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            <ToggleSwitch IsOn="{Binding IsTVModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               
                               />
-                    </StackPanel>
-                    <TextBlock Text="コントローラーを利用してアプリを操作するのに適しています。" 
+                        </StackPanel>
+                        <TextBlock Text="コントローラーを利用してアプリを操作するのに適しています。" 
                        Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
                        Visibility="{Binding ThemeChanged, Converter={StaticResource BooleanToVisibility}}"
                        />
+                    </StackPanel>
                 </StackPanel>
+                
 
 
             </StackPanel>

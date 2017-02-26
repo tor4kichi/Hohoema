@@ -203,17 +203,19 @@
         <StackPanel Margin="16 8 8 8" MinWidth="400" HorizontalAlignment="Left">
 
             <!-- ランキング -->
-            <StackPanel Margin="0 8">
-                <TextBlock Text="好きなランキング設定"
-                           Margin="0 0 0 8"
+            <TextBlock Text="好きなランキング設定"
+                           Margin="0 0 0 4"
                             FontSize="18"
                            FontWeight="SemiBold"
                            VerticalAlignment="Center"
                        />
+            
+            <StackPanel Margin="8 8 0 8">
+               
 
                 <TextBlock Text="ここで選択されたランキングは、ホーム画面やランキング画面で優先表示されるようになります。"
                            FontSize="12"
-                           Margin="0 0 0 8"
+                           Margin="0 0 0 4"
                            Foreground="DarkGray"
                            TextWrapping="Wrap"
                        />
@@ -227,7 +229,7 @@
                           />
 
                 <TextBlock Text="※つまむと入れ替えできます"
-                           FontSize="12"
+                           FontSize="13"
                            Margin="16 0 16 8"
                            Foreground="DarkGray"
                            TextWrapping="Wrap"
@@ -251,16 +253,17 @@
                     />
 
             <!-- 非表示にしたいランキング -->
-            <StackPanel Margin="0 8">
-                <TextBlock Text="ランキングの非表示設定"
+            <TextBlock Text="ランキングの非表示設定"
                            Margin="0 0 0 4"
                             FontSize="18"
                            FontWeight="SemiBold"
                            VerticalAlignment="Center"
                        />
+            <StackPanel Margin="8 8 0 8">
+                
 
                 <TextBlock Text="ここで選択されたランキングは、ランキング画面で非表示になります。"
-                           FontSize="12"
+                           FontSize="13"
                            Margin="0 0 0 8"
                            Foreground="DarkGray"
                            TextWrapping="Wrap"
@@ -290,7 +293,7 @@
 
 
             <!--NG動画-->
-            <StackPanel>
+            <StackPanel Margin="0 0 0 8">
 
 
                 <StackPanel Orientation="Horizontal" Margin="0 8">

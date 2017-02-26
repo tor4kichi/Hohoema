@@ -18,61 +18,73 @@
     <ScrollViewer IsTabStop="False">
 
         <StackPanel 
-                    Margin="8" MinWidth="400" HorizontalAlignment="Left"
+                    Margin="16 8 8 8" MinWidth="400" HorizontalAlignment="Left"
                             >
 
             <!-- キャッシュ設定 -->
-            <StackPanel Margin="8 0 0 0">
-                <TextBlock Text="動画キャッシュ設定"
+            <TextBlock Text="動画キャッシュ設定"
                            Margin="0 8"
                             FontSize="18"
                            FontWeight="SemiBold"
                            VerticalAlignment="Center"
                        />
-                
-                <StackPanel Margin="0 8">
+            <StackPanel Margin="8 0 0 0">
 
-                    <TextBlock Text="動画キャッシュ保存フォルダ"
+
+                <StackPanel Margin="0 8">
+                    
+                    <Border>
+                        <StackPanel Margin="0 8">
+
+                            <TextBlock Text="動画キャッシュ利用のためのヒント"
+                               Margin="0 0 0 4"
+                               />
+
+                            <TextBlock Text="{Binding CacheFolderStateDescription.Value}" 
+                                 TextWrapping="Wrap"
+                                       Opacity="0.8"
+                                       Margin="8"
+                                   />
+
+                        </StackPanel>
+                    </Border>
+
+                    <StackPanel Margin="0 8">
+
+                        <TextBlock Text="動画キャッシュ保存フォルダ"
                                        VerticalAlignment="Center"
                                />
 
-                    <HyperlinkButton Command="{Binding OpenCurrentCacheFolderCommand}"
+                        <HyperlinkButton Command="{Binding OpenCurrentCacheFolderCommand}"
                                         Margin="0 8"
                                             >
-                        <TextBlock Text="{Binding CacheSaveFolderPath.Value}"
+                            <TextBlock Text="{Binding CacheSaveFolderPath.Value}"
                                         TextWrapping="Wrap"
                                         />
-                    </HyperlinkButton>
+                        </HyperlinkButton>
+                        
+                        <Border Height="8" />
 
-                    <Button Content="保存先フォルダを変更"
+                        <Button Content="保存先フォルダを変更"
                                     Command="{Binding ChangeCacheFolderCommand}"
                             UseSystemFocusVisuals="True"
                                     >
-                    </Button>
+                        </Button>
 
+                    </StackPanel>
 
                 </StackPanel>
 
-                <Border>
-                    <StackPanel Margin="0 8">
+                
+            </StackPanel>
 
-                        <TextBlock Text="動画キャッシュ利用のためのヒント"
-                               Margin="0 0 0 8"
-                               />
+            
+            <Border Margin="0 8"
+                    BorderBrush="Gray"
+                    BorderThickness="0 1 0 0"
+                    />
 
-                        <TextBlock Text="{Binding CacheFolderStateDescription.Value}" 
-                                 TextWrapping="Wrap"
-                                   />
-
-                    </StackPanel>
-                </Border>
-
-
-                <Border Margin="0 8"
-                        BorderBrush="Gray"
-                        BorderThickness="0 1 0 0"
-                        />
-
+            <StackPanel Margin="8 0 0 0">
 
                 <StackPanel Margin="0 8"   
                             >
@@ -86,7 +98,7 @@
                 </StackPanel>
 
 
-                <toolkit:DockPanel Margin="8">
+                <toolkit:DockPanel Margin="0 8">
                     <Button Content="動画キャッシュ機能利用の確認文を読む" 
                                     Command="{Binding ReadCacheAcceptTextCommand}"
                                     Visibility="{Binding IsUserAcceptRegalNotice.Value, Converter={StaticResource BooleanToVisibility}}"

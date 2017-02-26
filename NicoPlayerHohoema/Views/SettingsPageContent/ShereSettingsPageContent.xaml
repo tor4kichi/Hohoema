@@ -14,9 +14,9 @@
     d:DesignWidth="400">
 
     <ScrollViewer IsTabStop="False">
-        <StackPanel Margin="8" MinWidth="400" HorizontalAlignment="Left">
+        <StackPanel Margin="16 8 8 8" MinWidth="400" HorizontalAlignment="Left">
 
-            <StackPanel Orientation="Horizontal" Margin="8 8 0 8">
+            <StackPanel Orientation="Horizontal" Margin="0 0 0 8">
                 <TextBlock Text="Twitterの設定"
                            FontSize="18"
                            VerticalAlignment="Center"
@@ -24,45 +24,44 @@
                            />
             </StackPanel>
 
-            <toolkit:DockPanel Margin="8"
+            <StackPanel Margin="8 8 0 8"
                                >
-                <HyperlinkButton Content="Twitterのアプリ連携画面を開く"
-                                 NavigateUri="https://twitter.com/settings/applications"
-                                 toolkit:DockPanel.Dock="Bottom"
-                                 Margin="0 16"
-                                 HorizontalAlignment="Right"
-                                 />
 
-                <StackPanel>
-
-                    <TextBlock Visibility="{Binding IsLoginTwitter.Value, Converter={StaticResource BooleanToVisibility}}">
+                <TextBlock Visibility="{Binding IsLoginTwitter.Value, Converter={StaticResource BooleanToVisibility}}">
                         <Run Text="{Binding TwitterAccountScreenName.Value}" />
                         <Run>でログイン中</Run>
-                    </TextBlock>
+                </TextBlock>
 
-                    <Button Content="Twitterとの連携を設定する"
+                <Button Content="Twitterとの連携を設定する"
                             Command="{Binding LogInToTwitterCommand}"
                             Visibility="{Binding IsLoginTwitter.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                             Margin="0 8"
                             UseSystemFocusVisuals="True"
                           >
-                    </Button>
-                    
-                    <Button Content="Twitterとの連携を解除する"
+                </Button>
+
+                <Border Height="8" />
+
+                <Button Content="Twitterとの連携を解除する"
                             Command="{Binding LogoutTwitterCommand}"
                             UseSystemFocusVisuals="True"
                           >
-                    </Button>
+                </Button>
 
-                    <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                FontSize="13"
                                TextWrapping="Wrap"
-                               Margin="0 8"
+                               Margin="0 8 0 0"
                                >
-                        <Run>完全な連携解除にはTwitterのアプリ連携ページでの解除する設定が必要です</Run>
-                    </TextBlock>
-                </StackPanel>
-            </toolkit:DockPanel>
+                        <Run>完全な連携解除にはTwitterの「アプリ連携」ページから連携を解除してください</Run>
+                </TextBlock>
+
+                <HyperlinkButton Content="Twitterのアプリ連携画面を開く"
+                                 NavigateUri="https://twitter.com/settings/applications"
+                                 toolkit:DockPanel.Dock="Bottom"
+                                 Margin="0 8"
+                                 />
+            </StackPanel>
 
         </StackPanel>
     </ScrollViewer>
