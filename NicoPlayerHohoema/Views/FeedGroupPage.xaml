@@ -85,22 +85,7 @@
                                       Command="{Binding OpenFeedVideoListPageCommand}" />
 
 
-                        <AppBarButton Background="Transparent">
-                            <StackPanel Orientation="Horizontal">
-                                <iconPack:PackIconMaterial Kind="Delete" />
-                            </StackPanel>
-
-                            
-                            
-                            <Button.Flyout>
-                                <Flyout>
-                                    <Button 
-                                Content="【確認】フィードグループを削除"
-                                Command="{Binding RemoveFeedGroupCommand}"
-                                />
-                                </Flyout>
-                            </Button.Flyout>
-                        </AppBarButton>
+                        
 
                     </StackPanel>
 
@@ -163,7 +148,7 @@
             </Border>
 
             <ScrollViewer>
-                <StackPanel x:Name="LyaoutRoot" VerticalAlignment="Stretch" Margin="0">
+                <StackPanel x:Name="LyaoutRoot" VerticalAlignment="Stretch" Margin="16 8">
 
                     <Button Width="240" Margin="0 24">
                         <Button.Flyout>
@@ -203,7 +188,7 @@
 
                     <ListView ItemsSource="{Binding MylistFeedSources}"
                           ItemTemplate="{StaticResource FeedSourceTemplate}"
-                          Margin="8 0"
+                          Margin="0 8"
                       SelectionMode="None"
                               IsTabStop="False"
                           >
@@ -220,7 +205,6 @@
                                 <toolkit:WrapPanel Orientation="Horizontal" 
                                            MinWidth="{Binding ElementName=LyaoutRoot, Path=ActualWidth}"
                                            ItemHeight="48"
-                                           ItemWidth="200"
                                            HorizontalAlignment="Stretch"
                                            />
                             </ItemsPanelTemplate>
@@ -259,7 +243,7 @@
 
                     <ListView ItemsSource="{Binding TagFeedSources}"
                           ItemTemplate="{StaticResource FeedSourceTemplate}"
-                          Margin="8 0"
+                          Margin="0 8"
                       SelectionMode="None"
                           >
                         <ListView.ItemContainerStyle>
@@ -276,7 +260,6 @@
                                 <toolkit:WrapPanel Orientation="Horizontal" 
                                            MinWidth="{Binding ElementName=LyaoutRoot, Path=ActualWidth}"
                                            ItemHeight="48"
-                                           ItemWidth="200"
                                            HorizontalAlignment="Stretch"
                                            />
                             </ItemsPanelTemplate>
@@ -313,7 +296,7 @@
 
                     <ListView ItemsSource="{Binding UserFeedSources}"
                           ItemTemplate="{StaticResource FeedSourceTemplate}"
-                          Margin="8 0"
+                          Margin="0 8"
                         SelectionMode="None"
                           >
                         <ListView.ItemContainerStyle>
@@ -328,7 +311,6 @@
                                 <toolkit:WrapPanel Orientation="Horizontal" 
                                            MinWidth="{Binding ElementName=LyaoutRoot, Path=ActualWidth}"
                                            ItemHeight="48"
-                                           ItemWidth="200"
                                            HorizontalAlignment="Stretch"
                                            />
                             </ItemsPanelTemplate>
@@ -351,6 +333,31 @@
 
 
                     <Border Height="32" />
+
+
+                    <Button MinWidth="150" >
+                        <StackPanel Orientation="Horizontal">
+                            <iconPack:PackIconMaterial Kind="Delete" />
+
+                            <Border Width="8" />
+
+                            <TextBlock >
+                                <Run Text="{Binding FeedGroupName.Value}" />
+                                <Run Text="を削除" />
+                            </TextBlock>
+                        </StackPanel>
+
+
+
+                        <Button.Flyout>
+                            <Flyout>
+                                <Button 
+                                Content="【確認】フィードグループを削除"
+                                Command="{Binding RemoveFeedGroupCommand}"
+                                />
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
 
                 </StackPanel>
             </ScrollViewer>
