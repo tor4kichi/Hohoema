@@ -308,7 +308,7 @@
                         <Border Height="48">
                             <Border.Background>
                                 <LinearGradientBrush x:Name="ControlPanelBackgroundBrush" StartPoint="1, 0" EndPoint="1, 1">
-                                    <GradientStop Color="#00000000" Offset="0.0" x:Name="GradientStop1"/>
+                                    <GradientStop Color="{Binding Source={StaticResource SystemAltMediumColor}, Converter={StaticResource ToTransparentColor}}" Offset="0.0" x:Name="GradientStop1"/>
                                     <GradientStop Color="{ThemeResource SystemAltMediumColor}" Offset="1.0" x:Name="GradientStop2" />
                                 </LinearGradientBrush>
                             </Border.Background>

@@ -40,6 +40,7 @@
             <myconv:RelationalDateTimeConverter x:Key="ToRelationalTime" />
             <myconv:NicoVideoQualityToCultualizedTextConverter x:Key="QualityToText" />
 
+            <myconv:TransparentColorConverter x:Key="ToTransparentColor" />
 
             <!-- Logical Modifier-->
             <logicalModifier:AndModifier x:Key="AndModifier" />

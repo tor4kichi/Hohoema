@@ -414,7 +414,7 @@
                              HorizontalAlignment="Stretch"
                              VerticalAlignment="Bottom"
                              Visibility="{Binding ElementName=UIControlLayout, Path=Visibility, Converter={StaticResource InvertVisibility}}"
-                             Opacity="0.7"
+                             Opacity="0.4"
                              />
 
 
@@ -439,95 +439,99 @@
                     <!-- プレイリスト 操作 -->
                     <StackPanel toolkit:DockPanel.Dock="Top" >
 
-                        <toolkit:DockPanel Background="{ThemeResource SystemAltMediumColor}"
-                                           Margin="8 8 8 0">
+                        <Border Background="{ThemeResource SystemAltMediumColor}">
+                            <toolkit:DockPanel
+                                Margin="8 8 8 0"
+                                           >
 
-                            <Button Command="{Binding ClosePlayerCommand}"
+                                <Button Command="{Binding ClosePlayerCommand}"
                                     Background="Transparent"
                                     toolkit:DockPanel.Dock="Left"
                                     UseSystemFocusVisuals="True"
                                     >
-                                <iconPack:PackIconMaterial Kind="Close" />
-                            </Button>
+                                    <iconPack:PackIconMaterial Kind="Close" />
+                                </Button>
 
 
-                            <StackPanel Orientation="Horizontal"
+                                <StackPanel Orientation="Horizontal"
                                         toolkit:DockPanel.Dock="Right"
                                         >
-                                <Button Background="Transparent"          
+                                    <Button Background="Transparent"          
                                         Command="{Binding ToggleShuffleCommand}"
                                         UseSystemFocusVisuals="True"
                                             >
-                                    <iconPack:PackIconMaterial x:Name="ToggleShuffleButtonIcon"
+                                        <iconPack:PackIconMaterial x:Name="ToggleShuffleButtonIcon"
                                                 Kind="Shuffle"
                                                            FontSize="20"
                                                            />
-                                </Button>
+                                    </Button>
 
 
-                                <!-- リピートは「オフ」「単品リピート」「全体リピート」の３モードに対応したい -->
-                                <!-- IsChecked == null   => off -->
-                                <!-- IsChecked == false  => single track repeat enable -->
-                                <!-- IsChecked == true   => playlist repeat enable -->
-                                <!-- see@ https://msdn.microsoft.com/ja-jp/library/windows/apps/windows.ui.xaml.controls.primitives.togglebutton.isthreestate -->
-                                <Button Command="{Binding ToggleRepeatModeCommand}"
+                                    <!-- リピートは「オフ」「単品リピート」「全体リピート」の３モードに対応したい -->
+                                    <!-- IsChecked == null   => off -->
+                                    <!-- IsChecked == false  => single track repeat enable -->
+                                    <!-- IsChecked == true   => playlist repeat enable -->
+                                    <!-- see@ https://msdn.microsoft.com/ja-jp/library/windows/apps/windows.ui.xaml.controls.primitives.togglebutton.isthreestate -->
+                                    <Button Command="{Binding ToggleRepeatModeCommand}"
                                         Background="Transparent"
                                         UseSystemFocusVisuals="True"
                                             >
-                                    <iconPack:PackIconMaterial x:Name="RepeatModeToggleButtonIcon"
+                                        <iconPack:PackIconMaterial x:Name="RepeatModeToggleButtonIcon"
                                                 Kind="Repeat" 
                                                            
                                                            />
-                                </Button>
+                                    </Button>
 
-                            </StackPanel>
+                                </StackPanel>
 
 
 
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
 
-                                <StackPanel toolkit:DockPanel.Dock="Left"
+                                    <StackPanel toolkit:DockPanel.Dock="Left"
                                         Orientation="Horizontal"
                                         >
-                                    <Button Command="{Binding OpenPreviousPlaylistItemCommand}"
+                                        <Button Command="{Binding OpenPreviousPlaylistItemCommand}"
                                         Background="Transparent"
                                         Visibility="{Binding PlaylistCanGoBack.Value, Converter={StaticResource BooleanToVisibility}}"
                                             UseSystemFocusVisuals="True"
                                         >
-                                        <iconPack:PackIconMaterial Kind="ArrowLeft" />
-                                    </Button>
-                                </StackPanel>
+                                            <iconPack:PackIconMaterial Kind="ArrowLeft" />
+                                        </Button>
+                                    </StackPanel>
 
-                                <Border Width="16" />
+                                    <Border Width="16" />
 
-                                <Button 
+                                    <Button 
                                         Command="{Binding OpenCurrentPlaylistPageCommand}"
                                         Background="Transparent"
                                     UseSystemFocusVisuals="True"
                                     >
-                                    <TextBlock Text="{Binding CurrentPlaylistName.Value}"
+                                        <TextBlock Text="{Binding CurrentPlaylistName.Value}"
                                                Style="{StaticResource SubtitleTextBlockStyle}"
                                                />
-                                </Button>
+                                    </Button>
 
-                                <Border Width="16" />
+                                    <Border Width="16" />
 
-                                <StackPanel toolkit:DockPanel.Dock="Right"
+                                    <StackPanel toolkit:DockPanel.Dock="Right"
                                         Orientation="Horizontal"
                                         >
-                                    <Button Command="{Binding OpenNextPlaylistItemCommand}"
+                                        <Button Command="{Binding OpenNextPlaylistItemCommand}"
                                         Background="Transparent"
                                         Visibility="{Binding PlaylistCanGoNext.Value, Converter={StaticResource BooleanToVisibility}}"
                                             UseSystemFocusVisuals="True"
                                         >
-                                        <iconPack:PackIconMaterial Kind="ArrowRight" />
-                                    </Button>
+                                            <iconPack:PackIconMaterial Kind="ArrowRight" />
+                                        </Button>
+                                    </StackPanel>
+
                                 </StackPanel>
 
-                            </StackPanel>
-                            
-                        </toolkit:DockPanel>
+                            </toolkit:DockPanel>
 
+                        </Border>
+                        
                         
 
 
@@ -535,7 +539,7 @@
                             
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="1, 1" EndPoint="1, 0">
-                                    <GradientStop Color="#00000000" Offset="0.0" />
+                                    <GradientStop Color="{Binding Source={StaticResource SystemAltMediumColor}, Converter={StaticResource ToTransparentColor}}" Offset="0.0" />
                                     <GradientStop Color="{ThemeResource SystemAltMediumColor}" Offset="1.0" />
                                 </LinearGradientBrush>
                             </Border.Background>
@@ -556,7 +560,7 @@
                         <Border Height="48">
                             <Border.Background>
                                 <LinearGradientBrush x:Name="ControlPanelBackgroundBrush" StartPoint="1, 0" EndPoint="1, 1">
-                                    <GradientStop Color="#00000000" Offset="0.0" x:Name="GradientStop1"/>
+                                    <GradientStop Color="{Binding Source={StaticResource SystemAltMediumColor}, Converter={StaticResource ToTransparentColor}}" Offset="0.0" x:Name="GradientStop1"/>
                                     <GradientStop Color="{ThemeResource SystemAltMediumColor}" Offset="1.0" x:Name="GradientStop2" />
                                 </LinearGradientBrush>
                             </Border.Background>
