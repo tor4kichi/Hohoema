@@ -29,6 +29,8 @@
             <myconv:TimeSpanToMovieLengthStringValueConverter x:Key="TimeToMovieLengthConverter" />
             <myconv:InvertBooleanConverter x:Key="InvertBoolean" />
 
+            <myconv:InvertVisibilityConverter x:Key="InvertVisibility" />
+
             <myconv:SoundVolumeConveter x:Key="ToUserFriendlySoubleVolume" />
 
             <myconv:CacheStateToColorBrushConverter x:Key="CacheStateToColorBrush" />

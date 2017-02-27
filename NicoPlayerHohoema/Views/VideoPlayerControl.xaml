@@ -417,6 +417,15 @@
                 </Border>
 
 
+                <ProgressBar Value="{Binding SliderVideoPosition.Value, Mode=OneWay}" 
+                             Maximum="{Binding VideoLength.Value, Mode=OneWay}"
+                             HorizontalAlignment="Stretch"
+                             VerticalAlignment="Bottom"
+                             Visibility="{Binding ElementName=UIControlLayout, Path=Visibility, Converter={StaticResource InvertVisibility}}"
+                             Opacity="0.7"
+                             />
+
+
                 <toolkit:DockPanel 
                     x:Name="UIControlLayout"
                             >
