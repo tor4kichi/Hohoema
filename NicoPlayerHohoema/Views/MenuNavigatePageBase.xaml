@@ -35,7 +35,19 @@
         </DataTemplate>
 
         <DataTemplate x:Key="MobileMenuItemTemplate">
-            <SymbolIcon Symbol="{Binding IconType}" />
+            <StackPanel>
+            
+                <SymbolIcon Symbol="{Binding IconType}" />
+
+                <Border Height="4" />
+                <TextBlock Text="{Binding Label}"
+                           FontSize="12"
+                           TextWrapping="Wrap"
+                           HorizontalAlignment="Center"
+                           />
+
+            </StackPanel>
+            
         </DataTemplate>
 
 
@@ -206,6 +218,8 @@
                                 ItemTemplate="{StaticResource MobileMenuItemTemplate}"
                                 HorizontalContentAlignment="Center"
                                  Background="Transparent"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                                 ScrollViewer.HorizontalScrollMode="Auto"
                             >
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -217,7 +231,7 @@
                                     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                     <Setter Property="VerticalContentAlignment" Value="Stretch" />
                                     <Setter Property="Height" Value="64" />
-                                    <Setter Property="Width" Value="64" />
+                                    <Setter Property="Width" Value="72" />
                                     <Setter Property="Background" Value="Transparent" />
                                 </Style>
                             </ListBox.ItemContainerStyle>
