@@ -211,9 +211,15 @@ namespace NicoPlayerHohoema
                 {
                     pageManager.OpenPage(HohoemaPageType.Login);
                 }
-            }
 
-			
+                if (Util.DeviceTypeHelper.IsXbox)
+                {
+                    this.Resources.MergedDictionaries.Add(new ResourceDictionary()
+                    {
+                        Source = new Uri("ms-appx:///Styles/TVSafeColor.xaml")
+                    });
+                }
+            }
 //			return Task.CompletedTask;
 		}
 
