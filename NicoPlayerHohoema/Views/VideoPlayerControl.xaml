@@ -439,7 +439,8 @@
                     <!-- プレイリスト 操作 -->
                     <StackPanel toolkit:DockPanel.Dock="Top" >
 
-                        <toolkit:DockPanel Background="{ThemeResource SystemAltMediumColor}">
+                        <toolkit:DockPanel Background="{ThemeResource SystemAltMediumColor}"
+                                           Margin="8 8 8 0">
 
                             <Button Command="{Binding ClosePlayerCommand}"
                                     Background="Transparent"
@@ -580,12 +581,14 @@
                                     
                                      >
 
-                                <Grid Margin="24 0">
+                                <Grid Margin="24 0 24 4">
 
+                                    <!--
                                     <local:DownloadProgressBar 
                                             ProgressFragmentItems="{Binding ProgressFragments}"
                                             Margin="0 20 0 0"
                                             />
+                                    -->
 
 
                                     <Slider Minimum="0.0" 
@@ -734,6 +737,8 @@
                                     </Button.Flyout>
                                 </Button>
 
+                                <Border Width="16" />
+                                
                                 <!-- コメント -->
                                 <Button Background="Transparent">
                                     <SymbolIcon Symbol="Comment" 
@@ -749,11 +754,12 @@
 
                             </StackPanel>
 
+                            <!-- 再生 -->
                             <StackPanel Orientation="Horizontal" x:Name="MiddleUIControlLayout"
                                         Grid.Column="1"
                                         >
 
-                                <!-- 再生 -->
+                                
                                 <Button Background="Transparent" Command="{Binding PreviewVideoPositionCommand}"
                                         x:Name="PreviewVideoPositionButon"
                                         >
@@ -762,17 +768,26 @@
                                            />
                                 </Button>
 
-                                <Border Width="8" />
+                                <Border Width="24" />
                                 
                                 <Button Command="{Binding TogglePlayPauseCommand}"
                                         Background="Transparent"
+                                        Height="80"
+                                                Width="80"
+                                        Margin="0 0 0 4"
                                           >
                                     <SymbolIcon Symbol="Play" 
                                                 x:Name="PlayPauseButton"  
-                                                />
+                                                RenderTransformOrigin="0.5, 0.5"
+                                                >
+                                        <SymbolIcon.RenderTransform>
+                                            <CompositeTransform ScaleX="1.4" ScaleY="1.4"/>
+                                        </SymbolIcon.RenderTransform>
+                                        
+                                    </SymbolIcon>
                                 </Button>
 
-                                <Border Width="8" />
+                                <Border Width="24" />
                                 
                                 <Button Background="Transparent"
                                         Command="{Binding ForwardVideoPositionCommand}"
@@ -786,6 +801,7 @@
 
                             </StackPanel>
 
+                            <!-- Fullscreen / More -->
                             <StackPanel Orientation="Horizontal"
                                         Grid.Column="2"
                                     HorizontalAlignment="Right"
@@ -795,6 +811,8 @@
                                         >
                                     <SymbolIcon Symbol="FullScreen" />
                                 </Button>
+
+                                <Border Width="12" />
 
                                 <Button Background="Transparent">
                                     <SymbolIcon Symbol="More" />
