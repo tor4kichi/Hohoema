@@ -117,7 +117,7 @@
                                         <ItemsPanelTemplate>
                                             <toolkit:WrapPanel Orientation="Vertical"
                                                            VerticalAlignment="Stretch"
-                                                           ItemHeight="48"                                                           
+                                                           ItemHeight="64"                                                           
                                                                />
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
