@@ -24,6 +24,7 @@
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
                     UseSystemFocusVisuals="True"
+                    MinHeight="48"
                     >
                 <TextBlock Text="{Binding Label}"
                            VerticalAlignment="Center"
@@ -117,7 +118,7 @@
                                         <ItemsPanelTemplate>
                                             <toolkit:WrapPanel Orientation="Vertical"
                                                            VerticalAlignment="Stretch"
-                                                           ItemHeight="64"                                                           
+                                                           ItemHeight="48"                                                           
                                                                />
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
