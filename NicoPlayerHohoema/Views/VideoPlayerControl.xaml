@@ -32,9 +32,12 @@
         <Style TargetType="AppBarButton">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="LabelPosition" Value="Collapsed" />
+            <Setter Property="MinHeight"  Value="56" />
+            <Setter Property="MinWidth"  Value="56" />
+            <Setter Property="FontSize"  Value="20" />
+            <Setter Property="IsCompact"  Value="True" />
+            <Setter Property="VerticalContentAlignment"  Value="Center" />
         </Style>
-
-        
 
     </UserControl.Resources>
 
@@ -69,29 +72,8 @@
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-
-            <!-- リピートの有効・無効 -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsEnableRepeat.Value}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="RepeatButton.Icon" Value="RepeatAll" />
-                    </VisualState.Setters>
-
-                   
-                </VisualState>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsEnableRepeat.Value, Converter={StaticResource InvertBoolean}}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="RepeatButton.Icon" Value="RepeatOne" />
+                        <Setter Target="PreviewVideoPositionButon.Visibility" Value="Collapsed" />
+                        <Setter Target="ForwardVideoPositionButon.Visibility" Value="Collapsed" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -104,11 +86,10 @@
                         <StateTrigger IsActive="{Binding NowPlaying.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="PlayPauseButton.Icon" Value="Stop" />
+                        <Setter Target="PlayPauseButton.Symbol" Value="Stop" />
 
                         <Setter Target="TitleLayout.Visibility" Value="Collapsed" />
 
-                        <Setter Target="UIControlFade.Value" Value="" />
                     </VisualState.Setters>
                 </VisualState>
                 
@@ -125,7 +106,7 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
 
-                        <Setter Target="VolumeButton.Icon" Value="Mute" />
+                        <Setter Target="VolumeButton.Symbol" Value="Mute" />
                         <Setter Target="MuteToggleButton.Icon" Value="Mute" />
                     </VisualState.Setters>
                 </VisualState>
@@ -134,7 +115,7 @@
                         <StateTrigger IsActive="{Binding IsMuted.Value, Converter={StaticResource InvertBoolean}}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="VolumeButton.Icon" Value="Volume" />
+                        <Setter Target="VolumeButton.Symbol" Value="Volume" />
                         <Setter Target="MuteToggleButton.Icon" Value="Volume" />
                     </VisualState.Setters>
                 </VisualState>
@@ -156,6 +137,17 @@
 
             <!-- モバイルの縦持ち時のLandscape固定処理 -->
             <VisualStateGroup>
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsSmallWindowModeEnable.Value}" />
+
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="LayoutRotateTranform.Angle" Value="0" />
+                    </VisualState.Setters>
+                </VisualState>
+                
                 <VisualState>
                     <VisualState.StateTriggers>
                         <StateTrigger IsActive="{Binding IsForceLandscape.Value, Converter={StaticResource InvertBoolean}}" />
@@ -560,7 +552,7 @@
                     <!-- 動画コンテンツ 操作 -->
                     <StackPanel toolkit:DockPanel.Dock="Bottom" >
                         
-                        <Border Height="32">
+                        <Border Height="48">
                             <Border.Background>
                                 <LinearGradientBrush x:Name="ControlPanelBackgroundBrush" StartPoint="1, 0" EndPoint="1, 1">
                                     <GradientStop Color="#00000000" Offset="0.0" x:Name="GradientStop1"/>
@@ -671,11 +663,13 @@
                             <StackPanel Orientation="Horizontal">
 
                                 <!-- 音量 -->
-                                <AppBarButton Icon="Mute" 
-                                              x:Name="VolumeButton"
-                                              Background="Transparent"
-                                              >
-                                    <AppBarButton.Flyout>
+                                <Button Background="Transparent">
+
+                                    <SymbolIcon 
+                                        x:Name="VolumeButton"
+                                        Symbol="Mute" 
+                                        />
+                                    <Button.Flyout>
                                         <Flyout>
                                             <toolkit:DockPanel
                                                 toolkit:DockPanel.Dock="Right"
@@ -737,19 +731,21 @@
 
                                             </toolkit:DockPanel>
                                         </Flyout>
-                                    </AppBarButton.Flyout>
-                                </AppBarButton>
+                                    </Button.Flyout>
+                                </Button>
 
                                 <!-- コメント -->
-                                <AppBarButton Icon="Comment" 
-                                              >
-                                    <AppBarButton.Flyout>
+                                <Button Background="Transparent">
+                                    <SymbolIcon Symbol="Comment" 
+                                                />
+                                    
+                                    <Button.Flyout>
                                         <MenuFlyout>
                                             <ToggleMenuFlyoutItem Text="コメントを表示" IsChecked="{Binding IsCommentDisplayEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                             <ToggleMenuFlyoutItem Text="新しいコメントを書く" IsChecked="{Binding NowCommentWriting.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                         </MenuFlyout>
-                                    </AppBarButton.Flyout>
-                                </AppBarButton>
+                                    </Button.Flyout>
+                                </Button>
 
                             </StackPanel>
 
@@ -759,7 +755,7 @@
 
                                 <!-- 再生 -->
                                 <Button Background="Transparent" Command="{Binding PreviewVideoPositionCommand}"
-                                        UseSystemFocusVisuals="True"
+                                        x:Name="PreviewVideoPositionButon"
                                         >
                                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3C;" 
                                            FontSize="18"
@@ -768,16 +764,19 @@
 
                                 <Border Width="8" />
                                 
-                                <AppBarButton x:Name="PlayPauseButton" Icon="Play"
-                                              Command="{Binding TogglePlayPauseCommand}"
+                                <Button Command="{Binding TogglePlayPauseCommand}"
+                                        Background="Transparent"
                                           >
-                                </AppBarButton>
+                                    <SymbolIcon Symbol="Play" 
+                                                x:Name="PlayPauseButton"  
+                                                />
+                                </Button>
 
                                 <Border Width="8" />
                                 
                                 <Button Background="Transparent"
                                         Command="{Binding ForwardVideoPositionCommand}"
-                                        UseSystemFocusVisuals="True"
+                                        x:Name="ForwardVideoPositionButon"
                                         >
                                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3D;"
                                            FontSize="18"
@@ -791,10 +790,16 @@
                                         Grid.Column="2"
                                     HorizontalAlignment="Right"
                                         >
-                                <AppBarButton Icon="FullScreen" Command="{Binding ToggleFullScreenCommand}" />
+                                <Button Command="{Binding ToggleFullScreenCommand}"
+                                        Background="Transparent"
+                                        >
+                                    <SymbolIcon Symbol="FullScreen" />
+                                </Button>
 
-                                <AppBarButton Icon="More">
-                                    <AppBarButton.Flyout>
+                                <Button Background="Transparent">
+                                    <SymbolIcon Symbol="More" />
+                                    
+                                    <Button.Flyout>
                                         <MenuFlyout x:Name="Menu">
 
                                             <MenuFlyoutItem Text="小さく表示" Command="{Binding PlayerSmallWindowDisplayCommand}" >
@@ -844,8 +849,11 @@
                                                               />
 
                                         </MenuFlyout>
-                                    </AppBarButton.Flyout>
-                                </AppBarButton>
+                                    </Button.Flyout>
+
+
+                                    
+                                </Button>
                             </StackPanel>
 
                         </Grid>
@@ -860,18 +868,21 @@
 
                             <toolkit:DockPanel HorizontalAlignment="Center">
 
-                                <AppBarButton Icon="Clear" 
+                                <Button 
                                             toolkit:DockPanel.Dock="Left"
                                               Background="Transparent"
                                               VerticalAlignment="Center"
                                               Margin="0 0 8 8"
                                 >
+                                    <SymbolIcon Symbol="Clear" />
+
                                     <i:Interaction.Behaviors>
                                         <core:EventTriggerBehavior EventName="Tapped">
                                             <core:ChangePropertyAction TargetObject="{Binding NowCommentWriting}" PropertyName="Value" Value="False" />
                                         </core:EventTriggerBehavior>
                                     </i:Interaction.Behaviors>
-                                </AppBarButton>
+                                    
+                                </Button>
 
                                 <toolkit:WrapPanel Orientation="Horizontal">
                                     <Button Content="{Binding CommandString.Value}" 
