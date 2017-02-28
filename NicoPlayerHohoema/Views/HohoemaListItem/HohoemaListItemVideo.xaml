@@ -14,9 +14,9 @@
     d:DesignWidth="400">
 
     <Grid>
-        <toolkit:DockPanel Margin="0 0">
+        <toolkit:DockPanel Margin="8 0 0 0">
 
-            <Grid Margin="0 0 8 0"
+            <Grid Margin="0 0 08 0"
                   toolkit:DockPanel.Dock="Left"
                   >
                 <uwptoolkit:ImageEx Source="{Binding FirstImageUrl}" 
@@ -45,6 +45,7 @@
                 <TextBlock Text="{Binding OptionText}" 
                            Opacity="0.7"
                            FontSize="13"
+                           TextLineBounds="Tight"
                            />
 
                 <Border />
@@ -57,6 +58,7 @@
                 <TextBlock Text="{Binding Description}" 
                            Opacity="0.7"
                            FontSize="13"
+                           TextLineBounds="Tight"
                        />
             </toolkit:DockPanel>
 

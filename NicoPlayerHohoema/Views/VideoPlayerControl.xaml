@@ -88,7 +88,7 @@
                     <VisualState.Setters>
                         <Setter Target="PlayPauseButton.Symbol" Value="Stop" />
 
-                        <Setter Target="TitleLayout.Visibility" Value="Collapsed" />
+                        <Setter Target="TitleLayout.Opacity" Value="0.7" />
 
                     </VisualState.Setters>
                 </VisualState>
@@ -572,8 +572,12 @@
                             </i:Interaction.Behaviors>
                         </Border>
 
-                        <StackPanel x:Name="TitleLayout" Background="{ThemeResource SystemAltMediumColor}">
-                            <TextBlock Text="{Binding VideoTitle}" FontSize="24" Margin="8" HorizontalAlignment="Center" TextWrapping="Wrap" />
+                        <StackPanel  Background="{ThemeResource SystemAltMediumColor}">
+                            <TextBlock Text="{Binding VideoTitle}" 
+                                       FontSize="24" 
+                                       Margin="8" HorizontalAlignment="Center" TextWrapping="Wrap"
+                                       x:Name="TitleLayout"
+                                       />
                         </StackPanel>
 
                         <!-- シークバー -->
