@@ -122,9 +122,6 @@
                                         <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                             Orientation="Horizontal"
                                             >
-                                            <AppBarButton Icon="Play" Label="全て再生" Command="{Binding PlayPlaylistCommand}"
-                                                          IsEnabled="{Binding HasItem.Value}"
-                                                          />
 
                                         </StackPanel>
 
