@@ -20,10 +20,13 @@
         <DataTemplate x:Key="FavoriteItemTemplate">
 
             <Button Command="{Binding PrimaryCommand}"
-                    UseSystemFocusVisuals="True"
                     HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    VerticalContentAlignment="Center"
+                    MinHeight="32"
                     >
-                <controls:HohoemaListItem DisplayType="MiniCard" />
+                <controls:HohoemaListItem DisplayType="MiniCard"
+                                          VerticalAlignment="Center" />
             </Button>
         </DataTemplate>
 
@@ -77,62 +80,72 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
 
-                                <toolkit:DockPanel Margin="0 0 0 16">
 
+                                <uwpcontrol:Expander Margin="0 0 0 16"
+                                                    x:Name="expander"
+                                                     IsExpanded="True"
+                                                     Background="Transparent"
+                                                     >
+                                    <uwpcontrol:Expander.HeaderTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal"
+                                                   toolkit:DockPanel.Dock="Top"                                            
+                                                        DataContext="{Binding ElementName=expander, Path=DataContext}"
+                                                    >
+                                                <SymbolIcon Symbol="{Binding FavType, Converter={StaticResource FavTypeToSymbol}}" 
+                                                            Margin="0 0 8 0"
+                                                            VerticalAlignment="Center"
+                                                            />
 
-                                    <StackPanel Orientation="Horizontal"
-                                               toolkit:DockPanel.Dock="Top"                                            
-                                                >
-                                        <SymbolIcon Symbol="{Binding FavType, Converter={StaticResource FavTypeToSymbol}}" 
-                                                    Margin="0 0 8 0"
-                                                    VerticalAlignment="Center"
-                                                    />
+                                                <TextBlock Text="{Binding Name}" 
+                                                            Margin="0 0"
+                                                            FontSize="20"
+                                                            VerticalAlignment="Center"
+                                                        />
 
-                                        <TextBlock Text="{Binding Name}" 
-                                                   Margin="8 0"
-                                                   FontSize="20"
-                                                   VerticalAlignment="Center"
-                                               />
+                                                <TextBlock 
+                                                            VerticalAlignment="Center"
+                                                            Opacity="0.7"
+                                                            Margin="8 0"
+                                                        >
+                                                        <Run Text="{Binding ItemCount}" />
+                                                        <Run Text="/" />
+                                                        <Run Text="{Binding MaxItemCount}" />
+                                                </TextBlock>
 
-                                        <TextBlock 
-                                               VerticalAlignment="Center"
-                                               Opacity="0.8"
-                                               FontSize="13"
-                                               Margin="8 0"
-                                               >
-                                            <Run Text="{Binding ItemCount}" />
-                                            <Run Text="/" />
-                                            <Run Text="{Binding MaxItemCount}" />
-                                        </TextBlock>
+                                            </StackPanel>
+                                        </DataTemplate>
 
-                                    </StackPanel>
+                                    </uwpcontrol:Expander.HeaderTemplate>
 
                                     <ListView ItemsSource="{Binding Items}"
                                               ItemTemplate="{StaticResource FavoriteItemTemplate}"
                                               Margin="0 8 0 0"
                                               IsTabStop="False"
                                               SelectionMode="None"
-                                              HorizontalContentAlignment="Stretch"
                                           >
                                         <ListView.ItemContainerStyle>
                                             <Style TargetType="ListViewItem">
                                                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                                 <Setter Property="VerticalContentAlignment" Value="Stretch" />
-                                                <Setter Property="Margin" Value="0 0 0 0" />
+                                                <Setter Property="Margin" Value="0 0 8 8" />
                                                 <Setter Property="IsTabStop" Value="False" />
                                             </Style>
                                         </ListView.ItemContainerStyle>
 
                                         <ListView.ItemsPanel>
                                             <ItemsPanelTemplate>
-                                                <toolkit:WrapPanel Orientation="Horizontal" />
+                                                <toolkit:WrapPanel Orientation="Horizontal"
+                                                                   />
 
                                             </ItemsPanelTemplate>
                                         </ListView.ItemsPanel>
 
                                     </ListView>
 
-                                </toolkit:DockPanel>
+
+                                </uwpcontrol:Expander>
+
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>

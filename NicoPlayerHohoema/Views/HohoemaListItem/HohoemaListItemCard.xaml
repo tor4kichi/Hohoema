@@ -14,30 +14,30 @@
 
     <toolkit:DockPanel>
 
-        <Grid toolkit:DockPanel.Dock="Top">
+        <!--
+        <Grid toolkit:DockPanel.Dock="Top" >
             <Image Source="{Binding FirstImageUrl}"
                 Visibility="{Binding HasImageUrl, Converter={StaticResource BooleanToVisibility}}" 
                 Stretch="Uniform"
-                   
+                   Margin="8"
                 />
 
             <Border>
                 <TextBlock Text="{Binding ImageCaption}" 
+                           Visibility="{Binding HasImageCaption, Converter={StaticResource BooleanToVisibility}}"
                        HorizontalAlignment="Right"
                        VerticalAlignment="Bottom"
                        Margin="16"
                        />
             </Border>
         </Grid>
+        -->
 
-        <StackPanel Margin="8">
-            <!-- top area -->
-            <StackPanel>
-                <TextBlock Text="{Binding Title}"
+        <TextBlock Text="{Binding Title}"
+                           VerticalAlignment="Center"
                         TextWrapping="Wrap"
                         />
-            </StackPanel>
-        </StackPanel>
+        
     </toolkit:DockPanel>
     
 </UserControl>
