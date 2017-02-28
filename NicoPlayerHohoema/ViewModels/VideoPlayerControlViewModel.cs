@@ -1718,7 +1718,7 @@ namespace NicoPlayerHohoema.ViewModels
                     ?? (_OpenCurrentPlaylistPageCommand = new DelegateCommand(() =>
                     {
                         HohoemaApp.Playlist.IsPlayerFloatingModeEnable = true;
-                        PageManager.OpenPage(HohoemaPageType.Playlist, HohoemaPlaylist.WatchAfterPlaylistId);
+                        PageManager.OpenPage(HohoemaPageType.Playlist, HohoemaApp.Playlist.CurrentPlaylist?.Id);
                     }
                     ));
             }
