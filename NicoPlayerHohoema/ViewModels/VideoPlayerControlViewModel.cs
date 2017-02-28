@@ -1233,15 +1233,15 @@ namespace NicoPlayerHohoema.ViewModels
                 // stream.Dispose();
                 Video?.StopPlay();
 
-                // プレイリストへ再生完了を通知
-                VideoPlayed();
-
                 App.Current.Suspending -= Current_Suspending;
                 HohoemaApp.MediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
                 HohoemaApp.MediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
             }
 
-			ExitKeepDisplay();
+            // プレイリストへ再生完了を通知
+            VideoPlayed();
+
+            ExitKeepDisplay();
 
 			Comments.Clear();
 
