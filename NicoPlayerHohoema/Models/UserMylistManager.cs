@@ -117,7 +117,8 @@ namespace NicoPlayerHohoema.Models
 					Sort = MylistDefaultSort.Latest
 				};
 				_UserMylists.Add(Deflist);
-			}
+                await Deflist.Refresh();
+            }
 
 
 			// ユーザーのマイリストグループの一覧を取得
@@ -262,7 +263,7 @@ namespace NicoPlayerHohoema.Models
 		public bool IsPublic { get; set; }
 		public IconType IconType { get; set; }
 		public MylistDefaultSort Sort { get; set; }
-
+        public int Count { get; set; }
 
         public MylistGroupInfo(string groupId, HohoemaApp hohoemaApp, UserMylistManager mylistManager)
 		{
@@ -295,7 +296,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			get
 			{
-				return VideoItems.Count;
+                return VideoItems.Count != 0 ? VideoItems.Count : Count;
 			}
 		}
 
@@ -440,9 +441,10 @@ namespace NicoPlayerHohoema.Models
 				Description = group.Description,
 				IsPublic = group.GetIsPublic(),
 				IconType = group.GetIconType(),
-				Sort = group.GetDefaultSort()
+				Sort = group.GetDefaultSort(),
+                Count = group.ItemCount
+                
 			};
-
 		}
 
 
