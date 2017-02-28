@@ -116,6 +116,8 @@ namespace NicoPlayerHohoema.ViewModels
                 .Select(x => NicoVideo.QualityDividedVideos.Any(y => y.IsCacheRequested))
                 .ToReadOnlyReactiveProperty()
                 .AddTo(_CompositeDisposable);
+
+            
         }
 
         private async void ResetQualityDivideVideosVM()
@@ -347,6 +349,10 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
+        
+        public IEnumerable<VideoInfoPlaylistViewModel> Playlists => 
+            HohoemaPlaylist.Playlists.Select(x => new VideoInfoPlaylistViewModel(x.Name, x.Id, NicoVideo));
+
         public ReadOnlyReactiveProperty<bool> IsCacheRequested { get; private set; }
 
         public ReactiveProperty<bool> IsRequireConfirmDelete { get; private set; }
@@ -458,6 +464,38 @@ namespace NicoPlayerHohoema.ViewModels
 
         
     }
+
+    public class VideoInfoPlaylistViewModel
+    {
+        public string Name { get; private set; }
+        public string Id { get; private set; }
+
+        public NicoVideo NicoVideo { get; private set; }
+
+
+        public DelegateCommand AddPlaylistCommand { get; private set; }
+
+
+        public VideoInfoPlaylistViewModel(string name, string id, NicoVideo video)
+        {
+            Name = name;
+            Id = id;
+
+            AddPlaylistCommand = new DelegateCommand(() => 
+            {
+                var hohoemaPlaylist = video.HohoemaApp.Playlist;
+                var playlist = hohoemaPlaylist.Playlists.FirstOrDefault(x => x.Id == Id);
+
+                if (playlist == null) { return; }
+
+                playlist.AddVideo(video.RawVideoId, video.Title);
+            });
+        }
+
+    }
+
+
+
 
 
     [Flags]

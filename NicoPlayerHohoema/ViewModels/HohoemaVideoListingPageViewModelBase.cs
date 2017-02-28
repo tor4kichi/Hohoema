@@ -380,4 +380,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveCommand RequestCacheDownload { get; private set; }
 		public ReactiveCommand DeleteCache { get; private set; }
 	}
+
+
+    
 }
