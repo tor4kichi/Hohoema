@@ -39,6 +39,7 @@ namespace NicoPlayerHohoema.ViewModels
 			ToastNotificationService = toastService;
 
 			SettingItems = ((IEnumerable<HohoemaSettingsKind>)Enum.GetValues(typeof(HohoemaSettingsKind)))
+                .Where(x => Util.DeviceTypeHelper.IsXbox ? x != HohoemaSettingsKind.Share : true)
 				.Select(x => KindToVM(x))
 				.ToList();
 
