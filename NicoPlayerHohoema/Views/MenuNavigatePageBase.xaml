@@ -60,7 +60,7 @@
                 <Border Width="16" />
                 <TextBlock Text="{Binding Label}"
                            VerticalAlignment="Center"
-                           FontSize="13"
+                           FontSize="15"
                            />
 
             </StackPanel>
