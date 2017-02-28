@@ -31,6 +31,8 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<string> LoginErrorText { get; private set; }
 
 
+        private LoginRedirectPayload _RedirectInfo;
+
         public LoginPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager) 
             : base(hohoemaApp, pageManager, canActivateBackgroundUpdate:false)
         {
@@ -78,6 +80,12 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
+
+            if (e.Parameter is string)
+            {
+                _RedirectInfo = LoginRedirectPayload.FromParameterString<LoginRedirectPayload>(e.Parameter as string);
+            }
+
             var accountInfo = await AccountManager.GetPrimaryAccount();
             if (accountInfo != null)
             {
@@ -120,10 +128,23 @@ namespace NicoPlayerHohoema.ViewModels
                     AccountManager.RemoveAccount(Mail.Value);
                 }
 
-
                 // TODO: 初期セットアップ補助ページを開く？
 
-                PageManager.OpenPage(HohoemaPageType.Portal);
+                if (_RedirectInfo != null)
+                {
+                    try
+                    {
+                        PageManager.OpenPage(_RedirectInfo.RedirectPageType, _RedirectInfo.RedirectParamter);
+                    }
+                    catch
+                    {
+                        PageManager.OpenPage(HohoemaPageType.Portal);
+                    }
+                }
+                else
+                {
+                    PageManager.OpenPage(HohoemaPageType.Portal);
+                }
             }
         }
 
