@@ -244,12 +244,12 @@ namespace NicoPlayerHohoema.Models
 
         private async void VideoDownloadManager_DownloadCompleted(object sender, NicoVideoCacheRequest request, string filePath)
         {
-            using (var releaser = await _Lock.LockAsync())
+            if (request.RawVideoId == this.RawVideoId && request.Quality == this.Quality)
             {
-                if (request.RawVideoId == this.RawVideoId && request.Quality == this.Quality)
-                {
-                    await RestoreCache(filePath).ConfigureAwait(false);
+                await RestoreCache(filePath).ConfigureAwait(false);
 
+                using (var releaser = await _Lock.LockAsync())
+                {
                     VideoDownloadManager.DownloadProgress -= VideoDownloadManager_DownloadProgress;
                     VideoDownloadManager.DownloadCanceled -= VideoDownloadManager_DownloadCanceled;
                     VideoDownloadManager.DownloadCompleted -= VideoDownloadManager_DownloadCompleted;
