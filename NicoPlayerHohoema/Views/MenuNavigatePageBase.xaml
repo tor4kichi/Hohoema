@@ -292,7 +292,7 @@
 
                     <SplitView x:Name="SplitView" 
                         CompactPaneLength="48"
-                        OpenPaneLength="220"
+                        OpenPaneLength="180"
                         DisplayMode="Overlay"
                         IsPaneOpen="{Binding IsOpenPane.Value, Mode=TwoWay}"
                                IsTabStop="False"
@@ -307,11 +307,14 @@
                                     
                                 </Border>
                                 
+                                
                                 <Button Background="Transparent" 
                                         Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibility}}"
                                         Command="{Binding OpenAccountInfoCommand}"
                                         toolkit:DockPanel.Dock="Bottom"
                                         HorizontalAlignment="Stretch"
+                                        HorizontalContentAlignment="Left"
+                                        Padding="16 8 8 8"
                                                     >
                                     <toolkit:DockPanel Margin="0 0">
 
@@ -323,7 +326,10 @@
 
                                         <StackPanel>
                                             <TextBlock Text="{Binding UserName}" />
-                                            <TextBlock Text="{Binding UserMail}" FontWeight="Light" />
+                                            <TextBlock Text="{Binding UserMail}" FontWeight="Light" 
+                                                       TextWrapping="Wrap"
+                                                       FontSize="13"
+                                                       />
                                         </StackPanel>
                                     </toolkit:DockPanel>
                                 </Button>
