@@ -1100,7 +1100,8 @@ namespace NicoPlayerHohoema.ViewModels
                 throw new Exception();
             }
 
-            CurrentPlaylistName.Value = HohoemaApp.Playlist.CurrentPlaylist.Name;
+            CurrentPlaylist = HohoemaApp.Playlist.CurrentPlaylist;
+            CurrentPlaylistName.Value = CurrentPlaylist.Name;
 
             HohoemaApp.MediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
             HohoemaApp.MediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
@@ -1933,6 +1934,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         // プレイリスト
+        public Playlist CurrentPlaylist { get; private set; }
         public ReactiveProperty<string> CurrentPlaylistName { get; private set; }
         public ReactiveProperty<bool> IsShuffleEnabled { get; private set; }
         public ReactiveProperty<bool?> RepeatMode { get; private set; }

@@ -243,6 +243,13 @@ namespace NicoPlayerHohoema.Models
            
             OpenPlaylistItem?.Invoke(CurrentPlaylist, item);
 
+            // あとで見るプレイリストの場合、再生開始時に
+            // アイテムを削除する
+            if (CurrentPlaylist == DefaultPlaylist)
+            {
+                DefaultPlaylist.Remove(item);
+            }
+
             IsDisplayPlayer = true;
 
             ResetMediaPlayerCommand();
@@ -359,17 +366,9 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
+        
         public void PlayDone(bool canPlayNext = false)
         {
-            // あとで見るプレイリストから再生完了したアイテムを削除する
-            if (DefaultPlaylist == CurrentPlaylist)
-            {
-                if (DefaultPlaylist.CurrentVideo != null)
-                {
-                    DefaultPlaylist.Remove(DefaultPlaylist.CurrentVideo);
-                }
-            }
-
             // 次送りが出来る場合は次へ
             if (canPlayNext && (Player?.CanGoNext ?? false))
             {
