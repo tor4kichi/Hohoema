@@ -288,6 +288,21 @@
                     </VisualState.StateTriggers>
                 </VisualState>
             </VisualStateGroup>
+            
+            
+            
+            <!-- 読み取り再生位置スライダーの表示状態 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <myTrigger:EqualConditionStateTrigger Condition="Visible" Value="{Binding ElementName=UIControlLayout, Path=Visibility}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ReadOnlySeekBarSlider.Opacity" Value="0.0" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+            
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
@@ -409,13 +424,18 @@
                 </Border>
 
 
-                <ProgressBar Value="{Binding SliderVideoPosition.Value, Mode=OneWay}" 
-                             Maximum="{Binding VideoLength.Value, Mode=OneWay}"
-                             HorizontalAlignment="Stretch"
-                             VerticalAlignment="Bottom"
-                             Visibility="{Binding ElementName=UIControlLayout, Path=Visibility, Converter={StaticResource InvertVisibility}}"
-                             Opacity="0.4"
-                             />
+                <Slider Value="{Binding ElementName=SeekBarSlider, Path=Value, Mode=TwoWay}" 
+                        Maximum="{Binding VideoLength.Value, Mode=OneWay}"
+                        Style="{StaticResource VideoProgressBarStyle}"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Bottom"
+                        IsEnabled="False"
+                        Opacity="0.6"
+                        x:Name="ReadOnlySeekBarSlider"
+                             >
+                    
+
+                </Slider>
 
 
                 <toolkit:DockPanel 
@@ -599,9 +619,12 @@
                                     -->
 
 
-                                    <Slider Minimum="0.0" 
+                                    <Slider x:Name="SeekBarSlider"
+                                            Minimum="0.0" 
                                             Maximum="{Binding VideoLength.Value}"
                                             Value="{Binding SliderVideoPosition.Value, Mode=TwoWay}"
+                                            Style="{StaticResource VideoProgressBarStyle}"
+                                            Padding="0 16"
                                             StepFrequency="0.1"
                                             IsThumbToolTipEnabled="True"
                                             ThumbToolTipValueConverter="{StaticResource TimeToMovieLengthConverter}"

@@ -189,7 +189,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
                 watch.Stop();
 
-                Debug.WriteLine("comment render time: " + watch.Elapsed.ToString());
+//                Debug.WriteLine("comment render time: " + watch.Elapsed.ToString());
 
                 // ビデオ位置の差分よりコメント描画時間が長かったら
                 // 描画スキップを設定する

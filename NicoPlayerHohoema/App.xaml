@@ -17,6 +17,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Styles/DefaultStyle.xaml"/>
+                <ResourceDictionary Source="Styles/VideoProgressBarStyle.xaml"/>
                 
                 <ResourceDictionary Source="Views/Controls/FloatContentContainer/FloatContentContainer.xaml"/>
             </ResourceDictionary.MergedDictionaries>
