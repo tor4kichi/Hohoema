@@ -176,6 +176,7 @@
     <Compile Include="Models\Live\NicoLiveVideo.cs" />
     <Compile Include="Models\LoginRedirectPayload.cs" />
     <Compile Include="Models\PageManagerSearchExtention.cs" />
+    <Compile Include="Models\RoamingSyncInfo.cs" />
     <Compile Include="Models\Settings\AppearanceSettings.cs" />
     <Compile Include="Models\Settings\AppMapSettings.cs" />
     <Compile Include="Models\Settings\CacheSettings.cs" />

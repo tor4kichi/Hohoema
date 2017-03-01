@@ -132,7 +132,7 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task OnSuspending()
 		{
-			await SyncToRoamingData();
+			
 		}
 
 
@@ -154,105 +154,220 @@ namespace NicoPlayerHohoema.Models
 		}
 
 		private static AsyncLock _RoamingDataSyncLock = new AsyncLock();
-		private static string[] IgnoreSyncFolderNames = new[] 
+		
+        public static async Task PushToRoamingData(StorageFile file)
 		{
-			FeedManager.FeedStreamFolderName,
-			"error"
-		};
-		private static string[] IgnoreSyncExtentionNames = new string[] {  };
-		private static string[] IgnoreSyncFileNames = new[] 
-		{
-			"_sessionState.xml",
-			"History.db",
-			"NicoVideo.db",
-			"cache_requested.json"
-		};
-
-		public static async Task SyncToRoamingData()
-		{
-			var romingFolder = ApplicationData.Current.RoamingFolder;
+			var roamingFolder = ApplicationData.Current.RoamingFolder;
 			var folder = ApplicationData.Current.LocalFolder;
-			using (var releaser = await _RoamingDataSyncLock.LockAsync())
-			{
-				await SyncFolders(folder, romingFolder);
-			}
-		}
 
-		private static async Task SyncFolders(StorageFolder masterFolder, StorageFolder slaveFolder)
-		{
-			Debug.WriteLine($"{masterFolder.Name}のローカルとローミングデータの同期を開始");
+            using (var releaser = await _RoamingDataSyncLock.LockAsync())
+            {
+                // fileの相対的なパスをLocalFolder基準で取得
+                // LocalFolder外のアイテムは同期不可能
+                var filePath = file.Path;
+                if (filePath.StartsWith(folder.Path))
+                {
+                    filePath = filePath.Substring(folder.Path.Length + 1);
+                }
+                else
+                {
+                    throw new ArgumentException("file is not Local Folder item, cant sync to roaming folder.");
+                }
 
-			foreach (var file in await masterFolder.GetFilesAsync().AsTask().ConfigureAwait(false))
-			{
-				// 処理しない拡張子名をチェック
-				if (IgnoreSyncExtentionNames.Any(x => x == file.FileType))
-				{
-					Debug.WriteLine($"{file.Name} の処理をスキップ（スキップ理由：拡張子）");
-					continue;
-				}
+                // ローミングから同期情報を取得、無ければ新規作成
+                var syncInfoFileAccessor = new Util.FileAccessor<RoamingSyncInfo>(roamingFolder, "sync.json");
+                var syncInfo = await syncInfoFileAccessor.Load();
+                if (syncInfo == null)
+                {
+                    syncInfo = new RoamingSyncInfo();
 
-				// 処理しないファイル名をチェック
-				if (IgnoreSyncFileNames.Any(x => x == file.Name))
-				{
-					Debug.WriteLine($"{file.Name} の処理をスキップ（スキップ理由：ファイル名）");
-					continue;
-				}
+                    // 同期情報がなかった場合は、同期不要なファイルになるので全てお掃除
+                    var items = await roamingFolder.GetItemsAsync();
+                    foreach (var item in items)
+                    {
+                        await item.DeleteAsync();
+                    }
+                }
 
-				// 
-				var slaveItem = await slaveFolder.TryGetItemAsync(file.Name) as StorageFile;
-				if (slaveItem != null)
-				{
-					var fileProp = await file.GetBasicPropertiesAsync();
-					var slaveFileProp = await slaveItem.GetBasicPropertiesAsync();
-					if (fileProp.DateModified == slaveFileProp.DateModified)
-					{
-						Debug.WriteLine($"{file.Name} は更新されていません");
-						continue;
-					}
-					if (fileProp.DateModified > slaveFileProp.DateModified)
-					{
-						// マスター側のファイルをスレーブ側にコピー
-						Debug.WriteLine($"{file.Name} をローミングへコピー");
-						await file.CopyAndReplaceAsync(slaveItem);
-					}
-					else if (fileProp.DateModified < slaveFileProp.DateModified)
-					{
-						Debug.WriteLine($"{file.Name} をローカルへコピー");
-						await slaveItem.CopyAndReplaceAsync(file);
-					}
-				}
-				else
-				{
-					// マスター側のファイルをコピー
-					Debug.WriteLine($"{file.Name} をローミングへコピー");
-					await file.CopyAsync(slaveFolder);
-				}
-			}
+                // 同期情報にfileの情報を追加してローミングフォルダに保存
+                var fileProp = await file.GetBasicPropertiesAsync();
+                syncInfo.AddOrReplace(filePath, fileProp.DateModified.DateTime);
+                await syncInfoFileAccessor.Save(syncInfo);
 
 
-			// 子フォルダを再帰呼び出しで処理していく
-			foreach (var folder in await masterFolder.GetFoldersAsync())
-			{
-				// 処理しないフォルダ名のチェック
-				if (IgnoreSyncFolderNames.Any(x => x == folder.Name))
-				{
-					continue;
-				}
+                // ローミングフォルダにLocalFolderからfileまでの相対的なフォルダ構造を再現
+                var folderPathStack = filePath.Split('/', '\\').ToList();
+                var parentFolder = roamingFolder;
+                foreach (var folderName in folderPathStack.Take(folderPathStack.Count - 1 /* without file name */ ))
+                {
+                    parentFolder = await parentFolder.CreateFolderAsync(folderName, CreationCollisionOption.OpenIfExists);
+                }
 
-				var slaveItem = await slaveFolder.TryGetItemAsync(folder.Name) as StorageFolder;
-				if (slaveItem == null)
-				{
-					slaveItem = await slaveFolder.CreateFolderAsync(folder.Name);
-				}
+                // ローミングフォルダ側のファイルを作成
+                var fileName = Path.GetFileName(file.Path);
+                var roamingFile = await parentFolder.CreateFileAsync(fileName, CreationCollisionOption.OpenIfExists);
 
-				await SyncFolders(folder, slaveItem);
-			}
+                // ローミング側のファイルに元ファイルをコピー
+                await file.CopyAndReplaceAsync(roamingFile);
+            }
+        }
 
-			Debug.WriteLine($"{masterFolder.Name}のローカルとローミングデータの同期を完了");
-		}
+        public static async Task RoamingDataRemoved(StorageFile file)
+        {
+            if (file == null)
+            {
+                return;
+            }
+
+            var romingFolder = ApplicationData.Current.RoamingFolder;
+            var folder = ApplicationData.Current.LocalFolder;
+
+            using (var releaser = await _RoamingDataSyncLock.LockAsync())
+            {
+                // fileの相対的なパスをLocalFolder基準で取得
+                // LocalFolder外のアイテムは同期不可能
+                var filePath = file.Path;
+                if (filePath.StartsWith(folder.Path))
+                {
+                    filePath = filePath.Substring(folder.Path.Length - 1);
+                }
+                else
+                {
+                    return;
+                }
+
+                // ローミングから同期情報を取得、無ければ新規作成
+                var syncInfoFileAccessor = new Util.FileAccessor<RoamingSyncInfo>(romingFolder, "sync.json");
+                var syncInfo = await syncInfoFileAccessor.Load();
+                if (syncInfo == null)
+                {
+                    return;
+                }
+
+                // 同期情報にfileの情報を削除して保存
+                syncInfo.Remove(filePath);
+                await syncInfoFileAccessor.Save(syncInfo);
+            }
+        }
+
+        public static async Task PullRoamingData()
+        {
+            var roamingFolder = ApplicationData.Current.RoamingFolder;
+            var folder = ApplicationData.Current.LocalFolder;
+
+            using (var releaser = await _RoamingDataSyncLock.LockAsync())
+            {
+                var syncInfoFileAccessor = new Util.FileAccessor<RoamingSyncInfo>(roamingFolder, "sync.json");
+                var syncInfo = await syncInfoFileAccessor.Load();
+
+                if (syncInfo == null)
+                {
+                    // 同期情報がなかった場合は、同期不要なファイルになるので全てお掃除
+                    var items = await roamingFolder.GetItemsAsync();
+                    foreach (var item in items)
+                    {
+                        await item.DeleteAsync();
+                    }
+
+                    return;
+                }
+
+                List<FileSyncInfo> removeItems = new List<FileSyncInfo>();
+                foreach (var syncFileInfo in syncInfo.SyncInfoItems)
+                {
+                    if (false == await PullRoamingData(syncFileInfo))
+                    {
+                        removeItems.Add(syncFileInfo);
+                    }
+                }
+
+                if (removeItems.Count > 0)
+                {
+                    foreach (var removeItem in removeItems)
+                    {
+                        syncInfo.SyncInfoItems.Remove(removeItem);
+                    }
+
+                    await syncInfoFileAccessor.Save(syncInfo);
+                }
+            }
+        }
+
+        private static async Task<bool> PullRoamingData(FileSyncInfo info)
+        {
+            var romingFolder = ApplicationData.Current.RoamingFolder;
+            var folder = ApplicationData.Current.LocalFolder;
+
+            // ローカル側のファイルを取得
+            // LocalFolderからfileまでの相対的なフォルダ構造を再現
+            IStorageFile localFile = null;
+            bool isNotExistLocalFile = false;
+            {
+                var folderPathStack = info.RelativeFilePath.Split('/', '\\').ToList();
+                var parentFolder = folder;
+                foreach (var folderName in folderPathStack.Take(folderPathStack.Count - 1 /* without file name */ ))
+                {
+                    parentFolder = await parentFolder.CreateFolderAsync(folderName, CreationCollisionOption.OpenIfExists);
+                }
+
+                var fileName = folderPathStack.Last();
+                localFile = await parentFolder.TryGetItemAsync(fileName) as IStorageFile;
+                if (localFile == null)
+                {
+                    localFile = await parentFolder.CreateFileAsync(fileName);
+                    isNotExistLocalFile = true;
+                }
+
+                if (localFile == null)
+                {
+                    throw new Exception();
+                }
+            }
+
+            IStorageFile roamingFile = null;
+            {
+                var folderPathStack = info.RelativeFilePath.Split('/', '\\').ToList();
+                var parentFolder = romingFolder;
+                foreach (var folderName in folderPathStack.Take(folderPathStack.Count - 1 /* without file name */ ))
+                {
+                    parentFolder = await parentFolder.CreateFolderAsync(folderName, CreationCollisionOption.OpenIfExists);
+                }
+
+                var fileName = folderPathStack.Last();
+                roamingFile = await parentFolder.TryGetItemAsync(fileName) as IStorageFile;
+                if (roamingFile == null)
+                {
+                    Debug.WriteLine(info.RelativeFilePath + " はローミングフォルダに存在しません。");
+                    return false;
+                }
+            }
+
+            
+
+            if (isNotExistLocalFile)
+            {
+                await roamingFile.CopyAndReplaceAsync(localFile);
+
+                Debug.WriteLine(localFile.Path + "をローカルにコピー");
+            }
+            else
+            {
+                // ローカル側ファイルとinfo.UpdateAtを比較して
+                // ローカル側ファイルが古い場合
+                // ローミングファイルをローカル側ファイルに上書きコピー
+                var localProp = await localFile.GetBasicPropertiesAsync();
+                if (info.UpdateAt > localProp.DateModified)
+                {
+                    await roamingFile.CopyAndReplaceAsync(localFile);
+                    Debug.WriteLine(localFile.Path + "をローカルにコピー（上書き）");
+                }
+            }
+
+            return true;
+        }
 
 
-		static TimeSpan SyncIgnoreTimeSpan = TimeSpan.FromMinutes(3);
+        static TimeSpan SyncIgnoreTimeSpan = TimeSpan.FromMinutes(3);
 
 		private async void Current_DataChanged(ApplicationData sender, object args)
 		{
@@ -265,7 +380,9 @@ namespace NicoPlayerHohoema.Models
 			LastSyncRoamingData = DateTime.Now;
 
 			Debug.WriteLine("ローミングデータの同期：開始");
-//			await SyncToRoamingData();
+
+            await PullRoamingData();
+
 			Debug.WriteLine("ローミングデータの同期：完了");
 
 			// ローカルフォルダを利用する機能を再初期化
