@@ -280,6 +280,7 @@ namespace NicoPlayerHohoema.Models
 				DescriptionWithHtml = watchApiRes.videoDetail.description;
 				ThreadId = watchApiRes.ThreadId.ToString();
 				PrivateReasonType = watchApiRes.PrivateReason;
+                VideoLength = watchApiRes.Length;
 
 				if (!_thumbnailInitialized)
 				{
