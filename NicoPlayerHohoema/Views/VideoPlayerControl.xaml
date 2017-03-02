@@ -86,7 +86,7 @@
                         <StateTrigger IsActive="{Binding NowPlaying.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="PlayPauseButton.Symbol" Value="Stop" />
+                        <Setter Target="PlayPauseButton.Kind" Value="Pause" />
 
                         <Setter Target="TitleLayout.Opacity" Value="0.7" />
 
@@ -807,15 +807,15 @@
                                                 Width="80"
                                         Margin="0 0 0 4"
                                           >
-                                    <SymbolIcon Symbol="Play" 
+                                    <iconPack:PackIconMaterial Kind="Play" 
                                                 x:Name="PlayPauseButton"  
                                                 RenderTransformOrigin="0.5, 0.5"
                                                 >
-                                        <SymbolIcon.RenderTransform>
-                                            <CompositeTransform ScaleX="1.4" ScaleY="1.4"/>
-                                        </SymbolIcon.RenderTransform>
+                                        <iconPack:PackIconMaterial.RenderTransform>
+                                            <CompositeTransform ScaleX="1.8" ScaleY="1.8"/>
+                                        </iconPack:PackIconMaterial.RenderTransform>
                                         
-                                    </SymbolIcon>
+                                    </iconPack:PackIconMaterial>
                                 </Button>
 
                                 <Border Width="24" />
