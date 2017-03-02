@@ -232,7 +232,7 @@
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="17" />
+                                    <RowDefinition Height="0" />
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="0" />
                                 </Grid.RowDefinitions>

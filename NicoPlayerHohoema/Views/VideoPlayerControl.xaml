@@ -205,6 +205,7 @@
                     <VisualState.Setters>
 
                         <Setter Target="RepeatModeToggleButtonIcon.Kind" Value="RepeatOnce" />
+                        <Setter Target="RepeatMenuButton.Text" Value="リピート：単体" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -213,6 +214,7 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="RepeatModeToggleButtonIcon.Kind" Value="Repeat" />
+                        <Setter Target="RepeatMenuButton.Text" Value="リピート：全体" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -221,11 +223,12 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="RepeatModeToggleButtonIcon.Kind" Value="RepeatOff" />
+                        <Setter Target="RepeatMenuButton.Text" Value="リピート：オフ" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
 
-            <!-- リピートモード -->
+            <!-- シャッフルモード -->
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
@@ -461,7 +464,7 @@
 
                         <Border Background="{ThemeResource SystemAltMediumColor}">
                             <toolkit:DockPanel
-                                Margin="8 8 8 0"
+                                Margin="0 0"
                                            >
 
                                 <Button Command="{Binding ClosePlayerCommand}"
@@ -476,14 +479,74 @@
                                 <StackPanel Orientation="Horizontal"
                                         toolkit:DockPanel.Dock="Right"
                                         >
+
+
+                                    
+
+                                    <Button Background="Transparent" >
+
+                                        <StackPanel Orientation="Horizontal">
+
+                                            <TextBlock Text="{Binding CurrentPlaylistName.Value}"
+                                               Style="{StaticResource SubtitleTextBlockStyle}"
+                                               Margin="0 0 8 0"
+                                               />
+                                            
+                                        </StackPanel>
+                                        
+                                        <Button.Flyout>
+
+                                            <MenuFlyout>
+                                                <MenuFlyoutItem Text="プレイリストを開く"
+                                                                Command="{Binding OpenCurrentPlaylistPageCommand}"
+                                                                />
+                                                
+                                                <MenuFlyoutSeparator />
+
+
+                                                <ToggleMenuFlyoutItem Text="シャッフル" 
+                                                                      IsChecked="{Binding IsShuffleEnabled.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                      />
+
+                                                <MenuFlyoutItem Text="リピート" 
+                                                                      Command="{Binding ToggleRepeatModeCommand}"
+                                                                x:Name="RepeatMenuButton"
+                                                                      />
+
+
+                                                <MenuFlyoutSeparator />
+
+                                                <MenuFlyoutItem Text="前の動画へ"
+                                                                Command="{Binding OpenPreviousPlaylistItemCommand}"
+                                                                Visibility="{Binding PlaylistCanGoBack.Value, Converter={StaticResource BooleanToVisibility}}"
+                                                                />
+
+                                                <MenuFlyoutItem Text="次の動画へ"
+                                                                Command="{Binding OpenNextPlaylistItemCommand}"
+                                                                Visibility="{Binding PlaylistCanGoNext.Value, Converter={StaticResource BooleanToVisibility}}"
+                                                                />
+
+                                            </MenuFlyout>
+                                        </Button.Flyout>
+                                        
+                                    </Button>
+
+
+
+
                                     <Button Background="Transparent"          
                                         Command="{Binding ToggleShuffleCommand}"
                                         UseSystemFocusVisuals="True"
                                             >
+
                                         <iconPack:PackIconMaterial x:Name="ToggleShuffleButtonIcon"
-                                                Kind="Shuffle"
-                                                           FontSize="20"
-                                                           />
+                                                                   RenderTransformOrigin="0.5, 0.5"
+                                                           >
+                                            <iconPack:PackIconMaterial.RenderTransform>
+                                                <CompositeTransform ScaleX="1.1" ScaleY="1.1"/>
+                                            </iconPack:PackIconMaterial.RenderTransform>
+
+                                        </iconPack:PackIconMaterial>
                                     </Button>
 
 
@@ -498,56 +561,23 @@
                                             >
                                         <iconPack:PackIconMaterial x:Name="RepeatModeToggleButtonIcon"
                                                 Kind="Repeat" 
-                                                           
-                                                           />
+                                                           RenderTransformOrigin="0.5, 0.5"
+                                                           >
+                                            <iconPack:PackIconMaterial.RenderTransform>
+                                                <CompositeTransform ScaleX="1.1" ScaleY="1.1"/>
+                                            </iconPack:PackIconMaterial.RenderTransform>
+                                        </iconPack:PackIconMaterial>
                                     </Button>
 
+                                    
+                                    
+                                    
                                 </StackPanel>
 
 
 
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-
-                                    <StackPanel toolkit:DockPanel.Dock="Left"
-                                        Orientation="Horizontal"
-                                        >
-                                        <Button Command="{Binding OpenPreviousPlaylistItemCommand}"
-                                        Background="Transparent"
-                                        Visibility="{Binding PlaylistCanGoBack.Value, Converter={StaticResource BooleanToVisibility}}"
-                                            UseSystemFocusVisuals="True"
-                                        >
-                                            <iconPack:PackIconMaterial Kind="ArrowLeft" />
-                                        </Button>
-                                    </StackPanel>
-
-                                    <Border Width="16" />
-
-                                    <Button 
-                                        Command="{Binding OpenCurrentPlaylistPageCommand}"
-                                        Background="Transparent"
-                                    UseSystemFocusVisuals="True"
-                                    >
-                                        <TextBlock Text="{Binding CurrentPlaylistName.Value}"
-                                               Style="{StaticResource SubtitleTextBlockStyle}"
-                                               />
-                                    </Button>
-
-                                    <Border Width="16" />
-
-                                    <StackPanel toolkit:DockPanel.Dock="Right"
-                                        Orientation="Horizontal"
-                                        >
-                                        <Button Command="{Binding OpenNextPlaylistItemCommand}"
-                                        Background="Transparent"
-                                        Visibility="{Binding PlaylistCanGoNext.Value, Converter={StaticResource BooleanToVisibility}}"
-                                            UseSystemFocusVisuals="True"
-                                        >
-                                            <iconPack:PackIconMaterial Kind="ArrowRight" />
-                                        </Button>
-                                    </StackPanel>
-
-                                </StackPanel>
-
+                                <Border />
+                                
                             </toolkit:DockPanel>
 
                         </Border>
@@ -598,6 +628,12 @@
                                        Margin="8" HorizontalAlignment="Center" TextWrapping="Wrap"
                                        x:Name="TitleLayout"
                                        />
+
+                            <i:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
+                                </core:EventTriggerBehavior>
+                            </i:Interaction.Behaviors>
                         </StackPanel>
 
                         <!-- シークバー -->
@@ -678,15 +714,15 @@
                                         Margin="0 0 24 0"
                                     >
                                         
-                                <Run Text="{Binding SliderVideoPosition.Value, Converter={StaticResource TimeToMovieLengthConverter}}" />
-                                <Run Text="/" />
-                                <Run Text="{Binding VideoLength.Value, Converter={StaticResource TimeToMovieLengthConverter}}" />
+                                    <Run Text="{Binding SliderVideoPosition.Value, Converter={StaticResource TimeToMovieLengthConverter}}" />
+                                    <Run Text="/" />
+                                    <Run Text="{Binding VideoLength.Value, Converter={StaticResource TimeToMovieLengthConverter}}" />
                                 </TextBlock>
                             </Grid>
                         </StackPanel>
 
                         <!-- 再生コントロール -->
-                        <Grid Background="{ThemeResource SystemAltMediumColor}" Padding="8">
+                        <Grid Background="{ThemeResource SystemAltMediumColor}" Padding="8 8 8 0">
 
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -812,7 +848,7 @@
                                                 RenderTransformOrigin="0.5, 0.5"
                                                 >
                                         <iconPack:PackIconMaterial.RenderTransform>
-                                            <CompositeTransform ScaleX="1.8" ScaleY="1.8"/>
+                                            <CompositeTransform ScaleX="1.7" ScaleY="1.7"/>
                                         </iconPack:PackIconMaterial.RenderTransform>
                                         
                                     </iconPack:PackIconMaterial>
