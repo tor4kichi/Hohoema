@@ -90,7 +90,7 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					NowSignIn = HohoemaApp.IsLoggedIn;
 
-                    CallAppServiceLevelSignIn(_NavigatedToTaskCancelToken.Token);
+                    CallAppServiceLevelSignIn(_NavigatedToTaskCancelToken?.Token ?? CancellationToken.None);
 				}
 			}
 			finally

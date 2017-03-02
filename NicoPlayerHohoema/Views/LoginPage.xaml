@@ -162,16 +162,16 @@
                             HorizontalAlignment="Right"
                             />
                     </toolkit:DockPanel>
-                    
+
                     <Button Content="ログイン"
-                        Width="150"
-                        Height="48"
-                        HorizontalAlignment="Center"
-                                    Command="{Binding TryLoginCommand}"
-                                    ></Button>
+                            Width="150"
+                            Height="48"
+                            HorizontalAlignment="Center"
+                            Command="{Binding TryLoginCommand}"
+                            />
 
 
-                    
+
                 </StackPanel>
                 
 

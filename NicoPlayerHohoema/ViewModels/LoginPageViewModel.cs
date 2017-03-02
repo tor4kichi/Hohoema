@@ -9,6 +9,7 @@ using System.Reactive.Linq;
 using Reactive.Bindings.Extensions;
 using Prism.Windows.Navigation;
 using System.Threading;
+using System.Diagnostics;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -54,8 +55,8 @@ namespace NicoPlayerHohoema.ViewModels
 
             // メールかパスワードが変更されたらログイン検証されていないアカウントとしてマーク
             TryLoginCommand = Observable.CombineLatest(
-                Mail.Select(x => !string.IsNullOrEmpty(x)),
-                Password.Select(x => !string.IsNullOrEmpty(x)),
+                Mail.Select(x => !string.IsNullOrWhiteSpace(x)),
+                Password.Select(x => !string.IsNullOrWhiteSpace(x)),
                 NowProcessLoggedIn.Select(x => !x)
                 )
                 .Select(x => x.All(y => y))
@@ -96,6 +97,8 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 Mail.Value = AccountManager.GetPrimaryAccountId();
             }
+
+            IsRememberPassword.Value = !string.IsNullOrWhiteSpace(Password.Value);
         }
 
         private async Task TryLogin()

@@ -678,7 +678,9 @@ namespace NicoPlayerHohoema.Models
 					else
 					{
 						Debug.WriteLine("login failed");
-					}
+                        NiconicoContext?.Dispose();
+                        NiconicoContext = null;
+                    }
 
 					return result;
 				}

@@ -4,6 +4,7 @@ using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
@@ -121,8 +122,16 @@ namespace NicoPlayerHohoema.Models
             }
 
 
-			// ユーザーのマイリストグループの一覧を取得
-			var mylistGroupDataLists = await HohoemaApp.ContentFinder.GetLoginUserMylistGroups();
+            // ユーザーのマイリストグループの一覧を取得
+            List<LoginUserMylistGroup> mylistGroupDataLists = null;
+            try
+            {
+                mylistGroupDataLists = await HohoemaApp.ContentFinder.GetLoginUserMylistGroups();
+            }
+            catch
+            {
+                Debug.WriteLine("ユーザーマイリストの更新に失敗しました。");
+            }
 
             if (mylistGroupDataLists == null)
             {
