@@ -569,7 +569,20 @@ namespace NicoPlayerHohoema.Models
         {
             get
             {
-                if (IsRepeat) { return true; }
+
+                if (IsRepeat)
+                {
+                    // 全体リピート時にアイテムが一つの場合は前への移動を制限
+                    if (Playlist.PlaylistItems.Count > 1)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+
                 if (Playlist.PlaylistItems.Count == 0) { return false; }
 
                 return Playlist.PlaylistItems.FirstOrDefault() != Current;
@@ -580,7 +593,18 @@ namespace NicoPlayerHohoema.Models
         {
             get
             {
-                if (IsRepeat) { return true; }
+                if (IsRepeat)
+                {
+                    // 全体リピート時にアイテムが一つの場合は次への移動を制限
+                    if (Playlist.PlaylistItems.Count > 1)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
                 if (Playlist.PlaylistItems.Count == 0) { return false; }
 
                 return Playlist.PlaylistItems.LastOrDefault() != Current;
