@@ -133,6 +133,38 @@
                         </VisualState>
                     </VisualStateGroup>
 
+
+                    <VisualStateGroup>
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <logicalTrigger:MultiTrigger>
+                                    <logicalTrigger:MultiTrigger.Triggers>
+                                        <hardwareTrigger:DeviceFamilyTrigger Condition="Windows.Mobile" />
+                                        <uiTrigger:OrientationTrigger Condition="Landscape" />
+                                    </logicalTrigger:MultiTrigger.Triggers>
+                                </logicalTrigger:MultiTrigger>
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="SplitView.Margin" Value="72 0 72 0" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <logicalTrigger:MultiTrigger>
+                                    <logicalTrigger:MultiTrigger.Triggers>
+                                        <hardwareTrigger:DeviceFamilyTrigger Condition="Windows.Mobile" />
+                                        <uiTrigger:OrientationTrigger Condition="Portrait" />
+                                    </logicalTrigger:MultiTrigger.Triggers>
+                                </logicalTrigger:MultiTrigger>
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="SplitView.Margin" Value="0 32 0 0" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+
                 </VisualStateManager.VisualStateGroups>
 
                 <toolkit:DockPanel>
@@ -229,6 +261,7 @@
                     <!-- モバイル時のボトムバー -->
                     <toolkit:DockPanel x:Name="MobileBottomBar" Visibility="Collapsed"
                                     toolkit:DockPanel.Dock="Bottom" 
+                                       
                                     >
 
                         <toolkit:DockPanel.Background>
