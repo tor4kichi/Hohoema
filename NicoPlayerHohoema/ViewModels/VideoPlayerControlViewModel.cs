@@ -170,15 +170,28 @@ namespace NicoPlayerHohoema.ViewModels
 			IsPlayWithCache = new ReactiveProperty<bool>(false)
 				.AddTo(_CompositeDisposable);
 
-			CanResumeOnExitWritingComment = new ReactiveProperty<bool>();
+			IsNeedResumeExitWrittingComment = new ReactiveProperty<bool>();
 
 			NowCommentWriting
-				.Where(x => x)
-				.Subscribe(x => 
+				.Subscribe(isWritting => 
 			{
-				// TODO: ウィンドウの表示状態が最小化の時にも再開できないようにしたい
-				CanResumeOnExitWritingComment.Value = CurrentState.Value == MediaPlaybackState.Playing
-					&& (IsPauseWithCommentWriting?.Value ?? true);
+                if (IsPauseWithCommentWriting?.Value ?? false)
+                {
+                    if (isWritting)
+                    {
+                        MediaPlayer.Pause();
+                        IsNeedResumeExitWrittingComment.Value = NowPlaying.Value;
+                    }
+                    else
+                    {
+                        if (IsNeedResumeExitWrittingComment.Value)
+                        {
+                            MediaPlayer.Play();
+                            IsNeedResumeExitWrittingComment.Value = false;
+                        }
+
+                    }
+                }
 			})
 			.AddTo(_CompositeDisposable);
 
@@ -1906,7 +1919,7 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<bool> NowCommentWriting { get; private set; }
 		public ObservableCollection<Comment> Comments { get; private set; }
 		public ReactiveProperty<bool> IsPauseWithCommentWriting { get; private set; }
-		public ReactiveProperty<bool> CanResumeOnExitWritingComment { get; private set; }
+		public ReactiveProperty<bool> IsNeedResumeExitWrittingComment { get; private set; }
 		public ReactiveProperty<double> CommentCanvasHeight { get; private set; }
 		public ReactiveProperty<double> CommentCanvasWidth { get; private set; }
 		public ReactiveProperty<Color> CommentDefaultColor { get; private set; }
