@@ -19,6 +19,7 @@
     xmlns:hardwareTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     xmlns:softwareTrigger="using:AdaptiveTriggerLibrary.Triggers.SoftwareInterfaceTriggers"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
+    xmlns:uwpcontrol="using:Microsoft.Toolkit.Uwp.UI.Controls"
     IsTabStop="False"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
@@ -123,6 +124,7 @@
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
                                 <Setter Target="MobileBottomBar.Visibility" Value="Visible" />
+                                <Setter Target="MobileFrontScreen.Visibility" Value="Visible" />
 
                                 <Setter Target="SplitView.DisplayMode" Value="Overlay" />
                                 <Setter Target="SplitView.IsPaneOpen" Value="False" />
@@ -429,7 +431,22 @@
                 </toolkit:DockPanel>
 
 
-                
+                <Grid x:Name="MobileFrontScreen" Visibility="Collapsed" Margin="0 0 0 64">
+                    <Border HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="16">
+                        <Button Command="{Binding NavigationBackCommand}" Background="Transparent" Height="72" Width="72">
+                            <uwpcontrol:DropShadowPanel RenderTransformOrigin="0.5, 0.5"
+                                                        ShadowOpacity="0.4"
+                                                        >
+
+                                <iconPack:PackIconMaterial Kind="ArrowLeftBoldCircle" />
+
+                                <uwpcontrol:DropShadowPanel.RenderTransform>
+                                    <CompositeTransform ScaleX="2.5" ScaleY="2.5" />
+                                </uwpcontrol:DropShadowPanel.RenderTransform>
+                            </uwpcontrol:DropShadowPanel>
+                        </Button>
+                    </Border>
+                </Grid>
 
                 
 
