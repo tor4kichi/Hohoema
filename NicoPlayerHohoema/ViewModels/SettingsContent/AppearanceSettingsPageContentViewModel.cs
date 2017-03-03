@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 
 namespace NicoPlayerHohoema.ViewModels
@@ -24,6 +25,8 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactiveProperty<bool> IsTVModeEnable { get; private set; }
         public bool IsXbox { get; private set; }
+
+        public ReactiveProperty<bool> IsFullScreenModeEnable { get; private set; }
 
         public AppearanceSettingsPageContentViewModel(HohoemaApp hohoemaApp, Views.Service.ToastNotificationService toastService) 
 			: base("アプリのUI", HohoemaSettingsKind.Appearance)
@@ -51,6 +54,27 @@ namespace NicoPlayerHohoema.ViewModels
             IsTVModeEnable = HohoemaApp.UserSettings.AppearanceSettings
                 .ToReactivePropertyAsSynchronized(x => x.IsForceTVModeEnable);
             IsXbox = Util.DeviceTypeHelper.IsXbox;
+
+
+            
+
+            IsFullScreenModeEnable = new ReactiveProperty<bool>(ApplicationView.GetForCurrentView().IsFullScreenMode);
+
+            IsFullScreenModeEnable.Subscribe(isFullScreen => 
+            {
+                var appView = ApplicationView.GetForCurrentView();
+                if (isFullScreen)
+                {
+                    if (!appView.TryEnterFullScreenMode())
+                    {
+                        IsFullScreenModeEnable.Value = false;
+                    }
+                }
+                else
+                {
+                    appView.ExitFullScreenMode();
+                }
+            });
         }
 
 		protected override void OnEnter(ICollection<IDisposable> focusingDisposable)

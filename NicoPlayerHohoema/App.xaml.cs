@@ -220,15 +220,16 @@ namespace NicoPlayerHohoema
                     });
                 }
             }
-//			return Task.CompletedTask;
-		}
 
-		protected override async Task OnActivateApplicationAsync(IActivatedEventArgs args)
+            // モバイルで利用している場合に、ナビゲーションバーなどがページに被さらないように指定
+            ApplicationView.GetForCurrentView().SetDesiredBoundsMode(ApplicationViewBoundsMode.UseVisible);
+            //			return Task.CompletedTask;
+        }
+
+        protected override async Task OnActivateApplicationAsync(IActivatedEventArgs args)
 		{
-			// モバイルで利用している場合に、ナビゲーションバーなどがページに被さらないように指定
-			ApplicationView.GetForCurrentView().SetDesiredBoundsMode(ApplicationViewBoundsMode.UseVisible);
 
-			var pageManager = Container.Resolve<PageManager>();
+            var pageManager = Container.Resolve<PageManager>();
 
 			if (args.Kind == ActivationKind.ToastNotification)
 			{

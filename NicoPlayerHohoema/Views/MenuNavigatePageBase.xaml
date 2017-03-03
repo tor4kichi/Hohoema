@@ -29,8 +29,6 @@
 
     <ContentControl.Resources>
 
-
-        
         <DataTemplate x:Key="HohoemaContentTemplate">
             
         </DataTemplate>
@@ -134,33 +132,15 @@
                     </VisualStateGroup>
 
 
+                    <!-- Mobile -->
                     <VisualStateGroup>
                         <VisualState>
                             <VisualState.StateTriggers>
-                                <logicalTrigger:MultiTrigger>
-                                    <logicalTrigger:MultiTrigger.Triggers>
-                                        <hardwareTrigger:DeviceFamilyTrigger Condition="Windows.Mobile" />
-                                        <uiTrigger:OrientationTrigger Condition="Landscape" />
-                                    </logicalTrigger:MultiTrigger.Triggers>
-                                </logicalTrigger:MultiTrigger>
+                                 <hardwareTrigger:DeviceFamilyTrigger Condition="Windows.Mobile" />
                             </VisualState.StateTriggers>
 
                             <VisualState.Setters>
-                                <Setter Target="SplitView.Margin" Value="72 0 72 0" />
-                            </VisualState.Setters>
-                        </VisualState>
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <logicalTrigger:MultiTrigger>
-                                    <logicalTrigger:MultiTrigger.Triggers>
-                                        <hardwareTrigger:DeviceFamilyTrigger Condition="Windows.Mobile" />
-                                        <uiTrigger:OrientationTrigger Condition="Portrait" />
-                                    </logicalTrigger:MultiTrigger.Triggers>
-                                </logicalTrigger:MultiTrigger>
-                            </VisualState.StateTriggers>
-
-                            <VisualState.Setters>
-                                <Setter Target="SplitView.Margin" Value="0 32 0 0" />
+                                <Setter Target="MobileFrontScreen.Visibility" Value="Visible" />
                             </VisualState.Setters>
                         </VisualState>
                     </VisualStateGroup>
@@ -430,6 +410,23 @@
                                             Visibility="{Binding NowNavigating.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                             />
 
+                                    <!-- -->
+                                    <Grid x:Name="MobileFrontScreen" Visibility="Collapsed" Margin="0 0 0 64">
+                                        <Border HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="16">
+                                            <Button Command="{Binding NavigationBackCommand}" Background="Transparent" Height="72" Width="72">
+                                                <uwpcontrol:DropShadowPanel RenderTransformOrigin="0.5, 0.5"
+                                                        ShadowOpacity="0.4"
+                                                        >
+
+                                                    <iconPack:PackIconMaterial Kind="ArrowLeftBoldCircle" />
+
+                                                    <uwpcontrol:DropShadowPanel.RenderTransform>
+                                                        <CompositeTransform ScaleX="2.5" ScaleY="2.5" />
+                                                    </uwpcontrol:DropShadowPanel.RenderTransform>
+                                                </uwpcontrol:DropShadowPanel>
+                                            </Button>
+                                        </Border>
+                                    </Grid>
                                 </toolkit:DockPanel>
 
                                 <Border Visibility="{Binding HasBGUpdateText.Value, Converter={StaticResource BooleanToVisibility}}"
@@ -462,29 +459,6 @@
                         </SplitView.Content>
                     </SplitView>
                 </toolkit:DockPanel>
-
-
-                <Grid x:Name="MobileFrontScreen" Visibility="Collapsed" Margin="0 0 0 64">
-                    <Border HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="16">
-                        <Button Command="{Binding NavigationBackCommand}" Background="Transparent" Height="72" Width="72">
-                            <uwpcontrol:DropShadowPanel RenderTransformOrigin="0.5, 0.5"
-                                                        ShadowOpacity="0.4"
-                                                        >
-
-                                <iconPack:PackIconMaterial Kind="ArrowLeftBoldCircle" />
-
-                                <uwpcontrol:DropShadowPanel.RenderTransform>
-                                    <CompositeTransform ScaleX="2.5" ScaleY="2.5" />
-                                </uwpcontrol:DropShadowPanel.RenderTransform>
-                            </uwpcontrol:DropShadowPanel>
-                        </Button>
-                    </Border>
-                </Grid>
-
-                
-
-
-
 
 
 
