@@ -136,7 +136,12 @@
                     <VisualStateGroup>
                         <VisualState>
                             <VisualState.StateTriggers>
-                                 <hardwareTrigger:DeviceFamilyTrigger Condition="Windows.Mobile" />
+                                <logicalTrigger:MultiTrigger>
+                                    <logicalTrigger:MultiTrigger.Triggers>
+                                        <hardwareTrigger:DeviceFamilyTrigger Condition="Windows.Mobile" />
+                                        <uiTrigger:FullScreenTrigger Condition="True" />
+                                    </logicalTrigger:MultiTrigger.Triggers>
+                                </logicalTrigger:MultiTrigger>
                             </VisualState.StateTriggers>
 
                             <VisualState.Setters>
