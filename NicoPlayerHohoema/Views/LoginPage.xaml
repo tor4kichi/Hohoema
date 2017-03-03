@@ -8,12 +8,16 @@
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:wrapPanel="using:Microsoft.Toolkit.Uwp.UI.Controls.WrapPanel"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
     <Grid>
 
+        
+        
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <toolkit:DockPanel HorizontalAlignment="Center"
                            VerticalAlignment="Center"
@@ -84,15 +88,22 @@
 
 
                 <StackPanel>
-                    <toolkit:WrapPanel Orientation="Horizontal" MaxWidth="680">
-                        <StackPanel Width="360">
+                    <StackPanel HorizontalAlignment="Center">
+                        <StackPanel>
                             <toolkit:DockPanel Margin="0 0 0 8" >
                                 <Border toolkit:DockPanel.Dock="Right" MinWidth="200">
                                     <TextBox Text="{Binding Mail.Value, Mode=TwoWay}"
                                  IsEnabled="{Binding NowProcessLoggedIn.Value, Converter={StaticResource InvertBoolean}}"
                                  InputScope="EmailSmtpAddress"
+                                             XYFocusDown="{x:Bind Password}"
+                                             x:Name="Mail"
                                  >
 
+                                        <i:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Loaded">
+                                                <mybehavior:SetFocus TargetObject="{Binding ElementName=Mail}" />
+                                            </core:EventTriggerBehavior>
+                                        </i:Interaction.Behaviors>
                                     </TextBox>
                                 </Border>
                                 <TextBlock Text="メールアドレス" 
@@ -107,6 +118,9 @@
                                 <Border toolkit:DockPanel.Dock="Right" MinWidth="200">
                                     <PasswordBox Password="{Binding Password.Value, Mode=TwoWay}"
                                      IsEnabled="{Binding NowProcessLoggedIn.Value, Converter={StaticResource InvertBoolean}}"
+                                                 x:Name="Password"
+                                                 XYFocusUp="{x:Bind Mail}"
+                                                 XYFocusDown="{x:Bind IsRememberPassword}"
                                      >
 
                                     </PasswordBox>
@@ -121,58 +135,75 @@
                             <Border Height="16" />
                         </StackPanel>
 
-                        <StackPanel Margin="16 0 0 0" HorizontalAlignment="Right">
+                        
 
-                            <Border 
-                                >
-                                <HyperlinkButton Content="アカウントを新しく作成する場合はこちら" 
-                                    NavigateUri="https://account.nicovideo.jp/register"
-                                    IsEnabled="{Binding NowProcessLoggedIn.Value, Converter={StaticResource InvertBoolean}}"
-                                    />
-                            </Border>
-
-                            <Border 
-                                >
-                                <HyperlinkButton Content="パスワードを忘れた方は再発行の手続きへ" 
-                                     NavigateUri="https://account.nicovideo.jp/password/reset"
-                                     IsEnabled="{Binding NowProcessLoggedIn.Value, Converter={StaticResource InvertBoolean}}"
-                                     />
-                            </Border>
-
-                            <Border Height="16" />
-                            
-                        </StackPanel>
-
-                    </toolkit:WrapPanel>
-
-
-                    <toolkit:DockPanel Margin="0 0 0 8" HorizontalAlignment="Left">
-                        <Border toolkit:DockPanel.Dock="Right" MinWidth="200">
-                            <TextBlock Text="パスワードを保存する" 
+                        <toolkit:DockPanel Margin="0 0 0 8" HorizontalAlignment="Left">
+                            <Border toolkit:DockPanel.Dock="Right" MinWidth="200">
+                                <TextBlock Text="パスワードを保存する" 
                                        VerticalAlignment="Center"
                                        HorizontalAlignment="Left"
                                        />
-                        </Border>
-                        <ToggleButton 
+                            </Border>
+                            <ToggleButton 
                                 IsChecked="{Binding IsRememberPassword.Value, Mode=TwoWay}"
                                 IsEnabled="{Binding NowProcessLoggedIn.Value, Converter={StaticResource InvertBoolean}}"
                                 Height="32" 
                                 Width="32"
-                                Margin="8 8"
+                                Margin="8 0"
                             HorizontalAlignment="Right"
+                                x:Name="IsRememberPassword"
+                                XYFocusUp="{x:Bind Password}"
+                                XYFocusDown="{x:Bind LoginButton}"
                             />
-                    </toolkit:DockPanel>
+                        </toolkit:DockPanel>
+
+                    </StackPanel>
+
+
+                    
 
                     <Button Content="ログイン"
                             Width="150"
                             Height="48"
+                            Margin="0 8"
                             HorizontalAlignment="Center"
                             Command="{Binding TryLoginCommand}"
+                            x:Name="LoginButton"
+                            XYFocusUp="{x:Bind IsRememberPassword}"
+                            XYFocusDown="{x:Bind NewAccountLink}"
                             />
 
 
+                    <StackPanel Margin="0 24 0 0" HorizontalAlignment="Center">
+
+                        <Border 
+                                >
+                            <HyperlinkButton Content="アカウントを新しく作成する場合はこちら" 
+                                    NavigateUri="https://account.nicovideo.jp/register"
+                                    IsEnabled="{Binding NowProcessLoggedIn.Value, Converter={StaticResource InvertBoolean}}"
+                                             x:Name="NewAccountLink"
+                                             XYFocusUp="{x:Bind LoginButton}"
+                                             XYFocusDown="{x:Bind ForgetPasswordLink}"
+                                    />
+                        </Border>
+
+                        <Border 
+                                >
+                            <HyperlinkButton Content="パスワードを忘れた方は再発行の手続きへ" 
+                                     NavigateUri="https://account.nicovideo.jp/password/reset"
+                                     IsEnabled="{Binding NowProcessLoggedIn.Value, Converter={StaticResource InvertBoolean}}"
+                                             x:Name="ForgetPasswordLink"
+                                             XYFocusUp="{x:Bind NewAccountLink}"
+                                     />
+                        </Border>
+
+                    </StackPanel>
+
 
                 </StackPanel>
+                
+                
+                
                 
 
 
@@ -190,6 +221,7 @@
                     >
             <Border 
                 Margin="0 8"
+                HorizontalAlignment="Right"
                 >
                 <TextBlock Foreground="DimGray"
                        >
