@@ -402,7 +402,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			DownloadCompleted = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
 			ProgressPercent = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0.0);
-			IsFullScreen = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
+			IsFullScreen = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false, ReactivePropertyMode.DistinctUntilChanged);
 			IsFullScreen
 				.Subscribe(isFullScreen => 
 			{

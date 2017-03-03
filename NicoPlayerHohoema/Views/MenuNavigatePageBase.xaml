@@ -131,25 +131,6 @@
                         </VisualState>
                     </VisualStateGroup>
 
-
-                    <!-- Mobile -->
-                    <VisualStateGroup>
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <logicalTrigger:MultiTrigger>
-                                    <logicalTrigger:MultiTrigger.Triggers>
-                                        <hardwareTrigger:DeviceFamilyTrigger Condition="Windows.Mobile" />
-                                        <uiTrigger:FullScreenTrigger Condition="True" />
-                                    </logicalTrigger:MultiTrigger.Triggers>
-                                </logicalTrigger:MultiTrigger>
-                            </VisualState.StateTriggers>
-
-                            <VisualState.Setters>
-                                <Setter Target="MobileFrontScreen.Visibility" Value="Visible" />
-                            </VisualState.Setters>
-                        </VisualState>
-                    </VisualStateGroup>
-
                 </VisualStateManager.VisualStateGroups>
 
                 <toolkit:DockPanel>
@@ -414,24 +395,6 @@
                                     <ContentPresenter
                                             Visibility="{Binding NowNavigating.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                             />
-
-                                    <!-- -->
-                                    <Grid x:Name="MobileFrontScreen" Visibility="Collapsed" Margin="0 0 0 0">
-                                        <Border HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="16">
-                                            <Button Command="{Binding NavigationBackCommand}" Background="Transparent" Height="72" Width="72">
-                                                <uwpcontrol:DropShadowPanel RenderTransformOrigin="0.5, 0.5"
-                                                        ShadowOpacity="0.4"
-                                                        >
-
-                                                    <iconPack:PackIconMaterial Kind="ArrowLeftBoldCircle" />
-
-                                                    <uwpcontrol:DropShadowPanel.RenderTransform>
-                                                        <CompositeTransform ScaleX="2.5" ScaleY="2.5" />
-                                                    </uwpcontrol:DropShadowPanel.RenderTransform>
-                                                </uwpcontrol:DropShadowPanel>
-                                            </Button>
-                                        </Border>
-                                    </Grid>
                                 </Grid>
 
                                 <Border Visibility="{Binding HasBGUpdateText.Value, Converter={StaticResource BooleanToVisibility}}"

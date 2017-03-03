@@ -58,13 +58,15 @@ namespace NicoPlayerHohoema.ViewModels
 
             
 
-            IsFullScreenModeEnable = new ReactiveProperty<bool>(ApplicationView.GetForCurrentView().IsFullScreenMode);
+            IsFullScreenModeEnable = new ReactiveProperty<bool>(mode:ReactivePropertyMode.DistinctUntilChanged);
 
             IsFullScreenModeEnable.Subscribe(isFullScreen => 
             {
                 var appView = ApplicationView.GetForCurrentView();
                 if (isFullScreen)
                 {
+                    if (appView.IsFullScreenMode) { return; }
+
                     if (!appView.TryEnterFullScreenMode())
                     {
                         IsFullScreenModeEnable.Value = false;
@@ -88,6 +90,8 @@ namespace NicoPlayerHohoema.ViewModels
                     HohoemaApp.UserSettings.AppearanceSettings.Save().ConfigureAwait(false);
                 })
                 .AddTo(focusingDisposable);
-		}
+
+            IsFullScreenModeEnable.Value = ApplicationView.GetForCurrentView().IsFullScreenMode;
+        }
 	}
 }
