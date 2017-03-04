@@ -678,6 +678,7 @@
                                             VerticalAlignment="Center"
                                             IsEnabled="{Binding NowQualityChanging.Value, Converter={StaticResource InvertBoolean}}"
                                         
+                                                Opacity="0.75"
                                          >
                                         </Slider>
                                     </Grid>
