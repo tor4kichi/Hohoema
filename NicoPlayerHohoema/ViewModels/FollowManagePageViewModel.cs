@@ -10,6 +10,7 @@ using Prism.Mvvm;
 using Prism.Commands;
 using System.Collections.ObjectModel;
 using System.Threading;
+using System.Windows.Input;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -33,7 +34,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 			if (!HohoemaApp.FollowManagerUpdater.IsOneOrMoreUpdateCompleted)
 			{
-				HohoemaApp.FollowManagerUpdater.ScheduleUpdate();
 				await HohoemaApp.FollowManagerUpdater.WaitUpdate();
 			}
 
@@ -92,7 +92,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public List<FavoriteItemViewModel> Items { get; set; }
 	}
 
-	public class FavoriteItemViewModel : BindableBase
+	public class FavoriteItemViewModel : HohoemaListingPageItemBase
 	{
 		
 		public FavoriteItemViewModel(FollowItemInfo feedList, PageManager pageManager)
@@ -106,7 +106,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		private DelegateCommand _SelectedCommand;
-		public DelegateCommand SelectedCommand
+		public override ICommand PrimaryCommand
 		{
 			get
 			{
@@ -117,16 +117,15 @@ namespace NicoPlayerHohoema.ViewModels
 						switch (ItemType)
 						{
 							case FollowItemType.Tag:
-								var param = new SearchPagePayload(
-									new TagSearchPagePayloadContent()
-									{
-										Keyword = this.SourceId,
-										Sort = Mntone.Nico2.Sort.FirstRetrieve,
-										Order = Mntone.Nico2.Order.Descending,
-									}
-									).ToParameterString();
+                                var param =
+                                    new TagSearchPagePayloadContent()
+                                    {
+                                        Keyword = this.SourceId,
+                                        Sort = Mntone.Nico2.Sort.FirstRetrieve,
+                                        Order = Mntone.Nico2.Order.Descending,
+                                    };
 
-								_PageManager.OpenPage(HohoemaPageType.Search, param);
+                                _PageManager.Search(param);
 								break;
 							case FollowItemType.Mylist:
 								_PageManager.OpenPage(HohoemaPageType.Mylist, this.SourceId);
@@ -144,7 +143,6 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		public string Title { get; set; }
 		public FollowItemType ItemType { get; set; }
 		public string SourceId { get; set; }
 

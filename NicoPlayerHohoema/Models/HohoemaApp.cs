@@ -15,6 +15,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Diagnostics;
+using Windows.Media.Playback;
+using Windows.Networking.Connectivity;
 using Windows.Storage;
 using Windows.System.Power;
 using Windows.UI.Core;
@@ -26,12 +28,12 @@ namespace NicoPlayerHohoema.Models
 	{
 		public static CoreDispatcher UIDispatcher { get; private set; }
 		
-		// v0.3.9 以前との互換性のために残しています
-		const string RECENT_LOGIN_ACCOUNT = "recent_login_account";
 
-		const string PRIMARY_ACCOUNT = "primary_account";
 
-		private static DateTime LastSyncRoamingData = DateTime.MinValue;
+        public const string PlaylistSaveFolderName = "Playlists";
+
+
+        private static DateTime LastSyncRoamingData = DateTime.MinValue;
 
 		public static async Task<HohoemaApp> Create(IEventAggregator ea)
 		{
@@ -39,10 +41,17 @@ namespace NicoPlayerHohoema.Models
 
 			var app = new HohoemaApp(ea);
 			app.MediaManager = await NiconicoMediaManager.Create(app);
+            
+            await app.LoadUserSettings();
+            await app.FeedManager.Initialize();
 
-			await app.LoadUserSettings();
+            var folder = ApplicationData.Current.LocalFolder;
+            var playlistFolder = await folder.CreateFolderAsync(PlaylistSaveFolderName, CreationCollisionOption.OpenIfExists);
+            app.Playlist = new HohoemaPlaylist(MediaPlayer, app.UserSettings.PlaylistSettings, playlistFolder);
 
-			app.RagistrationBackgroundUpdateHandle();
+            await app.Playlist.Load();
+
+            app.RagistrationBackgroundUpdateHandle();
 
 			return app;
 		}
@@ -53,51 +62,63 @@ namespace NicoPlayerHohoema.Models
 		private SemaphoreSlim _SigninLock;
 		private const string ThumbnailLoadBackgroundTaskId = "ThumbnailLoader";
 
-		private HohoemaApp(IEventAggregator ea)
+        public static MediaPlayer MediaPlayer { get; private set; } = new MediaPlayer()
+        {
+            AutoPlay = true,
+            AudioCategory = MediaPlayerAudioCategory.Movie,            
+        };
+
+        private HohoemaApp(IEventAggregator ea)
 		{
-			EventAggregator = ea;
+            EventAggregator = ea;
+            NiconicoContext = new NiconicoContext();
 			LoginUserId = uint.MaxValue;
 			LoggingChannel = new LoggingChannel("HohoemaLog", new LoggingChannelOptions(HohoemaLoggerGroupGuid));
 			UserSettings = new HohoemaUserSettings();
 			ContentFinder = new NiconicoContentFinder(this);
 			UserMylistManager = new UserMylistManager(this);
-			AppMapManager = new AppMapManager(this);
 			FeedManager = new FeedManager(this);
 
-			FollowManager = null;
+            FollowManager = null;
 
-			LoadRecentLoginAccount();
 			_SigninLock = new SemaphoreSlim(1, 1);
 
 			BackgroundUpdater = new BackgroundUpdater("HohoemaBG", UIDispatcher);
 
 			ApplicationData.Current.DataChanged += Current_DataChanged;
-		}
 
 
-		private void RagistrationBackgroundUpdateHandle()
+            UpdateServiceStatus();
+            NetworkInformation.NetworkStatusChanged += NetworkInformation_NetworkStatusChanged;
+
+            
+        }
+
+        private async void NetworkInformation_NetworkStatusChanged(object sender)
+        {
+            var isInternet = Util.InternetConnection.IsInternet();
+            if (isInternet)
+            {
+                await SignInWithPrimaryAccount();
+            }
+            else
+            {
+                await SignOut();
+            }
+        }
+
+        private void RagistrationBackgroundUpdateHandle()
 		{
-			// ホーム画面で表示するアプリマップ情報をリセット
-			AppMapManagerUpdater =
-				BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(
-					AppMapManager
-					, nameof(AppMapManager)
-					, priority: -1
-					, label: "ホーム画面情報"
-					);
+            // ホーム画面で表示するアプリマップ情報をリセット
+            //AppMapManagerUpdater =
 
-			// 非同期な初期化処理の遅延実行をスケジュール
-			FeedManagerUpdater = BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(
-				FeedManager,
-				"FeedManager",
-				label: "フィード"
-				);
+            // 非同期な初期化処理の遅延実行をスケジュール
+            MediaManagerUpdater = BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(
+                MediaManager,
+                "NicoMediaManager",
+                label: "キャッシュ"
+                );
 
-			MediaManagerUpdater = BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(
-				MediaManager,
-				"NicoMediaManager",
-				label: "キャッシュ"
-				);
 
 			MylistManagerUpdater = BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(
 				UserMylistManager,
@@ -105,159 +126,27 @@ namespace NicoPlayerHohoema.Models
 				label: "マイリスト一覧"
 				);
 
-		}
+            MediaManagerUpdater.ScheduleUpdate();
+        }
 
 
 		public async Task OnSuspending()
 		{
-			// 現在あるダウンロードタスクは必ず終了させる必要があります
-			if (MediaManager != null && MediaManager.Context != null)
-			{
-				await MediaManager?.Context?.Suspending();
-			}
-
-			await SyncToRoamingData();
+			
 		}
 
 
 		#region SignIn/Out 
 
 
-		public void LoadRecentLoginAccount()
-		{
-			var vault = new Windows.Security.Credentials.PasswordVault();
-
-			// v0.3.9 以前との互換性
-			if (ApplicationData.Current.LocalSettings.Containers.ContainsKey(RECENT_LOGIN_ACCOUNT))
-			{
-				var container = ApplicationData.Current.LocalSettings.Containers[RECENT_LOGIN_ACCOUNT];
-				var prop = container.Values.FirstOrDefault();
-
-				var id = prop.Key;
-				var password = prop.Value as string ?? "";
-
-				try
-				{
-					AddOrUpdateAccount(id, password);
-				}
-				catch { }
-
-				ApplicationData.Current.LocalSettings.DeleteContainer(RECENT_LOGIN_ACCOUNT);
-
-				SetPrimaryAccountId(id);
-			}
-
-			
-		}
-
-		public static void SetPrimaryAccountId(string mailAddress)
-		{
-			var container = ApplicationData.Current.LocalSettings.CreateContainer(PRIMARY_ACCOUNT, ApplicationDataCreateDisposition.Always);
-			container.Values["primary_id"] = mailAddress;
-		}
-
-		public static string GetPrimaryAccountId()
-		{
-			var container = ApplicationData.Current.LocalSettings.CreateContainer(PRIMARY_ACCOUNT, ApplicationDataCreateDisposition.Always);
-			return container.Values["primary_id"] as string;
-		}
-
-		public static bool HasPrimaryAccount()
-		{
-			var container = ApplicationData.Current.LocalSettings.CreateContainer(PRIMARY_ACCOUNT, ApplicationDataCreateDisposition.Always);
-			return container.Values["primary_id"] as string != null;
-		}
-
-		public static void AddOrUpdateAccount(string mailAddress, string password)
-		{
-			var id = mailAddress;
-			
-			if (String.IsNullOrWhiteSpace(mailAddress) || String.IsNullOrWhiteSpace(password))
-			{
-				throw new Exception();
-			}
-
-			var vault = new Windows.Security.Credentials.PasswordVault();
-			try
-			{
-				var credential = vault.Retrieve(nameof(HohoemaApp), id);
-				vault.Remove(credential);
-			}
-			catch
-			{
-			}
-
-			{
-				var credential = new Windows.Security.Credentials.PasswordCredential(nameof(HohoemaApp), id, password);
-				vault.Add(credential);
-			}
-		}
-
-		public static void RemoveAccount(string mailAddress)
-		{
-			var id = mailAddress;
-
-			if (String.IsNullOrWhiteSpace(mailAddress))
-			{
-				return;
-			}
-
-			var vault = new Windows.Security.Credentials.PasswordVault();
-			try
-			{
-				var credential = vault.Retrieve(nameof(HohoemaApp), id);
-				vault.Remove(credential);
-			}
-			catch
-			{
-			}
-		}
-
-
-		public static Tuple<string, string> GetPrimaryAccount()
-		{
-			if (HasPrimaryAccount())
-			{
-				var vault = new Windows.Security.Credentials.PasswordVault();
-				try
-				{
-					var primary_id = GetPrimaryAccountId();
-					var credential = vault.Retrieve(nameof(HohoemaApp), primary_id);
-					credential.RetrievePassword();
-					return new Tuple<string, string>(credential.UserName, credential.Password);
-				}
-				catch { }
-			}
-
-			return null;
-		}
-
-		public static List<string> GetAccountIds()
-		{
-			try
-			{
-				var vault = new Windows.Security.Credentials.PasswordVault();
-
-				var items = vault.FindAllByResource(nameof(HohoemaApp));
-
-				return items.Select(x => x.UserName)
-					.ToList();
-			}
-			catch
-			{
-				
-			}
-
-			return new List<string>();
-		}
-
+		
 
 		public async Task<StorageFolder> GetFeedSettingsFolder()
 		{
 			return await ApplicationData.Current.LocalFolder.CreateFolderAsync("feed", CreationCollisionOption.OpenIfExists);
 		}
 
-		public async Task LoadUserSettings()
+		private async Task LoadUserSettings()
 		{
 			var folder = ApplicationData.Current.LocalFolder;
 
@@ -265,105 +154,220 @@ namespace NicoPlayerHohoema.Models
 		}
 
 		private static AsyncLock _RoamingDataSyncLock = new AsyncLock();
-		private static string[] IgnoreSyncFolderNames = new[] 
+		
+        public static async Task PushToRoamingData(StorageFile file)
 		{
-			FeedManager.FeedStreamFolderName,
-			"error"
-		};
-		private static string[] IgnoreSyncExtentionNames = new string[] {  };
-		private static string[] IgnoreSyncFileNames = new[] 
-		{
-			"_sessionState.xml",
-			"History.db",
-			"NicoVideo.db",
-			"cache_requested.json"
-		};
-
-		public static async Task SyncToRoamingData()
-		{
-			var romingFolder = ApplicationData.Current.RoamingFolder;
+			var roamingFolder = ApplicationData.Current.RoamingFolder;
 			var folder = ApplicationData.Current.LocalFolder;
-			using (var releaser = await _RoamingDataSyncLock.LockAsync())
-			{
-				await SyncFolders(folder, romingFolder);
-			}
-		}
 
-		private static async Task SyncFolders(StorageFolder masterFolder, StorageFolder slaveFolder)
-		{
-			Debug.WriteLine($"{masterFolder.Name}のローカルとローミングデータの同期を開始");
+            using (var releaser = await _RoamingDataSyncLock.LockAsync())
+            {
+                // fileの相対的なパスをLocalFolder基準で取得
+                // LocalFolder外のアイテムは同期不可能
+                var filePath = file.Path;
+                if (filePath.StartsWith(folder.Path))
+                {
+                    filePath = filePath.Substring(folder.Path.Length + 1);
+                }
+                else
+                {
+                    throw new ArgumentException("file is not Local Folder item, cant sync to roaming folder.");
+                }
 
-			foreach (var file in await masterFolder.GetFilesAsync().AsTask().ConfigureAwait(false))
-			{
-				// 処理しない拡張子名をチェック
-				if (IgnoreSyncExtentionNames.Any(x => x == file.FileType))
-				{
-					Debug.WriteLine($"{file.Name} の処理をスキップ（スキップ理由：拡張子）");
-					continue;
-				}
+                // ローミングから同期情報を取得、無ければ新規作成
+                var syncInfoFileAccessor = new Util.FileAccessor<RoamingSyncInfo>(roamingFolder, "sync.json");
+                var syncInfo = await syncInfoFileAccessor.Load();
+                if (syncInfo == null)
+                {
+                    syncInfo = new RoamingSyncInfo();
 
-				// 処理しないファイル名をチェック
-				if (IgnoreSyncFileNames.Any(x => x == file.Name))
-				{
-					Debug.WriteLine($"{file.Name} の処理をスキップ（スキップ理由：ファイル名）");
-					continue;
-				}
+                    // 同期情報がなかった場合は、同期不要なファイルになるので全てお掃除
+                    var items = await roamingFolder.GetItemsAsync();
+                    foreach (var item in items)
+                    {
+                        await item.DeleteAsync();
+                    }
+                }
 
-				// 
-				var slaveItem = await slaveFolder.TryGetItemAsync(file.Name) as StorageFile;
-				if (slaveItem != null)
-				{
-					var fileProp = await file.GetBasicPropertiesAsync();
-					var slaveFileProp = await slaveItem.GetBasicPropertiesAsync();
-					if (fileProp.DateModified == slaveFileProp.DateModified)
-					{
-						Debug.WriteLine($"{file.Name} は更新されていません");
-						continue;
-					}
-					if (fileProp.DateModified > slaveFileProp.DateModified)
-					{
-						// マスター側のファイルをスレーブ側にコピー
-						Debug.WriteLine($"{file.Name} をローミングへコピー");
-						await file.CopyAndReplaceAsync(slaveItem);
-					}
-					else if (fileProp.DateModified < slaveFileProp.DateModified)
-					{
-						Debug.WriteLine($"{file.Name} をローカルへコピー");
-						await slaveItem.CopyAndReplaceAsync(file);
-					}
-				}
-				else
-				{
-					// マスター側のファイルをコピー
-					Debug.WriteLine($"{file.Name} をローミングへコピー");
-					await file.CopyAsync(slaveFolder);
-				}
-			}
+                // 同期情報にfileの情報を追加してローミングフォルダに保存
+                var fileProp = await file.GetBasicPropertiesAsync();
+                syncInfo.AddOrReplace(filePath, fileProp.DateModified.DateTime);
+                await syncInfoFileAccessor.Save(syncInfo);
 
 
-			// 子フォルダを再帰呼び出しで処理していく
-			foreach (var folder in await masterFolder.GetFoldersAsync())
-			{
-				// 処理しないフォルダ名のチェック
-				if (IgnoreSyncFolderNames.Any(x => x == folder.Name))
-				{
-					continue;
-				}
+                // ローミングフォルダにLocalFolderからfileまでの相対的なフォルダ構造を再現
+                var folderPathStack = filePath.Split('/', '\\').ToList();
+                var parentFolder = roamingFolder;
+                foreach (var folderName in folderPathStack.Take(folderPathStack.Count - 1 /* without file name */ ))
+                {
+                    parentFolder = await parentFolder.CreateFolderAsync(folderName, CreationCollisionOption.OpenIfExists);
+                }
 
-				var slaveItem = await slaveFolder.TryGetItemAsync(folder.Name) as StorageFolder;
-				if (slaveItem == null)
-				{
-					slaveItem = await slaveFolder.CreateFolderAsync(folder.Name);
-				}
+                // ローミングフォルダ側のファイルを作成
+                var fileName = Path.GetFileName(file.Path);
+                var roamingFile = await parentFolder.CreateFileAsync(fileName, CreationCollisionOption.OpenIfExists);
 
-				await SyncFolders(folder, slaveItem);
-			}
+                // ローミング側のファイルに元ファイルをコピー
+                await file.CopyAndReplaceAsync(roamingFile);
+            }
+        }
 
-			Debug.WriteLine($"{masterFolder.Name}のローカルとローミングデータの同期を完了");
-		}
+        public static async Task RoamingDataRemoved(StorageFile file)
+        {
+            if (file == null)
+            {
+                return;
+            }
+
+            var romingFolder = ApplicationData.Current.RoamingFolder;
+            var folder = ApplicationData.Current.LocalFolder;
+
+            using (var releaser = await _RoamingDataSyncLock.LockAsync())
+            {
+                // fileの相対的なパスをLocalFolder基準で取得
+                // LocalFolder外のアイテムは同期不可能
+                var filePath = file.Path;
+                if (filePath.StartsWith(folder.Path))
+                {
+                    filePath = filePath.Substring(folder.Path.Length - 1);
+                }
+                else
+                {
+                    return;
+                }
+
+                // ローミングから同期情報を取得、無ければ新規作成
+                var syncInfoFileAccessor = new Util.FileAccessor<RoamingSyncInfo>(romingFolder, "sync.json");
+                var syncInfo = await syncInfoFileAccessor.Load();
+                if (syncInfo == null)
+                {
+                    return;
+                }
+
+                // 同期情報にfileの情報を削除して保存
+                syncInfo.Remove(filePath);
+                await syncInfoFileAccessor.Save(syncInfo);
+            }
+        }
+
+        public static async Task PullRoamingData()
+        {
+            var roamingFolder = ApplicationData.Current.RoamingFolder;
+            var folder = ApplicationData.Current.LocalFolder;
+
+            using (var releaser = await _RoamingDataSyncLock.LockAsync())
+            {
+                var syncInfoFileAccessor = new Util.FileAccessor<RoamingSyncInfo>(roamingFolder, "sync.json");
+                var syncInfo = await syncInfoFileAccessor.Load();
+
+                if (syncInfo == null)
+                {
+                    // 同期情報がなかった場合は、同期不要なファイルになるので全てお掃除
+                    var items = await roamingFolder.GetItemsAsync();
+                    foreach (var item in items)
+                    {
+                        await item.DeleteAsync();
+                    }
+
+                    return;
+                }
+
+                List<FileSyncInfo> removeItems = new List<FileSyncInfo>();
+                foreach (var syncFileInfo in syncInfo.SyncInfoItems)
+                {
+                    if (false == await PullRoamingData(syncFileInfo))
+                    {
+                        removeItems.Add(syncFileInfo);
+                    }
+                }
+
+                if (removeItems.Count > 0)
+                {
+                    foreach (var removeItem in removeItems)
+                    {
+                        syncInfo.SyncInfoItems.Remove(removeItem);
+                    }
+
+                    await syncInfoFileAccessor.Save(syncInfo);
+                }
+            }
+        }
+
+        private static async Task<bool> PullRoamingData(FileSyncInfo info)
+        {
+            var romingFolder = ApplicationData.Current.RoamingFolder;
+            var folder = ApplicationData.Current.LocalFolder;
+
+            // ローカル側のファイルを取得
+            // LocalFolderからfileまでの相対的なフォルダ構造を再現
+            IStorageFile localFile = null;
+            bool isNotExistLocalFile = false;
+            {
+                var folderPathStack = info.RelativeFilePath.Split('/', '\\').ToList();
+                var parentFolder = folder;
+                foreach (var folderName in folderPathStack.Take(folderPathStack.Count - 1 /* without file name */ ))
+                {
+                    parentFolder = await parentFolder.CreateFolderAsync(folderName, CreationCollisionOption.OpenIfExists);
+                }
+
+                var fileName = folderPathStack.Last();
+                localFile = await parentFolder.TryGetItemAsync(fileName) as IStorageFile;
+                if (localFile == null)
+                {
+                    localFile = await parentFolder.CreateFileAsync(fileName);
+                    isNotExistLocalFile = true;
+                }
+
+                if (localFile == null)
+                {
+                    throw new Exception();
+                }
+            }
+
+            IStorageFile roamingFile = null;
+            {
+                var folderPathStack = info.RelativeFilePath.Split('/', '\\').ToList();
+                var parentFolder = romingFolder;
+                foreach (var folderName in folderPathStack.Take(folderPathStack.Count - 1 /* without file name */ ))
+                {
+                    parentFolder = await parentFolder.CreateFolderAsync(folderName, CreationCollisionOption.OpenIfExists);
+                }
+
+                var fileName = folderPathStack.Last();
+                roamingFile = await parentFolder.TryGetItemAsync(fileName) as IStorageFile;
+                if (roamingFile == null)
+                {
+                    Debug.WriteLine(info.RelativeFilePath + " はローミングフォルダに存在しません。");
+                    return false;
+                }
+            }
+
+            
+
+            if (isNotExistLocalFile)
+            {
+                await roamingFile.CopyAndReplaceAsync(localFile);
+
+                Debug.WriteLine(localFile.Path + "をローカルにコピー");
+            }
+            else
+            {
+                // ローカル側ファイルとinfo.UpdateAtを比較して
+                // ローカル側ファイルが古い場合
+                // ローミングファイルをローカル側ファイルに上書きコピー
+                var localProp = await localFile.GetBasicPropertiesAsync();
+                if (info.UpdateAt > localProp.DateModified)
+                {
+                    await roamingFile.CopyAndReplaceAsync(localFile);
+                    Debug.WriteLine(localFile.Path + "をローカルにコピー（上書き）");
+                }
+            }
+
+            return true;
+        }
 
 
-		static TimeSpan SyncIgnoreTimeSpan = TimeSpan.FromMinutes(3);
+        static TimeSpan SyncIgnoreTimeSpan = TimeSpan.FromMinutes(3);
 
 		private async void Current_DataChanged(ApplicationData sender, object args)
 		{
@@ -376,7 +380,9 @@ namespace NicoPlayerHohoema.Models
 			LastSyncRoamingData = DateTime.Now;
 
 			Debug.WriteLine("ローミングデータの同期：開始");
-			await SyncToRoamingData();
+
+            await PullRoamingData();
+
 			Debug.WriteLine("ローミングデータの同期：完了");
 
 			// ローカルフォルダを利用する機能を再初期化
@@ -384,11 +390,11 @@ namespace NicoPlayerHohoema.Models
 			{
 				await _SigninLock.WaitAsync();
 
-				await LoadUserSettings();
+//				await LoadUserSettings();
 				if (IsLoggedIn)
 				{
-					FeedManager = new FeedManager(this);
-					await FeedManager.Initialize();
+//					FeedManager = new FeedManager(this);
+//					await FeedManager.Initialize();
 				}
 			}
 			finally
@@ -434,7 +440,7 @@ namespace NicoPlayerHohoema.Models
 			string primaryAccount_id = null;
 			string primaryAccount_Password = null;
 
-			var account = GetPrimaryAccount();
+			var account = await AccountManager.GetPrimaryAccount();
 			if (account != null)
 			{
 				primaryAccount_id = account.Item1;
@@ -450,11 +456,34 @@ namespace NicoPlayerHohoema.Models
 			return await SignIn(primaryAccount_id, primaryAccount_Password);
 		}
 
-		/// <summary>
-		/// Appから呼び出します
-		/// 他の場所からは呼ばないようにしてください
-		/// </summary>
-		public void Resumed()
+
+        public async Task<bool> CanSignInWithPrimaryAccount()
+        {
+            string primaryAccount_id = null;
+            string primaryAccount_Password = null;
+
+            var account = await AccountManager.GetPrimaryAccount();
+            if (account != null)
+            {
+                primaryAccount_id = account.Item1;
+                primaryAccount_Password = account.Item2;
+            }
+
+            if (String.IsNullOrWhiteSpace(primaryAccount_id) || String.IsNullOrWhiteSpace(primaryAccount_Password))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Appから呼び出します
+        /// 他の場所からは呼ばないようにしてください
+        /// </summary>
+        public void Resumed()
 		{
 			OnResumed?.Invoke();
 		}
@@ -477,9 +506,16 @@ namespace NicoPlayerHohoema.Models
 		{
 			return AsyncInfo.Run<NiconicoSignInStatus>(async (cancelToken) => 
 			{
-				if (NiconicoContext != null 
-				&& NiconicoContext.AuthenticationToken.MailOrTelephone == mailOrTelephone 
-				&& NiconicoContext.AuthenticationToken.Password == password)
+                if (!Util.InternetConnection.IsInternet())
+                {
+                    NiconicoContext?.Dispose();
+                    NiconicoContext = new NiconicoContext();
+                    return NiconicoSignInStatus.Failed;
+                }
+
+                if (NiconicoContext != null 
+				    && NiconicoContext.AuthenticationToken?.MailOrTelephone == mailOrTelephone 
+				    && NiconicoContext.AuthenticationToken?.Password == password)
 				{
 					return NiconicoSignInStatus.Success;
 				}
@@ -489,6 +525,8 @@ namespace NicoPlayerHohoema.Models
 				try
 				{
 					await _SigninLock.WaitAsync();
+
+                    
 
 					var context = new NiconicoContext(new NiconicoAuthenticationToken(mailOrTelephone, password));
 
@@ -506,14 +544,16 @@ namespace NicoPlayerHohoema.Models
 					catch
 					{
 						LoginErrorText = "サインインに失敗、再起動をお試しください";
-						context?.Dispose();
 					}
 
-					if (result == NiconicoSignInStatus.Success)
+                    UpdateServiceStatus();
+
+                    NiconicoContext = context;
+
+                    if (result == NiconicoSignInStatus.Success)
 					{
 						Debug.WriteLine("login success");
 
-						NiconicoContext = context;
 
 						using (var loginActivityLogger = LoggingChannel.StartActivity("login process"))
 						{
@@ -531,18 +571,16 @@ namespace NicoPlayerHohoema.Models
 								LoginUserId = userInfo.Id;
 								IsPremiumUser = userInfo.IsPremium;
 
-
-								if (!string.IsNullOrEmpty(userInfo.Name))
-								{
-									LoginUserName = userInfo.Name;
-								}
-								else
 								{
 									try
 									{
-										var user = await NiconicoContext.User.GetUserAsync(LoginUserId.ToString());
+										var user = await NiconicoContext.User.GetUserDetail(LoginUserId.ToString());
 										LoginUserName = user.Nickname;
-									}
+                                        UserIconUrl = user.ThumbnailUri;
+
+                                        OnPropertyChanged(nameof(LoginUserName));
+                                        OnPropertyChanged(nameof(UserIconUrl));
+                                    }
 									catch (Exception ex)
 									{
 										throw new Exception("ユーザー名取得のフォールバック処理に失敗 + " + LoginUserId, ex);
@@ -563,9 +601,9 @@ namespace NicoPlayerHohoema.Models
 								loginActivityLogger.LogEvent(LoginErrorText, fields, LoggingLevel.Warning);
 
 								NiconicoContext.Dispose();
-								NiconicoContext = null;
+                                NiconicoContext = new NiconicoContext();
 
-								return NiconicoSignInStatus.Failed;
+                                return NiconicoSignInStatus.Failed;
 							}
 
 							fields.Clear();
@@ -601,8 +639,8 @@ namespace NicoPlayerHohoema.Models
 								Debug.WriteLine(LoginErrorText);
 								loginActivityLogger.LogEvent(LoginErrorText, fields, LoggingLevel.Error);
 								NiconicoContext.Dispose();
-								NiconicoContext = null;
-								return NiconicoSignInStatus.Failed;
+                                NiconicoContext = new NiconicoContext();
+                                return NiconicoSignInStatus.Failed;
 							}
 
 							FollowManagerUpdater = BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(
@@ -616,8 +654,11 @@ namespace NicoPlayerHohoema.Models
 							loginActivityLogger.LogEvent("[Success]: Login done");
 						}
 
+                        // アプリのサービス状態をログイン済みに更新
+                        UpdateServiceStatus(isLoggedIn: true);
+
                         // BG更新をスケジュール
-						UpdateAllComponent();
+                        UpdateAllComponent();
 
 						// 動画のキャッシュフォルダの選択状態をチェック
 						await (App.Current as App).CheckVideoCacheFolderState();
@@ -626,14 +667,20 @@ namespace NicoPlayerHohoema.Models
 						// サインイン完了
 						OnSignin?.Invoke();
 
-						// 途中だった動画のダウンロードを再開
-						await MediaManager.Context.StartBackgroundDownload();
-					}
+						// TODO: 途中だった動画のダウンロードを再開
+						// await MediaManager.StartBackgroundDownload();
+
+                        
+
+                        // ニコニコサービスの裏で取得させたいので強制的に待ちを挟む
+                        await Task.Delay(1000);
+                    }
 					else
 					{
 						Debug.WriteLine("login failed");
-						context?.Dispose();
-					}
+                        NiconicoContext?.Dispose();
+                        NiconicoContext = null;
+                    }
 
 					return result;
 				}
@@ -650,8 +697,6 @@ namespace NicoPlayerHohoema.Models
 		{
             FollowManagerUpdater.ScheduleUpdate();
             MylistManagerUpdater.ScheduleUpdate();
-            FeedManagerUpdater.ScheduleUpdate();
-            MediaManagerUpdater.ScheduleUpdate();
 		}
 
 
@@ -672,31 +717,32 @@ namespace NicoPlayerHohoema.Models
 				// 全てのバックグラウンド処理をキャンセル
 				BackgroundUpdater.CancelAll();
 
-				try
-				{
-					if (MediaManager != null && MediaManager.Context != null)
-					{
-						await MediaManager.Context.Suspending();
-					}
+                
+                try
+                {
+                    MediaManager.StopCacheDownload();
 				}
 				catch { }
 
 				try
 				{
-					result = await NiconicoContext.SignOutOffAsync();
+                    if (Util.InternetConnection.IsInternet())
+                    {
+                        result = await NiconicoContext.SignOutOffAsync();
+                    }
+                    else
+                    {
+                        result = NiconicoSignInStatus.Success;
+                    }
 
-					NiconicoContext.Dispose();
+                    NiconicoContext.Dispose();
 				}
 				finally
 				{
-					NiconicoContext = null;
+                    NiconicoContext = new NiconicoContext();
+
 					FollowManager = null;
 					LoginUserId = uint.MaxValue;
-
-					// TODO: BackgroundUpdateのキャンセル
-
-					FollowManager = null;
-					FeedManager = null;
 
 
 					OnSignout?.Invoke();
@@ -707,14 +753,32 @@ namespace NicoPlayerHohoema.Models
 			finally
 			{
 				_SigninLock.Release();
-			}
+
+                UpdateServiceStatus();
+            }
 		}
 
-		public async Task<NiconicoSignInStatus> CheckSignedInStatus()
+        private void UpdateServiceStatus(bool isLoggedIn = false)
+        {
+            if (isLoggedIn)
+            {
+                ServiceStatus = HohoemaAppServiceLevel.LoggedIn;
+            }
+            else
+            {
+                ServiceStatus = Util.InternetConnection.IsInternet() ? HohoemaAppServiceLevel.OnlineWithoutLoggedIn : HohoemaAppServiceLevel.Offline;
+            }
+
+            OnPropertyChanged(nameof(IsLoggedIn));
+        }
+
+        public async Task<NiconicoSignInStatus> CheckSignedInStatus()
 		{
 			if (!Util.InternetConnection.IsInternet())
 			{
-				return NiconicoSignInStatus.Failed;
+                ServiceStatus = HohoemaAppServiceLevel.Offline;
+
+                return NiconicoSignInStatus.Failed;
 			}
 
 			try
@@ -765,16 +829,13 @@ StorageFolder _DownloadFolder;
 		{
 			if (_DownloadFolder?.Path != newVideoFolder.Path)
 			{
-				// フォルダーの移行作業を開始
+                // フォルダーの移行作業を開始
 
-				// 現在あるダウンロードタスクは必ず終了させる必要があります
-				if (MediaManager != null && MediaManager.Context != null)
-				{
-					await MediaManager?.Context?.Suspending();
-				}
+                // 現在あるダウンロードタスクは必ず終了させる必要があります
+                MediaManager?.StopCacheDownload();
 
-				// v0.4.0以降の移行処理
-				if (_DownloadFolder != null)
+                // v0.4.0以降の移行処理
+                if (_DownloadFolder != null)
 				{
 					await MoveFiles(_DownloadFolder, newVideoFolder);
 				}
@@ -880,10 +941,8 @@ StorageFolder _DownloadFolder;
 		
 		public async Task<bool> ChangeUserDataFolder()
 		{
-			if (MediaManager != null && MediaManager.Context != null)
-			{
-				await MediaManager.Context.Suspending();
-			}
+            MediaManager.StopCacheDownload();
+
 
 			try
 			{
@@ -930,7 +989,7 @@ StorageFolder _DownloadFolder;
 			{
 				try
 				{
-					if (MediaManager != null && MediaManager.Context != null)
+					if (MediaManager != null)
 					{
 						await MediaManager.OnCacheFolderChanged();
 					}
@@ -1139,16 +1198,16 @@ StorageFolder _DownloadFolder;
 		{
 			get
 			{
-				return LoginUserId != uint.MaxValue;
+				return ServiceStatus == HohoemaAppServiceLevel.LoggedIn;
 			}
 		}
 
-
-		public HohoemaUserSettings UserSettings { get; private set; }
+        public HohoemaUserSettings UserSettings { get; private set; }
 
 		public uint LoginUserId { get; private set; }
 		public bool IsPremiumUser { get; private set; }
 		public string LoginUserName { get; private set; }
+        public string UserIconUrl { get; private set; }
 
 		private NiconicoContext _NiconicoContext;
 		public NiconicoContext NiconicoContext
@@ -1175,9 +1234,17 @@ StorageFolder _DownloadFolder;
 			set { SetProperty(ref _FeedManager, value); }
 		}
 
-		public UserMylistManager UserMylistManager { get; private set; }
+        private HohoemaAppServiceLevel _ServiceStatus;
+        public HohoemaAppServiceLevel ServiceStatus
+        {
+            get { return _ServiceStatus; }
+            set { SetProperty(ref _ServiceStatus, value); }
+        }
 
-		public AppMapManager AppMapManager { get; private set; }
+
+        public HohoemaPlaylist Playlist { get; private set; }
+
+        public UserMylistManager UserMylistManager { get; private set; }
 
 
 
@@ -1188,7 +1255,6 @@ StorageFolder _DownloadFolder;
 
 		public BackgroundUpdater BackgroundUpdater { get; private set; }
 
-		public BackgroundUpdateScheduleHandler AppMapManagerUpdater { get; private set; }
 		public BackgroundUpdateScheduleHandler MylistManagerUpdater { get; private set; }
 		public BackgroundUpdateScheduleHandler FeedManagerUpdater { get; private set; }
 		public BackgroundUpdateScheduleHandler FollowManagerUpdater { get; private set; }

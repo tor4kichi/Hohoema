@@ -131,7 +131,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public HistoryVideoInfoControlViewModel(uint viewCount, NicoVideo nicoVideo, PageManager pageManager)
 			: base(nicoVideo, pageManager)
 		{
-			UserViewCount = viewCount;
+            UserViewCount = viewCount;
 		}
 
 
@@ -173,6 +173,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public Task<int> ResetSource()
 		{
+            if (_HistoriesResponse == null) { return Task.FromResult(0); }
+
 			return Task.FromResult(_HistoriesResponse.Histories.Count);
 		}
 
@@ -190,8 +192,8 @@ namespace NicoPlayerHohoema.ViewModels
 					);
 
 				vm.LastWatchedAt = history.WatchedAt.DateTime;
-				vm.MovieLength = history.Length;
-				vm.ThumbnailImageUrl = history.ThumbnailUrl.AbsoluteUri;
+//				vm.Lengt = history.Length;
+//				vm.image = history.ThumbnailUrl.AbsoluteUri;
 
 				list.Add(vm);
 			}

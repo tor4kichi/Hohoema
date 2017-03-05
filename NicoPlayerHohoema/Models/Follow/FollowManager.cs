@@ -75,34 +75,30 @@ namespace NicoPlayerHohoema.Models
 
 		HohoemaApp _HohoemaApp;
 
-		#endregion
+        public event BackgroundUpdateCompletedEventHandler Completed;
 
-		internal FollowManager(HohoemaApp hohoemaApp, uint userId)
+        #endregion
+
+        internal FollowManager(HohoemaApp hohoemaApp, uint userId)
 		{
 			_HohoemaApp = hohoemaApp;
 			UserId = userId;
-		}
+
+            Tag = new TagFollowInfoGroup(_HohoemaApp);
+            Mylist = new MylistFollowInfoGroup(_HohoemaApp);
+            User = new UserFollowInfoGroup(_HohoemaApp);
+            Community = new CommunityFollowInfoGroup(_HohoemaApp);
+        }
 
 
-		#region interface IBackgroundUpdateable
+        #region interface IBackgroundUpdateable
 
-		public IAsyncAction BackgroundUpdate(CoreDispatcher uiDispatcher)
+        public IAsyncAction BackgroundUpdate(CoreDispatcher uiDispatcher)
 		{
-			return AsyncInfo.Run(Initialize);
+			return AsyncInfo.Run(SyncAll);
 		}
 
 		#endregion
-
-
-		private async Task Initialize(CancellationToken cancelToken)
-		{
-			Tag = new TagFollowInfoGroup(_HohoemaApp);
-			Mylist = new MylistFollowInfoGroup(_HohoemaApp);
-			User = new UserFollowInfoGroup(_HohoemaApp);
-			Community = new CommunityFollowInfoGroup(_HohoemaApp);
-
-			await SyncAll(cancelToken);
-		}
 
 		private IFollowInfoGroup GetFollowInfoGroup(FollowItemType itemType)
 		{
@@ -155,10 +151,12 @@ namespace NicoPlayerHohoema.Models
 
 				await Task.Delay(100);
 			}
-		}
+
+            Completed?.Invoke(this);
+        }
 
 
-		public Task Sync(FollowItemType itemType)
+        public Task Sync(FollowItemType itemType)
 		{
 			switch (itemType)
 			{

@@ -7,12 +7,21 @@
     xmlns:conv="using:WinRTXamlToolkit.Converters"
     xmlns:myconv="using:NicoPlayerHohoema.Views.Converters"
     xmlns:view="using:NicoPlayerHohoema.Views"
+    xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:logicalModifier="using:AdaptiveTriggerLibrary.ConditionModifiers.LogicalModifiers"
+    xmlns:compareModifier="using:AdaptiveTriggerLibrary.ConditionModifiers.ComparableModifiers"
     >
 
     <prism:PrismUnityApplication.Resources>
        
         <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Styles/DefaultStyle.xaml"/>
+                <ResourceDictionary Source="Styles/VideoProgressBarStyle.xaml"/>
+                
+                <ResourceDictionary Source="Views/Controls/FloatContentContainer/FloatContentContainer.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            
             <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
             <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibilityInverted"
                                            IsInversed="True"
@@ -21,25 +30,44 @@
             <myconv:TimeSpanToMovieLengthStringValueConverter x:Key="TimeToMovieLengthConverter" />
             <myconv:InvertBooleanConverter x:Key="InvertBoolean" />
 
+            <myconv:InvertVisibilityConverter x:Key="InvertVisibility" />
+
             <myconv:SoundVolumeConveter x:Key="ToUserFriendlySoubleVolume" />
 
-            <myconv:CursorConverter x:Key="ToCoreCursor" />
+            <myconv:CacheStateToColorBrushConverter x:Key="CacheStateToColorBrush" />
 
             <myconv:VideoPositionToTimeConverter x:Key="VPosToTime" />
             <myconv:ToUserFriendlyNumber x:Key="ToUserFriendlyNumber" />
             <myconv:RelationalDateTimeConverter x:Key="ToRelationalTime" />
+            <myconv:NicoVideoQualityToCultualizedTextConverter x:Key="QualityToText" />
 
+            <myconv:TransparentColorConverter x:Key="ToTransparentColor" />
 
             <!-- Logical Modifier-->
             <logicalModifier:AndModifier x:Key="AndModifier" />
             <logicalModifier:OrModifier x:Key="OrModifier" />
             <logicalModifier:XORModifier x:Key="XORModifier" />
 
+            <compareModifier:EqualToModifier x:Key="EqualToModifier" />
+            <compareModifier:NotEqualToModifier x:Key="NotEqualToModifier" />
+            <compareModifier:GreaterThanEqualToModifier x:Key="GreaterThanEqualToModifier" />
+            <compareModifier:GreaterThanModifier x:Key="GreaterThanModifier" />
+            <compareModifier:LessThanEqualToModifier x:Key="LessThanEqualToModifier" />
+            <compareModifier:LessThanModifier x:Key="LessThanModifier" />
+
+
+            
+            <controls:VideoListItemFlyout x:Key="VideoListItemFlyout" />
+
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Dark">
                     <Color x:Key="SystemBaseHighColor">#CEFFFFFF</Color>
+                    <Color x:Key="ApplicationPageBackgroundThemeBrush">#FF191919</Color>
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
+
+
+
         </ResourceDictionary>
     </prism:PrismUnityApplication.Resources>
 

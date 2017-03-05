@@ -33,7 +33,7 @@ namespace NicoPlayerHohoema.ViewModels
 		private TextInputDialogService _TextInputDialogService;
 
 		public FeedGroupManagePageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, TextInputDialogService textInputDialog) 
-			: base(hohoemaApp, pageManager, isRequireSignIn:true)
+			: base(hohoemaApp, pageManager)
 		{
 			_TextInputDialogService = textInputDialog;
 
@@ -88,11 +88,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			if (!HohoemaApp.FeedManagerUpdater.IsOneOrMoreUpdateCompleted)
-			{
-				HohoemaApp.FeedManagerUpdater.ScheduleUpdate();
-				await HohoemaApp.FeedManagerUpdater.WaitUpdate();
-			}
+			
 
 			var items = HohoemaApp.FeedManager.FeedGroups
 				.Select(x => new FeedGroupListItem(x, PageManager))
@@ -155,15 +151,23 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		private DelegateCommand _RemoveFeedGroupCommand;
-		public DelegateCommand RemoveFeedGroupCommand
+		private DelegateCommand<FeedGroupListItem> _RemoveFeedGroupCommand;
+		public DelegateCommand<FeedGroupListItem> RemoveFeedGroupCommand
 		{
 			get
 			{
 				return _RemoveFeedGroupCommand
-					?? (_RemoveFeedGroupCommand = new DelegateCommand(() =>
+					?? (_RemoveFeedGroupCommand = new DelegateCommand<FeedGroupListItem>(async (feedGroupVM) =>
 					{
-						RefreshAllFeedGroupCommand.RaiseCanExecuteChanged();
+                        var result = await HohoemaApp.FeedManager.RemoveFeedGroup(feedGroupVM.FeedGroup);
+                        if (result)
+                        {
+                            var removeItem = FeedGroupItems.FirstOrDefault(x => x.FeedGroup.Id == feedGroupVM.FeedGroup.Id);
+                            if (removeItem != null)
+                            {
+                                FeedGroupItems.Remove(removeItem);
+                            }
+                        }
 					}));
 			}
 		}
@@ -205,13 +209,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		
-		public string Label { get; private set; }
-
-		public int UnreadItemCount { get; private set; }
-
 		public List<FeedItemSourceViewModel> SourceItems { get; private set; }
 
-		public ReactiveProperty<DateTime> LastUpdate { get; private set; }
 		public ReactiveProperty<bool> NowUpdate { get; private set; }
 
 		public FeedGroupListItem(IFeedGroup feedGroup, PageManager pageManager)
@@ -219,8 +218,8 @@ namespace NicoPlayerHohoema.ViewModels
 			FeedGroup = feedGroup;
 			_PageManager = pageManager;
 
-			Label = feedGroup.Label;
-			UnreadItemCount = feedGroup.GetUnreadItemCount();
+			Title = feedGroup.Label;
+            Description = feedGroup.GetUnreadItemCount().ToString();
 			SourceItems = FeedGroup.FeedSourceList
 				.Select(x => new FeedItemSourceViewModel()
 				{
@@ -228,12 +227,12 @@ namespace NicoPlayerHohoema.ViewModels
 					ItemType = x.FollowItemType
 				})
 				.ToList();
-			LastUpdate = new ReactiveProperty<DateTime>(FeedGroup.UpdateTime);
+            OptionText = FeedGroup.UpdateTime.ToString();
 			NowUpdate = new ReactiveProperty<bool>(false);
 		}
 
 		private DelegateCommand _SelectedCommand;
-		public override ICommand SelectedCommand
+        public override ICommand PrimaryCommand
 		{
 			get
 			{
@@ -259,13 +258,44 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		public override void Dispose()
-		{
-			
-		}
+        private DelegateCommand _UpdateCommand;
+        public DelegateCommand UpdateCommand
+        {
+            get
+            {
+                return _UpdateCommand
+                    ?? (_UpdateCommand = new DelegateCommand(async () =>
+                    {
+                        UpdateStarted();
+                        try
+                        {
+                            await FeedGroup.Refresh();
+                        }
+                        finally
+                        {
+                            UpdateCompleted();
+                        }
+                    }));
+            }
+        }
 
 
-		public void UpdateStarted()
+        private DelegateCommand _OpenEditCommand;
+        public DelegateCommand OpenEditCommand
+        {
+            get
+            {
+                return _OpenEditCommand
+                    ?? (_OpenEditCommand = new DelegateCommand(() =>
+                    {
+                        _PageManager.OpenPage(HohoemaPageType.FeedGroup, FeedGroup.Id);
+                    }));
+            }
+        }
+
+
+        
+        public void UpdateStarted()
 		{
 			NowUpdate.Value = true;
 		}
@@ -273,9 +303,8 @@ namespace NicoPlayerHohoema.ViewModels
 		public void UpdateCompleted()
 		{
 			NowUpdate.Value = false;
-			UnreadItemCount = FeedGroup.GetUnreadItemCount();
-			OnPropertyChanged(nameof(UnreadItemCount));
-			LastUpdate.Value = FeedGroup.UpdateTime;
+            Description = FeedGroup.GetUnreadItemCount().ToString();
+            OptionText = FeedGroup.UpdateTime.ToString();
 		}
 	}
 

@@ -11,189 +11,157 @@
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:behavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:uwpUI="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:mycontrol="using:NicoPlayerHohoema.Views.Controls"
     mc:Ignorable="d"
     d:DesignHeight="60"
     d:DesignWidth="400">
 
+    <UserControl.Resources>
+        <DataTemplate x:Key="QualityVideoTemplate">
+            <!-- 画質ごとのキャッシュ状態を表示 
+                            
+            キャッシュリクエストされていない -> 非表示
+            キャッシュ待機中 -> 灰色
+            キャッシュDL中 -> 青色
+            キャッシュ済み -> 緑色
+                            
+            -->
+            <Border>
+                <TextBlock Text="{Binding Quality}"
+                            Visibility="{Binding IsNotCacheRequested.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                           Foreground="{Binding CacheState.Value, Converter={StaticResource CacheStateToColorBrush}}"
+                            FontSize="13"
+                            Margin="0 0"
+                            VerticalAlignment="Center"
+                            x:Name="QualityText"
+                            >
+                </TextBlock>
+            </Border>
+        </DataTemplate>
+    </UserControl.Resources>
     <Grid>
 
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsForceDisplayNGVideo}" />
+                        <StateTrigger IsActive="{Binding IsRequireConfirmDelete.Value}" />
                     </VisualState.StateTriggers>
 
                     <VisualState.Setters>
-                        <Setter Target="NGVideoShutoutWall.Visibility" Value="Collapsed" />
-                        <Setter Target="VideoInfo.Visibility" Value="Visible" />
-                        <Setter Target="VideoInfo.IsHitTestVisible" Value="True" />
-                    </VisualState.Setters>
-                </VisualState>
-
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsNotGoodVideo}" />
-                    </VisualState.StateTriggers>
-
-                    <VisualState.Setters>
-                        <Setter Target="NGVideoShutoutWall.Visibility" Value="Visible" />
-                        <Setter Target="VideoInfo.Visibility" Value="Collapsed" />
-                        <Setter Target="VideoInfo.IsHitTestVisible" Value="False" />
+                        <Setter Target="DeletedPanel.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-
-
         
         
-        
-        <toolkit:DockPanel x:Name="VideoInfo" IsHitTestVisible="True" Background="Transparent">
+        <toolkit:DockPanel>
+            
 
-            <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left" Width="8"
-                        ToolTipService.ToolTip="青=通常画質保存済み / 緑=低画質保存済み / 赤=削除確認が必要"
-                        >
-                <Border BorderThickness="4 0 0 0" BorderBrush="Blue" 
-                        Visibility="{Binding IsOriginalQualityCached.Value, Converter={StaticResource BooleanToVisibility}}"
-                        />
-                <Border BorderThickness="2 0 2 0" BorderBrush="Green" 
-                        Width="6"
-                        Visibility="{Binding IsLowQualityCached.Value, Converter={StaticResource BooleanToVisibility}}"
-                        />
+            <Border toolkit:DockPanel.Dock="Bottom" >
 
-            </StackPanel>
+                <ItemsControl ItemsSource="{Binding QualityDividedVideos}"
+                              HorizontalContentAlignment="Stretch"
+                              IsTabStop="False"
+                              >
 
-            <Grid Height="60" Width="100" toolkit:DockPanel.Dock="Left">
-
-
-                <uwpUI:ImageEx  Source="{Binding ThumbnailImageUrl}"
-                                IsCacheEnabled="True"
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <!-- 画質ごとのキャッシュ状態を表示 
+                            
+                            キャッシュリクエストされていない -> 非表示
+                            キャッシュ待機中 -> 灰色
+                            キャッシュDL中 -> 青色
+                            キャッシュ済み -> 緑色
+                            
+                            -->
+                            <toolkit:DockPanel Visibility="{Binding IsCacheDownloading.Value, Converter={StaticResource BooleanToVisibility}}"
+                               Margin="8 4"
+                               >
+                                <TextBlock toolkit:DockPanel.Dock="Left" 
+                                           Margin="8 0"
+                                           FontSize="12"
+                                           VerticalAlignment="Center"
+                                                >
+                                    <Run Text="{Binding Quality}" />
+                                </TextBlock>
                                 
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                                Stretch="UniformToFill"
-                                VerticalContentAlignment="Center"
-                                HorizontalContentAlignment="Center"
-                   ></uwpUI:ImageEx>
+                                <TextBlock toolkit:DockPanel.Dock="Right" 
+                                           Margin="8 0 0 0"
+                                           FontSize="12"
+                                           VerticalAlignment="Center"
+                                                >
+                                    <Run Text="{Binding ProgressPercent.Value}" />
+                                    <Run Text="%" />
+                                </TextBlock>
+                                
+                                
+                                <ProgressBar Maximum="100.0" 
+                                     Minimum="0.0" 
+                                     Value="{Binding ProgressPercent.Value}"
+                                     />
 
-                <Border Background="#AA000000"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Bottom"
-                    >
-                    <TextBlock Text="{Binding MovieLength, Converter={StaticResource TimeToMovieLengthConverter}}"
-                       Foreground="White"
-                           FontSize="14"
-                           Margin="4 1 3 1"
-                           VerticalAlignment="Center"
-                           HorizontalAlignment="Center"
-                       />
-                </Border>
 
-                <!-- NGVideoのときだけ表示するボタン -->
-                <Button Content="NG"
-                        Command="{Binding StopNGVideoDisplayCommand}" 
-                        Visibility="{Binding IsNotGoodVideo, Converter={StaticResource BooleanToVisibility}}"
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Stretch"
-                    />
+                            </toolkit:DockPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                
+            </Border>
+
+            <Grid >
+
+                <ItemsControl ItemsSource="{Binding QualityDividedVideos}"
+                              ItemTemplate="{StaticResource QualityVideoTemplate}"
+                              HorizontalAlignment="Right"
+                              VerticalAlignment="Bottom"
+                              IsTabStop="False"
+                              >
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+
+
+                <mycontrol:HohoemaListItem />
 
             </Grid>
 
-
-            <toolkit:DockPanel Margin="8 0 0 0" >
-
-                <!-- post at -->
-                <Border toolkit:DockPanel.Dock="Top" Margin="0 0 0 0">
-                    <TextBlock Foreground="Gray" FontSize="12">
-                        <Run Text="{Binding PostAt}" />
-                        <Run Text="投稿" />
-                    </TextBlock>
-                </Border>
-
-                
-
-               
-
-                <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Bottom">
-                    <TextBlock Margin="0 0 8 0" Foreground="Gray" FontSize="12">
-                        <Run Text="再生" />
-                        <Run Text="{Binding ViewCount, Converter={StaticResource ToUserFriendlyNumber}}" />
-                    </TextBlock>
-                    <TextBlock Margin="0 0 8 0" Foreground="Gray" FontSize="12">
-                        <Run Text="コメ" />
-                        <Run Text="{Binding CommentCount, Converter={StaticResource ToUserFriendlyNumber}}" />
-                    </TextBlock>
-                    <TextBlock Margin="0 0 8 0" Foreground="Gray" FontSize="12">
-                        <Run Text="マイ" />
-                        <Run Text="{Binding MylistCount, Converter={StaticResource ToUserFriendlyNumber}}" />
-                    </TextBlock>
-                </StackPanel>
-
-
-                <TextBlock Text="{Binding Title}" 
-                           FontSize="16"
-                           TextWrapping="Wrap"
-                           VerticalAlignment="Center"
-                           Margin="0 0 0 2"
-                       />
-                
-            </toolkit:DockPanel>
+            
         </toolkit:DockPanel>
 
 
-        <Grid Visibility="{Binding IsDeleted, Converter={StaticResource BooleanToVisibility}}"
-              Background="#60ffffff"
-              >
-            <SymbolIcon Symbol="Delete"
-                        HorizontalAlignment="Left"
-                        Margin="32 0 0 0"
-                        Width="48"
-                        Height="48"
-                        />
 
-        </Grid>
-
-
-        <Grid x:Name="NGVideoShutoutWall"
-            Background="#01000000"
-              Visibility="Collapsed"
-              >
-
-            <Button Content="NGを一時的に解除"
-                        Command="{Binding ForceDisplayNGVideoCommand}" 
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Stretch"
-                        Foreground="Gray"                        
-                        Margin="16 0 0 0"
-                    />
+        <!-- 削除済み動画 -->
+        <Grid x:Name="DeletedPanel" Background="#60ffffff" Visibility="Collapsed">
             
-            <toolkit:DockPanel HorizontalAlignment="Center"
-                               VerticalAlignment="Center">
-                <TextBlock Text="NG"
-                           FontSize="32"
-                           toolkit:DockPanel.Dock="Left"
-                           VerticalAlignment="Center"
-                           Foreground="Gray"
-                           Margin="16 0"
-                           />
+            <!-- キャッシュリクエストしていない、または削除確認済み -->
+            <StackPanel VerticalAlignment="Center" Visibility="{Binding IsCacheRequested.Value, Converter={StaticResource BooleanToVisibility}}">
 
-                
-                
-                <TextBlock HorizontalAlignment="Center"
-                           Foreground="Gray"
-                           VerticalAlignment="Center"
-                           >
-                    <Run Text="{Binding NGVideoReason}" />
-                </TextBlock>
+            </StackPanel>
 
-                
+            <!-- キャッシュ済み、ユーザー削除未確認 -->
+            <StackPanel VerticalAlignment="Center" Visibility="{Binding IsCacheRequested.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
 
-            </toolkit:DockPanel>
+                <TextBlock Text="削除理由" HorizontalAlignment="Center" FontSize="13"/>
+                <TextBlock Text="{Binding PrivateReasonText}" HorizontalAlignment="Center" Margin="0 8" />
+
+                <Button Content="削除確認" 
+                                Command="{Binding ConfirmDeleteCommand}"
+                                VerticalAlignment="Center"
+                                Margin="8"
+                                >
+                </Button>
+            </StackPanel>
         </Grid>
 
+        
 
     </Grid>
-
+    
     
 </UserControl>

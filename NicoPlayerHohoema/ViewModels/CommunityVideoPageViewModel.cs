@@ -35,7 +35,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		public CommunityVideoPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
-			: base(hohoemaApp, pageManager, isRequireSignIn: true)
+			: base(hohoemaApp, pageManager)
 		{
 		}
 
@@ -178,7 +178,7 @@ namespace NicoPlayerHohoema.ViewModels
 			var videos = new List<CommunityVideoInfoControlViewModel>();
 			foreach (var item in Items.Skip(start).Take(count))
 			{
-				videos.Add(new CommunityVideoInfoControlViewModel(item, _PageManager));
+				videos.Add(new CommunityVideoInfoControlViewModel(item, HohoemaApp.Playlist));
 			}
 
 			return videos.AsEnumerable();
@@ -191,42 +191,33 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class CommunityVideoInfoControlViewModel : HohoemaListingPageItemBase
 	{
-		public PageManager PageManager { get; private set; }
+        public HohoemaPlaylist Playlist { get; private set; }
 		public NiconicoVideoRssItem RssItem { get; private set; }
 
 
 		public string Title => RssItem.Title;
 		public string VideoId => RssItem.GetVideoId();
 
-		public CommunityVideoInfoControlViewModel(NiconicoVideoRssItem rssItem, PageManager pageManager)
+		public CommunityVideoInfoControlViewModel(NiconicoVideoRssItem rssItem, HohoemaPlaylist playlist)
 			: base()
 		{
-			PageManager = pageManager;
+            Playlist = playlist;
 			RssItem = rssItem;
 		}
 
 		private DelegateCommand _SelectedCommand;
-		public override ICommand SelectedCommand
+		public override ICommand PrimaryCommand
 		{
 			get
 			{
 				return _SelectedCommand
 					?? (_SelectedCommand = new DelegateCommand(() => 
 					{
-						var payload = new Models.VideoPlayPayload()
-						{
-							VideoId = this.VideoId
-						};
-
-						PageManager.OpenPage(HohoemaPageType.VideoPlayer, payload.ToParameterString());
+                        Playlist.DefaultPlaylist.AddVideo(this.VideoId, Title);
 					}));
 			}
 		}
 
-		public override void Dispose()
-		{
-			
-		}
 	}
 
 	

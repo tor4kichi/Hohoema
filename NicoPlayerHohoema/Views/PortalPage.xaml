@@ -29,14 +29,14 @@
                 <toolkit:DockPanel>
 
                     <toolkit:DockPanel Margin="0 0 0 0" 
-                        Visibility="{Binding IsHiddenLabel, Converter={StaticResource BooleanToVisibilityInverted}}"
-                        toolkit:DockPanel.Dock="Top"                                
+                                Visibility="{Binding IsHiddenLabel, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                toolkit:DockPanel.Dock="Top"                                
                                 HorizontalAlignment="Stretch"
                         >
                         <Border Background="{Binding OriginalContainer.ThemeColor, Converter={StaticResource ColorToBrush}}"
-                            toolkit:DockPanel.Dock="Left"   
-                            Width="8"
-                            Margin="0 0 4 0"
+                                toolkit:DockPanel.Dock="Left"   
+                                Width="8"
+                                Margin="0 0 4 0"
                                 />
                         <Button Content="{Binding Item.PrimaryLabel}"
                                 HorizontalAlignment="Stretch"
@@ -44,7 +44,7 @@
                                 Height="48"
                                 FontSize="20"
                                 Command="{Binding OpenItemPageCommand}"
-                               />
+                                />
                     </toolkit:DockPanel>
 
 
@@ -101,6 +101,7 @@
                                 Height="48"
                                 FontSize="20"
                                 Command="{Binding OpenItemPageCommand}"
+                                Background="{ThemeResource SystemControlBackgroundBaseLowBrush}"
                                />
                     </toolkit:DockPanel>
 
@@ -263,8 +264,8 @@
     </Page.Resources>
 
 
-
     <Grid>
+
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="TopBarStateGroup">
 
@@ -302,74 +303,96 @@
         </VisualStateManager.VisualStateGroups>
 
 
-        <ScrollViewer>
-            <StackPanel>
+        <toolkit:DockPanel x:Name="ContentLayout">
 
-                <toolkit:DockPanel Margin="0 0 0 8">
-                    <StackPanel Orientation="Horizontal"
-                                toolkit:DockPanel.Dock="Right"
-                                >
-                        <AppBarButton Label="更新"
-                              Icon="Refresh"
-                              Command="{Binding RefreshCommand}" 
-                              Margin="0"
-                              />
+            <Border toolkit:DockPanel.Dock="Top" 
+                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
+                    BorderThickness="0 0 0 1"
+                    Height="64"
+                    >
+                <toolkit:DockPanel >
+
+
+                    <StackPanel toolkit:DockPanel.Dock="Right" 
+                            Orientation="Horizontal"
+                            >
+                        <AppBarButton Label="更新" 
+                                          Icon="Refresh"
+                                   Command="{Binding RefreshCommand}"
+                                  
+                                  >
+                        </AppBarButton>
                     </StackPanel>
 
-                    <Border />
-
+                    <Border Background="Transparent" IsHitTestVisible="True"
+                                Margin="16 0 0 0"
+                                >
+                        <TextBlock Text="{Binding Title}" 
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource SubtitleTextBlockStyle}"
+                                    >
+                        </TextBlock>
+                    </Border>
                 </toolkit:DockPanel>
-                
+            </Border>
 
-                <ItemsControl  x:Name="DesktopGridView"      
+            
+            <ScrollViewer>
+
+                <StackPanel Margin="0 8 0 0">
+
+                    <ItemsControl  x:Name="DesktopGridView"      
                                ItemsSource="{Binding Root.Items}"
                                ItemTemplateSelector="{StaticResource AppMapItemDataTemplateSelector}"
                                    Margin="8 0 0 0"
                               >
-                    <ItemsControl.ItemContainerStyle>
-                        <Style TargetType="ContentPresenter">
-                            <Setter Property="Margin" Value="0 0 16 16" />
-                            <Setter Property="MinWidth" Value="280" />
-                        </Style>
-                    </ItemsControl.ItemContainerStyle>
-                    <ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemContainerStyle>
+                            <Style TargetType="ContentPresenter">
+                                <Setter Property="Margin" Value="0 0 16 16" />
+                                <Setter Property="MinWidth" Value="280" />
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
+                        <ItemsControl.ItemsPanel>
 
-                        <ItemsPanelTemplate>
-                            <toolkit:WrapPanel 
+                            <ItemsPanelTemplate>
+                                <toolkit:WrapPanel 
                                     >
-                            </toolkit:WrapPanel>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
+                                </toolkit:WrapPanel>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
 
-                <ItemsControl  x:Name="MobileGridView"
+                    <ItemsControl  x:Name="MobileGridView"
                                 ItemsSource="{Binding Root.Items}"
-                           ItemTemplateSelector="{StaticResource Mobile_AppMapItemDataTemplateSelector}"
+                            ItemTemplateSelector="{StaticResource Mobile_AppMapItemDataTemplateSelector}"
                                Margin="4 0 4 0"
                                     >
-                    <ItemsControl.ItemContainerStyle>
-                        <Style TargetType="ContentPresenter">
-                            <Setter Property="Margin" Value="0 0 0 16" />
-                        </Style>
-                    </ItemsControl.ItemContainerStyle>
+                        <ItemsControl.ItemContainerStyle>
+                            <Style TargetType="ContentPresenter">
+                                <Setter Property="Margin" Value="0 0 0 16" />
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
 
-                </ItemsControl>
+                    </ItemsControl>
 
-                
-                
-                <Border Height="32" />
 
-                
-            </StackPanel>
-           
-            
 
-        </ScrollViewer>
+                    <Border Height="32" />
 
-       
+
+                </StackPanel>
+
+
+
+            </ScrollViewer>
+
+        </toolkit:DockPanel>
+
+
 
     </Grid>
 
+    
     
        
 

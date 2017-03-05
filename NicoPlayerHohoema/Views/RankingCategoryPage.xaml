@@ -3,7 +3,7 @@
     x:Class="NicoPlayerHohoema.Views.RankingCategoryPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:NicoPlayerHohoema"
+    xmlns:local="using:NicoPlayerHohoema.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
@@ -13,11 +13,17 @@
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:mytrigger="using:NicoPlayerHohoema.Views.StateTrigger"
+    xmlns:iconPack="using:MahApps.Metro.IconPacks"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
+    <Page.Resources>
+    </Page.Resources>
 
-    <Grid>
+  
+    <Grid x:Name="LayoutRoot">
 
         <VisualStateManager.VisualStateGroups>
             
@@ -29,8 +35,6 @@
                         <AdaptiveTrigger MinWindowWidth="521" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="RankingTimeSpanLabel.Visibility" Value="Visible" />
-                        <Setter Target="RankingTargetLabel.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
                 <!-- 超狭い -->
@@ -39,14 +43,34 @@
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="RankingTimeSpanLabel.Visibility" Value="Collapsed" />
-                        <Setter Target="RankingTargetLabel.Visibility" Value="Collapsed" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
 
-           
 
+
+            <VisualStateGroup x:Name="SearchTextBoxVisualStateGroup">
+
+                <!-- 検索テキストボックスがフォーカスを得ている状態 -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <mytrigger:FocusTrigger Target="{Binding ElementName=SearchTextBox}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="SearchButtonBorder.BorderBrush" Value="Transparent" />
+                    </VisualState.Setters>
+                </VisualState>
+                
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <mytrigger:PointerFocusTrigger Target="{Binding ElementName=SearchButtonBorder}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="SearchButtonBorder.BorderBrush" Value="{ThemeResource SystemControlHighlightBaseMediumLowBrush}" />
+                    </VisualState.Setters>
+                </VisualState>
+
+            </VisualStateGroup>
 
 
 
@@ -57,102 +81,175 @@
 
         </VisualStateManager.VisualStateGroups>
 
-        <Border>
-            <toolkit:DockPanel>
-                <toolkit:DockPanel toolkit:DockPanel.Dock="Top" Margin="0 0 0 8" >
+        
 
-                    <!-- 複数選択のON/OFF -->
-                    <controls:ListingSelectionControl 
-                        Margin="8 0"
-                        toolkit:DockPanel.Dock="Right"
+        <Grid>
+            <toolkit:DockPanel>
+
+                <toolkit:DockPanel toolkit:DockPanel.Dock="Top" >
+
+
+                    
+
+                    <!--
+                    <AppBarButton Icon="More" toolkit:DockPanel.Dock="Right"
+                                  IsEnabled="{Binding IsSelectionModeEnable.Value, Converter={StaticResource InvertBoolean}}"
+                                  
+                                  >
+                        <AppBarButton.Flyout>
+                            <MenuFlyout>
+                                <MenuFlyoutSubItem Text="対象" IsEnabled="{Binding CanChangeSort.Value}"
+                              Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                              >
+                                    <MenuFlyoutItem Text="再生数" />
+                                    <MenuFlyoutItem Text="コメント数" />
+                                    <MenuFlyoutItem Text="マイリスト数" />
+                                </MenuFlyoutSubItem>
+
+                                <MenuFlyoutSubItem Text="期間" IsEnabled="{Binding CanChangeSort.Value}"
+                                      Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                      >
+
+                                    <MenuFlyoutItem Text="１時間" />
+                                    <MenuFlyoutItem Text="１日" />
+                                    <MenuFlyoutItem Text="１週間" />
+                                    <MenuFlyoutItem Text="１ヶ月" />
+                                </MenuFlyoutSubItem>
+                            </MenuFlyout>
+                        </AppBarButton.Flyout>
+                        
+                    </AppBarButton>
+                                -->
+
+                    <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Right">
+
+
+                        <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                    Orientation="Horizontal"
+                                    >
+                            <AppBarButton Label="更新" 
+                                          Icon="Refresh"
+                                   Command="{Binding RefreshCommand}"
+                                  IsEnabled="{Binding CanChangeSort.Value}"
+                                  >
+                            </AppBarButton>
+                        </StackPanel>
+
+
+                        <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                                    Orientation="Horizontal"
+                                    >
+
+                            <AppBarButton Command="{Binding RequestCacheDownload}"
+                                      
+                                      IsEnabled="{Binding CanDownload.Value, Converter={StaticResource BooleanToVisibility}}"
+                                      Background="Transparent"
+                                      Label="キャッシュ"
+                                          Icon="Download"
+                                >
+                            </AppBarButton>
+                                                        
+                            
+                            <AppBarButton Command="{Binding RegistratioMylistCommand}"
+                                              Label="マイリスト登録"
+                                              Icon="Add"
+                                            >
+                            </AppBarButton>
+
+                            <AppBarButton 
+                                     IsEnabled="{Binding IsItemSelected.Value}"
+                                      Background="Transparent"
+                                      Label="プレイリスト追加"
+                                          Icon="List"
+                                >
+                                <AppBarButton.Flyout>
+                                    <Flyout >
+                                        <Border x:Name="PlaylistSelectFlyout">
+                                            <ItemsControl ItemsSource="{Binding Playlists}" >
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Button Background="Transparent" 
+                                                            Content="{Binding Name}"
+                                                            Command="{Binding ElementName=PlaylistSelectFlyout, Path=DataContext.AddPlaylistCommand}"
+                                                            CommandParameter="{Binding Id}"
+                                                            >
+                                                            <i:Interaction.Behaviors>
+                                                                <core:EventTriggerBehavior EventName="Tapped">
+                                                                    <mybehavior:CloseFlyoutAction />
+                                                                </core:EventTriggerBehavior>
+                                                            </i:Interaction.Behaviors>
+                                                        </Button>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+
+                                        </Border>
+                                    </Flyout>
+                                </AppBarButton.Flyout>
+                            </AppBarButton>
+
+
+                        </StackPanel>
+
+
+
+                        <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            HorizontalContentAlignment="Stretch"
+                                            VerticalContentAlignment="Stretch"
+                                            Label="選択"
+                                            >
+                            <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       />
+                        </AppBarToggleButton>
+                    </StackPanel>
+
+
+                    <Border>
+                        <Border Background="Transparent" IsHitTestVisible="True"
+                            Margin="16 0 0 0"
+                            >
+
+                            <TextBlock Text="{Binding Title}" 
+                                VerticalAlignment="Center"
+                                Style="{StaticResource SubtitleTextBlockStyle}"
+                                >
+
+                            </TextBlock>
+
+                            <i:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0.0" />
+                                </core:EventTriggerBehavior>
+                            </i:Interaction.Behaviors>
+                        </Border>
+
+                    </Border>
+
+                </toolkit:DockPanel>
+
+                <Border BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
+                        BorderThickness="0 1 0 0 "
+                        toolkit:DockPanel.Dock="Top"
                         />
 
 
-                    <StackPanel Orientation="Horizontal"
-                                toolkit:DockPanel.Dock="Left"
-                                Visibility="{Binding CanChangeRankingParameter.Value, Converter={StaticResource BooleanToVisibility}}"
-                                >
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="対象" 
-                                       Margin="8 0 0 0"
-                                       VerticalAlignment="Center"
-                                       Foreground="DimGray"
-                                       x:Name="RankingTargetLabel"
-                                       />
-                            <ComboBox ItemsSource="{Binding RankingTargetItems}"
-                                      SelectedItem="{Binding SelectedRankingTarget.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                      DisplayMemberPath="Label"
-                                      MinWidth="80"
-                                      IsEnabled="{Binding NowLoadingItems.Value, Converter={StaticResource InvertBoolean}}"
-                                      Margin="8 0 0 0"
-                                      />
-                        </StackPanel>
-
-                        <Border Width="8" />
-
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="集計期間"
-                                       VerticalAlignment="Center"
-                                       Margin="8 0 0 0"
-                                       Foreground="DimGray"
-                                       x:Name="RankingTimeSpanLabel"
-                                       />
-                            <ComboBox ItemsSource="{Binding RankingTimeSpanItems}"
-                                      SelectedItem="{Binding SelectedRankingTimeSpan.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                      DisplayMemberPath="Label"
-                                      MinWidth="80"
-                                      IsEnabled="{Binding NowLoadingItems.Value, Converter={StaticResource InvertBoolean}}"
-                                      Margin="8 0 0 0"
-                                      />
-                        </StackPanel>
-                    </StackPanel>
-
-                    <Border>
-                        <TextBlock Text=":)" Padding="16 8" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <i:Interaction.Behaviors>
-                                <core:EventTriggerBehavior EventName="Tapped">
-                                    <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0" />
-                                </core:EventTriggerBehavior>
-                            </i:Interaction.Behaviors>
-
-                        </TextBlock>
-                    </Border>
-
-                   
-                </toolkit:DockPanel>
 
 
 
-          
-                <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom" 
-                           Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
-                                Height="72"
-                                Margin="8 0"                               
-                           >
-                    <StackPanel Orientation="Horizontal"
-                        toolkit:DockPanel.Dock="Right"
-                        >
-                        <AppBarButton Icon="Add" Label="マイリスト登録" Command="{Binding RegistratioMylistCommand}" />
-                        <StackPanel Orientation="Horizontal" Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}">
-                            <AppBarSeparator />
-                            <AppBarButton Icon="Download" Label="キャッシュ取得" Command="{Binding RequestCacheDownload}" />
-                            <AppBarSeparator />
-                            <AppBarButton Icon="Cancel" Label="キャッシュ取消" Command="{Binding CancelCacheDownloadRequest}" />
-                        </StackPanel>
-
-                    </StackPanel>
-
-                    <Border />
-
-                </toolkit:DockPanel>
-
-
-
-                <controls:HohoemaIncrementalLoadingList />
+                <controls:HohoemaIncrementalLoadingList x:Name="IncrementalLoadingList" 
+                                                        ItemFlyout="{StaticResource VideoListItemFlyout}">
+                    <controls:HohoemaIncrementalLoadingList.ItemTemplate>
+                        <DataTemplate>
+                            <controls:RankingCategoryListItem />
+                        </DataTemplate>
+                    </controls:HohoemaIncrementalLoadingList.ItemTemplate>
+                </controls:HohoemaIncrementalLoadingList>
 
 
             </toolkit:DockPanel>
-        </Border>
+        </Grid>
         
     </Grid>
 </Page>

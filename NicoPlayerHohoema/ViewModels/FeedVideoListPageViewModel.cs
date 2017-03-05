@@ -126,6 +126,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveCommand SelectedItemsMarkAsReadCommand { get; private set; }
 
 		public DelegateCommand OpenFeedGroupPageCommand { get; private set; }
+
 	}
 
 

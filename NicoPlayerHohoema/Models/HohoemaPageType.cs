@@ -15,16 +15,15 @@ namespace NicoPlayerHohoema.Models
 		Mylist,
 		FollowManage,
 		History,
+        Playlist,
+
 		Search,
 
-		CacheManagement,
-		Settings,
-		About,
-		Feedback,
-
-		VideoInfomation,
-		VideoPlayer,
-		ConfirmWatchHurmfulVideo,
+        SearchResultCommunity,
+        SearchResultTag,
+        SearchResultKeyword,
+        SearchResultMylist,
+        SearchResultLive,
 
 		FeedGroupManage,
 		FeedGroup,
@@ -36,9 +35,15 @@ namespace NicoPlayerHohoema.Models
 		Community,
 		CommunityVideo,
 
-		LiveVideoPlayer,
+        VideoInfomation,
+        ConfirmWatchHurmfulVideo,
 
-		Login,
+        CacheManagement,
 
-	}
+        Settings,
+        Login,
+
+
+        VideoPlayer,
+    }
 }

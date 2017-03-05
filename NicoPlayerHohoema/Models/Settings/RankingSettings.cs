@@ -25,26 +25,9 @@ namespace NicoPlayerHohoema.Models
 
 		public void ResetCategoryPriority()
 		{
-			var highPrioUserRanking = HighPriorityCategory.Where(x => x.RankingSource == RankingSource.SearchWithMostPopular).ToList();
-			var midPrioUserRanking = MiddlePriorityCategory.Where(x => x.RankingSource == RankingSource.SearchWithMostPopular).ToList();
-			var lowPrioUserRanking = LowPriorityCategory.Where(x => x.RankingSource == RankingSource.SearchWithMostPopular).ToList();
-
 			HighPriorityCategory.Clear();
 			MiddlePriorityCategory.Clear();
 			LowPriorityCategory.Clear();
-
-			foreach (var info in highPrioUserRanking)
-			{
-				HighPriorityCategory.Add(info);
-			}
-			foreach (var info in midPrioUserRanking)
-			{
-				MiddlePriorityCategory.Add(info);
-			}
-			foreach (var info in lowPrioUserRanking)
-			{
-				LowPriorityCategory.Add(info);
-			}
 
 			var types = (IEnumerable<RankingCategory>)Enum.GetValues(typeof(RankingCategory));
 			foreach (var type in types)
@@ -133,48 +116,27 @@ namespace NicoPlayerHohoema.Models
 		public bool IsDislikeRankingCategory(RankingCategory category)
 		{
 			var categoryString = category.ToString();
-			return LowPriorityCategory.Any(x => x.RankingSource == RankingSource.CategoryRanking && x.Parameter == categoryString);
+			return LowPriorityCategory.Any(x => x.Parameter == categoryString);
 		}
 	}
-
-
-	public enum RankingSource
-	{
-		CategoryRanking,
-		SearchWithMostPopular
-	}
-
-
 
 	public class RankingCategoryInfo : BindableBase, IEquatable<RankingCategoryInfo>
 	{
 
 		public static RankingCategoryInfo CreateFromRankingCategory(RankingCategory cat)
 		{
-			return new RankingCategoryInfo()
-			{
-				RankingSource = RankingSource.CategoryRanking,
-				Parameter = cat.ToString(),
-				DisplayLabel = cat.ToCultulizedText()
-			};
-		}
+            return new RankingCategoryInfo(cat);
+        }
 
 
-		public static RankingCategoryInfo CreateUserCustomizedRanking()
+		public RankingCategoryInfo(RankingCategory category)
 		{
-			return new RankingCategoryInfo()
-			{
-				RankingSource = RankingSource.SearchWithMostPopular,
-				Parameter = "",
-				DisplayLabel = ""
-			};
-		}
+            Category = category;
+            Parameter = category.ToString();
+            DisplayLabel = category.ToCultulizedText();
+        }
 
-		public RankingCategoryInfo()
-		{
-		}
-
-		public string ToParameterString()
+        public string ToParameterString()
 		{
 			return Newtonsoft.Json.JsonConvert.SerializeObject(this);
 		}
@@ -184,15 +146,20 @@ namespace NicoPlayerHohoema.Models
 			return Newtonsoft.Json.JsonConvert.DeserializeObject<RankingCategoryInfo>(json);
 		}
 
-
-		public RankingSource RankingSource { get; set; }
-
+        public RankingCategory Category { get; private set; }
 
 		private string _Parameter;
 		public string Parameter
 		{
 			get { return _Parameter; }
-			set { SetProperty(ref _Parameter, value); }
+			set
+            {
+                if (SetProperty(ref _Parameter, value))
+                {
+                    Category = (RankingCategory)Enum.Parse(typeof(RankingCategory), _Parameter);
+                }
+            }
+
 		}
 
 		private string _DisplayLabel;
@@ -206,8 +173,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			if (other == null) { return false; }
 
-			return this.RankingSource == other.RankingSource
-				&& this.Parameter == other.Parameter;
+			return this.Parameter == other.Parameter;
 		}
 	}
 }

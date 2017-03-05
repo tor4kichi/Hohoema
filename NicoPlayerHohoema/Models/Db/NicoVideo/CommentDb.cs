@@ -9,6 +9,14 @@ namespace NicoPlayerHohoema.Models.Db
 {
 	public static class CommentDb
 	{
+        public static NicoVideoComment Get(string rawVideoId)
+        {
+            using (var db = new NicoVideoDbContext())
+            {
+                return  db.Comments.SingleOrDefault(x => x.ThreadId == rawVideoId);
+            }
+        }
+
 		public static void AddOrUpdate(string rawVideoId, CommentResponse commentRes)
 		{
 			using (var db = new NicoVideoDbContext())

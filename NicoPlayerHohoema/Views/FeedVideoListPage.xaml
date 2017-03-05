@@ -13,109 +13,168 @@
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:iconPack="using:MahApps.Metro.IconPacks"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
-    <Page.Resources>
-        <DataTemplate x:Key="FavoriteVideoInfoTemplate">
-            <Grid>
-                <TextBlock Text="New" 
-                           HorizontalAlignment="Right"
-                           VerticalAlignment="Top"
-                           Visibility="{Binding IsNewItem, Converter={StaticResource BooleanToVisibility}}"
-                           />
-
-                <local:VideoInfoControl />
-            </Grid>
-        </DataTemplate>
-    </Page.Resources>
 
     <Grid>
-        <Border>
-            <toolkit:DockPanel>
-                <toolkit:DockPanel toolkit:DockPanel.Dock="Top" >
 
-                    <!-- 複数選択のON/OFF -->
-                    <controls:ListingSelectionControl 
-                        Margin="8 0"
-                        toolkit:DockPanel.Dock="Right"
-                        />
+        <toolkit:DockPanel>
 
 
-                    <StackPanel toolkit:DockPanel.Dock="Left" Margin="0"
+            <Border toolkit:DockPanel.Dock="Top" 
+                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
+                    BorderThickness="0 0 0 1"
+                        Height="64"
+                    >
+                <toolkit:DockPanel >
+
+                    <StackPanel toolkit:DockPanel.Dock="Right" 
                                 Orientation="Horizontal"
                                 >
 
-                        <AppBarButton Label="フィード編集"
-                                      Icon="Edit"
-                                      Command="{Binding OpenFeedGroupPageCommand}" />
+                        <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                    Orientation="Horizontal"
+                                    >
+                            <Button Command="{Binding RefreshCommand}"
+                                    Background="Transparent"
+                                    >
+                                <StackPanel Orientation="Horizontal">
+                                    <SymbolIcon Symbol="Refresh" />
+                                </StackPanel>
+                            </Button>
+                            
+                            <Button Command="{Binding AllMarkAsReadCommand}"
+                                    Background="Transparent"
+                                    >
+                                <StackPanel Orientation="Horizontal">
+                                    <iconPack:PackIconMaterial Kind="Check" />
+                                </StackPanel>
+                            </Button>
 
-                        <AppBarButton Label="全て既読"
-                                      Icon="Accept"
-                                      Command="{Binding AllMarkAsReadCommand}" />
+                            <Border Width="8" />
 
-                        <TextBlock Margin="8 0" 
-                                   Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                   VerticalAlignment="Center">
-                            <Run Text="最終更新:" />
-                            <Run Text="{Binding LastUpdate.Value, Converter={StaticResource ToRelationalTime}}" />
-                        </TextBlock>
+                            <AppBarButton Command="{Binding OpenFeedGroupPageCommand}"
+                                    Background="Transparent"
+                                    Label="フィード編集"
+                                          Icon="Edit"
+                                    >
+                            </AppBarButton>
+                        </StackPanel>
+
+                        <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                                    Orientation="Horizontal"
+                                    >
+
+                            <AppBarButton Command="{Binding RequestCacheDownload}"
+                                          Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
+                                          Icon="Download"
+                                          Label="キャッシュ"
+                                        />
+                            <AppBarButton Command="{Binding RegistratioMylistCommand}" 
+                                          Icon="Add"
+                                          Label="マイリスト登録"
+                                            />
+
+                            <AppBarButton 
+                                     IsEnabled="{Binding IsItemSelected.Value}"
+                                      Background="Transparent"
+                                      Label="プレイリスト追加"
+                                          Icon="List"
+                                >
+                                <AppBarButton.Flyout>
+                                    <Flyout >
+                                        <Border x:Name="PlaylistSelectFlyout">
+                                            <ItemsControl ItemsSource="{Binding Playlists}" >
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Button Background="Transparent" 
+                                                            Content="{Binding Name}"
+                                                            Command="{Binding ElementName=PlaylistSelectFlyout, Path=DataContext.AddPlaylistCommand}"
+                                                            CommandParameter="{Binding Id}"
+                                                            >
+                                                            <i:Interaction.Behaviors>
+                                                                <core:EventTriggerBehavior EventName="Tapped">
+                                                                    <mybehavior:CloseFlyoutAction />
+                                                                </core:EventTriggerBehavior>
+                                                            </i:Interaction.Behaviors>
+                                                        </Button>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+
+                                        </Border>
+                                    </Flyout>
+                                </AppBarButton.Flyout>
+                            </AppBarButton>
+
+
+
+                        </StackPanel>
+
+
+
+                        <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            HorizontalContentAlignment="Stretch"
+                                            VerticalContentAlignment="Stretch"
+                                            Label="選択"
+                                            >
+                            <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       />
+                        </AppBarToggleButton>
+
                     </StackPanel>
 
+                    <Border Background="Transparent" IsHitTestVisible="True"
+                                Margin="16 0 0 0"
+                                >
 
-                    <Border>
-                        <TextBlock Text=":)" Padding="16 8" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <i:Interaction.Behaviors>
-                                <core:EventTriggerBehavior EventName="Tapped">
-                                    <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0" />
-                                </core:EventTriggerBehavior>
-                            </i:Interaction.Behaviors>
+                        <TextBlock Text="{Binding Title}" 
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource SubtitleTextBlockStyle}"
+                                    />
 
-                        </TextBlock>
+                        <i:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="Tapped">
+                                <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0.0" />
+                            </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
+
                     </Border>
 
 
 
-                </toolkit:DockPanel>
-
-
-
-
-                <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom" 
-                                   Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
-                                   Height="72"
-                                   Margin="8 0"                               
-                           >
-                    <StackPanel toolkit:DockPanel.Dock="Left"
-                                VerticalAlignment="Center"
-                                >
-                        <AppBarButton Icon="Accept" Label="チェック済み" Command="{Binding SelectedItemsMarkAsReadCommand}" />
-                    </StackPanel>
-                    
-                    <StackPanel Orientation="Horizontal"
-                                VerticalAlignment="Center"
-                        toolkit:DockPanel.Dock="Right"
-                        >
-                        <AppBarButton Icon="Add" Label="マイリスト登録" Command="{Binding RegistratioMylistCommand}" />
-                        <StackPanel Orientation="Horizontal" Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}">
-                            <AppBarSeparator />
-                            <AppBarButton Icon="Download" Label="キャッシュ取得" Command="{Binding RequestCacheDownload}" />
-                            <AppBarSeparator />
-                            <AppBarButton Icon="Cancel" Label="キャッシュ取消" Command="{Binding CancelCacheDownloadRequest}" />
-                        </StackPanel>
-
-                    </StackPanel>
-
-
-                    <Border />
 
                 </toolkit:DockPanel>
+            </Border>
 
-                <controls:HohoemaIncrementalLoadingList />
 
 
-            </toolkit:DockPanel>
-        </Border>
+            <controls:HohoemaIncrementalLoadingList
+                    ItemFlyout="{StaticResource VideoListItemFlyout}"
+                    >
+                <controls:HohoemaIncrementalLoadingList.ItemTemplate>
+                    <DataTemplate >
+                        <Grid>
+                            <TextBlock Text="New" 
+                                       HorizontalAlignment="Right"
+                                       VerticalAlignment="Top"
+                                       Visibility="{Binding IsUnread.Value, Converter={StaticResource BooleanToVisibility}}"
+                                           Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
+                                       />
+
+                            <local:VideoInfoControl />
+                        </Grid>
+                    </DataTemplate>
+                </controls:HohoemaIncrementalLoadingList.ItemTemplate>
+            </controls:HohoemaIncrementalLoadingList>
+
+
+        </toolkit:DockPanel>
+
 
     </Grid>
 </Page>

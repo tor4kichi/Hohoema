@@ -16,7 +16,7 @@ namespace NicoPlayerHohoema.ViewModels
 	public class ConfirmWatchHurmfulVideoPageViewModel : HohoemaViewModelBase
 	{
 		public ConfirmWatchHurmfulVideoPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager) 
-			: base(hohoemaApp, pageManager, true)
+			: base(hohoemaApp, pageManager)
 		{
 			IsNoMoreConfirmHarmfulVideo = new ReactiveProperty<bool>(false);
 			Tags = new ObservableCollection<string>();
@@ -92,8 +92,10 @@ namespace NicoPlayerHohoema.ViewModels
 				return _ContinueWatchVideoCommand
 					?? (_ContinueWatchVideoCommand = new DelegateCommand(() =>
 					{
-
 						NicoVideo.HarmfulContentReactionType = IsNoMoreConfirmHarmfulVideo.Value ? Mntone.Nico2.HarmfulContentReactionType.ContinueWithNotMoreConfirm : Mntone.Nico2.HarmfulContentReactionType.ContinueOnce;
+
+//                        HohoemaApp.Playlist.
+                        /*
 						PageManager.OpenPage(HohoemaPageType.VideoPlayer,
 							new VideoPlayPayload()
 							{
@@ -102,6 +104,7 @@ namespace NicoPlayerHohoema.ViewModels
 							}
 							.ToParameterString()
 						);
+                        */
 					}));
 			}
 		}
@@ -116,7 +119,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		public DateTime SubmitDate { get; private set; }
-		public string Title { get; private set; }
 		public ObservableCollection<string> Tags { get; private set; }
 	}
 }

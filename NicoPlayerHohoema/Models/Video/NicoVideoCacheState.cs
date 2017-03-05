@@ -8,8 +8,9 @@ namespace NicoPlayerHohoema.Models
 {
 	public enum NicoVideoCacheState
 	{
-		CacheProgress,
-		NowDownloading,
+        NotCacheRequested,
+		Pending,
+		Downloading,
 		Cached,
 	}
 }

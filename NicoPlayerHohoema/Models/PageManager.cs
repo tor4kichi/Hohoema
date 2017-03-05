@@ -5,6 +5,7 @@ using Prism.Windows.Navigation;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -21,18 +22,13 @@ namespace NicoPlayerHohoema.Models
 
 		public static List<HohoemaPageType> IgnoreRecordNavigationStack = new List<HohoemaPageType>
 		{
-			HohoemaPageType.Login,
 			HohoemaPageType.ConfirmWatchHurmfulVideo,
-			HohoemaPageType.VideoPlayer,
-			HohoemaPageType.LiveVideoPlayer
 		};
 
 
 		public readonly IReadOnlyList<HohoemaPageType> DontNeedMenuPageTypes = new List<HohoemaPageType>
 		{
-			HohoemaPageType.Login,
-			HohoemaPageType.VideoPlayer,
-			HohoemaPageType.LiveVideoPlayer,
+            HohoemaPageType.Login,
 		};
 
 
@@ -40,7 +36,7 @@ namespace NicoPlayerHohoema.Models
 
 
 
-		private HohoemaPageType _CurrentPageType;
+        private HohoemaPageType _CurrentPageType;
 		public HohoemaPageType CurrentPageType
 		{
 			get { return _CurrentPageType; }
@@ -62,14 +58,16 @@ namespace NicoPlayerHohoema.Models
 			set { SetProperty(ref _PageNavigating, value); }
 		}
 
+        
+        public HohoemaPlaylist HohoemaPlaylist { get; private set; }
 
 
-
-		public PageManager(INavigationService ns)
+        public PageManager(INavigationService ns, HohoemaPlaylist playlist)
 		{
 			NavigationService = ns;
-			CurrentPageType = HohoemaPageType.Portal;
-		}
+            HohoemaPlaylist = playlist;
+            CurrentPageType = HohoemaPageType.Portal;
+        }
 
 		public void OpenPage(Uri uri)
 		{
@@ -90,13 +88,7 @@ namespace NicoPlayerHohoema.Models
 				// is nico video url?
 				var videoId = uri.AbsolutePath.Split('/').Last();
 				System.Diagnostics.Debug.WriteLine($"open Video: {videoId}");
-				OpenPage(HohoemaPageType.VideoPlayer,
-					new VideoPlayPayload()
-					{
-						VideoId = videoId
-					}
-					.ToParameterString()
-					);
+                HohoemaPlaylist.PlayVideo(videoId);
 
 				return;
 			}
@@ -164,16 +156,24 @@ namespace NicoPlayerHohoema.Models
 		/// <summary>
 		/// 外部で戻る処理が行われた際にPageManager上での整合性を取ります
 		/// </summary>
-		public async void OnNavigated(NavigatedToEventArgs e)
+		public void OnNavigated(NavigatedToEventArgs e)
 		{
 			if (e.NavigationMode == NavigationMode.Back || e.NavigationMode == NavigationMode.Forward)
 			{
-				
-				if (e.SourcePageType.Name.EndsWith("Page"))
-				{
-					var pageTypeString = e.SourcePageType.Name.Remove(e.SourcePageType.Name.IndexOf("Page"));
+                string pageTypeString = null;
 
-					HohoemaPageType pageType;
+                if (e.SourcePageType.Name.EndsWith("Page"))
+                {
+                    pageTypeString = e.SourcePageType.Name.Remove(e.SourcePageType.Name.IndexOf("Page"));
+                }
+                if (e.SourcePageType.Name.EndsWith("Page_TV"))
+                {
+                    pageTypeString = e.SourcePageType.Name.Remove(e.SourcePageType.Name.IndexOf("Page_TV"));
+                }
+
+                if (pageTypeString != null)
+                { 
+                    HohoemaPageType pageType;
 					if (Enum.TryParse(pageTypeString, out pageType))
 					{
 						try
@@ -181,8 +181,6 @@ namespace NicoPlayerHohoema.Models
 							PageNavigating = true;
 
 							CurrentPageType = pageType;
-
-							await Task.Delay(250);
 						}
 						finally
 						{
@@ -238,20 +236,16 @@ namespace NicoPlayerHohoema.Models
 					return "フォロー";
 				case HohoemaPageType.History:
 					return "視聴履歴";
+                case HohoemaPageType.Playlist:
+                    return "プレイリスト";
 				case HohoemaPageType.Search:
 					return "検索";
 				case HohoemaPageType.CacheManagement:
 					return "キャッシュ管理";
 				case HohoemaPageType.Settings:
 					return "設定";
-				case HohoemaPageType.About:
-					return "このアプリについて";
-				case HohoemaPageType.Feedback:
-					return "フィードバック";
 				case HohoemaPageType.VideoInfomation:
 					return "動画情報";
-				case HohoemaPageType.VideoPlayer:
-					return "動画プレイヤー";
 				case HohoemaPageType.ConfirmWatchHurmfulVideo:
 					return "動画視聴の確認";
 				case HohoemaPageType.FeedGroupManage:
@@ -268,12 +262,11 @@ namespace NicoPlayerHohoema.Models
 					return "コミュニティ情報";
 				case HohoemaPageType.CommunityVideo:
 					return "コミュニティ動画一覧";
-				case HohoemaPageType.LiveVideoPlayer:
-					return "生放送プレイヤー";
-				case HohoemaPageType.Login:
-					return "ログイン";
+                    
 				default:
-					throw new NotSupportedException("not support " + nameof(HohoemaPageType) + "." + pageType.ToString());
+                    Debug.WriteLine("not support " + nameof(HohoemaPageType) + "." + pageType.ToString());
+                    return pageType.ToString();
+//					throw new NotSupportedException();
 			}
 		}
 

@@ -12,7 +12,9 @@ namespace NicoPlayerHohoema.Models.AppMap
 		string PrimaryLabel { get; }
 		string SecondaryLabel { get; }
 
-		HohoemaPageType PageType { get; }
+        void SelectedAction();
+
+//		HohoemaPageType PageType { get; }
 		string Parameter { get; }
 	}
 
@@ -50,11 +52,7 @@ namespace NicoPlayerHohoema.Models.AppMap
 					break;
 				case HohoemaPageType.Settings:
 					break;
-				case HohoemaPageType.About:
-					break;
 				case HohoemaPageType.VideoInfomation:
-					break;
-				case HohoemaPageType.VideoPlayer:
 					break;
 				case HohoemaPageType.ConfirmWatchHurmfulVideo:
 					break;
@@ -68,8 +66,6 @@ namespace NicoPlayerHohoema.Models.AppMap
 				case HohoemaPageType.UserInfo:
 					break;
 				case HohoemaPageType.UserVideo:
-					break;
-				case HohoemaPageType.Login:
 					break;
 				default:
 					throw new NotSupportedException();

@@ -12,6 +12,7 @@ using System.Diagnostics;
 using Windows.System;
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -47,11 +48,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public CacheSettingsPageContentViewModel(
 			HohoemaApp hohoemaApp
-			, string title
 			, EditAutoCacheConditionDialogService editDialogService
 			, AcceptCacheUsaseDialogService cacheConfirmDialogService
 			)
-			: base(title)
+			: base("キャッシュ", HohoemaSettingsKind.Cache)
 		{
 			_HohoemaApp = hohoemaApp;
 			_CacheSettings = _HohoemaApp.UserSettings.CacheSettings;
@@ -149,14 +149,13 @@ namespace NicoPlayerHohoema.ViewModels
 			
 		}
 
-		public override async void OnEnter()
-		{
-			base.OnEnter();
+        protected override async void OnEnter(ICollection<IDisposable> focusingDisposable)
+        {
 			await RefreshCacheSaveFolderStatus();
 		}
 
-		public override void OnLeave()
-		{
+        protected override void OnLeave()
+        {
 			_CacheSettings.Save().ConfigureAwait(false);
 		}
 

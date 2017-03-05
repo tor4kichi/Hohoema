@@ -49,7 +49,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public Views.Service.ContentSelectDialogService ContentSelectDialogService { get; private set; }
 
 		public FeedGroupPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.ContentSelectDialogService contentSelectDialogService) 
-			: base(hohoemaApp, pageManager, isRequireSignIn:true )
+			: base(hohoemaApp, pageManager)
 		{
 			ContentSelectDialogService = contentSelectDialogService;
 
@@ -535,7 +535,7 @@ namespace NicoPlayerHohoema.ViewModels
 									Id = x.Id
 								}
 							).ToList(),
-							TextInputTitle = "マイリストIDまたはキーワード",
+							TextInputTitle = "マイリストID またはキーワード",
 							GenerateCandiateList = GenerateMylistCandidateList
 						};
 

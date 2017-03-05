@@ -94,7 +94,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			Func< RankingCategory, bool> checkFavorite = (RankingCategory cat) => 
 			{
-				return _RankingSettings.HighPriorityCategory.Any(x => x.RankingSource == RankingSource.CategoryRanking && x.Parameter == cat.ToString());
+				return _RankingSettings.HighPriorityCategory.Any(x => x.Category == cat);
 			};
 
 

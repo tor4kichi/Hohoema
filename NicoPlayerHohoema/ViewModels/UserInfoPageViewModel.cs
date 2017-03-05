@@ -12,15 +12,26 @@ using System.Reactive.Linq;
 using Reactive.Bindings.Extensions;
 using System.Diagnostics;
 using System.Threading;
+using Prism.Commands;
+using NicoPlayerHohoema.Views.Service;
+using Windows.System;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	public class UserInfoPageViewModel : HohoemaViewModelBase
 	{
-		public UserInfoPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager) 
+        ContentSelectDialogService _ContentSelectDialogService;
+
+        public UserInfoPageViewModel(
+            HohoemaApp hohoemaApp
+            , PageManager pageManager
+            , Views.Service.ContentSelectDialogService contentSelectDialogService
+            ) 
 			: base(hohoemaApp, pageManager)
 		{
-			HasOwnerVideo = true;
+            _ContentSelectDialogService = contentSelectDialogService;
+
+            HasOwnerVideo = true;
 
 			MylistGroups = new ObservableCollection<MylistGroupListItem>();
 			VideoInfoItems = new ObservableCollection<VideoInfoControlViewModel>();
@@ -113,10 +124,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
+            NowLoading = true;
 
-			NowLoading = true;
-
-			string userId = null;
+            string userId = null;
 			if(e.Parameter is string)
 			{
 				userId = e.Parameter as string;
@@ -130,6 +140,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			UserId = userId;
 
+            
 			// ログインユーザーと同じ場合、お気に入り表示をOFFに
 			IsLoginUser = HohoemaApp.LoginUserId.ToString() == userId;
 
@@ -137,6 +148,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			MylistGroups.Clear();
 			VideoInfoItems.Clear();
+
 
 			try
 			{
@@ -275,12 +287,75 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
+        private DelegateCommand _AddFeedSourceCommand;
+        public DelegateCommand AddFeedSourceCommand
+        {
+            get
+            {
+                return _AddFeedSourceCommand
+                    ?? (_AddFeedSourceCommand = new DelegateCommand(async () =>
+                    {
+                        var result = await _ContentSelectDialogService.ShowDialog(new ContentSelectDialogDefaultSet()
+                        {
+                            DialogTitle = UserName + "をフィードに追加",
+                            ChoiceListTitle = "フィードグループ",
+                            ChoiceList = HohoemaApp.FeedManager.FeedGroups
+                                .Select(x => new SelectDialogPayload() { Id = x.Id.ToString(), Label = x.Label })
+                                .ToList()
+                        });
+
+                        if (result != null)
+                        {
+                            var feedGroup = HohoemaApp.FeedManager.GetFeedGroup(Guid.Parse(result.Id));
+                            feedGroup.AddUserFeedSource(UserName, UserId);
+                        }
+                    }));
+            }
+        }
+
+        private DelegateCommand _LogoutCommand;
+        public DelegateCommand LogoutCommand
+        {
+            get
+            {
+                return _LogoutCommand
+                    ?? (_LogoutCommand = new DelegateCommand(async () =>
+                    {
+                        await HohoemaApp.SignOut();
+
+                        PageManager.OpenPage(HohoemaPageType.Login);
+                    }));
+            }
+        }
+
+
+        private DelegateCommand _OpenUserAccountPageInBrowserCommand;
+        public DelegateCommand OpenUserAccountPageInBrowserCommand
+        {
+            get
+            {
+                return _OpenUserAccountPageInBrowserCommand
+                    ?? (_OpenUserAccountPageInBrowserCommand = new DelegateCommand(async () =>
+                    {
+                        if (IsLoginUser)
+                        {
+                            Uri UserAccountPageUri = new Uri("http://www.nicovideo.jp/my/top");
+                            await Launcher.LaunchUriAsync(UserAccountPageUri);
+                        }
+                        else
+                        {
+                            // www.nicovideo.jp/user/3914961
+                            var userPageUri = new Uri(NiconicoUrls.UserPageUrlBase + UserId);
+                            await Launcher.LaunchUriAsync(userPageUri);
+                        }
+                    }));
+            }
+        }
 
 
 
 
-
-		public string UserId { get; private set; }
+        public string UserId { get; private set; }
 		public bool IsLoadFailed { get; private set; }
 
 

@@ -6,87 +6,104 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Models.AppMap
 {
-	public class FollowAppMapContainer : SelectableAppMapContainerBase
-	{
+	public class FollowAppMapContainer : AppMapContainerBase
+    {
+        // TODO: FollowManagrの初期化待ち
+        // TODO: フォローアイテムの変更をイベントで受け取りたい
 
 		public FollowManager FollowManager { get; private set; }
 
-		public FollowAppMapContainer(FollowManager FollowManager)
+		public FollowAppMapContainer()
 			: base(HohoemaPageType.FollowManage, label:"フォロー")
 		{
-			this.FollowManager = FollowManager;
-		}
+            HohoemaApp.OnSignin += HohoemaApp_OnSignin;
+        }
+
+        private void HohoemaApp_OnSignin()
+        {
+            this.FollowManager = HohoemaApp.FollowManager;
+            FollowManager.Completed += FollowManager_Completed;
+        }
+
+        private async void FollowManager_Completed(object sender)
+        {
+            await Refresh();
+        }
+
+        public override ContainerItemDisplayType ItemDisplayType => ContainerItemDisplayType.Card;
 
 
-		public override ContainerItemDisplayType ItemDisplayType => ContainerItemDisplayType.Card;
+        protected override Task OnRefreshing()
+        {
+            _DisplayItems.Clear();
+
+            List<IAppMapItem> items = new List<IAppMapItem>();
 
 
-		protected override async Task<IEnumerable<IAppMapItem>> MakeAllItems()
-		{
-			// TODO: FavManagerを最新の情報に更新
-			
+            if (FollowManager?.User == null) { return Task.CompletedTask; }
 
-			List<IAppMapItem> items = new List<IAppMapItem>();
+            var userFavItems = FollowManager.User.FollowInfoItems;
+            var mylistFavItems = FollowManager.Mylist.FollowInfoItems;
+            var tagFavItems = FollowManager.Tag.FollowInfoItems;
 
+            var allFavItems = userFavItems
+                .Union(mylistFavItems)
+                .Union(tagFavItems);
 
-			if (FollowManager?.User == null) { return Enumerable.Empty<IAppMapItem>(); }
+            foreach (var fav in allFavItems)
+            {
+                var favAppMapItem = new FollowAppMapItem(fav);
+                _DisplayItems.Add(favAppMapItem);
+            }
 
-			var userFavItems = FollowManager.User.FollowInfoItems;
-			var mylistFavItems = FollowManager.Mylist.FollowInfoItems;
-			var tagFavItems = FollowManager.Tag.FollowInfoItems;
-
-			var allFavItems = userFavItems
-				.Union(mylistFavItems)
-				.Union(tagFavItems);
-
-			foreach (var fav in allFavItems)
-			{
-				var favAppMapItem = new FollowAppMapItem(fav);
-				items.Add(favAppMapItem);
-			}
-
-			return items.AsEnumerable();
-		}
+            return Task.CompletedTask;
+        }
 	}
 
-	public class FollowAppMapItem : IAppMapItem
+	public class FollowAppMapItem : AppMapItemBase
 	{
-		public string PrimaryLabel { get; private set; }
-		public string SecondaryLabel { get; private set; }
-
-		public HohoemaPageType PageType { get; private set; }
-		public string Parameter { get; private set; }
-
 		public FollowItemType FollowItemType { get; private set; }
 
-		public FollowAppMapItem(FollowItemInfo followInfo)
+        public FollowItemInfo Info { get; private set; }
+
+        public FollowAppMapItem(FollowItemInfo followInfo)
 		{
 			PrimaryLabel = followInfo.Name;
 			SecondaryLabel = followInfo.FollowItemType.ToString();
 			FollowItemType = followInfo.FollowItemType;
-			switch (FollowItemType)
-			{
-				case FollowItemType.Tag:
-					PageType = HohoemaPageType.Search;
-					Parameter = new SearchPagePayload(new TagSearchPagePayloadContent()
-					{
-						Keyword = followInfo.Id,
-						Sort = Mntone.Nico2.Sort.FirstRetrieve,
-						Order = Mntone.Nico2.Order.Descending
-					})
-					.ToParameterString();
-					break;
-				case FollowItemType.Mylist:
-					PageType = HohoemaPageType.Mylist;
-					Parameter = followInfo.Id;
-					break;
-				case FollowItemType.User:
-					PageType = HohoemaPageType.UserVideo;
-					Parameter = followInfo.Id;
-					break;
-				default:
-					throw new Exception();
-			}
+			
 		}
-	}
+
+
+        public override void SelectedAction()
+        {
+            HohoemaPageType pageType;
+            string parameter;
+            switch (FollowItemType)
+            {
+                case FollowItemType.Tag:
+                    pageType = HohoemaPageType.SearchResultTag;
+                    parameter = new TagSearchPagePayloadContent()
+                    {
+                        Keyword = Info.Id,
+                        Sort = Mntone.Nico2.Sort.FirstRetrieve,
+                        Order = Mntone.Nico2.Order.Descending
+                    }
+                    .ToParameterString();
+                    break;
+                case FollowItemType.Mylist:
+                    pageType = HohoemaPageType.Mylist;
+                    parameter = Info.Id;
+                    break;
+                case FollowItemType.User:
+                    pageType = HohoemaPageType.UserVideo;
+                    parameter = Info.Id;
+                    break;
+                default:
+                    throw new Exception();
+            }
+
+            PageManager.OpenPage(pageType, parameter);
+        }
+    }
 }

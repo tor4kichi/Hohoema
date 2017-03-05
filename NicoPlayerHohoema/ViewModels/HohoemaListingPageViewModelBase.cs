@@ -25,15 +25,16 @@ namespace NicoPlayerHohoema.ViewModels
 	public abstract class HohoemaListingPageViewModelBase<ITEM_VM> : HohoemaViewModelBase
 		where ITEM_VM : HohoemaListingPageItemBase
 	{
-
-		public HohoemaListingPageViewModelBase(HohoemaApp app, PageManager pageManager, bool isRequireSignIn = true)
-			: base(app, pageManager, isRequireSignIn)
+		public HohoemaListingPageViewModelBase(HohoemaApp app, PageManager pageManager)
+			: base(app, pageManager)
 		{
 			NowLoadingItems = new ReactiveProperty<bool>(true)
 				.AddTo(_CompositeDisposable);
-			SelectedItems = new ObservableCollection<ITEM_VM>();
+            
+            SelectedItems = new ObservableCollection<ITEM_VM>();
 
-			HasItem = new ReactiveProperty<bool>(true);
+            
+            HasItem = new ReactiveProperty<bool>(false);
 
 			HasError = new ReactiveProperty<bool>(false);
 
@@ -50,9 +51,13 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactiveProperty(0)
 				.AddTo(_CompositeDisposable);
 
+            IsItemSelected = SelectedItems.ObserveProperty(x => x.Count)
+                .Select(x => x > 0)
+                .ToReactiveProperty()
+                .AddTo(_CompositeDisposable);
 
 
-			NowRefreshable = new ReactiveProperty<bool>(false);
+            NowRefreshable = new ReactiveProperty<bool>(false);
 
 			// 複数選択モード
 			IsSelectionModeEnable = new ReactiveProperty<bool>(false)
@@ -65,38 +70,63 @@ namespace NicoPlayerHohoema.ViewModels
 			// 複数選択モードによって再生コマンドの呼び出しを制御する
 			SelectItemCommand = IsSelectionModeEnable
 				.Select(x => !x)
-				.ToReactiveCommand<ITEM_VM>()
+				.ToReactiveCommand<object>()
 				.AddTo(_CompositeDisposable);
 
 
-			SelectItemCommand.Subscribe(x =>
+			SelectItemCommand.Subscribe(item =>
 			{
-				if (x?.SelectedCommand.CanExecute(null) ?? false)
-				{
-					x.SelectedCommand.Execute(null);
-				}
-
-				ClearSelection();
-			})
+                var args = item as ItemClickEventArgs;
+                if (args?.ClickedItem is HohoemaListingPageItemBase)
+                {
+                    var listItem = args.ClickedItem as HohoemaListingPageItemBase;
+                    if (listItem?.PrimaryCommand.CanExecute(null) ?? false)
+                    {
+                        listItem.PrimaryCommand.Execute(null);
+                    }
+                }
+            })
 			.AddTo(_CompositeDisposable);
-
+            
 
 			var SelectionItemsChanged = SelectedItems.ToCollectionChanged().ToUnit();
-
+/*
+            SelectionItemsChanged.Subscribe(_ => 
+            {
+                if (!IsSelectionModeEnable.Value)
+                {
+                    var item = SelectedItems.FirstOrDefault();
+                    if (item != null)
+                    {
+                        if (item.PrimaryCommand.CanExecute(null))
+                        {
+                            item.PrimaryCommand.Execute(null);
+                        }
+                    }
+                }
+            });
+            */
 #if DEBUG
-			SelectedItems.CollectionChangedAsObservable()
+            SelectedItems.CollectionChangedAsObservable()
 				.Subscribe(x => 
 				{
 					Debug.WriteLine("Selected Count: " + SelectedItems.Count);
 				});
 #endif
 
+            // 読み込み厨または選択中はソートを変更できない
+            CanChangeSort = Observable.CombineLatest(
+                NowLoadingItems,
+                IsSelectionModeEnable
+                )
+                .Select(x => !x.Any(y => y))
+                .ToReactiveProperty();
 
-			
-		}
+
+        }
 
 
-		protected override void OnDispose()
+        protected override void OnDispose()
 		{
 			if (IncrementalLoadingItems.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
 			{
@@ -152,9 +182,9 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+		protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
-			base.OnNavigatingFrom(e, viewModelState, suspending);
+			base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
 
 			if(!suspending)
 			{
@@ -194,9 +224,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 			IsSelectionModeEnable.Value = false;
 
-			if (IncrementalLoadingItems != null)
+            SelectedItems.Clear();
+
+            if (IncrementalLoadingItems != null)
 			{
-				if (IncrementalLoadingItems.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
+                if (IncrementalLoadingItems.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
 				{
 					(IncrementalLoadingItems.Source as HohoemaIncrementalSourceBase<ITEM_VM>).Error -= HohoemaIncrementalSource_Error;
 				}
@@ -272,11 +304,10 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> IsSelectionModeEnable { get; private set; }
 		
 
-		public ReactiveCommand<ITEM_VM> SelectItemCommand { get; private set; }
+		public ReactiveCommand<object> SelectItemCommand { get; private set; }
 
-		
-
-		private DelegateCommand _EnableSelectionCommand;
+                
+        private DelegateCommand _EnableSelectionCommand;
 		public DelegateCommand EnableSelectionCommand
 		{
 			get
@@ -324,9 +355,9 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<int> LoadedItemsCount { get; private set; }
 		public ReactiveProperty<int> SelectedItemsCount { get; private set; }
 
+        public ReactiveProperty<bool> IsItemSelected { get; private set; }
 
-
-		public ObservableCollection<ITEM_VM> SelectedItems { get; private set; }
+        public ObservableCollection<ITEM_VM> SelectedItems { get; private set; }
 
 		public IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> IncrementalLoadingItems { get; private set; }
 
@@ -334,8 +365,9 @@ namespace NicoPlayerHohoema.ViewModels
 		private double _LastListViewOffset;
 
 		public ReactiveProperty<bool> NowLoadingItems { get; private set; }
+        public ReactiveProperty<bool> CanChangeSort { get; private set; }
 
-		public ReactiveProperty<bool> NowRefreshable { get; private set; }
+        public ReactiveProperty<bool> NowRefreshable { get; private set; }
 
 		public ReactiveProperty<bool> HasItem { get; private set; }
 

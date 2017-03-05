@@ -21,10 +21,10 @@ namespace NicoPlayerHohoema.Views.Service
 			_HohoemaApp = app;
 		}
 
-		public async Task<Tuple<MylistGroupInfo, string>> ShowDialog(IReadOnlyList<ViewModels.VideoInfoControlViewModel> videos)
+		public async Task<Tuple<MylistGroupInfo, string>> ShowDialog(int count)
 		{
 			var mylistManager = _HohoemaApp.UserMylistManager;
-			var context = new MylistRegistrationDialogContext(mylistManager, videos.Count, hideMylistGroupId : null);
+			var context = new MylistRegistrationDialogContext(mylistManager, count, hideMylistGroupId : null);
 
 			var dialog = new Views.Service.MylistRegistrationDialog()
 			{
@@ -49,10 +49,10 @@ namespace NicoPlayerHohoema.Views.Service
 		}
 
 
-		public async Task<MylistGroupInfo> ShowSelectSingleMylistDialog(IReadOnlyList<ViewModels.VideoInfoControlViewModel> videos, string hideMylistGroupId = null)
+		public async Task<MylistGroupInfo> ShowSelectSingleMylistDialog(int count, string hideMylistGroupId = null)
 		{
 			var mylistManager = _HohoemaApp.UserMylistManager;
-			var context = new MylistRegistrationDialogContext(mylistManager, videos.Count, hideMylistGroupId);
+			var context = new MylistRegistrationDialogContext(mylistManager, count, hideMylistGroupId);
 
 			// マイリストコメントは利用しない
 			context.IsVisibleMylistComment = false;

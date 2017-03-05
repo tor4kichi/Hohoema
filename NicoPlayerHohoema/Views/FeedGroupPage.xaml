@@ -12,6 +12,7 @@
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:iconPack="using:MahApps.Metro.IconPacks"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400"
@@ -64,262 +65,304 @@
         
     </Page.Resources>
 
-    <ScrollViewer>
-        <StackPanel x:Name="LyaoutRoot" VerticalAlignment="Stretch" Margin="0">
 
-            <toolkit:DockPanel>
+    <Grid>
+        <toolkit:DockPanel>
+            <Border toolkit:DockPanel.Dock="Top" 
+                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
+                    BorderThickness="0 0 0 1"
+                    Height="64"
+                    >
+                <toolkit:DockPanel >
 
 
-                <StackPanel toolkit:DockPanel.Dock="Left">
-                    <AppBarButton Label="フィード一覧"
+                    <StackPanel toolkit:DockPanel.Dock="Right" 
+                                Orientation="Horizontal"
+                                >
+
+                        <AppBarButton Label="フィード一覧"
                                       Icon="List"
                                       Command="{Binding OpenFeedVideoListPageCommand}" />
 
-                </StackPanel>
-                
-                <Button Content="名前の変更"
-                    toolkit:DockPanel.Dock="Right"
-                        VerticalAlignment="Center"
-                    Margin="8"
-                    >
-                    <Button.Flyout>
-                        <Flyout>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBox Text="{Binding FeedGroupName.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="120"
+
+                        
+
+                    </StackPanel>
+
+                    <Border Background="Transparent" IsHitTestVisible="True"
+                                Margin="16 0 0 0"
+                                >
+
+                        <Button Background="Transparent">
+                            <Button.Flyout>
+                                <Flyout>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBox Text="{Binding FeedGroupName.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="120"
                                          >
-                                    <i:Interaction.Behaviors>
-                                        <mybehavior:KeyboardTrigger Key="Enter">
-                                            <mybehavior:KeyboardTrigger.Actions>
-                                                <mybehavior:CloseFlyoutAction />
-                                                <core:InvokeCommandAction Command="{Binding RenameApplyCommand}" />
-                                            </mybehavior:KeyboardTrigger.Actions>
-                                        </mybehavior:KeyboardTrigger>
-                                    </i:Interaction.Behaviors>
-                                </TextBox>
+                                            <i:Interaction.Behaviors>
+                                                <mybehavior:KeyboardTrigger Key="Enter">
+                                                    <mybehavior:KeyboardTrigger.Actions>
+                                                        <mybehavior:CloseFlyoutAction />
+                                                        <core:InvokeCommandAction Command="{Binding RenameApplyCommand}" />
+                                                    </mybehavior:KeyboardTrigger.Actions>
+                                                </mybehavior:KeyboardTrigger>
+                                            </i:Interaction.Behaviors>
+                                        </TextBox>
 
-                                <Button Content="OK" Margin="8 0 0 0"
-                                    Command="{Binding RenameApplyCommand}"
-                                    >
-                                    <i:Interaction.Behaviors>
-                                        <core:EventTriggerBehavior EventName="Tapped">
-                                            <mybehavior:CloseFlyoutAction />
-                                        </core:EventTriggerBehavior>
-                                    </i:Interaction.Behaviors>
-                                </Button>
-                            </StackPanel>
+                                        <Button Content="OK" Margin="8 0 0 0"
+                                            Command="{Binding RenameApplyCommand}"
+                                            >
+                                            <i:Interaction.Behaviors>
+                                                <core:EventTriggerBehavior EventName="Tapped">
+                                                    <mybehavior:CloseFlyoutAction />
+                                                </core:EventTriggerBehavior>
+                                            </i:Interaction.Behaviors>
+                                        </Button>
+                                    </StackPanel>
 
-                        </Flyout>
-                    </Button.Flyout>
-                </Button>
+                                </Flyout>
+                            </Button.Flyout>
 
-                <Border />
+                            <TextBlock Text="{Binding Title}" 
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource SubtitleTextBlockStyle}"
+                                    />
 
-            </toolkit:DockPanel>
-            
-            
-            <!-- マイリスト -->
-            <StackPanel Orientation="Horizontal" Margin="16 8 16 0">
+                        </Button>
+                        
 
-                <SymbolIcon Symbol="List" VerticalAlignment="Center" />
 
-                <TextBlock Text="マイリスト"
+                        <i:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="Tapped">
+                                <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0" />
+                            </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
+
+
+                    </Border>
+
+
+
+
+                </toolkit:DockPanel>
+            </Border>
+
+            <ScrollViewer>
+                <StackPanel x:Name="LyaoutRoot" VerticalAlignment="Stretch" Margin="16 8">
+
+                    <Button Width="240" Margin="0 24">
+                        <Button.Flyout>
+                            <MenuFlyout>
+                                <MenuFlyoutItem Text="マイリストを追加"
+                                                Command="{Binding AddMylistFeedSourceCommand}"
+                                                />
+                                <MenuFlyoutItem Text="ユーザーを追加"
+                                                Command="{Binding AddUserFeedSourceCommand}"
+                                                />
+                                <MenuFlyoutItem Text="タグを追加"
+                                                Command="{Binding AddTagFeedSourceCommand}"
+                                                />
+                            </MenuFlyout>
+                        </Button.Flyout>
+
+                        <StackPanel Orientation="Horizontal">
+                            <SymbolIcon Symbol="Add" />
+                            <Border Width="8" />
+                            <TextBlock Text="追加" />
+                        </StackPanel>
+                    </Button>
+
+
+                    <!-- マイリスト -->
+                    <StackPanel Orientation="Horizontal" Margin="0 8">
+
+                        <SymbolIcon Symbol="List" VerticalAlignment="Center" />
+
+                        <TextBlock Text="マイリスト"
                            VerticalAlignment="Center"
                            Margin="16 0 8 0"
                            FontSize="20"
                            />
 
-                <AppBarButton Icon="Add" 
-                              Label="追加"
-                              Command="{Binding AddMylistFeedSourceCommand}"
-                              >
+                    </StackPanel>
 
-                    
-                </AppBarButton>
-            </StackPanel>
-
-            <ListView ItemsSource="{Binding MylistFeedSources}"
+                    <ListView ItemsSource="{Binding MylistFeedSources}"
                           ItemTemplate="{StaticResource FeedSourceTemplate}"
-                          Margin="8 0"
+                          Margin="0 8"
                       SelectionMode="None"
+                              IsTabStop="False"
                           >
-                <ListView.ItemContainerStyle>
-                    <Style TargetType="ListViewItem">
-                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                        <Setter Property="VerticalContentAlignment" Value="Stretch" />
-                    </Style>
-                </ListView.ItemContainerStyle>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                                <Setter Property="IsTabStop" Value="False" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
 
-                <ListView.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <toolkit:WrapPanel Orientation="Horizontal" 
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <toolkit:WrapPanel Orientation="Horizontal" 
                                            MinWidth="{Binding ElementName=LyaoutRoot, Path=ActualWidth}"
                                            ItemHeight="48"
-                                           ItemWidth="200"
                                            HorizontalAlignment="Stretch"
                                            />
-                    </ItemsPanelTemplate>
-                </ListView.ItemsPanel>
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
 
-            </ListView>
+                    </ListView>
 
 
-            <Border Visibility="{Binding HasMylistFeedSource.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                    <Border Visibility="{Binding HasMylistFeedSource.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                     Margin="32 8"
                     >
-                <StackPanel Opacity="0.7">
-                    <TextBlock Margin="0 0 0 8">
-                        <Run>No items.</Run>
-                    </TextBlock>
-                    <TextBlock Margin="0">
-                        <Run>＋ アイコンから追加できます</Run>
-                    </TextBlock>
-                </StackPanel>
-            </Border>
+                        <StackPanel Opacity="0.7">
+                            <TextBlock Margin="0 0 0 8">
+                                    <Run>なし</Run>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
 
 
 
 
 
 
-            <!-- タグ -->
-            <StackPanel Orientation="Horizontal" Margin="16 8 16 0">
+                    <!-- タグ -->
+                    <StackPanel Orientation="Horizontal" Margin="0 8">
 
-                <SymbolIcon Symbol="Tag" VerticalAlignment="Center" />
+                        <SymbolIcon Symbol="Tag" VerticalAlignment="Center" />
 
-                <TextBlock Text="タグ"
+                        <TextBlock Text="タグ"
                            VerticalAlignment="Center"
                            Margin="16 0 8 0"
                            FontSize="20"
                            />
 
-                <AppBarButton Icon="Add" 
-                              Label="追加"
-                              Command="{Binding AddTagFeedSourceCommand}"
-                              >
-                </AppBarButton>
-            </StackPanel>
+                    </StackPanel>
 
-            <ListView ItemsSource="{Binding TagFeedSources}"
+                    <ListView ItemsSource="{Binding TagFeedSources}"
                           ItemTemplate="{StaticResource FeedSourceTemplate}"
-                          Margin="8 0"
+                          Margin="0 8"
                       SelectionMode="None"
                           >
-                <ListView.ItemContainerStyle>
-                    <Style TargetType="ListViewItem">
-                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                        <Setter Property="VerticalContentAlignment" Value="Stretch" />
-                    </Style>
-                </ListView.ItemContainerStyle>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                                <Setter Property="IsTabStop" Value="False" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
 
-                
-                <ListView.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <toolkit:WrapPanel Orientation="Horizontal" 
+
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <toolkit:WrapPanel Orientation="Horizontal" 
                                            MinWidth="{Binding ElementName=LyaoutRoot, Path=ActualWidth}"
                                            ItemHeight="48"
-                                           ItemWidth="200"
                                            HorizontalAlignment="Stretch"
                                            />
-                    </ItemsPanelTemplate>
-                </ListView.ItemsPanel>
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
 
-            </ListView>
+                    </ListView>
 
-            <Border Visibility="{Binding HasTagFeedSource.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                    <Border Visibility="{Binding HasTagFeedSource.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                     Margin="32 8"
                     >
-                <StackPanel Opacity="0.7">
-                    <TextBlock Margin="0 0 0 8">
-                        <Run>No items.</Run>
-                    </TextBlock>
-                    <TextBlock Margin="0">
-                        <Run>＋ アイコンから追加できます</Run>
-                    </TextBlock>
-                </StackPanel>
-            </Border>
+                        <StackPanel Opacity="0.7">
+                            <TextBlock Margin="0 0 0 8">
+                        <Run>なし</Run>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
 
 
 
 
 
-            <!-- ユーザー -->
-            <StackPanel Orientation="Horizontal" Margin="16 8 16 0">
+                    <!-- ユーザー -->
+                    <StackPanel Orientation="Horizontal" Margin="0 8">
 
-                <SymbolIcon Symbol="People" VerticalAlignment="Center" />
+                        <SymbolIcon Symbol="People" VerticalAlignment="Center" />
 
-                <TextBlock Text="ユーザー"
+                        <TextBlock Text="ユーザー"
                            VerticalAlignment="Center"
                            Margin="16 0 8 0"
                            FontSize="20"
                            />
+                        
+                    </StackPanel>
 
-                <AppBarButton Icon="Add" 
-                              Label="追加"
-                              Command="{Binding AddUserFeedSourceCommand}"
-                              >
-                </AppBarButton>
-            </StackPanel>
-
-            <ListView ItemsSource="{Binding UserFeedSources}"
+                    <ListView ItemsSource="{Binding UserFeedSources}"
                           ItemTemplate="{StaticResource FeedSourceTemplate}"
-                          Margin="8 0"
-                      SelectionMode="None"
+                          Margin="0 8"
+                        SelectionMode="None"
                           >
-                <ListView.ItemContainerStyle>
-                    <Style TargetType="ListViewItem">
-                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                        <Setter Property="VerticalContentAlignment" Value="Stretch" />
-                    </Style>
-                </ListView.ItemContainerStyle>
-                <ListView.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <toolkit:WrapPanel Orientation="Horizontal" 
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                                <Setter Property="IsTabStop" Value="False" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <toolkit:WrapPanel Orientation="Horizontal" 
                                            MinWidth="{Binding ElementName=LyaoutRoot, Path=ActualWidth}"
                                            ItemHeight="48"
-                                           ItemWidth="200"
                                            HorizontalAlignment="Stretch"
                                            />
-                    </ItemsPanelTemplate>
-                </ListView.ItemsPanel>
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
 
-            </ListView>
+                    </ListView>
 
-            <Border Visibility="{Binding HasUserFeedSource.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                    <Border Visibility="{Binding HasUserFeedSource.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                     Margin="32 8"
                     >
-                <StackPanel Opacity="0.7">
-                    <TextBlock Margin="0 0 0 8">
-                        <Run>No items.</Run>
-                    </TextBlock>
-                    <TextBlock Margin="0">
-                        <Run>＋ アイコンから追加できます</Run>
-                    </TextBlock>
-                </StackPanel>
-            </Border>
-            
-            
-            
-            
-            
-            <Border Height="32" />
+                        <StackPanel Opacity="0.7">
+                            <TextBlock Margin="0 0 0 8">
+                        <Run>なし</Run>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
 
-            <Border HorizontalAlignment="Stretch" Background="#99C00000">
-                <Button Content="このフィードグループを削除する"
-                        Margin="16 16"
-                        HorizontalAlignment="Center"
-                        >
-                    <Button.Flyout>
-                        <Flyout>
-                            <Button 
+
+
+
+
+                    <Border Height="32" />
+
+
+                    <Button MinWidth="150" >
+                        <StackPanel Orientation="Horizontal">
+                            <iconPack:PackIconMaterial Kind="Delete" />
+
+                            <Border Width="8" />
+
+                            <TextBlock >
+                                <Run Text="{Binding FeedGroupName.Value}" />
+                                <Run Text="を削除" />
+                            </TextBlock>
+                        </StackPanel>
+
+
+
+                        <Button.Flyout>
+                            <Flyout>
+                                <Button 
                                 Content="【確認】フィードグループを削除"
                                 Command="{Binding RemoveFeedGroupCommand}"
                                 />
-                        </Flyout>
-                    </Button.Flyout>
-                </Button>
-            </Border>
-            
-            
-        </StackPanel>
-    </ScrollViewer>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
+
+                </StackPanel>
+            </ScrollViewer>
+        </toolkit:DockPanel>
+    </Grid>
+    
+    
 </Page>

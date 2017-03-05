@@ -33,17 +33,32 @@ namespace NicoPlayerHohoema.Views.Service
 			var choiceListContainer = new ChoiceFromListSelectableContainer(dialogContentSet.ChoiceListTitle, dialogContentSet.ChoiceList);
 			var customTextContainer = new TextInputSelectableContainer(dialogContentSet.TextInputTitle, dialogContentSet.GenerateCandiateList);
 
-			var containers = new ISelectableContainer[] { choiceListContainer, customTextContainer };
+            var containers = new List<ISelectableContainer>();
 
-			ISelectableContainer firstSelected = null;
-			if (choiceListContainer.Items.Count > 0)
-			{
-				firstSelected = choiceListContainer;
-			}
-			else
-			{
-				firstSelected = customTextContainer;
-			}
+            ISelectableContainer firstSelected = null;
+            if (!string.IsNullOrEmpty(dialogContentSet.ChoiceListTitle))
+            {
+                containers.Add(choiceListContainer);
+
+                if (choiceListContainer.Items.Count > 0)
+                {
+                    firstSelected = choiceListContainer;
+                }
+                else
+                {
+                    firstSelected = choiceListContainer;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(dialogContentSet.TextInputTitle))
+            {
+                containers.Add(customTextContainer);
+
+                if (firstSelected == null)
+                {
+                    firstSelected = customTextContainer;
+                }
+            }
 
 			return ShowDialog(dialogContentSet.DialogTitle, containers, firstSelected);
 
@@ -88,6 +103,7 @@ namespace NicoPlayerHohoema.Views.Service
 
 		private IDisposable _ContainerItemChangedEventDisposer;
 
+        public bool IsSingleContainer { get; private set; }
 
 		public string Title { get; private set; }
 
@@ -95,11 +111,13 @@ namespace NicoPlayerHohoema.Views.Service
 		{
 			Title = dialogTitle;
 			SelectableContainerList = containers.ToList();
+            IsSingleContainer = SelectableContainerList.Count == 1;
 
-			SelectedContainer = new ReactiveProperty<ISelectableContainer>(firstSelected);
-			IsValidItemSelected = new ReactiveProperty<bool>(false);
+            SelectedContainer = new ReactiveProperty<ISelectableContainer>(firstSelected);
+            IsValidItemSelected = SelectedContainer.Select(x => x?.IsValidatedSelection ?? false)
+                .ToReactiveProperty();
 
-			_ContainerItemChangedEventDisposer = SelectedContainer.Subscribe(x => 
+            _ContainerItemChangedEventDisposer = SelectedContainer.Subscribe(x => 
 			{
 				if (_Prev != null)
 				{
@@ -121,10 +139,31 @@ namespace NicoPlayerHohoema.Views.Service
 
 			});
 			
-			
-		}
 
-		private void SelectableContainer_SelectionItemChanged(ISelectableContainer obj)
+            foreach (var container in SelectableContainerList)
+            {
+                (container as SelectableContainer).PropertyChanged += ContentSelectDialogContext_PropertyChanged;
+            }
+
+            if (firstSelected != null)
+            {
+                (firstSelected as SelectableContainer).IsSelected = true;
+            }
+        }
+
+        private void ContentSelectDialogContext_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "IsSelected")
+            {
+                var container = sender as SelectableContainer;
+                if (container.IsSelected)
+                {
+                    SelectedContainer.Value = container;
+                }
+            }
+        }
+
+        private void SelectableContainer_SelectionItemChanged(ISelectableContainer obj)
 		{
 			IsValidItemSelected.Value = obj.IsValidatedSelection;
 		}

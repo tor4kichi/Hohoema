@@ -17,6 +17,7 @@ using System.Collections.ObjectModel;
 using Mntone.Nico2.Videos.Ranking;
 using NicoPlayerHohoema.Views.Service;
 using System.Threading;
+using System.Windows.Input;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -30,75 +31,76 @@ namespace NicoPlayerHohoema.ViewModels
 			, AcceptCacheUsaseDialogService cacheAcceptDialogService
 			, ToastNotificationService toastService
 			)
-			: base(hohoemaApp, pageManager, isRequireSignIn:true)
+			: base(hohoemaApp, pageManager)
 		{
 			RankingChoiceDialogService = rakingChoiceDialog;
 			EditAutoCacheConditionDialogService = editAutoCacheDialog;
 			AcceptCacheUsaseDialogService = cacheAcceptDialogService;
 			ToastNotificationService = toastService;
-			SettingKindToVM = new Dictionary<HohoemaSettingsKind, SettingsPageContentViewModel>();
 
 			SettingItems = ((IEnumerable<HohoemaSettingsKind>)Enum.GetValues(typeof(HohoemaSettingsKind)))
-				.Select(x =>
-				{
-					return new HohoemaSettingsKindListItem(x, x.ToCulturelizedText());
-				})
+                .Where(x => Util.DeviceTypeHelper.IsXbox ? x != HohoemaSettingsKind.Share : true)
+				.Select(x => KindToVM(x))
 				.ToList();
-			CurrentSettingsKind = new ReactiveProperty<HohoemaSettingsKindListItem>(SettingItems[0])
-				.AddTo(_CompositeDisposable);
+
+            CurrentSettingsContent = new ReactiveProperty<SettingsPageContentViewModel>();
 
 
-			CurrentSettingsContent = CurrentSettingsKind
-				.Select(x => KindToVM(x.Kind, x.Label))
-				.Do(x =>
-				{
-					CurrentSettingsContent?.Value?.OnLeave();
-					x?.OnEnter();
-				})
-				.ToReactiveProperty()
-				.AddTo(_CompositeDisposable);
-		}
+            CurrentSettingsContent.Subscribe(x =>
+            {
+                _PrevSettingsContent?.Leaved();
+
+                if (x != null)
+                {
+                    AddSubsitutionBackNavigateAction("settings_content_selection"
+                        , () => 
+                        {
+                            CurrentSettingsContent.Value = null;
+                        });
+                }
+                else
+                {
+                    RemoveSubsitutionBackNavigateAction("settings_content_selection");
+                }
+
+                _PrevSettingsContent = x;
+                x?.Entered();                
+            });
+
+        }
 
 
 
-		private SettingsPageContentViewModel KindToVM(HohoemaSettingsKind kind, string title)
+        private SettingsPageContentViewModel KindToVM(HohoemaSettingsKind kind)
 		{
 			SettingsPageContentViewModel vm = null;
-			if (SettingKindToVM.ContainsKey(kind))
+			switch (kind)
 			{
-				vm = SettingKindToVM[kind];
+                case HohoemaSettingsKind.Player:
+                    vm = new PlayerSeetingPageContentViewModel(HohoemaApp);
+                    break;
+                case HohoemaSettingsKind.Filtering:
+                    vm = new FilteringSettingsPageContentViewModel(HohoemaApp, PageManager, RankingChoiceDialogService);
+                    break;
+				case HohoemaSettingsKind.Cache:
+					vm = new CacheSettingsPageContentViewModel(HohoemaApp, EditAutoCacheConditionDialogService, AcceptCacheUsaseDialogService);
+					break;
+				case HohoemaSettingsKind.Appearance:
+					vm = new AppearanceSettingsPageContentViewModel(HohoemaApp, ToastNotificationService);
+					break;
+				case HohoemaSettingsKind.Share:
+					vm = new ShareSettingsPageContentViewModel();
+					break;
+                case HohoemaSettingsKind.Feedback:
+                    vm = new FeedbackSettingsPageContentViewModel();
+                    break;
+                case HohoemaSettingsKind.About:
+                    vm = new AboutSettingsPageContentViewModel();
+                    break;
+                default:
+					break;
 			}
-			else
-			{
-				switch (kind)
-				{
-					case HohoemaSettingsKind.VideoList:
-						vm = new VideoListSettingsPageContentViewModel(HohoemaApp, PageManager, title, RankingChoiceDialogService);
-						break;
-					case HohoemaSettingsKind.Comment:
-						vm = new CommentSettingsPageContentViewModel(HohoemaApp, title);
-						break;
-					case HohoemaSettingsKind.VideoPlay:
-						vm = new VideoPlaySettingsPageContentViewModel(HohoemaApp, title);
-						break;
-					case HohoemaSettingsKind.Cache:
-						vm = new CacheSettingsPageContentViewModel(HohoemaApp, title, EditAutoCacheConditionDialogService, AcceptCacheUsaseDialogService);
-						break;
-					case HohoemaSettingsKind.AppDisplay:
-						vm = new AppDisplaySettingsPageContentViewModel(ToastNotificationService);
-						break;
-					case HohoemaSettingsKind.Shere:
-						vm = new ShereSettingsPageContentViewModel();
-						break;
-					default:
-						break;
-				}
-
-				if (vm != null)
-				{
-					SettingKindToVM.Add(kind, vm);
-				}
-			}
+			
 
 			return vm;
 		}
@@ -112,15 +114,6 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				selectRequestKind = (HohoemaSettingsKind)e.Parameter;
 			}
-			else if (viewModelState.ContainsKey(nameof(CurrentSettingsKind)))
-			{
-				var kindString = viewModelState[nameof(CurrentSettingsKind)] as string;
-				HohoemaSettingsKind kind;
-				if (Enum.TryParse(kindString, out kind))
-				{
-					selectRequestKind = kind;
-				}
-			}
 			else if (e.Parameter is string)
 			{
 				HohoemaSettingsKind kind;
@@ -130,40 +123,39 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 			}
 
-
 			if (selectRequestKind.HasValue)
 			{
-				var settingItem = SettingItems.Single(x => x.Kind == selectRequestKind);
-				CurrentSettingsKind.Value = settingItem;
+                SelectContent(selectRequestKind.Value);
 			}
 
 
 			return Task.CompletedTask;
 		}
 
-		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+		protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
-			CurrentSettingsContent.Value?.OnLeave();
+            CurrentSettingsContent.Value = null;
 
 			if (suspending)
 			{
-				viewModelState[nameof(CurrentSettingsKind)] = CurrentSettingsKind.Value.Kind.ToString();
-			}
+//				viewModelState[nameof(CurrentSettingsKind)] = CurrentSettingsKind.Value.Kind.ToString();
+            }
 
-			HohoemaApp.SyncToRoamingData().ConfigureAwait(false);
-
-			base.OnNavigatingFrom(e, viewModelState, suspending);
+			base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
 		}
 
 
+        private void SelectContent(HohoemaSettingsKind kind)
+        {
+            CurrentSettingsContent.Value = SettingItems.FirstOrDefault(x => x.Kind == kind);
+        }
 
 
 
-		public Dictionary<HohoemaSettingsKind, SettingsPageContentViewModel> SettingKindToVM { get; private set; }
-		public ReactiveProperty<HohoemaSettingsKindListItem> CurrentSettingsKind { get; private set; }
-		public ReactiveProperty<SettingsPageContentViewModel> CurrentSettingsContent { get; private set; }
+        private SettingsPageContentViewModel _PrevSettingsContent;
+        public ReactiveProperty<SettingsPageContentViewModel> CurrentSettingsContent { get; private set; }
 
-		public List<HohoemaSettingsKindListItem> SettingItems { get; private set; }
+		public List<SettingsPageContentViewModel> SettingItems { get; private set; }
 
 		public EditAutoCacheConditionDialogService EditAutoCacheConditionDialogService { get; private set;}
 		public RankingChoiceDialogService RankingChoiceDialogService { get; private set; }
@@ -174,67 +166,57 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public enum HohoemaSettingsKind
 	{
-		VideoList,
-		VideoPlay,
-		Comment,
+		Player,
+		Filtering,
 		Cache,
-		AppDisplay,
-		Shere,
-	}
+		Appearance,
+        Share,
+        Feedback,
+        About,
+    }
 
-
-	public static class HohoemaSettingsKindExtention
-	{
-		public static string ToCulturelizedText(this HohoemaSettingsKind kind)
-		{
-			switch (kind)
-			{
-				case HohoemaSettingsKind.VideoList:
-					return "動画リスト";
-				case HohoemaSettingsKind.Comment:
-					return "コメント";
-				case HohoemaSettingsKind.VideoPlay:
-					return "プレイヤー";
-				case HohoemaSettingsKind.Cache:
-					return "キャッシュ";
-				case HohoemaSettingsKind.AppDisplay:
-					return "表示スタイル";
-				case HohoemaSettingsKind.Shere:
-					return "SNS連携";
-				default:
-					throw new NotSupportedException($"not support {nameof(HohoemaSettingsKind)}.{kind.ToString()}");
-			}
-		}
-	}
-
-	public class HohoemaSettingsKindListItem
-	{
-		public HohoemaSettingsKind Kind { get; private set; }
-		public string Label { get; private set; }
-
-		public HohoemaSettingsKindListItem(HohoemaSettingsKind kind, string label)
-		{
-			Kind = kind;
-			Label = label;
-		}
-	}
-
-
-	public abstract class SettingsPageContentViewModel : ViewModelBase
+	public abstract class SettingsPageContentViewModel : ViewModelBase, IDisposable
 	{
 		public string Title { get; private set; }
+        public HohoemaSettingsKind Kind { get; private set; }
 
-		public SettingsPageContentViewModel(string title)
+        protected CompositeDisposable _FocusingDisposable;
+
+
+        public SettingsPageContentViewModel(string title, HohoemaSettingsKind kind)
 		{
-			Title = title;
-		}
+            Title = title;
+            Kind = kind;
+        }
 
+        
+        internal void Entered()
+        {
+            _FocusingDisposable = new CompositeDisposable();
 
-		virtual public void OnEnter() { }
+            OnEnter(_FocusingDisposable);
+        }
 
-		public abstract void OnLeave();
+        protected virtual void OnEnter(ICollection<IDisposable> focusingDispsable)
+        {
+        }
 
-	}
+        internal void Leaved()
+        {
+            _FocusingDisposable?.Dispose();
+
+            OnLeave();
+        }
+
+		protected virtual void OnLeave()
+        {
+        }
+
+        public void Dispose()
+        {
+            _FocusingDisposable?.Dispose();
+        }
+    }
 
 	
 
@@ -243,16 +225,17 @@ namespace NicoPlayerHohoema.ViewModels
 	
 
 
-	public class RemovableListItem<T>
-	{
+	public class RemovableListItem<T> : IRemovableListItem
+
+    {
 		public T Source { get; private set; }
 		public Action<T> OnRemove { get; private set; }
 
-		public string Content { get; private set; }
+		public string Label { get; private set; }
 		public RemovableListItem(T source, string content, Action<T> onRemovedAction)
 		{
 			Source = source;
-			Content = content;
+			Label = content;
 			OnRemove = onRemovedAction;
 
 			RemoveCommand = new DelegateCommand(() => 
@@ -262,18 +245,19 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		public DelegateCommand RemoveCommand { get; private set; }
+		public ICommand RemoveCommand { get; private set; }
 	}
 
 
-	public class NGKeywordViewModel : IDisposable
-	{
+	public class NGKeywordViewModel : IRemovableListItem, IDisposable
+    {
 		public NGKeywordViewModel(NGKeyword ngTitleInfo, Action<NGKeyword> onRemoveAction)
 		{
 			_NGKeywordInfo = ngTitleInfo;
 			_OnRemoveAction = onRemoveAction;
 
-			TestText = new ReactiveProperty<string>(_NGKeywordInfo.TestText);
+            Label = _NGKeywordInfo.Keyword;
+            TestText = new ReactiveProperty<string>(_NGKeywordInfo.TestText);
 			Keyword = new ReactiveProperty<string>(_NGKeywordInfo.Keyword);
 
 			TestText.Subscribe(x => 
@@ -302,7 +286,7 @@ namespace NicoPlayerHohoema.ViewModels
 			IsInvalidKeyword = IsValidKeyword.Select(x => !x)
 				.ToReactiveProperty();
 
-			RemoveKeywordCommand = new DelegateCommand(() => 
+            RemoveCommand = new DelegateCommand(() => 
 			{
 				_OnRemoveAction(this._NGKeywordInfo);
 			});
@@ -319,14 +303,15 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
+
 		public ReactiveProperty<string> TestText { get; private set; }
 		public ReactiveProperty<string> Keyword { get; private set; }
 
 		public ReactiveProperty<bool> IsValidKeyword { get; private set; }
 		public ReactiveProperty<bool> IsInvalidKeyword { get; private set; }
 
-
-		public DelegateCommand RemoveKeywordCommand { get; private set; }
+        public string Label { get; private set; }
+		public ICommand RemoveCommand { get; private set; }
 		
 		NGKeyword _NGKeywordInfo;
 		Action<NGKeyword> _OnRemoveAction;
@@ -347,7 +332,11 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 	}
 
-	
+	public interface IRemovableListItem
+    {
+        string Label { get; }
+        ICommand RemoveCommand { get; }
+    }
 
 	
 }

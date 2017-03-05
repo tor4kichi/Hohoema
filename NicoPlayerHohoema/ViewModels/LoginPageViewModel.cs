@@ -1,227 +1,155 @@
-﻿using Mntone.Nico2;
-using NicoPlayerHohoema.Models;
-using Prism.Commands;
-using Prism.Windows.Mvvm;
-using Reactive.Bindings;
-using Reactive.Bindings.Extensions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NicoPlayerHohoema.Models;
+using Reactive.Bindings;
+using System.Reactive.Linq;
+using Reactive.Bindings.Extensions;
 using Prism.Windows.Navigation;
-using Windows.ApplicationModel;
-using Windows.Foundation.Diagnostics;
 using System.Threading;
-using Windows.Storage;
+using System.Diagnostics;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class LoginPageViewModel : HohoemaViewModelBase
-	{
-		public LoginPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
-			 : base(hohoemaApp, pageManager, false, canActivateBackgroundUpdate:true)
-		{
+    public class LoginPageViewModel : HohoemaViewModelBase
+    {
+        public string VersionText { get; private set; }
+
+        public ReactiveProperty<string> Mail { get; private set; }
+        public ReactiveProperty<string> Password { get; private set; }
+        public ReactiveProperty<bool> IsRememberPassword { get; private set; }
+
+        public ReactiveProperty<bool> IsValidAccount { get; private set; }
+        public ReactiveProperty<bool> NowProcessLoggedIn { get; private set; }
+
+        public ReactiveProperty<bool> IsAuthoricationFailed { get; private set; }
+        public ReactiveProperty<bool> IsServiceUnavailable { get; private set; }
+
+        public ReactiveCommand TryLoginCommand { get; private set; }
+
+        public ReactiveProperty<string> LoginErrorText { get; private set; }
 
 
+        private LoginRedirectPayload _RedirectInfo;
 
-			CanChangeValue = new ReactiveProperty<bool>(true)
-				.AddTo(_CompositeDisposable);
+        public LoginPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager) 
+            : base(hohoemaApp, pageManager, canActivateBackgroundUpdate:false)
+        {
+            var version = Windows.ApplicationModel.Package.Current.Id.Version;
+            VersionText = $"{version.Major}.{version.Minor}.{version.Build}";
 
-			var account = HohoemaApp.GetPrimaryAccount();
-			string id = account?.Item1 ?? HohoemaApp.GetPrimaryAccountId();
+            Mail = new ReactiveProperty<string>("", mode: ReactivePropertyMode.DistinctUntilChanged);
+            Password = new ReactiveProperty<string>("", mode: ReactivePropertyMode.DistinctUntilChanged);
 
-			MailOrTelephone = new ReactiveProperty<string>(id)
-				.AddTo(_CompositeDisposable);
-			Password = new ReactiveProperty<string>(account?.Item2 ?? "")
-				.AddTo(_CompositeDisposable);
+            IsRememberPassword = new ReactiveProperty<bool>( !string.IsNullOrEmpty(Password.Value));
 
-			// すでにパスワード保存済みの場合は「パスワードを保存する」をチェックした状態にする
-			IsRememberPassword = new ReactiveProperty<bool>(!String.IsNullOrEmpty(Password.Value))
-				.AddTo(_CompositeDisposable);
+            IsValidAccount = new ReactiveProperty<bool>(hohoemaApp.IsLoggedIn);
+            NowProcessLoggedIn = new ReactiveProperty<bool>(false);
+            IsAuthoricationFailed = new ReactiveProperty<bool>(false);
+            IsServiceUnavailable = new ReactiveProperty<bool>(false);
 
-			// メールとパスワードが1文字以上あればログインボタンが押せる
-			CheckLoginCommand = Observable.CombineLatest(
-					MailOrTelephone.Select(x => x?.Length > 0),
-					Password.Select(x => x?.Length > 0),
-					CanChangeValue
-				)
-				.Select(x => x[0] && x[1] && x[2])
-				.ToReactiveCommand()
-				.AddTo(_CompositeDisposable);
+            LoginErrorText = HohoemaApp.ObserveProperty(x => x.LoginErrorText)
+                .ToReactiveProperty();
 
+            // メールかパスワードが変更されたらログイン検証されていないアカウントとしてマーク
+            TryLoginCommand = Observable.CombineLatest(
+                Mail.Select(x => !string.IsNullOrWhiteSpace(x)),
+                Password.Select(x => !string.IsNullOrWhiteSpace(x)),
+                NowProcessLoggedIn.Select(x => !x)
+                )
+                .Select(x => x.All(y => y))
+                .ToReactiveCommand();
+                
+            TryLoginCommand.Subscribe(async _ =>
+            {
+                NowProcessLoggedIn.Value = true;
 
-			CheckLoginCommand.Subscribe(async x => await CheckLoginAndGo())
-				.AddTo(_CompositeDisposable);
+                try
+                {
+                    await TryLogin();
+                }
+                finally
+                {
+                    NowProcessLoggedIn.Value = false;
+                }
+            });
 
-			IsLoginFailed = new ReactiveProperty<bool>()
-				.AddTo(_CompositeDisposable);
-			IsServiceUnavailable = new ReactiveProperty<bool>()
-				.AddTo(_CompositeDisposable);
-
-
-			var version = Package.Current.Id.Version;
-			VersionText = $"{version.Major}.{version.Minor}.{version.Build}";
-
-
-			LoginErrorText = new ReactiveProperty<string>();
-
-
-
-			IsRememberPassword
-				.Where(x => !x)
-				.Subscribe(_ => 
-				{
-					HohoemaApp.RemoveAccount(MailOrTelephone.Value);
-				});
-		}
-
-		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-			// Note: ログインページだけはbase.OnNavigatedTo が不要
-			//			base.OnNavigatedTo(e, viewModelState);
-
-			IsLoginFailed.Value = false;
-
-			// ログイン済みの場合、ログアウトする
-			if (await HohoemaApp.CheckSignedInStatus() == NiconicoSignInStatus.Success)
-			{
-				await HohoemaApp.SignOut();
-
-				// ログアウト前のページに戻れないようにページ履歴を削除
-				PageManager.ClearNavigateHistory();
-			}
-
-			if (e.Parameter is bool)
-			{
-				var canAutoLogin = (bool)e.Parameter;
-
-				var account = HohoemaApp.GetPrimaryAccount();
-				if (canAutoLogin && account != null)
-				{
-					await CheckLoginAndGo();
-				}
-			}
-			else if (e.Parameter is string)
-			{
-				_LoginRedirectPayload = PagePayloadBase.FromParameterString<LoginRedirectPayload>(e.Parameter as string);
-				var account = HohoemaApp.GetPrimaryAccount();
-				if (account != null)
-				{
-					await CheckLoginAndGo();
-				}
-			}
-
-			//			return base.NavigatedToAsync(cancelToken, e, viewModelState);
-		}
+        }
 
 
-		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
-		{
-			base.OnNavigatingFrom(e, viewModelState, suspending);
-		}
+        protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        {
+
+            if (e.Parameter is string)
+            {
+                _RedirectInfo = LoginRedirectPayload.FromParameterString<LoginRedirectPayload>(e.Parameter as string);
+            }
+
+            var accountInfo = await AccountManager.GetPrimaryAccount();
+            if (accountInfo != null)
+            {
+                Mail.Value = accountInfo.Item1;
+                Password.Value = accountInfo.Item2;
+            }
+            else if (AccountManager.HasPrimaryAccount())
+            {
+                Mail.Value = AccountManager.GetPrimaryAccountId();
+            }
+
+            IsRememberPassword.Value = !string.IsNullOrWhiteSpace(Password.Value);
+        }
+
+        private async Task TryLogin()
+        {
+            // Note: NiconicoContextのインスタンスを作成してサインインを試行すると
+            // HttpClientのキャッシュ削除がされていない状態で試行されてしまい
+            // 正常な結果を得られません。
+            // HohoemaApp上で管理しているNiconicoContextのみに限定することで
+            // HttpClientのキャッシュが残る挙動に対処しています
+
+            IsAuthoricationFailed.Value = false;
+            IsServiceUnavailable.Value = false;
+
+            var result = await HohoemaApp.SignIn(Mail.Value, Password.Value);
+            IsValidAccount.Value = result == Mntone.Nico2.NiconicoSignInStatus.Success;
+            IsAuthoricationFailed.Value = result == Mntone.Nico2.NiconicoSignInStatus.Failed;
+            IsServiceUnavailable.Value = result == Mntone.Nico2.NiconicoSignInStatus.ServiceUnavailable;
 
 
-		private async Task CheckLoginAndGo()
-		{
-			CanChangeValue.Value = false;
-			IsLoginFailed.Value = false;
-			LoginErrorText.Value = null;
+            if (IsValidAccount.Value)
+            {
+                AccountManager.SetPrimaryAccountId(Mail.Value);
 
-			if (!Util.InternetConnection.IsInternet())
-			{
-				IsLoginFailed.Value = true;
-				LoginErrorText.Value = "インターネット接続が必要です";
-				CanChangeValue.Value = true;
-				return;
-			}
+                if (IsRememberPassword.Value)
+                {
+                    await AccountManager.AddOrUpdateAccount(Mail.Value, Password.Value);
+                }
+                else
+                {
+                    AccountManager.RemoveAccount(Mail.Value);
+                }
 
-			var cancelSource = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+                // TODO: 初期セットアップ補助ページを開く？
 
+                if (_RedirectInfo != null)
+                {
+                    try
+                    {
+                        PageManager.OpenPage(_RedirectInfo.RedirectPageType, _RedirectInfo.RedirectParamter);
+                    }
+                    catch
+                    {
+                        PageManager.OpenPage(HohoemaPageType.Portal);
+                    }
+                }
+                else
+                {
+                    PageManager.OpenPage(HohoemaPageType.Portal);
+                }
+            }
+        }
 
-			NiconicoSignInStatus signinResult = NiconicoSignInStatus.Failed;
-			try
-			{
-				signinResult = await HohoemaApp.SignIn(MailOrTelephone.Value, Password.Value).AsTask(cancelSource.Token);
-			}
-			catch (TaskCanceledException)
-			{
-				IsLoginFailed.Value = true;
-				LoginErrorText.Value = "ログインに時間が掛かっています。もう一度お試しください。";
-			}
-			finally
-			{
-				cancelSource.Dispose();
-			}
-
-			if (signinResult == NiconicoSignInStatus.Success)
-			{
-				if (IsRememberPassword.Value)
-				{
-					HohoemaApp.AddOrUpdateAccount(MailOrTelephone.Value, Password.Value);
-				}
-				else
-				{
-					HohoemaApp.RemoveAccount(MailOrTelephone.Value);
-				}
-
-				HohoemaApp.SetPrimaryAccountId(MailOrTelephone.Value);
-
-				// ログインページにバックキーで戻れないようにページ履歴削除
-				PageManager.ClearNavigateHistory();
-
-				if (_LoginRedirectPayload == null)
-				{
-					// ポータルページへGO
-					PageManager.OpenPage(HohoemaPageType.Portal);
-				}
-				else 
-				{
-					PageManager.OpenPage(_LoginRedirectPayload.RedirectPageType, _LoginRedirectPayload.RedirectParamter);
-				}
-
-				IsServiceUnavailable.Value = false;
-			}
-			else if (signinResult == NiconicoSignInStatus.Failed)
-			{
-				IsLoginFailed.Value = true;
-				IsServiceUnavailable.Value = false;
-				LoginErrorText.Value = HohoemaApp.LoginErrorText;
-			}
-			else if (signinResult == NiconicoSignInStatus.ServiceUnavailable)
-			{
-				IsLoginFailed.Value = false;
-				IsServiceUnavailable.Value = true;
-			}
-			else
-			{
-				HohoemaApp.NiconicoContext?.Dispose();
-				HohoemaApp.NiconicoContext = null;
-			}
-			
-			
-
-			CanChangeValue.Value = true;
-		}
-
-		public ReactiveProperty<bool> IsLoginFailed { get; private set; }
-		public ReactiveProperty<bool> IsServiceUnavailable { get; private set; }
-
-		public ReactiveProperty<bool> CanChangeValue { get; private set; }
-
-		public ReactiveProperty<string> MailOrTelephone { get; private set; }
-		public ReactiveProperty<string> Password { get; private set; }
-		public ReactiveProperty<bool> IsRememberPassword { get; private set; }
-
-		public ReactiveCommand CheckLoginCommand { get; private set; }
-
-
-		public ReactiveProperty<string> LoginErrorText { get; private set; }
-
-		public string VersionText { get; private set; }
-
-
-		private LoginRedirectPayload _LoginRedirectPayload;
-	}
+    }
 }

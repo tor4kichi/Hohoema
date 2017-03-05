@@ -30,6 +30,8 @@ namespace NicoPlayerHohoema.ViewModels
 		public RankingCategoryPageViewModel(HohoemaApp hohoemaApp, EventAggregator ea, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
 			: base(hohoemaApp, pageManager, mylistDialogService)
 		{
+            this.ChangeRequireServiceLevel(HohoemaAppServiceLevel.LoggedIn);
+
 			ContentFinder = HohoemaApp.ContentFinder;
 			_EventAggregator = ea;
 
@@ -95,39 +97,26 @@ namespace NicoPlayerHohoema.ViewModels
 			if (e.Parameter is string)
 			{
 				RequireCategoryInfo = RankingCategoryInfo.FromParameterString(e.Parameter as string);
-			}
+                var text = RankingCategoryExtention.ToCultulizedText(RequireCategoryInfo.Category);
+                UpdateTitle($"{text} のランキング ");
+                RankingCategory = RequireCategoryInfo.Category;
+            }
 			else
 			{
 				RequireCategoryInfo = null;
-			}
+                UpdateTitle($"? のランキング ");
+            }
 
-			if (RequireCategoryInfo.RankingSource == RankingSource.CategoryRanking)
-			{
-				RankingCategory category;
-				if (Enum.TryParse(RequireCategoryInfo.Parameter, out category))
-				{
-					var text = RankingCategoryExtention.ToCultulizedText(category);
-					UpdateTitle($"{text} のランキング ");
-				}
-				else
-				{
-					UpdateTitle($"{RequireCategoryInfo.Parameter} のランキング");
-				}
-			}
-			else
-			{
-				UpdateTitle($"{RequireCategoryInfo.Parameter} のランキング");
-			}
-
+			
 			base.OnNavigatedTo(e, viewModelState);
 		}
 
 		
-		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+		protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
 			RankingSettings.Save().ConfigureAwait(false);
 
-			base.OnNavigatingFrom(e, viewModelState, suspending);
+			base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
 		}
 
 		#region Implement HohoemaVideListViewModelBase
@@ -141,27 +130,13 @@ namespace NicoPlayerHohoema.ViewModels
 			IIncrementalSource <RankedVideoInfoControlViewModel> source = null;
 			try
 			{
-				switch (categoryInfo.RankingSource)
-				{
-					case RankingSource.CategoryRanking:
-						RankingCategory = (RankingCategory)Enum.Parse(typeof(RankingCategory), categoryInfo.Parameter);
-						var target = SelectedRankingTarget.Value.TargetType;
-						var timeSpan = SelectedRankingTimeSpan.Value.TimeSpan;
-						source = new CategoryRankingLoadingSource(HohoemaApp, PageManager, RankingCategory, target, timeSpan);
+                var target = SelectedRankingTarget.Value.TargetType;
+                var timeSpan = SelectedRankingTimeSpan.Value.TimeSpan;
+                source = new CategoryRankingLoadingSource(HohoemaApp, PageManager, RankingCategory, target, timeSpan);
 
-						CanChangeRankingParameter.Value = true;
-						break;
-					case RankingSource.SearchWithMostPopular:
-
-						source = new CustomRankingLoadingSource(HohoemaApp, PageManager, categoryInfo.Parameter);
-
-						CanChangeRankingParameter.Value = false;
-						break;
-					default:
-						throw new NotImplementedException();
-				}
-			}
-			catch
+                CanChangeRankingParameter.Value = true;
+            }
+            catch
 			{
 				IsFailedRefreshRanking.Value = true;
 			}

@@ -26,8 +26,8 @@ using Mntone.Nico2.Searches.Live;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class SearchPageViewModel : HohoemaViewModelBase
-	{
+	public class SearchPageViewModel : HohoemaListingPageViewModelBase<SearchHistoryListItem>
+    {
 		Views.Service.MylistRegistrationDialogService _MylistDialogService;
 		public ISearchPagePayloadContent RequireSearchOption { get; private set; }
 
@@ -38,9 +38,6 @@ namespace NicoPlayerHohoema.ViewModels
 		public List<SearchTarget> TargetListItems { get; private set; }
 		public ReactiveProperty<SearchTarget> SelectedTarget { get; private set; }
 		
-
-		public ReactiveProperty<HohoemaViewModelBase> ContentVM { get; private set; }
-
 		public Dictionary<SearchTarget, SearchOptionViewModelBase> SearchOptionVMDict { get; private set; }
 		public ReactiveProperty<SearchOptionViewModelBase> SearchOptionVM { get; private set; }
 
@@ -64,11 +61,9 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 		public SearchPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
-			: base(hohoemaApp, pageManager, isRequireSignIn:true)
+			: base(hohoemaApp, pageManager)
 		{
 			_MylistDialogService = mylistDialogService;
-
-			ContentVM = new ReactiveProperty<HohoemaViewModelBase>();
 
 			SearchText = new ReactiveProperty<string>("")
 				.AddTo(_CompositeDisposable);
@@ -125,29 +120,20 @@ namespace NicoPlayerHohoema.ViewModels
 				// Note: Keywordの管理はSearchPage側で行うべき？
 				SearchOptionVM.Value.Keyword = SearchText.Value;
 
-
 				var searchOption = SearchOptionVM.Value.MakePayload();
-
-				var payload = new SearchPagePayload(searchOption);
-				var searchPageParameter = payload.ToParameterString();
-				var isEmptyPage = RequireSearchOption == null;
-
-				// 検索結果を表示
-				PageManager.OpenPage(
-					HohoemaPageType.Search,
-					searchPageParameter
-					);
-
-				if (isEmptyPage)
-				{
-					PageManager.ForgetLastPage();
-				}
+                
+                // 検索結果を表示
+                PageManager.Search(searchOption);
 			})
 			.AddTo(_CompositeDisposable);
 		}
 
+        protected override IIncrementalSource<SearchHistoryListItem> GenerateIncrementalSource()
+        {
+            return new SearchHistoryIncrementalLoadingSource(HohoemaApp, this);
+        }
 
-		private DelegateCommand _ShowSearchHistoryCommand;
+        private DelegateCommand _ShowSearchHistoryCommand;
 		public DelegateCommand ShowSearchHistoryCommand
 		{
 			get
@@ -161,7 +147,45 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		internal void OnSearchHistorySelected(SearchHistory item)
+        private DelegateCommand _DeleteAllSearchHistoryCommand;
+        public DelegateCommand DeleteAllSearchHistoryCommand
+        {
+            get
+            {
+                return _DeleteAllSearchHistoryCommand
+                    ?? (_DeleteAllSearchHistoryCommand = new DelegateCommand(async () =>
+                    {
+                        SearchHistoryDb.Clear();
+
+                        await ResetList();
+                    },
+                    () => SearchHistoryDb.GetHistoryCount() > 0
+                    ));
+            }
+        }
+
+
+        private DelegateCommand _DeleteSelectedSearchHistoryCommand;
+        public DelegateCommand DeleteSelectedSearchHistoryCommand
+        {
+            get
+            {
+                return _DeleteSelectedSearchHistoryCommand
+                    ?? (_DeleteSelectedSearchHistoryCommand = new DelegateCommand(async () =>
+                    {
+                        foreach (var item in SelectedItems)
+                        {
+                            SearchHistoryDb.RemoveHistory(item.Keyword, item.Target);
+                        }
+
+                        await ResetList();
+                    }
+                    , () => SelectedItems.Count > 0
+                    ));
+            }
+        }
+
+        internal void OnSearchHistorySelected(SearchHistory item)
 		{
 			SearchText.Value = item.Keyword;
 			SelectedTarget.Value = TargetListItems.Single(x => x == item.Target);
@@ -171,114 +195,32 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			var prevSearchOption = RequireSearchOption;
-			RequireSearchOption = null;
-			if (e.Parameter is string)
-			{
-				var payload = SearchPagePayload.FromParameterString<SearchPagePayload>(e.Parameter as string);
-				RequireSearchOption = payload.GetContentImpl();
-			}
-			else if (e.NavigationMode == NavigationMode.New || e.NavigationMode == NavigationMode.Refresh)
-			{
-				// バック・フォワード以外では常に検索履歴（EmptySearchPage）を表示させたいので
-				// 検索オプションをクリア
-				RequireSearchOption = null;
-			}
-			
-			
+			// コミュニティ検索はログインが必要
+            if (HohoemaApp.IsLoggedIn)
+            {
+                ChangeRequireServiceLevel(HohoemaAppServiceLevel.LoggedIn);
+            }
+            else
+            {
+                ChangeRequireServiceLevel(HohoemaAppServiceLevel.OnlineWithoutLoggedIn);
+            }
 
 			// ContentVM側のページタイトルが後で呼び出されるように、SearchPage側を先に呼び出す
 			base.OnNavigatedTo(e, viewModelState);
 
+            SelectedItems.CollectionChangedAsObservable()
+                .Subscribe(_ =>
+                {
+                    DeleteSelectedSearchHistoryCommand.RaiseCanExecuteChanged();
+                });
+        }
 
-			if (!(prevSearchOption?.Equals(RequireSearchOption) ?? false))
-			{
-				SearchTarget searchTarget = SearchTarget.Keyword;
-				HohoemaViewModelBase contentVM = null;
-				if (IsSearchKeyword)
-				{
-					contentVM = new KeywordSearchPageContentViewModel(
-							RequireSearchOption as KeywordSearchPagePayloadContent
-							, HohoemaApp
-							, PageManager
-							, _MylistDialogService
-							);
-					searchTarget = SearchTarget.Keyword;
-				}
-				else if (IsSearchTag)
-				{
-					contentVM = new TagSearchPageContentViewModel(
-							RequireSearchOption as TagSearchPagePayloadContent
-							, HohoemaApp
-							, PageManager
-							, _MylistDialogService
-							);
-					searchTarget = SearchTarget.Tag;
-				}
-				else if (IsSearchMylist)
-				{
-					contentVM = new MylistSearchPageContentViewModel(
-							RequireSearchOption as MylistSearchPagePayloadContent
-							, HohoemaApp
-							, PageManager
-							);
-					searchTarget = SearchTarget.Mylist;
-				}
-				else if (IsSearchCommunity)
-				{
-					contentVM = new CommunitySearchPageContentViewModel(
-							RequireSearchOption as CommunitySearchPagePayloadContent
-							, HohoemaApp
-							, PageManager
-							);
-					searchTarget = SearchTarget.Community;
-				}
-				else if (IsSearchNiconama)
-				{
-					contentVM = new LiveSearchPageContentViewModel(
-							RequireSearchOption as LiveSearchPagePayloadContent
-							, HohoemaApp
-							, PageManager
-						);
-					searchTarget = SearchTarget.Niconama;
-				}
-				else
-				{
-					contentVM = new EmptySearchPageContentViewModel(
-							HohoemaApp
-							, PageManager
-							, this
-							);
-				}				
+        protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        {
+            await ResetList();
 
-				ContentVM.Value = contentVM;
-
-
-				SearchText.Value = RequireSearchOption?.Keyword ?? "";
-				SelectedTarget.Value = searchTarget;
-
-				// キーワードを検索履歴を記録
-				if (!string.IsNullOrWhiteSpace(SearchText.Value))
-				{
-					SearchHistoryDb.Searched(SearchText.Value, SelectedTarget.Value);
-				}
-			}
-
-			ContentVM.Value?.OnNavigatedTo(e, viewModelState);
-
-			
-		}
-
-		public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
-		{
-			if (ContentVM.Value != null)
-			{
-				ContentVM.Value.OnNavigatingFrom(e, viewModelState, suspending);
-			}
-
-			base.OnNavigatingFrom(e, viewModelState, suspending);
-		}
-
+            await base.NavigatedToAsync(cancelToken, e, viewModelState);
+        }
 	}
 
 
@@ -884,4 +826,31 @@ namespace NicoPlayerHohoema.ViewModels
 			Target = source.Target;
 		}
 	}
+
+    public class SearchHistoryIncrementalLoadingSource : IIncrementalSource<SearchHistoryListItem>
+    {
+        private HohoemaApp _HohoemaApp;
+        private SearchPageViewModel _SearchPageViewModel;
+        public SearchHistoryIncrementalLoadingSource(HohoemaApp hohoemaApp, SearchPageViewModel parentPage)
+        {
+            _HohoemaApp = hohoemaApp;
+            _SearchPageViewModel = parentPage;
+        }
+
+        public uint OneTimeLoadCount => 100;
+
+        public Task<IEnumerable<SearchHistoryListItem>> GetPagedItems(int head, int count)
+        {
+            var items = SearchHistoryDb.GetHistoryItems().Skip(head).Take(count)
+                .Select(x => new SearchHistoryListItem(x, _SearchPageViewModel.OnSearchHistorySelected))
+                .ToArray();
+
+            return Task.FromResult(items.AsEnumerable());
+        }
+
+        public Task<int> ResetSource()
+        {
+            return Task.FromResult(SearchHistoryDb.GetHistoryCount());
+        }
+    }
 }

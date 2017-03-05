@@ -1,6 +1,7 @@
 ﻿using Prism.Windows.Mvvm;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -30,7 +31,7 @@ namespace NicoPlayerHohoema.Views
 		private void MenuNavigatePageBase_Loading(FrameworkElement sender, object args)
 		{
 			ForceChangeChildDataContext();
-		}
+        }
 
 		private void ForceChangeChildDataContext()
 		{

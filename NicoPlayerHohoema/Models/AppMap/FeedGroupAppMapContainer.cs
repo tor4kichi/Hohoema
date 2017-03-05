@@ -6,32 +6,40 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Models.AppMap
 {
-	public class FeedAppMapContainer : SelectableAppMapContainerBase
-	{
+	public class FeedAppMapContainer : AppMapContainerBase
+    {
 		public FeedManager FeedManager { get; private set; }
 
-		public FeedAppMapContainer(FeedManager feedManager)
+		public FeedAppMapContainer()
 			: base(HohoemaPageType.FeedGroupManage, label:"フィード")
 		{
-			FeedManager = feedManager;
+			FeedManager = HohoemaApp.FeedManager;
 		}
 
-		protected override Task<IEnumerable<IAppMapItem>> MakeAllItems()
-		{
-			var items = new List<IAppMapItem>();
-			var feedGroups = FeedManager.FeedGroups;
-			foreach (var feedGroup in feedGroups)
-			{
-				var feedGroupContainer = new FeedGroupAppMapContainer(feedGroup);
-				items.Add(feedGroupContainer);
-			}
-			return Task.FromResult(items.AsEnumerable());
-		}
+
+        protected override Task OnRefreshing()
+        {
+            _DisplayItems.Clear();
+
+            
+            var items = new List<IAppMapItem>();
+            var feedGroups = FeedManager.FeedGroups;
+            foreach (var feedGroup in feedGroups)
+            {
+                var feedGroupContainer = new FeedGroupAppMapContainer(feedGroup);
+                _DisplayItems.Add(feedGroupContainer);
+            }
+
+            return Task.CompletedTask;
+        }
+        
 	}
 
 
-	public class FeedGroupAppMapContainer : SelfGenerateAppMapContainerBase
-	{
+	public class FeedGroupAppMapContainer : AppMapContainerBase
+    {
+        public const int FeedItemDisplayCount = 3;
+
 		public IFeedGroup FeedGroup { get; private set; }
 
 		public FeedGroupAppMapContainer(IFeedGroup group)
@@ -39,41 +47,31 @@ namespace NicoPlayerHohoema.Models.AppMap
 		{
 			FeedGroup = group;
 			SecondaryLabel = FeedGroup.GetUnreadItemCount().ToString();
-		}
+        }
 
-		protected override Task<IEnumerable<IAppMapItem>> GenerateItems(int count)
-		{
-			var feedItems = FeedGroup.FeedItems.Take(count);
-			var items = new List<IAppMapItem>();
-			foreach (var feedItem in feedItems)
-			{
-				var item = new FeedAppMapItem(feedItem);
-				items.Add(item);
-			}
 
-			return Task.FromResult(items.AsEnumerable());
-		}
+        protected override Task OnRefreshing()
+        {
+            _DisplayItems.Clear();
+
+            var feedItems = FeedGroup.FeedItems.Take(FeedItemDisplayCount);
+            foreach (var feedItem in feedItems)
+            {
+                var item = new FeedAppMapItem(feedItem);
+                _DisplayItems.Add(item);
+            }
+
+            return Task.CompletedTask;
+        }
 	}
 
-	public class FeedAppMapItem : IAppMapItem
-	{
-		public string PrimaryLabel { get; private set; }
-		public string SecondaryLabel { get; protected set; }
-		public HohoemaPageType PageType { get; private set; }
-		public string Parameter { get; private set; }
-
-		public FeedAppMapItem(FeedItem feedItem)
+	public class FeedAppMapItem : VideoAppMapItemBase
+    {
+        public FeedAppMapItem(FeedItem feedItem)
 		{
-			PrimaryLabel = feedItem.Title;
+            PrimaryLabel = feedItem.Title;
 			SecondaryLabel = feedItem.IsUnread ? "New" : null;
-			PageType = HohoemaPageType.VideoPlayer;
-
-			Parameter = new VideoPlayPayload()
-			{
-				VideoId = feedItem.VideoId
-			}
-			.ToParameterString();
-
+            Parameter = feedItem.VideoId;
 		}
 	}
 }

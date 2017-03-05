@@ -11,8 +11,10 @@
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:mycontrols="using:NicoPlayerHohoema.Views.Controls"
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:iconPack="using:MahApps.Metro.IconPacks"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
     
@@ -59,61 +61,79 @@
                                               User="{StaticResource UserFeedItemSourceTemplate}"
             />
     </Page.Resources>
+
     <Grid>
 
         <toolkit:DockPanel >
 
+            <Border toolkit:DockPanel.Dock="Top" 
+                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
+                    BorderThickness="0 0 0 1"
+                    Height="64"
+                    >
+                <toolkit:DockPanel >
+
+                    <StackPanel toolkit:DockPanel.Dock="Right" 
+                                Orientation="Horizontal"
+                                >
+
+
+                        <AppBarButton Command="{Binding RefreshAllFeedGroupCommand}"
+                                Background="Transparent"
+                                      Icon="Refresh"
+                                      Label="更新"
+                                      Visibility="{Binding HasFeedGroupItems.Value, Converter={StaticResource BooleanToVisibility}}"
+                                >
+                        </AppBarButton>
+
+                        <Border Width="8" />
+
+                        <AppBarButton Command="{Binding CreateFeedGroupCommand}"
+                                    Background="Transparent"
+                                    ToolTipService.ToolTip="フィードグループを作成"
+                                      HorizontalContentAlignment="Stretch"
+                                      VerticalContentAlignment="Stretch"
+                                >
+                            <iconPack:PackIconMaterial Kind="Plus"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       />
+                        </AppBarButton>
+
+                        
+
+
+
+                    </StackPanel>
+
+                    <Border Background="Transparent" IsHitTestVisible="True"
+                                Margin="16 0 0 0"
+                                >
+                        
+                        <TextBlock Text="{Binding Title}" 
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource SubtitleTextBlockStyle}"
+                                   
+                                    >
+                                
+
+                        </TextBlock>
+                        
+                    </Border>
+
+
+
+
+                </toolkit:DockPanel>
+            </Border>
 
             <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
 
                 <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left" Margin="0">
 
-                    <AppBarButton Icon="Add" 
-                                  Label="フィードグループ 作成"
-                                  Command="{Binding CreateFeedGroupCommand}"
-                                  >
-                        <!-- 
-                            Note:
-                                AnniversaryUpdate適用後ではバグで
-                                Flyout上のTextBoxにフォーカスが移らない
-                                このためContentDialogを表示するCommand呼び出しで応急対応している
-                        -->
-                        <!--
-                        <AppBarButton.Flyout>
-                            <Flyout>
-                                <StackPanel Orientation="Horizontal">
-                                    
-
-                                    <TextBox Text="{Binding NewFeedGroupName.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                             Width="150"
-                                             >
-                                        <TextBox.Header>
-                                            <TextBlock Text="フィードグループ名"
-                                                       FontSize="12"
-                                                       />
-                                        </TextBox.Header>
-
-                                    </TextBox>
-                                    <Button Content="作成"
-                                            Command="{Binding AddFeedGroupCommand}"
-                                            Width="80"
-                                            Margin="16 8"
-                                            />
-                                </StackPanel>
-                            </Flyout>
-                        </AppBarButton.Flyout>
-                        -->
-                    </AppBarButton>
-
                 </StackPanel>
 
-                <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Right">
-
-                    <AppBarButton Icon="Refresh" 
-                                  Label="全て更新"
-                                  Command="{Binding RefreshAllFeedGroupCommand}"
-                                  />
-                </StackPanel>
+                
                 
                 <Border />
                 
@@ -135,7 +155,7 @@
                                         
                     
                     <TextBlock FontSize="20">
-                        <Run>↑ ここからフィードグループを作成しましょう。</Run>
+                        <Run>右上にある ＋ボタン からフィードグループを作成しましょう。</Run>
                         <LineBreak />
                     </TextBlock>
 
@@ -144,18 +164,18 @@
                             />
                     
                     <TextBlock Margin="8 8">
-                        <Bold>フィードって？</Bold>
+                        <Bold>フィードとは？</Bold>
                     </TextBlock>
                     
                     <TextBlock TextWrapping="Wrap"
                                Margin="16 0"
                                LineHeight="30"
                                >
-                        <Run>情報の流れをひとまとめにして一覧表示する機能を一般に「フィード」と呼びます。</Run>
+                        <Run>情報の流れをひとまとめにして最新情報を一覧表示する機能をインターネットでは「フィード」と呼んだりします。</Run>
                         <LineBreak />
-                        <Run>Hohoemaでは、マイリストの動画・タグ検索結果・ユーザー投稿動画をひとまとめにして、新着動画を自動でチェックしてくれる機能を「フィード」として扱っています。</Run>
+                        <Run>Hohoemaでは、「マイリストの動画」「タグによる動画検索の結果」「ユーザー投稿動画」を時系列でひとまとめにしてチェックできる機能のことを「フィード」として扱っています。</Run>
                         <LineBreak />
-                        <Run>また、「フィードグループ」はフィードに名前をつけて管理する単位です。ジャンルごと、分野ごとに分けてフィードグループを作ってみるのがオススメです。</Run>
+                        <Run>また、Hohoemaに登場する「フィードグループ」はフィードに名前をつけて管理するためのものです。興味のあるジャンルごとに分けてフィードグループを作ってみるとチェックが楽になりますよ。</Run>
                     </TextBlock>
 
 
@@ -164,14 +184,12 @@
             </Border>
 
 
-            <ListView ItemsSource="{Binding FeedGroupItems}"
-                      IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
-                      SelectedItem="{Binding SelectedFeedGroupItem.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                      SelectionMode="Single"
+            <ItemsControl ItemsSource="{Binding FeedGroupItems}"
+                          IsTabStop="False"
                   >
 
-                <ListView.ItemContainerStyle>
-                    <Style TargetType="ListViewItem">
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
                         <Setter Property="HorizontalContentAlignment"
                                     Value="Stretch" 
                                         />
@@ -179,99 +197,71 @@
                                     Value="8 0 8 0" 
                                     />
                     </Style>
-                </ListView.ItemContainerStyle>
+                </ItemsControl.ItemContainerStyle>
 
-
-                <ListView.ItemTemplate>
+                <ItemsControl.ItemTemplate>
 
                     <DataTemplate>
 
-                        <toolkit:DockPanel Height="48" Margin="0 8">
+                        <Button Margin="0 8" Background="Transparent"
+                                UseSystemFocusVisuals="True"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                Command="{Binding PrimaryCommand}"
+                                >
 
-                            <StackPanel toolkit:DockPanel.Dock="Right"
+
+                            <Button.ContextFlyout>
+                                <MenuFlyout>
+                                    <MenuFlyoutItem Text="更新"
+                                                    Command="{Binding UpdateCommand}"
+                                                    />
+                                    <MenuFlyoutItem Text="編集" 
+                                                    Command="{Binding OpenEditCommand}"
+                                                    />
+                                    <MenuFlyoutSeparator />
+                                    <MenuFlyoutSubItem Text="削除">
+                                        <MenuFlyoutItem Text="削除" 
+                                                        Command="{Binding ElementName=PageRoot, Path=DataContext.RemoveFeedGroupCommand}"
+                                                        CommandParameter="{Binding}"
+                                                        />
+                                    </MenuFlyoutSubItem>
+                                </MenuFlyout>
+                            </Button.ContextFlyout>
+
+                            <Grid>
+                                <StackPanel HorizontalAlignment="Right"
                                             Orientation="Horizontal"
+                                        VerticalAlignment="Center"
                                             >
 
-
-                                <ProgressRing IsActive="{Binding NowUpdate.Value}"
+                                    <ProgressRing IsActive="{Binding NowUpdate.Value}"
                                                Visibility="{Binding NowUpdate.Value, Converter={StaticResource BooleanToVisibility}}"
                                                   Width="24"
                                                   Height="24"
                                                   />
-
-                                <StackPanel Margin="8 0">
-                                    <TextBlock VerticalAlignment="Center"
-                                               HorizontalAlignment="Right"
-                                                >
-                                                <Run Text="{Binding UnreadItemCount}" />
-                                    </TextBlock>
-                                    
-                                    <TextBlock VerticalAlignment="Center"
-                                               HorizontalAlignment="Right"
-                                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                               >
-                                        <Run Text="最終更新:" />
-                                        <Run Text="{Binding LastUpdate.Value, Converter={StaticResource ToRelationalTime}}" />
-                                    </TextBlock>
-
-                                </StackPanel>
-
-                                <AppBarButton Icon="Edit" 
-                                            IsCompact="True"
-                                            Command="{Binding SecondaryActionCommand}"
-                                            />
-
-
-                            </StackPanel>
-
-
-
-
-
-                            <toolkit:DockPanel Background="Transparent" IsHitTestVisible="True" >
-
-
-                                <i:Interaction.Behaviors>
-                                    <core:EventTriggerBehavior EventName="Tapped">
-                                        <core:InvokeCommandAction Command="{Binding ElementName=PageRoot, Path=DataContext.OpenFeedVideoPageCommand}"
-                                                          CommandParameter="{Binding}"
-                                                          />
-                                    </core:EventTriggerBehavior>
-                                </i:Interaction.Behaviors>
-
-                                <ItemsControl ItemsSource="{Binding SourceItems}"
-                                          ItemTemplateSelector="{StaticResource feedItemSourceTemplateSelector}"
-                                              toolkit:DockPanel.Dock="Bottom"
-                                              VerticalAlignment="Top"
-                                            >
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <toolkit:WrapPanel Orientation="Horizontal" />
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    
-                                    
-
-                                </ItemsControl>
-
-                                
-                                <StackPanel>
-                                    <TextBlock Text="{Binding Label}" 
-                                               VerticalAlignment="Center"
-                                               />
-
                                 </StackPanel>
 
 
 
-                            </toolkit:DockPanel>
 
 
-                        </toolkit:DockPanel>
+                                <toolkit:DockPanel Background="Transparent" IsHitTestVisible="True" >
+
+
+
+                                    <mycontrols:HohoemaListItem />
+
+                                </toolkit:DockPanel>
+
+
+
+                            </Grid>
+                        </Button>
                     </DataTemplate>
 
-                </ListView.ItemTemplate>
-            </ListView>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
 
 
 

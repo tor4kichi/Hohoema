@@ -12,7 +12,7 @@
     <DefaultLanguage>ja-JP</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion>10.0.14393.0</TargetPlatformVersion>
-    <TargetPlatformMinVersion>10.0.10240.0</TargetPlatformMinVersion>
+    <TargetPlatformMinVersion>10.0.14393.0</TargetPlatformMinVersion>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -23,7 +23,7 @@
     <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
     <PackageCertificateThumbprint>BFE34B4665927D2844D7BF676023FAED7F089F9D</PackageCertificateThumbprint>
-    <AppxPackageDir>C:\Users\tor4k\Documents\Visual Studio 2015\Projects\NicoPlayerHohoema\NicoPlayerHohoema\AppPackages\</AppxPackageDir>
+    <AppxPackageDir>C:\Users\tor4k\Documents\Repo\NicoPlayerHohoema\NicoPlayerHohoema\AppPackages\</AppxPackageDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -120,6 +120,7 @@
     </Compile>
     <Compile Include="Events\PlayerClosedEvent.cs" />
     <Compile Include="Events\PlayNicoVideoEvent.cs" />
+    <Compile Include="Models\AccountManager.cs" />
     <Compile Include="Models\AppMap\AppMap.cs" />
     <Compile Include="Models\AppMap\AppMapItem.cs" />
     <Compile Include="Models\AppMap\AppMapContainerBase.cs" />
@@ -162,7 +163,10 @@
     <Compile Include="Models\Follow\FollowPageParameter.cs" />
     <Compile Include="Models\Follow\IFollowInfoGroup.cs" />
     <Compile Include="Models\HohoemaApp.cs" />
+    <Compile Include="Models\HohoemaAppServiceLevel.cs" />
     <Compile Include="Models\HohoemaPageType.cs" />
+    <Compile Include="Models\HohoemaPlaylist.cs" />
+    <Compile Include="Models\IHohoemaListItem.cs" />
     <Compile Include="Models\LisenceSummary.cs" />
     <Compile Include="Models\Live\LiveStatusType.cs" />
     <Compile Include="Models\Live\LiveSuggestion.cs" />
@@ -171,26 +175,26 @@
     <Compile Include="Models\Live\NicoLiveInfoType.cs" />
     <Compile Include="Models\Live\NicoLiveVideo.cs" />
     <Compile Include="Models\LoginRedirectPayload.cs" />
-    <Compile Include="Models\MediaBackgroundTask.cs" />
+    <Compile Include="Models\PageManagerSearchExtention.cs" />
+    <Compile Include="Models\RoamingSyncInfo.cs" />
+    <Compile Include="Models\Settings\AppearanceSettings.cs" />
     <Compile Include="Models\Settings\AppMapSettings.cs" />
     <Compile Include="Models\Settings\CacheSettings.cs" />
+    <Compile Include="Models\Settings\PlaylistSettings.cs" />
     <Compile Include="Models\UserMylistManager.cs" />
     <Compile Include="Models\Video\DividedQualityNicoVideo.cs" />
     <Compile Include="Models\Video\MediaProtocolType.cs" />
     <Compile Include="Models\Db\NicoVideo\NicoVIdeoDbContext.cs" />
-    <Compile Include="Models\Video\NicoVideoDownloader.cs" />
-    <Compile Include="Models\Video\VideoDownloadProgress.cs" />
+    <Compile Include="Models\Video\VideoDownloadManager.cs" />
     <Compile Include="Util\AsyncLock.cs" />
     <Compile Include="Util\Cacheable.cs" />
     <Compile Include="Models\Video\NicoVideo.cs" />
     <Compile Include="Models\Video\NicoVideoCacheRequest.cs" />
     <Compile Include="Models\Video\NicoVideoCacheState.cs" />
     <Compile Include="Models\Video\NicoVideoCanNotDownloadReason.cs" />
-    <Compile Include="Models\Video\NicoVideoDownloadContext.cs" />
     <Compile Include="Models\Settings\HohoemaUserSettings.cs" />
     <Compile Include="Models\NiconicoContentFinder.cs" />
     <Compile Include="Models\Video\NiconicoMediaManager.cs" />
-    <Compile Include="Models\Video\NicoVideoCachedStream.cs" />
     <Compile Include="Models\PageManager.cs" />
     <Compile Include="Models\PlayerDisplayMode.cs" />
     <Compile Include="Models\SearchOption.cs" />
@@ -198,6 +202,8 @@
     <Compile Include="Models\Settings\NGSettings.cs" />
     <Compile Include="Models\Settings\PlayerSettings.cs" />
     <Compile Include="Models\Settings\RankingSettings.cs" />
+    <Compile Include="Util\DeviceTypeHelper.cs" />
+    <Compile Include="Util\EncryptHelper.cs" />
     <Compile Include="Util\HtmlFileHelper.cs" />
     <Compile Include="Models\VideoPlayPayload.cs" />
     <Compile Include="Models\Video\NicoVideoQuality.cs" />
@@ -209,21 +215,19 @@
     <Compile Include="Util\HttpRandomAccessStream.cs" />
     <Compile Include="Util\IncrementalLoadingCollection.cs" />
     <Compile Include="Util\InternetConnection.cs" />
-    <Compile Include="Util\MediaPlaybackBackgroundTaskHelper.cs" />
+    <Compile Include="Util\ListExtention.cs" />
     <Compile Include="Util\NiconicoRankingExtention.cs" />
     <Compile Include="Util\NicoVideoRssItemExtention.cs" />
     <Compile Include="Util\SortMethodHelper.cs" />
     <Compile Include="Util\StorageFolderExtention.cs" />
     <Compile Include="Util\TaskExtention.cs" />
     <Compile Include="Util\TwitterHelper.cs" />
-    <Compile Include="ViewModels\AboutPageViewModel.cs" />
     <Compile Include="ViewModels\CacheManagementPageViewModel.cs" />
     <Compile Include="ViewModels\CommentCommandEditerViewModel.cs" />
     <Compile Include="ViewModels\CommentStreamingViewModel.cs" />
     <Compile Include="ViewModels\CommunityPageViewModel.cs" />
     <Compile Include="ViewModels\CommunityVideoPageViewModel.cs" />
     <Compile Include="ViewModels\ConfirmWatchHurmfulVideoPageViewModel.cs" />
-    <Compile Include="ViewModels\FeedbackPageViewModel.cs" />
     <Compile Include="ViewModels\FeedVideoListPageViewModel.cs" />
     <Compile Include="ViewModels\FollowManagePageViewModel.cs" />
     <Compile Include="ViewModels\FeedVideoInfoControlViewModel.cs" />
@@ -240,23 +244,26 @@
     <Compile Include="ViewModels\LiveVideoInfoContent\SettingsLiveInfoContentViewModel.cs" />
     <Compile Include="ViewModels\LiveVideoInfoContent\ShereLiveInfoContentViewModel.cs" />
     <Compile Include="ViewModels\LiveVideoInfoContent\SummaryLiveInfoContentViewModel.cs" />
-    <Compile Include="ViewModels\LiveVideoPlayerPageViewModel.cs" />
+    <Compile Include="ViewModels\LiveVideoPlayerControlViewModel.cs" />
     <Compile Include="ViewModels\LoginPageViewModel.cs" />
     <Compile Include="ViewModels\MenuNavigatePageBaseViewModel.cs" />
     <Compile Include="ViewModels\MylistPageViewModel.cs" />
-    <Compile Include="ViewModels\SearchContent\CommunitySearchPageContentViewModel.cs" />
-    <Compile Include="ViewModels\SearchContent\EmptySearchPageContentViewModel.cs" />
-    <Compile Include="ViewModels\SearchContent\KeywordSearchPageContentViewModel.cs" />
-    <Compile Include="ViewModels\SearchContent\LiveSearchPageContentViewModel.cs" />
-    <Compile Include="ViewModels\SearchContent\MylistSearchPageContentViewModel.cs" />
-    <Compile Include="ViewModels\SearchContent\VideoSearchSortOptionListItem.cs" />
-    <Compile Include="ViewModels\SearchContent\TagSearchPageContentViewModel.cs" />
-    <Compile Include="ViewModels\SettingsContent\AppDisplaySettingsPageContentViewModel.cs" />
+    <Compile Include="ViewModels\PlayerWithPageContainerViewModel.cs" />
+    <Compile Include="ViewModels\PlaylistPageViewModel.cs" />
+    <Compile Include="ViewModels\SearchResultPage\SearchResultCommunityPageViewModel.cs" />
+    <Compile Include="ViewModels\SearchResultPage\SearchResultKeywordPageViewModel.cs" />
+    <Compile Include="ViewModels\SearchResultPage\SearchResultLivePageViewModel.cs" />
+    <Compile Include="ViewModels\SearchResultPage\SearchResultMylistPageViewModel.cs" />
+    <Compile Include="ViewModels\SettingsContent\AboutSettingsPageContentViewModel.cs" />
+    <Compile Include="ViewModels\SettingsContent\FeedbackSettingsPageContentViewModel.cs" />
+    <Compile Include="ViewModels\VideoInfomationPageViewModel.cs" />
+    <Compile Include="ViewModels\VideoSearchSortOptionListItem.cs" />
+    <Compile Include="ViewModels\SearchResultPage\SearchResultTagPageViewModel.cs" />
+    <Compile Include="ViewModels\SettingsContent\AppearanceSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\CacheSettingsPageContentViewModel.cs" />
-    <Compile Include="ViewModels\SettingsContent\CommentSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\ShereSettingsPageContentViewModel.cs" />
-    <Compile Include="ViewModels\SettingsContent\VideoListSettingsPageContentViewModel.cs" />
-    <Compile Include="ViewModels\SettingsContent\VideoPlaySettingsPageContentViewModel.cs" />
+    <Compile Include="ViewModels\SettingsContent\FilteringSettingsPageContentViewModel.cs" />
+    <Compile Include="ViewModels\SettingsContent\PlayerSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\UserInfoPageViewModel.cs" />
     <Compile Include="ViewModels\UserMylistPageViewModel.cs" />
     <Compile Include="ViewModels\UserVideoPageViewModel.cs" />
@@ -268,23 +275,26 @@
     <Compile Include="Views\AboutPage.xaml.cs">
       <DependentUpon>AboutPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Behaviors\MenuFlyoutSubItemsSetter.cs" />
     <Compile Include="Views\Behaviors\CloseFlyoutAction.cs" />
+    <Compile Include="Views\Behaviors\DataTriggerBehavior.cs" />
+    <Compile Include="Views\Behaviors\EngagePassToFirstChild.cs" />
     <Compile Include="Views\Behaviors\EnsureLifecycleMediaElement.cs" />
     <Compile Include="Views\Behaviors\FlyoutBehavior.cs" />
+    <Compile Include="Views\Behaviors\FocusFirstItem.cs" />
     <Compile Include="Views\Behaviors\KeyboardTrigger.cs" />
     <Compile Include="Views\Behaviors\ListViewSelectedItemsGetter.cs" />
-    <Compile Include="Views\Behaviors\MediaElementActualContentHeight.cs" />
-    <Compile Include="Views\Behaviors\MediaElementPauseAction.cs" />
-    <Compile Include="Views\Behaviors\MediaElementPlayAction.cs" />
-    <Compile Include="Views\Behaviors\MediaElementTogglePlayback.cs" />
+    <Compile Include="Views\Behaviors\MediaPlayerElementContentHeightGetter.cs" />
+    <Compile Include="Views\Behaviors\MediaPlayerSetter.cs" />
     <Compile Include="Views\Behaviors\MouseWheelTrigger.cs" />
     <Compile Include="Views\Behaviors\OpenFlyout.cs" />
     <Compile Include="Views\Behaviors\RefreshableListViewExtention.cs" />
     <Compile Include="Views\Behaviors\ScrollToIndex.cs" />
     <Compile Include="Views\Behaviors\ListViewVerticalOffsetGetter.cs" />
     <Compile Include="Views\Behaviors\SetFocus.cs" />
-    <Compile Include="Views\Behaviors\SplitViewDisplayModeGetter.cs" />
+    <Compile Include="Views\Behaviors\SplitViewClosePane.cs" />
     <Compile Include="Views\Behaviors\HideInputPaneAction.cs" />
+    <Compile Include="Views\Behaviors\UINavigationTrigger.cs" />
     <Compile Include="Views\CacheManagementPage.xaml.cs">
       <DependentUpon>CacheManagementPage.xaml</DependentUpon>
     </Compile>
@@ -300,9 +310,6 @@
     <Compile Include="Views\ConfirmWatchHurmfulVideoPage.xaml.cs">
       <DependentUpon>ConfirmWatchHurmfulVideoPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Controls\CacheManagementListItem.xaml.cs">
-      <DependentUpon>CacheManagementListItem.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\Controls\CommunityInfoControl.xaml.cs">
       <DependentUpon>CommunityInfoControl.xaml</DependentUpon>
     </Compile>
@@ -312,11 +319,24 @@
     <Compile Include="Views\Controls\FavoriteFeedListItem.xaml.cs">
       <DependentUpon>FavoriteFeedListItem.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Controls\FloatContentContainer\FloatContentContainer.Event.cs" />
+    <Compile Include="Views\Controls\FloatContentContainer\FloatContentContainer.Properties.cs" />
     <Compile Include="Views\Controls\HistoryListItem.xaml.cs">
       <DependentUpon>HistoryListItem.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\HohoemaIncrementalLoadingList.xaml.cs">
       <DependentUpon>HohoemaIncrementalLoadingList.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\FloatContentContainer\FloatContentContainer.cs" />
+    <Compile Include="Views\Controls\VideoListItemFlyout.xaml.cs">
+      <DependentUpon>VideoListItemFlyout.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Converters\CacheStateToColorBrushConverter.cs" />
+    <Compile Include="Views\Converters\InvertVisibilityConverter.cs" />
+    <Compile Include="Views\Converters\NicoVideoQualityToCultualizedTextConverter.cs" />
+    <Compile Include="Views\Converters\TransparentColorConverter.cs" />
+    <Compile Include="Views\HohoemaListItem.xaml.cs">
+      <DependentUpon>HohoemaListItem.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\ListingSelectionControl.xaml.cs">
       <DependentUpon>ListingSelectionControl.xaml</DependentUpon>
@@ -361,6 +381,15 @@
     <Compile Include="Views\FeedGroupPage.xaml.cs">
       <DependentUpon>FeedGroupPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\HohoemaListItem\HohoemaListItemCard.xaml.cs">
+      <DependentUpon>HohoemaListItemCard.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\HohoemaListItem\HohoemaListItemMiniCard.xaml.cs">
+      <DependentUpon>HohoemaListItemMiniCard.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\HohoemaListItem\HohoemaListItemVideo.xaml.cs">
+      <DependentUpon>HohoemaListItemVideo.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\LiveInfoContent\CommentLiveInfoContent.xaml.cs">
       <DependentUpon>CommentLiveInfoContent.xaml</DependentUpon>
     </Compile>
@@ -373,34 +402,43 @@
     <Compile Include="Views\LiveInfoContent\SummaryLiveInfoContent.xaml.cs">
       <DependentUpon>SummaryLiveInfoContent.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\LiveVideoPlayerPage.xaml.cs">
-      <DependentUpon>LiveVideoPlayerPage.xaml</DependentUpon>
+    <Compile Include="Views\LiveVideoPlayerControl.xaml.cs">
+      <DependentUpon>LiveVideoPlayerControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\LoginPage.xaml.cs">
+      <DependentUpon>LoginPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MylistPage.xaml.cs">
       <DependentUpon>MylistPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\PlayerWithPageContainer.xaml.cs">
+      <DependentUpon>PlayerWithPageContainer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PlaylistPage.xaml.cs">
+      <DependentUpon>PlaylistPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PortalPage_TV.xaml.cs">
+      <DependentUpon>PortalPage_TV.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\RankingChoiceContentDialog.xaml.cs">
       <DependentUpon>RankingChoiceContentDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\SearchContent\CommunitySearchPageContent.xaml.cs">
-      <DependentUpon>CommunitySearchPageContent.xaml</DependentUpon>
+    <Compile Include="Views\SearchResultPage\SearchResultCommunityPage.xaml.cs">
+      <DependentUpon>SearchResultCommunityPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\SearchContent\EmptySearchPageContent.xaml.cs">
-      <DependentUpon>EmptySearchPageContent.xaml</DependentUpon>
+    <Compile Include="Views\SearchResultPage\SearchResultKeywordPage.xaml.cs">
+      <DependentUpon>SearchResultKeywordPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\SearchContent\KeywordSearchPageContent.xaml.cs">
-      <DependentUpon>KeywordSearchPageContent.xaml</DependentUpon>
+    <Compile Include="Views\SearchResultPage\SearchResultLivePage.xaml.cs">
+      <DependentUpon>SearchResultLivePage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\SearchContent\LiveSearchPageContent.xaml.cs">
-      <DependentUpon>LiveSearchPageContent.xaml</DependentUpon>
+    <Compile Include="Views\SearchResultPage\SearchResultMylistPage.xaml.cs">
+      <DependentUpon>SearchResultMylistPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\SearchContent\MylistSearchPageContent.xaml.cs">
-      <DependentUpon>MylistSearchPageContent.xaml</DependentUpon>
+    <Compile Include="Views\SearchResultPage\SearchResultTagPage.xaml.cs">
+      <DependentUpon>SearchResultTagPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\SearchContent\TagSearchPageContent.xaml.cs">
-      <DependentUpon>TagSearchPageContent.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="ViewModels\VideoPlayerPageViewModel.cs" />
+    <Compile Include="ViewModels\VideoPlayerControlViewModel.cs" />
     <Compile Include="ViewModels\PortalPageViewModel.cs" />
     <Compile Include="ViewModels\RankingCategoryListPageViewModel.cs" />
     <Compile Include="ViewModels\RankingCategoryPageViewModel.cs" />
@@ -409,8 +447,7 @@
     <Compile Include="ViewModels\SettingsPageViewModel.cs" />
     <Compile Include="ViewModels\VideoInfoContent\SummaryVideoInfoContentViewModel.cs" />
     <Compile Include="ViewModels\VideoInfoControlViewModel.cs" />
-    <Compile Include="Views\Behaviors\AutoHide.cs" />
-    <Compile Include="Views\Behaviors\MediaElementStateGetter.cs" />
+    <Compile Include="Views\Behaviors\VisiblityFadeChanger.cs" />
     <Compile Include="Views\Behaviors\ShowFlyoutBehavior.cs" />
     <Compile Include="Views\Behaviors\WebViewAutoResizeToContent.cs" />
     <Compile Include="Views\Behaviors\WebViewNotifyUriClicked.cs" />
@@ -427,11 +464,6 @@
     <Compile Include="Views\Converters\TimeSpanToMovieLengthStringValueConverter.cs" />
     <Compile Include="Views\HistoryPage.xaml.cs">
       <DependentUpon>HistoryPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Behaviors\MediaElementExtractPositionBehavior.cs" />
-    <Compile Include="Views\Behaviors\MediaElementSeekAfterAutoPlayBehavior.cs" />
-    <Compile Include="Views\LoginPage.xaml.cs">
-      <DependentUpon>LoginPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MenuNavigatePageBase.xaml.cs">
       <DependentUpon>MenuNavigatePageBase.xaml</DependentUpon>
@@ -462,16 +494,28 @@
     </Compile>
     <Compile Include="Views\Service\TextInputDialogService.cs" />
     <Compile Include="Views\Service\ToastNotificationService.cs" />
-    <Compile Include="Views\SettingsPageContent\AppDisplaySettingsPageContent.xaml.cs">
-      <DependentUpon>AppDisplaySettingsPageContent.xaml</DependentUpon>
+    <Compile Include="Views\SettingsPageContent\AboutSettingsPageContent.xaml.cs">
+      <DependentUpon>AboutSettingsPageContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SettingsPageContent\AppearanceSettingsPageContent.xaml.cs">
+      <DependentUpon>AppearanceSettingsPageContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SettingsPageContent\CacheSettingsPageContent.xaml.cs">
       <DependentUpon>CacheSettingsPageContent.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\SettingsPageContent\FeedbackSettingsPageContent.xaml.cs">
+      <DependentUpon>FeedbackSettingsPageContent.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\SettingsPageContent\ShereSettingsPageContent.xaml.cs">
       <DependentUpon>ShereSettingsPageContent.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\StateTrigger\ConditionStateTrigger.cs" />
+    <Compile Include="Views\StateTrigger\FocusTrigger.cs" />
+    <Compile Include="Views\StateTrigger\InvertibleStateTrigger.cs" />
+    <Compile Include="Views\StateTrigger\PointerFocusTrigger.cs" />
+    <Compile Include="Views\StateTrigger\UIIntractionTriggerBase.cs" />
     <Compile Include="Views\StateTrigger\WindowActiveTrigger.cs" />
+    <Compile Include="Views\UIElementExtentions.cs" />
     <Compile Include="Views\UserInfoPage.xaml.cs">
       <DependentUpon>UserInfoPage.xaml</DependentUpon>
     </Compile>
@@ -493,8 +537,11 @@
     <Compile Include="Views\VideoInfoContent\ShereVideoInfoContent.xaml.cs">
       <DependentUpon>ShereVideoInfoContent.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\VideoPlayerPage.xaml.cs">
-      <DependentUpon>VideoPlayerPage.xaml</DependentUpon>
+    <Compile Include="Views\VideoInfomationPage.xaml.cs">
+      <DependentUpon>VideoInfomationPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\VideoPlayerControl.xaml.cs">
+      <DependentUpon>VideoPlayerControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\PortalPage.xaml.cs">
       <DependentUpon>PortalPage.xaml</DependentUpon>
@@ -513,14 +560,11 @@
     <Compile Include="Views\SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\SettingsPageContent\CommentSettingsPageContent.xaml.cs">
-      <DependentUpon>CommentSettingsPageContent.xaml</DependentUpon>
+    <Compile Include="Views\SettingsPageContent\PlayerSettingsPageContent.xaml.cs">
+      <DependentUpon>PlayerSettingsPageContent.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\SettingsPageContent\VideoPlaySettingsPageContent.xaml.cs">
-      <DependentUpon>VideoPlaySettingsPageContent.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\SettingsPageContent\VideoListSettingsPageContent.xaml.cs">
-      <DependentUpon>VideoListSettingsPageContent.xaml</DependentUpon>
+    <Compile Include="Views\SettingsPageContent\FilteringSettingsPageContent.xaml.cs">
+      <DependentUpon>FilteringSettingsPageContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\VideoInfoContent\SummaryVideoInfoContent.xaml.cs">
       <DependentUpon>SummaryVideoInfoContent.xaml</DependentUpon>
@@ -528,6 +572,7 @@
     <Compile Include="Views\Controls\VideoInfoControl.xaml.cs">
       <DependentUpon>VideoInfoControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\VisualTreeExtention.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -584,6 +629,7 @@
     <Content Include="Assets\Wide310x150Logo.scale-125.png" />
     <Content Include="Assets\Wide310x150Logo.scale-150.png" />
     <Content Include="Assets\Wide310x150Logo.scale-400.png" />
+    <Content Include="Assets\xbox_encrypt_key.txt" />
     <Content Include="lib\Mntone.Nico2.UWP.dll" />
     <None Include="Package.StoreAssociation.xml" />
     <Content Include="Properties\Default.rd.xml" />
@@ -597,6 +643,25 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Styles\DefaultStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
+    <Page Include="Styles\TVSafeColor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
+    <Page Include="Styles\VideoProgressBarStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
+    <Page Include="Views\Controls\FloatContentContainer\FloatContentContainer.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\AboutPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -629,10 +694,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\Controls\CacheManagementListItem.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\Controls\CommunityInfoControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -650,6 +711,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Controls\HohoemaIncrementalLoadingList.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\VideoListItemFlyout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\HohoemaListItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -709,6 +778,18 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\HohoemaListItem\HohoemaListItemCard.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\HohoemaListItem\HohoemaListItemMiniCard.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\HohoemaListItem\HohoemaListItemVideo.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\LiveInfoContent\CommentLiveInfoContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -725,7 +806,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\LiveVideoPlayerPage.xaml">
+    <Page Include="Views\LiveVideoPlayerControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -741,31 +822,39 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\PlayerWithPageContainer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PlaylistPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PortalPage_TV.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\RankingChoiceContentDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\SearchContent\CommunitySearchPageContent.xaml">
+    <Page Include="Views\SearchResultPage\SearchResultCommunityPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\SearchContent\EmptySearchPageContent.xaml">
+    <Page Include="Views\SearchResultPage\SearchResultKeywordPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\SearchContent\KeywordSearchPageContent.xaml">
+    <Page Include="Views\SearchResultPage\SearchResultLivePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\SearchContent\LiveSearchPageContent.xaml">
+    <Page Include="Views\SearchResultPage\SearchResultMylistPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\SearchContent\MylistSearchPageContent.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\SearchContent\TagSearchPageContent.xaml">
+    <Page Include="Views\SearchResultPage\SearchResultTagPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -793,11 +882,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\SettingsPageContent\AppDisplaySettingsPageContent.xaml">
+    <Page Include="Views\SettingsPageContent\AboutSettingsPageContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SettingsPageContent\AppearanceSettingsPageContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SettingsPageContent\CacheSettingsPageContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SettingsPageContent\FeedbackSettingsPageContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -833,7 +930,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\VideoPlayerPage.xaml">
+    <Page Include="Views\VideoInfomationPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\VideoPlayerControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -857,15 +958,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\SettingsPageContent\CommentSettingsPageContent.xaml">
+    <Page Include="Views\SettingsPageContent\PlayerSettingsPageContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\SettingsPageContent\VideoPlaySettingsPageContent.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\SettingsPageContent\VideoListSettingsPageContent.xaml">
+    <Page Include="Views\SettingsPageContent\FilteringSettingsPageContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -892,21 +989,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BackgroundAudioShared\VideoBackgroundShared.csproj">
-      <Project>{62c43640-d9fb-41b8-81b7-a02be8facd09}</Project>
-      <Name>VideoBackgroundShared</Name>
-    </ProjectReference>
     <ProjectReference Include="..\NicoVideoRtmpClient\NicoVideoRtmpClient.csproj">
       <Project>{4fa97e39-99df-423b-9de0-0d6662e98e7e}</Project>
       <Name>NicoVideoRtmpClient</Name>
     </ProjectReference>
-    <ProjectReference Include="..\VideoBackgroundTask\VideoBackgroundTask.csproj">
-      <Project>{03e0d8ba-4f1d-4f35-8335-81b641bbbac1}</Project>
-      <Name>VideoBackgroundTask</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Styles\" />
+    <Folder Include="Themes\" />
   </ItemGroup>
   <ItemGroup>
     <SDKReference Include="Microsoft.Services.Store.Engagement, Version=10.0">

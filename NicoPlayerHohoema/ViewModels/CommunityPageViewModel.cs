@@ -115,7 +115,7 @@ namespace NicoPlayerHohoema.ViewModels
 		bool _NowProcessCommunity;
 
 		public CommunityPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
-			: base(hohoemaApp, pageManager, isRequireSignIn: true)
+			: base(hohoemaApp, pageManager)
 		{
 			IsFollowCommunity = new ReactiveProperty<bool>(mode: ReactivePropertyMode.DistinctUntilChanged)
 				.AddTo(_CompositeDisposable);
@@ -264,7 +264,7 @@ namespace NicoPlayerHohoema.ViewModels
 					HasNews = NewsList.Count > 0;
 
 
-					CurrentLiveInfoList = CommunityDetail.CurrentLiveList.Select(x => new CurrentLiveInfoViewModel(x, PageManager))
+					CurrentLiveInfoList = CommunityDetail.CurrentLiveList.Select(x => new CurrentLiveInfoViewModel(x, HohoemaApp.Playlist))
 						.ToList();
 
 					HasCurrentLiveInfo = CurrentLiveInfoList.Count > 0;
@@ -272,7 +272,7 @@ namespace NicoPlayerHohoema.ViewModels
 					CommunityVideoSamples = new List<CommunityVideoInfoViewModel>();
 					foreach (var sampleVideo in CommunityDetail.VideoList)
 					{
-						var videoInfoVM = new CommunityVideoInfoViewModel(sampleVideo, PageManager);
+						var videoInfoVM = new CommunityVideoInfoViewModel(sampleVideo, HohoemaApp.Playlist);
 
 						CommunityVideoSamples.Add(videoInfoVM);
 					}
@@ -393,14 +393,14 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class CurrentLiveInfoViewModel
 	{
-		public PageManager PageManager { get; private set; }
+		public HohoemaPlaylist HohoemaPlaylist { get; private set; }
 
 		public string LiveTitle { get; private set; }
 		public string LiveId { get; private set; }
 
-		public CurrentLiveInfoViewModel(CommunityLiveInfo liveInfo, PageManager pageManager)
+		public CurrentLiveInfoViewModel(CommunityLiveInfo liveInfo, HohoemaPlaylist playlist)
 		{
-			PageManager = pageManager;
+            HohoemaPlaylist = playlist;
 
 			LiveTitle = liveInfo.LiveTitle;
 			LiveId = liveInfo.LiveId;
@@ -414,13 +414,8 @@ namespace NicoPlayerHohoema.ViewModels
 				return _OpenLivePageCommand
 					?? (_OpenLivePageCommand = new DelegateCommand(() =>
 					{
-						// TODO: 生放送ページを開く lv0000000
-						var livePagePayload = new Models.Live.LiveVidePagePayload(LiveId)
-						{
-							LiveTitle = LiveTitle
-						};
-
-						PageManager.OpenPage(HohoemaPageType.LiveVideoPlayer, livePagePayload.ToParameterString());
+                        // TODO: 生放送ページを開く lv0000000
+                        HohoemaPlaylist.PlayLiveVideo(LiveId, LiveTitle);
 					}));
 			}
 		}
@@ -547,16 +542,16 @@ namespace NicoPlayerHohoema.ViewModels
 	public class CommunityVideoInfoViewModel
 	{
 		public CommunityVideo VideoInfo { get; private set; }
-		public PageManager PageManager { get; private set; }
+		public HohoemaPlaylist HohoemaPlaylist { get; private set; }
 
 
 		public string Title { get; private set; }
 
 
-		public CommunityVideoInfoViewModel(CommunityVideo info, PageManager pageManager)
+		public CommunityVideoInfoViewModel(CommunityVideo info, HohoemaPlaylist playlist)
 		{
 			VideoInfo = info;
-			PageManager = pageManager;
+            HohoemaPlaylist = playlist;
 
 			Title = VideoInfo.Title;
 		}
@@ -571,15 +566,7 @@ namespace NicoPlayerHohoema.ViewModels
 				return _OpenVideoPageCommand
 					?? (_OpenVideoPageCommand = new DelegateCommand(() =>
 					{
-						var videoPagePayload = new Models.VideoPlayPayload()
-						{
-							VideoId = VideoInfo.VideoId
-						};
-
-						PageManager.OpenPage(
-							HohoemaPageType.VideoPlayer
-							, videoPagePayload.ToParameterString()
-							);
+                        HohoemaPlaylist.DefaultPlaylist.AddVideo(VideoInfo.VideoId, VideoInfo.Title);
 					}));
 			}
 		}

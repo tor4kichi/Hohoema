@@ -23,20 +23,29 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 {
 	public sealed partial class CommentUI : UserControl
 	{
-		public Comment CommentData
-		{
-			get
-			{
-				return DataContext as Comment;
-			}
-		}
+		public Comment CommentData { get; private set; }
 
 		public CommentUI()
 		{
 			this.InitializeComponent();
+
+            DataContextChanged += CommentUI_DataContextChanged;
+            SizeChanged += CommentUI_SizeChanged;
 		}
 
-		public bool IsInsideScreen { get; private set; }
+        private void CommentUI_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            _ActualWidth = this.DesiredSize.Width;
+        }
+
+        private void CommentUI_DataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
+        {
+            CommentData = DataContext as Comment;
+        }
+
+
+        private double _ActualWidth = 0;
+        public bool IsInsideScreen { get; private set; }
 		public int HorizontalPosition { get; private set; }
 
 
@@ -64,8 +73,13 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 			//
 
+            if (_ActualWidth == 0)
+            {
+                HorizontalPosition = 0;
+                return;
+            }
 			var comment = CommentData;
-			var width = this.DesiredSize.Width;
+			var width = _ActualWidth;
 
 			var distance = screenWidth + width;
 			var displayTime = (comment.EndPosition - comment.VideoPosition);
@@ -76,7 +90,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 			var result = (int)Math.Floor(distance * lerp);
 
-			IsInsideScreen = result > DesiredSize.Width;
+			IsInsideScreen = result > width;
 
 			HorizontalPosition = result;
 		}

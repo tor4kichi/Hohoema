@@ -7,31 +7,36 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Models.AppMap
 {
-	public class VideoPlayHistoryAppMapContainer : SelfGenerateAppMapContainerBase
-	{
-		public HohoemaApp HohoemaApp { get; private set; }
+	public class VideoPlayHistoryAppMapContainer : AppMapContainerBase
+    {
+        public const int VideoPlayHistoryDisplayCount = 5;
 
-		public VideoPlayHistoryAppMapContainer(HohoemaApp hohoemaApp)
+
+        public VideoPlayHistoryAppMapContainer()
 			: base(HohoemaPageType.History, label:"視聴履歴")
 		{
-			HohoemaApp = hohoemaApp;
-		}
+            
+        }
 
-		protected override async Task<IEnumerable<IAppMapItem>> GenerateItems(int count)
-		{
-			var playedHistories = await HohoemaApp.ContentFinder.GetHistory();
+        protected override async Task OnRefreshing()
+        {
+            var playedHistories = await HohoemaApp.ContentFinder.GetHistory();
+            if (playedHistories == null)
+            {
+                return;
+            }
 
-			List<IAppMapItem> items = new List<IAppMapItem>();
-			var histories = playedHistories.Histories.Take(count);
-			foreach (var history in histories)
-			{
-				var historyAppMapItem = new VideoPlayHistoryAppMapItem(history);
-				items.Add(historyAppMapItem);
-			}
+            _DisplayItems.Clear();
 
-			return items;
-		}
-	}
+            List<IAppMapItem> items = new List<IAppMapItem>();
+            var histories = playedHistories.Histories.Take(VideoPlayHistoryDisplayCount);
+            foreach (var history in histories)
+            {
+                var historyAppMapItem = new VideoPlayHistoryAppMapItem(history, HohoemaApp.Playlist);
+                _DisplayItems.Add(historyAppMapItem);
+            }
+        }
+    }
 
 
 	public class VideoPlayHistoryAppMapItem : IAppMapItem
@@ -40,12 +45,20 @@ namespace NicoPlayerHohoema.Models.AppMap
 		public string SecondaryLabel { get; private set; }
 		public string Parameter { get; private set; }
 
-		public HohoemaPageType PageType => HohoemaPageType.VideoPlayer;
+        History _History;
+        public HohoemaPlaylist HohoemaPlaylist { get; private set; }
 
+        public void SelectedAction()
+        {
+            HohoemaPlaylist.PlayVideo(_History.ItemId, _History.Title);
+        }
 
-		public VideoPlayHistoryAppMapItem(History history)
+		public VideoPlayHistoryAppMapItem(History history, HohoemaPlaylist playlist)
 		{
-			PrimaryLabel = history.Title;
+            _History = history;
+
+            HohoemaPlaylist = playlist;
+            PrimaryLabel = history.Title;
 
 			SecondaryLabel = null;
 

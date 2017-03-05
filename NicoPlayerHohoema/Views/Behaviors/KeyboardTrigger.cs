@@ -7,10 +7,12 @@ using System.Threading.Tasks;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Markup;
 
 namespace NicoPlayerHohoema.Views.Behaviors
 {
-	public class KeyboardTrigger : DependencyObject, IBehavior
+    [ContentProperty(Name = "Actions")]
+    public class KeyboardTrigger : DependencyObject, IBehavior
 	{
 		public DependencyObject AssociatedObject { get; private set; }
 

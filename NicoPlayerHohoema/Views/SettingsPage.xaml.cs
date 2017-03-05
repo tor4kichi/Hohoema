@@ -31,41 +31,46 @@ namespace NicoPlayerHohoema.Views
 
 	public class SettingContentTemplateSelector : DataTemplateSelector
 	{
-		public DataTemplate RankingTemplate { get; set; }
-		public DataTemplate NGTemplate { get; set; }
+		public DataTemplate FilteringTemplate { get; set; }
 		public DataTemplate PlayerTemplate { get; set; }
 		public DataTemplate CacheTemplate { get; set; }
-		public DataTemplate AppDisplayTemplate { get; set; }
+		public DataTemplate AppearanceTemplate { get; set; }
 		public DataTemplate ShereTemplate { get; set; }
+        public DataTemplate FeedbackTemplate { get; set; }
+        public DataTemplate AboutTemplate { get; set; }
 
-		protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
+        protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
 		{
-			if (item is ViewModels.VideoListSettingsPageContentViewModel)
+            if (item is ViewModels.PlayerSeetingPageContentViewModel)
+            {
+                return PlayerTemplate;
+            }
+            else if (item is ViewModels.FilteringSettingsPageContentViewModel)
 			{
-				return RankingTemplate;
-			}
-			else if (item is ViewModels.CommentSettingsPageContentViewModel)
-			{
-				return NGTemplate;
-			}
-			else if (item is ViewModels.VideoPlaySettingsPageContentViewModel)
-			{
-				return PlayerTemplate;
+				return FilteringTemplate;
 			}
 			else if (item is ViewModels.CacheSettingsPageContentViewModel)
 			{
 				return CacheTemplate;
 			}
-			else if (item is ViewModels.AppDisplaySettingsPageContentViewModel)
+			else if (item is ViewModels.AppearanceSettingsPageContentViewModel)
 			{
-				return AppDisplayTemplate;
+				return AppearanceTemplate;
 			}
-			else if (item is ViewModels.ShereSettingsPageContentViewModel)
+			else if (item is ViewModels.ShareSettingsPageContentViewModel)
 			{
 				return ShereTemplate;
 			}
+            else if (item is ViewModels.FeedbackSettingsPageContentViewModel)
+            {
+                return FeedbackTemplate;
+            }
+            else if (item is ViewModels.AboutSettingsPageContentViewModel)
+            {
+                return AboutTemplate;
+            }
 
-			return base.SelectTemplateCore(item, container);
+            return base.SelectTemplateCore(item, container);
 		}
 	}
 }

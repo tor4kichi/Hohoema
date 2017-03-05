@@ -1,0 +1,59 @@
+﻿<UserControl
+    x:Class="NicoPlayerHohoema.Views.Controls.HohoemaListItem"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:listitem="using:NicoPlayerHohoema.Views.HohoemaListItem"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controlTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInterfaceTriggers"
+    
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+
+    <Grid>
+
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+
+
+
+                <!-- 横並び 中 -->
+                <VisualState >
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{x:Bind IsCard}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ListItemCard.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- 横並び 小 -->
+                <VisualState >
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{x:Bind IsMiniCard}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ListItemMiniCard.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- 縦並び -->
+                <VisualState >
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="True" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ListItemVideo.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+        <listitem:HohoemaListItemVideo x:Name="ListItemVideo" Visibility="Collapsed" />
+        <listitem:HohoemaListItemMiniCard x:Name="ListItemMiniCard" Visibility="Collapsed" />
+        <listitem:HohoemaListItemCard x:Name="ListItemCard" Visibility="Collapsed" />
+    </Grid>
+</UserControl>
