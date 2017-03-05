@@ -125,9 +125,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                 if (playlist != null)
                 {
-                    // TODO: MasterDetailsViewの不具合で正常動作せず
-                    // UWP Community Toolkit v1.3で改善されるかも？
-//                    SelectedItem.Value = playlist;
+                    SelectedItem.Value = playlist;
                 }
             }
         }

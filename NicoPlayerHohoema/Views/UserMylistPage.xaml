@@ -22,32 +22,7 @@
     <Grid>
 
         
-        <VisualStateManager.VisualStateGroups>
-            <VisualStateGroup>
-                <!-- マウス操作時、または画面が大きい時 -->
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="800" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="DesktopUserMylist.Visibility" Value="Visible" />
-                        <Setter Target="MobileUserMylist.Visibility" Value="Collapsed" />
-                    </VisualState.Setters>
-                </VisualState>
-
-                <!-- 狭い -->
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="0" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="DesktopUserMylist.Visibility" Value="Collapsed" />
-                        <Setter Target="MobileUserMylist.Visibility" Value="Visible" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-
-        </VisualStateManager.VisualStateGroups>
+        
         
         <toolkit:DockPanel>
 
@@ -62,7 +37,6 @@
                                 >
                         <Button Background="Transparent" 
                             Command="{Binding AddMylistGroupCommand}"
-                            ToolTipService.ToolTip="マイリスト作成"
                             >
                             <SymbolIcon Symbol="Add" />
                         </Button>
@@ -83,104 +57,43 @@
 
             <Grid>
 
-                <ListView ItemsSource="{Binding MylistGroupItems}"
-                          IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
-                          SelectionMode="Single"
-                          x:Name="DesktopUserMylist"
-                          HorizontalAlignment="Center"
-                          MaxWidth="960"
-                          Margin="16 0 0 0"
-                          IsTabStop="False"
+                <ItemsControl ItemsSource="{Binding MylistGroupItems}"
+                          Margin="0 0 0 0"
+                              HorizontalContentAlignment="Stretch"
+                              IsTabStop="False"
                   >
 
-                    <i:Interaction.Behaviors>
-                        <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedMylistGroupItems}" />
-                    </i:Interaction.Behaviors>
-
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ContentPresenter">
                             <Setter Property="HorizontalContentAlignment"
                                     Value="Stretch" 
                                         />
                             <Setter Property="Margin"
                                     Value="0 0 16 16" 
                                     />
-                            <Setter Property="Height"
-                                    Value="240" 
-                                    />
-                            <Setter Property="Width"
-                                    Value="280" 
-                                    />
+
                         </Style>
-                    </ListView.ItemContainerStyle>
+                    </ItemsControl.ItemContainerStyle>
 
-                    <ListView.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <toolkit:WrapPanel Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ListView.ItemsPanel>
 
-                    <ListView.ItemTemplate>
+                    <ItemsControl.ItemTemplate>
 
                         <DataTemplate>
 
-                            <Grid Background="Transparent" IsHitTestVisible="True">
-                                <i:Interaction.Behaviors>
-                                    <core:EventTriggerBehavior EventName="Tapped">
-                                        <core:InvokeCommandAction Command="{Binding PrimaryCommand}"
-                                                        />
-                                    </core:EventTriggerBehavior>
-                                </i:Interaction.Behaviors>
-
-                                <mycontrols:HohoemaListItem DisplayType="Card" />
-
-                            </Grid>
-                        </DataTemplate>
-
-                    </ListView.ItemTemplate>
-                </ListView>
-                
-                <ListView ItemsSource="{Binding MylistGroupItems}"
-                      IsMultiSelectCheckBoxEnabled="{Binding IsSelectionModeEnable.Value}"
-                      SelectionMode="Single"
-                      x:Name="MobileUserMylist"
-                  >
-
-                    <i:Interaction.Behaviors>
-                        <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedMylistGroupItems}" />
-                    </i:Interaction.Behaviors>
-
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
-                            <Setter Property="HorizontalContentAlignment"
-                                    Value="Stretch" 
-                                        />
-                            <Setter Property="Margin"
-                                    Value="0 0 0 8" 
-                                    />
-                        </Style>
-                    </ListView.ItemContainerStyle>
-
-
-                    <ListView.ItemTemplate>
-
-                        <DataTemplate>
-
-                            <Grid Background="Transparent" IsHitTestVisible="True">
-                                <i:Interaction.Behaviors>
-                                    <core:EventTriggerBehavior EventName="Tapped">
-                                        <core:InvokeCommandAction Command="{Binding PrimaryCommand}"
-                                                          />
-                                    </core:EventTriggerBehavior>
-                                </i:Interaction.Behaviors>
-
+                            <Button Background="Transparent" 
+                                    Command="{Binding PrimaryCommand}"
+                                    HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Left"
+                                    >
+                                
                                 <mycontrols:HohoemaListItem />
 
-                            </Grid>
+                            </Button>
                         </DataTemplate>
 
-                    </ListView.ItemTemplate>
-                </ListView>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                
             </Grid>
            
         </toolkit:DockPanel>

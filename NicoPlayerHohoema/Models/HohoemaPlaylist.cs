@@ -194,14 +194,19 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
-        
+        public async Task Save(Playlist playlist)
+        {
+            var fileAccessor = _PlaylistFileAccessorMap[playlist.Id];
+            await fileAccessor.Save(playlist);
+
+            await HohoemaApp.PushToRoamingData(await fileAccessor.TryGetFile());
+        }
 
         public async Task Save()
         {
             foreach (var playlist in _Playlists)
             {
-                var fileAccessor = _PlaylistFileAccessorMap[playlist.Id];
-                await fileAccessor.Save(playlist);
+                await Save(playlist);
             }
         }
 
@@ -210,10 +215,17 @@ namespace NicoPlayerHohoema.Models
         internal async void RenamePlaylist(Playlist playlist, string newName)
         {
             var fileAccessor = _PlaylistFileAccessorMap[playlist.Id];
+
+            // 古いファイルを同期から削除
+            var oldFile = await fileAccessor.TryGetFile();
+            await HohoemaApp.RoamingDataRemoved(oldFile);
+
+            // ファイル名を変更して保存
             var newFileName = Util.FilePathHelper.ToSafeFilePath(Path.ChangeExtension(newName, ".json"));
             await fileAccessor.Rename(newFileName, forceReplace:true);
             playlist.Name = newName;
-            await fileAccessor.Save(playlist);
+            
+            await Save(playlist);
         }
 
         internal void PlayStarted(Playlist playlist, PlaylistItem item)
@@ -230,6 +242,13 @@ namespace NicoPlayerHohoema.Models
             CurrentPlaylist = playlist;
            
             OpenPlaylistItem?.Invoke(CurrentPlaylist, item);
+
+            // あとで見るプレイリストの場合、再生開始時に
+            // アイテムを削除する
+            if (CurrentPlaylist == DefaultPlaylist)
+            {
+                DefaultPlaylist.Remove(item);
+            }
 
             IsDisplayPlayer = true;
 
@@ -330,30 +349,26 @@ namespace NicoPlayerHohoema.Models
             return playlist;
         }
 
-        public void RemovePlaylist(Playlist playlist)
+        public async Task RemovePlaylist(Playlist playlist)
         {
             if (_Playlists.Contains(playlist))
             {
                 _Playlists.Remove(playlist);
                 var fileAccessor = _PlaylistFileAccessorMap[playlist.Id];
-                fileAccessor.Delete().ConfigureAwait(false);
+
+                var file = await fileAccessor.TryGetFile();
+                await HohoemaApp.RoamingDataRemoved(file);
+
+                await fileAccessor.Delete().ConfigureAwait(false);
                 _PlaylistFileAccessorMap.Remove(playlist.Id);
 
                 playlist.Dispose();
             }
         }
 
+        
         public void PlayDone(bool canPlayNext = false)
         {
-            // あとで見るプレイリストから再生完了したアイテムを削除する
-            if (DefaultPlaylist == CurrentPlaylist)
-            {
-                if (DefaultPlaylist.CurrentVideo != null)
-                {
-                    DefaultPlaylist.Remove(DefaultPlaylist.CurrentVideo);
-                }
-            }
-
             // 次送りが出来る場合は次へ
             if (canPlayNext && (Player?.CanGoNext ?? false))
             {
@@ -554,7 +569,20 @@ namespace NicoPlayerHohoema.Models
         {
             get
             {
-                if (IsRepeat) { return true; }
+
+                if (IsRepeat)
+                {
+                    // 全体リピート時にアイテムが一つの場合は前への移動を制限
+                    if (Playlist.PlaylistItems.Count > 1)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+
                 if (Playlist.PlaylistItems.Count == 0) { return false; }
 
                 return Playlist.PlaylistItems.FirstOrDefault() != Current;
@@ -565,7 +593,18 @@ namespace NicoPlayerHohoema.Models
         {
             get
             {
-                if (IsRepeat) { return true; }
+                if (IsRepeat)
+                {
+                    // 全体リピート時にアイテムが一つの場合は次への移動を制限
+                    if (Playlist.PlaylistItems.Count > 1)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
                 if (Playlist.PlaylistItems.Count == 0) { return false; }
 
                 return Playlist.PlaylistItems.LastOrDefault() != Current;
@@ -917,7 +956,8 @@ namespace NicoPlayerHohoema.Models
                 _PlaylistItems.Add(newItem);
             }
 
-            HohoemaPlaylist.Save().ConfigureAwait(false);
+            
+            HohoemaPlaylist.Save(this).ConfigureAwait(false);
 
             return newItem;
         }
@@ -958,7 +998,7 @@ namespace NicoPlayerHohoema.Models
             {
                 if (_PlaylistItems.Remove(item))
                 {
-                    HohoemaPlaylist.Save().ConfigureAwait(false);
+                    HohoemaPlaylist.Save(this).ConfigureAwait(false);
 
                     return true;
                 }

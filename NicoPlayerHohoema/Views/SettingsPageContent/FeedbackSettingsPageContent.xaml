@@ -15,21 +15,33 @@
                     HorizontalAlignment="Stretch"
                     >
 
-            <Button Content="アプリの評価・レビューを行う"
-                    Margin="0 16"
+            <StackPanel Orientation="Horizontal" Margin="0 0 0 8">
+                <TextBlock Text="レビュー"
+                           FontSize="18"
+                           VerticalAlignment="Center"
+                           FontWeight="SemiBold"
+                           />
+            </StackPanel>
+
+            
+
+            <StackPanel Margin="8 0 0 0">
+                
+                <TextBlock Margin="0 8 8 8"
+                       TextWrapping="Wrap"                       
+                       >
+                    <Run>ストアアプリからHohoemaへの評価・レビューを確認したり、送信することができます。</Run>
+                    <Run>開発者のモチベーションにもなりますので、評価やレビューを頂けると幸いです。</Run>
+                </TextBlock>
+
+                <HyperlinkButton Content="ストアでHohoemaをレビューする"
+                    Margin="0 8"
                     Command="{Binding LaunchAppReviewCommand}"
                     UseSystemFocusVisuals="True"
                     />
-
-            <TextBlock Margin="16 8 8 8"
-                       TextWrapping="Wrap"                       
-                       >
-                         <Run>Windows10のストアアプリを起動してHohoemaアプリへの評価・レビューの記入を開始します。</Run>
-            </TextBlock>
-
-
-
-
+                
+            </StackPanel>
+            
             <Border HorizontalAlignment="Stretch"
                     BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                     BorderThickness="1 1 0 0"
@@ -38,52 +50,45 @@
 
 
 
-            <Button Content="フィードバックHubでアプリの問題点・改善点を共有する" 
-                    Margin="0 16"
+
+            <StackPanel Orientation="Horizontal" Margin="0 8 0 8">
+                <TextBlock Text="フィードバックHub"
+                           FontSize="18"
+                           VerticalAlignment="Center"
+                           FontWeight="SemiBold"
+                           />
+            </StackPanel>
+
+            <StackPanel Margin="8 0 0 0">
+                
+                <TextBlock Margin="0 8"
+                       TextWrapping="Wrap"
+                       >
+                    <Run>フィードバックHubでHohoemaへのフィードバックを確認します。</Run>
+                    <Run>問題や改善点をフィードバックHubから共有することで、Hohoemaの開発に協力することができます。</Run>
+                </TextBlock>
+
+                <HyperlinkButton Content="フィードバックHubを開く" 
+                    Margin="0 0 0 8"
                     Command="{Binding LaunchFeedbackHubCommand}"
                     Visibility="{Binding IsSupportedFeedbackHub, Converter={StaticResource BooleanToVisibility}}"
                     UseSystemFocusVisuals="True"
                     >
 
-            </Button>
+                </HyperlinkButton>
 
-            <TextBlock Margin="16 8 8 8"
-                       TextWrapping="Wrap"
-                       >
-                <Run>Hohoemaアプリに対するフィードバックをWindows10特有の「フィードバックHub」を通じて行います。</Run>
-                <Run>フィードバックHubで共有された課題、必要とされる機能などはHohoemaの課題一覧にまとめられます。</Run>
-            </TextBlock>
-
-            <HyperlinkButton Content="フィードバックHubのダウンロード（ストアアプリが開きます）"
-                             NavigateUri="ms-windows-store://pdp/?productid=9NBLGGH4R32N"
-                             Margin="0 8"
-                             />
-
-
-
-
-
-            <Border HorizontalAlignment="Stretch"
+                <Border HorizontalAlignment="Stretch"
                     BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                     BorderThickness="1 1 0 0"
                     Margin="0 16"
                     />
-
-            <Button Content="Hohoemaの課題一覧を見る"
-                    Margin="0 16"
-                    Command="{Binding ShowIssuesWithBrowserCommand}"
-                    UseSystemFocusVisuals="True"
-                    >
-
-            </Button>
-
-            <TextBlock Margin="16 8 8 8"
-                       TextWrapping="Wrap"
-                       >
-                <Run>Hohoemaに現在どんな課題があって、いつ頃に解決する見通しなのか大まかに知ることができます。</Run>
-                <Run>課題一覧に新たに登録される課題はフィードバックHub等に報告された項目を一旦開発者が整理した上で追加されます。</Run>
-            </TextBlock>
-
+                
+                <HyperlinkButton Content="「フィードバックHub」をダウンロード"
+                             NavigateUri="ms-windows-store://pdp/?productid=9NBLGGH4R32N"
+                             Margin="0 8"
+                             />
+            </StackPanel>
+            
 
         </StackPanel>
 

@@ -4,6 +4,7 @@ using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
@@ -117,11 +118,20 @@ namespace NicoPlayerHohoema.Models
 					Sort = MylistDefaultSort.Latest
 				};
 				_UserMylists.Add(Deflist);
-			}
+                await Deflist.Refresh();
+            }
 
 
-			// ユーザーのマイリストグループの一覧を取得
-			var mylistGroupDataLists = await HohoemaApp.ContentFinder.GetLoginUserMylistGroups();
+            // ユーザーのマイリストグループの一覧を取得
+            List<LoginUserMylistGroup> mylistGroupDataLists = null;
+            try
+            {
+                mylistGroupDataLists = await HohoemaApp.ContentFinder.GetLoginUserMylistGroups();
+            }
+            catch
+            {
+                Debug.WriteLine("ユーザーマイリストの更新に失敗しました。");
+            }
 
             if (mylistGroupDataLists == null)
             {
@@ -262,7 +272,7 @@ namespace NicoPlayerHohoema.Models
 		public bool IsPublic { get; set; }
 		public IconType IconType { get; set; }
 		public MylistDefaultSort Sort { get; set; }
-
+        public int Count { get; set; }
 
         public MylistGroupInfo(string groupId, HohoemaApp hohoemaApp, UserMylistManager mylistManager)
 		{
@@ -295,7 +305,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			get
 			{
-				return VideoItems.Count;
+                return VideoItems.Count != 0 ? VideoItems.Count : Count;
 			}
 		}
 
@@ -440,9 +450,10 @@ namespace NicoPlayerHohoema.Models
 				Description = group.Description,
 				IsPublic = group.GetIsPublic(),
 				IconType = group.GetIconType(),
-				Sort = group.GetDefaultSort()
+				Sort = group.GetDefaultSort(),
+                Count = group.ItemCount
+                
 			};
-
 		}
 
 

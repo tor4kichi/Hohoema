@@ -257,7 +257,7 @@
 
                     <Border  VerticalAlignment="Bottom"
                                  HorizontalAlignment="Left"
-                                 Background="#AA000000"
+                                 Background="{ThemeResource SystemAltMediumColor}"
                                  >
                         <TextBlock Text="{Binding PermanentDisplayText.Value}" 
                                    TextWrapping="Wrap"
@@ -308,8 +308,8 @@
                         <Border Height="48">
                             <Border.Background>
                                 <LinearGradientBrush x:Name="ControlPanelBackgroundBrush" StartPoint="1, 0" EndPoint="1, 1">
-                                    <GradientStop Color="#00000000" Offset="0.0" x:Name="GradientStop1"/>
-                                    <GradientStop Color="#AA000000" Offset="1.0" x:Name="GradientStop2" />
+                                    <GradientStop Color="{Binding Source={StaticResource SystemAltMediumColor}, Converter={StaticResource ToTransparentColor}}" Offset="0.0" x:Name="GradientStop1"/>
+                                    <GradientStop Color="{ThemeResource SystemAltMediumColor}" Offset="1.0" x:Name="GradientStop2" />
                                 </LinearGradientBrush>
                             </Border.Background>
 
@@ -320,7 +320,7 @@
                             </i:Interaction.Behaviors>
                         </Border>
 
-                        <StackPanel x:Name="TitleLayout" Background="#AA000000">
+                        <StackPanel x:Name="TitleLayout" Background="{ThemeResource SystemAltMediumColor}">
                             <TextBlock Text="{Binding Title}" FontSize="24" Margin="8" HorizontalAlignment="Center" TextWrapping="Wrap" />
 
                             <i:Interaction.Behaviors>
@@ -334,7 +334,7 @@
 
                         <!-- 生放送情報 -->
                         <toolkit:DockPanel toolkit:DockPanel.Dock="Top"
-                                               Background="#AA000000"
+                                               Background="{ThemeResource SystemAltMediumColor}"
                                                >
 
                             <StackPanel Orientation="Horizontal"
@@ -427,7 +427,7 @@
 
 
                         <!-- 再生コントロール -->
-                        <Grid Background="#AA000000" Padding="8">
+                        <Grid Background="{ThemeResource SystemAltMediumColor}" Padding="8">
 
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -466,24 +466,26 @@
                                                 </StackPanel>
 
 
-                                                <StackPanel Background="#AA777777" Margin="8 0" 
+                                                <StackPanel Margin="8 0" 
                                                 Orientation="Vertical">
 
 
 
                                                     <Slider x:Name="VolumeSlider"
-                                                    Orientation="Horizontal"
-                                                    VerticalAlignment="Top"
-                                                    Margin="8 4"
-                                                    Value="{Binding SoundVolume.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                    IsThumbToolTipEnabled="True"
-                                                    ThumbToolTipValueConverter="{StaticResource ToUserFriendlySoubleVolume}"
-                                                    Maximum="1.0"
-                                                    Minimum="0.0"
-                                                    StepFrequency="0.01"
-                                                    Height="32"
-                                                    Width="160"
-                                                                
+                                                            Orientation="Horizontal"
+                                                            VerticalAlignment="Top"
+                                                            Margin="8 4"
+                                                            Value="{Binding SoundVolume.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                            IsThumbToolTipEnabled="True"
+                                                            ThumbToolTipValueConverter="{StaticResource ToUserFriendlySoubleVolume}"
+                                                            Maximum="1.0"
+                                                            Minimum="0.0"
+                                                            StepFrequency="0.01"
+                                                            SmallChange="0.01"
+                                                            LargeChange="0.1"
+                                                            Height="32"
+                                                            Width="160"
+                                                            Background="Transparent"
                                                     >
                                                         <i:Interaction.Behaviors>
                                                             <core:EventTriggerBehavior EventName="ValueChanged" >
@@ -599,7 +601,7 @@
                         <!-- コメントを書く -->
                         <Grid Visibility="{Binding NowCommentWriting.Value, Converter={StaticResource BooleanToVisibility}}" 
                           x:Name="CommentLayout"
-                          Background="#AA000000"
+                          Background="{ThemeResource SystemAltMediumColor}"
                                 Padding="0 8 0 0"
                           >
 

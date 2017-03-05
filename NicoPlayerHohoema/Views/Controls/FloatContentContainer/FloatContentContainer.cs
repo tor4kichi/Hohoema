@@ -35,6 +35,8 @@ namespace NicoPlayerHohoema.Views.Controls
         private const string HiddenDisplayModeState = "Hidden";
         private const string FillDisplayModeState = "Fill";
         private const string FloatDisplayModeState = "Float";
+        private const string FloatSmallDisplayModeState = "Float_Small";
+        
 
 
         public FloatContentContainer()
@@ -78,8 +80,22 @@ namespace NicoPlayerHohoema.Views.Controls
             }
             else
             {
-
-                VisualStateManager.GoToState(this, isFill ? FillDisplayModeState : FloatDisplayModeState, true);
+                if (isFill)
+                {
+                    VisualStateManager.GoToState(this, FillDisplayModeState, true);
+                }
+                else
+                {
+                    if (Window.Current.CoreWindow.Bounds.Width < 800)
+                    {
+                        VisualStateManager.GoToState(this, FloatSmallDisplayModeState, true);
+                    }
+                    else
+                    {
+                        VisualStateManager.GoToState(this, FloatDisplayModeState, true);
+                    }
+                }
+                
             }
 
             OnDisplayModeChanged(isFill, isDisplayFloatContent);

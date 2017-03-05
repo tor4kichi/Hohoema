@@ -9,6 +9,7 @@ using System.Reactive.Linq;
 using Reactive.Bindings.Extensions;
 using Prism.Windows.Navigation;
 using System.Threading;
+using System.Diagnostics;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -31,6 +32,8 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<string> LoginErrorText { get; private set; }
 
 
+        private LoginRedirectPayload _RedirectInfo;
+
         public LoginPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager) 
             : base(hohoemaApp, pageManager, canActivateBackgroundUpdate:false)
         {
@@ -52,8 +55,8 @@ namespace NicoPlayerHohoema.ViewModels
 
             // メールかパスワードが変更されたらログイン検証されていないアカウントとしてマーク
             TryLoginCommand = Observable.CombineLatest(
-                Mail.Select(x => !string.IsNullOrEmpty(x)),
-                Password.Select(x => !string.IsNullOrEmpty(x)),
+                Mail.Select(x => !string.IsNullOrWhiteSpace(x)),
+                Password.Select(x => !string.IsNullOrWhiteSpace(x)),
                 NowProcessLoggedIn.Select(x => !x)
                 )
                 .Select(x => x.All(y => y))
@@ -78,6 +81,12 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
+
+            if (e.Parameter is string)
+            {
+                _RedirectInfo = LoginRedirectPayload.FromParameterString<LoginRedirectPayload>(e.Parameter as string);
+            }
+
             var accountInfo = await AccountManager.GetPrimaryAccount();
             if (accountInfo != null)
             {
@@ -88,6 +97,8 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 Mail.Value = AccountManager.GetPrimaryAccountId();
             }
+
+            IsRememberPassword.Value = !string.IsNullOrWhiteSpace(Password.Value);
         }
 
         private async Task TryLogin()
@@ -120,10 +131,23 @@ namespace NicoPlayerHohoema.ViewModels
                     AccountManager.RemoveAccount(Mail.Value);
                 }
 
-
                 // TODO: 初期セットアップ補助ページを開く？
 
-                PageManager.OpenPage(HohoemaPageType.Portal);
+                if (_RedirectInfo != null)
+                {
+                    try
+                    {
+                        PageManager.OpenPage(_RedirectInfo.RedirectPageType, _RedirectInfo.RedirectParamter);
+                    }
+                    catch
+                    {
+                        PageManager.OpenPage(HohoemaPageType.Portal);
+                    }
+                }
+                else
+                {
+                    PageManager.OpenPage(HohoemaPageType.Portal);
+                }
             }
         }
 

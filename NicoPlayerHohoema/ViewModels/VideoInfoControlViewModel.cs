@@ -13,6 +13,7 @@ using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
@@ -115,6 +116,8 @@ namespace NicoPlayerHohoema.ViewModels
                 .Select(x => NicoVideo.QualityDividedVideos.Any(y => y.IsCacheRequested))
                 .ToReadOnlyReactiveProperty()
                 .AddTo(_CompositeDisposable);
+
+            
         }
 
         private async void ResetQualityDivideVideosVM()
@@ -140,7 +143,7 @@ namespace NicoPlayerHohoema.ViewModels
 			IsVisible = ngResult != null;
 
             Title = info.Title;
-            OptionText = info.PostedAt.ToString();
+            OptionText = info.PostedAt.ToString("yyyy/MM/dd HH:mm");
             if (!string.IsNullOrWhiteSpace(info.ThumbnailUrl))
             {
                 ImageUrlsSource.Add(info.ThumbnailUrl);
@@ -148,10 +151,19 @@ namespace NicoPlayerHohoema.ViewModels
 
             if (!info.IsDeleted)
             {
-                Description = $"再生:{info.ViewCount}";
+                Description = $"再生:{info.ViewCount.ToString("N0")} コメ:{info.CommentCount.ToString("N0")} マイ:{info.MylistCount.ToString("N0")}";
             }
 
-            ImageCaption = info.VideoLength.ToString(); // TODO: ユーザーフレンドリィ時間
+            string timeText;
+            if (info.VideoLength.Hours > 0)
+            {
+                timeText = info.VideoLength.ToString(@"hh\:mm\:ss");
+            }
+            else
+            {
+                timeText = info.VideoLength.ToString(@"mm\:ss");
+            }
+            ImageCaption = timeText;
         }
 
 
@@ -256,6 +268,25 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+
+
+
+        private DelegateCommand _PlayWithSmallPlayerCommand;
+        public DelegateCommand PlayWithSmallPlayerCommand
+        {
+            get
+            {
+                return _PlayWithSmallPlayerCommand
+                    ?? (_PlayWithSmallPlayerCommand = new DelegateCommand(() =>
+                    {
+                        HohoemaPlaylist.IsPlayerFloatingModeEnable = true;
+                        HohoemaPlaylist.PlayVideo(RawVideoId, Title);
+                    }));
+            }
+        }
+        
+
+
         private DelegateCommand _RemoveCacheCommand;
         public DelegateCommand RemoveCacheCommand
         {
@@ -317,6 +348,10 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+
+        
+        public IEnumerable<VideoInfoPlaylistViewModel> Playlists => 
+            HohoemaPlaylist.Playlists.Select(x => new VideoInfoPlaylistViewModel(x.Name, x.Id, NicoVideo));
 
         public ReadOnlyReactiveProperty<bool> IsCacheRequested { get; private set; }
 
@@ -429,6 +464,38 @@ namespace NicoPlayerHohoema.ViewModels
 
         
     }
+
+    public class VideoInfoPlaylistViewModel
+    {
+        public string Name { get; private set; }
+        public string Id { get; private set; }
+
+        public NicoVideo NicoVideo { get; private set; }
+
+
+        public DelegateCommand AddPlaylistCommand { get; private set; }
+
+
+        public VideoInfoPlaylistViewModel(string name, string id, NicoVideo video)
+        {
+            Name = name;
+            Id = id;
+
+            AddPlaylistCommand = new DelegateCommand(() => 
+            {
+                var hohoemaPlaylist = video.HohoemaApp.Playlist;
+                var playlist = hohoemaPlaylist.Playlists.FirstOrDefault(x => x.Id == Id);
+
+                if (playlist == null) { return; }
+
+                playlist.AddVideo(video.RawVideoId, video.Title);
+            });
+        }
+
+    }
+
+
+
 
 
     [Flags]

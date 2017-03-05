@@ -76,8 +76,6 @@ namespace NicoPlayerHohoema.ViewModels
             }
 
             SubstitutionBackNavigation = new Dictionary<string, Action>();
-
-            
         }
 
         
@@ -92,7 +90,7 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					NowSignIn = HohoemaApp.IsLoggedIn;
 
-                    CallAppServiceLevelSignIn(_NavigatedToTaskCancelToken.Token);
+                    CallAppServiceLevelSignIn(_NavigatedToTaskCancelToken?.Token ?? CancellationToken.None);
 				}
 			}
 			finally
@@ -482,8 +480,7 @@ namespace NicoPlayerHohoema.ViewModels
                 var substitutionBackNavPair = SubstitutionBackNavigation.Last();
                 SubstitutionBackNavigation.Remove(substitutionBackNavPair.Key);
                 var action = substitutionBackNavPair.Value;
-                action?.Invoke();
-
+                
                 if (SubstitutionBackNavigation.Count == 0)
                 {
                     var nav = Windows.UI.Core.SystemNavigationManager.GetForCurrentView();
@@ -497,8 +494,12 @@ namespace NicoPlayerHohoema.ViewModels
                     }
                 }
 
+                action?.Invoke();
+
+
                 e.Handled = true;
             }
+            
         }
 
         protected bool RemoveSubsitutionBackNavigateAction(string id)
@@ -557,7 +558,7 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<bool> IsForceTVModeEnable { get; private set; }
 
 
-        public Dictionary<string, Action> SubstitutionBackNavigation { get; private set; }
+        public static Dictionary<string, Action> SubstitutionBackNavigation { get; private set; } = new Dictionary<string, Action>();
 
 
         public HohoemaApp HohoemaApp { get; private set; }

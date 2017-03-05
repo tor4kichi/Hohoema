@@ -100,11 +100,11 @@ namespace NicoPlayerHohoema.Models
 				_IsRunning = false;
 				_IsLastTaskCompleted = true;
 				_UpdateCompletedCount++;
-
-                (Target as BackgroundUpdateableBase)?.Complete();
             }
 
-			Completed?.Invoke(this, this);
+            (Target as BackgroundUpdateableBase)?.Complete();
+
+            Completed?.Invoke(this, this);
 		}
 
 		internal async void Cancel(CoreDispatcher uiDispatcher)
@@ -139,7 +139,7 @@ namespace NicoPlayerHohoema.Models
 			bool isLastTaskCompleted = false;
             try
             {
-                using (var source = new CancellationTokenSource(5000))
+                using (var source = new CancellationTokenSource(30000))
                 {
                     while (true)
                     {

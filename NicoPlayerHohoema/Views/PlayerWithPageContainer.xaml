@@ -79,13 +79,25 @@
 
                             <Grid x:Name="FloatPlayerLayout" Visibility="Collapsed">
 
-                                <Button Command="{Binding PlayerFillDisplayCommand}"
-                                        HorizontalAlignment="Stretch"
+                                
+                                
+                                <Border HorizontalAlignment="Stretch"
                                         VerticalAlignment="Stretch"
                                         Background="Transparent"
                                         >
-                                    
-                                </Button>
+
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Tapped">
+                                            <core:InvokeCommandAction Command="{Binding PlayerFillDisplayCommand}" />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
+
+                                    <Border.ContextFlyout>
+                                        <MenuFlyout >
+                                            <MenuFlyoutItem Text="閉じる" Command="{Binding ClosePlayerCommand}"/>
+                                        </MenuFlyout>
+                                    </Border.ContextFlyout>
+                                </Border>
                             </Grid>
                         </Grid>
                     </controls:FloatContentContainer.FloatContent>

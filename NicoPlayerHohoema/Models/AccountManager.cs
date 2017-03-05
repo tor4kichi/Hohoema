@@ -76,8 +76,15 @@ namespace NicoPlayerHohoema.Models
 
         public static bool HasPrimaryAccount()
         {
-            var container = ApplicationData.Current.LocalSettings.CreateContainer(PRIMARY_ACCOUNT, ApplicationDataCreateDisposition.Always);
-            return container.Values["primary_id"] as string != null;
+            try
+            {
+                var container = ApplicationData.Current.LocalSettings.CreateContainer(PRIMARY_ACCOUNT, ApplicationDataCreateDisposition.Always);
+                return !string.IsNullOrWhiteSpace(container.Values["primary_id"] as string);
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public static Task AddOrUpdateAccount(string mailAddress, string password)
@@ -216,7 +223,7 @@ namespace NicoPlayerHohoema.Models
             }
             else
             {
-                return null;
+                return Task.FromResult<Tuple<string, string>>(null);
             }
         }
 
@@ -227,6 +234,9 @@ namespace NicoPlayerHohoema.Models
             try
             {
                 var primary_id = GetPrimaryAccountId();
+
+                if (string.IsNullOrWhiteSpace(primary_id)) { return null; }
+
                 var credential = vault.Retrieve(nameof(HohoemaApp), primary_id);
                 credential.RetrievePassword();
                 return new Tuple<string, string>(credential.UserName, credential.Password);

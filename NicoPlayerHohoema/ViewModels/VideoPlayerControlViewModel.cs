@@ -170,15 +170,28 @@ namespace NicoPlayerHohoema.ViewModels
 			IsPlayWithCache = new ReactiveProperty<bool>(false)
 				.AddTo(_CompositeDisposable);
 
-			CanResumeOnExitWritingComment = new ReactiveProperty<bool>();
+			IsNeedResumeExitWrittingComment = new ReactiveProperty<bool>();
 
 			NowCommentWriting
-				.Where(x => x)
-				.Subscribe(x => 
+				.Subscribe(isWritting => 
 			{
-				// TODO: ウィンドウの表示状態が最小化の時にも再開できないようにしたい
-				CanResumeOnExitWritingComment.Value = CurrentState.Value == MediaPlaybackState.Playing
-					&& (IsPauseWithCommentWriting?.Value ?? true);
+                if (IsPauseWithCommentWriting?.Value ?? false)
+                {
+                    if (isWritting)
+                    {
+                        MediaPlayer.Pause();
+                        IsNeedResumeExitWrittingComment.Value = NowPlaying.Value;
+                    }
+                    else
+                    {
+                        if (IsNeedResumeExitWrittingComment.Value)
+                        {
+                            MediaPlayer.Play();
+                            IsNeedResumeExitWrittingComment.Value = false;
+                        }
+
+                    }
+                }
 			})
 			.AddTo(_CompositeDisposable);
 
@@ -202,31 +215,16 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					if (this.Video == null || IsDisposed) { return false; }
 
-					switch (x)
-					{
-						case NicoVideoQuality.Original:
-							if (Video.OriginalQuality.IsCacheRequested)
-							{
-								// DL中、DL済み
-								return true;
-							}
-							else
-							{
-								return Video.OriginalQuality.CanRequestCache;
-							}
-						case NicoVideoQuality.Low:
-							if (Video.LowQuality.IsCacheRequested)
-							{
-								// DL中、DL済み
-								return true;
-							}
-							else
-							{
-								return Video.LowQuality.CanRequestCache;
-							}
-						default:
-							throw new NotSupportedException(x.ToString());
-					}
+                    var div = Video.GetDividedQualityNicoVideo(x);
+
+                    if (div.IsCacheRequested)
+                    {
+                        return true;
+                    }
+                    else 
+                    {
+                        return div.CanRequestCache;
+                    }
 				})
 				.ToReactiveProperty()
 				.AddTo(_CompositeDisposable);
@@ -404,7 +402,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			DownloadCompleted = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
 			ProgressPercent = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0.0);
-			IsFullScreen = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
+			IsFullScreen = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false, ReactivePropertyMode.DistinctUntilChanged);
 			IsFullScreen
 				.Subscribe(isFullScreen => 
 			{
@@ -1115,7 +1113,8 @@ namespace NicoPlayerHohoema.ViewModels
                 throw new Exception();
             }
 
-            CurrentPlaylistName.Value = HohoemaApp.Playlist.CurrentPlaylist.Name;
+            CurrentPlaylist = HohoemaApp.Playlist.CurrentPlaylist;
+            CurrentPlaylistName.Value = CurrentPlaylist.Name;
 
             HohoemaApp.MediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
             HohoemaApp.MediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
@@ -1181,6 +1180,9 @@ namespace NicoPlayerHohoema.ViewModels
 
             IsFullScreen.Value = false;
 
+            ExitKeepDisplay();
+
+            HohoemaApp.MediaPlayer.Pause();
             HohoemaApp.MediaPlayer.Source = null;
 
             // TODO: Video.StopVideo()の呼び出し必要？
@@ -1245,15 +1247,15 @@ namespace NicoPlayerHohoema.ViewModels
                 // stream.Dispose();
                 Video?.StopPlay();
 
-                // プレイリストへ再生完了を通知
-                VideoPlayed();
-
                 App.Current.Suspending -= Current_Suspending;
                 HohoemaApp.MediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
                 HohoemaApp.MediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
             }
 
-			ExitKeepDisplay();
+            // プレイリストへ再生完了を通知
+            VideoPlayed();
+
+            ExitKeepDisplay();
 
 			Comments.Clear();
 
@@ -1730,7 +1732,7 @@ namespace NicoPlayerHohoema.ViewModels
                     ?? (_OpenCurrentPlaylistPageCommand = new DelegateCommand(() =>
                     {
                         HohoemaApp.Playlist.IsPlayerFloatingModeEnable = true;
-                        PageManager.OpenPage(HohoemaPageType.Playlist, HohoemaPlaylist.WatchAfterPlaylistId);
+                        PageManager.OpenPage(HohoemaPageType.Playlist, HohoemaApp.Playlist.CurrentPlaylist?.Id);
                     }
                     ));
             }
@@ -1917,7 +1919,7 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<bool> NowCommentWriting { get; private set; }
 		public ObservableCollection<Comment> Comments { get; private set; }
 		public ReactiveProperty<bool> IsPauseWithCommentWriting { get; private set; }
-		public ReactiveProperty<bool> CanResumeOnExitWritingComment { get; private set; }
+		public ReactiveProperty<bool> IsNeedResumeExitWrittingComment { get; private set; }
 		public ReactiveProperty<double> CommentCanvasHeight { get; private set; }
 		public ReactiveProperty<double> CommentCanvasWidth { get; private set; }
 		public ReactiveProperty<Color> CommentDefaultColor { get; private set; }
@@ -1945,6 +1947,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         // プレイリスト
+        public Playlist CurrentPlaylist { get; private set; }
         public ReactiveProperty<string> CurrentPlaylistName { get; private set; }
         public ReactiveProperty<bool> IsShuffleEnabled { get; private set; }
         public ReactiveProperty<bool?> RepeatMode { get; private set; }

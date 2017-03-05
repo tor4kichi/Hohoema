@@ -152,7 +152,14 @@ namespace NicoPlayerHohoema.Models
 		public string Parameter
 		{
 			get { return _Parameter; }
-			set { SetProperty(ref _Parameter, value); }
+			set
+            {
+                if (SetProperty(ref _Parameter, value))
+                {
+                    Category = (RankingCategory)Enum.Parse(typeof(RankingCategory), _Parameter);
+                }
+            }
+
 		}
 
 		private string _DisplayLabel;

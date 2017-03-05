@@ -23,7 +23,7 @@
     <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
     <PackageCertificateThumbprint>BFE34B4665927D2844D7BF676023FAED7F089F9D</PackageCertificateThumbprint>
-    <AppxPackageDir>C:\Users\tor4k\Documents\Visual Studio 2015\Projects\NicoPlayerHohoema\NicoPlayerHohoema\AppPackages\</AppxPackageDir>
+    <AppxPackageDir>C:\Users\tor4k\Documents\Repo\NicoPlayerHohoema\NicoPlayerHohoema\AppPackages\</AppxPackageDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -176,6 +176,7 @@
     <Compile Include="Models\Live\NicoLiveVideo.cs" />
     <Compile Include="Models\LoginRedirectPayload.cs" />
     <Compile Include="Models\PageManagerSearchExtention.cs" />
+    <Compile Include="Models\RoamingSyncInfo.cs" />
     <Compile Include="Models\Settings\AppearanceSettings.cs" />
     <Compile Include="Models\Settings\AppMapSettings.cs" />
     <Compile Include="Models\Settings\CacheSettings.cs" />
@@ -274,6 +275,7 @@
     <Compile Include="Views\AboutPage.xaml.cs">
       <DependentUpon>AboutPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Behaviors\MenuFlyoutSubItemsSetter.cs" />
     <Compile Include="Views\Behaviors\CloseFlyoutAction.cs" />
     <Compile Include="Views\Behaviors\DataTriggerBehavior.cs" />
     <Compile Include="Views\Behaviors\EngagePassToFirstChild.cs" />
@@ -330,7 +332,9 @@
       <DependentUpon>VideoListItemFlyout.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Converters\CacheStateToColorBrushConverter.cs" />
+    <Compile Include="Views\Converters\InvertVisibilityConverter.cs" />
     <Compile Include="Views\Converters\NicoVideoQualityToCultualizedTextConverter.cs" />
+    <Compile Include="Views\Converters\TransparentColorConverter.cs" />
     <Compile Include="Views\HohoemaListItem.xaml.cs">
       <DependentUpon>HohoemaListItem.xaml</DependentUpon>
     </Compile>
@@ -511,6 +515,7 @@
     <Compile Include="Views\StateTrigger\PointerFocusTrigger.cs" />
     <Compile Include="Views\StateTrigger\UIIntractionTriggerBase.cs" />
     <Compile Include="Views\StateTrigger\WindowActiveTrigger.cs" />
+    <Compile Include="Views\UIElementExtentions.cs" />
     <Compile Include="Views\UserInfoPage.xaml.cs">
       <DependentUpon>UserInfoPage.xaml</DependentUpon>
     </Compile>
@@ -639,6 +644,16 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Styles\DefaultStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
+    <Page Include="Styles\TVSafeColor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
+    <Page Include="Styles\VideoProgressBarStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

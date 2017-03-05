@@ -39,6 +39,7 @@ namespace NicoPlayerHohoema.ViewModels
 			ToastNotificationService = toastService;
 
 			SettingItems = ((IEnumerable<HohoemaSettingsKind>)Enum.GetValues(typeof(HohoemaSettingsKind)))
+                .Where(x => Util.DeviceTypeHelper.IsXbox ? x != HohoemaSettingsKind.Share : true)
 				.Select(x => KindToVM(x))
 				.ToList();
 
@@ -138,9 +139,7 @@ namespace NicoPlayerHohoema.ViewModels
 			if (suspending)
 			{
 //				viewModelState[nameof(CurrentSettingsKind)] = CurrentSettingsKind.Value.Kind.ToString();
-			}
-
-			HohoemaApp.SyncToRoamingData().ConfigureAwait(false);
+            }
 
 			base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
 		}

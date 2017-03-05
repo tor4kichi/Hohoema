@@ -280,6 +280,7 @@ namespace NicoPlayerHohoema.Models
 				DescriptionWithHtml = watchApiRes.videoDetail.description;
 				ThreadId = watchApiRes.ThreadId.ToString();
 				PrivateReasonType = watchApiRes.PrivateReason;
+                VideoLength = watchApiRes.Length;
 
 				if (!_thumbnailInitialized)
 				{
@@ -392,6 +393,8 @@ namespace NicoPlayerHohoema.Models
                     throw new NotSupportedException();
                 }
             }
+
+            divided.OnPlayStarted();
         }
 
         private void MediaPlayer_BufferingStarted(Windows.Media.Playback.MediaPlayer sender, object args)
@@ -501,6 +504,14 @@ namespace NicoPlayerHohoema.Models
 
 			NicoVideoCachedStream?.Dispose();
 			NicoVideoCachedStream = null;
+
+            foreach (var div in GetAllQuality())
+            {
+                if (div.NowPlaying)
+                {
+                    div.OnPlayDone();
+                }
+            }
 		}
 
         public async Task RestoreCache(NicoVideoQuality quality, string filepath)

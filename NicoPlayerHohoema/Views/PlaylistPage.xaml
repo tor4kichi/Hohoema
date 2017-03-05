@@ -22,6 +22,7 @@
             <StackPanel Orientation="Horizontal">
                 <TextBox Text="{Binding PlaylistNameCandidate.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          ext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
+                         MinWidth="200"
                                                                  >
                     <i:Interaction.Behaviors>
                         <mybehavior:KeyboardTrigger Key="Enter">
@@ -121,9 +122,6 @@
                                         <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                             Orientation="Horizontal"
                                             >
-                                            <AppBarButton Icon="Play" Label="全て再生" Command="{Binding PlayPlaylistCommand}"
-                                                          IsEnabled="{Binding HasItem.Value}"
-                                                          />
 
                                         </StackPanel>
 
@@ -172,22 +170,27 @@
                                     </StackPanel>
 
 
-                                    <Border Background="Transparent" IsHitTestVisible="True"
-                                            Margin="16 0 0 0"
+                                    <Border>
+                                        <Button Background="Transparent"
+                                                Margin="16 0 0 0"
+                                                Flyout="{StaticResource PlaylistRenameFlyout}"
+                                                IsEnabled="{Binding IsDefaultPlaylist, Converter={StaticResource InvertBoolean}}"
                                             >
-                                        <!-- タップでプレイリスト名の変更 -->
-                                        <TextBlock Text="{Binding PlaylistName.Value}" 
-                                                    VerticalAlignment="Center"
-                                                    Style="{StaticResource SubtitleTextBlockStyle}"
-                                                   ContextFlyout="{StaticResource PlaylistRenameFlyout}"
-                                                >
-                                        </TextBlock>
+
+                                            <TextBlock Text="{Binding PlaylistName.Value}" 
+                                                        VerticalAlignment="Center"
+                                                        Style="{StaticResource SubtitleTextBlockStyle}"
+                                                       ContextFlyout="{StaticResource PlaylistRenameFlyout}"
+                                                    >
+                                            </TextBlock>
+                                        </Button>
 
                                         <i:Interaction.Behaviors>
                                             <core:EventTriggerBehavior EventName="Tapped">
                                                 <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0.0" />
                                             </core:EventTriggerBehavior>
                                         </i:Interaction.Behaviors>
+
                                     </Border>
                                 </toolkit:DockPanel>
                                 
@@ -234,6 +237,7 @@
                                                 Flyout="{StaticResource PlaylistRenameFlyout}"
                                                 Background="Transparent"
                                                 HorizontalAlignment="Stretch"
+                                                Visibility="{Binding IsDefaultPlaylist, Converter={StaticResource BooleanToVisibilityInverted}}"
                                                 >
                                             
                                         </Button>

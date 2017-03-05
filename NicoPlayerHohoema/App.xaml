@@ -17,6 +17,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Styles/DefaultStyle.xaml"/>
+                <ResourceDictionary Source="Styles/VideoProgressBarStyle.xaml"/>
                 
                 <ResourceDictionary Source="Views/Controls/FloatContentContainer/FloatContentContainer.xaml"/>
             </ResourceDictionary.MergedDictionaries>
@@ -29,6 +30,8 @@
             <myconv:TimeSpanToMovieLengthStringValueConverter x:Key="TimeToMovieLengthConverter" />
             <myconv:InvertBooleanConverter x:Key="InvertBoolean" />
 
+            <myconv:InvertVisibilityConverter x:Key="InvertVisibility" />
+
             <myconv:SoundVolumeConveter x:Key="ToUserFriendlySoubleVolume" />
 
             <myconv:CacheStateToColorBrushConverter x:Key="CacheStateToColorBrush" />
@@ -38,6 +41,7 @@
             <myconv:RelationalDateTimeConverter x:Key="ToRelationalTime" />
             <myconv:NicoVideoQualityToCultualizedTextConverter x:Key="QualityToText" />
 
+            <myconv:TransparentColorConverter x:Key="ToTransparentColor" />
 
             <!-- Logical Modifier-->
             <logicalModifier:AndModifier x:Key="AndModifier" />

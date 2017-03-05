@@ -28,6 +28,11 @@ namespace NicoPlayerHohoema.Util
 			return Folder.ExistFile(FileName);
 		}
 
+        public async Task<StorageFile> TryGetFile()
+        {
+            return await Folder.TryGetItemAsync(FileName) as StorageFile;
+        }
+
 		public async Task Save(T item, Newtonsoft.Json.JsonSerializerSettings settings = null)
 		{
 			if (settings == null)

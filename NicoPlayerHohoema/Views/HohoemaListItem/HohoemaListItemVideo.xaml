@@ -8,29 +8,31 @@
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
 
     <Grid>
-        <toolkit:DockPanel Margin="0 0">
+        <toolkit:DockPanel Margin="8 0 0 0">
 
-            <Grid Margin="0 0 8 0"
+            <Grid Margin="0 0 08 0"
                   toolkit:DockPanel.Dock="Left"
                   >
-                <Image Source="{Binding FirstImageUrl}" 
-                   Height="60"
-                   Width="80"
+                <uwptoolkit:ImageEx Source="{Binding FirstImageUrl}" 
+                   Height="68"
+                   Width="96"
                        Visibility="{Binding HasImageUrl, Converter={StaticResource BooleanToVisibility}}"
+                       Stretch="Uniform"
                    />
 
-                <Border Background="#cc000000" 
+                <Border Background="{ThemeResource SystemAltMediumColor}"
                         HorizontalAlignment="Right" 
                         VerticalAlignment="Bottom"
                         Visibility="{Binding HasImageCaption, Converter={StaticResource BooleanToVisibility}}"
                         >
                     <TextBlock Text="{Binding ImageCaption}" 
-                               Padding="1 0 2 1" 
+                               Padding="4 0 3 3" 
                                TextWrapping="Wrap" VerticalAlignment="Center" 
                                FontSize="13"
                                
@@ -43,6 +45,7 @@
                 <TextBlock Text="{Binding OptionText}" 
                            Opacity="0.7"
                            FontSize="13"
+                           TextLineBounds="Tight"
                            />
 
                 <Border />
@@ -55,6 +58,7 @@
                 <TextBlock Text="{Binding Description}" 
                            Opacity="0.7"
                            FontSize="13"
+                           TextLineBounds="Tight"
                        />
             </toolkit:DockPanel>
 

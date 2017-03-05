@@ -224,9 +224,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 			IsSelectionModeEnable.Value = false;
 
-			if (IncrementalLoadingItems != null)
+            SelectedItems.Clear();
+
+            if (IncrementalLoadingItems != null)
 			{
-				if (IncrementalLoadingItems.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
+                if (IncrementalLoadingItems.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
 				{
 					(IncrementalLoadingItems.Source as HohoemaIncrementalSourceBase<ITEM_VM>).Error -= HohoemaIncrementalSource_Error;
 				}

@@ -179,7 +179,17 @@ namespace NicoPlayerHohoema.ViewModels
 
 			_RankingSettings.Save().ConfigureAwait(false);
 			_NGSettings.Save().ConfigureAwait(false);
-		}
+
+
+            _RankingSettings.GetFile().ContinueWith(async prevTask => 
+            {
+                await HohoemaApp.PushToRoamingData(prevTask.Result);
+            });
+            _NGSettings.GetFile().ContinueWith(async prevTask =>
+            {
+                await HohoemaApp.PushToRoamingData(prevTask.Result);
+            });
+        }
 
 
 

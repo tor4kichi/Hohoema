@@ -19,6 +19,7 @@
     xmlns:hardwareTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     xmlns:softwareTrigger="using:AdaptiveTriggerLibrary.Triggers.SoftwareInterfaceTriggers"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
+    xmlns:uwpcontrol="using:Microsoft.Toolkit.Uwp.UI.Controls"
     IsTabStop="False"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
@@ -28,14 +29,41 @@
 
     <ContentControl.Resources>
 
-
-        
         <DataTemplate x:Key="HohoemaContentTemplate">
             
         </DataTemplate>
 
         <DataTemplate x:Key="MobileMenuItemTemplate">
-            <SymbolIcon Symbol="{Binding IconType}" />
+            <StackPanel Opacity="0.85">
+            
+                <SymbolIcon Symbol="{Binding IconType}" />
+
+                <Border Height="4" />
+                <TextBlock Text="{Binding Label}"
+                           FontSize="12"
+                           TextWrapping="Wrap"
+                           HorizontalAlignment="Center"
+                           />
+
+            </StackPanel>
+            
+        </DataTemplate>
+
+        <DataTemplate x:Key="MenuItemTemplate">
+            <StackPanel Orientation="Horizontal" Opacity="0.85"
+                        Margin="8 0 0 0"
+                        >
+
+                <SymbolIcon Symbol="{Binding IconType}" />
+
+                <Border Width="16" />
+                <TextBlock Text="{Binding Label}"
+                           VerticalAlignment="Center"
+                           FontSize="15"
+                           />
+
+            </StackPanel>
+
         </DataTemplate>
 
 
@@ -46,7 +74,6 @@
         <ControlTemplate>
 
             <Grid x:Name="RootLayout" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
                 <VisualStateManager.VisualStateGroups>
                     <VisualStateGroup x:Name="TopBarStateGroup">
 
@@ -95,6 +122,7 @@
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
                                 <Setter Target="MobileBottomBar.Visibility" Value="Visible" />
+                                <Setter Target="MobileFrontScreen.Visibility" Value="Visible" />
 
                                 <Setter Target="SplitView.DisplayMode" Value="Overlay" />
                                 <Setter Target="SplitView.IsPaneOpen" Value="False" />
@@ -108,14 +136,22 @@
                 <toolkit:DockPanel>
 
                     <!-- TV Mode side menu -->
-                    <StackPanel x:Name="TVModeSideMenu" Visibility="Collapsed" Margin="0 64 0 0">
+                    <StackPanel x:Name="TVModeSideMenu" Visibility="Collapsed">
+
+                        <StackPanel.Background>
+                            <SolidColorBrush Color="{ThemeResource SystemAltMediumHighColor}" />
+                        </StackPanel.Background>
+
+                        <Border Height="64">
+                            
+                        </Border>
                         <ItemsControl ItemsSource="{Binding MenuItems}"
                                                     IsTabStop="False"
                                       HorizontalContentAlignment="Stretch"
                                                 >
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Button Content="{Binding Label}"
+                                    <Button 
                                             Command="{Binding ElementName=RootLayout, Path=DataContext.ItemSelectedCommand}"
                                             CommandParameter="{Binding}"
                                             Background="Transparent"
@@ -124,6 +160,14 @@
                                             HorizontalContentAlignment="Left"
                                             Margin="8 0"
                                                             >
+
+                                        <StackPanel Orientation="Horizontal" Opacity="0.85">
+                                            <SymbolIcon Symbol="{Binding IconType}" />
+
+                                            <Border Width="8" />
+
+                                            <TextBlock Text="{Binding Label}" />
+                                        </StackPanel>
                                         <i:Interaction.Behaviors>
                                             <!--
                                             <core:DataTriggerBehavior Binding="{Binding IsSelected}" ComparisonCondition="Equal" Value="True">
@@ -145,8 +189,7 @@
                                                 >
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Button Content="{Binding Label}"
-                                            Command="{Binding ElementName=RootLayout, Path=DataContext.ItemSelectedCommand}"
+                                    <Button Command="{Binding ElementName=RootLayout, Path=DataContext.ItemSelectedCommand}"
                                             CommandParameter="{Binding}"
                                             Background="Transparent"
                                             UseSystemFocusVisuals="True" 
@@ -154,6 +197,15 @@
                                             HorizontalContentAlignment="Left"
                                             Margin="8 0"
                                             >
+
+                                        <StackPanel Orientation="Horizontal" Opacity="0.85">
+                                            <SymbolIcon Symbol="{Binding IconType}" />
+
+                                            <Border Width="8" />
+
+                                            <TextBlock Text="{Binding Label}" />
+                                        </StackPanel>
+                                        
                                         <i:Interaction.Behaviors>
                                             <!--
                                             <core:DataTriggerBehavior Binding="{Binding IsSelected}" ComparisonCondition="Equal" Value="True">
@@ -175,9 +227,13 @@
                     <!-- モバイル時のボトムバー -->
                     <toolkit:DockPanel x:Name="MobileBottomBar" Visibility="Collapsed"
                                     toolkit:DockPanel.Dock="Bottom" 
-                                       Background="Transparent"
+                                       
                                     >
 
+                        <toolkit:DockPanel.Background>
+                            <SolidColorBrush Color="{ThemeResource SystemAltMediumHighColor}" />
+                        </toolkit:DockPanel.Background>
+                        
                         <AppBarButton IsCompact="False" Icon="More"
                                       toolkit:DockPanel.Dock="Right"
                                       >
@@ -206,6 +262,8 @@
                                 ItemTemplate="{StaticResource MobileMenuItemTemplate}"
                                 HorizontalContentAlignment="Center"
                                  Background="Transparent"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                                 ScrollViewer.HorizontalScrollMode="Auto"
                             >
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -215,9 +273,10 @@
                             <ListBox.ItemContainerStyle>
                                 <Style TargetType="ListBoxItem">
                                     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                    <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                                    <Setter Property="VerticalContentAlignment" Value="Center" />
                                     <Setter Property="Height" Value="64" />
-                                    <Setter Property="Width" Value="64" />
+                                    <Setter Property="Width" Value="72" />
+                                    <Setter Property="Padding" Value="0 8" />
                                     <Setter Property="Background" Value="Transparent" />
                                 </Style>
                             </ListBox.ItemContainerStyle>
@@ -235,19 +294,29 @@
 
                     <SplitView x:Name="SplitView" 
                         CompactPaneLength="48"
-                        OpenPaneLength="220"
+                        OpenPaneLength="180"
                         DisplayMode="Overlay"
                         IsPaneOpen="{Binding IsOpenPane.Value, Mode=TwoWay}"
                                IsTabStop="False"
                         >
                         <SplitView.Pane>
-                            <toolkit:DockPanel x:Name="PaneLayout" Margin="0 64 0 0">
+                            <toolkit:DockPanel x:Name="PaneLayout">
+                                <toolkit:DockPanel.Background>
+                                    <SolidColorBrush Color="{ThemeResource SystemAltMediumHighColor}" />
+                                </toolkit:DockPanel.Background>
 
+                                <Border toolkit:DockPanel.Dock="Top" Height="64">
+                                    
+                                </Border>
+                                
+                                
                                 <Button Background="Transparent" 
                                         Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibility}}"
                                         Command="{Binding OpenAccountInfoCommand}"
                                         toolkit:DockPanel.Dock="Bottom"
                                         HorizontalAlignment="Stretch"
+                                        HorizontalContentAlignment="Left"
+                                        Padding="16 8 8 8"
                                                     >
                                     <toolkit:DockPanel Margin="0 0">
 
@@ -259,7 +328,10 @@
 
                                         <StackPanel>
                                             <TextBlock Text="{Binding UserName}" />
-                                            <TextBlock Text="{Binding UserMail}" FontWeight="Light" />
+                                            <TextBlock Text="{Binding UserMail}" FontWeight="Light" 
+                                                       TextWrapping="Wrap"
+                                                       FontSize="13"
+                                                       />
                                         </StackPanel>
                                     </toolkit:DockPanel>
                                 </Button>
@@ -275,8 +347,9 @@
                                         <ListView ItemsSource="{Binding MenuItems}"
                                                     SelectedItem="{Binding MainSelectedItem.Value, Mode=TwoWay}"
                                                     SelectionMode="Single"
-                                                    DisplayMemberPath="Label"
+                                                  ItemTemplate="{StaticResource MenuItemTemplate}"
                                                     IsTabStop="False"
+                                                  Background="Transparent"
                                                 >
                                             <ListView.ItemContainerStyle>
                                                 <Style TargetType="ListViewItem">
@@ -286,13 +359,14 @@
                                         </ListView>
 
 
-                                        <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                        <Border BorderBrush="{ThemeResource ApplicationPageBackgroundThemeBrush}"
                                                 BorderThickness="0 1 0 0" />
 
                                         <ListView ItemsSource="{Binding SubMenuItems}"
                                                     SelectedItem="{Binding SubSelectedItem.Value, Mode=TwoWay}"
                                                     SelectionMode="Single"
-                                                    DisplayMemberPath="Label"
+                                                    ItemTemplate="{StaticResource MenuItemTemplate}"
+                                                  Background="Transparent"
                                                 >
                                             <ListView.ItemContainerStyle>
                                                 <Style TargetType="ListViewItem">
@@ -309,17 +383,19 @@
                             </toolkit:DockPanel>
                         </SplitView.Pane>
                         <SplitView.Content>
-                            <Grid >
+                            <Grid>
+                                <Grid.Background>
+                                    <SolidColorBrush Color="{ThemeResource ApplicationPageBackgroundThemeBrush}" />
+                                </Grid.Background>
 
 
-                                <toolkit:DockPanel x:Name="ContentLayout">
+                                <Grid x:Name="ContentLayout">
 
                                     <!-- ページ毎のコンテンツ -->
                                     <ContentPresenter
                                             Visibility="{Binding NowNavigating.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                             />
-
-                                </toolkit:DockPanel>
+                                </Grid>
 
                                 <Border Visibility="{Binding HasBGUpdateText.Value, Converter={StaticResource BooleanToVisibility}}"
                                                 Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
@@ -351,14 +427,6 @@
                         </SplitView.Content>
                     </SplitView>
                 </toolkit:DockPanel>
-
-
-                
-
-                
-
-
-
 
 
 

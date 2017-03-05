@@ -19,30 +19,32 @@ namespace NicoPlayerHohoema.Models
 	public class HohoemaUserSettings
 	{
 		public const string RankingSettingsFileName = "ranking.json";
-		public const string PlayerSettingsFileName = "player.json";
-		public const string NGSettingsFileName = "ng.json";
-		public const string SearchSettingsFileName = "search.json";
-		public const string CacheSettingsFileName = "cache.json";
         public const string PlaylistSettingsFileName = "playlist.json";
+        public const string NGSettingsFileName = "ng.json";
+
+        public const string PlayerSettingsFileName = "player.json";
+        public const string CacheSettingsFileName = "cache.json";
         public const string AppearanceSettingsFileName = "appearance.json";
 
 
         public static async Task<HohoemaUserSettings> LoadSettings(StorageFolder userFolder)
 		{
 			var ranking = await SettingsBase.Load<RankingSettings>(RankingSettingsFileName, userFolder);
-			var player = await SettingsBase.Load<PlayerSettings>(PlayerSettingsFileName, userFolder);
-			var ng = await SettingsBase.Load<NGSettings>(NGSettingsFileName, userFolder);
-			var cache = await SettingsBase.Load<CacheSettings>(CacheSettingsFileName, userFolder);
             var playlist = await SettingsBase.Load<PlaylistSettings>(PlaylistSettingsFileName, userFolder);
+            var ng = await SettingsBase.Load<NGSettings>(NGSettingsFileName, userFolder);
+
+            var player = await SettingsBase.Load<PlayerSettings>(PlayerSettingsFileName, userFolder);
+			var cache = await SettingsBase.Load<CacheSettings>(CacheSettingsFileName, userFolder);
             var appearance = await SettingsBase.Load<AppearanceSettings>(AppearanceSettingsFileName, userFolder);
 
             return new HohoemaUserSettings()
 			{
 				RankingSettings = ranking,
-				PlayerSettings = player,
-				NGSettings = ng,
-				CacheSettings = cache,
                 PlaylistSettings = playlist,
+				NGSettings = ng,
+
+                PlayerSettings = player,
+                CacheSettings = cache,
                 AppearanceSettings = appearance,
             };
 		}
@@ -85,8 +87,7 @@ namespace NicoPlayerHohoema.Models
 
 		
 
-
-		public static async Task<T> Load<T>(string filename, StorageFolder folder)
+        public static async Task<T> Load<T>(string filename, StorageFolder folder)
 			where T : SettingsBase, new()
 		{
 			var file = await folder.TryGetItemAsync(filename) as StorageFile;
@@ -145,7 +146,13 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
-		public virtual void OnInitialize() { }
+        public async Task<StorageFile> GetFile()
+        {
+            return await Folder.TryGetItemAsync(FileName) as StorageFile;
+        }
+
+
+        public virtual void OnInitialize() { }
 
 		protected virtual void Validate() { }
 	}

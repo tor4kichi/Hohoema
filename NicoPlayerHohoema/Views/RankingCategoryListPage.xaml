@@ -24,6 +24,7 @@
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
                     UseSystemFocusVisuals="True"
+                    MinHeight="48"
                     >
                 <TextBlock Text="{Binding Label}"
                            VerticalAlignment="Center"
