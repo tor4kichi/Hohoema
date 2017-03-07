@@ -6,7 +6,7 @@ Hohoemaはオープンソースな Windows 10向けのニコニコ動画プレ�
 
 ## ダウンロード
 
-Windows 10 のストアアプリからダウンロードできます
+Windows 10 のストアアプリから無料でダウンロードできます
 
 **[Hohoema - アプリストア](https://www.microsoft.com/ja-jp/store/p/hohoema/9nblggh4rxt6)**
 （※ Windows10でアクセスするとストアアプリが起動します）
@@ -57,16 +57,16 @@ Hohoemaへの要望やバグ報告は下記のいずれかの方法でご連絡�
 * twitter: [@tor4kichi](https://twitter.com/tor4kichi)
 * mail: tor4kichi@hotmail.com
 
+特にMobileやXboxOne、コントローラー操作での不具合や改善点を頂けると助かります。
 
 今後の変更や確認されているバグは [イシュー](https://github.com/tor4kichi/Hohoema/issues) から確認できます
 
 
 ## オープンソースの理由は？
 
-私が以前利用していたnFinder2の開発が停止したことで、利用者に混乱が見られたことを理由です。
+アプリの制作が打ち切られた場合でも有志の方が何かしら引き継いだアプリを作れるようにするためです。
 
-ライセンスに従ってコードを公開する必要がありますが、誰でもHohoemaを引き継いだアプリを作ることができます。
-
+また、信用の無さをコード公開による透明性で補う目的もあります。
 
 ## ライセンス
 
@@ -77,4 +77,4 @@ GPL v3
 
 * VisualStudio 2015 Community
 * UWP (Xaml + C#)
-
+* Inkscape
