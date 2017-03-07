@@ -85,6 +85,7 @@
                                                     x:Name="expander"
                                                      IsExpanded="True"
                                                      Background="Transparent"
+                                                     IsTabStop="False"
                                                      >
                                     <uwpcontrol:Expander.HeaderTemplate>
                                         <DataTemplate>
@@ -118,30 +119,32 @@
 
                                     </uwpcontrol:Expander.HeaderTemplate>
 
-                                    <ListView ItemsSource="{Binding Items}"
+                                    <ItemsControl ItemsSource="{Binding Items}"
                                               ItemTemplate="{StaticResource FavoriteItemTemplate}"
                                               Margin="0 8 0 0"
                                               IsTabStop="False"
-                                              SelectionMode="None"
+                                              HorizontalAlignment="Stretch"
+                                                  HorizontalContentAlignment="Left"
                                           >
-                                        <ListView.ItemContainerStyle>
-                                            <Style TargetType="ListViewItem">
+                                        <ItemsControl.ItemContainerStyle>
+                                            <Style TargetType="ContentPresenter">
                                                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                                 <Setter Property="VerticalContentAlignment" Value="Stretch" />
                                                 <Setter Property="Margin" Value="0 0 8 8" />
-                                                <Setter Property="IsTabStop" Value="False" />
+                                                <Setter Property="MinWidth" Value="150" />
                                             </Style>
-                                        </ListView.ItemContainerStyle>
+                                        </ItemsControl.ItemContainerStyle>
 
-                                        <ListView.ItemsPanel>
+                                        <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
                                                 <toolkit:WrapPanel Orientation="Horizontal"
+                                                                   HorizontalAlignment="Left"
                                                                    />
 
                                             </ItemsPanelTemplate>
-                                        </ListView.ItemsPanel>
+                                        </ItemsControl.ItemsPanel>
 
-                                    </ListView>
+                                    </ItemsControl>
 
 
                                 </uwpcontrol:Expander>
