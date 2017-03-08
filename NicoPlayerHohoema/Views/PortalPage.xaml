@@ -54,6 +54,7 @@
                               VerticalContentAlignment="Top"
                               ScrollViewer.VerticalScrollMode="Disabled"
                               ScrollViewer.HorizontalScrollMode="Enabled"
+                                  IsTabStop="False"
                                 >
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -110,6 +111,7 @@
                                     ItemTemplate="{StaticResource ItemTemplate}"
                                   
                                     Margin="12 4 0 0"
+                                  IsTabStop="False"
                                 >
                         <ItemsControl.ItemContainerStyle>
                             <Style TargetType="ContentPresenter">
@@ -155,7 +157,7 @@
                                     ItemTemplate="{StaticResource ItemTemplate}"
                                   VerticalContentAlignment="Bottom"
                               Margin="12 4 0 0"
-                              
+                              IsTabStop="False"
                               ScrollViewer.VerticalScrollMode="Disabled"
                               ScrollViewer.HorizontalScrollMode="Enabled"
                                 >
@@ -208,6 +210,7 @@
                 <ItemsControl ItemsSource="{Binding Items}"
                           ItemTemplate="{StaticResource ItemTemplate}"        
                           Margin="12 4 0 0"
+                              IsTabStop="False"
                           >
                     <ItemsControl.ItemContainerStyle>
                         <Style TargetType="ContentPresenter">
@@ -345,6 +348,7 @@
                                ItemsSource="{Binding Root.Items}"
                                ItemTemplateSelector="{StaticResource AppMapItemDataTemplateSelector}"
                                    Margin="8 0 0 0"
+                                   IsTabStop="False"
                               >
                         <ItemsControl.ItemContainerStyle>
                             <Style TargetType="ContentPresenter">
@@ -366,6 +370,7 @@
                                 ItemsSource="{Binding Root.Items}"
                             ItemTemplateSelector="{StaticResource Mobile_AppMapItemDataTemplateSelector}"
                                Margin="4 0 4 0"
+                                   IsTabStop="False"
                                     >
                         <ItemsControl.ItemContainerStyle>
                             <Style TargetType="ContentPresenter">
