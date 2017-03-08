@@ -842,7 +842,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
                 CurrentState.Value = MediaPlaybackState.Opening;
 
-                await Video.StartPlay(x);
+                await Video.StartPlay(x, TimeSpan.FromSeconds(PreviousVideoPosition));
 
                 if (IsDisposed)
 				{
@@ -880,7 +880,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 			else if (qualityVideo.IsCached)
 			{
-                await Video.StartPlay(x);
+                await Video.StartPlay(x, TimeSpan.FromSeconds(PreviousVideoPosition));
 
                 if (IsDisposed)
                 {
@@ -1242,15 +1242,12 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 			else 
 			{
-                // Note: VideoStopPlayによってストリームの管理が行われます
-                // これは再生後もダウンロードしている場合に対応するためです
-                // stream.Dispose();
-                Video?.StopPlay();
-
                 App.Current.Suspending -= Current_Suspending;
                 HohoemaApp.MediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
                 HohoemaApp.MediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
             }
+
+            Video?.StopPlay();
 
             // プレイリストへ再生完了を通知
             VideoPlayed();

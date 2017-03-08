@@ -1,5 +1,5 @@
 ﻿<Page
-    x:Class="NicoPlayerHohoema.Views.PortalPage_TV"
+    x:Class="NicoPlayerHohoema.Views.PortalPage__TV"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:NicoPlayerHohoema.Views"
@@ -97,6 +97,8 @@
                                                   IsFocusEngagementEnabled="False"
                                                   UseSystemFocusVisuals="True"
                                                   IsTabStop="False"
+                                                  ScrollViewer.HorizontalScrollMode="Auto"
+                                                  ScrollViewer.VerticalScrollMode="Disabled"
                                               >
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>

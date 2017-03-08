@@ -417,8 +417,8 @@
     <Compile Include="Views\PlaylistPage.xaml.cs">
       <DependentUpon>PlaylistPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\PortalPage_TV.xaml.cs">
-      <DependentUpon>PortalPage_TV.xaml</DependentUpon>
+    <Compile Include="Views\PortalPage__TV.xaml.cs">
+      <DependentUpon>PortalPage__TV.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\RankingChoiceContentDialog.xaml.cs">
       <DependentUpon>RankingChoiceContentDialog.xaml</DependentUpon>
@@ -830,7 +830,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\PortalPage_TV.xaml">
+    <Page Include="Views\PortalPage__TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

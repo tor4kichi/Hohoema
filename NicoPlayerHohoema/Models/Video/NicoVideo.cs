@@ -324,7 +324,7 @@ namespace NicoPlayerHohoema.Models
 		/// 動画ストリームの取得します
 		/// 他にダウンロードされているアイテムは強制的に一時停止し、再生終了後に再開されます
 		/// </summary>
-		public async Task StartPlay(NicoVideoQuality quality)
+		public async Task StartPlay(NicoVideoQuality quality, TimeSpan? initialPosition = null)
 		{
 			IfVideoDeletedThrowException();
 
@@ -352,8 +352,12 @@ namespace NicoPlayerHohoema.Models
 				throw new NotSupportedException();
 			}
 
+            if (initialPosition == null)
+            {
+                initialPosition = TimeSpan.Zero;
+            }
 
-            HohoemaApp.MediaPlayer.PlaybackSession.Position = TimeSpan.Zero;
+            HohoemaApp.MediaPlayer.PlaybackSession.Position = initialPosition.Value;
 
             if (ContentType == MovieType.Mp4)
             {
