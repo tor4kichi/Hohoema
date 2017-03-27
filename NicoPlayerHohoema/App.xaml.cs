@@ -199,7 +199,14 @@ namespace NicoPlayerHohoema
             {
                 if (AccountManager.HasPrimaryAccount())
                 {
-                    await hohoemaApp.SignInWithPrimaryAccount();
+                    try
+                    {
+                        await hohoemaApp.SignInWithPrimaryAccount();
+                    }
+                    catch (Exception ex)
+                    {
+                        await WriteErrorFile(ex);
+                    }
                 }
 
                 if (Util.DeviceTypeHelper.IsXbox)
@@ -403,7 +410,6 @@ namespace NicoPlayerHohoema
 
 			if (text != null)
 			{ 
-
 				var contentDialog = new ContentDialog();
 				contentDialog.Title = "Hohoemaで発生したエラー詳細";
 				contentDialog.PrimaryButtonText = "OK";
