@@ -22,7 +22,20 @@ namespace NicoPlayerHohoema.Views
 	/// </summary>
 	public sealed partial class LiveVideoPlayerControl : UserControl
     {
-		public LiveVideoPlayerControl()
+        public static readonly DependencyProperty IsDisplayCommentTextBoxProperty =
+          DependencyProperty.Register("IsDisplayCommentTextBox"
+                  , typeof(bool)
+                  , typeof(LiveVideoPlayerControl)
+                  , new PropertyMetadata(false)
+              );
+
+        public bool IsDisplayCommentTextBox
+        {
+            get { return (bool)GetValue(IsDisplayCommentTextBoxProperty); }
+            set { SetValue(IsDisplayCommentTextBoxProperty, value); }
+        }
+
+        public LiveVideoPlayerControl()
 		{
 			this.InitializeComponent();
 		}
