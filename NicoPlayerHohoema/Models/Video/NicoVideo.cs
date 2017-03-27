@@ -357,7 +357,7 @@ namespace NicoPlayerHohoema.Models
                 initialPosition = TimeSpan.Zero;
             }
 
-            
+            MediaSource mediaSource = null;
             if (ContentType == MovieType.Mp4)
             {
                 string contentType = null;
@@ -377,9 +377,7 @@ namespace NicoPlayerHohoema.Models
 
                 if (contentType == null) { throw new Exception("unknown movie content type"); }
 
-                HohoemaApp.MediaPlayer.Source = MediaSource.CreateFromStream(NicoVideoCachedStream, contentType);
-                HohoemaApp.MediaPlayer.BufferingStarted += MediaPlayer_BufferingStarted;
-                HohoemaApp.MediaPlayer.PlaybackSession.Position = initialPosition.Value;
+                mediaSource = MediaSource.CreateFromStream(NicoVideoCachedStream, contentType);
             }
             else
             {
@@ -389,9 +387,7 @@ namespace NicoPlayerHohoema.Models
                 {
                     var realMss = mss.GetMediaStreamSource();
                     realMss.SetBufferedRange(TimeSpan.Zero, TimeSpan.Zero);
-                    HohoemaApp.MediaPlayer.Source = MediaSource.CreateFromMediaStreamSource(realMss);
-                    HohoemaApp.MediaPlayer.BufferingStarted += MediaPlayer_BufferingStarted;
-                    HohoemaApp.MediaPlayer.PlaybackSession.Position = initialPosition.Value;
+                    mediaSource = MediaSource.CreateFromMediaStreamSource(realMss);
                 }
                 else
                 {
@@ -399,19 +395,22 @@ namespace NicoPlayerHohoema.Models
                 }
             }
 
-            divided.OnPlayStarted();
-        }
+            if (mediaSource != null)
+            {
+                HohoemaApp.MediaPlayer.Source = mediaSource;
+                HohoemaApp.MediaPlayer.PlaybackSession.Position = initialPosition.Value;
 
-        private void MediaPlayer_BufferingStarted(Windows.Media.Playback.MediaPlayer sender, object args)
-        {
-            var smtc = HohoemaApp.MediaPlayer.SystemMediaTransportControls;
-//            smtc.DisplayUpdater.VideoProperties.Title = "";
- //           smtc.DisplayUpdater.Thumbnail = RandomAccessStreamReference.CreateFromUri(new Uri(this.ThumbnailUrl));
-  //          smtc.IsPlayEnabled = true;
-   //         smtc.IsPauseEnabled = true;
-    //        smtc.DisplayUpdater.Update();
-
-            HohoemaApp.MediaPlayer.BufferingStarted -= MediaPlayer_BufferingStarted; 
+                var smtc = HohoemaApp.MediaPlayer.SystemMediaTransportControls;
+                
+                smtc.DisplayUpdater.Type = Windows.Media.MediaPlaybackType.Video;
+                smtc.DisplayUpdater.VideoProperties.Title = Title;
+                smtc.DisplayUpdater.Thumbnail = RandomAccessStreamReference.CreateFromUri(new Uri(this.ThumbnailUrl));
+                smtc.IsPlayEnabled = true;
+                smtc.IsPauseEnabled = true;
+                smtc.DisplayUpdater.Update();
+                
+                divided.OnPlayStarted();
+            }
         }
 
 
@@ -517,7 +516,12 @@ namespace NicoPlayerHohoema.Models
                     div.OnPlayDone();
                 }
             }
-		}
+
+            var smtc = HohoemaApp.MediaPlayer.SystemMediaTransportControls;
+            smtc.DisplayUpdater.ClearAll();
+            smtc.IsEnabled = false;
+            smtc.DisplayUpdater.Update();
+        }
 
         public async Task RestoreCache(NicoVideoQuality quality, string filepath)
         {
