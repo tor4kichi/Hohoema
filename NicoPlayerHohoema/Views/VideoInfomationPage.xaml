@@ -10,6 +10,7 @@
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
@@ -84,6 +85,9 @@
                         </AppBarButton>
 
                         <Button Background="Transparent" x:Name="ShareSubButton">
+
+                            <iconPack:PackIconMaterial Kind="ShareVariant" />
+
                             <Button.Flyout>
                                 <MenuFlyout>
                                     <MenuFlyoutItem Text="Twitterで共有" Command="{Binding ShereWithTwitterCommand}" />
