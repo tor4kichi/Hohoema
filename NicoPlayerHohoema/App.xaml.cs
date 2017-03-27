@@ -192,24 +192,14 @@ namespace NicoPlayerHohoema
 #endif
 			_IsPreLaunch = args.PrelaunchActivated;
 
-			if (args.PreviousExecutionState == ApplicationExecutionState.Terminated)
-			{
-				//TODO: Load state from previously suspended application	
-			}
-
 			var pageManager = Container.Resolve<PageManager>();
             var hohoemaApp = Container.Resolve<HohoemaApp>();
 
-			if (!args.PrelaunchActivated && args.Kind == ActivationKind.Launch)
-			{
+            if (!args.PrelaunchActivated)
+            {
                 if (AccountManager.HasPrimaryAccount())
                 {
                     await hohoemaApp.SignInWithPrimaryAccount();
-                    pageManager.OpenPage(HohoemaPageType.Portal);
-                }
-                else 
-                {
-                    pageManager.OpenPage(HohoemaPageType.Login);
                 }
 
                 if (Util.DeviceTypeHelper.IsXbox)
@@ -219,10 +209,19 @@ namespace NicoPlayerHohoema
                         Source = new Uri("ms-appx:///Styles/TVSafeColor.xaml")
                     });
                 }
-            }
 
-            // モバイルで利用している場合に、ナビゲーションバーなどがページに被さらないように指定
-            ApplicationView.GetForCurrentView().SetDesiredBoundsMode(ApplicationViewBoundsMode.UseVisible);
+                if (hohoemaApp.IsLoggedIn)
+                {
+                    pageManager.OpenPage(HohoemaPageType.Portal);
+                }
+                else
+                {
+                    pageManager.OpenPage(HohoemaPageType.Login);
+                }
+
+            }
+                // モバイルで利用している場合に、ナビゲーションバーなどがページに被さらないように指定
+                ApplicationView.GetForCurrentView().SetDesiredBoundsMode(ApplicationViewBoundsMode.UseVisible);
             //			return Task.CompletedTask;
         }
 
@@ -230,60 +229,79 @@ namespace NicoPlayerHohoema
 		{
 
             var pageManager = Container.Resolve<PageManager>();
+            var hohoemaApp = Container.Resolve<HohoemaApp>();
 
-			if (args.Kind == ActivationKind.ToastNotification)
-			{
-				//Get the pre-defined arguments and user inputs from the eventargs;
-				var toastArgs = args as IActivatedEventArgs as ToastNotificationActivatedEventArgs;
-				var arguments = toastArgs.Argument;
-
-                
-                if (arguments == ACTIVATION_WITH_ERROR)
-				{
-					await ShowErrorLog().ConfigureAwait(false);
-				}
-                else
+            try
+            {
+                if (args.Kind == ActivationKind.ToastNotification)
                 {
-                    var nicoContentId = Util.NicoVideoExtention.UrlToVideoId(arguments);
+                    //Get the pre-defined arguments and user inputs from the eventargs;
+                    var toastArgs = args as IActivatedEventArgs as ToastNotificationActivatedEventArgs;
+                    var arguments = toastArgs.Argument;
 
-                    if (Mntone.Nico2.NiconicoRegex.IsVideoId(nicoContentId))
+
+                    if (arguments == ACTIVATION_WITH_ERROR)
                     {
-                        await PlayVideoFromExternal(nicoContentId);
-                    }
-                    else if (Mntone.Nico2.NiconicoRegex.IsLiveId(nicoContentId))
-                    {
-                        await PlayLiveVideoFromExternal(nicoContentId);
+                        await ShowErrorLog().ConfigureAwait(false);
                     }
                     else
                     {
-                        var hohoemaApp = Container.Resolve<HohoemaApp>();
-                        if (!hohoemaApp.IsLoggedIn && AccountManager.HasPrimaryAccount())
-                        {
-                            await hohoemaApp.SignInWithPrimaryAccount();
+                        var nicoContentId = Util.NicoVideoExtention.UrlToVideoId(arguments);
 
-                            pageManager.OpenPage(HohoemaPageType.Portal);
+                        if (Mntone.Nico2.NiconicoRegex.IsVideoId(nicoContentId))
+                        {
+                            await PlayVideoFromExternal(nicoContentId);
+                        }
+                        else if (Mntone.Nico2.NiconicoRegex.IsLiveId(nicoContentId))
+                        {
+                            await PlayLiveVideoFromExternal(nicoContentId);
+                        }
+                        else
+                        {
+                            
+                            if (!hohoemaApp.IsLoggedIn && AccountManager.HasPrimaryAccount())
+                            {
+                                await hohoemaApp.SignInWithPrimaryAccount();
+
+                                pageManager.OpenPage(HohoemaPageType.Portal);
+                            }
                         }
                     }
                 }
-			}
+                else if (args.Kind == ActivationKind.Protocol)
+                {
+                    var param = (args as IActivatedEventArgs) as ProtocolActivatedEventArgs;
+                    var uri = param.Uri;
+                    var maybeNicoContentId = new string(uri.OriginalString.Skip("niconico://".Length).TakeWhile(x => x != '?' && x != '/').ToArray());
 
-			if (args.Kind == ActivationKind.Protocol)
-			{
-				var param = (args as IActivatedEventArgs) as ProtocolActivatedEventArgs;
-				var uri = param.Uri;
-				var maybeNicoContentId = new string(uri.OriginalString.Skip("niconico://".Length).TakeWhile(x => x != '?' && x != '/').ToArray());
 
-				
-				if (Mntone.Nico2.NiconicoRegex.IsVideoId(maybeNicoContentId)
-					|| maybeNicoContentId.All(x => x >= '0' && x <= '9'))
-				{
-                    await PlayVideoFromExternal(maybeNicoContentId);
-				}
-				else if (Mntone.Nico2.NiconicoRegex.IsLiveId(maybeNicoContentId))
-				{
-                    await PlayLiveVideoFromExternal(maybeNicoContentId);
-				}
-			}
+                    if (Mntone.Nico2.NiconicoRegex.IsVideoId(maybeNicoContentId)
+                        || maybeNicoContentId.All(x => x >= '0' && x <= '9'))
+                    {
+                        await PlayVideoFromExternal(maybeNicoContentId);
+                    }
+                    else if (Mntone.Nico2.NiconicoRegex.IsLiveId(maybeNicoContentId))
+                    {
+                        await PlayLiveVideoFromExternal(maybeNicoContentId);
+                    }
+                }
+                else
+                {
+                    if (hohoemaApp.IsLoggedIn)
+                    {
+                        pageManager.OpenPage(HohoemaPageType.Portal);
+                    }
+                    else
+                    {
+                        pageManager.OpenPage(HohoemaPageType.Login);
+                    }
+                }
+            }
+            catch
+            {
+                pageManager.OpenPage(HohoemaPageType.Login);
+            }
+			
 
 
 			await base.OnActivateApplicationAsync(args);
