@@ -84,6 +84,16 @@ namespace NicoPlayerHohoema.ViewModels
                 ClosePlayer();
             });
 
+
+            App.Current.Suspending += Current_Suspending;
+        }
+
+        private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
+        {
+            ContentVM.Value?.OnNavigatingFrom(new Prism.Windows.Navigation.NavigatingFromEventArgs()
+            {
+                NavigationMode = NavigationMode.New,
+            }, viewModelState, true);
         }
 
         private void HohoemaPlaylist_OpenPlaylistItem(Playlist playlist, PlaylistItem item)

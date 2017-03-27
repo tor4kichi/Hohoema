@@ -357,8 +357,7 @@ namespace NicoPlayerHohoema.Models
                 initialPosition = TimeSpan.Zero;
             }
 
-            HohoemaApp.MediaPlayer.PlaybackSession.Position = initialPosition.Value;
-
+            
             if (ContentType == MovieType.Mp4)
             {
                 string contentType = null;
@@ -380,6 +379,7 @@ namespace NicoPlayerHohoema.Models
 
                 HohoemaApp.MediaPlayer.Source = MediaSource.CreateFromStream(NicoVideoCachedStream, contentType);
                 HohoemaApp.MediaPlayer.BufferingStarted += MediaPlayer_BufferingStarted;
+                HohoemaApp.MediaPlayer.PlaybackSession.Position = initialPosition.Value;
             }
             else
             {
@@ -391,6 +391,7 @@ namespace NicoPlayerHohoema.Models
                     realMss.SetBufferedRange(TimeSpan.Zero, TimeSpan.Zero);
                     HohoemaApp.MediaPlayer.Source = MediaSource.CreateFromMediaStreamSource(realMss);
                     HohoemaApp.MediaPlayer.BufferingStarted += MediaPlayer_BufferingStarted;
+                    HohoemaApp.MediaPlayer.PlaybackSession.Position = initialPosition.Value;
                 }
                 else
                 {
