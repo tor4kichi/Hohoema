@@ -387,10 +387,15 @@
 
                         <mybehavior:MediaPlayerElementContentHeightGetter ContentHeight="{Binding CommentCanvasHeight.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
-                        
+                        <!-- TODO: スペースキー入力で再生停止の切り替え-->
+
+                        <mybehavior:KeyboardTrigger Key="Space" >
+                            <core:InvokeCommandAction Command="{Binding TogglePlayPauseCommand}" />
+                        </mybehavior:KeyboardTrigger>
                     </i:Interaction.Behaviors>
                                         
-                    <!-- TODO: スペースキー入力で再生停止の切り替え-->
+                    
+                    
                         
                 </MediaPlayerElement>
                 

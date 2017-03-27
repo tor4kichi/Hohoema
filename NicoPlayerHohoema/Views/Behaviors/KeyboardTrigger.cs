@@ -148,7 +148,11 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
 			if (this.Key == args.VirtualKey)
 			{
-				Interaction.ExecuteActions(this, this.Actions, args);
+                foreach (var action in this.Actions)
+                {
+                    (action as IAction)?.Execute(this, args);
+                }
+
 				args.Handled = true;
 			}
 		}
