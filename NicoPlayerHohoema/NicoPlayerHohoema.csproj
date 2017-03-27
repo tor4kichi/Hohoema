@@ -979,14 +979,6 @@
     <Reference Include="Mntone.Nico2.UWP">
       <HintPath>lib\Mntone.Nico2.UWP.dll</HintPath>
     </Reference>
-    <Reference Include="FFmpegInterop">
-      <HintPath Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">.\lib\FFmpegInterop\ARM\FFmpegInterop.winmd</HintPath>
-      <HintPath Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">.\lib\FFmpegInterop\ARM\FFmpegInterop.winmd</HintPath>
-      <HintPath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\lib\FFmpegInterop\x64\FFmpegInterop.winmd</HintPath>
-      <HintPath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\lib\FFmpegInterop\x64\FFmpegInterop.winmd</HintPath>
-      <HintPath Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">.\lib\FFmpegInterop\x86\FFmpegInterop.winmd</HintPath>
-      <HintPath Condition="'$(Configuration)|$(Platform)'=='Release|x86'">.\lib\FFmpegInterop\x86\FFmpegInterop.winmd</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NicoVideoRtmpClient\NicoVideoRtmpClient.csproj">
