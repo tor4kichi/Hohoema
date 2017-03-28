@@ -402,7 +402,24 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
 				.AddTo(_CompositeDisposable);
 
-			DownloadCompleted = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
+
+            // 再生速度
+            PlaybackRate = new ReactiveProperty<double>(
+                HohoemaApp.UserSettings.PlayerSettings.DefaultPlaybackRate
+                )
+                .AddTo(_CompositeDisposable);
+            PlaybackRate.Subscribe(x => 
+            {
+                MediaPlayer.PlaybackSession.PlaybackRate = x;
+            })
+            .AddTo(_CompositeDisposable);
+
+
+
+
+
+
+            DownloadCompleted = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
 			ProgressPercent = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0.0);
 			IsFullScreen = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false, ReactivePropertyMode.DistinctUntilChanged);
 			IsFullScreen
@@ -896,6 +913,10 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 throw new Exception();
             }
+
+            
+            MediaPlayer.PlaybackSession.PlaybackRate = 
+                HohoemaApp.UserSettings.PlayerSettings.DefaultPlaybackRate;
 
             PlaylistCanGoBack.Value = HohoemaApp.Playlist.Player.CanGoBack;
             PlaylistCanGoNext.Value = HohoemaApp.Playlist.Player.CanGoNext;
@@ -1892,8 +1913,9 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> NowPlaying { get; private set; }
 		public ReactiveProperty<bool> NowQualityChanging { get; private set; }
 		public ReactiveProperty<bool> IsEnableRepeat { get; private set; }
+        public ReactiveProperty<double> PlaybackRate { get; private set; }
 
-		public ReactiveProperty<bool> IsAutoHideEnable { get; private set; }
+        public ReactiveProperty<bool> IsAutoHideEnable { get; private set; }
 		public ReactiveProperty<TimeSpan> AutoHideDelayTime { get; private set; }
 
 		private TimeSpan _PreviosPlayingVideoPosition;

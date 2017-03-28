@@ -37,7 +37,9 @@ namespace NicoPlayerHohoema.Models
 			IsAutoHidePlayerControlUI = true;
 			AutoHidePlayerControlUIPreventTime = TimeSpan.FromSeconds(3);
 			IsForceLandscape = false;
-		}
+            _DefaultPlaybackRate = 1.0;
+
+        }
 
 
 		private bool _IsLowQualityDeafult;
@@ -252,5 +254,17 @@ namespace NicoPlayerHohoema.Models
 			get { return _IsForceLandscapeDefault; }
 			set { SetProperty(ref _IsForceLandscapeDefault, value); }
 		}
-	}
+
+
+
+
+        private double _DefaultPlaybackRate;
+
+        [DataMember]
+        public double DefaultPlaybackRate
+        {
+            get { return _DefaultPlaybackRate; }
+            set { SetProperty(ref _DefaultPlaybackRate, value); }
+        }
+    }
 }

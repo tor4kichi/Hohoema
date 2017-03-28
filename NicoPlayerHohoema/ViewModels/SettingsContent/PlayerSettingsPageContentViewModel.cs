@@ -29,6 +29,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactiveProperty<double> AutoHideDelayTime { get; private set; }
 
+        public ReactiveProperty<double> DefaultPlaybackRate { get; private set; }
 
 
         public ReactiveProperty<bool> CommentGlassMowerEnable { get; private set; }
@@ -80,9 +81,8 @@ namespace NicoPlayerHohoema.ViewModels
             _NGSettings = _HohoemaApp.UserSettings.NGSettings;
             _PlayerSettings = hohoemaApp.UserSettings.PlayerSettings;
 
-			
 
-			IsDefaultPlayWithLowQuality = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsLowQualityDeafult);
+            IsDefaultPlayWithLowQuality = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsLowQualityDeafult);
 			IsFullScreenDefault = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsFullScreenDefault);
 
 			IsKeepDisplayInPlayback = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsKeepDisplayInPlayback);
@@ -95,12 +95,13 @@ namespace NicoPlayerHohoema.ViewModels
 				, x => TimeSpan.FromSeconds(x)
 				);
 
+            DefaultPlaybackRate = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultPlaybackRate);
 
 
 
 
             // NG Comment User Id
-            
+
 
 
             // Comment Display 

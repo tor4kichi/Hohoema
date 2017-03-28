@@ -37,6 +37,24 @@
 
             <StackPanel Margin="8 0 0 0">
 
+
+                <StackPanel Margin="0 8">
+
+                    <TextBlock Text="デフォルトの再生速度倍率"
+                           VerticalAlignment="Center"
+                           />
+
+                    <ComboBox ItemsSource="{x:Bind PlaybackRateItems}"
+                              SelectedItem="{Binding DefaultPlaybackRate.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              Margin="0 4"
+                              Width="100"
+                          >
+
+                    </ComboBox>
+
+
+                </StackPanel>
+
                 <StackPanel Margin="0 8">
 
                     <TextBlock Text="低画質モードをデフォルトに設定する"

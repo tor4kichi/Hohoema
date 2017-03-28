@@ -863,13 +863,12 @@
 
                                     <Button Background="Transparent" Command="{Binding PreviewVideoPositionCommand}"
                                         x:Name="PreviewVideoPositionButon"
+                                            Margin="0 0 24 0"
                                         >
                                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3C;" 
                                            FontSize="18"
                                            />
                                     </Button>
-
-                                    <Border Width="24" />
 
                                     <Button Command="{Binding TogglePlayPauseCommand}"
                                         Background="Transparent"
@@ -887,16 +886,16 @@
 
                                         </iconPack:PackIconMaterial>
                                     </Button>
-
-                                    <Border Width="24" />
-
+                                    
                                     <Button Background="Transparent"
                                         Command="{Binding ForwardVideoPositionCommand}"
                                         x:Name="ForwardVideoPositionButon"
+                                            Margin="24 0 0 0"
                                         >
                                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3D;"
                                            FontSize="18"
                                            
+                                                   
                                            />
                                     </Button>
 
@@ -907,6 +906,73 @@
                                         Grid.Column="2"
                                     HorizontalAlignment="Right"
                                         >
+
+                                    <Button Background="Transparent">
+
+                                        <iconPack:PackIconMaterial Kind="Speedometer"
+                                                                   RenderTransformOrigin="0.5, 0.5"
+                                                                   >
+                                            <iconPack:PackIconMaterial.RenderTransform>
+                                                <ScaleTransform ScaleX="1.5" ScaleY="1.5" />
+                                            </iconPack:PackIconMaterial.RenderTransform>
+                                        </iconPack:PackIconMaterial>
+
+                                        <Button.Flyout>
+                                            <Flyout>
+
+                                                <toolkit:DockPanel>
+
+                                                    <Grid toolkit:DockPanel.Dock="Top"
+                                                          >
+                                                        
+                                                        <TextBlock toolkit:DockPanel.Dock="Top"
+                                                                   Opacity="0.7"
+                                                                   HorizontalAlignment="Right"
+                                                                   Width="150"
+                                                               >
+                                                            <Run Text="現在の速度倍率: "
+                                                                 />
+                                                            <Run Text="{Binding PlaybackRate.Value}"
+                                                                 />
+                                                            
+                                                        </TextBlock>
+                                                    </Grid>
+                                                    
+
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Button Content="等速に戻す"
+                                                                >
+                                                            <i:Interaction.Behaviors>
+                                                                <core:EventTriggerBehavior EventName="Tapped">
+                                                                    <core:ChangePropertyAction TargetObject="{Binding PlaybackRate}" PropertyName="Value" Value="1.0" />
+                                                                </core:EventTriggerBehavior>
+                                                            </i:Interaction.Behaviors>
+                                                        </Button>
+
+                                                        <Slider Orientation="Horizontal"
+                                                                Maximum="2.0"
+                                                                Minimum="0.25"
+                                                                StepFrequency="0.25"
+                                                                SmallChange="0.25"
+                                                                LargeChange="1.00"
+                                                                Value="{Binding PlaybackRate.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                MinWidth="200"
+                                                                Margin="16 0 0 0"
+                                                                TickFrequency="0.25"
+                                                                IsThumbToolTipEnabled="True"
+                                                            >
+                                                        </Slider>
+
+                                                    </StackPanel>
+                                                        
+                                                </toolkit:DockPanel>
+                                            </Flyout>
+                                        </Button.Flyout>
+
+                                    </Button>
+
+                                    <Border Width="12" />
+                                    
                                     <Button Command="{Binding ToggleFullScreenCommand}"
                                         Background="Transparent"
                                         >
@@ -920,7 +986,7 @@
 
                                         <Button.Flyout>
                                             <MenuFlyout x:Name="Menu">
-                                                <ToggleMenuFlyoutItem Text="コメントを表示" IsChecked="{x:Bind IsDisplayCommentTextBox, Mode=TwoWay}" />
+                                                <ToggleMenuFlyoutItem Text="コメントを表示" IsChecked="{Binding IsVisibleComment.Value, Mode=TwoWay}" />
                                                 
                                                 <MenuFlyoutSubItem Text="画質"
                                                                Visibility="{Binding CanToggleCurrentQualityCacheState.Value, Converter={StaticResource BooleanToVisibility}}"
