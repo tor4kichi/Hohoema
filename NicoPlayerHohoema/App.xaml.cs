@@ -380,8 +380,8 @@ namespace NicoPlayerHohoema
 
         protected override void OnActivated(IActivatedEventArgs args)
 		{
-			
-			base.OnActivated(args);
+
+            base.OnActivated(args);
 		}
 
 		public async Task<string> GetMostRecentErrorText()
@@ -512,7 +512,8 @@ namespace NicoPlayerHohoema
 		{
 			// Models
 			var hohoemaApp = await HohoemaApp.Create(EventAggregator);
-			Container.RegisterInstance(hohoemaApp);
+
+            Container.RegisterInstance(hohoemaApp);
 			Container.RegisterInstance(new PageManager(NavigationService, hohoemaApp.Playlist));
 			Container.RegisterInstance(hohoemaApp.ContentFinder);
             Container.RegisterInstance(hohoemaApp.Playlist);

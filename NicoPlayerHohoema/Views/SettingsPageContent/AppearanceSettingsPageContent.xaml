@@ -25,6 +25,8 @@
                     <VisualState.Setters>
                         <!-- Xbox利用時にはTV Mode変更はできないため設定を非表示に -->
                         <Setter Target="TVModeSwitchLayout.Visibility" Value="Collapsed" />
+                        <Setter Target="SwitchFullScreenButtonLayout.Visibility" Value="Collapsed" />
+                        <Setter Target="DefaultFullScreenSwitchLayout.Visibility" Value="Collapsed" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -44,21 +46,37 @@
                 <StackPanel Margin="8 0 0 0">
 
 
-                    <StackPanel Margin="8">
-                        <TextBlock Text="フルスクリーン表示"
-                           toolkit:DockPanel.Dock="Left"
+                    <StackPanel Margin="0 8" x:Name="SwitchFullScreenButtonLayout">
+
+
+                        <Button Command="{Binding ToggleFullScreenCommand}"
+                              Content="フルスクリーンモード/ウィンドウモードを切り替え"
+                              />
+                        
+                    </StackPanel>
+
+                    <StackPanel Margin="0 8" x:Name="DefaultFullScreenSwitchLayout">
+                        <TextBlock Text="アプリ起動時にフルスクリーン表示を設定する"
                            VerticalAlignment="Center"
                            />
 
-                        <ToggleSwitch IsOn="{Binding IsFullScreenModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        <ToggleSwitch IsOn="{Binding IsDefaultFullScreen.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               
                               />
+                        <TextBlock Text="有効にするとメニューにフルスクリーンモード切り替えボタンが表示されるようになります。"
+                                   FontSize="13"
+                                   Opacity="0.7"
+                                   Width="300"
+                                   TextWrapping="Wrap"
+                                   HorizontalAlignment="Left"
+                                   />
+
                     </StackPanel>
 
 
 
 
-                    <StackPanel Margin="8">
+                    <StackPanel Margin="0 8">
                         <TextBlock Text="テーマ"
                            toolkit:DockPanel.Dock="Left"
                            VerticalAlignment="Center"
