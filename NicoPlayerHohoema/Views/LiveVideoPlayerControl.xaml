@@ -579,7 +579,7 @@
                                         <MenuFlyout>
 
 
-                                            <ToggleMenuFlyoutItem Text="コメントを表示" IsChecked="{x:Bind IsDisplayCommentTextBox, Mode=TwoWay}" />
+                                            <ToggleMenuFlyoutItem Text="コメントを表示" IsChecked="{Binding IsVisibleComment.Value, Mode=TwoWay}" />
 
                                             <MenuFlyoutSeparator />
                                             

@@ -920,7 +920,7 @@
 
                                         <Button.Flyout>
                                             <MenuFlyout x:Name="Menu">
-                                                <ToggleMenuFlyoutItem Text="コメントを表示" IsChecked="{x:Bind IsDisplayCommentTextBox, Mode=TwoWay}" />
+                                                <ToggleMenuFlyoutItem Text="コメントを表示" IsChecked="{Binding IsVisibleComment.Value, Mode=TwoWay}" />
                                                 
                                                 <MenuFlyoutSubItem Text="画質"
                                                                Visibility="{Binding CanToggleCurrentQualityCacheState.Value, Converter={StaticResource BooleanToVisibility}}"
