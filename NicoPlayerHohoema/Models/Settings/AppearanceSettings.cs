@@ -19,15 +19,5 @@ namespace NicoPlayerHohoema.Models
             get { return _IsForceTVModeEnable; }
             set { SetProperty(ref _IsForceTVModeEnable, value); }
         }
-
-
-        private bool _IsFullScreenDefault = false;
-
-        [DataMember]
-        public bool IsFullScreenDefault
-        {
-            get { return _IsFullScreenDefault; }
-            set { SetProperty(ref _IsFullScreenDefault, value); }
-        }
     }
 }

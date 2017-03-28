@@ -25,6 +25,8 @@
                     <VisualState.Setters>
                         <!-- Xbox利用時にはTV Mode変更はできないため設定を非表示に -->
                         <Setter Target="TVModeSwitchLayout.Visibility" Value="Collapsed" />
+                        <Setter Target="SwitchFullScreenButtonLayout.Visibility" Value="Collapsed" />
+                        <Setter Target="DefaultFullScreenSwitchLayout.Visibility" Value="Collapsed" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -44,7 +46,7 @@
                 <StackPanel Margin="8 0 0 0">
 
 
-                    <StackPanel Margin="0 8">
+                    <StackPanel Margin="0 8" x:Name="SwitchFullScreenButtonLayout">
                         
 
                         <ToggleButton IsChecked="{Binding IsFullScreenModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -53,7 +55,7 @@
                         
                     </StackPanel>
 
-                    <StackPanel Margin="0 8">
+                    <StackPanel Margin="0 8" x:Name="DefaultFullScreenSwitchLayout">
                         <TextBlock Text="アプリ起動時にフルスクリーン表示を設定する"
                            VerticalAlignment="Center"
                            />
