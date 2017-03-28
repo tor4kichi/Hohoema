@@ -311,11 +311,6 @@
                                     <SolidColorBrush Color="{ThemeResource SystemAltMediumHighColor}" />
                                 </toolkit:DockPanel.Background>
 
-                                <Border toolkit:DockPanel.Dock="Top" Height="64">
-                                    
-                                </Border>
-                                
-                                
                                 <Button Background="Transparent" 
                                         Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibility}}"
                                         Command="{Binding OpenAccountInfoCommand}"
@@ -349,6 +344,8 @@
                                     >
 
                                     <StackPanel>
+
+                                        <Border Height="64" />
 
                                         <ListView ItemsSource="{Binding MenuItems}"
                                                     SelectedItem="{Binding MainSelectedItem.Value, Mode=TwoWay}"
