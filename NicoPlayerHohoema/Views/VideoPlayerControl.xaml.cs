@@ -38,6 +38,20 @@ namespace NicoPlayerHohoema.Views
             set { SetValue(IsDisplayCommentTextBoxProperty, value); }
         }
 
+
+
+        public List<double> PlaybackRateList = new List<double>()
+        {
+            2.0,
+            1.75,
+            1.5,
+            1.25,
+            1.0,
+            0.75,
+            0.5,
+            0.25,
+        };
+
         public VideoPlayerControl()
 		{
 			this.InitializeComponent();
