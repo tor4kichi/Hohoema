@@ -131,6 +131,19 @@
                         </VisualState>
                     </VisualStateGroup>
 
+
+                    <VisualStateGroup>
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <StateTrigger IsActive="{Binding IsNeedFullScreenToggleHelp}" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="ToggleFullScreenButton_Mobile.Visibility" Value="Visible" />
+                                <Setter Target="ToggleFullScreenButton_Wide.Visibility" Value="Visible" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
                 </VisualStateManager.VisualStateGroups>
 
                 <toolkit:DockPanel>
@@ -245,19 +258,31 @@
                                       >
                             <AppBarButton.Flyout>
                                 <Flyout>
-                                    <ListView ItemsSource="{Binding SubMenuItems}"
+                                    <StackPanel>
+                                        <Button x:Name="ToggleFullScreenButton_Mobile"
+                                                    Command="{Binding ToggleFullScreenCommand}"
+                                                    Background="Transparent"
+                                                Content="フルスクリーン切り替え"
+                                                Visibility="Collapsed"
+                                                    >
+                                            
+                                        </Button>
+
+                                        <ListView ItemsSource="{Binding SubMenuItems}"
                                                 SelectedItem="{Binding SubSelectedItem.Value, Mode=TwoWay}"
                                                 SelectionMode="Single"
                                                 DisplayMemberPath="Label"
                                               
                                             >
-                                        <ListView.ItemContainerStyle>
-                                            <Style TargetType="ListViewItem">
-                                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                                <Setter Property="Background" Value="Transparent" />
-                                            </Style>
-                                        </ListView.ItemContainerStyle>
-                                    </ListView>
+                                            <ListView.ItemContainerStyle>
+                                                <Style TargetType="ListViewItem">
+                                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                                    <Setter Property="Background" Value="Transparent" />
+                                                </Style>
+                                            </ListView.ItemContainerStyle>
+                                        </ListView>
+
+                                    </StackPanel>
                                 </Flyout>
                             </AppBarButton.Flyout>
                         </AppBarButton>
@@ -345,7 +370,15 @@
 
                                     <StackPanel>
 
-                                        <Border Height="64" />
+                                        <Border Height="64">
+                                            <Button x:Name="ToggleFullScreenButton_Wide"
+                                                    Command="{Binding ToggleFullScreenCommand}"
+                                                    Background="Transparent"
+                                                    Visibility="Collapsed"
+                                                    >
+                                                <SymbolIcon Symbol="FullScreen" />
+                                            </Button>
+                                        </Border>
 
                                         <ListView ItemsSource="{Binding MenuItems}"
                                                     SelectedItem="{Binding MainSelectedItem.Value, Mode=TwoWay}"
@@ -378,6 +411,8 @@
                                             </ListView.ItemContainerStyle>
                                         </ListView>
 
+                                        
+                                        
                                     </StackPanel>
 
 

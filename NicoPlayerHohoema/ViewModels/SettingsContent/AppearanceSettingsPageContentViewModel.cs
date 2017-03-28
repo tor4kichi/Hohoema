@@ -1,4 +1,5 @@
 ﻿using NicoPlayerHohoema.Models;
+using Prism.Commands;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -26,9 +27,8 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<bool> IsTVModeEnable { get; private set; }
         public bool IsXbox { get; private set; }
 
-        public ReactiveProperty<bool> IsFullScreenModeEnable { get; private set; }
-
         public ReactiveProperty<bool> IsDefaultFullScreen { get; private set; }
+
 
 
         public AppearanceSettingsPageContentViewModel(HohoemaApp hohoemaApp, Views.Service.ToastNotificationService toastService) 
@@ -60,26 +60,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
             
-
-            IsFullScreenModeEnable = new ReactiveProperty<bool>(mode:ReactivePropertyMode.DistinctUntilChanged);
-
-            IsFullScreenModeEnable.Subscribe(isFullScreen => 
-            {
-                var appView = ApplicationView.GetForCurrentView();
-                if (isFullScreen)
-                {
-                    if (appView.IsFullScreenMode) { return; }
-
-                    if (!appView.TryEnterFullScreenMode())
-                    {
-                        IsFullScreenModeEnable.Value = false;
-                    }
-                }
-                else
-                {
-                    appView.ExitFullScreenMode();
-                }
-            });
+            
 
             IsDefaultFullScreen = new ReactiveProperty<bool>(ApplicationView.PreferredLaunchWindowingMode == ApplicationViewWindowingMode.FullScreen);
             IsDefaultFullScreen.Subscribe(x => 
@@ -107,7 +88,6 @@ namespace NicoPlayerHohoema.ViewModels
                 })
                 .AddTo(focusingDisposable);
 
-            IsFullScreenModeEnable.Value = ApplicationView.GetForCurrentView().IsFullScreenMode;
         }
 
         /*
@@ -116,5 +96,29 @@ namespace NicoPlayerHohoema.ViewModels
             HohoemaApp.UserSettings.AppearanceSettings.Save().ConfigureAwait(false);
         }
         */
+
+
+        private DelegateCommand _ToggleFullScreenCommand;
+        public DelegateCommand ToggleFullScreenCommand
+        {
+            get
+            {
+                return _ToggleFullScreenCommand
+                    ?? (_ToggleFullScreenCommand = new DelegateCommand(() => 
+                    {
+                        var appView = ApplicationView.GetForCurrentView();
+                        
+                        if (!appView.IsFullScreenMode)
+                        {
+                            appView.TryEnterFullScreenMode();
+                        }
+                        else
+                        {
+                            appView.ExitFullScreenMode();
+                        }
+                    }));
+            }
+        }
+
     }
 }

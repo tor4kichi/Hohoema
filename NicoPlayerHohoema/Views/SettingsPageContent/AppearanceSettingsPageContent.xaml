@@ -47,9 +47,9 @@
 
 
                     <StackPanel Margin="0 8" x:Name="SwitchFullScreenButtonLayout">
-                        
 
-                        <ToggleButton IsChecked="{Binding IsFullScreenModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+
+                        <Button Command="{Binding ToggleFullScreenCommand}"
                               Content="フルスクリーンモード/ウィンドウモードを切り替え"
                               />
                         

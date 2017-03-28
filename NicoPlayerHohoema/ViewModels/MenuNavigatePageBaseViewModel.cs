@@ -16,6 +16,7 @@ using Windows.UI.Xaml.Controls;
 using Prism.Windows;
 using System.Reactive.Linq;
 using NicoPlayerHohoema.Views.Service;
+using Windows.UI.ViewManagement;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -26,6 +27,7 @@ namespace NicoPlayerHohoema.ViewModels
         
 
         public ReactiveProperty<bool> IsTVModeEnable { get; private set; }
+        public bool IsNeedFullScreenToggleHelp { get; private set; }
 
         public MenuNavigatePageBaseViewModel(
             HohoemaApp hohoemaApp, 
@@ -45,6 +47,8 @@ namespace NicoPlayerHohoema.ViewModels
                 IsTVModeEnable = HohoemaApp.UserSettings.AppearanceSettings.ObserveProperty(x => x.IsForceTVModeEnable)
                     .ToReactiveProperty();
             }
+
+            IsNeedFullScreenToggleHelp = ApplicationView.PreferredLaunchWindowingMode == ApplicationViewWindowingMode.FullScreen;
 
             IsOpenPane = new ReactiveProperty<bool>(false);
 
@@ -326,6 +330,29 @@ namespace NicoPlayerHohoema.ViewModels
                         if (item != null)
                         {
                             item.SelectedAction(item.Source);
+                        }
+                    }));
+            }
+        }
+
+
+        private DelegateCommand _ToggleFullScreenCommand;
+        public DelegateCommand ToggleFullScreenCommand
+        {
+            get
+            {
+                return _ToggleFullScreenCommand
+                    ?? (_ToggleFullScreenCommand = new DelegateCommand(() =>
+                    {
+                        var appView = ApplicationView.GetForCurrentView();
+
+                        if (!appView.IsFullScreenMode)
+                        {
+                            appView.TryEnterFullScreenMode();
+                        }
+                        else
+                        {
+                            appView.ExitFullScreenMode();
                         }
                     }));
             }
