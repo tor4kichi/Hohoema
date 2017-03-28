@@ -914,6 +914,10 @@ namespace NicoPlayerHohoema.ViewModels
                 throw new Exception();
             }
 
+            
+            MediaPlayer.PlaybackSession.PlaybackRate = 
+                HohoemaApp.UserSettings.PlayerSettings.DefaultPlaybackRate;
+
             PlaylistCanGoBack.Value = HohoemaApp.Playlist.Player.CanGoBack;
             PlaylistCanGoNext.Value = HohoemaApp.Playlist.Player.CanGoNext;
 

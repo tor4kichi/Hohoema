@@ -19,6 +19,11 @@ namespace NicoPlayerHohoema.Views.SettingsPageContent
 {
 	public sealed partial class PlayerSettingsPageContent : UserControl
 	{
+        // 0.25 ~ 2.0
+        public List<double> PlaybackRateItems { get; private set; } =
+            Enumerable.Range(-3, 8).Select(x => 1.0 + (x * 0.25)).ToList();
+
+
 		public PlayerSettingsPageContent()
 		{
 			this.InitializeComponent();
