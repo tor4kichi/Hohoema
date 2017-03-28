@@ -28,6 +28,9 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactiveProperty<bool> IsFullScreenModeEnable { get; private set; }
 
+        public ReactiveProperty<bool> IsDefaultFullScreen { get; private set; }
+
+
         public AppearanceSettingsPageContentViewModel(HohoemaApp hohoemaApp, Views.Service.ToastNotificationService toastService) 
 			: base("アプリのUI", HohoemaSettingsKind.Appearance)
 		{
@@ -77,6 +80,9 @@ namespace NicoPlayerHohoema.ViewModels
                     appView.ExitFullScreenMode();
                 }
             });
+
+            IsDefaultFullScreen = HohoemaApp.UserSettings.AppearanceSettings
+                .ToReactivePropertyAsSynchronized(x => x.IsFullScreenDefault);
         }
 
 		protected override void OnEnter(ICollection<IDisposable> focusingDisposable)
@@ -93,5 +99,10 @@ namespace NicoPlayerHohoema.ViewModels
 
             IsFullScreenModeEnable.Value = ApplicationView.GetForCurrentView().IsFullScreenMode;
         }
-	}
+
+        protected override void OnLeave()
+        {
+            HohoemaApp.UserSettings.AppearanceSettings.Save().ConfigureAwait(false);
+        }
+    }
 }

@@ -44,21 +44,37 @@
                 <StackPanel Margin="8 0 0 0">
 
 
-                    <StackPanel Margin="8">
-                        <TextBlock Text="フルスクリーン表示"
-                           toolkit:DockPanel.Dock="Left"
+                    <StackPanel Margin="0 8">
+                        
+
+                        <ToggleButton IsChecked="{Binding IsFullScreenModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              Content="フルスクリーンモード/ウィンドウモードを切り替え"
+                              />
+                        
+                    </StackPanel>
+
+                    <StackPanel Margin="0 8">
+                        <TextBlock Text="アプリ起動時にフルスクリーン表示を設定する"
                            VerticalAlignment="Center"
                            />
 
-                        <ToggleSwitch IsOn="{Binding IsFullScreenModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        <ToggleSwitch IsOn="{Binding IsDefaultFullScreen.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               
                               />
+                        <TextBlock Text="有効にするとメニューにフルスクリーンモード切り替えボタンが表示されるようになります。"
+                                   FontSize="13"
+                                   Opacity="0.7"
+                                   Width="300"
+                                   TextWrapping="Wrap"
+                                   HorizontalAlignment="Left"
+                                   />
+
                     </StackPanel>
 
 
 
 
-                    <StackPanel Margin="8">
+                    <StackPanel Margin="0 8">
                         <TextBlock Text="テーマ"
                            toolkit:DockPanel.Dock="Left"
                            VerticalAlignment="Center"
