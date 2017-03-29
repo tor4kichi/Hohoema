@@ -146,15 +146,15 @@ namespace NicoPlayerHohoema.ViewModels
 
         private Task CallAppServiceLevelOffline(CancellationToken cancelToken)
         {
-            if (AvailableServiceLevel >= HohoemaAppServiceLevel.Offline)
+//            if (AvailableServiceLevel >= HohoemaAppServiceLevel.OnlineButServiceUnavailable)
             {
-                if (HohoemaApp.ServiceStatus >= HohoemaAppServiceLevel.Offline)
+ //               if (HohoemaApp.ServiceStatus >= HohoemaAppServiceLevel.OnlineButServiceUnavailable)
                 {
                     return OnOffline(_NavigatingCompositeDisposable, cancelToken);
                 }
             }
 
-            return Task.CompletedTask;
+            //return Task.CompletedTask;
         }
         private Task CallAppServiceLevelOnlineWithoutLoggedIn(CancellationToken cancelToken)
         {

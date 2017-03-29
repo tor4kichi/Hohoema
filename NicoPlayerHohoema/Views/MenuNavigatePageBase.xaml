@@ -144,6 +144,49 @@
                             </VisualState.Setters>
                         </VisualState>
                     </VisualStateGroup>
+
+                    <!-- アプリのサービス状態 -->
+                    <VisualStateGroup>
+                        <VisualState x:Name="OfflineState">
+                            <VisualState.StateTriggers>
+                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="Offline" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="ServiceStateText.Visibility" Value="Visible" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <VisualState x:Name="ServiceUnavailableState">
+                            <VisualState.StateTriggers>
+                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="OnlineButServiceUnavailable" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="ServiceStateText.Visibility" Value="Visible" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+
+                        <VisualState x:Name="WithoutLoggedInState">
+                            <VisualState.StateTriggers>
+                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="OnlineWithoutLoggedIn" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="ServiceStateText.Visibility" Value="Visible" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <VisualState x:Name="LoggedInState">
+                            <VisualState.StateTriggers>
+                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="LoggedIn" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="AccountInfoLayout.Visibility" Value="Visible" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+
+                    </VisualStateGroup>
+
                 </VisualStateManager.VisualStateGroups>
 
                 <toolkit:DockPanel>
@@ -225,13 +268,13 @@
 
                                             <i:Interaction.Behaviors>
                                                 <!--
-                                            <core:DataTriggerBehavior Binding="{Binding IsSelected}" ComparisonCondition="Equal" Value="True">
-                                                <core:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource Mode=Self}}" PropertyName="Foreground" Value="Green" />
-                                            </core:DataTriggerBehavior>
-                                            <core:DataTriggerBehavior Binding="{Binding IsSelected}" ComparisonCondition="Equal" Value="False">
-                                                <core:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource Mode=Self}}" PropertyName="Foreground" Value="{x:Null}" />
-                                            </core:DataTriggerBehavior>
-                                            -->
+                                                <core:DataTriggerBehavior Binding="{Binding IsSelected}" ComparisonCondition="Equal" Value="True">
+                                                    <core:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource Mode=Self}}" PropertyName="Foreground" Value="Green" />
+                                                </core:DataTriggerBehavior>
+                                                <core:DataTriggerBehavior Binding="{Binding IsSelected}" ComparisonCondition="Equal" Value="False">
+                                                    <core:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource Mode=Self}}" PropertyName="Foreground" Value="{x:Null}" />
+                                                </core:DataTriggerBehavior>
+                                                -->
                                             </i:Interaction.Behaviors>
                                         </Button>
                                     </DataTemplate>
@@ -336,32 +379,42 @@
                                     <SolidColorBrush Color="{ThemeResource SystemAltMediumHighColor}" />
                                 </toolkit:DockPanel.Background>
 
-                                <Button Background="Transparent" 
-                                        Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibility}}"
-                                        Command="{Binding OpenAccountInfoCommand}"
+                                <Button Command="{Binding OpenAccountInfoCommand}"
                                         toolkit:DockPanel.Dock="Bottom"
+                                        Padding="16 0 0 0"
+                                        Background="Transparent" 
                                         HorizontalAlignment="Stretch"
                                         HorizontalContentAlignment="Left"
-                                        Padding="16 8 8 8"
-                                                    >
-                                    <toolkit:DockPanel Margin="0 0">
+                                        VerticalContentAlignment="Center"
+                                        >
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding ServiceLevel.Value, Converter={StaticResource HohoemaSerivceStatusToText}}" 
+                                                   x:Name="ServiceStateText"
+                                                   Visibility="Collapsed"
+                                               />
 
-                                        <Image Source="{Binding UserIconUrl}" 
+                                        <toolkit:DockPanel Margin="0 0"
+                                                           x:Name="AccountInfoLayout"
+                                                           Visibility="Collapsed"
+                                                           >
+
+                                            <Image Source="{Binding UserIconUrl}" 
                                                 toolkit:DockPanel.Dock="Left"
                                                 Height="32" Width="32"
                                                 Margin="0 0 8 0"
                                                             />
 
-                                        <StackPanel>
-                                            <TextBlock Text="{Binding UserName}" />
-                                            <TextBlock Text="{Binding UserMail}" FontWeight="Light" 
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding UserName}" />
+                                                <TextBlock Text="{Binding UserMail}" FontWeight="Light" 
                                                        TextWrapping="Wrap"
                                                        FontSize="13"
                                                        />
-                                        </StackPanel>
-                                    </toolkit:DockPanel>
+                                            </StackPanel>
+                                        </toolkit:DockPanel>
+                                        
+                                    </StackPanel>
                                 </Button>
-
 
                                 <ScrollViewer HorizontalScrollMode="Disabled"
                                     VerticalScrollMode="Auto"

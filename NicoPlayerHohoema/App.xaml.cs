@@ -75,7 +75,8 @@ namespace NicoPlayerHohoema
             RequestedTheme = GetTheme();
 
 			this.InitializeComponent();
-		}
+
+        }
 
         private void MemoryManager_AppMemoryUsageLimitChanging(object sender, Windows.System.AppMemoryUsageLimitChangingEventArgs e)
         {
@@ -197,6 +198,19 @@ namespace NicoPlayerHohoema
 
             if (!args.PrelaunchActivated)
             {
+                if (Util.DeviceTypeHelper.IsXbox)
+                {
+                    this.Resources.MergedDictionaries.Add(new ResourceDictionary()
+                    {
+                        Source = new Uri("ms-appx:///Styles/TVSafeColor.xaml")
+                    });
+                }
+
+                // モバイルで利用している場合に、ナビゲーションバーなどがページに被さらないように指定
+                ApplicationView.GetForCurrentView().SetDesiredBoundsMode(ApplicationViewBoundsMode.UseVisible);
+
+
+                // 自動ログイン処理
                 if (AccountManager.HasPrimaryAccount())
                 {
                     try
@@ -207,29 +221,16 @@ namespace NicoPlayerHohoema
                     {
                         await WriteErrorFile(ex);
                     }
-                }
 
-                if (Util.DeviceTypeHelper.IsXbox)
-                {
-                    this.Resources.MergedDictionaries.Add(new ResourceDictionary()
-                    {
-                        Source = new Uri("ms-appx:///Styles/TVSafeColor.xaml")
-                    });
-                }
 
-                if (hohoemaApp.IsLoggedIn)
-                {
                     pageManager.OpenPage(HohoemaPageType.Portal);
                 }
                 else
                 {
                     pageManager.OpenPage(HohoemaPageType.Login);
-                }
 
+                }
             }
-                // モバイルで利用している場合に、ナビゲーションバーなどがページに被さらないように指定
-                ApplicationView.GetForCurrentView().SetDesiredBoundsMode(ApplicationViewBoundsMode.UseVisible);
-            //			return Task.CompletedTask;
         }
 
         protected override async Task OnActivateApplicationAsync(IActivatedEventArgs args)
@@ -294,14 +295,7 @@ namespace NicoPlayerHohoema
                 }
                 else
                 {
-                    if (hohoemaApp.IsLoggedIn)
-                    {
-                        pageManager.OpenPage(HohoemaPageType.Portal);
-                    }
-                    else
-                    {
-                        pageManager.OpenPage(HohoemaPageType.Login);
-                    }
+                    pageManager.OpenPage(HohoemaPageType.Portal);
                 }
             }
             catch
