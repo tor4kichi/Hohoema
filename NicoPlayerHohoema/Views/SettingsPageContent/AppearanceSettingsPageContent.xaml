@@ -43,7 +43,7 @@
                            />
                 </StackPanel>
 
-                <StackPanel Margin="8 0 0 0">
+                <StackPanel Margin="16 0 0 0">
 
 
                     <StackPanel Margin="0 8" x:Name="SwitchFullScreenButtonLayout">
@@ -98,7 +98,7 @@
 
 
                     <StackPanel x:Name="TVModeSwitchLayout">
-                        <StackPanel Margin="8">
+                        <StackPanel Margin="0 8">
                             <TextBlock Text="TV Modeを利用する"
                            toolkit:DockPanel.Dock="Left"
                            VerticalAlignment="Center"
