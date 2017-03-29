@@ -940,14 +940,9 @@
                                                     
 
                                                     <StackPanel Orientation="Horizontal">
-                                                        <Button Content="等速に戻す"
-                                                                >
-                                                            <i:Interaction.Behaviors>
-                                                                <core:EventTriggerBehavior EventName="Tapped">
-                                                                    <core:ChangePropertyAction TargetObject="{Binding PlaybackRate}" PropertyName="Value" Value="1.0" />
-                                                                </core:EventTriggerBehavior>
-                                                            </i:Interaction.Behaviors>
-                                                        </Button>
+                                                        <Button Content="等倍速に戻す"
+                                                                Command="{Binding ResetDefaultPlaybackRate}"
+                                                                />
 
                                                         <Slider Orientation="Horizontal"
                                                                 Maximum="2.0"
