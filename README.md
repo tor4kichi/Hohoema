@@ -31,6 +31,7 @@ Windows 10 のストアアプリから無料でダウンロードできます
 * ニコニコ生放送の視聴 (v0.5.0) 
 * プレイリスト（v0.6.0）
 * XboxOneとXInput対応（v0.6.0）
+* 再生速度の変更に対応（v6.1）
  
 
 その他の機能や修正点は [リリースノート](https://github.com/tor4kichi/Hohoema/wiki/%E3%83%AA%E3%83%AA%E3%83%BC%E3%82%B9%E3%83%8E%E3%83%BC%E3%83%88) から確認できます
@@ -42,9 +43,9 @@ Windows 10 のストアアプリから無料でダウンロードできます
 * ~~v0.3 マイリスト機能~~
 * ~~v0.4 ユーザーIDベースのNGなど使いやすさ向上~~
 * ~~v0.5 ニコ生の視聴／ニコニコミュニティ対応~~
-* v0.6 デザインの改善 + XboxOne対応 + プレイリスト
-* v0.7 プレイヤーウィンドウ分離（CompactOverlay対応）
-
+* v6.0 デザインの改善 + XboxOne対応 + プレイリスト
+* v7.0 プレイヤーウィンドウ分離（CompactOverlay対応）
+* v8.0 生放送開始検出やフィード自動更新などのBG処理対応
 
 https://github.com/tor4kichi/Hohoema/milestones
 
@@ -75,6 +76,6 @@ GPL v3
 
 ## 制作環境
 
-* VisualStudio 2015 Community
+* VisualStudio 2017 Community
 * UWP (Xaml + C#)
 * Inkscape
