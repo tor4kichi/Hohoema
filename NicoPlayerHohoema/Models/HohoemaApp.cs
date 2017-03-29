@@ -97,14 +97,18 @@ namespace NicoPlayerHohoema.Models
         private async void NetworkInformation_NetworkStatusChanged(object sender)
         {
             var isInternet = Util.InternetConnection.IsInternet();
-            if (isInternet)
+            await HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => 
             {
-                await SignInWithPrimaryAccount();
-            }
-            else
-            {
-                await SignOut();
-            }
+                if (isInternet)
+                {
+                    await SignInWithPrimaryAccount();
+                }
+                else
+                {
+                    await SignOut();
+                }
+
+            });
         }
 
         private void RagistrationBackgroundUpdateHandle()
@@ -1206,7 +1210,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			get
 			{
-				return ServiceStatus == HohoemaAppServiceLevel.LoggedIn;
+				return ServiceStatus.IsLoggedIn();
 			}
 		}
 

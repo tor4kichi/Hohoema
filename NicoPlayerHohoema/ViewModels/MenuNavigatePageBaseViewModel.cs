@@ -264,8 +264,10 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-        internal void OnAccountMenuItemSelected(HohoemaPageType pageType)
+        internal async void OnAccountMenuItemSelected(HohoemaPageType pageType)
         {
+            await HohoemaApp.CheckSignedInStatus();
+
             if (pageType != PageManager.CurrentPageType)
             {
                 if (ServiceLevel.Value == HohoemaAppServiceLevel.LoggedIn)
@@ -317,8 +319,10 @@ namespace NicoPlayerHohoema.ViewModels
             get
             {
                 return _OpenAccountInfoCommand
-                    ?? (_OpenAccountInfoCommand = new DelegateCommand(() =>
+                    ?? (_OpenAccountInfoCommand = new DelegateCommand(async () =>
                     {
+                        await HohoemaApp.CheckSignedInStatus();
+
                         if (ServiceLevel.Value == HohoemaAppServiceLevel.LoggedIn)
                         {
                             PageManager.OpenPage(HohoemaPageType.UserInfo, HohoemaApp.LoginUserId.ToString());

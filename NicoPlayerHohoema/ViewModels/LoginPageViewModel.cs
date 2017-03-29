@@ -10,6 +10,7 @@ using Reactive.Bindings.Extensions;
 using Prism.Windows.Navigation;
 using System.Threading;
 using System.Diagnostics;
+using Prism.Commands;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -32,6 +33,7 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<string> LoginErrorText { get; private set; }
 
 
+        
         private LoginRedirectPayload _RedirectInfo;
 
         public LoginPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager) 
@@ -76,8 +78,18 @@ namespace NicoPlayerHohoema.ViewModels
                 }
             });
 
+
+            SkipLoginCommand = new DelegateCommand(() => 
+            {
+                PageManager.OpenPage(HohoemaPageType.Portal);
+
+                PageManager.ClearNavigateHistory();
+            });
         }
 
+
+
+        public DelegateCommand SkipLoginCommand { get; private set; }
 
         protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {

@@ -381,8 +381,11 @@
 
                                 <Button Command="{Binding OpenAccountInfoCommand}"
                                         toolkit:DockPanel.Dock="Bottom"
-                                        Padding="8 0 0 0"
+                                        Padding="16 0 0 0"
                                         Background="Transparent" 
+                                        HorizontalAlignment="Stretch"
+                                        HorizontalContentAlignment="Left"
+                                        VerticalContentAlignment="Center"
                                         >
                                     <StackPanel>
                                         <TextBlock Text="{Binding ServiceLevel.Value, Converter={StaticResource HohoemaSerivceStatusToText}}" 
