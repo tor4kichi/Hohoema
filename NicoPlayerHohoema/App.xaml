@@ -43,6 +43,8 @@
 
             <myconv:TransparentColorConverter x:Key="ToTransparentColor" />
 
+            <myconv:ServiceStatusToTextConverter x:Key="HohoemaSerivceStatusToText" />
+
             <!-- Logical Modifier-->
             <logicalModifier:AndModifier x:Key="AndModifier" />
             <logicalModifier:OrModifier x:Key="OrModifier" />

@@ -546,7 +546,7 @@ namespace NicoPlayerHohoema.Models
 						LoginErrorText = "サインインに失敗、再起動をお試しください";
 					}
 
-                    UpdateServiceStatus();
+                    UpdateServiceStatus(result);
 
                     NiconicoContext = context;
 
@@ -654,9 +654,6 @@ namespace NicoPlayerHohoema.Models
 							loginActivityLogger.LogEvent("[Success]: Login done");
 						}
 
-                        // アプリのサービス状態をログイン済みに更新
-                        UpdateServiceStatus(isLoggedIn: true);
-
                         // BG更新をスケジュール
                         UpdateAllComponent();
 
@@ -704,12 +701,13 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<NiconicoSignInStatus> SignOut()
 		{
-			try
+            NiconicoSignInStatus result = NiconicoSignInStatus.Failed;
+
+            try
 			{
 				await _SigninLock.WaitAsync();
 
-				NiconicoSignInStatus result = NiconicoSignInStatus.Failed;
-				if (NiconicoContext == null)
+                if (NiconicoContext == null)
 				{
 					return result;
 				}
@@ -744,29 +742,41 @@ namespace NicoPlayerHohoema.Models
 					FollowManager = null;
 					LoginUserId = uint.MaxValue;
 
-
 					OnSignout?.Invoke();
 				}
 
-				return result;
 			}
 			finally
 			{
-				_SigninLock.Release();
-
                 UpdateServiceStatus();
-            }
-		}
 
-        private void UpdateServiceStatus(bool isLoggedIn = false)
+                _SigninLock.Release();
+            }
+
+            return result;
+        }
+
+        private void UpdateServiceStatus(NiconicoSignInStatus status = NiconicoSignInStatus.Failed)
         {
-            if (isLoggedIn)
+            var isOnline = Util.InternetConnection.IsInternet();
+            if (status == NiconicoSignInStatus.Success)
             {
                 ServiceStatus = HohoemaAppServiceLevel.LoggedIn;
             }
+            else if (isOnline)
+            {
+                if (status == NiconicoSignInStatus.ServiceUnavailable)
+                {
+                    ServiceStatus = HohoemaAppServiceLevel.OnlineButServiceUnavailable;
+                }
+                else
+                {
+                    ServiceStatus = HohoemaAppServiceLevel.OnlineWithoutLoggedIn;
+                }
+            }
             else
             {
-                ServiceStatus = Util.InternetConnection.IsInternet() ? HohoemaAppServiceLevel.OnlineWithoutLoggedIn : HohoemaAppServiceLevel.Offline;
+                ServiceStatus = HohoemaAppServiceLevel.Offline;
             }
 
             OnPropertyChanged(nameof(IsLoggedIn));
@@ -774,20 +784,15 @@ namespace NicoPlayerHohoema.Models
 
         public async Task<NiconicoSignInStatus> CheckSignedInStatus()
 		{
-			if (!Util.InternetConnection.IsInternet())
-			{
-                ServiceStatus = HohoemaAppServiceLevel.Offline;
+            NiconicoSignInStatus result = NiconicoSignInStatus.Failed;
 
-                return NiconicoSignInStatus.Failed;
-			}
-
-			try
+            try
 			{
 				await _SigninLock.WaitAsync();
 
-				if (NiconicoContext != null)
+                if (Util.InternetConnection.IsInternet() && NiconicoContext != null)
 				{
-					return await ConnectionRetryUtil.TaskWithRetry(
+                    result = await ConnectionRetryUtil.TaskWithRetry(
 						() => NiconicoContext.GetIsSignedInAsync()
 						, retryInterval:1000
 						);
@@ -795,26 +800,29 @@ namespace NicoPlayerHohoema.Models
 			}
 			catch
 			{
-				return NiconicoSignInStatus.Failed;
-			}
+                // ログイン処理時には例外を捕捉するが、ログイン状態チェックでは例外は無視する
+                result = NiconicoSignInStatus.Failed;
+            }
 			finally
 			{
-				_SigninLock.Release();
+                UpdateServiceStatus(result);
+
+                _SigninLock.Release();
 			}
 
-			return NiconicoSignInStatus.Failed;
+            return result;
 		}
 
 
 
-#endregion
+        #endregion
 
 
 
 
 
 
-StorageFolder _DownloadFolder;
+        StorageFolder _DownloadFolder;
 
 		public async Task<bool> IsAvailableUserDataFolder()
 		{

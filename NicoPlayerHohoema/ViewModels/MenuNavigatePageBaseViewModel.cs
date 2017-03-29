@@ -29,6 +29,8 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<bool> IsTVModeEnable { get; private set; }
         public bool IsNeedFullScreenToggleHelp { get; private set; }
 
+        public ReadOnlyReactiveProperty<HohoemaAppServiceLevel> ServiceLevel { get; private set; }
+
         public MenuNavigatePageBaseViewModel(
             HohoemaApp hohoemaApp, 
             PageManager pageManager
@@ -44,11 +46,16 @@ namespace NicoPlayerHohoema.ViewModels
             }
             else
             {
-                IsTVModeEnable = HohoemaApp.UserSettings.AppearanceSettings.ObserveProperty(x => x.IsForceTVModeEnable)
+                IsTVModeEnable = HohoemaApp.UserSettings
+                    .AppearanceSettings.ObserveProperty(x => x.IsForceTVModeEnable)
                     .ToReactiveProperty();
             }
 
-            IsNeedFullScreenToggleHelp = ApplicationView.PreferredLaunchWindowingMode == ApplicationViewWindowingMode.FullScreen;
+            ServiceLevel = HohoemaApp.ObserveProperty(x => x.ServiceStatus)
+                .ToReadOnlyReactiveProperty();
+
+            IsNeedFullScreenToggleHelp 
+                = ApplicationView.PreferredLaunchWindowingMode == ApplicationViewWindowingMode.FullScreen;
 
             IsOpenPane = new ReactiveProperty<bool>(false);
 
@@ -261,7 +268,14 @@ namespace NicoPlayerHohoema.ViewModels
         {
             if (pageType != PageManager.CurrentPageType)
             {
-                PageManager.OpenPage(HohoemaPageType.UserInfo, HohoemaApp.LoginUserId.ToString());
+                if (ServiceLevel.Value == HohoemaAppServiceLevel.LoggedIn)
+                {
+                    PageManager.OpenPage(HohoemaPageType.UserInfo, HohoemaApp.LoginUserId.ToString());
+                }
+                else
+                {
+                    PageManager.OpenPage(HohoemaPageType.Login);
+                }
             }
         }
 
@@ -305,7 +319,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenAccountInfoCommand
                     ?? (_OpenAccountInfoCommand = new DelegateCommand(() =>
                     {
-                        if (HohoemaApp.IsLoggedIn)
+                        if (ServiceLevel.Value == HohoemaAppServiceLevel.LoggedIn)
                         {
                             PageManager.OpenPage(HohoemaPageType.UserInfo, HohoemaApp.LoginUserId.ToString());
                         }

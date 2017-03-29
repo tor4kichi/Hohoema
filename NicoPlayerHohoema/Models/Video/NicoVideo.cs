@@ -30,6 +30,7 @@ namespace NicoPlayerHohoema.Models
 
 		internal WatchApiResponse CachedWatchApiResponse { get; private set; }
 
+        AsyncLock _InitializeLock = new AsyncLock();
 		bool _IsInitialized = false;
 		bool _thumbnailInitialized = false;
 
@@ -74,37 +75,21 @@ namespace NicoPlayerHohoema.Models
 
         public async Task Initialize()
 		{
-			if (_IsInitialized) { return; }
-
-			if (HohoemaApp.ServiceStatus >= HohoemaAppServiceLevel.OnlineWithoutLoggedIn)
-			{
-				Debug.WriteLine("start initialize : " + RawVideoId);
-
-				await UpdateWithThumbnail();
-
-                _IsInitialized = true;
-            }
-
-            if (!_thumbnailInitialized && HohoemaApp.ServiceStatus == HohoemaAppServiceLevel.Offline)
+            using (var releaser = await _InitializeLock.LockAsync())
             {
-                var videoData = VideoInfoDb.Get(RawVideoId);
-                if (videoData != null)
+                if (_IsInitialized) { return; }
+
+                if (HohoemaApp.ServiceStatus >= HohoemaAppServiceLevel.OnlineWithoutLoggedIn)
                 {
-                    // オフライン再生に備えてDBからビデオ情報を取得
-                    this.VideoId = videoData.VideoId;
-                    this.VideoLength = videoData.Length;
-                    this.SizeLow = (uint)videoData.LowSize;
-                    this.SizeHigh = (uint)videoData.HighSize;
-                    this.Title = videoData.Title;
-                    this.VideoOwnerId = videoData.UserId;
-                    this.ContentType = videoData.MovieType;
-                    this.PostedAt = videoData.PostedAt;
-                    this.Tags = videoData.GetTags();
-                    this.ViewCount = videoData.ViewCount;
-                    this.MylistCount = videoData.MylistCount;
-                    this.CommentCount = videoData.CommentCount;
-                    this.ThumbnailUrl = videoData.ThumbnailUrl;
-                    this.DescriptionWithHtml = videoData.DescriptionWithHtml;
+                    Debug.WriteLine("start initialize : " + RawVideoId);
+
+                    await UpdateWithThumbnail();
+
+                    _IsInitialized = true;
+                }
+                else if(!_thumbnailInitialized && HohoemaApp.ServiceStatus == HohoemaAppServiceLevel.Offline)
+                {
+                    await FillVideoInfoFromDb();
                 }
             }
         }
@@ -212,12 +197,9 @@ namespace NicoPlayerHohoema.Models
 				this.MylistCount = res.MylistCount;
 				this.CommentCount = res.CommentCount;
 				this.ThumbnailUrl = res.ThumbnailUrl.AbsoluteUri;
-
-				_thumbnailInitialized = true;
 			}
 			catch (Exception e) when (e.Message.Contains("delete"))
 			{
-				this.IsDeleted = true;
 				await DeletedTeardown();
 			}
 			catch (Exception e) when (e.Message.Contains("community"))
@@ -225,7 +207,9 @@ namespace NicoPlayerHohoema.Models
 				this.IsCommunity = true;
 			}
 
-			if (!this.IsDeleted && CachedAt != default(DateTime))
+            _thumbnailInitialized = true;
+
+            if (!this.IsDeleted && GetAllQuality().Any(x => x.IsCacheRequested))
 			{
 				// キャッシュ情報を最新の状態に更新
 				await OnCacheRequested();
@@ -334,7 +318,9 @@ namespace NicoPlayerHohoema.Models
 			{
 				var file = await divided.GetCacheFile();
 				NicoVideoCachedStream = await file.OpenReadAsync();
-			}
+
+                await OnCacheRequested();
+            }
 			else if (ProtocolType == MediaProtocolType.RTSPoverHTTP)
 			{				
 				if (Util.InternetConnection.IsInternet())
@@ -403,14 +389,18 @@ namespace NicoPlayerHohoema.Models
                 var smtc = HohoemaApp.MediaPlayer.SystemMediaTransportControls;
                 
                 smtc.DisplayUpdater.Type = Windows.Media.MediaPlaybackType.Video;
-                smtc.DisplayUpdater.VideoProperties.Title = Title;
-                smtc.DisplayUpdater.Thumbnail = RandomAccessStreamReference.CreateFromUri(new Uri(this.ThumbnailUrl));
+                smtc.DisplayUpdater.VideoProperties.Title = Title ?? "Hohoema";
+                if (ThumbnailUrl != null)
+                {
+                    smtc.DisplayUpdater.Thumbnail = RandomAccessStreamReference.CreateFromUri(new Uri(this.ThumbnailUrl));
+                }
                 smtc.IsPlayEnabled = true;
                 smtc.IsPauseEnabled = true;
                 smtc.DisplayUpdater.Update();
                 
                 divided.OnPlayStarted();
             }
+
         }
 
 
@@ -670,24 +660,48 @@ namespace NicoPlayerHohoema.Models
 		/// </summary>
 		private async Task DeletedTeardown()
 		{
-			// キャッシュした動画データと動画コメントの削除
+            this.IsDeleted = true;
 
-			await OriginalQuality.DeleteCache();
-			await LowQuality.DeleteCache();
+            await FillVideoInfoFromDb();
 
-			CommentDb.Remove(RawVideoId);
-			VideoInfoDb.Deleted(RawVideoId);
-		}
+            // キャッシュした動画データと動画コメントの削除
+            await CancelCacheRequest();
 
-
-
-		
+            await _NiconicoMediaManager.CacheForceDeleted(this);
+        }
 
 
-		
+        private async Task FillVideoInfoFromDb()
+        {
+            var videoInfo = await VideoInfoDb.GetAsync(RawVideoId);
+
+            if (videoInfo == null) { return; }
+
+            //this.RawVideoId = videoInfo.RawVideoId;
+            this.VideoId = videoInfo.VideoId;
+            this.VideoLength = videoInfo.Length;
+            this.SizeLow = (uint)videoInfo.LowSize;
+            this.SizeHigh = (uint)videoInfo.HighSize;
+            this.Title = videoInfo.Title;
+            this.VideoOwnerId = videoInfo.UserId;
+            this.ContentType = videoInfo.MovieType;
+            this.PostedAt = videoInfo.PostedAt;
+            this.Tags = videoInfo.GetTags();
+            this.ViewCount = videoInfo.ViewCount;
+            this.MylistCount = videoInfo.MylistCount;
+            this.CommentCount = videoInfo.CommentCount;
+            this.ThumbnailUrl = videoInfo.ThumbnailUrl;
+            this.DescriptionWithHtml = videoInfo.DescriptionWithHtml;
+
+        }
 
 
-		private void IfVideoDeletedThrowException()
+
+
+
+
+
+        private void IfVideoDeletedThrowException()
 		{
 			if (IsDeleted) { throw new Exception("video is deleted"); }
 		}
