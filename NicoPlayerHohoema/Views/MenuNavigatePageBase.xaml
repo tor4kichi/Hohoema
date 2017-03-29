@@ -153,6 +153,8 @@
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
                                 <Setter Target="ServiceStateText.Visibility" Value="Visible" />
+                                <Setter Target="ServiceStateText_TV.Visibility" Value="Visible" />
+                                <Setter Target="ServiceStateText_Mobile.Visibility" Value="Visible" />
                             </VisualState.Setters>
                         </VisualState>
 
@@ -162,6 +164,8 @@
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
                                 <Setter Target="ServiceStateText.Visibility" Value="Visible" />
+                                <Setter Target="ServiceStateText_TV.Visibility" Value="Visible" />
+                                <Setter Target="ServiceStateText_Mobile.Visibility" Value="Visible" />
                             </VisualState.Setters>
                         </VisualState>
 
@@ -172,6 +176,8 @@
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
                                 <Setter Target="ServiceStateText.Visibility" Value="Visible" />
+                                <Setter Target="ServiceStateText_TV.Visibility" Value="Visible" />
+                                <Setter Target="ServiceStateText_Mobile.Visibility" Value="Visible" />
                             </VisualState.Setters>
                         </VisualState>
 
@@ -281,6 +287,15 @@
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
 
+                            <TextBlock Text="{Binding ServiceLevel.Value, Converter={StaticResource HohoemaSerivceStatusToText}}" 
+                                        x:Name="ServiceStateText_TV"
+                                        Visibility="Collapsed"
+                                       HorizontalAlignment="Center"
+                                       Margin="0 8"
+                                       Opacity="0.8"
+                                               />
+
+
                         </StackPanel>
                     </ScrollViewer>
                     
@@ -295,7 +310,16 @@
                         <toolkit:DockPanel.Background>
                             <SolidColorBrush Color="{ThemeResource SystemAltMediumHighColor}" />
                         </toolkit:DockPanel.Background>
-                        
+
+                        <TextBlock Text="{Binding ServiceLevel.Value, Converter={StaticResource HohoemaSerivceStatusToText}}" 
+                                                   x:Name="ServiceStateText_Mobile"
+                                                   Visibility="Collapsed"
+                                   FontSize="13"
+                                   HorizontalAlignment="Center"
+                                   toolkit:DockPanel.Dock="Top"
+                                   Margin="0 8"
+                                               />
+
                         <AppBarButton IsCompact="False" Icon="More"
                                       toolkit:DockPanel.Dock="Right"
                                       >
