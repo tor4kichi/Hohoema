@@ -19,7 +19,7 @@ namespace NicoPlayerHohoema.Views.Converters
 			if (value is uint)		{ return ((uint)value).ToString("N0"); }
 			if (value is ulong)		{ return ((ulong)value).ToString("N0"); }
 			if (value is float)		{ return ((float)value).ToString("N2"); }
-			if (value is double)	{ return ((int)value).ToString("N2"); }
+			if (value is double)	{ return ((double)value).ToString("N2"); }
 
 			return value;
 		}

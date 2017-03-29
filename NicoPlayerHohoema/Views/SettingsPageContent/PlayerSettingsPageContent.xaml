@@ -44,13 +44,30 @@
                            VerticalAlignment="Center"
                            />
 
-                    <ComboBox ItemsSource="{x:Bind PlaybackRateItems}"
+                    
+                    
+                    <ListView ItemsSource="{x:Bind PlaybackRateItems}"
                               SelectedItem="{Binding DefaultPlaybackRate.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               Margin="0 4"
-                              Width="100"
                           >
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <toolkit:WrapPanel Orientation="Horizontal"
+                                                   ItemWidth="60"
+                                                   />
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
 
-                    </ComboBox>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock>
+                                    <Run Text="x" />
+                                    <Run Text="{Binding Converter={StaticResource ToUserFriendlyNumber}}" />
+                                </TextBlock>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+
+                    </ListView>
 
 
                 </StackPanel>
