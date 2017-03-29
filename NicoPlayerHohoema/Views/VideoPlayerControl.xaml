@@ -902,9 +902,10 @@
                                 </StackPanel>
 
                                 <!-- Fullscreen / More -->
-                                <StackPanel Orientation="Horizontal"
+                                <toolkit:WrapPanel Orientation="Horizontal"
                                         Grid.Column="2"
                                     HorizontalAlignment="Right"
+                                                   VerticalAlignment="Center"
                                         >
 
                                     <Button Background="Transparent">
@@ -1038,7 +1039,7 @@
 
 
                                     </Button>
-                                </StackPanel>
+                                </toolkit:WrapPanel>
 
                             </Grid>
 
