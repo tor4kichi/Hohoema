@@ -329,6 +329,14 @@
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsSmallWindowModeEnable.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CommentActivateKeyTrigger.IsEnabled" Value="False" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
                         <myTrigger:FocusTrigger Target="{Binding ElementName=CommentTextBox}" Inverted="True" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
