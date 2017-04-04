@@ -97,7 +97,7 @@ namespace NicoPlayerHohoema.ViewModels
 				.AddTo(_CompositeDisposable);
 			NowSubmittingComment = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler)
 				.AddTo(_CompositeDisposable);
-			SliderVideoPosition = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0)
+			SliderVideoPosition = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0, mode:ReactivePropertyMode.DistinctUntilChanged)
 				.AddTo(_CompositeDisposable);
 			VideoLength = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0)
 				.AddTo(_CompositeDisposable);
@@ -331,7 +331,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 			ReadVideoPosition.Subscribe(x =>
 			{
-				if (_NowControlSlider) { return; }
+                PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
+
+                if (_NowControlSlider) { return; }
 
 				_NowReadingVideoPosition = true;
 
@@ -400,7 +402,24 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
 				.AddTo(_CompositeDisposable);
 
-			DownloadCompleted = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
+
+            // 再生速度
+            PlaybackRate = new ReactiveProperty<double>(
+                HohoemaApp.UserSettings.PlayerSettings.DefaultPlaybackRate
+                )
+                .AddTo(_CompositeDisposable);
+            PlaybackRate.Subscribe(x => 
+            {
+                MediaPlayer.PlaybackSession.PlaybackRate = x;
+            })
+            .AddTo(_CompositeDisposable);
+
+            ResetDefaultPlaybackRate = new DelegateCommand(() => PlaybackRate.Value = 1.0);
+
+
+
+
+            DownloadCompleted = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
 			ProgressPercent = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0.0);
 			IsFullScreen = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false, ReactivePropertyMode.DistinctUntilChanged);
 			IsFullScreen
@@ -831,18 +850,13 @@ namespace NicoPlayerHohoema.ViewModels
 
             var qualityVideo = x == NicoVideoQuality.Original ? Video.OriginalQuality : Video.LowQuality;
 
-			if (PreviousVideoPosition == 0.0)
-			{
-				PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
-			}
-
             
             // サポートされたメディアの再生
             if (Video.CanGetVideoStream())
 			{
                 CurrentState.Value = MediaPlaybackState.Opening;
 
-                await Video.StartPlay(x, TimeSpan.FromSeconds(PreviousVideoPosition));
+                await Video.StartPlay(x, _PreviosPlayingVideoPosition);
 
                 if (IsDisposed)
 				{
@@ -899,6 +913,10 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 throw new Exception();
             }
+
+            
+            MediaPlayer.PlaybackSession.PlaybackRate = 
+                HohoemaApp.UserSettings.PlayerSettings.DefaultPlaybackRate;
 
             PlaylistCanGoBack.Value = HohoemaApp.Playlist.Player.CanGoBack;
             PlaylistCanGoNext.Value = HohoemaApp.Playlist.Player.CanGoNext;
@@ -1150,8 +1168,10 @@ namespace NicoPlayerHohoema.ViewModels
         {
             if (IsDisposed) { return; }
 
-            ReadVideoPosition.Value = sender.Position;
-            _PreviosPlayingVideoPosition = ReadVideoPosition.Value;
+            if (sender.PlaybackState == MediaPlaybackState.Playing)
+            {
+                ReadVideoPosition.Value = sender.Position;
+            }
         }
 
         private void PlaybackSession_PlaybackStateChanged(MediaPlaybackSession sender, object args)
@@ -1176,7 +1196,12 @@ namespace NicoPlayerHohoema.ViewModels
 
         private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
         {
-            PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
+            //            PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
+
+            _PreviosPlayingVideoPosition = TimeSpan.FromSeconds(SliderVideoPosition.Value);
+
+            _IsNeddPlayInResumed = this.CurrentState.Value != MediaPlaybackState.Paused
+                && this.CurrentState.Value != MediaPlaybackState.None;
 
             IsFullScreen.Value = false;
 
@@ -1185,7 +1210,6 @@ namespace NicoPlayerHohoema.ViewModels
             HohoemaApp.MediaPlayer.Pause();
             HohoemaApp.MediaPlayer.Source = null;
 
-            // TODO: Video.StopVideo()の呼び出し必要？
 
             _BufferingMonitorDisposable?.Dispose();
             _BufferingMonitorDisposable = new CompositeDisposable();
@@ -1224,27 +1248,34 @@ namespace NicoPlayerHohoema.ViewModels
 			if (NowSignIn)
 			{
 				InitializeBufferingMonitor();
-
-				await PlayingQualityChangeAction();
 			}
-		}
 
-		protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+            if (_IsNeddPlayInResumed)
+            {
+                await PlayingQualityChangeAction();
+                _IsNeddPlayInResumed = false;
+            }
+
+        }
+
+        protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
 			Debug.WriteLine("VideoPlayer OnNavigatingFromAsync start.");
 
-			PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
+//			PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
 
 			if (suspending)
 			{
 				viewModelState[nameof(VideoId)] = VideoId;
 				viewModelState[nameof(CurrentVideoPosition)] = CurrentVideoPosition.Value.TotalSeconds;
-			}
+            }
 			else 
 			{
                 App.Current.Suspending -= Current_Suspending;
                 HohoemaApp.MediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
                 HohoemaApp.MediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
+
+                Comments.Clear();
             }
 
             Video?.StopPlay();
@@ -1253,10 +1284,6 @@ namespace NicoPlayerHohoema.ViewModels
             VideoPlayed();
 
             ExitKeepDisplay();
-
-			Comments.Clear();
-
-			
 
 			_BufferingMonitorDisposable?.Dispose();
 			_BufferingMonitorDisposable = new CompositeDisposable();
@@ -1886,11 +1913,15 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> NowPlaying { get; private set; }
 		public ReactiveProperty<bool> NowQualityChanging { get; private set; }
 		public ReactiveProperty<bool> IsEnableRepeat { get; private set; }
+        public ReactiveProperty<double> PlaybackRate { get; private set; }
+        public DelegateCommand ResetDefaultPlaybackRate { get; private set; }
 
-		public ReactiveProperty<bool> IsAutoHideEnable { get; private set; }
+        public ReactiveProperty<bool> IsAutoHideEnable { get; private set; }
 		public ReactiveProperty<TimeSpan> AutoHideDelayTime { get; private set; }
 
 		private TimeSpan _PreviosPlayingVideoPosition;
+
+        private bool _IsNeddPlayInResumed;
 
 		// Sound
 		public ReactiveProperty<bool> NowSoundChanging { get; private set; }

@@ -24,7 +24,35 @@ namespace NicoPlayerHohoema.Views
 	/// </summary>
 	public sealed partial class VideoPlayerControl : UserControl
     {
-		public VideoPlayerControl()
+
+        public static readonly DependencyProperty IsDisplayCommentTextBoxProperty =
+           DependencyProperty.Register("IsDisplayCommentTextBox"
+                   , typeof(bool)
+                   , typeof(VideoPlayerControl)
+                   , new PropertyMetadata(false)
+               );
+
+        public bool IsDisplayCommentTextBox
+        {
+            get { return (bool)GetValue(IsDisplayCommentTextBoxProperty); }
+            set { SetValue(IsDisplayCommentTextBoxProperty, value); }
+        }
+
+
+
+        public List<double> PlaybackRateList = new List<double>()
+        {
+            2.0,
+            1.75,
+            1.5,
+            1.25,
+            1.0,
+            0.75,
+            0.5,
+            0.25,
+        };
+
+        public VideoPlayerControl()
 		{
 			this.InitializeComponent();
 

@@ -19,6 +19,5 @@ namespace NicoPlayerHohoema.Models
             get { return _IsForceTVModeEnable; }
             set { SetProperty(ref _IsForceTVModeEnable, value); }
         }
-
     }
 }

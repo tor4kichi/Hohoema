@@ -16,6 +16,7 @@ using Windows.UI.Xaml.Controls;
 using Prism.Windows;
 using System.Reactive.Linq;
 using NicoPlayerHohoema.Views.Service;
+using Windows.UI.ViewManagement;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -26,6 +27,9 @@ namespace NicoPlayerHohoema.ViewModels
         
 
         public ReactiveProperty<bool> IsTVModeEnable { get; private set; }
+        public bool IsNeedFullScreenToggleHelp { get; private set; }
+
+        public ReadOnlyReactiveProperty<HohoemaAppServiceLevel> ServiceLevel { get; private set; }
 
         public MenuNavigatePageBaseViewModel(
             HohoemaApp hohoemaApp, 
@@ -42,9 +46,16 @@ namespace NicoPlayerHohoema.ViewModels
             }
             else
             {
-                IsTVModeEnable = HohoemaApp.UserSettings.AppearanceSettings.ObserveProperty(x => x.IsForceTVModeEnable)
+                IsTVModeEnable = HohoemaApp.UserSettings
+                    .AppearanceSettings.ObserveProperty(x => x.IsForceTVModeEnable)
                     .ToReactiveProperty();
             }
+
+            ServiceLevel = HohoemaApp.ObserveProperty(x => x.ServiceStatus)
+                .ToReadOnlyReactiveProperty();
+
+            IsNeedFullScreenToggleHelp 
+                = ApplicationView.PreferredLaunchWindowingMode == ApplicationViewWindowingMode.FullScreen;
 
             IsOpenPane = new ReactiveProperty<bool>(false);
 
@@ -253,11 +264,20 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-        internal void OnAccountMenuItemSelected(HohoemaPageType pageType)
+        internal async void OnAccountMenuItemSelected(HohoemaPageType pageType)
         {
+            await HohoemaApp.CheckSignedInStatus();
+
             if (pageType != PageManager.CurrentPageType)
             {
-                PageManager.OpenPage(HohoemaPageType.UserInfo, HohoemaApp.LoginUserId.ToString());
+                if (ServiceLevel.Value == HohoemaAppServiceLevel.LoggedIn)
+                {
+                    PageManager.OpenPage(HohoemaPageType.UserInfo, HohoemaApp.LoginUserId.ToString());
+                }
+                else
+                {
+                    PageManager.OpenPage(HohoemaPageType.Login);
+                }
             }
         }
 
@@ -299,9 +319,11 @@ namespace NicoPlayerHohoema.ViewModels
             get
             {
                 return _OpenAccountInfoCommand
-                    ?? (_OpenAccountInfoCommand = new DelegateCommand(() =>
+                    ?? (_OpenAccountInfoCommand = new DelegateCommand(async () =>
                     {
-                        if (HohoemaApp.IsLoggedIn)
+                        await HohoemaApp.CheckSignedInStatus();
+
+                        if (ServiceLevel.Value == HohoemaAppServiceLevel.LoggedIn)
                         {
                             PageManager.OpenPage(HohoemaPageType.UserInfo, HohoemaApp.LoginUserId.ToString());
                         }
@@ -326,6 +348,29 @@ namespace NicoPlayerHohoema.ViewModels
                         if (item != null)
                         {
                             item.SelectedAction(item.Source);
+                        }
+                    }));
+            }
+        }
+
+
+        private DelegateCommand _ToggleFullScreenCommand;
+        public DelegateCommand ToggleFullScreenCommand
+        {
+            get
+            {
+                return _ToggleFullScreenCommand
+                    ?? (_ToggleFullScreenCommand = new DelegateCommand(() =>
+                    {
+                        var appView = ApplicationView.GetForCurrentView();
+
+                        if (!appView.IsFullScreenMode)
+                        {
+                            appView.TryEnterFullScreenMode();
+                        }
+                        else
+                        {
+                            appView.ExitFullScreenMode();
                         }
                     }));
             }

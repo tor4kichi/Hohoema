@@ -131,6 +131,68 @@
                         </VisualState>
                     </VisualStateGroup>
 
+
+                    <VisualStateGroup>
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <StateTrigger IsActive="{Binding IsNeedFullScreenToggleHelp}" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="ToggleFullScreenButton_Mobile.Visibility" Value="Visible" />
+                                <Setter Target="ToggleFullScreenButton_Wide.Visibility" Value="Visible" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+
+                    <!-- アプリのサービス状態 -->
+                    <VisualStateGroup>
+                        <VisualState x:Name="OfflineState">
+                            <VisualState.StateTriggers>
+                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="Offline" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="ServiceStateText.Visibility" Value="Visible" />
+                                <Setter Target="ServiceStateText_TV.Visibility" Value="Visible" />
+                                <Setter Target="ServiceStateText_Mobile.Visibility" Value="Visible" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <VisualState x:Name="ServiceUnavailableState">
+                            <VisualState.StateTriggers>
+                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="OnlineButServiceUnavailable" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="ServiceStateText.Visibility" Value="Visible" />
+                                <Setter Target="ServiceStateText_TV.Visibility" Value="Visible" />
+                                <Setter Target="ServiceStateText_Mobile.Visibility" Value="Visible" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+
+                        <VisualState x:Name="WithoutLoggedInState">
+                            <VisualState.StateTriggers>
+                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="OnlineWithoutLoggedIn" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="ServiceStateText.Visibility" Value="Visible" />
+                                <Setter Target="ServiceStateText_TV.Visibility" Value="Visible" />
+                                <Setter Target="ServiceStateText_Mobile.Visibility" Value="Visible" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <VisualState x:Name="LoggedInState">
+                            <VisualState.StateTriggers>
+                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="LoggedIn" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="AccountInfoLayout.Visibility" Value="Visible" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+
+                    </VisualStateGroup>
+
                 </VisualStateManager.VisualStateGroups>
 
                 <toolkit:DockPanel>
@@ -212,18 +274,27 @@
 
                                             <i:Interaction.Behaviors>
                                                 <!--
-                                            <core:DataTriggerBehavior Binding="{Binding IsSelected}" ComparisonCondition="Equal" Value="True">
-                                                <core:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource Mode=Self}}" PropertyName="Foreground" Value="Green" />
-                                            </core:DataTriggerBehavior>
-                                            <core:DataTriggerBehavior Binding="{Binding IsSelected}" ComparisonCondition="Equal" Value="False">
-                                                <core:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource Mode=Self}}" PropertyName="Foreground" Value="{x:Null}" />
-                                            </core:DataTriggerBehavior>
-                                            -->
+                                                <core:DataTriggerBehavior Binding="{Binding IsSelected}" ComparisonCondition="Equal" Value="True">
+                                                    <core:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource Mode=Self}}" PropertyName="Foreground" Value="Green" />
+                                                </core:DataTriggerBehavior>
+                                                <core:DataTriggerBehavior Binding="{Binding IsSelected}" ComparisonCondition="Equal" Value="False">
+                                                    <core:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource Mode=Self}}" PropertyName="Foreground" Value="{x:Null}" />
+                                                </core:DataTriggerBehavior>
+                                                -->
                                             </i:Interaction.Behaviors>
                                         </Button>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
+
+                            <TextBlock Text="{Binding ServiceLevel.Value, Converter={StaticResource HohoemaSerivceStatusToText}}" 
+                                        x:Name="ServiceStateText_TV"
+                                        Visibility="Collapsed"
+                                       HorizontalAlignment="Center"
+                                       Margin="0 8"
+                                       Opacity="0.8"
+                                               />
+
 
                         </StackPanel>
                     </ScrollViewer>
@@ -239,25 +310,46 @@
                         <toolkit:DockPanel.Background>
                             <SolidColorBrush Color="{ThemeResource SystemAltMediumHighColor}" />
                         </toolkit:DockPanel.Background>
-                        
+
+                        <TextBlock Text="{Binding ServiceLevel.Value, Converter={StaticResource HohoemaSerivceStatusToText}}" 
+                                                   x:Name="ServiceStateText_Mobile"
+                                                   Visibility="Collapsed"
+                                   FontSize="13"
+                                   HorizontalAlignment="Center"
+                                   toolkit:DockPanel.Dock="Top"
+                                   Margin="0 8"
+                                               />
+
                         <AppBarButton IsCompact="False" Icon="More"
                                       toolkit:DockPanel.Dock="Right"
                                       >
                             <AppBarButton.Flyout>
                                 <Flyout>
-                                    <ListView ItemsSource="{Binding SubMenuItems}"
+                                    <StackPanel>
+                                        <Button x:Name="ToggleFullScreenButton_Mobile"
+                                                    Command="{Binding ToggleFullScreenCommand}"
+                                                    Background="Transparent"
+                                                Content="フルスクリーン切り替え"
+                                                Visibility="Collapsed"
+                                                    >
+                                            
+                                        </Button>
+
+                                        <ListView ItemsSource="{Binding SubMenuItems}"
                                                 SelectedItem="{Binding SubSelectedItem.Value, Mode=TwoWay}"
                                                 SelectionMode="Single"
                                                 DisplayMemberPath="Label"
                                               
                                             >
-                                        <ListView.ItemContainerStyle>
-                                            <Style TargetType="ListViewItem">
-                                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                                <Setter Property="Background" Value="Transparent" />
-                                            </Style>
-                                        </ListView.ItemContainerStyle>
-                                    </ListView>
+                                            <ListView.ItemContainerStyle>
+                                                <Style TargetType="ListViewItem">
+                                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                                    <Setter Property="Background" Value="Transparent" />
+                                                </Style>
+                                            </ListView.ItemContainerStyle>
+                                        </ListView>
+
+                                    </StackPanel>
                                 </Flyout>
                             </AppBarButton.Flyout>
                         </AppBarButton>
@@ -311,37 +403,42 @@
                                     <SolidColorBrush Color="{ThemeResource SystemAltMediumHighColor}" />
                                 </toolkit:DockPanel.Background>
 
-                                <Border toolkit:DockPanel.Dock="Top" Height="64">
-                                    
-                                </Border>
-                                
-                                
-                                <Button Background="Transparent" 
-                                        Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibility}}"
-                                        Command="{Binding OpenAccountInfoCommand}"
+                                <Button Command="{Binding OpenAccountInfoCommand}"
                                         toolkit:DockPanel.Dock="Bottom"
+                                        Padding="16 0 0 0"
+                                        Background="Transparent" 
                                         HorizontalAlignment="Stretch"
                                         HorizontalContentAlignment="Left"
-                                        Padding="16 8 8 8"
-                                                    >
-                                    <toolkit:DockPanel Margin="0 0">
+                                        VerticalContentAlignment="Center"
+                                        >
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding ServiceLevel.Value, Converter={StaticResource HohoemaSerivceStatusToText}}" 
+                                                   x:Name="ServiceStateText"
+                                                   Visibility="Collapsed"
+                                               />
 
-                                        <Image Source="{Binding UserIconUrl}" 
+                                        <toolkit:DockPanel Margin="0 0"
+                                                           x:Name="AccountInfoLayout"
+                                                           Visibility="Collapsed"
+                                                           >
+
+                                            <Image Source="{Binding UserIconUrl}" 
                                                 toolkit:DockPanel.Dock="Left"
                                                 Height="32" Width="32"
                                                 Margin="0 0 8 0"
                                                             />
 
-                                        <StackPanel>
-                                            <TextBlock Text="{Binding UserName}" />
-                                            <TextBlock Text="{Binding UserMail}" FontWeight="Light" 
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding UserName}" />
+                                                <TextBlock Text="{Binding UserMail}" FontWeight="Light" 
                                                        TextWrapping="Wrap"
                                                        FontSize="13"
                                                        />
-                                        </StackPanel>
-                                    </toolkit:DockPanel>
+                                            </StackPanel>
+                                        </toolkit:DockPanel>
+                                        
+                                    </StackPanel>
                                 </Button>
-
 
                                 <ScrollViewer HorizontalScrollMode="Disabled"
                                     VerticalScrollMode="Auto"
@@ -349,6 +446,16 @@
                                     >
 
                                     <StackPanel>
+
+                                        <Border Height="64">
+                                            <Button x:Name="ToggleFullScreenButton_Wide"
+                                                    Command="{Binding ToggleFullScreenCommand}"
+                                                    Background="Transparent"
+                                                    Visibility="Collapsed"
+                                                    >
+                                                <SymbolIcon Symbol="FullScreen" />
+                                            </Button>
+                                        </Border>
 
                                         <ListView ItemsSource="{Binding MenuItems}"
                                                     SelectedItem="{Binding MainSelectedItem.Value, Mode=TwoWay}"
@@ -381,6 +488,8 @@
                                             </ListView.ItemContainerStyle>
                                         </ListView>
 
+                                        
+                                        
                                     </StackPanel>
 
 

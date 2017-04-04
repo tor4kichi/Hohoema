@@ -19,6 +19,8 @@ using Windows.UI.Core;
 using Windows.Networking.BackgroundTransfer;
 using System.Text.RegularExpressions;
 using Windows.Storage.Streams;
+using Microsoft.Practices.Unity;
+using NicoPlayerHohoema.Models.Db;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -181,14 +183,12 @@ namespace NicoPlayerHohoema.Models
 		public async Task<NicoVideo> GetNicoVideoAsync(string rawVideoId, bool withInitialize = true)
 		{
 			NicoVideo nicoVideo = null;
-			bool isFirstGet = false;
 			using (var releaser = await _VideoIdToNicoVideoLock.LockAsync())
 			{
 				if (false == _VideoIdToNicoVideo.ContainsKey(rawVideoId))
 				{
 					nicoVideo = new NicoVideo(_HohoemaApp, rawVideoId, _HohoemaApp.MediaManager);
 					_VideoIdToNicoVideo.Add(rawVideoId, nicoVideo);
-					isFirstGet = true;
 				}
 				else
 				{
@@ -196,7 +196,7 @@ namespace NicoPlayerHohoema.Models
 				}
 			}
 
-			if (isFirstGet && withInitialize)
+			if (withInitialize)
 			{
 				using (var releaser = await _VideoIdToNicoVideoLock.LockAsync())
 				{
@@ -330,6 +330,23 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
+
+
+
+        internal async Task CacheForceDeleted(NicoVideo nicoVideo)
+        {
+            // キャッシュ登録を削除
+            var videoInfo = await VideoInfoDb.GetAsync(nicoVideo.RawVideoId);
+            videoInfo.IsDeleted = true;
+
+            await VideoInfoDb.UpdateAsync(videoInfo);
+
+            var toastService = App.Current.Container.Resolve<Views.Service.ToastNotificationService>();
+            toastService.ShowText("動画削除：" + nicoVideo.RawVideoId
+                , $"{nicoVideo.Title} はニコニコ動画サーバーから削除されたため、キャッシュを強制削除しました。"
+                , Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Long
+                );
+        }
 
 
     }

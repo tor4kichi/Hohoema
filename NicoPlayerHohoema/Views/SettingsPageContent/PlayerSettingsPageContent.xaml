@@ -6,6 +6,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="1200">
@@ -36,6 +38,38 @@
             </StackPanel>
 
             <StackPanel Margin="8 0 0 0">
+
+
+                <StackPanel Margin="0 8">
+
+                    <TextBlock Text="デフォルトの再生速度倍率"
+                           VerticalAlignment="Center"
+                           />
+
+                    <TextBlock VerticalAlignment="Center">
+                        <Run Text="x" />
+                        <Run Text="{Binding DefaultPlaybackRate.Value, Converter={StaticResource ToUserFriendlyNumber}}" />
+                    </TextBlock>
+
+                    <Slider Orientation="Horizontal"
+                            Maximum="2.0"
+                            Minimum="0.25"
+                            StepFrequency="0.25"
+                            SmallChange="0.25"
+                            LargeChange="1.00"
+                            Value="{Binding DefaultPlaybackRate.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            MinWidth="200"
+                            Margin="16 0 0 0"
+                            TickFrequency="0.25"
+                            IsThumbToolTipEnabled="True"
+                        >
+                    </Slider>
+
+                    <Button Content="等倍速に戻す"
+                            Command="{Binding ResetDefaultPlaybackRateCommand}"
+                            />
+
+                </StackPanel>
 
                 <StackPanel Margin="0 8">
 

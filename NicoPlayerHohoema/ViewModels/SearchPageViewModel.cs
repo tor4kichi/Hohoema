@@ -113,7 +113,18 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactiveCommand()
 				.AddTo(_CompositeDisposable);
 
-			DoSearchCommand.Subscribe(_ =>
+            SearchText.Subscribe(x =>
+            {
+                Debug.WriteLine($"検索：{x}");
+            });
+
+
+            DoSearchCommand.CanExecuteChangedAsObservable()
+                .Subscribe(x => 
+                {
+                    Debug.WriteLine(DoSearchCommand.CanExecute());
+                });
+            DoSearchCommand.Subscribe(_ =>
 			{
 				if (SearchText.Value.Length == 0) { return; }
 

@@ -12,7 +12,20 @@ namespace NicoPlayerHohoema.Views.Behaviors
 {
 	class SetFocus : Behavior<DependencyObject>, IAction
 	{
-		public static readonly DependencyProperty StateProperty =
+        public static readonly DependencyProperty DelayProperty =
+            DependencyProperty.Register("Delay"
+                    , typeof(TimeSpan)
+                    , typeof(SetFocus)
+                    , new PropertyMetadata(TimeSpan.Zero)
+                );
+
+        public TimeSpan Delay
+        {
+            get { return (TimeSpan)GetValue(DelayProperty); }
+            set { SetValue(DelayProperty, value); }
+        }
+
+        public static readonly DependencyProperty StateProperty =
 			DependencyProperty.Register("TargetObject"
 					, typeof(Control)
 					, typeof(SetFocus)
@@ -28,13 +41,30 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
 		public object Execute(object sender, object parameter)
 		{
-			
-			if (TargetObject != null)
-			{
-				TargetObject.Visibility = Visibility.Visible;
-				TargetObject.Focus(FocusState.Programmatic);
-			}
-			return true;
+            if (TargetObject == null) { return false; }
+
+            if (Delay != TimeSpan.Zero)
+            {
+                
+                Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => 
+                {
+                    await Task.Delay(Delay);
+
+                    TargetObject.Visibility = Visibility.Visible;
+                    TargetObject.Focus(FocusState.Programmatic);
+                })
+                .AsTask().ConfigureAwait(false);
+            }
+            else
+            {
+                if (TargetObject != null)
+                {
+                    TargetObject.Visibility = Visibility.Visible;
+                    TargetObject.Focus(FocusState.Programmatic);
+                }
+            }
+
+            return true;
 		}
 	}
 }

@@ -108,6 +108,8 @@ namespace NicoPlayerHohoema.Models.Db
 
 		public List<Chat> GetComments()
 		{
+            if (ChatListJson == null) { return null; }
+
 			return Newtonsoft.Json.JsonConvert.DeserializeObject<List<Chat>>(ChatListJson);
 		}
 

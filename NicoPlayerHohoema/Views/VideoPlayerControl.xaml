@@ -324,6 +324,36 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
+
+            <!-- コメント投稿欄の表示 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsSmallWindowModeEnable.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CommentActivateKeyTrigger.IsEnabled" Value="False" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <myTrigger:FocusTrigger Target="{Binding ElementName=CommentTextBox}" Inverted="True" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CommentActivateKeyTrigger.IsEnabled" Value="True" />
+                        <Setter Target="{Binding NowCommentWriting.Value}" Value="False" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="True" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CommentActivateKeyTrigger.IsEnabled" Value="False" />
+                        <Setter Target="{Binding NowCommentWriting.Value}" Value="True" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
         <toolkit:LayoutTransformControl
@@ -348,9 +378,11 @@
 
                     
                     
-                    <mybehavior:KeyboardTrigger Key="Enter" IsEnabled="{Binding NowCommentWriting.Value, Converter={StaticResource InvertBoolean}}">
+                    <mybehavior:KeyboardTrigger Key="Enter" x:Name="CommentActivateKeyTrigger">
                         <mybehavior:KeyboardTrigger.Actions>
-                            <mybehavior:SetFocus TargetObject="{Binding ElementName=CommentTextBox}" />
+                            <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Show" />
+                            <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayCommentTextBox" Value="True" />
+                            <mybehavior:SetFocus TargetObject="{Binding ElementName=CommentTextBox}" Delay="00:00:00.1" />
                         </mybehavior:KeyboardTrigger.Actions>
                     </mybehavior:KeyboardTrigger>
 
@@ -387,10 +419,14 @@
 
                         <mybehavior:MediaPlayerElementContentHeightGetter ContentHeight="{Binding CommentCanvasHeight.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
-                        
+                        <!-- スペースキー入力で再生停止の切り替え-->
+                        <mybehavior:KeyboardTrigger Key="Space" >
+                            <core:InvokeCommandAction Command="{Binding TogglePlayPauseCommand}" />
+                        </mybehavior:KeyboardTrigger>
                     </i:Interaction.Behaviors>
                                         
-                    <!-- TODO: スペースキー入力で再生停止の切り替え-->
+                    
+                    
                         
                 </MediaPlayerElement>
                 
@@ -817,17 +853,13 @@
                                     <Border Width="16" />
 
                                     <!-- コメント -->
-                                    <Button Background="Transparent">
+                                    <ToggleButton Background="Transparent"
+                                                  IsChecked="{x:Bind IsDisplayCommentTextBox, Mode=TwoWay}"
+                                                  >
                                         <SymbolIcon Symbol="Comment" 
                                                 />
 
-                                        <Button.Flyout>
-                                            <MenuFlyout>
-                                                <ToggleMenuFlyoutItem Text="コメントを表示" IsChecked="{Binding IsCommentDisplayEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                                <ToggleMenuFlyoutItem Text="新しいコメントを書く" IsChecked="{Binding NowCommentWriting.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                            </MenuFlyout>
-                                        </Button.Flyout>
-                                    </Button>
+                                    </ToggleButton>
 
                                 </StackPanel>
 
@@ -839,13 +871,12 @@
 
                                     <Button Background="Transparent" Command="{Binding PreviewVideoPositionCommand}"
                                         x:Name="PreviewVideoPositionButon"
+                                            Margin="0 0 24 0"
                                         >
                                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3C;" 
                                            FontSize="18"
                                            />
                                     </Button>
-
-                                    <Border Width="24" />
 
                                     <Button Command="{Binding TogglePlayPauseCommand}"
                                         Background="Transparent"
@@ -863,26 +894,89 @@
 
                                         </iconPack:PackIconMaterial>
                                     </Button>
-
-                                    <Border Width="24" />
-
+                                    
                                     <Button Background="Transparent"
                                         Command="{Binding ForwardVideoPositionCommand}"
                                         x:Name="ForwardVideoPositionButon"
+                                            Margin="24 0 0 0"
                                         >
                                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3D;"
                                            FontSize="18"
                                            
+                                                   
                                            />
                                     </Button>
 
                                 </StackPanel>
 
                                 <!-- Fullscreen / More -->
-                                <StackPanel Orientation="Horizontal"
+                                <toolkit:WrapPanel Orientation="Horizontal"
                                         Grid.Column="2"
                                     HorizontalAlignment="Right"
+                                                   VerticalAlignment="Center"
                                         >
+
+                                    <Button Background="Transparent">
+
+                                        <iconPack:PackIconMaterial Kind="Speedometer"
+                                                                   RenderTransformOrigin="0.5, 0.5"
+                                                                   >
+                                            <iconPack:PackIconMaterial.RenderTransform>
+                                                <ScaleTransform ScaleX="1.5" ScaleY="1.5" />
+                                            </iconPack:PackIconMaterial.RenderTransform>
+                                        </iconPack:PackIconMaterial>
+
+                                        <Button.Flyout>
+                                            <Flyout>
+
+                                                <toolkit:DockPanel>
+
+                                                    <Grid toolkit:DockPanel.Dock="Top"
+                                                          >
+                                                        
+                                                        <TextBlock toolkit:DockPanel.Dock="Top"
+                                                                   Opacity="0.7"
+                                                                   HorizontalAlignment="Right"
+                                                                   Width="150"
+                                                               >
+                                                            <Run Text="現在の速度倍率: "
+                                                                 />
+                                                            <Run Text="{Binding PlaybackRate.Value}"
+                                                                 />
+                                                            
+                                                        </TextBlock>
+                                                    </Grid>
+                                                    
+
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Button Content="等倍速に戻す"
+                                                                Command="{Binding ResetDefaultPlaybackRate}"
+                                                                />
+
+                                                        <Slider Orientation="Horizontal"
+                                                                Maximum="2.0"
+                                                                Minimum="0.25"
+                                                                StepFrequency="0.25"
+                                                                SmallChange="0.25"
+                                                                LargeChange="1.00"
+                                                                Value="{Binding PlaybackRate.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                MinWidth="200"
+                                                                Margin="16 0 0 0"
+                                                                TickFrequency="0.25"
+                                                                IsThumbToolTipEnabled="True"
+                                                            >
+                                                        </Slider>
+
+                                                    </StackPanel>
+                                                        
+                                                </toolkit:DockPanel>
+                                            </Flyout>
+                                        </Button.Flyout>
+
+                                    </Button>
+
+                                    <Border Width="12" />
+                                    
                                     <Button Command="{Binding ToggleFullScreenCommand}"
                                         Background="Transparent"
                                         >
@@ -896,17 +990,8 @@
 
                                         <Button.Flyout>
                                             <MenuFlyout x:Name="Menu">
-
-                                                <MenuFlyoutItem Text="小さく表示" Command="{Binding PlayerSmallWindowDisplayCommand}" >
-                                                    <i:Interaction.Behaviors>
-                                                        <core:EventTriggerBehavior EventName="Tapped">
-                                                            <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
-                                                        </core:EventTriggerBehavior>
-                                                    </i:Interaction.Behaviors>
-                                                </MenuFlyoutItem>
-
-                                                <MenuFlyoutSeparator />
-
+                                                <ToggleMenuFlyoutItem Text="コメントを表示" IsChecked="{Binding IsVisibleComment.Value, Mode=TwoWay}" />
+                                                
                                                 <MenuFlyoutSubItem Text="画質"
                                                                Visibility="{Binding CanToggleCurrentQualityCacheState.Value, Converter={StaticResource BooleanToVisibility}}"
                                                                >
@@ -943,21 +1028,33 @@
                                                               IsChecked="{Binding IsForceLandscape.Value, Mode=TwoWay}"
                                                               />
 
+                                                <MenuFlyoutSeparator />
+
+                                                <MenuFlyoutItem Text="小さく表示" Command="{Binding PlayerSmallWindowDisplayCommand}" >
+                                                    <i:Interaction.Behaviors>
+                                                        <core:EventTriggerBehavior EventName="Tapped">
+                                                            <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
+                                                        </core:EventTriggerBehavior>
+                                                    </i:Interaction.Behaviors>
+                                                </MenuFlyoutItem>
+
+
+
+
                                             </MenuFlyout>
                                         </Button.Flyout>
 
 
 
                                     </Button>
-                                </StackPanel>
+                                </toolkit:WrapPanel>
 
                             </Grid>
 
 
                             <!-- コメントを書く -->
-                            <Grid Visibility="{Binding NowCommentWriting.Value, Converter={StaticResource BooleanToVisibility}}" 
-                          x:Name="CommentLayout"
-                          Background="{ThemeResource SystemAltMediumColor}"
+                            <Grid Visibility="{x:Bind IsDisplayCommentTextBox, Mode=OneWay}"
+                                  x:Name="CommentLayout"
                                 Padding="0 8 0 0"
                           >
 
@@ -973,7 +1070,7 @@
 
                                         <i:Interaction.Behaviors>
                                             <core:EventTriggerBehavior EventName="Tapped">
-                                                <core:ChangePropertyAction TargetObject="{Binding NowCommentWriting}" PropertyName="Value" Value="False" />
+                                                <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayCommentTextBox" Value="False" />
                                             </core:EventTriggerBehavior>
                                         </i:Interaction.Behaviors>
 

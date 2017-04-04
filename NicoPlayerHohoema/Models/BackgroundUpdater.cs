@@ -448,7 +448,7 @@ namespace NicoPlayerHohoema.Models
 
 		private async void StartTaskAndRegistration(BackgroundUpdateScheduleHandler item)
 		{
-			var cancelTokenSource = new CancellationTokenSource();
+			var cancelTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(30));
 			var taskInfo = new RunningTaskInfo()
 			{
 				Target = item.Target,

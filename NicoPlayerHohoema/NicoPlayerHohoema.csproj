@@ -18,7 +18,7 @@
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <PackageCertificateKeyFile>NicoPlayerHohoema_StoreKey.pfx</PackageCertificateKeyFile>
     <SkipIntermediatePriGenerationForResourceFiles>false</SkipIntermediatePriGenerationForResourceFiles>
-    <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
+    <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
     <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
@@ -334,6 +334,7 @@
     <Compile Include="Views\Converters\CacheStateToColorBrushConverter.cs" />
     <Compile Include="Views\Converters\InvertVisibilityConverter.cs" />
     <Compile Include="Views\Converters\NicoVideoQualityToCultualizedTextConverter.cs" />
+    <Compile Include="Views\Converters\ServiceStatusToTextConverter.cs" />
     <Compile Include="Views\Converters\TransparentColorConverter.cs" />
     <Compile Include="Views\HohoemaListItem.xaml.cs">
       <DependentUpon>HohoemaListItem.xaml</DependentUpon>
@@ -978,14 +979,6 @@
   <ItemGroup>
     <Reference Include="Mntone.Nico2.UWP">
       <HintPath>lib\Mntone.Nico2.UWP.dll</HintPath>
-    </Reference>
-    <Reference Include="FFmpegInterop">
-      <HintPath Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">.\lib\FFmpegInterop\ARM\FFmpegInterop.winmd</HintPath>
-      <HintPath Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">.\lib\FFmpegInterop\ARM\FFmpegInterop.winmd</HintPath>
-      <HintPath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\lib\FFmpegInterop\x64\FFmpegInterop.winmd</HintPath>
-      <HintPath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\lib\FFmpegInterop\x64\FFmpegInterop.winmd</HintPath>
-      <HintPath Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">.\lib\FFmpegInterop\x86\FFmpegInterop.winmd</HintPath>
-      <HintPath Condition="'$(Configuration)|$(Platform)'=='Release|x86'">.\lib\FFmpegInterop\x86\FFmpegInterop.winmd</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
