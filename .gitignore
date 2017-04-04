@@ -223,3 +223,7 @@ ModelManifest.xml
 /NicoPlayerHohoema/lib/FFmpegInterop/ARM/FFmpegInterop.exp
 NicoPlayerHohoema/Assets/OAuth/twitter.json
 /NicoPlayerHohoema/Assets/xbox_encrypt_key.txt
+/NicoPlayerHohoema/NicoPlayerHohoema.nuget.targets
+/NicoPlayerHohoema/NicoPlayerHohoema.nuget.props
+/NicoPlayerHohoema/*.targets
+/NicoPlayerHohoema/*.props
