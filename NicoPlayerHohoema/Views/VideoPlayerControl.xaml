@@ -329,6 +329,14 @@
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsSmallWindowModeEnable.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CommentActivateKeyTrigger.IsEnabled" Value="False" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
                         <myTrigger:FocusTrigger Target="{Binding ElementName=CommentTextBox}" Inverted="True" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
@@ -902,9 +910,10 @@
                                 </StackPanel>
 
                                 <!-- Fullscreen / More -->
-                                <StackPanel Orientation="Horizontal"
+                                <toolkit:WrapPanel Orientation="Horizontal"
                                         Grid.Column="2"
                                     HorizontalAlignment="Right"
+                                                   VerticalAlignment="Center"
                                         >
 
                                     <Button Background="Transparent">
@@ -940,14 +949,9 @@
                                                     
 
                                                     <StackPanel Orientation="Horizontal">
-                                                        <Button Content="等速に戻す"
-                                                                >
-                                                            <i:Interaction.Behaviors>
-                                                                <core:EventTriggerBehavior EventName="Tapped">
-                                                                    <core:ChangePropertyAction TargetObject="{Binding PlaybackRate}" PropertyName="Value" Value="1.0" />
-                                                                </core:EventTriggerBehavior>
-                                                            </i:Interaction.Behaviors>
-                                                        </Button>
+                                                        <Button Content="等倍速に戻す"
+                                                                Command="{Binding ResetDefaultPlaybackRate}"
+                                                                />
 
                                                         <Slider Orientation="Horizontal"
                                                                 Maximum="2.0"
@@ -1043,7 +1047,7 @@
 
 
                                     </Button>
-                                </StackPanel>
+                                </toolkit:WrapPanel>
 
                             </Grid>
 

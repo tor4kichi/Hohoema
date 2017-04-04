@@ -168,7 +168,7 @@ namespace NicoPlayerHohoema.ViewModels
 			switch (cacheFolderAccessState)
 			{
 				case CacheFolderAccessState.NotAccepted:
-					CacheFolderStateDescription.Value = "キャッシュ利用の同意が必要です。 上の「キャッシュを有効にする」ボタンを押すと同意文書が表示されます。";
+					CacheFolderStateDescription.Value = "キャッシュ利用の同意が必要です。 「キャッシュを有効にする」ボタンを押すと同意文書が表示されます。";
 					break;
 				case CacheFolderAccessState.NotEnabled:
 					CacheFolderStateDescription.Value = "キャッシュの有効化が必要です";

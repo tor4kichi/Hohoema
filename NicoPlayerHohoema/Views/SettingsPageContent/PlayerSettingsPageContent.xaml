@@ -6,6 +6,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="1200">
@@ -44,14 +46,28 @@
                            VerticalAlignment="Center"
                            />
 
-                    <ComboBox ItemsSource="{x:Bind PlaybackRateItems}"
-                              SelectedItem="{Binding DefaultPlaybackRate.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                              Margin="0 4"
-                              Width="100"
-                          >
+                    <TextBlock VerticalAlignment="Center">
+                        <Run Text="x" />
+                        <Run Text="{Binding DefaultPlaybackRate.Value, Converter={StaticResource ToUserFriendlyNumber}}" />
+                    </TextBlock>
 
-                    </ComboBox>
+                    <Slider Orientation="Horizontal"
+                            Maximum="2.0"
+                            Minimum="0.25"
+                            StepFrequency="0.25"
+                            SmallChange="0.25"
+                            LargeChange="1.00"
+                            Value="{Binding DefaultPlaybackRate.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            MinWidth="200"
+                            Margin="16 0 0 0"
+                            TickFrequency="0.25"
+                            IsThumbToolTipEnabled="True"
+                        >
+                    </Slider>
 
+                    <Button Content="等倍速に戻す"
+                            Command="{Binding ResetDefaultPlaybackRateCommand}"
+                            />
 
                 </StackPanel>
 

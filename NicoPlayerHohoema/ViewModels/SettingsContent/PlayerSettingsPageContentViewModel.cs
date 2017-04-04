@@ -30,6 +30,7 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<double> AutoHideDelayTime { get; private set; }
 
         public ReactiveProperty<double> DefaultPlaybackRate { get; private set; }
+        public DelegateCommand ResetDefaultPlaybackRateCommand { get; private set; }
 
 
         public ReactiveProperty<bool> CommentGlassMowerEnable { get; private set; }
@@ -96,7 +97,7 @@ namespace NicoPlayerHohoema.ViewModels
 				);
 
             DefaultPlaybackRate = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultPlaybackRate);
-
+            ResetDefaultPlaybackRateCommand = new DelegateCommand(() => DefaultPlaybackRate.Value = 1.0);
 
 
 
