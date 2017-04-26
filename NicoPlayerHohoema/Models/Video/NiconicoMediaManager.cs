@@ -337,15 +337,18 @@ namespace NicoPlayerHohoema.Models
         {
             // キャッシュ登録を削除
             var videoInfo = await VideoInfoDb.GetAsync(nicoVideo.RawVideoId);
-            videoInfo.IsDeleted = true;
-
-            await VideoInfoDb.UpdateAsync(videoInfo);
+            if (videoInfo != null)
+            {
+                videoInfo.IsDeleted = true;
+                await VideoInfoDb.UpdateAsync(videoInfo);
+            }
 
             var toastService = App.Current.Container.Resolve<Views.Service.ToastNotificationService>();
             toastService.ShowText("動画削除：" + nicoVideo.RawVideoId
                 , $"{nicoVideo.Title} はニコニコ動画サーバーから削除されたため、キャッシュを強制削除しました。"
                 , Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Long
                 );
+
         }
 
 
