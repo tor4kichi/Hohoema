@@ -457,13 +457,21 @@ namespace NicoPlayerHohoema.Models
 				CurrentUpdateTargetTask =
 					Task.Run(async () =>
 					{
-						await item.Target.BackgroundUpdate(UIDispatcher)
-							.AsTask(cancelTokenSource.Token);
+                        try
+                        {
+                            await item.Target.BackgroundUpdate(UIDispatcher)
+                                .AsTask(cancelTokenSource.Token);
 #if DEBUG
-                        await Task.Delay(500);
+                            await Task.Delay(500);
 #endif
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine(ex.ToString());
+                        }
+
                         return item;
-					}
+                    }
 					)
 					.ContinueWith(OnContinueTask)
 			};

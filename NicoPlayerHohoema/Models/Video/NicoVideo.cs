@@ -127,7 +127,8 @@ namespace NicoPlayerHohoema.Models
 
         public IEnumerable<DividedQualityNicoVideo> GetAllQuality()
         {
-            return _InterfaceByQuality.Values;
+            yield return GetDividedQualityNicoVideo(NicoVideoQuality.Low);
+            yield return GetDividedQualityNicoVideo(NicoVideoQuality.Original);
         }
 
 
@@ -578,9 +579,12 @@ namespace NicoPlayerHohoema.Models
 			if (GetAllQuality().All(x => !x.IsCacheRequested))
 			{
 				var info = await VideoInfoDb.GetEnsureNicoVideoInfoAsync(RawVideoId);
-				await VideoInfoDb.RemoveAsync(info);
+                if (!info.IsDeleted)
+                {
+                    await VideoInfoDb.RemoveAsync(info);
+                }
 
-				CommentDb.Remove(RawVideoId);
+                CommentDb.Remove(RawVideoId);
 
                 _NiconicoMediaManager.VideoCacheStateChanged -= _NiconicoMediaManager_VideoCacheStateChanged;
             }
@@ -662,12 +666,12 @@ namespace NicoPlayerHohoema.Models
 		{
             this.IsDeleted = true;
 
+            await _NiconicoMediaManager.NotifyCacheForceDeleted(this);
+
             await FillVideoInfoFromDb();
 
             // キャッシュした動画データと動画コメントの削除
             await CancelCacheRequest();
-
-            await _NiconicoMediaManager.CacheForceDeleted(this);
         }
 
 

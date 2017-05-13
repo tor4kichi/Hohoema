@@ -270,7 +270,7 @@ namespace NicoPlayerHohoema.Models
                         continue;
                     }
 
-					var nicoVideo = await GetNicoVideoAsync(info.RawVideoId);
+					var nicoVideo = await GetNicoVideoAsync(info.RawVideoId, false);
                     var div = nicoVideo.GetDividedQualityNicoVideo(quality);
 
                     await nicoVideo.RestoreCache(quality, file.Path);
@@ -333,7 +333,7 @@ namespace NicoPlayerHohoema.Models
 
 
 
-        internal async Task CacheForceDeleted(NicoVideo nicoVideo)
+        internal async Task NotifyCacheForceDeleted(NicoVideo nicoVideo)
         {
             // キャッシュ登録を削除
             var videoInfo = await VideoInfoDb.GetAsync(nicoVideo.RawVideoId);

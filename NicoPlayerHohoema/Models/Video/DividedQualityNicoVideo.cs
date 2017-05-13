@@ -152,11 +152,12 @@ namespace NicoPlayerHohoema.Models
             IsCacheRequested = true;
             CacheState = NicoVideoCacheState.Cached;
 
-            if (VideoSize != 0)
+            var file = await GetCacheFile();
+            if (file != null)
             {
-                var file = await GetCacheFile();
                 var prop = await file.GetBasicPropertiesAsync();
-                if ((uint)prop.Size != VideoSize)
+                VideoFileCreatedAt = file.DateCreated.DateTime;
+                if (VideoSize != 0 && (uint)prop.Size != VideoSize)
                 {
                     await RequestCache(forceUpdate: true);
                     Debug.WriteLine($"{RawVideoId}<{Quality}> のキャッシュがキャッシュサイズと異なっているため、キャッシュを削除して再ダウンロード");
@@ -289,8 +290,6 @@ namespace NicoPlayerHohoema.Models
 
         protected async Task<bool> DeleteCacheFile()
         {
-            if (!IsAvailable) { return false; }
-
             using (var releaser = await _Lock.LockAsync())
             {
                 if (NowPlaying && IsCached)
