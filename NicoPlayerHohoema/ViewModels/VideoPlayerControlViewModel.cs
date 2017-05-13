@@ -998,15 +998,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			var playerSettings = HohoemaApp.UserSettings.PlayerSettings;
 
-			string commentText = "";
-			try
-			{
-				commentText = comment.GetDecodedText();
-			}
-			catch
-			{
-				commentText = comment.Text;
-			}
+			string commentText = comment.Text;
 
 			// 自動芝刈り機
 			if (playerSettings.CommentGlassMowerEnable)
