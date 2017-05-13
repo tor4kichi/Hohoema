@@ -270,7 +270,7 @@ namespace NicoPlayerHohoema.Models
                         continue;
                     }
 
-					var nicoVideo = await GetNicoVideoAsync(info.RawVideoId);
+					var nicoVideo = await GetNicoVideoAsync(info.RawVideoId, false);
                     var div = nicoVideo.GetDividedQualityNicoVideo(quality);
 
                     await nicoVideo.RestoreCache(quality, file.Path);
@@ -333,19 +333,22 @@ namespace NicoPlayerHohoema.Models
 
 
 
-        internal async Task CacheForceDeleted(NicoVideo nicoVideo)
+        internal async Task NotifyCacheForceDeleted(NicoVideo nicoVideo)
         {
             // キャッシュ登録を削除
             var videoInfo = await VideoInfoDb.GetAsync(nicoVideo.RawVideoId);
-            videoInfo.IsDeleted = true;
-
-            await VideoInfoDb.UpdateAsync(videoInfo);
+            if (videoInfo != null)
+            {
+                videoInfo.IsDeleted = true;
+                await VideoInfoDb.UpdateAsync(videoInfo);
+            }
 
             var toastService = App.Current.Container.Resolve<Views.Service.ToastNotificationService>();
             toastService.ShowText("動画削除：" + nicoVideo.RawVideoId
                 , $"{nicoVideo.Title} はニコニコ動画サーバーから削除されたため、キャッシュを強制削除しました。"
                 , Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Long
                 );
+
         }
 
 
