@@ -107,8 +107,6 @@ namespace NicoPlayerHohoema.ViewModels
 				await Preload(0, (int)OneTimeLoadCount);
 			}
 
-			await Task.Delay(200);
-
 			return TotalCount;
 		}
 
@@ -145,10 +143,10 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			try
 			{
-				var items = await PreloadNicoVideo(start, count);
+                var items = await PreloadNicoVideo(start, count);
 
-				using (var releaser = await _VideoItemsLock.LockAsync())
-				{
+                using (var releaser = await _VideoItemsLock.LockAsync())
+                {
 					_VideoItems.AddRange(items);
 				}
 			}
@@ -164,7 +162,7 @@ namespace NicoPlayerHohoema.ViewModels
 			var tail = Math.Min(head + count, TotalCount);
 			List<T> items = new List<T>();
 
-			using (var token = new CancellationTokenSource(15000))
+			using (var token = new CancellationTokenSource(10000))
 			{
 				try
 				{
@@ -195,7 +193,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			using (var releaser = await _VideoItemsLock.LockAsync())
 			{
-				foreach (var nicoVideo in _VideoItems.Skip(head).Take(count))
+				foreach (var nicoVideo in _VideoItems.Skip(head).Take(count).ToArray())
 				{
 					var i = _VideoItems.IndexOf(nicoVideo);
 					var vm = NicoVideoToTemplatedItem(nicoVideo, i);
@@ -242,24 +240,14 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override IAsyncAction BackgroundUpdate(CoreDispatcher uiDispatcher)
 		{
-			return AsyncInfo.Run(async (cancelToken) => 
-			{
-				foreach (var item in Items)
+            return uiDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+            {
+                foreach (var item in Items)
 				{
-					cancelToken.ThrowIfCancellationRequested();
-
-					await item.NicoVideo.Initialize()
-						.ContinueWith(async prevResult =>
-						{
-							await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-							{
-								item.SetupFromThumbnail(item.NicoVideo);
-							});
-						});
-
-					cancelToken.ThrowIfCancellationRequested();
+                    await item.NicoVideo.Initialize();	
+					item.SetupFromThumbnail(item.NicoVideo);
 				}
-			});
+            });
 			
 		}
 	}

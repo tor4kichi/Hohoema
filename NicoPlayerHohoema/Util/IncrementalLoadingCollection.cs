@@ -68,8 +68,9 @@ namespace NicoPlayerHohoema.Util
 					List<I> resultItems = null;
 					try
 					{
-						var items = await _Source.GetPagedItems((int)_Position, (int)_Source.OneTimeLoadCount).ConfigureAwait(false);
+						var items = await _Source.GetPagedItems((int)_Position, (int)_Source.OneTimeLoadCount);
 						resultItems = items?.ToList();
+                        Debug.WriteLine("読み込み完了");
 					}
 					catch (Exception ex)
 					{

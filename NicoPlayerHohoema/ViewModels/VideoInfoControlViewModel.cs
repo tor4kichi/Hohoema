@@ -99,6 +99,7 @@ namespace NicoPlayerHohoema.ViewModels
             PrivateReasonText = nicoVideo.PrivateReasonType.ToString() ?? "";
 
             SetupFromThumbnail(nicoVideo);
+            
 
             QualityDividedVideos = new ObservableCollection<QualityDividedNicoVideoListItemViewModel>();
             NicoVideo.QualityDividedVideos.CollectionChangedAsObservable()
@@ -124,23 +125,25 @@ namespace NicoPlayerHohoema.ViewModels
         {
             using (var releaser = await _QualityDividedVideosLock.LockAsync())
             {
-                QualityDividedVideos.Clear();
-
-                foreach (var div in NicoVideo.QualityDividedVideos.ToArray())
+                await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
                 {
-                    var vm = new QualityDividedNicoVideoListItemViewModel(div, HohoemaPlaylist)
-                        .AddTo(_CompositeDisposable);
-                    QualityDividedVideos.Add(vm);
-                }
+                    QualityDividedVideos.Clear();
 
+                    foreach (var div in NicoVideo.QualityDividedVideos.ToArray())
+                    {
+                        var vm = new QualityDividedNicoVideoListItemViewModel(div, HohoemaPlaylist)
+                            .AddTo(_CompositeDisposable);
+                        QualityDividedVideos.Add(vm);
+                    }
+                });
             }
         }
 
-		public void SetupFromThumbnail(NicoVideo info)
-		{
-			// NG判定
-			var ngResult = NicoVideo.CheckUserNGVideo();
-			IsVisible = ngResult != null;
+        public void SetupFromThumbnail(NicoVideo info)
+        {
+            // NG判定
+            var ngResult = NicoVideo.CheckUserNGVideo();
+            IsVisible = ngResult != null;
 
             Title = info.Title;
             OptionText = info.PostedAt.ToString("yyyy/MM/dd HH:mm");
@@ -164,6 +167,7 @@ namespace NicoPlayerHohoema.ViewModels
                 timeText = info.VideoLength.ToString(@"mm\:ss");
             }
             ImageCaption = timeText;
+            
         }
 
 
@@ -359,7 +363,7 @@ namespace NicoPlayerHohoema.ViewModels
         public string PrivateReasonText { get; private set; }
 
 
-        private Util.AsyncLock _QualityDividedVideosLock = new Util.AsyncLock();
+        private static Util.AsyncLock _QualityDividedVideosLock = new Util.AsyncLock();
         public ObservableCollection<QualityDividedNicoVideoListItemViewModel> QualityDividedVideos { get; private set; }
 
         protected CompositeDisposable _CompositeDisposable { get; private set; }

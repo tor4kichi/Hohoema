@@ -87,7 +87,7 @@ namespace NicoPlayerHohoema.Models
 
                     _IsInitialized = true;
                 }
-                else if(!_thumbnailInitialized && HohoemaApp.ServiceStatus == HohoemaAppServiceLevel.Offline)
+                else if (!_thumbnailInitialized && HohoemaApp.ServiceStatus == HohoemaAppServiceLevel.Offline)
                 {
                     await FillVideoInfoFromDb();
                 }

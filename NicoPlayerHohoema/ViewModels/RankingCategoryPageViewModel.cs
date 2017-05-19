@@ -18,6 +18,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
@@ -227,14 +228,15 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		#region Implements HohoemaPreloadingIncrementalSourceBase		
+        #region Implements HohoemaPreloadingIncrementalSourceBase		
 
+        readonly Regex RankingRankPrefixPatternRegex = new Regex("(^第\\d*位：)");
 
 		protected override async Task<IEnumerable<NicoVideo>> PreloadNicoVideo(int start, int count)
 		{
 			if (RankingRss != null)
 			{
-				var items = RankingRss.Channel.Items.Skip(start).Take(count);
+				var items = RankingRss.Channel.Items.Skip(start).Take(count).ToArray();
 
 				List<NicoVideo> videos = new List<NicoVideo>();
 				foreach (var item in items)
@@ -242,13 +244,15 @@ namespace NicoPlayerHohoema.ViewModels
 					var videoId = item.GetVideoId();
 					var nicoVideo = await ToNicoVideo(videoId);
 
-					nicoVideo.PreSetTitle(item.Title);
+                    var title = RankingRankPrefixPatternRegex.Replace(item.Title, "");
+
+                    nicoVideo.PreSetTitle(title);
 					nicoVideo.PreSetPostAt(DateTime.Parse(item.PubDate));
 
 					videos.Add(nicoVideo);
 				}
 
-				return videos;
+                return videos;
 			}
 			else
 			{
@@ -332,7 +336,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			var contentFinder = HohoemaApp.ContentFinder;
 
-			var res = await contentFinder.GetKeywordSearch(_Parameter, 0, 1, Sort.Popurarity).ConfigureAwait(false);
+			var res = await contentFinder.GetKeywordSearch(_Parameter, 0, 1, Sort.Popurarity);
 
 			return (int)res.GetTotalCount();
 		}
