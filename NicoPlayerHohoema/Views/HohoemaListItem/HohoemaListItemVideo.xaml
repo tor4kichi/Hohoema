@@ -19,7 +19,7 @@
             <Grid Margin="0 0 08 0"
                   toolkit:DockPanel.Dock="Left"
                   >
-                <uwptoolkit:ImageEx Source="{Binding FirstImageUrl}" 
+                <uwptoolkit:ImageEx Source="{Binding FirstImageUrl, Mode=OneWay}" 
                    Height="68"
                    Width="96"
                        Visibility="{Binding HasImageUrl, Converter={StaticResource BooleanToVisibility}}"
@@ -31,7 +31,7 @@
                         VerticalAlignment="Bottom"
                         Visibility="{Binding HasImageCaption, Converter={StaticResource BooleanToVisibility}}"
                         >
-                    <TextBlock Text="{Binding ImageCaption}" 
+                    <TextBlock Text="{Binding ImageCaption, Mode=OneWay}" 
                                Padding="4 0 3 3" 
                                TextWrapping="Wrap" VerticalAlignment="Center" 
                                FontSize="13"
@@ -42,7 +42,7 @@
 
             <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
 
-                <TextBlock Text="{Binding OptionText}" 
+                <TextBlock Text="{Binding OptionText, Mode=OneWay}" 
                            Opacity="0.7"
                            FontSize="13"
                            TextLineBounds="Tight"
@@ -55,14 +55,14 @@
 
             <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom" >
 
-                <TextBlock Text="{Binding Description}" 
+                <TextBlock Text="{Binding Description, Mode=OneWay}" 
                            Opacity="0.7"
                            FontSize="13"
                            TextLineBounds="Tight"
                        />
             </toolkit:DockPanel>
 
-            <TextBlock Text="{Binding Title}" 
+            <TextBlock Text="{Binding Title, Mode=OneWay}" 
                        FontSize="16"
                        TextWrapping="Wrap"
                        VerticalAlignment="Center"

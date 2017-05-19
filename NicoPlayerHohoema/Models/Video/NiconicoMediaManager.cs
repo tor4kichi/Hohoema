@@ -198,10 +198,7 @@ namespace NicoPlayerHohoema.Models
 
 			if (withInitialize)
 			{
-				using (var releaser = await _VideoIdToNicoVideoLock.LockAsync())
-				{
-					await nicoVideo.Initialize();
-				}
+				await nicoVideo.Initialize();
 			}
 
 			return nicoVideo;
@@ -233,7 +230,7 @@ namespace NicoPlayerHohoema.Models
 
 			foreach (var video in videos.AsParallel())
 			{
-				await video.Initialize().ConfigureAwait(false);
+				await video.Initialize();
 			}
 
 			return videos;

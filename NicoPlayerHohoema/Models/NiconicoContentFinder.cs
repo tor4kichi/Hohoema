@@ -18,6 +18,7 @@ using NicoPlayerHohoema.Util;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -33,12 +34,13 @@ namespace NicoPlayerHohoema.Models
 	{
 		AsyncLock _NicoPageAccessLock = new AsyncLock();
 		DateTime LastPageApiAccessTime = DateTime.MinValue;
-		static TimeSpan PageAccessMinimumInterval = TimeSpan.FromSeconds(0.3);
+		static TimeSpan PageAccessMinimumInterval = TimeSpan.FromSeconds(0.5);
 
 
-		SemaphoreSlim _ThumbnailAccessLock = new SemaphoreSlim(1, 3);
+        AsyncLock _ThumbnailAccessLock = new AsyncLock();
 
-		public NiconicoContentFinder(HohoemaApp app)
+
+        public NiconicoContentFinder(HohoemaApp app)
 		{
 			_HohoemaApp = app;
 		}
@@ -67,27 +69,30 @@ namespace NicoPlayerHohoema.Models
                 return null;
             }
 
-            try
-			{
-//				await _ThumbnailAccessLock.WaitAsync();
-				ThumbnailResponse res = null;
+            using (var releaser = await _ThumbnailAccessLock.LockAsync())
+            {
+                ThumbnailResponse res = null;
 
-				res = await Util.ConnectionRetryUtil.TaskWithRetry(async () =>
-				{
-					return await _HohoemaApp.NiconicoContext.Video.GetThumbnailAsync(rawVideoId);
-				});
+                res = await Util.ConnectionRetryUtil.TaskWithRetry(() =>
+                {
+                    return _HohoemaApp.NiconicoContext.Video.GetThumbnailAsync(rawVideoId);
+                }, 
+                retryCount:5,
+                retryInterval:1000
+                );
+                
+                if (res != null)
+                {
+                    await UserInfoDb.AddOrReplaceAsync(res.UserId.ToString(), res.UserName, res.UserIconUrl.AbsoluteUri);
+                    Debug.WriteLine("サムネ取得:" + rawVideoId);
+                }
+                else
+                {
+                    Debug.WriteLine("サムネ取得失敗:" + rawVideoId);
+                }
 
-				if (res != null)
-				{
-					await UserInfoDb.AddOrReplaceAsync(res.UserId.ToString(), res.UserName, res.UserIconUrl.AbsoluteUri);
-				}
-
-				return res;
-			}
-			finally
-			{
-//				_ThumbnailAccessLock.Release();
-			}
+                return res;
+            }
 		}
 
 		public async Task<WatchApiResponse> GetWatchApiResponse(string rawVideoId, bool forceLowQuality = false, HarmfulContentReactionType harmfulContentReaction = HarmfulContentReactionType.None)
