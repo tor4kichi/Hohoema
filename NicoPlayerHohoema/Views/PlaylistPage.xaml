@@ -46,13 +46,6 @@
         </Flyout>
     </Page.Resources>
     <Grid>
-
-        <i:Interaction.Behaviors>
-            <core:EventTriggerBehavior EventName="Loaded">
-                <mybehavior:SetFocus TargetObject="{x:Bind mdv}" />
-            </core:EventTriggerBehavior>
-        </i:Interaction.Behaviors>
-        
         
         <toolkit:DockPanel>
             

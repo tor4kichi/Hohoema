@@ -31,12 +31,6 @@
     </Page.Resources>
     
     <Grid>
-
-        <i:Interaction.Behaviors>
-            <core:EventTriggerBehavior EventName="Loaded">
-                <mybehavior:SetFocus TargetObject="{Binding ElementName=DesktopGridView}" />
-            </core:EventTriggerBehavior>
-        </i:Interaction.Behaviors>
         
         
         <toolkit:DockPanel x:Name="ContentLayout" >

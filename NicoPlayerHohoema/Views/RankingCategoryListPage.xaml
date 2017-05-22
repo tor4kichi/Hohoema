@@ -37,14 +37,8 @@
         </DataTemplate>
     </Page.Resources>
 
-    
-    <Grid x:Name="ContentLayoutRoot">
 
-        <i:Interaction.Behaviors>
-            <core:EventTriggerBehavior EventName="Loaded">
-                <mybehavior:SetFocus TargetObject="{Binding ElementName=CategoryItems}" />
-            </core:EventTriggerBehavior>
-        </i:Interaction.Behaviors>
+    <Grid x:Name="ContentLayoutRoot">
         
         <toolkit:DockPanel x:Name="ContentLayout">
 

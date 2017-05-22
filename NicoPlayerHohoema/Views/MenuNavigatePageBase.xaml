@@ -20,6 +20,7 @@
     xmlns:softwareTrigger="using:AdaptiveTriggerLibrary.Triggers.SoftwareInterfaceTriggers"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:uwpcontrol="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:uwpUI="using:Microsoft.Toolkit.Uwp.UI"
     IsTabStop="False"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
@@ -78,20 +79,6 @@
                     <VisualStateGroup x:Name="TopBarStateGroup">
 
 
-                        <!-- TV Mode -->
-
-                        
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <StateTrigger IsActive="{Binding IsTVModeEnable.Value}" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-                                <Setter Target="SplitView.DisplayMode" Value="Overlay" />
-                                <Setter Target="SplitView.IsPaneOpen" Value="False" />
-
-                                <Setter Target="TVModeSideMenu.Visibility" Value="Visible" />
-                            </VisualState.Setters>
-                        </VisualState>
                         <!-- トップメニュー非表示 -->
                         <VisualState>
                             <VisualState.StateTriggers>
@@ -196,110 +183,6 @@
                 </VisualStateManager.VisualStateGroups>
 
                 <toolkit:DockPanel>
-
-                    <!-- TV Mode side menu -->
-                    <ScrollViewer x:Name="TVModeSideMenu"  Visibility="Collapsed"
-                                  VerticalScrollBarVisibility="Hidden"
-                                  HorizontalScrollMode="Disabled"
-                                  >
-                        <StackPanel>
-
-                            <StackPanel.Background>
-                                <SolidColorBrush Color="{ThemeResource SystemAltMediumHighColor}" />
-                            </StackPanel.Background>
-
-                            <Border Height="64">
-
-                            </Border>
-                            <ItemsControl ItemsSource="{Binding MenuItems}"
-                                                    IsTabStop="False"
-                                      HorizontalContentAlignment="Stretch"
-                                                >
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Button 
-                                            Command="{Binding ElementName=RootLayout, Path=DataContext.ItemSelectedCommand}"
-                                            CommandParameter="{Binding}"
-                                            Background="Transparent"
-                                            UseSystemFocusVisuals="True" 
-                                            HorizontalAlignment="Stretch"
-                                            HorizontalContentAlignment="Left"
-                                            Margin="8 0"
-                                                            >
-
-                                            <StackPanel Orientation="Horizontal" Opacity="0.85">
-                                                <SymbolIcon Symbol="{Binding IconType}" />
-
-                                                <Border Width="8" />
-
-                                                <TextBlock Text="{Binding Label}" />
-                                            </StackPanel>
-                                            <i:Interaction.Behaviors>
-                                                <!--
-                                            <core:DataTriggerBehavior Binding="{Binding IsSelected}" ComparisonCondition="Equal" Value="True">
-                                                <core:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource Mode=Self}}" PropertyName="Foreground" Value="Green" />
-                                            </core:DataTriggerBehavior>
-                                            <core:DataTriggerBehavior Binding="{Binding IsSelected}" ComparisonCondition="Equal" Value="False">
-                                                <core:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource Mode=Self}}" PropertyName="Foreground" Value="{x:Null}" />
-                                            </core:DataTriggerBehavior>
-                                            -->
-                                            </i:Interaction.Behaviors>
-                                        </Button>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-
-                            <ItemsControl ItemsSource="{Binding SubMenuItems}"
-                                                    IsTabStop="False"
-                                      HorizontalContentAlignment="Stretch"
-                                                >
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Button Command="{Binding ElementName=RootLayout, Path=DataContext.ItemSelectedCommand}"
-                                            CommandParameter="{Binding}"
-                                            Background="Transparent"
-                                            UseSystemFocusVisuals="True" 
-                                            HorizontalAlignment="Stretch"
-                                            HorizontalContentAlignment="Left"
-                                            Margin="8 0"
-                                            >
-
-                                            <StackPanel Orientation="Horizontal" Opacity="0.85">
-                                                <SymbolIcon Symbol="{Binding IconType}" />
-
-                                                <Border Width="8" />
-
-                                                <TextBlock Text="{Binding Label}" />
-                                            </StackPanel>
-
-                                            <i:Interaction.Behaviors>
-                                                <!--
-                                                <core:DataTriggerBehavior Binding="{Binding IsSelected}" ComparisonCondition="Equal" Value="True">
-                                                    <core:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource Mode=Self}}" PropertyName="Foreground" Value="Green" />
-                                                </core:DataTriggerBehavior>
-                                                <core:DataTriggerBehavior Binding="{Binding IsSelected}" ComparisonCondition="Equal" Value="False">
-                                                    <core:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource Mode=Self}}" PropertyName="Foreground" Value="{x:Null}" />
-                                                </core:DataTriggerBehavior>
-                                                -->
-                                            </i:Interaction.Behaviors>
-                                        </Button>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-
-                            <TextBlock Text="{Binding ServiceLevel.Value, Converter={StaticResource HohoemaSerivceStatusToText}}" 
-                                        x:Name="ServiceStateText_TV"
-                                        Visibility="Collapsed"
-                                       HorizontalAlignment="Center"
-                                       Margin="0 8"
-                                       Opacity="0.8"
-                                               />
-
-
-                        </StackPanel>
-                    </ScrollViewer>
-                    
-                    
                     
                     <!-- モバイル時のボトムバー -->
                     <toolkit:DockPanel x:Name="MobileBottomBar" Visibility="Collapsed"
@@ -457,7 +340,7 @@
                                             </Button>
                                         </Border>
 
-                                        <ListView ItemsSource="{Binding MenuItems}"
+                                        <ListView ItemsSource="{Binding AllMenuItems}"
                                                     SelectedItem="{Binding MainSelectedItem.Value, Mode=TwoWay}"
                                                     SelectionMode="Single"
                                                   ItemTemplate="{StaticResource MenuItemTemplate}"
@@ -470,24 +353,6 @@
                                                 </Style>
                                             </ListView.ItemContainerStyle>
                                         </ListView>
-
-
-                                        <Border BorderBrush="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-                                                BorderThickness="0 1 0 0" />
-
-                                        <ListView ItemsSource="{Binding SubMenuItems}"
-                                                    SelectedItem="{Binding SubSelectedItem.Value, Mode=TwoWay}"
-                                                    SelectionMode="Single"
-                                                    ItemTemplate="{StaticResource MenuItemTemplate}"
-                                                  Background="Transparent"
-                                                >
-                                            <ListView.ItemContainerStyle>
-                                                <Style TargetType="ListViewItem">
-                                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                                </Style>
-                                            </ListView.ItemContainerStyle>
-                                        </ListView>
-
                                         
                                         
                                     </StackPanel>
