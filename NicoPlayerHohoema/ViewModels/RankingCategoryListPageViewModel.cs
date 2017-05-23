@@ -101,7 +101,7 @@ namespace NicoPlayerHohoema.ViewModels
 			RankingCategoryItems = new ObservableCollection<List<RankingCategoryListPageListItem>>();
             FavoriteRankingCategoryItems = new ObservableCollection<RankingCategoryListPageListItem>();
 
-
+            SelectedRankingCategory = new ReactiveProperty<RankingCategoryListPageListItem>();
         }
 
 		RankingCategoryListPageListItem CreateRankingCategryListItem(RankingCategory category)
@@ -145,6 +145,7 @@ namespace NicoPlayerHohoema.ViewModels
 			PageManager.OpenPage(HohoemaPageType.RankingCategory, info.ToParameterString());
 		}
 
+        public ReactiveProperty<RankingCategoryListPageListItem> SelectedRankingCategory { get; }
 
         public ObservableCollection<RankingCategoryListPageListItem> FavoriteRankingCategoryItems { get; private set; }
         public ObservableCollection<List<RankingCategoryListPageListItem>> RankingCategoryItems { get; private set; }
