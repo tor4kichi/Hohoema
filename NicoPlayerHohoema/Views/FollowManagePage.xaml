@@ -36,13 +36,6 @@
     
     
     <Grid x:Name="PageRoot">
-
-        <i:Interaction.Behaviors>
-            <core:EventTriggerBehavior EventName="Loaded">
-                <mybehavior:SetFocus TargetObject="{x:Bind FavListContainer}" />
-            </core:EventTriggerBehavior>
-        </i:Interaction.Behaviors>
-        
         
         <toolkit:DockPanel>
 

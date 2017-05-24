@@ -71,8 +71,9 @@ namespace NicoPlayerHohoema.Models.AppMap
 			PrimaryLabel = followInfo.Name;
 			SecondaryLabel = followInfo.FollowItemType.ToString();
 			FollowItemType = followInfo.FollowItemType;
-			
-		}
+            Info = followInfo;
+
+        }
 
 
         public override void SelectedAction()

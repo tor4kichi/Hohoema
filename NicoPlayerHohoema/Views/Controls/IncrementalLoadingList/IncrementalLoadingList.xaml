@@ -1,0 +1,119 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:control="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:uwpToolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
+    >
+    <Style TargetType="control:IncrementalLoadingList" >
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="control:IncrementalLoadingList">
+                    <Border 
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid x:Name="RootPanel">
+
+                            <GridView ItemsSource="{TemplateBinding ItemsSource}"
+                                 IsMultiSelectCheckBoxEnabled="{TemplateBinding IsSelectionEnable}"
+                                 IncrementalLoadingTrigger="Edge"
+                                              x:Name="HohoemaListView"
+                                              UseSystemFocusVisuals="True"
+                                              HorizontalContentAlignment="Stretch"
+                                              IsItemClickEnabled="True"
+                                              uwpui:ListViewBaseExtensions.Command="{TemplateBinding ItemCommand}"
+                                              ItemTemplate="{TemplateBinding ItemTemplate}"
+                                              SelectionMode="Single"
+                                                              VerticalAlignment="{TemplateBinding VerticalAlignment}"
+                                      ScrollViewer.VerticalScrollMode="Disabled"
+                                      ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                                      ScrollViewer.HorizontalScrollMode="Auto"
+                                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                      Margin="{TemplateBinding Margin}"
+                                      Padding="{TemplateBinding Padding}"
+                                      ContextFlyout="{TemplateBinding ItemContextFlyout}"
+                                >
+
+
+                                <i:Interaction.Behaviors>
+
+                                    <mybehavior:ListViewBaseItemContextFlyout />
+                                    
+                                    <mybehavior:ListViewSelectedItemsGetter SelectedItems="{TemplateBinding SelectedItems}" />
+
+                                    <mybehavior:KeyboardTrigger Key="F5">
+                                        <mybehavior:KeyboardTrigger.Actions>
+                                            <core:InvokeCommandAction Command="{TemplateBinding RefreshCommand}" />
+                                        </mybehavior:KeyboardTrigger.Actions>
+                                    </mybehavior:KeyboardTrigger>
+
+                                    <!--
+                                    <mybehavior:RefreshableListViewRefreshableGetter IsRefreshable="{Binding NowRefreshable.Value, Mode=TwoWay}" />
+                                    -->
+                                </i:Interaction.Behaviors>
+
+                                <GridView.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <ItemsWrapGrid Orientation="Vertical"  MaxHeight="400"/>
+                                    </ItemsPanelTemplate>
+                                </GridView.ItemsPanel>
+
+
+                                <GridView.ItemContainerStyle>
+                                    <Style TargetType="GridViewItem">
+                                        <Setter Property="Margin"
+                                                Value="0 0 16 16" 
+                                                />
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="GridViewItem">
+                                                    <GridViewItemPresenter ContextFlyout="{TemplateBinding ContextFlyout}" 
+                                                                           />
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </GridView.ItemContainerStyle>
+                                
+
+
+                            </GridView>
+                            
+                        </Grid>
+
+                        <!--
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="FloatContentDisplayState">
+                                <VisualState x:Name="Fill">
+                                    <VisualState.Setters>
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Float">
+                                    <VisualState.Setters>
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Float_Small">
+                                    <VisualState.Setters>
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Hidden">
+                                    <VisualState.Setters>
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+
+                        </VisualStateManager.VisualStateGroups>
+                        -->
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

@@ -144,11 +144,6 @@
 
     
     <Grid>
-        <i:Interaction.Behaviors>
-            <core:EventTriggerBehavior EventName="Loaded">
-                <mybehavior:SetFocus TargetObject="{Binding ElementName=SearchTextBox}" />
-            </core:EventTriggerBehavior>
-        </i:Interaction.Behaviors>
         <Border>
 
             

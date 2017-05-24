@@ -26,8 +26,8 @@ namespace NicoPlayerHohoema.ViewModels
 	public abstract class HohoemaVideoListingPageViewModelBase<VIDEO_INFO_VM> : HohoemaListingPageViewModelBase<VIDEO_INFO_VM>
 		where VIDEO_INFO_VM : VideoInfoControlViewModel
 	{
-		public HohoemaVideoListingPageViewModelBase(HohoemaApp app, PageManager pageManager, MylistRegistrationDialogService mylistDialogService, bool isRequireSignIn = true)
-			: base(app, pageManager)
+		public HohoemaVideoListingPageViewModelBase(HohoemaApp app, PageManager pageManager, MylistRegistrationDialogService mylistDialogService, bool isRequireSignIn = true, bool useDefaultPageTitle = true)
+			: base(app, pageManager, useDefaultPageTitle:useDefaultPageTitle)
 		{
 			MylistDialogService = mylistDialogService;
 
