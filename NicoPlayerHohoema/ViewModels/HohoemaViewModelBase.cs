@@ -38,11 +38,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         public ReactiveProperty<bool> IsPageAvailable { get; private set; }
+        public bool UseDefaultPageTitle { get; }
 
         public HohoemaViewModelBase(
             HohoemaApp hohoemaApp,
             PageManager pageManager, 
-            bool canActivateBackgroundUpdate = true
+            bool canActivateBackgroundUpdate = true,
+            bool useDefaultPageTitle = true
             )
 		{
             AvailableServiceLevel = HohoemaAppServiceLevel.Offline;
@@ -55,6 +57,7 @@ namespace NicoPlayerHohoema.ViewModels
 			NowSignIn = false;
 
 			CanActivateBackgroundUpdate = canActivateBackgroundUpdate;
+            UseDefaultPageTitle = useDefaultPageTitle;
 
             _CompositeDisposable = new CompositeDisposable();
 			_NavigatingCompositeDisposable = new CompositeDisposable();
@@ -76,6 +79,7 @@ namespace NicoPlayerHohoema.ViewModels
             }
 
             SubstitutionBackNavigation = new Dictionary<string, Action>();
+            
         }
 
         
@@ -247,8 +251,12 @@ namespace NicoPlayerHohoema.ViewModels
 			// PageManagerにナビゲーション動作を伝える
 			PageManager.OnNavigated(e);
 
+            if (UseDefaultPageTitle)
+            {
+                Title = PageManager.CurrentDefaultPageTitle();
+            }
 
-			base.OnNavigatedTo(e, viewModelState);
+            base.OnNavigatedTo(e, viewModelState);
 
 			HohoemaApp.OnResumed += _OnResumed;
 

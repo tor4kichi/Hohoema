@@ -52,6 +52,9 @@ namespace NicoPlayerHohoema
 
 		public const string ACTIVATION_WITH_ERROR = "error";
 
+
+        const bool _DEBUG_XBOX_RESOURCE = true;
+
 		static App()
 		{
 		}
@@ -198,11 +201,19 @@ namespace NicoPlayerHohoema
 
             if (!args.PrelaunchActivated)
             {
+#if DEBUG
+                if (_DEBUG_XBOX_RESOURCE)
+#else
                 if (Util.DeviceTypeHelper.IsXbox)
+#endif
                 {
                     this.Resources.MergedDictionaries.Add(new ResourceDictionary()
                     {
                         Source = new Uri("ms-appx:///Styles/TVSafeColor.xaml")
+                    });
+                    this.Resources.MergedDictionaries.Add(new ResourceDictionary()
+                    {
+                        Source = new Uri("ms-appx:///Styles/TVStyle.xaml")
                     });
                 }
 
@@ -231,6 +242,17 @@ namespace NicoPlayerHohoema
 
                 }
             }
+        }
+
+        protected override void OnLaunched(LaunchActivatedEventArgs args)
+        {
+            if (Util.DeviceTypeHelper.IsXbox)
+            {
+                Windows.UI.ViewManagement.ApplicationView.GetForCurrentView().SetDesiredBoundsMode
+                    (Windows.UI.ViewManagement.ApplicationViewBoundsMode.UseCoreWindow);
+            }
+
+            base.OnLaunched(args);
         }
 
         protected override async Task OnActivateApplicationAsync(IActivatedEventArgs args)

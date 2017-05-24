@@ -12,7 +12,9 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <Grid MinHeight="340">
+    <Grid MinHeight="340"
+          MaxWidth="220"
+          >
 
 
         <toolkit:DockPanel>

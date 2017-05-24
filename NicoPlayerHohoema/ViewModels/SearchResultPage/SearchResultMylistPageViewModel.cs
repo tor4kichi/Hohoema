@@ -24,7 +24,7 @@ namespace NicoPlayerHohoema.ViewModels
 			HohoemaApp hohoemaApp
 			, PageManager pageManager
 			) 
-			: base(hohoemaApp, pageManager)
+			: base(hohoemaApp, pageManager, useDefaultPageTitle: false)
 		{
 		}
 

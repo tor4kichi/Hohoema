@@ -21,7 +21,7 @@ namespace NicoPlayerHohoema.ViewModels
 			HohoemaApp app,
 			PageManager pageManager
 			) 
-			: base(app, pageManager)
+			: base(app, pageManager, useDefaultPageTitle: false)
 		{
             ChangeRequireServiceLevel(HohoemaAppServiceLevel.OnlineWithoutLoggedIn);
 		}

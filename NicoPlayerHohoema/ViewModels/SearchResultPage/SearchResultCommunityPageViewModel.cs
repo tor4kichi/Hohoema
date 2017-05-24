@@ -25,7 +25,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public CommunitySearchPagePayloadContent SearchOption { get; private set; }
 
         public SearchResultCommunityPageViewModel(HohoemaApp app, PageManager pageManager)
-            : base(app, pageManager)
+            : base(app, pageManager, useDefaultPageTitle:false)
         {
             ChangeRequireServiceLevel(HohoemaAppServiceLevel.LoggedIn);
         }

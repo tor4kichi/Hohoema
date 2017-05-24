@@ -422,8 +422,8 @@
     <Compile Include="Views\PlaylistPage.xaml.cs">
       <DependentUpon>PlaylistPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\PortalPage__TV.xaml.cs">
-      <DependentUpon>PortalPage__TV.xaml</DependentUpon>
+    <Compile Include="Views\PortalPage_TV.xaml.cs">
+      <DependentUpon>PortalPage_TV.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\RankingCategoryListPage_TV.xaml.cs">
       <DependentUpon>RankingCategoryListPage_TV.xaml</DependentUpon>
@@ -664,6 +664,11 @@
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Page>
+    <Page Include="Styles\TVStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
     <Page Include="Styles\VideoProgressBarStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -846,7 +851,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\PortalPage__TV.xaml">
+    <Page Include="Views\PortalPage_TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

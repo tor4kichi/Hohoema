@@ -25,8 +25,8 @@ namespace NicoPlayerHohoema.ViewModels
 	public abstract class HohoemaListingPageViewModelBase<ITEM_VM> : HohoemaViewModelBase
 		where ITEM_VM : HohoemaListingPageItemBase
 	{
-		public HohoemaListingPageViewModelBase(HohoemaApp app, PageManager pageManager)
-			: base(app, pageManager)
+		public HohoemaListingPageViewModelBase(HohoemaApp app, PageManager pageManager, bool useDefaultPageTitle = true)
+			: base(app, pageManager, useDefaultPageTitle: useDefaultPageTitle)
 		{
 			NowLoadingItems = new ReactiveProperty<bool>(true)
 				.AddTo(_CompositeDisposable);

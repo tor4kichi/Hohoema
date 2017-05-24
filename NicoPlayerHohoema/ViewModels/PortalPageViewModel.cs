@@ -189,7 +189,18 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-
+        private DelegateCommand<AppMapItemViewModel> _SelectedItemCommand;
+        public DelegateCommand<AppMapItemViewModel> SelectedItemCommand
+        {
+            get
+            {
+                return _SelectedItemCommand
+                    ?? (_SelectedItemCommand = new DelegateCommand<AppMapItemViewModel>((item) =>
+                    {
+                        item?.Item.SelectedAction();
+                    }));
+            }
+        }
     }
 
 

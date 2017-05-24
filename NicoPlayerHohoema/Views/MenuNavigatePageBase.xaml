@@ -91,6 +91,19 @@
                             </VisualState.Setters>
                         </VisualState>
 
+                        <!-- TV Mode ON -->
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <StateTrigger IsActive="{Binding IsTVModeEnable.Value}" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="SplitView.DisplayMode" Value="Inline" />
+                                <Setter Target="SplitView.IsPaneOpen" Value="True" />
+
+                                <Setter Target="SplitView.PaneBackground" Value="Transparent" />
+                            </VisualState.Setters>
+                        </VisualState>
+
                         <!-- マウス操作時、または画面が大きい時 -->
                         <VisualState>
                             <VisualState.StateTriggers>
@@ -114,6 +127,20 @@
                                 <Setter Target="SplitView.DisplayMode" Value="Overlay" />
                                 <Setter Target="SplitView.IsPaneOpen" Value="False" />
 
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+
+
+                    <VisualStateGroup>
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <hardwareTrigger:DeviceFamilyTrigger Condition="Xbox" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="SplitView.Margin" Value="48 0 0 0" />
+                                <Setter Target="PaneLayout.Margin" Value="0 27 0 27" />
                             </VisualState.Setters>
                         </VisualState>
                     </VisualStateGroup>
@@ -279,12 +306,10 @@
                         DisplayMode="Overlay"
                         IsPaneOpen="{Binding IsOpenPane.Value, Mode=TwoWay}"
                                IsTabStop="False"
+                               PaneBackground="{ThemeResource SystemAltMediumHighColor}"
                         >
                         <SplitView.Pane>
                             <toolkit:DockPanel x:Name="PaneLayout">
-                                <toolkit:DockPanel.Background>
-                                    <SolidColorBrush Color="{ThemeResource SystemAltMediumHighColor}" />
-                                </toolkit:DockPanel.Background>
 
                                 <Button Command="{Binding OpenAccountInfoCommand}"
                                         toolkit:DockPanel.Dock="Bottom"
@@ -377,6 +402,7 @@
                                             />
                                 </Grid>
 
+                                <!--
                                 <Border Visibility="{Binding HasBGUpdateText.Value, Converter={StaticResource BooleanToVisibility}}"
                                                 Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
                                                 HorizontalAlignment="Left"
@@ -388,7 +414,7 @@
                                             Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                             />
                                 </Border>
-
+                                -->
 
                                 <Border x:Name="MobileSearchTapBarrier" 
                                         Visibility="{Binding IsMobileNowSearching, Converter={StaticResource BooleanToVisibility}}"
