@@ -12,13 +12,12 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <Grid MinHeight="340"
-          MaxWidth="220"
+    <Grid MaxWidth="220"
           >
 
 
         <toolkit:DockPanel>
-            <Border toolkit:DockPanel.Dock="Top" Height="220"
+            <Border toolkit:DockPanel.Dock="Top" Height="180"
                     Width="220"
                     >
                 <Image Source="{Binding FirstImageUrl}"

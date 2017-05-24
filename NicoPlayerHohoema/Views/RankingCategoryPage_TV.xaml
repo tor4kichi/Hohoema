@@ -12,6 +12,7 @@
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:deviceTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     xmlns:hohoemalistItem="using:NicoPlayerHohoema.Views.HohoemaListItem"
@@ -23,7 +24,7 @@
           >
 
         <Grid>
-            <toolkit:DockPanel>
+            <toolkit:DockPanel Margin="16 0 0 0">
 
                 <toolkit:DockPanel toolkit:DockPanel.Dock="Top" >
 
@@ -149,7 +150,7 @@
 
                     <Border>
                         <Border Background="Transparent" IsHitTestVisible="True"
-                            Margin="16 32 0 32"
+                            Margin="0 0 0 0"
                             >
 
                             <TextBlock Text="{Binding Title}" 
@@ -170,18 +171,109 @@
 
                 </toolkit:DockPanel>
 
+
+                <toolkit:DockPanel toolkit:DockPanel.Dock="Top" Margin="0 32 48 0">
+
+
+                    <CommandBar DefaultLabelPosition="Right"
+                                Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                toolkit:DockPanel.Dock="Left"
+                                >
+                        <AppBarButton Label="更新" 
+                                        Icon="Refresh"
+                                Command="{Binding RefreshCommand}"
+                                IsEnabled="{Binding CanChangeSort.Value}"
+                                      
+                                >
+                        </AppBarButton>
+                    </CommandBar>
+
+
+                    <CommandBar DefaultLabelPosition="Right"
+                                Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                                toolkit:DockPanel.Dock="Left"
+                                >
+                        <AppBarButton Command="{Binding RequestCacheDownload}"
+                                      
+                                      IsEnabled="{Binding CanDownload.Value, Converter={StaticResource BooleanToVisibility}}"
+                                      Label="キャッシュ"
+                                          Icon="Download"
+                                >
+                        </AppBarButton>
+
+
+                        <AppBarButton Command="{Binding RegistratioMylistCommand}"
+                                              Label="マイリスト登録"
+                                              Icon="Add"
+                                      
+                                            >
+                        </AppBarButton>
+
+                        <AppBarButton 
+                                     IsEnabled="{Binding IsItemSelected.Value}"
+                                      Label="プレイリスト追加"
+                                          Icon="List"
+                                >
+                            <AppBarButton.Flyout>
+                                <Flyout >
+                                    <Border x:Name="PlaylistSelectFlyout">
+                                        <ItemsControl ItemsSource="{Binding Playlists}" >
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Button Background="Transparent" 
+                                                            Content="{Binding Name}"
+                                                            Command="{Binding ElementName=PlaylistSelectFlyout, Path=DataContext.AddPlaylistCommand}"
+                                                            CommandParameter="{Binding Id}"
+                                                            >
+                                                        <i:Interaction.Behaviors>
+                                                            <core:EventTriggerBehavior EventName="Tapped">
+                                                                <mybehavior:CloseFlyoutAction />
+                                                            </core:EventTriggerBehavior>
+                                                        </i:Interaction.Behaviors>
+                                                    </Button>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+
+                                    </Border>
+                                </Flyout>
+                            </AppBarButton.Flyout>
+                        </AppBarButton>
+
+
+                    </CommandBar>
+
+
+
+                    <CommandBar>
+                        <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            HorizontalContentAlignment="Stretch"
+                                            VerticalContentAlignment="Stretch"
+                                        HorizontalAlignment="Right"
+                                            Label="選択"
+                                            >
+                            <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       />
+                        </AppBarToggleButton>
+                    </CommandBar>
+                </toolkit:DockPanel>
+
                 <controls:IncrementalLoadingList x:Name="IncrementalLoadingList"
                                                  ItemsSource="{Binding IncrementalLoadingItems}"
-                                                 SelectedItems="{Binding SelectedItems}"
+                                                 SelectedItems="{Binding SelectedItems, Mode=TwoWay}"
                                                  ItemCommand="{Binding SelectItemCommand}"
-                                                 IsSelectionEnable="{Binding IsSelectionModeEnable.Value}"
-                                                 Margin="0 0"
-                                                 Padding="16 0"
+                                                 IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
+                                                 Margin="0 0 0 0"
+                                                 Padding="0 0 0 24"
                                                  ItemContextFlyout="{StaticResource VideoListItemFlyout}"
+                                                 IsTabStop="False"
                                                  >
                     <controls:IncrementalLoadingList.ItemTemplate>
                         <DataTemplate>
                             <Grid Margin="0 0 0 0"
+                                  Height="300"
                                   >
 
                                 <hohoemalistItem:HohoemaListItemCard />
@@ -197,6 +289,15 @@
                             </Grid>
                         </DataTemplate>
                     </controls:IncrementalLoadingList.ItemTemplate>
+
+                    <controls:IncrementalLoadingList.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <ItemsWrapGrid Orientation="Vertical"
+                                           MaxHeight="300"
+                                           Margin="0 0 40 0"
+                                           />
+                        </ItemsPanelTemplate>
+                    </controls:IncrementalLoadingList.ItemsPanel>
 
                 </controls:IncrementalLoadingList>
 

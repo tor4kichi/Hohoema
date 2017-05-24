@@ -34,38 +34,39 @@ namespace NicoPlayerHohoema.Views.Controls
 
 
 
-        public static readonly DependencyProperty IsSelectionEnableProperty =
-            DependencyProperty.Register("IsSelectionEnable"
+        public static readonly DependencyProperty IsSelectionEnabledProperty =
+            DependencyProperty.Register("IsSelectionEnabled"
                     , typeof(bool)
                     , typeof(IncrementalLoadingList)
-                    , new PropertyMetadata(default(bool), (x, y) => 
+                    , new PropertyMetadata(default(bool), (x, y) =>
                     {
                         var _this = x as IncrementalLoadingList;
-                        _this.IsNotSelectionEnable = !_this.IsSelectionEnable;
+                        _this.IsNotSelectionEnabled = !_this.IsSelectionEnabled;
+                        _this.SetSelectionVisualState();
                     })
                 );
 
-        public bool IsSelectionEnable
+        public bool IsSelectionEnabled
         {
-            get { return (bool)GetValue(IsSelectionEnableProperty); }
-            set { SetValue(IsSelectionEnableProperty, value); }
+            get { return (bool)GetValue(IsSelectionEnabledProperty); }
+            set { SetValue(IsSelectionEnabledProperty, value); }
         }
 
 
 
 
 
-        public static readonly DependencyProperty IsNotSelectionEnableProperty =
-            DependencyProperty.Register("IsNotSelectionEnable"
+        public static readonly DependencyProperty IsNotSelectionEnabledProperty =
+            DependencyProperty.Register("IsNotSelectionEnabled"
                     , typeof(bool)
                     , typeof(IncrementalLoadingList)
                     , new PropertyMetadata(default(bool))
                 );
 
-        public bool IsNotSelectionEnable
+        public bool IsNotSelectionEnabled
         {
-            get { return (bool)GetValue(IsNotSelectionEnableProperty); }
-            private set { SetValue(IsNotSelectionEnableProperty, value); }
+            get { return (bool)GetValue(IsNotSelectionEnabledProperty); }
+            private set { SetValue(IsNotSelectionEnabledProperty, value); }
         }
 
 
