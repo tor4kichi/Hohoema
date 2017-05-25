@@ -21,16 +21,15 @@
                         <Grid x:Name="RootPanel">
 
                             <GridView ItemsSource="{TemplateBinding ItemsSource}"
-                                 IsMultiSelectCheckBoxEnabled="{TemplateBinding IsSelectionEnable}"
                                  IncrementalLoadingTrigger="Edge"
-                                              x:Name="HohoemaListView"
-                                              UseSystemFocusVisuals="True"
-                                              HorizontalContentAlignment="Stretch"
-                                              IsItemClickEnabled="True"
-                                              uwpui:ListViewBaseExtensions.Command="{TemplateBinding ItemCommand}"
-                                              ItemTemplate="{TemplateBinding ItemTemplate}"
-                                              SelectionMode="Single"
-                                                              VerticalAlignment="{TemplateBinding VerticalAlignment}"
+                                        x:Name="_GridView"
+                                        UseSystemFocusVisuals="False"
+                                        HorizontalContentAlignment="Stretch"
+                                        IsItemClickEnabled="True"
+                                        uwpui:ListViewBaseExtensions.Command="{TemplateBinding ItemCommand}"
+                                        ItemTemplate="{TemplateBinding ItemTemplate}"
+                                        SelectionMode="None"
+                                        VerticalAlignment="{TemplateBinding VerticalAlignment}"
                                       ScrollViewer.VerticalScrollMode="Disabled"
                                       ScrollViewer.VerticalScrollBarVisibility="Hidden"
                                       ScrollViewer.HorizontalScrollMode="Auto"
@@ -38,18 +37,25 @@
                                       Margin="{TemplateBinding Margin}"
                                       Padding="{TemplateBinding Padding}"
                                       ContextFlyout="{TemplateBinding ItemContextFlyout}"
+                                      ItemsPanel="{TemplateBinding ItemsPanel}"
                                 >
+
+                                <GridView.ItemContainerStyle>
+                                    <Style TargetType="GridViewItem">
+                                        <Setter Property="Margin" Value="0 0 16 16" />
+                                    </Style>
+                                </GridView.ItemContainerStyle>
 
 
                                 <i:Interaction.Behaviors>
 
                                     <mybehavior:ListViewBaseItemContextFlyout />
                                     
-                                    <mybehavior:ListViewSelectedItemsGetter SelectedItems="{TemplateBinding SelectedItems}" />
+                                    <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedItems}" />
 
                                     <mybehavior:KeyboardTrigger Key="F5">
                                         <mybehavior:KeyboardTrigger.Actions>
-                                            <core:InvokeCommandAction Command="{TemplateBinding RefreshCommand}" />
+                                            <core:InvokeCommandAction Command="{Binding RefreshCommand}" />
                                         </mybehavior:KeyboardTrigger.Actions>
                                     </mybehavior:KeyboardTrigger>
 
@@ -58,58 +64,31 @@
                                     -->
                                 </i:Interaction.Behaviors>
 
-                                <GridView.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <ItemsWrapGrid Orientation="Vertical"  MaxHeight="400"/>
-                                    </ItemsPanelTemplate>
-                                </GridView.ItemsPanel>
-
-
-                                <GridView.ItemContainerStyle>
-                                    <Style TargetType="GridViewItem">
-                                        <Setter Property="Margin"
-                                                Value="0 0 16 16" 
-                                                />
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate TargetType="GridViewItem">
-                                                    <GridViewItemPresenter ContextFlyout="{TemplateBinding ContextFlyout}" 
-                                                                           />
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </GridView.ItemContainerStyle>
-                                
-
-
                             </GridView>
                             
                         </Grid>
 
-                        <!--
+                        
                         <VisualStateManager.VisualStateGroups>
-                            <VisualStateGroup x:Name="FloatContentDisplayState">
-                                <VisualState x:Name="Fill">
+                            <VisualStateGroup x:Name="GridViewSelectionState">
+                                <VisualState x:Name="SelectionDisabled">
                                     <VisualState.Setters>
                                     </VisualState.Setters>
                                 </VisualState>
-                                <VisualState x:Name="Float">
+                                <VisualState x:Name="SelectionEnabled">
                                     <VisualState.Setters>
+                                        <Setter Target="_GridView.SelectionMode" Value="Multiple" />
+                                        <Setter Target="_GridView.IsMultiSelectCheckBoxEnabled" Value="True" />
+                                        <Setter Target="_GridView.IsItemClickEnabled" Value="False" />
                                     </VisualState.Setters>
                                 </VisualState>
-                                <VisualState x:Name="Float_Small">
-                                    <VisualState.Setters>
-                                    </VisualState.Setters>
-                                </VisualState>
-                                <VisualState x:Name="Hidden">
-                                    <VisualState.Setters>
-                                    </VisualState.Setters>
-                                </VisualState>
+
                             </VisualStateGroup>
 
                         </VisualStateManager.VisualStateGroups>
-                        -->
+                        
+                        
+                        
                     </Border>
                 </ControlTemplate>
             </Setter.Value>

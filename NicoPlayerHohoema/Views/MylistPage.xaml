@@ -48,7 +48,7 @@
                             </Button>
 
                             <Button Command="{Binding EditMylistGroupCommand}"
-                                Visibility="{Binding IsLoginUserOwnedMylist, Converter={StaticResource BooleanToVisibility}}"
+                                Visibility="{Binding IsUserOwnerdMylist, Converter={StaticResource BooleanToVisibility}}"
                                 Background="Transparent"
                                     >
                                 <StackPanel Orientation="Horizontal">
@@ -57,7 +57,7 @@
                             </Button>
                             <ToggleButton IsChecked="{Binding IsFavoriteMylist.Value, Mode=TwoWay}"
                                       IsEnabled="{Binding CanChangeFavoriteMylistState.Value}"
-                                      Visibility="{Binding IsLoginUserOwnedMylist, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                      Visibility="{Binding IsUserOwnerdMylist, Converter={StaticResource BooleanToVisibilityInverted}}"
                                       Background="Transparent"
                                     >
                                 <StackPanel Orientation="Horizontal">
@@ -67,7 +67,7 @@
 
                             <Border Visibility="{Binding IsLoginUserDeflist, Converter={StaticResource BooleanToVisibilityInverted}}">
                                 <Button Command="{Binding DeleteMylistCommand}"
-                                    Visibility="{Binding IsLoginUserOwnedMylist, Converter={StaticResource BooleanToVisibility}}"
+                                    Visibility="{Binding CanEditMylist, Converter={StaticResource BooleanToVisibility}}"
                                     Background="Transparent"
                                     >
                                     <StackPanel Orientation="Horizontal">
@@ -85,7 +85,7 @@
 
                             <Button Command="{Binding RegistratioMylistCommand}"
                                             Background="Transparent"
-                                        Visibility="{Binding IsLoginUserOwnedMylist, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                        Visibility="{Binding CanEditMylist, Converter={StaticResource BooleanToVisibilityInverted}}"
                                             >
                                 <StackPanel Orientation="Horizontal">
                                     <SymbolIcon Symbol="Add" />
@@ -96,10 +96,9 @@
                             </Button>
                             <Button Command="{Binding CopyMylistCommand}"
                                         Background="Transparent"
-                                        Visibility="{Binding IsLoginUserOwnedMylist, Converter={StaticResource BooleanToVisibility}}"
+                                        Visibility="{Binding CanEditMylist, Converter={StaticResource BooleanToVisibility}}"
                                         >
                                 <StackPanel Orientation="Horizontal">
-                                    <SymbolIcon Symbol="Add" />
                                     <TextBlock Text="コピー"
                                                 VerticalAlignment="Center"
                                                 />
@@ -107,10 +106,9 @@
                             </Button>
                             <Button Command="{Binding MoveMylistCommand}"
                                         Background="Transparent"
-                                        Visibility="{Binding IsLoginUserOwnedMylist, Converter={StaticResource BooleanToVisibility}}"
+                                        Visibility="{Binding CanEditMylist, Converter={StaticResource BooleanToVisibility}}"
                                         >
                                 <StackPanel Orientation="Horizontal">
-                                    <SymbolIcon Symbol="Add" />
                                     <TextBlock Text="移動"
                                                 VerticalAlignment="Center"
                                                 />
@@ -118,11 +116,10 @@
                             </Button>
                             <Button Command="{Binding UnregistrationMylistCommand}"
                                         Background="Transparent"
-                                        Visibility="{Binding IsLoginUserOwnedMylist, Converter={StaticResource BooleanToVisibility}}"
+                                        Visibility="{Binding CanEditMylist, Converter={StaticResource BooleanToVisibility}}"
                                         >
                                 <StackPanel Orientation="Horizontal">
-                                    <SymbolIcon Symbol="Add" />
-                                    <TextBlock Text="解除"
+                                    <TextBlock Text="マイリスト解除"
                                                 VerticalAlignment="Center"
                                                 />
                                 </StackPanel>

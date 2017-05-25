@@ -13,8 +13,10 @@
 
 
     <Style TargetType="CommandBar">
+        <Setter Property="DefaultLabelPosition" Value="Right" />
         <Setter Property="IsSticky" Value="True" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Background" Value="Transparent" />
     </Style>
     
     <!-- Button

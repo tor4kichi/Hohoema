@@ -63,7 +63,6 @@
                                   FooterTemplate="{TemplateBinding FooterTemplate}"
                                   FooterTransitions="{TemplateBinding FooterTransitions}"
                                   Padding="{TemplateBinding Padding}"
-                                Margin="48 27"
                                 />
                         </ScrollViewer>
                     </Border>
