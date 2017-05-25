@@ -340,6 +340,9 @@
     <Compile Include="Views\Converters\NicoVideoQualityToCultualizedTextConverter.cs" />
     <Compile Include="Views\Converters\ServiceStatusToTextConverter.cs" />
     <Compile Include="Views\Converters\TransparentColorConverter.cs" />
+    <Compile Include="Views\HistoryPage_TV.xaml.cs">
+      <DependentUpon>HistoryPage_TV.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\HohoemaListItem.xaml.cs">
       <DependentUpon>HohoemaListItem.xaml</DependentUpon>
     </Compile>
@@ -736,6 +739,10 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Page>
     <Page Include="Views\Controls\VideoListItemFlyout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\HistoryPage_TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

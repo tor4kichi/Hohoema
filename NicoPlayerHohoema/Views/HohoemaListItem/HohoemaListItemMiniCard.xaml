@@ -12,13 +12,15 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <Grid MinHeight="180">
+    <Grid MaxWidth="240">
 
         
         <Border>
             <Image Source="{Binding FirstImageUrl}"
                    Visibility="{Binding HasImageUrl, Converter={StaticResource BooleanToVisibility}}" 
                    Stretch="Uniform"
+                   VerticalAlignment="Center"
+                   MinHeight="180"
                    />
         </Border>
         
