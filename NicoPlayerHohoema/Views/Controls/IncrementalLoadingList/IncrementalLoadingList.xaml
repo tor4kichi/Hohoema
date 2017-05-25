@@ -42,7 +42,7 @@
 
                                 <GridView.ItemContainerStyle>
                                     <Style TargetType="GridViewItem">
-                                        <Setter Property="Margin" Value="0 0 8 8" />
+                                        <Setter Property="Margin" Value="0 0 16 16" />
                                     </Style>
                                 </GridView.ItemContainerStyle>
 
