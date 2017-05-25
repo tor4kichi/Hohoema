@@ -299,6 +299,9 @@
     <Compile Include="Views\CacheManagementPage.xaml.cs">
       <DependentUpon>CacheManagementPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\CacheManagementPage_TV.xaml.cs">
+      <DependentUpon>CacheManagementPage_TV.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\CommentCommandEditer.xaml.cs">
       <DependentUpon>CommentCommandEditer.xaml</DependentUpon>
     </Compile>
@@ -676,6 +679,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
+    <Page Include="Views\CacheManagementPage_TV.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Controls\FloatContentContainer\FloatContentContainer.xaml">
       <Generator>MSBuild:Compile</Generator>
