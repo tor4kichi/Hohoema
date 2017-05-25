@@ -545,6 +545,9 @@
     <Compile Include="Views\UserVideoPage.xaml.cs">
       <DependentUpon>UserVideoPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\UserVideoPage_TV.xaml.cs">
+      <DependentUpon>UserVideoPage_TV.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\VideoInfoContent\CommentVideoInfoContent.xaml.cs">
       <DependentUpon>CommentVideoInfoContent.xaml</DependentUpon>
     </Compile>
@@ -961,6 +964,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\UserVideoPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\UserVideoPage_TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
