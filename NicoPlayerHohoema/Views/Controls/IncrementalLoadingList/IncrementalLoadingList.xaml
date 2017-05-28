@@ -28,7 +28,7 @@
                                         IsItemClickEnabled="True"
                                         uwpui:ListViewBaseExtensions.Command="{TemplateBinding ItemCommand}"
                                         ItemTemplate="{TemplateBinding ItemTemplate}"
-                                        SelectionMode="None"
+                                        SelectionMode="Single"
                                         VerticalAlignment="{TemplateBinding VerticalAlignment}"
                                       ScrollViewer.VerticalScrollMode="Disabled"
                                       ScrollViewer.VerticalScrollBarVisibility="Hidden"
@@ -43,6 +43,7 @@
                                 <GridView.ItemContainerStyle>
                                     <Style TargetType="GridViewItem">
                                         <Setter Property="Margin" Value="0 0 16 16" />
+                                        <Setter Property="UseSystemFocusVisuals" Value="False" />
                                     </Style>
                                 </GridView.ItemContainerStyle>
 
