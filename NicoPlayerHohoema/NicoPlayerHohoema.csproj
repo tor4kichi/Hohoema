@@ -275,6 +275,7 @@
     <Compile Include="Views\AboutPage.xaml.cs">
       <DependentUpon>AboutPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Behaviors\FocusGetter.cs" />
     <Compile Include="Views\Behaviors\ListViewBaseItemContextFlyout.cs" />
     <Compile Include="Views\Behaviors\MenuFlyoutSubItemsSetter.cs" />
     <Compile Include="Views\Behaviors\CloseFlyoutAction.cs" />
@@ -290,6 +291,7 @@
     <Compile Include="Views\Behaviors\MouseWheelTrigger.cs" />
     <Compile Include="Views\Behaviors\OpenFlyout.cs" />
     <Compile Include="Views\Behaviors\RefreshableListViewExtention.cs" />
+    <Compile Include="Views\Behaviors\ScrollAction.cs" />
     <Compile Include="Views\Behaviors\ScrollToIndex.cs" />
     <Compile Include="Views\Behaviors\ListViewVerticalOffsetGetter.cs" />
     <Compile Include="Views\Behaviors\SetFocus.cs" />
@@ -568,6 +570,9 @@
     </Compile>
     <Compile Include="Views\VideoInfomationPage.xaml.cs">
       <DependentUpon>VideoInfomationPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\VideoInfomationPage_TV.xaml.cs">
+      <DependentUpon>VideoInfomationPage_TV.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\VideoPlayerControl.xaml.cs">
       <DependentUpon>VideoPlayerControl.xaml</DependentUpon>
@@ -1005,6 +1010,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\VideoInfomationPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\VideoInfomationPage_TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

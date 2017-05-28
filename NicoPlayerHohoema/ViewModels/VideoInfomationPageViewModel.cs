@@ -11,6 +11,7 @@ using Windows.ApplicationModel.DataTransfer;
 using Microsoft.Practices.Unity;
 using Prism.Windows.Navigation;
 using System.Threading;
+using System.Diagnostics;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -41,6 +42,8 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactiveProperty<bool> NowLoading { get; private set; }
         public ReactiveProperty<bool> IsLoadFailed { get; private set; }
+
+        public ReactiveProperty<bool> NowFocusingWebView { get; }
 
 
         private DelegateCommand _OpenOwnerUserPageCommand;
@@ -239,10 +242,25 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
+        private DelegateCommand<TagViewModel> _OpenTagSearchResultPageCommand;
+        public DelegateCommand<TagViewModel> OpenTagSearchResultPageCommand
+        {
+            get
+            {
+                return _OpenTagSearchResultPageCommand
+                    ?? (_OpenTagSearchResultPageCommand = new DelegateCommand<TagViewModel>((tagVM) =>
+                    {
+                        tagVM.OpenSearchPageWithTagCommand.Execute();
+                    }
+                    ));
+            }
+        }
+
+
         public List<Playlist> Playlists { get; private set; }
 
 
-
+        AsyncLock _WebViewFocusManagementLock = new AsyncLock();
         public VideoInfomationPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager) 
             : base(hohoemaApp, pageManager, canActivateBackgroundUpdate:true)
         {
@@ -251,6 +269,30 @@ namespace NicoPlayerHohoema.ViewModels
             IsStillLoggedInTwitter = new ReactiveProperty<bool>(Util.TwitterHelper.IsLoggedIn);
             NowLoading = new ReactiveProperty<bool>(false);
             IsLoadFailed = new ReactiveProperty<bool>(false);
+
+            // WebViewにフォーカスされている間のBackNavigationを抑止する
+            // 合わせてView側でBackNavigation操作によってWebViewからフォーカスを外す処理を入れている
+            NowFocusingWebView = new ReactiveProperty<bool>(false);
+            NowFocusingWebView.Subscribe(async nowFocusingWebView => 
+            {
+                using (var releaser = await _WebViewFocusManagementLock.LockAsync())
+                {
+                    if (nowFocusingWebView)
+                    {
+                        this.AddSubsitutionBackNavigateAction(@"VideoInfomationWebView", () =>
+                        {
+                            return false;
+                        });
+                    }
+                    else
+                    {
+                        // Note: 
+                        await Task.Delay(500);
+
+                        this.RemoveSubsitutionBackNavigateAction(@"VideoInfomationWebView");
+                    }
+                }
+            });
         }
 
 

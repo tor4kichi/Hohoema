@@ -566,6 +566,7 @@ namespace NicoPlayerHohoema.ViewModels
             set { SetProperty(ref _Title, value); }
         }
 
+        
         public ReactiveProperty<bool> IsForceTVModeEnable { get; private set; }
 
 

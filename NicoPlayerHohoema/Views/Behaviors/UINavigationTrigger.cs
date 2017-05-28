@@ -77,6 +77,24 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
         #region Dependency Properties
 
+
+        // フォーカスがある時だけ入力を処理するか
+        public bool IsRequireFocus
+        {
+            get { return (bool)GetValue(IsRequireFocusProperty); }
+            set { SetValue(IsRequireFocusProperty, value); }
+        }
+
+        public static readonly DependencyProperty IsRequireFocusProperty =
+            DependencyProperty.Register(
+                nameof(IsRequireFocus),
+                typeof(bool),
+                typeof(UINavigationTrigger),
+                new PropertyMetadata(false)
+                );
+
+
+
         public UINavigationButtons Kind
         {
             get { return (UINavigationButtons)GetValue(KindProperty); }
@@ -167,11 +185,24 @@ namespace NicoPlayerHohoema.Views.Behaviors
         AsyncLock _ActivationChangeLock = new AsyncLock();
         IDisposable _TimerDisposer;
 
+        bool _NowFocusingElement = false;
+
         protected override void OnAttached()
         {
+            this.AssociatedObject.GotFocus += AssociatedObject_GotFocus;
+            this.AssociatedObject.LostFocus += AssociatedObject_LostFocus;
             ActivatePolling();
         }
 
+        private void AssociatedObject_LostFocus(object sender, RoutedEventArgs e)
+        {
+            _NowFocusingElement = false;
+        }
+
+        private void AssociatedObject_GotFocus(object sender, RoutedEventArgs e)
+        {
+            _NowFocusingElement = true;
+        }
 
         protected override void OnDetaching()
         {
@@ -212,6 +243,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
                 var _required = ToRequiredButtons(Kind);
                 var _optional = ToOptionalButtons(Kind);
                 var isHold = Hold;
+                var isRequireFoucs = IsRequireFocus;
                 bool _prevPressed = false;
 
                 var _uiDispatcher = Window.Current.Dispatcher;
@@ -224,6 +256,17 @@ namespace NicoPlayerHohoema.Views.Behaviors
                             // 全てのコントローラー入力をチェック
                             foreach (var controller in UINavigationController.UINavigationControllers)
                             {
+                                if (isRequireFoucs)
+                                {
+                                    var nowFocusingElement = false;
+                                    await _uiDispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                                    {
+                                        nowFocusingElement = _NowFocusingElement;    
+                                    });
+
+                                    if (!nowFocusingElement) { return; }
+                                }
+
                                 var currentInput = controller.GetCurrentReading();
 
                                 // 入力が始まった瞬間を検出
@@ -277,6 +320,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
                                         {
                                             if (!Windows.UI.ViewManagement.InputPane.GetForCurrentView().Visible)
                                             {
+                                                Debug.WriteLine("Fire!");
                                                 foreach (var action in Actions.Cast<IAction>())
                                                 {
                                                     action.Execute(this.AssociatedObject, null);

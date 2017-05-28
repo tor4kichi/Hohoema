@@ -253,11 +253,18 @@
                         <WebView Source="{Binding DescriptionHtmlFileUri}"
                                  MinWidth="320"
                              Margin="0 8"
+                                 DefaultBackgroundColor="Transparent"
                                  >
                             <i:Interaction.Behaviors>
                                 <mybehavior:WebViewNotifyUriClicked Command="{Binding ScriptNotifyCommand}"  />
 
                                 <mybehavior:WebViewAutoResizeToContent />
+
+                                <!-- WebViewでUINavigationControllerがハマるバグに対応する -->
+                                <mybehavior:FocusGetter IsFocus="{Binding NowFocusingWebView.Value, Mode=TwoWay}" />
+                                <mybehavior:UINavigationTrigger Kind="Cancel" IsRequireFocus="True">
+                                    <mybehavior:SetFocus TargetObject="{Binding ElementName=TagsList}" />
+                                </mybehavior:UINavigationTrigger>
                             </i:Interaction.Behaviors>
                         </WebView>
 
