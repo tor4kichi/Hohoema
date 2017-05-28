@@ -207,7 +207,7 @@ namespace NicoPlayerHohoema.ViewModels
             Playlist = playlist;
 
             LiveId = liveVideoInfo.Video.Id;
-			CommunityName = LiveVideoInfo.Community?.Name;
+            CommunityName = LiveVideoInfo.Community?.Name;
 			CommunityThumbnail = LiveVideoInfo.Community?.Thumbnail;
 			CommunityGlobalId = LiveVideoInfo.Community?.GlobalId;
 			CommunityType = LiveVideoInfo.Video.ProviderType;
@@ -221,7 +221,11 @@ namespace NicoPlayerHohoema.ViewModels
 			IsTimeshiftEnabled = LiveVideoInfo.Video.TimeshiftEnabled;
 			IsCommunityMemberOnly = LiveVideoInfo.Video.CommunityOnly;
 
-			var duration = EndTime - StartTime;
+            Title = LiveVideoInfo.Video.Title;
+            OptionText = LiveVideoInfo.Community?.Name;
+            ImageUrlsSource.Add(LiveVideoInfo.Community?.Thumbnail);
+
+            var duration = EndTime - StartTime;
 			if (LiveVideoInfo.Video.StartTime < DateTime.Now)
 			{
 				// 予約
@@ -252,10 +256,13 @@ namespace NicoPlayerHohoema.ViewModels
 					DurationText = $"{duration.Minutes}分 経過";
 				}
 			}
-		}
+
+            Description = DurationText;
+
+        }
 
 
-		private DelegateCommand _OpenLiveVideoPageCommand;
+        private DelegateCommand _OpenLiveVideoPageCommand;
 		public override ICommand PrimaryCommand
 		{
 			get

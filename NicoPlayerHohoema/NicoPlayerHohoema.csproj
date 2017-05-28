@@ -454,14 +454,26 @@
     <Compile Include="Views\SearchResultPage\SearchResultCommunityPage.xaml.cs">
       <DependentUpon>SearchResultCommunityPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\SearchResultPage\SearchResultCommunityPage_TV.xaml.cs">
+      <DependentUpon>SearchResultCommunityPage_TV.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\SearchResultPage\SearchResultKeywordPage.xaml.cs">
       <DependentUpon>SearchResultKeywordPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SearchResultPage\SearchResultKeywordPage_TV.xaml.cs">
+      <DependentUpon>SearchResultKeywordPage_TV.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SearchResultPage\SearchResultLivePage.xaml.cs">
       <DependentUpon>SearchResultLivePage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\SearchResultPage\SearchResultLivePage_TV.xaml.cs">
+      <DependentUpon>SearchResultLivePage_TV.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\SearchResultPage\SearchResultMylistPage.xaml.cs">
       <DependentUpon>SearchResultMylistPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SearchResultPage\SearchResultMylistPage_TV.xaml.cs">
+      <DependentUpon>SearchResultMylistPage_TV.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SearchResultPage\SearchResultTagPage.xaml.cs">
       <DependentUpon>SearchResultTagPage.xaml</DependentUpon>
@@ -495,6 +507,9 @@
     </Compile>
     <Compile Include="Views\MenuNavigatePageBase.xaml.cs">
       <DependentUpon>MenuNavigatePageBase.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SearchResultPage\SearchResultTagPage_TV.xaml.cs">
+      <DependentUpon>SearchResultTagPage_TV.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Service\AcceptCacheUsaseDialog.xaml.cs">
       <DependentUpon>AcceptCacheUsaseDialog.xaml</DependentUpon>
@@ -917,7 +932,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\SearchResultPage\SearchResultCommunityPage_TV.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\SearchResultPage\SearchResultKeywordPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SearchResultPage\SearchResultKeywordPage_TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -925,11 +948,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\SearchResultPage\SearchResultLivePage_TV.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\SearchResultPage\SearchResultMylistPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\SearchResultPage\SearchResultMylistPage_TV.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\SearchResultPage\SearchResultTagPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SearchResultPage\SearchResultTagPage_TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
