@@ -601,6 +601,9 @@
     <Compile Include="Views\Controls\VideoInfoControl.xaml.cs">
       <DependentUpon>VideoInfoControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\VideoPlayerControl_TV.xaml.cs">
+      <DependentUpon>VideoPlayerControl_TV.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\VisualTreeExtention.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -1042,6 +1045,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Controls\VideoInfoControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\VideoPlayerControl_TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

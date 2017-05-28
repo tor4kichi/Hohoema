@@ -44,7 +44,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
         ScrollUp    = 0x00010000,
         ScrollDown  = 0x00020000,
         ScrollLeft  = 0x00040000,
-        ScrollRight = 0x00080000
+        ScrollRight = 0x00080000,
     }
 
 

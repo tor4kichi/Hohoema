@@ -104,20 +104,45 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
         #endregion
 
-        bool IsShow
+
+        #region Delay Property
+
+        public static readonly DependencyProperty IsVisibleProperty =
+            DependencyProperty.Register("IsVisible"
+                    , typeof(bool)
+                    , typeof(VisiblityFadeChanger)
+                    , new PropertyMetadata(true, OnIsVisiblePropertyChanged)
+                );
+
+        public bool IsVisible
         {
-            get
+            get { return (bool)GetValue(IsVisibleProperty); }
+            set { SetValue(IsVisibleProperty, value); }
+        }
+
+        public static void OnIsVisiblePropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
+        {
+            VisiblityFadeChanger source = (VisiblityFadeChanger)sender;
+
+            if (source.IsVisible)
             {
-                return this.AssociatedObject.Visibility == Visibility.Visible;
+                source.Show();
+            }
+            else
+            {
+                source.Hide();
             }
         }
+
+        #endregion
+
 
         AnimationSet _FadeInAnimation;
         AnimationSet _FadeOutAnimation;
 
-        public void Show()
+        private void Show()
 		{
-            if (!IsShow)
+            if (this.AssociatedObject.Visibility == Visibility.Collapsed)
             {
                 this.AssociatedObject.Visibility = Visibility.Visible;
 
@@ -129,9 +154,9 @@ namespace NicoPlayerHohoema.Views.Behaviors
             }
         }
 
-        public async void Hide()
+        private async void Hide()
         {
-            if (IsShow)
+            if (this.AssociatedObject.Visibility == Visibility.Visible)
             {
                 _FadeInAnimation.Stop();
                 if (IsAnimationEnable)
@@ -163,14 +188,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
         public void Toggle()
         {
-            if (IsShow)
-            {
-                Hide();
-            }
-            else
-            {
-                Show();
-            }
+            IsVisible = !IsVisible;
         }
 
         protected override void OnAttached()

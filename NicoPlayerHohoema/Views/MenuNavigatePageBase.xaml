@@ -167,7 +167,7 @@
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
                                 <Setter Target="ServiceStateText.Visibility" Value="Visible" />
-                                <Setter Target="ServiceStateText_TV.Visibility" Value="Visible" />
+                                <!--<Setter Target="ServiceStateText_TV.Visibility" Value="Visible" />-->
                                 <Setter Target="ServiceStateText_Mobile.Visibility" Value="Visible" />
                             </VisualState.Setters>
                         </VisualState>
@@ -178,7 +178,7 @@
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
                                 <Setter Target="ServiceStateText.Visibility" Value="Visible" />
-                                <Setter Target="ServiceStateText_TV.Visibility" Value="Visible" />
+                                <!--<Setter Target="ServiceStateText_TV.Visibility" Value="Visible" />-->
                                 <Setter Target="ServiceStateText_Mobile.Visibility" Value="Visible" />
                             </VisualState.Setters>
                         </VisualState>
@@ -190,7 +190,7 @@
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
                                 <Setter Target="ServiceStateText.Visibility" Value="Visible" />
-                                <Setter Target="ServiceStateText_TV.Visibility" Value="Visible" />
+                                <!--<Setter Target="ServiceStateText_TV.Visibility" Value="Visible" />-->
                                 <Setter Target="ServiceStateText_Mobile.Visibility" Value="Visible" />
                             </VisualState.Setters>
                         </VisualState>
