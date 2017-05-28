@@ -312,15 +312,32 @@
                         </mybehavior:MouseWheelTrigger.DownActions>
                     </mybehavior:MouseWheelTrigger>
 
+
                     
+                    <mybehavior:UINavigationTrigger Kind="Cancel" Hold="True" 
+                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource InvertBoolean}}"
+                                                        >
+                        <core:InvokeCommandAction Command="{Binding ClosePlayerCommand}" />
+                    </mybehavior:UINavigationTrigger>
                     
+
+                    <mybehavior:UINavigationTrigger Kind="PageLeft" 
+                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource InvertBoolean}}"
+                                                        >
+                        <core:InvokeCommandAction Command="{Binding PreviewVideoPositionCommand}" />
+                    </mybehavior:UINavigationTrigger>
+                    <mybehavior:UINavigationTrigger Kind="PageRight" 
+                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource InvertBoolean}}"
+                                                        >
+                        <core:InvokeCommandAction Command="{Binding ForwardVideoPositionCommand}" />
+                    </mybehavior:UINavigationTrigger>
 
                     <mybehavior:UINavigationTrigger Kind="Context1" 
                                                         IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource InvertBoolean}}"
                                                         >
-                        <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Toggle" />
-                        <mybehavior:SetFocus TargetObject="{Binding ElementName=PlayPauseButton}" />
+                        <core:InvokeCommandAction Command="{Binding TogglePlayPauseCommand}" />
                     </mybehavior:UINavigationTrigger>
+                    
                     <!--
                     <core:EventTriggerBehavior EventName="PointerMoved">
                         <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="PreventAutoHide" />
@@ -414,9 +431,7 @@
                         <core:EventTriggerBehavior EventName="Tapped">
                             <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="True" />
                         </core:EventTriggerBehavior>
-
                     </i:Interaction.Behaviors>
-
                 </Border>
 
                 <toolkit:DockPanel 
@@ -795,7 +810,8 @@
                                         >
 
 
-                                    <Button Background="Transparent" Command="{Binding PreviewVideoPositionCommand}"
+                                    <Button Background="Transparent" 
+                                            Command="{Binding PreviewVideoPositionCommand}"
                                         x:Name="PreviewVideoPositionButon"
                                             Margin="0 0 24 0"
                                         >

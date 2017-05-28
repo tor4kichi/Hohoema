@@ -142,6 +142,8 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
         private void Show()
 		{
+            if (this.AssociatedObject == null) { return; }
+
             if (this.AssociatedObject.Visibility == Visibility.Collapsed)
             {
                 this.AssociatedObject.Visibility = Visibility.Visible;
@@ -156,6 +158,8 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
         private async void Hide()
         {
+            if (this.AssociatedObject == null) { return; }
+
             if (this.AssociatedObject.Visibility == Visibility.Visible)
             {
                 _FadeInAnimation.Stop();
