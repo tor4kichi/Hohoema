@@ -176,16 +176,18 @@
                                   Height="150"
                                   >
 
+                                
+                                
+                                <hohoemalistItem:HohoemaListItemMiniCard />
+
                                 <TextBlock Text="New" 
-                                           HorizontalAlignment="Left"
+                                           HorizontalAlignment="Right"
                                            VerticalAlignment="Top"
                                            Visibility="{Binding IsUnread.Value, Converter={StaticResource BooleanToVisibility}}"
                                            Style="{StaticResource HeaderTextBlockStyle}"
                                            LineStackingStrategy="MaxHeight"
-                                           Margin="8 16"
+                                           Margin="8"
                                        />
-                                
-                                <hohoemalistItem:HohoemaListItemMiniCard />
 
                             </Grid>
                         </DataTemplate>
