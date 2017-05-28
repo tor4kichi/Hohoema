@@ -78,7 +78,7 @@ namespace NicoPlayerHohoema.ViewModels
                     .ToReactiveProperty();
             }
 
-            SubstitutionBackNavigation = new Dictionary<string, Action>();
+            SubstitutionBackNavigation = new Dictionary<string, Func<bool>>();
             
         }
 
@@ -274,7 +274,9 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         AddSubsitutionBackNavigateAction(PlayerFillModeBackNavigationCancel, () =>
                         {
-                            HohoemaApp.Playlist.IsDisplayPlayer = false;
+                            // Bボタンによる動画プレイヤーを閉じる動作を一切受け付けない
+                            HohoemaApp.Playlist.IsDisplayPlayerControlUI = !HohoemaApp.Playlist.IsDisplayPlayerControlUI;
+                            return false;
                         });
                     }
                     else
@@ -469,7 +471,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-        protected void AddSubsitutionBackNavigateAction(string id, Action action)
+        protected void AddSubsitutionBackNavigateAction(string id, Func<bool> action)
         {
             if (!SubstitutionBackNavigation.ContainsKey(id))
             {
@@ -486,7 +488,6 @@ namespace NicoPlayerHohoema.ViewModels
             if (SubstitutionBackNavigation.Count > 0)
             {
                 var substitutionBackNavPair = SubstitutionBackNavigation.Last();
-                SubstitutionBackNavigation.Remove(substitutionBackNavPair.Key);
                 var action = substitutionBackNavPair.Value;
                 
                 if (SubstitutionBackNavigation.Count == 0)
@@ -502,8 +503,10 @@ namespace NicoPlayerHohoema.ViewModels
                     }
                 }
 
-                action?.Invoke();
-
+                if (action?.Invoke() ?? false)
+                {
+                    SubstitutionBackNavigation.Remove(substitutionBackNavPair.Key);
+                }
 
                 e.Handled = true;
             }
@@ -566,7 +569,7 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<bool> IsForceTVModeEnable { get; private set; }
 
 
-        public static Dictionary<string, Action> SubstitutionBackNavigation { get; private set; } = new Dictionary<string, Action>();
+        public static Dictionary<string, Func<bool>> SubstitutionBackNavigation { get; private set; } = new Dictionary<string, Func<bool>>();
 
 
         public HohoemaApp HohoemaApp { get; private set; }

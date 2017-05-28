@@ -44,7 +44,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
         ScrollUp    = 0x00010000,
         ScrollDown  = 0x00020000,
         ScrollLeft  = 0x00040000,
-        ScrollRight = 0x00080000
+        ScrollRight = 0x00080000,
     }
 
 
@@ -92,6 +92,20 @@ namespace NicoPlayerHohoema.Views.Behaviors
                 );
 
         
+        public bool Hold
+        {
+            get { return (bool)GetValue(HoldProperty); }
+            set { SetValue(HoldProperty, value); }
+        }
+
+        public static readonly DependencyProperty HoldProperty =
+            DependencyProperty.Register(
+                nameof(Hold),
+                typeof(bool),
+                typeof(UINavigationTrigger),
+                new PropertyMetadata(false)
+                );
+
         public bool IsEnabled
         {
             get { return (bool)GetValue(IsEnabledProperty); }
@@ -146,7 +160,9 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
 
 
-
+        static TimeSpan HoldDetectTime = TimeSpan.FromSeconds(1);
+        static int HoldDetectTicks = (int)Math.Round(HoldDetectTime.TotalSeconds / __InputPollingInterval.TotalSeconds);
+        int HoldingTickCount = 0;
         AsyncLock _InputSequenceLock = new AsyncLock();
         AsyncLock _ActivationChangeLock = new AsyncLock();
         IDisposable _TimerDisposer;
@@ -195,45 +211,80 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
                 var _required = ToRequiredButtons(Kind);
                 var _optional = ToOptionalButtons(Kind);
-
+                var isHold = Hold;
                 bool _prevPressed = false;
 
                 var _uiDispatcher = Window.Current.Dispatcher;
                 _TimerDisposer = Observable.Timer(DateTimeOffset.Now, __InputPollingInterval)
                     .Subscribe(async _ =>
                     {
-                    // 入力検知の処理を同期的に実行する
-                    using (var releaser = await _InputSequenceLock.LockAsync())
-                    {
-                        // 全てのコントローラー入力をチェック
-                        foreach (var controller in UINavigationController.UINavigationControllers)
+                        // 入力検知の処理を同期的に実行する
+                        using (var releaser = await _InputSequenceLock.LockAsync())
+                        {
+                            // 全てのコントローラー入力をチェック
+                            foreach (var controller in UINavigationController.UINavigationControllers)
                             {
                                 var currentInput = controller.GetCurrentReading();
 
-                            // 入力が始まった瞬間を検出
-                            var requiredHasPressed = _required != RequiredUINavigationButtons.None && currentInput.RequiredButtons.HasFlag(_required);
+                                // 入力が始まった瞬間を検出
+                                var requiredHasPressed = _required != RequiredUINavigationButtons.None && currentInput.RequiredButtons.HasFlag(_required);
                                 var optionalHasPressed = _optional != OptionalUINavigationButtons.None && currentInput.OptionalButtons.HasFlag(_optional);
 
                                 var someButtonPressed = requiredHasPressed || optionalHasPressed;
                                 var nowTrigger = someButtonPressed && (someButtonPressed ^ _prevPressed);
+                                var nowReleased = !someButtonPressed && (someButtonPressed ^ _prevPressed);
 
-                            // Debug.WriteLine($"press:{someButtonPressed}, prev:{_prevPressed}, trigger:{trigger}");
+                                // Debug.WriteLine($"press:{someButtonPressed}, prev:{_prevPressed}, trigger:{trigger}");
 
-                            // トリガー検出用に前フレームの入力情報を保存
-                            _prevPressed = someButtonPressed;
-
-                            // 実行
-                            if (nowTrigger)
+                                // トリガー検出用に前フレームの入力情報を保存
+                                _prevPressed = someButtonPressed;
+                                
+                                if (isHold)
                                 {
-                                // Debug.WriteLine("Action Execute: " + _kind.ToString());
-                                await _uiDispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                                    if (someButtonPressed)
                                     {
-                                        foreach (var action in Actions.Cast<IAction>())
+                                        ++HoldingTickCount;
+                                        Debug.WriteLine("Holding...");
+                                    }
+                                    else if (nowReleased && HoldingTickCount > HoldDetectTicks)
+                                    {
+                                        await _uiDispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                                         {
-                                            action.Execute(this.AssociatedObject, null);
-                                        }
-                                    });
+                                            if (!Windows.UI.ViewManagement.InputPane.GetForCurrentView().Visible)
+                                            {
+                                                foreach (var action in Actions.Cast<IAction>())
+                                                {
+                                                    action.Execute(this.AssociatedObject, null);
+                                                }
+                                            }
+                                        });
+                                        HoldingTickCount = 0;
+                                        Debug.WriteLine("Hold Fire!");
+                                    }
+                                    else
+                                    {
+                                        HoldingTickCount = 0;
+                                    }
                                     break;
+                                }
+                                else
+                                {
+                                    // 実行
+                                    if (nowTrigger)
+                                    {
+                                        // Debug.WriteLine("Action Execute: " + _kind.ToString());
+                                        await _uiDispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                                        {
+                                            if (!Windows.UI.ViewManagement.InputPane.GetForCurrentView().Visible)
+                                            {
+                                                foreach (var action in Actions.Cast<IAction>())
+                                                {
+                                                    action.Execute(this.AssociatedObject, null);
+                                                }
+                                            }
+                                        });
+                                        break;
+                                    }
                                 }
                             }
                         }
