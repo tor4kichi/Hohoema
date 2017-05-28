@@ -26,7 +26,7 @@
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <hardTrigger:DeviceFamilyTrigger Condition="Windows.Xbox" />
+                        <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
 
