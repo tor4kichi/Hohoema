@@ -395,6 +395,12 @@
                         </mybehavior:MouseWheelTrigger.DownActions>
                     </mybehavior:MouseWheelTrigger>
 
+                    <mybehavior:UINavigationTrigger Kind="Cancel" Hold="True" 
+                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource InvertBoolean}}"
+                                                        >
+                        <core:InvokeCommandAction Command="{Binding ClosePlayerCommand}" />
+                    </mybehavior:UINavigationTrigger>
+                    
                     
                     <!--
                     <core:EventTriggerBehavior EventName="PointerMoved">

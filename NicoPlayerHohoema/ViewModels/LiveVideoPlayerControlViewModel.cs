@@ -169,7 +169,8 @@ namespace NicoPlayerHohoema.ViewModels
 		// ui
 		public ReactiveProperty<bool> IsAutoHideEnable { get; private set; }
 		public ReactiveProperty<TimeSpan> AutoHideDelayTime { get; private set; }
-		public ReactiveProperty<bool> IsFullScreen { get; private set; }
+        public ReactiveProperty<bool> IsDisplayControlUI { get; private set; }
+        public ReactiveProperty<bool> IsFullScreen { get; private set; }
 		public ReactiveProperty<bool> IsForceLandscape { get; private set; }
         public ReactiveProperty<bool> IsSmallWindowModeEnable { get; private set; }
 
@@ -297,6 +298,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .ToReactivePropertyAsSynchronized(x => x.AutoHidePlayerControlUIPreventTime, PlayerWindowUIDispatcherScheduler)
                 .AddTo(_CompositeDisposable);
 
+            IsDisplayControlUI = HohoemaApp.Playlist.ToReactivePropertyAsSynchronized(x => x.IsDisplayPlayerControlUI);
 
 
             IsMuted = HohoemaApp.UserSettings.PlayerSettings
@@ -341,16 +343,29 @@ namespace NicoPlayerHohoema.ViewModels
                 .AddTo(_CompositeDisposable);
         }
 
-	
 
 
 
 
 
-		#region Command
 
+        #region Command
 
-		private DelegateCommand _UpdateCommand;
+        private DelegateCommand _ClosePlayerCommand;
+        public DelegateCommand ClosePlayerCommand
+        {
+            get
+            {
+                return _ClosePlayerCommand
+                    ?? (_ClosePlayerCommand = new DelegateCommand(() =>
+                    {
+                        HohoemaApp.Playlist.IsDisplayPlayer = false;
+                    }
+                    ));
+            }
+        }
+
+        private DelegateCommand _UpdateCommand;
 		public DelegateCommand UpdateCommand
 		{
 			get

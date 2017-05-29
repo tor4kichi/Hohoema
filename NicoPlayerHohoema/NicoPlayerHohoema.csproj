@@ -424,6 +424,9 @@
     <Compile Include="Views\LiveVideoPlayerControl.xaml.cs">
       <DependentUpon>LiveVideoPlayerControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\LiveVideoPlayerControl_TV.xaml.cs">
+      <DependentUpon>LiveVideoPlayerControl_TV.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\LoginPage.xaml.cs">
       <DependentUpon>LoginPage.xaml</DependentUpon>
     </Compile>
@@ -885,6 +888,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\LiveVideoPlayerControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\LiveVideoPlayerControl_TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
