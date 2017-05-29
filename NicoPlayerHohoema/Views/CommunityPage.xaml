@@ -217,7 +217,7 @@
                                 <WebView Source="{Binding ProfileHtmlFileUri}"
                                     HorizontalAlignment="Stretch"
                                     VerticalAlignment="Stretch"
-                                    DefaultBackgroundColor="WhiteSmoke"
+                                    DefaultBackgroundColor="Transparent"
                                     >
                                     <i:Interaction.Behaviors>
                                         <mybehavior:WebViewAutoResizeToContent />
@@ -271,7 +271,7 @@
                                                 <WebView Source="{Binding ContentHtmlFileUri}"
                                                     HorizontalAlignment="Stretch"
                                                     VerticalAlignment="Stretch"
-                                                    DefaultBackgroundColor="WhiteSmoke"
+                                                    DefaultBackgroundColor="Transparent"
                                                     Margin="16 8 8 8"
                                                 >
                                                     <i:Interaction.Behaviors>
