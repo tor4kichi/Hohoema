@@ -80,7 +80,10 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 		public ObservableCollection<FavoriteListViewModel> Lists { get; private set; }
-	}
+
+        
+
+    }
 
 	public class FavoriteListViewModel : BindableBase
 	{
@@ -90,7 +93,21 @@ namespace NicoPlayerHohoema.ViewModels
 		public int ItemCount => Items.Count;
 
 		public List<FavoriteItemViewModel> Items { get; set; }
-	}
+
+
+        private DelegateCommand<FavoriteItemViewModel> _SelectedCommand;
+        public DelegateCommand<FavoriteItemViewModel> SelectedCommand
+        {
+            get
+            {
+                return _SelectedCommand
+                    ?? (_SelectedCommand = new DelegateCommand<FavoriteItemViewModel>((itemVM) =>
+                    {
+                        itemVM.PrimaryCommand.Execute(null);
+                    }));
+            }
+        }
+    }
 
 	public class FavoriteItemViewModel : HohoemaListingPageItemBase
 	{
