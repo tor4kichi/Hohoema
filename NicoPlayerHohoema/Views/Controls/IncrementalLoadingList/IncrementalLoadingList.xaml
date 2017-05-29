@@ -42,8 +42,10 @@
 
                                 <GridView.ItemContainerStyle>
                                     <Style TargetType="GridViewItem">
-                                        <Setter Property="Margin" Value="0 0 16 16" />
+                                        <Setter Property="Margin" Value="0 0 16 0" />
+                                        <Setter Property="Padding" Value="8" />
                                         <Setter Property="UseSystemFocusVisuals" Value="False" />
+                                        <Setter Property="VerticalContentAlignment" Value="Stretch" />
                                     </Style>
                                 </GridView.ItemContainerStyle>
 

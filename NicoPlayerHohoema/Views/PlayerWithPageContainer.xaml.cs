@@ -42,10 +42,12 @@ namespace NicoPlayerHohoema.Views
 
             if (item is ViewModels.VideoPlayerControlViewModel)
             {
+                if (VideoPlayer_TV == null) { return VideoPlayer; }
                 return tvMode ? VideoPlayer_TV : VideoPlayer;
             }
             else if (item is ViewModels.LiveVideoPlayerControlViewModel)
             {
+                if (LiveVideoPlayer_TV == null) { return LiveVideoPlayer; }
                 return tvMode ? LiveVideoPlayer_TV : LiveVideoPlayer;
             }
 

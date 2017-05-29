@@ -169,7 +169,7 @@
                     <controls:IncrementalLoadingList.ItemsPanel>
                         <ItemsPanelTemplate>
                             <ItemsWrapGrid Orientation="Vertical"
-                                           MaxHeight="340"
+                                           MaxHeight="400"
                                            Margin="0 0 32 0"
                                            />
                         </ItemsPanelTemplate>

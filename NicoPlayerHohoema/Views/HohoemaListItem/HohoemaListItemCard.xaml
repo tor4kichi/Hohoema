@@ -17,8 +17,8 @@
 
 
         <toolkit:DockPanel>
-            <Border toolkit:DockPanel.Dock="Top" Height="180"
-                    Width="220"
+            <Border Height="160"
+                    toolkit:DockPanel.Dock="Top"
                     >
                 <Image Source="{Binding FirstImageUrl}"
                    Visibility="{Binding HasImageUrl, Converter={StaticResource BooleanToVisibility}}" 
@@ -26,8 +26,12 @@
                    />
             </Border>
 
-            <toolkit:DockPanel Margin="16 8" >
+            <toolkit:DockPanel Margin="0 8 0 0" 
+                               
+                               >
 
+                
+                
                 <TextBlock Text="{Binding OptionText}"
                         TextWrapping="Wrap"
                         FontSize="13"
@@ -45,10 +49,13 @@
                 <TextBlock Text="{Binding Title}"
                            TextWrapping="Wrap"
                            FontSize="16"
-                           VerticalAlignment="Center"
+                           VerticalAlignment="Top"
+                           Margin="0 8"
                            />
 
             </toolkit:DockPanel>
+
+            
         </toolkit:DockPanel>
 
     </Grid>
