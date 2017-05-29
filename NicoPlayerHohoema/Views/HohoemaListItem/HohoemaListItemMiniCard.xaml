@@ -27,16 +27,21 @@
         <Grid VerticalAlignment="Bottom"
                     >
 
+            
             <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" 
                     Opacity="0.7"
                     />
+            
             <StackPanel Margin="16 8" >
-                <TextBlock Text="{Binding Title}"
+                <StackPanel Visibility="{Binding HasTitle, Converter={StaticResource BooleanToVisibility}}">
+                    <TextBlock Text="{Binding Title}"
+                           
                            TextWrapping="Wrap"
                            FontSize="16"
                            />
 
-                <Border Height="8" />
+                    <Border Height="8" />
+                </StackPanel>
                 
                 <TextBlock Text="{Binding Description}"
                            TextWrapping="Wrap"
