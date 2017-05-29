@@ -369,7 +369,7 @@
 
             
 
-                    <!-- Media Control -->
+            <!-- Media Control -->
             <Grid x:Name="MediaControl" HorizontalAlignment="Stretch"
                                     VerticalAlignment="Stretch"
                   >
@@ -478,16 +478,15 @@
 
                 </Slider>
 
+
                 <Border IsHitTestVisible="True" Background="Transparent">
                     <i:Interaction.Behaviors>
                         <core:EventTriggerBehavior EventName="Tapped">
-                            <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="True" />
+                            <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="{Binding IsDisplayControlUI.Value, Converter={StaticResource InvertBoolean}}" />
                         </core:EventTriggerBehavior>
-
                     </i:Interaction.Behaviors>
-
                 </Border>
-
+                
                 <toolkit:DockPanel 
                     x:Name="UIControlLayout"
                             >
