@@ -1,8 +1,8 @@
 ﻿<Page
-    x:Class="NicoPlayerHohoema.Views.HistoryPage_TV"
+    x:Class="NicoPlayerHohoema.Views.SearchResultKeywordPage_TV"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:local="using:NicoPlayerHohoema.Views.SearchResultPage"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
@@ -73,11 +73,7 @@
                                 Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
                                 toolkit:DockPanel.Dock="Left"
                                 >
-                        <AppBarButton Command="{Binding RemoveHistoryCommand}"
-                                          Icon="Remove"
-                                          Label="履歴削除"
-                                            />
-                        
+
                         <AppBarButton Command="{Binding RequestCacheDownload}"
                                       
                                       IsEnabled="{Binding CanDownload.Value, Converter={StaticResource BooleanToVisibility}}"
@@ -133,33 +129,6 @@
                     <CommandBar>
 
 
-                        <AppBarButton Background="Transparent" 
-                                      IsEnabled="{Binding HasItem.Value}"
-                                      Label="全ての履歴を削除"
-                                      Icon="Delete"
-                                >
-
-                            <AppBarButton.Flyout>
-                                <Flyout>
-                                    <StackPanel Margin="8" Width="240">
-                                        <TextBlock Margin="0 0 0 16"
-                                               LineHeight="20"
-                                               TextWrapping="Wrap"
-                                               >
-                                        <Run>視聴履歴を全て削除します</Run>
-                                        <LineBreak />
-                                        <Run>本当に削除してもいいですか？</Run>
-                                        </TextBlock>
-
-                                        <Button Content="本当に削除" 
-                                            Command="{Binding RemoveAllHistoryCommand}"
-                                            HorizontalAlignment="Stretch"
-                                            />
-                                    </StackPanel>
-                                </Flyout>
-                            </AppBarButton.Flyout>
-                        </AppBarButton>
-                        
                         <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                             HorizontalContentAlignment="Stretch"
                                             VerticalContentAlignment="Stretch"
@@ -186,7 +155,7 @@
                                                  >
                     <controls:IncrementalLoadingList.ItemTemplate>
                         <DataTemplate>
-                            <Grid Margin="0 0 8 8"
+                            <Grid Margin="0 0 0 0"
                                   Height="150"
                                   >
 
@@ -199,8 +168,8 @@
                     <controls:IncrementalLoadingList.ItemsPanel>
                         <ItemsPanelTemplate>
                             <ItemsWrapGrid Orientation="Vertical"
-                                           MaxHeight="350"
-                                           Margin="0 0 40 0"
+                                           MaxHeight="340"
+                                           Margin="0 0 32 0"
                                            />
                         </ItemsPanelTemplate>
                     </controls:IncrementalLoadingList.ItemsPanel>

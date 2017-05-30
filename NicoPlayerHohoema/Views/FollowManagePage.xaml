@@ -13,21 +13,18 @@
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:uwpcontrol="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
+    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
     <Page.Resources>
         <DataTemplate x:Key="FavoriteItemTemplate">
-
-            <Button Command="{Binding PrimaryCommand}"
-                    HorizontalAlignment="Stretch"
-                    VerticalAlignment="Stretch"
-                    VerticalContentAlignment="Center"
-                    MinHeight="32"
-                    >
-                <controls:HohoemaListItem DisplayType="MiniCard"
-                                          VerticalAlignment="Center" />
-            </Button>
+            <TextBlock Text="{Binding Title}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       TextWrapping="Wrap"
+                       />
         </DataTemplate>
 
 
@@ -36,8 +33,24 @@
     
     
     <Grid x:Name="PageRoot">
+
+        <VisualStateManager.VisualStateGroups>
+
+            <!-- TVモードの仮対応 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ContentLayout.Margin" Value="0 27 48 27" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
         
-        <toolkit:DockPanel>
+        <toolkit:DockPanel x:Name="ContentLayout">
 
             <Border toolkit:DockPanel.Dock="Top" 
                     BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
@@ -112,32 +125,37 @@
 
                                     </uwpcontrol:Expander.HeaderTemplate>
 
-                                    <ItemsControl ItemsSource="{Binding Items}"
+                                    <GridView ItemsSource="{Binding Items}"
                                               ItemTemplate="{StaticResource FavoriteItemTemplate}"
                                               Margin="0 8 0 0"
                                               IsTabStop="False"
                                               HorizontalAlignment="Stretch"
                                                   HorizontalContentAlignment="Left"
+                                              IsItemClickEnabled="True"
+                                              uwpui:ListViewBaseExtensions.Command="{Binding SelectedCommand}"
+                                              SelectionMode="None"
                                           >
-                                        <ItemsControl.ItemContainerStyle>
-                                            <Style TargetType="ContentPresenter">
+                                        <GridView.ItemContainerStyle>
+                                            <Style TargetType="GridViewItem">
                                                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                                 <Setter Property="VerticalContentAlignment" Value="Stretch" />
                                                 <Setter Property="Margin" Value="0 0 8 8" />
-                                                <Setter Property="MinWidth" Value="150" />
+                                                <Setter Property="MinWidth" Value="140" />
+                                                <Setter Property="MinHeight" Value="80" />
+                                                <Setter Property="Padding" Value="8" />
                                             </Style>
-                                        </ItemsControl.ItemContainerStyle>
+                                        </GridView.ItemContainerStyle>
 
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
-                                                <toolkit:WrapPanel Orientation="Horizontal"
+                                                <ItemsWrapGrid Orientation="Horizontal"
                                                                    HorizontalAlignment="Left"
                                                                    />
 
                                             </ItemsPanelTemplate>
                                         </ItemsControl.ItemsPanel>
 
-                                    </ItemsControl>
+                                    </GridView>
 
 
                                 </uwpcontrol:Expander>

@@ -468,7 +468,6 @@ namespace NicoPlayerHohoema.ViewModels
             PlaylistCanGoBack = new ReactiveProperty<bool>(false);
             PlaylistCanGoNext = new ReactiveProperty<bool>(false);
             IsDisplayControlUI = HohoemaApp.Playlist.ToReactivePropertyAsSynchronized(x => x.IsDisplayPlayerControlUI);
-            IsDisplayControlUI.Subscribe(x => Debug.WriteLine(x));
         }
 
         protected override async Task OnOffline(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)

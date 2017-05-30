@@ -188,16 +188,21 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			PageManager = pageManager;
 			CommunityId = commu.Id;
-			Name = commu.Name;
-			ShortDescription = commu.ShortDescription;
-			UpdateDate = commu.DateTime;
-			IconUrl = commu.IconUrl.AbsoluteUri;
-			Level = commu.Level;
+            Name = commu.Name;
+            ShortDescription = commu.ShortDescription;
+            UpdateDate = commu.DateTime;
+            IconUrl = commu.IconUrl.AbsoluteUri;
+
+            Level = commu.Level;
 			MemberCount = commu.MemberCount;
 			VideoCount = commu.VideoCount;
-		}
 
-		private DelegateCommand _OpenCommunityPageCommand;
+            Title = commu.Name;
+            Description = commu.ShortDescription;
+            ImageUrlsSource.Add(commu.IconUrl.OriginalString);
+        }
+
+        private DelegateCommand _OpenCommunityPageCommand;
 		public override ICommand PrimaryCommand
 		{
 			get

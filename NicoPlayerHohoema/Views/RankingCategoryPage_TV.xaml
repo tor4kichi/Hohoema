@@ -273,7 +273,7 @@
                     <controls:IncrementalLoadingList.ItemTemplate>
                         <DataTemplate>
                             <Grid Margin="0 0 0 0"
-                                  Height="300"
+                                  MaxHeight="400"
                                   >
 
                                 <hohoemalistItem:HohoemaListItemCard />
@@ -293,7 +293,7 @@
                     <controls:IncrementalLoadingList.ItemsPanel>
                         <ItemsPanelTemplate>
                             <ItemsWrapGrid Orientation="Vertical"
-                                           MaxHeight="300"
+                                           MaxHeight="400"
                                            Margin="0 0 32 0"
                                            />
                         </ItemsPanelTemplate>
