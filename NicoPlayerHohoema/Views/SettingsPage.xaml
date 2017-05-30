@@ -14,8 +14,8 @@
     xmlns:settingsContent="using:NicoPlayerHohoema.Views.SettingsPageContent"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:uwptoolkitControl="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
-
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -78,11 +78,20 @@
 
     <Grid>
 
-        <i:Interaction.Behaviors>
-            <core:EventTriggerBehavior EventName="Loaded">
-                <mybehavior:SetFocus TargetObject="{x:Bind mdv}" />
-            </core:EventTriggerBehavior>
-        </i:Interaction.Behaviors>
+        <VisualStateManager.VisualStateGroups>
+
+            <!-- TVモードの仮対応 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ContentLayout.Margin" Value="0 27 48 27" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
         
         <toolkit:DockPanel x:Name="ContentLayout">
 

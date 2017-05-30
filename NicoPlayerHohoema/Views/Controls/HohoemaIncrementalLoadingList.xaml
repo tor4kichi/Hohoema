@@ -123,12 +123,13 @@
                                               HorizontalContentAlignment="Stretch"
                                               IsItemClickEnabled="{Binding IsSelectionModeEnable.Value, Converter={StaticResource InvertBoolean}}"
                                               ItemTemplate="{x:Bind ItemTemplate}"
-                                              ContextFlyout="{x:Bind ItemFlyout}"
                                               SelectionMode="Single"
+                                              ContextFlyout="{x:Bind ItemFlyout}"
                                 >
-                
 
                 <i:Interaction.Behaviors>
+
+                    <mybehavior:ListViewBaseItemContextFlyout />
 
                     <core:EventTriggerBehavior EventName="ItemClick">
                         <core:InvokeCommandAction Command="{Binding SelectItemCommand}" />
@@ -174,7 +175,6 @@
                         <Setter Property="UseSystemFocusVisuals" Value="True" />
                         <Setter Property="BorderThickness" Value="0 0 0 1" />
                         <Setter Property="BorderBrush" Value="#44707070" />
-
                     </Style>
                 </ListView.ItemContainerStyle>
 

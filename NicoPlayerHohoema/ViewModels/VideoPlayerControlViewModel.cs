@@ -467,6 +467,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             PlaylistCanGoBack = new ReactiveProperty<bool>(false);
             PlaylistCanGoNext = new ReactiveProperty<bool>(false);
+            IsDisplayControlUI = HohoemaApp.Playlist.ToReactivePropertyAsSynchronized(x => x.IsDisplayPlayerControlUI);
         }
 
         protected override async Task OnOffline(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
@@ -1911,7 +1912,9 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<bool> IsAutoHideEnable { get; private set; }
 		public ReactiveProperty<TimeSpan> AutoHideDelayTime { get; private set; }
 
-		private TimeSpan _PreviosPlayingVideoPosition;
+        public ReactiveProperty<bool> IsDisplayControlUI { get; private set; }
+
+        private TimeSpan _PreviosPlayingVideoPosition;
 
         private bool _IsNeddPlayInResumed;
 

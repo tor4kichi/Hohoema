@@ -31,14 +31,16 @@ namespace NicoPlayerHohoema.Util
 				new Uri("ms-appx:///Assets/html/template.html")
 				);
 
+
 			// テンプレートHTMLに動画説明を埋め込んだテキストを作成
 			using (var stream = await templateHtmlFileStorage.OpenAsync(FileAccessMode.Read))
 			using (var textReader = new StreamReader(stream.AsStream()))
 			{
 				var templateText = textReader.ReadToEnd();
-				descJoinedHtmlText = templateText
-					.Replace("{content}", html)
-					.Replace("http://", "https://");
+                descJoinedHtmlText = templateText
+                    .Replace("{content}", html)
+                    .Replace("http://", "https://")
+                    .Replace("{foreground-color}", App.Current.RequestedTheme == Windows.UI.Xaml.ApplicationTheme.Dark ? "#EFEFEF" : "000000");
 			}
 
 

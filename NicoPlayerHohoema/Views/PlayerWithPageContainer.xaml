@@ -27,15 +27,23 @@
         <DataTemplate x:Key="VideoPlayerTemplate">
             <local:VideoPlayerControl />
         </DataTemplate>
+        <DataTemplate x:Key="VideoPlayerTVTemplate">
+            <local:VideoPlayerControl_TV />
+        </DataTemplate>
 
         <DataTemplate x:Key="LiveVideoPlayerTemplate">
             <local:LiveVideoPlayerControl />
+        </DataTemplate>
+        <DataTemplate x:Key="LiveVideoPlayerTVTemplate">
+            <local:LiveVideoPlayerControl_TV/>
         </DataTemplate>
 
         <local:PlayerContentTemplateSelecter x:Key="PlayerContentTemplateSelecter" 
                                              Empty="{StaticResource EmptyTemplate}"
                                              VideoPlayer="{StaticResource VideoPlayerTemplate}"
+                                             VideoPlayer_TV="{StaticResource VideoPlayerTVTemplate}"
                                              LiveVideoPlayer="{StaticResource LiveVideoPlayerTemplate}"
+                                             LiveVideoPlayer_TV="{StaticResource LiveVideoPlayerTVTemplate}"
                                              />
 
     </ContentControl.Resources>
@@ -45,8 +53,8 @@
             <Grid>
                 <i:Interaction.Behaviors>
                     <mybehavior:UINavigationTrigger Kind="View" 
-                                                        IsEnabled="{Binding IsContentDisplayFloating.Value}"
-                                                        >
+                                                    IsEnabled="{Binding IsContentDisplayFloating.Value}"
+                                                    >
                         <core:ChangePropertyAction TargetObject="{Binding IsFillFloatContent}" PropertyName="Value" Value="True" />
                     </mybehavior:UINavigationTrigger>
                 </i:Interaction.Behaviors>

@@ -79,6 +79,8 @@ namespace NicoPlayerHohoema.ViewModels
                         AddSubsitutionBackNavigateAction("mdv_back", () => 
                         {
                             SelectedItem.Value = null;
+
+                            return true;
                         });
                     }
                 });

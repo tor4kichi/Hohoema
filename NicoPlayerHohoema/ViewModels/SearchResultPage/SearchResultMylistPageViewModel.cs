@@ -24,7 +24,7 @@ namespace NicoPlayerHohoema.ViewModels
 			HohoemaApp hohoemaApp
 			, PageManager pageManager
 			) 
-			: base(hohoemaApp, pageManager)
+			: base(hohoemaApp, pageManager, useDefaultPageTitle: false)
 		{
 		}
 
@@ -112,12 +112,21 @@ namespace NicoPlayerHohoema.ViewModels
 			GroupId = mylistgroup.Id;
 			UpdateTime = mylistgroup.UpdateTime;
 
-			SampleVideos = mylistgroup.VideoInfoItems?.Select(x => x.Video).ToList() ?? new List<Mntone.Nico2.Searches.Video.Video>();
+            Title = mylistgroup.Name;
+            var thumbnails = mylistgroup.VideoInfoItems?.Select(x => x.Video.ThumbnailUrl.OriginalString);
+            if (thumbnails != null)
+            {
+                foreach (var thumbnail in thumbnails)
+                {
+                    ImageUrlsSource.Add(thumbnail);
+                }
+            }
+
+            SampleVideos = mylistgroup.VideoInfoItems?.Select(x => x.Video).ToList() ?? new List<Mntone.Nico2.Searches.Video.Video>();
 		}
 
 
 		public string Name { get; private set; }
-		public string Description { get; private set; }
 		public uint ItemCount { get; private set; }
 		public string GroupId { get; private set; }
 		public DateTime UpdateTime { get; private set; }

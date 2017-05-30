@@ -95,7 +95,7 @@ namespace NicoPlayerHohoema.ViewModels
 				
 
 			UnregistrationMylistCommand = SelectedItems.ObserveProperty(x => x.Count)
-				.Where(_ => this.IsLoginUserOwnedMylist)
+				.Where(_ => this.CanEditMylist)
 				.Select(x => x > 0)
 				.ToReactiveCommand(false);
 
@@ -168,7 +168,7 @@ namespace NicoPlayerHohoema.ViewModels
 			});
 
 			CopyMylistCommand = SelectedItems.ObserveProperty(x => x.Count)
-				.Where(_ => this.IsLoginUserOwnedMylist)
+				.Where(_ => this.CanEditMylist)
 				.Select(x => x > 0)
 				.ToReactiveCommand(false);
 
@@ -239,7 +239,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 			MoveMylistCommand = SelectedItems.ObserveProperty(x => x.Count)
-				.Where(_ => this.IsLoginUserOwnedMylist)
+				.Where(_ => this.CanEditMylist)
 				.Select(x => x > 0)
 				.ToReactiveCommand(false);
 
@@ -361,7 +361,7 @@ namespace NicoPlayerHohoema.ViewModels
 				return;
 			}
 
-			IsLoginUserOwnedMylist = false;
+			CanEditMylist = false;
 
 
 			// お気に入り状態の取得
@@ -379,13 +379,14 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
+            IsUserOwnerdMylist = HohoemaApp.UserMylistManager.HasMylistGroup(MylistGroupId);
 
-			IsLoginUserOwnedMylist = HohoemaApp.UserMylistManager.HasMylistGroup(MylistGroupId);
-			IsLoginUserDeflist = false;
+            
+            IsLoginUserDeflist = false;
 
 			try
 			{
-				if (IsLoginUserOwnedMylist)
+				if (IsUserOwnerdMylist)
 				{
 					var mylistGroup = HohoemaApp.UserMylistManager.GetMylistGroup(MylistGroupId);
 					MylistTitle = mylistGroup.Name;
@@ -396,8 +397,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 					OwnerUserId = mylistGroup.UserId;
 					UserName = HohoemaApp.LoginUserName;
-				}
-				else
+
+                    CanEditMylist = !IsLoginUserDeflist;
+                }
+                else
 				{
 					var response = await HohoemaApp.ContentFinder.GetMylistGroupDetail(MylistGroupId);
 					var mylistGroupDetail = response.MylistGroup;
@@ -419,7 +422,9 @@ namespace NicoPlayerHohoema.ViewModels
 						var userDetail = await HohoemaApp.ContentFinder.GetUserDetail(OwnerUserId);
 						UserName = userDetail.Nickname;
 					}
-				}
+
+                    CanEditMylist = false;
+                }
 
 			}
 			catch
@@ -500,7 +505,7 @@ namespace NicoPlayerHohoema.ViewModels
 							}
 						}
 					}
-					, () => IsLoginUserOwnedMylist && !IsLoginUserDeflist
+					, () => CanEditMylist && !IsLoginUserDeflist
 					));
 			}
 		}
@@ -527,7 +532,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _DeleteMylistCommand
                     ?? (_DeleteMylistCommand = new DelegateCommand(async () =>
                     {
-                        if (IsLoginUserOwnedMylist)
+                        if (CanEditMylist)
                         {
                             var result = await HohoemaApp.UserMylistManager.RemoveMylist(this.MylistGroupId);
                             
@@ -620,14 +625,21 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public string OwnerUserId { get; private set; }
 
-		private bool _IsLoginUserOwnedMylist;
-		public bool IsLoginUserOwnedMylist
+		private bool _CanEditMylist;
+		public bool CanEditMylist
 		{
-			get { return _IsLoginUserOwnedMylist; }
-			set { SetProperty(ref _IsLoginUserOwnedMylist, value); }
+			get { return _CanEditMylist; }
+			set { SetProperty(ref _CanEditMylist, value); }
 		}
 
-		private bool _IsLoginUserDeflist;
+        private bool _IsUserOwnerdMylist;
+        public bool IsUserOwnerdMylist
+        {
+            get { return _IsUserOwnerdMylist; }
+            set { SetProperty(ref _IsUserOwnerdMylist, value); }
+        }
+
+        private bool _IsLoginUserDeflist;
 		public bool IsLoginUserDeflist
 		{
 			get { return _IsLoginUserDeflist; }

@@ -25,8 +25,8 @@ namespace NicoPlayerHohoema.ViewModels
 	public abstract class HohoemaListingPageViewModelBase<ITEM_VM> : HohoemaViewModelBase
 		where ITEM_VM : HohoemaListingPageItemBase
 	{
-		public HohoemaListingPageViewModelBase(HohoemaApp app, PageManager pageManager)
-			: base(app, pageManager)
+		public HohoemaListingPageViewModelBase(HohoemaApp app, PageManager pageManager, bool useDefaultPageTitle = true)
+			: base(app, pageManager, useDefaultPageTitle: useDefaultPageTitle)
 		{
 			NowLoadingItems = new ReactiveProperty<bool>(true)
 				.AddTo(_CompositeDisposable);
@@ -76,14 +76,24 @@ namespace NicoPlayerHohoema.ViewModels
 
 			SelectItemCommand.Subscribe(item =>
 			{
-                var args = item as ItemClickEventArgs;
-                if (args?.ClickedItem is HohoemaListingPageItemBase)
+                HohoemaListingPageItemBase clicekdItem = null;
+                if (item is ItemClickEventArgs)
                 {
-                    var listItem = args.ClickedItem as HohoemaListingPageItemBase;
-                    if (listItem?.PrimaryCommand.CanExecute(null) ?? false)
+                    var args = item as ItemClickEventArgs;
+                    if (args?.ClickedItem is HohoemaListingPageItemBase)
                     {
-                        listItem.PrimaryCommand.Execute(null);
+                        clicekdItem = args.ClickedItem as HohoemaListingPageItemBase;
                     }
+                }
+                else if (item is HohoemaListingPageItemBase)
+                {
+                    clicekdItem = item as HohoemaListingPageItemBase;
+                }
+
+
+                if (clicekdItem?.PrimaryCommand.CanExecute(null) ?? false)
+                {
+                    clicekdItem.PrimaryCommand.Execute(null);
                 }
             })
 			.AddTo(_CompositeDisposable);

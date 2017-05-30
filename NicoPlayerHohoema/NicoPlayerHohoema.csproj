@@ -275,6 +275,8 @@
     <Compile Include="Views\AboutPage.xaml.cs">
       <DependentUpon>AboutPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Behaviors\FocusGetter.cs" />
+    <Compile Include="Views\Behaviors\ListViewBaseItemContextFlyout.cs" />
     <Compile Include="Views\Behaviors\MenuFlyoutSubItemsSetter.cs" />
     <Compile Include="Views\Behaviors\CloseFlyoutAction.cs" />
     <Compile Include="Views\Behaviors\DataTriggerBehavior.cs" />
@@ -289,6 +291,7 @@
     <Compile Include="Views\Behaviors\MouseWheelTrigger.cs" />
     <Compile Include="Views\Behaviors\OpenFlyout.cs" />
     <Compile Include="Views\Behaviors\RefreshableListViewExtention.cs" />
+    <Compile Include="Views\Behaviors\ScrollAction.cs" />
     <Compile Include="Views\Behaviors\ScrollToIndex.cs" />
     <Compile Include="Views\Behaviors\ListViewVerticalOffsetGetter.cs" />
     <Compile Include="Views\Behaviors\SetFocus.cs" />
@@ -298,6 +301,9 @@
     <Compile Include="Views\CacheManagementPage.xaml.cs">
       <DependentUpon>CacheManagementPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\CacheManagementPage_TV.xaml.cs">
+      <DependentUpon>CacheManagementPage_TV.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\CommentCommandEditer.xaml.cs">
       <DependentUpon>CommentCommandEditer.xaml</DependentUpon>
     </Compile>
@@ -306,6 +312,9 @@
     </Compile>
     <Compile Include="Views\CommunityVideoPage.xaml.cs">
       <DependentUpon>CommunityVideoPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CommunityVideoPage_TV.xaml.cs">
+      <DependentUpon>CommunityVideoPage_TV.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ConfirmWatchHurmfulVideoPage.xaml.cs">
       <DependentUpon>ConfirmWatchHurmfulVideoPage.xaml</DependentUpon>
@@ -328,6 +337,9 @@
       <DependentUpon>HohoemaIncrementalLoadingList.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\FloatContentContainer\FloatContentContainer.cs" />
+    <Compile Include="Views\Controls\IncrementalLoadingList\IncrementalLoadingList.cs" />
+    <Compile Include="Views\Controls\IncrementalLoadingList\IncrementalLoadingList.Event.cs" />
+    <Compile Include="Views\Controls\IncrementalLoadingList\IncrementalLoadingList.Properties.cs" />
     <Compile Include="Views\Controls\VideoListItemFlyout.xaml.cs">
       <DependentUpon>VideoListItemFlyout.xaml</DependentUpon>
     </Compile>
@@ -336,6 +348,12 @@
     <Compile Include="Views\Converters\NicoVideoQualityToCultualizedTextConverter.cs" />
     <Compile Include="Views\Converters\ServiceStatusToTextConverter.cs" />
     <Compile Include="Views\Converters\TransparentColorConverter.cs" />
+    <Compile Include="Views\FeedVideoListPage_TV.xaml.cs">
+      <DependentUpon>FeedVideoListPage_TV.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\HistoryPage_TV.xaml.cs">
+      <DependentUpon>HistoryPage_TV.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\HohoemaListItem.xaml.cs">
       <DependentUpon>HohoemaListItem.xaml</DependentUpon>
     </Compile>
@@ -406,11 +424,17 @@
     <Compile Include="Views\LiveVideoPlayerControl.xaml.cs">
       <DependentUpon>LiveVideoPlayerControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\LiveVideoPlayerControl_TV.xaml.cs">
+      <DependentUpon>LiveVideoPlayerControl_TV.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\LoginPage.xaml.cs">
       <DependentUpon>LoginPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MylistPage.xaml.cs">
       <DependentUpon>MylistPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\MylistPage_TV.xaml.cs">
+      <DependentUpon>MylistPage_TV.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\PlayerWithPageContainer.xaml.cs">
       <DependentUpon>PlayerWithPageContainer.xaml</DependentUpon>
@@ -418,8 +442,14 @@
     <Compile Include="Views\PlaylistPage.xaml.cs">
       <DependentUpon>PlaylistPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\PortalPage__TV.xaml.cs">
-      <DependentUpon>PortalPage__TV.xaml</DependentUpon>
+    <Compile Include="Views\PortalPage_TV.xaml.cs">
+      <DependentUpon>PortalPage_TV.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\RankingCategoryListPage_TV.xaml.cs">
+      <DependentUpon>RankingCategoryListPage_TV.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\RankingCategoryPage_TV.xaml.cs">
+      <DependentUpon>RankingCategoryPage_TV.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\RankingChoiceContentDialog.xaml.cs">
       <DependentUpon>RankingChoiceContentDialog.xaml</DependentUpon>
@@ -427,14 +457,26 @@
     <Compile Include="Views\SearchResultPage\SearchResultCommunityPage.xaml.cs">
       <DependentUpon>SearchResultCommunityPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\SearchResultPage\SearchResultCommunityPage_TV.xaml.cs">
+      <DependentUpon>SearchResultCommunityPage_TV.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\SearchResultPage\SearchResultKeywordPage.xaml.cs">
       <DependentUpon>SearchResultKeywordPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SearchResultPage\SearchResultKeywordPage_TV.xaml.cs">
+      <DependentUpon>SearchResultKeywordPage_TV.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SearchResultPage\SearchResultLivePage.xaml.cs">
       <DependentUpon>SearchResultLivePage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\SearchResultPage\SearchResultLivePage_TV.xaml.cs">
+      <DependentUpon>SearchResultLivePage_TV.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\SearchResultPage\SearchResultMylistPage.xaml.cs">
       <DependentUpon>SearchResultMylistPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SearchResultPage\SearchResultMylistPage_TV.xaml.cs">
+      <DependentUpon>SearchResultMylistPage_TV.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SearchResultPage\SearchResultTagPage.xaml.cs">
       <DependentUpon>SearchResultTagPage.xaml</DependentUpon>
@@ -468,6 +510,9 @@
     </Compile>
     <Compile Include="Views\MenuNavigatePageBase.xaml.cs">
       <DependentUpon>MenuNavigatePageBase.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SearchResultPage\SearchResultTagPage_TV.xaml.cs">
+      <DependentUpon>SearchResultTagPage_TV.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Service\AcceptCacheUsaseDialog.xaml.cs">
       <DependentUpon>AcceptCacheUsaseDialog.xaml</DependentUpon>
@@ -526,6 +571,9 @@
     <Compile Include="Views\UserVideoPage.xaml.cs">
       <DependentUpon>UserVideoPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\UserVideoPage_TV.xaml.cs">
+      <DependentUpon>UserVideoPage_TV.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\VideoInfoContent\CommentVideoInfoContent.xaml.cs">
       <DependentUpon>CommentVideoInfoContent.xaml</DependentUpon>
     </Compile>
@@ -540,6 +588,9 @@
     </Compile>
     <Compile Include="Views\VideoInfomationPage.xaml.cs">
       <DependentUpon>VideoInfomationPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\VideoInfomationPage_TV.xaml.cs">
+      <DependentUpon>VideoInfomationPage_TV.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\VideoPlayerControl.xaml.cs">
       <DependentUpon>VideoPlayerControl.xaml</DependentUpon>
@@ -572,6 +623,9 @@
     </Compile>
     <Compile Include="Views\Controls\VideoInfoControl.xaml.cs">
       <DependentUpon>VideoInfoControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\VideoPlayerControl_TV.xaml.cs">
+      <DependentUpon>VideoPlayerControl_TV.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\VisualTreeExtention.cs" />
   </ItemGroup>
@@ -654,10 +708,23 @@
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Page>
+    <Page Include="Styles\TVStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
     <Page Include="Styles\VideoProgressBarStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
+    <Page Include="Views\CacheManagementPage_TV.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\CommunityVideoPage_TV.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Controls\FloatContentContainer\FloatContentContainer.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -715,7 +782,20 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Controls\IncrementalLoadingList\IncrementalLoadingList.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
     <Page Include="Views\Controls\VideoListItemFlyout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\FeedVideoListPage_TV.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\HistoryPage_TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -811,6 +891,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\LiveVideoPlayerControl_TV.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\LoginPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -823,6 +907,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\MylistPage_TV.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\PlayerWithPageContainer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -831,7 +919,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\PortalPage__TV.xaml">
+    <Page Include="Views\PortalPage_TV.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\RankingCategoryListPage_TV.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\RankingCategoryPage_TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -843,7 +939,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\SearchResultPage\SearchResultCommunityPage_TV.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\SearchResultPage\SearchResultKeywordPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SearchResultPage\SearchResultKeywordPage_TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -851,11 +955,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\SearchResultPage\SearchResultLivePage_TV.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\SearchResultPage\SearchResultMylistPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\SearchResultPage\SearchResultMylistPage_TV.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\SearchResultPage\SearchResultTagPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SearchResultPage\SearchResultTagPage_TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -915,6 +1031,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\UserVideoPage_TV.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\VideoInfoContent\CommentVideoInfoContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -932,6 +1052,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\VideoInfomationPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\VideoInfomationPage_TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -975,6 +1099,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\VideoPlayerControl_TV.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Mntone.Nico2.UWP">
@@ -987,9 +1115,7 @@
       <Name>NicoVideoRtmpClient</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Themes\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <SDKReference Include="Microsoft.Services.Store.Engagement, Version=10.0">
       <Name>Microsoft Engagement Framework</Name>

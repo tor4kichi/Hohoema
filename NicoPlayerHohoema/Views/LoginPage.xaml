@@ -11,16 +11,34 @@
     xmlns:wrapPanel="using:Microsoft.Toolkit.Uwp.UI.Controls.WrapPanel"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
     <Grid>
 
+        <VisualStateManager.VisualStateGroups>
+
+            <!-- TVモードの仮対応 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ContentLayout.Margin" Value="48 27" />
+                        <Setter Target="SubLayout.Margin" Value="48 27" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+        
         
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <toolkit:DockPanel HorizontalAlignment="Center"
                            VerticalAlignment="Center"
                                Margin="0 8 0 0"
+                               x:Name="ContentLayout"
                            >
 
                 <StackPanel toolkit:DockPanel.Dock="Top">
@@ -210,7 +228,8 @@
         </ScrollViewer>
 
 
-        <HyperlinkButton Content="ログインをスキップ →" 
+        <Grid x:Name="SubLayout">
+            <HyperlinkButton Content="ログインをスキップ →" 
                          Command="{Binding SkipLoginCommand}"
                          HorizontalAlignment="Right"
                          VerticalAlignment="Top"
@@ -218,31 +237,33 @@
                          FontSize="18"
                          />
 
-        <StackPanel HorizontalAlignment="Right"
+            <StackPanel HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
                     Margin="16 0"
                     >
-            <Border 
+                <Border 
                 Margin="0 8"
                 HorizontalAlignment="Right"
                 >
-                <TextBlock Foreground="DimGray"
+                    <TextBlock Foreground="DimGray"
                        >
                 <Run Text="ver " />
                 <Run Text="{Binding VersionText}" />
-                </TextBlock>
-            </Border>
+                    </TextBlock>
+                </Border>
 
-            <Border 
+                <Border 
                 Margin="0 8"
                 >
-                <HyperlinkButton Foreground="DimGray"
+                    <HyperlinkButton Foreground="DimGray"
                              Content="Hohoemaのプライバシーポリシー"
                              NavigateUri="https://github.com/tor4kichi/Hohoema/wiki/Privacy-policy"
                        >
-                </HyperlinkButton>
-            </Border>
+                    </HyperlinkButton>
+                </Border>
 
-        </StackPanel>
+            </StackPanel>
+        </Grid>
+        
     </Grid>
 </Page>

@@ -15,7 +15,6 @@
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
-    xmlns:win2d="win2d"
     mc:Ignorable="d">
 
     <Grid>

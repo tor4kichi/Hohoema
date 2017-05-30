@@ -91,6 +91,13 @@ namespace NicoPlayerHohoema.Models
             set { SetProperty(ref _IsDisplayPlayer, value); }
         }
 
+        private bool _IsDisplayPlayerControlUI = false;
+        public bool IsDisplayPlayerControlUI
+        {
+            get { return _IsDisplayPlayerControlUI; }
+            set { SetProperty(ref _IsDisplayPlayerControlUI, value); }
+        }
+
 
         private bool _IsPlayerFloatingModeEnable = false;
         public bool IsPlayerFloatingModeEnable

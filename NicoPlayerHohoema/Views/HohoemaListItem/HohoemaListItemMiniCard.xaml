@@ -12,27 +12,43 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <toolkit:DockPanel>
+    <Grid MaxWidth="240">
 
-        <Border toolkit:DockPanel.Dock="Right">
+        
+        <Border>
             <Image Source="{Binding FirstImageUrl}"
                    Visibility="{Binding HasImageUrl, Converter={StaticResource BooleanToVisibility}}" 
-                   Stretch="Fill"
+                   Stretch="Uniform"
+                   VerticalAlignment="Center"
+                   MinHeight="180"
                    />
         </Border>
         
-        <StackPanel Margin="8">
-            <!-- top area -->
-            <StackPanel>
-                <TextBlock Text="{Binding Title}"
+        <Grid VerticalAlignment="Bottom"
+                    >
+
+            
+            <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" 
+                    Opacity="0.7"
+                    />
+            
+            <StackPanel Margin="16 8" >
+                <StackPanel Visibility="{Binding HasTitle, Converter={StaticResource BooleanToVisibility}}">
+                    <TextBlock Text="{Binding Title}"
+                           
                            TextWrapping="Wrap"
+                           FontSize="16"
                            />
+
+                    <Border Height="8" />
+                </StackPanel>
+                
                 <TextBlock Text="{Binding Description}"
                            TextWrapping="Wrap"
                            FontSize="13"
-                           Opacity="0.8"
+                           Opacity="0.7"
                            />
             </StackPanel>
-        </StackPanel>
-    </toolkit:DockPanel>
+        </Grid>
+    </Grid>
 </UserControl>

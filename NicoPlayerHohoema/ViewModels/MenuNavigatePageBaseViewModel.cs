@@ -78,6 +78,8 @@ namespace NicoPlayerHohoema.ViewModels
                 new PageTypeSelectableItem(HohoemaPageType.UserInfo           , OnAccountMenuItemSelected, "アカウント", Symbol.Account),
             };
 
+            AllMenuItems = MenuItems.Concat(SubMenuItems).ToList();
+
             MainSelectedItem = new ReactiveProperty<PageTypeSelectableItem>(MenuItems[0]);
             SubSelectedItem = new ReactiveProperty<PageTypeSelectableItem>();
 
@@ -380,6 +382,7 @@ namespace NicoPlayerHohoema.ViewModels
         public List<PageTypeSelectableItem> MenuItems { get; private set; }
 
         public List<PageTypeSelectableItem> SubMenuItems { get; private set; }
+        public List<PageTypeSelectableItem> AllMenuItems { get; private set; }
 
         public ReactiveProperty<PageTypeSelectableItem> MainSelectedItem { get; private set; }
         public ReactiveProperty<PageTypeSelectableItem> SubSelectedItem { get; private set; }

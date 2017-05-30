@@ -12,32 +12,52 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <toolkit:DockPanel>
+    <Grid MaxWidth="220"
+          >
 
-        <!--
-        <Grid toolkit:DockPanel.Dock="Top" >
-            <Image Source="{Binding FirstImageUrl}"
-                Visibility="{Binding HasImageUrl, Converter={StaticResource BooleanToVisibility}}" 
-                Stretch="Uniform"
-                   Margin="8"
-                />
 
-            <Border>
-                <TextBlock Text="{Binding ImageCaption}" 
-                           Visibility="{Binding HasImageCaption, Converter={StaticResource BooleanToVisibility}}"
-                       HorizontalAlignment="Right"
-                       VerticalAlignment="Bottom"
-                       Margin="16"
-                       />
+        <toolkit:DockPanel>
+            <Border Height="160"
+                    toolkit:DockPanel.Dock="Top"
+                    >
+                <Image Source="{Binding FirstImageUrl}"
+                   Visibility="{Binding HasImageUrl, Converter={StaticResource BooleanToVisibility}}" 
+                   Stretch="Uniform"
+                   />
             </Border>
-        </Grid>
-        -->
 
-        <TextBlock Text="{Binding Title}"
-                           VerticalAlignment="Center"
+            <toolkit:DockPanel Margin="0 8 0 0" 
+                               
+                               >
+
+                
+                
+                <TextBlock Text="{Binding OptionText}"
                         TextWrapping="Wrap"
+                        FontSize="13"
+                        Opacity="0.7"
+                            toolkit:DockPanel.Dock="Top"
                         />
-        
-    </toolkit:DockPanel>
-    
+
+                <TextBlock Text="{Binding Description}"
+                        TextWrapping="Wrap"
+                        FontSize="13"
+                        Opacity="0.7"
+                            toolkit:DockPanel.Dock="Bottom"
+                        />
+
+                <TextBlock Text="{Binding Title}"
+                           TextWrapping="Wrap"
+                           FontSize="16"
+                           VerticalAlignment="Top"
+                           Margin="0 8"
+                           />
+
+            </toolkit:DockPanel>
+
+            
+        </toolkit:DockPanel>
+
+    </Grid>
+
 </UserControl>

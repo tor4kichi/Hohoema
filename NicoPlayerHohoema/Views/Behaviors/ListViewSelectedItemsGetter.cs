@@ -9,10 +9,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
 
 namespace NicoPlayerHohoema.Views.Behaviors
 {
-	public class ListViewSelectedItemsGetter : Behavior<ListView>
+	public class ListViewSelectedItemsGetter : Behavior<ListViewBase>
 	{
 		public IList SelectedItems
 		{
@@ -123,9 +124,9 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
 		private void AssociatedObject_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
-			var me = sender as ListView;
+			var me = sender as ListViewBase;
 
-			if (SelectedItems != null)
+            if (SelectedItems != null)
 			{
 				// Viewで追加済みのアイテムをVM側のコレクションに追加
 				foreach (var item in me.SelectedItems)

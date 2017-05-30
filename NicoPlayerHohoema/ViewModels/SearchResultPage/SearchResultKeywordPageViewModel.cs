@@ -30,7 +30,7 @@ namespace NicoPlayerHohoema.ViewModels
 			PageManager pageManager, 
 			MylistRegistrationDialogService mylistDialogService
 			) 
-			: base(hohoemaApp, pageManager, mylistDialogService)
+			: base(hohoemaApp, pageManager, mylistDialogService, useDefaultPageTitle: false)
 		{
 			_ContentFinder = HohoemaApp.ContentFinder;
 

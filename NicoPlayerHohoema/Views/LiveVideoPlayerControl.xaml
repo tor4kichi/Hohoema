@@ -154,11 +154,13 @@
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <hardTrigger:DeviceFamilyTrigger Condition="Windows.Xbox" />
+                        <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
 
                         <Setter Target="MenuSubItem_Share.Visibility" Value="Collapsed" />
+                        <Setter Target="TitleLayout.Margin" Value="48 0" />
+                        <Setter Target="TopBarLayout.Margin" Value="48 27 48 0" />
                     </VisualState.Setters>
                 </VisualState>
 
@@ -204,7 +206,7 @@
                     <!-- TODO: エンタキーでコメント入力開始 -->
                     <mybehavior:KeyboardTrigger Key="Enter">
                         <mybehavior:KeyboardTrigger.Actions>
-                            <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Show" />
+                            <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="True" />
                             <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayCommentTextBox" Value="True" />
                             <mybehavior:SetFocus TargetObject="{Binding ElementName=CommentTextBox}" Delay="00:00:00.1" />
                         </mybehavior:KeyboardTrigger.Actions>
@@ -214,22 +216,22 @@
                     <mybehavior:MouseWheelTrigger>
                         <mybehavior:MouseWheelTrigger.UpActions>
                             <core:InvokeCommandAction Command="{Binding VolumeUpCommand}" />
-                            <core:CallMethodAction TargetObject="{Binding ElementName=AutoHideBehavior}" MethodName="PreventAutoHide" />
                         </mybehavior:MouseWheelTrigger.UpActions>
                         <mybehavior:MouseWheelTrigger.DownActions>
                             <core:InvokeCommandAction Command="{Binding VolumeDownCommand}" />
-                            <core:CallMethodAction TargetObject="{Binding ElementName=AutoHideBehavior}" MethodName="PreventAutoHide" />
                         </mybehavior:MouseWheelTrigger.DownActions>
                     </mybehavior:MouseWheelTrigger>
 
 
-                    <core:EventTriggerBehavior EventName="Tapped">
-                        <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Show" />
-                    </core:EventTriggerBehavior>
-
                     <core:EventTriggerBehavior EventName="Loaded">
                         <mybehavior:SetFocus TargetObject="{Binding ElementName=VolumeButton}" />
                     </core:EventTriggerBehavior>
+
+                    <mybehavior:UINavigationTrigger Kind="Cancel" Hold="True" 
+                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource InvertBoolean}}"
+                                                        >
+                        <core:InvokeCommandAction Command="{Binding ClosePlayerCommand}" />
+                    </mybehavior:UINavigationTrigger>
                     
                 </i:Interaction.Behaviors>
 
@@ -308,23 +310,78 @@
 
                 </Border>
 
+                <Border IsHitTestVisible="True" Background="Transparent">
+                    <i:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="Tapped">
+                            <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="{Binding IsDisplayControlUI.Value, Converter={StaticResource InvertBoolean}}" />
+                        </core:EventTriggerBehavior>
+                    </i:Interaction.Behaviors>
+                </Border>
 
                 <toolkit:DockPanel x:Name="ControlUIRoot" >
 
                     <i:Interaction.Behaviors>
                         <mybehavior:VisiblityFadeChanger x:Name="PlayerControlAutoHide" 
-                                            Delay="{Binding AutoHideDelayTime.Value}"
-                           />
+                                                         Delay="{Binding AutoHideDelayTime.Value}"
+                                                         IsAnimationEnable="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource InvertBoolean}}"
+                                                         IsVisible="{Binding IsDisplayControlUI.Value, Mode=TwoWay}"
+                        />
 
+                        <!--
                         <mybehavior:UINavigationTrigger Kind="View" 
                                                         IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource InvertBoolean}}"
                                                         >
                             <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Toggle" />
                             <mybehavior:SetFocus TargetObject="{Binding ElementName=RefreshButton}" />
                         </mybehavior:UINavigationTrigger>
+                        -->
                     </i:Interaction.Behaviors>
 
-                    
+
+                    <StackPanel toolkit:DockPanel.Dock="Top" >
+
+                        <Border Background="{ThemeResource SystemAltMediumColor}">
+                            <toolkit:DockPanel
+                                x:Name="TopBarLayout"
+                                Margin="0 0"
+                                           >
+
+                                <Button Command="{Binding ClosePlayerCommand}"
+                                    Background="Transparent"
+                                    toolkit:DockPanel.Dock="Left"
+                                    UseSystemFocusVisuals="True"
+                                    >
+                                    <iconPack:PackIconMaterial Kind="Close" />
+                                </Button>
+
+
+                                <Border />
+
+                            </toolkit:DockPanel>
+
+                        </Border>
+
+
+
+
+                        <Border Height="32">
+
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="1, 1" EndPoint="1, 0">
+                                    <GradientStop Color="{Binding Source={StaticResource SystemAltMediumColor}, Converter={StaticResource ToTransparentColor}}" Offset="0.0" />
+                                    <GradientStop Color="{ThemeResource SystemAltMediumColor}" Offset="1.0" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+
+                            <i:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="False" />
+                                </core:EventTriggerBehavior>
+                            </i:Interaction.Behaviors>
+                        </Border>
+
+                    </StackPanel>
+
                     <StackPanel 
                                 toolkit:DockPanel.Dock="Bottom"
                                 HorizontalAlignment="Stretch"
@@ -340,7 +397,7 @@
 
                             <i:Interaction.Behaviors>
                                 <core:EventTriggerBehavior EventName="Tapped">
-                                    <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
+                                    <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="False" />
                                 </core:EventTriggerBehavior>
                             </i:Interaction.Behaviors>
                         </Border>
@@ -350,7 +407,7 @@
 
                             <i:Interaction.Behaviors>
                                 <core:EventTriggerBehavior EventName="Tapped">
-                                    <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
+                                    <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="False" />
                                 </core:EventTriggerBehavior>
                             </i:Interaction.Behaviors>
                         </StackPanel>
@@ -442,7 +499,7 @@
 
                             <i:Interaction.Behaviors>
                                 <core:EventTriggerBehavior EventName="Tapped">
-                                    <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
+                                    <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="False" />
                                 </core:EventTriggerBehavior>
                             </i:Interaction.Behaviors>
 
@@ -512,11 +569,6 @@
                                                             Width="160"
                                                             Background="Transparent"
                                                     >
-                                                        <i:Interaction.Behaviors>
-                                                            <core:EventTriggerBehavior EventName="ValueChanged" >
-                                                                <core:CallMethodAction TargetObject="{Binding ElementName=AutoHideBehavior}" MethodName="PreventAutoHide" />
-                                                            </core:EventTriggerBehavior>
-                                                        </i:Interaction.Behaviors>
                                                     </Slider>
                                                     <TextBlock Text="音量" 
                                                    VerticalAlignment="Center"
@@ -606,7 +658,7 @@
                                             <MenuFlyoutItem Text="小さく表示" Command="{Binding PlayerSmallWindowDisplayCommand}">
                                                 <i:Interaction.Behaviors>
                                                     <core:EventTriggerBehavior EventName="Tapped">
-                                                        <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
+                                                        <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="False" />
                                                     </core:EventTriggerBehavior>
                                                 </i:Interaction.Behaviors>
                                             </MenuFlyoutItem>
@@ -713,7 +765,7 @@
                     <Border IsHitTestVisible="True" Background="Transparent">
                         <i:Interaction.Behaviors>
                             <core:EventTriggerBehavior EventName="Tapped">
-                                <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
+                                <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="False" />
                             </core:EventTriggerBehavior>
                         </i:Interaction.Behaviors>
 

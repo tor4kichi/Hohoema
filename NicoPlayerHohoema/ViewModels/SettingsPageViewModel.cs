@@ -56,6 +56,8 @@ namespace NicoPlayerHohoema.ViewModels
                         , () => 
                         {
                             CurrentSettingsContent.Value = null;
+
+                            return true;
                         });
                 }
                 else
