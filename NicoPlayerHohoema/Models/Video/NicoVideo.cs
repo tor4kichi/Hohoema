@@ -349,17 +349,9 @@ namespace NicoPlayerHohoema.Models
             {
                 string contentType = null;
 
-                if (NicoVideoCachedStream is Util.HttpRandomAccessStream)
+                if (NicoVideoCachedStream is IRandomAccessStreamWithContentType)
                 {
-                    contentType = (NicoVideoCachedStream as Util.HttpRandomAccessStream).ContentType;
-                }
-                else if (NicoVideoCachedStream is Util.HttpSequencialAccessStream)
-                {
-                    contentType = (NicoVideoCachedStream as Util.HttpSequencialAccessStream).ContentType;
-                }
-                else if (NicoVideoCachedStream is FileRandomAccessStream)
-                {
-                    contentType = "video/mp4";
+                    contentType = (NicoVideoCachedStream as IRandomAccessStreamWithContentType).ContentType;
                 }
 
                 if (contentType == null) { throw new Exception("unknown movie content type"); }

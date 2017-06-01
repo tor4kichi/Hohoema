@@ -212,7 +212,7 @@
     <Compile Include="Util\DisplayRequestHelper.cs" />
     <Compile Include="Util\FileAccessor.cs" />
     <Compile Include="Util\FilePathHelper.cs" />
-    <Compile Include="Util\HttpRandomAccessStream.cs" />
+    <Compile Include="Util\HttpSequencialAccessStream.cs" />
     <Compile Include="Util\IncrementalLoadingCollection.cs" />
     <Compile Include="Util\InternetConnection.cs" />
     <Compile Include="Util\ListExtention.cs" />
