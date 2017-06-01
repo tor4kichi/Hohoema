@@ -97,8 +97,9 @@
                                 <StateTrigger IsActive="{Binding IsTVModeEnable.Value}" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter Target="SplitView.DisplayMode" Value="Inline" />
-                                <Setter Target="SplitView.IsPaneOpen" Value="True" />
+                                <Setter Target="SplitView.DisplayMode" Value="CompactInline" />
+                                <Setter Target="SplitView.IsPaneOpen" Value="False" />
+                                <Setter Target="ContentLayout.Margin" Value="0 0 0 0" />
 
                                 <Setter Target="SplitView.PaneBackground" Value="Transparent" />
                             </VisualState.Setters>
@@ -141,6 +142,24 @@
                             <VisualState.Setters>
                                 <Setter Target="SplitView.Margin" Value="48 0 0 0" />
                                 <Setter Target="PaneLayout.Margin" Value="0 27 0 27" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+
+                    <VisualStateGroup>
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <StateTrigger IsActive="{Binding IsTVModeEnable.Value, Converter={StaticResource InvertBoolean}}" />
+                            </VisualState.StateTriggers>
+                        </VisualState>
+                        <VisualState>
+                            
+                            <VisualState.StateTriggers>
+                                <mytrigger:FocusTrigger Target="{Binding ElementName=PaneLayout}" Inverted="False" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="SplitView.IsPaneOpen" Value="True" />
                             </VisualState.Setters>
                         </VisualState>
                     </VisualStateGroup>
@@ -301,10 +320,10 @@
 
 
                     <SplitView x:Name="SplitView" 
-                        CompactPaneLength="48"
+                        CompactPaneLength="56"
                         OpenPaneLength="180"
                         DisplayMode="Overlay"
-                        IsPaneOpen="{Binding IsOpenPane.Value, Mode=TwoWay}"
+                        IsPaneOpen="False"
                                IsTabStop="False"
                                PaneBackground="{ThemeResource SystemAltMediumHighColor}"
                         >
@@ -371,6 +390,7 @@
                                                   ItemTemplate="{StaticResource MenuItemTemplate}"
                                                     IsTabStop="False"
                                                   Background="Transparent"
+                                                  SingleSelectionFollowsFocus="False"
                                                 >
                                             <ListView.ItemContainerStyle>
                                                 <Style TargetType="ListViewItem">
