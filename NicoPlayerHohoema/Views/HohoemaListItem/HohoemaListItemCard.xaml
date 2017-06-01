@@ -17,7 +17,7 @@
 
 
         <toolkit:DockPanel>
-            <Border Height="160"
+            <Border Height="140"
                     toolkit:DockPanel.Dock="Top"
                     >
                 <Image Source="{Binding FirstImageUrl}"
@@ -26,17 +26,24 @@
                    />
             </Border>
 
-            <toolkit:DockPanel Margin="0 8 0 0" 
+            <StackPanel Margin="0 8 0 0" 
                                
                                >
 
-                
-                
+
+                <TextBlock Text="{Binding Title}"
+                           toolkit:DockPanel.Dock="Top"
+                           TextWrapping="Wrap"
+                           FontSize="16"
+                           VerticalAlignment="Top"
+                           Margin="0 8"
+                           Height="64"
+                           />
+
                 <TextBlock Text="{Binding OptionText}"
                         TextWrapping="Wrap"
                         FontSize="13"
                         Opacity="0.7"
-                            toolkit:DockPanel.Dock="Top"
                         />
 
                 <TextBlock Text="{Binding Description}"
@@ -46,14 +53,8 @@
                             toolkit:DockPanel.Dock="Bottom"
                         />
 
-                <TextBlock Text="{Binding Title}"
-                           TextWrapping="Wrap"
-                           FontSize="16"
-                           VerticalAlignment="Top"
-                           Margin="0 8"
-                           />
 
-            </toolkit:DockPanel>
+            </StackPanel>
 
             
         </toolkit:DockPanel>
