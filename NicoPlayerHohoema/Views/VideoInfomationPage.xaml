@@ -135,11 +135,16 @@
 
                                 </uwptoolkit:ImageEx>
 
-                                <Border Background="#99000000" Padding="4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0 0 4 4">
+                                <Grid Padding="8" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0 0 4 4">
+                                    <Border Background="{StaticResource ApplicationPageBackgroundThemeBrush}" Opacity="0.7">
+
+                                    </Border>
+                                    
                                     <TextBlock VerticalAlignment="Center" FontSize="18">
-                                    <Run Text="{Binding VideoLength, Converter={StaticResource TimeToMovieLengthConverter}}" />
+                                        <Run Text="{Binding VideoLength, Converter={StaticResource TimeToMovieLengthConverter}}" />
                                     </TextBlock>
-                                </Border>
+
+                                </Grid>
                             </Grid>
 
 
