@@ -1206,6 +1206,16 @@
                     </StackPanel>
                 </Border>
 
+                <Border HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Visibility="{Binding IsVideoClosed.Value, Converter={StaticResource BooleanToVisibility}}"
+                        >
+                    <Button Command="{Binding RefreshVideoCommand}">
+                        <iconPack:PackIconMaterial Kind="Refresh" Height="48" Width="48" />
+
+                    </Button>
+                </Border>
+
             </Grid>
 
 
