@@ -236,7 +236,7 @@
 
                                             <i:Interaction.Behaviors>
                                                 <core:EventTriggerBehavior EventName="Tapped">
-                                                    <core:InvokeCommandAction Command="{Binding OpenMylistCommand}" />
+                                                    <core:InvokeCommandAction Command="{Binding PrimaryCommand}" />
                                                 </core:EventTriggerBehavior>
                                             </i:Interaction.Behaviors>
 
