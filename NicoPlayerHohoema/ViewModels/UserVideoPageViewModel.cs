@@ -34,14 +34,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override async Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			User = await HohoemaApp.ContentFinder.GetUserDetail(UserId);			
-		}
-
-		protected override void PostResetList()
-		{
-			base.PostResetList();
-
-			var source = IncrementalLoadingItems.Source as UserVideoIncrementalSource;
+			User = await HohoemaApp.ContentFinder.GetUserDetail(UserId);
 
 			if (User != null)
 			{
@@ -52,6 +45,11 @@ namespace NicoPlayerHohoema.ViewModels
 				UpdateTitle("投稿動画一覧");
 			}
 			UserName = User.Nickname;
+        }
+
+		protected override void PostResetList()
+		{
+			base.PostResetList();
 		}
 
 
@@ -119,9 +117,11 @@ namespace NicoPlayerHohoema.ViewModels
 			_ResList = new List<UserVideoResponse>();
 		}
 
-		#region Implements HohoemaPreloadingIncrementalSourceBase		
+        public override uint OneTimeLoadCount => 8;
 
-		protected override async Task<IEnumerable<NicoVideo>> PreloadNicoVideo(int start, int count)
+        #region Implements HohoemaPreloadingIncrementalSourceBase		
+
+        protected override async Task<IEnumerable<NicoVideo>> PreloadNicoVideo(int start, int count)
 		{
 			var rawPage = ((start) / 30);
 			var page = rawPage + 1;
@@ -146,7 +146,7 @@ namespace NicoPlayerHohoema.ViewModels
 			List<NicoVideo> videos = new List<NicoVideo>();
 			foreach (var item in items)
 			{
-				var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideoAsync(item.VideoId);
+				var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideoAsync(item.VideoId, withInitialize:false);
 
 				nicoVideo.PreSetTitle(item.Title);
 				nicoVideo.PreSetThumbnailUrl(item.ThumbnailUrl.AbsoluteUri);
@@ -160,7 +160,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override async Task<int> HohoemaPreloadingResetSourceImpl()
 		{
-			User = await ContentFinder.GetUserDetail(UserId.ToString());
+            //			User = await ContentFinder.GetUserDetail(UserId.ToString());
+            await Task.Delay(0);
 			return (int)User.TotalVideoCount;
 		}
 

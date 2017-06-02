@@ -149,7 +149,10 @@ namespace NicoPlayerHohoema.ViewModels
             OptionText = info.PostedAt.ToString("yyyy/MM/dd HH:mm");
             if (!string.IsNullOrWhiteSpace(info.ThumbnailUrl))
             {
-                ImageUrlsSource.Add(info.ThumbnailUrl);
+                if (!ImageUrlsSource.Any(x => x == info.ThumbnailUrl))
+                {
+                    ImageUrlsSource.Add(info.ThumbnailUrl);
+                }
             }
 
             if (!info.IsDeleted)
