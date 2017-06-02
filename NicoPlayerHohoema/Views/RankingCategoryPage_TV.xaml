@@ -276,16 +276,20 @@
                                   MaxHeight="400"
                                   >
 
+                                <TextBlock Text="{Binding Rank, Mode=OneTime}" 
+                                           HorizontalAlignment="Right"
+                                           VerticalAlignment="Bottom"
+                                           Style="{StaticResource HeaderTextBlockStyle}"
+                                           LineStackingStrategy="BlockLineHeight"
+                                           Margin="0 8"
+                                           FontWeight="SemiBold"
+                                           Opacity="0.5"
+                                           FontSize="50"
+                                           />
+                                
                                 <hohoemalistItem:HohoemaListItemCard />
 
-                                <TextBlock Text="{Binding Rank, Mode=OneTime}" 
-                                           HorizontalAlignment="Left"
-                                           Style="{StaticResource HeaderTextBlockStyle}"
-                                           LineStackingStrategy="MaxHeight"
-                                           Margin="8 16"
-                                           FontWeight="SemiBold"
-                                           />
-
+                               
                             </Grid>
                         </DataTemplate>
                     </controls:IncrementalLoadingList.ItemTemplate>

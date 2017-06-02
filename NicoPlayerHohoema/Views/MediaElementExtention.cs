@@ -41,9 +41,9 @@ namespace NicoPlayerHohoema.Views
 					var stream = e.NewValue as IRandomAccessStream;
 
 					string contentType = "";
-					if (stream is Util.HttpRandomAccessStream)
+					if (stream is IRandomAccessStreamWithContentType)
 					{
-						contentType = (stream as Util.HttpRandomAccessStream).ContentType;
+						contentType = (stream as IRandomAccessStreamWithContentType).ContentType;
 					}
 
 
