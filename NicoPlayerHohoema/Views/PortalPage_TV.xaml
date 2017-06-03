@@ -19,12 +19,25 @@
     <Page.Resources>
         <DataTemplate x:Key="AppMapItemTemplate_TV" >
 
-            <TextBlock Text="{Binding Item.PrimaryLabel}"
+            <StackPanel>
+                <TextBlock Text="{Binding Item.PrimaryLabel}"
                        VerticalAlignment="Center"
                        TextWrapping="Wrap"
                        HorizontalAlignment="Center"
                        Margin="8 0"
                                 />
+                <TextBlock Text="{Binding Item.SecondaryLabel}"
+                       VerticalAlignment="Center"
+                       TextWrapping="Wrap"
+                       HorizontalAlignment="Center"
+                       Margin="8 0"
+                           Style="{StaticResource CaptionTextBlockStyle}"
+                           Visibility="{Binding IsHiddenSecondaryLabel, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                />
+
+            </StackPanel>
+            
+            
             
         </DataTemplate>
         
@@ -102,7 +115,7 @@
                                             UseSystemFocusVisuals="True"
                                             Command="{Binding OpenItemPageCommand}"
                                             FontSize="18"
-                                            MinWidth="180"
+                                            MinWidth="120"
                                             MinHeight="120"
                                             BorderBrush="{ThemeResource ButtonBorderBrushPointerOver}"
                                             BorderThickness="1"
@@ -121,7 +134,7 @@
                                                   SelectionMode="None"
                                               IsItemClickEnabled="True"
                                                   uwpui:ListViewBaseExtensions.Command="{Binding SelectedItemCommand}"
-                                              Margin="16 0 0 0"
+                                              Margin="0 0 0 0"
                                               >
                                         <ListView.ItemsPanel>
                                             <ItemsPanelTemplate>
