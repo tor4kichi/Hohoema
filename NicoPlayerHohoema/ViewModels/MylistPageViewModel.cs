@@ -775,7 +775,7 @@ namespace NicoPlayerHohoema.ViewModels
 					var items = mylistGroup.VideoItems;
 					foreach (var videoId in items.Skip((int)start).Take((int)count))
 					{
-						await HohoemaApp.MediaManager.GetNicoVideoAsync(videoId);
+						//await HohoemaApp.MediaManager.GetNicoVideoAsync(videoId);
 					}
 				}
 				else
@@ -786,7 +786,7 @@ namespace NicoPlayerHohoema.ViewModels
 					{
 						foreach (var item in res.MylistVideoInfoItems)
 						{
-							await HohoemaApp.MediaManager.GetNicoVideoAsync(item.Video.Id);
+							//await HohoemaApp.MediaManager.GetNicoVideoAsync(item.Video.Id);
 						}
 					}
 				}
@@ -821,7 +821,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 				foreach (var videoId in items.Skip(head).Take(count))
 				{
-					var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideoAsync(videoId);
+					var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideoAsync(videoId, false);
 					var videoListItemVM = new VideoInfoControlViewModel(nicoVideo, _PageManager);
 					list.Add(videoListItemVM);
 				}
@@ -833,7 +833,7 @@ namespace NicoPlayerHohoema.ViewModels
 				if (res.GetCount() > 0)
 				foreach (var item in res.MylistVideoInfoItems)
 				{
-					var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideoAsync(item.Video.Id);
+					var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideoAsync(item.Video.Id, false);
 					list.Add(new VideoInfoControlViewModel(item, nicoVideo, _PageManager));
 				}
 			}
