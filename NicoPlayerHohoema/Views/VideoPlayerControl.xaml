@@ -1206,6 +1206,7 @@
                     </StackPanel>
                 </Border>
 
+                <!--
                 <Border HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Visibility="{Binding IsVideoClosed.Value, Converter={StaticResource BooleanToVisibility}}"
@@ -1215,6 +1216,7 @@
 
                     </Button>
                 </Border>
+                -->
 
             </Grid>
 
