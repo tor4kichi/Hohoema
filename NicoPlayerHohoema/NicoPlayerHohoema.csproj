@@ -454,6 +454,9 @@
     <Compile Include="Views\RankingChoiceContentDialog.xaml.cs">
       <DependentUpon>RankingChoiceContentDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\SearchPage_TV.xaml.cs">
+      <DependentUpon>SearchPage_TV.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\SearchResultPage\SearchResultCommunityPage.xaml.cs">
       <DependentUpon>SearchResultCommunityPage.xaml</DependentUpon>
     </Compile>
@@ -935,6 +938,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\RankingChoiceContentDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SearchPage_TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
