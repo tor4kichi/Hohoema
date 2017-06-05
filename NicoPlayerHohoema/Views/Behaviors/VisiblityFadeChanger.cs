@@ -6,6 +6,7 @@ using Windows.UI.Xaml;
 
 using Microsoft.Toolkit.Uwp.UI.Animations;
 using System.Diagnostics;
+using Windows.UI.Xaml.Input;
 
 namespace NicoPlayerHohoema.Views.Behaviors
 {
@@ -148,6 +149,8 @@ namespace NicoPlayerHohoema.Views.Behaviors
             {
                 this.AssociatedObject.Visibility = Visibility.Visible;
 
+                FocusManager.TryMoveFocus(FocusNavigationDirection.Up);
+
                 _FadeOutAnimation.Stop();
                 if (IsAnimationEnable)
                 {
@@ -202,7 +205,6 @@ namespace NicoPlayerHohoema.Views.Behaviors
             _FadeInAnimation = AssociatedObject.Fade(1, Duration.TotalMilliseconds);
             _FadeOutAnimation = AssociatedObject.Fade(0, Duration.TotalMilliseconds);
         }
-        
 
         protected override void OnDetaching()
 		{

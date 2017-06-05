@@ -658,7 +658,10 @@ namespace NicoPlayerHohoema.Models
 		{
             this.IsDeleted = true;
 
-            await _NiconicoMediaManager.NotifyCacheForceDeleted(this);
+            if (this.GetAllQuality().Any(x => x.IsCacheRequested))
+            {
+                await _NiconicoMediaManager.NotifyCacheForceDeleted(this);
+            }
 
             await FillVideoInfoFromDb();
 

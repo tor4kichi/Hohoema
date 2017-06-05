@@ -132,8 +132,6 @@ namespace NicoPlayerHohoema.ViewModels
             })
             .ToReactiveProperty();
 
-            IsVideoClosed = new ReactiveProperty<bool>(false);
-
             NowQualityChanging = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
 			Comments = new ObservableCollection<Comment>();
 
@@ -362,26 +360,23 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				if (x == MediaPlaybackState.Opening)
 				{
-                    IsVideoClosed.Value = false;
                 }
 				else if (x == MediaPlaybackState.Playing && NowQualityChanging.Value)
 				{
-                    IsVideoClosed.Value = false;
                     NowQualityChanging.Value = false;
 //					SliderVideoPosition.Value = PreviousVideoPosition;
 					CurrentVideoPosition.Value = TimeSpan.FromSeconds(PreviousVideoPosition);
 				}
 				else if (x == MediaPlaybackState.None)
 				{
-                    IsVideoClosed.Value = true;
                     if (Video != null)
                     {
                         //await Video.StopPlay();
 
                         // TODO: ユーザー手動の再読み込みに変更する
-//                        await Task.Delay(500);
+                        //                        await Task.Delay(500);
 
-//                        await this.PlayingQualityChangeAction();
+                        //                        await this.PlayingQualityChangeAction();
 
                         Debug.WriteLine("再生中に動画がClosedになったため、強制的に再初期化を実行しました。これは非常措置です。");
                     }
@@ -1414,9 +1409,16 @@ namespace NicoPlayerHohoema.ViewModels
             get
             {
                 return _TogglePlayPauseCommand
-                    ?? (_TogglePlayPauseCommand = new DelegateCommand(() =>
+                    ?? (_TogglePlayPauseCommand = new DelegateCommand(async () =>
                     {
+                        
                         var session = MediaPlayer.PlaybackSession;
+                        if (session.PlaybackState == MediaPlaybackState.None)
+                        {
+                            PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
+
+                            await this.PlayingQualityChangeAction();
+                        }
                         if (session.PlaybackState == MediaPlaybackState.Playing)
                         {
                             MediaPlayer.Pause();
@@ -1520,24 +1522,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveCommand CommentSubmitCommand { get; private set; }
 		public ReactiveCommand TogglePlayQualityCommand { get; private set; }
-
-
-
-        public ReactiveProperty<bool> IsVideoClosed { get; }
-
-        private DelegateCommand _RefreshVideoCommand;
-        public DelegateCommand RefreshVideoCommand
-        {
-            get
-            {
-                return _RefreshVideoCommand
-                    ?? (_RefreshVideoCommand = new DelegateCommand(async () =>
-                    {
-                        await this.PlayingQualityChangeAction();
-                    }
-                    ));
-            }
-        }
 
         private DelegateCommand _OpenVideoPageWithBrowser;
 		public DelegateCommand OpenVideoPageWithBrowser
