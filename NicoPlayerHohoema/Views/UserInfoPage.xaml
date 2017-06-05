@@ -86,9 +86,8 @@
                                 Margin="16 0 0 0"
                                 >
                         <StackPanel Orientation="Horizontal">
-                            <uwpUI:ImageEx Width="48" Height="48"
+                            <Image Width="48" Height="48"
                                        Source="{Binding UserIconUri}" 
-                                       IsCacheEnabled="True"
                                         Margin="0 0 8 0"
                                         VerticalAlignment="Center"
                             />

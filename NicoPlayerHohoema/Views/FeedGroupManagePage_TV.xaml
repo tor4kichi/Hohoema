@@ -1,0 +1,185 @@
+﻿<Page
+    x:Class="NicoPlayerHohoema.Views.FeedGroupManagePage_TV"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:mycontrols="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:iconPack="using:MahApps.Metro.IconPacks"
+    xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
+    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
+    xmlns:listitem="using:NicoPlayerHohoema.Views.HohoemaListItem"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    mc:Ignorable="d">
+
+    <Grid>
+
+        <VisualStateManager.VisualStateGroups>
+
+            <!-- TVモードの仮対応 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ContentLayout.Margin" Value="0 27 48 27" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+        <StackPanel x:Name="ContentLayout">
+
+            <Border Background="Transparent" IsHitTestVisible="True"
+                                Margin="16 27 0 0"
+                                >
+                <TextBlock Text="{Binding Title}" 
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource SubheaderTextBlockStyle}"
+                                    />
+            </Border>
+            
+            
+            <StackPanel Orientation="Horizontal" Margin="0 16">
+
+                <CommandBar>
+                    <AppBarButton Command="{Binding RefreshAllFeedGroupCommand}"
+                                Background="Transparent"
+                                      Icon="Refresh"
+                                      Label="更新"
+                                      Visibility="{Binding HasFeedGroupItems.Value, Converter={StaticResource BooleanToVisibility}}"
+                                >
+                    </AppBarButton>
+
+                    
+
+                </CommandBar>
+
+
+
+
+
+            </StackPanel>
+
+            
+
+
+            <Border Visibility="{Binding HasFeedGroupItems.Value, Converter={StaticResource BooleanToVisibilityInverted}}" 
+                    Margin="8"
+                    toolkit:DockPanel.Dock="Top"
+                    >
+
+                
+
+            </Border>
+
+
+            <ScrollViewer HorizontalScrollMode="Enabled"
+                          VerticalScrollMode="Disabled"
+                          HorizontalScrollBarVisibility="Hidden"
+                          VerticalScrollBarVisibility="Hidden"
+                          >
+
+                <StackPanel Orientation="Horizontal"
+                            Height="340"
+                            >
+                    <Button Command="{Binding CreateFeedGroupCommand}"
+                            VerticalAlignment="Stretch"
+                                >
+                        <StackPanel>
+                            <iconPack:PackIconMaterial Kind="Plus"
+                                                       HorizontalAlignment="Center"
+                                                       Height="48"
+                                                       Width="48"
+                                                       Margin="0 0 0 24"
+                                                       />
+
+                            <TextBlock HorizontalAlignment="Center"
+                                       TextAlignment="Center"
+                                       >
+                                <Run Text="フィードグループ" />
+                                <LineBreak />
+                                <Run Text="作成" />
+                            </TextBlock>
+
+                        </StackPanel>
+                    </Button>
+
+
+                    <ListView ItemsSource="{Binding FeedGroupItems}"
+                              IsTabStop="False"
+                              uwpui:ListViewBaseExtensions.Command="{Binding OpenFeedVideoPageCommand}"
+                              IsItemClickEnabled="True"
+                              SelectionMode="None"
+                              >
+
+                        <i:Interaction.Behaviors>
+                            <mybehavior:ListViewBaseItemContextFlyout />
+                        </i:Interaction.Behaviors>
+
+                        <ListView.ContextFlyout>
+                            <MenuFlyout>
+                                <MenuFlyoutItem Text="更新"
+                                                    Command="{Binding UpdateCommand}"
+                                                    />
+                                <MenuFlyoutItem Text="編集" 
+                                                    Command="{Binding OpenEditCommand}"
+                                                    />
+                                <MenuFlyoutSeparator />
+                                <MenuFlyoutSubItem Text="削除">
+                                    <MenuFlyoutItem Text="削除" 
+                                                        Command="{Binding ElementName=PageRoot, Path=DataContext.RemoveFeedGroupCommand}"
+                                                        CommandParameter="{Binding}"
+                                                        />
+                                </MenuFlyoutSubItem>
+                            </MenuFlyout>
+                        </ListView.ContextFlyout>
+
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <ItemsStackPanel Orientation="Horizontal" Margin="0 0 48 0" />
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
+
+                        <ListView.ItemTemplate>
+
+                            <DataTemplate>
+                                <Grid>
+                                    <StackPanel HorizontalAlignment="Right"
+                                                Orientation="Horizontal"
+                                                VerticalAlignment="Center"
+                                            >
+                                        <ProgressRing IsActive="{Binding NowUpdate.Value}"
+                                                  Visibility="{Binding NowUpdate.Value, Converter={StaticResource BooleanToVisibility}}"
+                                                  Width="24"
+                                                  Height="24"
+                                                  />
+                                    </StackPanel>
+                                    <listitem:HohoemaListItemCard />
+                                </Grid>
+                            </DataTemplate>
+
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+                
+            </ScrollViewer>
+
+
+
+
+        </StackPanel>
+
+
+
+    </Grid>
+</Page>

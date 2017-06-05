@@ -145,11 +145,11 @@ namespace NicoPlayerHohoema.Models
 	[DataContract]
 	public abstract class VideoSearchOption : SearchPagePayloadContent, IEquatable<VideoSearchOption>
 	{
-		[DataMember]
-		public Mntone.Nico2.Order Order { get; set; }
+        [DataMember]
+        public Mntone.Nico2.Order Order { get; set; } = Order.Descending;
 
-		[DataMember]
-		public Sort Sort { get; set; }
+        [DataMember]
+        public Sort Sort { get; set; } = Sort.FirstRetrieve;
 
 
 

@@ -428,7 +428,39 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		public ReactiveProperty<bool> CanUseFeedSource { get; private set; }
+
+        private DelegateCommand<FeedItemSourceListItem> _OpenFeedSourcePageCommand;
+        public DelegateCommand<FeedItemSourceListItem> OpenFeedSourcePageCommand
+        {
+            get
+            {
+                return _OpenFeedSourcePageCommand
+                    ?? (_OpenFeedSourcePageCommand = new DelegateCommand<FeedItemSourceListItem>((item) =>
+                    {
+                        switch (item.FeedSource.FollowItemType)
+                        {
+                            case FollowItemType.Tag:
+                                var searchPayload = SearchPagePayloadContentHelper.CreateDefault(SearchTarget.Tag, item.FeedSource.Id);
+                                PageManager.OpenPage(HohoemaPageType.SearchResultTag, searchPayload.ToParameterString());
+                                break;
+                            case FollowItemType.Mylist:
+                                PageManager.OpenPage(HohoemaPageType.Mylist, item.FeedSource.Id);
+                                break;
+                            case FollowItemType.User:
+                                PageManager.OpenPage(HohoemaPageType.UserVideo, item.FeedSource.Id);
+                                break;
+                            case FollowItemType.Community:
+                                break;
+                            default:
+                                break;
+                        }
+                        
+                    }));
+            }
+        }
+
+
+        public ReactiveProperty<bool> CanUseFeedSource { get; private set; }
 
 		internal void RemoveFeedSrouce(FeedItemSourceListItem feedSourceListItem)
 		{

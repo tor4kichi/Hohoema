@@ -229,6 +229,8 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToList();
             OptionText = FeedGroup.UpdateTime.ToString();
 			NowUpdate = new ReactiveProperty<bool>(false);
+
+
 		}
 
 		private DelegateCommand _SelectedCommand;

@@ -348,6 +348,12 @@
     <Compile Include="Views\Converters\NicoVideoQualityToCultualizedTextConverter.cs" />
     <Compile Include="Views\Converters\ServiceStatusToTextConverter.cs" />
     <Compile Include="Views\Converters\TransparentColorConverter.cs" />
+    <Compile Include="Views\FeedGroupManagePage_TV.xaml.cs">
+      <DependentUpon>FeedGroupManagePage_TV.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FeedGroupPage_TV.xaml.cs">
+      <DependentUpon>FeedGroupPage_TV.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\FeedVideoListPage_TV.xaml.cs">
       <DependentUpon>FeedVideoListPage_TV.xaml</DependentUpon>
     </Compile>
@@ -453,6 +459,9 @@
     </Compile>
     <Compile Include="Views\RankingChoiceContentDialog.xaml.cs">
       <DependentUpon>RankingChoiceContentDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SearchPage_TV.xaml.cs">
+      <DependentUpon>SearchPage_TV.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SearchResultPage\SearchResultCommunityPage.xaml.cs">
       <DependentUpon>SearchResultCommunityPage.xaml</DependentUpon>
@@ -564,6 +573,9 @@
     <Compile Include="Views\UIElementExtentions.cs" />
     <Compile Include="Views\UserInfoPage.xaml.cs">
       <DependentUpon>UserInfoPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UserInfoPage_TV.xaml.cs">
+      <DependentUpon>UserInfoPage_TV.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\UserMylistPage.xaml.cs">
       <DependentUpon>UserMylistPage.xaml</DependentUpon>
@@ -791,6 +803,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\FeedGroupManagePage_TV.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\FeedGroupPage_TV.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\FeedVideoListPage_TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -935,6 +955,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\SearchPage_TV.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\SearchResultPage\SearchResultCommunityPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1020,6 +1044,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\UserInfoPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\UserInfoPage_TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

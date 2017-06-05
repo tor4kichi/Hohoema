@@ -352,7 +352,32 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+        private DelegateCommand<VideoInfoControlViewModel> _PlayUserVideoCommand;
+        public DelegateCommand<VideoInfoControlViewModel> PlayUserVideoCommand
+        {
+            get
+            {
+                return _PlayUserVideoCommand
+                    ?? (_PlayUserVideoCommand = new DelegateCommand<VideoInfoControlViewModel>(videoItem => 
+                    {
+                        videoItem.PlayCommand.Execute();
+                    }));
+            }
+        }
 
+
+        private DelegateCommand<MylistGroupListItem> _OpenMylistCommand;
+        public DelegateCommand<MylistGroupListItem> OpenMylistCommand
+        {
+            get
+            {
+                return _OpenMylistCommand
+                    ?? (_OpenMylistCommand = new DelegateCommand<MylistGroupListItem>(videoItem =>
+                    {
+                        videoItem?.PrimaryCommand?.Execute(null);
+                    }));
+            }
+        }
 
 
         public string UserId { get; private set; }
