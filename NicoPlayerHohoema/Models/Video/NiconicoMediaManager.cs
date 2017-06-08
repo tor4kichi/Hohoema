@@ -301,7 +301,7 @@ namespace NicoPlayerHohoema.Models
 
         private async Task CacheRequested(NicoVideoCacheRequest req)
         {
-            var nicoVideo = await GetNicoVideoAsync(req.RawVideoId);
+            var nicoVideo = await GetNicoVideoAsync(req.RawVideoId, false);
             using (var releaser = await _CacheVideosLock.LockAsync())
             {
                 if (_CacheVideos.Any(x => x.RawVideoId == nicoVideo.RawVideoId))

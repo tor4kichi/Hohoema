@@ -386,7 +386,10 @@ namespace NicoPlayerHohoema.Models
             {
                 var nicoVideo = await MediaManager.GetNicoVideoAsync(req.RawVideoId);
                 var div = nicoVideo.GetDividedQualityNicoVideo(req.Quality);
-                await div.RestoreRequestCache(req);
+                if (!nicoVideo.IsDeleted)
+                {
+                    await div.RestoreRequestCache(req);
+                }
 
                 Debug.Write(".");
             }

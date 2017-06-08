@@ -510,6 +510,8 @@ namespace NicoPlayerHohoema.Models
         {
             var divided = GetDividedQualityNicoVideo(quality);
 
+            await FillVideoInfoFromDb();
+
             await divided.RestoreCache(filepath);
 
             await divided.RequestCache();
