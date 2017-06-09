@@ -140,7 +140,7 @@ namespace NicoPlayerHohoema.ViewModels
 		PageManager _PageManager;
 
 
-		public List<CacheVideoViewModel> RawList { get; private set; }
+		public List<NicoVideo> RawList { get; private set; }
 
 		public uint OneTimeLoadCount
 		{
@@ -160,8 +160,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public async Task<int> ResetSource()
 		{
-			List<CacheVideoViewModel> list = new List<CacheVideoViewModel>();
-
 			// 
 			var contentFinder = _HohoemaApp.ContentFinder;
 			var mediaManager = _HohoemaApp.MediaManager;
@@ -171,40 +169,43 @@ namespace NicoPlayerHohoema.ViewModels
                 await Task.Delay(50).ConfigureAwait(false);
             }
 
+            var list = new List<NicoVideo>();
 
             foreach (var item in mediaManager.CacheVideos.ToArray())
 			{
                 if (item.GetAllQuality().ToArray().Any(x => x.IsCacheRequested))
                 {
-                    var vm = await ToCacheVideoViewModel(item.RawVideoId);
-                    list.Add(vm);
+                    list.Add(item);
                 }
 			}
 
-			RawList = list.OrderBy(x => x.CacheRequestTime.Value).Reverse().ToList();
+			RawList = list.OrderBy(x => x.CachedAt.Ticks).Reverse().ToList();
 
 			return RawList.Count;
 		}
 
-		public Task<IEnumerable<CacheVideoViewModel>> GetPagedItems(int head, int count)
+		public async Task<IEnumerable<CacheVideoViewModel>> GetPagedItems(int head, int count)
 		{
-			return Task.FromResult(RawList.Skip(head).Take((int)count));
+            var items = new List<CacheVideoViewModel>();
+            foreach (var item in RawList.Skip(head).Take(count))
+            {
+                var mediaManager = _HohoemaApp.MediaManager;
+
+                var nicoVideo = await mediaManager.GetNicoVideoAsync(item.RawVideoId, true);
+
+                var vm = new CacheVideoViewModel(nicoVideo, _PageManager);
+
+                items.Add(vm);
+            }
+
+            return items;
 		}
 
 
 
 
 
-		private async Task<CacheVideoViewModel> ToCacheVideoViewModel(string videoId)
-		{
-            var mediaManager = _HohoemaApp.MediaManager;
-
-            var nicoVideo = await mediaManager.GetNicoVideoAsync(videoId);
-
-            var vm = new CacheVideoViewModel(nicoVideo, _PageManager);
-
-            return vm;
-        }
+		
 
 
 		
