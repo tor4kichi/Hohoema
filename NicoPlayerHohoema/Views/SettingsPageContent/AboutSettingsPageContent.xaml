@@ -9,6 +9,7 @@
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
@@ -77,6 +78,65 @@
                     </StackPanel>
 
 
+                    <TextBlock Text="Hohoemaのアドオン"
+                       Style="{StaticResource SubTitleStyle}"
+                       />
+
+                    <TextBlock Text="以下のボタンを押すと購入の確認ウィンドウが表示されます" />
+
+                    <StackPanel Margin="16 8">
+                        <ListView ItemsSource="{Binding PurchaseItems}"
+                                  uwpui:ListViewBaseExtensions.Command="{Binding ShowCheerPurchaseCommand}"
+                                  IsItemClickEnabled="True"
+                                  SelectionMode="None"
+                                  >
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <toolkit:DockPanel>
+
+                                            <Image Source="{Binding ProductListing.ImageUri}" 
+                                               Height="80"
+                                               Width="80"
+                                               toolkit:DockPanel.Dock="Left" />
+
+                                            <StackPanel Orientation="Horizontal"
+                                                        toolkit:DockPanel.Dock="Bottom"
+                                                        Margin="0 0 0 8"
+                                                        >
+                                                <TextBlock Margin="8 0"
+                                                           VerticalAlignment="Center"
+                                                           >
+                                                    <Run Text="{Binding ProductListing.FormattedPrice}" />
+                                                </TextBlock>
+                                                
+                                                <Border Visibility="{Binding IsActive, Converter={StaticResource BooleanToVisibility}}"
+                                                        Margin="8 0"
+                                                >
+                                                    <TextBlock Text="(購入済み)"
+                                                               FontWeight="SemiBold"
+                                                               VerticalAlignment="Center"
+                                                       />
+                                                </Border>
+                                            </StackPanel>
+
+                                            <TextBlock Text="{Binding ProductListing.Name}"
+                                                   Style="{StaticResource SubTitleStyle}"
+                                                   Margin="8 0"
+                                                   VerticalAlignment="Center"
+                                                   />
+                                        </toolkit:DockPanel>
+
+                                        
+                                    </Grid>
+
+                                    
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackPanel>
+
+
 
 
                     <TextBlock Text="ソースコード"
@@ -92,7 +152,7 @@
 
                         <TextBlock Style="{StaticResource ContentTextStyle}">
                         <Run Foreground="Gray">
-                            ※ このアプリはGPL v3ライセンスの元、オープンソースで開発しています。
+                            ※ このアプリはGPL 3.0ライセンスの元、オープンソースで開発しています。
                         </Run>
                         </TextBlock>
                     </StackPanel>

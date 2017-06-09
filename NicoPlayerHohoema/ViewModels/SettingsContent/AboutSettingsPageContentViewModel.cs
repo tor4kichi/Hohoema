@@ -1,9 +1,13 @@
 ﻿using NicoPlayerHohoema.Models;
+using Prism.Commands;
+using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Store;
 using Windows.Storage;
 using Windows.UI.Xaml;
 
@@ -15,13 +19,15 @@ namespace NicoPlayerHohoema.ViewModels
 
         public List<LisenceItemViewModel> LisenceItems { get; private set; }
 
+        public List<ProductViewModel> PurchaseItems { get; private set; }
+
         public AboutSettingsPageContentViewModel()
             : base("このアプリについて", HohoemaSettingsKind.About)
         {
             var version = Windows.ApplicationModel.Package.Current.Id.Version;
             VersionText = $"{version.Major}.{version.Minor}.{version.Build}";
 
-
+            
             var dispatcher = Window.Current.CoreWindow.Dispatcher;
             LisenceSummary.Load()
                 .ContinueWith(async prevResult =>
@@ -39,7 +45,63 @@ namespace NicoPlayerHohoema.ViewModels
                 });
         }
 
+        protected override async void OnEnter(ICollection<IDisposable> focusingDispsable)
+        {
+            try
+            {
+                var listing = await Models.Purchase.HohoemaPurchase.GetAvailableCheersAddOn();
+                PurchaseItems = listing.ProductListings.Select(x => new ProductViewModel(x.Value)).ToList();
+                OnPropertyChanged(nameof(PurchaseItems));
+            }
+            catch { }
+
+            base.OnEnter(focusingDispsable);
+        }
+
+
+
+        private DelegateCommand<ProductViewModel> _ShowCheerPurchaseCommand;
+        public DelegateCommand<ProductViewModel> ShowCheerPurchaseCommand
+        {
+            get
+            {
+                return _ShowCheerPurchaseCommand
+                    ?? (_ShowCheerPurchaseCommand = new DelegateCommand<ProductViewModel>(async (product) => 
+                    {
+                        var result = await Models.Purchase.HohoemaPurchase.RequestPurchase(product.ProductListing);
+
+                        product.Update();
+
+                        Debug.WriteLine(result.ToString());
+                    }));
+            }
+        }   
     }
+
+    public class ProductViewModel : BindableBase
+    {
+        private bool _IsActive;
+        public bool IsActive
+        {
+            get { return _IsActive; }
+            set { SetProperty(ref _IsActive, value); }
+        }
+
+        public ProductListing ProductListing { get; set; }
+        public ProductViewModel(ProductListing product)
+        {
+            ProductListing = product;
+
+            Update();
+        }
+
+        internal void Update()
+        {
+            IsActive = Models.Purchase.HohoemaPurchase.ProductIsActive(ProductListing);
+        }
+    }
+
+
 
     public class LisenceItemViewModel
     {

@@ -176,6 +176,7 @@
     <Compile Include="Models\Live\NicoLiveVideo.cs" />
     <Compile Include="Models\LoginRedirectPayload.cs" />
     <Compile Include="Models\PageManagerSearchExtention.cs" />
+    <Compile Include="Models\Purchase\HohoemaPurchase.cs" />
     <Compile Include="Models\RoamingSyncInfo.cs" />
     <Compile Include="Models\Settings\AppearanceSettings.cs" />
     <Compile Include="Models\Settings\AppMapSettings.cs" />
@@ -692,6 +693,7 @@
     <Content Include="Assets\Square71x71Logo.scale-200.png" />
     <Content Include="Assets\Square71x71Logo.scale-400.png" />
     <Content Include="Assets\html\template.html" />
+    <Content Include="Assets\StoreTesting.xml" />
     <Content Include="Assets\Wide310x150Logo.scale-100.png" />
     <Content Include="Assets\Wide310x150Logo.scale-125.png" />
     <Content Include="Assets\Wide310x150Logo.scale-150.png" />
