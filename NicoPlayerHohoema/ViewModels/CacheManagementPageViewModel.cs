@@ -87,7 +87,7 @@ namespace NicoPlayerHohoema.ViewModels
 			get
 			{
 				return _ResumeCacheCommand
-					?? (_ResumeCacheCommand = new DelegateCommand(async () =>
+					?? (_ResumeCacheCommand = new DelegateCommand(() =>
 					{
                         // TODO: バックグラウンドダウンロードの強制更新？
 						//await _MediaManager.StartBackgroundDownload();
@@ -133,7 +133,7 @@ namespace NicoPlayerHohoema.ViewModels
     }
 
 
-	public class CacheVideoInfoLoadingSource : IIncrementalSource<CacheVideoViewModel>
+	public class CacheVideoInfoLoadingSource : HohoemaVideoPreloadingIncrementalSourceBase<CacheVideoViewModel>
 	{
 		
 		HohoemaApp _HohoemaApp;
@@ -142,27 +142,26 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public List<NicoVideo> RawList { get; private set; }
 
-		public uint OneTimeLoadCount
-		{
-			get
-			{
-				return 10;
-			}
-		}
-
-
 
 		public CacheVideoInfoLoadingSource(HohoemaApp app, PageManager pageManager)
+            : base(app, nameof(CacheManagementPageViewModel))
 		{
 			_HohoemaApp = app;
 			_PageManager = pageManager;
 		}
 
-		public async Task<int> ResetSource()
-		{
-			// 
-			var contentFinder = _HohoemaApp.ContentFinder;
-			var mediaManager = _HohoemaApp.MediaManager;
+        protected override async Task<IEnumerable<NicoVideo>> PreloadNicoVideo(int start, int count)
+        {
+            await Task.Delay(0);
+            return RawList.Skip(start).Take(count).ToList();
+        }
+
+
+        protected override async Task<int> HohoemaPreloadingResetSourceImpl()
+        {
+            // 
+            var contentFinder = _HohoemaApp.ContentFinder;
+            var mediaManager = _HohoemaApp.MediaManager;
 
             while (!mediaManager.IsInitialized)
             {
@@ -172,34 +171,33 @@ namespace NicoPlayerHohoema.ViewModels
             var list = new List<NicoVideo>();
 
             foreach (var item in mediaManager.CacheVideos.ToArray())
-			{
+            {
                 if (item.GetAllQuality().ToArray().Any(x => x.IsCacheRequested))
                 {
                     list.Add(item);
                 }
-			}
-
-			RawList = list.OrderBy(x => x.CachedAt.Ticks).Reverse().ToList();
-
-			return RawList.Count;
-		}
-
-		public async Task<IEnumerable<CacheVideoViewModel>> GetPagedItems(int head, int count)
-		{
-            var items = new List<CacheVideoViewModel>();
-            foreach (var item in RawList.Skip(head).Take(count))
-            {
-                var mediaManager = _HohoemaApp.MediaManager;
-
-                var nicoVideo = await mediaManager.GetNicoVideoAsync(item.RawVideoId, true);
-
-                var vm = new CacheVideoViewModel(nicoVideo, _PageManager);
-
-                items.Add(vm);
             }
 
-            return items;
-		}
+            RawList = list.OrderBy(x => x.CachedAt.Ticks).Reverse().ToList();
+
+            return RawList.Count;
+        }
+
+
+
+
+        protected override CacheVideoViewModel NicoVideoToTemplatedItem(
+            NicoVideo itemSource
+            , int index
+            )
+        {
+            return new CacheVideoViewModel(
+                    itemSource
+                    , _PageManager
+                );
+        }
+
+        
 
 
 
