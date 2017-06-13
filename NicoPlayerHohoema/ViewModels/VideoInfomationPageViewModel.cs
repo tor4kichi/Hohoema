@@ -272,7 +272,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             // WebViewにフォーカスされている間のBackNavigationを抑止する
             // 合わせてView側でBackNavigation操作によってWebViewからフォーカスを外す処理を入れている
-            NowFocusingWebView = new ReactiveProperty<bool>(false);
+            NowFocusingWebView = new ReactiveProperty<bool>(false, mode:ReactivePropertyMode.DistinctUntilChanged);
             NowFocusingWebView.Subscribe(async nowFocusingWebView => 
             {
                 using (var releaser = await _WebViewFocusManagementLock.LockAsync())

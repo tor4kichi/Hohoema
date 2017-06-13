@@ -679,6 +679,7 @@ namespace NicoPlayerHohoema
         protected override UIElement CreateShell(Frame rootFrame)
 		{
 			rootFrame.Navigating += RootFrame_Navigating;
+            rootFrame.NavigationFailed += RootFrame_NavigationFailed;
 
             var menuPageBase = new Views.MenuNavigatePageBase();
             menuPageBase.Content = rootFrame;
@@ -692,6 +693,13 @@ namespace NicoPlayerHohoema
 
             return container;
 		}
+
+        private void RootFrame_NavigationFailed(object sender, NavigationFailedEventArgs e)
+        {
+            Debug.WriteLine("Page navigation failed!!");
+            Debug.WriteLine(e.SourcePageType.AssemblyQualifiedName);
+            Debug.WriteLine(e.Exception.ToString());
+        }
 
         private void Container_FocusEngaged(Control sender, FocusEngagedEventArgs args)
         {
