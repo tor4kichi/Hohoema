@@ -33,11 +33,13 @@
                                 toolkit:DockPanel.Dock="Top"                                
                                 HorizontalAlignment="Stretch"
                         >
+                        <!--
                         <Border Background="{Binding OriginalContainer.ThemeColor, Converter={StaticResource ColorToBrush}}"
                                 toolkit:DockPanel.Dock="Left"   
                                 Width="8"
                                 Margin="0 0 4 0"
                                 />
+                        -->
                         <Button Content="{Binding Item.PrimaryLabel}"
                                 HorizontalAlignment="Stretch"
                                 HorizontalContentAlignment="Left"
@@ -91,11 +93,13 @@
                         toolkit:DockPanel.Dock="Top"                                
                                 HorizontalAlignment="Stretch"
                         >
+                        <!--
                         <Border Background="{Binding OriginalContainer.ThemeColor, Converter={StaticResource ColorToBrush}}"
                             toolkit:DockPanel.Dock="Left"   
                             Width="8"
                             Margin="0 0 4 0"
                                 />
+                        -->
                         <Button Content="{Binding Item.PrimaryLabel}"
                                 HorizontalAlignment="Stretch"
                                 HorizontalContentAlignment="Left"
@@ -139,11 +143,13 @@
                         toolkit:DockPanel.Dock="Top"                                
                                 HorizontalAlignment="Stretch"
                         >
+                    <!--
                     <Border Background="{Binding OriginalContainer.ThemeColor, Converter={StaticResource ColorToBrush}}"
                             toolkit:DockPanel.Dock="Left"   
                             Width="8"
                             Margin="0 0 4 0"
                                 />
+                    -->
                     <Button Content="{Binding Item.PrimaryLabel}"
                                 HorizontalAlignment="Stretch"
                                 HorizontalContentAlignment="Left"
