@@ -336,10 +336,15 @@ namespace NicoPlayerHohoema.Models
             // ダウンロード待機中のアイテムを復元
             await RestoreCacheRequestedItems();
 
+
             // ダウンロードバックグラウンドタスクの情報を復元
             await RestoreBackgroundDownloadTask();
 
             IsInitialized = true;
+
+            // ダウンロードリクエストされたものが削除済み動画だった場合に対応
+            // 削除されたDLリクエストを反映
+            await SaveDownloadRequestItems();
 
             await TryNextCacheRequestedVideoDownload();
         }
@@ -382,11 +387,16 @@ namespace NicoPlayerHohoema.Models
             // ダウンロードリクエストされたアイテムのNicoVideoオブジェクトの作成
             // 及び、リクエストの再構築
             var list = await LoadDownloadRequestItems();
+            List<NicoVideoCacheRequest> deletedItems = new List<NicoVideoCacheRequest>();
             foreach (var req in list)
             {
-                var nicoVideo = await MediaManager.GetNicoVideoAsync(req.RawVideoId);
+                var nicoVideo = await MediaManager.GetNicoVideoAsync(req.RawVideoId, true);
                 var div = nicoVideo.GetDividedQualityNicoVideo(req.Quality);
-                if (!nicoVideo.IsDeleted)
+                if (nicoVideo.IsDeleted)
+                {
+                    deletedItems.Add(req);
+                }
+                else
                 {
                     await div.RestoreRequestCache(req);
                 }
@@ -394,6 +404,12 @@ namespace NicoPlayerHohoema.Models
                 Debug.Write(".");
             }
 
+            
+            foreach (var deleted in deletedItems)
+            {
+                _CacheDownloadPendingVideos.Remove(deleted);
+            }
+            
             Debug.WriteLine("");
             Debug.WriteLine($"{list.Count} 件のダウンロードリクエストを復元");
         }

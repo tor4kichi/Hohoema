@@ -119,7 +119,7 @@ namespace NicoPlayerHohoema.Models
 
 					await Task.Delay(30);
 
-					if (!NavigationService.Navigate(pageType.ToString(), parameter))
+                    if (!NavigationService.Navigate(pageType.ToString(), parameter))
 					{
 						CurrentPageType = oldPageType;
 						PageTitle = oldPageTitle;

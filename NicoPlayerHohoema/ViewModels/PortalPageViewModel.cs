@@ -62,8 +62,6 @@ namespace NicoPlayerHohoema.ViewModels
 
         internal static AppMapItemViewModel AppMapObjectToViewModel(IAppMapItem item, PageManager pageManager)
 		{
-            Debug.WriteLine(item.PrimaryLabel);
-
             if (item is IAppMapContainer)
 			{
 				return new AppMapContainerViewModel(item as IAppMapContainer, pageManager);
