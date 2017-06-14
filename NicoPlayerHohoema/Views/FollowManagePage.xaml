@@ -128,6 +128,21 @@
                                               uwpui:ListViewBaseExtensions.Command="{Binding SelectedCommand}"
                                               SelectionMode="None"
                                           >
+                                        <i:Interaction.Behaviors>
+                                            <mybehavior:ListViewBaseItemContextFlyout />
+                                        </i:Interaction.Behaviors>
+                                        
+                                        
+                                        <GridView.ContextFlyout>
+                                            <MenuFlyout>
+                                                <MenuFlyoutItem Text="{Binding Title}" IsEnabled="False" />
+                                                <MenuFlyoutSubItem Text="フォロー解除">
+                                                    <MenuFlyoutItem Text="解除"
+                                                                    Command="{Binding RemoveFavoriteCommand}"
+                                                                    />
+                                                </MenuFlyoutSubItem>
+                                            </MenuFlyout>
+                                        </GridView.ContextFlyout>
                                         <GridView.ItemContainerStyle>
                                             <Style TargetType="GridViewItem">
                                                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
