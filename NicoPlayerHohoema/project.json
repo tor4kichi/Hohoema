@@ -15,7 +15,7 @@
     "Prism.Core": "6.2.0",
     "Prism.Unity": "6.2.0",
     "Prism.Windows": "6.0.2",
-    "ReactiveProperty": "3.0.1",
+    "ReactiveProperty": "3.6.0",
     "RtmpClient.UWP": "1.3.0",
     "WinRTXamlToolkit.Controls.DataVisualization.UWP": "2.3.0",
     "WinRTXamlToolkit.UWP": "2.2.0"
