@@ -17,24 +17,17 @@ namespace NicoPlayerHohoema.Views.Behaviors
     {
 
         protected override void OnAttached()
-        {            
-            AssociatedObject.Loaded += AssociatedObject_Loaded;
-            AssociatedObject.Unloaded += AssociatedObject_Unloaded;
-            base.OnAttached();
-        }
-
-        private void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
         {
             AssociatedObject.GotFocus += AssociatedObject_GotFocus;
             AssociatedObject.LostFocus += AssociatedObject_LostFocus;
+            base.OnAttached();
         }
 
-        private void AssociatedObject_Unloaded(object sender, RoutedEventArgs e)
-        {
-            AssociatedObject.GotFocus -= AssociatedObject_GotFocus;
-            AssociatedObject.LostFocus -= AssociatedObject_LostFocus;
 
+        protected override void OnDetaching()
+        {
             UINavigationManager.Pressed -= Instance_Pressed;
+            base.OnDetaching(); 
         }
 
         private void AssociatedObject_GotFocus(object sender, Windows.UI.Xaml.RoutedEventArgs e)
