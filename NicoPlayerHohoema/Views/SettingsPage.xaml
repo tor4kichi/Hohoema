@@ -121,6 +121,7 @@
             </Border>
 
             <Pivot ItemsSource="{Binding SettingItems}"
+                   SelectedItem="{Binding CurrentSettingsContent.Value, Mode=TwoWay}"
                    >
                 <Pivot.ItemContainerStyle>
                     <Style TargetType="PivotItem">

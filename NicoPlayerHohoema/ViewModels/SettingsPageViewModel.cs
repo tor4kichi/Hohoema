@@ -45,11 +45,12 @@ namespace NicoPlayerHohoema.ViewModels
 
             CurrentSettingsContent = new ReactiveProperty<SettingsPageContentViewModel>();
 
-
+            
             CurrentSettingsContent.Subscribe(x =>
             {
                 _PrevSettingsContent?.Leaved();
 
+                /*
                 if (x != null)
                 {
                     AddSubsitutionBackNavigateAction("settings_content_selection"
@@ -64,10 +65,12 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     RemoveSubsitutionBackNavigateAction("settings_content_selection");
                 }
+                */
 
                 _PrevSettingsContent = x;
                 x?.Entered();                
             });
+            
 
         }
 
