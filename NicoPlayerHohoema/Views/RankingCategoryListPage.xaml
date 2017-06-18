@@ -15,6 +15,7 @@
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:deviceTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
+    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
     >
@@ -58,11 +59,12 @@
                           HorizontalContentAlignment="Stretch"
                           Margin="0 8 0 0"
                           IsTabStop="False"
+                          x:Name="ScrollViewer"
                           >
 
 
                 <ItemsControl ItemsSource="{Binding RankingCategoryItems}"
-                              Height="{Binding ElementName=ContentLayout, Path=ActualHeight, Mode=OneWay}"
+                              Height="{Binding ElementName=ScrollViewer, Path=ActualHeight, Mode=OneWay}"
                               IsTabStop="False"
                                x:Name="CategoryItems"
                                  
@@ -70,7 +72,7 @@
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel Orientation="Horizontal"
-                                        Margin="8 0 8 0"
+                                        Margin="0 0 8 0"
                                         VerticalAlignment="Stretch"
                                                            
                                         />
@@ -79,51 +81,50 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
 
-                            <toolkit:DockPanel Margin="8 0">
+                            <toolkit:DockPanel Margin="0 0 8 0">
 
-                                <ItemsControl ItemsSource="{Binding}"
+                                <ListView ItemsSource="{Binding ChildItems}"
                                                     IsTabStop="False"   
-                                              
+                                              uwpui:ListViewBaseExtensions.Command="{Binding SelectedCommand}"
+                                          IsItemClickEnabled="True"
+                                          SelectionMode="None"
                                           >
-                                    <ItemsControl.ItemContainerStyle>
-                                        <Style TargetType="ContentPresenter">
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="ListViewItem">
                                             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                             <Setter Property="VerticalContentAlignment" Value="Stretch" />
                                             <Setter Property="MinWidth" Value="180" />
                                             <Setter Property="Padding" Value="0" />
-                                            <Setter Property="Margin" Value="0 0 4 8" />
+                                            <Setter Property="Margin" Value="0 0 8 8" />
+                                            <Setter Property="BorderBrush" Value="{ThemeResource ButtonBorderBrushPointerOver}" />
+                                            <Setter Property="BorderThickness" Value="1" />
                                         </Style>
-                                    </ItemsControl.ItemContainerStyle>
+                                    </ListView.ItemContainerStyle>
 
-                                    <ItemsControl.ItemsPanel>
+                                    <ListView.ItemsPanel>
                                         <ItemsPanelTemplate>
-                                            <toolkit:WrapPanel Orientation="Vertical"
+                                            <ItemsWrapGrid Orientation="Vertical"
                                                            VerticalAlignment="Stretch"
                                                            ItemHeight="64"                                                           
                                                                />
                                         </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
+                                    </ListView.ItemsPanel>
 
-                                    <ItemsControl.ItemTemplate>
+                                    <ListView.ItemTemplate>
                                         <DataTemplate>
 
-                                            <Button Command="{Binding PrimaryCommand}"
-                                                    HorizontalAlignment="Stretch"
-                                                    VerticalAlignment="Stretch"
-                                                    UseSystemFocusVisuals="True"
-                                                    MinHeight="64"
+                                            <Border HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"
                                                     >
                                                 <TextBlock Text="{Binding Label}"
-                                                               VerticalAlignment="Center"
-                                                               HorizontalAlignment="Center"
                                                                FontWeight="{Binding FontWeight, Mode=OneTime}"
                                                                />
 
-                                            </Button>
+                                            </Border>
 
                                         </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
+                                    </ListView.ItemTemplate>
+                                </ListView>
 
 
                             </toolkit:DockPanel>

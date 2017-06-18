@@ -11,6 +11,8 @@ using Prism.Commands;
 using System.Collections.ObjectModel;
 using System.Threading;
 using System.Windows.Input;
+using Reactive.Bindings.Extensions;
+using Reactive.Bindings;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -37,63 +39,65 @@ namespace NicoPlayerHohoema.ViewModels
 				await HohoemaApp.FollowManagerUpdater.WaitUpdate();
 			}
 
-			Lists.Add(new FavoriteListViewModel()
+			Lists.Add(new FavoriteListViewModel(HohoemaApp.FollowManager)
 			{
 				Name = "ユーザー",
 				FavType = FollowItemType.User,
 				MaxItemCount = HohoemaApp.FollowManager.User.MaxFollowItemCount,
 				Items = HohoemaApp.FollowManager.User.FollowInfoItems
-					.Select(x => new FavoriteItemViewModel(x, PageManager))
-					.ToList()
-			});
+                    .ToReadOnlyReactiveCollection(x => new FavoriteItemViewModel(x, HohoemaApp.FollowManager, PageManager))
 
-			Lists.Add(new FavoriteListViewModel()
+            });
+
+			Lists.Add(new FavoriteListViewModel(HohoemaApp.FollowManager)
 			{
 				Name = "マイリスト",
 				FavType = FollowItemType.Mylist,
 				MaxItemCount = HohoemaApp.FollowManager.Mylist.MaxFollowItemCount,
 				Items = HohoemaApp.FollowManager.Mylist.FollowInfoItems
-					.Select(x => new FavoriteItemViewModel(x, PageManager))
-					.ToList()
-			});
+                .ToReadOnlyReactiveCollection(x => new FavoriteItemViewModel(x, HohoemaApp.FollowManager, PageManager))
+            });
 
-			Lists.Add(new FavoriteListViewModel()
+			Lists.Add(new FavoriteListViewModel(HohoemaApp.FollowManager)
 			{
 				Name = "タグ",
 				FavType = FollowItemType.Tag,
 				MaxItemCount = HohoemaApp.FollowManager.Tag.MaxFollowItemCount,
 				Items = HohoemaApp.FollowManager.Tag.FollowInfoItems
-					.Select(x => new FavoriteItemViewModel(x, PageManager))
-					.ToList()
-			});
+                .ToReadOnlyReactiveCollection(x => new FavoriteItemViewModel(x, HohoemaApp.FollowManager, PageManager))
+            });
 
-			Lists.Add(new FavoriteListViewModel()
+			Lists.Add(new FavoriteListViewModel(HohoemaApp.FollowManager)
 			{
 				Name = "コミュニティ",
 				FavType = FollowItemType.Community,
 				MaxItemCount = HohoemaApp.FollowManager.Community.MaxFollowItemCount,
 				Items = HohoemaApp.FollowManager.Community.FollowInfoItems
-					.Select(x => new FavoriteItemViewModel(x, PageManager))
-					.ToList()
-			});
+                .ToReadOnlyReactiveCollection(x => new FavoriteItemViewModel(x, HohoemaApp.FollowManager, PageManager))
+            });
 
 		}
 
 		public ObservableCollection<FavoriteListViewModel> Lists { get; private set; }
 
-        
 
+        
     }
 
-	public class FavoriteListViewModel : BindableBase
+    public class FavoriteListViewModel : BindableBase
 	{
 		public FollowItemType FavType { get; set; }
 		public string Name { get; set; }
 		public uint MaxItemCount { get; set; }
 		public int ItemCount => Items.Count;
+        public FollowManager FollowManager { get; }
 
-		public List<FavoriteItemViewModel> Items { get; set; }
+		public ReadOnlyReactiveCollection<FavoriteItemViewModel> Items { get; set; }
 
+        public FavoriteListViewModel(FollowManager followMan)
+        {
+            FollowManager = followMan;
+        }
 
         private DelegateCommand<FavoriteItemViewModel> _SelectedCommand;
         public DelegateCommand<FavoriteItemViewModel> SelectedCommand
@@ -107,19 +111,24 @@ namespace NicoPlayerHohoema.ViewModels
                     }));
             }
         }
+
+        
+
     }
 
-	public class FavoriteItemViewModel : HohoemaListingPageItemBase
+    public class FavoriteItemViewModel : HohoemaListingPageItemBase
 	{
 		
-		public FavoriteItemViewModel(FollowItemInfo feedList, PageManager pageManager)
+		public FavoriteItemViewModel(FollowItemInfo feedList, FollowManager followMan, PageManager pageManager)
 		{
 			Title = feedList.Name;
 			ItemType = feedList.FollowItemType;
 			SourceId = feedList.Id;
 
 			_PageManager = pageManager;
-		}
+            _FollowManager = followMan;
+
+        }
 
 
 		private DelegateCommand _SelectedCommand;
@@ -160,12 +169,42 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		public FollowItemType ItemType { get; set; }
+        private DelegateCommand _RemoveFavoriteCommand;
+        public DelegateCommand RemoveFavoriteCommand
+        {
+            get
+            {
+                return _RemoveFavoriteCommand
+                    ?? (_RemoveFavoriteCommand = new DelegateCommand(async () =>
+                    {
+                        switch (ItemType)
+                        {
+                            case FollowItemType.Tag:
+                                await _FollowManager.Tag.RemoveFollow(SourceId);
+                                break;
+                            case FollowItemType.Mylist:
+                                await _FollowManager.Mylist.RemoveFollow(SourceId);
+                                break;
+                            case FollowItemType.User:
+                                await _FollowManager.User.RemoveFollow(SourceId);
+                                break;
+                            case FollowItemType.Community:
+                                await _FollowManager.Community.RemoveFollow(SourceId);
+                                break;
+                            default:
+                                break;
+                        }
+                    }));
+            }
+        }
+
+        public FollowItemType ItemType { get; set; }
 		public string SourceId { get; set; }
 
 		PageManager _PageManager;
+        FollowManager _FollowManager;
 
-	}
+    }
 
 	
 }

@@ -87,7 +87,7 @@
                         <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="ContentLayout.Margin" Value="0 27 48 27" />
+                        <Setter Target="ContentLayout.Margin" Value="0 27 48 0" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -120,32 +120,30 @@
                 </toolkit:DockPanel>
             </Border>
 
-
-            <uwptoolkitControl:MasterDetailsView ItemsSource="{Binding SettingItems}"
-                                                 SelectedItem="{Binding CurrentSettingsContent.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                 MasterPaneWidth="280"
-                                                 x:Name="mdv"
-                                                 >
-                <uwptoolkitControl:MasterDetailsView.ItemTemplate>
+            <Pivot ItemsSource="{Binding SettingItems}"
+                   SelectedItem="{Binding CurrentSettingsContent.Value, Mode=TwoWay}"
+                   >
+                <Pivot.ItemContainerStyle>
+                    <Style TargetType="PivotItem">
+                        <Setter Property="Margin" Value="0 0 0 0" />
+                        <Setter Property="Padding" Value="0 0 0 27" />
+                    </Style>
+                </Pivot.ItemContainerStyle>
+                <Pivot.HeaderTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding Title}" />
                     </DataTemplate>
-                </uwptoolkitControl:MasterDetailsView.ItemTemplate>
-                <uwptoolkitControl:MasterDetailsView.DetailsTemplate>
+                </Pivot.HeaderTemplate>
+                <Pivot.ItemTemplate>
                     <DataTemplate>
                         <ContentControl Content="{Binding}"
-                            ContentTemplateSelector="{StaticResource settingContentTemplateSelector}"
-                            VerticalContentAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                                        IsTabStop="False"
-                            >
-                        </ContentControl>
+                                        ContentTemplateSelector="{StaticResource settingContentTemplateSelector}"
+                                        HorizontalContentAlignment="Stretch"
+                                        VerticalContentAlignment="Stretch"
+                                        />
                     </DataTemplate>
-                </uwptoolkitControl:MasterDetailsView.DetailsTemplate>
-            </uwptoolkitControl:MasterDetailsView>
-
-
-            
+                </Pivot.ItemTemplate>
+            </Pivot>
         </toolkit:DockPanel>
 
     </Grid>

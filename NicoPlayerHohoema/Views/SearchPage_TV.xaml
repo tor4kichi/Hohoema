@@ -232,52 +232,21 @@
                     </TextBlock>
                 </Border>
 
-                <StackPanel toolkit:DockPanel.Dock="Top"
-                            Orientation="Horizontal"
-                            HorizontalAlignment="Right"
-                            Margin="0 16"
-                            >
+                
 
-                    <StackPanel Orientation="Horizontal"
-                                Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+
+                <ScrollViewer >
+                    <StackPanel Orientation="Vertical"
+                                Margin="16 0 0 0"
                                 >
-                    </StackPanel>
-
-                    <StackPanel Orientation="Horizontal"
-                                Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
-                                >
-                        <AppBarButton Command="{Binding DeleteSelectedSearchHistoryCommand}"
-                                        Background="Transparent"
-                                                Label="履歴削除"
-                                                Icon="Delete"
-                                        />
-
-                    </StackPanel>
-
-
-
-                    <ToggleButton Background="Transparent"
-                                    IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                    ToolTipService.ToolTip="選択"
-                                    >
-                        <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" />
-                    </ToggleButton>
-
-
-                </StackPanel>
-
-
-                <ScrollViewer HorizontalScrollMode="Auto"
-                              HorizontalScrollBarVisibility="Hidden"
-                              VerticalScrollMode="Disabled"
-                              VerticalScrollBarVisibility="Hidden"
-                              >
-                    <StackPanel Orientation="Horizontal">
                         <toolkit:DockPanel
-                            Width="640"
+                            Margin="0 32 48 27"
                             >
+
+                            
+
                             <!-- ターゲット（Keyword, Tag etc） -->
-                            <Border Margin="16 0 32 0"
+                            <Border Margin="0 0 16 0"
                                         toolkit:DockPanel.Dock="Left"
                                         >
 
@@ -287,7 +256,9 @@
                                           TabIndex="1"
                                           IsTabStop="True"
                                           Width="120"
+                                          UseSystemFocusVisuals="True"
                                           IsEnabled="{Binding IsSelectionModeEnable.Value, Converter={StaticResource InvertBoolean}}"
+                                          IsSynchronizedWithCurrentItem="False"
                                          >
                                 </ComboBox>
                             </Border>
@@ -295,7 +266,7 @@
 
 
                             <!-- 検索 -->
-                            <StackPanel toolkit:DockPanel.Dock="Left">
+                            <StackPanel>
                                 <toolkit:DockPanel>
 
                                     <Button Margin="0 0 0 0"            
@@ -342,15 +313,16 @@
                                 </toolkit:DockPanel>
 
 
-                                <Border Margin="0 32 0 0">
-                                    <ContentControl Content="{Binding SearchOptionVM.Value}"
-                                        ContentTemplateSelector="{StaticResource SearchTargetContentTemplateSelector}" 
-                                        HorizontalContentAlignment="Stretch"
-                                        VerticalContentAlignment="Stretch"
-                                                IsTabStop="False"
-                                                    IsEnabled="{Binding IsSelectionModeEnable.Value, Converter={StaticResource InvertBoolean}}"
-                                        />
-                                </Border>
+                                <!-- 検索オプション -->
+                                <uwpControls:Expander Content="{Binding SearchOptionVM.Value}"
+                                                      ContentTemplateSelector="{StaticResource SearchTargetContentTemplateSelector}" 
+                                                      IsEnabled="{Binding IsSelectionModeEnable.Value, Converter={StaticResource InvertBoolean}}"
+                                                      Header="検索オプション"
+                                                  toolkit:DockPanel.Dock="Bottom"
+                                                      Margin="0 8 0 0"
+                                                      HorizontalContentAlignment="Left"
+                                                      >
+                                </uwpControls:Expander>
 
                             </StackPanel>
 
@@ -359,10 +331,50 @@
 
 
 
+                        <StackPanel toolkit:DockPanel.Dock="Bottom"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Left"
+                            Margin="0 16 0 8"
+                            >
+
+                            <TextBlock Text="検索履歴" 
+                                   
+                                   FontWeight="SemiLight"
+                                   FontSize="20"
+                                       VerticalAlignment="Center"
+                                   />
+                            
+                            <StackPanel Orientation="Horizontal"
+                                Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                >
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal"
+                                Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                                >
+                                <AppBarButton Command="{Binding DeleteSelectedSearchHistoryCommand}"
+                                        Background="Transparent"
+                                                Label="履歴削除"
+                                                Icon="Delete"
+                                        />
+
+                            </StackPanel>
 
 
 
-                        <controls:IncrementalLoadingList Margin="16 0 0 0"
+                            <ToggleButton Background="Transparent"
+                                    IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    >
+                                <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" />
+                            </ToggleButton>
+
+
+                        </StackPanel>
+                        
+
+
+
+                        <controls:IncrementalLoadingList Margin="0 0 0 0"
                                                          ItemsSource="{Binding IncrementalLoadingItems}"
                                                          SelectedItems="{Binding SelectedItems, Mode=TwoWay}"
                                                          ItemCommand="{Binding SelectItemCommand}"
@@ -372,9 +384,7 @@
                                                         >
                             <controls:IncrementalLoadingList.ItemTemplate>
                                 <DataTemplate>
-                                    <StackPanel Height="100"
-                                                Width="80"
-                                                VerticalAlignment="Center"
+                                    <StackPanel VerticalAlignment="Center"
                                                 HorizontalAlignment="Center"
                                                 >
                                         <TextBlock Text="{Binding Keyword}"
@@ -390,7 +400,7 @@
                             </controls:IncrementalLoadingList.ItemTemplate>
                             <controls:IncrementalLoadingList.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <ItemsWrapGrid Orientation="Vertical" Margin="0 0 48 0"
+                                   <ItemsStackPanel Orientation="Horizontal" Margin="0 0 48 0"
                                                    MaxHeight="340"
                                                    />
                                 </ItemsPanelTemplate>

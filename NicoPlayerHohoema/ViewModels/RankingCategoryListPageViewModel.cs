@@ -11,6 +11,7 @@ using Prism.Windows.Navigation;
 using Prism.Commands;
 using NicoPlayerHohoema.Models;
 using System.Reactive.Linq;
+using NicoPlayerHohoema.Util;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -98,7 +99,7 @@ namespace NicoPlayerHohoema.ViewModels
 			};
 
 
-			RankingCategoryItems = new ObservableCollection<List<RankingCategoryListPageListItem>>();
+			RankingCategoryItems = new ObservableCollection<RankingCategoryHostListItem>();
             FavoriteRankingCategoryItems = new ObservableCollection<RankingCategoryListPageListItem>();
 
             SelectedRankingCategory = new ReactiveProperty<RankingCategoryListPageListItem>();
@@ -116,14 +117,19 @@ namespace NicoPlayerHohoema.ViewModels
 			RankingCategoryItems.Clear();
 
             RankingCategoryItems.Add(
-                HohoemaApp.UserSettings.RankingSettings.HighPriorityCategory
-                .Select(x => new RankingCategoryListPageListItem(x, true, OnRankingCategorySelected))
-                .ToList()
+                new RankingCategoryHostListItem("好きなランキング")
+                {
+                    ChildItems = HohoemaApp.UserSettings.RankingSettings.HighPriorityCategory
+                        .Select(x => new RankingCategoryListPageListItem(x, true, OnRankingCategorySelected))
+                        .ToList()
+                }
                 );
             foreach (var categoryList in RankingCategories)
 			{
-				// 非表示ランキングを除外したカテゴリリストを作成
-				var list = categoryList
+                // 非表示ランキングを除外したカテゴリリストを作成
+                var label = categoryList.First().ToCultulizedText();
+
+                var list = categoryList
 					.Where(x => !HohoemaApp.UserSettings.RankingSettings.IsDislikeRankingCategory(x))
 					.Select(x => CreateRankingCategryListItem(x))
 					.ToList();
@@ -131,7 +137,7 @@ namespace NicoPlayerHohoema.ViewModels
 				// 表示対象があればリストに追加
 				if (list.Count > 0)
 				{
-					RankingCategoryItems.Add(list);
+					RankingCategoryItems.Add(new RankingCategoryHostListItem(label) { ChildItems = list });
 				}
 			}
 
@@ -148,23 +154,34 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<RankingCategoryListPageListItem> SelectedRankingCategory { get; }
 
         public ObservableCollection<RankingCategoryListPageListItem> FavoriteRankingCategoryItems { get; private set; }
-        public ObservableCollection<List<RankingCategoryListPageListItem>> RankingCategoryItems { get; private set; }
+        public ObservableCollection<RankingCategoryHostListItem> RankingCategoryItems { get; private set; }
 
 		RankingSettings _RankingSettings;
 	}
 
 
 
-	public class RankingCategoryHostListItem : RankingCategoryListPageListItem
+	public class RankingCategoryHostListItem 
 	{
-		public RankingCategoryHostListItem(RankingCategoryInfo info, bool isFavoriteCategory, Action<RankingCategoryInfo> selected)
-			: base(info, isFavoriteCategory, selected)
+        public string Label { get; }
+		public RankingCategoryHostListItem(string label)
 		{
-			ChildItems = new List<RankingCategoryListPageListItem>();
-		}
+            Label = label;
+            ChildItems = new List<RankingCategoryListPageListItem>();
+            SelectedCommand = new DelegateCommand<RankingCategoryListPageListItem>((item) => 
+            {
+                item.PrimaryCommand.Execute(null);
+            });
+
+        }
+
+        public bool HasItem => ChildItems.Count > 0;
 
 
-		public List<RankingCategoryListPageListItem> ChildItems { get; set; }
+        public List<RankingCategoryListPageListItem> ChildItems { get; set; }
+
+
+        public DelegateCommand<RankingCategoryListPageListItem> SelectedCommand { get; }
 	}
 
 

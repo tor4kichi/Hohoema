@@ -14,6 +14,7 @@ using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using Mntone.Nico2;
+using Windows.System;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -333,8 +334,20 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		
-		private DelegateCommand _OpenCommunityVideoListPageCommand;
+        private DelegateCommand _OpenCommunityWebPagePageCommand;
+        public DelegateCommand OpenCommunityWebPagePageCommand
+        {
+            get
+            {
+                return _OpenCommunityWebPagePageCommand
+                    ?? (_OpenCommunityWebPagePageCommand = new DelegateCommand(async () =>
+                    {
+                        await Launcher.LaunchUriAsync(TopUrl);
+                    }));
+            }
+        }
+
+        private DelegateCommand _OpenCommunityVideoListPageCommand;
 		public DelegateCommand OpenCommunityVideoListPageCommand
 		{
 			get
