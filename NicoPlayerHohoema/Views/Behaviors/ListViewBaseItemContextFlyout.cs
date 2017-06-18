@@ -26,7 +26,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
             if (AssociatedObject.ContextFlyout != null)
             {
                 AssociatedObject.RightTapped -= HohoemaListView_RightTapped;
-                AssociatedObject.ContextFlyout.Opened -= ItemFlyout_Opened;
+                AssociatedObject.ContextFlyout.Opening -= ContextFlyout_Opening;
                 AssociatedObject.ContextFlyout.Closed -= ItemFlyout_Closed;
             }
             base.OnDetaching();
@@ -42,31 +42,25 @@ namespace NicoPlayerHohoema.Views.Behaviors
                 // Menuボタン押下ではRightTappedが発火しないため
                 if (UINavigationController.UINavigationControllers.Count > 0)
                 {
-                    AssociatedObject.ContextFlyout.Opened += ItemFlyout_Opened;
+                    AssociatedObject.ContextFlyout.Opening += ContextFlyout_Opening;
                     AssociatedObject.ContextFlyout.Closed += ItemFlyout_Closed;
                 }
             }
         }
 
+        private void ContextFlyout_Opening(object sender, object e)
+        {
+            var selectedItem = FocusManager.GetFocusedElement();
+            if (selectedItem is FrameworkElement)
+            {
+                var item = AssociatedObject.ItemFromContainer((selectedItem as FrameworkElement));
+                FlyoutSettingDataContext(AssociatedObject.ContextFlyout, item);
+            }
+        }
 
         private void ItemFlyout_Closed(object sender, object e)
         {
             FlyoutSettingDataContext(AssociatedObject.ContextFlyout, null);
-        }
-
-        private void ItemFlyout_Opened(object sender, object e)
-        {
-            var selectedItem = AssociatedObject.SelectedItem;
-
-            if (GetFlyoutDataContext(AssociatedObject.ContextFlyout) != null)
-            {
-                return;
-            }
-
-            if (selectedItem != null)
-            {
-                FlyoutSettingDataContext(AssociatedObject.ContextFlyout, selectedItem);
-            }
         }
 
         private void HohoemaListView_RightTapped(object sender, RightTappedRoutedEventArgs e)

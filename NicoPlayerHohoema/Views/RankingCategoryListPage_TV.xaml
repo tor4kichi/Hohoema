@@ -14,6 +14,7 @@
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:deviceTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
+    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
@@ -22,7 +23,7 @@
           >
 
         <toolkit:DockPanel x:Name="ContentLayout"
-                           Margin="0 16 0 0"
+                           Margin="0 0 0 0"
                            >
 
             <Border toolkit:DockPanel.Dock="Top" 
@@ -37,7 +38,7 @@
                     </StackPanel>
 
                     <Border Background="Transparent" IsHitTestVisible="True"
-                                Margin="16 16 0 0"
+                                Margin="16 0 0 0"
                                 >
                         <TextBlock Text="{Binding Title}" 
                                     VerticalAlignment="Center"
@@ -47,86 +48,83 @@
                     </Border>
                 </toolkit:DockPanel>
             </Border>
-            <ScrollViewer VerticalScrollMode="Disabled" 
-                          VerticalScrollBarVisibility="Hidden"
-                          HorizontalScrollMode="Enabled" 
-                          HorizontalScrollBarVisibility="Auto"
-                          HorizontalContentAlignment="Stretch"
-                          Margin="0 0 0 0"
-                          IsTabStop="False"
+            <ScrollViewer VerticalContentAlignment="Stretch"
+                          VerticalAlignment="Stretch"
+                          Margin="0 16 0 0"
                           >
 
                 
+                
                 <ItemsControl ItemsSource="{Binding RankingCategoryItems}"
-                          Height="{Binding ElementName=ContentLayout, Path=ActualHeight, Mode=OneWay}"
                               IsTabStop="False"
-                                  VerticalAlignment="Center"
-                              
+                              VerticalAlignment="Stretch"
+                              VerticalContentAlignment="Stretch"
+                            ScrollViewer.VerticalScrollMode="Auto"
+                            ScrollViewer.VerticalScrollBarVisibility="Auto"
                           >
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal"
-                                        Margin="8 0 8 0"
-                                    VerticalAlignment="Stretch"
-                                                           
+                            <StackPanel Orientation="Vertical"
+                                        Margin="8 0 8 27"  
+                                        VerticalAlignment="Stretch"
                                         />
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
 
-                            <toolkit:DockPanel Margin="8 0">
+                            <toolkit:DockPanel Margin="8 0" Visibility="{Binding HasItem, Converter={StaticResource BooleanToVisibility}}">
 
-                                <ItemsControl ItemsSource="{Binding}"
-                                          IsTabStop="False"               
-                                          Height="300"
-                                              Padding="0 0 0 27"
-                                          >
-                                    <ItemsControl.ItemContainerStyle>
-                                        <Style TargetType="ContentPresenter">
-                                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                                <TextBlock Text="{Binding Label}" FontWeight="SemiLight" FontSize="20"
+                                           toolkit:DockPanel.Dock="Top"
+                                           Margin="0 0 0 16"
+                                           />
+
+                                <ListView ItemsSource="{Binding ChildItems}"
+                                            ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                                              ScrollViewer.HorizontalScrollMode="Enabled"
+                                              ScrollViewer.VerticalScrollMode="Disabled"
+                                              ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                                          Padding="0 0 0 27"
+                                          uwpui:ListViewBaseExtensions.Command="{Binding SelectedCommand}"
+                                          IsItemClickEnabled="True"
+                                          SelectionMode="None"
+                                    >
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="ListViewItem">
                                             <Setter Property="MinWidth" Value="180" />
                                             <Setter Property="MinHeight" Value="100" />
                                             <Setter Property="Padding" Value="0" />
-                                            <Setter Property="Margin" Value="0 0 16 16" />
+                                            <Setter Property="Margin" Value="0 0 8 0" />
+                                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                                            <Setter Property="BorderBrush" Value="{ThemeResource ButtonBorderBrushPointerOver}" />
+                                            <Setter Property="BorderThickness" Value="1" />
                                         </Style>
-                                    </ItemsControl.ItemContainerStyle>
+                                    </ListView.ItemContainerStyle>
 
-                                    <ItemsControl.ItemsPanel>
+                                    <ListView.ItemsPanel>
                                         <ItemsPanelTemplate>
-                                            <toolkit:WrapPanel Orientation="Vertical"
+                                            <ItemsStackPanel Orientation="Horizontal"
                                                            VerticalAlignment="Stretch"
-                                                           ItemHeight="150"
+                                                             Margin="0 0 48 0"
                                                                />
                                         </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
+                                    </ListView.ItemsPanel>
 
-                                    <ItemsControl.ItemTemplate>
+                                    <ListView.ItemTemplate>
                                         <DataTemplate>
 
-                                            <Button Command="{Binding PrimaryCommand}"
-                                                        HorizontalAlignment="Stretch"
-                                                        VerticalAlignment="Stretch"
-                                                        UseSystemFocusVisuals="True"
-                                                        MinHeight="48"
-                                                    Background="Transparent"
-                                                    BorderBrush="{ThemeResource ButtonBorderBrushPointerOver}"
-                                                    BorderThickness="1"
-                                                        >
-                                                <TextBlock Text="{Binding Label}"
-                                                               VerticalAlignment="Center"
-                                                               HorizontalAlignment="Center"
-                                                               FontWeight="{Binding FontWeight, Mode=OneTime}"
-                                                               FontSize="20"
-                                                               />
-
-                                            </Button>
-
+                                            <TextBlock Text="{Binding Label}"
+                                                        VerticalAlignment="Center"
+                                                        HorizontalAlignment="Center"
+                                                        FontWeight="{Binding FontWeight, Mode=OneTime}"
+                                                        FontSize="20"
+                                                        />
                                         </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                                
                             </toolkit:DockPanel>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

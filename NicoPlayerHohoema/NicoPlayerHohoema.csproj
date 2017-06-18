@@ -291,6 +291,7 @@
     <Compile Include="Views\Behaviors\MediaPlayerSetter.cs" />
     <Compile Include="Views\Behaviors\MouseWheelTrigger.cs" />
     <Compile Include="Views\Behaviors\OpenFlyout.cs" />
+    <Compile Include="Views\Behaviors\PreventSpoilerXYNavigationInWebView.cs" />
     <Compile Include="Views\Behaviors\RefreshableListViewExtention.cs" />
     <Compile Include="Views\Behaviors\ScrollAction.cs" />
     <Compile Include="Views\Behaviors\ScrollToIndex.cs" />
@@ -305,11 +306,15 @@
     <Compile Include="Views\CacheManagementPage_TV.xaml.cs">
       <DependentUpon>CacheManagementPage_TV.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\UINavigationButtons.cs" />
     <Compile Include="Views\CommentCommandEditer.xaml.cs">
       <DependentUpon>CommentCommandEditer.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\CommunityPage.xaml.cs">
       <DependentUpon>CommunityPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CommunityPage_TV.xaml.cs">
+      <DependentUpon>CommunityPage_TV.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\CommunityVideoPage.xaml.cs">
       <DependentUpon>CommunityVideoPage.xaml</DependentUpon>
@@ -572,6 +577,7 @@
     <Compile Include="Views\StateTrigger\UIIntractionTriggerBase.cs" />
     <Compile Include="Views\StateTrigger\WindowActiveTrigger.cs" />
     <Compile Include="Views\UIElementExtentions.cs" />
+    <Compile Include="Views\UINavigationManager.cs" />
     <Compile Include="Views\UserInfoPage.xaml.cs">
       <DependentUpon>UserInfoPage.xaml</DependentUpon>
     </Compile>
@@ -733,6 +739,10 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Page>
     <Page Include="Views\CacheManagementPage_TV.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\CommunityPage_TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

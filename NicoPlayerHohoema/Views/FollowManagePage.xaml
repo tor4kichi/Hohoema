@@ -79,51 +79,44 @@
                           IsTabStop="False"
                       >
                 <StackPanel Margin="16 16 16 16">
-                    <ItemsControl ItemsSource="{Binding Lists}" x:Name="FavListContainer"
+                    <Pivot ItemsSource="{Binding Lists}" x:Name="FavListContainer"
                                   IsTabStop="False"
                                   >
 
-                        <ItemsControl.ItemTemplate>
+                        <Pivot.HeaderTemplate>
                             <DataTemplate>
-
-
-                                <uwpcontrol:Expander Margin="0 0 0 16"
-                                                    x:Name="expander"
-                                                     IsExpanded="True"
-                                                     Background="Transparent"
-                                                     IsTabStop="False"
-                                                     >
-                                    <uwpcontrol:Expander.HeaderTemplate>
-                                        <DataTemplate>
-                                            <StackPanel Orientation="Horizontal"
+                                <StackPanel Orientation="Horizontal"
                                                    toolkit:DockPanel.Dock="Top"                                            
-                                                        DataContext="{Binding ElementName=expander, Path=DataContext}"
                                                     >
-                                                <SymbolIcon Symbol="{Binding FavType, Converter={StaticResource FavTypeToSymbol}}" 
+                                    <SymbolIcon Symbol="{Binding FavType, Converter={StaticResource FavTypeToSymbol}}" 
                                                             Margin="0 0 8 0"
                                                             VerticalAlignment="Center"
                                                             />
 
-                                                <TextBlock Text="{Binding Name}" 
+                                    <TextBlock Text="{Binding Name}" 
                                                             Margin="0 0"
-                                                            FontSize="20"
                                                             VerticalAlignment="Center"
                                                         />
+                                </StackPanel>
+                            </DataTemplate>
+                        </Pivot.HeaderTemplate>
+                        <Pivot.ItemTemplate>
+                            <DataTemplate>
 
-                                                <TextBlock 
+                                <toolkit:DockPanel>
+                                    <Grid Margin="0 16"
+                                          toolkit:DockPanel.Dock="Top"
+                                          >
+                                        <TextBlock  
                                                             VerticalAlignment="Center"
-                                                            Opacity="0.7"
                                                             Margin="8 0"
                                                         >
-                                                        <Run Text="{Binding ItemCount}" />
-                                                        <Run Text="/" />
-                                                        <Run Text="{Binding MaxItemCount}" />
-                                                </TextBlock>
-
-                                            </StackPanel>
-                                        </DataTemplate>
-
-                                    </uwpcontrol:Expander.HeaderTemplate>
+                                            <Run Text="登録数：" />
+                                            <Run Text="{Binding ItemCount}" />
+                                            <Run Text="/" />
+                                            <Run Text="{Binding MaxItemCount}" />
+                                        </TextBlock>
+                                    </Grid>
 
                                     <GridView ItemsSource="{Binding Items}"
                                               ItemTemplate="{StaticResource FavoriteItemTemplate}"
@@ -135,6 +128,21 @@
                                               uwpui:ListViewBaseExtensions.Command="{Binding SelectedCommand}"
                                               SelectionMode="None"
                                           >
+                                        <i:Interaction.Behaviors>
+                                            <mybehavior:ListViewBaseItemContextFlyout />
+                                        </i:Interaction.Behaviors>
+                                        
+                                        
+                                        <GridView.ContextFlyout>
+                                            <MenuFlyout>
+                                                <MenuFlyoutItem Text="{Binding Title}" IsEnabled="False" />
+                                                <MenuFlyoutSubItem Text="フォロー解除">
+                                                    <MenuFlyoutItem Text="解除"
+                                                                    Command="{Binding RemoveFavoriteCommand}"
+                                                                    />
+                                                </MenuFlyoutSubItem>
+                                            </MenuFlyout>
+                                        </GridView.ContextFlyout>
                                         <GridView.ItemContainerStyle>
                                             <Style TargetType="GridViewItem">
                                                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -157,12 +165,12 @@
 
                                     </GridView>
 
+                                </toolkit:DockPanel>
 
-                                </uwpcontrol:Expander>
-
+                                
                             </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                        </Pivot.ItemTemplate>
+                    </Pivot>
                 </StackPanel>
             </ScrollViewer>
         </toolkit:DockPanel>
