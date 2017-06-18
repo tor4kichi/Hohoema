@@ -163,7 +163,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			List<MylistGroupData> mylists = null;
+            List<MylistGroupData> mylists = null;
 
 			if (e.Parameter is string)
 			{
@@ -223,7 +223,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			if (!HohoemaApp.MylistManagerUpdater.IsOneOrMoreUpdateCompleted)
 			{
-//				HohoemaApp.MylistManagerUpdater.ScheduleUpdate();
+				HohoemaApp.MylistManagerUpdater.ScheduleUpdate();
 				await HohoemaApp.MylistManagerUpdater.WaitUpdate();
 			}
 

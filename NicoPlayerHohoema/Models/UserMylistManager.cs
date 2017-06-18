@@ -147,7 +147,8 @@ namespace NicoPlayerHohoema.Models
 			{
 				var addedMylistGroupInfo = MylistGroupInfo.FromMylistGroupData(userMylist, HohoemaApp, this);
 				_UserMylists.Add(addedMylistGroupInfo);
-			}
+                await addedMylistGroupInfo.Refresh();
+            }
 
 			// 削除分だけ検出してUserMylistから削除
 			var removedMylistGroups = _UserMylists
