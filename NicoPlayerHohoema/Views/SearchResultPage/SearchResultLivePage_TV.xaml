@@ -27,6 +27,99 @@
 
                 <toolkit:DockPanel toolkit:DockPanel.Dock="Top" >
 
+                    <StackPanel Orientation="Horizontal"
+                                toolkit:DockPanel.Dock="Right"
+                                Margin="0 0 48 0">
+
+                        <CommandBar DefaultLabelPosition="Right"
+                                Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                toolkit:DockPanel.Dock="Left"
+                                >
+                            <AppBarButton 
+                                        Icon="Refresh"
+                                        Command="{Binding RefreshCommand}"
+                                        IsEnabled="{Binding CanChangeSort.Value}"
+                                      
+                                />
+
+                        </CommandBar>
+
+
+                        <CommandBar DefaultLabelPosition="Right"
+                                Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                                toolkit:DockPanel.Dock="Left"
+                                >
+
+                            <AppBarButton Command="{Binding RequestCacheDownload}"
+                                      
+                                      IsEnabled="{Binding CanDownload.Value, Converter={StaticResource BooleanToVisibility}}"
+                                      Label="キャッシュ"
+                                          Icon="Download"
+                                >
+                            </AppBarButton>
+
+
+                            <AppBarButton Command="{Binding RegistratioMylistCommand}"
+                                              Label="マイリスト登録"
+                                              Icon="Add"
+                                      
+                                            >
+                            </AppBarButton>
+
+                            <AppBarButton 
+                                     IsEnabled="{Binding IsItemSelected.Value}"
+                                      Label="プレイリスト追加"
+                                          Icon="List"
+                                >
+                                <AppBarButton.Flyout>
+                                    <Flyout >
+                                        <Border x:Name="PlaylistSelectFlyout">
+                                            <ItemsControl ItemsSource="{Binding Playlists}" >
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Button Background="Transparent" 
+                                                            Content="{Binding Name}"
+                                                            Command="{Binding ElementName=PlaylistSelectFlyout, Path=DataContext.AddPlaylistCommand}"
+                                                            CommandParameter="{Binding Id}"
+                                                            >
+                                                            <i:Interaction.Behaviors>
+                                                                <core:EventTriggerBehavior EventName="Tapped">
+                                                                    <mybehavior:CloseFlyoutAction />
+                                                                </core:EventTriggerBehavior>
+                                                            </i:Interaction.Behaviors>
+                                                        </Button>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+
+                                        </Border>
+                                    </Flyout>
+                                </AppBarButton.Flyout>
+                            </AppBarButton>
+
+
+                        </CommandBar>
+
+
+
+
+                        <CommandBar>
+
+                            <!--
+                        <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            HorizontalContentAlignment="Stretch"
+                                            VerticalContentAlignment="Stretch"
+                                        HorizontalAlignment="Right"
+                                            >
+                            <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       />
+                        </AppBarToggleButton>
+                        -->
+                        </CommandBar>
+                    </StackPanel>
+
 
                     <Border>
                         <Border Background="Transparent" IsHitTestVisible="True"
@@ -51,99 +144,6 @@
 
                 </toolkit:DockPanel>
 
-
-                <toolkit:DockPanel toolkit:DockPanel.Dock="Top" Margin="0 32 48 0">
-
-
-                    <CommandBar DefaultLabelPosition="Right"
-                                Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                toolkit:DockPanel.Dock="Left"
-                                >
-                        <AppBarButton Label="更新" 
-                                        Icon="Refresh"
-                                Command="{Binding RefreshCommand}"
-                                IsEnabled="{Binding CanChangeSort.Value}"
-                                      
-                                />
-
-                    </CommandBar>
-
-
-                    <CommandBar DefaultLabelPosition="Right"
-                                Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
-                                toolkit:DockPanel.Dock="Left"
-                                >
-
-                        <AppBarButton Command="{Binding RequestCacheDownload}"
-                                      
-                                      IsEnabled="{Binding CanDownload.Value, Converter={StaticResource BooleanToVisibility}}"
-                                      Label="キャッシュ"
-                                          Icon="Download"
-                                >
-                        </AppBarButton>
-
-
-                        <AppBarButton Command="{Binding RegistratioMylistCommand}"
-                                              Label="マイリスト登録"
-                                              Icon="Add"
-                                      
-                                            >
-                        </AppBarButton>
-
-                        <AppBarButton 
-                                     IsEnabled="{Binding IsItemSelected.Value}"
-                                      Label="プレイリスト追加"
-                                          Icon="List"
-                                >
-                            <AppBarButton.Flyout>
-                                <Flyout >
-                                    <Border x:Name="PlaylistSelectFlyout">
-                                        <ItemsControl ItemsSource="{Binding Playlists}" >
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate>
-                                                    <Button Background="Transparent" 
-                                                            Content="{Binding Name}"
-                                                            Command="{Binding ElementName=PlaylistSelectFlyout, Path=DataContext.AddPlaylistCommand}"
-                                                            CommandParameter="{Binding Id}"
-                                                            >
-                                                        <i:Interaction.Behaviors>
-                                                            <core:EventTriggerBehavior EventName="Tapped">
-                                                                <mybehavior:CloseFlyoutAction />
-                                                            </core:EventTriggerBehavior>
-                                                        </i:Interaction.Behaviors>
-                                                    </Button>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-
-                                    </Border>
-                                </Flyout>
-                            </AppBarButton.Flyout>
-                        </AppBarButton>
-
-
-                    </CommandBar>
-
-
-
-                    
-                    <CommandBar>
-
-                        <!--
-                        <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                            HorizontalContentAlignment="Stretch"
-                                            VerticalContentAlignment="Stretch"
-                                        HorizontalAlignment="Right"
-                                            Label="選択"
-                                            >
-                            <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"
-                                                       />
-                        </AppBarToggleButton>
-                        -->
-                    </CommandBar>
-                </toolkit:DockPanel>
 
                 <controls:IncrementalLoadingList x:Name="IncrementalLoadingList"
                                                  ItemsSource="{Binding IncrementalLoadingItems}"
