@@ -83,7 +83,7 @@
 
                             <AppBarButton Command="{Binding RequestCacheDownload}"
                                       
-                                      IsEnabled="{Binding CanDownload.Value, Converter={StaticResource BooleanToVisibility}}"
+                                      IsEnabled="{Binding CanDownload}"
                                       Background="Transparent"
                                       Label="キャッシュ"
                                           Icon="Download"
@@ -156,7 +156,6 @@
                                 >
 
                             <Button Command="{Binding RefreshCommand}"
-                                IsEnabled="{Binding CanChangeSort.Value}"
                                 Background="Transparent"
                                 Height="32"
                                       >
@@ -170,7 +169,7 @@
                                 Orientation="Horizontal"
                                 >
                             <Button Command="{Binding RequestCacheDownload}"
-                                IsEnabled="{Binding CanDownload.Value, Converter={StaticResource BooleanToVisibility}}"
+                                IsEnabled="{Binding CanDownload}"
                                 Background="Transparent"
                                 Height="32"
                                       >
@@ -292,7 +291,6 @@
                                                  Margin="0 0 0 0"
                                                  Padding="0 0 0 24"
                                                  ItemContextFlyout="{StaticResource VideoListItemFlyout}"
-                                                 IsTabStop="False"
                                                  >
                     <controls:IncrementalLoadingList.ItemTemplate>
                         <DataTemplate>

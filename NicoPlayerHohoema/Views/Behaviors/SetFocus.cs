@@ -41,7 +41,13 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
 		public object Execute(object sender, object parameter)
 		{
-            if (TargetObject == null) { return false; }
+            var target = TargetObject;
+            if (target == null)
+            {
+                target = AssociatedObject as Control;
+            }
+
+            if (target == null) { return false; }
 
             if (Delay != TimeSpan.Zero)
             {

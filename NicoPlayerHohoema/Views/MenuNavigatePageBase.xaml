@@ -421,7 +421,15 @@
                                     <!-- ページ毎のコンテンツ -->
                                     <ContentPresenter
                                             Visibility="{Binding NowNavigating.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                            />
+                                            >
+                                        <!--
+                                        <i:Interaction.Behaviors>
+                                            <core:DataTriggerBehavior Binding="{Binding NowNavigating.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
+                                                <mybehavior:SetFocus Delay="500" />
+                                            </core:DataTriggerBehavior>
+                                        </i:Interaction.Behaviors>
+                                        -->
+                                    </ContentPresenter>
                                 </Grid>
 
                                 <!--

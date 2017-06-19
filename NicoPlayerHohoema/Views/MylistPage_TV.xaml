@@ -18,8 +18,8 @@
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-          Margin="0 27 0 0"
+    <Grid Margin="0 27 0 0"
+          
           >
 
         <Grid>
@@ -37,10 +37,14 @@
                                 >
 
                             <Button Command="{Binding RefreshCommand}"
-                                IsEnabled="{Binding CanChangeSort.Value}"
                                 Background="Transparent"
                                 Height="32"
                                       >
+                                <i:Interaction.Behaviors>
+                                    <core:EventTriggerBehavior EventName="Loaded">
+                                        <mybehavior:SetFocus />
+                                    </core:EventTriggerBehavior>
+                                </i:Interaction.Behaviors>
                                 <StackPanel Orientation="Horizontal">
                                     <SymbolIcon Symbol="Refresh" />
                                 </StackPanel>
@@ -155,7 +159,7 @@
 
 
                             <Button Command="{Binding RequestCacheDownload}"
-                                IsEnabled="{Binding CanDownload.Value, Converter={StaticResource BooleanToVisibility}}"
+                                IsEnabled="{Binding CanDownload}"
                                 Background="Transparent"
                                 Height="32"
                                       >
@@ -277,7 +281,6 @@
                                                  Margin="0 0 0 0"
                                                  Padding="0 0 0 24"
                                                  ItemContextFlyout="{StaticResource VideoListItemFlyout}"
-                                                 IsTabStop="False"
                                                  >
                     <controls:IncrementalLoadingList.ItemTemplate>
                         <DataTemplate>

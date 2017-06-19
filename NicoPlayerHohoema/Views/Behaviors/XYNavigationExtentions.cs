@@ -14,6 +14,9 @@ namespace NicoPlayerHohoema.Views.Behaviors
 {
     public class XYNavigationExtentions : DependencyObject
     {
+        #region FocusAcceptOrientation
+
+
         public static readonly DependencyProperty FocusAcceptOrientationProperty =
             DependencyProperty.RegisterAttached(
                 "FocusAcceptOrientation",
@@ -92,5 +95,61 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
             return false;
         }
+
+        #endregion
+
+        #region KeepFocus
+
+        public static readonly DependencyProperty FirstFocusProperty =
+            DependencyProperty.RegisterAttached(
+                "FirstFocus",
+                typeof(Control),
+                typeof(XYNavigationExtentions),
+                new PropertyMetadata(null, OnFirstFocusPropertyChanged)
+        );
+
+        public static void SetFirstFocus(DependencyObject element, Control value)
+        {
+            element.SetValue(FirstFocusProperty, value);
+        }
+        public static Control GetFirstFocus(DependencyObject element)
+        {
+            return (Control)element.GetValue(FirstFocusProperty);
+        }
+
+
+        public static void OnFirstFocusPropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
+        {
+            if (sender is UserControl && args.NewValue != null)
+            {
+                var control = sender as Control;
+                var firstFocusElement = args.NewValue as Control;
+                control.Loaded += (s, e) => 
+                {
+                    if (firstFocusElement == null)
+                    {
+                        control.Focus(FocusState.Programmatic);
+                    }
+                    else
+                    {
+                        firstFocusElement.Focus(FocusState.Programmatic);
+                    }
+                };
+            }
+        }
+
+        private static void Control_IsEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            var focused = FocusManager.GetFocusedElement();
+            var control = sender as Control;
+            if ((bool)e.NewValue == false && control == focused)
+            {
+                FocusManager.TryMoveFocus(FocusNavigationDirection.Next);
+            }
+        }
+
+        #endregion
+
+
     }
 }
