@@ -328,7 +328,9 @@
                                PaneBackground="{ThemeResource SystemAltMediumHighColor}"
                         >
                         <SplitView.Pane>
-                            <toolkit:DockPanel x:Name="PaneLayout">
+                            <toolkit:DockPanel x:Name="PaneLayout" 
+                                               mybehavior:XYNavigationExtentions.FocusAcceptOrientation="Horizontal"
+                                               >
 
                                 <Button Command="{Binding OpenAccountInfoCommand}"
                                         toolkit:DockPanel.Dock="Bottom"
