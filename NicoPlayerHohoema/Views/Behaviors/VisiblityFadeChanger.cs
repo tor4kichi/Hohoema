@@ -149,8 +149,6 @@ namespace NicoPlayerHohoema.Views.Behaviors
             {
                 this.AssociatedObject.Visibility = Visibility.Visible;
 
-                FocusManager.TryMoveFocus(FocusNavigationDirection.Up);
-
                 _FadeOutAnimation.Stop();
                 if (IsAnimationEnable)
                 {

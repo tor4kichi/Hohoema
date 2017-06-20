@@ -20,7 +20,7 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-          Margin="0 27 0 0"
+          Margin="8 27 0 0"
           >
 
         <Grid>
@@ -83,7 +83,7 @@
 
                             <AppBarButton Command="{Binding RequestCacheDownload}"
                                       
-                                      IsEnabled="{Binding CanDownload.Value, Converter={StaticResource BooleanToVisibility}}"
+                                      IsEnabled="{Binding CanDownload}"
                                       Background="Transparent"
                                       Label="キャッシュ"
                                           Icon="Download"
@@ -148,6 +148,115 @@
 
                     -->
 
+
+                    <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Right" Margin="0 0 48 0">
+
+                        <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                Orientation="Horizontal"
+                                >
+
+                            <Button Command="{Binding RefreshCommand}"
+                                Background="Transparent"
+                                Height="32"
+                                      >
+                                <StackPanel Orientation="Horizontal">
+                                    <SymbolIcon Symbol="Refresh" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+
+                        <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                                Orientation="Horizontal"
+                                >
+                            <Button Command="{Binding RequestCacheDownload}"
+                                IsEnabled="{Binding CanDownload}"
+                                Background="Transparent"
+                                Height="32"
+                                      >
+                                <StackPanel Orientation="Horizontal">
+                                    <SymbolIcon Symbol="Download" />
+                                    <TextBlock Text="キャッシュ" VerticalAlignment="Center"
+                                           Margin="8 0 0 0"
+                                           />
+                                </StackPanel>
+                            </Button>
+
+
+                            <Button Command="{Binding RegistratioMylistCommand}"
+                                Background="Transparent"
+                                Height="32"
+                                      >
+                                <StackPanel Orientation="Horizontal">
+                                    <SymbolIcon Symbol="Add" />
+                                    <TextBlock Text="マイリスト登録" VerticalAlignment="Center"
+                                           Margin="8 0 0 0"
+                                           />
+                                </StackPanel>
+                            </Button>
+
+
+                            <Button IsEnabled="{Binding IsItemSelected.Value}"
+                                Background="Transparent"
+                                Height="32"
+                                      >
+                                <Button.Flyout>
+                                    <Flyout >
+                                        <Border x:Name="PlaylistSelectFlyout">
+                                            <ItemsControl ItemsSource="{Binding Playlists}" >
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Button Background="Transparent" 
+                                                            Content="{Binding Name}"
+                                                            Command="{Binding ElementName=PlaylistSelectFlyout, Path=DataContext.AddPlaylistCommand}"
+                                                            CommandParameter="{Binding Id}"
+                                                            >
+                                                            <i:Interaction.Behaviors>
+                                                                <core:EventTriggerBehavior EventName="Tapped">
+                                                                    <mybehavior:CloseFlyoutAction />
+                                                                </core:EventTriggerBehavior>
+                                                            </i:Interaction.Behaviors>
+                                                        </Button>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+
+                                        </Border>
+                                    </Flyout>
+                                </Button.Flyout>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <SymbolIcon Symbol="List" />
+                                    <TextBlock Text="プレイリスト追加" VerticalAlignment="Center"
+                                           Margin="8 0 0 0"
+                                           />
+                                </StackPanel>
+                            </Button>
+
+                        </StackPanel>
+
+
+
+                        <StackPanel Orientation="Horizontal"
+                                Margin="0 0 0 0"
+                                >
+
+                            <ToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                Background="Transparent"
+                                Height="32"
+                                      >
+                                <StackPanel Orientation="Horizontal">
+                                    <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       />
+                                </StackPanel>
+                            </ToggleButton>
+                        </StackPanel>
+
+
+                    </StackPanel>
+
+                    
                     <Border>
                         <Border Background="Transparent" IsHitTestVisible="True"
                             Margin="0 0 0 0"
@@ -156,6 +265,7 @@
                             <TextBlock Text="{Binding Title}" 
                                 VerticalAlignment="Center"
                                 Style="{StaticResource SubheaderTextBlockStyle}"
+                                       TextWrapping="NoWrap"
                                 >
 
                             </TextBlock>
@@ -172,94 +282,7 @@
                 </toolkit:DockPanel>
 
 
-                <toolkit:DockPanel toolkit:DockPanel.Dock="Top" Margin="0 32 48 0">
-
-
-                    <CommandBar DefaultLabelPosition="Right"
-                                Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                toolkit:DockPanel.Dock="Left"
-                                >
-                        <AppBarButton Label="更新" 
-                                        Icon="Refresh"
-                                Command="{Binding RefreshCommand}"
-                                IsEnabled="{Binding CanChangeSort.Value}"
-                                      
-                                >
-                        </AppBarButton>
-                    </CommandBar>
-
-
-                    <CommandBar DefaultLabelPosition="Right"
-                                Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
-                                toolkit:DockPanel.Dock="Left"
-                                >
-                        <AppBarButton Command="{Binding RequestCacheDownload}"
-                                      
-                                      IsEnabled="{Binding CanDownload.Value, Converter={StaticResource BooleanToVisibility}}"
-                                      Label="キャッシュ"
-                                          Icon="Download"
-                                >
-                        </AppBarButton>
-
-
-                        <AppBarButton Command="{Binding RegistratioMylistCommand}"
-                                              Label="マイリスト登録"
-                                              Icon="Add"
-                                      
-                                            >
-                        </AppBarButton>
-
-                        <AppBarButton 
-                                     IsEnabled="{Binding IsItemSelected.Value}"
-                                      Label="プレイリスト追加"
-                                          Icon="List"
-                                >
-                            <AppBarButton.Flyout>
-                                <Flyout >
-                                    <Border x:Name="PlaylistSelectFlyout">
-                                        <ItemsControl ItemsSource="{Binding Playlists}" >
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate>
-                                                    <Button Background="Transparent" 
-                                                            Content="{Binding Name}"
-                                                            Command="{Binding ElementName=PlaylistSelectFlyout, Path=DataContext.AddPlaylistCommand}"
-                                                            CommandParameter="{Binding Id}"
-                                                            >
-                                                        <i:Interaction.Behaviors>
-                                                            <core:EventTriggerBehavior EventName="Tapped">
-                                                                <mybehavior:CloseFlyoutAction />
-                                                            </core:EventTriggerBehavior>
-                                                        </i:Interaction.Behaviors>
-                                                    </Button>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-
-                                    </Border>
-                                </Flyout>
-                            </AppBarButton.Flyout>
-                        </AppBarButton>
-
-
-                    </CommandBar>
-
-
-
-                    <CommandBar>
-                        <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                            HorizontalContentAlignment="Stretch"
-                                            VerticalContentAlignment="Stretch"
-                                        HorizontalAlignment="Right"
-                                            Label="選択"
-                                            >
-                            <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"
-                                                       />
-                        </AppBarToggleButton>
-                    </CommandBar>
-                </toolkit:DockPanel>
-
+                
                 <controls:IncrementalLoadingList x:Name="IncrementalLoadingList"
                                                  ItemsSource="{Binding IncrementalLoadingItems}"
                                                  SelectedItems="{Binding SelectedItems, Mode=TwoWay}"

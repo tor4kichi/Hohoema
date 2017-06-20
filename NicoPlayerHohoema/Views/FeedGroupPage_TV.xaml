@@ -47,9 +47,23 @@
 
         <StackPanel x:Name="RootLayout">
 
-            <Border Background="Transparent" IsHitTestVisible="True"
+            <toolkit:DockPanel Background="Transparent" IsHitTestVisible="True"
                                 Margin="16 27 0 0"
                                 >
+
+                <StackPanel Orientation="Horizontal" 
+                            Margin="0 0"
+                            toolkit:DockPanel.Dock="Right"
+                            >
+                    <CommandBar>
+                        <AppBarButton Label="フィードの動画一覧"
+                                      Icon="List"
+                                      Command="{Binding OpenFeedVideoListPageCommand}" />
+
+                    </CommandBar>
+                </StackPanel>
+
+                
                 <Button Background="Transparent">
                     <Button.Flyout>
                         <Flyout>
@@ -95,25 +109,10 @@
                                     />
 
                 </Button>
-            </Border>
+            </toolkit:DockPanel>
 
 
-            <StackPanel Orientation="Horizontal" Margin="0 16">
-
-                <CommandBar>
-
-                    <AppBarButton Label="フィードの動画一覧"
-                                      Icon="List"
-                                      Command="{Binding OpenFeedVideoListPageCommand}" />
-
-                </CommandBar>
-
-
-
-
-
-            </StackPanel>
-
+            
 
 
 

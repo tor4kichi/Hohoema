@@ -116,7 +116,6 @@
 
 
                     <ListView ItemsSource="{Binding FeedGroupItems}"
-                              IsTabStop="False"
                               uwpui:ListViewBaseExtensions.Command="{Binding OpenFeedVideoPageCommand}"
                               IsItemClickEnabled="True"
                               SelectionMode="None"

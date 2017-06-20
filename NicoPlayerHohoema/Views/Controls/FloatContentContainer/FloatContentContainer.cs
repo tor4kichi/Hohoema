@@ -74,6 +74,7 @@ namespace NicoPlayerHohoema.Views.Controls
         {
             var isDisplayFloatContent = FloatContentVisiblity == Visibility.Visible;
             var isFill = IsFillFloatContent;
+
             if (!isDisplayFloatContent)
             {
                 VisualStateManager.GoToState(this, HiddenDisplayModeState, true);

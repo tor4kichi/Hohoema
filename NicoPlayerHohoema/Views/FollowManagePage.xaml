@@ -76,11 +76,9 @@
             </Border>
 
             <ScrollViewer x:Name="ScrollList"
-                          IsTabStop="False"
                       >
                 <StackPanel Margin="16 16 16 16">
                     <Pivot ItemsSource="{Binding Lists}" x:Name="FavListContainer"
-                                  IsTabStop="False"
                                   >
 
                         <Pivot.HeaderTemplate>
@@ -121,7 +119,6 @@
                                     <GridView ItemsSource="{Binding Items}"
                                               ItemTemplate="{StaticResource FavoriteItemTemplate}"
                                               Margin="0 8 0 0"
-                                              IsTabStop="False"
                                               HorizontalAlignment="Stretch"
                                                   HorizontalContentAlignment="Left"
                                               IsItemClickEnabled="True"

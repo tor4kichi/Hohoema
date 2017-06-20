@@ -176,7 +176,6 @@
                                 </Button>
 
                                 <ListView ItemsSource="{Binding CommunityVideoSamples}"
-                                          IsTabStop="False"
                                           uwpui:ListViewBaseExtensions.Command="{Binding PlayUserVideoCommand}"
                                           SelectionMode="None"
                                           IsItemClickEnabled="True"
