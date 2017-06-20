@@ -291,6 +291,7 @@
                                                  Margin="0 0 0 0"
                                                  Padding="0 0 0 24"
                                                  ItemContextFlyout="{StaticResource VideoListItemFlyout}"
+                                                 IsTabStop="False"
                                                  >
                     <controls:IncrementalLoadingList.ItemTemplate>
                         <DataTemplate>

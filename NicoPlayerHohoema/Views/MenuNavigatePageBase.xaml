@@ -251,6 +251,7 @@
 
                         <AppBarButton IsCompact="False" Icon="More"
                                       toolkit:DockPanel.Dock="Right"
+                                      TabIndex="10"
                                       >
                             <AppBarButton.Flyout>
                                 <Flyout>
@@ -291,6 +292,7 @@
                                  Background="Transparent"
                                  ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                                  ScrollViewer.HorizontalScrollMode="Auto"
+                                 TabIndex="5"
                             >
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -330,6 +332,7 @@
                         <SplitView.Pane>
                             <toolkit:DockPanel x:Name="PaneLayout" 
                                                mybehavior:XYNavigationExtentions.FocusAcceptOrientation="Horizontal"
+
                                                >
 
                                 <Button Command="{Binding OpenAccountInfoCommand}"
@@ -339,6 +342,7 @@
                                         HorizontalAlignment="Stretch"
                                         HorizontalContentAlignment="Left"
                                         VerticalContentAlignment="Center"
+                                        TabIndex="15"
                                         >
                                     <StackPanel>
                                         <TextBlock Text="{Binding ServiceLevel.Value, Converter={StaticResource HohoemaSerivceStatusToText}}" 
@@ -381,6 +385,7 @@
                                                     Command="{Binding ToggleFullScreenCommand}"
                                                     Background="Transparent"
                                                     Visibility="Collapsed"
+                                                    TabIndex="10"
                                                     >
                                                 <SymbolIcon Symbol="FullScreen" />
                                             </Button>
@@ -393,6 +398,7 @@
                                                     IsTabStop="False"
                                                   Background="Transparent"
                                                   SingleSelectionFollowsFocus="False"
+                                                  TabIndex="5"
                                                 >
                                             <ListView.ItemContainerStyle>
                                                 <Style TargetType="ListViewItem">
@@ -410,17 +416,16 @@
                             </toolkit:DockPanel>
                         </SplitView.Pane>
                         <SplitView.Content>
-                            <Grid>
+                            <Grid >
                                 <Grid.Background>
                                     <SolidColorBrush Color="{ThemeResource ApplicationPageBackgroundThemeBrush}" />
                                 </Grid.Background>
 
 
                                 <Grid x:Name="ContentLayout">
-
+                                    
                                     <!-- ページ毎のコンテンツ -->
                                     <ContentPresenter
-                                            Visibility="{Binding NowNavigating.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                             >
                                         <!--
                                         <i:Interaction.Behaviors>
@@ -430,6 +435,8 @@
                                         </i:Interaction.Behaviors>
                                         -->
                                     </ContentPresenter>
+
+                                    
                                 </Grid>
 
                                 <!--
