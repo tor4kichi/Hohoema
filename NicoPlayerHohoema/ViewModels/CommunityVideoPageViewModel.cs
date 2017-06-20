@@ -195,7 +195,6 @@ namespace NicoPlayerHohoema.ViewModels
 		public NiconicoVideoRssItem RssItem { get; private set; }
 
 
-		public string Title => RssItem.Title;
 		public string VideoId => RssItem.GetVideoId();
 
 		public CommunityVideoInfoControlViewModel(NiconicoVideoRssItem rssItem, HohoemaPlaylist playlist)
@@ -203,6 +202,8 @@ namespace NicoPlayerHohoema.ViewModels
 		{
             Playlist = playlist;
 			RssItem = rssItem;
+
+            Title = RssItem.Title;
 		}
 
 		private DelegateCommand _SelectedCommand;

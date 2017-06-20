@@ -58,7 +58,7 @@
                         <StateTrigger IsActive="{Binding NowPlaying.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="PlayPauseButton.Kind" Value="Pause" />
+                        <Setter Target="PlayPauseButtonIcon.Kind" Value="Pause" />
 
                         <Setter Target="TitleLayout.Visibility" Value="Collapsed" />
 
@@ -444,6 +444,10 @@
                                                          IsVisible="{Binding IsDisplayControlUI.Value, Mode=TwoWay}"
                         />
 
+                        <core:DataTriggerBehavior Binding="{Binding IsDisplayControlUI.Value}" Value="True">
+                            <mybehavior:SetFocus TargetObject="{Binding ElementName=PlayPauseButton}" Delay="00:00:00.00"  />
+                        </core:DataTriggerBehavior>
+
                         
                     </i:Interaction.Behaviors>
 
@@ -825,9 +829,11 @@
                                         Height="80"
                                                 Width="80"
                                         Margin="0 0 0 4"
+                                            x:Name="PlayPauseButton"  
+                                            
                                           >
                                         <iconPack:PackIconMaterial Kind="Play" 
-                                                x:Name="PlayPauseButton"  
+                                                x:Name="PlayPauseButtonIcon"  
                                                 RenderTransformOrigin="0.5, 0.5"
                                                 >
                                             <iconPack:PackIconMaterial.RenderTransform>

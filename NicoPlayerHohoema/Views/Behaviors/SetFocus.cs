@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
 
 namespace NicoPlayerHohoema.Views.Behaviors
 {
@@ -41,7 +42,13 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
 		public object Execute(object sender, object parameter)
 		{
-            if (TargetObject == null) { return false; }
+            var target = TargetObject;
+            if (target == null)
+            {
+                target = AssociatedObject as Control;
+            }
+
+            if (target == null) { return false; }
 
             if (Delay != TimeSpan.Zero)
             {
@@ -50,21 +57,31 @@ namespace NicoPlayerHohoema.Views.Behaviors
                 {
                     await Task.Delay(Delay);
 
-                    TargetObject.Visibility = Visibility.Visible;
-                    TargetObject.Focus(FocusState.Programmatic);
+                    Focus();
                 })
                 .AsTask().ConfigureAwait(false);
             }
             else
             {
-                if (TargetObject != null)
-                {
-                    TargetObject.Visibility = Visibility.Visible;
-                    TargetObject.Focus(FocusState.Programmatic);
-                }
+                Focus();
             }
 
             return true;
 		}
+
+        private bool Focus()
+        {
+            if (TargetObject != null)
+            {
+                TargetObject.Visibility = Visibility.Visible;
+                return TargetObject.Focus(FocusState.Programmatic);
+            }
+            else
+            {
+                return FocusManager.TryMoveFocus(FocusNavigationDirection.None,
+                    new FindNextElementOptions() { SearchRoot = AssociatedObject }
+                    );
+            }
+        }
 	}
 }

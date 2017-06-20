@@ -486,8 +486,24 @@ namespace NicoPlayerHohoema
 
             SetTitleBar();
 
+#if DEBUG
+            Views.UINavigationManager.Pressed += UINavigationManager_Pressed;
+#endif
             await base.OnInitializeAsync(args);
 		}
+
+        private void UINavigationManager_Pressed(Views.UINavigationManager sender, Views.UINavigationButtons buttons)
+        {
+            if (buttons == Views.UINavigationButtons.Up ||
+                buttons == Views.UINavigationButtons.Down ||
+                buttons == Views.UINavigationButtons.Right ||
+                buttons == Views.UINavigationButtons.Left
+                )
+            {
+                var focused = FocusManager.GetFocusedElement();
+                Debug.WriteLine("現在のフォーカス:" + focused?.ToString());
+            }
+        }
 
         /*
         private void Context_DoneDownload(NicoVideoDownloadContext sender, NiconicoDownloadEventArgs args)
@@ -516,7 +532,7 @@ namespace NicoPlayerHohoema
 		}
         */
 
-		private async void PlayNicoVideoInPlayerWindow(string videoUrl)
+        private async void PlayNicoVideoInPlayerWindow(string videoUrl)
 		{
 			await OpenPlayerWindow();
 

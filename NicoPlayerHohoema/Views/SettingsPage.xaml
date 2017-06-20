@@ -122,6 +122,7 @@
 
             <Pivot ItemsSource="{Binding SettingItems}"
                    SelectedItem="{Binding CurrentSettingsContent.Value, Mode=TwoWay}"
+                   IsTabStop="False"
                    >
                 <Pivot.ItemContainerStyle>
                     <Style TargetType="PivotItem">
@@ -140,6 +141,7 @@
                                         ContentTemplateSelector="{StaticResource settingContentTemplateSelector}"
                                         HorizontalContentAlignment="Stretch"
                                         VerticalContentAlignment="Stretch"
+                                        IsTabStop="False"
                                         />
                     </DataTemplate>
                 </Pivot.ItemTemplate>
