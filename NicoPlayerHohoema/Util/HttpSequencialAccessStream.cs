@@ -23,8 +23,9 @@ namespace NicoPlayerHohoema.Util
 
 		SemaphoreSlim _DownloadTaskAccessLock = new SemaphoreSlim(1, 1);
 
-		SemaphoreSlim _StreamAccessLock = new SemaphoreSlim(1, 1);
+		public SemaphoreSlim StreamAccessLock { get; } = new SemaphoreSlim(1, 1);
 		IInputStream _InputStream;
+        bool _IsDisposed = false;
 
 		// No public constructor, factory methods instead to handle async tasks.
 		protected HttpSequencialAccessStream(HttpClient client, Uri uri)
@@ -170,15 +171,15 @@ namespace NicoPlayerHohoema.Util
 
 		public virtual void Seek(ulong position)
 		{
+            if (_IsDisposed) { return; }
+
 			if (_CurrentPosition != position)
 			{
 				Debug.WriteLine($"Seek: {_CurrentPosition:N0} -> {position:N0}");
 				_CurrentPosition = position;
 
-                Debug.WriteLine("sras: 1");
                 var task = ResetInputStream();
                 task.Wait();
-                Debug.WriteLine("sras: 2");
             }
 		}
 
@@ -194,18 +195,20 @@ namespace NicoPlayerHohoema.Util
 			}
 		}
 
-		public virtual async void Dispose()
+		public virtual void Dispose()
 		{			
 			try
 			{
-				await _StreamAccessLock.WaitAsync();
+				StreamAccessLock.Wait();
 
-				_InputStream?.Dispose();
+                _IsDisposed = true;
+
+                _InputStream?.Dispose();
 				_InputStream = null;
 			}
 			finally
 			{
-				_StreamAccessLock.Release();
+				StreamAccessLock.Release();
 			}
 		}
 
@@ -214,15 +217,20 @@ namespace NicoPlayerHohoema.Util
 		{
 			try
 			{
-                Debug.WriteLine("sras: A");
-                _StreamAccessLock.Wait();
+                StreamAccessLock.Wait();
+                if (_IsDisposed)
+                {
+                    return AsyncInfo.Run<IBuffer, uint>((token, progress) =>
+                    {
+                        return Task.FromResult(buffer);
+                    });
+                }
 				_CurrentPosition += count;
-                Debug.WriteLine("sras: B");
-                return _InputStream?.ReadAsync(buffer, count, options);
+                return _InputStream.ReadAsync(buffer, count, options);
 			}
 			finally
 			{
-				_StreamAccessLock.Release();
+				StreamAccessLock.Release();
 			}
 		}
 
@@ -231,15 +239,17 @@ namespace NicoPlayerHohoema.Util
 		{
 			try
 			{
-				await _StreamAccessLock.WaitAsync();
+				await StreamAccessLock.WaitAsync();
+
+                if (_IsDisposed) { return; }
 
 				var inputStream = _InputStream;
 				_InputStream = await ReadRequestAsync(_CurrentPosition);
 				inputStream?.Dispose();
-			}
+            }
 			finally
 			{
-				_StreamAccessLock.Release();
+				StreamAccessLock.Release();
 			}
 		}
 

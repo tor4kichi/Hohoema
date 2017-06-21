@@ -397,6 +397,14 @@ namespace NicoPlayerHohoema.ViewModels
                     return;
                 }
 
+                _NavigatedToTaskCancelToken?.Cancel();
+
+                await _NavigatedToTask.WaitToCompelation();
+
+                _NavigatedToTaskCancelToken?.Dispose();
+                _NavigatedToTaskCancelToken = null;
+
+
                 try
                 {
                     OnHohoemaNavigatingFrom(e, viewModelState, suspending);
@@ -413,13 +421,7 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					HohoemaApp.OnResumed -= _OnResumed;
 				}
-				_NavigatedToTaskCancelToken?.Cancel();
-
-				await _NavigatedToTask.WaitToCompelation();
-
-				_NavigatedToTaskCancelToken?.Dispose();
-				_NavigatedToTaskCancelToken = null;
-
+				
 				if (suspending)
 				{
 					await HohoemaApp.OnSuspending();
