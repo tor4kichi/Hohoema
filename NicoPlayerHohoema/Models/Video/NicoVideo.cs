@@ -15,6 +15,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Foundation;
 using Windows.Media.Core;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -34,6 +35,9 @@ namespace NicoPlayerHohoema.Models
 		bool _IsInitialized = false;
 		bool _thumbnailInitialized = false;
 
+        AsyncLock _BufferingLock = new AsyncLock();
+        IDisposable _BufferingLockReleaser = null;
+
 		public NicoVideo(HohoemaApp app, string rawVideoid, NiconicoMediaManager manager)
 		{
 			HohoemaApp = app;
@@ -43,6 +47,8 @@ namespace NicoPlayerHohoema.Models
 			_InterfaceByQuality = new Dictionary<NicoVideoQuality, DividedQualityNicoVideo>();
             QualityDividedVideos = new ReadOnlyObservableCollection<DividedQualityNicoVideo>(_QualityDividedVideos);
         }
+
+        
 
         private async void _NiconicoMediaManager_VideoCacheStateChanged(object sender, NicoVideoCacheRequest request, NicoVideoCacheState state)
         {
@@ -489,9 +495,6 @@ namespace NicoPlayerHohoema.Models
             HohoemaApp.MediaPlayer.Pause();
             HohoemaApp.MediaPlayer.Source = null;
 
-			NicoVideoCachedStream?.Dispose();
-			NicoVideoCachedStream = null;
-
             foreach (var div in GetAllQuality())
             {
                 if (div.NowPlaying)
@@ -499,6 +502,10 @@ namespace NicoPlayerHohoema.Models
                     div.OnPlayDone();
                 }
             }
+
+            Debug.WriteLine("stream dispose");
+            NicoVideoCachedStream?.Dispose();
+            NicoVideoCachedStream = null;
 
             var smtc = HohoemaApp.MediaPlayer.SystemMediaTransportControls;
             smtc.DisplayUpdater.ClearAll();

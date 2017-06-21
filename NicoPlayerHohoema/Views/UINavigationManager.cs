@@ -42,7 +42,7 @@ namespace NicoPlayerHohoema.Views
         Dictionary<UINavigationButtons, TimeSpan> _ButtonHold = new Dictionary<UINavigationButtons, TimeSpan>();
 
 
-
+        bool _IsDisposed;
 
         static UINavigationManager()
         {
@@ -60,13 +60,29 @@ namespace NicoPlayerHohoema.Views
             _DispatcherTimer.Interval = __InputPollingInterval;
             _DispatcherTimer.Tick += _DispatcherTimer_Tick;
 
+            App.Current.EnteredBackground += Current_EnteredBackground;
+            App.Current.LeavingBackground += Current_LeavingBackground; ;
+
+
             ActivatePolling();
         }
 
+        private void Current_LeavingBackground(object sender, Windows.ApplicationModel.LeavingBackgroundEventArgs e)
+        {
+            ActivatePolling();
+        }
+
+        private void Current_EnteredBackground(object sender, Windows.ApplicationModel.EnteredBackgroundEventArgs e)
+        {
+            DeactivatePolling();
+        }
 
         public void Dispose()
         {
             DeactivatePolling();
+
+            _DispatcherTimer = null;
+            _IsDisposed = true;
         }
 
 
@@ -77,11 +93,20 @@ namespace NicoPlayerHohoema.Views
         /// </summary>
         private void ActivatePolling()
         {
+            if (_IsDisposed) { return; }
+
+            if (Util.DeviceTypeHelper.IsMobile)
+            {
+                return;
+            }
+
             _DispatcherTimer.Start();
         }
 
         private void DeactivatePolling()
         {
+            if (_IsDisposed) { return; }
+
             _DispatcherTimer.Stop();
         }
 
