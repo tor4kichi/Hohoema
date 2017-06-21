@@ -258,6 +258,7 @@ namespace NicoPlayerHohoema.Models
             }
 
             IsDisplayPlayer = true;
+            IsPlayerFloatingModeEnable = false;
 
             ResetMediaPlayerCommand();
 
@@ -380,6 +381,10 @@ namespace NicoPlayerHohoema.Models
             if (canPlayNext && (Player?.CanGoNext ?? false))
             {
                 Player.GoNext();
+            }
+            else
+            {
+                IsPlayerFloatingModeEnable = true;
             }
 
             ResetMediaPlayerCommand();
