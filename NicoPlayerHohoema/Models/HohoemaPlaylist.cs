@@ -381,6 +381,10 @@ namespace NicoPlayerHohoema.Models
             {
                 Player.GoNext();
             }
+            else if (canPlayNext)
+            {
+                IsPlayerFloatingModeEnable = true;
+            }
 
             ResetMediaPlayerCommand();
         }
@@ -602,8 +606,13 @@ namespace NicoPlayerHohoema.Models
             {
                 if (IsRepeat)
                 {
+                    // あとで見るプレイリストの場合は一つ以上ある場合は次送りを許可
+                    if (Playlist.Id == HohoemaPlaylist.WatchAfterPlaylistId)
+                    {
+                        return Playlist.PlaylistItems.Count > 0;
+                    }
                     // 全体リピート時にアイテムが一つの場合は次への移動を制限
-                    if (Playlist.PlaylistItems.Count > 1)
+                    else if (Playlist.PlaylistItems.Count > 1)
                     {
                         return true;
                     }

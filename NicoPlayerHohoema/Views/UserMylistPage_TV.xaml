@@ -1,0 +1,122 @@
+﻿<Page
+    x:Class="NicoPlayerHohoema.Views.UserMylistPage_TV"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:view="using:NicoPlayerHohoema.Views"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:mycontrols="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:iconPack="using:MahApps.Metro.IconPacks"
+    xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
+    xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    mc:Ignorable="d">
+
+    <Grid>
+
+        <VisualStateManager.VisualStateGroups>
+
+            <!-- TVモードの仮対応 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ContentLayout.Margin" Value="0 0 0 27" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+
+        <toolkit:DockPanel x:Name="ContentLayout"
+                           Margin="0 27 0 0"
+                           >
+
+            <Border toolkit:DockPanel.Dock="Top" 
+                    Margin="0 0 48 0"
+                    >
+                <toolkit:DockPanel >
+                    <StackPanel toolkit:DockPanel.Dock="Right" 
+                                Orientation="Horizontal"
+                                >
+                        <Button Background="Transparent" 
+                            Command="{Binding AddMylistGroupCommand}"
+                            >
+                            <SymbolIcon Symbol="Add" />
+                        </Button>
+                    </StackPanel>
+
+                    <Border Background="Transparent" IsHitTestVisible="True"
+                                Margin="16 0 0 0"
+                                >
+                        <TextBlock Text="{Binding Title}" 
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource SubheaderTextBlockStyle}"
+                                    >
+                        </TextBlock>
+                    </Border>
+                </toolkit:DockPanel>
+            </Border>
+
+
+            
+            <GridView ItemsSource="{Binding MylistGroupItems}"
+                        Margin="16 0 0 0"
+                        HorizontalContentAlignment="Stretch"
+                        IsTabStop="False"
+                        uwpui:ListViewBaseExtensions.Command="{Binding OpenMylistCommand}"
+                        IsItemClickEnabled="True"
+                        SelectionMode="None"
+                          
+                        ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                        ScrollViewer.VerticalScrollMode="Disabled"
+                        ScrollViewer.HorizontalScrollMode="Auto"
+                        ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                >
+
+                <GridView.ItemContainerStyle>
+                    <Style TargetType="GridViewItem">
+                        <Setter Property="HorizontalContentAlignment"
+                                Value="Stretch" 
+                                    />
+                        <Setter Property="Margin"
+                                Value="0 0 16 16" 
+                                />
+                        <Setter Property="Height" Value="130" />
+
+                    </Style>
+                </GridView.ItemContainerStyle>
+
+                <GridView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <ItemsWrapGrid Orientation="Vertical" 
+                                       Height="450" 
+                                       Margin="0 0 48 0" />
+                    </ItemsPanelTemplate>
+                </GridView.ItemsPanel>
+
+                <GridView.ItemTemplate>
+
+                    <DataTemplate>
+                            
+                        <mycontrols:HohoemaListItem DisplayType="MiniCard" />
+                            
+                    </DataTemplate>
+
+                </GridView.ItemTemplate>
+            </GridView>
+
+
+        </toolkit:DockPanel>
+    </Grid>
+</Page>
