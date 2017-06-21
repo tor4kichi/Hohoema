@@ -31,14 +31,16 @@
                         <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="ContentLayout.Margin" Value="0 27 0 27" />
+                        <Setter Target="ContentLayout.Margin" Value="0 0 0 27" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
 
-        <toolkit:DockPanel x:Name="ContentLayout">
+        <toolkit:DockPanel x:Name="ContentLayout"
+                           Margin="0 27 0 0"
+                           >
 
             <Border toolkit:DockPanel.Dock="Top" 
                     Margin="0 0 48 0"
