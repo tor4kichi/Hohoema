@@ -14,7 +14,7 @@
 
     <Grid MaxWidth="240">
 
-        
+
         <Border>
             <Image Source="{Binding FirstImageUrl}"
                    Visibility="{Binding HasImageUrl, Converter={StaticResource BooleanToVisibility}}" 
@@ -23,7 +23,20 @@
                    MinHeight="180"
                    />
         </Border>
-        
+
+        <Border Background="{ThemeResource SystemAltMediumColor}"
+                        HorizontalAlignment="Right" 
+                        VerticalAlignment="Top"
+                        Visibility="{Binding HasImageCaption, Converter={StaticResource BooleanToVisibility}}"
+                        >
+            <TextBlock Text="{Binding ImageCaption, Mode=OneWay}" 
+                               Padding="4 0 3 3" 
+                               TextWrapping="Wrap" VerticalAlignment="Center" 
+                               FontSize="18"
+                               
+                               />
+        </Border>
+
         <Grid VerticalAlignment="Bottom"
                     >
 
