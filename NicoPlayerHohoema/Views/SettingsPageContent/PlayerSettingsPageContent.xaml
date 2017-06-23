@@ -20,6 +20,8 @@
             <Setter Property="FontSize" Value="12" />
             <Setter Property="TextWrapping" Value="Wrap" />
         </Style>
+        
+        
     </UserControl.Resources>
     
     
@@ -61,38 +63,9 @@
                 <StackPanel Margin="8 0 0 0">
 
 
-                    <StackPanel Margin="0 8">
+                    
 
-                        <TextBlock Text="デフォルトの再生速度倍率"
-                           VerticalAlignment="Center"
-                           />
-
-                        <TextBlock VerticalAlignment="Center">
-                        <Run Text="x" />
-                        <Run Text="{Binding DefaultPlaybackRate.Value, Converter={StaticResource ToUserFriendlyNumber}}" />
-                        </TextBlock>
-
-                        <Slider Orientation="Horizontal"
-                            Maximum="2.0"
-                            Minimum="0.25"
-                            StepFrequency="0.25"
-                            SmallChange="0.25"
-                            LargeChange="1.00"
-                            Value="{Binding DefaultPlaybackRate.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                            MinWidth="200"
-                            Margin="16 0 0 0"
-                            TickFrequency="0.25"
-                            IsThumbToolTipEnabled="True"
-                        >
-                        </Slider>
-
-                        <Button Content="等倍速に戻す"
-                            Command="{Binding ResetDefaultPlaybackRateCommand}"
-                            />
-
-                    </StackPanel>
-
-                    <StackPanel Margin="0 8">
+                    <StackPanel Margin="0 8 0 16">
 
                         <TextBlock Text="低画質モードをデフォルトに設定する"
                                VerticalAlignment="Center"
@@ -103,7 +76,7 @@
 
                     </StackPanel>
 
-                    <StackPanel Margin="0 8">
+                    <StackPanel Margin="0 8 0 16">
 
                         <TextBlock Text="全画面表示をデフォルトに設定する"
                                VerticalAlignment="Center"
@@ -154,13 +127,64 @@
                 </toolkit:DockPanel>
                 -->
 
+                    <StackPanel Margin="0 8 0 16">
+
+                        <TextBlock Text="デフォルトの再生速度倍率"
+                           VerticalAlignment="Center"
+                           />
+
+                        <TextBlock VerticalAlignment="Center">
+                        <Run Text="x" />
+                        <Run Text="{Binding DefaultPlaybackRate.Value, Converter={StaticResource ToUserFriendlyNumber}}" />
+                        </TextBlock>
+
+                        <Slider Orientation="Horizontal"
+                            Maximum="2.0"
+                            Minimum="0.25"
+                            StepFrequency="0.25"
+                            SmallChange="0.25"
+                            LargeChange="1.00"
+                            Value="{Binding DefaultPlaybackRate.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            MinWidth="200"
+                            Margin="16 0 0 0"
+                            TickFrequency="0.25"
+                            IsThumbToolTipEnabled="True"
+                        >
+                        </Slider>
+
+                        <Button Content="等倍速に戻す"
+                            Command="{Binding ResetDefaultPlaybackRateCommand}"
+                            />
+
+                    </StackPanel>
+
+
+
+                    <StackPanel Margin="0 8 0 16">
+
+                        <TextBlock Text="再生完了時の自動アクション"
+                           VerticalAlignment="Center"
+                           />
+
+                        <ComboBox ItemsSource="{Binding PlaylistEndActionList}"
+                              SelectedItem="{Binding PlaylistEndAction.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              >
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource PlayerEndActionToTextConverter}}" 
+                                           />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+
+                    </StackPanel>
 
                 </StackPanel>
 
 
 
-
-
+                
+                
 
 
 
@@ -180,7 +204,7 @@
                 </StackPanel>
                 <StackPanel Margin="8 0 0 0">
 
-                    <StackPanel Margin="0 8">
+                    <StackPanel Margin="0 8 0 16">
 
                         <TextBlock Text="デフォルトでコメントを表示する"
                            VerticalAlignment="Center"
@@ -192,7 +216,7 @@
                     </StackPanel>
 
 
-                    <StackPanel Margin="0 8">
+                    <StackPanel Margin="0 8 0 16">
 
                         <TextBlock Text="コメントの一秒あたりの描画回数"
                            VerticalAlignment="Center"
@@ -209,7 +233,7 @@
 
                     </StackPanel>
 
-                    <StackPanel Margin="0 8">
+                    <StackPanel Margin="0 8 0 16">
 
                         <TextBlock Text="コメントの表示時間"
                            VerticalAlignment="Center"
@@ -241,7 +265,7 @@
 
 
 
-                    <StackPanel Margin="0 8">
+                    <StackPanel Margin="0 8 0 16">
 
                         <TextBlock Text="コメントの表示サイズ"
                            toolkit:DockPanel.Dock="Left"
@@ -263,7 +287,7 @@
                     </StackPanel>
 
 
-                    <StackPanel Margin="0 8">
+                    <StackPanel Margin="0 8 0 16">
 
 
                         <TextBlock Text="デフォルトのコメント色"
@@ -288,7 +312,7 @@
                     </StackPanel>
 
                     <!-- 自動芝刈り機 -->
-                    <StackPanel Margin="0 8">
+                    <StackPanel Margin="0 8 0 16">
 
 
                         <TextBlock Text="自動草刈機"
@@ -329,7 +353,7 @@
                 </StackPanel>
                 <StackPanel Margin="8 0 0 0">
 
-                    <StackPanel Margin="0 8">
+                    <StackPanel Margin="0 8 0 16">
 
                         <TextBlock Text="デフォルトで匿名(184)コマンドを有効にする"
                            VerticalAlignment="Center"
@@ -343,7 +367,7 @@
 
                     </StackPanel>
 
-                    <StackPanel Margin="0 8">
+                    <StackPanel Margin="0 8 0 16">
 
                         <TextBlock Text="コメントを書き始めたら動画を一時停止する"
                         VerticalAlignment="Center"
@@ -380,7 +404,7 @@
 
 
 
-                    <StackPanel Margin="0 8">
+                    <StackPanel Margin="0 8 0 16">
                         <TextBlock Text="動画投稿者コメントの装飾を許可"
                         VerticalAlignment="Center"
                         />
@@ -390,7 +414,7 @@
                                         />
                     </StackPanel>
 
-                    <StackPanel Margin="0 8">
+                    <StackPanel Margin="0 8 0 16">
                         <TextBlock Text="ユーザーコメントの装飾を許可"
                         VerticalAlignment="Center"
                         />
@@ -400,7 +424,7 @@
                                         />
                     </StackPanel>
 
-                    <StackPanel Margin="0 8">
+                    <StackPanel Margin="0 8 0 16">
                         <TextBlock Text="匿名コメントの装飾を許可"
                         VerticalAlignment="Center"
                         />
@@ -435,7 +459,7 @@
                         Margin="0 0 0 0"
                         >
 
-                            <StackPanel Margin="0 8">
+                            <StackPanel Margin="0 8 0 16">
 
 
                                 <TextBlock Text="マウススクロールの音量変更量"
@@ -496,7 +520,7 @@
                         Margin="8 0 0 0"
                         >
 
-                            <StackPanel Margin="0 8">
+                            <StackPanel Margin="0 8 0 16">
 
                                 <TextBlock Text="横持ち表示をデフォルトにする"
                                toolkit:DockPanel.Dock="Left"

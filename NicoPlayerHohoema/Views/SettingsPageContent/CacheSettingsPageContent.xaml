@@ -32,24 +32,22 @@
 
 
                 <StackPanel Margin="0 8">
-                    
-                    <Border>
-                        <StackPanel Margin="0 8">
 
-                            <TextBlock Text="動画キャッシュ利用のためのヒント"
+                    <StackPanel Margin="0 8 0 16">
+
+                        <TextBlock Text="動画キャッシュ利用のためのヒント"
                                Margin="0 0 0 4"
                                />
 
-                            <TextBlock Text="{Binding CacheFolderStateDescription.Value}" 
+                        <TextBlock Text="{Binding CacheFolderStateDescription.Value}" 
                                  TextWrapping="Wrap"
                                        Opacity="0.8"
                                        Margin="8"
                                    />
 
-                        </StackPanel>
-                    </Border>
+                    </StackPanel>
 
-                    <StackPanel Margin="0 8">
+                    <StackPanel Margin="0 8 0 16">
 
                         <TextBlock Text="動画キャッシュ保存フォルダ"
                                        VerticalAlignment="Center"
@@ -86,8 +84,7 @@
 
             <StackPanel Margin="8 0 0 0">
 
-                <StackPanel Margin="0 8"   
-                            >
+                <StackPanel Margin="0 8 0 16">
                     <TextBlock Text="動画キャッシュを有効にする"
                                VerticalAlignment="Center"
                            />
@@ -98,7 +95,7 @@
                 </StackPanel>
 
 
-                <toolkit:DockPanel Margin="0 8">
+                <toolkit:DockPanel Margin="0 8 0 16">
                     <Button Content="動画キャッシュ機能利用の確認文を読む" 
                                     Command="{Binding ReadCacheAcceptTextCommand}"
                                     Visibility="{Binding IsUserAcceptRegalNotice.Value, Converter={StaticResource BooleanToVisibility}}"

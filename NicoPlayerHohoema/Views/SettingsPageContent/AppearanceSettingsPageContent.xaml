@@ -46,7 +46,7 @@
                 <StackPanel Margin="16 0 0 0">
 
 
-                    <StackPanel Margin="0 8" x:Name="SwitchFullScreenButtonLayout">
+                    <StackPanel Margin="0 8 0 16" x:Name="SwitchFullScreenButtonLayout">
 
 
                         <Button Command="{Binding ToggleFullScreenCommand}"
@@ -55,7 +55,7 @@
                         
                     </StackPanel>
 
-                    <StackPanel Margin="0 8" x:Name="DefaultFullScreenSwitchLayout">
+                    <StackPanel Margin="0 8 0 16" x:Name="DefaultFullScreenSwitchLayout">
                         <TextBlock Text="アプリ起動時にフルスクリーン表示を設定する"
                            VerticalAlignment="Center"
                            />
@@ -76,7 +76,7 @@
 
 
 
-                    <StackPanel Margin="0 8">
+                    <StackPanel Margin="0 8 0 16">
                         <TextBlock Text="テーマ"
                            toolkit:DockPanel.Dock="Left"
                            VerticalAlignment="Center"
@@ -90,7 +90,7 @@
 
                     <TextBlock Text="※テーマの適用にはアプリを再起動してください" 
                        Foreground="Red"
-                       Margin="0 8"
+                       Margin="0 8 0 16"
                        Visibility="{Binding ThemeChanged, Converter={StaticResource BooleanToVisibility}}"
                        />
 
@@ -98,7 +98,7 @@
 
 
                     <StackPanel x:Name="TVModeSwitchLayout">
-                        <StackPanel Margin="0 8">
+                        <StackPanel Margin="0 8 0 16">
                             <TextBlock Text="TV Modeを利用する"
                            toolkit:DockPanel.Dock="Left"
                            VerticalAlignment="Center"
@@ -109,9 +109,8 @@
                               />
                         </StackPanel>
                         <TextBlock Text="コントローラーを利用してアプリを操作するのに適しています。" 
-                       Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
-                       Visibility="{Binding ThemeChanged, Converter={StaticResource BooleanToVisibility}}"
-                       />
+                               Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
+                               />
                     </StackPanel>
                 </StackPanel>
                 

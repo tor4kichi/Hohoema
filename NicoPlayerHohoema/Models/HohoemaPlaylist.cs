@@ -383,7 +383,14 @@ namespace NicoPlayerHohoema.Models
             }
             else if (canPlayNext)
             {
-                IsPlayerFloatingModeEnable = true;
+                if (PlaylistSettings.PlaylistEndAction == PlaylistEndAction.ChangeIntoSplit)
+                {
+                    IsPlayerFloatingModeEnable = true;
+                }
+                else if (PlaylistSettings.PlaylistEndAction == PlaylistEndAction.CloseIfPlayWithCurrentWindow)
+                {
+                    IsDisplayPlayer = false;
+                }
             }
 
             ResetMediaPlayerCommand();
