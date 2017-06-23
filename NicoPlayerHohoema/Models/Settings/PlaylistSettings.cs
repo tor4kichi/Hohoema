@@ -29,5 +29,23 @@ namespace NicoPlayerHohoema.Models
             get { return _IsShuffleEnable; }
             set { SetProperty(ref _IsShuffleEnable, value); }
         }
+
+
+        private PlaylistEndAction _PlaylistEndAction;
+
+        [DataMember]
+        public PlaylistEndAction PlaylistEndAction
+        {
+            get { return _PlaylistEndAction; }
+            set { SetProperty(ref _PlaylistEndAction, value); }
+        }
+    }
+
+
+    public enum PlaylistEndAction
+    {
+        None,
+        ChangeIntoSplit,
+        CloseIfPlayWithCurrentWindow,
     }
 }

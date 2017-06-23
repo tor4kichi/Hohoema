@@ -42,7 +42,7 @@
                        Style="{StaticResource SubTitleStyle}"
                    ></TextBlock>
 
-                    <StackPanel Margin="16 8">
+                    <StackPanel Margin="16 8 16 16">
                         <TextBlock Style="{StaticResource ContentTextStyle}">
                         <Run>"Hohoema" は Windows 10 向けのニコニコ動画プレイヤーです。</Run>
                         <LineBreak />
@@ -55,7 +55,7 @@
                        Style="{StaticResource SubTitleStyle}"
                    ></TextBlock>
 
-                    <StackPanel Margin="16 8">
+                    <StackPanel Margin="16 8 16 16">
                         <TextBlock Style="{StaticResource ContentTextStyle}">
                         <Run Text="ver" />
                         <Run Text="{Binding VersionText}" />
@@ -69,7 +69,7 @@
                        Style="{StaticResource SubTitleStyle}"
                        />
 
-                    <StackPanel Margin="16 8">
+                    <StackPanel Margin="16 8 16 16">
                         <TextBlock Style="{StaticResource ContentTextStyle}">
                         <Run>
                             tor4kichi (とらきち)
@@ -84,7 +84,7 @@
 
                     <TextBlock Text="以下のボタンを押すと購入の確認ウィンドウが表示されます" />
 
-                    <StackPanel Margin="16 8">
+                    <StackPanel Margin="16 8 16 16">
                         <ListView ItemsSource="{Binding PurchaseItems}"
                                   uwpui:ListViewBaseExtensions.Command="{Binding ShowCheerPurchaseCommand}"
                                   IsItemClickEnabled="True"
@@ -143,7 +143,7 @@
                        Style="{StaticResource SubTitleStyle}"
                        />
 
-                    <StackPanel Margin="16 8">
+                    <StackPanel Margin="16 8 16 16">
                         <TextBlock Style="{StaticResource ContentTextStyle}">
                         <Hyperlink NavigateUri="https://github.com/tor4kichi/Hohoema">
                             https://github.com/tor4kichi/Hohoema

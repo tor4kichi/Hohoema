@@ -54,11 +54,15 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<bool> IsEnableAnonymousCommentCommand { get; private set; }
 
 
+        public static List<PlaylistEndAction> PlaylistEndActionList { get; private set; }
+        public ReactiveProperty<PlaylistEndAction> PlaylistEndAction { get; private set; }
+
 
         private HohoemaApp _HohoemaApp;
         private NGSettings _NGSettings;
 
         private PlayerSettings _PlayerSettings;
+        private PlaylistSettings _PlaylistSettings;
 
         static PlayerSeetingPageContentViewModel()
         {
@@ -72,6 +76,13 @@ namespace NicoPlayerHohoema.ViewModels
                 Colors.WhiteSmoke,
                 Colors.Black,
             };
+
+            PlaylistEndActionList = new List<Models.PlaylistEndAction>()
+            {
+                Models.PlaylistEndAction.None,
+                Models.PlaylistEndAction.ChangeIntoSplit,
+                Models.PlaylistEndAction.CloseIfPlayWithCurrentWindow
+            };
         }
 
 
@@ -80,8 +91,8 @@ namespace NicoPlayerHohoema.ViewModels
 		{
             _HohoemaApp = hohoemaApp;
             _NGSettings = _HohoemaApp.UserSettings.NGSettings;
-            _PlayerSettings = hohoemaApp.UserSettings.PlayerSettings;
-
+            _PlayerSettings = _HohoemaApp.UserSettings.PlayerSettings;
+            _PlaylistSettings = _HohoemaApp.UserSettings.PlaylistSettings;
 
             IsDefaultPlayWithLowQuality = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsLowQualityDeafult);
 			IsFullScreenDefault = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsFullScreenDefault);
@@ -99,7 +110,7 @@ namespace NicoPlayerHohoema.ViewModels
             DefaultPlaybackRate = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultPlaybackRate);
             ResetDefaultPlaybackRateCommand = new DelegateCommand(() => DefaultPlaybackRate.Value = 1.0);
 
-
+            PlaylistEndAction = _PlaylistSettings.ToReactivePropertyAsSynchronized(x => x.PlaylistEndAction);
 
             // NG Comment User Id
 
@@ -123,13 +134,18 @@ namespace NicoPlayerHohoema.ViewModels
             IsEnableUserCommentCommand.Subscribe(x => SetCommentCommandPermission(x, CommentCommandPermissionType.User));
             IsEnableAnonymousCommentCommand.Subscribe(x => SetCommentCommandPermission(x, CommentCommandPermissionType.Anonymous));
 
+
+
+            
         }
 
         protected override void OnLeave()
 		{
             _NGSettings.Save().ConfigureAwait(false);
             _PlayerSettings.Save().ConfigureAwait(false);
-		}
+            _PlaylistSettings.Save().ConfigureAwait(false);
+
+        }
 
 
 

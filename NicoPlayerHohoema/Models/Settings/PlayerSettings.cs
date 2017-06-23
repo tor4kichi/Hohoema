@@ -266,5 +266,16 @@ namespace NicoPlayerHohoema.Models
             get { return _DefaultPlaybackRate; }
             set { SetProperty(ref _DefaultPlaybackRate, value); }
         }
+
+
+        
     }
+
+    public enum VideoContentOpenAction
+    {
+        CurrentWindow,
+        CurrentWindowWithSplit,
+        //        NewWindow
+    }
+
 }

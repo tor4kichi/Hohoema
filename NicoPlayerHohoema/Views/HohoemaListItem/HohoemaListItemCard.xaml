@@ -17,14 +17,27 @@
 
 
         <toolkit:DockPanel>
-            <Border Height="140"
+            <Grid Height="140"
                     toolkit:DockPanel.Dock="Top"
                     >
                 <Image Source="{Binding FirstImageUrl}"
                    Visibility="{Binding HasImageUrl, Converter={StaticResource BooleanToVisibility}}" 
                    Stretch="Uniform"
                    />
-            </Border>
+
+                <Border Background="{ThemeResource SystemAltMediumColor}"
+                        HorizontalAlignment="Right" 
+                        VerticalAlignment="Bottom"
+                        Visibility="{Binding HasImageCaption, Converter={StaticResource BooleanToVisibility}}"
+                        >
+                    <TextBlock Text="{Binding ImageCaption, Mode=OneWay}" 
+                               Padding="4 0 3 3" 
+                               TextWrapping="Wrap" VerticalAlignment="Center" 
+                               FontSize="18"
+                               
+                               />
+                </Border>
+            </Grid>
 
             <StackPanel Margin="0 8 0 0" 
                                
