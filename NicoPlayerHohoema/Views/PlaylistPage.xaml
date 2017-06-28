@@ -50,16 +50,12 @@
     <Grid>
 
         <VisualStateManager.VisualStateGroups>
-
-            <!-- TVモードの仮対応 -->
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
                         <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="ContentLayout.Margin" Value="0 27 0 27" />
-                        <Setter Target="ContentLayout.Margin" Value="0 27 0 27" />
                         <Setter Target="ContentLayout.Margin" Value="0 27 0 27" />
                     </VisualState.Setters>
                 </VisualState>
@@ -73,17 +69,15 @@
 
 
             <Pivot ItemsSource="{Binding Playlists}"
-                                          SelectedItem="{Binding SelectedItem.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          x:Name="pivot"
-                                          >
+                   SelectedItem="{Binding SelectedItem.Value, Mode=TwoWay}"
+                   >
 
                 <Pivot.RightHeaderTemplate>
                     <DataTemplate>
+                        
                         <UserControl>
                             <Grid>
                                 <VisualStateManager.VisualStateGroups>
-
-                                    <!-- TVモードの仮対応 -->
                                     <VisualStateGroup>
                                         <VisualState>
                                             <VisualState.StateTriggers>
@@ -105,6 +99,7 @@
 
                             </Grid>
                         </UserControl>
+                        
                     </DataTemplate>
                 </Pivot.RightHeaderTemplate>
                 <Pivot.HeaderTemplate>
@@ -118,6 +113,7 @@
                         </StackPanel>
                     </DataTemplate>
                 </Pivot.HeaderTemplate>
+                
                 <Pivot.ItemTemplate>
 
                     <DataTemplate>
@@ -126,7 +122,6 @@
 
                                 <VisualStateManager.VisualStateGroups>
 
-                                    <!-- TVモードの仮対応 -->
                                     <VisualStateGroup>
                                         <VisualState>
                                             <VisualState.StateTriggers>
@@ -230,14 +225,12 @@
 
                                                 <Button.Flyout>
                                                     <MenuFlyout>
-                                                        <!-- TODO: -->
                                                         <MenuFlyoutItem Text="名前を変更"
                                                                         Command="{Binding RenamePlaylistCommand}"
                                                                         >
 
                                                         </MenuFlyoutItem>
 
-                                                        <!-- TODO: -->
                                                         <MenuFlyoutItem Text="プレイリストを削除"
                                                                         Command="{Binding DeletePlaylistCommand}"
                                                                         >
@@ -246,46 +239,7 @@
                                                     </MenuFlyout>
                                                 </Button.Flyout>
 
-                                                <!--
-                                            <Button Content="名前を変更"
-                                        
-                                        Background="Transparent"
-                                        HorizontalAlignment="Stretch"
-                                        
-                                        >
-
-                                            </Button>
-
-                                            <Button Content="プレイリストを削除"
-                                                    Background="Transparent"
-                                                    HorizontalAlignment="Stretch"
-                                                    Visibility="{Binding IsDefaultPlaylist, Converter={StaticResource InvertBoolean}}"
-                                                >
-                                                <Button.Flyout>
-                                                    <Flyout x:Name="PlaylistEnsureRemoveFlyout">
-                                                        <StackPanel Width="260">
-                                                            <TextBlock TextWrapping="Wrap">
-                                                プレイリストを削除すると元に戻せません。
-                                                このプレイリストを完全に削除してもよろしいですか？
-                                                            </TextBlock>
-
-                                                            <Border Height="8" />
-                                                            <Button HorizontalAlignment="Right"
-                                                    Content="プレイリストを削除"
-                                                    Command="{Binding DeletePlaylistCommand}"
-                                                    >
-                                                                <i:Interaction.Behaviors>
-                                                                    <core:EventTriggerBehavior EventName="Tapped">
-                                                                        <core:CallMethodAction TargetObject="{Binding ElementName=PlaylistEnsureRemoveFlyout}" MethodName="Hide" />
-                                                                    </core:EventTriggerBehavior>
-                                                                </i:Interaction.Behaviors>
-                                                            </Button>
-                                                        </StackPanel>
-                                                    </Flyout>
-                                                </Button.Flyout>
-
-                                            </Button>
-                                            -->
+                                                
                                             </Button>
 
 
@@ -303,6 +257,7 @@
 
                                 <Grid>
 
+                                    
                                     <mycontrols:HohoemaIncrementalLoadingList
                                             ItemFlyout="{StaticResource VideoListItemFlyout}"
                                             x:Name="VerticalVideoList"
@@ -347,7 +302,6 @@
                                         </mycontrols:IncrementalLoadingList.ItemTemplate>
 
                                     </mycontrols:IncrementalLoadingList>
-
                                 </Grid>
 
 
@@ -361,7 +315,8 @@
 
 
                 </Pivot.ItemTemplate>
-            </Pivot>
+        
+        </Pivot>
 
 
         </toolkit:DockPanel>

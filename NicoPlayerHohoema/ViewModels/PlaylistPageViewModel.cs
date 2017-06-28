@@ -38,9 +38,12 @@ namespace NicoPlayerHohoema.ViewModels
         {
             _MylistRegistrationDialogService = mylistDialogService;
             Playlist = hohoemaApp.Playlist;
+
+            
             Playlists = Playlist.Playlists.ToReadOnlyReactiveCollection(x =>
                 GetPlaylistViewModel(x)
                 );
+                
 
             SelectedItem = new ReactiveProperty<PlaylistViewModel>();
 
@@ -65,26 +68,6 @@ namespace NicoPlayerHohoema.ViewModels
 
                 _PreviewSelectedPlaylistVM = x;
             });
-
-            // MDVでコンテンツが選択済みの場合、戻る動作を常にコンテンツのクローズに割り当てます
-            // この仕様は仮です。
-            // 本来はディテールのみを表示している状態にフックして戻る動作をブロックすべきです。
-            // UWPCommunityToolkitの次期バージョン 1.3 で
-            // MasterDetailsView.ViewState プロパティが導入されるようなので、
-            // それがあればディテールのみ表示している状態が取得できるようになります。
-            SelectedItem.Select(x => x != null)
-                .Subscribe(isContentSelected => 
-                {
-                    if (isContentSelected)
-                    {
-                        AddSubsitutionBackNavigateAction("mdv_back", () => 
-                        {
-                            SelectedItem.Value = null;
-
-                            return true;
-                        });
-                    }
-                });
         }
 
 
@@ -136,9 +119,6 @@ namespace NicoPlayerHohoema.ViewModels
         public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
         {
             base.OnNavigatingFrom(e, viewModelState, suspending);
-
-            // ディテールに表示中のプレイリストページに対してナビゲートアクションを強制的に引き起こす目的でnull代入
-            SelectedItem.Value = null;
         }
 
     }
@@ -159,13 +139,14 @@ namespace NicoPlayerHohoema.ViewModels
         public PlaylistViewModel(Playlist playlist, HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
             : base(hohoemaApp, pageManager, mylistDialogService, isRequireSignIn:false)
         {
+            
             HohoemaPlaylist = hohoemaApp.Playlist;
             Playlist = playlist;
             IsDefaultPlaylist = Playlist.Id == HohoemaPlaylist.DefaultPlaylist.Id;
 
             PlaylistName = Playlist.ObserveProperty(x => x.Name)
                 .ToReadOnlyReactiveProperty();
-
+            
             PlaylistNameCandidate = new ReactiveProperty<string>();
             PlaylistName.Subscribe(x => PlaylistNameCandidate.Value = x);
             RenamePlaylistCommand = PlaylistNameCandidate
@@ -209,6 +190,21 @@ namespace NicoPlayerHohoema.ViewModels
                 ClearSelection();
             })
             .AddTo(_CompositeDisposable);
+
+            if (IsDefaultPlaylist)
+            {
+                Playlist.PlaylistItems.ObserveRemoveChanged()
+                    .Subscribe(x =>
+                    {
+                        var item = IncrementalLoadingItems.FirstOrDefault(y => y.VideoId == x.ContentId);
+                        if (item != null)
+                        {
+                            IncrementalLoadingItems.Remove(item);
+                        }
+                    })
+                    .AddTo(_CompositeDisposable);       
+            }
+            
         }
 
 
@@ -366,12 +362,13 @@ namespace NicoPlayerHohoema.ViewModels
                 vmItems.Add(vmItem);
             }
 
-            return vmItems.AsEnumerable();
+            return vmItems;
         }
 
         public Task<int> ResetSource()
         {
-            return Task.FromResult(Playlist.PlaylistItems.Count);
+            return Task.FromResult(0);
+//            return Task.FromResult(Playlist.PlaylistItems.Count);
         }
     }
 }
