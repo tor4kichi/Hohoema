@@ -74,7 +74,6 @@
 
             <Pivot ItemsSource="{Binding Playlists}"
                                           SelectedItem="{Binding SelectedItem.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          IsTabStop="False"
                                           x:Name="pivot"
                                           >
 
@@ -324,7 +323,10 @@
                                             ItemsSource="{Binding IncrementalLoadingItems}"
                                             SelectedItems="{Binding SelectedItems}"
                                             ItemContextFlyout="{StaticResource VideoListItemFlyout}"
+                                            ItemCommand="{Binding SelectItemCommand}"
+                                            IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
                                             Visibility="Collapsed"
+                                        IsTabStop="False"
                                             >
 
                                         <mycontrols:IncrementalLoadingList.ItemsPanel>
