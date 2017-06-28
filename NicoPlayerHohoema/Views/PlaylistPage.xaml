@@ -7,6 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:listitem="using:NicoPlayerHohoema.Views.HohoemaListItem"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
@@ -57,239 +58,312 @@
                         <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="ContentLayout.Margin" Value="0 27 48 27" />
+                        <Setter Target="ContentLayout.Margin" Value="0 27 0 27" />
+                        <Setter Target="ContentLayout.Margin" Value="0 27 0 27" />
+                        <Setter Target="ContentLayout.Margin" Value="0 27 0 27" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
         
         <toolkit:DockPanel x:Name="ContentLayout">
+
+
             
-            
-            <uwptoolkit:MasterDetailsView ItemsSource="{Binding Playlists}"
-                                          NoSelectionContent="No Selection"
+
+
+            <Pivot ItemsSource="{Binding Playlists}"
                                           SelectedItem="{Binding SelectedItem.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          IsTabStop="False"
-                                          x:Name="mdv"
+                                          x:Name="pivot"
                                           >
 
-                <uwptoolkit:MasterDetailsView.MasterHeader>
-
-                    <toolkit:DockPanel>
-
-                        <Border toolkit:DockPanel.Dock="Top" 
-                                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
-                                    BorderThickness="0 0 0 1"
-                                    Height="64"
-                                    >
-                            <toolkit:DockPanel >
-
-                                <StackPanel toolkit:DockPanel.Dock="Right" 
-                                        Orientation="Horizontal"
-                                        >
-
-                                    <AppBarButton Icon="Add"
-                                        Command="{Binding CreatePlaylistCommand}"
-                                        Background="Transparent" 
-                                                  />
-                                </StackPanel>
-
-                                <Border Background="Transparent" IsHitTestVisible="True"
-                                            Margin="16 0 0 0"
-                                            >
-                                    <TextBlock Text="{Binding Title}" 
-                                                VerticalAlignment="Center"
-                                                Style="{StaticResource SubtitleTextBlockStyle}"
-                                                >
-                                    </TextBlock>
-                                </Border>
-                            </toolkit:DockPanel>
-                        </Border>
-
-
-                        
-
-                    </toolkit:DockPanel>
-
-                    
-                </uwptoolkit:MasterDetailsView.MasterHeader>
-                
-                <uwptoolkit:MasterDetailsView.DetailsTemplate>
+                <Pivot.RightHeaderTemplate>
                     <DataTemplate>
-                        <toolkit:DockPanel>
+                        <UserControl>
+                            <Grid>
+                                <VisualStateManager.VisualStateGroups>
 
-                            <Border toolkit:DockPanel.Dock="Top" 
-                                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
-                                    BorderThickness="0 0 0 1"
-                                    Height="64"
+                                    <!-- TVモードの仮対応 -->
+                                    <VisualStateGroup>
+                                        <VisualState>
+                                            <VisualState.StateTriggers>
+                                                <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
+                                            </VisualState.StateTriggers>
+                                            <VisualState.Setters>
+                                                <Setter Target="PlaylistAddButton.Margin" Value="0 0 48 0" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+                                
+                                <AppBarButton Icon="Add"
+                                                Command="{Binding ElementName=ContentLayout, Path=DataContext.CreatePlaylistCommand}"
+                                                Background="Transparent" 
+                                              x:Name="PlaylistAddButton"
+                                                  />
+
+
+                            </Grid>
+                        </UserControl>
+                    </DataTemplate>
+                </Pivot.RightHeaderTemplate>
+                <Pivot.HeaderTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal"
                                     >
-                                <toolkit:DockPanel>
-                                    <StackPanel Orientation="Horizontal" 
+
+                            <TextBlock Text="{Binding PlaylistName.Value}"
+                                       />
+
+                        </StackPanel>
+                    </DataTemplate>
+                </Pivot.HeaderTemplate>
+                <Pivot.ItemTemplate>
+
+                    <DataTemplate>
+                        <UserControl>
+                            <toolkit:DockPanel>
+
+                                <VisualStateManager.VisualStateGroups>
+
+                                    <!-- TVモードの仮対応 -->
+                                    <VisualStateGroup>
+                                        <VisualState>
+                                            <VisualState.StateTriggers>
+                                                <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
+                                            </VisualState.StateTriggers>
+                                            <VisualState.Setters>
+                                                <Setter Target="VerticalVideoList.Visibility" Value="Collapsed" />
+                                                <Setter Target="HorizontalVideoList.Visibility" Value="Visible" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                    <VisualStateGroup>
+                                        <VisualState>
+                                            <VisualState.StateTriggers>
+                                                <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
+                                            </VisualState.StateTriggers>
+                                            <VisualState.Setters>
+                                                <Setter Target="PivotItemHeader.Margin" Value="0 0 48 0" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                    
+                                </VisualStateManager.VisualStateGroups>
+
+                                <Border toolkit:DockPanel.Dock="Top" 
+                                    Height="64"
+                                    x:Name="PivotItemHeader"
+                                    >
+                                    <toolkit:DockPanel>
+                                        <StackPanel Orientation="Horizontal" 
                                                 toolkit:DockPanel.Dock="Right"
                                                 >
 
-                                        <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                            <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                             Orientation="Horizontal"
                                             >
 
-                                        </StackPanel>
 
-                                        <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+
+
+                                            </StackPanel>
+
+                                            <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
                                             Orientation="Horizontal"
                                             >
 
-                                            <AppBarButton Icon="Play" Label="再生" Command="{Binding PlayAllCommand}" />
+                                                <AppBarButton Icon="Play" Label="再生" Command="{Binding PlayAllCommand}" />
 
-                                            
-                                            <AppBarButton Command="{Binding RegistratioMylistCommand}"
+
+                                                <AppBarButton Command="{Binding RegistratioMylistCommand}"
                                               Label="マイリスト登録"
                                               Icon="Add"
                                             >
-                                            </AppBarButton>
+                                                </AppBarButton>
 
 
-                                            <AppBarButton Command="{Binding RequestCacheDownload}"
+                                                <AppBarButton Command="{Binding RequestCacheDownload}"
                                               Label="キャッシュ取得"
                                               Icon="Download"
                                             >
-                                            </AppBarButton>
-                                            
-                                            <AppBarButton Command="{Binding RemovePlaylistItemsCommand}"
+                                                </AppBarButton>
+
+                                                <AppBarButton Command="{Binding RemovePlaylistItemsCommand}"
                                               Icon="Remove"
                                               Label="プレイリストから削除"
                                             />
 
-                                        </StackPanel>
+                                            </StackPanel>
 
 
 
-                                        <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                             IsEnabled="{Binding HasItem.Value}"
                                             HorizontalContentAlignment="Stretch"
                                             VerticalContentAlignment="Stretch"
                                             Label="選択"
                                             >
-                                            <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
+                                                <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center"
                                                        />
-                                        </AppBarToggleButton>
-
-                                        
-                                    </StackPanel>
+                                            </AppBarToggleButton>
 
 
-                                    <Border>
-                                        <Button Background="Transparent"
-                                                Margin="16 0 0 0"
-                                                Flyout="{StaticResource PlaylistRenameFlyout}"
-                                                IsEnabled="{Binding IsDefaultPlaylist, Converter={StaticResource InvertBoolean}}"
-                                            >
+                                        </StackPanel>
 
+
+                                        <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="{Binding PlaylistName.Value}" 
-                                                        VerticalAlignment="Center"
-                                                        Style="{StaticResource SubtitleTextBlockStyle}"
-                                                       ContextFlyout="{StaticResource PlaylistRenameFlyout}"
+                                                   VerticalAlignment="Center"
+                                                   Style="{StaticResource SubtitleTextBlockStyle}"
                                                     >
                                             </TextBlock>
-                                        </Button>
 
-                                        <i:Interaction.Behaviors>
-                                            <core:EventTriggerBehavior EventName="Tapped">
-                                                <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0.0" />
-                                            </core:EventTriggerBehavior>
-                                        </i:Interaction.Behaviors>
-
-                                    </Border>
-                                </toolkit:DockPanel>
-                                
-                            </Border>
-
-
-                            <mycontrols:HohoemaIncrementalLoadingList
-                                ItemFlyout="{StaticResource VideoListItemFlyout}"
-                                >
-                                <mycontrols:HohoemaIncrementalLoadingList.ItemTemplate>
-                                    <DataTemplate >
-                                        <Grid>
-
-                                            <local:VideoInfoControl />
-
-                                        </Grid>
-                                    </DataTemplate>
-                                </mycontrols:HohoemaIncrementalLoadingList.ItemTemplate>
-                            </mycontrols:HohoemaIncrementalLoadingList>
-
-
-                        </toolkit:DockPanel>
-                    </DataTemplate>
-                </uwptoolkit:MasterDetailsView.DetailsTemplate>
-
-                <uwptoolkit:MasterDetailsView.ItemTemplate>
-                    <DataTemplate>
-                        <Border>
-                            <TextBlock Text="{Binding PlaylistName.Value}" 
-                                            VerticalAlignment="Center"
-                                            >
-                            <!-- 右クリックでフライアウト表示 -->
-                            <!-- プレイリストの削除 -->
-
-                            </TextBlock>
-
-                           
-                            <Border.ContextFlyout>
-                                <Flyout x:Name="PlaylistFlyout">
-
-                                    <StackPanel>
-
-                                        <Button Content="名前を変更"
-                                                Flyout="{StaticResource PlaylistRenameFlyout}"
-                                                Background="Transparent"
-                                                HorizontalAlignment="Stretch"
+                                            <Button Background="Transparent"
+                                                Margin="8 0 0 0"
                                                 Visibility="{Binding IsDefaultPlaylist, Converter={StaticResource BooleanToVisibilityInverted}}"
                                                 >
-                                            
-                                        </Button>
 
-                                        <Button Content="プレイリストを削除"
-                                                Background="Transparent"
-                                                HorizontalAlignment="Stretch"
-                                                Visibility="{Binding IsDefaultPlaylist, Converter={StaticResource InvertBoolean}}"
+                                                <SymbolIcon Symbol="More" />
+
+                                                <Button.Flyout>
+                                                    <MenuFlyout>
+                                                        <!-- TODO: -->
+                                                        <MenuFlyoutItem Text="名前を変更"
+                                                                        Command="{Binding RenamePlaylistCommand}"
+                                                                        >
+
+                                                        </MenuFlyoutItem>
+
+                                                        <!-- TODO: -->
+                                                        <MenuFlyoutItem Text="プレイリストを削除"
+                                                                        Command="{Binding DeletePlaylistCommand}"
+                                                                        >
+
+                                                        </MenuFlyoutItem>
+                                                    </MenuFlyout>
+                                                </Button.Flyout>
+
+                                                <!--
+                                            <Button Content="名前を変更"
+                                        
+                                        Background="Transparent"
+                                        HorizontalAlignment="Stretch"
+                                        
+                                        >
+
+                                            </Button>
+
+                                            <Button Content="プレイリストを削除"
+                                                    Background="Transparent"
+                                                    HorizontalAlignment="Stretch"
+                                                    Visibility="{Binding IsDefaultPlaylist, Converter={StaticResource InvertBoolean}}"
+                                                >
+                                                <Button.Flyout>
+                                                    <Flyout x:Name="PlaylistEnsureRemoveFlyout">
+                                                        <StackPanel Width="260">
+                                                            <TextBlock TextWrapping="Wrap">
+                                                プレイリストを削除すると元に戻せません。
+                                                このプレイリストを完全に削除してもよろしいですか？
+                                                            </TextBlock>
+
+                                                            <Border Height="8" />
+                                                            <Button HorizontalAlignment="Right"
+                                                    Content="プレイリストを削除"
+                                                    Command="{Binding DeletePlaylistCommand}"
+                                                    >
+                                                                <i:Interaction.Behaviors>
+                                                                    <core:EventTriggerBehavior EventName="Tapped">
+                                                                        <core:CallMethodAction TargetObject="{Binding ElementName=PlaylistEnsureRemoveFlyout}" MethodName="Hide" />
+                                                                    </core:EventTriggerBehavior>
+                                                                </i:Interaction.Behaviors>
+                                                            </Button>
+                                                        </StackPanel>
+                                                    </Flyout>
+                                                </Button.Flyout>
+
+                                            </Button>
+                                            -->
+                                            </Button>
+
+
+                                            <i:Interaction.Behaviors>
+                                                <core:EventTriggerBehavior EventName="Tapped">
+                                                    <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0.0" />
+                                                </core:EventTriggerBehavior>
+                                            </i:Interaction.Behaviors>
+
+                                        </StackPanel>
+                                    </toolkit:DockPanel>
+
+                                </Border>
+
+
+                                <Grid>
+
+                                    <mycontrols:HohoemaIncrementalLoadingList
+                                            ItemFlyout="{StaticResource VideoListItemFlyout}"
+                                            x:Name="VerticalVideoList"
                                             >
-                                            <Button.Flyout>
-                                                <Flyout x:Name="PlaylistEnsureRemoveFlyout">
-                                                    <StackPanel Width="260">
-                                                        <TextBlock TextWrapping="Wrap">
-                                                        プレイリストを削除すると元に戻せません。
-                                                        このプレイリストを完全に削除してもよろしいですか？
-                                                        </TextBlock>
+                                        <mycontrols:HohoemaIncrementalLoadingList.ItemTemplate>
+                                            <DataTemplate >
+                                                <Grid>
 
-                                                        <Border Height="8" />
-                                                        <Button HorizontalAlignment="Right"
-                                                            Content="プレイリストを削除"
-                                                            Command="{Binding DeletePlaylistCommand}"
-                                                            >
-                                                            <i:Interaction.Behaviors>
-                                                                <core:EventTriggerBehavior EventName="Tapped">
-                                                                    <core:CallMethodAction TargetObject="{Binding ElementName=PlaylistEnsureRemoveFlyout}" MethodName="Hide" />
-                                                                </core:EventTriggerBehavior>
-                                                            </i:Interaction.Behaviors>
-                                                        </Button>
-                                                    </StackPanel>
-                                                </Flyout>
-                                            </Button.Flyout>
+                                                    <local:VideoInfoControl />
 
-                                        </Button>
-                                    </StackPanel>
-                                </Flyout>
-                            </Border.ContextFlyout>
-                        </Border>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </mycontrols:HohoemaIncrementalLoadingList.ItemTemplate>
+                                    </mycontrols:HohoemaIncrementalLoadingList>
+
+                                    <mycontrols:IncrementalLoadingList
+                                            x:Name="HorizontalVideoList"
+                                            ItemsSource="{Binding IncrementalLoadingItems}"
+                                            SelectedItems="{Binding SelectedItems}"
+                                            ItemContextFlyout="{StaticResource VideoListItemFlyout}"
+                                            ItemCommand="{Binding SelectItemCommand}"
+                                            IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
+                                            Visibility="Collapsed"
+                                        IsTabStop="False"
+                                            >
+
+                                        <mycontrols:IncrementalLoadingList.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <ItemsWrapGrid Orientation="Vertical" Height="480"
+                                                       Margin="0 0 48 0"
+                                                       />
+                                            </ItemsPanelTemplate>
+
+                                        </mycontrols:IncrementalLoadingList.ItemsPanel>
+
+                                        <mycontrols:IncrementalLoadingList.ItemTemplate>
+
+                                            <DataTemplate>
+                                                <listitem:HohoemaListItemMiniCard />
+                                            </DataTemplate>
+
+                                        </mycontrols:IncrementalLoadingList.ItemTemplate>
+
+                                    </mycontrols:IncrementalLoadingList>
+
+                                </Grid>
+
+
+                            </toolkit:DockPanel>
+                        </UserControl>
+                        
                     </DataTemplate>
-                </uwptoolkit:MasterDetailsView.ItemTemplate>
-               
 
-                
-            </uwptoolkit:MasterDetailsView>
+
+
+
+
+                </Pivot.ItemTemplate>
+            </Pivot>
+
+
         </toolkit:DockPanel>
     </Grid>
 </Page>
