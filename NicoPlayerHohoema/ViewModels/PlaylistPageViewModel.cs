@@ -15,6 +15,7 @@ using Microsoft.Practices.Unity;
 using Prism.Windows.Navigation;
 using System.Threading;
 using System.Windows.Input;
+using Windows.UI.Popups;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -170,9 +171,21 @@ namespace NicoPlayerHohoema.ViewModels
             RenamePlaylistCommand = PlaylistNameCandidate
                 .Select(x => !string.IsNullOrEmpty(x))
                 .ToReactiveCommand();
-            RenamePlaylistCommand.Subscribe(_ => 
+            RenamePlaylistCommand.Subscribe(async _ => 
             {
-                Playlist.Name = PlaylistNameCandidate.Value;
+                var dialogService = new Views.Service.TextInputDialogService();
+
+                var resultText = await dialogService.GetTextAsync(
+                    $"{PlaylistName.Value}を変更",
+                    "プレイリスト名", 
+                    PlaylistName.Value,
+                    (x) => !string.IsNullOrWhiteSpace(x)
+                    );
+
+                if (!string.IsNullOrWhiteSpace(resultText))
+                {
+                    Playlist.Name = resultText;
+                }
             });
 
 
@@ -205,10 +218,21 @@ namespace NicoPlayerHohoema.ViewModels
             get
             {
                 return _DeletePlaylistCommand
-                    ?? (_DeletePlaylistCommand = new DelegateCommand(() =>
+                    ?? (_DeletePlaylistCommand = new DelegateCommand(async () =>
                     {
                         // 削除
-                        HohoemaPlaylist.RemovePlaylist(Playlist);
+                        var title = PlaylistName.Value;
+                        var content = "プレイリストを削除してもよろしいですか？";
+                        var dialog = new MessageDialog(content, title);
+                        dialog.Commands.Add(new UICommand("プレイリストを削除", (x) => 
+                        {
+                            HohoemaPlaylist.RemovePlaylist(Playlist).ConfigureAwait(false);
+                        }));
+                        dialog.Commands.Add(new UICommand("キャンセル"));
+
+                        dialog.CancelCommandIndex = 1;
+                        dialog.DefaultCommandIndex = 1;
+                        await dialog.ShowAsync();
                     }));
             }
         }

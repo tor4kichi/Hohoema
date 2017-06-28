@@ -233,12 +233,14 @@
                                                     <MenuFlyout>
                                                         <!-- TODO: -->
                                                         <MenuFlyoutItem Text="名前を変更"
+                                                                        Command="{Binding RenamePlaylistCommand}"
                                                                         >
 
                                                         </MenuFlyoutItem>
 
                                                         <!-- TODO: -->
                                                         <MenuFlyoutItem Text="プレイリストを削除"
+                                                                        Command="{Binding DeletePlaylistCommand}"
                                                                         >
 
                                                         </MenuFlyoutItem>
