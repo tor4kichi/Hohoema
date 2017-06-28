@@ -139,14 +139,19 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
-            CurrentSettingsContent.Value = null;
-
 			if (suspending)
 			{
 //				viewModelState[nameof(CurrentSettingsKind)] = CurrentSettingsKind.Value.Kind.ToString();
             }
+            else
+            {
+                // Note: ページアンロード中にPivotのSelectedItemが操作されると
+                // Xaml側で例外がスローされてしまうようなので
+                // サスペンド処理時はCurrentSettingsContentを変更しない
+                CurrentSettingsContent.Value = null;
+            }
 
-			base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
+            base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
 		}
 
 
