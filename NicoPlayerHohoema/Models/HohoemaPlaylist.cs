@@ -140,7 +140,7 @@ namespace NicoPlayerHohoema.Models
 
         public async Task Load()
         {
-            var files = await PlaylistsSaveFolder.GetFilesAsync();
+            var files = await HohoemaApp.GetSyncRoamingData(PlaylistsSaveFolder);
 
             // ファイルがない場合
             if (files.Count == 0)
@@ -176,8 +176,36 @@ namespace NicoPlayerHohoema.Models
                     playlist.HohoemaPlaylist = this;
                     playlist.PlaylistSettings = PlaylistSettings;
 
-                    _PlaylistFileAccessorMap.Add(playlist.Id, playlistFileAccessor);
-                    loadedItem.Add(playlist);
+                    // 重複登録されている場合、ファイルの日付が古いほうを削除
+                    // （本来はリネームのミスがないようにするべき）
+                    if (_PlaylistFileAccessorMap.ContainsKey(playlist.Id))
+                    {
+                        var prevFileAccessor = _PlaylistFileAccessorMap[playlist.Id];
+
+                        var prevFile = await prevFileAccessor.TryGetFile();
+                        var prevFileProp = await prevFile.GetBasicPropertiesAsync();
+
+                        var fileProp = await file.GetBasicPropertiesAsync();
+                        if (prevFileProp.DateModified < fileProp.DateModified)
+                        {
+                            await prevFileAccessor.Delete(StorageDeleteOption.PermanentDelete);
+                            _PlaylistFileAccessorMap.Remove(playlist.Id);
+
+                            _PlaylistFileAccessorMap.Add(playlist.Id, playlistFileAccessor);
+                            loadedItem.Add(playlist);
+                        }
+                        else
+                        {
+                            await HohoemaApp.RoamingDataRemoved(file);
+                            await file.DeleteAsync();
+                        }
+                    }
+                    else
+                    {
+                        _PlaylistFileAccessorMap.Add(playlist.Id, playlistFileAccessor);
+                        loadedItem.Add(playlist);
+                    }
+
                 }
 
                 if (playlist.Id == WatchAfterPlaylistId)

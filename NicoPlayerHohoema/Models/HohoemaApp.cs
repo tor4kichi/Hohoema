@@ -159,6 +159,52 @@ namespace NicoPlayerHohoema.Models
 
 		private static AsyncLock _RoamingDataSyncLock = new AsyncLock();
 		
+
+        public static async Task<IList<StorageFile>> GetSyncRoamingData(StorageFolder folder)
+        {
+            // 指定フォルダはアプリのローカルフォルダであるか
+            if (!folder.Path.StartsWith(ApplicationData.Current.LocalFolder.Path))
+            {
+                return new List<StorageFile>();
+            }
+
+            // 同期済みファイル
+            var roamingFolder = ApplicationData.Current.RoamingFolder;
+            var syncInfoFileAccessor = new Util.FileAccessor<RoamingSyncInfo>(roamingFolder, "sync.json");
+            var syncInfo = await syncInfoFileAccessor.Load();
+            if (syncInfo == null)
+            {
+                return new List<StorageFile>();
+            }
+
+            // ローカルフォルダからの相対パスを中出
+            var reletivePath = folder.Path.Substring(ApplicationData.Current.LocalFolder.Path.Length + 1);
+
+            // 指定フォルダの削除されていない同期ファイルを抽出
+            var list = new List<StorageFile>();
+            foreach (var item in syncInfo.SyncInfoItems)
+            {
+                if (item.Mode == SyncMode.Remove) { continue; }
+
+                if (item.RelativeFilePath.StartsWith(reletivePath))
+                {
+                    var path = Path.Combine(ApplicationData.Current.LocalFolder.Path, item.RelativeFilePath);
+                    try
+                    {
+                        if (File.Exists(path))
+                        {
+                            var file = await StorageFile.GetFileFromPathAsync(path);
+                            list.Add(file);
+                        }
+                    }
+                    catch (FileNotFoundException) { }
+                }
+            }
+
+            return list;
+        }
+
+
         public static async Task PushToRoamingData(StorageFile file)
 		{
 			var roamingFolder = ApplicationData.Current.RoamingFolder;
