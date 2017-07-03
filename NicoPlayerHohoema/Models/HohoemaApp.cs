@@ -1,6 +1,5 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Videos.Thumbnail;
-using NicoPlayerHohoema.Models.AppMap;
 using NicoPlayerHohoema.Util;
 using Prism.Events;
 using Prism.Mvvm;
@@ -113,9 +112,7 @@ namespace NicoPlayerHohoema.Models
 
         private void RagistrationBackgroundUpdateHandle()
 		{
-            // ホーム画面で表示するアプリマップ情報をリセット
-            //AppMapManagerUpdater =
-
+            
             // 非同期な初期化処理の遅延実行をスケジュール
             MediaManagerUpdater = BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(
                 MediaManager,

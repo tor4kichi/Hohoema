@@ -121,16 +121,6 @@
     <Compile Include="Events\PlayerClosedEvent.cs" />
     <Compile Include="Events\PlayNicoVideoEvent.cs" />
     <Compile Include="Models\AccountManager.cs" />
-    <Compile Include="Models\AppMap\AppMap.cs" />
-    <Compile Include="Models\AppMap\AppMapItem.cs" />
-    <Compile Include="Models\AppMap\AppMapContainerBase.cs" />
-    <Compile Include="Models\AppMap\CachedVideoAppMapContainer.cs" />
-    <Compile Include="Models\AppMap\FollowAppMapContainer.cs" />
-    <Compile Include="Models\AppMap\FeedGroupAppMapContainer.cs" />
-    <Compile Include="Models\AppMap\UserMylistAppMapContainer.cs" />
-    <Compile Include="Models\AppMap\RankingCategoriesAppMapContainer.cs" />
-    <Compile Include="Models\AppMap\SearchAppMapContainer.cs" />
-    <Compile Include="Models\AppMap\VideoPlayHistoryAppMapContainer.cs" />
     <Compile Include="Models\BackgroundUpdater.cs" />
     <Compile Include="Models\CommentCommandPermissionType.cs" />
     <Compile Include="Models\Db\History\HistoryDbContext.cs" />
@@ -179,7 +169,6 @@
     <Compile Include="Models\Purchase\HohoemaPurchase.cs" />
     <Compile Include="Models\RoamingSyncInfo.cs" />
     <Compile Include="Models\Settings\AppearanceSettings.cs" />
-    <Compile Include="Models\Settings\AppMapSettings.cs" />
     <Compile Include="Models\Settings\CacheSettings.cs" />
     <Compile Include="Models\Settings\PlaylistSettings.cs" />
     <Compile Include="Models\UserMylistManager.cs" />
@@ -456,9 +445,6 @@
     <Compile Include="Views\PlaylistPage.xaml.cs">
       <DependentUpon>PlaylistPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\PortalPage_TV.xaml.cs">
-      <DependentUpon>PortalPage_TV.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\RankingCategoryListPage_TV.xaml.cs">
       <DependentUpon>RankingCategoryListPage_TV.xaml</DependentUpon>
     </Compile>
@@ -499,7 +485,6 @@
       <DependentUpon>SearchResultTagPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\VideoPlayerControlViewModel.cs" />
-    <Compile Include="ViewModels\PortalPageViewModel.cs" />
     <Compile Include="ViewModels\RankingCategoryListPageViewModel.cs" />
     <Compile Include="ViewModels\RankingCategoryPageViewModel.cs" />
     <Compile Include="ViewModels\SearchPageViewModel.cs" />
@@ -618,9 +603,6 @@
     </Compile>
     <Compile Include="Views\VideoPlayerControl.xaml.cs">
       <DependentUpon>VideoPlayerControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\PortalPage.xaml.cs">
-      <DependentUpon>PortalPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\RankingCategoryListPage.xaml.cs">
       <DependentUpon>RankingCategoryListPage.xaml</DependentUpon>
@@ -956,10 +938,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\PortalPage_TV.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\RankingCategoryListPage_TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1109,10 +1087,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\VideoPlayerControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\PortalPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

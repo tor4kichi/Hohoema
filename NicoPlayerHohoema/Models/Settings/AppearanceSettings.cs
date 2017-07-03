@@ -11,6 +11,16 @@ namespace NicoPlayerHohoema.Models
     [DataContract]
     public class AppearanceSettings : SettingsBase
     {
+        private HohoemaPageType _StartupPageType = HohoemaPageType.RankingCategoryList;
+
+        [DataMember]
+        public HohoemaPageType StartupPageType
+        {
+            get { return _StartupPageType; }
+            set { SetProperty(ref _StartupPageType, value); }
+        }
+
+
         private bool _IsForceTVModeEnable = false;
 
         [DataMember]
