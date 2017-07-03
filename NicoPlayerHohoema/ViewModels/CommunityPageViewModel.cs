@@ -579,7 +579,7 @@ namespace NicoPlayerHohoema.ViewModels
 				return _OpenVideoPageCommand
 					?? (_OpenVideoPageCommand = new DelegateCommand(() =>
 					{
-                        HohoemaPlaylist.DefaultPlaylist.AddVideo(VideoInfo.VideoId, VideoInfo.Title);
+                        HohoemaPlaylist.PlayVideo(VideoInfo.VideoId, VideoInfo.Title);
 					}));
 			}
 		}

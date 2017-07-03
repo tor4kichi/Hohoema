@@ -359,7 +359,7 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _CanDownload, value); }
 		}
 
-        public ReadOnlyReactiveCollection<Playlist> Playlists { get; private set; }
+        public ReadOnlyReactiveCollection<LocalMylist> Playlists { get; private set; }
 
 		public MylistRegistrationDialogService MylistDialogService { get; private set; }
 

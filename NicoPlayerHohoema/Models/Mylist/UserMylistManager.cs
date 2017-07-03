@@ -263,10 +263,15 @@ namespace NicoPlayerHohoema.Models
 		public string ThreadId { get; set; }
 	}
 
-	public class MylistGroupInfo : BackgroundUpdateableBase
+	public class MylistGroupInfo : BackgroundUpdateableBase, IPlayableList
     {
 		public HohoemaApp HohoemaApp { get; private set; }
 		public UserMylistManager MylistManager { get; private set; }
+
+
+        public PlaylistOrigin Origin => PlaylistOrigin.Niconico;
+        public string Id => GroupId;
+        public int SortIndex => 0;
 
 		public string GroupId { get; private set; }
 		public string UserId { get; set; }
@@ -283,8 +288,9 @@ namespace NicoPlayerHohoema.Models
 			IsDeflist = GroupId == "0";
 			HohoemaApp = hohoemaApp;
 			MylistManager = mylistManager;
-			_VideoItems = new List<string>();
-			_VideoIdToThreadIdMap = new Dictionary<string, string>();
+            _PlaylistItems = new ObservableCollection<PlaylistItem>();
+            PlaylistItems = new ReadOnlyObservableCollection<PlaylistItem>(_PlaylistItems);
+            _VideoIdToThreadIdMap = new Dictionary<string, string>();
 		}
 
 		
@@ -300,15 +306,15 @@ namespace NicoPlayerHohoema.Models
 		private Dictionary<string, string> _VideoIdToThreadIdMap;
 
 
-		private List<string> _VideoItems;
-		public IReadOnlyList<string> VideoItems => _VideoItems;
+		private ObservableCollection<PlaylistItem> _PlaylistItems;
+		public ReadOnlyObservableCollection<PlaylistItem> PlaylistItems { get; }
 		
 
 		public int ItemCount
 		{
 			get
 			{
-                return VideoItems.Count != 0 ? VideoItems.Count : Count;
+                return PlaylistItems.Count != 0 ? PlaylistItems.Count : Count;
 			}
 		}
 
@@ -471,7 +477,7 @@ namespace NicoPlayerHohoema.Models
 			var itemCountPerMylist = HohoemaApp.IsPremiumUser ? 500u : 100u;
 
 			_VideoIdToThreadIdMap.Clear();
-			_VideoItems.Clear();
+			_PlaylistItems.Clear();
 
 			if (IsDeflist)
 			{
@@ -480,7 +486,14 @@ namespace NicoPlayerHohoema.Models
 				foreach (var item in defMylist)
 				{
 					_VideoIdToThreadIdMap.Add(item.WatchId, item.ItemId);
-					_VideoItems.Add(item.WatchId);
+					_PlaylistItems.Add(new PlaylistItem()
+                    {
+                        ContentId = item.WatchId,
+                        Owner = this,
+                        Title = item.Title,
+                        Type = PlaylistItemType.Video
+                    }
+                    );
 				}
 
 				MylistManager.DeflistUpdated();
@@ -494,7 +507,13 @@ namespace NicoPlayerHohoema.Models
 					foreach (var item in res)
 					{
 						_VideoIdToThreadIdMap.Add(item.WatchId, item.ItemId);
-						_VideoItems.Add(item.WatchId);
+						_PlaylistItems.Add(new PlaylistItem()
+                        {
+                            ContentId = item.WatchId,
+                            Owner = this,
+                            Title = item.Title,
+                            Type = PlaylistItemType.Video
+                        });
 					}
 
 					MylistManager.MylistUpdated();
@@ -509,7 +528,13 @@ namespace NicoPlayerHohoema.Models
 						foreach (var item in res.MylistVideoInfoItems)
 						{
 							_VideoIdToThreadIdMap.Add(item.Video.Id, item.Thread.Id);
-							_VideoItems.Add(item.Video.Id);
+							_PlaylistItems.Add(new PlaylistItem()
+                            {
+                                ContentId = item.Video.Id,
+                                Owner = this,
+                                Title = item.Video.Title,
+                                Type = PlaylistItemType.Video
+                            });
 						}
 					}
 				}

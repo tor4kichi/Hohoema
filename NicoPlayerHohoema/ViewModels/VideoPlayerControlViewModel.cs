@@ -1755,7 +1755,9 @@ namespace NicoPlayerHohoema.ViewModels
                     ?? (_OpenCurrentPlaylistPageCommand = new DelegateCommand(() =>
                     {
                         HohoemaApp.Playlist.IsPlayerFloatingModeEnable = true;
-                        PageManager.OpenPage(HohoemaPageType.Playlist, HohoemaApp.Playlist.CurrentPlaylist?.Id);
+
+                        // TODO: MylistPageでLocalMylistのアイテムを扱えるようにする
+                        PageManager.OpenPage(HohoemaPageType.Mylist, HohoemaApp.Playlist.CurrentPlaylist?.Id);
                     }
                     ));
             }
@@ -1976,7 +1978,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         // プレイリスト
-        public Playlist CurrentPlaylist { get; private set; }
+        public IPlayableList CurrentPlaylist { get; private set; }
         public ReactiveProperty<string> CurrentPlaylistName { get; private set; }
         public ReactiveProperty<bool> IsShuffleEnabled { get; private set; }
         public ReactiveProperty<bool?> RepeatMode { get; private set; }

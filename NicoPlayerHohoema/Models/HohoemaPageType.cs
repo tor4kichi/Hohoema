@@ -14,7 +14,6 @@ namespace NicoPlayerHohoema.Models
 		Mylist,
 		FollowManage,
 		History,
-        Playlist,
 
 		Search,
 

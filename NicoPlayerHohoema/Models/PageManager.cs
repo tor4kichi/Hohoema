@@ -242,8 +242,6 @@ namespace NicoPlayerHohoema.Models
 					return "フォロー";
 				case HohoemaPageType.History:
 					return "視聴履歴";
-                case HohoemaPageType.Playlist:
-                    return "プレイリスト";
 				case HohoemaPageType.Search:
 					return "検索";
 				case HohoemaPageType.CacheManagement:

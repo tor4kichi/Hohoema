@@ -214,7 +214,7 @@ namespace NicoPlayerHohoema.ViewModels
 				return _SelectedCommand
 					?? (_SelectedCommand = new DelegateCommand(() => 
 					{
-                        Playlist.DefaultPlaylist.AddVideo(this.VideoId, Title);
+                        Playlist.PlayVideo(this.VideoId, Title);
 					}));
 			}
 		}

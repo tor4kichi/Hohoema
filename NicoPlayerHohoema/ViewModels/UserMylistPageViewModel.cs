@@ -326,7 +326,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			Title = info.Name;
 			Description = info.Description;
-			OptionText = (info.IsPublic ? "公開" : "非公開") + $" - {info.VideoItems.Count}件";
+			OptionText = (info.IsPublic ? "公開" : "非公開") + $" - {info.PlaylistItems.Count}件";
 
             ThemeColor = info.IconType.ToColor();
 
