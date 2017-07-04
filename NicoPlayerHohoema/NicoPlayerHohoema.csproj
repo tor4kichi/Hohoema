@@ -575,9 +575,6 @@
     <Compile Include="Views\UserMylistPage.xaml.cs">
       <DependentUpon>UserMylistPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\UserMylistPage_TV.xaml.cs">
-      <DependentUpon>UserMylistPage_TV.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\UserVideoPage.xaml.cs">
       <DependentUpon>UserVideoPage.xaml</DependentUpon>
     </Compile>
@@ -1044,10 +1041,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\UserMylistPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\UserMylistPage_TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

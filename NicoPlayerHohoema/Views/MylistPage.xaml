@@ -107,35 +107,12 @@
                             <Button Visibility="Collapsed"
                                 Background="Transparent"
                                 Height="32"
+                                    Command="{Binding DeleteMylistCommand}"
                                     x:Name="DeleteMylistButton"
                                       >
                                 <StackPanel Orientation="Horizontal">
                                     <SymbolIcon Symbol="Delete" />
                                 </StackPanel>
-
-                                <Button.Flyout>
-                                    <Flyout>
-                                        <StackPanel>
-                                            <TextBlock Margin="0 0 0 16" FontWeight="SemiBold"
-                                                       LineHeight="25"
-                                                       >
-                                                <Run Text="マイリストを削除します" />
-                                                <LineBreak />
-                                                <Run Text="削除したマイリストは元に戻せません" />
-                                            </TextBlock>
-
-                                            <Button Content="キャンセル" HorizontalAlignment="Stretch" />
-
-                                            <Border Height="16" />
-
-                                            <Button Content="削除"
-                                                    Command="{Binding DeleteMylistCommand}"
-                                                    HorizontalAlignment="Stretch"
-                                                    />
-                                        </StackPanel>
-                                    </Flyout>
-                                </Button.Flyout>
-
                             </Button>
                         </StackPanel>
 
@@ -259,7 +236,7 @@
                             </core:EventTriggerBehavior>
                         </i:Interaction.Behaviors>
 
-                        <TextBlock Text="{Binding Title}" 
+                        <TextBlock Text="{Binding Title, Mode=OneWay}" 
                                     VerticalAlignment="Center"
                                     Style="{StaticResource SubtitleTextBlockStyle}"
                                     >

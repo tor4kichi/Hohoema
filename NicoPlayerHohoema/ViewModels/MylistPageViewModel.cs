@@ -24,6 +24,7 @@ using Windows.UI;
 using Mntone.Nico2.Live.PlayerStatus;
 using System.Runtime.InteropServices.WindowsRuntime;
 using NicoPlayerHohoema.Models.Db;
+using Windows.UI.Popups;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -151,6 +152,8 @@ namespace NicoPlayerHohoema.ViewModels
                             if (!string.IsNullOrWhiteSpace(resultText))
                             {
                                 localMylist.Name = resultText;
+                                MylistTitle = resultText;
+                                UpdateTitle(resultText);
                             }
                         }
 
@@ -229,33 +232,31 @@ namespace NicoPlayerHohoema.ViewModels
                 return _DeleteMylistCommand
                     ?? (_DeleteMylistCommand = new DelegateCommand(async () =>
                     {
-                        switch (PlayableList.Value.Origin)
+                        // 確認ダイアログ
+                        var item = PlayableList.Value;
+                        var originText = item.Origin == PlaylistOrigin.Local ? "ローカルマイリスト" : "マイリスト";
+                        var contentMessage = $"{item.Name} を削除してもよろしいですか？（変更は元に戻せません）";
+
+                        var dialog = new MessageDialog(contentMessage, $"{originText}削除の確認");
+                        dialog.Commands.Add(new UICommand("削除", async (i) =>
                         {
-                            case PlaylistOrigin.LoginUser:
-                                var result = await HohoemaApp.UserMylistManager.RemoveMylist(PlayableList.Value.Id);
+                            if (item.Origin == PlaylistOrigin.Local)
+                            {
+                                await HohoemaApp.Playlist.RemovePlaylist(item as LocalMylist);
+                            }
+                            else if (item.Origin == PlaylistOrigin.LoginUser)
+                            {
+                                await HohoemaApp.UserMylistManager.RemoveMylist(item.Id);
+                            }
 
-                                if (result == ContentManageResult.Success)
-                                {
-                                    PageManager.ForgetLastPage();
-                                    if (PageManager.NavigationService.CanGoBack())
-                                    {
-                                        PageManager.NavigationService.GoBack();
-                                    }
-                                    else
-                                    {
-                                        PageManager.OpenPage(HohoemaPageType.UserMylist);
-                                    }
-                                }
-                                break;
-                            case PlaylistOrigin.OtherUser:
-                                throw new UnauthorizedAccessException();
+                            PageManager.OpenPage(HohoemaPageType.UserMylist, OwnerUserId);
+                        }));
 
-                            case PlaylistOrigin.Local:
-                                await HohoemaApp.Playlist.RemovePlaylist(PlayableList.Value as LocalMylist);
-                                break;
-                            default:
-                                break;
-                        }
+                        dialog.Commands.Add(new UICommand("キャンセル"));
+                        dialog.CancelCommandIndex = 1;
+                        dialog.DefaultCommandIndex = 1;
+
+                        await dialog.ShowAsync();
                     }));
             }
         }

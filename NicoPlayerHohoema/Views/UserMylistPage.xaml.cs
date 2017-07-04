@@ -27,4 +27,34 @@ namespace NicoPlayerHohoema.Views
 			this.InitializeComponent();
 		}
 	}
+
+
+    public class MylistListTemplateSelector : DataTemplateSelector
+    {
+        public DataTemplate LocalMylist { get; set; }
+        public DataTemplate LoginUserMylist { get; set; }
+        public DataTemplate OtherOwneredMylist { get; set; }
+
+
+        protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
+        {
+            if (item is ViewModels.MylistItemsWithTitle)
+            {
+                var origin = (item as ViewModels.MylistItemsWithTitle).Origin;
+                switch (origin)
+                {
+                    case Models.PlaylistOrigin.LoginUser:
+                        return LoginUserMylist;
+                    case Models.PlaylistOrigin.OtherUser:
+                        return OtherOwneredMylist;
+                    case Models.PlaylistOrigin.Local:
+                        return LocalMylist;
+                    default:
+                        break;
+                }
+            }
+
+            return base.SelectTemplateCore(item, container);
+        }
+    }
 }
