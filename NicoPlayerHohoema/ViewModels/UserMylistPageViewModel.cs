@@ -24,20 +24,56 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class UserMylistPageViewModel : HohoemaViewModelBase
 	{
-		public UserMylistPageViewModel(HohoemaApp app, PageManager pageMaanger)
+        public UserMylistManager UserMylistManager { get; private set; }
+        public OtherOwneredMylistManager OtherOwneredMylistManager { get; }
+
+
+        public string UserId { get; private set; }
+
+        private string _UserName;
+        public string UserName
+        {
+            get { return _UserName; }
+            set { SetProperty(ref _UserName, value); }
+        }
+
+
+        public ObservableCollection<MylistItemsWithTitle> MylistList { get; }
+        public ReactiveProperty<bool> IsLoginUserMylist { get; private set; }
+
+
+        public ObservableCollection<MylistGroupListItem> SelectedMylistGroupItems { get; private set; }
+        public ReactiveProperty<bool> IsSelectionModeEnable { get; private set; }
+        public ReactiveProperty<bool> CanEditSelectedMylistGroups { get; private set; }
+
+        public ReactiveCommand<IPlayableList> OpenMylistCommand { get; private set; }
+        public DelegateCommand AddMylistGroupCommand { get; private set; }
+        public ReactiveCommand RemoveMylistGroupCommand { get; private set; }
+        public ReactiveCommand EditMylistGroupCommand { get; private set; }
+
+        public DelegateCommand AddLocalMylistCommand { get; private set; }
+
+
+
+        public UserMylistPageViewModel(HohoemaApp app, PageManager pageMaanger)
 			: base(app, pageMaanger)
 		{
-			MylistGroupItems = new ObservableCollection<MylistGroupListItem>();
+            OtherOwneredMylistManager = app.OtherOwneredMylistManager;
+
+            MylistList = new ObservableCollection<MylistItemsWithTitle>();
+
 			IsSelectionModeEnable = new ReactiveProperty<bool>(false);
 			SelectedMylistGroupItems = new ObservableCollection<MylistGroupListItem>();
+            IsLoginUserMylist = new ReactiveProperty<bool>(false);
 
-			OpenMylistCommand = IsSelectionModeEnable.Select(x => !x)
-				.ToReactiveCommand<MylistGroupListItem>();
+            OpenMylistCommand = IsSelectionModeEnable.Select(x => !x)
+				.ToReactiveCommand<IPlayableList>();
 
 			OpenMylistCommand.Subscribe(listItem => 
 			{
-				ClearSelection();
-				PageManager.OpenPage(HohoemaPageType.Mylist, listItem.GroupId);
+				PageManager.OpenPage(HohoemaPageType.Mylist, 
+                    new MylistPagePayload(listItem).ToParameterString()
+                    );
 			});
 
 			AddMylistGroupCommand = new DelegateCommand(async () => 
@@ -153,7 +189,15 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 
 			});
-		}
+
+
+            AddLocalMylistCommand = new DelegateCommand(() => 
+            {
+                var newLocalMylist = HohoemaApp.Playlist.CreatePlaylist(new Guid().ToString(), "新しいプレイリスト");
+                OpenMylistCommand.Execute(newLocalMylist);
+            });
+
+        }
 
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
@@ -163,20 +207,23 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-            List<MylistGroupData> mylists = null;
+            List<IPlayableList> mylists = null;
 
 			if (e.Parameter is string)
 			{
 				UserId = e.Parameter as string;				
 			}
 
-			MylistGroupItems.Clear();
+            MylistList.Clear();
 
-			if (UserId != null)
+            IsLoginUserMylist.Value = UserId == null || UserId == HohoemaApp.LoginUserId.ToString();
+
+
+            if (!IsLoginUserMylist.Value && UserId != null)
 			{
-				try
+                try
 				{
-					var userInfo = await HohoemaApp.ContentFinder.GetUserDetail(UserId);
+					var userInfo = await HohoemaApp.ContentFinder.GetUserInfo(UserId);
 					UserName = userInfo.Nickname;
 				}
 				catch (Exception ex)
@@ -184,31 +231,35 @@ namespace NicoPlayerHohoema.ViewModels
 					System.Diagnostics.Debug.WriteLine(ex.Message);
 				}
 
-				
-
 				try
 				{
-					mylists = await HohoemaApp.ContentFinder.GetUserMylistGroups(UserId);
-				}
+					var items = await OtherOwneredMylistManager.GetByUserId(UserId);
+                    mylists = items.Cast<IPlayableList>().ToList();
+                }
 				catch (Exception ex)
 				{
 					System.Diagnostics.Debug.WriteLine(ex.Message);
 				}
 
-				var mylistGroupVMItems = mylists.Select(x => new MylistGroupListItem(x, PageManager));
+                MylistList.Add(new MylistItemsWithTitle()
+                {
+                    Title = "マイリスト",
+                    Items = mylists.ToList()
+                });
 
-				foreach (var mylistGroupVM in mylistGroupVMItems)
-				{
-					MylistGroupItems.Add(mylistGroupVM);
-				}
+                OnPropertyChanged(nameof(MylistList));
 			}
-			else
+			else if (IsLoginUserMylist.Value)
 			{
 				// ログインユーザーのマイリスト一覧を表示
 				UserName = HohoemaApp.LoginUserName;
 
 				await UpdateUserMylist();
 			}
+            else
+            {
+                throw new Exception("UserMylistPage が不明なパラメータと共に開かれました : " + e.Parameter);
+            } 
 
 			
 			UpdateTitle($"{UserName} さんのマイリスト一覧");
@@ -219,23 +270,25 @@ namespace NicoPlayerHohoema.ViewModels
 
 		private async Task UpdateUserMylist()
 		{
-			MylistGroupItems.Clear();
-
 			if (!HohoemaApp.MylistManagerUpdater.IsOneOrMoreUpdateCompleted)
 			{
 				HohoemaApp.MylistManagerUpdater.ScheduleUpdate();
 				await HohoemaApp.MylistManagerUpdater.WaitUpdate();
 			}
 
-			var listItems = HohoemaApp.UserMylistManager.UserMylists
-				.Select(x => new MylistGroupListItem(x, PageManager));
+            var listItems = HohoemaApp.UserMylistManager.UserMylists;
 
-			foreach (var item in listItems)
-			{
-				MylistGroupItems.Add(item);
-			}
-
-		}
+            MylistList.Add(new MylistItemsWithTitle()
+            {
+                Title = "マイリスト",
+                Items = listItems.Cast<IPlayableList>().ToList()
+            });
+            MylistList.Add(new MylistItemsWithTitle()
+            {
+                Title = "ローカル",
+                Items = HohoemaApp.Playlist.Playlists.Cast<IPlayableList>().ToList()
+            });
+        }
 
 		
 
@@ -246,41 +299,24 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		public ReactiveCommand<MylistGroupListItem> OpenMylistCommand { get; private set; }
-
-		public DelegateCommand AddMylistGroupCommand { get; private set; }
-		public ReactiveCommand RemoveMylistGroupCommand { get; private set; }
-
-		public ReactiveCommand EditMylistGroupCommand { get; private set; }
-
-
-		public string UserId { get; private set; }
-
-		private string _UserName;
-		public string UserName
-		{
-			get { return _UserName; }
-			set { SetProperty(ref _UserName, value); }
-		}
-
-
-		public ReactiveProperty<bool> IsSelectionModeEnable { get; private set; }
-
-		public ObservableCollection<MylistGroupListItem> SelectedMylistGroupItems { get; private set; }
-
-		public ReactiveProperty<bool> CanEditSelectedMylistGroups { get; private set;}
-
-
-		public ObservableCollection<MylistGroupListItem> MylistGroupItems { get; private set; }
-
-		public UserMylistManager UserMylistManager { get; private set; }
 	}
 
 
 
 	public class MylistGroupListItem : HohoemaListingPageItemBase
 	{
-		public MylistGroupListItem(MylistGroupInfo info, PageManager pageManager)
+        public MylistGroupListItem(IPlayableList list, PageManager pageManager)
+        {
+            _PageManager = pageManager;
+
+            GroupId = list.Id;
+
+            Title = list.Name;
+            
+        }
+
+
+        public MylistGroupListItem(MylistGroupInfo info, PageManager pageManager)
 		{
 			_PageManager = pageManager;
 
@@ -316,7 +352,9 @@ namespace NicoPlayerHohoema.ViewModels
 				return _OpenMylistCommand
 					?? (_OpenMylistCommand = new DelegateCommand(() =>
 					{
-						_PageManager.OpenPage(HohoemaPageType.Mylist, GroupId);
+						_PageManager.OpenPage(HohoemaPageType.Mylist, 
+                            new MylistPagePayload(GroupId).ToParameterString()
+                            );
 					}
 					));
 			}
@@ -338,4 +376,16 @@ namespace NicoPlayerHohoema.ViewModels
 
 		PageManager _PageManager;
 	}
+
+    public class MylistItemsWithTitle : ListWithTitle<IPlayableList>
+    {
+
+    }
+
+
+    public class ListWithTitle<T>
+    {
+        public string Title { get; set; }
+        public List<T> Items { get; set; }
+    }
 }

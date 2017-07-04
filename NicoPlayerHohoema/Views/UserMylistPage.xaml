@@ -16,6 +16,7 @@
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
     xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
@@ -38,6 +39,7 @@
         </VisualStateManager.VisualStateGroups>
         
         
+        
         <toolkit:DockPanel x:Name="ContentLayout">
 
             <Border toolkit:DockPanel.Dock="Top" 
@@ -50,9 +52,23 @@
                                 Orientation="Horizontal"
                                 >
                         <Button Background="Transparent" 
-                            Command="{Binding AddMylistGroupCommand}"
+                            
                             >
+                            <Button.Flyout>
+                                <MenuFlyout>
+                                    <MenuFlyoutItem Text="マイリストを作成"
+                                                    Command="{Binding AddMylistGroupCommand}"
+                                                    />
+                                    <MenuFlyoutItem Text="ローカルマイリストを作成"
+                                                    Command="{Binding AddLocalMylistCommand}"
+                                                    />
+                                </MenuFlyout>
+                            </Button.Flyout>
+                            
+                            
                             <SymbolIcon Symbol="Add" />
+
+                            
                         </Button>
                     </StackPanel>
 
@@ -68,47 +84,43 @@
                 </toolkit:DockPanel>
             </Border>
 
+            <Pivot ItemsSource="{Binding MylistList}"
+                   
+                   >
+                <Pivot.HeaderTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Title}" />
+                    </DataTemplate>
+                </Pivot.HeaderTemplate>
 
-            <ScrollViewer>
+                <Pivot.ItemTemplate>
+                    <DataTemplate>
+                        <ScrollViewer>
 
-                <ItemsControl ItemsSource="{Binding MylistGroupItems}"
-                          Margin="0 0 0 0"
-                              HorizontalContentAlignment="Stretch"
-                              IsTabStop="False"
-                  >
+                            <ListView ItemsSource="{Binding Items}"
+                                        Margin="0 0 0 0"
+                                        HorizontalContentAlignment="Stretch"
+                                        IsTabStop="False"
+                                      uwpui:ListViewBaseExtensions.Command="{Binding ElementName=ContentLayout, Path=DataContext.OpenMylistCommand}"
+                                      IsItemClickEnabled="True"
+                                      SelectionMode="None"
+                                        >
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name}"
+                                                   FontSize="16"
+                                                   />
+                                    </DataTemplate>
 
-                    <ItemsControl.ItemContainerStyle>
-                        <Style TargetType="ContentPresenter">
-                            <Setter Property="HorizontalContentAlignment"
-                                    Value="Stretch" 
-                                        />
-                            <Setter Property="Margin"
-                                    Value="0 0 16 16" 
-                                    />
+                                </ItemsControl.ItemTemplate>
+                            </ListView>
 
-                        </Style>
-                    </ItemsControl.ItemContainerStyle>
+                        </ScrollViewer>
+                    </DataTemplate>
+                </Pivot.ItemTemplate>
+            </Pivot>
 
-
-                    <ItemsControl.ItemTemplate>
-
-                        <DataTemplate>
-
-                            <Button Background="Transparent" 
-                                    Command="{Binding PrimaryCommand}"
-                                    HorizontalAlignment="Stretch"
-                                    HorizontalContentAlignment="Left"
-                                    >
-                                
-                                <mycontrols:HohoemaListItem />
-
-                            </Button>
-                        </DataTemplate>
-
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-                
-            </ScrollViewer>
+            
            
         </toolkit:DockPanel>
     </Grid>

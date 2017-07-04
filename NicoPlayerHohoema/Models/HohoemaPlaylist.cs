@@ -857,7 +857,8 @@ namespace NicoPlayerHohoema.Models
 
     public enum PlaylistOrigin
     {
-        Niconico,
+        LoginUser,
+        OtherUser,
         Local,
     }
 

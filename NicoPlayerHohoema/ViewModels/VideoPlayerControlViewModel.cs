@@ -1757,7 +1757,9 @@ namespace NicoPlayerHohoema.ViewModels
                         HohoemaApp.Playlist.IsPlayerFloatingModeEnable = true;
 
                         // TODO: MylistPageでLocalMylistのアイテムを扱えるようにする
-                        PageManager.OpenPage(HohoemaPageType.Mylist, HohoemaApp.Playlist.CurrentPlaylist?.Id);
+                        PageManager.OpenPage(HohoemaPageType.Mylist,
+                            new MylistPagePayload(HohoemaApp.Playlist.CurrentPlaylist).ToParameterString()
+                            );
                     }
                     ));
             }

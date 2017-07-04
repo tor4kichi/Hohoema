@@ -548,7 +548,8 @@ namespace NicoPlayerHohoema
 			Container.RegisterInstance(new PageManager(NavigationService, hohoemaApp.UserSettings.AppearanceSettings, hohoemaApp.Playlist));
 			Container.RegisterInstance(hohoemaApp.ContentFinder);
             Container.RegisterInstance(hohoemaApp.Playlist);
-            
+            Container.RegisterInstance(hohoemaApp.OtherOwneredMylistManager);
+
             // 非同期更新機能の同時実行タスク数を指定
             var deviceFamily = Windows.System.Profile.AnalyticsInfo.VersionInfo.DeviceFamily;
 			BackgroundUpdater.MaxTaskSlotCount = deviceFamily.EndsWith("Mobile") ? 1u : 2u;

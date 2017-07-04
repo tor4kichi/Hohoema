@@ -79,8 +79,7 @@ namespace NicoPlayerHohoema.Models
 			{
 				var mylistId = uri.AbsolutePath.Split('/').Last();
 				System.Diagnostics.Debug.WriteLine($"open Mylist: {mylistId}");
-				OpenPage(HohoemaPageType.Mylist, mylistId);
-
+				OpenPage(HohoemaPageType.Mylist, new MylistPagePayload(mylistId));
 				return;
 			}
 

@@ -14,10 +14,44 @@
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
+    xmlns:mytrigger="using:NicoPlayerHohoema.Views.StateTrigger"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
     <Grid>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <mytrigger:EqualConditionStateTrigger Condition="LoginUser" Value="{Binding MylistOrigin.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="EditMylistButton.Visibility" Value="Visible" />
+                        <Setter Target="DeleteMylistButton.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <mytrigger:EqualConditionStateTrigger Condition="OtherUser" Value="{Binding MylistOrigin.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="FeedRegstrationButton.Visibility" Value="Visible" />
+                        <Setter Target="ToggleMylistFavoriteButton.Visibility" Value="Visible" />
+
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <mytrigger:EqualConditionStateTrigger Condition="Local" Value="{Binding MylistOrigin.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="EditMylistButton.Visibility" Value="Visible" />
+                        <Setter Target="DeleteMylistButton.Visibility" Value="Visible" />
+
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
         <toolkit:DockPanel >
 
 
@@ -37,37 +71,43 @@
                                     >
                             <Button Background="Transparent"
                                     Command="{Binding AddFeedSourceCommand}"
+                                    x:Name="FeedRegstrationButton"
+                                    Visibility="Collapsed"
                                     >
                                 <TextBlock Text="フィード登録" />
                             </Button>
 
                             <Button Command="{Binding OpenUserPageCommand}"
                                 Background="Transparent"
+                                    x:Name="OpenUserPageButton"
                                      >
                                 <SymbolIcon Symbol="People" />
                             </Button>
 
                             <Button Command="{Binding EditMylistGroupCommand}"
-                                Visibility="{Binding IsUserOwnerdMylist, Converter={StaticResource BooleanToVisibility}}"
                                 Background="Transparent"
+                                    x:Name="EditMylistButton"
+                                    Visibility="Collapsed"
                                     >
                                 <StackPanel Orientation="Horizontal">
                                     <SymbolIcon Symbol="Edit" />
                                 </StackPanel>
                             </Button>
                             <ToggleButton IsChecked="{Binding IsFavoriteMylist.Value, Mode=TwoWay}"
-                                      IsEnabled="{Binding CanChangeFavoriteMylistState.Value}"
-                                      Visibility="{Binding IsUserOwnerdMylist, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                      Background="Transparent"
+                                        IsEnabled="{Binding CanChangeFavoriteMylistState.Value}"
+                                        Visibility="Collapsed"
+                                          Background="Transparent"
+                                          x:Name="ToggleMylistFavoriteButton"
                                     >
                                 <StackPanel Orientation="Horizontal">
                                     <SymbolIcon Symbol="Favorite" />
                                 </StackPanel>
                             </ToggleButton>
 
-                            <Button Visibility="{Binding CanEditMylist, Converter={StaticResource BooleanToVisibility}}"
+                            <Button Visibility="Collapsed"
                                 Background="Transparent"
                                 Height="32"
+                                    x:Name="DeleteMylistButton"
                                       >
                                 <StackPanel Orientation="Horizontal">
                                     <SymbolIcon Symbol="Delete" />
@@ -210,7 +250,7 @@
                     </StackPanel>
 
                     <StackPanel Background="Transparent" IsHitTestVisible="True"
-                                Margin="16 0 0 0"
+                                Margin="16 8 0 0"
                                 >
 
                         <i:Interaction.Behaviors>
@@ -233,18 +273,12 @@
                                            Margin="0 4"
                                            >
 
-                            <TextBlock Text="非公開マイリスト"
-                               Margin="16 0"
-                               VerticalAlignment="Center"
-                               Visibility="{Binding IsPublic, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                       FontSize="13"
-                               />
-                            <TextBlock Text="公開マイリスト"
-                               Margin="16 0"
-                               VerticalAlignment="Center"
-                               Visibility="{Binding IsPublic, Converter={StaticResource BooleanToVisibility}}"
-                                       FontSize="13"
-                               />
+                            <TextBlock FontSize="14">
+                                <Run Text="{Binding UserName}" />
+                                <Run Text="の" />
+                                <Run Text="{Binding MylistState}" />
+                            </TextBlock>
+                            
                             <!--
                             <Grid x:Name="SearchButtonBorder"
                                     BorderThickness="1"

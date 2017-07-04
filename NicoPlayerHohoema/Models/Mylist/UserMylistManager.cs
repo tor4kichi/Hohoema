@@ -269,7 +269,7 @@ namespace NicoPlayerHohoema.Models
 		public UserMylistManager MylistManager { get; private set; }
 
 
-        public PlaylistOrigin Origin => PlaylistOrigin.Niconico;
+        public PlaylistOrigin Origin => PlaylistOrigin.LoginUser;
         public string Id => GroupId;
         public int SortIndex => 0;
 

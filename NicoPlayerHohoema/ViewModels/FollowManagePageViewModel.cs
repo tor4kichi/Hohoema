@@ -154,7 +154,9 @@ namespace NicoPlayerHohoema.ViewModels
                                 _PageManager.Search(param);
 								break;
 							case FollowItemType.Mylist:
-								_PageManager.OpenPage(HohoemaPageType.Mylist, this.SourceId);
+								_PageManager.OpenPage(HohoemaPageType.Mylist,
+                                    new MylistPagePayload(this.SourceId) { Origin = PlaylistOrigin.OtherUser }.ToParameterString()
+                                    );
 								break;
 							case FollowItemType.User:								
 								_PageManager.OpenPage(HohoemaPageType.UserInfo, this.SourceId);

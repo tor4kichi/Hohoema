@@ -76,7 +76,8 @@ namespace NicoPlayerHohoema.Models
 			UserSettings = new HohoemaUserSettings();
 			ContentFinder = new NiconicoContentFinder(this);
 			UserMylistManager = new UserMylistManager(this);
-			FeedManager = new FeedManager(this);
+            OtherOwneredMylistManager = new OtherOwneredMylistManager(ContentFinder);
+            FeedManager = new FeedManager(this);
 
             FollowManager = null;
 
@@ -1300,7 +1301,7 @@ namespace NicoPlayerHohoema.Models
         public HohoemaPlaylist Playlist { get; private set; }
 
         public UserMylistManager UserMylistManager { get; private set; }
-
+        public OtherOwneredMylistManager OtherOwneredMylistManager { get; }
 
 
 		public const string HohoemaUserAgent = "Hohoema_UWP";
