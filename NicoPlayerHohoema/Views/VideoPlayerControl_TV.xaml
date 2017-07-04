@@ -955,7 +955,7 @@
                                                 <MenuFlyoutSeparator />
                                                 <MenuFlyoutItem Text="動画情報" Command="{Binding OpenVideoInfoCommand}" />
                                                 <MenuFlyoutSeparator />
-                                                <MenuFlyoutItem Text="マイリスト登録" Command="{Binding AddMylistCommand}" />
+                                                <MenuFlyoutItem Text="マイリストに追加" Command="{Binding AddMylistCommand}" />
                                                 <MenuFlyoutSeparator />
                                                 <MenuFlyoutItem Text="プレイヤー設定" Command="{Binding OpenPlayerSettingCommand}" />
  

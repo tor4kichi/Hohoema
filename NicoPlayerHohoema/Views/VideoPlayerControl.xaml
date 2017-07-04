@@ -1019,7 +1019,7 @@
                                                 <MenuFlyoutSeparator />
                                                 <MenuFlyoutItem Text="動画情報" Command="{Binding OpenVideoInfoCommand}" />
                                                 <MenuFlyoutSeparator />
-                                                <MenuFlyoutItem Text="マイリスト登録" Command="{Binding AddMylistCommand}" />
+                                                <MenuFlyoutItem Text="マイリストに追加" Command="{Binding AddMylistCommand}" />
                                                 <MenuFlyoutSubItem Text="共有" x:Name="MenuSubItem_Share" >
                                                     <MenuFlyoutItem Text="Twitterで共有" Command="{Binding ShereWithTwitterCommand}" />
                                                     <MenuFlyoutItem Text="クリップボードにコピー" Command="{Binding ShareWithClipboardCommand}" />

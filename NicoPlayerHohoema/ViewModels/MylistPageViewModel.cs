@@ -381,7 +381,7 @@ namespace NicoPlayerHohoema.ViewModels
 					int successCount = 0;
 					int failedCount = 0;
 
-					Debug.WriteLine($"マイリスト登録解除を開始...");
+					Debug.WriteLine($"マイリストに追加解除を開始...");
 					foreach (var video in items)
 					{
 						var unregistrationResult = await mylistGroup.Unregistration(
@@ -428,10 +428,10 @@ namespace NicoPlayerHohoema.ViewModels
 						}
 					}
 
-					Debug.WriteLine($"マイリスト登録解除完了---------------");
+					Debug.WriteLine($"マイリストに追加解除完了---------------");
 				});
 
-				await PageManager.StartNoUIWork("マイリスト登録解除", items.Length, () => action);
+				await PageManager.StartNoUIWork("マイリストに追加解除", items.Length, () => action);
 
 				
 			});

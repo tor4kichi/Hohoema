@@ -56,29 +56,7 @@
                         <AppBarButton Icon="Download" Command="{Binding CacheRequestCommand}">
 
                         </AppBarButton>
-                        <AppBarButton Icon="List" Label="プレイリストに追加">
-                            <AppBarButton.Flyout>
-                                <Flyout x:Name="AddPlaylistFlyout">
-                                    <ItemsControl ItemsSource="{Binding Playlists}" x:Name="PlaylistFlyoutContext">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Button Content="{Binding Name}"
-                                                        Command="{Binding ElementName=AddPlaylistCommand, Path=PlaylistFlyoutContext}"
-                                                        CommandParameter="{Binding Id}"
-                                                        Background="Transparent"
-                                                        >
-                                                    <i:Interaction.Behaviors>
-                                                        <core:EventTriggerBehavior EventName="Tapped">
-                                                            <core:CallMethodAction TargetObject="{Binding ElementName=AddPlaylistFlyout}" MethodName="Hide" />
-                                                        </core:EventTriggerBehavior>
-                                                    </i:Interaction.Behaviors>
-                                                </Button>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </Flyout>
-                            </AppBarButton.Flyout>
-                        </AppBarButton>
+                        
                         <AppBarButton Icon="Add" Label="マイリストに追加"
                                       Command="{Binding AddMylistCommand}"
                                       >
