@@ -15,6 +15,8 @@
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:mytrigger="using:NicoPlayerHohoema.Views.StateTrigger"
+    xmlns:hardtrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
+    xmlns:hohoemalistItem="using:NicoPlayerHohoema.Views.HohoemaListItem"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
@@ -51,14 +53,37 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
+
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardtrigger:DeviceFamilyTrigger Condition="Xbox" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!-- マージン設定 -->
+                        <Setter Target="HeaderLayout.Margin" Value="0 27 48 0" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!-- リスト表示を横向きに -->
+                        <Setter Target="VerticalVideoList.Visibility" Value="Collapsed" />
+                        <Setter Target="HorizontalVideoList.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
         <toolkit:DockPanel >
 
 
             <Border toolkit:DockPanel.Dock="Top" 
-                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
-                    BorderThickness="0 0 0 1"
-                        Height="64"
+                    x:Name="HeaderLayout"
                     >
                 <toolkit:DockPanel >
 
@@ -257,18 +282,52 @@
             </Border>
 
 
-            <controls:HohoemaIncrementalLoadingList
-                ItemFlyout="{StaticResource VideoListItemFlyout}"
-                >
-                <controls:HohoemaIncrementalLoadingList.ItemTemplate>
-                    <DataTemplate >
-                        
+            <Grid>
+                <controls:HohoemaIncrementalLoadingList
+                    ItemFlyout="{StaticResource VideoListItemFlyout}"
+                    x:Name="VerticalVideoList"
+                    >
+                    <controls:HohoemaIncrementalLoadingList.ItemTemplate>
+                        <DataTemplate >
                             <local:VideoInfoControl />
+                        </DataTemplate>
+                    </controls:HohoemaIncrementalLoadingList.ItemTemplate>
+                </controls:HohoemaIncrementalLoadingList>
 
-                        
-                    </DataTemplate>
-                </controls:HohoemaIncrementalLoadingList.ItemTemplate>
-            </controls:HohoemaIncrementalLoadingList>
+                <controls:IncrementalLoadingList x:Name="HorizontalVideoList"
+                                                 Visibility="Collapsed"
+                                                 
+                                        ItemsSource="{Binding IncrementalLoadingItems}"
+                                        SelectedItems="{Binding SelectedItems, Mode=TwoWay}"
+                                        ItemCommand="{Binding SelectItemCommand}"
+                                        IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
+                                        Margin="0 0 0 0"
+                                        Padding="0 0 0 24"
+                                        ItemContextFlyout="{StaticResource VideoListItemFlyout}"
+                                        IsTabStop="False"
+                    
+                    >
+                    <controls:IncrementalLoadingList.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="0 0 0 0"
+                                  Height="150"
+                                  >
+                                <hohoemalistItem:HohoemaListItemMiniCard />
+
+                            </Grid>
+                        </DataTemplate>
+                    </controls:IncrementalLoadingList.ItemTemplate>
+
+                    <controls:IncrementalLoadingList.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <ItemsWrapGrid Orientation="Vertical"
+                                           MaxHeight="340"
+                                           Margin="0 0 48 0"
+                                           />
+                        </ItemsPanelTemplate>
+                    </controls:IncrementalLoadingList.ItemsPanel>
+                </controls:IncrementalLoadingList>
+            </Grid>
             
 
 

@@ -440,9 +440,6 @@
     <Compile Include="Views\MylistPage.xaml.cs">
       <DependentUpon>MylistPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\MylistPage_TV.xaml.cs">
-      <DependentUpon>MylistPage_TV.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\PlayerWithPageContainer.xaml.cs">
       <DependentUpon>PlayerWithPageContainer.xaml</DependentUpon>
     </Compile>
@@ -921,10 +918,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\MylistPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\MylistPage_TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
