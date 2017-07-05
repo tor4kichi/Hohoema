@@ -1506,8 +1506,22 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
+        private DelegateCommand _ToggleDisplayCommentCommand;
+        public DelegateCommand ToggleDisplayCommentCommand
+        {
+            get
+            {
+                return _ToggleDisplayCommentCommand
+                    ?? (_ToggleDisplayCommentCommand = new DelegateCommand(() =>
+                    {
+                        IsVisibleComment.Value = !IsVisibleComment.Value;
+                    }));
+            }
+        }
 
-		private DelegateCommand _ToggleRepeatCommand;
+
+
+        private DelegateCommand _ToggleRepeatCommand;
 		public DelegateCommand ToggleRepeatCommand
 		{
 			get

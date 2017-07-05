@@ -431,9 +431,6 @@
     <Compile Include="Views\LiveVideoPlayerControl.xaml.cs">
       <DependentUpon>LiveVideoPlayerControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\LiveVideoPlayerControl_TV.xaml.cs">
-      <DependentUpon>LiveVideoPlayerControl_TV.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\LoginPage.xaml.cs">
       <DependentUpon>LoginPage.xaml</DependentUpon>
     </Compile>
@@ -596,9 +593,6 @@
     <Compile Include="Views\VideoInfomationPage_TV.xaml.cs">
       <DependentUpon>VideoInfomationPage_TV.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\VideoPlayerControl.xaml.cs">
-      <DependentUpon>VideoPlayerControl.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\RankingCategoryListPage.xaml.cs">
       <DependentUpon>RankingCategoryListPage.xaml</DependentUpon>
     </Compile>
@@ -625,8 +619,8 @@
     <Compile Include="Views\Controls\VideoInfoControl.xaml.cs">
       <DependentUpon>VideoInfoControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\VideoPlayerControl_TV.xaml.cs">
-      <DependentUpon>VideoPlayerControl_TV.xaml</DependentUpon>
+    <Compile Include="Views\VideoPlayerControl.xaml.cs">
+      <DependentUpon>VideoPlayerControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\VisualTreeExtention.cs" />
   </ItemGroup>
@@ -905,10 +899,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\LiveVideoPlayerControl_TV.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\LoginPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1069,10 +1059,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\VideoPlayerControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\RankingCategoryListPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1105,7 +1091,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\VideoPlayerControl_TV.xaml">
+    <Page Include="Views\VideoPlayerControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
