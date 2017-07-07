@@ -21,6 +21,7 @@
     xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     xmlns:media="using:Microsoft.Xaml.Interactions.Media"
     xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Animations.Behaviors"
+    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     d:DesignHeight="300"
     d:DesignWidth="400">
@@ -173,7 +174,6 @@
                     <VisualState.Setters>
 
                         <Setter Target="RepeatModeToggleButtonIcon.Kind" Value="RepeatOnce" />
-                        <Setter Target="RepeatMenuButton.Text" Value="リピート：単体" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -182,7 +182,6 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="RepeatModeToggleButtonIcon.Kind" Value="Repeat" />
-                        <Setter Target="RepeatMenuButton.Text" Value="リピート：全体" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -191,7 +190,6 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="RepeatModeToggleButtonIcon.Kind" Value="RepeatOff" />
-                        <Setter Target="RepeatMenuButton.Text" Value="リピート：オフ" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -524,17 +522,14 @@
 
 
 
-                                    <Button Background="Transparent" >
+                                    <Button Background="Transparent" 
+                                            Command="{x:Bind TogglePlaylistPaneCommand}"
+                                            >
+                                        <iconPack:PackIconMaterial Kind="PlaylistCheck" >
 
-                                        <StackPanel Orientation="Horizontal">
+                                        </iconPack:PackIconMaterial>
 
-                                            <TextBlock Text="{Binding CurrentPlaylistName.Value}"
-                                               Style="{StaticResource SubtitleTextBlockStyle}"
-                                               Margin="0 0 8 0"
-                                               />
-
-                                        </StackPanel>
-
+                                        <!--
                                         <Button.Flyout>
 
                                             <MenuFlyout>
@@ -569,47 +564,15 @@
 
                                             </MenuFlyout>
                                         </Button.Flyout>
+                                        -->
 
                                     </Button>
 
 
 
-
-                                    <Button Background="Transparent"          
-                                        Command="{Binding ToggleShuffleCommand}"
-                                        UseSystemFocusVisuals="True"
-                                            >
-
-                                        <iconPack:PackIconMaterial x:Name="ToggleShuffleButtonIcon"
-                                                                   RenderTransformOrigin="0.5, 0.5"
-                                                           >
-                                            <iconPack:PackIconMaterial.RenderTransform>
-                                                <CompositeTransform ScaleX="1.1" ScaleY="1.1"/>
-                                            </iconPack:PackIconMaterial.RenderTransform>
-
-                                        </iconPack:PackIconMaterial>
-                                    </Button>
-
-
-                                    <!-- リピートは「オフ」「単品リピート」「全体リピート」の３モードに対応したい -->
-                                    <!-- IsChecked == null   => off -->
-                                    <!-- IsChecked == false  => single track repeat enable -->
-                                    <!-- IsChecked == true   => playlist repeat enable -->
-                                    <!-- see@ https://msdn.microsoft.com/ja-jp/library/windows/apps/windows.ui.xaml.controls.primitives.togglebutton.isthreestate -->
-                                    <Button Command="{Binding ToggleRepeatModeCommand}"
-                                        Background="Transparent"
-                                        UseSystemFocusVisuals="True"
-                                            >
-                                        <iconPack:PackIconMaterial x:Name="RepeatModeToggleButtonIcon"
-                                                Kind="Repeat" 
-                                                           RenderTransformOrigin="0.5, 0.5"
-                                                           >
-                                            <iconPack:PackIconMaterial.RenderTransform>
-                                                <CompositeTransform ScaleX="1.1" ScaleY="1.1"/>
-                                            </iconPack:PackIconMaterial.RenderTransform>
-                                        </iconPack:PackIconMaterial>
-                                    </Button>
-
+                                    <!--
+                                    
+                                    -->
 
 
 
@@ -1139,16 +1102,150 @@
                     </StackPanel>
 
 
-                    <Border IsHitTestVisible="True" Background="Transparent">
-                        <i:Interaction.Behaviors>
-                            <core:EventTriggerBehavior EventName="Tapped">
-                                <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="False" />
-                            </core:EventTriggerBehavior>
-                        </i:Interaction.Behaviors>
+                    <Grid>
+                        <Border IsHitTestVisible="True" Background="Transparent">
+                            <i:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="False" />
+                                </core:EventTriggerBehavior>
+                            </i:Interaction.Behaviors>
 
-                    </Border>
+                        </Border>
+                        
+                        
+                    </Grid>
+                    
+
 
                 </toolkit:DockPanel>
+
+                <SplitView PanePlacement="Right"
+                           x:Name="PlaylistSplitView"
+                               >
+
+                    <SplitView.Pane>
+                        <toolkit:DockPanel>
+                            <StackPanel toolkit:DockPanel.Dock="Top">
+                                
+                                <toolkit:DockPanel>
+
+                                    <StackPanel Orientation="Horizontal"
+                                                toolkit:DockPanel.Dock="Right"
+                                                >
+                                        <Button Background="Transparent"          
+                                                Command="{Binding ToggleShuffleCommand}"
+                                                UseSystemFocusVisuals="True"
+                                            >
+
+                                            <iconPack:PackIconMaterial x:Name="ToggleShuffleButtonIcon"
+                                                                   RenderTransformOrigin="0.5, 0.5"
+                                                           >
+                                                <iconPack:PackIconMaterial.RenderTransform>
+                                                    <CompositeTransform ScaleX="1.1" ScaleY="1.1"/>
+                                                </iconPack:PackIconMaterial.RenderTransform>
+
+                                            </iconPack:PackIconMaterial>
+                                        </Button>
+
+
+                                        <Button Command="{Binding ToggleRepeatModeCommand}"
+                                                Background="Transparent"
+                                                UseSystemFocusVisuals="True"
+                                            >
+                                            <iconPack:PackIconMaterial x:Name="RepeatModeToggleButtonIcon"
+                                                            Kind="Repeat" 
+                                                           RenderTransformOrigin="0.5, 0.5"
+                                                           >
+                                                <iconPack:PackIconMaterial.RenderTransform>
+                                                    <CompositeTransform ScaleX="1.1" ScaleY="1.1"/>
+                                                </iconPack:PackIconMaterial.RenderTransform>
+                                            </iconPack:PackIconMaterial>
+                                        </Button>
+                                    </StackPanel>
+
+                                    <Button HorizontalAlignment="Stretch"
+                                            Command="{Binding OpenCurrentPlaylistPageCommand}"
+                                            Background="Transparent"
+                                            >
+                                        <TextBlock Text="{Binding CurrentPlaylistName.Value}" 
+                                           Style="{StaticResource SubtitleTextBlockStyle}"
+                                           Margin="16"
+                                           />
+
+                                    </Button>
+
+                                </toolkit:DockPanel>
+
+                                <toolkit:DockPanel>
+
+                                    <TextBlock Text="{Binding VideoTitle}"
+                                               toolkit:DockPanel.Dock="Bottom"
+                                               HorizontalAlignment="Center"
+                                               Margin="8 8"
+                                               FontWeight="SemiBold"
+                                               TextWrapping="Wrap"
+                                               />
+                                    
+                                    <!-- プレイリストの次送り -->
+                                    <Border toolkit:DockPanel.Dock="Left">
+                                        <Button Width="32"
+                                            VerticalAlignment="Stretch"
+                                            Command="{Binding OpenPreviousPlaylistItemCommand}"
+                                            IsEnabled="{Binding PlaylistCanGoBack.Value}"
+                                            >
+                                            <iconPack:PackIconMaterial Kind="ArrowLeft" />
+                                        </Button>
+                                    </Border>
+
+                                    <Border toolkit:DockPanel.Dock="Right">
+                                        <Button Width="32"
+                                                VerticalAlignment="Stretch"
+                                                Command="{Binding OpenNextPlaylistItemCommand}"
+                                                IsEnabled="{Binding PlaylistCanGoNext.Value}"
+                                                >
+                                            <iconPack:PackIconMaterial Kind="ArrowRight" />
+                                        </Button>
+                                    </Border>
+
+
+                                    <Image Source="{Binding ThumbnailUri.Value}"
+                                           Height="140"
+                                           />
+
+
+                                </toolkit:DockPanel>
+                                
+                            </StackPanel>
+
+                            <ListView ItemsSource="{Binding PlaylistItems}"
+                                        SelectionMode="Single"
+                                        SingleSelectionFollowsFocus="False"
+                                      uwpui:ListViewBaseExtensions.Command="{Binding OpenPlaylistItemCommand}"
+                                      IsItemClickEnabled="True"
+                                          >
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Title}"
+                                                       TextWrapping="Wrap"
+                                                       />
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </toolkit:DockPanel>
+                    </SplitView.Pane>
+
+                    <SplitView.Content>
+                        <Grid>
+
+
+
+                            
+
+                        </Grid>
+
+                    </SplitView.Content>
+                </SplitView>
+
 
                 <!-- サポートされていないプロトコル・動画形式 -->
                 <Border HorizontalAlignment="Left"

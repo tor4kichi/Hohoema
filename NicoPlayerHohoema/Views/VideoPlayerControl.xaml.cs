@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Prism.Commands;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -19,6 +20,20 @@ namespace NicoPlayerHohoema.Views
 {
     public sealed partial class VideoPlayerControl : UserControl
     {
+        private DelegateCommand _TogglePlaylistPaneCommand;
+        public DelegateCommand TogglePlaylistPaneCommand
+        {
+            get
+            {
+                return _TogglePlaylistPaneCommand
+                    ?? (_TogglePlaylistPaneCommand = new DelegateCommand(() => 
+                    {
+                        PlaylistSplitView.IsPaneOpen = !PlaylistSplitView.IsPaneOpen;
+                    }));
+            }
+        }
+
+
         public VideoPlayerControl()
         {
             this.InitializeComponent();

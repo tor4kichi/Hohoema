@@ -89,6 +89,8 @@ namespace NicoPlayerHohoema.ViewModels
 
             MediaPlayer = HohoemaApp.MediaPlayer;
 
+            ThumbnailUri = new ReactiveProperty<string>();
+
             CurrentVideoPosition = new ReactiveProperty<TimeSpan>(PlayerWindowUIDispatcherScheduler, TimeSpan.Zero)
 				.AddTo(_CompositeDisposable);
 			ReadVideoPosition = new ReactiveProperty<TimeSpan>(PlayerWindowUIDispatcherScheduler, TimeSpan.Zero);
@@ -1124,8 +1126,11 @@ namespace NicoPlayerHohoema.ViewModels
                 throw new Exception();
             }
 
+            ThumbnailUri.Value = Video.ThumbnailUrl;
             CurrentPlaylist = HohoemaApp.Playlist.CurrentPlaylist;
             CurrentPlaylistName.Value = CurrentPlaylist.Name;
+            PlaylistItems = CurrentPlaylist.PlaylistItems.ToReadOnlyReactiveCollection();
+            OnPropertyChanged(nameof(PlaylistItems));
 
             HohoemaApp.MediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
             HohoemaApp.MediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
@@ -1760,6 +1765,20 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+        private DelegateCommand<PlaylistItem> _OpenPlaylistItemCommand;
+        public DelegateCommand<PlaylistItem> OpenPlaylistItemCommand
+        {
+            get
+            {
+                return _OpenPlaylistItemCommand
+                    ?? (_OpenPlaylistItemCommand = new DelegateCommand<PlaylistItem>((item) =>
+                    {
+                        HohoemaApp.Playlist.Play(item);
+                    }
+                    ));
+            }
+        }
+
         private DelegateCommand _OpenCurrentPlaylistPageCommand;
         public DelegateCommand OpenCurrentPlaylistPageCommand
         {
@@ -1770,7 +1789,6 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         HohoemaApp.Playlist.IsPlayerFloatingModeEnable = true;
 
-                        // TODO: MylistPageでLocalMylistのアイテムを扱えるようにする
                         PageManager.OpenPage(HohoemaPageType.Mylist,
                             new MylistPagePayload(HohoemaApp.Playlist.CurrentPlaylist).ToParameterString()
                             );
@@ -1901,9 +1919,11 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _CanDownload, value); }
 		}
 
+        public ReactiveProperty<string> ThumbnailUri { get; private set; }
 
-		// Note: 新しいReactivePropertyを追加したときの注意点
-		// ReactivePorpertyの初期化にPlayerWindowUIDispatcherSchedulerを使うこと
+
+        // Note: 新しいReactivePropertyを追加したときの注意点
+        // ReactivePorpertyの初期化にPlayerWindowUIDispatcherSchedulerを使うこと
 
 
         public MediaPlayer MediaPlayer { get; private set; }
@@ -2002,7 +2022,7 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<bool> IsListRepeatModeEnable { get; private set; }
         public ReactiveProperty<bool> PlaylistCanGoBack { get; private set; }
         public ReactiveProperty<bool> PlaylistCanGoNext { get; private set; }
-
+        public ReadOnlyReactiveCollection<PlaylistItem> PlaylistItems { get; private set; }
 
 
 
