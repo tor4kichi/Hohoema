@@ -277,7 +277,7 @@ namespace NicoPlayerHohoema.Models
 
             Player.Playlist = playlist;
             CurrentPlaylist = playlist;
-           
+
             OpenPlaylistItem?.Invoke(CurrentPlaylist, item);
 
             // あとで見るプレイリストの場合、再生開始時に
@@ -547,6 +547,7 @@ namespace NicoPlayerHohoema.Models
             if (item != null)
             {
                 HohoemaPlaylist.Play(item);
+                (_InternalPlayer as PlaylistPlayerBase)?.PlayStarted(item);
             }
         }
 
@@ -556,6 +557,7 @@ namespace NicoPlayerHohoema.Models
             if (item != null)
             {
                 HohoemaPlaylist.Play(item);
+                (_InternalPlayer as PlaylistPlayerBase)?.PlayStarted(item);
             }
         }
     }
