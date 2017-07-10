@@ -26,6 +26,48 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
+    <UserControl.Resources>
+        <MenuFlyout x:Key="VideoOptionsFlyout">
+            <MenuFlyoutSubItem Text="画質"
+                                                               Visibility="{Binding CanToggleCurrentQualityCacheState.Value, Converter={StaticResource BooleanToVisibility}}"
+                                                               >
+
+                <MenuFlyoutItem Text="低画質に変更" 
+                                                                      Command="{Binding TogglePlayQualityCommand}"
+                                                                      x:Name="ChangeToLowQualityButton"
+                                                                      Visibility="Collapsed"
+                                                                      />
+
+                <MenuFlyoutItem Text="オリジナル画質" 
+                                                                Command="{Binding TogglePlayQualityCommand}"
+                                                                x:Name="ChangeToOrigialQualityButton"
+                                                                Visibility="Collapsed"
+                                                                />
+            </MenuFlyoutSubItem>
+            <ToggleMenuFlyoutItem Text="キャッシュ" 
+                                                                  IsChecked="{Binding IsSaveRequestedCurrentQualityCache.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                  IsEnabled="{Binding CanToggleCurrentQualityCacheState.Value}"
+                                                              />
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem Text="動画情報" Command="{Binding OpenVideoInfoCommand}" />
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem Text="マイリストに追加" Command="{Binding AddMylistCommand}" />
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem Text="プレイヤー設定" Command="{Binding OpenPlayerSettingCommand}" />
+
+            <MenuFlyoutItem Text="小さく表示" Command="{Binding PlayerSmallWindowDisplayCommand}" >
+                <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Tapped">
+                        <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="False" />
+                    </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
+            </MenuFlyoutItem>
+
+
+
+
+        </MenuFlyout>
+    </UserControl.Resources>
     <Grid x:Name="LayoutRoot" Background="{StaticResource AppBarBorderThemeBrush}">
 
         <VisualStateManager.VisualStateGroups>
@@ -77,21 +119,44 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
-            
+
+
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <myTrigger:EqualConditionStateTrigger Condition="Visible" Value="{Binding ElementName=UIControlLayout, Path=Visibility}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!-- 読み取り再生位置スライダーの表示状態 -->
+                        <Setter Target="ReadOnlySeekBarSlider.Opacity" Value="0.0" />
+
+                        <!-- コントローラーによるナビゲーション -->
+                        <!--
+                        <Setter Target="HideTrigger_1.IsEnabled" Value="False" />
+                        <Setter Target="ShowTrigger_1.IsEnabled" Value="True" />
+                        <Setter Target="ShowTrigger_2.IsEnabled" Value="True" />
+                        -->
+
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+            <!-- フルスクリーン -->
             <VisualStateGroup >
                 <VisualState>
                     <VisualState.StateTriggers>
                         <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        
-                        <Setter Target="PlaylistContainer.Margin" Value="48 27 48 0" />
-
-                        <Setter Target="PlaybackControlContainer.Margin" Value="48 0" />
-                        <Setter Target="TitleLayout.Margin" Value="48 8" />
-                        <Setter Target="CommentLayout.Margin" Value="48 8 48 27" />
-                        <Setter Target="ControlPanel_Center.Margin" Value="48 8" />
-                        
+                        <Setter Target="FullscreenButton.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsFullScreen.Value, Mode=OneWay}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="FullscreenButtonIcon.Kind" Value="FullScreenExit" />
                     </VisualState.Setters>
                 </VisualState>
 
@@ -333,6 +398,7 @@
             <!-- Media Control -->
             <Grid x:Name="MediaControl" HorizontalAlignment="Stretch"
                                     VerticalAlignment="Stretch"
+                  ContextFlyout="{StaticResource VideoOptionsFlyout}"
                   >
 
                 <i:Interaction.Behaviors>
@@ -383,16 +449,19 @@
                                                         >
                         <core:InvokeCommandAction Command="{Binding TogglePlayPauseCommand}" />
                     </mybehavior:UINavigationTrigger>
-                    
+
+                    <mybehavior:UINavigationTrigger Kind="Context2" 
+                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource InvertBoolean}}"
+                                                        >
+                        <core:ChangePropertyAction TargetObject="{Binding ElementName=PlaylistSplitView}" PropertyName="IsPaneOpen" Value="True" />
+                    </mybehavior:UINavigationTrigger>
+
                     <!--
                     <core:EventTriggerBehavior EventName="PointerMoved">
                         <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="PreventAutoHide" />
                     </core:EventTriggerBehavior>
                     -->
                 </i:Interaction.Behaviors>
-
-
-
 
 
                 <MediaPlayerElement x:Name="MediaPlayerElement" Stretch="Uniform"
@@ -955,55 +1024,28 @@
 
                                     </Button>
 
-                                    <Border Width="12" />
+                                    <Button Command="{Binding ToggleFullScreenCommand}"
+                                        Background="Transparent"
+                                        Margin="0 0 0 4"
+                                            x:Name="FullscreenButton"  
+                                            
+                                          >
+                                        <iconPack:PackIconMaterial Kind="Fullscreen" 
+                                                x:Name="FullscreenButtonIcon"  
+                                                RenderTransformOrigin="0.5, 0.5"
+                                                >
+                                            <iconPack:PackIconMaterial.RenderTransform>
+                                                <CompositeTransform ScaleX="1.7" ScaleY="1.7"/>
+                                            </iconPack:PackIconMaterial.RenderTransform>
 
-                                    <Button Background="Transparent">
+                                        </iconPack:PackIconMaterial>
+                                    </Button>
+
+                                    <Button Background="Transparent"
+                                            x:Name="VideoOptionsMenuButton"
+                                            Flyout="{StaticResource VideoOptionsFlyout}"
+                                            >
                                         <SymbolIcon Symbol="More" />
-
-                                        <Button.Flyout>
-                                            <MenuFlyout x:Name="Menu">
-                                                <MenuFlyoutSubItem Text="画質"
-                                                               Visibility="{Binding CanToggleCurrentQualityCacheState.Value, Converter={StaticResource BooleanToVisibility}}"
-                                                               >
-
-                                                    <MenuFlyoutItem Text="低画質に変更" 
-                                                                      Command="{Binding TogglePlayQualityCommand}"
-                                                                      x:Name="ChangeToLowQualityButton"
-                                                                      Visibility="Collapsed"
-                                                                      />
-
-                                                    <MenuFlyoutItem Text="オリジナル画質" 
-                                                                Command="{Binding TogglePlayQualityCommand}"
-                                                                x:Name="ChangeToOrigialQualityButton"
-                                                                Visibility="Collapsed"
-                                                                />
-                                                </MenuFlyoutSubItem>
-                                                <ToggleMenuFlyoutItem Text="キャッシュ" 
-                                                                  IsChecked="{Binding IsSaveRequestedCurrentQualityCache.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                                  IsEnabled="{Binding CanToggleCurrentQualityCacheState.Value}"
-                                                              />
-                                                <MenuFlyoutSeparator />
-                                                <MenuFlyoutItem Text="動画情報" Command="{Binding OpenVideoInfoCommand}" />
-                                                <MenuFlyoutSeparator />
-                                                <MenuFlyoutItem Text="マイリストに追加" Command="{Binding AddMylistCommand}" />
-                                                <MenuFlyoutSeparator />
-                                                <MenuFlyoutItem Text="プレイヤー設定" Command="{Binding OpenPlayerSettingCommand}" />
- 
-                                                <MenuFlyoutItem Text="小さく表示" Command="{Binding PlayerSmallWindowDisplayCommand}" >
-                                                    <i:Interaction.Behaviors>
-                                                        <core:EventTriggerBehavior EventName="Tapped">
-                                                            <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="False" />
-                                                        </core:EventTriggerBehavior>
-                                                    </i:Interaction.Behaviors>
-                                                </MenuFlyoutItem>
-
-
-
-
-                                            </MenuFlyout>
-                                        </Button.Flyout>
-
-
 
                                     </Button>
                                 </toolkit:WrapPanel>
