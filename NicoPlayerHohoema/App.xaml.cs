@@ -233,7 +233,7 @@ namespace NicoPlayerHohoema
                     }
 
 
-                    pageManager.OpenPage(HohoemaPageType.RankingCategoryList);
+                    pageManager.OpenStartupPage();
                 }
                 else
                 {

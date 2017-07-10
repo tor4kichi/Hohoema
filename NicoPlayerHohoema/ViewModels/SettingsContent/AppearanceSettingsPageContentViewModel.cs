@@ -29,7 +29,17 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactiveProperty<bool> IsDefaultFullScreen { get; private set; }
 
+        public ReactiveProperty<HohoemaPageType> StartupPageType { get; private set; }
 
+        public List<HohoemaPageType> StartupPageTypeList { get; } = new List<HohoemaPageType>()
+        {
+            HohoemaPageType.Search,
+            HohoemaPageType.RankingCategoryList,
+            HohoemaPageType.CacheManagement,
+            HohoemaPageType.FeedGroupManage,
+            HohoemaPageType.FollowManage,
+            HohoemaPageType.UserMylist,
+        };
 
         public AppearanceSettingsPageContentViewModel(HohoemaApp hohoemaApp, Views.Service.ToastNotificationService toastService) 
 			: base("アプリのUI", HohoemaSettingsKind.Appearance)
@@ -74,12 +84,16 @@ namespace NicoPlayerHohoema.ViewModels
                     ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.Auto;
                 }
             });
+
+            StartupPageType = HohoemaApp.UserSettings.AppearanceSettings
+                .ToReactivePropertyAsSynchronized(x => x.StartupPageType);
         }
 
 		protected override void OnEnter(ICollection<IDisposable> focusingDisposable)
 		{
             Observable.Merge(
-                IsTVModeEnable.ToUnit()
+                IsTVModeEnable.ToUnit(),
+                StartupPageType.ToUnit()
                 )
                 .Throttle(TimeSpan.FromSeconds(1))
                 .Subscribe(_ =>

@@ -9,10 +9,14 @@
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:myconverters="using:NicoPlayerHohoema.Views.Converters"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
 
+    <UserControl.Resources>
+        <myconverters:HohoemaPageTypeToTextConverter x:Key="PageTypeToText" />
+    </UserControl.Resources>
     <Grid>
 
         <VisualStateManager.VisualStateGroups>
@@ -46,14 +50,26 @@
                 <StackPanel Margin="16 0 0 0">
 
 
-                    <StackPanel Margin="0 8 0 16" x:Name="SwitchFullScreenButtonLayout">
+                    <StackPanel Margin="0 8 0 16" >
+                        <TextBlock Text="起動時の表示ページ"
+                           VerticalAlignment="Center"
+                           />
 
+                        <ComboBox ItemsSource="{Binding StartupPageTypeList}"
+                                  SelectedItem="{Binding StartupPageType.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  >
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource PageTypeToText}}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
 
-                        <Button Command="{Binding ToggleFullScreenCommand}"
-                              Content="フルスクリーンモード/ウィンドウモードを切り替え"
-                              />
-                        
                     </StackPanel>
+                    
+
+
+                    
 
                     <StackPanel Margin="0 8 0 16" x:Name="DefaultFullScreenSwitchLayout">
                         <TextBlock Text="アプリ起動時にフルスクリーン表示を設定する"
@@ -70,6 +86,15 @@
                                    TextWrapping="Wrap"
                                    HorizontalAlignment="Left"
                                    />
+
+                    </StackPanel>
+
+                    <StackPanel Margin="0 8 0 16" x:Name="SwitchFullScreenButtonLayout">
+
+
+                        <Button Command="{Binding ToggleFullScreenCommand}"
+                              Content="フルスクリーンモード/ウィンドウモードを切り替え"
+                              />
 
                     </StackPanel>
 

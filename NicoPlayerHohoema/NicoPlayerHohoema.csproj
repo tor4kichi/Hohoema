@@ -300,6 +300,7 @@
     <Compile Include="Views\CacheManagementPage_TV.xaml.cs">
       <DependentUpon>CacheManagementPage_TV.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Converters\HohoemaPageTypeToTextConverter.cs" />
     <Compile Include="Views\Converters\PlayerEndActionToTextConverter.cs" />
     <Compile Include="Views\UINavigationButtons.cs" />
     <Compile Include="Views\CommentCommandEditer.xaml.cs">
