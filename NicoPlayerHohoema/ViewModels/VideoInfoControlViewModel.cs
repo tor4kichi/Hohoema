@@ -27,13 +27,13 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class VideoInfoControlViewModel : HohoemaListingPageItemBase
 	{
-	//	private IScheduler scheduler;
+        //	private IScheduler scheduler;
+
+        PlaylistItem PlaylistItem { get; }
 
 
-		
-
-		// とりあえずマイリストから取得したデータによる初期化
-		public VideoInfoControlViewModel(MylistData data, NicoVideo nicoVideo, PageManager pageManager)
+        // とりあえずマイリストから取得したデータによる初期化
+        public VideoInfoControlViewModel(MylistData data, NicoVideo nicoVideo, PageManager pageManager)
 			: this(nicoVideo, pageManager)
 		{
 			Title = data.Title;
@@ -79,12 +79,13 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-		public VideoInfoControlViewModel(NicoVideo nicoVideo, PageManager pageManager)
+		public VideoInfoControlViewModel(NicoVideo nicoVideo, PageManager pageManager, PlaylistItem playlistItem = null)
 		{
 			PageManager = pageManager;
             HohoemaPlaylist = nicoVideo.HohoemaApp.Playlist;
             NicoVideo = nicoVideo;
-			_CompositeDisposable = new CompositeDisposable();
+            PlaylistItem = playlistItem;
+            _CompositeDisposable = new CompositeDisposable();
 
 			Title = nicoVideo.Title;
 			RawVideoId = nicoVideo.RawVideoId;
@@ -217,11 +218,18 @@ namespace NicoPlayerHohoema.ViewModels
 				return _PlayCommand
 					?? (_PlayCommand = new DelegateCommand(() =>
 					{
-                        HohoemaPlaylist.PlayVideo(RawVideoId, Title);
+                        if (PlaylistItem != null)
+                        {
+                            HohoemaPlaylist.Play(PlaylistItem);
+                        }
+                        else
+                        {
+                            HohoemaPlaylist.PlayVideo(RawVideoId, Title);
+                        }
 
-//                        var payload = MakeVideoPlayPayload();
-//						PageManager.OpenPage(HohoemaPageType.VideoPlayer, payload.ToParameterString());
-					}));
+                        //                        var payload = MakeVideoPlayPayload();
+                        //						PageManager.OpenPage(HohoemaPageType.VideoPlayer, payload.ToParameterString());
+                    }));
 			}
 		}
 

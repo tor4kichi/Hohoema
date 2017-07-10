@@ -74,41 +74,10 @@
                                         />
                             <AppBarButton Command="{Binding RegistratioMylistCommand}" 
                                           Icon="Add"
-                                          Label="マイリスト登録"
+                                          Label="マイリストに追加"
                                             />
 
-                            <AppBarButton 
-                                     IsEnabled="{Binding IsItemSelected.Value}"
-                                      Background="Transparent"
-                                      Label="プレイリスト追加"
-                                          Icon="List"
-                                >
-                                <AppBarButton.Flyout>
-                                    <Flyout >
-                                        <Border x:Name="PlaylistSelectFlyout">
-                                            <ItemsControl ItemsSource="{Binding Playlists}" >
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Button Background="Transparent" 
-                                                            Content="{Binding Name}"
-                                                            Command="{Binding ElementName=PlaylistSelectFlyout, Path=DataContext.AddPlaylistCommand}"
-                                                            CommandParameter="{Binding Id}"
-                                                            >
-                                                            <i:Interaction.Behaviors>
-                                                                <core:EventTriggerBehavior EventName="Tapped">
-                                                                    <mybehavior:CloseFlyoutAction />
-                                                                </core:EventTriggerBehavior>
-                                                            </i:Interaction.Behaviors>
-                                                        </Button>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
-
-                                        </Border>
-                                    </Flyout>
-                                </AppBarButton.Flyout>
-                            </AppBarButton>
-
+                            
 
 
                         </StackPanel>

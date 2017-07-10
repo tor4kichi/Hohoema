@@ -1,4 +1,4 @@
-﻿using Prism.Windows.Mvvm;
+﻿using Prism.Commands;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,61 +13,30 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Microsoft.Toolkit.Uwp.UI.Animations;
 
-// 空白ページのアイテム テンプレートについては、http://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
+// The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
 namespace NicoPlayerHohoema.Views
 {
-	/// <summary>
-	/// それ自体で使用できる空白ページまたはフレーム内に移動できる空白ページ。
-	/// </summary>
-	public sealed partial class VideoPlayerControl : UserControl
+    public sealed partial class VideoPlayerControl : UserControl
     {
-
-        public static readonly DependencyProperty IsDisplayCommentTextBoxProperty =
-           DependencyProperty.Register("IsDisplayCommentTextBox"
-                   , typeof(bool)
-                   , typeof(VideoPlayerControl)
-                   , new PropertyMetadata(false)
-               );
-
-        public bool IsDisplayCommentTextBox
+        private DelegateCommand _TogglePlaylistPaneCommand;
+        public DelegateCommand TogglePlaylistPaneCommand
         {
-            get { return (bool)GetValue(IsDisplayCommentTextBoxProperty); }
-            set { SetValue(IsDisplayCommentTextBoxProperty, value); }
+            get
+            {
+                return _TogglePlaylistPaneCommand
+                    ?? (_TogglePlaylistPaneCommand = new DelegateCommand(() => 
+                    {
+                        PlaylistSplitView.IsPaneOpen = !PlaylistSplitView.IsPaneOpen;
+                    }));
+            }
         }
 
 
-
-        public List<double> PlaybackRateList = new List<double>()
-        {
-            2.0,
-            1.75,
-            1.5,
-            1.25,
-            1.0,
-            0.75,
-            0.5,
-            0.25,
-        };
-
         public VideoPlayerControl()
-		{
-			this.InitializeComponent();
-
-			this.Unloaded += VideoPlayerPage_Unloaded;
-		}
-
-		private void VideoPlayerPage_Unloaded(object sender, RoutedEventArgs e)
-		{
-			(this.DataContext as IDisposable)?.Dispose();
-		}
-
-        
+        {
+            this.InitializeComponent();
+        }
     }
-
-
-
-	
 }

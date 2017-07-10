@@ -1,5 +1,4 @@
 ﻿<UserControl
-    x:Name="PageRoot"
     x:Class="NicoPlayerHohoema.Views.LiveVideoPlayerControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -22,9 +21,9 @@
     xmlns:media="using:Microsoft.Xaml.Interactions.Media"
     xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Animations.Behaviors"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
-    mc:Ignorable="d">
-
-
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
 
     <Border x:Name="LayoutRoot">
         <VisualStateManager.VisualStateGroups>
@@ -56,7 +55,20 @@
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
+                        <Setter Target="CommentTextBox.(Grid.Row)" Value="0" />
+                        <Setter Target="CommentTextBox.(Grid.RowSpan)" Value="1" />
+                        <Setter Target="CommentTextBox.(Grid).Column)" Value="0" />
+                        <Setter Target="CommentTextBox.(Grid).ColumnSpan)" Value="6" />
 
+                        <Setter Target="CommentCommandEditButton.(Grid.Row)" Value="1" />
+                        <Setter Target="CommentCommandEditButton.(Grid.RowSpan)" Value="1" />
+                        <Setter Target="CommentCommandEditButton.(Grid.Column)" Value="0" />
+                        <Setter Target="CommentCommandEditButton.(Grid.ColumnSpan)" Value="3" />
+
+                        <Setter Target="CommentSubmitButton.(Grid.Row)" Value="1" />
+                        <Setter Target="CommentSubmitButton.(Grid.RowSpan)" Value="1" />
+                        <Setter Target="CommentSubmitButton.(Grid.Column)" Value="3" />
+                        <Setter Target="CommentSubmitButton.(Grid.ColumnSpan)" Value="3" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -73,7 +85,7 @@
                         <StateTrigger IsActive="{Binding IsMuted.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="VolumeButton.Icon" Value="Mute" />
+                        <Setter Target="VolumeButtonIcon.Symbol" Value="Mute" />
                         <Setter Target="MuteToggleButton.Icon" Value="Mute" />
                     </VisualState.Setters>
                 </VisualState>
@@ -82,13 +94,13 @@
                         <StateTrigger IsActive="{Binding IsMuted.Value, Converter={StaticResource InvertBoolean}}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="VolumeButton.Icon" Value="Volume" />
+                        <Setter Target="VolumeButtonIcon.Symbol" Value="Volume" />
                         <Setter Target="MuteToggleButton.Icon" Value="Volume" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
 
-            
+
             <!-- Landscape固定ボタンの表示管理 -->
             <VisualStateGroup>
                 <VisualState>
@@ -159,8 +171,14 @@
                     <VisualState.Setters>
 
                         <Setter Target="MenuSubItem_Share.Visibility" Value="Collapsed" />
-                        <Setter Target="TitleLayout.Margin" Value="48 0" />
-                        <Setter Target="TopBarLayout.Margin" Value="48 27 48 0" />
+                        <Setter Target="MenuSubItem_Share_Separater.Visibility" Value="Collapsed" />
+                        <Setter Target="FullScreenToggleButton.Visibility" Value="Collapsed" />
+
+                        <Setter Target="TitleLayout.Padding" Value="48 0" />
+                        <Setter Target="TopBarLayout.Padding" Value="48 27 48 0" />
+                        <Setter Target="CommentLayout.Padding" Value="48 8 48 27" />
+                        <Setter Target="PlaybackControlLayout.Padding" Value="48 8" />
+                        <Setter Target="LiveInfoLayout.Padding" Value="48 0" />
                     </VisualState.Setters>
                 </VisualState>
 
@@ -265,7 +283,7 @@
                             <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
                         </core:DataTriggerBehavior>
                         -->
-                        
+
                     </i:Interaction.Behaviors>
                 </MediaPlayerElement>
 
@@ -327,6 +345,9 @@
                                                          IsVisible="{Binding IsDisplayControlUI.Value, Mode=TwoWay}"
                         />
 
+                        <core:DataTriggerBehavior Binding="{Binding IsDisplayControlUI.Value}" Value="True">
+                            <mybehavior:SetFocus TargetObject="{Binding ElementName=RefreshButton}" Delay="00:00:00.00"  />
+                        </core:DataTriggerBehavior>
                         <!--
                         <mybehavior:UINavigationTrigger Kind="View" 
                                                         IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource InvertBoolean}}"
@@ -340,10 +361,13 @@
 
                     <StackPanel toolkit:DockPanel.Dock="Top" >
 
-                        <Border Background="{ThemeResource SystemAltMediumColor}">
-                            <toolkit:DockPanel
+                        <Border Background="{ThemeResource SystemAltMediumColor}"
                                 x:Name="TopBarLayout"
+                                >
+                            <toolkit:DockPanel
+                                
                                 Margin="0 0"
+                                
                                            >
 
                                 <Button Command="{Binding ClosePlayerCommand}"
@@ -412,28 +436,31 @@
                             </i:Interaction.Behaviors>
                         </StackPanel>
 
-                     
+
 
                         <!-- 生放送情報 -->
-                        <toolkit:DockPanel toolkit:DockPanel.Dock="Top"
-                                               Background="{ThemeResource SystemAltMediumColor}"
+                        <Border toolkit:DockPanel.Dock="Top"
+                                Background="{ThemeResource SystemAltMediumColor}"
+                                x:Name="LiveInfoLayout"
+                                >
+                            <toolkit:DockPanel 
                                                >
 
-                            <StackPanel Orientation="Horizontal"
+                                <StackPanel Orientation="Horizontal"
                                             toolkit:DockPanel.Dock="Left"
                                             >
-                                <!-- 放送時間 -->
-                                <toolkit:DockPanel
+                                    <!-- 放送時間 -->
+                                    <toolkit:DockPanel
                                      Margin="16"
                                     
                                      >
 
-                                    <SymbolIcon Symbol="Clock" 
+                                        <SymbolIcon Symbol="Clock" 
                                                 Margin="8 0"
                                                 Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                 />
 
-                                    <TextBlock  HorizontalAlignment="Right"
+                                        <TextBlock  HorizontalAlignment="Right"
                                                VerticalAlignment="Bottom"
                                                IsHitTestVisible="False"
                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
@@ -441,49 +468,49 @@
                                                 FontSize="18"
                                             >
                                         <Run Text="{Binding LiveElapsedTime, Converter={StaticResource TimeToMovieLengthConverter}}" />
-                                    </TextBlock>
-                                </toolkit:DockPanel>
+                                        </TextBlock>
+                                    </toolkit:DockPanel>
 
-                                <!-- 来場者数・コメント数 -->
-                                <StackPanel Orientation="Horizontal"
+                                    <!-- 来場者数・コメント数 -->
+                                    <StackPanel Orientation="Horizontal"
                                             >
-                                    <SymbolIcon Symbol="View" 
+                                        <SymbolIcon Symbol="View" 
                                                 Margin="8 0"
                                                 Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                 />
 
-                                    <TextBlock VerticalAlignment="Center"
+                                        <TextBlock VerticalAlignment="Center"
                                                IsHitTestVisible="False"
                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                Margin="0 0 24 0"
                                                 FontSize="18"
                                             >
                                         <Run Text="{Binding WatchCount.Value, Converter={StaticResource ToUserFriendlyNumber}}" />
-                                    </TextBlock>
+                                        </TextBlock>
 
-                                    <SymbolIcon Symbol="Comment" 
+                                        <SymbolIcon Symbol="Comment" 
                                                 Margin="8 0"
                                                 Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                 />
 
-                                    <TextBlock VerticalAlignment="Center"
+                                        <TextBlock VerticalAlignment="Center"
                                                IsHitTestVisible="False"
                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                Margin="0 0 8 0"
                                                 FontSize="18"
                                             >
                                         <Run Text="{Binding CommentCount.Value, Converter={StaticResource ToUserFriendlyNumber}}" />
-                                    </TextBlock>
+                                        </TextBlock>
 
+                                    </StackPanel>
                                 </StackPanel>
-                            </StackPanel>
 
 
-                            <StackPanel Orientation="Horizontal"
+                                <StackPanel Orientation="Horizontal"
                                             toolkit:DockPanel.Dock="Right"
                                             Margin="0 0 16 0"
                                             >
-                                <TextBlock VerticalAlignment="Center"
+                                    <TextBlock VerticalAlignment="Center"
                                                 Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                 FontSize="18"
                                                >
@@ -491,25 +518,29 @@
                                         <Run Text="-" />
                                         <Run Text="{Binding SeetId}" />
                                         <Run Text="番" />
-                                </TextBlock>
-                            </StackPanel>
+                                    </TextBlock>
+                                </StackPanel>
 
-                            <Border />
+                                <Border />
 
 
-                            <i:Interaction.Behaviors>
-                                <core:EventTriggerBehavior EventName="Tapped">
-                                    <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="False" />
-                                </core:EventTriggerBehavior>
-                            </i:Interaction.Behaviors>
+                                <i:Interaction.Behaviors>
+                                    <core:EventTriggerBehavior EventName="Tapped">
+                                        <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="False" />
+                                    </core:EventTriggerBehavior>
+                                </i:Interaction.Behaviors>
 
-                        </toolkit:DockPanel>
+                            </toolkit:DockPanel>
 
+                        </Border>
+                        
 
 
 
                         <!-- 再生コントロール -->
-                        <Grid Background="{ThemeResource SystemAltMediumColor}" Padding="8">
+                        <Grid Background="{ThemeResource SystemAltMediumColor}" Padding="8"
+                              x:Name="PlaybackControlLayout"
+                              >
 
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -520,13 +551,16 @@
                             <StackPanel Orientation="Horizontal">
 
                                 <!-- 音量 -->
-                                <AppBarButton Icon="Mute" 
-                                              x:Name="VolumeButton"
-                                              Height="64"
-                                              Width="64"
+                                <Button 
+                                              Background="Transparent"
                                               UseSystemFocusVisuals="True"
                                               >
-                                    <AppBarButton.Flyout>
+
+                                    <SymbolIcon Symbol="Mute"
+                                                x:Name="VolumeButtonIcon"
+                                                />
+                                    
+                                    <Button.Flyout>
                                         <Flyout>
                                             <toolkit:DockPanel
                                                 toolkit:DockPanel.Dock="Right"
@@ -583,17 +617,31 @@
 
                                             </toolkit:DockPanel>
                                         </Flyout>
-                                    </AppBarButton.Flyout>
-                                </AppBarButton>
+                                    </Button.Flyout>
+                                </Button>
 
-                                <!-- コメント -->
-                                <ToggleButton Background="Transparent"
-                                                  IsChecked="{x:Bind IsDisplayCommentTextBox, Mode=TwoWay}"
+                                <Button Command="{Binding ToggleDisplayCommentCommand}"
+                                            Background="Transparent"
                                                   >
-                                    <SymbolIcon Symbol="Comment" 
+                                    <Grid>
+                                        <iconPack:PackIconMaterial
+                                                Kind="Comment"
+                                                x:Name="CommentIcon"
+                                                Width="24"
+                                                Height="24"
                                                 />
-
-                                </ToggleButton>
+                                        <Canvas>
+                                            <Line X1="{Binding ElementName=CommentIcon, Path=ActualWidth}" 
+                                                      Y1="0"
+                                                      X2="0" 
+                                                      Y2="{Binding ElementName=CommentIcon, Path=ActualHeight}"
+                                                  Stroke="DarkRed"
+                                                      StrokeThickness="2"
+                                                  Visibility="{Binding IsVisibleComment.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                                  />
+                                        </Canvas>
+                                    </Grid>
+                                </Button>
 
                             </StackPanel>
 
@@ -602,13 +650,16 @@
                                         >
 
                                 <!-- 更新 -->
-                                <AppBarButton Icon="Refresh" Label="更新"
+                                <Button 
                                               Command="{Binding UpdateCommand}"
                                               VerticalAlignment="Stretch"
                                               IsEnabled="{Binding NowUpdating.Value, Converter={StaticResource InvertBoolean}}"
                                               x:Name="RefreshButton"
                                               UseSystemFocusVisuals="True"
-                                              />
+                                    Background="Transparent"
+                                              >
+                                    <SymbolIcon Symbol="Refresh" />
+                                </Button>
 
 
 
@@ -618,34 +669,33 @@
                                         Grid.Column="2"
                                     HorizontalAlignment="Right"
                                         >
-                                <AppBarButton Icon="FullScreen" Command="{Binding ToggleFullScreenCommand}"
+                                <Button Command="{Binding ToggleFullScreenCommand}"
                                               UseSystemFocusVisuals="True"
-                                              />
-
-                                
-
-                                <AppBarButton Icon="More"
-                                              UseSystemFocusVisuals="True"
+                                              x:Name="FullScreenToggleButton"
+                                        Background="Transparent"
                                               >
-                                    <AppBarButton.Flyout>
+                                    <SymbolIcon Symbol="FullScreen" />
+                                </Button>
+
+
+
+                                <Button UseSystemFocusVisuals="True"
+                                        Background="Transparent"
+                                              >
+                                    <SymbolIcon Symbol="More" />
+                                    <Button.Flyout>
                                         <MenuFlyout>
-
-
-                                            <ToggleMenuFlyoutItem Text="コメントを表示" IsChecked="{Binding IsVisibleComment.Value, Mode=TwoWay}" />
-
-                                            <MenuFlyoutSeparator />
-                                            
                                             <MenuFlyoutItem Text="配信者情報" Command="{Binding OpenBroadcastCommunityCommand}" />
 
                                             <MenuFlyoutSeparator />
-                                            
+
                                             <MenuFlyoutSubItem Text="共有" x:Name="MenuSubItem_Share">
                                                 <MenuFlyoutItem Text="Twitterで共有" Command="{Binding ShereWithTwitterCommand}" />
                                                 <MenuFlyoutItem Text="クリップボードにコピー" Command="{Binding ShareWithClipboardCommand}" />
                                             </MenuFlyoutSubItem>
-                                            
-                                            <MenuFlyoutSeparator />
-                                            
+
+                                            <MenuFlyoutSeparator x:Name="MenuSubItem_Share_Separater" />
+
                                             <MenuFlyoutItem Text="プレイヤー設定" Command="{Binding OpenPlayerSettingCommand}" />
                                             <ToggleMenuFlyoutItem Text="横持ち固定" 
                                                               x:Name="ForceRotateToggleButton" 
@@ -654,7 +704,7 @@
                                                               />
 
                                             <MenuFlyoutSeparator />
-                                            
+
                                             <MenuFlyoutItem Text="小さく表示" Command="{Binding PlayerSmallWindowDisplayCommand}">
                                                 <i:Interaction.Behaviors>
                                                     <core:EventTriggerBehavior EventName="Tapped">
@@ -664,8 +714,8 @@
                                             </MenuFlyoutItem>
 
                                         </MenuFlyout>
-                                    </AppBarButton.Flyout>
-                                </AppBarButton>
+                                    </Button.Flyout>
+                                </Button>
                             </StackPanel>
 
                         </Grid>
@@ -676,88 +726,91 @@
 
                         <!-- Comment関連 -->
                         <!-- コメントを書く -->
-                        <Grid Visibility="{x:Bind IsDisplayCommentTextBox, Mode=OneWay}" 
-                          x:Name="CommentLayout"
-                          Background="{ThemeResource SystemAltMediumColor}"
-                                Padding="0 8 0 0"
+                        <Grid x:Name="CommentLayout"
+                              Background="{ThemeResource SystemAltMediumColor}"
                           >
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
 
-                            <toolkit:DockPanel HorizontalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
 
-                                <AppBarButton Icon="Clear" 
-                                            toolkit:DockPanel.Dock="Left"
-                                              Background="Transparent"
-                                              VerticalAlignment="Center"
-                                              Margin="0 0 8 8"
-                                              UseSystemFocusVisuals="True"
-                                >
-                                    <i:Interaction.Behaviors>
-                                        <core:EventTriggerBehavior EventName="Tapped">
-                                            <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayCommentTextBox" Value="False" />
-                                        </core:EventTriggerBehavior>
-                                    </i:Interaction.Behaviors>
-                                </AppBarButton>
+                            <TextBox x:Name="CommentTextBox" 
+                                                Text="{Binding WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                FontSize="18"
+                                                VerticalAlignment="Center"
+                                                MaxLength="75"
+                                                IsTabStop="True"
+                                                toolkitext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
+                                                PlaceholderText="コメント"
+                                                HorizontalAlignment="Stretch"
+                                            Margin="8 0 8 8"
+                                            HorizontalContentAlignment="Stretch"
+                                            Height="40"
+                                             
+                                             Grid.RowSpan="2"
+                                             Grid.Column="1"
+                                             Grid.ColumnSpan="4"
+                                                >
+                                <i:Interaction.Behaviors>
+                                    <mybehavior:KeyboardTrigger Key="Escape">
+                                        <mybehavior:KeyboardTrigger.Actions>
+                                            <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="False" />
+                                            <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="True" />
+                                        </mybehavior:KeyboardTrigger.Actions>
+                                    </mybehavior:KeyboardTrigger>
 
-                                <toolkit:WrapPanel Orientation="Horizontal">
-                                    <Button Content="{Binding CommandString.Value}" 
-                                                toolkit:DockPanel.Dock="Left"
-                                                Margin="8 0 8 8"
-                                                MinWidth="160"
-                                                DataContext="{Binding}"
-                                                x:Name="CommentCommandEditButton_Wide"
+                                    <mybehavior:KeyboardTrigger Key="Enter">
+                                        <mybehavior:KeyboardTrigger.Actions>
+                                            <core:InvokeCommandAction Command="{Binding CommentSubmitCommand}" />
+                                            <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="False" />
+                                            <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="True" />
+                                        </mybehavior:KeyboardTrigger.Actions>
+                                    </mybehavior:KeyboardTrigger>
+
+                                </i:Interaction.Behaviors>
+                            </TextBox>
+
+
+                            <Button Content="{Binding CommandString.Value}" 
+                                            Margin="8 0 8 8"
+                                            HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Center"
+                                            DataContext="{Binding}"
+                                            x:Name="CommentCommandEditButton"
                                             Height="40"
                                             UseSystemFocusVisuals="True"
-                                            >
-                                        <Button.Flyout>
-                                            <Flyout>
-                                                <local:CommentCommandEditer DataContext="{Binding CommandEditerVM}" />
-                                            </Flyout>
-                                        </Button.Flyout>
-                                    </Button>
+                                            Grid.RowSpan="2"
+                                             Grid.Column="0"
+                                             Grid.ColumnSpan="1"
+                                        >
+                                <Button.Flyout>
+                                    <Flyout>
+                                        <local:CommentCommandEditer DataContext="{Binding CommandEditerVM}" />
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
 
-                                    <TextBox x:Name="CommentTextBox" 
-                                                 Text="{Binding WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                 FontSize="18"
-                                                 VerticalAlignment="Center"
-                                                 MaxLength="75"
-                                                 IsTabStop="True"
-                                                 toolkitext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
-                                                 PlaceholderText="コメント"
-                                                 HorizontalAlignment="Stretch"
-                                             Margin="8 0 8 8"
-                                             MinWidth="300"
-                                             Height="40"
-                                                 >
-                                        <i:Interaction.Behaviors>
-                                            <mybehavior:KeyboardTrigger Key="Escape">
-                                                <mybehavior:KeyboardTrigger.Actions>
-                                                    <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="False" />
-                                                    <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="True" />
-                                                </mybehavior:KeyboardTrigger.Actions>
-                                            </mybehavior:KeyboardTrigger>
-
-                                            <mybehavior:KeyboardTrigger Key="Enter">
-                                                <mybehavior:KeyboardTrigger.Actions>
-                                                    <core:InvokeCommandAction Command="{Binding CommentSubmitCommand}" />
-                                                    <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="False" />
-                                                    <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="True" />
-                                                </mybehavior:KeyboardTrigger.Actions>
-                                            </mybehavior:KeyboardTrigger>
-
-                                        </i:Interaction.Behaviors>
-                                    </TextBox>
-
-                                    <Button Content="投稿"  Margin="8 0 8 8"
-                                            Width="160" Height="40"
-                                            Command="{Binding CommentSubmitCommand}"
-                                            x:Name="CommentSubmitButton_Wide"
-                                            HorizontalAlignment="Right"
+                            <Button Content="投稿"  Margin="8 0 8 8"
+                                                Height="40"
+                                                Command="{Binding CommentSubmitCommand}"
+                                                x:Name="CommentSubmitButton"
+                                            HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Center"
                                             UseSystemFocusVisuals="True"
+                                            Grid.RowSpan="2"
+                                             Grid.Column="5"
+                                             Grid.ColumnSpan="1"
+                                            
                                                 />
-
-
-                                </toolkit:WrapPanel>
-                            </toolkit:DockPanel>
                         </Grid>
                     </StackPanel>
 
@@ -818,5 +871,4 @@
         </toolkit:LayoutTransformControl>
     </Border>
 
-        
 </UserControl>

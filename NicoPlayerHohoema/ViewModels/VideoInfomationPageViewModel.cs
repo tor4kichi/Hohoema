@@ -254,7 +254,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        public List<Playlist> Playlists { get; private set; }
+        public List<LocalMylist> Playlists { get; private set; }
 
 
         AsyncLock _WebViewFocusManagementLock = new AsyncLock();

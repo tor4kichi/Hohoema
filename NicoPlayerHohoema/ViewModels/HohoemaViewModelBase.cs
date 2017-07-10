@@ -236,8 +236,8 @@ namespace NicoPlayerHohoema.ViewModels
 							}
 							else
 							{
-								PageManager.OpenPage(HohoemaPageType.Portal);
-							}
+								PageManager.OpenStartupPage();
+                            }
 						}));
 			}
 		}

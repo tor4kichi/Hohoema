@@ -16,10 +16,11 @@
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
     xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
-
+    
     <Grid>
 
         <VisualStateManager.VisualStateGroups>
@@ -38,6 +39,7 @@
         </VisualStateManager.VisualStateGroups>
         
         
+        
         <toolkit:DockPanel x:Name="ContentLayout">
 
             <Border toolkit:DockPanel.Dock="Top" 
@@ -50,9 +52,23 @@
                                 Orientation="Horizontal"
                                 >
                         <Button Background="Transparent" 
-                            Command="{Binding AddMylistGroupCommand}"
+                            
                             >
+                            <Button.Flyout>
+                                <MenuFlyout>
+                                    <MenuFlyoutItem Text="マイリストを作成"
+                                                    Command="{Binding AddMylistGroupCommand}"
+                                                    />
+                                    <MenuFlyoutItem Text="ローカルマイリストを作成"
+                                                    Command="{Binding AddLocalMylistCommand}"
+                                                    />
+                                </MenuFlyout>
+                            </Button.Flyout>
+                            
+                            
                             <SymbolIcon Symbol="Add" />
+
+                            
                         </Button>
                     </StackPanel>
 
@@ -68,47 +84,152 @@
                 </toolkit:DockPanel>
             </Border>
 
+            <Pivot ItemsSource="{Binding MylistList}"
+                   >
+                <Pivot.HeaderTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Title}" />
+                    </DataTemplate>
+                </Pivot.HeaderTemplate>
 
-            <ScrollViewer>
+                <Pivot.ItemTemplateSelector>
+                    <local:MylistListTemplateSelector>
+                        <!-- Local Mylist -->
+                        <local:MylistListTemplateSelector.LocalMylist>
+                            <DataTemplate>
+                                <ListView ItemsSource="{Binding Items}"
+                                        Margin="0 0 0 0"
+                                        HorizontalContentAlignment="Stretch"
+                                        IsTabStop="False"
+                                      uwpui:ListViewBaseExtensions.Command="{Binding ElementName=ContentLayout, Path=DataContext.OpenMylistCommand}"
+                                      IsItemClickEnabled="True"
+                                      SelectionMode="None"
+                                        >
 
-                <ItemsControl ItemsSource="{Binding MylistGroupItems}"
-                          Margin="0 0 0 0"
-                              HorizontalContentAlignment="Stretch"
-                              IsTabStop="False"
-                  >
+                                    <i:Interaction.Behaviors>
+                                        <mybehavior:ListViewBaseItemContextFlyout />
+                                    </i:Interaction.Behaviors>
 
-                    <ItemsControl.ItemContainerStyle>
-                        <Style TargetType="ContentPresenter">
-                            <Setter Property="HorizontalContentAlignment"
-                                    Value="Stretch" 
-                                        />
-                            <Setter Property="Margin"
-                                    Value="0 0 16 16" 
-                                    />
+                                    <ListView.ContextFlyout>
+                                        <MenuFlyout>
+                                            <MenuFlyoutItem Text="全て再生"
+                                                            Command="{Binding ElementName=ContentLayout, Path=DataContext.PlayAllCommand}"
+                                                            CommandParameter="{Binding}"
+                                                            />
+                                            <MenuFlyoutItem Text="名前を変更"
+                                                            Command="{Binding ElementName=ContentLayout, Path=DataContext.EditMylistGroupCommand}"
+                                                            CommandParameter="{Binding}"
+                                                            />
+                                            <MenuFlyoutItem Text="削除"
+                                                            Command="{Binding ElementName=ContentLayout, Path=DataContext.RemoveMylistGroupCommand}"
+                                                            CommandParameter="{Binding}"
+                                                            />
+                                        </MenuFlyout>
+                                    </ListView.ContextFlyout>
+                                    
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Name}"
+                                                   FontSize="16"
+                                                   />
+                                        </DataTemplate>
 
-                        </Style>
-                    </ItemsControl.ItemContainerStyle>
+                                    </ItemsControl.ItemTemplate>
+                                </ListView>
 
+                            </DataTemplate>
+                        </local:MylistListTemplateSelector.LocalMylist>
 
-                    <ItemsControl.ItemTemplate>
+                        <!-- User Mylist -->
+                        <local:MylistListTemplateSelector.LoginUserMylist>
+                            <DataTemplate>
+                                <ListView ItemsSource="{Binding Items}"
+                                        Margin="0 0 0 0"
+                                        HorizontalContentAlignment="Stretch"
+                                        IsTabStop="False"
+                                      uwpui:ListViewBaseExtensions.Command="{Binding ElementName=ContentLayout, Path=DataContext.OpenMylistCommand}"
+                                      IsItemClickEnabled="True"
+                                      SelectionMode="None"
+                                        >
 
-                        <DataTemplate>
+                                    <i:Interaction.Behaviors>
+                                        <mybehavior:ListViewBaseItemContextFlyout />
+                                    </i:Interaction.Behaviors>
 
-                            <Button Background="Transparent" 
-                                    Command="{Binding PrimaryCommand}"
-                                    HorizontalAlignment="Stretch"
-                                    HorizontalContentAlignment="Left"
-                                    >
-                                
-                                <mycontrols:HohoemaListItem />
+                                    <ListView.ContextFlyout>
+                                        <MenuFlyout>
+                                            <MenuFlyoutItem Text="全て再生"
+                                                            Command="{Binding ElementName=ContentLayout, Path=DataContext.PlayAllCommand}"
+                                                            CommandParameter="{Binding}"
+                                                            />
+                                            <MenuFlyoutItem Text="名前を変更"
+                                                            Command="{Binding ElementName=ContentLayout, Path=DataContext.EditMylistGroupCommand}"
+                                                            CommandParameter="{Binding}"
+                                                            />
+                                            <MenuFlyoutItem Text="削除"
+                                                            Command="{Binding ElementName=ContentLayout, Path=DataContext.RemoveMylistGroupCommand}"
+                                                            CommandParameter="{Binding}"
+                                                            />
+                                        </MenuFlyout>
+                                    </ListView.ContextFlyout>
+                                    
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Name}"
+                                                   FontSize="16"
+                                                   />
+                                        </DataTemplate>
 
-                            </Button>
-                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ListView>
 
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                            </DataTemplate>
+                        </local:MylistListTemplateSelector.LoginUserMylist>
+
+                        <!-- Other User Mylist -->
+                        <local:MylistListTemplateSelector.OtherOwneredMylist>
+                            <DataTemplate>
+                                <ListView ItemsSource="{Binding Items}"
+                                        Margin="0 0 0 0"
+                                        HorizontalContentAlignment="Stretch"
+                                        IsTabStop="False"
+                                      uwpui:ListViewBaseExtensions.Command="{Binding ElementName=ContentLayout, Path=DataContext.OpenMylistCommand}"
+                                      IsItemClickEnabled="True"
+                                      SelectionMode="None"
+                                        >
+
+                                    <i:Interaction.Behaviors>
+                                        <mybehavior:ListViewBaseItemContextFlyout />
+                                    </i:Interaction.Behaviors>
+
+                                    <ListView.ContextFlyout>
+                                        <MenuFlyout>
+                                            <MenuFlyoutItem Text="全て再生"
+                                                            Command="{Binding ElementName=ContentLayout, Path=DataContext.PlayAllCommand}"
+                                                            CommandParameter="{Binding}"
+                                                            />
+                                        </MenuFlyout>
+                                    </ListView.ContextFlyout>
+                                    
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Name}"
+                                                   FontSize="16"
+                                                   />
+                                        </DataTemplate>
+
+                                    </ItemsControl.ItemTemplate>
+                                </ListView>
+
+                            </DataTemplate>
+                        </local:MylistListTemplateSelector.OtherOwneredMylist>
+                    </local:MylistListTemplateSelector>
+                </Pivot.ItemTemplateSelector>
                 
-            </ScrollViewer>
+                
+            </Pivot>
+
+            
            
         </toolkit:DockPanel>
     </Grid>

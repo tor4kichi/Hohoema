@@ -37,7 +37,6 @@ using Windows.Storage;
 using System.Text;
 using NicoPlayerHohoema.Util;
 using Windows.ApplicationModel.Resources;
-using NicoPlayerHohoema.Models.AppMap;
 
 namespace NicoPlayerHohoema
 {
@@ -234,7 +233,7 @@ namespace NicoPlayerHohoema
                     }
 
 
-                    pageManager.OpenPage(HohoemaPageType.Portal);
+                    pageManager.OpenPage(HohoemaPageType.RankingCategoryList);
                 }
                 else
                 {
@@ -293,7 +292,7 @@ namespace NicoPlayerHohoema
                             {
                                 await hohoemaApp.SignInWithPrimaryAccount();
 
-                                pageManager.OpenPage(HohoemaPageType.Portal);
+                                pageManager.OpenStartupPage();
                             }
                         }
                     }
@@ -317,7 +316,7 @@ namespace NicoPlayerHohoema
                 }
                 else
                 {
-                    pageManager.OpenPage(HohoemaPageType.Portal);
+                    pageManager.OpenStartupPage();
                 }
             }
             catch
@@ -345,7 +344,7 @@ namespace NicoPlayerHohoema
 
                 hohoemaApp.Playlist.PlayVideo(videoId, videoTitle, quality);
 
-                pageManager.OpenPage(HohoemaPageType.Portal);
+                pageManager.OpenStartupPage();
             }
             else
             {
@@ -378,7 +377,7 @@ namespace NicoPlayerHohoema
 
                 hohoemaApp.Playlist.PlayLiveVideo(videoId);
 
-                pageManager.OpenPage(HohoemaPageType.Portal);
+                pageManager.OpenStartupPage();
             }
             else
             {
@@ -546,19 +545,10 @@ namespace NicoPlayerHohoema
 			var hohoemaApp = await HohoemaApp.Create(EventAggregator);
 
             Container.RegisterInstance(hohoemaApp);
-			Container.RegisterInstance(new PageManager(NavigationService, hohoemaApp.Playlist));
+			Container.RegisterInstance(new PageManager(NavigationService, hohoemaApp.UserSettings.AppearanceSettings, hohoemaApp.Playlist));
 			Container.RegisterInstance(hohoemaApp.ContentFinder);
             Container.RegisterInstance(hohoemaApp.Playlist);
-            var appMapManager = new AppMapManager(hohoemaApp);
-            Container.RegisterInstance(appMapManager);
-            
-            hohoemaApp.BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(
-                    appMapManager
-                    , nameof(AppMapManager)
-                    , priority: -1
-                    , label: "ホーム画面情報"
-                    );
-
+            Container.RegisterInstance(hohoemaApp.OtherOwneredMylistManager);
 
             // 非同期更新機能の同時実行タスク数を指定
             var deviceFamily = Windows.System.Profile.AnalyticsInfo.VersionInfo.DeviceFamily;

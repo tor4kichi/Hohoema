@@ -444,7 +444,9 @@ namespace NicoPlayerHohoema.ViewModels
                                 PageManager.OpenPage(HohoemaPageType.SearchResultTag, searchPayload.ToParameterString());
                                 break;
                             case FollowItemType.Mylist:
-                                PageManager.OpenPage(HohoemaPageType.Mylist, item.FeedSource.Id);
+                                PageManager.OpenPage(HohoemaPageType.Mylist,
+                                    new MylistPagePayload(item.FeedSource.Id).ToParameterString()
+                                    );
                                 break;
                             case FollowItemType.User:
                                 PageManager.OpenPage(HohoemaPageType.UserVideo, item.FeedSource.Id);

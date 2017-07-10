@@ -81,7 +81,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             SkipLoginCommand = new DelegateCommand(() => 
             {
-                PageManager.OpenPage(HohoemaPageType.Portal);
+                PageManager.OpenStartupPage();
 
                 PageManager.ClearNavigateHistory();
             });
@@ -153,12 +153,12 @@ namespace NicoPlayerHohoema.ViewModels
                     }
                     catch
                     {
-                        PageManager.OpenPage(HohoemaPageType.Portal);
+                        PageManager.OpenStartupPage();
                     }
                 }
                 else
                 {
-                    PageManager.OpenPage(HohoemaPageType.Portal);
+                    PageManager.OpenStartupPage();
                 }
             }
         }

@@ -1,5 +1,4 @@
-﻿using NicoPlayerHohoema.Models.Settings;
-using NicoPlayerHohoema.Util;
+﻿using NicoPlayerHohoema.Util;
 using Prism.Mvvm;
 using Reactive.Bindings.Extensions;
 using System;
@@ -20,7 +19,7 @@ using Windows.Storage;
 
 namespace NicoPlayerHohoema.Models
 {
-    public delegate void OpenPlaylistItemEventHandler(Playlist playlist, PlaylistItem item);
+    public delegate void OpenPlaylistItemEventHandler(IPlayableList playlist, PlaylistItem item);
     
     public class HohoemaPlaylist : BindableBase, IDisposable
     {
@@ -47,26 +46,26 @@ namespace NicoPlayerHohoema.Models
         public MediaPlayer MediaPlayer { get; private set; }
         public PlaylistSettings PlaylistSettings { get; private set; }
 
-        public IPlaylistPlayer Player => CurrentPlaylist?.Player;
+        public PlaylistPlayer Player { get; }
 
 
-        private ObservableCollection<Playlist> _Playlists = new ObservableCollection<Playlist>();
-        public ReadOnlyObservableCollection<Playlist> Playlists { get; private set; }
+        private ObservableCollection<LocalMylist> _Playlists = new ObservableCollection<LocalMylist>();
+        public ReadOnlyObservableCollection<LocalMylist> Playlists { get; private set; }
 
 
 
-        private Dictionary<string, FileAccessor<Playlist>> _PlaylistFileAccessorMap = new Dictionary<string, FileAccessor<Playlist>>();
+        private Dictionary<string, FileAccessor<LocalMylist>> _PlaylistFileAccessorMap = new Dictionary<string, FileAccessor<LocalMylist>>();
 
 
-        public Playlist DefaultPlaylist { get; private set; }
+        public LocalMylist DefaultPlaylist { get; private set; }
 
         /// <summary>
         /// Use for serialize only.
         /// </summary>
         private string _CurrentPlaylistId { get; set; }
 
-        private Playlist _CurrentPlaylist;
-        public Playlist CurrentPlaylist
+        private IPlayableList _CurrentPlaylist;
+        public IPlayableList CurrentPlaylist
         {
             get { return _CurrentPlaylist; }
             set
@@ -112,8 +111,9 @@ namespace NicoPlayerHohoema.Models
             MediaPlayer = mediaPlayer;
             PlaylistSettings = playlistSettings;
             PlaylistsSaveFolder = playlistSaveFolder;
+            Player = new PlaylistPlayer(this, playlistSettings);
 
-            Playlists = new ReadOnlyObservableCollection<Playlist>(_Playlists);
+            Playlists = new ReadOnlyObservableCollection<LocalMylist>(_Playlists);
 
             var smtc = MediaPlayer.SystemMediaTransportControls;
             smtc.AutoRepeatModeChangeRequested += Smtc_AutoRepeatModeChangeRequested;
@@ -165,16 +165,15 @@ namespace NicoPlayerHohoema.Models
 
 
             // 読み込み
-            List<Playlist> loadedItem = new List<Playlist>();
+            List<LocalMylist> loadedItem = new List<LocalMylist>();
             foreach (var file in files)
             {
-                var playlistFileAccessor = new FileAccessor<Playlist>(PlaylistsSaveFolder, file.Name);
+                var playlistFileAccessor = new FileAccessor<LocalMylist>(PlaylistsSaveFolder, file.Name);
                 var playlist = await playlistFileAccessor.Load();
 
                 if (playlist != null)
                 {
                     playlist.HohoemaPlaylist = this;
-                    playlist.PlaylistSettings = PlaylistSettings;
 
                     // 重複登録されている場合、ファイルの日付が古いほうを削除
                     // （本来はリネームのミスがないようにするべき）
@@ -229,7 +228,7 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
-        public async Task Save(Playlist playlist)
+        public async Task Save(LocalMylist playlist)
         {
             var fileAccessor = _PlaylistFileAccessorMap[playlist.Id];
             await fileAccessor.Save(playlist);
@@ -247,7 +246,7 @@ namespace NicoPlayerHohoema.Models
 
 
 
-        internal async void RenamePlaylist(Playlist playlist, string newName)
+        internal async void RenamePlaylist(LocalMylist playlist, string newName)
         {
             var fileAccessor = _PlaylistFileAccessorMap[playlist.Id];
 
@@ -263,9 +262,11 @@ namespace NicoPlayerHohoema.Models
             await Save(playlist);
         }
 
-        internal void PlayStarted(Playlist playlist, PlaylistItem item)
+
+        public void Play(PlaylistItem item)
         {
             // プレイリストアイテムが不正
+            var playlist = item.Owner;
             if (playlist == null 
                 || item == null 
                 || !playlist.PlaylistItems.Contains(item)
@@ -274,8 +275,9 @@ namespace NicoPlayerHohoema.Models
                 throw new Exception();
             }
 
+            Player.Playlist = playlist;
             CurrentPlaylist = playlist;
-           
+
             OpenPlaylistItem?.Invoke(CurrentPlaylist, item);
 
             // あとで見るプレイリストの場合、再生開始時に
@@ -350,32 +352,31 @@ namespace NicoPlayerHohoema.Models
         // プレイリストが空だった場合、その場で再生を開始
         public void PlayVideo(string contentId, string title = "", NicoVideoQuality? quality = null)
         {
-            var newItem = DefaultPlaylist.AddVideo(contentId, title, quality, addToFirst:true);
-            DefaultPlaylist.Player.Play(newItem);
+            var newItem = DefaultPlaylist.AddVideo(contentId, title, ContentInsertPosition.Head);
+            Play(newItem);
         }
 
 
 
         public void PlayLiveVideo(string liveId, string title = "")
         {
-            var newItem = DefaultPlaylist.AddLiveVideo(liveId, title, addToFirst: true);
-            DefaultPlaylist.Player.Play(newItem);
+            var newItem = DefaultPlaylist.AddLiveVideo(liveId, title, ContentInsertPosition.Head);
+            Play(newItem);
         }
 
 
 
-        public Playlist CreatePlaylist(string id, string name)
+        public LocalMylist CreatePlaylist(string id, string name)
         {
             var sortIndex = _Playlists.Count > 0 ? _Playlists.Max(x => x.SortIndex) + 1 : 0;
 
-            var playlist = new Playlist(id, name)
+            var playlist = new LocalMylist(id, name)
             {
                 HohoemaPlaylist = this,
-                PlaylistSettings = PlaylistSettings,
                 SortIndex = sortIndex
             };
 
-            var playlistFileAccessor = new FileAccessor<Playlist>(PlaylistsSaveFolder, playlist.Name + ".json");
+            var playlistFileAccessor = new FileAccessor<LocalMylist>(PlaylistsSaveFolder, playlist.Name + ".json");
             _PlaylistFileAccessorMap.Add(playlist.Id, playlistFileAccessor);
             _Playlists.Add(playlist);
 
@@ -384,7 +385,7 @@ namespace NicoPlayerHohoema.Models
             return playlist;
         }
 
-        public async Task RemovePlaylist(Playlist playlist)
+        public async Task RemovePlaylist(LocalMylist playlist)
         {
             if (_Playlists.Contains(playlist))
             {
@@ -434,9 +435,23 @@ namespace NicoPlayerHohoema.Models
     }
 
 
-    public class PlaylistPlayer : IPlaylistPlayer, IDisposable
+    public class PlaylistPlayer : IDisposable
     {
-        public Playlist Playlist { get; private set; }
+        private IPlayableList _Playlist;
+        public IPlayableList Playlist
+        {
+            get { return _Playlist; }
+            set
+            {
+                if (_Playlist != value)
+                {
+                    _Playlist = value;
+                    ResetPlayer();
+                }
+            }
+        }
+
+        public HohoemaPlaylist HohoemaPlaylist { get; }
         public PlaylistSettings PlaylistSettings { get; private set; }
 
 
@@ -479,9 +494,9 @@ namespace NicoPlayerHohoema.Models
         }
 
 
-        public PlaylistPlayer(Playlist playlist, PlaylistSettings playlistSettings)
+        public PlaylistPlayer(HohoemaPlaylist hohoemaPlaylist, PlaylistSettings playlistSettings)
         {
-            Playlist = playlist;
+            HohoemaPlaylist = hohoemaPlaylist;
             PlaylistSettings = playlistSettings;
 
             _SettingsObserveDisposer = Observable.Merge(
@@ -501,25 +516,21 @@ namespace NicoPlayerHohoema.Models
             _SettingsObserveDisposer = null;
         }
 
-
-        public void Play(PlaylistItem item)
-        {
-            _InternalPlayer.Play(item);
-        }
-
         private void ResetPlayer()
         {
+            var prevCurrentItem = _InternalPlayer?.Current;
+
             IPlaylistPlayer newPlayer = null;
             if (PlaylistSettings.IsShuffleEnable)
             {
-                newPlayer = new ShufflePlaylistPlayer(Playlist)
+                newPlayer = new ShufflePlaylistPlayer(HohoemaPlaylist, Playlist, prevCurrentItem)
                 {
                     IsRepeat = PlaylistSettings.RepeatMode == MediaPlaybackAutoRepeatMode.List
                 };
             }
             else
             {
-                newPlayer = new ThroughPlaylistPlayer(Playlist)
+                newPlayer = new ThroughPlaylistPlayer(HohoemaPlaylist, Playlist, prevCurrentItem)
                 {
                     IsRepeat = PlaylistSettings.RepeatMode == MediaPlaybackAutoRepeatMode.List
                 };
@@ -532,79 +543,81 @@ namespace NicoPlayerHohoema.Models
 
         public void GoBack()
         {
-            _InternalPlayer.GoBack();
+            var item = _InternalPlayer.GetBackItem();
+            if (item != null)
+            {
+                HohoemaPlaylist.Play(item);
+                (_InternalPlayer as PlaylistPlayerBase)?.PlayStarted(item);
+            }
         }
 
         public void GoNext()
         {
-            _InternalPlayer.GoNext();
+            var item = _InternalPlayer.GetNextItem();
+            if (item != null)
+            {
+                HohoemaPlaylist.Play(item);
+                (_InternalPlayer as PlaylistPlayerBase)?.PlayStarted(item);
+            }
         }
     }
 
 
     public interface IPlaylistPlayer
     {
-        Playlist Playlist { get; }
+        IPlayableList Playlist { get; }
         PlaylistItem Current { get; }
-
-        void Play(PlaylistItem item);
 
         bool CanGoBack { get; }
         bool CanGoNext { get; }
 
-        void GoBack();
-        void GoNext();
+        PlaylistItem GetBackItem();
+        PlaylistItem GetNextItem();
     }
 
     abstract public class PlaylistPlayerBase : IPlaylistPlayer
     {
-        public Playlist Playlist { get; set; }
+        HohoemaPlaylist HohoemaPlaylist { get; }
+        public IPlayableList Playlist { get; set; }
         public PlaylistItem Current { get; protected set; }
 
         abstract public bool CanGoBack { get; }
         abstract public bool CanGoNext { get; }
 
-        public void Play(PlaylistItem item)
+        public PlaylistPlayerBase(HohoemaPlaylist playlist, IPlayableList list, PlaylistItem currentItem = null)
         {
-            Playlist.CurrentVideo = item;
+            Playlist = list;
+            Current = currentItem ?? list?.PlaylistItems.FirstOrDefault();
+        }
+
+        internal void PlayStarted(PlaylistItem item)
+        {
             Current = item;
-
-            Playlist.HohoemaPlaylist.PlayStarted(Playlist, Current);
         }
 
-        public void GoBack()
+        public PlaylistItem GetBackItem()
         {
-            if (CanGoBack)
-            {
-                Play(GetPreviousItem());
-            }
+            return CanGoBack ? GetPreviousItem_Inner() : null;
         }
 
-        public void GoNext()
+        public PlaylistItem GetNextItem()
         {
-            if (CanGoNext)
-            {
-                Play(GetNextItem());
-            }
+            return CanGoNext ? GetNextItem_Inner() : null;
         }
 
-        abstract protected PlaylistItem GetNextItem();
+        abstract protected PlaylistItem GetNextItem_Inner();
 
-        abstract protected PlaylistItem GetPreviousItem();
+        abstract protected PlaylistItem GetPreviousItem_Inner();
 
-        public PlaylistPlayerBase(Playlist playlist)
-        {
-            Playlist = playlist;
-            Current = Playlist?.CurrentVideo;
-        }
+       
     }
 
 
 
     public class ThroughPlaylistPlayer : PlaylistPlayerBase
     {
-        public ThroughPlaylistPlayer(Playlist playlist)
-            : base(playlist)
+        public ThroughPlaylistPlayer(HohoemaPlaylist hohoemaPlaylist, IPlayableList playlist, PlaylistItem currentItem = null)
+            : base(hohoemaPlaylist, playlist, currentItem)
         {
             
         }
@@ -664,7 +677,7 @@ namespace NicoPlayerHohoema.Models
 
         public bool IsRepeat { get; set; } = false;
 
-        protected override PlaylistItem GetPreviousItem()
+        protected override PlaylistItem GetPreviousItem_Inner()
         {
             var currentIndex = Playlist.PlaylistItems.IndexOf(Current);
             var prevIndex = currentIndex - 1;
@@ -685,7 +698,7 @@ namespace NicoPlayerHohoema.Models
         }
 
 
-        protected override PlaylistItem GetNextItem()
+        protected override PlaylistItem GetNextItem_Inner()
         {
             var currentIndex = Playlist.PlaylistItems.IndexOf(Current);
             var nextIndex = currentIndex + 1;
@@ -716,8 +729,8 @@ namespace NicoPlayerHohoema.Models
         public Queue<PlaylistItem> RandamizedItems { get; private set; }
         public Stack<PlaylistItem> PlayedItem { get; private set; } = new Stack<PlaylistItem>();
 
-        public ShufflePlaylistPlayer(Playlist playlist)
-            : base( playlist)
+        public ShufflePlaylistPlayer(HohoemaPlaylist hohoemaPlaylist, IPlayableList playlist, PlaylistItem currentItem = null)
+            : base(hohoemaPlaylist, playlist, currentItem)
         {
             
         }
@@ -728,11 +741,6 @@ namespace NicoPlayerHohoema.Models
         {
             get
             {
-                if (IsRequireSync())
-                {
-                    SyncPlaylistItems();
-                }
-
                 return PlayedItem.Count > 0;
             }
         }
@@ -741,16 +749,11 @@ namespace NicoPlayerHohoema.Models
         {
             get
             {
-                if (IsRequireSync())
-                {
-                    SyncPlaylistItems();
-                }
-
                 return IsRepeat ? true : RandamizedItems.Count > 0;
             }
         }
 
-        protected override PlaylistItem GetPreviousItem()
+        protected override PlaylistItem GetPreviousItem_Inner()
         {
             SyncPlaylistItems();
 
@@ -769,7 +772,7 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
-        protected override PlaylistItem GetNextItem()
+        protected override PlaylistItem GetNextItem_Inner()
         {
             SyncPlaylistItems();
 
@@ -796,11 +799,6 @@ namespace NicoPlayerHohoema.Models
 
         private void SyncPlaylistItems()
         {
-            if (Playlist.LastUpdate == LastSyncTime)
-            {
-                return;
-            }
-
             var copied = Playlist.PlaylistItems.ToList();
 
 
@@ -826,239 +824,9 @@ namespace NicoPlayerHohoema.Models
             }
 
         }
-
-        private bool IsRequireSync()
-        {
-            return LastSyncTime != Playlist.LastUpdate;
-        }
     }
 
-    [DataContract]
-    public class Playlist : BindableBase, IDisposable
-    {
-        public HohoemaPlaylist HohoemaPlaylist { get; internal set; }
-
-        private PlaylistSettings _PlaylistSettings;
-        public PlaylistSettings PlaylistSettings
-        {
-            get { return _PlaylistSettings; }
-            internal set
-            {
-                _PlaylistSettings = value;
-                Player = new PlaylistPlayer(this, _PlaylistSettings);
-            }
-        }
-
-        public PlaylistPlayer Player { get; private set; }
-
-        [DataMember]
-        public int SortIndex { get; internal set; }
-
-
-        [DataMember]
-        public string Id { get; private set; }
-
-
-        private string _Name;
-
-        [DataMember]
-        public string Name
-        {
-            get { return _Name; }
-            set
-            {
-                if (SetProperty(ref _Name, value))
-                {
-                    // プレイリストの名前が変更されたらファイルの名前も変更
-                    if (HohoemaPlaylist != null)
-                    {
-                        HohoemaPlaylist.RenamePlaylist(this, _Name);
-                    }
-                }
-            }
-        }
-
-        [DataMember]
-        private ObservableCollection<PlaylistItem> _PlaylistItems { get; set; } = new ObservableCollection<PlaylistItem>();
-        public ReadOnlyObservableCollection<PlaylistItem> PlaylistItems { get; private set; }
-
-        IDisposable _ItemsChangedObserveDisposer;
-
-        [DataMember]
-        public DateTime LastUpdate { get; private set; }
-
-        [DataMember]
-        public DateTime LastPlayed { get; private set; }
-
-        /// <summary>
-        /// Use for serialize only.
-        /// </summary>
-        [DataMember]
-        public string _PlayingVideoId { get; set; }
-
-        private PlaylistItem _CurrentVideo;
-        public PlaylistItem CurrentVideo
-        {
-            get { return _CurrentVideo; }
-            set { SetProperty(ref _CurrentVideo, value); }
-        }
-
-
-        public Playlist()
-        {
-            Id = null;
-            PlaylistItems = new ReadOnlyObservableCollection<PlaylistItem>(_PlaylistItems);
-        }
-
-        public Playlist(string id, string name)
-            : this()
-        {
-            Id = id;
-            _Name = name;
-
-            _ItemsChangedObserveDisposer = PlaylistItems.CollectionChangedAsObservable()
-                .Subscribe(x => 
-                {
-                    LastUpdate = DateTime.Now;
-                });
-        }
-
-
-        public void Dispose()
-        {
-            _ItemsChangedObserveDisposer?.Dispose();
-            Player?.Dispose();
-        }
-
-
-        [OnDeserialized]
-        public void OnSeralized(StreamingContext context)
-        {
-
-            if (_PlayingVideoId != null)
-            {
-                var currentVideoItem = PlaylistItems.FirstOrDefault(x => x.ContentId == _PlayingVideoId);
-                if (currentVideoItem != null)
-                {
-                    _CurrentVideo = currentVideoItem;
-                }
-                else
-                {
-                    _PlayingVideoId = null;
-                }
-            }
-
-            foreach (var item in PlaylistItems)
-            {
-                item.Owner = this;
-            }
-
-            _ItemsChangedObserveDisposer?.Dispose();
-
-            if (_PlaylistItems == null)
-            {
-                _PlaylistItems = new ObservableCollection<PlaylistItem>();
-            }
-
-            PlaylistItems = new ReadOnlyObservableCollection<PlaylistItem>(_PlaylistItems);
-            _ItemsChangedObserveDisposer = PlaylistItems.CollectionChangedAsObservable()
-                .Subscribe(x =>
-                {
-                    LastUpdate = DateTime.Now;
-                });
-        }
-
-
-        public void Play()
-        {
-            if (PlaylistItems.Count == 0) { return; }
-
-            Player.Play(PlaylistItems.First());
-        }
-        
-
-        public PlaylistItem AddVideo(string videoId, string videoName, NicoVideoQuality? quality = null, bool addToFirst = false)
-        {
-            if (videoId == null) { throw new Exception(); }
-
-            // すでに登録済みの場合
-            var alreadyAdded = _PlaylistItems.SingleOrDefault(x => x.Type == PlaylistItemType.Video && x.ContentId == videoId);
-            if (alreadyAdded != null)
-            {
-                // 何もしない
-                return alreadyAdded;
-            }
-
-            var newItem = new QualityVideoPlaylistItem()
-            {
-                Type = PlaylistItemType.Video,
-                ContentId = videoId,
-                Title = videoName,
-                Quality = quality,
-                Owner = this,
-            };
-
-            if (addToFirst)
-            {
-                _PlaylistItems.Insert(0, newItem);
-            }
-            else
-            {
-                _PlaylistItems.Add(newItem);
-            }
-
-            
-            HohoemaPlaylist.Save(this).ConfigureAwait(false);
-
-            return newItem;
-        }
-
-        public PlaylistItem AddLiveVideo(string liveId, string liveName, bool addToFirst = false)
-        {
-            // すでに登録済みの場合
-            var alreadyAdded = _PlaylistItems.SingleOrDefault(x => x.Type == PlaylistItemType.Live && x.ContentId == liveId);
-            if (alreadyAdded != null)
-            {
-                // 何もしない
-                return alreadyAdded;
-            }
-
-            var newItem = new LiveVideoPlaylistItem()
-            {
-                Type = PlaylistItemType.Live,
-                ContentId = liveId,
-                Title = liveName,
-                Owner = this,
-            };
-
-            if (addToFirst)
-            {
-                _PlaylistItems.Insert(0, newItem);
-            }
-            else
-            {
-                _PlaylistItems.Add(newItem);
-            }
-
-            return newItem;
-        }
-
-        public bool Remove(PlaylistItem item)
-        {
-            if (PlaylistItems.Contains(item))
-            {
-                if (_PlaylistItems.Remove(item))
-                {
-                    HohoemaPlaylist.Save(this).ConfigureAwait(false);
-
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-    }
+    
 
     [DataContract]
     public class PlaylistItem
@@ -1074,14 +842,7 @@ namespace NicoPlayerHohoema.Models
         [DataMember]
         public string Title { get; set; }
 
-        public Playlist Owner { get; set; }
-
-        public void Play()
-        {
-            Owner.Player.Play(this);
-        }
-        
-        
+        public IPlayableList Owner { get; set; }
     }
     
     public class QualityVideoPlaylistItem : PlaylistItem
@@ -1094,6 +855,13 @@ namespace NicoPlayerHohoema.Models
     public class LiveVideoPlaylistItem : PlaylistItem
     {
         internal LiveVideoPlaylistItem() { }
+    }
+
+    public enum PlaylistOrigin
+    {
+        LoginUser,
+        OtherUser,
+        Local,
     }
 
     public enum PlaylistItemType
@@ -1109,4 +877,9 @@ namespace NicoPlayerHohoema.Models
         RepeatAll,
     }
     
+    public enum ContentInsertPosition
+    {
+        Head,
+        Tail,
+    }
 }
