@@ -223,6 +223,28 @@ namespace NicoPlayerHohoema.Models
         public void OpenStartupPage()
         {
             OpenPage(AppearanceSettings.StartupPageType);
+
+            if (Models.AppUpdateNotice.HasNotCheckedUptedeNoticeVersion)
+            {
+                Models.AppUpdateNotice.GetNotCheckedUptedeNoticeVersions()
+                    .ContinueWith(async prevTask =>
+                    {
+                        if (prevTask.Exception == null)
+                        {
+                            await HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => 
+                            {
+                                Models.AppUpdateNotice.UpdateLastCheckedVersionInCurrentVersion();
+
+                                var text = await Models.AppUpdateNotice.GetUpdateNotices(prevTask.Result);
+                                var dialog = new Views.Service.MarkdownTextDialog();
+                                dialog.Title = "更新情報";
+                                dialog.Text = text;
+                                dialog.PrimaryButtonText = "OK";
+                                await dialog.ShowAsync();
+                            });
+                        }
+                    });
+            }
         }
 
 		public static string PageTypeToTitle(HohoemaPageType pageType)
