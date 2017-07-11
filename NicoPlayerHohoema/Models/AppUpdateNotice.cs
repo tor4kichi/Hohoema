@@ -27,7 +27,7 @@ namespace NicoPlayerHohoema.Models
 
         
         
-        public static async Task<string> GetUpdateNotices(List<Version> versions, string joinString = @"\r\n* * *\r\n")
+        public static async Task<string> GetUpdateNotices(List<Version> versions, string joinString = "\n\n* * *\n\n")
         {
             var versionMarkdownTextList = new List<string>();
 
@@ -139,7 +139,7 @@ namespace NicoPlayerHohoema.Models
             {
                 if (_UpdateNoticeAvairableVersions == null)
                 {
-                    _UpdateNoticeAvairableVersions = new List<Version>();
+                    var list = new List<Version>();
                     var folder = await GetUpdateNoticesFolderAsync();
                     var files = await folder.GetFilesAsync();
                     foreach (var file in files)
@@ -147,11 +147,11 @@ namespace NicoPlayerHohoema.Models
                         var file_version = Path.GetFileNameWithoutExtension(file.Name);
                         if (Version.TryParse(file_version, out var result))
                         {
-                            _UpdateNoticeAvairableVersions.Add(result);
+                            list.Add(result);
                         }
                     }
 
-                    _UpdateNoticeAvairableVersions.Sort();
+                    _UpdateNoticeAvairableVersions = list.OrderByDescending(x => x).ToList();
                 }
 
                 return _UpdateNoticeAvairableVersions;

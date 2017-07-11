@@ -53,7 +53,7 @@
 
                     <TextBlock Text="バージョン情報"
                        Style="{StaticResource SubTitleStyle}"
-                   ></TextBlock>
+                        />
 
                     <StackPanel Margin="16 8 16 16">
                         <TextBlock Style="{StaticResource ContentTextStyle}">
@@ -63,6 +63,26 @@
 
 
                     </StackPanel>
+
+                    <TextBlock Text="Hohoemaの更新履歴"
+                       Style="{StaticResource SubTitleStyle}"
+                        />
+
+                    <StackPanel Margin="16 8 16 16">
+                        <ListView ItemsSource="{Binding UpdateNoticeList}"
+                              uwpui:ListViewBaseExtensions.Command="{Binding ShowUpdateNoticeCommand}"
+                              IsItemClickEnabled="True"
+                                  SelectionMode="None"
+                              >
+                            <ListView.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <ItemsWrapGrid Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ListView.ItemsPanel>
+                        </ListView>
+
+                    </StackPanel>
+
 
 
                     <TextBlock Text="作った人"
