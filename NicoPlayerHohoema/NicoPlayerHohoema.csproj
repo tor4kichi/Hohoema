@@ -112,6 +112,7 @@
     <Content Include="Assets\LibLisencies\UWP Community Toolkit.txt" />
     <Content Include="Assets\LibLisencies\_lisence_summary.json" />
     <Content Include="Assets\OAuth\twitter.json" />
+    <Content Include="Assets\UpdateNotices\0.9.0.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
   </ItemGroup>
   <ItemGroup>
@@ -121,6 +122,7 @@
     <Compile Include="Events\PlayerClosedEvent.cs" />
     <Compile Include="Events\PlayNicoVideoEvent.cs" />
     <Compile Include="Models\AccountManager.cs" />
+    <Compile Include="Models\AppUpdateNotice.cs" />
     <Compile Include="Models\BackgroundUpdater.cs" />
     <Compile Include="Models\CommentCommandPermissionType.cs" />
     <Compile Include="Models\Db\History\HistoryDbContext.cs" />
@@ -302,6 +304,9 @@
     </Compile>
     <Compile Include="Views\Converters\HohoemaPageTypeToTextConverter.cs" />
     <Compile Include="Views\Converters\PlayerEndActionToTextConverter.cs" />
+    <Compile Include="Views\Service\MarkdownTextDialog.xaml.cs">
+      <DependentUpon>MarkdownTextDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\UINavigationButtons.cs" />
     <Compile Include="Views\CommentCommandEditer.xaml.cs">
       <DependentUpon>CommentCommandEditer.xaml</DependentUpon>
@@ -985,6 +990,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Service\EditMylistGroupDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Service\MarkdownTextDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
