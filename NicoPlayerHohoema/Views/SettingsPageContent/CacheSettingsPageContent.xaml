@@ -15,98 +15,97 @@
     d:DesignWidth="600">
 
 
-    <ScrollViewer IsTabStop="False">
 
-        <StackPanel 
+    <StackPanel 
                     Margin="16 8 8 8" MinWidth="400" HorizontalAlignment="Left"
                             >
 
-            <!-- キャッシュ設定 -->
-            <TextBlock Text="動画キャッシュ設定"
+        <!-- キャッシュ設定 -->
+        <TextBlock Text="動画キャッシュ設定"
                            Margin="0 8"
                             FontSize="18"
                            FontWeight="SemiBold"
                            VerticalAlignment="Center"
                        />
-            <StackPanel Margin="8 0 0 0">
+        <StackPanel Margin="8 0 0 0">
 
 
-                <StackPanel Margin="0 8">
+            <StackPanel Margin="0 8">
 
-                    <StackPanel Margin="0 8 0 16">
+                <StackPanel Margin="0 8 0 16">
 
-                        <TextBlock Text="動画キャッシュ利用のためのヒント"
+                    <TextBlock Text="動画キャッシュ利用のためのヒント"
                                Margin="0 0 0 4"
                                />
 
-                        <TextBlock Text="{Binding CacheFolderStateDescription.Value}" 
+                    <TextBlock Text="{Binding CacheFolderStateDescription.Value}" 
                                  TextWrapping="Wrap"
                                        Opacity="0.8"
                                        Margin="8"
                                    />
 
-                    </StackPanel>
+                </StackPanel>
 
-                    <StackPanel Margin="0 8 0 16">
+                <StackPanel Margin="0 8 0 16">
 
-                        <TextBlock Text="動画キャッシュ保存フォルダ"
+                    <TextBlock Text="動画キャッシュ保存フォルダ"
                                        VerticalAlignment="Center"
                                />
 
-                        <HyperlinkButton Command="{Binding OpenCurrentCacheFolderCommand}"
+                    <HyperlinkButton Command="{Binding OpenCurrentCacheFolderCommand}"
                                         Margin="0 8"
                                             >
-                            <TextBlock Text="{Binding CacheSaveFolderPath.Value}"
+                        <TextBlock Text="{Binding CacheSaveFolderPath.Value}"
                                         TextWrapping="Wrap"
                                         />
-                        </HyperlinkButton>
-                        
-                        <Border Height="8" />
+                    </HyperlinkButton>
 
-                        <Button Content="保存先フォルダを変更"
+                    <Border Height="8" />
+
+                    <Button Content="保存先フォルダを変更"
                                     Command="{Binding ChangeCacheFolderCommand}"
                             UseSystemFocusVisuals="True"
                                     >
-                        </Button>
-
-                    </StackPanel>
+                    </Button>
 
                 </StackPanel>
 
-                
             </StackPanel>
 
-            
-            <Border Margin="0 8"
+
+        </StackPanel>
+
+
+        <Border Margin="0 8"
                     BorderBrush="Gray"
                     BorderThickness="0 1 0 0"
                     />
 
-            <StackPanel Margin="8 0 0 0">
+        <StackPanel Margin="8 0 0 0">
 
-                <StackPanel Margin="0 8 0 16">
-                    <TextBlock Text="動画キャッシュを有効にする"
+            <StackPanel Margin="0 8 0 16">
+                <TextBlock Text="動画キャッシュを有効にする"
                                VerticalAlignment="Center"
                            />
-                    <ToggleSwitch 
+                <ToggleSwitch 
                                   IsOn="{Binding IsEnableCache.Value, Mode=TwoWay}"
                                   
                                           />
-                </StackPanel>
+            </StackPanel>
 
 
-                <toolkit:DockPanel Margin="0 8 0 16">
-                    <Button Content="動画キャッシュ機能利用の確認文を読む" 
+            <toolkit:DockPanel Margin="0 8 0 16">
+                <Button Content="動画キャッシュ機能利用の確認文を読む" 
                                     Command="{Binding ReadCacheAcceptTextCommand}"
                                     Visibility="{Binding IsUserAcceptRegalNotice.Value, Converter={StaticResource BooleanToVisibility}}"
                             UseSystemFocusVisuals="True"
                                     />
-                </toolkit:DockPanel>
+            </toolkit:DockPanel>
 
 
 
 
-                <!--
+            <!--
                     <StackPanel Margin="16 0 0 0">
 
                         <toolkit:DockPanel Margin="8">
@@ -173,17 +172,12 @@
                     </StackPanel>
                     
                     -->
-            </StackPanel>
-
-
-
-
         </StackPanel>
 
 
 
 
-    </ScrollViewer>
+    </StackPanel>
 
 
 

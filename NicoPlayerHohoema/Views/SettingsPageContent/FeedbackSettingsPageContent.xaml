@@ -9,40 +9,39 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <ScrollViewer IsTabStop="False">
 
-        <StackPanel Margin="16 8 16 16" 
+    <StackPanel Margin="16 8 16 16" 
                     HorizontalAlignment="Stretch"
                     >
 
-            <StackPanel Orientation="Horizontal" Margin="0 0 0 8">
-                <TextBlock Text="レビュー"
+        <StackPanel Orientation="Horizontal" Margin="0 0 0 8">
+            <TextBlock Text="レビュー"
                            FontSize="18"
                            VerticalAlignment="Center"
                            FontWeight="SemiBold"
                            />
-            </StackPanel>
+        </StackPanel>
 
-            
 
-            <StackPanel Margin="8 0 0 0">
-                
-                <TextBlock Margin="0 8 8 8"
+
+        <StackPanel Margin="8 0 0 0">
+
+            <TextBlock Margin="0 8 8 8"
                        TextWrapping="Wrap"                       
                        >
                     <Run>ストアアプリからHohoemaへの評価・レビューを確認したり、送信することができます。</Run>
                     <Run>開発者のモチベーションにもなりますので、評価やレビューを頂けると幸いです。</Run>
-                </TextBlock>
+            </TextBlock>
 
-                <HyperlinkButton Content="ストアでHohoemaをレビューする"
+            <HyperlinkButton Content="ストアでHohoemaをレビューする"
                     Margin="0 8"
                     Command="{Binding LaunchAppReviewCommand}"
                     UseSystemFocusVisuals="True"
                     />
-                
-            </StackPanel>
-            
-            <Border HorizontalAlignment="Stretch"
+
+        </StackPanel>
+
+        <Border HorizontalAlignment="Stretch"
                     BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                     BorderThickness="1 1 0 0"
                     Margin="0 16"
@@ -51,46 +50,44 @@
 
 
 
-            <StackPanel Orientation="Horizontal" Margin="0 8 0 8">
-                <TextBlock Text="フィードバックHub"
+        <StackPanel Orientation="Horizontal" Margin="0 8 0 8">
+            <TextBlock Text="フィードバックHub"
                            FontSize="18"
                            VerticalAlignment="Center"
                            FontWeight="SemiBold"
                            />
-            </StackPanel>
+        </StackPanel>
 
-            <StackPanel Margin="8 0 0 0">
-                
-                <TextBlock Margin="0 8"
+        <StackPanel Margin="8 0 0 0">
+
+            <TextBlock Margin="0 8"
                        TextWrapping="Wrap"
                        >
                     <Run>フィードバックHubでHohoemaへのフィードバックを確認します。</Run>
                     <Run>問題や改善点をフィードバックHubから共有することで、Hohoemaの開発に協力することができます。</Run>
-                </TextBlock>
+            </TextBlock>
 
-                <HyperlinkButton Content="フィードバックHubを開く" 
+            <HyperlinkButton Content="フィードバックHubを開く" 
                     Margin="0 0 0 8"
                     Command="{Binding LaunchFeedbackHubCommand}"
                     Visibility="{Binding IsSupportedFeedbackHub, Converter={StaticResource BooleanToVisibility}}"
                     UseSystemFocusVisuals="True"
                     >
 
-                </HyperlinkButton>
+            </HyperlinkButton>
 
-                <Border HorizontalAlignment="Stretch"
+            <Border HorizontalAlignment="Stretch"
                     BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                     BorderThickness="1 1 0 0"
                     Margin="0 16"
                     />
-                
-                <HyperlinkButton Content="「フィードバックHub」をダウンロード"
+
+            <HyperlinkButton Content="「フィードバックHub」をダウンロード"
                              NavigateUri="ms-windows-store://pdp/?productid=9NBLGGH4R32N"
                              Margin="0 8"
                              />
-            </StackPanel>
-            
-
         </StackPanel>
 
-    </ScrollViewer>
+
+    </StackPanel>
 </UserControl>

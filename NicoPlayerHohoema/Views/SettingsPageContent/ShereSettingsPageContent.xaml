@@ -13,7 +13,7 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <ScrollViewer IsTabStop="False">
+    <Grid>
         <StackPanel Margin="16 8 8 8" MinWidth="400" HorizontalAlignment="Left">
 
             <StackPanel Orientation="Horizontal" Margin="0 0 0 8">
@@ -64,5 +64,5 @@
             </StackPanel>
 
         </StackPanel>
-    </ScrollViewer>
+    </Grid>
 </UserControl>
