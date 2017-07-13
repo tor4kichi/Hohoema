@@ -2079,7 +2079,7 @@ namespace NicoPlayerHohoema.ViewModels
 			IsLock = false;
 		}
 
-		public TagViewModel(Tag tag, PageManager pageManager)
+		public TagViewModel(ThumbnailTag tag, PageManager pageManager)
 		{
 			_PageManager = pageManager;
 

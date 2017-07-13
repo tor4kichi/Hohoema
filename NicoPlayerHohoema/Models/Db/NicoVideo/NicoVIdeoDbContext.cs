@@ -80,14 +80,14 @@ namespace NicoPlayerHohoema.Models.Db
 		public DateTime LastUpdated { get; set; }
 
 
-		public List<Tag> GetTags()
+		public List<ThumbnailTag> GetTags()
 		{
-            if (TagsJson == null) { return new List<Tag>(); }
+            if (TagsJson == null) { return new List<ThumbnailTag>(); }
 
-			return Newtonsoft.Json.JsonConvert.DeserializeObject<List<Tag>>(TagsJson);
+			return Newtonsoft.Json.JsonConvert.DeserializeObject<List<ThumbnailTag>>(TagsJson);
 		}
 
-		public void SetTags(List<Tag> tags)
+		public void SetTags(List<ThumbnailTag> tags)
 		{
 			TagsJson = Newtonsoft.Json.JsonConvert.SerializeObject(tags);
 		}

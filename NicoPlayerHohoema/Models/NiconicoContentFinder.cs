@@ -95,7 +95,7 @@ namespace NicoPlayerHohoema.Models
             }
 		}
 
-		public async Task<WatchApiResponse> GetWatchApiResponse(string rawVideoId, bool forceLowQuality = false, HarmfulContentReactionType harmfulContentReaction = HarmfulContentReactionType.None)
+		public async Task<InitialWatchData> GetWatchApiResponse(string rawVideoId, bool forceLowQuality = false, HarmfulContentReactionType harmfulContentReaction = HarmfulContentReactionType.None)
 		{
             if (_HohoemaApp.NiconicoContext == null)
             {
@@ -122,10 +122,10 @@ namespace NicoPlayerHohoema.Models
 						);
 				});
 
-				if (res != null && res.UploaderInfo != null)
+				if (res != null && res.Owner != null)
 				{
-					var uploaderInfo = res.UploaderInfo;
-					await UserInfoDb.AddOrReplaceAsync(uploaderInfo.id, uploaderInfo.nickname, uploaderInfo.icon_url);
+					var uploaderInfo = res.Owner;
+					await UserInfoDb.AddOrReplaceAsync(uploaderInfo.Id, uploaderInfo.Nickname, uploaderInfo.IconURL);
 				}
 
                 if (res != null)

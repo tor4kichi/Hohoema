@@ -29,7 +29,7 @@ namespace NicoPlayerHohoema.Models
 		private CommentResponse _CachedCommentResponse;
 		private NicoVideoQuality _VisitedPageType = NicoVideoQuality.Low;
 
-		internal WatchApiResponse CachedWatchApiResponse { get; private set; }
+		internal InitialWatchData CachedWatchApiResponse { get; private set; }
 
         AsyncLock _InitializeLock = new AsyncLock();
 		bool _IsInitialized = false;
@@ -152,7 +152,7 @@ namespace NicoPlayerHohoema.Models
                         commentRes = await ConnectionRetryUtil.TaskWithRetry(async () =>
                         {
                             return await this.HohoemaApp.NiconicoContext.Video
-                                .GetCommentAsync(CachedWatchApiResponse);
+                                .GetCommentAsync(CachedWatchApiResponse.Viewer.Id, CachedWatchApiResponse.Thread.ServerUrl, CachedWatchApiResponse.Video.DmcInfo.Thread.ThreadId, CachedWatchApiResponse.Video.DmcInfo.Thread.ThreadKeyRequired);
                         });
 
                         if (commentRes != null)
@@ -232,12 +232,12 @@ namespace NicoPlayerHohoema.Models
 			return GetWatchApiResponse(forceLowQuality);
 		}
 
-		private async Task<WatchApiResponse> GetWatchApiResponse(bool forceLoqQuality = false)
+		private async Task<InitialWatchData> GetWatchApiResponse(bool forceLoqQuality = false)
 		{
             if (!HohoemaApp.IsLoggedIn) { return null; }
 
 
-			WatchApiResponse watchApiRes = null;
+            InitialWatchData watchApiRes = null;
 
 			try
 			{
@@ -255,30 +255,30 @@ namespace NicoPlayerHohoema.Models
 
 			if (!forceLoqQuality && watchApiRes != null)
 			{
-				NowLowQualityOnly = watchApiRes.VideoUrl.AbsoluteUri.EndsWith("low");
+                NowLowQualityOnly = watchApiRes.Video.SmileInfo.IsSlowLine;
 			}
 
-			_VisitedPageType = watchApiRes.VideoUrl.AbsoluteUri.EndsWith("low") ? NicoVideoQuality.Low : NicoVideoQuality.Original;
+//			_VisitedPageType = watchApiRes.Vide.AbsoluteUri.EndsWith("low") ? NicoVideoQuality.Low : NicoVideoQuality.Original;
 			
 			if (watchApiRes != null)
 			{
 				CachedWatchApiResponse = watchApiRes;
 
-				VideoUrl = watchApiRes.VideoUrl;
+				VideoUrl = new Uri( watchApiRes.Video.SmileInfo.Url);
 
-				ProtocolType = MediaProtocolTypeHelper.ParseMediaProtocolType(watchApiRes.VideoUrl);
+				ProtocolType = MediaProtocolTypeHelper.ParseMediaProtocolType(VideoUrl);
 
-				DescriptionWithHtml = watchApiRes.videoDetail.description;
-				ThreadId = watchApiRes.ThreadId.ToString();
-				PrivateReasonType = watchApiRes.PrivateReason;
-                VideoLength = watchApiRes.Length;
+				DescriptionWithHtml = watchApiRes.Video.Description;
+				ThreadId = watchApiRes.Video.DmcInfo.Thread.ThreadId.ToString();
+				//PrivateReasonType = watchApiRes.PrivateReason;
+                VideoLength = TimeSpan.FromSeconds(watchApiRes.Video.Duration);
 
 				if (!_thumbnailInitialized)
 				{
-					RawVideoId = watchApiRes.videoDetail.id;
+					RawVideoId = watchApiRes.Video.Id;
 					await UpdateWithThumbnail();
 				}
-				IsCommunity = watchApiRes.flashvars.is_community_video == "1";
+                IsCommunity = watchApiRes.Video.IsCommunityMemberOnly == "1";
 				
 
 				// TODO: 
@@ -287,13 +287,13 @@ namespace NicoPlayerHohoema.Models
 					
 //				}).ToList();
 
-				if (watchApiRes.UploaderInfo != null)
+				if (watchApiRes.Owner != null)
 				{
-					VideoOwnerId = uint.Parse(watchApiRes.UploaderInfo.id);
+					VideoOwnerId = uint.Parse(watchApiRes.Owner.Id);
 				}
 
 
-				this.IsDeleted = watchApiRes.IsDeleted;
+				this.IsDeleted = watchApiRes.Video.IsDeleted;
 				if (IsDeleted)
 				{
 					await DeletedTeardown();
@@ -416,7 +416,7 @@ namespace NicoPlayerHohoema.Models
                     return null;
                 }
 
-                return CachedWatchApiResponse.VideoUrl;
+                return new Uri(CachedWatchApiResponse.Video.SmileInfo.Url);
             }
             else
             {
@@ -426,7 +426,7 @@ namespace NicoPlayerHohoema.Models
 
         internal async Task SetupWatchPageVisit(NicoVideoQuality quality)
 		{
-			WatchApiResponse res;
+			InitialWatchData res;
 			if (quality == NicoVideoQuality.Original)
 			{
 				if (OriginalQuality.IsCached)
@@ -607,7 +607,7 @@ namespace NicoPlayerHohoema.Models
 
 			try
 			{
-				return await HohoemaApp.NiconicoContext.Video.PostCommentAsync(watchApiRes, commentRes.Thread, comment, position, commands);
+				return await HohoemaApp.NiconicoContext.Video.PostCommentAsync(watchApiRes.Thread.ServerUrl, commentRes.Thread, comment, position, commands);
 			}
 			catch
 			{
@@ -782,7 +782,7 @@ namespace NicoPlayerHohoema.Models
 		public DateTime PostedAt { get; private set; }
 		public uint VideoOwnerId { get; private set; }
 		public bool IsOriginalQualityOnly => SizeLow == 0 || ContentType != MovieType.Mp4;
-		public List<Tag> Tags { get; private set; }
+		public List<ThumbnailTag> Tags { get; private set; }
 		public uint SizeLow { get; private set; }
 		public uint SizeHigh { get; private set; }
 		public uint ViewCount { get; internal set; }

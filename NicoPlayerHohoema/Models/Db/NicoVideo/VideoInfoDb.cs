@@ -39,16 +39,16 @@ namespace NicoPlayerHohoema.Models.Db
         }
 
 
-		public static async Task UpdateNicoVideoInfo(NicoVideoInfo info, WatchApiResponse watchApiRes)
+		public static async Task UpdateNicoVideoInfo(NicoVideoInfo info, InitialWatchData watchApiRes)
 		{
-			info.DescriptionWithHtml = watchApiRes.videoDetail.description;
+			info.DescriptionWithHtml = watchApiRes.Video.Description;
 
-			info.ThreadId = watchApiRes.ThreadId.ToString();
-			info.ViewCount = (uint)watchApiRes.videoDetail.viewCount.Value;
-			info.MylistCount = (uint)watchApiRes.videoDetail.mylistCount.Value;
-			info.CommentCount = (uint)watchApiRes.videoDetail.commentCount.Value;
+            info.ThreadId = watchApiRes.Video.DmcInfo.Thread.ThreadId.ToString();
+            info.ViewCount = (uint)watchApiRes.Video.ViewCount;
+            info.MylistCount = (uint)watchApiRes.Video.MylistCount;
+            info.CommentCount = (uint)watchApiRes.Thread.CommentCount;
 
-			info.PrivateReasonType = watchApiRes.PrivateReason;
+			//info.PrivateReasonType = watchApiRes.;
 
             await UpdateAsync(info);
 		}
