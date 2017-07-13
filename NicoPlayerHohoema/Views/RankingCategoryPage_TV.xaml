@@ -19,8 +19,7 @@
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-          Margin="8 27 0 0"
+    <Grid Margin="8 27 0 0"
           >
 
         <Grid>
@@ -223,39 +222,39 @@
                                                  ItemCommand="{Binding SelectItemCommand}"
                                                  IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
                                                  Margin="0 0 0 0"
-                                                 Padding="0 0 0 24"
+                                                 Padding="0 0 48 0"
                                                  ItemContextFlyout="{StaticResource VideoListItemFlyout}"
                                                  IsTabStop="False"
                                                  >
                     <controls:IncrementalLoadingList.ItemTemplate>
                         <DataTemplate>
                             <Grid Margin="0 0 0 0"
-                                  MaxHeight="400"
+                                  MaxHeight="150"
                                   >
 
-                                <TextBlock Text="{Binding Rank, Mode=OneTime}" 
-                                           HorizontalAlignment="Right"
-                                           VerticalAlignment="Bottom"
-                                           Style="{StaticResource HeaderTextBlockStyle}"
-                                           LineStackingStrategy="BlockLineHeight"
-                                           Margin="0 8"
-                                           FontWeight="SemiBold"
-                                           Opacity="0.5"
-                                           FontSize="50"
-                                           />
                                 
-                                <hohoemalistItem:HohoemaListItemCard />
+                                <hohoemalistItem:HohoemaListItemMiniCard />
 
-                               
+                                <Grid >
+                                    <TextBlock Text="{Binding Rank, Mode=OneTime}" 
+                                           HorizontalAlignment="Left"
+                                           VerticalAlignment="Top"
+                                               Margin="16 0"
+                                           Style="{StaticResource SubheaderTextBlockStyle}"
+                                           LineStackingStrategy="BlockLineHeight"
+                                           FontWeight="SemiBold"
+                                           />
+                                </Grid>
+
+
                             </Grid>
                         </DataTemplate>
                     </controls:IncrementalLoadingList.ItemTemplate>
 
                     <controls:IncrementalLoadingList.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <ItemsWrapGrid Orientation="Vertical"
-                                           MaxHeight="400"
-                                           Margin="0 0 32 0"
+                            <ItemsWrapGrid Orientation="Horizontal"
+                                           Margin="0 0 0 27"
                                            />
                         </ItemsPanelTemplate>
                     </controls:IncrementalLoadingList.ItemsPanel>

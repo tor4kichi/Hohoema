@@ -119,7 +119,7 @@
                                                  ItemCommand="{Binding SelectItemCommand}"
                                                  IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
                                                  Margin="0 0 0 0"
-                                                 Padding="0 0 0 24"
+                                                 Padding="0 0 48 0"
                                                  ItemContextFlyout="{StaticResource VideoListItemFlyout}"
                                                  IsTabStop="False"
                                                  >
@@ -137,9 +137,8 @@
 
                     <controls:IncrementalLoadingList.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <ItemsWrapGrid Orientation="Vertical"
-                                           MaxHeight="340"
-                                           Margin="0 0 32 0"
+                            <ItemsWrapGrid Orientation="Horizontal"
+                                           Margin="0 0 0 27"
                                            />
                         </ItemsPanelTemplate>
                     </controls:IncrementalLoadingList.ItemsPanel>

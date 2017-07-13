@@ -121,17 +121,17 @@
                                                  ItemCommand="{Binding SelectItemCommand}"
                                                  IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
                                                  Margin="0 0 0 0"
-                                                 Padding="0 0 0 24"
+                                                 Padding="0 0 48 0"
                                                  ItemContextFlyout="{StaticResource VideoListItemFlyout}"
                                                  IsTabStop="False"
                                                  >
                     <controls:IncrementalLoadingList.ItemTemplate>
                         <DataTemplate>
                             <Grid Margin="0 0 0 0"
-                                  Height="360"
+                                  Height="150"
                                   >
 
-                                <hohoemalistItem:HohoemaListItemCard />
+                                <hohoemalistItem:HohoemaListItemMiniCard />
 
                             </Grid>
                         </DataTemplate>
@@ -139,9 +139,8 @@
 
                     <controls:IncrementalLoadingList.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <ItemsWrapGrid Orientation="Vertical"
-                                           MaxHeight="360"
-                                           Margin="0 0 32 0"
+                            <ItemsWrapGrid Orientation="Horizontal"
+                                           Margin="0 0 0 27"
                                            />
                         </ItemsPanelTemplate>
                     </controls:IncrementalLoadingList.ItemsPanel>
