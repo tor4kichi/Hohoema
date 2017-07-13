@@ -384,24 +384,27 @@
                                                         >
                             <controls:IncrementalLoadingList.ItemTemplate>
                                 <DataTemplate>
-                                    <StackPanel VerticalAlignment="Center"
-                                                HorizontalAlignment="Center"
+                                    <toolkit:DockPanel Margin="0"
+                                                       Height="64"
+                                                       Width="120"
                                                 >
                                         <TextBlock Text="{Binding Keyword}"
                                            Margin="0 0 0 4"
+                                                   HorizontalAlignment="Stretch"
+                                                   toolkit:DockPanel.Dock="Top"
+                                                   TextWrapping="Wrap"
                                            />
                                         <TextBlock Text="{Binding Target}" 
                                            Style="{StaticResource CaptionTextBlockStyle}"
                                        />
 
 
-                                    </StackPanel>
+                                    </toolkit:DockPanel>
                                 </DataTemplate>
                             </controls:IncrementalLoadingList.ItemTemplate>
                             <controls:IncrementalLoadingList.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                   <ItemsStackPanel Orientation="Horizontal" Margin="0 0 48 0"
-                                                   MaxHeight="340"
+                                   <ItemsWrapGrid Orientation="Horizontal" Margin="0 0 48 0"
                                                    />
                                 </ItemsPanelTemplate>
                             </controls:IncrementalLoadingList.ItemsPanel>
