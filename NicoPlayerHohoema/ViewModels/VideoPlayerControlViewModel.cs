@@ -656,6 +656,21 @@ namespace NicoPlayerHohoema.ViewModels
                     .AsTask()
                     .ConfigureAwait(false);
 
+                    VideoPlayed(canPlayNext: true);
+
+                    // ローカルプレイリストの場合は勝手に消しておく
+                    if (HohoemaApp.Playlist.CurrentPlaylist is LocalMylist)
+                    {
+                        if (HohoemaApp.Playlist.CurrentPlaylist != HohoemaApp.Playlist.DefaultPlaylist)
+                        {
+                            var item = HohoemaApp.Playlist.CurrentPlaylist.PlaylistItems.FirstOrDefault(x => x.ContentId == Video.RawVideoId);
+                            if (item != null)
+                            {
+                                (HohoemaApp.Playlist.CurrentPlaylist as LocalMylist).Remove(item);
+                            }
+                        }
+                    }
+
                     return;
                 }
 
@@ -690,12 +705,16 @@ namespace NicoPlayerHohoema.ViewModels
                     // サポートしていないプロトコルです
                     IsNotSupportVideoType = true;
                     CannotPlayReason = videoInfo.ProtocolType.ToString() + " はHohoemaでサポートされないデータ通信形式です";
+
+                    VideoPlayed(canPlayNext: true);
                 }
                 else if (videoInfo.ContentType == MovieType.Flv)
                 {
                     // サポートしていない動画タイプです
                     IsNotSupportVideoType = true;
                     CannotPlayReason = videoInfo.ContentType.ToString() + " はHohoemaでサポートされない動画形式です";
+
+                    VideoPlayed(canPlayNext: true);
                 }
                 else
                 {
@@ -854,8 +873,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			if (Video == null || IsDisposed) { IsSaveRequestedCurrentQualityCache.Value = false; return; }
 
-
-			NowQualityChanging.Value = true;
+            NowQualityChanging.Value = true;
 
 			
             var qualityVideo = Video.GetDividedQualityNicoVideo(RequestVideoQuality.Value);
@@ -874,6 +892,9 @@ namespace NicoPlayerHohoema.ViewModels
                     IsNotSupportVideoType = true;
                     CannotPlayReason = ex.Message;
                     CurrentState.Value = MediaPlaybackState.None;
+
+                    VideoPlayed(canPlayNext: true);
+
                     return;
                 }
 
@@ -938,9 +959,6 @@ namespace NicoPlayerHohoema.ViewModels
             
             MediaPlayer.PlaybackSession.PlaybackRate = 
                 HohoemaApp.UserSettings.PlayerSettings.DefaultPlaybackRate;
-
-            PlaylistCanGoBack.Value = HohoemaApp.Playlist.Player.CanGoBack;
-            PlaylistCanGoNext.Value = HohoemaApp.Playlist.Player.CanGoNext;
 
         }
 
@@ -1147,7 +1165,6 @@ namespace NicoPlayerHohoema.ViewModels
                 }
             }
 
-            
             VideoLength.Value = Video.VideoLength.TotalSeconds;
             CurrentVideoPosition.Value = TimeSpan.Zero;
 
@@ -1166,6 +1183,8 @@ namespace NicoPlayerHohoema.ViewModels
 
             ThumbnailUri.Value = Video.ThumbnailUrl;
             CurrentPlaylist = HohoemaApp.Playlist.CurrentPlaylist;
+            _CurrentPlayingItem = HohoemaApp.Playlist.Player.Current;
+
             CurrentPlaylistName.Value = CurrentPlaylist.Name;
             PlaylistItems = CurrentPlaylist.PlaylistItems.ToReadOnlyReactiveCollection();
             OnPropertyChanged(nameof(PlaylistItems));
@@ -1183,7 +1202,10 @@ namespace NicoPlayerHohoema.ViewModels
             App.Current.Suspending += Current_Suspending;
             App.Current.LeavingBackground += Current_LeavingBackground;
             App.Current.EnteredBackground += Current_EnteredBackground;
-		}
+
+            PlaylistCanGoBack.Value = HohoemaApp.Playlist.Player.CanGoBack;
+            PlaylistCanGoNext.Value = HohoemaApp.Playlist.Player.CanGoNext;
+        }
 
         private void Current_EnteredBackground(object sender, Windows.ApplicationModel.EnteredBackgroundEventArgs e)
         {
@@ -1353,7 +1375,7 @@ namespace NicoPlayerHohoema.ViewModels
                 // VideoPlayedはMediaPlayerが動作しているコンテキスト上から呼ばれる可能性がある
                 PlayerWindowUIDispatcherScheduler.Schedule(() => 
                 {
-                    HohoemaApp.Playlist.PlayDone(canPlayNext);
+                    HohoemaApp.Playlist.PlayDone(_CurrentPlayingItem, canPlayNext);
                 });
 
                 _IsVideoPlayed = true;
@@ -1781,7 +1803,11 @@ namespace NicoPlayerHohoema.ViewModels
                         var player = HohoemaApp.Playlist.Player;
                         if (player != null)
                         {
-                            HohoemaApp.Playlist.PlayDone();
+                            // 先に_IsVideoPlayed をtrueにしておくことで
+                            // NavigatingFromで再生完了が呼ばれた時にPlaylist.PlayDoneが多重呼び出しされないようにする
+                            _IsVideoPlayed = true;
+
+                            HohoemaApp.Playlist.PlayDone(_CurrentPlayingItem);
 
                             if (player.CanGoBack)
                             {
@@ -1805,12 +1831,11 @@ namespace NicoPlayerHohoema.ViewModels
                         var player = HohoemaApp.Playlist.Player;
                         if (player != null)
                         {
-                            HohoemaApp.Playlist.PlayDone();
+                            // 先に_IsVideoPlayed をtrueにしておくことで
+                            // NavigatingFromで再生完了が呼ばれた時にPlaylist.PlayDoneが多重呼び出しされないようにする
+                            _IsVideoPlayed = true;
 
-                            if (player.CanGoNext)
-                            {
-                                player.GoNext();
-                            }
+                            HohoemaApp.Playlist.PlayDone(_CurrentPlayingItem, canPlayNext:true);
                         }
                     }
                     , () => HohoemaApp.Playlist.Player?.CanGoNext ?? false
@@ -1953,7 +1978,7 @@ namespace NicoPlayerHohoema.ViewModels
             set { SetProperty(ref _Quality, value); }
         }
 
-
+        private PlaylistItem _CurrentPlayingItem;
 
 
         private string _VideoTitle;
