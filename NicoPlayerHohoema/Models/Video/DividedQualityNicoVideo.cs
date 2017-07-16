@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Util;
+﻿using Mntone.Nico2.Videos.Dmc;
+using NicoPlayerHohoema.Util;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
@@ -6,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Networking.BackgroundTransfer;
 using Windows.Storage;
@@ -14,6 +16,11 @@ namespace NicoPlayerHohoema.Models
 {
     public abstract class DividedQualityNicoVideo : BindableBase
     {
+        public static string MakeVideoFileName(string title, string videoid)
+        {
+            return $"{title.ToSafeFilePath()} - [{videoid}]";
+        }
+
         // Note: ThumbnailResponseが初期化されていないと利用できない
         private static readonly AsyncLock _Lock = new AsyncLock();
 
@@ -41,6 +48,12 @@ namespace NicoPlayerHohoema.Models
 			internal set { SetProperty(ref _CacheState, value); }
 		}
 
+        private uint _CacheTotalSize;
+        public uint CacheTotalSize
+        {
+            get { return _CacheTotalSize; }
+            internal set { SetProperty(ref _CacheTotalSize, value); }
+        }
 
         private uint _CacheProgressSize;
         public uint CacheProgressSize
@@ -73,12 +86,8 @@ namespace NicoPlayerHohoema.Models
 
 		public abstract string VideoFileName { get; }
 
-		public abstract string ProgressFileName { get; }
-
 
 		public abstract bool CanDownload { get; }
-
-		public abstract uint VideoSize { get; }
 		
 		public DateTime VideoFileCreatedAt { get; private set; }
 
@@ -152,16 +161,19 @@ namespace NicoPlayerHohoema.Models
             IsCacheRequested = true;
             CacheState = NicoVideoCacheState.Cached;
 
+
             var file = await GetCacheFile();
             if (file != null)
             {
                 var prop = await file.GetBasicPropertiesAsync();
                 VideoFileCreatedAt = file.DateCreated.DateTime;
+                /*
                 if (VideoSize != 0 && (uint)prop.Size != VideoSize)
                 {
                     await RequestCache(forceUpdate: true);
                     Debug.WriteLine($"{RawVideoId}<{Quality}> のキャッシュがキャッシュサイズと異なっているため、キャッシュを削除して再ダウンロード");
                 }
+                */
             }
         }
 
@@ -235,7 +247,7 @@ namespace NicoPlayerHohoema.Models
                 if (request.RawVideoId == this.RawVideoId && request.Quality == this.Quality)
                 {
                     CacheState = NicoVideoCacheState.Downloading;
-
+                    CacheTotalSize = (uint)op.Progress.TotalBytesToReceive;
                     VideoDownloadManager.DownloadProgress += VideoDownloadManager_DownloadProgress;
                     VideoDownloadManager.DownloadCanceled += VideoDownloadManager_DownloadCanceled;
                     VideoDownloadManager.DownloadCompleted += VideoDownloadManager_DownloadCompleted;
@@ -283,6 +295,7 @@ namespace NicoPlayerHohoema.Models
                 using (var releaser = await _Lock.LockAsync())
                 {
                     CacheState = NicoVideoCacheState.Downloading;
+                    CacheTotalSize = (uint)op.Progress.TotalBytesToReceive;
                     CacheProgressSize = (uint)op.Progress.BytesReceived;
                 }
             }
@@ -323,7 +336,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			get
 			{
-				return $"{NicoVideo.MakeVideoFileName(NicoVideo.Title, NicoVideo.RawVideoId)}";
+				return $"{MakeVideoFileName(NicoVideo.Title, NicoVideo.RawVideoId)}";
 			}
 		}
 
@@ -366,15 +379,19 @@ namespace NicoPlayerHohoema.Models
         }
 
 
+        public abstract Task<Uri> GenerateVideoContentUrl();
         public float GetDonwloadProgressParcentage()
         {
             var currentBytes = this.CacheProgressSize;
-            var total = VideoSize;
+            var total = this.CacheTotalSize;
+
+            if (total == 0) { return 0.0f; }
+
             var parcent = (float)Math.Round(((double)currentBytes / total) * 100.0, 1);
 
             return parcent;
         }
-
+    
         public bool NowPlaying { get; private set; }
 
         private bool _DeleteRequestedOnPlaying = false;
@@ -382,6 +399,7 @@ namespace NicoPlayerHohoema.Models
         internal void OnPlayStarted()
         {
             NowPlaying = true;
+            OnPlayStarted_Internal();
         }
 
         internal void OnPlayDone()
@@ -395,12 +413,18 @@ namespace NicoPlayerHohoema.Models
                     DeleteCache().ConfigureAwait(false);
                     _DeleteRequestedOnPlaying = false;
                 }
+
+                OnPlayDone_Internal();
             }
         }
+
+        protected virtual void OnPlayStarted_Internal() { }
+        protected virtual void OnPlayDone_Internal() { }
+
     }
 
 
-	public class LowQualityNicoVideo : DividedQualityNicoVideo
+    public class LowQualityNicoVideo : DividedQualityNicoVideo
 	{
 		public LowQualityNicoVideo(NicoVideo nicoVideo, NiconicoMediaManager context) 
 			: base(NicoVideoQuality.Low, nicoVideo, context)
@@ -418,22 +442,6 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
-		public override string ProgressFileName
-		{
-			get
-			{
-				return NicoVideo.GetProgressFileName(RawVideoId) + ".low.json";
-			}
-		}
-
-
-		public override uint VideoSize
-		{
-			get
-			{
-				return NicoVideo.SizeLow;
-			}
-		}
 
 		public override bool IsAvailable
 		{
@@ -464,85 +472,297 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
-		
-
-
-		
-
-
-		
 
 
 
 
-
-	}
-
-	public class OriginalQualityNicoVideo : DividedQualityNicoVideo
-	{
-		public OriginalQualityNicoVideo(NicoVideo nicoVideo, NiconicoMediaManager context)
-			: base(NicoVideoQuality.Original, nicoVideo, context)
-		{
-		}
-
-		public override string VideoFileName
-		{
-			get
-			{
-				return VideoFileNameBase + ".mp4";
-			}
-		}
-
-		public override string ProgressFileName
-		{
-			get
-			{
-				return NicoVideo.GetProgressFileName(RawVideoId) + ".json";
-			}
-		}
+        public override async Task<Uri> GenerateVideoContentUrl()
+        {
+            // Lowクオリティ
+            await NicoVideo.VisitWatchPage(Quality);
+            
+            return NicoVideo.LegacyVideoUrl;
+        }
 
 
-		public override uint VideoSize
-		{
-			get
-			{
-				return NicoVideo.SizeHigh;
-			}
-		}
-
-		public override bool IsAvailable
-		{
-			get
-			{
-				return true;
-			}
-		}
 
 
-		public override bool CanDownload
-		{
-			get
-			{
-				// インターネット繋がってるか
-				if (!Util.InternetConnection.IsInternet()) { return false; }
 
-				// キャッシュ済みじゃないか
-				if (CacheState == NicoVideoCacheState.Cached) { return false; }
 
-				// 
-				if (NicoVideo.IsOriginalQualityOnly)
-				{
-					return true;
-				}
 
-				// オリジナル画質DL可能時間帯か
-				if (NicoVideo.NowLowQualityOnly)
-				{
-					return false;
-				}
+    }
 
-				return true;
-			}
-		}
-	}
+	
+
+
+    public class OriginalQualityNicoVideo : DividedQualityNicoVideo
+    {
+        public OriginalQualityNicoVideo(NicoVideo nicoVideo, NiconicoMediaManager context)
+            : base(NicoVideoQuality.Original, nicoVideo, context)
+        {
+        }
+
+        public override string VideoFileName
+        {
+            get
+            {
+                return VideoFileNameBase + ".mp4";
+            }
+        }
+
+        public override bool IsAvailable
+        {
+            get
+            {
+                if (NicoVideo.NowLowQualityOnly)
+                {
+                    return false;
+                }
+
+                if (!NicoVideo.IsOriginalQualityOnly)
+                {
+                    if (NicoVideo.LegacyVideoUrl == null)
+                    {
+                        return false;
+                    }
+
+                    if (NicoVideo.LegacyVideoUrl.OriginalString.EndsWith("low"))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        }
+
+
+        public override bool CanDownload
+        {
+            get
+            {
+                // インターネット繋がってるか
+                if (!Util.InternetConnection.IsInternet()) { return false; }
+
+                // キャッシュ済みじゃないか
+                if (CacheState == NicoVideoCacheState.Cached) { return false; }
+
+                if (!IsAvailable)
+                {
+                    return false;
+                }
+
+                if (NicoVideo.IsOriginalQualityOnly)
+                {
+                    return true;
+                }
+
+                // オリジナル画質DL可能時間帯か
+                if (NicoVideo.NowLowQualityOnly)
+                {
+                    return false;
+                }
+
+                return true;
+            }
+        }
+
+        public override async Task<Uri> GenerateVideoContentUrl()
+        {
+            // Originalクオリティ
+            await NicoVideo.VisitWatchPage(Quality);
+
+            return NicoVideo.LegacyVideoUrl;
+        }
+
+
+    }
+
+    public class DmcQualityNicoVideo : DividedQualityNicoVideo
+    {
+        private Timer _DmcSessionHeartbeatTimer;
+
+        private static AsyncLock DmcSessionHeartbeatLock = new AsyncLock();
+
+        private int _HeartbeatCount = 0;
+        private bool IsFirstHeartbeat => _HeartbeatCount == 0;
+
+        public VideoContent Video
+        {
+            get
+            {
+                if (_DmcWatchResponse?.Video.DmcInfo?.Quality.Videos == null)
+                {
+                    return null;
+                }
+
+                var videos = _DmcWatchResponse.Video.DmcInfo.Quality.Videos;
+
+                int qulity_position = 0;
+                switch (Quality)
+                {
+                    case NicoVideoQuality.Dmc_High:
+                        // 4 -> 0
+                        // 3 -> x
+                        // 2 -> x
+                        // 1 -> x
+                        qulity_position = 4;
+                        break;
+                    case NicoVideoQuality.Dmc_Midium:
+                        // 4 -> 1
+                        // 3 -> 0
+                        // 2 -> x
+                        // 1 -> x
+                        qulity_position = 3;
+                        break;
+                    case NicoVideoQuality.Dmc_Low:
+                        // 4 -> 2
+                        // 3 -> 1
+                        // 2 -> 0
+                        // 1 -> x
+                        qulity_position = 2;
+                        break;
+                    case NicoVideoQuality.Dmc_Mobile:
+                        // 4 -> 3
+                        // 3 -> 2
+                        // 2 -> 1
+                        // 1 -> 0
+                        qulity_position = 1;
+                        break;
+                    default:
+                        throw new Exception();
+                }
+
+                var pos = videos.Count - qulity_position;
+                if (videos.Count >= qulity_position)
+                {
+                    return (videos.ElementAtOrDefault(pos) ?? null);
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+        }
+
+        DmcWatchResponse _DmcWatchResponse;
+        DmcSessionResponse _DmcSessionResponse;
+        public DmcWatchResponse DmcWatchResponse
+        {
+            get { return _DmcWatchResponse; }
+            set
+            {
+                if (_DmcWatchResponse == null)
+                {
+                    _DmcWatchResponse = value;
+
+                    _IsAvailable = Video?.Available ?? false;
+
+                }
+            }
+        }
+
+        public DmcQualityNicoVideo(NicoVideoQuality quality, NicoVideo nicoVideo, NiconicoMediaManager context)
+            : base(quality, nicoVideo, context)
+        {
+        }
+
+        public override string VideoFileName
+        {
+            get
+            {
+                return VideoFileNameBase + "..mp4";
+            }
+        }
+
+        private bool _IsAvailable = false;
+        public override bool IsAvailable
+        {
+            get
+            {
+                
+                return _IsAvailable;
+            }
+        }
+
+
+        public override bool CanDownload
+        {
+            get
+            {
+                // インターネット繋がってるか
+                if (!Util.InternetConnection.IsInternet()) { return false; }
+
+                // キャッシュ済みじゃないか
+                if (CacheState == NicoVideoCacheState.Cached) { return false; }
+
+                if (!IsAvailable) { return false; }
+
+                return true;
+            }
+        }
+
+        public override async Task<Uri> GenerateVideoContentUrl()
+        {
+            if (_DmcWatchResponse == null) { return null; }
+
+            if (_DmcWatchResponse.Video.DmcInfo == null) { return null; }
+
+            VideoContent videoQuality = Video;
+            if (Video == null)
+            {
+                return null;
+            }
+            
+            try
+            {
+                _DmcSessionResponse = await HohoemaApp.NiconicoContext.Video.GetDmcSessionResponse(_DmcWatchResponse, videoQuality);
+                return new Uri(_DmcSessionResponse.Data.Session.ContentUri);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        protected override void OnPlayStarted_Internal()
+        {
+            if (DmcWatchResponse != null && _DmcSessionResponse != null)
+            {
+                Debug.WriteLine($"{DmcWatchResponse.Video.Title} のハートビートを開始しました");
+                _DmcSessionHeartbeatTimer = new Timer(async (_) =>
+                {
+                    using (var releaser = await DmcSessionHeartbeatLock.LockAsync())
+                    {
+                        Debug.WriteLine($"{DmcWatchResponse.Video.Title} のハートビート {_HeartbeatCount+1}回目");
+
+                        if (IsFirstHeartbeat)
+                        {
+                            await HohoemaApp.NiconicoContext.Video.DmcSessionFirstHeartbeatAsync(DmcWatchResponse, _DmcSessionResponse);
+                            Debug.WriteLine($"{DmcWatchResponse.Video.Title} の初回ハートビート実行");
+                            await Task.Delay(2);
+                        }
+
+                        await HohoemaApp.NiconicoContext.Video.DmcSessionHeartbeatAsync(DmcWatchResponse, _DmcSessionResponse);
+                        Debug.WriteLine($"{DmcWatchResponse.Video.Title} のハートビート実行");
+
+                        _HeartbeatCount++;
+                    }
+                }
+            , null
+            , TimeSpan.FromSeconds(5)
+            , TimeSpan.FromSeconds(30)
+            );
+            }
+            
+        }
+
+        protected override void OnPlayDone_Internal()
+        {
+            _DmcSessionHeartbeatTimer.Dispose();
+            _DmcSessionHeartbeatTimer = null;
+            Debug.WriteLine($"{DmcWatchResponse.Video.Title} のハートビートを終了しました");
+        }
+    }
 }

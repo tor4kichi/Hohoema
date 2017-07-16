@@ -100,36 +100,9 @@ namespace NicoPlayerHohoema.ViewModels
 				.SubscribeOnUIDispatcher()
 				.Subscribe(async _ =>
 				{
-					// 低画質限定を指定されている場合はそれに従う
-					if (HohoemaApp.UserSettings.PlayerSettings.IsLowQualityDeafult)
+                    foreach (var item in EnumerateCanDownloadVideoItem())
 					{
-						foreach (var item in EnumerateCanDownloadVideoItem())
-						{
-							if (item.NicoVideo.IsOriginalQualityOnly)
-							{
-								await item.NicoVideo.RequestCache(NicoVideoQuality.Original);
-							}
-							else
-							{
-								await item.NicoVideo.RequestCache(NicoVideoQuality.Low);
-							}
-						}
-					}
-
-					// そうでない場合は、オリジナル画質を優先して現在ダウンロード可能な画質でキャッシュリクエスト
-					else
-					{
-						foreach (var item in EnumerateCanDownloadVideoItem(/*画質指定なし*/))
-						{
-							if (item.NicoVideo.OriginalQuality.CanRequestCache)
-							{
-								await item.NicoVideo.RequestCache(NicoVideoQuality.Original);
-							}
-							else if (item.NicoVideo.LowQuality.CanRequestCache)
-							{
-								await item.NicoVideo.RequestCache(NicoVideoQuality.Low);
-							}
-						}
+                        await item.NicoVideo.RequestCache(HohoemaApp.UserSettings.PlayerSettings.DefaultQuality);
 					}
 
 					ClearSelection();

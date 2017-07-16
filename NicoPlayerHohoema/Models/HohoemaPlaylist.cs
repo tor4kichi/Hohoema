@@ -628,6 +628,7 @@ namespace NicoPlayerHohoema.Models
         {
             get
             {
+                if (Playlist == null) { return false; }
 
                 if (IsRepeat)
                 {
@@ -652,6 +653,8 @@ namespace NicoPlayerHohoema.Models
         {
             get
             {
+                if (Playlist == null) { return false; }
+
                 if (IsRepeat)
                 {
                     // あとで見るプレイリストの場合は一つ以上ある場合は次送りを許可

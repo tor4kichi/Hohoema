@@ -19,7 +19,7 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 		{
 			_PageManager = pageManager;
 
-			var user = Models.Db.UserInfoDb.Get(nicoVideo.VideoOwnerId.ToString());
+			var user = Models.Db.UserInfoDb.Get(nicoVideo.OwnerId.ToString());
 
 			OwnerId = user.UserId;
 			UserName = user.Name;

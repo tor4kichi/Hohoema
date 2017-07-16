@@ -287,12 +287,15 @@ namespace NicoPlayerHohoema
                         }
                         else
                         {
-                            
                             if (!hohoemaApp.IsLoggedIn && AccountManager.HasPrimaryAccount())
                             {
                                 await hohoemaApp.SignInWithPrimaryAccount();
 
                                 pageManager.OpenStartupPage();
+                            }
+                            else
+                            {
+                                pageManager.OpenPage(HohoemaPageType.Login);
                             }
                         }
                     }
@@ -316,7 +319,16 @@ namespace NicoPlayerHohoema
                 }
                 else
                 {
-                    pageManager.OpenStartupPage();
+                    if (!hohoemaApp.IsLoggedIn && AccountManager.HasPrimaryAccount())
+                    {
+                        await hohoemaApp.SignInWithPrimaryAccount();
+
+                        pageManager.OpenStartupPage();
+                    }
+                    else
+                    {
+                        pageManager.OpenPage(HohoemaPageType.Login);
+                    }
                 }
             }
             catch

@@ -17,7 +17,7 @@ namespace NicoPlayerHohoema.Models
 		public PlayerSettings()
 			: base()
 		{
-			IsLowQualityDeafult = true;
+			DefaultQuality = NicoVideoQuality.Dmc_Midium;
 			IsMute = false;
 			SoundVolume = 0.25;
 			ScrollVolumeFrequency = 0.02;
@@ -42,13 +42,13 @@ namespace NicoPlayerHohoema.Models
         }
 
 
-		private bool _IsLowQualityDeafult;
+		private NicoVideoQuality _DefaultQuality;
 
 		[DataMember]
-		public bool IsLowQualityDeafult
+		public NicoVideoQuality DefaultQuality
 		{
-			get { return _IsLowQualityDeafult; }
-			set { SetProperty(ref _IsLowQualityDeafult, value); }
+			get { return _DefaultQuality; }
+			set { SetProperty(ref _DefaultQuality, value); }
 		}
 
 

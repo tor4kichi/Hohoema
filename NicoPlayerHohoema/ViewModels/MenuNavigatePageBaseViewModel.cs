@@ -78,8 +78,8 @@ namespace NicoPlayerHohoema.ViewModels
 
             AllMenuItems = MenuItems.Concat(SubMenuItems).ToList();
 
-            MainSelectedItem = new ReactiveProperty<PageTypeSelectableItem>(MenuItems[0]);
-            SubSelectedItem = new ReactiveProperty<PageTypeSelectableItem>();
+            MainSelectedItem = new ReactiveProperty<PageTypeSelectableItem>(MenuItems[0], ReactivePropertyMode.DistinctUntilChanged);
+            SubSelectedItem = new ReactiveProperty<PageTypeSelectableItem>(null, ReactivePropertyMode.DistinctUntilChanged);
 
             Observable.Merge(
                 MainSelectedItem, 

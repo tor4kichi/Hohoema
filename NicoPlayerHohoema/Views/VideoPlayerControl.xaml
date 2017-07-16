@@ -23,26 +23,66 @@
     xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Animations.Behaviors"
     xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
+    xmlns:model="using:NicoPlayerHohoema.Models"
     d:DesignHeight="300"
     d:DesignWidth="400">
 
     <UserControl.Resources>
         <MenuFlyout x:Key="VideoOptionsFlyout">
             <MenuFlyoutSubItem Text="画質"
-                                                               Visibility="{Binding CanToggleCurrentQualityCacheState.Value, Converter={StaticResource BooleanToVisibility}}"
-                                                               >
+                                Visibility="{Binding CanToggleCurrentQualityCacheState.Value, Converter={StaticResource BooleanToVisibility}}"
+                                >
 
-                <MenuFlyoutItem Text="低画質に変更" 
-                                                                      Command="{Binding TogglePlayQualityCommand}"
-                                                                      x:Name="ChangeToLowQualityButton"
-                                                                      Visibility="Collapsed"
-                                                                      />
+                <MenuFlyoutItem Text="高画質" 
+                                Command="{Binding TogglePlayQualityCommand}"
+                                IsEnabled="{Binding IsAvailableDmcHighQuality.Value}"
+                                >
+                    <MenuFlyoutItem.CommandParameter>
+                        <model:NicoVideoQuality>Dmc_High</model:NicoVideoQuality>
+                    </MenuFlyoutItem.CommandParameter>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Text="中画質" 
+                                Command="{Binding TogglePlayQualityCommand}"
+                                IsEnabled="{Binding IsAvailableDmcMidiumQuality.Value}"
+                                >
+                    <MenuFlyoutItem.CommandParameter>
+                        <model:NicoVideoQuality>Dmc_Midium</model:NicoVideoQuality>
+                    </MenuFlyoutItem.CommandParameter>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Text="低画質" 
+                                Command="{Binding TogglePlayQualityCommand}"
+                                IsEnabled="{Binding IsAvailableDmcLowQuality.Value}"
+                                >
+                    <MenuFlyoutItem.CommandParameter>
+                        <model:NicoVideoQuality>Dmc_Low</model:NicoVideoQuality>
+                    </MenuFlyoutItem.CommandParameter>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Text="モバイル画質" 
+                                Command="{Binding TogglePlayQualityCommand}"
+                                IsEnabled="{Binding IsAvailableDmcMobileQuality.Value}"
+                                >
+                    <MenuFlyoutItem.CommandParameter>
+                        <model:NicoVideoQuality>Dmc_Mobile</model:NicoVideoQuality>
+                    </MenuFlyoutItem.CommandParameter>
 
-                <MenuFlyoutItem Text="オリジナル画質" 
-                                                                Command="{Binding TogglePlayQualityCommand}"
-                                                                x:Name="ChangeToOrigialQualityButton"
-                                                                Visibility="Collapsed"
-                                                                />
+                </MenuFlyoutItem>
+
+                <MenuFlyoutItem Text="旧 オリジナル画質" 
+                                Command="{Binding TogglePlayQualityCommand}"
+                                IsEnabled="{Binding IsAvailableLegacyOriginalQuality.Value}"
+                                >
+                    <MenuFlyoutItem.CommandParameter>
+                        <model:NicoVideoQuality>Original</model:NicoVideoQuality>
+                    </MenuFlyoutItem.CommandParameter>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Text="旧 低画質" 
+                                Command="{Binding TogglePlayQualityCommand}"
+                                IsEnabled="{Binding IsAvailableLegacyLowQuality.Value}"
+                                >
+                    <MenuFlyoutItem.CommandParameter>
+                        <model:NicoVideoQuality>Low</model:NicoVideoQuality>
+                    </MenuFlyoutItem.CommandParameter>
+                </MenuFlyoutItem>
             </MenuFlyoutSubItem>
             <ToggleMenuFlyoutItem Text="キャッシュ" 
                                                                   IsChecked="{Binding IsSaveRequestedCurrentQualityCache.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -1279,18 +1319,8 @@
                     <SplitView.Content>
                         <Grid>
 
-
-
-                            
-
-                        </Grid>
-
-                    </SplitView.Content>
-                </SplitView>
-
-
-                <!-- サポートされていないプロトコル・動画形式 -->
-                <Border HorizontalAlignment="Left"
+                            <!-- サポートされていないプロトコル・動画形式 -->
+                            <Border HorizontalAlignment="Left"
                                   VerticalAlignment="Top"
                                   Margin="24 88"
                                   Visibility="{Binding IsNotSupportVideoType, Converter={StaticResource BooleanToVisibility}}"
@@ -1298,36 +1328,47 @@
                                 Padding="16"
                           >
 
-                    <StackPanel Orientation="Horizontal">
+                                <StackPanel Orientation="Horizontal">
 
-                        <SymbolIcon Symbol="Important"
-                                        Foreground="Black"                                         
+                                    <iconPack:PackIconMaterial Kind="Exclamation"
                                         Margin="8 8 16 8"
+                                                               Width="32"
+                                                               Height="32"
                                         />
 
-                        <StackPanel>
-                            <TextBlock Text="この動画は再生できません"
-                                   VerticalAlignment="Center"    
-                                           FontSize="18"
-                                           Margin="0 0 0 8"
-                                        Foreground="Black"                                         
-                                   />
+                                    <StackPanel>
+                                        <TextBlock Text="この動画はHohoemaでは対応していません"
+                                                   VerticalAlignment="Center"    
+                                                   Style="{StaticResource SubtitleTextBlockStyle}"
+                                                   Margin="0 0 0 8"
+                                                   />
 
-                            <TextBlock VerticalAlignment="Center"
-                                        Foreground="Black"                                         
-                                   >
-                                    <Run Text="{Binding CannotPlayReason}" />
-                            </TextBlock>
+                                        <TextBlock VerticalAlignment="Center"
+                                                   TextWrapping="Wrap"
+                                                   Width="300"
+                                                   >
+                                            <Run Text="{Binding CannotPlayReason}" />
+                                        </TextBlock>
 
-                            <HyperlinkButton Content="ブラウザで動画を見る"
+                                        <HyperlinkButton Content="ブラウザで表示"
                                                  Command="{Binding OpenVideoPageWithBrowser}"
                                                  >
-                            </HyperlinkButton>
+                                        </HyperlinkButton>
 
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
 
+
+
+
+                        </Grid>
+
+                    </SplitView.Content>
+                </SplitView>
+
+
+               
             </Grid>
 
 

@@ -209,9 +209,26 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-			CurrentVideoQuality = new ReactiveProperty<NicoVideoQuality>(PlayerWindowUIDispatcherScheduler, NicoVideoQuality.Low, ReactivePropertyMode.None)
+			CurrentVideoQuality = new ReactiveProperty<NicoVideoQuality>(PlayerWindowUIDispatcherScheduler, NicoVideoQuality.Dmc_Mobile, ReactivePropertyMode.None)
 				.AddTo(_CompositeDisposable);
-			CanToggleCurrentQualityCacheState = CurrentVideoQuality
+            RequestVideoQuality = new ReactiveProperty<NicoVideoQuality>(PlayerWindowUIDispatcherScheduler, NicoVideoQuality.Dmc_Mobile, ReactivePropertyMode.None)
+                .AddTo(_CompositeDisposable);
+
+            IsAvailableDmcHighQuality = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false)
+                .AddTo(_CompositeDisposable);
+            IsAvailableDmcMidiumQuality = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false)
+                .AddTo(_CompositeDisposable);
+            IsAvailableDmcLowQuality = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false)
+                            .AddTo(_CompositeDisposable);
+            IsAvailableDmcMobileQuality = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false)
+                            .AddTo(_CompositeDisposable);
+            IsAvailableLegacyOriginalQuality = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false)
+                            .AddTo(_CompositeDisposable);
+            IsAvailableLegacyLowQuality = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false)
+                            .AddTo(_CompositeDisposable);
+
+
+            CanToggleCurrentQualityCacheState = CurrentVideoQuality
 				.SubscribeOnUIDispatcher()
 				.Select(x =>
 				{
@@ -275,25 +292,17 @@ namespace NicoPlayerHohoema.ViewModels
 						return Video.OriginalQuality.CanPlay && !IsNotSupportVideoType;
 					}
 				})
-				.ToReactiveCommand()
+				.ToReactiveCommand<NicoVideoQuality>()
 				.AddTo(_CompositeDisposable);
 
 			TogglePlayQualityCommand
 				.Where(x => !IsDisposed && !IsNotSupportVideoType)
 				.SubscribeOnUIDispatcher()
-				.Subscribe(async _ => 
+				.Subscribe(async quality => 
 				{
-					PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
+                    _PreviosPlayingVideoPosition = ReadVideoPosition.Value;
 
-					if (CurrentVideoQuality.Value == NicoVideoQuality.Low)
-					{
-						CurrentVideoQuality.Value = NicoVideoQuality.Original;
-					}
-					else
-					{
-						CurrentVideoQuality.Value = NicoVideoQuality.Low;
-					}
-
+                    RequestVideoQuality.Value = quality;
 
 					await PlayingQualityChangeAction();
 				})
@@ -619,7 +628,7 @@ namespace NicoPlayerHohoema.ViewModels
                 var videoInfo = await HohoemaApp.MediaManager.GetNicoVideoAsync(VideoId);
 
                 // 内部状態を更新
-                await videoInfo.VisitWatchPage();
+                await videoInfo.VisitWatchPage(RequestVideoQuality.Value);
 
                 // 動画が削除されていた場合
                 if (videoInfo.IsDeleted)
@@ -682,12 +691,12 @@ namespace NicoPlayerHohoema.ViewModels
                     IsNotSupportVideoType = true;
                     CannotPlayReason = videoInfo.ProtocolType.ToString() + " はHohoemaでサポートされないデータ通信形式です";
                 }
-                //				else if (videoInfo.ContentType != MovieType.Mp4)
-                //				{
-                // サポートしていない動画タイプです
-                //					IsNotSupportVideoType = true;
-                //					CannotPlayReason = videoInfo.ContentType.ToString() + " はHohoemaでサポートされない動画形式です";
-                //				}
+                else if (videoInfo.ContentType == MovieType.Flv)
+                {
+                    // サポートしていない動画タイプです
+                    IsNotSupportVideoType = true;
+                    CannotPlayReason = videoInfo.ContentType.ToString() + " はHohoemaでサポートされない動画形式です";
+                }
                 else
                 {
                     IsNotSupportVideoType = false;
@@ -711,6 +720,14 @@ namespace NicoPlayerHohoema.ViewModels
             }
 
 
+            IsAvailableDmcHighQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Dmc_High).IsAvailable;
+            IsAvailableDmcMidiumQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Dmc_Midium).IsAvailable;
+            IsAvailableDmcLowQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Dmc_Low).IsAvailable;
+            IsAvailableDmcMobileQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Dmc_Mobile).IsAvailable;
+            IsAvailableLegacyOriginalQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Original).IsAvailable;
+            IsAvailableLegacyLowQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Low).IsAvailable;
+
+
             cancelToken.ThrowIfCancellationRequested();
 
             if (IsNotSupportVideoType)
@@ -723,35 +740,26 @@ namespace NicoPlayerHohoema.ViewModels
                 // ビデオクオリティをトリガーにしてビデオ関連の情報を更新させる
                 // CurrentVideoQualityは代入時に常にNotifyが発行される設定になっている
 
-                NicoVideoQuality realQuality = NicoVideoQuality.Low;
-                if ((Quality == null || Quality == NicoVideoQuality.Original)
-                    && Video.OriginalQuality.IsCached)
+                NicoVideoQuality realQuality = NicoVideoQuality.Dmc_Mobile;
+                // 旧サーバー限定のコンテンツ
+                if (Video.ContentType == MovieType.Swf)
                 {
                     realQuality = NicoVideoQuality.Original;
+                    if (Video.IsOriginalQualityOnly)
+                    {
+                        realQuality = NicoVideoQuality.Original;
+                    }
+                    else if (Video.NowLowQualityOnly)
+                    {
+                        realQuality = NicoVideoQuality.Low;
+                    }
                 }
-                else if ((Quality == null || Quality == NicoVideoQuality.Low)
-                    && Video.LowQuality.IsCached)
+                else
                 {
-                    realQuality = NicoVideoQuality.Low;
+                    realQuality = HohoemaApp.UserSettings.PlayerSettings.DefaultQuality;
                 }
-                // 低画質動画が存在しない場合はオリジナル画質を選択
-                else if (Video.IsOriginalQualityOnly)
-                {
-                    realQuality = NicoVideoQuality.Original;
-                }
-                // エコノミー時間帯でオリジナル画質が未保存の場合
-                else if (!HohoemaApp.IsPremiumUser
-                    && Video.NowLowQualityOnly
-                    && !Video.OriginalQuality.IsCached)
-                {
-                    realQuality = NicoVideoQuality.Low;
-                }
-                else if (!Quality.HasValue)
-                {
-                    // 画質指定がない場合、ユーザー設定から低画質がリクエストされてないかチェック
-                    var defaultLowQuality = HohoemaApp.UserSettings.PlayerSettings.IsLowQualityDeafult;
-                    realQuality = defaultLowQuality ? NicoVideoQuality.Low : NicoVideoQuality.Original;
-                }
+
+                Quality = realQuality;
 
                 // CurrentVideoQualityは同一値の代入でもNotifyがトリガーされるようになっている
                 CurrentVideoQuality.Value = realQuality;
@@ -849,17 +857,27 @@ namespace NicoPlayerHohoema.ViewModels
 
 			NowQualityChanging.Value = true;
 
-			var x = CurrentVideoQuality.Value;
+			
+            var qualityVideo = Video.GetDividedQualityNicoVideo(RequestVideoQuality.Value);
 
-            var qualityVideo = x == NicoVideoQuality.Original ? Video.OriginalQuality : Video.LowQuality;
-
-            
             // サポートされたメディアの再生
             if (Video.CanGetVideoStream())
 			{
                 CurrentState.Value = MediaPlaybackState.Opening;
 
-                await Video.StartPlay(x, _PreviosPlayingVideoPosition);
+                try
+                {
+                    CurrentVideoQuality.Value = await Video.StartPlay(RequestVideoQuality.Value, _PreviosPlayingVideoPosition);
+                }
+                catch (NotSupportedException ex)
+                {
+                    IsNotSupportVideoType = true;
+                    CannotPlayReason = ex.Message;
+                    CurrentState.Value = MediaPlaybackState.None;
+                    return;
+                }
+
+
 
                 if (IsDisposed)
 				{
@@ -868,7 +886,7 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 
 				var isCurrentQualityCacheDownloadCompleted = false;
-				switch (x)
+				switch (CurrentVideoQuality.Value)
 				{
 					case NicoVideoQuality.Original:
 						IsSaveRequestedCurrentQualityCache.Value = Video.OriginalQuality.IsCacheRequested;
@@ -897,7 +915,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 			else if (qualityVideo.IsCached)
 			{
-                await Video.StartPlay(x, TimeSpan.FromSeconds(PreviousVideoPosition));
+                CurrentVideoQuality.Value = await Video.StartPlay(RequestVideoQuality.Value, TimeSpan.FromSeconds(PreviousVideoPosition));
 
                 if (IsDisposed)
                 {
@@ -1031,7 +1049,7 @@ namespace NicoPlayerHohoema.ViewModels
 			};
 
 
-			commentVM.IsOwnerComment = comment.User_id != null ? comment.User_id == Video.VideoOwnerId.ToString() : false;
+			commentVM.IsOwnerComment = comment.User_id != null ? comment.User_id == Video.OwnerId.ToString() : false;
 
 			IEnumerable<CommandType> commandList = null;
 
@@ -1093,7 +1111,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			Debug.WriteLine("VideoPlayer OnNavigatedToAsync start.");
 
-			if (e?.Parameter is string)
+            if (e?.Parameter is string)
 			{
 				var payload = VideoPlayPayload.FromParameterString(e.Parameter as string);
 				VideoId = payload.VideoId;
@@ -1104,12 +1122,32 @@ namespace NicoPlayerHohoema.ViewModels
 				VideoId = (string)viewModelState[nameof(VideoId)];
 			}
 
-			cancelToken.ThrowIfCancellationRequested();
+            
+
+            cancelToken.ThrowIfCancellationRequested();
 
             var videoInfo = await HohoemaApp.MediaManager.GetNicoVideoAsync(VideoId);
 
             Video = videoInfo;
 
+            if (Quality.HasValue)
+            {
+                RequestVideoQuality.Value = Quality.Value;
+            }
+            else
+            {
+                var cachedQuality = Video.GetAllQuality().FirstOrDefault(x => x.IsCached);
+                if (cachedQuality != null)
+                {
+                    RequestVideoQuality.Value = cachedQuality.Quality;
+                }
+                else
+                {
+                    RequestVideoQuality.Value = HohoemaApp.UserSettings.PlayerSettings.DefaultQuality;
+                }
+            }
+
+            
             VideoLength.Value = Video.VideoLength.TotalSeconds;
             CurrentVideoPosition.Value = TimeSpan.Zero;
 
@@ -1217,7 +1255,20 @@ namespace NicoPlayerHohoema.ViewModels
         {
             Comments.Clear();
 
-            var comments = await Video.GetComments(true);
+            if (Video.CommentClient == null) { return; }
+
+            List<Chat> comments = null;
+
+            try
+            {
+                comments = await Video.CommentClient.GetComments();
+            }
+            catch
+            {
+                comments = Video.CommentClient.GetCommentsFromLocal();
+            }
+
+
 
             if (comments == null)
             {
@@ -1325,14 +1376,16 @@ namespace NicoPlayerHohoema.ViewModels
 
 		private async Task SubmitComment()
 		{
-			Debug.WriteLine($"try comment submit:{WritingComment.Value}");
+            if (Video?.CommentClient == null) { return; }
 
+            Debug.WriteLine($"try comment submit:{WritingComment.Value}");
+            
 			NowSubmittingComment.Value = true;
 			try
 			{
 				var vpos = (uint)(ReadVideoPosition.Value.TotalMilliseconds / 10);
 				var commands = CommandString.Value;
-				var res = await Video.SubmitComment(WritingComment.Value, ReadVideoPosition.Value, commands);
+				var res = await Video.CommentClient.SubmitComment(WritingComment.Value, ReadVideoPosition.Value, commands);
 
 				if (res.Chat_result.Status == ChatResult.Success)
 				{
@@ -1540,7 +1593,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 		public ReactiveCommand CommentSubmitCommand { get; private set; }
-		public ReactiveCommand TogglePlayQualityCommand { get; private set; }
+		public ReactiveCommand<NicoVideoQuality> TogglePlayQualityCommand { get; private set; }
 
         private DelegateCommand _OpenVideoPageWithBrowser;
 		public DelegateCommand OpenVideoPageWithBrowser
@@ -1929,11 +1982,20 @@ namespace NicoPlayerHohoema.ViewModels
         public MediaPlayer MediaPlayer { get; private set; }
 
 		public ReactiveProperty<NicoVideoQuality> CurrentVideoQuality { get; private set; }
-		public ReactiveProperty<bool> CanToggleCurrentQualityCacheState { get; private set; }
+        public ReactiveProperty<NicoVideoQuality> RequestVideoQuality { get; private set; }
+        public ReactiveProperty<bool> CanToggleCurrentQualityCacheState { get; private set; }
 		public ReactiveProperty<bool> IsSaveRequestedCurrentQualityCache { get; private set; }
 		public ReactiveProperty<string> ToggleQualityText { get; private set; }
 
-		public ReactiveProperty<bool> IsPlayWithCache { get; private set; }
+        public ReactiveProperty<bool> IsAvailableDmcHighQuality { get; private set; }
+        public ReactiveProperty<bool> IsAvailableDmcMidiumQuality { get; private set; }
+        public ReactiveProperty<bool> IsAvailableDmcLowQuality { get; private set; }
+        public ReactiveProperty<bool> IsAvailableDmcMobileQuality { get; private set; }
+
+        public ReactiveProperty<bool> IsAvailableLegacyOriginalQuality { get; private set; }
+        public ReactiveProperty<bool> IsAvailableLegacyLowQuality { get; private set; }
+
+        public ReactiveProperty<bool> IsPlayWithCache { get; private set; }
 		public ReactiveProperty<bool> DownloadCompleted { get; private set; }
 		public ReactiveProperty<double> ProgressPercent { get; private set; }
 
