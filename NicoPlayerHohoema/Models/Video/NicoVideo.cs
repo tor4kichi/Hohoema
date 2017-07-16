@@ -1,6 +1,7 @@
 ﻿using FFmpegInterop;
 using Mntone.Nico2;
 using Mntone.Nico2.Videos.Comment;
+using Mntone.Nico2.Videos.Dmc;
 using Mntone.Nico2.Videos.Thumbnail;
 using Mntone.Nico2.Videos.WatchAPI;
 using NicoPlayerHohoema.Models.Db;
@@ -24,12 +25,18 @@ using Windows.UI.Xaml;
 
 namespace NicoPlayerHohoema.Models
 {
+
+    public class CommentServerInfo
+    {
+        public string ServerUrl { get; set; }
+        public int ThreadId { get; set; }
+        public bool ThreadKeyRequired { get; set; }
+    }
+
+
 	public class NicoVideo : BindableBase
 	{
-		private CommentResponse _CachedCommentResponse;
 		private NicoVideoQuality _VisitedPageType = NicoVideoQuality.Low;
-
-		internal WatchApiResponse CachedWatchApiResponse { get; private set; }
 
         AsyncLock _InitializeLock = new AsyncLock();
 		bool _IsInitialized = false;
@@ -37,6 +44,8 @@ namespace NicoPlayerHohoema.Models
 
         AsyncLock _BufferingLock = new AsyncLock();
         IDisposable _BufferingLockReleaser = null;
+
+        public CommentClient CommentClient { get; private set; }
 
 		public NicoVideo(HohoemaApp app, string rawVideoid, NiconicoMediaManager manager)
 		{
@@ -48,7 +57,219 @@ namespace NicoPlayerHohoema.Models
             QualityDividedVideos = new ReadOnlyObservableCollection<DividedQualityNicoVideo>(_QualityDividedVideos);
         }
 
-        
+        public async Task Initialize()
+        {
+            using (var releaser = await _InitializeLock.LockAsync())
+            {
+                if (_IsInitialized) { return; }
+
+                if (HohoemaApp.ServiceStatus >= HohoemaAppServiceLevel.OnlineWithoutLoggedIn)
+                {
+                    Debug.WriteLine("start initialize : " + RawVideoId);
+
+                    await UpdateWithThumbnail();
+
+                    _IsInitialized = true;
+                }
+                else if (!_thumbnailInitialized && HohoemaApp.ServiceStatus == HohoemaAppServiceLevel.Offline)
+                {
+                    await FillVideoInfoFromDb();
+                }
+            }
+        }
+
+
+
+
+        #region Cache Manage
+
+
+        #endregion
+
+
+
+        #region Playback
+
+        /// <summary>
+		/// 動画ストリームの取得します
+		/// 他にダウンロードされているアイテムは強制的に一時停止し、再生終了後に再開されます
+		/// </summary>
+		public async Task<NicoVideoQuality> StartPlay(NicoVideoQuality quality, TimeSpan? initialPosition = null)
+        {
+            IfVideoDeletedThrowException();
+
+            DividedQualityNicoVideo divided = GetDividedQualityNicoVideo(quality);
+            if (!divided.IsAvailable)
+            {
+                if (quality == NicoVideoQuality.Original)
+                {
+                    divided = GetDividedQualityNicoVideo(NicoVideoQuality.Low);
+                }
+                else
+                {
+                    foreach (var dmcQuality in GetAllQuality().Where(x => x.Quality.IsDmc()))
+                    {
+                        if (dmcQuality.IsAvailable)
+                        {
+                            divided = dmcQuality;
+                            break;
+                        }
+                    }
+                    if (divided == null)
+                    {
+                        divided = GetDividedQualityNicoVideo(NicoVideoQuality.Original);
+                        if (!divided.IsAvailable)
+                        {
+                            divided = GetDividedQualityNicoVideo(NicoVideoQuality.Low);
+                        }
+                    }
+                }
+            }
+
+            if (divided == null)
+            {
+                throw new NotSupportedException("再生可能な動画品質を見つけられませんでした。");
+            }
+
+            Debug.WriteLine(divided.Quality);
+
+            // キャッシュ済みの場合は
+            if (divided.HasCache)
+            {
+                var file = await divided.GetCacheFile();
+                NicoVideoCachedStream = await file.OpenReadAsync();
+
+                await OnCacheRequested();
+            }
+            else if (ProtocolType == MediaProtocolType.RTSPoverHTTP)
+            {
+                if (Util.InternetConnection.IsInternet())
+                {
+                    var videoUrl = await divided.GenerateVideoContentUrl();
+                    if (videoUrl == null)
+                    {
+                        divided = GetDividedQualityNicoVideo(NicoVideoQuality.Low);
+                        videoUrl = await divided.GenerateVideoContentUrl();
+                    }
+                    NicoVideoCachedStream = await HttpSequencialAccessStream.CreateAsync(
+                        HohoemaApp.NiconicoContext.HttpClient
+                        , videoUrl
+                        );
+                }
+            }
+
+            if (NicoVideoCachedStream == null)
+            {
+                throw new NotSupportedException();
+            }
+
+            if (initialPosition == null)
+            {
+                initialPosition = TimeSpan.Zero;
+            }
+
+            if (NicoVideoCachedStream is IRandomAccessStreamWithContentType)
+            {
+                var contentType = (NicoVideoCachedStream as IRandomAccessStreamWithContentType).ContentType;
+
+                if (contentType.EndsWith("mp4"))
+                {
+                    ContentType = MovieType.Mp4;
+                }
+                else if (contentType.EndsWith("flv"))
+                {
+                    ContentType = MovieType.Flv;
+                }
+                else if (contentType.EndsWith("swf"))
+                {
+                    ContentType = MovieType.Swf;
+                }
+            }
+
+            MediaSource mediaSource = null;
+            if (ContentType == MovieType.Mp4)
+            {
+                string contentType = null;
+
+                if (NicoVideoCachedStream is IRandomAccessStreamWithContentType)
+                {
+                    contentType = (NicoVideoCachedStream as IRandomAccessStreamWithContentType).ContentType;
+                }
+
+                if (contentType == null) { throw new Exception("unknown movie content type"); }
+
+                mediaSource = MediaSource.CreateFromStream(NicoVideoCachedStream, contentType);
+            }
+            else
+            {
+                if (!divided.IsCached)
+                {
+                    throw new NotSupportedException($"この動画は{ContentType}形式です。動画形式がmp4以外の場合はHohoemaでの再生をサポートしていません。（動画がキャッシュ済みの場合、サポート外動画形式でも再生を試行します。）");
+                }
+
+                var mss = FFmpegInteropMSS.CreateFFmpegInteropMSSFromStream(NicoVideoCachedStream, false, true);
+
+                if (mss != null)
+                {
+                    var realMss = mss.GetMediaStreamSource();
+                    realMss.SetBufferedRange(TimeSpan.Zero, TimeSpan.Zero);
+                    mediaSource = MediaSource.CreateFromMediaStreamSource(realMss);
+                }
+                else
+                {
+                    throw new NotSupportedException();
+                }
+            }
+
+            if (mediaSource != null)
+            {
+                HohoemaApp.MediaPlayer.Source = mediaSource;
+                HohoemaApp.MediaPlayer.PlaybackSession.Position = initialPosition.Value;
+
+                var smtc = HohoemaApp.MediaPlayer.SystemMediaTransportControls;
+
+                smtc.DisplayUpdater.Type = Windows.Media.MediaPlaybackType.Video;
+                smtc.DisplayUpdater.VideoProperties.Title = Title ?? "Hohoema";
+                if (ThumbnailUrl != null)
+                {
+                    smtc.DisplayUpdater.Thumbnail = RandomAccessStreamReference.CreateFromUri(new Uri(this.ThumbnailUrl));
+                }
+                smtc.IsPlayEnabled = true;
+                smtc.IsPauseEnabled = true;
+                smtc.DisplayUpdater.Update();
+
+                divided.OnPlayStarted();
+            }
+
+            return divided.Quality;
+        }
+
+
+
+        public void StopPlay()
+        {
+            HohoemaApp.MediaPlayer.Pause();
+            HohoemaApp.MediaPlayer.Source = null;
+
+            foreach (var div in GetAllQuality())
+            {
+                if (div.NowPlaying)
+                {
+                    div.OnPlayDone();
+                }
+            }
+
+            Debug.WriteLine("stream dispose");
+            NicoVideoCachedStream?.Dispose();
+            NicoVideoCachedStream = null;
+
+            var smtc = HohoemaApp.MediaPlayer.SystemMediaTransportControls;
+            smtc.DisplayUpdater.ClearAll();
+            smtc.IsEnabled = false;
+            smtc.DisplayUpdater.Update();
+        }
+
+        #endregion
 
         private async void _NiconicoMediaManager_VideoCacheStateChanged(object sender, NicoVideoCacheRequest request, NicoVideoCacheState state)
         {
@@ -74,32 +295,13 @@ namespace NicoPlayerHohoema.Models
                         }
                     }
 
-                    CachedAt = requestAt;
+                    await HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
+                    {
+                        CachedAt = requestAt;
+                    });
                 }
             }
         }
-
-        public async Task Initialize()
-		{
-            using (var releaser = await _InitializeLock.LockAsync())
-            {
-                if (_IsInitialized) { return; }
-
-                if (HohoemaApp.ServiceStatus >= HohoemaAppServiceLevel.OnlineWithoutLoggedIn)
-                {
-                    Debug.WriteLine("start initialize : " + RawVideoId);
-
-                    await UpdateWithThumbnail();
-
-                    _IsInitialized = true;
-                }
-                else if (!_thumbnailInitialized && HohoemaApp.ServiceStatus == HohoemaAppServiceLevel.Offline)
-                {
-                    await FillVideoInfoFromDb();
-                }
-            }
-        }
-
 
         public DividedQualityNicoVideo GetDividedQualityNicoVideo(NicoVideoQuality quality)
         {
@@ -119,6 +321,18 @@ namespace NicoPlayerHohoema.Models
                     case NicoVideoQuality.Low:
                         qualityDividedVideo = new LowQualityNicoVideo(this, _NiconicoMediaManager);
                         break;
+                    case NicoVideoQuality.Dmc_High:
+                        qualityDividedVideo = new DmcQualityNicoVideo(quality, this, _NiconicoMediaManager);
+                        break;
+                    case NicoVideoQuality.Dmc_Midium:
+                        qualityDividedVideo = new DmcQualityNicoVideo(quality, this, _NiconicoMediaManager);
+                        break;
+                    case NicoVideoQuality.Dmc_Low:
+                        qualityDividedVideo = new DmcQualityNicoVideo(quality, this, _NiconicoMediaManager);
+                        break;
+                    case NicoVideoQuality.Dmc_Mobile:
+                        qualityDividedVideo = new DmcQualityNicoVideo(quality, this, _NiconicoMediaManager);
+                        break;
                     default:
                         throw new NotSupportedException(quality.ToString());
                 }
@@ -133,56 +347,21 @@ namespace NicoPlayerHohoema.Models
 
         public IEnumerable<DividedQualityNicoVideo> GetAllQuality()
         {
-            yield return GetDividedQualityNicoVideo(NicoVideoQuality.Low);
+            yield return GetDividedQualityNicoVideo(NicoVideoQuality.Dmc_High);
+            yield return GetDividedQualityNicoVideo(NicoVideoQuality.Dmc_Midium);
+            yield return GetDividedQualityNicoVideo(NicoVideoQuality.Dmc_Low);
+            yield return GetDividedQualityNicoVideo(NicoVideoQuality.Dmc_Mobile);
             yield return GetDividedQualityNicoVideo(NicoVideoQuality.Original);
+            yield return GetDividedQualityNicoVideo(NicoVideoQuality.Low);
         }
 
 
 
-        // コメントのキャッシュまたはオンラインからの取得と更新
-        public async Task<List<Chat>> GetComments(bool requierLatest = false)
-		{
-            CommentResponse commentRes = null;
-            if (requierLatest || _CachedCommentResponse == null)
-            {
-                if (HohoemaApp.ServiceStatus == HohoemaAppServiceLevel.LoggedIn)
-                {
-                    try
-                    {
-                        commentRes = await ConnectionRetryUtil.TaskWithRetry(async () =>
-                        {
-                            return await this.HohoemaApp.NiconicoContext.Video
-                                .GetCommentAsync(CachedWatchApiResponse);
-                        });
 
-                        if (commentRes != null)
-                        {
-                            _CachedCommentResponse = commentRes;
-                        }
-                    }
-                    catch { }
-                }
-            }
 
-            if (commentRes == null && _CachedCommentResponse != null)
-            {
-                commentRes = _CachedCommentResponse;
-            }
 
-            if (commentRes == null)
-			{
-                var j = CommentDb.Get(RawVideoId);
-                return j.GetComments();
-			}
-            else
-            {
-                return commentRes?.Chat;
-            }
-        }
 
-		
-
-		private async Task UpdateWithThumbnail()
+        private async Task UpdateWithThumbnail()
 		{
 			if (_thumbnailInitialized) { return; }
 
@@ -196,7 +375,7 @@ namespace NicoPlayerHohoema.Models
 				this.SizeLow = (uint)res.SizeLow;
 				this.SizeHigh = (uint)res.SizeHigh;
 				this.Title = res.Title;
-				this.VideoOwnerId = res.UserId;
+				this.OwnerId = res.UserId;
 				this.ContentType = res.MovieType;
 				this.PostedAt = res.PostedAt.DateTime;
 				this.Tags = res.Tags.Value.ToList();
@@ -204,7 +383,9 @@ namespace NicoPlayerHohoema.Models
 				this.MylistCount = res.MylistCount;
 				this.CommentCount = res.CommentCount;
 				this.ThumbnailUrl = res.ThumbnailUrl.AbsoluteUri;
-			}
+                this.OwnerIconUrl = res.UserIconUrl.OriginalString;
+                this.OwnerUserType = res.UserType;
+            }
 			catch (Exception e) when (e.Message.Contains("delete"))
 			{
 				await DeletedTeardown();
@@ -224,294 +405,195 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-
-		// 動画情報のキャッシュまたはオンラインからの取得と更新
-
-		public Task VisitWatchPage(bool forceLowQuality = false)
-		{
-			return GetWatchApiResponse(forceLowQuality);
-		}
-
-		private async Task<WatchApiResponse> GetWatchApiResponse(bool forceLoqQuality = false)
-		{
+        private async Task<DmcWatchResponse> GetDmcWatchResponse()
+        {
             if (!HohoemaApp.IsLoggedIn) { return null; }
 
+            DmcWatchResponse dmcWatchResponse = null;
 
-			WatchApiResponse watchApiRes = null;
-
-			try
-			{
-				watchApiRes = await HohoemaApp.ContentFinder.GetWatchApiResponse(RawVideoId, forceLoqQuality, HarmfulContentReactionType);
-			}
-			catch (AggregateException ea) when (ea.Flatten().InnerExceptions.Any(e => e is ContentZoningException))
-			{
-				IsBlockedHarmfulVideo = true;
-			}
-			catch (ContentZoningException)
-			{
-				IsBlockedHarmfulVideo = true;
-			}
-			catch { }
-
-			if (!forceLoqQuality && watchApiRes != null)
-			{
-				NowLowQualityOnly = watchApiRes.VideoUrl.AbsoluteUri.EndsWith("low");
-			}
-
-			_VisitedPageType = watchApiRes.VideoUrl.AbsoluteUri.EndsWith("low") ? NicoVideoQuality.Low : NicoVideoQuality.Original;
-			
-			if (watchApiRes != null)
-			{
-				CachedWatchApiResponse = watchApiRes;
-
-				VideoUrl = watchApiRes.VideoUrl;
-
-				ProtocolType = MediaProtocolTypeHelper.ParseMediaProtocolType(watchApiRes.VideoUrl);
-
-				DescriptionWithHtml = watchApiRes.videoDetail.description;
-				ThreadId = watchApiRes.ThreadId.ToString();
-				PrivateReasonType = watchApiRes.PrivateReason;
-                VideoLength = watchApiRes.Length;
-
-				if (!_thumbnailInitialized)
-				{
-					RawVideoId = watchApiRes.videoDetail.id;
-					await UpdateWithThumbnail();
-				}
-				IsCommunity = watchApiRes.flashvars.is_community_video == "1";
-				
-
-				// TODO: 
-//				Tags = watchApiRes.videoDetail.tagList.Select(x => new Tag()
-//				{
-					
-//				}).ToList();
-
-				if (watchApiRes.UploaderInfo != null)
-				{
-					VideoOwnerId = uint.Parse(watchApiRes.UploaderInfo.id);
-				}
-
-
-				this.IsDeleted = watchApiRes.IsDeleted;
-				if (IsDeleted)
-				{
-					await DeletedTeardown();
-				}
-			}
-
-			return watchApiRes;
-		}
-
-
-
-
-		public bool CanGetVideoStream()
-		{
-			return ProtocolType == MediaProtocolType.RTSPoverHTTP;
-		}
-
-		/// <summary>
-		/// 動画ストリームの取得します
-		/// 他にダウンロードされているアイテムは強制的に一時停止し、再生終了後に再開されます
-		/// </summary>
-		public async Task StartPlay(NicoVideoQuality quality, TimeSpan? initialPosition = null)
-		{
-			IfVideoDeletedThrowException();
-
-            // キャッシュ済みの場合は
-            var divided = GetDividedQualityNicoVideo(quality);
-			if (divided.HasCache)
-			{
-				var file = await divided.GetCacheFile();
-				NicoVideoCachedStream = await file.OpenReadAsync();
-
-                await OnCacheRequested();
-            }
-			else if (ProtocolType == MediaProtocolType.RTSPoverHTTP)
-			{				
-				if (Util.InternetConnection.IsInternet())
-				{
-					var size = divided.VideoSize;
-					NicoVideoCachedStream = await HttpSequencialAccessStream.CreateAsync(
-						HohoemaApp.NiconicoContext.HttpClient
-						, VideoUrl
-						);					
-				}
-			}
-
-			if (NicoVideoCachedStream == null)
-			{
-				throw new NotSupportedException();
-			}
-
-            if (initialPosition == null)
+            try
             {
-                initialPosition = TimeSpan.Zero;
+                dmcWatchResponse = await HohoemaApp.ContentFinder.GetDmcWatchResponse(RawVideoId, HarmfulContentReactionType);
+            }
+            catch (AggregateException ea) when (ea.Flatten().InnerExceptions.Any(e => e is ContentZoningException))
+            {
+                IsBlockedHarmfulVideo = true;
+            }
+            catch (ContentZoningException)
+            {
+                IsBlockedHarmfulVideo = true;
             }
 
-            MediaSource mediaSource = null;
-            if (ContentType == MovieType.Mp4)
+            if (dmcWatchResponse != null)
             {
-                string contentType = null;
+                NowLowQualityOnly = dmcWatchResponse.Video.SmileInfo.IsSlowLine;
+            }
 
-                if (NicoVideoCachedStream is IRandomAccessStreamWithContentType)
+            //			_VisitedPageType = watchApiRes.Vide.AbsoluteUri.EndsWith("low") ? NicoVideoQuality.Low : NicoVideoQuality.Original;
+
+            if (dmcWatchResponse != null)
+            {
+                LegacyVideoUrl = new Uri(dmcWatchResponse.Video.SmileInfo.Url);
+
+                ProtocolType = MediaProtocolTypeHelper.ParseMediaProtocolType(LegacyVideoUrl);
+
+                DescriptionWithHtml = dmcWatchResponse.Video.Description;
+                ThreadId = dmcWatchResponse.Thread.Ids.Default;
+                //PrivateReasonType = watchApiRes.PrivateReason;
+                VideoLength = TimeSpan.FromSeconds(dmcWatchResponse.Video.Duration);
+                NowLowQualityOnly = dmcWatchResponse.Video.SmileInfo?.IsSlowLine ?? false;
+                //IsOriginalQualityOnly = dmcWatchResponse.Video.SmileInfo?.QualityIds?.Count == 1;
+
+                if (!_thumbnailInitialized)
                 {
-                    contentType = (NicoVideoCachedStream as IRandomAccessStreamWithContentType).ContentType;
+                    RawVideoId = dmcWatchResponse.Video.Id;
+                    await UpdateWithThumbnail();
+                }
+                IsCommunity = dmcWatchResponse.Video.IsCommunityMemberOnly == "1";
+
+                if (CommentClient == null)
+                {
+                    if (dmcWatchResponse.Video.DmcInfo != null)
+                    {
+                        var commentServerInfo = new CommentServerInfo()
+                        {
+                            ServerUrl = dmcWatchResponse.Video.DmcInfo.Thread.ServerUrl,
+                            ThreadId = dmcWatchResponse.Video.DmcInfo.Thread.ThreadId,
+                            ThreadKeyRequired = dmcWatchResponse.Video.DmcInfo?.Thread.ThreadKeyRequired ?? false
+                        };
+                        CommentClient = new CommentClient(HohoemaApp, RawVideoId, commentServerInfo);
+                    }
+                    else
+                    {
+                        var commentServerInfo = new CommentServerInfo()
+                        {
+                            ServerUrl = dmcWatchResponse.Thread.ServerUrl,
+                            ThreadId = int.Parse(dmcWatchResponse.Thread.Ids.Default),
+                            ThreadKeyRequired = false
+                        };
+                        CommentClient = new CommentClient(HohoemaApp, RawVideoId, commentServerInfo);
+                    }
                 }
 
-                if (contentType == null) { throw new Exception("unknown movie content type"); }
-
-                mediaSource = MediaSource.CreateFromStream(NicoVideoCachedStream, contentType);
-            }
-            else
-            {
-                var mss = FFmpegInteropMSS.CreateFFmpegInteropMSSFromStream(NicoVideoCachedStream, false, true);
-
-                if (mss != null)
+                foreach (var divided in GetAllQuality())
                 {
-                    var realMss = mss.GetMediaStreamSource();
-                    realMss.SetBufferedRange(TimeSpan.Zero, TimeSpan.Zero);
-                    mediaSource = MediaSource.CreateFromMediaStreamSource(realMss);
+                    if (divided is DmcQualityNicoVideo)
+                    {
+                        (divided as DmcQualityNicoVideo).DmcWatchResponse = dmcWatchResponse;
+                    }
                 }
-                else
+
+                // TODO: 
+                //				Tags = watchApiRes.videoDetail.tagList.Select(x => new Tag()
+                //				{
+
+                //				}).ToList();
+
+                if (dmcWatchResponse.Owner != null)
                 {
-                    throw new NotSupportedException();
+                    OwnerId = uint.Parse(dmcWatchResponse.Owner.Id);
+                    OwnerIconUrl = dmcWatchResponse.Owner.IconURL;
+                }
+
+
+                this.IsDeleted = dmcWatchResponse.Video.IsDeleted;
+                if (IsDeleted)
+                {
+                    await DeletedTeardown();
                 }
             }
 
-            if (mediaSource != null)
-            {
-                HohoemaApp.MediaPlayer.Source = mediaSource;
-                HohoemaApp.MediaPlayer.PlaybackSession.Position = initialPosition.Value;
-
-                var smtc = HohoemaApp.MediaPlayer.SystemMediaTransportControls;
-                
-                smtc.DisplayUpdater.Type = Windows.Media.MediaPlaybackType.Video;
-                smtc.DisplayUpdater.VideoProperties.Title = Title ?? "Hohoema";
-                if (ThumbnailUrl != null)
-                {
-                    smtc.DisplayUpdater.Thumbnail = RandomAccessStreamReference.CreateFromUri(new Uri(this.ThumbnailUrl));
-                }
-                smtc.IsPlayEnabled = true;
-                smtc.IsPauseEnabled = true;
-                smtc.DisplayUpdater.Update();
-                
-                divided.OnPlayStarted();
-            }
-
+            return dmcWatchResponse;
         }
 
 
-        internal async Task<Uri> GetVideoUrl(NicoVideoQuality quality)
+        // 動画情報のキャッシュまたはオンラインからの取得と更新
+
+        public async Task VisitWatchPage(NicoVideoQuality quality)
+		{
+            await GetDmcWatchResponse();
+        }
+
+
+        internal async Task<Uri> SetupWatchPageVisit(NicoVideoQuality quality)
         {
             var divided = GetDividedQualityNicoVideo(quality);
-
             if (divided.IsAvailable)
             {
-                await SetupWatchPageVisit(quality);
-
-                if (quality == NicoVideoQuality.Original && NowLowQualityOnly)
+                var videoUri = await divided.GenerateVideoContentUrl();
+                if (divided.IsCacheRequested)
                 {
-                    return null;
+                    await OnCacheRequested();
                 }
 
-                return CachedWatchApiResponse.VideoUrl;
+                return videoUri;
             }
             else
             {
                 return null;
             }
-        }
 
-        internal async Task SetupWatchPageVisit(NicoVideoQuality quality)
-		{
-			WatchApiResponse res;
-			if (quality == NicoVideoQuality.Original)
-			{
-				if (OriginalQuality.IsCached)
-				{
-					res = await GetWatchApiResponse();
-				}
-				// オリジナル画質の視聴ページにアクセスしたWacthApiResponseを取得する
-				else if (CachedWatchApiResponse != null
-					&& _VisitedPageType == NicoVideoQuality.Original
-					)
-				{
-					// すでに
-					res = CachedWatchApiResponse;
-				}
-				else
-				{
-					res = await GetWatchApiResponse();
-				}
-
-				// ないです				
-				if (_VisitedPageType == NicoVideoQuality.Low)
-				{
-					throw new Exception("cant download original quality video.");
-				}
-			}
-			else
-			{
-				// 低画質動画キャッシュ済みの場合
-				if (LowQuality.IsCached)
-				{
-					res = await GetWatchApiResponse();
-				}
-				// 低画質の視聴ページへアクセスしたWatchApiResponseを取得する
-				else if (CachedWatchApiResponse != null
-					&& _VisitedPageType == NicoVideoQuality.Low
-					)
-				{
-					// すでに
-					res = CachedWatchApiResponse;
-				}
-				else
-				{
-					// まだなので、低画質を指定してアクセスする
-					res = await GetWatchApiResponse( forceLoqQuality:true );
-				}
-			}
-
-			if (res == null)
-			{
-				throw new Exception("");
-			}
-
-
-            // キャッシュリクエストされている場合このタイミングでコメントを取得
-            var divided = GetDividedQualityNicoVideo(quality);
-			if (divided.IsCacheRequested)
-			{
-				await OnCacheRequested();
-//				var commentRes = await GetCommentResponse();
-//				CommentDb.AddOrUpdate(RawVideoId, commentRes);
-			}
-		}
-		
-		public void StopPlay()
-		{
-            HohoemaApp.MediaPlayer.Pause();
-            HohoemaApp.MediaPlayer.Source = null;
-
-            foreach (var div in GetAllQuality())
+            /*
+            if (ContentType == MovieType.Mp4)
             {
-                if (div.NowPlaying)
+                var res = await GetDmcWatchResponse();
+                
+            }
+            else
+            {
+                WatchApiResponse res;
+                if (quality == NicoVideoQuality.Original)
                 {
-                    div.OnPlayDone();
+                    res = await GetWatchApiResponse();
+                    
+                    // ないです				
+                    if (_VisitedPageType == NicoVideoQuality.Low)
+                    {
+                        throw new Exception("cant download original quality video.");
+                    }
+                }
+                else
+                {
+                    // 低画質動画キャッシュ済みの場合
+                    if (LowQuality.IsCached)
+                    {
+                        res = await GetWatchApiResponse();
+                    }
+                    // 低画質の視聴ページへアクセスしたWatchApiResponseを取得する
+                    else if (CachedWatchApiResponse != null
+                        && _VisitedPageType == NicoVideoQuality.Low
+                        )
+                    {
+                        // すでに
+                        res = await GetWatchApiResponse();
+                    }
+                    else
+                    {
+                        // まだなので、低画質を指定してアクセスする
+                        res = await GetWatchApiResponse(forceLoqQuality: true);
+                    }
+                }
+
+                if (res == null)
+                {
+                    throw new Exception("");
                 }
             }
+            */
 
-            Debug.WriteLine("stream dispose");
-            NicoVideoCachedStream?.Dispose();
-            NicoVideoCachedStream = null;
+            // キャッシュリクエストされている場合このタイミングでコメントを取得
 
-            var smtc = HohoemaApp.MediaPlayer.SystemMediaTransportControls;
-            smtc.DisplayUpdater.ClearAll();
-            smtc.IsEnabled = false;
-            smtc.DisplayUpdater.Update();
         }
+
+
+
+
+        public bool CanGetVideoStream()
+		{
+			return ProtocolType == MediaProtocolType.RTSPoverHTTP;
+		}
+
+		
 
         public async Task RestoreCache(NicoVideoQuality quality, string filepath)
         {
@@ -533,23 +615,20 @@ namespace NicoPlayerHohoema.Models
 		{
             if (!quality.HasValue)
             {
-                if (HohoemaApp.UserSettings.PlayerSettings.IsLowQualityDeafult)
+//                quality = HohoemaApp.UserSettings.PlayerSettings.DefaultQuality;
+
+                foreach (var div in GetAllQuality().Where(x => x.Quality.IsLegacy()))
                 {
-                    quality = NicoVideoQuality.Low;
-                }
-                else
-                {
-                    if (IsOriginalQualityOnly)
+                    if (div.CanDownload)
                     {
-                        quality = NicoVideoQuality.Low;
-                    }
-                    else
-                    {
-                        quality = NicoVideoQuality.Original;
+                        quality = div.Quality;
+                        break;
                     }
                 }
             }
 
+            // Dmcサーバーからのキャッシュ化は未対応
+            if (quality.Value.IsDmc()) { return Task.CompletedTask; }
 
             var divided = GetDividedQualityNicoVideo(quality.Value);
 
@@ -595,27 +674,7 @@ namespace NicoPlayerHohoema.Models
 
 
 
-		public async Task<PostCommentResponse> SubmitComment(string comment, TimeSpan position, string commands)
-		{
-			var commentRes = _CachedCommentResponse;
-			var watchApiRes = CachedWatchApiResponse;
-
-			if (commentRes == null && watchApiRes == null)
-			{
-				throw new Exception("コメント投稿には事前に動画ページへのアクセスとコメント情報取得が必要です");
-			}
-
-			try
-			{
-				return await HohoemaApp.NiconicoContext.Video.PostCommentAsync(watchApiRes, commentRes.Thread, comment, position, commands);
-			}
-			catch
-			{
-				// コメントデータを再取得してもう一度？
-				return null;
-			}
-		}
-
+		
 
 		/// <summary>
 		/// キャッシュ要求の基本処理を実行します
@@ -626,18 +685,11 @@ namespace NicoPlayerHohoema.Models
 		{
 			IfVideoDeletedThrowException();
 
-			if (CachedWatchApiResponse != null)
-			{
-                if (_CachedCommentResponse == null)
-                {
-                    await GetComments(true);
-                }
-
-                if (_CachedCommentResponse != null)
-                {
-                    CommentDb.AddOrUpdate(RawVideoId, _CachedCommentResponse);
-                }
+            if (CommentClient != null)
+            {
+                await CommentClient.GetComments();
             }
+
 
             var info = await VideoInfoDb.GetEnsureNicoVideoInfoAsync(RawVideoId);
             
@@ -646,7 +698,7 @@ namespace NicoPlayerHohoema.Models
 			info.LowSize = (uint)this.SizeLow;
 			info.HighSize = (uint)this.SizeHigh;
 			info.Title = this.Title;
-			info.UserId = this.VideoOwnerId;
+			info.UserId = this.OwnerId;
 			info.MovieType = this.ContentType;
 			info.PostedAt = this.PostedAt;
 			info.SetTags(this.Tags);
@@ -691,7 +743,7 @@ namespace NicoPlayerHohoema.Models
             this.SizeLow = (uint)videoInfo.LowSize;
             this.SizeHigh = (uint)videoInfo.HighSize;
             this.Title = videoInfo.Title;
-            this.VideoOwnerId = videoInfo.UserId;
+            this.OwnerId = videoInfo.UserId;
             this.ContentType = videoInfo.MovieType;
             this.PostedAt = videoInfo.PostedAt;
             this.Tags = videoInfo.GetTags();
@@ -776,13 +828,15 @@ namespace NicoPlayerHohoema.Models
 		public bool IsDeleted { get; private set; }
 		public bool IsCommunity { get; private set; }
 
-		public MovieType ContentType { get; private set; }
+        public bool IsDmc => ContentType == MovieType.Mp4;
+
+        public MovieType ContentType { get; private set; }
 		public string Title { get; private set; }
 		public TimeSpan VideoLength { get; private set; }
 		public DateTime PostedAt { get; private set; }
-		public uint VideoOwnerId { get; private set; }
-		public bool IsOriginalQualityOnly => SizeLow == 0 || ContentType != MovieType.Mp4;
-		public List<Tag> Tags { get; private set; }
+		public uint OwnerId { get; private set; }
+        public bool IsOriginalQualityOnly => SizeLow == 0;
+		public List<ThumbnailTag> Tags { get; private set; }
 		public uint SizeLow { get; private set; }
 		public uint SizeHigh { get; private set; }
 		public uint ViewCount { get; internal set; }
@@ -790,7 +844,11 @@ namespace NicoPlayerHohoema.Models
 		public uint MylistCount { get; internal set; }
 		public string ThumbnailUrl { get; internal set; }
 
-		public Uri VideoUrl { get; private set; }
+        public UserType OwnerUserType { get; private set; }
+        public string OwnerIconUrl { get; private set; }
+        
+
+		public Uri LegacyVideoUrl { get; private set; }
 		public string ThreadId { get; private set; }
 		public string DescriptionWithHtml { get; private set; }
 		public bool NowLowQualityOnly { get; private set; }
@@ -857,18 +915,85 @@ namespace NicoPlayerHohoema.Models
 
 	
 
-		public static string MakeVideoFileName(string title, string videoid)
-		{
-			return $"{title.ToSafeFilePath()} - [{videoid}]";
-		}
-
-
-
-		public static string GetProgressFileName(string rawVideoId)
-		{
-			return $"{rawVideoId}_progress";
-		}
-
+		
 
 	}
+
+
+    public class CommentClient
+    {
+        public string RawVideoId { get; }
+        public HohoemaApp HohoemaApp { get; }
+        public CommentServerInfo CommentServerInfo { get; }
+
+        private CommentResponse CachedCommentResponse { get; set; }
+
+        public CommentClient(HohoemaApp hohoemaApp, string rawVideoid, CommentServerInfo serverInfo)
+        {
+            RawVideoId = rawVideoid;
+            HohoemaApp = hohoemaApp;
+            CommentServerInfo = serverInfo;
+        }
+
+
+        public List<Chat> GetCommentsFromLocal()
+        {
+            var j = CommentDb.Get(RawVideoId);
+            return j.GetComments();
+        }
+
+        // コメントのキャッシュまたはオンラインからの取得と更新
+        public async Task<List<Chat>> GetComments()
+        {
+            try
+            {
+                CommentResponse commentRes = null;
+                commentRes = await ConnectionRetryUtil.TaskWithRetry(async () =>
+                {
+                    return await this.HohoemaApp.NiconicoContext.Video
+                        .GetCommentAsync(
+                            (int)HohoemaApp.LoginUserId,
+                            CommentServerInfo.ServerUrl,
+                            CommentServerInfo.ThreadId,
+                            CommentServerInfo.ThreadKeyRequired
+                        );
+                });
+
+                CachedCommentResponse = commentRes;
+                CommentDb.AddOrUpdate(RawVideoId, commentRes);
+                return commentRes.Chat;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public async Task<PostCommentResponse> SubmitComment(string comment, TimeSpan position, string commands)
+        {
+            var commentRes = CachedCommentResponse;
+
+            if (commentRes == null || CommentServerInfo == null)
+            {
+                throw new Exception("コメント投稿には事前に動画ページへのアクセスとコメント情報取得が必要です");
+            }
+
+            try
+            {
+                return await HohoemaApp.NiconicoContext.Video.PostCommentAsync(
+                    CommentServerInfo.ServerUrl,
+                    CachedCommentResponse.Thread,
+                    comment,
+                    position, 
+                    commands
+                    );
+            }
+            catch
+            {
+                // コメントデータを再取得してもう一度？
+                return null;
+            }
+        }
+
+    }
 }

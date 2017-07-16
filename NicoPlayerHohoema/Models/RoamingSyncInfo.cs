@@ -36,7 +36,7 @@ namespace NicoPlayerHohoema.Models
 
             if (item != null)
             {
-                SyncInfoItems.Remove(item);
+                item.Mode = SyncMode.Remove;
             }
         }
     }

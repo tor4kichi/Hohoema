@@ -60,13 +60,15 @@ namespace NicoPlayerHohoema.Models
 
         
         public HohoemaPlaylist HohoemaPlaylist { get; private set; }
+        public AppearanceSettings AppearanceSettings { get; }
 
-
-        public PageManager(INavigationService ns, HohoemaPlaylist playlist)
+        public PageManager(INavigationService ns, AppearanceSettings appearanceSettings, HohoemaPlaylist playlist)
 		{
 			NavigationService = ns;
+            AppearanceSettings = appearanceSettings;
             HohoemaPlaylist = playlist;
-            CurrentPageType = HohoemaPageType.Portal;
+
+            CurrentPageType = HohoemaPageType.RankingCategoryList;
         }
 
 		public void OpenPage(Uri uri)
@@ -77,8 +79,7 @@ namespace NicoPlayerHohoema.Models
 			{
 				var mylistId = uri.AbsolutePath.Split('/').Last();
 				System.Diagnostics.Debug.WriteLine($"open Mylist: {mylistId}");
-				OpenPage(HohoemaPageType.Mylist, mylistId);
-
+				OpenPage(HohoemaPageType.Mylist, new MylistPagePayload(mylistId).ToParameterString());
 				return;
 			}
 
@@ -218,12 +219,38 @@ namespace NicoPlayerHohoema.Models
 			return PageTypeToTitle(CurrentPageType);
 		}
 
+
+        public void OpenStartupPage()
+        {
+            OpenPage(AppearanceSettings.StartupPageType);
+
+            if (Models.AppUpdateNotice.HasNotCheckedUptedeNoticeVersion)
+            {
+                Models.AppUpdateNotice.GetNotCheckedUptedeNoticeVersions()
+                    .ContinueWith(async prevTask =>
+                    {
+                        if (prevTask.Exception == null)
+                        {
+                            await HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => 
+                            {
+                                Models.AppUpdateNotice.UpdateLastCheckedVersionInCurrentVersion();
+
+                                var text = await Models.AppUpdateNotice.GetUpdateNotices(prevTask.Result);
+                                var dialog = new Views.Service.MarkdownTextDialog();
+                                dialog.Title = "更新情報";
+                                dialog.Text = text;
+                                dialog.PrimaryButtonText = "OK";
+                                await dialog.ShowAsync();
+                            });
+                        }
+                    });
+            }
+        }
+
 		public static string PageTypeToTitle(HohoemaPageType pageType)
 		{
 			switch (pageType)
 			{
-				case HohoemaPageType.Portal:
-					return "ホーム";
 				case HohoemaPageType.RankingCategoryList:
 					return "ランキングカテゴリ一覧";
 				case HohoemaPageType.RankingCategory:
@@ -236,8 +263,6 @@ namespace NicoPlayerHohoema.Models
 					return "フォロー";
 				case HohoemaPageType.History:
 					return "視聴履歴";
-                case HohoemaPageType.Playlist:
-                    return "プレイリスト";
 				case HohoemaPageType.Search:
 					return "検索";
 				case HohoemaPageType.CacheManagement:

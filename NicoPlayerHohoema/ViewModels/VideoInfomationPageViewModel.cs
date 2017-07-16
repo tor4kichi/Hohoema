@@ -12,6 +12,7 @@ using Microsoft.Practices.Unity;
 using Prism.Windows.Navigation;
 using System.Threading;
 using System.Diagnostics;
+using Mntone.Nico2;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -51,7 +52,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenOwnerUserPageCommand
                     ?? (_OpenOwnerUserPageCommand = new DelegateCommand(() =>
                     {
-                        PageManager.OpenPage(HohoemaPageType.UserInfo, Video.VideoOwnerId.ToString());
+                        PageManager.OpenPage(HohoemaPageType.UserInfo, Video.OwnerId.ToString());
                     }
                     ));
             }
@@ -66,7 +67,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenOwnerUserVideoPageCommand
                     ?? (_OpenOwnerUserVideoPageCommand = new DelegateCommand(() =>
                     {
-                        PageManager.OpenPage(HohoemaPageType.UserVideo, Video.VideoOwnerId.ToString());
+                        PageManager.OpenPage(HohoemaPageType.UserVideo, Video.OwnerId.ToString());
                     }
                     ));
             }
@@ -254,7 +255,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        public List<Playlist> Playlists { get; private set; }
+        public List<LocalMylist> Playlists { get; private set; }
 
 
         AsyncLock _WebViewFocusManagementLock = new AsyncLock();
@@ -306,10 +307,19 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 try
                 {
-                    await Video.SetupWatchPageVisit(NicoVideoQuality.Low);
+                    if (Video.ContentType == Mntone.Nico2.Videos.Thumbnail.MovieType.Flv)
+                    {
+                        await HohoemaApp.NiconicoContext.Video.GetWatchApiAsync(Video.RawVideoId, false);
+                    }
+                    else
+                    {
+                        await Video.SetupWatchPageVisit(NicoVideoQuality.Low);
+
+                    }
+
 
                     VideoTitle = Video.Title;
-                    Tags = Video.Tags.Select(x => new TagViewModel(x, PageManager))
+                    Tags = Video.Tags.Select(x => new TagViewModel(x.Value, PageManager))
                         .ToList();
                     ThumbnailUrl = Video.ThumbnailUrl;
                     VideoLength = Video.VideoLength;
@@ -317,16 +327,6 @@ namespace NicoPlayerHohoema.ViewModels
                     ViewCount = Video.ViewCount;
                     CommentCount = Video.CommentCount;
                     MylistCount = Video.MylistCount;
-
-                    OnPropertyChanged(nameof(VideoTitle));
-                    OnPropertyChanged(nameof(Tags));
-                    OnPropertyChanged(nameof(ThumbnailUrl));
-                    OnPropertyChanged(nameof(VideoLength));
-                    OnPropertyChanged(nameof(SubmitDate));
-                    OnPropertyChanged(nameof(ViewCount));
-                    OnPropertyChanged(nameof(CommentCount));
-                    OnPropertyChanged(nameof(MylistCount));
-
                 }
                 catch
                 {
@@ -334,6 +334,16 @@ namespace NicoPlayerHohoema.ViewModels
                     return;
                 }
 
+
+
+                OnPropertyChanged(nameof(VideoTitle));
+                OnPropertyChanged(nameof(Tags));
+                OnPropertyChanged(nameof(ThumbnailUrl));
+                OnPropertyChanged(nameof(VideoLength));
+                OnPropertyChanged(nameof(SubmitDate));
+                OnPropertyChanged(nameof(ViewCount));
+                OnPropertyChanged(nameof(CommentCount));
+                OnPropertyChanged(nameof(MylistCount));
 
 
                 try
@@ -349,20 +359,8 @@ namespace NicoPlayerHohoema.ViewModels
 
                 try
                 {
-                    var ownerIsUser = Video.CachedWatchApiResponse.UploaderInfo != null;
-                    var ownerIsChannel = Video.CachedWatchApiResponse.channelInfo != null;
-                    if (ownerIsUser)
-                    {
-                        var uploader = Video.CachedWatchApiResponse.UploaderInfo;
-                        OwnerName = uploader.nickname;
-                        OwnerIconUrl = uploader.icon_url;
-                    }
-                    else if (ownerIsChannel)
-                    {
-                        var channelInfo = Video.CachedWatchApiResponse.channelInfo;
-                        OwnerName = channelInfo.name;
-                        OwnerIconUrl = channelInfo.icon_url;
-                    }
+                    OwnerName = Video.OwnerId.ToString();
+                    OwnerIconUrl = Video.OwnerIconUrl;
 
                     OnPropertyChanged(nameof(OwnerName));
                     OnPropertyChanged(nameof(OwnerIconUrl));

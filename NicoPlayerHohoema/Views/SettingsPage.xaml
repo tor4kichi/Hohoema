@@ -127,7 +127,7 @@
                 <Pivot.ItemContainerStyle>
                     <Style TargetType="PivotItem">
                         <Setter Property="Margin" Value="0 0 0 0" />
-                        <Setter Property="Padding" Value="0 0 0 27" />
+                        <Setter Property="Padding" Value="0 0 0 0" />
                     </Style>
                 </Pivot.ItemContainerStyle>
                 <Pivot.HeaderTemplate>
@@ -137,12 +137,16 @@
                 </Pivot.HeaderTemplate>
                 <Pivot.ItemTemplate>
                     <DataTemplate>
-                        <ContentControl Content="{Binding}"
+                        <ScrollViewer>
+                            <ContentControl Content="{Binding}"
                                         ContentTemplateSelector="{StaticResource settingContentTemplateSelector}"
                                         HorizontalContentAlignment="Stretch"
                                         VerticalContentAlignment="Stretch"
                                         IsTabStop="False"
+                                            Margin="0 0 0 27"
                                         />
+
+                        </ScrollViewer>
                     </DataTemplate>
                 </Pivot.ItemTemplate>
             </Pivot>

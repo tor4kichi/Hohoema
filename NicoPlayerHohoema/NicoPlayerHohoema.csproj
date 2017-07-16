@@ -23,7 +23,7 @@
     <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
     <PackageCertificateThumbprint>BFE34B4665927D2844D7BF676023FAED7F089F9D</PackageCertificateThumbprint>
-    <AppxPackageDir>C:\Users\tor4k\Documents\Repo\NicoPlayerHohoema\NicoPlayerHohoema\AppPackages\</AppxPackageDir>
+    <AppxPackageDir>D:\tor4kichi\Hohoema\packages\</AppxPackageDir>
     <RuntimeIdentifiers>win10-arm;win10-arm-aot;win10-x86;win10-x86-aot;win10-x64;win10-x64-aot</RuntimeIdentifiers>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
@@ -112,6 +112,7 @@
     <Content Include="Assets\LibLisencies\UWP Community Toolkit.txt" />
     <Content Include="Assets\LibLisencies\_lisence_summary.json" />
     <Content Include="Assets\OAuth\twitter.json" />
+    <Content Include="Assets\UpdateNotices\0.9.0.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
   </ItemGroup>
   <ItemGroup>
@@ -121,16 +122,7 @@
     <Compile Include="Events\PlayerClosedEvent.cs" />
     <Compile Include="Events\PlayNicoVideoEvent.cs" />
     <Compile Include="Models\AccountManager.cs" />
-    <Compile Include="Models\AppMap\AppMap.cs" />
-    <Compile Include="Models\AppMap\AppMapItem.cs" />
-    <Compile Include="Models\AppMap\AppMapContainerBase.cs" />
-    <Compile Include="Models\AppMap\CachedVideoAppMapContainer.cs" />
-    <Compile Include="Models\AppMap\FollowAppMapContainer.cs" />
-    <Compile Include="Models\AppMap\FeedGroupAppMapContainer.cs" />
-    <Compile Include="Models\AppMap\UserMylistAppMapContainer.cs" />
-    <Compile Include="Models\AppMap\RankingCategoriesAppMapContainer.cs" />
-    <Compile Include="Models\AppMap\SearchAppMapContainer.cs" />
-    <Compile Include="Models\AppMap\VideoPlayHistoryAppMapContainer.cs" />
+    <Compile Include="Models\AppUpdateNotice.cs" />
     <Compile Include="Models\BackgroundUpdater.cs" />
     <Compile Include="Models\CommentCommandPermissionType.cs" />
     <Compile Include="Models\Db\History\HistoryDbContext.cs" />
@@ -175,14 +167,18 @@
     <Compile Include="Models\Live\NicoLiveInfoType.cs" />
     <Compile Include="Models\Live\NicoLiveVideo.cs" />
     <Compile Include="Models\LoginRedirectPayload.cs" />
+    <Compile Include="Models\MylistPagePayload.cs" />
+    <Compile Include="Models\Mylist\IPlayableList.cs" />
+    <Compile Include="Models\Mylist\LocalMylist.cs" />
+    <Compile Include="Models\Mylist\MylistHohoemaAppExtentions.cs" />
+    <Compile Include="Models\Mylist\OtherOwneredMylist.cs" />
     <Compile Include="Models\PageManagerSearchExtention.cs" />
     <Compile Include="Models\Purchase\HohoemaPurchase.cs" />
     <Compile Include="Models\RoamingSyncInfo.cs" />
     <Compile Include="Models\Settings\AppearanceSettings.cs" />
-    <Compile Include="Models\Settings\AppMapSettings.cs" />
     <Compile Include="Models\Settings\CacheSettings.cs" />
     <Compile Include="Models\Settings\PlaylistSettings.cs" />
-    <Compile Include="Models\UserMylistManager.cs" />
+    <Compile Include="Models\Mylist\UserMylistManager.cs" />
     <Compile Include="Models\Video\DividedQualityNicoVideo.cs" />
     <Compile Include="Models\Video\MediaProtocolType.cs" />
     <Compile Include="Models\Db\NicoVideo\NicoVIdeoDbContext.cs" />
@@ -250,7 +246,6 @@
     <Compile Include="ViewModels\MenuNavigatePageBaseViewModel.cs" />
     <Compile Include="ViewModels\MylistPageViewModel.cs" />
     <Compile Include="ViewModels\PlayerWithPageContainerViewModel.cs" />
-    <Compile Include="ViewModels\PlaylistPageViewModel.cs" />
     <Compile Include="ViewModels\SearchResultPage\SearchResultCommunityPageViewModel.cs" />
     <Compile Include="ViewModels\SearchResultPage\SearchResultKeywordPageViewModel.cs" />
     <Compile Include="ViewModels\SearchResultPage\SearchResultLivePageViewModel.cs" />
@@ -307,7 +302,11 @@
     <Compile Include="Views\CacheManagementPage_TV.xaml.cs">
       <DependentUpon>CacheManagementPage_TV.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Converters\HohoemaPageTypeToTextConverter.cs" />
     <Compile Include="Views\Converters\PlayerEndActionToTextConverter.cs" />
+    <Compile Include="Views\Service\MarkdownTextDialog.xaml.cs">
+      <DependentUpon>MarkdownTextDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\UINavigationButtons.cs" />
     <Compile Include="Views\CommentCommandEditer.xaml.cs">
       <DependentUpon>CommentCommandEditer.xaml</DependentUpon>
@@ -438,26 +437,14 @@
     <Compile Include="Views\LiveVideoPlayerControl.xaml.cs">
       <DependentUpon>LiveVideoPlayerControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\LiveVideoPlayerControl_TV.xaml.cs">
-      <DependentUpon>LiveVideoPlayerControl_TV.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\LoginPage.xaml.cs">
       <DependentUpon>LoginPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MylistPage.xaml.cs">
       <DependentUpon>MylistPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\MylistPage_TV.xaml.cs">
-      <DependentUpon>MylistPage_TV.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\PlayerWithPageContainer.xaml.cs">
       <DependentUpon>PlayerWithPageContainer.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\PlaylistPage.xaml.cs">
-      <DependentUpon>PlaylistPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\PortalPage_TV.xaml.cs">
-      <DependentUpon>PortalPage_TV.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\RankingCategoryListPage_TV.xaml.cs">
       <DependentUpon>RankingCategoryListPage_TV.xaml</DependentUpon>
@@ -499,7 +486,6 @@
       <DependentUpon>SearchResultTagPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\VideoPlayerControlViewModel.cs" />
-    <Compile Include="ViewModels\PortalPageViewModel.cs" />
     <Compile Include="ViewModels\RankingCategoryListPageViewModel.cs" />
     <Compile Include="ViewModels\RankingCategoryPageViewModel.cs" />
     <Compile Include="ViewModels\SearchPageViewModel.cs" />
@@ -589,9 +575,6 @@
     <Compile Include="Views\UserMylistPage.xaml.cs">
       <DependentUpon>UserMylistPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\UserMylistPage_TV.xaml.cs">
-      <DependentUpon>UserMylistPage_TV.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\UserVideoPage.xaml.cs">
       <DependentUpon>UserVideoPage.xaml</DependentUpon>
     </Compile>
@@ -615,12 +598,6 @@
     </Compile>
     <Compile Include="Views\VideoInfomationPage_TV.xaml.cs">
       <DependentUpon>VideoInfomationPage_TV.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\VideoPlayerControl.xaml.cs">
-      <DependentUpon>VideoPlayerControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\PortalPage.xaml.cs">
-      <DependentUpon>PortalPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\RankingCategoryListPage.xaml.cs">
       <DependentUpon>RankingCategoryListPage.xaml</DependentUpon>
@@ -648,8 +625,8 @@
     <Compile Include="Views\Controls\VideoInfoControl.xaml.cs">
       <DependentUpon>VideoInfoControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\VideoPlayerControl_TV.xaml.cs">
-      <DependentUpon>VideoPlayerControl_TV.xaml</DependentUpon>
+    <Compile Include="Views\VideoPlayerControl.xaml.cs">
+      <DependentUpon>VideoPlayerControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\VisualTreeExtention.cs" />
   </ItemGroup>
@@ -928,10 +905,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\LiveVideoPlayerControl_TV.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\LoginPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -944,19 +917,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\MylistPage_TV.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\PlayerWithPageContainer.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\PlaylistPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\PortalPage_TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1032,6 +993,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Service\MarkdownTextDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Service\MylistRegistrationDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -1072,10 +1037,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\UserMylistPage_TV.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\UserVideoPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1105,14 +1066,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\VideoInfomationPage_TV.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\VideoPlayerControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\PortalPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1148,7 +1101,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\VideoPlayerControl_TV.xaml">
+    <Page Include="Views\VideoPlayerControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

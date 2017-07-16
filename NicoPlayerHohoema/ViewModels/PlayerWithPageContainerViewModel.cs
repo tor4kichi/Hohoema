@@ -96,7 +96,7 @@ namespace NicoPlayerHohoema.ViewModels
             }, viewModelState, true);
         }
 
-        private void HohoemaPlaylist_OpenPlaylistItem(Playlist playlist, PlaylistItem item)
+        private void HohoemaPlaylist_OpenPlaylistItem(IPlayableList playlist, PlaylistItem item)
         {
             // TODO: 別ウィンドウでプレイヤーを表示している場合に処理をキャンセル
             ClosePlayer();

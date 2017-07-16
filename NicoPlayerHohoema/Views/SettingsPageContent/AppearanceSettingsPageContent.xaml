@@ -9,10 +9,14 @@
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:myconverters="using:NicoPlayerHohoema.Views.Converters"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
 
+    <UserControl.Resources>
+        <myconverters:HohoemaPageTypeToTextConverter x:Key="PageTypeToText" />
+    </UserControl.Resources>
     <Grid>
 
         <VisualStateManager.VisualStateGroups>
@@ -32,38 +36,49 @@
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
-        <ScrollViewer IsTabStop="False">
-            <StackPanel Margin="8" MinWidth="400" HorizontalAlignment="Left">
+        <StackPanel Margin="8" MinWidth="400" HorizontalAlignment="Left">
 
-                <StackPanel Orientation="Horizontal" Margin="8 8 0 8">
-                    <TextBlock Text="アプリの表示設定"
+            <StackPanel Orientation="Horizontal" Margin="8 8 0 8">
+                <TextBlock Text="アプリの表示設定"
                            FontSize="18"
                            VerticalAlignment="Center"
                            FontWeight="SemiBold"
                            />
-                </StackPanel>
+            </StackPanel>
 
-                <StackPanel Margin="16 0 0 0">
-
-
-                    <StackPanel Margin="0 8 0 16" x:Name="SwitchFullScreenButtonLayout">
+            <StackPanel Margin="16 0 0 0">
 
 
-                        <Button Command="{Binding ToggleFullScreenCommand}"
-                              Content="フルスクリーンモード/ウィンドウモードを切り替え"
-                              />
-                        
-                    </StackPanel>
-
-                    <StackPanel Margin="0 8 0 16" x:Name="DefaultFullScreenSwitchLayout">
-                        <TextBlock Text="アプリ起動時にフルスクリーン表示を設定する"
+                <StackPanel Margin="0 8 0 16" >
+                    <TextBlock Text="起動時の表示ページ"
                            VerticalAlignment="Center"
                            />
 
-                        <ToggleSwitch IsOn="{Binding IsDefaultFullScreen.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    <ComboBox ItemsSource="{Binding StartupPageTypeList}"
+                                  SelectedItem="{Binding StartupPageType.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  >
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource PageTypeToText}}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+                </StackPanel>
+
+
+
+
+
+                <StackPanel Margin="0 8 0 16" x:Name="DefaultFullScreenSwitchLayout">
+                    <TextBlock Text="アプリ起動時にフルスクリーン表示を設定する"
+                           VerticalAlignment="Center"
+                           />
+
+                    <ToggleSwitch IsOn="{Binding IsDefaultFullScreen.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               
                               />
-                        <TextBlock Text="有効にするとメニューにフルスクリーンモード切り替えボタンが表示されるようになります。"
+                    <TextBlock Text="有効にするとメニューにフルスクリーンモード切り替えボタンが表示されるようになります。"
                                    FontSize="13"
                                    Opacity="0.7"
                                    Width="300"
@@ -71,24 +86,33 @@
                                    HorizontalAlignment="Left"
                                    />
 
-                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Margin="0 8 0 16" x:Name="SwitchFullScreenButtonLayout">
+
+
+                    <Button Command="{Binding ToggleFullScreenCommand}"
+                              Content="フルスクリーンモード/ウィンドウモードを切り替え"
+                              />
+
+                </StackPanel>
 
 
 
 
-                    <StackPanel Margin="0 8 0 16">
-                        <TextBlock Text="テーマ"
+                <StackPanel Margin="0 8 0 16">
+                    <TextBlock Text="テーマ"
                            toolkit:DockPanel.Dock="Left"
                            VerticalAlignment="Center"
                            />
-                        <ComboBox ItemsSource="{Binding ThemeList}"
+                    <ComboBox ItemsSource="{Binding ThemeList}"
                           SelectedItem="{Binding SelectedApplicationTheme.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               Margin="0 8 0 0"
                           >
-                        </ComboBox>
-                    </StackPanel>
+                    </ComboBox>
+                </StackPanel>
 
-                    <TextBlock Text="※テーマの適用にはアプリを再起動してください" 
+                <TextBlock Text="※テーマの適用にはアプリを再起動してください" 
                        Foreground="Red"
                        Margin="0 8 0 16"
                        Visibility="{Binding ThemeChanged, Converter={StaticResource BooleanToVisibility}}"
@@ -97,27 +121,26 @@
 
 
 
-                    <StackPanel x:Name="TVModeSwitchLayout">
-                        <StackPanel Margin="0 8 0 16">
-                            <TextBlock Text="TV Modeを利用する"
+                <StackPanel x:Name="TVModeSwitchLayout">
+                    <StackPanel Margin="0 8 0 16">
+                        <TextBlock Text="TV Modeを利用する"
                            toolkit:DockPanel.Dock="Left"
                            VerticalAlignment="Center"
                            />
 
-                            <ToggleSwitch IsOn="{Binding IsTVModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        <ToggleSwitch IsOn="{Binding IsTVModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               
                               />
-                        </StackPanel>
-                        <TextBlock Text="コントローラーを利用してアプリを操作するのに適しています。" 
+                    </StackPanel>
+                    <TextBlock Text="コントローラーを利用してアプリを操作するのに適しています。" 
                                Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
                                />
-                    </StackPanel>
                 </StackPanel>
-                
-
-
             </StackPanel>
-        </ScrollViewer>
+
+
+
+        </StackPanel>
     </Grid>
     
 </UserControl>

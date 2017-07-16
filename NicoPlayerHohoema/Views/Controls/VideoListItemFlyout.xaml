@@ -20,24 +20,7 @@
     <MenuFlyoutItem Text="あとで見る"
                                 Command="{Binding AddDefaultPlaylistCommand}"
                                 />
-    <!--
-    <MenuFlyoutSubItem Text="プレイリストに追加"
-                       x:Name="FlyoutRoot"
-                      >
-        <i:Interaction.Behaviors>
-            <mybehavior:MenuFlyoutSubItemsSetter ItemsSource="{Binding Playlists}">
-                <mybehavior:MenuFlyoutSubItemsSetter.ItemTemplate>
-                    <DataTemplate >
-                        <MenuFlyoutItem
-                            Text="{Binding Name}"
-                            Command="{Binding AddPlaylistCommand}"
-                            />
-                    </DataTemplate>
-                </mybehavior:MenuFlyoutSubItemsSetter.ItemTemplate>
-            </mybehavior:MenuFlyoutSubItemsSetter>
-        </i:Interaction.Behaviors>
-    </MenuFlyoutSubItem>
-    -->
+    
 
     <MenuFlyoutSeparator />
     

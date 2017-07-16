@@ -27,13 +27,13 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class VideoInfoControlViewModel : HohoemaListingPageItemBase
 	{
-	//	private IScheduler scheduler;
+        //	private IScheduler scheduler;
+
+        PlaylistItem PlaylistItem { get; }
 
 
-		
-
-		// とりあえずマイリストから取得したデータによる初期化
-		public VideoInfoControlViewModel(MylistData data, NicoVideo nicoVideo, PageManager pageManager)
+        // とりあえずマイリストから取得したデータによる初期化
+        public VideoInfoControlViewModel(MylistData data, NicoVideo nicoVideo, PageManager pageManager)
 			: this(nicoVideo, pageManager)
 		{
 			Title = data.Title;
@@ -79,12 +79,13 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-		public VideoInfoControlViewModel(NicoVideo nicoVideo, PageManager pageManager)
+		public VideoInfoControlViewModel(NicoVideo nicoVideo, PageManager pageManager, PlaylistItem playlistItem = null)
 		{
 			PageManager = pageManager;
             HohoemaPlaylist = nicoVideo.HohoemaApp.Playlist;
             NicoVideo = nicoVideo;
-			_CompositeDisposable = new CompositeDisposable();
+            PlaylistItem = playlistItem;
+            _CompositeDisposable = new CompositeDisposable();
 
 			Title = nicoVideo.Title;
 			RawVideoId = nicoVideo.RawVideoId;
@@ -217,11 +218,18 @@ namespace NicoPlayerHohoema.ViewModels
 				return _PlayCommand
 					?? (_PlayCommand = new DelegateCommand(() =>
 					{
-                        HohoemaPlaylist.PlayVideo(RawVideoId, Title);
+                        if (PlaylistItem != null)
+                        {
+                            HohoemaPlaylist.Play(PlaylistItem);
+                        }
+                        else
+                        {
+                            HohoemaPlaylist.PlayVideo(RawVideoId, Title);
+                        }
 
-//                        var payload = MakeVideoPlayPayload();
-//						PageManager.OpenPage(HohoemaPageType.VideoPlayer, payload.ToParameterString());
-					}));
+                        //                        var payload = MakeVideoPlayPayload();
+                        //						PageManager.OpenPage(HohoemaPageType.VideoPlayer, payload.ToParameterString());
+                    }));
 			}
 		}
 
@@ -248,29 +256,8 @@ namespace NicoPlayerHohoema.ViewModels
                 return _CacheRequestCommand
                     ?? (_CacheRequestCommand = new DelegateCommand(() =>
                     {
-                        if (NicoVideo.IsOriginalQualityOnly)
-                        {
-                            NicoVideo.RequestCache(NicoVideoQuality.Original);
-                        }
-                        else
-                        {
-                            if (NicoVideo.HohoemaApp.UserSettings.PlayerSettings.IsLowQualityDeafult)
-                            {
-                                NicoVideo.RequestCache(NicoVideoQuality.Low);
-                            }
-                            else
-                            {
-                                try
-                                {
-                                    NicoVideo.RequestCache(NicoVideoQuality.Original);
-                                }
-                                catch
-                                {
-                                    NicoVideo.RequestCache(NicoVideoQuality.Low);
-                                }
-                            }
-                        }
-                        
+                        var hohoemaApp = NicoVideo.HohoemaApp;
+                        NicoVideo.RequestCache();                        
                     }));
             }
         }
@@ -330,7 +317,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenOwnerVideoListPageCommand
                     ?? (_OpenOwnerVideoListPageCommand = new DelegateCommand(() =>
                     {
-                        PageManager.OpenPage(HohoemaPageType.UserVideo, this.NicoVideo.VideoOwnerId.ToString());
+                        PageManager.OpenPage(HohoemaPageType.UserVideo, this.NicoVideo.OwnerId.ToString());
                     }));
             }
         }

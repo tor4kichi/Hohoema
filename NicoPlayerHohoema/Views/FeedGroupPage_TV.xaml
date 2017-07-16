@@ -350,6 +350,12 @@
                                     <ItemsWrapGrid Orientation="Vertical" 
                                                    ItemHeight="120"
                                                    ItemWidth="180"
+                                                                                              ScrollViewer.VerticalScrollMode="Disabled"
+                                           ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                                      ScrollViewer.HorizontalScrollMode="Auto"
+                                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
+
+
                                                    />
                                 </ItemsPanelTemplate>
                             </GridView.ItemsPanel>

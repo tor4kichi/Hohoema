@@ -65,7 +65,13 @@ namespace NicoPlayerHohoema.Views.Service
 		
 		}
 
-		public async Task<SelectDialogPayload> ShowDialog(string dialogTitle, IEnumerable<ISelectableContainer> containers, ISelectableContainer firstSelected = null)
+        public Task<SelectDialogPayload> ShowDialog(string dialogTitle, IEnumerable<ISelectableContainer> containers, int defaultContainerIndex = 0)
+        {
+            var firstSelected = containers.ElementAtOrDefault(defaultContainerIndex);
+            return ShowDialog(dialogTitle, containers, firstSelected);
+        }
+
+        private async Task<SelectDialogPayload> ShowDialog(string dialogTitle, IEnumerable<ISelectableContainer> containers, ISelectableContainer firstSelected)
 		{
 			var context = new ContentSelectDialogContext(dialogTitle, containers, firstSelected);
 
@@ -231,7 +237,7 @@ namespace NicoPlayerHohoema.Views.Service
 			: base(label)
 		{
 			Items = selectableItems.ToList();
-			SelectedItem = null;
+			SelectedItem = Items.FirstOrDefault();
 		}
 
 
@@ -395,5 +401,6 @@ namespace NicoPlayerHohoema.Views.Service
 	{
 		public string Label { get; set; }
 		public string Id { get; set; }
+        public object Context { get; set; }
 	}
 }

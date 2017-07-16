@@ -21,6 +21,11 @@ namespace NicoPlayerHohoema.ViewModels
 
         public List<ProductViewModel> PurchaseItems { get; private set; }
 
+        public static List<Version> UpdateNoticeList { get; } = new List<Version>()
+        {
+            new Version(0, 9)
+        };
+
         public AboutSettingsPageContentViewModel()
             : base("このアプリについて", HohoemaSettingsKind.About)
         {
@@ -58,7 +63,25 @@ namespace NicoPlayerHohoema.ViewModels
             base.OnEnter(focusingDispsable);
         }
 
-
+        private DelegateCommand<Version> _ShowUpdateNoticeCommand;
+        public DelegateCommand<Version> ShowUpdateNoticeCommand
+        {
+            get
+            {
+                return _ShowUpdateNoticeCommand
+                    ?? (_ShowUpdateNoticeCommand = new DelegateCommand<Version>(async (version) =>
+                    {
+                        var allVersions = await Models.AppUpdateNotice.GetUpdateNoticeAvairableVersionsAsync();
+                        var versions = allVersions.Where(x => x.Major == version.Major && x.Minor == version.Minor).ToList();
+                        var text = await Models.AppUpdateNotice.GetUpdateNotices(versions);
+                        var dialog = new Views.Service.MarkdownTextDialog();
+                        dialog.Title = $"v{version.Major}.{version.Minor} 更新情報 一覧";
+                        dialog.Text = text;
+                        dialog.PrimaryButtonText = "OK";
+                        await dialog.ShowAsync();
+                    }));
+            }
+        }
 
         private DelegateCommand<ProductViewModel> _ShowCheerPurchaseCommand;
         public DelegateCommand<ProductViewModel> ShowCheerPurchaseCommand

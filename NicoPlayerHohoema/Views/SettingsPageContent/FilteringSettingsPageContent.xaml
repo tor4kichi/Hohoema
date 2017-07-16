@@ -199,21 +199,20 @@
     </UserControl.Resources>
 
 
-    <ScrollViewer HorizontalAlignment="Stretch" IsTabStop="False">
-        <StackPanel Margin="16 8 8 8" MinWidth="400" HorizontalAlignment="Left">
+    <StackPanel Margin="16 8 8 8" MinWidth="400" HorizontalAlignment="Left">
 
-            <!-- ランキング -->
-            <TextBlock Text="好きなランキング設定"
+        <!-- ランキング -->
+        <TextBlock Text="好きなランキング設定"
                            Margin="0 0 0 4"
                             FontSize="18"
                            FontWeight="SemiBold"
                            VerticalAlignment="Center"
                        />
-            
-            <StackPanel Margin="8 8 0 8">
-               
 
-                <TextBlock Text="ここで選択されたランキングは、ホーム画面やランキング画面で優先表示されるようになります。"
+        <StackPanel Margin="8 8 0 8">
+
+
+            <TextBlock Text="ここで選択されたランキングは、ホーム画面やランキング画面で優先表示されるようになります。"
                            FontSize="12"
                            Margin="0 0 0 4"
                            Foreground="DarkGray"
@@ -221,14 +220,14 @@
                        />
 
 
-                <ItemsControl ItemsSource="{Binding FavCategories}"
+            <ItemsControl ItemsSource="{Binding FavCategories}"
                           ItemTemplate="{StaticResource RemovableListItemTemplate}"
                           Margin="0 8"
                           AllowDrop="True"
                           IsTabStop="False"
                           />
 
-                <TextBlock Text="※つまむと入れ替えできます"
+            <TextBlock Text="※つまむと入れ替えできます"
                            FontSize="13"
                            Margin="16 0 16 8"
                            Foreground="DarkGray"
@@ -237,32 +236,32 @@
                            Visibility="{Binding IsDisplayReorderText, Converter={StaticResource BooleanToVisibility}}"
                        />
 
-                <Button Content="好きなランキングを追加する" 
+            <Button Content="好きなランキングを追加する" 
                     Command="{Binding AddFavRankingCategory}"
                     Margin="0 8"
                         UseSystemFocusVisuals="True"
                     />
 
 
-            </StackPanel>
+        </StackPanel>
 
 
-            <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+        <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                     BorderThickness="0 1 0 0" 
                     Margin="0 8"
                     />
 
-            <!-- 非表示にしたいランキング -->
-            <TextBlock Text="ランキングの非表示設定"
+        <!-- 非表示にしたいランキング -->
+        <TextBlock Text="ランキングの非表示設定"
                            Margin="0 0 0 4"
                             FontSize="18"
                            FontWeight="SemiBold"
                            VerticalAlignment="Center"
                        />
-            <StackPanel Margin="8 8 0 8">
-                
+        <StackPanel Margin="8 8 0 8">
 
-                <TextBlock Text="ここで選択されたランキングは、ランキング画面で非表示になります。"
+
+            <TextBlock Text="ここで選択されたランキングは、ランキング画面で非表示になります。"
                            FontSize="13"
                            Margin="0 0 0 8"
                            Foreground="DarkGray"
@@ -270,44 +269,44 @@
                        />
 
 
-                <ItemsControl ItemsSource="{Binding DislikeCategories}"
+            <ItemsControl ItemsSource="{Binding DislikeCategories}"
                           ItemTemplate="{StaticResource RemovableListItemTemplate}"
                           Margin="0 8"
                           AllowDrop="True"
                           IsTabStop="False"
                           />
 
-                <Button Content="非表示にするランキングを追加する" 
+            <Button Content="非表示にするランキングを追加する" 
                     Command="{Binding AddDislikeRankingCategory}"
                     Margin="0 8"
                         UseSystemFocusVisuals="True"
                     />
 
 
-            </StackPanel>
+        </StackPanel>
 
-            <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+        <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                     BorderThickness="0 1 0 0" 
                     Margin="0 8"
                     />
 
 
-            <!--NG動画-->
-            <StackPanel Margin="0 0 0 8">
+        <!--NG動画-->
+        <StackPanel Margin="0 0 0 8">
 
 
-                <StackPanel Orientation="Horizontal" Margin="0 8">
-                    <TextBlock Text="動画のNG設定"
+            <StackPanel Orientation="Horizontal" Margin="0 8">
+                <TextBlock Text="動画のNG設定"
                                FontSize="18"
                                FontWeight="SemiBold"
                                VerticalAlignment="Center"
                            />
 
-                </StackPanel>
+            </StackPanel>
 
-                <StackPanel Margin="8 0 0 0">
+            <StackPanel Margin="8 0 0 0">
 
-                    <!-- 
+                <!-- 
                     <toolkit:DockPanel Margin="8">
                         <TextBlock Text="動画IDによる動画の除外を有効にする"
                            toolkit:DockPanel.Dock="Left"
@@ -329,168 +328,168 @@
                     -->
 
 
-                    
-                    <StackPanel Margin="0 8">
-                        <TextBlock Text="動画投稿者IDによる動画の除外を有効にする"
+
+                <StackPanel Margin="0 8">
+                    <TextBlock Text="動画投稿者IDによる動画の除外を有効にする"
                            VerticalAlignment="Center"
                            />
-                        <ToggleSwitch
+                    <ToggleSwitch
                                   IsOn="{Binding NGVideoOwnerUserIdEnable.Value, Mode=TwoWay}"
                                           />
-                    </StackPanel>
+                </StackPanel>
 
-                    <toolkit:DockPanel Margin="0 8">
-                        <TextBlock Text="NG指定した動画投稿者の一覧"
+                <toolkit:DockPanel Margin="0 8">
+                    <TextBlock Text="NG指定した動画投稿者の一覧"
                            VerticalAlignment="Center"
                                    Foreground="DimGray"
                            />
-                        <ItemsControl ItemsSource="{Binding NGVideoOwnerUserIds}"
+                    <ItemsControl ItemsSource="{Binding NGVideoOwnerUserIds}"
                                   Margin="16 8"
                                   IsTabStop="False"
                                       HorizontalContentAlignment="Stretch"
                                   >
 
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Background="Transparent" IsHitTestVisible="True">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="Transparent" IsHitTestVisible="True">
 
-                                        <i:Interaction.Behaviors>
-                                            <core:EventTriggerBehavior EventName="Tapped">
-                                                <core:InvokeCommandAction Command="{Binding SelectedCommand}" />
-                                            </core:EventTriggerBehavior>
-                                        </i:Interaction.Behaviors>
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Tapped">
+                                            <core:InvokeCommandAction Command="{Binding SelectedCommand}" />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
 
-                                        <TextBlock Text="{Binding Source.Description}"
+                                    <TextBlock Text="{Binding Source.Description}"
                                                VerticalAlignment="Center"
                                                />
 
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </toolkit:DockPanel>
-                    
-                    
-                        
-                    
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </toolkit:DockPanel>
 
 
 
-                    <StackPanel Margin="0 8">
-                        <TextBlock Text="動画タイトルのNGキーワードによる動画の除外を有効にする"
+
+
+
+
+                <StackPanel Margin="0 8">
+                    <TextBlock Text="動画タイトルのNGキーワードによる動画の除外を有効にする"
                            toolkit:DockPanel.Dock="Left"
                            VerticalAlignment="Center"
                            />
-                        <ToggleSwitch 
+                    <ToggleSwitch 
                                   IsOn="{Binding NGVideoTitleKeywordEnable.Value, Mode=TwoWay}"
                                   
                                           />
-                    </StackPanel>
+                </StackPanel>
 
 
-                    <toolkit:DockPanel >
-                        <Button Content="動画タイトルのNGキーワードを追加" 
+                <toolkit:DockPanel >
+                    <Button Content="動画タイトルのNGキーワードを追加" 
                                 UseSystemFocusVisuals="True"
                                 toolkit:DockPanel.Dock="Bottom"
                                 >
-                            <Button.Flyout>
-                                <Flyout>
-                                    
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBox Text="{Binding NGVideoTitleKeyword.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        <Button.Flyout>
+                            <Flyout>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBox Text="{Binding NGVideoTitleKeyword.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                  Width="200"
                                                  >
-                                            <i:Interaction.Behaviors>
-                                                <mybehavior:KeyboardTrigger Key="Enter">
-                                                    <core:InvokeCommandAction Command="{Binding AddNewNGVideoTitleKeywordCommand}" />
-                                                    <mybehavior:CloseFlyoutAction />
-                                                </mybehavior:KeyboardTrigger>
-                                            </i:Interaction.Behaviors>
-                                        </TextBox>
+                                        <i:Interaction.Behaviors>
+                                            <mybehavior:KeyboardTrigger Key="Enter">
+                                                <core:InvokeCommandAction Command="{Binding AddNewNGVideoTitleKeywordCommand}" />
+                                                <mybehavior:CloseFlyoutAction />
+                                            </mybehavior:KeyboardTrigger>
+                                        </i:Interaction.Behaviors>
+                                    </TextBox>
 
-                                        <Border Width="8" />
+                                    <Border Width="8" />
 
-                                        <Button Content="追加" 
+                                    <Button Content="追加" 
                                                 Command="{Binding AddNewNGVideoTitleKeywordCommand}"
                                                 >
-                                            <i:Interaction.Behaviors>
-                                                <core:EventTriggerBehavior EventName="Tapped">
-                                                    <mybehavior:CloseFlyoutAction />
-                                                </core:EventTriggerBehavior>
-                                            </i:Interaction.Behaviors>
-                                        </Button>
+                                        <i:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Tapped">
+                                                <mybehavior:CloseFlyoutAction />
+                                            </core:EventTriggerBehavior>
+                                        </i:Interaction.Behaviors>
+                                    </Button>
 
-                                    </StackPanel>
-                                </Flyout>
-                            </Button.Flyout>
-                        </Button>
+                                </StackPanel>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
 
-                        <ItemsControl ItemsSource="{Binding NGVideoTitleKeywords}"
+                    <ItemsControl ItemsSource="{Binding NGVideoTitleKeywords}"
                                   Margin="0 8"
                                   ItemTemplate="{StaticResource RemovableListItemTemplate}"
                                   IsTabStop="False"
                                       HorizontalContentAlignment="Stretch"
                                   >
 
-                        </ItemsControl>
+                    </ItemsControl>
 
 
-                    </toolkit:DockPanel>
-                </StackPanel>
-
-
-
+                </toolkit:DockPanel>
             </StackPanel>
 
 
-            
-            
-            <!--NGコメント-->
 
-            <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+        </StackPanel>
+
+
+
+
+        <!--NGコメント-->
+
+        <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                     BorderThickness="0 1 0 0" 
                     Margin="0 8"
                     />
 
-            <!-- NGコメント -->
-            <StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="0 8">
-                    <TextBlock Text="コメントのNG設定"
+        <!-- NGコメント -->
+        <StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0 8">
+                <TextBlock Text="コメントのNG設定"
                                FontSize="18"
                                VerticalAlignment="Center"
                                FontWeight="SemiBold"
                            />
 
-                </StackPanel>
+            </StackPanel>
 
 
 
-                <StackPanel Margin="8 0 0 0">
+            <StackPanel Margin="8 0 0 0">
 
-                    <!-- NG共有スコア -->
-                    <StackPanel Margin="0 8">
+                <!-- NG共有スコア -->
+                <StackPanel Margin="0 8">
 
-                        <TextBlock Text="共有NGスコア設定" 
+                    <TextBlock Text="共有NGスコア設定" 
                                        VerticalAlignment="Center"
                                />
 
 
-                        <!-- TODO: スライダーに変更する？ -->
+                    <!-- TODO: スライダーに変更する？ -->
 
-                        <ComboBox Margin="0 8" MinWidth="100"
+                    <ComboBox Margin="0 8" MinWidth="100"
                                       ItemsSource="{Binding NGCommentScoreTypes}"
                                       SelectedItem="{Binding SelectedNGCommentScore.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                       ItemTemplateSelector="{StaticResource NGCommentScoreTypeTemplateSelector}"                                      
                                       >
-                        </ComboBox>
+                    </ComboBox>
 
-                        <Border />
+                    <Border />
 
-                    </StackPanel>
+                </StackPanel>
 
 
-                    <!-- NG ユーザーID -->
-                    <!--
+                <!-- NG ユーザーID -->
+                <!--
                     <toolkit:DockPanel Margin="8">
                         <TextBlock Text="ユーザーIDによるNGコメント機能を有効にする"
                            toolkit:DockPanel.Dock="Left"
@@ -513,71 +512,68 @@
 
                     -->
 
-                    <!-- NG キーワード -->
-                    <StackPanel Margin="0 8">
-                        <TextBlock Text="キーワードによるNGコメント機能を有効にする"
+                <!-- NG キーワード -->
+                <StackPanel Margin="0 8">
+                    <TextBlock Text="キーワードによるNGコメント機能を有効にする"
                            VerticalAlignment="Center"
                            />
-                        <ToggleSwitch IsOn="{Binding NGCommentKeywordEnable.Value, Mode=TwoWay}"
+                    <ToggleSwitch IsOn="{Binding NGCommentKeywordEnable.Value, Mode=TwoWay}"
                                           />
-                        <TextBlock Text="※ NGコメントのキーワードがたくさんあると、動画の準備時間が長くなるかもしれません。" 
+                    <TextBlock Text="※ NGコメントのキーワードがたくさんあると、動画の準備時間が長くなるかもしれません。" 
                                    Style="{StaticResource CaptionTextBlockStyle}"
                                    Foreground="Gray"
                                    />
 
-                    </StackPanel>
+                </StackPanel>
 
 
 
-                    <StackPanel Margin="0 8">
-                        <Button Content="NGコメントキーワードを追加" 
+                <StackPanel Margin="0 8">
+                    <Button Content="NGコメントキーワードを追加" 
                                 UseSystemFocusVisuals="True"
                                 >
-                            <Button.Flyout>
-                                <Flyout>
+                        <Button.Flyout>
+                            <Flyout>
 
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBox Text="{Binding NGCommentKeyword.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBox Text="{Binding NGCommentKeyword.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                  Width="200"
                                                  >
-                                            <i:Interaction.Behaviors>
-                                                <mybehavior:KeyboardTrigger Key="Enter">
-                                                    <core:InvokeCommandAction Command="{Binding AddNewNGCommentKeywordCommand}" />
-                                                    <mybehavior:CloseFlyoutAction />
-                                                </mybehavior:KeyboardTrigger>
-                                            </i:Interaction.Behaviors>
-                                        </TextBox>
+                                        <i:Interaction.Behaviors>
+                                            <mybehavior:KeyboardTrigger Key="Enter">
+                                                <core:InvokeCommandAction Command="{Binding AddNewNGCommentKeywordCommand}" />
+                                                <mybehavior:CloseFlyoutAction />
+                                            </mybehavior:KeyboardTrigger>
+                                        </i:Interaction.Behaviors>
+                                    </TextBox>
 
-                                        <Border Width="8" />
+                                    <Border Width="8" />
 
-                                        <Button Content="追加" 
+                                    <Button Content="追加" 
                                                 Command="{Binding AddNewNGCommentKeywordCommand}"
                                                 >
-                                            <i:Interaction.Behaviors>
-                                                <core:EventTriggerBehavior EventName="Tapped">
-                                                    <mybehavior:CloseFlyoutAction />
-                                                </core:EventTriggerBehavior>
-                                            </i:Interaction.Behaviors>
-                                        </Button>
+                                        <i:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Tapped">
+                                                <mybehavior:CloseFlyoutAction />
+                                            </core:EventTriggerBehavior>
+                                        </i:Interaction.Behaviors>
+                                    </Button>
 
-                                    </StackPanel>
-                                </Flyout>
-                            </Button.Flyout>
-                        </Button>
+                                </StackPanel>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
 
-                        <ItemsControl ItemsSource="{Binding NGCommentKeywords}"
+                    <ItemsControl ItemsSource="{Binding NGCommentKeywords}"
                                   Margin="0 8"
                                   ItemTemplate="{StaticResource RemovableListItemTemplate}"
                                       HorizontalContentAlignment="Stretch"
                                   >
-                        </ItemsControl>
-                    </StackPanel>
-
-
-
-
-
+                    </ItemsControl>
                 </StackPanel>
+
+
+
 
 
             </StackPanel>
@@ -586,5 +582,6 @@
         </StackPanel>
 
 
-    </ScrollViewer>
+    </StackPanel>
+
 </UserControl>

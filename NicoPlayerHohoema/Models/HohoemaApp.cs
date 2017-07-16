@@ -1,6 +1,5 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Videos.Thumbnail;
-using NicoPlayerHohoema.Models.AppMap;
 using NicoPlayerHohoema.Util;
 using Prism.Events;
 using Prism.Mvvm;
@@ -77,7 +76,8 @@ namespace NicoPlayerHohoema.Models
 			UserSettings = new HohoemaUserSettings();
 			ContentFinder = new NiconicoContentFinder(this);
 			UserMylistManager = new UserMylistManager(this);
-			FeedManager = new FeedManager(this);
+            OtherOwneredMylistManager = new OtherOwneredMylistManager(ContentFinder);
+            FeedManager = new FeedManager(this);
 
             FollowManager = null;
 
@@ -113,9 +113,7 @@ namespace NicoPlayerHohoema.Models
 
         private void RagistrationBackgroundUpdateHandle()
 		{
-            // ホーム画面で表示するアプリマップ情報をリセット
-            //AppMapManagerUpdater =
-
+            
             // 非同期な初期化処理の遅延実行をスケジュール
             MediaManagerUpdater = BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(
                 MediaManager,
@@ -159,6 +157,52 @@ namespace NicoPlayerHohoema.Models
 
 		private static AsyncLock _RoamingDataSyncLock = new AsyncLock();
 		
+
+        public static async Task<IList<StorageFile>> GetSyncRoamingData(StorageFolder folder)
+        {
+            // 指定フォルダはアプリのローカルフォルダであるか
+            if (!folder.Path.StartsWith(ApplicationData.Current.LocalFolder.Path))
+            {
+                return new List<StorageFile>();
+            }
+
+            // 同期済みファイル
+            var roamingFolder = ApplicationData.Current.RoamingFolder;
+            var syncInfoFileAccessor = new Util.FileAccessor<RoamingSyncInfo>(roamingFolder, "sync.json");
+            var syncInfo = await syncInfoFileAccessor.Load();
+            if (syncInfo == null)
+            {
+                return new List<StorageFile>();
+            }
+
+            // ローカルフォルダからの相対パスを中出
+            var reletivePath = folder.Path.Substring(ApplicationData.Current.LocalFolder.Path.Length + 1);
+
+            // 指定フォルダの削除されていない同期ファイルを抽出
+            var list = new List<StorageFile>();
+            foreach (var item in syncInfo.SyncInfoItems)
+            {
+                if (item.Mode == SyncMode.Remove) { continue; }
+
+                if (item.RelativeFilePath.StartsWith(reletivePath))
+                {
+                    var path = Path.Combine(ApplicationData.Current.LocalFolder.Path, item.RelativeFilePath);
+                    try
+                    {
+                        if (File.Exists(path))
+                        {
+                            var file = await StorageFile.GetFileFromPathAsync(path);
+                            list.Add(file);
+                        }
+                    }
+                    catch (FileNotFoundException) { }
+                }
+            }
+
+            return list;
+        }
+
+
         public static async Task PushToRoamingData(StorageFile file)
 		{
 			var roamingFolder = ApplicationData.Current.RoamingFolder;
@@ -1257,7 +1301,7 @@ namespace NicoPlayerHohoema.Models
         public HohoemaPlaylist Playlist { get; private set; }
 
         public UserMylistManager UserMylistManager { get; private set; }
-
+        public OtherOwneredMylistManager OtherOwneredMylistManager { get; }
 
 
 		public const string HohoemaUserAgent = "Hohoema_UWP";

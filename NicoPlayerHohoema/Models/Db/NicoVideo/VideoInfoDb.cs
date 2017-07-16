@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Mntone.Nico2;
+using Mntone.Nico2.Videos.Dmc;
 using Mntone.Nico2.Videos.Thumbnail;
 using Mntone.Nico2.Videos.WatchAPI;
 using System;
@@ -39,21 +40,35 @@ namespace NicoPlayerHohoema.Models.Db
         }
 
 
-		public static async Task UpdateNicoVideoInfo(NicoVideoInfo info, WatchApiResponse watchApiRes)
+		public static async Task UpdateNicoVideoInfo(NicoVideoInfo info, DmcWatchResponse watchApiRes)
 		{
-			info.DescriptionWithHtml = watchApiRes.videoDetail.description;
+			info.DescriptionWithHtml = watchApiRes.Video.Description;
 
-			info.ThreadId = watchApiRes.ThreadId.ToString();
-			info.ViewCount = (uint)watchApiRes.videoDetail.viewCount.Value;
-			info.MylistCount = (uint)watchApiRes.videoDetail.mylistCount.Value;
-			info.CommentCount = (uint)watchApiRes.videoDetail.commentCount.Value;
+            info.ThreadId = watchApiRes.Thread.Ids.Default;
+            info.ViewCount = (uint)watchApiRes.Video.ViewCount;
+            info.MylistCount = (uint)watchApiRes.Video.MylistCount;
+            info.CommentCount = (uint)watchApiRes.Thread.CommentCount;
 
-			info.PrivateReasonType = watchApiRes.PrivateReason;
+			//info.PrivateReasonType = watchApiRes.;
 
             await UpdateAsync(info);
 		}
 
-		public static IReadOnlyList<NicoVideoInfo> GetAll()
+        public static async Task UpdateNicoVideoInfo(NicoVideoInfo info, WatchApiResponse watchApiRes)
+        {
+            info.DescriptionWithHtml = watchApiRes.videoDetail.description;
+
+            info.ThreadId = watchApiRes.ThreadId.ToString();
+            info.ViewCount = (uint)watchApiRes.videoDetail.viewCount.Value;
+            info.MylistCount = (uint)watchApiRes.videoDetail.mylistCount.Value;
+            info.CommentCount = (uint)watchApiRes.videoDetail.commentCount.Value;
+
+            info.PrivateReasonType = watchApiRes.PrivateReason;
+
+            await UpdateAsync(info);
+        }
+
+        public static IReadOnlyList<NicoVideoInfo> GetAll()
 		{
 			using (var db = new NicoVideoDbContext())
 			{

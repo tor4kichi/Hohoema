@@ -76,44 +76,13 @@
 
 
                             <AppBarButton Command="{Binding RegistratioMylistCommand}"
-                                              Label="マイリスト登録"
+                                              Label="マイリストに追加"
                                               Icon="Add"
                                       
                                             >
                             </AppBarButton>
 
-                            <AppBarButton 
-                                     IsEnabled="{Binding IsItemSelected.Value}"
-                                      Label="プレイリスト追加"
-                                          Icon="List"
-                                >
-                                <AppBarButton.Flyout>
-                                    <Flyout >
-                                        <Border x:Name="PlaylistSelectFlyout">
-                                            <ItemsControl ItemsSource="{Binding Playlists}" >
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Button Background="Transparent" 
-                                                            Content="{Binding Name}"
-                                                            Command="{Binding ElementName=PlaylistSelectFlyout, Path=DataContext.AddPlaylistCommand}"
-                                                            CommandParameter="{Binding Id}"
-                                                            >
-                                                            <i:Interaction.Behaviors>
-                                                                <core:EventTriggerBehavior EventName="Tapped">
-                                                                    <mybehavior:CloseFlyoutAction />
-                                                                </core:EventTriggerBehavior>
-                                                            </i:Interaction.Behaviors>
-                                                        </Button>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
-
-                                        </Border>
-                                    </Flyout>
-                                </AppBarButton.Flyout>
-                            </AppBarButton>
-
-
+                            
                         </CommandBar>
 
 
@@ -168,7 +137,7 @@
                                                  ItemCommand="{Binding SelectItemCommand}"
                                                  IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
                                                  Margin="0 0 0 0"
-                                                 Padding="0 0 0 24"
+                                                 Padding="0 0 48 0"
                                                  ItemContextFlyout="{StaticResource VideoListItemFlyout}"
                                                  IsTabStop="False"
                                                  >
@@ -183,12 +152,12 @@
                                 <hohoemalistItem:HohoemaListItemMiniCard />
 
                                 <TextBlock Text="New" 
-                                           HorizontalAlignment="Right"
+                                           HorizontalAlignment="Left"
                                            VerticalAlignment="Top"
                                            Visibility="{Binding IsUnread.Value, Converter={StaticResource BooleanToVisibility}}"
-                                           Style="{StaticResource HeaderTextBlockStyle}"
+                                           Style="{StaticResource SubheaderTextBlockStyle}"
                                            LineStackingStrategy="MaxHeight"
-                                           Margin="8"
+                                           Margin="8 0"
                                        />
 
                             </Grid>
@@ -197,9 +166,8 @@
 
                     <controls:IncrementalLoadingList.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <ItemsWrapGrid Orientation="Vertical"
-                                           MaxHeight="340"
-                                           Margin="0 0 32 0"
+                            <ItemsWrapGrid Orientation="Horizontal"
+                                           Margin="0 0 0 27"
                                            />
                         </ItemsPanelTemplate>
                     </controls:IncrementalLoadingList.ItemsPanel>

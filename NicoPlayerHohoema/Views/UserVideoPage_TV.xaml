@@ -67,50 +67,14 @@
                                       >
                                 <StackPanel Orientation="Horizontal">
                                     <SymbolIcon Symbol="Add" />
-                                    <TextBlock Text="マイリスト登録" VerticalAlignment="Center"
+                                    <TextBlock Text="マイリストに追加" VerticalAlignment="Center"
                                            Margin="8 0 0 0"
                                            />
                                 </StackPanel>
                             </Button>
 
 
-                            <Button IsEnabled="{Binding IsItemSelected.Value}"
-                                Background="Transparent"
-                                Height="32"
-                                      >
-                                <Button.Flyout>
-                                    <Flyout >
-                                        <Border x:Name="PlaylistSelectFlyout">
-                                            <ItemsControl ItemsSource="{Binding Playlists}" >
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Button Background="Transparent" 
-                                                            Content="{Binding Name}"
-                                                            Command="{Binding ElementName=PlaylistSelectFlyout, Path=DataContext.AddPlaylistCommand}"
-                                                            CommandParameter="{Binding Id}"
-                                                            >
-                                                            <i:Interaction.Behaviors>
-                                                                <core:EventTriggerBehavior EventName="Tapped">
-                                                                    <mybehavior:CloseFlyoutAction />
-                                                                </core:EventTriggerBehavior>
-                                                            </i:Interaction.Behaviors>
-                                                        </Button>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
-
-                                        </Border>
-                                    </Flyout>
-                                </Button.Flyout>
-
-                                <StackPanel Orientation="Horizontal">
-                                    <SymbolIcon Symbol="List" />
-                                    <TextBlock Text="プレイリスト追加" VerticalAlignment="Center"
-                                           Margin="8 0 0 0"
-                                           />
-                                </StackPanel>
-                            </Button>
-
+                            
                         </StackPanel>
 
 
@@ -167,7 +131,7 @@
                                                  ItemCommand="{Binding SelectItemCommand}"
                                                  IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
                                                  Margin="0 0 0 0"
-                                                 Padding="0 0 0 24"
+                                                 Padding="0 0 48 0"
                                                  ItemContextFlyout="{StaticResource VideoListItemFlyout}"
                                                  >
                     <controls:IncrementalLoadingList.ItemTemplate>
@@ -184,9 +148,8 @@
 
                     <controls:IncrementalLoadingList.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <ItemsWrapGrid Orientation="Vertical"
-                                           MaxHeight="340"
-                                           Margin="0 0 32 0"
+                            <ItemsWrapGrid Orientation="Horizontal"
+                                           Margin="0 0 0 27"
                                            />
                         </ItemsPanelTemplate>
                     </controls:IncrementalLoadingList.ItemsPanel>

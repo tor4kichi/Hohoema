@@ -61,18 +61,16 @@ namespace NicoPlayerHohoema.ViewModels
 
             MenuItems = new List<PageTypeSelectableItem>()
 			{
-                new PageTypeSelectableItem(HohoemaPageType.Portal             , OnMenuItemSelected, "ホーム", Symbol.Home),
                 new PageTypeSelectableItem(HohoemaPageType.Search             , OnMenuItemSelected, "検索", Symbol.Find),
                 new PageTypeSelectableItem(HohoemaPageType.RankingCategoryList, OnMenuItemSelected, "ランキング", Symbol.Flag),
-                new PageTypeSelectableItem(HohoemaPageType.FollowManage       , OnMenuItemSelected, "フォロー", Symbol.OutlineStar),
                 new PageTypeSelectableItem(HohoemaPageType.UserMylist         , OnMenuItemSelected, "マイリスト", Symbol.Bookmarks),
-                new PageTypeSelectableItem(HohoemaPageType.History            , OnMenuItemSelected, "視聴履歴", Symbol.Clock),
+                new PageTypeSelectableItem(HohoemaPageType.FollowManage       , OnMenuItemSelected, "フォロー", Symbol.OutlineStar),
+                new PageTypeSelectableItem(HohoemaPageType.FeedGroupManage    , OnMenuItemSelected, "フィード", Symbol.List),
             };
 
             SubMenuItems = new List<PageTypeSelectableItem>()
             {
-                new PageTypeSelectableItem(HohoemaPageType.FeedGroupManage    , OnMenuItemSelected, "フィード", Symbol.List),
-                new PageTypeSelectableItem(HohoemaPageType.Playlist           , OnMenuItemSelected, "プレイリスト", Symbol.Play),
+                new PageTypeSelectableItem(HohoemaPageType.History            , OnMenuItemSelected, "視聴履歴", Symbol.Clock),
                 new PageTypeSelectableItem(HohoemaPageType.CacheManagement    , OnMenuItemSelected, "キャッシュ管理", Symbol.Download),
                 new PageTypeSelectableItem(HohoemaPageType.Settings           , OnMenuItemSelected, "設定", Symbol.Setting),
                 new PageTypeSelectableItem(HohoemaPageType.UserInfo           , OnAccountMenuItemSelected, "アカウント", Symbol.Account),
@@ -80,8 +78,8 @@ namespace NicoPlayerHohoema.ViewModels
 
             AllMenuItems = MenuItems.Concat(SubMenuItems).ToList();
 
-            MainSelectedItem = new ReactiveProperty<PageTypeSelectableItem>(MenuItems[0]);
-            SubSelectedItem = new ReactiveProperty<PageTypeSelectableItem>();
+            MainSelectedItem = new ReactiveProperty<PageTypeSelectableItem>(MenuItems[0], ReactivePropertyMode.DistinctUntilChanged);
+            SubSelectedItem = new ReactiveProperty<PageTypeSelectableItem>(null, ReactivePropertyMode.DistinctUntilChanged);
 
             Observable.Merge(
                 MainSelectedItem, 
