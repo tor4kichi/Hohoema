@@ -18,15 +18,17 @@ namespace NicoPlayerHohoema.Views.Converters
                 switch (quality)
                 {
                     case NicoVideoQuality.Original:
-                        return "オリジナル";
+                        return "旧 オリジナル";
                     case NicoVideoQuality.Low:
+                        return "旧 低";
+                    case NicoVideoQuality.Dmc_High:
+                        return "高";
+                    case NicoVideoQuality.Dmc_Midium:
+                        return "中";
+                    case NicoVideoQuality.Dmc_Low:
                         return "低";
-                    case NicoVideoQuality.v2_Low:
-                        return value.ToString();
-                    case NicoVideoQuality.v2_Middle:
-                        return value.ToString();
-                    case NicoVideoQuality.v2_High:
-                        return value.ToString();
+                    case NicoVideoQuality.Dmc_Mobile:
+                        return "モバイル";
                     default:
                         return value.ToString();
                 }

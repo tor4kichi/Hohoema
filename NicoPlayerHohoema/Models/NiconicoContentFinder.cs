@@ -9,6 +9,7 @@ using Mntone.Nico2.Users.Follow;
 using Mntone.Nico2.Users.FollowCommunity;
 using Mntone.Nico2.Users.User;
 using Mntone.Nico2.Users.Video;
+using Mntone.Nico2.Videos.Dmc;
 using Mntone.Nico2.Videos.Histories;
 using Mntone.Nico2.Videos.Ranking;
 using Mntone.Nico2.Videos.Thumbnail;
@@ -95,7 +96,7 @@ namespace NicoPlayerHohoema.Models
             }
 		}
 
-		public async Task<InitialWatchData> GetWatchApiResponse(string rawVideoId, bool forceLowQuality = false, HarmfulContentReactionType harmfulContentReaction = HarmfulContentReactionType.None)
+		public async Task<DmcWatchResponse> GetDmcWatchResponse(string rawVideoId, HarmfulContentReactionType harmfulContentReaction = HarmfulContentReactionType.None)
 		{
             if (_HohoemaApp.NiconicoContext == null)
             {
@@ -115,9 +116,8 @@ namespace NicoPlayerHohoema.Models
 			{
 				var res = await Util.ConnectionRetryUtil.TaskWithRetry(() =>
 				{
-					return _HohoemaApp.NiconicoContext.Video.GetWatchApiAsync(
+					return _HohoemaApp.NiconicoContext.Video.GetDmcWatchResponseAsync(
 						rawVideoId
-						, forceLowQuality: forceLowQuality
 						, harmfulReactType: harmfulContentReaction
 						);
 				});
@@ -142,8 +142,55 @@ namespace NicoPlayerHohoema.Models
 			
 		}
 
+        public async Task<WatchApiResponse> GetWatchApiResponse(string rawVideoId, bool forceLowQuality = false, HarmfulContentReactionType harmfulContentReaction = HarmfulContentReactionType.None)
+        {
+            if (_HohoemaApp.NiconicoContext == null)
+            {
+                return null;
+            }
 
-		public async Task<UserDetail> GetUserInfo(string userId)
+            if (!_HohoemaApp.IsLoggedIn)
+            {
+                return null;
+            }
+
+
+            await WaitNicoPageAccess();
+
+
+            using (var releaser = await _NicoPageAccessLock.LockAsync())
+            {
+                var res = await Util.ConnectionRetryUtil.TaskWithRetry(() =>
+                {
+                    return _HohoemaApp.NiconicoContext.Video.GetWatchApiAsync(
+                        rawVideoId
+                        , forceLowQuality: forceLowQuality
+                        , harmfulReactType: harmfulContentReaction
+                        );
+                });
+
+                if (res != null && res.UploaderInfo != null)
+                {
+                    var uploaderInfo = res.UploaderInfo;
+                    await UserInfoDb.AddOrReplaceAsync(uploaderInfo.id, uploaderInfo.nickname, uploaderInfo.icon_url);
+                }
+
+                if (res != null)
+                {
+                    var data = await VideoInfoDb.GetEnsureNicoVideoInfoAsync(rawVideoId);
+                    if (data != null)
+                    {
+                        await VideoInfoDb.UpdateNicoVideoInfo(data, res);
+                    }
+                }
+
+                return res;
+            }
+
+        }
+
+
+        public async Task<UserDetail> GetUserInfo(string userId)
 		{
             if (_HohoemaApp.NiconicoContext == null)
             {

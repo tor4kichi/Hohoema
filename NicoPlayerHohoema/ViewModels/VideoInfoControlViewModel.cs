@@ -256,29 +256,8 @@ namespace NicoPlayerHohoema.ViewModels
                 return _CacheRequestCommand
                     ?? (_CacheRequestCommand = new DelegateCommand(() =>
                     {
-                        if (NicoVideo.IsOriginalQualityOnly)
-                        {
-                            NicoVideo.RequestCache(NicoVideoQuality.Original);
-                        }
-                        else
-                        {
-                            if (NicoVideo.HohoemaApp.UserSettings.PlayerSettings.IsLowQualityDeafult)
-                            {
-                                NicoVideo.RequestCache(NicoVideoQuality.Low);
-                            }
-                            else
-                            {
-                                try
-                                {
-                                    NicoVideo.RequestCache(NicoVideoQuality.Original);
-                                }
-                                catch
-                                {
-                                    NicoVideo.RequestCache(NicoVideoQuality.Low);
-                                }
-                            }
-                        }
-                        
+                        var hohoemaApp = NicoVideo.HohoemaApp;
+                        NicoVideo.RequestCache();                        
                     }));
             }
         }
@@ -338,7 +317,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenOwnerVideoListPageCommand
                     ?? (_OpenOwnerVideoListPageCommand = new DelegateCommand(() =>
                     {
-                        PageManager.OpenPage(HohoemaPageType.UserVideo, this.NicoVideo.VideoOwnerId.ToString());
+                        PageManager.OpenPage(HohoemaPageType.UserVideo, this.NicoVideo.OwnerId.ToString());
                     }));
             }
         }

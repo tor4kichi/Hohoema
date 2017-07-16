@@ -669,7 +669,7 @@ namespace NicoPlayerHohoema.Models
                 Uri uri = null;
                 try
                 {
-                    uri = await nicoVideo.GetVideoUrl(req.Quality);
+                    uri = await nicoVideo.SetupWatchPageVisit(req.Quality);
                     if (uri == null)
                     {
                         throw new Exception($"can't download {req.Quality} quality Video, in {req.RawVideoId}.");
