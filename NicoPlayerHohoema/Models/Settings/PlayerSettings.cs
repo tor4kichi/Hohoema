@@ -164,8 +164,19 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
+        private CommentOpacityKind _CommentOpacityKind = CommentOpacityKind.NoSukesuke;
 
-		private CommentCommandPermissionType _CommentCommandPermission;
+        [DataMember]
+        public CommentOpacityKind CommentOpacity
+        {
+            get { return _CommentOpacityKind; }
+            set { SetProperty(ref _CommentOpacityKind, value); }
+        }
+
+
+
+
+        private CommentCommandPermissionType _CommentCommandPermission;
 
 		[DataMember]
 		public CommentCommandPermissionType CommentCommandPermission

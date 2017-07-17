@@ -47,6 +47,10 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<Color> CommentColor { get; private set; }
         public ReactiveProperty<bool> IsPauseWithCommentWriting { get; private set; }
 
+        public static List<CommentOpacityKind> CommentOpacityList { get; private set; }
+        public ReactiveProperty<CommentOpacityKind> CommentOpacity { get; private set; }
+
+
         public static List<Color> CommentColorList { get; private set; }
         public static List<uint> CommentRenderringFPSList { get; private set; }
 
@@ -93,6 +97,13 @@ namespace NicoPlayerHohoema.ViewModels
                 NicoVideoQuality.Dmc_Low,
                 NicoVideoQuality.Dmc_Mobile
             };
+
+            CommentOpacityList = new List<CommentOpacityKind>()
+            {
+                CommentOpacityKind.NoSukesuke,
+                CommentOpacityKind.BitSukesuke,
+                CommentOpacityKind.MoreSukesuke
+            };
         }
 
 
@@ -135,6 +146,7 @@ namespace NicoPlayerHohoema.ViewModels
             CommentFontScale = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCommentFontScale);
             CommentGlassMowerEnable = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentGlassMowerEnable);
             IsDefaultCommentWithAnonymous = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsDefaultCommentWithAnonymous);
+            CommentOpacity = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentOpacity);
 
             IsEnableOwnerCommentCommand = new ReactiveProperty<bool>(_PlayerSettings.CommentCommandPermission.HasFlag(CommentCommandPermissionType.Owner));
             IsEnableUserCommentCommand = new ReactiveProperty<bool>(_PlayerSettings.CommentCommandPermission.HasFlag(CommentCommandPermissionType.User));

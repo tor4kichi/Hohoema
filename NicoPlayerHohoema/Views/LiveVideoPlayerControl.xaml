@@ -298,6 +298,7 @@
                                     CommentSizeScale="{Binding CommentFontScale.Value}"
                                     CommentDefaultColor="{Binding CommentDefaultColor.Value}"
                                     DefaultDisplayDuration="{Binding RequestCommentDisplayDuration.Value}"
+                                    Opacity="{Binding CommentOpacity.Value, Mode=OneWay}"
                                     />
 
                     <Border  VerticalAlignment="Bottom"

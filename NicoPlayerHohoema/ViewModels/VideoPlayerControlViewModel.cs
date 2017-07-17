@@ -203,13 +203,15 @@ namespace NicoPlayerHohoema.ViewModels
 			CommentCanvasHeight = new ReactiveProperty<double>(0);
 			CommentCanvasWidth = new ReactiveProperty<double>(0);
 
+            CommentOpacity = HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.CommentOpacity)
+                .Select(x => x.ToOpacity())
+                .ToReadOnlyReactiveProperty(eventScheduler: PlayerWindowUIDispatcherScheduler);
 
 
 
 
 
-
-			CurrentVideoQuality = new ReactiveProperty<NicoVideoQuality>(PlayerWindowUIDispatcherScheduler, NicoVideoQuality.Dmc_Mobile, ReactivePropertyMode.None)
+            CurrentVideoQuality = new ReactiveProperty<NicoVideoQuality>(PlayerWindowUIDispatcherScheduler, NicoVideoQuality.Dmc_Mobile, ReactivePropertyMode.None)
 				.AddTo(_CompositeDisposable);
             RequestVideoQuality = new ReactiveProperty<NicoVideoQuality>(PlayerWindowUIDispatcherScheduler, NicoVideoQuality.Dmc_Mobile, ReactivePropertyMode.None)
                 .AddTo(_CompositeDisposable);
@@ -2077,9 +2079,10 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<double> CommentCanvasHeight { get; private set; }
 		public ReactiveProperty<double> CommentCanvasWidth { get; private set; }
 		public ReactiveProperty<Color> CommentDefaultColor { get; private set; }
+        public ReadOnlyReactiveProperty<double> CommentOpacity { get; private set; }
 
 
-		public CommentCommandEditerViewModel CommandEditerVM { get; private set; }
+        public CommentCommandEditerViewModel CommandEditerVM { get; private set; }
 		public ReactiveProperty<string> CommandString { get; private set; }
 
 
