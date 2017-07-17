@@ -273,28 +273,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-			TogglePlayQualityCommand =
-				Observable.Merge(
-					this.ObserveProperty(x => x.Video).ToUnit(),
-					CurrentVideoQuality.ToUnit()
-					)
-				.Where(x => !IsDisposed)
-				.Select(_ =>
-				{
-					if (Video == null) { return false; }
-					// 低画質動画が存在しない場合は画質の変更はできない
-					if (this.Video.IsOriginalQualityOnly) { return false; }
-
-					if (CurrentVideoQuality.Value == NicoVideoQuality.Original)
-					{
-						return Video.LowQuality.CanPlay && !IsNotSupportVideoType;
-					}
-					else
-					{
-						return Video.OriginalQuality.CanPlay && !IsNotSupportVideoType;
-					}
-				})
-				.ToReactiveCommand<NicoVideoQuality>()
+			TogglePlayQualityCommand = new ReactiveCommand<NicoVideoQuality>()
 				.AddTo(_CompositeDisposable);
 
 			TogglePlayQualityCommand
@@ -783,7 +762,7 @@ namespace NicoPlayerHohoema.ViewModels
                 Quality = realQuality;
 
                 // CurrentVideoQualityは同一値の代入でもNotifyがトリガーされるようになっている
-                CurrentVideoQuality.Value = realQuality;
+                RequestVideoQuality.Value = realQuality;
 
                 cancelToken.ThrowIfCancellationRequested();
 
@@ -877,7 +856,8 @@ namespace NicoPlayerHohoema.ViewModels
 
             NowQualityChanging.Value = true;
 
-			
+            Video?.StopPlay();
+
             var qualityVideo = Video.GetDividedQualityNicoVideo(RequestVideoQuality.Value);
 
             // サポートされたメディアの再生
