@@ -213,7 +213,7 @@
                     <VisualState.Setters>
                         <Setter Target="PlayPauseButtonIcon.Kind" Value="Pause" />
 
-                        <Setter Target="TitleLayout.Visibility" Value="Collapsed" />
+                        <Setter Target="TitleLayout.Opacity" Value="0.7" />
 
                     </VisualState.Setters>
                 </VisualState>
