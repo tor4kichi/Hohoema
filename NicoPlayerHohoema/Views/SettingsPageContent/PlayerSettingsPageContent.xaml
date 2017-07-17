@@ -9,6 +9,7 @@
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:hardwareTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
+    xmlns:myconverter="using:NicoPlayerHohoema.Views.Converters"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="1200">
@@ -20,8 +21,13 @@
             <Setter Property="FontSize" Value="12" />
             <Setter Property="TextWrapping" Value="Wrap" />
         </Style>
-        
-        
+
+
+        <myconverter:CommentOpacityKindConverter
+            x:Key="CommentOpacityKindToText"
+            />
+
+
     </UserControl.Resources>
     
     
@@ -294,6 +300,26 @@
 
                 </StackPanel>
 
+                <StackPanel Margin="0 8 0 16">
+
+                    <TextBlock Text="コメントの透過設定"
+                           VerticalAlignment="Center"
+                           />
+
+                    <ComboBox ItemsSource="{Binding CommentOpacityList}"
+                          SelectedItem="{Binding CommentOpacity.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              Margin="0 4"
+                              Width="200"
+                          >
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource CommentOpacityKindToText}}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+
+                </StackPanel>
 
                 <StackPanel Margin="0 8 0 16">
 

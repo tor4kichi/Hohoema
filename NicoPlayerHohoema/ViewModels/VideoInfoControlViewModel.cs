@@ -119,7 +119,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .ToReadOnlyReactiveProperty()
                 .AddTo(_CompositeDisposable);
 
-            
+            IsCacheEnabled = nicoVideo.HohoemaApp.UserSettings.CacheSettings.IsEnableCache;
         }
 
         private async void ResetQualityDivideVideosVM()
@@ -347,6 +347,7 @@ namespace NicoPlayerHohoema.ViewModels
         public IEnumerable<VideoInfoPlaylistViewModel> Playlists => 
             HohoemaPlaylist.Playlists.Select(x => new VideoInfoPlaylistViewModel(x.Name, x.Id, NicoVideo));
 
+        public bool IsCacheEnabled { get; private set; }
         public ReadOnlyReactiveProperty<bool> IsCacheRequested { get; private set; }
 
         public ReactiveProperty<bool> IsRequireConfirmDelete { get; private set; }

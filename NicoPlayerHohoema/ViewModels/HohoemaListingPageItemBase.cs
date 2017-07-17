@@ -120,6 +120,7 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+
         abstract public ICommand PrimaryCommand { get; }
 
 

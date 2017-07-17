@@ -979,18 +979,6 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override Task Preload(int start, int count)
         {
-            try
-            {
-                foreach (var videoId in LocalMylist.PlaylistItems.Skip((int)start).Take((int)count))
-                {
-                    //await HohoemaApp.MediaManager.GetNicoVideoAsync(videoId);
-                }
-            }
-            catch (Exception ex)
-            {
-                TriggerError(ex);
-            }
-
             return Task.CompletedTask;
         }
 
@@ -1002,7 +990,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             foreach (var item in LocalMylist.PlaylistItems.Skip(head).Take(count))
             {
-                var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideoAsync(item.ContentId, false);
+                var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideoAsync(item.ContentId, true);
                 list.Add(new VideoInfoControlViewModel(nicoVideo, _PageManager, item));
             }
 

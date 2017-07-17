@@ -76,10 +76,22 @@ namespace NicoPlayerHohoema.Models
                     OnPropertyChanged(nameof(Player));
 
                     ResetMediaPlayerCommand();
+
+                    _PlaylistItemsChangedObserver?.Dispose();
+                    if (CurrentPlaylist != null)
+                    {
+                        _PlaylistItemsChangedObserver = CurrentPlaylist.PlaylistItems.PropertyChangedAsObservable()
+                            .Subscribe(_ => 
+                            {
+                                Player.ResetItems();
+                            });
+                    }
                 }
             }
         }
 
+
+        IDisposable _PlaylistItemsChangedObserver;
         
 
 
@@ -135,6 +147,7 @@ namespace NicoPlayerHohoema.Models
                 playlist.Dispose();
             }
 
+            _PlaylistItemsChangedObserver?.Dispose();
         }
 
 
@@ -277,18 +290,12 @@ namespace NicoPlayerHohoema.Models
 
             Player.Playlist = playlist;
             CurrentPlaylist = playlist;
+            Player.PlayStarted(item);
 
             OpenPlaylistItem?.Invoke(CurrentPlaylist, item);
 
-            // あとで見るプレイリストの場合、再生開始時に
-            // アイテムを削除する
-            if (CurrentPlaylist == DefaultPlaylist)
-            {
-                DefaultPlaylist.Remove(item);
-            }
-
             IsDisplayPlayer = true;
-
+            
             ResetMediaPlayerCommand();
 
             MediaPlayer.AudioCategory = MediaPlayerAudioCategory.Media;
@@ -300,7 +307,7 @@ namespace NicoPlayerHohoema.Models
             {
                 args.Handled = true;
 
-                PlayDone();
+                PlayDone(Player.Current);
 
                 if (Player?.CanGoBack ?? false)
                 {
@@ -315,7 +322,7 @@ namespace NicoPlayerHohoema.Models
             {
                 args.Handled = true;
 
-                PlayDone();
+                PlayDone(Player.Current);
 
                 if (Player?.CanGoNext ?? false)
                 {
@@ -403,7 +410,7 @@ namespace NicoPlayerHohoema.Models
         }
 
         
-        public void PlayDone(bool canPlayNext = false)
+        public void PlayDone(PlaylistItem item, bool canPlayNext = false)
         {
             // 次送りが出来る場合は次へ
             if (canPlayNext && (Player?.CanGoNext ?? false))
@@ -420,6 +427,13 @@ namespace NicoPlayerHohoema.Models
                 {
                     IsDisplayPlayer = false;
                 }
+            }
+
+            // あとで見るプレイリストの場合、再生後に
+            // アイテムを削除する
+            if (CurrentPlaylist == DefaultPlaylist)
+            {
+                DefaultPlaylist.Remove(item);
             }
 
             ResetMediaPlayerCommand();
@@ -516,6 +530,11 @@ namespace NicoPlayerHohoema.Models
             _SettingsObserveDisposer = null;
         }
 
+        internal void ResetItems()
+        {
+            _InternalPlayer.Reset(Playlist?.PlaylistItems, Current);
+        }
+
         private void ResetPlayer()
         {
             var prevCurrentItem = _InternalPlayer?.Current;
@@ -523,14 +542,14 @@ namespace NicoPlayerHohoema.Models
             IPlaylistPlayer newPlayer = null;
             if (PlaylistSettings.IsShuffleEnable)
             {
-                newPlayer = new ShufflePlaylistPlayer(HohoemaPlaylist, Playlist, prevCurrentItem)
+                newPlayer = new ShufflePlaylistPlayer()
                 {
                     IsRepeat = PlaylistSettings.RepeatMode == MediaPlaybackAutoRepeatMode.List
                 };
             }
             else
             {
-                newPlayer = new ThroughPlaylistPlayer(HohoemaPlaylist, Playlist, prevCurrentItem)
+                newPlayer = new ThroughPlaylistPlayer()
                 {
                     IsRepeat = PlaylistSettings.RepeatMode == MediaPlaybackAutoRepeatMode.List
                 };
@@ -539,6 +558,8 @@ namespace NicoPlayerHohoema.Models
             if (newPlayer == null) { throw new Exception(); }
 
             _InternalPlayer = newPlayer;
+
+            ResetItems();
         }
 
         public void GoBack()
@@ -547,7 +568,7 @@ namespace NicoPlayerHohoema.Models
             if (item != null)
             {
                 HohoemaPlaylist.Play(item);
-                (_InternalPlayer as PlaylistPlayerBase)?.PlayStarted(item);
+                PlayStarted(item);
             }
         }
 
@@ -557,15 +578,19 @@ namespace NicoPlayerHohoema.Models
             if (item != null)
             {
                 HohoemaPlaylist.Play(item);
-                (_InternalPlayer as PlaylistPlayerBase)?.PlayStarted(item);
+                PlayStarted(item);
             }
+        }
+
+        internal void PlayStarted(PlaylistItem item)
+        {
+            (_InternalPlayer as PlaylistPlayerBase)?.PlayStarted(item);
         }
     }
 
 
     public interface IPlaylistPlayer
     {
-        IPlayableList Playlist { get; }
         PlaylistItem Current { get; }
 
         bool CanGoBack { get; }
@@ -573,21 +598,24 @@ namespace NicoPlayerHohoema.Models
 
         PlaylistItem GetBackItem();
         PlaylistItem GetNextItem();
+
+        void Reset(IEnumerable<PlaylistItem> list, PlaylistItem currentItem = null);
     }
 
     abstract public class PlaylistPlayerBase : IPlaylistPlayer
     {
-        HohoemaPlaylist HohoemaPlaylist { get; }
-        public IPlayableList Playlist { get; set; }
+        private List<PlaylistItem> _SourceItems;
+        protected IList<PlaylistItem> SourceItems => _SourceItems;
         public PlaylistItem Current { get; protected set; }
 
         abstract public bool CanGoBack { get; }
         abstract public bool CanGoNext { get; }
 
-        public PlaylistPlayerBase(HohoemaPlaylist playlist, IPlayableList list, PlaylistItem currentItem = null)
+
+        protected bool IsAvailable => _SourceItems != null && _SourceItems.Count > 0;
+
+        public PlaylistPlayerBase()
         {
-            Playlist = list;
-            Current = currentItem ?? list?.PlaylistItems.FirstOrDefault();
         }
 
         internal void PlayStarted(PlaylistItem item)
@@ -609,15 +637,42 @@ namespace NicoPlayerHohoema.Models
 
         abstract protected PlaylistItem GetPreviousItem_Inner();
 
-       
+
+        // シャッフルする場合に
+        abstract protected void OnResetItems(IEnumerable<PlaylistItem> sourceItems, PlaylistItem currentItem);
+        public void Reset(IEnumerable<PlaylistItem> list, PlaylistItem currentItem = null)
+        {
+            if (list == null)
+            {
+                currentItem = null;
+            }
+            else
+            {
+                if (currentItem != null)
+                {
+                    if (list.FirstOrDefault(x => x.ContentId == currentItem.ContentId) == null)
+                    {
+                        currentItem = GetNextItem();
+
+                        // Note: あとで見るプレイリストでの動作としては
+                        // 見た後に削除されたあとで、先頭のアイテムが指定されることになります
+                    }
+                }
+            }
+
+            _SourceItems = list?.ToList();
+            Current = currentItem;
+
+            OnResetItems(_SourceItems, currentItem);
+        }
     }
 
 
 
     public class ThroughPlaylistPlayer : PlaylistPlayerBase
     {
-        public ThroughPlaylistPlayer(HohoemaPlaylist hohoemaPlaylist, IPlayableList playlist, PlaylistItem currentItem = null)
-            : base(hohoemaPlaylist, playlist, currentItem)
+        public ThroughPlaylistPlayer()
+            : base()
         {
             
         }
@@ -628,24 +683,17 @@ namespace NicoPlayerHohoema.Models
         {
             get
             {
-                if (Playlist == null) { return false; }
+                if (!IsAvailable) { return false; }
+
+                if (SourceItems.Count <= 1) { return false; }
 
                 if (IsRepeat)
                 {
                     // 全体リピート時にアイテムが一つの場合は前への移動を制限
-                    if (Playlist.PlaylistItems.Count > 1)
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
+                    return true;
                 }
 
-                if (Playlist.PlaylistItems.Count == 0) { return false; }
-
-                return Playlist.PlaylistItems.FirstOrDefault() != Current;
+                return SourceItems.FirstOrDefault() != Current;
             }
         }
 
@@ -653,28 +701,16 @@ namespace NicoPlayerHohoema.Models
         {
             get
             {
-                if (Playlist == null) { return false; }
+                if (!IsAvailable) { return false; }
+
+                if (SourceItems.Count <= 1) { return false; }
 
                 if (IsRepeat)
                 {
-                    // あとで見るプレイリストの場合は一つ以上ある場合は次送りを許可
-                    if (Playlist.Id == HohoemaPlaylist.WatchAfterPlaylistId)
-                    {
-                        return Playlist.PlaylistItems.Count > 0;
-                    }
-                    // 全体リピート時にアイテムが一つの場合は次への移動を制限
-                    else if (Playlist.PlaylistItems.Count > 1)
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
+                    return true;
                 }
-                if (Playlist.PlaylistItems.Count == 0) { return false; }
 
-                return Playlist.PlaylistItems.LastOrDefault() != Current;
+                return SourceItems.LastOrDefault() != Current;
             }
         }
 
@@ -682,14 +718,14 @@ namespace NicoPlayerHohoema.Models
 
         protected override PlaylistItem GetPreviousItem_Inner()
         {
-            var currentIndex = Playlist.PlaylistItems.IndexOf(Current);
+            var currentIndex = SourceItems.IndexOf(Current);
             var prevIndex = currentIndex - 1;
 
             if (prevIndex < 0)
             {
                 if (IsRepeat)
                 {
-                    prevIndex = Playlist.PlaylistItems.Count - 1;
+                    prevIndex = SourceItems.Count - 1;
                 }
                 else
                 {
@@ -697,16 +733,16 @@ namespace NicoPlayerHohoema.Models
                 }
             }
 
-            return Playlist.PlaylistItems[prevIndex];
+            return SourceItems[prevIndex];
         }
 
 
         protected override PlaylistItem GetNextItem_Inner()
         {
-            var currentIndex = Playlist.PlaylistItems.IndexOf(Current);
+            var currentIndex = SourceItems.IndexOf(Current);
             var nextIndex = currentIndex + 1;
 
-            if (nextIndex >= Playlist.PlaylistItems.Count)
+            if (nextIndex >= SourceItems.Count)
             {
                 if (IsRepeat)
                 {
@@ -718,7 +754,13 @@ namespace NicoPlayerHohoema.Models
                 }
             }
 
-            return Playlist.PlaylistItems[nextIndex];
+            return SourceItems[nextIndex];
+        }
+
+
+        protected override void OnResetItems(IEnumerable<PlaylistItem> sourceItems, PlaylistItem currentItem)
+        {
+            
         }
     }
 
@@ -732,8 +774,8 @@ namespace NicoPlayerHohoema.Models
         public Queue<PlaylistItem> RandamizedItems { get; private set; }
         public Stack<PlaylistItem> PlayedItem { get; private set; } = new Stack<PlaylistItem>();
 
-        public ShufflePlaylistPlayer(HohoemaPlaylist hohoemaPlaylist, IPlayableList playlist, PlaylistItem currentItem = null)
-            : base(hohoemaPlaylist, playlist, currentItem)
+        public ShufflePlaylistPlayer()
+            : base()
         {
             
         }
@@ -744,6 +786,8 @@ namespace NicoPlayerHohoema.Models
         {
             get
             {
+                if (!IsAvailable) { return false; }
+
                 return PlayedItem.Count > 0;
             }
         }
@@ -752,14 +796,14 @@ namespace NicoPlayerHohoema.Models
         {
             get
             {
+                if (!IsAvailable) { return false; }
+
                 return IsRepeat ? true : RandamizedItems.Count > 0;
             }
         }
 
         protected override PlaylistItem GetPreviousItem_Inner()
         {
-            SyncPlaylistItems();
-
             // Playedから１つ取り出して
             // Randomizedに載せる
             var prevItem = PlayedItem.Pop();
@@ -777,8 +821,6 @@ namespace NicoPlayerHohoema.Models
 
         protected override PlaylistItem GetNextItem_Inner()
         {
-            SyncPlaylistItems();
-
             if (RandamizedItems.Count == 0)
             {
                 if (IsRepeat)
@@ -786,7 +828,7 @@ namespace NicoPlayerHohoema.Models
                     // RandamizedItemsを再構成
                     PlayedItem.Clear();
 
-                    SyncPlaylistItems();
+                    OnResetItems(SourceItems, Current);
                 }
                 else
                 {
@@ -800,9 +842,9 @@ namespace NicoPlayerHohoema.Models
             return nextItem;
         }
 
-        private void SyncPlaylistItems()
+        protected override void OnResetItems(IEnumerable<PlaylistItem> sourceItems, PlaylistItem item)
         {
-            var copied = Playlist.PlaylistItems.ToList();
+            var copied = sourceItems.ToList();
 
 
             // 再生済みアイテムを同期
@@ -825,7 +867,6 @@ namespace NicoPlayerHohoema.Models
             {
                 Current = null;
             }
-
         }
     }
 

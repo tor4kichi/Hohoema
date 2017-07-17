@@ -141,8 +141,10 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<double> CommentCanvasHeight { get; private set; }
 		public ReactiveProperty<Color> CommentDefaultColor { get; private set; }
 
-		// post comment
-		public ReactiveProperty<string> WritingComment { get; private set; }
+        public ReadOnlyReactiveProperty<double> CommentOpacity { get; private set; }
+
+        // post comment
+        public ReactiveProperty<string> WritingComment { get; private set; }
 		public ReactiveProperty<bool> NowCommentWriting { get; private set; }
 		public ReactiveProperty<bool> NowSubmittingComment { get; private set; }
 
@@ -207,8 +209,13 @@ namespace NicoPlayerHohoema.ViewModels
 			CommentCanvasHeight = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0.0).AddTo(_CompositeDisposable);
 			CommentDefaultColor = new ReactiveProperty<Color>(PlayerWindowUIDispatcherScheduler, Colors.White).AddTo(_CompositeDisposable);
 
-			// post comment
-			WritingComment = new ReactiveProperty<string>(PlayerWindowUIDispatcherScheduler, "").AddTo(_CompositeDisposable);
+            CommentOpacity = HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.CommentOpacity)
+                .Select(x => x.ToOpacity())
+                .ToReadOnlyReactiveProperty(eventScheduler: PlayerWindowUIDispatcherScheduler);
+
+
+            // post comment
+            WritingComment = new ReactiveProperty<string>(PlayerWindowUIDispatcherScheduler, "").AddTo(_CompositeDisposable);
 			NowCommentWriting = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler).AddTo(_CompositeDisposable);
 			NowSubmittingComment = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler).AddTo(_CompositeDisposable);
 
