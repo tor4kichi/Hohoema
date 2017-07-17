@@ -115,7 +115,7 @@ namespace NicoPlayerHohoema.Models
                             break;
                         }
                     }
-                    if (divided == null)
+                    if (divided == null || !divided.IsAvailable)
                     {
                         divided = GetDividedQualityNicoVideo(NicoVideoQuality.Original);
                         if (!divided.IsAvailable)
@@ -126,7 +126,7 @@ namespace NicoPlayerHohoema.Models
                 }
             }
 
-            if (divided == null)
+            if (divided == null || !divided.IsAvailable)
             {
                 throw new NotSupportedException("再生可能な動画品質を見つけられませんでした。");
             }

@@ -30,7 +30,6 @@
     <UserControl.Resources>
         <MenuFlyout x:Key="VideoOptionsFlyout">
             <MenuFlyoutSubItem Text="画質"
-                                Visibility="{Binding CanToggleCurrentQualityCacheState.Value, Converter={StaticResource BooleanToVisibility}}"
                                 >
 
                 <MenuFlyoutItem Text="高画質" 
@@ -85,8 +84,8 @@
                 </MenuFlyoutItem>
             </MenuFlyoutSubItem>
             <ToggleMenuFlyoutItem Text="キャッシュ" 
-                                                                  IsChecked="{Binding IsSaveRequestedCurrentQualityCache.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                                  IsEnabled="{Binding CanToggleCurrentQualityCacheState.Value}"
+                                IsChecked="{Binding IsSaveRequestedCurrentQualityCache.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                IsEnabled="{Binding CanToggleCurrentQualityCacheState.Value}"
                                                               />
             <MenuFlyoutSeparator />
             <MenuFlyoutItem Text="動画情報" Command="{Binding OpenVideoInfoCommand}" />
