@@ -36,6 +36,7 @@
 
     <MenuFlyoutItem Text="キャッシュ取得"
                                 Command="{Binding CacheRequestCommand}"
+                    Visibility="{Binding IsCacheEnabled, Converter={StaticResource BooleanToVisibility}}"
                                 />
 
 
