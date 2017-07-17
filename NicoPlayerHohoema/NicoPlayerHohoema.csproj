@@ -113,6 +113,7 @@
     <Content Include="Assets\LibLisencies\_lisence_summary.json" />
     <Content Include="Assets\OAuth\twitter.json" />
     <Content Include="Assets\UpdateNotices\0.9.0.md" />
+    <Content Include="Assets\UpdateNotices\0.9.1.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
   </ItemGroup>
   <ItemGroup>

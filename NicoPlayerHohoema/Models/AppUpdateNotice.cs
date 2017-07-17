@@ -27,7 +27,7 @@ namespace NicoPlayerHohoema.Models
 
         
         
-        public static async Task<string> GetUpdateNotices(List<Version> versions, string joinString = "\n\n* * *\n\n")
+        public static async Task<string> GetUpdateNotices(List<Version> versions, string joinString = "\r\n\r\n\r\n*****\r\n\r\n\r\n")
         {
             var versionMarkdownTextList = new List<string>();
 
