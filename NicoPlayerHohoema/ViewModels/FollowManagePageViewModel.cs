@@ -22,9 +22,16 @@ namespace NicoPlayerHohoema.ViewModels
 			: base(hohoemaApp, pageManager)
 		{
 			Lists = new ObservableCollection<FavoriteListViewModel>();
-		}
 
-		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+            UpdateFavListCommand = new DelegateCommand<FavoriteListViewModel>((favListVM) =>
+            {
+                favListVM.FollowManager.Sync(favListVM.FavType);
+            });
+
+
+        }
+
+        protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 
 			while (HohoemaApp.FollowManager == null)
@@ -76,12 +83,13 @@ namespace NicoPlayerHohoema.ViewModels
                 .ToReadOnlyReactiveCollection(x => new FavoriteItemViewModel(x, HohoemaApp.FollowManager, PageManager))
             });
 
-		}
+        }
 
 		public ObservableCollection<FavoriteListViewModel> Lists { get; private set; }
 
+        public DelegateCommand<FavoriteListViewModel> UpdateFavListCommand { get; }
 
-        
+
     }
 
     public class FavoriteListViewModel : BindableBase
