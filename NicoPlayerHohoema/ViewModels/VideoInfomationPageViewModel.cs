@@ -359,7 +359,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                 try
                 {
-                    OwnerName = Video.OwnerId.ToString();
+                    OwnerName = Video.OwnerName;
                     OwnerIconUrl = Video.OwnerIconUrl;
 
                     OnPropertyChanged(nameof(OwnerName));

@@ -376,6 +376,7 @@ namespace NicoPlayerHohoema.Models
 				this.SizeHigh = (uint)res.SizeHigh;
 				this.Title = res.Title;
 				this.OwnerId = res.UserId;
+                this.OwnerName = res.UserName;
 				this.ContentType = res.MovieType;
 				this.PostedAt = res.PostedAt.DateTime;
 				this.Tags = res.Tags.Value.ToList();
@@ -493,6 +494,7 @@ namespace NicoPlayerHohoema.Models
                 {
                     OwnerId = uint.Parse(dmcWatchResponse.Owner.Id);
                     OwnerIconUrl = dmcWatchResponse.Owner.IconURL;
+                    this.OwnerName = dmcWatchResponse.Owner.Nickname;
                 }
 
 
@@ -835,6 +837,7 @@ namespace NicoPlayerHohoema.Models
 		public TimeSpan VideoLength { get; private set; }
 		public DateTime PostedAt { get; private set; }
 		public uint OwnerId { get; private set; }
+        public string OwnerName { get; private set; }
         public bool IsOriginalQualityOnly => SizeLow == 0;
 		public List<ThumbnailTag> Tags { get; private set; }
 		public uint SizeLow { get; private set; }
