@@ -15,14 +15,29 @@
     <Grid MaxWidth="220"
           >
 
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsVisible, Converter={StaticResource InvertBoolean}}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ContentLayout.Visibility" Value="Collapsed" />
+                        <Setter Target="ContentCollapsed.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
 
-        <toolkit:DockPanel>
+
+        <toolkit:DockPanel x:Name="ContentLayout">
             <Grid Height="140"
                     toolkit:DockPanel.Dock="Top"
                     >
                 <Image Source="{Binding FirstImageUrl}"
                    Visibility="{Binding HasImageUrl, Converter={StaticResource BooleanToVisibility}}" 
                    Stretch="Uniform"
+                       Height="120"
                    />
 
                 <Border Background="{ThemeResource SystemAltMediumColor}"
@@ -71,6 +86,13 @@
 
             
         </toolkit:DockPanel>
+
+        <Grid x:Name="ContentCollapsed" Visibility="Collapsed">
+            <TextBlock Text="{Binding InvisibleDescription}" TextWrapping="Wrap" Margin="16"
+                       VerticalAlignment="Bottom"
+                       Opacity="0.3"
+                       />
+        </Grid>
 
     </Grid>
 

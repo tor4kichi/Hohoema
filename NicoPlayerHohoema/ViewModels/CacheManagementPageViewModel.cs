@@ -111,7 +111,7 @@ namespace NicoPlayerHohoema.ViewModels
         public ReadOnlyReactiveProperty<DateTime> CacheRequestTime { get; private set; }
 
         public CacheVideoViewModel(NicoVideo nicoVideo, PageManager pageManager)
-			: base(nicoVideo, pageManager)
+			: base(nicoVideo, pageManager, isNgEnabled:false)
 		{
             CacheRequestTime = nicoVideo.ObserveProperty(x => x.CachedAt)
                 .ToReadOnlyReactiveProperty()
