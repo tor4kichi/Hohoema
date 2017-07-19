@@ -479,7 +479,7 @@ namespace NicoPlayerHohoema.Models
         public override async Task<Uri> GenerateVideoContentUrl()
         {
             // Lowクオリティ
-            await NicoVideo.VisitWatchPage(Quality);
+            await NicoVideo.VisitWatchPage();
             
             return NicoVideo.LegacyVideoUrl;
         }
@@ -570,7 +570,7 @@ namespace NicoPlayerHohoema.Models
         public override async Task<Uri> GenerateVideoContentUrl()
         {
             // Originalクオリティ
-            await NicoVideo.VisitWatchPage(Quality);
+            await NicoVideo.VisitWatchPage();
 
             return NicoVideo.LegacyVideoUrl;
         }

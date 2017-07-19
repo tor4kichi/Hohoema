@@ -8,6 +8,7 @@
     xmlns:myconv="using:NicoPlayerHohoema.Views.Converters"
     xmlns:view="using:NicoPlayerHohoema.Views"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:uwpconv="using:Microsoft.Toolkit.Uwp.UI.Converters"
     xmlns:logicalModifier="using:AdaptiveTriggerLibrary.ConditionModifiers.LogicalModifiers"
     xmlns:compareModifier="using:AdaptiveTriggerLibrary.ConditionModifiers.ComparableModifiers"
     >
@@ -28,11 +29,21 @@
             <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibilityInverted"
                                            IsInversed="True"
                                            />
+            <myconv:InvertVisibilityConverter x:Key="InvertVisibility" />
+
+            <uwpconv:EmptyObjectToObjectConverter x:Key="NotNullToVisibility">
+                <uwpconv:EmptyObjectToObjectConverter.NotEmptyValue>
+                    <Visibility>Visible</Visibility>
+                </uwpconv:EmptyObjectToObjectConverter.NotEmptyValue>
+                <uwpconv:EmptyObjectToObjectConverter.EmptyValue>
+                    <Visibility>Collapsed</Visibility>
+                </uwpconv:EmptyObjectToObjectConverter.EmptyValue>
+            </uwpconv:EmptyObjectToObjectConverter>
+            
             <conv:ColorToBrushConverter x:Key="ColorToBrush" />
             <myconv:TimeSpanToMovieLengthStringValueConverter x:Key="TimeToMovieLengthConverter" />
             <myconv:BooleanInvertedConverter x:Key="BooleanInverted" />
 
-            <myconv:InvertVisibilityConverter x:Key="InvertVisibility" />
 
             <myconv:SoundVolumeConveter x:Key="ToUserFriendlySoubleVolume" />
 

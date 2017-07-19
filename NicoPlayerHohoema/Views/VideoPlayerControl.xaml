@@ -799,7 +799,7 @@
                                                 VerticalAlignment="Bottom"
                                             Orientation="Horizontal"
                                             Margin="24 0 0 0"
-                                            
+                                            Visibility="{Binding CurrentVideoQuality.Value, Converter={StaticResource NotNullToVisibility}}"
                                             >
 
                                         <TextBlock  Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"

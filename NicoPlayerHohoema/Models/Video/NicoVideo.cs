@@ -94,27 +94,45 @@ namespace NicoPlayerHohoema.Models
 		/// 動画ストリームの取得します
 		/// 他にダウンロードされているアイテムは強制的に一時停止し、再生終了後に再開されます
 		/// </summary>
-		public async Task<NicoVideoQuality> StartPlay(NicoVideoQuality quality, TimeSpan? initialPosition = null)
+		public async Task<NicoVideoQuality> StartPlay(NicoVideoQuality? quality, TimeSpan? initialPosition = null)
         {
             IfVideoDeletedThrowException();
 
-            DividedQualityNicoVideo divided = GetDividedQualityNicoVideo(quality);
-            if (!divided.IsAvailable)
+            // 再生動画画質決定
+            // 指定された画質＞キャッシュされた画質＞デフォルト指定画質＞再生可能な画質
+            DividedQualityNicoVideo divided = null;
+            if (quality.HasValue)
             {
-                if (quality == NicoVideoQuality.Original)
+                divided = GetDividedQualityNicoVideo(quality.Value);
+            }
+
+            if (divided == null || !divided.IsAvailable)
+            {
+                var cachedQuality = GetAllQuality().Where(x => x.IsCached).FirstOrDefault();
+                if (cachedQuality != null)
+                {
+                    divided = cachedQuality;
+                }
+                else if (quality == NicoVideoQuality.Original)
                 {
                     divided = GetDividedQualityNicoVideo(NicoVideoQuality.Low);
                 }
                 else
                 {
-                    foreach (var dmcQuality in GetAllQuality().Where(x => x.Quality.IsDmc()))
+                    divided = GetDividedQualityNicoVideo(HohoemaApp.UserSettings.PlayerSettings.DefaultQuality);
+
+                    if (!divided.IsAvailable)
                     {
-                        if (dmcQuality.IsAvailable)
+                        foreach (var dmcQuality in GetAllQuality().Where(x => x.Quality.IsDmc()))
                         {
-                            divided = dmcQuality;
-                            break;
+                            if (dmcQuality.IsAvailable)
+                            {
+                                divided = dmcQuality;
+                                break;
+                            }
                         }
                     }
+
                     if (divided == null || !divided.IsAvailable)
                     {
                         divided = GetDividedQualityNicoVideo(NicoVideoQuality.Original);
@@ -511,7 +529,7 @@ namespace NicoPlayerHohoema.Models
 
         // 動画情報のキャッシュまたはオンラインからの取得と更新
 
-        public async Task VisitWatchPage(NicoVideoQuality quality)
+        public async Task VisitWatchPage()
 		{
             await GetDmcWatchResponse();
         }
