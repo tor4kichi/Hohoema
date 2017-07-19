@@ -45,14 +45,14 @@
                 <RadioButton x:Name="ChoiceFromListButton" 
                              Content="選択"
                              GroupName="MylistSelectMethodGroup"
-                             IsChecked="{Binding IsCreateMylistMode.Value, Converter={StaticResource InvertBoolean}}"
+                             IsChecked="{Binding IsCreateMylistMode.Value, Converter={StaticResource BooleanInverted}}"
                              toolkit:DockPanel.Dock="Left"
                              >
 
                 </RadioButton>
                 <ComboBox ItemsSource="{Binding SelectableItems}"
                           SelectedItem="{Binding SelectedItem.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                          IsEnabled="{Binding IsCreateMylistMode.Value, Converter={StaticResource InvertBoolean}}"
+                          IsEnabled="{Binding IsCreateMylistMode.Value, Converter={StaticResource BooleanInverted}}"
                           HorizontalAlignment="Stretch"
                       >
                     <ComboBox.ItemTemplate>

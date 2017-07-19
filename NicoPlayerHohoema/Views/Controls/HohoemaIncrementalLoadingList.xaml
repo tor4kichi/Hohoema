@@ -121,7 +121,7 @@
                                               x:Name="HohoemaListView"
                                               UseSystemFocusVisuals="True"
                                               HorizontalContentAlignment="Stretch"
-                                              IsItemClickEnabled="{Binding IsSelectionModeEnable.Value, Converter={StaticResource InvertBoolean}}"
+                                              IsItemClickEnabled="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanInverted}}"
                                               ItemTemplate="{x:Bind ItemTemplate}"
                                               SelectionMode="Single"
                                               ContextFlyout="{x:Bind ItemFlyout}"

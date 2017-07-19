@@ -257,7 +257,7 @@
                                           IsTabStop="True"
                                           Width="120"
                                           UseSystemFocusVisuals="True"
-                                          IsEnabled="{Binding IsSelectionModeEnable.Value, Converter={StaticResource InvertBoolean}}"
+                                          IsEnabled="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanInverted}}"
                                           IsSynchronizedWithCurrentItem="False"
                                          >
                                 </ComboBox>
@@ -275,7 +275,7 @@
                                     Height="48"
                                 toolkit:DockPanel.Dock="Right"
                                 UseSystemFocusVisuals="True"
-                                            IsEnabled="{Binding IsSelectionModeEnable.Value, Converter={StaticResource InvertBoolean}}"
+                                            IsEnabled="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanInverted}}"
                                             >
                                         <StackPanel Orientation="Horizontal">
 
@@ -292,7 +292,7 @@
                                         Margin="0 0 0 0"
                                     Height="48"
                                     FontSize="18"
-                                             IsEnabled="{Binding IsSelectionModeEnable.Value, Converter={StaticResource InvertBoolean}}"
+                                             IsEnabled="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanInverted}}"
                                     >
                                         <i:Interaction.Behaviors>
                                             <mybehavior:KeyboardTrigger Key="Enter" >
@@ -316,7 +316,7 @@
                                 <!-- 検索オプション -->
                                 <uwpControls:Expander Content="{Binding SearchOptionVM.Value}"
                                                       ContentTemplateSelector="{StaticResource SearchTargetContentTemplateSelector}" 
-                                                      IsEnabled="{Binding IsSelectionModeEnable.Value, Converter={StaticResource InvertBoolean}}"
+                                                      IsEnabled="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanInverted}}"
                                                       Header="検索オプション"
                                                   toolkit:DockPanel.Dock="Bottom"
                                                       Margin="0 8 0 0"

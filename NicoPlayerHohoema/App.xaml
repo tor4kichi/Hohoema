@@ -29,7 +29,7 @@
                                            />
             <conv:ColorToBrushConverter x:Key="ColorToBrush" />
             <myconv:TimeSpanToMovieLengthStringValueConverter x:Key="TimeToMovieLengthConverter" />
-            <myconv:InvertBooleanConverter x:Key="InvertBoolean" />
+            <myconv:BooleanInvertedConverter x:Key="BooleanInverted" />
 
             <myconv:InvertVisibilityConverter x:Key="InvertVisibility" />
 
