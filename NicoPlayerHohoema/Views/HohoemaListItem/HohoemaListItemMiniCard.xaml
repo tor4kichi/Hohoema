@@ -12,9 +12,7 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <Grid Width="240"
-          
-          >
+    <Grid >
 
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup>
@@ -44,11 +42,13 @@
                         HorizontalAlignment="Right" 
                         VerticalAlignment="Top"
                         Visibility="{Binding HasImageCaption, Converter={StaticResource BooleanToVisibility}}"
+                    CornerRadius="0 0 0 4"
                         >
                 <TextBlock Text="{Binding ImageCaption, Mode=OneWay}" 
-                               Padding="4 0 3 3" 
+                               Padding="4 0 6 3" 
                                TextWrapping="Wrap" VerticalAlignment="Center" 
                                FontSize="18"
+                           
                                
                                />
             </Border>
@@ -72,11 +72,14 @@
                         <Border Height="8" />
                     </StackPanel>
 
+                    <!--
                     <TextBlock Text="{Binding Description}"
+                               Visibility="{Binding IsVisibleDescription, Mode=OneWay}"
                            TextWrapping="Wrap"
                            FontSize="13"
                            Opacity="0.7"
                            />
+                    -->
                 </StackPanel>
             </Grid>
         </Grid>

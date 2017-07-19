@@ -18,6 +18,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Styles/DefaultStyle.xaml"/>
                 <ResourceDictionary Source="Styles/VideoProgressBarStyle.xaml"/>
+                <ResourceDictionary Source="Styles/HohoemaListItemStyle.xaml"/>
                 
                 <ResourceDictionary Source="Views/Controls/FloatContentContainer/FloatContentContainer.xaml"/>
                 <ResourceDictionary Source="Views/Controls/IncrementalLoadingList/IncrementalLoadingList.xaml"/>
@@ -65,14 +66,23 @@
             
             <controls:VideoListItemFlyout x:Key="VideoListItemFlyout" />
 
+            <LinearGradientBrush x:Key="TvHeaderBackgroundBrush"
+                                 StartPoint="0, 0"
+                                 EndPoint="0, 1"
+                                 >
+
+                <GradientStop Color="{StaticResource SystemAltMediumHighColor}" Offset="0.0" />
+                <GradientStop Color="#00000000" Offset="1.0" />
+            </LinearGradientBrush>
+
+
+
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Dark">
                     <Color x:Key="SystemBaseHighColor">#CEFFFFFF</Color>
                     <Color x:Key="ApplicationPageBackgroundThemeBrush">#FF191919</Color>
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
-
-
 
         </ResourceDictionary>
     </prism:PrismUnityApplication.Resources>

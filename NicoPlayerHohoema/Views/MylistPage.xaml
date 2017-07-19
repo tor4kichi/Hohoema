@@ -310,7 +310,6 @@
                     <controls:IncrementalLoadingList.ItemTemplate>
                         <DataTemplate>
                             <Grid Margin="0 0 0 0"
-                                  Height="150"
                                   >
                                 <hohoemalistItem:HohoemaListItemMiniCard />
 

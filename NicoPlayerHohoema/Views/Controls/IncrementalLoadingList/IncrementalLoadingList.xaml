@@ -21,7 +21,7 @@
                         <Grid x:Name="RootPanel">
 
                             <GridView ItemsSource="{TemplateBinding ItemsSource}"
-                                 IncrementalLoadingTrigger="Edge"
+                                        IncrementalLoadingTrigger="Edge"
                                         x:Name="_GridView"
                                         UseSystemFocusVisuals="False"
                                         HorizontalContentAlignment="Stretch"
@@ -38,8 +38,8 @@
 
                                 <GridView.ItemContainerStyle>
                                     <Style TargetType="GridViewItem">
-                                        <Setter Property="Margin" Value="0 0 0 0" />
-                                        <Setter Property="Padding" Value="8" />
+                                        <Setter Property="Margin" Value="6" />
+                                        <Setter Property="Padding" Value="0" />
                                         <Setter Property="UseSystemFocusVisuals" Value="False" />
                                         <Setter Property="VerticalContentAlignment" Value="Stretch" />
                                     </Style>
