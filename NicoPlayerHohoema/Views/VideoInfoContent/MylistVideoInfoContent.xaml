@@ -60,7 +60,7 @@
                 <DataTemplate>
                     <Border Margin="8">
                         <ToggleButton IsChecked="{Binding IsRegistrated.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                      IsEnabled="{Binding NowProccessing.Value, Converter={StaticResource InvertBoolean}}"
+                                      IsEnabled="{Binding NowProccessing.Value, Converter={StaticResource BooleanInverted}}"
                                       >
                             <toolkit:DockPanel>
                                 <Border Background="{Binding GroupInfo.ThemeColor, Converter={StaticResource ColorToBrush}}" 

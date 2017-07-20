@@ -12,30 +12,32 @@ namespace NicoPlayerHohoema.Views.Converters
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
+            NicoVideoQuality? quality = null;
+            if (value is NicoVideoQuality?)
+            {
+                quality = (NicoVideoQuality?)value;
+            }
             if (value is NicoVideoQuality)
             {
-                var quality = (NicoVideoQuality)value;
-                switch (quality)
-                {
-                    case NicoVideoQuality.Original:
-                        return "旧 オリジナル";
-                    case NicoVideoQuality.Low:
-                        return "旧 低";
-                    case NicoVideoQuality.Dmc_High:
-                        return "高";
-                    case NicoVideoQuality.Dmc_Midium:
-                        return "中";
-                    case NicoVideoQuality.Dmc_Low:
-                        return "低";
-                    case NicoVideoQuality.Dmc_Mobile:
-                        return "モバイル";
-                    default:
-                        return value.ToString();
-                }
+                quality = (NicoVideoQuality)value;
             }
-            else
+
+            switch (quality)
             {
-                return value.ToString();
+                case NicoVideoQuality.Original:
+                    return "旧 オリジナル";
+                case NicoVideoQuality.Low:
+                    return "旧 低";
+                case NicoVideoQuality.Dmc_High:
+                    return "高";
+                case NicoVideoQuality.Dmc_Midium:
+                    return "中";
+                case NicoVideoQuality.Dmc_Low:
+                    return "低";
+                case NicoVideoQuality.Dmc_Mobile:
+                    return "モバイル";
+                default:
+                    return "";
             }
         }
 

@@ -19,140 +19,144 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-          Margin="0 27 0 0"
           >
 
-        <Grid>
-            <toolkit:DockPanel Margin="16 0 0 0">
+        <controls:IncrementalLoadingList x:Name="IncrementalLoadingList"
+                                                 ItemsSource="{Binding IncrementalLoadingItems}"
+                                                 SelectedItems="{Binding SelectedItems, Mode=TwoWay}"
+                                                 ItemCommand="{Binding SelectItemCommand}"
+                                                 IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
+                                                 Margin="8 0 0 0"
+                                                 Padding="0 0 48 0"
+                                                 ItemContextFlyout="{StaticResource VideoListItemFlyout}"
+                                                 IsTabStop="False"
+                                                 >
+            <controls:IncrementalLoadingList.ItemTemplate>
+                <DataTemplate>
+                    <Grid Margin="0 0 0 0"
+                                  >
 
-                <toolkit:DockPanel toolkit:DockPanel.Dock="Top" >
+                        <hohoemalistItem:HohoemaListItemMiniCard />
 
-                    <StackPanel Orientation="Horizontal"
+                    </Grid>
+                </DataTemplate>
+            </controls:IncrementalLoadingList.ItemTemplate>
+
+            <controls:IncrementalLoadingList.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <ItemsWrapGrid Orientation="Horizontal"
+                                           Margin="0 96 0 27"
+                                           />
+                </ItemsPanelTemplate>
+            </controls:IncrementalLoadingList.ItemsPanel>
+
+        </controls:IncrementalLoadingList>
+
+
+        <toolkit:DockPanel >
+
+            <toolkit:DockPanel toolkit:DockPanel.Dock="Top"
+                               Background="{StaticResource TvHeaderBackgroundBrush}"
+                               Margin="0 0 0 32"
+                               >
+
+                <Border toolkit:DockPanel.Dock="Top"
+                        Height="27"
+                        />
+                
+                <StackPanel Orientation="Horizontal"
                                 toolkit:DockPanel.Dock="Right" Margin="0 0 48 0">
 
 
-                        <CommandBar DefaultLabelPosition="Right"
+                    <CommandBar DefaultLabelPosition="Right"
                                 Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                 toolkit:DockPanel.Dock="Left"
                                 >
-                            <AppBarButton 
+                        <AppBarButton 
                                         Icon="Refresh"
                                         Command="{Binding RefreshCommand}"
                                         IsEnabled="{Binding CanChangeSort.Value}"     
                                 />
 
 
-                            <AppBarButton Command="{Binding OpenCommunityPageCommand}"
+                        <AppBarButton Command="{Binding OpenCommunityPageCommand}"
                                       Label="{Binding CommunityName}"
                                      />
 
 
-                        </CommandBar>
+                    </CommandBar>
 
 
-                        <CommandBar DefaultLabelPosition="Right"
+                    <CommandBar DefaultLabelPosition="Right"
                                 Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
                                 toolkit:DockPanel.Dock="Left"
                                 >
 
-                            <AppBarButton Command="{Binding RequestCacheDownload}"
+                        <AppBarButton Command="{Binding RequestCacheDownload}"
                                       
                                       IsEnabled="{Binding CanDownload}"
                                       Label="キャッシュ"
                                           Icon="Download"
                                 >
-                            </AppBarButton>
+                        </AppBarButton>
 
 
-                            <AppBarButton Command="{Binding RegistratioMylistCommand}"
+                        <AppBarButton Command="{Binding RegistratioMylistCommand}"
                                               Label="マイリストに追加"
                                               Icon="Add"
                                       
                                             >
-                            </AppBarButton>
-
-                            
-                        </CommandBar>
+                        </AppBarButton>
 
 
+                    </CommandBar>
 
-                        <CommandBar>
 
 
-                            <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    <CommandBar>
+
+
+                        <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                 HorizontalContentAlignment="Stretch"
                                                 VerticalContentAlignment="Stretch"
                                                 HorizontalAlignment="Right"
                                                 >
-                                <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
+                            <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center"
                                                        />
-                            </AppBarToggleButton>
-                        </CommandBar>
-                    </StackPanel>
+                        </AppBarToggleButton>
+                    </CommandBar>
+                </StackPanel>
 
 
-                    <Border>
-                        <Border Background="Transparent" IsHitTestVisible="True"
-                            Margin="0 0 0 0"
+                <Border>
+                    <Border Background="Transparent" IsHitTestVisible="True"
+                            Margin="16 0 0 0"
                             >
 
-                            <TextBlock Text="{Binding Title}" 
+                        <TextBlock Text="{Binding Title}" 
                                 VerticalAlignment="Center"
                                 Style="{StaticResource SubheaderTextBlockStyle}"
                                 >
 
-                            </TextBlock>
+                        </TextBlock>
 
-                            <i:Interaction.Behaviors>
-                                <core:EventTriggerBehavior EventName="Tapped">
-                                    <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0.0" />
-                                </core:EventTriggerBehavior>
-                            </i:Interaction.Behaviors>
-                        </Border>
-
+                        <i:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="Tapped">
+                                <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0.0" />
+                            </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
                     </Border>
 
-                </toolkit:DockPanel>
-
-
-                
-                <controls:IncrementalLoadingList x:Name="IncrementalLoadingList"
-                                                 ItemsSource="{Binding IncrementalLoadingItems}"
-                                                 SelectedItems="{Binding SelectedItems, Mode=TwoWay}"
-                                                 ItemCommand="{Binding SelectItemCommand}"
-                                                 IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
-                                                 Margin="0 0 0 0"
-                                                 Padding="0 0 0 24"
-                                                 ItemContextFlyout="{StaticResource VideoListItemFlyout}"
-                                                 IsTabStop="False"
-                                                 >
-                    <controls:IncrementalLoadingList.ItemTemplate>
-                        <DataTemplate>
-                            <Grid Margin="0 0 0 0"
-                                  Height="150"
-                                  >
-
-                                <hohoemalistItem:HohoemaListItemMiniCard />
-
-                            </Grid>
-                        </DataTemplate>
-                    </controls:IncrementalLoadingList.ItemTemplate>
-
-                    <controls:IncrementalLoadingList.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <ItemsWrapGrid Orientation="Vertical"
-                                           MaxHeight="340"
-                                           Margin="0 0 32 0"
-                                           />
-                        </ItemsPanelTemplate>
-                    </controls:IncrementalLoadingList.ItemsPanel>
-
-                </controls:IncrementalLoadingList>
-
+                </Border>
 
             </toolkit:DockPanel>
-        </Grid>
+
+
+
+            <Border />
+
+        </toolkit:DockPanel>
     </Grid>
 </Page>

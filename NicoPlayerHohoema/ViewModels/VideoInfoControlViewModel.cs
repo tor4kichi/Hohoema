@@ -78,8 +78,9 @@ namespace NicoPlayerHohoema.ViewModels
             VideoId = RawVideoId;
         }
 
+        bool _IsNGEnabled = false;
 
-		public VideoInfoControlViewModel(NicoVideo nicoVideo, PageManager pageManager, PlaylistItem playlistItem = null)
+		public VideoInfoControlViewModel(NicoVideo nicoVideo, PageManager pageManager, bool isNgEnabled = true, PlaylistItem playlistItem = null)
 		{
 			PageManager = pageManager;
             HohoemaPlaylist = nicoVideo.HohoemaApp.Playlist;
@@ -87,7 +88,9 @@ namespace NicoPlayerHohoema.ViewModels
             PlaylistItem = playlistItem;
             _CompositeDisposable = new CompositeDisposable();
 
-			Title = nicoVideo.Title;
+            _IsNGEnabled = isNgEnabled;
+
+            Title = nicoVideo.Title;
 			RawVideoId = nicoVideo.RawVideoId;
 			VideoId = nicoVideo.VideoId;
 
@@ -143,8 +146,16 @@ namespace NicoPlayerHohoema.ViewModels
         public void SetupFromThumbnail(NicoVideo info)
         {
             // NG判定
-            var ngResult = NicoVideo.CheckUserNGVideo();
-            IsVisible = ngResult != null;
+            if (_IsNGEnabled)
+            {
+                var ngResult = NicoVideo.CheckUserNGVideo();
+                IsVisible = ngResult == null;
+                if (ngResult != null)
+                {
+                    var ngDesc = !string.IsNullOrWhiteSpace(ngResult.NGDescription) ? ngResult.NGDescription : ngResult.Content;
+                    InvisibleDescription = $"NG {ngResult.NGReason} {ngDesc}";
+                }
+            }
 
             Title = info.Title;
             OptionText = info.PostedAt.ToString("yyyy/MM/dd HH:mm");
@@ -218,6 +229,11 @@ namespace NicoPlayerHohoema.ViewModels
 				return _PlayCommand
 					?? (_PlayCommand = new DelegateCommand(() =>
 					{
+                        if (NicoVideo.CheckUserNGVideo() != null)
+                        {
+                            return;
+                        }
+
                         if (PlaylistItem != null)
                         {
                             HohoemaPlaylist.Play(PlaylistItem);

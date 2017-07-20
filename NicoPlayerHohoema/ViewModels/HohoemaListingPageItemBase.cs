@@ -110,6 +110,18 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+
+        private string _InvisibleDescription;
+        public string InvisibleDescription
+        {
+            get { return _InvisibleDescription; }
+            set
+            {
+                SetProperty(ref _InvisibleDescription, value);
+            }
+        }
+
+
         private string _PrimaryActionTitle;
         public string PrimaryActionTitle
         {

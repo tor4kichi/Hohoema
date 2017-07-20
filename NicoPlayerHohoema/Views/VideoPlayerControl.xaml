@@ -237,7 +237,7 @@
                 </VisualState>
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsMuted.Value, Converter={StaticResource InvertBoolean}}" />
+                        <StateTrigger IsActive="{Binding IsMuted.Value, Converter={StaticResource BooleanInverted}}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="VolumeButton.Symbol" Value="Volume" />
@@ -466,31 +466,31 @@
 
                                         
                     <mybehavior:UINavigationTrigger Kind="Cancel" Hold="True" 
-                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource InvertBoolean}}"
+                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BooleanInverted}}"
                                                         >
                         <core:InvokeCommandAction Command="{Binding ClosePlayerCommand}" />
                     </mybehavior:UINavigationTrigger>
                     
 
                     <mybehavior:UINavigationTrigger Kind="PageLeft" 
-                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource InvertBoolean}}"
+                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BooleanInverted}}"
                                                         >
                         <core:InvokeCommandAction Command="{Binding PreviewVideoPositionCommand}" />
                     </mybehavior:UINavigationTrigger>
                     <mybehavior:UINavigationTrigger Kind="PageRight" 
-                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource InvertBoolean}}"
+                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BooleanInverted}}"
                                                         >
                         <core:InvokeCommandAction Command="{Binding ForwardVideoPositionCommand}" />
                     </mybehavior:UINavigationTrigger>
 
                     <mybehavior:UINavigationTrigger Kind="Context1" 
-                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource InvertBoolean}}"
+                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BooleanInverted}}"
                                                         >
                         <core:InvokeCommandAction Command="{Binding TogglePlayPauseCommand}" />
                     </mybehavior:UINavigationTrigger>
 
                     <mybehavior:UINavigationTrigger Kind="Context2" 
-                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource InvertBoolean}}"
+                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BooleanInverted}}"
                                                         >
                         <core:ChangePropertyAction TargetObject="{Binding ElementName=PlaylistSplitView}" PropertyName="IsPaneOpen" Value="True" />
                     </mybehavior:UINavigationTrigger>
@@ -584,7 +584,7 @@
                 <Border IsHitTestVisible="True" Background="Transparent">
                     <i:Interaction.Behaviors>
                         <core:EventTriggerBehavior EventName="Tapped">
-                            <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="{Binding IsDisplayControlUI.Value, Converter={StaticResource InvertBoolean}}" />
+                            <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="{Binding IsDisplayControlUI.Value, Converter={StaticResource BooleanInverted}}" />
                         </core:EventTriggerBehavior>
                     </i:Interaction.Behaviors>
                 </Border>
@@ -595,7 +595,7 @@
                     <i:Interaction.Behaviors>
                         <mybehavior:VisiblityFadeChanger x:Name="PlayerControlAutoHide" 
                                                          Delay="{Binding AutoHideDelayTime.Value}"
-                                                         IsAnimationEnable="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource InvertBoolean}}"
+                                                         IsAnimationEnable="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BooleanInverted}}"
                                                          IsVisible="{Binding IsDisplayControlUI.Value, Mode=TwoWay}"
                         />
 
@@ -787,7 +787,7 @@
                                             HorizontalAlignment="Stretch"
                                             HorizontalContentAlignment="Stretch"
                                             VerticalAlignment="Center"
-                                            IsEnabled="{Binding NowQualityChanging.Value, Converter={StaticResource InvertBoolean}}"
+                                            IsEnabled="{Binding NowQualityChanging.Value, Converter={StaticResource BooleanInverted}}"
                                         
                                                 Opacity="0.75"
                                          >
@@ -799,7 +799,7 @@
                                                 VerticalAlignment="Bottom"
                                             Orientation="Horizontal"
                                             Margin="24 0 0 0"
-                                            
+                                            Visibility="{Binding CurrentVideoQuality.Value, Converter={StaticResource NotNullToVisibility}}"
                                             >
 
                                         <TextBlock  Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"

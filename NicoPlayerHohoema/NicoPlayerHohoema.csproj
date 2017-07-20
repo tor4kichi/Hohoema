@@ -114,6 +114,7 @@
     <Content Include="Assets\OAuth\twitter.json" />
     <Content Include="Assets\UpdateNotices\0.9.0.md" />
     <Content Include="Assets\UpdateNotices\0.9.1.md" />
+    <Content Include="Assets\UpdateNotices\0.9.2.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
   </ItemGroup>
   <ItemGroup>
@@ -704,6 +705,11 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Styles\DefaultStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
+    <Page Include="Styles\HohoemaListItemStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

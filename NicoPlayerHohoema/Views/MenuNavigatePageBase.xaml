@@ -82,11 +82,11 @@
                         <!-- トップメニュー非表示 -->
                         <VisualState>
                             <VisualState.StateTriggers>
-                                <StateTrigger IsActive="{Binding IsVisibleMenu.Value, Converter={StaticResource InvertBoolean}}" />
+                                <StateTrigger IsActive="{Binding IsVisibleMenu.Value, Converter={StaticResource BooleanInverted}}" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter Target="SplitView.DisplayMode" Value="Overlay" />
-                                <Setter Target="SplitView.IsPaneOpen" Value="False" />
+                                <Setter Target="ContentSplitView.DisplayMode" Value="Overlay" />
+                                <Setter Target="ContentSplitView.IsPaneOpen" Value="False" />
 
                             </VisualState.Setters>
                         </VisualState>
@@ -97,11 +97,10 @@
                                 <StateTrigger IsActive="{Binding IsTVModeEnable.Value}" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter Target="SplitView.DisplayMode" Value="CompactInline" />
-                                <Setter Target="SplitView.IsPaneOpen" Value="False" />
+                                <Setter Target="ContentSplitView.DisplayMode" Value="CompactInline" />
+                                <Setter Target="ContentSplitView.IsPaneOpen" Value="False" />
                                 <Setter Target="ContentLayout.Margin" Value="0 0 0 0" />
 
-                                <Setter Target="SplitView.PaneBackground" Value="Transparent" />
                             </VisualState.Setters>
                         </VisualState>
 
@@ -111,8 +110,8 @@
                                 <AdaptiveTrigger MinWindowWidth="800" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter Target="SplitView.DisplayMode" Value="CompactInline" />
-                                <Setter Target="SplitView.IsPaneOpen" Value="True" />
+                                <Setter Target="ContentSplitView.DisplayMode" Value="CompactInline" />
+                                <Setter Target="ContentSplitView.IsPaneOpen" Value="True" />
                             </VisualState.Setters>
                         </VisualState>
 
@@ -125,8 +124,8 @@
                                 <Setter Target="MobileBottomBar.Visibility" Value="Visible" />
                                 <Setter Target="MobileFrontScreen.Visibility" Value="Visible" />
 
-                                <Setter Target="SplitView.DisplayMode" Value="Overlay" />
-                                <Setter Target="SplitView.IsPaneOpen" Value="False" />
+                                <Setter Target="ContentSplitView.DisplayMode" Value="Overlay" />
+                                <Setter Target="ContentSplitView.IsPaneOpen" Value="False" />
 
                             </VisualState.Setters>
                         </VisualState>
@@ -140,26 +139,8 @@
                             </VisualState.StateTriggers>
 
                             <VisualState.Setters>
-                                <Setter Target="SplitView.Margin" Value="48 0 0 0" />
+                                <Setter Target="ContentSplitView.Margin" Value="48 0 0 0" />
                                 <Setter Target="PaneLayout.Margin" Value="0 27 0 27" />
-                            </VisualState.Setters>
-                        </VisualState>
-                    </VisualStateGroup>
-
-                    <VisualStateGroup>
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <StateTrigger IsActive="{Binding IsTVModeEnable.Value, Converter={StaticResource InvertBoolean}}" />
-                            </VisualState.StateTriggers>
-                        </VisualState>
-                        <VisualState>
-                            
-                            <VisualState.StateTriggers>
-                                <mytrigger:FocusTrigger Target="{Binding ElementName=PaneLayout}" Inverted="False" />
-                            </VisualState.StateTriggers>
-
-                            <VisualState.Setters>
-                                <Setter Target="SplitView.IsPaneOpen" Value="True" />
                             </VisualState.Setters>
                         </VisualState>
                     </VisualStateGroup>
@@ -321,7 +302,7 @@
 
 
 
-                    <SplitView x:Name="SplitView" 
+                    <SplitView x:Name="ContentSplitView" 
                         CompactPaneLength="56"
                         OpenPaneLength="180"
                         DisplayMode="Overlay"
@@ -400,6 +381,9 @@
                                                   SingleSelectionFollowsFocus="False"
                                                   TabIndex="5"
                                                 >
+                                            <ListView.ItemContainerTransitions>
+                                                <TransitionCollection />
+                                            </ListView.ItemContainerTransitions>
                                             <ListView.ItemContainerStyle>
                                                 <Style TargetType="ListViewItem">
                                                     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -423,17 +407,23 @@
 
 
                                 <Grid x:Name="ContentLayout">
-                                    
+
+
+                                    <Button Background="Transparent"
+                                            HorizontalAlignment="Stretch"
+                                            VerticalAlignment="Stretch"
+                                            Visibility="{Binding NowNavigating.Value, Converter={StaticResource BooleanToVisibility}}"
+                                            >
+
+                                    </Button>
                                     <!-- ページ毎のコンテンツ -->
                                     <ContentPresenter
                                             >
-                                        <!--
                                         <i:Interaction.Behaviors>
-                                            <core:DataTriggerBehavior Binding="{Binding NowNavigating.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
-                                                <mybehavior:SetFocus Delay="500" />
+                                            <core:DataTriggerBehavior Binding="{Binding NowNavigating.Value, Converter={StaticResource BooleanInverted}}">
+                                                <mybehavior:SetFocus Delay="300" />
                                             </core:DataTriggerBehavior>
                                         </i:Interaction.Behaviors>
-                                        -->
                                     </ContentPresenter>
 
                                     

@@ -9,7 +9,7 @@ namespace NicoPlayerHohoema.Views.Converters
 {
 	
 
-	public class InvertBooleanConverter : IValueConverter
+	public class BooleanInvertedConverter : IValueConverter
 	{
 		public object Convert(object value, Type targetType, object parameter, string language)
 		{

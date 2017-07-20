@@ -29,7 +29,9 @@ namespace NicoPlayerHohoema.Models
     public class CommentServerInfo
     {
         public string ServerUrl { get; set; }
-        public int ThreadId { get; set; }
+        public int DefaultThreadId { get; set; }
+        public int? CommunityThreadId { get; set; }
+
         public bool ThreadKeyRequired { get; set; }
     }
 
@@ -94,27 +96,45 @@ namespace NicoPlayerHohoema.Models
 		/// 動画ストリームの取得します
 		/// 他にダウンロードされているアイテムは強制的に一時停止し、再生終了後に再開されます
 		/// </summary>
-		public async Task<NicoVideoQuality> StartPlay(NicoVideoQuality quality, TimeSpan? initialPosition = null)
+		public async Task<NicoVideoQuality> StartPlay(NicoVideoQuality? quality, TimeSpan? initialPosition = null)
         {
             IfVideoDeletedThrowException();
 
-            DividedQualityNicoVideo divided = GetDividedQualityNicoVideo(quality);
-            if (!divided.IsAvailable)
+            // 再生動画画質決定
+            // 指定された画質＞キャッシュされた画質＞デフォルト指定画質＞再生可能な画質
+            DividedQualityNicoVideo divided = null;
+            if (quality.HasValue)
             {
-                if (quality == NicoVideoQuality.Original)
+                divided = GetDividedQualityNicoVideo(quality.Value);
+            }
+
+            if (divided == null || !divided.IsAvailable)
+            {
+                var cachedQuality = GetAllQuality().Where(x => x.IsCached).FirstOrDefault();
+                if (cachedQuality != null)
+                {
+                    divided = cachedQuality;
+                }
+                else if (quality == NicoVideoQuality.Original)
                 {
                     divided = GetDividedQualityNicoVideo(NicoVideoQuality.Low);
                 }
                 else
                 {
-                    foreach (var dmcQuality in GetAllQuality().Where(x => x.Quality.IsDmc()))
+                    divided = GetDividedQualityNicoVideo(HohoemaApp.UserSettings.PlayerSettings.DefaultQuality);
+
+                    if (!divided.IsAvailable)
                     {
-                        if (dmcQuality.IsAvailable)
+                        foreach (var dmcQuality in GetAllQuality().Where(x => x.Quality.IsDmc()))
                         {
-                            divided = dmcQuality;
-                            break;
+                            if (dmcQuality.IsAvailable)
+                            {
+                                divided = dmcQuality;
+                                break;
+                            }
                         }
                     }
+
                     if (divided == null || !divided.IsAvailable)
                     {
                         divided = GetDividedQualityNicoVideo(NicoVideoQuality.Original);
@@ -376,6 +396,7 @@ namespace NicoPlayerHohoema.Models
 				this.SizeHigh = (uint)res.SizeHigh;
 				this.Title = res.Title;
 				this.OwnerId = res.UserId;
+                this.OwnerName = res.UserName;
 				this.ContentType = res.MovieType;
 				this.PostedAt = res.PostedAt.DateTime;
 				this.Tags = res.Tags.Value.ToList();
@@ -458,7 +479,7 @@ namespace NicoPlayerHohoema.Models
                         var commentServerInfo = new CommentServerInfo()
                         {
                             ServerUrl = dmcWatchResponse.Video.DmcInfo.Thread.ServerUrl,
-                            ThreadId = dmcWatchResponse.Video.DmcInfo.Thread.ThreadId,
+                            DefaultThreadId = dmcWatchResponse.Video.DmcInfo.Thread.ThreadId,
                             ThreadKeyRequired = dmcWatchResponse.Video.DmcInfo?.Thread.ThreadKeyRequired ?? false
                         };
                         CommentClient = new CommentClient(HohoemaApp, RawVideoId, commentServerInfo);
@@ -468,9 +489,15 @@ namespace NicoPlayerHohoema.Models
                         var commentServerInfo = new CommentServerInfo()
                         {
                             ServerUrl = dmcWatchResponse.Thread.ServerUrl,
-                            ThreadId = int.Parse(dmcWatchResponse.Thread.Ids.Default),
-                            ThreadKeyRequired = false
+                            DefaultThreadId = int.Parse(dmcWatchResponse.Thread.Ids.Default),
+                            ThreadKeyRequired = dmcWatchResponse.Video.IsOfficial
                         };
+
+                        if (int.TryParse((string)dmcWatchResponse.Thread.Ids.Community, out var comThreadId))
+                        {
+                            commentServerInfo.CommunityThreadId = comThreadId;
+                        }
+
                         CommentClient = new CommentClient(HohoemaApp, RawVideoId, commentServerInfo);
                     }
                 }
@@ -493,6 +520,7 @@ namespace NicoPlayerHohoema.Models
                 {
                     OwnerId = uint.Parse(dmcWatchResponse.Owner.Id);
                     OwnerIconUrl = dmcWatchResponse.Owner.IconURL;
+                    this.OwnerName = dmcWatchResponse.Owner.Nickname;
                 }
 
 
@@ -509,7 +537,7 @@ namespace NicoPlayerHohoema.Models
 
         // 動画情報のキャッシュまたはオンラインからの取得と更新
 
-        public async Task VisitWatchPage(NicoVideoQuality quality)
+        public async Task VisitWatchPage()
 		{
             await GetDmcWatchResponse();
         }
@@ -835,6 +863,7 @@ namespace NicoPlayerHohoema.Models
 		public TimeSpan VideoLength { get; private set; }
 		public DateTime PostedAt { get; private set; }
 		public uint OwnerId { get; private set; }
+        public string OwnerName { get; private set; }
         public bool IsOriginalQualityOnly => SizeLow == 0;
 		public List<ThumbnailTag> Tags { get; private set; }
 		public uint SizeLow { get; private set; }
@@ -945,28 +974,58 @@ namespace NicoPlayerHohoema.Models
         // コメントのキャッシュまたはオンラインからの取得と更新
         public async Task<List<Chat>> GetComments()
         {
+            CommentResponse commentRes = null;
             try
             {
-                CommentResponse commentRes = null;
+                
                 commentRes = await ConnectionRetryUtil.TaskWithRetry(async () =>
                 {
                     return await this.HohoemaApp.NiconicoContext.Video
                         .GetCommentAsync(
                             (int)HohoemaApp.LoginUserId,
                             CommentServerInfo.ServerUrl,
-                            CommentServerInfo.ThreadId,
+                            CommentServerInfo.DefaultThreadId,
                             CommentServerInfo.ThreadKeyRequired
                         );
                 });
 
-                CachedCommentResponse = commentRes;
-                CommentDb.AddOrUpdate(RawVideoId, commentRes);
-                return commentRes.Chat;
             }
             catch
             {
-                return null;
+                
             }
+
+
+            if (commentRes?.Chat.Count == 0)
+            {
+                try
+                {
+                    if (CommentServerInfo.CommunityThreadId.HasValue)
+                    {
+                        commentRes = await ConnectionRetryUtil.TaskWithRetry(async () =>
+                        {
+                            return await this.HohoemaApp.NiconicoContext.Video
+                                .GetCommentAsync(
+                                    (int)HohoemaApp.LoginUserId,
+                                    CommentServerInfo.ServerUrl,
+                                    CommentServerInfo.CommunityThreadId.Value,
+                                    CommentServerInfo.ThreadKeyRequired
+                                );
+                        });
+                    }
+                }
+                catch { }
+            }
+
+            if (commentRes != null)
+            {
+                CachedCommentResponse = commentRes;
+                CommentDb.AddOrUpdate(RawVideoId, commentRes);
+            }
+
+            return commentRes?.Chat;
+
+
         }
 
         public async Task<PostCommentResponse> SubmitComment(string comment, TimeSpan position, string commands)

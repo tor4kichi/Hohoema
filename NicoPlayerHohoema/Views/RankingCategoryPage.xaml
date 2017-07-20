@@ -93,7 +93,7 @@
 
                     <!--
                     <AppBarButton Icon="More" toolkit:DockPanel.Dock="Right"
-                                  IsEnabled="{Binding IsSelectionModeEnable.Value, Converter={StaticResource InvertBoolean}}"
+                                  IsEnabled="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanInverted}}"
                                   
                                   >
                         <AppBarButton.Flyout>

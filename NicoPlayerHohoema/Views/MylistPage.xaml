@@ -79,13 +79,66 @@
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
+
+        <Grid>
+            <controls:HohoemaIncrementalLoadingList
+                    ItemFlyout="{StaticResource VideoListItemFlyout}"
+                    x:Name="VerticalVideoList"
+                Margin="0 96 0 0"
+                    >
+                <controls:HohoemaIncrementalLoadingList.ItemTemplate>
+                    <DataTemplate >
+                        <local:VideoInfoControl />
+                    </DataTemplate>
+                </controls:HohoemaIncrementalLoadingList.ItemTemplate>
+            </controls:HohoemaIncrementalLoadingList>
+
+            <controls:IncrementalLoadingList x:Name="HorizontalVideoList"
+                                                 Visibility="Collapsed"
+                                                 
+                                        ItemsSource="{Binding IncrementalLoadingItems}"
+                                        SelectedItems="{Binding SelectedItems, Mode=TwoWay}"
+                                        ItemCommand="{Binding SelectItemCommand}"
+                                        IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
+                                        Margin="8 0 0 0"
+                                        Padding="0 0 48 0"
+                                        ItemContextFlyout="{StaticResource VideoListItemFlyout}"
+                                        IsTabStop="False"
+                    
+                    >
+                <controls:IncrementalLoadingList.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="0 0 0 0"
+                                  >
+                            <hohoemalistItem:HohoemaListItemMiniCard />
+
+                        </Grid>
+                    </DataTemplate>
+                </controls:IncrementalLoadingList.ItemTemplate>
+
+                <controls:IncrementalLoadingList.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <ItemsWrapGrid Orientation="Horizontal"
+                                           Margin="0 96 0 27"
+                                           />
+                    </ItemsPanelTemplate>
+                </controls:IncrementalLoadingList.ItemsPanel>
+            </controls:IncrementalLoadingList>
+        </Grid>
+        
         <toolkit:DockPanel >
 
 
             <Border toolkit:DockPanel.Dock="Top" 
                     x:Name="HeaderLayout"
+                    Background="{StaticResource TvHeaderBackgroundBrush}"
+                    Margin="0 0 0 32"
                     >
                 <toolkit:DockPanel >
+                    
+                    <Border toolkit:DockPanel.Dock="Top"
+                        Height="27"
+                        />
 
                     <StackPanel toolkit:DockPanel.Dock="Right" 
                                 Orientation="Horizontal"
@@ -282,54 +335,10 @@
             </Border>
 
 
-            <Grid>
-                <controls:HohoemaIncrementalLoadingList
-                    ItemFlyout="{StaticResource VideoListItemFlyout}"
-                    x:Name="VerticalVideoList"
-                    >
-                    <controls:HohoemaIncrementalLoadingList.ItemTemplate>
-                        <DataTemplate >
-                            <local:VideoInfoControl />
-                        </DataTemplate>
-                    </controls:HohoemaIncrementalLoadingList.ItemTemplate>
-                </controls:HohoemaIncrementalLoadingList>
 
-                <controls:IncrementalLoadingList x:Name="HorizontalVideoList"
-                                                 Visibility="Collapsed"
-                                                 
-                                        ItemsSource="{Binding IncrementalLoadingItems}"
-                                        SelectedItems="{Binding SelectedItems, Mode=TwoWay}"
-                                        ItemCommand="{Binding SelectItemCommand}"
-                                        IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
-                                        Margin="0 0 0 0"
-                                        Padding="0 0 0 0"
-                                        ItemContextFlyout="{StaticResource VideoListItemFlyout}"
-                                        IsTabStop="False"
-                    
-                    >
-                    <controls:IncrementalLoadingList.ItemTemplate>
-                        <DataTemplate>
-                            <Grid Margin="0 0 0 0"
-                                  Height="150"
-                                  >
-                                <hohoemalistItem:HohoemaListItemMiniCard />
 
-                            </Grid>
-                        </DataTemplate>
-                    </controls:IncrementalLoadingList.ItemTemplate>
 
-                    <controls:IncrementalLoadingList.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <ItemsWrapGrid Orientation="Horizontal"
-                                           MaxHeight="340"
-                                           Margin="0 0 0 27"
-                                           />
-                        </ItemsPanelTemplate>
-                    </controls:IncrementalLoadingList.ItemsPanel>
-                </controls:IncrementalLoadingList>
-            </Grid>
-            
-
+            <Border />
 
 
 

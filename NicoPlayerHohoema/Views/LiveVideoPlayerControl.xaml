@@ -91,7 +91,7 @@
                 </VisualState>
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsMuted.Value, Converter={StaticResource InvertBoolean}}" />
+                        <StateTrigger IsActive="{Binding IsMuted.Value, Converter={StaticResource BooleanInverted}}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="VolumeButtonIcon.Symbol" Value="Volume" />
@@ -117,7 +117,7 @@
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsForceLandscape.Value, Converter={StaticResource InvertBoolean}}" />
+                        <StateTrigger IsActive="{Binding IsForceLandscape.Value, Converter={StaticResource BooleanInverted}}" />
 
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
@@ -246,7 +246,7 @@
                     </core:EventTriggerBehavior>
 
                     <mybehavior:UINavigationTrigger Kind="Cancel" Hold="True" 
-                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource InvertBoolean}}"
+                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BooleanInverted}}"
                                                         >
                         <core:InvokeCommandAction Command="{Binding ClosePlayerCommand}" />
                     </mybehavior:UINavigationTrigger>
@@ -332,7 +332,7 @@
                 <Border IsHitTestVisible="True" Background="Transparent">
                     <i:Interaction.Behaviors>
                         <core:EventTriggerBehavior EventName="Tapped">
-                            <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="{Binding IsDisplayControlUI.Value, Converter={StaticResource InvertBoolean}}" />
+                            <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="{Binding IsDisplayControlUI.Value, Converter={StaticResource BooleanInverted}}" />
                         </core:EventTriggerBehavior>
                     </i:Interaction.Behaviors>
                 </Border>
@@ -342,7 +342,7 @@
                     <i:Interaction.Behaviors>
                         <mybehavior:VisiblityFadeChanger x:Name="PlayerControlAutoHide" 
                                                          Delay="{Binding AutoHideDelayTime.Value}"
-                                                         IsAnimationEnable="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource InvertBoolean}}"
+                                                         IsAnimationEnable="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BooleanInverted}}"
                                                          IsVisible="{Binding IsDisplayControlUI.Value, Mode=TwoWay}"
                         />
 
@@ -351,7 +351,7 @@
                         </core:DataTriggerBehavior>
                         <!--
                         <mybehavior:UINavigationTrigger Kind="View" 
-                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource InvertBoolean}}"
+                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BooleanInverted}}"
                                                         >
                             <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Toggle" />
                             <mybehavior:SetFocus TargetObject="{Binding ElementName=RefreshButton}" />
@@ -654,7 +654,7 @@
                                 <Button 
                                               Command="{Binding UpdateCommand}"
                                               VerticalAlignment="Stretch"
-                                              IsEnabled="{Binding NowUpdating.Value, Converter={StaticResource InvertBoolean}}"
+                                              IsEnabled="{Binding NowUpdating.Value, Converter={StaticResource BooleanInverted}}"
                                               x:Name="RefreshButton"
                                               UseSystemFocusVisuals="True"
                                     Background="Transparent"
