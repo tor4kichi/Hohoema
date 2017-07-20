@@ -29,7 +29,9 @@ namespace NicoPlayerHohoema.Models
     public class CommentServerInfo
     {
         public string ServerUrl { get; set; }
-        public int ThreadId { get; set; }
+        public int DefaultThreadId { get; set; }
+        public int? CommunityThreadId { get; set; }
+
         public bool ThreadKeyRequired { get; set; }
     }
 
@@ -477,7 +479,7 @@ namespace NicoPlayerHohoema.Models
                         var commentServerInfo = new CommentServerInfo()
                         {
                             ServerUrl = dmcWatchResponse.Video.DmcInfo.Thread.ServerUrl,
-                            ThreadId = dmcWatchResponse.Video.DmcInfo.Thread.ThreadId,
+                            DefaultThreadId = dmcWatchResponse.Video.DmcInfo.Thread.ThreadId,
                             ThreadKeyRequired = dmcWatchResponse.Video.DmcInfo?.Thread.ThreadKeyRequired ?? false
                         };
                         CommentClient = new CommentClient(HohoemaApp, RawVideoId, commentServerInfo);
@@ -487,9 +489,15 @@ namespace NicoPlayerHohoema.Models
                         var commentServerInfo = new CommentServerInfo()
                         {
                             ServerUrl = dmcWatchResponse.Thread.ServerUrl,
-                            ThreadId = int.Parse(dmcWatchResponse.Thread.Ids.Default),
-                            ThreadKeyRequired = false
+                            DefaultThreadId = int.Parse(dmcWatchResponse.Thread.Ids.Default),
+                            ThreadKeyRequired = dmcWatchResponse.Video.IsOfficial
                         };
+
+                        if (int.TryParse((string)dmcWatchResponse.Thread.Ids.Community, out var comThreadId))
+                        {
+                            commentServerInfo.CommunityThreadId = comThreadId;
+                        }
+
                         CommentClient = new CommentClient(HohoemaApp, RawVideoId, commentServerInfo);
                     }
                 }
@@ -966,28 +974,58 @@ namespace NicoPlayerHohoema.Models
         // コメントのキャッシュまたはオンラインからの取得と更新
         public async Task<List<Chat>> GetComments()
         {
+            CommentResponse commentRes = null;
             try
             {
-                CommentResponse commentRes = null;
+                
                 commentRes = await ConnectionRetryUtil.TaskWithRetry(async () =>
                 {
                     return await this.HohoemaApp.NiconicoContext.Video
                         .GetCommentAsync(
                             (int)HohoemaApp.LoginUserId,
                             CommentServerInfo.ServerUrl,
-                            CommentServerInfo.ThreadId,
+                            CommentServerInfo.DefaultThreadId,
                             CommentServerInfo.ThreadKeyRequired
                         );
                 });
 
-                CachedCommentResponse = commentRes;
-                CommentDb.AddOrUpdate(RawVideoId, commentRes);
-                return commentRes.Chat;
             }
             catch
             {
-                return null;
+                
             }
+
+
+            if (commentRes?.Chat.Count == 0)
+            {
+                try
+                {
+                    if (CommentServerInfo.CommunityThreadId.HasValue)
+                    {
+                        commentRes = await ConnectionRetryUtil.TaskWithRetry(async () =>
+                        {
+                            return await this.HohoemaApp.NiconicoContext.Video
+                                .GetCommentAsync(
+                                    (int)HohoemaApp.LoginUserId,
+                                    CommentServerInfo.ServerUrl,
+                                    CommentServerInfo.CommunityThreadId.Value,
+                                    CommentServerInfo.ThreadKeyRequired
+                                );
+                        });
+                    }
+                }
+                catch { }
+            }
+
+            if (commentRes != null)
+            {
+                CachedCommentResponse = commentRes;
+                CommentDb.AddOrUpdate(RawVideoId, commentRes);
+            }
+
+            return commentRes?.Chat;
+
+
         }
 
         public async Task<PostCommentResponse> SubmitComment(string comment, TimeSpan position, string commands)
