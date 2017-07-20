@@ -19,7 +19,6 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-          Margin="0 0 0 0"
           >
 
         <controls:IncrementalLoadingList x:Name="IncrementalLoadingList"
@@ -27,8 +26,8 @@
                                                  SelectedItems="{Binding SelectedItems, Mode=TwoWay}"
                                                  ItemCommand="{Binding SelectItemCommand}"
                                                  IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
-                                                 Margin="0 0 0 0"
-                                                 Padding="0 0 0 0"
+                                                 Margin="8 0 0 0"
+                                                 Padding="0 0 48 0"
                                                  ItemContextFlyout="{StaticResource VideoListItemFlyout}"
                                                  IsTabStop="False"
                                                  >
@@ -53,7 +52,7 @@
 
         </controls:IncrementalLoadingList>
         
-        <toolkit:DockPanel Margin="0 0 0 0">
+        <toolkit:DockPanel>
 
             <toolkit:DockPanel toolkit:DockPanel.Dock="Top" 
                                Background="{StaticResource TvHeaderBackgroundBrush}"
@@ -117,7 +116,7 @@
 
                 <Border>
                     <Border Background="Transparent" IsHitTestVisible="True"
-                            Margin="8 0 0 0"
+                            Margin="16 0 0 0"
                             >
 
                         <TextBlock Text="{Binding Title}" 

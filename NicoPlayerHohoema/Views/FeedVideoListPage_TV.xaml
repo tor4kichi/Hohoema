@@ -19,138 +19,28 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-          Margin="0 27 0 0"
           >
 
-        <Grid>
-            <toolkit:DockPanel Margin="16 0 0 0">
-
-                <toolkit:DockPanel toolkit:DockPanel.Dock="Top" >
-
-                    <toolkit:DockPanel toolkit:DockPanel.Dock="Right" Margin="0 0 48 0">
-
-
-                        <CommandBar DefaultLabelPosition="Right"
-                                Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                toolkit:DockPanel.Dock="Left"
-                                >
-                            <AppBarButton Label="更新" 
-                                        Icon="Refresh"
-                                Command="{Binding RefreshCommand}"
-                                IsEnabled="{Binding CanChangeSort.Value}"
-                                      
-                                >
-                            </AppBarButton>
-
-                            <AppBarButton Command="{Binding AllMarkAsReadCommand}"
-                                    Background="Transparent"
-                                      Label="全て既読"
-                                    >
-                                <StackPanel Orientation="Horizontal">
-                                    <iconPack:PackIconMaterial Kind="Check" />
-                                </StackPanel>
-                            </AppBarButton>
-
-                            <AppBarButton Command="{Binding OpenFeedGroupPageCommand}"
-                                    Background="Transparent"
-                                    Label="フィード編集"
-                                          Icon="Edit"
-                                    >
-                            </AppBarButton>
-
-                        </CommandBar>
-
-
-                        <CommandBar DefaultLabelPosition="Right"
-                                Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
-                                toolkit:DockPanel.Dock="Left"
-                                >
-
-                            <AppBarButton Command="{Binding RequestCacheDownload}"
-                                      
-                                      IsEnabled="{Binding CanDownload}"
-                                      Label="キャッシュ"
-                                          Icon="Download"
-                                >
-                            </AppBarButton>
-
-
-                            <AppBarButton Command="{Binding RegistratioMylistCommand}"
-                                              Label="マイリストに追加"
-                                              Icon="Add"
-                                      
-                                            >
-                            </AppBarButton>
-
-                            
-                        </CommandBar>
-
-
-
-                        <CommandBar>
-
-
-                            <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                            HorizontalContentAlignment="Stretch"
-                                            VerticalContentAlignment="Stretch"
-                                        HorizontalAlignment="Right"
-                                            Label="選択"
-                                            >
-                                <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"
-                                                       />
-                            </AppBarToggleButton>
-                        </CommandBar>
-                    </toolkit:DockPanel>
-
-                    
-
-                    <Border>
-                        <Border Background="Transparent" IsHitTestVisible="True"
-                            Margin="0 0 0 0"
-                            >
-
-                            <TextBlock Text="{Binding Title}" 
-                                VerticalAlignment="Center"
-                                Style="{StaticResource SubheaderTextBlockStyle}"
-                                >
-
-                            </TextBlock>
-
-                            <i:Interaction.Behaviors>
-                                <core:EventTriggerBehavior EventName="Tapped">
-                                    <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0.0" />
-                                </core:EventTriggerBehavior>
-                            </i:Interaction.Behaviors>
-                        </Border>
-
-                    </Border>
-
-                </toolkit:DockPanel>
-
-
-                
-                <controls:IncrementalLoadingList x:Name="IncrementalLoadingList"
+        <controls:IncrementalLoadingList x:Name="IncrementalLoadingList"
                                                  ItemsSource="{Binding IncrementalLoadingItems}"
                                                  SelectedItems="{Binding SelectedItems, Mode=TwoWay}"
                                                  ItemCommand="{Binding SelectItemCommand}"
                                                  IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
-                                                 Margin="0 0 0 0"
+                                                 Margin="8 0 0 0"
                                                  Padding="0 0 48 0"
                                                  ItemContextFlyout="{StaticResource VideoListItemFlyout}"
                                                  IsTabStop="False"
                                                  >
-                    <controls:IncrementalLoadingList.ItemTemplate>
-                        <DataTemplate>
-                            <Grid Margin="0 0 0 0"
+            <controls:IncrementalLoadingList.ItemTemplate>
+                <DataTemplate>
+                    <Grid Margin="0 0 0 0"
                                   >
 
-                                
-                                
-                                <hohoemalistItem:HohoemaListItemMiniCard />
 
-                                <TextBlock Text="New" 
+
+                        <hohoemalistItem:HohoemaListItemMiniCard />
+
+                        <TextBlock Text="New" 
                                            HorizontalAlignment="Left"
                                            VerticalAlignment="Top"
                                            Visibility="{Binding IsUnread.Value, Converter={StaticResource BooleanToVisibility}}"
@@ -159,22 +49,138 @@
                                            Margin="8 0"
                                        />
 
-                            </Grid>
-                        </DataTemplate>
-                    </controls:IncrementalLoadingList.ItemTemplate>
+                    </Grid>
+                </DataTemplate>
+            </controls:IncrementalLoadingList.ItemTemplate>
 
-                    <controls:IncrementalLoadingList.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <ItemsWrapGrid Orientation="Horizontal"
+            <controls:IncrementalLoadingList.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <ItemsWrapGrid Orientation="Horizontal"
                                            Margin="0 0 0 27"
                                            />
-                        </ItemsPanelTemplate>
-                    </controls:IncrementalLoadingList.ItemsPanel>
+                </ItemsPanelTemplate>
+            </controls:IncrementalLoadingList.ItemsPanel>
 
-                </controls:IncrementalLoadingList>
+        </controls:IncrementalLoadingList>
 
+        
+        <toolkit:DockPanel >
+
+            <toolkit:DockPanel toolkit:DockPanel.Dock="Top" 
+                               Background="{StaticResource TvHeaderBackgroundBrush}"
+                               Margin="0 0 0 32"
+                               >
+
+                <Border toolkit:DockPanel.Dock="Top"
+                        Height="27"
+                        />
+                
+                <toolkit:DockPanel toolkit:DockPanel.Dock="Right" Margin="0 0 48 0">
+
+
+                    <CommandBar DefaultLabelPosition="Right"
+                                Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                toolkit:DockPanel.Dock="Left"
+                                >
+                        <AppBarButton Label="更新" 
+                                        Icon="Refresh"
+                                Command="{Binding RefreshCommand}"
+                                IsEnabled="{Binding CanChangeSort.Value}"
+                                      
+                                >
+                        </AppBarButton>
+
+                        <AppBarButton Command="{Binding AllMarkAsReadCommand}"
+                                    Background="Transparent"
+                                      Label="全て既読"
+                                    >
+                            <StackPanel Orientation="Horizontal">
+                                <iconPack:PackIconMaterial Kind="Check" />
+                            </StackPanel>
+                        </AppBarButton>
+
+                        <AppBarButton Command="{Binding OpenFeedGroupPageCommand}"
+                                    Background="Transparent"
+                                    Label="フィード編集"
+                                          Icon="Edit"
+                                    >
+                        </AppBarButton>
+
+                    </CommandBar>
+
+
+                    <CommandBar DefaultLabelPosition="Right"
+                                Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                                toolkit:DockPanel.Dock="Left"
+                                >
+
+                        <AppBarButton Command="{Binding RequestCacheDownload}"
+                                      
+                                      IsEnabled="{Binding CanDownload}"
+                                      Label="キャッシュ"
+                                          Icon="Download"
+                                >
+                        </AppBarButton>
+
+
+                        <AppBarButton Command="{Binding RegistratioMylistCommand}"
+                                              Label="マイリストに追加"
+                                              Icon="Add"
+                                      
+                                            >
+                        </AppBarButton>
+
+
+                    </CommandBar>
+
+
+
+                    <CommandBar>
+
+
+                        <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            HorizontalContentAlignment="Stretch"
+                                            VerticalContentAlignment="Stretch"
+                                        HorizontalAlignment="Right"
+                                            Label="選択"
+                                            >
+                            <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       />
+                        </AppBarToggleButton>
+                    </CommandBar>
+                </toolkit:DockPanel>
+
+
+
+                <Border>
+                    <Border Background="Transparent" IsHitTestVisible="True"
+                            Margin="16 0 0 0"
+                            >
+
+                        <TextBlock Text="{Binding Title}" 
+                                VerticalAlignment="Center"
+                                Style="{StaticResource SubheaderTextBlockStyle}"
+                                >
+
+                        </TextBlock>
+
+                        <i:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="Tapped">
+                                <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0.0" />
+                            </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
+                    </Border>
+
+                </Border>
 
             </toolkit:DockPanel>
-        </Grid>
+
+
+
+            <Border />
+
+        </toolkit:DockPanel>
     </Grid>
 </Page>
