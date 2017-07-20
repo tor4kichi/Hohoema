@@ -442,22 +442,35 @@ namespace NicoPlayerHohoema.ViewModels
 
 
             // playlist
-            CurrentPlaylistName = new ReactiveProperty<string>(HohoemaApp.Playlist.CurrentPlaylist?.Name);
-            IsShuffleEnabled = HohoemaApp.UserSettings.PlaylistSettings.ToReactivePropertyAsSynchronized(x => x.IsShuffleEnable);
+            CurrentPlaylistName = new ReactiveProperty<string>(HohoemaApp.Playlist.CurrentPlaylist?.Name)
+                .AddTo(_CompositeDisposable);
+            IsShuffleEnabled = HohoemaApp.UserSettings.PlaylistSettings.ToReactivePropertyAsSynchronized(x => x.IsShuffleEnable)
+                .AddTo(_CompositeDisposable);
 
 
-            
+
             IsTrackRepeatModeEnable = HohoemaApp.UserSettings.PlaylistSettings.ObserveProperty(x => x.RepeatMode)
                 .Select(x => x == MediaPlaybackAutoRepeatMode.Track)
-                .ToReactiveProperty();
+                .ToReactiveProperty()
+                .AddTo(_CompositeDisposable);
             IsListRepeatModeEnable = HohoemaApp.UserSettings.PlaylistSettings.ObserveProperty(x => x.RepeatMode)
                 .Select(x => x == MediaPlaybackAutoRepeatMode.List)
-                .ToReactiveProperty();
+                .ToReactiveProperty()
+                .AddTo(_CompositeDisposable);
+
+            HohoemaApp.UserSettings.PlaylistSettings.PropertyChangedAsObservable()
+                .Subscribe(_ => 
+                {
+                    HohoemaApp.UserSettings.PlaylistSettings.Save().ConfigureAwait(false);
+                })
+                .AddTo(_CompositeDisposable);
+
 
             IsTrackRepeatModeEnable.Subscribe(x => 
             {
                 MediaPlayer.IsLoopingEnabled = x;
-            });
+            })
+                .AddTo(_CompositeDisposable);
 
             PlaylistCanGoBack = new ReactiveProperty<bool>(false);
             PlaylistCanGoNext = new ReactiveProperty<bool>(false);
