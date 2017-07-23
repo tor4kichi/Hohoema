@@ -70,7 +70,7 @@ namespace NicoPlayerHohoema.Models
                 return null;
             }
 
-            using (var releaser = await _ThumbnailAccessLock.LockAsync())
+//            using (var releaser = await _ThumbnailAccessLock.LockAsync())
             {
                 ThumbnailResponse res = null;
 

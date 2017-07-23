@@ -32,20 +32,27 @@
                            x:Name="ContentLayout"
                            >
 
-            <Grid Margin="0 0 08 0"
+            <Grid Margin="0 0 8 0"
                   toolkit:DockPanel.Dock="Left"
+                  Width="114"
+                  Height="62"
                   >
                 <uwptoolkit:ImageEx Source="{Binding FirstImageUrl, Mode=OneWay}" 
-                   Height="68"
-                   Width="96"
+                   Width="114"
+                   Height="108"
                        Visibility="{Binding HasImageUrl, Converter={StaticResource BooleanToVisibility}}"
                        Stretch="Uniform"
-                   />
+                                    VerticalContentAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    
+                   >
+                </uwptoolkit:ImageEx>
 
                 <Border Background="{ThemeResource SystemAltMediumColor}"
                         HorizontalAlignment="Right" 
                         VerticalAlignment="Bottom"
                         Visibility="{Binding HasImageCaption, Converter={StaticResource BooleanToVisibility}}"
+                        CornerRadius="4 0 0 0"
                         >
                     <TextBlock Text="{Binding ImageCaption, Mode=OneWay}" 
                                Padding="4 0 3 3" 

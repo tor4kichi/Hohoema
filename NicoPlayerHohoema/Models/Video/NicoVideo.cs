@@ -57,6 +57,7 @@ namespace NicoPlayerHohoema.Models
 
 			_InterfaceByQuality = new Dictionary<NicoVideoQuality, DividedQualityNicoVideo>();
             QualityDividedVideos = new ReadOnlyObservableCollection<DividedQualityNicoVideo>(_QualityDividedVideos);
+            CommentClient = new CommentClient(HohoemaApp, RawVideoId);
         }
 
         public async Task Initialize()
@@ -108,7 +109,7 @@ namespace NicoPlayerHohoema.Models
                 divided = GetDividedQualityNicoVideo(quality.Value);
             }
 
-            if (divided == null || !divided.IsAvailable)
+            if (divided == null || !divided.CanPlay)
             {
                 var cachedQuality = GetAllQuality().Where(x => x.IsCached).FirstOrDefault();
                 if (cachedQuality != null)
@@ -123,11 +124,11 @@ namespace NicoPlayerHohoema.Models
                 {
                     divided = GetDividedQualityNicoVideo(HohoemaApp.UserSettings.PlayerSettings.DefaultQuality);
 
-                    if (!divided.IsAvailable)
+                    if (!divided.CanPlay)
                     {
                         foreach (var dmcQuality in GetAllQuality().Where(x => x.Quality.IsDmc()))
                         {
-                            if (dmcQuality.IsAvailable)
+                            if (dmcQuality.CanPlay)
                             {
                                 divided = dmcQuality;
                                 break;
@@ -135,10 +136,10 @@ namespace NicoPlayerHohoema.Models
                         }
                     }
 
-                    if (divided == null || !divided.IsAvailable)
+                    if (divided == null || !divided.CanPlay)
                     {
                         divided = GetDividedQualityNicoVideo(NicoVideoQuality.Original);
-                        if (!divided.IsAvailable)
+                        if (!divided.CanPlay)
                         {
                             divided = GetDividedQualityNicoVideo(NicoVideoQuality.Low);
                         }
@@ -146,7 +147,7 @@ namespace NicoPlayerHohoema.Models
                 }
             }
 
-            if (divided == null || !divided.IsAvailable)
+            if (divided == null || !divided.CanPlay)
             {
                 throw new NotSupportedException("再生可能な動画品質を見つけられませんでした。");
             }
@@ -472,7 +473,7 @@ namespace NicoPlayerHohoema.Models
                 }
                 IsCommunity = dmcWatchResponse.Video.IsCommunityMemberOnly == "1";
 
-                if (CommentClient == null)
+                if (CommentClient.CommentServerInfo == null)
                 {
                     if (dmcWatchResponse.Video.DmcInfo != null)
                     {
@@ -482,7 +483,8 @@ namespace NicoPlayerHohoema.Models
                             DefaultThreadId = dmcWatchResponse.Video.DmcInfo.Thread.ThreadId,
                             ThreadKeyRequired = dmcWatchResponse.Video.DmcInfo?.Thread.ThreadKeyRequired ?? false
                         };
-                        CommentClient = new CommentClient(HohoemaApp, RawVideoId, commentServerInfo);
+
+                        CommentClient.CommentServerInfo = commentServerInfo;
                     }
                     else
                     {
@@ -498,7 +500,7 @@ namespace NicoPlayerHohoema.Models
                             commentServerInfo.CommunityThreadId = comThreadId;
                         }
 
-                        CommentClient = new CommentClient(HohoemaApp, RawVideoId, commentServerInfo);
+                        CommentClient.CommentServerInfo = commentServerInfo;
                     }
                 }
 
@@ -546,7 +548,7 @@ namespace NicoPlayerHohoema.Models
         internal async Task<Uri> SetupWatchPageVisit(NicoVideoQuality quality)
         {
             var divided = GetDividedQualityNicoVideo(quality);
-            if (divided.IsAvailable)
+            if (divided.CanPlay)
             {
                 var videoUri = await divided.GenerateVideoContentUrl();
                 if (divided.IsCacheRequested)
@@ -953,27 +955,28 @@ namespace NicoPlayerHohoema.Models
     {
         public string RawVideoId { get; }
         public HohoemaApp HohoemaApp { get; }
-        public CommentServerInfo CommentServerInfo { get; }
+        public CommentServerInfo CommentServerInfo { get; set; }
 
         private CommentResponse CachedCommentResponse { get; set; }
 
-        public CommentClient(HohoemaApp hohoemaApp, string rawVideoid, CommentServerInfo serverInfo)
+        public CommentClient(HohoemaApp hohoemaApp, string rawVideoid)
         {
             RawVideoId = rawVideoid;
             HohoemaApp = hohoemaApp;
-            CommentServerInfo = serverInfo;
         }
 
 
         public List<Chat> GetCommentsFromLocal()
         {
             var j = CommentDb.Get(RawVideoId);
-            return j.GetComments();
+            return j?.GetComments();
         }
 
         // コメントのキャッシュまたはオンラインからの取得と更新
         public async Task<List<Chat>> GetComments()
         {
+            if (CommentServerInfo == null) { return new List<Chat>(); }
+
             CommentResponse commentRes = null;
             try
             {
@@ -1030,6 +1033,8 @@ namespace NicoPlayerHohoema.Models
 
         public async Task<PostCommentResponse> SubmitComment(string comment, TimeSpan position, string commands)
         {
+            if (CommentServerInfo == null) { return null; }
+
             var commentRes = CachedCommentResponse;
 
             if (commentRes == null || CommentServerInfo == null)

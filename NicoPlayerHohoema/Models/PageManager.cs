@@ -58,13 +58,14 @@ namespace NicoPlayerHohoema.Models
 			set { SetProperty(ref _PageNavigating, value); }
 		}
 
-        
+        public HohoemaApp HohoemaApp { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; private set; }
         public AppearanceSettings AppearanceSettings { get; }
 
-        public PageManager(INavigationService ns, AppearanceSettings appearanceSettings, HohoemaPlaylist playlist)
+        public PageManager(HohoemaApp hohoemaApp, INavigationService ns, AppearanceSettings appearanceSettings, HohoemaPlaylist playlist)
 		{
-			NavigationService = ns;
+            HohoemaApp = hohoemaApp;
+            NavigationService = ns;
             AppearanceSettings = appearanceSettings;
             HohoemaPlaylist = playlist;
 
@@ -222,7 +223,14 @@ namespace NicoPlayerHohoema.Models
 
         public void OpenStartupPage()
         {
-            OpenPage(AppearanceSettings.StartupPageType);
+            if (HohoemaApp.IsLoggedIn)
+            {
+                OpenPage(AppearanceSettings.StartupPageType);
+            }
+            else
+            {
+                OpenPage(HohoemaPageType.CacheManagement);
+            }
 
             if (Models.AppUpdateNotice.HasNotCheckedUptedeNoticeVersion)
             {

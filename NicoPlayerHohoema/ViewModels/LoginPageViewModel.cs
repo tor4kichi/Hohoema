@@ -77,19 +77,8 @@ namespace NicoPlayerHohoema.ViewModels
                     NowProcessLoggedIn.Value = false;
                 }
             });
-
-
-            SkipLoginCommand = new DelegateCommand(() => 
-            {
-                PageManager.OpenStartupPage();
-
-                PageManager.ClearNavigateHistory();
-            });
         }
 
-
-
-        public DelegateCommand SkipLoginCommand { get; private set; }
 
         protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {

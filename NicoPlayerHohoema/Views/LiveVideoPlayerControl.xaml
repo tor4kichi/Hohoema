@@ -636,9 +636,10 @@
                                                       Y1="0"
                                                       X2="0" 
                                                       Y2="{Binding ElementName=CommentIcon, Path=ActualHeight}"
-                                                  Stroke="DarkRed"
-                                                      StrokeThickness="2"
+                                                  Stroke="Red"
+                                                      StrokeThickness="4"
                                                   Visibility="{Binding IsVisibleComment.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                                  Opacity="0.7"
                                                   />
                                         </Canvas>
                                     </Grid>

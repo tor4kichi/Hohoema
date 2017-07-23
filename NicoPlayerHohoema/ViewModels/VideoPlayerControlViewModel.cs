@@ -508,6 +508,12 @@ namespace NicoPlayerHohoema.ViewModels
 
                     ChangeRequireServiceLevel(HohoemaAppServiceLevel.Offline);
                 }
+                else
+                {
+                    // オフラインでは再生不可
+                    IsNotSupportVideoType = true;
+                    CannotPlayReason = "インターネット接続、及びニコニコ動画サービスへのログインが必要です";
+                }
 
                 // TODO : オフライン再生確定時にコメント投稿の無効化
             }
@@ -609,6 +615,7 @@ namespace NicoPlayerHohoema.ViewModels
             cancelToken.ThrowIfCancellationRequested();
 
 
+
             //            return base.OnOffline(userSessionDisposer, cancelToken);
         }
 
@@ -691,9 +698,6 @@ namespace NicoPlayerHohoema.ViewModels
                 cancelToken.ThrowIfCancellationRequested();
 
 
-                Title = videoInfo.Title;
-                VideoTitle = Title;
-
                 // ビデオタイプとプロトコルタイプをチェックする
 
                 if (videoInfo.ProtocolType != MediaProtocolType.RTSPoverHTTP)
@@ -734,13 +738,12 @@ namespace NicoPlayerHohoema.ViewModels
                 IsFullScreen.Value = true;
             }
 
-
-            IsAvailableDmcHighQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Dmc_High).IsAvailable;
-            IsAvailableDmcMidiumQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Dmc_Midium).IsAvailable;
-            IsAvailableDmcLowQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Dmc_Low).IsAvailable;
-            IsAvailableDmcMobileQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Dmc_Mobile).IsAvailable;
-            IsAvailableLegacyOriginalQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Original).IsAvailable;
-            IsAvailableLegacyLowQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Low).IsAvailable;
+            IsAvailableDmcHighQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Dmc_High).CanPlay;
+            IsAvailableDmcMidiumQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Dmc_Midium).CanPlay;
+            IsAvailableDmcLowQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Dmc_Low).CanPlay;
+            IsAvailableDmcMobileQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Dmc_Mobile).CanPlay;
+            IsAvailableLegacyOriginalQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Original).CanPlay;
+            IsAvailableLegacyLowQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Low).CanPlay;
 
 
             cancelToken.ThrowIfCancellationRequested();
@@ -847,65 +850,58 @@ namespace NicoPlayerHohoema.ViewModels
             Video?.StopPlay();
 
             // サポートされたメディアの再生
-            if (Video.CanGetVideoStream())
-			{
-                CurrentState.Value = MediaPlaybackState.Opening;
+            CurrentState.Value = MediaPlaybackState.Opening;
 
-                try
-                {
-                    CurrentVideoQuality.Value = await Video.StartPlay(RequestVideoQuality.Value, _PreviosPlayingVideoPosition);
-                }
-                catch (NotSupportedException ex)
-                {
-                    IsNotSupportVideoType = true;
-                    CannotPlayReason = ex.Message;
-                    CurrentState.Value = MediaPlaybackState.None;
-
-                    VideoPlayed(canPlayNext: true);
-
-                    return;
-                }
-
-
-
-                if (IsDisposed)
-				{
-                    Video?.StopPlay();
-					return;
-				}
-
-				var isCurrentQualityCacheDownloadCompleted = false;
-				switch (CurrentVideoQuality.Value)
-				{
-					case NicoVideoQuality.Original:
-						IsSaveRequestedCurrentQualityCache.Value = Video.OriginalQuality.IsCacheRequested;
-						isCurrentQualityCacheDownloadCompleted = Video.OriginalQuality.IsCached;
-						break;
-					case NicoVideoQuality.Low:
-						IsSaveRequestedCurrentQualityCache.Value = Video.LowQuality.IsCacheRequested;
-						isCurrentQualityCacheDownloadCompleted = Video.LowQuality.IsCached;
-						break;
-					default:
-						IsSaveRequestedCurrentQualityCache.Value = false;
-						break;
-				}
-
-				if (isCurrentQualityCacheDownloadCompleted)
-				{
-					// CachedStreamを使わずに直接ファイルから再生している場合
-					// キャッシュ済みとして表示する
-					IsPlayWithCache.Value = true;
-				}
-				else
-				{ 
-					// 完全なオンライン再生
-					IsPlayWithCache.Value = false;
-				}
-			}
-			else 
+            try
             {
-                throw new Exception();
+                CurrentVideoQuality.Value = await Video.StartPlay(RequestVideoQuality.Value, _PreviosPlayingVideoPosition);
             }
+            catch (NotSupportedException ex)
+            {
+                IsNotSupportVideoType = true;
+                CannotPlayReason = ex.Message;
+                CurrentState.Value = MediaPlaybackState.None;
+
+                VideoPlayed(canPlayNext: true);
+
+                return;
+            }
+
+
+
+            if (IsDisposed)
+			{
+                Video?.StopPlay();
+				return;
+			}
+
+			var isCurrentQualityCacheDownloadCompleted = false;
+			switch (CurrentVideoQuality.Value)
+			{
+				case NicoVideoQuality.Original:
+					IsSaveRequestedCurrentQualityCache.Value = Video.OriginalQuality.IsCacheRequested;
+					isCurrentQualityCacheDownloadCompleted = Video.OriginalQuality.IsCached;
+					break;
+				case NicoVideoQuality.Low:
+					IsSaveRequestedCurrentQualityCache.Value = Video.LowQuality.IsCacheRequested;
+					isCurrentQualityCacheDownloadCompleted = Video.LowQuality.IsCached;
+					break;
+				default:
+					IsSaveRequestedCurrentQualityCache.Value = false;
+					break;
+			}
+
+			if (isCurrentQualityCacheDownloadCompleted)
+			{
+				// CachedStreamを使わずに直接ファイルから再生している場合
+				// キャッシュ済みとして表示する
+				IsPlayWithCache.Value = true;
+			}
+			else
+			{ 
+				// 完全なオンライン再生
+				IsPlayWithCache.Value = false;
+			}
 
             
             MediaPlayer.PlaybackSession.PlaybackRate = 
@@ -1099,6 +1095,8 @@ namespace NicoPlayerHohoema.ViewModels
 
             Video = videoInfo;
 
+            Title = Video.Title;
+            VideoTitle = Title;
             VideoLength.Value = Video.VideoLength.TotalSeconds;
             CurrentVideoPosition.Value = TimeSpan.Zero;
 
@@ -1211,13 +1209,15 @@ namespace NicoPlayerHohoema.ViewModels
         {
             Comments.Clear();
 
-            if (Video.CommentClient == null) { return; }
-
             List<Chat> comments = null;
 
             try
             {
                 comments = await Video.CommentClient.GetComments();
+                if (comments == null || comments.Count == 0)
+                {
+                    comments = Video.CommentClient.GetCommentsFromLocal();
+                }
             }
             catch
             {
