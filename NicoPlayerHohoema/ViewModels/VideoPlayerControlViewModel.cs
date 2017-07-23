@@ -508,6 +508,12 @@ namespace NicoPlayerHohoema.ViewModels
 
                     ChangeRequireServiceLevel(HohoemaAppServiceLevel.Offline);
                 }
+                else
+                {
+                    // オフラインでは再生不可
+                    IsNotSupportVideoType = true;
+                    CannotPlayReason = "インターネット接続、及びニコニコ動画サービスへのログインが必要です";
+                }
 
                 // TODO : オフライン再生確定時にコメント投稿の無効化
             }

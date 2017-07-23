@@ -1323,7 +1323,7 @@
                             <!-- サポートされていないプロトコル・動画形式 -->
                             <Border HorizontalAlignment="Left"
                                   VerticalAlignment="Top"
-                                  Margin="24 88"
+                                  Margin="0 88"
                                   Visibility="{Binding IsNotSupportVideoType, Converter={StaticResource BooleanToVisibility}}"
                                   Background="{StaticResource AppBarItemPointerOverBackgroundThemeBrush}"
                                 Padding="16"
@@ -1338,7 +1338,7 @@
                                         />
 
                                     <StackPanel>
-                                        <TextBlock Text="この動画はHohoemaでは対応していません"
+                                        <TextBlock Text="動画を再生できません"
                                                    VerticalAlignment="Center"    
                                                    Style="{StaticResource SubtitleTextBlockStyle}"
                                                    Margin="0 0 0 8"
