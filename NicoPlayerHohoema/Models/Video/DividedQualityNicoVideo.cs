@@ -66,13 +66,7 @@ namespace NicoPlayerHohoema.Models
         public bool IsReadyOfflinePlay { get; private set; }
 
 
-		
-		/// <summary>
-		/// このクオリティは利用可能か
-		/// (オリジナル画質しか存在しない動画の場合、true)
-		/// </summary>
-		public abstract bool IsAvailable { get; }
-
+	
 		public DividedQualityNicoVideo(NicoVideoQuality quality, NicoVideo nicoVideo, NiconicoMediaManager mediaManager)
 		{
 			Quality = quality;
@@ -209,7 +203,7 @@ namespace NicoPlayerHohoema.Models
 
         public async Task RequestCache(bool forceUpdate = false)
 		{
-            if (!IsAvailable) { return; }
+            if (!CanDownload) { return; }
 
             var isCacheFileExist = false;
             using (var releaser = await _Lock.LockAsync())
@@ -441,15 +435,7 @@ namespace NicoPlayerHohoema.Models
 				return VideoFileNameBase + ".low.mp4";
 			}
 		}
-
-
-		public override bool IsAvailable
-		{
-			get
-			{
-				return !NicoVideo.IsOriginalQualityOnly;
-			}
-		}
+      
 
 
 		public override bool CanDownload
@@ -463,7 +449,7 @@ namespace NicoPlayerHohoema.Models
 				if (CacheState == NicoVideoCacheState.Cached) { return false; }
 
 				// オリジナル画質しか存在しない動画
-				if (!IsAvailable)
+				if (NicoVideo.IsOriginalQualityOnly)
 				{
 					return false;
 				}
@@ -510,14 +496,15 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
-        public override bool IsAvailable
+        public override bool CanDownload
         {
             get
             {
-                if (NicoVideo.NowLowQualityOnly)
-                {
-                    return false;
-                }
+                // インターネット繋がってるか
+                if (!Util.InternetConnection.IsInternet()) { return false; }
+
+                // キャッシュ済みじゃないか
+                if (CacheState == NicoVideoCacheState.Cached) { return false; }
 
                 if (!NicoVideo.IsOriginalQualityOnly)
                 {
@@ -530,31 +517,6 @@ namespace NicoPlayerHohoema.Models
                     {
                         return false;
                     }
-                }
-
-                return true;
-            }
-        }
-
-
-        public override bool CanDownload
-        {
-            get
-            {
-                // インターネット繋がってるか
-                if (!Util.InternetConnection.IsInternet()) { return false; }
-
-                // キャッシュ済みじゃないか
-                if (CacheState == NicoVideoCacheState.Cached) { return false; }
-
-                if (!IsAvailable)
-                {
-                    return false;
-                }
-
-                if (NicoVideo.IsOriginalQualityOnly)
-                {
-                    return true;
                 }
 
                 // オリジナル画質DL可能時間帯か
@@ -677,7 +639,7 @@ namespace NicoPlayerHohoema.Models
         }
 
         private bool _IsAvailable = false;
-        public override bool IsAvailable
+        public bool IsAvailable
         {
             get
             {
