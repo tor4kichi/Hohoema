@@ -229,13 +229,6 @@
 
 
         <Grid x:Name="SubLayout">
-            <HyperlinkButton Content="ログインをスキップ →" 
-                         Command="{Binding SkipLoginCommand}"
-                         HorizontalAlignment="Right"
-                         VerticalAlignment="Top"
-                         Margin="16 8"
-                         FontSize="18"
-                         />
 
             <StackPanel HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
