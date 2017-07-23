@@ -557,7 +557,7 @@ namespace NicoPlayerHohoema
 			var hohoemaApp = await HohoemaApp.Create(EventAggregator);
 
             Container.RegisterInstance(hohoemaApp);
-			Container.RegisterInstance(new PageManager(NavigationService, hohoemaApp.UserSettings.AppearanceSettings, hohoemaApp.Playlist));
+			Container.RegisterInstance(new PageManager(hohoemaApp, NavigationService, hohoemaApp.UserSettings.AppearanceSettings, hohoemaApp.Playlist));
 			Container.RegisterInstance(hohoemaApp.ContentFinder);
             Container.RegisterInstance(hohoemaApp.Playlist);
             Container.RegisterInstance(hohoemaApp.OtherOwneredMylistManager);
