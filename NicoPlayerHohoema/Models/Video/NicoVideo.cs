@@ -473,7 +473,7 @@ namespace NicoPlayerHohoema.Models
                 }
                 IsCommunity = dmcWatchResponse.Video.IsCommunityMemberOnly == "1";
 
-                if (CommentClient == null)
+                if (CommentClient.CommentServerInfo == null)
                 {
                     if (dmcWatchResponse.Video.DmcInfo != null)
                     {
