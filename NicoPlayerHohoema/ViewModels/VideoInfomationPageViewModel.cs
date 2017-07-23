@@ -44,6 +44,27 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<bool> NowLoading { get; private set; }
         public ReactiveProperty<bool> IsLoadFailed { get; private set; }
 
+
+
+        public bool IsSelfZoningContent { get; private set; }
+        public NGResult SelfZoningInfo { get; private set; }
+
+        
+        private DelegateCommand _OpenFilterSettingPageCommand;
+        public DelegateCommand OpenFilterSettingPageCommand
+        {
+            get
+            {
+                return _OpenFilterSettingPageCommand
+                    ?? (_OpenFilterSettingPageCommand = new DelegateCommand(() =>
+                    {
+                        PageManager.OpenPage(HohoemaPageType.Settings, HohoemaSettingsKind.Filtering.ToString());
+                    }
+                    ));
+            }
+        }
+
+
         private DelegateCommand _OpenOwnerUserPageCommand;
         public DelegateCommand OpenOwnerUserPageCommand
         {
@@ -382,6 +403,11 @@ namespace NicoPlayerHohoema.ViewModels
                 }
 
 
+                SelfZoningInfo = Video.CheckUserNGVideo();
+                IsSelfZoningContent = SelfZoningInfo != null;
+
+                OnPropertyChanged(nameof(SelfZoningInfo));
+                OnPropertyChanged(nameof(IsSelfZoningContent));
             }
             finally
             {

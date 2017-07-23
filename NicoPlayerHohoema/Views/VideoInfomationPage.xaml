@@ -96,6 +96,38 @@
 
                     <StackPanel Margin="16">
 
+                        <Border Visibility="{Binding IsSelfZoningContent, Converter={StaticResource BooleanToVisibility}}" 
+                                    Margin="0 16"
+                                Padding="16"
+                                    BorderBrush="DarkRed"
+                                    BorderThickness="2"
+                                >
+                            <toolkit:WrapPanel Orientation="Horizontal"
+                                          
+                                    >
+                                <StackPanel Orientation="Horizontal">
+
+                                    <iconPack:PackIconMaterial Kind="Information"  Margin="0 0 16 0" Width="32" Height="32"
+                                                               VerticalAlignment="Center"
+                                                               />
+
+                                    <TextBlock FontSize="20" Margin="0 0 0 8">
+                                    <Run Text="この動画は除外指定されています" />
+                                    <LineBreak />
+                                    <Run Text="{Binding SelfZoningInfo.NGReason}" />
+                                    <Run Text=":" />
+                                    <Run Text="{Binding SelfZoningInfo.Content}" />
+                                    <Run Text="{Binding SelfZoningInfo.Description}" />
+                                    </TextBlock>
+                                </StackPanel>
+
+                                <Button Content="除外設定を確認する"
+                                    Command="{Binding OpenFilterSettingPageCommand}"
+                                        Margin="0 0 0 0"
+                                    />
+                            </toolkit:WrapPanel>
+                        </Border>
+
 
                         <TextBlock Text="{Binding VideoTitle}" Style="{StaticResource TitleTextBlockStyle}"
                                     TextWrapping="Wrap"
