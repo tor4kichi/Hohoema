@@ -39,6 +39,18 @@
 
                         <hohoemalistItem:HohoemaListItemMiniCard />
 
+                        <Border Visibility="{Binding IsCommunityMemberOnly, Converter={StaticResource BooleanToVisibility}}"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Top"
+                                        Background="DarkGreen"
+                                        CornerRadius="0 0 0 4"
+                                        >
+                            <TextBlock Text="限定" Foreground="LightGray"
+                                       FontSize="18"
+                                               Margin="8"
+                                       />
+                        </Border>
+
                     </Grid>
                 </DataTemplate>
             </controls:IncrementalLoadingList.ItemTemplate>
