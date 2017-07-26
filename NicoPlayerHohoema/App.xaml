@@ -76,6 +76,7 @@
 
             
             <controls:VideoListItemFlyout x:Key="VideoListItemFlyout" />
+            <controls:LiveListItemFlyout x:Key="LiveListItemFlyout" />
 
 
 
