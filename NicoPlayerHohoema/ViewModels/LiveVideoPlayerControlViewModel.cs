@@ -628,11 +628,20 @@ namespace NicoPlayerHohoema.ViewModels
 					}
 					catch { }
 
+                    
+                    
 					//x.GetVposでサーバー上のコメント位置が取れるが、
 					// 受け取った順で表示したいのでローカルの放送時間からコメント位置を割り当てる
 					comment.VideoPosition = (uint)(LiveElapsedTime.TotalMilliseconds * 0.1);
-					// EndPositionはコメントレンダラが再計算するが、仮置きしないと表示対象として処理されない
-					comment.EndPosition = comment.VideoPosition + 1000;
+
+                    if (x.GetVpos() < (comment.VideoPosition - 200))
+                    {
+                        Debug.WriteLine("古いコメントのため非表示 : " + comment.CommentText);
+                        comment.IsVisible = false;
+                    }
+
+                    // EndPositionはコメントレンダラが再計算するが、仮置きしないと表示対象として処理されない
+                    comment.EndPosition = comment.VideoPosition + 1000;
 
 					comment.ApplyCommands(x.GetCommandTypes());
 
