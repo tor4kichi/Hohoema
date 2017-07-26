@@ -716,9 +716,6 @@ namespace NicoPlayerHohoema.Models.Live
 				CommentCount = commentCount;
 				WatchCount = watchCount;
 			});
-
-            await HohoemaApp.NiconicoContext.HttpClient.GetAsync(new Uri($"http://live.nicovideo.jp/api/relive/livetag/{LiveId}/revision"));
-            await HohoemaApp.NiconicoContext.HttpClient.GetAsync(new Uri($"http://live.nicovideo.jp/api/relive/notifybox.unread"));
         }
 
 
