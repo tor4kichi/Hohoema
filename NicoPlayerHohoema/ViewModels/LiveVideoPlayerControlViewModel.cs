@@ -100,9 +100,6 @@ namespace NicoPlayerHohoema.ViewModels
 		public NicoLiveVideo NicoLiveVideo { get; private set; }
 
 
-
-		public ReactiveProperty<object> VideoStream { get; private set; }
-
 		public ReadOnlyReactiveCollection<Views.Comment> LiveComments { get; private set; }
 
 
@@ -130,10 +127,11 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<uint> CommentCount { get; private set; }
 		public ReactiveProperty<uint> WatchCount { get; private set; }
 
-		// comment
+        public ReactiveProperty<LivePlayerType?> LivePlayerType { get; private set; }
+        // comment
 
-		
-		public ReactiveProperty<bool> IsVisibleComment { get; private set; }
+
+        public ReactiveProperty<bool> IsVisibleComment { get; private set; }
 		public ReactiveProperty<int> CommentRenderFPS { get; private set; }
 		public ReactiveProperty<TimeSpan> RequestCommentDisplayDuration { get; private set; }
 		public ReactiveProperty<double> CommentFontScale { get; private set; }
@@ -196,15 +194,14 @@ namespace NicoPlayerHohoema.ViewModels
 
             MediaPlayer = HohoemaApp.MediaPlayer;
 
-            VideoStream = new ReactiveProperty<object>();
 
             CurrentState = new ReactiveProperty<MediaElementState>();
-            NowPlaying = VideoStream.Select(x => x != null)
-				.ToReactiveProperty();
+            NowPlaying = new ReactiveProperty<bool>(false);
 
 			NowUpdating = new ReactiveProperty<bool>(false);
+            LivePlayerType = new ReactiveProperty<Models.Live.LivePlayerType?>();
 
-			IsVisibleComment = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, true).AddTo(_CompositeDisposable);
+            IsVisibleComment = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, true).AddTo(_CompositeDisposable);
 
 			CommentCanvasHeight = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0.0).AddTo(_CompositeDisposable);
 			CommentDefaultColor = new ReactiveProperty<Color>(PlayerWindowUIDispatcherScheduler, Colors.White).AddTo(_CompositeDisposable);
@@ -382,7 +379,7 @@ namespace NicoPlayerHohoema.ViewModels
 					{
 						if (await TryUpdateLiveStatus())
 						{
-							await NicoLiveVideo.RetryRtmpConnection();
+							await NicoLiveVideo.Refresh();
 
 							// 配信終了１分前であれば次枠検出をスタートさせる
 							if (DateTime.Now > _EndAt - TimeSpan.FromMinutes(1))
@@ -607,16 +604,9 @@ namespace NicoPlayerHohoema.ViewModels
 			if (LiveId != null)
 			{
 				NicoLiveVideo = new NicoLiveVideo(LiveId, HohoemaApp);
-				NicoLiveVideo.ObserveProperty(x => x.VideoStreamSource)
-					.Subscribe(x =>
-					{
-						VideoStream.Value = x;
-					})
-					.AddTo(_NavigatingCompositeDisposable);
 
 				NowConnecting = Observable.CombineLatest(
-					NicoLiveVideo.ObserveProperty(x => x.VideoStreamSource).Select(x => x == null),
-					NicoLiveVideo.ObserveProperty(x => x.LiveStatusType).Select(x => x == null)
+					NicoLiveVideo.ObserveProperty(x => x.LiveStatusType).Select(x => x != null)
 					)
 					.Select(x => x.All(y => y))
 					.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
@@ -711,7 +701,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             MediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
 
-            VideoStream.Value = null;
 			DisplayRequestHelper.StopKeepDisplay();
 			IsFullScreen.Value = false;
 			StopLiveElapsedTimer().ConfigureAwait(false);
@@ -747,6 +736,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 				if (liveStatus == null)
 				{
+                    LivePlayerType.Value = NicoLiveVideo.LivePlayerType;
+
+                    OnPropertyChanged(nameof(MediaPlayer));
 					_StartAt = NicoLiveVideo.PlayerStatusResponse.Program.StartedAt;
 					_EndAt = NicoLiveVideo.PlayerStatusResponse.Program.EndedAt;
 
@@ -783,7 +775,6 @@ namespace NicoPlayerHohoema.ViewModels
 				else
 				{
 					Debug.WriteLine("生放送情報の取得失敗しました "  + LiveId);
-					VideoStream.Value = null;
 				}
 
 				ResetSuggestion(liveStatus);
@@ -849,7 +840,6 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 				else
 				{
-					VideoStream.Value = null;
 				}
 			}
 			catch (Exception ex)

@@ -207,6 +207,27 @@
                 </VisualState>
             </VisualStateGroup>
 
+
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <myTrigger:EqualConditionStateTrigger Value="{Binding LivePlayerType.Value}" Condition="Leo" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PlayerTypeTextBlock.Text" Value="新配信" />
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <myTrigger:EqualConditionStateTrigger Value="{Binding LivePlayerType.Value}" Condition="Aries" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PlayerTypeTextBlock.Text" Value="Flash" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
         </VisualStateManager.VisualStateGroups>
 
         <toolkit:LayoutTransformControl
@@ -255,14 +276,13 @@
 
                 <MediaPlayerElement x:Name="mediaElem"
                                   AutoPlay="True"
+                                  
                             >
                     <i:Interaction.Behaviors>
 
-                        <mybehavior:MediaPlayerSetter MediaPlayer="{Binding MediaPlayer}" />
-
+                        <mybehavior:MediaPlayerSetter MediaPlayer="{Binding MediaPlayer, Mode=OneWay}" />
                         <mybehavior:MediaPlayerElementContentHeightGetter ContentHeight="{Binding CommentCanvasHeight.Value, Mode=TwoWay}"
                                                                             />
-
                         <!-- 再生開始時にUIを非表示に-->
                         <!--
                         <core:DataTriggerBehavior Binding="{Binding CurrentState.Value}" ComparisonCondition="Equal" Value="Opening">
@@ -511,6 +531,13 @@
                                             toolkit:DockPanel.Dock="Right"
                                             Margin="0 0 16 0"
                                             >
+                                    <TextBlock Text=""
+                                               x:Name="PlayerTypeTextBlock"
+                                               Margin="16 0"
+                                               Opacity="0.5"
+                                               VerticalAlignment="Center"
+                                               />
+
                                     <TextBlock VerticalAlignment="Center"
                                                 Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                 FontSize="18"
