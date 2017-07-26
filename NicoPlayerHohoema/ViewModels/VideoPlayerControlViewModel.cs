@@ -1,6 +1,5 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Videos.Comment;
-using Mntone.Nico2.Videos.Flv;
 using Mntone.Nico2.Videos.Thumbnail;
 using Mntone.Nico2.Videos.WatchAPI;
 using NicoPlayerHohoema.Models;
@@ -705,14 +704,6 @@ namespace NicoPlayerHohoema.ViewModels
                     // サポートしていないプロトコルです
                     IsNotSupportVideoType = true;
                     CannotPlayReason = videoInfo.ProtocolType.ToString() + " はHohoemaでサポートされないデータ通信形式です";
-
-                    VideoPlayed(canPlayNext: true);
-                }
-                else if (videoInfo.ContentType == MovieType.Flv)
-                {
-                    // サポートしていない動画タイプです
-                    IsNotSupportVideoType = true;
-                    CannotPlayReason = videoInfo.ContentType.ToString() + " はHohoemaでサポートされない動画形式です";
 
                     VideoPlayed(canPlayNext: true);
                 }

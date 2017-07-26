@@ -93,6 +93,10 @@ namespace NicoPlayerHohoema.Models
 
         #region Playback
 
+
+        FFmpegInteropMSS _VideoMSS;
+        MediaSource _MediaSource;
+
         /// <summary>
 		/// 動画ストリームの取得します
 		/// 他にダウンロードされているアイテムは強制的に一時停止し、再生終了後に再開されます
@@ -223,18 +227,15 @@ namespace NicoPlayerHohoema.Models
             }
             else
             {
-                if (!divided.IsCached)
-                {
-                    throw new NotSupportedException($"この動画は{ContentType}形式です。動画形式がmp4以外の場合はHohoemaでの再生をサポートしていません。（動画がキャッシュ済みの場合、サポート外動画形式でも再生を試行します。）");
-                }
+                _VideoMSS?.Dispose();
 
-                var mss = FFmpegInteropMSS.CreateFFmpegInteropMSSFromStream(NicoVideoCachedStream, false, true);
+                _VideoMSS = FFmpegInteropMSS.CreateFFmpegInteropMSSFromStream(NicoVideoCachedStream, false, false);
 
-                if (mss != null)
+                if (_VideoMSS != null)
                 {
-                    var realMss = mss.GetMediaStreamSource();
-                    realMss.SetBufferedRange(TimeSpan.Zero, TimeSpan.Zero);
-                    mediaSource = MediaSource.CreateFromMediaStreamSource(realMss);
+                    var mss = _VideoMSS.GetMediaStreamSource();
+                    mss.SetBufferedRange(TimeSpan.Zero, TimeSpan.Zero);
+                    mediaSource = MediaSource.CreateFromMediaStreamSource(mss);
                 }
                 else
                 {
@@ -246,6 +247,8 @@ namespace NicoPlayerHohoema.Models
             {
                 HohoemaApp.MediaPlayer.Source = mediaSource;
                 HohoemaApp.MediaPlayer.PlaybackSession.Position = initialPosition.Value;
+
+                _MediaSource = mediaSource;
 
                 var smtc = HohoemaApp.MediaPlayer.SystemMediaTransportControls;
 
@@ -271,6 +274,11 @@ namespace NicoPlayerHohoema.Models
         {
             HohoemaApp.MediaPlayer.Pause();
             HohoemaApp.MediaPlayer.Source = null;
+
+            _VideoMSS?.Dispose();
+            _VideoMSS = null;
+            _MediaSource?.Dispose();
+            _MediaSource = null;
 
             foreach (var div in GetAllQuality())
             {
