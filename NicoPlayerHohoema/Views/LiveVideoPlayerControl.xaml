@@ -449,7 +449,7 @@
                         </Border>
 
                         <StackPanel x:Name="TitleLayout" Background="{ThemeResource SystemAltMediumColor}">
-                            <TextBlock Text="{Binding Title}" FontSize="24" Margin="8" HorizontalAlignment="Center" TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding LiveTitle}" FontSize="24" Margin="8" HorizontalAlignment="Center" TextWrapping="Wrap" />
 
                             <i:Interaction.Behaviors>
                                 <core:EventTriggerBehavior EventName="Tapped">
