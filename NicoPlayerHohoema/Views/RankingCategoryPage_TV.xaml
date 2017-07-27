@@ -38,7 +38,7 @@
                                   >
 
 
-                        <hohoemalistItem:HohoemaListItemMiniCard />
+                        <controls:VideoInfoControl_TV />
 
                         <Grid >
                             <TextBlock Text="{Binding Rank, Mode=OneTime}" 

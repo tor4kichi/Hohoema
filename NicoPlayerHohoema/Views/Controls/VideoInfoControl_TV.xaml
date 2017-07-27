@@ -1,8 +1,8 @@
 ﻿<UserControl
-    x:Class="NicoPlayerHohoema.Views.VideoInfoControl"
+    x:Class="NicoPlayerHohoema.Views.Controls.VideoInfoControl_TV"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:local="using:NicoPlayerHohoema.Views.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:view="using:NicoPlayerHohoema.Views"
@@ -12,8 +12,9 @@
     xmlns:behavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:uwpUI="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:mycontrol="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:hohoemalistitem="using:NicoPlayerHohoema.Views.HohoemaListItem"
     mc:Ignorable="d"
-    d:DesignHeight="60"
+    d:DesignHeight="300"
     d:DesignWidth="400">
 
     <UserControl.Resources>
@@ -27,7 +28,7 @@
                             
             -->
             <Border>
-                <TextBlock Text="{Binding Quality, Converter={StaticResource QualityToText}}"
+                <TextBlock 
                             Visibility="{Binding IsNotCacheRequested.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                            Foreground="{Binding CacheState.Value, Converter={StaticResource CacheStateToColorBrush}}"
                             FontSize="13"
@@ -35,10 +36,12 @@
                             VerticalAlignment="Center"
                             x:Name="QualityText"
                             >
+                    <Run Text="{Binding Quality, Converter={StaticResource QualityToText}}" />
                 </TextBlock>
             </Border>
         </DataTemplate>
     </UserControl.Resources>
+    
     <Grid>
 
         <VisualStateManager.VisualStateGroups>
@@ -54,10 +57,10 @@
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-        
-        
+
+
         <toolkit:DockPanel>
-            
+
 
             <Border toolkit:DockPanel.Dock="Bottom" >
 
@@ -76,42 +79,50 @@
                             キャッシュ済み -> 緑色
                             
                             -->
-                            <toolkit:DockPanel Visibility="{Binding IsCacheDownloading.Value, Converter={StaticResource BooleanToVisibility}}"
-                               Margin="8 4"
-                               >
-                                <TextBlock toolkit:DockPanel.Dock="Left" 
-                                           Margin="8 0"
-                                           FontSize="12"
-                                           VerticalAlignment="Center"
-                                                >
-                                    <Run Text="{Binding Quality}" />
-                                </TextBlock>
-                                
-                                <TextBlock toolkit:DockPanel.Dock="Right" 
-                                           Margin="8 0 0 0"
-                                           FontSize="12"
-                                           VerticalAlignment="Center"
-                                                >
-                                    <Run Text="{Binding ProgressPercent.Value}" />
-                                    <Run Text="%" />
-                                </TextBlock>
-                                
-                                
+                            <Grid Visibility="{Binding IsCacheDownloading.Value, Converter={StaticResource BooleanToVisibility}}">
                                 <ProgressBar Maximum="100.0" 
                                      Minimum="0.0" 
                                      Value="{Binding ProgressPercent.Value}"
+                                             Height="24"
                                      />
+                                <toolkit:DockPanel 
+                               Margin="8 4"
+                               >
+                                    <TextBlock toolkit:DockPanel.Dock="Left" 
+                                           Margin="8 0"
+                                           FontSize="14"
+                                           VerticalAlignment="Center"
+                                                >
+                                        <Run Text="{Binding Quality, Converter={StaticResource QualityToText}}" />画質
+                                    </TextBlock>
+
+                                    <TextBlock toolkit:DockPanel.Dock="Right" 
+                                           Margin="8 0 0 0"
+                                           FontSize="14"
+                                           VerticalAlignment="Center"
+                                                >
+                                        <Run Text="{Binding ProgressPercent.Value}" />%
+                                    </TextBlock>
 
 
-                            </toolkit:DockPanel>
+
+
+                                    <Border />
+
+                                </toolkit:DockPanel>
+
+                            </Grid>
+                            
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                
+
             </Border>
 
             <Grid >
+
+                <hohoemalistitem:HohoemaListItemMiniCard />
 
                 <ItemsControl ItemsSource="{Binding QualityDividedVideos}"
                               ItemTemplate="{StaticResource QualityVideoTemplate}"
@@ -119,6 +130,13 @@
                               VerticalAlignment="Bottom"
                               IsTabStop="False"
                               >
+                    <!--
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ContentPresenter">
+                            <Setter Property="Margin" Value="8 0 0 0" />
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+                    -->
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel Orientation="Horizontal" />
@@ -127,18 +145,17 @@
                 </ItemsControl>
 
 
-                <mycontrol:HohoemaListItem />
 
             </Grid>
 
-            
+
         </toolkit:DockPanel>
 
 
 
         <!-- 削除済み動画 -->
         <Grid x:Name="DeletedPanel" Background="#60ffffff" Visibility="Collapsed">
-            
+
             <!-- キャッシュリクエストしていない、または削除確認済み -->
             <StackPanel VerticalAlignment="Center" Visibility="{Binding IsCacheRequested.Value, Converter={StaticResource BooleanToVisibility}}">
 
@@ -159,9 +176,8 @@
             </StackPanel>
         </Grid>
 
-        
+
 
     </Grid>
-    
-    
+
 </UserControl>

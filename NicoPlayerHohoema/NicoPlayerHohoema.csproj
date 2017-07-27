@@ -311,6 +311,9 @@
     <Compile Include="Views\Controls\LiveListItemFlyout.xaml.cs">
       <DependentUpon>LiveListItemFlyout.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Controls\VideoInfoControl_TV.xaml.cs">
+      <DependentUpon>VideoInfoControl_TV.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Converters\CommentOpacityKindConverter.cs" />
     <Compile Include="Views\Converters\HohoemaPageTypeToTextConverter.cs" />
     <Compile Include="Views\Converters\Live2QualityTypeToText.cs" />
@@ -810,6 +813,10 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Page>
     <Page Include="Views\Controls\LiveListItemFlyout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\VideoInfoControl_TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
