@@ -164,56 +164,57 @@ namespace NicoPlayerHohoema.Models.Live
                 }
             }
 
-            var param = (dynamic)Newtonsoft.Json.JsonConvert.DeserializeObject(recievedText);
+            var param = (JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(recievedText);
 
-            if (param.type == "watch")
+            var type = (string)param["type"];
+            if (type == "watch")
             {
-                var body = param.body;
-                var command = (string)body.command;
+                var body = (JObject)param["body"];
+                var command = (string)body["command"];
                 switch (command)
                 {
                     case "servertime":
                         
-                        var paramItems = body["params"];
+                        var paramItems = (JArray)body["params"];
                         var serverTimeString = paramItems[0].ToString();
                         var serverTimeTick = long.Parse(serverTimeString);
                         var serverTime = DateTime.FromBinary(serverTimeTick);
                         RecieveServerTime?.Invoke(serverTime);
                         break;
                     case "permit":
-                        var permit = body["params"][0];
+                        var permit = (string)(((JArray)body["params"])[0]);
                         RecievePermit?.Invoke(permit);
                         break;
                     case "currentstream":
 
-                        var current_stream = body.currentStream;
+                        var current_stream = (JObject)body["currentStream"];
                         var currentStreamArgs = new Live2CurrentStreamEventArgs()
                         {
-                            Uri = current_stream.uri,
-                            Name = current_stream.name,
-                            Quality = current_stream.quality,
-                            QualityTypes = ((JToken)current_stream.qualityTypes).Select(x => x.ToString()).ToArray(),
-                            MediaServerType = current_stream.mediaServerType,
-                            MediaServerAuth = current_stream.mediaServerAuth,
-                            StreamingProtocol = current_stream.streamingProtocol
+                            Uri = (string)current_stream["uri"],
+                            Name = (string)current_stream["name"],
+                            Quality = (string)current_stream["quality"],
+                            QualityTypes = ((JArray)current_stream["qualityTypes"]).Select(x => x.ToString()).ToArray(),
+                            MediaServerType = (string)current_stream["mediaServerType"],
+                            MediaServerAuth = (string)current_stream["mediaServerAuth"],
+                            StreamingProtocol = (string)current_stream["streamingProtocol"]
                         };
                         RecieveCurrentStream?.Invoke(currentStreamArgs);
                         break;
                     case "currentroom":
-                        var room = body.room;
+                        var room = (JObject)body["room"];
                         var currentRoomArgs = new Live2CurrentRoomEventArgs()
                         {
-                            MessageServerUrl = room.messageServerUri,
-                            MessageServerType = room.messageServerType,
-                            RoomName = room.roomName,
-                            ThreadId = room.threadId,
-                            Forks = ((JToken)room.forks).Select(x => (int)x).ToArray(),
-                            ImportedForks = ((JToken)room.importedForks).Select(x => (int)x).ToArray()
+                            MessageServerUrl = (string)room["messageServerUri"],
+                            MessageServerType = (string)room["messageServerType"],
+                            RoomName = (string)room["roomName"],
+                            ThreadId = (string)room["threadId"],
+                            Forks = ((JArray)room["forks"]).Select(x => (int)x).ToArray(),
+                            ImportedForks = ((JArray)room["importedForks"]).Select(x => (int)x).ToArray()
                         };
                         RecieveCurrentRoom?.Invoke(currentRoomArgs);
                         break;
                     case "statistics":
-                        var countItems = ((JToken)body["params"]).Select(x => x.ToString()).ToArray();
+                        var countItems = ((JArray)body["params"]).Select(x => x.ToString()).ToArray();
                         var statisticsArgs = new Live2StatisticsEventArgs()
                         {
                             ViewCount = int.Parse(countItems[0]),
@@ -224,20 +225,21 @@ namespace NicoPlayerHohoema.Models.Live
                         RecieveStatistics?.Invoke(statisticsArgs);
                         break;
                     case "watchinginterval":
-                        var timeString = ((JToken)body["params"]).Select(x => x.ToString()).ToArray()[0];
+                        var timeString = ((JArray)body["params"]).Select(x => x.ToString()).ToArray()[0];
                         var time = TimeSpan.FromSeconds(int.Parse(timeString));
                         RecieveWatchInterval?.Invoke(time);
                         break;
                     case "schedule":
+                        var updateParam = (JObject)body["update"];
                         var scheduleArgs = new Live2ScheduleEventArgs()
                         {
-                            BeginTime = DateTime.FromBinary((long)body.update.begintime),
-                            EndTime = DateTime.FromBinary((long)body.update.endtime),
+                            BeginTime = DateTime.FromBinary((long)updateParam["begintime"]),
+                            EndTime = DateTime.FromBinary((long)updateParam["endtime"]),
                         };
                         RecieveSchedule?.Invoke(scheduleArgs);
                         break;
                     case "disconnect":
-                        var disconnectParams = ((JToken)body["params"]).Select(x => x.ToString()).ToArray();
+                        var disconnectParams = ((JArray)body["params"]).Select(x => x.ToString()).ToArray();
                         var endtimeString = disconnectParams[0];
                         var endTime = TimeSpan.FromSeconds(int.Parse(endtimeString));
                         var endReason = disconnectParams[1];
@@ -245,7 +247,7 @@ namespace NicoPlayerHohoema.Models.Live
                         break;
                 }
             }
-            else if (param.type == "ping")
+            else if (type == "ping")
             {
                 await SendMessageAsync(recievedText);
             }
