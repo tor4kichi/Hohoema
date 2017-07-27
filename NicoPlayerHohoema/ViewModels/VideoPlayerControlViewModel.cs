@@ -1,6 +1,5 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Videos.Comment;
-using Mntone.Nico2.Videos.Flv;
 using Mntone.Nico2.Videos.Thumbnail;
 using Mntone.Nico2.Videos.WatchAPI;
 using NicoPlayerHohoema.Models;
@@ -46,6 +45,7 @@ using Windows.Foundation.Collections;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Media.Core;
 using Windows.Media;
+using Windows.UI.Popups;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -230,6 +230,12 @@ namespace NicoPlayerHohoema.ViewModels
                             .AddTo(_CompositeDisposable);
 
 
+            IsCacheLegacyOriginalQuality = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false, mode: ReactivePropertyMode.None);
+            IsCacheLegacyLowQuality = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false, mode:ReactivePropertyMode.None);
+
+            CanToggleCacheRequestLegacyOriginalQuality = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
+            CanToggleCacheRequestLegacyLowQuality = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
+            
             CanToggleCurrentQualityCacheState = CurrentVideoQuality
 				.SubscribeOnUIDispatcher()
 				.Select(x =>
@@ -708,14 +714,6 @@ namespace NicoPlayerHohoema.ViewModels
 
                     VideoPlayed(canPlayNext: true);
                 }
-                else if (videoInfo.ContentType == MovieType.Flv)
-                {
-                    // サポートしていない動画タイプです
-                    IsNotSupportVideoType = true;
-                    CannotPlayReason = videoInfo.ContentType.ToString() + " はHohoemaでサポートされない動画形式です";
-
-                    VideoPlayed(canPlayNext: true);
-                }
                 else
                 {
                     IsNotSupportVideoType = false;
@@ -745,6 +743,9 @@ namespace NicoPlayerHohoema.ViewModels
             IsAvailableLegacyOriginalQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Original).CanPlay;
             IsAvailableLegacyLowQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Low).CanPlay;
 
+            UpdateCache();
+
+            ToggleCacheRequestCommand.RaiseCanExecuteChanged();
 
             cancelToken.ThrowIfCancellationRequested();
 
@@ -1399,6 +1400,17 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
+
+
+        private void UpdateCache()
+        {
+            IsCacheLegacyOriginalQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Original).IsCacheRequested;
+            IsCacheLegacyLowQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Low).IsCacheRequested;
+
+            CanToggleCacheRequestLegacyOriginalQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Original).CanRequestCache || IsCacheLegacyOriginalQuality.Value;
+            CanToggleCacheRequestLegacyLowQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Low).CanRequestCache || IsCacheLegacyLowQuality.Value;
+        }
+
 		#region Command	
 
 		private DelegateCommand<object> _CurrentStateChangedCommand;
@@ -1722,6 +1734,74 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+        private DelegateCommand<string> _ToggleCacheRequestCommand;
+        public DelegateCommand<string> ToggleCacheRequestCommand
+        {
+            get
+            {
+                return _ToggleCacheRequestCommand
+                    ?? (_ToggleCacheRequestCommand = new DelegateCommand<string>(async (qualityName) =>
+                    {
+                        if (Enum.TryParse<NicoVideoQuality>(qualityName, out var quality))
+                        {
+                            var divided = Video.GetDividedQualityNicoVideo(quality);
+                            if (divided != null)
+                            {
+                                if (divided.IsCacheRequested)
+                                {
+                                    var qualityText = new Views.Converters.NicoVideoQualityToCultualizedTextConverter().Convert(quality, typeof(string), null, null);
+
+                                    var dialog = new MessageDialog($"{VideoTitle} の キャッシュデータ（{qualityText}画質）を削除します。この操作は元に戻せません。", "キャッシュ削除の確認");
+                                    dialog.Commands.Add(new UICommand("キャッシュを削除") { Id = "delete" } );
+                                    dialog.Commands.Add(new UICommand("キャンセル"));
+
+                                    dialog.CancelCommandIndex = 1;
+                                    dialog.DefaultCommandIndex = 1;
+                                    var result = await dialog.ShowAsync();
+
+                                    if ((result.Id as string) == "delete")
+                                    {
+                                        if (CurrentVideoQuality.Value == quality)
+                                        {
+                                            MediaPlayer.Pause();
+                                            VideoPlayed(true);
+                                            await Task.Delay(TimeSpan.FromSeconds(2));
+                                        }
+
+                                        await Video.CancelCacheRequest(quality);
+                                    }
+                                }
+                                else
+                                {
+                                    await Video.RequestCache(quality);
+                                }
+
+                                UpdateCache();
+                            }
+                        }
+                    }, (qualityName) =>
+                    {
+                        if (Enum.TryParse<NicoVideoQuality>(qualityName, out var quality))
+                        {
+
+                            var divided = Video.GetDividedQualityNicoVideo(quality);
+                            if (divided.IsCacheRequested)
+                            {
+                                return true;
+                            }
+                            else
+                            {
+                                return divided.CanDownload;
+                            }
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    ));
+            }
+        }
 
 
         // Playlist
@@ -1953,6 +2033,12 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactiveProperty<bool> IsAvailableLegacyOriginalQuality { get; private set; }
         public ReactiveProperty<bool> IsAvailableLegacyLowQuality { get; private set; }
+
+        public ReactiveProperty<bool> IsCacheLegacyOriginalQuality { get; private set; }
+        public ReactiveProperty<bool> IsCacheLegacyLowQuality { get; private set; }
+
+        public ReactiveProperty<bool> CanToggleCacheRequestLegacyOriginalQuality { get; private set; }
+        public ReactiveProperty<bool> CanToggleCacheRequestLegacyLowQuality { get; private set; }
 
         public ReactiveProperty<bool> IsPlayWithCache { get; private set; }
 		public ReactiveProperty<bool> DownloadCompleted { get; private set; }

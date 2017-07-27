@@ -38,7 +38,7 @@
 
 
 
-                        <hohoemalistItem:HohoemaListItemMiniCard />
+                        <controls:VideoInfoControl_TV />
 
                         <TextBlock Text="New" 
                                            HorizontalAlignment="Left"

@@ -275,5 +275,22 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-	}
+
+        private DelegateCommand _OpenCommunityPageCommand;
+        public DelegateCommand OpenCommunityPageCommand
+        {
+            get
+            {
+                return _OpenCommunityPageCommand
+                    ?? (_OpenCommunityPageCommand = new DelegateCommand(() =>
+                    {
+                        if (CommunityGlobalId != null)
+                        {
+                            PageManager.OpenPage(HohoemaPageType.Community, CommunityGlobalId);
+                        }
+                    }));
+            }
+        }
+
+    }
 }

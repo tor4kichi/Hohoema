@@ -83,10 +83,20 @@
                     </MenuFlyoutItem.CommandParameter>
                 </MenuFlyoutItem>
             </MenuFlyoutSubItem>
-            <ToggleMenuFlyoutItem Text="キャッシュ" 
-                                IsChecked="{Binding IsSaveRequestedCurrentQualityCache.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                IsEnabled="{Binding CanToggleCurrentQualityCacheState.Value}"
-                                                              />
+            <MenuFlyoutSubItem Text="キャッシュ" >
+                <ToggleMenuFlyoutItem Text="旧 オリジナル画質"
+                                      IsChecked="{Binding IsCacheLegacyOriginalQuality.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      Command="{Binding ToggleCacheRequestCommand}"
+                                      CommandParameter="Original"
+                                      />
+
+                <ToggleMenuFlyoutItem Text="旧 低画質"
+                                      IsChecked="{Binding IsCacheLegacyLowQuality.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      Command="{Binding ToggleCacheRequestCommand}"
+                                      CommandParameter="Low"
+                                      />
+
+            </MenuFlyoutSubItem>
             <MenuFlyoutSeparator />
             <MenuFlyoutItem Text="動画情報" Command="{Binding OpenVideoInfoCommand}" />
             <MenuFlyoutSeparator />

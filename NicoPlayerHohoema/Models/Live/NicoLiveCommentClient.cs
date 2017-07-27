@@ -134,7 +134,7 @@ namespace NicoPlayerHohoema.Models.Live
 
 		AsyncLock _HeartbeatTimerLock = new AsyncLock();
 		Timer _HeartbeatTimer;
-		TimeSpan _HeartbeatInterval = TimeSpan.FromSeconds(90);
+		TimeSpan _HeartbeatInterval = TimeSpan.FromSeconds(59);
 
 		public uint CommentCount { get; private set; }
 		public uint WatchCount { get; private set; }
@@ -158,6 +158,8 @@ namespace NicoPlayerHohoema.Models.Live
 			await Stop();
 
 			await _Client.ConnectAsync(Host, Port);
+
+            Debug.WriteLine("start comment socket: " + Host);
 
 			_LiveCommentRecieveCancelSource = new CancellationTokenSource();
 			using (var releaser = await _NetworkStreamLock.LockAsync())

@@ -12,6 +12,7 @@
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:hohoemalistItem="using:NicoPlayerHohoema.Views.HohoemaListItem"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
     d:DesignHeight="300"
@@ -60,13 +61,48 @@
                     </toolkit:DockPanel>
                 </Border>
 
-                <controls:HohoemaIncrementalLoadingList>
-                    <controls:HohoemaIncrementalLoadingList.ItemTemplate>
+                <controls:IncrementalLoadingList x:Name="IncrementalLoadingList"
+                                                 ItemsSource="{Binding IncrementalLoadingItems}"
+                                                 SelectedItems="{Binding SelectedItems, Mode=TwoWay}"
+                                                 ItemCommand="{Binding SelectItemCommand}"
+                                                 IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
+                                                 Margin="8 0 0 0"
+                                                 Padding="0 0 0 0"
+                                                 ItemContextFlyout="{StaticResource LiveListItemFlyout}"
+                                                 IsTabStop="False"
+                                                 >
+                    <controls:IncrementalLoadingList.ItemTemplate>
                         <DataTemplate>
-                            <controls:LiveVideoListItem />
+                            <Grid Margin="0 0 0 0"
+                                  
+                                  >
+
+                                <hohoemalistItem:HohoemaListItemMiniCard />
+
+                                <Border Visibility="{Binding IsCommunityMemberOnly, Converter={StaticResource BooleanToVisibility}}"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Top"
+                                        Background="DarkGreen"
+                                        CornerRadius="0 0 0 4"
+                                        >
+                                    <TextBlock Text="限定" Foreground="LightGray"
+                                       FontSize="18"
+                                               Margin="8"
+                                       />
+                                </Border>
+
+                            </Grid>
                         </DataTemplate>
-                    </controls:HohoemaIncrementalLoadingList.ItemTemplate>
-                </controls:HohoemaIncrementalLoadingList>
+                    </controls:IncrementalLoadingList.ItemTemplate>
+
+                    <controls:IncrementalLoadingList.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <ItemsWrapGrid Orientation="Horizontal"
+                                           />
+                        </ItemsPanelTemplate>
+                    </controls:IncrementalLoadingList.ItemsPanel>
+
+                </controls:IncrementalLoadingList>
 
 
 
