@@ -128,35 +128,7 @@ namespace NicoPlayerHohoema.Models
             return newItem;
         }
 
-        public PlaylistItem AddLiveVideo(string liveId, string liveName, ContentInsertPosition insertPosition = ContentInsertPosition.Tail)
-        {
-            // すでに登録済みの場合
-            var alreadyAdded = _PlaylistItems.SingleOrDefault(x => x.Type == PlaylistItemType.Live && x.ContentId == liveId);
-            if (alreadyAdded != null)
-            {
-                // 何もしない
-                return alreadyAdded;
-            }
-
-            var newItem = new LiveVideoPlaylistItem()
-            {
-                Type = PlaylistItemType.Live,
-                ContentId = liveId,
-                Title = liveName,
-                Owner = this,
-            };
-
-            if (insertPosition == ContentInsertPosition.Head)
-            {
-                _PlaylistItems.Insert(0, newItem);
-            }
-            else
-            {
-                _PlaylistItems.Add(newItem);
-            }
-
-            return newItem;
-        }
+       
 
         public bool Remove(PlaylistItem item)
         {
