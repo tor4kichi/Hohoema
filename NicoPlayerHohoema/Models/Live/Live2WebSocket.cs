@@ -123,6 +123,18 @@ namespace NicoPlayerHohoema.Models.Live
         }
 
 
+        public Task SendChangeQualityMessageAsync(string quality)
+        {
+            // qualityは
+            // abr = 自動
+            // normal = 1M
+            // low = 384k
+            // super_low = 192k
+            // の4種類
+            var message = $"{{\"type\":\"watch\",\"body\":{{\"command\":\"getstream\",\"requirement\":{{\"protocol\":\"hls\",\"quality\":\"{quality}\"}}}}}}";
+            return SendMessageAsync(message);
+        }
+
 
         public async void Close()
         {

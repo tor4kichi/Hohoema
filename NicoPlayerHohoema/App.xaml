@@ -59,8 +59,8 @@
             <myconv:ServiceStatusToTextConverter x:Key="HohoemaSerivceStatusToText" />
 
             <myconv:PlayerEndActionToTextConverter x:Key="PlayerEndActionToTextConverter" />
-            
-            
+            <myconv:Live2QualityTypeToText x:Key="Live2QualityTypeToText" />
+
             <!-- Logical Modifier-->
             <logicalModifier:AndModifier x:Key="AndModifier" />
             <logicalModifier:OrModifier x:Key="OrModifier" />

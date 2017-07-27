@@ -116,6 +116,7 @@
     <Content Include="Assets\UpdateNotices\0.9.1.md" />
     <Content Include="Assets\UpdateNotices\0.9.2.md" />
     <Content Include="Assets\UpdateNotices\0.9.3.md" />
+    <Content Include="Assets\UpdateNotices\0.9.4.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
   </ItemGroup>
   <ItemGroup>
@@ -312,6 +313,7 @@
     </Compile>
     <Compile Include="Views\Converters\CommentOpacityKindConverter.cs" />
     <Compile Include="Views\Converters\HohoemaPageTypeToTextConverter.cs" />
+    <Compile Include="Views\Converters\Live2QualityTypeToText.cs" />
     <Compile Include="Views\Converters\PlayerEndActionToTextConverter.cs" />
     <Compile Include="Views\Service\MarkdownTextDialog.xaml.cs">
       <DependentUpon>MarkdownTextDialog.xaml</DependentUpon>
