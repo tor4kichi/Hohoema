@@ -37,7 +37,7 @@
                                   
                                   >
 
-                        <hohoemalistItem:HohoemaListItemMiniCard />
+                        <controls:VideoInfoControl_TV />
 
                     </Grid>
                 </DataTemplate>

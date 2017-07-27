@@ -279,6 +279,8 @@ namespace NicoPlayerHohoema.Models.Live
                 {
                     Live2WebSocket = new Live2WebSocket(leoPlayerProps);
                     Live2WebSocket.RecieveCurrentStream += Live2WebSocket_RecieveCurrentStream;
+                    Live2WebSocket.RecieveStatistics += Live2WebSocket_RecieveStatistics;
+                    Live2WebSocket.RecieveDisconnect += Live2WebSocket_RecieveDisconnect;
                     await Live2WebSocket.StartAsync();
                 }
 
@@ -300,6 +302,8 @@ namespace NicoPlayerHohoema.Models.Live
                 return LiveStatusType;
             }
 		}
+
+        
 
         private async Task StartLiveSubscribe()
 		{
@@ -349,6 +353,37 @@ namespace NicoPlayerHohoema.Models.Live
 
         string _HLSUri;
 
+        private string _RequestQuality;
+        public string RequestQuality
+        {
+            get { return _RequestQuality; }
+            private set { SetProperty(ref _RequestQuality, value); }
+        }
+
+        private string _CurrentQuality;
+        public string CurrentQuality
+        {
+            get { return _CurrentQuality; }
+            private set { SetProperty(ref _CurrentQuality, value); }
+        }
+
+        public string[] Qualities { get; private set; }
+
+        public async Task ChangeQualityRequest(string quality)
+        {
+            if (this.LivePlayerType == Live.LivePlayerType.Leo)
+            {
+                if (CurrentQuality == quality) { return; }
+
+                HohoemaApp.MediaPlayer.Source = null;
+
+                RequestQuality = quality;
+                await Live2WebSocket.SendChangeQualityMessageAsync(quality);
+            }
+        }
+
+
+
         private async void Live2WebSocket_RecieveCurrentStream(Live2CurrentStreamEventArgs e)
         {
             Debug.WriteLine(e.Uri);
@@ -356,6 +391,14 @@ namespace NicoPlayerHohoema.Models.Live
             await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () => 
             {
                 _HLSUri = e.Uri;
+                
+                // Note: Hohoemaでは画質の自動設定 abr は扱いません
+                Qualities = e.QualityTypes.Where(x => x != "abr").ToArray();
+                OnPropertyChanged(nameof(Qualities));
+                CurrentQuality = e.Quality;
+
+                Debug.WriteLine(e.Quality);
+                
                 await RefreshLeoPlayer();
             });
         }
@@ -364,6 +407,7 @@ namespace NicoPlayerHohoema.Models.Live
         private async Task RefreshLeoPlayer()
         {
             if (_HLSUri == null) { return; }
+
 
             ClearLeoPlayer();
 
@@ -396,6 +440,21 @@ namespace NicoPlayerHohoema.Models.Live
             _Mss = null;
             _MediaSource?.Dispose();
             _MediaSource = null;
+        }
+
+
+        private void Live2WebSocket_RecieveDisconnect()
+        {
+            StartNextLiveSubscribe(TimeSpan.FromMinutes(2)).ConfigureAwait(false);
+        }
+
+        private async void Live2WebSocket_RecieveStatistics(Live2StatisticsEventArgs e)
+        {
+            await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                WatchCount = (uint)e.ViewCount;
+                CommentCount = (uint)e.CommentCount;
+            });
         }
 
         #endregion
@@ -716,9 +775,6 @@ namespace NicoPlayerHohoema.Models.Live
 				CommentCount = commentCount;
 				WatchCount = watchCount;
 			});
-
-            await HohoemaApp.NiconicoContext.HttpClient.GetAsync(new Uri($"http://live.nicovideo.jp/api/relive/livetag/{LiveId}/revision"));
-            await HohoemaApp.NiconicoContext.HttpClient.GetAsync(new Uri($"http://live.nicovideo.jp/api/relive/notifybox.unread"));
         }
 
 

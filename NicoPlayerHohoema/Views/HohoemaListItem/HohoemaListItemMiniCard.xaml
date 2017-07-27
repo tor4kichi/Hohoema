@@ -61,12 +61,12 @@
                     Opacity="0.8"
                     />
 
-                <StackPanel Margin="16 8" >
+                <StackPanel Margin="8 8 8 0" >
                     <StackPanel Visibility="{Binding HasTitle, Converter={StaticResource BooleanToVisibility}}">
                         <TextBlock Text="{Binding Title}"
                            
                            TextWrapping="Wrap"
-                           FontSize="16"
+                           FontSize="15"
                            />
 
                         <Border Height="8" />

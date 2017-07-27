@@ -26,6 +26,7 @@ using NicoPlayerHohoema.Views.Service;
 using Windows.UI.Xaml.Media;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Media.Playback;
+using System.Collections.ObjectModel;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -128,6 +129,20 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<uint> WatchCount { get; private set; }
 
         public ReactiveProperty<LivePlayerType?> LivePlayerType { get; private set; }
+
+
+        public ReactiveProperty<bool> CanChangeQuality { get; private set; }
+        public ReactiveProperty<string> RequestQuality { get; private set; }
+
+        public ReactiveProperty<string> CurrentQuality { get; private set; }
+
+        public ReactiveProperty<bool> IsAvailableSuperLowQuality { get; }
+        public ReactiveProperty<bool> IsAvailableLowQuality { get; }
+        public ReactiveProperty<bool> IsAvailableNormalQuality { get; }
+        public ReactiveProperty<bool> IsAvailableHighQuality { get; }
+
+        public DelegateCommand<string> ChangeQualityCommand { get; }
+
         // comment
 
 
@@ -194,12 +209,29 @@ namespace NicoPlayerHohoema.ViewModels
 
             MediaPlayer = HohoemaApp.MediaPlayer;
 
-
+            // play
             CurrentState = new ReactiveProperty<MediaElementState>();
             NowPlaying = new ReactiveProperty<bool>(false);
 
 			NowUpdating = new ReactiveProperty<bool>(false);
             LivePlayerType = new ReactiveProperty<Models.Live.LivePlayerType?>();
+
+            CanChangeQuality = new ReactiveProperty<bool>(false);
+            RequestQuality = new ReactiveProperty<string>();
+            CurrentQuality = new ReactiveProperty<string>();
+
+            IsAvailableSuperLowQuality = new ReactiveProperty<bool>(false);
+            IsAvailableLowQuality = new ReactiveProperty<bool>(false);
+            IsAvailableNormalQuality = new ReactiveProperty<bool>(false);
+            IsAvailableHighQuality = new ReactiveProperty<bool>(false);
+
+            ChangeQualityCommand = new DelegateCommand<string>(
+                (quality) => 
+                {
+                    NicoLiveVideo.ChangeQualityRequest(quality).ConfigureAwait(false);
+                }, 
+                (quality) => NicoLiveVideo.Qualities.Any(x => x == quality)
+            );
 
             IsVisibleComment = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, true).AddTo(_CompositeDisposable);
 
@@ -725,7 +757,6 @@ namespace NicoPlayerHohoema.ViewModels
 //			return base.OnResumed();
 		}
 
-
 		/// <summary>
 		/// 生放送情報を取得してライブストリームの受信を開始します。<br />
 		/// 配信受信処理のハードリセット動作として機能します。
@@ -779,6 +810,34 @@ namespace NicoPlayerHohoema.ViewModels
                             }
                         }
                         catch { }
+                    }
+
+                    if (NicoLiveVideo.LivePlayerType == Models.Live.LivePlayerType.Leo)
+                    {
+                        CanChangeQuality.Value = true;
+
+                        NicoLiveVideo.ObserveProperty(x => x.RequestQuality)
+                            .Subscribe(q => 
+                            {
+                                RequestQuality.Value = q;
+                            });
+
+                        NicoLiveVideo.ObserveProperty(x => x.CurrentQuality)
+                            .Subscribe(x => 
+                            {
+                                CurrentQuality.Value = x;
+                            });
+
+                        NicoLiveVideo.ObserveProperty(x => x.Qualities)
+                            .Subscribe(types => 
+                            {
+                                IsAvailableSuperLowQuality.Value    = types?.Any(x => x == "super_low") ?? false;
+                                IsAvailableLowQuality.Value         = types?.Any(x => x == "low") ?? false;
+                                IsAvailableNormalQuality.Value      = types?.Any(x => x == "normal") ?? false;
+                                IsAvailableHighQuality.Value        = types?.Any(x => x == "high") ?? false;
+
+                                ChangeQualityCommand.RaiseCanExecuteChanged();
+                            });
                     }
                 }
 				else

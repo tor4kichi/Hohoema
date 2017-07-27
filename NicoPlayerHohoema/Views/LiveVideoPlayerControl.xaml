@@ -215,6 +215,7 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="PlayerTypeTextBlock.Text" Value="新配信" />
+                        <Setter Target="LeoLiveQualityMenuFlyoutSubItem.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
 
@@ -448,7 +449,7 @@
                         </Border>
 
                         <StackPanel x:Name="TitleLayout" Background="{ThemeResource SystemAltMediumColor}">
-                            <TextBlock Text="{Binding Title}" FontSize="24" Margin="8" HorizontalAlignment="Center" TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding LiveTitle}" FontSize="24" Margin="8" HorizontalAlignment="Center" TextWrapping="Wrap" />
 
                             <i:Interaction.Behaviors>
                                 <core:EventTriggerBehavior EventName="Tapped">
@@ -470,6 +471,9 @@
                                 <StackPanel Orientation="Horizontal"
                                             toolkit:DockPanel.Dock="Left"
                                             >
+
+                                    
+
                                     <!-- 放送時間 -->
                                     <toolkit:DockPanel
                                      Margin="16"
@@ -503,7 +507,7 @@
                                         <TextBlock VerticalAlignment="Center"
                                                IsHitTestVisible="False"
                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                               Margin="0 0 24 0"
+                                               Margin="0 0 8 0"
                                                 FontSize="18"
                                             >
                                         <Run Text="{Binding WatchCount.Value, Converter={StaticResource ToUserFriendlyNumber}}" />
@@ -527,20 +531,38 @@
                                 </StackPanel>
 
 
-                                <StackPanel Orientation="Horizontal"
+                                <StackPanel Orientation="Vertical"
                                             toolkit:DockPanel.Dock="Right"
                                             Margin="0 0 16 0"
+                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Right"
                                             >
-                                    <TextBlock Text=""
-                                               x:Name="PlayerTypeTextBlock"
-                                               Margin="16 0"
-                                               Opacity="0.5"
-                                               VerticalAlignment="Center"
-                                               />
 
+                                    
+                                    
+
+                                    <!-- 画質 -->
+                                    <StackPanel Orientation="Horizontal" Margin="0 0 0 8"
+                                                HorizontalAlignment="Right"
+                                                >
+                                        <TextBlock Text=""
+                                               x:Name="PlayerTypeTextBlock"
+                                               Margin="0 0"
+                                               VerticalAlignment="Center"
+                                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                               />
+                                        
+                                        <TextBlock VerticalAlignment="Center"
+                                                   Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                   x:Name="LeoLiveQualityTextBlock"
+                                                   Visibility="{Binding CurrentQuality.Value, Converter={StaticResource NotNullToVisibility}}"
+                                                   >
+                                            (<Run Text="{Binding CurrentQuality.Value, Converter={StaticResource Live2QualityTypeToText}}" />画質)                                            
+                                        </TextBlock>
+                                    </StackPanel>
+                                    
                                     <TextBlock VerticalAlignment="Center"
-                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                                FontSize="18"
+                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"                                                
                                                >
                                         <Run Text="{Binding RoomName}" />
                                         <Run Text="-" />
@@ -706,14 +728,35 @@
                                     <SymbolIcon Symbol="FullScreen" />
                                 </Button>
 
-
-
                                 <Button UseSystemFocusVisuals="True"
                                         Background="Transparent"
                                               >
                                     <SymbolIcon Symbol="More" />
                                     <Button.Flyout>
                                         <MenuFlyout>
+
+                                            <MenuFlyoutSubItem Text="画質" 
+                                                               x:Name="LeoLiveQualityMenuFlyoutSubItem"
+                                                               Visibility="Collapsed"
+                                                               >
+                                                <MenuFlyoutItem Text="高画質" 
+                                                                Command="{Binding ChangeQualityCommand}"
+                                                                CommandParameter="high"
+                                                                />
+                                                <MenuFlyoutItem Text="通常画質" 
+                                                                Command="{Binding ChangeQualityCommand}"
+                                                                CommandParameter="normal"
+                                                                />
+                                                <MenuFlyoutItem Text="低画質" 
+                                                                Command="{Binding ChangeQualityCommand}"
+                                                                CommandParameter="low"
+                                                                />
+                                                <MenuFlyoutItem Text="モバイル画質" 
+                                                                Command="{Binding ChangeQualityCommand}"
+                                                                CommandParameter="super_low"
+                                                                />
+                                            </MenuFlyoutSubItem>
+
                                             <MenuFlyoutItem Text="配信者情報" Command="{Binding OpenBroadcastCommunityCommand}" />
 
                                             <MenuFlyoutSeparator />

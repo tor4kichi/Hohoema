@@ -22,6 +22,7 @@ namespace NicoPlayerHohoema.Models.Live
     public delegate void LiveStreamRecieveStatisticsHandler(Live2StatisticsEventArgs e);
     public delegate void LiveStreamRecieveWatchIntervalHandler(TimeSpan intervalTime);
     public delegate void LiveStreamRecieveScheduleHandler(Live2ScheduleEventArgs e);
+    public delegate void LiveStreamRecieveDisconnectHandler();
 
 
     public class Live2CurrentStreamEventArgs
@@ -77,7 +78,7 @@ namespace NicoPlayerHohoema.Models.Live
         public event LiveStreamRecieveStatisticsHandler RecieveStatistics;
         public event LiveStreamRecieveWatchIntervalHandler RecieveWatchInterval;
         public event LiveStreamRecieveScheduleHandler RecieveSchedule;
-
+        public event LiveStreamRecieveDisconnectHandler RecieveDisconnect;
 
         public Live2WebSocket(LeoPlayerProps props)
         {
@@ -122,6 +123,18 @@ namespace NicoPlayerHohoema.Models.Live
             }
         }
 
+
+        public Task SendChangeQualityMessageAsync(string quality)
+        {
+            // qualityは
+            // abr = 自動
+            // normal = 1M
+            // low = 384k
+            // super_low = 192k
+            // の4種類
+            var message = $"{{\"type\":\"watch\",\"body\":{{\"command\":\"getstream\",\"requirement\":{{\"protocol\":\"hls\",\"quality\":\"{quality}\"}}}}}}";
+            return SendMessageAsync(message);
+        }
 
 
         public async void Close()
@@ -222,6 +235,13 @@ namespace NicoPlayerHohoema.Models.Live
                             EndTime = DateTime.FromBinary((long)body.update.endtime),
                         };
                         RecieveSchedule?.Invoke(scheduleArgs);
+                        break;
+                    case "disconnect":
+                        var disconnectParams = ((JToken)body["params"]).Select(x => x.ToString()).ToArray();
+                        var endtimeString = disconnectParams[0];
+                        var endTime = TimeSpan.FromSeconds(int.Parse(endtimeString));
+                        var endReason = disconnectParams[1];
+                        RecieveDisconnect?.Invoke();
                         break;
                 }
             }

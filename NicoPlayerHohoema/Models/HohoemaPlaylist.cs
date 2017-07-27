@@ -239,6 +239,12 @@ namespace NicoPlayerHohoema.Models
             {
                 MakeDefaultPlaylist();
             }
+
+            // Live Item は削除
+            foreach (var i in DefaultPlaylist.PlaylistItems.Where(x => x.ContentId.StartsWith("lv")).ToArray())
+            {
+                DefaultPlaylist.Remove(i);
+            }
         }
 
         public async Task Save(LocalMylist playlist)
@@ -367,8 +373,14 @@ namespace NicoPlayerHohoema.Models
 
         public void PlayLiveVideo(string liveId, string title = "")
         {
-            var newItem = DefaultPlaylist.AddLiveVideo(liveId, title, ContentInsertPosition.Head);
-            Play(newItem);
+            OpenPlaylistItem?.Invoke(CurrentPlaylist, new LiveVideoPlaylistItem()
+            {
+                Type = PlaylistItemType.Live,
+                ContentId = liveId,
+                Title = title
+            });
+
+            IsDisplayPlayer = true;
         }
 
 
