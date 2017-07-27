@@ -279,6 +279,8 @@ namespace NicoPlayerHohoema.Models.Live
                 {
                     Live2WebSocket = new Live2WebSocket(leoPlayerProps);
                     Live2WebSocket.RecieveCurrentStream += Live2WebSocket_RecieveCurrentStream;
+                    Live2WebSocket.RecieveStatistics += Live2WebSocket_RecieveStatistics;
+                    Live2WebSocket.RecieveDisconnect += Live2WebSocket_RecieveDisconnect;
                     await Live2WebSocket.StartAsync();
                 }
 
@@ -300,6 +302,8 @@ namespace NicoPlayerHohoema.Models.Live
                 return LiveStatusType;
             }
 		}
+
+        
 
         private async Task StartLiveSubscribe()
 		{
@@ -438,6 +442,20 @@ namespace NicoPlayerHohoema.Models.Live
             _MediaSource = null;
         }
 
+
+        private void Live2WebSocket_RecieveDisconnect()
+        {
+            StartNextLiveSubscribe(TimeSpan.FromMinutes(2)).ConfigureAwait(false);
+        }
+
+        private async void Live2WebSocket_RecieveStatistics(Live2StatisticsEventArgs e)
+        {
+            await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                WatchCount = (uint)e.ViewCount;
+                CommentCount = (uint)e.CommentCount;
+            });
+        }
 
         #endregion
 
