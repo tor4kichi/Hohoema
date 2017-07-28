@@ -229,6 +229,8 @@ namespace NicoPlayerHohoema.ViewModels
                 (quality) => 
                 {
                     NicoLiveVideo.ChangeQualityRequest(quality).ConfigureAwait(false);
+                    HohoemaApp.UserSettings.PlayerSettings.DefaultLiveQuality = quality;
+                    HohoemaApp.UserSettings.PlayerSettings.Save().ConfigureAwait(false);
                 }, 
                 (quality) => NicoLiveVideo.Qualities.Any(x => x == quality)
             );

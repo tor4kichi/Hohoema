@@ -557,7 +557,7 @@
                                                    x:Name="LeoLiveQualityTextBlock"
                                                    Visibility="{Binding CurrentQuality.Value, Converter={StaticResource NotNullToVisibility}}"
                                                    >
-                                            (<Run Text="{Binding CurrentQuality.Value, Converter={StaticResource Live2QualityTypeToText}}" />画質)                                            
+                                            (<Run Text="{Binding CurrentQuality.Value, Converter={StaticResource Live2QualityTypeToText}}" />)
                                         </TextBlock>
                                     </StackPanel>
                                     

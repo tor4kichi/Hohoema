@@ -52,7 +52,17 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		private bool _IsMute;
+        private string _DefaultLiveQuality = null;
+
+        [DataMember]
+        public string DefaultLiveQuality
+        {
+            get { return _DefaultLiveQuality; }
+            set { SetProperty(ref _DefaultLiveQuality, value); }
+        }
+
+
+        private bool _IsMute;
 
 		[DataMember]
 		public bool IsMute

@@ -281,7 +281,7 @@ namespace NicoPlayerHohoema.Models.Live
                     Live2WebSocket.RecieveCurrentStream += Live2WebSocket_RecieveCurrentStream;
                     Live2WebSocket.RecieveStatistics += Live2WebSocket_RecieveStatistics;
                     Live2WebSocket.RecieveDisconnect += Live2WebSocket_RecieveDisconnect;
-                    await Live2WebSocket.StartAsync();
+                    await Live2WebSocket.StartAsync(HohoemaApp.UserSettings.PlayerSettings.DefaultLiveQuality);
                 }
 
                 await StartLiveSubscribe();
