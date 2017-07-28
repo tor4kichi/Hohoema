@@ -310,6 +310,9 @@ namespace NicoPlayerHohoema.Models.Live
 			using (var releaser = await _LiveSubscribeLock.LockAsync())
 			{
 				await StartCommentClientConnection();
+
+                // Display表示の維持リクエスト
+                Util.DisplayRequestHelper.RequestKeepDisplay();
 			}
 		}
 
@@ -322,8 +325,11 @@ namespace NicoPlayerHohoema.Models.Live
 		{
 			using (var releaser = await _LiveSubscribeLock.LockAsync())
 			{
-				// 放送接続の確実化処理を終了
-				await ExitEnsureOpenRtmpConnection();
+                // Display表示の維持リクエストを停止
+                Util.DisplayRequestHelper.StopKeepDisplay();
+
+                // 放送接続の確実化処理を終了
+                await ExitEnsureOpenRtmpConnection();
 
 				// ニコ生サーバーから切断
 				await CloseRtmpConnection();
