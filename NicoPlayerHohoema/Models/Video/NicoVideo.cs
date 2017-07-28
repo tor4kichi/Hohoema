@@ -296,6 +296,10 @@ namespace NicoPlayerHohoema.Models
             smtc.DisplayUpdater.ClearAll();
             smtc.IsEnabled = false;
             smtc.DisplayUpdater.Update();
+
+
+            Db.VideoPlayHistoryDb.VideoPlayed(this.RawVideoId);
+            OnPropertyChanged(nameof(IsPlayed));
         }
 
         #endregion
@@ -885,7 +889,7 @@ namespace NicoPlayerHohoema.Models
 
         public UserType OwnerUserType { get; private set; }
         public string OwnerIconUrl { get; private set; }
-        
+        public bool IsPlayed => VideoPlayHistoryDb.Get(this.RawVideoId).PlayCount > 0;
 
 		public Uri LegacyVideoUrl { get; private set; }
 		public string ThreadId { get; private set; }

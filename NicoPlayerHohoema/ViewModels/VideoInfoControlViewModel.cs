@@ -25,6 +25,7 @@ using System.Windows.Input;
 
 namespace NicoPlayerHohoema.ViewModels
 {
+    
 	public class VideoInfoControlViewModel : HohoemaListingPageItemBase
 	{
         //	private IScheduler scheduler;
@@ -123,6 +124,19 @@ namespace NicoPlayerHohoema.ViewModels
                 .AddTo(_CompositeDisposable);
 
             IsCacheEnabled = nicoVideo.HohoemaApp.UserSettings.CacheSettings.IsEnableCache;
+
+            Observable.CombineLatest(
+                IsCacheRequested,
+                NicoVideo.ObserveProperty(x => x.IsPlayed)
+                )
+                .Select(x =>
+                {
+                    if (x[0]) { return Windows.UI.Colors.Green; }
+                    else if (x[1]) { return Windows.UI.Colors.Transparent; }
+                    else { return Windows.UI.Colors.Gray; }
+                })
+                .Subscribe(color => ThemeColor = color)
+                .AddTo(_CompositeDisposable);
         }
 
         private async void ResetQualityDivideVideosVM()
@@ -358,6 +372,8 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+
+        public ReadOnlyReactiveProperty<bool> IsPlayed { get; private set; }
 
         
         public IEnumerable<VideoInfoPlaylistViewModel> Playlists => 
