@@ -644,7 +644,7 @@
                                     <Button Background="Transparent" 
                                             Command="{x:Bind TogglePlaylistPaneCommand}"
                                             >
-                                        <iconPack:PackIconMaterial Kind="PlaylistCheck" >
+                                        <iconPack:PackIconMaterial Kind="PlaylistPlay" Width="32" Height="32" >
 
                                         </iconPack:PackIconMaterial>
 
