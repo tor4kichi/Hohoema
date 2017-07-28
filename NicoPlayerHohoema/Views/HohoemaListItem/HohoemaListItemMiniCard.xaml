@@ -28,7 +28,13 @@
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
-        <Grid x:Name="ContentLayout">
+        
+        
+        <Grid x:Name="ContentLayout" 
+              BorderBrush="{Binding ThemeColor, Converter={StaticResource ColorToBrush}}"
+              BorderThickness="2 0 0 0"
+                  Padding="2 0 0 0"
+              >
             <Border>
                 <Image Source="{Binding FirstImageUrl}"
                    Visibility="{Binding HasImageUrl, Converter={StaticResource BooleanToVisibility}}" 

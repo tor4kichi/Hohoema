@@ -13,16 +13,6 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class PlayerSeetingPageContentViewModel : SettingsPageContentViewModel
 	{
-
-
-
-
-
-
-
-        public static List<NicoVideoQuality> QualityList { get; private set; }
-        public ReactiveProperty<NicoVideoQuality> DefaultQuality { get; private set; }
-
         public ReactiveProperty<bool> IsFullScreenDefault { get; private set; }
         public ReactiveProperty<bool> IsForceLandscapeDefault { get; private set; }
 
@@ -90,14 +80,6 @@ namespace NicoPlayerHohoema.ViewModels
                 Models.PlaylistEndAction.CloseIfPlayWithCurrentWindow
             };
 
-            QualityList = new List<NicoVideoQuality>()
-            {
-                NicoVideoQuality.Dmc_High,
-                NicoVideoQuality.Dmc_Midium,
-                NicoVideoQuality.Dmc_Low,
-                NicoVideoQuality.Dmc_Mobile
-            };
-
             CommentOpacityList = new List<CommentOpacityKind>()
             {
                 CommentOpacityKind.NoSukesuke,
@@ -115,7 +97,6 @@ namespace NicoPlayerHohoema.ViewModels
             _PlayerSettings = _HohoemaApp.UserSettings.PlayerSettings;
             _PlaylistSettings = _HohoemaApp.UserSettings.PlaylistSettings;
 
-            DefaultQuality = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultQuality);
 			IsFullScreenDefault = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsFullScreenDefault);
 
 			IsKeepDisplayInPlayback = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsKeepDisplayInPlayback);

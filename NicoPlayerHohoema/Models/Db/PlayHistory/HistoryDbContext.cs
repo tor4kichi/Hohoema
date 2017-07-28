@@ -12,41 +12,42 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace NicoPlayerHohoema.Models.Db
 {
-	public sealed class HistoryDbContext : DbContext
+	public sealed class PlayHistoryDbContext : DbContext
 	{
-		public DbSet<SearchHistory> SearchHistory { get; set; }
+		public DbSet<VideoPlayHistory> VideoPlayHistory { get; set; }
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
-			var connectionString = new SqliteConnectionStringBuilder { DataSource = "History.db" }.ToString();
+			var connectionString = new SqliteConnectionStringBuilder { DataSource = "PlayHistory.db" }.ToString();
 			optionsBuilder.UseSqlite(new SqliteConnection(connectionString));
 		}
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
-			modelBuilder.Entity<SearchHistory>()
-				.HasKey(x => new { x.Keyword, x.Target });
+            modelBuilder.Entity<VideoPlayHistory>()
+                .HasKey(x => x.RawVideoId);
         }
 
         
 
         public static async Task InitializeAsync()
 		{
-			using (var db = new HistoryDbContext())
+			using (var db = new PlayHistoryDbContext())
 			{
                 await db.Database.EnsureCreatedAsync();
             }
 		}
 	}
 
-	public class SearchHistory
+
+	public class VideoPlayHistory
 	{
-		public string Keyword { get; set; }
+		[Key]
+		public string RawVideoId { get; set; }
 
-		public SearchTarget Target { get; set; }
+		public uint PlayCount { get; set; }
 
-		public uint SearchCount { get; set; }
-
-		public DateTime LastUpdated { get; set; }
+		public DateTime LastPlayed { get; set; }
 	}
+    
 }

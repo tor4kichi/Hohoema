@@ -298,12 +298,6 @@ namespace NicoPlayerHohoema.ViewModels
 				.AddTo(_CompositeDisposable);
 
 
-			ToggleQualityText = CurrentVideoQuality
-				.Select(x => x == NicoVideoQuality.Low ? "低画質に切り替え" : "通常画質に切り替え")
-				.ToReactiveProperty()
-				.AddTo(_CompositeDisposable);
-
-
 
 			
 
@@ -908,6 +902,15 @@ namespace NicoPlayerHohoema.ViewModels
             MediaPlayer.PlaybackSession.PlaybackRate = 
                 HohoemaApp.UserSettings.PlayerSettings.DefaultPlaybackRate;
 
+            // リクエストどおりの画質が再生された場合、画質をデフォルトとして設定する
+            if (RequestVideoQuality.Value == CurrentVideoQuality.Value)
+            {
+                if (CurrentVideoQuality.Value.HasValue && CurrentVideoQuality.Value.Value.IsDmc())
+                {
+                    HohoemaApp.UserSettings.PlayerSettings.DefaultQuality = CurrentVideoQuality.Value.Value;
+                    await HohoemaApp.UserSettings.PlayerSettings.Save().ConfigureAwait(false);
+                }
+            }
         }
 
 		private void InitializeBufferingMonitor()
@@ -2024,7 +2027,6 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<NicoVideoQuality?> RequestVideoQuality { get; private set; }
         public ReactiveProperty<bool> CanToggleCurrentQualityCacheState { get; private set; }
 		public ReactiveProperty<bool> IsSaveRequestedCurrentQualityCache { get; private set; }
-		public ReactiveProperty<string> ToggleQualityText { get; private set; }
 
         public ReactiveProperty<bool> IsAvailableDmcHighQuality { get; private set; }
         public ReactiveProperty<bool> IsAvailableDmcMidiumQuality { get; private set; }

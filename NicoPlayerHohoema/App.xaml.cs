@@ -484,9 +484,10 @@ namespace NicoPlayerHohoema
 		{
 			await Models.Db.NicoVideoDbContext.InitializeAsync();
 			await Models.Db.HistoryDbContext.InitializeAsync();
+            await Models.Db.PlayHistoryDbContext.InitializeAsync();
 
 
-			Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.CacheDuration = TimeSpan.FromHours(24);
+            Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.CacheDuration = TimeSpan.FromHours(24);
 
 			// TwitterAPIの初期化
 			await TwitterHelper.Initialize();

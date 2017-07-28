@@ -118,6 +118,8 @@
     <Content Include="Assets\UpdateNotices\0.9.3.md" />
     <Content Include="Assets\UpdateNotices\0.9.4.md" />
     <Content Include="Assets\UpdateNotices\0.9.5.md" />
+    <Content Include="Assets\UpdateNotices\0.9.6.md" />
+    <Content Include="Assets\UpdateNotices\0.9.7.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
   </ItemGroup>
   <ItemGroup>
@@ -132,7 +134,8 @@
     <Compile Include="Models\CommentCommandPermissionType.cs" />
     <Compile Include="Models\CommentOpacityKind.cs" />
     <Compile Include="Models\Db\History\HistoryDbContext.cs" />
-    <Compile Include="Models\Db\History\VideoPlayHistoryDb.cs" />
+    <Compile Include="Models\Db\PlayHistory\HistoryDbContext.cs" />
+    <Compile Include="Models\Db\PlayHistory\VideoPlayHistoryDb.cs" />
     <Compile Include="Models\Db\History\SearchHistoryDb.cs" />
     <Compile Include="Models\Db\NicoVideo\CommentDb.cs" />
     <Compile Include="Models\Db\NicoVideo\VideoInfoDb.cs" />

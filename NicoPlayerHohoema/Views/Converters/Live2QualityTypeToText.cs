@@ -17,16 +17,22 @@ namespace NicoPlayerHohoema.Views.Converters
                 switch (quality)
                 {
                     case "super_low":
-                        return "モバイル";
+                        return "モバイル画質";
                     case "low":
-                        return "低";
+                        return "低画質";
                     case "normal":
-                        return "通常";
+                        return "通常画質";
                     case "high":
-                        return "高";
+                        return "高画質";
+                    case "":
+                        return "画質指定なし";
                     default:
                         break;
                 }
+            }
+            else if (value == null)
+            {
+                return "画質指定なし";
             }
 
             return value?.ToString();

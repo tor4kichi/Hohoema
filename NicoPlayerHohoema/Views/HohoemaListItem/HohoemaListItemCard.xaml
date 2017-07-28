@@ -32,8 +32,13 @@
 
         <toolkit:DockPanel x:Name="ContentLayout">
             <Grid Height="140"
-                    toolkit:DockPanel.Dock="Top"
+                  toolkit:DockPanel.Dock="Top"
+                  BorderBrush="{Binding ThemeColor, Converter={StaticResource ColorToBrush}}"
+                  BorderThickness="2 0 0 0"
+                  Padding="2 0 0 0"
                     >
+
+                
                 <Image Source="{Binding FirstImageUrl}"
                    Visibility="{Binding HasImageUrl, Converter={StaticResource BooleanToVisibility}}" 
                    Stretch="Uniform"

@@ -28,9 +28,15 @@
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
         
-        <toolkit:DockPanel Margin="8 0 0 0"
+        <toolkit:DockPanel Margin="4 0 0 0"
                            x:Name="ContentLayout"
                            >
+
+            <Border Width="2"
+                    Margin="0 0 2 0"
+                    toolkit:DockPanel.Dock="Left"
+                    Background="{Binding ThemeColor, Converter={StaticResource ColorToBrush}}"
+                    />
 
             <Grid Margin="0 0 8 0"
                   toolkit:DockPanel.Dock="Left"

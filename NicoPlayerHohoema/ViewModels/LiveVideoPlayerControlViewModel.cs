@@ -211,9 +211,11 @@ namespace NicoPlayerHohoema.ViewModels
 
             // play
             CurrentState = new ReactiveProperty<MediaElementState>();
-            NowPlaying = new ReactiveProperty<bool>(false);
+            NowPlaying = CurrentState.Select(x => x == MediaElementState.Playing)
+                .ToReactiveProperty();
 
-			NowUpdating = new ReactiveProperty<bool>(false);
+
+            NowUpdating = new ReactiveProperty<bool>(false);
             LivePlayerType = new ReactiveProperty<Models.Live.LivePlayerType?>();
 
             CanChangeQuality = new ReactiveProperty<bool>(false);
@@ -229,6 +231,8 @@ namespace NicoPlayerHohoema.ViewModels
                 (quality) => 
                 {
                     NicoLiveVideo.ChangeQualityRequest(quality).ConfigureAwait(false);
+                    HohoemaApp.UserSettings.PlayerSettings.DefaultLiveQuality = quality;
+                    HohoemaApp.UserSettings.PlayerSettings.Save().ConfigureAwait(false);
                 }, 
                 (quality) => NicoLiveVideo.Qualities.Any(x => x == quality)
             );
@@ -316,19 +320,6 @@ namespace NicoPlayerHohoema.ViewModels
 			Suggestion = new ReactiveProperty<LiveSuggestion>();
 			HasSuggestion = Suggestion.Select(x => x != null)
 				.ToReactiveProperty();
-
-
-			NowPlaying.Subscribe(x => 
-			{
-				if (x)
-				{
-					DisplayRequestHelper.RequestKeepDisplay();
-				}
-				else
-				{
-					DisplayRequestHelper.StopKeepDisplay();
-				}
-			});
 
             AutoHideDelayTime = HohoemaApp.UserSettings.PlayerSettings
                 .ToReactivePropertyAsSynchronized(x => x.AutoHidePlayerControlUIPreventTime, PlayerWindowUIDispatcherScheduler)
@@ -742,7 +733,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             MediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
 
-			DisplayRequestHelper.StopKeepDisplay();
 			IsFullScreen.Value = false;
 			StopLiveElapsedTimer().ConfigureAwait(false);
 

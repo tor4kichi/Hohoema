@@ -92,7 +92,7 @@ namespace NicoPlayerHohoema.Models.Live
 
 
 
-        public async Task StartAsync()
+        public async Task StartAsync(string requestQuality = "")
         {
             using (var releaser = await _WebSocketLock.LockAsync())
             {
@@ -101,7 +101,15 @@ namespace NicoPlayerHohoema.Models.Live
                 _DataWriter = new DataWriter(MessageWebSocket.OutputStream);
             }
 
-            await SendMessageAsync($"{{\"type\":\"watch\",\"body\":{{\"params\":[\"{Props.BroadcastId}\",\"\",\"true\",\"hls\",\"\"],\"command\":\"getpermit\"}}}}");
+            if (requestQuality == null)
+            {
+                requestQuality = "";
+            }
+
+
+            var getpermitCommandText = $@"{{""type"":""watch"",""body"":{{""command"":""getpermit"",""requirement"":{{""broadcastId"":""{Props.BroadcastId}"",""route"":"""",""stream"":{{""protocol"":""hls"",""requireNewStream"":true,""priorStreamQuality"":""{requestQuality}""}},""room"":{{""isCommentable"":true,""protocol"":""webSocket""}}}}}}}}";
+            //var getpermitCommandText = $"{{\"type\":\"watch\",\"body\":{{\"params\":[\"{Props.BroadcastId}\",\"\",\"true\",\"hls\",\"\"],\"command\":\"getpermit\"}}}}";
+            await SendMessageAsync(getpermitCommandText);
         }
 
         private async Task SendMessageAsync(string message)

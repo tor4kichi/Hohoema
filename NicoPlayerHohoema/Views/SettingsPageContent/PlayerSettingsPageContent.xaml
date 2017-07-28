@@ -63,38 +63,7 @@
             </StackPanel>
 
             <StackPanel Margin="8 0 0 0">
-
-
-
-
-                <StackPanel Margin="0 8 0 16">
-
-                    <TextBlock Text="動画再生時のデフォルト画質"
-                               VerticalAlignment="Center"
-                               />
-
-                    <ListView ItemsSource="{Binding QualityList}"
-                              SelectedItem="{Binding DefaultQuality.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                              SelectionMode="Single"
-                              SingleSelectionFollowsFocus="False"
-                                  >
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock>
-                                    <Run Text="{Binding Converter={StaticResource QualityToText}}" />
-                                    <Run Text="画質" />
-                                </TextBlock>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                        <ListView.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <ItemsStackPanel Orientation="Horizontal" />
-                            </ItemsPanelTemplate>
-                        </ListView.ItemsPanel>
-                    </ListView>
-
-                </StackPanel>
-
+                
                 <StackPanel Margin="0 8 0 16">
 
                     <TextBlock Text="全画面表示をデフォルトに設定する"
