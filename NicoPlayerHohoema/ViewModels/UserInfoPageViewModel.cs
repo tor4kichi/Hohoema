@@ -352,6 +352,18 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+        private DelegateCommand _OpenUserMylistPageCommand;
+        public DelegateCommand OpenUserMylistPageCommand
+        {
+            get
+            {
+                return _OpenUserMylistPageCommand
+                    ?? (_OpenUserMylistPageCommand = new DelegateCommand(() =>
+                    {
+                        PageManager.OpenPage(HohoemaPageType.UserMylist, UserId);
+                    }));
+            }
+        }
         private DelegateCommand<VideoInfoControlViewModel> _PlayUserVideoCommand;
         public DelegateCommand<VideoInfoControlViewModel> PlayUserVideoCommand
         {

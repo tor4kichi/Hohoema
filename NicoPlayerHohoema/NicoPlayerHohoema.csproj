@@ -120,6 +120,7 @@
     <Content Include="Assets\UpdateNotices\0.9.5.md" />
     <Content Include="Assets\UpdateNotices\0.9.6.md" />
     <Content Include="Assets\UpdateNotices\0.9.7.md" />
+    <Content Include="Assets\UpdateNotices\0.9.8.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
   </ItemGroup>
   <ItemGroup>
@@ -586,9 +587,6 @@
     <Compile Include="Views\UINavigationManager.cs" />
     <Compile Include="Views\UserInfoPage.xaml.cs">
       <DependentUpon>UserInfoPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\UserInfoPage_TV.xaml.cs">
-      <DependentUpon>UserInfoPage_TV.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\UserMylistPage.xaml.cs">
       <DependentUpon>UserMylistPage.xaml</DependentUpon>
@@ -1057,10 +1055,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\UserInfoPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\UserInfoPage_TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
