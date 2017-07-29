@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Media.Playback;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -94,9 +95,8 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
         private Dictionary<Color, Color> _FontShadowColorMap = new Dictionary<Color, Color>();
 
-		private bool _NowUpdating;
 		private TimeSpan _PreviousVideoPosition = TimeSpan.Zero;
-		private SemaphoreSlim _UpdateLock = new SemaphoreSlim(1, 1);
+        private AsyncLock _UpdateLock = new AsyncLock();
 
 
 
@@ -138,8 +138,30 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			this.InitializeComponent();
 
             Initialize();
-		}
 
+            Unloaded += CommentRenderer_Unloaded;
+            Application.Current.EnteredBackground += Current_EnteredBackground;
+            Application.Current.LeavingBackground += Current_LeavingBackground;
+
+        }
+
+        private void Current_LeavingBackground(object sender, Windows.ApplicationModel.LeavingBackgroundEventArgs e)
+        {
+            ResetUpdateTimer();
+        }
+
+        private void Current_EnteredBackground(object sender, Windows.ApplicationModel.EnteredBackgroundEventArgs e)
+        {
+            _UpdateTimer?.Dispose();
+            _UpdateTimer = null;
+        }
+
+        private void CommentRenderer_Unloaded(object sender, RoutedEventArgs e)
+        {
+            Application.Current.EnteredBackground -= Current_EnteredBackground;
+            Application.Current.LeavingBackground -= Current_LeavingBackground;
+            _UpdateTimer?.Dispose();
+        }
 
         private void Initialize()
         {
@@ -162,31 +184,23 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 
         TimeSpan _PrevCommentRenderElapsedTime = TimeSpan.Zero;
-        int CommentRenderSkipCount = 0;
+        float CommentWeightPoint = 0;
 
 		private async Task UpdateCommentDisplay()
 		{
-            if (_NowUpdating)
-            {
-                Debug.WriteLine("skip comment rendering.");
-                return;
-            }
-
-			try
+            using (var releaser = await _UpdateLock.LockAsync())
 			{
-				await _UpdateLock.WaitAsync();
-
-				_NowUpdating = true;
-                if (CommentRenderSkipCount > 0)
+                if (CommentWeightPoint >= 0.5f)
                 {
-                    CommentRenderSkipCount--;
+                    CommentWeightPoint -= 1.0f;
                     return;
                 }
 
                 var watch = Stopwatch.StartNew();
 
                 TimeSpan deltaVideoPosition = TimeSpan.Zero;
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.High, () =>
+                TimeSpan updateInterval;
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
 			    {
 				    // 更新済みの位置であれば処理をスキップ
 				    var videoPosition = VideoPosition;
@@ -207,42 +221,32 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
                     OnUpdate();
 
                     _PreviousVideoPosition = videoPosition;
-			    });
+
+                    updateInterval = UpdateInterval;
+
+                });
 
                 watch.Stop();
                 
-//                Debug.WriteLine("comment render time: " + watch.Elapsed.ToString());
+                Debug.WriteLine("comment render time: " + watch.Elapsed.ToString());
 
-                // ビデオ位置の差分よりコメント描画時間が長かったら
+                // コメント更新間隔よりコメント描画時間が長かったら
                 // 描画スキップを設定する
-                if (deltaVideoPosition < watch.Elapsed)
-                {
-                    var renderTime = watch.Elapsed.TotalMilliseconds;
-                    var requireRenderTime = deltaVideoPosition.TotalMilliseconds;
-                    if (requireRenderTime < renderTime)
-                    {
-                        // 要求描画時間を上回った時間を計算して
-                        // 要求描画時間何回分をスキップすればいいのかを算出
-                        var overRenderTime = renderTime - requireRenderTime;
-                        CommentRenderSkipCount = (int)Math.Ceiling(renderTime / requireRenderTime);
-                    }
-                }
+                var renderTime = watch.Elapsed.TotalMilliseconds;
+                var requireRenderTime = updateInterval.TotalMilliseconds;
+                // 要求描画時間を上回った時間を計算して
+                // 要求描画時間何回分をスキップすればいいのかを算出
+                var overRenderTime = renderTime - requireRenderTime;
+                CommentWeightPoint += (float)overRenderTime;
+                CommentWeightPoint = Math.Min(2.0f, Math.Max(-2.0f, CommentWeightPoint));
 
                 _PrevCommentRenderElapsedTime = watch.Elapsed;
 
-                if (CommentRenderSkipCount > 0)
-				{
-					Debug.WriteLine("set force comment render skip: " + CommentRenderSkipCount);
-				}
-
-				
+		        Debug.WriteLine("CommentWeightPoint: " + CommentWeightPoint);
             }
-			finally
-			{
-                _NowUpdating = false;
-                _UpdateLock.Release();
-			}
-		}
+
+            
+        }
 
         private CommentRenderFrameData GetRenderFrameData()
         {
@@ -299,12 +303,14 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			// 表示すべきコメントを抽出して、表示対象として未登録のコメントを登録処理する
 			var displayComments = GetDisplayCommentsOnCurrentVPos(frame.CurrentVpos, frame.CommentDisplayDuration);
 
+//            Debug.WriteLine("comment: " + displayComments.Count());
 
             // コメントの表示位置決定（直列実行）
             foreach (var comment in displayComments)
 			{
                 CommentUI renderComment = RenderComments.ContainsKey(comment) ? RenderComments[comment] : null;
-                if (renderComment == null)
+                bool isNeedCreateCommentUI = renderComment == null;
+                if (isNeedCreateCommentUI)
                 {
                     renderComment = new CommentUI();
 
@@ -344,10 +350,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
                     // コメントの表示サイズを得るために強制更新
                     renderComment.UpdateLayout();
-                }
 
-                if (!renderComment.IsVerticalPositionCulcurated )
-                {
                     // コメントを配置可能な高さを取得
                     var verticalPos = CalcAndRegisterCommentVerticalPosition(renderComment, frame);
 
@@ -374,8 +377,6 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
                         renderComment.Update(frame.CanvasWidth, frame.CurrentVpos);
                     }
-
-                    renderComment.IsVerticalPositionCulcurated = true;
                 }
 
                 // CommentUIの表示位置を更新
@@ -561,40 +562,28 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 		private void _InnerUpdateAlignedCommentVertialPositonList(uint currentVPos, List<CommentUI> list)
 		{
-			var removeTargets = list
-				.Where(x =>
-				{
-					if (x == null) { return false; }
+            foreach (var x in list.ToArray())
+            {
+                var comment = x?.CommentData;
 
-					return x.CommentData == null;
-				})
-				.ToArray();
+                if (comment == null) { continue; }
 
-
-			foreach (var remove in removeTargets)
-			{
-				var index = list.IndexOf(remove);
-				list[index] = null;
-			}
-		}
+                var index = list.IndexOf(x);
+                list[index] = null;
+            }
+        }
 
 		private void _InnerUpdateCommentVertialPositonList(uint currentVPos, List<CommentUI> list)
 		{
-			var removeTargets = list
-				.Where(x =>
-				{
-					var comment = x?.CommentData;
-
-					if (comment == null) { return true; }
-
-					return x.IsInsideScreen;
-				})
-				.ToArray();
-
-
-			foreach (var remove in removeTargets)
+			foreach (var x in list.ToArray())
 			{
-				var index = list.IndexOf(remove);
+                var comment = x?.CommentData;
+
+                if (comment == null) { continue; }
+
+                if (!x.IsInsideScreen) { continue; }
+
+                var index = list.IndexOf(x);
 				list[index] = null;
 			}
 		}
@@ -646,10 +635,10 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		private IEnumerable<Comment> GetDisplayCommentsOnCurrentVPos(uint currentVpos, uint commentDisplayDuration)
 		{
 			int skipVpos = (int)currentVpos - (int)commentDisplayDuration;
-			return TimeSequescailComments.Keys
-				.SkipWhile(x => x < skipVpos)
-				.TakeWhile(x => x < currentVpos)
-				.Select(x => TimeSequescailComments[x])
+            return TimeSequescailComments.Keys
+                .SkipWhile(x => x < skipVpos)
+                .TakeWhile(x => x < currentVpos)
+                .Select(x => TimeSequescailComments[x])
 				.SelectMany(x => x.Where(y => currentVpos < y.EndPosition && !y.IsNGComment));
 		}
 
@@ -712,33 +701,69 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 		}
 
 
-		public static readonly DependencyProperty VideoPositionProperty =
-			DependencyProperty.Register("VideoPosition"
-					, typeof(TimeSpan)
-					, typeof(CommentRenderer)
-					, new PropertyMetadata(default(TimeSpan), OnVideoPositionChanged)
-				);
+        public static readonly DependencyProperty UpdateIntervalProperty =
+            DependencyProperty.Register("UpdateInterval"
+                    , typeof(TimeSpan)
+                    , typeof(CommentRenderer)
+                    , new PropertyMetadata(TimeSpan.FromMilliseconds(32), OnUpdateIntervalChanged)
+                );
 
-		public TimeSpan VideoPosition
-		{
-			get { return (TimeSpan)GetValue(VideoPositionProperty); }
-			set { SetValue(VideoPositionProperty, value); }
-		}
+        public TimeSpan UpdateInterval
+        {
+            get { return (TimeSpan)GetValue(UpdateIntervalProperty); }
+            set { SetValue(UpdateIntervalProperty, value); }
+        }
 
+        private static void OnUpdateIntervalChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            CommentRenderer me = sender as CommentRenderer;
 
-		private static void OnVideoPositionChanged(object sender, DependencyPropertyChangedEventArgs e)
-		{
-			CommentRenderer me = sender as CommentRenderer;
-
-            me.UpdateCommentDisplay().ConfigureAwait(false);
+            me.ResetUpdateTimer();
         }
 
 
+        AsyncLock _TimerGenerateLock = new AsyncLock();
+        Timer _UpdateTimer;
+        
+        private async void ResetUpdateTimer()
+        {
+            using (var releaser = await _TimerGenerateLock.LockAsync())
+            {
+                if (_UpdateTimer == null)
+                {
+                    _UpdateTimer = new Timer(
+                        async (_) =>
+                        {
+                            await UpdateCommentDisplay();
+                        },
+                        null,
+                        TimeSpan.Zero,
+                        this.UpdateInterval
+                        );
+                }
+                else
+                {
+                    _UpdateTimer.Change(TimeSpan.Zero, this.UpdateInterval);
+                }
+            }
+        }
+
+        public static readonly DependencyProperty MediaPlayerProperty =
+			DependencyProperty.Register("MediaPlayer"
+                    , typeof(MediaPlayer)
+					, typeof(CommentRenderer)
+					, new PropertyMetadata(default(TimeSpan))
+				);
 
 
-		
+        public TimeSpan VideoPosition => MediaPlayer.PlaybackSession.Position;
 
 
+		public MediaPlayer MediaPlayer
+        {
+			get { return (MediaPlayer)GetValue(MediaPlayerProperty); }
+			set { SetValue(MediaPlayerProperty, value); }
+		}
 
 		public static readonly DependencyProperty DefaultDisplayDurationProperty =
 			DependencyProperty.Register("DefaultDisplayDuration"

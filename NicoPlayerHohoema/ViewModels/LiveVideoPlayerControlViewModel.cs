@@ -147,7 +147,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         public ReactiveProperty<bool> IsVisibleComment { get; private set; }
-		public ReactiveProperty<int> CommentRenderFPS { get; private set; }
+		public ReactiveProperty<TimeSpan> CommentUpdateInterval { get; private set; }
 		public ReactiveProperty<TimeSpan> RequestCommentDisplayDuration { get; private set; }
 		public ReactiveProperty<double> CommentFontScale { get; private set; }
 
@@ -346,8 +346,8 @@ namespace NicoPlayerHohoema.ViewModels
             })
             .AddTo(_CompositeDisposable);
 
-            CommentRenderFPS = HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.CommentRenderingFPS)
-                .Select(x => (int)x)
+            CommentUpdateInterval = HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.CommentRenderingFPS)
+                .Select(x => TimeSpan.FromSeconds(1.0 / x))
                 .ToReactiveProperty()
                 .AddTo(_CompositeDisposable);
 
