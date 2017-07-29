@@ -314,7 +314,7 @@
                     <comment:CommentRenderer 
                                     x:Name="CommentRederer"
                                     Comments="{Binding LiveComments}"
-                                    MediaPlayer="{Binding MediaPlayer}"                                 
+                                    MediaPlayer="{Binding MediaPlayer, Mode=OneWay}"                                 
                                     Visibility="{Binding IsVisibleComment.Value, Converter={StaticResource BooleanToVisibility}}"
                                     CommentSizeScale="{Binding CommentFontScale.Value}"
                                     CommentDefaultColor="{Binding CommentDefaultColor.Value}"

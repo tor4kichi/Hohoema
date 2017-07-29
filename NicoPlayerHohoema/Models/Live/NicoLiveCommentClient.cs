@@ -134,7 +134,7 @@ namespace NicoPlayerHohoema.Models.Live
 
 		AsyncLock _HeartbeatTimerLock = new AsyncLock();
 		Timer _HeartbeatTimer;
-		TimeSpan _HeartbeatInterval = TimeSpan.FromSeconds(59);
+		TimeSpan _HeartbeatInterval = TimeSpan.FromSeconds(30);
 
 		public uint CommentCount { get; private set; }
 		public uint WatchCount { get; private set; }

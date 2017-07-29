@@ -227,9 +227,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
                 });
 
                 watch.Stop();
-                
-                Debug.WriteLine("comment render time: " + watch.Elapsed.ToString());
-
+   
                 // コメント更新間隔よりコメント描画時間が長かったら
                 // 描画スキップを設定する
                 var renderTime = watch.Elapsed.TotalMilliseconds;
@@ -241,11 +239,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
                 CommentWeightPoint = Math.Min(2.0f, Math.Max(-2.0f, CommentWeightPoint));
 
                 _PrevCommentRenderElapsedTime = watch.Elapsed;
-
-		        Debug.WriteLine("CommentWeightPoint: " + CommentWeightPoint);
             }
-
-            
         }
 
         private CommentRenderFrameData GetRenderFrameData()
@@ -308,6 +302,11 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
             // コメントの表示位置決定（直列実行）
             foreach (var comment in displayComments)
 			{
+                if (!comment.IsVisible)
+                {
+                    continue;
+                }
+
                 CommentUI renderComment = RenderComments.ContainsKey(comment) ? RenderComments[comment] : null;
                 bool isNeedCreateCommentUI = renderComment == null;
                 if (isNeedCreateCommentUI)
