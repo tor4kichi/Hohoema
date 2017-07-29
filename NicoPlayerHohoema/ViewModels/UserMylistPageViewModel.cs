@@ -317,7 +317,18 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		private async Task UpdateUserMylist()
+        public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+        {
+            MylistList.Clear();
+
+            UserId = null;
+            IsLoginUserMylist.Value = false;
+            UserName = "";
+
+            base.OnNavigatingFrom(e, viewModelState, suspending);
+        }
+
+        private async Task UpdateUserMylist()
 		{
 			if (!HohoemaApp.MylistManagerUpdater.IsOneOrMoreUpdateCompleted)
 			{
