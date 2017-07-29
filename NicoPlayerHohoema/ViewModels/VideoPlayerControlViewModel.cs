@@ -70,9 +70,6 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-        private IDisposable _CommentRenderUpdateTimerDisposer;
-
-
 		public VideoPlayerControlViewModel(
 			HohoemaApp hohoemaApp, 
 			EventAggregator ea,
@@ -1131,8 +1128,6 @@ namespace NicoPlayerHohoema.ViewModels
 
         private void Current_EnteredBackground(object sender, Windows.ApplicationModel.EnteredBackgroundEventArgs e)
         {
-            _CommentRenderUpdateTimerDisposer?.Dispose();
-            _CommentRenderUpdateTimerDisposer = null;
         }
 
         private void Current_LeavingBackground(object sender, Windows.ApplicationModel.LeavingBackgroundEventArgs e)
@@ -1314,7 +1309,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             Video?.StopPlay();
 
-            _CommentRenderUpdateTimerDisposer?.Dispose();
             _BufferingMonitorDisposable?.Dispose();
 		}
 

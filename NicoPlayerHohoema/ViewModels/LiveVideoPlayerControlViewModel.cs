@@ -48,7 +48,7 @@ namespace NicoPlayerHohoema.ViewModels
 		/// </summary>
 		/// <remarks>コメント描画を120fpsで行えるように0.008秒で更新しています</remarks>
 		public static TimeSpan LiveElapsedTimeUpdateInterval { get; private set; } 
-			= TimeSpan.FromSeconds(0.008);
+			= TimeSpan.FromSeconds(0.5);
 
 
 
