@@ -365,13 +365,14 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
                         // コメントの縦の表示位置を設定
                         Canvas.SetTop(renderComment, verticalPos);
 
-                        //						Debug.WriteLine($"V={verticalPos}: [{renderComment.CommentData.CommentText}] [{left}] [{comment.FontSize}]");
 
                         if (comment.VAlign == VerticalAlignment.Bottom
                             || comment.VAlign == VerticalAlignment.Top)
                         {
                             var left = frame.HalfCanvasWidth - (int)(renderComment.DesiredSize.Width * 0.5);
                             Canvas.SetLeft(renderComment, left);
+
+                            Debug.WriteLine($"V={verticalPos}: [{renderComment.CommentData.CommentText}]");
                         }
 
                         renderComment.Update(frame.CanvasWidth, frame.CurrentVpos);
@@ -400,6 +401,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
             {
                 RenderComments.Remove(renderComment.CommentData);
                 CommentCanvas.Children.Remove(renderComment);
+                renderComment.CommentData = null;
             }
 		}
 
@@ -559,37 +561,48 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			_InnerUpdateAlignedCommentVertialPositonList(currentVPos, BottomAlignNextVerticalPosition);
 		}
 
-		private void _InnerUpdateAlignedCommentVertialPositonList(uint currentVPos, List<CommentUI> list)
-		{
-            foreach (var x in list.ToArray())
+        private void _InnerUpdateAlignedCommentVertialPositonList(uint currentVPos, List<CommentUI> list)
+        {
+            var removeTargets = list
+                .Where(x =>
+                {
+                    if (x == null) { return false; }
+
+                    return x.CommentData == null;
+                })
+                .ToArray();
+
+
+            foreach (var remove in removeTargets)
             {
-                var comment = x?.CommentData;
-
-                if (comment == null) { continue; }
-
-                var index = list.IndexOf(x);
+                var index = list.IndexOf(remove);
                 list[index] = null;
             }
         }
 
-		private void _InnerUpdateCommentVertialPositonList(uint currentVPos, List<CommentUI> list)
-		{
-			foreach (var x in list.ToArray())
-			{
-                var comment = x?.CommentData;
+        private void _InnerUpdateCommentVertialPositonList(uint currentVPos, List<CommentUI> list)
+        {
+            var removeTargets = list
+                .Where(x =>
+                {
+                    if (x == null) { return false; }
 
-                if (comment == null) { continue; }
-
-                if (!x.IsInsideScreen) { continue; }
-
-                var index = list.IndexOf(x);
-				list[index] = null;
-			}
-		}
-		
+                    return x.CommentData == null || x.IsInsideScreen;
+                })
+                .ToArray();
 
 
-		private bool CommentIsEndDisplay(Comment comment, uint currentVpos)
+            foreach (var remove in removeTargets)
+            {
+                var index = list.IndexOf(remove);
+                list[index] = null;
+            }
+        }
+
+
+
+
+        private bool CommentIsEndDisplay(Comment comment, uint currentVpos)
 		{
 			return comment.VideoPosition > currentVpos || currentVpos > comment.EndPosition;
 		}
