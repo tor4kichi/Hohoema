@@ -25,6 +25,8 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 	{
 		public Comment CommentData { get; private set; }
 
+        public bool IsVerticalPositionCulcurated { get; set; }
+
 		public CommentUI()
 		{
 			this.InitializeComponent();

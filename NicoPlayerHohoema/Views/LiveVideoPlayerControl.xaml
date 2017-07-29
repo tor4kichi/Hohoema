@@ -314,12 +314,13 @@
                     <comment:CommentRenderer 
                                     x:Name="CommentRederer"
                                     Comments="{Binding LiveComments}"
-                                    VideoPosition="{Binding LiveElapsedTime}"                                     
+                                    MediaPlayer="{Binding MediaPlayer, Mode=OneWay}"                                 
                                     Visibility="{Binding IsVisibleComment.Value, Converter={StaticResource BooleanToVisibility}}"
                                     CommentSizeScale="{Binding CommentFontScale.Value}"
                                     CommentDefaultColor="{Binding CommentDefaultColor.Value}"
                                     DefaultDisplayDuration="{Binding RequestCommentDisplayDuration.Value}"
                                     Opacity="{Binding CommentOpacity.Value, Mode=OneWay}"
+                                    UpdateInterval="{Binding CommentUpdateInterval.Value, Mode=OneWay}"
                                     />
 
                     <Border  VerticalAlignment="Bottom"

@@ -147,7 +147,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         public ReactiveProperty<bool> IsVisibleComment { get; private set; }
-		public ReactiveProperty<int> CommentRenderFPS { get; private set; }
+		public ReactiveProperty<TimeSpan> CommentUpdateInterval { get; private set; }
 		public ReactiveProperty<TimeSpan> RequestCommentDisplayDuration { get; private set; }
 		public ReactiveProperty<double> CommentFontScale { get; private set; }
 
@@ -346,8 +346,8 @@ namespace NicoPlayerHohoema.ViewModels
             })
             .AddTo(_CompositeDisposable);
 
-            CommentRenderFPS = HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.CommentRenderingFPS)
-                .Select(x => (int)x)
+            CommentUpdateInterval = HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.CommentRenderingFPS)
+                .Select(x => TimeSpan.FromSeconds(1.0 / x))
                 .ToReactiveProperty()
                 .AddTo(_CompositeDisposable);
 
@@ -645,6 +645,7 @@ namespace NicoPlayerHohoema.ViewModels
 					comment.IsAnonimity = !string.IsNullOrEmpty(x.Anonymity) ? x.GetAnonymity() : false;
 					comment.UserId = x.User_id;
 					comment.IsOwnerComment = x.User_id == NicoLiveVideo?.BroadcasterId;
+                    
 					try
 					{
 						comment.IsLoginUserComment = !comment.IsAnonimity ? uint.Parse(x.User_id) == HohoemaApp.LoginUserId : false;
@@ -655,9 +656,9 @@ namespace NicoPlayerHohoema.ViewModels
                     
 					//x.GetVposでサーバー上のコメント位置が取れるが、
 					// 受け取った順で表示したいのでローカルの放送時間からコメント位置を割り当てる
-					comment.VideoPosition = (uint)(LiveElapsedTime.TotalMilliseconds * 0.1);
+					comment.VideoPosition = (uint)(MediaPlayer.PlaybackSession.Position.TotalMilliseconds * 0.1) + 50;
 
-                    if (x.GetVpos() < (comment.VideoPosition - 200))
+                    if (x.Vpos != null && x.GetVpos() < (comment.VideoPosition - 200))
                     {
                         Debug.WriteLine("古いコメントのため非表示 : " + comment.CommentText);
                         comment.IsVisible = false;
