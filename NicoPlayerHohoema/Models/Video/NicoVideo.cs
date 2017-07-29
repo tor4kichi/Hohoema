@@ -465,11 +465,22 @@ namespace NicoPlayerHohoema.Models
 
             //			_VisitedPageType = watchApiRes.Vide.AbsoluteUri.EndsWith("low") ? NicoVideoQuality.Low : NicoVideoQuality.Original;
 
+            
             if (dmcWatchResponse != null)
             {
-                LegacyVideoUrl = new Uri(dmcWatchResponse.Video.SmileInfo.Url);
+                if (dmcWatchResponse.Video.DmcInfo.Quality == null)
+                {
+                    throw new Exception("Dmcサーバーからの再生が出来ません。");
+                }
 
-                ProtocolType = MediaProtocolTypeHelper.ParseMediaProtocolType(LegacyVideoUrl);
+                ProtocolType = MediaProtocolType.RTSPoverHTTP;
+
+                if (dmcWatchResponse.Video.SmileInfo.Url != null)
+                {
+                    LegacyVideoUrl = new Uri(dmcWatchResponse.Video.SmileInfo.Url);
+                    ProtocolType = MediaProtocolTypeHelper.ParseMediaProtocolType(LegacyVideoUrl);
+                }
+
 
                 DescriptionWithHtml = dmcWatchResponse.Video.Description;
                 ThreadId = dmcWatchResponse.Thread.Ids.Default;
@@ -548,12 +559,96 @@ namespace NicoPlayerHohoema.Models
             return dmcWatchResponse;
         }
 
+        private async Task<WatchApiResponse> GetWatchApiResponse(bool forceLoqQuality = false)
+        {
+            if (!HohoemaApp.IsLoggedIn) { return null; }
 
+
+            WatchApiResponse watchApiRes = null;
+
+            try
+            {
+                watchApiRes = await HohoemaApp.ContentFinder.GetWatchApiResponse(RawVideoId, forceLoqQuality, HarmfulContentReactionType);
+            }
+            catch (AggregateException ea) when (ea.Flatten().InnerExceptions.Any(e => e is ContentZoningException))
+            {
+                IsBlockedHarmfulVideo = true;
+            }
+            catch (ContentZoningException)
+            {
+                IsBlockedHarmfulVideo = true;
+            }
+            catch { }
+
+            if (!forceLoqQuality && watchApiRes != null)
+            {
+                NowLowQualityOnly = watchApiRes.VideoUrl.AbsoluteUri.EndsWith("low");
+            }
+
+            _VisitedPageType = watchApiRes.VideoUrl.AbsoluteUri.EndsWith("low") ? NicoVideoQuality.Low : NicoVideoQuality.Original;
+
+            if (watchApiRes != null)
+            {
+                LegacyVideoUrl = watchApiRes.VideoUrl;
+
+                ProtocolType = MediaProtocolTypeHelper.ParseMediaProtocolType(watchApiRes.VideoUrl);
+
+                DescriptionWithHtml = watchApiRes.videoDetail.description;
+                ThreadId = watchApiRes.ThreadId.ToString();
+                PrivateReasonType = watchApiRes.PrivateReason;
+                VideoLength = watchApiRes.Length;
+
+                if (!_thumbnailInitialized)
+                {
+                    RawVideoId = watchApiRes.videoDetail.id;
+                    await UpdateWithThumbnail();
+                }
+                IsCommunity = watchApiRes.flashvars.is_community_video == "1";
+
+                var commentServerInfo = new CommentServerInfo()
+                {
+                    ServerUrl = watchApiRes.CommentServerUrl.OriginalString,
+                    DefaultThreadId = (int)watchApiRes.ThreadId,
+                    ThreadKeyRequired = watchApiRes.IsKeyRequired
+                };
+
+                CommentClient.CommentServerInfo = commentServerInfo;
+
+                // TODO: 
+                //				Tags = watchApiRes.videoDetail.tagList.Select(x => new Tag()
+                //				{
+
+                //				}).ToList();
+
+                if (watchApiRes.UploaderInfo != null)
+                {
+                    OwnerId = uint.Parse(watchApiRes.UploaderInfo.id);
+                }
+
+
+                this.IsDeleted = watchApiRes.IsDeleted;
+                if (IsDeleted)
+                {
+                    await DeletedTeardown();
+                }
+            }
+
+            return watchApiRes;
+        }
+        
         // 動画情報のキャッシュまたはオンラインからの取得と更新
 
         public async Task VisitWatchPage()
 		{
-            await GetDmcWatchResponse();
+            try
+            {
+                await GetDmcWatchResponse();
+            }
+            catch
+            {
+                await Task.Delay(TimeSpan.FromSeconds(2));
+                await GetWatchApiResponse();
+            }
         }
 
 

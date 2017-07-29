@@ -532,7 +532,10 @@ namespace NicoPlayerHohoema.Models
         public override async Task<Uri> GenerateVideoContentUrl()
         {
             // Originalクオリティ
-            await NicoVideo.VisitWatchPage();
+            if (NicoVideo.LegacyVideoUrl == null)
+            {
+                await NicoVideo.VisitWatchPage();
+            }
 
             return NicoVideo.LegacyVideoUrl;
         }
