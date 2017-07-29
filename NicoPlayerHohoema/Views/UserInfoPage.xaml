@@ -11,8 +11,10 @@
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:wrExt="using:WinRTXamlToolkit.Controls.Extensions"
-    xmlns:uwpUI="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
+    xmlns:listitem="using:NicoPlayerHohoema.Views.HohoemaListItem"
+    xmlns:mycontrols="using:NicoPlayerHohoema.Views.Controls"
     xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
@@ -31,100 +33,37 @@
                         <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="ContentLayout.Margin" Value="0 27 48 27" />
+                        <Setter Target="ContentLayout.Margin" Value="16 27 0 27" />
+                        <Setter Target="NGLayout.Margin" Value="0 0 48 0" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-        
-        <toolkit:DockPanel x:Name="ContentLayout">
-            <Border toolkit:DockPanel.Dock="Top" 
-                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
-                    BorderThickness="0 0 0 1"
-                    Height="64"
-                    >
-                <toolkit:DockPanel >
 
 
-                    <StackPanel toolkit:DockPanel.Dock="Right" 
-                                Orientation="Horizontal"
-                                >
+        <ScrollViewer>
+            <StackPanel Margin="16 8" x:Name="ContentLayout">
 
-                        <HyperlinkButton Content="ブラウザで開く"
-                                         Command="{Binding OpenUserAccountPageInBrowserCommand}"
-                                         VerticalAlignment="Center"
-                                         UseSystemFocusVisuals="True"
-                                         >
-                            
-                        </HyperlinkButton>
-                        
-                        <Button Content="ログアウト"
-                                Visibility="{Binding IsLoginUser, Converter={StaticResource BooleanToVisibility}}"
-                                Command="{Binding LogoutCommand}"
-                                Background="Transparent"
-                                UseSystemFocusVisuals="True"
-                                />
 
-                        <Button Background="Transparent"
-                                    Command="{Binding AddFeedSourceCommand}"
-                                UseSystemFocusVisuals="True"
-                                    >
-                            <TextBlock Text="フィード登録" />
-                        </Button>
 
-                        <AppBarToggleButton Background="Transparent"
-                                IsChecked="{Binding IsFavorite.Value, Mode=TwoWay}"
-                                IsEnabled="{Binding CanChangeFavoriteState.Value}"
-                                Visibility="{Binding IsLoginUser, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                            Icon="Favorite"
+                <toolkit:DockPanel>
+                    <Image Width="80" Height="80"
+                                    Source="{Binding UserIconUri, Mode=OneWay}" 
+                                    Margin="0 0 16 0"
+                                    toolkit:DockPanel.Dock="Left"
+                                       
                         />
 
-
-                    </StackPanel>
-
-                    <Border Background="Transparent" IsHitTestVisible="True"
-                                Margin="16 0 0 0"
-                                >
-                        <StackPanel Orientation="Horizontal">
-                            <Image Width="48" Height="48"
-                                       Source="{Binding UserIconUri}" 
-                                        Margin="0 0 8 0"
-                                        VerticalAlignment="Center"
-                            />
-
-                            <TextBlock Text="{Binding Title}" 
-                                    VerticalAlignment="Center"
-                                    Style="{StaticResource SubtitleTextBlockStyle}"
-                                    >
-
-                            </TextBlock>
-                        </StackPanel>
-
-                    </Border>
-
-
-
-
-                </toolkit:DockPanel>
-            </Border>
-
-            <Border toolkit:DockPanel.Dock="Top" 
-                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
-                    BorderThickness="0 0 0 1"
-                    >
-                <toolkit:DockPanel >
-
-
-                    <StackPanel toolkit:DockPanel.Dock="Right" Margin="8 0"
-                                Orientation="Horizontal"
-                                >
-
-
-
-                    </StackPanel>
+                    <TextBlock Text="{Binding Title}" 
+                                VerticalAlignment="Center"
+                                Style="{StaticResource SubheaderTextBlockStyle}"
+                                   toolkit:DockPanel.Dock="Top"
+                               TextWrapping="Wrap"
+                                />
 
                     <Border Background="Transparent" IsHitTestVisible="True"
-                                Margin="24 0 0 0"
+                            VerticalAlignment="Bottom"
+                                Margin="0 0 0 0"
                                 >
                         <StackPanel Orientation="Horizontal"
                                     Margin="0 8" 
@@ -141,179 +80,265 @@
                     </Border>
 
 
-
-
                 </toolkit:DockPanel>
-            </Border>
 
-            <ScrollViewer>
-                <StackPanel Margin="8 8 16 8">
 
-                    <Grid>
-                        <ProgressRing Visibility="{Binding NowLoading, Converter={StaticResource BooleanToVisibility}}"
-                    IsActive="{Binding NowLoading}"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Top"
-                    Margin="16"
-                    Width="32"
-                    Height="32"
-                    />
-                        <StackPanel Margin="8 8">
-
-                            <StackPanel Visibility="{Binding IsVideoPrivate, Converter={StaticResource BooleanToVisibilityInverted}}">
-                                <TextBlock FontWeight="Bold"
-                                Margin="0 16 0 8"
+                <!-- Actions -->
+                <Grid Margin="0 16 0 8">
+                    <CommandBar HorizontalAlignment="Left"
                                 >
-                                <Run Text="{Binding UserName}" />
-                                <Run Text="さんの投稿動画（最新５件）" />
-                                </TextBlock>
+
+                        <AppBarToggleButton Background="Transparent"
+                                                IsChecked="{Binding IsFavorite.Value, Mode=TwoWay}"
+                                                IsEnabled="{Binding CanChangeFavoriteState.Value}"
+                                                Visibility="{Binding IsLoginUser, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                                Icon="Favorite"
+                                                Label="フォロー"
+                                                />
+
+                        <AppBarButton Background="Transparent"
+                                        Command="{Binding AddFeedSourceCommand}"
+                                        UseSystemFocusVisuals="True"
+                                          Label="フィード登録"
+                                        />
+
+                        <AppBarButton Label="ブラウザで開く"
+                                            Command="{Binding OpenUserAccountPageInBrowserCommand}"
+                                            VerticalAlignment="Center"
+                                            UseSystemFocusVisuals="True"
+                                            />
+
+                    </CommandBar>
+                    <CommandBar HorizontalAlignment="Right"
+                                >
+                        <AppBarButton Label="ログアウト"
+                                        Visibility="{Binding IsLoginUser, Converter={StaticResource BooleanToVisibility}}"
+                                        Command="{Binding LogoutCommand}"
+                                        Background="Transparent"
+                                        UseSystemFocusVisuals="True"
+                                        />
+                    </CommandBar>
+                </Grid>
+
+                <Grid>
+                    <ProgressRing Visibility="{Binding NowLoading, Converter={StaticResource BooleanToVisibility}}"
+                                    IsActive="{Binding NowLoading}"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Top"
+                                    Margin="16"
+                                    Width="32"
+                                    Height="32"
+                                    />
+                    <StackPanel Margin="0 0">
+
+                        <Border Height="16"
+                                Visibility="{Binding IsVideoPrivate, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                />
+
+                        <!-- Ownered Videos -->
+                        <ScrollViewer VerticalScrollMode="Disabled"
+                                          VerticalScrollBarVisibility="Disabled"
+                                          HorizontalScrollMode="Auto"
+                                          HorizontalScrollBarVisibility="Hidden"
+                                          >
+                            <StackPanel Visibility="{Binding IsVideoPrivate, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                        Orientation="Horizontal"
+                                        >
+                                <Button Command="{Binding OpenUserVideoPageCommand}"
+                                        IsEnabled="{Binding HasOwnerVideo}"
+                                        MinWidth="120"
+                                        MinHeight="140" 
+                                        >
+                                    <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
+                                                 Text="投稿動画"  
+                                                />
+
+
+                                </Button>
+
                                 <ListView ItemsSource="{Binding VideoInfoItems}"
-                                Margin="0 8"
                                           IsTabStop="False"
-                                >
+                                          uwpui:ListViewBaseExtensions.Command="{Binding PlayUserVideoCommand}"
+                                          SelectionMode="None"
+                                          IsItemClickEnabled="True"
+                                    >
+
                                     <ListView.ItemContainerStyle>
                                         <Style TargetType="ListViewItem">
                                             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                             <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                                            <Setter Property="VerticalAlignment" Value="Center" />
+                                            <Setter Property="Padding" Value="0" />
+                                            <Setter Property="Margin" Value="0" />
                                         </Style>
                                     </ListView.ItemContainerStyle>
 
+                                    <ListView.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <ItemsWrapGrid Orientation="Horizontal" Margin="0 0 48 0" />
+                                        </ItemsPanelTemplate>
+                                    </ListView.ItemsPanel>
+
                                     <ListView.ItemTemplate>
                                         <DataTemplate>
-
-                                            <Border Background="Transparent" IsHitTestVisible="True">
-                                                <i:Interaction.Behaviors>
-                                                    <core:EventTriggerBehavior EventName="Tapped">
-                                                        <core:InvokeCommandAction Command="{Binding PlayCommand}" />
-                                                    </core:EventTriggerBehavior>
-                                                </i:Interaction.Behaviors>
-
-                                                <TextBlock Text="{Binding Title}" 
-                                                   VerticalAlignment="Center"
-                                                   />
-                                            </Border>
+                                            <mycontrols:VideoInfoControl_TV />
                                         </DataTemplate>
                                     </ListView.ItemTemplate>
                                 </ListView>
 
-                                <Button Content="投稿動画の一覧を見る" 
-                                    Command="{Binding OpenUserVideoPageCommand}"
-                                    Visibility="{Binding HasOwnerVideo, Converter={StaticResource BooleanToVisibility}}"
-                                    HorizontalAlignment="Center"
-                                    Margin="8"               
-                                        UseSystemFocusVisuals="True"
-                                    />
-
 
                                 <Border Visibility="{Binding HasOwnerVideo, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                Margin="16"
-                                >
+                                        >
                                     <TextBlock Foreground="Gray">
-                                    <Run Text="投稿動画はありません" />
+                                        <Run Text="投稿動画はありません" />
                                     </TextBlock>
+                                </Border>
+                                <Border Visibility="{Binding IsVideoPrivate, Converter={StaticResource BooleanToVisibility}}"
+                                        >
+                                    <TextBlock Text="投稿動画は非公開です" 
+                                            Foreground="Gray"
+                                            />
                                 </Border>
                             </StackPanel>
 
-                            <Border Visibility="{Binding IsVideoPrivate, Converter={StaticResource BooleanToVisibility}}"
-                            Margin="16"
-                            >
-                                <TextBlock Text="投稿動画は非公開です" 
-                                    Foreground="Gray"
-                                    />
-                            </Border>
+                        </ScrollViewer>
 
-                            <TextBlock Text="マイリスト一覧" FontWeight="Bold"
-                                Margin="0 16 0 8"
-                                />
-                            <ListView ItemsSource="{Binding MylistGroups}"
-                                Margin="0 8"
-                                      IsTabStop="False"
+                        <Border Height="16" />
+
+                        <!-- Mylist -->
+                        <ScrollViewer VerticalScrollMode="Disabled"
+                                          VerticalScrollBarVisibility="Disabled"
+                                          HorizontalScrollMode="Auto"
+                                          HorizontalScrollBarVisibility="Hidden"
+                                          >
+                            <StackPanel Orientation="Horizontal"
+                                        >
+                                <Button Command="{Binding OpenUserMylistPageCommand}"
+                                        MinWidth="120"
+                                        MinHeight="140" 
+                                        >
+                                    <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
+                                                   Text="マイリスト"
+                                                   
+                                        />
+
+                                </Button>
+
+                                <ListView ItemsSource="{Binding MylistGroups}"
+                                          Margin="0 0"
+                                          IsTabStop="False"
+                                          uwpui:ListViewBaseExtensions.Command="{Binding OpenMylistCommand}"
+                                          SelectionMode="None"
+                                          IsItemClickEnabled="True"
                                 >
-                                <ListView.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border Background="Transparent" IsHitTestVisible="True">
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="ListViewItem">
+                                            <Setter Property="VerticalAlignment" Value="Center" />
+                                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                                            <Setter Property="Padding" Value="0" />
+                                            <Setter Property="Margin" Value="0" />
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
 
-                                            <i:Interaction.Behaviors>
-                                                <core:EventTriggerBehavior EventName="Tapped">
-                                                    <core:InvokeCommandAction Command="{Binding PrimaryCommand}" />
-                                                </core:EventTriggerBehavior>
-                                            </i:Interaction.Behaviors>
+                                    <ListView.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <ItemsWrapGrid Orientation="Horizontal" Margin="0 0 48 0" />
+                                        </ItemsPanelTemplate>
+                                    </ListView.ItemsPanel>
 
-                                            <TextBlock Text="{Binding Title}" />
-                                        </Border>
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <listitem:HohoemaListItemMiniCard />
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
 
-                                    </DataTemplate>
-                                </ListView.ItemTemplate>
-                            </ListView>
+                                <Border Visibility="{Binding HasOwnerVideo, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                        Margin="16"
+                                        >
+                                    <TextBlock Foreground="Gray">
+                                        <Run Text="マイリストなし" />
+                                    </TextBlock>
+                                </Border>
 
-                            <Border Height="8" />
+                            </StackPanel>
 
-                            <StackPanel Visibility="{Binding IsLoginUser, Converter={StaticResource BooleanToVisibilityInverted}}"
+                        </ScrollViewer>
+
+
+                        <Border Height="16" />
+
+
+                        <StackPanel Visibility="{Binding IsLoginUser, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                    Margin="0 0 8 0"
+                                    x:Name="NGLayout"
                                 >
 
-                                <!-- NG登録中の表示 -->
-                                <Border Visibility="{Binding IsNGVideoOwner.Value, Converter={StaticResource BooleanToVisibility}}"
+                            <!-- NG登録中の表示 -->
+                            <Border Visibility="{Binding IsNGVideoOwner.Value, Converter={StaticResource BooleanToVisibility}}"
                                     BorderBrush="Red"
                                     BorderThickness="3"
                                     Padding="16"
                                     >
-                                    <StackPanel>
-                                        <TextBlock
+                                <StackPanel>
+                                    <TextBlock
                                         Margin="0 0 0 8"
                                         >
                                         <Run Text="{Binding UserName}" />
                                         <Run Text="さんをNG動画投稿者に指定しています" />
-                                        </TextBlock>
-                                        <TextBlock Text="このユーザーが投稿した動画はあなたの動画一覧に表示されません" 
+                                    </TextBlock>
+                                    <TextBlock Text="このユーザーが投稿した動画はあなたの動画一覧に表示されません" 
                                                TextWrapping="Wrap"                                       
                                                Margin="0 0 0 8"
                                                />
 
-                                        <Button Content="NG動画投稿者を解除"
-                                            Command="{Binding RemoveNGVideoOwnerCommand}"
-                                                UseSystemFocusVisuals="True"
-                                            />
-                                    </StackPanel>
 
-                                </Border>
+                                </StackPanel>
 
-                                <!-- NG登録 前 の表示 -->
-                                <Border Visibility="{Binding IsNGVideoOwner.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                            </Border>
+
+                            <!-- NG登録 前 の表示 -->
+                            <Border Visibility="{Binding IsNGVideoOwner.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                      Padding="16"
                                     BorderBrush="Green"
                                     BorderThickness="3"
                                      >
 
-                                    <StackPanel>
-                                        <TextBlock TextWrapping="Wrap"                                
+                                <StackPanel>
+
+                                    <TextBlock TextWrapping="Wrap"                                
                                                Margin="0 0 0 8"
                                         >
                                         <Run Text="{Binding UserName}" />
                                         <Run Text="さんをNG動画投稿者に指定しますか？" />
-                                        </TextBlock>
-                                        <TextBlock Text="NG動画投稿者に指定されたユーザーの投稿動画は、あなたの動画一覧に表示されなくなるので注意してください。" 
+                                    </TextBlock>
+                                    
+                                    <ToggleSwitch IsOn="{Binding IsNGVideoOwner.Value, Mode=TwoWay}" 
+                                          Header="NG動画投稿者として登録する"
+                                          Margin="0 8 0 8"
+                                          />
+                                    
+                                    <TextBlock Text="※ NG動画投稿者に指定されたユーザーの投稿動画は、動画一覧に表示されなくなります。" 
                                                TextWrapping="Wrap"
-                                               Margin="0 0 0 8"
+                                               Margin="0 8"
                                                />
+                                    
+                                    
+                                </StackPanel>
 
-                                        <Button Content="NG動画投稿者として指定する"
-                                            Command="{Binding AddNGVideoOwnerCommand}"
-                                                UseSystemFocusVisuals="True"
-                                            />
-                                    </StackPanel>
-
-                                </Border>
-                            </StackPanel>
-
+                            </Border>
 
                         </StackPanel>
-                    </Grid>
 
-                </StackPanel>
-            </ScrollViewer>
 
-        </toolkit:DockPanel>
+                    </StackPanel>
+                </Grid>
+
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
-    
-    
+
+
+
 </Page>

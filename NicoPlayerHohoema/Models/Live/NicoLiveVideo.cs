@@ -888,9 +888,9 @@ namespace NicoPlayerHohoema.Models.Live
 						{
 							args.Chat.Mail = args.Arguments[1];
 							args.Chat.Text = args.Arguments[2];
-							var name = args.Arguments[4];
+                            //var name = args.Arguments[3];
 
-							_LiveComments.Add(args.Chat);
+                            _LiveComments.Add(args.Chat);
 						}
 						break;
 					case NicoLiveOperationCommandType.Disconnect:

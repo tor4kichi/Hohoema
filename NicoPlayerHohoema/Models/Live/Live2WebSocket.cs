@@ -257,7 +257,7 @@ namespace NicoPlayerHohoema.Models.Live
             }
             else if (type == "ping")
             {
-                await SendMessageAsync(recievedText);
+                
             }
         }
 

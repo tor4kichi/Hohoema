@@ -70,9 +70,6 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-        private IDisposable _CommentRenderUpdateTimerDisposer;
-
-
 		public VideoPlayerControlViewModel(
 			HohoemaApp hohoemaApp, 
 			EventAggregator ea,
@@ -563,25 +560,11 @@ namespace NicoPlayerHohoema.ViewModels
             });
 
 
-            RequestFPS = HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.CommentRenderingFPS)
-                .Select(x => (int)x)
+            RequestUpdateInterval = HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.CommentRenderingFPS)
+                .Select(x => TimeSpan.FromSeconds(1.0 / x))
                 .ToReactiveProperty()
                 .AddTo(userSessionDisposer);
-            OnPropertyChanged(nameof(RequestFPS));
-
-            RequestFPS.Subscribe(fps =>
-            {
-                var renderInterval = TimeSpan.FromSeconds(1.0 / fps);
-                _CommentRenderUpdateTimerDisposer?.Dispose();
-                _CommentRenderUpdateTimerDisposer = Observable.Timer(TimeSpan.Zero, renderInterval)
-                    .Subscribe(x =>
-                    {
-                        if (IsDisposed) { return; }
-
-                        CommentVideoPosition.Value = MediaPlayer.PlaybackSession.Position;
-                    });
-            })
-            .AddTo(userSessionDisposer);
+            OnPropertyChanged(nameof(RequestUpdateInterval));
 
             RequestCommentDisplayDuration = HohoemaApp.UserSettings.PlayerSettings
                 .ObserveProperty(x => x.CommentDisplayDuration)
@@ -1145,8 +1128,6 @@ namespace NicoPlayerHohoema.ViewModels
 
         private void Current_EnteredBackground(object sender, Windows.ApplicationModel.EnteredBackgroundEventArgs e)
         {
-            _CommentRenderUpdateTimerDisposer?.Dispose();
-            _CommentRenderUpdateTimerDisposer = null;
         }
 
         private void Current_LeavingBackground(object sender, Windows.ApplicationModel.LeavingBackgroundEventArgs e)
@@ -1154,7 +1135,7 @@ namespace NicoPlayerHohoema.ViewModels
             PlayerWindowUIDispatcherScheduler.Schedule(() =>
             {
                 if (IsDisposed) { return; }
-                RequestFPS.ForceNotify();
+                RequestUpdateInterval.ForceNotify();
             });
         }
 
@@ -1328,7 +1309,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             Video?.StopPlay();
 
-            _CommentRenderUpdateTimerDisposer?.Dispose();
             _BufferingMonitorDisposable?.Dispose();
 		}
 
@@ -2077,7 +2057,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<double> SoundVolume { get; private set; }
 
 		// Settings
-		public ReactiveProperty<int> RequestFPS { get; private set; }
+		public ReactiveProperty<TimeSpan> RequestUpdateInterval { get; private set; }
 		public ReactiveProperty<TimeSpan> RequestCommentDisplayDuration { get; private set; }
 		public ReactiveProperty<double> CommentFontScale { get; private set; }
 		public ReactiveProperty<bool> IsFullScreen { get; private set; }

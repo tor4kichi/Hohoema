@@ -542,14 +542,15 @@
 
                 <comment:CommentRenderer 
                                 x:Name="CommentRederer"
+                                MediaPlayer="{Binding MediaPlayer}"
                                 Comments="{Binding Comments}"
-                                VideoPosition="{Binding CommentVideoPosition.Value}"                                     
                                 Visibility="{Binding IsVisibleComment.Value, Converter={StaticResource BooleanToVisibility}}"
                                 CommentSizeScale="{Binding CommentFontScale.Value}"
                                 Height="{Binding CommentCanvasHeight.Value}"
                                 CommentDefaultColor="{Binding CommentDefaultColor.Value}"
                                 DefaultDisplayDuration="{Binding RequestCommentDisplayDuration.Value}"
                                 Opacity="{Binding CommentOpacity.Value, Mode=OneWay}"
+                                UpdateInterval="{Binding RequestUpdateInterval.Value, Mode=OneWay}"
                                 />
 
 

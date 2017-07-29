@@ -10,14 +10,13 @@
     d:DesignWidth="400"
     >
 
-    <Grid>
+    <Grid Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibility}}">
         
         <TextBlock 
                 Text="{Binding CommentText}"
                 Foreground="{Binding BackColor, Converter={StaticResource ColorToBrush}}"
                 Opacity="0.75"
                 FontSize="{Binding FontSize}"
-                Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibility}}"
                 TextWrapping="{Binding TextWrapping}"
                 FontWeight="Medium"
                 TextLineBounds="Tight"
@@ -31,44 +30,11 @@
                 Text="{Binding CommentText}"
                 Foreground="{Binding RealColor, Converter={StaticResource ColorToBrush}}"
                 FontSize="{Binding FontSize}"
-                Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibility}}"
                 TextWrapping="{Binding TextWrapping}"
                 FontWeight="Medium"
                 TextLineBounds="Tight"
             />
-        
-        <!-- 
-        <myeffect:GlowEffectHostControl
-            GlowEffectBlurAmount="2.0"
-            >
-            <TextBlock 
-                Text="{Binding CommentText}"
-                Foreground="{Binding Color, Converter={StaticResource ColorToBrush}}"
-                FontSize="{Binding FontSize}"
-                Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibility}}"
-            />
-        </myeffect:GlowEffectHostControl>
-        -->
-
-        <StackPanel Visibility="Collapsed"
-                    Orientation="Horizontal"
-                    Background="Black"
-                    >
-            <TextBlock 
-                   FontSize="14"
-                   >
-                <Run Text="S:" />
-                <Run Text="{Binding VideoPosition}" />
-            </TextBlock>
-            <TextBlock 
-                   FontSize="14"
-                   >
-                <Run Text="E:" />
-                <Run Text="{Binding EndPosition}" />
-            </TextBlock>
-
-        </StackPanel>
-
+  
     </Grid>
         
 </UserControl>

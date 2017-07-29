@@ -23,7 +23,9 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 {
 	public sealed partial class CommentUI : UserControl
 	{
-		public Comment CommentData { get; private set; }
+		public Comment CommentData { get; set; }
+
+        public bool IsVerticalPositionCulcurated { get; set; }
 
 		public CommentUI()
 		{
