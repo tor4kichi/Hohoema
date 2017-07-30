@@ -13,6 +13,7 @@ using Prism.Windows.Navigation;
 using System.Threading;
 using System.Diagnostics;
 using Mntone.Nico2;
+using Mntone.Nico2.Embed.Ichiba;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -45,6 +46,8 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<bool> IsLoadFailed { get; private set; }
 
 
+
+        public List<IchibaItem> IchibaItems { get; private set; }
 
         public bool IsSelfZoningContent { get; private set; }
         public NGResult SelfZoningInfo { get; private set; }
@@ -311,6 +314,20 @@ namespace NicoPlayerHohoema.ViewModels
 
 
             await Update();
+
+            try
+            {
+                var ichiba = await HohoemaApp.NiconicoContext.Embed.GetIchiba(Video.RawVideoId);
+                IchibaItems = ichiba.GetMainIchibaItems();
+                if (IchibaItems.Count > 0)
+                {
+                    OnPropertyChanged(nameof(IchibaItems));
+                }
+            }
+            catch
+            {
+                Debug.WriteLine(Video.RawVideoId + " の市場情報の取得に失敗");
+            }
         }
 
 

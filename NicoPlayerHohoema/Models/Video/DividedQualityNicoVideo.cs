@@ -683,6 +683,7 @@ namespace NicoPlayerHohoema.Models
             try
             {
                 _DmcSessionResponse = await HohoemaApp.NiconicoContext.Video.GetDmcSessionResponse(_DmcWatchResponse, videoQuality);
+                if (_DmcSessionResponse == null) { return null; }
                 return new Uri(_DmcSessionResponse.Data.Session.ContentUri);
             }
             catch
