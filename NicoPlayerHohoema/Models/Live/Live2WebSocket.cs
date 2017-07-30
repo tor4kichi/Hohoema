@@ -101,9 +101,9 @@ namespace NicoPlayerHohoema.Models.Live
                 _DataWriter = new DataWriter(MessageWebSocket.OutputStream);
             }
 
-            if (requestQuality == null)
+            if (string.IsNullOrEmpty(requestQuality))
             {
-                requestQuality = "";
+                requestQuality = "high";
             }
 
 
