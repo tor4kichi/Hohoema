@@ -38,6 +38,25 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
+
+
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsNGVideoOwner.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="NGLayout.BorderBrush">
+                            <Setter.Value>
+                                <SolidColorBrush Color="Red" />
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Target="NGUI.Visibility" Value="Visible" />
+
+                        <Setter Target="NotNGUI.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
 
@@ -273,61 +292,23 @@
                         <StackPanel Visibility="{Binding IsLoginUser, Converter={StaticResource BooleanToVisibilityInverted}}"
                                     Margin="0 0 8 0"
                                     x:Name="NGLayout"
-                                >
-
-                            <!-- NG登録中の表示 -->
-                            <Border Visibility="{Binding IsNGVideoOwner.Value, Converter={StaticResource BooleanToVisibility}}"
-                                    BorderBrush="Red"
-                                    BorderThickness="3"
                                     Padding="16"
-                                    >
-                                <StackPanel>
-                                    <TextBlock
+                                    BorderThickness="2"
+                                    BorderBrush="Gray"
+                                >
+                            <TextBlock Margin="0 8 0 0" >
+                                <Run Text="{Binding UserName}" /> さんをNG動画投稿者として登録する
+                            </TextBlock>
+
+                            <ToggleSwitch IsOn="{Binding IsNGVideoOwner.Value, Mode=TwoWay}" 
                                         Margin="0 0 0 8"
-                                        >
-                                        <Run Text="{Binding UserName}" />
-                                        <Run Text="さんをNG動画投稿者に指定しています" />
-                                    </TextBlock>
-                                    <TextBlock Text="このユーザーが投稿した動画はあなたの動画一覧に表示されません" 
-                                               TextWrapping="Wrap"                                       
-                                               Margin="0 0 0 8"
-                                               />
+                                        />
 
-
-                                </StackPanel>
-
-                            </Border>
-
-                            <!-- NG登録 前 の表示 -->
-                            <Border Visibility="{Binding IsNGVideoOwner.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                     Padding="16"
-                                    BorderBrush="Green"
-                                    BorderThickness="3"
-                                     >
-
-                                <StackPanel>
-
-                                    <TextBlock TextWrapping="Wrap"                                
-                                               Margin="0 0 0 8"
-                                        >
-                                        <Run Text="{Binding UserName}" />
-                                        <Run Text="さんをNG動画投稿者に指定しますか？" />
-                                    </TextBlock>
-                                    
-                                    <ToggleSwitch IsOn="{Binding IsNGVideoOwner.Value, Mode=TwoWay}" 
-                                          Header="NG動画投稿者として登録する"
-                                          Margin="0 8 0 8"
-                                          />
-                                    
-                                    <TextBlock Text="※ NG動画投稿者に指定されたユーザーの投稿動画は、動画一覧に表示されなくなります。" 
+                            <TextBlock Text="※ NG動画投稿者に指定されたユーザーの投稿動画は、動画一覧に表示されなくなります。" 
                                                TextWrapping="Wrap"
                                                Margin="0 8"
+                                       Opacity="0.7"
                                                />
-                                    
-                                    
-                                </StackPanel>
-
-                            </Border>
 
                         </StackPanel>
 
