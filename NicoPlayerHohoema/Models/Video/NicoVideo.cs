@@ -468,7 +468,7 @@ namespace NicoPlayerHohoema.Models
             
             if (dmcWatchResponse != null)
             {
-                if (dmcWatchResponse.Video.DmcInfo.Quality == null &&
+                if (dmcWatchResponse.Video.DmcInfo?.Quality == null &&
                     dmcWatchResponse.Video.SmileInfo?.Url == null)
                 {
                     throw new Exception("Dmcサーバーからの再生が出来ません。");
@@ -662,10 +662,13 @@ namespace NicoPlayerHohoema.Models
 
         internal async Task<Uri> SetupWatchPageVisit(NicoVideoQuality quality)
         {
+            await VisitWatchPage(quality);
+
             var divided = GetDividedQualityNicoVideo(quality);
             if (divided.CanPlay)
-            {
+            {                
                 var videoUri = await divided.GenerateVideoContentUrl();
+
                 if (divided.IsCacheRequested)
                 {
                     await OnCacheRequested();
