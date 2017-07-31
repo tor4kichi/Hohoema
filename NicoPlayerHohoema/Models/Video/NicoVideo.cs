@@ -158,6 +158,8 @@ namespace NicoPlayerHohoema.Models
 
             Debug.WriteLine(divided.Quality);
 
+            MediaSource mediaSource = null;
+
             // キャッシュ済みの場合は
             if (divided.HasCache)
             {
@@ -165,6 +167,28 @@ namespace NicoPlayerHohoema.Models
                 NicoVideoCachedStream = await file.OpenReadAsync();
 
                 await OnCacheRequested();
+
+                string contentType = null;
+
+                if (NicoVideoCachedStream is IRandomAccessStreamWithContentType)
+                {
+                    contentType = (NicoVideoCachedStream as IRandomAccessStreamWithContentType).ContentType;
+                }
+
+                if (contentType == null) { throw new Exception("unknown movie content type"); }
+
+                if (contentType == "video/mp4")
+                {
+                    mediaSource = MediaSource.CreateFromStream(NicoVideoCachedStream, contentType);
+                }
+                else
+                {
+                    _VideoMSS = FFmpegInteropMSS.CreateFFmpegInteropMSSFromStream(NicoVideoCachedStream, false, false);
+                    var mss = _VideoMSS.GetMediaStreamSource();
+                    mss.SetBufferedRange(TimeSpan.Zero, TimeSpan.Zero);
+                    mediaSource = MediaSource.CreateFromMediaStreamSource(mss);
+                }
+                
             }
             else if (ProtocolType == MediaProtocolType.RTSPoverHTTP)
             {
@@ -176,16 +200,58 @@ namespace NicoPlayerHohoema.Models
                         divided = GetDividedQualityNicoVideo(NicoVideoQuality.Low);
                         videoUrl = await divided.GenerateVideoContentUrl();
                     }
-                    NicoVideoCachedStream = await HttpSequencialAccessStream.CreateAsync(
-                        HohoemaApp.NiconicoContext.HttpClient
-                        , videoUrl
-                        );
-                }
-            }
 
-            if (NicoVideoCachedStream == null)
-            {
-                throw new NotSupportedException();
+                    _VideoMSS?.Dispose();
+
+                   
+                    if (ContentType != MovieType.Mp4)
+                    {
+                        // Note: HTML5プレイヤー移行中のFLV動画に対するフォールバック処理
+                        // サムネではContentType=FLV,SWFとなっていても、
+                        // 実際に渡される動画ストリームのContentTypeがMP4となっている場合がある
+                        NicoVideoCachedStream = await HttpSequencialAccessStream.CreateAsync(
+                            HohoemaApp.NiconicoContext.HttpClient
+                            , videoUrl
+                            );
+
+                        if (NicoVideoCachedStream is IRandomAccessStreamWithContentType)
+                        {
+                            var contentType = (NicoVideoCachedStream as IRandomAccessStreamWithContentType).ContentType;
+
+                            if (contentType.EndsWith("mp4"))
+                            {
+                                ContentType = MovieType.Mp4;
+                            }
+                            else if (contentType.EndsWith("flv"))
+                            {
+                                ContentType = MovieType.Flv;
+                            }
+                            else if (contentType.EndsWith("swf"))
+                            {
+                                ContentType = MovieType.Swf;
+                            }
+                        }
+
+                        if (ContentType != MovieType.Mp4)
+                        {
+                            _VideoMSS = FFmpegInteropMSS.CreateFFmpegInteropMSSFromStream(NicoVideoCachedStream, false, false);
+                            var mss = _VideoMSS.GetMediaStreamSource();
+                            mss.SetBufferedRange(TimeSpan.Zero, TimeSpan.Zero);
+                            mediaSource = MediaSource.CreateFromMediaStreamSource(mss);
+                        }
+                        else
+                        {
+                            NicoVideoCachedStream.Dispose();
+                            NicoVideoCachedStream = null;
+
+                            mediaSource = MediaSource.CreateFromUri(videoUrl);
+                        }
+                    }
+                    else 
+                    {
+                        mediaSource = MediaSource.CreateFromUri(videoUrl);
+                    }
+                }
             }
 
             if (initialPosition == null)
@@ -193,60 +259,11 @@ namespace NicoPlayerHohoema.Models
                 initialPosition = TimeSpan.Zero;
             }
 
-            if (NicoVideoCachedStream is IRandomAccessStreamWithContentType)
-            {
-                var contentType = (NicoVideoCachedStream as IRandomAccessStreamWithContentType).ContentType;
-
-                if (contentType.EndsWith("mp4"))
-                {
-                    ContentType = MovieType.Mp4;
-                }
-                else if (contentType.EndsWith("flv"))
-                {
-                    ContentType = MovieType.Flv;
-                }
-                else if (contentType.EndsWith("swf"))
-                {
-                    ContentType = MovieType.Swf;
-                }
-            }
-
-            MediaSource mediaSource = null;
-            if (ContentType == MovieType.Mp4)
-            {
-                string contentType = null;
-
-                if (NicoVideoCachedStream is IRandomAccessStreamWithContentType)
-                {
-                    contentType = (NicoVideoCachedStream as IRandomAccessStreamWithContentType).ContentType;
-                }
-
-                if (contentType == null) { throw new Exception("unknown movie content type"); }
-
-                mediaSource = MediaSource.CreateFromStream(NicoVideoCachedStream, contentType);
-            }
-            else
-            {
-                _VideoMSS?.Dispose();
-
-                _VideoMSS = FFmpegInteropMSS.CreateFFmpegInteropMSSFromStream(NicoVideoCachedStream, false, false);
-
-                if (_VideoMSS != null)
-                {
-                    var mss = _VideoMSS.GetMediaStreamSource();
-                    mss.SetBufferedRange(TimeSpan.Zero, TimeSpan.Zero);
-                    mediaSource = MediaSource.CreateFromMediaStreamSource(mss);
-                }
-                else
-                {
-                    throw new NotSupportedException();
-                }
-            }
+            
 
             if (mediaSource != null)
             {
                 HohoemaApp.MediaPlayer.Source = mediaSource;
-                HohoemaApp.MediaPlayer.PlaybackSession.Position = initialPosition.Value;
 
                 _MediaSource = mediaSource;
 
@@ -654,13 +671,13 @@ namespace NicoPlayerHohoema.Models
             }
             catch
             {
-                await Task.Delay(TimeSpan.FromSeconds(2));
+                await Task.Delay(TimeSpan.FromSeconds(1));
                 await GetWatchApiResponse(quality == NicoVideoQuality.Low);
             }
         }
 
 
-        internal async Task<Uri> SetupWatchPageVisit(NicoVideoQuality quality)
+        internal async Task<Uri> GetVideoStreamUriAsync(NicoVideoQuality quality)
         {
             await VisitWatchPage(quality);
 

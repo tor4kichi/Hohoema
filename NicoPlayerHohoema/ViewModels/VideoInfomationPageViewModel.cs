@@ -345,15 +345,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 try
                 {
-                    if (Video.ContentType == Mntone.Nico2.Videos.Thumbnail.MovieType.Flv)
-                    {
-                        await HohoemaApp.NiconicoContext.Video.GetWatchApiAsync(Video.RawVideoId, false);
-                    }
-                    else
-                    {
-                        await Video.SetupWatchPageVisit(NicoVideoQuality.Low);
-
-                    }
+                    await Video.VisitWatchPage(NicoVideoQuality.Low);
 
 
                     VideoTitle = Video.Title;
