@@ -339,7 +339,7 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					return
 //						x == MediaPlaybackState.Opening ||
-//						x == MediaPlaybackState.Buffering ||
+						x == MediaPlaybackState.Buffering ||
 						x == MediaPlaybackState.Playing;
 				})
 				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
