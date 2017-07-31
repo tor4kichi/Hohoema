@@ -614,7 +614,7 @@ namespace NicoPlayerHohoema.ViewModels
                 var videoInfo = await HohoemaApp.MediaManager.GetNicoVideoAsync(VideoId);
 
                 // 内部状態を更新
-                await videoInfo.VisitWatchPage();
+                await videoInfo.VisitWatchPage(NicoVideoQuality.Dmc_Mobile);
 
                 // 動画が削除されていた場合
                 if (videoInfo.IsDeleted)

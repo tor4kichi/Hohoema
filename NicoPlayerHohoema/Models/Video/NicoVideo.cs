@@ -468,7 +468,8 @@ namespace NicoPlayerHohoema.Models
             
             if (dmcWatchResponse != null)
             {
-                if (dmcWatchResponse.Video.DmcInfo.Quality == null)
+                if (dmcWatchResponse.Video.DmcInfo.Quality == null &&
+                    dmcWatchResponse.Video.SmileInfo?.Url == null)
                 {
                     throw new Exception("Dmcサーバーからの再生が出来ません。");
                 }
@@ -638,16 +639,23 @@ namespace NicoPlayerHohoema.Models
         
         // 動画情報のキャッシュまたはオンラインからの取得と更新
 
-        public async Task VisitWatchPage()
+        public async Task VisitWatchPage(NicoVideoQuality quality)
 		{
             try
             {
-                await GetDmcWatchResponse();
+                if (quality == NicoVideoQuality.Low)
+                {
+                    await GetWatchApiResponse(true);
+                }
+                else
+                {
+                    await GetDmcWatchResponse();
+                }
             }
             catch
             {
                 await Task.Delay(TimeSpan.FromSeconds(2));
-                await GetWatchApiResponse();
+                await GetWatchApiResponse(quality == NicoVideoQuality.Low);
             }
         }
 
