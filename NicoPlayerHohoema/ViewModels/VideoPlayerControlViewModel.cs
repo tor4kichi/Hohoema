@@ -383,15 +383,22 @@ namespace NicoPlayerHohoema.ViewModels
 			.AddTo(_CompositeDisposable);
 
 
-			IsAutoHideEnable =
-				Observable.CombineLatest(
-					NowPlaying,
-					NowSoundChanging.Select(x => !x),
-					NowCommentWriting.Select(x => !x)
-					)
-				.Select(x => x.All(y => y))
-				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
-				.AddTo(_CompositeDisposable);
+            if (Util.InputCapabilityHelper.IsMouseCapable)
+            {
+                IsAutoHideEnable = Observable.CombineLatest(
+                    NowPlaying,
+                    NowSoundChanging.Select(x => !x),
+                    NowCommentWriting.Select(x => !x)
+                    )
+                .Select(x => x.All(y => y))
+                .ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
+            }
+            else
+            {
+                IsAutoHideEnable = new ReactiveProperty<bool>(false);
+            }
+			
 
 
             // 再生速度
@@ -893,6 +900,11 @@ namespace NicoPlayerHohoema.ViewModels
                     HohoemaApp.UserSettings.PlayerSettings.DefaultQuality = CurrentVideoQuality.Value.Value;
                     await HohoemaApp.UserSettings.PlayerSettings.Save().ConfigureAwait(false);
                 }
+            }
+
+            if (!Util.InputCapabilityHelper.IsMouseCapable)
+            {
+                IsDisplayControlUI.Value = false;
             }
         }
 

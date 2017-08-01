@@ -12,6 +12,82 @@ namespace NicoPlayerHohoema.Views.Behaviors
 {
 	public class VisiblityFadeChanger : Behavior<FrameworkElement>
 	{
+        #region AutoHide
+
+        public static readonly DependencyProperty IsAutoHideEnabledProperty =
+           DependencyProperty.Register("IsAutoHideEnabled"
+                   , typeof(bool)
+                   , typeof(VisiblityFadeChanger)
+                   , new PropertyMetadata(true, OnIsAutoHideEnabledPropertyChanged)
+               );
+
+        public bool IsAutoHideEnabled
+        {
+            get { return (bool)GetValue(IsAutoHideEnabledProperty); }
+            set { SetValue(IsAutoHideEnabledProperty, value); }
+        }
+
+
+        public static void OnIsAutoHideEnabledPropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
+        {
+            VisiblityFadeChanger source = (VisiblityFadeChanger)sender;
+
+            if (source.IsAutoHideEnabled)
+            {
+                source.IsVisible = false;
+            }
+            else
+            {
+                source.IsVisible = true;
+                source.AutoCollapsedTimer.Stop();
+            }
+        }
+
+
+
+        public static readonly DependencyProperty KeepVisibleTimeProperty =
+          DependencyProperty.Register("KeepVisibleTime"
+                  , typeof(TimeSpan)
+                  , typeof(VisiblityFadeChanger)
+                  , new PropertyMetadata(TimeSpan.FromSeconds(5), OnKeepVisibleTimePropertyChanged)
+              );
+
+        public TimeSpan KeepVisibleTime
+        {
+            get { return (TimeSpan)GetValue(KeepVisibleTimeProperty); }
+            set { SetValue(KeepVisibleTimeProperty, value); }
+        }
+
+
+        public static void OnKeepVisibleTimePropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
+        {
+            VisiblityFadeChanger source = (VisiblityFadeChanger)sender;
+
+            source.AutoCollapsedTimer.Interval = source.KeepVisibleTime;
+        }
+
+
+        DispatcherTimer AutoCollapsedTimer = new DispatcherTimer();
+
+        public void PreventAutoHide()
+        {
+            if (IsAutoHideEnabled)
+            {
+                IsVisible = true;
+
+                AutoCollapsedTimer.Stop();
+                AutoCollapsedTimer.Start();
+            }
+        }
+
+        private void AutoCollapsedTimer_Tick(object sender, object e)
+        {
+            IsVisible = false;
+        }
+
+
+        #endregion
+
 
         #region Delay Property
 
@@ -53,6 +129,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
             get { return (bool)GetValue(IsAnimationEnableProperty); }
             set { SetValue(IsAnimationEnableProperty, value); }
         }
+
 
         #endregion
 
@@ -145,15 +222,23 @@ namespace NicoPlayerHohoema.Views.Behaviors
 		{
             if (this.AssociatedObject == null) { return; }
 
-            if (this.AssociatedObject.Visibility == Visibility.Collapsed)
+            _FadeOutAnimation.Stop();
+            if (IsAnimationEnable)
             {
-                this.AssociatedObject.Visibility = Visibility.Visible;
-
-                _FadeOutAnimation.Stop();
                 if (IsAnimationEnable)
                 {
                     _FadeInAnimation.Start();
                 }
+            }
+            else
+            {
+                AssociatedObject.Opacity = 1.0;
+            }
+
+            AutoCollapsedTimer.Stop();
+            if (IsAutoHideEnabled)
+            {
+                AutoCollapsedTimer.Start();
             }
         }
 
@@ -161,33 +246,26 @@ namespace NicoPlayerHohoema.Views.Behaviors
         {
             if (this.AssociatedObject == null) { return; }
 
-            if (this.AssociatedObject.Visibility == Visibility.Visible)
+            AutoCollapsedTimer.Stop();
+
+            _FadeInAnimation.Stop();
+            if (IsAnimationEnable)
             {
-                _FadeInAnimation.Stop();
-                if (IsAnimationEnable)
+                var dispatcher = Dispatcher;
+                try
                 {
-                    var dispatcher = Dispatcher;
-                    try
-                    {
-                        await _FadeOutAnimation.StartAsync()
-                            .ContinueWith(async prevTask =>
-                            {
-                                await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
-                                {
-                                    this.AssociatedObject.Visibility = Visibility.Collapsed;
-                                });
-                            });
-                    }
-                    catch
-                    {
-                        this.AssociatedObject.Visibility = Visibility.Collapsed;
-                    }
+                    await _FadeOutAnimation.StartAsync();
                 }
-                else
+                catch
                 {
-                    this.AssociatedObject.Visibility = Visibility.Collapsed;
+                    AssociatedObject.Opacity = 0.0;
                 }
             }
+            else
+            {
+                AssociatedObject.Opacity = 0.0;
+            }
+            
         }
 
 
@@ -202,7 +280,13 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
             _FadeInAnimation = AssociatedObject.Fade(1, Duration.TotalMilliseconds);
             _FadeOutAnimation = AssociatedObject.Fade(0, Duration.TotalMilliseconds);
+
+            AutoCollapsedTimer.Interval = KeepVisibleTime;
+            AutoCollapsedTimer.Tick += AutoCollapsedTimer_Tick;
+            AutoCollapsedTimer.Start();
         }
+
+        
 
         protected override void OnDetaching()
 		{
@@ -210,6 +294,9 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
             _FadeInAnimation?.Dispose();
             _FadeOutAnimation?.Dispose();
+
+            AutoCollapsedTimer.Tick -= AutoCollapsedTimer_Tick;
+            AutoCollapsedTimer.Stop();
 
             this.AssociatedObject.Visibility = Visibility.Visible;
 		}

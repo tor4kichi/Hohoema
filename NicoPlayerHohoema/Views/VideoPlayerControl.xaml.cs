@@ -26,13 +26,17 @@ namespace NicoPlayerHohoema.Views
             get
             {
                 return _TogglePlaylistPaneCommand
-                    ?? (_TogglePlaylistPaneCommand = new DelegateCommand(() => 
+                    ?? (_TogglePlaylistPaneCommand = new DelegateCommand(() =>
                     {
                         PlaylistSplitView.IsPaneOpen = !PlaylistSplitView.IsPaneOpen;
                     }));
             }
         }
 
+
+
+        public UINavigationButtons ShowUIUINavigationButtons => 
+            UINavigationButtons.Accept | UINavigationButtons.Left | UINavigationButtons.Right | UINavigationButtons.Up | UINavigationButtons.Down;
 
         public VideoPlayerControl()
         {

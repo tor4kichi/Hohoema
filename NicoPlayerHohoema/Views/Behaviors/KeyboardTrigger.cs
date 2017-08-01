@@ -88,7 +88,20 @@ namespace NicoPlayerHohoema.Views.Behaviors
 		public static readonly DependencyProperty IsEnabledProperty =
 			DependencyProperty.Register("IsEnabled", typeof(bool), typeof(KeyboardTrigger), new PropertyMetadata(true));
 
-		public void Attach(DependencyObject associatedObject)
+
+        public bool IsEnableUINavigationButtons
+        {
+            get { return (bool)GetValue(IsEnableUINavigationButtonsProperty); }
+            set { SetValue(IsEnableUINavigationButtonsProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for Key.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty IsEnableUINavigationButtonsProperty =
+            DependencyProperty.Register("IsEnableUINavigationButtons", typeof(bool), typeof(KeyboardTrigger), new PropertyMetadata(false));
+
+
+
+        public void Attach(DependencyObject associatedObject)
 		{
 			this.AssociatedObject = associatedObject;
 			this.Register();
@@ -124,14 +137,50 @@ namespace NicoPlayerHohoema.Views.Behaviors
 			if (!UseKeyUp)
 			{
 				Window.Current.CoreWindow.KeyDown -= this.CoreWindow_KeyDown;
-			}
+            }
 			else
 			{
 				Window.Current.CoreWindow.KeyUp -= this.CoreWindow_KeyDown;
 			}
 		}
 
-		private void CoreWindow_KeyDown(Windows.UI.Core.CoreWindow sender, Windows.UI.Core.KeyEventArgs args)
+        static readonly VirtualKey[] NavigationButtonVirtualKeyList = new[]
+        {
+            VirtualKey.NavigationAccept,
+            VirtualKey.NavigationCancel,
+            VirtualKey.NavigationDown,
+            VirtualKey.NavigationLeft,
+            VirtualKey.NavigationMenu,
+            VirtualKey.NavigationRight,
+            VirtualKey.NavigationUp,
+            VirtualKey.NavigationView,
+            VirtualKey.GamepadA,
+            VirtualKey.GamepadB,
+            VirtualKey.GamepadDPadDown,
+            VirtualKey.GamepadDPadLeft,
+            VirtualKey.GamepadDPadRight,
+            VirtualKey.GamepadDPadUp,
+            VirtualKey.GamepadLeftShoulder,
+            VirtualKey.GamepadLeftThumbstickButton,
+            VirtualKey.GamepadLeftThumbstickDown,
+            VirtualKey.GamepadLeftThumbstickLeft,
+            VirtualKey.GamepadLeftThumbstickRight,
+            VirtualKey.GamepadLeftThumbstickUp,
+            VirtualKey.GamepadLeftTrigger,
+            VirtualKey.GamepadMenu,
+            VirtualKey.GamepadRightShoulder,
+            VirtualKey.GamepadRightThumbstickButton,
+            VirtualKey.GamepadRightThumbstickDown,
+            VirtualKey.GamepadRightThumbstickLeft,
+            VirtualKey.GamepadRightThumbstickRight,
+            VirtualKey.GamepadRightThumbstickUp,
+            VirtualKey.GamepadRightTrigger,
+            VirtualKey.GamepadView,
+            VirtualKey.GamepadX,
+            VirtualKey.GamepadY,
+        };
+
+        private void CoreWindow_KeyDown(Windows.UI.Core.CoreWindow sender, Windows.UI.Core.KeyEventArgs args)
 		{
 			if (!IsEnabled) { return; }
 			if (args.Handled) { return; }
@@ -146,7 +195,12 @@ namespace NicoPlayerHohoema.Views.Behaviors
 				return;
 			}
 
-			if (this.Key == args.VirtualKey)
+            if (!IsEnableUINavigationButtons)
+            {
+                if (NavigationButtonVirtualKeyList.Any(x => x == args.VirtualKey)) { return; }
+            }
+
+			if (this.Key == VirtualKey.None || this.Key == args.VirtualKey)
 			{
                 foreach (var action in this.Actions.Cast<IAction>())
                 {
