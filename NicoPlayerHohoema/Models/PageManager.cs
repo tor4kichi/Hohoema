@@ -239,16 +239,38 @@ namespace NicoPlayerHohoema.Models
                     {
                         if (prevTask.Exception == null)
                         {
-                            await HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => 
+                            await HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                             {
+                                try
+                                {
+                                    var text = await Models.AppUpdateNotice.GetUpdateNotices(prevTask.Result);
+                                    var dialog = new Views.Service.MarkdownTextDialog();
+                                    dialog.Title = "更新情報";
+                                    dialog.Text = text;
+                                    dialog.PrimaryButtonText = "OK";
+
+                                    try
+                                    {
+                                        var addon = await Purchase.HohoemaPurchase.GetAvailableCheersAddOn();
+                                        var product = addon.ProductListings.FirstOrDefault(x => Purchase.HohoemaPurchase.ProductIsActive(x.Value));
+
+                                        if (product.Value != null)
+                                        {
+                                            dialog.SecondaryButtonText = "開発支援について確認する";
+                                            dialog.SecondaryButtonClick += async (_, e) =>
+                                            {
+                                                await Purchase.HohoemaPurchase.RequestPurchase(product.Value);
+                                            };
+                                        }
+                                    }
+                                    catch { }
+
+                                    await dialog.ShowAsync();
+                                }
+                                catch { }
+
                                 Models.AppUpdateNotice.UpdateLastCheckedVersionInCurrentVersion();
 
-                                var text = await Models.AppUpdateNotice.GetUpdateNotices(prevTask.Result);
-                                var dialog = new Views.Service.MarkdownTextDialog();
-                                dialog.Title = "更新情報";
-                                dialog.Text = text;
-                                dialog.PrimaryButtonText = "OK";
-                                await dialog.ShowAsync();
                             });
                         }
                     });
