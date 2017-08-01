@@ -101,24 +101,26 @@ namespace NicoPlayerHohoema.ViewModels
 
 			IsNGVideoOwner = new ReactiveProperty<bool>(false);
 
-			AddNGVideoOwnerCommand = new ReactiveCommand();
-			AddNGVideoOwnerCommand.Subscribe(_ => 
-			{
-				HohoemaApp.UserSettings.NGSettings.AddNGVideoOwnerId(UserId, UserName);
-				IsNGVideoOwner.Value = true;
+            IsNGVideoOwner.Subscribe(isNgVideoOwner => 
+            {
+                if (isNgVideoOwner)
+                {
+                    HohoemaApp.UserSettings.NGSettings.AddNGVideoOwnerId(UserId, UserName);
+                    IsNGVideoOwner.Value = true;
 
-				HohoemaApp.UserSettings.NGSettings.Save().ConfigureAwait(false);
-				Debug.WriteLine(UserName + "をNG動画投稿者として登録しました。");
-			});
-			RemoveNGVideoOwnerCommand = new ReactiveCommand();
-			RemoveNGVideoOwnerCommand.Subscribe(_ =>
-			{
-				HohoemaApp.UserSettings.NGSettings.RemoveNGVideoOwnerId(UserId);
-				IsNGVideoOwner.Value = false;
+                    HohoemaApp.UserSettings.NGSettings.Save().ConfigureAwait(false);
+                    Debug.WriteLine(UserName + "をNG動画投稿者として登録しました。");
+                }
+                else
+                {
+                    HohoemaApp.UserSettings.NGSettings.RemoveNGVideoOwnerId(UserId);
+                    IsNGVideoOwner.Value = false;
 
-				HohoemaApp.UserSettings.NGSettings.Save().ConfigureAwait(false);
-				Debug.WriteLine(UserName + "をNG動画投稿者の指定を解除しました。");
-			});
+                    HohoemaApp.UserSettings.NGSettings.Save().ConfigureAwait(false);
+                    Debug.WriteLine(UserName + "をNG動画投稿者の指定を解除しました。");
+
+                }
+            });
 		}
 
 
@@ -508,8 +510,6 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveCommand RemoveFavoriteCommand { get; private set; }
 
 		public ReactiveProperty<bool> IsNGVideoOwner { get; private set; }
-		public ReactiveCommand AddNGVideoOwnerCommand { get; private set; }
-		public ReactiveCommand RemoveNGVideoOwnerCommand { get; private set; }
 
 
 		public ObservableCollection<MylistGroupListItem> MylistGroups { get; private set; }

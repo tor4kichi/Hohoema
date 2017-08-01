@@ -9,6 +9,7 @@
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
     mc:Ignorable="d"
     d:DesignHeight="1200"
     d:DesignWidth="400">
@@ -338,36 +339,37 @@
                                           />
                 </StackPanel>
 
-                <toolkit:DockPanel Margin="0 8">
+                <StackPanel Margin="0 8" >
                     <TextBlock Text="NG指定した動画投稿者の一覧"
                            VerticalAlignment="Center"
                                    Foreground="DimGray"
                            />
-                    <ItemsControl ItemsSource="{Binding NGVideoOwnerUserIds}"
-                                  Margin="16 8"
-                                  IsTabStop="False"
-                                      HorizontalContentAlignment="Stretch"
+                    <ListView ItemsSource="{Binding NGVideoOwnerUserIds}"
+                              Margin="16 8"
+                              IsTabStop="False"
+                              HorizontalContentAlignment="Stretch"
+                              uwpui:ListViewBaseExtensions.Command="{Binding OpenUserPageCommand}"
+                              IsItemClickEnabled="True"
+                              SelectionMode="None"
                                   >
 
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Border Background="Transparent" IsHitTestVisible="True">
-
-                                    <i:Interaction.Behaviors>
-                                        <core:EventTriggerBehavior EventName="Tapped">
-                                            <core:InvokeCommandAction Command="{Binding SelectedCommand}" />
-                                        </core:EventTriggerBehavior>
-                                    </i:Interaction.Behaviors>
-
-                                    <TextBlock Text="{Binding Source.Description}"
+                                    <TextBlock Text="{Binding Description}"
                                                VerticalAlignment="Center"
                                                />
-
                                 </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </toolkit:DockPanel>
+
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <ItemsWrapGrid Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
+                    </ListView>
+                </StackPanel>
 
 
 

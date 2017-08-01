@@ -13,6 +13,21 @@ namespace NicoPlayerHohoema.Views.Behaviors
 {
 	class SetFocus : Behavior<DependencyObject>, IAction
 	{
+        public static readonly DependencyProperty IsEnabledProperty =
+           DependencyProperty.Register("IsEnabled"
+               , typeof(bool)
+               , typeof(SetFocus)
+               , new PropertyMetadata(true)
+               );
+        public bool IsEnabled
+        {
+            get { return (bool)GetValue(IsEnabledProperty); }
+            set { SetValue(IsEnabledProperty, value); }
+        }
+
+       
+
+
         public static readonly DependencyProperty DelayProperty =
             DependencyProperty.Register("Delay"
                     , typeof(TimeSpan)
@@ -40,8 +55,23 @@ namespace NicoPlayerHohoema.Views.Behaviors
 		}
 
 
-		public object Execute(object sender, object parameter)
+
+        public static readonly DependencyProperty FocusStateProperty =
+           DependencyProperty.Register(nameof(FocusState)
+               , typeof(FocusState)
+               , typeof(SetFocus)
+               , new PropertyMetadata(FocusState.Programmatic)
+               );
+        public FocusState FocusState
+        {
+            get { return (FocusState)GetValue(FocusStateProperty); }
+            set { SetValue(FocusStateProperty, value); }
+        }
+
+        public object Execute(object sender, object parameter)
 		{
+            if (!IsEnabled) { return null; }
+
             var target = TargetObject;
             if (target == null)
             {

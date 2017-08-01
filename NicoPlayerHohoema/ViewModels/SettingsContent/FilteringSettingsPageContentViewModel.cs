@@ -105,15 +105,15 @@ namespace NicoPlayerHohoema.ViewModels
 			// NG Video Owner User Id
 			NGVideoOwnerUserIdEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoOwnerUserIdEnable);
 			NGVideoOwnerUserIds = _NGSettings.NGVideoOwnerUserIds
-				.ToReadOnlyReactiveCollection(x => 
-				new SelectableItem<UserIdInfo>(x, (y) => 
-					{
-						pageManager.OpenPage(HohoemaPageType.UserInfo, x.UserId);
-					})
-				);
+				.ToReadOnlyReactiveCollection();
 
-			// NG Keyword on Video Title
-			NGVideoTitleKeywordEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoTitleKeywordEnable);
+            OpenUserPageCommand = new DelegateCommand<UserIdInfo>(userIdInfo => 
+            {
+                pageManager.OpenPage(HohoemaPageType.UserInfo, userIdInfo.UserId);
+            });
+
+            // NG Keyword on Video Title
+            NGVideoTitleKeywordEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoTitleKeywordEnable);
 			NGVideoTitleKeywords = _NGSettings.NGVideoTitleKeywords.ToReadOnlyReactiveCollection(
 				x => new NGKeywordViewModel(x, OnRemoveNGTitleKeyword)
 				);
@@ -304,7 +304,9 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReadOnlyReactiveCollection<RemovableListItem<string>> NGVideoIds { get; private set; }
 
 		public ReactiveProperty<bool> NGVideoOwnerUserIdEnable { get; private set; }
-		public ReadOnlyReactiveCollection<SelectableItem<UserIdInfo>> NGVideoOwnerUserIds { get; private set; }
+		public ReadOnlyReactiveCollection<UserIdInfo> NGVideoOwnerUserIds { get; private set; }
+        public DelegateCommand<UserIdInfo> OpenUserPageCommand { get; }
+
 
 		public ReactiveProperty<bool> NGVideoTitleKeywordEnable { get; private set; }
 		public ReadOnlyReactiveCollection<NGKeywordViewModel> NGVideoTitleKeywords { get; private set; }

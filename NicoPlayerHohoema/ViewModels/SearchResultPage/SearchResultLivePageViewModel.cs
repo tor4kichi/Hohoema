@@ -110,6 +110,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public uint OneTimeLoadCount => 10;
 
+        public List<VideoInfo> Info { get; } = new List<VideoInfo>();
+
 		public LiveSearchSource(
 			LiveSearchPagePayloadContent searchOption,
 			HohoemaApp app,
@@ -120,6 +122,9 @@ namespace NicoPlayerHohoema.ViewModels
 			PageManager = pageManager;
 			SearchOption = searchOption;
 		}
+
+
+        public HashSet<string> SearchedVideoIdsHash = new HashSet<string>();
 
 		private Task<NicoliveVideoResponse> GetLiveSearchResponseOnCurrentOption(uint from, uint length)
 		{
@@ -140,32 +145,49 @@ namespace NicoPlayerHohoema.ViewModels
 			int totalCount = 0;
 			try
 			{
-				var res = await GetLiveSearchResponseOnCurrentOption(0, 1);
+				var res = await GetLiveSearchResponseOnCurrentOption(0, 30);
 
-				totalCount = res.TotalCount.FilteredCount;
+                if (res.VideoInfo != null)
+                {
+                    foreach (var v in res.VideoInfo)
+                    {
+                        AddLive(v);
+                    }
+                }
+
+                Tags = res.Tags?.Tag.ToList();
+                totalCount = res.TotalCount.FilteredCount;
 			}
 			catch { }
 
 			return totalCount;
 		}
 
+        private void AddLive(VideoInfo live)
+        {
+            if (!SearchedVideoIdsHash.Contains(live.Video.Id))
+            {
+                Info.Add(live);
+                SearchedVideoIdsHash.Add(live.Video.Id);
+            }
+        }
 		public async Task<IEnumerable<LiveInfoViewModel>> GetPagedItems(int head, int count)
 		{
-			var res = await GetLiveSearchResponseOnCurrentOption((uint)head, (uint)count);
+            if (Info.Count < (head + count))
+            {
+                var res = await GetLiveSearchResponseOnCurrentOption((uint)Info.Count, (uint)count);
+                Tags = res.Tags?.Tag.ToList();
 
-			if (res == null || res.VideoInfo == null)
-			{
-				return Enumerable.Empty<LiveInfoViewModel>();
-			}
+                if (res.VideoInfo != null)
+                {
+                    foreach (var v in res.VideoInfo)
+                    {
+                        AddLive(v);
+                    }
+                }
+            }
 
-			Tags = res.Tags?.Tag.ToList();
-
-			if (res.VideoInfo == null)
-			{
-				return Enumerable.Empty<LiveInfoViewModel>();
-			}
-
-			return res.VideoInfo.Select(x =>
+            return Info.Skip(head).Take(count).Select(x =>
 			{
 				return new LiveInfoViewModel(x, HohoemaApp.Playlist, PageManager);
 			});

@@ -339,7 +339,7 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					return
 //						x == MediaPlaybackState.Opening ||
-//						x == MediaPlaybackState.Buffering ||
+						x == MediaPlaybackState.Buffering ||
 						x == MediaPlaybackState.Playing;
 				})
 				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
@@ -383,15 +383,22 @@ namespace NicoPlayerHohoema.ViewModels
 			.AddTo(_CompositeDisposable);
 
 
-			IsAutoHideEnable =
-				Observable.CombineLatest(
-					NowPlaying,
-					NowSoundChanging.Select(x => !x),
-					NowCommentWriting.Select(x => !x)
-					)
-				.Select(x => x.All(y => y))
-				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
-				.AddTo(_CompositeDisposable);
+            if (Util.InputCapabilityHelper.IsMouseCapable)
+            {
+                IsAutoHideEnable = Observable.CombineLatest(
+                    NowPlaying,
+                    NowSoundChanging.Select(x => !x),
+                    NowCommentWriting.Select(x => !x)
+                    )
+                .Select(x => x.All(y => y))
+                .ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
+            }
+            else
+            {
+                IsAutoHideEnable = new ReactiveProperty<bool>(false);
+            }
+			
 
 
             // 再生速度
@@ -614,7 +621,7 @@ namespace NicoPlayerHohoema.ViewModels
                 var videoInfo = await HohoemaApp.MediaManager.GetNicoVideoAsync(VideoId);
 
                 // 内部状態を更新
-                await videoInfo.VisitWatchPage();
+                await videoInfo.VisitWatchPage(NicoVideoQuality.Dmc_Mobile);
 
                 // 動画が削除されていた場合
                 if (videoInfo.IsDeleted)
@@ -893,6 +900,11 @@ namespace NicoPlayerHohoema.ViewModels
                     HohoemaApp.UserSettings.PlayerSettings.DefaultQuality = CurrentVideoQuality.Value.Value;
                     await HohoemaApp.UserSettings.PlayerSettings.Save().ConfigureAwait(false);
                 }
+            }
+
+            if (!Util.InputCapabilityHelper.IsMouseCapable)
+            {
+                IsDisplayControlUI.Value = false;
             }
         }
 

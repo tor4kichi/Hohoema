@@ -37,8 +37,12 @@
                             <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                     Orientation="Horizontal"
                                     >
-                                
 
+                                <AppBarButton Background="Transparent" 
+                                        Command="{Binding RefreshCommand}"
+                                        ToolTipService.ToolTip="更新"
+                                              Icon="Refresh"
+                                        />
                             </StackPanel>
 
 

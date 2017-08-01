@@ -284,6 +284,67 @@
                         </WebView>
 
 
+
+
+                        <StackPanel Visibility="{Binding IchibaItems, Converter={StaticResource NotNullToVisibility}}">
+
+                            <TextBlock Text="ニコニコ市場"
+                                           Style="{StaticResource SubtitleTextBlockStyle}"
+                                           Margin="0 8"
+                                           />
+
+                            <ListView ItemsSource="{Binding IchibaItems}"
+                                          SelectionMode="None"
+                                      ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                                      ScrollViewer.VerticalScrollMode="Disabled"
+                                      ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                                      ScrollViewer.HorizontalScrollMode="Auto"
+                                      VerticalContentAlignment="Top"
+                                          >
+                                <ListView.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <ItemsStackPanel Orientation="Horizontal" Margin="0 0 0 16" />
+                                    </ItemsPanelTemplate>
+                                </ListView.ItemsPanel>
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <HyperlinkButton NavigateUri="{Binding AmazonItemLink}"  >
+                                            <toolkit:DockPanel 
+                                                      Width="120"
+                                                      >
+
+                                                <Image Source="{Binding ThumbnailUrl}"
+                                                       Height="120"
+                                                       toolkit:DockPanel.Dock="Top"
+                                                       />
+
+                                                <Border VerticalAlignment="Bottom"
+                                                        Margin="8"
+                                                        >
+                                                    <Border.Background>
+                                                        <SolidColorBrush Color="{StaticResource SystemAltMediumColor}" />
+                                                    </Border.Background>
+                                                    <TextBlock Text="{Binding Title}" 
+                                                               TextWrapping="Wrap"
+                                                               FontSize="13"
+                                                               >
+                                                        <TextBlock.Foreground>
+                                                            <SolidColorBrush Color="{StaticResource SystemBaseMediumHighColor}" />
+                                                        </TextBlock.Foreground>
+                                                    </TextBlock>
+                                                </Border>
+
+                                            </toolkit:DockPanel>
+
+                                        </HyperlinkButton>
+
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </StackPanel>
+
+
+
                         <Border Height="16" />
 
 

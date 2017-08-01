@@ -669,7 +669,7 @@ namespace NicoPlayerHohoema.Models
                 Uri uri = null;
                 try
                 {
-                    uri = await nicoVideo.SetupWatchPageVisit(req.Quality);
+                    uri = await nicoVideo.GetVideoStreamUriAsync(req.Quality);
                     if (uri == null)
                     {
                         throw new Exception($"can't download {req.Quality} quality Video, in {req.RawVideoId}.");
@@ -681,15 +681,6 @@ namespace NicoPlayerHohoema.Models
                 }
 
                 var downloader = await ResetDownloader();
-
-                // 認証情報付きクッキーをダウンローダーのHttpヘッダにコピー
-                // 動画ページアクセス後のクッキーが必須になるため、サインイン時ではなく
-                // ダウンロード開始直前のこのタイミングでクッキーをコピーしています
-                var httpclinet = HohoemaApp.NiconicoContext.HttpClient;
-                foreach (var header in httpclinet.DefaultRequestHeaders)
-                {
-                    downloader.SetRequestHeader(header.Key, header.Value);
-                }
 
                 // 保存先ファイルの確保
                 var filename = div.VideoFileName;
@@ -727,7 +718,16 @@ namespace NicoPlayerHohoema.Models
         // ダウンロード完了
         private async Task OnDownloadCompleted(Task<DownloadOperation> prevTask)
         {
-            if (prevTask.IsFaulted) { return; }
+            if (prevTask.IsFaulted)
+            {
+                var op = prevTask.Result;
+                var info = NiconicoMediaManager.CacheRequestInfoFromFileName(op.ResultFile);
+                await RemoveDownloadOperation(info);
+                Debug.WriteLine("キャッシュ失敗");
+
+                DownloadCanceled?.Invoke(this, info);
+                return;
+            }
 
             Debug.WriteLine("キャッシュ完了");
 

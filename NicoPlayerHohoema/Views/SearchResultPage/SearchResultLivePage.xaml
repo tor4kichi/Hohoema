@@ -34,7 +34,11 @@
                         <StackPanel toolkit:DockPanel.Dock="Right" Margin="8 0"
                                 Orientation="Horizontal"
                                 >
-
+                            <AppBarButton Background="Transparent" 
+                                        Command="{Binding RefreshCommand}"
+                                        ToolTipService.ToolTip="更新"
+                                              Icon="Refresh"
+                                        />
                         </StackPanel>
 
                         <Border Background="Transparent" IsHitTestVisible="True"

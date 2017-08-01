@@ -464,9 +464,6 @@ namespace NicoPlayerHohoema.Models
 
         public override async Task<Uri> GenerateVideoContentUrl()
         {
-            // Lowクオリティ
-            await NicoVideo.VisitWatchPage();
-            
             return NicoVideo.LegacyVideoUrl;
         }
 
@@ -531,12 +528,6 @@ namespace NicoPlayerHohoema.Models
 
         public override async Task<Uri> GenerateVideoContentUrl()
         {
-            // Originalクオリティ
-            if (NicoVideo.LegacyVideoUrl == null)
-            {
-                await NicoVideo.VisitWatchPage();
-            }
-
             return NicoVideo.LegacyVideoUrl;
         }
 
@@ -683,6 +674,7 @@ namespace NicoPlayerHohoema.Models
             try
             {
                 _DmcSessionResponse = await HohoemaApp.NiconicoContext.Video.GetDmcSessionResponse(_DmcWatchResponse, videoQuality);
+                if (_DmcSessionResponse == null) { return null; }
                 return new Uri(_DmcSessionResponse.Data.Session.ContentUri);
             }
             catch

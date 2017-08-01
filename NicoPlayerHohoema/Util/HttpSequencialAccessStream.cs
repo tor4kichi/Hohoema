@@ -43,7 +43,7 @@ namespace NicoPlayerHohoema.Util
 			{
 				stream._InputStream = await stream.ReadRequestAsync(0);
 
-				await Task.Delay(500);
+				await Task.Delay(100);
 
 				return stream;
 			});
