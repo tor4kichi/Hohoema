@@ -308,14 +308,22 @@ namespace NicoPlayerHohoema.ViewModels
                 .ToReactivePropertyAsSynchronized(x => x.IsPlayerFloatingModeEnable);
 
 
-            IsAutoHideEnable =
-				Observable.CombineLatest(
-					NowPlaying
-					, NowCommentWriting.Select(x => !x)
-					)
-				.Select(x => x.All(y => y))
-				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
-				.AddTo(_CompositeDisposable);
+            if (Util.InputCapabilityHelper.IsMouseCapable)
+            {
+                IsAutoHideEnable = Observable.CombineLatest(
+                    NowPlaying,
+                    NowCommentWriting.Select(x => !x)
+                    )
+                .Select(x => x.All(y => y))
+                .ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
+            }
+            else
+            {
+                IsAutoHideEnable = new ReactiveProperty<bool>(false);
+            }
+
+            
 
 			Suggestion = new ReactiveProperty<LiveSuggestion>();
 			HasSuggestion = Suggestion.Select(x => x != null)

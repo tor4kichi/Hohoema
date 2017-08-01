@@ -185,27 +185,7 @@
             </VisualStateGroup>
 
 
-            <!-- コメント投稿欄の表示 -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <myTrigger:FocusTrigger Target="{Binding ElementName=CommentTextBox}" Inverted="True" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="CommentActivateKeyTrigger.IsEnabled" Value="True" />
-                        <Setter Target="{Binding NowCommentWriting.Value}" Value="False" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="True" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="CommentActivateKeyTrigger.IsEnabled" Value="False" />
-                        <Setter Target="{Binding NowCommentWriting.Value}" Value="True" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
+            
 
 
             <VisualStateGroup>
@@ -252,6 +232,12 @@
                         </mybehavior:KeyboardTrigger.Actions>
                     </mybehavior:KeyboardTrigger>
 
+                    <mybehavior:KeyboardTrigger IsEnabled="{Binding NowCommentWriting.Value, Mode=OneWay, Converter={StaticResource BooleanInverted}}">
+                        <mybehavior:KeyboardTrigger.Actions>
+                            <mybehavior:SetFocus TargetObject="{Binding ElementName=CommentTextBox}" Delay="00:00:00" />
+                            <core:ChangePropertyAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" PropertyName="IsVisible" Value="True" />
+                        </mybehavior:KeyboardTrigger.Actions>
+                    </mybehavior:KeyboardTrigger>
 
                     <mybehavior:MouseWheelTrigger>
                         <mybehavior:MouseWheelTrigger.UpActions>
@@ -272,7 +258,10 @@
                                                         >
                         <core:InvokeCommandAction Command="{Binding ClosePlayerCommand}" />
                     </mybehavior:UINavigationTrigger>
-                    
+
+                    <core:EventTriggerBehavior EventName="PointerMoved">
+                        <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="PreventAutoHide" />
+                    </core:EventTriggerBehavior>
                 </i:Interaction.Behaviors>
 
                 <MediaPlayerElement x:Name="mediaElem"
@@ -366,6 +355,8 @@
                                                          Delay="{Binding AutoHideDelayTime.Value}"
                                                          IsAnimationEnable="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BooleanInverted}}"
                                                          IsVisible="{Binding IsDisplayControlUI.Value, Mode=TwoWay}"
+                                                         IsAutoHideEnabled="{Binding IsAutoHideEnable.Value, Mode=OneWay}"
+                                                         KeepVisibleTime="00:00:04"
                         />
 
                         <core:DataTriggerBehavior Binding="{Binding IsDisplayControlUI.Value}" Value="True">
@@ -834,6 +825,10 @@
                                              Grid.ColumnSpan="4"
                                                 >
                                 <i:Interaction.Behaviors>
+
+                                    <mybehavior:FocusGetter IsFocus="{Binding NowCommentWriting.Value, Mode=TwoWay}" />
+
+                                    
                                     <mybehavior:KeyboardTrigger Key="Escape">
                                         <mybehavior:KeyboardTrigger.Actions>
                                             <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="False" />
@@ -841,11 +836,9 @@
                                         </mybehavior:KeyboardTrigger.Actions>
                                     </mybehavior:KeyboardTrigger>
 
-                                    <mybehavior:KeyboardTrigger Key="Enter">
+                                    <mybehavior:KeyboardTrigger Key="Enter" IsEnabled="{Binding NowCommentWriting.Value, Mode=OneWay}">
                                         <mybehavior:KeyboardTrigger.Actions>
                                             <core:InvokeCommandAction Command="{Binding CommentSubmitCommand}" />
-                                            <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="False" />
-                                            <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="True" />
                                         </mybehavior:KeyboardTrigger.Actions>
                                     </mybehavior:KeyboardTrigger>
 
@@ -900,6 +893,17 @@
 
                 </toolkit:DockPanel>
 
+                <Grid Visibility="{Binding IsDisplayControlUI.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
+                    <Border IsHitTestVisible="True" Background="Transparent">
+                        <i:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="Tapped">
+                                <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI}" PropertyName="Value" Value="{Binding IsDisplayControlUI.Value, Converter={StaticResource BooleanInverted}}" />
+                            </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
+                    </Border>
+
+
+                </Grid>
 
                 <!-- タップバリア
                          コメントテキストを書いたあとに画面のどこかをタップしたら
