@@ -30,7 +30,7 @@ namespace NicoPlayerHohoema.ViewModels
 	{
         //	private IScheduler scheduler;
 
-        PlaylistItem PlaylistItem { get; }
+        public PlaylistItem PlaylistItem { get; }
 
 
         // とりあえずマイリストから取得したデータによる初期化

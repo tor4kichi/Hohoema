@@ -370,71 +370,86 @@ namespace NicoPlayerHohoema.ViewModels
 
 			UnregistrationMylistCommand.Subscribe(async _ => 
 			{
-				var mylistGroup = HohoemaApp.UserMylistManager.GetMylistGroup(PlayableList.Value.Id);
+                if (PlayableList.Value.Origin == PlaylistOrigin.Local)
+                {
+                    var localMylist = PlayableList.Value as LocalMylist;
+                    var items = SelectedItems.ToArray();
 
-				var items = SelectedItems.ToArray();
+                    foreach (var item in items)
+                    {
+                        localMylist.Remove(item.PlaylistItem);
+                        IncrementalLoadingItems.Remove(item);
+                    }
+                }
+                else if (PlayableList.Value.Origin == PlaylistOrigin.LoginUser)
+                {
+                    var mylistGroup = HohoemaApp.UserMylistManager.GetMylistGroup(PlayableList.Value.Id);
 
-
-				var action = AsyncInfo.Run<uint>(async (cancelToken, progress) =>
-				{
-					uint progressCount = 0;
-					int successCount = 0;
-					int failedCount = 0;
-
-					Debug.WriteLine($"マイリストに追加解除を開始...");
-					foreach (var video in items)
-					{
-						var unregistrationResult = await mylistGroup.Unregistration(
-							video.RawVideoId
-							, withRefresh: false /* あとでまとめてリフレッシュするのでここでは OFF */);
-
-						if (unregistrationResult == ContentManageResult.Success)
-						{
-							successCount++;
-						}
-						else
-						{
-							failedCount++;
-						}
-
-						progressCount++;
-						progress.Report(progressCount);
-
-						Debug.WriteLine($"{video.Title}[{video.RawVideoId}]:{unregistrationResult.ToString()}");
-					}
-
-					// 登録解除結果を得るためリフレッシュ
-					await mylistGroup.Refresh();
+                    var items = SelectedItems.ToArray();
 
 
-					// ユーザーに結果を通知
-					var titleText = $"「{mylistGroup.Name}」から {successCount}件 の動画が登録解除されました";
-					var toastService = App.Current.Container.Resolve<ToastNotificationService>();
-					var resultText = $"";
-					if (failedCount > 0)
-					{
-						resultText += $"\n登録解除に失敗した {failedCount}件 は選択されたままです";
-					}
-					toastService.ShowText(titleText, resultText);
+                    var action = AsyncInfo.Run<uint>(async (cancelToken, progress) =>
+                    {
+                        uint progressCount = 0;
+                        int successCount = 0;
+                        int failedCount = 0;
 
-					// 登録解除に失敗したアイテムだけを残すように
-					// マイリストから除外された動画を選択アイテムリストから削除
-					foreach (var item in SelectedItems.ToArray())
-					{
-						if (false == mylistGroup.CheckRegistratedVideoId(item.RawVideoId))
-						{
-							SelectedItems.Remove(item);
-							IncrementalLoadingItems.Remove(item);
-						}
-					}
+                        Debug.WriteLine($"マイリストに追加解除を開始...");
+                        foreach (var video in items)
+                        {
+                            var unregistrationResult = await mylistGroup.Unregistration(
+                                video.RawVideoId
+                                , withRefresh: false /* あとでまとめてリフレッシュするのでここでは OFF */);
 
-					Debug.WriteLine($"マイリストに追加解除完了---------------");
-				});
+                            if (unregistrationResult == ContentManageResult.Success)
+                            {
+                                successCount++;
+                            }
+                            else
+                            {
+                                failedCount++;
+                            }
 
-				await PageManager.StartNoUIWork("マイリストに追加解除", items.Length, () => action);
+                            progressCount++;
+                            progress.Report(progressCount);
 
-				
-			});
+                            Debug.WriteLine($"{video.Title}[{video.RawVideoId}]:{unregistrationResult.ToString()}");
+                        }
+
+                        // 登録解除結果を得るためリフレッシュ
+                        await mylistGroup.Refresh();
+
+
+                        // ユーザーに結果を通知
+                        var titleText = $"「{mylistGroup.Name}」から {successCount}件 の動画が登録解除されました";
+                        var toastService = App.Current.Container.Resolve<ToastNotificationService>();
+                        var resultText = $"";
+                        if (failedCount > 0)
+                        {
+                            resultText += $"\n登録解除に失敗した {failedCount}件 は選択されたままです";
+                        }
+                        toastService.ShowText(titleText, resultText);
+
+                        // 登録解除に失敗したアイテムだけを残すように
+                        // マイリストから除外された動画を選択アイテムリストから削除
+                        foreach (var item in SelectedItems.ToArray())
+                        {
+                            if (false == mylistGroup.CheckRegistratedVideoId(item.RawVideoId))
+                            {
+                                SelectedItems.Remove(item);
+                                IncrementalLoadingItems.Remove(item);
+                            }
+                        }
+
+                        Debug.WriteLine($"マイリストに追加解除完了---------------");
+                    });
+
+                    await PageManager.StartNoUIWork("マイリストに追加解除", items.Length, () => action);
+
+                }
+
+
+            });
 
 			CopyMylistCommand = SelectedItems.ObserveProperty(x => x.Count)
 				.Where(_ => this.CanEditMylist)
@@ -723,7 +738,7 @@ namespace NicoPlayerHohoema.ViewModels
                     OwnerUserId = HohoemaApp.LoginUserId.ToString();
                     UserName = HohoemaApp.LoginUserName;
 
-                    MylistState = "ローカルマイリスト";
+                    MylistState = "ローカル";
 
                     CanEditMylist = true;
 

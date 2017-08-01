@@ -208,6 +208,7 @@
                             <Button Command="{Binding CopyMylistCommand}"
                                         Background="Transparent"
                                         Visibility="{Binding CanEditMylist, Converter={StaticResource BooleanToVisibility}}"
+                                    IsEnabled="{Binding IsUserOwnerdMylist}"
                                         >
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="コピー"
@@ -218,6 +219,7 @@
                             <Button Command="{Binding MoveMylistCommand}"
                                         Background="Transparent"
                                         Visibility="{Binding CanEditMylist, Converter={StaticResource BooleanToVisibility}}"
+                                    IsEnabled="{Binding IsUserOwnerdMylist}"
                                         >
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="移動"
