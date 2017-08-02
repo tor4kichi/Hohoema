@@ -170,25 +170,7 @@
             </VisualStateGroup>
 
 
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <myTrigger:EqualConditionStateTrigger Condition="Visible" Value="{Binding ElementName=UIControlLayout, Path=Visibility}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <!-- 読み取り再生位置スライダーの表示状態 -->
-                        <Setter Target="ReadOnlySeekBarSlider.Opacity" Value="0.0" />
-
-                        <!-- コントローラーによるナビゲーション -->
-                        <!--
-                        <Setter Target="HideTrigger_1.IsEnabled" Value="False" />
-                        <Setter Target="ShowTrigger_1.IsEnabled" Value="True" />
-                        <Setter Target="ShowTrigger_2.IsEnabled" Value="True" />
-                        -->
-
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
+            
 
             <!-- フルスクリーン -->
             <VisualStateGroup >
@@ -362,18 +344,11 @@
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <myTrigger:EqualConditionStateTrigger Condition="Visible" Value="{Binding ElementName=UIControlLayout, Path=Visibility}" />
+                        <StateTrigger IsActive="{Binding IsDisplayControlUI.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <!-- 読み取り再生位置スライダーの表示状態 -->
-                        <Setter Target="ReadOnlySeekBarSlider.Opacity" Value="0.0" />
-
-                        <!-- コントローラーによるナビゲーション -->
-                        <!--
-                        <Setter Target="HideTrigger_1.IsEnabled" Value="False" />
-                        <Setter Target="ShowTrigger_1.IsEnabled" Value="True" />
-                        <Setter Target="ShowTrigger_2.IsEnabled" Value="True" />
-                        -->
+                        <Setter Target="ReadOnlySeekBarSlider.Visibility" Value="Collapsed" />
 
                     </VisualState.Setters>
                 </VisualState>
