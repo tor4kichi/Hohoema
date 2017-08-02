@@ -448,11 +448,14 @@ namespace NicoPlayerHohoema.Models
 
             _thumbnailInitialized = true;
 
-            if (!this.IsDeleted && GetAllQuality().Any(x => x.IsCacheRequested))
-			{
-				// キャッシュ情報を最新の状態に更新
-				await OnCacheRequested();
-			}
+            await HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Low, async () => 
+            {
+                if (!this.IsDeleted && GetAllQuality().Any(x => x.IsCacheRequested))
+                {
+                    // キャッシュ情報を最新の状態に更新
+                    await OnCacheRequested();
+                }
+            }).AsTask().ConfigureAwait(false);
 		}
 
 

@@ -240,15 +240,20 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override IAsyncAction BackgroundUpdate(CoreDispatcher uiDispatcher)
 		{
-            return uiDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+            return Task.Run(async () =>
             {
                 foreach (var item in Items)
-				{
-                    await item.NicoVideo.Initialize();	
-					item.SetupFromThumbnail(item.NicoVideo);
-				}
-            });
-			
+                {
+                    await item.NicoVideo.Initialize();
+
+                    await uiDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    {
+                        item.SetupFromThumbnail(item.NicoVideo);
+                    })
+                    .AsTask().ConfigureAwait(false);
+                }
+
+            }).AsAsyncAction();
 		}
 	}
 }
