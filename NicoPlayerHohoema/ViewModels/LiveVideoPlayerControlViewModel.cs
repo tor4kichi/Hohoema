@@ -835,8 +835,13 @@ namespace NicoPlayerHohoema.ViewModels
                                 ChangeQualityCommand.RaiseCanExecuteChanged();
                             });
                     }
+
+                    if (!Util.InputCapabilityHelper.IsMouseCapable)
+                    {
+                        IsDisplayControlUI.Value = false;
+                    }
                 }
-				else
+                else
 				{
 					Debug.WriteLine("生放送情報の取得失敗しました "  + LiveId);
 				}
