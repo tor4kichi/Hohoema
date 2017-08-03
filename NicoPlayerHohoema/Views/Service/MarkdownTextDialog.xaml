@@ -12,10 +12,10 @@
 
     <Grid>
         <ScrollViewer>
-            <uwpcontrol:MarkdownTextBlock 
-            Text="{x:Bind Text, Mode=OneWay}"
-            LinkClicked="MarkdownTextBlock_LinkClicked"
-                ListMargin="0 8"
+            <uwpcontrol:MarkdownTextBlock Style="{StaticResource HohoemaMarkdownTextBlockStyle}"
+                Text="{x:Bind Text, Mode=OneWay}"
+                LinkClicked="MarkdownTextBlock_LinkClicked"
+                
                 />
 
         </ScrollViewer>

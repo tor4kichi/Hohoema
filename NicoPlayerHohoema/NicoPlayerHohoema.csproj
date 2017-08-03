@@ -123,6 +123,7 @@
     <Content Include="Assets\UpdateNotices\0.9.8.md" />
     <Content Include="Assets\UpdateNotices\0.9.9.md" />
     <Content Include="Assets\UpdateNotices\0.9.10.md" />
+    <Content Include="Assets\UpdateNotices\0.9.11.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
   </ItemGroup>
   <ItemGroup>
@@ -736,6 +737,11 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Page>
     <Page Include="Styles\TVStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
+    <Page Include="Styles\UWPUIControlsDefaultStyles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

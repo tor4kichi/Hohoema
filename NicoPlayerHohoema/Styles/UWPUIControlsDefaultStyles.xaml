@@ -1,0 +1,22 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    >
+    <Style TargetType="uwpui:MarkdownTextBlock" x:Key="HohoemaMarkdownTextBlockStyle">
+        
+        <Setter Property="Header1Foreground" Value="DarkOrange" />
+        <Setter Property="Header1FontWeight" Value="Bold" />
+        <Setter Property="Header1FontSize" Value="24" />
+
+        <Setter Property="Header2FontWeight" Value="Normal" />
+        <Setter Property="Header2FontSize" Value="20" />
+
+        <Setter Property="Header3FontWeight" Value="Bold" />
+        <Setter Property="Header3FontSize" Value="16" />
+
+        <Setter Property="ListMargin" Value="0 8 0 16" />
+
+        <Setter Property="HorizontalRuleMargin" Value="0 24" />
+    </Style>
+</ResourceDictionary>
