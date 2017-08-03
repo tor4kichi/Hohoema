@@ -252,7 +252,7 @@
                                           IsTabStop="True"
                                           Width="120"
                                           VerticalAlignment="Center"
-                                          IsEnabled="{Binding CanChangeSort.Value}"
+                                              IsEnabled="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanInverted}}"
                                          >
                                     </ComboBox>
                                 </Border>
@@ -264,8 +264,8 @@
                                         ContentTemplateSelector="{StaticResource SearchTargetContentTemplateSelector}" 
                                         HorizontalContentAlignment="Stretch"
                                         VerticalContentAlignment="Stretch"
-                                            IsEnabled="{Binding CanChangeSort.Value}"
-                                                IsTabStop="False"
+                                        IsEnabled="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanInverted}}"
+                                        IsTabStop="False"
                                         />
                             </Border>
 
@@ -300,6 +300,7 @@
                                         Margin="0 8 8 8"
                                     Height="48"
                                     FontSize="18"
+                                 IsEnabled="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanInverted}}"
                                     >
                             <i:Interaction.Behaviors>
                                 <mybehavior:KeyboardTrigger Key="Enter" >
