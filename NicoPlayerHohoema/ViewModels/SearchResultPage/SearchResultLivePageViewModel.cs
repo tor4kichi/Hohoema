@@ -230,8 +230,15 @@ namespace NicoPlayerHohoema.ViewModels
 
             LiveId = liveVideoInfo.Video.Id;
             CommunityName = LiveVideoInfo.Community?.Name;
-			CommunityThumbnail = LiveVideoInfo.Community?.Thumbnail;
-			CommunityGlobalId = LiveVideoInfo.Community?.GlobalId;
+            if (LiveVideoInfo.Community?.Thumbnail != null)
+            {
+                CommunityThumbnail = LiveVideoInfo.Community?.Thumbnail;
+            }
+            else
+            {
+                CommunityThumbnail = LiveVideoInfo.Video.ThumbnailUrl;
+            }
+            CommunityGlobalId = LiveVideoInfo.Community?.GlobalId;
 			CommunityType = LiveVideoInfo.Video.ProviderType;
 
 			LiveTitle = LiveVideoInfo.Video.Title;
@@ -245,7 +252,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             Title = LiveVideoInfo.Video.Title;
             OptionText = LiveVideoInfo.Community?.Name;
-            ImageUrlsSource.Add(LiveVideoInfo.Community?.Thumbnail);
+            ImageUrlsSource.Add(CommunityThumbnail);
 
             var duration = EndTime - StartTime;
 			if (LiveVideoInfo.Video.StartTime < DateTime.Now)
