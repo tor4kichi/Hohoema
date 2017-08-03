@@ -24,6 +24,7 @@
     xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:model="using:NicoPlayerHohoema.Models"
+    x:Name="RootLayout"
     d:DesignHeight="300"
     d:DesignWidth="400">
 
@@ -117,6 +118,7 @@
 
         </MenuFlyout>
     </UserControl.Resources>
+    
     <Grid x:Name="LayoutRoot" Background="{StaticResource AppBarBorderThemeBrush}">
 
         <VisualStateManager.VisualStateGroups>
@@ -414,8 +416,17 @@
 
                 <i:Interaction.Behaviors>
 
+
+
+                    <!-- マウスの非表示 -->
+                    <mybehavior:AutoHideCursor x:Name="AutoHideCursor"
+                        IsAutoHideEnabled="{Binding IsDisplayControlUI.Value, Mode=OneWay, Converter={StaticResource BooleanInverted}}"                        
+                        AutoHideDelay="0:0:0.5"
+                        />
+                        
+                    
                     <core:EventTriggerBehavior EventName="Loaded">
-                        <mybehavior:SetFocus TargetObject="{Binding ElementName=UIControlLayout}" />
+                        <mybehavior:SetFocus TargetObject="{Binding ElementName=RootLayout}" />
                     </core:EventTriggerBehavior>
 
                     <mybehavior:KeyboardTrigger IsEnabled="{Binding NowCommentWriting.Value, Mode=OneWay, Converter={StaticResource BooleanInverted}}">
@@ -478,15 +489,11 @@
                     </mybehavior:UINavigationTrigger>
 
                     
-                    <core:EventTriggerBehavior EventName="PointerMoved">
-                        <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="PreventAutoHide" />
-                    </core:EventTriggerBehavior>
                 </i:Interaction.Behaviors>
 
 
                 <MediaPlayerElement x:Name="MediaPlayerElement" Stretch="Uniform"
                                     AreTransportControlsEnabled="False"
-                                    
                                     >
                     <i:Interaction.Behaviors>
 
@@ -574,11 +581,10 @@
                             >
                     <i:Interaction.Behaviors>
                         <mybehavior:VisiblityFadeChanger x:Name="PlayerControlAutoHide" 
-                                                         Delay="{Binding AutoHideDelayTime.Value}"
+                                                         Delay="{Binding AutoHideDelayTime.Value, Mode=OneWay}"
                                                          IsAnimationEnable="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BooleanInverted}}"
                                                          IsVisible="{Binding IsDisplayControlUI.Value, Mode=TwoWay}"
                                                          IsAutoHideEnabled="{Binding IsAutoHideEnable.Value, Mode=OneWay}"
-                                                         KeepVisibleTime="00:00:04"
                         />
 
                         <core:DataTriggerBehavior Binding="{Binding IsDisplayControlUI.Value}" Value="True">
@@ -1167,16 +1173,14 @@
 
                     <Grid>
                         <Border IsHitTestVisible="True" Background="Transparent">
-                            <Border IsHitTestVisible="True" Background="Transparent">
-                                <i:Interaction.Behaviors>
-                                    <core:EventTriggerBehavior EventName="Tapped">
-                                        <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI}" PropertyName="Value" Value="False" />
-                                    </core:EventTriggerBehavior>
-                                </i:Interaction.Behaviors>
-                            </Border>
+                            <i:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI}" PropertyName="Value" Value="False" />
+                                </core:EventTriggerBehavior>
+                            </i:Interaction.Behaviors>
                         </Border>
-                        
-                        
+
+
                     </Grid>
                     
 

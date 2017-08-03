@@ -307,6 +307,11 @@ namespace NicoPlayerHohoema.ViewModels
             IsSmallWindowModeEnable = HohoemaApp.Playlist
                 .ToReactivePropertyAsSynchronized(x => x.IsPlayerFloatingModeEnable);
 
+            
+            Suggestion = new ReactiveProperty<LiveSuggestion>();
+			HasSuggestion = Suggestion.Select(x => x != null)
+				.ToReactiveProperty();
+
 
             if (Util.InputCapabilityHelper.IsMouseCapable)
             {
@@ -323,15 +328,7 @@ namespace NicoPlayerHohoema.ViewModels
                 IsAutoHideEnable = new ReactiveProperty<bool>(false);
             }
 
-            
-
-			Suggestion = new ReactiveProperty<LiveSuggestion>();
-			HasSuggestion = Suggestion.Select(x => x != null)
-				.ToReactiveProperty();
-
-            AutoHideDelayTime = HohoemaApp.UserSettings.PlayerSettings
-                .ToReactivePropertyAsSynchronized(x => x.AutoHidePlayerControlUIPreventTime, PlayerWindowUIDispatcherScheduler)
-                .AddTo(_CompositeDisposable);
+            AutoHideDelayTime = new ReactiveProperty<TimeSpan>(TimeSpan.FromSeconds(3));
 
             IsDisplayControlUI = HohoemaApp.Playlist.ToReactivePropertyAsSynchronized(x => x.IsDisplayPlayerControlUI);
 

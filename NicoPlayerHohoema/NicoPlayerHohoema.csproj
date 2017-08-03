@@ -286,6 +286,7 @@
       <DependentUpon>AboutPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Behaviors\FocusGetter.cs" />
+    <Compile Include="Views\Behaviors\AutoHideCursor.cs" />
     <Compile Include="Views\Behaviors\XYNavigationExtentions.cs" />
     <Compile Include="Views\Behaviors\ListViewBaseItemContextFlyout.cs" />
     <Compile Include="Views\Behaviors\MenuFlyoutSubItemsSetter.cs" />
