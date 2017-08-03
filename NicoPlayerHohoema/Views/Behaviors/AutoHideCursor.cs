@@ -3,6 +3,8 @@ using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.Devices.Input;
 using Microsoft.Xaml.Interactivity;
+using Windows.Foundation;
+using Windows.ApplicationModel.Core;
 
 namespace NicoPlayerHohoema.Views.Behaviors
 {
@@ -123,6 +125,8 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
             _AutoHideTimer.Tick += AutoHideTimer_Tick;
 
+            _IsCursorInsideAssociatedObject = IsCursorInWindow();
+
             ResetAutoHideTimer();
         }
 
@@ -196,5 +200,47 @@ namespace NicoPlayerHohoema.Views.Behaviors
             CursorVisibilityChanged(true);
         }
 
+        #region this code copy from VLC WinRT
+
+        // source: https://code.videolan.org/videolan/vlc-winrt/blob/afb08b71d5989ebe03d9109c19c9aba541b37c6f/app/VLC_WinRT.Shared/Services/RunTime/MouseService.cs
+
+        // lisence : https://code.videolan.org/videolan/vlc-winrt/blob/master/LICENSE
+        /*
+             Most of the media code engine is licensed under LGPL, like libVLC.
+            The application is dual-licensed under GPLv2/MPL and the license might change later,
+            if need be.
+             */
+
+        public static Point GetPointerPosition()
+        {
+            Window currentWindow = Window.Current;
+            Point point;
+
+            try
+            {
+                point = currentWindow.CoreWindow.PointerPosition;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return new Point(double.NegativeInfinity, double.NegativeInfinity);
+            }
+
+            Rect bounds = currentWindow.Bounds;
+            return new Point(point.X - bounds.X, point.Y - bounds.Y);
+        }
+
+        public static bool IsCursorInWindow()
+        {
+            var pos = GetPointerPosition();
+            if (pos == null) return false;
+
+
+            return pos.Y > CoreApplication.GetCurrentView().TitleBar.Height &&
+                   pos.Y < Window.Current.Bounds.Height &&
+                   pos.X > 0 &&
+                   pos.X < Window.Current.Bounds.Width;
+        }
+
+        #endregion
     }
 }
