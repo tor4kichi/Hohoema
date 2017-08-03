@@ -213,7 +213,6 @@ namespace NicoPlayerHohoema.ViewModels
 		RankingTarget _Target;
 		RankingTimeSpan _TimeSpan;
 
-		
 
 		public CategoryRankingLoadingSource(HohoemaApp app, PageManager pageManager, RankingCategory category, RankingTarget target, RankingTimeSpan timeSpan)
 			: base(app, $"Ranking:{category.ToCultulizedText()}")
@@ -236,7 +235,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			if (RankingRss != null)
 			{
-				var items = RankingRss.Channel.Items.Skip(start).Take(count).ToArray();
+				var items = RankingRss.Channel.Items.Skip(start).Take(count);
 
 				List<NicoVideo> videos = new List<NicoVideo>();
 				foreach (var item in items)
@@ -247,7 +246,7 @@ namespace NicoPlayerHohoema.ViewModels
                     var title = RankingRankPrefixPatternRegex.Replace(item.Title, "");
 
                     nicoVideo.PreSetTitle(title);
-					nicoVideo.PreSetPostAt(DateTime.Parse(item.PubDate));
+//					nicoVideo.PreSetPostAt(DateTime.Parse(item.PubDate));
 
 					videos.Add(nicoVideo);
 				}

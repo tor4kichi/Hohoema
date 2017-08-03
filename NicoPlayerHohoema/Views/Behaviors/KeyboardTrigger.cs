@@ -180,6 +180,18 @@ namespace NicoPlayerHohoema.Views.Behaviors
             VirtualKey.GamepadY,
         };
 
+        // https://msdn.microsoft.com/ja-jp/library/windows/desktop/dd375731(v=vs.85).aspx
+        static readonly int[] IgnoreVirtualKeyList = new[] 
+        {
+            0xAD,  // Volume Mute key
+            0xAE,  // Volume Down key
+            0xAF,  // Volume Up key
+            0xB0,  // Next Track key
+            0xB1,  // Previous Track key
+            0xB2,  // Stop Media key
+            0xB3,  // Play/Pause Media key
+        };
+
         private void CoreWindow_KeyDown(Windows.UI.Core.CoreWindow sender, Windows.UI.Core.KeyEventArgs args)
 		{
 			if (!IsEnabled) { return; }
@@ -198,6 +210,9 @@ namespace NicoPlayerHohoema.Views.Behaviors
             if (!IsEnableUINavigationButtons)
             {
                 if (NavigationButtonVirtualKeyList.Any(x => x == args.VirtualKey)) { return; }
+
+                var keycode = (int)args.VirtualKey;
+                if (IgnoreVirtualKeyList.Any(x => x == keycode)) { return; }
             }
 
 			if (this.Key == VirtualKey.None || this.Key == args.VirtualKey)

@@ -223,15 +223,6 @@ namespace NicoPlayerHohoema.Models
 
         public void OpenStartupPage()
         {
-            if (HohoemaApp.IsLoggedIn)
-            {
-                OpenPage(AppearanceSettings.StartupPageType);
-            }
-            else
-            {
-                OpenPage(HohoemaPageType.CacheManagement);
-            }
-
             if (Models.AppUpdateNotice.HasNotCheckedUptedeNoticeVersion)
             {
                 Models.AppUpdateNotice.GetNotCheckedUptedeNoticeVersions()
@@ -275,6 +266,17 @@ namespace NicoPlayerHohoema.Models
                         }
                     });
             }
+
+            if (HohoemaApp.IsLoggedIn)
+            {
+                OpenPage(AppearanceSettings.StartupPageType);
+            }
+            else
+            {
+                OpenPage(HohoemaPageType.CacheManagement);
+            }
+
+            
         }
 
 		public static string PageTypeToTitle(HohoemaPageType pageType)

@@ -33,6 +33,7 @@ namespace NicoPlayerHohoema.Views
             }
         }
 
+        
 
 
         public UINavigationButtons ShowUIUINavigationButtons => 

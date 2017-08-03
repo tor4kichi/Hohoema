@@ -372,7 +372,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
                             var left = frame.HalfCanvasWidth - (int)(renderComment.DesiredSize.Width * 0.5);
                             Canvas.SetLeft(renderComment, left);
 
-                            Debug.WriteLine($"V={verticalPos}: [{renderComment.CommentData.CommentText}]");
+//                            Debug.WriteLine($"V={verticalPos}: [{renderComment.CommentData.CommentText}]");
                         }
 
                         renderComment.Update(frame.CanvasWidth, frame.CurrentVpos);

@@ -20,7 +20,8 @@
                 <ResourceDictionary Source="Styles/DefaultStyle.xaml"/>
                 <ResourceDictionary Source="Styles/VideoProgressBarStyle.xaml"/>
                 <ResourceDictionary Source="Styles/HohoemaListItemStyle.xaml"/>
-                
+                <ResourceDictionary Source="Styles/UWPUIControlsDefaultStyles.xaml"/>
+
                 <ResourceDictionary Source="Views/Controls/FloatContentContainer/FloatContentContainer.xaml"/>
                 <ResourceDictionary Source="Views/Controls/IncrementalLoadingList/IncrementalLoadingList.xaml"/>
             </ResourceDictionary.MergedDictionaries>

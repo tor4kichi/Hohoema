@@ -223,6 +223,12 @@
 
                 <i:Interaction.Behaviors>
 
+                    <!-- マウスの非表示 -->
+                    <mybehavior:AutoHideCursor x:Name="AutoHideCursor"
+                        IsAutoHideEnabled="{Binding IsDisplayControlUI.Value, Mode=OneWay, Converter={StaticResource BooleanInverted}}"                        
+                        AutoHideDelay="0:0:0.5"
+                        />
+                    
                     <!-- TODO: エンタキーでコメント入力開始 -->
                     <mybehavior:KeyboardTrigger Key="Enter">
                         <mybehavior:KeyboardTrigger.Actions>
@@ -259,9 +265,6 @@
                         <core:InvokeCommandAction Command="{Binding ClosePlayerCommand}" />
                     </mybehavior:UINavigationTrigger>
 
-                    <core:EventTriggerBehavior EventName="PointerMoved">
-                        <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="PreventAutoHide" />
-                    </core:EventTriggerBehavior>
                 </i:Interaction.Behaviors>
 
                 <MediaPlayerElement x:Name="mediaElem"
@@ -356,7 +359,6 @@
                                                          IsAnimationEnable="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BooleanInverted}}"
                                                          IsVisible="{Binding IsDisplayControlUI.Value, Mode=TwoWay}"
                                                          IsAutoHideEnabled="{Binding IsAutoHideEnable.Value, Mode=OneWay}"
-                                                         KeepVisibleTime="00:00:04"
                         />
 
                         <core:DataTriggerBehavior Binding="{Binding IsDisplayControlUI.Value}" Value="True">

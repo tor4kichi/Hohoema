@@ -383,24 +383,6 @@ namespace NicoPlayerHohoema.ViewModels
 			.AddTo(_CompositeDisposable);
 
 
-            if (Util.InputCapabilityHelper.IsMouseCapable)
-            {
-                IsAutoHideEnable = Observable.CombineLatest(
-                    NowPlaying,
-                    NowSoundChanging.Select(x => !x),
-                    NowCommentWriting.Select(x => !x)
-                    )
-                .Select(x => x.All(y => y))
-                .ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
-                .AddTo(_CompositeDisposable);
-            }
-            else
-            {
-                IsAutoHideEnable = new ReactiveProperty<bool>(false);
-            }
-			
-
-
             // 再生速度
             PlaybackRate = new ReactiveProperty<double>(
                 HohoemaApp.UserSettings.PlayerSettings.DefaultPlaybackRate
@@ -523,11 +505,23 @@ namespace NicoPlayerHohoema.ViewModels
             }
 
 
+            if (Util.InputCapabilityHelper.IsMouseCapable)
+            {
+                IsAutoHideEnable = Observable.CombineLatest(
+                    NowPlaying,
+                    NowSoundChanging.Select(x => !x),
+                    NowCommentWriting.Select(x => !x)
+                    )
+                .Select(x => x.All(y => y))
+                .ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
+            }
+            else
+            {
+                IsAutoHideEnable = new ReactiveProperty<bool>(false);
+            }
 
-
-            AutoHideDelayTime = HohoemaApp.UserSettings.PlayerSettings
-                .ToReactivePropertyAsSynchronized(x => x.AutoHidePlayerControlUIPreventTime, PlayerWindowUIDispatcherScheduler)
-                .AddTo(userSessionDisposer);
+            AutoHideDelayTime = new ReactiveProperty<TimeSpan>(TimeSpan.FromSeconds(3));
             OnPropertyChanged(nameof(AutoHideDelayTime));
 
 
@@ -2055,7 +2049,7 @@ namespace NicoPlayerHohoema.ViewModels
         public DelegateCommand ResetDefaultPlaybackRate { get; private set; }
 
         public ReactiveProperty<bool> IsAutoHideEnable { get; private set; }
-		public ReactiveProperty<TimeSpan> AutoHideDelayTime { get; private set; }
+        public ReactiveProperty<TimeSpan> AutoHideDelayTime { get; private set; }
 
         public ReactiveProperty<bool> IsDisplayControlUI { get; private set; }
 

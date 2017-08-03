@@ -179,7 +179,7 @@ namespace NicoPlayerHohoema.Models
 
 	public class BackgroundUpdater : IDisposable
 	{
-		public static uint MaxTaskSlotCount = 2;
+		public static uint MaxTaskSlotCount = 1;
 
 
 		private bool _IsActive;
