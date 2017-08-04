@@ -27,7 +27,13 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
         public bool IsVerticalPositionCulcurated { get; set; }
 
-		public CommentUI()
+        private float _TextHeight;
+        public float TextHeight => _TextHeight;
+        private float _TextWidth;
+        public float TextWidth => _TextWidth;
+
+
+        public CommentUI()
 		{
 			this.InitializeComponent();
 
@@ -37,7 +43,8 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
         private void CommentUI_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            _ActualWidth = this.DesiredSize.Width;
+            _TextHeight = (float)DesiredSize.Height;
+            _TextWidth = (float)DesiredSize.Width;
         }
 
         private void CommentUI_DataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
@@ -46,7 +53,6 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
         }
 
 
-        private double _ActualWidth = 0;
         public bool IsInsideScreen { get; private set; }
 		public int HorizontalPosition { get; private set; }
 
@@ -75,13 +81,13 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 			//
 
-            if (_ActualWidth == 0)
+            if (_TextWidth == 0)
             {
                 HorizontalPosition = 0;
                 return;
             }
 			var comment = CommentData;
-			var width = _ActualWidth;
+			var width = _TextWidth;
 
 			var distance = screenWidth + width;
 			var displayTime = (comment.EndPosition - comment.VideoPosition);
