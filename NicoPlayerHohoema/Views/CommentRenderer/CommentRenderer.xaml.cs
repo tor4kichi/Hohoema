@@ -297,15 +297,23 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			// 表示すべきコメントを抽出して、表示対象として未登録のコメントを登録処理する
 			var displayComments = GetDisplayCommentsOnCurrentVPos(frame.CurrentVpos, frame.CommentDisplayDuration);
 
-//            Debug.WriteLine("comment: " + displayComments.Count());
+            //            Debug.WriteLine("comment: " + displayComments.Count());
 
             // コメントの表示位置決定（直列実行）
+            bool isCanAddRenderComment_Stream = true;
+            bool isCanAddRenderComment_Top = true;
+            bool isCanAddRenderComment_Bottom = true;
+
             foreach (var comment in displayComments)
 			{
                 if (!comment.IsVisible)
                 {
                     continue;
                 }
+
+                if (comment.VAlign == null && !isCanAddRenderComment_Stream) { continue; }
+                if (comment.VAlign == VerticalAlignment.Top && !isCanAddRenderComment_Top) { continue; }
+                if (comment.VAlign == VerticalAlignment.Bottom && !isCanAddRenderComment_Bottom) { continue; }
 
                 CommentUI renderComment = RenderComments.ContainsKey(comment) ? RenderComments[comment] : null;
                 bool isNeedCreateCommentUI = renderComment == null;
@@ -359,12 +367,14 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
                     {
                         renderComment.Visibility = Visibility.Collapsed;
                         //						Debug.WriteLine("hide comment : " + comment.CommentText);
+                        if (comment.VAlign == null) { isCanAddRenderComment_Stream = false; }
+                        if (comment.VAlign == VerticalAlignment.Top) { isCanAddRenderComment_Top = false; }
+                        if (comment.VAlign == VerticalAlignment.Bottom) { isCanAddRenderComment_Bottom = false; }
                     }
                     else
                     {
                         // コメントの縦の表示位置を設定
                         Canvas.SetTop(renderComment, verticalPos);
-
 
                         if (comment.VAlign == VerticalAlignment.Bottom
                             || comment.VAlign == VerticalAlignment.Top)
