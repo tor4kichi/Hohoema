@@ -19,11 +19,11 @@ namespace NicoPlayerHohoema.Views.Converters
                     case Models.CommentOpacityKind.NoSukesuke:
                         return "透過しない";
                     case Models.CommentOpacityKind.BitSukesuke:
-                        return "ちょっとスケスケ";
+                        return "少し透過";
                     case Models.CommentOpacityKind.MoreSukesuke:
-                        return "かなりスケスケ";
+                        return "かなり透過";
                     default:
-                        return "透過無し";
+                        return "透過しない";
                 }
             }
             else
