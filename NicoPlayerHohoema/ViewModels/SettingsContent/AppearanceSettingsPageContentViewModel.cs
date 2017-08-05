@@ -89,27 +89,10 @@ namespace NicoPlayerHohoema.ViewModels
                 .ToReactivePropertyAsSynchronized(x => x.StartupPageType);
         }
 
-		protected override void OnEnter(ICollection<IDisposable> focusingDisposable)
-		{
-            Observable.Merge(
-                IsTVModeEnable.ToUnit(),
-                StartupPageType.ToUnit()
-                )
-                .Throttle(TimeSpan.FromSeconds(1))
-                .Subscribe(_ =>
-                {
-                    HohoemaApp.UserSettings.AppearanceSettings.Save().ConfigureAwait(false);
-                })
-                .AddTo(focusingDisposable);
-
-        }
-
-        /*
         protected override void OnLeave()
         {
             HohoemaApp.UserSettings.AppearanceSettings.Save().ConfigureAwait(false);
         }
-        */
 
 
         private DelegateCommand _ToggleFullScreenCommand;
