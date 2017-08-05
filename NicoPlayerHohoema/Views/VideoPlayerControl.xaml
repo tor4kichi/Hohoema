@@ -514,7 +514,7 @@
                 </MediaPlayerElement>
 
 
-                <comment:CommentRenderer 
+                <comment:CommentRendererEx
                                 x:Name="CommentRederer"
                                 MediaPlayer="{Binding MediaPlayer}"
                                 Comments="{Binding Comments}"

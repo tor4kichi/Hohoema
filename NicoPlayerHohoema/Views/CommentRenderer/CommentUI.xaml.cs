@@ -45,6 +45,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
         {
             _TextHeight = (float)DesiredSize.Height;
             _TextWidth = (float)DesiredSize.Width;
+            _MoveCommentWidthTimeInVPos = null;
         }
 
         private void CommentUI_DataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
@@ -103,5 +104,56 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			HorizontalPosition = result;
 		}
 
+
+        public uint CommentDisplayDuration => CommentData.EndPosition - CommentData.VideoPosition;
+
+        private uint? _MoveCommentWidthTimeInVPos = null;
+        private uint CalcMoveCommentWidthTimeInVPos(int canvasWidth)
+        {
+            if (_MoveCommentWidthTimeInVPos != null)
+            {
+                return _MoveCommentWidthTimeInVPos.Value;
+            }
+
+            var secondComment = CommentData;
+
+            var speed = MoveSpeedPer1VPos(canvasWidth);
+
+            // 時間 = 距離 ÷ 速さ
+            var timeToSecondCommentWidthMove = (uint)(TextWidth / speed);
+
+            _MoveCommentWidthTimeInVPos = timeToSecondCommentWidthMove;
+            return timeToSecondCommentWidthMove;
+        }
+
+        private float MoveSpeedPer1VPos(int canvasWidth)
+        {
+            // 1 Vposあたりの secondコメントの移動量
+            return (canvasWidth + TextWidth) / (float)CommentDisplayDuration;
+        }
+
+
+        public double? GetPosition(int canvasWidth, uint currentVPos)
+        {
+            if (CommentData == null) { return null; }
+
+            var c = CommentData;
+            if (c.VideoPosition > currentVPos) { return null; }
+            if (c.EndPosition < currentVPos) { return null; }
+
+            var speed = MoveSpeedPer1VPos(canvasWidth);
+            var delta = currentVPos - c.VideoPosition;
+            return canvasWidth - (double)(speed * delta);
+        }
+
+        public uint CalcTextShowRightEdgeTime(int canvasWidth)
+        {
+            return CommentData.VideoPosition + CalcMoveCommentWidthTimeInVPos(canvasWidth);
+        }
+
+        public uint CalcReachLeftEdge(int canvasWidth)
+        {
+            return CommentData.EndPosition - CalcMoveCommentWidthTimeInVPos(canvasWidth);
+        }
 	}
 }
