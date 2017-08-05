@@ -60,7 +60,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 		public bool IsEndDisplay(uint currentVpos)
 		{
-			return CommentData.EndPosition <= currentVpos;
+			return CommentData == null || CommentData.EndPosition <= currentVpos;
 		}
 
 		public void Update(int screenWidth, uint currentVpos)
