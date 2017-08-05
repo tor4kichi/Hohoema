@@ -124,6 +124,7 @@
     <Content Include="Assets\UpdateNotices\0.9.9.md" />
     <Content Include="Assets\UpdateNotices\0.9.10.md" />
     <Content Include="Assets\UpdateNotices\0.9.11.md" />
+    <Content Include="Assets\UpdateNotices\0.9.12.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
   </ItemGroup>
   <ItemGroup>
