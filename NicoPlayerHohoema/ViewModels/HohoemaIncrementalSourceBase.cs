@@ -249,8 +249,7 @@ namespace NicoPlayerHohoema.ViewModels
                     await uiDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                     {
                         item.SetupFromThumbnail(item.NicoVideo);
-                    })
-                    .AsTask().ConfigureAwait(false);
+                    });
                 }
 
             }).AsAsyncAction();

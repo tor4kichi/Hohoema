@@ -124,6 +124,7 @@
     <Content Include="Assets\UpdateNotices\0.9.9.md" />
     <Content Include="Assets\UpdateNotices\0.9.10.md" />
     <Content Include="Assets\UpdateNotices\0.9.11.md" />
+    <Content Include="Assets\UpdateNotices\0.9.12.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
   </ItemGroup>
   <ItemGroup>
@@ -318,6 +319,10 @@
     <Compile Include="Views\CacheManagementPage_TV.xaml.cs">
       <DependentUpon>CacheManagementPage_TV.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\CommentRenderer\CommentRendererEx.xaml.cs">
+      <DependentUpon>CommentRendererEx.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CommentRenderer\CommentRendererHelper.cs" />
     <Compile Include="Views\Controls\LiveListItemFlyout.xaml.cs">
       <DependentUpon>LiveListItemFlyout.xaml</DependentUpon>
     </Compile>
@@ -752,6 +757,10 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Page>
     <Page Include="Views\CacheManagementPage_TV.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\CommentRenderer\CommentRendererEx.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -1,6 +1,5 @@
 ﻿<UserControl
-    x:Name="CommentRendererRoot"
-    x:Class="NicoPlayerHohoema.Views.CommentRenderer.CommentRenderer"
+    x:Class="NicoPlayerHohoema.Views.CommentRenderer.CommentRendererEx"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:NicoPlayerHohoema.Views.CommentRenderer"

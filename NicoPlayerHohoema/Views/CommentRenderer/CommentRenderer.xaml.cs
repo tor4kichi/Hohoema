@@ -297,15 +297,23 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			// 表示すべきコメントを抽出して、表示対象として未登録のコメントを登録処理する
 			var displayComments = GetDisplayCommentsOnCurrentVPos(frame.CurrentVpos, frame.CommentDisplayDuration);
 
-//            Debug.WriteLine("comment: " + displayComments.Count());
+            //            Debug.WriteLine("comment: " + displayComments.Count());
 
             // コメントの表示位置決定（直列実行）
+            bool isCanAddRenderComment_Stream = true;
+            bool isCanAddRenderComment_Top = true;
+            bool isCanAddRenderComment_Bottom = true;
+
             foreach (var comment in displayComments)
 			{
                 if (!comment.IsVisible)
                 {
                     continue;
                 }
+
+                if (comment.VAlign == null && !isCanAddRenderComment_Stream) { continue; }
+                if (comment.VAlign == VerticalAlignment.Top && !isCanAddRenderComment_Top) { continue; }
+                if (comment.VAlign == VerticalAlignment.Bottom && !isCanAddRenderComment_Bottom) { continue; }
 
                 CommentUI renderComment = RenderComments.ContainsKey(comment) ? RenderComments[comment] : null;
                 bool isNeedCreateCommentUI = renderComment == null;
@@ -355,21 +363,23 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
                     // コメントが画面の中に収まっている場合は表示
                     // 少しでも見切れる場合は非表示
-                    if (verticalPos < 0 || (verticalPos + renderComment.DesiredSize.Height) > frame.CanvasHeight)
+                    if (verticalPos < 0 || (verticalPos + renderComment.TextHeight) > frame.CanvasHeight)
                     {
                         renderComment.Visibility = Visibility.Collapsed;
                         //						Debug.WriteLine("hide comment : " + comment.CommentText);
+                        if (comment.VAlign == null) { isCanAddRenderComment_Stream = false; }
+                        if (comment.VAlign == VerticalAlignment.Top) { isCanAddRenderComment_Top = false; }
+                        if (comment.VAlign == VerticalAlignment.Bottom) { isCanAddRenderComment_Bottom = false; }
                     }
                     else
                     {
                         // コメントの縦の表示位置を設定
                         Canvas.SetTop(renderComment, verticalPos);
 
-
                         if (comment.VAlign == VerticalAlignment.Bottom
                             || comment.VAlign == VerticalAlignment.Top)
                         {
-                            var left = frame.HalfCanvasWidth - (int)(renderComment.DesiredSize.Width * 0.5);
+                            var left = frame.HalfCanvasWidth - (int)(renderComment.TextWidth * 0.5f);
                             Canvas.SetLeft(renderComment, left);
 
 //                            Debug.WriteLine($"V={verticalPos}: [{renderComment.CommentData.CommentText}]");
@@ -409,7 +419,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
 		private int CalcAndRegisterCommentVerticalPosition(CommentUI commentUI, CommentRenderFrameData frame)
 		{
-			const double TextSizeToMargin = 0.425;
+			const float TextSizeToMargin = 0.425f;
 
 			// コメントの縦位置ごとの「空き段」を管理するリストを探す
 			List<CommentUI> verticalAlignList;
@@ -426,7 +436,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			else
 			{
 				// 一番上の余白、上にコメントがこないので半分（* 0.5）として計算
-				totalHeight += (int)(commentUI.DesiredSize.Height * TextSizeToMargin * 0.5);
+				totalHeight += (int)(commentUI.TextHeight * TextSizeToMargin * 0.5f);
 			}
 
 
@@ -437,7 +447,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 			var canvasWidth = frame.CanvasWidth;
 			var displayDuration = GetCommentDisplayDurationVposUnit();
 
-			var canvasByCommentWidthRatio = canvasWidth / (commentUI.DesiredSize.Width + canvasWidth);
+			var canvasByCommentWidthRatio = canvasWidth / (commentUI.TextWidth + canvasWidth);
 			var reachToLeftTime = (uint)Math.Floor(displayDuration * canvasByCommentWidthRatio);
 
 			var currentTimeBaseReachToLeftTime = commentUI.CommentData.VideoPosition + reachToLeftTime;
@@ -451,18 +461,18 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 					var next = verticalAlignList[i];
 					if (next == null)
 					{
-						commentVerticalPos = (int)this.ActualHeight - (int)commentUI.DesiredSize.Height - totalHeight;
+						commentVerticalPos = (int)this.ActualHeight - (int)commentUI.TextHeight - totalHeight;
 						verticalAlignList[i] = commentUI;
 					}
 					else
 					{
-						totalHeight += (int)next.DesiredSize.Height + CommentVerticalMargin + (int)(next.DesiredSize.Height * TextSizeToMargin);
+						totalHeight += (int)next.TextHeight + CommentVerticalMargin + (int)(next.TextHeight * TextSizeToMargin);
 					}
 				}
 
 				if (!commentVerticalPos.HasValue)
 				{
-					commentVerticalPos = (int)this.ActualHeight - (int)commentUI.DesiredSize.Height - totalHeight;
+					commentVerticalPos = (int)this.ActualHeight - (int)commentUI.TextHeight - totalHeight;
 					verticalAlignList.Add(commentUI);
 				}
 			}
@@ -480,7 +490,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 					}
 					else
 					{
-						totalHeight += (int)next.DesiredSize.Height + CommentVerticalMargin + (int)(next.DesiredSize.Height * TextSizeToMargin);
+						totalHeight += (int)next.TextHeight + CommentVerticalMargin + (int)(next.TextHeight * TextSizeToMargin);
 					}
 				}
 
@@ -532,14 +542,14 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 						else
 						{
 							var prevComment = LastCommentDisplayEndTime[i].Comment;
-							totalHeight += (int)prevComment.DesiredSize.Height + CommentVerticalMargin + (int)(prevComment.DesiredSize.Height * TextSizeToMargin);
+							totalHeight += (int)prevComment.TextHeight + CommentVerticalMargin + (int)(prevComment.TextHeight * TextSizeToMargin);
 
 							//Debug.WriteLine("前コメと衝突を回避 " + prevComment.CommentData.CommentText);
 						}
 					}
 					else
 					{
-						totalHeight += (int)next.DesiredSize.Height + CommentVerticalMargin + (int)(next.DesiredSize.Height * TextSizeToMargin);
+						totalHeight += (int)next.TextHeight + CommentVerticalMargin + (int)(next.TextHeight * TextSizeToMargin);
 					}
 				}
 
