@@ -318,10 +318,19 @@ namespace NicoPlayerHohoema.Models.Live
 					{
 						Debug.Write($"recieve data -> ");
 
-						ParseLiveCommentServerResponse(xmlString);
+                        try
+                        {
+                            ParseLiveCommentServerResponse(xmlString);
+                            Debug.WriteLine($" -> end");
+                        }
+                        catch
+                        {
+                            Debug.WriteLine($" -> FAILED!");
+                            Debug.WriteLine(xmlString);
+                        }
 
-						Debug.WriteLine($" -> end");
-					}
+
+                    }
 								
 				}
 			}
@@ -354,7 +363,7 @@ namespace NicoPlayerHohoema.Models.Live
 				return;
 			}
 
-			var xmlDoc = XDocument.Parse(recievedString);
+            var xmlDoc = XDocument.Parse(recievedString);
 			var xmlRoot = xmlDoc.Root;
 			var elementName = xmlRoot.Name.LocalName;
 			Debug.Write(elementName);
