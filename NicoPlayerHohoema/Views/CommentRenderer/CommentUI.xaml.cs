@@ -128,7 +128,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
         private float MoveSpeedPer1VPos(int canvasWidth)
         {
-            // 1 Vposあたりの secondコメントの移動量
+            // 1 Vposあたりのコメントの移動量
             return (canvasWidth + TextWidth) / (float)CommentDisplayDuration;
         }
 

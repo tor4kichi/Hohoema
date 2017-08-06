@@ -644,8 +644,24 @@ namespace NicoPlayerHohoema.ViewModels
 				LiveComments = NicoLiveVideo.LiveComments.ToReadOnlyReactiveCollection(x =>
 				{
 					var comment = new Views.Comment();
+                    //x.GetVposでサーバー上のコメント位置が取れるが、
+                    // 受け取った順で表示したいのでローカルの放送時間からコメント位置を割り当てる
+                    comment.VideoPosition = (uint)(MediaPlayer.PlaybackSession.Position.TotalMilliseconds * 0.1) + 50;
 
-					comment.CommentText = x.Text;
+                    // EndPositionはコメントレンダラが再計算するが、仮置きしないと表示対象として処理されない
+                    comment.EndPosition = comment.VideoPosition + 500;
+
+                    if (x.Vpos != null && x.GetVpos() < (comment.VideoPosition - 500))
+                    {
+                        Debug.WriteLine("古いコメントのため非表示 : " + comment.CommentText);
+                        comment.IsVisible = false;
+                        return comment;
+                    }
+
+
+
+
+                    comment.CommentText = x.Text;
 					comment.CommentId = !string.IsNullOrEmpty(x.No) ? x.GetCommentNo() : 0;
 					comment.IsAnonimity = !string.IsNullOrEmpty(x.Anonymity) ? x.GetAnonymity() : false;
 					comment.UserId = x.User_id;
@@ -656,22 +672,7 @@ namespace NicoPlayerHohoema.ViewModels
 						comment.IsLoginUserComment = !comment.IsAnonimity ? uint.Parse(x.User_id) == HohoemaApp.LoginUserId : false;
 					}
 					catch { }
-
                     
-                    
-					//x.GetVposでサーバー上のコメント位置が取れるが、
-					// 受け取った順で表示したいのでローカルの放送時間からコメント位置を割り当てる
-					comment.VideoPosition = (uint)(MediaPlayer.PlaybackSession.Position.TotalMilliseconds * 0.1) + 50;
-
-                    if (x.Vpos != null && x.GetVpos() < (comment.VideoPosition - 200))
-                    {
-                        Debug.WriteLine("古いコメントのため非表示 : " + comment.CommentText);
-                        comment.IsVisible = false;
-                    }
-
-                    // EndPositionはコメントレンダラが再計算するが、仮置きしないと表示対象として処理されない
-                    comment.EndPosition = comment.VideoPosition + 1000;
-
 					comment.ApplyCommands(x.GetCommandTypes());
 
 					return comment;
