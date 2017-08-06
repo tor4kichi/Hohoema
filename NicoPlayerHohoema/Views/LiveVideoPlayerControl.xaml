@@ -303,7 +303,7 @@
 
                 <Grid Height="{Binding CommentCanvasHeight.Value}">
 
-                    <comment:CommentRenderer 
+                    <comment:CommentRendererEx
                                     x:Name="CommentRederer"
                                     Comments="{Binding LiveComments}"
                                     MediaPlayer="{Binding MediaPlayer, Mode=OneWay}"                                 
