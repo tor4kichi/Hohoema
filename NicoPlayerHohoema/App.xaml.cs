@@ -577,21 +577,21 @@ namespace NicoPlayerHohoema
 
 			// ViewModels
 			Container.RegisterType<ViewModels.MenuNavigatePageBaseViewModel>(new ContainerControlledLifetimeManager());
-
 			Container.RegisterType<ViewModels.RankingCategoryPageViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.HistoryPageViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.UserVideoPageViewModel>(new ContainerControlledLifetimeManager());
-			Container.RegisterType<ViewModels.SearchPageViewModel>(new ContainerControlledLifetimeManager());
-			Container.RegisterType<ViewModels.MylistPageViewModel>(new ContainerControlledLifetimeManager());
-			//			Container.RegisterType<ViewModels.UserVideoPageViewModel>(new ContainerControlledLifetimeManager());
-			Container.RegisterType<ViewModels.FeedVideoListPageViewModel>(new ContainerControlledLifetimeManager());
-			Container.RegisterType<ViewModels.UserMylistPageViewModel>(new ContainerControlledLifetimeManager());
-			Container.RegisterType<ViewModels.CacheManagementPageViewModel>(new ContainerControlledLifetimeManager());
-//			Container.RegisterType<ViewModels.PortalPageViewModel>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<ViewModels.MylistPageViewModel>(new ContainerControlledLifetimeManager());
+            /*
+                        Container.RegisterType<ViewModels.SearchPageViewModel>(new ContainerControlledLifetimeManager());
+                        //			Container.RegisterType<ViewModels.UserVideoPageViewModel>(new ContainerControlledLifetimeManager());
+                        Container.RegisterType<ViewModels.FeedVideoListPageViewModel>(new ContainerControlledLifetimeManager());
+                        Container.RegisterType<ViewModels.UserMylistPageViewModel>(new ContainerControlledLifetimeManager());
+                        Container.RegisterType<ViewModels.CacheManagementPageViewModel>(new ContainerControlledLifetimeManager());
+            //			Container.RegisterType<ViewModels.PortalPageViewModel>(new ContainerControlledLifetimeManager());
+            */
 
-
-			// Service
-			Container.RegisterType<Views.Service.RankingChoiceDialogService>();
+            // Service
+            Container.RegisterType<Views.Service.RankingChoiceDialogService>();
 			Container.RegisterInstance(new Views.Service.ToastNotificationService());
 			Container.RegisterInstance(new Views.Service.MylistRegistrationDialogService(hohoemaApp));
 			Container.RegisterInstance(new Views.Service.EditMylistGroupDialogService());
