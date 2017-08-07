@@ -185,7 +185,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
                 TimeSpan deltaVideoPosition = TimeSpan.Zero;
                 TimeSpan updateInterval;
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                 {
                     // 更新済みの位置であれば処理をスキップ
                     var videoPosition = VideoPosition;
@@ -208,8 +208,6 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
                     _PreviousVideoPosition = videoPosition;
 
                     updateInterval = UpdateInterval;
-
-                    await Task.Delay(1);
                 });
 
                 watch.Stop();
@@ -352,12 +350,15 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
             // 表示が完了したコメントを削除
             // 表示区間をすぎたコメントを表示対象から削除
             // 現在位置より若いコメントはReset時にカットしているのでスルー
-            var removeTargets = RenderComments
-                .TakeWhile(x => frame.CurrentVpos > x.Comment.EndPosition)
-                .ToArray();
-
-            foreach (var commentInfo in removeTargets)
+            while (RenderComments.Count > 0)
             {
+                var commentInfo = RenderComments.First();
+
+                if (frame.CurrentVpos < commentInfo.Comment.EndPosition)
+                {
+                    break;
+                }
+
                 var renderComment = commentInfo.CommentUI;
 
                 RenderComments.Remove(commentInfo);
