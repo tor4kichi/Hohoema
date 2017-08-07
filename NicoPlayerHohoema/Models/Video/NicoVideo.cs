@@ -439,7 +439,10 @@ namespace NicoPlayerHohoema.Models
             }
 			catch (Exception e) when (e.Message.Contains("delete"))
 			{
-				await DeletedTeardown();
+                await HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                {
+                    await DeletedTeardown();
+                });
 			}
 			catch (Exception e) when (e.Message.Contains("community"))
 			{
