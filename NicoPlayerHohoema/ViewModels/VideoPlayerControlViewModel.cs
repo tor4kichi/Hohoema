@@ -1022,7 +1022,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				try
 				{
-					commandList = comment.GetCommandTypes();
+					commandList = comment.ParseCommandTypes();
 					commentVM.ApplyCommands(commandList);
 				}
 				catch (Exception ex)
@@ -1035,11 +1035,79 @@ namespace NicoPlayerHohoema.ViewModels
 			
 			return commentVM;
 		}
-		
 
-		
+        private Comment ChatToComment(NMSG_Chat chat)
+        {
 
-		private void UpdateCommentNGStatus()
+            if (chat.Content == null)
+            {
+                return null;
+            }
+
+            var playerSettings = HohoemaApp.UserSettings.PlayerSettings;
+
+            string commentText = chat.Content;
+
+            // 自動芝刈り機
+            if (playerSettings.CommentGlassMowerEnable)
+            {
+                foreach (var someGlassChar in glassChars)
+                {
+                    if (commentText.Last() == someGlassChar)
+                    {
+                        commentText = new String(commentText.Reverse().SkipWhile(x => x == someGlassChar).Reverse().ToArray()) + someGlassChar;
+                        break;
+                    }
+                }
+            }
+
+
+            var vpos_value = chat.Vpos;
+            var vpos = vpos_value >= 0 ? (uint)vpos_value : 0;
+
+
+
+            var commentVM = new Comment(this)
+            {
+                CommentText = commentText,
+                CommentId = (uint)chat.No,
+                VideoPosition = vpos,
+                EndPosition = vpos + default_DisplayTime,
+            };
+
+
+            commentVM.IsOwnerComment = chat.UserId != null ? chat.UserId == Video.OwnerId.ToString() : false;
+
+            IEnumerable<CommandType> commandList = null;
+
+            // コメントの装飾許可設定に従ってコメントコマンドの取得を行う
+            var isAllowOwnerCommentCommnad = (playerSettings.CommentCommandPermission & CommentCommandPermissionType.Owner) == CommentCommandPermissionType.Owner;
+            var isAllowUserCommentCommnad = (playerSettings.CommentCommandPermission & CommentCommandPermissionType.User) == CommentCommandPermissionType.User;
+            var isAllowAnonymousCommentCommnad = (playerSettings.CommentCommandPermission & CommentCommandPermissionType.Anonymous) == CommentCommandPermissionType.Anonymous;
+            if ((commentVM.IsOwnerComment && isAllowOwnerCommentCommnad)
+                || (chat.UserId != null && isAllowUserCommentCommnad)
+                || (chat.UserId == null && isAllowAnonymousCommentCommnad)
+                )
+            {
+                try
+                {
+                    commandList = chat.ParseCommandTypes();
+                    commentVM.ApplyCommands(commandList);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.Message);
+                    Debug.WriteLine(chat.Mail);
+                }
+            }
+
+
+            return commentVM;
+        }
+
+
+
+        private void UpdateCommentNGStatus()
 		{
 			var ngSettings = HohoemaApp.UserSettings.NGSettings;
 			foreach (var comment in Comments)
@@ -1200,39 +1268,64 @@ namespace NicoPlayerHohoema.ViewModels
         {
             Comments.Clear();
 
-            List<Chat> comments = null;
-
-            try
+            bool isSuccessGetCommentFromNMSG = false;
+            // 新コメサーバーからコメント取得
+            if (Video.CommentClient.CanGetCommentsFromNMSG)
             {
-                comments = await Video.CommentClient.GetComments();
-                if (comments == null || comments.Count == 0)
+                try
                 {
-                    comments = Video.CommentClient.GetCommentsFromLocal();
+                    var res = await Video.CommentClient.GetCommentsFromNMSG();
+
+                    foreach (var chat in res.ParseComments())
+                    {
+                        var comment = ChatToComment(chat);
+                        if (comment != null)
+                        {
+                            Comments.Add(comment);
+                        }
+                    }
+
+                    isSuccessGetCommentFromNMSG = true;
+                }
+                catch
+                {
                 }
             }
-            catch
-            {
-                comments = Video.CommentClient.GetCommentsFromLocal();
+            
+            // 新コメサーバーがダメだったら旧サーバーから取得
+            if (!isSuccessGetCommentFromNMSG)
+            { 
+                List<Chat> oldFormatComments = null;
+                try
+                {
+                    oldFormatComments = await Video.CommentClient.GetComments();
+                    if (oldFormatComments == null || oldFormatComments.Count == 0)
+                    {
+                        oldFormatComments = Video.CommentClient.GetCommentsFromLocal();
+                    }
+                }
+                catch
+                {
+                    oldFormatComments = Video.CommentClient.GetCommentsFromLocal();
+                }
+
+                if (oldFormatComments == null)
+                {
+                    System.Diagnostics.Debug.WriteLine("コメントは取得できませんでした");
+                    return;
+                }
+
+                foreach (var chat in oldFormatComments)
+                {
+                    var comment = ChatToComment(chat);
+                    if (comment != null)
+                    {
+                        Comments.Add(comment);
+                    }
+                }
             }
 
-
-
-            if (comments == null)
-            {
-                System.Diagnostics.Debug.WriteLine("コメントは取得できませんでした");
-                return;
-            }
-
-            var list = comments
-                .Where(y => y != null)
-                .Select(ChatToComment)
-                .Where(y => y != null)
-                .OrderBy(y => y.VideoPosition);
-
-            foreach (var comment in list)
-            {
-                Comments.Add(comment);
-            }
+            
 
             UpdateCommentNGStatus();
 

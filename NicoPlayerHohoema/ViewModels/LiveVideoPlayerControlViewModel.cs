@@ -673,7 +673,7 @@ namespace NicoPlayerHohoema.ViewModels
 					}
 					catch { }
                     
-					comment.ApplyCommands(x.GetCommandTypes());
+					comment.ApplyCommands(x.ParseCommandTypes());
 
 					return comment;
 				});

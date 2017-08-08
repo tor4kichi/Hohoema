@@ -551,6 +551,8 @@ namespace NicoPlayerHohoema.Models
                     }
                 }
 
+                CommentClient.LastAccessDmcWatchResponse = dmcWatchResponse;
+
                 foreach (var divided in GetAllQuality())
                 {
                     if (divided is DmcQualityNicoVideo)
@@ -1100,6 +1102,9 @@ namespace NicoPlayerHohoema.Models
 
         private CommentResponse CachedCommentResponse { get; set; }
 
+        internal DmcWatchResponse LastAccessDmcWatchResponse { get; set; }
+
+
         public CommentClient(HohoemaApp hohoemaApp, string rawVideoid)
         {
             RawVideoId = rawVideoid;
@@ -1170,6 +1175,23 @@ namespace NicoPlayerHohoema.Models
             return commentRes?.Chat;
 
 
+        }
+
+
+        public bool CanGetCommentsFromNMSG 
+        {
+            get
+            {
+                return LastAccessDmcWatchResponse != null &&
+                    LastAccessDmcWatchResponse.Video.DmcInfo != null;
+            }
+        }
+
+        public async Task<NMSG_Response> GetCommentsFromNMSG()
+        {
+            if (LastAccessDmcWatchResponse == null) { return null; }
+
+            return await HohoemaApp.NiconicoContext.Video.GetNMSGCommentAsync(LastAccessDmcWatchResponse);
         }
 
         public async Task<PostCommentResponse> SubmitComment(string comment, TimeSpan position, string commands)
