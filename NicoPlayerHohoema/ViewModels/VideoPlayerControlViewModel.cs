@@ -740,8 +740,21 @@ namespace NicoPlayerHohoema.ViewModels
                 CanSubmitComment.Value = true;
 
                 // コメントのコマンドエディタを初期化
-                CommandEditerVM = new CommentCommandEditerViewModel(isAnonymousDefault: HohoemaApp.UserSettings.PlayerSettings.IsDefaultCommentWithAnonymous)
+                CommandEditerVM = new CommentCommandEditerViewModel()
                     .AddTo(userSessionDisposer);
+                if (!Video.IsCommunity)
+                {
+                    CommandEditerVM.CanChangeAnonymity.Value = false;
+                    
+                    CommandEditerVM.IsAnonymousComment.Value = false;
+                    CommandEditerVM.IsCanNot184.Value = true;
+                }
+                else
+                {
+                    CommandEditerVM.IsAnonymousDefault = HohoemaApp.UserSettings.PlayerSettings.IsDefaultCommentWithAnonymous;
+                    CommandEditerVM.IsAnonymousComment.Value = CommandEditerVM.IsAnonymousDefault;
+                }
+
                 OnPropertyChanged(nameof(CommandEditerVM));
 
                 CommandEditerVM.OnCommandChanged += () => UpdateCommandString();
@@ -1428,7 +1441,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 				if (res.Chat_result.Status == ChatResult.Success)
 				{
-					_ToastService.ShowText("コメント投稿完了", $"{VideoId}に「{WritingComment.Value}」をコメント投稿しました");
+					_ToastService.ShowText("コメント投稿", $"{VideoId}に「{WritingComment.Value}」を投稿しました", isSuppress:true);
 
 					Debug.WriteLine("コメントの投稿に成功: " + res.Chat_result.No);
 

@@ -1094,6 +1094,14 @@ namespace NicoPlayerHohoema.Models
 	}
 
 
+    public class CommentSubmitInfo
+    {
+        public string Ticket { get; set; }
+        public int CommentCount { get; set; }
+    }
+
+
+
     public class CommentClient
     {
         public string RawVideoId { get; }
@@ -1103,6 +1111,8 @@ namespace NicoPlayerHohoema.Models
         private CommentResponse CachedCommentResponse { get; set; }
 
         internal DmcWatchResponse LastAccessDmcWatchResponse { get; set; }
+
+        private CommentSubmitInfo SubmitInfo { get; set; }
 
 
         public CommentClient(HohoemaApp hohoemaApp, string rawVideoid)
@@ -1172,6 +1182,13 @@ namespace NicoPlayerHohoema.Models
                 CommentDb.AddOrUpdate(RawVideoId, commentRes);
             }
 
+            if (commentRes != null && SubmitInfo == null)
+            {
+                SubmitInfo = new CommentSubmitInfo();
+                SubmitInfo.Ticket = commentRes.Thread.Ticket;
+                SubmitInfo.CommentCount = int.Parse(commentRes.Thread.CommentCount) + 1;
+            }
+
             return commentRes?.Chat;
 
 
@@ -1191,16 +1208,24 @@ namespace NicoPlayerHohoema.Models
         {
             if (LastAccessDmcWatchResponse == null) { return null; }
 
-            return await HohoemaApp.NiconicoContext.Video.GetNMSGCommentAsync(LastAccessDmcWatchResponse);
+            var res = await HohoemaApp.NiconicoContext.Video.GetNMSGCommentAsync(LastAccessDmcWatchResponse);
+
+            if (res != null && SubmitInfo == null)
+            {
+                SubmitInfo = new CommentSubmitInfo();
+                SubmitInfo.Ticket = res.Thread.Ticket;
+                SubmitInfo.CommentCount = LastAccessDmcWatchResponse.Thread.CommentCount + 1;
+            }
+
+            return res;
         }
 
         public async Task<PostCommentResponse> SubmitComment(string comment, TimeSpan position, string commands)
         {
             if (CommentServerInfo == null) { return null; }
+            if (SubmitInfo == null) { return null; }
 
-            var commentRes = CachedCommentResponse;
-
-            if (commentRes == null || CommentServerInfo == null)
+            if (CommentServerInfo == null)
             {
                 throw new Exception("コメント投稿には事前に動画ページへのアクセスとコメント情報取得が必要です");
             }
@@ -1209,7 +1234,9 @@ namespace NicoPlayerHohoema.Models
             {
                 return await HohoemaApp.NiconicoContext.Video.PostCommentAsync(
                     CommentServerInfo.ServerUrl,
-                    CachedCommentResponse.Thread,
+                    CommentServerInfo.DefaultThreadId.ToString(),
+                    SubmitInfo.Ticket,
+                    SubmitInfo.CommentCount,
                     comment,
                     position, 
                     commands
