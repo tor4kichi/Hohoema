@@ -165,7 +165,7 @@ namespace NicoPlayerHohoema.ViewModels
 			_CompositeDisposable.Dispose();
 		}
 
-
+        
 
 
 
@@ -175,6 +175,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			if (!enableAnonymsouUser)
 			{
+                IsAnonymousDefault = false;
 				IsAnonymousComment.Value = false;
 			}
 		}		

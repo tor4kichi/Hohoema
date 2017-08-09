@@ -742,26 +742,17 @@ namespace NicoPlayerHohoema.ViewModels
                 // コメントのコマンドエディタを初期化
                 CommandEditerVM = new CommentCommandEditerViewModel()
                     .AddTo(userSessionDisposer);
-                if (!Video.IsCommunity)
-                {
-                    CommandEditerVM.CanChangeAnonymity.Value = false;
-                    
-                    CommandEditerVM.IsAnonymousComment.Value = false;
-                    CommandEditerVM.IsCanNot184.Value = true;
-                }
-                else
-                {
-                    CommandEditerVM.IsAnonymousDefault = HohoemaApp.UserSettings.PlayerSettings.IsDefaultCommentWithAnonymous;
-                    CommandEditerVM.IsAnonymousComment.Value = CommandEditerVM.IsAnonymousDefault;
-                }
 
                 OnPropertyChanged(nameof(CommandEditerVM));
 
                 CommandEditerVM.OnCommandChanged += () => UpdateCommandString();
                 CommandEditerVM.IsPremiumUser = base.HohoemaApp.IsPremiumUser;
 
-                // TODO: チャンネル動画やコミュニティ動画の検知			
-                CommandEditerVM.ChangeEnableAnonymity(true);
+                CommandEditerVM.IsAnonymousDefault = HohoemaApp.UserSettings.PlayerSettings.IsDefaultCommentWithAnonymous;
+                CommandEditerVM.IsAnonymousComment.Value = HohoemaApp.UserSettings.PlayerSettings.IsDefaultCommentWithAnonymous;
+
+                // コミュニティやチャンネルの動画では匿名コメントは利用できない
+                CommandEditerVM.ChangeEnableAnonymity(!(Video.IsCommunity || Video.IsChannel));
 
                 UpdateCommandString();
 

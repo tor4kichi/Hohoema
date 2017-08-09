@@ -436,6 +436,7 @@ namespace NicoPlayerHohoema.Models
 				this.ThumbnailUrl = res.ThumbnailUrl.AbsoluteUri;
                 this.OwnerIconUrl = res.UserIconUrl.OriginalString;
                 this.OwnerUserType = res.UserType;
+                this.IsChannel = res.UserType == UserType.Channel;
             }
 			catch (Exception e) when (e.Message.Contains("delete"))
 			{
@@ -999,6 +1000,7 @@ namespace NicoPlayerHohoema.Models
 		public string VideoId { get; private set; }
 
 		public bool IsDeleted { get; private set; }
+        public bool IsChannel { get; private set; }
 		public bool IsCommunity { get; private set; }
 
         public bool IsDmc => ContentType == MovieType.Mp4;
