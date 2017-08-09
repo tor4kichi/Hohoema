@@ -1230,23 +1230,49 @@ namespace NicoPlayerHohoema.Models
                 throw new Exception("コメント投稿には事前に動画ページへのアクセスとコメント情報取得が必要です");
             }
 
-            try
+            PostCommentResponse response = null;
+            foreach (var cnt in Enumerable.Range(0, 2))
             {
-                return await HohoemaApp.NiconicoContext.Video.PostCommentAsync(
-                    CommentServerInfo.ServerUrl,
-                    CommentServerInfo.DefaultThreadId.ToString(),
-                    SubmitInfo.Ticket,
-                    SubmitInfo.CommentCount,
-                    comment,
-                    position, 
-                    commands
-                    );
+                try
+                {
+                    response = await HohoemaApp.NiconicoContext.Video.PostCommentAsync(
+                        CommentServerInfo.ServerUrl,
+                        CommentServerInfo.DefaultThreadId.ToString(),
+                        SubmitInfo.Ticket,
+                        SubmitInfo.CommentCount,
+                        comment,
+                        position,
+                        commands
+                        );
+                }
+                catch
+                {
+                    // コメントデータを再取得してもう一度？
+                    return null;
+                }
+
+                if (response.Chat_result.Status == ChatResult.Success)
+                {
+                    SubmitInfo.CommentCount++;
+                    break;
+                }
+
+                Debug.WriteLine("コメ投稿失敗: コメ数 " + SubmitInfo.CommentCount);
+
+                await Task.Delay(1000);
+
+                try
+                {
+                    var videoInfo = await HohoemaApp.NiconicoContext.Search.GetVideoInfoAsync(RawVideoId);
+                    SubmitInfo.CommentCount = int.Parse(videoInfo.Thread.num_res);
+                    Debug.WriteLine("コメ数再取得: " + SubmitInfo.CommentCount);
+                }
+                catch
+                {
+                }
             }
-            catch
-            {
-                // コメントデータを再取得してもう一度？
-                return null;
-            }
+
+            return response;
         }
 
     }
