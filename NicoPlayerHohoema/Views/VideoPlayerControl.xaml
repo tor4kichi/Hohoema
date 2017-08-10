@@ -1188,6 +1188,22 @@
                 </toolkit:DockPanel>
 
 
+                <Grid >
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="48" />
+                    </Grid.RowDefinitions>
+
+                    <Border IsHitTestVisible="True" Background="Transparent" Grid.Row="0" Visibility="{Binding NowCommentWriting.Value, Converter={StaticResource BooleanToVisibility}}">
+                        <i:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="Tapped">
+                                <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="False" />
+                                <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="True" />
+                            </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
+                    </Border>
+                </Grid>
+
                 <Grid Visibility="{Binding IsDisplayControlUI.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
                     <Border IsHitTestVisible="True" Background="Transparent">
                         <i:Interaction.Behaviors>
@@ -1196,8 +1212,6 @@
                             </core:EventTriggerBehavior>
                         </i:Interaction.Behaviors>
                     </Border>
-
-
                 </Grid>
 
 
