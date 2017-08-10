@@ -185,7 +185,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
                 TimeSpan deltaVideoPosition = TimeSpan.Zero;
                 TimeSpan updateInterval;
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                 {
                     // 更新済みの位置であれば処理をスキップ
                     var videoPosition = VideoPosition;
@@ -208,8 +208,6 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
                     _PreviousVideoPosition = videoPosition;
 
                     updateInterval = UpdateInterval;
-
-                    await Task.Delay(1);
                 });
 
                 watch.Stop();
@@ -229,20 +227,25 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
         }
 
 
-        private CommentRenderFrameData _RenderFrameData = new CommentRenderFrameData();
+        private CommentRenderFrameData _RenderFrameData;
         private CommentRenderFrameData GetRenderFrameData()
         {
             var commentDisplayDurationVPos = GetCommentDisplayDurationVposUnit();
 
+            if (_RenderFrameData == null)
+            {
+                _RenderFrameData = new CommentRenderFrameData();
+                _RenderFrameData.CommentDisplayDuration = DefaultDisplayDuration;
+                _RenderFrameData.CommentDisplayDurationSecondsDividedOne = (float)(1.0 / DefaultDisplayDuration.TotalSeconds);
+            }
+
+            _RenderFrameData.CommentDefaultColor = CommentDefaultColor;
             _RenderFrameData.CurrentVpos = (uint)Math.Floor(VideoPosition.TotalMilliseconds * 0.1);
             _RenderFrameData.CanvasWidth = (int)CommentCanvas.ActualWidth;
             _RenderFrameData.CanvasHeight = (uint)CommentCanvas.ActualHeight;
             _RenderFrameData.HalfCanvasWidth = CommentCanvas.ActualWidth * 0.5;
             _RenderFrameData.FontScale = (float)CommentSizeScale;
-            _RenderFrameData.CommentDefaultColor = CommentDefaultColor;
             _RenderFrameData.CommentDisplayDurationVPos = commentDisplayDurationVPos;
-            _RenderFrameData.CommentDisplayDuration = DefaultDisplayDuration;
-            _RenderFrameData.CommentDisplayDurationSecondsDividedOne = (float)(1.0 / DefaultDisplayDuration.TotalSeconds);
             _RenderFrameData.Visibility = Visibility;
 
             return _RenderFrameData;
@@ -352,12 +355,15 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
             // 表示が完了したコメントを削除
             // 表示区間をすぎたコメントを表示対象から削除
             // 現在位置より若いコメントはReset時にカットしているのでスルー
-            var removeTargets = RenderComments
-                .TakeWhile(x => frame.CurrentVpos > x.Comment.EndPosition)
-                .ToArray();
-
-            foreach (var commentInfo in removeTargets)
+            while (RenderComments.Count > 0)
             {
+                var commentInfo = RenderComments.First();
+
+                if (frame.CurrentVpos < commentInfo.Comment.EndPosition)
+                {
+                    break;
+                }
+
                 var renderComment = commentInfo.CommentUI;
 
                 RenderComments.Remove(commentInfo);
@@ -373,15 +379,27 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
                 var c = commentInfo.Comment;
                 if (c.VAlign == null)
                 {
-                    PrevRenderCommentEachLine_Stream.Remove(renderComment);
+                    var index = PrevRenderCommentEachLine_Stream.IndexOf(renderComment);
+                    if (index >= 0)
+                    {
+                        PrevRenderCommentEachLine_Stream[index] = null;
+                    }
                 }
                 else if (c.VAlign == VerticalAlignment.Top)
                 {
-                    PrevRenderCommentEachLine_Top.Remove(renderComment);
+                    var index = PrevRenderCommentEachLine_Top.IndexOf(renderComment);
+                    if (index >= 0)
+                    {
+                        PrevRenderCommentEachLine_Top[index] = null;
+                    }
                 }
                 else if (c.VAlign == VerticalAlignment.Bottom)
                 {
-                    PrevRenderCommentEachLine_Bottom.Remove(renderComment);
+                    var index = PrevRenderCommentEachLine_Bottom.IndexOf(renderComment);
+                    if (index >= 0)
+                    {
+                        PrevRenderCommentEachLine_Bottom[index] = null;
+                    }
                 }
                 else //if (c.VAlign == VerticalAlignment.Center)
                 {
@@ -610,7 +628,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
                                 PrevRenderCommentEachLine_Bottom[insertPosition] = renderComment;
                             }
 
-                            isCanAddRenderComment_Bottom = (verticalPos - (renderComment.TextHeight - renderComment.TextHeight * CommentVerticalMarginRatio)) > 0;
+                            isCanAddRenderComment_Bottom = (verticalPos - (renderComment.TextHeight + renderComment.TextHeight * CommentVerticalMarginRatio)) > 0;
                         }
                     }
                     else //if (comment.VAlign == VerticalAlignment.Center)
@@ -872,7 +890,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
             DependencyProperty.Register("DefaultDisplayDuration"
                 , typeof(TimeSpan)
                 , typeof(CommentRendererEx)
-                , new PropertyMetadata(TimeSpan.FromSeconds(4))
+                , new PropertyMetadata(TimeSpan.FromSeconds(4), OnDefaultDisplayDurationChanged)
                 );
 
         public TimeSpan DefaultDisplayDuration
@@ -881,6 +899,12 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
             set { SetValue(DefaultDisplayDurationProperty, value); }
         }
 
+
+        private static void OnDefaultDisplayDurationChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            var me = (CommentRendererEx)sender;
+            me._RenderFrameData = null;
+        }
 
         public static readonly DependencyProperty SelectedCommentIdProperty =
             DependencyProperty.Register("SelectedCommentId"

@@ -224,10 +224,20 @@
 
                 <StackPanel Orientation="Horizontal">
 
+                    
                     <ToggleButton Content="匿名で投稿" 
                                   IsChecked="{Binding IsAnonymousComment.Value, Mode=TwoWay}"
-                                  IsEnabled="{Binding CanChangeAnonymity.Value}"
+                                  IsEnabled="{Binding CanChangeAnonymity.Value, Mode=OneWay}"
                                   />
+
+                    <TextBlock Text="チャンネル・コミュニティ動画では匿名投稿できません"
+                               FontSize="12"
+                               Width="150"
+                               TextWrapping="Wrap"
+                               Margin="8 8 0 0"
+                               HorizontalAlignment="Left"
+                               Visibility="{Binding CanChangeAnonymity.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                               />
                     
                 </StackPanel>
 

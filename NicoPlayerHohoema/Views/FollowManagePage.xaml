@@ -30,8 +30,15 @@
 
         <local:FollowTypeToSymbolIconConverter x:Key="FavTypeToSymbol" />
     </Page.Resources>
-    
-    
+
+
+    <i:Interaction.Behaviors>
+        <core:EventTriggerBehavior EventName="Unloaded">
+            <core:CallMethodAction TargetObject="{Binding}" MethodName="Dispose" />
+        </core:EventTriggerBehavior>
+    </i:Interaction.Behaviors>
+
+
     <Grid x:Name="PageRoot">
 
         <VisualStateManager.VisualStateGroups>

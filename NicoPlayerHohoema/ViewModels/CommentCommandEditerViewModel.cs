@@ -74,7 +74,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		public ReactiveProperty<bool> CanChangeAnonymity { get; private set; }
+        public ReactiveProperty<bool> IsCanNot184 { get; private set; }
+        public ReactiveProperty<bool> CanChangeAnonymity { get; private set; }
 		public ReactiveProperty<bool> IsAnonymousComment { get; private set; }
 
 		public ReactiveProperty<CommandType?> SizeSelectedItem { get; private set; }
@@ -100,12 +101,12 @@ namespace NicoPlayerHohoema.ViewModels
 
 		private CompositeDisposable _CompositeDisposable;
 
-		public CommentCommandEditerViewModel(bool isAnonymousDefault = true)
+		public CommentCommandEditerViewModel()
 		{
 			_CompositeDisposable = new CompositeDisposable();
 
-			IsAnonymousDefault = isAnonymousDefault;
-			CanChangeAnonymity = new ReactiveProperty<bool>(false)
+            IsCanNot184 = new ReactiveProperty<bool>();
+            CanChangeAnonymity = new ReactiveProperty<bool>(false)
 				.AddTo(_CompositeDisposable);
 			IsAnonymousComment = new ReactiveProperty<bool>(IsAnonymousDefault)
 				.AddTo(_CompositeDisposable);
@@ -164,7 +165,7 @@ namespace NicoPlayerHohoema.ViewModels
 			_CompositeDisposable.Dispose();
 		}
 
-
+        
 
 
 
@@ -174,6 +175,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			if (!enableAnonymsouUser)
 			{
+                IsAnonymousDefault = false;
 				IsAnonymousComment.Value = false;
 			}
 		}		

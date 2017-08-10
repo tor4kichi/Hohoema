@@ -22,7 +22,6 @@
     <Page.Resources>
     </Page.Resources>
 
-  
     <Grid x:Name="LayoutRoot">
 
         <VisualStateManager.VisualStateGroups>

@@ -18,6 +18,13 @@
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
+    <i:Interaction.Behaviors>
+        <core:EventTriggerBehavior EventName="Unloaded">
+            <core:CallMethodAction TargetObject="{Binding}" MethodName="Dispose" />
+        </core:EventTriggerBehavior>
+    </i:Interaction.Behaviors>
+
+
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
           Margin="0 0 0 0"
           >

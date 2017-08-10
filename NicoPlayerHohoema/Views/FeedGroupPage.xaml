@@ -20,6 +20,13 @@
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     >
 
+    <i:Interaction.Behaviors>
+        <core:EventTriggerBehavior EventName="Unloaded">
+            <core:CallMethodAction TargetObject="{Binding}" MethodName="Dispose" />
+        </core:EventTriggerBehavior>
+    </i:Interaction.Behaviors>
+
+
     <Page.Resources>
         <DataTemplate x:Key="FeedSourceTemplate">
             <Button Content="{Binding Name}" MinWidth="120" Height="32">

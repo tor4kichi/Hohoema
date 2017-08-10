@@ -264,6 +264,10 @@ namespace NicoPlayerHohoema.Models
             if (mediaSource != null)
             {
                 HohoemaApp.MediaPlayer.Source = mediaSource;
+                if (initialPosition.HasValue)
+                {
+                    HohoemaApp.MediaPlayer.PlaybackSession.Position = initialPosition.Value;
+                }
 
                 _MediaSource = mediaSource;
 
@@ -436,10 +440,14 @@ namespace NicoPlayerHohoema.Models
 				this.ThumbnailUrl = res.ThumbnailUrl.AbsoluteUri;
                 this.OwnerIconUrl = res.UserIconUrl.OriginalString;
                 this.OwnerUserType = res.UserType;
+                this.IsChannel = res.UserType == UserType.Channel;
             }
 			catch (Exception e) when (e.Message.Contains("delete"))
 			{
-				await DeletedTeardown();
+                await HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                {
+                    await DeletedTeardown();
+                });
 			}
 			catch (Exception e) when (e.Message.Contains("community"))
 			{
@@ -547,6 +555,8 @@ namespace NicoPlayerHohoema.Models
                         CommentClient.CommentServerInfo = commentServerInfo;
                     }
                 }
+
+                CommentClient.LastAccessDmcWatchResponse = dmcWatchResponse;
 
                 foreach (var divided in GetAllQuality())
                 {
@@ -994,6 +1004,7 @@ namespace NicoPlayerHohoema.Models
 		public string VideoId { get; private set; }
 
 		public bool IsDeleted { get; private set; }
+        public bool IsChannel { get; private set; }
 		public bool IsCommunity { get; private set; }
 
         public bool IsDmc => ContentType == MovieType.Mp4;
@@ -1089,6 +1100,14 @@ namespace NicoPlayerHohoema.Models
 	}
 
 
+    public class CommentSubmitInfo
+    {
+        public string Ticket { get; set; }
+        public int CommentCount { get; set; }
+    }
+
+
+
     public class CommentClient
     {
         public string RawVideoId { get; }
@@ -1096,6 +1115,11 @@ namespace NicoPlayerHohoema.Models
         public CommentServerInfo CommentServerInfo { get; set; }
 
         private CommentResponse CachedCommentResponse { get; set; }
+
+        internal DmcWatchResponse LastAccessDmcWatchResponse { get; set; }
+
+        private CommentSubmitInfo SubmitInfo { get; set; }
+
 
         public CommentClient(HohoemaApp hohoemaApp, string rawVideoid)
         {
@@ -1164,37 +1188,97 @@ namespace NicoPlayerHohoema.Models
                 CommentDb.AddOrUpdate(RawVideoId, commentRes);
             }
 
+            if (commentRes != null && SubmitInfo == null)
+            {
+                SubmitInfo = new CommentSubmitInfo();
+                SubmitInfo.Ticket = commentRes.Thread.Ticket;
+                SubmitInfo.CommentCount = int.Parse(commentRes.Thread.CommentCount) + 1;
+            }
+
             return commentRes?.Chat;
 
 
         }
 
+
+        public bool CanGetCommentsFromNMSG 
+        {
+            get
+            {
+                return LastAccessDmcWatchResponse != null &&
+                    LastAccessDmcWatchResponse.Video.DmcInfo != null;
+            }
+        }
+
+        public async Task<NMSG_Response> GetCommentsFromNMSG()
+        {
+            if (LastAccessDmcWatchResponse == null) { return null; }
+
+            var res = await HohoemaApp.NiconicoContext.Video.GetNMSGCommentAsync(LastAccessDmcWatchResponse);
+
+            if (res != null && SubmitInfo == null)
+            {
+                SubmitInfo = new CommentSubmitInfo();
+                SubmitInfo.Ticket = res.Thread.Ticket;
+                SubmitInfo.CommentCount = LastAccessDmcWatchResponse.Thread.CommentCount + 1;
+            }
+
+            return res;
+        }
+
         public async Task<PostCommentResponse> SubmitComment(string comment, TimeSpan position, string commands)
         {
             if (CommentServerInfo == null) { return null; }
+            if (SubmitInfo == null) { return null; }
 
-            var commentRes = CachedCommentResponse;
-
-            if (commentRes == null || CommentServerInfo == null)
+            if (CommentServerInfo == null)
             {
                 throw new Exception("コメント投稿には事前に動画ページへのアクセスとコメント情報取得が必要です");
             }
 
-            try
+            PostCommentResponse response = null;
+            foreach (var cnt in Enumerable.Range(0, 2))
             {
-                return await HohoemaApp.NiconicoContext.Video.PostCommentAsync(
-                    CommentServerInfo.ServerUrl,
-                    CachedCommentResponse.Thread,
-                    comment,
-                    position, 
-                    commands
-                    );
+                try
+                {
+                    response = await HohoemaApp.NiconicoContext.Video.PostCommentAsync(
+                        CommentServerInfo.ServerUrl,
+                        CommentServerInfo.DefaultThreadId.ToString(),
+                        SubmitInfo.Ticket,
+                        SubmitInfo.CommentCount,
+                        comment,
+                        position,
+                        commands
+                        );
+                }
+                catch
+                {
+                    // コメントデータを再取得してもう一度？
+                    return null;
+                }
+
+                if (response.Chat_result.Status == ChatResult.Success)
+                {
+                    SubmitInfo.CommentCount++;
+                    break;
+                }
+
+                Debug.WriteLine("コメ投稿失敗: コメ数 " + SubmitInfo.CommentCount);
+
+                await Task.Delay(1000);
+
+                try
+                {
+                    var videoInfo = await HohoemaApp.NiconicoContext.Search.GetVideoInfoAsync(RawVideoId);
+                    SubmitInfo.CommentCount = int.Parse(videoInfo.Thread.num_res);
+                    Debug.WriteLine("コメ数再取得: " + SubmitInfo.CommentCount);
+                }
+                catch
+                {
+                }
             }
-            catch
-            {
-                // コメントデータを再取得してもう一度？
-                return null;
-            }
+
+            return response;
         }
 
     }

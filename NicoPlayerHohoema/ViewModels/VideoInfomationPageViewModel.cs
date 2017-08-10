@@ -345,7 +345,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 try
                 {
-                    await Video.VisitWatchPage(NicoVideoQuality.Low);
+                    await Video.VisitWatchPage(NicoVideoQuality.Dmc_High);
 
 
                     VideoTitle = Video.Title;

@@ -254,10 +254,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 			// TODO: ニコ生での匿名コメント設定
 			CommandString = new ReactiveProperty<string>(PlayerWindowUIDispatcherScheduler, "").AddTo(_CompositeDisposable);
-			CommandEditerVM = new CommentCommandEditerViewModel(true /* isDefaultAnnonymous */);
+			CommandEditerVM = new CommentCommandEditerViewModel();
 			CommandEditerVM.OnCommandChanged += CommandEditerVM_OnCommandChanged;
 			CommandEditerVM.ChangeEnableAnonymity(true);
-			CommandEditerVM.IsAnonymousComment.Value = true;
+            CommandEditerVM.IsAnonymousDefault = true;
+            CommandEditerVM.IsAnonymousComment.Value = true;
 
 			CommandEditerVM_OnCommandChanged();
 
@@ -673,7 +674,7 @@ namespace NicoPlayerHohoema.ViewModels
 					}
 					catch { }
                     
-					comment.ApplyCommands(x.GetCommandTypes());
+					comment.ApplyCommands(x.ParseCommandTypes());
 
 					return comment;
 				});

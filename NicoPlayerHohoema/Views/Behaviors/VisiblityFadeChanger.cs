@@ -56,24 +56,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
        
 
 
-        DispatcherTimer AutoHideTimer = new DispatcherTimer();
-
-        public void PreventAutoHide()
-        {
-            if (IsAutoHideEnabled)
-            {
-                IsVisible = true;
-
-                AutoHideTimer.Stop();
-                AutoHideTimer.Start();
-            }
-        }
-
-        private void AutoHideTimer_Tick(object sender, object e)
-        {
-            IsVisible = false;
-        }
-
+        
 
 
 
@@ -177,6 +160,25 @@ namespace NicoPlayerHohoema.Views.Behaviors
         #endregion
 
 
+        DispatcherTimer AutoHideTimer = new DispatcherTimer();
+
+        public void PreventAutoHide()
+        {
+            if (IsAutoHideEnabled)
+            {
+                IsVisible = true;
+
+                AutoHideTimer.Stop();
+                AutoHideTimer.Start();
+            }
+        }
+
+        private void AutoHideTimer_Tick(object sender, object e)
+        {
+            IsVisible = false;
+        }
+
+
         private void ChangeVisible()
         {
             if (IsVisible)
@@ -208,11 +210,9 @@ namespace NicoPlayerHohoema.Views.Behaviors
             {
                 AutoHideTimer.Start();
             }
-
-            Debug.WriteLine("Show UI");
         }
 
-        private async void Hide()
+        private void Hide()
         {
             if (this.AssociatedObject == null) { return; }
 
@@ -224,7 +224,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
                 var dispatcher = Dispatcher;
                 try
                 {
-                    await _FadeOutAnimation.StartAsync();
+                    _FadeOutAnimation.Start();
                 }
                 catch
                 {
@@ -235,9 +235,6 @@ namespace NicoPlayerHohoema.Views.Behaviors
             {
                 AssociatedObject.Opacity = 0.0;
             }
-
-            Debug.WriteLine("Hide UI");
-
         }
 
 
@@ -257,22 +254,6 @@ namespace NicoPlayerHohoema.Views.Behaviors
             AutoHideTimer.Tick += AutoHideTimer_Tick;
             
             AssociatedObject.PointerMoved += AssociatedObject_PointerMoved;
-            AssociatedObject.PointerEntered += AssociatedObject_PointerEntered;
-            AssociatedObject.PointerExited += AssociatedObject_PointerExited;
-        }
-
-        private void AssociatedObject_PointerExited(object sender, PointerRoutedEventArgs e)
-        {
-            if (IsVisible)
-            {
-                AutoHideTimer.Stop();
-                AutoHideTimer.Start();
-            }
-        }
-
-        private void AssociatedObject_PointerEntered(object sender, PointerRoutedEventArgs e)
-        {
-//            IsAutoHideEnabled = false;
         }
 
         private void AssociatedObject_PointerMoved(object sender, PointerRoutedEventArgs e)
