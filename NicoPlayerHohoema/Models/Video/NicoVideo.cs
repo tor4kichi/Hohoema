@@ -264,6 +264,10 @@ namespace NicoPlayerHohoema.Models
             if (mediaSource != null)
             {
                 HohoemaApp.MediaPlayer.Source = mediaSource;
+                if (initialPosition.HasValue)
+                {
+                    HohoemaApp.MediaPlayer.PlaybackSession.Position = initialPosition.Value;
+                }
 
                 _MediaSource = mediaSource;
 
