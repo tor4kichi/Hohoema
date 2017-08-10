@@ -379,15 +379,27 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
                 var c = commentInfo.Comment;
                 if (c.VAlign == null)
                 {
-                    PrevRenderCommentEachLine_Stream.Remove(renderComment);
+                    var index = PrevRenderCommentEachLine_Stream.IndexOf(renderComment);
+                    if (index >= 0)
+                    {
+                        PrevRenderCommentEachLine_Stream[index] = null;
+                    }
                 }
                 else if (c.VAlign == VerticalAlignment.Top)
                 {
-                    PrevRenderCommentEachLine_Top.Remove(renderComment);
+                    var index = PrevRenderCommentEachLine_Top.IndexOf(renderComment);
+                    if (index >= 0)
+                    {
+                        PrevRenderCommentEachLine_Top[index] = null;
+                    }
                 }
                 else if (c.VAlign == VerticalAlignment.Bottom)
                 {
-                    PrevRenderCommentEachLine_Bottom.Remove(renderComment);
+                    var index = PrevRenderCommentEachLine_Bottom.IndexOf(renderComment);
+                    if (index >= 0)
+                    {
+                        PrevRenderCommentEachLine_Bottom[index] = null;
+                    }
                 }
                 else //if (c.VAlign == VerticalAlignment.Center)
                 {
@@ -616,7 +628,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
                                 PrevRenderCommentEachLine_Bottom[insertPosition] = renderComment;
                             }
 
-                            isCanAddRenderComment_Bottom = (verticalPos - (renderComment.TextHeight - renderComment.TextHeight * CommentVerticalMarginRatio)) > 0;
+                            isCanAddRenderComment_Bottom = (verticalPos - (renderComment.TextHeight + renderComment.TextHeight * CommentVerticalMarginRatio)) > 0;
                         }
                     }
                     else //if (comment.VAlign == VerticalAlignment.Center)
