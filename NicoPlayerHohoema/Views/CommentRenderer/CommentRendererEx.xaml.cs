@@ -227,20 +227,25 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
         }
 
 
-        private CommentRenderFrameData _RenderFrameData = new CommentRenderFrameData();
+        private CommentRenderFrameData _RenderFrameData;
         private CommentRenderFrameData GetRenderFrameData()
         {
             var commentDisplayDurationVPos = GetCommentDisplayDurationVposUnit();
 
+            if (_RenderFrameData == null)
+            {
+                _RenderFrameData = new CommentRenderFrameData();
+                _RenderFrameData.CommentDisplayDuration = DefaultDisplayDuration;
+                _RenderFrameData.CommentDisplayDurationSecondsDividedOne = (float)(1.0 / DefaultDisplayDuration.TotalSeconds);
+            }
+
+            _RenderFrameData.CommentDefaultColor = CommentDefaultColor;
             _RenderFrameData.CurrentVpos = (uint)Math.Floor(VideoPosition.TotalMilliseconds * 0.1);
             _RenderFrameData.CanvasWidth = (int)CommentCanvas.ActualWidth;
             _RenderFrameData.CanvasHeight = (uint)CommentCanvas.ActualHeight;
             _RenderFrameData.HalfCanvasWidth = CommentCanvas.ActualWidth * 0.5;
             _RenderFrameData.FontScale = (float)CommentSizeScale;
-            _RenderFrameData.CommentDefaultColor = CommentDefaultColor;
             _RenderFrameData.CommentDisplayDurationVPos = commentDisplayDurationVPos;
-            _RenderFrameData.CommentDisplayDuration = DefaultDisplayDuration;
-            _RenderFrameData.CommentDisplayDurationSecondsDividedOne = (float)(1.0 / DefaultDisplayDuration.TotalSeconds);
             _RenderFrameData.Visibility = Visibility;
 
             return _RenderFrameData;
@@ -873,7 +878,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
             DependencyProperty.Register("DefaultDisplayDuration"
                 , typeof(TimeSpan)
                 , typeof(CommentRendererEx)
-                , new PropertyMetadata(TimeSpan.FromSeconds(4))
+                , new PropertyMetadata(TimeSpan.FromSeconds(4), OnDefaultDisplayDurationChanged)
                 );
 
         public TimeSpan DefaultDisplayDuration
@@ -882,6 +887,12 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
             set { SetValue(DefaultDisplayDurationProperty, value); }
         }
 
+
+        private static void OnDefaultDisplayDurationChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            var me = (CommentRendererEx)sender;
+            me._RenderFrameData = null;
+        }
 
         public static readonly DependencyProperty SelectedCommentIdProperty =
             DependencyProperty.Register("SelectedCommentId"
