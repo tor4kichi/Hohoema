@@ -137,6 +137,17 @@ namespace NicoPlayerHohoema.ViewModels
                 })
                 .Subscribe(color => ThemeColor = color)
                 .AddTo(_CompositeDisposable);
+
+            if (_IsNGEnabled)
+            {
+                var ngResult = NicoVideo.CheckNGVideoOwner();
+                IsVisible = ngResult == null;
+                if (ngResult != null)
+                {
+                    var ngDesc = !string.IsNullOrWhiteSpace(ngResult.NGDescription) ? ngResult.NGDescription : ngResult.Content;
+                    InvisibleDescription = $"NG動画";
+                }
+            }
         }
 
         private async void ResetQualityDivideVideosVM()
@@ -162,7 +173,7 @@ namespace NicoPlayerHohoema.ViewModels
             // NG判定
             if (_IsNGEnabled)
             {
-                var ngResult = NicoVideo.CheckUserNGVideo();
+                var ngResult = NicoVideo.CheckNGVideoTitle();
                 IsVisible = ngResult == null;
                 if (ngResult != null)
                 {
@@ -243,7 +254,7 @@ namespace NicoPlayerHohoema.ViewModels
 				return _PlayCommand
 					?? (_PlayCommand = new DelegateCommand(() =>
 					{
-                        if (NicoVideo.CheckUserNGVideo() != null)
+                        if (NicoVideo.CheckNGVideoOwner() != null)
                         {
                             return;
                         }
