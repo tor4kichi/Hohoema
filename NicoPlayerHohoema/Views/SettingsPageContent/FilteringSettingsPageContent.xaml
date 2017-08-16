@@ -51,47 +51,7 @@
 
 
 
-        <DataTemplate x:Key="NGKeywordTemplate">
-            <toolkit:DockPanel
-                    Background="Transparent"
-                    >
-                <FlyoutBase.AttachedFlyout>
-                    <Flyout x:Name="NGTitleFlyout" >
-                        <toolkit:DockPanel>
-                            <TextBlock Text="除外キーワード"
-                                                                VerticalAlignment="Center"
-                                                                Margin="8 0"
-                                                               toolkit:DockPanel.Dock="Left"
-                                                                />
-                            <TextBox Text="{Binding Keyword.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                                                MinWidth="150"
-                                                                >
-                            </TextBox>
-                        </toolkit:DockPanel>
-                    </Flyout>
-                </FlyoutBase.AttachedFlyout>
-                <i:Interaction.Behaviors>
-                    <mybehavior:ShowFlyoutBehavior />
-                </i:Interaction.Behaviors>
-
-
-                <AppBarButton Icon="Delete" 
-                              Command="{Binding RemoveKeywordCommand}"
-                              IsCompact="True"
-                              />
-                <TextBlock Text="{Binding Keyword.Value}" 
-                            VerticalAlignment="Center"
-                            HorizontalAlignment="Center"
-                            Margin="16 0"
-                        >
-
-                </TextBlock>
-
-
-
-            </toolkit:DockPanel>
-        </DataTemplate>
-
+        
 
         <DataTemplate x:Key="TextWithRemoveButtonTemplate">
             <toolkit:DockPanel>
@@ -107,48 +67,7 @@
             </toolkit:DockPanel>
         </DataTemplate>
 
-        <!--
-        <DataTemplate x:Key="NGKeywordTemplate">
-            <toolkit:DockPanel
-                    Background="Transparent"
-                    >
-                <FlyoutBase.AttachedFlyout>
-                    <Flyout x:Name="NGTitleFlyout" >
-                        <toolkit:DockPanel>
-                            <TextBlock Text="除外キーワード"
-                                                                VerticalAlignment="Center"
-                                                                Margin="8 0"
-                                                               toolkit:DockPanel.Dock="Left"
-                                                                />
-                            <TextBox Text="{Binding Keyword.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                                                MinWidth="150"
-                                                                >
-                            </TextBox>
-                        </toolkit:DockPanel>
-                    </Flyout>
-                </FlyoutBase.AttachedFlyout>
-                <i:Interaction.Behaviors>
-                    <mybehavior:ShowFlyoutBehavior />
-                </i:Interaction.Behaviors>
-
-
-                <AppBarButton Icon="Delete" 
-                                                      Command="{Binding RemoveKeywordCommand}"
-                                                      />
-                <TextBlock Text="{Binding Keyword.Value}" 
-                                                   VerticalAlignment="Center"
-                                                   HorizontalAlignment="Center"
-                                                   Margin="16 0"
-                                               >
-
-                </TextBlock>
-
-
-
-            </toolkit:DockPanel>
-        </DataTemplate>
-        -->
-
+        
         <local:NGCommentScoreTypeTemplateSelector x:Key="NGCommentScoreTypeTemplateSelector">
             <local:NGCommentScoreTypeTemplateSelector.NoneTemplate>
                 <DataTemplate>
@@ -308,31 +227,10 @@
 
             <StackPanel Margin="8 0 0 0">
 
-                <!-- 
-                    <toolkit:DockPanel Margin="8">
-                        <TextBlock Text="動画IDによる動画の除外を有効にする"
-                           toolkit:DockPanel.Dock="Left"
-                           VerticalAlignment="Center"
-                           />
-                        <ToggleButton Width="32" Height="32" 
-                                  Margin="0 0 8 0"
-                                  IsChecked="{Binding NGVideoIdEnable.Value, Mode=TwoWay}"
-                                  HorizontalAlignment="Right"
-                                          />
-                    </toolkit:DockPanel>
-
-                    <ListView ItemsSource="{Binding NGVideoIds}"
-                                  ItemTemplate="{StaticResource TextWithRemoveButtonTemplate}"
-                                  Margin="0 8"
-                                  SelectionMode="None"
-                                  >
-                    </ListView>
-                    -->
-
 
 
                 <StackPanel Margin="0 8">
-                    <TextBlock Text="動画投稿者IDによる動画の除外を有効にする"
+                    <TextBlock Text="動画投稿者IDによる動画のフィルタを有効にする"
                            VerticalAlignment="Center"
                            />
                     <ToggleSwitch
@@ -379,7 +277,7 @@
 
 
                 <StackPanel Margin="0 8">
-                    <TextBlock Text="動画タイトルのNGキーワードによる動画の除外を有効にする"
+                    <TextBlock Text="動画タイトルのNGキーワードによる動画のフィルタを有効にする"
                            toolkit:DockPanel.Dock="Left"
                            VerticalAlignment="Center"
                            />

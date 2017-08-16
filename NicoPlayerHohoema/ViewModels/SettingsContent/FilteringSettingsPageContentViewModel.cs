@@ -20,7 +20,7 @@ namespace NicoPlayerHohoema.ViewModels
 	public class FilteringSettingsPageContentViewModel : SettingsPageContentViewModel
 	{
 		public FilteringSettingsPageContentViewModel(HohoemaApp hohoemaApp, PageManager pageManager, RankingChoiceDialogService rankingChoiceDialog)
-			: base("除外設定", HohoemaSettingsKind.Filtering)
+			: base("フィルタ", HohoemaSettingsKind.Filtering)
 		{
 			_HohoemaApp = hohoemaApp;
 			_NGSettings = _HohoemaApp.UserSettings.NGSettings;
