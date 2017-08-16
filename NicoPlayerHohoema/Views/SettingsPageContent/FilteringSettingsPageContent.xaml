@@ -230,7 +230,7 @@
 
 
                 <StackPanel Margin="0 8">
-                    <TextBlock Text="動画投稿者IDによる動画のフィルタを有効にする"
+                    <TextBlock Text="動画投稿者IDによるフィルタを有効にする"
                            VerticalAlignment="Center"
                            />
                     <ToggleSwitch
@@ -277,7 +277,7 @@
 
 
                 <StackPanel Margin="0 8">
-                    <TextBlock Text="動画タイトルのNGキーワードによる動画のフィルタを有効にする"
+                    <TextBlock Text="動画タイトルによるフィルタを有効にする"
                            toolkit:DockPanel.Dock="Left"
                            VerticalAlignment="Center"
                            />
@@ -296,7 +296,7 @@
                              Height="120"
                              />
 
-                    <TextBlock Margin="0 8">
+                    <TextBlock Margin="0 8" Foreground="Gray">
                         ・１行ごとに評価　・正規表現も可
                     </TextBlock>
 
@@ -383,7 +383,7 @@
 
                 <!-- NG キーワード -->
                 <StackPanel Margin="0 8">
-                    <TextBlock Text="NGコメントキーワード機能を有効にする"
+                    <TextBlock Text="コメントのフィルタを有効にする"
                            VerticalAlignment="Center"
                            />
                     <ToggleSwitch IsOn="{Binding NGCommentKeywordEnable.Value, Mode=TwoWay}"
@@ -402,7 +402,7 @@
                              ScrollViewer.VerticalScrollBarVisibility="Auto"
                              />
 
-                    <TextBlock Margin="0 8">
+                    <TextBlock Margin="0 8" Foreground="Gray">
                         ・１行ごとに評価　・正規表現も可
                     </TextBlock>
                 </StackPanel>
