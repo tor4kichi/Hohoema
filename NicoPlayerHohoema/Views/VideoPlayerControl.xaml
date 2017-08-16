@@ -1100,6 +1100,7 @@
 
                                 <TextBox x:Name="CommentTextBox" 
                                                 Text="{Binding WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource BGTransparentTextBoxStyle}"
                                                 FontSize="18"
                                                 VerticalAlignment="Center"
                                                 MaxLength="75"

@@ -134,7 +134,7 @@
     https://msdn.microsoft.com/ja-jp/library/windows/apps/mt299154.aspx
     -->
     
-    <Style TargetType="TextBox">
+    <Style TargetType="TextBox" x:Key="BGTransparentTextBoxStyle">
 
         <Setter Property="SelectionHighlightColor" Value="{ThemeResource SystemControlHighlightAccentBrush}" />
 
