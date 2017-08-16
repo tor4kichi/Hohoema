@@ -65,7 +65,7 @@ namespace NicoPlayerHohoema.Views
 		private bool _IsVisible = true;
 		public bool IsVisible
 		{
-			get { return _IsVisible && !IsNGComment; }
+			get { return _IsVisible; }
 			set { SetProperty(ref _IsVisible, value); }
 		}
 
@@ -97,10 +97,13 @@ namespace NicoPlayerHohoema.Views
 
 		public double TextBGOffset { get; set; }
 
-		public Comment(VideoPlayerControlViewModel videoPlayerPageVM)
+
+        NGSettings NGSettings { get; }
+        public Comment(VideoPlayerControlViewModel videoPlayerPageVM, NGSettings ngsettings)
 		{
 			_VideoPlayerPageViewModel = videoPlayerPageVM;
-			TextBGOffset = 1.0;
+            NGSettings = ngsettings;
+            TextBGOffset = 1.0;
 		}
 
 		public Comment()
@@ -260,57 +263,10 @@ namespace NicoPlayerHohoema.Views
 
 		}
 
-		private DelegateCommand _AddNgUserCommand;
-		public DelegateCommand AddNgUserCommand
-		{
-			get
-			{
-				return _AddNgUserCommand
-					?? (_AddNgUserCommand = new DelegateCommand(async () =>
-					{
-						if (_VideoPlayerPageViewModel != null)
-						{
-							await _VideoPlayerPageViewModel.AddNgUser(this);
-						}
-					}));
-			}
-		}
-
-
-
-		private NGResult _NgResult;
-		public NGResult NgResult
-		{
-			get { return _NgResult; }
-			set
-			{
-				if (SetProperty(ref _NgResult, value))
-				{
-					OnPropertyChanged(nameof(IsNGComment));
-					OnPropertyChanged(nameof(IsNGDescription));
-
-					OnPropertyChanged(nameof(IsVisible));
-				}
-			}
-		}
-
-
-		public bool IsNGComment
-		{
-			get
-			{
-				return _NgResult != null;
-			}
-		}
-
-		public string IsNGDescription
-		{
-			get
-			{
-				return _NgResult?.NGDescription ?? "";
-			}
-		}
-
+		public bool CheckIsNGComment()
+        {
+            return NGSettings.IsNGComment(CommentText) != null;
+        }
 
 
 

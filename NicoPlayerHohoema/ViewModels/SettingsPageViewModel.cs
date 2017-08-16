@@ -266,21 +266,21 @@ namespace NicoPlayerHohoema.ViewModels
     {
 		public NGKeywordViewModel(NGKeyword ngTitleInfo, Action<NGKeyword> onRemoveAction)
 		{
-			_NGKeywordInfo = ngTitleInfo;
+			NGKeywordInfo = ngTitleInfo;
 			_OnRemoveAction = onRemoveAction;
 
-            Label = _NGKeywordInfo.Keyword;
-            TestText = new ReactiveProperty<string>(_NGKeywordInfo.TestText);
-			Keyword = new ReactiveProperty<string>(_NGKeywordInfo.Keyword);
+            Label = NGKeywordInfo.Keyword;
+            TestText = new ReactiveProperty<string>(NGKeywordInfo.TestText);
+			Keyword = new ReactiveProperty<string>(NGKeywordInfo.Keyword);
 
 			TestText.Subscribe(x => 
 			{
-				_NGKeywordInfo.TestText = x;
+				NGKeywordInfo.TestText = x;
 			});
 
 			Keyword.Subscribe(x =>
 			{
-				_NGKeywordInfo.Keyword = x;
+				NGKeywordInfo.Keyword = x;
 			});
 
 			IsValidKeyword =
@@ -301,7 +301,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             RemoveCommand = new DelegateCommand(() => 
 			{
-				_OnRemoveAction(this._NGKeywordInfo);
+				_OnRemoveAction(this.NGKeywordInfo);
 			});
 		}
 
@@ -326,7 +326,7 @@ namespace NicoPlayerHohoema.ViewModels
         public string Label { get; private set; }
 		public ICommand RemoveCommand { get; private set; }
 		
-		NGKeyword _NGKeywordInfo;
+		public NGKeyword NGKeywordInfo { get; }
 		Action<NGKeyword> _OnRemoveAction;
 	}
 

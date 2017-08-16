@@ -307,6 +307,7 @@
                                         Margin="0 8 8 8"
                                     Height="48"
                                     FontSize="18"
+                                 Style="{StaticResource BGTransparentTextBoxStyle}"
                                  IsEnabled="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanInverted}}"
                                     >
                             <i:Interaction.Behaviors>
