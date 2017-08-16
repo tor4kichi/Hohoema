@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Models
@@ -92,7 +93,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			if (this.NGVideoTitleKeywordEnable && this.NGVideoTitleKeywords.Count > 0)
 			{
-				var ngItem = this.NGVideoTitleKeywords.FirstOrDefault(x => title.Contains(x.Keyword));
+                var ngItem = this.NGVideoTitleKeywords.FirstOrDefault(x => x.CheckNG(title));
 
 				if (ngItem != null)
 				{
@@ -134,7 +135,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			if (this.NGCommentKeywordEnable && this.NGCommentKeywords.Count > 0)
 			{
-				var ngItem = this.NGCommentKeywords.FirstOrDefault(x => commentText.Contains(x.Keyword));
+				var ngItem = this.NGCommentKeywords.FirstOrDefault(x => x.CheckNG(commentText));
 
 				if (ngItem != null)
 				{
@@ -272,10 +273,44 @@ namespace NicoPlayerHohoema.Models
 
 	}
 
+    [DataContract]
 	public class NGKeyword
 	{
+        [DataMember]
 		public string TestText { get; set; }
-		public string Keyword { get; set; }
+
+
+        private string _Keyword;
+        [DataMember]
+        public string Keyword
+        {
+            get { return _Keyword; }
+            set
+            {
+                if (_Keyword != value)
+                {
+                    _Keyword = value;
+                    _Regex = null;
+                }
+            }
+        }
+
+
+        private Regex _Regex;
+
+        public bool CheckNG(string target)
+        {
+            if (_Regex == null)
+            {
+                try
+                {
+                    _Regex = new Regex(Keyword);
+                }
+                catch { }
+            }
+
+            return _Regex?.IsMatch(target) ?? false;
+        }
 	}
 
 	public class VideoIdInfo

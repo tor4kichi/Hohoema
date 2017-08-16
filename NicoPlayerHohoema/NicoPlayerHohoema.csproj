@@ -36,6 +36,7 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
+    <LangVersion>default</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -127,6 +128,7 @@
     <Content Include="Assets\UpdateNotices\0.9.12.md" />
     <Content Include="Assets\UpdateNotices\0.9.13.md" />
     <Content Include="Assets\UpdateNotices\0.9.15.md" />
+    <Content Include="Assets\UpdateNotices\0.9.17.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
   </ItemGroup>
   <ItemGroup>
@@ -529,9 +531,6 @@
     <Compile Include="Views\Behaviors\WebViewAutoResizeToContent.cs" />
     <Compile Include="Views\Behaviors\WebViewNotifyUriClicked.cs" />
     <Compile Include="Views\Comment.cs" />
-    <Compile Include="Views\CommentRenderer\CommentRenderer.xaml.cs">
-      <DependentUpon>CommentRenderer.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\CommentRenderer\CommentUI.xaml.cs">
       <DependentUpon>CommentUI.xaml</DependentUpon>
     </Compile>
@@ -787,10 +786,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\CommentCommandEditer.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\CommentRenderer\CommentRenderer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

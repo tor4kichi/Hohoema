@@ -1,5 +1,6 @@
 ﻿<UserControl
     x:Class="NicoPlayerHohoema.Views.SettingsPageContent.FilteringSettingPageContent"
+    x:Name="ControlRoot"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:NicoPlayerHohoema.Views.SettingsPageContent"
@@ -50,47 +51,7 @@
 
 
 
-        <DataTemplate x:Key="NGKeywordTemplate">
-            <toolkit:DockPanel
-                    Background="Transparent"
-                    >
-                <FlyoutBase.AttachedFlyout>
-                    <Flyout x:Name="NGTitleFlyout" >
-                        <toolkit:DockPanel>
-                            <TextBlock Text="除外キーワード"
-                                                                VerticalAlignment="Center"
-                                                                Margin="8 0"
-                                                               toolkit:DockPanel.Dock="Left"
-                                                                />
-                            <TextBox Text="{Binding Keyword.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                                                MinWidth="150"
-                                                                >
-                            </TextBox>
-                        </toolkit:DockPanel>
-                    </Flyout>
-                </FlyoutBase.AttachedFlyout>
-                <i:Interaction.Behaviors>
-                    <mybehavior:ShowFlyoutBehavior />
-                </i:Interaction.Behaviors>
-
-
-                <AppBarButton Icon="Delete" 
-                              Command="{Binding RemoveKeywordCommand}"
-                              IsCompact="True"
-                              />
-                <TextBlock Text="{Binding Keyword.Value}" 
-                            VerticalAlignment="Center"
-                            HorizontalAlignment="Center"
-                            Margin="16 0"
-                        >
-
-                </TextBlock>
-
-
-
-            </toolkit:DockPanel>
-        </DataTemplate>
-
+        
 
         <DataTemplate x:Key="TextWithRemoveButtonTemplate">
             <toolkit:DockPanel>
@@ -106,48 +67,7 @@
             </toolkit:DockPanel>
         </DataTemplate>
 
-        <!--
-        <DataTemplate x:Key="NGKeywordTemplate">
-            <toolkit:DockPanel
-                    Background="Transparent"
-                    >
-                <FlyoutBase.AttachedFlyout>
-                    <Flyout x:Name="NGTitleFlyout" >
-                        <toolkit:DockPanel>
-                            <TextBlock Text="除外キーワード"
-                                                                VerticalAlignment="Center"
-                                                                Margin="8 0"
-                                                               toolkit:DockPanel.Dock="Left"
-                                                                />
-                            <TextBox Text="{Binding Keyword.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                                                MinWidth="150"
-                                                                >
-                            </TextBox>
-                        </toolkit:DockPanel>
-                    </Flyout>
-                </FlyoutBase.AttachedFlyout>
-                <i:Interaction.Behaviors>
-                    <mybehavior:ShowFlyoutBehavior />
-                </i:Interaction.Behaviors>
-
-
-                <AppBarButton Icon="Delete" 
-                                                      Command="{Binding RemoveKeywordCommand}"
-                                                      />
-                <TextBlock Text="{Binding Keyword.Value}" 
-                                                   VerticalAlignment="Center"
-                                                   HorizontalAlignment="Center"
-                                                   Margin="16 0"
-                                               >
-
-                </TextBlock>
-
-
-
-            </toolkit:DockPanel>
-        </DataTemplate>
-        -->
-
+        
         <local:NGCommentScoreTypeTemplateSelector x:Key="NGCommentScoreTypeTemplateSelector">
             <local:NGCommentScoreTypeTemplateSelector.NoneTemplate>
                 <DataTemplate>
@@ -307,31 +227,10 @@
 
             <StackPanel Margin="8 0 0 0">
 
-                <!-- 
-                    <toolkit:DockPanel Margin="8">
-                        <TextBlock Text="動画IDによる動画の除外を有効にする"
-                           toolkit:DockPanel.Dock="Left"
-                           VerticalAlignment="Center"
-                           />
-                        <ToggleButton Width="32" Height="32" 
-                                  Margin="0 0 8 0"
-                                  IsChecked="{Binding NGVideoIdEnable.Value, Mode=TwoWay}"
-                                  HorizontalAlignment="Right"
-                                          />
-                    </toolkit:DockPanel>
-
-                    <ListView ItemsSource="{Binding NGVideoIds}"
-                                  ItemTemplate="{StaticResource TextWithRemoveButtonTemplate}"
-                                  Margin="0 8"
-                                  SelectionMode="None"
-                                  >
-                    </ListView>
-                    -->
-
 
 
                 <StackPanel Margin="0 8">
-                    <TextBlock Text="動画投稿者IDによる動画の除外を有効にする"
+                    <TextBlock Text="動画投稿者IDによるフィルタを有効にする"
                            VerticalAlignment="Center"
                            />
                     <ToggleSwitch
@@ -378,7 +277,7 @@
 
 
                 <StackPanel Margin="0 8">
-                    <TextBlock Text="動画タイトルのNGキーワードによる動画の除外を有効にする"
+                    <TextBlock Text="動画タイトルによるフィルタを有効にする"
                            toolkit:DockPanel.Dock="Left"
                            VerticalAlignment="Center"
                            />
@@ -389,54 +288,25 @@
                 </StackPanel>
 
 
-                <toolkit:DockPanel >
-                    <Button Content="動画タイトルのNGキーワードを追加" 
-                                UseSystemFocusVisuals="True"
-                                toolkit:DockPanel.Dock="Bottom"
-                                >
-                        <Button.Flyout>
-                            <Flyout>
+                <StackPanel>
+                    <TextBox Text="{Binding NGVideoTitleKeywords.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             AcceptsReturn="True"
+                             PlaceholderText="NG動画タイトルを入力"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             Height="120"
+                             />
 
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBox Text="{Binding NGVideoTitleKeyword.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                 Width="200"
-                                                 >
-                                        <i:Interaction.Behaviors>
-                                            <mybehavior:KeyboardTrigger Key="Enter">
-                                                <core:InvokeCommandAction Command="{Binding AddNewNGVideoTitleKeywordCommand}" />
-                                                <mybehavior:CloseFlyoutAction />
-                                            </mybehavior:KeyboardTrigger>
-                                        </i:Interaction.Behaviors>
-                                    </TextBox>
+                    <TextBlock Text="{Binding NGVideoTitleKeywordError.Value}" />
 
-                                    <Border Width="8" />
-
-                                    <Button Content="追加" 
-                                                Command="{Binding AddNewNGVideoTitleKeywordCommand}"
-                                                >
-                                        <i:Interaction.Behaviors>
-                                            <core:EventTriggerBehavior EventName="Tapped">
-                                                <mybehavior:CloseFlyoutAction />
-                                            </core:EventTriggerBehavior>
-                                        </i:Interaction.Behaviors>
-                                    </Button>
-
-                                </StackPanel>
-                            </Flyout>
-                        </Button.Flyout>
-                    </Button>
-
-                    <ItemsControl ItemsSource="{Binding NGVideoTitleKeywords}"
-                                  Margin="0 8"
-                                  ItemTemplate="{StaticResource RemovableListItemTemplate}"
-                                  IsTabStop="False"
-                                      HorizontalContentAlignment="Stretch"
-                                  >
-
-                    </ItemsControl>
+                    <TextBlock Margin="0 8" Foreground="Gray">
+                        ・１行ごとにフィルタ文字列を指定します
+                        ・正規表現が利用できます
+                    </TextBlock>
 
 
-                </toolkit:DockPanel>
+
+
+                </StackPanel>
             </StackPanel>
 
 
@@ -480,7 +350,7 @@
 
                     <ComboBox Margin="0 8" MinWidth="100"
                                       ItemsSource="{Binding NGCommentScoreTypes}"
-                                      SelectedItem="{Binding SelectedNGCommentScore.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      SelectedItem="{Binding SelectedNGCommentScore.Value, Mode=TwoWay}"
                                       ItemTemplateSelector="{StaticResource NGCommentScoreTypeTemplateSelector}"                                      
                                       >
                     </ComboBox>
@@ -516,64 +386,34 @@
 
                 <!-- NG キーワード -->
                 <StackPanel Margin="0 8">
-                    <TextBlock Text="キーワードによるNGコメント機能を有効にする"
+                    <TextBlock Text="コメントのフィルタを有効にする"
                            VerticalAlignment="Center"
                            />
                     <ToggleSwitch IsOn="{Binding NGCommentKeywordEnable.Value, Mode=TwoWay}"
                                           />
-                    <TextBlock Text="※ NGコメントのキーワードがたくさんあると、動画の準備時間が長くなるかもしれません。" 
-                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                   Foreground="Gray"
-                                   />
 
                 </StackPanel>
 
 
 
                 <StackPanel Margin="0 8">
-                    <Button Content="NGコメントキーワードを追加" 
-                                UseSystemFocusVisuals="True"
-                                >
-                        <Button.Flyout>
-                            <Flyout>
 
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBox Text="{Binding NGCommentKeyword.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                 Width="200"
-                                                 >
-                                        <i:Interaction.Behaviors>
-                                            <mybehavior:KeyboardTrigger Key="Enter">
-                                                <core:InvokeCommandAction Command="{Binding AddNewNGCommentKeywordCommand}" />
-                                                <mybehavior:CloseFlyoutAction />
-                                            </mybehavior:KeyboardTrigger>
-                                        </i:Interaction.Behaviors>
-                                    </TextBox>
+                    <TextBox Text="{Binding NGCommentKeywords.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             AcceptsReturn="True"
+                             Height="120"
+                             PlaceholderText="NGコメントを入力"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             />
 
-                                    <Border Width="8" />
-
-                                    <Button Content="追加" 
-                                                Command="{Binding AddNewNGCommentKeywordCommand}"
-                                                >
-                                        <i:Interaction.Behaviors>
-                                            <core:EventTriggerBehavior EventName="Tapped">
-                                                <mybehavior:CloseFlyoutAction />
-                                            </core:EventTriggerBehavior>
-                                        </i:Interaction.Behaviors>
-                                    </Button>
-
-                                </StackPanel>
-                            </Flyout>
-                        </Button.Flyout>
-                    </Button>
-
-                    <ItemsControl ItemsSource="{Binding NGCommentKeywords}"
-                                  Margin="0 8"
-                                  ItemTemplate="{StaticResource RemovableListItemTemplate}"
-                                      HorizontalContentAlignment="Stretch"
-                                  >
-                    </ItemsControl>
+                    <TextBlock Text="{Binding NGCommentKeywordError.Value}" />
+                    <TextBlock Margin="0 8" Foreground="Gray">
+                        ・１行ごとにフィルタ文字列を指定します
+                        ・正規表現が利用できます
+                    </TextBlock>
                 </StackPanel>
 
+
+                <Border Height="32" />
 
 
 

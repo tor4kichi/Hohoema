@@ -945,14 +945,24 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public NGResult CheckUserNGVideo()
+		public NGResult CheckNGVideoOwner()
 		{
-			return HohoemaApp.UserSettings?.NGSettings.IsNgVideo(this);
+			return HohoemaApp.UserSettings?.NGSettings.IsNgVideoOwnerId(this.OwnerId.ToString());
 		}
 
+        public NGResult CheckNGVideoTitle()
+        {
+            return HohoemaApp.UserSettings?.NGSettings.IsNGVideoTitle(this.Title);
+        }
 
-		// Initializeが呼ばれるまで有効
-		public void PreSetTitle(string title)
+        public NGResult CheckNGVideo()
+        {
+            return HohoemaApp.UserSettings?.NGSettings.IsNgVideo(this);
+        }
+
+
+        // Initializeが呼ばれるまで有効
+        public void PreSetTitle(string title)
 		{
 			if (_IsInitialized) { return; }
 

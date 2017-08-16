@@ -12,13 +12,71 @@ using Reactive.Bindings;
 using Prism.Mvvm;
 using NicoPlayerHohoema.Views.Service;
 using System.Windows.Input;
+using System.Text.RegularExpressions;
+using Windows.UI.Popups;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	public class FilteringSettingsPageContentViewModel : SettingsPageContentViewModel
 	{
-		public FilteringSettingsPageContentViewModel(HohoemaApp hohoemaApp, PageManager pageManager, RankingChoiceDialogService rankingChoiceDialog)
-			: base("除外設定", HohoemaSettingsKind.Filtering)
+
+        public DelegateCommand AddFavRankingCategory { get; private set; }
+        public DelegateCommand AddDislikeRankingCategory { get; private set; }
+
+        public DelegateCommand CategoryPriorityResetCommand { get; private set; }
+
+        public ObservableCollection<RankingCategorySettingsListItem> SelectableCategories { get; private set; }
+        public ObservableCollection<RankingCategorySettingsListItem> FavCategories { get; private set; }
+        public ObservableCollection<RankingCategorySettingsListItem> DislikeCategories { get; private set; }
+
+        private bool _IsDisplayReorderText;
+        public bool IsDisplayReorderText
+        {
+            get { return _IsDisplayReorderText; }
+            set { SetProperty(ref _IsDisplayReorderText, value); }
+        }
+
+
+        public ReactiveProperty<bool> NGVideoIdEnable { get; private set; }
+        public ReadOnlyReactiveCollection<RemovableListItem<string>> NGVideoIds { get; private set; }
+
+        public ReactiveProperty<bool> NGVideoOwnerUserIdEnable { get; private set; }
+        public ReadOnlyReactiveCollection<UserIdInfo> NGVideoOwnerUserIds { get; private set; }
+        public DelegateCommand<UserIdInfo> OpenUserPageCommand { get; }
+
+
+        public ReactiveProperty<bool> NGVideoTitleKeywordEnable { get; private set; }
+
+        public ReactiveProperty<string> NGVideoTitleKeywords { get; }
+        public ReadOnlyReactiveProperty<string> NGVideoTitleKeywordError { get; private set; }
+
+
+
+        public ReactiveProperty<bool> NGCommentUserIdEnable { get; private set; }
+        public ReadOnlyReactiveCollection<RemovableListItem<string>> NGCommentUserIds { get; private set; }
+
+        public ReactiveProperty<bool> NGCommentKeywordEnable { get; private set; }
+        public ReactiveProperty<string> NGCommentKeywords { get; private set; }
+        public ReadOnlyReactiveProperty<string> NGCommentKeywordError { get; private set; }
+
+        public List<NGCommentScore> NGCommentScoreTypes { get; private set; }
+        public ReactiveProperty<NGCommentScore> SelectedNGCommentScore { get; private set; }
+
+
+
+
+
+        NGSettings _NGSettings;
+        RankingSettings _RankingSettings;
+        HohoemaApp _HohoemaApp;
+        RankingChoiceDialogService _RankingChoiceDialogService;
+
+
+
+
+
+        public FilteringSettingsPageContentViewModel(HohoemaApp hohoemaApp, PageManager pageManager, RankingChoiceDialogService rankingChoiceDialog)
+			: base("フィルタ", HohoemaSettingsKind.Filtering)
 		{
 			_HohoemaApp = hohoemaApp;
 			_NGSettings = _HohoemaApp.UserSettings.NGSettings;
@@ -114,27 +172,33 @@ namespace NicoPlayerHohoema.ViewModels
 
             // NG Keyword on Video Title
             NGVideoTitleKeywordEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoTitleKeywordEnable);
-			NGVideoTitleKeywords = _NGSettings.NGVideoTitleKeywords.ToReadOnlyReactiveCollection(
-				x => new NGKeywordViewModel(x, OnRemoveNGTitleKeyword)
-				);
-
-			// NG動画タイトルキーワードを追加するコマンド
-            NGVideoTitleKeyword = new ReactiveProperty<string>("");
-
-            AddNewNGVideoTitleKeywordCommand = NGVideoTitleKeyword
-                .Select(x => !string.IsNullOrWhiteSpace(x))
-                .ToReactiveCommand();
-
-            AddNewNGVideoTitleKeywordCommand.Subscribe(_ =>
-            {
-                _NGSettings.NGVideoTitleKeywords.Add(new NGKeyword()
+            NGVideoTitleKeywords = new ReactiveProperty<string>(string.Empty);
+            NGVideoTitleKeywordError = NGVideoTitleKeywords
+                .Select(x =>
                 {
-                    TestText = "",
-                    Keyword = NGVideoTitleKeyword.Value
-                });
+                    var keywords = x.Split('\r');
+                    var invalidRegex = keywords.FirstOrDefault(keyword =>
+                    {
+                        Regex regex = null;
+                        try
+                        {
+                            regex = new Regex(keyword);
+                        }
+                        catch { }
+                        return regex == null;
+                    });
 
-                NGVideoTitleKeyword.Value = "";
-            });
+                    if (invalidRegex == null)
+                    {
+                        return string.Empty;
+                    }
+                    else
+                    {
+                        return $"Error in \"{invalidRegex}\"";
+                    }
+                })
+                .ToReadOnlyReactiveProperty();
+            // NG動画タイトルキーワードを追加するコマンド
 
 
             NGCommentUserIdEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentUserIdEnable);
@@ -144,41 +208,76 @@ namespace NicoPlayerHohoema.ViewModels
                     );
 
             NGCommentKeywordEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentKeywordEnable);
-            NGCommentKeywords = _NGSettings.NGCommentKeywords.ToReadOnlyReactiveCollection(
-                x => new NGKeywordViewModel(x, OnRemoveNGCommentKeyword)
-                );
+            NGCommentKeywords = new ReactiveProperty<string>(string.Empty);
 
+            NGCommentKeywordError = NGCommentKeywords
+                .Select(x =>
+                {
+                    var keywords = x.Split('\r');
+                    var invalidRegex = keywords.FirstOrDefault(keyword =>
+                    {
+                        Regex regex = null;
+                        try
+                        {
+                            regex = new Regex(keyword);
+                        }
+                        catch { }
+                        return regex == null;
+                    });
 
+                    if (invalidRegex == null)
+                    {
+                        return string.Empty;
+                    }
+                    else
+                    {
+                        return $"Error in \"{invalidRegex}\"";
+                    }
+                })
+                .ToReadOnlyReactiveProperty();
 
             NGCommentScoreTypes = ((IEnumerable<NGCommentScore>)Enum.GetValues(typeof(NGCommentScore))).ToList();
 
             SelectedNGCommentScore = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentScoreType);
 
-            NGCommentKeyword = new ReactiveProperty<string>("");
-
-            AddNewNGCommentKeywordCommand = NGCommentKeyword
-                .Select(x => !string.IsNullOrWhiteSpace(x))
-                .ToReactiveCommand();
-
-            AddNewNGCommentKeywordCommand.Subscribe(_ => 
-            {
-                _NGSettings.NGCommentKeywords.Add(new NGKeyword()
-                {
-                    TestText = "",
-                    Keyword = NGCommentKeyword.Value
-                });
-                NGCommentKeyword.Value = "";
-            });
-
+            
         }
 
+        protected override void OnEnter(ICollection<IDisposable> focusingDispsable)
+        {
+            NGVideoTitleKeywords.Value = string.Join("\r", _NGSettings.NGVideoTitleKeywords.Select(x => x.Keyword)) + "\r";
+            NGCommentKeywords.Value = string.Join("\r", _NGSettings.NGCommentKeywords.Select(x => x.Keyword)) + "\r";
+
+            base.OnEnter(focusingDispsable);
+        }
 
         protected override void OnLeave()
         {
 			ApplyAllPriorityCategoriesToRankingSettings();
 
 			_RankingSettings.Save().ConfigureAwait(false);
-			_NGSettings.Save().ConfigureAwait(false);
+
+            // NG VideoTitleを複数行NG動画タイトル文字列から再構成
+            _NGSettings.NGVideoTitleKeywords.Clear();
+            foreach (var ngKeyword in NGVideoTitleKeywords.Value.Split('\r'))
+            {
+                if (!string.IsNullOrWhiteSpace(ngKeyword))
+                {
+                    _NGSettings.NGVideoTitleKeywords.Add(new NGKeyword() { Keyword = ngKeyword });
+                }
+            }
+
+            // NG Comments
+            _NGSettings.NGCommentKeywords.Clear();
+            foreach (var ngKeyword in NGCommentKeywords.Value.Split('\r'))
+            {
+                if (!string.IsNullOrWhiteSpace(ngKeyword))
+                {
+                    _NGSettings.NGCommentKeywords.Add(new NGKeyword() { Keyword = ngKeyword });
+                }
+            }
+
+            _NGSettings.Save().ConfigureAwait(false);
 
 
             _RankingSettings.GetFile().ContinueWith(async prevTask => 
@@ -274,67 +373,22 @@ namespace NicoPlayerHohoema.ViewModels
 			_NGSettings.NGVideoOwnerUserIds.Remove(removeTarget);
 		}
 
-		internal void OnRemoveNGTitleKeyword(NGKeyword keywordInfo)
+		internal async void OnRemoveNGTitleKeyword(NGKeyword keywordInfo)
 		{
-			_NGSettings.NGVideoTitleKeywords.Remove(keywordInfo);
-		}
+            var dialog = new MessageDialog($"NGタイトルを削除しますか？", $"『{keywordInfo.Keyword}』のNGタイトル削除");
+            dialog.Commands.Add(new UICommand() { Label = "キャンセル", Id = "cancel" });
+            dialog.Commands.Add(new UICommand() { Label = "削除", Id = "delete" });
+
+            var result = await dialog.ShowAsync();
+
+            if ((result.Id as string) == "delete")
+            {
+                _NGSettings.NGVideoTitleKeywords.Remove(keywordInfo);
+            }
+        }
 
 
 		
-		public DelegateCommand AddFavRankingCategory { get; private set; }
-		public DelegateCommand AddDislikeRankingCategory { get; private set; }
-
-		public DelegateCommand CategoryPriorityResetCommand { get; private set; }
-
-		public ObservableCollection<RankingCategorySettingsListItem> SelectableCategories { get; private set; }
-		public ObservableCollection<RankingCategorySettingsListItem> FavCategories { get; private set; }
-		public ObservableCollection<RankingCategorySettingsListItem> DislikeCategories { get; private set; }
-
-		private bool _IsDisplayReorderText;
-		public bool IsDisplayReorderText
-		{
-			get { return _IsDisplayReorderText; }
-			set { SetProperty(ref _IsDisplayReorderText, value); }
-		}
-
-        public ReactiveProperty<string> NGVideoTitleKeyword { get; private set; }
-        public ReactiveCommand AddNewNGVideoTitleKeywordCommand { get; private set; }
-
-		public ReactiveProperty<bool> NGVideoIdEnable { get; private set; }
-		public ReadOnlyReactiveCollection<RemovableListItem<string>> NGVideoIds { get; private set; }
-
-		public ReactiveProperty<bool> NGVideoOwnerUserIdEnable { get; private set; }
-		public ReadOnlyReactiveCollection<UserIdInfo> NGVideoOwnerUserIds { get; private set; }
-        public DelegateCommand<UserIdInfo> OpenUserPageCommand { get; }
-
-
-		public ReactiveProperty<bool> NGVideoTitleKeywordEnable { get; private set; }
-		public ReadOnlyReactiveCollection<NGKeywordViewModel> NGVideoTitleKeywords { get; private set; }
-
-
-
-
-
-        public ReactiveProperty<string> NGCommentKeyword { get; private set; }
-        public ReactiveCommand AddNewNGCommentKeywordCommand { get; private set; }
-
-        public ReactiveProperty<bool> NGCommentUserIdEnable { get; private set; }
-        public ReadOnlyReactiveCollection<RemovableListItem<string>> NGCommentUserIds { get; private set; }
-
-        public ReactiveProperty<bool> NGCommentKeywordEnable { get; private set; }
-        public ReadOnlyReactiveCollection<NGKeywordViewModel> NGCommentKeywords { get; private set; }
-
-        public List<NGCommentScore> NGCommentScoreTypes { get; private set; }
-        public ReactiveProperty<NGCommentScore> SelectedNGCommentScore { get; private set; }
-
-
-
-
-
-        NGSettings _NGSettings;
-		RankingSettings _RankingSettings;
-		HohoemaApp _HohoemaApp;
-		RankingChoiceDialogService _RankingChoiceDialogService;
 	}
 
 

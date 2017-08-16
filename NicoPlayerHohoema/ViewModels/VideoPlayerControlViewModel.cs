@@ -1002,7 +1002,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-			var commentVM = new Comment(this)
+			var commentVM = new Comment(this, HohoemaApp.UserSettings.NGSettings)
 			{
 				CommentText = commentText,
 				CommentId = comment.GetCommentNo(),
@@ -1071,7 +1071,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-            var commentVM = new Comment(this)
+            var commentVM = new Comment(this, HohoemaApp.UserSettings.NGSettings)
             {
                 CommentText = commentText,
                 CommentId = (uint)chat.No,
@@ -1111,31 +1111,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-        private void UpdateCommentNGStatus()
-		{
-			var ngSettings = HohoemaApp.UserSettings.NGSettings;
-			foreach (var comment in Comments)
-			{
-				if (comment.UserId != null)
-				{
-					var userNg = ngSettings.IsNGCommentUser(comment.UserId);
-					if (userNg != null)
-					{
-						comment.NgResult = userNg;
-						continue;
-					}
-				}
-
-				var keywordNg = ngSettings.IsNGComment(comment.CommentText);
-				if (keywordNg != null)
-				{
-					comment.NgResult = keywordNg;
-					continue;
-				}
-
-				comment.NgResult = null;
-			}
-		}		
+        
 
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
@@ -1329,10 +1305,7 @@ namespace NicoPlayerHohoema.ViewModels
                 }
             }
 
-            
-
-            UpdateCommentNGStatus();
-
+           
             System.Diagnostics.Debug.WriteLine($"コメント数:{Comments.Count}");
         }
 
@@ -1436,7 +1409,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 					Debug.WriteLine("コメントの投稿に成功: " + res.Chat_result.No);
 
-					var commentVM = new Comment(this)
+					var commentVM = new Comment(this, HohoemaApp.UserSettings.NGSettings)
 					{
 						CommentId = (uint)res.Chat_result.No,
 						VideoPosition = vpos,
@@ -2242,8 +2215,6 @@ namespace NicoPlayerHohoema.ViewModels
 				UserId = commentViewModel.UserId,
 				Description = userName
 			});
-
-			UpdateCommentNGStatus();
 
 			return Task.CompletedTask;
 		}

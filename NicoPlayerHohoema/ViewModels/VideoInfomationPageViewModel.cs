@@ -412,7 +412,7 @@ namespace NicoPlayerHohoema.ViewModels
                 }
 
 
-                SelfZoningInfo = Video.CheckUserNGVideo();
+                SelfZoningInfo = Video.CheckNGVideo();
                 IsSelfZoningContent = SelfZoningInfo != null;
 
                 OnPropertyChanged(nameof(SelfZoningInfo));

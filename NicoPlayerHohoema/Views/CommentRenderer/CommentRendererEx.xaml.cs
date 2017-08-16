@@ -449,10 +449,14 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
                 }
                 
                 
-                if (comment.IsNGComment || !comment.IsVisible)
+                if (comment.CheckIsNGComment())
                 {
+                    Debug.WriteLine("NG: " + comment.CommentText);
                     continue;
                 }
+
+                if (!comment.IsVisible) { continue; }
+                
 
                 // 表示対象に登録
                 var renderInfo = MakeCommentUI(comment, frame);

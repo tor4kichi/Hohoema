@@ -179,7 +179,7 @@
                                                                />
 
                                         <TextBlock FontSize="20" Margin="0 0 0 8">
-                                    <Run Text="この動画は除外指定されています" />
+                                    <Run Text="この動画はフィルタ指定されています" />
                                     <LineBreak />
                                     <Run Text="{Binding SelfZoningInfo.NGReason}" />
                                     <Run Text=":" />
@@ -188,7 +188,7 @@
                                         </TextBlock>
                                     </StackPanel>
 
-                                    <Button Content="除外設定を確認する"
+                                    <Button Content="フィルタ設定を確認する"
                                     Command="{Binding OpenFilterSettingPageCommand}"
                                         Margin="0 0 0 0"
                                     />
