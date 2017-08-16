@@ -302,10 +302,14 @@ namespace NicoPlayerHohoema.Models
         {
             if (_Regex == null)
             {
-                _Regex = new Regex(Keyword);
+                try
+                {
+                    _Regex = new Regex(Keyword);
+                }
+                catch { }
             }
 
-            return _Regex.IsMatch(target);
+            return _Regex?.IsMatch(target) ?? false;
         }
 	}
 

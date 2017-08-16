@@ -19,7 +19,63 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class FilteringSettingsPageContentViewModel : SettingsPageContentViewModel
 	{
-		public FilteringSettingsPageContentViewModel(HohoemaApp hohoemaApp, PageManager pageManager, RankingChoiceDialogService rankingChoiceDialog)
+
+        public DelegateCommand AddFavRankingCategory { get; private set; }
+        public DelegateCommand AddDislikeRankingCategory { get; private set; }
+
+        public DelegateCommand CategoryPriorityResetCommand { get; private set; }
+
+        public ObservableCollection<RankingCategorySettingsListItem> SelectableCategories { get; private set; }
+        public ObservableCollection<RankingCategorySettingsListItem> FavCategories { get; private set; }
+        public ObservableCollection<RankingCategorySettingsListItem> DislikeCategories { get; private set; }
+
+        private bool _IsDisplayReorderText;
+        public bool IsDisplayReorderText
+        {
+            get { return _IsDisplayReorderText; }
+            set { SetProperty(ref _IsDisplayReorderText, value); }
+        }
+
+
+        public ReactiveProperty<bool> NGVideoIdEnable { get; private set; }
+        public ReadOnlyReactiveCollection<RemovableListItem<string>> NGVideoIds { get; private set; }
+
+        public ReactiveProperty<bool> NGVideoOwnerUserIdEnable { get; private set; }
+        public ReadOnlyReactiveCollection<UserIdInfo> NGVideoOwnerUserIds { get; private set; }
+        public DelegateCommand<UserIdInfo> OpenUserPageCommand { get; }
+
+
+        public ReactiveProperty<bool> NGVideoTitleKeywordEnable { get; private set; }
+
+        public ReactiveProperty<string> NGVideoTitleKeywords { get; }
+        public ReadOnlyReactiveProperty<string> NGVideoTitleKeywordError { get; private set; }
+
+
+
+        public ReactiveProperty<bool> NGCommentUserIdEnable { get; private set; }
+        public ReadOnlyReactiveCollection<RemovableListItem<string>> NGCommentUserIds { get; private set; }
+
+        public ReactiveProperty<bool> NGCommentKeywordEnable { get; private set; }
+        public ReactiveProperty<string> NGCommentKeywords { get; private set; }
+        public ReadOnlyReactiveProperty<string> NGCommentKeywordError { get; private set; }
+
+        public List<NGCommentScore> NGCommentScoreTypes { get; private set; }
+        public ReactiveProperty<NGCommentScore> SelectedNGCommentScore { get; private set; }
+
+
+
+
+
+        NGSettings _NGSettings;
+        RankingSettings _RankingSettings;
+        HohoemaApp _HohoemaApp;
+        RankingChoiceDialogService _RankingChoiceDialogService;
+
+
+
+
+
+        public FilteringSettingsPageContentViewModel(HohoemaApp hohoemaApp, PageManager pageManager, RankingChoiceDialogService rankingChoiceDialog)
 			: base("フィルタ", HohoemaSettingsKind.Filtering)
 		{
 			_HohoemaApp = hohoemaApp;
@@ -116,9 +172,32 @@ namespace NicoPlayerHohoema.ViewModels
 
             // NG Keyword on Video Title
             NGVideoTitleKeywordEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoTitleKeywordEnable);
-            NGVideoTitleKeywords = new ReactiveProperty<string>();
+            NGVideoTitleKeywords = new ReactiveProperty<string>(string.Empty);
+            NGVideoTitleKeywordError = NGVideoTitleKeywords
+                .Select(x =>
+                {
+                    var keywords = x.Split('\r');
+                    var invalidRegex = keywords.FirstOrDefault(keyword =>
+                    {
+                        Regex regex = null;
+                        try
+                        {
+                            regex = new Regex(keyword);
+                        }
+                        catch { }
+                        return regex == null;
+                    });
 
-
+                    if (invalidRegex == null)
+                    {
+                        return string.Empty;
+                    }
+                    else
+                    {
+                        return $"Error in \"{invalidRegex}\"";
+                    }
+                })
+                .ToReadOnlyReactiveProperty();
             // NG動画タイトルキーワードを追加するコマンド
 
 
@@ -129,9 +208,33 @@ namespace NicoPlayerHohoema.ViewModels
                     );
 
             NGCommentKeywordEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentKeywordEnable);
-            NGCommentKeywords = new ReactiveProperty<string>("");
+            NGCommentKeywords = new ReactiveProperty<string>(string.Empty);
 
+            NGCommentKeywordError = NGCommentKeywords
+                .Select(x =>
+                {
+                    var keywords = x.Split('\r');
+                    var invalidRegex = keywords.FirstOrDefault(keyword =>
+                    {
+                        Regex regex = null;
+                        try
+                        {
+                            regex = new Regex(keyword);
+                        }
+                        catch { }
+                        return regex == null;
+                    });
 
+                    if (invalidRegex == null)
+                    {
+                        return string.Empty;
+                    }
+                    else
+                    {
+                        return $"Error in \"{invalidRegex}\"";
+                    }
+                })
+                .ToReadOnlyReactiveProperty();
 
             NGCommentScoreTypes = ((IEnumerable<NGCommentScore>)Enum.GetValues(typeof(NGCommentScore))).ToList();
 
@@ -286,54 +389,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		
-		public DelegateCommand AddFavRankingCategory { get; private set; }
-		public DelegateCommand AddDislikeRankingCategory { get; private set; }
-
-		public DelegateCommand CategoryPriorityResetCommand { get; private set; }
-
-		public ObservableCollection<RankingCategorySettingsListItem> SelectableCategories { get; private set; }
-		public ObservableCollection<RankingCategorySettingsListItem> FavCategories { get; private set; }
-		public ObservableCollection<RankingCategorySettingsListItem> DislikeCategories { get; private set; }
-
-		private bool _IsDisplayReorderText;
-		public bool IsDisplayReorderText
-		{
-			get { return _IsDisplayReorderText; }
-			set { SetProperty(ref _IsDisplayReorderText, value); }
-		}
-
-
-        public ReactiveProperty<bool> NGVideoIdEnable { get; private set; }
-		public ReadOnlyReactiveCollection<RemovableListItem<string>> NGVideoIds { get; private set; }
-
-		public ReactiveProperty<bool> NGVideoOwnerUserIdEnable { get; private set; }
-		public ReadOnlyReactiveCollection<UserIdInfo> NGVideoOwnerUserIds { get; private set; }
-        public DelegateCommand<UserIdInfo> OpenUserPageCommand { get; }
-
-
-		public ReactiveProperty<bool> NGVideoTitleKeywordEnable { get; private set; }
-
-        public ReactiveProperty<string> NGVideoTitleKeywords { get; }
-
-
-
-        public ReactiveProperty<bool> NGCommentUserIdEnable { get; private set; }
-        public ReadOnlyReactiveCollection<RemovableListItem<string>> NGCommentUserIds { get; private set; }
-
-        public ReactiveProperty<bool> NGCommentKeywordEnable { get; private set; }
-        public ReactiveProperty<string> NGCommentKeywords { get; private set; }
-
-        public List<NGCommentScore> NGCommentScoreTypes { get; private set; }
-        public ReactiveProperty<NGCommentScore> SelectedNGCommentScore { get; private set; }
-
-
-
-
-
-        NGSettings _NGSettings;
-		RankingSettings _RankingSettings;
-		HohoemaApp _HohoemaApp;
-		RankingChoiceDialogService _RankingChoiceDialogService;
 	}
 
 

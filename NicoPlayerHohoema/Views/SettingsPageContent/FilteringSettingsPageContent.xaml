@@ -296,11 +296,14 @@
                              Height="120"
                              />
 
+                    <TextBlock Text="{Binding NGVideoTitleKeywordError.Value}" />
+
                     <TextBlock Margin="0 8" Foreground="Gray">
-                        ・１行ごとに評価　・正規表現も可
+                        ・１行ごとにフィルタ文字列を指定します
+                        ・正規表現が利用できます
                     </TextBlock>
 
-                    
+
 
 
                 </StackPanel>
@@ -395,15 +398,17 @@
 
                 <StackPanel Margin="0 8">
 
-                    <TextBox Text="{Binding NGCommentKeywords.Value, Mode=TwoWay}"
+                    <TextBox Text="{Binding NGCommentKeywords.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              AcceptsReturn="True"
                              Height="120"
                              PlaceholderText="NGコメントを入力"
                              ScrollViewer.VerticalScrollBarVisibility="Auto"
                              />
 
+                    <TextBlock Text="{Binding NGCommentKeywordError.Value}" />
                     <TextBlock Margin="0 8" Foreground="Gray">
-                        ・１行ごとに評価　・正規表現も可
+                        ・１行ごとにフィルタ文字列を指定します
+                        ・正規表現が利用できます
                     </TextBlock>
                 </StackPanel>
 
