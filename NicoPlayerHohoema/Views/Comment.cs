@@ -106,7 +106,7 @@ namespace NicoPlayerHohoema.Views
             TextBGOffset = 1.0;
 		}
 
-		public Comment()
+		public Comment(NGSettings ngsettings)
 		{
 //			_VideoPlayerPageViewModel = videoPlayerPageVM;
 			TextBGOffset = 1.0;
@@ -265,6 +265,11 @@ namespace NicoPlayerHohoema.Views
 
 		public bool CheckIsNGComment()
         {
+            if (NGSettings == null || CommentText == null)
+            {
+                return false;
+            }
+
             return NGSettings.IsNGComment(CommentText) != null;
         }
 

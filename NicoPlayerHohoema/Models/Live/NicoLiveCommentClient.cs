@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -344,113 +345,107 @@ namespace NicoPlayerHohoema.Models.Live
 			IsCommentServerConnected = false;
 		}
 
+        static readonly Regex _XmlNodeRegex = new Regex("(<.*\\/>|<.*>.*<\\/.*>)");
 
-		private void ParseLiveCommentServerResponse(string recievedString)
-		{
-			if (string.IsNullOrWhiteSpace(recievedString))
-			{
-				Debug.Write($"IGNORE");
-				return;
-			}
+        static readonly Regex _XmlForceAddReturnRegex = new Regex("</\\S+>");
+        private void ParseLiveCommentServerResponse(string recievedString)
+        {
+            var xml = _XmlForceAddReturnRegex.Replace(recievedString, (x) => { return x.Value + "\r"; });
+            foreach (var match in _XmlNodeRegex.Matches(xml).Cast<Match>())
+            {
+                Debug.WriteLine(match.Value);
+                ParseChatXml(match.Value);
+            }
+        }
 
-			if (!recievedString.StartsWith("<") || !recievedString.EndsWith(">"))
-			{
-				// Note: 寄り厳密にXMLフォーマットチェックをやるなら
-				// <>の数が同数であることをチェックする
-				Debug.Write($"illigal format, required XML");
-				Debug.Write($" -> ");
-				Debug.Write(recievedString);
-				return;
-			}
+        private void ParseChatXml(string xml)
+        {
+            var xmlDoc = XDocument.Parse(xml);
+            var xmlRoot = xmlDoc.Root;
+            var elementName = xmlRoot.Name.LocalName;
+            Debug.Write(elementName);
+            Debug.Write(" -> ");
+            if (elementName == "thread")
+            {
+                Debug.Write("connect success");
+                IsCommentServerConnected = true;
 
-            var xmlDoc = XDocument.Parse(recievedString);
-			var xmlRoot = xmlDoc.Root;
-			var elementName = xmlRoot.Name.LocalName;
-			Debug.Write(elementName);
-			Debug.Write(" -> ");
-			if (elementName == "thread")
-			{
-				Debug.Write("connect success");
-				IsCommentServerConnected = true;
+                // <thread ticket="{チケット}" server_time="{サーバー時刻}" last_res="{送信される過去のコメント数？(NECOで使用してないので不明)}">
+                var serverTimeText = xmlRoot.Attribute(XName.Get("server_time")).Value;
+                long serverTime;
+                if (long.TryParse(serverTimeText, out serverTime))
+                {
+                    _ServerTime = serverTime;
+                }
 
-				// <thread ticket="{チケット}" server_time="{サーバー時刻}" last_res="{送信される過去のコメント数？(NECOで使用してないので不明)}">
-				var serverTimeText = xmlRoot.Attribute(XName.Get("server_time")).Value;
-				long serverTime;
-				if (long.TryParse(serverTimeText, out serverTime))
-				{
-					_ServerTime = serverTime;
-				}
+                var ticketText = xmlRoot.Attribute(XName.Get("ticket")).Value;
+                _Ticket = ticketText;
 
-				var ticketText = xmlRoot.Attribute(XName.Get("ticket")).Value;
-				_Ticket = ticketText;
+                CommentServerConnected?.Invoke();
+            }
+            else if (elementName == "chat_result")
+            {
+                // <chat_result status="{コメント投稿要求の返答}" />
+                var result = xmlRoot.Attribute(XName.Get("status")).Value;
 
-				CommentServerConnected?.Invoke();
-			}
-			else if (elementName == "chat_result")
-			{
-				// <chat_result status="{コメント投稿要求の返答}" />
-				var result = xmlRoot.Attribute(XName.Get("status")).Value;
-
-				/*
+                /*
 				0 = 投稿に成功した
 				1 = 投稿に失敗した(短時間に同じ内容のコメントを投稿しようとした、パラメータが間違っている、他)
 				4 = 投稿に失敗した(ごく短時間にコメントを連投しようとした、パラメータが間違っている、他)
 					*/
 
-				Debug.Write(result);
-				Debug.Write(result == "0" ? " (success)" : " (failed)");
+                Debug.Write(result);
+                Debug.Write(result == "0" ? " (success)" : " (failed)");
 
-				CommentPosted?.Invoke(result == "0", _LastPostChat);
-				_LastPostChat = null;
-			}
-			else if (elementName == "chat")
-			{
+                CommentPosted?.Invoke(result == "0", _LastPostChat);
+                _LastPostChat = null;
+            }
+            else if (elementName == "chat")
+            {
 
-				// _LiveComments.Add(chat);
-				// <chat anonymity="{184か}" no="{コメントの番号}" date="{コメントが投稿されたリアル時間？}" mail="{コマンド}" premium="{プレミアムID}"　thread="{スレッドID}" user_id="{ユーザーID}" vpos="{コメントが投稿された生放送の時間}" score="{NGスコア}">{コメント}</chat>\0
-				try
-				{
-					var chatSerializer = new XmlSerializer(typeof(Chat));
-					using (var readerStream = new StringReader(recievedString))
-					{
-						var chat = chatSerializer.Deserialize(readerStream) as Chat;
-						if (chat != null)
-						{
-							Debug.Write(chat.Text);
+                // _LiveComments.Add(chat);
+                // <chat anonymity="{184か}" no="{コメントの番号}" date="{コメントが投稿されたリアル時間？}" mail="{コマンド}" premium="{プレミアムID}"　thread="{スレッドID}" user_id="{ユーザーID}" vpos="{コメントが投稿された生放送の時間}" score="{NGスコア}">{コメント}</chat>\0
+                try
+                {
+                    var chatSerializer = new XmlSerializer(typeof(Chat));
+                    using (var readerStream = new StringReader(xml))
+                    {
+                        var chat = chatSerializer.Deserialize(readerStream) as Chat;
+                        if (chat != null)
+                        {
+                            Debug.Write(chat.Text);
 
-							OperationCommnad officialCommand = null;
-							string[] officialCommandArguments = null;
-							if (ChcekOfficialOperationComment(chat, out officialCommand, out officialCommandArguments))
-							{
-								var args = new NicoLiveOperationCommandEventArgs()
-								{
-									CommandType = officialCommand.CommandType,
-									Arguments = officialCommandArguments,
-									Chat = chat
-								};
+                            OperationCommnad officialCommand = null;
+                            string[] officialCommandArguments = null;
+                            if (ChcekOfficialOperationComment(chat, out officialCommand, out officialCommandArguments))
+                            {
+                                var args = new NicoLiveOperationCommandEventArgs()
+                                {
+                                    CommandType = officialCommand.CommandType,
+                                    Arguments = officialCommandArguments,
+                                    Chat = chat
+                                };
 
-								OperationCommandRecieved?.Invoke(this, args);
-							}
-							else
-							{
-								CommentRecieved?.Invoke(chat);
-							}
-						}
-					}
-				}
-				catch { }
-			}
-			else
-			{
-				Debug.WriteLine($"not supproted");
-				Debug.Write(" -> ");
-				Debug.Write(recievedString);
-			}
+                                OperationCommandRecieved?.Invoke(this, args);
+                            }
+                            else
+                            {
+                                CommentRecieved?.Invoke(chat);
+                            }
+                        }
+                    }
+                }
+                catch { }
+            }
+            else
+            {
+                Debug.WriteLine($"not supproted");
+                Debug.Write(" -> ");
+                Debug.Write(xml);
+            }
+        }
 
-		}
-
-
-		class OperationCommnad
+        class OperationCommnad
 		{
 			public NicoLiveOperationCommandType CommandType { get; set; }
 			public string Text { get; set; }

@@ -207,35 +207,44 @@ namespace NicoPlayerHohoema.Models.Live
 				if (ex.HResult == NiconicoHResult.ELiveNotFound)
 				{
 					LiveStatusType = Live.LiveStatusType.NotFound;
-				}
+
+                    PermanentDisplayText = "*放送が見つかりませんでした";
+                }
 				else if (ex.HResult == NiconicoHResult.ELiveClosed)
 				{
 					LiveStatusType = Live.LiveStatusType.Closed;
-				}
+                    PermanentDisplayText = "*放送は終了しています";
+                }
 				else if (ex.HResult == NiconicoHResult.ELiveComingSoon)
 				{
 					LiveStatusType = Live.LiveStatusType.ComingSoon;
-				}
+                    PermanentDisplayText = "*放送開始までお待ち下さい";
+                }
 				else if (ex.HResult == NiconicoHResult.EMaintenance)
 				{
 					LiveStatusType = Live.LiveStatusType.Maintenance;
-				}
+                    PermanentDisplayText = "*メンテナンス中です";
+                }
 				else if (ex.HResult == NiconicoHResult.ELiveCommunityMemberOnly)
 				{
 					LiveStatusType = Live.LiveStatusType.CommunityMemberOnly;
-				}
+                    PermanentDisplayText = "*コミュニティ限定放送です";
+                }
 				else if (ex.HResult == NiconicoHResult.ELiveFull)
 				{
 					LiveStatusType = Live.LiveStatusType.Full;
-				}
+                    PermanentDisplayText = "*満員です";
+                }
 				else if (ex.HResult == NiconicoHResult.ELivePremiumOnly)
 				{
 					LiveStatusType = Live.LiveStatusType.PremiumOnly;
-				}
+                    PermanentDisplayText = "*プレミアム会員限定放送です";
+                }
 				else if (ex.HResult == NiconicoHResult.ENotSigningIn)
 				{
 					LiveStatusType = Live.LiveStatusType.NotLogin;
-				}
+                    PermanentDisplayText = "*ログインしていません";
+                }
 			}
 
 			if (LiveStatusType != null)
@@ -421,38 +430,43 @@ namespace NicoPlayerHohoema.Models.Live
         {
             if (_HLSUri == null) { return; }
 
+            await ClearLeoPlayer();
 
-            ClearLeoPlayer();
-
-            var streamAsyncUri = _HLSUri.Replace("master.m3u8", "stream_sync.json");
-
-            var playSetupRes = await HohoemaApp.NiconicoContext.HttpClient.GetAsync(new Uri(streamAsyncUri));
-
-            try
+            await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () => 
             {
-                _Mss = FFmpegInterop.FFmpegInteropMSS.CreateFFmpegInteropMSSFromUri(_HLSUri, false, false);
+//                var streamAsyncUri = _HLSUri.Replace("master.m3u8", "stream_sync.json");
 
-                _MediaSource = MediaSource.CreateFromMediaStreamSource(_Mss.GetMediaStreamSource());
+//                var playSetupRes = await HohoemaApp.NiconicoContext.HttpClient.GetAsync(new Uri(streamAsyncUri));
 
-                HohoemaApp.MediaPlayer.Source = _MediaSource;
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.ToString());
-            }
+                try
+                {
+                    _Mss = FFmpegInterop.FFmpegInteropMSS.CreateFFmpegInteropMSSFromUri(_HLSUri, false, false);
+                    
+                    _MediaSource = MediaSource.CreateFromMediaStreamSource(_Mss.GetMediaStreamSource());
+
+                    HohoemaApp.MediaPlayer.Source = _MediaSource;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.ToString());
+                }
+            });
         }
 
-        private void ClearLeoPlayer()
+        private async Task ClearLeoPlayer()
         {
-            if (HohoemaApp.MediaPlayer.Source == _MediaSource)
+            await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
-                HohoemaApp.MediaPlayer.Source = null;
-            }
+                if (HohoemaApp.MediaPlayer.Source == _MediaSource)
+                {
+                    HohoemaApp.MediaPlayer.Source = null;
+                }
 
-            _Mss?.Dispose();
-            _Mss = null;
-            _MediaSource?.Dispose();
-            _MediaSource = null;
+                _Mss?.Dispose();
+                _Mss = null;
+                _MediaSource?.Dispose();
+                _MediaSource = null;
+            });
         }
 
 
@@ -506,6 +520,7 @@ namespace NicoPlayerHohoema.Models.Live
 
         public Task Refresh()
         {
+            
             if (LivePlayerType == Live.LivePlayerType.Aries)
             {
                 return RetryRtmpConnection();
@@ -536,8 +551,12 @@ namespace NicoPlayerHohoema.Models.Live
 
 			using (var releaser = await _VideoStreamSrouceAssignLock.LockAsync())
 			{
-				VideoStreamSource = null;
-			}
+                HohoemaApp.MediaPlayer.Source = null;
+                VideoStreamSource = null;
+                _MediaSource?.Dispose();
+                _MediaSource = null;
+
+            }
 
 			await StartEnsureOpenRtmpConnection();
 		}
@@ -661,10 +680,14 @@ namespace NicoPlayerHohoema.Models.Live
 		{
 			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
 			{
-				VideoStreamSource = args.MediaStreamSource;
-                HohoemaApp.MediaPlayer.Source = MediaSource.CreateFromMediaStreamSource(args.MediaStreamSource);
+                if (_MediaSource == null)
+                {
+                    VideoStreamSource = args.MediaStreamSource;
+                    _MediaSource = MediaSource.CreateFromMediaStreamSource(args.MediaStreamSource);
+                    HohoemaApp.MediaPlayer.Source = _MediaSource;
 
-                Debug.WriteLine("recieve start live stream: " + LiveId);
+                    Debug.WriteLine("recieve start live stream: " + LiveId);
+                }
 			});
 		}
 
@@ -963,6 +986,12 @@ namespace NicoPlayerHohoema.Models.Live
 		{
 			using (var releaser = await _NextLiveSubscriveLock.LockAsync())
 			{
+                // コミュニティ以外の動画には現状対応していない
+                if (BroadcasterCommunityType != CommunityType.Community)
+                {
+                    return;
+                }
+
 				if (NextLiveId != null)
 				{
 					return;

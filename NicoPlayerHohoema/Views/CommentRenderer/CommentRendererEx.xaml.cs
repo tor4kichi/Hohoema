@@ -136,6 +136,8 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
         private bool _IsNeedCommentRenderUpdated = false;
         private void ResetComments(CommentRenderFrameData frame)
         {
+            Debug.WriteLine("Comment Reset");
+
             foreach (var renderComment in RenderComments)
             {
                 CommentUICached.Push(renderComment);
@@ -160,6 +162,8 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
             }
 
             // あとは毎フレーム処理に任せる
+
+            _RealVideoPosition = DateTime.Now;
         }
 
 
@@ -170,6 +174,8 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
         AsyncLock _UpdateLock = new AsyncLock();
         TimeSpan _PrevCommentRenderElapsedTime = TimeSpan.Zero;
         float CommentWeightPoint = 0;
+
+        DateTime _RealVideoPosition = DateTime.Now;
 
         private async Task UpdateCommentDisplay()
         {
@@ -185,22 +191,29 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
                 TimeSpan deltaVideoPosition = TimeSpan.Zero;
                 TimeSpan updateInterval;
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Low, () =>
                 {
                     // 更新済みの位置であれば処理をスキップ
                     var videoPosition = VideoPosition;
 
-                    deltaVideoPosition = videoPosition - _PreviousVideoPosition;
-
-                    if (_PreviousVideoPosition == videoPosition)
+                    if (MediaPlayer.PlaybackSession.CanSeek)
                     {
-                        return;
+                        if (_PreviousVideoPosition == videoPosition)
+                        {
+                            return;
+                        }
+
+                        if (_PreviousVideoPosition > videoPosition)
+                        {
+                            // 前方向にシークしていた場合
+                            _IsNeedCommentRenderUpdated = true;
+                        }
+
+                        deltaVideoPosition = videoPosition - _PreviousVideoPosition;
                     }
-
-                    if (_PreviousVideoPosition > videoPosition)
+                    else
                     {
-                        // 前方向にシークしていた場合
-                        _IsNeedCommentRenderUpdated = true;
+                         deltaVideoPosition = DateTime.Now - _RealVideoPosition;
                     }
 
                     OnUpdate(deltaVideoPosition);
@@ -223,6 +236,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
                 CommentWeightPoint = Math.Min(2.0f, Math.Max(-2.0f, CommentWeightPoint));
 
                 _PrevCommentRenderElapsedTime = watch.Elapsed;
+                _RealVideoPosition = DateTime.Now;
             }
         }
 

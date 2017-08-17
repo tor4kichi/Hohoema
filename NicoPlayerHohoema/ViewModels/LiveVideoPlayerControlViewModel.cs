@@ -48,7 +48,7 @@ namespace NicoPlayerHohoema.ViewModels
 		/// </summary>
 		/// <remarks>コメント描画を120fpsで行えるように0.008秒で更新しています</remarks>
 		public static TimeSpan LiveElapsedTimeUpdateInterval { get; private set; } 
-			= TimeSpan.FromSeconds(0.5);
+			= TimeSpan.FromSeconds(1);
 
 
 
@@ -644,23 +644,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 				LiveComments = NicoLiveVideo.LiveComments.ToReadOnlyReactiveCollection(x =>
 				{
-					var comment = new Views.Comment();
+					var comment = new Views.Comment(HohoemaApp.UserSettings.NGSettings);
                     //x.GetVposでサーバー上のコメント位置が取れるが、
                     // 受け取った順で表示したいのでローカルの放送時間からコメント位置を割り当てる
                     comment.VideoPosition = (uint)(MediaPlayer.PlaybackSession.Position.TotalMilliseconds * 0.1) + 50;
 
                     // EndPositionはコメントレンダラが再計算するが、仮置きしないと表示対象として処理されない
                     comment.EndPosition = comment.VideoPosition + 500;
-
-                    if (x.Vpos != null && x.GetVpos() < (comment.VideoPosition - 500))
-                    {
-                        Debug.WriteLine("古いコメントのため非表示 : " + comment.CommentText);
-                        comment.IsVisible = false;
-                        return comment;
-                    }
-
-
-
 
                     comment.CommentText = x.Text;
 					comment.CommentId = !string.IsNullOrEmpty(x.No) ? x.GetCommentNo() : 0;
@@ -973,38 +963,39 @@ namespace NicoPlayerHohoema.ViewModels
 		/// <param name="state">Timerオブジェクトのコールバックとして登録できるようにするためのダミー</param>
 		async void UpdateLiveElapsedTime(object state = null)
 		{
-			using (var releaser = await _LiveElapsedTimeUpdateTimerLock.LockAsync())
+			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Low, async () => 
 			{
-				await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () => 
-				{
-					// ローカルの現在時刻から放送開始のベース時間を引いて
-					// 放送経過時間の絶対値を求める
-					LiveElapsedTime = DateTime.Now - _StartAt;
+                using (var releaser = await _LiveElapsedTimeUpdateTimerLock.LockAsync())
+                {
+                    // ローカルの現在時刻から放送開始のベース時間を引いて
+                    // 放送経過時間の絶対値を求める
+                    LiveElapsedTime = DateTime.Now - _StartAt;
 
-					// 終了時刻を過ぎたら生放送情報を更新する
-					if (!_IsEndMarked && DateTime.Now > _EndAt)
-					{
-						_IsEndMarked = true;
+                    // 終了時刻を過ぎたら生放送情報を更新する
+                    if (!_IsEndMarked && DateTime.Now > _EndAt)
+                    {
+                        _IsEndMarked = true;
 
-						await Task.Delay(TimeSpan.FromSeconds(3));
-						if (await TryUpdateLiveStatus())
-						{
-							// 放送が延長されていた場合は継続
-							// _EndAtもTryUpdateLiveStatus内で更新されているはず
-							_IsEndMarked = false;
-						}
-					}
+                        await Task.Delay(TimeSpan.FromSeconds(3));
+                        if (await TryUpdateLiveStatus())
+                        {
+                            // 放送が延長されていた場合は継続
+                            // _EndAtもTryUpdateLiveStatus内で更新されているはず
+                            _IsEndMarked = false;
+                        }
+                    }
 
-					// 終了時刻の３０秒前から
-					if (!_IsNextLiveSubscribeStarted && DateTime.Now > _EndAt - TimeSpan.FromSeconds(10))
-					{
-						_IsNextLiveSubscribeStarted = true;
+                    // 終了時刻の３０秒前から
+                    if (!_IsNextLiveSubscribeStarted && DateTime.Now > _EndAt - TimeSpan.FromSeconds(10))
+                    {
+                        _IsNextLiveSubscribeStarted = true;
 
-						await NicoLiveVideo.StartNextLiveSubscribe(NicoLiveVideo.DefaultNextLiveSubscribeDuration);
-					}
-				});
-			}
-		}
+                        await NicoLiveVideo.StartNextLiveSubscribe(NicoLiveVideo.DefaultNextLiveSubscribeDuration);
+                    }
+
+                }
+            });
+        }
 
 
 

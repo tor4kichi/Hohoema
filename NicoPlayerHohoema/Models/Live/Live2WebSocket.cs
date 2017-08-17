@@ -48,10 +48,10 @@ namespace NicoPlayerHohoema.Models.Live
 
     public class Live2StatisticsEventArgs
     {
-        public int ViewCount { get; set; }
-        public int CommentCount { get; set; }
-        public int Count_3 { get; set; }
-        public int Count_4 { get; set; }
+        public long ViewCount { get; set; }
+        public long CommentCount { get; set; }
+        public long Count_3 { get; set; }
+        public long Count_4 { get; set; }
     }
 
     public class Live2ScheduleEventArgs
@@ -225,16 +225,16 @@ namespace NicoPlayerHohoema.Models.Live
                         var countItems = ((JArray)body["params"]).Select(x => x.ToString()).ToArray();
                         var statisticsArgs = new Live2StatisticsEventArgs()
                         {
-                            ViewCount = int.Parse(countItems[0]),
-                            CommentCount = int.Parse(countItems[1]),
-                            Count_3 = int.Parse(countItems[2]),
-                            Count_4 = int.Parse(countItems[3]),
+                            ViewCount = long.Parse(countItems[0]),
+                            CommentCount = long.Parse(countItems[1]),
+                            Count_3 = long.Parse(countItems[2]),
+                            Count_4 = long.Parse(countItems[3]),
                         };
                         RecieveStatistics?.Invoke(statisticsArgs);
                         break;
                     case "watchinginterval":
                         var timeString = ((JArray)body["params"]).Select(x => x.ToString()).ToArray()[0];
-                        var time = TimeSpan.FromSeconds(int.Parse(timeString));
+                        var time = TimeSpan.FromSeconds(long.Parse(timeString));
                         RecieveWatchInterval?.Invoke(time);
                         break;
                     case "schedule":
@@ -249,7 +249,7 @@ namespace NicoPlayerHohoema.Models.Live
                     case "disconnect":
                         var disconnectParams = ((JArray)body["params"]).Select(x => x.ToString()).ToArray();
                         var endtimeString = disconnectParams[0];
-                        var endTime = TimeSpan.FromSeconds(int.Parse(endtimeString));
+                        var endTime = DateTime.FromBinary(long.Parse(endtimeString));
                         var endReason = disconnectParams[1];
                         RecieveDisconnect?.Invoke();
                         break;
