@@ -42,6 +42,7 @@
                                         <Setter Property="Padding" Value="0" />
                                         <Setter Property="UseSystemFocusVisuals" Value="False" />
                                         <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                     </Style>
                                 </GridView.ItemContainerStyle>
 

@@ -85,9 +85,10 @@ namespace NicoPlayerHohoema.ViewModels
 				mode = "すべて";
 			}
 			
-			UpdateTitle($"{SearchOption.Keyword} - {target}/{optionText}({mode})");
+//			UpdateTitle($"{SearchOption.Keyword} - {target}/{optionText}({mode})");
+            UpdateTitle($"{SearchOption.Keyword} - {target}({mode})");
 
-			base.OnNavigatedTo(e, viewModelState);
+            base.OnNavigatedTo(e, viewModelState);
 		}
 
 		protected override IIncrementalSource<LiveInfoViewModel> GenerateIncrementalSource()
@@ -251,43 +252,43 @@ namespace NicoPlayerHohoema.ViewModels
 			IsCommunityMemberOnly = LiveVideoInfo.Video.CommunityOnly;
 
             Title = LiveVideoInfo.Video.Title;
-            OptionText = LiveVideoInfo.Community?.Name;
             ImageUrlsSource.Add(CommunityThumbnail);
 
-            var duration = EndTime - StartTime;
-			if (LiveVideoInfo.Video.StartTime < DateTime.Now)
+            Description = $"来場者:{ViewCounter} コメ:{CommentCount}";
+
+			if (LiveVideoInfo.Video.StartTime > DateTime.Now)
 			{
 				// 予約
-				DurationText = "";
+				DurationText = $" 開始予定: {LiveVideoInfo.Video.StartTime}";
 			}
-			else if (LiveVideoInfo.Video.EndTime < DateTime.Now)
+			else if (LiveVideoInfo.Video.EndTime > DateTime.Now)
 			{
-				// 終了
-				if (duration.Hours > 0)
-				{
-					DurationText = $"（{duration.Hours}時間 {duration.Minutes}分）";
-				}
-				else
-				{
-					DurationText = $"（{duration.Minutes}分）";
-				}
+                var duration = DateTime.Now - StartTime;
+                // 放送中
+                if (duration.Hours > 0)
+                {
+                    DurationText = $"{duration.Hours}時間 {duration.Minutes}分 経過";
+                }
+                else
+                {
+                    DurationText = $"{duration.Minutes}分 経過";
+                }
 			}
 			else
 			{
-				// 放送中
-				// 終了
-				if (duration.Hours > 0)
-				{
-					DurationText = $"{duration.Hours}時間 {duration.Minutes}分 経過";
-				}
-				else
-				{
-					DurationText = $"{duration.Minutes}分 経過";
-				}
-			}
+                var duration = EndTime - StartTime;
+                // 終了
+                if (duration.Hours > 0)
+                {
+                    DurationText = $"{LiveVideoInfo.Video.EndTime} 終了（{duration.Hours}時間 {duration.Minutes}分）";
+                }
+                else
+                {
+                    DurationText = $"{LiveVideoInfo.Video.EndTime} 終了（{duration.Minutes}分）";
+                }
+            }
 
-            Description = DurationText;
-
+            OptionText = DurationText;
         }
 
 

@@ -89,6 +89,8 @@
 
             
             <toolkit:WrapPanel Orientation="Horizontal" >
+                <!-- Note: 検索結果が期待したソート状態で取れていないため一旦オプションを利用不可に -->
+                <!--
                 <ComboBox ItemsSource="{Binding LiveSearchSortOptionListItems}"
                                   DisplayMemberPath="Label"
                                   SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}"
@@ -100,6 +102,7 @@
                               >
 
                 </ComboBox>
+                -->
 
                 <ComboBox ItemsSource="{Binding LiveSearchModeOptionListItems}"
                                   DisplayMemberPath="Label"
