@@ -24,7 +24,9 @@ namespace NicoPlayerHohoema.Models.Live
 
 	public delegate void DetectNextLiveEventHandler(NicoLiveVideo sender, string liveId);
 
-
+    public delegate void OpenLiveEventHandler(NicoLiveVideo sender);
+    public delegate void FailedOpenLiveEventHandler(NicoLiveVideo sender, OpenLiveFailedReason reason);
+    public delegate void CloseLiveEventHandler(NicoLiveVideo sender);
 
     public enum LivePlayerType
     {
@@ -34,6 +36,12 @@ namespace NicoPlayerHohoema.Models.Live
 
 
 
+    public enum OpenLiveFailedReason
+    {
+        TimeOver,
+        VideoQuoteIsNotSupported,
+    }
+
 	public class NicoLiveVideo : BindableBase, IDisposable
 	{
 		public static readonly TimeSpan DefaultNextLiveSubscribeDuration =
@@ -42,7 +50,13 @@ namespace NicoPlayerHohoema.Models.Live
 		public HohoemaApp HohoemaApp { get; private set; }
 
 
-		public event CommentPostedEventHandler PostCommentResult;
+        public event OpenLiveEventHandler OpenLive;
+
+        public event CloseLiveEventHandler CloseLive;
+
+        public event FailedOpenLiveEventHandler FailedOpenLive;
+
+        public event CommentPostedEventHandler PostCommentResult;
 
 		public event DetectNextLiveEventHandler NextLive;
 
@@ -124,6 +138,9 @@ namespace NicoPlayerHohoema.Models.Live
 			get { return _LivePlayerType; }
 			private set { SetProperty(ref _LivePlayerType, value); }
 		}
+
+
+
 
 
 		public string NextLiveId { get; private set; }
@@ -422,6 +439,8 @@ namespace NicoPlayerHohoema.Models.Live
                 Debug.WriteLine(e.Quality);
                 
                 await RefreshLeoPlayer();
+
+                OpenLive?.Invoke(this);
             });
         }
 
@@ -432,7 +451,7 @@ namespace NicoPlayerHohoema.Models.Live
 
             await ClearLeoPlayer();
 
-            await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () => 
+            await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
             {
 //                var streamAsyncUri = _HLSUri.Replace("master.m3u8", "stream_sync.json");
 
@@ -460,6 +479,8 @@ namespace NicoPlayerHohoema.Models.Live
                 if (HohoemaApp.MediaPlayer.Source == _MediaSource)
                 {
                     HohoemaApp.MediaPlayer.Source = null;
+
+                    CloseLive?.Invoke(this);
                 }
 
                 _Mss?.Dispose();
@@ -605,7 +626,10 @@ namespace NicoPlayerHohoema.Models.Live
 			if (DateTime.Now > EnsureOpenRtmpStartTime + EnsureOpenRtmpTryDuration)
 			{
 				await ExitEnsureOpenRtmpConnection();
-				return;
+
+                FailedOpenLive?.Invoke(this, OpenLiveFailedReason.TimeOver);
+
+                return;
 			}
 
 			Debug.WriteLine("TRY ensure open rtmp connection ");
@@ -637,7 +661,6 @@ namespace NicoPlayerHohoema.Models.Live
 
 				await ExitEnsureOpenRtmpConnection();
 			}
-
 		}
 
 		private async Task OpenRtmpConnection(PlayerStatusResponse res)
@@ -653,8 +676,27 @@ namespace NicoPlayerHohoema.Models.Live
 					_RtmpClient.Started += _RtmpClient_Started;
 					_RtmpClient.Stopped += _RtmpClient_Stopped;
 
-					await _RtmpClient.ConnectAsync(res);
-				}
+                    try
+                    {
+                        await _RtmpClient.ConnectAsync(res);
+                    }
+                    catch
+                    {
+                        _RtmpClient.Started -= _RtmpClient_Started;
+                        _RtmpClient.Stopped -= _RtmpClient_Stopped;
+                        _RtmpClient.Dispose();
+                        _RtmpClient = null;
+                        _EnsureStartLiveTimer?.Dispose();
+                        _EnsureStartLiveTimer = null;
+
+                        Debug.WriteLine("CAN NOT play Rtmp, Stop ensure open timer. : " + res.Stream.RtmpUrl);
+
+                        PermanentDisplayText = "*動画引用放送には対応していません";
+
+                        FailedOpenLive?.Invoke(this, OpenLiveFailedReason.VideoQuoteIsNotSupported);
+                    }
+
+                }
 			}
 		}
 
@@ -687,6 +729,8 @@ namespace NicoPlayerHohoema.Models.Live
                     HohoemaApp.MediaPlayer.Source = _MediaSource;
 
                     Debug.WriteLine("recieve start live stream: " + LiveId);
+
+                    OpenLive?.Invoke(this);
                 }
 			});
 		}
@@ -697,13 +741,18 @@ namespace NicoPlayerHohoema.Models.Live
 			{
 				using (var releaser = await _VideoStreamSrouceAssignLock.LockAsync())
 				{
-					VideoStreamSource = null;
                     HohoemaApp.MediaPlayer.Source = null;
+
+                    VideoStreamSource = null;
+                    _MediaSource?.Dispose();
+                    _MediaSource = null;
                 }
 
-				Debug.WriteLine("recieve exit live stream: " + LiveId);
+                Debug.WriteLine("recieve exit live stream: " + LiveId);
 
-				await StartNextLiveSubscribe(DefaultNextLiveSubscribeDuration);
+                CloseLive?.Invoke(this);
+
+                await StartNextLiveSubscribe(DefaultNextLiveSubscribeDuration);
 			});
 		}
 

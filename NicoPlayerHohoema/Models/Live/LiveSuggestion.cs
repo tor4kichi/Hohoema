@@ -9,15 +9,12 @@ namespace NicoPlayerHohoema.Models.Live
 {
 	public class LiveSuggestion
 	{
-		public LiveStatusType Status { get; private set; }
-
 		public string Title { get; private set; }
 
 		public List<SuggestAction> Actions { get; private set; }
 
-		public LiveSuggestion(LiveStatusType status, string title, params SuggestAction[] actions)
+		public LiveSuggestion(string title, params SuggestAction[] actions)
 		{
-			Status = status;
 			Title = title;
 			Actions = actions.ToList();
 		}
@@ -79,7 +76,7 @@ namespace NicoPlayerHohoema.Models.Live
 			}
 
 
-			return new LiveSuggestion(liveStatus, title, actions.ToArray());
+			return new LiveSuggestion(title, actions.ToArray());
 		}
 	}
 }

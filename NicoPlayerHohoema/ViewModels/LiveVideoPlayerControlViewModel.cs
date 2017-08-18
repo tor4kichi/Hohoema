@@ -27,6 +27,7 @@ using Windows.UI.Xaml.Media;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Media.Playback;
 using System.Collections.ObjectModel;
+using Windows.System;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -634,11 +635,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				NicoLiveVideo = new NicoLiveVideo(LiveId, HohoemaApp);
 
-				NowConnecting = Observable.CombineLatest(
-					NicoLiveVideo.ObserveProperty(x => x.LiveStatusType).Select(x => x != null)
-					)
-					.Select(x => x.All(y => y))
-					.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
+				NowConnecting = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false)
 					.AddTo(_NavigatingCompositeDisposable);
 				OnPropertyChanged(nameof(NowConnecting));
 
@@ -696,13 +693,34 @@ namespace NicoPlayerHohoema.ViewModels
 
 				// next live
 				NicoLiveVideo.NextLive += NicoLiveVideo_NextLive;
-			}
+
+                NicoLiveVideo.OpenLive += NicoLiveVideo_OpenLive;
+                NicoLiveVideo.CloseLive += NicoLiveVideo_CloseLive;
+                NicoLiveVideo.FailedOpenLive += NicoLiveVideo_FailedOpenLive1; ;
+
+            }
 
 			base.OnNavigatedTo(e, viewModelState);
 		}
 
+        private void NicoLiveVideo_FailedOpenLive1(NicoLiveVideo sender, OpenLiveFailedReason reason)
+        {
+            NowConnecting.Value = false;
 
-		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+            this.ResetSuggestion(reason);
+        }
+
+        private void NicoLiveVideo_CloseLive(NicoLiveVideo sender)
+        {
+            NowConnecting.Value = false;
+        }
+
+        private void NicoLiveVideo_OpenLive(NicoLiveVideo sender)
+        {
+            NowConnecting.Value = false;
+        }
+
+        protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
             ChangeRequireServiceLevel(HohoemaAppServiceLevel.LoggedIn);
 			
@@ -754,7 +772,9 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			if (NicoLiveVideo == null) { return; }
 
-			try
+            NowConnecting.Value = true;
+
+            try
 			{
                 MediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
 
@@ -836,15 +856,17 @@ namespace NicoPlayerHohoema.ViewModels
                 else
 				{
 					Debug.WriteLine("生放送情報の取得失敗しました "  + LiveId);
-				}
+                    NowConnecting.Value = false;
+                }
 
 				ResetSuggestion(liveStatus);
 			}
 			catch (Exception ex)
 			{
 				Debug.WriteLine(ex.ToString());
-			}
-			finally
+                NowConnecting.Value = false;
+            }
+            finally
 			{
 				NowUpdating.Value = false;
 			}
@@ -1056,13 +1078,43 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+        private void ResetSuggestion(OpenLiveFailedReason reason)
+        {
+            LiveSuggestion suggestion = null;
+
+            if (reason == OpenLiveFailedReason.VideoQuoteIsNotSupported)
+            {
+                // ブラウザ視聴を案内
+                suggestion = new LiveSuggestion("動画引用放送は対応していません", new[] { new SuggestAction("ブラウザで視聴", async () =>
+                {
+                    var livePageUrl = new Uri($"http://live.nicovideo.jp/watch/" + LiveId);
+                    await Launcher.LaunchUriAsync(livePageUrl );
+                })});
+            }
+            else if (reason == OpenLiveFailedReason.TimeOver)
+            {
+                suggestion = new LiveSuggestion("放送受信に失敗しました", new[] { new SuggestAction("再試行", async () => 
+                {
+                    await TryStartViewing();
+                })});
+            }
+
+            if (suggestion == null)
+            {
+                Debug.WriteLine("live suggestion not support : " + reason.ToString());
+            }
+
+            Suggestion.Value = suggestion;
+            
+        }
 
 
-		#region Event Handling
+
+        #region Event Handling
 
 
-		// コメントコマンドの変更を受け取る
-		private void CommandEditerVM_OnCommandChanged()
+        // コメントコマンドの変更を受け取る
+        private void CommandEditerVM_OnCommandChanged()
 		{
 			var commandString = CommandEditerVM.MakeCommandsString();
 			CommandString.Value = string.IsNullOrEmpty(commandString) ? "コマンド" : commandString;
