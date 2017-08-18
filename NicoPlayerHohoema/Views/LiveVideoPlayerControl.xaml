@@ -232,16 +232,15 @@
                     <!-- TODO: エンタキーでコメント入力開始 -->
                     <mybehavior:KeyboardTrigger Key="Enter">
                         <mybehavior:KeyboardTrigger.Actions>
-                            <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="True" />
-                            <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayCommentTextBox" Value="True" />
+                            <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI}" PropertyName="Value" Value="True" />
                             <mybehavior:SetFocus TargetObject="{Binding ElementName=CommentTextBox}" Delay="00:00:00.1" />
                         </mybehavior:KeyboardTrigger.Actions>
                     </mybehavior:KeyboardTrigger>
 
                     <mybehavior:KeyboardTrigger IsEnabled="{Binding NowCommentWriting.Value, Mode=OneWay, Converter={StaticResource BooleanInverted}}">
                         <mybehavior:KeyboardTrigger.Actions>
-                            <mybehavior:SetFocus TargetObject="{Binding ElementName=CommentTextBox}" Delay="00:00:00" />
-                            <core:ChangePropertyAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" PropertyName="IsVisible" Value="True" />
+                            <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI}" PropertyName="Value" Value="True" />
+                            <mybehavior:SetFocus TargetObject="{Binding ElementName=CommentTextBox}" Delay="00:00:00.25" />
                         </mybehavior:KeyboardTrigger.Actions>
                     </mybehavior:KeyboardTrigger>
 
