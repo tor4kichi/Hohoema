@@ -121,6 +121,7 @@
 
 
             <StackPanel>
+                <!--
                 <ListView ItemsSource="{Binding LiveSearchSortOptionListItems}"
                                   DisplayMemberPath="Label"
                                   SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}"
@@ -137,6 +138,7 @@
                     </ListView.ItemsPanel>
 
                 </ListView>
+                -->
 
                 <ListView ItemsSource="{Binding LiveSearchModeOptionListItems}"
                                   DisplayMemberPath="Label"

@@ -27,6 +27,7 @@ using Windows.UI.Xaml.Media;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Media.Playback;
 using System.Collections.ObjectModel;
+using Windows.System;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -48,7 +49,7 @@ namespace NicoPlayerHohoema.ViewModels
 		/// </summary>
 		/// <remarks>コメント描画を120fpsで行えるように0.008秒で更新しています</remarks>
 		public static TimeSpan LiveElapsedTimeUpdateInterval { get; private set; } 
-			= TimeSpan.FromSeconds(0.5);
+			= TimeSpan.FromSeconds(1);
 
 
 
@@ -634,33 +635,19 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				NicoLiveVideo = new NicoLiveVideo(LiveId, HohoemaApp);
 
-				NowConnecting = Observable.CombineLatest(
-					NicoLiveVideo.ObserveProperty(x => x.LiveStatusType).Select(x => x != null)
-					)
-					.Select(x => x.All(y => y))
-					.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
+				NowConnecting = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false)
 					.AddTo(_NavigatingCompositeDisposable);
 				OnPropertyChanged(nameof(NowConnecting));
 
 				LiveComments = NicoLiveVideo.LiveComments.ToReadOnlyReactiveCollection(x =>
 				{
-					var comment = new Views.Comment();
+					var comment = new Views.Comment(HohoemaApp.UserSettings.NGSettings);
                     //x.GetVposでサーバー上のコメント位置が取れるが、
                     // 受け取った順で表示したいのでローカルの放送時間からコメント位置を割り当てる
                     comment.VideoPosition = (uint)(MediaPlayer.PlaybackSession.Position.TotalMilliseconds * 0.1) + 50;
 
                     // EndPositionはコメントレンダラが再計算するが、仮置きしないと表示対象として処理されない
                     comment.EndPosition = comment.VideoPosition + 500;
-
-                    if (x.Vpos != null && x.GetVpos() < (comment.VideoPosition - 500))
-                    {
-                        Debug.WriteLine("古いコメントのため非表示 : " + comment.CommentText);
-                        comment.IsVisible = false;
-                        return comment;
-                    }
-
-
-
 
                     comment.CommentText = x.Text;
 					comment.CommentId = !string.IsNullOrEmpty(x.No) ? x.GetCommentNo() : 0;
@@ -706,13 +693,34 @@ namespace NicoPlayerHohoema.ViewModels
 
 				// next live
 				NicoLiveVideo.NextLive += NicoLiveVideo_NextLive;
-			}
+
+                NicoLiveVideo.OpenLive += NicoLiveVideo_OpenLive;
+                NicoLiveVideo.CloseLive += NicoLiveVideo_CloseLive;
+                NicoLiveVideo.FailedOpenLive += NicoLiveVideo_FailedOpenLive1; ;
+
+            }
 
 			base.OnNavigatedTo(e, viewModelState);
 		}
 
+        private void NicoLiveVideo_FailedOpenLive1(NicoLiveVideo sender, OpenLiveFailedReason reason)
+        {
+            NowConnecting.Value = false;
 
-		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+            this.ResetSuggestion(reason);
+        }
+
+        private void NicoLiveVideo_CloseLive(NicoLiveVideo sender)
+        {
+            NowConnecting.Value = false;
+        }
+
+        private void NicoLiveVideo_OpenLive(NicoLiveVideo sender)
+        {
+            NowConnecting.Value = false;
+        }
+
+        protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
             ChangeRequireServiceLevel(HohoemaAppServiceLevel.LoggedIn);
 			
@@ -764,7 +772,9 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			if (NicoLiveVideo == null) { return; }
 
-			try
+            NowConnecting.Value = true;
+
+            try
 			{
                 MediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
 
@@ -846,15 +856,17 @@ namespace NicoPlayerHohoema.ViewModels
                 else
 				{
 					Debug.WriteLine("生放送情報の取得失敗しました "  + LiveId);
-				}
+                    NowConnecting.Value = false;
+                }
 
 				ResetSuggestion(liveStatus);
 			}
 			catch (Exception ex)
 			{
 				Debug.WriteLine(ex.ToString());
-			}
-			finally
+                NowConnecting.Value = false;
+            }
+            finally
 			{
 				NowUpdating.Value = false;
 			}
@@ -973,38 +985,39 @@ namespace NicoPlayerHohoema.ViewModels
 		/// <param name="state">Timerオブジェクトのコールバックとして登録できるようにするためのダミー</param>
 		async void UpdateLiveElapsedTime(object state = null)
 		{
-			using (var releaser = await _LiveElapsedTimeUpdateTimerLock.LockAsync())
+			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Low, async () => 
 			{
-				await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () => 
-				{
-					// ローカルの現在時刻から放送開始のベース時間を引いて
-					// 放送経過時間の絶対値を求める
-					LiveElapsedTime = DateTime.Now - _StartAt;
+                using (var releaser = await _LiveElapsedTimeUpdateTimerLock.LockAsync())
+                {
+                    // ローカルの現在時刻から放送開始のベース時間を引いて
+                    // 放送経過時間の絶対値を求める
+                    LiveElapsedTime = DateTime.Now - _StartAt;
 
-					// 終了時刻を過ぎたら生放送情報を更新する
-					if (!_IsEndMarked && DateTime.Now > _EndAt)
-					{
-						_IsEndMarked = true;
+                    // 終了時刻を過ぎたら生放送情報を更新する
+                    if (!_IsEndMarked && DateTime.Now > _EndAt)
+                    {
+                        _IsEndMarked = true;
 
-						await Task.Delay(TimeSpan.FromSeconds(3));
-						if (await TryUpdateLiveStatus())
-						{
-							// 放送が延長されていた場合は継続
-							// _EndAtもTryUpdateLiveStatus内で更新されているはず
-							_IsEndMarked = false;
-						}
-					}
+                        await Task.Delay(TimeSpan.FromSeconds(3));
+                        if (await TryUpdateLiveStatus())
+                        {
+                            // 放送が延長されていた場合は継続
+                            // _EndAtもTryUpdateLiveStatus内で更新されているはず
+                            _IsEndMarked = false;
+                        }
+                    }
 
-					// 終了時刻の３０秒前から
-					if (!_IsNextLiveSubscribeStarted && DateTime.Now > _EndAt - TimeSpan.FromSeconds(10))
-					{
-						_IsNextLiveSubscribeStarted = true;
+                    // 終了時刻の３０秒前から
+                    if (!_IsNextLiveSubscribeStarted && DateTime.Now > _EndAt - TimeSpan.FromSeconds(10))
+                    {
+                        _IsNextLiveSubscribeStarted = true;
 
-						await NicoLiveVideo.StartNextLiveSubscribe(NicoLiveVideo.DefaultNextLiveSubscribeDuration);
-					}
-				});
-			}
-		}
+                        await NicoLiveVideo.StartNextLiveSubscribe(NicoLiveVideo.DefaultNextLiveSubscribeDuration);
+                    }
+
+                }
+            });
+        }
 
 
 
@@ -1065,13 +1078,43 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+        private void ResetSuggestion(OpenLiveFailedReason reason)
+        {
+            LiveSuggestion suggestion = null;
+
+            if (reason == OpenLiveFailedReason.VideoQuoteIsNotSupported)
+            {
+                // ブラウザ視聴を案内
+                suggestion = new LiveSuggestion("動画引用放送は対応していません", new[] { new SuggestAction("ブラウザで視聴", async () =>
+                {
+                    var livePageUrl = new Uri($"http://live.nicovideo.jp/watch/" + LiveId);
+                    await Launcher.LaunchUriAsync(livePageUrl );
+                })});
+            }
+            else if (reason == OpenLiveFailedReason.TimeOver)
+            {
+                suggestion = new LiveSuggestion("放送受信に失敗しました", new[] { new SuggestAction("再試行", async () => 
+                {
+                    await TryStartViewing();
+                })});
+            }
+
+            if (suggestion == null)
+            {
+                Debug.WriteLine("live suggestion not support : " + reason.ToString());
+            }
+
+            Suggestion.Value = suggestion;
+            
+        }
 
 
-		#region Event Handling
+
+        #region Event Handling
 
 
-		// コメントコマンドの変更を受け取る
-		private void CommandEditerVM_OnCommandChanged()
+        // コメントコマンドの変更を受け取る
+        private void CommandEditerVM_OnCommandChanged()
 		{
 			var commandString = CommandEditerVM.MakeCommandsString();
 			CommandString.Value = string.IsNullOrEmpty(commandString) ? "コマンド" : commandString;

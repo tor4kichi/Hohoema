@@ -65,6 +65,33 @@
                     </toolkit:DockPanel>
                 </Border>
 
+                <controls:HohoemaIncrementalLoadingList x:Name="IncrementalLoadingList" 
+                                                        ItemFlyout="{StaticResource LiveListItemFlyout}">
+                    <controls:HohoemaIncrementalLoadingList.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="0 0 0 0"
+                                  >
+
+                                <hohoemalistItem:HohoemaListItemVideo HorizontalAlignment="Stretch" />
+
+                                <Border Visibility="{Binding IsCommunityMemberOnly, Converter={StaticResource BooleanToVisibility}}"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Top"
+                                        Background="DarkGreen"
+                                        CornerRadius="0 0 0 4"
+                                        >
+                                    <TextBlock Text="限定" Foreground="LightGray"
+                                       FontSize="18"
+                                               Margin="8"
+                                       />
+                                </Border>
+
+                            </Grid>
+                        </DataTemplate>
+                    </controls:HohoemaIncrementalLoadingList.ItemTemplate>
+                </controls:HohoemaIncrementalLoadingList>
+                
+                <!--
                 <controls:IncrementalLoadingList x:Name="IncrementalLoadingList"
                                                  ItemsSource="{Binding IncrementalLoadingItems}"
                                                  SelectedItems="{Binding SelectedItems, Mode=TwoWay}"
@@ -74,14 +101,16 @@
                                                  Padding="0 0 0 0"
                                                  ItemContextFlyout="{StaticResource LiveListItemFlyout}"
                                                  IsTabStop="False"
+                                                 HorizontalContentAlignment="Stretch"
                                                  >
+                    
                     <controls:IncrementalLoadingList.ItemTemplate>
                         <DataTemplate>
                             <Grid Margin="0 0 0 0"
                                   
                                   >
 
-                                <hohoemalistItem:HohoemaListItemMiniCard />
+                                <hohoemalistItem:HohoemaListItemVideo HorizontalAlignment="Stretch" />
 
                                 <Border Visibility="{Binding IsCommunityMemberOnly, Converter={StaticResource BooleanToVisibility}}"
                                         HorizontalAlignment="Right"
@@ -101,13 +130,13 @@
 
                     <controls:IncrementalLoadingList.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <ItemsWrapGrid Orientation="Horizontal"
+                            <ItemsStackPanel Orientation="Vertical"
                                            />
                         </ItemsPanelTemplate>
                     </controls:IncrementalLoadingList.ItemsPanel>
 
                 </controls:IncrementalLoadingList>
-
+                -->
 
 
             </toolkit:DockPanel>
