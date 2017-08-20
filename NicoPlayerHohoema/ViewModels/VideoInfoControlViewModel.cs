@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Microsoft.Practices.Unity;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.UI.Popups;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -141,16 +142,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .Subscribe(color => ThemeColor = color)
                 .AddTo(_CompositeDisposable);
 
-            if (_IsNGEnabled)
-            {
-                var ngResult = NicoVideo.CheckNGVideoOwner();
-                IsVisible = ngResult == null;
-                if (ngResult != null)
-                {
-                    var ngDesc = !string.IsNullOrWhiteSpace(ngResult.NGDescription) ? ngResult.NGDescription : ngResult.Content;
-                    InvisibleDescription = $"NG動画";
-                }
-            }
+            
         }
 
         private async void ResetQualityDivideVideosVM()
@@ -176,7 +168,7 @@ namespace NicoPlayerHohoema.ViewModels
             // NG判定
             if (_IsNGEnabled)
             {
-                var ngResult = NicoVideo.CheckNGVideoTitle();
+                var ngResult = NicoVideo.CheckNGVideo();
                 IsVisible = ngResult == null;
                 if (ngResult != null)
                 {
@@ -362,6 +354,48 @@ namespace NicoPlayerHohoema.ViewModels
                     ?? (_OpenOwnerVideoListPageCommand = new DelegateCommand(() =>
                     {
                         PageManager.OpenPage(HohoemaPageType.UserVideo, this.NicoVideo.OwnerId.ToString());
+                    }));
+            }
+        }
+
+
+        private DelegateCommand _AddToFilterVideoOwnerCommand;
+        public DelegateCommand AddToFilterVideoOwnerCommand
+        {
+            get
+            {
+                return _AddToFilterVideoOwnerCommand
+                    ?? (_AddToFilterVideoOwnerCommand = new DelegateCommand(async () =>
+                    {
+                        var ownerName = NicoVideo.OwnerName;
+                        var dialog = new MessageDialog(
+                            $"この変更は投稿者（{NicoVideo.OwnerName} さん）のアプリ内ユーザー情報ページから取り消すことができます。",
+                            
+                            $"『{NicoVideo.OwnerName}』さんの投稿動画を非表示に設定しますか？"
+                            );
+
+                        dialog.Commands.Add(new UICommand() { Label = "非表示に設定", Invoked = (uicommand) => 
+                        {
+                            var hohoemaApp = NicoVideo.HohoemaApp;
+                            hohoemaApp.UserSettings.NGSettings.AddNGVideoOwnerId(NicoVideo.OwnerId.ToString(), NicoVideo.OwnerName);
+                            hohoemaApp.UserSettings.NGSettings.Save().ConfigureAwait(false);
+
+                            if (_IsNGEnabled)
+                            {
+                                var ngResult = NicoVideo.CheckNGVideoOwner();
+                                IsVisible = ngResult == null;
+                                if (ngResult != null)
+                                {
+                                    var ngDesc = !string.IsNullOrWhiteSpace(ngResult.NGDescription) ? ngResult.NGDescription : ngResult.Content;
+                                    InvisibleDescription = $"NG動画";
+                                }
+                            }
+                        } });
+                        dialog.Commands.Add(new UICommand() { Label = "キャンセル" });
+
+                        dialog.DefaultCommandIndex = 1;
+
+                        await dialog.ShowAsync();
                     }));
             }
         }
