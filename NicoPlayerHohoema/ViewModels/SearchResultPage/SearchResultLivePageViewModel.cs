@@ -9,6 +9,7 @@ using NicoPlayerHohoema.Util;
 using Mntone.Nico2.Searches.Live;
 using Prism.Commands;
 using System.Windows.Input;
+using Windows.ApplicationModel.DataTransfer;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -221,7 +222,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public bool IsTimeshiftEnabled { get; private set; }
 		public bool IsCommunityMemberOnly { get; private set; }
 
-
+        public bool IsXbox => Util.DeviceTypeHelper.IsXbox;
 
 		public LiveInfoViewModel(VideoInfo liveVideoInfo, HohoemaPlaylist playlist, PageManager pageManager)
 		{
@@ -306,6 +307,24 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
+        private DelegateCommand _PlayWithSmallPlayerCommand;
+        public DelegateCommand PlayWithSmallPlayerCommand
+        {
+            get
+            {
+                return _PlayWithSmallPlayerCommand
+                    ?? (_PlayWithSmallPlayerCommand = new DelegateCommand(() =>
+                    {
+                        Playlist.IsPlayerFloatingModeEnable = true;
+
+                        Playlist.PlayLiveVideo(LiveId, LiveTitle);
+                    }));
+            }
+        }
+
+
+
+
         private DelegateCommand _OpenCommunityPageCommand;
         public DelegateCommand OpenCommunityPageCommand
         {
@@ -321,6 +340,50 @@ namespace NicoPlayerHohoema.ViewModels
                     }));
             }
         }
+
+        private DelegateCommand _ShareCommand;
+        public DelegateCommand ShareCommand
+        {
+            get
+            {
+                return _ShareCommand
+                    ?? (_ShareCommand = new DelegateCommand(() =>
+                    {
+                        ShareHelper.Share(ShareHelper.MakeLiveShareText(Title, LiveId));
+                    }
+                    , () => DataTransferManager.IsSupported()
+                    ));
+            }
+        }
+
+        private DelegateCommand _ShereWithTwitterCommand;
+        public DelegateCommand ShereWithTwitterCommand
+        {
+            get
+            {
+                return _ShereWithTwitterCommand
+                    ?? (_ShereWithTwitterCommand = new DelegateCommand(async () =>
+                    {
+                        await ShareHelper.ShareToTwitter(ShareHelper.MakeLiveShareText(Title, LiveId));
+                    }
+                    ));
+            }
+        }
+
+        private DelegateCommand _VideoInfoCopyToClipboardCommand;
+        public DelegateCommand VideoInfoCopyToClipboardCommand
+        {
+            get
+            {
+                return _VideoInfoCopyToClipboardCommand
+                    ?? (_VideoInfoCopyToClipboardCommand = new DelegateCommand(() =>
+                    {
+                        ShareHelper.CopyToClipboard(ShareHelper.MakeLiveShareText(Title, LiveId));
+                    }
+                    ));
+            }
+        }
+
 
     }
 }

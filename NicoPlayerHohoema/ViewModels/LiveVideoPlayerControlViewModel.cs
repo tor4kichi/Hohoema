@@ -148,7 +148,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         public ReactiveProperty<bool> IsVisibleComment { get; private set; }
-		public ReactiveProperty<TimeSpan> CommentUpdateInterval { get; private set; }
+        public ReactiveProperty<bool> IsCommentDisplayEnable { get; private set; }
+        public ReactiveProperty<TimeSpan> CommentUpdateInterval { get; private set; }
 		public ReactiveProperty<TimeSpan> RequestCommentDisplayDuration { get; private set; }
 		public ReactiveProperty<double> CommentFontScale { get; private set; }
 
@@ -186,6 +187,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> IsAutoHideEnable { get; private set; }
 		public ReactiveProperty<TimeSpan> AutoHideDelayTime { get; private set; }
         public ReactiveProperty<bool> IsDisplayControlUI { get; private set; }
+        public ReactiveProperty<bool> IsMouseCursolAutoHideEnable { get; private set; }
         public ReactiveProperty<bool> IsFullScreen { get; private set; }
 		public ReactiveProperty<bool> IsForceLandscape { get; private set; }
         public ReactiveProperty<bool> IsSmallWindowModeEnable { get; private set; }
@@ -238,9 +240,17 @@ namespace NicoPlayerHohoema.ViewModels
                 (quality) => NicoLiveVideo.Qualities.Any(x => x == quality)
             );
 
-            IsVisibleComment = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, true).AddTo(_CompositeDisposable);
+            IsCommentDisplayEnable = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler);
+            IsCommentDisplayEnable.Value = HohoemaApp.UserSettings.PlayerSettings.DefaultCommentDisplay;
+            IsVisibleComment =
+                Observable.CombineLatest(
+                    HohoemaApp.Playlist.ObserveProperty(x => x.IsPlayerFloatingModeEnable).Select(x => !x),
+                    IsCommentDisplayEnable
+                    )
+                    .Select(x => x.All(y => y))
+                    .ToReactiveProperty(PlayerWindowUIDispatcherScheduler);
 
-			CommentCanvasHeight = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0.0).AddTo(_CompositeDisposable);
+            CommentCanvasHeight = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0.0).AddTo(_CompositeDisposable);
 			CommentDefaultColor = new ReactiveProperty<Color>(PlayerWindowUIDispatcherScheduler, Colors.White).AddTo(_CompositeDisposable);
 
             CommentOpacity = HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.CommentOpacity)
@@ -314,6 +324,7 @@ namespace NicoPlayerHohoema.ViewModels
 			HasSuggestion = Suggestion.Select(x => x != null)
 				.ToReactiveProperty();
 
+            IsDisplayControlUI = HohoemaApp.Playlist.ToReactivePropertyAsSynchronized(x => x.IsDisplayPlayerControlUI);
 
             if (Util.InputCapabilityHelper.IsMouseCapable)
             {
@@ -324,15 +335,23 @@ namespace NicoPlayerHohoema.ViewModels
                 .Select(x => x.All(y => y))
                 .ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
                 .AddTo(_CompositeDisposable);
+
+                IsMouseCursolAutoHideEnable = Observable.CombineLatest(
+                    IsDisplayControlUI.Select(x => !x),
+                    IsSmallWindowModeEnable.Select(x => !x)
+                    )
+                    .Select(x => x.All(y => y))
+                    .ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
+                    .AddTo(_CompositeDisposable);
             }
             else
             {
                 IsAutoHideEnable = new ReactiveProperty<bool>(false);
+                IsMouseCursolAutoHideEnable = new ReactiveProperty<bool>(false);
             }
 
             AutoHideDelayTime = new ReactiveProperty<TimeSpan>(TimeSpan.FromSeconds(3));
 
-            IsDisplayControlUI = HohoemaApp.Playlist.ToReactivePropertyAsSynchronized(x => x.IsDisplayPlayerControlUI);
 
 
             IsMuted = HohoemaApp.UserSettings.PlayerSettings
@@ -373,8 +392,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-            IsStillLoggedInTwitter = new ReactiveProperty<bool>(!TwitterHelper.IsLoggedIn)
-                .AddTo(_CompositeDisposable);
         }
 
 
@@ -481,7 +498,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _ToggleDisplayCommentCommand
                     ?? (_ToggleDisplayCommentCommand = new DelegateCommand(() =>
                     {
-                        IsVisibleComment.Value = !IsVisibleComment.Value;
+                        IsCommentDisplayEnable.Value = !IsCommentDisplayEnable.Value;
                     }));
             }
         }
@@ -516,7 +533,19 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        public ReactiveProperty<bool> IsStillLoggedInTwitter { get; private set; }
+        private DelegateCommand _ShareCommand;
+        public DelegateCommand ShareCommand
+        {
+            get
+            {
+                return _ShareCommand
+                    ?? (_ShareCommand = new DelegateCommand(() =>
+                    {
+                        ShareHelper.Share(NicoLiveVideo);
+                    }
+                    ));
+            }
+        }
 
         private DelegateCommand _ShereWithTwitterCommand;
         public DelegateCommand ShereWithTwitterCommand
@@ -526,33 +555,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _ShereWithTwitterCommand
                     ?? (_ShereWithTwitterCommand = new DelegateCommand(async () =>
                     {
-                        if (!TwitterHelper.IsLoggedIn)
-                        {
-
-                            if (!await TwitterHelper.LoginOrRefreshToken())
-                            {
-                                return;
-                            }
-                        }
-
-                        IsStillLoggedInTwitter.Value = !TwitterHelper.IsLoggedIn;
-
-                        if (TwitterHelper.IsLoggedIn)
-                        {
-                            var text = $"{NicoLiveVideo.LiveTitle} http://nico.ms/{NicoLiveVideo.LiveId} #{NicoLiveVideo.LiveId}";
-                            var twitterLoginUserName = TwitterHelper.TwitterUser.ScreenName;
-                            var customText = await _TextInputDialogService.GetTextAsync($"{twitterLoginUserName} としてTwitterへ投稿", "", text);
-
-                            if (customText != null)
-                            {
-                                var result = await TwitterHelper.SubmitTweet(customText);
-
-                                if (!result)
-                                {
-                                    _ToastNotificationService.ShowText("ツイートに失敗しました", "もう一度お試しください");
-                                }
-                            }
-                        }
+                        await ShareHelper.ShareToTwitter(NicoLiveVideo);
                     }
                     ));
             }
@@ -566,13 +569,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _ShareWithClipboardCommand
                     ?? (_ShareWithClipboardCommand = new DelegateCommand(() =>
                     {
-                        var videoUrl = $"http://nico.ms/{NicoLiveVideo.LiveId}";
-                        var text = $"{NicoLiveVideo.LiveTitle} {videoUrl} #{NicoLiveVideo.LiveId}";
-                        var datapackage = new DataPackage();
-                        datapackage.SetText(text);
-                        datapackage.SetWebLink(new Uri(videoUrl));
-
-                        Clipboard.SetContent(datapackage);
+                        ShareHelper.CopyToClipboard(NicoLiveVideo);
                     }
                     ));
             }

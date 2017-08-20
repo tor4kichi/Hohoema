@@ -514,10 +514,19 @@ namespace NicoPlayerHohoema.ViewModels
                 .Select(x => x.All(y => y))
                 .ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
                 .AddTo(_CompositeDisposable);
+
+                IsMouseCursolAutoHideEnable = Observable.CombineLatest(
+                    IsDisplayControlUI.Select(x => !x),
+                    IsSmallWindowModeEnable.Select(x => !x)
+                    )
+                    .Select(x => x.All(y => y))
+                    .ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
+                    .AddTo(_CompositeDisposable);
             }
             else
             {
                 IsAutoHideEnable = new ReactiveProperty<bool>(false);
+                IsMouseCursolAutoHideEnable = new ReactiveProperty<bool>(false);
             }
 
             AutoHideDelayTime = new ReactiveProperty<TimeSpan>(TimeSpan.FromSeconds(3));
@@ -2102,6 +2111,8 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactiveProperty<bool> IsAutoHideEnable { get; private set; }
         public ReactiveProperty<TimeSpan> AutoHideDelayTime { get; private set; }
+
+        public ReactiveProperty<bool> IsMouseCursolAutoHideEnable { get; private set; }
 
         public ReactiveProperty<bool> IsDisplayControlUI { get; private set; }
 

@@ -162,6 +162,30 @@
             </VisualStateGroup>
 
 
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsSmallWindowModeEnable.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ControlUIRoot.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding NowPlaying.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="True" />
+                    </VisualState.StateTriggers>
+                </VisualState>
+            </VisualStateGroup>
+            
             <!-- Xbox -->
             <VisualStateGroup>
                 <VisualState>
@@ -171,7 +195,8 @@
                     <VisualState.Setters>
 
                         <Setter Target="MenuSubItem_Share.Visibility" Value="Collapsed" />
-                        <Setter Target="MenuSubItem_Share_Separater.Visibility" Value="Collapsed" />
+                        <Setter Target="MenuSubItem_Share_TV.Visibility" Value="Visible" />
+                        
                         <Setter Target="FullScreenToggleButton.Visibility" Value="Collapsed" />
 
                         <Setter Target="TitleLayout.Padding" Value="48 0" />
@@ -225,7 +250,7 @@
 
                     <!-- マウスの非表示 -->
                     <mybehavior:AutoHideCursor x:Name="AutoHideCursor"
-                        IsAutoHideEnabled="{Binding IsDisplayControlUI.Value, Mode=OneWay, Converter={StaticResource BooleanInverted}}"                        
+                        IsAutoHideEnabled="{Binding IsMouseCursolAutoHideEnable.Value, Mode=OneWay}"
                         AutoHideDelay="0:0:0.5"
                         />
                     
@@ -755,11 +780,14 @@
                                             <MenuFlyoutSeparator />
 
                                             <MenuFlyoutSubItem Text="共有" x:Name="MenuSubItem_Share">
+                                                <MenuFlyoutItem Text="アプリを選択" Command="{Binding ShareCommand}"/>
                                                 <MenuFlyoutItem Text="Twitterで共有" Command="{Binding ShereWithTwitterCommand}" />
-                                                <MenuFlyoutItem Text="クリップボードにコピー" Command="{Binding ShareWithClipboardCommand}" />
+                                                <MenuFlyoutItem Text="コピー" Command="{Binding ShareWithClipboardCommand}" />
                                             </MenuFlyoutSubItem>
 
-                                            <MenuFlyoutSeparator x:Name="MenuSubItem_Share_Separater" />
+                                            <MenuFlyoutItem Text="共有" x:Name="MenuSubItem_Share_TV" Visibility="Collapsed" Command="{Binding ShareCommand}"/>
+
+                                            <MenuFlyoutSeparator  />
 
                                             <MenuFlyoutItem Text="プレイヤー設定" Command="{Binding OpenPlayerSettingCommand}" />
                                             <ToggleMenuFlyoutItem Text="横持ち固定" 

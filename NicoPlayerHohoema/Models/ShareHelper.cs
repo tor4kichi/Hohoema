@@ -6,12 +6,28 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Practices.Unity;
 using Windows.ApplicationModel.DataTransfer;
+using NicoPlayerHohoema.Models.Live;
 
 namespace NicoPlayerHohoema.Models
 {
     public static class ShareHelper
     {
-        public static async Task ShareToTwitter(NicoVideo video)
+        public static string MakeShareText(NicoVideo video)
+        {
+            return $"{video.Title} http://nico.ms/{video.VideoId} #{video.VideoId}";
+        }
+
+        public static string MakeShareText(NicoLiveVideo live)
+        {
+            return MakeLiveShareText(live.LiveTitle, live.LiveId);
+        }
+        public static string MakeLiveShareText(string liveTitle, string liveId)
+        {
+            return $"【ニコ生】{liveTitle} http://nico.ms/{liveId} #{liveId}";
+        }
+
+
+        public static async Task ShareToTwitter(string content)
         {
             if (!TwitterHelper.IsLoggedIn)
             {
@@ -26,9 +42,8 @@ namespace NicoPlayerHohoema.Models
             {
                 var textInputDialogService = App.Current.Container.Resolve<Views.Service.TextInputDialogService>();
 
-                var text = $"{video.Title} http://nico.ms/{video.VideoId} #{video.VideoId}";
                 var twitterLoginUserName = TwitterHelper.TwitterUser.ScreenName;
-                var customText = await textInputDialogService.GetTextAsync($"{twitterLoginUserName} としてTwitterへ投稿", "", text);
+                var customText = await textInputDialogService.GetTextAsync($"{twitterLoginUserName} としてTwitterへ投稿", "", content);
 
                 if (customText != null)
                 {
@@ -43,16 +58,27 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
-        
+        public static async Task ShareToTwitter(NicoVideo video)
+        {
+            await ShareToTwitter(MakeShareText(video));
+        }
+
+        public static async Task ShareToTwitter(NicoLiveVideo video)
+        {
+            await ShareToTwitter(MakeShareText(video));
+        }
+
+
+
 
         static string _ShareText;
-        
-        public static void Share(NicoVideo video)
+
+
+        public static void Share(string content)
         {
             if (DataTransferManager.IsSupported())
             {
-                var videoUrl = $"http://nico.ms/{video.VideoId}";
-                _ShareText = $"{video.Title} {videoUrl} #{video.VideoId}";
+                _ShareText = content;
 
                 var dataTransferManager = DataTransferManager.GetForCurrentView();
                 dataTransferManager.DataRequested += DataTransferManager_DataRequested;
@@ -60,6 +86,18 @@ namespace NicoPlayerHohoema.Models
                 DataTransferManager.ShowShareUI();
             }
         }
+
+        public static void Share(NicoVideo video)
+        {
+            Share(MakeShareText(video));
+        }
+
+        public static void Share(NicoLiveVideo video)
+        {
+            Share(MakeShareText(video));
+        }
+
+
 
         private static void DataTransferManager_DataRequested(DataTransferManager sender, DataRequestedEventArgs args)
         {
@@ -74,16 +112,22 @@ namespace NicoPlayerHohoema.Models
 
 
 
+        public static void CopyToClipboard(string content)
+        {
+            var datapackage = new DataPackage();
+            datapackage.SetText(content);
 
+            Clipboard.SetContent(datapackage);
+        }
 
         public static void CopyToClipboard(NicoVideo video)
         {
-            var videoUrl = $"http://nico.ms/{video.VideoId}";
-            var text = $"{video.Title} {videoUrl} #{video.VideoId}";
-            var datapackage = new DataPackage();
-            datapackage.SetText(text);
+            CopyToClipboard(MakeShareText(video));
+        }
 
-            Clipboard.SetContent(datapackage);
+        public static void CopyToClipboard(NicoLiveVideo video)
+        {
+            CopyToClipboard(MakeShareText(video));
         }
     }
 }
