@@ -43,21 +43,18 @@
     <MenuFlyoutSeparator />
 
     <MenuFlyoutItem Text="キャッシュ取得"
-                                Command="{Binding CacheRequestCommand}"
+                    Command="{Binding CacheRequestCommand}"
                     Visibility="{Binding IsCacheEnabled, Converter={StaticResource BooleanToVisibility}}"
-                                />
+                    />
 
 
-    <MenuFlyoutSubItem Text="キャッシュ削除"
-                                       Visibility="{Binding IsCacheRequested.Value, Converter={StaticResource BooleanToVisibility}}"
-                                       >
-        <MenuFlyoutItem Text="本当にキャッシュ削除"
-                                Command="{Binding RemoveCacheCommand}"
-                                        
-                                />
-    </MenuFlyoutSubItem>
+    <MenuFlyoutItem Text="キャッシュ削除"
+                    Visibility="{Binding IsCacheRequested.Value, Converter={StaticResource BooleanToVisibility}}"
+                    Command="{Binding RequestRemoveCacheCommand}"
+                    >
+    </MenuFlyoutItem>
 
-    <MenuFlyoutSeparator />
+    <MenuFlyoutSeparator Visibility="{Binding IsCacheEnabled, Converter={StaticResource BooleanToVisibility}}" />
 
     <MenuFlyoutItem Text="この投稿者をNGに設定する"
                                 Command="{Binding AddToFilterVideoOwnerCommand}"

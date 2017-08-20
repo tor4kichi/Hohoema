@@ -1801,7 +1801,10 @@ namespace NicoPlayerHohoema.ViewModels
                                 {
                                     var qualityText = new Views.Converters.NicoVideoQualityToCultualizedTextConverter().Convert(quality, typeof(string), null, null);
 
-                                    var dialog = new MessageDialog($"{VideoTitle} の キャッシュデータ（{qualityText}画質）を削除します。この操作は元に戻せません。", "キャッシュ削除の確認");
+                                    var dialog = new MessageDialog(
+                                        $"{VideoTitle} の キャッシュデータ（{qualityText}画質）を削除します。この操作は元に戻せません。", 
+                                        "キャッシュ削除の確認"
+                                        );
                                     dialog.Commands.Add(new UICommand("キャッシュを削除") { Id = "delete" } );
                                     dialog.Commands.Add(new UICommand("キャンセル"));
 

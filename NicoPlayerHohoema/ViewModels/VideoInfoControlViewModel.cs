@@ -317,15 +317,49 @@ namespace NicoPlayerHohoema.ViewModels
         
 
 
-        private DelegateCommand _RemoveCacheCommand;
-        public DelegateCommand RemoveCacheCommand
+        private DelegateCommand _RequestRemoveCacheCommand;
+        public DelegateCommand RequestRemoveCacheCommand
         {
             get
             {
-                return _RemoveCacheCommand
-                    ?? (_RemoveCacheCommand = new DelegateCommand(async () =>
+                return _RequestRemoveCacheCommand
+                    ?? (_RequestRemoveCacheCommand = new DelegateCommand(async () =>
                     {
-                        await NicoVideo.CancelCacheRequest();
+                        if (NicoVideo.GetAllQuality().ToArray().Any(x => x.IsCached))
+                        {
+                            // キャッシュ済みがある場合は、削除確認を行う
+
+
+                            var dialog = new MessageDialog(
+                            $"{NicoVideo.Title} の キャッシュデータ（全ての画質）を削除します。この操作は元に戻せません。",
+                            "キャッシュの削除確認"
+                            );
+
+                            dialog.Commands.Add(new UICommand()
+                            {
+                                Label = "キャッシュを削除",
+                                Invoked = async (uicommand) =>
+                                {
+                                    await NicoVideo.CancelCacheRequest();
+                                }
+                            });
+                            dialog.Commands.Add(new UICommand()
+                            {
+                                Label = "キャンセル",
+                            });
+
+                            dialog.DefaultCommandIndex = 1;
+
+                            await dialog.ShowAsync();
+                        }
+                        else
+                        {
+                            // キャッシュリクエストのみで
+                            // キャッシュがいずれも未完了の場合は
+                            // 確認無しで削除
+
+                            await NicoVideo.CancelCacheRequest();
+                        }
                     }));
             }
         }
