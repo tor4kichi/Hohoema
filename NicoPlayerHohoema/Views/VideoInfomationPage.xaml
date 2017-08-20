@@ -62,7 +62,10 @@
                         <AppBarButton Icon="Play" Command="{Binding PlayVideoCommand}">
                             
                         </AppBarButton>
-                        <AppBarButton Icon="Download" Command="{Binding CacheRequestCommand}">
+                        <AppBarButton Icon="Download"
+                                      Command="{Binding CacheRequestCommand}"
+                                      Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
+                                      >
 
                         </AppBarButton>
                         

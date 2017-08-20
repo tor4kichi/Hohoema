@@ -25,6 +25,70 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
+    <UserControl.Resources>
+
+        <MenuFlyout x:Name="LivePlayerFlyout">
+
+            <MenuFlyoutSubItem Text="画質" 
+                                                               x:Name="LeoLiveQualityMenuFlyoutSubItem"
+                                                               Visibility="Collapsed"
+                                                               >
+                <MenuFlyoutItem Text="高画質" 
+                                                                Command="{Binding ChangeQualityCommand}"
+                                                                CommandParameter="high"
+                                                                />
+                <MenuFlyoutItem Text="通常画質" 
+                                                                Command="{Binding ChangeQualityCommand}"
+                                                                CommandParameter="normal"
+                                                                />
+                <MenuFlyoutItem Text="低画質" 
+                                                                Command="{Binding ChangeQualityCommand}"
+                                                                CommandParameter="low"
+                                                                />
+                <MenuFlyoutItem Text="モバイル画質" 
+                                                                Command="{Binding ChangeQualityCommand}"
+                                                                CommandParameter="super_low"
+                                                                />
+            </MenuFlyoutSubItem>
+
+            <MenuFlyoutSeparator Visibility="Collapsed"
+                                 x:Name="LeoLiveQualityMenuFlyoutSeparator"
+                                 />
+
+            <MenuFlyoutSubItem Text="共有" x:Name="MenuSubItem_Share">
+                <MenuFlyoutItem Text="アプリを選択" Command="{Binding ShareCommand}"/>
+                <MenuFlyoutItem Text="Twitterで共有" Command="{Binding ShereWithTwitterCommand}" />
+                <MenuFlyoutItem Text="コピー" Command="{Binding ShareWithClipboardCommand}" />
+            </MenuFlyoutSubItem>
+
+            <MenuFlyoutItem Text="共有" x:Name="MenuSubItem_Share_TV" Visibility="Collapsed" Command="{Binding ShareCommand}"/>
+
+            <MenuFlyoutSeparator  />
+
+            <MenuFlyoutItem Text="配信者情報" Command="{Binding OpenBroadcastCommunityCommand}" />
+
+            <MenuFlyoutItem Text="プレイヤー設定" Command="{Binding OpenPlayerSettingCommand}" />
+
+            <MenuFlyoutItem Text="小さく表示" Command="{Binding PlayerSmallWindowDisplayCommand}">
+                <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Tapped">
+                        <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="False" />
+                    </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
+            </MenuFlyoutItem>
+
+            <ToggleMenuFlyoutItem Text="横持ち固定" 
+                                                              x:Name="ForceRotateToggleButton" 
+                                                              Visibility="Collapsed"
+                                                              IsChecked="{Binding IsForceLandscape.Value, Mode=TwoWay}"
+                                                              />
+
+
+
+        </MenuFlyout>
+        
+    </UserControl.Resources>
+
     <Border x:Name="LayoutRoot">
         <VisualStateManager.VisualStateGroups>
 
@@ -113,8 +177,32 @@
                 </VisualState>
             </VisualStateGroup>
 
+
+            <!-- Landscape固定ボタンの表示管理 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <intractionTrigger:InteractionModeTrigger Condition="Touch" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ForceRotateToggleButton.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
             <!-- モバイルの縦持ち時のLandscape固定処理 -->
             <VisualStateGroup>
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsSmallWindowModeEnable.Value}" />
+
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="LayoutRotateTranform.Angle" Value="0" />
+                    </VisualState.Setters>
+                </VisualState>
+
                 <VisualState>
                     <VisualState.StateTriggers>
                         <StateTrigger IsActive="{Binding IsForceLandscape.Value, Converter={StaticResource BooleanInverted}}" />
@@ -212,7 +300,7 @@
 
             
 
-
+            <!-- Flash or DMC 放送サーバーごとの表示 -->
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
@@ -221,6 +309,7 @@
                     <VisualState.Setters>
                         <Setter Target="PlayerTypeTextBlock.Text" Value="新配信" />
                         <Setter Target="LeoLiveQualityMenuFlyoutSubItem.Visibility" Value="Visible" />
+                        <Setter Target="LeoLiveQualityMenuFlyoutSeparator.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
 
@@ -244,7 +333,9 @@
             </toolkit:LayoutTransformControl.Transform>
 
 
-            <Grid x:Name="MediaControl">
+            <Grid x:Name="MediaControl"
+                  ContextFlyout="{StaticResource LivePlayerFlyout}"
+                  >
 
                 <i:Interaction.Behaviors>
 
@@ -254,7 +345,7 @@
                         AutoHideDelay="0:0:0.5"
                         />
                     
-                    <!-- TODO: エンタキーでコメント入力開始 -->
+                    <!-- キー入力でコメント入力開始 -->
                     <mybehavior:KeyboardTrigger Key="Enter">
                         <mybehavior:KeyboardTrigger.Actions>
                             <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI}" PropertyName="Value" Value="True" />
@@ -748,66 +839,10 @@
 
                                 <Button UseSystemFocusVisuals="True"
                                         Background="Transparent"
+                                        Flyout="{StaticResource LivePlayerFlyout}"
                                               >
                                     <SymbolIcon Symbol="More" />
-                                    <Button.Flyout>
-                                        <MenuFlyout>
-
-                                            <MenuFlyoutSubItem Text="画質" 
-                                                               x:Name="LeoLiveQualityMenuFlyoutSubItem"
-                                                               Visibility="Collapsed"
-                                                               >
-                                                <MenuFlyoutItem Text="高画質" 
-                                                                Command="{Binding ChangeQualityCommand}"
-                                                                CommandParameter="high"
-                                                                />
-                                                <MenuFlyoutItem Text="通常画質" 
-                                                                Command="{Binding ChangeQualityCommand}"
-                                                                CommandParameter="normal"
-                                                                />
-                                                <MenuFlyoutItem Text="低画質" 
-                                                                Command="{Binding ChangeQualityCommand}"
-                                                                CommandParameter="low"
-                                                                />
-                                                <MenuFlyoutItem Text="モバイル画質" 
-                                                                Command="{Binding ChangeQualityCommand}"
-                                                                CommandParameter="super_low"
-                                                                />
-                                            </MenuFlyoutSubItem>
-
-                                            <MenuFlyoutItem Text="配信者情報" Command="{Binding OpenBroadcastCommunityCommand}" />
-
-                                            <MenuFlyoutSeparator />
-
-                                            <MenuFlyoutSubItem Text="共有" x:Name="MenuSubItem_Share">
-                                                <MenuFlyoutItem Text="アプリを選択" Command="{Binding ShareCommand}"/>
-                                                <MenuFlyoutItem Text="Twitterで共有" Command="{Binding ShereWithTwitterCommand}" />
-                                                <MenuFlyoutItem Text="コピー" Command="{Binding ShareWithClipboardCommand}" />
-                                            </MenuFlyoutSubItem>
-
-                                            <MenuFlyoutItem Text="共有" x:Name="MenuSubItem_Share_TV" Visibility="Collapsed" Command="{Binding ShareCommand}"/>
-
-                                            <MenuFlyoutSeparator  />
-
-                                            <MenuFlyoutItem Text="プレイヤー設定" Command="{Binding OpenPlayerSettingCommand}" />
-                                            <ToggleMenuFlyoutItem Text="横持ち固定" 
-                                                              x:Name="ForceRotateToggleButton" 
-                                                              Visibility="Collapsed"
-                                                              IsChecked="{Binding IsForceLandscape.Value, Mode=TwoWay}"
-                                                              />
-
-                                            <MenuFlyoutSeparator />
-
-                                            <MenuFlyoutItem Text="小さく表示" Command="{Binding PlayerSmallWindowDisplayCommand}">
-                                                <i:Interaction.Behaviors>
-                                                    <core:EventTriggerBehavior EventName="Tapped">
-                                                        <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="False" />
-                                                    </core:EventTriggerBehavior>
-                                                </i:Interaction.Behaviors>
-                                            </MenuFlyoutItem>
-
-                                        </MenuFlyout>
-                                    </Button.Flyout>
+                                    
                                 </Button>
                             </StackPanel>
 

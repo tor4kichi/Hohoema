@@ -100,7 +100,10 @@
 
                             <AppBarButton Icon="Download" 
                                           Label="キャッシュ取得"
-                                          Command="{Binding CacheRequestCommand}" />
+                                          Command="{Binding CacheRequestCommand}"
+                                          Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
+                                          />
+                            
                             
                             <AppBarButton Icon="Add" Label="マイリストに追加"
                                       Command="{Binding AddMylistCommand}"
@@ -109,7 +112,7 @@
 
                             
                             <Button Background="Transparent" 
-                                          x:Name="ShareSubButton"
+                                    x:Name="ShareSubButton"
                                     Height="80"
                                     Width="68"
                                           >
@@ -135,10 +138,10 @@
                             </Button>
 
                             <Button Background="Transparent" 
-                                x:Name="ShareSubButton_TV" 
-                                Visibility="Collapsed"
-                                Command="{Binding ShareCommand}"
-                                >
+                                    x:Name="ShareSubButton_TV" 
+                                    Visibility="Collapsed"
+                                    Command="{Binding ShareCommand}"
+                                    >
 
                                 <StackPanel>
                                     <iconPack:PackIconMaterial Kind="ShareVariant"

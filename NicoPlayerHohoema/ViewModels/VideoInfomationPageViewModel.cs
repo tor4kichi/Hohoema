@@ -46,6 +46,7 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<bool> IsLoadFailed { get; private set; }
 
 
+        public bool CanDownload { get; private set; }
 
         public List<IchibaItem> IchibaItems { get; private set; }
 
@@ -267,7 +268,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             NowLoading = new ReactiveProperty<bool>(false);
             IsLoadFailed = new ReactiveProperty<bool>(false);
-
         }
 
 
@@ -316,6 +316,13 @@ namespace NicoPlayerHohoema.ViewModels
 
             NowLoading.Value = true;
             IsLoadFailed.Value = false;
+
+
+            CanDownload = HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache
+                && HohoemaApp.UserSettings.CacheSettings.IsEnableCache
+                && HohoemaApp.IsLoggedIn;
+            OnPropertyChanged(nameof(CanDownload));
+
 
             try
             {

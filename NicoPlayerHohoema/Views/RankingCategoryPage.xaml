@@ -140,10 +140,9 @@
                                     >
 
                             <AppBarButton Command="{Binding RequestCacheDownload}"
-                                      
-                                      IsEnabled="{Binding CanDownload}"
-                                      Background="Transparent"
-                                      Label="キャッシュ"
+                                          Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
+                                          Background="Transparent"
+                                          Label="キャッシュ"
                                           Icon="Download"
                                 >
                             </AppBarButton>

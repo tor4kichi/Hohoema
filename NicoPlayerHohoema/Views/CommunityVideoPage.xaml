@@ -54,7 +54,10 @@
                         <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
                                     Orientation="Horizontal"
                                     >
-                            <AppBarButton Icon="Download" Label="キャッシュ取得" Command="{Binding RequestCacheDownload}" />
+                            <AppBarButton Icon="Download" Label="キャッシュ取得" 
+                                          Command="{Binding RequestCacheDownload}"
+                                          Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
+                                          />
                             <AppBarButton Icon="Cancel" Label="キャッシュ取消" Command="{Binding CancelCacheDownloadRequest}" />
 
 

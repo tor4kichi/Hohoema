@@ -33,6 +33,13 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
+        private bool _CanDownload;
+        public bool CanDownload
+        {
+            get { return _CanDownload; }
+            set { SetProperty(ref _CanDownload, value); }
+        }
+
 
 		public CommunityVideoPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
 			: base(hohoemaApp, pageManager)
@@ -54,8 +61,11 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 			}
 
+            CanDownload = HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache
+                && HohoemaApp.UserSettings.CacheSettings.IsEnableCache
+                && HohoemaApp.IsLoggedIn;
 
-			base.OnNavigatedTo(e, viewModelState);
+            base.OnNavigatedTo(e, viewModelState);
 		}
 
 

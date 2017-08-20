@@ -60,10 +60,10 @@
                                     >
 
                                 <AppBarButton Command="{Binding RequestCacheDownload}"
-                                          Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
-                                          Icon="Download"
-                                          Label="キャッシュ"
-                                        />
+                                              Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
+                                              Icon="Download"
+                                              Label="キャッシュ"
+                                            />
 
                                 <AppBarButton Command="{Binding RegistratioMylistCommand}" 
                                           Icon="Add"

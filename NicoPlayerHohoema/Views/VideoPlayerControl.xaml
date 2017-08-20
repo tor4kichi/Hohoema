@@ -138,6 +138,13 @@
                 </i:Interaction.Behaviors>
             </MenuFlyoutItem>
 
+            <ToggleMenuFlyoutItem Text="横持ち固定" 
+                                    x:Name="ForceRotateToggleButton" 
+                                    Visibility="Collapsed"
+                                    IsChecked="{Binding IsForceLandscape.Value, Mode=TwoWay}"
+                                    />
+
+
 
 
 
@@ -418,6 +425,57 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
+
+            <!-- Landscape固定ボタンの表示管理 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <intractionTrigger:InteractionModeTrigger Condition="Touch" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ForceRotateToggleButton.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+            <!-- モバイルの縦持ち時のLandscape固定処理 -->
+            <VisualStateGroup>
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsSmallWindowModeEnable.Value}" />
+
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="LayoutRotateTranform.Angle" Value="0" />
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsForceLandscape.Value, Converter={StaticResource BooleanInverted}}" />
+
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="LayoutRotateTranform.Angle" Value="0" />
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <logicalTrigger:MultiTrigger ConditionModifier="{StaticResource AndModifier}">
+                            <logicalTrigger:MultiTrigger.Triggers>
+                                <uiTrigger:OrientationTrigger Condition="Portrait" />
+                                <intractionTrigger:InteractionModeTrigger Condition="Touch" />
+                            </logicalTrigger:MultiTrigger.Triggers>
+                        </logicalTrigger:MultiTrigger>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="LayoutRotateTranform.Angle" Value="90" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
         </VisualStateManager.VisualStateGroups>
 
         <toolkit:LayoutTransformControl
