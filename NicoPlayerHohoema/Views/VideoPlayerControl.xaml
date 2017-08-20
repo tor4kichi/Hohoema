@@ -112,7 +112,6 @@
                 <MenuFlyoutItem Text="Twitterで共有" Command="{Binding ShereWithTwitterCommand}" />
                 <MenuFlyoutItem Text="動画情報をコピー" Command="{Binding VideoInfoCopyToClipboardCommand}" />
             </MenuFlyoutSubItem>
-            <MenuFlyoutSeparator />
 
             <MenuFlyoutSeparator />
             <MenuFlyoutItem Text="マイリストに追加" Command="{Binding AddMylistCommand}" />

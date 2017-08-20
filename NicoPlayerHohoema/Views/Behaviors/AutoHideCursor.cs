@@ -5,6 +5,7 @@ using Windows.Devices.Input;
 using Microsoft.Xaml.Interactivity;
 using Windows.Foundation;
 using Windows.ApplicationModel.Core;
+using Windows.UI.ViewManagement;
 
 namespace NicoPlayerHohoema.Views.Behaviors
 {
@@ -123,6 +124,9 @@ namespace NicoPlayerHohoema.Views.Behaviors
             AssociatedObject.PointerEntered += AssociatedObject_PointerEntered;
             AssociatedObject.PointerExited += AssociatedObject_PointerExited;
 
+            Window.Current.Activated += Current_Activated;
+            
+
             _AutoHideTimer.Tick += AutoHideTimer_Tick;
 
             _IsCursorInsideAssociatedObject = IsCursorInWindow();
@@ -130,6 +134,19 @@ namespace NicoPlayerHohoema.Views.Behaviors
             ResetAutoHideTimer();
         }
 
+        private void Current_Activated(object sender, WindowActivatedEventArgs e)
+        {
+            if (e.WindowActivationState == CoreWindowActivationState.Deactivated)
+            {
+                _AutoHideTimer.Stop();
+
+                Window.Current.CoreWindow.PointerCursor = _DefaultCursor;
+            }
+            else
+            {
+                CursorVisibilityChanged(true);
+            }
+        }
 
         private void AssociatedObject_Unloaded(object sender, RoutedEventArgs e)
         {
