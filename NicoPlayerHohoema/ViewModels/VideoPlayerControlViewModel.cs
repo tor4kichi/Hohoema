@@ -70,6 +70,8 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
+        public bool IsXbox => Util.DeviceTypeHelper.IsXbox;
+
 		public VideoPlayerControlViewModel(
 			HohoemaApp hohoemaApp, 
 			EventAggregator ea,
@@ -422,9 +424,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             IsSmallWindowModeEnable = HohoemaApp.Playlist
                 .ToReactivePropertyAsSynchronized(x => x.IsPlayerFloatingModeEnable);
-
-            IsStillLoggedInTwitter = new ReactiveProperty<bool>(!TwitterHelper.IsLoggedIn)
-                .AddTo(_CompositeDisposable);
 
 
             // playlist
@@ -1178,7 +1177,9 @@ namespace NicoPlayerHohoema.ViewModels
 
             PlaylistCanGoBack.Value = HohoemaApp.Playlist.Player.CanGoBack;
             PlaylistCanGoNext.Value = HohoemaApp.Playlist.Player.CanGoNext;
+
         }
+
 
         private void Current_EnteredBackground(object sender, Windows.ApplicationModel.EnteredBackgroundEventArgs e)
         {
@@ -1357,7 +1358,7 @@ namespace NicoPlayerHohoema.ViewModels
 			base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
 
 
-			Debug.WriteLine("VideoPlayer OnNavigatingFromAsync done.");
+            Debug.WriteLine("VideoPlayer OnNavigatingFromAsync done.");
 		}
 
 
@@ -1696,7 +1697,20 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        public ReactiveProperty<bool> IsStillLoggedInTwitter { get; private set; }
+        private DelegateCommand _ShareCommand;
+        public DelegateCommand ShareCommand
+        {
+            get
+            {
+                return _ShareCommand
+                    ?? (_ShareCommand = new DelegateCommand(() =>
+                    {
+                        ShareHelper.Share(Video);
+                    }
+                    , () => DataTransferManager.IsSupported()
+                    ));
+            }
+        }
 
         private DelegateCommand _ShereWithTwitterCommand;
         public DelegateCommand ShereWithTwitterCommand
@@ -1706,53 +1720,21 @@ namespace NicoPlayerHohoema.ViewModels
                 return _ShereWithTwitterCommand
                     ?? (_ShereWithTwitterCommand = new DelegateCommand(async () =>
                     {
-                        if (!TwitterHelper.IsLoggedIn)
-                        {
-
-                            if (!await TwitterHelper.LoginOrRefreshToken())
-                            {
-                                return;
-                            }
-                        }
-
-                        IsStillLoggedInTwitter.Value = !TwitterHelper.IsLoggedIn;
-
-                        if (TwitterHelper.IsLoggedIn)
-                        {
-                            var text = $"{Video.Title} http://nico.ms/{Video.VideoId} #{Video.VideoId}";
-                            var twitterLoginUserName = TwitterHelper.TwitterUser.ScreenName;
-                            var customText = await _TextInputDialogService.GetTextAsync($"{twitterLoginUserName} としてTwitterへ投稿", "", text);
-
-                            if (customText != null)
-                            {
-                                var result = await TwitterHelper.SubmitTweet(customText);
-
-                                if (!result)
-                                {
-                                    _ToastService.ShowText("ツイートに失敗しました", "もう一度お試しください");
-                                }
-                            }
-                        }
+                        await ShareHelper.ShareToTwitter(Video);
                     }
                     ));
             }
         }
 
-        private DelegateCommand _ShareWithClipboardCommand;
-        public DelegateCommand ShareWithClipboardCommand
+        private DelegateCommand _VideoInfoCopyToClipboardCommand;
+        public DelegateCommand VideoInfoCopyToClipboardCommand
         {
             get
             {
-                return _ShareWithClipboardCommand
-                    ?? (_ShareWithClipboardCommand = new DelegateCommand(() =>
+                return _VideoInfoCopyToClipboardCommand
+                    ?? (_VideoInfoCopyToClipboardCommand = new DelegateCommand(() =>
                     {
-                        var videoUrl = $"http://nico.ms/{Video.VideoId}";
-                        var text = $"{Video.Title} {videoUrl} #{Video.VideoId}";
-                        var datapackage = new DataPackage();
-                        datapackage.SetText(text);
-                        datapackage.SetWebLink(new Uri(videoUrl));
-
-                        Clipboard.SetContent(datapackage);
+                        ShareHelper.CopyToClipboard(Video);
                     }
                     ));
             }

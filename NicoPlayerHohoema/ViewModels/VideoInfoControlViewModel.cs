@@ -6,6 +6,7 @@ using Mntone.Nico2.Videos.Ranking;
 using Mntone.Nico2.Videos.Thumbnail;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Db;
+using NicoPlayerHohoema.Util;
 using Prism.Commands;
 using Prism.Mvvm;
 using Reactive.Bindings;
@@ -22,6 +23,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Microsoft.Practices.Unity;
+using Windows.ApplicationModel.DataTransfer;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -383,6 +386,52 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+
+        private DelegateCommand _ShareCommand;
+        public DelegateCommand ShareCommand
+        {
+            get
+            {
+                return _ShareCommand
+                    ?? (_ShareCommand = new DelegateCommand(() =>
+                    {
+                        ShareHelper.Share(NicoVideo);
+                    }
+                    , () => DataTransferManager.IsSupported()
+                    ));
+            }
+        }
+
+        private DelegateCommand _ShereWithTwitterCommand;
+        public DelegateCommand ShereWithTwitterCommand
+        {
+            get
+            {
+                return _ShereWithTwitterCommand
+                    ?? (_ShereWithTwitterCommand = new DelegateCommand(async () =>
+                    {
+                        await ShareHelper.ShareToTwitter(NicoVideo);
+                    }
+                    ));
+            }
+        }
+
+        private DelegateCommand _VideoInfoCopyToClipboardCommand;
+        public DelegateCommand VideoInfoCopyToClipboardCommand
+        {
+            get
+            {
+                return _VideoInfoCopyToClipboardCommand
+                    ?? (_VideoInfoCopyToClipboardCommand = new DelegateCommand(() =>
+                    {
+                        ShareHelper.CopyToClipboard(NicoVideo);
+                    }
+                    ));
+            }
+        }
+
+
+        public bool IsXbox => Util.DeviceTypeHelper.IsXbox;
 
         public ReadOnlyReactiveProperty<bool> IsPlayed { get; private set; }
 

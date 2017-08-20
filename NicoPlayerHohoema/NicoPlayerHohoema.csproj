@@ -199,6 +199,7 @@
     <Compile Include="Models\Settings\CacheSettings.cs" />
     <Compile Include="Models\Settings\PlaylistSettings.cs" />
     <Compile Include="Models\Mylist\UserMylistManager.cs" />
+    <Compile Include="Models\ShareHelper.cs" />
     <Compile Include="Models\Video\DividedQualityNicoVideo.cs" />
     <Compile Include="Models\Video\MediaProtocolType.cs" />
     <Compile Include="Models\Db\NicoVideo\NicoVIdeoDbContext.cs" />

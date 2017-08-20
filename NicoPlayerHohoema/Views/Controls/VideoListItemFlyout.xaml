@@ -34,6 +34,16 @@
 
     <MenuFlyoutSeparator />
 
+    <MenuFlyoutItem Text="共有" Command="{Binding ShareCommand}" Visibility="{Binding IsXbox, Converter={StaticResource BooleanToVisibility}}" />
+
+    <MenuFlyoutSubItem Text="共有" Visibility="{Binding IsXbox, Converter={StaticResource BooleanToVisibilityInverted}}" >
+        <MenuFlyoutItem Text="アプリを選択" Command="{Binding ShareCommand}" />
+        <MenuFlyoutItem Text="Twitterで共有" Command="{Binding ShereWithTwitterCommand}" />
+        <MenuFlyoutItem Text="動画情報をコピー" Command="{Binding VideoInfoCopyToClipboardCommand}" />
+    </MenuFlyoutSubItem>
+
+    <MenuFlyoutSeparator />
+
     <MenuFlyoutItem Text="キャッシュ取得"
                                 Command="{Binding CacheRequestCommand}"
                     Visibility="{Binding IsCacheEnabled, Converter={StaticResource BooleanToVisibility}}"
