@@ -10,7 +10,7 @@ namespace NicoPlayerHohoema.Models
 	{
 		public string RawVideoId { get; set; }
 		public NicoVideoQuality Quality { get; set; }
-        public DateTime RequestAt { get; set; }
+        public DateTime RequestAt { get; set; } = DateTime.Now;
         public bool IsRequireForceUpdate { get; set; } = false;
 
         public override int GetHashCode()

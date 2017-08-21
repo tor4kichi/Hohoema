@@ -94,7 +94,7 @@ namespace NicoPlayerHohoema.Models
         // プレミアム会員は2ライン（再生DL含まず）
         public uint CurrentDownloadTaskCount { get; private set; }
         public const uint MaxDownloadLineCount_Ippan = 1;
-        public const uint MaxDownloadLineCount_Premium = 2;
+        public const uint MaxDownloadLineCount_Premium = 1;
 
 
         private bool IsInitialized = false;
@@ -188,7 +188,12 @@ namespace NicoPlayerHohoema.Models
 
             // ダウンロード完了をバックグラウンドで処理
             CoreApplication.BackgroundActivated += CoreApplication_BackgroundActivated;
+            CoreApplication.Suspending += CoreApplication_Suspending;
+        }
 
+        private void CoreApplication_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
+        {
+            RemoveProgressToast();
         }
 
         private void CoreApplication_BackgroundActivated(object sender, BackgroundActivatedEventArgs e)
@@ -609,6 +614,7 @@ namespace NicoPlayerHohoema.Models
             {
                 await RemoveDownloadOperation(removeTarget);
 
+                /*
                 using (var pendingVideoLockReleaser = await _CacheDownloadPendingVideosLock.LockAsync())
                 {
                     _CacheDownloadPendingVideos.Remove(removeTarget);
@@ -618,6 +624,7 @@ namespace NicoPlayerHohoema.Models
 
                 RequestCanceled?.Invoke(this, removeTarget);
 
+                */
                 removed = true;
             }
 
@@ -628,6 +635,7 @@ namespace NicoPlayerHohoema.Models
 
 
 
+        NicoVideoCacheRequest _CurrentRequest;
 
 
         // バックグラウンドで動画キャッシュのダウンロードを行うタスクを作成
@@ -704,29 +712,157 @@ namespace NicoPlayerHohoema.Models
 
                 Debug.WriteLine($"キャッシュ開始: {req.RawVideoId} {req.Quality}");
 
+                _CurrentRequest = req;
+                SendUpdatableToastWithProgress(nicoVideo.Title, req);
+
                 return operation;
             }
         }
 
+
+        /*
+         *https://blogs.msdn.microsoft.com/tiles_and_toasts/2017/02/01/progress-ui-and-data-binding-inside-toast-notifications-windows-10-creators-update/
+         */
+        ToastNotification _ProgressToast;
+        private void SendUpdatableToastWithProgress(string title, NicoVideoCacheRequest req)
+        {
+            // Define a tag value and a group value to uniquely identify a notification, in order to target it to apply the update later;
+            string toastTag = $"{req.RawVideoId}_{req.Quality}";
+            string toastGroup = "hohoema_cache_dl";
+
+            // Construct the toast content with updatable data fields inside;
+            var content = new ToastContent()
+            {
+                Visual = new ToastVisual()
+                {
+                    BindingGeneric = new ToastBindingGeneric()
+                    {
+                        Children =
+                {
+                    new AdaptiveText()
+                    {
+                        Text = title,
+                        HintStyle = AdaptiveTextStyle.Header
+                    },
+
+                    new AdaptiveProgressBar()
+                    {
+                        Value = new BindableProgressBarValue("progressValue"),
+                        ValueStringOverride = new BindableString("progressString"),
+                        Status = new BindableString("progressStatus")
+                    }
+                }
+                    }
+                },
+                Actions = new ToastActionsCustom()
+                {
+                    Buttons =
+                    {
+                        new ToastButton("キャンセル", $"cache_cancel?id={req.RawVideoId}&quality={req.Quality}")
+                        {
+                            
+                        }
+                    }
+                },
+            };
+
+            // Generate the toast notification;
+            var toast = new ToastNotification(content.GetXml());
+
+            // Assign the tag and group properties;
+            toast.Tag = toastTag;
+            toast.Group = toastGroup;
+
+            // Define NotificationData property and add it to the toast notification to bind the initial data;
+            // Data.Values are assigned with string values;
+            toast.Data = new NotificationData();
+            toast.Data.Values["progressValue"] = "0";
+            toast.Data.Values["progressString"] = $"";
+            toast.Data.Values["progressStatus"] = "download started";
+
+            // Provide sequence number to prevent updating out-of-order or assign it with value 0 to indicate "always update";
+            toast.Data.SequenceNumber = 1;
+
+            toast.SuppressPopup = true;
+            
+            // Show the toast notification to the user;
+            ToastNotificationManager.CreateToastNotifier().Show(toast);
+
+            _ProgressToast = toast;
+        }
+
+
+        private void UpdateProgressToast(NicoVideoCacheRequest req, DownloadOperation op)
+        {
+            // Construct a NotificationData object;
+            string toastTag = $"{req.RawVideoId}_{req.Quality}";
+            string toastGroup = "hohoema_cache_dl";
+
+            var progress = op.Progress.BytesReceived / (double)op.Progress.TotalBytesToReceive;
+            var progressText = (progress * 100).ToString("F0");
+            // Create NotificationData with new values;
+            // Make sure that sequence number is incremented since last update, or assign with value 0 for updating regardless of order;
+            var data = new NotificationData { SequenceNumber = 0 };
+            
+            data.Values["progressValue"] = progress.ToString("F1"); // 固定小数点、整数部と小数一桁までを表示
+            data.Values["progressString"] = $"{progressText}%";
+            data.Values["progressStatus"] = "donwloading";
+
+            // Updating a previously sent toast with tag, group, and new data;
+            NotificationUpdateResult updateResult = ToastNotificationManager.CreateToastNotifier().Update(data, toastTag, toastGroup);
+        }
+
+        private void RemoveProgressToast()
+        {
+            // Construct a NotificationData object;
+//            string toastTag = $"{req.RawVideoId}_{req.Quality}";
+//            string toastGroup = "hohoema_cache_dl";
+
+            // Updating a previously sent toast with tag, group, and new data;
+            if (_ProgressToast != null)
+            {
+                ToastNotificationManager.CreateToastNotifier().Hide(_ProgressToast);
+                _ProgressToast = null;
+            }
+        }
+
+
         private void OnDownloadProgress(object sender, DownloadOperation op)
         {
             Debug.WriteLine($"{op.RequestedUri}:{op.Progress.TotalBytesToReceive}");
-            var info = NiconicoMediaManager.CacheRequestInfoFromFileName(op.ResultFile);
-            DownloadProgress?.Invoke(this, info, op);
+            var req = NiconicoMediaManager.CacheRequestInfoFromFileName(op.ResultFile);
+            DownloadProgress?.Invoke(this, req, op);
+
+            UpdateProgressToast(req, op);
         }
 
         // ダウンロード完了
         private async Task OnDownloadCompleted(Task<DownloadOperation> prevTask)
         {
+            // 進捗付きトースト表示を削除
+            RemoveProgressToast();
+
+            
             if (prevTask.IsFaulted)
             {
-                var op = prevTask.Result;
-                var info = NiconicoMediaManager.CacheRequestInfoFromFileName(op.ResultFile);
-                await RemoveDownloadOperation(info);
-                Debug.WriteLine("キャッシュ失敗");
+                try
+                {
+                    Debug.WriteLine("キャッシュ失敗");
 
-                DownloadCanceled?.Invoke(this, info);
-                return;
+                    var op = prevTask.Result;
+                    var info = NiconicoMediaManager.CacheRequestInfoFromFileName(op.ResultFile);
+                    await RemoveDownloadOperation(info);
+                    DownloadCanceled?.Invoke(this, info);
+                    return;
+                }
+                catch
+                {
+
+                }
+                finally
+                {
+                    _CurrentRequest = null;
+                }
             }
 
             Debug.WriteLine("キャッシュ完了");
@@ -735,32 +871,32 @@ namespace NicoPlayerHohoema.Models
             if (prevTask.Result != null)
             {
                 var op = prevTask.Result;
-                var info = NiconicoMediaManager.CacheRequestInfoFromFileName(op.ResultFile);
-                await RemoveDownloadOperation(info);
+                var req = NiconicoMediaManager.CacheRequestInfoFromFileName(op.ResultFile);
+                await RemoveDownloadOperation(req);
 
                 if (op.Progress.Status == BackgroundTransferStatus.Completed)
                 {
                     if (op.Progress.TotalBytesToReceive == op.Progress.BytesReceived)
                     {
                         Debug.WriteLine("キャッシュ済み: " + op.ResultFile.Name);
-                        DownloadCompleted?.Invoke(this, info, op.ResultFile.Path);
+                        DownloadCompleted?.Invoke(this, req, op.ResultFile.Path);
                     }
                     else
                     {
                         Debug.WriteLine("キャッシュキャンセル: " + op.ResultFile.Name);
-                        DownloadCanceled?.Invoke(this, info);
+                        DownloadCanceled?.Invoke(this, req);
                     }
                     using (var pendingVideoLockReleaser = await _CacheDownloadPendingVideosLock.LockAsync())
                     {
-                        _CacheDownloadPendingVideos.Remove(info);
+                        _CacheDownloadPendingVideos.Remove(req);
                     }
                 }
                 else
                 {
                     Debug.WriteLine($"キャッシュ失敗: {op.ResultFile.Name} （再ダウンロードします）");
-                    DownloadCanceled?.Invoke(this, info);
+                    DownloadCanceled?.Invoke(this, req);
 
-                    await AddCacheRequest(info.RawVideoId, info.Quality, forceUpdate: true);
+                    await AddCacheRequest(req.RawVideoId, req.Quality, forceUpdate: true);
                 }
 
                 try
@@ -779,7 +915,6 @@ namespace NicoPlayerHohoema.Models
                 {
                     Debug.WriteLine("failed unregister background download completion task.");
                 }
-
             }
 
 

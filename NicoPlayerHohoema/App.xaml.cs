@@ -273,6 +273,22 @@ namespace NicoPlayerHohoema
                     {
                         await ShowErrorLog().ConfigureAwait(false);
                     }
+                    else if (arguments.StartsWith("cache_cancel"))
+                    {
+                        try
+                        {
+                            var query = arguments.Split('?')[1];
+                            var decode = new WwwFormUrlDecoder(query);
+
+                            var videoId = decode.GetFirstValueByName("id");
+                            var quality = (NicoVideoQuality)Enum.Parse(typeof(NicoVideoQuality), decode.GetFirstValueByName("quality"));
+
+                            var video = await hohoemaApp.MediaManager.GetNicoVideoAsync(videoId);
+
+                            await video.CancelCacheRequest(quality);
+                        }
+                        catch { }
+                    }
                     else
                     {
                         var nicoContentId = Util.NicoVideoExtention.UrlToVideoId(arguments);
