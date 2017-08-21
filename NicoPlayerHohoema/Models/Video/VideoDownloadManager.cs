@@ -12,9 +12,11 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Background;
 using Windows.ApplicationModel.Core;
+using Windows.Foundation.Metadata;
 using Windows.Networking.BackgroundTransfer;
 using Windows.Storage;
 using Windows.UI.Notifications;
+using Windows.UI.ViewManagement;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -726,6 +728,11 @@ namespace NicoPlayerHohoema.Models
         ToastNotification _ProgressToast;
         private void SendUpdatableToastWithProgress(string title, NicoVideoCacheRequest req)
         {
+            if (!ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4))
+            { 
+                return;
+            }
+
             // Define a tag value and a group value to uniquely identify a notification, in order to target it to apply the update later;
             string toastTag = $"{req.RawVideoId}_{req.Quality}";
             string toastGroup = "hohoema_cache_dl";
@@ -794,6 +801,11 @@ namespace NicoPlayerHohoema.Models
 
         private void UpdateProgressToast(NicoVideoCacheRequest req, DownloadOperation op)
         {
+            if (!ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4))
+            {
+                return;
+            }
+
             // Construct a NotificationData object;
             string toastTag = $"{req.RawVideoId}_{req.Quality}";
             string toastGroup = "hohoema_cache_dl";
@@ -814,9 +826,14 @@ namespace NicoPlayerHohoema.Models
 
         private void RemoveProgressToast()
         {
+            if (!ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4))
+            {
+                return;
+            }
+
             // Construct a NotificationData object;
-//            string toastTag = $"{req.RawVideoId}_{req.Quality}";
-//            string toastGroup = "hohoema_cache_dl";
+            //            string toastTag = $"{req.RawVideoId}_{req.Quality}";
+            //            string toastGroup = "hohoema_cache_dl";
 
             // Updating a previously sent toast with tag, group, and new data;
             if (_ProgressToast != null)
