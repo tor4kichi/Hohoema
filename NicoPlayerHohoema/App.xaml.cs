@@ -349,7 +349,19 @@ namespace NicoPlayerHohoema
             }
             catch
             {
-                pageManager.OpenPage(HohoemaPageType.Login);
+                if (!pageManager.NavigationService.CanGoBack())
+                {
+                    if (!hohoemaApp.IsLoggedIn && AccountManager.HasPrimaryAccount())
+                    {
+                        await hohoemaApp.SignInWithPrimaryAccount();
+
+                        pageManager.OpenStartupPage();
+                    }
+                    else
+                    {
+                        pageManager.OpenPage(HohoemaPageType.Login);
+                    }
+                }
             }
 			
 
