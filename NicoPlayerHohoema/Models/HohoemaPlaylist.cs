@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Util;
+﻿using Mntone.Nico2;
+using NicoPlayerHohoema.Util;
 using Prism.Mvvm;
 using Reactive.Bindings.Extensions;
 using System;
@@ -116,7 +117,6 @@ namespace NicoPlayerHohoema.Models
             get { return _IsPlayerFloatingModeEnable; }
             set { SetProperty(ref _IsPlayerFloatingModeEnable, value); }
         }
-
 
         public HohoemaPlaylist(MediaPlayer mediaPlayer, PlaylistSettings playlistSettings, StorageFolder playlistSaveFolder)
         {
@@ -241,7 +241,7 @@ namespace NicoPlayerHohoema.Models
             }
 
             // Live Item は削除
-            foreach (var i in DefaultPlaylist.PlaylistItems.Where(x => x.ContentId.StartsWith("lv")).ToArray())
+            foreach (var i in DefaultPlaylist.PlaylistItems.Where(x => !NiconicoRegex.IsVideoId(x.ContentId)).ToArray())
             {
                 DefaultPlaylist.Remove(i);
             }
@@ -365,6 +365,11 @@ namespace NicoPlayerHohoema.Models
         // プレイリストが空だった場合、その場で再生を開始
         public void PlayVideo(string contentId, string title = "", NicoVideoQuality? quality = null)
         {
+            if (!NiconicoRegex.IsVideoId(contentId))
+            {
+                return;
+            }
+
             var newItem = DefaultPlaylist.AddVideo(contentId, title, ContentInsertPosition.Head);
             Play(newItem);
         }
