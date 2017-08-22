@@ -1495,10 +1495,10 @@
                                         IsEnabled="False"
                                         Opacity="0.6"
                                         toolkit:DockPanel.Dock="Bottom"
-                                        Height="24"
+                                        
                                          >
                                         <Slider.RenderTransform>
-                                            <TranslateTransform Y="12" />
+                                            <TranslateTransform Y="8" />
                                         </Slider.RenderTransform>
 
 
@@ -1515,76 +1515,6 @@
                                             </Grid.ColumnDefinitions>
 
                                             <StackPanel Orientation="Horizontal">
-
-                                                <!-- 音量 -->
-                                                <!--
-                                            <Button Background="Transparent">
-
-                                                <SymbolIcon 
-                                                    x:Name="CO_VolumeButton"
-                                                    Symbol="Mute" 
-                                                    />
-                                                <Button.Flyout>
-                                                    <Flyout>
-                                                        <toolkit:DockPanel
-                                                                toolkit:DockPanel.Dock="Right"
-                                                                Margin="0 0 16 0"
-                                                                  Height="66"
-                                                                >
-
-                                                            <StackPanel Background="#AA777777"
-                                                                        toolkit:DockPanel.Dock="Left"
-                                                                        >
-                                                                <AppBarButton Icon="Volume" 
-                                                                              Label="ミュート"
-                                                                              VerticalAlignment="Stretch"
-                                                                              x:Name="CO_MuteToggleButton"
-                                                                              Command="{Binding ToggleMuteCommand}"    
-                                                                          >
-
-                                                                </AppBarButton>
-                                                            </StackPanel>
-
-
-                                                            <StackPanel Background="#AA777777"
-                                                                        Margin="8 0" 
-                                                                        Orientation="Vertical">
-
-
-
-                                                                <Slider x:Name="CO_VolumeSlider"
-                                                                        Orientation="Horizontal"
-                                                                        VerticalAlignment="Top"
-                                                                        Margin="8 4"
-                                                                        Value="{Binding SoundVolume.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                                        IsThumbToolTipEnabled="True"
-                                                                        ThumbToolTipValueConverter="{StaticResource ToUserFriendlySoubleVolume}"
-                                                                        Maximum="1.0"
-                                                                        Minimum="0.0"
-                                                                        StepFrequency="0.01"
-                                                                        SmallChange="0.01"
-                                                                        LargeChange="0.1"
-                                                                        Height="32"
-                                                                        Width="160"
-                                                                        Background="Transparent"
-                                                                    >
-                                                                </Slider>
-                                                                <TextBlock Text="音量" 
-                                                                       VerticalAlignment="Center"
-                                                                       Margin="8 0 0 0"
-                                                                       HorizontalAlignment="Center"
-                                                                       FontSize="12"
-                                                                       />
-
-                                                            </StackPanel>
-
-
-
-                                                        </toolkit:DockPanel>
-                                                    </Flyout>
-                                                </Button.Flyout>
-                                            </Button>
-                                            -->
 
                                                 <Button Command="{Binding ToggleDisplayCommentCommand}"
                                                      Background="Transparent"
@@ -1687,7 +1617,7 @@
                                         <TextBox x:Name="CO_CommentTextBox" 
                                              Text="{Binding WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource BGTransparentTextBoxStyle}"
-                                            FontSize="16"
+                                            FontSize="18"
                                             VerticalAlignment="Center"
                                             MaxLength="75"
                                             IsTabStop="True"
@@ -1697,7 +1627,7 @@
                                             Margin="8 0 8 0"
                                             HorizontalContentAlignment="Stretch"
                                                  MaxWidth="320"
-                                            Height="24"
+                                            Height="18"
                                                 >
                                             <i:Interaction.Behaviors>
 
