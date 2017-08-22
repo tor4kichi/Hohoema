@@ -29,6 +29,7 @@ using Windows.Media.Playback;
 using System.Collections.ObjectModel;
 using Windows.System;
 using Windows.ApplicationModel.Core;
+using Windows.Foundation.Metadata;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -318,39 +319,47 @@ namespace NicoPlayerHohoema.ViewModels
 				})
 			.AddTo(_CompositeDisposable);
 
-            // プレイヤーを閉じた際のコンパクトオーバーレイの解除はPlayerWithPageContainerViewModel側で行う
-            IsCompactOverlay = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler,
-                ApplicationView.GetForCurrentView().ViewMode == ApplicationViewMode.CompactOverlay,
-                ReactivePropertyMode.DistinctUntilChanged);
-            IsCompactOverlay
-                .Subscribe(async isCompactOverlay =>
-                {
-                    var appView = ApplicationView.GetForCurrentView();
-                    if (appView.IsViewModeSupported(ApplicationViewMode.CompactOverlay))
+            if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4))
+            {
+                // プレイヤーを閉じた際のコンパクトオーバーレイの解除はPlayerWithPageContainerViewModel側で行う
+                IsCompactOverlay = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler,
+                    ApplicationView.GetForCurrentView().ViewMode == ApplicationViewMode.CompactOverlay,
+                    ReactivePropertyMode.DistinctUntilChanged);
+                IsCompactOverlay
+                    .Subscribe(async isCompactOverlay =>
                     {
-                        if (isCompactOverlay)
+                        var appView = ApplicationView.GetForCurrentView();
+                        if (appView.IsViewModeSupported(ApplicationViewMode.CompactOverlay))
                         {
-                            ViewModePreferences compactOptions = ViewModePreferences.CreateDefault(ApplicationViewMode.CompactOverlay);
-                            compactOptions.CustomSize = new Windows.Foundation.Size(500, 280);
+                            if (isCompactOverlay)
+                            {
+                                ViewModePreferences compactOptions = ViewModePreferences.CreateDefault(ApplicationViewMode.CompactOverlay);
+                                compactOptions.CustomSize = new Windows.Foundation.Size(500, 280);
 
-                            var result = await appView.TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay, compactOptions);
-                            if (result)
+                                var result = await appView.TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay, compactOptions);
+                                if (result)
+                                {
+                                    CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
+                                    IsDisplayControlUI.Value = false;
+                                }
+                            }
+                            else
                             {
-                                CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
-                                IsDisplayControlUI.Value = false;
+                                var result = await appView.TryEnterViewModeAsync(ApplicationViewMode.Default);
+                                if (result)
+                                {
+                                    CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = false;
+                                }
                             }
                         }
-                        else
-                        {
-                            var result = await appView.TryEnterViewModeAsync(ApplicationViewMode.Default);
-                            if (result)
-                            {
-                                CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = false;
-                            }
-                        }
-                    }
-                })
-            .AddTo(_CompositeDisposable);
+                    })
+                    .AddTo(_CompositeDisposable);
+            }
+            else
+            {
+                IsCompactOverlay = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
+            }
+                
 
             IsSmallWindowModeEnable = HohoemaApp.Playlist
                 .ToReactivePropertyAsSynchronized(x => x.IsPlayerFloatingModeEnable);
@@ -565,6 +574,7 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         IsCompactOverlay.Value = !IsCompactOverlay.Value;
                     }
+                    , () => ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4)
                     ));
             }
         }

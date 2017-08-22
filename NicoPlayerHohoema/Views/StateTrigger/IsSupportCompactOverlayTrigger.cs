@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Foundation.Metadata;
 using Windows.UI.ViewManagement;
 
 namespace NicoPlayerHohoema.Views.StateTrigger
@@ -11,8 +12,15 @@ namespace NicoPlayerHohoema.Views.StateTrigger
     {
         public IsSupportCompactOverlayTrigger()
         {
-            var view = ApplicationView.GetForCurrentView();
-            SetActiveInvertible(view.IsViewModeSupported(ApplicationViewMode.CompactOverlay));
+            if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4))
+            {
+                var view = ApplicationView.GetForCurrentView();
+                SetActiveInvertible(view.IsViewModeSupported(ApplicationViewMode.CompactOverlay));
+            }
+            else
+            {
+                SetActiveInvertible(false);
+            }
         }
     }
 }

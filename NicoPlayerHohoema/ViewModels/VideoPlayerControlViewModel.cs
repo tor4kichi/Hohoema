@@ -47,6 +47,7 @@ using Windows.Media.Core;
 using Windows.Media;
 using Windows.UI.Popups;
 using Windows.ApplicationModel.Core;
+using Windows.Foundation.Metadata;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -428,10 +429,16 @@ namespace NicoPlayerHohoema.ViewModels
 
 
             // プレイヤーを閉じた際のコンパクトオーバーレイの解除はPlayerWithPageContainerViewModel側で行う
-            IsCompactOverlay = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler,
-                ApplicationView.GetForCurrentView().ViewMode == ApplicationViewMode.CompactOverlay,
-                ReactivePropertyMode.DistinctUntilChanged);
-            IsCompactOverlay
+            
+
+            if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4))
+            {
+                IsCompactOverlay = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler,
+                    ApplicationView.GetForCurrentView().ViewMode == ApplicationViewMode.CompactOverlay,
+                    ReactivePropertyMode.DistinctUntilChanged);
+
+                // This device supports all APIs in UniversalApiContract version 2.0
+                IsCompactOverlay
                 .Subscribe(async isCompactOverlay =>
                 {
                     var appView = ApplicationView.GetForCurrentView();
@@ -459,7 +466,13 @@ namespace NicoPlayerHohoema.ViewModels
                         }
                     }
                 })
-            .AddTo(_CompositeDisposable);
+                .AddTo(_CompositeDisposable);
+            }
+            else
+            {
+                IsCompactOverlay = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
+            }
+            
 
 
             IsSmallWindowModeEnable = HohoemaApp.Playlist
@@ -1710,6 +1723,7 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         IsCompactOverlay.Value = !IsCompactOverlay.Value;
                     }
+                    , () => ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4)
                     ));
             }
         }
