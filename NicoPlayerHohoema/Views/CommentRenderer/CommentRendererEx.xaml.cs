@@ -113,7 +113,24 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
             Application.Current.EnteredBackground += Current_EnteredBackground;
             Application.Current.LeavingBackground += Current_LeavingBackground;
 
+            this.SizeChanged += CommentRendererEx_SizeChanged;
         }
+
+        private void CommentRendererEx_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            foreach (var renderComment in RenderComments)
+            {
+                CommentUICached.Push(renderComment);
+            }
+
+            RenderComments.Clear();
+            CommentCanvas.Children.Clear();
+
+            PrevRenderCommentEachLine_Stream.Clear();
+            PrevRenderCommentEachLine_Top.Clear();
+            PrevRenderCommentEachLine_Bottom.Clear();
+        }
+
 
         private void Current_LeavingBackground(object sender, Windows.ApplicationModel.LeavingBackgroundEventArgs e)
         {
@@ -130,6 +147,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
         {
             Application.Current.EnteredBackground -= Current_EnteredBackground;
             Application.Current.LeavingBackground -= Current_LeavingBackground;
+
             _UpdateTimer?.Dispose();
         }
 
