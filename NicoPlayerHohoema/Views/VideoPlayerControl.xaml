@@ -280,7 +280,53 @@
             </VisualStateGroup>
 
 
-            
+            <!-- ミニモード　画面サイズごとの表示・非表示に切り替え -->
+            <VisualStateGroup>
+                <!-- 中ぐらい -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="280" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+
+                    </VisualState.Setters>
+                </VisualState>
+                <!-- 超狭い -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CO_PreviewVideoPositionButton.Visibility" Value="Collapsed" />
+                        <Setter Target="CO_ForwardVideoPositionButton.Visibility" Value="Collapsed" />
+                        <Setter Target="CO_ToggleCommentDisplayButton.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+            <!-- ミニモードの縦幅 -->
+            <VisualStateGroup>
+                <!-- 中ぐらい -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowHeight="200" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+
+                    </VisualState.Setters>
+                </VisualState>
+                <!-- 超狭い -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowHeight="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CO_CommentTextBox.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+
 
             <!-- コンパクトオーバーレイ切り替えボタンの表示・非表示 -->
             <VisualStateGroup >
@@ -306,6 +352,8 @@
                     <VisualState.Setters>
                         <Setter Target="CompactOverlayUIControl.Visibility" Value="Visible" />
                         <Setter Target="DefaultUIControl.Visibility" Value="Collapsed" />
+
+                        <Setter Target="PlaylistSplitView.OpenPaneLength" Value="120" />
                     </VisualState.Setters>
                 </VisualState>
                 
@@ -724,10 +772,9 @@
 
                     <!-- Media Control -->
 
-                    <Grid x:Name="MediaControl" HorizontalAlignment="Stretch"
-                                    VerticalAlignment="Stretch"
-                  ContextFlyout="{StaticResource VideoOptionsFlyout}"
-                  >
+                    <Grid x:Name="MediaControl" 
+                          ContextFlyout="{StaticResource VideoOptionsFlyout}"
+                          >
 
                         <i:Interaction.Behaviors>
 
@@ -735,9 +782,9 @@
 
                             <!-- マウスの非表示 -->
                             <mybehavior:AutoHideCursor x:Name="AutoHideCursor"
-                        IsAutoHideEnabled="{Binding IsMouseCursolAutoHideEnable.Value, Mode=OneWay}"
-                        AutoHideDelay="0:0:0.5"
-                        />
+                                IsAutoHideEnabled="{Binding IsMouseCursolAutoHideEnable.Value, Mode=OneWay}"
+                                AutoHideDelay="0:0:0.5"
+                                />
 
 
                             <core:EventTriggerBehavior EventName="Loaded">
@@ -807,9 +854,7 @@
                         </i:Interaction.Behaviors>
 
 
-                        <MediaPlayerElement x:Name="MediaPlayerElement" Stretch="Uniform"
-                                    AreTransportControlsEnabled="False"
-                                    
+                        <MediaPlayerElement x:Name="MediaPlayerElement" 
                                     >
                             <i:Interaction.Behaviors>
 
@@ -854,7 +899,7 @@
                                 Height="48"
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Top"
-                                Margin="24 88"      
+                                Margin="0 88 24 0"      
                                 />
 
                         <!-- ウィンドウ非アクティブ時に画面全体をマウス移動の反応対象にするためのコリジョン-->
@@ -1082,20 +1127,20 @@
 
 
                                                     <Slider x:Name="SeekBarSlider"
-                                                Minimum="0.0" 
-                                                Maximum="{Binding VideoLength.Value}"
-                                                Value="{Binding SliderVideoPosition.Value, Mode=TwoWay}"
-                                                Style="{StaticResource VideoProgressBarStyle}"
-                                                Padding="0 16"
-                                                StepFrequency="0.1"
-                                                    LargeChange="30"
-                                                    SmallChange="5"
-                                                IsThumbToolTipEnabled="True"
-                                                ThumbToolTipValueConverter="{StaticResource TimeToMovieLengthConverter}"
-                                                HorizontalAlignment="Stretch"
-                                                HorizontalContentAlignment="Stretch"
-                                                VerticalAlignment="Center"
-                                                IsEnabled="{Binding NowQualityChanging.Value, Converter={StaticResource BooleanInverted}}"
+                                                            Minimum="0.0" 
+                                                            Maximum="{Binding VideoLength.Value}"
+                                                            Value="{Binding SliderVideoPosition.Value, Mode=TwoWay}"
+                                                            Style="{StaticResource VideoProgressBarStyle}"
+                                                            Padding="0 16"
+                                                            StepFrequency="0.1"
+                                                            LargeChange="30"
+                                                            SmallChange="5"
+                                                            IsThumbToolTipEnabled="True"
+                                                            ThumbToolTipValueConverter="{StaticResource TimeToMovieLengthConverter}"
+                                                            HorizontalAlignment="Stretch"
+                                                            HorizontalContentAlignment="Stretch"
+                                                            VerticalAlignment="Center"
+                                                            IsEnabled="{Binding NowQualityChanging.Value, Converter={StaticResource BooleanInverted}}"
                                         
                                                     Opacity="0.75"
                                              >
@@ -1510,7 +1555,6 @@
                                         Maximum="{Binding VideoLength.Value, Mode=OneWay}"
                                         Style="{StaticResource VideoProgressBarStyle}"
                                         HorizontalAlignment="Stretch"
-                                        VerticalAlignment="Bottom"
                                         IsEnabled="False"
                                         Opacity="0.6"
                                         toolkit:DockPanel.Dock="Bottom"
@@ -1525,7 +1569,8 @@
 
                                     <StackPanel VerticalAlignment="Bottom">
                                         <!-- 再生コントロール -->
-                                        <Grid Padding="8 0 8 0" >
+                                        
+                                        <Grid Padding="8 0 8 0"  >
 
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*" />
@@ -1535,7 +1580,8 @@
 
                                             <StackPanel Orientation="Horizontal">
 
-                                                <Button Command="{Binding ToggleDisplayCommentCommand}"
+                                                <Button x:Name="CO_ToggleCommentDisplayButton"
+                                                     Command="{Binding ToggleDisplayCommentCommand}"
                                                      Background="Transparent"
                                                       >
                                                     <Grid>
@@ -1569,7 +1615,8 @@
 
                                                 <Button Background="Transparent" 
                                                         Command="{Binding PreviewVideoPositionCommand}"
-                                                        Margin="0 0 8 0"
+                                                        Margin="0 0 0 0"
+                                                        x:Name="CO_PreviewVideoPositionButton"
                                                 >
                                                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3C;" 
                                                            FontSize="20"
@@ -1595,8 +1642,8 @@
 
                                                 <Button Background="Transparent"
                                                     Command="{Binding ForwardVideoPositionCommand}"
-                                                    x:Name="CO_ForwardVideoPositionButon"
-                                                        Margin="8 0 0 0"
+                                                    x:Name="CO_ForwardVideoPositionButton"
+                                                        Margin="0 0 0 0"
                                                     >
                                                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3D;"
                                                        FontSize="20"
@@ -1634,13 +1681,13 @@
                                             FontSize="18"
                                             VerticalAlignment="Center"
                                             MaxLength="75"
+                                                 MaxWidth="320"
                                             IsTabStop="True"
                                             toolkitext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
                                             PlaceholderText="コメント"
                                             HorizontalAlignment="Stretch"
                                             Margin="8 0 8 0"
                                             HorizontalContentAlignment="Stretch"
-                                                 MaxWidth="320"
                                             Height="18"
                                                 >
                                             <i:Interaction.Behaviors>

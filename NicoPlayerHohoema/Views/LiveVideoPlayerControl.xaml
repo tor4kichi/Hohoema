@@ -228,27 +228,6 @@
                 </VisualState>
             </VisualStateGroup>
 
-            <!-- ウィンドウ非アクティブ時にマウス移動に反応するエリアを拡大する -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <myTrigger:WindowActiveTrigger Inverted="True" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="WindowDeactiveMouseMoveDetectWall.Visibility" Value="Visible" />
-                    </VisualState.Setters>
-                </VisualState>
-
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <myTrigger:WindowActiveTrigger Inverted="False" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="WindowDeactiveMouseMoveDetectWall.Visibility" Value="Collapsed" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-
 
             <VisualStateGroup>
                 <VisualState>
@@ -483,12 +462,6 @@
                                   Margin="24 88"      
                                   />
 
-
-                <!-- ウィンドウ非アクティブ時に画面全体をマウス移動の反応対象にするためのコリジョン-->
-                <Border x:Name="WindowDeactiveMouseMoveDetectWall" Background="Transparent"
-                            >
-
-                </Border>
 
                 <Border IsHitTestVisible="True" Background="Transparent">
                     <i:Interaction.Behaviors>
