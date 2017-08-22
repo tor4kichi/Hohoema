@@ -108,6 +108,8 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
         bool _NowCompactOverlayMode = false;
 
+        
+
         protected override void OnAttached()
         {
             base.OnAttached();
@@ -118,6 +120,25 @@ namespace NicoPlayerHohoema.Views.Behaviors
             AssociatedObject.Unloaded += AssociatedObject_Unloaded;
 
             Window.Current.SizeChanged += Current_SizeChanged;
+        }
+
+        protected override void OnDetaching()
+        {
+            Window.Current.SizeChanged -= Current_SizeChanged;
+            MouseDevice.GetForCurrentView().MouseMoved -= CursorSetter_MouseMoved;
+
+
+            AssociatedObject.PointerEntered -= AssociatedObject_PointerEntered;
+            AssociatedObject.PointerExited -= AssociatedObject_PointerExited;
+
+            Window.Current.Activated -= Current_Activated;
+
+            _AutoHideTimer.Tick -= AutoHideTimer_Tick;
+            _AutoHideTimer.Stop();
+
+            Window.Current.CoreWindow.PointerCursor = _DefaultCursor;
+
+            base.OnDetaching();
         }
 
         private void Current_SizeChanged(object sender, WindowSizeChangedEventArgs e)
@@ -143,6 +164,12 @@ namespace NicoPlayerHohoema.Views.Behaviors
             ResetAutoHideTimer();
         }
 
+        private void AssociatedObject_Unloaded(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+
         private void Current_Activated(object sender, WindowActivatedEventArgs e)
         {
             if (e.WindowActivationState == CoreWindowActivationState.Deactivated)
@@ -157,16 +184,8 @@ namespace NicoPlayerHohoema.Views.Behaviors
             }
         }
 
-        private void AssociatedObject_Unloaded(object sender, RoutedEventArgs e)
-        {
-            Window.Current.SizeChanged -= Current_SizeChanged;
-            MouseDevice.GetForCurrentView().MouseMoved -= CursorSetter_MouseMoved;
 
-            _AutoHideTimer.Stop();
-
-            Window.Current.CoreWindow.PointerCursor = _DefaultCursor;
-        }
-
+        
 
 
         private void ResetAutoHideTimer()
