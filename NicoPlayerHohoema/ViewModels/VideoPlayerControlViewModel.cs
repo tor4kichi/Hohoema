@@ -397,10 +397,9 @@ namespace NicoPlayerHohoema.ViewModels
             })
             .AddTo(_CompositeDisposable);
 
-            ResetDefaultPlaybackRate = new DelegateCommand(() => PlaybackRate.Value = 1.0);
             SetPlaybackRateCommand = new DelegateCommand<double?>(
                 (rate) => PlaybackRate.Value = rate.HasValue ? rate.Value : 1.0                
-                , (rate) => rate.HasValue ? rate.Value == PlaybackRate.Value : true
+                , (rate) => rate.HasValue ? rate.Value != PlaybackRate.Value : true
             );
 
 
@@ -2164,7 +2163,6 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> NowQualityChanging { get; private set; }
 		public ReactiveProperty<bool> IsEnableRepeat { get; private set; }
         public ReactiveProperty<double> PlaybackRate { get; private set; }
-        public DelegateCommand ResetDefaultPlaybackRate { get; private set; }
         public DelegateCommand<double?> SetPlaybackRateCommand { get; private set; }
 
         public ReactiveProperty<bool> IsAutoHideEnable { get; private set; }
