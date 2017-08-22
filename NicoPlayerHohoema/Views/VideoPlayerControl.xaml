@@ -947,7 +947,7 @@
                                                 <Button Background="Transparent" 
                                                 Command="{x:Bind TogglePlaylistPaneCommand}"
                                                 >
-                                                    <iconPack:PackIconMaterial Kind="PlaylistPlay" Width="32" Height="32" >
+                                                    <iconPack:PackIconMaterial Kind="PlaylistPlay" Width="24" Height="24" >
 
                                                     </iconPack:PackIconMaterial>
 
@@ -1240,8 +1240,8 @@
                                                         <iconPack:PackIconMaterial
                                                     Kind="Comment"
                                                     x:Name="CommentIcon"
-                                                    Width="24"
-                                                    Height="24"
+                                                    Width="20"
+                                                    Height="20"
                                                     />
                                                         <Canvas>
                                                             <Line X1="{Binding ElementName=CommentIcon, Path=ActualWidth}" 
@@ -1272,7 +1272,7 @@
                                                 Margin="0 0 24 0"
                                             >
                                                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3C;" 
-                                               FontSize="18"
+                                               FontSize="24"
                                                />
                                                 </Button>
 
@@ -1287,7 +1287,7 @@
                                                     RenderTransformOrigin="0.5, 0.5"
                                                     >
                                                         <iconPack:PackIconMaterial.RenderTransform>
-                                                            <CompositeTransform ScaleX="1.7" ScaleY="1.7"/>
+                                                            <CompositeTransform ScaleX="1.35" ScaleY="1.35"/>
                                                         </iconPack:PackIconMaterial.RenderTransform>
 
                                                     </iconPack:PackIconMaterial>
@@ -1299,7 +1299,7 @@
                                                 Margin="24 0 0 0"
                                             >
                                                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3D;"
-                                               FontSize="18"
+                                               FontSize="24"
                                            
                                                    
                                                />
@@ -1317,16 +1317,10 @@
                                                 <Button Command="{Binding ToggleCompactOverlayCommand}"
                                                         Background="Transparent"
                                                         x:Name="CompactOverlayButton"
-                                                    
                                                         >
-                                                    <iconPack:PackIconMaterial Kind="MoveResize" 
-                                                        RenderTransformOrigin="0.5, 0.5"
-                                                        >
-                                                        <iconPack:PackIconMaterial.RenderTransform>
-                                                            <CompositeTransform ScaleX="1.5" ScaleY="1.5"/>
-                                                        </iconPack:PackIconMaterial.RenderTransform>
-
-                                                    </iconPack:PackIconMaterial>
+                                                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE2B4;"
+                                                       FontSize="24"
+                                                       />
                                                 </Button>
                                             
                                                 <Button Command="{Binding ToggleFullScreenCommand}"
@@ -1340,7 +1334,7 @@
                                                     RenderTransformOrigin="0.5, 0.5"
                                                     >
                                                         <iconPack:PackIconMaterial.RenderTransform>
-                                                            <CompositeTransform ScaleX="1.5" ScaleY="1.5"/>
+                                                            <CompositeTransform ScaleX="1.35" ScaleY="1.35"/>
                                                         </iconPack:PackIconMaterial.RenderTransform>
 
                                                     </iconPack:PackIconMaterial>
@@ -1578,7 +1572,7 @@
                                                         Margin="0 0 8 0"
                                                 >
                                                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3C;" 
-                                                           FontSize="14"
+                                                           FontSize="20"
                                                            />
                                                 </Button>
 
@@ -1593,7 +1587,7 @@
                                                                     RenderTransformOrigin="0.5, 0.5"
                                                                     >
                                                         <iconPack:PackIconMaterial.RenderTransform>
-                                                            <CompositeTransform ScaleX="1.2" ScaleY="1.2"/>
+                                                            <CompositeTransform ScaleX="1.35" ScaleY="1.35"/>
                                                         </iconPack:PackIconMaterial.RenderTransform>
 
                                                     </iconPack:PackIconMaterial>
@@ -1605,7 +1599,7 @@
                                                         Margin="8 0 0 0"
                                                     >
                                                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3D;"
-                                                       FontSize="14"
+                                                       FontSize="20"
                                            
                                                    
                                                        />
@@ -1625,14 +1619,9 @@
                                                         x:Name="CO_CompactOverlayButton"
                                                     
                                                         >
-                                                    <iconPack:PackIconMaterial Kind="MoveResize" 
-                                                        RenderTransformOrigin="0.5, 0.5"
-                                                        >
-                                                        <iconPack:PackIconMaterial.RenderTransform>
-                                                            <CompositeTransform ScaleX="1.5" ScaleY="1.5"/>
-                                                        </iconPack:PackIconMaterial.RenderTransform>
-
-                                                    </iconPack:PackIconMaterial>
+                                                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE944;"
+                                                       FontSize="24"
+                                                       />
                                                 </Button>
 
                                             </toolkit:WrapPanel>

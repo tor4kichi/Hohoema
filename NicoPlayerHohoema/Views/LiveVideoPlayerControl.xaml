@@ -807,8 +807,8 @@
                                             <iconPack:PackIconMaterial
                                                 Kind="Comment"
                                                 x:Name="CommentIcon"
-                                                Width="24"
-                                                Height="24"
+                                                Width="18"
+                                                Height="18"
                                                 />
                                             <Canvas>
                                                 <Line X1="{Binding ElementName=CommentIcon, Path=ActualWidth}" 
@@ -816,7 +816,7 @@
                                                       X2="0" 
                                                       Y2="{Binding ElementName=CommentIcon, Path=ActualHeight}"
                                                   Stroke="Red"
-                                                      StrokeThickness="4"
+                                                      StrokeThickness="3"
                                                   Visibility="{Binding IsVisibleComment.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                                   Opacity="0.7"
                                                   />
@@ -855,14 +855,9 @@
                                                         x:Name="CompactOverlayButton"
                                                     
                                                         >
-                                        <iconPack:PackIconMaterial Kind="MoveResize" 
-                                                        RenderTransformOrigin="0.5, 0.5"
-                                                        >
-                                            <iconPack:PackIconMaterial.RenderTransform>
-                                                <CompositeTransform ScaleX="1.5" ScaleY="1.5"/>
-                                            </iconPack:PackIconMaterial.RenderTransform>
-
-                                        </iconPack:PackIconMaterial>
+                                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE2B4;"
+                                                       FontSize="24"
+                                                       />
                                     </Button>
                                     
                                     <Button Command="{Binding ToggleFullScreenCommand}"
@@ -1125,14 +1120,9 @@
                                                         x:Name="CO_CompactOverlayButton"
                                                     
                                                         >
-                                            <iconPack:PackIconMaterial Kind="MoveResize" 
-                                                        RenderTransformOrigin="0.5, 0.5"
-                                                        >
-                                                <iconPack:PackIconMaterial.RenderTransform>
-                                                    <CompositeTransform ScaleX="1.5" ScaleY="1.5"/>
-                                                </iconPack:PackIconMaterial.RenderTransform>
-
-                                            </iconPack:PackIconMaterial>
+                                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE944;"
+                                                       FontSize="24"
+                                                       />
                                         </Button>
 
                                     </toolkit:WrapPanel>
