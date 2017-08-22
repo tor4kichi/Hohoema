@@ -352,10 +352,15 @@ namespace NicoPlayerHohoema.ViewModels
 
 				await NavigatedToAsync(cancelToken, e, viewModelState);
 
+                cancelToken.ThrowIfCancellationRequested();
 
-                await CallAppServiceLevelOffline(_NavigatedToTaskCancelToken.Token);
+                await CallAppServiceLevelOffline(cancelToken);
 
-                await CallAppServiceLevelOnlineWithoutLoggedIn(_NavigatedToTaskCancelToken.Token);
+                cancelToken.ThrowIfCancellationRequested();
+
+                await CallAppServiceLevelOnlineWithoutLoggedIn(cancelToken);
+
+                cancelToken.ThrowIfCancellationRequested();
 
                 if (await CheckSignIn())
                 {
