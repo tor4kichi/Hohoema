@@ -106,6 +106,8 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
 
 
+        bool _NowCompactOverlayMode = false;
+
         protected override void OnAttached()
         {
             base.OnAttached();
@@ -114,13 +116,20 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
             AssociatedObject.Loaded += AssociatedObject_Loaded;
             AssociatedObject.Unloaded += AssociatedObject_Unloaded;
+
+            Window.Current.SizeChanged += Current_SizeChanged;
         }
 
+        private void Current_SizeChanged(object sender, WindowSizeChangedEventArgs e)
+        {
+            var view = ApplicationView.GetForCurrentView();
+            _NowCompactOverlayMode = view.ViewMode == ApplicationViewMode.CompactOverlay;
+        }
 
         private void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
         {
             MouseDevice.GetForCurrentView().MouseMoved += CursorSetter_MouseMoved;
-
+            
             AssociatedObject.PointerEntered += AssociatedObject_PointerEntered;
             AssociatedObject.PointerExited += AssociatedObject_PointerExited;
 
@@ -150,9 +159,10 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
         private void AssociatedObject_Unloaded(object sender, RoutedEventArgs e)
         {
-            _AutoHideTimer.Stop();
-
+            Window.Current.SizeChanged -= Current_SizeChanged;
             MouseDevice.GetForCurrentView().MouseMoved -= CursorSetter_MouseMoved;
+
+            _AutoHideTimer.Stop();
 
             Window.Current.CoreWindow.PointerCursor = _DefaultCursor;
         }
@@ -162,7 +172,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
         private void ResetAutoHideTimer()
         {
             _AutoHideTimer.Stop();
-            if (IsAutoHideEnabled)
+            if (IsAutoHideEnabled && !_NowCompactOverlayMode)
             {
                 _AutoHideTimer.Start();
             }

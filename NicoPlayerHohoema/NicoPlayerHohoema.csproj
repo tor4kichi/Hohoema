@@ -342,6 +342,8 @@
     <Compile Include="Views\Service\MarkdownTextDialog.xaml.cs">
       <DependentUpon>MarkdownTextDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\StateTrigger\CompactOverlayViewModeTrigger.cs" />
+    <Compile Include="Views\StateTrigger\IsSupportCompactOverlayTrigger.cs" />
     <Compile Include="Views\UINavigationButtons.cs" />
     <Compile Include="Views\CommentCommandEditer.xaml.cs">
       <DependentUpon>CommentCommandEditer.xaml</DependentUpon>

@@ -16,6 +16,7 @@ using Prism.Commands;
 using NicoPlayerHohoema.Models.Live;
 using Windows.UI.ViewManagement;
 using Windows.UI.Core;
+using Windows.ApplicationModel.Core;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -84,6 +85,20 @@ namespace NicoPlayerHohoema.ViewModels
                 ClosePlayer();
             });
 
+            IsVisibleFloatContent
+                .Where(x => !x)
+                .Subscribe(async x => 
+                {
+                    var view = ApplicationView.GetForCurrentView();
+                    if (view.IsViewModeSupported(ApplicationViewMode.CompactOverlay))
+                    {
+                        var result = await view.TryEnterViewModeAsync(ApplicationViewMode.Default);
+                        if (result)
+                        {
+                            CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = false;
+                        }
+                    }
+                });
 
             App.Current.Suspending += Current_Suspending;
         }

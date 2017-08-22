@@ -46,6 +46,7 @@ using Windows.ApplicationModel.DataTransfer;
 using Windows.Media.Core;
 using Windows.Media;
 using Windows.UI.Popups;
+using Windows.ApplicationModel.Core;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -397,6 +398,10 @@ namespace NicoPlayerHohoema.ViewModels
             .AddTo(_CompositeDisposable);
 
             ResetDefaultPlaybackRate = new DelegateCommand(() => PlaybackRate.Value = 1.0);
+            SetPlaybackRateCommand = new DelegateCommand<double?>(
+                (rate) => PlaybackRate.Value = rate.HasValue ? rate.Value : 1.0                
+                , (rate) => rate.HasValue ? rate.Value == PlaybackRate.Value : true
+            );
 
 
 
@@ -421,6 +426,42 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 			})
 			.AddTo(_CompositeDisposable);
+
+
+            // プレイヤーを閉じた際のコンパクトオーバーレイの解除はPlayerWithPageContainerViewModel側で行う
+            IsCompactOverlay = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler,
+                ApplicationView.GetForCurrentView().ViewMode == ApplicationViewMode.CompactOverlay,
+                ReactivePropertyMode.DistinctUntilChanged);
+            IsCompactOverlay
+                .Subscribe(async isCompactOverlay =>
+                {
+                    var appView = ApplicationView.GetForCurrentView();
+                    if (appView.IsViewModeSupported(ApplicationViewMode.CompactOverlay))
+                    {
+                        if (isCompactOverlay)
+                        {
+                            ViewModePreferences compactOptions = ViewModePreferences.CreateDefault(ApplicationViewMode.CompactOverlay);
+                            compactOptions.CustomSize = new Windows.Foundation.Size(500, 280);
+
+                            var result = await appView.TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay, compactOptions);
+                            if (result)
+                            {
+                                CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
+                                IsDisplayControlUI.Value = false;
+                            }
+                        }
+                        else
+                        {
+                            var result = await appView.TryEnterViewModeAsync(ApplicationViewMode.Default);
+                            if (result)
+                            {
+                                CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = false;
+                            }
+                        }
+                    }
+                })
+            .AddTo(_CompositeDisposable);
+
 
             IsSmallWindowModeEnable = HohoemaApp.Playlist
                 .ToReactivePropertyAsSynchronized(x => x.IsPlayerFloatingModeEnable);
@@ -1136,8 +1177,6 @@ namespace NicoPlayerHohoema.ViewModels
 				VideoId = (string)viewModelState[nameof(VideoId)];
 			}
 
-            
-
             cancelToken.ThrowIfCancellationRequested();
 
             var videoInfo = await HohoemaApp.MediaManager.GetNicoVideoAsync(VideoId);
@@ -1338,7 +1377,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			Debug.WriteLine("VideoPlayer OnNavigatingFromAsync start.");
 
-//			PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
+            //			PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
 
 			if (suspending)
 			{
@@ -1660,6 +1699,21 @@ namespace NicoPlayerHohoema.ViewModels
 					));
 			}
 		}
+
+
+        private DelegateCommand _ToggleCompactOverlayCommand;
+        public DelegateCommand ToggleCompactOverlayCommand
+        {
+            get
+            {
+                return _ToggleCompactOverlayCommand
+                    ?? (_ToggleCompactOverlayCommand = new DelegateCommand(() =>
+                    {
+                        IsCompactOverlay.Value = !IsCompactOverlay.Value;
+                    }
+                    ));
+            }
+        }
 
         private DelegateCommand _PlayerSmallWindowDisplayCommand;
         public DelegateCommand PlayerSmallWindowDisplayCommand
@@ -2111,6 +2165,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> IsEnableRepeat { get; private set; }
         public ReactiveProperty<double> PlaybackRate { get; private set; }
         public DelegateCommand ResetDefaultPlaybackRate { get; private set; }
+        public DelegateCommand<double?> SetPlaybackRateCommand { get; private set; }
 
         public ReactiveProperty<bool> IsAutoHideEnable { get; private set; }
         public ReactiveProperty<TimeSpan> AutoHideDelayTime { get; private set; }
@@ -2133,6 +2188,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<TimeSpan> RequestCommentDisplayDuration { get; private set; }
 		public ReactiveProperty<double> CommentFontScale { get; private set; }
 		public ReactiveProperty<bool> IsFullScreen { get; private set; }
+        public ReactiveProperty<bool> IsCompactOverlay { get; private set; }
         public ReactiveProperty<bool> IsSmallWindowModeEnable { get; private set; }
         public ReactiveProperty<bool> IsForceLandscape { get; private set; }
 

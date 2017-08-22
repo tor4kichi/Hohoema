@@ -232,9 +232,9 @@
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="17" />
+                                    <RowDefinition Height="8" />
                                     <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="17" />
+                                    <RowDefinition Height="8" />
                                 </Grid.RowDefinitions>
 
                                 <Rectangle x:Name="HorizontalTrackRect"
@@ -306,9 +306,9 @@
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="17" />
+                                    <ColumnDefinition Width="8" />
                                     <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="17" />
+                                    <ColumnDefinition Width="8" />
                                 </Grid.ColumnDefinitions>
 
                                 <Rectangle x:Name="VerticalTrackRect"
