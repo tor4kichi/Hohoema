@@ -1,70 +1,81 @@
 # Hohoema
 
-Hohoemaはオープンソースな Windows 10/Windows 10 Mobile/XboxOne向けのニコニコ動画プレイヤーです。
+## ニコニコ動画・生放送プレイヤーアプリ for Windows 10 families
 
-一般会員やモバイル端末にも対応しています。
 
-## ダウンロード
+Windows 10/Windows 10 Mobile/XboxOneに対応したニコニコ動画・生放送のファインダー・プレイヤーアプリです。
 
-Windows 10 のストアアプリから無料でダウンロードできます
+一般会員アカウントやモバイル端末にも対応しています。
 
-**[Hohoema - アプリストア](https://www.microsoft.com/ja-jp/store/p/hohoema/9nblggh4rxt6)**
+ご利用にはニコニコ動画アカウントが必要です。
+
+# ダウンロード
+
+Windows 10 や XboxOne のストアアプリから無料でダウンロードできます
+
+## [Hohoema - アプリストア](https://www.microsoft.com/ja-jp/store/p/hohoema/9nblggh4rxt6)
+
 （※ Windows10でアクセスするとストアアプリが起動します）
 
-アプリ本体を無料に変更し、アドオンから開発者への支援を行える形に変更しました。(2017/06/02) 
+### 動作環境
 
-使えるニコ動プレイヤーにしていきますのでご支援よろしくお願いします。
+* Windows 10
+* Windows 10 Mobile
+* XboxOne
 
-## 主な機能
+Hohoema は Universal Windows Platform (UWP) アプリです。
 
-* ニコニコ動画の動画再生
-  * DMC動画サーバーからの動画再生に対応（v0.9）
-* コメントの投稿
-* ランキングや検索から動画を見つける
-* 動画NG設定（動画タイトル/投稿者ID）
-* お気に入りの管理
-* マイリストの管理 (v0.3.0)
-* キャッシュの管理（v0.6で安定性改善）
-* 動画フィード機能
-  * 「マイリストの動画」「タグ検索結果」「ユーザーの投稿動画」をそれぞれ時系列で並べて新着表示できる機能
-* ニコニコ生放送の視聴 (v0.5.0) 
-  * ニコ生の新配信に対応（v0.9）
-* プレイリスト（v0.6.0）
-* XboxOneとXInput対応（v0.6.0）
-* 再生速度の変更に対応（v0.7）
+ご利用にはAnniversary Update以降へのOSバージョンを更新する必要があります。
 
+### 開発への支援について
+(2017/06/02)  アプリ本体を無料に変更し、アドオンから開発者への支援を行える形に変更しました。
 
- 
+支援アドオンはHohoemaアプリ内の「設定」→ 「このアプリについて」→ 「アドオン」から選択できます。
+
+使えるニコ動プレイヤーにしていきますので支援お願いします。
+
+# Hohoemaに出来ること
+
+* ニコニコ動画やニコニコ生放送の視聴
+  * 新仕様・新配信に対応
+  * コメントの表示（サイズ変更やfps指定も可能）
+  * コメント投稿
+  * ランキングや検索から動画を見つける
+  * フォローやマイリストの表示
+
+* 動画キャッシュのダウンロード
+  *
+  * 動画フィード機能
+    * 「マイリストの動画」「タグ検索結果」「ユーザーの投稿動画」をそれぞれ時系列で並べて新着表示できる機能
+  * 「あとで見る」機能やローカルなプレイリスト機能
+  * NG設定（動画タイトル・動画投稿者ID・コメント）（正規表現が使えます）
+  
 
 その他の機能や修正点は [リリースノート](https://github.com/tor4kichi/Hohoema/wiki/%E3%83%AA%E3%83%AA%E3%83%BC%E3%82%B9%E3%83%8E%E3%83%BC%E3%83%88) から確認できます
 
 
 
-## 今後の予定
+# 今後の予定
 
-* [v0.9 利便性向上](https://github.com/tor4kichi/Hohoema/milestone/14)
-* [v0.10 プレイヤーウィンドウ分離（CompactOverlay対応）](https://github.com/tor4kichi/Hohoema/milestone/16)
+* (WIP) [v0.10 プレイヤーウィンドウ分離（CompactOverlay対応）](https://github.com/tor4kichi/Hohoema/milestone/16)
 * [v0.11 生放送開始検出やフィード自動更新などのBG処理対応](https://github.com/tor4kichi/Hohoema/milestone/4)
 
 
-## 要望・バグ報告について
+# 要望・バグ報告について
 
-Hohoemaへの要望やバグ報告は下記のいずれかの方法でご連絡ください
-
-* github: [新しいIssueを立てる](https://github.com/tor4kichi/Hohoema/issues)
-* twitter: [@tor4kichi](https://twitter.com/tor4kichi)
-* mail: tor4kichi@hotmail.com
+## [目安箱 - Google Form](https://docs.google.com/forms/d/e/1FAIpQLSc0IvUdQ7WN73A5M0zV4t5fe20BVV7B4CXmiKpPTrHOlqyXiw/viewform)
+## [HohoemaのGithub上に新しい課題を立てる](https://github.com/tor4kichi/Hohoema/issues)
 
 今後の変更や確認されているバグは [イシュー](https://github.com/tor4kichi/Hohoema/issues) から確認できます
 
 
-## オープンソースの理由は？
+# オープンソースの理由は？
 
-アプリの制作が打ち切られた場合でも有志の方が何かしら引き継いだアプリを作れるようにするためです。
+基本的には、このアプリの制作が打ち切られた場合でも、有志の方が何かしら引き継いだアプリを作れるようにするためです。
 
-また、信用の無さをコード公開による透明性で補う目的もあります。
+また、UWPアプリが増えてほしいと思っているので、実際に動くサンプルとして見てもらえるようにするためです。
 
-## ライセンス
+# ライセンス
 
 GPL 3.0
 
