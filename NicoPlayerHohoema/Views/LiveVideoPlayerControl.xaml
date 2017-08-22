@@ -1014,12 +1014,21 @@
                         </Grid>
 
                         <toolkit:DockPanel>
+
+                            <Border toolkit:DockPanel.Dock="Top" 
+                                            Height="32"
+                                            >
+                                <Border.Background>
+                                    <SolidColorBrush Color="{StaticResource SystemAltMediumColor}" />
+                                </Border.Background>
+                            </Border>
+                            
                             <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
-                                <Button Command="{Binding ClosePlayerCommand}"
+                                <Button x:Name="CO_CloseButton"
+                                        Command="{Binding ClosePlayerCommand}"
                                         Background="Transparent"
                                         toolkit:DockPanel.Dock="Left"
                                         UseSystemFocusVisuals="True"
-                                            x:Name="CO_CloseButton"
                                         >
                                     <iconPack:PackIconMaterial Kind="Close" />
                                 </Button>

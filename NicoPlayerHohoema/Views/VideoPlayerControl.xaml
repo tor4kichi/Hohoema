@@ -885,6 +885,7 @@
 
                         <Border IsHitTestVisible="True" Background="Transparent">
                             <i:Interaction.Behaviors>
+                                
                                 <core:EventTriggerBehavior EventName="Tapped">
                                     <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="{Binding IsDisplayControlUI.Value, Converter={StaticResource BooleanInverted}}" />
                                 </core:EventTriggerBehavior>
@@ -898,6 +899,7 @@
                     x:Name="UIControlLayout"
                             >
                             <i:Interaction.Behaviors>
+
                                 <mybehavior:VisiblityFadeChanger x:Name="PlayerControlAutoHide" 
                                                          Delay="{Binding AutoHideDelayTime.Value, Mode=OneWay}"
                                                          IsAnimationEnable="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BooleanInverted}}"
@@ -1468,15 +1470,18 @@
 
                             <!-- Compact Overlay UIControl -->
                             <Grid x:Name="CompactOverlayUIControl"
-                                               Visibility="Collapsed"
+                                  Visibility="Collapsed"
                                   >
                                 <Grid.Background>
                                     <SolidColorBrush Color="{StaticResource SystemAltMediumColor}" />
                                 </Grid.Background>
 
                                 <Grid>
+                                    
+                                    
                                     <Border IsHitTestVisible="True" Background="Transparent">
                                         <i:Interaction.Behaviors>
+
                                             <core:EventTriggerBehavior EventName="Tapped">
                                                 <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI}" PropertyName="Value" Value="{Binding IsDisplayControlUI.Value, Converter={StaticResource BooleanInverted}}" />
                                             </core:EventTriggerBehavior>
@@ -1485,13 +1490,22 @@
                                 </Grid>
 
                                 <toolkit:DockPanel>
+                                    
+                                    <Border toolkit:DockPanel.Dock="Top" 
+                                            Height="32"
+                                            >
+                                        <Border.Background>
+                                            <SolidColorBrush Color="{StaticResource SystemAltMediumColor}" />
+                                        </Border.Background>
+                                    </Border>
+
                                     <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
-                                        <Button Command="{Binding ClosePlayerCommand}"
-                                        Background="Transparent"
-                                        toolkit:DockPanel.Dock="Left"
-                                        UseSystemFocusVisuals="True"
-                                            x:Name="CO_CloseButton"
-                                        >
+                                        <Button x:Name="CO_CloseButton"
+                                                Command="{Binding ClosePlayerCommand}"
+                                                Background="Transparent"
+                                                toolkit:DockPanel.Dock="Left"
+                                                UseSystemFocusVisuals="True"
+                                                >
                                             <iconPack:PackIconMaterial Kind="Close" />
                                         </Button>
 
