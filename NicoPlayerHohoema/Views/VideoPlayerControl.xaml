@@ -1331,8 +1331,10 @@
                                                 Margin="0 0 24 0"
                                             >
                                                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3C;" 
-                                               FontSize="24"
-                                               />
+                                                        FontSize="24"
+                                                               
+                                                    />
+
                                                 </Button>
 
                                                 <Button Command="{Binding TogglePlayPauseCommand}"
@@ -1352,16 +1354,17 @@
                                                     </iconPack:PackIconMaterial>
                                                 </Button>
 
-                                                <Button Background="Transparent"
-                                            Command="{Binding ForwardVideoPositionCommand}"
-                                            x:Name="ForwardVideoPositionButon"
-                                                Margin="24 0 0 0"
-                                            >
-                                                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3D;"
-                                               FontSize="24"
-                                           
-                                                   
-                                               />
+                                                <Button x:Name="ForwardVideoPositionButon"
+                                                        Background="Transparent"
+                                                        Command="{Binding ForwardVideoPositionCommand}"
+                                                        Margin="24 0 0 0"
+                                                        >
+                                                    <TextBlock FontFamily="Segoe MDL2 Assets" 
+                                                               Text="&#xED3D;"
+                                                               FontSize="24"
+                                                                />
+
+
                                                 </Button>
 
                                             </StackPanel>
@@ -1524,13 +1527,19 @@
                                             >
                                         <Button MinWidth="24"
                                                 Height="120"
-                                            Command="{Binding OpenPreviousPlaylistItemCommand}"
-                                            IsEnabled="{Binding PlaylistCanGoBack.Value}"
-                                                
+                                                Command="{Binding OpenPreviousPlaylistItemCommand}"
+                                                IsEnabled="{Binding PlaylistCanGoBack.Value}"
+                                                BorderBrush="{StaticResource HohoemaPlayerBackgroundBrush}"
+                                                BorderThickness="0 1 1 1"
                                             >
-                                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE016;" 
-                                                           FontSize="20"
-                                                           />
+                                            <TextBlock FontFamily="Segoe MDL2 Assets" 
+                                                       Text="&#xE016;" 
+                                                       FontSize="20"
+                                                       >
+                                                <TextBlock.Foreground>
+                                                    <SolidColorBrush Color="{StaticResource HohoemaPlayerBackgroundBrush}" />
+                                                </TextBlock.Foreground>
+                                            </TextBlock>
                                         </Button>
                                     </Border>
 
@@ -1541,11 +1550,17 @@
                                                 Height="120"
                                                 Command="{Binding OpenNextPlaylistItemCommand}"
                                                 IsEnabled="{Binding PlaylistCanGoNext.Value}"
-                                                
+                                                BorderBrush="{StaticResource HohoemaPlayerBackgroundBrush}"
+                                                BorderThickness="1 1 0 1"
                                                 >
-                                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE017;" 
-                                                           FontSize="20"
-                                                           />
+                                            <TextBlock FontFamily="Segoe MDL2 Assets" 
+                                                       Text="&#xE017;" 
+                                                       FontSize="20"
+                                                           >
+                                                <TextBlock.Foreground>
+                                                    <SolidColorBrush Color="{StaticResource HohoemaPlayerBackgroundBrush}" />
+                                                </TextBlock.Foreground>
+                                            </TextBlock>
                                         </Button>
                                     </Border>
 
