@@ -259,7 +259,7 @@
 
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <myTrigger:IsSupportCompactOverlayTrigger Inverted="True" />
+                        <myTrigger:IsSupportCompactOverlayTrigger />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="CompactOverlayButton.Visibility" Value="Visible" />
@@ -823,10 +823,10 @@
                                     HorizontalAlignment="Right"
                                         >
 
-                                    <Button Command="{Binding ToggleCompactOverlayCommand}"
-                                                        Background="Transparent"
-                                                        x:Name="CompactOverlayButton"
-                                                    
+                                    <Button x:Name="CompactOverlayButton"
+                                            Command="{Binding ToggleCompactOverlayCommand}"
+                                            Background="Transparent"
+                                            Visibility="Collapsed"
                                                         >
                                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE2B4;"
                                                        FontSize="24"
@@ -916,7 +916,7 @@
 
 
                                 <Button Content="{Binding CommandString.Value}" 
-                                            Margin="8 0 8 8"
+                                            Margin="0 0 8 8"
                                             HorizontalAlignment="Stretch"
                                             HorizontalContentAlignment="Center"
                                             DataContext="{Binding}"
@@ -934,7 +934,7 @@
                                     </Button.Flyout>
                                 </Button>
 
-                                <Button Content="投稿"  Margin="8 0 8 8"
+                                <Button Content="投稿"  Margin="8 0 0 8"
                                                 Height="40"
                                                 Command="{Binding CommentSubmitCommand}"
                                                 x:Name="CommentSubmitButton"
