@@ -116,19 +116,22 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
             this.SizeChanged += CommentRendererEx_SizeChanged;
         }
 
-        private void CommentRendererEx_SizeChanged(object sender, SizeChangedEventArgs e)
+        private async void CommentRendererEx_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            foreach (var renderComment in RenderComments)
+            using (var releaser = await _UpdateLock.LockAsync())
             {
-                CommentUICached.Push(renderComment);
+                foreach (var renderComment in RenderComments)
+                {
+                    CommentUICached.Push(renderComment);
+                }
+
+                RenderComments.Clear();
+                CommentCanvas.Children.Clear();
+
+                PrevRenderCommentEachLine_Stream.Clear();
+                PrevRenderCommentEachLine_Top.Clear();
+                PrevRenderCommentEachLine_Bottom.Clear();
             }
-
-            RenderComments.Clear();
-            CommentCanvas.Children.Clear();
-
-            PrevRenderCommentEachLine_Stream.Clear();
-            PrevRenderCommentEachLine_Top.Clear();
-            PrevRenderCommentEachLine_Bottom.Clear();
         }
 
 
