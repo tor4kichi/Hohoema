@@ -1535,10 +1535,8 @@
                                             <TextBlock FontFamily="Segoe MDL2 Assets" 
                                                        Text="&#xE016;" 
                                                        FontSize="20"
+                                                       Foreground="{ThemeResource HohoemaPlayerBackgroundBrush}"
                                                        >
-                                                <TextBlock.Foreground>
-                                                    <SolidColorBrush Color="{StaticResource HohoemaPlayerBackgroundBrush}" />
-                                                </TextBlock.Foreground>
                                             </TextBlock>
                                         </Button>
                                     </Border>
@@ -1556,10 +1554,8 @@
                                             <TextBlock FontFamily="Segoe MDL2 Assets" 
                                                        Text="&#xE017;" 
                                                        FontSize="20"
+                                                       Foreground="{ThemeResource HohoemaPlayerBackgroundBrush}"
                                                            >
-                                                <TextBlock.Foreground>
-                                                    <SolidColorBrush Color="{StaticResource HohoemaPlayerBackgroundBrush}" />
-                                                </TextBlock.Foreground>
                                             </TextBlock>
                                         </Button>
                                     </Border>
