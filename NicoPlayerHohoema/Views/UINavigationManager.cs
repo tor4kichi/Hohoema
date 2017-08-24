@@ -63,8 +63,26 @@ namespace NicoPlayerHohoema.Views
             App.Current.EnteredBackground += Current_EnteredBackground;
             App.Current.LeavingBackground += Current_LeavingBackground; ;
 
+            UINavigationController.UINavigationControllerAdded += UINavigationController_UINavigationControllerAdded;
+            UINavigationController.UINavigationControllerRemoved += UINavigationController_UINavigationControllerRemoved;
 
+            if (UINavigationController.UINavigationControllers.Count > 0)
+            {
+                ActivatePolling();
+            }
+        }
+
+        private void UINavigationController_UINavigationControllerRemoved(object sender, UINavigationController e)
+        {
             ActivatePolling();
+        }
+
+        private void UINavigationController_UINavigationControllerAdded(object sender, UINavigationController e)
+        {
+            if (UINavigationController.UINavigationControllers.Count == 0)
+            {
+                DeactivatePolling();
+            }
         }
 
         private void Current_LeavingBackground(object sender, Windows.ApplicationModel.LeavingBackgroundEventArgs e)
