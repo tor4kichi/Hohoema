@@ -115,8 +115,12 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
         bool _NowFocusingElement = false;
 
+        CoreDispatcher _UIDispatcher;
+
         protected override void OnAttached()
         {
+            _UIDispatcher = this.Dispatcher;
+
             this.AssociatedObject.GotFocus += AssociatedObject_GotFocus;
             this.AssociatedObject.LostFocus += AssociatedObject_LostFocus;
 
@@ -125,12 +129,15 @@ namespace NicoPlayerHohoema.Views.Behaviors
         }
 
         bool _Holding = false;
-        private void Instance_Holding(UINavigationManager sender, UINavigationButtons button)
+        private async void Instance_Holding(UINavigationManager sender, UINavigationButtons button)
         {
-            if (Hold && button.HasFlag(Kind))
+            await _UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
-                _Holding = true;
-            }
+                if (Hold && button.HasFlag(Kind))
+                {
+                    _Holding = true;
+                }
+            });
         }
 
         protected override void OnDetaching()
@@ -140,36 +147,39 @@ namespace NicoPlayerHohoema.Views.Behaviors
             base.OnDetaching();
         }
 
-        private void Instance_Pressed(UINavigationManager sender, UINavigationButtons button)
+        private async void Instance_Pressed(UINavigationManager sender, UINavigationButtons button)
         {
-            if (!IsEnabled) { return; }
-
-            if (Windows.UI.ViewManagement.InputPane.GetForCurrentView().Visible)
+            await _UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
-                return;
-            }
+                if (!IsEnabled) { return; }
 
-            if (IsRequireFocus && !_NowFocusingElement)
-            {
-                return;
-            }
+                if (Windows.UI.ViewManagement.InputPane.GetForCurrentView().Visible)
+                {
+                    return;
+                }
 
-            if (!button.HasFlag(Kind))
-            {
-                return;
-            }
+                if (IsRequireFocus && !_NowFocusingElement)
+                {
+                    return;
+                }
 
-            if (Hold && !_Holding)
-            {
-                return;
-            }
+                if (!button.HasFlag(Kind))
+                {
+                    return;
+                }
 
-            _Holding = false;
+                if (Hold && !_Holding)
+                {
+                    return;
+                }
 
-            foreach (var action in Actions.Cast<IAction>())
-            {
-                action.Execute(this.AssociatedObject, null);
-            }
+                _Holding = false;
+
+                foreach (var action in Actions.Cast<IAction>())
+                {
+                    action.Execute(this.AssociatedObject, null);
+                }
+            });
         }
 
         private void AssociatedObject_LostFocus(object sender, RoutedEventArgs e)

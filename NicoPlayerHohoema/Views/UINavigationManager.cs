@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Gaming.Input;
 using Windows.UI.Xaml;
+using System.Threading;
+using Windows.UI.Core;
 
 namespace NicoPlayerHohoema.Views
 {
@@ -35,12 +37,13 @@ namespace NicoPlayerHohoema.Views
         static readonly TimeSpan __HoldDetectTime = TimeSpan.FromSeconds(1);
         static readonly UINavigationButtons[] __InputDetectTargets = ((UINavigationButtons[])Enum.GetValues(typeof(UINavigationButtons))).Skip(1).ToArray();
 
-        DispatcherTimer _DispatcherTimer;
+        Timer _PollingTimer;
 
         UINavigationButtons _PrevPressingButtons;
         UINavigationButtons _ProcessedHoldingButtons;
         Dictionary<UINavigationButtons, TimeSpan> _ButtonHold = new Dictionary<UINavigationButtons, TimeSpan>();
 
+        AsyncLock _UpdateLock = new AsyncLock();
 
         bool _IsDisposed;
 
@@ -56,12 +59,9 @@ namespace NicoPlayerHohoema.Views
             {
                 _ButtonHold[target] = TimeSpan.Zero;
             }
-            _DispatcherTimer = new DispatcherTimer();
-            _DispatcherTimer.Interval = __InputPollingInterval;
-            _DispatcherTimer.Tick += _DispatcherTimer_Tick;
 
             App.Current.EnteredBackground += Current_EnteredBackground;
-            App.Current.LeavingBackground += Current_LeavingBackground; ;
+            App.Current.LeavingBackground += Current_LeavingBackground;
 
             UINavigationController.UINavigationControllerAdded += UINavigationController_UINavigationControllerAdded;
             UINavigationController.UINavigationControllerRemoved += UINavigationController_UINavigationControllerRemoved;
@@ -72,12 +72,13 @@ namespace NicoPlayerHohoema.Views
             }
         }
 
-        private void UINavigationController_UINavigationControllerRemoved(object sender, UINavigationController e)
+
+        private void UINavigationController_UINavigationControllerAdded(object sender, UINavigationController e)
         {
             ActivatePolling();
         }
 
-        private void UINavigationController_UINavigationControllerAdded(object sender, UINavigationController e)
+        private void UINavigationController_UINavigationControllerRemoved(object sender, UINavigationController e)
         {
             if (UINavigationController.UINavigationControllers.Count == 0)
             {
@@ -99,7 +100,7 @@ namespace NicoPlayerHohoema.Views
         {
             DeactivatePolling();
 
-            _DispatcherTimer = null;
+            _PollingTimer = null;
             _IsDisposed = true;
         }
 
@@ -118,73 +119,95 @@ namespace NicoPlayerHohoema.Views
                 return;
             }
 
-            _DispatcherTimer.Start();
+            if (_PollingTimer == null)
+            {
+                _PollingTimer = new Timer(
+                    _ => _DispatcherTimer_Tick()
+                    , null
+                    , TimeSpan.Zero
+                    , __InputPollingInterval
+                    );
+            }
         }
 
         private void DeactivatePolling()
         {
             if (_IsDisposed) { return; }
 
-            _DispatcherTimer.Stop();
+            _PollingTimer?.Dispose();
+            _PollingTimer = null;
         }
 
 
-        private void _DispatcherTimer_Tick(object sender, object e)
+        bool _NowUpdating = false;
+        private async void _DispatcherTimer_Tick()
         {
-            // コントローラー入力をチェック
-            foreach (var controller in UINavigationController.UINavigationControllers.Take(1))
+            if (_NowUpdating)
             {
-                var currentInput = controller.GetCurrentReading();
+                return;
+            }
 
-                // ボタンを離した瞬間を検出
-                var pressing = RequiredUINavigationButtonsHelper.ToUINavigationButtons(currentInput.RequiredButtons)
-                    | OptionalUINavigationButtonsHelper.ToUINavigationButtons(currentInput.OptionalButtons);
-
-//                var trigger = pressing & (_PrevPressingButtons ^ pressing);
-                var released = _PrevPressingButtons & (_PrevPressingButtons ^ pressing);
-
-                if (released != UINavigationButtons.None)
+            using (var releaser = await _UpdateLock.LockAsync())
+            {
+                try
                 {
-                    Pressed?.Invoke(this, released);
-                }
+                    _NowUpdating = true;
 
-                // ホールド入力の検出
-                UINavigationButtons holdingButtons = UINavigationButtons.None;
-                foreach (var target in __InputDetectTargets)
-                {
-                    if (pressing.HasFlag(target))
+                    // コントローラー入力をチェック
+                    foreach (var controller in UINavigationController.UINavigationControllers.Take(1))
                     {
-                        if (!_ProcessedHoldingButtons.HasFlag(target))
-                        {
-                            var time = _ButtonHold[target] += __InputPollingInterval;
+                        var currentInput = controller.GetCurrentReading();
 
-                            if (time > __HoldDetectTime)
+                        // ボタンを離した瞬間を検出
+                        var pressing = RequiredUINavigationButtonsHelper.ToUINavigationButtons(currentInput.RequiredButtons)
+                            | OptionalUINavigationButtonsHelper.ToUINavigationButtons(currentInput.OptionalButtons);
+
+                        //                var trigger = pressing & (_PrevPressingButtons ^ pressing);
+                        var released = _PrevPressingButtons & (_PrevPressingButtons ^ pressing);
+
+                        if (released != UINavigationButtons.None)
+                        {
+                            Pressed?.Invoke(this, released);
+                        }
+
+                        // ホールド入力の検出
+                        UINavigationButtons holdingButtons = UINavigationButtons.None;
+                        foreach (var target in __InputDetectTargets)
+                        {
+                            if (pressing.HasFlag(target))
                             {
-                                holdingButtons |= target;
-                                _ProcessedHoldingButtons |= target;
+                                if (!_ProcessedHoldingButtons.HasFlag(target))
+                                {
+                                    var time = _ButtonHold[target] += __InputPollingInterval;
+
+                                    if (time > __HoldDetectTime)
+                                    {
+                                        holdingButtons |= target;
+                                        _ProcessedHoldingButtons |= target;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                _ButtonHold[target] = TimeSpan.Zero;
+                                _ProcessedHoldingButtons = (((UINavigationButtons)0) ^ target) & _ProcessedHoldingButtons;
                             }
                         }
-                    }
-                    else
-                    {
-                        _ButtonHold[target] = TimeSpan.Zero;
-                        _ProcessedHoldingButtons = (((UINavigationButtons)0) ^ target) & _ProcessedHoldingButtons;
+
+                        if (holdingButtons != UINavigationButtons.None)
+                        {
+                            Holding?.Invoke(this, holdingButtons);
+                        }
+
+                        // トリガー検出用に前フレームの入力情報を保存
+                        _PrevPressingButtons = pressing;
                     }
                 }
-
-                if (holdingButtons != UINavigationButtons.None)
+                finally
                 {
-                    Holding?.Invoke(this, holdingButtons);
+                    _NowUpdating = false;
                 }
-
-                // トリガー検出用に前フレームの入力情報を保存
-                _PrevPressingButtons = pressing;
             }
-            
-            
         }
-
-        
-        
     }
 }

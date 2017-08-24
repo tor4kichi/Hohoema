@@ -299,10 +299,7 @@
                                 <mybehavior:WebViewAutoResizeToContent />
 
                                 <!-- WebViewでUINavigationControllerがハマるバグに対応する -->
-                                <mybehavior:FocusGetter IsFocus="{Binding NowFocusingWebView.Value, Mode=TwoWay}" />
-                                <mybehavior:UINavigationTrigger Kind="Cancel" IsRequireFocus="True">
-                                    <mybehavior:SetFocus TargetObject="{Binding ElementName=TagsList}" />
-                                </mybehavior:UINavigationTrigger>
+                                <mybehavior:PreventSpoilerXYNavigationInWebView />
                             </i:Interaction.Behaviors>
                         </WebView>
 
