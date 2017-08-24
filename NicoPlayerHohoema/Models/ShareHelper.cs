@@ -14,7 +14,7 @@ namespace NicoPlayerHohoema.Models
     {
         public static string MakeShareText(NicoVideo video)
         {
-            return $"{video.Title} http://nico.ms/{video.VideoId} #{video.VideoId}";
+            return $"{video.Title} http://nico.ms/{video.VideoId} #{video.VideoId} #Hohoema";
         }
 
         public static string MakeShareText(NicoLiveVideo live)
@@ -23,7 +23,7 @@ namespace NicoPlayerHohoema.Models
         }
         public static string MakeLiveShareText(string liveTitle, string liveId)
         {
-            return $"【ニコ生】{liveTitle} http://nico.ms/{liveId} #{liveId}";
+            return $"{liveTitle} http://nico.ms/{liveId} #{liveId} #ニコニコ生放送 #Hohoema";
         }
 
 
