@@ -76,6 +76,13 @@ namespace NicoPlayerHohoema.ViewModels
                 
             ContentVM = new ReactiveProperty<ViewModelBase>();
 
+            IsContentDisplayFloating
+                .Where(x => x)
+                .Subscribe(x => 
+            {
+                hohoemaApp.BackgroundUpdater.Activate();
+            });
+                
 
             HohoemaPlaylist.OpenPlaylistItem += HohoemaPlaylist_OpenPlaylistItem;
 
