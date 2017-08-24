@@ -340,6 +340,8 @@ namespace NicoPlayerHohoema.ViewModels
                                 if (result)
                                 {
                                     CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
+                                    appView.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                                    appView.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
                                     IsDisplayControlUI.Value = false;
                                 }
                             }
