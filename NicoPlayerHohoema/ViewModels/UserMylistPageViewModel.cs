@@ -340,15 +340,16 @@ namespace NicoPlayerHohoema.ViewModels
 
             MylistList.Add(new MylistItemsWithTitle()
             {
-                Title = "マイリスト",
-                Origin = PlaylistOrigin.LoginUser,
-                Items = listItems.ToReadOnlyReactiveCollection(x => x as IPlayableList)
-            });
-            MylistList.Add(new MylistItemsWithTitle()
-            {
                 Title = "ローカル",
                 Origin = PlaylistOrigin.Local,
                 Items = HohoemaApp.Playlist.Playlists.ToReadOnlyReactiveCollection(x => x as IPlayableList)
+            });
+
+            MylistList.Add(new MylistItemsWithTitle()
+            {
+                Title = "マイリスト",
+                Origin = PlaylistOrigin.LoginUser,
+                Items = listItems.ToReadOnlyReactiveCollection(x => x as IPlayableList)
             });
         }
 	}
