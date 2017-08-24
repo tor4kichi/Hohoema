@@ -790,8 +790,20 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override async Task OnSignIn(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
         {
+            try
             {
                 await TryStartViewing();
+
+                cancelToken.ThrowIfCancellationRequested();
+            }
+            catch
+            {
+                NicoLiveVideo?.Dispose();
+                NicoLiveVideo = null;
+
+                await StopLiveElapsedTimer().ConfigureAwait(false);
+
+                throw;
             }
             
 //			base.OnSignIn(userSessionDisposer);
@@ -813,7 +825,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 			base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
 		}
-
 
 		protected override async Task OnResumed()
 		{
