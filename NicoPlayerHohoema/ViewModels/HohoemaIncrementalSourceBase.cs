@@ -60,10 +60,14 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 	}
 
+    public interface IHohoemaPreloadingIncrementalSource
+    {
+        int TotalCount { get; }
+        string PreloadScheduleLabel { get; }
+    }
 
-
-	public abstract class HohoemaPreloadingIncrementalSourceBase<T> : HohoemaIncrementalSourceBase<T>
-	{
+	public abstract class HohoemaPreloadingIncrementalSourceBase<T> : HohoemaIncrementalSourceBase<T>, IHohoemaPreloadingIncrementalSource
+    {
 		public HohoemaApp HohoemaApp { get; private set; }
 		public int TotalCount { get; private set; }
 
@@ -213,15 +217,19 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			var start = head + 1;
 			var end = Math.Min(start + items.Count, TotalCount);
-			var updater = new DefferedNicoVideoVMUpdate<T>(items);
-			HohoemaApp.BackgroundUpdater.InstantBackgroundUpdateScheduling(
-				updater, 
-				$"{PreloadScheduleLabel}_" + TotalCount,
-				PreloadScheduleLabel,
-				priority: VideoListingBackgroundTaskPriority,
-				label: $"{PreloadScheduleLabel} ({start} - {end})"
-				);
-		}
+            foreach (var item in items)
+            {
+                var index = items.IndexOf(item);
+                var updater = new DefferedNicoVideoVMUpdate<T>(new List<T>() { item });
+                HohoemaApp.BackgroundUpdater.InstantBackgroundUpdateScheduling(
+                    updater,
+                    $"{PreloadScheduleLabel}_" + index,
+                    PreloadScheduleLabel,
+                    priority: VideoListingBackgroundTaskPriority,
+                    label: $"{PreloadScheduleLabel} ({start + index} / {end})"
+                    );
+            }
+        }
 
 		public void CancelPreloading()
 		{
