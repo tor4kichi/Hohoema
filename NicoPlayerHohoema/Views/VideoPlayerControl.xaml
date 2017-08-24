@@ -1076,16 +1076,7 @@
 
 
 
-                                    <Border Height="32">
-
-                                        <Border.Background>
-                                            <LinearGradientBrush StartPoint="1, 1" EndPoint="1, 0">
-                                                <GradientStop Color="{Binding Source={StaticResource SystemAltMediumColor}, Converter={StaticResource ToTransparentColor}}" Offset="0.0" />
-                                                <GradientStop Color="{ThemeResource SystemAltMediumColor}" Offset="1.0" />
-                                            </LinearGradientBrush>
-                                        </Border.Background>
-
-                                    </Border>
+                                    
 
                                 </StackPanel>
 
@@ -1093,20 +1084,7 @@
                                 <!-- 動画コンテンツ 操作 -->
                                 <StackPanel toolkit:DockPanel.Dock="Bottom" >
 
-                                    <Border Height="48" BorderThickness="0">
-                                        <Border.Background>
-                                            <LinearGradientBrush x:Name="ControlPanelBackgroundBrush" StartPoint="1, 0" EndPoint="1, 1">
-                                                <GradientStop Color="{Binding Source={StaticResource SystemAltMediumColor}, Converter={StaticResource ToTransparentColor}}" Offset="0.0" x:Name="GradientStop1"/>
-                                                <GradientStop Color="{ThemeResource SystemAltMediumColor}" Offset="1.0" x:Name="GradientStop2" />
-                                            </LinearGradientBrush>
-                                        </Border.Background>
-
-                                        <i:Interaction.Behaviors>
-                                            <core:EventTriggerBehavior EventName="Tapped">
-                                                <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI}" PropertyName="Value" Value="False" />
-                                            </core:EventTriggerBehavior>
-                                        </i:Interaction.Behaviors>
-                                    </Border>
+                                    
 
                                     <StackPanel x:Name="UIControlContentLayout"
                                                 Background="{StaticResource HohoemaPlayerBackgroundBrush}"
@@ -1509,19 +1487,50 @@
                                 </StackPanel>
 
 
-                                
-
-                                <Grid x:Name="UIControlCenterLayout">
 
 
-                                    <Border IsHitTestVisible="True" Background="Transparent">
+                                <Grid x:Name="UIControlCenterLayout" BorderThickness="0">
+
+
+                                    <Border IsHitTestVisible="True" Background="Transparent" BorderThickness="0">
                                         <i:Interaction.Behaviors>
                                             <core:EventTriggerBehavior EventName="Tapped">
                                                 <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI}" PropertyName="Value" Value="False" />
                                             </core:EventTriggerBehavior>
                                         </i:Interaction.Behaviors>
                                     </Border>
-                                    
+
+                                    <Border Height="32" VerticalAlignment="Top">
+
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="1, 1" EndPoint="1, 0">
+                                                <GradientStop Color="{Binding Source={StaticResource SystemAltMediumColor}, Converter={StaticResource ToTransparentColor}}" Offset="0.0" />
+                                                <GradientStop Color="{ThemeResource SystemAltMediumColor}" Offset="1.0" />
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+
+                                    </Border>
+
+
+                                    <Border Height="48" BorderThickness="0" VerticalAlignment="Bottom" >
+                                        <Border.Background>
+                                            <LinearGradientBrush x:Name="ControlPanelBackgroundBrush" StartPoint="1, 0" EndPoint="1, 1">
+                                                <GradientStop Color="{Binding Source={StaticResource SystemAltMediumColor}, Converter={StaticResource ToTransparentColor}}" Offset="0.0" x:Name="GradientStop1"/>
+                                                <GradientStop Color="{ThemeResource SystemAltMediumColor}" Offset="1.0" x:Name="GradientStop2" />
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+
+                                        <Border.RenderTransform>
+                                            <TranslateTransform Y="0" />
+                                        </Border.RenderTransform>
+
+                                        <i:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Tapped">
+                                                <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI}" PropertyName="Value" Value="False" />
+                                            </core:EventTriggerBehavior>
+                                        </i:Interaction.Behaviors>
+                                    </Border>
+
                                     <Border VerticalAlignment="Center"
                                             HorizontalAlignment="Left"
                                             >
@@ -1576,8 +1585,6 @@
                                   >
 
                                 <Grid>
-                                    
-                                    
                                     <Border IsHitTestVisible="True" Background="Transparent">
                                         <i:Interaction.Behaviors>
 
