@@ -82,7 +82,7 @@ namespace NicoPlayerHohoema.ViewModels
 			TextInputDialogService textInputDialog,
             MylistRegistrationDialogService mylistDialog
 			)
-			: base(hohoemaApp, pageManager, canActivateBackgroundUpdate:true)
+			: base(hohoemaApp, pageManager, canActivateBackgroundUpdate:false)
 		{
 			_ToastService = toast;
 			_TextInputDialogService = textInputDialog;
@@ -453,6 +453,8 @@ namespace NicoPlayerHohoema.ViewModels
                             if (result)
                             {
                                 CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
+                                appView.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                                appView.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
                                 IsDisplayControlUI.Value = false;
                             }
                         }
@@ -462,6 +464,8 @@ namespace NicoPlayerHohoema.ViewModels
                             if (result)
                             {
                                 CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = false;
+                                appView.TitleBar.ButtonBackgroundColor = null;
+                                appView.TitleBar.ButtonInactiveBackgroundColor = null;
                             }
                         }
                     }
@@ -834,9 +838,17 @@ namespace NicoPlayerHohoema.ViewModels
                 InitializeBufferingMonitor();
 
                 // 再生ストリームの準備を開始する
-                await PlayingQualityChangeAction();
+                try
+                {
+                    await PlayingQualityChangeAction();
 
-                cancelToken.ThrowIfCancellationRequested();
+                    cancelToken.ThrowIfCancellationRequested();
+                }
+                catch
+                {
+                    Video?.StopPlay();
+                    throw;
+                }
 
                 // Note: 0.4.1現在ではキャッシュはmp4のみ対応
                 var isCanCache = Video.ContentType == MovieType.Mp4;
@@ -1170,11 +1182,91 @@ namespace NicoPlayerHohoema.ViewModels
             return commentVM;
         }
 
+        private async Task UpdateComments()
+        {
+            Comments.Clear();
+
+            bool isSuccessGetCommentFromNMSG = false;
+            // 新コメサーバーからコメント取得
+            if (Video.CommentClient.CanGetCommentsFromNMSG)
+            {
+                try
+                {
+                    var res = await Video.CommentClient.GetCommentsFromNMSG();
+
+                    foreach (var chat in res.ParseComments())
+                    {
+                        var comment = ChatToComment(chat);
+                        if (comment != null)
+                        {
+                            Comments.Add(comment);
+                        }
+                    }
+
+                    isSuccessGetCommentFromNMSG = true;
+                }
+                catch
+                {
+                }
+            }
+
+            // 新コメサーバーがダメだったら旧サーバーから取得
+            if (!isSuccessGetCommentFromNMSG)
+            {
+                List<Chat> oldFormatComments = null;
+                try
+                {
+                    oldFormatComments = await Video.CommentClient.GetComments();
+                    if (oldFormatComments == null || oldFormatComments.Count == 0)
+                    {
+                        oldFormatComments = Video.CommentClient.GetCommentsFromLocal();
+                    }
+                }
+                catch
+                {
+                    oldFormatComments = Video.CommentClient.GetCommentsFromLocal();
+                }
+
+                if (oldFormatComments == null)
+                {
+                    System.Diagnostics.Debug.WriteLine("コメントは取得できませんでした");
+                    return;
+                }
+
+                foreach (var chat in oldFormatComments)
+                {
+                    var comment = ChatToComment(chat);
+                    if (comment != null)
+                    {
+                        Comments.Add(comment);
+                    }
+                }
+            }
 
 
-        
+            System.Diagnostics.Debug.WriteLine($"コメント数:{Comments.Count}");
+        }
 
-		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+
+        protected override async Task OnResumed()
+        {
+            if (NowSignIn)
+            {
+                InitializeBufferingMonitor();
+            }
+
+            if (_IsNeddPlayInResumed)
+            {
+                await PlayingQualityChangeAction();
+                _IsNeddPlayInResumed = false;
+            }
+
+        }
+
+
+
+
+        protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			Debug.WriteLine("VideoPlayer OnNavigatedToAsync start.");
 
@@ -1241,6 +1333,43 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
+        protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+        {
+            Debug.WriteLine("VideoPlayer OnNavigatingFromAsync start.");
+
+            //			PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
+
+            if (suspending)
+            {
+                viewModelState[nameof(VideoId)] = VideoId;
+                viewModelState[nameof(CurrentVideoPosition)] = CurrentVideoPosition.Value.TotalSeconds;
+            }
+            else
+            {
+                App.Current.Suspending -= Current_Suspending;
+                HohoemaApp.MediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
+                HohoemaApp.MediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
+
+                Comments.Clear();
+            }
+
+            Video?.StopPlay();
+
+            // プレイリストへ再生完了を通知
+            VideoPlayed();
+
+            ExitKeepDisplay();
+
+            _BufferingMonitorDisposable?.Dispose();
+            _BufferingMonitorDisposable = new CompositeDisposable();
+
+            base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
+
+
+            Debug.WriteLine("VideoPlayer OnNavigatingFromAsync done.");
+        }
+
+
         private void Current_EnteredBackground(object sender, Windows.ApplicationModel.EnteredBackgroundEventArgs e)
         {
         }
@@ -1252,36 +1381,6 @@ namespace NicoPlayerHohoema.ViewModels
                 if (IsDisposed) { return; }
                 RequestUpdateInterval.ForceNotify();
             });
-        }
-
-        private void PlaybackSession_PositionChanged(MediaPlaybackSession sender, object args)
-        {
-            if (IsDisposed) { return; }
-
-            if (sender.PlaybackState == MediaPlaybackState.Playing)
-            {
-                ReadVideoPosition.Value = sender.Position;
-            }
-        }
-
-        private void PlaybackSession_PlaybackStateChanged(MediaPlaybackSession sender, object args)
-        {
-            Debug.WriteLine(sender.PlaybackState);
-
-            PlayerWindowUIDispatcherScheduler.Schedule(() => 
-            {
-                if (IsDisposed) { return; }
-
-                CurrentState.Value = sender.PlaybackState;
-            });
-
-            // 最後まで到達していた場合
-            if (sender.PlaybackState == MediaPlaybackState.Paused
-                && sender.Position >= (Video.VideoLength - TimeSpan.FromSeconds(1))
-                )
-            {
-                VideoPlayed(canPlayNext:true);
-            }
         }
 
         private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
@@ -1305,121 +1404,36 @@ namespace NicoPlayerHohoema.ViewModels
             _BufferingMonitorDisposable = new CompositeDisposable();
         }
 
-        private async Task UpdateComments()
+        private void PlaybackSession_PositionChanged(MediaPlaybackSession sender, object args)
         {
-            Comments.Clear();
+            if (IsDisposed) { return; }
 
-            bool isSuccessGetCommentFromNMSG = false;
-            // 新コメサーバーからコメント取得
-            if (Video.CommentClient.CanGetCommentsFromNMSG)
+            if (sender.PlaybackState == MediaPlaybackState.Playing)
             {
-                try
-                {
-                    var res = await Video.CommentClient.GetCommentsFromNMSG();
-
-                    foreach (var chat in res.ParseComments())
-                    {
-                        var comment = ChatToComment(chat);
-                        if (comment != null)
-                        {
-                            Comments.Add(comment);
-                        }
-                    }
-
-                    isSuccessGetCommentFromNMSG = true;
-                }
-                catch
-                {
-                }
+                ReadVideoPosition.Value = sender.Position;
             }
-            
-            // 新コメサーバーがダメだったら旧サーバーから取得
-            if (!isSuccessGetCommentFromNMSG)
-            { 
-                List<Chat> oldFormatComments = null;
-                try
-                {
-                    oldFormatComments = await Video.CommentClient.GetComments();
-                    if (oldFormatComments == null || oldFormatComments.Count == 0)
-                    {
-                        oldFormatComments = Video.CommentClient.GetCommentsFromLocal();
-                    }
-                }
-                catch
-                {
-                    oldFormatComments = Video.CommentClient.GetCommentsFromLocal();
-                }
-
-                if (oldFormatComments == null)
-                {
-                    System.Diagnostics.Debug.WriteLine("コメントは取得できませんでした");
-                    return;
-                }
-
-                foreach (var chat in oldFormatComments)
-                {
-                    var comment = ChatToComment(chat);
-                    if (comment != null)
-                    {
-                        Comments.Add(comment);
-                    }
-                }
-            }
-
-           
-            System.Diagnostics.Debug.WriteLine($"コメント数:{Comments.Count}");
         }
 
-		protected override async Task OnResumed()
-		{
-			if (NowSignIn)
-			{
-				InitializeBufferingMonitor();
-			}
+        private void PlaybackSession_PlaybackStateChanged(MediaPlaybackSession sender, object args)
+        {
+            Debug.WriteLine(sender.PlaybackState);
 
-            if (_IsNeddPlayInResumed)
+            PlayerWindowUIDispatcherScheduler.Schedule(() =>
             {
-                await PlayingQualityChangeAction();
-                _IsNeddPlayInResumed = false;
-            }
+                if (IsDisposed) { return; }
 
+                CurrentState.Value = sender.PlaybackState;
+            });
+
+            // 最後まで到達していた場合
+            if (sender.PlaybackState == MediaPlaybackState.Paused
+                && sender.Position >= (Video.VideoLength - TimeSpan.FromSeconds(1))
+                )
+            {
+                VideoPlayed(canPlayNext: true);
+            }
         }
 
-        protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
-		{
-			Debug.WriteLine("VideoPlayer OnNavigatingFromAsync start.");
-
-            //			PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
-
-			if (suspending)
-			{
-				viewModelState[nameof(VideoId)] = VideoId;
-				viewModelState[nameof(CurrentVideoPosition)] = CurrentVideoPosition.Value.TotalSeconds;
-            }
-			else 
-			{
-                App.Current.Suspending -= Current_Suspending;
-                HohoemaApp.MediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
-                HohoemaApp.MediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
-
-                Comments.Clear();
-            }
-
-            Video?.StopPlay();
-
-            // プレイリストへ再生完了を通知
-            VideoPlayed();
-
-            ExitKeepDisplay();
-
-			_BufferingMonitorDisposable?.Dispose();
-			_BufferingMonitorDisposable = new CompositeDisposable();
-
-			base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
-
-
-            Debug.WriteLine("VideoPlayer OnNavigatingFromAsync done.");
-		}
 
 
         bool _IsVideoPlayed = false;

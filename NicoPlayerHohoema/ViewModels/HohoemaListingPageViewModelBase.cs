@@ -201,7 +201,9 @@ namespace NicoPlayerHohoema.ViewModels
 				_LastListViewOffset = ListViewVerticalOffset.Value;
 				ChangeCanIncmentalLoading(false);
 			}
-		}
+
+            CancelBackgroundLoading();
+        }
 
 
 		private void ChangeCanIncmentalLoading(bool enableLoading)
@@ -241,7 +243,8 @@ namespace NicoPlayerHohoema.ViewModels
                 if (IncrementalLoadingItems.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
 				{
 					(IncrementalLoadingItems.Source as HohoemaIncrementalSourceBase<ITEM_VM>).Error -= HohoemaIncrementalSource_Error;
-				}
+                    CancelBackgroundLoading();
+                }
 				IncrementalLoadingItems.BeginLoading -= BeginLoadingItems;
 				IncrementalLoadingItems.DoneLoading -= CompleteLoadingItems;
 				IncrementalLoadingItems.Dispose();
@@ -307,6 +310,16 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			SelectedItems.Clear();
 		}
+
+
+        private void CancelBackgroundLoading()
+        {
+            var preloadingSource = IncrementalLoadingItems?.Source as IHohoemaPreloadingIncrementalSource;
+            if (preloadingSource != null)
+            {
+                HohoemaApp.BackgroundUpdater.CancelFromGroupId(preloadingSource.PreloadScheduleLabel);
+            }
+        }
 
 		#region Selection
 

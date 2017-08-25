@@ -532,17 +532,20 @@ namespace NicoPlayerHohoema
             await base.OnInitializeAsync(args);
 		}
 
-        private void UINavigationManager_Pressed(Views.UINavigationManager sender, Views.UINavigationButtons buttons)
+        private async void UINavigationManager_Pressed(Views.UINavigationManager sender, Views.UINavigationButtons buttons)
         {
-            if (buttons == Views.UINavigationButtons.Up ||
+            await HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
+            {
+                if (buttons == Views.UINavigationButtons.Up ||
                 buttons == Views.UINavigationButtons.Down ||
                 buttons == Views.UINavigationButtons.Right ||
                 buttons == Views.UINavigationButtons.Left
                 )
-            {
-                var focused = FocusManager.GetFocusedElement();
-                Debug.WriteLine("現在のフォーカス:" + focused?.ToString());
-            }
+                {
+                    var focused = FocusManager.GetFocusedElement();
+                    Debug.WriteLine("現在のフォーカス:" + focused?.ToString());
+                }
+            });
         }
 
         /*

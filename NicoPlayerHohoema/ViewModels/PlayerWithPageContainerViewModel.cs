@@ -76,6 +76,13 @@ namespace NicoPlayerHohoema.ViewModels
                 
             ContentVM = new ReactiveProperty<ViewModelBase>();
 
+            IsContentDisplayFloating
+                .Where(x => x)
+                .Subscribe(x => 
+            {
+                hohoemaApp.BackgroundUpdater.Activate();
+            });
+                
 
             HohoemaPlaylist.OpenPlaylistItem += HohoemaPlaylist_OpenPlaylistItem;
 
@@ -88,8 +95,10 @@ namespace NicoPlayerHohoema.ViewModels
 
             if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4))
             {
-                IsVisibleFloatContent
-                    .Where(x => !x)
+                Observable.Merge(
+                    IsVisibleFloatContent.Where(x => !x),
+                    IsContentDisplayFloating.Where(x => x)
+                    )
                     .Subscribe(async x =>
                     {
                         var view = ApplicationView.GetForCurrentView();
@@ -99,10 +108,12 @@ namespace NicoPlayerHohoema.ViewModels
                             if (result)
                             {
                                 CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = false;
+                                view.TitleBar.ButtonBackgroundColor = null;
+                                view.TitleBar.ButtonInactiveBackgroundColor = null;
+                                
                             }
                         }
                     });
-
             }
 
             App.Current.Suspending += Current_Suspending;

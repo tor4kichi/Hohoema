@@ -8,6 +8,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -22,7 +23,8 @@ namespace NicoPlayerHohoema.Views
 {
 	public sealed partial class MenuNavigatePageBase : ContentControl
 	{
-		public MenuNavigatePageBase()
+        CoreDispatcher _UIDispatcher;
+        public MenuNavigatePageBase()
 		{
 			this.InitializeComponent();
 
@@ -40,6 +42,8 @@ namespace NicoPlayerHohoema.Views
 
         private void MenuNavigatePageBase_Loaded(object sender, RoutedEventArgs e)
         {
+            _UIDispatcher = Dispatcher;
+
             UINavigationManager.Pressed += UINavigationManager_Pressed;
 
             var pane = GetTemplateChild("PaneLayout") as FrameworkElement;
@@ -64,26 +68,30 @@ namespace NicoPlayerHohoema.Views
 
 
 
-        private void UINavigationManager_Pressed(UINavigationManager sender, UINavigationButtons buttons)
-        {            
-            var splitView = GetTemplateChild("ContentSplitView") as SplitView;
-            if (_IsFocusing && buttons == UINavigationButtons.Left)
+        private async void UINavigationManager_Pressed(UINavigationManager sender, UINavigationButtons buttons)
+        {
+            await _UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
             {
-                LeftInputCount++;
-                if (LeftInputCount > 1)
+                var splitView = GetTemplateChild("ContentSplitView") as SplitView;
+                if (_IsFocusing && buttons == UINavigationButtons.Left)
                 {
-                    splitView.IsPaneOpen = true;
+                    LeftInputCount++;
+                    if (LeftInputCount > 1)
+                    {
+                        splitView.IsPaneOpen = true;
+                    }
                 }
-            }
-            else
-            {
-                LeftInputCount = 0;
+                else
+                {
+                    LeftInputCount = 0;
 
-                if (buttons == UINavigationButtons.Accept || buttons == UINavigationButtons.Right)
-                {
-                    splitView.IsPaneOpen = false;
+                    if (buttons == UINavigationButtons.Accept || buttons == UINavigationButtons.Right)
+                    {
+                        splitView.IsPaneOpen = false;
+                    }
                 }
-            }
+            });
+            
             
         }
 

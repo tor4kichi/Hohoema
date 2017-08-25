@@ -29,6 +29,11 @@
     d:DesignWidth="400">
 
     <UserControl.Resources>
+
+        <SolidColorBrush x:Key="HohoemaPlayerBackgroundBrush"
+            Color="{ThemeResource SystemAltMediumColor}" 
+                         />
+
         <MenuFlyout x:Key="VideoOptionsFlyout">
 
             
@@ -280,14 +285,60 @@
             </VisualStateGroup>
 
 
-            
+            <!-- ミニモード　画面サイズごとの表示・非表示に切り替え -->
+            <VisualStateGroup>
+                <!-- 中ぐらい -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="280" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+
+                    </VisualState.Setters>
+                </VisualState>
+                <!-- 超狭い -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CO_PreviewVideoPositionButton.Visibility" Value="Collapsed" />
+                        <Setter Target="CO_ForwardVideoPositionButton.Visibility" Value="Collapsed" />
+                        <Setter Target="CO_ToggleCommentDisplayButton.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+            <!-- ミニモードの縦幅 -->
+            <VisualStateGroup>
+                <!-- 中ぐらい -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowHeight="200" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+
+                    </VisualState.Setters>
+                </VisualState>
+                <!-- 超狭い -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowHeight="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CO_CommentTextBox.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+
 
             <!-- コンパクトオーバーレイ切り替えボタンの表示・非表示 -->
             <VisualStateGroup >
 
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <myTrigger:IsSupportCompactOverlayTrigger Inverted="True" />
+                        <myTrigger:IsSupportCompactOverlayTrigger />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="CompactOverlayButton.Visibility" Value="Visible" />
@@ -306,14 +357,35 @@
                     <VisualState.Setters>
                         <Setter Target="CompactOverlayUIControl.Visibility" Value="Visible" />
                         <Setter Target="DefaultUIControl.Visibility" Value="Collapsed" />
+
+                        <Setter Target="PlaylistSplitView.OpenPaneLength" Value="120" />
                     </VisualState.Setters>
                 </VisualState>
                 
 
             </VisualStateGroup>
 
-            
-            
+            <!-- Xbox時のレイアウト調整 -->
+            <VisualStateGroup >
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PlaylistSplitViewPaneLayout.Margin" Value="0 27 0 27" />
+                        <Setter Target="PlaylistItemsListView.Padding" Value="0 0 48 0" />
+
+                        <Setter Target="UIControlContentLayout.Padding" Value="48 0 48 27" />
+                        <Setter Target="UIControlHeaderLayout.Margin" Value="48 27 48 0" />
+                        <Setter Target="UIControlCenterLayout.Margin" Value="48 0" />
+
+                    </VisualState.Setters>
+                </VisualState>
+
+            </VisualStateGroup>
+
+
+
             <!-- フルスクリーン -->
             <VisualStateGroup >
                 <VisualState>
@@ -610,17 +682,17 @@
                                >
 
                 <SplitView.Pane>
-                    <toolkit:DockPanel>
-                        <StackPanel toolkit:DockPanel.Dock="Top">
-
-                            <toolkit:DockPanel>
-
+                    <toolkit:DockPanel x:Name="PlaylistSplitViewPaneLayout">
+                        <StackPanel toolkit:DockPanel.Dock="Top" Margin="0 0 0 16">
+                            <toolkit:DockPanel >
                                 <StackPanel Orientation="Horizontal"
-                                                toolkit:DockPanel.Dock="Right"
+                                                toolkit:DockPanel.Dock="Left"
+                                            
                                                 >
                                     <Button Background="Transparent"          
                                                 Command="{Binding ToggleShuffleCommand}"
                                                 UseSystemFocusVisuals="True"
+                                            Margin="8 0 0 0"
                                             >
 
                                         <iconPack:PackIconMaterial x:Name="ToggleShuffleButtonIcon"
@@ -637,6 +709,7 @@
                                     <Button Command="{Binding ToggleRepeatModeCommand}"
                                                 Background="Transparent"
                                                 UseSystemFocusVisuals="True"
+                                            Margin="8 0 0 0"
                                             >
                                         <iconPack:PackIconMaterial x:Name="RepeatModeToggleButtonIcon"
                                                             Kind="Repeat" 
@@ -647,39 +720,29 @@
                                             </iconPack:PackIconMaterial.RenderTransform>
                                         </iconPack:PackIconMaterial>
                                     </Button>
+
+                                    <Border />
                                 </StackPanel>
 
-                                <Button HorizontalAlignment="Stretch"
-                                            Command="{Binding OpenCurrentPlaylistPageCommand}"
-                                            Background="Transparent"
-                                            >
-                                    <TextBlock Text="{Binding CurrentPlaylistName.Value}" 
-                                           Style="{StaticResource SubtitleTextBlockStyle}"
-                                           Margin="16"
-                                           />
-
-                                </Button>
-
+                                <Border />
                             </toolkit:DockPanel>
+                        </StackPanel>
+                        <StackPanel toolkit:DockPanel.Dock="Bottom">
 
+                            <!-- 再生中動画情報 -->
+                            <!-- 
                             <toolkit:DockPanel>
 
-                                <TextBlock Text="{Binding VideoTitle}"
-                                               toolkit:DockPanel.Dock="Bottom"
-                                               HorizontalAlignment="Center"
-                                               Margin="8 8"
-                                               FontWeight="SemiBold"
-                                               TextWrapping="Wrap"
-                                               />
-
-                                <!-- プレイリストの次送り -->
+                                
                                 <Border toolkit:DockPanel.Dock="Left">
                                     <Button Width="32"
                                             VerticalAlignment="Stretch"
                                             Command="{Binding OpenPreviousPlaylistItemCommand}"
                                             IsEnabled="{Binding PlaylistCanGoBack.Value}"
                                             >
-                                        <iconPack:PackIconMaterial Kind="ArrowLeft" />
+                                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE016;" 
+                                                           FontSize="20"
+                                                           />
                                     </Button>
                                 </Border>
 
@@ -689,17 +752,67 @@
                                                 Command="{Binding OpenNextPlaylistItemCommand}"
                                                 IsEnabled="{Binding PlaylistCanGoNext.Value}"
                                                 >
-                                        <iconPack:PackIconMaterial Kind="ArrowRight" />
+                                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE017;" 
+                                                           FontSize="20"
+                                                           />
                                     </Button>
                                 </Border>
 
 
-                                <Image Source="{Binding ThumbnailUri.Value}"
+                                <Grid>
+                                    <Image Source="{Binding ThumbnailUri.Value}"
                                            Height="140"
                                            />
 
+                                    <Border VerticalAlignment="Bottom">
+                                        <Border.Background>
+                                            <SolidColorBrush Color="{StaticResource SystemAltMediumColor}" />
+                                        </Border.Background>
+                                        
+                                        <TextBlock Text="{Binding VideoTitle}"
+                                               toolkit:DockPanel.Dock="Top"
+                                               HorizontalAlignment="Center"
+                                               Margin="8 8"
+                                               FontWeight="SemiBold"
+                                               TextWrapping="Wrap"
+                                               />
+                                    </Border>
+                                </Grid>
+
 
                             </toolkit:DockPanel>
+                            
+                            -->
+                            
+                            
+                            <!-- プレイリスト -->
+                            <toolkit:DockPanel Height="60">
+
+                                <Button HorizontalAlignment="Stretch"
+                                            Command="{Binding OpenCurrentPlaylistPageCommand}"
+                                            Background="Transparent"
+                                        toolkit:DockPanel.Dock="Left"
+                                            >
+                                    <SymbolIcon Symbol="OpenLocal" />
+                                </Button>
+
+                                <TextBlock toolkit:DockPanel.Dock="Top"
+                                           Text="現在のプレイリスト"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Margin="8 6 0 0"
+                                           Opacity="0.7"
+                                           >
+                                    
+                                </TextBlock>
+                                
+                                <TextBlock Text="{Binding CurrentPlaylistName.Value}" 
+                                           Style="{StaticResource SubtitleTextBlockStyle}"
+                                           Margin="8 0 16 0"
+                                           VerticalAlignment="Top"
+                                           />
+
+                            </toolkit:DockPanel>
+
 
                         </StackPanel>
 
@@ -708,6 +821,8 @@
                                         SingleSelectionFollowsFocus="False"
                                       uwpui:ListViewBaseExtensions.Command="{Binding OpenPlaylistItemCommand}"
                                       IsItemClickEnabled="True"
+                                  x:Name="PlaylistItemsListView"
+                                  Background="{StaticResource HohoemaPlayerBackgroundBrush}"
                                           >
                             <ListView.ItemTemplate>
                                 <DataTemplate>
@@ -724,10 +839,9 @@
 
                     <!-- Media Control -->
 
-                    <Grid x:Name="MediaControl" HorizontalAlignment="Stretch"
-                                    VerticalAlignment="Stretch"
-                  ContextFlyout="{StaticResource VideoOptionsFlyout}"
-                  >
+                    <Grid x:Name="MediaControl" 
+                          ContextFlyout="{StaticResource VideoOptionsFlyout}"
+                          >
 
                         <i:Interaction.Behaviors>
 
@@ -735,9 +849,9 @@
 
                             <!-- マウスの非表示 -->
                             <mybehavior:AutoHideCursor x:Name="AutoHideCursor"
-                        IsAutoHideEnabled="{Binding IsMouseCursolAutoHideEnable.Value, Mode=OneWay}"
-                        AutoHideDelay="0:0:0.5"
-                        />
+                                IsAutoHideEnabled="{Binding IsMouseCursolAutoHideEnable.Value, Mode=OneWay}"
+                                AutoHideDelay="0:0:0.5"
+                                />
 
 
                             <core:EventTriggerBehavior EventName="Loaded">
@@ -807,9 +921,7 @@
                         </i:Interaction.Behaviors>
 
 
-                        <MediaPlayerElement x:Name="MediaPlayerElement" Stretch="Uniform"
-                                    AreTransportControlsEnabled="False"
-                                    
+                        <MediaPlayerElement x:Name="MediaPlayerElement" 
                                     >
                             <i:Interaction.Behaviors>
 
@@ -854,7 +966,7 @@
                                 Height="48"
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Top"
-                                Margin="24 88"      
+                                Margin="0 88 24 0"      
                                 />
 
                         <!-- ウィンドウ非アクティブ時に画面全体をマウス移動の反応対象にするためのコリジョン-->
@@ -922,81 +1034,34 @@
                                 <!-- プレイリスト 操作 -->
                                 <StackPanel toolkit:DockPanel.Dock="Top" >
 
-                                    <Border Background="{ThemeResource SystemAltMediumColor}">
+                                    <Border Background="{StaticResource HohoemaPlayerBackgroundBrush}">
                                         <toolkit:DockPanel
-                                    x:Name="PlaylistContainer"
-                                    Margin="0 0"
+                                            x:Name="UIControlHeaderLayout"
+                                            
                                                >
 
-                                            <Button Command="{Binding ClosePlayerCommand}"
-                                        Background="Transparent"
-                                        toolkit:DockPanel.Dock="Left"
-                                        UseSystemFocusVisuals="True"
-                                            x:Name="CloseButton"
-                                        >
+                                            <Button x:Name="CloseButton"
+                                                    Command="{Binding ClosePlayerCommand}"
+                                                    Background="Transparent"
+                                                    toolkit:DockPanel.Dock="Left"
+                                                    UseSystemFocusVisuals="True"
+                                                        
+                                                    >
                                                 <iconPack:PackIconMaterial Kind="Close" />
                                             </Button>
 
                                             <StackPanel Orientation="Horizontal"
-                                            toolkit:DockPanel.Dock="Right"
-                                            >
-
-
-
+                                                        toolkit:DockPanel.Dock="Right"
+                                                        >
 
                                                 <Button Background="Transparent" 
-                                                Command="{x:Bind TogglePlaylistPaneCommand}"
-                                                >
-                                                    <iconPack:PackIconMaterial Kind="PlaylistPlay" Width="32" Height="32" >
+                                                        Command="{x:Bind TogglePlaylistPaneCommand}"
+                                                        >
+                                                    <iconPack:PackIconMaterial Kind="PlaylistPlay" Width="24" Height="24" >
 
                                                     </iconPack:PackIconMaterial>
 
-                                                    <!--
-                                            <Button.Flyout>
-
-                                                <MenuFlyout>
-                                                    <MenuFlyoutItem Text="プレイリストを開く"
-                                                                    Command="{Binding OpenCurrentPlaylistPageCommand}"
-                                                                    />
-
-                                                    <MenuFlyoutSeparator />
-
-
-                                                    <ToggleMenuFlyoutItem Text="シャッフル" 
-                                                                          IsChecked="{Binding IsShuffleEnabled.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                                          />
-
-                                                    <MenuFlyoutItem Text="リピート" 
-                                                                          Command="{Binding ToggleRepeatModeCommand}"
-                                                                    x:Name="RepeatMenuButton"
-                                                                          />
-
-
-                                                    <MenuFlyoutSeparator />
-
-                                                    <MenuFlyoutItem Text="前の動画へ"
-                                                                    Command="{Binding OpenPreviousPlaylistItemCommand}"
-                                                                    Visibility="{Binding PlaylistCanGoBack.Value, Converter={StaticResource BooleanToVisibility}}"
-                                                                    />
-
-                                                    <MenuFlyoutItem Text="次の動画へ"
-                                                                    Command="{Binding OpenNextPlaylistItemCommand}"
-                                                                    Visibility="{Binding PlaylistCanGoNext.Value, Converter={StaticResource BooleanToVisibility}}"
-                                                                    />
-
-                                                </MenuFlyout>
-                                            </Button.Flyout>
-                                            -->
-
                                                 </Button>
-
-
-
-                                                <!--
-                                    
-                                        -->
-
-
 
                                             </StackPanel>
 
@@ -1011,16 +1076,7 @@
 
 
 
-                                    <Border Height="32">
-
-                                        <Border.Background>
-                                            <LinearGradientBrush StartPoint="1, 1" EndPoint="1, 0">
-                                                <GradientStop Color="{Binding Source={StaticResource SystemAltMediumColor}, Converter={StaticResource ToTransparentColor}}" Offset="0.0" />
-                                                <GradientStop Color="{ThemeResource SystemAltMediumColor}" Offset="1.0" />
-                                            </LinearGradientBrush>
-                                        </Border.Background>
-
-                                    </Border>
+                                    
 
                                 </StackPanel>
 
@@ -1028,32 +1084,20 @@
                                 <!-- 動画コンテンツ 操作 -->
                                 <StackPanel toolkit:DockPanel.Dock="Bottom" >
 
-                                    <Border Height="48" BorderThickness="0">
-                                        <Border.Background>
-                                            <LinearGradientBrush x:Name="ControlPanelBackgroundBrush" StartPoint="1, 0" EndPoint="1, 1">
-                                                <GradientStop Color="{Binding Source={StaticResource SystemAltMediumColor}, Converter={StaticResource ToTransparentColor}}" Offset="0.0" x:Name="GradientStop1"/>
-                                                <GradientStop Color="{ThemeResource SystemAltMediumColor}" Offset="1.0" x:Name="GradientStop2" />
-                                            </LinearGradientBrush>
-                                        </Border.Background>
+                                    
 
-                                        <i:Interaction.Behaviors>
-                                            <core:EventTriggerBehavior EventName="Tapped">
-                                                <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI}" PropertyName="Value" Value="False" />
-                                            </core:EventTriggerBehavior>
-                                        </i:Interaction.Behaviors>
-                                    </Border>
-
-                                    <StackPanel Background="{ThemeResource SystemAltMediumColor}"
-                                        >
+                                    <StackPanel x:Name="UIControlContentLayout"
+                                                Background="{StaticResource HohoemaPlayerBackgroundBrush}"
+                                                >
 
 
                                         <StackPanel Margin="8 0" >
-                                            <TextBlock Text="{Binding VideoTitle}" 
-                                           FontSize="24" 
-                                           HorizontalAlignment="Center" 
-                                           TextWrapping="Wrap"
-                                           x:Name="TitleLayout"
-                                           />
+                                            <TextBlock x:Name="TitleLayout"
+                                                       Text="{Binding VideoTitle}" 
+                                                       FontSize="24" 
+                                                       HorizontalAlignment="Center" 
+                                                       TextWrapping="Wrap"
+                                                       />
 
                                             <i:Interaction.Behaviors>
                                                 <core:EventTriggerBehavior EventName="Tapped">
@@ -1064,16 +1108,10 @@
 
                                         <!-- シークバー -->
                                         <StackPanel >
-                                            <Grid 
-                                        x:Name="ControlPanel_Center"
-                                        Margin="0 0"
-                                        toolkit:DockPanel.Dock="Top"
-                                    
-                                         >
 
-                                                <Grid Margin="24 0 24 4">
+                                            <Grid Margin="0 0 0 4">
 
-                                                    <!--
+                                                <!--
                                         <local:DownloadProgressBar 
                                                 ProgressFragmentItems="{Binding ProgressFragments}"
                                                 Margin="0 20 0 0"
@@ -1081,71 +1119,70 @@
                                         -->
 
 
-                                                    <Slider x:Name="SeekBarSlider"
-                                                Minimum="0.0" 
-                                                Maximum="{Binding VideoLength.Value}"
-                                                Value="{Binding SliderVideoPosition.Value, Mode=TwoWay}"
-                                                Style="{StaticResource VideoProgressBarStyle}"
-                                                Padding="0 16"
-                                                StepFrequency="0.1"
-                                                    LargeChange="30"
-                                                    SmallChange="5"
-                                                IsThumbToolTipEnabled="True"
-                                                ThumbToolTipValueConverter="{StaticResource TimeToMovieLengthConverter}"
-                                                HorizontalAlignment="Stretch"
-                                                HorizontalContentAlignment="Stretch"
-                                                VerticalAlignment="Center"
-                                                IsEnabled="{Binding NowQualityChanging.Value, Converter={StaticResource BooleanInverted}}"
+                                                <Slider x:Name="SeekBarSlider"
+                                                            Minimum="0.0" 
+                                                            Maximum="{Binding VideoLength.Value}"
+                                                            Value="{Binding SliderVideoPosition.Value, Mode=TwoWay}"
+                                                            Style="{StaticResource VideoProgressBarStyle}"
+                                                            Padding="0 16 0 8"
+                                                            StepFrequency="0.1"
+                                                            LargeChange="30"
+                                                            SmallChange="5"
+                                                            IsThumbToolTipEnabled="True"
+                                                            ThumbToolTipValueConverter="{StaticResource TimeToMovieLengthConverter}"
+                                                            HorizontalAlignment="Stretch"
+                                                            HorizontalContentAlignment="Stretch"
+                                                            VerticalAlignment="Center"
+                                                            IsEnabled="{Binding NowQualityChanging.Value, Converter={StaticResource BooleanInverted}}"
                                         
                                                     Opacity="0.75"
                                              >
-                                                    </Slider>
-                                                </Grid>
+                                                </Slider>
+                                            </Grid>
+                                            
+                                            <Grid Margin="0 0 0 8">
+
+                                                
 
 
                                                 <StackPanel HorizontalAlignment="Left"          
-                                                    VerticalAlignment="Bottom"
-                                                Orientation="Horizontal"
-                                                Margin="24 0 0 0"
-                                                Visibility="{Binding CurrentVideoQuality.Value, Converter={StaticResource NotNullToVisibility}}"
+                                                            VerticalAlignment="Bottom"
+                                                            Orientation="Horizontal"
+                                                            Margin="16 0 16 0"
+                                                            Visibility="{Binding CurrentVideoQuality.Value, Converter={StaticResource NotNullToVisibility}}"
                                                 >
 
-                                                    <TextBlock  Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                                
-                                                        >
-                                            <Run Text="{Binding CurrentVideoQuality.Value, Converter={StaticResource QualityToText}}"
-                                             
-                                                 />
-                                            <Run Text="画質" />
+                                                    <TextBlock  Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}">
+                                                        <Run Text="{Binding CurrentVideoQuality.Value, Converter={StaticResource QualityToText}}" />
+                                                        <Run Text="画質" />   
                                                     </TextBlock>
 
                                                     <Border Width="8" />
 
                                                     <TextBlock  Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                                    Visibility="{Binding IsPlayWithCache.Value, Converter={StaticResource BooleanToVisibility}}"
+                                                                Visibility="{Binding IsPlayWithCache.Value, Converter={StaticResource BooleanToVisibility}}"
                                                         >
-                                            <Run Text="(キャッシュ済み)"
-                                                 />
+                                                        <Run Text="(キャッシュ済み)" />
                                                     </TextBlock>
                                                     <TextBlock  Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                     Visibility="{Binding IsPlayWithCache.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                                         >
-                                            <Run Text="(オンライン再生)" />
+                                                        <Run Text="(オンライン再生)" />
                                                     </TextBlock>
 
                                                 </StackPanel>
 
 
                                                 <TextBlock  HorizontalAlignment="Right"
-                                            VerticalAlignment="Bottom"
-                                            IsHitTestVisible="False"
-                                            Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                            Margin="0 0 24 0"
-                                        >
+                                                        VerticalAlignment="Bottom"
+                                                        IsHitTestVisible="False"
+                                                        Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                        Margin="16 0 16 0"
+                                                    >
                                         
-                                        <Run Text="{Binding SliderVideoPosition.Value, Converter={StaticResource TimeToMovieLengthConverter}}" />
-                                        <Run Text="/" />
-                                        <Run Text="{Binding VideoLength.Value, Converter={StaticResource TimeToMovieLengthConverter}}" />
+                                                    <Run Text="{Binding SliderVideoPosition.Value, Converter={StaticResource TimeToMovieLengthConverter}}" />
+                                                    <Run Text="/" />
+                                                    <Run Text="{Binding VideoLength.Value, Converter={StaticResource TimeToMovieLengthConverter}}" />
                                                 </TextBlock>
                                             </Grid>
                                         </StackPanel>
@@ -1240,8 +1277,8 @@
                                                         <iconPack:PackIconMaterial
                                                     Kind="Comment"
                                                     x:Name="CommentIcon"
-                                                    Width="24"
-                                                    Height="24"
+                                                    Width="20"
+                                                    Height="20"
                                                     />
                                                         <Canvas>
                                                             <Line X1="{Binding ElementName=CommentIcon, Path=ActualWidth}" 
@@ -1272,13 +1309,15 @@
                                                 Margin="0 0 24 0"
                                             >
                                                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3C;" 
-                                               FontSize="18"
-                                               />
+                                                        FontSize="24"
+                                                               
+                                                    />
+
                                                 </Button>
 
                                                 <Button Command="{Binding TogglePlayPauseCommand}"
                                             Background="Transparent"
-                                            Margin="0 0 0 4"
+                                            Margin="0 0 0 0"
                                                 x:Name="PlayPauseButton"  
                                             
                                               >
@@ -1287,22 +1326,23 @@
                                                     RenderTransformOrigin="0.5, 0.5"
                                                     >
                                                         <iconPack:PackIconMaterial.RenderTransform>
-                                                            <CompositeTransform ScaleX="1.7" ScaleY="1.7"/>
+                                                            <CompositeTransform ScaleX="1.35" ScaleY="1.35"/>
                                                         </iconPack:PackIconMaterial.RenderTransform>
 
                                                     </iconPack:PackIconMaterial>
                                                 </Button>
 
-                                                <Button Background="Transparent"
-                                            Command="{Binding ForwardVideoPositionCommand}"
-                                            x:Name="ForwardVideoPositionButon"
-                                                Margin="24 0 0 0"
-                                            >
-                                                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3D;"
-                                               FontSize="18"
-                                           
-                                                   
-                                               />
+                                                <Button x:Name="ForwardVideoPositionButon"
+                                                        Background="Transparent"
+                                                        Command="{Binding ForwardVideoPositionCommand}"
+                                                        Margin="24 0 0 0"
+                                                        >
+                                                    <TextBlock FontFamily="Segoe MDL2 Assets" 
+                                                               Text="&#xED3D;"
+                                                               FontSize="24"
+                                                                />
+
+
                                                 </Button>
 
                                             </StackPanel>
@@ -1317,16 +1357,11 @@
                                                 <Button Command="{Binding ToggleCompactOverlayCommand}"
                                                         Background="Transparent"
                                                         x:Name="CompactOverlayButton"
-                                                    
+                                                        Visibility="Collapsed"
                                                         >
-                                                    <iconPack:PackIconMaterial Kind="MoveResize" 
-                                                        RenderTransformOrigin="0.5, 0.5"
-                                                        >
-                                                        <iconPack:PackIconMaterial.RenderTransform>
-                                                            <CompositeTransform ScaleX="1.5" ScaleY="1.5"/>
-                                                        </iconPack:PackIconMaterial.RenderTransform>
-
-                                                    </iconPack:PackIconMaterial>
+                                                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE2B4;"
+                                                       FontSize="24"
+                                                       />
                                                 </Button>
                                             
                                                 <Button Command="{Binding ToggleFullScreenCommand}"
@@ -1340,7 +1375,7 @@
                                                     RenderTransformOrigin="0.5, 0.5"
                                                     >
                                                         <iconPack:PackIconMaterial.RenderTransform>
-                                                            <CompositeTransform ScaleX="1.5" ScaleY="1.5"/>
+                                                            <CompositeTransform ScaleX="1.35" ScaleY="1.35"/>
                                                         </iconPack:PackIconMaterial.RenderTransform>
 
                                                     </iconPack:PackIconMaterial>
@@ -1362,8 +1397,8 @@
 
                                         <!-- コメントを書く -->
                                         <Grid x:Name="CommentLayout"
-                                    Padding="0 8 0 0"
-                              >
+                                                Padding="0 8 0 0"
+                                            >
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="*" />
                                                 <RowDefinition Height="*" />
@@ -1380,7 +1415,7 @@
 
                                             <TextBox x:Name="CommentTextBox" 
                                                     Text="{Binding WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource BGTransparentTextBoxStyle}"
+                                                    Style="{StaticResource BGTransparentTextBoxStyle}"
                                                     FontSize="18"
                                                     VerticalAlignment="Center"
                                                     MaxLength="75"
@@ -1388,12 +1423,12 @@
                                                     toolkitext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
                                                     PlaceholderText="コメント"
                                                     HorizontalAlignment="Stretch"
-                                                Margin="8 0 8 8"
-                                                HorizontalContentAlignment="Stretch"
-                                                Height="40"
-                                                 Grid.RowSpan="2"
-                                                 Grid.Column="1"
-                                                 Grid.ColumnSpan="4"
+                                                    Margin="8 0 8 8"
+                                                    HorizontalContentAlignment="Stretch"
+                                                    Height="40"
+                                                    Grid.RowSpan="2"
+                                                    Grid.Column="1"
+                                                    Grid.ColumnSpan="4"
                                                     >
                                                 <i:Interaction.Behaviors>
 
@@ -1417,16 +1452,16 @@
 
 
                                             <Button Content="{Binding CommandString.Value}" 
-                                                Margin="8 0 8 8"
-                                                HorizontalAlignment="Stretch"
-                                                HorizontalContentAlignment="Center"
-                                                DataContext="{Binding}"
-                                                x:Name="CommentCommandEditButton"
-                                                Height="40"
-                                                UseSystemFocusVisuals="True"
-                                                Grid.RowSpan="2"
-                                                 Grid.Column="0"
-                                                 Grid.ColumnSpan="1"
+                                                    Margin="8 0 8 8"
+                                                    HorizontalAlignment="Stretch"
+                                                    HorizontalContentAlignment="Center"
+                                                    DataContext="{Binding}"
+                                                    x:Name="CommentCommandEditButton"
+                                                    Height="40"
+                                                    UseSystemFocusVisuals="True"
+                                                    Grid.RowSpan="2"
+                                                    Grid.Column="0"
+                                                    Grid.ColumnSpan="1"
                                             >
                                                 <Button.Flyout>
                                                     <Flyout>
@@ -1452,14 +1487,89 @@
                                 </StackPanel>
 
 
-                                <Grid>
-                                    <Border IsHitTestVisible="True" Background="Transparent">
+
+
+                                <Grid x:Name="UIControlCenterLayout" BorderThickness="0">
+
+
+                                    <Border IsHitTestVisible="True" Background="Transparent" BorderThickness="0">
                                         <i:Interaction.Behaviors>
                                             <core:EventTriggerBehavior EventName="Tapped">
                                                 <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI}" PropertyName="Value" Value="False" />
                                             </core:EventTriggerBehavior>
                                         </i:Interaction.Behaviors>
                                     </Border>
+
+                                    <Border Height="32" VerticalAlignment="Top">
+
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="1, 1" EndPoint="1, 0">
+                                                <GradientStop Color="{Binding Source={StaticResource SystemAltMediumColor}, Converter={StaticResource ToTransparentColor}}" Offset="0.0" />
+                                                <GradientStop Color="{ThemeResource SystemAltMediumColor}" Offset="1.0" />
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+
+                                    </Border>
+
+
+                                    <Border Height="48" BorderThickness="0" VerticalAlignment="Bottom" >
+                                        <Border.Background>
+                                            <LinearGradientBrush x:Name="ControlPanelBackgroundBrush" StartPoint="1, 0" EndPoint="1, 1">
+                                                <GradientStop Color="{Binding Source={StaticResource SystemAltMediumColor}, Converter={StaticResource ToTransparentColor}}" Offset="0.0" x:Name="GradientStop1"/>
+                                                <GradientStop Color="{ThemeResource SystemAltMediumColor}" Offset="1.0" x:Name="GradientStop2" />
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+
+                                        <Border.RenderTransform>
+                                            <TranslateTransform Y="0" />
+                                        </Border.RenderTransform>
+
+                                        <i:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Tapped">
+                                                <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI}" PropertyName="Value" Value="False" />
+                                            </core:EventTriggerBehavior>
+                                        </i:Interaction.Behaviors>
+                                    </Border>
+
+                                    <Border VerticalAlignment="Center"
+                                            HorizontalAlignment="Left"
+                                            >
+                                        <Button MinWidth="24"
+                                                Height="120"
+                                                Command="{Binding OpenPreviousPlaylistItemCommand}"
+                                                IsEnabled="{Binding PlaylistCanGoBack.Value}"
+                                                BorderBrush="{StaticResource HohoemaPlayerBackgroundBrush}"
+                                                BorderThickness="0 1 1 1"
+                                            >
+                                            <TextBlock FontFamily="Segoe MDL2 Assets" 
+                                                       Text="&#xE016;" 
+                                                       FontSize="20"
+                                                       Foreground="{ThemeResource HohoemaPlayerBackgroundBrush}"
+                                                       >
+                                            </TextBlock>
+                                        </Button>
+                                    </Border>
+
+                                    <Border VerticalAlignment="Center"
+                                            HorizontalAlignment="Right"
+                                            >
+                                        <Button MinWidth="24"
+                                                Height="120"
+                                                Command="{Binding OpenNextPlaylistItemCommand}"
+                                                IsEnabled="{Binding PlaylistCanGoNext.Value}"
+                                                BorderBrush="{StaticResource HohoemaPlayerBackgroundBrush}"
+                                                BorderThickness="1 1 0 1"
+                                                >
+                                            <TextBlock FontFamily="Segoe MDL2 Assets" 
+                                                       Text="&#xE017;" 
+                                                       FontSize="20"
+                                                       Foreground="{ThemeResource HohoemaPlayerBackgroundBrush}"
+                                                           >
+                                            </TextBlock>
+                                        </Button>
+                                    </Border>
+
+
 
 
                                 </Grid>
@@ -1471,14 +1581,10 @@
                             <!-- Compact Overlay UIControl -->
                             <Grid x:Name="CompactOverlayUIControl"
                                   Visibility="Collapsed"
+                                  Background="{StaticResource HohoemaPlayerBackgroundBrush}"
                                   >
-                                <Grid.Background>
-                                    <SolidColorBrush Color="{StaticResource SystemAltMediumColor}" />
-                                </Grid.Background>
 
                                 <Grid>
-                                    
-                                    
                                     <Border IsHitTestVisible="True" Background="Transparent">
                                         <i:Interaction.Behaviors>
 
@@ -1493,10 +1599,8 @@
                                     
                                     <Border toolkit:DockPanel.Dock="Top" 
                                             Height="32"
+                                            Background="{StaticResource HohoemaPlayerBackgroundBrush}"
                                             >
-                                        <Border.Background>
-                                            <SolidColorBrush Color="{StaticResource SystemAltMediumColor}" />
-                                        </Border.Background>
                                     </Border>
 
                                     <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
@@ -1516,7 +1620,6 @@
                                         Maximum="{Binding VideoLength.Value, Mode=OneWay}"
                                         Style="{StaticResource VideoProgressBarStyle}"
                                         HorizontalAlignment="Stretch"
-                                        VerticalAlignment="Bottom"
                                         IsEnabled="False"
                                         Opacity="0.6"
                                         toolkit:DockPanel.Dock="Bottom"
@@ -1531,7 +1634,8 @@
 
                                     <StackPanel VerticalAlignment="Bottom">
                                         <!-- 再生コントロール -->
-                                        <Grid Padding="8 0 8 0" >
+                                        
+                                        <Grid Padding="8 0 8 0"  >
 
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*" />
@@ -1541,7 +1645,8 @@
 
                                             <StackPanel Orientation="Horizontal">
 
-                                                <Button Command="{Binding ToggleDisplayCommentCommand}"
+                                                <Button x:Name="CO_ToggleCommentDisplayButton"
+                                                     Command="{Binding ToggleDisplayCommentCommand}"
                                                      Background="Transparent"
                                                       >
                                                     <Grid>
@@ -1575,16 +1680,17 @@
 
                                                 <Button Background="Transparent" 
                                                         Command="{Binding PreviewVideoPositionCommand}"
-                                                        Margin="0 0 8 0"
+                                                        Margin="0 0 0 0"
+                                                        x:Name="CO_PreviewVideoPositionButton"
                                                 >
                                                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3C;" 
-                                                           FontSize="14"
+                                                           FontSize="20"
                                                            />
                                                 </Button>
 
                                                 <Button Command="{Binding TogglePlayPauseCommand}"
                                                     Background="Transparent"
-                                                    Margin="0 0 0 4"
+                                                    Margin="0 0 0 0"
                                                         x:Name="CO_PlayPauseButton" 
                                             
                                               >
@@ -1593,7 +1699,7 @@
                                                                     RenderTransformOrigin="0.5, 0.5"
                                                                     >
                                                         <iconPack:PackIconMaterial.RenderTransform>
-                                                            <CompositeTransform ScaleX="1.2" ScaleY="1.2"/>
+                                                            <CompositeTransform ScaleX="1.35" ScaleY="1.35"/>
                                                         </iconPack:PackIconMaterial.RenderTransform>
 
                                                     </iconPack:PackIconMaterial>
@@ -1601,11 +1707,11 @@
 
                                                 <Button Background="Transparent"
                                                     Command="{Binding ForwardVideoPositionCommand}"
-                                                    x:Name="CO_ForwardVideoPositionButon"
-                                                        Margin="8 0 0 0"
+                                                    x:Name="CO_ForwardVideoPositionButton"
+                                                        Margin="0 0 0 0"
                                                     >
                                                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3D;"
-                                                       FontSize="14"
+                                                       FontSize="20"
                                            
                                                    
                                                        />
@@ -1625,14 +1731,9 @@
                                                         x:Name="CO_CompactOverlayButton"
                                                     
                                                         >
-                                                    <iconPack:PackIconMaterial Kind="MoveResize" 
-                                                        RenderTransformOrigin="0.5, 0.5"
-                                                        >
-                                                        <iconPack:PackIconMaterial.RenderTransform>
-                                                            <CompositeTransform ScaleX="1.5" ScaleY="1.5"/>
-                                                        </iconPack:PackIconMaterial.RenderTransform>
-
-                                                    </iconPack:PackIconMaterial>
+                                                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE944;"
+                                                       FontSize="24"
+                                                       />
                                                 </Button>
 
                                             </toolkit:WrapPanel>
@@ -1645,13 +1746,13 @@
                                             FontSize="18"
                                             VerticalAlignment="Center"
                                             MaxLength="75"
+                                                 MaxWidth="320"
                                             IsTabStop="True"
                                             toolkitext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
                                             PlaceholderText="コメント"
                                             HorizontalAlignment="Stretch"
                                             Margin="8 0 8 0"
                                             HorizontalContentAlignment="Stretch"
-                                                 MaxWidth="320"
                                             Height="18"
                                                 >
                                             <i:Interaction.Behaviors>

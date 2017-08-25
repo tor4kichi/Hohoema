@@ -228,27 +228,6 @@
                 </VisualState>
             </VisualStateGroup>
 
-            <!-- ウィンドウ非アクティブ時にマウス移動に反応するエリアを拡大する -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <myTrigger:WindowActiveTrigger Inverted="True" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="WindowDeactiveMouseMoveDetectWall.Visibility" Value="Visible" />
-                    </VisualState.Setters>
-                </VisualState>
-
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <myTrigger:WindowActiveTrigger Inverted="False" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="WindowDeactiveMouseMoveDetectWall.Visibility" Value="Collapsed" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-
 
             <VisualStateGroup>
                 <VisualState>
@@ -280,7 +259,7 @@
 
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <myTrigger:IsSupportCompactOverlayTrigger Inverted="True" />
+                        <myTrigger:IsSupportCompactOverlayTrigger />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="CompactOverlayButton.Visibility" Value="Visible" />
@@ -483,12 +462,6 @@
                                   Margin="24 88"      
                                   />
 
-
-                <!-- ウィンドウ非アクティブ時に画面全体をマウス移動の反応対象にするためのコリジョン-->
-                <Border x:Name="WindowDeactiveMouseMoveDetectWall" Background="Transparent"
-                            >
-
-                </Border>
 
                 <Border IsHitTestVisible="True" Background="Transparent">
                     <i:Interaction.Behaviors>
@@ -807,8 +780,8 @@
                                             <iconPack:PackIconMaterial
                                                 Kind="Comment"
                                                 x:Name="CommentIcon"
-                                                Width="24"
-                                                Height="24"
+                                                Width="18"
+                                                Height="18"
                                                 />
                                             <Canvas>
                                                 <Line X1="{Binding ElementName=CommentIcon, Path=ActualWidth}" 
@@ -816,7 +789,7 @@
                                                       X2="0" 
                                                       Y2="{Binding ElementName=CommentIcon, Path=ActualHeight}"
                                                   Stroke="Red"
-                                                      StrokeThickness="4"
+                                                      StrokeThickness="3"
                                                   Visibility="{Binding IsVisibleComment.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                                   Opacity="0.7"
                                                   />
@@ -850,19 +823,14 @@
                                     HorizontalAlignment="Right"
                                         >
 
-                                    <Button Command="{Binding ToggleCompactOverlayCommand}"
-                                                        Background="Transparent"
-                                                        x:Name="CompactOverlayButton"
-                                                    
+                                    <Button x:Name="CompactOverlayButton"
+                                            Command="{Binding ToggleCompactOverlayCommand}"
+                                            Background="Transparent"
+                                            Visibility="Collapsed"
                                                         >
-                                        <iconPack:PackIconMaterial Kind="MoveResize" 
-                                                        RenderTransformOrigin="0.5, 0.5"
-                                                        >
-                                            <iconPack:PackIconMaterial.RenderTransform>
-                                                <CompositeTransform ScaleX="1.5" ScaleY="1.5"/>
-                                            </iconPack:PackIconMaterial.RenderTransform>
-
-                                        </iconPack:PackIconMaterial>
+                                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE2B4;"
+                                                       FontSize="24"
+                                                       />
                                     </Button>
                                     
                                     <Button Command="{Binding ToggleFullScreenCommand}"
@@ -948,7 +916,7 @@
 
 
                                 <Button Content="{Binding CommandString.Value}" 
-                                            Margin="8 0 8 8"
+                                            Margin="0 0 8 8"
                                             HorizontalAlignment="Stretch"
                                             HorizontalContentAlignment="Center"
                                             DataContext="{Binding}"
@@ -966,7 +934,7 @@
                                     </Button.Flyout>
                                 </Button>
 
-                                <Button Content="投稿"  Margin="8 0 8 8"
+                                <Button Content="投稿"  Margin="8 0 0 8"
                                                 Height="40"
                                                 Command="{Binding CommentSubmitCommand}"
                                                 x:Name="CommentSubmitButton"
@@ -1125,14 +1093,9 @@
                                                         x:Name="CO_CompactOverlayButton"
                                                     
                                                         >
-                                            <iconPack:PackIconMaterial Kind="MoveResize" 
-                                                        RenderTransformOrigin="0.5, 0.5"
-                                                        >
-                                                <iconPack:PackIconMaterial.RenderTransform>
-                                                    <CompositeTransform ScaleX="1.5" ScaleY="1.5"/>
-                                                </iconPack:PackIconMaterial.RenderTransform>
-
-                                            </iconPack:PackIconMaterial>
+                                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE944;"
+                                                       FontSize="24"
+                                                       />
                                         </Button>
 
                                     </toolkit:WrapPanel>

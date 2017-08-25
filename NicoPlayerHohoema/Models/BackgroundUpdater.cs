@@ -462,7 +462,7 @@ namespace NicoPlayerHohoema.Models
                             await item.Target.BackgroundUpdate(UIDispatcher)
                                 .AsTask(cancelTokenSource.Token);
 #if DEBUG
-                            await Task.Delay(500);
+                            await Task.Delay(0);
 #endif
                         }
                         catch (Exception ex)
