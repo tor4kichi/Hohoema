@@ -16,6 +16,8 @@ using Prism.Commands;
 using NicoPlayerHohoema.Models.Live;
 using Windows.UI.ViewManagement;
 using Windows.UI.Core;
+using Windows.ApplicationModel.Core;
+using Windows.Foundation.Metadata;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -74,6 +76,13 @@ namespace NicoPlayerHohoema.ViewModels
                 
             ContentVM = new ReactiveProperty<ViewModelBase>();
 
+            IsContentDisplayFloating
+                .Where(x => x)
+                .Subscribe(x => 
+            {
+                hohoemaApp.BackgroundUpdater.Activate();
+            });
+                
 
             HohoemaPlaylist.OpenPlaylistItem += HohoemaPlaylist_OpenPlaylistItem;
 
@@ -84,6 +93,28 @@ namespace NicoPlayerHohoema.ViewModels
                 ClosePlayer();
             });
 
+            if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4))
+            {
+                Observable.Merge(
+                    IsVisibleFloatContent.Where(x => !x),
+                    IsContentDisplayFloating.Where(x => x)
+                    )
+                    .Subscribe(async x =>
+                    {
+                        var view = ApplicationView.GetForCurrentView();
+                        if (view.IsViewModeSupported(ApplicationViewMode.CompactOverlay))
+                        {
+                            var result = await view.TryEnterViewModeAsync(ApplicationViewMode.Default);
+                            if (result)
+                            {
+                                CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = false;
+                                view.TitleBar.ButtonBackgroundColor = null;
+                                view.TitleBar.ButtonInactiveBackgroundColor = null;
+                                
+                            }
+                        }
+                    });
+            }
 
             App.Current.Suspending += Current_Suspending;
         }

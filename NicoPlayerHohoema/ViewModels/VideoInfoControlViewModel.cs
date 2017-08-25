@@ -6,6 +6,7 @@ using Mntone.Nico2.Videos.Ranking;
 using Mntone.Nico2.Videos.Thumbnail;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Db;
+using NicoPlayerHohoema.Util;
 using Prism.Commands;
 using Prism.Mvvm;
 using Reactive.Bindings;
@@ -22,6 +23,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Microsoft.Practices.Unity;
+using Windows.ApplicationModel.DataTransfer;
+using Windows.UI.Popups;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -138,16 +142,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .Subscribe(color => ThemeColor = color)
                 .AddTo(_CompositeDisposable);
 
-            if (_IsNGEnabled)
-            {
-                var ngResult = NicoVideo.CheckNGVideoOwner();
-                IsVisible = ngResult == null;
-                if (ngResult != null)
-                {
-                    var ngDesc = !string.IsNullOrWhiteSpace(ngResult.NGDescription) ? ngResult.NGDescription : ngResult.Content;
-                    InvisibleDescription = $"NG動画";
-                }
-            }
+            
         }
 
         private async void ResetQualityDivideVideosVM()
@@ -173,7 +168,7 @@ namespace NicoPlayerHohoema.ViewModels
             // NG判定
             if (_IsNGEnabled)
             {
-                var ngResult = NicoVideo.CheckNGVideoTitle();
+                var ngResult = NicoVideo.CheckNGVideo();
                 IsVisible = ngResult == null;
                 if (ngResult != null)
                 {
@@ -322,15 +317,49 @@ namespace NicoPlayerHohoema.ViewModels
         
 
 
-        private DelegateCommand _RemoveCacheCommand;
-        public DelegateCommand RemoveCacheCommand
+        private DelegateCommand _RequestRemoveCacheCommand;
+        public DelegateCommand RequestRemoveCacheCommand
         {
             get
             {
-                return _RemoveCacheCommand
-                    ?? (_RemoveCacheCommand = new DelegateCommand(async () =>
+                return _RequestRemoveCacheCommand
+                    ?? (_RequestRemoveCacheCommand = new DelegateCommand(async () =>
                     {
-                        await NicoVideo.CancelCacheRequest();
+                        if (NicoVideo.GetAllQuality().ToArray().Any(x => x.IsCached))
+                        {
+                            // キャッシュ済みがある場合は、削除確認を行う
+
+
+                            var dialog = new MessageDialog(
+                            $"{NicoVideo.Title} の キャッシュデータ（全ての画質）を削除します。この操作は元に戻せません。",
+                            "キャッシュの削除確認"
+                            );
+
+                            dialog.Commands.Add(new UICommand()
+                            {
+                                Label = "キャッシュを削除",
+                                Invoked = async (uicommand) =>
+                                {
+                                    await NicoVideo.CancelCacheRequest();
+                                }
+                            });
+                            dialog.Commands.Add(new UICommand()
+                            {
+                                Label = "キャンセル",
+                            });
+
+                            dialog.DefaultCommandIndex = 1;
+
+                            await dialog.ShowAsync();
+                        }
+                        else
+                        {
+                            // キャッシュリクエストのみで
+                            // キャッシュがいずれも未完了の場合は
+                            // 確認無しで削除
+
+                            await NicoVideo.CancelCacheRequest();
+                        }
                     }));
             }
         }
@@ -364,6 +393,48 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
+        private DelegateCommand _AddToFilterVideoOwnerCommand;
+        public DelegateCommand AddToFilterVideoOwnerCommand
+        {
+            get
+            {
+                return _AddToFilterVideoOwnerCommand
+                    ?? (_AddToFilterVideoOwnerCommand = new DelegateCommand(async () =>
+                    {
+                        var ownerName = NicoVideo.OwnerName;
+                        var dialog = new MessageDialog(
+                            $"この変更は投稿者（{NicoVideo.OwnerName} さん）のアプリ内ユーザー情報ページから取り消すことができます。",
+                            
+                            $"『{NicoVideo.OwnerName}』さんの投稿動画を非表示に設定しますか？"
+                            );
+
+                        dialog.Commands.Add(new UICommand() { Label = "非表示に設定", Invoked = (uicommand) => 
+                        {
+                            var hohoemaApp = NicoVideo.HohoemaApp;
+                            hohoemaApp.UserSettings.NGSettings.AddNGVideoOwnerId(NicoVideo.OwnerId.ToString(), NicoVideo.OwnerName);
+                            hohoemaApp.UserSettings.NGSettings.Save().ConfigureAwait(false);
+
+                            if (_IsNGEnabled)
+                            {
+                                var ngResult = NicoVideo.CheckNGVideoOwner();
+                                IsVisible = ngResult == null;
+                                if (ngResult != null)
+                                {
+                                    var ngDesc = !string.IsNullOrWhiteSpace(ngResult.NGDescription) ? ngResult.NGDescription : ngResult.Content;
+                                    InvisibleDescription = $"NG動画";
+                                }
+                            }
+                        } });
+                        dialog.Commands.Add(new UICommand() { Label = "キャンセル" });
+
+                        dialog.DefaultCommandIndex = 1;
+
+                        await dialog.ShowAsync();
+                    }));
+            }
+        }
+
+
         private DelegateCommand _ConfirmDeleteCommand;
         public DelegateCommand ConfirmDeleteCommand
         {
@@ -383,6 +454,52 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+
+        private DelegateCommand _ShareCommand;
+        public DelegateCommand ShareCommand
+        {
+            get
+            {
+                return _ShareCommand
+                    ?? (_ShareCommand = new DelegateCommand(() =>
+                    {
+                        ShareHelper.Share(NicoVideo);
+                    }
+                    , () => DataTransferManager.IsSupported()
+                    ));
+            }
+        }
+
+        private DelegateCommand _ShereWithTwitterCommand;
+        public DelegateCommand ShereWithTwitterCommand
+        {
+            get
+            {
+                return _ShereWithTwitterCommand
+                    ?? (_ShereWithTwitterCommand = new DelegateCommand(async () =>
+                    {
+                        await ShareHelper.ShareToTwitter(NicoVideo);
+                    }
+                    ));
+            }
+        }
+
+        private DelegateCommand _VideoInfoCopyToClipboardCommand;
+        public DelegateCommand VideoInfoCopyToClipboardCommand
+        {
+            get
+            {
+                return _VideoInfoCopyToClipboardCommand
+                    ?? (_VideoInfoCopyToClipboardCommand = new DelegateCommand(() =>
+                    {
+                        ShareHelper.CopyToClipboard(NicoVideo);
+                    }
+                    ));
+            }
+        }
+
+
+        public bool IsXbox => Util.DeviceTypeHelper.IsXbox;
 
         public ReadOnlyReactiveProperty<bool> IsPlayed { get; private set; }
 

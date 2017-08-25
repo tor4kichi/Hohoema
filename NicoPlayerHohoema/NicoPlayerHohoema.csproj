@@ -130,6 +130,7 @@
     <Content Include="Assets\UpdateNotices\0.9.15.md" />
     <Content Include="Assets\UpdateNotices\0.9.17.md" />
     <Content Include="Assets\UpdateNotices\0.9.18.md" />
+    <Content Include="Assets\UpdateNotices\0.10.0.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
   </ItemGroup>
   <ItemGroup>
@@ -199,6 +200,7 @@
     <Compile Include="Models\Settings\CacheSettings.cs" />
     <Compile Include="Models\Settings\PlaylistSettings.cs" />
     <Compile Include="Models\Mylist\UserMylistManager.cs" />
+    <Compile Include="Models\ShareHelper.cs" />
     <Compile Include="Models\Video\DividedQualityNicoVideo.cs" />
     <Compile Include="Models\Video\MediaProtocolType.cs" />
     <Compile Include="Models\Db\NicoVideo\NicoVIdeoDbContext.cs" />
@@ -294,6 +296,7 @@
     </Compile>
     <Compile Include="Views\Behaviors\FocusGetter.cs" />
     <Compile Include="Views\Behaviors\AutoHideCursor.cs" />
+    <Compile Include="Views\Behaviors\WhenCompactOverlayTitleBarSetter.cs" />
     <Compile Include="Views\Behaviors\XYNavigationExtentions.cs" />
     <Compile Include="Views\Behaviors\ListViewBaseItemContextFlyout.cs" />
     <Compile Include="Views\Behaviors\MenuFlyoutSubItemsSetter.cs" />
@@ -341,6 +344,8 @@
     <Compile Include="Views\Service\MarkdownTextDialog.xaml.cs">
       <DependentUpon>MarkdownTextDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\StateTrigger\CompactOverlayViewModeTrigger.cs" />
+    <Compile Include="Views\StateTrigger\IsSupportCompactOverlayTrigger.cs" />
     <Compile Include="Views\UINavigationButtons.cs" />
     <Compile Include="Views\CommentCommandEditer.xaml.cs">
       <DependentUpon>CommentCommandEditer.xaml</DependentUpon>

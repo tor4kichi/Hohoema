@@ -273,6 +273,22 @@ namespace NicoPlayerHohoema
                     {
                         await ShowErrorLog().ConfigureAwait(false);
                     }
+                    else if (arguments.StartsWith("cache_cancel"))
+                    {
+                        try
+                        {
+                            var query = arguments.Split('?')[1];
+                            var decode = new WwwFormUrlDecoder(query);
+
+                            var videoId = decode.GetFirstValueByName("id");
+                            var quality = (NicoVideoQuality)Enum.Parse(typeof(NicoVideoQuality), decode.GetFirstValueByName("quality"));
+
+                            var video = await hohoemaApp.MediaManager.GetNicoVideoAsync(videoId);
+
+                            await video.CancelCacheRequest(quality);
+                        }
+                        catch { }
+                    }
                     else
                     {
                         var nicoContentId = Util.NicoVideoExtention.UrlToVideoId(arguments);
@@ -333,7 +349,19 @@ namespace NicoPlayerHohoema
             }
             catch
             {
-                pageManager.OpenPage(HohoemaPageType.Login);
+                if (!pageManager.NavigationService.CanGoBack())
+                {
+                    if (!hohoemaApp.IsLoggedIn && AccountManager.HasPrimaryAccount())
+                    {
+                        await hohoemaApp.SignInWithPrimaryAccount();
+
+                        pageManager.OpenStartupPage();
+                    }
+                    else
+                    {
+                        pageManager.OpenPage(HohoemaPageType.Login);
+                    }
+                }
             }
 			
 
@@ -504,17 +532,20 @@ namespace NicoPlayerHohoema
             await base.OnInitializeAsync(args);
 		}
 
-        private void UINavigationManager_Pressed(Views.UINavigationManager sender, Views.UINavigationButtons buttons)
+        private async void UINavigationManager_Pressed(Views.UINavigationManager sender, Views.UINavigationButtons buttons)
         {
-            if (buttons == Views.UINavigationButtons.Up ||
+            await HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
+            {
+                if (buttons == Views.UINavigationButtons.Up ||
                 buttons == Views.UINavigationButtons.Down ||
                 buttons == Views.UINavigationButtons.Right ||
                 buttons == Views.UINavigationButtons.Left
                 )
-            {
-                var focused = FocusManager.GetFocusedElement();
-                Debug.WriteLine("現在のフォーカス:" + focused?.ToString());
-            }
+                {
+                    var focused = FocusManager.GetFocusedElement();
+                    Debug.WriteLine("現在のフォーカス:" + focused?.ToString());
+                }
+            });
         }
 
         /*

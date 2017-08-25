@@ -22,6 +22,21 @@
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
+    <Page.Resources>
+        <DataTemplate x:Key="MylistTemplate">
+            <TextBlock Text="{Binding Name}"
+                        FontSize="16"
+                       TextWrapping="Wrap"
+                        />
+        </DataTemplate>
+
+        <Style TargetType="GridViewItem" x:Key="MylistListViewContainerStyle">
+            <Setter Property="MinWidth" Value="120" />
+            <Setter Property="Height" Value="64" />
+            <Setter Property="Padding" Value="16 0" />
+        </Style>
+    </Page.Resources>
+
     <i:Interaction.Behaviors>
         <core:EventTriggerBehavior EventName="Unloaded">
             <core:CallMethodAction TargetObject="{Binding}" MethodName="Dispose" />
@@ -104,155 +119,180 @@
                 </toolkit:DockPanel>
             </Border>
 
-            <Pivot ItemsSource="{Binding MylistList}"
+            <ScrollViewer>
+                <ItemsControl ItemsSource="{Binding MylistList}"
+                              Margin="16 0 0 27"
                    >
-                <Pivot.HeaderTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Title}" />
-                    </DataTemplate>
-                </Pivot.HeaderTemplate>
+                    <ItemsControl.ItemTemplateSelector>
+                        <local:MylistListTemplateSelector>
+                            <!-- Local Mylist -->
+                            <local:MylistListTemplateSelector.LocalMylist>
+                                <DataTemplate>
 
-                <Pivot.ItemTemplateSelector>
-                    <local:MylistListTemplateSelector>
-                        <!-- Local Mylist -->
-                        <local:MylistListTemplateSelector.LocalMylist>
-                            <DataTemplate>
-                                <ListView ItemsSource="{Binding Items}"
-                                        Margin="0 0 0 0"
-                                        HorizontalContentAlignment="Stretch"
-                                        IsTabStop="False"
-                                      uwpui:ListViewBaseExtensions.Command="{Binding ElementName=ContentLayout, Path=DataContext.OpenMylistCommand}"
-                                      IsItemClickEnabled="True"
-                                      SelectionMode="None"
-                                        >
+                                    <toolkit:DockPanel>
 
-                                    <i:Interaction.Behaviors>
-                                        <mybehavior:ListViewBaseItemContextFlyout />
-                                    </i:Interaction.Behaviors>
+                                        <TextBlock Text="{Binding Title}"
+                                                   Style="{StaticResource SubtitleTextBlockStyle}"
+                                                   toolkit:DockPanel.Dock="Top"
+                                                   />
 
-                                    <ListView.ContextFlyout>
-                                        <MenuFlyout>
-                                            <MenuFlyoutItem Text="全て再生"
+
+                                        <GridView ItemsSource="{Binding Items}"
+                                                    Margin="0 8"
+                                                    HorizontalContentAlignment="Stretch"
+                                                    IsTabStop="False"
+                                                  uwpui:ListViewBaseExtensions.Command="{Binding ElementName=ContentLayout, Path=DataContext.OpenMylistCommand}"
+                                                  IsItemClickEnabled="True"
+                                                  SelectionMode="None"
+                                                  ItemTemplate="{StaticResource MylistTemplate}"
+                                                  ItemContainerStyle="{StaticResource MylistListViewContainerStyle}"
+                                            >
+
+                                            <i:Interaction.Behaviors>
+                                                <mybehavior:ListViewBaseItemContextFlyout />
+                                            </i:Interaction.Behaviors>
+
+                                            <GridView.ContextFlyout>
+                                                <MenuFlyout>
+                                                    <MenuFlyoutItem Text="全て再生"
                                                             Command="{Binding ElementName=ContentLayout, Path=DataContext.PlayAllCommand}"
                                                             CommandParameter="{Binding}"
                                                             />
-                                            <MenuFlyoutItem Text="名前を変更"
+                                                    <MenuFlyoutItem Text="名前を変更"
                                                             Command="{Binding ElementName=ContentLayout, Path=DataContext.EditMylistGroupCommand}"
                                                             CommandParameter="{Binding}"
                                                             />
-                                            <MenuFlyoutItem Text="削除"
+                                                    <MenuFlyoutItem Text="削除"
                                                             Command="{Binding ElementName=ContentLayout, Path=DataContext.RemoveMylistGroupCommand}"
                                                             CommandParameter="{Binding}"
                                                             />
-                                        </MenuFlyout>
-                                    </ListView.ContextFlyout>
+                                                </MenuFlyout>
+                                            </GridView.ContextFlyout>
+
+
+
+                                            <GridView.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <ItemsWrapGrid Orientation="Horizontal" Margin="0 0 48 0" />
+                                                </ItemsPanelTemplate>
+                                            </GridView.ItemsPanel>
+                                        </GridView>
+
+                                    </toolkit:DockPanel>
                                     
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding Name}"
-                                                   FontSize="16"
+                                </DataTemplate>
+                            </local:MylistListTemplateSelector.LocalMylist>
+
+                            <!-- User Mylist -->
+                            <local:MylistListTemplateSelector.LoginUserMylist>
+                                <DataTemplate>
+
+                                    <toolkit:DockPanel>
+
+                                        <TextBlock Text="{Binding Title}"
+                                                   Style="{StaticResource SubtitleTextBlockStyle}"
+                                                   toolkit:DockPanel.Dock="Top"
                                                    />
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
 
-                                    <ListView.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <ItemsWrapGrid Orientation="Horizontal" />
-                                        </ItemsPanelTemplate>
-                                    </ListView.ItemsPanel>
-                                </ListView>
+                                        <GridView ItemsSource="{Binding Items}"
+                                                    Margin="0 8"
+                                                    HorizontalContentAlignment="Stretch"
+                                                    IsTabStop="False"
+                                                  uwpui:ListViewBaseExtensions.Command="{Binding ElementName=ContentLayout, Path=DataContext.OpenMylistCommand}"
+                                                  IsItemClickEnabled="True"
+                                                  SelectionMode="None"
+                                                  ItemTemplate="{StaticResource MylistTemplate}"
+                                                  ItemContainerStyle="{StaticResource MylistListViewContainerStyle}"
+                                                    >
 
-                            </DataTemplate>
-                        </local:MylistListTemplateSelector.LocalMylist>
+                                            <i:Interaction.Behaviors>
+                                                <mybehavior:ListViewBaseItemContextFlyout />
+                                            </i:Interaction.Behaviors>
 
-                        <!-- User Mylist -->
-                        <local:MylistListTemplateSelector.LoginUserMylist>
-                            <DataTemplate>
-                                <ListView ItemsSource="{Binding Items}"
-                                        Margin="0 0 0 0"
-                                        HorizontalContentAlignment="Stretch"
-                                        IsTabStop="False"
-                                      uwpui:ListViewBaseExtensions.Command="{Binding ElementName=ContentLayout, Path=DataContext.OpenMylistCommand}"
-                                      IsItemClickEnabled="True"
-                                      SelectionMode="None"
-                                        >
-
-                                    <i:Interaction.Behaviors>
-                                        <mybehavior:ListViewBaseItemContextFlyout />
-                                    </i:Interaction.Behaviors>
-
-                                    <ListView.ContextFlyout>
-                                        <MenuFlyout>
-                                            <MenuFlyoutItem Text="全て再生"
+                                            <GridView.ContextFlyout>
+                                                <MenuFlyout>
+                                                    <MenuFlyoutItem Text="全て再生"
                                                             Command="{Binding ElementName=ContentLayout, Path=DataContext.PlayAllCommand}"
                                                             CommandParameter="{Binding}"
                                                             />
-                                            <MenuFlyoutItem Text="名前を変更"
+                                                    <MenuFlyoutItem Text="名前を変更"
                                                             Command="{Binding ElementName=ContentLayout, Path=DataContext.EditMylistGroupCommand}"
                                                             CommandParameter="{Binding}"
                                                             />
-                                            <MenuFlyoutItem Text="削除"
+                                                    <MenuFlyoutItem Text="削除"
                                                             Command="{Binding ElementName=ContentLayout, Path=DataContext.RemoveMylistGroupCommand}"
                                                             CommandParameter="{Binding}"
                                                             />
-                                        </MenuFlyout>
-                                    </ListView.ContextFlyout>
+                                                </MenuFlyout>
+                                            </GridView.ContextFlyout>
+
+                                            <GridView.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <ItemsWrapGrid Orientation="Horizontal" Margin="0 0 48 0" />
+                                                </ItemsPanelTemplate>
+                                            </GridView.ItemsPanel>
+                                        </GridView>
+                                        
+                                    </toolkit:DockPanel>
                                     
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding Name}"
-                                                   FontSize="16"
-                                                   />
-                                        </DataTemplate>
+                                    
 
-                                    </ItemsControl.ItemTemplate>
-                                </ListView>
+                                </DataTemplate>
+                            </local:MylistListTemplateSelector.LoginUserMylist>
 
-                            </DataTemplate>
-                        </local:MylistListTemplateSelector.LoginUserMylist>
+                            <!-- Other User Mylist -->
+                            <local:MylistListTemplateSelector.OtherOwneredMylist>
+                                <DataTemplate>
 
-                        <!-- Other User Mylist -->
-                        <local:MylistListTemplateSelector.OtherOwneredMylist>
-                            <DataTemplate>
-                                <ListView ItemsSource="{Binding Items}"
-                                        Margin="0 0 0 0"
-                                        HorizontalContentAlignment="Stretch"
-                                        IsTabStop="False"
-                                      uwpui:ListViewBaseExtensions.Command="{Binding ElementName=ContentLayout, Path=DataContext.OpenMylistCommand}"
-                                      IsItemClickEnabled="True"
-                                      SelectionMode="None"
-                                        >
+                                    <toolkit:DockPanel>
+                                        
+                                        <GridView ItemsSource="{Binding Items}"
+                                                    Margin="0 8"
+                                                    HorizontalContentAlignment="Stretch"
+                                                    IsTabStop="False"
+                                                  uwpui:ListViewBaseExtensions.Command="{Binding ElementName=ContentLayout, Path=DataContext.OpenMylistCommand}"
+                                                  IsItemClickEnabled="True"
+                                                  SelectionMode="None"
+                                                  ItemTemplate="{StaticResource MylistTemplate}"
+                                                  ItemContainerStyle="{StaticResource MylistListViewContainerStyle}"
+                                                    >
 
-                                    <i:Interaction.Behaviors>
-                                        <mybehavior:ListViewBaseItemContextFlyout />
-                                    </i:Interaction.Behaviors>
+                                            <i:Interaction.Behaviors>
+                                                <mybehavior:ListViewBaseItemContextFlyout />
+                                            </i:Interaction.Behaviors>
 
-                                    <ListView.ContextFlyout>
-                                        <MenuFlyout>
-                                            <MenuFlyoutItem Text="全て再生"
+                                            <GridView.ContextFlyout>
+                                                <MenuFlyout>
+                                                    <MenuFlyoutItem Text="全て再生"
                                                             Command="{Binding ElementName=ContentLayout, Path=DataContext.PlayAllCommand}"
                                                             CommandParameter="{Binding}"
                                                             />
-                                        </MenuFlyout>
-                                    </ListView.ContextFlyout>
-                                    
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding Name}"
-                                                   FontSize="16"
-                                                   />
-                                        </DataTemplate>
+                                                </MenuFlyout>
+                                            </GridView.ContextFlyout>
 
-                                    </ItemsControl.ItemTemplate>
-                                </ListView>
+                                            <GridView.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <ItemsWrapGrid Orientation="Horizontal" Margin="0 0 48 0" />
+                                                </ItemsPanelTemplate>
+                                            </GridView.ItemsPanel>
+                                        </GridView>
 
-                            </DataTemplate>
-                        </local:MylistListTemplateSelector.OtherOwneredMylist>
-                    </local:MylistListTemplateSelector>
-                </Pivot.ItemTemplateSelector>
-                
-                
-            </Pivot>
+                                    </toolkit:DockPanel>
+                                </DataTemplate>
+                            </local:MylistListTemplateSelector.OtherOwneredMylist>
+                        </local:MylistListTemplateSelector>
+                    </ItemsControl.ItemTemplateSelector>
+
+
+                </ItemsControl>
+
+
+
+            </ScrollViewer>
+            
+            
+            
+            
 
             
            

@@ -352,10 +352,15 @@ namespace NicoPlayerHohoema.ViewModels
 
 				await NavigatedToAsync(cancelToken, e, viewModelState);
 
+                cancelToken.ThrowIfCancellationRequested();
 
-                await CallAppServiceLevelOffline(_NavigatedToTaskCancelToken.Token);
+                await CallAppServiceLevelOffline(cancelToken);
 
-                await CallAppServiceLevelOnlineWithoutLoggedIn(_NavigatedToTaskCancelToken.Token);
+                cancelToken.ThrowIfCancellationRequested();
+
+                await CallAppServiceLevelOnlineWithoutLoggedIn(cancelToken);
+
+                cancelToken.ThrowIfCancellationRequested();
 
                 if (await CheckSignIn())
                 {
@@ -383,52 +388,62 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override async void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
-			using (var releaser = await _NavigationLock.LockAsync())
-			{
-                // バックナビゲーションが発生した時、
-                // かつ、代替バックナビゲーション動作が設定されている場合に、
-                // バックナビゲーションをキャンセルします。
-                if (!suspending 
-                    && e.NavigationMode == NavigationMode.Back 
-                    && SubstitutionBackNavigation.Count > 0
-                    )
-                {
-                    e.Cancel = true;
-                    return;
-                }
-
-                _NavigatedToTaskCancelToken?.Cancel();
-
-                await _NavigatedToTask.WaitToCompelation();
-
-                _NavigatedToTaskCancelToken?.Dispose();
-                _NavigatedToTaskCancelToken = null;
-
-
+            using (var releaser = await _NavigationLock.LockAsync())
+            {
                 try
                 {
-                    OnHohoemaNavigatingFrom(e, viewModelState, suspending);
+                    // バックナビゲーションが発生した時、
+                    // かつ、代替バックナビゲーション動作が設定されている場合に、
+                    // バックナビゲーションをキャンセルします。
+                    if (!suspending
+                        && e.NavigationMode == NavigationMode.Back
+                        && SubstitutionBackNavigation.Count > 0
+                        )
+                    {
+                        e.Cancel = true;
+                        return;
+                    }
+
+                    _NavigatedToTaskCancelToken?.Cancel();
+
+                    await _NavigatedToTask.WaitToCompelation();
+
+                    _NavigatedToTaskCancelToken?.Dispose();
+                    _NavigatedToTaskCancelToken = null;
+
+
+                    try
+                    {
+                        OnHohoemaNavigatingFrom(e, viewModelState, suspending);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(ex.ToString());
+                    }
+
+                    _NavigatingCompositeDisposable?.Dispose();
+                    _NavigatingCompositeDisposable = new CompositeDisposable();
+
+                    if (!suspending)
+                    {
+                        HohoemaApp.OnResumed -= _OnResumed;
+                    }
+
+                    if (suspending)
+                    {
+                        await HohoemaApp.OnSuspending();
+                    }
+
+                    base.OnNavigatingFrom(e, viewModelState, suspending);
                 }
-                catch (Exception ex)
+                finally
                 {
-                    Debug.WriteLine(ex.ToString());
+                    if (!CanActivateBackgroundUpdate)
+                    {
+                        HohoemaApp.BackgroundUpdater.Activate();
+                    }
                 }
-
-				_NavigatingCompositeDisposable?.Dispose();
-				_NavigatingCompositeDisposable = new CompositeDisposable();
-
-				if (!suspending)
-				{
-					HohoemaApp.OnResumed -= _OnResumed;
-				}
-				
-				if (suspending)
-				{
-					await HohoemaApp.OnSuspending();
-				}
-				
-				base.OnNavigatingFrom(e, viewModelState, suspending);
-			}
+            }
 		}
 
         protected virtual void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)

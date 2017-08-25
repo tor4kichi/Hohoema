@@ -122,7 +122,6 @@
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
                                 <Setter Target="MobileBottomBar.Visibility" Value="Visible" />
-                                <Setter Target="MobileFrontScreen.Visibility" Value="Visible" />
 
                                 <Setter Target="ContentSplitView.DisplayMode" Value="Overlay" />
                                 <Setter Target="ContentSplitView.IsPaneOpen" Value="False" />

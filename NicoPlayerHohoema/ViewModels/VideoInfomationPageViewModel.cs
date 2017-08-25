@@ -46,6 +46,7 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<bool> IsLoadFailed { get; private set; }
 
 
+        public bool CanDownload { get; private set; }
 
         public List<IchibaItem> IchibaItems { get; private set; }
 
@@ -128,7 +129,20 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-        public ReactiveProperty<bool> IsStillLoggedInTwitter { get; private set; }
+        private DelegateCommand _ShareCommand;
+        public DelegateCommand ShareCommand
+        {
+            get
+            {
+                return _ShareCommand
+                    ?? (_ShareCommand = new DelegateCommand(() =>
+                    {
+                        ShareHelper.Share(Video);
+                    }
+                    , () => DataTransferManager.IsSupported()
+                    ));
+            }
+        }
 
         private DelegateCommand _ShereWithTwitterCommand;
         public DelegateCommand ShereWithTwitterCommand
@@ -138,61 +152,25 @@ namespace NicoPlayerHohoema.ViewModels
                 return _ShereWithTwitterCommand
                     ?? (_ShereWithTwitterCommand = new DelegateCommand(async () =>
                     {
-                        if (!TwitterHelper.IsLoggedIn)
-                        {
-
-                            if (!await TwitterHelper.LoginOrRefreshToken())
-                            {
-                                return;
-                            }
-                        }
-
-                        IsStillLoggedInTwitter.Value = !TwitterHelper.IsLoggedIn;
-
-                        var textInputDialogService = App.Current.Container.Resolve<Views.Service.TextInputDialogService>();
-
-                        if (TwitterHelper.IsLoggedIn)
-                        {
-                            var text = $"{Video.Title} http://nico.ms/{Video.VideoId} #{Video.VideoId}";
-                            var twitterLoginUserName = TwitterHelper.TwitterUser.ScreenName;
-                            var customText = await textInputDialogService.GetTextAsync($"{twitterLoginUserName} としてTwitterへ投稿", "", text);
-
-                            if (customText != null)
-                            {
-                                var result = await TwitterHelper.SubmitTweet(customText);
-
-                                if (!result)
-                                {
-                                    var toastService = App.Current.Container.Resolve<Views.Service.ToastNotificationService>();
-                                    toastService.ShowText("ツイートに失敗しました", "もう一度お試しください");
-                                }
-                            }
-                        }
+                        await ShareHelper.ShareToTwitter(Video);
                     }
                     ));
             }
         }
 
-        private DelegateCommand _ShareWithClipboardCommand;
-        public DelegateCommand ShareWithClipboardCommand
+        private DelegateCommand _VideoInfoCopyToClipboardCommand;
+        public DelegateCommand VideoInfoCopyToClipboardCommand
         {
             get
             {
-                return _ShareWithClipboardCommand
-                    ?? (_ShareWithClipboardCommand = new DelegateCommand(() =>
+                return _VideoInfoCopyToClipboardCommand
+                    ?? (_VideoInfoCopyToClipboardCommand = new DelegateCommand(() =>
                     {
-                        var videoUrl = $"http://nico.ms/{Video.VideoId}";
-                        var text = $"{Video.Title} {videoUrl} #{Video.VideoId}";
-                        var datapackage = new DataPackage();
-                        datapackage.SetText(text);
-                        datapackage.SetWebLink(new Uri(videoUrl));
-
-                        Clipboard.SetContent(datapackage);
+                        ShareHelper.CopyToClipboard(Video);
                     }
                     ));
             }
         }
-
 
         private DelegateCommand _AddMylistCommand;
         public DelegateCommand AddMylistCommand
@@ -288,10 +266,8 @@ namespace NicoPlayerHohoema.ViewModels
         {
             ChangeRequireServiceLevel(HohoemaAppServiceLevel.OnlineWithoutLoggedIn);
 
-            IsStillLoggedInTwitter = new ReactiveProperty<bool>(Util.TwitterHelper.IsLoggedIn);
             NowLoading = new ReactiveProperty<bool>(false);
             IsLoadFailed = new ReactiveProperty<bool>(false);
-
         }
 
 
@@ -340,6 +316,13 @@ namespace NicoPlayerHohoema.ViewModels
 
             NowLoading.Value = true;
             IsLoadFailed.Value = false;
+
+
+            CanDownload = HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache
+                && HohoemaApp.UserSettings.CacheSettings.IsEnableCache
+                && HohoemaApp.IsLoggedIn;
+            OnPropertyChanged(nameof(CanDownload));
+
 
             try
             {

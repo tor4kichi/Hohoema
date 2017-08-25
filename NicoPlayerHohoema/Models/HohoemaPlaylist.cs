@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Util;
+﻿using Mntone.Nico2;
+using NicoPlayerHohoema.Util;
 using Prism.Mvvm;
 using Reactive.Bindings.Extensions;
 using System;
@@ -116,7 +117,6 @@ namespace NicoPlayerHohoema.Models
             get { return _IsPlayerFloatingModeEnable; }
             set { SetProperty(ref _IsPlayerFloatingModeEnable, value); }
         }
-
 
         public HohoemaPlaylist(MediaPlayer mediaPlayer, PlaylistSettings playlistSettings, StorageFolder playlistSaveFolder)
         {
@@ -241,7 +241,7 @@ namespace NicoPlayerHohoema.Models
             }
 
             // Live Item は削除
-            foreach (var i in DefaultPlaylist.PlaylistItems.Where(x => x.ContentId.StartsWith("lv")).ToArray())
+            foreach (var i in DefaultPlaylist.PlaylistItems.Where(x => !NiconicoRegex.IsVideoId(x.ContentId)).ToArray())
             {
                 DefaultPlaylist.Remove(i);
             }
@@ -365,6 +365,11 @@ namespace NicoPlayerHohoema.Models
         // プレイリストが空だった場合、その場で再生を開始
         public void PlayVideo(string contentId, string title = "", NicoVideoQuality? quality = null)
         {
+            if (!NiconicoRegex.IsVideoId(contentId))
+            {
+                return;
+            }
+
             var newItem = DefaultPlaylist.AddVideo(contentId, title, ContentInsertPosition.Head);
             Play(newItem);
         }
@@ -672,7 +677,8 @@ namespace NicoPlayerHohoema.Models
                 }
             }
 
-            _SourceItems = list?.ToList();
+
+            _SourceItems = list?.ToList() ?? new List<PlaylistItem>();
             Current = currentItem;
 
             OnResetItems(_SourceItems, currentItem);
@@ -783,7 +789,7 @@ namespace NicoPlayerHohoema.Models
     public class ShufflePlaylistPlayer : PlaylistPlayerBase
     {
         public DateTime LastSyncTime { get; private set; }
-        public Queue<PlaylistItem> RandamizedItems { get; private set; }
+        public Queue<PlaylistItem> RandamizedItems { get; private set; } = new Queue<PlaylistItem>();
         public Stack<PlaylistItem> PlayedItem { get; private set; } = new Stack<PlaylistItem>();
 
         public ShufflePlaylistPlayer()
@@ -800,7 +806,7 @@ namespace NicoPlayerHohoema.Models
             {
                 if (!IsAvailable) { return false; }
 
-                return PlayedItem.Count > 0;
+                return PlayedItem.Count > 1;
             }
         }
 
@@ -810,7 +816,7 @@ namespace NicoPlayerHohoema.Models
             {
                 if (!IsAvailable) { return false; }
 
-                return IsRepeat ? true : RandamizedItems.Count > 0;
+                return IsRepeat ? true : RandamizedItems.Count > 1;
             }
         }
 
@@ -854,7 +860,7 @@ namespace NicoPlayerHohoema.Models
             return nextItem;
         }
 
-        protected override void OnResetItems(IEnumerable<PlaylistItem> sourceItems, PlaylistItem item)
+        protected override void OnResetItems(IEnumerable<PlaylistItem> sourceItems, PlaylistItem currentItem)
         {
             var copied = sourceItems.ToList();
 
@@ -867,6 +873,7 @@ namespace NicoPlayerHohoema.Models
             RandamizedItems.Clear();
             var shuffledUnplayItems = copied
                 .Where(x => !PlayedItem.Any(y => x.ContentId == y.ContentId))
+                .Where(x => currentItem != null && currentItem.ContentId != x.ContentId)
                 .Shuffle();
             foreach (var shuffled in shuffledUnplayItems)
             {

@@ -101,21 +101,6 @@
                                 toolkit:DockPanel.Dock="Left"
                                 >
 
-                        <AppBarButton Command="{Binding RequestCacheDownload}"
-                                      
-                                      IsEnabled="{Binding CanDownload}"
-                                      Label="キャッシュ"
-                                          Icon="Download"
-                                >
-                        </AppBarButton>
-
-
-                        <AppBarButton Command="{Binding RegistratioMylistCommand}"
-                                              Label="マイリストに追加"
-                                              Icon="Add"
-                                      
-                                            >
-                        </AppBarButton>
 
 
 

@@ -11,41 +11,54 @@
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     mc:Ignorable="d">
 
+    <MenuFlyoutItem Text="あとで見る"
+                                Command="{Binding AddDefaultPlaylistCommand}"
+                                />
+
     <MenuFlyoutItem Text="小窓で再生"
                                 Command="{Binding PlayWithSmallPlayerCommand}"
                                 />
 
     <MenuFlyoutSeparator />
-    
-    <MenuFlyoutItem Text="あとで見る"
-                                Command="{Binding AddDefaultPlaylistCommand}"
-                                />
-    
 
-    <MenuFlyoutSeparator />
+
+    <MenuFlyoutItem Text="動画情報"
+                                Command="{Binding OpenVideoInfoPageCommand}"
+                                />
     
     <MenuFlyoutItem Text="投稿者の動画一覧"
                                 Command="{Binding OpenOwnerVideoListPageCommand}"
                                 />
 
-    <MenuFlyoutItem Text="動画情報"
-                                Command="{Binding OpenVideoInfoPageCommand}"
-                                />
+    <MenuFlyoutSeparator />
+
+    <MenuFlyoutItem Text="共有" Command="{Binding ShareCommand}" Visibility="{Binding IsXbox, Converter={StaticResource BooleanToVisibility}}" />
+
+    <MenuFlyoutSubItem Text="共有" Visibility="{Binding IsXbox, Converter={StaticResource BooleanToVisibilityInverted}}" >
+        <MenuFlyoutItem Text="アプリを選択" Command="{Binding ShareCommand}" />
+        <MenuFlyoutItem Text="Twitterで共有" Command="{Binding ShereWithTwitterCommand}" />
+        <MenuFlyoutItem Text="コピー" Command="{Binding VideoInfoCopyToClipboardCommand}" />
+    </MenuFlyoutSubItem>
 
     <MenuFlyoutSeparator />
 
     <MenuFlyoutItem Text="キャッシュ取得"
-                                Command="{Binding CacheRequestCommand}"
+                    Command="{Binding CacheRequestCommand}"
                     Visibility="{Binding IsCacheEnabled, Converter={StaticResource BooleanToVisibility}}"
+                    />
+
+
+    <MenuFlyoutItem Text="キャッシュ削除"
+                    Visibility="{Binding IsCacheRequested.Value, Converter={StaticResource BooleanToVisibility}}"
+                    Command="{Binding RequestRemoveCacheCommand}"
+                    >
+    </MenuFlyoutItem>
+
+    <MenuFlyoutSeparator Visibility="{Binding IsCacheEnabled, Converter={StaticResource BooleanToVisibility}}" />
+
+    <MenuFlyoutItem Text="この投稿者をNGに設定する"
+                                Command="{Binding AddToFilterVideoOwnerCommand}"
                                 />
 
 
-    <MenuFlyoutSubItem Text="キャッシュ削除"
-                                       Visibility="{Binding IsCacheRequested.Value, Converter={StaticResource BooleanToVisibility}}"
-                                       >
-        <MenuFlyoutItem Text="本当にキャッシュ削除"
-                                Command="{Binding RemoveCacheCommand}"
-                                        
-                                />
-    </MenuFlyoutSubItem>
 </MenuFlyout>

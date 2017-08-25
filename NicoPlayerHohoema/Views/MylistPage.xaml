@@ -84,7 +84,7 @@
             <controls:HohoemaIncrementalLoadingList
                     ItemFlyout="{StaticResource VideoListItemFlyout}"
                     x:Name="VerticalVideoList"
-                Margin="0 96 0 0"
+                Margin="0 64 0 0"
                     >
                 <controls:HohoemaIncrementalLoadingList.ItemTemplate>
                     <DataTemplate >
