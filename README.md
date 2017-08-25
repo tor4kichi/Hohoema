@@ -2,22 +2,19 @@
 
 ## ニコニコ動画・生放送プレイヤーアプリ for Windows 10 families
 
-
 Windows 10/Windows 10 Mobile/XboxOneに対応したニコニコ動画・生放送のファインダー・プレイヤーアプリです。
-
-一般会員アカウントやモバイル端末にも対応しています。
 
 ご利用にはニコニコ動画アカウントが必要です。
 
-# ダウンロード
+## ダウンロード
 
 Windows 10 や XboxOne のストアアプリから無料でダウンロードできます
 
-## [Hohoema - アプリストア](https://www.microsoft.com/ja-jp/store/p/hohoema/9nblggh4rxt6)
+### [Hohoema - アプリストア](https://www.microsoft.com/ja-jp/store/p/hohoema/9nblggh4rxt6)
 
 （※ Windows10でアクセスするとストアアプリが起動します）
 
-### 動作環境
+## 動作環境
 
 * Windows 10
 * Windows 10 Mobile
@@ -27,14 +24,15 @@ Hohoema は Universal Windows Platform (UWP) アプリです。
 
 ご利用にはAnniversary Update以降へのOSバージョンを更新する必要があります。
 
-### 開発への支援について
+## 開発への支援について
+
 (2017/06/02)  アプリ本体を無料に変更し、アドオンから開発者への支援を行える形に変更しました。
 
 支援アドオンはHohoemaアプリ内の「設定」→ 「このアプリについて」→ 「アドオン」から選択できます。
 
 使えるニコ動プレイヤーにしていきますので支援お願いします。
 
-# Hohoemaに出来ること
+## Hohoemaに出来ること
 
 * ニコニコ動画やニコニコ生放送の視聴
   * 新仕様・新配信に対応
@@ -49,33 +47,29 @@ Hohoema は Universal Windows Platform (UWP) アプリです。
     * 「マイリストの動画」「タグ検索結果」「ユーザーの投稿動画」をそれぞれ時系列で並べて新着表示できる機能
   * 「あとで見る」機能やローカルなプレイリスト機能
   * NG設定（動画タイトル・動画投稿者ID・コメント）（正規表現が使えます）
-  
 
 その他の機能や修正点は [リリースノート](https://github.com/tor4kichi/Hohoema/wiki/%E3%83%AA%E3%83%AA%E3%83%BC%E3%82%B9%E3%83%8E%E3%83%BC%E3%83%88) から確認できます
 
-
-
-# 今後の予定
+## 今後の予定
 
 * (WIP) [v0.10 プレイヤーウィンドウ分離（CompactOverlay対応）](https://github.com/tor4kichi/Hohoema/milestone/16)
 * [v0.11 生放送開始検出やフィード自動更新などのBG処理対応](https://github.com/tor4kichi/Hohoema/milestone/4)
 
+## 要望・バグ報告について
 
-# 要望・バグ報告について
+### [目安箱 - Google Form](https://docs.google.com/forms/d/e/1FAIpQLSc0IvUdQ7WN73A5M0zV4t5fe20BVV7B4CXmiKpPTrHOlqyXiw/viewform)
 
-## [目安箱 - Google Form](https://docs.google.com/forms/d/e/1FAIpQLSc0IvUdQ7WN73A5M0zV4t5fe20BVV7B4CXmiKpPTrHOlqyXiw/viewform)
-## [HohoemaのGithub上に新しい課題を立てる](https://github.com/tor4kichi/Hohoema/issues)
+### [HohoemaのGithub上に新しい課題を立てる](https://github.com/tor4kichi/Hohoema/issues)
 
 今後の変更や確認されているバグは [イシュー](https://github.com/tor4kichi/Hohoema/issues) から確認できます
 
-
-# オープンソースの理由は？
+## オープンソースの理由は？
 
 基本的には、このアプリの制作が打ち切られた場合でも、有志の方が何かしら引き継いだアプリを作れるようにするためです。
 
-また、UWPアプリが増えてほしいと思っているので、実際に動くサンプルとして見てもらえるようにするためです。
+また、UWPアプリが増えてほしいと思っているので、実際に動くサンプルとして見てもらえるようにするためでもあります。
 
-# ライセンス
+## ライセンス
 
 GPL 3.0
 
