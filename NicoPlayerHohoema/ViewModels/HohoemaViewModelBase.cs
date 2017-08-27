@@ -429,11 +429,6 @@ namespace NicoPlayerHohoema.ViewModels
                         HohoemaApp.OnResumed -= _OnResumed;
                     }
 
-                    if (suspending)
-                    {
-                        await HohoemaApp.OnSuspending();
-                    }
-
                     base.OnNavigatingFrom(e, viewModelState, suspending);
                 }
                 finally

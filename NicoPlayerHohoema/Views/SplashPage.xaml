@@ -1,0 +1,44 @@
+﻿<Page
+    x:Class="NicoPlayerHohoema.Views.SplashPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    mc:Ignorable="d">
+
+    <Grid Background="{StaticResource HohoemaThemeBackgroundBrush}">
+
+
+        <Canvas HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                >
+            <Image Source="ms-appx:///Assets/NewStoreLogo.scale-200.png"
+                   x:Name="LogoImage"
+                   Stretch="None"
+                   />
+
+        </Canvas>
+
+
+        <StackPanel HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    x:Name="LoadingUI"
+                    Opacity="0.0"
+                    >
+            <Border Height="88" />
+            <Border Height="88" />
+
+            <ProgressRing IsActive="True" Width="48" Height="48"  />
+            
+            <Button Content="ログイン画面を表示"
+                    Command="{Binding OpenLoginPageCommand}"
+                    Margin="16 32"
+                    />
+        </StackPanel>
+    </Grid>
+</Page>

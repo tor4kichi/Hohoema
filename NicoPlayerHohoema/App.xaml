@@ -80,6 +80,12 @@
             <controls:LiveListItemFlyout x:Key="LiveListItemFlyout" />
 
 
+            <Color x:Key="HohoemaThemeColor" >#F8B400</Color>
+
+            <SolidColorBrush x:Key="HohoemaThemeBackgroundBrush"
+                             Color="{StaticResource HohoemaThemeColor}"
+                             >
+            </SolidColorBrush>
 
 
             <ResourceDictionary.ThemeDictionaries>
