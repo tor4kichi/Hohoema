@@ -239,10 +239,26 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-            AddLocalMylistCommand = new DelegateCommand(() => 
+            AddLocalMylistCommand = new DelegateCommand(async () => 
             {
-                var newLocalMylist = HohoemaApp.Playlist.CreatePlaylist(new Guid().ToString(), "新しいプレイリスト");
-                OpenMylistCommand.Execute(newLocalMylist);
+                var textDialog = App.Current.Container.Resolve<Views.Service.TextInputDialogService>();
+                var name = await textDialog.GetTextAsync("新しいローカルマイリスト名を入力", "ローカルマイリスト名", "",
+                    (s) => 
+                    {
+                        if (string.IsNullOrWhiteSpace(s)) { return false; }
+
+                        if (HohoemaApp.Playlist.Playlists.Any(x => x.Name == s))
+                        {
+                            return false;
+                        }
+
+                        return true;
+                    });
+
+                if (name != null)
+                {
+                    var newLocalMylist = HohoemaApp.Playlist.CreatePlaylist(Guid.NewGuid().ToString(), name);
+                }
             });
 
         }
