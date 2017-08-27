@@ -798,14 +798,24 @@ namespace NicoPlayerHohoema.Models.Live
 			await _NicoLiveCommentClient.Start();
 		}
 
-		private async void _NicoLiveCommentClient_EndConnect()
+		private async void _NicoLiveCommentClient_EndConnect(NicoLiveDisconnectReason reason)
 		{
 			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
 			{
-				PermanentDisplayText = "*コメントサーバーとの通信を終了";
+                if (LivePlayerType == Live.LivePlayerType.Aries)
+                {
+                    await CloseRtmpConnection();
+                }
+                else
+                {
+                    await ClearLeoPlayer();
+                }
 
-				await StartNextLiveSubscribe(DefaultNextLiveSubscribeDuration);
-			});
+                if (reason == NicoLiveDisconnectReason.Close)
+                {
+                    await StartNextLiveSubscribe(DefaultNextLiveSubscribeDuration);
+                }
+            });
 		}
 
 		private async Task EndCommentClientConnection()

@@ -39,8 +39,14 @@ namespace NicoPlayerHohoema.Models.Live
 
 	public delegate void NicoLiveHeartbeatEventHandler(uint commentCount, uint watchCount);
 
-	public delegate void NicoLiveEndConnectedEventHandler();
+	public delegate void NicoLiveEndConnectedEventHandler(NicoLiveDisconnectReason disconnectReason);
 
+    public enum NicoLiveDisconnectReason
+    {
+        Unknown,
+        Close,
+        NotFoundSlot,
+    }
 
 	// detail see@ http://dic.nicovideo.jp/a/%E3%83%8B%E3%82%B3%E3%83%8B%E3%82%B3%E7%94%9F%E6%94%BE%E9%80%81%20%E9%81%8B%E5%96%B6%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89%E3%81%BE%E3%81%A8%E3%82%81
 	public enum NicoLiveOperationCommandType
@@ -350,11 +356,13 @@ namespace NicoPlayerHohoema.Models.Live
         static readonly Regex _XmlForceAddReturnRegex = new Regex("</\\S+>");
         private void ParseLiveCommentServerResponse(string recievedString)
         {
-            var xml = _XmlForceAddReturnRegex.Replace(recievedString, (x) => { return x.Value + "\r"; });
-            foreach (var match in _XmlNodeRegex.Matches(xml).Cast<Match>())
+            var xml = _XmlForceAddReturnRegex.Replace(recievedString.Replace("\n", ""), (x) => { return x.Value + "\n"; });
+            foreach (var match in xml.Split('\n'))
             {
-                Debug.WriteLine(match.Value);
-                ParseChatXml(match.Value);
+                if (string.IsNullOrEmpty(match)) { continue; }
+
+                Debug.WriteLine(match);
+                ParseChatXml(match);
             }
         }
 
@@ -611,11 +619,19 @@ namespace NicoPlayerHohoema.Models.Live
 						Heartbeat?.Invoke(res.CommentCount, res.WatchCount);
 					});
 				}
+                catch (Exception ex) when (ex.Message.Contains("NOTFOUND_SLOT"))
+                {
+//                    await Stop();
+
+                    //EndConnect?.Invoke(NicoLiveDisconnectReason.NotFoundSlot);
+                }
 				catch (Exception ex)
 				{
-					Debug.WriteLine(ex.ToString());
+                    await Stop();
+
+                    Debug.WriteLine(ex.ToString());
 					// ハートビートに失敗した場合は、放送終了か追い出された
-					EndConnect?.Invoke();
+					EndConnect?.Invoke(NicoLiveDisconnectReason.Close);
 				}
 			}
 		}
