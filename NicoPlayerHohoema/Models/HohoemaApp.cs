@@ -1,6 +1,7 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Videos.Thumbnail;
 using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Views.Service;
 using Prism.Events;
 using Prism.Mvvm;
 using System;
@@ -20,6 +21,7 @@ using Windows.Storage;
 using Windows.System.Power;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
+using Microsoft.Practices.Unity;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -1248,11 +1250,70 @@ namespace NicoPlayerHohoema.Models
 			BackgroundUpdater?.Dispose();
 		}
 
+        public async Task<IPlayableList> ChoiceMylist()
+        {
+            var mylists = UserMylistManager.UserMylists;
+            var localMylists = Playlist.Playlists;
+            var selectDialogService = App.Current.Container.Resolve<ContentSelectDialogService>();
+            var result = await selectDialogService.ShowDialog(
+                "追加先マイリストを選択",
+                new List<ISelectableContainer>()
+                {
+                            new ChoiceFromListSelectableContainer("マイリスト",
+                                mylists.Select(x => new SelectDialogPayload() { Label = x.Name, Id = x.Id, Context = x })
+                            ),
+                            new ChoiceFromListSelectableContainer("ローカルマイリスト",
+                                localMylists.Select(x => new SelectDialogPayload() { Label = x.Name, Id = x.Id, Context = x })
+                            )
+                }
+                );
 
-		
+            return result?.Context as IPlayableList;
+        }
+
+        public async Task<ContentManageResult> AddMylistItem(IPlayableList targetMylist, string videoTitle, string rawVideoId)
+        {
+            if (targetMylist.Origin == PlaylistOrigin.LoginUser)
+            {
+                var mylistGroup = targetMylist as MylistGroupInfo;
+                var registrationResult = await mylistGroup.Registration(
+                rawVideoId
+                , ""
+                , withRefresh: false /* あとで一括でリフレッシュ */
+                );
+
+                Debug.WriteLine($"{videoTitle}[{rawVideoId}]:{registrationResult.ToString()}");
+
+                return registrationResult;
+            }
+            else if (targetMylist.Origin == PlaylistOrigin.Local)
+            {
+                var localMylist = targetMylist as LocalMylist;
+                if (localMylist.PlaylistItems.FirstOrDefault(x => x.ContentId == rawVideoId) != null)
+                {
+                    return ContentManageResult.Exist;
+                }
+                else
+                {
+                    var resultItem = localMylist.AddVideo(rawVideoId, videoTitle);
+                    if (resultItem != null)
+                    {
+                        return ContentManageResult.Success;
+                    }
+                    else
+                    {
+                        return ContentManageResult.Failed;
+                    }
+                }
+            }
+            else
+            {
+                return ContentManageResult.Failed;
+            }
+        }
 
 
-		public bool IsLoggedIn
+        public bool IsLoggedIn
 		{
 			get
 			{

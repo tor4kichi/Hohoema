@@ -20,6 +20,7 @@ using Windows.UI.Xaml;
 using NicoPlayerHohoema.Views.Service;
 using Microsoft.Practices.Unity;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Mntone.Nico2;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -120,31 +121,14 @@ namespace NicoPlayerHohoema.ViewModels
 				.SubscribeOnUIDispatcher()
 				.Subscribe(async _ =>
 				{
-                    var mylists = HohoemaApp.UserMylistManager.UserMylists;
-                    var localMylists = HohoemaApp.Playlist.Playlists;
-                    var selectDialogService = App.Current.Container.Resolve<ContentSelectDialogService>();
-                    var result = await selectDialogService.ShowDialog(
-                        "追加先マイリストを選択",
-                        new List<ISelectableContainer>()
-                        {
-                            new ChoiceFromListSelectableContainer("マイリスト",
-                                mylists.Select(x => new SelectDialogPayload() { Label = x.Name, Id = x.Id, Context = x })
-                            ),
-                            new ChoiceFromListSelectableContainer("ローカルマイリスト",
-                                localMylists.Select(x => new SelectDialogPayload() { Label = x.Name, Id = x.Id, Context = x })
-                            )
-                        }
-                        );
+                    var targetMylist = await HohoemaApp.ChoiceMylist();
 
-                    if (result == null) { return; }
-
-                    var targetMylist = result.Context as IPlayableList;
+                    if (targetMylist == null) { return; }
 
                     var items = SelectedItems.ToList();
 					var action = AsyncInfo.Run<uint>(async (cancelToken, progress) =>
 					{
 						uint progressCount = 0;
-
 
 						Debug.WriteLine($"一括マイリストに追加を開始...");
 						int successCount = 0;
@@ -152,46 +136,18 @@ namespace NicoPlayerHohoema.ViewModels
 						int failedCount = 0;
 						foreach (var video in SelectedItems)
 						{
-                            if (targetMylist.Origin == PlaylistOrigin.LoginUser)
-                            {
-                                var mylistGroup = targetMylist as MylistGroupInfo;
-                                var registrationResult = await mylistGroup.Registration(
-                                video.RawVideoId
-                                , ""
-                                , withRefresh: false /* あとで一括でリフレッシュ */
-                                );
+                            var registrationResult = await HohoemaApp.AddMylistItem(targetMylist, video.Title, video.RawVideoId);
 
-                                switch (registrationResult)
-                                {
-                                    case Mntone.Nico2.ContentManageResult.Success: successCount++; break;
-                                    case Mntone.Nico2.ContentManageResult.Exist: existCount++; break;
-                                    case Mntone.Nico2.ContentManageResult.Failed: failedCount++; break;
-                                    default:
-                                        break;
-                                }
-
-                                Debug.WriteLine($"{video.Title}[{video.RawVideoId}]:{registrationResult.ToString()}");
-                            }
-                            else if (targetMylist.Origin == PlaylistOrigin.Local)
+                            switch (registrationResult)
                             {
-                                var localMylist = targetMylist as LocalMylist;
-                                if (localMylist.PlaylistItems.FirstOrDefault(x => x.ContentId == video.RawVideoId) != null)
-                                {
-                                    existCount++;
-                                }
-                                else
-                                {
-                                    var resultItem = localMylist.AddVideo(video.RawVideoId, video.Title);
-                                    if (resultItem != null)
-                                    {
-                                        successCount++;
-                                    }
-                                    else
-                                    {
-                                        failedCount++;
-                                    }
-                                }
+                                case Mntone.Nico2.ContentManageResult.Success: successCount++; break;
+                                case Mntone.Nico2.ContentManageResult.Exist: existCount++; break;
+                                case Mntone.Nico2.ContentManageResult.Failed: failedCount++; break;
+                                default:
+                                    break;
                             }
+
+                            Debug.WriteLine($"{video.Title}[{video.RawVideoId}]:{registrationResult.ToString()}");
 
                             progressCount++;
                             progress.Report(progressCount);
@@ -232,7 +188,7 @@ namespace NicoPlayerHohoema.ViewModels
 							resultText += $"\n登録に失敗した {failedCount}件 は選択されたままです";
 						}
 
-						toastService.ShowText(titleText, resultText);
+						toastService.ShowText(titleText, resultText, isSuppress:true);
 
 						//					ResetList();
 
@@ -368,13 +324,14 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveCommand RegistratioMylistCommand { get; private set; }
 
+        
 
-		// クオリティ指定なしのコマンド
-		// VMがクオリティを実装している場合には、そのクオリティを仕様
-		// そうでない場合は、リクエスト時は低クオリティのみを
-		// 削除時はすべてのクオリティの動画を指定してアクションを実行します。
-		// 基本的にキャッシュ管理画面でしか使わないはずです
-		public ReactiveCommand RequestCacheDownload { get; private set; }
+        // クオリティ指定なしのコマンド
+        // VMがクオリティを実装している場合には、そのクオリティを仕様
+        // そうでない場合は、リクエスト時は低クオリティのみを
+        // 削除時はすべてのクオリティの動画を指定してアクションを実行します。
+        // 基本的にキャッシュ管理画面でしか使わないはずです
+        public ReactiveCommand RequestCacheDownload { get; private set; }
 		public ReactiveCommand DeleteCache { get; private set; }
 	}
 

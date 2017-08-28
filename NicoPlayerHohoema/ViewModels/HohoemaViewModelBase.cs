@@ -21,6 +21,8 @@ using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using Windows.UI.Core;
+using NicoPlayerHohoema.Views.Service;
+using Mntone.Nico2;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -562,7 +564,7 @@ namespace NicoPlayerHohoema.ViewModels
 		protected virtual void OnDispose() { }
 
 
-		private SemaphoreSlim _SignStatusLock;
+        private SemaphoreSlim _SignStatusLock;
 
 
         public bool IsRequireSignIn => AvailableServiceLevel == HohoemaAppServiceLevel.LoggedIn;
