@@ -67,7 +67,7 @@ namespace NicoPlayerHohoema.Views
             Window.Current.SizeChanged += Current_SizeChanged;
             
             CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
-            LogoEffectAnim = LogoImage.Offset(0, -40, 250, 100);
+            LogoEffectAnim = LogoImage.Offset(0, -64, 250, 100);
             LogoEffectAnim.Completed += (_, s) =>
             {
                 LoadingUI.Fade(1.0f, 250).Start();
