@@ -206,6 +206,19 @@
 
                     </VisualStateGroup>
 
+                    <!-- ナビゲーション時のコンテンツ表示状態制御 -->
+                    <VisualStateGroup>
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <StateTrigger IsActive="{Binding NowNavigating.Value}" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="ContentLayout.Visibility" Value="Collapsed" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+
                 </VisualStateManager.VisualStateGroups>
 
                 <toolkit:DockPanel>

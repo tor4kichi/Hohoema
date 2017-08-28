@@ -19,13 +19,13 @@ namespace NicoPlayerHohoema.Models
 		{
 			DefaultQuality = NicoVideoQuality.Dmc_Midium;
 			IsMute = false;
-			SoundVolume = 0.25;
+			SoundVolume = 0.5;
 			ScrollVolumeFrequency = 0.02;
 			DefaultCommentDisplay = true;
 			IsFullScreenDefault = false;
 			IncrementReadablityOwnerComment = true;
 			PauseWithCommentWriting = true;
-			CommentRenderingFPS = 24;
+			CommentRenderingFPS = 60;
 			CommentDisplayDuration = DefaultCommentDisplayDuration;
 			DefaultCommentFontScale = 1.0;
 			CommentCommandPermission = CommentCommandPermissionType.Owner | CommentCommandPermissionType.User | CommentCommandPermissionType.Anonymous;

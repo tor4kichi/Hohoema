@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.ViewModels;
+﻿using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.ViewModels;
 using Prism.Mvvm;
 using Prism.Windows.Mvvm;
 using Prism.Windows.Navigation;
@@ -28,6 +29,7 @@ namespace NicoPlayerHohoema.Models
 
 		public readonly IReadOnlyList<HohoemaPageType> DontNeedMenuPageTypes = new List<HohoemaPageType>
 		{
+            HohoemaPageType.Splash,
             HohoemaPageType.Login,
 		};
 
@@ -61,6 +63,8 @@ namespace NicoPlayerHohoema.Models
         public HohoemaApp HohoemaApp { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; private set; }
         public AppearanceSettings AppearanceSettings { get; }
+
+        private AsyncLock _NavigationLock = new AsyncLock();
 
         public PageManager(HohoemaApp hohoemaApp, INavigationService ns, AppearanceSettings appearanceSettings, HohoemaPlaylist playlist)
 		{
@@ -108,38 +112,40 @@ namespace NicoPlayerHohoema.Models
 		{
 			HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
 			{
-				PageNavigating = true;
+                using (var releaser = await _NavigationLock.LockAsync())
+                {
+                    PageNavigating = true;
 
-				try
-				{
-					await Task.Delay(30);
+                    try
+                    {
+                        await Task.Delay(30);
 
-					var oldPageTitle = PageTitle;
-					PageTitle = "";
-					var oldPageType = CurrentPageType;
-					CurrentPageType = pageType;
+                        var oldPageTitle = PageTitle;
+                        PageTitle = "";
+                        var oldPageType = CurrentPageType;
+                        CurrentPageType = pageType;
 
-					await Task.Delay(30);
+                        await Task.Delay(30);
 
-                    if (!NavigationService.Navigate(pageType.ToString(), parameter))
-					{
-						CurrentPageType = oldPageType;
-						PageTitle = oldPageTitle;
-					}
-					else
-					{
-						if (IsIgnoreRecordPageType(oldPageType))
-						{
-							ForgetLastPage();
-						}
-					}
-				}
-				finally
-				{
-					PageNavigating = false;
-				}
-
-			})
+                        if (!NavigationService.Navigate(pageType.ToString(), parameter))
+                        {
+                            CurrentPageType = oldPageType;
+                            PageTitle = oldPageTitle;
+                        }
+                        else
+                        {
+                            if (IsIgnoreRecordPageType(oldPageType))
+                            {
+                                ForgetLastPage();
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        PageNavigating = false;
+                    }
+                }
+            })
 			.AsTask()
 			.ConfigureAwait(false);
 		}
@@ -269,6 +275,11 @@ namespace NicoPlayerHohoema.Models
 
             if (HohoemaApp.IsLoggedIn)
             {
+                if (IsIgnoreRecordPageType(AppearanceSettings.StartupPageType))
+                {
+                    AppearanceSettings.StartupPageType = HohoemaPageType.RankingCategoryList;
+                }
+
                 OpenPage(AppearanceSettings.StartupPageType);
             }
             else

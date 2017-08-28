@@ -130,7 +130,7 @@
     <Content Include="Assets\UpdateNotices\0.9.15.md" />
     <Content Include="Assets\UpdateNotices\0.9.17.md" />
     <Content Include="Assets\UpdateNotices\0.9.18.md" />
-    <Content Include="Assets\UpdateNotices\0.10.0.md" />
+    <Content Include="Assets\UpdateNotices\0.10.1.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
   </ItemGroup>
   <ItemGroup>
@@ -275,6 +275,7 @@
     <Compile Include="ViewModels\SearchResultPage\SearchResultMylistPageViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\AboutSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\FeedbackSettingsPageContentViewModel.cs" />
+    <Compile Include="ViewModels\SplashPageViewModel.cs" />
     <Compile Include="ViewModels\VideoInfomationPageViewModel.cs" />
     <Compile Include="ViewModels\VideoSearchSortOptionListItem.cs" />
     <Compile Include="ViewModels\SearchResultPage\SearchResultTagPageViewModel.cs" />
@@ -343,6 +344,9 @@
     <Compile Include="Views\Converters\PlayerEndActionToTextConverter.cs" />
     <Compile Include="Views\Service\MarkdownTextDialog.xaml.cs">
       <DependentUpon>MarkdownTextDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SplashPage.xaml.cs">
+      <DependentUpon>SplashPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\StateTrigger\CompactOverlayViewModeTrigger.cs" />
     <Compile Include="Views\StateTrigger\IsSupportCompactOverlayTrigger.cs" />
@@ -1073,6 +1077,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SettingsPageContent\ShereSettingsPageContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SplashPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

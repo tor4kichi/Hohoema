@@ -23,7 +23,8 @@ namespace NicoPlayerHohoema.ViewModels
 
         public static List<Version> UpdateNoticeList { get; } = new List<Version>()
         {
-            new Version(0, 9)
+            new Version(0, 10),
+            new Version(0, 9),
         };
 
         public AboutSettingsPageContentViewModel()

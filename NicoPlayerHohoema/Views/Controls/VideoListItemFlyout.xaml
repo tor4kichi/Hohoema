@@ -32,6 +32,8 @@
 
     <MenuFlyoutSeparator />
 
+    <MenuFlyoutItem Text="マイリストに追加" Command="{Binding AddMylistCommand}" />
+    
     <MenuFlyoutItem Text="共有" Command="{Binding ShareCommand}" Visibility="{Binding IsXbox, Converter={StaticResource BooleanToVisibility}}" />
 
     <MenuFlyoutSubItem Text="共有" Visibility="{Binding IsXbox, Converter={StaticResource BooleanToVisibilityInverted}}" >

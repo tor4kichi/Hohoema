@@ -404,7 +404,7 @@ namespace NicoPlayerHohoema.Models
             _PlaylistFileAccessorMap.Add(playlist.Id, playlistFileAccessor);
             _Playlists.Add(playlist);
 
-            playlistFileAccessor.Save(playlist).ConfigureAwait(false);
+            Save(playlist).ConfigureAwait(false);
 
             return playlist;
         }
