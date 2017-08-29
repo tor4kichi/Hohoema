@@ -290,7 +290,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
         {
             // フォントサイズの計算
             // 画面サイズの10分の１＊ベーススケール＊フォントスケール
-            var baseSize = frame.CanvasHeight * 0.1;
+            var baseSize = Math.Max(frame.CanvasHeight * 0.1f, 24);
             const float PixelToPoint = 0.75f;
             var scaledFontSize = baseSize * frame.FontScale * comment.FontScale * PixelToPoint;
             comment.FontSize = (uint)Math.Ceiling(scaledFontSize);
