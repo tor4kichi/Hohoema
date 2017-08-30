@@ -257,7 +257,7 @@ namespace NicoPlayerHohoema.Views.Service
 				if (SetProperty(ref _SelectedItem, value))
 				{
 					_IsValidatedSelection = _SelectedItem != null;
-					OnPropertyChanged(nameof(IsValidatedSelection));
+					RaisePropertyChanged(nameof(IsValidatedSelection));
 
 					SelectionItemChanged?.Invoke(this);
 				}
@@ -274,8 +274,6 @@ namespace NicoPlayerHohoema.Views.Service
 
 	public class TextInputSelectableContainer : SelectableContainer
 	{
-
-		IDisposable _TextErrorSubscriptionDisposer;
 
 		public Func<string, Task<List<SelectDialogPayload>>> GenerateCandidateList { get; private set; }
 		AsyncLock _UpdateCandidateListLock = new AsyncLock();
@@ -340,7 +338,7 @@ namespace NicoPlayerHohoema.Views.Service
 				SelectedItem.Subscribe(x => 
 				{
 					_IsValidatedSelection = x != null;
-					OnPropertyChanged(nameof(IsValidatedSelection));
+					RaisePropertyChanged(nameof(IsValidatedSelection));
 
 					SelectionItemChanged?.Invoke(this);
 				})
@@ -351,7 +349,7 @@ namespace NicoPlayerHohoema.Views.Service
 				Text.Subscribe(x => 
 				{
 					_IsValidatedSelection = !string.IsNullOrEmpty(x);
-					OnPropertyChanged(nameof(IsValidatedSelection));
+					RaisePropertyChanged(nameof(IsValidatedSelection));
 
 					SelectionItemChanged?.Invoke(this);
 				})

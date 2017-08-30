@@ -217,16 +217,16 @@ namespace NicoPlayerHohoema.ViewModels
 
 					CommunityInfo = res.Community;
 
-					OnPropertyChanged(nameof(CommunityName));
-					OnPropertyChanged(nameof(IsPublic));
-					OnPropertyChanged(nameof(CommunityDescription));
-					OnPropertyChanged(nameof(IsOfficial));
-					OnPropertyChanged(nameof(MaxUserCount));
-					OnPropertyChanged(nameof(UserCount));
-					OnPropertyChanged(nameof(CommunityLevel));
-					OnPropertyChanged(nameof(CreatedAt));
-					OnPropertyChanged(nameof(ThumbnailUrl));
-					OnPropertyChanged(nameof(TopUrl));
+					RaisePropertyChanged(nameof(CommunityName));
+					RaisePropertyChanged(nameof(IsPublic));
+					RaisePropertyChanged(nameof(CommunityDescription));
+					RaisePropertyChanged(nameof(IsOfficial));
+					RaisePropertyChanged(nameof(MaxUserCount));
+					RaisePropertyChanged(nameof(UserCount));
+					RaisePropertyChanged(nameof(CommunityLevel));
+					RaisePropertyChanged(nameof(CreatedAt));
+					RaisePropertyChanged(nameof(ThumbnailUrl));
+					RaisePropertyChanged(nameof(TopUrl));
 
 
 
@@ -279,24 +279,24 @@ namespace NicoPlayerHohoema.ViewModels
 					}
 					
 
-					OnPropertyChanged(nameof(CommunityOwnerName));
-					OnPropertyChanged(nameof(VideoCount));
-					OnPropertyChanged(nameof(PrivilegeDescription));
-//					OnPropertyChanged(nameof(IsJoinAutoAccept));
-//					OnPropertyChanged(nameof(IsJoinWithoutPrivacyInfo));
-//					OnPropertyChanged(nameof(IsCanLiveOnlyPrivilege));
-//					OnPropertyChanged(nameof(IsCanAcceptJoinOnlyPrivilege));
-//					OnPropertyChanged(nameof(IsCanSubmitVideoOnlyPrivilege));
+					RaisePropertyChanged(nameof(CommunityOwnerName));
+					RaisePropertyChanged(nameof(VideoCount));
+					RaisePropertyChanged(nameof(PrivilegeDescription));
+//					RaisePropertyChanged(nameof(IsJoinAutoAccept));
+//					RaisePropertyChanged(nameof(IsJoinWithoutPrivacyInfo));
+//					RaisePropertyChanged(nameof(IsCanLiveOnlyPrivilege));
+//					RaisePropertyChanged(nameof(IsCanAcceptJoinOnlyPrivilege));
+//					RaisePropertyChanged(nameof(IsCanSubmitVideoOnlyPrivilege));
 
-					OnPropertyChanged(nameof(ProfileHtmlFileUri));
-					OnPropertyChanged(nameof(OwnerUserInfo));
-					OnPropertyChanged(nameof(Tags));
-					OnPropertyChanged(nameof(FutureLiveList));
-					OnPropertyChanged(nameof(NewsList));
-					OnPropertyChanged(nameof(HasNews));
-					OnPropertyChanged(nameof(CurrentLiveInfoList));
-					OnPropertyChanged(nameof(HasCurrentLiveInfo));
-					OnPropertyChanged(nameof(CommunityVideoSamples));
+					RaisePropertyChanged(nameof(ProfileHtmlFileUri));
+					RaisePropertyChanged(nameof(OwnerUserInfo));
+					RaisePropertyChanged(nameof(Tags));
+					RaisePropertyChanged(nameof(FutureLiveList));
+					RaisePropertyChanged(nameof(NewsList));
+					RaisePropertyChanged(nameof(HasNews));
+					RaisePropertyChanged(nameof(CurrentLiveInfoList));
+					RaisePropertyChanged(nameof(HasCurrentLiveInfo));
+					RaisePropertyChanged(nameof(CommunityVideoSamples));
 
 
 					// お気に入り状態の取得
@@ -399,7 +399,7 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 			}
 
-			OnPropertyChanged(nameof(CanNotFollowReason));
+			RaisePropertyChanged(nameof(CanNotFollowReason));
 		}
 	}
 

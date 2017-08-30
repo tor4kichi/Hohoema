@@ -15,7 +15,7 @@
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:deviceTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
-    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
+    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:hohoemalistItem="using:NicoPlayerHohoema.Views.HohoemaListItem"
     xmlns:listitem="using:NicoPlayerHohoema.Views.HohoemaListItem"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
@@ -183,7 +183,7 @@
                                 </Button>
 
                                 <ListView ItemsSource="{Binding CommunityVideoSamples}"
-                                          uwpui:ListViewBaseExtensions.Command="{Binding PlayUserVideoCommand}"
+                                          uwpui:ListViewBase.Command="{Binding PlayUserVideoCommand}"
                                           SelectionMode="None"
                                           IsItemClickEnabled="True"
                                     >

@@ -74,7 +74,7 @@ namespace NicoPlayerHohoema.Models
                 if (SetProperty(ref _CurrentPlaylist, value))
                 {
                     _CurrentPlaylistId = _CurrentPlaylist.Id;
-                    OnPropertyChanged(nameof(Player));
+                    RaisePropertyChanged(nameof(Player));
 
                     ResetMediaPlayerCommand();
 

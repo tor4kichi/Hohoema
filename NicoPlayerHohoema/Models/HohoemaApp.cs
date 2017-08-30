@@ -633,8 +633,8 @@ namespace NicoPlayerHohoema.Models
 										LoginUserName = user.Nickname;
                                         UserIconUrl = user.ThumbnailUri;
 
-                                        OnPropertyChanged(nameof(LoginUserName));
-                                        OnPropertyChanged(nameof(UserIconUrl));
+                                        RaisePropertyChanged(nameof(LoginUserName));
+                                        RaisePropertyChanged(nameof(UserIconUrl));
                                     }
 									catch (Exception ex)
 									{
@@ -831,7 +831,7 @@ namespace NicoPlayerHohoema.Models
                 ServiceStatus = HohoemaAppServiceLevel.Offline;
             }
 
-            OnPropertyChanged(nameof(IsLoggedIn));
+            RaisePropertyChanged(nameof(IsLoggedIn));
         }
 
         public async Task<NiconicoSignInStatus> CheckSignedInStatus()

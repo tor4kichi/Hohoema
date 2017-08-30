@@ -586,23 +586,23 @@ namespace NicoPlayerHohoema.ViewModels
             }
 
             AutoHideDelayTime = new ReactiveProperty<TimeSpan>(TimeSpan.FromSeconds(3));
-            OnPropertyChanged(nameof(AutoHideDelayTime));
+            RaisePropertyChanged(nameof(AutoHideDelayTime));
 
 
             IsMuted = HohoemaApp.UserSettings.PlayerSettings
                 .ToReactivePropertyAsSynchronized(x => x.IsMute, PlayerWindowUIDispatcherScheduler)
                 .AddTo(userSessionDisposer);
-            OnPropertyChanged(nameof(IsMuted));
+            RaisePropertyChanged(nameof(IsMuted));
 
             SoundVolume = HohoemaApp.UserSettings.PlayerSettings
                 .ToReactivePropertyAsSynchronized(x => x.SoundVolume, PlayerWindowUIDispatcherScheduler)
                 .AddTo(userSessionDisposer);
-            OnPropertyChanged(nameof(SoundVolume));
+            RaisePropertyChanged(nameof(SoundVolume));
 
             CommentDefaultColor = HohoemaApp.UserSettings.PlayerSettings
                 .ToReactivePropertyAsSynchronized(x => x.CommentColor, PlayerWindowUIDispatcherScheduler)
                 .AddTo(userSessionDisposer);
-            OnPropertyChanged(nameof(CommentDefaultColor));
+            RaisePropertyChanged(nameof(CommentDefaultColor));
 
 
             Observable.Merge(
@@ -629,19 +629,19 @@ namespace NicoPlayerHohoema.ViewModels
                 .Select(x => TimeSpan.FromSeconds(1.0 / x))
                 .ToReactiveProperty()
                 .AddTo(userSessionDisposer);
-            OnPropertyChanged(nameof(RequestUpdateInterval));
+            RaisePropertyChanged(nameof(RequestUpdateInterval));
 
             RequestCommentDisplayDuration = HohoemaApp.UserSettings.PlayerSettings
                 .ObserveProperty(x => x.CommentDisplayDuration)
                 .ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
                 .AddTo(userSessionDisposer);
-            OnPropertyChanged(nameof(RequestCommentDisplayDuration));
+            RaisePropertyChanged(nameof(RequestCommentDisplayDuration));
 
             CommentFontScale = HohoemaApp.UserSettings.PlayerSettings
                 .ObserveProperty(x => x.DefaultCommentFontScale)
                 .ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
                 .AddTo(userSessionDisposer);
-            OnPropertyChanged(nameof(CommentFontScale));
+            RaisePropertyChanged(nameof(CommentFontScale));
 
 
             HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.IsKeepDisplayInPlayback)
@@ -653,7 +653,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
             IsForceLandscape = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, HohoemaApp.UserSettings.PlayerSettings.IsForceLandscape);
-            OnPropertyChanged(nameof(IsForceLandscape));
+            RaisePropertyChanged(nameof(IsForceLandscape));
 
 
             // お気に入りフィード上の動画を既読としてマーク
@@ -807,7 +807,7 @@ namespace NicoPlayerHohoema.ViewModels
                 CommandEditerVM = new CommentCommandEditerViewModel()
                     .AddTo(userSessionDisposer);
 
-                OnPropertyChanged(nameof(CommandEditerVM));
+                RaisePropertyChanged(nameof(CommandEditerVM));
 
                 CommandEditerVM.OnCommandChanged += () => UpdateCommandString();
                 CommandEditerVM.IsPremiumUser = base.HohoemaApp.IsPremiumUser;
@@ -866,7 +866,7 @@ namespace NicoPlayerHohoema.ViewModels
             IsPauseWithCommentWriting = HohoemaApp.UserSettings.PlayerSettings
 				.ToReactivePropertyAsSynchronized(x => x.PauseWithCommentWriting, PlayerWindowUIDispatcherScheduler)
 				.AddTo(userSessionDisposer);
-			OnPropertyChanged(nameof(IsPauseWithCommentWriting));
+			RaisePropertyChanged(nameof(IsPauseWithCommentWriting));
 		}
 
 
@@ -1010,7 +1010,7 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
 				.AddTo(_BufferingMonitorDisposable);
 
-			OnPropertyChanged(nameof(NowBuffering));
+			RaisePropertyChanged(nameof(NowBuffering));
 #if DEBUG
 			NowBuffering
 				.Subscribe(x => Debug.WriteLine(x ? "Buffering..." : "Playing..."))
@@ -1310,7 +1310,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             CurrentPlaylistName.Value = CurrentPlaylist.Name;
             PlaylistItems = CurrentPlaylist.PlaylistItems.ToReadOnlyReactiveCollection();
-            OnPropertyChanged(nameof(PlaylistItems));
+            RaisePropertyChanged(nameof(PlaylistItems));
 
             HohoemaApp.MediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
             HohoemaApp.MediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;

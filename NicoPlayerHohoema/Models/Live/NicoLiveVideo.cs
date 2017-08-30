@@ -433,7 +433,7 @@ namespace NicoPlayerHohoema.Models.Live
                 
                 // Note: Hohoemaでは画質の自動設定 abr は扱いません
                 Qualities = e.QualityTypes.Where(x => x != "abr").ToArray();
-                OnPropertyChanged(nameof(Qualities));
+                RaisePropertyChanged(nameof(Qualities));
                 CurrentQuality = e.Quality;
 
                 Debug.WriteLine(e.Quality);

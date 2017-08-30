@@ -14,7 +14,7 @@
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:deviceTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
-    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
+    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
@@ -67,7 +67,7 @@
                                               ScrollViewer.VerticalScrollMode="Disabled"
                                               ScrollViewer.VerticalScrollBarVisibility="Hidden"
                                           Padding="0 0 0 27"
-                                          uwpui:ListViewBaseExtensions.Command="{Binding SelectedCommand}"
+                                          uwpui:ListViewBase.Command="{Binding SelectedCommand}"
                                           IsItemClickEnabled="True"
                                           SelectionMode="None"
                                     >

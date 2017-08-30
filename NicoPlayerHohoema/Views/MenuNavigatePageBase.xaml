@@ -20,7 +20,7 @@
     xmlns:softwareTrigger="using:AdaptiveTriggerLibrary.Triggers.SoftwareInterfaceTriggers"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:uwpcontrol="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    xmlns:uwpUI="using:Microsoft.Toolkit.Uwp.UI"
+    xmlns:uwpUI="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     IsTabStop="False"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
@@ -303,10 +303,6 @@
                                 </Style>
                             </ListBox.ItemContainerStyle>
                         </ListBox>
-
-
-
-                        <Border />
 
 
                     </toolkit:DockPanel>

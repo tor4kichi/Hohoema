@@ -59,8 +59,8 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 			{
 				DeflistRegistrationCount = MylistManager.DeflistRegistrationCount;
 				MylistRegistrationCount = MylistManager.MylistRegistrationCount;
-				OnPropertyChanged(nameof(DeflistRegistrationCount));
-				OnPropertyChanged(nameof(MylistRegistrationCount));
+				RaisePropertyChanged(nameof(DeflistRegistrationCount));
+				RaisePropertyChanged(nameof(MylistRegistrationCount));
 			}
 
 			return result == Mntone.Nico2.ContentManageResult.Success;
@@ -74,8 +74,8 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 			{
 				DeflistRegistrationCount = MylistManager.DeflistRegistrationCount;
 				MylistRegistrationCount = MylistManager.MylistRegistrationCount;
-				OnPropertyChanged(nameof(DeflistRegistrationCount));
-				OnPropertyChanged(nameof(MylistRegistrationCount));
+				RaisePropertyChanged(nameof(DeflistRegistrationCount));
+				RaisePropertyChanged(nameof(MylistRegistrationCount));
 			}
 
 			return result == Mntone.Nico2.ContentManageResult.Success;
@@ -134,7 +134,7 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 						}
 					}
 
-					OnPropertyChanged(nameof(GroupInfo));
+					RaisePropertyChanged(nameof(GroupInfo));
 				}
 				finally
 				{

@@ -286,7 +286,7 @@ namespace NicoPlayerHohoema.ViewModels
             }
 
             VideoPageUri = new Uri("http://nicovideo.jp/watch/" + Video.RawVideoId);
-            OnPropertyChanged(nameof(VideoPageUri));
+            RaisePropertyChanged(nameof(VideoPageUri));
 
 
             await Update();
@@ -297,7 +297,7 @@ namespace NicoPlayerHohoema.ViewModels
                 IchibaItems = ichiba.GetMainIchibaItems();
                 if (IchibaItems.Count > 0)
                 {
-                    OnPropertyChanged(nameof(IchibaItems));
+                    RaisePropertyChanged(nameof(IchibaItems));
                 }
             }
             catch
@@ -321,7 +321,7 @@ namespace NicoPlayerHohoema.ViewModels
             CanDownload = HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache
                 && HohoemaApp.UserSettings.CacheSettings.IsEnableCache
                 && HohoemaApp.IsLoggedIn;
-            OnPropertyChanged(nameof(CanDownload));
+            RaisePropertyChanged(nameof(CanDownload));
 
 
             try
@@ -349,20 +349,20 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-                OnPropertyChanged(nameof(VideoTitle));
-                OnPropertyChanged(nameof(Tags));
-                OnPropertyChanged(nameof(ThumbnailUrl));
-                OnPropertyChanged(nameof(VideoLength));
-                OnPropertyChanged(nameof(SubmitDate));
-                OnPropertyChanged(nameof(ViewCount));
-                OnPropertyChanged(nameof(CommentCount));
-                OnPropertyChanged(nameof(MylistCount));
+                RaisePropertyChanged(nameof(VideoTitle));
+                RaisePropertyChanged(nameof(Tags));
+                RaisePropertyChanged(nameof(ThumbnailUrl));
+                RaisePropertyChanged(nameof(VideoLength));
+                RaisePropertyChanged(nameof(SubmitDate));
+                RaisePropertyChanged(nameof(ViewCount));
+                RaisePropertyChanged(nameof(CommentCount));
+                RaisePropertyChanged(nameof(MylistCount));
 
 
                 try
                 {
                     DescriptionHtmlFileUri = await Util.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(Video.RawVideoId, Video.DescriptionWithHtml);
-                    OnPropertyChanged(nameof(DescriptionHtmlFileUri));
+                    RaisePropertyChanged(nameof(DescriptionHtmlFileUri));
                 }
                 catch
                 {
@@ -375,8 +375,8 @@ namespace NicoPlayerHohoema.ViewModels
                     OwnerName = Video.OwnerName;
                     OwnerIconUrl = Video.OwnerIconUrl;
 
-                    OnPropertyChanged(nameof(OwnerName));
-                    OnPropertyChanged(nameof(OwnerIconUrl));
+                    RaisePropertyChanged(nameof(OwnerName));
+                    RaisePropertyChanged(nameof(OwnerIconUrl));
                 }
                 catch
                 {
@@ -398,8 +398,8 @@ namespace NicoPlayerHohoema.ViewModels
                 SelfZoningInfo = Video.CheckNGVideo();
                 IsSelfZoningContent = SelfZoningInfo != null;
 
-                OnPropertyChanged(nameof(SelfZoningInfo));
-                OnPropertyChanged(nameof(IsSelfZoningContent));
+                RaisePropertyChanged(nameof(SelfZoningInfo));
+                RaisePropertyChanged(nameof(IsSelfZoningContent));
             }
             finally
             {

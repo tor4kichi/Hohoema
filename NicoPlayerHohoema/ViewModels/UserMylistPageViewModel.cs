@@ -312,7 +312,7 @@ namespace NicoPlayerHohoema.ViewModels
                     Items = mylists.ToList(),
                 });
 
-                OnPropertyChanged(nameof(MylistList));
+                RaisePropertyChanged(nameof(MylistList));
 			}
 			else if (IsLoginUserMylist.Value)
 			{

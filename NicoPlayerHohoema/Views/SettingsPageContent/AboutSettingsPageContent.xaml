@@ -9,7 +9,7 @@
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
-    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
+    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
@@ -70,7 +70,7 @@
 
                 <StackPanel Margin="16 8 16 16">
                     <ListView ItemsSource="{Binding UpdateNoticeList}"
-                              uwpui:ListViewBaseExtensions.Command="{Binding ShowUpdateNoticeCommand}"
+                              uwpui:ListViewBase.Command="{Binding ShowUpdateNoticeCommand}"
                               IsItemClickEnabled="True"
                                   SelectionMode="None"
                               >
@@ -106,7 +106,7 @@
 
                 <StackPanel Margin="16 8 16 16">
                     <ListView ItemsSource="{Binding PurchaseItems}"
-                                  uwpui:ListViewBaseExtensions.Command="{Binding ShowCheerPurchaseCommand}"
+                                  uwpui:ListViewBase.Command="{Binding ShowCheerPurchaseCommand}"
                                   IsItemClickEnabled="True"
                                   SelectionMode="None"
                                   >

@@ -14,7 +14,7 @@
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:uwpcontrol="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
-    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
+    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
@@ -135,7 +135,7 @@
                                               HorizontalAlignment="Stretch"
                                                   HorizontalContentAlignment="Left"
                                               IsItemClickEnabled="True"
-                                              uwpui:ListViewBaseExtensions.Command="{Binding SelectedCommand}"
+                                              uwpui:ListViewBase.Command="{Binding SelectedCommand}"
                                               SelectionMode="None"
                                           >
                                         <i:Interaction.Behaviors>

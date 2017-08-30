@@ -14,7 +14,7 @@
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
-    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
+    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
@@ -285,7 +285,7 @@
                                       Margin="0 8"
                                       SelectionMode="None"
                                       IsItemClickEnabled="True"
-                                      uwpui:ListViewBaseExtensions.Command="{Binding OpenTagSearchResultPageCommand}"
+                                      uwpui:ListViewBase.Command="{Binding OpenTagSearchResultPageCommand}"
                                       ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                                       ScrollViewer.HorizontalScrollMode="Auto"
                                       ScrollViewer.VerticalScrollMode="Disabled"

@@ -36,7 +36,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 if (SetProperty(ref _Title, value))
                 {
-                    OnPropertyChanged(nameof(HasTitle));
+                    RaisePropertyChanged(nameof(HasTitle));
                 }
             }
         }
@@ -50,7 +50,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 if (SetProperty(ref _Description, value))
                 {
-                    OnPropertyChanged(nameof(HasDescription));
+                    RaisePropertyChanged(nameof(HasDescription));
                 }
             }
         }
@@ -64,7 +64,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 if (SetProperty(ref _OptionText, value))
                 {
-                    OnPropertyChanged(nameof(HasOptionText));
+                    RaisePropertyChanged(nameof(HasOptionText));
                 }
             }
         }
@@ -82,7 +82,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 if (SetProperty(ref _ImageCaption, value))
                 {
-                    OnPropertyChanged(nameof(HasImageCaption));
+                    RaisePropertyChanged(nameof(HasImageCaption));
                 }
             }
         }
@@ -151,9 +151,9 @@ namespace NicoPlayerHohoema.ViewModels
             _Disposer = ImageUrls.CollectionChangedAsObservable()
                 .Subscribe(_ =>
                 {
-                    OnPropertyChanged(nameof(FirstImageUrl));
-                    OnPropertyChanged(nameof(HasImageUrl));
-                    OnPropertyChanged(nameof(IsMultipulImages));
+                    RaisePropertyChanged(nameof(FirstImageUrl));
+                    RaisePropertyChanged(nameof(HasImageUrl));
+                    RaisePropertyChanged(nameof(IsMultipulImages));
                 });
         }
     }

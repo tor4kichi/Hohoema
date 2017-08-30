@@ -46,7 +46,7 @@ namespace NicoPlayerHohoema.ViewModels
                             .OrderBy(x => x.Name)
                             .Select(x => new LisenceItemViewModel(x))
                             .ToList();
-                        OnPropertyChanged(nameof(LisenceItems));
+                        RaisePropertyChanged(nameof(LisenceItems));
                     });
                 });
         }
@@ -57,7 +57,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 var listing = await Models.Purchase.HohoemaPurchase.GetAvailableCheersAddOn();
                 PurchaseItems = listing.ProductListings.Select(x => new ProductViewModel(x.Value)).ToList();
-                OnPropertyChanged(nameof(PurchaseItems));
+                RaisePropertyChanged(nameof(PurchaseItems));
             }
             catch { }
 

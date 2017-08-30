@@ -259,7 +259,7 @@ namespace NicoPlayerHohoema.ViewModels
 				MaxItemsCount.Value = await source.ResetSource();
 
 				IncrementalLoadingItems = new IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM>(source);
-				OnPropertyChanged(nameof(IncrementalLoadingItems));
+				RaisePropertyChanged(nameof(IncrementalLoadingItems));
 
 				IncrementalLoadingItems.BeginLoading += BeginLoadingItems;
 				IncrementalLoadingItems.DoneLoading += CompleteLoadingItems;
