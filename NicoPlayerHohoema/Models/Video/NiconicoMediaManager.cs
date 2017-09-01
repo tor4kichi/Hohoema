@@ -235,11 +235,6 @@ namespace NicoPlayerHohoema.Models
 				}
 			}
 
-			foreach (var video in videos.AsParallel())
-			{
-				await video.Initialize();
-			}
-
 			return videos;
 		}
 

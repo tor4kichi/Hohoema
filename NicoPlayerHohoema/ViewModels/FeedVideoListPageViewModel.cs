@@ -104,6 +104,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				return true;
 			}
+
 			return base.CheckNeedUpdateOnNavigateTo(mode);
 		}
 

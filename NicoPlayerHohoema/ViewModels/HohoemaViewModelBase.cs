@@ -260,7 +260,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             base.OnNavigatedTo(e, viewModelState);
 
-			HohoemaApp.OnResumed += _OnResumed;
+//            HohoemaApp.OnResumed += _OnResumed;
 
             // TODO: プレイヤーを別ウィンドウにしている場合に、プレイヤーの表示状態変更を抑制する
             // プレイヤーがフィル表示している時にバックキーのアクションを再定義する
