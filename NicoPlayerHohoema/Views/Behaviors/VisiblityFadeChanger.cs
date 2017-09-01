@@ -67,7 +67,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
             DependencyProperty.Register("Duration"
                     , typeof(TimeSpan)
                     , typeof(VisiblityFadeChanger)
-                    , new PropertyMetadata(TimeSpan.FromSeconds(0.5), OnDurationPropertyChanged)
+                    , new PropertyMetadata(TimeSpan.FromSeconds(0.5), OnDuratiRaisePropertyChanged)
                 );
 
         public TimeSpan Duration
@@ -76,7 +76,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
             set { SetValue(DurationProperty, value); }
         }
 
-        public static void OnDurationPropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
+        public static void OnDuratiRaisePropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
         {
             VisiblityFadeChanger source = (VisiblityFadeChanger)sender;
 
@@ -93,7 +93,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
             DependencyProperty.Register("IsAnimationEnable"
                     , typeof(bool)
                     , typeof(VisiblityFadeChanger)
-                    , new PropertyMetadata(true, OnDurationPropertyChanged)
+                    , new PropertyMetadata(true, OnDuratiRaisePropertyChanged)
                 );
 
         public bool IsAnimationEnable

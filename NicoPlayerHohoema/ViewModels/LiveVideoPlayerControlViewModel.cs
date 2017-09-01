@@ -698,7 +698,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 				NowConnecting = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false)
 					.AddTo(_NavigatingCompositeDisposable);
-				OnPropertyChanged(nameof(NowConnecting));
+				RaisePropertyChanged(nameof(NowConnecting));
 
 				LiveComments = NicoLiveVideo.LiveComments.ToReadOnlyReactiveCollection(x =>
 				{
@@ -727,17 +727,17 @@ namespace NicoPlayerHohoema.ViewModels
 					return comment;
 				});
 
-				OnPropertyChanged(nameof(LiveComments));
+				RaisePropertyChanged(nameof(LiveComments));
 
 				CommentCount = NicoLiveVideo.ObserveProperty(x => x.CommentCount)
 					.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
 					.AddTo(_NavigatingCompositeDisposable);
-				OnPropertyChanged(nameof(CommentCount));
+				RaisePropertyChanged(nameof(CommentCount));
 
 				WatchCount = NicoLiveVideo.ObserveProperty(x => x.WatchCount)
 					.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
 					.AddTo(_NavigatingCompositeDisposable);
-				OnPropertyChanged(nameof(WatchCount));
+				RaisePropertyChanged(nameof(WatchCount));
 
 				CommunityId = NicoLiveVideo.BroadcasterCommunityId;
 
@@ -749,7 +749,7 @@ namespace NicoPlayerHohoema.ViewModels
 				PermanentDisplayText = NicoLiveVideo.ObserveProperty(x => x.PermanentDisplayText)
 					.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
 					.AddTo(_NavigatingCompositeDisposable);
-				OnPropertyChanged(nameof(PermanentDisplayText));
+				RaisePropertyChanged(nameof(PermanentDisplayText));
 
 
 				// next live
@@ -858,7 +858,7 @@ namespace NicoPlayerHohoema.ViewModels
 				{
                     LivePlayerType.Value = NicoLiveVideo.LivePlayerType;
 
-                    OnPropertyChanged(nameof(MediaPlayer));
+                    RaisePropertyChanged(nameof(MediaPlayer));
 					_StartAt = NicoLiveVideo.PlayerStatusResponse.Program.StartedAt;
 					_EndAt = NicoLiveVideo.PlayerStatusResponse.Program.EndedAt;
 
@@ -872,7 +872,7 @@ namespace NicoPlayerHohoema.ViewModels
 					RoomName = NicoLiveVideo.PlayerStatusResponse.Room.Name;
 					SeetId = NicoLiveVideo.PlayerStatusResponse.Room.SeatId;
 
-					OnPropertyChanged(nameof(NicoLiveVideo));
+					RaisePropertyChanged(nameof(NicoLiveVideo));
 
                     if (CommunityName == null)
                     {

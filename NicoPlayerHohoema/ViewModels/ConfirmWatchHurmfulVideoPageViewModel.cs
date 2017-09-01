@@ -47,9 +47,9 @@ namespace NicoPlayerHohoema.ViewModels
 			cancelToken.ThrowIfCancellationRequested();
 
 			SubmitDate = NicoVideo.PostedAt;
-			OnPropertyChanged(nameof(SubmitDate));
+			RaisePropertyChanged(nameof(SubmitDate));
 			Title = NicoVideo.Title;
-			OnPropertyChanged(nameof(Title));
+			RaisePropertyChanged(nameof(Title));
 
 			Tags.Clear();
 			foreach (var tag in NicoVideo.Tags)

@@ -59,7 +59,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
 		{
-			return true;
+			return mode == NavigationMode.New;
 		}
 
 		protected override void PostResetList()
@@ -143,7 +143,10 @@ namespace NicoPlayerHohoema.ViewModels
 		public List<NicoVideo> RawList { get; private set; }
 
 
-		public CacheVideoInfoLoadingSource(HohoemaApp app, PageManager pageManager)
+
+        public override uint OneTimeLoadCount => (uint)RawList.Count;
+
+        public CacheVideoInfoLoadingSource(HohoemaApp app, PageManager pageManager)
             : base(app, nameof(CacheManagementPageViewModel))
 		{
 			_HohoemaApp = app;

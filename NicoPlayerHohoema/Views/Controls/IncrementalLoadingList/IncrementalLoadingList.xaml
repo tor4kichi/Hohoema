@@ -8,7 +8,7 @@
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:uwpToolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
+    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     >
     <Style TargetType="control:IncrementalLoadingList" >
         <Setter Property="Template">
@@ -26,7 +26,7 @@
                                         UseSystemFocusVisuals="False"
                                         HorizontalContentAlignment="Stretch"
                                         IsItemClickEnabled="True"
-                                        uwpui:ListViewBaseExtensions.Command="{TemplateBinding ItemCommand}"
+                                        uwpui:ListViewBase.Command="{TemplateBinding ItemCommand}"
                                         ItemTemplate="{TemplateBinding ItemTemplate}"
                                         SelectionMode="Single"
                                         VerticalAlignment="{TemplateBinding VerticalAlignment}"

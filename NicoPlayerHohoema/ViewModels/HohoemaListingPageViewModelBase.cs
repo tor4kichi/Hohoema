@@ -135,6 +135,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         }
 
+        public DateTime LatestUpdateTime = DateTime.Now;
 
         protected override void OnDispose()
 		{
@@ -196,9 +197,10 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
 
-			if(!suspending)
+            _LastListViewOffset = ListViewVerticalOffset.Value;
+
+            if (!suspending)
 			{
-				_LastListViewOffset = ListViewVerticalOffset.Value;
 				ChangeCanIncmentalLoading(false);
 			}
 
@@ -259,7 +261,7 @@ namespace NicoPlayerHohoema.ViewModels
 				MaxItemsCount.Value = await source.ResetSource();
 
 				IncrementalLoadingItems = new IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM>(source);
-				OnPropertyChanged(nameof(IncrementalLoadingItems));
+				RaisePropertyChanged(nameof(IncrementalLoadingItems));
 
 				IncrementalLoadingItems.BeginLoading += BeginLoadingItems;
 				IncrementalLoadingItems.DoneLoading += CompleteLoadingItems;
@@ -304,7 +306,21 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected abstract IIncrementalSource<ITEM_VM> GenerateIncrementalSource();
 
-		protected virtual bool CheckNeedUpdateOnNavigateTo(NavigationMode mode) { return mode != NavigationMode.Back; }
+		protected virtual bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
+        {
+            if (mode == NavigationMode.New)
+            {
+                return true;
+            }
+
+            var elpasedTime = DateTime.Now - LatestUpdateTime;
+            if (elpasedTime > TimeSpan.FromMinutes(30))
+            {
+                return true;
+            }
+
+            return false;
+        }
 
 		protected void ClearSelection()
 		{

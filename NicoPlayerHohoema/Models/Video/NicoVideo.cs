@@ -320,7 +320,7 @@ namespace NicoPlayerHohoema.Models
 
 
             Db.VideoPlayHistoryDb.VideoPlayed(this.RawVideoId);
-            OnPropertyChanged(nameof(IsPlayed));
+            RaisePropertyChanged(nameof(IsPlayed));
         }
 
         #endregion

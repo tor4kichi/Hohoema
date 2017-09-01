@@ -53,11 +53,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 		private void RaiseSearchTargetFlags()
 		{
-			OnPropertyChanged(nameof(IsSearchKeyword));
-			OnPropertyChanged(nameof(IsSearchTag));
-			OnPropertyChanged(nameof(IsSearchMylist));
-			OnPropertyChanged(nameof(IsSearchCommunity));
-			OnPropertyChanged(nameof(IsSearchNiconama));
+			RaisePropertyChanged(nameof(IsSearchKeyword));
+			RaisePropertyChanged(nameof(IsSearchTag));
+			RaisePropertyChanged(nameof(IsSearchMylist));
+			RaisePropertyChanged(nameof(IsSearchCommunity));
+			RaisePropertyChanged(nameof(IsSearchNiconama));
 		}
 
 		public SearchPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)

@@ -16,7 +16,7 @@ namespace NicoPlayerHohoema.Views.StateTrigger
             DependencyProperty.Register("Condition"
                     , typeof(object)
                     , typeof(EqualConditionStateTrigger)
-                    , new PropertyMetadata(null, OnConditionPropertyChanged)
+                    , new PropertyMetadata(null, OnConditiRaisePropertyChanged)
                 );
 
         public object Condition
@@ -26,7 +26,7 @@ namespace NicoPlayerHohoema.Views.StateTrigger
         }
 
 
-        public static void OnConditionPropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
+        public static void OnConditiRaisePropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
         {
             var source = sender as EqualConditionStateTrigger;
             source.Evaluation();

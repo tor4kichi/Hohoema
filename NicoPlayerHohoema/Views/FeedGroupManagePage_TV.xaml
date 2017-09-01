@@ -15,7 +15,7 @@
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
-    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
+    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:listitem="using:NicoPlayerHohoema.Views.HohoemaListItem"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
@@ -123,7 +123,7 @@
 
 
                     <ListView ItemsSource="{Binding FeedGroupItems}"
-                              uwpui:ListViewBaseExtensions.Command="{Binding OpenFeedVideoPageCommand}"
+                              uwpui:ListViewBase.Command="{Binding OpenFeedVideoPageCommand}"
                               IsItemClickEnabled="True"
                               SelectionMode="None"
                               >

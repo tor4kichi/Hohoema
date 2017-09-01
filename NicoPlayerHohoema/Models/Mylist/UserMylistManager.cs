@@ -243,12 +243,12 @@ namespace NicoPlayerHohoema.Models
 
 		internal void DeflistUpdated()
 		{
-//			OnPropertyChanged(nameof(IsDeflistCapacityReached));
+//			RaisePropertyChanged(nameof(IsDeflistCapacityReached));
 		}
 
 		internal void MylistUpdated()
 		{
-//			OnPropertyChanged(nameof(CanAddMylistItem));
+//			RaisePropertyChanged(nameof(CanAddMylistItem));
 		}
 
 		public override IAsyncAction BackgroundUpdate(CoreDispatcher uiDispatcher)

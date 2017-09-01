@@ -11,6 +11,7 @@ using System.Diagnostics;
 using Mntone.Nico2.Users.User;
 using System.Threading;
 using Prism.Commands;
+using Windows.UI.Xaml.Navigation;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -21,20 +22,33 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 		}
 
+        protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
+        {
+            return base.CheckNeedUpdateOnNavigateTo(mode);
+        }
 
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			if (e.Parameter is string)
-			{
-				UserId = e.Parameter as string;
-			}
+            if (User != null)
+            {
+                UpdateTitle(User.Nickname + "さんの投稿動画一覧");
+            }
+            else
+            {
+                UpdateTitle("投稿動画一覧");
+            }
 
-			base.OnNavigatedTo(e, viewModelState);
+            base.OnNavigatedTo(e, viewModelState);
 		}
 
 		protected override async Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			User = await HohoemaApp.ContentFinder.GetUserDetail(UserId);
+            if (e.Parameter is string)
+            {
+                UserId = e.Parameter as string;
+            }
+
+            User = await HohoemaApp.ContentFinder.GetUserDetail(UserId);
 
 			if (User != null)
 			{

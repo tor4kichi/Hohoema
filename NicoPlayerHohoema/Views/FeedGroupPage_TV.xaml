@@ -14,7 +14,7 @@
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
-    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
+    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:listitem="using:NicoPlayerHohoema.Views.HohoemaListItem"
     mc:Ignorable="d"
     d:DesignHeight="300"
@@ -201,7 +201,7 @@
                                   IsItemClickEnabled="True"
                                   SelectionMode="None"
                                   DisplayMemberPath="Name"
-                                  uwpui:ListViewBaseExtensions.Command="{Binding OpenFeedSourcePageCommand}"
+                                  uwpui:ListViewBase.Command="{Binding OpenFeedSourcePageCommand}"
                               >
 
                             <i:Interaction.Behaviors>
@@ -266,7 +266,7 @@
                                   IsItemClickEnabled="True"
                                   SelectionMode="None"
                                   DisplayMemberPath="Name"
-                                  uwpui:ListViewBaseExtensions.Command="{Binding OpenFeedSourcePageCommand}"
+                                  uwpui:ListViewBase.Command="{Binding OpenFeedSourcePageCommand}"
                               >
 
                             <i:Interaction.Behaviors>
@@ -331,7 +331,7 @@
                                   IsItemClickEnabled="True"
                                   SelectionMode="None"
                                   DisplayMemberPath="Name"
-                                  uwpui:ListViewBaseExtensions.Command="{Binding OpenFeedSourcePageCommand}"
+                                  uwpui:ListViewBase.Command="{Binding OpenFeedSourcePageCommand}"
                               >
 
                             <i:Interaction.Behaviors>

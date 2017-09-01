@@ -462,9 +462,9 @@ namespace NicoPlayerHohoema.Models
 
 
 
-        public override async Task<Uri> GenerateVideoContentUrl()
+        public override Task<Uri> GenerateVideoContentUrl()
         {
-            return NicoVideo.LegacyVideoUrl;
+            return Task.FromResult(NicoVideo.LegacyVideoUrl);
         }
 
 
@@ -526,9 +526,9 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
-        public override async Task<Uri> GenerateVideoContentUrl()
+        public override Task<Uri> GenerateVideoContentUrl()
         {
-            return NicoVideo.LegacyVideoUrl;
+            return Task.FromResult(NicoVideo.LegacyVideoUrl);
         }
 
 

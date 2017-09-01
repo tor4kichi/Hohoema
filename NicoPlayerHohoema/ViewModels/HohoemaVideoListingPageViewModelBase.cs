@@ -222,11 +222,13 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			base.OnNavigatedTo(e, viewModelState);
 
+            /*
 			if (IncrementalLoadingItems == null
 				|| CheckNeedUpdateOnNavigateTo(e.NavigationMode))
 			{
-				//				ResetList();
+//				ResetList();
 			}
+            */
 
             ReflectCanDownloadStatus();
         }

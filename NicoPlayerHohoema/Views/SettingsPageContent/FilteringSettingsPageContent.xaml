@@ -10,7 +10,7 @@
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
-    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
+    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     mc:Ignorable="d"
     d:DesignHeight="1200"
     d:DesignWidth="400">
@@ -247,7 +247,7 @@
                               Margin="16 8"
                               IsTabStop="False"
                               HorizontalContentAlignment="Stretch"
-                              uwpui:ListViewBaseExtensions.Command="{Binding OpenUserPageCommand}"
+                              uwpui:ListViewBase.Command="{Binding OpenUserPageCommand}"
                               IsItemClickEnabled="True"
                               SelectionMode="None"
                                   >

@@ -141,7 +141,7 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 			}
 
-            OnPropertyChanged(nameof(RankingCategoryItems));
+            RaisePropertyChanged(nameof(RankingCategoryItems));
 
 			base.OnNavigatedTo(e, viewModelState);
 		}

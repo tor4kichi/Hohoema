@@ -61,7 +61,7 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 
                 ThemeChanged = true;
-                OnPropertyChanged(nameof(ThemeChanged));
+                RaisePropertyChanged(nameof(ThemeChanged));
             });
 
             IsTVModeEnable = HohoemaApp.UserSettings.AppearanceSettings

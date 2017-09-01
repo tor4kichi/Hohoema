@@ -3,35 +3,35 @@
     {
       "name": "HtmlAgilityPack.NetCore",
       "site": "https://github.com/noliar/HtmlAgilityPack.NetCore",
-      "author": ["Zulfahmi Ahmad"],
+      "author": [ "Zulfahmi Ahmad" ],
       "lisence_type": "Apache_v2",
       "lisence_page_url": "https://github.com/noliar/HtmlAgilityPack.NetCore/blob/master/LICENSE-2.0.txt"
     },
     {
       "name": "Newtonsoft.Json",
       "site": "http://www.newtonsoft.com/json",
-      "author": ["James Newton-King"],
+      "author": [ "James Newton-King" ],
       "lisence_type": "MIT",
       "lisence_page_url": "https://github.com/JamesNK/Newtonsoft.Json/blob/master/LICENSE.md"
     },
-     {
+    {
       "name": "ReactiveProperty",
       "site": "https://github.com/runceel/ReactiveProperty",
-      "author": ["neuecc", "xin9le", "okazuki"],
+      "author": [ "neuecc", "xin9le", "okazuki" ],
       "lisence_type": "MIT",
       "lisence_page_url": "https://github.com/runceel/ReactiveProperty/blob/master/LICENSE.txt"
     },
     {
       "name": "WinRTXamlToolkit.UWP",
       "site": "https://github.com/xyzzer/WinRTXamlToolkit",
-      "author": ["Filip Skakun", "Thomas Martinsen", "Mahmoud Moussa", "Joost van Schaik"],
+      "author": [ "Filip Skakun", "Thomas Martinsen", "Mahmoud Moussa", "Joost van Schaik" ],
       "lisence_type": "MIT",
       "lisence_page_url": "https://github.com/xyzzer/WinRTXamlToolkit/blob/master/License.md"
     },
     {
       "name": "Prism",
       "site": "https://github.com/PrismLibrary/Prism",
-      "author": [".NET Foundation"],
+      "author": [ ".NET Foundation" ],
       "lisence_type": "Apache_v2",
       "lisence_page_url": "https://github.com/PrismLibrary/Prism/blob/master/LICENSE"
     },
@@ -45,7 +45,7 @@
     {
       "name": "RtmpClient.UWP",
       "site": "https://github.com/tor4kichi/RtmpClient",
-      "author": ["mntone" , "tor4kichi"],
+      "author": [ "mntone", "tor4kichi" ],
       "lisence_type": "Simplified_BSD",
       "lisence_page_url": "https://github.com/tor4kichi/RtmpClient/blob/master/license.md"
     },
@@ -59,7 +59,7 @@
     {
       "name": "Entity Framework Core",
       "site": "https://github.com/aspnet/EntityFramework",
-      "author": [".NET Foundation"],
+      "author": [ ".NET Foundation" ],
       "lisence_type": "Apache_v2",
       "lisence_page_url": "https://github.com/aspnet/EntityFramework/blob/master/LICENSE.txt"
     },
@@ -87,9 +87,16 @@
     {
       "name": "AdaptiveTriggerLibrary",
       "site": "http://herdo.github.io/AdaptiveTriggerLibrary/",
-      "author": ["Stefan Over"],
+      "author": [ "Stefan Over" ],
       "lisence_type": "MIT",
       "lisence_page_url": "https://github.com/Herdo/AdaptiveTriggerLibrary/blob/master/LICENSE"
+    },
+    {
+      "name": "MessagePack for C＃",
+      "site": "https://github.com/neuecc/MessagePack-CSharp",
+      "author": [ "neuecc" ],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/neuecc/MessagePack-CSharp/blob/master/LICENSE"
     }
   ]
 

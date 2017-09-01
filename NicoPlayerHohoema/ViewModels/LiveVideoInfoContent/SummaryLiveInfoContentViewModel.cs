@@ -58,7 +58,7 @@ namespace NicoPlayerHohoema.ViewModels.LiveVideoInfoContent
 		public override async Task OnEnter()
 		{
 			DescriptionHtmlFileUri = await NicoLiveVideo.MakeLiveSummaryHtmlUri();
-			OnPropertyChanged(nameof(DescriptionHtmlFileUri));
+			RaisePropertyChanged(nameof(DescriptionHtmlFileUri));
 		}
 
 

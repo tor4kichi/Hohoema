@@ -22,7 +22,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
                 "FocusAcceptOrientation",
                 typeof(Orientation),
                 typeof(XYNavigationExtentions),
-                new PropertyMetadata(null, OnFocusAcceptOrientationPropertyChanged)
+                new PropertyMetadata(null, OnFocusAcceptOrientatiRaisePropertyChanged)
         );
 
         public static void SetFocusAcceptOrientation(UIElement element, Orientation value)
@@ -35,7 +35,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
         }
 
 
-        public static void OnFocusAcceptOrientationPropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
+        public static void OnFocusAcceptOrientatiRaisePropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
         {
             // UIElement.GettingFocus is need UAC 4.0
             if (!ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4))
