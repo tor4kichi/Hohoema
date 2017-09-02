@@ -149,7 +149,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		#region Implements HohoemaPreloadingIncrementalSourceBase		
 
-		public override uint OneTimeLoadCount => 20; // RSSの一回のページアイテム数が18個なので、表示スピード考えてその半分
+		public override uint OneTimeLoadCount => 9; // RSSの一回のページアイテム数が18個なので、表示スピード考えてその半分
 
 		protected override Task<int> ResetSourceImpl()
 		{

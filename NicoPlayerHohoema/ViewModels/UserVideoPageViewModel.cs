@@ -131,8 +131,6 @@ namespace NicoPlayerHohoema.ViewModels
 			_ResList = new List<UserVideoResponse>();
 		}
 
-        public override uint OneTimeLoadCount => 8;
-
         #region Implements HohoemaPreloadingIncrementalSourceBase		
 
         protected override async Task<IEnumerable<NicoVideo>> PreloadNicoVideo(int start, int count)
@@ -185,7 +183,7 @@ namespace NicoPlayerHohoema.ViewModels
 			, int index
 			)
 		{
-			return new VideoInfoControlViewModel(itemSource, PageManager);
+			return new VideoInfoControlViewModel(itemSource, PageManager, isNgEnabled:false);
 		}
 
 		#endregion

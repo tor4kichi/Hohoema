@@ -49,7 +49,11 @@ namespace NicoPlayerHohoema.Models
 
         public CommentClient CommentClient { get; private set; }
 
-		public NicoVideo(HohoemaApp app, string rawVideoid, NiconicoMediaManager manager)
+
+        public bool IsThumbnailInitialized => _thumbnailInitialized;
+
+
+        public NicoVideo(HohoemaApp app, string rawVideoid, NiconicoMediaManager manager)
 		{
 			HohoemaApp = app;
 			RawVideoId = rawVideoid;

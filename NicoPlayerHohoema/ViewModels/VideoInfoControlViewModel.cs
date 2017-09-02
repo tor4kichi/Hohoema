@@ -42,8 +42,6 @@ namespace NicoPlayerHohoema.ViewModels
         public VideoInfoControlViewModel(MylistData data, NicoVideo nicoVideo, PageManager pageManager)
 			: this(nicoVideo, pageManager)
 		{
-			Title = data.Title;
-			RawVideoId = data.ItemId;
             OptionText = data.CreateTime.ToString();
             if (!string.IsNullOrWhiteSpace(data.ThumbnailUrl.OriginalString))
             {
@@ -56,8 +54,6 @@ namespace NicoPlayerHohoema.ViewModels
             }
 
 			ImageCaption = data.Length.ToString(); // TODO: ユーザーフレンドリィ時間
-
-			VideoId = RawVideoId;
 		}
 
 
@@ -65,9 +61,6 @@ namespace NicoPlayerHohoema.ViewModels
 		public VideoInfoControlViewModel(VideoInfo data, NicoVideo nicoVideo, PageManager pageManager)
 			: this(nicoVideo, pageManager)
 		{
-            
-            Title = data.Video.Title;
-            RawVideoId = data.Video.Id;
             OptionText = data.Video.UploadTime.ToString();
             if (!string.IsNullOrWhiteSpace(data.Video.ThumbnailUrl.OriginalString))
             {
@@ -80,8 +73,6 @@ namespace NicoPlayerHohoema.ViewModels
             }
 
             ImageCaption = data.Video.Length.ToString(); // TODO: ユーザーフレンドリィ時間
-
-            VideoId = RawVideoId;
         }
 
         bool _IsNGEnabled = false;
@@ -95,10 +86,6 @@ namespace NicoPlayerHohoema.ViewModels
             _CompositeDisposable = new CompositeDisposable();
 
             _IsNGEnabled = isNgEnabled;
-
-            Title = nicoVideo.Title;
-			RawVideoId = nicoVideo.RawVideoId;
-			VideoId = nicoVideo.VideoId;
 
             if (nicoVideo.IsDeleted)
             {
@@ -166,6 +153,13 @@ namespace NicoPlayerHohoema.ViewModels
 
         public void SetupFromThumbnail(NicoVideo info)
         {
+            if (!info.IsThumbnailInitialized)
+            {
+                return;
+            }
+
+            RaisePropertyChanged(nameof(Title));
+
             // NG判定
             if (_IsNGEnabled)
             {
@@ -178,7 +172,6 @@ namespace NicoPlayerHohoema.ViewModels
                 }
             }
 
-            Title = info.Title;
             OptionText = info.PostedAt.ToString("yyyy/MM/dd HH:mm");
             if (!string.IsNullOrWhiteSpace(info.ThumbnailUrl))
             {
@@ -224,11 +217,11 @@ namespace NicoPlayerHohoema.ViewModels
 			};
 		}
 
-       
-		
-		public string VideoId { get; private set; }
 
-		public string RawVideoId { get; private set; }
+
+        public string VideoId => NicoVideo.VideoId;
+
+        public string RawVideoId => NicoVideo.RawVideoId;
 
         public VideoStatus VideoStatus { get; private set; }
 
@@ -545,9 +538,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         public bool IsXbox => Util.DeviceTypeHelper.IsXbox;
-
-        public ReadOnlyReactiveProperty<bool> IsPlayed { get; private set; }
-
         
         public IEnumerable<VideoInfoPlaylistViewModel> Playlists => 
             HohoemaPlaylist.Playlists.Select(x => new VideoInfoPlaylistViewModel(x.Name, x.Id, NicoVideo));
@@ -567,6 +557,9 @@ namespace NicoPlayerHohoema.ViewModels
 		public NicoVideo NicoVideo { get; private set; }
         public HohoemaPlaylist HohoemaPlaylist { get; private set; }
         public PageManager PageManager { get; private set; }
+
+
+        public new string Title => NicoVideo.Title;
 	}
 
 

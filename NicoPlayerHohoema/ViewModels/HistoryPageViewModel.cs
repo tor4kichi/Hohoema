@@ -167,23 +167,27 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			get
 			{
-				return 100;
+				return 10;
 			}
 		}
         protected override async Task<int> HohoemaPreloadingResetSourceImpl()
         {
+            await Task.Delay(0);
+
             if (_HistoriesResponse == null) { return 0; }
 
             HistriesItems = await HohoemaApp.MediaManager.GetNicoVideoItemsAsync(
-                _HistoriesResponse.Histories.Select(x => x.ItemId).ToArray()
-                );
-
+               _HistoriesResponse.Histories.Select(x => x.ItemId).ToArray()
+               );
             return _HistoriesResponse.Histories.Count;
         }
 
         protected override HistoryVideoInfoControlViewModel NicoVideoToTemplatedItem(NicoVideo sourceNicoVideos, int index)
         {
-            var watchCount = _HistoriesResponse.Histories.Single(x => x.ItemId == sourceNicoVideos.RawVideoId).WatchCount;
+            var history = _HistoriesResponse.Histories[index];
+            var watchCount = history.WatchCount;
+
+            sourceNicoVideos.PreSetTitle(history.Title);
 
             return new HistoryVideoInfoControlViewModel(
                     watchCount
@@ -197,6 +201,7 @@ namespace NicoPlayerHohoema.ViewModels
         protected override async Task<IEnumerable<NicoVideo>> PreloadNicoVideo(int start, int count)
         {
             await Task.Delay(0);
+
             return HistriesItems.Skip(start).Take(count);
         }
 

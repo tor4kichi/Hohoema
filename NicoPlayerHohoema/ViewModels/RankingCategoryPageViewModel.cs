@@ -231,7 +231,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         #region Implements HohoemaPreloadingIncrementalSourceBase		
 
-        public override uint OneTimeLoadCount => 25;
+        public override uint OneTimeLoadCount => 15;
 
         protected override async Task<IEnumerable<NicoVideo>> PreloadNicoVideo(int start, int count)
 		{
@@ -261,12 +261,12 @@ namespace NicoPlayerHohoema.ViewModels
 
                 for (var index = 0; index < Videos.Count; ++index)
                 {
-                    var item = items.ElementAt(index);
-                    var nicoVideo = Videos.ElementAt(index);
+                    var item = items[index];
+                    var nicoVideo = Videos[index];
 
-                    var title = RankingRankPrefixPatternRegex.Replace(item.Title, "");
+//                    var title = RankingRankPrefixPatternRegex.Replace(item.Title, "");
 
-                    nicoVideo.PreSetTitle(title);
+//                    nicoVideo.PreSetTitle(item.Title);
                     //					nicoVideo.PreSetPostAt(DateTime.Parse(item.PubDate));
                 }
             }
