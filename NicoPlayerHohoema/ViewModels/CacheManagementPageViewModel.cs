@@ -144,7 +144,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-        public override uint OneTimeLoadCount => (uint)RawList.Count;
+        public override uint OneTimeLoadCount => (uint)10;
 
         public CacheVideoInfoLoadingSource(HohoemaApp app, PageManager pageManager)
             : base(app, nameof(CacheManagementPageViewModel))
@@ -175,7 +175,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             foreach (var item in mediaManager.CacheVideos.ToArray())
             {
-                if (item.GetAllQuality().ToArray().Any(x => x.IsCacheRequested))
+                if (item.GetAllQuality().Any(x => x.IsCacheRequested))
                 {
                     list.Add(item);
                 }

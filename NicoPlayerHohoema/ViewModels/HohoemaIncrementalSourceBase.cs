@@ -2,6 +2,7 @@
 using NicoPlayerHohoema.Util;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
@@ -78,8 +79,9 @@ namespace NicoPlayerHohoema.ViewModels
 			PreloadScheduleLabel = preloadScheduleLabel;
 		}
 
+        private AsyncLock _LoadingLock = new AsyncLock();
 
-		public string PreloadScheduleLabel { get; private set; }
+        public string PreloadScheduleLabel { get; private set; }
 
 		protected abstract Task Preload(int start, int count);
 
@@ -91,27 +93,33 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override sealed async Task<IEnumerable<T>> GetPagedItemsImpl(int head, int count)
 		{
-			var items = await HohoemaPreloadingGetPagedItemsImpl(head, count);
+            using (var releaser = await _LoadingLock.LockAsync())
+            {
+                var items = await HohoemaPreloadingGetPagedItemsImpl(head, count);
 
-			var tail = head + items.Count();
-			if (tail != head && tail < TotalCount)
-			{
-				await Preload(head + count, (int)OneTimeLoadCount);
-			}
+                var tail = head + items.Count();
+                if (tail != head && tail < TotalCount)
+                {
+                    await Preload(head + count, (int)OneTimeLoadCount);
+                }
 
-			return items;
+                return items;
+            }
 		}
 
 		protected override sealed async Task<int> ResetSourceImpl()
 		{
-			TotalCount = await HohoemaPreloadingResetSourceImpl();
+            using (var releaser = await _LoadingLock.LockAsync())
+            {
+                TotalCount = await HohoemaPreloadingResetSourceImpl();
 
-			if (TotalCount > 0)
-			{
-				await Preload(0, (int)OneTimeLoadCount);
-			}
+                if (TotalCount > 0)
+                {
+                    await Preload(0, (int)OneTimeLoadCount);
+                }
 
-			return TotalCount;
+                return TotalCount;
+            }
 		}
 
 		
@@ -125,8 +133,6 @@ namespace NicoPlayerHohoema.ViewModels
 		public static int VideoListingBackgroundTaskPriority = 10;
 
 		private List<NicoVideo> _VideoItems;
-
-		private AsyncLock _VideoItemsLock = new AsyncLock();
 
 		public HohoemaVideoPreloadingIncrementalSourceBase(HohoemaApp hohoemaApp, string preloadScheduleLabel)
 			: base(hohoemaApp, preloadScheduleLabel)
@@ -145,76 +151,66 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override async Task Preload(int start, int count)
 		{
-			try
+            var timer = new Stopwatch();
+            timer.Start();
+
+            try
 			{
                 var items = await PreloadNicoVideo(start, count);
 
-                using (var releaser = await _VideoItemsLock.LockAsync())
-                {
-					_VideoItems.AddRange(items);
-				}
+        		_VideoItems.AddRange(items);
 			}
 			catch (Exception ex)
 			{
 				TriggerError(ex);
 			}
-		}
+
+            timer.Stop();
+            System.Diagnostics.Debug.WriteLine($"Preload done: {timer.Elapsed}");
+
+        }
 
 
-		protected override sealed async Task<IEnumerable<T>> HohoemaPreloadingGetPagedItemsImpl(int head, int count)
+        protected override sealed async Task<IEnumerable<T>> HohoemaPreloadingGetPagedItemsImpl(int head, int count)
 		{
-			var tail = Math.Min(head + count, TotalCount);
+            await Task.CompletedTask;
+
+            var timer = new Stopwatch();
+            timer.Start();
+
+            var tail = Math.Min(head + count, TotalCount);
 			List<T> items = new List<T>();
 
-			using (var token = new CancellationTokenSource(10000))
+            for (int i = head; i < tail; i++)
+//			foreach (var nicoVideo in _VideoItems.Skip(head).Take(count))
 			{
-				try
-				{
-					while (_VideoItems.Count < tail)
-					{
-						await Task.Delay(10);
-
-						token.Token.ThrowIfCancellationRequested();
-					}
-				}
-				catch (OperationCanceledException ex)
-				{
-					try
-					{
-						var result = await PreloadNicoVideo(head, count);
-
-						using (var releaser = await _VideoItemsLock.LockAsync())
-						{
-							_VideoItems.AddRange(result);
-						}
-					}
-					catch
-					{
-						throw ex;
-					}
-				}
+                var nicoVideo = _VideoItems[i];
+//				var i = _VideoItems.IndexOf(nicoVideo);
+				var vm = NicoVideoToTemplatedItem(nicoVideo, i);
+				items.Add(vm);
 			}
 
-			using (var releaser = await _VideoItemsLock.LockAsync())
-			{
-				foreach (var nicoVideo in _VideoItems.Skip(head).Take(count).ToArray())
-				{
-					var i = _VideoItems.IndexOf(nicoVideo);
-					var vm = NicoVideoToTemplatedItem(nicoVideo, i);
-					items.Add(vm);
-				}
-			}
+            timer.Stop();
+            System.Diagnostics.Debug.WriteLine($"PreloadPagedItems progress: {timer.Elapsed}");
+            timer.Reset();
+            timer.Start();
 
-			ScheduleDefferedNicoVideoInitialize(items, head);
 
-			return items;
+            ScheduleDefferedNicoVideoInitialize(items, head);
+
+            timer.Stop();
+            System.Diagnostics.Debug.WriteLine($"PreloadPagedItems done: {timer.Elapsed}");
+
+            return items;
 		}
 
 
 
 
-		private void ScheduleDefferedNicoVideoInitialize(List<T> items, int head)
+		private async void ScheduleDefferedNicoVideoInitialize(List<T> items, int head)
 		{
+            await Task.Delay(0);
+
 			var start = head + 1;
 			var end = Math.Min(start + items.Count, TotalCount);
             foreach (var item in items)

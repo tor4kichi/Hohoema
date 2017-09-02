@@ -82,7 +82,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class CommunitySearchSource : IIncrementalSource<CommunityInfoControlViewModel>
 	{
-		public uint OneTimeLoadCount => 20;
+		public uint OneTimeLoadCount => 10;
 
 		public HohoemaApp HohoemaApp { get; private set; }
 		public PageManager PageManager { get; private set; }

@@ -39,9 +39,6 @@ namespace NicoPlayerHohoema.Models
 			result = IsNgVideoOwnerId(info.OwnerId.ToString());
 			if (result != null) return result;
 
-			result = IsNGVideoId(info.RawVideoId);
-			if (result != null) return result;
-
 			result = IsNGVideoTitle(info.Title);
 			if (result != null) return result;
 
@@ -91,6 +88,8 @@ namespace NicoPlayerHohoema.Models
 
 		public NGResult IsNGVideoTitle(string title)
 		{
+            if (string.IsNullOrEmpty(title)) { return null; }
+
 			if (this.NGVideoTitleKeywordEnable && this.NGVideoTitleKeywords.Count > 0)
 			{
                 var ngItem = this.NGVideoTitleKeywords.FirstOrDefault(x => x.CheckNG(title));
