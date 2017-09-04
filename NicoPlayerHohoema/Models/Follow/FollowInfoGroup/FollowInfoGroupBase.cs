@@ -1,4 +1,5 @@
 ﻿using Mntone.Nico2;
+using NicoPlayerHohoema.Util;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -14,11 +15,13 @@ namespace NicoPlayerHohoema.Models
 
 		protected ObservableCollection<FollowItemInfo> _FollowInfoList;
 
+        protected AsyncLock UpdateLock { get; } = new AsyncLock();
 
 
-		#endregion
 
-		public ReadOnlyObservableCollection<FollowItemInfo> FollowInfoItems { get; private set; }
+        #endregion
+
+        public ReadOnlyObservableCollection<FollowItemInfo> FollowInfoItems { get; private set; }
 
 		public HohoemaApp HohoemaApp { get; private set; }
 
@@ -46,7 +49,15 @@ namespace NicoPlayerHohoema.Models
 		protected abstract Task<ContentManageResult> RemoveFollow_Internal(string id, object token = null);
 
 
-		public abstract Task Sync();
+		protected abstract Task SyncFollowItems_Internal();
+
+        public async Task SyncFollowItems()
+        {
+            using (var releaser = await UpdateLock.LockAsync())
+            {
+                await SyncFollowItems_Internal();
+            }
+        }
 
 
 		public bool IsFollowItem(string id)

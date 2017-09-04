@@ -17,7 +17,7 @@ namespace NicoPlayerHohoema.Models
 		bool CanMoreAddFollow();
 		bool IsFollowItem(string id);
 
-		Task Sync();
+		Task SyncFollowItems();
 
 
 		Task<ContentManageResult> AddFollow(string name, string id, object token = null);

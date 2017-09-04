@@ -36,7 +36,7 @@ namespace NicoPlayerHohoema.ViewModels
         /// NavigatedToAsync内で変更されれば、その後アプリサービス状態ごとの
         /// 準備メソッドが呼び出されます。
         /// </summary>
-        public HohoemaAppServiceLevel AvailableServiceLevel { get; private set; }
+        public HohoemaAppServiceLevel PageRequireServiceLevel { get; private set; }
 
 
         public ReactiveProperty<bool> IsPageAvailable { get; private set; }
@@ -49,7 +49,7 @@ namespace NicoPlayerHohoema.ViewModels
             bool useDefaultPageTitle = true
             )
 		{
-            AvailableServiceLevel = HohoemaAppServiceLevel.Offline;
+            PageRequireServiceLevel = HohoemaAppServiceLevel.Offline;
 
             _SignStatusLock = new SemaphoreSlim(1, 1);
 			_NavigationToLock = new SemaphoreSlim(1, 1);
@@ -66,7 +66,7 @@ namespace NicoPlayerHohoema.ViewModels
 			_UserSettingsCompositeDisposable = new CompositeDisposable();
 
             IsPageAvailable = HohoemaApp.ObserveProperty(x => x.ServiceStatus)
-                .Select(x => x >= AvailableServiceLevel)
+                .Select(x => x >= PageRequireServiceLevel)
                 .ToReactiveProperty()
                 .AddTo(_CompositeDisposable);
 
@@ -115,12 +115,28 @@ namespace NicoPlayerHohoema.ViewModels
 
 				_UserSettingsCompositeDisposable?.Dispose();
                 _UserSettingsCompositeDisposable = new CompositeDisposable();
+
+                if (IsRequireSignIn)
+                {
+                    OnSignOut().ConfigureAwait(false);
+                }
             }
             finally
 			{
 				_SignStatusLock.Release();
 			}
 		}
+
+
+        /// <summary>
+        /// ユーザーがニコニコサービスからログアウトした場合に呼ばれます。（アプリ終了時を除く）
+        /// ログインが必要なサービスレベルを設定していた場合に呼ばれます。
+        /// </summary>
+        /// <returns></returns>
+        protected virtual Task OnSignOut()
+        {
+            return Task.CompletedTask;
+        }
 
         protected virtual Task OnOffline(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
         {
@@ -164,7 +180,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
         private Task CallAppServiceLevelOnlineWithoutLoggedIn(CancellationToken cancelToken)
         {
-            if (AvailableServiceLevel >= HohoemaAppServiceLevel.OnlineWithoutLoggedIn)
+            if (PageRequireServiceLevel >= HohoemaAppServiceLevel.OnlineWithoutLoggedIn)
             {
                 if (HohoemaApp.ServiceStatus >= HohoemaAppServiceLevel.OnlineWithoutLoggedIn)
                 {
@@ -181,7 +197,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         private Task CallAppServiceLevelSignIn(CancellationToken cancelToken)
         {
-            if (AvailableServiceLevel >= HohoemaAppServiceLevel.LoggedIn)
+            if (PageRequireServiceLevel >= HohoemaAppServiceLevel.LoggedIn)
             {
                 if (HohoemaApp.ServiceStatus >= HohoemaAppServiceLevel.LoggedIn)
                 {
@@ -450,9 +466,9 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected void ChangeRequireServiceLevel(HohoemaAppServiceLevel serviceLevel)
         {
-            AvailableServiceLevel = serviceLevel;
+            PageRequireServiceLevel = serviceLevel;
 
-            Debug.WriteLine(Title + " require service level: " + AvailableServiceLevel.ToString());
+            Debug.WriteLine(Title + " require service level: " + PageRequireServiceLevel.ToString());
         }
 
 	
@@ -567,7 +583,7 @@ namespace NicoPlayerHohoema.ViewModels
         private SemaphoreSlim _SignStatusLock;
 
 
-        public bool IsRequireSignIn => AvailableServiceLevel == HohoemaAppServiceLevel.LoggedIn;
+        public bool IsRequireSignIn => PageRequireServiceLevel == HohoemaAppServiceLevel.LoggedIn;
 
         public bool NowSignIn { get; private set; }
 

@@ -1,4 +1,5 @@
 ﻿using Mntone.Nico2;
+using NicoPlayerHohoema.Util;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -24,34 +25,34 @@ namespace NicoPlayerHohoema.Models
 		
 
 
-		public override async Task Sync()
+		protected override async Task SyncFollowItems_Internal()
 		{
-			var userFavDatas = await GetFollowSource();
+            var userFavDatas = await GetFollowSource();
 
-			// まだローカルデータとして登録されていないIDを追加分として抽出
-			var addedItems = userFavDatas
-				.Where(x =>
-				{
-					var itemId = FollowSourceToItemId(x);
-					return _FollowInfoList.All(y => y.Id != itemId);
-				})
-				.Select(ConvertToFollowInfo);
+            // まだローカルデータとして登録されていないIDを追加分として抽出
+            var addedItems = userFavDatas
+                .Where(x =>
+                {
+                    var itemId = FollowSourceToItemId(x);
+                    return _FollowInfoList.All(y => y.Id != itemId);
+                })
+                .Select(ConvertToFollowInfo);
 
-			foreach (var addItem in addedItems)
-			{
-				_FollowInfoList.Add(addItem);
-			}
+            foreach (var addItem in addedItems)
+            {
+                _FollowInfoList.Add(addItem);
+            }
 
 
-			// オンラインデータから削除されているアイテムを抽出
-			var itemIds = userFavDatas.Select(FollowSourceToItemId).ToArray();
-			var removedItems = _FollowInfoList
-				.Where(x => !itemIds.Any(y => x.Id == y))
-				.ToList();
-			foreach (var removeItem in removedItems)
-			{
-				_FollowInfoList.Remove(removeItem);
-			}
+            // オンラインデータから削除されているアイテムを抽出
+            var itemIds = userFavDatas.Select(FollowSourceToItemId).ToArray();
+            var removedItems = _FollowInfoList
+                .Where(x => !itemIds.Any(y => x.Id == y))
+                .ToList();
+            foreach (var removeItem in removedItems)
+            {
+                _FollowInfoList.Remove(removeItem);
+            }
 		}
 
 

@@ -54,6 +54,20 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
+
+
+            <!-- 読み込み中 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding NowUpdatingFavList.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="LoadingProgressBar.IsIndeterminate" Value="True" />
+                        <Setter Target="LoadingProgressBar.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
         
@@ -91,6 +105,13 @@
             <ScrollViewer x:Name="ScrollList"
                       >
                 <StackPanel Margin="16 16 16 16">
+
+                    <ProgressBar IsIndeterminate="False"
+                                 x:Name="LoadingProgressBar"
+                                 Visibility="Collapsed"
+                                 Height="8"
+                                 HorizontalAlignment="Stretch"
+                                 />
                     <Pivot ItemsSource="{Binding Lists}" x:Name="FavListContainer"
                                   >
 
@@ -123,7 +144,7 @@
                                                             Margin="8 0"
                                                         >
                                             <Run Text="登録数：" />
-                                            <Run Text="{Binding ItemCount}" />
+                                            <Run Text="{Binding ItemCount.Value}" />
                                             <Run Text="/" />
                                             <Run Text="{Binding MaxItemCount}" />
                                         </TextBlock>

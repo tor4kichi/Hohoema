@@ -16,6 +16,7 @@ using Windows.Foundation;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Prism.Mvvm;
 using Windows.UI.Core;
+using NicoPlayerHohoema.Util;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -66,16 +67,21 @@ namespace NicoPlayerHohoema.Models
 			User,
 			Community
 		};
-			
-
-		#endregion
 
 
-		#region Fields
+        #endregion
 
-		HohoemaApp _HohoemaApp;
+        #region Event 
 
         public event BackgroundUpdateCompletedEventHandler Completed;
+
+        #endregion
+
+        #region Fields
+
+        HohoemaApp _HohoemaApp;
+
+        AsyncLock _SyncLock = new AsyncLock();
 
         #endregion
 
@@ -141,47 +147,22 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task SyncAll(CancellationToken token)
 		{
-			foreach (var followInfoGroup in GetAllFollowInfoGroups())
-			{
-				token.ThrowIfCancellationRequested();
+            using (var releaser = await _SyncLock.LockAsync())
+            {
+                foreach (var followInfoGroup in GetAllFollowInfoGroups())
+                {
+                    token.ThrowIfCancellationRequested();
 
-				await Sync(followInfoGroup);
+                    await followInfoGroup.SyncFollowItems();
 
-				token.ThrowIfCancellationRequested();
+                    token.ThrowIfCancellationRequested();
 
-				await Task.Delay(100);
-			}
+                    await Task.Delay(250);
+                }
 
-            Completed?.Invoke(this);
+                Completed?.Invoke(this);
+            }
         }
-
-
-        public Task Sync(FollowItemType itemType)
-		{
-			switch (itemType)
-			{
-				case FollowItemType.Tag:
-					return Sync(Tag);
-				case FollowItemType.Mylist:
-					return Sync(Mylist);
-				case FollowItemType.User:
-					return Sync(User);
-				case FollowItemType.Community:
-					return Sync(Community);
-				default:
-					return Task.CompletedTask;
-			}
-		}
-
-
-		private async Task Sync(IFollowInfoGroup group)
-		{
-			await group.Sync();
-		}
-
-		
-
-
 
 		public FollowItemInfo FindFollowInfo(FollowItemType itemType, string id)
 		{
