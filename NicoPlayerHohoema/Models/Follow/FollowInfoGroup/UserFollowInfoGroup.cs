@@ -30,7 +30,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			return HohoemaApp.NiconicoContext.User.AddUserFollowAsync(NiconicoItemType.User, id);
 		}
-		protected override Task<ContentManageResult> RemoveFollow_Internal(string id, object token)
+		protected override Task<ContentManageResult> RemoveFollow_Internal(string id)
 		{
 			return HohoemaApp.NiconicoContext.User.RemoveUserFollowAsync(NiconicoItemType.User, id);
 		}
