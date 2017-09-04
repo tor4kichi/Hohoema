@@ -63,7 +63,7 @@
                              />
 
                         <AppBarToggleButton IsChecked="{Binding IsFollowCommunity.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                      IsEnabled="False"
+                                      IsEnabled="{Binding CanChangeFollowCommunityState.Value}"
                                   Background="Transparent"
                                             Icon="Favorite"
                                         >

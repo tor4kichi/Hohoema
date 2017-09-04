@@ -178,11 +178,11 @@ namespace NicoPlayerHohoema.Models
 			return result;
 		}
 
-		public async Task<ContentManageResult> RemoveFollow(FollowItemType itemType, string id, object token = null)
+		public async Task<ContentManageResult> RemoveFollow(FollowItemType itemType, string id)
 		{
 			var group = GetFollowInfoGroup(itemType);
 
-			var result = await group.RemoveFollow(id, token);
+			var result = await group.RemoveFollow(id);
 
 			return result;
 		}

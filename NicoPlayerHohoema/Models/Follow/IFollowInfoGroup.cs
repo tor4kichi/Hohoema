@@ -26,8 +26,7 @@ namespace NicoPlayerHohoema.Models
 		/// フォローを解除します
 		/// </summary>
 		/// <param name="id"></param>
-		/// <param name="token">コミュニティのフォロー解除時に必要となるCommunityLeaveTokenを指定するための引数です</param>
 		/// <returns></returns>
-		Task<ContentManageResult> RemoveFollow(string id, object token = null);
+		Task<ContentManageResult> RemoveFollow(string id);
 	}
 }

@@ -63,19 +63,12 @@ namespace NicoPlayerHohoema.Models
 			return result ? ContentManageResult.Success : ContentManageResult.Failed;
 		}
 
-		protected override async Task<ContentManageResult> RemoveFollow_Internal(string id, object token)
+		protected override async Task<ContentManageResult> RemoveFollow_Internal(string id)
 		{
-			if (token is CommunityLeaveToken)
-			{
-				var leaveToken = token as CommunityLeaveToken;
-				var result = await HohoemaApp.NiconicoContext.User.RemoveFollowCommunityAsync(leaveToken);
+			var leaveToken = await HohoemaApp.NiconicoContext.User.GetFollowCommunityLeaveTokenAsync(id);
+			var result = await HohoemaApp.NiconicoContext.User.RemoveFollowCommunityAsync(leaveToken);
 
-				return result ? ContentManageResult.Success : ContentManageResult.Failed;
-			}
-			else
-			{
-				return ContentManageResult.Failed;
-			}
+			return result ? ContentManageResult.Success : ContentManageResult.Failed;
 		}
 	}
 }

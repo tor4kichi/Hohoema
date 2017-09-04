@@ -46,7 +46,7 @@ namespace NicoPlayerHohoema.Models
 
 
 		protected abstract Task<ContentManageResult> AddFollow_Internal(string id, object token = null);
-		protected abstract Task<ContentManageResult> RemoveFollow_Internal(string id, object token = null);
+		protected abstract Task<ContentManageResult> RemoveFollow_Internal(string id);
 
 
 		protected abstract Task SyncFollowItems_Internal();
@@ -84,7 +84,7 @@ namespace NicoPlayerHohoema.Models
 			return result;
 		}
 
-		public async Task<ContentManageResult> RemoveFollow(string id, object token = null)
+		public async Task<ContentManageResult> RemoveFollow(string id)
 		{
 			var result = await RemoveFollow_Internal(id);
 

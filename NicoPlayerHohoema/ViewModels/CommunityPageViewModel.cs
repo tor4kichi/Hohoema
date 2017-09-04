@@ -188,11 +188,20 @@ namespace NicoPlayerHohoema.ViewModels
 			if (CommunityId == null) { return false; }
 
 			var favManager = HohoemaApp.FollowManager;
-			var result = await favManager.RemoveFollow(FollowItemType.Community, CommunityId);
 
-			return result == ContentManageResult.Success;
+            try
+            {
+                var result = await favManager.RemoveFollow(FollowItemType.Community, CommunityId);
 
-		}
+                return result == ContentManageResult.Success;
+            }
+            catch
+            {
+                return false;
+            }
+
+
+        }
 
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{

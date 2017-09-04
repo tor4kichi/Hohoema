@@ -134,7 +134,7 @@
 
                         <AppBarToggleButton Background="Transparent"
                                             IsChecked="{Binding IsFollowCommunity.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                            IsEnabled="False"
+                                            IsEnabled="{Binding CanChangeFollowCommunityState.Value}"
                                                 Icon="Favorite"
                                                 Label="フォロー"
                                                 />
