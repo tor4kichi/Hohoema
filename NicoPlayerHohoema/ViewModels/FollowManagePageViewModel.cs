@@ -13,79 +13,66 @@ using System.Threading;
 using System.Windows.Input;
 using Reactive.Bindings.Extensions;
 using Reactive.Bindings;
+using System.Diagnostics;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	public class FollowManagePageViewModel : HohoemaViewModelBase
 	{
+
+        public ReactiveProperty<bool> NowUpdatingFavList { get; }
 		public FollowManagePageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
 			: base(hohoemaApp, pageManager)
 		{
 			Lists = new ObservableCollection<FavoriteListViewModel>();
 
+            NowUpdatingFavList = new ReactiveProperty<bool>();
+
             UpdateFavListCommand = new DelegateCommand<FavoriteListViewModel>((favListVM) =>
             {
-                favListVM.FollowManager.Sync(favListVM.FavType);
+                NowUpdatingFavList.Value = true;
+                try
+                {
+                    favListVM.FollowGroup.SyncFollowItems().ConfigureAwait(false);
+                }
+                catch
+                {
+                    Debug.WriteLine($"{favListVM.FollowGroup.FollowItemType} のFollow List更新に失敗");
+                }
+                finally
+                {
+                    NowUpdatingFavList.Value = false;
+                }
             });
 
-
+            ChangeRequireServiceLevel(HohoemaAppServiceLevel.LoggedIn);
         }
 
-        protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
 
-			while (HohoemaApp.FollowManager == null)
-			{
-				await Task.Delay(100);
-			}
+        protected override async Task OnSignIn(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
+        {
+            if (Lists.Count == 0)
+            {
+                Lists.Add(new FavoriteListViewModel("ユーザー", HohoemaApp.FollowManager.User, HohoemaApp.FollowManager, PageManager));
 
-			Lists.Clear();
+                Lists.Add(new FavoriteListViewModel("マイリスト", HohoemaApp.FollowManager.Mylist, HohoemaApp.FollowManager, PageManager));
 
-			if (!HohoemaApp.FollowManagerUpdater.IsOneOrMoreUpdateCompleted)
-			{
-				await HohoemaApp.FollowManagerUpdater.WaitUpdate();
-			}
+                Lists.Add(new FavoriteListViewModel("タグ", HohoemaApp.FollowManager.Tag, HohoemaApp.FollowManager, PageManager));
 
-			Lists.Add(new FavoriteListViewModel(HohoemaApp.FollowManager)
-			{
-				Name = "ユーザー",
-				FavType = FollowItemType.User,
-				MaxItemCount = HohoemaApp.FollowManager.User.MaxFollowItemCount,
-				Items = HohoemaApp.FollowManager.User.FollowInfoItems
-                    .ToReadOnlyReactiveCollection(x => new FavoriteItemViewModel(x, HohoemaApp.FollowManager, PageManager))
+                Lists.Add(new FavoriteListViewModel("コミュニティ", HohoemaApp.FollowManager.Community, HohoemaApp.FollowManager, PageManager));
+            }
 
-            });
-
-			Lists.Add(new FavoriteListViewModel(HohoemaApp.FollowManager)
-			{
-				Name = "マイリスト",
-				FavType = FollowItemType.Mylist,
-				MaxItemCount = HohoemaApp.FollowManager.Mylist.MaxFollowItemCount,
-				Items = HohoemaApp.FollowManager.Mylist.FollowInfoItems
-                .ToReadOnlyReactiveCollection(x => new FavoriteItemViewModel(x, HohoemaApp.FollowManager, PageManager))
-            });
-
-			Lists.Add(new FavoriteListViewModel(HohoemaApp.FollowManager)
-			{
-				Name = "タグ",
-				FavType = FollowItemType.Tag,
-				MaxItemCount = HohoemaApp.FollowManager.Tag.MaxFollowItemCount,
-				Items = HohoemaApp.FollowManager.Tag.FollowInfoItems
-                .ToReadOnlyReactiveCollection(x => new FavoriteItemViewModel(x, HohoemaApp.FollowManager, PageManager))
-            });
-
-			Lists.Add(new FavoriteListViewModel(HohoemaApp.FollowManager)
-			{
-				Name = "コミュニティ",
-				FavType = FollowItemType.Community,
-				MaxItemCount = HohoemaApp.FollowManager.Community.MaxFollowItemCount,
-				Items = HohoemaApp.FollowManager.Community.FollowInfoItems
-                .ToReadOnlyReactiveCollection(x => new FavoriteItemViewModel(x, HohoemaApp.FollowManager, PageManager))
-            });
-
+            await base.OnSignIn(userSessionDisposer, cancelToken);
         }
 
-		public ObservableCollection<FavoriteListViewModel> Lists { get; private set; }
+        protected override Task OnSignOut()
+        {
+            Lists.Clear();
+
+            return base.OnSignOut();
+        }
+
+        public ObservableCollection<FavoriteListViewModel> Lists { get; private set; }
 
         public DelegateCommand<FavoriteListViewModel> UpdateFavListCommand { get; }
 
@@ -94,17 +81,26 @@ namespace NicoPlayerHohoema.ViewModels
 
     public class FavoriteListViewModel : BindableBase
 	{
-		public FollowItemType FavType { get; set; }
-		public string Name { get; set; }
-		public uint MaxItemCount { get; set; }
-		public int ItemCount => Items.Count;
+        public IFollowInfoGroup FollowGroup { get; }
+        public FollowItemType FavType => FollowGroup.FollowItemType;
+        public string Name { get;  }
+        public uint MaxItemCount => FollowGroup.MaxFollowItemCount;
+        public ReadOnlyReactiveProperty<int> ItemCount { get; }
         public FollowManager FollowManager { get; }
+        public PageManager PageManager { get; }
 
-		public ReadOnlyReactiveCollection<FavoriteItemViewModel> Items { get; set; }
+        public ReadOnlyReactiveCollection<FavoriteItemViewModel> Items { get; set; }
 
-        public FavoriteListViewModel(FollowManager followMan)
+        public FavoriteListViewModel(string label, IFollowInfoGroup followGroup, FollowManager followMan, PageManager pageManager)
         {
+            Name = label;
+            FollowGroup = followGroup;
             FollowManager = followMan;
+            PageManager = pageManager;
+
+            Items = followGroup.FollowInfoItems
+                .ToReadOnlyReactiveCollection(x => new FavoriteItemViewModel(x, FollowManager, PageManager));
+            ItemCount = Items.ObserveProperty(x => x.Count).ToReadOnlyReactiveProperty();
         }
 
         private DelegateCommand<FavoriteItemViewModel> _SelectedCommand;
