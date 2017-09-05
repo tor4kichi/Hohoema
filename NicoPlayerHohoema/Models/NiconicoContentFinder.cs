@@ -96,7 +96,7 @@ namespace NicoPlayerHohoema.Models
             }
 		}
 
-		public async Task<DmcWatchResponse> GetDmcWatchResponse(string rawVideoId, HarmfulContentReactionType harmfulContentReaction = HarmfulContentReactionType.None)
+		public async Task<DmcWatchData> GetDmcWatchResponse(string rawVideoId, HarmfulContentReactionType harmfulContentReaction = HarmfulContentReactionType.None)
 		{
             if (_HohoemaApp.NiconicoContext == null)
             {
@@ -114,13 +114,15 @@ namespace NicoPlayerHohoema.Models
 
 			using (var releaser = await _NicoPageAccessLock.LockAsync())
 			{
-				var res = await Util.ConnectionRetryUtil.TaskWithRetry(() =>
+				var data = await Util.ConnectionRetryUtil.TaskWithRetry(() =>
 				{
 					return _HohoemaApp.NiconicoContext.Video.GetDmcWatchResponseAsync(
 						rawVideoId
 						, harmfulReactType: harmfulContentReaction
-						);
+                        );
 				});
+
+                var res = data?.DmcWatchResponse;
 
 				if (res != null && res.Owner != null)
 				{
@@ -130,14 +132,14 @@ namespace NicoPlayerHohoema.Models
 
                 if (res != null)
                 {
-                    var data = await VideoInfoDb.GetEnsureNicoVideoInfoAsync(rawVideoId);
-                    if (data != null)
+                    var entity = await VideoInfoDb.GetEnsureNicoVideoInfoAsync(rawVideoId);
+                    if (entity != null)
                     {
-                        await VideoInfoDb.UpdateNicoVideoInfo(data, res);
+                        await VideoInfoDb.UpdateNicoVideoInfo(entity, res);
                     }
                 }
 
-				return res;
+				return data;
 			}
 			
 		}
