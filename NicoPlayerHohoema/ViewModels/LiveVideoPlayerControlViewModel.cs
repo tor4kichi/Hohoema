@@ -208,7 +208,7 @@ namespace NicoPlayerHohoema.ViewModels
             TextInputDialogService textInputDialogService,
             ToastNotificationService toast
             )
-            : base(hohoemaApp, pageManager, canActivateBackgroundUpdate:false)
+            : base(hohoemaApp, pageManager)
 		{
 			_TextInputDialogService = textInputDialogService;
             _ToastNotificationService = toast;

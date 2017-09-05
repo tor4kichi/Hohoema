@@ -45,7 +45,6 @@ namespace NicoPlayerHohoema.ViewModels
         public HohoemaViewModelBase(
             HohoemaApp hohoemaApp,
             PageManager pageManager, 
-            bool canActivateBackgroundUpdate = true,
             bool useDefaultPageTitle = true
             )
 		{
@@ -58,7 +57,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 			NowSignIn = false;
 
-			CanActivateBackgroundUpdate = canActivateBackgroundUpdate;
             UseDefaultPageTitle = useDefaultPageTitle;
 
             _CompositeDisposable = new CompositeDisposable();
@@ -261,13 +259,15 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		
 
 
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-			// PageManagerにナビゲーション動作を伝える
-			PageManager.OnNavigated(e);
+
+        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        {
+            HohoemaApp.BackgroundUpdater.Deactivate();
+
+            // PageManagerにナビゲーション動作を伝える
+            PageManager.OnNavigated(e);
 
             if (UseDefaultPageTitle)
             {
@@ -276,7 +276,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             base.OnNavigatedTo(e, viewModelState);
 
-//            HohoemaApp.OnResumed += _OnResumed;
+            //            HohoemaApp.OnResumed += _OnResumed;
 
             // TODO: プレイヤーを別ウィンドウにしている場合に、プレイヤーの表示状態変更を抑制する
             // プレイヤーがフィル表示している時にバックキーのアクションを再定義する
@@ -304,11 +304,17 @@ namespace NicoPlayerHohoema.ViewModels
                 })
                 .AddTo(_NavigatingCompositeDisposable);
 
-            // サインインステータスチェック
-            _NavigatedToTaskCancelToken = new CancellationTokenSource();
+            try
+            {
+                // サインインステータスチェック
+                _NavigatedToTaskCancelToken = new CancellationTokenSource();
 
-			_NavigatedToTask = __NavigatedToAsync(_NavigatedToTaskCancelToken.Token, e, viewModelState);
+                _NavigatedToTask = __NavigatedToAsync(_NavigatedToTaskCancelToken.Token, e, viewModelState);
+            }
+            catch
+            {
 
+            }
 			if (!String.IsNullOrEmpty(Title))
 			{
 				PageManager.PageTitle = Title;
@@ -318,9 +324,11 @@ namespace NicoPlayerHohoema.ViewModels
 				PageManager.PageTitle = PageManager.CurrentDefaultPageTitle();
 			}
 
-		}
+            // BG更新処理を再開
+            HohoemaApp.BackgroundUpdater.Activate();
+        }
 
-		private async void _OnResumed()
+        private async void _OnResumed()
 		{
 			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
 			{
@@ -334,14 +342,7 @@ namespace NicoPlayerHohoema.ViewModels
 				await OnResumed();
 
 				// BG更新処理を再開
-				if (CanActivateBackgroundUpdate)
-				{
-					HohoemaApp.BackgroundUpdater.Activate();
-				}
-				else
-				{
-					HohoemaApp.BackgroundUpdater.Deactivate();
-				}
+		        HohoemaApp.BackgroundUpdater.Activate();
 			});
 		}
 
@@ -355,20 +356,10 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			using (var releaser = await _NavigationLock.LockAsync())
 			{
-				// Note: BGUpdateの再有効化はナビゲーション処理より前で行う
-				// ナビゲーション処理内でBGUpdate待ちをした場合に、デッドロックする可能性がでる
+                // Note: BGUpdateの再有効化はナビゲーション処理より前で行う
+                // ナビゲーション処理内でBGUpdate待ちをした場合に、デッドロックする可能性がでる
 
-				// BG更新処理を再開
-				if (CanActivateBackgroundUpdate)
-				{
-					HohoemaApp.BackgroundUpdater.Activate();
-				}
-				else
-				{
-					HohoemaApp.BackgroundUpdater.Deactivate();
-				}
-
-				await NavigatedToAsync(cancelToken, e, viewModelState);
+                await NavigatedToAsync(cancelToken, e, viewModelState);
 
                 cancelToken.ThrowIfCancellationRequested();
 
@@ -408,6 +399,9 @@ namespace NicoPlayerHohoema.ViewModels
 		{
             using (var releaser = await _NavigationLock.LockAsync())
             {
+                HohoemaApp.BackgroundUpdater.Deactivate();
+
+
                 try
                 {
                     // バックナビゲーションが発生した時、
@@ -451,10 +445,7 @@ namespace NicoPlayerHohoema.ViewModels
                 }
                 finally
                 {
-                    if (!CanActivateBackgroundUpdate)
-                    {
-                        HohoemaApp.BackgroundUpdater.Activate();
-                    }
+                    HohoemaApp.BackgroundUpdater.Activate();
                 }
             }
 		}
@@ -586,8 +577,6 @@ namespace NicoPlayerHohoema.ViewModels
         public bool IsRequireSignIn => PageRequireServiceLevel == HohoemaAppServiceLevel.LoggedIn;
 
         public bool NowSignIn { get; private set; }
-
-		public bool CanActivateBackgroundUpdate { get; private set; }
 
 		private string _Title;
         public string Title

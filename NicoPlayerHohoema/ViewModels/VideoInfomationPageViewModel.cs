@@ -262,7 +262,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         AsyncLock _WebViewFocusManagementLock = new AsyncLock();
         public VideoInfomationPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager) 
-            : base(hohoemaApp, pageManager, canActivateBackgroundUpdate:true)
+            : base(hohoemaApp, pageManager)
         {
             ChangeRequireServiceLevel(HohoemaAppServiceLevel.OnlineWithoutLoggedIn);
 

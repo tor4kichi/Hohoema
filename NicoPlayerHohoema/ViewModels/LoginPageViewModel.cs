@@ -37,7 +37,7 @@ namespace NicoPlayerHohoema.ViewModels
         private LoginRedirectPayload _RedirectInfo;
 
         public LoginPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager) 
-            : base(hohoemaApp, pageManager, canActivateBackgroundUpdate:false)
+            : base(hohoemaApp, pageManager)
         {
             var version = Windows.ApplicationModel.Package.Current.Id.Version;
             VersionText = $"{version.Major}.{version.Minor}.{version.Build}";
