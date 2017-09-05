@@ -219,6 +219,11 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
                     // 更新済みの位置であれば処理をスキップ
                     var videoPosition = VideoPosition;
 
+                    if (MediaPlayer.PlaybackSession.PlaybackState == MediaPlaybackState.Paused)
+                    {
+                        return;
+                    }
+
                     if (MediaPlayer.PlaybackSession.CanSeek)
                     {
                         if (_PreviousVideoPosition == videoPosition)

@@ -109,6 +109,28 @@ namespace NicoPlayerHohoema.Models
         {
             IfVideoDeletedThrowException();
 
+
+            {
+                HohoemaApp.MediaPlayer.Pause();
+                HohoemaApp.MediaPlayer.Source = null;
+
+                _VideoMSS?.Dispose();
+                _VideoMSS = null;
+                _MediaSource?.Dispose();
+                _MediaSource = null;
+
+                foreach (var div in GetAllQuality())
+                {
+                    if (div.NowPlaying)
+                    {
+                        div.OnPlayDone();
+                    }
+                }
+
+                NicoVideoCachedStream?.Dispose();
+                NicoVideoCachedStream = null;
+            }
+
             // 再生動画画質決定
             // 指定された画質＞キャッシュされた画質＞デフォルト指定画質＞再生可能な画質
             DividedQualityNicoVideo divided = null;
@@ -471,15 +493,15 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-        private async Task<DmcWatchResponse> GetDmcWatchResponse()
+        private async Task<DmcWatchData> GetDmcWatchResponse()
         {
             if (!HohoemaApp.IsLoggedIn) { return null; }
 
-            DmcWatchResponse dmcWatchResponse = null;
+            DmcWatchData dmcWatchData = null;
 
             try
             {
-                dmcWatchResponse = await HohoemaApp.ContentFinder.GetDmcWatchResponse(RawVideoId, HarmfulContentReactionType);
+                dmcWatchData = await HohoemaApp.ContentFinder.GetDmcWatchResponse(RawVideoId, HarmfulContentReactionType);
             }
             catch (AggregateException ea) when (ea.Flatten().InnerExceptions.Any(e => e is ContentZoningException))
             {
@@ -489,6 +511,9 @@ namespace NicoPlayerHohoema.Models
             {
                 IsBlockedHarmfulVideo = true;
             }
+
+
+            DmcWatchResponse dmcWatchResponse = dmcWatchData?.DmcWatchResponse;
 
             if (dmcWatchResponse != null)
             {
@@ -566,7 +591,7 @@ namespace NicoPlayerHohoema.Models
                 {
                     if (divided is DmcQualityNicoVideo)
                     {
-                        (divided as DmcQualityNicoVideo).DmcWatchResponse = dmcWatchResponse;
+                        (divided as DmcQualityNicoVideo).DmcWatchData = dmcWatchData;
                     }
                 }
 
@@ -591,7 +616,7 @@ namespace NicoPlayerHohoema.Models
                 }
             }
 
-            return dmcWatchResponse;
+            return dmcWatchData;
         }
 
         private async Task<WatchApiResponse> GetWatchApiResponse(bool forceLoqQuality = false)

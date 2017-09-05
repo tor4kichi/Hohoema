@@ -663,6 +663,8 @@ namespace NicoPlayerHohoema.ViewModels
             cancelToken.ThrowIfCancellationRequested();
 
 
+            App.Current.LeavingBackground += Current_LeavingBackground;
+            App.Current.EnteredBackground += Current_EnteredBackground;
 
             //            return base.OnOffline(userSessionDisposer, cancelToken);
         }
@@ -1246,7 +1248,7 @@ namespace NicoPlayerHohoema.ViewModels
             System.Diagnostics.Debug.WriteLine($"コメント数:{Comments.Count}");
         }
 
-
+        /*
         protected override async Task OnResumed()
         {
             if (NowSignIn)
@@ -1261,7 +1263,7 @@ namespace NicoPlayerHohoema.ViewModels
             }
 
         }
-
+        */
 
 
 
@@ -1323,8 +1325,6 @@ namespace NicoPlayerHohoema.ViewModels
             ChangeRequireServiceLevel(HohoemaAppServiceLevel.LoggedIn);
 
             App.Current.Suspending += Current_Suspending;
-            App.Current.LeavingBackground += Current_LeavingBackground;
-            App.Current.EnteredBackground += Current_EnteredBackground;
 
             PlaylistCanGoBack.Value = HohoemaApp.Playlist.Player.CanGoBack;
             PlaylistCanGoNext.Value = HohoemaApp.Playlist.Player.CanGoNext;
@@ -1364,6 +1364,8 @@ namespace NicoPlayerHohoema.ViewModels
 
             base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
 
+            App.Current.LeavingBackground -= Current_LeavingBackground;
+            App.Current.EnteredBackground -= Current_EnteredBackground;
 
             Debug.WriteLine("VideoPlayer OnNavigatingFromAsync done.");
         }

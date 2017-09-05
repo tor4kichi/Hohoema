@@ -602,22 +602,25 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
-        DmcWatchResponse _DmcWatchResponse;
-        DmcSessionResponse _DmcSessionResponse;
-        public DmcWatchResponse DmcWatchResponse
+        DmcWatchData _DmcWatchData;
+        static DmcSessionResponse _DmcSessionResponse;
+        public DmcWatchData DmcWatchData
         {
-            get { return _DmcWatchResponse; }
+            get { return _DmcWatchData; }
             set
             {
-                if (_DmcWatchResponse == null)
+                if (_DmcWatchData == null)
                 {
-                    _DmcWatchResponse = value;
-
+                    _DmcWatchData = value;
+                    _DmcWatchResponse = _DmcWatchData.DmcWatchResponse;
                     _IsAvailable = Video?.Available ?? false;
-
                 }
             }
         }
+
+        DmcWatchResponse _DmcWatchResponse;
+        public DmcWatchResponse DmcWatchResponse => _DmcWatchResponse;
+        public DmcWatchEnvironment DmcWatchEnvironment => _DmcWatchData.DmcWatchEnvironment;
 
         public DmcQualityNicoVideo(NicoVideoQuality quality, NicoVideo nicoVideo, NiconicoMediaManager context)
             : base(quality, nicoVideo, context)
@@ -661,9 +664,9 @@ namespace NicoPlayerHohoema.Models
 
         public override async Task<Uri> GenerateVideoContentUrl()
         {
-            if (_DmcWatchResponse == null) { return null; }
+            if (DmcWatchResponse == null) { return null; }
 
-            if (_DmcWatchResponse.Video.DmcInfo == null) { return null; }
+            if (DmcWatchResponse.Video.DmcInfo == null) { return null; }
 
             VideoContent videoQuality = Video;
             if (Video == null)
@@ -673,8 +676,28 @@ namespace NicoPlayerHohoema.Models
             
             try
             {
-                _DmcSessionResponse = await HohoemaApp.NiconicoContext.Video.GetDmcSessionResponse(_DmcWatchResponse, videoQuality);
+                // 直前に同一動画を見ていた場合には、動画ページに再アクセスする
+                DmcSessionResponse clearPreviousSession = null;
+                if (_DmcSessionResponse != null)
+                {
+                    if (_DmcSessionResponse.Data.Session.RecipeId.EndsWith(RawVideoId))
+                    {
+                        clearPreviousSession = _DmcSessionResponse;
+                        _DmcSessionResponse = null;
+                        _DmcWatchResponse = await HohoemaApp.NiconicoContext.Video.GetDmcWatchJsonAsync(RawVideoId, DmcWatchEnvironment.PlaylistToken);
+                        videoQuality = Video;
+                    }
+                }
+
+                _DmcSessionResponse = await HohoemaApp.NiconicoContext.Video.GetDmcSessionResponse(DmcWatchResponse, videoQuality);
+
                 if (_DmcSessionResponse == null) { return null; }
+
+                if (clearPreviousSession != null)
+                {
+                    await HohoemaApp.NiconicoContext.Video.DmcSessionExttHeartbeatAsync(DmcWatchResponse, clearPreviousSession);
+                }
+
                 return new Uri(_DmcSessionResponse.Data.Session.ContentUri);
             }
             catch
@@ -715,11 +738,16 @@ namespace NicoPlayerHohoema.Models
             
         }
 
-        protected override void OnPlayDone_Internal()
+        protected override async void OnPlayDone_Internal()
         {
             _DmcSessionHeartbeatTimer.Dispose();
             _DmcSessionHeartbeatTimer = null;
             Debug.WriteLine($"{DmcWatchResponse.Video.Title} のハートビートを終了しました");
+
+            if (_DmcSessionResponse != null)
+            {
+                await HohoemaApp.NiconicoContext.Video.DmcSessionLeaveAsync(DmcWatchResponse, _DmcSessionResponse);
+            }
         }
     }
 }
