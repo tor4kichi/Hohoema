@@ -180,6 +180,7 @@
     <Compile Include="Models\HohoemaPageType.cs" />
     <Compile Include="Models\HohoemaPlaylist.cs" />
     <Compile Include="Models\IHohoemaListItem.cs" />
+    <Compile Include="Models\InAppNotificationPayload.cs" />
     <Compile Include="Models\LisenceSummary.cs" />
     <Compile Include="Models\Live\Live2WebSocket.cs" />
     <Compile Include="Models\Live\LiveStatusType.cs" />

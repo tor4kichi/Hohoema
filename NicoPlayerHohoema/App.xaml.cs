@@ -37,6 +37,10 @@ using Windows.Storage;
 using System.Text;
 using NicoPlayerHohoema.Util;
 using Windows.ApplicationModel.Resources;
+using Windows.ApplicationModel.DataTransfer;
+using Mntone.Nico2;
+using Prism.Commands;
+using System.Text.RegularExpressions;
 
 namespace NicoPlayerHohoema
 {
@@ -54,7 +58,22 @@ namespace NicoPlayerHohoema
         public SplashScreen SplashScreen { get; private set; }
         const bool _DEBUG_XBOX_RESOURCE = true;
 
-		static App()
+
+        public void PublishInAppNotification(InAppNotificationPayload payload)
+        {
+            var notificationEvent = EventAggregator.GetEvent<InAppNotificationEvent>();
+            notificationEvent.Publish(payload);
+        }
+
+        public void DismissInAppNotification()
+        {
+            var notificationDismissEvent = EventAggregator.GetEvent<InAppNotificationDismissEvent>();
+            notificationDismissEvent.Publish(0);
+        }
+
+
+
+        static App()
 		{
 		}
 
@@ -80,6 +99,11 @@ namespace NicoPlayerHohoema
 
         }
 
+        private async void CoreWindow_Activated(CoreWindow sender, WindowActivatedEventArgs args)
+        {
+            await CheckClipboard();
+        }
+
         private void MemoryManager_AppMemoryUsageLimitChanging(object sender, Windows.System.AppMemoryUsageLimitChangingEventArgs e)
         {
             Debug.WriteLine($"Memory Limit: {e.OldLimit} -> {e.NewLimit}");
@@ -99,7 +123,7 @@ namespace NicoPlayerHohoema
             Debug.WriteLine("Enter BG");
         }
 
-
+      
         /*
 		private async void App_Suspending(object sender, SuspendingEventArgs e)
 		{
@@ -258,6 +282,9 @@ namespace NicoPlayerHohoema
                 {
                     Debug.WriteLine("HohoemaAppの初期化に失敗");
                 }
+
+
+                Window.Current.CoreWindow.Activated += CoreWindow_Activated;
             }
 
             return Task.CompletedTask;
@@ -275,8 +302,6 @@ namespace NicoPlayerHohoema
                 // モバイルで利用している場合に、ナビゲーションバーなどがページに被さらないように指定
                 ApplicationView.GetForCurrentView().SetDesiredBoundsMode(ApplicationViewBoundsMode.UseVisible);
             }
-
-            
             base.OnLaunched(args);
         }
 
@@ -892,12 +917,331 @@ namespace NicoPlayerHohoema
             // 他にButtonInactiveBackgroundColorなども指定するとよい
             // また、ボタンの前景色も同様にして指定できる
         }
+
+
+
+
+        #region Clipboard Support 
+
+        private static readonly TimeSpan DefaultNotificationShowDuration = TimeSpan.FromSeconds(20);
+
+        private AsyncLock _ClipboardProcessLock = new AsyncLock();
+        private string prevContent = string.Empty;
+        private async Task CheckClipboard()
+        {
+            using (var releaser = await _ClipboardProcessLock.LockAsync())
+            {
+                DataPackageView dataPackageView = Clipboard.GetContent();
+                if (dataPackageView.Contains(StandardDataFormats.WebLink))
+                {
+                    var uri = await dataPackageView.GetWebLinkAsync();
+                    if (uri.OriginalString == prevContent) { return; }
+                    await ExtractNicoContentId_And_SubmitSuggestion(uri);
+                    prevContent = uri.OriginalString;
+                }
+                else if (dataPackageView.Contains(StandardDataFormats.Text))
+                {
+                    string text = await dataPackageView.GetTextAsync();
+                    if (prevContent == text) { return; }
+                    try
+                    {
+                        var uri = new Uri(text);
+                        await ExtractNicoContentId_And_SubmitSuggestion(uri);
+                    }
+                    catch
+                    {
+                        await ExtractNicoContentId_And_SubmitSuggestion(text);
+                    }
+                    prevContent = text;
+                }
+            }
+        }
+
+
+
+
+        private async Task ExtractNicoContentId_And_SubmitSuggestion(string contentId)
+        {
+            if (NiconicoRegex.IsVideoId(contentId))
+            {
+                await SubmitVideoContentSuggestion(contentId);
+            }
+            else if (NiconicoRegex.IsLiveId(contentId))
+            {
+                await SubmitLiveContentSuggestion(contentId);
+            }
+        }
+
+        static readonly Regex NicoContentRegex = new Regex("http:\\/\\/([\\w\\W]*?)\\/((\\w*)\\/)?([\\w-]*)");
+        private async Task ExtractNicoContentId_And_SubmitSuggestion(Uri url)
+        {
+            var match = NicoContentRegex.Match(url.OriginalString);
+            if (match.Success)
+            {
+                var hostNameGroup = match.Groups[1];
+                var contentTypeGroup = match.Groups[3];
+                var contentIdGroup = match.Groups[4];
+
+                var contentId = contentIdGroup.Value;
+                if (NiconicoRegex.IsVideoId(contentId))
+                {
+                    await SubmitVideoContentSuggestion(contentId);
+                }
+                else if (NiconicoRegex.IsLiveId(contentId))
+                {
+                    await SubmitLiveContentSuggestion(contentId);
+                }
+                else if (contentTypeGroup.Success)
+                {
+                    var contentType = contentTypeGroup.Value;
+
+                    switch (contentType)
+                    {
+                        case "mylist":
+                            await SubmitMylistContentSuggestion(contentId);
+                            break;
+                        case "community":
+                            await SubmitCommunityContentSuggestion(contentId);
+                            break;
+                        case "user":
+                            await SubmitUserSuggestion(contentId);
+                            break;
+
+                    }
+                }
+                else if (hostNameGroup.Success)
+                {
+                    var hostName = hostNameGroup.Value;
+
+                    if (hostName == "ch.nicovideo.jp")
+                    {
+                        var channelId = contentId;
+
+                        // TODO: クリップボードから受け取ったチャンネルIdを開く
+                    }
+                }
+            }
+        }
+
+        private async Task SubmitVideoContentSuggestion(string videoId)
+        {
+            var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
+            var nicoVideo = await hohoemaApp.MediaManager.GetNicoVideoAsync(videoId);
+
+            PublishInAppNotification(new InAppNotificationPayload()
+            {
+                Content = $"{nicoVideo.Title} をお探しですか？",
+                ShowDuration = DefaultNotificationShowDuration,
+                SymbolIcon = Symbol.Video,
+                IsShowDismissButton = true,
+                Commands = {
+                        new InAppNotificationCommand()
+                        {
+                            Label = "再生",
+                            Command = new DelegateCommand(() =>
+                            {
+                                hohoemaApp.Playlist.PlayVideo(nicoVideo.RawVideoId, nicoVideo.Title);
+
+                                DismissInAppNotification();
+                            })
+                        },
+                        new InAppNotificationCommand()
+                        {
+                            Label = "あとで見る",
+                            Command = new DelegateCommand(() =>
+                            {
+                                hohoemaApp.Playlist.DefaultPlaylist.AddVideo(nicoVideo.RawVideoId, nicoVideo.Title);
+
+                                DismissInAppNotification();
+                            })
+                        },
+                        new InAppNotificationCommand()
+                        {
+                            Label = "動画情報を開く",
+                            Command = new DelegateCommand(() =>
+                            {
+                                var pageManager = App.Current.Container.Resolve<PageManager>();
+                                pageManager.OpenPage(HohoemaPageType.VideoInfomation, videoId);
+
+                                DismissInAppNotification();
+                            })
+                        },
+                    }
+            });
+        }
+
+
+        private async Task SubmitLiveContentSuggestion(string liveId)
+        {
+            var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
+
+            var liveDesc = await hohoemaApp.NiconicoContext.Live.GetPlayerStatusAsync(liveId);
+
+            if (liveDesc == null) { return; }
+
+            var payload = new InAppNotificationPayload()
+            {
+                Content = $"{liveDesc.Program.Title} をお探しですか？",
+                ShowDuration = DefaultNotificationShowDuration,
+                SymbolIcon = Symbol.Video,
+                IsShowDismissButton = true,
+                Commands = {
+                        new InAppNotificationCommand()
+                        {
+                            Label = "視聴開始",
+                            Command = new DelegateCommand(() =>
+                            {
+                                hohoemaApp.Playlist.PlayLiveVideo(liveId, liveDesc.Program.Title);
+
+                                DismissInAppNotification();
+                            })
+                        },
+                        
+                    }
+            };
+
+            if (liveDesc.Program.IsCommunity)
+            {
+                payload.Commands.Add(new InAppNotificationCommand()
+                {
+                    Label = "コミュニティを開く",
+                    Command = new DelegateCommand(() =>
+                    {
+                        var pageManager = App.Current.Container.Resolve<PageManager>();
+                        pageManager.OpenPage(HohoemaPageType.Community, liveDesc.Program.CommunityId);
+
+                        DismissInAppNotification();
+                    })
+                });
+            }
+
+            PublishInAppNotification(payload);
+        }
+
+
+        private async Task SubmitMylistContentSuggestion(string mylistId)
+        {
+            var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
+
+            Mntone.Nico2.Mylist.MylistGroup.MylistGroupDetailResponse mylistDetail = null;
+            try
+            {
+                mylistDetail = await hohoemaApp.ContentFinder.GetMylistGroupDetail(mylistId);
+            }
+            catch { }
+
+            if (mylistDetail == null || !mylistDetail.IsOK) { return; }
+
+            var mylistGroup = mylistDetail.MylistGroup;
+            PublishInAppNotification(new InAppNotificationPayload()
+            {
+                Content = $"{mylistGroup.Name} をお探しですか？",
+                ShowDuration = DefaultNotificationShowDuration,
+                SymbolIcon = Symbol.Video,
+                IsShowDismissButton = true,
+                Commands = {
+                        new InAppNotificationCommand()
+                        {
+                            Label = "マイリストを開く",
+                            Command = new DelegateCommand(() =>
+                            {
+                                var pageManager = App.Current.Container.Resolve<PageManager>();
+                                pageManager.OpenPage(HohoemaPageType.Mylist, new MylistPagePayload(mylistId).ToParameterString());
+
+                                DismissInAppNotification();
+                            })
+                        },
+                    }
+            });
+        }
+
+
+        private async Task SubmitCommunityContentSuggestion(string communityId)
+        {
+            var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
+
+            Mntone.Nico2.Communities.Detail.CommunityDetailResponse communityDetail = null;
+            try
+            {
+                communityDetail = await hohoemaApp.ContentFinder.GetCommunityDetail(communityId);
+            }
+            catch { }
+
+            if (communityDetail == null || !communityDetail.IsStatusOK) { return; }
+
+            var communityInfo = communityDetail.CommunitySammary.CommunityDetail;
+            PublishInAppNotification(new InAppNotificationPayload()
+            {
+                Content = $"{communityInfo.Name} をお探しですか？",
+                ShowDuration = DefaultNotificationShowDuration,
+                SymbolIcon = Symbol.Video,
+                IsShowDismissButton = true,
+                Commands = {
+                        new InAppNotificationCommand()
+                        {
+                            Label = "コミュニティを開く",
+                            Command = new DelegateCommand(() =>
+                            {
+                                var pageManager = App.Current.Container.Resolve<PageManager>();
+                                pageManager.OpenPage(HohoemaPageType.Community, communityId);
+
+                                DismissInAppNotification();
+                            })
+                        },
+                    }
+            });
+        }
+
+        private async Task SubmitUserSuggestion(string userId)
+        {
+            var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
+
+            var user = await hohoemaApp.ContentFinder.GetUserInfo(userId);
+
+            if (user == null) { return; }
+
+            PublishInAppNotification(new InAppNotificationPayload()
+            {
+                Content = $"{user.Nickname} をお探しですか？",
+                ShowDuration = DefaultNotificationShowDuration,
+                SymbolIcon = Symbol.Video,
+                IsShowDismissButton = true,
+                Commands = {
+                        new InAppNotificationCommand()
+                        {
+                            Label = "ユーザー情報を開く",
+                            Command = new DelegateCommand(() =>
+                            {
+                                var pageManager = App.Current.Container.Resolve<PageManager>();
+                                pageManager.OpenPage(HohoemaPageType.UserInfo, userId);
+
+                                DismissInAppNotification();
+                            })
+                        },
+                        new InAppNotificationCommand()
+                        {
+                            Label = "動画一覧を開く",
+                            Command = new DelegateCommand(() =>
+                            {
+                                var pageManager = App.Current.Container.Resolve<PageManager>();
+                                pageManager.OpenPage(HohoemaPageType.UserVideo, userId);
+
+                                DismissInAppNotification();
+                            })
+                        },
+                    }
+            });
+        }
+        
+
+        #endregion
+
     }
 
 
 
 
-	public class PlayerWindowManager
+    public class PlayerWindowManager
 	{
 		public int ViewId { get; private set; }
 		
