@@ -130,7 +130,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .Subscribe(color => ThemeColor = color)
                 .AddTo(_CompositeDisposable);
 
-            
+            Title = NicoVideo.Title;
         }
 
         private async void ResetQualityDivideVideosVM()
@@ -158,7 +158,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return;
             }
 
-            RaisePropertyChanged(nameof(Title));
+            Title = NicoVideo.Title;
 
             // NG判定
             if (_IsNGEnabled)
@@ -557,9 +557,6 @@ namespace NicoPlayerHohoema.ViewModels
 		public NicoVideo NicoVideo { get; private set; }
         public HohoemaPlaylist HohoemaPlaylist { get; private set; }
         public PageManager PageManager { get; private set; }
-
-
-        public new string Title => NicoVideo.Title;
 	}
 
 
