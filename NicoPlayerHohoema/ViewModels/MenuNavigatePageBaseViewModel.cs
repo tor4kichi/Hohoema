@@ -66,6 +66,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
                 new PageTypeSelectableItem(HohoemaPageType.Search             , OnMenuItemSelected, "検索", Symbol.Find),
                 new PageTypeSelectableItem(HohoemaPageType.RankingCategoryList, OnMenuItemSelected, "ランキング", Symbol.Flag),
+                new PageTypeSelectableItem(HohoemaPageType.Mylist             , OnWatchAfterMenuItemSelected, "あとで見る", Symbol.Play),
                 new PageTypeSelectableItem(HohoemaPageType.UserMylist         , OnMenuItemSelected, "マイリスト", Symbol.Bookmarks),
                 new PageTypeSelectableItem(HohoemaPageType.FollowManage       , OnMenuItemSelected, "フォロー", Symbol.OutlineStar),
                 new PageTypeSelectableItem(HohoemaPageType.FeedGroupManage    , OnMenuItemSelected, "フィード", Symbol.List),
@@ -271,6 +272,17 @@ namespace NicoPlayerHohoema.ViewModels
 				PageManager.OpenPage(pageType);
 			}
 		}
+
+        internal void OnWatchAfterMenuItemSelected(HohoemaPageType pageType)
+        {
+            PageManager.OpenPage(HohoemaPageType.Mylist,
+                new MylistPagePayload()
+                {
+                    Id = HohoemaPlaylist.WatchAfterPlaylistId,
+                    Origin = PlaylistOrigin.Local
+                }.ToParameterString()
+            );
+        }
 
         internal async void OnAccountMenuItemSelected(HohoemaPageType pageType)
         {
