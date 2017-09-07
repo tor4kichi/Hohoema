@@ -129,7 +129,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public uint UserViewCount { get; set; }
 
 		public HistoryVideoInfoControlViewModel(uint viewCount, NicoVideo nicoVideo, PageManager pageManager)
-			: base(nicoVideo, pageManager)
+			: base(nicoVideo, pageManager, isNgEnabled:false)
 		{
             UserViewCount = viewCount;
 		}
