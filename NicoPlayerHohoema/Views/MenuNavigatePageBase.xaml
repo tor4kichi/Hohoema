@@ -518,42 +518,51 @@
                     >
                     <uwpcontrol:InAppNotification.ContentTemplate>
                         <DataTemplate>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
+                            <uwpcontrol:WrapPanel Orientation="Horizontal" >
 
-                                <Grid Margin="10 5" Height="20" Background="#007ACC">
-                                    <SymbolIcon Symbol="{Binding SymbolIcon}" />
-                                </Grid>
+                                <toolkit:DockPanel Margin="0 0 8 0 " 
+                                            Height="48"
+                                            >
+                                    <Image Source="ms-appx:///Assets/NewStoreLogo.scale-100.png" 
+                                           Height="32" Width="32" 
+                                           Margin="0 0 16 0" 
+                                           toolkit:DockPanel.Dock="Left"
+                                           VerticalAlignment="Center"
+                                           />
 
-                                <TextBlock Grid.Column="1" 
-                                   VerticalAlignment="Center"
-                                   Text="{Binding Content}"
-                                   TextWrapping="Wrap" TextTrimming="CharacterEllipsis" />
 
-                                
-                                <ItemsControl Grid.Column="2"  ItemsSource="{Binding Commands}">
+                                    <TextBlock Grid.Column="1" 
+                                           VerticalAlignment="Center"
+                                           Text="{Binding Content}"
+                                           TextWrapping="Wrap" TextTrimming="CharacterEllipsis" />
+
+
+                                </toolkit:DockPanel>
+
+
+
+                                <ItemsControl Grid.Column="2"  ItemsSource="{Binding Commands}"
+                                              
+                                              >
 
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
-                                            <uwpcontrol:WrapPanel Orientation="Horizontal" />
+                                            <StackPanel Orientation="Horizontal" />
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Button Content="{Binding Label}" 
                                                     Command="{Binding Command}"
-                                                    Style="{StaticResource VisualStudioCodeNotificationButtonStyle}"
                                                     />
 
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
                                 
-                            </Grid>
+                                
+
+                            </uwpcontrol:WrapPanel>
                         </DataTemplate>
                     </uwpcontrol:InAppNotification.ContentTemplate>
                 </uwpcontrol:InAppNotification>
