@@ -9,8 +9,6 @@ using System.Threading.Tasks;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Microsoft.Practices.Unity;
-using System.Collections.Concurrent;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -25,65 +23,9 @@ namespace NicoPlayerHohoema.Views
 
             this.Loading += MenuNavigatePageBase_Loading;
             this.Loaded += MenuNavigatePageBase_Loaded;
-
-
-            var ea = App.Current.Container.Resolve<IEventAggregator>();
-            var notificationEvent = ea.GetEvent<Models.InAppNotificationEvent>();
-            notificationEvent.Subscribe(OnNotificationRequested, ThreadOption.UIThread);
-
-            var notificationDismissEvent = ea.GetEvent<Models.InAppNotificationDismissEvent>();
-            notificationDismissEvent.Subscribe((_) => 
-            {
-                var liteNotification = GetTemplateChild("LiteNotification") as Microsoft.Toolkit.Uwp.UI.Controls.InAppNotification;
-                liteNotification.Dismiss();
-            }, ThreadOption.UIThread);
         }
 
-        private Models.InAppNotificationPayload _CurrentNotication;
-
-        private ConcurrentQueue<Models.InAppNotificationPayload> NoticationRequestQueue = new ConcurrentQueue<Models.InAppNotificationPayload>();
-
-        private void PushNextNotication(Models.InAppNotificationPayload payload)
-        {
-            NoticationRequestQueue.Enqueue(payload);
-
-            // 前に表示した通知が時間設定されていない場合には強制非表示
-            if (_CurrentNotication != null && _CurrentNotication.ShowDuration == null)
-            {
-                var liteNotification = GetTemplateChild("LiteNotification") as Microsoft.Toolkit.Uwp.UI.Controls.InAppNotification;
-                liteNotification.Dismiss();
-            }
-            else
-            {
-                TryNextDisplayNotication();
-            }
-        }
-
-        private void TryNextDisplayNotication()
-        {
-            if (NoticationRequestQueue.TryDequeue(out var payload))
-            {
-                var liteNotification = GetTemplateChild("LiteNotification") as Microsoft.Toolkit.Uwp.UI.Controls.InAppNotification;
-
-                _CurrentNotication = payload;
-                liteNotification.DataContext = payload;
-                liteNotification.ShowDismissButton = payload.IsShowDismissButton;
-                liteNotification.Show((int)(payload.ShowDuration?.TotalMilliseconds ?? 0));
-            }
-        }
-
-        private void OnNotificationRequested(Models.InAppNotificationPayload payload)
-        {
-            PushNextNotication(payload);
-        }
-
-        private void LiteNotification_Dismissed(object sender, EventArgs e)
-        {
-            _CurrentNotication = null;
-            (sender as Microsoft.Toolkit.Uwp.UI.Controls.InAppNotification).DataContext = null;
-            TryNextDisplayNotication();
-        }
-
+       
         private void MenuNavigatePageBase_Loading(FrameworkElement sender, object args)
 		{
 			ForceChangeChildDataContext();
@@ -101,9 +43,6 @@ namespace NicoPlayerHohoema.Views
             pane.GotFocus += RootLayout_GotFocus;
             pane.LostFocus += RootLayout_LostFocus;
 
-
-            var liteNotification = GetTemplateChild("LiteNotification") as Microsoft.Toolkit.Uwp.UI.Controls.InAppNotification;
-            liteNotification.Dismissed += LiteNotification_Dismissed;
         }
 
        

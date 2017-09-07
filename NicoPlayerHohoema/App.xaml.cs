@@ -783,8 +783,16 @@ namespace NicoPlayerHohoema
 #if DEBUG
             container.FocusEngaged += Container_FocusEngaged;
 #endif
+            var grid = new Grid();
 
-            return container;
+            grid.Children.Add(container);
+
+            var hohoemaInAppNotification = new Views.HohoemaInAppNotification();
+            hohoemaInAppNotification.VerticalAlignment = VerticalAlignment.Bottom;
+            grid.Children.Add(hohoemaInAppNotification);
+
+
+            return grid;
 		}
 
         private void RootFrame_NavigationFailed(object sender, NavigationFailedEventArgs e)

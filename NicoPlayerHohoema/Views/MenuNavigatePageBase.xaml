@@ -68,48 +68,7 @@
                 </StackPanel>
 
             </DataTemplate>
-
-            <Style x:Key="VisualStudioCodeNotificationButtonStyle" TargetType="ButtonBase">
-                <Setter Property="Background" Value="#0E639C" />
-                <Setter Property="Foreground" Value="White" />
-                <Setter Property="VerticalAlignment" Value="Stretch" />
-                <Setter Property="FontSize" Value="14" />
-                <Setter Property="Padding" Value="10 0" />
-                <Setter Property="Height" Value="35" />
-                <Setter Property="BorderThickness" Value="0" />
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="ButtonBase">
-                            <Grid x:Name="RootGrid" Padding="{TemplateBinding Padding}" Margin="{TemplateBinding Margin}" Background="{TemplateBinding Background}">
-                                <ContentPresenter Content="{TemplateBinding Content}"
-                                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
-
-                                <VisualStateManager.VisualStateGroups>
-                                    <VisualStateGroup x:Name="CommonStates">
-                                        <VisualState x:Name="Normal" />
-                                        <VisualState x:Name="PointerOver">
-                                            <Storyboard>
-                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="Background">
-                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="#1177BB" />
-                                                </ObjectAnimationUsingKeyFrames>
-                                            </Storyboard>
-                                        </VisualState>
-                                        <VisualState x:Name="Pressed">
-                                            <Storyboard>
-                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="Background">
-                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="#1177BB" />
-                                                </ObjectAnimationUsingKeyFrames>
-                                            </Storyboard>
-                                        </VisualState>
-                                        <VisualState x:Name="Disabled" />
-                                    </VisualStateGroup>
-                                </VisualStateManager.VisualStateGroups>
-                            </Grid>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
+            
         </ResourceDictionary>
 
     </ContentControl.Resources>
@@ -357,7 +316,7 @@
                     <SplitView x:Name="ContentSplitView" 
                         CompactPaneLength="56"
                         OpenPaneLength="180"
-                        DisplayMode="Overlay"
+                        DisplayMode="Inline"
                         IsPaneOpen="False"
                                IsTabStop="False"
                                PaneBackground="{ThemeResource SystemAltMediumHighColor}"
@@ -513,59 +472,7 @@
                     </SplitView>
                 </toolkit:DockPanel>
 
-                <uwpcontrol:InAppNotification
-                    x:Name="LiteNotification"
-                    >
-                    <uwpcontrol:InAppNotification.ContentTemplate>
-                        <DataTemplate>
-                            <uwpcontrol:WrapPanel Orientation="Horizontal" >
-
-                                <toolkit:DockPanel Margin="0 0 8 0 " 
-                                            Height="48"
-                                            >
-                                    <Image Source="ms-appx:///Assets/NewStoreLogo.scale-100.png" 
-                                           Height="32" Width="32" 
-                                           Margin="0 0 16 0" 
-                                           toolkit:DockPanel.Dock="Left"
-                                           VerticalAlignment="Center"
-                                           />
-
-
-                                    <TextBlock Grid.Column="1" 
-                                           VerticalAlignment="Center"
-                                           Text="{Binding Content}"
-                                           TextWrapping="Wrap" TextTrimming="CharacterEllipsis" />
-
-
-                                </toolkit:DockPanel>
-
-
-
-                                <ItemsControl Grid.Column="2"  ItemsSource="{Binding Commands}"
-                                              
-                                              >
-
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <StackPanel Orientation="Horizontal" />
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Button Content="{Binding Label}" 
-                                                    Command="{Binding Command}"
-                                                    />
-
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                                
-                                
-
-                            </uwpcontrol:WrapPanel>
-                        </DataTemplate>
-                    </uwpcontrol:InAppNotification.ContentTemplate>
-                </uwpcontrol:InAppNotification>
+                
 
 
 
