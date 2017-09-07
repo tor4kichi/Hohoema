@@ -304,7 +304,7 @@
                                 <Style TargetType="ListViewItem">
                                     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                     <Setter Property="VerticalContentAlignment" Value="Center" />
-                                    <Setter Property="Height" Value="48" />
+                                    <Setter Property="Height" Value="64" />
                                     <Setter Property="Width" Value="48" />
                                     <Setter Property="Padding" Value="0 8" />
                                     <Setter Property="Background" Value="Transparent" />
