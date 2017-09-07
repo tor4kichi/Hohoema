@@ -994,7 +994,8 @@ namespace NicoPlayerHohoema.ViewModels
 					{
 						if (DownloadCompleted.Value) { return false; }
 
-						if (CurrentState.Value == MediaPlaybackState.Paused)
+						if (CurrentState.Value == MediaPlaybackState.Paused
+                        || CurrentState.Value == MediaPlaybackState.None)
 						{
 							return false;
 						}
