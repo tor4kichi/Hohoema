@@ -30,43 +30,87 @@
 
     <ContentControl.Resources>
 
-        <DataTemplate x:Key="HohoemaContentTemplate">
-            
-        </DataTemplate>
+        <ResourceDictionary>
 
-        <DataTemplate x:Key="MobileMenuItemTemplate">
-            <StackPanel Opacity="0.85">
-            
-                <SymbolIcon Symbol="{Binding IconType}" />
+            <DataTemplate x:Key="HohoemaContentTemplate">
 
-                <Border Height="4" />
-                <TextBlock Text="{Binding Label}"
+            </DataTemplate>
+
+            <DataTemplate x:Key="MobileMenuItemTemplate">
+                <StackPanel Opacity="0.85">
+
+                    <SymbolIcon Symbol="{Binding IconType}" />
+
+                    <Border Height="4" />
+                    <TextBlock Text="{Binding Label}"
                            FontSize="12"
                            TextWrapping="Wrap"
                            HorizontalAlignment="Center"
                            />
 
-            </StackPanel>
-            
-        </DataTemplate>
+                </StackPanel>
 
-        <DataTemplate x:Key="MenuItemTemplate">
-            <StackPanel Orientation="Horizontal" Opacity="0.85"
+            </DataTemplate>
+
+            <DataTemplate x:Key="MenuItemTemplate">
+                <StackPanel Orientation="Horizontal" Opacity="0.85"
                         Margin="8 0 0 0"
                         >
 
-                <SymbolIcon Symbol="{Binding IconType}" />
+                    <SymbolIcon Symbol="{Binding IconType}" />
 
-                <Border Width="16" />
-                <TextBlock Text="{Binding Label}"
+                    <Border Width="16" />
+                    <TextBlock Text="{Binding Label}"
                            VerticalAlignment="Center"
                            FontSize="15"
                            />
 
-            </StackPanel>
+                </StackPanel>
 
-        </DataTemplate>
+            </DataTemplate>
 
+            <Style x:Key="VisualStudioCodeNotificationButtonStyle" TargetType="ButtonBase">
+                <Setter Property="Background" Value="#0E639C" />
+                <Setter Property="Foreground" Value="White" />
+                <Setter Property="VerticalAlignment" Value="Stretch" />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="Padding" Value="10 0" />
+                <Setter Property="Height" Value="35" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ButtonBase">
+                            <Grid x:Name="RootGrid" Padding="{TemplateBinding Padding}" Margin="{TemplateBinding Margin}" Background="{TemplateBinding Background}">
+                                <ContentPresenter Content="{TemplateBinding Content}"
+                                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="CommonStates">
+                                        <VisualState x:Name="Normal" />
+                                        <VisualState x:Name="PointerOver">
+                                            <Storyboard>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="Background">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="#1177BB" />
+                                                </ObjectAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </VisualState>
+                                        <VisualState x:Name="Pressed">
+                                            <Storyboard>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="Background">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="#1177BB" />
+                                                </ObjectAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </VisualState>
+                                        <VisualState x:Name="Disabled" />
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
 
     </ContentControl.Resources>
     
@@ -468,6 +512,60 @@
                         </SplitView.Content>
                     </SplitView>
                 </toolkit:DockPanel>
+
+                <uwpcontrol:InAppNotification
+                    x:Name="LiteNotification"
+                    >
+                    <uwpcontrol:InAppNotification.ContentTemplate>
+                        <DataTemplate>
+                            <uwpcontrol:WrapPanel Orientation="Horizontal" >
+
+                                <toolkit:DockPanel Margin="0 0 8 0 " 
+                                            Height="48"
+                                            >
+                                    <Image Source="ms-appx:///Assets/NewStoreLogo.scale-100.png" 
+                                           Height="32" Width="32" 
+                                           Margin="0 0 16 0" 
+                                           toolkit:DockPanel.Dock="Left"
+                                           VerticalAlignment="Center"
+                                           />
+
+
+                                    <TextBlock Grid.Column="1" 
+                                           VerticalAlignment="Center"
+                                           Text="{Binding Content}"
+                                           TextWrapping="Wrap" TextTrimming="CharacterEllipsis" />
+
+
+                                </toolkit:DockPanel>
+
+
+
+                                <ItemsControl Grid.Column="2"  ItemsSource="{Binding Commands}"
+                                              
+                                              >
+
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Horizontal" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Button Content="{Binding Label}" 
+                                                    Command="{Binding Command}"
+                                                    />
+
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                
+                                
+
+                            </uwpcontrol:WrapPanel>
+                        </DataTemplate>
+                    </uwpcontrol:InAppNotification.ContentTemplate>
+                </uwpcontrol:InAppNotification>
 
 
 

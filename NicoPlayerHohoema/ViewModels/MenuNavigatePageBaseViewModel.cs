@@ -31,6 +31,9 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReadOnlyReactiveProperty<HohoemaAppServiceLevel> ServiceLevel { get; private set; }
 
+        public ReactiveProperty<bool> IsShowInAppNotification { get; private set; }
+
+
         public MenuNavigatePageBaseViewModel(
             HohoemaApp hohoemaApp, 
             PageManager pageManager
@@ -228,6 +231,11 @@ namespace NicoPlayerHohoema.ViewModels
 
                 IsMobileNowSearching = false;
             });
+
+
+
+            // InAppNotification
+            IsShowInAppNotification = new ReactiveProperty<bool>(true);
         }
 
         private void PageManager_StartWork(string title, uint totalCount)
