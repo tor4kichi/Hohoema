@@ -487,7 +487,8 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
                 }
                 else if (comment.VAlign == VerticalAlignment.Center)
                 {
-                    if (!isCanAddRenderComment_Center) { continue; }
+                    continue;
+//                    if (!isCanAddRenderComment_Center) { continue; }
                 }
                 
                 
