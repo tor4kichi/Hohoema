@@ -466,7 +466,7 @@ namespace NicoPlayerHohoema.Models
     }
 
 
-    public class PlaylistPlayer : IDisposable
+    public class PlaylistPlayer : BindableBase, IDisposable
     {
         private IPlayableList _Playlist;
         public IPlayableList Playlist
@@ -494,6 +494,7 @@ namespace NicoPlayerHohoema.Models
         public bool CanGoNext => _InternalPlayer?.CanGoNext ?? false;
 
         IDisposable _SettingsObserveDisposer;
+        IDisposable _ItemsObservaeDisposer;
         
         private MediaPlaybackAutoRepeatMode _RepeatMode;
         public MediaPlaybackAutoRepeatMode RepeatMode
@@ -534,10 +535,11 @@ namespace NicoPlayerHohoema.Models
                 PlaylistSettings.ObserveProperty(x => x.IsShuffleEnable).ToUnit(),
                 PlaylistSettings.ObserveProperty(x => x.RepeatMode).ToUnit()
                 )
-                .Subscribe(_ => 
+                .Subscribe(_ =>
                 {
                     ResetPlayer();
                 });
+                
 
         }
 
@@ -545,11 +547,22 @@ namespace NicoPlayerHohoema.Models
         {
             _SettingsObserveDisposer?.Dispose();
             _SettingsObserveDisposer = null;
+            _ItemsObservaeDisposer?.Dispose();
+            _ItemsObservaeDisposer = null;
         }
 
         internal void ResetItems()
         {
+            _ItemsObservaeDisposer?.Dispose();
+            _ItemsObservaeDisposer = Playlist?.PlaylistItems.CollectionChangedAsObservable()
+                .Subscribe(x =>
+                {
+                    RaisePropertyChanged(nameof(CanGoBack));
+                    RaisePropertyChanged(nameof(CanGoNext));
+                });
             _InternalPlayer.Reset(Playlist?.PlaylistItems, Current);
+            RaisePropertyChanged(nameof(CanGoBack));
+            RaisePropertyChanged(nameof(CanGoNext));
         }
 
         private void ResetPlayer()
@@ -602,6 +615,8 @@ namespace NicoPlayerHohoema.Models
         internal void PlayStarted(PlaylistItem item)
         {
             (_InternalPlayer as PlaylistPlayerBase)?.PlayStarted(item);
+            RaisePropertyChanged(nameof(CanGoBack));
+            RaisePropertyChanged(nameof(CanGoNext));
         }
     }
 

@@ -513,9 +513,12 @@ namespace NicoPlayerHohoema.ViewModels
             })
                 .AddTo(_CompositeDisposable);
 
-            PlaylistCanGoBack = new ReactiveProperty<bool>(false);
-            PlaylistCanGoNext = new ReactiveProperty<bool>(false);
             IsDisplayControlUI = HohoemaApp.Playlist.ToReactivePropertyAsSynchronized(x => x.IsDisplayPlayerControlUI);
+
+            PlaylistCanGoBack = HohoemaApp.Playlist.Player.ObserveProperty(x => x.CanGoBack).ToReactiveProperty();
+            PlaylistCanGoNext = HohoemaApp.Playlist.Player.ObserveProperty(x => x.CanGoNext).ToReactiveProperty();
+
+
         }
 
         protected override async Task OnOffline(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
@@ -1315,6 +1318,8 @@ namespace NicoPlayerHohoema.ViewModels
             PlaylistItems = CurrentPlaylist.PlaylistItems.ToReadOnlyReactiveCollection();
             RaisePropertyChanged(nameof(PlaylistItems));
 
+            
+            
             HohoemaApp.MediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
             HohoemaApp.MediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
             
@@ -1988,7 +1993,7 @@ namespace NicoPlayerHohoema.ViewModels
                             }
                         }
                     }
-                    , () => HohoemaApp.Playlist.Player?.CanGoBack ?? false
+//                    , () => HohoemaApp.Playlist.Player?.CanGoBack ?? false
                     ));
             }
         }
@@ -2011,7 +2016,7 @@ namespace NicoPlayerHohoema.ViewModels
                             HohoemaApp.Playlist.PlayDone(_CurrentPlayingItem, canPlayNext:true);
                         }
                     }
-                    , () => HohoemaApp.Playlist.Player?.CanGoNext ?? false
+//                    , () => HohoemaApp.Playlist.Player?.CanGoNext ?? false
                     ));
             }
         }
@@ -2072,9 +2077,6 @@ namespace NicoPlayerHohoema.ViewModels
                             default:
                                 break;
                         }
-
-                        PlaylistCanGoBack.Value = HohoemaApp.Playlist.Player.CanGoBack;
-                        PlaylistCanGoNext.Value = HohoemaApp.Playlist.Player.CanGoNext;
                     }
                     ));
             }
@@ -2089,9 +2091,6 @@ namespace NicoPlayerHohoema.ViewModels
                     ?? (_ToggleShuffleCommand = new DelegateCommand(() =>
                     {
                         HohoemaApp.UserSettings.PlaylistSettings.IsShuffleEnable = !HohoemaApp.UserSettings.PlaylistSettings.IsShuffleEnable;
-
-                        PlaylistCanGoBack.Value = HohoemaApp.Playlist.Player.CanGoBack;
-                        PlaylistCanGoNext.Value = HohoemaApp.Playlist.Player.CanGoNext;
                     }
                     ));
             }

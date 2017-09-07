@@ -678,7 +678,7 @@ namespace NicoPlayerHohoema.Models
             {
                 // 直前に同一動画を見ていた場合には、動画ページに再アクセスする
                 DmcSessionResponse clearPreviousSession = null;
-                if (_DmcSessionResponse != null)
+                if (_DmcSessionResponse != null && DmcWatchEnvironment != null)
                 {
                     if (_DmcSessionResponse.Data.Session.RecipeId.EndsWith(RawVideoId))
                     {
@@ -695,7 +695,7 @@ namespace NicoPlayerHohoema.Models
 
                 if (clearPreviousSession != null)
                 {
-                    await HohoemaApp.NiconicoContext.Video.DmcSessionExttHeartbeatAsync(DmcWatchResponse, clearPreviousSession);
+                    await HohoemaApp.NiconicoContext.Video.DmcSessionExitHeartbeatAsync(DmcWatchResponse, clearPreviousSession);
                 }
 
                 return new Uri(_DmcSessionResponse.Data.Session.ContentUri);
