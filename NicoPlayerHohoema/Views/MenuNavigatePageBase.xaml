@@ -20,7 +20,7 @@
     xmlns:softwareTrigger="using:AdaptiveTriggerLibrary.Triggers.SoftwareInterfaceTriggers"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:uwpcontrol="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    xmlns:uwpUI="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     IsTabStop="False"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
@@ -265,7 +265,8 @@
                                                 SelectedItem="{Binding SubSelectedItem.Value, Mode=TwoWay}"
                                                 SelectionMode="Single"
                                                 DisplayMemberPath="Label"
-                                              
+                                              uwpui:ListViewBase.Command="{Binding MenuItemSelectedCommand}"
+                                                  IsItemClickEnabled="True"
                                             >
                                             <ListView.ItemContainerStyle>
                                                 <Style TargetType="ListViewItem">
@@ -280,7 +281,7 @@
                             </AppBarButton.Flyout>
                         </AppBarButton>
 
-                        <ListBox ItemsSource="{Binding MenuItems}"
+                        <ListView ItemsSource="{Binding MenuItems}"
                                 SelectedItem="{Binding MainSelectedItem.Value, Mode=TwoWay}"
                                 SelectionMode="Single"
                                 ItemTemplate="{StaticResource MobileMenuItemTemplate}"
@@ -288,24 +289,28 @@
                                  Background="Transparent"
                                  ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                                  ScrollViewer.HorizontalScrollMode="Auto"
+                                  ScrollViewer.VerticalScrollMode="Disabled"
+                                  ScrollViewer.VerticalScrollBarVisibility="Hidden"
                                  TabIndex="5"
+                                 uwpui:ListViewBase.Command="{Binding MenuItemSelectedCommand}"
+                                 IsItemClickEnabled="True"
                             >
-                            <ListBox.ItemsPanel>
+                            <ListView.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" HorizontalAlignment="Center" />
                                 </ItemsPanelTemplate>
-                            </ListBox.ItemsPanel>
-                            <ListBox.ItemContainerStyle>
-                                <Style TargetType="ListBoxItem">
+                            </ListView.ItemsPanel>
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
                                     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                     <Setter Property="VerticalContentAlignment" Value="Center" />
-                                    <Setter Property="Height" Value="64" />
-                                    <Setter Property="Width" Value="72" />
+                                    <Setter Property="Height" Value="48" />
+                                    <Setter Property="Width" Value="48" />
                                     <Setter Property="Padding" Value="0 8" />
                                     <Setter Property="Background" Value="Transparent" />
                                 </Style>
-                            </ListBox.ItemContainerStyle>
-                        </ListBox>
+                            </ListView.ItemContainerStyle>
+                        </ListView>
 
 
                     </toolkit:DockPanel>
@@ -391,6 +396,8 @@
                                                   Background="Transparent"
                                                   SingleSelectionFollowsFocus="False"
                                                   TabIndex="5"
+                                                  uwpui:ListViewBase.Command="{Binding MenuItemSelectedCommand}"
+                                                  IsItemClickEnabled="True"
                                                 >
                                             <ListView.ItemContainerTransitions>
                                                 <TransitionCollection />

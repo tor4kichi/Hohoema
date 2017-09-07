@@ -257,7 +257,8 @@ namespace NicoPlayerHohoema.ViewModels
                         dialog.DefaultCommandIndex = 1;
 
                         await dialog.ShowAsync();
-                    }));
+                    }, () => CanEditMylist
+                    ));
             }
         }
 
@@ -740,26 +741,27 @@ namespace NicoPlayerHohoema.ViewModels
 
                     MylistState = "ローカル";
 
-                    CanEditMylist = true;
+                    CanEditMylist = !IsWatchAfterLocalMylist;
 
                     break;
                 default:
                     break;
             }
 
-            
-            
-            
 
-			UpdateTitle(MylistTitle);
+
+
+            UpdateTitle(MylistTitle);
 
 
 			EditMylistGroupCommand.RaiseCanExecuteChanged();
-		}
+            DeleteMylistCommand.RaiseCanExecuteChanged();
 
-		
+        }
 
-		protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
+
+
+        protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
 		{
             if (PlayableList.Value.Origin == PlaylistOrigin.Local)
             {

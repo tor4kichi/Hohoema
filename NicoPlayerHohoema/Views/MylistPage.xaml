@@ -25,6 +25,13 @@
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding CanEditMylist, Converter={StaticResource BooleanInverted}}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
                         <mytrigger:EqualConditionStateTrigger Condition="LoginUser" Value="{Binding MylistOrigin.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>

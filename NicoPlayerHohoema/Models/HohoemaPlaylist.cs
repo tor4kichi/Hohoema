@@ -132,7 +132,9 @@ namespace NicoPlayerHohoema.Models
             MediaPlayer.CommandManager.NextReceived += CommandManager_NextReceived;
             MediaPlayer.CommandManager.PreviousReceived += CommandManager_PreviousReceived;
 
-        }
+            MakeDefaultPlaylist();
+        }                
+
 
         private void Smtc_AutoRepeatModeChangeRequested(SystemMediaTransportControls sender, AutoRepeatModeChangeRequestedEventArgs args)
         {
@@ -174,8 +176,6 @@ namespace NicoPlayerHohoema.Models
 
             _PlaylistFileAccessorMap.Clear();
             _Playlists.Clear();
-            DefaultPlaylist = null;
-
 
             // 読み込み
             List<LocalMylist> loadedItem = new List<LocalMylist>();
@@ -183,6 +183,12 @@ namespace NicoPlayerHohoema.Models
             {
                 var playlistFileAccessor = new FileAccessor<LocalMylist>(PlaylistsSaveFolder, file.Name);
                 var playlist = await playlistFileAccessor.Load();
+
+                if (playlist.Id == WatchAfterPlaylistId)
+                {
+                    await playlistFileAccessor.Delete();
+                    continue;
+                }
 
                 if (playlist != null)
                 {
@@ -219,11 +225,6 @@ namespace NicoPlayerHohoema.Models
                     }
 
                 }
-
-                if (playlist.Id == WatchAfterPlaylistId)
-                {
-                    DefaultPlaylist = playlist;
-                }
             }
 
             loadedItem.Sort((x, y) => x.SortIndex - y.SortIndex);
@@ -231,19 +232,6 @@ namespace NicoPlayerHohoema.Models
             foreach (var sortedPlaylist in loadedItem)
             {
                 _Playlists.Add(sortedPlaylist);
-            }
-            
-
-            // デフォルトプレイリストが削除されていた場合に対応
-            if (DefaultPlaylist == null)
-            {
-                MakeDefaultPlaylist();
-            }
-
-            // Live Item は削除
-            foreach (var i in DefaultPlaylist.PlaylistItems.Where(x => !NiconicoRegex.IsVideoId(x.ContentId)).ToArray())
-            {
-                DefaultPlaylist.Remove(i);
             }
         }
 

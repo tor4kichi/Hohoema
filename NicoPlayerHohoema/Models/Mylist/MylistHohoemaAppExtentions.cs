@@ -16,6 +16,10 @@ namespace NicoPlayerHohoema.Models
                 {
                     origin = PlaylistOrigin.LoginUser;
                 }
+                else if (HohoemaPlaylist.WatchAfterPlaylistId == id)
+                {
+                    origin = PlaylistOrigin.Local;
+                }
                 else if (hohoemaApp.Playlist.Playlists.FirstOrDefault(x => x.Id == id) != null)
                 {
                     origin = PlaylistOrigin.Local;
@@ -33,7 +37,14 @@ namespace NicoPlayerHohoema.Models
                     return hohoemaApp.UserMylistManager.GetMylistGroup(id);
                 case PlaylistOrigin.Local:
                     // ローカルマイリスト
-                    return hohoemaApp.Playlist.Playlists.FirstOrDefault(x => x.Id == id);
+                    if (id == HohoemaPlaylist.WatchAfterPlaylistId)
+                    {
+                        return hohoemaApp.Playlist.DefaultPlaylist;
+                    }
+                    else
+                    {
+                        return hohoemaApp.Playlist.Playlists.FirstOrDefault(x => x.Id == id);
+                    }
                 case PlaylistOrigin.OtherUser:
                     // 他ユーザーのマイリスト
                     return await hohoemaApp.OtherOwneredMylistManager.GetMylist(id);

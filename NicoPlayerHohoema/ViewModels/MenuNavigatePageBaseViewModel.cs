@@ -84,14 +84,14 @@ namespace NicoPlayerHohoema.ViewModels
 
             MainSelectedItem = new ReactiveProperty<PageTypeSelectableItem>(MenuItems[0], ReactivePropertyMode.DistinctUntilChanged);
             SubSelectedItem = new ReactiveProperty<PageTypeSelectableItem>(null, ReactivePropertyMode.DistinctUntilChanged);
-
+            /*
             Observable.Merge(
                 MainSelectedItem, 
                 SubSelectedItem
                 )
                 .Where(x => x != null)
                 .Subscribe(x => x.SelectedAction(x.Source));
-            
+            */
             PageManager.ObserveProperty(x => x.CurrentPageType)
 				.Subscribe(pageType => 
 				{
@@ -396,6 +396,18 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+        DelegateCommand<PageTypeSelectableItem> _MenuItemSelectedCommand;
+        public DelegateCommand<PageTypeSelectableItem> MenuItemSelectedCommand
+        {
+            get
+            {
+                return _MenuItemSelectedCommand
+                    ?? (_MenuItemSelectedCommand = new DelegateCommand<PageTypeSelectableItem>((item) => 
+                    {
+                        item.SelectedAction(item.Source);
+                    }));
+            }
+        }
 
         public List<PageTypeSelectableItem> MenuItems { get; private set; }
 
