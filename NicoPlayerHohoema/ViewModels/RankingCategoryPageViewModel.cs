@@ -227,22 +227,38 @@ namespace NicoPlayerHohoema.ViewModels
 
         readonly Regex RankingRankPrefixPatternRegex = new Regex("(^第\\d*位：)");
 
-        List<NicoVideo> Videos = new List<NicoVideo>();
+//        List<NicoVideo> Videos = new List<NicoVideo>();
 
         #region Implements HohoemaPreloadingIncrementalSourceBase		
 
-        public override uint OneTimeLoadCount => 15;
+        public override uint OneTimeLoadCount => 10;
 
         protected override async Task<IEnumerable<NicoVideo>> PreloadNicoVideo(int start, int count)
 		{
             await Task.Delay(0);
 
-			if (RankingRss != null)
-			{
-                return Videos.Skip(start).Take(count);
+            if (RankingRss != null)
+            {
+                var items = RankingRss.Channel.Items.Skip(start).Take(count).ToArray();
+
+                var nicoVideos = await HohoemaApp.MediaManager.GetNicoVideoItemsAsync(items.Select(x => x.GetVideoId()).ToArray());
+
+                for (var index = 0; index < nicoVideos.Count; ++index)
+                {
+                    var item = items[index];
+                    var nicoVideo = nicoVideos[index];
+
+
+                    var title = RankingRankPrefixPatternRegex.Replace(item.Title, "");
+
+                    nicoVideo.PreSetTitle(title);
+                    //					nicoVideo.PreSetPostAt(DateTime.Parse(item.PubDate));
+                }
+
+                return nicoVideos;
             }
-			else
-			{
+            else
+            {
 				return Enumerable.Empty<NicoVideo>();
 			}
 		}
@@ -251,26 +267,6 @@ namespace NicoPlayerHohoema.ViewModels
 		protected override async Task<int> HohoemaPreloadingResetSourceImpl()
 		{
 			RankingRss = await NiconicoRanking.GetRankingData(_Target, _TimeSpan, _Category);
-
-            if (RankingRss != null)
-            {
-                var items = RankingRss.Channel.Items.ToArray();
-
-                Videos = await HohoemaApp.MediaManager.GetNicoVideoItemsAsync(items.Select(x => x.GetVideoId()).ToArray());
-
-
-                for (var index = 0; index < Videos.Count; ++index)
-                {
-                    var item = items[index];
-                    var nicoVideo = Videos[index];
-
-//                    var title = RankingRankPrefixPatternRegex.Replace(item.Title, "");
-
-//                    nicoVideo.PreSetTitle(item.Title);
-                    //					nicoVideo.PreSetPostAt(DateTime.Parse(item.PubDate));
-                }
-            }
-            
 
             return RankingRss.Channel.Items.Count;
 		}
