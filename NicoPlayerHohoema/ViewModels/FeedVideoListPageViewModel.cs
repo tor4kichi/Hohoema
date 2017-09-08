@@ -66,7 +66,7 @@ namespace NicoPlayerHohoema.ViewModels
 			});
 		}
 
-		protected override Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		protected override async Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			if (e.Parameter is Guid)
 			{
@@ -90,12 +90,17 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				UpdateTitle(FeedGroup.Label);
 
-				LastUpdate.Value = FeedGroup.UpdateTime;
+                if (FeedGroup.IsNeedRefresh)
+                {
+                    await FeedGroup.Refresh();
+                }
+
+                LastUpdate.Value = FeedGroup.UpdateTime;
 
 				AllMarkAsReadCommand.RaiseCanExecuteChanged();
 			}
 
-			return Task.CompletedTask;
+			await Task.CompletedTask;
 		}
 
 		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
