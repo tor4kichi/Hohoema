@@ -161,6 +161,7 @@
                             <Button Command="{Binding OpenUserPageCommand}"
                                 Background="Transparent"
                                     x:Name="OpenUserPageButton"
+                                    Visibility="{Binding IsLocalMylist, Converter={StaticResource BooleanToVisibilityInverted}}"
                                      >
                                 <SymbolIcon Symbol="People" />
                             </Button>
@@ -203,7 +204,6 @@
 
                             <Button Command="{Binding RegistratioMylistCommand}"
                                             Background="Transparent"
-                                        Visibility="{Binding CanEditMylist, Converter={StaticResource BooleanToVisibilityInverted}}"
                                             >
                                 <StackPanel Orientation="Horizontal">
                                     <SymbolIcon Symbol="Add" />
@@ -212,33 +212,12 @@
                                                    />
                                 </StackPanel>
                             </Button>
-                            <Button Command="{Binding CopyMylistCommand}"
-                                        Background="Transparent"
-                                        Visibility="{Binding CanEditMylist, Converter={StaticResource BooleanToVisibility}}"
-                                    IsEnabled="{Binding IsUserOwnerdMylist}"
-                                        >
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="コピー"
-                                                VerticalAlignment="Center"
-                                                />
-                                </StackPanel>
-                            </Button>
-                            <Button Command="{Binding MoveMylistCommand}"
-                                        Background="Transparent"
-                                        Visibility="{Binding CanEditMylist, Converter={StaticResource BooleanToVisibility}}"
-                                    IsEnabled="{Binding IsUserOwnerdMylist}"
-                                        >
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="移動"
-                                                VerticalAlignment="Center"
-                                                />
-                                </StackPanel>
-                            </Button>
                             <Button Command="{Binding UnregistrationMylistCommand}"
                                         Background="Transparent"
-                                        Visibility="{Binding CanEditMylist, Converter={StaticResource BooleanToVisibility}}"
+                                        Visibility="{Binding IsUserOwnerdMylist, Converter={StaticResource BooleanToVisibility}}"
                                         >
                                 <StackPanel Orientation="Horizontal">
+                                    <SymbolIcon Symbol="Remove" />
                                     <TextBlock Text="マイリスト解除"
                                                 VerticalAlignment="Center"
                                                 />

@@ -106,6 +106,13 @@ namespace NicoPlayerHohoema.ViewModels
             set { SetProperty(ref _IsWatchAfterLocalMylist, value); }
         }
 
+        private bool _IsLocalMylist;
+        public bool IsLocalMylist
+        {
+            get { return _IsLocalMylist; }
+            set { SetProperty(ref _IsLocalMylist, value); }
+        }
+
 
         private string _UserName;
         public string UserName
@@ -671,9 +678,10 @@ namespace NicoPlayerHohoema.ViewModels
 
             
             IsLoginUserDeflist = false;
-            IsUserOwnerdMylist = HohoemaApp.UserMylistManager.HasMylistGroup(PlayableList.Value.Id);
             IsWatchAfterLocalMylist = PlayableList.Value.Origin == PlaylistOrigin.Local &&
                 PlayableList.Value.Id == HohoemaPlaylist.WatchAfterPlaylistId;
+            IsUserOwnerdMylist = HohoemaApp.UserMylistManager.HasMylistGroup(PlayableList.Value.Id) || IsWatchAfterLocalMylist;
+            IsLocalMylist = PlayableList.Value.Origin == PlaylistOrigin.Local;
 
             switch (PlayableList.Value.Origin)
             {
