@@ -367,7 +367,7 @@ namespace NicoPlayerHohoema.ViewModels
                 Title = "マイリスト",
                 Origin = PlaylistOrigin.LoginUser,
                 Items = listItems.ToReadOnlyReactiveCollection(x => x as IPlayableList),
-                MaxItemsCountText = "25"
+                MaxItemsCountText = "26"
             });
         }
 	}
