@@ -237,10 +237,13 @@ namespace NicoPlayerHohoema.Models
 
         public async Task Save(LocalMylist playlist)
         {
-            var fileAccessor = _PlaylistFileAccessorMap[playlist.Id];
-            await fileAccessor.Save(playlist);
+            if (_PlaylistFileAccessorMap.ContainsKey(playlist.Id))
+            {
+                var fileAccessor = _PlaylistFileAccessorMap[playlist.Id];
+                await fileAccessor.Save(playlist);
 
-            await HohoemaApp.PushToRoamingData(await fileAccessor.TryGetFile());
+                await HohoemaApp.PushToRoamingData(await fileAccessor.TryGetFile());
+            }
         }
 
         public async Task Save()

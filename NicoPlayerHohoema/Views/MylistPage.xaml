@@ -263,17 +263,20 @@
                             </core:EventTriggerBehavior>
                         </i:Interaction.Behaviors>
 
-                        <TextBlock Text="{Binding Title, Mode=OneWay}" 
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Title, Mode=OneWay}" 
                                     VerticalAlignment="Center"
                                     Style="{StaticResource SubtitleTextBlockStyle}"
-                                    >
-                                
-                                
+                                    />
+
+                        </StackPanel>
 
 
-                        </TextBlock>
 
-                        <toolkit:DockPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+
+
+
+                        <StackPanel Orientation="Horizontal" Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                            Margin="0 4"
                                            >
 
@@ -282,7 +285,23 @@
                                 <Run Text="の" />
                                 <Run Text="{Binding MylistState}" />
                             </TextBlock>
-                            
+
+                            <Border Visibility="{Binding IsLoginUserDeflist, Converter={StaticResource BooleanToVisibility}}"
+                                    Margin="8 0 0 0"
+                                    >
+                                <TextBlock>
+                                    (登録:<Run Text="{Binding DeflistRegistrationCount}" /> 上限:<Run Text="{Binding DeflistRegistrationCapacity}" />)
+                                </TextBlock>
+
+                            </Border>
+                            <Border Visibility="{Binding IsLoginUserMylistWithoutDeflist, Converter={StaticResource BooleanToVisibility}}"
+                                    Margin="8 0 0 0"
+                                    >
+                                <TextBlock >
+                                    (登録:<Run Text="{Binding MaxItemsCount.Value}" /> 合計:<Run Text="{Binding MylistRegistrationCount}" /> 上限:<Run Text="{Binding MylistRegistrationCapacity}" />)
+                                </TextBlock>
+
+                            </Border>
                             <!--
                             <Grid x:Name="SearchButtonBorder"
                                     BorderThickness="1"
@@ -309,7 +328,7 @@
                                 </Button>
                             </Grid>
                             -->
-                        </toolkit:DockPanel>
+                        </StackPanel>
                     </StackPanel>
 
 

@@ -91,11 +91,11 @@
                             >
                             <Button.Flyout>
                                 <MenuFlyout>
-                                    <MenuFlyoutItem Text="マイリストを作成"
-                                                    Command="{Binding AddMylistGroupCommand}"
-                                                    />
                                     <MenuFlyoutItem Text="ローカルマイリストを作成"
                                                     Command="{Binding AddLocalMylistCommand}"
+                                                    />
+                                    <MenuFlyoutItem Text="マイリストを作成"
+                                                    Command="{Binding AddMylistGroupCommand}"
                                                     />
                                 </MenuFlyout>
                             </Button.Flyout>
@@ -131,10 +131,19 @@
 
                                     <toolkit:DockPanel>
 
-                                        <TextBlock Text="{Binding Title}"
+                                        <StackPanel toolkit:DockPanel.Dock="Top"
+                                                    Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Title}"
                                                    Style="{StaticResource SubtitleTextBlockStyle}"
-                                                   toolkit:DockPanel.Dock="Top"
                                                    />
+
+                                            <TextBlock VerticalAlignment="Bottom" 
+                                                       Visibility="{Binding MaxItemsCountText, Converter={StaticResource NotNullToVisibility}}"
+                                                       Margin="8 0 0 0"
+                                                       >
+                                                <Run Text="{Binding Items.Count}" />/<Run Text="{Binding MaxItemsCountText}" />
+                                            </TextBlock>
+                                        </StackPanel>
 
 
                                         <GridView ItemsSource="{Binding Items}"
@@ -189,10 +198,19 @@
 
                                     <toolkit:DockPanel>
 
-                                        <TextBlock Text="{Binding Title}"
+                                        <StackPanel toolkit:DockPanel.Dock="Top"
+                                                    Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Title}"
                                                    Style="{StaticResource SubtitleTextBlockStyle}"
-                                                   toolkit:DockPanel.Dock="Top"
                                                    />
+
+                                            <TextBlock VerticalAlignment="Bottom" 
+                                                       Visibility="{Binding MaxItemsCountText, Converter={StaticResource NotNullToVisibility}}"
+                                                       Margin="8 0 0 0"
+                                                       >
+                                                <Run Text="{Binding Items.Count}" />/<Run Text="{Binding MaxItemsCountText}" />
+                                            </TextBlock>
+                                        </StackPanel>
 
                                         <GridView ItemsSource="{Binding Items}"
                                                     Margin="0 8"

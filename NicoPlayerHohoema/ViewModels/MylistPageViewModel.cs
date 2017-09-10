@@ -99,6 +99,13 @@ namespace NicoPlayerHohoema.ViewModels
             set { SetProperty(ref _IsLoginUserDeflist, value); }
         }
 
+        private bool _IsLoginUserMylistWithoutDeflist;
+        public bool IsLoginUserMylistWithoutDeflist
+        {
+            get { return _IsLoginUserMylistWithoutDeflist; }
+            set { SetProperty(ref _IsLoginUserMylistWithoutDeflist, value); }
+        }
+
         private bool _IsWatchAfterLocalMylist;
         public bool IsWatchAfterLocalMylist
         {
@@ -113,7 +120,6 @@ namespace NicoPlayerHohoema.ViewModels
             set { SetProperty(ref _IsLocalMylist, value); }
         }
 
-
         private string _UserName;
         public string UserName
         {
@@ -124,7 +130,10 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<bool> IsFavoriteMylist { get; private set; }
         public ReactiveProperty<bool> CanChangeFavoriteMylistState { get; private set; }
 
-
+        public int DeflistRegistrationCapacity { get; private set; }
+        public int DeflistRegistrationCount { get; private set; }
+        public int MylistRegistrationCapacity { get; private set; }
+        public int MylistRegistrationCount { get; private set; }
 
         #region Commands
 
@@ -683,6 +692,9 @@ namespace NicoPlayerHohoema.ViewModels
             IsUserOwnerdMylist = HohoemaApp.UserMylistManager.HasMylistGroup(PlayableList.Value.Id) || IsWatchAfterLocalMylist;
             IsLocalMylist = PlayableList.Value.Origin == PlaylistOrigin.Local;
 
+            IsLoginUserMylistWithoutDeflist = false;
+
+
             switch (PlayableList.Value.Origin)
             {
                 case PlaylistOrigin.LoginUser:
@@ -702,10 +714,15 @@ namespace NicoPlayerHohoema.ViewModels
                     if (IsLoginUserDeflist)
                     {
                         MylistState = "とりあえずマイリスト";
+                        DeflistRegistrationCapacity = HohoemaApp.UserMylistManager.DeflistRegistrationCapacity;
+                        DeflistRegistrationCount = HohoemaApp.UserMylistManager.DeflistRegistrationCount;
                     }
                     else
                     {
+                        IsLoginUserMylistWithoutDeflist = true;
                         MylistState = IsPublic ? "公開マイリスト" : "非公開マイリスト";
+                        MylistRegistrationCapacity = HohoemaApp.UserMylistManager.MylistRegistrationCapacity;
+                        MylistRegistrationCount = HohoemaApp.UserMylistManager.MylistRegistrationCount;
                     }
                     break;
 

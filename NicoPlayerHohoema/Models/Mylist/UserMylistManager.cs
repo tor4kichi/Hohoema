@@ -281,6 +281,7 @@ namespace NicoPlayerHohoema.Models
 		public IconType IconType { get; set; }
 		public MylistDefaultSort Sort { get; set; }
         public int Count { get; set; }
+        public int RegistrationLimit { get; set; }
 
         public MylistGroupInfo(string groupId, HohoemaApp hohoemaApp, UserMylistManager mylistManager)
 		{
@@ -374,7 +375,6 @@ namespace NicoPlayerHohoema.Models
 		{
 			return IsDeflist ? true : MylistManager.CanAddMylistItem;
 		}
-
 
 		public async Task<ContentManageResult> Registration(string videoId, string mylistComment = "", bool withRefresh = true)
 		{

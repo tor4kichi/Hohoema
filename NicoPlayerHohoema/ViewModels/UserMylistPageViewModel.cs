@@ -100,7 +100,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 						if (result == Mntone.Nico2.ContentManageResult.Success)
 						{
-							await UpdateUserMylist();
+//							await UpdateUserMylist();
 							break;
 						}
 					}
@@ -140,8 +140,7 @@ namespace NicoPlayerHohoema.ViewModels
                     else if (item.Origin == PlaylistOrigin.LoginUser)
                     {
                         await HohoemaApp.UserMylistManager.RemoveMylist(item.Id);
-
-                        await UpdateUserMylist();
+//                        await UpdateUserMylist();
                     }
                 }));
 
@@ -309,7 +308,7 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     Title = "マイリスト",
                     Origin = PlaylistOrigin.OtherUser,
-                    Items = mylists.ToList(),
+                    Items = mylists.ToList()
                 });
 
                 RaisePropertyChanged(nameof(MylistList));
@@ -353,19 +352,22 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 
             var listItems = HohoemaApp.UserMylistManager.UserMylists;
+            MylistList.Clear();
 
             MylistList.Add(new MylistItemsWithTitle()
             {
                 Title = "ローカル",
                 Origin = PlaylistOrigin.Local,
-                Items = HohoemaApp.Playlist.Playlists.ToReadOnlyReactiveCollection(x => x as IPlayableList)
+                Items = HohoemaApp.Playlist.Playlists.ToReadOnlyReactiveCollection(x => x as IPlayableList),
+                MaxItemsCountText = "∞"
             });
 
             MylistList.Add(new MylistItemsWithTitle()
             {
                 Title = "マイリスト",
                 Origin = PlaylistOrigin.LoginUser,
-                Items = listItems.ToReadOnlyReactiveCollection(x => x as IPlayableList)
+                Items = listItems.ToReadOnlyReactiveCollection(x => x as IPlayableList),
+                MaxItemsCountText = "25"
             });
         }
 	}
@@ -449,6 +451,7 @@ namespace NicoPlayerHohoema.ViewModels
     public class MylistItemsWithTitle : ListWithTitle<IPlayableList>
     {
         public PlaylistOrigin Origin { get; set; }
+        public string MaxItemsCountText { get; set; }
     }
 
 
