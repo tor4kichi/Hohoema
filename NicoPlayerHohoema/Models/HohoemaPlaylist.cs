@@ -879,7 +879,7 @@ namespace NicoPlayerHohoema.Models
             RandamizedItems.Clear();
             var shuffledUnplayItems = copied
                 .Where(x => !PlayedItem.Any(y => x.ContentId == y.ContentId))
-                .Where(x => currentItem != null && currentItem.ContentId != x.ContentId)
+                .Where(x => currentItem == null || currentItem.ContentId != x.ContentId)
                 .Shuffle();
             foreach (var shuffled in shuffledUnplayItems)
             {
