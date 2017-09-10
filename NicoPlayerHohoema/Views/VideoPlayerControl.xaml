@@ -535,6 +535,7 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="UIControlLayout.Visibility" Value="Collapsed" />
+                        <Setter Target="PlaylistSplitView.OpenPaneLength" Value="120" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
