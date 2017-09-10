@@ -1312,7 +1312,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             ThumbnailUri.Value = Video.ThumbnailUrl;
             CurrentPlaylist = HohoemaApp.Playlist.CurrentPlaylist;
-            _CurrentPlayingItem = HohoemaApp.Playlist.Player.Current;
+            CurrentPlayingItem = HohoemaApp.Playlist.Player.Current;
 
             CurrentPlaylistName.Value = CurrentPlaylist.Name;
             PlaylistItems = CurrentPlaylist.PlaylistItems.ToReadOnlyReactiveCollection();
@@ -1452,7 +1452,7 @@ namespace NicoPlayerHohoema.ViewModels
                 // VideoPlayedはMediaPlayerが動作しているコンテキスト上から呼ばれる可能性がある
                 PlayerWindowUIDispatcherScheduler.Schedule(() => 
                 {
-                    HohoemaApp.Playlist.PlayDone(_CurrentPlayingItem, canPlayNext);
+                    HohoemaApp.Playlist.PlayDone(CurrentPlayingItem, canPlayNext);
                 });
 
                 _IsVideoPlayed = true;
@@ -1985,7 +1985,7 @@ namespace NicoPlayerHohoema.ViewModels
                             // NavigatingFromで再生完了が呼ばれた時にPlaylist.PlayDoneが多重呼び出しされないようにする
                             _IsVideoPlayed = true;
 
-                            HohoemaApp.Playlist.PlayDone(_CurrentPlayingItem);
+                            HohoemaApp.Playlist.PlayDone(CurrentPlayingItem);
 
                             if (player.CanGoBack)
                             {
@@ -2013,7 +2013,7 @@ namespace NicoPlayerHohoema.ViewModels
                             // NavigatingFromで再生完了が呼ばれた時にPlaylist.PlayDoneが多重呼び出しされないようにする
                             _IsVideoPlayed = true;
 
-                            HohoemaApp.Playlist.PlayDone(_CurrentPlayingItem, canPlayNext:true);
+                            HohoemaApp.Playlist.PlayDone(CurrentPlayingItem, canPlayNext:true);
                         }
                     }
 //                    , () => HohoemaApp.Playlist.Player?.CanGoNext ?? false
@@ -2029,7 +2029,10 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenPlaylistItemCommand
                     ?? (_OpenPlaylistItemCommand = new DelegateCommand<PlaylistItem>((item) =>
                     {
-                        HohoemaApp.Playlist.Play(item);
+                        if (item != CurrentPlayingItem)
+                        {
+                            HohoemaApp.Playlist.Play(item);
+                        }
                     }
                     ));
             }
@@ -2151,7 +2154,11 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         private PlaylistItem _CurrentPlayingItem;
-
+        public PlaylistItem CurrentPlayingItem
+        {
+            get { return _CurrentPlayingItem; }
+            set { SetProperty(ref _CurrentPlayingItem, value); }
+        }
 
         private string _VideoTitle;
         public string VideoTitle

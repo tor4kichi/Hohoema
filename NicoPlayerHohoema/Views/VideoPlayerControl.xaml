@@ -818,6 +818,7 @@
                         </StackPanel>
 
                         <ListView ItemsSource="{Binding PlaylistItems}"
+                                  SelectedItem="{Binding CurrentPlayingItem, Mode=TwoWay}"
                                         SelectionMode="Single"
                                         SingleSelectionFollowsFocus="False"
                                       uwpui:ListViewBase.Command="{Binding OpenPlaylistItemCommand}"
