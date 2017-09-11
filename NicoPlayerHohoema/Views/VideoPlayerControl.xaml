@@ -1594,6 +1594,8 @@
 
                                 <Grid>
                                     <Border IsHitTestVisible="True" Background="Transparent">
+
+                                        
                                         <i:Interaction.Behaviors>
 
                                             <core:EventTriggerBehavior EventName="Tapped">
@@ -1609,6 +1611,12 @@
                                             Height="32"
                                             Background="{StaticResource HohoemaPlayerBackgroundBrush}"
                                             >
+                                        <TextBlock Text="{Binding Title}" 
+                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                                   VerticalAlignment="Center"
+                                                   Margin="14 0 8 0"
+                                                   />
+
                                     </Border>
 
                                     <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
