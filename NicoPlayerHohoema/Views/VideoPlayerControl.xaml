@@ -684,7 +684,7 @@
 
                 <SplitView.Pane>
                     <toolkit:DockPanel x:Name="PlaylistSplitViewPaneLayout">
-                        <StackPanel toolkit:DockPanel.Dock="Top" Margin="0 0 0 16">
+                        <StackPanel toolkit:DockPanel.Dock="Top" Margin="0 4 0 8">
                             <toolkit:DockPanel >
                                 <StackPanel Orientation="Horizontal"
                                                 toolkit:DockPanel.Dock="Left"
@@ -826,10 +826,16 @@
                                   x:Name="PlaylistItemsListView"
                                   Background="{StaticResource HohoemaPlayerBackgroundBrush}"
                                           >
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="Padding" Value="8 6 8 6" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
                             <ListView.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Title}"
                                                        TextWrapping="Wrap"
+                                               VerticalAlignment="Center"
                                                        />
                                 </DataTemplate>
                             </ListView.ItemTemplate>
