@@ -28,7 +28,6 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class SearchPageViewModel : HohoemaListingPageViewModelBase<SearchHistoryListItem>
     {
-		Views.Service.MylistRegistrationDialogService _MylistDialogService;
 		public ISearchPagePayloadContent RequireSearchOption { get; private set; }
 
 
@@ -60,11 +59,9 @@ namespace NicoPlayerHohoema.ViewModels
 			RaisePropertyChanged(nameof(IsSearchNiconama));
 		}
 
-		public SearchPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
+		public SearchPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
 			: base(hohoemaApp, pageManager)
 		{
-			_MylistDialogService = mylistDialogService;
-
 			SearchText = new ReactiveProperty<string>("")
 				.AddTo(_CompositeDisposable);
 

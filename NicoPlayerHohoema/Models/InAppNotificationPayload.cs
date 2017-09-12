@@ -44,7 +44,7 @@ namespace NicoPlayerHohoema.Models
                 Content = content,
                 SymbolIcon = symbolIcon,
                 ShowDuration = showDuration,
-                IsShowDismissButton = false
+                IsShowDismissButton = true
             };
         }
 

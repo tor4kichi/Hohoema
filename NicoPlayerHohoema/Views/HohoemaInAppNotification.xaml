@@ -20,7 +20,7 @@
                 <uwpcontrol:WrapPanel Orientation="Horizontal" >
 
                     <toolkit:DockPanel Margin="0 0 8 0 " 
-                                            Height="48"
+                                            MinHeight="48"
                                             >
                         <Image Source="ms-appx:///Assets/NewStoreLogo.scale-100.png" 
                                            Height="32" Width="32" 
@@ -33,7 +33,8 @@
                         <TextBlock Grid.Column="1" 
                                            VerticalAlignment="Center"
                                            Text="{Binding Content}"
-                                           TextWrapping="Wrap" TextTrimming="CharacterEllipsis" />
+                                           TextWrapping="Wrap"
+                                    />
 
 
                     </toolkit:DockPanel>

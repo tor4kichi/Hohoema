@@ -27,10 +27,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public SearchResultKeywordPageViewModel(
 			HohoemaApp hohoemaApp, 
-			PageManager pageManager, 
-			MylistRegistrationDialogService mylistDialogService
+			PageManager pageManager
 			) 
-			: base(hohoemaApp, pageManager, mylistDialogService, useDefaultPageTitle: false)
+			: base(hohoemaApp, pageManager, useDefaultPageTitle: false)
 		{
 			_ContentFinder = HohoemaApp.ContentFinder;
 

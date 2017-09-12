@@ -28,8 +28,8 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class RankingCategoryPageViewModel : HohoemaVideoListingPageViewModelBase<RankedVideoInfoControlViewModel>
 	{
-		public RankingCategoryPageViewModel(HohoemaApp hohoemaApp, EventAggregator ea, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
-			: base(hohoemaApp, pageManager, mylistDialogService, useDefaultPageTitle:false)
+		public RankingCategoryPageViewModel(HohoemaApp hohoemaApp, EventAggregator ea, PageManager pageManager)
+			: base(hohoemaApp, pageManager, useDefaultPageTitle:false)
 		{
             this.ChangeRequireServiceLevel(HohoemaAppServiceLevel.LoggedIn);
 
