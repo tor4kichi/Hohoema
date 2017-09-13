@@ -301,24 +301,17 @@ namespace NicoPlayerHohoema.ViewModels
                         var feedGroup = await HohoemaApp.ChoiceFeedGroup(targetTitle + "をフィードに追加");
                         if (feedGroup != null)
                         {
-                            if (null != feedGroup.AddUserFeedSource(targetTitle, UserId))
-                            {
-                                // 通知
-                                (App.Current as App).PublishInAppNotification(
-                                    InAppNotificationPayload.CreateReadOnlyNotification(
-                                        content: $"フィードに登録完了\n{feedGroup.Label} に {targetTitle} (ユーザー) を追加しました ",
-                                        showDuration: TimeSpan.FromSeconds(7)
-                                        ));
-                            }
-                            else
-                            {
-                                (App.Current as App).PublishInAppNotification(
-                                    InAppNotificationPayload.CreateReadOnlyNotification(
-                                        content: $"フィードに失敗\n {feedGroup.Label} に {targetTitle} (ユーザー) を追加できませんでした ",
-                                        showDuration: TimeSpan.FromSeconds(7)
-                                        ));
+                            var result = feedGroup.AddUserFeedSource(targetTitle, UserId);
 
-                            }
+                            // 通知
+                            var registrationResult = result != null ? ContentManageResult.Success : ContentManageResult.Failed;
+                            (App.Current as App).PublishInAppNotification(
+                                InAppNotificationPayload.CreateRegistrationResultNotification(
+                                    registrationResult,
+                                    "フィード",
+                                    feedGroup.Label,
+                                    targetTitle + "(ユーザー)"
+                                    ));
                         }
                     }));
             }

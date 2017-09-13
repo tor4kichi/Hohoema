@@ -184,28 +184,14 @@ namespace NicoPlayerHohoema.ViewModels
 
                         if (targetMylist != null)
                         {
-                            var registrationResult = await HohoemaApp.AddMylistItem(targetMylist, Video.Title, Video.RawVideoId);
-
-                            string notifyContent = string.Empty;
-                            if (registrationResult == ContentManageResult.Success)
-                            {
-                                notifyContent = $"[成功] <{targetMylist.Name}> に <{Video.Title.Substring(0, 10)}>を追加しました";
-                            }
-                            else if (registrationResult == ContentManageResult.Exist)
-                            {
-                                notifyContent = $"[既に追加済み] <{targetMylist.Name}> に <{Video.Title.Substring(0, 10)}>は追加済みです";
-                            }
-                            else
-                            {
-                                notifyContent = $"[失敗] <{targetMylist.Name}> に <{Video.Title.Substring(0, 10)}>を追加できませんでした";
-                            }
-
+                            var result = await HohoemaApp.AddMylistItem(targetMylist, Video.Title, Video.RawVideoId);
                             (App.Current as App).PublishInAppNotification(
-                                    InAppNotificationPayload.CreateReadOnlyNotification(
-                                        $"[{registrationResult.ToString()}] <{targetMylist.Name}> に <{Video.Title.Substring(0, 10)}>を追加しました",
-                                        TimeSpan.FromSeconds(7)
-                                        )
-                                    );
+                                InAppNotificationPayload.CreateRegistrationResultNotification(
+                                    result,
+                                    "マイリスト",
+                                    targetMylist.Name,
+                                    Video.Title
+                                    ));                            
                         }
                     }
                     ));

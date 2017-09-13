@@ -293,24 +293,14 @@ namespace NicoPlayerHohoema.ViewModels
                         var feedGroup = await HohoemaApp.ChoiceFeedGroup(targetTitle + "をフィードに追加");
                         if (feedGroup != null)
                         {
-                            if (null != feedGroup.AddMylistFeedSource(targetTitle, this.PlayableList.Value.Id))
-                            {
-                                // 通知
-                                (App.Current as App).PublishInAppNotification(
-                                    InAppNotificationPayload.CreateReadOnlyNotification(
-                                        content: $"フィードに登録完了\n{feedGroup.Label} に {targetTitle} (マイリスト) を追加しました ",
-                                        showDuration: TimeSpan.FromSeconds(7)
-                                        ));
-                            }
-                            else
-                            {
-                                (App.Current as App).PublishInAppNotification(
-                                    InAppNotificationPayload.CreateReadOnlyNotification(
-                                        content: $"フィードに失敗\n {feedGroup.Label} に {targetTitle} (マイリスト) を追加できませんでした ",
-                                        showDuration: TimeSpan.FromSeconds(7)
-                                        ));
-
-                            }
+                            var result = feedGroup.AddMylistFeedSource(targetTitle, this.PlayableList.Value.Id);
+                            (App.Current as App).PublishInAppNotification(
+                                InAppNotificationPayload.CreateRegistrationResultNotification(
+                                    result != null ? ContentManageResult.Success : ContentManageResult.Failed,
+                                    "フィード",
+                                    feedGroup.Label,
+                                    targetTitle + "(マイリスト)"
+                                    ));
                         }
                     }));
             }

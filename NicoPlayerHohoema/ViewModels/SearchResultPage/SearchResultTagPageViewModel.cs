@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Models;
+﻿using Mntone.Nico2;
+using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Util;
 using NicoPlayerHohoema.Views.Service;
 using Prism.Commands;
@@ -136,24 +137,13 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         var targetTitle = SearchOption.Keyword;
                         var feedGroup = await HohoemaApp.ChoiceFeedGroup(targetTitle + "をフィードに追加");
-                        if (feedGroup != null)
-                        {
-                            // 通知
-                            (App.Current as App).PublishInAppNotification(
-                                InAppNotificationPayload.CreateReadOnlyNotification(
-                                    content: $"フィードに登録完了\n{feedGroup.Label} に {targetTitle} (タグ) を追加しました ",
-                                    showDuration: TimeSpan.FromSeconds(7)
+                        (App.Current as App).PublishInAppNotification(
+                                InAppNotificationPayload.CreateRegistrationResultNotification(
+                                    feedGroup != null ? ContentManageResult.Success : ContentManageResult.Failed,
+                                    "フィード",
+                                    feedGroup.Label,
+                                    targetTitle + "(タグ)"
                                     ));
-                        }
-                        else
-                        {
-                            (App.Current as App).PublishInAppNotification(
-                                InAppNotificationPayload.CreateReadOnlyNotification(
-                                    content: $"フィードに失敗\n {feedGroup.Label} に {targetTitle} (タグ) を追加できませんでした ",
-                                    showDuration: TimeSpan.FromSeconds(7)
-                                    ));
-
-                        }
                     }));
             }
         }
