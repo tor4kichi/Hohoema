@@ -297,19 +297,28 @@ namespace NicoPlayerHohoema.ViewModels
                 return _AddFeedSourceCommand
                     ?? (_AddFeedSourceCommand = new DelegateCommand(async () =>
                     {
-                        var result = await _ContentSelectDialogService.ShowDialog(new ContentSelectDialogDefaultSet()
+                        var targetTitle = this.UserName;
+                        var feedGroup = await HohoemaApp.ChoiceFeedGroup(targetTitle + "をフィードに追加");
+                        if (feedGroup != null)
                         {
-                            DialogTitle = UserName + "をフィードに追加",
-                            ChoiceListTitle = "フィードグループ",
-                            ChoiceList = HohoemaApp.FeedManager.FeedGroups
-                                .Select(x => new SelectDialogPayload() { Id = x.Id.ToString(), Label = x.Label })
-                                .ToList()
-                        });
+                            if (null != feedGroup.AddUserFeedSource(targetTitle, UserId))
+                            {
+                                // 通知
+                                (App.Current as App).PublishInAppNotification(
+                                    InAppNotificationPayload.CreateReadOnlyNotification(
+                                        content: $"フィードに登録完了\n{feedGroup.Label} に {targetTitle} (ユーザー) を追加しました ",
+                                        showDuration: TimeSpan.FromSeconds(7)
+                                        ));
+                            }
+                            else
+                            {
+                                (App.Current as App).PublishInAppNotification(
+                                    InAppNotificationPayload.CreateReadOnlyNotification(
+                                        content: $"フィードに失敗\n {feedGroup.Label} に {targetTitle} (ユーザー) を追加できませんでした ",
+                                        showDuration: TimeSpan.FromSeconds(7)
+                                        ));
 
-                        if (result != null)
-                        {
-                            var feedGroup = HohoemaApp.FeedManager.GetFeedGroup(Guid.Parse(result.Id));
-                            feedGroup.AddUserFeedSource(UserName, UserId);
+                            }
                         }
                     }));
             }

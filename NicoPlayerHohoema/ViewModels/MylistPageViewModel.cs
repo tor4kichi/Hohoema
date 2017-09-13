@@ -289,19 +289,28 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         if (PlayableList.Value.Origin == PlaylistOrigin.Local) { return; }
 
-                        var result = await _ContentSelectDialogService.ShowDialog(new ContentSelectDialogDefaultSet()
+                        var targetTitle = this.MylistTitle;
+                        var feedGroup = await HohoemaApp.ChoiceFeedGroup(targetTitle + "をフィードに追加");
+                        if (feedGroup != null)
                         {
-                            DialogTitle = MylistTitle + "をフィードに追加",
-                            ChoiceListTitle = "フィードグループ",
-                            ChoiceList = HohoemaApp.FeedManager.FeedGroups
-                                .Select(x => new SelectDialogPayload() { Id = x.Id.ToString(), Label = x.Label })
-                                .ToList()
-                        });
+                            if (null != feedGroup.AddMylistFeedSource(targetTitle, this.PlayableList.Value.Id))
+                            {
+                                // 通知
+                                (App.Current as App).PublishInAppNotification(
+                                    InAppNotificationPayload.CreateReadOnlyNotification(
+                                        content: $"フィードに登録完了\n{feedGroup.Label} に {targetTitle} (マイリスト) を追加しました ",
+                                        showDuration: TimeSpan.FromSeconds(7)
+                                        ));
+                            }
+                            else
+                            {
+                                (App.Current as App).PublishInAppNotification(
+                                    InAppNotificationPayload.CreateReadOnlyNotification(
+                                        content: $"フィードに失敗\n {feedGroup.Label} に {targetTitle} (マイリスト) を追加できませんでした ",
+                                        showDuration: TimeSpan.FromSeconds(7)
+                                        ));
 
-                        if (result != null)
-                        {
-                            var feedGroup = HohoemaApp.FeedManager.GetFeedGroup(Guid.Parse(result.Id));
-                            feedGroup.AddMylistFeedSource(MylistTitle, PlayableList.Value.Id);
+                            }
                         }
                     }));
             }
@@ -316,12 +325,9 @@ namespace NicoPlayerHohoema.ViewModels
         public MylistPageViewModel(
             HohoemaApp hohoemaApp
             , PageManager pageManager
-            , Views.Service.ContentSelectDialogService contentSelectDialogService
             )
             : base(hohoemaApp, pageManager, isRequireSignIn: true)
         {
-            _ContentSelectDialogService = contentSelectDialogService;
-
             PlayableList = new ReactiveProperty<IPlayableList>();
             MylistOrigin = new ReactiveProperty<Models.PlaylistOrigin>();
 

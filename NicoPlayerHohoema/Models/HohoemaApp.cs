@@ -1317,6 +1317,44 @@ namespace NicoPlayerHohoema.Models
             return resultList;
         }
 
+        public async Task<IFeedGroup> ChoiceFeedGroup(string title)
+        {
+            var selectDialogService = App.Current.Container.Resolve<ContentSelectDialogService>();
+
+            IFeedGroup resultFeedGroup = null;
+            while (resultFeedGroup == null)
+            {
+                var result = await selectDialogService.ShowDialog(title,
+                    new ISelectableContainer[]
+                    {
+                    new ChoiceFromListSelectableContainer("フィードグループ",
+                    FeedManager.FeedGroups
+                    .Select(x => new SelectDialogPayload() { Id = x.Id.ToString(), Label = x.Label, Context = x })
+                    .ToList())
+                    ,
+                    new TextInputSelectableContainer("新規作成", null, "")
+                    }
+                );
+
+                if (result != null && result.Context == null)
+                {
+                    // 新規作成
+                    var newFeedGroupName = result.Id;
+                    if (FeedManager.CanAddLabel(newFeedGroupName))
+                    {
+                        resultFeedGroup = await FeedManager.AddFeedGroup(newFeedGroupName);
+                    }
+                }
+                else
+                {
+                    resultFeedGroup = result?.Context as IFeedGroup;
+                }
+            }
+
+            return resultFeedGroup;
+        }
+
+
         public async Task<ContentManageResult> AddMylistItem(IPlayableList targetMylist, string videoTitle, string rawVideoId)
         {
             if (targetMylist.Origin == PlaylistOrigin.LoginUser)
