@@ -1336,6 +1336,8 @@ namespace NicoPlayerHohoema.Models
                     }
                 );
 
+                if (result == null) { break; }
+
                 if (result != null && result.Context == null)
                 {
                     // 新規作成
