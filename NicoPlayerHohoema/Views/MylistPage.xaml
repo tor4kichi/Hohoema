@@ -41,16 +41,6 @@
                 </VisualState>
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <mytrigger:EqualConditionStateTrigger Condition="OtherUser" Value="{Binding MylistOrigin.Value}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="FeedRegstrationButton.Visibility" Value="Visible" />
-                        <Setter Target="ToggleMylistFavoriteButton.Visibility" Value="Visible" />
-
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState>
-                    <VisualState.StateTriggers>
                         <mytrigger:EqualConditionStateTrigger Condition="Local" Value="{Binding MylistOrigin.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
@@ -59,6 +49,20 @@
 
                     </VisualState.Setters>
                 </VisualState>
+            </VisualStateGroup>
+            
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <mytrigger:EqualConditionStateTrigger Condition="OtherUser" Value="{Binding MylistOrigin.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="FeedRegstrationButton.Visibility" Value="Visible" />
+                        <Setter Target="ToggleMylistFavoriteButton.Visibility" Value="Visible" />
+
+                    </VisualState.Setters>
+                </VisualState>
+
             </VisualStateGroup>
 
             <VisualStateGroup>
