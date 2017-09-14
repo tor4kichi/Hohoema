@@ -1250,25 +1250,71 @@ namespace NicoPlayerHohoema.Models
 			BackgroundUpdater?.Dispose();
 		}
 
-        public async Task<IPlayableList> ChoiceMylist()
+        public async Task<IPlayableList> ChoiceMylist(params string[] ignoreMylistId)
         {
+            const string CreateNewContextLabel = @"@create_new";
             var mylists = UserMylistManager.UserMylists;
             var localMylists = Playlist.Playlists;
             var selectDialogService = App.Current.Container.Resolve<ContentSelectDialogService>();
-            var result = await selectDialogService.ShowDialog(
-                "追加先マイリストを選択",
-                new List<ISelectableContainer>()
+            var selectDialogContent = new List<ISelectableContainer>()
                 {
-                            new ChoiceFromListSelectableContainer("マイリスト",
-                                mylists.Select(x => new SelectDialogPayload() { Label = x.Name, Id = x.Id, Context = x })
-                            ),
-                            new ChoiceFromListSelectableContainer("ローカルマイリスト",
-                                localMylists.Select(x => new SelectDialogPayload() { Label = x.Name, Id = x.Id, Context = x })
-                            )
-                }
-                );
+                    new ChoiceFromListSelectableContainer("マイリスト",
+                        mylists.Where(x => ignoreMylistId.All(y => x.Id != y))
+                            .Select(x => new SelectDialogPayload() { Label = x.Name, Id = x.Id, Context = x })
+                    ),
+                    new ChoiceFromListSelectableContainer("ローカルマイリスト",
+                        localMylists.Where(x => ignoreMylistId.All(y => x.Id != y))
+                            .Select(x => new SelectDialogPayload() { Label = x.Name, Id = x.Id, Context = x })
+                    ),
+                    new ChoiceFromListSelectableContainer("新規作成",
+                        new [] {
+                            new SelectDialogPayload() { Label = "マイリストを作成", Id = "mylist", Context = CreateNewContextLabel},
+                            new SelectDialogPayload() { Label = "ローカルマイリストを作成", Id = "local", Context = CreateNewContextLabel},
+                        }
+                    )
+                };
 
-            return result?.Context as IPlayableList;
+            IPlayableList resultList = null;
+            while (resultList == null)
+            {
+                var result = await selectDialogService.ShowDialog(
+                    "追加先マイリストを選択",
+                    selectDialogContent
+                    );
+
+                if (result == null) { break; }
+
+                if (result?.Context as string == CreateNewContextLabel)
+                {
+                    var textDialogService = App.Current.Container.Resolve<TextInputDialogService>();
+                    var mylistTypeLabel = result.Id == "mylist" ? "マイリスト" : "ローカルマイリスト";
+                    var title = await textDialogService.GetTextAsync(
+                        $"{mylistTypeLabel}を作成",
+                        $"{mylistTypeLabel}名",
+                        validater: (str) => !string.IsNullOrWhiteSpace(str)
+                        );
+                    if (title == null)
+                    {
+                        continue;
+                    }
+
+                    if (result.Id == "mylist")
+                    {
+                        await UserMylistManager.AddMylist(title, "", false, Mntone.Nico2.Mylist.MylistDefaultSort.FirstRetrieve_Descending, Mntone.Nico2.Mylist.IconType.Default);
+                        resultList = UserMylistManager.UserMylists.FirstOrDefault(x => x.Name == title);
+                    }
+                    else //if (result.Id == "local")
+                    {
+                        resultList = Playlist.CreatePlaylist(Guid.NewGuid().ToString(), title);
+                    }
+                }
+                else
+                {
+                    resultList = result?.Context as IPlayableList;
+                }
+            }
+
+            return resultList;
         }
 
         public async Task<ContentManageResult> AddMylistItem(IPlayableList targetMylist, string videoTitle, string rawVideoId)

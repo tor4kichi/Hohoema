@@ -37,11 +37,10 @@ namespace NicoPlayerHohoema.ViewModels
 
         public SearchResultTagPageViewModel(
 			HohoemaApp hohoemaApp, 
-			PageManager pageManager, 
-			MylistRegistrationDialogService mylistDialogService,
+			PageManager pageManager,
             ContentSelectDialogService contentSelectDialogService
             ) 
-			: base(hohoemaApp, pageManager, mylistDialogService, useDefaultPageTitle: false)
+			: base(hohoemaApp, pageManager, useDefaultPageTitle: false)
 		{
 			_ContentFinder = HohoemaApp.ContentFinder;
             _ContentSelectDialogService = contentSelectDialogService;

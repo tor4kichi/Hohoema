@@ -180,12 +180,32 @@ namespace NicoPlayerHohoema.ViewModels
                 return _AddMylistCommand
                     ?? (_AddMylistCommand = new DelegateCommand(async () =>
                     {
-                        var mylistResistrationDialogService = App.Current.Container.Resolve<Views.Service.MylistRegistrationDialogService>();
+                        var targetMylist = await HohoemaApp.ChoiceMylist() as IPlayableList;
 
-                        var groupAndComment = await mylistResistrationDialogService.ShowDialog(1);
-                        if (groupAndComment != null)
+                        if (targetMylist != null)
                         {
-                            await groupAndComment.Item1.Registration(Video.RawVideoId, groupAndComment.Item2);
+                            var registrationResult = await HohoemaApp.AddMylistItem(targetMylist, Video.Title, Video.RawVideoId);
+
+                            string notifyContent = string.Empty;
+                            if (registrationResult == ContentManageResult.Success)
+                            {
+                                notifyContent = $"[成功] <{targetMylist.Name}> に <{Video.Title.Substring(0, 10)}>を追加しました";
+                            }
+                            else if (registrationResult == ContentManageResult.Exist)
+                            {
+                                notifyContent = $"[既に追加済み] <{targetMylist.Name}> に <{Video.Title.Substring(0, 10)}>は追加済みです";
+                            }
+                            else
+                            {
+                                notifyContent = $"[失敗] <{targetMylist.Name}> に <{Video.Title.Substring(0, 10)}>を追加できませんでした";
+                            }
+
+                            (App.Current as App).PublishInAppNotification(
+                                    InAppNotificationPayload.CreateReadOnlyNotification(
+                                        $"[{registrationResult.ToString()}] <{targetMylist.Name}> に <{Video.Title.Substring(0, 10)}>を追加しました",
+                                        TimeSpan.FromSeconds(7)
+                                        )
+                                    );
                         }
                     }
                     ));

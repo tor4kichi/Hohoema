@@ -1,5 +1,6 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Mylist;
+using NicoPlayerHohoema.Util;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
@@ -26,6 +27,7 @@ namespace NicoPlayerHohoema.Models
 		private ObservableCollection<MylistGroupInfo> _UserMylists;
 		public ReadOnlyObservableCollection<MylistGroupInfo> UserMylists { get; private set; }
 
+        private AsyncLock _UpdateLock = new AsyncLock();
 
         public int DeflistRegistrationCapacity
 		{
@@ -106,62 +108,65 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task SyncMylistGroups()
 		{
-			if (_UserMylists.Count == 0)
-			{
-				// とりあえずマイリストを手動で追加
-				Deflist = new MylistGroupInfo("0", HohoemaApp, this)
-				{
-					Name = "とりあえずマイリスト",
-					Description = "ユーザーの一時的なマイリストです",
-					UserId = HohoemaApp.LoginUserId.ToString(),
-					IsPublic = false,
-					Sort = MylistDefaultSort.Latest
-				};
-				_UserMylists.Add(Deflist);
-                await Deflist.Refresh();
-            }
-
-
-            // ユーザーのマイリストグループの一覧を取得
-            List<LoginUserMylistGroup> mylistGroupDataLists = null;
-            try
+            using (var releaser = await _UpdateLock.LockAsync())
             {
-                mylistGroupDataLists = await HohoemaApp.ContentFinder.GetLoginUserMylistGroups();
+                if (_UserMylists.Count == 0)
+                {
+                    // とりあえずマイリストを手動で追加
+                    Deflist = new MylistGroupInfo("0", HohoemaApp, this)
+                    {
+                        Name = "とりあえずマイリスト",
+                        Description = "ユーザーの一時的なマイリストです",
+                        UserId = HohoemaApp.LoginUserId.ToString(),
+                        IsPublic = false,
+                        Sort = MylistDefaultSort.Latest
+                    };
+                    _UserMylists.Add(Deflist);
+                    await Deflist.Refresh();
+                }
+
+
+                // ユーザーのマイリストグループの一覧を取得
+                List<LoginUserMylistGroup> mylistGroupDataLists = null;
+                try
+                {
+                    mylistGroupDataLists = await HohoemaApp.ContentFinder.GetLoginUserMylistGroups();
+                }
+                catch
+                {
+                    Debug.WriteLine("ユーザーマイリストの更新に失敗しました。");
+                }
+
+                if (mylistGroupDataLists == null)
+                {
+                    return;
+                }
+
+                // 追加分だけを検出してUserMylistに追加
+                var addedMylistGroups = mylistGroupDataLists
+                    .Where(x => _UserMylists.All(y => x.Id != y.GroupId))
+                    .ToArray();
+
+                foreach (var userMylist in addedMylistGroups)
+                {
+                    var addedMylistGroupInfo = MylistGroupInfo.FromMylistGroupData(userMylist, HohoemaApp, this);
+                    _UserMylists.Add(addedMylistGroupInfo);
+                    await addedMylistGroupInfo.Refresh();
+
+                    await Task.Delay(500);
+                }
+
+                // 削除分だけ検出してUserMylistから削除
+                var removedMylistGroups = _UserMylists
+                    .Where(x => !x.IsDeflist)
+                    .Where(x => mylistGroupDataLists.All(y => x.GroupId != y.Id))
+                    .ToArray();
+
+                foreach (var removeMylistGroup in removedMylistGroups)
+                {
+                    _UserMylists.Remove(removeMylistGroup);
+                }
             }
-            catch
-            {
-                Debug.WriteLine("ユーザーマイリストの更新に失敗しました。");
-            }
-
-            if (mylistGroupDataLists == null)
-            {
-                return;
-            }
-
-			// 追加分だけを検出してUserMylistに追加
-			var addedMylistGroups = mylistGroupDataLists
-				.Where(x => _UserMylists.All(y => x.Id != y.GroupId))
-				.ToArray();
-
-			foreach (var userMylist in addedMylistGroups)
-			{
-				var addedMylistGroupInfo = MylistGroupInfo.FromMylistGroupData(userMylist, HohoemaApp, this);
-				_UserMylists.Add(addedMylistGroupInfo);
-                await addedMylistGroupInfo.Refresh();
-
-                await Task.Delay(500);
-            }
-
-			// 削除分だけ検出してUserMylistから削除
-			var removedMylistGroups = _UserMylists
-				.Where(x => !x.IsDeflist)
-				.Where(x => mylistGroupDataLists.All(y => x.GroupId != y.Id))
-				.ToArray();
-
-			foreach (var removeMylistGroup in removedMylistGroups)
-			{
-				_UserMylists.Remove(removeMylistGroup);
-			}
 		}
 
 

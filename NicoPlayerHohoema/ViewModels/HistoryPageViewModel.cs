@@ -23,8 +23,8 @@ namespace NicoPlayerHohoema.ViewModels
 		HistoriesResponse _HistoriesResponse;
 
 
-		public HistoryPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
-			: base(hohoemaApp, pageManager, mylistDialogService)
+		public HistoryPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
+			: base(hohoemaApp, pageManager)
 		{
 			RemoveHistoryCommand = SelectedItems.ObserveProperty(x => x.Count)
 				.Select(x => x > 0)

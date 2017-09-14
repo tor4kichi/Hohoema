@@ -19,11 +19,11 @@
     <ContentDialog.Resources>
 
         <DataTemplate x:Key="ChoiceFromListTemplate">
-            
-            <ComboBox ItemsSource="{Binding Items}"
+
+            <ListView ItemsSource="{Binding Items}"
                       DisplayMemberPath="Label"
                       SelectedItem="{Binding SelectedItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                      PlaceholderText="選択"
+                      IsFocusEngagementEnabled="True"
                       />
             
         </DataTemplate>
@@ -59,33 +59,34 @@
 
     <StackPanel>
 
-        <ItemsControl ItemsSource="{Binding SelectableContainerList}">
-            <ItemsControl.ItemTemplate>
+        <Pivot ItemsSource="{Binding SelectableContainerList}"
+               SelectedItem="{Binding SelectedContainer.Value, Mode=TwoWay}"
+               >
+            <Pivot.HeaderTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Label}" />
+                </DataTemplate>
+            </Pivot.HeaderTemplate>
+            <Pivot.ItemTemplate>
                 <DataTemplate>
 
-                    <StackPanel Margin="0 8">
-                        <RadioButton IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" GroupName="_" Content="{Binding Label}"
-                                     toolkit:DockPanel.Dock="Left"
-                                     Margin="0 0 0 8"
-                                     />
-
+                    <Grid Margin="0 8">
                         <ContentControl Content="{Binding}"
                             ContentTemplateSelector="{StaticResource ContentSelectContainerTemplateSelector}"
                             HorizontalContentAlignment="Stretch"
                             VerticalContentAlignment="Stretch"
                             HorizontalAlignment="Stretch"
-                            Margin="32 0"
+                            Margin="0 0"
                             MinWidth="200"
-                            IsEnabled="{Binding IsSelected}"
+                                        IsTabStop="False"
                         />
-
-                    </StackPanel>
+                    </Grid>
 
                     
                 </DataTemplate>
-            </ItemsControl.ItemTemplate>
+            </Pivot.ItemTemplate>
             
-        </ItemsControl>
+        </Pivot>
         
     </StackPanel>
 </ContentDialog>

@@ -184,7 +184,8 @@ namespace NicoPlayerHohoema.Models
                 var playlistFileAccessor = new FileAccessor<LocalMylist>(PlaylistsSaveFolder, file.Name);
                 var playlist = await playlistFileAccessor.Load();
 
-                if (playlist.Id == WatchAfterPlaylistId)
+                
+                if (playlist == null || playlist.Id == WatchAfterPlaylistId)
                 {
                     await playlistFileAccessor.Delete();
                     continue;

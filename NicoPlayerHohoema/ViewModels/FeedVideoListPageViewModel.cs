@@ -21,8 +21,8 @@ namespace NicoPlayerHohoema.ViewModels
 		public IFeedGroup FeedGroup { get; private set; }
 
 
-		public FeedVideoListPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
-			: base(hohoemaApp, pageManager, mylistDialogService, isRequireSignIn: true)
+		public FeedVideoListPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
+			: base(hohoemaApp, pageManager, isRequireSignIn: true)
 		{
 			LastUpdate = new ReactiveProperty<DateTime>();
 

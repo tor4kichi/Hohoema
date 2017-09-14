@@ -27,12 +27,9 @@ namespace NicoPlayerHohoema.ViewModels
 	public abstract class HohoemaVideoListingPageViewModelBase<VIDEO_INFO_VM> : HohoemaListingPageViewModelBase<VIDEO_INFO_VM>
 		where VIDEO_INFO_VM : VideoInfoControlViewModel
 	{
-		public HohoemaVideoListingPageViewModelBase(HohoemaApp app, PageManager pageManager, MylistRegistrationDialogService mylistDialogService, bool isRequireSignIn = true, bool useDefaultPageTitle = true)
+		public HohoemaVideoListingPageViewModelBase(HohoemaApp app, PageManager pageManager, bool isRequireSignIn = true, bool useDefaultPageTitle = true)
 			: base(app, pageManager, useDefaultPageTitle:useDefaultPageTitle)
 		{
-			MylistDialogService = mylistDialogService;
-
-
 			var SelectionItemsChanged = SelectedItems.ToCollectionChanged().ToUnit();
 
 #if DEBUG
@@ -177,7 +174,6 @@ namespace NicoPlayerHohoema.ViewModels
 						// ユーザーに結果を通知
 
 						var titleText = $"「{targetMylist.Name}」に {successCount}件 の動画を登録しました";
-						var toastService = App.Current.Container.Resolve<ToastNotificationService>();
 						var resultText = $"";
 						if (existCount > 0)
 						{
@@ -188,8 +184,10 @@ namespace NicoPlayerHohoema.ViewModels
 							resultText += $"\n登録に失敗した {failedCount}件 は選択されたままです";
 						}
 
-						toastService.ShowText(titleText, resultText, isSuppress:true);
-
+                        (App.Current as App).PublishInAppNotification(InAppNotificationPayload.CreateReadOnlyNotification(
+                            titleText,
+                            TimeSpan.FromSeconds(7)
+                            ));
 						//					ResetList();
 
 						Debug.WriteLine($"一括マイリストに追加を完了---------------");
@@ -316,8 +314,6 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
         public ReadOnlyReactiveCollection<LocalMylist> Playlists { get; private set; }
-
-		public MylistRegistrationDialogService MylistDialogService { get; private set; }
 
 		public ReactiveCommand PlayAllCommand { get; private set; }
         public ReactiveCommand CancelCacheDownloadRequest { get; private set; }

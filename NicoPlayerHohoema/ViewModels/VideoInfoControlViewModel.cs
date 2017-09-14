@@ -406,9 +406,10 @@ namespace NicoPlayerHohoema.ViewModels
                                     break;
                             }
 
-                            var toastService = App.Current.Container.Resolve<ToastNotificationService>();
-
-                            toastService.ShowText(titleText, resultText, isSuppress: true);
+                            (App.Current as App).PublishInAppNotification(InAppNotificationPayload.CreateReadOnlyNotification(
+                                titleText + "\r" + resultText,
+                                TimeSpan.FromSeconds(7)
+                                ));
                         }
                     }
                     ));
