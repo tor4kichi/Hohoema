@@ -64,17 +64,6 @@
 
             <StackPanel Margin="8 0 0 0">
                 
-                <StackPanel Margin="0 8 0 16">
-
-                    <TextBlock Text="全画面表示をデフォルトに設定する"
-                               VerticalAlignment="Center"
-                               />
-
-                    <ToggleSwitch IsOn="{Binding IsFullScreenDefault.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                  />
-
-                </StackPanel>
-
                 <!--
                 BGM再生機能が利用可能になるまで利用できなくします
                 <toolkit:DockPanel Margin="0 8">
@@ -115,37 +104,7 @@
                 </toolkit:DockPanel>
                 -->
 
-                <StackPanel Margin="0 8 0 16">
-
-                    <TextBlock Text="デフォルトの再生速度倍率"
-                           VerticalAlignment="Center"
-                           />
-
-                    <TextBlock VerticalAlignment="Center">
-                        <Run Text="x" />
-                        <Run Text="{Binding DefaultPlaybackRate.Value, Converter={StaticResource ToUserFriendlyNumber}}" />
-                    </TextBlock>
-
-                    <Slider Orientation="Horizontal"
-                            Maximum="2.0"
-                            Minimum="0.25"
-                            StepFrequency="0.25"
-                            SmallChange="0.25"
-                            LargeChange="1.00"
-                            Value="{Binding DefaultPlaybackRate.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                            MinWidth="200"
-                            Margin="16 0 0 0"
-                            TickFrequency="0.25"
-                            IsThumbToolTipEnabled="True"
-                        >
-                    </Slider>
-
-                    <Button Content="等倍速に戻す"
-                            Command="{Binding ResetDefaultPlaybackRateCommand}"
-                            />
-
-                </StackPanel>
-
+                
 
 
                 <StackPanel Margin="0 8 0 16">
@@ -191,18 +150,6 @@
 
             </StackPanel>
             <StackPanel Margin="8 0 0 0">
-
-                <StackPanel Margin="0 8 0 16">
-
-                    <TextBlock Text="デフォルトでコメントを表示する"
-                           VerticalAlignment="Center"
-                           />
-
-                    <ToggleSwitch IsOn="{Binding DefaultCommentDisplay.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                              />
-
-                </StackPanel>
-
 
                 <StackPanel Margin="0 8 0 16">
 

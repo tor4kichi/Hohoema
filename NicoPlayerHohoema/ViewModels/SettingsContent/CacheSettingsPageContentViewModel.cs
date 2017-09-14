@@ -86,15 +86,6 @@ namespace NicoPlayerHohoema.ViewModels
 			});
 
 
-			Observable.Merge(
-				IsUserAcceptRegalNotice.ToUnit(),
-				IsAutoCacheOnPlayEnable.ToUnit()
-				)
-				.Subscribe(async _ => 
-				{
-					await _CacheSettings.Save().ConfigureAwait(false);
-				});
-
 			CacheFolderStateDescription = new ReactiveProperty<string>("");
 			CacheSaveFolderPath = new ReactiveProperty<string>("");
 
@@ -156,7 +147,6 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override void OnLeave()
         {
-			_CacheSettings.Save().ConfigureAwait(false);
 		}
 
 
@@ -227,7 +217,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 			else
 			{
-				await _CacheSettings.Save();
+//				await _CacheSettings.Save();
 			}
 		}
 

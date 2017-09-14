@@ -142,7 +142,7 @@ namespace NicoPlayerHohoema.ViewModels
 				.AddTo(_CompositeDisposable);
 			NowSoundChanging = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false)
 				.AddTo(_CompositeDisposable);
-            IsCommentDisplayEnable = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, true)
+            IsCommentDisplayEnable = HohoemaApp.UserSettings.PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentDisplay_Video)
                 .AddTo(_CompositeDisposable);
             // プレイヤーがフィル表示かつコメント表示を有効にしている場合のみ表示
             IsVisibleComment =
@@ -387,11 +387,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 
             // 再生速度
-            PlaybackRate = new ReactiveProperty<double>(
-                HohoemaApp.UserSettings.PlayerSettings.DefaultPlaybackRate
-                )
+            PlaybackRate = HohoemaApp.UserSettings.PlayerSettings.ToReactivePropertyAsSynchronized(x => x.PlaybackRate)
                 .AddTo(_CompositeDisposable);
-            PlaybackRate.Subscribe(x => 
+            PlaybackRate.Subscribe(x =>
             {
                 MediaPlayer.PlaybackSession.PlaybackRate = x;
             })
@@ -499,14 +497,6 @@ namespace NicoPlayerHohoema.ViewModels
                 .ToReactiveProperty()
                 .AddTo(_CompositeDisposable);
 
-            HohoemaApp.UserSettings.PlaylistSettings.PropertyChangedAsObservable()
-                .Subscribe(_ => 
-                {
-                    HohoemaApp.UserSettings.PlaylistSettings.Save().ConfigureAwait(false);
-                })
-                .AddTo(_CompositeDisposable);
-
-
             IsTrackRepeatModeEnable.Subscribe(x => 
             {
                 MediaPlayer.IsLoopingEnabled = x;
@@ -606,21 +596,6 @@ namespace NicoPlayerHohoema.ViewModels
                 .ToReactivePropertyAsSynchronized(x => x.CommentColor, PlayerWindowUIDispatcherScheduler)
                 .AddTo(userSessionDisposer);
             RaisePropertyChanged(nameof(CommentDefaultColor));
-
-
-            Observable.Merge(
-                IsMuted.ToUnit(),
-                SoundVolume.ToUnit(),
-                CommentDefaultColor.ToUnit()
-                )
-                .Throttle(TimeSpan.FromSeconds(5))
-                .Where(x => !IsDisposed)
-                .Subscribe(_ =>
-                {
-                    HohoemaApp.UserSettings.PlayerSettings.Save().ConfigureAwait(false);
-                })
-                .AddTo(userSessionDisposer);
-
 
             SoundVolume.Subscribe(volume => 
             {
@@ -776,13 +751,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             cancelToken.ThrowIfCancellationRequested();
 
-
-            // 全画面表示の設定を反映
-            if (HohoemaApp.UserSettings.PlayerSettings.IsFullScreenDefault)
-            {
-                IsFullScreen.Value = true;
-            }
-
             IsAvailableDmcHighQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Dmc_High).CanPlay;
             IsAvailableDmcMidiumQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Dmc_Midium).CanPlay;
             IsAvailableDmcLowQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Dmc_Low).CanPlay;
@@ -827,16 +795,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 
                 cancelToken.ThrowIfCancellationRequested();
-
-
-                // PlayerSettings
-                var playerSettings = HohoemaApp.UserSettings.PlayerSettings;
-                IsCommentDisplayEnable.Value = playerSettings.DefaultCommentDisplay;
-
-
-
-                cancelToken.ThrowIfCancellationRequested();
-
                 
                 // バッファリング状態のモニターが使うタイマーだけはページ稼働中のみ動くようにする
                 InitializeBufferingMonitor();
@@ -965,7 +923,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             
             MediaPlayer.PlaybackSession.PlaybackRate = 
-                HohoemaApp.UserSettings.PlayerSettings.DefaultPlaybackRate;
+                HohoemaApp.UserSettings.PlayerSettings.PlaybackRate;
 
             // リクエストどおりの画質が再生された場合、画質をデフォルトとして設定する
             if (RequestVideoQuality.Value == CurrentVideoQuality.Value)
@@ -973,7 +931,6 @@ namespace NicoPlayerHohoema.ViewModels
                 if (CurrentVideoQuality.Value.HasValue && CurrentVideoQuality.Value.Value.IsDmc())
                 {
                     HohoemaApp.UserSettings.PlayerSettings.DefaultQuality = CurrentVideoQuality.Value.Value;
-                    await HohoemaApp.UserSettings.PlayerSettings.Save().ConfigureAwait(false);
                 }
             }
 
@@ -1681,7 +1638,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _ToggleDisplayCommentCommand
                     ?? (_ToggleDisplayCommentCommand = new DelegateCommand(() =>
                     {
-                        IsVisibleComment.Value = !IsVisibleComment.Value;
+                        IsCommentDisplayEnable.Value = !IsCommentDisplayEnable.Value;
                     }));
             }
         }

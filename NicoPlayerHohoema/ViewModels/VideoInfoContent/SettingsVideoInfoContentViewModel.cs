@@ -34,8 +34,8 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 			_PlayerSettings = settings;
 
 
-			DefaultCommentDisplay = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCommentDisplay)
-				.AddTo(_CompositeDisposable);
+//			DefaultCommentDisplay = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCommentDisplay)
+//				.AddTo(_CompositeDisposable);
 			CommentRenderingFPS = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentRenderingFPS)
 				.AddTo(_CompositeDisposable);
 			CommentDisplayDuration = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentDisplayDuration, x => x.TotalSeconds, x => TimeSpan.FromSeconds(x))
@@ -49,20 +49,6 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 			IsKeepDisplayInPlayback = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsKeepDisplayInPlayback)
 				.AddTo(_CompositeDisposable);
 			ScrollVolumeFrequency = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.ScrollVolumeFrequency)
-				.AddTo(_CompositeDisposable);
-
-			Observable.Merge(
-				DefaultCommentDisplay.ToUnit(),
-				CommentRenderingFPS.ToUnit(),
-				CommentDisplayDuration.ToUnit(),
-				CommentFontScale.ToUnit(),
-				CommentColor.ToUnit(),
-				IsKeepDisplayInPlayback.ToUnit(),
-				IsPauseWithCommentWriting.ToUnit(),
-				ScrollVolumeFrequency.ToUnit()
-				)
-				.SubscribeOnUIDispatcher()
-				.Subscribe(_ => _PlayerSettings.Save().ConfigureAwait(false))
 				.AddTo(_CompositeDisposable);
 		}
 

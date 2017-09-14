@@ -255,8 +255,6 @@ namespace NicoPlayerHohoema.ViewModels
         {
 			ApplyAllPriorityCategoriesToRankingSettings();
 
-			_RankingSettings.Save().ConfigureAwait(false);
-
             // NG VideoTitleを複数行NG動画タイトル文字列から再構成
             _NGSettings.NGVideoTitleKeywords.Clear();
             foreach (var ngKeyword in NGVideoTitleKeywords.Value.Split('\r'))
