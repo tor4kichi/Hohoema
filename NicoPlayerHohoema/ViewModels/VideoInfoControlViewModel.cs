@@ -386,30 +386,13 @@ namespace NicoPlayerHohoema.ViewModels
                         if (targetMylist != null)
                         {
                             var result = await hohoemaApp.AddMylistItem(targetMylist, Title, RawVideoId);
-                            string titleText = string.Empty; ;
-                            string resultText = string.Empty;
-                            switch (result)
-                            {
-                                case ContentManageResult.Success:
-                                    titleText = $"マイリスト登録完了";
-                                    resultText = $"「{targetMylist.Name}」に 『{Title}』を登録しました";
-                                    break;
-                                case ContentManageResult.Exist:
-                                    titleText = "マイリスト登録：アイテムが重複";
-                                    resultText = $"「{targetMylist.Name}」には 『{Title}』が既に登録されています";
-                                    break;
-                                case ContentManageResult.Failed:
-                                    titleText = "マイリスト登録：失敗";
-                                    resultText = $"「{targetMylist.Name}」に 『{Title}』を登録できませんでした（通信やサーバー処理の失敗、または登録数上限に達している可能性があります）";
-                                    break;
-                                default:
-                                    break;
-                            }
-
-                            (App.Current as App).PublishInAppNotification(InAppNotificationPayload.CreateReadOnlyNotification(
-                                titleText + "\r" + resultText,
-                                TimeSpan.FromSeconds(7)
-                                ));
+                            (App.Current as App).PublishInAppNotification(
+                                InAppNotificationPayload.CreateRegistrationResultNotification(
+                                    result,
+                                    "マイリスト",
+                                    targetMylist.Name,
+                                    Title
+                                    ));
                         }
                     }
                     ));

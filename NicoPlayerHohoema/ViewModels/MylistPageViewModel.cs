@@ -289,19 +289,18 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         if (PlayableList.Value.Origin == PlaylistOrigin.Local) { return; }
 
-                        var result = await _ContentSelectDialogService.ShowDialog(new ContentSelectDialogDefaultSet()
+                        var targetTitle = this.MylistTitle;
+                        var feedGroup = await HohoemaApp.ChoiceFeedGroup(targetTitle + "をフィードに追加");
+                        if (feedGroup != null)
                         {
-                            DialogTitle = MylistTitle + "をフィードに追加",
-                            ChoiceListTitle = "フィードグループ",
-                            ChoiceList = HohoemaApp.FeedManager.FeedGroups
-                                .Select(x => new SelectDialogPayload() { Id = x.Id.ToString(), Label = x.Label })
-                                .ToList()
-                        });
-
-                        if (result != null)
-                        {
-                            var feedGroup = HohoemaApp.FeedManager.GetFeedGroup(Guid.Parse(result.Id));
-                            feedGroup.AddMylistFeedSource(MylistTitle, PlayableList.Value.Id);
+                            var result = feedGroup.AddMylistFeedSource(targetTitle, this.PlayableList.Value.Id);
+                            (App.Current as App).PublishInAppNotification(
+                                InAppNotificationPayload.CreateRegistrationResultNotification(
+                                    result != null ? ContentManageResult.Success : ContentManageResult.Failed,
+                                    "フィード",
+                                    feedGroup.Label,
+                                    targetTitle + "(マイリスト)"
+                                    ));
                         }
                     }));
             }
@@ -316,12 +315,9 @@ namespace NicoPlayerHohoema.ViewModels
         public MylistPageViewModel(
             HohoemaApp hohoemaApp
             , PageManager pageManager
-            , Views.Service.ContentSelectDialogService contentSelectDialogService
             )
             : base(hohoemaApp, pageManager, isRequireSignIn: true)
         {
-            _ContentSelectDialogService = contentSelectDialogService;
-
             PlayableList = new ReactiveProperty<IPlayableList>();
             MylistOrigin = new ReactiveProperty<Models.PlaylistOrigin>();
 

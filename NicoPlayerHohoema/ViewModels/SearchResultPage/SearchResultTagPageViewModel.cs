@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Models;
+﻿using Mntone.Nico2;
+using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Util;
 using NicoPlayerHohoema.Views.Service;
 using Prism.Commands;
@@ -134,20 +135,15 @@ namespace NicoPlayerHohoema.ViewModels
                 return _AddFeedSourceCommand
                     ?? (_AddFeedSourceCommand = new DelegateCommand(async () =>
                     {
-                        var result = await _ContentSelectDialogService.ShowDialog(new ContentSelectDialogDefaultSet()
-                        {
-                            DialogTitle = SearchOption.Keyword + "をフィードに追加",
-                            ChoiceListTitle = "フィードグループ",
-                            ChoiceList = HohoemaApp.FeedManager.FeedGroups
-                                .Select(x => new SelectDialogPayload() { Id = x.Id.ToString(), Label = x.Label })
-                                .ToList()
-                        });
-
-                        if (result != null)
-                        {
-                            var feedGroup = HohoemaApp.FeedManager.GetFeedGroup(Guid.Parse(result.Id));
-                            feedGroup.AddTagFeedSource(SearchOption.Keyword);
-                        }
+                        var targetTitle = SearchOption.Keyword;
+                        var feedGroup = await HohoemaApp.ChoiceFeedGroup(targetTitle + "をフィードに追加");
+                        (App.Current as App).PublishInAppNotification(
+                                InAppNotificationPayload.CreateRegistrationResultNotification(
+                                    feedGroup != null ? ContentManageResult.Success : ContentManageResult.Failed,
+                                    "フィード",
+                                    feedGroup.Label,
+                                    targetTitle + "(タグ)"
+                                    ));
                     }));
             }
         }

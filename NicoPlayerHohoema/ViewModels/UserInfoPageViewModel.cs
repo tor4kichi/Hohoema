@@ -297,19 +297,21 @@ namespace NicoPlayerHohoema.ViewModels
                 return _AddFeedSourceCommand
                     ?? (_AddFeedSourceCommand = new DelegateCommand(async () =>
                     {
-                        var result = await _ContentSelectDialogService.ShowDialog(new ContentSelectDialogDefaultSet()
+                        var targetTitle = this.UserName;
+                        var feedGroup = await HohoemaApp.ChoiceFeedGroup(targetTitle + "をフィードに追加");
+                        if (feedGroup != null)
                         {
-                            DialogTitle = UserName + "をフィードに追加",
-                            ChoiceListTitle = "フィードグループ",
-                            ChoiceList = HohoemaApp.FeedManager.FeedGroups
-                                .Select(x => new SelectDialogPayload() { Id = x.Id.ToString(), Label = x.Label })
-                                .ToList()
-                        });
+                            var result = feedGroup.AddUserFeedSource(targetTitle, UserId);
 
-                        if (result != null)
-                        {
-                            var feedGroup = HohoemaApp.FeedManager.GetFeedGroup(Guid.Parse(result.Id));
-                            feedGroup.AddUserFeedSource(UserName, UserId);
+                            // 通知
+                            var registrationResult = result != null ? ContentManageResult.Success : ContentManageResult.Failed;
+                            (App.Current as App).PublishInAppNotification(
+                                InAppNotificationPayload.CreateRegistrationResultNotification(
+                                    registrationResult,
+                                    "フィード",
+                                    feedGroup.Label,
+                                    targetTitle + "(ユーザー)"
+                                    ));
                         }
                     }));
             }

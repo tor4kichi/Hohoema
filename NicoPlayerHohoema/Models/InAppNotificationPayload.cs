@@ -62,6 +62,36 @@ namespace NicoPlayerHohoema.Models
             };
         }
 
+
+        public static InAppNotificationPayload CreateRegistrationResultNotification(
+            Mntone.Nico2.ContentManageResult registrationResult,
+            string containerKindLabel,
+            string containerTitle,
+            string targetTitle,
+            params InAppNotificationCommand[] commands
+            )
+        {
+            string notifyContent = null;
+            if (registrationResult == Mntone.Nico2.ContentManageResult.Success)
+            {
+                notifyContent = $"{containerKindLabel}に登録完了\n「{containerTitle}」に「{targetTitle}」を追加しました";
+            }
+            else if (registrationResult == Mntone.Nico2.ContentManageResult.Exist)
+            {
+                notifyContent = $"{containerKindLabel}に既に追加済み\n「{containerTitle}」に「{targetTitle}」を追加済みです";
+            }
+            else
+            {
+                notifyContent = $"{containerKindLabel}に登録失敗\n「{containerTitle}」に「{targetTitle}」を追加できませんでした";
+            }
+
+            return new InAppNotificationPayload()
+            {
+                Content = notifyContent,
+                ShowDuration = TimeSpan.FromSeconds(7),
+                Commands = commands.ToList()
+            };
+        }
     }
 
     public class InAppNotificationCommand

@@ -1850,29 +1850,13 @@ namespace NicoPlayerHohoema.ViewModels
                         if (targetMylist != null)
                         {
                             var result = await HohoemaApp.AddMylistItem(targetMylist, Video.Title, Video.RawVideoId);
-                            string titleText = string.Empty; ;
-                            string resultText = string.Empty;
-                            switch (result)
-                            {
-                                case ContentManageResult.Success:
-                                    titleText = $"マイリスト登録完了";
-                                    resultText = $"「{targetMylist.Name}」に 『{Video.Title}』を登録しました";
-                                    break;
-                                case ContentManageResult.Exist:
-                                    titleText = "マイリスト登録：アイテムが重複";
-                                    resultText = $"「{targetMylist.Name}」には 『{Video.Title}』が既に登録されています";
-                                    break;
-                                case ContentManageResult.Failed:
-                                    titleText = "マイリスト登録：失敗";
-                                    resultText = $"「{targetMylist.Name}」に 『{Video.Title}』を登録できませんでした（通信やサーバー処理の失敗、または登録数上限に達している可能性があります）";
-                                    break;
-                                default:
-                                    break;
-                            }
-                            
-                            var toastService = App.Current.Container.Resolve<ToastNotificationService>();
-
-                            toastService.ShowText(titleText, resultText, isSuppress: true);
+                            (App.Current as App).PublishInAppNotification(
+                                InAppNotificationPayload.CreateRegistrationResultNotification(
+                                    result,
+                                    "マイリスト",
+                                    targetMylist.Name,
+                                    Video.Title
+                                    ));
                         }
                     }
                     ));
