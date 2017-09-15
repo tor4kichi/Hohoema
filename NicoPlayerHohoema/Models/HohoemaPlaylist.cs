@@ -133,6 +133,7 @@ namespace NicoPlayerHohoema.Models
             MediaPlayer.CommandManager.PreviousReceived += CommandManager_PreviousReceived;
 
             MakeDefaultPlaylist();
+            CurrentPlaylist = DefaultPlaylist;
         }                
 
 
@@ -156,17 +157,6 @@ namespace NicoPlayerHohoema.Models
         public async Task Load()
         {
             var files = await HohoemaApp.GetSyncRoamingData(PlaylistsSaveFolder);
-
-            // ファイルがない場合
-            if (files.Count == 0)
-            {
-                // デフォルトプレイリストを作成
-                MakeDefaultPlaylist();
-                CurrentPlaylist = DefaultPlaylist;
-
-                return;
-            }
-
 
             // 古いデータを解放
             foreach (var playlist in _Playlists)
@@ -451,7 +441,10 @@ namespace NicoPlayerHohoema.Models
 
         private void MakeDefaultPlaylist()
         {
-            DefaultPlaylist = CreatePlaylist(WatchAfterPlaylistId, "あとで見る");
+            if (DefaultPlaylist == null)
+            {
+                DefaultPlaylist = CreatePlaylist(WatchAfterPlaylistId, "あとで見る");
+            }
         }
 
         

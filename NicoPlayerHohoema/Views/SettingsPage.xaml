@@ -37,13 +37,6 @@
             </view:SettingContentTemplateSelector.FilteringTemplate>
 
 
-            <!-- Cache -->
-            <view:SettingContentTemplateSelector.CacheTemplate>
-                <DataTemplate>
-                    <settingsContent:CacheSettingsPageContent />
-                </DataTemplate>
-            </view:SettingContentTemplateSelector.CacheTemplate>
-
             <!-- Appearance -->
             <view:SettingContentTemplateSelector.AppearanceTemplate>
                 <DataTemplate>

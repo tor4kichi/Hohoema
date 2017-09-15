@@ -49,10 +49,6 @@ namespace NicoPlayerHohoema.Views
 			{
 				return FilteringTemplate;
 			}
-			else if (item is ViewModels.CacheSettingsPageContentViewModel)
-			{
-				return CacheTemplate;
-			}
 			else if (item is ViewModels.AppearanceSettingsPageContentViewModel)
 			{
 				return AppearanceTemplate;
