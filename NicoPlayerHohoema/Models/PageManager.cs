@@ -21,18 +21,24 @@ namespace NicoPlayerHohoema.Models
 	{
 		
 
-		public static List<HohoemaPageType> IgnoreRecordNavigationStack = new List<HohoemaPageType>
+		public static readonly HashSet<HohoemaPageType> IgnoreRecordNavigationStack = new HashSet<HohoemaPageType>
 		{
 			HohoemaPageType.ConfirmWatchHurmfulVideo,
+            HohoemaPageType.Splash,
+            HohoemaPageType.Login,
 		};
 
 
-		public readonly IReadOnlyList<HohoemaPageType> DontNeedMenuPageTypes = new List<HohoemaPageType>
+		public static readonly HashSet<HohoemaPageType> DontNeedMenuPageTypes = new HashSet<HohoemaPageType>
 		{
             HohoemaPageType.Splash,
             HohoemaPageType.Login,
 		};
 
+        public static bool IsHiddenMenuPage(HohoemaPageType pageType)
+        {
+            return DontNeedMenuPageTypes.Contains(pageType);
+        }
 
 		public INavigationService NavigationService { get; private set; }
 
@@ -76,7 +82,7 @@ namespace NicoPlayerHohoema.Models
             CurrentPageType = HohoemaPageType.RankingCategoryList;
         }
 
-		public void OpenPage(Uri uri)
+        public void OpenPage(Uri uri)
 		{
 			var path = uri.AbsoluteUri;
 			// is mylist url?
@@ -152,7 +158,7 @@ namespace NicoPlayerHohoema.Models
 
 		public bool IsIgnoreRecordPageType(HohoemaPageType pageType)
 		{
-			return IgnoreRecordNavigationStack.Any(x => x == pageType);
+			return IgnoreRecordNavigationStack.Contains(pageType);
 		}
 
 		public void ForgetLastPage()
