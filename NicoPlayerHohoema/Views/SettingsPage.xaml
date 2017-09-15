@@ -37,26 +37,12 @@
             </view:SettingContentTemplateSelector.FilteringTemplate>
 
 
-            <!-- Cache -->
-            <view:SettingContentTemplateSelector.CacheTemplate>
-                <DataTemplate>
-                    <settingsContent:CacheSettingsPageContent />
-                </DataTemplate>
-            </view:SettingContentTemplateSelector.CacheTemplate>
-
             <!-- Appearance -->
             <view:SettingContentTemplateSelector.AppearanceTemplate>
                 <DataTemplate>
                     <settingsContent:AppearanceSettingsPageContent />
                 </DataTemplate>
             </view:SettingContentTemplateSelector.AppearanceTemplate>
-
-            <!-- Shere -->
-            <view:SettingContentTemplateSelector.ShereTemplate>
-                <DataTemplate>
-                    <settingsContent:ShereSettingsPageContent />
-                </DataTemplate>
-            </view:SettingContentTemplateSelector.ShereTemplate>
 
             <!-- Feedback -->
             <view:SettingContentTemplateSelector.FeedbackTemplate>

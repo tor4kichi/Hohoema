@@ -434,7 +434,6 @@ namespace NicoPlayerHohoema.ViewModels
                         {
                             var hohoemaApp = NicoVideo.HohoemaApp;
                             hohoemaApp.UserSettings.NGSettings.AddNGVideoOwnerId(NicoVideo.OwnerId.ToString(), NicoVideo.OwnerName);
-                            hohoemaApp.UserSettings.NGSettings.Save().ConfigureAwait(false);
 
                             if (_IsNGEnabled)
                             {
@@ -488,20 +487,6 @@ namespace NicoPlayerHohoema.ViewModels
                         ShareHelper.Share(NicoVideo);
                     }
                     , () => DataTransferManager.IsSupported()
-                    ));
-            }
-        }
-
-        private DelegateCommand _ShereWithTwitterCommand;
-        public DelegateCommand ShereWithTwitterCommand
-        {
-            get
-            {
-                return _ShereWithTwitterCommand
-                    ?? (_ShereWithTwitterCommand = new DelegateCommand(async () =>
-                    {
-                        await ShareHelper.ShareToTwitter(NicoVideo);
-                    }
                     ));
             }
         }

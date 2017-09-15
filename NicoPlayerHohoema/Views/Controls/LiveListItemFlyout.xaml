@@ -21,7 +21,6 @@
 
     <MenuFlyoutSubItem Text="共有" Visibility="{Binding IsXbox, Converter={StaticResource BooleanToVisibilityInverted}}" >
         <MenuFlyoutItem Text="アプリを選択" Command="{Binding ShareCommand}" />
-        <MenuFlyoutItem Text="Twitterで共有" Command="{Binding ShereWithTwitterCommand}" />
         <MenuFlyoutItem Text="コピー" Command="{Binding VideoInfoCopyToClipboardCommand}" />
     </MenuFlyoutSubItem>
 

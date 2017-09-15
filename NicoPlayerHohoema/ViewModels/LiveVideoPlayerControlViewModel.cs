@@ -238,13 +238,13 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     NicoLiveVideo.ChangeQualityRequest(quality).ConfigureAwait(false);
                     HohoemaApp.UserSettings.PlayerSettings.DefaultLiveQuality = quality;
-                    HohoemaApp.UserSettings.PlayerSettings.Save().ConfigureAwait(false);
                 }, 
                 (quality) => NicoLiveVideo.Qualities.Any(x => x == quality)
             );
 
-            IsCommentDisplayEnable = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler);
-            IsCommentDisplayEnable.Value = HohoemaApp.UserSettings.PlayerSettings.DefaultCommentDisplay;
+            IsCommentDisplayEnable = HohoemaApp.UserSettings.PlayerSettings
+                .ToReactivePropertyAsSynchronized(x => x.IsCommentDisplay_Live, PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
             IsVisibleComment =
                 Observable.CombineLatest(
                     HohoemaApp.Playlist.ObserveProperty(x => x.IsPlayerFloatingModeEnable).Select(x => !x),
@@ -611,19 +611,6 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-        private DelegateCommand _ShereWithTwitterCommand;
-        public DelegateCommand ShereWithTwitterCommand
-        {
-            get
-            {
-                return _ShereWithTwitterCommand
-                    ?? (_ShereWithTwitterCommand = new DelegateCommand(async () =>
-                    {
-                        await ShareHelper.ShareToTwitter(NicoLiveVideo);
-                    }
-                    ));
-            }
-        }
 
         private DelegateCommand _ShareWithClipboardCommand;
         public DelegateCommand ShareWithClipboardCommand

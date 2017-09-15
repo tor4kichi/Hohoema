@@ -21,8 +21,6 @@ namespace NicoPlayerHohoema.Models
 			IsMute = false;
 			SoundVolume = 0.5;
 			ScrollVolumeFrequency = 0.02;
-			DefaultCommentDisplay = true;
-			IsFullScreenDefault = false;
 			IncrementReadablityOwnerComment = true;
 			PauseWithCommentWriting = true;
 			CommentRenderingFPS = 60;
@@ -37,8 +35,6 @@ namespace NicoPlayerHohoema.Models
 			IsAutoHidePlayerControlUI = true;
 			AutoHidePlayerControlUIPreventTime = TimeSpan.FromSeconds(3);
 			IsForceLandscape = false;
-            _DefaultPlaybackRate = 1.0;
-
         }
 
 
@@ -100,27 +96,29 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-
-		private bool _IsFullScreenDefault;
-
-		[DataMember]
-		public bool IsFullScreenDefault
-		{
-			get { return _IsFullScreenDefault; }
-			set { SetProperty(ref _IsFullScreenDefault, value); }
-		}
-
-		private bool _DefaultCommentDisplay;
+        
+		private bool _IsCommentDisplay_Video = true;
 
 		[DataMember]
-		public bool DefaultCommentDisplay
-		{
-			get { return _DefaultCommentDisplay; }
-			set { SetProperty(ref _DefaultCommentDisplay, value); }
+		public bool CommentDisplay_Video
+        {
+			get { return _IsCommentDisplay_Video; }
+			set { SetProperty(ref _IsCommentDisplay_Video, value); }
 		}
 
 
-		private bool _IncrementReadablityOwnerComment;
+        private bool _IsCommentDisplay_Live = true;
+
+        [DataMember]
+        public bool IsCommentDisplay_Live
+        {
+            get { return _IsCommentDisplay_Live; }
+            set { SetProperty(ref _IsCommentDisplay_Live, value); }
+        }
+
+
+
+        private bool _IncrementReadablityOwnerComment;
 
 		[DataMember]
 		public bool IncrementReadablityOwnerComment
@@ -279,13 +277,17 @@ namespace NicoPlayerHohoema.Models
 
 
 
-        private double _DefaultPlaybackRate;
+        private double _PlaybackRate = 1.0;
 
         [DataMember]
-        public double DefaultPlaybackRate
+        public double PlaybackRate
         {
-            get { return _DefaultPlaybackRate; }
-            set { SetProperty(ref _DefaultPlaybackRate, value); }
+            get { return _PlaybackRate; }
+            set
+            {
+                var trimValue = Math.Min(2.0, Math.Max(0.1, value));
+                SetProperty(ref _PlaybackRate, trimValue);
+            }
         }
 
 

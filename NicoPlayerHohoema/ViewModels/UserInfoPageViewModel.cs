@@ -107,16 +107,12 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     HohoemaApp.UserSettings.NGSettings.AddNGVideoOwnerId(UserId, UserName);
                     IsNGVideoOwner.Value = true;
-
-                    HohoemaApp.UserSettings.NGSettings.Save().ConfigureAwait(false);
                     Debug.WriteLine(UserName + "をNG動画投稿者として登録しました。");
                 }
                 else
                 {
                     HohoemaApp.UserSettings.NGSettings.RemoveNGVideoOwnerId(UserId);
                     IsNGVideoOwner.Value = false;
-
-                    HohoemaApp.UserSettings.NGSettings.Save().ConfigureAwait(false);
                     Debug.WriteLine(UserName + "をNG動画投稿者の指定を解除しました。");
 
                 }

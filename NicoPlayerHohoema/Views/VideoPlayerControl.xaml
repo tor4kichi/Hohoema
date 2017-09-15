@@ -198,11 +198,8 @@
 
             <MenuFlyoutSubItem Text="共有" Visibility="{Binding IsXbox, Converter={StaticResource BooleanToVisibilityInverted}}" >
                 <MenuFlyoutItem Text="アプリを選択" Command="{Binding ShareCommand}" />
-                <MenuFlyoutItem Text="Twitterで共有" Command="{Binding ShereWithTwitterCommand}" />
                 <MenuFlyoutItem Text="動画情報をコピー" Command="{Binding VideoInfoCopyToClipboardCommand}" />
             </MenuFlyoutSubItem>
-
-
 
 
             <MenuFlyoutSeparator />
@@ -1295,7 +1292,7 @@
                                                           Y2="{Binding ElementName=CommentIcon, Path=ActualHeight}"
                                                       Stroke="Red"
                                                           StrokeThickness="4"
-                                                      Visibility="{Binding IsVisibleComment.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                                      Visibility="{Binding IsCommentDisplayEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                                           Opacity="0.7"
                                                       />
                                                         </Canvas>
