@@ -14,6 +14,7 @@
     PrimaryButtonText="選択"
     SecondaryButtonText="キャンセル"
     IsPrimaryButtonEnabled="{Binding IsValidItemSelected.Value}"
+    ScrollViewer.VerticalScrollMode="Disabled"
     >
 
     <ContentDialog.Resources>
@@ -57,36 +58,33 @@
 
     </ContentDialog.Resources>
 
-    <StackPanel>
 
-        <Pivot ItemsSource="{Binding SelectableContainerList}"
-               SelectedItem="{Binding SelectedContainer.Value, Mode=TwoWay}"
-               >
-            <Pivot.HeaderTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Label}" />
-                </DataTemplate>
-            </Pivot.HeaderTemplate>
-            <Pivot.ItemTemplate>
-                <DataTemplate>
+    <Pivot ItemsSource="{Binding SelectableContainerList}"
+            SelectedItem="{Binding SelectedContainer.Value, Mode=TwoWay}"
+            >
+        <Pivot.HeaderTemplate>
+            <DataTemplate>
+                <TextBlock Text="{Binding Label}" />
+            </DataTemplate>
+        </Pivot.HeaderTemplate>
+        <Pivot.ItemTemplate>
+            <DataTemplate>
 
-                    <Grid Margin="0 8">
-                        <ContentControl Content="{Binding}"
-                            ContentTemplateSelector="{StaticResource ContentSelectContainerTemplateSelector}"
-                            HorizontalContentAlignment="Stretch"
-                            VerticalContentAlignment="Stretch"
-                            HorizontalAlignment="Stretch"
-                            Margin="0 0"
-                            MinWidth="200"
-                                        IsTabStop="False"
-                        />
-                    </Grid>
+                <Grid Margin="0 8">
+                    <ContentControl Content="{Binding}"
+                        ContentTemplateSelector="{StaticResource ContentSelectContainerTemplateSelector}"
+                        HorizontalContentAlignment="Stretch"
+                        VerticalContentAlignment="Stretch"
+                        HorizontalAlignment="Stretch"
+                        Margin="0 0"
+                        MinWidth="200"
+                                    IsTabStop="False"
+                    />
+                </Grid>
 
                     
-                </DataTemplate>
-            </Pivot.ItemTemplate>
+            </DataTemplate>
+        </Pivot.ItemTemplate>
             
-        </Pivot>
-        
-    </StackPanel>
+    </Pivot>
 </ContentDialog>
