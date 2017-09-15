@@ -63,6 +63,8 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<NGCommentScore> SelectedNGCommentScore { get; private set; }
 
 
+        public ReactiveProperty<bool> CommentGlassMowerEnable { get; private set; }
+
 
 
 
@@ -240,7 +242,10 @@ namespace NicoPlayerHohoema.ViewModels
 
             SelectedNGCommentScore = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentScoreType);
 
-            
+
+
+            CommentGlassMowerEnable = _HohoemaApp.UserSettings.PlayerSettings
+                .ToReactivePropertyAsSynchronized(x => x.CommentGlassMowerEnable);
         }
 
         protected override void OnEnter(ICollection<IDisposable> focusingDispsable)

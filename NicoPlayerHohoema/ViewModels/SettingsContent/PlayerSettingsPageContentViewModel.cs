@@ -23,8 +23,6 @@ namespace NicoPlayerHohoema.ViewModels
         public DelegateCommand ResetDefaultPlaybackRateCommand { get; private set; }
 
 
-        public ReactiveProperty<bool> CommentGlassMowerEnable { get; private set; }
-
 
 
         public ReactiveProperty<bool> IsDefaultCommentWithAnonymous { get; private set; }
@@ -116,7 +114,6 @@ namespace NicoPlayerHohoema.ViewModels
             CommentRenderingFPS = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentRenderingFPS);
             CommentDisplayDuration = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentDisplayDuration, x => x.TotalSeconds, x => TimeSpan.FromSeconds(x));
             CommentFontScale = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCommentFontScale);
-            CommentGlassMowerEnable = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentGlassMowerEnable);
             IsDefaultCommentWithAnonymous = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsDefaultCommentWithAnonymous);
             CommentOpacity = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentOpacity);
 

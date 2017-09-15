@@ -266,23 +266,7 @@
 
                 </StackPanel>
 
-                <!-- 自動芝刈り機 -->
-                <StackPanel Margin="0 8 0 16">
-
-
-                    <TextBlock Text="自動草刈機"
-                                       
-                                       VerticalAlignment="Center"
-                                          />
-                    <ToggleSwitch IsOn="{Binding CommentGlassMowerEnable.Value, Mode=TwoWay}"
-                                          />
-
-                    <TextBlock Text="※ 連続するｗを１文字に刈り込みます"
-                                       Style="{StaticResource DescriptionTextStyle}"
-                                       ToolTipService.ToolTip="ｗｗｗｗｗ -> ｗ"
-                                       toolkit:DockPanel.Dock="Bottom"
-                                       />
-                </StackPanel>
+                
             </StackPanel>
 
 
