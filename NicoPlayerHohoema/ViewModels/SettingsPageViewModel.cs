@@ -37,7 +37,6 @@ namespace NicoPlayerHohoema.ViewModels
 			ToastNotificationService = toastService;
 
 			SettingItems = ((IEnumerable<HohoemaSettingsKind>)Enum.GetValues(typeof(HohoemaSettingsKind)))
-                .Where(x => Util.DeviceTypeHelper.IsXbox ? x != HohoemaSettingsKind.Share : true)
 				.Select(x => KindToVM(x))
 				.ToList();
 
@@ -87,9 +86,6 @@ namespace NicoPlayerHohoema.ViewModels
                     break;
 				case HohoemaSettingsKind.Appearance:
 					vm = new AppearanceSettingsPageContentViewModel(HohoemaApp, ToastNotificationService);
-					break;
-				case HohoemaSettingsKind.Share:
-					vm = new ShareSettingsPageContentViewModel();
 					break;
                 case HohoemaSettingsKind.Feedback:
                     vm = new FeedbackSettingsPageContentViewModel();
@@ -176,7 +172,6 @@ namespace NicoPlayerHohoema.ViewModels
 		Player,
 		Filtering,
 		Appearance,
-        Share,
         Feedback,
         About,
     }

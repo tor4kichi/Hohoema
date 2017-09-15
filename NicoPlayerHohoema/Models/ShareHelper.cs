@@ -89,7 +89,7 @@ namespace NicoPlayerHohoema.Models
 
                 var dataTransferManager = DataTransferManager.GetForCurrentView();
                 dataTransferManager.DataRequested += DataTransferManager_DataRequested;
-
+                
                 DataTransferManager.ShowShareUI();
             }
         }

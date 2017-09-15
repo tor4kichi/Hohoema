@@ -611,19 +611,6 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-        private DelegateCommand _ShereWithTwitterCommand;
-        public DelegateCommand ShereWithTwitterCommand
-        {
-            get
-            {
-                return _ShereWithTwitterCommand
-                    ?? (_ShereWithTwitterCommand = new DelegateCommand(async () =>
-                    {
-                        await ShareHelper.ShareToTwitter(NicoLiveVideo);
-                    }
-                    ));
-            }
-        }
 
         private DelegateCommand _ShareWithClipboardCommand;
         public DelegateCommand ShareWithClipboardCommand

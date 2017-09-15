@@ -33,9 +33,7 @@ namespace NicoPlayerHohoema.Views
 	{
 		public DataTemplate FilteringTemplate { get; set; }
 		public DataTemplate PlayerTemplate { get; set; }
-		public DataTemplate CacheTemplate { get; set; }
 		public DataTemplate AppearanceTemplate { get; set; }
-		public DataTemplate ShereTemplate { get; set; }
         public DataTemplate FeedbackTemplate { get; set; }
         public DataTemplate AboutTemplate { get; set; }
 
@@ -52,10 +50,6 @@ namespace NicoPlayerHohoema.Views
 			else if (item is ViewModels.AppearanceSettingsPageContentViewModel)
 			{
 				return AppearanceTemplate;
-			}
-			else if (item is ViewModels.ShareSettingsPageContentViewModel)
-			{
-				return ShereTemplate;
 			}
             else if (item is ViewModels.FeedbackSettingsPageContentViewModel)
             {
