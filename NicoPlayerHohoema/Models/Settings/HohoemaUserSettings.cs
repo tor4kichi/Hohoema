@@ -37,7 +37,7 @@ namespace NicoPlayerHohoema.Models
 			var cache = await SettingsBase.Load<CacheSettings>(CacheSettingsFileName, userFolder);
             var appearance = await SettingsBase.Load<AppearanceSettings>(AppearanceSettingsFileName, userFolder);
 
-            return new HohoemaUserSettings()
+            var settings = new HohoemaUserSettings()
 			{
 				RankingSettings = ranking,
                 PlaylistSettings = playlist,
@@ -47,6 +47,10 @@ namespace NicoPlayerHohoema.Models
                 CacheSettings = cache,
                 AppearanceSettings = appearance,
             };
+
+            settings.SetupSaveWithPropertyChanged();
+
+            return settings;
 		}
 
 		public async Task Save()
@@ -68,8 +72,38 @@ namespace NicoPlayerHohoema.Models
 
         public HohoemaUserSettings()
 		{
-		}
-	}
+            
+        }
+
+        ~HohoemaUserSettings()
+        {
+            if (RankingSettings != null)
+            {
+                RankingSettings.PropertyChanged -= Settings_PropertyChanged;
+                PlayerSettings.PropertyChanged -= Settings_PropertyChanged;
+                NGSettings.PropertyChanged -= Settings_PropertyChanged;
+                CacheSettings.PropertyChanged -= Settings_PropertyChanged;
+                PlaylistSettings.PropertyChanged -= Settings_PropertyChanged;
+                AppearanceSettings.PropertyChanged -= Settings_PropertyChanged;
+            }
+        }
+
+        private void SetupSaveWithPropertyChanged()
+        {
+            RankingSettings.PropertyChanged += Settings_PropertyChanged;
+            PlayerSettings.PropertyChanged += Settings_PropertyChanged;
+            NGSettings.PropertyChanged += Settings_PropertyChanged;
+            CacheSettings.PropertyChanged += Settings_PropertyChanged;
+            PlaylistSettings.PropertyChanged += Settings_PropertyChanged;
+            AppearanceSettings.PropertyChanged += Settings_PropertyChanged;
+        }
+
+        private static void Settings_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            (sender as SettingsBase).Save().ConfigureAwait(false);
+            System.Diagnostics.Debug.WriteLine("Settings Saved");
+        }
+    }
 
 	[DataContract]
 	public abstract class SettingsBase : BindableBase
@@ -79,7 +113,7 @@ namespace NicoPlayerHohoema.Models
 			_FileLock = new SemaphoreSlim(1, 1);
 		}
 
-		public string FileName { get; private set; }
+        public string FileName { get; private set; }
 		public StorageFolder Folder { get; private set; }
 
 		

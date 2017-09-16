@@ -80,6 +80,12 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
+        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        {
+            PageManager.ClearNavigateHistory();
+
+            base.OnNavigatedTo(e, viewModelState);
+        }
         protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
 

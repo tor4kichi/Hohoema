@@ -31,26 +31,122 @@
                     <toolkit:DockPanel >
 
 
-                        <StackPanel toolkit:DockPanel.Dock="Right" Margin="8 0"
-                                Orientation="Horizontal"
+                        <CommandBar toolkit:DockPanel.Dock="Right" Margin="8 0"
+                                
                                 >
+                            <AppBarButton Label="検索オプション"
+                                              Icon="Sort"
+                                              >
+                                <AppBarButton.Flyout>
+                                    <Flyout>
+                                        <StackPanel MaxWidth="340">
+
+                                            <TextBlock Text="表示順" Margin="0 0 0 0"
+                                                       Style="{StaticResource BodyTextBlockStyle}"
+                                                       Opacity="0.7"
+                                                       />
+                                            
+                                            <ListView ItemsSource="{Binding LiveSearchSortOptionListItems}"
+                                                          DisplayMemberPath="Label"
+                                                          SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}"
+                                                          Margin="0"
+                                                          HorizontalAlignment="Stretch"
+                                                          VerticalAlignment="Center"
+                                                          SelectionMode="Single"
+                                                          SingleSelectionFollowsFocus="False"
+                                                        >
+                                                <ListView.ItemContainerStyle>
+                                                    <Style TargetType="ListViewItem">
+                                                        <Setter Property="Width" Value="160" />
+                                                    </Style>
+                                                </ListView.ItemContainerStyle>
+                                                <ListView.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <ItemsWrapGrid Orientation="Horizontal" />
+                                                    </ItemsPanelTemplate>
+                                                </ListView.ItemsPanel>
+
+                                            </ListView>
+
+                                            <TextBlock Text="放送の状態" Margin="0 8 0 0"
+                                                       Style="{StaticResource BodyTextBlockStyle}"
+                                                       Opacity="0.7"
+                                                       />
+
+                                            <ListView ItemsSource="{Binding LiveSearchModeOptionListItems}"
+                                                          DisplayMemberPath="Label"
+                                                          SelectedItem="{Binding SelectedSearchMode.Value, Mode=TwoWay}"
+                                                          Margin="0"
+                                                          HorizontalAlignment="Stretch"
+                                                          VerticalAlignment="Center"
+                                                          SelectionMode="Single"
+                                                          SingleSelectionFollowsFocus="False"
+                                                        >
+                                                <ListView.ItemContainerStyle>
+                                                    <Style TargetType="ListViewItem">
+                                                        <Setter Property="Width" Value="160" />
+                                                    </Style>
+                                                </ListView.ItemContainerStyle>
+                                                <ListView.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <ItemsWrapGrid Orientation="Horizontal" />
+                                                    </ItemsPanelTemplate>
+                                                </ListView.ItemsPanel>
+
+                                            </ListView>
+
+                                            <TextBlock Text="提供者" Margin="0 8 0 0"
+                                                       Style="{StaticResource BodyTextBlockStyle}"
+                                                       Opacity="0.7"
+                                                       />
+
+                                            <ListView ItemsSource="{Binding LiveSearchProviderOptionListItems}"
+                                                          DisplayMemberPath="Label"
+                                                          SelectedItem="{Binding SelectedProvider.Value, Mode=TwoWay}"
+                                                          Margin="0"
+                                                          HorizontalAlignment="Stretch"
+                                                          VerticalAlignment="Center"
+                                                          SelectionMode="Single"
+                                                          SingleSelectionFollowsFocus="False"
+                                                        >
+                                                <ListView.ItemContainerStyle>
+                                                    <Style TargetType="ListViewItem">
+                                                        <Setter Property="Width" Value="160" />
+                                                    </Style>
+                                                </ListView.ItemContainerStyle>
+                                                <ListView.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <ItemsWrapGrid Orientation="Horizontal" />
+                                                    </ItemsPanelTemplate>
+                                                </ListView.ItemsPanel>
+
+                                            </ListView>
+                                        </StackPanel>
+
+
+                                    </Flyout>
+                                </AppBarButton.Flyout>
+                            </AppBarButton>
+                            
                             <AppBarButton Background="Transparent" 
                                         Command="{Binding RefreshCommand}"
                                         ToolTipService.ToolTip="更新"
                                               Icon="Refresh"
                                         />
-                        </StackPanel>
+                        </CommandBar>
 
                         <Border Background="Transparent" IsHitTestVisible="True"
-                            Margin="24 0 0 0"
-                            >
-
-                            <TextBlock Text="{Binding Title}" 
-                                    VerticalAlignment="Center"
-                                    Style="{StaticResource SubtitleTextBlockStyle}"
-                                    >
-                                
-                            </TextBlock>
+                                Margin="16 0 0 0"
+                                >
+                            <toolkit:DockPanel VerticalAlignment="Center">
+                                <TextBlock Text="{Binding SearchOptionText}" 
+                                            Style="{StaticResource CaptionTextBlockStyle}"
+                                           toolkit:DockPanel.Dock="Bottom"
+                                    />
+                                <TextBlock Text="{Binding Title}" 
+                                            Style="{StaticResource SubtitleTextBlockStyle}"
+                                    />
+                            </toolkit:DockPanel>
 
                             <i:Interaction.Behaviors>
                                 <core:EventTriggerBehavior EventName="Tapped">

@@ -893,7 +893,7 @@ namespace NicoPlayerHohoema.Models
 
                 // 現在あるダウンロードタスクは必ず終了させる必要があります
                 MediaManager?.StopCacheDownload();
-
+                /*
                 // v0.4.0以降の移行処理
                 if (_DownloadFolder != null)
 				{
@@ -955,13 +955,10 @@ namespace NicoPlayerHohoema.Models
 
 				#endregion
 
-
-				try
-				{
-					await MediaManager.OnCacheFolderChanged();
-				}
-				catch (Exception ex) { Debug.WriteLine(ex.ToString()); }
+                */
 			}
+
+            await Task.Delay(0);
 
 			_DownloadFolder = newVideoFolder;
 		}
@@ -997,7 +994,7 @@ namespace NicoPlayerHohoema.Models
 
 		
 
-
+        public string PrevCacheFolderAccessToken { get; private set; }
 		
 		public async Task<bool> ChangeUserDataFolder()
 		{

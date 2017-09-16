@@ -238,13 +238,13 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     NicoLiveVideo.ChangeQualityRequest(quality).ConfigureAwait(false);
                     HohoemaApp.UserSettings.PlayerSettings.DefaultLiveQuality = quality;
-                    HohoemaApp.UserSettings.PlayerSettings.Save().ConfigureAwait(false);
                 }, 
                 (quality) => NicoLiveVideo.Qualities.Any(x => x == quality)
             );
 
-            IsCommentDisplayEnable = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler);
-            IsCommentDisplayEnable.Value = HohoemaApp.UserSettings.PlayerSettings.DefaultCommentDisplay;
+            IsCommentDisplayEnable = HohoemaApp.UserSettings.PlayerSettings
+                .ToReactivePropertyAsSynchronized(x => x.IsCommentDisplay_Live, PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
             IsVisibleComment =
                 Observable.CombineLatest(
                     HohoemaApp.Playlist.ObserveProperty(x => x.IsPlayerFloatingModeEnable).Select(x => !x),

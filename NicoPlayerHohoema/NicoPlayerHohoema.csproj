@@ -135,6 +135,7 @@
     <Content Include="Assets\UpdateNotices\0.10.4.md" />
     <Content Include="Assets\UpdateNotices\0.10.5.md" />
     <Content Include="Assets\UpdateNotices\0.10.6.md" />
+    <Content Include="Assets\UpdateNotices\0.10.7.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
   </ItemGroup>
   <ItemGroup>
@@ -285,7 +286,6 @@
     <Compile Include="ViewModels\VideoSearchSortOptionListItem.cs" />
     <Compile Include="ViewModels\SearchResultPage\SearchResultTagPageViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\AppearanceSettingsPageContentViewModel.cs" />
-    <Compile Include="ViewModels\SettingsContent\CacheSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\ShereSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\FilteringSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\PlayerSettingsPageContentViewModel.cs" />
@@ -576,7 +576,6 @@
     <Compile Include="Views\Service\DislikeRankingCtegoryChoiceDialog.xaml.cs">
       <DependentUpon>DislikeRankingCtegoryChoiceDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Service\EditAutoCacheConditionDialogService.cs" />
     <Compile Include="Views\Service\EditMylistGroupDialog.xaml.cs">
       <DependentUpon>EditMylistGroupDialog.xaml</DependentUpon>
     </Compile>
@@ -596,9 +595,6 @@
     </Compile>
     <Compile Include="Views\SettingsPageContent\AppearanceSettingsPageContent.xaml.cs">
       <DependentUpon>AppearanceSettingsPageContent.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\SettingsPageContent\CacheSettingsPageContent.xaml.cs">
-      <DependentUpon>CacheSettingsPageContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SettingsPageContent\FeedbackSettingsPageContent.xaml.cs">
       <DependentUpon>FeedbackSettingsPageContent.xaml</DependentUpon>
@@ -1077,10 +1073,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SettingsPageContent\AppearanceSettingsPageContent.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\SettingsPageContent\CacheSettingsPageContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -13,7 +13,6 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class PlayerSeetingPageContentViewModel : SettingsPageContentViewModel
 	{
-        public ReactiveProperty<bool> IsFullScreenDefault { get; private set; }
         public ReactiveProperty<bool> IsForceLandscapeDefault { get; private set; }
 
         public ReactiveProperty<bool> IsKeepDisplayInPlayback { get; private set; }
@@ -21,16 +20,12 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactiveProperty<double> AutoHideDelayTime { get; private set; }
 
-        public ReactiveProperty<double> DefaultPlaybackRate { get; private set; }
         public DelegateCommand ResetDefaultPlaybackRateCommand { get; private set; }
 
-
-        public ReactiveProperty<bool> CommentGlassMowerEnable { get; private set; }
 
 
 
         public ReactiveProperty<bool> IsDefaultCommentWithAnonymous { get; private set; }
-        public ReactiveProperty<bool> DefaultCommentDisplay { get; private set; }
         public ReactiveProperty<uint> CommentRenderingFPS { get; private set; }
         public ReactiveProperty<double> CommentDisplayDuration { get; private set; }
         public ReactiveProperty<double> CommentFontScale { get; private set; }
@@ -97,8 +92,6 @@ namespace NicoPlayerHohoema.ViewModels
             _PlayerSettings = _HohoemaApp.UserSettings.PlayerSettings;
             _PlaylistSettings = _HohoemaApp.UserSettings.PlaylistSettings;
 
-			IsFullScreenDefault = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsFullScreenDefault);
-
 			IsKeepDisplayInPlayback = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsKeepDisplayInPlayback);
 			ScrollVolumeFrequency = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.ScrollVolumeFrequency);
 			IsForceLandscapeDefault = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsForceLandscape);
@@ -109,9 +102,6 @@ namespace NicoPlayerHohoema.ViewModels
 				, x => TimeSpan.FromSeconds(x)
 				);
 
-            DefaultPlaybackRate = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultPlaybackRate);
-            ResetDefaultPlaybackRateCommand = new DelegateCommand(() => DefaultPlaybackRate.Value = 1.0);
-
             PlaylistEndAction = _PlaylistSettings.ToReactivePropertyAsSynchronized(x => x.PlaylistEndAction);
 
             // NG Comment User Id
@@ -119,13 +109,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 
             // Comment Display 
-            DefaultCommentDisplay = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCommentDisplay);
             CommentColor = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentColor);
             IsPauseWithCommentWriting = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.PauseWithCommentWriting);
             CommentRenderingFPS = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentRenderingFPS);
             CommentDisplayDuration = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentDisplayDuration, x => x.TotalSeconds, x => TimeSpan.FromSeconds(x));
             CommentFontScale = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCommentFontScale);
-            CommentGlassMowerEnable = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentGlassMowerEnable);
             IsDefaultCommentWithAnonymous = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsDefaultCommentWithAnonymous);
             CommentOpacity = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentOpacity);
 
@@ -137,17 +125,12 @@ namespace NicoPlayerHohoema.ViewModels
             IsEnableUserCommentCommand.Subscribe(x => SetCommentCommandPermission(x, CommentCommandPermissionType.User));
             IsEnableAnonymousCommentCommand.Subscribe(x => SetCommentCommandPermission(x, CommentCommandPermissionType.Anonymous));
 
-
-
-            
         }
 
         protected override void OnLeave()
 		{
+            // 非表示ランキングについては自動保存の対象外となるため手動セーブ
             _NGSettings.Save().ConfigureAwait(false);
-            _PlayerSettings.Save().ConfigureAwait(false);
-            _PlaylistSettings.Save().ConfigureAwait(false);
-
         }
 
 

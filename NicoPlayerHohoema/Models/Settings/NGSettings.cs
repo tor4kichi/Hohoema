@@ -255,19 +255,28 @@ namespace NicoPlayerHohoema.Models
 			};
 
 			NGVideoOwnerUserIds.Add(userIdInfo);
+
+            Save().ConfigureAwait(false);
 		}
 
 		public bool RemoveNGVideoOwnerId(string userId)
 		{
-			var item = NGVideoOwnerUserIds.SingleOrDefault(x => x.UserId == userId);
-			if (item != null)
-			{
-				return NGVideoOwnerUserIds.Remove(item);
-			}
-			else
-			{
-				return false;
-			}
+            try
+            {
+                var item = NGVideoOwnerUserIds.SingleOrDefault(x => x.UserId == userId);
+                if (item != null)
+                {
+                    return NGVideoOwnerUserIds.Remove(item);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            finally
+            {
+                Save().ConfigureAwait(false);
+            }
 		}
 
 	}

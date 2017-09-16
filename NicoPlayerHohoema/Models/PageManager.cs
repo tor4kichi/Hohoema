@@ -21,18 +21,24 @@ namespace NicoPlayerHohoema.Models
 	{
 		
 
-		public static List<HohoemaPageType> IgnoreRecordNavigationStack = new List<HohoemaPageType>
+		public static readonly HashSet<HohoemaPageType> IgnoreRecordNavigationStack = new HashSet<HohoemaPageType>
 		{
 			HohoemaPageType.ConfirmWatchHurmfulVideo,
+            HohoemaPageType.Splash,
+            HohoemaPageType.Login,
 		};
 
 
-		public readonly IReadOnlyList<HohoemaPageType> DontNeedMenuPageTypes = new List<HohoemaPageType>
+		public static readonly HashSet<HohoemaPageType> DontNeedMenuPageTypes = new HashSet<HohoemaPageType>
 		{
             HohoemaPageType.Splash,
             HohoemaPageType.Login,
 		};
 
+        public static bool IsHiddenMenuPage(HohoemaPageType pageType)
+        {
+            return DontNeedMenuPageTypes.Contains(pageType);
+        }
 
 		public INavigationService NavigationService { get; private set; }
 
@@ -76,7 +82,7 @@ namespace NicoPlayerHohoema.Models
             CurrentPageType = HohoemaPageType.RankingCategoryList;
         }
 
-		public void OpenPage(Uri uri)
+        public void OpenPage(Uri uri)
 		{
 			var path = uri.AbsoluteUri;
 			// is mylist url?
@@ -108,10 +114,10 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
-		public void OpenPage(HohoemaPageType pageType, object parameter = null)
+		public void OpenPage(HohoemaPageType pageType, object parameter = null, bool isForgetNavigation = false)
 		{
-			HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-			{
+            HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            {
                 using (var releaser = await _NavigationLock.LockAsync())
                 {
                     PageNavigating = true;
@@ -134,7 +140,7 @@ namespace NicoPlayerHohoema.Models
                         }
                         else
                         {
-                            if (IsIgnoreRecordPageType(oldPageType))
+                            if (isForgetNavigation || IsIgnoreRecordPageType(oldPageType))
                             {
                                 ForgetLastPage();
                             }
@@ -146,13 +152,13 @@ namespace NicoPlayerHohoema.Models
                     }
                 }
             })
-			.AsTask()
-			.ConfigureAwait(false);
-		}
+            .AsTask()
+            .ConfigureAwait(false);
+        }
 
 		public bool IsIgnoreRecordPageType(HohoemaPageType pageType)
 		{
-			return IgnoreRecordNavigationStack.Any(x => x == pageType);
+			return IgnoreRecordNavigationStack.Contains(pageType);
 		}
 
 		public void ForgetLastPage()

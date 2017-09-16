@@ -25,11 +25,39 @@
     
     <Grid>
 
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsCacheUserAccepted.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CacheManagementContentLayout.Visibility" Value="Visible" />
+                        <Setter Target="NotCacheAcceptedLayout.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsRequireUpdateCacheSaveFolder.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="UpdateButton.Visibility" Value="Collapsed" />
+                        <Setter Target="UpdateCacheSaveFolderButton.Visibility" Value="Visible" />
+
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
         
         
         <Grid>
 
-            <toolkit:DockPanel >
+            <toolkit:DockPanel x:Name="CacheManagementContentLayout"
+                               Visibility="Collapsed"
+                               >
 
 
                 <Border toolkit:DockPanel.Dock="Top" 
@@ -53,7 +81,41 @@
                                         Command="{Binding RefreshCommand}"
                                         ToolTipService.ToolTip="更新"
                                               Icon="Refresh"
+                                              x:Name="UpdateButton"
                                         />
+
+                                <AppBarButton Background="Transparent" 
+                                        Command="{Binding ChangeCacheFolderCommand}"
+                                        ToolTipService.ToolTip="保存先フォルダを指定"
+                                              Icon="SyncFolder"
+                                              x:Name="UpdateCacheSaveFolderButton"
+                                              Visibility="Collapsed"
+                                        />
+                                
+                                <AppBarButton Icon="More">
+                                    <AppBarButton.Flyout>
+                                        <MenuFlyout>
+                                            <MenuFlyoutItem Text="{Binding CacheSaveFolderPath.Value}"
+                                                            IsEnabled="False"
+                                                            />
+                                            <MenuFlyoutItem Text="保存先を開く"
+                                                            Command="{Binding OpenCurrentCacheFolderCommand}"
+                                                            />
+                                            
+                                            <MenuFlyoutSeparator />
+
+                                            <MenuFlyoutItem Text="保存先を変更"
+                                                    Command="{Binding ChangeCacheFolderCommand}"
+                                                    >
+                                            </MenuFlyoutItem>
+                                            <MenuFlyoutItem Text="動画キャッシュ機能利用の確認文を読む" 
+                                                    Command="{Binding ReadCacheAcceptTextCommand}"
+                                                    />
+
+                                        </MenuFlyout>
+                                    </AppBarButton.Flyout>
+                                    
+                                </AppBarButton>
 
                             </StackPanel>
 
@@ -156,10 +218,7 @@
             </toolkit:DockPanel>
 
 
-            <Grid Visibility="{Binding IsCacheUserAccepted, Converter={StaticResource BooleanToVisibilityInverted}}" 
-              HorizontalAlignment="Stretch"
-              VerticalAlignment="Stretch"
-              Background="#77FFFFFF"
+            <Grid x:Name="NotCacheAcceptedLayout"
               >
                 <StackPanel HorizontalAlignment="Center"
                         VerticalAlignment="Center">
@@ -167,12 +226,11 @@
 
 
                     <TextBlock Margin="4">
-                    <Run>「キャッシュ機能の利用に関する確認」への同意が必要です</Run>
+                        <Run>「キャッシュ機能の利用に関する確認」への同意が必要です</Run>
                     </TextBlock>
 
-
                     <Button Content="「キャッシュ機能の利用に関する確認」を表示する" 
-                        Command="{Binding OpenCacheSettingsCommand}" 
+                        Command="{Binding RequireEnablingCacheCommand}" 
                         Margin="8 16 8 8"
                          />
 

@@ -11,7 +11,7 @@ namespace NicoPlayerHohoema.Models
 {
     public static class PageManagerSearchExtention
     {
-        public static void Search(this PageManager pageManager, ISearchPagePayloadContent searchPayload)
+        public static void Search(this PageManager pageManager, ISearchPagePayloadContent searchPayload, bool forgetLastSearch = false)
         {
             HohoemaPageType resultPageType = HohoemaPageType.Search;
             if (searchPayload is KeywordSearchPagePayloadContent)
@@ -35,8 +35,18 @@ namespace NicoPlayerHohoema.Models
                 resultPageType = HohoemaPageType.SearchResultLive;
             }
 
-            pageManager.OpenPage(resultPageType, searchPayload.ToParameterString());
-        }
+            bool isRequireForgetLastNavigation = false;
+            if (pageManager.CurrentPageType == HohoemaPageType.SearchResultCommunity ||
+                pageManager.CurrentPageType == HohoemaPageType.SearchResultKeyword ||
+                pageManager.CurrentPageType == HohoemaPageType.SearchResultTag ||
+                pageManager.CurrentPageType == HohoemaPageType.SearchResultLive ||
+                pageManager.CurrentPageType == HohoemaPageType.SearchResultMylist )
+            {
+                isRequireForgetLastNavigation = true;
+            }
+
+            pageManager.OpenPage(resultPageType, searchPayload.ToParameterString(), isRequireForgetLastNavigation);
+         }
 
         public static void SearchTag(this PageManager pageManager, string content, Mntone.Nico2.Order order, Mntone.Nico2.Sort sort)
         {

@@ -21,35 +21,153 @@ using NicoPlayerHohoema.Util;
 using Windows.UI.Xaml.Navigation;
 using Prism.Commands;
 using Windows.Networking.BackgroundTransfer;
+using NicoPlayerHohoema.Views.Service;
+using Windows.System;
+using Windows.UI.Popups;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	public class CacheManagementPageViewModel : HohoemaVideoListingPageViewModelBase<CacheVideoViewModel>
 	{
-		public static SynchronizationContextScheduler scheduler;
-		public CacheManagementPageViewModel(HohoemaApp app, PageManager pageManager)
+
+        public ReadOnlyReactiveProperty<bool> IsCacheUserAccepted { get; private set; }
+        public ReactiveProperty<bool> IsRequireUpdateCacheSaveFolder { get; private set; }
+
+        public ReactiveProperty<string> CacheSaveFolderPath { get; private set; }
+        public DelegateCommand OpenCurrentCacheFolderCommand { get; private set; }
+        public ReactiveProperty<string> CacheFolderStateDescription { get; private set; }
+
+
+        public DelegateCommand ChangeCacheFolderCommand { get; private set; }
+        public DelegateCommand CheckExistCacheFolderCommand { get; private set; }
+        public DelegateCommand RequireEnablingCacheCommand { get; private set; }
+        public DelegateCommand ReadCacheAcceptTextCommand { get; private set; }
+
+        private DelegateCommand _ResumeCacheCommand;
+        public DelegateCommand ResumeCacheCommand
+        {
+            get
+            {
+                return _ResumeCacheCommand
+                    ?? (_ResumeCacheCommand = new DelegateCommand(() =>
+                    {
+                        // TODO: バックグラウンドダウンロードの強制更新？
+                        //await _MediaManager.StartBackgroundDownload();
+                    }));
+            }
+        }
+
+        NiconicoMediaManager _MediaManager;
+
+        AcceptCacheUsaseDialogService _AcceptCacheUsaseDialogService;
+
+        public CacheManagementPageViewModel(
+            HohoemaApp app, 
+            PageManager pageManager,
+            AcceptCacheUsaseDialogService cacheConfirmDialogService
+            )
 			: base(app, pageManager)
 		{
-			if (scheduler == null)
-			{
-				scheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
-			}
 			_MediaManager = app.MediaManager;
+            _AcceptCacheUsaseDialogService = cacheConfirmDialogService;
 
-			OpenCacheSettingsCommand = new DelegateCommand(() => 
-			{
-				PageManager.OpenPage(HohoemaPageType.Settings, HohoemaSettingsKind.Cache.ToString());
-			});
-		}
+            IsRequireUpdateCacheSaveFolder = new ReactiveProperty<bool>(false);
+
+            IsCacheUserAccepted = HohoemaApp.UserSettings.CacheSettings.ObserveProperty(x => x.IsUserAcceptedCache)
+                .ToReadOnlyReactiveProperty();
+
+            RequireEnablingCacheCommand = new DelegateCommand(async () => 
+            {
+                var result = await _AcceptCacheUsaseDialogService.ShowConfirmAcceptCacheDialog();
+                if (result)
+                {
+                    HohoemaApp.UserSettings.CacheSettings.IsEnableCache = true;
+                    HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache = true;
+                    await RefreshCacheSaveFolderStatus();
+
+                    (App.Current as App).PublishInAppNotification(
+                        InAppNotificationPayload.CreateReadOnlyNotification("キャッシュの保存先を選択することで利用準備が完了します。\n「閉じる」を押すとフォルダ選択が始まります。",
+                        showDuration: TimeSpan.FromSeconds(30)
+                        ));
+
+                    if (await HohoemaApp.ChangeUserDataFolder())
+                    {
+                        await RefreshCacheSaveFolderStatus();
+                        await ResetList();
+
+                        (App.Current as App).PublishInAppNotification(
+                            InAppNotificationPayload.CreateReadOnlyNotification("キャッシュの利用準備が出来ました")
+                            );
+                    }
+                }
+            });
+
+            ReadCacheAcceptTextCommand = new DelegateCommand(async () =>
+            {
+                await cacheConfirmDialogService.ShowAcceptCacheTextDialog();
+            });
+
+
+
+            CacheFolderStateDescription = new ReactiveProperty<string>("");
+            CacheSaveFolderPath = new ReactiveProperty<string>("");
+
+            OpenCurrentCacheFolderCommand = new DelegateCommand(async () =>
+            {
+                await RefreshCacheSaveFolderStatus();
+
+                var folder = await HohoemaApp.GetVideoCacheFolder();
+                if (folder != null)
+                {
+                    await Launcher.LaunchFolderAsync(folder);
+                }
+            });
+            
+
+            ChangeCacheFolderCommand = new DelegateCommand(async () =>
+            {
+                var prevPath = CacheSaveFolderPath.Value;
+
+                if (await HohoemaApp.ChangeUserDataFolder())
+                {
+                    (App.Current as App).PublishInAppNotification(
+                        InAppNotificationPayload.CreateReadOnlyNotification($"キャッシュの保存先を {CacheSaveFolderPath.Value} に変更しました")
+                        );
+
+                    await RefreshCacheSaveFolderStatus();
+                    await ResetList();
+                }
+            });
+        }
 
 
         #region Implement HohoemaVideListViewModelBase
 
-        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
-            IsCacheUserAccepted = HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache;
+            await RefreshCacheSaveFolderStatus();
 
-            base.OnNavigatedTo(e, viewModelState);
+            if (IsRequireUpdateCacheSaveFolder.Value)
+            {
+                (App.Current as App).PublishInAppNotification(
+                    InAppNotificationPayload.CreateReadOnlyNotification("キャッシュの保存先を選択することで利用準備が完了します。\n「閉じる」を押すとフォルダ選択が始まります。", 
+                    showDuration:TimeSpan.FromSeconds(30)
+                    ));
+
+                if (await HohoemaApp.ChangeUserDataFolder())
+                {
+                    await RefreshCacheSaveFolderStatus();
+                    await ResetList();
+
+                    (App.Current as App).PublishInAppNotification(
+                        InAppNotificationPayload.CreateReadOnlyNotification("キャッシュの利用準備が出来ました")
+                        );
+                }
+
+
+            }
+
+            await base.NavigatedToAsync(cancelToken, e, viewModelState);
         }
 
         protected override IIncrementalSource<CacheVideoViewModel> GenerateIncrementalSource()
@@ -72,41 +190,50 @@ namespace NicoPlayerHohoema.ViewModels
 
         #endregion
 
-
-        private bool _IsCacheUserAccepted;
-        public bool IsCacheUserAccepted
+        private async Task RefreshCacheSaveFolderStatus()
         {
-            get { return _IsCacheUserAccepted; }
-            set { SetProperty(ref _IsCacheUserAccepted, value); }
+            var cacheFolderAccessState = await HohoemaApp.GetVideoCacheFolderState();
+
+            CacheSaveFolderPath.Value = "";
+            switch (cacheFolderAccessState)
+            {
+                case CacheFolderAccessState.NotAccepted:
+                    CacheFolderStateDescription.Value = "キャッシュ利用の同意が必要です。 「キャッシュを有効にする」ボタンを押すと同意文書が表示されます。";
+                    break;
+                case CacheFolderAccessState.NotEnabled:
+                    CacheFolderStateDescription.Value = "キャッシュの有効化が必要です";
+                    break;
+                case CacheFolderAccessState.NotSelected:
+                    CacheFolderStateDescription.Value = "フォルダを選択するとキャッシュ機能が使えるようになります";
+                    break;
+                case CacheFolderAccessState.SelectedButNotExist:
+                    CacheFolderStateDescription.Value = "選択されたフォルダが確認できません。外付けストレージを再接続するか、キャッシュ先フォルダを再選択してください。";
+                    CacheSaveFolderPath.Value = "?????";
+                    break;
+                case CacheFolderAccessState.Exist:
+                    CacheFolderStateDescription.Value = "キャッシュ利用の準備ができました";
+                    break;
+                default:
+                    break;
+            }
+
+            var folder = await HohoemaApp.GetVideoCacheFolder();
+            if (folder != null)
+            {
+                CacheSaveFolderPath.Value = $"{folder.Path}";
+            }
+
+
+            IsRequireUpdateCacheSaveFolder.Value = 
+                cacheFolderAccessState == CacheFolderAccessState.SelectedButNotExist
+                || cacheFolderAccessState == CacheFolderAccessState.NotSelected
+                ;
         }
 
-
-		private DelegateCommand _ResumeCacheCommand;
-		public DelegateCommand ResumeCacheCommand
-		{
-			get
-			{
-				return _ResumeCacheCommand
-					?? (_ResumeCacheCommand = new DelegateCommand(() =>
-					{
-                        // TODO: バックグラウンドダウンロードの強制更新？
-						//await _MediaManager.StartBackgroundDownload();
-					}));
-			}
-		}
+    }
 
 
-		public DelegateCommand OpenCacheSettingsCommand { get; private set; }
-
-		NiconicoMediaManager _MediaManager;
-	}
-
-	// 自身のキャッシュ状況を表現する
-	// キャッシュ処理の状態、進捗状況
-	
-	
-	
-	public class CacheVideoViewModel : VideoInfoControlViewModel
+    public class CacheVideoViewModel : VideoInfoControlViewModel
 	{
         public ReadOnlyReactiveProperty<DateTime> CacheRequestTime { get; private set; }
 

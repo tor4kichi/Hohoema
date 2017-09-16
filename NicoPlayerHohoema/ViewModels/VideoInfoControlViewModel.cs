@@ -434,7 +434,6 @@ namespace NicoPlayerHohoema.ViewModels
                         {
                             var hohoemaApp = NicoVideo.HohoemaApp;
                             hohoemaApp.UserSettings.NGSettings.AddNGVideoOwnerId(NicoVideo.OwnerId.ToString(), NicoVideo.OwnerName);
-                            hohoemaApp.UserSettings.NGSettings.Save().ConfigureAwait(false);
 
                             if (_IsNGEnabled)
                             {

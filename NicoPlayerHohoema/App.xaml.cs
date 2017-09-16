@@ -544,7 +544,7 @@ namespace NicoPlayerHohoema
 						await HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
 						{
 							var pm = Container.Resolve<PageManager>();
-							pm.OpenPage(HohoemaPageType.Settings, HohoemaSettingsKind.Cache.ToString());
+							pm.OpenPage(HohoemaPageType.CacheManagement);
 						});
 					});
 			}

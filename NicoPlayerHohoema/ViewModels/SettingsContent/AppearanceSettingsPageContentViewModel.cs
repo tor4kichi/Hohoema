@@ -91,7 +91,6 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override void OnLeave()
         {
-            HohoemaApp.UserSettings.AppearanceSettings.Save().ConfigureAwait(false);
         }
 
 
