@@ -44,6 +44,13 @@
                 </DataTemplate>
             </view:SettingContentTemplateSelector.AppearanceTemplate>
 
+            <!-- Shere -->
+            <view:SettingContentTemplateSelector.ShereTemplate>
+                <DataTemplate>
+                    <settingsContent:ShereSettingsPageContent />
+                </DataTemplate>
+            </view:SettingContentTemplateSelector.ShereTemplate>
+
             <!-- Feedback -->
             <view:SettingContentTemplateSelector.FeedbackTemplate>
                 <DataTemplate>

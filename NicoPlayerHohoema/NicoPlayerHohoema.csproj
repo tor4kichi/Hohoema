@@ -135,6 +135,7 @@
     <Content Include="Assets\UpdateNotices\0.10.4.md" />
     <Content Include="Assets\UpdateNotices\0.10.5.md" />
     <Content Include="Assets\UpdateNotices\0.10.6.md" />
+    <Content Include="Assets\UpdateNotices\0.10.7.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
   </ItemGroup>
   <ItemGroup>
@@ -285,6 +286,7 @@
     <Compile Include="ViewModels\VideoSearchSortOptionListItem.cs" />
     <Compile Include="ViewModels\SearchResultPage\SearchResultTagPageViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\AppearanceSettingsPageContentViewModel.cs" />
+    <Compile Include="ViewModels\SettingsContent\ShereSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\FilteringSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\PlayerSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\UserInfoPageViewModel.cs" />
@@ -596,6 +598,9 @@
     </Compile>
     <Compile Include="Views\SettingsPageContent\FeedbackSettingsPageContent.xaml.cs">
       <DependentUpon>FeedbackSettingsPageContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SettingsPageContent\ShereSettingsPageContent.xaml.cs">
+      <DependentUpon>ShereSettingsPageContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\StateTrigger\ConditionStateTrigger.cs" />
     <Compile Include="Views\StateTrigger\FocusTrigger.cs" />
@@ -1072,6 +1077,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SettingsPageContent\FeedbackSettingsPageContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SettingsPageContent\ShereSettingsPageContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
