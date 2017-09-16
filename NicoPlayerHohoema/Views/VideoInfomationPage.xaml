@@ -81,6 +81,7 @@
                             <Button.Flyout>
                                 <MenuFlyout>
                                     <MenuFlyoutItem Text="アプリを選択" Command="{Binding ShareCommand}" />
+                                    <MenuFlyoutItem Text="Twitterで共有" Command="{Binding ShereWithTwitterCommand}" />
                                     <MenuFlyoutItem Text="動画情報をコピー" Command="{Binding VideoInfoCopyToClipboardCommand}"/>
                                 </MenuFlyout>
                             </Button.Flyout>

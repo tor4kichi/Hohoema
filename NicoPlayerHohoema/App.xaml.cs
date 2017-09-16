@@ -560,7 +560,10 @@ namespace NicoPlayerHohoema
 
             Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.CacheDuration = TimeSpan.FromHours(24);
 
-            await RegisterTypes();
+			// TwitterAPIの初期化
+			await TwitterHelper.Initialize();
+
+			await RegisterTypes();
 
 			var hohoemaApp = Container.Resolve<HohoemaApp>();
 
