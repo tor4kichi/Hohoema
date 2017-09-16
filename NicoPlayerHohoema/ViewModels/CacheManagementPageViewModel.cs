@@ -85,9 +85,10 @@ namespace NicoPlayerHohoema.ViewModels
                     HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache = true;
                     await RefreshCacheSaveFolderStatus();
 
-                    var textDialog = new MessageDialog("キャッシュの保存先を選択することで利用準備が完了します。\n「閉じる」を押すとフォルダ選択が始まります。", "キャッシュの保存先フォルダを選択");
-
-                    await textDialog.ShowAsync();
+                    (App.Current as App).PublishInAppNotification(
+                        InAppNotificationPayload.CreateReadOnlyNotification("キャッシュの保存先を選択することで利用準備が完了します。\n「閉じる」を押すとフォルダ選択が始まります。",
+                        showDuration: TimeSpan.FromSeconds(30)
+                        ));
 
                     if (await HohoemaApp.ChangeUserDataFolder())
                     {
@@ -148,9 +149,10 @@ namespace NicoPlayerHohoema.ViewModels
 
             if (IsRequireUpdateCacheSaveFolder.Value)
             {
-                var textDialog = new MessageDialog("キャッシュの保存先を選択することで利用準備が完了します。\n「閉じる」を押すとフォルダ選択が始まります。", "キャッシュの保存先フォルダを選択");
-
-                await textDialog.ShowAsync();
+                (App.Current as App).PublishInAppNotification(
+                    InAppNotificationPayload.CreateReadOnlyNotification("キャッシュの保存先を選択することで利用準備が完了します。\n「閉じる」を押すとフォルダ選択が始まります。", 
+                    showDuration:TimeSpan.FromSeconds(30)
+                    ));
 
                 if (await HohoemaApp.ChangeUserDataFolder())
                 {
@@ -161,6 +163,8 @@ namespace NicoPlayerHohoema.ViewModels
                         InAppNotificationPayload.CreateReadOnlyNotification("キャッシュの利用準備が出来ました")
                         );
                 }
+
+
             }
 
             await base.NavigatedToAsync(cancelToken, e, viewModelState);
