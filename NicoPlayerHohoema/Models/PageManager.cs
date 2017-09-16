@@ -114,10 +114,10 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
-		public void OpenPage(HohoemaPageType pageType, object parameter = null)
+		public void OpenPage(HohoemaPageType pageType, object parameter = null, bool isForgetNavigation = false)
 		{
-			HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-			{
+            HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            {
                 using (var releaser = await _NavigationLock.LockAsync())
                 {
                     PageNavigating = true;
@@ -140,7 +140,7 @@ namespace NicoPlayerHohoema.Models
                         }
                         else
                         {
-                            if (IsIgnoreRecordPageType(oldPageType))
+                            if (isForgetNavigation || IsIgnoreRecordPageType(oldPageType))
                             {
                                 ForgetLastPage();
                             }
@@ -152,9 +152,9 @@ namespace NicoPlayerHohoema.Models
                     }
                 }
             })
-			.AsTask()
-			.ConfigureAwait(false);
-		}
+            .AsTask()
+            .ConfigureAwait(false);
+        }
 
 		public bool IsIgnoreRecordPageType(HohoemaPageType pageType)
 		{

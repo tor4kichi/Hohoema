@@ -73,7 +73,41 @@
                                 Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                 toolkit:DockPanel.Dock="Left"
                                 >
-                        <AppBarButton 
+                        <AppBarButton Label="検索オプション" Icon="Sort">
+                            <AppBarButton.Flyout>
+                                <Flyout>
+                                    <StackPanel MaxWidth="340">
+
+                                        <ListView ItemsSource="{Binding VideoSearchOptionListItems}"
+                                                          DisplayMemberPath="Label"
+                                                          SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}"
+                                                          Margin="0"
+                                                          HorizontalAlignment="Stretch"
+                                                          VerticalAlignment="Center"
+                                                          SelectionMode="Single"
+                                                          SingleSelectionFollowsFocus="False"
+                                                        >
+                                            <ListView.ItemContainerStyle>
+                                                <Style TargetType="ListViewItem">
+                                                    <Setter Property="Width" Value="160" />
+                                                </Style>
+                                            </ListView.ItemContainerStyle>
+                                            <ListView.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <ItemsWrapGrid Orientation="Horizontal" />
+                                                </ItemsPanelTemplate>
+                                            </ListView.ItemsPanel>
+
+                                        </ListView>
+
+                                    </StackPanel>
+
+
+                                </Flyout>
+                            </AppBarButton.Flyout>
+                        </AppBarButton>
+
+                        <AppBarButton Label="更新"
                                         Icon="Refresh"
                                         Command="{Binding RefreshCommand}"
                                         IsEnabled="{Binding CanChangeSort.Value}"     
@@ -115,7 +149,7 @@
                                                 HorizontalContentAlignment="Stretch"
                                                 VerticalContentAlignment="Stretch"
                                                 HorizontalAlignment="Right"
-                                            
+                                            Label="選択"
                                             >
                             <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
                                                        HorizontalAlignment="Center"
@@ -126,25 +160,24 @@
                 </StackPanel>
 
 
-                <Border>
-                    <Border Background="Transparent" IsHitTestVisible="True"
-                            Margin="16 0 0 0"
-                            >
-
-                        <TextBlock Text="{Binding Title}" 
-                                VerticalAlignment="Center"
-                                Style="{StaticResource SubheaderTextBlockStyle}"
+                <Border Background="Transparent" IsHitTestVisible="True"
+                                Margin="16 0 0 0"
                                 >
+                    <toolkit:DockPanel VerticalAlignment="Center">
+                        <TextBlock Text="{Binding SearchOptionText}" 
+                                            Style="{StaticResource CaptionTextBlockStyle}"
+                                           toolkit:DockPanel.Dock="Bottom"
+                                    />
+                        <TextBlock Text="{Binding Title}" 
+                                            Style="{StaticResource TitleTextBlockStyle}"
+                                    />
+                    </toolkit:DockPanel>
 
-                        </TextBlock>
-
-                        <i:Interaction.Behaviors>
-                            <core:EventTriggerBehavior EventName="Tapped">
-                                <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0.0" />
-                            </core:EventTriggerBehavior>
-                        </i:Interaction.Behaviors>
-                    </Border>
-
+                    <i:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="Tapped">
+                            <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0.0" />
+                        </core:EventTriggerBehavior>
+                    </i:Interaction.Behaviors>
                 </Border>
 
             </toolkit:DockPanel>
