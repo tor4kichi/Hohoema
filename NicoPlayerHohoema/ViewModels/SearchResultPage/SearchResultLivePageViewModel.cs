@@ -10,27 +10,188 @@ using Mntone.Nico2.Searches.Live;
 using Prism.Commands;
 using System.Windows.Input;
 using Windows.ApplicationModel.DataTransfer;
+using Mntone.Nico2;
+using Reactive.Bindings;
+using System.Reactive.Linq;
+using Reactive.Bindings.Extensions;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	public class SearchResultLivePageViewModel : HohoemaListingPageViewModelBase<LiveInfoViewModel>
 	{
-		public LiveSearchPagePayloadContent SearchOption { get; private set; }
+        public class LiveSearchSortOptionListItem
+        {
+            public string Label { get; set; }
+            public NicoliveSearchSort Sort { get; set; }
+            public Order Order { get; set; }
+        }
+
+        public class LiveSearchModeOptionListItem
+        {
+            public string Label { get; set; }
+            public NicoliveSearchMode? Mode { get; set; }
+        }
+
+        public class LiveSearchProviderOptionListItem
+        {
+            public string Label { get; set; }
+            public Mntone.Nico2.Live.CommunityType? Provider { get; set; }
+        }
+
+        public static IReadOnlyList<LiveSearchSortOptionListItem> LiveSearchSortOptionListItems { get; private set; }
+        public static IReadOnlyList<LiveSearchModeOptionListItem> LiveSearchModeOptionListItems { get; private set; }
+        public static IReadOnlyList<LiveSearchProviderOptionListItem> LiveSearchProviderOptionListItems { get; private set; }
+
+        static SearchResultLivePageViewModel()
+        {
+            var sortList = new[]
+            {
+                NicoliveSearchSort.Recent,
+                NicoliveSearchSort.Comment,
+            };
+
+            LiveSearchSortOptionListItems = sortList.SelectMany(x =>
+            {
+                return new List<LiveSearchSortOptionListItem>()
+                {
+                    new LiveSearchSortOptionListItem()
+                    {
+                        Sort = x,
+                        Order = Order.Descending,
+                    },
+                    new LiveSearchSortOptionListItem()
+                    {
+                        Sort = x,
+                        Order = Order.Ascending,
+                    },
+                };
+            })
+            .ToList();
+
+            foreach (var item in LiveSearchSortOptionListItems)
+            {
+                item.Label = Util.SortHelper.ToCulturizedText(item.Sort, item.Order);
+            }
 
 
-		public SearchResultLivePageViewModel(
+            LiveSearchModeOptionListItems = new List<LiveSearchModeOptionListItem>()
+            {
+                new LiveSearchModeOptionListItem()
+                {
+                    Label = "放送中",
+                    Mode = NicoliveSearchMode.OnAir
+                },
+                new LiveSearchModeOptionListItem()
+                {
+                    Label = "放送予定",
+                    Mode = NicoliveSearchMode.Reserved
+                },
+                /*
+				new LiveSearchModeOptionListItem()
+				{
+					Label = "放送終了",
+					Mode = NicoliveSearchMode.Closed
+				},
+				new LiveSearchModeOptionListItem()
+				{
+					Label = "すべて",
+					Mode = null
+				},
+                */
+			};
+
+
+            LiveSearchProviderOptionListItems = new List<LiveSearchProviderOptionListItem>()
+            {
+                new LiveSearchProviderOptionListItem()
+                {
+                    Label = "すべて",
+                    Provider = null,
+                },
+
+                new LiveSearchProviderOptionListItem()
+                {
+                    Label = "公式",
+                    Provider = Mntone.Nico2.Live.CommunityType.Official,
+                },
+                new LiveSearchProviderOptionListItem()
+                {
+                    Label = "チャンネル",
+                    Provider = Mntone.Nico2.Live.CommunityType.Channel,
+                },
+                new LiveSearchProviderOptionListItem()
+                {
+                    Label = "ユーザー",
+                    Provider = Mntone.Nico2.Live.CommunityType.Community,
+                },
+
+            };
+        }
+
+        public ReactiveProperty<LiveSearchSortOptionListItem> SelectedSearchSort { get; private set; }
+        public ReactiveProperty<LiveSearchModeOptionListItem> SelectedSearchMode { get; private set; }
+        public ReactiveProperty<bool> IsTagSearch { get; private set; }
+        public ReactiveProperty<LiveSearchProviderOptionListItem> SelectedProvider { get; private set; }
+
+
+        public LiveSearchPagePayloadContent SearchOption { get; private set; }
+
+
+        private string _SearchOptionText;
+        public string SearchOptionText
+        {
+            get { return _SearchOptionText; }
+            set { SetProperty(ref _SearchOptionText, value); }
+        }
+
+
+        public SearchResultLivePageViewModel(
 			HohoemaApp app,
 			PageManager pageManager
 			) 
 			: base(app, pageManager, useDefaultPageTitle: false)
 		{
             ChangeRequireServiceLevel(HohoemaAppServiceLevel.OnlineWithoutLoggedIn);
-		}
 
-		#region Commands
+            SelectedSearchSort = new ReactiveProperty<LiveSearchSortOptionListItem>(LiveSearchSortOptionListItems[0], mode: ReactivePropertyMode.DistinctUntilChanged);
+            SelectedSearchMode = new ReactiveProperty<LiveSearchModeOptionListItem>(LiveSearchModeOptionListItems[0], mode: ReactivePropertyMode.DistinctUntilChanged);
+            SelectedProvider = new ReactiveProperty<LiveSearchProviderOptionListItem>(LiveSearchProviderOptionListItems[0], mode: ReactivePropertyMode.DistinctUntilChanged);
 
 
-		private DelegateCommand _ShowSearchHistoryCommand;
+            Observable.Merge(
+                SelectedSearchSort.ToUnit(),
+                SelectedSearchMode.ToUnit(),
+                SelectedProvider.ToUnit()
+                )
+                .Subscribe(_ =>
+                {
+                    if (_NowNavigatingTo) { return; }
+
+                    var selected = SelectedSearchSort.Value;
+                    if (SearchOption.Order == selected.Order
+                        && SearchOption.Sort == selected.Sort
+                        && SearchOption.Mode == SelectedSearchMode.Value?.Mode
+                        && SearchOption.Provider == SelectedProvider.Value?.Provider
+                    )
+                    {
+                        return;
+                    }
+
+                    SearchOption.Mode = SelectedSearchMode.Value.Mode;
+                    SearchOption.Provider = SelectedProvider.Value.Provider;
+                    SearchOption.Sort = SelectedSearchSort.Value.Sort;
+                    SearchOption.Order = SelectedSearchSort.Value.Order;
+
+                    pageManager.Search(SearchOption, forgetLastSearch: true);
+                })
+                .AddTo(_CompositeDisposable);
+
+        }
+
+        #region Commands
+
+
+        private DelegateCommand _ShowSearchHistoryCommand;
 		public DelegateCommand ShowSearchHistoryCommand
 		{
 			get
@@ -43,8 +204,10 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		#endregion
+        #endregion
 
+
+        bool _NowNavigatingTo = false;
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
@@ -58,39 +221,48 @@ namespace NicoPlayerHohoema.ViewModels
                 throw new Exception();
             }
 
+            _NowNavigatingTo = true;
+            SelectedSearchSort.Value = LiveSearchSortOptionListItems.FirstOrDefault(x => x.Sort == SearchOption.Sort && x.Order == SearchOption.Order);
+            SelectedSearchMode.Value = LiveSearchModeOptionListItems.FirstOrDefault(x => x.Mode == SearchOption.Mode);
+            SelectedProvider.Value = LiveSearchProviderOptionListItems.FirstOrDefault(x => x.Provider == SearchOption.Provider);
+            _NowNavigatingTo = false;
+
             Models.Db.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
 
             var target = "生放送";
-			var optionText = Util.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
+            var optionText = Util.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
+            var providerText = SelectedProvider.Value.Label;
+            string mode = "";
+            if (SearchOption.Mode.HasValue)
+            {
+                switch (SearchOption.Mode)
+                {
+                    case Mntone.Nico2.Searches.Live.NicoliveSearchMode.OnAir:
+                        mode = "放送中";
+                        break;
+                    case Mntone.Nico2.Searches.Live.NicoliveSearchMode.Reserved:
+                        mode = "放送予定";
+                        break;
+                    case Mntone.Nico2.Searches.Live.NicoliveSearchMode.Closed:
+                        mode = "放送終了";
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else
+            {
+                mode = "すべて";
+            }
 
-			string mode = "";
-			if (SearchOption.Mode.HasValue)
-			{
-				switch (SearchOption.Mode)
-				{
-					case Mntone.Nico2.Searches.Live.NicoliveSearchMode.OnAir:
-						mode = "放送中";
-						break;
-					case Mntone.Nico2.Searches.Live.NicoliveSearchMode.Reserved:
-						mode = "放送予定";
-						break;
-					case Mntone.Nico2.Searches.Live.NicoliveSearchMode.Closed:
-						mode = "放送終了";
-						break;
-					default:
-						break;
-				}
-			}
-			else
-			{
-				mode = "すべて";
-			}
-			
-//			UpdateTitle($"{SearchOption.Keyword} - {target}/{optionText}({mode})");
-            UpdateTitle($"{SearchOption.Keyword} - {target}({mode})");
+            //			UpdateTitle($"{SearchOption.Keyword} - {target}/{optionText}({mode})");
+            UpdateTitle($"\"{SearchOption.Keyword}\"");
+            SearchOptionText = $"{target} - {optionText}/{mode}/{providerText}";
+
 
             base.OnNavigatedTo(e, viewModelState);
 		}
+
 
 		protected override IIncrementalSource<LiveInfoViewModel> GenerateIncrementalSource()
 		{
