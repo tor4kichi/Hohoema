@@ -70,65 +70,90 @@
                                 Margin="0 0 48 0">
 
 
-                    <CommandBar DefaultLabelPosition="Right"
-                                Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                toolkit:DockPanel.Dock="Left"
-                                >
-                        <AppBarButton Icon="Refresh"
-                                        Command="{Binding RefreshCommand}"
-                                        IsEnabled="{Binding CanChangeSort.Value}"      
-                                />
+                    <CommandBar Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                VerticalAlignment="Center"
+                                    >
+
+                        <AppBarButton Label="検索オプション"
+                                              Icon="Sort"
+                                              >
+                            <AppBarButton.Flyout>
+                                <Flyout>
+                                    <StackPanel MaxWidth="340">
+
+                                        <ListView ItemsSource="{Binding VideoSearchOptionListItems}"
+                                                          DisplayMemberPath="Label"
+                                                          SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}"
+                                                          Margin="0"
+                                                          HorizontalAlignment="Stretch"
+                                                          VerticalAlignment="Center"
+                                                          SelectionMode="Single"
+                                                          SingleSelectionFollowsFocus="False"
+                                                        >
+                                            <ListView.ItemContainerStyle>
+                                                <Style TargetType="ListViewItem">
+                                                    <Setter Property="Width" Value="160" />
+                                                </Style>
+                                            </ListView.ItemContainerStyle>
+                                            <ListView.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <ItemsWrapGrid Orientation="Horizontal" />
+                                                </ItemsPanelTemplate>
+                                            </ListView.ItemsPanel>
+
+                                        </ListView>
+
+                                    </StackPanel>
 
 
-                        <AppBarButton Background="Transparent"
-                                    Command="{Binding AddFeedSourceCommand}"
-                                      Label="フィード登録"
-                                    />
+                                </Flyout>
+                            </AppBarButton.Flyout>
+                        </AppBarButton>
 
-
-                        <AppBarToggleButton Background="Transparent"
-                                          IsChecked="{Binding IsFavoriteTag.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          IsEnabled="{Binding CanChangeFavoriteTagState.Value}"
-                                          Label="フォロー"
-                                            Icon="Favorite"
+                        <AppBarButton Label="更新"
+                                            Command="{Binding RefreshCommand}"
+                                              Icon="Refresh"
                                         />
 
+                        <AppBarButton Label="フィード登録"
+                                            Command="{Binding AddFeedSourceCommand}"
+                                            />
+
+
+                        <AppBarToggleButton Label="フォロー"
+                                                    Icon="Favorite"
+                                                  IsChecked="{Binding IsFavoriteTag.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                  IsEnabled="{Binding CanChangeFavoriteTagState.Value}"
+                                            
+                                        />
+
+
                     </CommandBar>
 
 
-                    <CommandBar DefaultLabelPosition="Right"
-                                Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
-                                toolkit:DockPanel.Dock="Left"
-                                >
+                    <CommandBar Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                                VerticalAlignment="Center"
+                                    >
 
                         <AppBarButton Command="{Binding RequestCacheDownload}"
-                                      Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
-                                      Label="キャッシュ"
-                                      Icon="Download"
-                                >
-                        </AppBarButton>
+                                              Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
+                                              Icon="Download"
+                                              Label="キャッシュ"
+                                            />
 
-
-                        <AppBarButton Command="{Binding RegistratioMylistCommand}"
-                                              Label="マイリストに追加"
-                                              Icon="Add"
-                                      
-                                            >
-                        </AppBarButton>
-
-
+                        <AppBarButton Command="{Binding RegistratioMylistCommand}" 
+                                          Icon="Add"
+                                          Label="マイリストに追加"
+                                            />
 
                     </CommandBar>
 
 
 
-                    <CommandBar>
-
-
+                    <CommandBar VerticalAlignment="Center">
                         <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                             HorizontalContentAlignment="Stretch"
                                             VerticalContentAlignment="Stretch"
-                                        HorizontalAlignment="Right"
                                             Label="選択"
                                             >
                             <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
@@ -137,30 +162,29 @@
                                                        />
                         </AppBarToggleButton>
                     </CommandBar>
+
                 </StackPanel>
 
 
-                <Border>
-                    <Border Background="Transparent" IsHitTestVisible="True"
-                            Margin="16 0 0 0"
-                            >
-
-                        <TextBlock Text="{Binding Title}" 
-                                VerticalAlignment="Center"
-                                Style="{StaticResource SubheaderTextBlockStyle}"
+                <Border Background="Transparent" IsHitTestVisible="True"
+                                Margin="16 0 0 0"
                                 >
+                    <toolkit:DockPanel VerticalAlignment="Center">
+                        <TextBlock Text="{Binding SearchOptionText}" 
+                                            Style="{StaticResource CaptionTextBlockStyle}"
+                                           toolkit:DockPanel.Dock="Bottom"
+                                    />
+                        <TextBlock Text="{Binding Title}" 
+                                            Style="{StaticResource TitleTextBlockStyle}"
+                                    />
+                    </toolkit:DockPanel>
 
-                        </TextBlock>
-
-                        <i:Interaction.Behaviors>
-                            <core:EventTriggerBehavior EventName="Tapped">
-                                <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0.0" />
-                            </core:EventTriggerBehavior>
-                        </i:Interaction.Behaviors>
-                    </Border>
-
+                    <i:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="Tapped">
+                            <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0.0" />
+                        </core:EventTriggerBehavior>
+                    </i:Interaction.Behaviors>
                 </Border>
-
             </toolkit:DockPanel>
 
 
