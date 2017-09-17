@@ -86,7 +86,7 @@ namespace NicoPlayerHohoema.ViewModels
                     await RefreshCacheSaveFolderStatus();
 
                     (App.Current as App).PublishInAppNotification(
-                        InAppNotificationPayload.CreateReadOnlyNotification("キャッシュの保存先を選択することで利用準備が完了します。\n「閉じる」を押すとフォルダ選択が始まります。",
+                        InAppNotificationPayload.CreateReadOnlyNotification("キャッシュの保存先フォルダを選択してください。\n保存先が選択されると利用準備が完了します。",
                         showDuration: TimeSpan.FromSeconds(30)
                         ));
 
@@ -150,8 +150,8 @@ namespace NicoPlayerHohoema.ViewModels
             if (IsRequireUpdateCacheSaveFolder.Value)
             {
                 (App.Current as App).PublishInAppNotification(
-                    InAppNotificationPayload.CreateReadOnlyNotification("キャッシュの保存先を選択することで利用準備が完了します。\n「閉じる」を押すとフォルダ選択が始まります。", 
-                    showDuration:TimeSpan.FromSeconds(30)
+                    InAppNotificationPayload.CreateReadOnlyNotification("キャッシュの保存先フォルダを選択してください。\n保存先が選択されると利用準備が完了します。",
+                    showDuration: TimeSpan.FromSeconds(30)
                     ));
 
                 if (await HohoemaApp.ChangeUserDataFolder())
