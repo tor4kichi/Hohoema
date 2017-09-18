@@ -109,10 +109,25 @@ namespace NicoPlayerHohoema.Views.Behaviors
 			base.OnAttached();
 
 			this.AssociatedObject.SelectionChanged += AssociatedObject_SelectionChanged;
-		}
 
-		
-		protected override void OnDetaching()
+            this.AssociatedObject.Loaded += AssociatedObject_Loaded;
+        }
+
+        private void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (SelectedItems != null)
+            {
+                Array selecteItems = Array.CreateInstance(typeof(object), SelectedItems.Count);
+                SelectedItems.CopyTo(selecteItems, 0);
+                for (var i = 0; i < selecteItems.Length; i++)
+                {
+                    var item = selecteItems.GetValue(i);
+                    this.AssociatedObject.SelectedItems.Add(item);
+                }
+            }
+        }
+
+        protected override void OnDetaching()
 		{
 			base.OnDetaching();
 

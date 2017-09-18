@@ -24,6 +24,8 @@
 
                 <ResourceDictionary Source="Views/Controls/FloatContentContainer/FloatContentContainer.xaml"/>
                 <ResourceDictionary Source="Views/Controls/IncrementalLoadingList/IncrementalLoadingList.xaml"/>
+                <ResourceDictionary Source="Views/Controls/MasterDetailsView/MasterDetailsView.xaml"/>
+
             </ResourceDictionary.MergedDictionaries>
             
             <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
@@ -61,6 +63,8 @@
 
             <myconv:PlayerEndActionToTextConverter x:Key="PlayerEndActionToTextConverter" />
             <myconv:Live2QualityTypeToText x:Key="Live2QualityTypeToText" />
+
+            <myconv:RankingCategoryToText x:Key="RankingCategoryToText" />
 
             <!-- Logical Modifier-->
             <logicalModifier:AndModifier x:Key="AndModifier" />

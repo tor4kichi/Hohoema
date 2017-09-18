@@ -347,6 +347,7 @@
     <Compile Include="Views\Converters\HohoemaPageTypeToTextConverter.cs" />
     <Compile Include="Views\Converters\Live2QualityTypeToText.cs" />
     <Compile Include="Views\Converters\PlayerEndActionToTextConverter.cs" />
+    <Compile Include="Views\Converters\RankingCategoryToText.cs" />
     <Compile Include="Views\HohoemaInAppNotification.xaml.cs">
       <DependentUpon>HohoemaInAppNotification.xaml</DependentUpon>
     </Compile>
@@ -497,12 +498,6 @@
     <Compile Include="Views\PlayerWithPageContainer.xaml.cs">
       <DependentUpon>PlayerWithPageContainer.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\RankingCategoryListPage_TV.xaml.cs">
-      <DependentUpon>RankingCategoryListPage_TV.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\RankingCategoryPage_TV.xaml.cs">
-      <DependentUpon>RankingCategoryPage_TV.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\RankingChoiceContentDialog.xaml.cs">
       <DependentUpon>RankingChoiceContentDialog.xaml</DependentUpon>
     </Compile>
@@ -642,9 +637,6 @@
     </Compile>
     <Compile Include="Views\RankingCategoryListPage.xaml.cs">
       <DependentUpon>RankingCategoryListPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\RankingCategoryPage.xaml.cs">
-      <DependentUpon>RankingCategoryPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Views\SearchPage.xaml.cs">
@@ -848,6 +840,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Controls\MasterDetailsView\MasterDetailsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
     <Page Include="Views\Controls\VideoInfoControl_TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -981,14 +978,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\PlayerWithPageContainer.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\RankingCategoryListPage_TV.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\RankingCategoryPage_TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1131,10 +1120,6 @@
     <Page Include="Views\RankingCategoryListPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\RankingCategoryPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\SearchPage.xaml">
       <SubType>Designer</SubType>

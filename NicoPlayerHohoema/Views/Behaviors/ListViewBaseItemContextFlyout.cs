@@ -1,10 +1,12 @@
 ﻿using Microsoft.Xaml.Interactivity;
+using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Gaming.Input;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -14,36 +16,65 @@ namespace NicoPlayerHohoema.Views.Behaviors
 {
     public class ListViewBaseItemContextFlyout : Behavior<ListViewBase>
     {
+        CoreDispatcher _UIDispatcher;
+
+        bool _IsAssignedDataContextToFlyout = false;
+
         protected override void OnAttached()
         {
-            AssociatedObject.Loaded += AssociatedObject_Loaded;
+            _UIDispatcher = Dispatcher;
+
+            // タップ操作に対応する
+            AssociatedObject.RightTapped += AssociatedObject_RightTapped;
+
+            // 
+            if (AssociatedObject.ContextFlyout != null)
+            {
+                AssociatedObject.ContextFlyout.Opening += ContextFlyout_Opening;
+                AssociatedObject.ContextFlyout.Closed += ContextFlyout_Closed;
+            }
+            else
+            {
+                AssociatedObject.ObserveDependencyProperty(ListViewBase.ContextFlyoutProperty)
+                    .Subscribe(_ =>
+                    {
+                        AssociatedObject.ContextFlyout.Opening += ContextFlyout_Opening;
+                        AssociatedObject.ContextFlyout.Closed += ContextFlyout_Closed;
+                    });
+            }
 
             base.OnAttached();
         }
 
-        protected override void OnDetaching()
+        private void ContextFlyout_Closed(object sender, object e)
         {
-            if (AssociatedObject.ContextFlyout != null)
-            {
-                AssociatedObject.RightTapped -= HohoemaListView_RightTapped;
-                AssociatedObject.ContextFlyout.Opening -= ContextFlyout_Opening;
-                AssociatedObject.ContextFlyout.Closed -= ItemFlyout_Closed;
-            }
-            base.OnDetaching();
+            _IsAssignedDataContextToFlyout = false;
         }
 
-        private void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
+        private void AssociatedObject_RightTapped(object sender, RightTappedRoutedEventArgs e)
         {
-            if (AssociatedObject.ContextFlyout != null)
-            {
-                AssociatedObject.RightTapped += HohoemaListView_RightTapped;
+            if (_IsAssignedDataContextToFlyout) { return; }
 
-                // Note: コントローラーのMenuボタンでフライアウト表示された時に対応する
-                // Menuボタン押下ではRightTappedが発火しないため
-                if (UINavigationController.UINavigationControllers.Count > 0)
+
+            var selectedItem = FocusManager.GetFocusedElement();
+            if (selectedItem is FrameworkElement)
+            {
+                var item = AssociatedObject.ItemFromContainer((selectedItem as FrameworkElement));
+                if (item != null)
                 {
-                    AssociatedObject.ContextFlyout.Opening += ContextFlyout_Opening;
-                    AssociatedObject.ContextFlyout.Closed += ItemFlyout_Closed;
+                    FlyoutSettingDataContext(AssociatedObject.ContextFlyout, item);
+                    e.Handled = true;
+                    _IsAssignedDataContextToFlyout = true;
+                }
+            }
+
+            if (e.Handled == false && e.OriginalSource is FrameworkElement)
+            {
+                var dataContext = (e.OriginalSource as FrameworkElement).DataContext;
+                if (dataContext != null)
+                {
+                    FlyoutSettingDataContext(AssociatedObject.ContextFlyout, dataContext);
+                    _IsAssignedDataContextToFlyout = true;
                 }
             }
         }
@@ -54,25 +85,24 @@ namespace NicoPlayerHohoema.Views.Behaviors
             if (selectedItem is FrameworkElement)
             {
                 var item = AssociatedObject.ItemFromContainer((selectedItem as FrameworkElement));
-                FlyoutSettingDataContext(AssociatedObject.ContextFlyout, item);
+                if (item != null)
+                {
+                    FlyoutSettingDataContext(AssociatedObject.ContextFlyout, item);
+                    _IsAssignedDataContextToFlyout = true;
+                }
             }
         }
 
-        private void ItemFlyout_Closed(object sender, object e)
+        protected override void OnDetaching()
         {
-            FlyoutSettingDataContext(AssociatedObject.ContextFlyout, null);
+            if (AssociatedObject.ContextFlyout != null)
+            {
+                AssociatedObject.ContextFlyout.Opening -= ContextFlyout_Opening;
+            }
+
+            base.OnDetaching();
         }
-
-        private void HohoemaListView_RightTapped(object sender, RightTappedRoutedEventArgs e)
-        {
-            var originalSource = e.OriginalSource;
-            var originalDataContext = (originalSource as FrameworkElement)?.DataContext;
-
-            if (originalDataContext == null) { return; }
-
-            FlyoutSettingDataContext(AssociatedObject.ContextFlyout, originalDataContext);
-        }
-
+       
         private static void FlyoutSettingDataContext(FlyoutBase flyoutbase, object dataContext)
         {
             if (flyoutbase is MenuFlyout)
@@ -83,7 +113,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
                     RecurciveSettingDataContext(menuItem, dataContext);
                 }
             }
-            else
+            else if (flyoutbase is Flyout)
             {
                 var flyout = flyoutbase as Flyout;
                 if (flyout.Content is FrameworkElement)

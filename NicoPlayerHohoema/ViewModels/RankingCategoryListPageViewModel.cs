@@ -12,190 +12,534 @@ using Prism.Commands;
 using NicoPlayerHohoema.Models;
 using System.Reactive.Linq;
 using NicoPlayerHohoema.Util;
+using Reactive.Bindings.Extensions;
+using Windows.UI.Xaml.Navigation;
+using Prism.Mvvm;
+using System.Text.RegularExpressions;
+using NicoPlayerHohoema.Views.Service;
+using Microsoft.Toolkit.Uwp.UI;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class RankingCategoryListPageViewModel : HohoemaViewModelBase
+	public class RankingCategoryListPageViewModel : HohoemaVideoListingPageViewModelBase<RankedVideoInfoControlViewModel>
 	{
 
-		private static readonly List<List<RankingCategory>> RankingCategories;
+        public static IReadOnlyList<RankingCategory> RankingCategories { get; }
+        public static IReadOnlyList<RankingTargetListItem> RankingTargetItems { get; }
+        public static IReadOnlyList<RankingTimeSpanListItem> RankingTimeSpanItems { get; }
 
-		static RankingCategoryListPageViewModel()
+        static RankingCategoryListPageViewModel()
 		{
-			RankingCategories = new List<List<RankingCategory>>()
+			RankingCategories = new List<RankingCategory>()
 			{
-				new List<RankingCategory>()
-				{
-					RankingCategory.all
-				},
-				new List<RankingCategory>()
-				{
-					RankingCategory.g_ent2,
-					RankingCategory.ent,
-					RankingCategory.music,
-					RankingCategory.sing,
-					RankingCategory.dance,
-					RankingCategory.play,
-					RankingCategory.vocaloid,
-					RankingCategory.nicoindies
-				},
-				new List<RankingCategory>()
-				{
-					RankingCategory.g_life2,
-					RankingCategory.animal,
-					RankingCategory.cooking,
-					RankingCategory.nature,
-					RankingCategory.travel,
-					RankingCategory.sport,
-					RankingCategory.lecture,
-					RankingCategory.drive,
-					RankingCategory.history,
-				},
-				new List<RankingCategory>()
-				{
-					RankingCategory.g_politics
-				},
-				new List<RankingCategory>()
-				{
-					RankingCategory.g_tech,
-					RankingCategory.science,
-					RankingCategory.tech,
-					RankingCategory.handcraft,
-					RankingCategory.make,
-				},
-				new List<RankingCategory>()
-				{
-					RankingCategory.g_culture2,
-					RankingCategory.anime,
-					RankingCategory.game,
-					RankingCategory.jikkyo,
-					RankingCategory.toho,
-					RankingCategory.imas,
-					RankingCategory.radio,
-					RankingCategory.draw,
-				},
-				new List<RankingCategory>()
-				{
-					RankingCategory.g_other,
-					RankingCategory.are,
-					RankingCategory.diary,
-					RankingCategory.other,
+				RankingCategory.all,
 
-				}
+				RankingCategory.g_ent2,
+				RankingCategory.ent,
+				RankingCategory.music,
+				RankingCategory.sing,
+				RankingCategory.dance,
+				RankingCategory.play,
+				RankingCategory.vocaloid,
+				RankingCategory.nicoindies,
 
+				RankingCategory.g_life2,
+				RankingCategory.animal,
+				RankingCategory.cooking,
+				RankingCategory.nature,
+				RankingCategory.travel,
+				RankingCategory.sport,
+				RankingCategory.lecture,
+				RankingCategory.drive,
+				RankingCategory.history,
+
+                RankingCategory.g_politics,
+
+                RankingCategory.g_tech,
+				RankingCategory.science,
+				RankingCategory.tech,
+				RankingCategory.handcraft,
+				RankingCategory.make,
+
+                RankingCategory.g_culture2,
+				RankingCategory.anime,
+				RankingCategory.game,
+				RankingCategory.jikkyo,
+				RankingCategory.toho,
+				RankingCategory.imas,
+				RankingCategory.radio,
+				RankingCategory.draw,
+
+                RankingCategory.g_other,
+				RankingCategory.are,
+				RankingCategory.diary,
+				RankingCategory.other,
 			};
 
-		}
+            RankingTargetItems = new List<RankingTargetListItem>()
+            {
+                new RankingTargetListItem(RankingTarget.view),
+                new RankingTargetListItem(RankingTarget.res),
+                new RankingTargetListItem(RankingTarget.mylist)
+            };
 
-		public RankingCategoryListPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
+            RankingTimeSpanItems = new List<RankingTimeSpanListItem>()
+            {
+                new RankingTimeSpanListItem(RankingTimeSpan.hourly),
+                new RankingTimeSpanListItem(RankingTimeSpan.daily),
+                new RankingTimeSpanListItem(RankingTimeSpan.weekly),
+                new RankingTimeSpanListItem(RankingTimeSpan.monthly),
+                new RankingTimeSpanListItem(RankingTimeSpan.total),
+            };
+        }
+
+
+        RankingChoiceDialogService _RankingChoiceDialogService;
+
+
+
+
+        public ReactiveProperty<CategoryWithFav> SelectedRankingCategory { get; }
+
+        public AdvancedCollectionView SortedRankingCategoryItems { get; private set; }
+
+
+
+
+        public ReactiveProperty<RankingTargetListItem> SelectedRankingTarget { get; private set; }
+
+        public ReactiveProperty<RankingTimeSpanListItem> SelectedRankingTimeSpan { get; private set; }
+
+
+        public ReactiveProperty<bool> IsFailedRefreshRanking { get; private set; }
+        public ReactiveProperty<bool> CanChangeRankingParameter { get; private set; }
+
+
+        RankingSettings _RankingSettings;
+
+
+        private DelegateCommand<RankingCategory?> _AddFavoritCategoryCommand;
+        public DelegateCommand<RankingCategory?> AddFavoritCategoryCommand
+        {
+            get
+            {
+                return _AddFavoritCategoryCommand
+                    ?? (_AddFavoritCategoryCommand = new DelegateCommand<RankingCategory?>((category) => 
+                    {
+                        if (category.HasValue)
+                        {
+                            var catItem = _RankingSettings.MiddlePriorityCategory.FirstOrDefault(x => x.Category == category.Value);
+                            if (catItem != null)
+                            {
+                                _RankingSettings.MiddlePriorityCategory.Remove(catItem);
+                                _RankingSettings.HighPriorityCategory.Add(catItem);
+                            }
+                        }
+                    }
+                    ));
+            }
+        }
+
+
+        private DelegateCommand<RankingCategory?> _AddHiddenCategoryCommand;
+        public DelegateCommand<RankingCategory?> AddHiddenCategoryCommand
+        {
+            get
+            {
+                return _AddHiddenCategoryCommand
+                    ?? (_AddHiddenCategoryCommand = new DelegateCommand<RankingCategory?>((category) =>
+                    {
+                        if (category.HasValue)
+                        {
+                            var catItem = _RankingSettings.MiddlePriorityCategory.FirstOrDefault(x => x.Category == category.Value);
+                            if (catItem != null)
+                            {
+                                _RankingSettings.MiddlePriorityCategory.Remove(catItem);
+                                _RankingSettings.LowPriorityCategory.Add(catItem);
+                            }
+                        }
+                    }
+                    ));
+            }
+        }
+
+
+        private DelegateCommand _ResetCategoryCommand;
+        public DelegateCommand ResetCategoryCommand
+        {
+            get
+            {
+                return _ResetCategoryCommand
+                    ?? (_ResetCategoryCommand = new DelegateCommand(() =>
+                    {
+                        _RankingSettings.ResetCategoryPriority();
+                    }
+                    ));
+            }
+        }
+
+
+        private DelegateCommand<RankingCategory?> _UnselectCategoryCommand;
+        public DelegateCommand<RankingCategory?> UnselectCategoryCommand
+        {
+            get
+            {
+                return _UnselectCategoryCommand
+                    ?? (_UnselectCategoryCommand = new DelegateCommand<RankingCategory?>((category) =>
+                    {
+                        SelectedRankingCategory.Value = null;   
+                    }
+                    ));
+            }
+        }
+
+        public DelegateCommand AddFavRankingCategory { get; private set; }
+        public DelegateCommand AddDislikeRankingCategory { get; private set; }
+
+
+        public RankingCategoryListPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, RankingChoiceDialogService rankingChoiceDialog)
 			: base(hohoemaApp, pageManager)
 		{
-			_RankingSettings = HohoemaApp.UserSettings.RankingSettings;
+            _RankingChoiceDialogService = rankingChoiceDialog;
+            _RankingSettings = HohoemaApp.UserSettings.RankingSettings;
 
+            IsFailedRefreshRanking = new ReactiveProperty<bool>(false);
+            CanChangeRankingParameter = new ReactiveProperty<bool>(false);
 
-			Func< RankingCategory, bool> checkFavorite = (RankingCategory cat) => 
-			{
-				return _RankingSettings.HighPriorityCategory.Any(x => x.Category == cat);
-			};
+            SelectedRankingCategory = new ReactiveProperty<CategoryWithFav>(mode:ReactivePropertyMode.DistinctUntilChanged);
 
-
-			RankingCategoryItems = new ObservableCollection<RankingCategoryHostListItem>();
-            FavoriteRankingCategoryItems = new ObservableCollection<RankingCategoryListPageListItem>();
-
-            SelectedRankingCategory = new ReactiveProperty<RankingCategoryListPageListItem>();
-        }
-
-		RankingCategoryListPageListItem CreateRankingCategryListItem(RankingCategory category)
-		{
-			var categoryInfo = RankingCategoryInfo.CreateFromRankingCategory(category);
-			var isFavoriteCategory = HohoemaApp.UserSettings.RankingSettings.HighPriorityCategory.Contains(categoryInfo);
-			return new RankingCategoryListPageListItem(categoryInfo, isFavoriteCategory, OnRankingCategorySelected);
-		}
-
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-			RankingCategoryItems.Clear();
-
-            RankingCategoryItems.Add(
-                new RankingCategoryHostListItem("好きなランキング")
-                {
-                    ChildItems = HohoemaApp.UserSettings.RankingSettings.HighPriorityCategory
-                        .Select(x => new RankingCategoryListPageListItem(x, true, OnRankingCategorySelected))
-                        .ToList()
-                }
-                );
-            foreach (var categoryList in RankingCategories)
-			{
-                // 非表示ランキングを除外したカテゴリリストを作成
-                var label = categoryList.First().ToCultulizedText();
-
-                var list = categoryList
-					.Where(x => !HohoemaApp.UserSettings.RankingSettings.IsDislikeRankingCategory(x))
-					.Select(x => CreateRankingCategryListItem(x))
-					.ToList();
-
-				// 表示対象があればリストに追加
-				if (list.Count > 0)
-				{
-					RankingCategoryItems.Add(new RankingCategoryHostListItem(label) { ChildItems = list });
-				}
-			}
-
-            RaisePropertyChanged(nameof(RankingCategoryItems));
-
-			base.OnNavigatedTo(e, viewModelState);
-		}
-		
-		internal void OnRankingCategorySelected(RankingCategoryInfo info)
-		{
-			PageManager.OpenPage(HohoemaPageType.RankingCategory, info.ToParameterString());
-		}
-
-        public ReactiveProperty<RankingCategoryListPageListItem> SelectedRankingCategory { get; }
-
-        public ObservableCollection<RankingCategoryListPageListItem> FavoriteRankingCategoryItems { get; private set; }
-        public ObservableCollection<RankingCategoryHostListItem> RankingCategoryItems { get; private set; }
-
-		RankingSettings _RankingSettings;
-	}
-
-
-
-	public class RankingCategoryHostListItem 
-	{
-        public string Label { get; }
-		public RankingCategoryHostListItem(string label)
-		{
-            Label = label;
-            ChildItems = new List<RankingCategoryListPageListItem>();
-            SelectedCommand = new DelegateCommand<RankingCategoryListPageListItem>((item) => 
+            SelectedRankingCategory.Subscribe(async x => 
             {
-                item.PrimaryCommand.Execute(null);
+                if (x != null)
+                {
+                    var currentCategory = (IncrementalLoadingItems?.Source as CategoryRankingLoadingSource)?.Category;
+                    if (currentCategory != x.Category)
+                    {
+                        await ResetList();
+                    }
+                }
+            })
+            .AddTo(_CompositeDisposable);
+
+            SelectedRankingTarget = new ReactiveProperty<RankingTargetListItem>(RankingTargetItems[0], ReactivePropertyMode.DistinctUntilChanged)
+                .AddTo(_CompositeDisposable);
+            SelectedRankingTimeSpan = new ReactiveProperty<RankingTimeSpanListItem>(RankingTimeSpanItems[0], ReactivePropertyMode.DistinctUntilChanged)
+                .AddTo(_CompositeDisposable);
+
+            Observable.Merge(
+                SelectedRankingTimeSpan.ToUnit(),
+                SelectedRankingTarget.ToUnit()
+                )
+                .SubscribeOnUIDispatcher()
+                .Subscribe(async x =>
+                {
+                    await ResetList();
+                })
+                .AddTo(_CompositeDisposable);
+
+
+            SortedRankingCategoryItems = new AdvancedCollectionView();
+            SortedRankingCategoryItems.SortDescriptions.Add(new SortDescription("IsFavorit", SortDirection.Descending));
+            SortedRankingCategoryItems.SortDescriptions.Add(new SortDescription("Category", SortDirection.Ascending));
+            
+            foreach (var i in HohoemaApp.UserSettings.RankingSettings.HighPriorityCategory)
+            {
+                SortedRankingCategoryItems.Add(new CategoryWithFav() { Category = i.Category, IsFavorit = true });
+            }
+            foreach (var i in HohoemaApp.UserSettings.RankingSettings.MiddlePriorityCategory)
+            {
+                SortedRankingCategoryItems.Add(new CategoryWithFav() { Category = i.Category});
+            }
+            SortedRankingCategoryItems.Refresh();
+
+            Observable.Merge(
+                HohoemaApp.UserSettings.RankingSettings.MiddlePriorityCategory.CollectionChangedAsObservable().ToUnit(),
+                HohoemaApp.UserSettings.RankingSettings.HighPriorityCategory.CollectionChangedAsObservable().ToUnit()
+                )
+                .Throttle(TimeSpan.FromMilliseconds(250))
+                .Subscribe(async x => 
+                {
+                    await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
+                    {
+                        var selectedItem = SelectedRankingCategory.Value;
+
+                        using (var releaser = SortedRankingCategoryItems.DeferRefresh())
+                        {
+                            SortedRankingCategoryItems.Clear();
+                            foreach (var i in HohoemaApp.UserSettings.RankingSettings.HighPriorityCategory)
+                            {
+                                SortedRankingCategoryItems.Add(new CategoryWithFav() { Category = i.Category, IsFavorit = true });
+                            }
+                            foreach (var i in HohoemaApp.UserSettings.RankingSettings.MiddlePriorityCategory)
+                            {
+                                SortedRankingCategoryItems.Add(new CategoryWithFav() { Category = i.Category });
+                            }
+                        }
+
+                        SelectedRankingCategory.Value = selectedItem;
+                    });
+                });
+
+            AddFavRankingCategory = new DelegateCommand(async () =>
+            {
+                var items = new AdvancedCollectionView();
+                items.SortDescriptions.Add(new SortDescription("IsFavorit", SortDirection.Descending));
+                items.SortDescriptions.Add(new SortDescription("Category", SortDirection.Ascending));
+
+                foreach (var i in HohoemaApp.UserSettings.RankingSettings.HighPriorityCategory)
+                {
+                    items.Add(new CategoryWithFav() { Category = i.Category, IsFavorit = true });
+                }
+                foreach (var i in HohoemaApp.UserSettings.RankingSettings.MiddlePriorityCategory)
+                {
+                    items.Add(new CategoryWithFav() { Category = i.Category });
+                }
+                items.Refresh();
+                
+                var choiceItems = await _RankingChoiceDialogService.ShowRankingCategoryChoiceDialog(
+                    "優先表示にするカテゴリを選択", 
+                    items.Cast<CategoryWithFav>().Select(x => new RankingCategoryInfo(x.Category)), 
+                    _RankingSettings.HighPriorityCategory.ToArray()
+                    );
+
+                if (choiceItems == null) { return; }
+
+                // choiceItemsに含まれるカテゴリをMiddleとLowから削除
+                _RankingSettings.ResetFavoriteCategory();
+
+                // HighにchoiceItemsを追加（重複しないよう注意）
+                foreach (var cat in choiceItems)
+                {
+                    _RankingSettings.AddFavoritCategory(cat.Category);
+                }
             });
 
+
+            AddDislikeRankingCategory = new DelegateCommand(async () =>
+            {
+                var items = new AdvancedCollectionView();
+                items.SortDescriptions.Add(new SortDescription("IsFavorit", SortDirection.Descending));
+                items.SortDescriptions.Add(new SortDescription("Category", SortDirection.Ascending));
+
+                foreach (var i in HohoemaApp.UserSettings.RankingSettings.LowPriorityCategory)
+                {
+                    items.Add(new CategoryWithFav() { Category = i.Category, IsFavorit = true });
+                }
+                foreach (var i in HohoemaApp.UserSettings.RankingSettings.MiddlePriorityCategory)
+                {
+                    items.Add(new CategoryWithFav() { Category = i.Category });
+                }
+                items.Refresh();
+
+                var choiceItems = await _RankingChoiceDialogService.ShowRankingCategoryChoiceDialog(
+                    "非表示にするカテゴリを選択",
+                    items.Cast<CategoryWithFav>().Select(x => new RankingCategoryInfo(x.Category)),
+                    _RankingSettings.LowPriorityCategory
+                    );
+
+                if (choiceItems == null) { return; }
+
+                // choiceItemsに含まれるカテゴリをMiddleとLowから削除
+                _RankingSettings.ResetDislikeCategory();
+
+                // HighにchoiceItemsを追加（重複しないよう注意）
+                foreach (var cat in choiceItems)
+                {
+                    _RankingSettings.AddDislikeCategory(cat.Category);
+                }                
+            });
         }
 
-        public bool HasItem => ChildItems.Count > 0;
-
-
-        public List<RankingCategoryListPageListItem> ChildItems { get; set; }
-
-
-        public DelegateCommand<RankingCategoryListPageListItem> SelectedCommand { get; }
-	}
-
-
-	public class RankingCategoryListPageListItem : RankingCategoryListItem
-	{
-		public Windows.UI.Text.FontWeight FontWeight { get; private set; }
-		public bool IsFavorite { get; private set; }
-
-		public RankingCategoryListPageListItem(RankingCategoryInfo info, bool isFavoriteCategory, Action<RankingCategoryInfo> selected)
-			: base(info, selected)
+        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			IsFavorite = isFavoriteCategory;
-
-			FontWeight = IsFavorite ? Windows.UI.Text.FontWeights.Bold : Windows.UI.Text.FontWeights.Normal;
+            base.OnNavigatedTo(e, viewModelState);
 		}
+
+        protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
+        {
+            if (SelectedRankingCategory.Value == null)
+            {
+                return false;
+            }
+            else
+            {
+                //return mode == NavigationMode.New;
+
+                // MasterDetailsView側でSelectedItemの再設定が行われるので
+                return false;
+            }
+
+//            return base.CheckNeedUpdateOnNavigateTo(mode);
+        }
+
+        protected override IIncrementalSource<RankedVideoInfoControlViewModel> GenerateIncrementalSource()
+        {
+            IsFailedRefreshRanking.Value = false;
+
+            var categoryInfo = SelectedRankingCategory.Value;
+            
+            if (categoryInfo == null) { return null; }
+
+            IIncrementalSource<RankedVideoInfoControlViewModel> source = null;
+            try
+            {
+                var target = SelectedRankingTarget.Value.TargetType;
+                var timeSpan = SelectedRankingTimeSpan.Value.TimeSpan;
+                source = new CategoryRankingLoadingSource(HohoemaApp, PageManager, categoryInfo.Category, target, timeSpan);
+
+                CanChangeRankingParameter.Value = true;
+            }
+            catch
+            {
+                IsFailedRefreshRanking.Value = true;
+            }
+
+
+            return source;
+        }
+
 	}
+
+
+    public class CategoryRankingLoadingSource : HohoemaVideoPreloadingIncrementalSourceBase<RankedVideoInfoControlViewModel>
+    {
+        NiconicoVideoRss RankingRss;
+        HohoemaApp _HohoemaApp;
+        PageManager _PageManager;
+        public RankingCategory Category { get; }
+        public RankingTarget Target { get; }
+        public RankingTimeSpan TimeSpan { get; }
+
+
+        public CategoryRankingLoadingSource(HohoemaApp app, PageManager pageManager, RankingCategory category, RankingTarget target, RankingTimeSpan timeSpan)
+            : base(app, $"Ranking:{category.ToCultulizedText()}")
+        {
+            _HohoemaApp = app;
+            _PageManager = pageManager;
+            Category = category;
+            Target = target;
+            TimeSpan = timeSpan;
+        }
+
+
+        readonly Regex RankingRankPrefixPatternRegex = new Regex("(^第\\d*位：)");
+
+        //        List<NicoVideo> Videos = new List<NicoVideo>();
+
+        #region Implements HohoemaPreloadingIncrementalSourceBase		
+
+        public override uint OneTimeLoadCount => 10;
+
+        protected override async Task<IEnumerable<NicoVideo>> PreloadNicoVideo(int start, int count)
+        {
+            await Task.Delay(0);
+
+            if (RankingRss != null)
+            {
+                var items = RankingRss.Channel.Items.Skip(start).Take(count).ToArray();
+
+                var nicoVideos = await HohoemaApp.MediaManager.GetNicoVideoItemsAsync(items.Select(x => x.GetVideoId()).ToArray());
+
+                for (var index = 0; index < nicoVideos.Count; ++index)
+                {
+                    var item = items[index];
+                    var nicoVideo = nicoVideos[index];
+
+
+                    var title = RankingRankPrefixPatternRegex.Replace(item.Title, "");
+
+                    nicoVideo.PreSetTitle(title);
+                    //					nicoVideo.PreSetPostAt(DateTime.Parse(item.PubDate));
+                }
+
+                return nicoVideos;
+            }
+            else
+            {
+                return Enumerable.Empty<NicoVideo>();
+            }
+        }
+
+
+        protected override async Task<int> HohoemaPreloadingResetSourceImpl()
+        {
+            RankingRss = await NiconicoRanking.GetRankingData(Target, TimeSpan, Category);
+
+            return RankingRss.Channel.Items.Count;
+        }
+
+
+
+        protected override RankedVideoInfoControlViewModel NicoVideoToTemplatedItem(
+            NicoVideo itemSource
+            , int index
+            )
+        {
+            return new RankedVideoInfoControlViewModel(
+                    (uint)(index + 1)
+                    , itemSource
+                    , _PageManager
+                );
+        }
+
+
+        #endregion
+
+
+
+
+    }
+
+
+
+    public class CategoryWithFav
+    {
+        public RankingCategory Category { get; set; }
+        public bool IsFavorit { get; set; }
+    }
+
+
+
+    public class RankedVideoInfoControlViewModel : VideoInfoControlViewModel
+    {
+        public RankedVideoInfoControlViewModel(uint rank, NicoVideo nicoVideo, PageManager pageManager)
+            : base(nicoVideo, pageManager)
+        {
+            Rank = rank;
+        }
+
+
+
+        public uint Rank { get; private set; }
+    }
+
+    public class RankingTargetListItem : BindableBase
+    {
+        public RankingTargetListItem(RankingTarget target)
+        {
+            TargetType = target;
+            Label = target.ToCultulizedText();
+        }
+
+        public string Label { get; private set; }
+
+        public RankingTarget TargetType { get; private set; }
+    }
+
+
+    public class RankingTimeSpanListItem : BindableBase
+    {
+        public RankingTimeSpanListItem(RankingTimeSpan rankingTimeSpan)
+        {
+            TimeSpan = rankingTimeSpan;
+            Label = rankingTimeSpan.ToCultulizedText();
+        }
+
+        public string Label { get; private set; }
+
+        public RankingTimeSpan TimeSpan { get; private set; }
+    }
+
+
+
 }

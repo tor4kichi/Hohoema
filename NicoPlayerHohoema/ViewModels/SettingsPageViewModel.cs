@@ -26,13 +26,11 @@ namespace NicoPlayerHohoema.ViewModels
 		public SettingsPageViewModel(
 			HohoemaApp hohoemaApp
 			, PageManager pageManager
-			, RankingChoiceDialogService rakingChoiceDialog
 			, AcceptCacheUsaseDialogService cacheAcceptDialogService
 			, ToastNotificationService toastService
 			)
 			: base(hohoemaApp, pageManager)
 		{
-			RankingChoiceDialogService = rakingChoiceDialog;
 			AcceptCacheUsaseDialogService = cacheAcceptDialogService;
 			ToastNotificationService = toastService;
 
@@ -83,7 +81,7 @@ namespace NicoPlayerHohoema.ViewModels
                     vm = new PlayerSeetingPageContentViewModel(HohoemaApp);
                     break;
                 case HohoemaSettingsKind.Filtering:
-                    vm = new FilteringSettingsPageContentViewModel(HohoemaApp, PageManager, RankingChoiceDialogService);
+                    vm = new FilteringSettingsPageContentViewModel(HohoemaApp, PageManager);
                     break;
 				case HohoemaSettingsKind.Appearance:
 					vm = new AppearanceSettingsPageContentViewModel(HohoemaApp, ToastNotificationService);
@@ -165,7 +163,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public List<SettingsPageContentViewModel> SettingItems { get; private set; }
 
-		public RankingChoiceDialogService RankingChoiceDialogService { get; private set; }
 		public AcceptCacheUsaseDialogService AcceptCacheUsaseDialogService { get; private set; }
 		public ToastNotificationService ToastNotificationService { get; private set; }
 	}

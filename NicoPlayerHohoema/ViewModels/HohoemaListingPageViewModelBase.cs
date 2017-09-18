@@ -251,12 +251,19 @@ namespace NicoPlayerHohoema.ViewModels
 				IncrementalLoadingItems.DoneLoading -= CompleteLoadingItems;
 				IncrementalLoadingItems.Dispose();
 				IncrementalLoadingItems = null;
+                RaisePropertyChanged(nameof(IncrementalLoadingItems));
 			}
 
 			try
 			{
 
 				var source = GenerateIncrementalSource();
+
+                if (source == null)
+                {
+                    HasItem.Value = false;
+                    return;
+                }
 
 				MaxItemsCount.Value = await source.ResetSource();
 

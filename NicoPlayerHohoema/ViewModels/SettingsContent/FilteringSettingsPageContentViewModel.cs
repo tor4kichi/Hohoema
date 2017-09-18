@@ -19,24 +19,6 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class FilteringSettingsPageContentViewModel : SettingsPageContentViewModel
 	{
-
-        public DelegateCommand AddFavRankingCategory { get; private set; }
-        public DelegateCommand AddDislikeRankingCategory { get; private set; }
-
-        public DelegateCommand CategoryPriorityResetCommand { get; private set; }
-
-        public ObservableCollection<RankingCategorySettingsListItem> SelectableCategories { get; private set; }
-        public ObservableCollection<RankingCategorySettingsListItem> FavCategories { get; private set; }
-        public ObservableCollection<RankingCategorySettingsListItem> DislikeCategories { get; private set; }
-
-        private bool _IsDisplayReorderText;
-        public bool IsDisplayReorderText
-        {
-            get { return _IsDisplayReorderText; }
-            set { SetProperty(ref _IsDisplayReorderText, value); }
-        }
-
-
         public ReactiveProperty<bool> NGVideoIdEnable { get; private set; }
         public ReadOnlyReactiveCollection<RemovableListItem<string>> NGVideoIds { get; private set; }
 
@@ -71,87 +53,19 @@ namespace NicoPlayerHohoema.ViewModels
         NGSettings _NGSettings;
         RankingSettings _RankingSettings;
         HohoemaApp _HohoemaApp;
-        RankingChoiceDialogService _RankingChoiceDialogService;
 
 
 
 
 
-        public FilteringSettingsPageContentViewModel(HohoemaApp hohoemaApp, PageManager pageManager, RankingChoiceDialogService rankingChoiceDialog)
+        public FilteringSettingsPageContentViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
 			: base("フィルタ", HohoemaSettingsKind.Filtering)
 		{
 			_HohoemaApp = hohoemaApp;
 			_NGSettings = _HohoemaApp.UserSettings.NGSettings;
 			_RankingSettings = _HohoemaApp.UserSettings.RankingSettings;
-			_RankingChoiceDialogService = rankingChoiceDialog;
 
-
-			SelectableCategories = new ObservableCollection<RankingCategorySettingsListItem>(
-				_RankingSettings.MiddlePriorityCategory
-				.Select(x => new RankingCategorySettingsListItem(x, this))
-				.ToList()
-				);
-
-			FavCategories = new ObservableCollection<RankingCategorySettingsListItem>(
-				_RankingSettings.HighPriorityCategory
-				.Select(x => new RankingCategorySettingsListItem(x, this))
-				.ToList()
-				);
-
-			
-
-			AddFavRankingCategory = new DelegateCommand(async () =>
-			{
-				var items = _RankingSettings.MiddlePriorityCategory.ToArray();
-				var choiceItems = await _RankingChoiceDialogService.ShowRankingCategoryChoiceDialog("好きなカテゴリを選択", items);
-
-				if (choiceItems != null)
-				{
-					foreach (var choiceItem in choiceItems)
-					{
-						var removeTarget = SelectableCategories.SingleOrDefault(x => x.CategoryInfo == choiceItem);
-						SelectableCategories.Remove(removeTarget);
-
-						FavCategories.Add(new RankingCategorySettingsListItem(choiceItem, this));
-					}
-				}
-
-				ApplyAllPriorityCategoriesToRankingSettings();
-			});
-
-
-			DislikeCategories = new ObservableCollection<RankingCategorySettingsListItem>(
-				_RankingSettings.LowPriorityCategory
-				.Select(x => new RankingCategorySettingsListItem(x, this))
-				.ToList()
-				);
-
-			AddDislikeRankingCategory = new DelegateCommand(async () =>
-			{
-				var items = _RankingSettings.MiddlePriorityCategory.ToArray();
-				var choiceItems = await _RankingChoiceDialogService.ShowRankingCategoryChoiceDialog("非表示にするカテゴリを選択", items);
-
-				if (choiceItems != null)
-				{
-					foreach (var choiceItem in choiceItems)
-					{
-						var removeTarget = SelectableCategories.SingleOrDefault(x => x.CategoryInfo == choiceItem);
-						SelectableCategories.Remove(removeTarget);
-
-						DislikeCategories.Add(new RankingCategorySettingsListItem(choiceItem, this));
-					}					
-				}
-
-				ApplyAllPriorityCategoriesToRankingSettings();
-			});
-
-
-
-			// 入れ替え説明テキストの表示フラグ
-			FavCategories.ObserveProperty(x => x.Count)
-				.Subscribe(x => IsDisplayReorderText = x >= 2);
-
-
+            
 			// NG Video
 
 
@@ -258,8 +172,6 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override void OnLeave()
         {
-			ApplyAllPriorityCategoriesToRankingSettings();
-
             // NG VideoTitleを複数行NG動画タイトル文字列から再構成
             _NGSettings.NGVideoTitleKeywords.Clear();
             foreach (var ngKeyword in NGVideoTitleKeywords.Value.Split('\r'))
@@ -315,52 +227,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-        /// <summary>
-        /// お気に入りや非表示に設定されたランキングカテゴリを元の状態に戻します
-        /// </summary>
-        /// <param name="userListItem"></param>
-        internal void ClearFavStateRankingCategory(RankingCategorySettingsListItem userListItem)
-		{
-            if (FavCategories.Contains(userListItem))
-            {
-                FavCategories.Remove(userListItem);
-
-                SelectableCategories.Add(userListItem);
-
-                ApplyAllPriorityCategoriesToRankingSettings();
-            }
-            else if (DislikeCategories.Contains(userListItem))
-            {
-                DislikeCategories.Remove(userListItem);
-
-                SelectableCategories.Add(userListItem);
-
-                ApplyAllPriorityCategoriesToRankingSettings();
-            }
-        }
-
-		private void ApplyAllPriorityCategoriesToRankingSettings()
-		{
-			_RankingSettings.HighPriorityCategory.Clear();
-			foreach (var highPrioCat in FavCategories)
-			{
-				_RankingSettings.HighPriorityCategory.Add(highPrioCat.CategoryInfo);
-			}
-
-
-			_RankingSettings.MiddlePriorityCategory.Clear();
-			foreach (var midPrioCat in SelectableCategories)
-			{
-				_RankingSettings.MiddlePriorityCategory.Add(midPrioCat.CategoryInfo);
-			}
-
-			_RankingSettings.LowPriorityCategory.Clear();
-			foreach (var lowPrioCat in DislikeCategories)
-			{
-				_RankingSettings.LowPriorityCategory.Add(lowPrioCat.CategoryInfo);
-			}
-		}
-
 		
 
 		private void OnRemoveNGVideoIdFromList(string videoId)
@@ -393,47 +259,5 @@ namespace NicoPlayerHohoema.ViewModels
 
 		
 	}
-
-
-
 	
-
-	
-
-	public class RankingCategorySettingsListItem : BindableBase, IRemovableListItem
-    {
-		public RankingCategorySettingsListItem(RankingCategoryInfo info, FilteringSettingsPageContentViewModel parentVM)
-		{
-			_ParentVM = parentVM;
-			CategoryInfo = info;
-			DisplayLabel = info.ToReactivePropertyAsSynchronized(x => x.DisplayLabel);
-			Parameter = info.ToReactivePropertyAsSynchronized(x => x.Parameter);
-            Label = info.DisplayLabel;
-
-        }
-
-		private DelegateCommand _ClearFavStateRankingCategoryCommand;
-		public DelegateCommand ClearFavStateRankingCategoryCommand
-		{
-			get
-			{
-				return _ClearFavStateRankingCategoryCommand
-                    ?? (_ClearFavStateRankingCategoryCommand = new DelegateCommand(() =>
-					{
-						_ParentVM.ClearFavStateRankingCategory(this);
-					}));
-			}
-		}
-
-
-		public ReactiveProperty<string> DisplayLabel { get; private set; }
-		public RankingCategoryInfo CategoryInfo { get; set; }
-		public ReactiveProperty<string> Parameter { get; private set; }
-
-        public string Label { get; private set; }
-
-        public ICommand RemoveCommand => ClearFavStateRankingCategoryCommand;
-
-        FilteringSettingsPageContentViewModel _ParentVM;
-	}
 }

@@ -651,8 +651,8 @@ namespace NicoPlayerHohoema
 
 			// ViewModels
 			Container.RegisterType<ViewModels.MenuNavigatePageBaseViewModel>(new ContainerControlledLifetimeManager());
-			Container.RegisterType<ViewModels.RankingCategoryPageViewModel>(new ContainerControlledLifetimeManager());
-			Container.RegisterType<ViewModels.HistoryPageViewModel>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<ViewModels.RankingCategoryListPageViewModel>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<ViewModels.HistoryPageViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.UserVideoPageViewModel>(new ContainerControlledLifetimeManager());
             Container.RegisterType<ViewModels.MylistPageViewModel>(new ContainerControlledLifetimeManager());
             /*
@@ -952,8 +952,10 @@ namespace NicoPlayerHohoema
                     if (prevContent == text) { return; }
                     try
                     {
-                        var uri = new Uri(text);
-                        await ExtractNicoContentId_And_SubmitSuggestion(uri);
+                        if (Uri.TryCreate(text, UriKind.Absolute, out var uri))
+                        {
+                            await ExtractNicoContentId_And_SubmitSuggestion(uri);
+                        }
                     }
                     catch
                     {

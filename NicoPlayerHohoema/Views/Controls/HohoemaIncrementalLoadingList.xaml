@@ -125,6 +125,7 @@
                                               ItemTemplate="{x:Bind ItemTemplate}"
                                               SelectionMode="Single"
                                               ContextFlyout="{x:Bind ItemFlyout}"
+                                              
                                 >
 
                 <i:Interaction.Behaviors>
