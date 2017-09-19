@@ -479,6 +479,12 @@ namespace NicoPlayerHohoema.Models
 			{
 				this.IsCommunity = true;
 			}
+            catch (Exception e) when (e.Message.Contains("NOT_FOUND"))
+            {
+                Debug.WriteLine(RawVideoId);
+                Debug.WriteLine(e.Message);
+                return;
+            }
 
             _thumbnailInitialized = true;
 
