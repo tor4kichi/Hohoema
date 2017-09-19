@@ -376,7 +376,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
             UnregistrationMylistCommand = SelectedItems.ObserveProperty(x => x.Count)
-                .Where(_ => this.CanEditMylist)
+                .Where(_ => IsUserOwnerdMylist)
                 .Select(x => x > 0)
                 .ToReactiveCommand(false);
 
