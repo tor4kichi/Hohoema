@@ -106,6 +106,9 @@
 
                 <uwpcontrol:MasterDetailsView.DetailsTemplate>
                     <DataTemplate>
+                        <!-- Note: MasterDetailsView.DetailsTemplate は別コントロール扱いになるため、
+                                   バインディングやVisualState等を別に組む必要がある 
+                        -->
                         <UserControl>
 
                             <Grid DataContext="{Binding ElementName=ContentLayoutRoot, Path=DataContext}"
@@ -118,7 +121,7 @@
 
                                         <VisualState>
                                             <VisualState.StateTriggers>
-                                                <StateTrigger IsActive="{Binding IsSelectionModeEnable.Value}" />
+                                                <StateTrigger IsActive="{Binding ElementName=ContentLayoutRoot, Path=DataContext.IsSelectionModeEnable.Value}" />
                                             </VisualState.StateTriggers>
                                             <VisualState.Setters>
                                                 <Setter Target="RefreshButton.Visibility" Value="Collapsed" />
@@ -197,7 +200,7 @@
                                                         <TextBlock Text="{Binding Rank, Mode=OneTime}" 
                                                                    HorizontalAlignment="Left"
                                                                    VerticalAlignment="Top"
-                                                                       Margin="16 0"
+                                                                   Margin="16 0"
                                                                    Style="{StaticResource SubheaderTextBlockStyle}"
                                                                    LineStackingStrategy="BlockLineHeight"
                                                                    FontWeight="SemiBold"
@@ -227,18 +230,18 @@
                                             <StackPanel Orientation="Horizontal">
 
                                                 <Button Command="{Binding UnselectCategoryCommand}"     
-                                                    Background="Transparent"
-                                                    >
+                                                        Background="Transparent"
+                                                        >
                                                     <SymbolIcon Symbol="Clear" Opacity="0.7" />
                                                 </Button>
 
                                                 <Border Background="Transparent" IsHitTestVisible="True"
-                                                Margin="16 0 0 0"
-                                                >
+                                                        Margin="16 0 0 0"
+                                                        >
                                                     <TextBlock 
-                                                VerticalAlignment="Center"
-                                                Style="{StaticResource SubtitleTextBlockStyle}"
-                                                >
+                                                            VerticalAlignment="Center"
+                                                            Style="{StaticResource SubtitleTextBlockStyle}"
+                                                            >
                                                 『<Run Text="{Binding SelectedRankingCategory.Value.Category, Converter={StaticResource RankingCategoryToText}}" />』のランキング
                                                     </TextBlock>
 
@@ -252,43 +255,43 @@
                                         </CommandBar.Content>
 
                                         <AppBarButton Label="更新" 
-                                              Icon="Refresh"
-                                               Command="{Binding RefreshCommand}"
-                                              IsEnabled="{Binding CanChangeSort.Value}"
-                                              x:Name="RefreshButton"
-                                                  VerticalAlignment="Center"
-                                  >
+                                                      Icon="Refresh"
+                                                       Command="{Binding RefreshCommand}"
+                                                      IsEnabled="{Binding CanChangeSort.Value}"
+                                                      x:Name="RefreshButton"
+                                                      VerticalAlignment="Center"
+                                                    >
                                         </AppBarButton>
 
                                         <!-- 選択中のみ表示する -->
                                         <AppBarButton Command="{Binding RequestCacheDownload}"
-                                          IsEnabled="{Binding CanDownload}"
-                                          Background="Transparent"
-                                          Label="キャッシュ"
-                                          Icon="Download"
-                                      Visibility="Collapsed"
-                                      x:Name="RequestCacheButton"
+                                                  IsEnabled="{Binding CanDownload}"
+                                                  Background="Transparent"
+                                                  Label="キャッシュ"
+                                                  Icon="Download"
+                                                  Visibility="Collapsed"
+                                                  x:Name="RequestCacheButton"
                                                   VerticalAlignment="Center"
-                                >
+                                                >
                                         </AppBarButton>
 
 
                                         <AppBarButton Command="{Binding RegistratioMylistCommand}"
-                                              Label="マイリストに追加"
-                                              Icon="Add"
-                                      Visibility="Collapsed"
-                                      x:Name="RegistrationMylistButton"
-                                                  VerticalAlignment="Center"
-                                            >
+                                                      Label="マイリストに追加"
+                                                      Icon="Add"
+                                                      Visibility="Collapsed"
+                                                      x:Name="RegistrationMylistButton"
+                                                      VerticalAlignment="Center"
+                                                    >
                                         </AppBarButton>
 
 
                                         <!-- 選択切り替えボタン -->
                                         <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                            HorizontalContentAlignment="Stretch"
-                                            VerticalContentAlignment="Stretch"
-                                            Label="選択"
-                                                        VerticalAlignment="Center"
+                                                            HorizontalContentAlignment="Stretch"
+                                                            VerticalContentAlignment="Stretch"
+                                                            Label="選択"
+                                                            VerticalAlignment="Center"
                                             >
                                             <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
                                                        HorizontalAlignment="Center"
