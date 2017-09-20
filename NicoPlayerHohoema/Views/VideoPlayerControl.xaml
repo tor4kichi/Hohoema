@@ -219,12 +219,6 @@
                 </i:Interaction.Behaviors>
             </MenuFlyoutItem>
 
-            <ToggleMenuFlyoutItem Text="横持ち固定" 
-                                    x:Name="ForceRotateToggleButton" 
-                                    Visibility="Collapsed"
-                                    IsChecked="{Binding IsForceLandscape.Value, Mode=TwoWay}"
-                                    />
-
 
 
 
@@ -390,24 +384,36 @@
             <VisualStateGroup >
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="FullscreenButton.Visibility" Value="Collapsed" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState>
-                    <VisualState.StateTriggers>
                         <StateTrigger IsActive="{Binding IsFullScreen.Value, Mode=OneWay}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="FullscreenButtonIcon.Kind" Value="FullScreenExit" />
                     </VisualState.Setters>
                 </VisualState>
-
-
             </VisualStateGroup>
 
+            <VisualStateGroup >
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="TVModeDisplayOptionsButtonButton.Visibility" Value="Visible" />
+                        <Setter Target="MobileAndDesktopDisplayOptionsButton.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardTrigger:DeviceFamilyTrigger Condition="Desktop" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!--
+                        <Setter Target="SplitWindowButton.Visibility" Value="Visible" />
+                        -->
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+            
 
             <!-- 再生・停止 -->
             <VisualStateGroup>
@@ -1362,34 +1368,158 @@
                                                                VerticalAlignment="Center"
                                                     >
 
-                                                <Button Command="{Binding ToggleCompactOverlayCommand}"
+                                                <Button Background="Transparent"
+                                                        x:Name="MobileAndDesktopDisplayOptionsButton"
+                                                        >
+                                                    <Button.Flyout>
+                                                        <Flyout>
+                                                            <StackPanel Orientation="Horizontal">
+
+                                                                <Button Command="{Binding PlayerSmallWindowDisplayCommand}"
+                                                                        Background="Transparent"
+                                                                        x:Name="SmallWindowButton"  
+                                                                        >
+                                                                    <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                                                                        <toolkit:LayoutTransformControl Margin="0 0 0 8">
+                                                                            <iconPack:PackIconMaterial Kind="WindowMinimize" 
+                                                                                                   Width="24"
+                                                                                                   Height="24"
+                                                                                                       HorizontalAlignment="Center"
+                                                                            >
+                                                                            </iconPack:PackIconMaterial>
+                                                                        </toolkit:LayoutTransformControl>
+
+                                                                        <TextBlock Text="小窓" 
+                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                                                                   VerticalAlignment="Center" />
+
+                                                                    </StackPanel>
+                                                                </Button>
+                                                                
+                                                                <Button Command="{Binding ToggleCompactOverlayCommand}"
+                                                                        Background="Transparent"
+                                                                        x:Name="CompactOverlayButton"
+                                                                        Visibility="Collapsed"
+                                                                        >
+                                                                    <StackPanel Orientation="Vertical">
+                                                                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE2B4;"
+                                                                                   FontSize="24"
+                                                                                   VerticalAlignment="Center"
+                                                                                   Height="24"
+                                                                                   Width="24"
+                                                                                   HorizontalAlignment="Center"
+                                                                                   Margin="0 0 0 8"
+                                                                               />
+                                                                        <TextBlock Text="ミニモード" 
+                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                                                                   VerticalAlignment="Center" />
+                                                                    </StackPanel>
+                                                                </Button>
+
+                                                                
+                                                                
+                                                                <Button Command="{Binding ToggleFullScreenCommand}"
+                                                                        Background="Transparent"
+                                                                        x:Name="FullscreenButton"  
+                                                                        >
+                                                                    <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                                                                        <toolkit:LayoutTransformControl Margin="0 0 0 8">
+                                                                            <iconPack:PackIconMaterial x:Name="FullscreenButtonIcon"  
+                                                                                Kind="Fullscreen"                                                                                                        
+                                                                                Width="24"
+                                                                                Height="24"
+                                                                                HorizontalAlignment="Center"
+                                                                            >
+
+                                                                            </iconPack:PackIconMaterial>
+                                                                        </toolkit:LayoutTransformControl>
+                                                                        
+
+                                                                        <TextBlock Text="全画面" 
+                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                                                                   VerticalAlignment="Center" />
+
+                                                                    </StackPanel>
+                                                                </Button>
+
+                                                                
+                                                                <Button Visibility="Collapsed"
+                                                                              x:Name="SplitWindowButton"
+                                                                              Background="Transparent"
+                                                                              >
+                                                                    <StackPanel Orientation="Vertical">
+                                                                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE78B;"
+                                                                                   FontSize="24"
+                                                                                   VerticalAlignment="Center"
+                                                                                   Height="24"
+                                                                                   Width="24"
+                                                                                   HorizontalAlignment="Center"
+                                                                                   Margin="0 0 0 8"
+                                                                               />
+                                                                        <TextBlock Text="別ウィンドウ" 
+                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                                                                   VerticalAlignment="Center" />
+                                                                    </StackPanel>
+                                                                </Button>
+
+                                                                <ToggleButton Background="Transparent"
+                                                                        x:Name="ForceRotateToggleButton" 
+                                                                        Visibility="Collapsed"
+                                                                        IsChecked="{Binding IsForceLandscape.Value, Mode=TwoWay}"
+                                                                        >
+                                                                    <StackPanel>
+                                                                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B4;"
+                                                                                   FontSize="24"
+                                                                                   VerticalAlignment="Center"
+                                                                                   Height="24"
+                                                                                   Width="24"
+                                                                                   HorizontalAlignment="Center"
+                                                                                   Margin="0 0 0 8"
+                                                                               />
+                                                                        
+                                                                        <TextBlock Text="横持ち固定"
+                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                                                                   VerticalAlignment="Center"
+                                                                                   />
+                                                                    </StackPanel>
+                                                                </ToggleButton>
+
+
+                                                            </StackPanel>
+                                                        </Flyout>
+                                                    </Button.Flyout>
+
+
+                                                    <Grid>
+                                                        <SymbolIcon Symbol="NewWindow" />
+                                                    </Grid>
+                                                    
+                                                </Button>
+
+
+                                                <Button Command="{Binding PlayerSmallWindowDisplayCommand}"
                                                         Background="Transparent"
-                                                        x:Name="CompactOverlayButton"
+                                                        x:Name="TVModeDisplayOptionsButtonButton"  
                                                         Visibility="Collapsed"
                                                         >
-                                                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE2B4;"
-                                                       FontSize="24"
-                                                       />
-                                                </Button>
-                                            
-                                                <Button Command="{Binding ToggleFullScreenCommand}"
-                                                        Background="Transparent"
-                                                        Margin="0 0 0 4"
-                                                        x:Name="FullscreenButton"  
-                                            
-                                                      >
-                                                    <iconPack:PackIconMaterial Kind="Fullscreen" 
-                                                    x:Name="FullscreenButtonIcon"  
-                                                    RenderTransformOrigin="0.5, 0.5"
-                                                    >
-                                                        <iconPack:PackIconMaterial.RenderTransform>
-                                                            <CompositeTransform ScaleX="1.35" ScaleY="1.35"/>
-                                                        </iconPack:PackIconMaterial.RenderTransform>
+                                                    <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                                                        <toolkit:LayoutTransformControl Margin="0 0 0 8">
+                                                            <iconPack:PackIconMaterial Kind="WindowMinimize" 
+                                                                                                   Width="24"
+                                                                                                   Height="24"
+                                                                                                       HorizontalAlignment="Center"
+                                                                            >
+                                                            </iconPack:PackIconMaterial>
+                                                        </toolkit:LayoutTransformControl>
 
-                                                    </iconPack:PackIconMaterial>
+                                                        <TextBlock Text="小窓表示" 
+                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                                                                   VerticalAlignment="Center" />
+
+                                                    </StackPanel>
                                                 </Button>
 
-                                            
+
 
                                                 <Button Background="Transparent"
                                                         x:Name="VideoOptionsMenuButton"
