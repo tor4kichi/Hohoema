@@ -12,9 +12,9 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 {
-	public class CommentVideoInfoContentViewModel : SidePaneContentViewModelBase
+	public class CommentSidePaneContentViewModel : SidePaneContentViewModelBase
 	{
-		public CommentVideoInfoContentViewModel(HohoemaUserSettings settings, ObservableCollection<Comment> comments)
+		public CommentSidePaneContentViewModel(HohoemaUserSettings settings, ObservableCollection<Comment> comments)
 		{
 			UserSettings = settings;
 			Comments = comments;

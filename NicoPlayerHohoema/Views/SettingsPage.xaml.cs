@@ -32,8 +32,6 @@ namespace NicoPlayerHohoema.Views
 	public class SettingContentTemplateSelector : DataTemplateSelector
 	{
 		public DataTemplate FilteringTemplate { get; set; }
-		public DataTemplate PlayerTemplate { get; set; }
-		public DataTemplate CacheTemplate { get; set; }
 		public DataTemplate AppearanceTemplate { get; set; }
 		public DataTemplate ShereTemplate { get; set; }
         public DataTemplate FeedbackTemplate { get; set; }
@@ -41,11 +39,7 @@ namespace NicoPlayerHohoema.Views
 
         protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
 		{
-            if (item is ViewModels.PlayerSeetingPageContentViewModel)
-            {
-                return PlayerTemplate;
-            }
-            else if (item is ViewModels.FilteringSettingsPageContentViewModel)
+            if (item is ViewModels.FilteringSettingsPageContentViewModel)
 			{
 				return FilteringTemplate;
 			}

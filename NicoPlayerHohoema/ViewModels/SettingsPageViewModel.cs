@@ -77,9 +77,6 @@ namespace NicoPlayerHohoema.ViewModels
 			SettingsPageContentViewModel vm = null;
 			switch (kind)
 			{
-                case HohoemaSettingsKind.Player:
-                    vm = new PlayerSeetingPageContentViewModel(HohoemaApp);
-                    break;
                 case HohoemaSettingsKind.Filtering:
                     vm = new FilteringSettingsPageContentViewModel(HohoemaApp, PageManager);
                     break;
@@ -170,7 +167,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public enum HohoemaSettingsKind
 	{
-		Player,
 		Filtering,
 		Appearance,
         Share,

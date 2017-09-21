@@ -274,6 +274,7 @@
     <Compile Include="ViewModels\LoginPageViewModel.cs" />
     <Compile Include="ViewModels\MenuNavigatePageBaseViewModel.cs" />
     <Compile Include="ViewModels\MylistPageViewModel.cs" />
+    <Compile Include="ViewModels\PlayerSidePaneContent\EmptySidePaneContentViewModel.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\PlaylistSidePaneContentViewModel.cs" />
     <Compile Include="ViewModels\PlayerWithPageContainerViewModel.cs" />
     <Compile Include="ViewModels\SearchResultPage\SearchResultCommunityPageViewModel.cs" />
@@ -289,13 +290,12 @@
     <Compile Include="ViewModels\SettingsContent\AppearanceSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\ShereSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SettingsContent\FilteringSettingsPageContentViewModel.cs" />
-    <Compile Include="ViewModels\SettingsContent\PlayerSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\UserInfoPageViewModel.cs" />
     <Compile Include="ViewModels\UserMylistPageViewModel.cs" />
     <Compile Include="ViewModels\UserVideoPageViewModel.cs" />
-    <Compile Include="ViewModels\PlayerSidePaneContent\CommentVideoInfoContentViewModel.cs" />
+    <Compile Include="ViewModels\PlayerSidePaneContent\CommentSidePaneContentViewModel.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\SidePaneContentViewModelBase.cs" />
-    <Compile Include="ViewModels\PlayerSidePaneContent\SettingsVideoInfoContentViewModel.cs" />
+    <Compile Include="ViewModels\PlayerSidePaneContent\SettingsSidePaneContentViewModel.cs" />
     <Compile Include="Views\AboutPage.xaml.cs">
       <DependentUpon>AboutPage.xaml</DependentUpon>
     </Compile>
@@ -345,6 +345,7 @@
     <Compile Include="Views\Converters\CommentOpacityKindConverter.cs" />
     <Compile Include="Views\Converters\HohoemaPageTypeToTextConverter.cs" />
     <Compile Include="Views\Converters\Live2QualityTypeToText.cs" />
+    <Compile Include="Views\Converters\NGCommentScoreTypeTemplateSelector.cs" />
     <Compile Include="Views\Converters\PlayerEndActionToTextConverter.cs" />
     <Compile Include="Views\Converters\RankingCategoryToText.cs" />
     <Compile Include="Views\HohoemaInAppNotification.xaml.cs">
@@ -640,9 +641,6 @@
     <Compile Include="Views\MediaElementExtention.cs" />
     <Compile Include="Views\SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\SettingsPageContent\PlayerSettingsPageContent.xaml.cs">
-      <DependentUpon>PlayerSettingsPageContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SettingsPageContent\FilteringSettingsPageContent.xaml.cs">
       <DependentUpon>FilteringSettingsPageContent.xaml</DependentUpon>
@@ -1114,10 +1112,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SettingsPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\SettingsPageContent\PlayerSettingsPageContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

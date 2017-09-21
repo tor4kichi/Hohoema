@@ -20,14 +20,6 @@
 
     <Page.Resources>
         <view:SettingContentTemplateSelector x:Key="settingContentTemplateSelector">
-
-            <!-- Player -->
-            <view:SettingContentTemplateSelector.PlayerTemplate>
-                <DataTemplate>
-                    <settingsContent:PlayerSettingsPageContent />
-                </DataTemplate>
-            </view:SettingContentTemplateSelector.PlayerTemplate>
-            
             
             <!-- Filtering -->
             <view:SettingContentTemplateSelector.FilteringTemplate>

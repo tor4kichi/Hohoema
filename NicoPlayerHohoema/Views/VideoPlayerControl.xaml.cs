@@ -42,11 +42,11 @@ namespace NicoPlayerHohoema.Views
             {
                 return Playlist;
             }
-            else if (item is ViewModels.PlayerSidePaneContent.CommentVideoInfoContentViewModel)
+            else if (item is ViewModels.PlayerSidePaneContent.CommentSidePaneContentViewModel)
             {
                 return Comments;
             }
-            else if (item is ViewModels.PlayerSidePaneContent.SettingsVideoInfoContentViewModel)
+            else if (item is ViewModels.PlayerSidePaneContent.SettingsSidePaneContentViewModel)
             {
                 return Settings;
             }

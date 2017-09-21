@@ -30,6 +30,7 @@ using System.Collections.ObjectModel;
 using Windows.System;
 using Windows.ApplicationModel.Core;
 using Windows.Foundation.Metadata;
+using NicoPlayerHohoema.ViewModels.PlayerSidePaneContent;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -200,6 +201,8 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<LiveSuggestion> Suggestion { get; private set; }
 		public ReactiveProperty<bool> HasSuggestion { get; private set; }
 
+
+        // Side Pane Content
 
 
 		public LiveVideoPlayerControlViewModel(
@@ -439,6 +442,29 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
+            // Side Pane
+
+            CurrentSidePaneContentType = new ReactiveProperty<PlayerSidePaneContentType?>(PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
+            CurrentSidePaneContent = CurrentSidePaneContentType
+                .Select(GetSidePaneContent)
+                .ToReadOnlyReactiveProperty()
+                .AddTo(_CompositeDisposable);
+
+
+            CurrentSidePaneContent.Subscribe(async content =>
+            {
+                if (_PrevSidePaneContent != null)
+                {
+                    _PrevSidePaneContent.OnLeave();
+                }
+
+                if (content != null)
+                {
+                    await content.OnEnter();
+                    _PrevSidePaneContent = content;
+                }
+            });
         }
 
 
@@ -650,23 +676,6 @@ namespace NicoPlayerHohoema.ViewModels
                     ?? (_OpenBroadcastCommunityCommand = new DelegateCommand(() =>
                     {
                         PageManager.OpenPage(HohoemaPageType.Community, CommunityId);
-                        HohoemaApp.Playlist.IsPlayerFloatingModeEnable = true;
-                    }
-                    ));
-            }
-        }
-
-
-
-        private DelegateCommand _OpenPlayerSettingCommand;
-        public DelegateCommand OpenPlayerSettingCommand
-        {
-            get
-            {
-                return _OpenPlayerSettingCommand
-                    ?? (_OpenPlayerSettingCommand = new DelegateCommand(() =>
-                    {
-                        PageManager.OpenPage(HohoemaPageType.Settings, HohoemaSettingsKind.Player.ToString());
                         HohoemaApp.Playlist.IsPlayerFloatingModeEnable = true;
                     }
                     ));
@@ -1093,38 +1102,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-
-		/// <summary>
-		/// サイドペインに表示するコンテンツVMを作成します
-		/// </summary>
-		/// <param name="type"></param>
-		/// <returns></returns>
-		private LiveInfoContentViewModelBase CreateLiveVideoPaneContent(LiveVideoPaneContentType type)
-		{
-			LiveInfoContentViewModelBase vm = null;
-			switch (type)
-			{
-				case LiveVideoPaneContentType.Summary:
-					vm = new SummaryLiveInfoContentViewModel(CommunityName, NicoLiveVideo, PageManager);
-					break;
-				case LiveVideoPaneContentType.Comment:
-					vm = new CommentLiveInfoContentViewModel(NicoLiveVideo, LiveComments);
-					break;
-				case LiveVideoPaneContentType.Shere:
-					vm = new ShereLiveInfoContentViewModel(NicoLiveVideo, _TextInputDialogService);
-					break;
-				case LiveVideoPaneContentType.Settings:
-					vm = new SettingsLiveInfoContentViewModel(NicoLiveVideo, HohoemaApp);
-					break;
-				default:
-					Debug.WriteLine("CreateLiveVideoPaneContent not support type: " + type.ToString());
-					break;
-			}
-
-			return vm;
-		}
-
-
 		/// <summary>
 		/// 生放送終了後などに表示するユーザーアクションの候補を再設定します。
 		/// </summary>
@@ -1219,17 +1196,78 @@ namespace NicoPlayerHohoema.ViewModels
 
         #endregion
 
-    }
+
+
+        #region Side Pane Content
+
+
+        private Dictionary<PlayerSidePaneContentType, SidePaneContentViewModelBase> _SidePaneContentCache = new Dictionary<PlayerSidePaneContentType, SidePaneContentViewModelBase>();
+
+        public ReactiveProperty<PlayerSidePaneContentType?> CurrentSidePaneContentType { get; }
+        public ReadOnlyReactiveProperty<SidePaneContentViewModelBase> CurrentSidePaneContent { get; }
+
+        SidePaneContentViewModelBase _PrevSidePaneContent;
+
+        private DelegateCommand<object> _SelectSidePaneContentCommand;
+        public DelegateCommand<object> SelectSidePaneContentCommand
+        {
+            get
+            {
+                return _SelectSidePaneContentCommand
+                    ?? (_SelectSidePaneContentCommand = new DelegateCommand<object>((type) =>
+                    {
+                        if (type is PlayerSidePaneContentType)
+                        {
+                            CurrentSidePaneContentType.Value = (PlayerSidePaneContentType)type;
+                        }
+                        else if (type is string && Enum.TryParse<PlayerSidePaneContentType>(type as String, out var parsed))
+                        {
+                            CurrentSidePaneContentType.Value = parsed;
+                        }
+                    }));
+            }
+        }
+
+
+        private SidePaneContentViewModelBase GetSidePaneContent(PlayerSidePaneContentType? maybeType)
+        {
+            PlayerSidePaneContentType type = PlayerSidePaneContentType.None;
+            if (maybeType.HasValue)
+            {
+                type = maybeType.Value;
+            }
+
+            if (_SidePaneContentCache.ContainsKey(type))
+            {
+                return _SidePaneContentCache[type];
+            }
+            else
+            {
+                SidePaneContentViewModelBase sidePaneContent = null;
+                switch (type)
+                {
+                    case PlayerSidePaneContentType.Playlist:
+                        sidePaneContent = new PlayerSidePaneContent.PlaylistSidePaneContentViewModel(HohoemaApp.MediaPlayer, HohoemaApp.Playlist, HohoemaApp.UserSettings.PlaylistSettings, PageManager);
+                        break;
+                    case PlayerSidePaneContentType.Comment:
+                        throw new NotImplementedException();
+//                        sidePaneContent = new PlayerSidePaneContent.CommentSidePaneContentViewModel(HohoemaApp.UserSettings, LiveComments);
+//                        break;
+                    case PlayerSidePaneContentType.Setting:
+                        sidePaneContent = new PlayerSidePaneContent.SettingsSidePaneContentViewModel(HohoemaApp.UserSettings);
+                        break;
+                    default:
+                        sidePaneContent = new PlayerSidePaneContent.EmptySidePaneContentViewModel();
+                        break;
+                }
+
+                _SidePaneContentCache.Add(type, sidePaneContent);
+                return sidePaneContent;
+            }
+        }
 
 
 
-	public enum LiveVideoPaneContentType
-	{
-		Summary,
-		Comment,
-		Shere,
-		Settings,
-	}
-
-	
+        #endregion
+    }	
 }

@@ -378,7 +378,7 @@
                         <Setter Target="CompactOverlayUIControl.Visibility" Value="Visible" />
                         <Setter Target="DefaultUIControl.Visibility" Value="Collapsed" />
 
-                        <Setter Target="PlaylistSplitView.OpenPaneLength" Value="120" />
+                        <Setter Target="PlayerSplitView.OpenPaneLength" Value="120" />
                     </VisualState.Setters>
                 </VisualState>
                 
@@ -392,7 +392,7 @@
                         <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="PlaylistSplitViewPaneLayout.Margin" Value="0 27 0 27" />
+                        <Setter Target="PlayerSplitViewPaneLayout.Margin" Value="0 27 0 27" />
                         <Setter Target="PlaylistItemsListView.Padding" Value="0 0 48 0" />
 
                         <Setter Target="UIControlContentLayout.Padding" Value="48 0 48 27" />
@@ -518,7 +518,7 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="UIControlLayout.Visibility" Value="Collapsed" />
-                        <Setter Target="PlaylistSplitView.OpenPaneLength" Value="120" />
+                        <Setter Target="PlayerSplitView.OpenPaneLength" Value="120" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -560,8 +560,21 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
-
-
+            
+            
+            <!-- キーボード入力によるコメント書き込みショートカットの有効・無効 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding NowCommentWriting.Value}" />
+                        <StateTrigger IsActive="{Binding ElementName=PlayerSplitView, Path=IsPaneOpen}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CommentWriteBeginKeyboardTrigger.IsEnabled" Value="False" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+            
             <!-- コメント投稿欄の表示 -->
             <VisualStateGroup>
                 <VisualState>
@@ -642,21 +655,34 @@
 
 
             <SplitView PanePlacement="Right"
-                           x:Name="PlaylistSplitView"
+                           x:Name="PlayerSplitView"
                            IsTabStop="False"
                        
                                >
 
                 <i:Interaction.Behaviors>
                     <!-- サイドペインのコンテンツVMが指定されたらサイドペインを開く -->
-                    <core:DataTriggerBehavior Binding="{Binding CurrentSidePaneContentType.Value}" ComparisonCondition="NotEqual" Value="{x:Null}">
+
+                    <!-- 条件に{x:Null}ではなく PlayerSidePaneContentType.None を指定しているのは
+                         nullの場合、閉じた後のバインディングエラーによって
+                         意図しない値が書き戻される可能性があるためです
+                    -->
+
+                    <core:DataTriggerBehavior Binding="{Binding CurrentSidePaneContentType.Value}" 
+                                              ComparisonCondition="NotEqual" 
+                                              Value="{x:Null}"
+                                              >
                         <core:ChangePropertyAction PropertyName="IsPaneOpen" Value="True" />
                     </core:DataTriggerBehavior>
                     
                     <!-- サイドペインが閉じられたら コンテンツVMをリセット -->
                     <core:EventTriggerBehavior EventName="PaneClosed">
-                        <core:ChangePropertyAction TargetObject="{Binding CurrentSidePaneContentType}" PropertyName="Value" Value="{x:Null}" />
+                        <core:ChangePropertyAction TargetObject="{Binding CurrentSidePaneContentType}" 
+                                                   PropertyName="Value" 
+                                                   Value="{x:Null}" 
+                                                   />
                     </core:EventTriggerBehavior>
+                    
                 </i:Interaction.Behaviors>
                 
                 <SplitView.Pane>
@@ -694,7 +720,7 @@
                                 <mybehavior:SetFocus TargetObject="{Binding ElementName=RootLayout}" />
                             </core:EventTriggerBehavior>
 
-                            <mybehavior:KeyboardTrigger IsEnabled="{Binding NowCommentWriting.Value, Mode=OneWay, Converter={StaticResource BooleanInverted}}">
+                            <mybehavior:KeyboardTrigger x:Name="CommentWriteBeginKeyboardTrigger">
                                 <mybehavior:KeyboardTrigger.Actions>
                                     <mybehavior:SetFocus TargetObject="{Binding ElementName=CommentTextBox}" Delay="00:00:00" />
                                     <core:ChangePropertyAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" PropertyName="IsVisible" Value="True" />
@@ -750,7 +776,7 @@
                             <mybehavior:UINavigationTrigger Kind="Context2" 
                                                         IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BooleanInverted}}"
                                                         >
-                                <core:ChangePropertyAction TargetObject="{Binding ElementName=PlaylistSplitView}" PropertyName="IsPaneOpen" Value="True" />
+                                <core:ChangePropertyAction TargetObject="{Binding ElementName=PlayerSplitView}" PropertyName="IsPaneOpen" Value="True" />
                             </mybehavior:UINavigationTrigger>
 
 

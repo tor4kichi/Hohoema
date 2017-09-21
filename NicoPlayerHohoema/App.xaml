@@ -66,6 +66,53 @@
 
             <myconv:RankingCategoryToText x:Key="RankingCategoryToText" />
 
+            <myconv:NGCommentScoreTypeTemplateSelector x:Key="NGCommentScoreTypeTemplateSelector">
+                <myconv:NGCommentScoreTypeTemplateSelector.NoneTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="なし" />
+                    </DataTemplate>
+                </myconv:NGCommentScoreTypeTemplateSelector.NoneTemplate>
+
+                <myconv:NGCommentScoreTypeTemplateSelector.LowTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="弱" />
+                    </DataTemplate>
+                </myconv:NGCommentScoreTypeTemplateSelector.LowTemplate>
+
+                <myconv:NGCommentScoreTypeTemplateSelector.MiddleTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="中" />
+                    </DataTemplate>
+                </myconv:NGCommentScoreTypeTemplateSelector.MiddleTemplate>
+
+                <myconv:NGCommentScoreTypeTemplateSelector.HighTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="強" />
+                    </DataTemplate>
+                </myconv:NGCommentScoreTypeTemplateSelector.HighTemplate>
+
+                <myconv:NGCommentScoreTypeTemplateSelector.VeryHighTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="さらに強" />
+                    </DataTemplate>
+                </myconv:NGCommentScoreTypeTemplateSelector.VeryHighTemplate>
+
+                <myconv:NGCommentScoreTypeTemplateSelector.SuperVeryHighTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="極めて強" />
+                    </DataTemplate>
+                </myconv:NGCommentScoreTypeTemplateSelector.SuperVeryHighTemplate>
+
+                <myconv:NGCommentScoreTypeTemplateSelector.UltraSuperVeryHighTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="最大" />
+                    </DataTemplate>
+                </myconv:NGCommentScoreTypeTemplateSelector.UltraSuperVeryHighTemplate>
+
+            </myconv:NGCommentScoreTypeTemplateSelector>
+
+
+
             <!-- Logical Modifier-->
             <logicalModifier:AndModifier x:Key="AndModifier" />
             <logicalModifier:OrModifier x:Key="OrModifier" />

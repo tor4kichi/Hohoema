@@ -17,7 +17,11 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 			_CompositeDisposable = new CompositeDisposable();
 		}
 
-		protected virtual void OnDispose() { }
+        virtual public Task OnEnter() { return Task.CompletedTask; }
+        virtual public void OnLeave() { }
+
+
+        protected virtual void OnDispose() { }
 
 		public void Dispose()
 		{

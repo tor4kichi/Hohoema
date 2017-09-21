@@ -5,14 +5,18 @@ using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.UI;
 
-namespace NicoPlayerHohoema.ViewModels
+namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 {
-	public class PlayerSeetingPageContentViewModel : SettingsPageContentViewModel
+	public class SettingsSidePaneContentViewModel : SidePaneContentViewModelBase
 	{
+
+        // Player Settings
         public ReactiveProperty<bool> IsForceLandscapeDefault { get; private set; }
 
         public ReactiveProperty<bool> IsKeepDisplayInPlayback { get; private set; }
@@ -49,13 +53,31 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<PlaylistEndAction> PlaylistEndAction { get; private set; }
 
 
-        private HohoemaApp _HohoemaApp;
+        // NG Comments
+
+        public ReactiveProperty<bool> NGCommentUserIdEnable { get; private set; }
+        public ReadOnlyReactiveCollection<RemovableListItem<string>> NGCommentUserIds { get; private set; }
+
+        public ReactiveProperty<bool> NGCommentKeywordEnable { get; private set; }
+        public ReactiveProperty<string> NGCommentKeywords { get; private set; }
+        public ReadOnlyReactiveProperty<string> NGCommentKeywordError { get; private set; }
+
+        public List<NGCommentScore> NGCommentScoreTypes { get; private set; }
+        public ReactiveProperty<NGCommentScore> SelectedNGCommentScore { get; private set; }
+
+
+        public ReactiveProperty<bool> CommentGlassMowerEnable { get; private set; }
+
+
+
+
+
         private NGSettings _NGSettings;
 
         private PlayerSettings _PlayerSettings;
         private PlaylistSettings _PlaylistSettings;
 
-        static PlayerSeetingPageContentViewModel()
+        static SettingsSidePaneContentViewModel()
         {
             CommentRenderringFPSList = new List<uint>()
             {
@@ -83,24 +105,21 @@ namespace NicoPlayerHohoema.ViewModels
             };
         }
 
-
-        public PlayerSeetingPageContentViewModel(HohoemaApp hohoemaApp)
-			: base("プレイヤー", HohoemaSettingsKind.Player)
+        public SettingsSidePaneContentViewModel(HohoemaUserSettings settings)
 		{
-            _HohoemaApp = hohoemaApp;
-            _NGSettings = _HohoemaApp.UserSettings.NGSettings;
-            _PlayerSettings = _HohoemaApp.UserSettings.PlayerSettings;
-            _PlaylistSettings = _HohoemaApp.UserSettings.PlaylistSettings;
+            _NGSettings = settings.NGSettings;
+            _PlayerSettings = settings.PlayerSettings;
+            _PlaylistSettings = settings.PlaylistSettings;
 
-			IsKeepDisplayInPlayback = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsKeepDisplayInPlayback);
-			ScrollVolumeFrequency = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.ScrollVolumeFrequency);
-			IsForceLandscapeDefault = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsForceLandscape);
+            IsKeepDisplayInPlayback = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsKeepDisplayInPlayback);
+            ScrollVolumeFrequency = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.ScrollVolumeFrequency);
+            IsForceLandscapeDefault = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsForceLandscape);
 
-			AutoHideDelayTime = _PlayerSettings.ToReactivePropertyAsSynchronized(x => 
-				x.AutoHidePlayerControlUIPreventTime
-				, x => x.TotalSeconds
-				, x => TimeSpan.FromSeconds(x)
-				);
+            AutoHideDelayTime = _PlayerSettings.ToReactivePropertyAsSynchronized(x =>
+                x.AutoHidePlayerControlUIPreventTime
+                , x => x.TotalSeconds
+                , x => TimeSpan.FromSeconds(x)
+                );
 
             PlaylistEndAction = _PlaylistSettings.ToReactivePropertyAsSynchronized(x => x.PlaylistEndAction);
 
@@ -125,18 +144,58 @@ namespace NicoPlayerHohoema.ViewModels
             IsEnableUserCommentCommand.Subscribe(x => SetCommentCommandPermission(x, CommentCommandPermissionType.User));
             IsEnableAnonymousCommentCommand.Subscribe(x => SetCommentCommandPermission(x, CommentCommandPermissionType.Anonymous));
 
+
+
+            // NG Comment
+
+            NGCommentUserIdEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentUserIdEnable);
+            NGCommentUserIds = _NGSettings.NGCommentUserIds
+                .ToReadOnlyReactiveCollection(x =>
+                    RemovableSettingsListItemHelper.UserIdInfoToRemovableListItemVM(x, OnRemoveNGCommentUserIdFromList)
+                    );
+
+            NGCommentKeywordEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentKeywordEnable);
+            NGCommentKeywords = new ReactiveProperty<string>(string.Empty);
+
+            NGCommentKeywordError = NGCommentKeywords
+                .Select(x =>
+                {
+                    var keywords = x.Split('\r');
+                    var invalidRegex = keywords.FirstOrDefault(keyword =>
+                    {
+                        Regex regex = null;
+                        try
+                        {
+                            regex = new Regex(keyword);
+                        }
+                        catch { }
+                        return regex == null;
+                    });
+
+                    if (invalidRegex == null)
+                    {
+                        return string.Empty;
+                    }
+                    else
+                    {
+                        return $"Error in \"{invalidRegex}\"";
+                    }
+                })
+                .ToReadOnlyReactiveProperty();
+
+            NGCommentScoreTypes = ((IEnumerable<NGCommentScore>)Enum.GetValues(typeof(NGCommentScore))).ToList();
+
+            SelectedNGCommentScore = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentScoreType);
+
+
+
+            CommentGlassMowerEnable = _PlayerSettings
+                .ToReactivePropertyAsSynchronized(x => x.CommentGlassMowerEnable);
+
+            
         }
 
-        protected override void OnLeave()
-		{
-            // 非表示ランキングについては自動保存の対象外となるため手動セーブ
-            _NGSettings.Save().ConfigureAwait(false);
-        }
-
-
-
-
-
+        
 
         private void SetCommentCommandPermission(bool isEnable, CommentCommandPermissionType type)
         {
@@ -150,6 +209,42 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+        // TODO: Dispose
+        protected override void OnDispose()
+		{
+			
+		}
 
-	}
+
+        public override Task OnEnter()
+        {
+            NGCommentKeywords.Value = string.Join("\r", _NGSettings.NGCommentKeywords.Select(x => x.Keyword)) + "\r";
+
+            return base.OnEnter();
+        }
+
+        public override void OnLeave()
+        {
+            // NG Comments
+            _NGSettings.NGCommentKeywords.Clear();
+            foreach (var ngKeyword in NGCommentKeywords.Value.Split('\r'))
+            {
+                if (!string.IsNullOrWhiteSpace(ngKeyword))
+                {
+                    _NGSettings.NGCommentKeywords.Add(new NGKeyword() { Keyword = ngKeyword });
+                }
+            }
+            _NGSettings.Save().ConfigureAwait(false);
+
+            base.OnLeave();
+        }
+        private void OnRemoveNGCommentUserIdFromList(string userId)
+        {
+            var removeTarget = _NGSettings.NGCommentUserIds.First(x => x.UserId == userId);
+            _NGSettings.NGCommentUserIds.Remove(removeTarget);
+        }
+
+    }
+
+
 }
