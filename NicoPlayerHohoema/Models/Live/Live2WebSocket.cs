@@ -96,7 +96,8 @@ namespace NicoPlayerHohoema.Models.Live
         {
             using (var releaser = await _WebSocketLock.LockAsync())
             {
-                var url = $"{Props.WebSocketBaseUrl}{Props.BroadcastId}?audience_token={Props.AudienceToken}";
+                var webSocketBaseUrl = "ws://a.live2.nicovideo.jp:2805/unama/wsapi/v1/watch/";
+                var url = $"{webSocketBaseUrl}{Props.BroadcastId}?audience_token={Props.AudienceToken}";
                 await MessageWebSocket.ConnectAsync(new Uri(url));
                 _DataWriter = new DataWriter(MessageWebSocket.OutputStream);
             }
