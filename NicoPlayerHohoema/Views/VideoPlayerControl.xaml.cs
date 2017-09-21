@@ -20,28 +20,38 @@ namespace NicoPlayerHohoema.Views
 {
     public sealed partial class VideoPlayerControl : UserControl
     {
-        private DelegateCommand _TogglePlaylistPaneCommand;
-        public DelegateCommand TogglePlaylistPaneCommand
-        {
-            get
-            {
-                return _TogglePlaylistPaneCommand
-                    ?? (_TogglePlaylistPaneCommand = new DelegateCommand(() =>
-                    {
-                        PlaylistSplitView.IsPaneOpen = !PlaylistSplitView.IsPaneOpen;
-                    }));
-            }
-        }
-
-        
-
-
         public UINavigationButtons ShowUIUINavigationButtons => 
             UINavigationButtons.Accept | UINavigationButtons.Left | UINavigationButtons.Right | UINavigationButtons.Up | UINavigationButtons.Down;
 
         public VideoPlayerControl()
         {
             this.InitializeComponent();
+        }
+    }
+
+
+    public class PlayerSidePaneContentTemplateSelecter : DataTemplateSelector
+    {
+        public DataTemplate Playlist { get; set; }
+        public DataTemplate Settings { get; set; }
+        public DataTemplate Comments { get; set; }
+
+        protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
+        {
+            if (item is ViewModels.PlayerSidePaneContent.PlaylistSidePaneContentViewModel)
+            {
+                return Playlist;
+            }
+            else if (item is ViewModels.PlayerSidePaneContent.CommentVideoInfoContentViewModel)
+            {
+                return Comments;
+            }
+            else if (item is ViewModels.PlayerSidePaneContent.SettingsVideoInfoContentViewModel)
+            {
+                return Settings;
+            }
+
+            return base.SelectTemplateCore(item, container);
         }
     }
 }

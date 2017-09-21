@@ -10,9 +10,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
+namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 {
-	public class CommentVideoInfoContentViewModel : MediaInfoViewModel
+	public class CommentVideoInfoContentViewModel : SidePaneContentViewModelBase
 	{
 		public CommentVideoInfoContentViewModel(HohoemaUserSettings settings, ObservableCollection<Comment> comments)
 		{

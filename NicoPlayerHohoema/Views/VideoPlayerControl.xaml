@@ -13,7 +13,8 @@
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
-    xmlns:videoInfo="using:NicoPlayerHohoema.Views.VideoInfoContent"
+    xmlns:viewmodel="using:NicoPlayerHohoema.ViewModels"
+    xmlns:sidepanecontent="using:NicoPlayerHohoema.Views.PlayerSidePaneContent"
     xmlns:logicalTrigger="using:AdaptiveTriggerLibrary.Triggers.LogicalTriggers"
     xmlns:intractionTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInteractionTriggers"
     xmlns:uiTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInterfaceTriggers"
@@ -30,9 +31,7 @@
 
     <UserControl.Resources>
 
-        <SolidColorBrush x:Key="HohoemaPlayerBackgroundBrush"
-            Color="{ThemeResource SystemAltMediumColor}" 
-                         />
+        
 
         <MenuFlyout x:Key="VideoOptionsFlyout">
 
@@ -209,7 +208,11 @@
 
             <MenuFlyoutItem Text="動画情報" Command="{Binding OpenVideoInfoCommand}" />
 
-            <MenuFlyoutItem Text="プレイヤー設定" Command="{Binding OpenPlayerSettingCommand}" />
+            <MenuFlyoutItem Text="プレイヤー設定" 
+                            Command="{Binding SelectSidePaneContentCommand}"
+                            CommandParameter="Setting"
+                            >
+            </MenuFlyoutItem>
 
             <MenuFlyoutItem Text="小窓で表示" Command="{Binding PlayerSmallWindowDisplayCommand}" >
                 <i:Interaction.Behaviors>
@@ -224,6 +227,29 @@
 
 
         </MenuFlyout>
+
+
+
+        <local:PlayerSidePaneContentTemplateSelecter x:Key="PlayerSidePaneContentTemplateSelecter">
+            <local:PlayerSidePaneContentTemplateSelecter.Playlist>
+                <DataTemplate>
+                    <sidepanecontent:PlaylistSidePaneContent />
+                </DataTemplate>
+            </local:PlayerSidePaneContentTemplateSelecter.Playlist>
+
+            <local:PlayerSidePaneContentTemplateSelecter.Comments>
+                <DataTemplate>
+                    <sidepanecontent:CommentsSidePaneContent />
+                </DataTemplate>
+            </local:PlayerSidePaneContentTemplateSelecter.Comments>
+
+            <local:PlayerSidePaneContentTemplateSelecter.Settings>
+                <DataTemplate>
+                    <sidepanecontent:SettingsSidePaneContent />
+                </DataTemplate>
+            </local:PlayerSidePaneContentTemplateSelecter.Settings>
+        </local:PlayerSidePaneContentTemplateSelecter>
+                
     </UserControl.Resources>
     
     <Grid x:Name="LayoutRoot" Background="{StaticResource AppBarBorderThemeBrush}">
@@ -481,56 +507,7 @@
 
 
 
-            <!-- リピートモード -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsTrackRepeatModeEnable.Value}"  />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-
-                        <Setter Target="RepeatModeToggleButtonIcon.Kind" Value="RepeatOnce" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsListRepeatModeEnable.Value}"  />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="RepeatModeToggleButtonIcon.Kind" Value="Repeat" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="True"  />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="RepeatModeToggleButtonIcon.Kind" Value="RepeatOff" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-
-            <!-- シャッフルモード -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsShuffleEnabled.Value}"  />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-
-                        <Setter Target="ToggleShuffleButtonIcon.Kind" Value="Shuffle" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="True"  />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="ToggleShuffleButtonIcon.Kind" Value="ShuffleDisabled" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-
+            
 
 
 
@@ -584,25 +561,6 @@
                 </VisualState>
             </VisualStateGroup>
 
-
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <myTrigger:EqualConditionStateTrigger Condition="Low" Value="{Binding CurrentVideoQuality.Value}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="ChangeToOrigialQualityButton.Visibility" Value="Visible" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <myTrigger:EqualConditionStateTrigger Condition="Original" Value="{Binding CurrentVideoQuality.Value}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="ChangeToLowQualityButton.Visibility" Value="Visible" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
 
             <!-- コメント投稿欄の表示 -->
             <VisualStateGroup>
@@ -686,167 +644,31 @@
             <SplitView PanePlacement="Right"
                            x:Name="PlaylistSplitView"
                            IsTabStop="False"
+                       
                                >
 
+                <i:Interaction.Behaviors>
+                    <!-- サイドペインのコンテンツVMが指定されたらサイドペインを開く -->
+                    <core:DataTriggerBehavior Binding="{Binding CurrentSidePaneContentType.Value}" ComparisonCondition="NotEqual" Value="{x:Null}">
+                        <core:ChangePropertyAction PropertyName="IsPaneOpen" Value="True" />
+                    </core:DataTriggerBehavior>
+                    
+                    <!-- サイドペインが閉じられたら コンテンツVMをリセット -->
+                    <core:EventTriggerBehavior EventName="PaneClosed">
+                        <core:ChangePropertyAction TargetObject="{Binding CurrentSidePaneContentType}" PropertyName="Value" Value="{x:Null}" />
+                    </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
+                
                 <SplitView.Pane>
-                    <toolkit:DockPanel x:Name="PlaylistSplitViewPaneLayout">
-                        <StackPanel toolkit:DockPanel.Dock="Top" Margin="0 4 0 8">
-                            <toolkit:DockPanel >
-                                <StackPanel Orientation="Horizontal"
-                                                toolkit:DockPanel.Dock="Left"
-                                            
-                                                >
-                                    <Button Background="Transparent"          
-                                                Command="{Binding ToggleShuffleCommand}"
-                                                UseSystemFocusVisuals="True"
-                                            Margin="8 0 0 0"
-                                            >
-
-                                        <iconPack:PackIconMaterial x:Name="ToggleShuffleButtonIcon"
-                                                                   RenderTransformOrigin="0.5, 0.5"
-                                                           >
-                                            <iconPack:PackIconMaterial.RenderTransform>
-                                                <CompositeTransform ScaleX="1.1" ScaleY="1.1"/>
-                                            </iconPack:PackIconMaterial.RenderTransform>
-
-                                        </iconPack:PackIconMaterial>
-                                    </Button>
-
-
-                                    <Button Command="{Binding ToggleRepeatModeCommand}"
-                                                Background="Transparent"
-                                                UseSystemFocusVisuals="True"
-                                            Margin="8 0 0 0"
-                                            >
-                                        <iconPack:PackIconMaterial x:Name="RepeatModeToggleButtonIcon"
-                                                            Kind="Repeat" 
-                                                           RenderTransformOrigin="0.5, 0.5"
-                                                           >
-                                            <iconPack:PackIconMaterial.RenderTransform>
-                                                <CompositeTransform ScaleX="1.1" ScaleY="1.1"/>
-                                            </iconPack:PackIconMaterial.RenderTransform>
-                                        </iconPack:PackIconMaterial>
-                                    </Button>
-
-                                    <Border />
-                                </StackPanel>
-
-                                <Border />
-                            </toolkit:DockPanel>
-                        </StackPanel>
-                        <StackPanel toolkit:DockPanel.Dock="Bottom">
-
-                            <!-- 再生中動画情報 -->
-                            <!-- 
-                            <toolkit:DockPanel>
-
-                                
-                                <Border toolkit:DockPanel.Dock="Left">
-                                    <Button Width="32"
-                                            VerticalAlignment="Stretch"
-                                            Command="{Binding OpenPreviousPlaylistItemCommand}"
-                                            IsEnabled="{Binding PlaylistCanGoBack.Value}"
-                                            >
-                                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE016;" 
-                                                           FontSize="20"
-                                                           />
-                                    </Button>
-                                </Border>
-
-                                <Border toolkit:DockPanel.Dock="Right">
-                                    <Button Width="32"
-                                                VerticalAlignment="Stretch"
-                                                Command="{Binding OpenNextPlaylistItemCommand}"
-                                                IsEnabled="{Binding PlaylistCanGoNext.Value}"
-                                                >
-                                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE017;" 
-                                                           FontSize="20"
-                                                           />
-                                    </Button>
-                                </Border>
-
-
-                                <Grid>
-                                    <Image Source="{Binding ThumbnailUri.Value}"
-                                           Height="140"
-                                           />
-
-                                    <Border VerticalAlignment="Bottom">
-                                        <Border.Background>
-                                            <SolidColorBrush Color="{StaticResource SystemAltMediumColor}" />
-                                        </Border.Background>
-                                        
-                                        <TextBlock Text="{Binding VideoTitle}"
-                                               toolkit:DockPanel.Dock="Top"
-                                               HorizontalAlignment="Center"
-                                               Margin="8 8"
-                                               FontWeight="SemiBold"
-                                               TextWrapping="Wrap"
-                                               />
-                                    </Border>
-                                </Grid>
-
-
-                            </toolkit:DockPanel>
-                            
-                            -->
-                            
-                            
-                            <!-- プレイリスト -->
-                            <toolkit:DockPanel Height="60">
-
-                                <Button HorizontalAlignment="Stretch"
-                                            Command="{Binding OpenCurrentPlaylistPageCommand}"
-                                            Background="Transparent"
-                                        toolkit:DockPanel.Dock="Left"
-                                            >
-                                    <SymbolIcon Symbol="OpenLocal" />
-                                </Button>
-
-                                <TextBlock toolkit:DockPanel.Dock="Top"
-                                           Text="現在のプレイリスト"
-                                           Style="{StaticResource CaptionTextBlockStyle}"
-                                           Margin="8 6 0 0"
-                                           Opacity="0.7"
-                                           >
-                                    
-                                </TextBlock>
-                                
-                                <TextBlock Text="{Binding CurrentPlaylistName.Value}" 
-                                           Style="{StaticResource SubtitleTextBlockStyle}"
-                                           Margin="8 0 16 0"
-                                           VerticalAlignment="Top"
-                                           />
-
-                            </toolkit:DockPanel>
-
-
-                        </StackPanel>
-
-                        <ListView ItemsSource="{Binding PlaylistItems}"
-                                  SelectedItem="{Binding CurrentPlayingItem, Mode=TwoWay}"
-                                        SelectionMode="Single"
-                                        SingleSelectionFollowsFocus="False"
-                                      uwpui:ListViewBase.Command="{Binding OpenPlaylistItemCommand}"
-                                      IsItemClickEnabled="True"
-                                  x:Name="PlaylistItemsListView"
-                                  Background="{StaticResource HohoemaPlayerBackgroundBrush}"
-                                          >
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem">
-                                    <Setter Property="Padding" Value="8 6 8 6" />
-                                </Style>
-                            </ListView.ItemContainerStyle>
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Title}"
-                                                       TextWrapping="Wrap"
-                                               VerticalAlignment="Center"
-                                                       />
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-                    </toolkit:DockPanel>
+                    <Grid x:Name="PlayerSidePaneLayout">
+                        <ContentControl Content="{Binding CurrentSidePaneContent.Value}"
+                                        ContentTemplateSelector="{StaticResource PlayerSidePaneContentTemplateSelecter}"
+                                        HorizontalContentAlignment="Stretch"
+                                        VerticalContentAlignment="Stretch"
+                                        IsTabStop="False"
+                                        />
+                    </Grid>
+                    
                 </SplitView.Pane>
 
                 <SplitView.Content>
@@ -1069,7 +891,8 @@
                                                         >
 
                                                 <Button Background="Transparent" 
-                                                        Command="{x:Bind TogglePlaylistPaneCommand}"
+                                                        Command="{Binding SelectSidePaneContentCommand}"
+                                                        CommandParameter="Playlist"
                                                         >
                                                     <iconPack:PackIconMaterial Kind="PlaylistPlay" Width="24" Height="24" >
 

@@ -6,13 +6,13 @@ using System.Reactive.Disposables;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
+namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 {
-	public abstract class MediaInfoViewModel : BindableBase, IDisposable
+	public abstract class SidePaneContentViewModelBase : BindableBase, IDisposable
 	{
 		protected CompositeDisposable _CompositeDisposable;
 
-		public MediaInfoViewModel()
+		public SidePaneContentViewModelBase()
 		{
 			_CompositeDisposable = new CompositeDisposable();
 		}

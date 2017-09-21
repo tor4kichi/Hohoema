@@ -5,7 +5,7 @@ using Mntone.Nico2.Videos.WatchAPI;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Db;
 using NicoPlayerHohoema.Util;
-using NicoPlayerHohoema.ViewModels.VideoInfoContent;
+using NicoPlayerHohoema.ViewModels.PlayerSidePaneContent;
 using NicoPlayerHohoema.Views;
 using NicoPlayerHohoema.Views.DownloadProgress;
 using NicoPlayerHohoema.Views.Service;
@@ -509,6 +509,13 @@ namespace NicoPlayerHohoema.ViewModels
             PlaylistCanGoNext = HohoemaApp.Playlist.Player.ObserveProperty(x => x.CanGoNext).ToReactiveProperty();
 
 
+            CurrentSidePaneContentType = new ReactiveProperty<PlayerSidePaneContentType?>(PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
+            CurrentSidePaneContent = CurrentSidePaneContentType
+                .Select(x => x == null ? null : GetSidePaneContent(x.Value))
+                .ToReadOnlyReactiveProperty()
+                .AddTo(_CompositeDisposable);
+                
         }
 
         protected override async Task OnOffline(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
@@ -1325,6 +1332,18 @@ namespace NicoPlayerHohoema.ViewModels
             _BufferingMonitorDisposable?.Dispose();
             _BufferingMonitorDisposable = new CompositeDisposable();
 
+
+            if (_SidePaneContentCache.ContainsKey(PlayerSidePaneContentType.Comment))
+            {
+                try
+                {
+                    var commentSidePaneContent = _SidePaneContentCache[PlayerSidePaneContentType.Comment];
+                    commentSidePaneContent.Dispose();
+                    _SidePaneContentCache.Remove(PlayerSidePaneContentType.Comment);
+                }
+                catch { Debug.WriteLine("failed dispose PlayerSidePaneContentType.Comment"); }
+            }
+
             base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
 
             App.Current.LeavingBackground -= Current_LeavingBackground;
@@ -1425,7 +1444,14 @@ namespace NicoPlayerHohoema.ViewModels
             Video?.StopPlay();
 
             _BufferingMonitorDisposable?.Dispose();
-		}
+
+            var sidePaneContents = _SidePaneContentCache.Values.ToArray();
+            _SidePaneContentCache.Clear();
+            foreach (var sidePaneContent in sidePaneContents)
+            {
+                sidePaneContent.Dispose();
+            }
+        }
 
 
 
@@ -2233,13 +2259,66 @@ namespace NicoPlayerHohoema.ViewModels
         public IPlayableList CurrentPlaylist { get; private set; }
         public ReactiveProperty<string> CurrentPlaylistName { get; private set; }
         public ReactiveProperty<bool> IsShuffleEnabled { get; private set; }
-        public ReactiveProperty<bool?> RepeatMode { get; private set; }
         public ReactiveProperty<bool> IsTrackRepeatModeEnable { get; private set; }
         public ReactiveProperty<bool> IsListRepeatModeEnable { get; private set; }
         public ReactiveProperty<bool> PlaylistCanGoBack { get; private set; }
         public ReactiveProperty<bool> PlaylistCanGoNext { get; private set; }
         public ReadOnlyReactiveCollection<PlaylistItem> PlaylistItems { get; private set; }
 
+        private Dictionary<PlayerSidePaneContentType, SidePaneContentViewModelBase> _SidePaneContentCache = new Dictionary<PlayerSidePaneContentType, SidePaneContentViewModelBase>();
+
+        public ReactiveProperty<PlayerSidePaneContentType?> CurrentSidePaneContentType { get; }
+        public ReadOnlyReactiveProperty<SidePaneContentViewModelBase> CurrentSidePaneContent { get; }
+
+        private DelegateCommand<object> _SelectSidePaneContentCommand;
+        public DelegateCommand<object> SelectSidePaneContentCommand
+        {
+            get
+            {
+                return _SelectSidePaneContentCommand
+                    ?? (_SelectSidePaneContentCommand = new DelegateCommand<object>((type) => 
+                    {
+                        if (type is PlayerSidePaneContentType)
+                        {
+                            CurrentSidePaneContentType.Value = (PlayerSidePaneContentType)type;
+                        }
+                        else if (type is string && Enum.TryParse<PlayerSidePaneContentType>(type as String, out var parsed))
+                        {
+                            CurrentSidePaneContentType.Value = parsed;
+                        }
+                    }));
+            }
+        }
+
+
+        private SidePaneContentViewModelBase GetSidePaneContent(PlayerSidePaneContentType type)
+        {
+            if (_SidePaneContentCache.ContainsKey(type))
+            {
+                return _SidePaneContentCache[type];
+            }
+            else
+            {
+                SidePaneContentViewModelBase sidePaneContent = null;
+                switch (type)
+                {
+                    case PlayerSidePaneContentType.Playlist:
+                        sidePaneContent = new PlayerSidePaneContent.PlaylistSidePaneContentViewModel(HohoemaApp.MediaPlayer, HohoemaApp.Playlist, HohoemaApp.UserSettings.PlaylistSettings, PageManager);
+                        break;
+                    case PlayerSidePaneContentType.Comment:
+                        sidePaneContent = new PlayerSidePaneContent.CommentVideoInfoContentViewModel(HohoemaApp.UserSettings, Comments);
+                        break;
+                    case PlayerSidePaneContentType.Setting:
+                        sidePaneContent = new PlayerSidePaneContent.SettingsVideoInfoContentViewModel(HohoemaApp.UserSettings);
+                        break;
+                    default:
+                        break;
+                }
+
+                _SidePaneContentCache.Add(type, sidePaneContent);
+                return sidePaneContent;
+            }
+        }
 
 
         ToastNotificationService _ToastService;
@@ -2341,13 +2420,11 @@ namespace NicoPlayerHohoema.ViewModels
 	}
 
 
-	public enum MediaInfoDisplayType
+	public enum PlayerSidePaneContentType
 	{
-		Summary,
-		Mylist,
+        Playlist,
 		Comment,
-		Shere,
-		Settings,
+		Setting,
 	}
 
 

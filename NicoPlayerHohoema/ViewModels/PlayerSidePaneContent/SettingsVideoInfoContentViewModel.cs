@@ -9,9 +9,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.UI;
 
-namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
+namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 {
-	public class SettingsVideoInfoContentViewModel : MediaInfoViewModel
+	public class SettingsVideoInfoContentViewModel : SidePaneContentViewModelBase
 	{
 		static SettingsVideoInfoContentViewModel()
 		{
@@ -27,11 +27,12 @@ namespace NicoPlayerHohoema.ViewModels.VideoInfoContent
 			};
 		}
 
+        HohoemaUserSettings _HohoemaUserSettings;
 
-
-		public SettingsVideoInfoContentViewModel(PlayerSettings settings)
+        public SettingsVideoInfoContentViewModel(HohoemaUserSettings settings)
 		{
-			_PlayerSettings = settings;
+            _HohoemaUserSettings = settings;
+            _PlayerSettings = settings.PlayerSettings;
 
 
 //			DefaultCommentDisplay = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCommentDisplay)

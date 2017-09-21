@@ -15,11 +15,11 @@ using Windows.UI.Xaml.Navigation;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
-namespace NicoPlayerHohoema.Views.VideoInfoContent
+namespace NicoPlayerHohoema.Views.PlayerSidePaneContent
 {
-	public sealed partial class CommentVideoInfoContent : UserControl
+	public sealed partial class SettingsSidePaneContent : UserControl
 	{
-		public CommentVideoInfoContent()
+		public SettingsSidePaneContent()
 		{
 			this.InitializeComponent();
 		}

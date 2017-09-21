@@ -91,6 +91,9 @@
                              >
             </SolidColorBrush>
 
+            <SolidColorBrush x:Key="HohoemaPlayerBackgroundBrush"
+                    Color="{ThemeResource SystemAltMediumColor}" 
+                         />
 
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Light">

@@ -274,6 +274,7 @@
     <Compile Include="ViewModels\LoginPageViewModel.cs" />
     <Compile Include="ViewModels\MenuNavigatePageBaseViewModel.cs" />
     <Compile Include="ViewModels\MylistPageViewModel.cs" />
+    <Compile Include="ViewModels\PlayerSidePaneContent\PlaylistSidePaneContentViewModel.cs" />
     <Compile Include="ViewModels\PlayerWithPageContainerViewModel.cs" />
     <Compile Include="ViewModels\SearchResultPage\SearchResultCommunityPageViewModel.cs" />
     <Compile Include="ViewModels\SearchResultPage\SearchResultKeywordPageViewModel.cs" />
@@ -292,11 +293,9 @@
     <Compile Include="ViewModels\UserInfoPageViewModel.cs" />
     <Compile Include="ViewModels\UserMylistPageViewModel.cs" />
     <Compile Include="ViewModels\UserVideoPageViewModel.cs" />
-    <Compile Include="ViewModels\VideoInfoContent\CommentVideoInfoContentViewModel.cs" />
-    <Compile Include="ViewModels\VideoInfoContent\MediaInfoViewModel.cs" />
-    <Compile Include="ViewModels\VideoInfoContent\MylistVideoInfoContentViewModel.cs" />
-    <Compile Include="ViewModels\VideoInfoContent\SettingsVideoInfoContentViewModel.cs" />
-    <Compile Include="ViewModels\VideoInfoContent\ShereVideoInfoContentViewModel.cs" />
+    <Compile Include="ViewModels\PlayerSidePaneContent\CommentVideoInfoContentViewModel.cs" />
+    <Compile Include="ViewModels\PlayerSidePaneContent\SidePaneContentViewModelBase.cs" />
+    <Compile Include="ViewModels\PlayerSidePaneContent\SettingsVideoInfoContentViewModel.cs" />
     <Compile Include="Views\AboutPage.xaml.cs">
       <DependentUpon>AboutPage.xaml</DependentUpon>
     </Compile>
@@ -350,6 +349,9 @@
     <Compile Include="Views\Converters\RankingCategoryToText.cs" />
     <Compile Include="Views\HohoemaInAppNotification.xaml.cs">
       <DependentUpon>HohoemaInAppNotification.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PlayerSidePaneContent\PlaylistSidePaneContent.xaml.cs">
+      <DependentUpon>PlaylistSidePaneContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Service\MarkdownTextDialog.xaml.cs">
       <DependentUpon>MarkdownTextDialog.xaml</DependentUpon>
@@ -537,7 +539,6 @@
     <Compile Include="ViewModels\SearchPageViewModel.cs" />
     <Compile Include="ViewModels\SelectableItem.cs" />
     <Compile Include="ViewModels\SettingsPageViewModel.cs" />
-    <Compile Include="ViewModels\VideoInfoContent\SummaryVideoInfoContentViewModel.cs" />
     <Compile Include="ViewModels\VideoInfoControlViewModel.cs" />
     <Compile Include="Views\Behaviors\VisiblityFadeChanger.cs" />
     <Compile Include="Views\Behaviors\ShowFlyoutBehavior.cs" />
@@ -617,17 +618,11 @@
     <Compile Include="Views\UserVideoPage_TV.xaml.cs">
       <DependentUpon>UserVideoPage_TV.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\VideoInfoContent\CommentVideoInfoContent.xaml.cs">
-      <DependentUpon>CommentVideoInfoContent.xaml</DependentUpon>
+    <Compile Include="Views\PlayerSidePaneContent\CommentsSidePaneContent.xaml.cs">
+      <DependentUpon>CommentsSidePaneContent.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\VideoInfoContent\MylistVideoInfoContent.xaml.cs">
-      <DependentUpon>MylistVideoInfoContent.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\VideoInfoContent\SettingsVideoInfoContent.xaml.cs">
-      <DependentUpon>SettingsVideoInfoContent.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\VideoInfoContent\ShereVideoInfoContent.xaml.cs">
-      <DependentUpon>ShereVideoInfoContent.xaml</DependentUpon>
+    <Compile Include="Views\PlayerSidePaneContent\SettingsSidePaneContent.xaml.cs">
+      <DependentUpon>SettingsSidePaneContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\VideoInfomationPage.xaml.cs">
       <DependentUpon>VideoInfomationPage.xaml</DependentUpon>
@@ -651,9 +646,6 @@
     </Compile>
     <Compile Include="Views\SettingsPageContent\FilteringSettingsPageContent.xaml.cs">
       <DependentUpon>FilteringSettingsPageContent.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\VideoInfoContent\SummaryVideoInfoContent.xaml.cs">
-      <DependentUpon>SummaryVideoInfoContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\VideoInfoControl.xaml.cs">
       <DependentUpon>VideoInfoControl.xaml</DependentUpon>
@@ -977,6 +969,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\PlayerSidePaneContent\PlaylistSidePaneContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\PlayerWithPageContainer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1093,19 +1089,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\VideoInfoContent\CommentVideoInfoContent.xaml">
+    <Page Include="Views\PlayerSidePaneContent\CommentsSidePaneContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\VideoInfoContent\MylistVideoInfoContent.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\VideoInfoContent\SettingsVideoInfoContent.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\VideoInfoContent\ShereVideoInfoContent.xaml">
+    <Page Include="Views\PlayerSidePaneContent\SettingsSidePaneContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1134,10 +1122,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SettingsPageContent\FilteringSettingsPageContent.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\VideoInfoContent\SummaryVideoInfoContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
