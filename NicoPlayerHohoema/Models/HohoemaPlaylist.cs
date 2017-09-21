@@ -270,7 +270,7 @@ namespace NicoPlayerHohoema.Models
             var playlist = item.Owner;
             if (playlist == null 
                 || item == null 
-                || !playlist.PlaylistItems.Contains(item)
+                || playlist.PlaylistItems.FirstOrDefault(x => x.ContentId == item.ContentId) == null
                 )
             {
                 throw new Exception();
