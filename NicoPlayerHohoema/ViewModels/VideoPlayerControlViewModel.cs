@@ -848,6 +848,17 @@ namespace NicoPlayerHohoema.ViewModels
                 //VideoPlayHistoryDb.VideoPlayed(Video.RawVideoId);
             }
 
+            HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.DefaultQuality)
+                .Subscribe(async x =>
+                {
+                    _PreviosPlayingVideoPosition = ReadVideoPosition.Value;
+
+                    RequestVideoQuality.Value = x;
+
+                    await PlayingQualityChangeAction();
+                })
+                .AddTo(userSessionDisposer);
+
 
             IsPauseWithCommentWriting = HohoemaApp.UserSettings.PlayerSettings
 				.ToReactivePropertyAsSynchronized(x => x.PauseWithCommentWriting, PlayerWindowUIDispatcherScheduler)
@@ -956,6 +967,9 @@ namespace NicoPlayerHohoema.ViewModels
                     HohoemaApp.UserSettings.PlayerSettings.DefaultQuality = CurrentVideoQuality.Value.Value;
                 }
             }
+
+
+
 
             if (!Util.InputCapabilityHelper.IsMouseCapable)
             {
@@ -2321,6 +2335,15 @@ namespace NicoPlayerHohoema.ViewModels
                         break;
                     case PlayerSidePaneContentType.Setting:
                         sidePaneContent = new PlayerSidePaneContent.SettingsSidePaneContentViewModel(HohoemaApp.UserSettings);
+                        if (Video != null)
+                        {
+                            (sidePaneContent as SettingsSidePaneContentViewModel).SetupAvairableVideoQualities(
+                                Video.GetAllQuality()
+                                .Where(x => x.CanPlay)
+                                .Select(x => x.Quality)
+                                .ToList()
+                                );
+                        }
                         break;
                     default:
                         sidePaneContent = new PlayerSidePaneContent.EmptySidePaneContentViewModel();

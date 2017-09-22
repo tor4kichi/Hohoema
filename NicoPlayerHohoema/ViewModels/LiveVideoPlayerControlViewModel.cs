@@ -465,6 +465,17 @@ namespace NicoPlayerHohoema.ViewModels
                     _PrevSidePaneContent = content;
                 }
             });
+
+
+            HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.DefaultLiveQuality)
+                .Subscribe(x => 
+                {
+                    if (NicoLiveVideo != null)
+                    {
+                        NicoLiveVideo.ChangeQualityRequest(x).ConfigureAwait(false);
+                    }
+                })
+                .AddTo(_CompositeDisposable);
         }
 
 
@@ -925,6 +936,15 @@ namespace NicoPlayerHohoema.ViewModels
                                 IsAvailableNormalQuality.Value      = types?.Any(x => x == "normal") ?? false;
                                 IsAvailableHighQuality.Value        = types?.Any(x => x == "high") ?? false;
 
+                                var sidePaneContent = _SidePaneContentCache.ContainsKey(PlayerSidePaneContentType.Setting) ? _SidePaneContentCache[PlayerSidePaneContentType.Setting] : null;
+                                if (sidePaneContent != null && NicoLiveVideo != null)
+                                {
+                                    (sidePaneContent as SettingsSidePaneContentViewModel).SetupAvairableLiveQualities(
+                                        NicoLiveVideo.Qualities
+                                        );
+                                    (sidePaneContent as SettingsSidePaneContentViewModel).IsLeoPlayerLive = true;
+                                }
+
                                 ChangeQualityCommand.RaiseCanExecuteChanged();
                             });
                     }
@@ -1255,6 +1275,13 @@ namespace NicoPlayerHohoema.ViewModels
 //                        break;
                     case PlayerSidePaneContentType.Setting:
                         sidePaneContent = new PlayerSidePaneContent.SettingsSidePaneContentViewModel(HohoemaApp.UserSettings);
+                        if (NicoLiveVideo != null)
+                        {
+                            (sidePaneContent as SettingsSidePaneContentViewModel).SetupAvairableLiveQualities(
+                                NicoLiveVideo.Qualities
+                                );
+                            (sidePaneContent as SettingsSidePaneContentViewModel).IsLeoPlayerLive = NicoLiveVideo.LivePlayerType == Models.Live.LivePlayerType.Leo;
+                        }
                         break;
                     default:
                         sidePaneContent = new PlayerSidePaneContent.EmptySidePaneContentViewModel();

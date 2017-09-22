@@ -1,8 +1,8 @@
 ﻿<UserControl
-    x:Class="NicoPlayerHohoema.Views.PlayerSidePaneContent.SettingsSidePaneContent"
+    x:Class="NicoPlayerHohoema.Views.PlayerSidePaneContent.VideoSettingsSidePaneContent"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:NicoPlayerHohoema.Views.VideoInfoContent"
+    xmlns:local="using:NicoPlayerHohoema.Views.PlayerSidePaneContent"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
@@ -13,6 +13,7 @@
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:hardwareTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     xmlns:myconverter="using:NicoPlayerHohoema.Views.Converters"
+    xmlns:uwpconverter="using:Microsoft.Toolkit.Uwp.UI.Converters"
     mc:Ignorable="d"
     d:DesignHeight="800"
     d:DesignWidth="800">
@@ -29,6 +30,15 @@
             x:Key="CommentOpacityKindToText"
             />
 
+        <uwpconverter:BoolToObjectConverter x:Name="BoolToAvairableOpacityConverter">
+            <uwpconverter:BoolToObjectConverter.TrueValue>
+                <x:Double>1.0</x:Double>
+            </uwpconverter:BoolToObjectConverter.TrueValue>
+            <uwpconverter:BoolToObjectConverter.FalseValue>
+                <x:Double>0.7</x:Double>
+            </uwpconverter:BoolToObjectConverter.FalseValue>
+        </uwpconverter:BoolToObjectConverter>
+        
         
     </UserControl.Resources>
 
@@ -54,6 +64,10 @@
         <ItemsControl Margin="16 8 8 8" MinWidth="400" HorizontalAlignment="Left"
                       IsTabStop="False"
                       >
+
+
+            
+
 
 
             <toolkit:DockPanel Margin="0 8">
@@ -115,6 +129,56 @@
                 </toolkit:DockPanel>
                 -->
 
+
+                <StackPanel Margin="0 8 0 16">
+
+                    <TextBlock Text="画質"
+                           VerticalAlignment="Center"
+                           />
+
+                    <ComboBox ItemsSource="{Binding VideoPlayingQualityList}"
+                              SelectedItem="{Binding VideoPlayingQuality.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              >
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Opacity="{Binding IsAvairable, Converter={StaticResource BoolToAvairableOpacityConverter}}">
+                                    <Run Text="{Binding Path=Value, Converter={StaticResource QualityToText}}"
+                                         />
+                                    画質
+                                </TextBlock>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+                </StackPanel>
+
+                <StackPanel Margin="0 8 0 16">
+
+                    <TextBlock Text="再生速度倍率"
+                           VerticalAlignment="Center"
+                           />
+
+                    <Slider Value="{Binding VideoPlaybackRate.Value, Mode=TwoWay, UpdateSourceTrigger=Default}"
+                            Maximum="2.0"
+                            Minimum="0.1" 
+                            TickFrequency="0.1"
+                            StepFrequency="0.1"
+                            Width="240"
+                            IsThumbToolTipEnabled="True"
+                            HorizontalAlignment="Left"
+                            HorizontalContentAlignment="Left"
+                            />
+
+                    <Button Content="再生速度を下に戻す"
+                            Command="{Binding SetPlaybackRateCommand}" 
+                            Margin="0 8"
+                            >
+                        <Button.CommandParameter>
+                            <x:Double>1.0</x:Double>
+                        </Button.CommandParameter>
+                    </Button>
+
+                </StackPanel>
 
 
 

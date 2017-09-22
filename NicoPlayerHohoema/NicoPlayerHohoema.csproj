@@ -276,6 +276,7 @@
     <Compile Include="ViewModels\MenuNavigatePageBaseViewModel.cs" />
     <Compile Include="ViewModels\MylistPageViewModel.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\EmptySidePaneContentViewModel.cs" />
+    <Compile Include="ViewModels\PlayerSidePaneContent\SettingsSidePaneContentViewModel.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\PlaylistSidePaneContentViewModel.cs" />
     <Compile Include="ViewModels\PlayerWithPageContainerViewModel.cs" />
     <Compile Include="ViewModels\SearchResultPage\SearchResultCommunityPageViewModel.cs" />
@@ -296,7 +297,6 @@
     <Compile Include="ViewModels\UserVideoPageViewModel.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\CommentSidePaneContentViewModel.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\SidePaneContentViewModelBase.cs" />
-    <Compile Include="ViewModels\PlayerSidePaneContent\SettingsSidePaneContentViewModel.cs" />
     <Compile Include="Views\AboutPage.xaml.cs">
       <DependentUpon>AboutPage.xaml</DependentUpon>
     </Compile>
@@ -351,6 +351,9 @@
     <Compile Include="Views\Converters\RankingCategoryToText.cs" />
     <Compile Include="Views\HohoemaInAppNotification.xaml.cs">
       <DependentUpon>HohoemaInAppNotification.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PlayerSidePaneContent\LiveSettingsSidePaneContent.xaml.cs">
+      <DependentUpon>LiveSettingsSidePaneContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\PlayerSidePaneContent\PlaylistSidePaneContent.xaml.cs">
       <DependentUpon>PlaylistSidePaneContent.xaml</DependentUpon>
@@ -623,8 +626,8 @@
     <Compile Include="Views\PlayerSidePaneContent\CommentsSidePaneContent.xaml.cs">
       <DependentUpon>CommentsSidePaneContent.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\PlayerSidePaneContent\SettingsSidePaneContent.xaml.cs">
-      <DependentUpon>SettingsSidePaneContent.xaml</DependentUpon>
+    <Compile Include="Views\PlayerSidePaneContent\VideoSettingsSidePaneContent.xaml.cs">
+      <DependentUpon>VideoSettingsSidePaneContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\VideoInfomationPage.xaml.cs">
       <DependentUpon>VideoInfomationPage.xaml</DependentUpon>
@@ -968,6 +971,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\PlayerSidePaneContent\LiveSettingsSidePaneContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\PlayerSidePaneContent\PlaylistSidePaneContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1092,7 +1099,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\PlayerSidePaneContent\SettingsSidePaneContent.xaml">
+    <Page Include="Views\PlayerSidePaneContent\VideoSettingsSidePaneContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -13,15 +13,15 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
-// The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
+// The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
 namespace NicoPlayerHohoema.Views.PlayerSidePaneContent
 {
-	public sealed partial class SettingsSidePaneContent : UserControl
-	{
-		public SettingsSidePaneContent()
-		{
-			this.InitializeComponent();
-		}
-	}
+    public sealed partial class LiveSettingsSidePaneContent : UserControl
+    {
+        public LiveSettingsSidePaneContent()
+        {
+            this.InitializeComponent();
+        }
+    }
 }

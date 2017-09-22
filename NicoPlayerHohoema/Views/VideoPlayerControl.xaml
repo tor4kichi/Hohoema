@@ -38,6 +38,7 @@
             
 
             <MenuFlyoutSubItem Text="画質"
+                               Visibility="Collapsed"
                                 >
 
                 <MenuFlyoutItem Text="高画質" 
@@ -107,7 +108,9 @@
 
             </MenuFlyoutSubItem>
 
-            <MenuFlyoutSubItem Text="再生速度" >
+            <MenuFlyoutSubItem Text="再生速度" 
+                               Visibility="Collapsed"
+                               >
 
                 <MenuFlyoutItem Text="等倍速に戻す"
                                       Command="{Binding SetPlaybackRateCommand}"
@@ -245,9 +248,10 @@
 
             <local:PlayerSidePaneContentTemplateSelecter.Settings>
                 <DataTemplate>
-                    <sidepanecontent:SettingsSidePaneContent />
+                    <sidepanecontent:VideoSettingsSidePaneContent />
                 </DataTemplate>
             </local:PlayerSidePaneContentTemplateSelecter.Settings>
+
         </local:PlayerSidePaneContentTemplateSelecter>
                 
     </UserControl.Resources>

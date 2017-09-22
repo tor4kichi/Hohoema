@@ -1,5 +1,6 @@
 ﻿using NicoPlayerHohoema.Models;
 using Prism.Commands;
+using Prism.Mvvm;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -13,8 +14,39 @@ using Windows.UI;
 
 namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 {
-	public class SettingsSidePaneContentViewModel : SidePaneContentViewModelBase
-	{
+    public class SettingsSidePaneContentViewModel : SidePaneContentViewModelBase
+    {
+
+        // Video Settings
+        public static List<ValueWithAvairability<NicoVideoQuality>> VideoPlayingQualityList { get; } = new []
+        {
+            new ValueWithAvairability<NicoVideoQuality>(NicoVideoQuality.Dmc_High),
+            new ValueWithAvairability<NicoVideoQuality>(NicoVideoQuality.Dmc_Midium),
+            new ValueWithAvairability<NicoVideoQuality>(NicoVideoQuality.Dmc_Low),
+            new ValueWithAvairability<NicoVideoQuality>(NicoVideoQuality.Dmc_Mobile),
+            new ValueWithAvairability<NicoVideoQuality>(NicoVideoQuality.Original),
+            new ValueWithAvairability<NicoVideoQuality>(NicoVideoQuality.Low),
+        }.ToList();
+        public ReactiveProperty<ValueWithAvairability<NicoVideoQuality>> VideoPlayingQuality { get; private set; }
+
+        public ReactiveProperty<double> VideoPlaybackRate { get; private set; }
+        public ReactiveCommand<double?> SetPlaybackRateCommand { get; private set; }
+
+        // Live Settings
+        public static List<ValueWithAvairability<string>> LivePlayingQualityList { get; } = new[]
+        {
+            new ValueWithAvairability<string>("high"),
+            new ValueWithAvairability<string>("normal"),
+            new ValueWithAvairability<string>("low"),
+            new ValueWithAvairability<string>("super_low"),
+        }.ToList();
+        public ReactiveProperty<ValueWithAvairability<string>> LiveVideoPlayingQuality { get; private set; }
+        private bool _IsLeoPlayerLive;
+        public bool IsLeoPlayerLive
+        {
+            get { return _IsLeoPlayerLive; }
+            set { SetProperty(ref _IsLeoPlayerLive, value); }
+        }
 
         // Player Settings
         public ReactiveProperty<bool> IsForceLandscapeDefault { get; private set; }
@@ -70,8 +102,6 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 
 
 
-
-
         private NGSettings _NGSettings;
 
         private PlayerSettings _PlayerSettings;
@@ -106,10 +136,34 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
         }
 
         public SettingsSidePaneContentViewModel(HohoemaUserSettings settings)
-		{
+        {
             _NGSettings = settings.NGSettings;
             _PlayerSettings = settings.PlayerSettings;
             _PlaylistSettings = settings.PlaylistSettings;
+
+            VideoPlayingQuality = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultQuality, 
+                convert: x => VideoPlayingQualityList.First(y => y.Value == x),
+                convertBack: x => x.Value,
+                mode: ReactivePropertyMode.DistinctUntilChanged
+                );
+
+            VideoPlaybackRate = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.PlaybackRate);
+            SetPlaybackRateCommand = VideoPlaybackRate.Select(
+                rate => rate != 1.0
+                )
+                .ToReactiveCommand<double?>();
+
+            SetPlaybackRateCommand.Subscribe(
+                (rate) => VideoPlaybackRate.Value = rate.HasValue ? rate.Value : 1.0
+                );
+            
+
+
+            LiveVideoPlayingQuality = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultLiveQuality,
+                convert: x => LivePlayingQualityList.FirstOrDefault(y => y.Value == x),
+                convertBack: x => x.Value,
+                mode: ReactivePropertyMode.DistinctUntilChanged
+                );
 
             IsKeepDisplayInPlayback = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsKeepDisplayInPlayback);
             ScrollVolumeFrequency = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.ScrollVolumeFrequency);
@@ -192,10 +246,27 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             CommentGlassMowerEnable = _PlayerSettings
                 .ToReactivePropertyAsSynchronized(x => x.CommentGlassMowerEnable);
 
-            
+
         }
 
-        
+
+
+        public void SetupAvairableVideoQualities(IList<NicoVideoQuality> qualities)
+        {
+            foreach (var i in VideoPlayingQualityList)
+            {
+                i.IsAvairable = qualities.Any(x => x == i.Value);
+            }
+        }
+        public void SetupAvairableLiveQualities(IList<string> qualities)
+        {
+            foreach (var i in LivePlayingQualityList)
+            {
+                i.IsAvairable = qualities.Any(x => x == i.Value);
+            }
+        }
+
+
 
         private void SetCommentCommandPermission(bool isEnable, CommentCommandPermissionType type)
         {
@@ -211,9 +282,9 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 
         // TODO: Dispose
         protected override void OnDispose()
-		{
-			
-		}
+        {
+
+        }
 
 
         public override Task OnEnter()
@@ -246,5 +317,22 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 
     }
 
+
+    public class ValueWithAvairability<T> : BindableBase
+    {
+        public ValueWithAvairability(T value, bool isAvairable = true)
+        {
+            Value = value;
+            IsAvairable = isAvairable;
+        }
+        public T Value { get; set; }
+
+        private bool _IsAvairable;
+        public bool IsAvairable
+        {
+            get { return _IsAvairable; }
+            set { SetProperty(ref _IsAvairable, value); }
+        }
+    }
 
 }
