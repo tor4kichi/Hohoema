@@ -211,11 +211,13 @@
 
             <MenuFlyoutItem Text="動画情報" Command="{Binding OpenVideoInfoCommand}" />
 
+            <!--
             <MenuFlyoutItem Text="プレイヤー設定" 
                             Command="{Binding SelectSidePaneContentCommand}"
                             CommandParameter="Setting"
                             >
             </MenuFlyoutItem>
+            
 
             <MenuFlyoutItem Text="小窓で表示" Command="{Binding PlayerSmallWindowDisplayCommand}" >
                 <i:Interaction.Behaviors>
@@ -224,7 +226,7 @@
                     </core:EventTriggerBehavior>
                 </i:Interaction.Behaviors>
             </MenuFlyoutItem>
-
+            -->
 
 
 
@@ -396,8 +398,7 @@
                         <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="PlayerSplitViewPaneLayout.Margin" Value="0 27 0 27" />
-                        <Setter Target="PlaylistItemsListView.Padding" Value="0 0 48 0" />
+                        <Setter Target="PlayerSidePaneLayout.Margin" Value="0 27 0 27" />
 
                         <Setter Target="UIControlContentLayout.Padding" Value="48 0 48 27" />
                         <Setter Target="UIControlHeaderLayout.Margin" Value="48 27 48 0" />
@@ -695,7 +696,6 @@
                                         ContentTemplateSelector="{StaticResource PlayerSidePaneContentTemplateSelecter}"
                                         HorizontalContentAlignment="Stretch"
                                         VerticalContentAlignment="Stretch"
-                                        IsTabStop="False"
                                         />
                     </Grid>
                     
@@ -1373,6 +1373,13 @@
                                                 </Button>
 
 
+                                                <Button Command="{Binding SelectSidePaneContentCommand}"
+                                                        CommandParameter="Setting" 
+                                                        Background="Transparent"
+                                                        >
+                                                    <SymbolIcon Symbol="Setting"
+                                                                />
+                                                </Button>
 
                                                 <Button Background="Transparent"
                                                         x:Name="VideoOptionsMenuButton"

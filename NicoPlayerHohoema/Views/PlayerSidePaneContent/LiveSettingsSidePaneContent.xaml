@@ -44,6 +44,12 @@
 
     <ScrollViewer>
 
+        <i:Interaction.Behaviors>
+            <core:EventTriggerBehavior EventName="Loaded">
+                <mybehavior:SetFocus TargetObject="{Binding ElementName=CommentAnonymousToggleSwitch}" />
+            </core:EventTriggerBehavior>
+        </i:Interaction.Behaviors>
+        
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup>
                 <VisualState>
@@ -53,8 +59,9 @@
 
                     <VisualState.Setters>
                         <!-- Xbox利用時にはTV Mode変更はできないため設定を非表示に -->
-                        <Setter Target="MobilePlayerSettingsLayout.Visibility" Value="Collapsed" />
                         <Setter Target="DesktopPlayerSettingsLayout.Visibility" Value="Collapsed" />
+
+                        <Setter Target="SettingsContentLayout.Padding" Value="0 0 48 0" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -73,8 +80,9 @@
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
-        <ItemsControl Margin="16 8 8 8" MinWidth="400" HorizontalAlignment="Left"
-                      IsTabStop="False"
+        <StackPanel Margin="16 8 8 8" MinWidth="400" HorizontalAlignment="Left"
+                      x:Name="SettingsContentLayout"
+                      
                       >
 
 
@@ -155,7 +163,7 @@
 
                     <ToggleSwitch 
                               IsOn="{Binding IsDefaultCommentWithAnonymous.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                              
+                              x:Name="CommentAnonymousToggleSwitch"
                               />
 
                 </StackPanel>
@@ -568,6 +576,6 @@
 
 
 
-        </ItemsControl>
+        </StackPanel>
     </ScrollViewer>
 </UserControl>

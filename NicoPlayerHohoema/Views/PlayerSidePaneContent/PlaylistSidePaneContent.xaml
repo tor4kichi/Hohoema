@@ -7,9 +7,11 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:uwpext="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:hardwareTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
@@ -17,6 +19,24 @@
     <Grid>
 
         <VisualStateManager.VisualStateGroups>
+
+            <!-- Xbox -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardwareTrigger:DeviceFamilyTrigger Condition="Xbox" />
+                    </VisualState.StateTriggers>
+
+                    <VisualState.Setters>
+                        <Setter Target="PlaylistItemsListView.Padding" Value="0 0 48 0" />
+                        <Setter Target="HeaderLayout.Padding" Value="0 0 48 0" />
+                        <Setter Target="FooterLayout.Padding" Value="0 0 48 0" />
+                        
+                        
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
             <!-- リピートモード -->
             <VisualStateGroup>
                 <VisualState>
@@ -69,8 +89,19 @@
 
         </VisualStateManager.VisualStateGroups>
         
-        <toolkit:DockPanel >
-            <StackPanel toolkit:DockPanel.Dock="Top" Margin="0 4 0 8">
+        <toolkit:DockPanel x:Name="RootLayout">
+
+
+            <i:Interaction.Behaviors>
+                <core:EventTriggerBehavior EventName="Loaded">
+                    <mybehavior:SetFocus TargetObject="{Binding ElementName=ShuffleSwitchingButton}" />
+                </core:EventTriggerBehavior>
+            </i:Interaction.Behaviors>
+            
+            <StackPanel toolkit:DockPanel.Dock="Top" Margin="0 4 0 8"
+                        x:Name="HeaderLayout"
+                        
+                        >
                 <toolkit:DockPanel >
                     <StackPanel Orientation="Horizontal"
                                                 toolkit:DockPanel.Dock="Left"
@@ -80,6 +111,7 @@
                                                 Command="{Binding ToggleShuffleCommand}"
                                                 UseSystemFocusVisuals="True"
                                             Margin="8 0 0 0"
+                                x:Name="ShuffleSwitchingButton"
                                             >
 
                             <iconPack:PackIconMaterial x:Name="ToggleShuffleButtonIcon"
@@ -114,7 +146,9 @@
                     <Border />
                 </toolkit:DockPanel>
             </StackPanel>
-            <StackPanel toolkit:DockPanel.Dock="Bottom">
+            <StackPanel toolkit:DockPanel.Dock="Bottom"
+                        x:Name="FooterLayout"
+                        >
 
                 <!-- 再生中動画情報 -->
                 <!-- 
