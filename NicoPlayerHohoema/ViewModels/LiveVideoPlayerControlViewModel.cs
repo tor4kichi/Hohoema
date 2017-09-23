@@ -376,7 +376,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             IsDisplayControlUI = HohoemaApp.Playlist.ToReactivePropertyAsSynchronized(x => x.IsDisplayPlayerControlUI);
 
-            if (Util.InputCapabilityHelper.IsMouseCapable)
+            if (Util.InputCapabilityHelper.IsMouseCapable && !IsForceTVModeEnable.Value)
             {
                 IsAutoHideEnable = Observable.CombineLatest(
                     NowPlaying,

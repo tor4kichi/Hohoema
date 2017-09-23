@@ -576,7 +576,7 @@ namespace NicoPlayerHohoema.ViewModels
             }
 
 
-            if (Util.InputCapabilityHelper.IsMouseCapable)
+            if (Util.InputCapabilityHelper.IsMouseCapable && !IsForceTVModeEnable.Value)
             {
                 IsAutoHideEnable = Observable.CombineLatest(
                     NowPlaying,

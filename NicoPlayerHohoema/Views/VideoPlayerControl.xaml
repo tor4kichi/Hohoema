@@ -403,7 +403,7 @@
                         <Setter Target="UIControlContentLayout.Padding" Value="48 0 48 27" />
                         <Setter Target="UIControlHeaderLayout.Margin" Value="48 27 48 0" />
                         <Setter Target="UIControlCenterLayout.Margin" Value="48 0" />
-
+                        
                     </VisualState.Setters>
                 </VisualState>
 
@@ -597,6 +597,21 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
+            
+            <!-- TV Mode が有効な場合にコメントタップバリアを無効に -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CommentWritingIntarctionBarrier.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+            
+
+
 
             <!-- Landscape固定ボタンの表示管理 -->
             <VisualStateGroup>
@@ -1792,7 +1807,7 @@
                         </Grid>
 
 
-                        <Grid >
+                        <Grid x:Name="CommentWritingIntarctionBarrier">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*" />
                                 <RowDefinition Height="48" />
