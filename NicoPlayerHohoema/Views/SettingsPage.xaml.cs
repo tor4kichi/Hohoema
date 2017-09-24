@@ -27,40 +27,4 @@ namespace NicoPlayerHohoema.Views
 			this.InitializeComponent();
 		}
 	}
-
-
-	public class SettingContentTemplateSelector : DataTemplateSelector
-	{
-		public DataTemplate FilteringTemplate { get; set; }
-		public DataTemplate AppearanceTemplate { get; set; }
-		public DataTemplate ShereTemplate { get; set; }
-        public DataTemplate FeedbackTemplate { get; set; }
-        public DataTemplate AboutTemplate { get; set; }
-
-        protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
-		{
-            if (item is ViewModels.FilteringSettingsPageContentViewModel)
-			{
-				return FilteringTemplate;
-			}
-			else if (item is ViewModels.AppearanceSettingsPageContentViewModel)
-			{
-				return AppearanceTemplate;
-			}
-			else if (item is ViewModels.ShareSettingsPageContentViewModel)
-			{
-				return ShereTemplate;
-			}
-            else if (item is ViewModels.FeedbackSettingsPageContentViewModel)
-            {
-                return FeedbackTemplate;
-            }
-            else if (item is ViewModels.AboutSettingsPageContentViewModel)
-            {
-                return AboutTemplate;
-            }
-
-            return base.SelectTemplateCore(item, container);
-		}
-	}
 }

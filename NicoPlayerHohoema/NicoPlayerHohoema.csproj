@@ -109,7 +109,6 @@
     <Content Include="Assets\LibLisencies\FFmpeg.txt" />
     <Content Include="Assets\LibLisencies\FFmpegInterop.txt" />
     <Content Include="Assets\LibLisencies\Material Design Icons.txt" />
-    <Content Include="Assets\LibLisencies\MessagePack for C＃.txt" />
     <Content Include="Assets\LibLisencies\RtmpClient.UWP.txt" />
     <Content Include="Assets\LibLisencies\UWP Community Toolkit.txt" />
     <Content Include="Assets\LibLisencies\_lisence_summary.json" />
@@ -283,15 +282,10 @@
     <Compile Include="ViewModels\SearchResultPage\SearchResultKeywordPageViewModel.cs" />
     <Compile Include="ViewModels\SearchResultPage\SearchResultLivePageViewModel.cs" />
     <Compile Include="ViewModels\SearchResultPage\SearchResultMylistPageViewModel.cs" />
-    <Compile Include="ViewModels\SettingsContent\AboutSettingsPageContentViewModel.cs" />
-    <Compile Include="ViewModels\SettingsContent\FeedbackSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\SplashPageViewModel.cs" />
     <Compile Include="ViewModels\VideoInfomationPageViewModel.cs" />
     <Compile Include="ViewModels\VideoSearchSortOptionListItem.cs" />
     <Compile Include="ViewModels\SearchResultPage\SearchResultTagPageViewModel.cs" />
-    <Compile Include="ViewModels\SettingsContent\AppearanceSettingsPageContentViewModel.cs" />
-    <Compile Include="ViewModels\SettingsContent\ShereSettingsPageContentViewModel.cs" />
-    <Compile Include="ViewModels\SettingsContent\FilteringSettingsPageContentViewModel.cs" />
     <Compile Include="ViewModels\UserInfoPageViewModel.cs" />
     <Compile Include="ViewModels\UserMylistPageViewModel.cs" />
     <Compile Include="ViewModels\UserVideoPageViewModel.cs" />
@@ -591,18 +585,6 @@
     </Compile>
     <Compile Include="Views\Service\TextInputDialogService.cs" />
     <Compile Include="Views\Service\ToastNotificationService.cs" />
-    <Compile Include="Views\SettingsPageContent\AboutSettingsPageContent.xaml.cs">
-      <DependentUpon>AboutSettingsPageContent.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\SettingsPageContent\AppearanceSettingsPageContent.xaml.cs">
-      <DependentUpon>AppearanceSettingsPageContent.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\SettingsPageContent\FeedbackSettingsPageContent.xaml.cs">
-      <DependentUpon>FeedbackSettingsPageContent.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\SettingsPageContent\ShereSettingsPageContent.xaml.cs">
-      <DependentUpon>ShereSettingsPageContent.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\StateTrigger\ConditionStateTrigger.cs" />
     <Compile Include="Views\StateTrigger\FocusTrigger.cs" />
     <Compile Include="Views\StateTrigger\InvertibleStateTrigger.cs" />
@@ -645,9 +627,6 @@
     <Compile Include="Views\MediaElementExtention.cs" />
     <Compile Include="Views\SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\SettingsPageContent\FilteringSettingsPageContent.xaml.cs">
-      <DependentUpon>FilteringSettingsPageContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\VideoInfoControl.xaml.cs">
       <DependentUpon>VideoInfoControl.xaml</DependentUpon>
@@ -1059,22 +1038,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\SettingsPageContent\AboutSettingsPageContent.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\SettingsPageContent\AppearanceSettingsPageContent.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\SettingsPageContent\FeedbackSettingsPageContent.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\SettingsPageContent\ShereSettingsPageContent.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\SplashPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1120,10 +1083,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SettingsPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\SettingsPageContent\FilteringSettingsPageContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

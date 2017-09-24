@@ -90,13 +90,6 @@
       "author": [ "Stefan Over" ],
       "lisence_type": "MIT",
       "lisence_page_url": "https://github.com/Herdo/AdaptiveTriggerLibrary/blob/master/LICENSE"
-    },
-    {
-      "name": "MessagePack for C＃",
-      "site": "https://github.com/neuecc/MessagePack-CSharp",
-      "author": [ "neuecc" ],
-      "lisence_type": "MIT",
-      "lisence_page_url": "https://github.com/neuecc/MessagePack-CSharp/blob/master/LICENSE"
     }
   ]
 
