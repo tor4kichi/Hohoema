@@ -245,6 +245,7 @@
                         IsItemClickEnabled="True"
                         x:Name="PlaylistItemsListView"
                         Background="{StaticResource HohoemaPlayerBackgroundBrush}"
+                      IsFocusEngagementEnabled="True"
                       >
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
