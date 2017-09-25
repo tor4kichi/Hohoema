@@ -509,7 +509,7 @@ namespace NicoPlayerHohoema.ViewModels
             PlaylistCanGoNext = HohoemaApp.Playlist.Player.ObserveProperty(x => x.CanGoNext).ToReactiveProperty();
 
 
-            CurrentSidePaneContentType = new ReactiveProperty<PlayerSidePaneContentType?>(PlayerWindowUIDispatcherScheduler)
+            CurrentSidePaneContentType = new ReactiveProperty<PlayerSidePaneContentType?>(PlayerWindowUIDispatcherScheduler, initialValue: null)
                 .AddTo(_CompositeDisposable);
             CurrentSidePaneContent = CurrentSidePaneContentType
                 .Select(GetSidePaneContent)
@@ -1363,7 +1363,7 @@ namespace NicoPlayerHohoema.ViewModels
             _BufferingMonitorDisposable = new CompositeDisposable();
 
             // サイドペインの片付け
-            CurrentSidePaneContentType.Value = PlayerSidePaneContentType.None;
+            CurrentSidePaneContentType.Value = null;
 
             if (_SidePaneContentCache.ContainsKey(PlayerSidePaneContentType.Comment))
             {
@@ -2312,27 +2312,26 @@ namespace NicoPlayerHohoema.ViewModels
 
         private SidePaneContentViewModelBase GetSidePaneContent(PlayerSidePaneContentType? maybeType)
         {
-            PlayerSidePaneContentType type = PlayerSidePaneContentType.None;
-            if (maybeType.HasValue)
+            if (maybeType.HasValue && _SidePaneContentCache.ContainsKey(maybeType.Value))
             {
-                type = maybeType.Value;
+                return _SidePaneContentCache[maybeType.Value];
             }
-
-            if (_SidePaneContentCache.ContainsKey(type))
+            else if (!maybeType.HasValue)
             {
-                return _SidePaneContentCache[type];
+                return EmptySidePaneContent;
             }
             else
             {
                 SidePaneContentViewModelBase sidePaneContent = null;
-                switch (type)
+                switch (maybeType.Value)
                 {
                     case PlayerSidePaneContentType.Playlist:
                         sidePaneContent = new PlayerSidePaneContent.PlaylistSidePaneContentViewModel(HohoemaApp.MediaPlayer, HohoemaApp.Playlist, HohoemaApp.UserSettings.PlaylistSettings, PageManager);
                         break;
                     case PlayerSidePaneContentType.Comment:
-                        sidePaneContent = new PlayerSidePaneContent.CommentSidePaneContentViewModel(HohoemaApp.UserSettings, Comments);
-                        break;
+                        throw new NotImplementedException();
+                    //                        sidePaneContent = new PlayerSidePaneContent.CommentSidePaneContentViewModel(HohoemaApp.UserSettings, LiveComments);
+                    //                        break;
                     case PlayerSidePaneContentType.Setting:
                         sidePaneContent = new PlayerSidePaneContent.SettingsSidePaneContentViewModel(HohoemaApp.UserSettings);
                         if (Video != null)
@@ -2350,11 +2349,14 @@ namespace NicoPlayerHohoema.ViewModels
                         break;
                 }
 
-                _SidePaneContentCache.Add(type, sidePaneContent);
+                _SidePaneContentCache.Add(maybeType.Value, sidePaneContent);
                 return sidePaneContent;
             }
         }
 
+        
+
+        public static EmptySidePaneContentViewModel EmptySidePaneContent { get; } = new EmptySidePaneContentViewModel();
 
         ToastNotificationService _ToastService;
 		TextInputDialogService _TextInputDialogService;
@@ -2457,7 +2459,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public enum PlayerSidePaneContentType
 	{
-        None,
         Playlist,
 		Comment,
 		Setting,

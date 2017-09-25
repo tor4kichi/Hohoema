@@ -1251,20 +1251,18 @@ namespace NicoPlayerHohoema.ViewModels
 
         private SidePaneContentViewModelBase GetSidePaneContent(PlayerSidePaneContentType? maybeType)
         {
-            PlayerSidePaneContentType type = PlayerSidePaneContentType.None;
-            if (maybeType.HasValue)
+            if (maybeType.HasValue && _SidePaneContentCache.ContainsKey(maybeType.Value))
             {
-                type = maybeType.Value;
+                return _SidePaneContentCache[maybeType.Value];
             }
-
-            if (_SidePaneContentCache.ContainsKey(type))
+            else if (!maybeType.HasValue)
             {
-                return _SidePaneContentCache[type];
+                return new PlayerSidePaneContent.EmptySidePaneContentViewModel();
             }
             else
             {
                 SidePaneContentViewModelBase sidePaneContent = null;
-                switch (type)
+                switch (maybeType.Value)
                 {
                     case PlayerSidePaneContentType.Playlist:
                         sidePaneContent = new PlayerSidePaneContent.PlaylistSidePaneContentViewModel(HohoemaApp.MediaPlayer, HohoemaApp.Playlist, HohoemaApp.UserSettings.PlaylistSettings, PageManager);
@@ -1288,7 +1286,7 @@ namespace NicoPlayerHohoema.ViewModels
                         break;
                 }
 
-                _SidePaneContentCache.Add(type, sidePaneContent);
+                _SidePaneContentCache.Add(maybeType.Value, sidePaneContent);
                 return sidePaneContent;
             }
         }
