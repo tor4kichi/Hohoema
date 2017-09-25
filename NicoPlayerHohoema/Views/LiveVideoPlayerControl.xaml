@@ -172,13 +172,38 @@
 
             <!-- キーボード入力によるコメント書き込みショートカットの有効・無効 -->
             <VisualStateGroup>
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <myTrigger:CompactOverlayViewModeTrigger />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CommentWriteBeginKeyboardTrigger.IsEnabled" Value="False" />
+
+                        <Setter Target="CO_CommentWriteBeginKeyboardTrigger.IsEnabled" Value="True" />
+                    </VisualState.Setters>
+
+                </VisualState>
                 <VisualState>
                     <VisualState.StateTriggers>
                         <StateTrigger IsActive="{Binding NowCommentWriting.Value}" />
                         <StateTrigger IsActive="{Binding ElementName=PlayerSplitView, Path=IsPaneOpen}" />
+                        <StateTrigger IsActive="{Binding IsSmallWindowModeEnable.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="CommentWriteBeginKeyboardTrigger.IsEnabled" Value="False" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding NowCommentWriting.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CommentWriteExitKeyboardTrigger.IsEnabled" Value="True" />
+                        <Setter Target="CommentSubmitKeyboardTrigger.IsEnabled" Value="True" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -448,6 +473,21 @@
                         AutoHideDelay="0:0:0.5"
                         />
 
+                        <mybehavior:KeyboardTrigger Key="Enter" x:Name="CommentSubmitKeyboardTrigger">
+                            <mybehavior:KeyboardTrigger.Actions>
+                                <core:InvokeCommandAction Command="{Binding CommentSubmitCommand}" />
+                            </mybehavior:KeyboardTrigger.Actions>
+                        </mybehavior:KeyboardTrigger>
+
+                        <mybehavior:KeyboardTrigger Key="Escape" x:Name="CommentWriteExitKeyboardTrigger" IsEnabled="False">
+                            <mybehavior:KeyboardTrigger.Actions>
+                                <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="False" />
+                                <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="True" />
+                                <core:ChangePropertyAction TargetObject="{Binding ElementName=CO_CommentTextBox}" PropertyName="IsEnabled" Value="False" />
+                                <core:ChangePropertyAction TargetObject="{Binding ElementName=CO_CommentTextBox}" PropertyName="IsEnabled" Value="True" />
+                            </mybehavior:KeyboardTrigger.Actions>
+                        </mybehavior:KeyboardTrigger>
+
                         <!-- キー入力でコメント入力開始 -->
                         <mybehavior:KeyboardTrigger x:Name="CommentWriteBeginKeyboardTrigger">
                             <mybehavior:KeyboardTrigger.Actions>
@@ -455,6 +495,13 @@
                                 <mybehavior:SetFocus TargetObject="{Binding ElementName=CommentTextBox}" Delay="00:00:00.25" />
                             </mybehavior:KeyboardTrigger.Actions>
                         </mybehavior:KeyboardTrigger>
+                        <mybehavior:KeyboardTrigger x:Name="CO_CommentWriteBeginKeyboardTrigger" IsEnabled="False">
+                            <mybehavior:KeyboardTrigger.Actions>
+                                <mybehavior:SetFocus TargetObject="{Binding ElementName=CO_CommentTextBox}" Delay="00:00:00" />
+                                <core:ChangePropertyAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" PropertyName="IsVisible" Value="True" />
+                            </mybehavior:KeyboardTrigger.Actions>
+                        </mybehavior:KeyboardTrigger>
+
 
                         <mybehavior:MouseWheelTrigger>
                             <mybehavior:MouseWheelTrigger.UpActions>
@@ -1347,19 +1394,6 @@
                                         <i:Interaction.Behaviors>
 
                                             <mybehavior:FocusGetter IsFocus="{Binding NowCommentWriting.Value, Mode=TwoWay}" />
-
-                                            <mybehavior:KeyboardTrigger Key="Escape">
-                                                <mybehavior:KeyboardTrigger.Actions>
-                                                    <core:ChangePropertyAction TargetObject="{Binding ElementName=CO_CommentTextBox}" PropertyName="IsEnabled" Value="False" />
-                                                    <core:ChangePropertyAction TargetObject="{Binding ElementName=CO_CommentTextBox}" PropertyName="IsEnabled" Value="True" />
-                                                </mybehavior:KeyboardTrigger.Actions>
-                                            </mybehavior:KeyboardTrigger>
-
-                                            <mybehavior:KeyboardTrigger Key="Enter" IsEnabled="{Binding NowCommentWriting.Value, Mode=OneWay}">
-                                                <mybehavior:KeyboardTrigger.Actions>
-                                                    <core:InvokeCommandAction Command="{Binding CommentSubmitCommand}" />
-                                                </mybehavior:KeyboardTrigger.Actions>
-                                            </mybehavior:KeyboardTrigger>
 
                                         </i:Interaction.Behaviors>
                                     </TextBox>
