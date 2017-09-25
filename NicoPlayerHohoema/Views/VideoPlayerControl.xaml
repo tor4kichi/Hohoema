@@ -236,6 +236,13 @@
 
 
         <local:PlayerSidePaneContentTemplateSelecter x:Key="PlayerSidePaneContentTemplateSelecter">
+
+            <local:PlayerSidePaneContentTemplateSelecter.Empty>
+                <DataTemplate>
+                    <!-- empty -->
+                </DataTemplate>
+            </local:PlayerSidePaneContentTemplateSelecter.Empty>
+
             <local:PlayerSidePaneContentTemplateSelecter.Playlist>
                 <DataTemplate>
                     <sidepanecontent:PlaylistSidePaneContent />

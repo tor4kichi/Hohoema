@@ -444,7 +444,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             // Side Pane
 
-            CurrentSidePaneContentType = new ReactiveProperty<PlayerSidePaneContentType?>(PlayerWindowUIDispatcherScheduler)
+            CurrentSidePaneContentType = new ReactiveProperty<PlayerSidePaneContentType?>(PlayerWindowUIDispatcherScheduler, _PrevPrevSidePaneContentType)
                 .AddTo(_CompositeDisposable);
             CurrentSidePaneContent = CurrentSidePaneContentType
                 .Select(GetSidePaneContent)
@@ -845,7 +845,9 @@ namespace NicoPlayerHohoema.ViewModels
 			IsFullScreen.Value = false;
 			StopLiveElapsedTimer().ConfigureAwait(false);
 
-			base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
+            _PrevPrevSidePaneContentType = CurrentSidePaneContentType.Value;
+
+            base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
 		}
 
 		protected override async Task OnResumed()
@@ -1226,6 +1228,8 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<PlayerSidePaneContentType?> CurrentSidePaneContentType { get; }
         public ReadOnlyReactiveProperty<SidePaneContentViewModelBase> CurrentSidePaneContent { get; }
 
+
+        static PlayerSidePaneContentType? _PrevPrevSidePaneContentType;
         SidePaneContentViewModelBase _PrevSidePaneContent;
 
         private DelegateCommand<object> _SelectSidePaneContentCommand;

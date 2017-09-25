@@ -32,6 +32,7 @@ namespace NicoPlayerHohoema.Views
 
     public class PlayerSidePaneContentTemplateSelecter : DataTemplateSelector
     {
+        public DataTemplate Empty { get; set; }
         public DataTemplate Playlist { get; set; }
         public DataTemplate Settings { get; set; }
         public DataTemplate Comments { get; set; }
@@ -49,6 +50,10 @@ namespace NicoPlayerHohoema.Views
             else if (item is ViewModels.PlayerSidePaneContent.SettingsSidePaneContentViewModel)
             {
                 return Settings;
+            }
+            else
+            {
+                return Empty;
             }
 
             return base.SelectTemplateCore(item, container);

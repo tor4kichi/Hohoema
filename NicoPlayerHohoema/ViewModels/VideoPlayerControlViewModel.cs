@@ -509,7 +509,7 @@ namespace NicoPlayerHohoema.ViewModels
             PlaylistCanGoNext = HohoemaApp.Playlist.Player.ObserveProperty(x => x.CanGoNext).ToReactiveProperty();
 
 
-            CurrentSidePaneContentType = new ReactiveProperty<PlayerSidePaneContentType?>(PlayerWindowUIDispatcherScheduler, initialValue: null)
+            CurrentSidePaneContentType = new ReactiveProperty<PlayerSidePaneContentType?>(PlayerWindowUIDispatcherScheduler, initialValue: _PrevSidePaneContentType)
                 .AddTo(_CompositeDisposable);
             CurrentSidePaneContent = CurrentSidePaneContentType
                 .Select(GetSidePaneContent)
@@ -784,6 +784,16 @@ namespace NicoPlayerHohoema.ViewModels
             UpdateCache();
 
             ToggleCacheRequestCommand.RaiseCanExecuteChanged();
+
+            if (_SidePaneContentCache.ContainsKey(PlayerSidePaneContentType.Setting))
+            {
+                (_SidePaneContentCache[PlayerSidePaneContentType.Setting] as SettingsSidePaneContentViewModel).SetupAvairableVideoQualities(
+                                    Video.GetAllQuality()
+                                    .Where(x => x.CanPlay)
+                                    .Select(x => x.Quality)
+                                    .ToList()
+                                    );
+            }
 
             cancelToken.ThrowIfCancellationRequested();
 
@@ -1363,8 +1373,8 @@ namespace NicoPlayerHohoema.ViewModels
             _BufferingMonitorDisposable = new CompositeDisposable();
 
             // サイドペインの片付け
-            CurrentSidePaneContentType.Value = null;
-
+            _PrevSidePaneContentType = CurrentSidePaneContentType.Value;
+            
             if (_SidePaneContentCache.ContainsKey(PlayerSidePaneContentType.Comment))
             {
                 try
@@ -1374,12 +1384,15 @@ namespace NicoPlayerHohoema.ViewModels
                     _SidePaneContentCache.Remove(PlayerSidePaneContentType.Comment);
                 }
                 catch { Debug.WriteLine("failed dispose PlayerSidePaneContentType.Comment"); }
+
+                CurrentSidePaneContentType.Value = null;
             }
 
             base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
 
             App.Current.LeavingBackground -= Current_LeavingBackground;
             App.Current.EnteredBackground -= Current_EnteredBackground;
+
 
             Debug.WriteLine("VideoPlayer OnNavigatingFromAsync done.");
         }
@@ -2287,6 +2300,8 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<PlayerSidePaneContentType?> CurrentSidePaneContentType { get; }
         public ReadOnlyReactiveProperty<SidePaneContentViewModelBase> CurrentSidePaneContent { get; }
 
+
+        static PlayerSidePaneContentType? _PrevSidePaneContentType;
         SidePaneContentViewModelBase _PrevSidePaneContent;
 
         private DelegateCommand<object> _SelectSidePaneContentCommand;
