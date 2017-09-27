@@ -17,9 +17,9 @@ using Windows.UI.Xaml.Navigation;
 
 namespace NicoPlayerHohoema.Views
 {
-    public sealed partial class LiveVideoPlayerControl : UserControl
+    public sealed partial class LivePlayerPage : Page
     {
-        public LiveVideoPlayerControl()
+        public LivePlayerPage()
         {
             this.InitializeComponent();
         }

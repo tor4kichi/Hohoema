@@ -183,6 +183,7 @@
     <Compile Include="Models\HohoemaAppServiceLevel.cs" />
     <Compile Include="Models\HohoemaPageType.cs" />
     <Compile Include="Models\HohoemaPlaylist.cs" />
+    <Compile Include="Models\HohoemaViewManager.cs" />
     <Compile Include="Models\IHohoemaListItem.cs" />
     <Compile Include="Models\InAppNotificationPayload.cs" />
     <Compile Include="Models\LisenceSummary.cs" />
@@ -202,6 +203,7 @@
     <Compile Include="Models\PageManagerSearchExtention.cs" />
     <Compile Include="Models\Purchase\HohoemaPurchase.cs" />
     <Compile Include="Models\RoamingSyncInfo.cs" />
+    <Compile Include="Models\SecondaryViewNavigatePayload.cs" />
     <Compile Include="Models\Settings\AppearanceSettings.cs" />
     <Compile Include="Models\Settings\CacheSettings.cs" />
     <Compile Include="Models\Settings\PlaylistSettings.cs" />
@@ -263,6 +265,7 @@
     <Compile Include="ViewModels\HohoemaIncrementalSourceBase.cs" />
     <Compile Include="ViewModels\HohoemaListingPageItemBase.cs" />
     <Compile Include="ViewModels\HohoemaListingPageViewModelBase.cs" />
+    <Compile Include="ViewModels\HohoemaSecondaryViewFrameViewModel.cs" />
     <Compile Include="ViewModels\HohoemaVideoListingPageViewModelBase.cs" />
     <Compile Include="ViewModels\HohoemaViewModelBase.cs" />
     <Compile Include="ViewModels\LiveVideoInfoContent\CommentLiveInfoContentViewModel.cs" />
@@ -270,7 +273,7 @@
     <Compile Include="ViewModels\LiveVideoInfoContent\SettingsLiveInfoContentViewModel.cs" />
     <Compile Include="ViewModels\LiveVideoInfoContent\ShereLiveInfoContentViewModel.cs" />
     <Compile Include="ViewModels\LiveVideoInfoContent\SummaryLiveInfoContentViewModel.cs" />
-    <Compile Include="ViewModels\LiveVideoPlayerControlViewModel.cs" />
+    <Compile Include="ViewModels\LivePlayerPageViewModel.cs" />
     <Compile Include="ViewModels\LoginPageViewModel.cs" />
     <Compile Include="ViewModels\MenuNavigatePageBaseViewModel.cs" />
     <Compile Include="ViewModels\MylistPageViewModel.cs" />
@@ -321,6 +324,9 @@
     <Compile Include="Views\Behaviors\SplitViewClosePane.cs" />
     <Compile Include="Views\Behaviors\HideInputPaneAction.cs" />
     <Compile Include="Views\Behaviors\UINavigationTrigger.cs" />
+    <Compile Include="Views\BlankPage.xaml.cs">
+      <DependentUpon>BlankPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\CacheManagementPage.xaml.cs">
       <DependentUpon>CacheManagementPage.xaml</DependentUpon>
     </Compile>
@@ -345,6 +351,9 @@
     <Compile Include="Views\Converters\RankingCategoryToText.cs" />
     <Compile Include="Views\HohoemaInAppNotification.xaml.cs">
       <DependentUpon>HohoemaInAppNotification.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\HohoemaSecondaryViewFrame.xaml.cs">
+      <DependentUpon>HohoemaSecondaryViewFrame.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\PlayerSidePaneContent\LiveSettingsSidePaneContent.xaml.cs">
       <DependentUpon>LiveSettingsSidePaneContent.xaml</DependentUpon>
@@ -487,8 +496,8 @@
     <Compile Include="Views\LiveInfoContent\SummaryLiveInfoContent.xaml.cs">
       <DependentUpon>SummaryLiveInfoContent.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\LiveVideoPlayerControl.xaml.cs">
-      <DependentUpon>LiveVideoPlayerControl.xaml</DependentUpon>
+    <Compile Include="Views\LivePlayerPage.xaml.cs">
+      <DependentUpon>LivePlayerPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\LoginPage.xaml.cs">
       <DependentUpon>LoginPage.xaml</DependentUpon>
@@ -532,7 +541,7 @@
     <Compile Include="Views\SearchResultPage\SearchResultTagPage.xaml.cs">
       <DependentUpon>SearchResultTagPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ViewModels\VideoPlayerControlViewModel.cs" />
+    <Compile Include="ViewModels\VideoPlayerPageViewModel.cs" />
     <Compile Include="ViewModels\RankingCategoryListPageViewModel.cs" />
     <Compile Include="ViewModels\RankingCategoryPageViewModel.cs" />
     <Compile Include="ViewModels\SearchPageViewModel.cs" />
@@ -631,8 +640,8 @@
     <Compile Include="Views\Controls\VideoInfoControl.xaml.cs">
       <DependentUpon>VideoInfoControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\VideoPlayerControl.xaml.cs">
-      <DependentUpon>VideoPlayerControl.xaml</DependentUpon>
+    <Compile Include="Views\VideoPlayerPage.xaml.cs">
+      <DependentUpon>VideoPlayerPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\VisualTreeExtention.cs" />
   </ItemGroup>
@@ -735,6 +744,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
+    <Page Include="Views\BlankPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\CacheManagementPage_TV.xaml">
       <SubType>Designer</SubType>
@@ -918,6 +931,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\HohoemaSecondaryViewFrame.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\LiveInfoContent\CommentLiveInfoContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -934,7 +951,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\LiveVideoPlayerControl.xaml">
+    <Page Include="Views\LivePlayerPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1090,7 +1107,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\VideoPlayerControl.xaml">
+    <Page Include="Views\VideoPlayerPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

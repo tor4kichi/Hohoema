@@ -11,8 +11,11 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Core;
 using Windows.Foundation;
 using Windows.UI.Core;
+using Windows.UI.ViewManagement;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Navigation;
 
 namespace NicoPlayerHohoema.Models
@@ -69,15 +72,17 @@ namespace NicoPlayerHohoema.Models
         public HohoemaApp HohoemaApp { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; private set; }
         public AppearanceSettings AppearanceSettings { get; }
+        public HohoemaViewManager HohoemaViewManager { get; }
 
         private AsyncLock _NavigationLock = new AsyncLock();
 
-        public PageManager(HohoemaApp hohoemaApp, INavigationService ns, AppearanceSettings appearanceSettings, HohoemaPlaylist playlist)
+        public PageManager(HohoemaApp hohoemaApp, INavigationService ns, AppearanceSettings appearanceSettings, HohoemaPlaylist playlist, HohoemaViewManager viewMan)
 		{
             HohoemaApp = hohoemaApp;
             NavigationService = ns;
             AppearanceSettings = appearanceSettings;
             HohoemaPlaylist = playlist;
+            HohoemaViewManager = viewMan;
 
             CurrentPageType = HohoemaPageType.RankingCategoryList;
         }
@@ -145,11 +150,14 @@ namespace NicoPlayerHohoema.Models
                                 ForgetLastPage();
                             }
                         }
+
                     }
                     finally
                     {
                         PageNavigating = false;
                     }
+
+                    HohoemaViewManager.ShowMainView();
                 }
             })
             .AsTask()

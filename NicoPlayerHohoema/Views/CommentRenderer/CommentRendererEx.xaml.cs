@@ -105,17 +105,21 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
         CommentUI PrevRenderComment_Center;
 
 
-
-
         public CommentRendererEx()
         {
             this.InitializeComponent();
 
+            Loaded += CommentRendererEx_Loaded;
             Unloaded += CommentRendererEx_Unloaded;
             Application.Current.EnteredBackground += Current_EnteredBackground;
             Application.Current.LeavingBackground += Current_LeavingBackground;
 
             this.SizeChanged += CommentRendererEx_SizeChanged;
+        }
+
+        private void CommentRendererEx_Loaded(object sender, RoutedEventArgs e)
+        {
+            ResetUpdateTimer();
         }
 
         private async void CommentRendererEx_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -154,6 +158,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
             Application.Current.LeavingBackground -= Current_LeavingBackground;
 
             _UpdateTimer?.Dispose();
+            
         }
 
         private bool _IsNeedCommentRenderUpdated = false;
@@ -214,17 +219,25 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
                 TimeSpan deltaVideoPosition = TimeSpan.Zero;
                 TimeSpan updateInterval;
+
                 await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Low, () =>
                 {
                     // 更新済みの位置であれば処理をスキップ
                     var videoPosition = VideoPosition;
 
-                    if (MediaPlayer.PlaybackSession.PlaybackState == MediaPlaybackState.Paused)
+                    if (MediaPlayer == null)
+                    {
+                        _UpdateTimer?.Dispose();
+                        _UpdateTimer = null;
+                        return;
+                    }
+
+                    if (PlaybackState == MediaPlaybackState.Paused)
                     {
                         return;
                     }
 
-                    if (MediaPlayer.PlaybackSession.CanSeek)
+                    if (_PlayerCanSeek)
                     {
                         if (_PreviousVideoPosition == videoPosition)
                         {
@@ -241,7 +254,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
                     }
                     else
                     {
-                         deltaVideoPosition = DateTime.Now - _RealVideoPosition;
+                        deltaVideoPosition = DateTime.Now - _RealVideoPosition;
                     }
 
                     OnUpdate(deltaVideoPosition);
@@ -250,6 +263,7 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
 
                     updateInterval = UpdateInterval;
                 });
+
 
                 watch.Stop();
 
@@ -902,7 +916,14 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
                     _UpdateTimer = new Timer(
                         async (_) =>
                         {
-                            await UpdateCommentDisplay();
+                            try
+                            {
+                                await UpdateCommentDisplay();
+                            }
+                            catch
+                            {
+                                _UpdateTimer?.Dispose();
+                            }
                         },
                         null,
                         TimeSpan.Zero,
@@ -920,12 +941,73 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
             DependencyProperty.Register("MediaPlayer"
                     , typeof(MediaPlayer)
                     , typeof(CommentRendererEx)
-                    , new PropertyMetadata(default(TimeSpan))
+                    , new PropertyMetadata(default(MediaPlayer), OnMediaPlayerChanged)
                 );
+        private static void OnMediaPlayerChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            var me = (CommentRendererEx)sender;
+            
+            if (me.MediaPlayer == null)
+            {
+                var oldMediaPlayer = (e.OldValue as MediaPlayer);
+                if (oldMediaPlayer != null)
+                {
+                    oldMediaPlayer.PlaybackSession.PlaybackStateChanged += me.PlaybackSession_PlaybackStateChanged;
+                    oldMediaPlayer.SourceChanged += me.MediaPlayer_SourceChanged;
+                }
+                me._UpdateTimer?.Dispose();
+                me._UpdateTimer = null;
+            }
+            else
+            {
+                me.MediaPlayer.PlaybackSession.PlaybackStateChanged += me.PlaybackSession_PlaybackStateChanged;
+                me.MediaPlayer.SourceChanged += me.MediaPlayer_SourceChanged;
+            }
+        }
 
+        
+        bool _PlayerCanSeek = false;
+        private async void MediaPlayer_SourceChanged(MediaPlayer sender, object args)
+        {
+            using (var releaser = await _UpdateLock.LockAsync())
+            {
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
+                {
+                    if (MediaPlayer == null) { return; }
 
-        public TimeSpan VideoPosition => MediaPlayer.PlaybackSession.Position;
+                    _PlayerCanSeek = sender.PlaybackSession.CanSeek;
+                });
+            }
+        }
 
+        private MediaPlaybackState? PlaybackState = null;
+        private async void PlaybackSession_PlaybackStateChanged(MediaPlaybackSession sender, object args)
+        {
+            using (var releaser = await _UpdateLock.LockAsync())
+            {
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                {
+                    if (MediaPlayer == null) { return; }
+
+                    PlaybackState = sender?.PlaybackState ?? null;
+                });
+            }
+        }
+
+        public TimeSpan VideoPosition
+        {
+            get
+            {
+                try
+                {
+                    return MediaPlayer?.PlaybackSession.Position ?? TimeSpan.Zero;
+                }
+                catch
+                {
+                    return TimeSpan.Zero;
+                }
+            }
+        }
 
         public MediaPlayer MediaPlayer
         {

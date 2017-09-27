@@ -144,6 +144,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             VideoPlayingQuality = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultQuality, 
                 convert: x => VideoPlayingQualityList.First(y => y.Value == x),
                 convertBack: x => x.Value,
+                raiseEventScheduler: CurrentWindowContextScheduler,
                 mode: ReactivePropertyMode.DistinctUntilChanged
                 );
 
@@ -151,7 +152,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             SetPlaybackRateCommand = VideoPlaybackRate.Select(
                 rate => rate != 1.0
                 )
-                .ToReactiveCommand<double?>();
+                .ToReactiveCommand<double?>(CurrentWindowContextScheduler);
 
             SetPlaybackRateCommand.Subscribe(
                 (rate) => VideoPlaybackRate.Value = rate.HasValue ? rate.Value : 1.0
@@ -162,37 +163,39 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             LiveVideoPlayingQuality = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultLiveQuality,
                 convert: x => LivePlayingQualityList.FirstOrDefault(y => y.Value == x),
                 convertBack: x => x.Value,
+                raiseEventScheduler: CurrentWindowContextScheduler,
                 mode: ReactivePropertyMode.DistinctUntilChanged
                 );
 
-            IsKeepDisplayInPlayback = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsKeepDisplayInPlayback);
-            ScrollVolumeFrequency = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.ScrollVolumeFrequency);
-            IsForceLandscapeDefault = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsForceLandscape);
+            IsKeepDisplayInPlayback = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsKeepDisplayInPlayback, CurrentWindowContextScheduler);
+            ScrollVolumeFrequency = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.ScrollVolumeFrequency, CurrentWindowContextScheduler);
+            IsForceLandscapeDefault = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsForceLandscape, CurrentWindowContextScheduler);
 
             AutoHideDelayTime = _PlayerSettings.ToReactivePropertyAsSynchronized(x =>
                 x.AutoHidePlayerControlUIPreventTime
                 , x => x.TotalSeconds
                 , x => TimeSpan.FromSeconds(x)
+                , CurrentWindowContextScheduler
                 );
 
-            PlaylistEndAction = _PlaylistSettings.ToReactivePropertyAsSynchronized(x => x.PlaylistEndAction);
+            PlaylistEndAction = _PlaylistSettings.ToReactivePropertyAsSynchronized(x => x.PlaylistEndAction, CurrentWindowContextScheduler);
 
             // NG Comment User Id
 
 
 
             // Comment Display 
-            CommentColor = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentColor);
-            IsPauseWithCommentWriting = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.PauseWithCommentWriting);
-            CommentRenderingFPS = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentRenderingFPS);
-            CommentDisplayDuration = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentDisplayDuration, x => x.TotalSeconds, x => TimeSpan.FromSeconds(x));
-            CommentFontScale = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCommentFontScale);
-            IsDefaultCommentWithAnonymous = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsDefaultCommentWithAnonymous);
-            CommentOpacity = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentOpacity);
+            CommentColor = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentColor, CurrentWindowContextScheduler);
+            IsPauseWithCommentWriting = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.PauseWithCommentWriting, CurrentWindowContextScheduler);
+            CommentRenderingFPS = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentRenderingFPS, CurrentWindowContextScheduler);
+            CommentDisplayDuration = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentDisplayDuration, x => x.TotalSeconds, x => TimeSpan.FromSeconds(x), CurrentWindowContextScheduler);
+            CommentFontScale = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCommentFontScale, CurrentWindowContextScheduler);
+            IsDefaultCommentWithAnonymous = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsDefaultCommentWithAnonymous, CurrentWindowContextScheduler);
+            CommentOpacity = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentOpacity, CurrentWindowContextScheduler);
 
-            IsEnableOwnerCommentCommand = new ReactiveProperty<bool>(_PlayerSettings.CommentCommandPermission.HasFlag(CommentCommandPermissionType.Owner));
-            IsEnableUserCommentCommand = new ReactiveProperty<bool>(_PlayerSettings.CommentCommandPermission.HasFlag(CommentCommandPermissionType.User));
-            IsEnableAnonymousCommentCommand = new ReactiveProperty<bool>(_PlayerSettings.CommentCommandPermission.HasFlag(CommentCommandPermissionType.Anonymous));
+            IsEnableOwnerCommentCommand = new ReactiveProperty<bool>(CurrentWindowContextScheduler, _PlayerSettings.CommentCommandPermission.HasFlag(CommentCommandPermissionType.Owner));
+            IsEnableUserCommentCommand = new ReactiveProperty<bool>(CurrentWindowContextScheduler, _PlayerSettings.CommentCommandPermission.HasFlag(CommentCommandPermissionType.User));
+            IsEnableAnonymousCommentCommand = new ReactiveProperty<bool>(CurrentWindowContextScheduler, _PlayerSettings.CommentCommandPermission.HasFlag(CommentCommandPermissionType.Anonymous));
 
             IsEnableOwnerCommentCommand.Subscribe(x => SetCommentCommandPermission(x, CommentCommandPermissionType.Owner));
             IsEnableUserCommentCommand.Subscribe(x => SetCommentCommandPermission(x, CommentCommandPermissionType.User));
@@ -202,14 +205,15 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 
             // NG Comment
 
-            NGCommentUserIdEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentUserIdEnable);
+            NGCommentUserIdEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentUserIdEnable, CurrentWindowContextScheduler);
             NGCommentUserIds = _NGSettings.NGCommentUserIds
                 .ToReadOnlyReactiveCollection(x =>
-                    RemovableSettingsListItemHelper.UserIdInfoToRemovableListItemVM(x, OnRemoveNGCommentUserIdFromList)
+                    RemovableSettingsListItemHelper.UserIdInfoToRemovableListItemVM(x, OnRemoveNGCommentUserIdFromList),
+                    CurrentWindowContextScheduler
                     );
 
-            NGCommentKeywordEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentKeywordEnable);
-            NGCommentKeywords = new ReactiveProperty<string>(string.Empty);
+            NGCommentKeywordEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentKeywordEnable, CurrentWindowContextScheduler);
+            NGCommentKeywords = new ReactiveProperty<string>(CurrentWindowContextScheduler, string.Empty);
 
             NGCommentKeywordError = NGCommentKeywords
                 .Select(x =>
@@ -235,16 +239,16 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                         return $"Error in \"{invalidRegex}\"";
                     }
                 })
-                .ToReadOnlyReactiveProperty();
+                .ToReadOnlyReactiveProperty(eventScheduler: CurrentWindowContextScheduler);
 
             NGCommentScoreTypes = ((IEnumerable<NGCommentScore>)Enum.GetValues(typeof(NGCommentScore))).ToList();
 
-            SelectedNGCommentScore = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentScoreType);
+            SelectedNGCommentScore = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentScoreType, CurrentWindowContextScheduler);
 
 
 
             CommentGlassMowerEnable = _PlayerSettings
-                .ToReactivePropertyAsSynchronized(x => x.CommentGlassMowerEnable);
+                .ToReactivePropertyAsSynchronized(x => x.CommentGlassMowerEnable, CurrentWindowContextScheduler);
 
 
         }

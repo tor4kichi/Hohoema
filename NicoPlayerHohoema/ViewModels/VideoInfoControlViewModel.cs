@@ -127,6 +127,7 @@ namespace NicoPlayerHohoema.ViewModels
                     else if (x[1]) { return Windows.UI.Colors.Transparent; }
                     else { return Windows.UI.Colors.Gray; }
                 })
+                .ObserveOnUIDispatcher()
                 .Subscribe(color => ThemeColor = color)
                 .AddTo(_CompositeDisposable);
 
@@ -303,7 +304,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _PlayWithSmallPlayerCommand
                     ?? (_PlayWithSmallPlayerCommand = new DelegateCommand(() =>
                     {
-                        HohoemaPlaylist.IsPlayerFloatingModeEnable = true;
+                        HohoemaPlaylist.PlayerDisplayType = PlayerDisplayType.PrimaryWithSmall;
                         HohoemaPlaylist.PlayVideo(RawVideoId, Title);
                     }));
             }

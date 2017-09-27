@@ -13,10 +13,12 @@ using System.Reactive.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Core;
 using Windows.Media;
 using Windows.Media.Core;
 using Windows.Media.Playback;
 using Windows.Storage;
+using Windows.UI.ViewManagement;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -44,7 +46,6 @@ namespace NicoPlayerHohoema.Models
         public event OpenPlaylistItemEventHandler OpenPlaylistItem;
 
 
-        public MediaPlayer MediaPlayer { get; private set; }
         public PlaylistSettings PlaylistSettings { get; private set; }
 
         public PlaylistPlayer Player { get; }
@@ -73,11 +74,9 @@ namespace NicoPlayerHohoema.Models
             {
                 if (SetProperty(ref _CurrentPlaylist, value))
                 {
-                    _CurrentPlaylistId = _CurrentPlaylist.Id;
+                    _CurrentPlaylistId = _CurrentPlaylist?.Id;
                     RaisePropertyChanged(nameof(Player));
-
-                    ResetMediaPlayerCommand();
-
+                    
                     _PlaylistItemsChangedObserver?.Dispose();
                     if (CurrentPlaylist != null)
                     {
@@ -93,14 +92,58 @@ namespace NicoPlayerHohoema.Models
 
 
         IDisposable _PlaylistItemsChangedObserver;
-        
 
-
-        private bool _IsDisplayPlayer = false;
-        public bool IsDisplayPlayer
+        private PlayerDisplayType _PlayerDisplayType = PlayerDisplayType.PrimaryView;
+        public PlayerDisplayType PlayerDisplayType
         {
-            get { return _IsDisplayPlayer; }
-            set { SetProperty(ref _IsDisplayPlayer, value); }
+            get { return _PlayerDisplayType; }
+            set
+            {
+                if (value == PlayerDisplayType.SecondaryView && !DeviceTypeHelper.IsDesktop)
+                {
+                    throw new NotSupportedException("Secondary view only Desktop. not support on current device.");
+                }
+
+                var prevDisplayType = _PlayerDisplayType;
+                if (SetProperty(ref _PlayerDisplayType, value))
+                {
+                    RaisePropertyChanged(nameof(IsPlayerFloatingModeEnable));
+
+                    Debug.WriteLine("プレイヤー表示状態：" + _PlayerDisplayType.ToString());
+
+                    var prevItem = Player.Current;
+                    if (prevDisplayType == PlayerDisplayType.SecondaryView)
+                    {
+                        _SecondaryView.Close();
+                        if (prevItem != null)
+                        {
+                            IsDisplayMainViewPlayer = true;
+                            Play(prevItem);
+                        }
+                    }
+                    else
+                    {
+                        // メインビューとセカンダリビューの切り替えが発生した場合にプレイヤーのリセットを行う
+                        bool prevMainView = prevDisplayType != PlayerDisplayType.SecondaryView;
+                        bool nowMainView = _PlayerDisplayType != PlayerDisplayType.SecondaryView;
+                        bool isNeedPlayerReset = prevMainView ^ nowMainView;
+                        if (isNeedPlayerReset && prevItem != null)
+                        {
+                            IsDisplayMainViewPlayer = _PlayerDisplayType != PlayerDisplayType.SecondaryView;
+                            Play(prevItem);
+                        }
+                    }
+
+                    ApplicationData.Current.LocalSettings.Values[nameof(PlayerDisplayType)] = _PlayerDisplayType != PlayerDisplayType.SecondaryView;
+                }
+            }
+        }
+
+        private bool _IsDisplayMainViewPlayer = false;
+        public bool IsDisplayMainViewPlayer
+        {
+            get { return _IsDisplayMainViewPlayer; }
+            set { SetProperty(ref _IsDisplayMainViewPlayer, value); }
         }
 
         private bool _IsDisplayPlayerControlUI = false;
@@ -111,29 +154,31 @@ namespace NicoPlayerHohoema.Models
         }
 
 
-        private bool _IsPlayerFloatingModeEnable = false;
-        public bool IsPlayerFloatingModeEnable
-        {
-            get { return _IsPlayerFloatingModeEnable; }
-            set { SetProperty(ref _IsPlayerFloatingModeEnable, value); }
-        }
 
-        public HohoemaPlaylist(MediaPlayer mediaPlayer, PlaylistSettings playlistSettings, StorageFolder playlistSaveFolder)
+        public bool IsPlayerFloatingModeEnable => PlayerDisplayType == PlayerDisplayType.PrimaryWithSmall;
+
+
+        public HohoemaPlaylist(PlaylistSettings playlistSettings, StorageFolder playlistSaveFolder, HohoemaViewManager viewMan)
         {
-            MediaPlayer = mediaPlayer;
             PlaylistSettings = playlistSettings;
             PlaylistsSaveFolder = playlistSaveFolder;
             Player = new PlaylistPlayer(this, playlistSettings);
+            _SecondaryView = viewMan;
 
             Playlists = new ReadOnlyObservableCollection<LocalMylist>(_Playlists);
 
-            var smtc = MediaPlayer.SystemMediaTransportControls;
-            smtc.AutoRepeatModeChangeRequested += Smtc_AutoRepeatModeChangeRequested;
-            MediaPlayer.CommandManager.NextReceived += CommandManager_NextReceived;
-            MediaPlayer.CommandManager.PreviousReceived += CommandManager_PreviousReceived;
-
             MakeDefaultPlaylist();
             CurrentPlaylist = DefaultPlaylist;
+
+            if (ApplicationData.Current.LocalSettings.Values.TryGetValue(nameof(PlayerDisplayType), out var showInMainView))
+            {
+                try
+                {
+                    _PlayerDisplayType = (bool)showInMainView ? PlayerDisplayType.PrimaryView : PlayerDisplayType.SecondaryView;
+                }
+                catch { }
+            }
+
         }                
 
 
@@ -263,85 +308,52 @@ namespace NicoPlayerHohoema.Models
             await Save(playlist);
         }
 
+        AsyncLock SecondaryViewLock = new AsyncLock();
+        HohoemaViewManager _SecondaryView;
+        private async Task ShowVideoWithSecondaryView(PlaylistItem item)
+        {
+            using (var releaser = await SecondaryViewLock.LockAsync())
+            {
+                if (_SecondaryView != null)
+                {
+                    await _SecondaryView.OpenContent(item);
+                }
+            }
+        }
 
         public void Play(PlaylistItem item)
         {
             // プレイリストアイテムが不正
             var playlist = item.Owner;
-            if (playlist == null 
-                || item == null 
-                || playlist.PlaylistItems.FirstOrDefault(x => x.ContentId == item.ContentId) == null
-                )
+            if (item.Type == PlaylistItemType.Video)
             {
-                throw new Exception();
+                if (playlist == null
+                    || item == null
+                    || playlist.PlaylistItems.FirstOrDefault(x => x.ContentId == item.ContentId) == null
+                    )
+                {
+                    throw new Exception();
+                }
             }
 
             Player.Playlist = playlist;
             CurrentPlaylist = playlist;
             Player.PlayStarted(item);
 
-            OpenPlaylistItem?.Invoke(CurrentPlaylist, item);
-
-            IsDisplayPlayer = true;
-            
-            ResetMediaPlayerCommand();
-
-            MediaPlayer.AudioCategory = MediaPlayerAudioCategory.Media;
-        }
-
-        private void CommandManager_PreviousReceived(MediaPlaybackCommandManager sender, MediaPlaybackCommandManagerPreviousReceivedEventArgs args)
-        {
-            if (args.Handled != true)
+            if (PlayerDisplayType == PlayerDisplayType.SecondaryView)
             {
-                args.Handled = true;
-
-                PlayDone(Player.Current);
-
-                if (Player?.CanGoBack ?? false)
-                {
-                    Player.GoBack();
-                }
-            }
-        }
-
-        private void CommandManager_NextReceived(MediaPlaybackCommandManager sender, MediaPlaybackCommandManagerNextReceivedEventArgs args)
-        {
-            if (args.Handled != true)
-            {
-                args.Handled = true;
-
-                PlayDone(Player.Current);
-
-                if (Player?.CanGoNext ?? false)
-                {
-                    Player.GoNext();
-                }
-            }
-        }
-
-
-        private void ResetMediaPlayerCommand()
-        {
-            var isEnableNextButton = Player?.CanGoNext ?? false;
-            if (isEnableNextButton)
-            {
-                MediaPlayer.CommandManager.NextBehavior.EnablingRule = MediaCommandEnablingRule.Always;
+                ShowVideoWithSecondaryView(item).ConfigureAwait(false);
             }
             else
             {
-                MediaPlayer.CommandManager.NextBehavior.EnablingRule = MediaCommandEnablingRule.Never;
+                OpenPlaylistItem?.Invoke(CurrentPlaylist, item);
+
+                IsDisplayMainViewPlayer = true;
             }
 
-            var isEnableBackButton = Player?.CanGoBack ?? false;
-            if (isEnableBackButton)
-            {
-                MediaPlayer.CommandManager.PreviousBehavior.EnablingRule = MediaCommandEnablingRule.Always;
-            }
-            else
-            {
-                MediaPlayer.CommandManager.PreviousBehavior.EnablingRule = MediaCommandEnablingRule.Never;
-            }
         }
+
+        
 
         // あとで見るプレイリストを通じての再生をサポート
         // プレイリストが空だった場合、その場で再生を開始
@@ -360,14 +372,12 @@ namespace NicoPlayerHohoema.Models
 
         public void PlayLiveVideo(string liveId, string title = "")
         {
-            OpenPlaylistItem?.Invoke(CurrentPlaylist, new LiveVideoPlaylistItem()
+            Play(new LiveVideoPlaylistItem()
             {
                 Type = PlaylistItemType.Live,
                 ContentId = liveId,
                 Title = title
             });
-
-            IsDisplayPlayer = true;
         }
 
 
@@ -420,11 +430,14 @@ namespace NicoPlayerHohoema.Models
             {
                 if (PlaylistSettings.PlaylistEndAction == PlaylistEndAction.ChangeIntoSplit)
                 {
-                    IsPlayerFloatingModeEnable = true;
+                    if (PlayerDisplayType == PlayerDisplayType.PrimaryView)
+                    {
+                        PlayerDisplayType = PlayerDisplayType.PrimaryWithSmall;
+                    }
                 }
                 else if (PlaylistSettings.PlaylistEndAction == PlaylistEndAction.CloseIfPlayWithCurrentWindow)
                 {
-                    IsDisplayPlayer = false;
+                    IsDisplayMainViewPlayer = false;
                 }
             }
 
@@ -434,8 +447,6 @@ namespace NicoPlayerHohoema.Models
             {
                 DefaultPlaylist.Remove(item);
             }
-
-            ResetMediaPlayerCommand();
         }
 
 
@@ -449,6 +460,16 @@ namespace NicoPlayerHohoema.Models
 
         
     }
+
+
+
+    public enum PlayerDisplayType
+    {
+        PrimaryView,
+        PrimaryWithSmall,
+        SecondaryView
+    }
+
 
 
     public class PlaylistPlayer : BindableBase, IDisposable

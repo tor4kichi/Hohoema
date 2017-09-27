@@ -166,7 +166,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
         private void AssociatedObject_Unloaded(object sender, RoutedEventArgs e)
         {
-
+            _AutoHideTimer.Stop();
         }
 
 

@@ -18,6 +18,7 @@ using Windows.UI.ViewManagement;
 using Windows.UI.Core;
 using Windows.ApplicationModel.Core;
 using Windows.Foundation.Metadata;
+using Prism.Windows.Navigation;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -25,7 +26,7 @@ namespace NicoPlayerHohoema.ViewModels
     {
         public HohoemaPlaylist HohoemaPlaylist { get; private set; }
 
-        public ReactiveProperty<bool> IsFillFloatContent { get; private set; }
+        public ReadOnlyReactiveProperty<bool> IsFillFloatContent { get; private set; }
         public ReactiveProperty<bool> IsVisibleFloatContent { get; private set; }
 
         public ReactiveProperty<bool> IsContentDisplayFloating { get; private set; }
@@ -44,28 +45,29 @@ namespace NicoPlayerHohoema.ViewModels
         public ReadOnlyReactiveProperty<bool> IsFillFloatContent_DelayedRead { get; private set; }
 
         
+        public INavigationService NavigationService { get; private set; }
 
-        // 動画または生放送のVM
-        public ReactiveProperty<ViewModelBase> ContentVM { get; private set; }
-
+        public void SetNavigationService(INavigationService ns)
+        {
+            NavigationService = ns;
+        }
+       
         public PlayerWithPageContainerViewModel(HohoemaApp hohoemaApp, HohoemaPlaylist playlist)
         {
             HohoemaPlaylist = playlist;
 
             IsFillFloatContent = HohoemaPlaylist
-                .ToReactivePropertyAsSynchronized(x => 
-                    x.IsPlayerFloatingModeEnable
-                    , (x) => !x
-                    , (x) => !x
-                    );
+                .ObserveProperty(x => x.IsPlayerFloatingModeEnable)
+                .Select(x => !x)
+                .ToReadOnlyReactiveProperty();
 
             IsFillFloatContent_DelayedRead = IsFillFloatContent
                 .Delay(TimeSpan.FromMilliseconds(300))
                 .ToReadOnlyReactiveProperty();
 
 
-            IsVisibleFloatContent = HohoemaPlaylist.ObserveProperty(x => x.IsDisplayPlayer)
-                .ToReactiveProperty();
+            IsVisibleFloatContent = HohoemaPlaylist.ObserveProperty(x => x.IsDisplayMainViewPlayer)
+                .ToReactiveProperty(mode:ReactivePropertyMode.DistinctUntilChanged);
 
             IsContentDisplayFloating = Observable.CombineLatest(
                 IsFillFloatContent.Select(x => !x),
@@ -74,7 +76,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .Select(x => x.All(y => y))
                 .ToReactiveProperty();
                 
-            ContentVM = new ReactiveProperty<ViewModelBase>();
+            
 
             IsContentDisplayFloating
                 .Where(x => x)
@@ -121,23 +123,23 @@ namespace NicoPlayerHohoema.ViewModels
 
         private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
         {
-            ContentVM.Value?.OnNavigatingFrom(new Prism.Windows.Navigation.NavigatingFromEventArgs()
-            {
-                NavigationMode = NavigationMode.New,
-            }, viewModelState, true);
+            ClosePlayer();
         }
 
         private void HohoemaPlaylist_OpenPlaylistItem(IPlayableList playlist, PlaylistItem item)
         {
             // TODO: 別ウィンドウでプレイヤーを表示している場合に処理をキャンセル
-            ClosePlayer();
+            ShowPlayer(item);
+        }
 
-            ViewModelBase newPlayerVM = null;
+        private bool ShowPlayer(PlaylistItem item)
+        {
+            string pageType = null;
             string parameter = null;
             switch (item.Type)
             {
                 case PlaylistItemType.Video:
-                    newPlayerVM = App.Current.Container.Resolve<VideoPlayerControlViewModel>();
+                    pageType = nameof(Views.VideoPlayerPage);
                     parameter = new VideoPlayPayload()
                     {
                         VideoId = item.ContentId
@@ -145,7 +147,7 @@ namespace NicoPlayerHohoema.ViewModels
                     .ToParameterString();
                     break;
                 case PlaylistItemType.Live:
-                    newPlayerVM = App.Current.Container.Resolve<LiveVideoPlayerControlViewModel>();
+                    pageType = nameof(Views.LivePlayerPage);
                     parameter = new LiveVideoPagePayload(item.ContentId)
                     {
                         LiveTitle = item.Title,
@@ -156,33 +158,12 @@ namespace NicoPlayerHohoema.ViewModels
                     break;
             }
 
-            if (newPlayerVM != null)
-            {
-                newPlayerVM.OnNavigatedTo(
-                    new Prism.Windows.Navigation.NavigatedToEventArgs()
-                    {
-                        NavigationMode = NavigationMode.New,
-                        Parameter = parameter
-                    }, viewModelState);
-
-                ContentVM.Value = newPlayerVM;
-            }
+            return NavigationService.Navigate(pageType, parameter);
         }
-
 
         private void ClosePlayer()
         {
-            if (ContentVM.Value != null)
-            {
-                var oldContent = ContentVM.Value;
-                oldContent.OnNavigatingFrom(new Prism.Windows.Navigation.NavigatingFromEventArgs()
-                {
-                    NavigationMode = NavigationMode.New,
-                }, viewModelState, false);
-                ContentVM.Value = new EmptyContentViewModel();
-                (oldContent as IDisposable)?.Dispose();
-            }
-
+            NavigationService.Navigate("Blank", null);
         }
 
         private DelegateCommand _PlayerFillDisplayCommand;
@@ -193,7 +174,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _PlayerFillDisplayCommand
                     ?? (_PlayerFillDisplayCommand = new DelegateCommand(() => 
                     {
-                        HohoemaPlaylist.IsPlayerFloatingModeEnable = false;
+                        HohoemaPlaylist.PlayerDisplayType = PlayerDisplayType.PrimaryView;
                     }));
             }
         }
@@ -206,7 +187,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _PlayerFloatDisplayCommand
                     ?? (_PlayerFloatDisplayCommand = new DelegateCommand(() =>
                     {
-
+                        HohoemaPlaylist.PlayerDisplayType = PlayerDisplayType.PrimaryWithSmall;
                     }));
             }
         }
@@ -219,7 +200,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _ClosePlayerCommand
                     ?? (_ClosePlayerCommand = new DelegateCommand(() =>
                     {
-                        HohoemaPlaylist.IsDisplayPlayer = false;
+                        HohoemaPlaylist.IsDisplayMainViewPlayer = false;
                     }));
             }
         }

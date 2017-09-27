@@ -23,13 +23,25 @@ using System.Reactive.Linq;
 using Windows.UI.Core;
 using NicoPlayerHohoema.Views.Service;
 using Mntone.Nico2;
+using System.Reactive.Concurrency;
+using Windows.ApplicationModel.Core;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	public abstract class HohoemaViewModelBase : ViewModelBase, IDisposable
 	{
+        private SynchronizationContextScheduler _CurrentWindowContextScheduler;
+        public SynchronizationContextScheduler CurrentWindowContextScheduler
+        {
+            get
+            {
+                return _CurrentWindowContextScheduler
+                    ?? (_CurrentWindowContextScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current));
+            }
+        }
 
-		static Util.AsyncLock _NavigationLock = new Util.AsyncLock();
+
+        static Util.AsyncLock _NavigationLock = new Util.AsyncLock();
 
         /// <summary>
         /// このページが利用可能になるアプリサービス状態を指定します。
@@ -282,7 +294,7 @@ namespace NicoPlayerHohoema.ViewModels
             // プレイヤーがフィル表示している時にバックキーのアクションを再定義する
             Observable.CombineLatest(
                 HohoemaApp.Playlist.ObserveProperty(x => x.IsPlayerFloatingModeEnable).Select(x => !x),
-                HohoemaApp.Playlist.ObserveProperty(x => x.IsDisplayPlayer)
+                HohoemaApp.Playlist.ObserveProperty(x => x.IsDisplayMainViewPlayer)
                 )
                 .Select(x => x.All(y => y))
                 .Subscribe(isBackNavigationClosePlayer =>
@@ -317,11 +329,11 @@ namespace NicoPlayerHohoema.ViewModels
             }
 			if (!String.IsNullOrEmpty(Title))
 			{
-				PageManager.PageTitle = Title;
+//				PageManager.PageTitle = Title;
 			}
 			else
 			{
-				PageManager.PageTitle = PageManager.CurrentDefaultPageTitle();
+//				PageManager.PageTitle = PageManager.CurrentDefaultPageTitle();
 			}
 
             // BG更新処理を再開
@@ -492,19 +504,22 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-        protected void AddSubsitutionBackNavigateAction(string id, Func<bool> action)
+        protected static void AddSubsitutionBackNavigateAction(string id, Func<bool> action)
         {
+            var view = CoreApplication.GetCurrentView();
+            if (!view.IsMain) { return; }
+
             if (!SubstitutionBackNavigation.ContainsKey(id))
             {
                 SubstitutionBackNavigation.Add(id, action);
 
-                var nav = Windows.UI.Core.SystemNavigationManager.GetForCurrentView();
+                var nav = Windows.UI.Core.SystemNavigationManager.GetForCurrentView();                
                 nav.AppViewBackButtonVisibility = Windows.UI.Core.AppViewBackButtonVisibility.Visible;
                 nav.BackRequested += Nav_BackRequested;
             }
         }
 
-        private void Nav_BackRequested(object sender, BackRequestedEventArgs e)
+        private static void Nav_BackRequested(object sender, BackRequestedEventArgs e)
         {
             if (SubstitutionBackNavigation.Count > 0)
             {
@@ -534,8 +549,11 @@ namespace NicoPlayerHohoema.ViewModels
             
         }
 
-        protected bool RemoveSubsitutionBackNavigateAction(string id)
+        protected static bool RemoveSubsitutionBackNavigateAction(string id)
         {
+            var view = CoreApplication.GetCurrentView();
+            if (!view.IsMain) { return false; }
+
             if (SubstitutionBackNavigation.ContainsKey(id))
             {
                 if (SubstitutionBackNavigation.Count == 1)

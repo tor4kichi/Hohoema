@@ -18,6 +18,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Media.Core;
+using Windows.Media.Playback;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI.Core;
@@ -105,14 +106,14 @@ namespace NicoPlayerHohoema.Models
 		/// 動画ストリームの取得します
 		/// 他にダウンロードされているアイテムは強制的に一時停止し、再生終了後に再開されます
 		/// </summary>
-		public async Task<NicoVideoQuality> StartPlay(NicoVideoQuality? quality, TimeSpan? initialPosition = null)
+		public async Task<NicoVideoQuality> StartPlay(MediaPlayer mediaPlayer, NicoVideoQuality? quality, TimeSpan? initialPosition = null)
         {
             IfVideoDeletedThrowException();
 
 
             {
-                HohoemaApp.MediaPlayer.Pause();
-                HohoemaApp.MediaPlayer.Source = null;
+                mediaPlayer.Pause();
+                mediaPlayer.Source = null;
 
                 _VideoMSS?.Dispose();
                 _VideoMSS = null;
@@ -289,15 +290,15 @@ namespace NicoPlayerHohoema.Models
 
             if (mediaSource != null)
             {
-                HohoemaApp.MediaPlayer.Source = mediaSource;
+                mediaPlayer.Source = mediaSource;
                 if (initialPosition.HasValue)
                 {
-                    HohoemaApp.MediaPlayer.PlaybackSession.Position = initialPosition.Value;
+                    mediaPlayer.PlaybackSession.Position = initialPosition.Value;
                 }
 
                 _MediaSource = mediaSource;
 
-                var smtc = HohoemaApp.MediaPlayer.SystemMediaTransportControls;
+                var smtc = mediaPlayer.SystemMediaTransportControls;
 
                 smtc.DisplayUpdater.Type = Windows.Media.MediaPlaybackType.Video;
                 smtc.DisplayUpdater.VideoProperties.Title = Title ?? "Hohoema";
@@ -317,10 +318,10 @@ namespace NicoPlayerHohoema.Models
 
 
 
-        public void StopPlay()
+        public void StopPlay(MediaPlayer mediaPlayer)
         {
-            HohoemaApp.MediaPlayer.Pause();
-            HohoemaApp.MediaPlayer.Source = null;
+            mediaPlayer.Pause();
+            mediaPlayer.Source = null;
 
             _VideoMSS?.Dispose();
             _VideoMSS = null;
@@ -339,7 +340,7 @@ namespace NicoPlayerHohoema.Models
             NicoVideoCachedStream?.Dispose();
             NicoVideoCachedStream = null;
 
-            var smtc = HohoemaApp.MediaPlayer.SystemMediaTransportControls;
+            var smtc = mediaPlayer.SystemMediaTransportControls;
             smtc.DisplayUpdater.ClearAll();
             smtc.IsEnabled = false;
             smtc.DisplayUpdater.Update();

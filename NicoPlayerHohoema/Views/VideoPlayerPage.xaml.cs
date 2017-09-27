@@ -18,12 +18,12 @@ using Windows.UI.Xaml.Navigation;
 
 namespace NicoPlayerHohoema.Views
 {
-    public sealed partial class VideoPlayerControl : UserControl
+    public sealed partial class VideoPlayerPage : Page
     {
         public UINavigationButtons ShowUIUINavigationButtons => 
             UINavigationButtons.Accept | UINavigationButtons.Left | UINavigationButtons.Right | UINavigationButtons.Up | UINavigationButtons.Down;
 
-        public VideoPlayerControl()
+        public VideoPlayerPage()
         {
             this.InitializeComponent();
         }

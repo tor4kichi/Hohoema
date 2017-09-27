@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xaml.Interactivity;
+using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Media.Playback;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -60,24 +62,69 @@ namespace NicoPlayerHohoema.Views.Behaviors
 			base.OnAttached();
 
 			this.AssociatedObject.Loaded += AssociatedObject_Loaded;
+            this.AssociatedObject.Unloaded += AssociatedObject_Unloaded;
 		}
 
+       
 
-		private bool IsSizeChanged;
-		private Timer _Timer;
+        private bool IsSizeChanged;
+		private DispatcherTimer _Timer = new DispatcherTimer();
 
         MediaPlayer _MediaPlayer;
+        CoreDispatcher _UIDispatcher;
+
+        IDisposable Disposer;
+        private void AssociatedObject_Unloaded(object sender, RoutedEventArgs e)
+        {
+            if (_MediaPlayer != null)
+            {
+                _MediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
+            }
+
+            Disposer?.Dispose();
+            Disposer = null;
+            _Timer.Stop();
+        }
 
         private void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
 		{
+            Disposer = this.AssociatedObject.ObserveDependencyProperty(MediaPlayerElement.MediaPlayerProperty)
+                .Subscribe(_ => 
+                {
+                    this.AssociatedObject.SizeChanged -= AssociatedObject_SizeChanged;
+                    
+                    if (this.AssociatedObject.MediaPlayer != null)
+                    {
+                        this.AssociatedObject.SizeChanged += AssociatedObject_SizeChanged;
+                        this.AssociatedObject.MediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
+
+                        _MediaPlayer = this.AssociatedObject.MediaPlayer;
+                        IsSizeChanged = true;
+                        StartEnsureResizeNotifyTimer();
+                    }
+                    else
+                    {
+                        _MediaPlayer = null;
+                        this.AssociatedObject.SizeChanged -= AssociatedObject_SizeChanged;
+                        _Timer?.Stop();
+                    }
+                });
+
+            _UIDispatcher = this.AssociatedObject.Dispatcher;
+            _Timer.Interval = TimeSpan.FromMilliseconds(100);
+            _Timer.Tick += _Timer_Tick;
+
             _MediaPlayer = this.AssociatedObject.MediaPlayer;
 
             this.AssociatedObject.SizeChanged += AssociatedObject_SizeChanged;
-            _MediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
+            if (this.AssociatedObject.MediaPlayer != null)
+            {
+                this.AssociatedObject.MediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
+            }
 
             IsSizeChanged = true;
-			StartEnsureResizeNotifyTimer();
-		}
+            StartEnsureResizeNotifyTimer();
+        }
 
         private void PlaybackSession_PlaybackStateChanged(MediaPlaybackSession sender, object args)
         {
@@ -94,26 +141,31 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
 
 
-		public void StartEnsureResizeNotifyTimer()
+		public async void StartEnsureResizeNotifyTimer()
 		{
 			if (IsSizeChanged == false)
 			{
 				return;
 			}
 
-			_Timer?.Dispose();
+            await _UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
+            {
+                _Timer.Start();
+            });
+        }
 
-			_Timer = new Timer(TryCalc, this, 100, 250);
+        private void _Timer_Tick(object sender, object e)
+        {
+            TryCalc();
+        }
 
-
-		}
-
-		async void TryCalc(object state = null)
+        async void TryCalc(object state = null)
 		{
+            if (_MediaPlayer == null) { return; }
+
 			if (IsSizeChanged == false)
 			{
-				_Timer?.Dispose();
-				_Timer = null;
+				_Timer.Stop();
 				return;
 			}
 
@@ -159,8 +211,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
 				IsSizeChanged = false;
 
-				_Timer?.Dispose();
-				_Timer = null;
+                _Timer.Stop();
 			});
 		}
 
@@ -169,8 +220,8 @@ namespace NicoPlayerHohoema.Views.Behaviors
 			base.OnDetaching();
 			this.AssociatedObject.SizeChanged -= AssociatedObject_SizeChanged;
 
-			_Timer?.Dispose();
-		}
+            _Timer.Stop();
+        }
 
 
 	}

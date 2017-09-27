@@ -18,7 +18,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 		{
 			UserSettings = settings;
 			Comments = comments;
-			IsCommentListScrollWithVideo = new ReactiveProperty<bool>(false)
+			IsCommentListScrollWithVideo = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false)
 				.AddTo(_CompositeDisposable);
 		}
 

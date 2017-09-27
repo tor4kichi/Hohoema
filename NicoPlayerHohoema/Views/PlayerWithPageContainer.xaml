@@ -20,27 +20,6 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <ContentControl.Resources>
-
-        <DataTemplate x:Key="EmptyTemplate">
-            
-        </DataTemplate>
-        <DataTemplate x:Key="VideoPlayerTemplate">
-            <local:VideoPlayerControl />
-        </DataTemplate>
-
-        <DataTemplate x:Key="LiveVideoPlayerTemplate">
-            <local:LiveVideoPlayerControl />
-        </DataTemplate>
-
-        <local:PlayerContentTemplateSelecter x:Key="PlayerContentTemplateSelecter" 
-                                             Empty="{StaticResource EmptyTemplate}"
-                                             VideoPlayer="{StaticResource VideoPlayerTemplate}"
-                                             LiveVideoPlayer="{StaticResource LiveVideoPlayerTemplate}"
-                                             />
-
-    </ContentControl.Resources>
-
     <ContentControl.Template>
         <ControlTemplate>
             <Grid>
@@ -65,14 +44,7 @@
 
                     <controls:FloatContentContainer.FloatContent>
                         <Grid>
-                            <ContentControl Content="{Binding ContentVM.Value}"
-                                            ContentTemplateSelector="{StaticResource PlayerContentTemplateSelecter}"
-                                            HorizontalContentAlignment="Stretch"
-                                            VerticalContentAlignment="Stretch"
-                                            HorizontalAlignment="Stretch"
-                                            VerticalAlignment="Stretch"
-                                            x:Name="PlayerContent"
-                                            IsTabStop="False"
+                            <Frame x:Name="PlayerFrame"
                                             />
 
                             

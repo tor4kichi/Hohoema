@@ -15,6 +15,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Windows.Media.Core;
+using Windows.Media.Playback;
 using Windows.Media.Streaming.Adaptive;
 
 namespace NicoPlayerHohoema.Models.Live
@@ -47,8 +48,9 @@ namespace NicoPlayerHohoema.Models.Live
 		public static readonly TimeSpan DefaultNextLiveSubscribeDuration =
 			TimeSpan.FromMinutes(3);
 
-		public HohoemaApp HohoemaApp { get; private set; }
+		public HohoemaApp HohoemaApp { get; }
 
+        public MediaPlayer MediaPlayer { get; }
 
         public event OpenLiveEventHandler OpenLive;
 
@@ -180,11 +182,12 @@ namespace NicoPlayerHohoema.Models.Live
 		AsyncLock _LiveSubscribeLock = new AsyncLock();
 		
 
-		public NicoLiveVideo(string liveId, HohoemaApp hohoemaApp, string communityId = null)
+		public NicoLiveVideo(string liveId, MediaPlayer mediaPlayer, HohoemaApp hohoemaApp, string communityId = null)
 		{
 			LiveId = liveId;
 			_CommunityId = communityId;
-			HohoemaApp = hohoemaApp;
+            MediaPlayer = mediaPlayer;
+            HohoemaApp = hohoemaApp;
 
 			_LiveComments = new ObservableCollection<Chat>();
 			LiveComments = new ReadOnlyObservableCollection<Chat>(_LiveComments);
@@ -192,8 +195,6 @@ namespace NicoPlayerHohoema.Models.Live
 
 		public void Dispose()
 		{
-            HohoemaApp.MediaPlayer.Source = null;
-
             _Mss?.Dispose();
             _MediaSource?.Dispose();
 
@@ -414,7 +415,7 @@ namespace NicoPlayerHohoema.Models.Live
             {
                 if (CurrentQuality == quality) { return; }
 
-                HohoemaApp.MediaPlayer.Source = null;
+                MediaPlayer.Source = null;
 
                 RequestQuality = quality;
                 await Live2WebSocket.SendChangeQualityMessageAsync(quality);
@@ -463,7 +464,7 @@ namespace NicoPlayerHohoema.Models.Live
                     
                     _MediaSource = MediaSource.CreateFromMediaStreamSource(_Mss.GetMediaStreamSource());
 
-                    HohoemaApp.MediaPlayer.Source = _MediaSource;
+                    MediaPlayer.Source = _MediaSource;
                 }
                 catch (Exception ex)
                 {
@@ -476,9 +477,9 @@ namespace NicoPlayerHohoema.Models.Live
         {
             await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
-                if (HohoemaApp.MediaPlayer.Source == _MediaSource)
+                if (MediaPlayer.Source == _MediaSource)
                 {
-                    HohoemaApp.MediaPlayer.Source = null;
+                    MediaPlayer.Source = null;
 
                     CloseLive?.Invoke(this);
                 }
@@ -572,7 +573,7 @@ namespace NicoPlayerHohoema.Models.Live
 
 			using (var releaser = await _VideoStreamSrouceAssignLock.LockAsync())
 			{
-                HohoemaApp.MediaPlayer.Source = null;
+                MediaPlayer.Source = null;
                 VideoStreamSource = null;
                 _MediaSource?.Dispose();
                 _MediaSource = null;
@@ -726,7 +727,7 @@ namespace NicoPlayerHohoema.Models.Live
                 {
                     VideoStreamSource = args.MediaStreamSource;
                     _MediaSource = MediaSource.CreateFromMediaStreamSource(args.MediaStreamSource);
-                    HohoemaApp.MediaPlayer.Source = _MediaSource;
+                    MediaPlayer.Source = _MediaSource;
 
                     Debug.WriteLine("recieve start live stream: " + LiveId);
 
@@ -741,7 +742,7 @@ namespace NicoPlayerHohoema.Models.Live
 			{
 				using (var releaser = await _VideoStreamSrouceAssignLock.LockAsync())
 				{
-                    HohoemaApp.MediaPlayer.Source = null;
+                    MediaPlayer.Source = null;
 
                     VideoStreamSource = null;
                     _MediaSource?.Dispose();

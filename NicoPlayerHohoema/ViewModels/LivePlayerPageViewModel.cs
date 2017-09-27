@@ -31,10 +31,11 @@ using Windows.System;
 using Windows.ApplicationModel.Core;
 using Windows.Foundation.Metadata;
 using NicoPlayerHohoema.ViewModels.PlayerSidePaneContent;
+using Windows.UI.Core;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class LiveVideoPlayerControlViewModel : HohoemaViewModelBase, IDisposable
+	public class LivePlayerPageViewModel : HohoemaViewModelBase, IDisposable
 	{
 		
 		private SynchronizationContextScheduler _PlayerWindowUIDispatcherScheduler;
@@ -46,6 +47,9 @@ namespace NicoPlayerHohoema.ViewModels
 					?? (_PlayerWindowUIDispatcherScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current));
 			}
 		}
+
+
+        private CoreDispatcher _CurrentWindowDispatcher;
 
 		/// <summary>
 		/// 生放送の再生時間をローカルで更新する頻度
@@ -108,8 +112,9 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReadOnlyReactiveCollection<Views.Comment> LiveComments { get; private set; }
 
 
+        public bool IsDisplayInSecondaryView => HohoemaApp.Playlist.PlayerDisplayType == PlayerDisplayType.SecondaryView;
 
-		private TimeSpan _LiveElapsedTime;
+        private TimeSpan _LiveElapsedTime;
 		public TimeSpan LiveElapsedTime
 		{
 			get { return _LiveElapsedTime; }
@@ -194,7 +199,7 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<bool> IsFullScreen { get; private set; }
         public ReactiveProperty<bool> IsCompactOverlay { get; private set; }
         public ReactiveProperty<bool> IsForceLandscape { get; private set; }
-        public ReactiveProperty<bool> IsSmallWindowModeEnable { get; private set; }
+        public ReadOnlyReactiveProperty<bool> IsSmallWindowModeEnable { get; private set; }
 
 
 		// suggestion
@@ -205,7 +210,7 @@ namespace NicoPlayerHohoema.ViewModels
         // Side Pane Content
 
 
-		public LiveVideoPlayerControlViewModel(
+		public LivePlayerPageViewModel(
             HohoemaApp hohoemaApp, 
             PageManager pageManager, 
             TextInputDialogService textInputDialogService,
@@ -216,25 +221,25 @@ namespace NicoPlayerHohoema.ViewModels
 			_TextInputDialogService = textInputDialogService;
             _ToastNotificationService = toast;
 
-            MediaPlayer = HohoemaApp.MediaPlayer;
+            _CurrentWindowDispatcher = CoreApplication.GetCurrentView().Dispatcher;
 
             // play
             CurrentState = new ReactiveProperty<MediaElementState>();
             NowPlaying = CurrentState.Select(x => x == MediaElementState.Playing)
-                .ToReactiveProperty();
+                .ToReactiveProperty(CurrentWindowContextScheduler);
 
 
-            NowUpdating = new ReactiveProperty<bool>(false);
-            LivePlayerType = new ReactiveProperty<Models.Live.LivePlayerType?>();
+            NowUpdating = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false);
+            LivePlayerType = new ReactiveProperty<Models.Live.LivePlayerType?>(CurrentWindowContextScheduler);
 
-            CanChangeQuality = new ReactiveProperty<bool>(false);
-            RequestQuality = new ReactiveProperty<string>();
-            CurrentQuality = new ReactiveProperty<string>();
+            CanChangeQuality = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false);
+            RequestQuality = new ReactiveProperty<string>(CurrentWindowContextScheduler);
+            CurrentQuality = new ReactiveProperty<string>(CurrentWindowContextScheduler);
 
-            IsAvailableSuperLowQuality = new ReactiveProperty<bool>(false);
-            IsAvailableLowQuality = new ReactiveProperty<bool>(false);
-            IsAvailableNormalQuality = new ReactiveProperty<bool>(false);
-            IsAvailableHighQuality = new ReactiveProperty<bool>(false);
+            IsAvailableSuperLowQuality = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false);
+            IsAvailableLowQuality = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false);
+            IsAvailableNormalQuality = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false);
+            IsAvailableHighQuality = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false);
 
             ChangeQualityCommand = new DelegateCommand<string>(
                 (quality) => 
@@ -367,14 +372,16 @@ namespace NicoPlayerHohoema.ViewModels
                 
 
             IsSmallWindowModeEnable = HohoemaApp.Playlist
-                .ToReactivePropertyAsSynchronized(x => x.IsPlayerFloatingModeEnable);
+                .ObserveProperty(x => x.IsPlayerFloatingModeEnable)
+                .ToReadOnlyReactiveProperty(eventScheduler: PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
 
             
-            Suggestion = new ReactiveProperty<LiveSuggestion>();
+            Suggestion = new ReactiveProperty<LiveSuggestion>(PlayerWindowUIDispatcherScheduler);
 			HasSuggestion = Suggestion.Select(x => x != null)
-				.ToReactiveProperty();
+				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler);
 
-            IsDisplayControlUI = HohoemaApp.Playlist.ToReactivePropertyAsSynchronized(x => x.IsDisplayPlayerControlUI);
+            IsDisplayControlUI = HohoemaApp.Playlist.ToReactivePropertyAsSynchronized(x => x.IsDisplayPlayerControlUI, PlayerWindowUIDispatcherScheduler);
 
             if (Util.InputCapabilityHelper.IsMouseCapable && !IsForceTVModeEnable.Value)
             {
@@ -396,35 +403,27 @@ namespace NicoPlayerHohoema.ViewModels
             }
             else
             {
-                IsAutoHideEnable = new ReactiveProperty<bool>(false);
-                IsMouseCursolAutoHideEnable = new ReactiveProperty<bool>(false);
+                IsAutoHideEnable = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
+                IsMouseCursolAutoHideEnable = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
             }
 
-            AutoHideDelayTime = new ReactiveProperty<TimeSpan>(TimeSpan.FromSeconds(3));
+            AutoHideDelayTime = new ReactiveProperty<TimeSpan>(PlayerWindowUIDispatcherScheduler, TimeSpan.FromSeconds(3));
 
 
 
             IsMuted = HohoemaApp.UserSettings.PlayerSettings
                 .ToReactivePropertyAsSynchronized(x => x.IsMute, PlayerWindowUIDispatcherScheduler)
                 .AddTo(_CompositeDisposable);
-            IsMuted.Subscribe(isMuted => 
-            {
-                MediaPlayer.IsMuted = isMuted;
-            })
-            .AddTo(_CompositeDisposable);
+            
 
             SoundVolume = HohoemaApp.UserSettings.PlayerSettings
                 .ToReactivePropertyAsSynchronized(x => x.SoundVolume, PlayerWindowUIDispatcherScheduler)
                 .AddTo(_CompositeDisposable);
-            SoundVolume.Subscribe(volume =>
-            {
-                MediaPlayer.Volume = volume;
-            })
-            .AddTo(_CompositeDisposable);
+            
 
             CommentUpdateInterval = HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.CommentRenderingFPS)
                 .Select(x => TimeSpan.FromSeconds(1.0 / x))
-                .ToReactiveProperty()
+                .ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
                 .AddTo(_CompositeDisposable);
 
             RequestCommentDisplayDuration = HohoemaApp.UserSettings.PlayerSettings
@@ -438,7 +437,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .AddTo(_CompositeDisposable);
 
 
-            IsForceLandscape = HohoemaApp.UserSettings.PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsForceLandscape);
+            IsForceLandscape = HohoemaApp.UserSettings.PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsForceLandscape, PlayerWindowUIDispatcherScheduler);
 
 
 
@@ -448,7 +447,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .AddTo(_CompositeDisposable);
             CurrentSidePaneContent = CurrentSidePaneContentType
                 .Select(GetSidePaneContent)
-                .ToReadOnlyReactiveProperty()
+                .ToReadOnlyReactiveProperty(eventScheduler: PlayerWindowUIDispatcherScheduler)
                 .AddTo(_CompositeDisposable);
 
 
@@ -494,7 +493,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _ClosePlayerCommand
                     ?? (_ClosePlayerCommand = new DelegateCommand(() =>
                     {
-                        HohoemaApp.Playlist.IsDisplayPlayer = false;
+                        HohoemaApp.Playlist.IsDisplayMainViewPlayer = false;
                     }
                     ));
             }
@@ -627,7 +626,35 @@ namespace NicoPlayerHohoema.ViewModels
                 return _PlayerSmallWindowDisplayCommand
                     ?? (_PlayerSmallWindowDisplayCommand = new DelegateCommand(() =>
                     {
-                        HohoemaApp.Playlist.IsPlayerFloatingModeEnable = true;
+                        HohoemaApp.Playlist.PlayerDisplayType = PlayerDisplayType.PrimaryWithSmall;
+                    }
+                    ));
+            }
+        }
+
+        private DelegateCommand _PlayerDisplayWithMainViewCommand;
+        public DelegateCommand PlayerDisplayWithMainViewCommand
+        {
+            get
+            {
+                return _PlayerDisplayWithMainViewCommand
+                    ?? (_PlayerDisplayWithMainViewCommand = new DelegateCommand(() =>
+                    {
+                        HohoemaApp.Playlist.PlayerDisplayType = PlayerDisplayType.PrimaryView;
+                    }
+                    ));
+            }
+        }
+
+        private DelegateCommand _PlayerDisplayWithSecondaryViewCommand;
+        public DelegateCommand PlayerDisplayWithSecondaryViewCommand
+        {
+            get
+            {
+                return _PlayerDisplayWithSecondaryViewCommand
+                    ?? (_PlayerDisplayWithSecondaryViewCommand = new DelegateCommand(() =>
+                    {
+                        HohoemaApp.Playlist.PlayerDisplayType = PlayerDisplayType.SecondaryView;
                     }
                     ));
             }
@@ -686,8 +713,8 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenBroadcastCommunityCommand
                     ?? (_OpenBroadcastCommunityCommand = new DelegateCommand(() =>
                     {
+                        HohoemaApp.Playlist.PlayerDisplayType = PlayerDisplayType.PrimaryWithSmall;
                         PageManager.OpenPage(HohoemaPageType.Community, CommunityId);
-                        HohoemaApp.Playlist.IsPlayerFloatingModeEnable = true;
                     }
                     ));
             }
@@ -714,7 +741,24 @@ namespace NicoPlayerHohoema.ViewModels
 			
 			if (LiveId != null)
 			{
-				NicoLiveVideo = new NicoLiveVideo(LiveId, HohoemaApp);
+                MediaPlayer = new MediaPlayer()
+                    .AddTo(_CompositeDisposable);
+                MediaPlayer.AutoPlay = true;
+                MediaPlayer.AudioCategory = MediaPlayerAudioCategory.Media;
+                RaisePropertyChanged(nameof(MediaPlayer));
+
+                SoundVolume.Subscribe(volume =>
+                {
+                    MediaPlayer.Volume = volume;
+                })
+                .AddTo(_NavigatingCompositeDisposable);
+                IsMuted.Subscribe(isMuted =>
+                {
+                    MediaPlayer.IsMuted = isMuted;
+                })
+                .AddTo(_NavigatingCompositeDisposable);
+
+                NicoLiveVideo = new NicoLiveVideo(LiveId, MediaPlayer, HohoemaApp);
 
 				NowConnecting = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false)
 					.AddTo(_NavigatingCompositeDisposable);
@@ -745,7 +789,7 @@ namespace NicoPlayerHohoema.ViewModels
 					comment.ApplyCommands(x.ParseCommandTypes());
 
 					return comment;
-				});
+				}, CurrentWindowContextScheduler);
 
 				RaisePropertyChanged(nameof(LiveComments));
 
@@ -1088,7 +1132,7 @@ namespace NicoPlayerHohoema.ViewModels
 		/// <param name="state">Timerオブジェクトのコールバックとして登録できるようにするためのダミー</param>
 		async void UpdateLiveElapsedTime(object state = null)
 		{
-			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Low, async () => 
+			await _CurrentWindowDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Low, async () => 
 			{
                 using (var releaser = await _LiveElapsedTimeUpdateTimerLock.LockAsync())
                 {
@@ -1269,7 +1313,7 @@ namespace NicoPlayerHohoema.ViewModels
                 switch (maybeType.Value)
                 {
                     case PlayerSidePaneContentType.Playlist:
-                        sidePaneContent = new PlayerSidePaneContent.PlaylistSidePaneContentViewModel(HohoemaApp.MediaPlayer, HohoemaApp.Playlist, HohoemaApp.UserSettings.PlaylistSettings, PageManager);
+                        sidePaneContent = new PlayerSidePaneContent.PlaylistSidePaneContentViewModel(MediaPlayer, HohoemaApp.Playlist, HohoemaApp.UserSettings.PlaylistSettings, PageManager);
                         break;
                     case PlayerSidePaneContentType.Comment:
                         throw new NotImplementedException();

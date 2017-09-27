@@ -28,9 +28,9 @@ namespace NicoPlayerHohoema.Models
 	public class HohoemaApp : BindableBase, IDisposable
 	{
 		public static CoreDispatcher UIDispatcher { get; private set; }
-		
 
 
+        
         public const string PlaylistSaveFolderName = "Playlists";
 
 
@@ -41,7 +41,7 @@ namespace NicoPlayerHohoema.Models
 
         private bool IsInitialized = false;
 
-		public static async Task<HohoemaApp> Create(IEventAggregator ea)
+		public static async Task<HohoemaApp> Create(IEventAggregator ea, HohoemaViewManager viewMan)
 		{
 			HohoemaApp.UIDispatcher = Window.Current.CoreWindow.Dispatcher;
 
@@ -54,7 +54,7 @@ namespace NicoPlayerHohoema.Models
 
             var folder = ApplicationData.Current.LocalFolder;
             var playlistFolder = await folder.CreateFolderAsync(PlaylistSaveFolderName, CreationCollisionOption.OpenIfExists);
-            app.Playlist = new HohoemaPlaylist(MediaPlayer, app.UserSettings.PlaylistSettings, playlistFolder);
+            app.Playlist = new HohoemaPlaylist(app.UserSettings.PlaylistSettings, playlistFolder, viewMan);
 
             await app.Playlist.Load();
 
@@ -89,12 +89,6 @@ namespace NicoPlayerHohoema.Models
 
 		private SemaphoreSlim _SigninLock;
 		private const string ThumbnailLoadBackgroundTaskId = "ThumbnailLoader";
-
-        public static MediaPlayer MediaPlayer { get; private set; } = new MediaPlayer()
-        {
-            AutoPlay = true,
-            AudioCategory = MediaPlayerAudioCategory.Movie,            
-        };
 
         private HohoemaApp(IEventAggregator ea)
 		{

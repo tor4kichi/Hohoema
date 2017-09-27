@@ -41,6 +41,7 @@ using Windows.ApplicationModel.DataTransfer;
 using Mntone.Nico2;
 using Prism.Commands;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace NicoPlayerHohoema
 {
@@ -49,7 +50,7 @@ namespace NicoPlayerHohoema
     /// </summary>
     sealed partial class App : Prism.Unity.Windows.PrismUnityApplication
     {
-		public PlayerWindowManager PlayerWindow { get; private set; }
+		public HohoemaViewManager PlayerWindow { get; private set; }
 
 		private bool _IsPreLaunch;
 
@@ -618,24 +619,19 @@ namespace NicoPlayerHohoema
 		}
         */
 
-        private async void PlayNicoVideoInPlayerWindow(string videoUrl)
-		{
-			await OpenPlayerWindow();
-
-			await PlayerWindow.OpenVideo(videoUrl);
-		}
-
 
 		private async Task RegisterTypes()
 		{
-			// Models
-			var hohoemaApp = await HohoemaApp.Create(EventAggregator);
-
+            // Models
+            var secondaryViewMan = new HohoemaViewManager();
+            var hohoemaApp = await HohoemaApp.Create(EventAggregator, secondaryViewMan);
+            Container.RegisterInstance(secondaryViewMan);
             Container.RegisterInstance(hohoemaApp);
-			Container.RegisterInstance(new PageManager(hohoemaApp, NavigationService, hohoemaApp.UserSettings.AppearanceSettings, hohoemaApp.Playlist));
+			Container.RegisterInstance(new PageManager(hohoemaApp, NavigationService, hohoemaApp.UserSettings.AppearanceSettings, hohoemaApp.Playlist, secondaryViewMan));
             Container.RegisterInstance(hohoemaApp.ContentFinder);
             Container.RegisterInstance(hohoemaApp.Playlist);
             Container.RegisterInstance(hohoemaApp.OtherOwneredMylistManager);
+            
 
             // 非同期更新機能の同時実行タスク数を指定
             var deviceFamily = Windows.System.Profile.AnalyticsInfo.VersionInfo.DeviceFamily;
@@ -751,32 +747,17 @@ namespace NicoPlayerHohoema
 //			mainWindowView.Consolidated += MainWindowView_Consolidated;
 
 		}
-
-		private void MainWindowView_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)
-		{
-			if (PlayerWindow == null) { App.Current.Exit(); }
-
-			if (sender.Id  == PlayerWindow.ViewId)
-			{
-				PlayerWindow.Closed();
-			}
-			else
-			{
-				App.Current.Exit();
-			}
-		}
-
         
 
         protected override UIElement CreateShell(Frame rootFrame)
-		{
-			rootFrame.Navigating += RootFrame_Navigating;
+        {
+            rootFrame.Navigating += RootFrame_Navigating;
             rootFrame.NavigationFailed += RootFrame_NavigationFailed;
 
             var menuPageBase = new Views.MenuNavigatePageBase();
             menuPageBase.Content = rootFrame;
-
             var container = new Views.PlayerWithPageContainer();
+
             container.Content = menuPageBase;
 
 #if DEBUG
@@ -887,24 +868,7 @@ namespace NicoPlayerHohoema
 				);
 		}
 
-		
-		private async Task OpenPlayerWindow()
-		{
-			var currentViewId = ApplicationView.GetForCurrentView().Id;
-			System.Diagnostics.Debug.WriteLine($"MainWindow ViewId is {currentViewId}");
-
-
-			if (PlayerWindow == null)
-			{
-				var view = CoreApplication.CreateNewView();
-
-				PlayerWindow = await PlayerWindowManager.CreatePlayerWindowManager(view);
-			}
-
-			await PlayerWindow.ShowFront(currentViewId);
-		}
-
-
+	
         // 独自のタイトルバーを表示するメソッド
         private void SetTitleBar()
         {
@@ -1241,101 +1205,17 @@ namespace NicoPlayerHohoema
                     }
             });
         }
-        
+
 
         #endregion
 
+
+
+        
     }
 
 
 
 
-    public class PlayerWindowManager
-	{
-		public int ViewId { get; private set; }
-		
-		
-		public CoreApplicationView View { get; private set; }
-		public INavigationService NavigationService { get; private set;}
-
-
-
-		PlayerWindowManager(CoreApplicationView view, int id, INavigationService ns)
-		{
-			this.View = view;
-			NavigationService = ns;
-			ViewId = id;
-		}
-
-		public static async Task<PlayerWindowManager> CreatePlayerWindowManager(CoreApplicationView playerView)
-		{
-			INavigationService ns = null;
-			int id = 0;
-			await playerView.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-			{
-				var frame = new Frame();
-				var frameFacade = new FrameFacadeAdapter(frame);
-				Window.Current.Content = frame;
-
-				var sessionStateService = new SessionStateService();
-				ns = new FrameNavigationService(frameFacade
-					, (pageToken) =>
-					{
-						if (pageToken == nameof(Views.VideoPlayerControl))
-						{
-							return typeof(Views.VideoPlayerControl);
-						}
-						else
-						{
-							return typeof(Page);
-						}
-					}, sessionStateService);
-				id = ApplicationView.GetApplicationViewIdForWindow(playerView.CoreWindow);
-			});
-
-			return new PlayerWindowManager(playerView, id, ns);
-		}
-
-		public async Task ShowFront(int mainViewid)
-		{
-			await View.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-			{
-				View.CoreWindow.Activate();
-				await ApplicationViewSwitcher.TryShowAsStandaloneAsync(
-					ViewId
-					, ViewSizePreference.Default
-					, mainViewid
-					, ViewSizePreference.Default
-					);
-			});
-		}
-
-		public async Task OpenVideo(string videoUrl)
-		{
-			// サブウィンドウをアクティベートして、サブウィンドウにPlayerページナビゲーションを飛ばす
-			await View.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-			{
-				if (!NavigationService.Navigate(nameof(Views.VideoPlayerControl), videoUrl))
-				{
-					System.Diagnostics.Debug.WriteLine("Failed open player.");
-				}
-				NavigationService.ClearHistory();
-			});
-		}
-
-
-		public async void Closed()
-		{
-			await View.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-			{
-				NavigationService.Navigate("", null);
-				NavigationService.ClearHistory();
-
-				
-			});
-
-			await Task.Delay(3000);
-		}
-
-	}
+    
 }

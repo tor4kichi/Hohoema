@@ -1,5 +1,5 @@
-﻿<UserControl
-    x:Class="NicoPlayerHohoema.Views.LiveVideoPlayerControl"
+﻿<Page
+    x:Class="NicoPlayerHohoema.Views.LivePlayerPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:NicoPlayerHohoema.Views"
@@ -7,7 +7,6 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-    xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
@@ -21,7 +20,8 @@
     xmlns:media="using:Microsoft.Xaml.Interactions.Media"
     xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Animations.Behaviors"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
-    
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
@@ -303,7 +303,33 @@
                 </VisualState>
             </VisualStateGroup>
 
+            
+            <!-- 別ウィンドウで開く -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsDisplayInSecondaryView}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="DisplayWithMainViewButton.Visibility" Value="Visible" />
+                        <Setter Target="SmallWindowButton.Visibility" Value="Collapsed" />
 
+                        <Setter Target="CloseButton.Visibility" Value="Collapsed" />
+                        <Setter Target="CO_CloseButton.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardTrigger:DeviceFamilyTrigger Condition="Desktop" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="DisplayWithSecondaryViewButton.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+
+            <!-- 小窓表示 -->
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
@@ -638,6 +664,7 @@
                                             Background="Transparent"
                                             toolkit:DockPanel.Dock="Left"
                                             UseSystemFocusVisuals="True"
+                                                x:Name="CloseButton"
                                             >
                                             <iconPack:PackIconMaterial Kind="Close" />
                                         </Button>
@@ -1037,20 +1064,33 @@
                                                         </Button>
 
 
-                                                        <Button Visibility="Collapsed"
-                                                                              x:Name="SplitWindowButton"
-                                                                              Background="Transparent"
-                                                                              >
+                                                        <Button Command="{Binding PlayerDisplayWithMainViewCommand}"
+                                                                        Background="Transparent"
+                                                                        x:Name="DisplayWithMainViewButton"
+                                                                        Visibility="Collapsed"
+                                                                        >
                                                             <StackPanel Orientation="Vertical">
-                                                                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE78B;"
-                                                                                   FontSize="24"
-                                                                                   VerticalAlignment="Center"
-                                                                                   Height="24"
-                                                                                   Width="24"
-                                                                                   HorizontalAlignment="Center"
-                                                                                   Margin="0 0 0 8"
-                                                                               />
-                                                                <TextBlock Text="別ウィンドウ" 
+                                                                <SymbolIcon Symbol="BackToWindow"
+                                                                                    Margin="0 0 0 8"
+                                                                                    />
+
+                                                                <TextBlock Text="メインビューで表示" 
+                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                                                                   VerticalAlignment="Center" />
+                                                            </StackPanel>
+                                                        </Button>
+
+                                                        <Button Command="{Binding PlayerDisplayWithSecondaryViewCommand}"
+                                                                        Background="Transparent"
+                                                                        x:Name="DisplayWithSecondaryViewButton"
+                                                                        Visibility="Collapsed"
+                                                                        >
+                                                            <StackPanel Orientation="Vertical">
+                                                                <SymbolIcon Symbol="NewWindow"
+                                                                                    Margin="0 0 0 8"
+                                                                                    />
+
+                                                                <TextBlock Text="新しいビューで表示" 
                                                                                    Style="{StaticResource CaptionTextBlockStyle}"
                                                                                    VerticalAlignment="Center" />
                                                             </StackPanel>
@@ -1473,4 +1513,4 @@
         </toolkit:LayoutTransformControl>
     </Border>
 
-</UserControl>
+</Page>

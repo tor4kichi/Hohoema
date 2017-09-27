@@ -1,5 +1,5 @@
-﻿<UserControl
-    x:Class="NicoPlayerHohoema.Views.VideoPlayerControl"
+﻿<Page
+    x:Class="NicoPlayerHohoema.Views.VideoPlayerPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:NicoPlayerHohoema.Views"
@@ -9,7 +9,6 @@
     xmlns:comment="using:NicoPlayerHohoema.Views.CommentRenderer"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-    xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
@@ -25,6 +24,8 @@
     xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:model="using:NicoPlayerHohoema.Models"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"
     x:Name="RootLayout"
     d:DesignHeight="300"
     d:DesignWidth="400">
@@ -519,10 +520,34 @@
 
 
 
+
+
             
+            <!-- 別ウィンドウで開く -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsDisplayInSecondaryView}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="DisplayWithMainViewButton.Visibility" Value="Visible" />
+                        <Setter Target="SmallWindowButton.Visibility" Value="Collapsed" />
 
-
-
+                        <Setter Target="CloseButton.Visibility" Value="Collapsed" />
+                        <Setter Target="CO_CloseButton.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardTrigger:DeviceFamilyTrigger Condition="Desktop" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="DisplayWithSecondaryViewButton.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+            
+            <!-- 小窓で開く -->
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
@@ -714,6 +739,7 @@
                                >
 
                 <i:Interaction.Behaviors>
+                                       
                     <!-- サイドペインのコンテンツVMが指定されたらサイドペインを開く -->
 
                     <!-- 条件に{x:Null}ではなく PlayerSidePaneContentType.None を指定しているのは
@@ -762,10 +788,12 @@
 
 
                             <!-- マウスの非表示 -->
+                            
                             <mybehavior:AutoHideCursor x:Name="AutoHideCursor"
                                 IsAutoHideEnabled="{Binding IsMouseCursolAutoHideEnable.Value, Mode=OneWay}"
                                 AutoHideDelay="0:0:0.5"
                                 />
+                            
 
 
                             <core:EventTriggerBehavior EventName="Loaded">
@@ -923,13 +951,13 @@
 
                         <!-- UI非表示時の再生位置バー -->
                         <Slider Value="{Binding ElementName=SeekBarSlider, Path=Value, Mode=TwoWay}" 
-                        Maximum="{Binding VideoLength.Value, Mode=OneWay}"
-                        Style="{StaticResource VideoProgressBarStyle}"
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Bottom"
-                        IsEnabled="False"
-                        Opacity="0.6"
-                        x:Name="ReadOnlySeekBarSlider"
+                                Maximum="{Binding VideoLength.Value, Mode=OneWay}"
+                                Style="{StaticResource VideoProgressBarStyle}"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Bottom"
+                                IsEnabled="False"
+                                Opacity="0.6"
+                                x:Name="ReadOnlySeekBarSlider"
                              >
                             <Slider.RenderTransform>
                                 <TranslateTransform Y="8" />
@@ -952,9 +980,7 @@
 
                         
                         
-                        <Grid 
-                    x:Name="UIControlLayout"
-                            >
+                        <Grid x:Name="UIControlLayout">
                             <i:Interaction.Behaviors>
 
                                 <mybehavior:VisiblityFadeChanger x:Name="PlayerControlAutoHide" 
@@ -962,7 +988,7 @@
                                                          IsAnimationEnable="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BooleanInverted}}"
                                                          IsVisible="{Binding IsDisplayControlUI.Value, Mode=TwoWay}"
                                                          IsAutoHideEnabled="{Binding IsAutoHideEnable.Value, Mode=OneWay}"
-                        />
+                                     />
 
                                 <core:DataTriggerBehavior Binding="{Binding IsDisplayControlUI.Value}" Value="True">
                                     <mybehavior:SetFocus TargetObject="{Binding ElementName=PlayPauseButton}" Delay="00:00:00" 
@@ -1327,6 +1353,11 @@
 
                                                                     </StackPanel>
                                                                 </Button>
+
+
+
+
+                                                                
                                                                 
                                                                 <Button Command="{Binding ToggleCompactOverlayCommand}"
                                                                         Background="Transparent"
@@ -1334,14 +1365,11 @@
                                                                         Visibility="Collapsed"
                                                                         >
                                                                     <StackPanel Orientation="Vertical">
-                                                                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE2B4;"
-                                                                                   FontSize="24"
-                                                                                   VerticalAlignment="Center"
-                                                                                   Height="24"
-                                                                                   Width="24"
-                                                                                   HorizontalAlignment="Center"
-                                                                                   Margin="0 0 0 8"
-                                                                               />
+
+                                                                        <SymbolIcon Symbol="NewWindow" 
+                                                                                    Margin="0 0 0 8"
+                                                                                    />
+
                                                                         <TextBlock Text="ミニモード" 
                                                                                    Style="{StaticResource CaptionTextBlockStyle}"
                                                                                    VerticalAlignment="Center" />
@@ -1374,7 +1402,50 @@
                                                                     </StackPanel>
                                                                 </Button>
 
-                                                                
+
+                                                                <Button Command="{Binding PlayerDisplayWithMainViewCommand}"
+                                                                        Background="Transparent"
+                                                                        x:Name="DisplayWithMainViewButton"
+                                                                        Visibility="Collapsed"
+                                                                        >
+                                                                    <StackPanel Orientation="Vertical">
+                                                                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE944;"
+                                                                                   FontSize="24"
+                                                                                   VerticalAlignment="Center"
+                                                                                   Height="24"
+                                                                                   Width="24"
+                                                                                   HorizontalAlignment="Center"
+                                                                                   Margin="0 0 0 8"
+                                                                               />
+
+                                                                        <TextBlock Text="メインビューで表示" 
+                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                                                                   VerticalAlignment="Center" />
+                                                                    </StackPanel>
+                                                                </Button>
+
+                                                                <Button Command="{Binding PlayerDisplayWithSecondaryViewCommand}"
+                                                                        Background="Transparent"
+                                                                        x:Name="DisplayWithSecondaryViewButton"
+                                                                        Visibility="Collapsed"
+                                                                        >
+                                                                    <StackPanel Orientation="Vertical">
+                                                                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8A7;"
+                                                                                   FontSize="24"
+                                                                                   VerticalAlignment="Center"
+                                                                                   Height="24"
+                                                                                   Width="24"
+                                                                                   HorizontalAlignment="Center"
+                                                                                   Margin="0 0 0 8"
+                                                                               />
+                                                                        <TextBlock Text="新しいビューで表示" 
+                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                                                                   VerticalAlignment="Center" />
+                                                                    </StackPanel>
+                                                                </Button>
+
+
+
                                                                 <Button Visibility="Collapsed"
                                                                               x:Name="SplitWindowButton"
                                                                               Background="Transparent"
@@ -1423,7 +1494,13 @@
 
 
                                                     <Grid>
-                                                        <SymbolIcon Symbol="NewWindow" />
+                                                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE97C;"
+                                                                                   FontSize="24"
+                                                                                   VerticalAlignment="Center"
+                                                                                   Height="24"
+                                                                                   Width="24"
+                                                                                   HorizontalAlignment="Center"
+                                                                               />
                                                     </Grid>
                                                     
                                                 </Button>
@@ -1941,4 +2018,4 @@
 
         </toolkit:LayoutTransformControl>
     </Grid>
-</UserControl>
+</Page>

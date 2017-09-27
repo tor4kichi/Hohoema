@@ -2,15 +2,27 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 {
 	public abstract class SidePaneContentViewModelBase : BindableBase, IDisposable
 	{
-		protected CompositeDisposable _CompositeDisposable;
+        private SynchronizationContextScheduler _CurrentWindowContextScheduler;
+        public SynchronizationContextScheduler CurrentWindowContextScheduler
+        {
+            get
+            {
+                return _CurrentWindowContextScheduler
+                    ?? (_CurrentWindowContextScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current));
+            }
+        }
+
+        protected CompositeDisposable _CompositeDisposable;
 
 		public SidePaneContentViewModelBase()
 		{
