@@ -108,13 +108,16 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
         bool _NowCompactOverlayMode = false;
 
-        
+        MouseDevice _MouseDevice;
 
         protected override void OnAttached()
         {
             base.OnAttached();
 
             _DefaultCursor = Window.Current.CoreWindow.PointerCursor;
+
+            AssociatedObject.PointerEntered += AssociatedObject_PointerEntered;
+            AssociatedObject.PointerExited += AssociatedObject_PointerExited;
 
             AssociatedObject.Loaded += AssociatedObject_Loaded;
             AssociatedObject.Unloaded += AssociatedObject_Unloaded;
@@ -125,18 +128,16 @@ namespace NicoPlayerHohoema.Views.Behaviors
         protected override void OnDetaching()
         {
             Window.Current.SizeChanged -= Current_SizeChanged;
-            MouseDevice.GetForCurrentView().MouseMoved -= CursorSetter_MouseMoved;
-
 
             AssociatedObject.PointerEntered -= AssociatedObject_PointerEntered;
             AssociatedObject.PointerExited -= AssociatedObject_PointerExited;
 
-            Window.Current.Activated -= Current_Activated;
-
-            _AutoHideTimer.Tick -= AutoHideTimer_Tick;
-            _AutoHideTimer.Stop();
+            AssociatedObject.Loaded -= AssociatedObject_Loaded;
+            AssociatedObject.Unloaded -= AssociatedObject_Unloaded;
 
             Window.Current.CoreWindow.PointerCursor = _DefaultCursor;
+
+            _AutoHideTimer.Stop();
 
             base.OnDetaching();
         }
@@ -149,10 +150,12 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
         private void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
         {
-            MouseDevice.GetForCurrentView().MouseMoved += CursorSetter_MouseMoved;
-            
-            AssociatedObject.PointerEntered += AssociatedObject_PointerEntered;
-            AssociatedObject.PointerExited += AssociatedObject_PointerExited;
+            try
+            {
+                _MouseDevice = MouseDevice.GetForCurrentView();
+                _MouseDevice.MouseMoved += CursorSetter_MouseMoved;
+            }
+            catch { }
 
             Window.Current.Activated += Current_Activated;
             
@@ -167,6 +170,16 @@ namespace NicoPlayerHohoema.Views.Behaviors
         private void AssociatedObject_Unloaded(object sender, RoutedEventArgs e)
         {
             _AutoHideTimer.Stop();
+
+            if (_MouseDevice != null)
+            {
+                _MouseDevice.MouseMoved -= CursorSetter_MouseMoved;
+                _MouseDevice = null;
+            }
+
+            Window.Current.Activated -= Current_Activated;
+
+            _AutoHideTimer.Tick -= AutoHideTimer_Tick;
         }
 
 

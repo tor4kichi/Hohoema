@@ -126,10 +126,12 @@ namespace NicoPlayerHohoema.ViewModels
             ClosePlayer();
         }
 
-        private void HohoemaPlaylist_OpenPlaylistItem(IPlayableList playlist, PlaylistItem item)
+        private async void HohoemaPlaylist_OpenPlaylistItem(IPlayableList playlist, PlaylistItem item)
         {
-            // TODO: 別ウィンドウでプレイヤーを表示している場合に処理をキャンセル
-            ShowPlayer(item);
+            await HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
+            {
+                ShowPlayer(item);
+            });
         }
 
         private bool ShowPlayer(PlaylistItem item)

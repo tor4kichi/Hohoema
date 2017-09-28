@@ -14,6 +14,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
+using Windows.Foundation.Metadata;
 using Windows.Media;
 using Windows.Media.Core;
 using Windows.Media.Playback;
@@ -111,15 +112,22 @@ namespace NicoPlayerHohoema.Models
 
                     Debug.WriteLine("プレイヤー表示状態：" + _PlayerDisplayType.ToString());
 
+                    // TODO: セカンダリビューからの復帰時、Currentがnullになっている
                     var prevItem = Player.Current;
                     if (prevDisplayType == PlayerDisplayType.SecondaryView)
                     {
-                        _SecondaryView.Close();
-                        if (prevItem != null)
-                        {
-                            IsDisplayMainViewPlayer = true;
-                            Play(prevItem);
-                        }
+                        _SecondaryView.Close()
+                            .ContinueWith(prevTask => 
+                            {
+                                if (prevItem != null)
+                                {
+                                    Play(prevItem);
+                                    IsDisplayMainViewPlayer = true;
+                                }
+                            });
+
+                        // Note: 
+                        (App.Current as App).PublishInAppNotification(InAppNotificationPayload.CreateReadOnlyNotification(""));
                     }
                     else
                     {
@@ -130,7 +138,8 @@ namespace NicoPlayerHohoema.Models
                         if (isNeedPlayerReset && prevItem != null)
                         {
                             IsDisplayMainViewPlayer = _PlayerDisplayType != PlayerDisplayType.SecondaryView;
-                            Play(prevItem);
+
+                            Play(prevItem);                                
                         }
                     }
 

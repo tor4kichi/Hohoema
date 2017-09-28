@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
+using Windows.Foundation.Metadata;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
@@ -93,8 +94,8 @@ namespace NicoPlayerHohoema.Models
 
                     Window.Current.Activate();
                     await ApplicationViewSwitcher.TryShowAsStandaloneAsync(
-                        id
-                        , ViewSizePreference.Default,
+                        id,
+                        ViewSizePreference.Default,
                         MainView.Id,
                         ViewSizePreference.Default
                         );
@@ -109,6 +110,16 @@ namespace NicoPlayerHohoema.Models
 
 
             }
+            else
+            {
+                Window.Current.Activate();
+                await ApplicationViewSwitcher.TryShowAsStandaloneAsync(
+                    ViewId,
+                    ViewSizePreference.Default,
+                    MainView.Id,
+                    ViewSizePreference.Default
+                    );
+            }
 
             return this;
         }
@@ -116,16 +127,7 @@ namespace NicoPlayerHohoema.Models
 
         private void SecondaryAppView_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)
         {
-            if (AppView != null)
-            {
-                NavigationService.Navigate(nameof(Views.BlankPage), null);
-
-                AppView.Consolidated -= SecondaryAppView_Consolidated;
-                CoreAppView = null;
-                AppView = null;
-                _SecondaryViewVM = null;
-                NavigationService = null;
-            }
+             NavigationService.Navigate(nameof(Views.BlankPage), null);
         }
 
         public async Task OpenContent(PlaylistItem item)
@@ -195,22 +197,38 @@ namespace NicoPlayerHohoema.Models
         /// SecondaryViewを閉じます。
         /// MainViewから呼び出すと別スレッドアクセスでエラーになるはず
         /// </summary>
-        public void Close()
+        public async Task Close()
         {
             if (_SecondaryViewVM == null) { return; }
 
             NavigationService.Navigate(nameof(Views.BlankPage), null);
 
-            AppView.Consolidated -= SecondaryAppView_Consolidated;
+            await ShowMainView();
 
-            ShowMainView();
+            if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4))
+            {
+                await AppView.TryConsolidateAsync().AsTask()
+                    .ContinueWith(prevTask => 
+                    {
+//                        CoreAppView = null;
+//                        AppView = null;
+//                        _SecondaryViewVM = null;
+//                        NavigationService = null;
+                    });
+            }
+            else
+            {
+                AppView.Consolidated -= SecondaryAppView_Consolidated;
 
-            CoreAppView.CoreWindow.Close();
+                CoreAppView.CoreWindow.Close();
 
-            CoreAppView = null;
-            AppView = null;
-            _SecondaryViewVM = null;
-            NavigationService = null;
+                CoreAppView = null;
+                AppView = null;
+                _SecondaryViewVM = null;
+                NavigationService = null;
+            }
+
+            
         }
 
 
