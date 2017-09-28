@@ -973,7 +973,11 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
             {
                 await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
                 {
-                    if (MediaPlayer == null) { return; }
+                    if (MediaPlayer == null || MediaPlayer.Source == null)
+                    {
+                        _PlayerCanSeek = false;
+                        return;
+                    }
 
                     _PlayerCanSeek = sender.PlaybackSession.CanSeek;
                 });
@@ -987,7 +991,11 @@ namespace NicoPlayerHohoema.Views.CommentRenderer
             {
                 await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                 {
-                    if (MediaPlayer == null) { return; }
+                    if (MediaPlayer == null || MediaPlayer.Source == null)
+                    {
+                        PlaybackState = null;
+                        return;
+                    }
 
                     PlaybackState = sender?.PlaybackState ?? null;
                 });
