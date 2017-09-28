@@ -1338,14 +1338,14 @@
                                                                         x:Name="SmallWindowButton"  
                                                                         >
                                                                     <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                                                                        <toolkit:LayoutTransformControl Margin="0 0 0 8">
-                                                                            <iconPack:PackIconMaterial Kind="WindowMinimize" 
-                                                                                                   Width="24"
-                                                                                                   Height="24"
-                                                                                                       HorizontalAlignment="Center"
-                                                                            >
-                                                                            </iconPack:PackIconMaterial>
-                                                                        </toolkit:LayoutTransformControl>
+                                                                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE743;"
+                                                                                   FontSize="24"
+                                                                                   VerticalAlignment="Center"
+                                                                                   Height="24"
+                                                                                   Width="24"
+                                                                                   HorizontalAlignment="Center"
+                                                                                   Margin="0 0 0 8"
+                                                                               />
 
                                                                         <TextBlock Text="小窓" 
                                                                                    Style="{StaticResource CaptionTextBlockStyle}"
@@ -1366,10 +1366,14 @@
                                                                         >
                                                                     <StackPanel Orientation="Vertical">
 
-                                                                        <SymbolIcon Symbol="NewWindow" 
-                                                                                    Margin="0 0 0 8"
-                                                                                    />
-
+                                                                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8A7;"
+                                                                                   FontSize="24"
+                                                                                   VerticalAlignment="Center"
+                                                                                   Height="24"
+                                                                                   Width="24"
+                                                                                   HorizontalAlignment="Center"
+                                                                                   Margin="0 0 0 8"
+                                                                               />
                                                                         <TextBlock Text="ミニモード" 
                                                                                    Style="{StaticResource CaptionTextBlockStyle}"
                                                                                    VerticalAlignment="Center" />
@@ -1409,14 +1413,12 @@
                                                                         Visibility="Collapsed"
                                                                         >
                                                                     <StackPanel Orientation="Vertical">
-                                                                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE944;"
-                                                                                   FontSize="24"
-                                                                                   VerticalAlignment="Center"
-                                                                                   Height="24"
-                                                                                   Width="24"
-                                                                                   HorizontalAlignment="Center"
-                                                                                   Margin="0 0 0 8"
-                                                                               />
+                                                                        <iconPack:PackIconMaterial Kind="CheckboxBlankOutline"
+                                                                                                   Margin="0 0 0 8"
+                                                                                                   Height="24"
+                                                                                                   Width="24"
+                                                                                                   HorizontalAlignment="Center"
+                                                                                                   />
 
                                                                         <TextBlock Text="メインビューで表示" 
                                                                                    Style="{StaticResource CaptionTextBlockStyle}"
@@ -1430,14 +1432,13 @@
                                                                         Visibility="Collapsed"
                                                                         >
                                                                     <StackPanel Orientation="Vertical">
-                                                                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8A7;"
-                                                                                   FontSize="24"
-                                                                                   VerticalAlignment="Center"
-                                                                                   Height="24"
-                                                                                   Width="24"
-                                                                                   HorizontalAlignment="Center"
-                                                                                   Margin="0 0 0 8"
-                                                                               />
+                                                                        <iconPack:PackIconMaterial Kind="CheckboxMultipleBlankOutline"
+                                                                                                   Margin="0 0 0 8"
+                                                                                                   Height="24"
+                                                                                                   Width="24"
+                                                                                                   HorizontalAlignment="Center"
+                                                                                                   />
+
                                                                         <TextBlock Text="新しいビューで表示" 
                                                                                    Style="{StaticResource CaptionTextBlockStyle}"
                                                                                    VerticalAlignment="Center" />
@@ -1829,7 +1830,7 @@
 
                                                 <Button Background="Transparent" 
                                                         Command="{Binding PreviewVideoPositionCommand}"
-                                                        Margin="0 0 0 0"
+                                                        Margin="0 0 8 0"
                                                         x:Name="CO_PreviewVideoPositionButton"
                                                 >
                                                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3C;" 
@@ -1857,7 +1858,7 @@
                                                 <Button Background="Transparent"
                                                     Command="{Binding ForwardVideoPositionCommand}"
                                                     x:Name="CO_ForwardVideoPositionButton"
-                                                        Margin="0 0 0 0"
+                                                        Margin="8 0 0 0"
                                                     >
                                                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3D;"
                                                        FontSize="20"
