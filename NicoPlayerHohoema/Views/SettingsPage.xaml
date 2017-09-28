@@ -108,6 +108,10 @@
                     <VisualState.Setters>
                         <Setter Target="HeadlerLayout.Margin" Value="0 27 48 0" />
                         <Setter Target="SettingsContentPanel.Margin" Value="0 0 48 0" />
+                        
+                        <!-- Web連携無効化 -->
+                        <Setter Target="WebCollaborationTitle.Visibility" Value="Collapsed" />
+                        <Setter Target="WebCollaborationContent.Visibility" Value="Collapsed" />
                     </VisualState.Setters>
                 </VisualState>
 
@@ -257,7 +261,7 @@
 
 
                                 <Button Command="{Binding ToggleFullScreenCommand}"
-                              Content="フルスクリーンモード/ウィンドウモードを切り替え"
+                              Content="全画面表示の切り替え"
                               />
 
                             </StackPanel>
@@ -267,7 +271,7 @@
 
                             <StackPanel x:Name="TVModeSwitchLayout" Visibility="Collapsed">
                                 <StackPanel Margin="0 8">
-                                    <TextBlock Text="TV Modeを利用する"
+                                    <TextBlock Text="コントローラー操作用のUIを利用する"
                                        toolkit:DockPanel.Dock="Left"
                                        VerticalAlignment="Center"
                                        />
@@ -390,7 +394,8 @@
 
 
 
-                        <toolkit:DockPanel Margin="0 8">
+                        
+                        <toolkit:DockPanel Margin="0 8" x:Name="WebCollaborationTitle">
                             <TextBlock Text="TwitterのWeb連携"
                                 Style="{StaticResource SubtitleTextBlockStyle}"
                                 VerticalAlignment="Center"
@@ -405,6 +410,7 @@
                         </toolkit:DockPanel>
                         
                         <StackPanel Margin="0 8"
+                                    x:Name="WebCollaborationContent"
                                >
 
                             <TextBlock Visibility="{Binding IsLoginTwitter.Value, Converter={StaticResource BooleanToVisibility}}">
@@ -467,7 +473,7 @@
                         <TextBlock Text="アプリのバージョン"
                                    Opacity="0.7"
                                    />
-                        
+
                         <HyperlinkButton Margin="0 0"
                                          Command="{Binding ShowUpdateNoticeCommand}"
                                          CommandParameter="{Binding CurrentVersion}"
@@ -477,15 +483,17 @@
                             </TextBlock>
                         </HyperlinkButton>
 
-                        <StackPanel Margin="0 8">
-                            <TextBlock Style="{StaticResource ContentTextStyle}">
-                                <Hyperlink NavigateUri="https://github.com/tor4kichi/Hohoema">
-                                    プロジェクトページ
-                                </Hyperlink>
-                            </TextBlock>
+                        <HyperlinkButton Content="プロジェクトページ"
+                            Margin="0 0 0 8"
+                            NavigateUri="https://github.com/tor4kichi/Hohoema"
+                            UseSystemFocusVisuals="True"
+                            />
 
-
-                        </StackPanel>
+                        <HyperlinkButton Content="プライバシーポリシー"
+                            Margin="0 0 0 8"
+                            NavigateUri="https://github.com/tor4kichi/Hohoema/wiki/Privacy-policy"
+                            UseSystemFocusVisuals="True"
+                            />
 
 
                         <HyperlinkButton Content="ストアでHohoemaをレビューする"
