@@ -2031,12 +2031,18 @@ namespace NicoPlayerHohoema.ViewModels
                                             await Task.Delay(TimeSpan.FromSeconds(2));
                                         }
 
-                                        await Video.CancelCacheRequest(quality);
+                                        await HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => 
+                                        {
+                                            await Video.CancelCacheRequest(quality);
+                                        });
                                     }
                                 }
                                 else
                                 {
-                                    await Video.RequestCache(quality);
+                                    await HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                                    {
+                                        await Video.RequestCache(quality);
+                                    });
                                 }
 
                                 UpdateCache();
