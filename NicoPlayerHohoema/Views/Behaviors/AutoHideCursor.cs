@@ -183,6 +183,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
         }
 
 
+        bool _NowActiveWindow = true;
         private void Current_Activated(object sender, WindowActivatedEventArgs e)
         {
             if (e.WindowActivationState == CoreWindowActivationState.Deactivated)
@@ -190,9 +191,12 @@ namespace NicoPlayerHohoema.Views.Behaviors
                 _AutoHideTimer.Stop();
 
                 Window.Current.CoreWindow.PointerCursor = _DefaultCursor;
+
+                _NowActiveWindow = false;
             }
             else
             {
+                _NowActiveWindow = true;
                 CursorVisibilityChanged(true);
             }
         }
@@ -231,7 +235,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
         private void AutoHideTimer_Tick(object sender, object e)
         {
-            if (IsAutoHideEnabled && _IsCursorInsideAssociatedObject)
+            if (IsAutoHideEnabled && _IsCursorInsideAssociatedObject && _NowActiveWindow)
             {
                 CursorVisibilityChanged(false);
             }
