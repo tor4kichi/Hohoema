@@ -20,13 +20,22 @@ namespace NicoPlayerHohoema.Views.Service
 
 		
 
-		public async Task<List<RankingCategoryInfo>> ShowRankingCategoryChoiceDialog(string title, IEnumerable<RankingCategoryInfo> selectableItems)
+		public async Task<List<RankingCategoryInfo>> ShowRankingCategoryChoiceDialog(
+            string title, 
+            IEnumerable<RankingCategoryInfo> selectableItems, 
+            IEnumerable<RankingCategoryInfo> selectedItems
+            )
 		{
 			var context = new RankingChoiceDialogContext(title);
 
 			context.ResetItems(selectableItems);
 
-			var dialog = new Views.Service.DislikeRankingCategoryChoiceDialog()
+            foreach (var item in selectedItems)
+            {
+                context.SelectedItems.Add(item);
+            }
+
+            var dialog = new Views.Service.DislikeRankingCategoryChoiceDialog()
 			{
 				DataContext = context
 			};

@@ -11,12 +11,12 @@
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior ="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:uwpextention="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     d:DesignHeight="300"
     d:DesignWidth="400"
     VerticalAlignment="Center"
     PrimaryButtonText="選択"
     SecondaryButtonText="キャンセル"
-    IsPrimaryButtonEnabled="{Binding IsSelectedItem}"
     Title="{Binding Title}"
     
     >
@@ -26,7 +26,9 @@
             SelectionMode="Multiple"
               IsMultiSelectCheckBoxEnabled="True"
             Height="340"    
-             Margin="0 16 0 0">
+             Margin="0 0 0 0"
+              IsFocusEngagementEnabled="True"
+              >
         <i:Interaction.Behaviors>
             <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedItems}" />
         </i:Interaction.Behaviors>

@@ -13,13 +13,25 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.UI;
 using NicoPlayerHohoema.Views;
+using System.Reactive.Concurrency;
+using System.Threading;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	public class CommentCommandEditerViewModel : BindableBase, IDisposable
 	{
+        private SynchronizationContextScheduler _PlayerWindowUIDispatcherScheduler;
+        public SynchronizationContextScheduler PlayerWindowUIDispatcherScheduler
+        {
+            get
+            {
+                return _PlayerWindowUIDispatcherScheduler
+                    ?? (_PlayerWindowUIDispatcherScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current));
+            }
+        }
 
-		public static IReadOnlyList<CommandType?> SizeCommandItems { get; private set; }
+
+        public static IReadOnlyList<CommandType?> SizeCommandItems { get; private set; }
 		public static IReadOnlyList<CommandType?> AlingmentCommandItems { get; private set; }
 		public static IReadOnlyList<CommandType?> ColorCommandItems { get; private set; }
 		public static IReadOnlyList<CommandType?> ColorPremiumCommandItems { get; private set; }
@@ -105,22 +117,22 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			_CompositeDisposable = new CompositeDisposable();
 
-            IsCanNot184 = new ReactiveProperty<bool>();
-            CanChangeAnonymity = new ReactiveProperty<bool>(false)
+            IsCanNot184 = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler);
+            CanChangeAnonymity = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false)
 				.AddTo(_CompositeDisposable);
-			IsAnonymousComment = new ReactiveProperty<bool>(IsAnonymousDefault)
-				.AddTo(_CompositeDisposable);
-
-			SizeSelectedItem = new ReactiveProperty<CommandType?>(new Nullable<CommandType>())
-				.AddTo(_CompositeDisposable);
-			AlingmentSelectedItem = new ReactiveProperty<CommandType?>(new Nullable<CommandType>())
-				.AddTo(_CompositeDisposable);
-			ColorSelectedItem = new ReactiveProperty<CommandType?>(new Nullable<CommandType>())
+			IsAnonymousComment = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, IsAnonymousDefault)
 				.AddTo(_CompositeDisposable);
 
-			FreePickedColor = new ReactiveProperty<Color>()
+			SizeSelectedItem = new ReactiveProperty<CommandType?>(PlayerWindowUIDispatcherScheduler)
 				.AddTo(_CompositeDisposable);
-			IsPickedColor = new ReactiveProperty<bool>(false)
+			AlingmentSelectedItem = new ReactiveProperty<CommandType?>(PlayerWindowUIDispatcherScheduler)
+				.AddTo(_CompositeDisposable);
+			ColorSelectedItem = new ReactiveProperty<CommandType?>(PlayerWindowUIDispatcherScheduler)
+				.AddTo(_CompositeDisposable);
+
+			FreePickedColor = new ReactiveProperty<Color>(PlayerWindowUIDispatcherScheduler)
+				.AddTo(_CompositeDisposable);
+			IsPickedColor = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false)
 				.AddTo(_CompositeDisposable);
 
 			ResetAllCommand = new DelegateCommand(() => 

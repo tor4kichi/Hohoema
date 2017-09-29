@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Toolkit.Collections;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -34,6 +35,8 @@ namespace NicoPlayerHohoema.Models
 			{
 				MiddlePriorityCategory.Add(RankingCategoryInfo.CreateFromRankingCategory(type));
 			}
+
+            Save().ConfigureAwait(false);
 		}
 
 
@@ -112,12 +115,75 @@ namespace NicoPlayerHohoema.Models
 
 
 
+        public bool AddFavoritCategory(RankingCategory category)
+        {
+            var target = MiddlePriorityCategory.FirstOrDefault(x => x.Category == category);
+            if (target != null)
+            {
+                MiddlePriorityCategory.Remove(target);
+                HighPriorityCategory.Add(target);
+                return true;
+            }
+            else if ((target = LowPriorityCategory.FirstOrDefault(x => x.Category == category)) != null)
+            {
+                LowPriorityCategory.Remove(target);
+                HighPriorityCategory.Add(target);
+                return true;
+            }
 
-		public bool IsDislikeRankingCategory(RankingCategory category)
+            return false;
+        }
+
+        public bool AddDislikeCategory(RankingCategory category)
+        {
+            var target = MiddlePriorityCategory.FirstOrDefault(x => x.Category == category);
+            if (target != null)
+            {
+                MiddlePriorityCategory.Remove(target);
+                LowPriorityCategory.Add(target);
+                return true;
+            }
+            else if ((target = HighPriorityCategory.FirstOrDefault(x => x.Category == category)) != null)
+            {
+                HighPriorityCategory.Remove(target);
+                LowPriorityCategory.Add(target);
+                return true;
+            }
+
+            return false;
+        }
+
+        public void ResetFavoriteCategory()
+        {
+            var items = HighPriorityCategory.ToArray();
+            HighPriorityCategory.Clear();
+            foreach (var item in items)
+            {
+                MiddlePriorityCategory.Add(item);
+            }
+
+            Save().ConfigureAwait(false);
+        }
+
+        public void ResetDislikeCategory()
+        {
+            var items = LowPriorityCategory.ToArray();
+            LowPriorityCategory.Clear();
+            foreach (var item in items)
+            {
+                MiddlePriorityCategory.Add(item);
+            }
+
+            Save().ConfigureAwait(false);
+        }
+
+
+        public bool IsDislikeRankingCategory(RankingCategory category)
 		{
 			var categoryString = category.ToString();
 			return LowPriorityCategory.Any(x => x.Parameter == categoryString);
 		}
+
 	}
 
 	public class RankingCategoryInfo : BindableBase, IEquatable<RankingCategoryInfo>

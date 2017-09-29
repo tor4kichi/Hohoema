@@ -24,6 +24,8 @@
 
                 <ResourceDictionary Source="Views/Controls/FloatContentContainer/FloatContentContainer.xaml"/>
                 <ResourceDictionary Source="Views/Controls/IncrementalLoadingList/IncrementalLoadingList.xaml"/>
+                <ResourceDictionary Source="Views/Controls/MasterDetailsView/MasterDetailsView.xaml"/>
+
             </ResourceDictionary.MergedDictionaries>
             
             <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
@@ -62,6 +64,68 @@
             <myconv:PlayerEndActionToTextConverter x:Key="PlayerEndActionToTextConverter" />
             <myconv:Live2QualityTypeToText x:Key="Live2QualityTypeToText" />
 
+            <myconv:RankingCategoryToText x:Key="RankingCategoryToText" />
+
+            <myconv:NGCommentScoreTypeTemplateSelector x:Key="NGCommentScoreTypeTemplateSelector">
+                <myconv:NGCommentScoreTypeTemplateSelector.NoneTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="なし" />
+                    </DataTemplate>
+                </myconv:NGCommentScoreTypeTemplateSelector.NoneTemplate>
+
+                <myconv:NGCommentScoreTypeTemplateSelector.LowTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="弱" />
+                    </DataTemplate>
+                </myconv:NGCommentScoreTypeTemplateSelector.LowTemplate>
+
+                <myconv:NGCommentScoreTypeTemplateSelector.MiddleTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="中" />
+                    </DataTemplate>
+                </myconv:NGCommentScoreTypeTemplateSelector.MiddleTemplate>
+
+                <myconv:NGCommentScoreTypeTemplateSelector.HighTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="強" />
+                    </DataTemplate>
+                </myconv:NGCommentScoreTypeTemplateSelector.HighTemplate>
+
+                <myconv:NGCommentScoreTypeTemplateSelector.VeryHighTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="さらに強" />
+                    </DataTemplate>
+                </myconv:NGCommentScoreTypeTemplateSelector.VeryHighTemplate>
+
+                <myconv:NGCommentScoreTypeTemplateSelector.SuperVeryHighTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="極めて強" />
+                    </DataTemplate>
+                </myconv:NGCommentScoreTypeTemplateSelector.SuperVeryHighTemplate>
+
+                <myconv:NGCommentScoreTypeTemplateSelector.UltraSuperVeryHighTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="最大" />
+                    </DataTemplate>
+                </myconv:NGCommentScoreTypeTemplateSelector.UltraSuperVeryHighTemplate>
+
+            </myconv:NGCommentScoreTypeTemplateSelector>
+
+
+
+
+            <myconv:CommentOpacityKindConverter x:Key="CommentOpacityKindToText" />
+
+            <uwpconv:BoolToObjectConverter x:Name="BoolToAvairableOpacityConverter">
+                <uwpconv:BoolToObjectConverter.TrueValue>
+                    <x:Double>1.0</x:Double>
+                </uwpconv:BoolToObjectConverter.TrueValue>
+                <uwpconv:BoolToObjectConverter.FalseValue>
+                    <x:Double>0.7</x:Double>
+                </uwpconv:BoolToObjectConverter.FalseValue>
+            </uwpconv:BoolToObjectConverter>
+
+
             <!-- Logical Modifier-->
             <logicalModifier:AndModifier x:Key="AndModifier" />
             <logicalModifier:OrModifier x:Key="OrModifier" />
@@ -87,6 +151,9 @@
                              >
             </SolidColorBrush>
 
+            <SolidColorBrush x:Key="HohoemaPlayerBackgroundBrush"
+                    Color="{ThemeResource SystemAltMediumColor}" 
+                         />
 
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Light">

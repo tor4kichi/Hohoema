@@ -14,6 +14,8 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Microsoft.Practices.Unity;
+using Prism.Windows.Navigation;
+using Prism.Windows.AppModel;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -21,44 +23,46 @@ namespace NicoPlayerHohoema.Views
 {
     public sealed partial class PlayerWithPageContainer : ContentControl
     {
+
+        public Frame Frame { get; private set; }
+
         public PlayerWithPageContainer()
         {
             this.InitializeComponent();
         }
-    }
 
-    public sealed class PlayerContentTemplateSelecter : DataTemplateSelector
-    {
-        public DataTemplate Empty { get; set; }
-        public DataTemplate VideoPlayer { get; set; }
-        public DataTemplate LiveVideoPlayer { get; set; }
-        public DataTemplate VideoPlayer_TV { get; set; }
-        public DataTemplate LiveVideoPlayer_TV { get; set; }
-
-        protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
+        protected override void OnApplyTemplate()
         {
-            var hohoema = App.Current.Container.Resolve<HohoemaApp>();
-            var tvMode = hohoema.UserSettings.AppearanceSettings.IsForceTVModeEnable || Util.DeviceTypeHelper.IsXbox;
+            Frame = GetTemplateChild("PlayerFrame") as Frame;
 
-            if (item is ViewModels.VideoPlayerControlViewModel)
             {
-                if (VideoPlayer_TV == null) { return VideoPlayer; }
-                return tvMode ? VideoPlayer_TV : VideoPlayer;
-            }
-            else if (item is ViewModels.LiveVideoPlayerControlViewModel)
-            {
-                if (LiveVideoPlayer_TV == null) { return LiveVideoPlayer; }
-                return tvMode ? LiveVideoPlayer_TV : LiveVideoPlayer;
+                var frameFacade = new FrameFacadeAdapter(Frame);
+
+                var sessionStateService = new SessionStateService();
+
+                var ns = new FrameNavigationService(frameFacade
+                    , (pageToken) =>
+                    {
+                        if (pageToken == nameof(Views.VideoPlayerPage))
+                        {
+                            return typeof(Views.VideoPlayerPage);
+                        }
+                        else if (pageToken == nameof(Views.LivePlayerPage))
+                        {
+                            return typeof(Views.LivePlayerPage);
+                        }
+                        else
+                        {
+                            return typeof(Views.BlankPage);
+                        }
+                    }, sessionStateService);
+
+                (DataContext as ViewModels.PlayerWithPageContainerViewModel).SetNavigationService(ns);
             }
 
-            if (Empty != null)
-            {
-                return Empty;
-            }
-
-
-            return base.SelectTemplateCore(item, container);
+            base.OnApplyTemplate();
         }
     }
+    
 
 }

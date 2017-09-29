@@ -100,7 +100,7 @@ namespace NicoPlayerHohoema.ViewModels
 				{
                     foreach (var item in EnumerateCanDownloadVideoItem())
 					{
-                        await item.NicoVideo.RequestCache(HohoemaApp.UserSettings.PlayerSettings.DefaultQuality);
+                        await item.NicoVideo.RequestCache();
 					}
 
 					ClearSelection();

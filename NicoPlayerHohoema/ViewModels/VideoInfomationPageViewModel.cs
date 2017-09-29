@@ -62,7 +62,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenFilterSettingPageCommand
                     ?? (_OpenFilterSettingPageCommand = new DelegateCommand(() =>
                     {
-                        PageManager.OpenPage(HohoemaPageType.Settings, HohoemaSettingsKind.Filtering.ToString());
+                        PageManager.OpenPage(HohoemaPageType.Settings);
                     }
                     ));
             }

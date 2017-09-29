@@ -99,7 +99,7 @@ namespace NicoPlayerHohoema.Views
 
 
         NGSettings NGSettings { get; }
-        public Comment(VideoPlayerControlViewModel videoPlayerPageVM, NGSettings ngsettings)
+        public Comment(VideoPlayerPageViewModel videoPlayerPageVM, NGSettings ngsettings)
 		{
 			_VideoPlayerPageViewModel = videoPlayerPageVM;
             NGSettings = ngsettings;
@@ -277,6 +277,6 @@ namespace NicoPlayerHohoema.Views
 
 
 
-		private VideoPlayerControlViewModel _VideoPlayerPageViewModel;
+		private VideoPlayerPageViewModel _VideoPlayerPageViewModel;
 	}
 }

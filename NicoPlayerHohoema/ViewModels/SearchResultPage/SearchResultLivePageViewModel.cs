@@ -487,7 +487,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _PlayWithSmallPlayerCommand
                     ?? (_PlayWithSmallPlayerCommand = new DelegateCommand(() =>
                     {
-                        Playlist.IsPlayerFloatingModeEnable = true;
+                        Playlist.PlayerDisplayType = PlayerDisplayType.PrimaryWithSmall;
 
                         Playlist.PlayLiveVideo(LiveId, LiveTitle);
                     }));

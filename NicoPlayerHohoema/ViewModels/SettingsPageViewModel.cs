@@ -18,124 +18,384 @@ using Mntone.Nico2.Videos.Ranking;
 using NicoPlayerHohoema.Views.Service;
 using System.Threading;
 using System.Windows.Input;
+using System.Text.RegularExpressions;
+using Windows.UI.ViewManagement;
+using Windows.UI.Xaml;
+using NicoPlayerHohoema.Util;
+using Windows.ApplicationModel.Store;
+using Windows.Storage;
+using System.Diagnostics;
+using Microsoft.Services.Store.Engagement;
+using Windows.System;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	public class SettingsPageViewModel : HohoemaViewModelBase
 	{
-		public SettingsPageViewModel(
+        // フィルタ
+        public ReactiveProperty<bool> NGVideoOwnerUserIdEnable { get; private set; }
+        public ReadOnlyReactiveCollection<UserIdInfo> NGVideoOwnerUserIds { get; private set; }
+        public DelegateCommand<UserIdInfo> OpenUserPageCommand { get; }
+
+
+        public ReactiveProperty<bool> NGVideoTitleKeywordEnable { get; private set; }
+
+        public ReactiveProperty<string> NGVideoTitleKeywords { get; }
+        public ReadOnlyReactiveProperty<string> NGVideoTitleKeywordError { get; private set; }
+
+
+        // アピアランス
+        public static List<string> ThemeList { get; private set; } =
+            Enum.GetValues(typeof(ApplicationTheme)).Cast<ApplicationTheme>()
+            .Select(x => x.ToString())
+            .ToList();
+
+        public ReactiveProperty<string> SelectedApplicationTheme { get; private set; }
+        public static bool ThemeChanged { get; private set; } = false;
+
+        public ReactiveProperty<bool> IsTVModeEnable { get; private set; }
+        public bool IsXbox { get; private set; }
+
+        public ReactiveProperty<bool> IsDefaultFullScreen { get; private set; }
+
+        public ReactiveProperty<HohoemaPageType> StartupPageType { get; private set; }
+
+        public List<HohoemaPageType> StartupPageTypeList { get; } = new List<HohoemaPageType>()
+        {
+            HohoemaPageType.Search,
+            HohoemaPageType.RankingCategoryList,
+            HohoemaPageType.CacheManagement,
+            HohoemaPageType.FeedGroupManage,
+            HohoemaPageType.FollowManage,
+            HohoemaPageType.UserMylist,
+        };
+
+        private DelegateCommand _ToggleFullScreenCommand;
+        public DelegateCommand ToggleFullScreenCommand
+        {
+            get
+            {
+                return _ToggleFullScreenCommand
+                    ?? (_ToggleFullScreenCommand = new DelegateCommand(() =>
+                    {
+                        var appView = ApplicationView.GetForCurrentView();
+
+                        if (!appView.IsFullScreenMode)
+                        {
+                            appView.TryEnterFullScreenMode();
+                        }
+                        else
+                        {
+                            appView.ExitFullScreenMode();
+                        }
+                    }));
+            }
+        }
+
+
+        // シェア
+        public ReactiveProperty<bool> IsLoginTwitter { get; private set; }
+        public ReactiveProperty<string> TwitterAccountScreenName { get; private set; }
+        private DelegateCommand _LogInToTwitterCommand;
+        public DelegateCommand LogInToTwitterCommand
+        {
+            get
+            {
+                return _LogInToTwitterCommand
+                    ?? (_LogInToTwitterCommand = new DelegateCommand(async () =>
+                    {
+                        if (await TwitterHelper.LoginOrRefreshToken())
+                        {
+                            IsLoginTwitter.Value = TwitterHelper.IsLoggedIn;
+                            TwitterAccountScreenName.Value = TwitterHelper.TwitterUser?.ScreenName ?? "";
+                        }
+                    }
+                    ));
+            }
+        }
+
+        private DelegateCommand _LogoutTwitterCommand;
+        public DelegateCommand LogoutTwitterCommand
+        {
+            get
+            {
+                return _LogoutTwitterCommand
+                    ?? (_LogoutTwitterCommand = new DelegateCommand(() =>
+                    {
+                        TwitterHelper.Logout();
+
+                        IsLoginTwitter.Value = false;
+                        TwitterAccountScreenName.Value = "";
+                    }
+                    ));
+            }
+        }
+
+
+        // アバウト
+        public string VersionText { get; private set; }
+
+        public List<LisenceItemViewModel> LisenceItems { get; private set; }
+
+        public List<ProductViewModel> PurchaseItems { get; private set; }
+
+        private Version _CurrentVersion;
+        public Version CurrentVersion
+        {
+            get
+            {
+                var ver = Windows.ApplicationModel.Package.Current.Id.Version;
+                return _CurrentVersion
+                    ?? (_CurrentVersion = new Version(ver.Major, ver.Minor, ver.Revision));
+            }
+        }
+
+        public static List<Version> UpdateNoticeList { get; } = new List<Version>()
+        {
+            new Version(0, 10),
+            new Version(0, 9),
+        };
+        private DelegateCommand<Version> _ShowUpdateNoticeCommand;
+        public DelegateCommand<Version> ShowUpdateNoticeCommand
+        {
+            get
+            {
+                return _ShowUpdateNoticeCommand
+                    ?? (_ShowUpdateNoticeCommand = new DelegateCommand<Version>(async (version) =>
+                    {
+                        var allVersions = await Models.AppUpdateNotice.GetUpdateNoticeAvairableVersionsAsync();
+                        var versions = allVersions.Where(x => x.Major == version.Major && x.Minor == version.Minor).ToList();
+                        var text = await Models.AppUpdateNotice.GetUpdateNotices(versions);
+                        var dialog = new Views.Service.MarkdownTextDialog();
+                        dialog.Title = $"v{version.Major}.{version.Minor} 更新情報 一覧";
+                        dialog.Text = text;
+                        dialog.PrimaryButtonText = "OK";
+                        await dialog.ShowAsync();
+                    }));
+            }
+        }
+
+        private DelegateCommand<ProductViewModel> _ShowCheerPurchaseCommand;
+        public DelegateCommand<ProductViewModel> ShowCheerPurchaseCommand
+        {
+            get
+            {
+                return _ShowCheerPurchaseCommand
+                    ?? (_ShowCheerPurchaseCommand = new DelegateCommand<ProductViewModel>(async (product) =>
+                    {
+                        var result = await Models.Purchase.HohoemaPurchase.RequestPurchase(product.ProductListing);
+
+                        product.Update();
+
+                        Debug.WriteLine(result.ToString());
+                    }));
+            }
+        }
+
+
+        // フィードバック
+        private static Uri AppIssuePageUri = new Uri("https://github.com/tor4kichi/Hohoema/issues");
+        private static Uri AppReviewUri = new Uri("ms-windows-store://review/?ProductId=9nblggh4rxt6");
+
+        private DelegateCommand _LaunchAppReviewCommand;
+        public DelegateCommand LaunchAppReviewCommand
+        {
+            get
+            {
+                return _LaunchAppReviewCommand
+                    ?? (_LaunchAppReviewCommand = new DelegateCommand(async () =>
+                    {
+                        await Launcher.LaunchUriAsync(AppReviewUri);
+                    }));
+            }
+        }
+
+        private DelegateCommand _LaunchFeedbackHubCommand;
+        public DelegateCommand LaunchFeedbackHubCommand
+        {
+            get
+            {
+                return _LaunchFeedbackHubCommand
+                    ?? (_LaunchFeedbackHubCommand = new DelegateCommand(async () =>
+                    {
+                        if (IsSupportedFeedbackHub)
+                        {
+                            await StoreServicesFeedbackLauncher.GetDefault().LaunchAsync();
+                        }
+                    }));
+            }
+        }
+
+        private DelegateCommand _ShowIssuesWithBrowserCommand;
+        public DelegateCommand ShowIssuesWithBrowserCommand
+        {
+            get
+            {
+                return _ShowIssuesWithBrowserCommand
+                    ?? (_ShowIssuesWithBrowserCommand = new DelegateCommand(async () =>
+                    {
+                        await Launcher.LaunchUriAsync(AppIssuePageUri);
+                    }));
+            }
+        }
+
+
+        public bool IsSupportedFeedbackHub { get; } = StoreServicesFeedbackLauncher.IsSupported();
+
+
+        NGSettings _NGSettings;
+        RankingSettings _RankingSettings;
+
+        public ToastNotificationService ToastNotificationService { get; private set; }
+
+
+        public SettingsPageViewModel(
 			HohoemaApp hohoemaApp
 			, PageManager pageManager
-			, RankingChoiceDialogService rakingChoiceDialog
-			, AcceptCacheUsaseDialogService cacheAcceptDialogService
 			, ToastNotificationService toastService
 			)
 			: base(hohoemaApp, pageManager)
 		{
-			RankingChoiceDialogService = rakingChoiceDialog;
-			AcceptCacheUsaseDialogService = cacheAcceptDialogService;
 			ToastNotificationService = toastService;
+            _NGSettings = HohoemaApp.UserSettings.NGSettings;
+            _RankingSettings = HohoemaApp.UserSettings.RankingSettings;
 
-			SettingItems = ((IEnumerable<HohoemaSettingsKind>)Enum.GetValues(typeof(HohoemaSettingsKind)))
-                .Where(x => Util.DeviceTypeHelper.IsXbox ? x != HohoemaSettingsKind.Share : true)
-				.Select(x => KindToVM(x))
-				.ToList();
+            // NG Video Owner User Id
+            NGVideoOwnerUserIdEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoOwnerUserIdEnable);
+            NGVideoOwnerUserIds = _NGSettings.NGVideoOwnerUserIds
+                .ToReadOnlyReactiveCollection();
 
-            CurrentSettingsContent = new ReactiveProperty<SettingsPageContentViewModel>();
-
-            
-            CurrentSettingsContent.Subscribe(x =>
+            OpenUserPageCommand = new DelegateCommand<UserIdInfo>(userIdInfo =>
             {
-                _PrevSettingsContent?.Leaved();
+                pageManager.OpenPage(HohoemaPageType.UserInfo, userIdInfo.UserId);
+            });
 
-                /*
-                if (x != null)
+            // NG Keyword on Video Title
+            NGVideoTitleKeywordEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoTitleKeywordEnable);
+            NGVideoTitleKeywords = new ReactiveProperty<string>();
+            NGVideoTitleKeywordError = NGVideoTitleKeywords
+                .Select(x =>
                 {
-                    AddSubsitutionBackNavigateAction("settings_content_selection"
-                        , () => 
-                        {
-                            CurrentSettingsContent.Value = null;
+                    if (x == null) { return null; }
 
-                            return true;
-                        });
+                    var keywords = x.Split('\r');
+                    var invalidRegex = keywords.FirstOrDefault(keyword =>
+                    {
+                        Regex regex = null;
+                        try
+                        {
+                            regex = new Regex(keyword);
+                        }
+                        catch { }
+                        return regex == null;
+                    });
+
+                    if (invalidRegex == null)
+                    {
+                        return null;
+                    }
+                    else
+                    {
+                        return $"Error in \"{invalidRegex}\"";
+                    }
+                })
+                .ToReadOnlyReactiveProperty();
+
+            // アピアランス
+
+            var currentTheme = App.GetTheme();
+            SelectedApplicationTheme = new ReactiveProperty<string>(currentTheme.ToString(), mode: ReactivePropertyMode.DistinctUntilChanged);
+
+            SelectedApplicationTheme.Subscribe(x =>
+            {
+                var type = (ApplicationTheme)Enum.Parse(typeof(ApplicationTheme), x);
+                App.SetTheme(type);
+
+                // 一度だけトースト通知
+                if (!ThemeChanged)
+                {
+                    toastService.ShowText("Hohoemaを再起動するとテーマが適用されます。", "");
+                }
+
+                ThemeChanged = true;
+                RaisePropertyChanged(nameof(ThemeChanged));
+            });
+
+            IsTVModeEnable = HohoemaApp.UserSettings.AppearanceSettings
+                .ToReactivePropertyAsSynchronized(x => x.IsForceTVModeEnable);
+            IsXbox = Util.DeviceTypeHelper.IsXbox;
+
+
+
+
+
+            IsDefaultFullScreen = new ReactiveProperty<bool>(ApplicationView.PreferredLaunchWindowingMode == ApplicationViewWindowingMode.FullScreen);
+            IsDefaultFullScreen.Subscribe(x =>
+            {
+                if (x)
+                {
+                    ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.FullScreen;
                 }
                 else
                 {
-                    RemoveSubsitutionBackNavigateAction("settings_content_selection");
+                    ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.Auto;
                 }
-                */
-
-                _PrevSettingsContent = x;
-                x?.Entered();                
             });
-            
 
+            StartupPageType = HohoemaApp.UserSettings.AppearanceSettings
+                .ToReactivePropertyAsSynchronized(x => x.StartupPageType);
+
+
+            // シェア
+            IsLoginTwitter = new ReactiveProperty<bool>(TwitterHelper.IsLoggedIn);
+            TwitterAccountScreenName = new ReactiveProperty<string>(TwitterHelper.TwitterUser?.ScreenName ?? "");
+
+
+            // アバウト
+            var version = Windows.ApplicationModel.Package.Current.Id.Version;
+            VersionText = $"{version.Major}.{version.Minor}.{version.Build}";
+
+
+            var dispatcher = Window.Current.CoreWindow.Dispatcher;
+            LisenceSummary.Load()
+                .ContinueWith(async prevResult =>
+                {
+                    await dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    {
+                        var lisenceSummary = prevResult.Result;
+
+                        LisenceItems = lisenceSummary.Items
+                            .OrderBy(x => x.Name)
+                            .Select(x => new LisenceItemViewModel(x))
+                            .ToList();
+                        RaisePropertyChanged(nameof(LisenceItems));
+                    });
+                });
         }
 
 
 
-        private SettingsPageContentViewModel KindToVM(HohoemaSettingsKind kind)
+
+
+
+        protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			SettingsPageContentViewModel vm = null;
-			switch (kind)
-			{
-                case HohoemaSettingsKind.Player:
-                    vm = new PlayerSeetingPageContentViewModel(HohoemaApp);
-                    break;
-                case HohoemaSettingsKind.Filtering:
-                    vm = new FilteringSettingsPageContentViewModel(HohoemaApp, PageManager, RankingChoiceDialogService);
-                    break;
-				case HohoemaSettingsKind.Appearance:
-					vm = new AppearanceSettingsPageContentViewModel(HohoemaApp, ToastNotificationService);
-					break;
-				case HohoemaSettingsKind.Share:
-					vm = new ShareSettingsPageContentViewModel();
-					break;
-                case HohoemaSettingsKind.Feedback:
-                    vm = new FeedbackSettingsPageContentViewModel();
-                    break;
-                case HohoemaSettingsKind.About:
-                    vm = new AboutSettingsPageContentViewModel();
-                    break;
-                default:
-					break;
-			}
-			
+            NGVideoTitleKeywords.Value = string.Join("\r", _NGSettings.NGVideoTitleKeywords.Select(x => x.Keyword)) + "\r";
 
-			return vm;
-		}
+            try
+            {
+                var listing = await Models.Purchase.HohoemaPurchase.GetAvailableCheersAddOn();
+                PurchaseItems = listing.ProductListings.Select(x => new ProductViewModel(x.Value)).ToList();
+                RaisePropertyChanged(nameof(PurchaseItems));
+            }
+            catch { }
 
 
-		protected override Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-			HohoemaSettingsKind? selectRequestKind = null;
-
-			if (e.Parameter is HohoemaSettingsKind)
-			{
-				selectRequestKind = (HohoemaSettingsKind)e.Parameter;
-			}
-			else if (e.Parameter is string)
-			{
-				HohoemaSettingsKind kind;
-				if(Enum.TryParse(e.Parameter as string, out kind))
-				{
-					selectRequestKind = kind;
-				}
-			}
-
-			if (selectRequestKind.HasValue)
-			{
-                SelectContent(selectRequestKind.Value);
-			}
-
-
-			return Task.CompletedTask;
+            // return Task.CompletedTask;
 		}
 
 		protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
-            CurrentSettingsContent.Value?.Leaved();
-
             if (suspending)
 			{
                 //				viewModelState[nameof(CurrentSettingsKind)] = CurrentSettingsKind.Value.Kind.ToString();
@@ -149,86 +409,40 @@ namespace NicoPlayerHohoema.ViewModels
                 //CurrentSettingsContent.Value = null;                
             }
 
+            // フィルタ
+            // NG VideoTitleを複数行NG動画タイトル文字列から再構成
+            _NGSettings.NGVideoTitleKeywords.Clear();
+            foreach (var ngKeyword in NGVideoTitleKeywords.Value.Split('\r'))
+            {
+                if (!string.IsNullOrWhiteSpace(ngKeyword))
+                {
+                    _NGSettings.NGVideoTitleKeywords.Add(new NGKeyword() { Keyword = ngKeyword });
+                }
+            }
+
+            _NGSettings.Save().ConfigureAwait(false);
+
+
+            _RankingSettings.GetFile().ContinueWith(async prevTask =>
+            {
+                await HohoemaApp.PushToRoamingData(prevTask.Result);
+            });
+            _NGSettings.GetFile().ContinueWith(async prevTask =>
+            {
+                await HohoemaApp.PushToRoamingData(prevTask.Result);
+            });
+
             base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
 		}
 
 
-        private void SelectContent(HohoemaSettingsKind kind)
+        private void OnRemoveNGCommentUserIdFromList(string userId)
         {
-            CurrentSettingsContent.Value = SettingItems.FirstOrDefault(x => x.Kind == kind);
-        }
-
-
-
-        private SettingsPageContentViewModel _PrevSettingsContent;
-        public ReactiveProperty<SettingsPageContentViewModel> CurrentSettingsContent { get; private set; }
-
-		public List<SettingsPageContentViewModel> SettingItems { get; private set; }
-
-		public RankingChoiceDialogService RankingChoiceDialogService { get; private set; }
-		public AcceptCacheUsaseDialogService AcceptCacheUsaseDialogService { get; private set; }
-		public ToastNotificationService ToastNotificationService { get; private set; }
-	}
-
-
-	public enum HohoemaSettingsKind
-	{
-		Player,
-		Filtering,
-		Appearance,
-        Share,
-        Feedback,
-        About,
-    }
-
-	public abstract class SettingsPageContentViewModel : ViewModelBase, IDisposable
-	{
-		public string Title { get; private set; }
-        public HohoemaSettingsKind Kind { get; private set; }
-
-        protected CompositeDisposable _FocusingDisposable;
-
-
-        public SettingsPageContentViewModel(string title, HohoemaSettingsKind kind)
-		{
-            Title = title;
-            Kind = kind;
-        }
-
-        
-        internal void Entered()
-        {
-            _FocusingDisposable = new CompositeDisposable();
-
-            OnEnter(_FocusingDisposable);
-        }
-
-        protected virtual void OnEnter(ICollection<IDisposable> focusingDispsable)
-        {
-        }
-
-        internal void Leaved()
-        {
-            _FocusingDisposable?.Dispose();
-
-            OnLeave();
-        }
-
-		protected virtual void OnLeave()
-        {
-        }
-
-        public void Dispose()
-        {
-            _FocusingDisposable?.Dispose();
+            var removeTarget = _NGSettings.NGCommentUserIds.First(x => x.UserId == userId);
+            _NGSettings.NGCommentUserIds.Remove(removeTarget);
         }
     }
 
-	
-
-
-	
-	
 
 
 	public class RemovableListItem<T> : IRemovableListItem
@@ -344,5 +558,108 @@ namespace NicoPlayerHohoema.ViewModels
         ICommand RemoveCommand { get; }
     }
 
-	
+
+
+    #region About 
+
+    public class ProductViewModel : BindableBase
+    {
+        private bool _IsActive;
+        public bool IsActive
+        {
+            get { return _IsActive; }
+            set { SetProperty(ref _IsActive, value); }
+        }
+
+        public ProductListing ProductListing { get; set; }
+        public ProductViewModel(ProductListing product)
+        {
+            ProductListing = product;
+
+            Update();
+        }
+
+        internal void Update()
+        {
+            IsActive = Models.Purchase.HohoemaPurchase.ProductIsActive(ProductListing);
+        }
+    }
+
+
+
+    public class LisenceItemViewModel
+    {
+        public LisenceItemViewModel(LisenceItem item)
+        {
+            Name = item.Name;
+            Site = item.Site;
+            Authors = item.Authors.ToList();
+            LisenceType = LisenceTypeToText(item.LisenceType.Value);
+            LisencePageUrl = item.LisencePageUrl;
+        }
+
+        public string Name { get; private set; }
+        public Uri Site { get; private set; }
+        public List<string> Authors { get; private set; }
+        public string LisenceType { get; private set; }
+        public Uri LisencePageUrl { get; private set; }
+
+        string _LisenceText;
+        public string LisenceText
+        {
+            get
+            {
+                return _LisenceText
+                    ?? (_LisenceText = LoadLisenceText());
+            }
+        }
+
+        string LoadLisenceText()
+        {
+            string path = Windows.ApplicationModel.Package.Current.InstalledLocation.Path + "\\Assets\\LibLisencies\\" + Name + ".txt";
+
+            try
+            {
+                var file = StorageFile.GetFileFromPathAsync(path).AsTask();
+
+                file.Wait(3000);
+
+                var task = FileIO.ReadTextAsync(file.Result).AsTask();
+                task.Wait(1000);
+                return task.Result;
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
+
+        private string LisenceTypeToText(LisenceType type)
+        {
+            switch (type)
+            {
+                case Models.LisenceType.MIT:
+                    return "MIT";
+                case Models.LisenceType.MS_PL:
+                    return "Microsoft Public Lisence";
+                case Models.LisenceType.Apache_v2:
+                    return "Apache Lisence version 2.0";
+                case Models.LisenceType.GPL_v3:
+                    return "GNU General Public License Version 3";
+                case Models.LisenceType.Simplified_BSD:
+                    return "二条項BSDライセンス";
+                case Models.LisenceType.CC_BY_40:
+                    return "クリエイティブ・コモンズ 表示 4.0 国際";
+                case Models.LisenceType.SIL_OFL_v1_1:
+                    return "SIL OPEN FONT LICENSE Version 1.1";
+                default:
+                    throw new NotSupportedException(type.ToString());
+            }
+        }
+
+    }
+
+    #endregion
+
 }

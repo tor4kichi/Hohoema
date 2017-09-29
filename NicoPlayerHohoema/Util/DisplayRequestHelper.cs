@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Core;
 using Windows.System.Display;
 
 namespace NicoPlayerHohoema.Util
@@ -11,35 +12,55 @@ namespace NicoPlayerHohoema.Util
 	{
 		private static DisplayRequest dispRequest = null;
 
+        static AsyncLock _Lock;
+        static AsyncLock Lock
+        {
+            get
+            {
+                return _Lock
+                    ?? (_Lock = new AsyncLock());
+            }
+        }
 
-		public static void RequestKeepDisplay()
+		public static async void RequestKeepDisplay()
 		{
-			if (dispRequest == null)
-			{
+            await CoreApplication.MainView.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+            {
+                using (var releaser = await Lock.LockAsync())
+                {
+                    if (dispRequest == null)
+                    {
 
-				// Activate a display-required request. If successful, the screen is 
-				// guaranteed not to turn off automatically due to user inactivity.
-				dispRequest = new DisplayRequest();
-				dispRequest.RequestActive();
+                        // Activate a display-required request. If successful, the screen is 
+                        // guaranteed not to turn off automatically due to user inactivity.
+                        dispRequest = new DisplayRequest();
+                        dispRequest.RequestActive();
 
-				// Insert your own code here to start the video.
+                        // Insert your own code here to start the video.
 
-			}
-		}
+                    }
+                }
+            });
+        }
 
 
-		public static void StopKeepDisplay()
+		public static async void StopKeepDisplay()
 		{
-			// Insert your own code here to stop the video.
+            await CoreApplication.MainView.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+            {
+                using (var releaser = await Lock.LockAsync())
+                {
+                    // Insert your own code here to stop the video.
+                    if (dispRequest != null)
+                    {
 
-			if (dispRequest != null)
-			{
+                        // Deactivate the display request and set the var to null.
+                        dispRequest.RequestRelease();
+                        dispRequest = null;
 
-				// Deactivate the display request and set the var to null.
-				dispRequest.RequestRelease();
-				dispRequest = null;
-
-			}
+                    }
+                }
+            });
 		}
 
 	}

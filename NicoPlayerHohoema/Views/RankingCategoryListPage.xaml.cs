@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Mntone.Nico2.Videos.Ranking;
+using Prism.Commands;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -25,6 +27,6 @@ namespace NicoPlayerHohoema.Views
 		public RankingCategoryListPage()
 		{
 			this.InitializeComponent();
-		}
-	}
+        }
+    }
 }

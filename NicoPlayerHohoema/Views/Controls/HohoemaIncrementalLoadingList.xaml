@@ -123,8 +123,9 @@
                                               HorizontalContentAlignment="Stretch"
                                               IsItemClickEnabled="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanInverted}}"
                                               ItemTemplate="{x:Bind ItemTemplate}"
-                                              SelectionMode="Single"
+                                              SelectionMode="None"
                                               ContextFlyout="{x:Bind ItemFlyout}"
+                                              
                                 >
 
                 <i:Interaction.Behaviors>

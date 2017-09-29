@@ -21,7 +21,7 @@ namespace NicoPlayerHohoema.Models
 			NGVideoIds = new ObservableCollection<VideoIdInfo>();
 			NGVideoOwnerUserIdEnable = true;
 			NGVideoOwnerUserIds = new ObservableCollection<UserIdInfo>();
-			NGVideoTitleKeywordEnable = true;
+			NGVideoTitleKeywordEnable = false;
 			NGVideoTitleKeywords = new ObservableCollection<NGKeyword>();
 
 			NGCommentUserIdEnable = true;

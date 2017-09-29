@@ -52,6 +52,12 @@ namespace NicoPlayerHohoema.Views.Behaviors
             
         }
 
+        protected override void OnDetaching()
+        {
+            AssociatedObject.SetMediaPlayer(null);
+
+            base.OnDetaching();
+        }
         private void Current_LeavingBackground(object sender, Windows.ApplicationModel.LeavingBackgroundEventArgs e)
         {
 //            this.AssociatedObject.SetMediaPlayer(this.MediaPlayer);
