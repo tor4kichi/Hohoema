@@ -35,18 +35,25 @@ namespace NicoPlayerHohoema.Models
             MainView.Consolidated += MainView_Consolidated;
         }
 
-        private void MainView_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)
+        private async void MainView_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)
         {
-            Debug.WriteLine(args.IsAppInitiated);
-            Debug.WriteLine(args.IsUserInitiated);
-
-            if (sender.Id == MainView.Id)
+            if (sender == MainView)
             {
-                (App.Current as App).Dispose();
-                Application.Current.Exit();
+                await CoreAppView.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => 
+                {
+                    if (AppView != null)
+                    {
+                        if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4))
+                        {
+                            await AppView.TryConsolidateAsync();
+                        }
+                        else
+                        {
+                            App.Current.Exit();
+                        }
+                    }
+                });
             }
-
-            //            _ClosingLock.Release();
         }
 
         private async Task<HohoemaViewManager> GetEnsureSecondaryView()
