@@ -853,6 +853,8 @@ namespace NicoPlayerHohoema.ViewModels
             HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.DefaultQuality, false)
                 .Subscribe(async x =>
                 {
+                    if (IsDisposed) { return; }
+
                     _PreviosPlayingVideoPosition = ReadVideoPosition.Value;
 
                     RequestVideoQuality.Value = x;

@@ -268,6 +268,12 @@
     
     <Grid x:Name="LayoutRoot" Background="{StaticResource AppBarBorderThemeBrush}">
 
+        <i:Interaction.Behaviors>
+            <core:EventTriggerBehavior EventName="Unloaded" >
+                <core:CallMethodAction TargetObject="{Binding}" MethodName="Dispose" />
+            </core:EventTriggerBehavior>
+        </i:Interaction.Behaviors>
+        
         <VisualStateManager.VisualStateGroups>
 
             <!-- 画面サイズごとの表示・非表示に切り替え -->
