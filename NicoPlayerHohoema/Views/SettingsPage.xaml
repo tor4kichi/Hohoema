@@ -496,24 +496,45 @@
                             />
 
 
+                        <toolkit:DockPanel Margin="0 8">
+                            <TextBlock Text="フィードバック"
+                                Style="{StaticResource SubtitleTextBlockStyle}"
+                                VerticalAlignment="Center"
+                                toolkit:DockPanel.Dock="Left"
+                            />
+
+                            <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                BorderThickness="0 1 0 0" 
+                                Margin="8 0 16 0"
+                                VerticalAlignment="Center"
+                                />
+                        </toolkit:DockPanel>
+                        
                         <HyperlinkButton Content="ストアでHohoemaをレビューする"
                             Margin="0 0 0 8"
                             Command="{Binding LaunchAppReviewCommand}"
                             UseSystemFocusVisuals="True"
                             />
 
-                        <HyperlinkButton Content="フィードバックHubを開く" 
-                            Margin="0 0 0 8"
-                            Command="{Binding LaunchFeedbackHubCommand}"
-                            Visibility="{Binding IsSupportedFeedbackHub, Converter={StaticResource BooleanToVisibility}}"
-                            UseSystemFocusVisuals="True"
-                            />
+                        <StackPanel Orientation="Horizontal"
+                                    Visibility="{Binding IsSupportedFeedbackHub, Converter={StaticResource BooleanToVisibility}}"
+                                    Margin="0 0 0 8"
+                                    >
+                            <HyperlinkButton Content="フィードバックを送る" 
+                                        Command="{Binding LaunchFeedbackHubCommand}"
+                                        />
 
-                        <HyperlinkButton Content="（「フィードバックHub」をダウンロード）"
-                            NavigateUri="ms-windows-store://pdp/?productid=9NBLGGH4R32N"
-                            Margin="0 0 0 8"
-                            />
+                            <HyperlinkButton Content="（「フィードバックHub」が必要）"
+                                        NavigateUri="ms-windows-store://pdp/?productid=9NBLGGH4R32N"
+                                        Margin="8 0 0 0"
+                                        />
 
+                        </StackPanel>
+
+                        <HyperlinkButton Content="目安箱 (Google Form)"
+                                         NavigateUri="https://docs.google.com/forms/d/e/1FAIpQLSc0IvUdQ7WN73A5M0zV4t5fe20BVV7B4CXmiKpPTrHOlqyXiw/viewform"
+                                         Margin="0 0 0 8"
+                                         />
 
 
                         <toolkit:DockPanel Margin="0 8">
