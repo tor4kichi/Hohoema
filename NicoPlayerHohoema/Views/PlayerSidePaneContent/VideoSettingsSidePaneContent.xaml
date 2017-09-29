@@ -18,31 +18,6 @@
     d:DesignHeight="800"
     d:DesignWidth="800">
 
-    <UserControl.Resources>
-        <Style x:Key="DescriptionTextStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="Gray" />
-            <Setter Property="FontSize" Value="12" />
-            <Setter Property="TextWrapping" Value="Wrap" />
-        </Style>
-
-
-        <myconverter:CommentOpacityKindConverter
-            x:Key="CommentOpacityKindToText"
-            />
-
-        <uwpconverter:BoolToObjectConverter x:Name="BoolToAvairableOpacityConverter">
-            <uwpconverter:BoolToObjectConverter.TrueValue>
-                <x:Double>1.0</x:Double>
-            </uwpconverter:BoolToObjectConverter.TrueValue>
-            <uwpconverter:BoolToObjectConverter.FalseValue>
-                <x:Double>0.7</x:Double>
-            </uwpconverter:BoolToObjectConverter.FalseValue>
-        </uwpconverter:BoolToObjectConverter>
-        
-        
-    </UserControl.Resources>
-
-
     <ScrollViewer>
 
         <i:Interaction.Behaviors>

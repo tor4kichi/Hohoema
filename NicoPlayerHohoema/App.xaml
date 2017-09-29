@@ -113,6 +113,19 @@
 
 
 
+
+            <myconv:CommentOpacityKindConverter x:Key="CommentOpacityKindToText" />
+
+            <uwpconv:BoolToObjectConverter x:Name="BoolToAvairableOpacityConverter">
+                <uwpconv:BoolToObjectConverter.TrueValue>
+                    <x:Double>1.0</x:Double>
+                </uwpconv:BoolToObjectConverter.TrueValue>
+                <uwpconv:BoolToObjectConverter.FalseValue>
+                    <x:Double>0.7</x:Double>
+                </uwpconv:BoolToObjectConverter.FalseValue>
+            </uwpconv:BoolToObjectConverter>
+
+
             <!-- Logical Modifier-->
             <logicalModifier:AndModifier x:Key="AndModifier" />
             <logicalModifier:OrModifier x:Key="OrModifier" />
