@@ -8,11 +8,9 @@ Windows 10/Windows 10 Mobile/XboxOneに対応したニコニコ動画・生放�
 
 ## ダウンロード
 
+### [Hohoemaをダウンロード](https://www.microsoft.com/ja-jp/store/p/hohoema/9nblggh4rxt6)
+
 Windows 10 や XboxOne のストアアプリから無料でダウンロードできます
-
-### [Hohoema - アプリストア](https://www.microsoft.com/ja-jp/store/p/hohoema/9nblggh4rxt6)
-
-（※ Windows10でアクセスするとストアアプリが起動します）
 
 ## 動作環境
 
@@ -22,15 +20,8 @@ Windows 10 や XboxOne のストアアプリから無料でダウンロードで
 
 Hohoema は Universal Windows Platform (UWP) アプリです。
 
-ご利用にはAnniversary Update以降へのOSバージョンを更新する必要があります。
+ご利用にはOSバージョンを『Anniversary Update以降』への更新する必要があります。
 
-## 開発への支援について
-
-(2017/06/02)  アプリ本体を無料に変更し、アドオンから開発者への支援を行える形に変更しました。
-
-支援アドオンはHohoemaアプリ内の「設定」→ 「このアプリについて」→ 「アドオン」から選択できます。
-
-使えるニコ動プレイヤーにしていきますので支援お願いします。
 
 ## Hohoemaに出来ること
 
@@ -57,11 +48,17 @@ Hohoema は Universal Windows Platform (UWP) アプリです。
 
 ## 要望・バグ報告について
 
-### [目安箱 - Google Form](https://docs.google.com/forms/d/e/1FAIpQLSc0IvUdQ7WN73A5M0zV4t5fe20BVV7B4CXmiKpPTrHOlqyXiw/viewform)
+* フィードバックHub
+  * アプリ内の設定ページにある「フィードバックを送る」を選択
 
-### [HohoemaのGithub上に新しい課題を立てる](https://github.com/tor4kichi/Hohoema/issues)
+* [目安箱 - Google Form](https://docs.google.com/forms/d/e/1FAIpQLSc0IvUdQ7WN73A5M0zV4t5fe20BVV7B4CXmiKpPTrHOlqyXiw/viewform)
+  
+* [新しい課題を立てる - GitHub](https://github.com/tor4kichi/Hohoema/issues)
+  
 
 今後の変更や確認されているバグは [イシュー](https://github.com/tor4kichi/Hohoema/issues) から確認できます
+
+
 
 ## オープンソースの理由は？
 
@@ -79,3 +76,13 @@ GPL 3.0
 * VisualStudio 2017 Community
 * UWP (C# / .Net / Xaml)
 * Inkscape
+
+
+
+## 開発への支援について
+
+(2017/06/02)  アプリ本体を無料に変更し、アドオンから開発者への支援を行える形に変更しました。
+
+支援アドオンはHohoemaアプリ内の「設定」→ 「このアプリについて」→ 「アドオン」から選択できます。
+
+使えるニコ動プレイヤーにしていきますので支援お願いします。
