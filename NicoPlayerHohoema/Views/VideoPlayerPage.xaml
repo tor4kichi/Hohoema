@@ -367,6 +367,9 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="CO_CommentTextBox.Visibility" Value="Collapsed" />
+
+                        <Setter Target="CO_OpenPreviousPlaylistItemButton.Visibility" Value="Collapsed" />
+                        <Setter Target="CO_OpenNextPlaylistItemButton.Visibility" Value="Collapsed" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -1920,8 +1923,49 @@
                                     </StackPanel>
                                 </toolkit:DockPanel>
 
-                                
 
+
+                                <Border VerticalAlignment="Center"
+                                            HorizontalAlignment="Left"
+                                        x:Name="CO_OpenPreviousPlaylistItemButton"
+                                        Margin="0 0 0 8"
+                                            >
+                                    <Button MinWidth="48"
+                                                Height="80"
+                                                Command="{Binding OpenPreviousPlaylistItemCommand}"
+                                                IsEnabled="{Binding PlaylistCanGoBack.Value}"
+                                                BorderBrush="{StaticResource HohoemaPlayerBackgroundBrush}"
+                                                BorderThickness="0 1 1 1"
+                                            >
+                                        <TextBlock FontFamily="Segoe MDL2 Assets" 
+                                                       Text="&#xE016;" 
+                                                       FontSize="20"
+                                                       Foreground="{ThemeResource HohoemaPlayerBackgroundBrush}"
+                                                       >
+                                        </TextBlock>
+                                    </Button>
+                                </Border>
+
+                                <Border VerticalAlignment="Center"
+                                            HorizontalAlignment="Right"
+                                        x:Name="CO_OpenNextPlaylistItemButton"
+                                        Margin="0 0 0 8"
+                                            >
+                                    <Button MinWidth="48"
+                                                Height="80"
+                                                Command="{Binding OpenNextPlaylistItemCommand}"
+                                                IsEnabled="{Binding PlaylistCanGoNext.Value}"
+                                                BorderBrush="{StaticResource HohoemaPlayerBackgroundBrush}"
+                                                BorderThickness="1 1 0 1"
+                                                >
+                                        <TextBlock FontFamily="Segoe MDL2 Assets" 
+                                                       Text="&#xE017;" 
+                                                       FontSize="20"
+                                                       Foreground="{ThemeResource HohoemaPlayerBackgroundBrush}"
+                                                           >
+                                        </TextBlock>
+                                    </Button>
+                                </Border>
 
                             </Grid>
 
