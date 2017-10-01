@@ -422,8 +422,8 @@ namespace NicoPlayerHohoema.ViewModels
             if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4))
             {
                 IsCompactOverlay = new ReactiveProperty<bool>(CurrentWindowContextScheduler,
-                    ApplicationView.GetForCurrentView().ViewMode == ApplicationViewMode.CompactOverlay,
-                    ReactivePropertyMode.DistinctUntilChanged);
+                    ApplicationView.GetForCurrentView().ViewMode == ApplicationViewMode.CompactOverlay
+                    );
 
                 // This device supports all APIs in UniversalApiContract version 2.0
                 IsCompactOverlay
