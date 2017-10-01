@@ -74,7 +74,8 @@ namespace NicoPlayerHohoema.ViewModels
 			_ToastService = toast;
 			_TextInputDialogService = textInputDialog;
 
-            MediaPlayer = new MediaPlayer();
+            MediaPlayer = new MediaPlayer()
+                .AddTo(_CompositeDisposable);
 
             MediaPlayer.AutoPlay = true;
             MediaPlayer.AudioCategory = MediaPlayerAudioCategory.Media;
@@ -1344,17 +1345,18 @@ namespace NicoPlayerHohoema.ViewModels
 
         }
 
-
         protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
         {
+            Debug.WriteLine("VideoPlayer OnNavigatingFromAsync start.");
+
+            //			PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
+
+            Video?.StopPlay(MediaPlayer);
+
             var mediaPlayer = MediaPlayer;
             MediaPlayer = null;
             RaisePropertyChanged(nameof(MediaPlayer));
             MediaPlayer = mediaPlayer;
-
-            Debug.WriteLine("VideoPlayer OnNavigatingFromAsync start.");
-
-            //			PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
 
             if (suspending)
             {
@@ -1370,7 +1372,6 @@ namespace NicoPlayerHohoema.ViewModels
                 Comments.Clear();
             }
 
-            Video?.StopPlay(MediaPlayer);
 
             // プレイリストへ再生完了を通知
             VideoPlayed();
