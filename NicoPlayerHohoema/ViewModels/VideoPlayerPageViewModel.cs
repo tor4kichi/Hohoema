@@ -74,7 +74,8 @@ namespace NicoPlayerHohoema.ViewModels
 			_ToastService = toast;
 			_TextInputDialogService = textInputDialog;
 
-            MediaPlayer = new MediaPlayer();
+            MediaPlayer = new MediaPlayer()
+                .AddTo(_CompositeDisposable);
 
             MediaPlayer.AutoPlay = true;
             MediaPlayer.AudioCategory = MediaPlayerAudioCategory.Media;
@@ -421,8 +422,8 @@ namespace NicoPlayerHohoema.ViewModels
             if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4))
             {
                 IsCompactOverlay = new ReactiveProperty<bool>(CurrentWindowContextScheduler,
-                    ApplicationView.GetForCurrentView().ViewMode == ApplicationViewMode.CompactOverlay,
-                    ReactivePropertyMode.DistinctUntilChanged);
+                    ApplicationView.GetForCurrentView().ViewMode == ApplicationViewMode.CompactOverlay
+                    );
 
                 // This device supports all APIs in UniversalApiContract version 2.0
                 IsCompactOverlay
@@ -448,12 +449,9 @@ namespace NicoPlayerHohoema.ViewModels
                         else
                         {
                             var result = await appView.TryEnterViewModeAsync(ApplicationViewMode.Default);
-                            if (result)
-                            {
-                                CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = false;
-                                appView.TitleBar.ButtonBackgroundColor = null;
-                                appView.TitleBar.ButtonInactiveBackgroundColor = null;
-                            }
+                            CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = false;
+                            appView.TitleBar.ButtonBackgroundColor = null;
+                            appView.TitleBar.ButtonInactiveBackgroundColor = null;
                         }
                     }
                 })
@@ -1344,17 +1342,18 @@ namespace NicoPlayerHohoema.ViewModels
 
         }
 
-
         protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
         {
+            Debug.WriteLine("VideoPlayer OnNavigatingFromAsync start.");
+
+            //			PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
+
+            Video?.StopPlay(MediaPlayer);
+
             var mediaPlayer = MediaPlayer;
             MediaPlayer = null;
             RaisePropertyChanged(nameof(MediaPlayer));
             MediaPlayer = mediaPlayer;
-
-            Debug.WriteLine("VideoPlayer OnNavigatingFromAsync start.");
-
-            //			PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
 
             if (suspending)
             {
@@ -1370,7 +1369,6 @@ namespace NicoPlayerHohoema.ViewModels
                 Comments.Clear();
             }
 
-            Video?.StopPlay(MediaPlayer);
 
             // プレイリストへ再生完了を通知
             VideoPlayed();

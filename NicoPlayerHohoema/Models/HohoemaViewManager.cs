@@ -27,7 +27,6 @@ namespace NicoPlayerHohoema.Models
 
         private HohoemaSecondaryViewFrameViewModel _SecondaryViewVM { get; set; }
 
-
         public HohoemaViewManager()
         {
             MainView = ApplicationView.GetForCurrentView();
@@ -119,13 +118,21 @@ namespace NicoPlayerHohoema.Models
             }
             else
             {
-                Window.Current.Activate();
-                await ApplicationViewSwitcher.TryShowAsStandaloneAsync(
-                    ViewId,
-                    ViewSizePreference.Default,
-                    MainView.Id,
-                    ViewSizePreference.Default
-                    );
+                if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4)
+                    && AppView.ViewMode == ApplicationViewMode.CompactOverlay)
+                {
+                    
+                }
+                else
+                {
+                    Window.Current.Activate();
+                    await ApplicationViewSwitcher.TryShowAsStandaloneAsync(
+                        ViewId,
+                        ViewSizePreference.Default,
+                        MainView.Id,
+                        ViewSizePreference.Default
+                        );
+                }
             }
 
             return this;

@@ -331,8 +331,8 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 // プレイヤーを閉じた際のコンパクトオーバーレイの解除はPlayerWithPageContainerViewModel側で行う
                 IsCompactOverlay = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler,
-                    ApplicationView.GetForCurrentView().ViewMode == ApplicationViewMode.CompactOverlay,
-                    ReactivePropertyMode.DistinctUntilChanged);
+                    ApplicationView.GetForCurrentView().ViewMode == ApplicationViewMode.CompactOverlay
+                    );
                 IsCompactOverlay
                     .Subscribe(async isCompactOverlay =>
                     {
