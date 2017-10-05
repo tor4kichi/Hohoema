@@ -446,18 +446,18 @@ namespace NicoPlayerHohoema.ViewModels
 					Sort = Sort.VideoCount,
 					Order = Order.Descending,
 				}
-				//, new SearchSortOptionListItem()
-				//{
-				//	Label = "動画数が少ない順",
-				//	Sort = Sort.VideoCount,
-				//	Order = Order.Ascending,
-				//}
-				//, new SearchSortOptionListItem()
-				//{
-				//	Label = "適合率が高い順",
-				//	Sort = Sort.Relation,
-				//	Order = Order.Descending,
-				//}
+                //, new SearchSortOptionListItem()
+                //{
+                //	Label = "動画数が少ない順",
+                //	Sort = Sort.VideoCount,
+                //	Order = Order.Ascending,
+                //}
+                , new SearchSortOptionListItem()
+                {
+					Label = "適合率が高い順",
+					Sort = Sort.Relation,
+					Order = Order.Descending,
+				}
 				//, new SearchSortOptionListItem()
 				//{
 				//	Label = "適合率が低い順",
@@ -620,17 +620,17 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				return new List<LiveSearchSortOptionListItem>()
 				{
-					new LiveSearchSortOptionListItem()
-					{
-						Sort = x,
-						Order = Order.Descending,
-					},
-					new LiveSearchSortOptionListItem()
-					{
-						Sort = x,
-						Order = Order.Ascending,
-					},
-				};
+                    new LiveSearchSortOptionListItem()
+                    {
+                        Sort = x,
+                        Order = Order.Ascending,
+                    },
+                    new LiveSearchSortOptionListItem()
+                    {
+                        Sort = x,
+                        Order = Order.Descending,
+                    },
+                };
 			})
 			.ToList();
 

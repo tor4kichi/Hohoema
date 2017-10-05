@@ -57,12 +57,12 @@ namespace NicoPlayerHohoema.ViewModels
                     new LiveSearchSortOptionListItem()
                     {
                         Sort = x,
-                        Order = Order.Descending,
+                        Order = Order.Ascending,
                     },
                     new LiveSearchSortOptionListItem()
                     {
                         Sort = x,
-                        Order = Order.Ascending,
+                        Order = Order.Descending,
                     },
                 };
             })
