@@ -8,7 +8,7 @@ Windows 10/Windows 10 Mobile/XboxOneに対応したニコニコ動画・生放�
 
 ## ダウンロード
 
-### [Hohoema - マイクロソフト ストア](ms-windows-store://pdp/?ProductId=9nblggh4rxt6)
+### [Hohoema - マイクロソフト ストア](https://www.microsoft.com/ja-jp/store/p/hohoema/9nblggh4rxt6)
 
 Windows 10 や XboxOne のストアアプリからダウンロードできます。
 
