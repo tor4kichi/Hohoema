@@ -323,7 +323,7 @@ namespace NicoPlayerHohoema.Models
 				case HohoemaPageType.Search:
 					return "検索";
 				case HohoemaPageType.CacheManagement:
-					return "キャッシュ管理";
+					return "キャッシュ";
 				case HohoemaPageType.Settings:
 					return "設定";
 				case HohoemaPageType.VideoInfomation:
