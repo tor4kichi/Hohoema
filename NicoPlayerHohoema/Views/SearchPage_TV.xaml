@@ -269,6 +269,11 @@
                                           IsEnabled="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanInverted}}"
                                           IsSynchronizedWithCurrentItem="False"
                                          >
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Converter={StaticResource ToLocalText}}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
                                 </ComboBox>
                             </Border>
 

@@ -125,6 +125,7 @@
                 </uwpconv:BoolToObjectConverter.FalseValue>
             </uwpconv:BoolToObjectConverter>
 
+            <uwpconv:ResourceNameToResourceStringConverter x:Key="ToLocalText" />
 
             <!-- Logical Modifier-->
             <logicalModifier:AndModifier x:Key="AndModifier" />
