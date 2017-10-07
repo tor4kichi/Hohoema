@@ -62,6 +62,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public List<HohoemaPageType> StartupPageTypeList { get; } = new List<HohoemaPageType>()
         {
+            HohoemaPageType.NicoRepo,
             HohoemaPageType.Search,
             HohoemaPageType.RankingCategoryList,
             HohoemaPageType.CacheManagement,

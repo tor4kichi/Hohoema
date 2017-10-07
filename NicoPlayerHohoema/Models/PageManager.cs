@@ -344,7 +344,8 @@ namespace NicoPlayerHohoema.Models
 					return "コミュニティ情報";
 				case HohoemaPageType.CommunityVideo:
 					return "コミュニティ動画一覧";
-                    
+                case HohoemaPageType.NicoRepo:
+                    return "ニコレポ";
 				default:
                     Debug.WriteLine("not support " + nameof(HohoemaPageType) + "." + pageType.ToString());
                     return pageType.ToString();
