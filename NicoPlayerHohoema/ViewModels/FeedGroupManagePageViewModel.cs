@@ -202,7 +202,7 @@ namespace NicoPlayerHohoema.ViewModels
 	}
 
 
-	public class FeedGroupListItem : HohoemaListingPageItemBase
+	public class FeedGroupListItem : HohoemaListingPageItemBase, IFeedGroup
 	{
 		PageManager _PageManager;
 		public IFeedGroup FeedGroup { get; private set; }
@@ -218,7 +218,7 @@ namespace NicoPlayerHohoema.ViewModels
 			FeedGroup = feedGroup;
 			_PageManager = pageManager;
 
-			Title = feedGroup.Label;
+			Label = feedGroup.Label;
             Description = feedGroup.GetUnreadItemCount().ToString();
 			SourceItems = FeedGroup.FeedSourceList
 				.Select(x => new FeedItemSourceViewModel()
@@ -232,20 +232,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		}
-
-		private DelegateCommand _SelectedCommand;
-        public override ICommand PrimaryCommand
-		{
-			get
-			{
-				return _SelectedCommand
-					?? (_SelectedCommand = new DelegateCommand(() => 
-					{
-						_PageManager.OpenPage(HohoemaPageType.FeedVideoList, FeedGroup.Id);
-					}));
-			}
-		}
-
 
 		private DelegateCommand _SecondaryActionCommand;
 		public DelegateCommand SecondaryActionCommand
@@ -295,8 +281,20 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+        public List<FeedItem> FeedItems => throw new NotImplementedException();
 
-        
+        public FeedManager FeedManager => throw new NotImplementedException();
+
+        public IReadOnlyList<IFeedSource> FeedSourceList => throw new NotImplementedException();
+
+        public HohoemaApp HohoemaApp => throw new NotImplementedException();
+
+        public Guid Id => throw new NotImplementedException();
+
+        public bool IsNeedRefresh => throw new NotImplementedException();
+
+        public DateTime UpdateTime => throw new NotImplementedException();
+
         public void UpdateStarted()
 		{
 			NowUpdate.Value = true;
@@ -308,7 +306,62 @@ namespace NicoPlayerHohoema.ViewModels
             Description = FeedGroup.GetUnreadItemCount().ToString();
             OptionText = FeedGroup.UpdateTime.ToString();
 		}
-	}
+
+        public IFeedSource AddMylistFeedSource(string name, string mylistGroupId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IFeedSource AddTagFeedSource(string tag)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IFeedSource AddUserFeedSource(string name, string userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool ExistFeedSource(FollowItemType itemType, string id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ForceMarkAsRead()
+        {
+            throw new NotImplementedException();
+        }
+
+        public int GetUnreadItemCount()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool MarkAsRead(string videoId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> LoadFeedStream(FileAccessor<List<FeedItem>> fileAccessor)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task Refresh()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveUserFeedSource(IFeedSource feedSource)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> Rename(string newLabel)
+        {
+            throw new NotImplementedException();
+        }
+    }
 
 
 	public class FeedItemSourceViewModel

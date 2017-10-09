@@ -27,7 +27,8 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <!-- マージン設定 -->
-                        <Setter Target="HeaderLayout.Margin" Value="0 27 48 0" />
+                        <Setter Target="HeaderLayout.Padding" Value="0 27 48 0" />
+                        <Setter Target="HorizontalVideoList.Padding" Value="0 0 48 0" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -45,10 +46,10 @@
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-        
+
         <Grid>
+            <!---->
             <controls:HohoemaIncrementalLoadingList
-                    ItemFlyout="{StaticResource VideoListItemFlyout}"
                     x:Name="VerticalVideoList"
                 Margin="0 64 0 0"
                     >
@@ -63,10 +64,10 @@
                                              Visibility="Collapsed"
                                         ItemsSource="{Binding IncrementalLoadingItems}"
                                         SelectedItems="{Binding SelectedItems, Mode=TwoWay}"
-                                        ItemCommand="{Binding SelectItemCommand}"
+                                        ItemCommand="{StaticResource OpenContentCommand}"
                                         IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
                                         Margin="0 0 0 0"
-                                        Padding="0 0 48 0"
+                                        Padding="0 0 24 0"
                                         IsTabStop="False"
                     >
                 <controls:IncrementalLoadingList.ItemTemplate>
@@ -80,7 +81,7 @@
                 <controls:IncrementalLoadingList.ItemsPanel>
                     <ItemsPanelTemplate>
                         <ItemsWrapGrid Orientation="Horizontal"
-                                           Margin="0 48 0 27"
+                                           Margin="0 80 0 27"
                                            />
                     </ItemsPanelTemplate>
                 </controls:IncrementalLoadingList.ItemsPanel>
@@ -92,8 +93,7 @@
 
             <Border toolkit:DockPanel.Dock="Top" 
                     x:Name="HeaderLayout"
-                    Background="{StaticResource TvHeaderBackgroundBrush}"
-                    Margin="0 0 0 0"
+                    Background="{StaticResource TvHeaderBackgroundBrush}" 
                     >
                 <toolkit:DockPanel >
 
@@ -135,8 +135,8 @@
 
                     </StackPanel>
 
-                    <StackPanel Background="Transparent" IsHitTestVisible="True"
-                                Margin="16 8 0 0"
+                    <Border Background="Transparent" IsHitTestVisible="True"
+                                Margin="16 0 0 0"
                                 >
 
                         <i:Interaction.Behaviors>
@@ -153,7 +153,7 @@
 
                         </StackPanel>
 
-                    </StackPanel>
+                    </Border>
                 </toolkit:DockPanel>
             </Border>
 

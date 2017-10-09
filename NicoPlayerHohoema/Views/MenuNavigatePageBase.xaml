@@ -12,6 +12,7 @@
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:mytrigger="using:NicoPlayerHohoema.Views.StateTrigger"
+    xmlns:myextensions="using:NicoPlayerHohoema.Views.Extensions"
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:logicalTrigger="using:AdaptiveTriggerLibrary.Triggers.LogicalTriggers"
     xmlns:uiTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInterfaceTriggers"
@@ -23,6 +24,8 @@
     xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     IsTabStop="False"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
+    xmlns:templateSelector="using:NicoPlayerHohoema.Views.TemplateSelector"
+    xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400"    
@@ -437,6 +440,22 @@
                                     <!-- ページ毎のコンテンツ -->
                                     <ContentPresenter
                                             >
+                                        <myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
+                                            <templateSelector:HohoemaFlyoutTemplateSelector>
+                                                <templateSelector:HohoemaFlyoutTemplateSelector.VideoFlyoutTemplate>
+                                                    <DataTemplate>
+                                                        <controls:VideoListItemFlyout />
+                                                    </DataTemplate>
+                                                </templateSelector:HohoemaFlyoutTemplateSelector.VideoFlyoutTemplate>
+                                                <templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
+                                                    <DataTemplate>
+                                                        <controls:LiveListItemFlyout />
+                                                    </DataTemplate>
+                                                </templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
+                                            </templateSelector:HohoemaFlyoutTemplateSelector>
+                                        </myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>   
+                                        
+                                        
                                         <i:Interaction.Behaviors>
                                             <core:DataTriggerBehavior Binding="{Binding NowNavigating.Value, Converter={StaticResource BooleanInverted}}">
                                                 <mybehavior:SetFocus Delay="300" />

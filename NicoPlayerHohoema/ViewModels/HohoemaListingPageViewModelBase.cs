@@ -74,30 +74,7 @@ namespace NicoPlayerHohoema.ViewModels
 				.AddTo(_CompositeDisposable);
 
 
-			SelectItemCommand.Subscribe(item =>
-			{
-                HohoemaListingPageItemBase clicekdItem = null;
-                if (item is ItemClickEventArgs)
-                {
-                    var args = item as ItemClickEventArgs;
-                    if (args?.ClickedItem is HohoemaListingPageItemBase)
-                    {
-                        clicekdItem = args.ClickedItem as HohoemaListingPageItemBase;
-                    }
-                }
-                else if (item is HohoemaListingPageItemBase)
-                {
-                    clicekdItem = item as HohoemaListingPageItemBase;
-                }
-
-
-                if (clicekdItem?.PrimaryCommand.CanExecute(null) ?? false)
-                {
-                    clicekdItem.PrimaryCommand.Execute(null);
-                }
-            })
-			.AddTo(_CompositeDisposable);
-            
+			
 
 			var SelectionItemsChanged = SelectedItems.ToCollectionChanged().ToUnit();
 /*

@@ -83,7 +83,7 @@ namespace NicoPlayerHohoema.ViewModels
 	{
         public IFollowInfoGroup FollowGroup { get; }
         public FollowItemType FavType => FollowGroup.FollowItemType;
-        public string Name { get;  }
+        public string Label { get;  }
         public uint MaxItemCount => FollowGroup.MaxFollowItemCount;
         public ReadOnlyReactiveProperty<int> ItemCount { get; }
         public FollowManager FollowManager { get; }
@@ -93,88 +93,84 @@ namespace NicoPlayerHohoema.ViewModels
 
         public FavoriteListViewModel(string label, IFollowInfoGroup followGroup, FollowManager followMan, PageManager pageManager)
         {
-            Name = label;
+            Label = label;
             FollowGroup = followGroup;
             FollowManager = followMan;
             PageManager = pageManager;
 
             Items = followGroup.FollowInfoItems
-                .ToReadOnlyReactiveCollection(x => new FavoriteItemViewModel(x, FollowManager, PageManager));
+                .ToReadOnlyReactiveCollection(x => CreateFavVM(x));
             ItemCount = Items.ObserveProperty(x => x.Count).ToReadOnlyReactiveProperty();
         }
 
-        private DelegateCommand<FavoriteItemViewModel> _SelectedCommand;
-        public DelegateCommand<FavoriteItemViewModel> SelectedCommand
+
+        private static FavoriteItemViewModel CreateFavVM(FollowItemInfo favItem)
         {
-            get
+            switch (favItem.FollowItemType)
             {
-                return _SelectedCommand
-                    ?? (_SelectedCommand = new DelegateCommand<FavoriteItemViewModel>((itemVM) =>
-                    {
-                        itemVM.PrimaryCommand.Execute(null);
-                    }));
+                case FollowItemType.Tag:
+                    return new TagFavItemVM(favItem);
+                case FollowItemType.Mylist:
+                    return new MylistFavItemVM(favItem);
+                case FollowItemType.User:
+                    return new UserFavItemVM(favItem);
+                case FollowItemType.Community:
+                    return new CommunityFavItemVM(favItem);
+                default:
+                    throw new NotSupportedException();
             }
         }
-
-        
-
     }
+
+    public class TagFavItemVM : FavoriteItemViewModel, Interfaces.ISearchWithtag
+    {
+        public TagFavItemVM(FollowItemInfo feedList) : base(feedList)
+        {
+        }
+
+        public string Tag => SourceId;
+    }
+
+    public class MylistFavItemVM : FavoriteItemViewModel, Interfaces.IMylist
+    {
+        public MylistFavItemVM(FollowItemInfo feedList) : base(feedList)
+        {
+        }
+
+        public string Id => SourceId;
+    }
+
+
+    public class UserFavItemVM : FavoriteItemViewModel, Interfaces.IUser
+    {
+        public UserFavItemVM(FollowItemInfo feedList) : base(feedList)
+        {
+        }
+
+        public string Id => SourceId;
+    }
+
+    public class CommunityFavItemVM : FavoriteItemViewModel, Interfaces.ICommunity
+    {
+        public CommunityFavItemVM(FollowItemInfo feedList) : base(feedList)
+        {
+        }
+
+        public string Id => SourceId;
+    }
+
 
     public class FavoriteItemViewModel : HohoemaListingPageItemBase
 	{
-		
-		public FavoriteItemViewModel(FollowItemInfo feedList, FollowManager followMan, PageManager pageManager)
+		public FavoriteItemViewModel(FollowItemInfo feedList)
 		{
-			Title = feedList.Name;
+			Label = feedList.Name;
 			ItemType = feedList.FollowItemType;
 			SourceId = feedList.Id;
-
-			_PageManager = pageManager;
-            _FollowManager = followMan;
-
         }
 
-
-		private DelegateCommand _SelectedCommand;
-		public override ICommand PrimaryCommand
-		{
-			get
-			{
-				return _SelectedCommand
-					?? (_SelectedCommand = new DelegateCommand(() => 
-					{
-
-						switch (ItemType)
-						{
-							case FollowItemType.Tag:
-                                var param =
-                                    new TagSearchPagePayloadContent()
-                                    {
-                                        Keyword = this.SourceId,
-                                        Sort = Mntone.Nico2.Sort.FirstRetrieve,
-                                        Order = Mntone.Nico2.Order.Descending,
-                                    };
-
-                                _PageManager.Search(param);
-								break;
-							case FollowItemType.Mylist:
-								_PageManager.OpenPage(HohoemaPageType.Mylist,
-                                    new MylistPagePayload(this.SourceId) { Origin = PlaylistOrigin.OtherUser }.ToParameterString()
-                                    );
-								break;
-							case FollowItemType.User:								
-								_PageManager.OpenPage(HohoemaPageType.UserInfo, this.SourceId);
-								break;
-							case FollowItemType.Community:
-								_PageManager.OpenPage(HohoemaPageType.Community, this.SourceId);
-								break;
-							default:
-								break;
-						}
-					}));
-			}
-		}
-
+        
+        /*
         private DelegateCommand _RemoveFavoriteCommand;
         public DelegateCommand RemoveFavoriteCommand
         {
@@ -203,13 +199,10 @@ namespace NicoPlayerHohoema.ViewModels
                     }));
             }
         }
+        */
 
         public FollowItemType ItemType { get; set; }
 		public string SourceId { get; set; }
-
-		PageManager _PageManager;
-        FollowManager _FollowManager;
-
     }
 
 	

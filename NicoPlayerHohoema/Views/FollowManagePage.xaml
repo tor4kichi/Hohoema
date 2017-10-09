@@ -20,7 +20,7 @@
 
     <Page.Resources>
         <DataTemplate x:Key="FavoriteItemTemplate">
-            <TextBlock Text="{Binding Title}"
+            <TextBlock Text="{Binding Label}"
                        HorizontalAlignment="Center"
                        VerticalAlignment="Center"
                        TextWrapping="Wrap"
@@ -125,7 +125,7 @@
                                                             VerticalAlignment="Center"
                                                             />
 
-                                    <TextBlock Text="{Binding Name}" 
+                                    <TextBlock Text="{Binding Label}" 
                                                             Margin="0 0"
                                                             VerticalAlignment="Center"
                                                         />
@@ -156,7 +156,7 @@
                                               HorizontalAlignment="Stretch"
                                                   HorizontalContentAlignment="Left"
                                               IsItemClickEnabled="True"
-                                              uwpui:ListViewBase.Command="{Binding SelectedCommand}"
+                                              uwpui:ListViewBase.Command="{StaticResource OpenContentCommand}"
                                               SelectionMode="None"
                                           >
                                         <i:Interaction.Behaviors>
@@ -166,12 +166,11 @@
                                         
                                         <GridView.ContextFlyout>
                                             <MenuFlyout>
-                                                <MenuFlyoutItem Text="{Binding Title}" IsEnabled="False" />
-                                                <MenuFlyoutSubItem Text="フォロー解除">
-                                                    <MenuFlyoutItem Text="解除"
-                                                                    Command="{Binding RemoveFavoriteCommand}"
-                                                                    />
-                                                </MenuFlyoutSubItem>
+                                                <MenuFlyoutItem Text="{Binding Label}" IsEnabled="False" />
+                                                <MenuFlyoutItem Text="フォロー解除"
+                                                                Command="{StaticResource RemoveFollowCommand}"
+                                                                >
+                                                </MenuFlyoutItem>
                                             </MenuFlyout>
                                         </GridView.ContextFlyout>
                                         <GridView.ItemContainerStyle>

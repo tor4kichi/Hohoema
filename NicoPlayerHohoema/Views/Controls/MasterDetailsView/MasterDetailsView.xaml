@@ -51,11 +51,7 @@
                                           ItemsSource="{TemplateBinding ItemsSource}"
                                           SelectedItem="{Binding SelectedItem, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
                                           SingleSelectionFollowsFocus="False"
-                                          ContextFlyout="{TemplateBinding ContextFlyout}"
                                           >
-                                    <i:Interaction.Behaviors>
-                                        <mybehavior:ListViewBaseItemContextFlyout />
-                                    </i:Interaction.Behaviors>
                                 </ListView>
                                 <Grid x:Name="MasterCommandBarPanel" Grid.Row="2"></Grid>
                             </Grid>

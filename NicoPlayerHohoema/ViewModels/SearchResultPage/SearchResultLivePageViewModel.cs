@@ -369,8 +369,8 @@ namespace NicoPlayerHohoema.ViewModels
 	}
 
 
-	public class LiveInfoViewModel : HohoemaListingPageItemBase
-	{
+	public class LiveInfoViewModel : HohoemaListingPageItemBase, Interfaces.ILiveContent
+    {
         public HohoemaPlaylist Playlist { get; private set; }
 		public VideoInfo LiveVideoInfo { get; private set; }
 		public PageManager PageManager { get; private set; }
@@ -396,7 +396,11 @@ namespace NicoPlayerHohoema.ViewModels
 
         public bool IsXbox => Util.DeviceTypeHelper.IsXbox;
 
-		public LiveInfoViewModel(VideoInfo liveVideoInfo, HohoemaPlaylist playlist, PageManager pageManager)
+
+        public string BroadcasterId => CommunityGlobalId;
+        public string Id => LiveId;
+
+        public LiveInfoViewModel(VideoInfo liveVideoInfo, HohoemaPlaylist playlist, PageManager pageManager)
 		{
 			LiveVideoInfo = liveVideoInfo;
 			PageManager = pageManager;
@@ -424,7 +428,7 @@ namespace NicoPlayerHohoema.ViewModels
 			IsTimeshiftEnabled = LiveVideoInfo.Video.TimeshiftEnabled;
 			IsCommunityMemberOnly = LiveVideoInfo.Video.CommunityOnly;
 
-            Title = LiveVideoInfo.Video.Title;
+            Label = LiveVideoInfo.Video.Title;
             ImageUrlsSource.Add(CommunityThumbnail);
 
             Description = $"来場者:{ViewCounter} コメ:{CommentCount}";
@@ -464,98 +468,6 @@ namespace NicoPlayerHohoema.ViewModels
             OptionText = DurationText;
         }
 
-
-        private DelegateCommand _OpenLiveVideoPageCommand;
-		public override ICommand PrimaryCommand
-		{
-			get
-			{
-				return _OpenLiveVideoPageCommand
-					?? (_OpenLiveVideoPageCommand = new DelegateCommand(() =>
-					{
-                        Playlist.PlayLiveVideo(LiveId, LiveTitle);
-					}));
-			}
-		}
-
-
-        private DelegateCommand _PlayWithSmallPlayerCommand;
-        public DelegateCommand PlayWithSmallPlayerCommand
-        {
-            get
-            {
-                return _PlayWithSmallPlayerCommand
-                    ?? (_PlayWithSmallPlayerCommand = new DelegateCommand(() =>
-                    {
-                        Playlist.PlayerDisplayType = PlayerDisplayType.PrimaryWithSmall;
-
-                        Playlist.PlayLiveVideo(LiveId, LiveTitle);
-                    }));
-            }
-        }
-
-
-
-
-        private DelegateCommand _OpenCommunityPageCommand;
-        public DelegateCommand OpenCommunityPageCommand
-        {
-            get
-            {
-                return _OpenCommunityPageCommand
-                    ?? (_OpenCommunityPageCommand = new DelegateCommand(() =>
-                    {
-                        if (CommunityGlobalId != null)
-                        {
-                            PageManager.OpenPage(HohoemaPageType.Community, CommunityGlobalId);
-                        }
-                    }));
-            }
-        }
-
-        private DelegateCommand _ShareCommand;
-        public DelegateCommand ShareCommand
-        {
-            get
-            {
-                return _ShareCommand
-                    ?? (_ShareCommand = new DelegateCommand(() =>
-                    {
-                        ShareHelper.Share(ShareHelper.MakeLiveShareText(Title, LiveId));
-                    }
-                    , () => DataTransferManager.IsSupported()
-                    ));
-            }
-        }
-
-        private DelegateCommand _ShereWithTwitterCommand;
-        public DelegateCommand ShereWithTwitterCommand
-        {
-            get
-            {
-                return _ShereWithTwitterCommand
-                    ?? (_ShereWithTwitterCommand = new DelegateCommand(async () =>
-                    {
-                        await ShareHelper.ShareToTwitter(ShareHelper.MakeLiveShareText(Title, LiveId));
-                    }
-                    ));
-            }
-        }
-
-        private DelegateCommand _VideoInfoCopyToClipboardCommand;
-        public DelegateCommand VideoInfoCopyToClipboardCommand
-        {
-            get
-            {
-                return _VideoInfoCopyToClipboardCommand
-                    ?? (_VideoInfoCopyToClipboardCommand = new DelegateCommand(() =>
-                    {
-                        ShareHelper.CopyToClipboard(ShareHelper.MakeLiveShareText(Title, LiveId));
-                    }
-                    ));
-            }
-        }
-
-
+        
     }
 }

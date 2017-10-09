@@ -112,7 +112,7 @@ namespace NicoPlayerHohoema.ViewModels
 			GroupId = mylistgroup.Id;
 			UpdateTime = mylistgroup.UpdateTime;
 
-            Title = mylistgroup.Name;
+            Label = mylistgroup.Name;
             var thumbnails = mylistgroup.VideoInfoItems?.Select(x => x.Video.ThumbnailUrl.OriginalString);
             if (thumbnails != null)
             {
@@ -131,30 +131,6 @@ namespace NicoPlayerHohoema.ViewModels
 		public string GroupId { get; private set; }
 		public DateTime UpdateTime { get; private set; }
 		public List<Mntone.Nico2.Searches.Video.Video> SampleVideos { get; private set; }
-
-
-		private DelegateCommand _OpenMylistCommand;
-		public DelegateCommand OpenMylistCommand
-		{
-			get
-			{
-				return _OpenMylistCommand
-					?? (_OpenMylistCommand = new DelegateCommand(() => 
-					{
-						_PageManager.OpenPage(HohoemaPageType.Mylist,
-                            new MylistPagePayload(GroupId).ToParameterString()
-                            );
-					}));
-			}
-		}
-
-        public override ICommand PrimaryCommand
-		{
-			get
-			{
-				return OpenMylistCommand;
-			}
-		}
 	}
 
 

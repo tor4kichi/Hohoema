@@ -24,7 +24,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public Action<T> SelectedAction { get; private set; }
 
 		private DelegateCommand _SelectedCommand;
-        public override ICommand PrimaryCommand
+        public ICommand PrimaryCommand
 		{
 			get
 			{

@@ -162,7 +162,7 @@
                 </Border>
 
                 <controls:HohoemaIncrementalLoadingList x:Name="IncrementalLoadingList" 
-                                                        ItemFlyout="{StaticResource LiveListItemFlyout}">
+                                                        >
                     <controls:HohoemaIncrementalLoadingList.ItemTemplate>
                         <DataTemplate>
                             <Grid Margin="0 0 0 0"

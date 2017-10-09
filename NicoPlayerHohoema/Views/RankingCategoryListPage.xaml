@@ -167,7 +167,6 @@
                                 </VisualStateManager.VisualStateGroups>
                                 <Grid >
                                     <controls:HohoemaIncrementalLoadingList
-                                            ItemFlyout="{StaticResource VideoListItemFlyout}"
                                             x:Name="VerticalVideoList"
                                             Margin="0 48 0 0"
                                               >
@@ -181,11 +180,10 @@
                                     <controls:IncrementalLoadingList x:Name="HorizontalVideoList"
                                             ItemsSource="{Binding IncrementalLoadingItems}"
                                             SelectedItems="{Binding SelectedItems, Mode=TwoWay}"
-                                            ItemCommand="{Binding SelectItemCommand}"
+                                            ItemCommand="{StaticResource OpenContentCommand}"
                                             IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
                                             Margin="8 0 0 0"
                                             Padding="0 0 8 0"
-                                            ItemContextFlyout="{StaticResource VideoListItemFlyout}"
                                             IsTabStop="False"
                                                 Visibility="Collapsed"
                                                                  

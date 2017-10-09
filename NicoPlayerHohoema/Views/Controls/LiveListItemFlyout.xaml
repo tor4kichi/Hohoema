@@ -7,22 +7,39 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <MenuFlyoutItem Text="小窓で再生"
-                                Command="{Binding PlayWithSmallPlayerCommand}"
+    <MenuFlyoutItem Text="再生"
+                    Command="{StaticResource OpenContentCommand}"
+                    CommandParameter="{Binding}"
                                 />
 
-    <MenuFlyoutItem Text="コミュニティ情報を開く" 
-                    Command="{Binding OpenCommunityPageCommand}"
+    <MenuFlyoutItem Text="配信者情報を開く" 
+                    Command="{StaticResource OpenBroadcasterInfoCommand}"
+                    CommandParameter="{Binding}"
                     />
 
     <MenuFlyoutSeparator />
 
-    <MenuFlyoutItem Text="共有" Command="{Binding ShareCommand}" Visibility="{Binding IsXbox, Converter={StaticResource BooleanToVisibility}}" />
+    <MenuFlyoutItem Text="共有" 
+                    Command="{StaticResource ShareCommand}"
+                    CommandParameter="{Binding}"
+                    Visibility="{Binding Source={StaticResource IsXbox}, Converter={StaticResource BooleanToVisibility}}"
+                    />
 
-    <MenuFlyoutSubItem Text="共有" Visibility="{Binding IsXbox, Converter={StaticResource BooleanToVisibilityInverted}}" >
-        <MenuFlyoutItem Text="アプリを選択" Command="{Binding ShareCommand}" />
-        <MenuFlyoutItem Text="Twitterで共有" Command="{Binding ShereWithTwitterCommand}" />
-        <MenuFlyoutItem Text="コピー" Command="{Binding VideoInfoCopyToClipboardCommand}" />
+    <MenuFlyoutSubItem Text="共有" 
+                       Visibility="{Binding Source={StaticResource IsXbox}, Converter={StaticResource BooleanToVisibilityInverted}}"
+                       >
+        <MenuFlyoutItem Text="アプリを選択" 
+                        Command="{StaticResource ShareCommand}"
+                        CommandParameter="{Binding}"
+                        />
+        <MenuFlyoutItem Text="Twitterで共有" 
+                        Command="{StaticResource ShareWithTwitterCommand}"
+                        CommandParameter="{Binding}"
+                        />
+        <MenuFlyoutItem Text="コピー"
+                        Command="{StaticResource CopyToClipboardCommand}"
+                        CommandParameter="{Binding}"
+                        />
     </MenuFlyoutSubItem>
 
 </MenuFlyout>

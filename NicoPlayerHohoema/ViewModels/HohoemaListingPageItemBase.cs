@@ -28,19 +28,19 @@ namespace NicoPlayerHohoema.ViewModels
 
         #region IHohoemaListItem 
 
-        private string _Title;
-        public string Title
+        private string _Label;
+        public string Label
         {
-            get { return _Title; }
+            get { return _Label; }
             set
             {
-                if (SetProperty(ref _Title, value))
+                if (SetProperty(ref _Label, value))
                 {
                     RaisePropertyChanged(nameof(HasTitle));
                 }
             }
         }
-        public bool HasTitle => !string.IsNullOrWhiteSpace(Title);
+        public bool HasTitle => !string.IsNullOrWhiteSpace(Label);
 
         private string _Description;
         public string Description
@@ -131,10 +131,6 @@ namespace NicoPlayerHohoema.ViewModels
                 SetProperty(ref _PrimaryActionTitle, value);
             }
         }
-
-
-        abstract public ICommand PrimaryCommand { get; }
-
 
         public List<ActionSet> SecondaryActions { get; private set; } = new List<ActionSet>();
 

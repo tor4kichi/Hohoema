@@ -253,7 +253,7 @@
                                 <ListView ItemsSource="{Binding MylistGroups}"
                                           Margin="0 0"
                                           IsTabStop="False"
-                                          uwpui:ListViewBase.Command="{Binding OpenMylistCommand}"
+                                          uwpui:ListViewBase.Command="{StaticResource OpenContentCommand}"
                                           SelectionMode="None"
                                           IsItemClickEnabled="True"
                                 >

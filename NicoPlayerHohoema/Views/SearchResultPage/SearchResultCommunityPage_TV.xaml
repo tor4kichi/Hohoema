@@ -28,7 +28,6 @@
                                                  IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
                                                  Margin="0 0 0 0"
                                                  Padding="0 0 48 0"
-                                                 ItemContextFlyout="{StaticResource VideoListItemFlyout}"
                                                  IsTabStop="False"
                                                  >
             <controls:IncrementalLoadingList.ItemTemplate>

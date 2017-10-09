@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Windows.Input;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Gaming.Input;
@@ -57,6 +58,18 @@ namespace NicoPlayerHohoema.Views.Controls
             {
                 var defaultTemplate = Resources["DefaultListItemTemplate"] as DataTemplate;
                 ItemTemplate = defaultTemplate;
+            }
+        }
+
+        private void HohoemaListView_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            if (App.Current.Resources.TryGetValue("OpenContentCommand", out object value))
+            {
+                var command = value as ICommand;
+                if (command.CanExecute(e.ClickedItem))
+                {
+                    command.Execute(e.ClickedItem);
+                }
             }
         }
     }

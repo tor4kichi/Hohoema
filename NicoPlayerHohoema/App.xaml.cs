@@ -667,8 +667,14 @@ namespace NicoPlayerHohoema
 			Container.RegisterInstance(new Views.Service.AcceptCacheUsaseDialogService());
 			Container.RegisterInstance(new Views.Service.TextInputDialogService());
 			Container.RegisterInstance(new Views.Service.ContentSelectDialogDefaultSet());
-            
-//			return Task.CompletedTask;
+
+
+            Resources.Add("IsXbox", Util.DeviceTypeHelper.IsXbox);
+            Resources.Add("IsMobile", Util.DeviceTypeHelper.IsMobile);
+
+            Resources.Add("IsCacheEnabled", hohoemaApp.UserSettings.CacheSettings.IsEnableCache);
+
+            //			return Task.CompletedTask;
         }
 
 

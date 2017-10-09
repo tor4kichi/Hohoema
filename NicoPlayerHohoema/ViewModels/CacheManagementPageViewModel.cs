@@ -83,6 +83,8 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     HohoemaApp.UserSettings.CacheSettings.IsEnableCache = true;
                     HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache = true;
+                    (App.Current).Resources["IsCacheEnabled"] = true;
+
                     await RefreshCacheSaveFolderStatus();
 
                     (App.Current as App).PublishInAppNotification(

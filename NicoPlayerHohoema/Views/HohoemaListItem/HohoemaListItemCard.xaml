@@ -64,7 +64,7 @@
                                >
 
 
-                <TextBlock Text="{Binding Title}"
+                <TextBlock Text="{Binding Label}"
                            toolkit:DockPanel.Dock="Top"
                            TextWrapping="Wrap"
                            FontSize="16"

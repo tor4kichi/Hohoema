@@ -26,6 +26,7 @@
                 <ResourceDictionary Source="Views/Controls/IncrementalLoadingList/IncrementalLoadingList.xaml"/>
                 <ResourceDictionary Source="Views/Controls/MasterDetailsView/MasterDetailsView.xaml"/>
 
+                <ResourceDictionary Source="Commands/Commands.xaml" />
             </ResourceDictionary.MergedDictionaries>
             
             <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
@@ -155,6 +156,9 @@
             <SolidColorBrush x:Key="HohoemaPlayerBackgroundBrush"
                     Color="{ThemeResource SystemAltMediumColor}" 
                          />
+            
+            
+            
 
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Light">

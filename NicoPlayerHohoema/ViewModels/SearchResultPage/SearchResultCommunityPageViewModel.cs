@@ -170,8 +170,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 	}
 
-	public class CommunityInfoControlViewModel : HohoemaListingPageItemBase
-	{
+	public class CommunityInfoControlViewModel : HohoemaListingPageItemBase, Interfaces.ICommunity
+    {
 		public string Name { get; private set; }
 		public string ShortDescription { get; private set; }
 		public string UpdateDate { get; private set; }
@@ -184,7 +184,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public PageManager PageManager { get; private set; }
 
-		public CommunityInfoControlViewModel(Mntone.Nico2.Searches.Community.NicoCommynity commu, PageManager pageManager)
+        public string Id => CommunityId;
+
+        public CommunityInfoControlViewModel(Mntone.Nico2.Searches.Community.NicoCommynity commu, PageManager pageManager)
 		{
 			PageManager = pageManager;
 			CommunityId = commu.Id;
@@ -197,23 +199,12 @@ namespace NicoPlayerHohoema.ViewModels
 			MemberCount = commu.MemberCount;
 			VideoCount = commu.VideoCount;
 
-            Title = commu.Name;
+            Label = commu.Name;
             Description = commu.ShortDescription;
             ImageUrlsSource.Add(commu.IconUrl.OriginalString);
         }
 
-        private DelegateCommand _OpenCommunityPageCommand;
-		public override ICommand PrimaryCommand
-		{
-			get
-			{
-				return _OpenCommunityPageCommand
-					?? (_OpenCommunityPageCommand = new DelegateCommand(() => 
-					{
-						PageManager.OpenPage(HohoemaPageType.Community, CommunityId);
-					}));
-			}
-		}
+        
 
 	}
 }
