@@ -150,6 +150,8 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
         private void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
         {
+            _DefaultCursor = Window.Current.CoreWindow.PointerCursor;
+
             try
             {
                 _MouseDevice = MouseDevice.GetForCurrentView();
@@ -164,7 +166,10 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
             _IsCursorInsideAssociatedObject = IsCursorInWindow();
 
-            ResetAutoHideTimer();
+            if (Window.Current.Visible)
+            {
+                ResetAutoHideTimer();
+            }
         }
 
         private void AssociatedObject_Unloaded(object sender, RoutedEventArgs e)
@@ -194,7 +199,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
                 _NowActiveWindow = false;
             }
-            else
+            else if (e.WindowActivationState == CoreWindowActivationState.PointerActivated)
             {
                 _NowActiveWindow = true;
                 CursorVisibilityChanged(true);
@@ -216,7 +221,12 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
         private void CursorVisibilityChanged(bool isVisible)
         {
-            if (_DefaultCursor == null) { throw new Exception($"Default cursor is can not be null."); }
+            if (_DefaultCursor == null)
+            {
+                _DefaultCursor = Window.Current.CoreWindow.PointerCursor;
+
+                if (_DefaultCursor == null) { throw new Exception(); }
+            }
 
             if (isVisible)
             {

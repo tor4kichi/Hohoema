@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Foundation.Metadata;
+using Windows.Media.Playback;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
@@ -26,6 +27,26 @@ namespace NicoPlayerHohoema.Models
         public INavigationService NavigationService { get; private set; }
 
         private HohoemaSecondaryViewFrameViewModel _SecondaryViewVM { get; set; }
+
+
+        private MediaPlayer _MediaPlayer { get; set; }
+        private Window _CurrentMediaPlayerWindow;
+        public MediaPlayer GetCurrentWindowMediaPlayer()
+        {
+            if (Window.Current != _CurrentMediaPlayerWindow)
+            {
+                if (_MediaPlayer != null)
+                {
+                    _MediaPlayer?.Dispose();
+                }
+
+                _MediaPlayer = new MediaPlayer();
+                _MediaPlayer.AutoPlay = true;
+                _CurrentMediaPlayerWindow = Window.Current;
+            }
+
+            return _MediaPlayer;
+        }
 
         public HohoemaViewManager()
         {
@@ -125,13 +146,17 @@ namespace NicoPlayerHohoema.Models
                 }
                 else
                 {
-                    Window.Current.Activate();
-                    await ApplicationViewSwitcher.TryShowAsStandaloneAsync(
-                        ViewId,
-                        ViewSizePreference.Default,
-                        MainView.Id,
-                        ViewSizePreference.Default
-                        );
+                    if (Window.Current.Visible)
+                    {
+                        Window.Current.Activate();
+                        await ApplicationViewSwitcher.TryShowAsStandaloneAsync(
+                            ViewId,
+                            ViewSizePreference.Default,
+                            MainView.Id,
+                            ViewSizePreference.Default
+                            );
+
+                    }
                 }
             }
 

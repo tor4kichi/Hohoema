@@ -66,6 +66,7 @@ namespace NicoPlayerHohoema.ViewModels
 			HohoemaApp hohoemaApp, 
 			EventAggregator ea,
 			PageManager pageManager, 
+            HohoemaViewManager viewManager,
 			ToastNotificationService toast,
 			TextInputDialogService textInputDialog
 			)
@@ -74,11 +75,7 @@ namespace NicoPlayerHohoema.ViewModels
 			_ToastService = toast;
 			_TextInputDialogService = textInputDialog;
 
-            MediaPlayer = new MediaPlayer()
-                .AddTo(_CompositeDisposable);
-
-            MediaPlayer.AutoPlay = true;
-            MediaPlayer.AudioCategory = MediaPlayerAudioCategory.Media;
+            MediaPlayer = viewManager.GetCurrentWindowMediaPlayer();
 
             ThumbnailUri = new ReactiveProperty<string>(CurrentWindowContextScheduler);
 
@@ -1349,11 +1346,12 @@ namespace NicoPlayerHohoema.ViewModels
             //			PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
 
             Video?.StopPlay(MediaPlayer);
-
+            
             var mediaPlayer = MediaPlayer;
             MediaPlayer = null;
             RaisePropertyChanged(nameof(MediaPlayer));
             MediaPlayer = mediaPlayer;
+            
 
             if (suspending)
             {
@@ -1365,6 +1363,10 @@ namespace NicoPlayerHohoema.ViewModels
                 App.Current.Suspending -= Current_Suspending;
                 MediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
                 MediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
+
+                var smtc = MediaPlayer.SystemMediaTransportControls;
+                MediaPlayer.CommandManager.NextReceived -= CommandManager_NextReceived;
+                MediaPlayer.CommandManager.PreviousReceived -= CommandManager_PreviousReceived;
 
                 Comments.Clear();
             }
@@ -1551,8 +1553,6 @@ namespace NicoPlayerHohoema.ViewModels
 		protected override void OnDispose()
 		{
             Video?.StopPlay(MediaPlayer);
-
-            MediaPlayer.Dispose();
 
             _BufferingMonitorDisposable?.Dispose();
 

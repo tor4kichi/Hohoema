@@ -356,9 +356,9 @@ namespace NicoPlayerHohoema.Models
             }
             else
             {
-                OpenPlaylistItem?.Invoke(CurrentPlaylist, item);
-
                 IsDisplayMainViewPlayer = true;
+
+                OpenPlaylistItem?.Invoke(CurrentPlaylist, item);
             }
 
         }

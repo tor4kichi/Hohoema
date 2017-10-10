@@ -210,18 +210,26 @@ namespace NicoPlayerHohoema.ViewModels
         // Side Pane Content
 
 
-		public LivePlayerPageViewModel(
+
+        private HohoemaViewManager _HohoemaViewManager;
+
+        public LivePlayerPageViewModel(
             HohoemaApp hohoemaApp, 
             PageManager pageManager, 
+            HohoemaViewManager viewManager,
             TextInputDialogService textInputDialogService,
             ToastNotificationService toast
             )
             : base(hohoemaApp, pageManager)
 		{
-			_TextInputDialogService = textInputDialogService;
+            _HohoemaViewManager = viewManager;
+
+            _TextInputDialogService = textInputDialogService;
             _ToastNotificationService = toast;
 
             _CurrentWindowDispatcher = CoreApplication.GetCurrentView().Dispatcher;
+
+            MediaPlayer = _HohoemaViewManager.GetCurrentWindowMediaPlayer();
 
             // play
             CurrentState = new ReactiveProperty<MediaElementState>();
@@ -741,12 +749,6 @@ namespace NicoPlayerHohoema.ViewModels
 			
 			if (LiveId != null)
 			{
-                MediaPlayer = new MediaPlayer()
-                    .AddTo(_CompositeDisposable);
-                MediaPlayer.AutoPlay = true;
-                MediaPlayer.AudioCategory = MediaPlayerAudioCategory.Media;
-                RaisePropertyChanged(nameof(MediaPlayer));
-
                 SoundVolume.Subscribe(volume =>
                 {
                     MediaPlayer.Volume = volume;
