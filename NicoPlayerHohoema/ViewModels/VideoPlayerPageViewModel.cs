@@ -595,6 +595,7 @@ namespace NicoPlayerHohoema.ViewModels
             IsMuted = HohoemaApp.UserSettings.PlayerSettings
                 .ToReactivePropertyAsSynchronized(x => x.IsMute, CurrentWindowContextScheduler)
                 .AddTo(userSessionDisposer);
+            MediaPlayer.IsMuted = IsMuted.Value;
             RaisePropertyChanged(nameof(IsMuted));
 
             SoundVolume = HohoemaApp.UserSettings.PlayerSettings
