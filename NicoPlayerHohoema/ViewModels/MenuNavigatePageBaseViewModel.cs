@@ -68,15 +68,15 @@ namespace NicoPlayerHohoema.ViewModels
                 new PageTypeSelectableItem(HohoemaPageType.RankingCategoryList, OnMenuItemSelected, "ランキング", Symbol.Flag),
                 new PageTypeSelectableItem(HohoemaPageType.Mylist             , OnWatchAfterMenuItemSelected, "あとで見る", Symbol.Play),
                 new PageTypeSelectableItem(HohoemaPageType.UserMylist         , OnMenuItemSelected, "マイリスト", Symbol.Bookmarks),
-                new PageTypeSelectableItem(HohoemaPageType.FollowManage       , OnMenuItemSelected, "フォロー", Symbol.OutlineStar),
+                new PageTypeSelectableItem(HohoemaPageType.NicoRepo           , OnMenuItemSelected, "ニコレポ", Symbol.Bookmarks),
             };
 
             SubMenuItems = new List<PageTypeSelectableItem>()
             {
-                new PageTypeSelectableItem(HohoemaPageType.NicoRepo           , OnMenuItemSelected, "ニコレポ", Symbol.Bookmarks),
+                new PageTypeSelectableItem(HohoemaPageType.FollowManage       , OnMenuItemSelected, "フォロー", Symbol.OutlineStar),
                 new PageTypeSelectableItem(HohoemaPageType.FeedGroupManage    , OnMenuItemSelected, "フィード", Symbol.List),
                 new PageTypeSelectableItem(HohoemaPageType.History            , OnMenuItemSelected, "視聴履歴", Symbol.Clock),
-                new PageTypeSelectableItem(HohoemaPageType.CacheManagement    , OnMenuItemSelected, "キャッシュ管理", Symbol.Download),
+                new PageTypeSelectableItem(HohoemaPageType.CacheManagement    , OnMenuItemSelected, "キャッシュ", Symbol.Download),
                 new PageTypeSelectableItem(HohoemaPageType.Settings           , OnMenuItemSelected, "設定", Symbol.Setting),
                 new PageTypeSelectableItem(HohoemaPageType.UserInfo           , OnAccountMenuItemSelected, "アカウント", Symbol.Account),
             };
