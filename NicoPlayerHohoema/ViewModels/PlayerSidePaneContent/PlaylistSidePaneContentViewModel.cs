@@ -130,14 +130,14 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                         var playlistSettings = _PlaylistSettings;
                         switch (playlistSettings.RepeatMode)
                         {
-                            case MediaPlaybackAutoRepeatMode.None:
+                            case MediaPlaybackAutoRepeatMode.List:
                                 playlistSettings.RepeatMode = MediaPlaybackAutoRepeatMode.Track;
                                 break;
                             case MediaPlaybackAutoRepeatMode.Track:
-                                playlistSettings.RepeatMode = MediaPlaybackAutoRepeatMode.List;
-                                break;
-                            case MediaPlaybackAutoRepeatMode.List:
                                 playlistSettings.RepeatMode = MediaPlaybackAutoRepeatMode.None;
+                                break;
+                            case MediaPlaybackAutoRepeatMode.None:
+                                playlistSettings.RepeatMode = MediaPlaybackAutoRepeatMode.List;
                                 break;
                             default:
                                 break;
