@@ -13,7 +13,7 @@ namespace NicoPlayerHohoema.Views.Converters
 		{
 			try
 			{
-				int casted = (int)Math.Floor((double)value * 100);
+				int casted = (int)Math.Ceiling((double)value * 100);
 				return casted;
 			}
 			catch

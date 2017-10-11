@@ -138,6 +138,7 @@
     <Content Include="Assets\UpdateNotices\0.10.8.md" />
     <Content Include="Assets\UpdateNotices\0.10.9.md" />
     <Content Include="Assets\UpdateNotices\0.10.10.md" />
+    <None Include="Assets\UpdateNotices\0.11.0.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <PRIResource Include="Resources\ja-jp\Resources.resw" />
   </ItemGroup>
@@ -359,6 +360,9 @@
       <DependentUpon>CommentRendererEx.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\CommentRenderer\CommentRendererHelper.cs" />
+    <Compile Include="Views\Controls\InstantContent.xaml.cs">
+      <DependentUpon>InstantContent.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Controls\LiveListItemFlyout.xaml.cs">
       <DependentUpon>LiveListItemFlyout.xaml</DependentUpon>
     </Compile>
@@ -852,6 +856,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
+    <Page Include="Views\Controls\InstantContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Controls\LiveListItemFlyout.xaml">
       <SubType>Designer</SubType>
