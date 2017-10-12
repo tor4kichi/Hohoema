@@ -68,7 +68,7 @@ namespace NicoPlayerHohoema.ViewModels
                 new PageTypeSelectableItem(HohoemaPageType.RankingCategoryList, OnMenuItemSelected, "ランキング", Symbol.Flag),
                 new PageTypeSelectableItem(HohoemaPageType.Mylist             , OnWatchAfterMenuItemSelected, "あとで見る", Symbol.Play),
                 new PageTypeSelectableItem(HohoemaPageType.UserMylist         , OnMenuItemSelected, "マイリスト", Symbol.Bookmarks),
-                new PageTypeSelectableItem(HohoemaPageType.NicoRepo           , OnMenuItemSelected, "ニコレポ", Symbol.Bookmarks),
+                new PageTypeSelectableItem(HohoemaPageType.NicoRepo           , OnMenuItemSelected, "ニコレポ", Symbol.Favorite),
             };
 
             SubMenuItems = new List<PageTypeSelectableItem>()
