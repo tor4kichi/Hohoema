@@ -20,7 +20,7 @@ namespace NicoPlayerHohoema.Models
 			DefaultQuality = NicoVideoQuality.Dmc_Midium;
 			IsMute = false;
 			SoundVolume = 0.5;
-			ScrollVolumeFrequency = 0.02;
+			ScrollVolumeFrequency = 0.05;
 			IncrementReadablityOwnerComment = true;
 			PauseWithCommentWriting = true;
 			CommentRenderingFPS = 60;
