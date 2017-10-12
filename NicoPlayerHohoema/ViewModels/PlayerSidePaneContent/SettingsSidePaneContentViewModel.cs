@@ -168,7 +168,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 );
 
             IsKeepDisplayInPlayback = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsKeepDisplayInPlayback, CurrentWindowContextScheduler);
-            ScrollVolumeFrequency = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.ScrollVolumeFrequency, CurrentWindowContextScheduler);
+            ScrollVolumeFrequency = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.SoundVolumeChangeFrequency, CurrentWindowContextScheduler);
             IsForceLandscapeDefault = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsForceLandscape, CurrentWindowContextScheduler);
 
             AutoHideDelayTime = _PlayerSettings.ToReactivePropertyAsSynchronized(x =>

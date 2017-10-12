@@ -44,7 +44,7 @@ namespace NicoPlayerHohoema.ViewModels.LiveVideoInfoContent
 				.AddTo(_CompositeDisposable);
 			CommentColor = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentColor)
 				.AddTo(_CompositeDisposable);
-			ScrollVolumeFrequency = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.ScrollVolumeFrequency)
+			ScrollVolumeFrequency = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.SoundVolumeChangeFrequency)
 				.AddTo(_CompositeDisposable);
 		}
 

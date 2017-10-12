@@ -560,7 +560,7 @@ namespace NicoPlayerHohoema.ViewModels
 				return _VolumeUpCommand
 					?? (_VolumeUpCommand = new DelegateCommand(() =>
 					{
-						var amount = HohoemaApp.UserSettings.PlayerSettings.ScrollVolumeFrequency;
+						var amount = HohoemaApp.UserSettings.PlayerSettings.SoundVolumeChangeFrequency;
 						SoundVolume.Value = Math.Min(1.0, SoundVolume.Value + amount);
 					}));
 			}
@@ -574,7 +574,7 @@ namespace NicoPlayerHohoema.ViewModels
 				return _VolumeDownCommand
 					?? (_VolumeDownCommand = new DelegateCommand(() =>
 					{
-						var amount = HohoemaApp.UserSettings.PlayerSettings.ScrollVolumeFrequency;
+						var amount = HohoemaApp.UserSettings.PlayerSettings.SoundVolumeChangeFrequency;
 						SoundVolume.Value = Math.Max(0.0, SoundVolume.Value - amount);
 					}));
 			}
