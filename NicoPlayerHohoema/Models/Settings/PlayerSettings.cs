@@ -20,7 +20,7 @@ namespace NicoPlayerHohoema.Models
 			DefaultQuality = NicoVideoQuality.Dmc_Midium;
 			IsMute = false;
 			SoundVolume = 0.5;
-			ScrollVolumeFrequency = 0.02;
+			SoundVolumeChangeFrequency = 0.05;
 			IncrementReadablityOwnerComment = true;
 			PauseWithCommentWriting = true;
 			CommentRenderingFPS = 60;
@@ -57,6 +57,15 @@ namespace NicoPlayerHohoema.Models
             set { SetProperty(ref _DefaultLiveQuality, value); }
         }
 
+        private bool _LiveWatchWithLowLatency = true;
+
+        [DataMember]
+        public bool LiveWatchWithLowLatency
+        {
+            get { return _LiveWatchWithLowLatency; }
+            set { SetProperty(ref _LiveWatchWithLowLatency, value); }
+        }
+
 
         private bool _IsMute;
 
@@ -79,7 +88,7 @@ namespace NicoPlayerHohoema.Models
 		private double _ScrollVolumeFrequency;
 
 		[DataMember]
-		public double ScrollVolumeFrequency
+		public double SoundVolumeChangeFrequency
 		{
 			get { return _ScrollVolumeFrequency; }
 			set { SetProperty(ref _ScrollVolumeFrequency, value); }

@@ -60,11 +60,10 @@
             <controls:IncrementalLoadingList x:Name="IncrementalLoadingList"
                                                  ItemsSource="{Binding IncrementalLoadingItems}"
                                                  SelectedItems="{Binding SelectedItems, Mode=TwoWay}"
-                                                 ItemCommand="{Binding SelectItemCommand}"
+                                                 ItemCommand="{StaticResource OpenContentCommand}"
                                                  IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
                                                  Margin="8 0 0 0"
                                                  Padding="0 0 48 0"
-                                                 ItemContextFlyout="{StaticResource VideoListItemFlyout}"
                                                  IsTabStop="False"
                                                  >
                 <controls:IncrementalLoadingList.ItemTemplate>

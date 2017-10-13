@@ -631,7 +631,8 @@ namespace NicoPlayerHohoema
             Container.RegisterInstance(hohoemaApp.ContentFinder);
             Container.RegisterInstance(hohoemaApp.Playlist);
             Container.RegisterInstance(hohoemaApp.OtherOwneredMylistManager);
-            
+            Container.RegisterInstance(hohoemaApp.FeedManager);
+
 
             // 非同期更新機能の同時実行タスク数を指定
             var deviceFamily = Windows.System.Profile.AnalyticsInfo.VersionInfo.DeviceFamily;
@@ -667,8 +668,14 @@ namespace NicoPlayerHohoema
 			Container.RegisterInstance(new Views.Service.AcceptCacheUsaseDialogService());
 			Container.RegisterInstance(new Views.Service.TextInputDialogService());
 			Container.RegisterInstance(new Views.Service.ContentSelectDialogDefaultSet());
-            
-//			return Task.CompletedTask;
+
+
+            Resources.Add("IsXbox", Util.DeviceTypeHelper.IsXbox);
+            Resources.Add("IsMobile", Util.DeviceTypeHelper.IsMobile);
+
+            Resources.Add("IsCacheEnabled", hohoemaApp.UserSettings.CacheSettings.IsEnableCache);
+
+            //			return Task.CompletedTask;
         }
 
 

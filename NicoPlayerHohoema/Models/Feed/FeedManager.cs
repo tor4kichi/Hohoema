@@ -11,17 +11,21 @@ using Windows.UI.Core;
 
 namespace NicoPlayerHohoema.Models
 {
-	// FavFeedGroupを管理する
+    // FavFeedGroupを管理する
 
-	// 常にFavManagerへのアクションを購読して
-	// 自身が管理するfavFeedGroupが参照しているFavが購読解除された場合に、
-	// グループ内からも削除するように働く
+    // 常にFavManagerへのアクションを購読して
+    // 自身が管理するfavFeedGroupが参照しているFavが購読解除された場合に、
+    // グループ内からも削除するように働く
 
-	// フィードの更新を指揮する
+    // フィードの更新を指揮する
 
-	// フィードの保存処理をコントロールする
+    // フィードの保存処理をコントロールする
 
-	public class FeedManager
+
+    public delegate void FeedGroupAddedEventHanlder(IFeedGroup feedGroup);
+    public delegate void FeedGroupRemovedEventHanlder(IFeedGroup feedGroup);
+
+    public class FeedManager
 	{
 		public const string FeedStreamFolderName = "feed_stream";
 
@@ -47,6 +51,9 @@ namespace NicoPlayerHohoema.Models
 
 		private Dictionary<IFeedGroup, BackgroundUpdateScheduleHandler> _FeedGroupUpdaters;
 
+
+        public event FeedGroupAddedEventHanlder FeedGroupAdded;
+        public event FeedGroupRemovedEventHanlder FeedGroupRemoved;
 
         private bool _IsInitiliazed;
 
@@ -143,7 +150,7 @@ namespace NicoPlayerHohoema.Models
 									item, item.Label, nameof(FeedGroup), label:$"FeedGroup:{item.Label}")
 								);
 
-							Debug.WriteLine($"FeedManager: [Sucesss] load {item.Label}");
+                            Debug.WriteLine($"FeedManager: [Sucesss] load {item.Label}");
 						}
 						else
 						{
@@ -238,7 +245,9 @@ namespace NicoPlayerHohoema.Models
 
             await SaveOne(feedGroup);
 
-			return feedGroup;
+            FeedGroupAdded?.Invoke(feedGroup);
+
+            return feedGroup;
 		}
 
 		
@@ -271,6 +280,8 @@ namespace NicoPlayerHohoema.Models
                 // フィードの動画一覧ファイルを削除
 				var feedStreamFileAccesssor = FeedStreamFileAccessors[group.Id];
 				await feedStreamFileAccesssor.Delete(StorageDeleteOption.PermanentDelete);
+
+                FeedGroupRemoved?.Invoke(removeTarget);
 
 				return FeedGroupDict.Remove(removeTarget);
 			}

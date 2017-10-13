@@ -13,6 +13,7 @@
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:templateSelector="using:NicoPlayerHohoema.Views.TemplateSelector"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     IsTabStop="False"

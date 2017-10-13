@@ -145,6 +145,9 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactiveProperty<string> CurrentQuality { get; private set; }
 
+        public ReadOnlyReactiveProperty<bool> IsLowLatency { get; }
+
+
         public ReactiveProperty<bool> IsAvailableSuperLowQuality { get; }
         public ReactiveProperty<bool> IsAvailableLowQuality { get; }
         public ReactiveProperty<bool> IsAvailableNormalQuality { get; }
@@ -210,18 +213,26 @@ namespace NicoPlayerHohoema.ViewModels
         // Side Pane Content
 
 
-		public LivePlayerPageViewModel(
+
+        private HohoemaViewManager _HohoemaViewManager;
+
+        public LivePlayerPageViewModel(
             HohoemaApp hohoemaApp, 
             PageManager pageManager, 
+            HohoemaViewManager viewManager,
             TextInputDialogService textInputDialogService,
             ToastNotificationService toast
             )
             : base(hohoemaApp, pageManager)
 		{
-			_TextInputDialogService = textInputDialogService;
+            _HohoemaViewManager = viewManager;
+
+            _TextInputDialogService = textInputDialogService;
             _ToastNotificationService = toast;
 
             _CurrentWindowDispatcher = CoreApplication.GetCurrentView().Dispatcher;
+
+            MediaPlayer = _HohoemaViewManager.GetCurrentWindowMediaPlayer();
 
             // play
             CurrentState = new ReactiveProperty<MediaElementState>();
@@ -236,6 +247,9 @@ namespace NicoPlayerHohoema.ViewModels
             RequestQuality = new ReactiveProperty<string>(CurrentWindowContextScheduler);
             CurrentQuality = new ReactiveProperty<string>(CurrentWindowContextScheduler);
 
+            IsLowLatency = HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.LiveWatchWithLowLatency)
+                .ToReadOnlyReactiveProperty(eventScheduler:CurrentWindowContextScheduler);
+
             IsAvailableSuperLowQuality = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false);
             IsAvailableLowQuality = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false);
             IsAvailableNormalQuality = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false);
@@ -244,7 +258,7 @@ namespace NicoPlayerHohoema.ViewModels
             ChangeQualityCommand = new DelegateCommand<string>(
                 (quality) => 
                 {
-                    NicoLiveVideo.ChangeQualityRequest(quality).ConfigureAwait(false);
+                    //                    NicoLiveVideo.ChangeQualityRequest(quality, HohoemaApp.UserSettings.PlayerSettings.LiveWatchWithLowLatency).ConfigureAwait(false);
                     HohoemaApp.UserSettings.PlayerSettings.DefaultLiveQuality = quality;
                 }, 
                 (quality) => NicoLiveVideo.Qualities.Any(x => x == quality)
@@ -465,13 +479,18 @@ namespace NicoPlayerHohoema.ViewModels
                 }
             });
 
-
-            HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.DefaultLiveQuality)
-                .Subscribe(x => 
+            Observable.Merge(
+                HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.LiveWatchWithLowLatency).ToUnit(),
+                HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.DefaultLiveQuality).ToUnit()
+                )
+                .Subscribe(async x => 
                 {
                     if (NicoLiveVideo != null)
                     {
-                        NicoLiveVideo.ChangeQualityRequest(x).ConfigureAwait(false);
+                        await NicoLiveVideo.ChangeQualityRequest(
+                            HohoemaApp.UserSettings.PlayerSettings.DefaultLiveQuality,
+                            HohoemaApp.UserSettings.PlayerSettings.LiveWatchWithLowLatency
+                            );
                     }
                 })
                 .AddTo(_CompositeDisposable);
@@ -552,7 +571,7 @@ namespace NicoPlayerHohoema.ViewModels
 				return _VolumeUpCommand
 					?? (_VolumeUpCommand = new DelegateCommand(() =>
 					{
-						var amount = HohoemaApp.UserSettings.PlayerSettings.ScrollVolumeFrequency;
+						var amount = HohoemaApp.UserSettings.PlayerSettings.SoundVolumeChangeFrequency;
 						SoundVolume.Value = Math.Min(1.0, SoundVolume.Value + amount);
 					}));
 			}
@@ -566,7 +585,7 @@ namespace NicoPlayerHohoema.ViewModels
 				return _VolumeDownCommand
 					?? (_VolumeDownCommand = new DelegateCommand(() =>
 					{
-						var amount = HohoemaApp.UserSettings.PlayerSettings.ScrollVolumeFrequency;
+						var amount = HohoemaApp.UserSettings.PlayerSettings.SoundVolumeChangeFrequency;
 						SoundVolume.Value = Math.Max(0.0, SoundVolume.Value - amount);
 					}));
 			}
@@ -741,12 +760,6 @@ namespace NicoPlayerHohoema.ViewModels
 			
 			if (LiveId != null)
 			{
-                MediaPlayer = new MediaPlayer()
-                    .AddTo(_CompositeDisposable);
-                MediaPlayer.AutoPlay = true;
-                MediaPlayer.AudioCategory = MediaPlayerAudioCategory.Media;
-                RaisePropertyChanged(nameof(MediaPlayer));
-
                 SoundVolume.Subscribe(volume =>
                 {
                     MediaPlayer.Volume = volume;
@@ -993,6 +1006,8 @@ namespace NicoPlayerHohoema.ViewModels
 
                                 ChangeQualityCommand.RaiseCanExecuteChanged();
                             });
+
+                        
                     }
 
                     if (!Util.InputCapabilityHelper.IsMouseCapable)

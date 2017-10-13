@@ -15,38 +15,47 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public abstract class HohoemaIncrementalSourceBase<T> : IIncrementalSource<T>
 	{
+        AsyncLock _PageLoadingLock = new AsyncLock();
+
+
 		public const uint DefaultOneTimeLoadCount = 10;
 
 		public virtual uint OneTimeLoadCount => DefaultOneTimeLoadCount;
 
 		public async Task<IEnumerable<T>> GetPagedItems(int head, int count)
 		{
-			try
-			{
-				var result = await GetPagedItemsImpl(head, count);
-				HasError = false;
-				return result;
-			}
-			catch
-			{
-				Error?.Invoke();
-				return Enumerable.Empty<T>();
-			}
-		}
+            using (var releaser = await _PageLoadingLock.LockAsync())
+            {
+                try
+                {
+                    var result = await GetPagedItemsImpl(head, count);
+                    HasError = false;
+                    return result;
+                }
+                catch
+                {
+                    Error?.Invoke();
+                    return Enumerable.Empty<T>();
+                }
+            }
+        }
 
-		public Task<int> ResetSource()
+		public async Task<int> ResetSource()
 		{
-			HasError = false;
-			try
-			{
-				return ResetSourceImpl();
-			}
-			catch
-			{
-				Error?.Invoke();
-				return Task.FromResult(0);
-			}
-		}
+            using (var releaser = await _PageLoadingLock.LockAsync())
+            {
+                HasError = false;
+                try
+                {
+                    return await ResetSourceImpl();
+                }
+                catch
+                {
+                    Error?.Invoke();
+                    return await Task.FromResult(0);
+                }
+            }
+        }
 
 		protected abstract Task<IEnumerable<T>> GetPagedItemsImpl(int head, int count);
 		protected abstract Task<int> ResetSourceImpl();

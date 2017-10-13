@@ -425,7 +425,7 @@ namespace NicoPlayerHohoema.ViewModels
                             progressCount++;
                             progress.Report(progressCount);
 
-                            Debug.WriteLine($"{video.Title}[{video.RawVideoId}]:{unregistrationResult.ToString()}");
+                            Debug.WriteLine($"{video.Label}[{video.RawVideoId}]:{unregistrationResult.ToString()}");
                         }
 
                         // 登録解除結果を得るためリフレッシュ

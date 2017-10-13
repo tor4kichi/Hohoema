@@ -13,6 +13,7 @@ using System.Diagnostics;
 using Mntone.Nico2.Videos.Ranking;
 using Prism.Commands;
 using System.Windows.Input;
+using NicoPlayerHohoema.Interfaces;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -199,8 +200,8 @@ namespace NicoPlayerHohoema.ViewModels
 	}
 
 
-	public class CommunityVideoInfoControlViewModel : HohoemaListingPageItemBase
-	{
+	public class CommunityVideoInfoControlViewModel : HohoemaListingPageItemBase, Interfaces.IVideoContent
+    {
         public HohoemaPlaylist Playlist { get; private set; }
 		public NiconicoVideoRssItem RssItem { get; private set; }
 
@@ -213,23 +214,17 @@ namespace NicoPlayerHohoema.ViewModels
             Playlist = playlist;
 			RssItem = rssItem;
 
-            Title = RssItem.Title;
+            Label = RssItem.Title;
 		}
 
-		private DelegateCommand _SelectedCommand;
-		public override ICommand PrimaryCommand
-		{
-			get
-			{
-				return _SelectedCommand
-					?? (_SelectedCommand = new DelegateCommand(() => 
-					{
-                        Playlist.PlayVideo(this.VideoId, Title);
-					}));
-			}
-		}
+        public string OwnerUserId => string.Empty;
 
-	}
+        public string OwnerUserName => string.Empty;
+
+        IPlayableList IVideoContent.Playlist => null;
+
+        public string Id => VideoId;
+    }
 
 	
 }

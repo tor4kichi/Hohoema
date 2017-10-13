@@ -91,7 +91,7 @@
                        />
             </toolkit:DockPanel>
 
-            <TextBlock Text="{Binding Title, Mode=OneWay}" 
+            <TextBlock Text="{Binding Label, Mode=OneWay}" 
                        FontSize="16"
                        TextWrapping="Wrap"
                        VerticalAlignment="Center"

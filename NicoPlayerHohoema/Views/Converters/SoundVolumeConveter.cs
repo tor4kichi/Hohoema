@@ -13,7 +13,7 @@ namespace NicoPlayerHohoema.Views.Converters
 		{
 			try
 			{
-				int casted = (int)Math.Floor((double)value * 100);
+				int casted = (int) Math.Round(((double)value * 100));
 				return casted;
 			}
 			catch
@@ -24,7 +24,14 @@ namespace NicoPlayerHohoema.Views.Converters
 
 		public object ConvertBack(object value, Type targetType, object parameter, string language)
 		{
-			throw new NotImplementedException();
+			if (value is double)
+            {
+                return (double)(value) * 0.01;
+            }
+            else
+            {
+                return value;
+            }
 		}
 	}
 }

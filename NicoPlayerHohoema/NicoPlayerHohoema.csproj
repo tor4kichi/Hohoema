@@ -138,14 +138,36 @@
     <Content Include="Assets\UpdateNotices\0.10.8.md" />
     <Content Include="Assets\UpdateNotices\0.10.9.md" />
     <Content Include="Assets\UpdateNotices\0.10.10.md" />
+    <Content Include="Assets\UpdateNotices\0.11.0.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
+    <PRIResource Include="Resources\ja-jp\Resources.resw" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Commands\AddAfterViewPlaylistCommand.cs" />
+    <Compile Include="Commands\AddMylistCommand.cs" />
+    <Compile Include="Commands\AddToHiddenUserCommand.cs" />
+    <Compile Include="Commands\CopyToClipboardCommand.cs" />
+    <Compile Include="Commands\FeedGroupEditCommand.cs" />
+    <Compile Include="Commands\FeedGroupRemoveCommand.cs" />
+    <Compile Include="Commands\FeedGroupUpdateCommand.cs" />
+    <Compile Include="Commands\HohoemaCommnadHelper.cs" />
+    <Compile Include="Commands\OpenBroadcasterInfoCommand.cs" />
+    <Compile Include="Commands\OpenContentCommand.cs" />
+    <Compile Include="Commands\OpenVideoInfoCommand.cs" />
+    <Compile Include="Commands\OpenVideoOwnerVideoListCommand.cs" />
+    <Compile Include="Commands\RemoveFollowCommand.cs" />
+    <Compile Include="Commands\ShareWithTwitterCommand.cs" />
+    <Compile Include="Commands\ShereCommand.cs" />
+    <Compile Include="Commands\VideoDeleteCacheCommand.cs" />
+    <Compile Include="Commands\VideoRequestCacheCommand.cs" />
     <Compile Include="Events\PlayerClosedEvent.cs" />
     <Compile Include="Events\PlayNicoVideoEvent.cs" />
+    <Compile Include="Interfaces\IFollowable.cs" />
+    <Compile Include="Interfaces\ISearchWithtag.cs" />
+    <Compile Include="Interfaces\IVideoContent.cs" />
     <Compile Include="Models\AccountManager.cs" />
     <Compile Include="Models\AppUpdateNotice.cs" />
     <Compile Include="Models\BackgroundUpdater.cs" />
@@ -270,6 +292,7 @@
     <Compile Include="ViewModels\HohoemaSecondaryViewFrameViewModel.cs" />
     <Compile Include="ViewModels\HohoemaVideoListingPageViewModelBase.cs" />
     <Compile Include="ViewModels\HohoemaViewModelBase.cs" />
+    <Compile Include="Interfaces\ISearchHistory.cs" />
     <Compile Include="ViewModels\LiveVideoInfoContent\CommentLiveInfoContentViewModel.cs" />
     <Compile Include="ViewModels\LiveVideoInfoContent\LiveInfoContentViewModelBase.cs" />
     <Compile Include="ViewModels\LiveVideoInfoContent\SettingsLiveInfoContentViewModel.cs" />
@@ -279,6 +302,7 @@
     <Compile Include="ViewModels\LoginPageViewModel.cs" />
     <Compile Include="ViewModels\MenuNavigatePageBaseViewModel.cs" />
     <Compile Include="ViewModels\MylistPageViewModel.cs" />
+    <Compile Include="ViewModels\NicoRepoPageViewModel.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\EmptySidePaneContentViewModel.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\SettingsSidePaneContentViewModel.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\PlaylistSidePaneContentViewModel.cs" />
@@ -287,6 +311,7 @@
     <Compile Include="ViewModels\SearchResultPage\SearchResultKeywordPageViewModel.cs" />
     <Compile Include="ViewModels\SearchResultPage\SearchResultLivePageViewModel.cs" />
     <Compile Include="ViewModels\SearchResultPage\SearchResultMylistPageViewModel.cs" />
+    <Compile Include="ViewModels\SelectableItem.cs" />
     <Compile Include="ViewModels\SplashPageViewModel.cs" />
     <Compile Include="ViewModels\VideoInfomationPageViewModel.cs" />
     <Compile Include="ViewModels\VideoSearchSortOptionListItem.cs" />
@@ -301,9 +326,9 @@
     </Compile>
     <Compile Include="Views\Behaviors\FocusGetter.cs" />
     <Compile Include="Views\Behaviors\AutoHideCursor.cs" />
+    <Compile Include="Views\Behaviors\ListViewBaseItemContextFlyout.cs" />
     <Compile Include="Views\Behaviors\WhenCompactOverlayTitleBarSetter.cs" />
     <Compile Include="Views\Behaviors\XYNavigationExtentions.cs" />
-    <Compile Include="Views\Behaviors\ListViewBaseItemContextFlyout.cs" />
     <Compile Include="Views\Behaviors\MenuFlyoutSubItemsSetter.cs" />
     <Compile Include="Views\Behaviors\CloseFlyoutAction.cs" />
     <Compile Include="Views\Behaviors\DataTriggerBehavior.cs" />
@@ -339,6 +364,12 @@
       <DependentUpon>CommentRendererEx.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\CommentRenderer\CommentRendererHelper.cs" />
+    <Compile Include="Views\Controls\FeedGroupListItemFlyout.xaml.cs">
+      <DependentUpon>FeedGroupListItemFlyout.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\InstantContent.xaml.cs">
+      <DependentUpon>InstantContent.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Controls\LiveListItemFlyout.xaml.cs">
       <DependentUpon>LiveListItemFlyout.xaml</DependentUpon>
     </Compile>
@@ -351,11 +382,15 @@
     <Compile Include="Views\Converters\NGCommentScoreTypeTemplateSelector.cs" />
     <Compile Include="Views\Converters\PlayerEndActionToTextConverter.cs" />
     <Compile Include="Views\Converters\RankingCategoryToText.cs" />
+    <Compile Include="Views\Extensions\ContextFlyoutExtension.cs" />
     <Compile Include="Views\HohoemaInAppNotification.xaml.cs">
       <DependentUpon>HohoemaInAppNotification.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\HohoemaSecondaryViewFrame.xaml.cs">
       <DependentUpon>HohoemaSecondaryViewFrame.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\NicoRepoPage.xaml.cs">
+      <DependentUpon>NicoRepoPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\PlayerSidePaneContent\LiveSettingsSidePaneContent.xaml.cs">
       <DependentUpon>LiveSettingsSidePaneContent.xaml</DependentUpon>
@@ -371,6 +406,7 @@
     </Compile>
     <Compile Include="Views\StateTrigger\CompactOverlayViewModeTrigger.cs" />
     <Compile Include="Views\StateTrigger\IsSupportCompactOverlayTrigger.cs" />
+    <Compile Include="Views\TemplateSelector\HohoemaFlyoutTemplateSelector.cs" />
     <Compile Include="Views\UINavigationButtons.cs" />
     <Compile Include="Views\CommentCommandEditer.xaml.cs">
       <DependentUpon>CommentCommandEditer.xaml</DependentUpon>
@@ -547,7 +583,6 @@
     <Compile Include="ViewModels\RankingCategoryListPageViewModel.cs" />
     <Compile Include="ViewModels\RankingCategoryPageViewModel.cs" />
     <Compile Include="ViewModels\SearchPageViewModel.cs" />
-    <Compile Include="ViewModels\SelectableItem.cs" />
     <Compile Include="ViewModels\SettingsPageViewModel.cs" />
     <Compile Include="ViewModels\VideoInfoControlViewModel.cs" />
     <Compile Include="Views\Behaviors\VisiblityFadeChanger.cs" />
@@ -717,6 +752,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Commands\Commands.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
     <Page Include="Styles\DefaultStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -764,6 +804,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\CommunityVideoPage_TV.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\FeedGroupListItemFlyout.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -823,6 +867,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
+    <Page Include="Views\Controls\InstantContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Controls\LiveListItemFlyout.xaml">
       <SubType>Designer</SubType>
@@ -966,6 +1014,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\MylistPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\NicoRepoPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1192,6 +1244,7 @@
       <Name>Visual C++ 2015 Runtime for Universal Windows Platform Apps</Name>
     </SDKReference>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

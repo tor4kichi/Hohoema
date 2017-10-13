@@ -2,6 +2,7 @@
 using Mntone.Nico2.Live;
 using Mntone.Nico2.Searches.Community;
 using Mntone.Nico2.Searches.Live;
+using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Models
 {
-	public abstract class PagePayloadBase
+	public abstract class PagePayloadBase : BindableBase
 	{
 		public string ToParameterString()
 		{

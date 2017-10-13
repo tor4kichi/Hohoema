@@ -16,12 +16,55 @@ namespace NicoPlayerHohoema.Models
         {
             if (!string.IsNullOrEmpty(video.VideoId))
             {
-                return $"{video.Title} http://nico.ms/{video.VideoId} #{video.VideoId} #Hohoema";
+                return MakeShareText(video.VideoId, video.Title);
             }
             else
             {
-                return $"{video.Title} http://nico.ms/{video.RawVideoId} #{video.RawVideoId} #Hohoema";
+                return MakeShareText(video.RawVideoId, video.Title);
             }
+        }
+
+        public static string MakeShareText(Interfaces.INiconicoContent parameter)
+        {
+            if (parameter is Interfaces.IVideoContent)
+            {
+                var content = parameter as Interfaces.IVideoContent;
+                return MakeShareText(content.Id, content.Label);
+            }
+            else if (parameter is Interfaces.ILiveContent)
+            {
+                var content = parameter as Interfaces.ILiveContent;
+                return MakeShareText(content.Id, content.Label, "ニコニコ生放送");
+            }
+            else if (parameter is Interfaces.ICommunity)
+            {
+                var content = parameter as Interfaces.ICommunity;
+                return MakeShareText(content.Id, content.Label, "ニコニミュニティ");
+            }
+            else if (parameter is Interfaces.IMylist)
+            {
+                var content = parameter as Interfaces.IMylist;
+                return MakeShareText($"mylist/{content.Id}", content.Label);
+            }
+            else if (parameter is Interfaces.IUser)
+            {
+                var content = parameter as Interfaces.IUser;
+                return MakeShareText($"user/{content.Id}", content.Label);
+            }
+            else
+            {
+                return MakeShareText(parameter.Id, parameter.Label);
+            }
+        }
+
+        public static string MakeShareText(string id, string title, params string[] hashTags)
+        {
+            var hashTagsString = string.Join(" ", hashTags.Select(x => "#" + x));
+            if (hashTagsString.Any())
+            {
+                hashTagsString += " ";
+            }
+            return $"{title} http://nico.ms/{id} #{id} {hashTagsString}#Hohoema";
         }
 
         public static string MakeShareText(NicoLiveVideo live)

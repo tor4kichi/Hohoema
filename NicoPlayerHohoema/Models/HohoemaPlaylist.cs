@@ -1,4 +1,5 @@
 ﻿using Mntone.Nico2;
+using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Util;
 using Prism.Mvvm;
 using Reactive.Bindings.Extensions;
@@ -355,9 +356,9 @@ namespace NicoPlayerHohoema.Models
             }
             else
             {
-                OpenPlaylistItem?.Invoke(CurrentPlaylist, item);
-
                 IsDisplayMainViewPlayer = true;
+
+                OpenPlaylistItem?.Invoke(CurrentPlaylist, item);
             }
 
         }
@@ -377,7 +378,39 @@ namespace NicoPlayerHohoema.Models
             Play(newItem);
         }
 
+        public void PlayVideo(IVideoContent video)
+        {
+            if (!NiconicoRegex.IsVideoId(video.Id))
+            {
+                return;
+            }
 
+            if (video.Playlist != null)
+            {
+                var playlistItem = video.Playlist.PlaylistItems.FirstOrDefault(x => x.ContentId == video.Id);
+                if (playlistItem != null)
+                {
+                    Play(playlistItem);
+                }
+            }
+            else
+            {
+
+                var newItem = DefaultPlaylist.AddVideo(video.Id, video.Label, ContentInsertPosition.Head);
+                Play(newItem);
+            }
+        }
+
+
+        public void PlayLiveVideo(ILiveContent content)
+        {
+            Play(new LiveVideoPlaylistItem()
+            {
+                Type = PlaylistItemType.Live,
+                ContentId = content.Id,
+                Title = content.Label
+            });
+        }
 
         public void PlayLiveVideo(string liveId, string title = "")
         {

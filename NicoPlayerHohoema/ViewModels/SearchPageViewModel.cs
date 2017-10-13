@@ -422,48 +422,48 @@ namespace NicoPlayerHohoema.ViewModels
 					Sort = Sort.MylistPopurarity,
 					Order = Order.Descending,
 				}
-				, new SearchSortOptionListItem()
-				{
-					Label = "人気が低い順",
-					Sort = Sort.MylistPopurarity,
-					Order = Order.Ascending,
-				}
+				//, new SearchSortOptionListItem()
+				//{
+				//	Label = "人気が低い順",
+				//	Sort = Sort.MylistPopurarity,
+				//	Order = Order.Ascending,
+				//}
 				, new SearchSortOptionListItem()
 				{
 					Label = "更新が新しい順",
 					Sort = Sort.UpdateTime,
 					Order = Order.Descending,
 				}
-				, new SearchSortOptionListItem()
-				{
-					Label = "更新が古い順",
-					Sort = Sort.UpdateTime,
-					Order = Order.Ascending,
-				}
+				//, new SearchSortOptionListItem()
+				//{
+				//	Label = "更新が古い順",
+				//	Sort = Sort.UpdateTime,
+				//	Order = Order.Ascending,
+				//}
 				, new SearchSortOptionListItem()
 				{
 					Label = "動画数が多い順",
 					Sort = Sort.VideoCount,
 					Order = Order.Descending,
 				}
-				, new SearchSortOptionListItem()
-				{
-					Label = "動画数が少ない順",
-					Sort = Sort.VideoCount,
-					Order = Order.Ascending,
-				}
-				, new SearchSortOptionListItem()
-				{
+                //, new SearchSortOptionListItem()
+                //{
+                //	Label = "動画数が少ない順",
+                //	Sort = Sort.VideoCount,
+                //	Order = Order.Ascending,
+                //}
+                , new SearchSortOptionListItem()
+                {
 					Label = "適合率が高い順",
 					Sort = Sort.Relation,
 					Order = Order.Descending,
 				}
-				, new SearchSortOptionListItem()
-				{
-					Label = "適合率が低い順",
-					Sort = Sort.Relation,
-					Order = Order.Ascending,
-				}
+				//, new SearchSortOptionListItem()
+				//{
+				//	Label = "適合率が低い順",
+				//	Sort = Sort.Relation,
+				//	Order = Order.Ascending,
+				//}
 
 			};
 
@@ -620,17 +620,17 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				return new List<LiveSearchSortOptionListItem>()
 				{
-					new LiveSearchSortOptionListItem()
-					{
-						Sort = x,
-						Order = Order.Descending,
-					},
-					new LiveSearchSortOptionListItem()
-					{
-						Sort = x,
-						Order = Order.Ascending,
-					},
-				};
+                    new LiveSearchSortOptionListItem()
+                    {
+                        Sort = x,
+                        Order = Order.Ascending,
+                    },
+                    new LiveSearchSortOptionListItem()
+                    {
+                        Sort = x,
+                        Order = Order.Descending,
+                    },
+                };
 			})
 			.ToList();
 
@@ -823,8 +823,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-	public class SearchHistoryListItem : SelectableItem<SearchHistory>
-	{
+	public class SearchHistoryListItem : SelectableItem<SearchHistory>, Interfaces.ISearchHistory
+    {
 		public string Keyword { get; private set; }
 		public SearchTarget Target { get; private set; }
 

@@ -1,0 +1,170 @@
+﻿<Page
+    x:Class="NicoPlayerHohoema.Views.NicoRepoPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:iconPack="using:MahApps.Metro.IconPacks"
+    xmlns:hardtrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"    
+    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    mc:Ignorable="d">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardtrigger:DeviceFamilyTrigger Condition="Xbox" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!-- マージン設定 -->
+                        <Setter Target="HeaderLayout.Padding" Value="0 27 48 0" />
+                        <Setter Target="HorizontalVideoList.Padding" Value="0 0 48 0" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!-- リスト表示を横向きに -->
+                        <Setter Target="VerticalVideoList.Visibility" Value="Collapsed" />
+                        <Setter Target="HorizontalVideoList.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+        <Grid>
+            <!---->
+            <controls:HohoemaIncrementalLoadingList
+                    x:Name="VerticalVideoList"
+                Margin="0 64 0 0"
+                    >
+                <controls:HohoemaIncrementalLoadingList.ItemTemplate>
+                    <DataTemplate >
+                        <controls:HohoemaListItem />
+                    </DataTemplate>
+                </controls:HohoemaIncrementalLoadingList.ItemTemplate>
+            </controls:HohoemaIncrementalLoadingList>
+            
+            <controls:IncrementalLoadingList x:Name="HorizontalVideoList"
+                                             Visibility="Collapsed"
+                                        ItemsSource="{Binding IncrementalLoadingItems}"
+                                        SelectedItems="{Binding SelectedItems, Mode=TwoWay}"
+                                        ItemCommand="{StaticResource OpenContentCommand}"
+                                        IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
+                                        Margin="0 0 0 0"
+                                        Padding="0 0 24 0"
+                                        IsTabStop="False"
+                    >
+                <controls:IncrementalLoadingList.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="0 0">
+                            <controls:HohoemaListItem DisplayType="MiniCard" />
+                        </Grid>
+                    </DataTemplate>
+                </controls:IncrementalLoadingList.ItemTemplate>
+
+                <controls:IncrementalLoadingList.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <ItemsWrapGrid Orientation="Horizontal"
+                                           Margin="0 80 0 27"
+                                           />
+                    </ItemsPanelTemplate>
+                </controls:IncrementalLoadingList.ItemsPanel>
+            </controls:IncrementalLoadingList>
+        </Grid>
+
+        <toolkit:DockPanel >
+
+
+            <Border toolkit:DockPanel.Dock="Top" 
+                    x:Name="HeaderLayout"
+                    Background="{StaticResource TvHeaderBackgroundBrush}" 
+                    >
+                <toolkit:DockPanel >
+
+                    <StackPanel toolkit:DockPanel.Dock="Right" 
+                                Orientation="Horizontal"
+                                >
+
+                        <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                    Orientation="Horizontal"
+                                    >
+                            <AppBarButton Background="Transparent" 
+                                        Command="{Binding RefreshCommand}"
+                                        ToolTipService.ToolTip="更新"
+                                              Icon="Refresh"
+                                        />
+                        </StackPanel>
+
+                        <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                                    Orientation="Horizontal"
+                                    >
+
+                            
+
+                        </StackPanel>
+
+
+
+                        <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            HorizontalContentAlignment="Stretch"
+                                            VerticalContentAlignment="Stretch"
+                                            Label="選択"
+                                            Visibility="Collapsed"
+                                            >
+                            <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       />
+                        </AppBarToggleButton>
+
+                    </StackPanel>
+
+                    <Border Background="Transparent" IsHitTestVisible="True"
+                                Margin="16 0 0 0"
+                                >
+
+                        <i:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="Tapped">
+                                <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0" />
+                            </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
+
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Title, Mode=OneWay}" 
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource SubtitleTextBlockStyle}"
+                                    />
+
+                        </StackPanel>
+
+                    </Border>
+                </toolkit:DockPanel>
+            </Border>
+
+
+
+
+
+            <Border />
+
+
+
+        </toolkit:DockPanel>
+    </Grid>
+</Page>

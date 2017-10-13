@@ -85,7 +85,7 @@ namespace NicoPlayerHohoema.Util
 					{
 						resultCount = (uint)resultItems.Count;
 
-						_Position += resultCount;
+						_Position += _Source.OneTimeLoadCount;
 
 						await dispatcher.RunAsync(CoreDispatcherPriority.High,
 							() =>

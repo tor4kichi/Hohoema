@@ -32,7 +32,6 @@
                                         VerticalAlignment="{TemplateBinding VerticalAlignment}"
                                       Margin="{TemplateBinding Margin}"
                                       Padding="{TemplateBinding Padding}"
-                                      ContextFlyout="{TemplateBinding ItemContextFlyout}"
                                       ItemsPanel="{TemplateBinding ItemsPanel}"
                                 >
 
@@ -48,9 +47,6 @@
 
 
                                 <i:Interaction.Behaviors>
-
-                                    <mybehavior:ListViewBaseItemContextFlyout />
-                                    
                                     <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedItems}" />
 
                                     <mybehavior:KeyboardTrigger Key="F5">

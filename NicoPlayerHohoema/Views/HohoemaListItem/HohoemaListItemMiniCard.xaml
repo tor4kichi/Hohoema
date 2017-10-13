@@ -69,7 +69,7 @@
 
                 <StackPanel Margin="8 8 8 0" >
                     <StackPanel Visibility="{Binding HasTitle, Converter={StaticResource BooleanToVisibility}}">
-                        <TextBlock Text="{Binding Title}"
+                        <TextBlock Text="{Binding Label}"
                            
                            TextWrapping="Wrap"
                            FontSize="15"

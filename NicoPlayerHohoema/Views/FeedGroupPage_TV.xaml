@@ -204,23 +204,11 @@
                                   uwpui:ListViewBase.Command="{Binding OpenFeedSourcePageCommand}"
                               >
 
-                            <i:Interaction.Behaviors>
-                                <mybehavior:ListViewBaseItemContextFlyout />
-                            </i:Interaction.Behaviors>
-
                             <GridView.ItemContainerStyle>
                                 <Style TargetType="GridViewItem">
                                     <Setter Property="Padding" Value="8" />
                                 </Style>
                             </GridView.ItemContainerStyle>
-
-                            <GridView.ContextFlyout>
-                                <MenuFlyout>
-                                    <MenuFlyoutItem Text="削除"
-                                                    Command="{Binding RemoveFeedSourceCommand}"
-                                                    />
-                                </MenuFlyout>
-                            </GridView.ContextFlyout>
 
                             <GridView.ItemsPanel>
                                 <ItemsPanelTemplate>

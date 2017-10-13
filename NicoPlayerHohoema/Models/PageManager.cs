@@ -323,7 +323,7 @@ namespace NicoPlayerHohoema.Models
 				case HohoemaPageType.Search:
 					return "検索";
 				case HohoemaPageType.CacheManagement:
-					return "キャッシュ管理";
+					return "キャッシュ";
 				case HohoemaPageType.Settings:
 					return "設定";
 				case HohoemaPageType.VideoInfomation:
@@ -344,7 +344,8 @@ namespace NicoPlayerHohoema.Models
 					return "コミュニティ情報";
 				case HohoemaPageType.CommunityVideo:
 					return "コミュニティ動画一覧";
-                    
+                case HohoemaPageType.NicoRepo:
+                    return "ニコレポ";
 				default:
                     Debug.WriteLine("not support " + nameof(HohoemaPageType) + "." + pageType.ToString());
                     return pageType.ToString();

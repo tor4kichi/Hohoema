@@ -591,16 +591,17 @@
                         <StackPanel Margin="0 8 0 16">
 
 
-                            <TextBlock Text="マウススクロールの音量変更量"
+                            <TextBlock Text="マウススクロールの音量変更量 (％)"
                         toolkit:DockPanel.Dock="Left"
                         VerticalAlignment="Center"
                         />
 
-                            <toolkit:NumericUpDown Value="{Binding ScrollVolumeFrequency.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                    SmallChange="0.01"
-                                    LargeChange="0.05"
-                                    Minimum="0.0"
-                                    Maximum="1.0"
+                            <toolkit:NumericUpDown Value="{Binding ScrollVolumeFrequency.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource ToUserFriendlySoubleVolume}}"
+                                    SmallChange="1"
+                                    LargeChange="5"
+                                    Minimum="1"
+                                    Maximum="10"
+                                                   ValueFormat="F0"
                                            Foreground="{ThemeResource ApplicationForegroundThemeBrush}"
                                                Margin="0 8"
                                                IsFocusEngagementEnabled="True"

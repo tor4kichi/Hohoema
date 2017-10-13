@@ -133,7 +133,7 @@ namespace NicoPlayerHohoema.ViewModels
 						int failedCount = 0;
 						foreach (var video in SelectedItems)
 						{
-                            var registrationResult = await HohoemaApp.AddMylistItem(targetMylist, video.Title, video.RawVideoId);
+                            var registrationResult = await HohoemaApp.AddMylistItem(targetMylist, video.Label, video.RawVideoId);
 
                             switch (registrationResult)
                             {
@@ -144,7 +144,7 @@ namespace NicoPlayerHohoema.ViewModels
                                     break;
                             }
 
-                            Debug.WriteLine($"{video.Title}[{video.RawVideoId}]:{registrationResult.ToString()}");
+                            Debug.WriteLine($"{video.Label}[{video.RawVideoId}]:{registrationResult.ToString()}");
 
                             progressCount++;
                             progress.Report(progressCount);

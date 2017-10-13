@@ -167,7 +167,6 @@
                 </Border>
 
                 <controls:HohoemaIncrementalLoadingList
-                    ItemFlyout="{StaticResource VideoListItemFlyout}"
                     >
                     <controls:HohoemaIncrementalLoadingList.ItemTemplate>
                         <DataTemplate >

@@ -25,6 +25,7 @@
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:model="using:NicoPlayerHohoema.Models"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     x:Name="RootLayout"
     d:DesignHeight="300"
@@ -267,12 +268,6 @@
     </UserControl.Resources>
     
     <Grid x:Name="LayoutRoot" Background="{StaticResource AppBarBorderThemeBrush}">
-
-        <i:Interaction.Behaviors>
-            <core:EventTriggerBehavior EventName="Unloaded" >
-                <core:CallMethodAction TargetObject="{Binding}" MethodName="Dispose" />
-            </core:EventTriggerBehavior>
-        </i:Interaction.Behaviors>
         
         <VisualStateManager.VisualStateGroups>
 
@@ -987,8 +982,31 @@
                         </Border>
 
 
-                        
-                        
+                        <!-- 音量表示 -->
+                        <controls:InstantContent DisplayContent="{Binding SoundVolume.Value, Mode=OneWay}"
+                                                 HorizontalAlignment="Left"
+                                                 VerticalAlignment="Top"
+                                                 Margin="16"
+                                                 >
+                            <controls:InstantContent.Background>
+                                <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}" />
+                            </controls:InstantContent.Background>
+                            <controls:InstantContent.DisplayContentTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="16 2 16 4">
+                                        <Border>
+                                            <TextBlock FontSize="20" VerticalAlignment="Center">
+                                                <Run Text="音量" />:
+                                                <Run Text="{Binding Converter={StaticResource ToUserFriendlySoubleVolume}}" FontSize="22" />%
+                                            </TextBlock>
+                                        </Border>
+                                    </Grid>
+                                </DataTemplate>
+                            </controls:InstantContent.DisplayContentTemplate>
+                        </controls:InstantContent>
+
+
+
                         <Grid x:Name="UIControlLayout">
                             <i:Interaction.Behaviors>
 
@@ -2003,7 +2021,7 @@
                         </Grid>
 
 
-
+                        
 
                         <Grid 
                             

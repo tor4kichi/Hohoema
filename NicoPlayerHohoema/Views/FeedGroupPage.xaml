@@ -350,38 +350,6 @@
                             </TextBlock>
                         </StackPanel>
                     </Border>
-
-
-
-
-
-                    <Border Height="32" />
-
-
-                    <Button MinWidth="150" >
-                        <StackPanel Orientation="Horizontal">
-                            <iconPack:PackIconMaterial Kind="Delete" />
-
-                            <Border Width="8" />
-
-                            <TextBlock >
-                                <Run Text="{Binding FeedGroupName.Value}" />
-                                <Run Text="を削除" />
-                            </TextBlock>
-                        </StackPanel>
-
-
-
-                        <Button.Flyout>
-                            <Flyout>
-                                <Button 
-                                Content="【確認】フィードグループを削除"
-                                Command="{Binding RemoveFeedGroupCommand}"
-                                />
-                            </Flyout>
-                        </Button.Flyout>
-                    </Button>
-
                 </StackPanel>
             </ScrollViewer>
         </toolkit:DockPanel>

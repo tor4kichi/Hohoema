@@ -49,7 +49,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				foreach (var item in SelectedItems)
 				{
-					await HohoemaApp.FeedManager.MarkAsRead(item.VideoId);
+					await HohoemaApp.FeedManager.MarkAsRead(item.Id);
 					await HohoemaApp.FeedManager.MarkAsRead(item.RawVideoId);
 				}
 

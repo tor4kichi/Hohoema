@@ -11,7 +11,7 @@ namespace NicoPlayerHohoema.Models
 {
     public interface IHohoemaListItem
     {
-        string Title { get; }
+        string Label { get; }
         bool HasTitle { get; }
         string Description { get; }
         bool HasDescription { get; }
@@ -30,9 +30,6 @@ namespace NicoPlayerHohoema.Models
         Color ThemeColor { get; }
 
         bool IsVisible { get; }
-
-        string PrimaryActionTitle { get; }
-        ICommand PrimaryCommand { get; }
 
         List<ActionSet> SecondaryActions { get; }
     }

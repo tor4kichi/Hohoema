@@ -374,7 +374,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-	public class MylistGroupListItem : HohoemaListingPageItemBase
+	public class MylistGroupListItem : HohoemaListingPageItemBase, Interfaces.IMylist
 	{
         public MylistGroupListItem(IPlayableList list, PageManager pageManager)
         {
@@ -382,7 +382,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             GroupId = list.Id;
 
-            Title = list.Name;
+            Label = list.Name;
             
         }
 
@@ -400,7 +400,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			_PageManager = pageManager;
 
-			Title = mylistGroup.Name;
+			Label = mylistGroup.Name;
 			Description = mylistGroup.Description;
 			GroupId = mylistGroup.Id;
             OptionText = (mylistGroup.GetIsPublic() ? "公開" : "非公開") + $" - {mylistGroup.Count}件";
@@ -415,25 +415,10 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-		private DelegateCommand _OpenMylistCommand;
-		public override ICommand PrimaryCommand
-		{
-			get
-			{
-				return _OpenMylistCommand
-					?? (_OpenMylistCommand = new DelegateCommand(() =>
-					{
-						_PageManager.OpenPage(HohoemaPageType.Mylist, 
-                            new MylistPagePayload(GroupId).ToParameterString()
-                            );
-					}
-					));
-			}
-		}
-
+		
 		public void Update(MylistGroupInfo info)
 		{
-			Title = info.Name;
+			Label = info.Name;
 			Description = info.Description;
 			OptionText = (info.IsPublic ? "公開" : "非公開") + $" - {info.PlaylistItems.Count}件";
 
@@ -445,7 +430,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public string GroupId { get; private set; }
 
-		PageManager _PageManager;
+        public string Id => GroupId;
+
+        PageManager _PageManager;
 	}
 
     public class MylistItemsWithTitle : ListWithTitle<IPlayableList>
