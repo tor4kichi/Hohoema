@@ -57,6 +57,15 @@ namespace NicoPlayerHohoema.Models
             set { SetProperty(ref _DefaultLiveQuality, value); }
         }
 
+        private bool _LiveWatchWithLowLatency = true;
+
+        [DataMember]
+        public bool LiveWatchWithLowLatency
+        {
+            get { return _LiveWatchWithLowLatency; }
+            set { SetProperty(ref _LiveWatchWithLowLatency, value); }
+        }
+
 
         private bool _IsMute;
 

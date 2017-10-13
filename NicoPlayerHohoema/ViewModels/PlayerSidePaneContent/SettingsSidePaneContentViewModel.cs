@@ -28,6 +28,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             new ValueWithAvairability<NicoVideoQuality>(NicoVideoQuality.Low),
         }.ToList();
         public ReactiveProperty<ValueWithAvairability<NicoVideoQuality>> VideoPlayingQuality { get; private set; }
+        public ReactiveProperty<bool> IsLowLatency { get; private set; }
 
         public ReactiveProperty<double> VideoPlaybackRate { get; private set; }
         public ReactiveCommand<double?> SetPlaybackRateCommand { get; private set; }
@@ -166,6 +167,8 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 raiseEventScheduler: CurrentWindowContextScheduler,
                 mode: ReactivePropertyMode.DistinctUntilChanged
                 );
+
+            IsLowLatency = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.LiveWatchWithLowLatency, CurrentWindowContextScheduler, mode: ReactivePropertyMode.DistinctUntilChanged);
 
             IsKeepDisplayInPlayback = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsKeepDisplayInPlayback, CurrentWindowContextScheduler);
             ScrollVolumeFrequency = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.SoundVolumeChangeFrequency, CurrentWindowContextScheduler);

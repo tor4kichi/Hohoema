@@ -837,7 +837,8 @@
 
                                             <!-- 画質 -->
                                             <StackPanel Orientation="Horizontal" Margin="0 0 0 8"
-                                                HorizontalAlignment="Right"
+                                                        HorizontalAlignment="Right"
+                                                        Visibility="{Binding CurrentQuality.Value, Converter={StaticResource NotNullToVisibility}}"
                                                 >
                                                 <TextBlock Text=""
                                                x:Name="PlayerTypeTextBlock"
@@ -849,19 +850,25 @@
                                                 <TextBlock VerticalAlignment="Center"
                                                    Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                    x:Name="LeoLiveQualityTextBlock"
-                                                   Visibility="{Binding CurrentQuality.Value, Converter={StaticResource NotNullToVisibility}}"
                                                    >
                                             (<Run Text="{Binding CurrentQuality.Value, Converter={StaticResource Live2QualityTypeToText}}" />)
+                                                </TextBlock>
+
+                                                <TextBlock Visibility="{Binding IsLowLatency.Value, Converter={StaticResource BooleanToVisibility}}"
+                                                           Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                           Margin="8 0 0 0"
+                                                           >
+                                                    <Run Text="低遅延" />
                                                 </TextBlock>
                                             </StackPanel>
 
                                             <TextBlock VerticalAlignment="Center"
                                                 Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"                                                
                                                >
-                                        <Run Text="{Binding RoomName}" />
-                                        <Run Text="-" />
-                                        <Run Text="{Binding SeetId}" />
-                                        <Run Text="番" />
+                                                <Run Text="{Binding RoomName}" />
+                                                <Run Text="-" />
+                                                <Run Text="{Binding SeetId}" />
+                                                <Run Text="番" />
                                             </TextBlock>
                                         </StackPanel>
 

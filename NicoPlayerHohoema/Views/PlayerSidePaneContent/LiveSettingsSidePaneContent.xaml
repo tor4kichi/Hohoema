@@ -82,10 +82,12 @@
 
 
 
-            <StackPanel Margin="0 0 0 0" >
+            <StackPanel Margin="0 0 0 0" x:Name="Html5LiveQualityPanel"
+                        Visibility="Collapsed"
+                        >
 
-                <StackPanel Margin="0 8 0 16" x:Name="Html5LiveQualityPanel"
-                            Visibility="Collapsed"
+                <StackPanel Margin="0 8 0 16" 
+                            
                             >
 
                     <TextBlock Text="生放送の画質（HTML5版のみ）"
@@ -104,6 +106,25 @@
                             </DataTemplate>
                         </ComboBox.ItemTemplate>
                     </ComboBox>
+
+                </StackPanel>
+
+                <StackPanel Margin="0 8 0 16" 
+                            >
+
+                    <TextBlock Text="視聴安定性を優先する（HTML5版のみ）"
+                           VerticalAlignment="Center"
+                           />
+
+                    <ToggleSwitch IsOn="{Binding IsLowLatency.Value, Mode=TwoWay, Converter={StaticResource BooleanInverted}}" />
+
+                    <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7"
+                               Visibility="{Binding IsLowLatency.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                               TextWrapping="Wrap"
+                               Margin="0 0 16 0"
+                               >
+                        「低遅延モード」を「無効」に設定しています。<LineBreak /> 放送とコメントのズレが大きくなる可能性がありますが、視聴安定性の改善が期待できます。
+                    </TextBlock>
 
                 </StackPanel>
 

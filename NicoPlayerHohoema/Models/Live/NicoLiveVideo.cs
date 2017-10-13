@@ -315,7 +315,8 @@ namespace NicoPlayerHohoema.Models.Live
                         quality = "high";
                     }
 
-                    await Live2WebSocket.StartAsync(quality);
+                    _IsLowLatency = HohoemaApp.UserSettings.PlayerSettings.LiveWatchWithLowLatency;
+                    await Live2WebSocket.StartAsync(quality, _IsLowLatency);
                 }
 
                 await StartLiveSubscribe();
@@ -409,16 +410,19 @@ namespace NicoPlayerHohoema.Models.Live
 
         public string[] Qualities { get; private set; }
 
-        public async Task ChangeQualityRequest(string quality)
+        bool _IsLowLatency;
+
+        public async Task ChangeQualityRequest(string quality, bool isLowLatency)
         {
             if (this.LivePlayerType == Live.LivePlayerType.Leo)
             {
-                if (CurrentQuality == quality) { return; }
+                if (CurrentQuality == quality && _IsLowLatency == isLowLatency) { return; }
 
                 MediaPlayer.Source = null;
 
                 RequestQuality = quality;
-                await Live2WebSocket.SendChangeQualityMessageAsync(quality);
+                _IsLowLatency = isLowLatency;
+                await Live2WebSocket.SendChangeQualityMessageAsync(quality, isLowLatency);
             }
         }
 

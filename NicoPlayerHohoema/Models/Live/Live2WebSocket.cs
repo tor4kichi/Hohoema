@@ -92,7 +92,7 @@ namespace NicoPlayerHohoema.Models.Live
 
 
 
-        public async Task StartAsync(string requestQuality = "")
+        public async Task StartAsync(string requestQuality = "", bool isLowLatency = true)
         {
             using (var releaser = await _WebSocketLock.LockAsync())
             {
@@ -108,7 +108,7 @@ namespace NicoPlayerHohoema.Models.Live
             }
 
 
-            var getpermitCommandText = $@"{{""type"":""watch"",""body"":{{""command"":""getpermit"",""requirement"":{{""broadcastId"":""{Props.BroadcastId}"",""route"":"""",""stream"":{{""protocol"":""hls"",""requireNewStream"":true,""priorStreamQuality"":""{requestQuality}""}},""room"":{{""isCommentable"":true,""protocol"":""webSocket""}}}}}}}}";
+            var getpermitCommandText = $@"{{""type"":""watch"",""body"":{{""command"":""getpermit"",""requirement"":{{""broadcastId"":""{Props.BroadcastId}"",""route"":"""",""stream"":{{""protocol"":""hls"",""requireNewStream"":true,""priorStreamQuality"":""{requestQuality}"", ""isLowLatency"":{isLowLatency.ToString().ToLower()}}},""room"":{{""isCommentable"":true,""protocol"":""webSocket""}}}}}}}}";
             //var getpermitCommandText = $"{{\"type\":\"watch\",\"body\":{{\"params\":[\"{Props.BroadcastId}\",\"\",\"true\",\"hls\",\"\"],\"command\":\"getpermit\"}}}}";
             await SendMessageAsync(getpermitCommandText);
         }
@@ -133,7 +133,7 @@ namespace NicoPlayerHohoema.Models.Live
         }
 
 
-        public Task SendChangeQualityMessageAsync(string quality)
+        public Task SendChangeQualityMessageAsync(string quality, bool isLowLatency = true)
         {
             // qualityは
             // abr = 自動
@@ -141,7 +141,7 @@ namespace NicoPlayerHohoema.Models.Live
             // low = 384k
             // super_low = 192k
             // の4種類
-            var message = $"{{\"type\":\"watch\",\"body\":{{\"command\":\"getstream\",\"requirement\":{{\"protocol\":\"hls\",\"quality\":\"{quality}\"}}}}}}";
+            var message = $"{{\"type\":\"watch\",\"body\":{{\"command\":\"getstream\",\"requirement\":{{\"protocol\":\"hls\",\"quality\":\"{quality}\",\"isLowLatency\":{isLowLatency.ToString().ToLower()}}}}}}}";
             return SendMessageAsync(message);
         }
 
@@ -258,7 +258,7 @@ namespace NicoPlayerHohoema.Models.Live
             }
             else if (type == "ping")
             {
-                
+                await SendMessageAsync("{\"type\":\"pong\",\"body\":{}}");
             }
         }
 
