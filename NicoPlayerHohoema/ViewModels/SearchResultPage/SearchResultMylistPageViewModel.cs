@@ -97,8 +97,8 @@ namespace NicoPlayerHohoema.ViewModels
 		#endregion
 	}
 
-	public class MylistSearchListingItem : HohoemaListingPageItemBase
-	{
+	public class MylistSearchListingItem : HohoemaListingPageItemBase, Interfaces.IMylist
+    {
 		PageManager _PageManager;
 
 
@@ -131,7 +131,9 @@ namespace NicoPlayerHohoema.ViewModels
 		public string GroupId { get; private set; }
 		public DateTime UpdateTime { get; private set; }
 		public List<Mntone.Nico2.Searches.Video.Video> SampleVideos { get; private set; }
-	}
+
+        public string Id => GroupId;
+    }
 
 
 	public class MylistSearchSource : IIncrementalSource<MylistSearchListingItem>

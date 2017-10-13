@@ -138,7 +138,7 @@
     <Content Include="Assets\UpdateNotices\0.10.8.md" />
     <Content Include="Assets\UpdateNotices\0.10.9.md" />
     <Content Include="Assets\UpdateNotices\0.10.10.md" />
-    <None Include="Assets\UpdateNotices\0.11.0.md" />
+    <Content Include="Assets\UpdateNotices\0.11.0.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <PRIResource Include="Resources\ja-jp\Resources.resw" />
   </ItemGroup>
@@ -150,6 +150,9 @@
     <Compile Include="Commands\AddMylistCommand.cs" />
     <Compile Include="Commands\AddToHiddenUserCommand.cs" />
     <Compile Include="Commands\CopyToClipboardCommand.cs" />
+    <Compile Include="Commands\FeedGroupEditCommand.cs" />
+    <Compile Include="Commands\FeedGroupRemoveCommand.cs" />
+    <Compile Include="Commands\FeedGroupUpdateCommand.cs" />
     <Compile Include="Commands\HohoemaCommnadHelper.cs" />
     <Compile Include="Commands\OpenBroadcasterInfoCommand.cs" />
     <Compile Include="Commands\OpenContentCommand.cs" />
@@ -289,6 +292,7 @@
     <Compile Include="ViewModels\HohoemaSecondaryViewFrameViewModel.cs" />
     <Compile Include="ViewModels\HohoemaVideoListingPageViewModelBase.cs" />
     <Compile Include="ViewModels\HohoemaViewModelBase.cs" />
+    <Compile Include="Interfaces\ISearchHistory.cs" />
     <Compile Include="ViewModels\LiveVideoInfoContent\CommentLiveInfoContentViewModel.cs" />
     <Compile Include="ViewModels\LiveVideoInfoContent\LiveInfoContentViewModelBase.cs" />
     <Compile Include="ViewModels\LiveVideoInfoContent\SettingsLiveInfoContentViewModel.cs" />
@@ -360,6 +364,9 @@
       <DependentUpon>CommentRendererEx.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\CommentRenderer\CommentRendererHelper.cs" />
+    <Compile Include="Views\Controls\FeedGroupListItemFlyout.xaml.cs">
+      <DependentUpon>FeedGroupListItemFlyout.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Controls\InstantContent.xaml.cs">
       <DependentUpon>InstantContent.xaml</DependentUpon>
     </Compile>
@@ -797,6 +804,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\CommunityVideoPage_TV.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\FeedGroupListItemFlyout.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

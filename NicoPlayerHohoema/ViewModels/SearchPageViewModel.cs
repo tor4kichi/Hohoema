@@ -823,8 +823,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-	public class SearchHistoryListItem : SelectableItem<SearchHistory>
-	{
+	public class SearchHistoryListItem : SelectableItem<SearchHistory>, Interfaces.ISearchHistory
+    {
 		public string Keyword { get; private set; }
 		public SearchTarget Target { get; private set; }
 

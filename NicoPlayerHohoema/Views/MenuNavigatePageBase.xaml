@@ -452,6 +452,11 @@
                                                         <controls:LiveListItemFlyout />
                                                     </DataTemplate>
                                                 </templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
+                                                <templateSelector:HohoemaFlyoutTemplateSelector.FeedGroupFlyoutTemplate>
+                                                    <DataTemplate>
+                                                        <controls:FeedGroupListItemFlyout />
+                                                    </DataTemplate>
+                                                </templateSelector:HohoemaFlyoutTemplateSelector.FeedGroupFlyoutTemplate>
                                             </templateSelector:HohoemaFlyoutTemplateSelector>
                                         </myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>   
                                         

@@ -20,6 +20,11 @@ namespace NicoPlayerHohoema.Commands
             return  (App.Current as App).Container.Resolve<Models.HohoemaPlaylist>();
         }
 
+        public static FeedManager GetFeedManager()
+        {
+            return (App.Current as App).Container.Resolve<Models.FeedManager>();
+        }
+
         public static PageManager GetPageManager()
         {
             return (App.Current as App).Container.Resolve<Models.PageManager>();

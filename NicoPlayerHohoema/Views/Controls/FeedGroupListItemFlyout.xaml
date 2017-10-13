@@ -1,0 +1,25 @@
+﻿<MenuFlyout
+    x:Class="NicoPlayerHohoema.Views.Controls.FeedGroupListItemFlyout"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <MenuFlyoutItem Text="更新"
+                    Command="{StaticResource FeedGroupUpdateCommand}"
+                    CommandParameter="{Binding}"
+                    />
+    <MenuFlyoutItem Text="編集" 
+                    Command="{StaticResource FeedGroupEditCommand}"
+                    CommandParameter="{Binding}"
+                    />
+    <MenuFlyoutSeparator />
+    <MenuFlyoutItem Text="削除"
+                    Command="{StaticResource FeedGroupRemoveCommand}"
+                    CommandParameter="{Binding}"
+
+                       >
+    </MenuFlyoutItem>
+</MenuFlyout>

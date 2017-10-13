@@ -15,6 +15,7 @@
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
+    xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
@@ -207,87 +208,62 @@
             </Border>
 
 
-            <ScrollViewer>
-                <ItemsControl ItemsSource="{Binding FeedGroupItems}"
+
+            <ListView ItemsSource="{Binding FeedGroupItems}"
                           IsTabStop="False"
+                              uwpExtensions:ListViewBase.Command="{StaticResource OpenContentCommand}"
+                              IsItemClickEnabled="True"
+                          SelectionMode="None"
                   >
 
-                    <ItemsControl.ItemContainerStyle>
-                        <Style TargetType="ContentPresenter">
-                            <Setter Property="HorizontalContentAlignment"
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment"
                                     Value="Stretch" 
                                         />
-                            <Setter Property="Margin"
-                                    Value="8 0 8 0" 
-                                    />
-                        </Style>
-                    </ItemsControl.ItemContainerStyle>
+                    </Style>
+                </ListView.ItemContainerStyle>
 
-                    <ItemsControl.ItemTemplate>
+                <ListView.ItemTemplate>
 
-                        <DataTemplate>
-
-                            <Button Margin="0 8" Background="Transparent"
-                                UseSystemFocusVisuals="True"
-                                HorizontalAlignment="Stretch"
-                                HorizontalContentAlignment="Left"
-                                Command="{Binding PrimaryCommand}"
-                                >
+                    <DataTemplate>
 
 
-                                <Button.ContextFlyout>
-                                    <MenuFlyout>
-                                        <MenuFlyoutItem Text="更新"
-                                                    Command="{Binding UpdateCommand}"
-                                                    />
-                                        <MenuFlyoutItem Text="編集" 
-                                                    Command="{Binding OpenEditCommand}"
-                                                    />
-                                        <MenuFlyoutSeparator />
-                                        <MenuFlyoutSubItem Text="削除">
-                                            <MenuFlyoutItem Text="削除" 
-                                                        Command="{Binding ElementName=PageRoot, Path=DataContext.RemoveFeedGroupCommand}"
-                                                        CommandParameter="{Binding}"
-                                                        />
-                                        </MenuFlyoutSubItem>
-                                    </MenuFlyout>
-                                </Button.ContextFlyout>
-
-                                <Grid>
-                                    <StackPanel HorizontalAlignment="Right"
+                        <Grid>
+                            <StackPanel HorizontalAlignment="Right"
                                             Orientation="Horizontal"
                                         VerticalAlignment="Center"
                                             >
 
-                                        <ProgressRing IsActive="{Binding NowUpdate.Value}"
+                                <ProgressRing IsActive="{Binding NowUpdate.Value}"
                                                Visibility="{Binding NowUpdate.Value, Converter={StaticResource BooleanToVisibility}}"
                                                   Width="24"
                                                   Height="24"
                                                   />
-                                    </StackPanel>
+                            </StackPanel>
 
 
 
 
 
-                                    <toolkit:DockPanel Background="Transparent" IsHitTestVisible="True" >
+                            <toolkit:DockPanel Background="Transparent" IsHitTestVisible="True" >
 
 
 
-                                        <mycontrols:HohoemaListItem />
+                                <mycontrols:HohoemaListItem />
 
-                                    </toolkit:DockPanel>
+                            </toolkit:DockPanel>
 
 
 
-                                </Grid>
-                            </Button>
-                        </DataTemplate>
+                        </Grid>
 
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
-           
+                    </DataTemplate>
+
+                </ListView.ItemTemplate>
+            </ListView>
+
+
 
 
 

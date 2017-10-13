@@ -631,7 +631,8 @@ namespace NicoPlayerHohoema
             Container.RegisterInstance(hohoemaApp.ContentFinder);
             Container.RegisterInstance(hohoemaApp.Playlist);
             Container.RegisterInstance(hohoemaApp.OtherOwneredMylistManager);
-            
+            Container.RegisterInstance(hohoemaApp.FeedManager);
+
 
             // 非同期更新機能の同時実行タスク数を指定
             var deviceFamily = Windows.System.Profile.AnalyticsInfo.VersionInfo.DeviceFamily;

@@ -71,10 +71,28 @@ namespace NicoPlayerHohoema.ViewModels
 				PageManager.OpenPage(HohoemaPageType.FeedGroup, feedGroup.Id);
 			})
 				.AddTo(_CompositeDisposable);
-		}
 
+            var feedManager = hohoemaApp.FeedManager;
+            feedManager.FeedGroupAdded += FeedManager_FeedGroupAdded;
+            feedManager.FeedGroupRemoved += FeedManager_FeedGroupRemoved;
+        }
 
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        private void FeedManager_FeedGroupRemoved(IFeedGroup feedGroup)
+        {
+            var removedFeedGroup = FeedGroupItems.FirstOrDefault(x => x.FeedGroup.Id == feedGroup.Id);
+            if (removedFeedGroup != null)
+            {
+                FeedGroupItems.Remove(removedFeedGroup);
+            }
+        }
+
+        private void FeedManager_FeedGroupAdded(IFeedGroup feedGroup)
+        {
+            FeedGroupItems.Add(new FeedGroupListItem(feedGroup, PageManager));
+        }
+
+        
+        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			if (HohoemaApp.FeedManager == null)
 			{
@@ -202,49 +220,63 @@ namespace NicoPlayerHohoema.ViewModels
 	}
 
 
-	public class FeedGroupListItem : HohoemaListingPageItemBase, IFeedGroup
-	{
-		PageManager _PageManager;
-		public IFeedGroup FeedGroup { get; private set; }
+    public class FeedGroupListItem : HohoemaListingPageItemBase, Interfaces.IFeedGroup
+    {
+        PageManager _PageManager;
+        public IFeedGroup FeedGroup { get; private set; }
 
 
-		
-		public List<FeedItemSourceViewModel> SourceItems { get; private set; }
 
-		public ReactiveProperty<bool> NowUpdate { get; private set; }
+        public List<FeedItemSourceViewModel> SourceItems { get; private set; }
 
-		public FeedGroupListItem(IFeedGroup feedGroup, PageManager pageManager)
-		{
-			FeedGroup = feedGroup;
-			_PageManager = pageManager;
+        public ReactiveProperty<bool> NowUpdate { get; private set; }
 
-			Label = feedGroup.Label;
+        public FeedGroupListItem(IFeedGroup feedGroup, PageManager pageManager)
+        {
+            FeedGroup = feedGroup;
+            _PageManager = pageManager;
+
+            Label = feedGroup.Label;
             Description = feedGroup.GetUnreadItemCount().ToString();
-			SourceItems = FeedGroup.FeedSourceList
-				.Select(x => new FeedItemSourceViewModel()
-				{
-					Name = x.Name,
-					ItemType = x.FollowItemType
-				})
-				.ToList();
+            SourceItems = FeedGroup.FeedSourceList
+                .Select(x => new FeedItemSourceViewModel()
+                {
+                    Name = x.Name,
+                    ItemType = x.FollowItemType
+                })
+                .ToList();
             OptionText = FeedGroup.UpdateTime.ToString();
-			NowUpdate = new ReactiveProperty<bool>(false);
+            NowUpdate = new ReactiveProperty<bool>(false);
 
 
-		}
+        }
 
-		private DelegateCommand _SecondaryActionCommand;
-		public DelegateCommand SecondaryActionCommand
-		{
-			get
-			{
-				return _SecondaryActionCommand
-					?? (_SecondaryActionCommand = new DelegateCommand(() =>
-					{
-						_PageManager.OpenPage(HohoemaPageType.FeedGroup, FeedGroup.Id);
-					}));
-			}
-		}
+        private DelegateCommand _SelectedCommand;
+        public ICommand PrimaryCommand
+        {
+            get
+            {
+                return _SelectedCommand
+                    ?? (_SelectedCommand = new DelegateCommand(() =>
+                    {
+                        _PageManager.OpenPage(HohoemaPageType.FeedVideoList, FeedGroup.Id);
+                    }));
+            }
+        }
+
+
+        private DelegateCommand _SecondaryActionCommand;
+        public DelegateCommand SecondaryActionCommand
+        {
+            get
+            {
+                return _SecondaryActionCommand
+                    ?? (_SecondaryActionCommand = new DelegateCommand(() =>
+                    {
+                        _PageManager.OpenPage(HohoemaPageType.FeedGroup, FeedGroup.Id);
+                    }));
+            }
+        }
 
         private DelegateCommand _UpdateCommand;
         public DelegateCommand UpdateCommand
@@ -281,90 +313,22 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-        public List<FeedItem> FeedItems => throw new NotImplementedException();
-
-        public FeedManager FeedManager => throw new NotImplementedException();
-
-        public IReadOnlyList<IFeedSource> FeedSourceList => throw new NotImplementedException();
-
-        public HohoemaApp HohoemaApp => throw new NotImplementedException();
-
-        public Guid Id => throw new NotImplementedException();
-
-        public bool IsNeedRefresh => throw new NotImplementedException();
-
-        public DateTime UpdateTime => throw new NotImplementedException();
+        public string Id => FeedGroup.Id.ToString();
 
         public void UpdateStarted()
-		{
-			NowUpdate.Value = true;
-		}
+        {
+            NowUpdate.Value = true;
+        }
 
-		public void UpdateCompleted()
-		{
-			NowUpdate.Value = false;
+        public void UpdateCompleted()
+        {
+            NowUpdate.Value = false;
             Description = FeedGroup.GetUnreadItemCount().ToString();
             OptionText = FeedGroup.UpdateTime.ToString();
-		}
-
-        public IFeedSource AddMylistFeedSource(string name, string mylistGroupId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IFeedSource AddTagFeedSource(string tag)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IFeedSource AddUserFeedSource(string name, string userId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool ExistFeedSource(FollowItemType itemType, string id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void ForceMarkAsRead()
-        {
-            throw new NotImplementedException();
-        }
-
-        public int GetUnreadItemCount()
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool MarkAsRead(string videoId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> LoadFeedStream(FileAccessor<List<FeedItem>> fileAccessor)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task Refresh()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void RemoveUserFeedSource(IFeedSource feedSource)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> Rename(string newLabel)
-        {
-            throw new NotImplementedException();
         }
     }
 
-
-	public class FeedItemSourceViewModel
+    public class FeedItemSourceViewModel
 	{
 		public string Name { get; set; }
 		public FollowItemType ItemType { get; set; }

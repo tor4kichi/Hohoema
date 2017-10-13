@@ -13,7 +13,8 @@ namespace NicoPlayerHohoema.Commands
     {
         protected override bool CanExecute(object parameter)
         {
-            return parameter is Interfaces.INiconicoContent || parameter is Interfaces.ISearchWithtag;
+            //            return parameter is Interfaces.INiconicoContent || parameter is Interfaces.ISearchWithtag;
+            return true;
         }
 
         protected override void Execute(object parameter)
@@ -55,6 +56,20 @@ namespace NicoPlayerHohoema.Commands
                 var content = parameter as Interfaces.ISearchWithtag;
                 var pageManager = HohoemaCommnadHelper.GetPageManager();
                 pageManager.Search(SearchPagePayloadContentHelper.CreateDefault(SearchTarget.Tag, content.Tag));
+            }
+            else if (parameter is Interfaces.IFeedGroup)
+            {
+                var content = parameter as Interfaces.IFeedGroup;
+                var pageManager = HohoemaCommnadHelper.GetPageManager();
+                pageManager.OpenPage(Models.HohoemaPageType.FeedVideoList, content.Id);
+            }
+            else if (parameter is ViewModels.SearchHistoryListItem)
+            {
+                var historyVM = parameter as ViewModels.SearchHistoryListItem;
+                historyVM.PrimaryCommand.Execute(null);
+//                var content = parameter as Interfaces.ISearchHistory;
+//                var pageManager = HohoemaCommnadHelper.GetPageManager();
+//                pageManager.Search(SearchPagePayloadContentHelper.CreateDefault(SearchTarget.Tag, content.Tag));
             }
 
             // TODO: マイリストやユーザーIDを開けるように
