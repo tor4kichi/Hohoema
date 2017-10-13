@@ -2,7 +2,7 @@
 
 ## ニコニコ動画・生放送プレイヤーアプリ for Windows 10 families
 
-Windows 10/Windows 10 Mobile/XboxOneに対応したニコニコ動画・生放送のファインダー・プレイヤーアプリです。
+Windows 10系のデバイスに幅広く対応したニコニコ動画・生放送のプレイヤーアプリです。
 
 ご利用にはニコニコ動画アカウントが必要です。
 
@@ -12,6 +12,9 @@ Windows 10/Windows 10 Mobile/XboxOneに対応したニコニコ動画・生放�
 
 Windows 10 や XboxOne のストアアプリからダウンロードできます。
 
+無料（＋アプリのアドオンから開発への寄付を募る形）で提供しています。
+
+
 ## 動作環境
 
 * Windows 10
@@ -20,7 +23,7 @@ Windows 10 や XboxOne のストアアプリからダウンロードできます
 
 Hohoema は UWPアプリです。（UWP = Universal Windows Platform）
 
-ご利用にはOSバージョンを『Anniversary Update』以降に更新する必要があります。
+ご利用には『Anniversary Update』以降のOSバージョンに更新する必要があります。
 
 
 ## 機能一覧
@@ -31,6 +34,7 @@ Hohoema は UWPアプリです。（UWP = Universal Windows Platform）
   * コメント投稿
   * ランキングや検索から動画を見つける
   * フォローやマイリストの表示
+  * ニコレポ対応
 
 * Hohoemaによるサポート機能
   * 動画キャッシュのダウンロード
