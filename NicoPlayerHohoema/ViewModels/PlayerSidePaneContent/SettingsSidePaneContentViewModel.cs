@@ -267,6 +267,8 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
         }
         public void SetupAvairableLiveQualities(IList<string> qualities)
         {
+            if (qualities == null) { return; }
+
             foreach (var i in LivePlayingQualityList)
             {
                 i.IsAvairable = qualities.Any(x => x == i.Value);

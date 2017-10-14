@@ -1338,10 +1338,13 @@ namespace NicoPlayerHohoema.ViewModels
                         sidePaneContent = new PlayerSidePaneContent.SettingsSidePaneContentViewModel(HohoemaApp.UserSettings);
                         if (NicoLiveVideo != null)
                         {
-                            (sidePaneContent as SettingsSidePaneContentViewModel).SetupAvairableLiveQualities(
-                                NicoLiveVideo.Qualities
-                                );
-                            (sidePaneContent as SettingsSidePaneContentViewModel).IsLeoPlayerLive = NicoLiveVideo.LivePlayerType == Models.Live.LivePlayerType.Leo;
+                            if (LivePlayerType.Value == Models.Live.LivePlayerType.Leo)
+                            {
+                                (sidePaneContent as SettingsSidePaneContentViewModel).SetupAvairableLiveQualities(
+                                    NicoLiveVideo.Qualities
+                                    );
+                                (sidePaneContent as SettingsSidePaneContentViewModel).IsLeoPlayerLive = NicoLiveVideo.LivePlayerType == Models.Live.LivePlayerType.Leo;
+                            }
                         }
                         break;
                     default:
