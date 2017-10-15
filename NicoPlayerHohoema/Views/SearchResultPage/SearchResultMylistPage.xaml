@@ -13,6 +13,7 @@
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:hohoemalistItem="using:NicoPlayerHohoema.Views.HohoemaListItem"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
     d:DesignHeight="300"
@@ -20,63 +21,69 @@
 
     <Grid>
 
-        <Border>
-            <toolkit:DockPanel>
+        <controls:ListingWithHeader ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
+                                    SelectedItems="{Binding SelectedItems}"
+                                    RefreshCommand="{Binding RefreshCommand}"
+                                    ItemCommand="{StaticResource OpenContentCommand}"
+                                    IsTVModeEnabled="{Binding IsForceTVModeEnable.Value}"
+                                    IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
+                                    NowLoading="{Binding NowLoading.Value}"
+                                    >
+            <controls:ListingWithHeader.HeaderContent>
+                <toolkit:DockPanel >
 
-                <Border toolkit:DockPanel.Dock="Top" 
-                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
-                    BorderThickness="0 0 0 1"
-                        MinHeight="48"
-                    >
-                    <toolkit:DockPanel >
 
-
-                        <StackPanel toolkit:DockPanel.Dock="Right" Margin="8 0"
+                    <StackPanel toolkit:DockPanel.Dock="Right" Margin="8 0"
                                 Orientation="Horizontal"
                                 >
-                            <AppBarButton Background="Transparent" 
+                        <AppBarButton Background="Transparent" 
                                         Command="{Binding RefreshCommand}"
                                         ToolTipService.ToolTip="更新"
                                               Icon="Refresh"
                                         />
-                        </StackPanel>
+                    </StackPanel>
 
-                        <Border Background="Transparent" IsHitTestVisible="True"
+                    <Border Background="Transparent" IsHitTestVisible="True"
                             Margin="24 0 0 0"
                             >
 
-                            <TextBlock Text="{Binding Title}" 
+                        <TextBlock Text="{Binding Title}" 
                                     VerticalAlignment="Center"
                                     Style="{StaticResource SubtitleTextBlockStyle}"
                                     >
-                            </TextBlock>
+                        </TextBlock>
 
-                            <i:Interaction.Behaviors>
-                                <core:EventTriggerBehavior EventName="Tapped">
-                                    <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0.0" />
-                                </core:EventTriggerBehavior>
-                            </i:Interaction.Behaviors>
-                        </Border>
-
-
-
-
-                    </toolkit:DockPanel>
-                </Border>
+                        <i:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="Tapped">
+                                <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0.0" />
+                            </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
+                    </Border>
 
 
 
-                <controls:HohoemaIncrementalLoadingList >
-                    <controls:HohoemaIncrementalLoadingList.ItemTemplate>
-                        <DataTemplate>
-                            <controls:MylistSearchListItem />
-                        </DataTemplate>
-                    </controls:HohoemaIncrementalLoadingList.ItemTemplate>
-                </controls:HohoemaIncrementalLoadingList>
+
+                </toolkit:DockPanel>
+            </controls:ListingWithHeader.HeaderContent>
 
 
+            <controls:ListingWithHeader.ListItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <controls:MylistSearchListItem />
+                    </Grid>
+                </DataTemplate>
+            </controls:ListingWithHeader.ListItemTemplate>
 
-            </toolkit:DockPanel>
-        </Border>
+            <controls:ListingWithHeader.GridItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <hohoemalistItem:HohoemaListItemMiniCard />
+                    </Grid>
+                </DataTemplate>
+            </controls:ListingWithHeader.GridItemTemplate>
+        </controls:ListingWithHeader>
+        
+        
     </Grid>
 </Page>

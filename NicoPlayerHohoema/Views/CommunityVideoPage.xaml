@@ -24,13 +24,16 @@
 
 
     <Grid>
-        <toolkit:DockPanel >
 
-            <Border toolkit:DockPanel.Dock="Top" 
-                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
-                    BorderThickness="0 0 0 1"
-                    Height="64"
-                    >
+        <controls:ListingWithHeader ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
+                                    SelectedItems="{Binding SelectedItems}"
+                                    RefreshCommand="{Binding RefreshCommand}"
+                                    ItemCommand="{StaticResource OpenContentCommand}"
+                                    IsTVModeEnabled="{Binding IsForceTVModeEnable.Value}"
+                                    IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
+                                    Visibility="Collapsed"
+                                    >
+            <controls:ListingWithHeader.HeaderContent>
                 <toolkit:DockPanel >
 
 
@@ -47,7 +50,7 @@
                                   <Run Text="{Binding CommunityName}" />
                                 </TextBlock>
                             </HyperlinkButton>
-                            
+
                         </StackPanel>
 
 
@@ -83,7 +86,6 @@
                     <Border Background="Transparent" IsHitTestVisible="True"
                                 Margin="16 0 0 0"
                                 >
-
                         <TextBlock Text="{Binding Title}" 
                                     VerticalAlignment="Center"
                                     Style="{StaticResource SubtitleTextBlockStyle}"
@@ -94,22 +96,24 @@
                                 <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0.0" />
                             </core:EventTriggerBehavior>
                         </i:Interaction.Behaviors>
-
                     </Border>
-
-
-
-
                 </toolkit:DockPanel>
-            </Border>
+            </controls:ListingWithHeader.HeaderContent>
 
 
-            
-            <controls:HohoemaIncrementalLoadingList />
+            <controls:ListingWithHeader.ListItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <local:VideoInfoControl />
+                    </Grid>
+                </DataTemplate>
+            </controls:ListingWithHeader.ListItemTemplate>
 
-
-
-
-        </toolkit:DockPanel>
+            <controls:ListingWithHeader.GridItemTemplate>
+                <DataTemplate>
+                    <controls:VideoInfoControl_TV />
+                </DataTemplate>
+            </controls:ListingWithHeader.GridItemTemplate>
+        </controls:ListingWithHeader>
     </Grid>
 </Page>

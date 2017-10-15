@@ -51,193 +51,170 @@
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-        
-        
-        <Grid>
-
-            <toolkit:DockPanel x:Name="CacheManagementContentLayout"
-                               Visibility="Collapsed"
-                               >
 
 
-                <Border toolkit:DockPanel.Dock="Top" 
-                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
-                    BorderThickness="0 0 0 1"
-                        Height="64"
-                    >
-                    <toolkit:DockPanel >
-
-
-                        
-                        
-                        <StackPanel toolkit:DockPanel.Dock="Right"
+        <controls:ListingWithHeader x:Name="CacheManagementContentLayout"
+                                    ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
+                                    SelectedItems="{Binding SelectedItems}"
+                                    RefreshCommand="{Binding RefreshCommand}"
+                                    ItemCommand="{StaticResource OpenContentCommand}"
+                                    IsTVModeEnabled="{Binding IsForceTVModeEnable.Value}"
+                                    IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
+                                    NowLoading="{Binding NowLoading.Value}"
+                                    Visibility="Collapsed"
+                                    >
+            <controls:ListingWithHeader.HeaderContent>
+                <toolkit:DockPanel >
+                    <StackPanel toolkit:DockPanel.Dock="Right"
                                 Orientation="Horizontal"
                                 >
 
-                            <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                        <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                     Orientation="Horizontal"
                                     >
-                                <AppBarButton Background="Transparent" 
+                            <AppBarButton Background="Transparent" 
                                         Command="{Binding RefreshCommand}"
                                         ToolTipService.ToolTip="更新"
                                               Icon="Refresh"
                                               x:Name="UpdateButton"
                                         />
 
-                                <AppBarButton Background="Transparent" 
+                            <AppBarButton Background="Transparent" 
                                         Command="{Binding ChangeCacheFolderCommand}"
                                         ToolTipService.ToolTip="保存先フォルダを指定"
                                               Icon="SyncFolder"
                                               x:Name="UpdateCacheSaveFolderButton"
                                               Visibility="Collapsed"
                                         />
-                                
-                                <AppBarButton Icon="More">
-                                    <AppBarButton.Flyout>
-                                        <MenuFlyout>
-                                            <MenuFlyoutItem Text="{Binding CacheSaveFolderPath.Value}"
+
+                            <AppBarButton Icon="More">
+                                <AppBarButton.Flyout>
+                                    <MenuFlyout>
+                                        <MenuFlyoutItem Text="{Binding CacheSaveFolderPath.Value}"
                                                             IsEnabled="False"
                                                             />
-                                            <MenuFlyoutItem Text="保存先を開く"
+                                        <MenuFlyoutItem Text="保存先を開く"
                                                             Command="{Binding OpenCurrentCacheFolderCommand}"
                                                             />
-                                            
-                                            <MenuFlyoutSeparator />
 
-                                            <MenuFlyoutItem Text="保存先を変更"
+                                        <MenuFlyoutSeparator />
+
+                                        <MenuFlyoutItem Text="保存先を変更"
                                                     Command="{Binding ChangeCacheFolderCommand}"
                                                     >
-                                            </MenuFlyoutItem>
-                                            <MenuFlyoutItem Text="動画キャッシュ機能利用の確認文を読む" 
+                                        </MenuFlyoutItem>
+                                        <MenuFlyoutItem Text="動画キャッシュ機能利用の確認文を読む" 
                                                     Command="{Binding ReadCacheAcceptTextCommand}"
                                                     />
 
-                                        </MenuFlyout>
-                                    </AppBarButton.Flyout>
-                                    
-                                </AppBarButton>
+                                    </MenuFlyout>
+                                </AppBarButton.Flyout>
 
-                            </StackPanel>
+                            </AppBarButton>
+
+                        </StackPanel>
 
 
-                            <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+                        <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
                                     Orientation="Horizontal"
                                     >
-
-                                <AppBarButton Command="{Binding CancelCacheDownloadRequest}"
+                            <AppBarButton Command="{Binding CancelCacheDownloadRequest}"
                                               Icon="Remove"
                                               Label="キャッシュ削除"
-                                              
                                             />
-
-                                <AppBarSeparator />
-
-                                
-
-                                <AppBarButton Command="{Binding RegistratioMylistCommand}"
+                            <AppBarSeparator />
+                            <AppBarButton Command="{Binding RegistratioMylistCommand}"
                                               Label="マイリストに追加"
                                               Icon="Add"
                                             >
-                                </AppBarButton>
-
-                                
-                                
-
-                            </StackPanel>
+                            </AppBarButton>
+                        </StackPanel>
 
 
 
-                            <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                             HorizontalContentAlignment="Stretch"
                                             VerticalContentAlignment="Stretch"
                                             Label="選択"
                                             >
-                                <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
+                            <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center"
                                                        />
-                            </AppBarToggleButton>
+                        </AppBarToggleButton>
 
-                        </StackPanel>
+                    </StackPanel>
 
-                        <Border Background="Transparent" IsHitTestVisible="True"
+                    <Border Background="Transparent" IsHitTestVisible="True"
                                 Margin="16 0 0 0"
                                 >
-                            <i:Interaction.Behaviors>
-                                <core:EventTriggerBehavior EventName="Tapped">
-                                    <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0.0" />
-                                </core:EventTriggerBehavior>
-                            </i:Interaction.Behaviors>
+                        <i:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="Tapped">
+                                <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0.0" />
+                            </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
 
-                            <TextBlock Text="{Binding Title}" 
+                        <TextBlock Text="{Binding Title}" 
                                     VerticalAlignment="Center"
                                     Style="{StaticResource SubtitleTextBlockStyle}"
                                     >
-                            </TextBlock>
-                        </Border>
+                        </TextBlock>
+                    </Border>
+                </toolkit:DockPanel>
+            </controls:ListingWithHeader.HeaderContent>
 
 
-
-
-                    </toolkit:DockPanel>
-                </Border>
-
-
-
-
-
-                <controls:HohoemaIncrementalLoadingList
-                    
-                    >
-                    <controls:HohoemaIncrementalLoadingList.ItemTemplate>
-                        <DataTemplate >
-                            <Grid>
-                                <!-- 状態 -->
-                                <Grid toolkit:DockPanel.Dock="Right" HorizontalAlignment="Right"
+            <controls:ListingWithHeader.ListItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <!-- 状態 -->
+                        <Grid toolkit:DockPanel.Dock="Right" HorizontalAlignment="Right"
                                     >
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding CacheRequestTime.Value}" 
+                            <StackPanel>
+                                <TextBlock Text="{Binding CacheRequestTime.Value}" 
                                                Opacity="0.7"
                                                Margin="0 0 0 4"
                                                FontSize="12"
                                                />
-                                    </StackPanel>
+                            </StackPanel>
 
-                                </Grid>
+                        </Grid>
 
-                                <!-- 操作 -->
+                        <!-- 操作 -->
 
-                                <local:VideoInfoControl />
+                        <local:VideoInfoControl />
+                    </Grid>
+                </DataTemplate>
+            </controls:ListingWithHeader.ListItemTemplate>
 
-                            </Grid>
-                        </DataTemplate>
-                    </controls:HohoemaIncrementalLoadingList.ItemTemplate>
-                </controls:HohoemaIncrementalLoadingList>
-
-
-            </toolkit:DockPanel>
-
-
-            <Grid x:Name="NotCacheAcceptedLayout"
+            <controls:ListingWithHeader.GridItemTemplate>
+                <DataTemplate>
+                    <controls:VideoInfoControl_TV />
+                </DataTemplate>
+            </controls:ListingWithHeader.GridItemTemplate>
+        </controls:ListingWithHeader>
+        
+        
+        
+        <Grid x:Name="NotCacheAcceptedLayout"
               >
-                <StackPanel HorizontalAlignment="Center"
+            <StackPanel HorizontalAlignment="Center"
                         VerticalAlignment="Center">
-                    <TextBlock Margin="4">キャッシュ機能を有効にするには</TextBlock>
+                <TextBlock Margin="4">キャッシュ機能を有効にするには</TextBlock>
 
 
-                    <TextBlock Margin="4">
+                <TextBlock Margin="4">
                         <Run>「キャッシュ機能の利用に関する確認」への同意が必要です</Run>
-                    </TextBlock>
+                </TextBlock>
 
-                    <Button Content="「キャッシュ機能の利用に関する確認」を表示する" 
+                <Button Content="「キャッシュ機能の利用に関する確認」を表示する" 
                         Command="{Binding RequireEnablingCacheCommand}" 
                         Margin="8 16 8 8"
                          />
 
-                </StackPanel>
+            </StackPanel>
 
 
-            </Grid>
         </Grid>
     </Grid>
    

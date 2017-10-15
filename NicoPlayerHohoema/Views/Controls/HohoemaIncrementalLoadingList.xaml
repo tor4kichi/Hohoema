@@ -46,7 +46,7 @@
         
         
         <!-- エラー表示-->
-        <StackPanel Visibility="{Binding NowLoadingItems.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+        <StackPanel Visibility="{Binding NowLoading.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                     toolkit:DockPanel.Dock="Bottom"
                     >
             <Border Visibility="{Binding HasItem.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
@@ -104,8 +104,8 @@
 
         <Grid >
 
-            <ProgressRing Visibility="{Binding NowLoadingItems.Value, Converter={StaticResource BooleanToVisibility}}"
-                      IsActive="{Binding NowLoadingItems.Value}"
+            <ProgressRing Visibility="{Binding NowLoading.Value, Converter={StaticResource BooleanToVisibility}}"
+                      IsActive="{Binding NowLoading.Value}"
                       Width="48"
                       Height="48"
                       HorizontalAlignment="Right"

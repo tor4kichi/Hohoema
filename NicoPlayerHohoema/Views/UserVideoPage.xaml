@@ -19,119 +19,111 @@
 
     <Grid>
 
+        <controls:ListingWithHeader ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
+                                    SelectedItems="{Binding SelectedItems}"
+                                    RefreshCommand="{Binding RefreshCommand}"
+                                    ItemCommand="{StaticResource OpenContentCommand}"
+                                    IsTVModeEnabled="{Binding IsForceTVModeEnable.Value}"
+                                    IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
+                                    NowLoading="{Binding NowLoading.Value}"
+                                    >
+            <controls:ListingWithHeader.HeaderContent>
+                <toolkit:DockPanel >
 
-        <Border>
-
-
-            <toolkit:DockPanel>
-
-                <Border toolkit:DockPanel.Dock="Top" 
-                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
-                    BorderThickness="0 0 0 1"
-                        Height="64"
-                    >
-                    <toolkit:DockPanel >
-
-                        <StackPanel toolkit:DockPanel.Dock="Right" 
+                    <StackPanel toolkit:DockPanel.Dock="Right" 
                                 Orientation="Horizontal"
                                 >
 
-                            <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                        <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                     Orientation="Horizontal"
                                     >
-                                <StackPanel Orientation="Horizontal" Margin="0 0 8 0">
+                            <StackPanel Orientation="Horizontal" Margin="0 0 8 0">
 
-                                    <TextBlock Text="投稿者：" VerticalAlignment="Center" />
+                                <TextBlock Text="投稿者：" VerticalAlignment="Center" />
 
-                                    <HyperlinkButton Command="{Binding OpenVideoOwnerUserPageCommand}">
-                                        <TextBlock VerticalAlignment="Center"
+                                <HyperlinkButton Command="{Binding OpenVideoOwnerUserPageCommand}">
+                                    <TextBlock VerticalAlignment="Center"
                                         >
                                             <Run Text="{Binding UserName}" />
                                             <Run Text="さん" />
-                                        </TextBlock>
-                                    </HyperlinkButton>
-                                </StackPanel>
-
+                                    </TextBlock>
+                                </HyperlinkButton>
                             </StackPanel>
 
+                        </StackPanel>
 
-                            <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
+
+                        <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
                                     Orientation="Horizontal"
                                     >
 
-                                <AppBarButton Command="{Binding RequestCacheDownload}"
+                            <AppBarButton Command="{Binding RequestCacheDownload}"
                                               Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
                                               Icon="Download"
                                               Label="キャッシュ"
                                             />
 
-                                <AppBarButton Command="{Binding RegistratioMylistCommand}" 
+                            <AppBarButton Command="{Binding RegistratioMylistCommand}" 
                                           Icon="Add"
                                           Label="マイリストに追加"
                                             />
 
 
-                                
-                                
-
-                            </StackPanel>
 
 
 
-                            <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        </StackPanel>
+
+
+
+                        <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                             HorizontalContentAlignment="Stretch"
                                             VerticalContentAlignment="Stretch"
                                             Label="選択"
                                             >
-                                <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
+                            <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center"
                                                        />
-                            </AppBarToggleButton>
+                        </AppBarToggleButton>
 
-                        </StackPanel>
+                    </StackPanel>
 
-                        <Border Background="Transparent" IsHitTestVisible="True"
+                    <Border Background="Transparent" IsHitTestVisible="True"
                                 Margin="16 0 0 0"
                                 >
 
-                            <TextBlock Text="{Binding Title}" 
+                        <TextBlock Text="{Binding Title}" 
                                     VerticalAlignment="Center"
                                     Style="{StaticResource SubtitleTextBlockStyle}"
                                     >
-                                
-                                
-                            </TextBlock>
-                            
-                            <i:Interaction.Behaviors>
-                                <core:EventTriggerBehavior EventName="Tapped">
-                                    <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0.0" />
-                                </core:EventTriggerBehavior>
-                            </i:Interaction.Behaviors>
-                        </Border>
 
 
+                        </TextBlock>
+
+                        <i:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="Tapped">
+                                <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0.0" />
+                            </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
+                    </Border>
+                </toolkit:DockPanel>
+            </controls:ListingWithHeader.HeaderContent>
 
 
-                    </toolkit:DockPanel>
-                </Border>
+            <controls:ListingWithHeader.ListItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <local:VideoInfoControl />
+                    </Grid>
+                </DataTemplate>
+            </controls:ListingWithHeader.ListItemTemplate>
 
-                <controls:HohoemaIncrementalLoadingList
-                    ItemFlyout="{StaticResource VideoListItemFlyout}"
-                    >
-                    <controls:HohoemaIncrementalLoadingList.ItemTemplate>
-                        <DataTemplate >
-                            <Grid>
-                                <local:VideoInfoControl />
-
-                            </Grid>
-                        </DataTemplate>
-                    </controls:HohoemaIncrementalLoadingList.ItemTemplate>
-                </controls:HohoemaIncrementalLoadingList>
-
-
-
-            </toolkit:DockPanel>
-        </Border>
+            <controls:ListingWithHeader.GridItemTemplate>
+                <DataTemplate>
+                    <controls:VideoInfoControl_TV />
+                </DataTemplate>
+            </controls:ListingWithHeader.GridItemTemplate>
+        </controls:ListingWithHeader>
     </Grid>
 </Page>

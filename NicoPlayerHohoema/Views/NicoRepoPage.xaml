@@ -17,7 +17,7 @@
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid>
 
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup>
@@ -47,54 +47,16 @@
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
-        <Grid>
-            <!---->
-            <controls:HohoemaIncrementalLoadingList
-                    x:Name="VerticalVideoList"
-                Margin="0 64 0 0"
-                    >
-                <controls:HohoemaIncrementalLoadingList.ItemTemplate>
-                    <DataTemplate >
-                        <controls:HohoemaListItem />
-                    </DataTemplate>
-                </controls:HohoemaIncrementalLoadingList.ItemTemplate>
-            </controls:HohoemaIncrementalLoadingList>
-            
-            <controls:IncrementalLoadingList x:Name="HorizontalVideoList"
-                                             Visibility="Collapsed"
-                                        ItemsSource="{Binding IncrementalLoadingItems}"
-                                        SelectedItems="{Binding SelectedItems, Mode=TwoWay}"
-                                        ItemCommand="{StaticResource OpenContentCommand}"
-                                        IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
-                                        Margin="0 0 0 0"
-                                        Padding="0 0 24 0"
-                                        IsTabStop="False"
-                    >
-                <controls:IncrementalLoadingList.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Margin="0 0">
-                            <controls:HohoemaListItem DisplayType="MiniCard" />
-                        </Grid>
-                    </DataTemplate>
-                </controls:IncrementalLoadingList.ItemTemplate>
 
-                <controls:IncrementalLoadingList.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <ItemsWrapGrid Orientation="Horizontal"
-                                           Margin="0 80 0 27"
-                                           />
-                    </ItemsPanelTemplate>
-                </controls:IncrementalLoadingList.ItemsPanel>
-            </controls:IncrementalLoadingList>
-        </Grid>
-
-        <toolkit:DockPanel >
-
-
-            <Border toolkit:DockPanel.Dock="Top" 
-                    x:Name="HeaderLayout"
-                    Background="{StaticResource TvHeaderBackgroundBrush}" 
-                    >
+        <controls:ListingWithHeader ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
+                                    SelectedItems="{Binding SelectedItems}"
+                                    RefreshCommand="{Binding RefreshCommand}"
+                                    ItemCommand="{StaticResource OpenContentCommand}"
+                                    IsTVModeEnabled="{Binding IsForceTVModeEnable.Value}"
+                                    IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
+                                    NowLoading="{Binding NowLoading.Value}"
+                                    >
+            <controls:ListingWithHeader.HeaderContent>
                 <toolkit:DockPanel >
 
                     <StackPanel toolkit:DockPanel.Dock="Right" 
@@ -115,7 +77,7 @@
                                     Orientation="Horizontal"
                                     >
 
-                            
+
 
                         </StackPanel>
 
@@ -155,16 +117,22 @@
 
                     </Border>
                 </toolkit:DockPanel>
-            </Border>
+            </controls:ListingWithHeader.HeaderContent>
 
 
+            <controls:ListingWithHeader.ListItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <controls:HohoemaListItem />
+                    </Grid>
+                </DataTemplate>
+            </controls:ListingWithHeader.ListItemTemplate>
 
-
-
-            <Border />
-
-
-
-        </toolkit:DockPanel>
+            <controls:ListingWithHeader.GridItemTemplate>
+                <DataTemplate>
+                    <controls:HohoemaListItem DisplayType="MiniCard" />
+                </DataTemplate>
+            </controls:ListingWithHeader.GridItemTemplate>
+        </controls:ListingWithHeader>
     </Grid>
 </Page>

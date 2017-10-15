@@ -104,7 +104,32 @@ namespace NicoPlayerHohoema.Views.Controls
         }
 
 
+        public static readonly DependencyProperty HeaderProperty =
+           DependencyProperty.Register(nameof(Header)
+                   , typeof(object)
+                   , typeof(IncrementalLoadingList)
+                   , new PropertyMetadata(default(object))
+               );
 
+        public object Header
+        {
+            get { return (object)GetValue(HeaderProperty); }
+            set { SetValue(HeaderProperty, value); }
+        }
+
+
+        public static readonly DependencyProperty HeaderTemplateProperty =
+           DependencyProperty.Register(nameof(HeaderTemplate)
+                   , typeof(DataTemplate)
+                   , typeof(IncrementalLoadingList)
+                   , new PropertyMetadata(default(object))
+               );
+
+        public DataTemplate HeaderTemplate
+        {
+            get { return (DataTemplate)GetValue(HeaderTemplateProperty); }
+            set { SetValue(HeaderTemplateProperty, value); }
+        }
 
 
         public static readonly DependencyProperty ItemTemplateProperty =
