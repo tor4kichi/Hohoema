@@ -7,7 +7,7 @@ using System.Windows.Input;
 using NicoPlayerHohoema.Models;
 using Prism.Mvvm;
 using Prism.Commands;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using Reactive.Bindings;
 using System.Collections.ObjectModel;
 using Prism.Windows.Navigation;

@@ -5,7 +5,7 @@ using Mntone.Nico2.Videos.Dmc;
 using Mntone.Nico2.Videos.Thumbnail;
 using Mntone.Nico2.Videos.WatchAPI;
 using NicoPlayerHohoema.Models.Db;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
@@ -39,7 +39,7 @@ namespace NicoPlayerHohoema.Models
 
 	public class NicoVideo : BindableBase
 	{
-		private NicoVideoQuality _VisitedPageType = NicoVideoQuality.Low;
+		private NicoVideoQuality _VisitedPageType = NicoVideoQuality.Smile_Low;
 
         AsyncLock _InitializeLock = new AsyncLock();
 		bool _IsInitialized = false;
@@ -147,9 +147,9 @@ namespace NicoPlayerHohoema.Models
                 {
                     divided = cachedQuality;
                 }
-                else if (quality == NicoVideoQuality.Original)
+                else if (quality == NicoVideoQuality.Smile_Original)
                 {
-                    divided = GetDividedQualityNicoVideo(NicoVideoQuality.Low);
+                    divided = GetDividedQualityNicoVideo(NicoVideoQuality.Smile_Low);
                 }
                 else
                 {
@@ -169,10 +169,10 @@ namespace NicoPlayerHohoema.Models
 
                     if (divided == null || !divided.CanPlay)
                     {
-                        divided = GetDividedQualityNicoVideo(NicoVideoQuality.Original);
+                        divided = GetDividedQualityNicoVideo(NicoVideoQuality.Smile_Original);
                         if (!divided.CanPlay)
                         {
-                            divided = GetDividedQualityNicoVideo(NicoVideoQuality.Low);
+                            divided = GetDividedQualityNicoVideo(NicoVideoQuality.Smile_Low);
                         }
                     }
                 }
@@ -219,12 +219,12 @@ namespace NicoPlayerHohoema.Models
             }
             else if (ProtocolType == MediaProtocolType.RTSPoverHTTP)
             {
-                if (Util.InternetConnection.IsInternet())
+                if (Helpers.InternetConnection.IsInternet())
                 {
                     var videoUrl = await divided.GenerateVideoContentUrl();
                     if (videoUrl == null)
                     {
-                        divided = GetDividedQualityNicoVideo(NicoVideoQuality.Low);
+                        divided = GetDividedQualityNicoVideo(NicoVideoQuality.Smile_Low);
                         videoUrl = await divided.GenerateVideoContentUrl();
                     }
 
@@ -396,10 +396,10 @@ namespace NicoPlayerHohoema.Models
             {
                 switch (quality)
                 {
-                    case NicoVideoQuality.Original:
+                    case NicoVideoQuality.Smile_Original:
                         qualityDividedVideo = new OriginalQualityNicoVideo(this, _NiconicoMediaManager);
                         break;
-                    case NicoVideoQuality.Low:
+                    case NicoVideoQuality.Smile_Low:
                         qualityDividedVideo = new LowQualityNicoVideo(this, _NiconicoMediaManager);
                         break;
                     case NicoVideoQuality.Dmc_High:
@@ -432,8 +432,8 @@ namespace NicoPlayerHohoema.Models
             yield return GetDividedQualityNicoVideo(NicoVideoQuality.Dmc_Midium);
             yield return GetDividedQualityNicoVideo(NicoVideoQuality.Dmc_Low);
             yield return GetDividedQualityNicoVideo(NicoVideoQuality.Dmc_Mobile);
-            yield return GetDividedQualityNicoVideo(NicoVideoQuality.Original);
-            yield return GetDividedQualityNicoVideo(NicoVideoQuality.Low);
+            yield return GetDividedQualityNicoVideo(NicoVideoQuality.Smile_Original);
+            yield return GetDividedQualityNicoVideo(NicoVideoQuality.Smile_Low);
         }
 
 
@@ -652,7 +652,7 @@ namespace NicoPlayerHohoema.Models
                 NowLowQualityOnly = watchApiRes.VideoUrl.AbsoluteUri.EndsWith("low");
             }
 
-            _VisitedPageType = watchApiRes.VideoUrl.AbsoluteUri.EndsWith("low") ? NicoVideoQuality.Low : NicoVideoQuality.Original;
+            _VisitedPageType = watchApiRes.VideoUrl.AbsoluteUri.EndsWith("low") ? NicoVideoQuality.Smile_Low : NicoVideoQuality.Smile_Original;
 
             if (watchApiRes != null)
             {
@@ -709,7 +709,7 @@ namespace NicoPlayerHohoema.Models
 		{
             try
             {
-                if (quality == NicoVideoQuality.Low)
+                if (quality == NicoVideoQuality.Smile_Low)
                 {
                     await GetWatchApiResponse(true);
                 }
@@ -721,7 +721,7 @@ namespace NicoPlayerHohoema.Models
             catch
             {
                 await Task.Delay(TimeSpan.FromSeconds(1));
-                await GetWatchApiResponse(quality == NicoVideoQuality.Low);
+                await GetWatchApiResponse(quality == NicoVideoQuality.Smile_Low);
             }
         }
 
@@ -1121,7 +1121,7 @@ namespace NicoPlayerHohoema.Models
 			get
 			{
 				return _OriginalQuality ??
-					(_OriginalQuality = GetDividedQualityNicoVideo(NicoVideoQuality.Original));
+					(_OriginalQuality = GetDividedQualityNicoVideo(NicoVideoQuality.Smile_Original));
 			}
 		}
 
@@ -1132,7 +1132,7 @@ namespace NicoPlayerHohoema.Models
 			get
 			{
 				return _LowQuality ??
-					(_LowQuality = GetDividedQualityNicoVideo(NicoVideoQuality.Low));
+					(_LowQuality = GetDividedQualityNicoVideo(NicoVideoQuality.Smile_Low));
 			}
 		}
 

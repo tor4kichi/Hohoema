@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Views.Service;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using System.Windows.Input;
 using Mntone.Nico2.Searches.Community;
 using Mntone.Nico2;
@@ -67,7 +67,7 @@ namespace NicoPlayerHohoema.ViewModels
             Models.Db.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
 
             var target = "コミュニティ";
-			var optionText = Util.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
+			var optionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
 			var mode = SearchOption.Mode == CommunitySearchMode.Keyword ? "キーワード" : "タグ";
 			UpdateTitle($"{SearchOption.Keyword} - {target}/{optionText}({mode})");
 

@@ -1,0 +1,79 @@
+﻿<UserControl
+    x:Class="NicoPlayerHohoema.Views.CommentsSidePaneContent"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+
+    <Grid>
+        <ListView ItemsSource="{Binding Comments}">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalAlignment" Value="Stretch" />
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+
+                    <toolkit:DockPanel HorizontalAlignment="Stretch" Background="Transparent" IsHitTestVisible="True">
+
+                        <FlyoutBase.AttachedFlyout>
+                            <Flyout>
+                                <StackPanel>
+                                    <TextBlock Foreground="DarkGray">
+                                        <Run Text="「" />
+                                        <Run Text="{Binding CommentText}" />
+                                        <Run Text="」" />
+                                    </TextBlock>
+
+                                    <ListView HorizontalAlignment="Center">
+                                        <Button Content="ユーザーをNGに追加" Command="{Binding AddNgUserCommand}" />
+                                    </ListView>
+                                </StackPanel>
+                            </Flyout>
+                        </FlyoutBase.AttachedFlyout>
+
+                        <i:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="RightTapped">
+                                <mybehavior:OpenFlyout />
+                            </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
+                        
+                        
+                        <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
+                            <TextBlock Text="{Binding VideoPosition, Converter={StaticResource VPosToTime}}"
+                                       FontSize="11"
+                                       Foreground="DarkGray"
+                                       Width="150"
+                                       toolkit:DockPanel.Dock="Left"
+                                       />
+
+                            <TextBlock Text="command" 
+                                       FontSize="11"
+                                       Foreground="DarkGray"
+                                       toolkit:DockPanel.Dock="Right"
+                                       />
+
+                            <Border />
+
+                        </toolkit:DockPanel>
+                        
+                        <TextBlock Text="{Binding CommentText}"
+                                   TextWrapping="Wrap"
+                                   />
+                    </toolkit:DockPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+
+        </ListView>
+    </Grid>
+</UserControl>

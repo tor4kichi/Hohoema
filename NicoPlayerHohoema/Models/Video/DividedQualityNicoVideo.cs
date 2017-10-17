@@ -1,5 +1,5 @@
 ﻿using Mntone.Nico2.Videos.Dmc;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
@@ -421,7 +421,7 @@ namespace NicoPlayerHohoema.Models
     public class LowQualityNicoVideo : DividedQualityNicoVideo
 	{
 		public LowQualityNicoVideo(NicoVideo nicoVideo, NiconicoMediaManager context) 
-			: base(NicoVideoQuality.Low, nicoVideo, context)
+			: base(NicoVideoQuality.Smile_Low, nicoVideo, context)
 		{
 		}
 
@@ -443,7 +443,7 @@ namespace NicoPlayerHohoema.Models
 			get
 			{
 				// インターネット繋がってるか
-				if (!Util.InternetConnection.IsInternet()) { return false; }
+				if (!Helpers.InternetConnection.IsInternet()) { return false; }
 
 				// キャッシュ済みじゃないか
 				if (CacheState == NicoVideoCacheState.Cached) { return false; }
@@ -481,7 +481,7 @@ namespace NicoPlayerHohoema.Models
     public class OriginalQualityNicoVideo : DividedQualityNicoVideo
     {
         public OriginalQualityNicoVideo(NicoVideo nicoVideo, NiconicoMediaManager context)
-            : base(NicoVideoQuality.Original, nicoVideo, context)
+            : base(NicoVideoQuality.Smile_Original, nicoVideo, context)
         {
         }
 
@@ -498,7 +498,7 @@ namespace NicoPlayerHohoema.Models
             get
             {
                 // インターネット繋がってるか
-                if (!Util.InternetConnection.IsInternet()) { return false; }
+                if (!Helpers.InternetConnection.IsInternet()) { return false; }
 
                 // キャッシュ済みじゃないか
                 if (CacheState == NicoVideoCacheState.Cached) { return false; }
@@ -651,7 +651,7 @@ namespace NicoPlayerHohoema.Models
             get
             {
                 // インターネット繋がってるか
-                if (!Util.InternetConnection.IsInternet()) { return false; }
+                if (!Helpers.InternetConnection.IsInternet()) { return false; }
 
                 // キャッシュ済みじゃないか
                 if (CacheState == NicoVideoCacheState.Cached) { return false; }

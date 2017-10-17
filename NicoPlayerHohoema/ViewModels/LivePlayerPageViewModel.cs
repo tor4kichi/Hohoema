@@ -8,7 +8,7 @@ using Prism.Windows.Navigation;
 using FFmpegInterop;
 using Windows.Media.Core;
 using System.Threading;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using System.Diagnostics;
 using Windows.Foundation.Collections;
 using NicoVideoRtmpClient;
@@ -121,7 +121,7 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _LiveElapsedTime, value); }
 		}
 
-		Util.AsyncLock _LiveElapsedTimeUpdateTimerLock = new Util.AsyncLock();
+		Helpers.AsyncLock _LiveElapsedTimeUpdateTimerLock = new Helpers.AsyncLock();
 		Timer _LiveElapsedTimeUpdateTimer;
 
 
@@ -397,7 +397,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             IsDisplayControlUI = HohoemaApp.Playlist.ToReactivePropertyAsSynchronized(x => x.IsDisplayPlayerControlUI, PlayerWindowUIDispatcherScheduler);
 
-            if (Util.InputCapabilityHelper.IsMouseCapable && !IsForceTVModeEnable.Value)
+            if (Helpers.InputCapabilityHelper.IsMouseCapable && !IsForceTVModeEnable.Value)
             {
                 IsAutoHideEnable = Observable.CombineLatest(
                     NowPlaying,
@@ -1010,7 +1010,7 @@ namespace NicoPlayerHohoema.ViewModels
                         
                     }
 
-                    if (!Util.InputCapabilityHelper.IsMouseCapable)
+                    if (!Helpers.InputCapabilityHelper.IsMouseCapable)
                     {
                         IsDisplayControlUI.Value = false;
                     }

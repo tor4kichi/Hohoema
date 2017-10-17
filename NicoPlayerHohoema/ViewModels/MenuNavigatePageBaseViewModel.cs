@@ -43,7 +43,7 @@ namespace NicoPlayerHohoema.ViewModels
 			HohoemaApp = hohoemaApp;
 
             // TV Mode
-            if (Util.DeviceTypeHelper.IsXbox)
+            if (Helpers.DeviceTypeHelper.IsXbox)
             {
                 IsTVModeEnable = new ReactiveProperty<bool>(true);
             }
@@ -75,7 +75,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 new PageTypeSelectableItem(HohoemaPageType.FollowManage       , OnMenuItemSelected, "フォロー", Symbol.OutlineStar),
                 new PageTypeSelectableItem(HohoemaPageType.FeedGroupManage    , OnMenuItemSelected, "フィード", Symbol.List),
-                new PageTypeSelectableItem(HohoemaPageType.History            , OnMenuItemSelected, "視聴履歴", Symbol.Clock),
+                new PageTypeSelectableItem(HohoemaPageType.WatchHistory            , OnMenuItemSelected, "視聴履歴", Symbol.Clock),
                 new PageTypeSelectableItem(HohoemaPageType.CacheManagement    , OnMenuItemSelected, "キャッシュ", Symbol.Download),
                 new PageTypeSelectableItem(HohoemaPageType.Settings           , OnMenuItemSelected, "設定", Symbol.Setting),
                 new PageTypeSelectableItem(HohoemaPageType.UserInfo           , OnAccountMenuItemSelected, "アカウント", Symbol.Account),

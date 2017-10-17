@@ -1,7 +1,7 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Live.PlayerStatus;
 using Mntone.Nico2.Videos.Comment;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

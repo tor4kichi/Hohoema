@@ -35,7 +35,7 @@ using Windows.Media;
 using NicoPlayerHohoema.Models.Db;
 using Windows.Storage;
 using System.Text;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using Windows.ApplicationModel.Resources;
 using Windows.ApplicationModel.DataTransfer;
 using Mntone.Nico2;
@@ -293,7 +293,7 @@ namespace NicoPlayerHohoema
 
         protected override void OnLaunched(LaunchActivatedEventArgs args)
         {
-            if (Util.DeviceTypeHelper.IsXbox)
+            if (Helpers.DeviceTypeHelper.IsXbox)
             {
                 Windows.UI.ViewManagement.ApplicationView.GetForCurrentView().SetDesiredBoundsMode
                     (Windows.UI.ViewManagement.ApplicationViewBoundsMode.UseCoreWindow);
@@ -350,7 +350,7 @@ namespace NicoPlayerHohoema
                     }
                     else
                     {
-                        var nicoContentId = Util.NicoVideoExtention.UrlToVideoId(arguments);
+                        var nicoContentId = Helpers.NicoVideoExtention.UrlToVideoId(arguments);
 
                         if (Mntone.Nico2.NiconicoRegex.IsVideoId(nicoContentId))
                         {
@@ -649,7 +649,7 @@ namespace NicoPlayerHohoema
 			// ViewModels
 			Container.RegisterType<ViewModels.MenuNavigatePageBaseViewModel>(new ContainerControlledLifetimeManager());
             Container.RegisterType<ViewModels.RankingCategoryListPageViewModel>(new ContainerControlledLifetimeManager());
-            Container.RegisterType<ViewModels.HistoryPageViewModel>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<ViewModels.WatchHistoryPageViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.UserVideoPageViewModel>(new ContainerControlledLifetimeManager());
             Container.RegisterType<ViewModels.MylistPageViewModel>(new ContainerControlledLifetimeManager());
             /*
@@ -670,8 +670,8 @@ namespace NicoPlayerHohoema
 			Container.RegisterInstance(new Views.Service.ContentSelectDialogDefaultSet());
 
 
-            Resources.Add("IsXbox", Util.DeviceTypeHelper.IsXbox);
-            Resources.Add("IsMobile", Util.DeviceTypeHelper.IsMobile);
+            Resources.Add("IsXbox", Helpers.DeviceTypeHelper.IsXbox);
+            Resources.Add("IsMobile", Helpers.DeviceTypeHelper.IsMobile);
 
             Resources.Add("IsCacheEnabled", hohoemaApp.UserSettings.CacheSettings.IsEnableCache);
 
@@ -717,7 +717,7 @@ namespace NicoPlayerHohoema
             var hohoemaApp = Container.Resolve<HohoemaApp>();
             var isForceTVModeEnable = hohoemaApp?.UserSettings?.AppearanceSettings.IsForceTVModeEnable ?? false;
 
-            if (isForceTVModeEnable || Util.DeviceTypeHelper.IsXbox)
+            if (isForceTVModeEnable || Helpers.DeviceTypeHelper.IsXbox)
             {
                 // pageTokenに対応するXbox表示用のページの型を取得
                 try

@@ -16,7 +16,7 @@ using Windows.Foundation;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Prism.Mvvm;
 using Windows.UI.Core;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 
 namespace NicoPlayerHohoema.Models
 {

@@ -239,7 +239,7 @@
                             <SolidColorBrush Color="{ThemeResource SystemAltMediumHighColor}" />
                         </toolkit:DockPanel.Background>
 
-                        <TextBlock Text="{Binding ServiceLevel.Value, Converter={StaticResource HohoemaSerivceStatusToText}}" 
+                        <TextBlock Text="{Binding ServiceLevel.Value, Converter={StaticResource ToLocalText}}" 
                                                    x:Name="ServiceStateText_Mobile"
                                                    Visibility="Collapsed"
                                    FontSize="13"
@@ -345,7 +345,7 @@
                                         TabIndex="15"
                                         >
                                     <StackPanel>
-                                        <TextBlock Text="{Binding ServiceLevel.Value, Converter={StaticResource HohoemaSerivceStatusToText}}" 
+                                        <TextBlock Text="{Binding ServiceLevel.Value, Converter={StaticResource ToLocalText}}" 
                                                    x:Name="ServiceStateText"
                                                    Visibility="Collapsed"
                                                />

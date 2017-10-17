@@ -2,7 +2,7 @@
 using Mntone.Nico2.Live;
 using Mntone.Nico2.Live.PlayerStatus;
 using Mntone.Nico2.Videos.Comment;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using NicoVideoRtmpClient;
 using Prism.Mvvm;
 using System;
@@ -347,7 +347,7 @@ namespace NicoPlayerHohoema.Models.Live
 				await StartCommentClientConnection();
 
                 // Display表示の維持リクエスト
-                Util.DisplayRequestHelper.RequestKeepDisplay();
+                Helpers.DisplayRequestHelper.RequestKeepDisplay();
 			}
 		}
 
@@ -361,7 +361,7 @@ namespace NicoPlayerHohoema.Models.Live
 			using (var releaser = await _LiveSubscribeLock.LockAsync())
 			{
                 // Display表示の維持リクエストを停止
-                Util.DisplayRequestHelper.StopKeepDisplay();
+                Helpers.DisplayRequestHelper.StopKeepDisplay();
 
                 // 放送接続の確実化処理を終了
                 await ExitEnsureOpenRtmpConnection();

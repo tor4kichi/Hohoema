@@ -15,7 +15,7 @@ using Mntone.Nico2.Videos.Ranking;
 using Mntone.Nico2.Videos.Thumbnail;
 using Mntone.Nico2.Videos.WatchAPI;
 using NicoPlayerHohoema.Models.Db;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
@@ -74,7 +74,7 @@ namespace NicoPlayerHohoema.Models
             {
                 ThumbnailResponse res = null;
 
-                res = await Util.ConnectionRetryUtil.TaskWithRetry(() =>
+                res = await Helpers.ConnectionRetryUtil.TaskWithRetry(() =>
                 {
                     return _HohoemaApp.NiconicoContext.Video.GetThumbnailAsync(rawVideoId);
                 }, 
@@ -114,7 +114,7 @@ namespace NicoPlayerHohoema.Models
 
 			using (var releaser = await _NicoPageAccessLock.LockAsync())
 			{
-				var data = await Util.ConnectionRetryUtil.TaskWithRetry(() =>
+				var data = await Helpers.ConnectionRetryUtil.TaskWithRetry(() =>
 				{
 					return _HohoemaApp.NiconicoContext.Video.GetDmcWatchResponseAsync(
 						rawVideoId
@@ -162,7 +162,7 @@ namespace NicoPlayerHohoema.Models
 
             using (var releaser = await _NicoPageAccessLock.LockAsync())
             {
-                var res = await Util.ConnectionRetryUtil.TaskWithRetry(() =>
+                var res = await Helpers.ConnectionRetryUtil.TaskWithRetry(() =>
                 {
                     return _HohoemaApp.NiconicoContext.Video.GetWatchApiAsync(
                         rawVideoId

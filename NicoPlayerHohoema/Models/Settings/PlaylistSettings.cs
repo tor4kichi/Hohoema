@@ -44,7 +44,7 @@ namespace NicoPlayerHohoema.Models
 
     public enum PlaylistEndAction
     {
-        None,
+        NothingDo,
         ChangeIntoSplit,
         CloseIfPlayWithCurrentWindow,
     }

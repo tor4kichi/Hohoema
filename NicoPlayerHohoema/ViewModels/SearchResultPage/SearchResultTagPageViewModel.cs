@@ -1,6 +1,6 @@
 ﻿using Mntone.Nico2;
 using NicoPlayerHohoema.Models;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using NicoPlayerHohoema.Views.Service;
 using Prism.Commands;
 using Prism.Windows.Navigation;
@@ -306,7 +306,7 @@ namespace NicoPlayerHohoema.ViewModels
             Models.Db.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
 
             var target = "タグ";
-			var optionText = Util.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
+			var optionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
             UpdateTitle($"\"{SearchOption.Keyword}\"");
             SearchOptionText = $"{target} - {optionText}";
 

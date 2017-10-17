@@ -6,7 +6,7 @@ using Mntone.Nico2.Videos.Ranking;
 using Mntone.Nico2.Videos.Thumbnail;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Db;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using Prism.Commands;
 using Prism.Mvvm;
 using Reactive.Bindings;
@@ -235,7 +235,7 @@ namespace NicoPlayerHohoema.ViewModels
         public VideoStatus VideoStatus { get; private set; }
 
 
-        public bool IsXbox => Util.DeviceTypeHelper.IsXbox;
+        public bool IsXbox => Helpers.DeviceTypeHelper.IsXbox;
         
         public IEnumerable<VideoInfoPlaylistViewModel> Playlists => 
             HohoemaPlaylist.Playlists.Select(x => new VideoInfoPlaylistViewModel(x.Name, x.Id, NicoVideo));
@@ -247,7 +247,7 @@ namespace NicoPlayerHohoema.ViewModels
         public string PrivateReasonText { get; private set; }
 
 
-        private static Util.AsyncLock _QualityDividedVideosLock = new Util.AsyncLock();
+        private static Helpers.AsyncLock _QualityDividedVideosLock = new Helpers.AsyncLock();
         public ObservableCollection<QualityDividedNicoVideoListItemViewModel> QualityDividedVideos { get; private set; }
 
         protected CompositeDisposable _CompositeDisposable { get; private set; }

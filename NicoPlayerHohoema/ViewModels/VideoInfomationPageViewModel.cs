@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using NicoPlayerHohoema.Models;
 using Reactive.Bindings;
 using Prism.Commands;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using Windows.ApplicationModel.DataTransfer;
 using Microsoft.Practices.Unity;
 using Prism.Windows.Navigation;
@@ -367,7 +367,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                 try
                 {
-                    DescriptionHtmlFileUri = await Util.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(Video.RawVideoId, Video.DescriptionWithHtml);
+                    DescriptionHtmlFileUri = await Helpers.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(Video.RawVideoId, Video.DescriptionWithHtml);
                     RaisePropertyChanged(nameof(DescriptionHtmlFileUri));
                 }
                 catch

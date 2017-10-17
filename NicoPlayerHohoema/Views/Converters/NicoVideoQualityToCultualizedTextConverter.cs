@@ -24,9 +24,9 @@ namespace NicoPlayerHohoema.Views.Converters
 
             switch (quality)
             {
-                case NicoVideoQuality.Original:
+                case NicoVideoQuality.Smile_Original:
                     return "旧 オリジナル";
-                case NicoVideoQuality.Low:
+                case NicoVideoQuality.Smile_Low:
                     return "旧 低";
                 case NicoVideoQuality.Dmc_High:
                     return "高";

@@ -344,16 +344,46 @@
 
 
 
-                <controls:HohoemaIncrementalLoadingList MaxWidth="640" 
-                                                        IsFocusFirstItemEnable="False"  
-                                                        
+                <controls:IncrementalLoadingList MaxWidth="640" 
+                                                 ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
+                                                SelectedItems="{Binding SelectedItems, Mode=TwoWay}"
+                                                RefreshCommand="{Binding RefreshCommand}"
+                                                ItemCommand="{Binding SelectItemCommand}"
+                                                IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
                                                         >
-                    <controls:HohoemaIncrementalLoadingList.ItemTemplate>
+                    <controls:IncrementalLoadingList.ItemTemplate>
                         <DataTemplate>
-                            <controls:SearchHistoryListItem />
+                            <toolkit:DockPanel Margin="0"
+                                               HorizontalAlignment="Left"
+                                                >
+                                <TextBlock Text="{Binding Target, Converter={StaticResource ToLocalText}}" 
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           VerticalAlignment="Center"
+                                           Opacity="0.7"
+                                           toolkit:DockPanel.Dock="Left"
+                                           Width="80"
+                                       />
+
+                                <TextBlock Text="{Binding Keyword}"
+                                           Margin="0 0 24 0"
+                                                   HorizontalAlignment="Stretch"
+                                                   
+                                                   TextWrapping="Wrap"
+                                           VerticalAlignment="Center"
+                                           />
+
+                            </toolkit:DockPanel>
                         </DataTemplate>
-                    </controls:HohoemaIncrementalLoadingList.ItemTemplate>
-                </controls:HohoemaIncrementalLoadingList>
+                    </controls:IncrementalLoadingList.ItemTemplate>
+
+                    <controls:IncrementalLoadingList.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <ItemsStackPanel Margin="0 0 0 27" />
+                        </ItemsPanelTemplate>
+                    </controls:IncrementalLoadingList.ItemsPanel>
+                    
+                    
+                </controls:IncrementalLoadingList>
 
 
 

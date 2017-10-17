@@ -1,4 +1,4 @@
-﻿using NicoPlayerHohoema.Util;
+﻿using NicoPlayerHohoema.Helpers;
 using NicoPlayerHohoema.ViewModels;
 using Prism.Mvvm;
 using Prism.Windows.Mvvm;
@@ -306,51 +306,7 @@ namespace NicoPlayerHohoema.Models
 
 		public static string PageTypeToTitle(HohoemaPageType pageType)
 		{
-			switch (pageType)
-			{
-				case HohoemaPageType.RankingCategoryList:
-					return "ランキングカテゴリ一覧";
-				case HohoemaPageType.RankingCategory:
-					return "カテゴリランキング";
-				case HohoemaPageType.UserMylist:
-					return "マイリスト一覧";
-				case HohoemaPageType.Mylist:
-					return "マイリスト";
-				case HohoemaPageType.FollowManage:
-					return "フォロー";
-				case HohoemaPageType.History:
-					return "視聴履歴";
-				case HohoemaPageType.Search:
-					return "検索";
-				case HohoemaPageType.CacheManagement:
-					return "キャッシュ";
-				case HohoemaPageType.Settings:
-					return "設定";
-				case HohoemaPageType.VideoInfomation:
-					return "動画情報";
-				case HohoemaPageType.ConfirmWatchHurmfulVideo:
-					return "動画視聴の確認";
-				case HohoemaPageType.FeedGroupManage:
-					return "全てのフィードグループ";
-				case HohoemaPageType.FeedGroup:
-					return "フィードグループ";
-				case HohoemaPageType.FeedVideoList:
-					return "フィードの動画一覧";
-				case HohoemaPageType.UserInfo:
-					return "ユーザー情報";
-				case HohoemaPageType.UserVideo:
-					return "ユーザー投稿動画一覧";
-				case HohoemaPageType.Community:
-					return "コミュニティ情報";
-				case HohoemaPageType.CommunityVideo:
-					return "コミュニティ動画一覧";
-                case HohoemaPageType.NicoRepo:
-                    return "ニコレポ";
-				default:
-                    Debug.WriteLine("not support " + nameof(HohoemaPageType) + "." + pageType.ToString());
-                    return pageType.ToString();
-//					throw new NotSupportedException();
-			}
+            return Helpers.CulturelizeHelper.ToCulturelizeString(pageType);
 		}
 
 		public async Task StartNoUIWork(string title, Func<IAsyncAction> actionFactory)

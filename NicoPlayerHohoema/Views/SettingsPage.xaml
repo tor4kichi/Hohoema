@@ -70,9 +70,6 @@
             </toolkit:DockPanel>
         </DataTemplate>
 
-
-        <myconverters:HohoemaPageTypeToTextConverter x:Key="PageTypeToText" />
-
         <Style x:Key="SubTitleStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="20" />
             <Setter Property="Margin" Value="0 0" />
@@ -210,7 +207,7 @@
                                   >
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
-                                            <TextBlock Text="{Binding Converter={StaticResource PageTypeToText}}" />
+                                            <TextBlock Text="{Binding Converter={StaticResource ToLocalText}}" />
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>

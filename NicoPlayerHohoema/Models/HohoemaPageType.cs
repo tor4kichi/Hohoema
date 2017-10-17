@@ -8,12 +8,12 @@ namespace NicoPlayerHohoema.Models
 {
 	public enum HohoemaPageType
 	{
-		RankingCategoryList,
-		RankingCategory,
-		UserMylist,
-		Mylist,
+		RankingCategoryList = 0,
+		RankingCategory     = 1,
+		UserMylist          = 2,
+		Mylist              = 3,
 		FollowManage,
-		History,
+		WatchHistory,
 
 		Search,
 

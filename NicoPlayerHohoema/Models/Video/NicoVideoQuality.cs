@@ -9,8 +9,8 @@ namespace NicoPlayerHohoema.Models
 {
 	public enum NicoVideoQuality
 	{
-		Original,
-		Low,
+		Smile_Original,
+		Smile_Low,
 
         Dmc_High,
         Dmc_Midium,
@@ -24,7 +24,7 @@ namespace NicoPlayerHohoema.Models
 
         public static bool IsLegacy(this NicoVideoQuality quality)
         {
-            return quality == NicoVideoQuality.Low || quality == NicoVideoQuality.Original;
+            return quality == NicoVideoQuality.Smile_Low || quality == NicoVideoQuality.Smile_Original;
         }
         public static bool IsDmc(this NicoVideoQuality quality)
         {
@@ -36,10 +36,10 @@ namespace NicoPlayerHohoema.Models
             var toQualityNameExtention = filename;
             switch (quality)
             {
-                case NicoVideoQuality.Original:
+                case NicoVideoQuality.Smile_Original:
                     toQualityNameExtention = Path.ChangeExtension(filename, ".mp4");
                     break;
-                case NicoVideoQuality.Low:
+                case NicoVideoQuality.Smile_Low:
                     toQualityNameExtention = Path.ChangeExtension(filename, ".low.mp4");
                     break;
                 case NicoVideoQuality.Dmc_Low:
@@ -65,7 +65,7 @@ namespace NicoPlayerHohoema.Models
 
             if (ext.EndsWith(".low.mp4"))
             {
-                return NicoVideoQuality.Low;
+                return NicoVideoQuality.Smile_Low;
             } 
             else if (ext.EndsWith(".xlow.mp4"))
             {
@@ -81,7 +81,7 @@ namespace NicoPlayerHohoema.Models
             }
             else if (ext.EndsWith(".mp4"))
             {
-                return NicoVideoQuality.Original;
+                return NicoVideoQuality.Smile_Original;
             }
             else
             {

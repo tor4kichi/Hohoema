@@ -11,7 +11,7 @@ using Prism.Windows.Navigation;
 using Prism.Commands;
 using NicoPlayerHohoema.Models;
 using System.Reactive.Linq;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using Reactive.Bindings.Extensions;
 using Windows.UI.Xaml.Navigation;
 using Prism.Mvvm;

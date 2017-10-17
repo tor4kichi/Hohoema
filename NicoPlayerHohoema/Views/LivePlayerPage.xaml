@@ -11,7 +11,6 @@
     xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:sidepanecontent="using:NicoPlayerHohoema.Views.PlayerSidePaneContent"
-    xmlns:comment="using:NicoPlayerHohoema.Views.CommentRenderer"
     xmlns:logicalTrigger="using:AdaptiveTriggerLibrary.Triggers.LogicalTriggers"
     xmlns:intractionTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInteractionTriggers"
     xmlns:uiTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInterfaceTriggers"
@@ -107,19 +106,19 @@
             
             <local:PlayerSidePaneContentTemplateSelecter.Playlist>
                 <DataTemplate>
-                    <sidepanecontent:PlaylistSidePaneContent />
+                    <local:PlaylistSidePaneContent />
                 </DataTemplate>
             </local:PlayerSidePaneContentTemplateSelecter.Playlist>
 
             <local:PlayerSidePaneContentTemplateSelecter.Comments>
                 <DataTemplate>
-                    <sidepanecontent:CommentsSidePaneContent />
+                    <local:CommentsSidePaneContent />
                 </DataTemplate>
             </local:PlayerSidePaneContentTemplateSelecter.Comments>
 
             <local:PlayerSidePaneContentTemplateSelecter.Settings>
                 <DataTemplate>
-                    <sidepanecontent:LiveSettingsSidePaneContent />
+                    <local:LiveSettingsSidePaneContent />
                 </DataTemplate>
             </local:PlayerSidePaneContentTemplateSelecter.Settings>
         </local:PlayerSidePaneContentTemplateSelecter>
@@ -595,7 +594,7 @@
 
                     <Grid Height="{Binding CommentCanvasHeight.Value}">
 
-                        <comment:CommentRendererEx
+                        <local:CommentRendererEx
                                     x:Name="CommentRederer"
                                     Comments="{Binding LiveComments}"
                                     MediaPlayer="{Binding MediaPlayer, Mode=OneWay}"                                 
@@ -851,7 +850,7 @@
                                                    Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                    x:Name="LeoLiveQualityTextBlock"
                                                    >
-                                            (<Run Text="{Binding CurrentQuality.Value, Converter={StaticResource Live2QualityTypeToText}}" />)
+                                            (<Run Text="{Binding CurrentQuality.Value, Converter={StaticResource ToLocalText}}" />)
                                                 </TextBlock>
 
                                                 <TextBlock Visibility="{Binding IsLowLatency.Value, Converter={StaticResource BooleanToVisibility}}"

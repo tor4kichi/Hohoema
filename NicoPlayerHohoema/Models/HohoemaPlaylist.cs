@@ -1,6 +1,6 @@
 ﻿using Mntone.Nico2;
 using NicoPlayerHohoema.Interfaces;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using Prism.Mvvm;
 using Reactive.Bindings.Extensions;
 using System;
@@ -311,7 +311,7 @@ namespace NicoPlayerHohoema.Models
             await HohoemaApp.RoamingDataRemoved(oldFile);
 
             // ファイル名を変更して保存
-            var newFileName = Util.FilePathHelper.ToSafeFilePath(Path.ChangeExtension(newName, ".json"));
+            var newFileName = Helpers.FilePathHelper.ToSafeFilePath(Path.ChangeExtension(newName, ".json"));
             await fileAccessor.Rename(newFileName, forceReplace:true);
             playlist.Name = newName;
             

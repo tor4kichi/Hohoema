@@ -17,7 +17,7 @@ using System.Threading;
 using System.Reactive.Disposables;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Reactive.Concurrency;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using Windows.UI.Xaml.Navigation;
 using Prism.Commands;
 using Windows.Networking.BackgroundTransfer;
@@ -304,8 +304,8 @@ namespace NicoPlayerHohoema.ViewModels
 
             foreach (var item in mediaManager.CacheVideos.ToArray())
             {
-                if (item.GetDividedQualityNicoVideo(NicoVideoQuality.Low).IsCacheRequested 
-                    || item.GetDividedQualityNicoVideo(NicoVideoQuality.Original).IsCacheRequested)
+                if (item.GetDividedQualityNicoVideo(NicoVideoQuality.Smile_Low).IsCacheRequested 
+                    || item.GetDividedQualityNicoVideo(NicoVideoQuality.Smile_Original).IsCacheRequested)
                 {
                     list.Add(item);
                 }

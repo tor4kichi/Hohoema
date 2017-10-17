@@ -21,7 +21,7 @@ using System.Windows.Input;
 using System.Text.RegularExpressions;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using Windows.ApplicationModel.Store;
 using Windows.Storage;
 using System.Diagnostics;
@@ -324,7 +324,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             IsTVModeEnable = HohoemaApp.UserSettings.AppearanceSettings
                 .ToReactivePropertyAsSynchronized(x => x.IsForceTVModeEnable);
-            IsXbox = Util.DeviceTypeHelper.IsXbox;
+            IsXbox = Helpers.DeviceTypeHelper.IsXbox;
 
 
 

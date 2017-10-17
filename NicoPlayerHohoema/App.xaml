@@ -46,8 +46,15 @@
             
             <conv:ColorToBrushConverter x:Key="ColorToBrush" />
             <myconv:TimeSpanToMovieLengthStringValueConverter x:Key="TimeToMovieLengthConverter" />
-            <myconv:BooleanInvertedConverter x:Key="BooleanInverted" />
-
+            
+            <uwpconv:BoolToObjectConverter x:Key="BooleanInverted" >
+                <uwpconv:BoolToObjectConverter.TrueValue>
+                    <x:Boolean>False</x:Boolean>
+                </uwpconv:BoolToObjectConverter.TrueValue>
+                <uwpconv:BoolToObjectConverter.FalseValue>
+                    <x:Boolean>True</x:Boolean>
+                </uwpconv:BoolToObjectConverter.FalseValue>
+            </uwpconv:BoolToObjectConverter>
 
             <myconv:SoundVolumeConveter x:Key="ToUserFriendlySoubleVolume" />
 
@@ -56,16 +63,8 @@
             <myconv:VideoPositionToTimeConverter x:Key="VPosToTime" />
             <myconv:ToUserFriendlyNumber x:Key="ToUserFriendlyNumber" />
             <myconv:RelationalDateTimeConverter x:Key="ToRelationalTime" />
-            <myconv:NicoVideoQualityToCultualizedTextConverter x:Key="QualityToText" />
 
             <myconv:TransparentColorConverter x:Key="ToTransparentColor" />
-
-            <myconv:ServiceStatusToTextConverter x:Key="HohoemaSerivceStatusToText" />
-
-            <myconv:PlayerEndActionToTextConverter x:Key="PlayerEndActionToTextConverter" />
-            <myconv:Live2QualityTypeToText x:Key="Live2QualityTypeToText" />
-
-            <myconv:RankingCategoryToText x:Key="RankingCategoryToText" />
 
             <myconv:NGCommentScoreTypeTemplateSelector x:Key="NGCommentScoreTypeTemplateSelector">
                 <myconv:NGCommentScoreTypeTemplateSelector.NoneTemplate>
@@ -113,9 +112,6 @@
             </myconv:NGCommentScoreTypeTemplateSelector>
 
 
-
-
-            <myconv:CommentOpacityKindConverter x:Key="CommentOpacityKindToText" />
 
             <uwpconv:BoolToObjectConverter x:Name="BoolToAvairableOpacityConverter">
                 <uwpconv:BoolToObjectConverter.TrueValue>
