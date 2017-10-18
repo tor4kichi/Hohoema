@@ -1,5 +1,5 @@
 ﻿using NicoPlayerHohoema.Models.Live;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using Prism.Commands;
 using Reactive.Bindings;
 using System;
@@ -13,15 +13,15 @@ namespace NicoPlayerHohoema.ViewModels.LiveVideoInfoContent
 	public class ShereLiveInfoContentViewModel : LiveInfoContentViewModelBase
 	{
 		public NicoLiveVideo NicoLiveVideo { get; private set; }
-		public Views.Service.TextInputDialogService TextInputDialog { get; private set; }
+		public Services.HohoemaDialogService HohoemaDialogService { get; private set; }
 
 		public ReactiveProperty<bool> IsStillLoggedInTwitter { get; private set; }
 
 
-		public ShereLiveInfoContentViewModel(NicoLiveVideo liveVideo, Views.Service.TextInputDialogService textInputDialog)
+		public ShereLiveInfoContentViewModel(NicoLiveVideo liveVideo, Services.HohoemaDialogService dialogService)
 		{
 			NicoLiveVideo = liveVideo;
-			TextInputDialog = textInputDialog;
+			HohoemaDialogService = dialogService;
 			IsStillLoggedInTwitter = new ReactiveProperty<bool>(!TwitterHelper.IsLoggedIn);
 		}
 
@@ -48,7 +48,7 @@ namespace NicoPlayerHohoema.ViewModels.LiveVideoInfoContent
 						{
 							var text = $"{NicoLiveVideo.LiveTitle} http://nico.ms/{NicoLiveVideo.LiveId} #{NicoLiveVideo.LiveId}";
 							var twitterLoginUserName = TwitterHelper.TwitterUser.ScreenName;
-							var customText = await TextInputDialog.GetTextAsync($"{twitterLoginUserName} としてTwitterへ投稿", "", text);
+							var customText = await HohoemaDialogService.GetTextAsync($"{twitterLoginUserName} としてTwitterへ投稿", "", text);
 
 							if (customText != null)
 							{

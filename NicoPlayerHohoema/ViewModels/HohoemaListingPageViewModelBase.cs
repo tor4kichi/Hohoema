@@ -1,5 +1,5 @@
 ﻿using NicoPlayerHohoema.Models;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using Prism.Commands;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;

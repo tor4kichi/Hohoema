@@ -1,6 +1,6 @@
 ﻿using Mntone.Nico2.Mylist;
 using NicoPlayerHohoema.Models;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -65,7 +65,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
             var target = "マイリスト";
-			var optionText = Util.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
+			var optionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
 			UpdateTitle($"{SearchOption.Keyword} - {target}/{optionText}");
 
 			base.OnNavigatedTo(e, viewModelState);

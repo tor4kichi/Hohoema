@@ -91,11 +91,11 @@
                 <uwpcontrol:MasterDetailsView.ItemTemplate>
                     <DataTemplate>
                         <Grid>
-                            <TextBlock Text="{Binding Category, Converter={StaticResource RankingCategoryToText}}"
+                            <TextBlock Text="{Binding Category, Converter={StaticResource ToLocalText}}"
                                    Visibility="{Binding IsFavorit, Converter={StaticResource BooleanToVisibility}}"
                                        FontWeight="ExtraBold"
                                    />
-                            <TextBlock Text="{Binding Category, Converter={StaticResource RankingCategoryToText}}"
+                            <TextBlock Text="{Binding Category, Converter={StaticResource ToLocalText}}"
                                    Visibility="{Binding IsFavorit, Converter={StaticResource BooleanToVisibilityInverted}}"
                                        Opacity="0.9"
                                    />
@@ -160,7 +160,7 @@
                                                             VerticalAlignment="Center"
                                                             Style="{StaticResource SubtitleTextBlockStyle}"
                                                             >
-                                                『<Run Text="{Binding SelectedRankingCategory.Value.Category, Converter={StaticResource RankingCategoryToText}}" />』のランキング
+                                                『<Run Text="{Binding SelectedRankingCategory.Value.Category, Converter={StaticResource ToLocalText}}" />』のランキング
                                                         </TextBlock>
 
                                                         <i:Interaction.Behaviors>

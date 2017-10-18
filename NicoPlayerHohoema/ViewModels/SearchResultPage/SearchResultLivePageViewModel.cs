@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Prism.Windows.Navigation;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using Mntone.Nico2.Searches.Live;
 using Prism.Commands;
 using System.Windows.Input;
@@ -70,7 +70,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             foreach (var item in LiveSearchSortOptionListItems)
             {
-                item.Label = Util.SortHelper.ToCulturizedText(item.Sort, item.Order);
+                item.Label = Helpers.SortHelper.ToCulturizedText(item.Sort, item.Order);
             }
 
 
@@ -230,7 +230,7 @@ namespace NicoPlayerHohoema.ViewModels
             Models.Db.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
 
             var target = "生放送";
-            var optionText = Util.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
+            var optionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
             var providerText = SelectedProvider.Value.Label;
             string mode = "";
             if (SearchOption.Mode.HasValue)
@@ -394,7 +394,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public bool IsTimeshiftEnabled { get; private set; }
 		public bool IsCommunityMemberOnly { get; private set; }
 
-        public bool IsXbox => Util.DeviceTypeHelper.IsXbox;
+        public bool IsXbox => Helpers.DeviceTypeHelper.IsXbox;
 
 
         public string BroadcasterId => CommunityGlobalId;

@@ -11,7 +11,7 @@ using Prism.Windows.Navigation;
 using Prism.Commands;
 using NicoPlayerHohoema.Models;
 using System.Reactive.Linq;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using Reactive.Bindings.Extensions;
 using Windows.UI.Xaml.Navigation;
 using Prism.Mvvm;
@@ -94,7 +94,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        RankingChoiceDialogService _RankingChoiceDialogService;
+        Services.HohoemaDialogService _HohoemaDialogService;
 
 
 
@@ -197,10 +197,14 @@ namespace NicoPlayerHohoema.ViewModels
         public DelegateCommand AddDislikeRankingCategory { get; private set; }
 
 
-        public RankingCategoryListPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, RankingChoiceDialogService rankingChoiceDialog)
+        public RankingCategoryListPageViewModel(
+            HohoemaApp hohoemaApp, 
+            PageManager pageManager,
+            Services.HohoemaDialogService dialogService
+            )
 			: base(hohoemaApp, pageManager)
 		{
-            _RankingChoiceDialogService = rankingChoiceDialog;
+            _HohoemaDialogService = dialogService;
             _RankingSettings = HohoemaApp.UserSettings.RankingSettings;
 
             IsFailedRefreshRanking = new ReactiveProperty<bool>(false);
@@ -296,10 +300,11 @@ namespace NicoPlayerHohoema.ViewModels
                 }
                 items.Refresh();
                 
-                var choiceItems = await _RankingChoiceDialogService.ShowRankingCategoryChoiceDialog(
+                var choiceItems = await _HohoemaDialogService.ShowMultiChoiceDialogAsync(
                     "優先表示にするカテゴリを選択", 
                     items.Cast<CategoryWithFav>().Select(x => new RankingCategoryInfo(x.Category)), 
-                    _RankingSettings.HighPriorityCategory.ToArray()
+                    _RankingSettings.HighPriorityCategory.ToArray(),
+                    x => x.DisplayLabel
                     );
 
                 if (choiceItems == null) { return; }
@@ -331,10 +336,11 @@ namespace NicoPlayerHohoema.ViewModels
                 }
                 items.Refresh();
 
-                var choiceItems = await _RankingChoiceDialogService.ShowRankingCategoryChoiceDialog(
+                var choiceItems = await _HohoemaDialogService.ShowMultiChoiceDialogAsync(
                     "非表示にするカテゴリを選択",
                     items.Cast<CategoryWithFav>().Select(x => new RankingCategoryInfo(x.Category)),
-                    _RankingSettings.LowPriorityCategory
+                    _RankingSettings.LowPriorityCategory,
+                    x => x.DisplayLabel
                     );
 
                 if (choiceItems == null) { return; }

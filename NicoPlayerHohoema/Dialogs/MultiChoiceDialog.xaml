@@ -1,0 +1,37 @@
+﻿<ContentDialog
+    x:Class="NicoPlayerHohoema.Dialogs.MultiChoiceDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views.Service"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:mybehavior ="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:uwpextention="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    d:DesignHeight="300"
+    d:DesignWidth="400"
+    VerticalAlignment="Center"
+    PrimaryButtonText="選択"
+    SecondaryButtonText="キャンセル"
+    >
+
+    <ListView ItemsSource="{x:Bind Items}"
+              DisplayMemberPath="{x:Bind DisplayMemberPath}"
+              SelectionMode="Multiple"
+              IsMultiSelectCheckBoxEnabled="True"
+              Height="340"    
+              Margin="0 0 0 0"
+              IsFocusEngagementEnabled="True"
+              
+              >
+        <i:Interaction.Behaviors>
+            <mybehavior:ListViewSelectedItemsGetter SelectedItems="{x:Bind SelectedItems, Mode=OneWay}" />
+        </i:Interaction.Behaviors>
+    </ListView>
+    
+
+</ContentDialog>

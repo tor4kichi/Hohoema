@@ -1,5 +1,5 @@
 ﻿using NicoPlayerHohoema.Models;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,7 +42,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-		public CommunityVideoPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
+		public CommunityVideoPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
 			: base(hohoemaApp, pageManager)
 		{
 		}

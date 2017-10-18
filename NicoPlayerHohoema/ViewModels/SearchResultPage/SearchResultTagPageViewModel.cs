@@ -1,6 +1,6 @@
 ﻿using Mntone.Nico2;
 using NicoPlayerHohoema.Models;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using NicoPlayerHohoema.Views.Service;
 using Prism.Commands;
 using Prism.Windows.Navigation;
@@ -138,17 +138,17 @@ namespace NicoPlayerHohoema.ViewModels
 
 		NiconicoContentFinder _ContentFinder;
 
-        ContentSelectDialogService _ContentSelectDialogService;
+        Services.HohoemaDialogService _HohoemaDialogService;
 
         public SearchResultTagPageViewModel(
 			HohoemaApp hohoemaApp, 
 			PageManager pageManager,
-            ContentSelectDialogService contentSelectDialogService
+            Services.HohoemaDialogService dialogService
             ) 
 			: base(hohoemaApp, pageManager, useDefaultPageTitle: false)
 		{
 			_ContentFinder = HohoemaApp.ContentFinder;
-            _ContentSelectDialogService = contentSelectDialogService;
+            _HohoemaDialogService = dialogService;
 
             FailLoading = new ReactiveProperty<bool>(false)
 				.AddTo(_CompositeDisposable);
@@ -306,7 +306,7 @@ namespace NicoPlayerHohoema.ViewModels
             Models.Db.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
 
             var target = "タグ";
-			var optionText = Util.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
+			var optionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
             UpdateTitle($"\"{SearchOption.Keyword}\"");
             SearchOptionText = $"{target} - {optionText}";
 

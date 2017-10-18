@@ -1,6 +1,6 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Videos.Thumbnail;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using NicoPlayerHohoema.Views.Service;
 using Prism.Events;
 using Prism.Mvvm;
@@ -22,6 +22,7 @@ using Windows.System.Power;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Microsoft.Practices.Unity;
+using NicoPlayerHohoema.Dialogs;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -122,7 +123,7 @@ namespace NicoPlayerHohoema.Models
 
         private async void NetworkInformation_NetworkStatusChanged(object sender)
         {
-            var isInternet = Util.InternetConnection.IsInternet();
+            var isInternet = Helpers.InternetConnection.IsInternet();
             await HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => 
             {
                 if (isInternet)
@@ -169,7 +170,7 @@ namespace NicoPlayerHohoema.Models
 
             // 同期済みファイル
             var roamingFolder = ApplicationData.Current.RoamingFolder;
-            var syncInfoFileAccessor = new Util.FileAccessor<RoamingSyncInfo>(roamingFolder, "sync.json");
+            var syncInfoFileAccessor = new Helpers.FileAccessor<RoamingSyncInfo>(roamingFolder, "sync.json");
             var syncInfo = await syncInfoFileAccessor.Load();
             if (syncInfo == null)
             {
@@ -224,7 +225,7 @@ namespace NicoPlayerHohoema.Models
                 }
 
                 // ローミングから同期情報を取得、無ければ新規作成
-                var syncInfoFileAccessor = new Util.FileAccessor<RoamingSyncInfo>(roamingFolder, "sync.json");
+                var syncInfoFileAccessor = new Helpers.FileAccessor<RoamingSyncInfo>(roamingFolder, "sync.json");
                 var syncInfo = await syncInfoFileAccessor.Load();
                 if (syncInfo == null)
                 {
@@ -286,7 +287,7 @@ namespace NicoPlayerHohoema.Models
                 }
 
                 // ローミングから同期情報を取得、無ければ新規作成
-                var syncInfoFileAccessor = new Util.FileAccessor<RoamingSyncInfo>(romingFolder, "sync.json");
+                var syncInfoFileAccessor = new Helpers.FileAccessor<RoamingSyncInfo>(romingFolder, "sync.json");
                 var syncInfo = await syncInfoFileAccessor.Load();
                 if (syncInfo == null)
                 {
@@ -306,7 +307,7 @@ namespace NicoPlayerHohoema.Models
 
             using (var releaser = await _RoamingDataSyncLock.LockAsync())
             {
-                var syncInfoFileAccessor = new Util.FileAccessor<RoamingSyncInfo>(roamingFolder, "sync.json");
+                var syncInfoFileAccessor = new Helpers.FileAccessor<RoamingSyncInfo>(roamingFolder, "sync.json");
                 var syncInfo = await syncInfoFileAccessor.Load();
 
                 if (syncInfo == null)
@@ -555,7 +556,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			return AsyncInfo.Run<NiconicoSignInStatus>(async (cancelToken) => 
 			{
-                if (!Util.InternetConnection.IsInternet())
+                if (!Helpers.InternetConnection.IsInternet())
                 {
                     NiconicoContext?.Dispose();
                     NiconicoContext = new NiconicoContext();
@@ -770,7 +771,7 @@ namespace NicoPlayerHohoema.Models
 
 				try
 				{
-                    if (Util.InternetConnection.IsInternet())
+                    if (Helpers.InternetConnection.IsInternet())
                     {
                         result = await NiconicoContext.SignOutOffAsync();
                     }
@@ -804,7 +805,7 @@ namespace NicoPlayerHohoema.Models
 
         private void UpdateServiceStatus(NiconicoSignInStatus status = NiconicoSignInStatus.Failed)
         {
-            var isOnline = Util.InternetConnection.IsInternet();
+            var isOnline = Helpers.InternetConnection.IsInternet();
             if (status == NiconicoSignInStatus.Success)
             {
                 ServiceStatus = HohoemaAppServiceLevel.LoggedIn;
@@ -836,7 +837,7 @@ namespace NicoPlayerHohoema.Models
 			{
 				await _SigninLock.WaitAsync();
 
-                if (Util.InternetConnection.IsInternet() && NiconicoContext != null)
+                if (Helpers.InternetConnection.IsInternet() && NiconicoContext != null)
 				{
                     result = await ConnectionRetryUtil.TaskWithRetry(
 						() => NiconicoContext.GetIsSignedInAsync()
@@ -1246,7 +1247,7 @@ namespace NicoPlayerHohoema.Models
             const string CreateNewContextLabel = @"@create_new";
             var mylists = UserMylistManager.UserMylists;
             var localMylists = Playlist.Playlists;
-            var selectDialogService = App.Current.Container.Resolve<ContentSelectDialogService>();
+            var dialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
             var selectDialogContent = new List<ISelectableContainer>()
                 {
                     new ChoiceFromListSelectableContainer("マイリスト",
@@ -1268,7 +1269,7 @@ namespace NicoPlayerHohoema.Models
             IPlayableList resultList = null;
             while (resultList == null)
             {
-                var result = await selectDialogService.ShowDialog(
+                var result = await dialogService.ShowContentSelectDialogAsync(
                     "追加先マイリストを選択",
                     selectDialogContent
                     );
@@ -1277,7 +1278,7 @@ namespace NicoPlayerHohoema.Models
 
                 if (result?.Context as string == CreateNewContextLabel)
                 {
-                    var textDialogService = App.Current.Container.Resolve<TextInputDialogService>();
+                    var textDialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
                     var mylistTypeLabel = result.Id == "mylist" ? "マイリスト" : "ローカルマイリスト";
                     var title = await textDialogService.GetTextAsync(
                         $"{mylistTypeLabel}を作成",
@@ -1310,12 +1311,12 @@ namespace NicoPlayerHohoema.Models
 
         public async Task<IFeedGroup> ChoiceFeedGroup(string title)
         {
-            var selectDialogService = App.Current.Container.Resolve<ContentSelectDialogService>();
+            var dialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
 
             IFeedGroup resultFeedGroup = null;
             while (resultFeedGroup == null)
             {
-                var result = await selectDialogService.ShowDialog(title,
+                var result = await dialogService.ShowContentSelectDialogAsync(title,
                     new ISelectableContainer[]
                     {
                     new ChoiceFromListSelectableContainer("フィードグループ",

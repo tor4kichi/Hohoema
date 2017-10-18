@@ -20,17 +20,12 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class UserInfoPageViewModel : HohoemaViewModelBase
 	{
-        ContentSelectDialogService _ContentSelectDialogService;
-
         public UserInfoPageViewModel(
             HohoemaApp hohoemaApp
             , PageManager pageManager
-            , Views.Service.ContentSelectDialogService contentSelectDialogService
             ) 
 			: base(hohoemaApp, pageManager)
 		{
-            _ContentSelectDialogService = contentSelectDialogService;
-
             HasOwnerVideo = true;
 
 			MylistGroups = new ObservableCollection<MylistGroupListItem>();

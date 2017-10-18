@@ -409,7 +409,7 @@
                                                    toolkit:DockPanel.Dock="Top"
                                                    TextWrapping="Wrap"
                                            />
-                                        <TextBlock Text="{Binding Target}" 
+                                        <TextBlock Text="{Binding Target, Converter={StaticResource ToLocalText}}" 
                                            Style="{StaticResource CaptionTextBlockStyle}"
                                        />
 
