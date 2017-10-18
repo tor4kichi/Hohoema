@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.UI.Core;
 
-namespace NicoPlayerHohoema.Models
+namespace NicoPlayerHohoema.Helpers
 {
     // Note: 優先度付きのUIスレッド協調動作指向バックグラウンド更新
 

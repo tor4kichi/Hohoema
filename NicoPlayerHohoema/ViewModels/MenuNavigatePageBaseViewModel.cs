@@ -17,6 +17,7 @@ using Prism.Windows;
 using System.Reactive.Linq;
 using NicoPlayerHohoema.Views.Service;
 using Windows.UI.ViewManagement;
+using NicoPlayerHohoema.Helpers;
 
 namespace NicoPlayerHohoema.ViewModels
 {

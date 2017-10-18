@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Models;
+﻿using NicoPlayerHohoema.Interfaces;
+using NicoPlayerHohoema.Models;
 using Prism.Commands;
 using Prism.Mvvm;
 using Reactive.Bindings.Extensions;
@@ -13,7 +14,7 @@ using Windows.UI;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public abstract class HohoemaListingPageItemBase : BindableBase, Models.IHohoemaListItem, IDisposable
+	public abstract class HohoemaListingPageItemBase : BindableBase, Interfaces.IHohoemaListItem, IDisposable
 	{
         IDisposable _Disposer;
         public void Dispose()

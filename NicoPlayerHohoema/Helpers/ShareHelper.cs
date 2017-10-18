@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 using Microsoft.Practices.Unity;
 using Windows.ApplicationModel.DataTransfer;
 using NicoPlayerHohoema.Models.Live;
+using NicoPlayerHohoema.Models;
 
-namespace NicoPlayerHohoema.Models
+namespace NicoPlayerHohoema.Helpers
 {
     public static class ShareHelper
     {
@@ -90,7 +91,7 @@ namespace NicoPlayerHohoema.Models
 
             if (TwitterHelper.IsLoggedIn)
             {
-                var textInputDialogService = App.Current.Container.Resolve<Views.Service.TextInputDialogService>();
+                var textInputDialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
 
                 var twitterLoginUserName = TwitterHelper.TwitterUser.ScreenName;
                 var customText = await textInputDialogService.GetTextAsync($"{twitterLoginUserName} としてTwitterへ投稿", "", content);

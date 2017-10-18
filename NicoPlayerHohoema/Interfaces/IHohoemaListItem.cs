@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.UI;
 
-namespace NicoPlayerHohoema.Models
+namespace NicoPlayerHohoema.Interfaces
 {
     public interface IHohoemaListItem
     {

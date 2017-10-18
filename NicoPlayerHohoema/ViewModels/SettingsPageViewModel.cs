@@ -636,19 +636,19 @@ namespace NicoPlayerHohoema.ViewModels
         {
             switch (type)
             {
-                case Models.LisenceType.MIT:
+                case Helpers.LisenceType.MIT:
                     return "MIT";
-                case Models.LisenceType.MS_PL:
+                case Helpers.LisenceType.MS_PL:
                     return "Microsoft Public Lisence";
-                case Models.LisenceType.Apache_v2:
+                case Helpers.LisenceType.Apache_v2:
                     return "Apache Lisence version 2.0";
-                case Models.LisenceType.GPL_v3:
+                case Helpers.LisenceType.GPL_v3:
                     return "GNU General Public License Version 3";
-                case Models.LisenceType.Simplified_BSD:
+                case Helpers.LisenceType.Simplified_BSD:
                     return "二条項BSDライセンス";
-                case Models.LisenceType.CC_BY_40:
+                case Helpers.LisenceType.CC_BY_40:
                     return "クリエイティブ・コモンズ 表示 4.0 国際";
-                case Models.LisenceType.SIL_OFL_v1_1:
+                case Helpers.LisenceType.SIL_OFL_v1_1:
                     return "SIL OPEN FONT LICENSE Version 1.1";
                 default:
                     throw new NotSupportedException(type.ToString());

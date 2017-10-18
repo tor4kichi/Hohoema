@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 using Mntone.Nico2.Searches.Community;
 using Mntone.Nico2.Searches.Live;
 using Mntone.Nico2.Live;
+using NicoPlayerHohoema.Models;
 
-namespace NicoPlayerHohoema.Models
+namespace NicoPlayerHohoema.Helpers
 {
     public static class PageManagerSearchExtention
     {
