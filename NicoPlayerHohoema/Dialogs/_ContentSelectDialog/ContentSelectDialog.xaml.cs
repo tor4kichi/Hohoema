@@ -15,7 +15,7 @@ using Windows.UI.Xaml.Navigation;
 
 // The Content Dialog item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
-namespace NicoPlayerHohoema.Views.Service
+namespace NicoPlayerHohoema.Dialogs
 {
 	public sealed partial class ContentSelectDialog : ContentDialog
 	{
@@ -36,11 +36,11 @@ namespace NicoPlayerHohoema.Views.Service
 
 		protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
 		{
-			if (item is Views.Service.ChoiceFromListSelectableContainer)
+			if (item is Dialogs.ChoiceFromListSelectableContainer)
 			{
 				return List;
 			}
-			else if (item is Views.Service.TextInputSelectableContainer)
+			else if (item is Dialogs.TextInputSelectableContainer)
 			{
 				return InputText;
 			}

@@ -32,6 +32,7 @@ using Windows.ApplicationModel.Core;
 using Windows.Foundation.Metadata;
 using NicoPlayerHohoema.ViewModels.PlayerSidePaneContent;
 using Windows.UI.Core;
+using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -61,7 +62,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		public TextInputDialogService _TextInputDialogService { get; private set; }
+		public HohoemaDialogService _HohoemaDialogService { get; private set; }
         private ToastNotificationService _ToastNotificationService;
 
 
@@ -220,14 +221,14 @@ namespace NicoPlayerHohoema.ViewModels
             HohoemaApp hohoemaApp, 
             PageManager pageManager, 
             HohoemaViewManager viewManager,
-            TextInputDialogService textInputDialogService,
+            Services.HohoemaDialogService dialogService,
             ToastNotificationService toast
             )
             : base(hohoemaApp, pageManager)
 		{
             _HohoemaViewManager = viewManager;
 
-            _TextInputDialogService = textInputDialogService;
+            _HohoemaDialogService = dialogService;
             _ToastNotificationService = toast;
 
             _CurrentWindowDispatcher = CoreApplication.GetCurrentView().Dispatcher;

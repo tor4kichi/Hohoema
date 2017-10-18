@@ -22,6 +22,7 @@ using Windows.System.Power;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Microsoft.Practices.Unity;
+using NicoPlayerHohoema.Dialogs;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -1246,7 +1247,7 @@ namespace NicoPlayerHohoema.Models
             const string CreateNewContextLabel = @"@create_new";
             var mylists = UserMylistManager.UserMylists;
             var localMylists = Playlist.Playlists;
-            var selectDialogService = App.Current.Container.Resolve<ContentSelectDialogService>();
+            var dialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
             var selectDialogContent = new List<ISelectableContainer>()
                 {
                     new ChoiceFromListSelectableContainer("マイリスト",
@@ -1268,7 +1269,7 @@ namespace NicoPlayerHohoema.Models
             IPlayableList resultList = null;
             while (resultList == null)
             {
-                var result = await selectDialogService.ShowDialog(
+                var result = await dialogService.ShowContentSelectDialogAsync(
                     "追加先マイリストを選択",
                     selectDialogContent
                     );
@@ -1277,7 +1278,7 @@ namespace NicoPlayerHohoema.Models
 
                 if (result?.Context as string == CreateNewContextLabel)
                 {
-                    var textDialogService = App.Current.Container.Resolve<TextInputDialogService>();
+                    var textDialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
                     var mylistTypeLabel = result.Id == "mylist" ? "マイリスト" : "ローカルマイリスト";
                     var title = await textDialogService.GetTextAsync(
                         $"{mylistTypeLabel}を作成",
@@ -1310,12 +1311,12 @@ namespace NicoPlayerHohoema.Models
 
         public async Task<IFeedGroup> ChoiceFeedGroup(string title)
         {
-            var selectDialogService = App.Current.Container.Resolve<ContentSelectDialogService>();
+            var dialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
 
             IFeedGroup resultFeedGroup = null;
             while (resultFeedGroup == null)
             {
-                var result = await selectDialogService.ShowDialog(title,
+                var result = await dialogService.ShowContentSelectDialogAsync(title,
                     new ISelectableContainer[]
                     {
                     new ChoiceFromListSelectableContainer("フィードグループ",

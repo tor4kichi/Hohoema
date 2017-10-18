@@ -10,48 +10,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.UI;
 
-namespace NicoPlayerHohoema.Views.Service
+namespace NicoPlayerHohoema.Dialogs
 {
-	public class EditMylistGroupDialogService
-	{
-		public EditMylistGroupDialogService()
-		{
-
-		}
-
-		public Task<bool> ShowAsync(MylistGroupEditData data)
-		{
-			return _ShowAsync(data, false);
-
-		}
-		public Task<bool> ShowAsyncWithCreateMode(MylistGroupEditData data)
-		{
-			return _ShowAsync(data, true);
-		}
-
-		private async Task<bool> _ShowAsync(MylistGroupEditData data, bool isCreate)
-		{
-			var context = new EditMylistGroupDialogContext(data, isCreate);
-			var dialog = new EditMylistGroupDialog()
-			{
-				DataContext = context
-			};
-
-			var result = await dialog.ShowAsync();
-
-			if (result == Windows.UI.Xaml.Controls.ContentDialogResult.Primary)
-			{
-				var resultData = context.GetResult();
-				data.Name = resultData.Name;
-				data.Description = resultData.Description;
-				data.IconType = resultData.IconType;
-				data.IsPublic = resultData.IsPublic;
-				data.MylistDefaultSort = resultData.MylistDefaultSort;
-			}
-			return result == Windows.UI.Xaml.Controls.ContentDialogResult.Primary;
-		}
-	}
-
 	public class EditMylistGroupDialogContext
 	{
 		public static List<IncoTypeVM> IconTypeList { get; private set; }

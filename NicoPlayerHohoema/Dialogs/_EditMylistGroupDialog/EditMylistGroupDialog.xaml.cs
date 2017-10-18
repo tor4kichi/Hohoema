@@ -15,21 +15,13 @@ using Windows.UI.Xaml.Navigation;
 
 // The Content Dialog item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
-namespace NicoPlayerHohoema.Views.Service
+namespace NicoPlayerHohoema.Dialogs
 {
-	public sealed partial class AcceptCacheUsaseDialog : ContentDialog
+	public sealed partial class EditMylistGroupDialog : ContentDialog
 	{
-		public AcceptCacheUsaseDialog()
+		public EditMylistGroupDialog()
 		{
 			this.InitializeComponent();
-		}
-
-		private void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
-		{
-		}
-
-		private void ContentDialog_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
-		{
 		}
 	}
 }

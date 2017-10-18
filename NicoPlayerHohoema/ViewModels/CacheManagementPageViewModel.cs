@@ -24,6 +24,7 @@ using Windows.Networking.BackgroundTransfer;
 using NicoPlayerHohoema.Views.Service;
 using Windows.System;
 using Windows.UI.Popups;
+using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -59,17 +60,17 @@ namespace NicoPlayerHohoema.ViewModels
 
         NiconicoMediaManager _MediaManager;
 
-        AcceptCacheUsaseDialogService _AcceptCacheUsaseDialogService;
+        HohoemaDialogService _HohoemaDialogService;
 
         public CacheManagementPageViewModel(
             HohoemaApp app, 
             PageManager pageManager,
-            AcceptCacheUsaseDialogService cacheConfirmDialogService
+            HohoemaDialogService dialogService
             )
 			: base(app, pageManager)
 		{
 			_MediaManager = app.MediaManager;
-            _AcceptCacheUsaseDialogService = cacheConfirmDialogService;
+            _HohoemaDialogService = dialogService;
 
             IsRequireUpdateCacheSaveFolder = new ReactiveProperty<bool>(false);
 
@@ -78,7 +79,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             RequireEnablingCacheCommand = new DelegateCommand(async () => 
             {
-                var result = await _AcceptCacheUsaseDialogService.ShowConfirmAcceptCacheDialog();
+                var result = await _HohoemaDialogService.ShowAcceptCacheUsaseDialogAsync();
                 if (result)
                 {
                     HohoemaApp.UserSettings.CacheSettings.IsEnableCache = true;
@@ -106,7 +107,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             ReadCacheAcceptTextCommand = new DelegateCommand(async () =>
             {
-                await cacheConfirmDialogService.ShowAcceptCacheTextDialog();
+                var result = await _HohoemaDialogService.ShowAcceptCacheUsaseDialogAsync(showWithoutConfirmButton:true);
             });
 
 

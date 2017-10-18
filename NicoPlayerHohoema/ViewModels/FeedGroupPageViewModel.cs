@@ -46,12 +46,12 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> IsPublicFeedSource { get; private set; }
 		
 
-		public Views.Service.ContentSelectDialogService ContentSelectDialogService { get; private set; }
+		public Services.HohoemaDialogService HohoemaDialogService { get; private set; }
 
-		public FeedGroupPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.ContentSelectDialogService contentSelectDialogService) 
+		public FeedGroupPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Services.HohoemaDialogService dialogService) 
 			: base(hohoemaApp, pageManager)
 		{
-			ContentSelectDialogService = contentSelectDialogService;
+			HohoemaDialogService = dialogService;
 
 			IsDeleted = new ReactiveProperty<bool>();
 
@@ -517,12 +517,12 @@ namespace NicoPlayerHohoema.ViewModels
 					?? (_AddTagFeedSourceCommand = new DelegateCommand(async () =>
 					{
 						/// 
-						var defaultSet = new Views.Service.ContentSelectDialogDefaultSet()
+						var defaultSet = new Dialogs.ContentSelectDialogDefaultSet()
 						{
 							DialogTitle = "タグからフィード元を選択",
 							ChoiceListTitle = "お気に入りタグから選ぶ",
 							ChoiceList = HohoemaApp.FollowManager.Tag.FollowInfoItems.Select(x =>
-								new Views.Service.SelectDialogPayload()
+								new Dialogs.SelectDialogPayload()
 								{
 									Label = x.Name,
 									Id = x.Id
@@ -532,7 +532,7 @@ namespace NicoPlayerHohoema.ViewModels
 							GenerateCandiateList = null
 						};
 
-						var result = await ContentSelectDialogService.ShowDialog(defaultSet);
+						var result = await HohoemaDialogService.ShowContentSelectDialogAsync(defaultSet);
 
 						if (result != null)
 						{
@@ -558,12 +558,12 @@ namespace NicoPlayerHohoema.ViewModels
 					?? (_AddMylistFeedSourceCommand = new DelegateCommand(async () =>
 					{
 						/// 
-						var defaultSet = new Views.Service.ContentSelectDialogDefaultSet()
+						var defaultSet = new Dialogs.ContentSelectDialogDefaultSet()
 						{
 							DialogTitle = "マイリストのフィード元を選択",
 							ChoiceListTitle = "お気に入りマイリストから選ぶ",
 							ChoiceList = HohoemaApp.FollowManager.Mylist.FollowInfoItems.Select(x =>
-								new Views.Service.SelectDialogPayload()
+								new Dialogs.SelectDialogPayload()
 								{
 									Label = x.Name,
 									Id = x.Id
@@ -573,7 +573,7 @@ namespace NicoPlayerHohoema.ViewModels
 							GenerateCandiateList = GenerateMylistCandidateList
 						};
 
-						var result = await ContentSelectDialogService.ShowDialog(defaultSet);
+						var result = await HohoemaDialogService.ShowContentSelectDialogAsync(defaultSet);
 
 						if (result != null)
 						{
@@ -589,9 +589,9 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		private async Task<List<Views.Service.SelectDialogPayload>> GenerateMylistCandidateList(string word)
+		private async Task<List<Dialogs.SelectDialogPayload>> GenerateMylistCandidateList(string word)
 		{
-			var list = new List<Views.Service.SelectDialogPayload>();
+			var list = new List<Dialogs.SelectDialogPayload>();
 			// word is numbers
 			int maybeMylistId;
 			if (int.TryParse(word, out maybeMylistId))
@@ -603,7 +603,7 @@ namespace NicoPlayerHohoema.ViewModels
 					var mylistDetail = await HohoemaApp.ContentFinder.GetMylistGroupDetail(mylistId);
 					if (mylistDetail != null)
 					{
-						var result = new Views.Service.SelectDialogPayload()
+						var result = new Dialogs.SelectDialogPayload()
 						{
 							Id = mylistId,
 							Label = mylistDetail.MylistGroup.Name
@@ -623,7 +623,7 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					foreach (var searchItem in searchResult.MylistGroupItems)
 					{
-						list.Add(new Views.Service.SelectDialogPayload()
+						list.Add(new Dialogs.SelectDialogPayload()
 						{
 							Id = searchItem.Id,
 							Label = searchItem.Name
@@ -646,12 +646,12 @@ namespace NicoPlayerHohoema.ViewModels
 					?? (_AddUserFeedSourceCommand = new DelegateCommand(async () =>
 					{
 						/// 
-						var defaultSet = new Views.Service.ContentSelectDialogDefaultSet()
+						var defaultSet = new Dialogs.ContentSelectDialogDefaultSet()
 						{
 							DialogTitle = "ユーザー投稿動画のフィード元を選択",
 							ChoiceListTitle = "お気に入りユーザーから選ぶ",
 							ChoiceList = HohoemaApp.FollowManager.User.FollowInfoItems.Select(x =>
-								new Views.Service.SelectDialogPayload()
+								new Dialogs.SelectDialogPayload()
 								{
 									Label = x.Name,
 									Id = x.Id
@@ -661,7 +661,7 @@ namespace NicoPlayerHohoema.ViewModels
 							GenerateCandiateList = GenerateUserCandidateList
 						};
 
-						var result = await ContentSelectDialogService.ShowDialog(defaultSet);
+						var result = await HohoemaDialogService.ShowContentSelectDialogAsync(defaultSet);
 
 						if (result != null)
 						{
@@ -677,9 +677,9 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		private async Task<List<Views.Service.SelectDialogPayload>> GenerateUserCandidateList(string word)
+		private async Task<List<Dialogs.SelectDialogPayload>> GenerateUserCandidateList(string word)
 		{
-			var list = new List<Views.Service.SelectDialogPayload>();
+			var list = new List<Dialogs.SelectDialogPayload>();
 			// word is numbers
 			int maybeMylistId;
 			if (int.TryParse(word, out maybeMylistId))
@@ -691,7 +691,7 @@ namespace NicoPlayerHohoema.ViewModels
 					var userInfo= await HohoemaApp.ContentFinder.GetUserInfo(userId);
 					if (userInfo != null)
 					{
-						var result = new Views.Service.SelectDialogPayload()
+						var result = new Dialogs.SelectDialogPayload()
 						{
 							Id = userId,
 							Label = userInfo.Nickname

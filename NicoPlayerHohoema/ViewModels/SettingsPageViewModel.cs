@@ -164,14 +164,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _ShowUpdateNoticeCommand
                     ?? (_ShowUpdateNoticeCommand = new DelegateCommand<Version>(async (version) =>
                     {
-                        var allVersions = await Models.AppUpdateNotice.GetUpdateNoticeAvairableVersionsAsync();
-                        var versions = allVersions.Where(x => x.Major == version.Major && x.Minor == version.Minor).ToList();
-                        var text = await Models.AppUpdateNotice.GetUpdateNotices(versions);
-                        var dialog = new Views.Service.MarkdownTextDialog();
-                        dialog.Title = $"v{version.Major}.{version.Minor} 更新情報 一覧";
-                        dialog.Text = text;
-                        dialog.PrimaryButtonText = "OK";
-                        await dialog.ShowAsync();
+                        await _HohoemaDialogService.ShowUpdateNoticeAsync(version);
                     }));
             }
         }
@@ -246,6 +239,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         NGSettings _NGSettings;
         RankingSettings _RankingSettings;
+        Services.HohoemaDialogService _HohoemaDialogService;
 
         public ToastNotificationService ToastNotificationService { get; private set; }
 
@@ -254,12 +248,14 @@ namespace NicoPlayerHohoema.ViewModels
 			HohoemaApp hohoemaApp
 			, PageManager pageManager
 			, ToastNotificationService toastService
+            , Services.HohoemaDialogService dialogService
 			)
 			: base(hohoemaApp, pageManager)
 		{
 			ToastNotificationService = toastService;
             _NGSettings = HohoemaApp.UserSettings.NGSettings;
             _RankingSettings = HohoemaApp.UserSettings.RankingSettings;
+            _HohoemaDialogService = dialogService;
 
             // NG Video Owner User Id
             NGVideoOwnerUserIdEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoOwnerUserIdEnable);

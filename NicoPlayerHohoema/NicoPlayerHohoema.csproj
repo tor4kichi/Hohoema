@@ -139,6 +139,7 @@
     <Content Include="Assets\UpdateNotices\0.10.9.md" />
     <Content Include="Assets\UpdateNotices\0.10.10.md" />
     <Content Include="Assets\UpdateNotices\0.11.0.md" />
+    <Content Include="Assets\CacheUsageConfirmation.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <PRIResource Include="Resources\ja-jp\Resources.resw" />
   </ItemGroup>
@@ -163,6 +164,12 @@
     <Compile Include="Commands\ShereCommand.cs" />
     <Compile Include="Commands\VideoDeleteCacheCommand.cs" />
     <Compile Include="Commands\VideoRequestCacheCommand.cs" />
+    <Compile Include="Dialogs\_ContentSelectDialog\ChoiceFromListSelectableContainer.cs" />
+    <Compile Include="Dialogs\_ContentSelectDialog\ContentSelectDialogDefaultSet.cs" />
+    <Compile Include="Dialogs\_ContentSelectDialog\ISelectableContainer.cs" />
+    <Compile Include="Dialogs\_ContentSelectDialog\SelectableContainerBase.cs" />
+    <Compile Include="Dialogs\_ContentSelectDialog\SelectDialogPayload.cs" />
+    <Compile Include="Dialogs\_ContentSelectDialog\TextInputSelectableContainer.cs" />
     <Compile Include="Events\PlayerClosedEvent.cs" />
     <Compile Include="Events\PlayNicoVideoEvent.cs" />
     <Compile Include="Helpers\CulturelizeHelper.cs" />
@@ -274,6 +281,7 @@
     <Compile Include="Helpers\StorageFolderExtention.cs" />
     <Compile Include="Helpers\TaskExtention.cs" />
     <Compile Include="Helpers\TwitterHelper.cs" />
+    <Compile Include="Services\HohoemaDialogService.cs" />
     <Compile Include="ViewModels\CacheManagementPageViewModel.cs" />
     <Compile Include="ViewModels\CommentCommandEditerViewModel.cs" />
     <Compile Include="ViewModels\CommentStreamingViewModel.cs" />
@@ -391,7 +399,7 @@
     <Compile Include="Views\_PlayerSidePaneContent\PlaylistSidePaneContent.xaml.cs">
       <DependentUpon>PlaylistSidePaneContent.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Service\MarkdownTextDialog.xaml.cs">
+    <Compile Include="Dialogs\MarkdownTextDialog.xaml.cs">
       <DependentUpon>MarkdownTextDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SplashPage.xaml.cs">
@@ -559,31 +567,22 @@
     <Compile Include="Views\MenuNavigatePageBase.xaml.cs">
       <DependentUpon>MenuNavigatePageBase.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Service\AcceptCacheUsaseDialog.xaml.cs">
-      <DependentUpon>AcceptCacheUsaseDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Service\AcceptCacheUsaseDialogService.cs" />
-    <Compile Include="Views\Service\ContentSelectDialog.xaml.cs">
+    <Compile Include="Dialogs\_ContentSelectDialog\ContentSelectDialog.xaml.cs">
       <DependentUpon>ContentSelectDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Service\ContentSelectDialogSeraice.cs" />
-    <Compile Include="Views\Service\DislikeRankingCtegoryChoiceDialog.xaml.cs">
-      <DependentUpon>DislikeRankingCtegoryChoiceDialog.xaml</DependentUpon>
+    <Compile Include="Dialogs\_ContentSelectDialog\ContentSelectDialogContext.cs" />
+    <Compile Include="Dialogs\MultiChoiceDialog.xaml.cs">
+      <DependentUpon>MultiChoiceDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Service\EditMylistGroupDialog.xaml.cs">
+    <Compile Include="Dialogs\_EditMylistGroupDialog\EditMylistGroupDialog.xaml.cs">
       <DependentUpon>EditMylistGroupDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Service\EditMylistGroupDialogService.cs" />
-    <Compile Include="Views\Service\MylistRegistrationDialog.xaml.cs">
-      <DependentUpon>MylistRegistrationDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Service\MylistRegistrationDialogService.cs" />
-    <Compile Include="Views\Service\RankingChoiceDialogService.cs" />
-    <Compile Include="Views\Service\TextInputDialog.xaml.cs">
+    <Compile Include="Dialogs\_EditMylistGroupDialog\EditMylistGroupDialogContext.cs" />
+    <Compile Include="Dialogs\_TextInputDialog\TextInputDialog.xaml.cs">
       <DependentUpon>TextInputDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Service\TextInputDialogService.cs" />
-    <Compile Include="Views\Service\ToastNotificationService.cs" />
+    <Compile Include="Dialogs\_TextInputDialog\TextInputDialogContext.cs" />
+    <Compile Include="Services\ToastNotificationService.cs" />
     <Compile Include="Views\StateTrigger\ConditionStateTrigger.cs" />
     <Compile Include="Views\StateTrigger\FocusTrigger.cs" />
     <Compile Include="Views\StateTrigger\InvertibleStateTrigger.cs" />
@@ -982,31 +981,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\Service\AcceptCacheUsaseDialog.xaml">
+    <Page Include="Dialogs\_ContentSelectDialog\ContentSelectDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\Service\ContentSelectDialog.xaml">
+    <Page Include="Dialogs\MultiChoiceDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\Service\DislikeRankingCtegoryChoiceDialog.xaml">
+    <Page Include="Dialogs\_EditMylistGroupDialog\EditMylistGroupDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\Service\EditMylistGroupDialog.xaml">
+    <Page Include="Dialogs\MarkdownTextDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\Service\MarkdownTextDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\Service\MylistRegistrationDialog.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\Service\TextInputDialog.xaml">
+    <Page Include="Dialogs\_TextInputDialog\TextInputDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1141,9 +1132,7 @@
       <Name>Visual C++ 2015 Runtime for Universal Windows Platform Apps</Name>
     </SDKReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Util\" />
-  </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

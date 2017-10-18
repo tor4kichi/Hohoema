@@ -42,7 +42,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-		public CommunityVideoPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Views.Service.MylistRegistrationDialogService mylistDialogService)
+		public CommunityVideoPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
 			: base(hohoemaApp, pageManager)
 		{
 		}

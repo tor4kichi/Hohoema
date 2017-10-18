@@ -16,7 +16,7 @@ using Windows.UI.Xaml.Navigation;
 
 // コンテンツ ダイアログの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 
-namespace NicoPlayerHohoema.Views.Service
+namespace NicoPlayerHohoema.Dialogs
 {
     public sealed partial class MarkdownTextDialog : ContentDialog
     {
@@ -33,9 +33,11 @@ namespace NicoPlayerHohoema.Views.Service
             DependencyProperty.Register(nameof(Text), typeof(string), typeof(MarkdownTextDialog), new PropertyMetadata(null));
 
 
-        public MarkdownTextDialog()
+        public MarkdownTextDialog(string title)
         {
             this.InitializeComponent();
+
+            Title = title;
         }
 
         private void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)

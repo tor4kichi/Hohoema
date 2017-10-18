@@ -15,14 +15,13 @@ using Windows.UI.Xaml.Navigation;
 
 // The Content Dialog item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
-namespace NicoPlayerHohoema.Views.Service
+namespace NicoPlayerHohoema.Dialogs
 {
-	public sealed partial class DislikeRankingCategoryChoiceDialog : ContentDialog
+	public sealed partial class TextInputDialog : ContentDialog
 	{
-		public DislikeRankingCategoryChoiceDialog()
+		public TextInputDialog()
 		{
 			this.InitializeComponent();
 		}
-
 	}
 }

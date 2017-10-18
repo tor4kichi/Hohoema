@@ -49,6 +49,7 @@ using Windows.UI.Popups;
 using Windows.ApplicationModel.Core;
 using Windows.Foundation.Metadata;
 using Microsoft.Practices.Unity;
+using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -68,12 +69,12 @@ namespace NicoPlayerHohoema.ViewModels
 			PageManager pageManager, 
             HohoemaViewManager viewManager,
 			ToastNotificationService toast,
-			TextInputDialogService textInputDialog
+			HohoemaDialogService dialogService
 			)
 			: base(hohoemaApp, pageManager)
 		{
 			_ToastService = toast;
-			_TextInputDialogService = textInputDialog;
+			_HohoemaDialogService = dialogService;
 
             MediaPlayer = viewManager.GetCurrentWindowMediaPlayer();
 
@@ -2490,7 +2491,7 @@ namespace NicoPlayerHohoema.ViewModels
         public static EmptySidePaneContentViewModel EmptySidePaneContent { get; } = new EmptySidePaneContentViewModel();
 
         ToastNotificationService _ToastService;
-		TextInputDialogService _TextInputDialogService;
+        HohoemaDialogService _HohoemaDialogService;
 
 
         // TODO: コメントのNGユーザー登録

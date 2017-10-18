@@ -138,17 +138,17 @@ namespace NicoPlayerHohoema.ViewModels
 
 		NiconicoContentFinder _ContentFinder;
 
-        ContentSelectDialogService _ContentSelectDialogService;
+        Services.HohoemaDialogService _HohoemaDialogService;
 
         public SearchResultTagPageViewModel(
 			HohoemaApp hohoemaApp, 
 			PageManager pageManager,
-            ContentSelectDialogService contentSelectDialogService
+            Services.HohoemaDialogService dialogService
             ) 
 			: base(hohoemaApp, pageManager, useDefaultPageTitle: false)
 		{
 			_ContentFinder = HohoemaApp.ContentFinder;
-            _ContentSelectDialogService = contentSelectDialogService;
+            _HohoemaDialogService = dialogService;
 
             FailLoading = new ReactiveProperty<bool>(false)
 				.AddTo(_CompositeDisposable);

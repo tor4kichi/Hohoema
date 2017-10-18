@@ -622,12 +622,21 @@ namespace NicoPlayerHohoema
 
 		private async Task RegisterTypes()
 		{
+
+            // Service
+            var dialogService = new Services.HohoemaDialogService();
+            Container.RegisterInstance(dialogService);
+
+            Container.RegisterInstance(new Views.Service.ToastNotificationService());
+
+
+
             // Models
             var secondaryViewMan = new HohoemaViewManager();
             var hohoemaApp = await HohoemaApp.Create(EventAggregator, secondaryViewMan);
             Container.RegisterInstance(secondaryViewMan);
             Container.RegisterInstance(hohoemaApp);
-			Container.RegisterInstance(new PageManager(hohoemaApp, NavigationService, hohoemaApp.UserSettings.AppearanceSettings, hohoemaApp.Playlist, secondaryViewMan));
+			Container.RegisterInstance(new PageManager(hohoemaApp, NavigationService, hohoemaApp.UserSettings.AppearanceSettings, hohoemaApp.Playlist, secondaryViewMan, dialogService));
             Container.RegisterInstance(hohoemaApp.ContentFinder);
             Container.RegisterInstance(hohoemaApp.Playlist);
             Container.RegisterInstance(hohoemaApp.OtherOwneredMylistManager);
@@ -660,15 +669,6 @@ namespace NicoPlayerHohoema
                         Container.RegisterType<ViewModels.CacheManagementPageViewModel>(new ContainerControlledLifetimeManager());
             //			Container.RegisterType<ViewModels.PortalPageViewModel>(new ContainerControlledLifetimeManager());
             */
-
-            // Service
-            Container.RegisterType<Views.Service.RankingChoiceDialogService>();
-			Container.RegisterInstance(new Views.Service.ToastNotificationService());
-			Container.RegisterInstance(new Views.Service.EditMylistGroupDialogService());
-			Container.RegisterInstance(new Views.Service.AcceptCacheUsaseDialogService());
-			Container.RegisterInstance(new Views.Service.TextInputDialogService());
-			Container.RegisterInstance(new Views.Service.ContentSelectDialogDefaultSet());
-
 
             Resources.Add("IsXbox", Helpers.DeviceTypeHelper.IsXbox);
             Resources.Add("IsMobile", Helpers.DeviceTypeHelper.IsMobile);
