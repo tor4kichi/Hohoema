@@ -633,7 +633,7 @@ namespace NicoPlayerHohoema
 
             // Models
             var secondaryViewMan = new HohoemaViewManager();
-            var hohoemaApp = await HohoemaApp.Create(EventAggregator, secondaryViewMan);
+            var hohoemaApp = await HohoemaApp.Create(EventAggregator, secondaryViewMan, dialogService);
             Container.RegisterInstance(secondaryViewMan);
             Container.RegisterInstance(hohoemaApp);
 			Container.RegisterInstance(new PageManager(hohoemaApp, NavigationService, hohoemaApp.UserSettings.AppearanceSettings, hohoemaApp.Playlist, secondaryViewMan, dialogService));

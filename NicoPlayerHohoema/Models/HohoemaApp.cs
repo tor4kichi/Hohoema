@@ -23,6 +23,7 @@ using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Microsoft.Practices.Unity;
 using NicoPlayerHohoema.Dialogs;
+using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -42,11 +43,11 @@ namespace NicoPlayerHohoema.Models
 
         private bool IsInitialized = false;
 
-		public static async Task<HohoemaApp> Create(IEventAggregator ea, HohoemaViewManager viewMan)
+		public static async Task<HohoemaApp> Create(IEventAggregator ea, HohoemaViewManager viewMan, HohoemaDialogService dialogService)
 		{
 			HohoemaApp.UIDispatcher = Window.Current.CoreWindow.Dispatcher;
 
-			var app = new HohoemaApp(ea);
+			var app = new HohoemaApp(ea, dialogService);
 			app.MediaManager = await NiconicoMediaManager.Create(app);
             
             await app.LoadUserSettings();
@@ -91,9 +92,12 @@ namespace NicoPlayerHohoema.Models
 		private SemaphoreSlim _SigninLock;
 		private const string ThumbnailLoadBackgroundTaskId = "ThumbnailLoader";
 
-        private HohoemaApp(IEventAggregator ea)
+        HohoemaDialogService _HohoemaDialogService;
+
+        private HohoemaApp(IEventAggregator ea, HohoemaDialogService dialogService)
 		{
             EventAggregator = ea;
+            _HohoemaDialogService = dialogService;
             NiconicoContext = new NiconicoContext();
 			LoginUserId = uint.MaxValue;
 			LoggingChannel = new LoggingChannel("HohoemaLog", new LoggingChannelOptions(HohoemaLoggerGroupGuid));
@@ -589,11 +593,23 @@ namespace NicoPlayerHohoema.Models
 					NiconicoSignInStatus result = NiconicoSignInStatus.Failed;
 					try
 					{
-						result = await context.SignInAsync();
-					}
-					catch
+                        result = await context.SignInAsync();
+
+                        if (result == NiconicoSignInStatus.TwoFactorAuthRequired)
+                        {
+                            await _HohoemaDialogService.ShowNiconicoTwoFactorLoginDialog(context.LastRedirectHttpRequestMessage);
+
+                            result = await context.GetIsSignedInAsync();
+
+                            if (result == NiconicoSignInStatus.Failed)
+                            {
+                                LoginErrorText = "認証コードによるログインに失敗。新しい認証コードでログインをお試しください。";
+                            }
+                        }
+                    }
+                    catch
 					{
-						LoginErrorText = "サインインに失敗、再起動をお試しください";
+						LoginErrorText = "ログインの通信に失敗しました。再起動をお試しください。";
 					}
 
                     UpdateServiceStatus(result);

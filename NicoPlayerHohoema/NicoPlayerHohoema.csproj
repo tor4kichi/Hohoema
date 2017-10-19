@@ -164,6 +164,9 @@
     <Compile Include="Commands\ShereCommand.cs" />
     <Compile Include="Commands\VideoDeleteCacheCommand.cs" />
     <Compile Include="Commands\VideoRequestCacheCommand.cs" />
+    <Compile Include="Dialogs\NiconicoTwoFactorAuthDialog.xaml.cs">
+      <DependentUpon>NiconicoTwoFactorAuthDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\_ContentSelectDialog\ChoiceFromListSelectableContainer.cs" />
     <Compile Include="Dialogs\_ContentSelectDialog\ContentSelectDialogDefaultSet.cs" />
     <Compile Include="Dialogs\_ContentSelectDialog\ISelectableContainer.cs" />
@@ -720,6 +723,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
+    <Page Include="Dialogs\NiconicoTwoFactorAuthDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Styles\DefaultStyle.xaml">
       <SubType>Designer</SubType>

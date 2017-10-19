@@ -7,11 +7,14 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.Web.Http;
 
 namespace NicoPlayerHohoema.Services
 {
     public class HohoemaDialogService
     {
+        #region Cache Accept Usase Dialog
+
         static readonly string CacheUsageConfirmationFileUri = Windows.ApplicationModel.Package.Current.InstalledLocation.Path + "\\Assets\\CacheUsageConfirmation.md";
 
         public async Task<bool> ShowAcceptCacheUsaseDialogAsync(bool showWithoutConfirmButton = false)
@@ -37,7 +40,11 @@ namespace NicoPlayerHohoema.Services
             return result == Windows.UI.Xaml.Controls.ContentDialogResult.Primary;
         }
 
+        #endregion
 
+
+
+        #region Update Notice Dialog
 
         public async Task ShowUpdateNoticeAsync(Version version)
         {
@@ -78,6 +85,9 @@ namespace NicoPlayerHohoema.Services
 
             await dialog.ShowAsync();
         }
+
+
+        #endregion
 
 
         #region ContentSelectDialog
@@ -270,6 +280,20 @@ namespace NicoPlayerHohoema.Services
             {
                 return null;
             }
+        }
+
+        #endregion
+
+
+        #region Niconico Two Factor Auth Dialog
+
+
+        public async Task ShowNiconicoTwoFactorLoginDialog(HttpRequestMessage content)
+        {
+            var dialog = new NiconicoTwoFactorAuthDialog();
+
+            dialog.WebViewContent = content;
+            await dialog.ShowAsync();
         }
 
         #endregion
