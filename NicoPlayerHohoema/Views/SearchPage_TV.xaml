@@ -392,7 +392,7 @@
                         <controls:IncrementalLoadingList Margin="0 0 0 0"
                                                          ItemsSource="{Binding IncrementalLoadingItems}"
                                                          SelectedItems="{Binding SelectedItems, Mode=TwoWay}"
-                                                         ItemCommand="{Binding SelectItemCommand}"
+                                                         ItemCommand="{StaticResource OpenContentCommand}"
                                                          IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
                                                          VerticalAlignment="Top"
                                                          IsTabStop="False"

@@ -348,7 +348,7 @@
                                                  ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
                                                 SelectedItems="{Binding SelectedItems, Mode=TwoWay}"
                                                 RefreshCommand="{Binding RefreshCommand}"
-                                                ItemCommand="{Binding SelectItemCommand}"
+                                                ItemCommand="{StaticResource OpenContentCommand}"
                                                 IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
                                                         >
                     <controls:IncrementalLoadingList.ItemTemplate>
