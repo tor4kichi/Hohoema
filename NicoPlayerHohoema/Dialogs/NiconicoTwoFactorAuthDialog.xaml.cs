@@ -26,21 +26,29 @@ namespace NicoPlayerHohoema.Dialogs
         public static readonly DependencyProperty WebViewContentProperty =
             DependencyProperty.Register(
                 nameof(WebViewContent),
-                typeof(HttpRequestMessage),
+                typeof(object),
                 typeof(NiconicoTwoFactorAuthDialog),
                 new PropertyMetadata(null, (x, y) => 
                 {
                     var @this = x as NiconicoTwoFactorAuthDialog;
-                    if (@this.WebViewContent != null)
+                    if (@this.WebViewContent is HttpRequestMessage)
                     {
-                        @this.WebView.NavigateWithHttpRequestMessage(@this.WebViewContent);
+                        @this.WebView.NavigateWithHttpRequestMessage(@this.WebViewContent as HttpRequestMessage);
+                    }
+                    else if (@this.WebViewContent is Uri)
+                    {
+                        @this.WebView.Navigate(@this.WebViewContent as Uri);
+                    }
+                    else if (@this.WebViewContent is string)
+                    {
+                        @this.WebView.NavigateToString(@this.WebViewContent as string);
                     }
                 })
                 );
 
-        public HttpRequestMessage WebViewContent
+        public object WebViewContent
         {
-            get { return (HttpRequestMessage)GetValue(WebViewContentProperty); }
+            get { return (object)GetValue(WebViewContentProperty); }
             set { SetValue(WebViewContentProperty, value); }
         }
 
@@ -70,7 +78,7 @@ namespace NicoPlayerHohoema.Dialogs
         {
             NowLoading.Value = true;
 
-            if (!args.Uri.OriginalString.StartsWith(TwoFactorAuthSite))
+            if (args.Uri != null && !args.Uri.OriginalString.StartsWith(TwoFactorAuthSite))
             {
                 isCompleted = true;
             }

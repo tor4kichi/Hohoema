@@ -288,7 +288,7 @@ namespace NicoPlayerHohoema.Services
         #region Niconico Two Factor Auth Dialog
 
 
-        public async Task ShowNiconicoTwoFactorLoginDialog(HttpRequestMessage content)
+        public async Task ShowNiconicoTwoFactorLoginDialog(object content)
         {
             var dialog = new NiconicoTwoFactorAuthDialog();
 

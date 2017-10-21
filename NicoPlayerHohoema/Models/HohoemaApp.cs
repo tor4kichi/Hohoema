@@ -597,7 +597,8 @@ namespace NicoPlayerHohoema.Models
 
                         if (result == NiconicoSignInStatus.TwoFactorAuthRequired)
                         {
-                            await _HohoemaDialogService.ShowNiconicoTwoFactorLoginDialog(context.LastRedirectHttpRequestMessage);
+                            
+                            await _HohoemaDialogService.ShowNiconicoTwoFactorLoginDialog(context.LastRedirectHttpRequestMessage.RequestUri);
 
                             result = await context.GetIsSignedInAsync();
 
