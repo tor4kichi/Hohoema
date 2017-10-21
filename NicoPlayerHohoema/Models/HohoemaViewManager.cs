@@ -202,7 +202,7 @@ namespace NicoPlayerHohoema.Models
 
             await CoreAppView.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                AppView.Title = !string.IsNullOrEmpty(item.Title) ? item.Title : null;
+                AppView.Title = !string.IsNullOrEmpty(item?.Title) ? item.Title : "Hohoema";
             });
         }
 

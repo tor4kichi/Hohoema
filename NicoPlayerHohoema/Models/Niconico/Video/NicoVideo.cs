@@ -645,17 +645,20 @@ namespace NicoPlayerHohoema.Models
             {
                 IsBlockedHarmfulVideo = true;
             }
-            catch { }
+            catch
+            {
+                Debug.WriteLine(RawVideoId + " is can not get WatchApiResponse. ");
+            }
 
             if (!forceLoqQuality && watchApiRes != null)
             {
                 NowLowQualityOnly = watchApiRes.VideoUrl.AbsoluteUri.EndsWith("low");
             }
 
-            _VisitedPageType = watchApiRes.VideoUrl.AbsoluteUri.EndsWith("low") ? NicoVideoQuality.Smile_Low : NicoVideoQuality.Smile_Original;
-
             if (watchApiRes != null)
             {
+                _VisitedPageType = watchApiRes.VideoUrl.AbsoluteUri.EndsWith("low") ? NicoVideoQuality.Smile_Low : NicoVideoQuality.Smile_Original;
+
                 LegacyVideoUrl = watchApiRes.VideoUrl;
 
                 ProtocolType = MediaProtocolTypeHelper.ParseMediaProtocolType(watchApiRes.VideoUrl);

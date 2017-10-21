@@ -678,7 +678,7 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     Debug.WriteLine($"cant playback{VideoId}. due to denied access to watch page, or connection offline.");
 
-                    var dispatcher = Window.Current.CoreWindow.Dispatcher;
+                    var dispatcher = HohoemaApp.UIDispatcher;
 
                     await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                     {
@@ -1290,10 +1290,14 @@ namespace NicoPlayerHohoema.ViewModels
 
             Video = videoInfo;
 
-            Title = Video.Title;
-            VideoTitle = Title;
-            VideoLength.Value = Video.VideoLength.TotalSeconds;
-            CurrentVideoPosition.Value = TimeSpan.Zero;
+            if (!videoInfo.IsDeleted)
+            {
+                Title = Video.Title;
+                VideoTitle = Title;
+                VideoLength.Value = Video.VideoLength.TotalSeconds;
+                CurrentVideoPosition.Value = TimeSpan.Zero;
+            }
+
 
             cancelToken.ThrowIfCancellationRequested();
 
