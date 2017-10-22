@@ -95,6 +95,8 @@ namespace NicoPlayerHohoema.Dialogs
             else
             {
                 NowLoading.Value = false;
+
+                WebView.Focus(FocusState.Programmatic);
             }
         }
     }

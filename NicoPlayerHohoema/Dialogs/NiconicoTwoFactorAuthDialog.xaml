@@ -21,6 +21,7 @@
                  NavigationCompleted="WebView_NavigationCompleted"
                  NavigationFailed="WebView_NavigationFailed"
                  NavigationStarting="WebView_NavigationStarting" 
+                     MinWidth="280"
              >
                 <i:Interaction.Behaviors>
                     <mybehavior:WebViewAutoResizeToContent />
