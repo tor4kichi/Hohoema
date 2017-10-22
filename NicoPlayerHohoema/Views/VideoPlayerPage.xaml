@@ -2029,7 +2029,7 @@
                             <!-- サポートされていないプロトコル・動画形式 -->
                             <Border HorizontalAlignment="Left"
                                   VerticalAlignment="Top"
-                                  Margin="0 88"
+                                  Margin="32 64"
                                   Visibility="{Binding IsNotSupportVideoType, Converter={StaticResource BooleanToVisibility}}"
                                   Background="{StaticResource AppBarItemPointerOverBackgroundThemeBrush}"
                                 Padding="16"

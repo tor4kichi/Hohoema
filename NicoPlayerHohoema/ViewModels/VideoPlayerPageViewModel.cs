@@ -748,6 +748,14 @@ namespace NicoPlayerHohoema.ViewModels
 
                     VideoPlayed(canPlayNext: true);
                 }
+                else if (videoInfo.ContentType == MovieType.Swf)
+                {
+                    // サポートしていないプロトコルです
+                    IsNotSupportVideoType = true;
+                    CannotPlayReason = videoInfo.ContentType.ToString() + " はHohoemaでサポートされない動画フォーマットです";
+
+                    VideoPlayed(canPlayNext: true);
+                }
                 else
                 {
                     IsNotSupportVideoType = false;
