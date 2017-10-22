@@ -132,7 +132,7 @@
 
                                 </VisualStateManager.VisualStateGroups>
                                 
-                                <controls:ListingWithHeader 
+                                <controls:ListingWithHeader x:Name="ListingWithHeader"
                                     ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
                                     SelectedItems="{Binding SelectedItems}"
                                     RefreshCommand="{Binding RefreshCommand}"
@@ -153,21 +153,22 @@
                                                         <SymbolIcon Symbol="Clear" Opacity="0.7" />
                                                     </Button>
 
-                                                    <Border Background="Transparent" IsHitTestVisible="True"
+                                                    <Border 
                                                         Margin="16 0 0 0"
+                                                        Background="Transparent"
+                                                        IsHitTestVisible="True"
                                                         >
+                                                        <i:Interaction.Behaviors>
+                                                            <core:EventTriggerBehavior EventName="Tapped">
+                                                                <core:ChangePropertyAction TargetObject="{Binding ElementName=ListingWithHeader}" PropertyName="ListPosition" Value="0.0" />
+                                                            </core:EventTriggerBehavior>
+                                                        </i:Interaction.Behaviors>
                                                         <TextBlock 
                                                             VerticalAlignment="Center"
                                                             Style="{StaticResource SubtitleTextBlockStyle}"
                                                             >
                                                 『<Run Text="{Binding SelectedRankingCategory.Value.Category, Converter={StaticResource ToLocalText}}" />』のランキング
                                                         </TextBlock>
-
-                                                        <i:Interaction.Behaviors>
-                                                            <core:EventTriggerBehavior EventName="Tapped">
-                                                                <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0.0" />
-                                                            </core:EventTriggerBehavior>
-                                                        </i:Interaction.Behaviors>
                                                     </Border>
                                                 </StackPanel>
                                             </CommandBar.Content>

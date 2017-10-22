@@ -21,14 +21,16 @@
 
     <Grid>
 
-        <controls:ListingWithHeader ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
-                                    SelectedItems="{Binding SelectedItems}"
-                                    RefreshCommand="{Binding RefreshCommand}"
-                                    ItemCommand="{StaticResource OpenContentCommand}"
-                                    IsTVModeEnabled="{Binding IsForceTVModeEnable.Value}"
-                                    IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
-                                    NowLoading="{Binding NowLoading.Value}"
-                                    >
+        <controls:ListingWithHeader 
+            x:Name="ListingWithHeader"
+            ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
+            SelectedItems="{Binding SelectedItems}"
+            RefreshCommand="{Binding RefreshCommand}"
+            ItemCommand="{StaticResource OpenContentCommand}"
+            IsTVModeEnabled="{Binding IsForceTVModeEnable.Value}"
+            IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
+            NowLoading="{Binding NowLoading.Value}"
+            >
             <controls:ListingWithHeader.HeaderContent>
                 <toolkit:DockPanel >
 
@@ -137,6 +139,12 @@
                     <Border Background="Transparent" IsHitTestVisible="True"
                                 Margin="16 0 0 0"
                                 >
+                        <i:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="Tapped">
+                                <core:ChangePropertyAction TargetObject="{x:Bind ListingWithHeader}" PropertyName="ListPosition" Value="0.0" />
+                            </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
+                        
                         <toolkit:DockPanel VerticalAlignment="Center">
 
                             <TextBlock Text="{Binding SearchOptionText}" 
@@ -151,13 +159,6 @@
 
                             </TextBlock>
                         </toolkit:DockPanel>
-
-
-                        <i:Interaction.Behaviors>
-                            <core:EventTriggerBehavior EventName="Tapped">
-                                <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0.0" />
-                            </core:EventTriggerBehavior>
-                        </i:Interaction.Behaviors>
                     </Border>
 
 

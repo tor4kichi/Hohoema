@@ -53,16 +53,17 @@
         </VisualStateManager.VisualStateGroups>
 
 
-        <controls:ListingWithHeader x:Name="CacheManagementContentLayout"
-                                    ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
-                                    SelectedItems="{Binding SelectedItems}"
-                                    RefreshCommand="{Binding RefreshCommand}"
-                                    ItemCommand="{StaticResource OpenContentCommand}"
-                                    IsTVModeEnabled="{Binding IsForceTVModeEnable.Value}"
-                                    IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
-                                    NowLoading="{Binding NowLoading.Value}"
-                                    Visibility="Collapsed"
-                                    >
+        <controls:ListingWithHeader 
+            x:Name="CacheManagementContentLayout"
+            ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
+            SelectedItems="{Binding SelectedItems}"
+            RefreshCommand="{Binding RefreshCommand}"
+            ItemCommand="{StaticResource OpenContentCommand}"
+            IsTVModeEnabled="{Binding IsForceTVModeEnable.Value}"
+            IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
+            NowLoading="{Binding NowLoading.Value}"
+            Visibility="Collapsed"
+            >
             <controls:ListingWithHeader.HeaderContent>
                 <toolkit:DockPanel >
                     <StackPanel toolkit:DockPanel.Dock="Right"
@@ -150,7 +151,7 @@
                                 >
                         <i:Interaction.Behaviors>
                             <core:EventTriggerBehavior EventName="Tapped">
-                                <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0.0" />
+                                <core:ChangePropertyAction TargetObject="{x:Bind CacheManagementContentLayout}" PropertyName="ListPosition" Value="0.0" />
                             </core:EventTriggerBehavior>
                         </i:Interaction.Behaviors>
 

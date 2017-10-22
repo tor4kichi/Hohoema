@@ -193,6 +193,20 @@ namespace NicoPlayerHohoema.Views.Controls
         }
 
 
+        public static readonly DependencyProperty ListPositionProperty =
+            DependencyProperty.Register(nameof(ListPosition)
+                    , typeof(double)
+                    , typeof(ListingWithHeader)
+                    , new PropertyMetadata(0.0)
+                );
+
+        public double ListPosition
+        {
+            get { return (double)GetValue(ListPositionProperty); }
+            set { SetValue(ListPositionProperty, value); }
+        }
+
+
         public ListingWithHeader()
         {
             this.InitializeComponent();

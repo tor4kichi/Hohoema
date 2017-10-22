@@ -93,6 +93,8 @@
                                 <core:InvokeCommandAction Command="{x:Bind RefreshCommand}" />
                             </mybehavior:KeyboardTrigger.Actions>
                         </mybehavior:KeyboardTrigger>
+
+                        <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{x:Bind ListPosition, Mode=TwoWay}" />
                     </i:Interaction.Behaviors>
 
 
@@ -151,12 +153,22 @@
         </toolkit:DockPanel>
 
         <!-- ヘッダーコントロール -->
-        <Border x:Name="HeaderLayout"
+        <Grid x:Name="HeaderLayout"
                 VerticalAlignment="Top"
                 >
-            <Border.Background>
-                <SolidColorBrush Opacity="0.7" Color="{StaticResource SystemAltMediumColor}" />
-            </Border.Background>
+
+            <Grid.Background>
+                <SolidColorBrush Opacity="0.95" Color="{StaticResource SystemAltMediumColor}" />
+            </Grid.Background>
+
+            <Border IsTapEnabled="True"
+                    >
+                <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Tapped">
+                        <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="ListPosition" Value="0.0" />
+                    </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
+            </Border>
             
             <ContentControl Content="{x:Bind HeaderContent}"
                             ContentTemplate="{x:Bind HeaderTemplate}"
@@ -165,7 +177,7 @@
                             VerticalContentAlignment="Stretch"
                             IsTabStop="False"
                             />
-        </Border>
+        </Grid>
 
 
     </Grid>
