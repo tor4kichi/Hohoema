@@ -556,7 +556,7 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public IAsyncOperation<NiconicoSignInStatus> SignIn(string mailOrTelephone, string password)
+		public IAsyncOperation<NiconicoSignInStatus> SignIn(string mailOrTelephone, string password, bool withClearAuthenticationCache = false)
 		{
 			return AsyncInfo.Run<NiconicoSignInStatus>(async (cancelToken) => 
 			{
@@ -574,9 +574,12 @@ namespace NicoPlayerHohoema.Models
 					return NiconicoSignInStatus.Success;
 				}
 
-				await SignOut();
+                if (IsLoggedIn)
+                {
+                    await SignOut();
+                }
 
-				try
+                try
 				{
 					await _SigninLock.WaitAsync();
 
@@ -586,25 +589,38 @@ namespace NicoPlayerHohoema.Models
 
 					context.AdditionalUserAgent = HohoemaUserAgent;
 
-					LoginErrorText = "";
+
+                    if (withClearAuthenticationCache)
+                    {
+                        context.ClearAuthenticationCache();
+                    }
+
+                    LoginErrorText = "";
 
 					Debug.WriteLine("try login");
 
 					NiconicoSignInStatus result = NiconicoSignInStatus.Failed;
+
+                    
 					try
 					{
-                        result = await context.SignInAsync();
+                        result = await context.GetIsSignedInAsync();
 
-                        if (result == NiconicoSignInStatus.TwoFactorAuthRequired)
+                        if (result == NiconicoSignInStatus.Failed)
                         {
-                            
-                            await _HohoemaDialogService.ShowNiconicoTwoFactorLoginDialog(context.LastRedirectHttpRequestMessage.RequestUri);
+                            result = await context.SignInAsync();
 
-                            result = await context.GetIsSignedInAsync();
-
-                            if (result == NiconicoSignInStatus.Failed)
+                            if (result == NiconicoSignInStatus.TwoFactorAuthRequired)
                             {
-                                LoginErrorText = "認証コードによるログインに失敗。新しい認証コードでログインをお試しください。";
+
+                                await _HohoemaDialogService.ShowNiconicoTwoFactorLoginDialog(context.LastRedirectHttpRequestMessage.RequestUri);
+
+                                result = await context.GetIsSignedInAsync();
+
+                                if (result == NiconicoSignInStatus.Failed)
+                                {
+                                    LoginErrorText = "認証コードによるログインに失敗。新しい認証コードでログインをお試しください。";
+                                }
                             }
                         }
                     }
@@ -779,7 +795,6 @@ namespace NicoPlayerHohoema.Models
 				// 全てのバックグラウンド処理をキャンセル
 				BackgroundUpdater.CancelAll();
 
-                
                 try
                 {
                     MediaManager.StopCacheDownload();
@@ -798,7 +813,9 @@ namespace NicoPlayerHohoema.Models
                     }
 
                     NiconicoContext.Dispose();
-				}
+
+
+                }
 				finally
 				{
                     NiconicoContext = new NiconicoContext();
