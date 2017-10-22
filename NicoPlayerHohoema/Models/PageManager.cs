@@ -250,14 +250,17 @@ namespace NicoPlayerHohoema.Models
         {
             if (Models.AppUpdateNotice.HasNotCheckedUptedeNoticeVersion)
             {
-                _HohoemaDialogService.ShowLatestUpdateNotice()
-                    .ContinueWith(prevTask => 
+                try
+                {
+                    HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                     {
-                        if (prevTask.Exception == null)
-                        {
-                            Models.AppUpdateNotice.UpdateLastCheckedVersionInCurrentVersion();
-                        }
-                    });
+                        await _HohoemaDialogService.ShowLatestUpdateNotice();
+                        Models.AppUpdateNotice.UpdateLastCheckedVersionInCurrentVersion();
+                    })
+                    .AsTask()
+                    .ConfigureAwait(false);
+                }
+                catch { }
             }
 
             if (HohoemaApp.IsLoggedIn)

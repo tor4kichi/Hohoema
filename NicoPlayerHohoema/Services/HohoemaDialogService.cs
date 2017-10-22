@@ -62,6 +62,8 @@ namespace NicoPlayerHohoema.Services
         {
             var versions = await Models.AppUpdateNotice.GetNotCheckedUptedeNoticeVersions();
 
+            if (versions.Count == 0) { return; }
+
             var text = await Models.AppUpdateNotice.GetUpdateNotices(versions);
             var dialog = new Dialogs.MarkdownTextDialog("更新情報");
             dialog.Text = text;
