@@ -163,7 +163,7 @@
                                 >
                             <TextBlock Text="{Binding VideoTitle}" 
                                     VerticalAlignment="Center"
-                                    Style="{StaticResource SubtitleTextBlockStyle}"
+                                    Style="{StaticResource TitleTextBlockStyle}"
                                        TextWrapping="Wrap"
                                     >
                             </TextBlock>

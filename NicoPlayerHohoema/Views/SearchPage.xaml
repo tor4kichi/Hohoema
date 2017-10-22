@@ -181,7 +181,7 @@
                 <Border toolkit:DockPanel.Dock="Top" 
                     BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
                     BorderThickness="0 0 0 1"
-                        Height="64"
+                        Height="48"
                     >
                     <toolkit:DockPanel >
 
@@ -225,7 +225,7 @@
 
                             <TextBlock Text="{Binding Title}" 
                                     VerticalAlignment="Center"
-                                    Style="{StaticResource SubtitleTextBlockStyle}"
+                                    Style="{StaticResource TitleTextBlockStyle}"
                                     >
                                 
                                 <i:Interaction.Behaviors>
@@ -242,7 +242,7 @@
                 </Border>
 
 
-                <StackPanel toolkit:DockPanel.Dock="Top" MaxWidth="640" Margin="16"
+                <StackPanel toolkit:DockPanel.Dock="Top" MaxWidth="640" Margin="16 8"
                             Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                             >
                     <!-- ターゲット（Keyword, Tag etc） -->
@@ -353,7 +353,7 @@
                                                         >
                     <controls:IncrementalLoadingList.ItemTemplate>
                         <DataTemplate>
-                            <toolkit:DockPanel Margin="0"
+                            <toolkit:DockPanel Margin="16 0"
                                                HorizontalAlignment="Left"
                                                 >
                                 <TextBlock Text="{Binding Target, Converter={StaticResource ToLocalText}}" 

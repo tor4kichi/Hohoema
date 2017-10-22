@@ -165,7 +165,7 @@
 
                             </TextBlock>
                             <TextBlock Text="{Binding Title}" 
-                                            Style="{StaticResource SubtitleTextBlockStyle}"
+                                            Style="{StaticResource TitleTextBlockStyle}"
                                     >
 
                             </TextBlock>

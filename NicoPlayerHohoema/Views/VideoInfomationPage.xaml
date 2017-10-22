@@ -105,7 +105,7 @@
                                 >
                         <TextBlock Text="{Binding Title}" 
                                     VerticalAlignment="Center"
-                                    Style="{StaticResource SubtitleTextBlockStyle}"
+                                    Style="{StaticResource TitleTextBlockStyle}"
                                     >
                         </TextBlock>
                     </Border>

@@ -154,7 +154,7 @@
                                            toolkit:DockPanel.Dock="Bottom"
                                     />
                             <TextBlock Text="{Binding Title}" 
-                                            Style="{StaticResource SubtitleTextBlockStyle}"
+                                            Style="{StaticResource TitleTextBlockStyle}"
                                     />
                         </toolkit:DockPanel>
                     </Border>

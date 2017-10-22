@@ -204,7 +204,7 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="{Binding Title, Mode=OneWay}" 
                                             VerticalAlignment="Center"
-                                            Style="{StaticResource SubtitleTextBlockStyle}"
+                                            Style="{StaticResource TitleTextBlockStyle}"
                                             />
 
                         </StackPanel>

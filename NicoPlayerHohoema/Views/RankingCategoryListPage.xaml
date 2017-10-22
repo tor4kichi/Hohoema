@@ -165,7 +165,7 @@
                                                         </i:Interaction.Behaviors>
                                                         <TextBlock 
                                                             VerticalAlignment="Center"
-                                                            Style="{StaticResource SubtitleTextBlockStyle}"
+                                                            Style="{StaticResource TitleTextBlockStyle}"
                                                             >
                                                 『<Run Text="{Binding SelectedRankingCategory.Value.Category, Converter={StaticResource ToLocalText}}" />』のランキング
                                                         </TextBlock>
