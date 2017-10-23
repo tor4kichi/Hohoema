@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NicoPlayerHohoema.Models;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using NicoPlayerHohoema.Views.Service;
 using Windows.UI.Xaml.Navigation;
 using Prism.Windows.Navigation;
@@ -210,7 +210,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
             var target = "キーワード";
-			var optionText = Util.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
+			var optionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
             UpdateTitle($"\"{SearchOption.Keyword}\"");
             SearchOptionText = $"{target} - {optionText}";
 

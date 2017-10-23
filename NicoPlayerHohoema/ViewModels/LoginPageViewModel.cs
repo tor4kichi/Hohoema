@@ -119,7 +119,7 @@ namespace NicoPlayerHohoema.ViewModels
             IsAuthoricationFailed.Value = false;
             IsServiceUnavailable.Value = false;
 
-            var result = await HohoemaApp.SignIn(Mail.Value, Password.Value);
+            var result = await HohoemaApp.SignIn(Mail.Value, Password.Value, withClearAuthenticationCache:true);
             IsValidAccount.Value = result == Mntone.Nico2.NiconicoSignInStatus.Success;
             IsAuthoricationFailed.Value = result == Mntone.Nico2.NiconicoSignInStatus.Failed;
             IsServiceUnavailable.Value = result == Mntone.Nico2.NiconicoSignInStatus.ServiceUnavailable;

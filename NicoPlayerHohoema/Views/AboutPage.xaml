@@ -69,7 +69,7 @@
                                 >
                         <TextBlock Text="{Binding Title}" 
                                     VerticalAlignment="Center"
-                                    Style="{StaticResource SubtitleTextBlockStyle}"
+                                    Style="{StaticResource TitleTextBlockStyle}"
                                     >
                         </TextBlock>
                     </Border>
@@ -243,7 +243,7 @@
 
 
 
-                                                    <Border Height="0 8" BorderBrush="Black" BorderThickness="0 1 0 0" />
+                                                    <Border Height="0" BorderBrush="Black" BorderThickness="0 1 0 0" />
 
                                                     <TextBlock Text="{Binding LisenceText}" MaxWidth="400" TextWrapping="Wrap" />
 

@@ -23,10 +23,27 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
 		private void AssociatedObject_Loaded(object sender, Windows.UI.Xaml.RoutedEventArgs e)
 		{
-			this.AssociatedObject.LoadCompleted += AssociatedObject_LoadCompleted;
+            this.AssociatedObject.NavigationCompleted += AssociatedObject_NavigationCompleted;
 		}
 
-		private async void AssociatedObject_LoadCompleted(object sender, Windows.UI.Xaml.Navigation.NavigationEventArgs e)
+        private async void AssociatedObject_NavigationCompleted(WebView sender, WebViewNavigationCompletedEventArgs args)
+        {
+            var heightString = await this.AssociatedObject.InvokeScriptAsync("eval", new[] { "document.body.scrollHeight.toString()" });
+            int height;
+            if (int.TryParse(heightString, out height))
+            {
+                this.AssociatedObject.Height = height;
+            }
+
+            var widthString = await this.AssociatedObject.InvokeScriptAsync("eval", new[] { "document.body.scrollWidth.toString()" });
+            int width;
+            if (int.TryParse(widthString, out width))
+            {
+                this.AssociatedObject.Width = width;
+            }
+        }
+
+        private async void AssociatedObject_LoadCompleted(object sender, Windows.UI.Xaml.Navigation.NavigationEventArgs e)
 		{
 			var heightString = await this.AssociatedObject.InvokeScriptAsync("eval", new[] { "document.body.scrollHeight.toString()" });
 			int height;

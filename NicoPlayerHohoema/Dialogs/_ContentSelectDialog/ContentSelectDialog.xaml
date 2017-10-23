@@ -1,0 +1,90 @@
+﻿<ContentDialog
+    x:Class="NicoPlayerHohoema.Dialogs.ContentSelectDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Dialogs"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    mc:Ignorable="d"
+    Title="{Binding Title}"
+    PrimaryButtonText="選択"
+    SecondaryButtonText="キャンセル"
+    IsPrimaryButtonEnabled="{Binding IsValidItemSelected.Value}"
+    ScrollViewer.VerticalScrollMode="Disabled"
+    >
+
+    <ContentDialog.Resources>
+
+        <DataTemplate x:Key="ChoiceFromListTemplate">
+
+            <ListView ItemsSource="{Binding Items}"
+                      DisplayMemberPath="Label"
+                      SelectedItem="{Binding SelectedItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                      IsFocusEngagementEnabled="True"
+                      />
+            
+        </DataTemplate>
+
+        <DataTemplate x:Key="InputTextTemplate">
+
+            <StackPanel>
+                <TextBox Text="{Binding Text.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     MinWidth="200"
+                     />
+
+                <ListView ItemsSource="{Binding CandidateItems}"
+                          SelectedItem="{Binding SelectedItem.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                          DisplayMemberPath="Label"
+                          Visibility="{Binding IsSelectFromCandidate, Converter={StaticResource BooleanToVisibility}}"
+                          MinHeight="150"
+                          >
+                    
+                </ListView>
+                
+
+            </StackPanel>
+
+            
+        </DataTemplate>
+
+        <local:ContentSelectContainerTemplateSelector x:Key="ContentSelectContainerTemplateSelector"
+                                                      List="{StaticResource ChoiceFromListTemplate}"
+                                                      InputText="{StaticResource InputTextTemplate}"
+                                                      />
+
+    </ContentDialog.Resources>
+
+
+    <Pivot ItemsSource="{Binding SelectableContainerList}"
+            SelectedItem="{Binding SelectedContainer.Value, Mode=TwoWay}"
+            >
+        <Pivot.HeaderTemplate>
+            <DataTemplate>
+                <TextBlock Text="{Binding Label}" />
+            </DataTemplate>
+        </Pivot.HeaderTemplate>
+        <Pivot.ItemTemplate>
+            <DataTemplate>
+
+                <Grid Margin="0 8">
+                    <ContentControl Content="{Binding}"
+                        ContentTemplateSelector="{StaticResource ContentSelectContainerTemplateSelector}"
+                        HorizontalContentAlignment="Stretch"
+                        VerticalContentAlignment="Stretch"
+                        HorizontalAlignment="Stretch"
+                        Margin="0 0"
+                        MinWidth="200"
+                                    IsTabStop="False"
+                    />
+                </Grid>
+
+                    
+            </DataTemplate>
+        </Pivot.ItemTemplate>
+            
+    </Pivot>
+</ContentDialog>

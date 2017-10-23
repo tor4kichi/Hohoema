@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NicoPlayerHohoema.Models;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using Mntone.Nico2.Users.Video;
 using Prism.Windows.Navigation;
 using System.Diagnostics;

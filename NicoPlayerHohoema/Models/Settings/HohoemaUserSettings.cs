@@ -11,7 +11,7 @@ using System.Threading;
 using Windows.Storage;
 using Newtonsoft.Json;
 using System.IO;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using Mntone.Nico2.Videos.Thumbnail;
 
 namespace NicoPlayerHohoema.Models

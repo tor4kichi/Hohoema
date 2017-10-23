@@ -246,7 +246,7 @@ namespace NicoPlayerHohoema.ViewModels
 					CommunityDetail = detail.CommunitySammary.CommunityDetail;
 
 					var profileHtmlId = $"{CommunityId}_profile";
-					ProfileHtmlFileUri = await Util.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(profileHtmlId, CommunityDetail.ProfielHtml);
+					ProfileHtmlFileUri = await Helpers.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(profileHtmlId, CommunityDetail.ProfielHtml);
 
 					OwnerUserInfo = new UserInfoViewModel(
 						CommunityDetail.OwnerUserName,
@@ -456,7 +456,7 @@ namespace NicoPlayerHohoema.ViewModels
 			)
 		{
 			var id = $"{communityId}_{postAt.ToString("yy-MM-dd-H-mm")}";
-			var uri = await Util.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(id, contentHtml);
+			var uri = await Helpers.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(id, contentHtml);
 			return new CommunityNewsViewModel(communityId, title, authorName, postAt, uri, pageManager);
 		}
 

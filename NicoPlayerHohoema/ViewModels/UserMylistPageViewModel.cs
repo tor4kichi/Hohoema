@@ -21,6 +21,7 @@ using Windows.UI;
 using System.Windows.Input;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Popups;
+using NicoPlayerHohoema.Dialogs;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -83,12 +84,12 @@ namespace NicoPlayerHohoema.ViewModels
 					IconType = IconType.Default,
 				};
 
-				var editDialog = App.Current.Container.Resolve<EditMylistGroupDialogService>();
+				var dialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
 
 				// 成功するかキャンセルが押されるまで繰り返す
 				while (true)
 				{
-					if (true == await editDialog.ShowAsyncWithCreateMode(data))
+					if (true == await dialogService.ShowCreateMylistGroupDialogAsync(data))
 					{
 						var result = await HohoemaApp.UserMylistManager.AddMylist(
 							data.Name,
@@ -165,9 +166,9 @@ namespace NicoPlayerHohoema.ViewModels
 
                 if (item.Origin == PlaylistOrigin.Local)
                 {
-                    var textInputDialogService = App.Current.Container.Resolve<Views.Service.TextInputDialogService>();
+                    var dialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
                     var localMylist = item as LocalMylist;
-                    var resultText = await textInputDialogService.GetTextAsync("プレイリスト名を変更",
+                    var resultText = await dialogService.GetTextAsync("プレイリスト名を変更",
                         localMylist.Name,
                         localMylist.Name,
                         (tempName) => !string.IsNullOrWhiteSpace(tempName)
@@ -197,12 +198,11 @@ namespace NicoPlayerHohoema.ViewModels
                         IconType = mylistGroup.IconType,
                     };
 
-                    var editDialog = App.Current.Container.Resolve<EditMylistGroupDialogService>();
-
                     // 成功するかキャンセルが押されるまで繰り返す
                     while (true)
                     {
-                        if (true == await editDialog.ShowAsync(data))
+                        var dialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
+                        if (true == await dialogService.ShowCreateMylistGroupDialogAsync(data))
                         {
                             var result = await mylistGroup.UpdateMylist(
                                 data.Name,
@@ -240,8 +240,8 @@ namespace NicoPlayerHohoema.ViewModels
 
             AddLocalMylistCommand = new DelegateCommand(async () => 
             {
-                var textDialog = App.Current.Container.Resolve<Views.Service.TextInputDialogService>();
-                var name = await textDialog.GetTextAsync("新しいローカルマイリスト名を入力", "ローカルマイリスト名", "",
+                var dialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
+                var name = await dialogService.GetTextAsync("新しいローカルマイリスト名を入力", "ローカルマイリスト名", "",
                     (s) => 
                     {
                         if (string.IsNullOrWhiteSpace(s)) { return false; }

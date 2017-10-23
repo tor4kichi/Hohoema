@@ -1,0 +1,185 @@
+﻿<UserControl
+    x:Class="NicoPlayerHohoema.Views.Controls.ListingWithHeader"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:mycontrols="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:hardwareTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+
+
+    <Grid>
+
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="TVModeVisualStateGroup">
+                <VisualState x:Name="TVVisualState">
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{x:Bind IsTVModeEnabled}" />
+                        <hardwareTrigger:DeviceFamilyTrigger Condition="Xbox" />
+                    </VisualState.StateTriggers>
+
+                    <VisualState.Setters>
+                        <Setter Target="ItemsList.Visibility" Value="Collapsed" />
+                        <Setter Target="ItemsList_TV.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                    
+                </VisualState>
+            </VisualStateGroup>
+
+            <VisualStateGroup x:Name="PlatformVisualStateGroup">
+                <VisualState x:Name="XboxVisualState">
+                    <VisualState.StateTriggers>
+                        <hardwareTrigger:DeviceFamilyTrigger Condition="Xbox" />
+                    </VisualState.StateTriggers>
+
+                    <VisualState.Setters>
+                        <Setter Target="HeaderLayout.Padding" Value="0 27 48 0" />
+                    </VisualState.Setters>
+
+                </VisualState>
+            </VisualStateGroup>
+
+        </VisualStateManager.VisualStateGroups>
+        
+        
+        
+        
+        <!-- リストコントロール（TV/PC/モバイルに対応する） -->
+
+        <toolkit:DockPanel>
+            
+
+            <Grid>
+
+                <Border VerticalAlignment="Bottom">
+                    <ProgressBar Visibility="{x:Bind NowLoading, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}"
+                                 IsIndeterminate="{x:Bind NowLoading, Mode=OneWay}"
+                            />
+                </Border>
+
+                
+                <uwpcontrols:PullToRefreshListView 
+                            x:Name="ItemsList"
+                            ItemsSource="{x:Bind ItemsSource, Mode=OneWay}"
+                            ItemTemplate="{x:Bind ListItemTemplate}"
+                            IsItemClickEnabled="{x:Bind IsSelectionEnabled, Converter={StaticResource BooleanInverted}}"
+                            IsMultiSelectCheckBoxEnabled="{x:Bind IsSelectionEnabled}"
+                            RefreshCommand="{x:Bind RefreshCommand}"
+                            ItemClick="HohoemaListView_ItemClick"
+                            IncrementalLoadingTrigger="Edge"
+                            PullThreshold="85"    
+                            UseSystemFocusVisuals="True"
+                            SelectionMode="None"
+                            HorizontalContentAlignment="Stretch"
+                            >
+                    <uwpcontrols:PullToRefreshListView.Header>
+                        <Border Height="{Binding ElementName=HeaderLayout, Path=ActualHeight, Mode=OneWay}" />
+                    </uwpcontrols:PullToRefreshListView.Header>
+                    <i:Interaction.Behaviors>
+
+                        <mybehavior:ListViewSelectedItemsGetter SelectedItems="{x:Bind SelectedItems, Mode=TwoWay}" />
+
+                        <mybehavior:KeyboardTrigger Key="F5">
+                            <mybehavior:KeyboardTrigger.Actions>
+                                <core:InvokeCommandAction Command="{x:Bind RefreshCommand}" />
+                            </mybehavior:KeyboardTrigger.Actions>
+                        </mybehavior:KeyboardTrigger>
+
+                        <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{x:Bind ListPosition, Mode=TwoWay}" />
+                    </i:Interaction.Behaviors>
+
+
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment"
+                                Value="Stretch" 
+                                    />
+                            <Setter Property="Margin"
+                                Value="0 0 0 0" 
+                                />
+                            <Setter Property="Padding" Value="0 8 16 8" />
+                            <Setter Property="UseSystemFocusVisuals" Value="True" />
+                            <Setter Property="BorderThickness" Value="0 0 0 1" />
+                            <Setter Property="BorderBrush" Value="#44707070" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+
+                    <uwpcontrols:PullToRefreshListView.RefreshIndicatorContent>
+                        <StackPanel  Margin="0 32 0 0" >
+                            <Border Margin="0 16 0 0" BorderThickness="0 0 0 1" BorderBrush="Gray" />
+                            <SymbolIcon Symbol="Refresh" VerticalAlignment="Bottom" Height="48" Width="48" Margin="0 24 0 8"
+                            />
+                        </StackPanel>
+                    </uwpcontrols:PullToRefreshListView.RefreshIndicatorContent>
+
+                </uwpcontrols:PullToRefreshListView>
+
+                <mycontrols:IncrementalLoadingList
+                        x:Name="ItemsList_TV"
+                        Visibility="Collapsed"
+                        ItemsSource="{x:Bind ItemsSource, Mode=OneWay}"
+                        ItemCommand="{x:Bind ItemCommand}"
+                        ItemTemplate="{x:Bind GridItemTemplate}"
+                        RefreshCommand="{x:Bind RefreshCommand}"
+                        SelectedItems="{x:Bind SelectedItems}"
+                        IsSelectionEnabled="{x:Bind IsSelectionEnabled}"
+                        >
+
+                    <mycontrols:IncrementalLoadingList.Header>
+                        <Border Height="{Binding ElementName=HeaderLayout, Path=ActualHeight, Mode=OneWay}" />
+                    </mycontrols:IncrementalLoadingList.Header>
+                    
+                    <mycontrols:IncrementalLoadingList.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <ItemsWrapGrid Orientation="Horizontal"
+                                            Margin="0 0 48 27"
+                                            />
+                        </ItemsPanelTemplate>
+                    </mycontrols:IncrementalLoadingList.ItemsPanel>
+                </mycontrols:IncrementalLoadingList>
+            </Grid>
+                
+
+
+        </toolkit:DockPanel>
+
+        <!-- ヘッダーコントロール -->
+        <Grid x:Name="HeaderLayout"
+                VerticalAlignment="Top"
+                >
+
+            <Border IsTapEnabled="True"
+                    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                    Opacity="0.75"
+                    >
+                <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Tapped">
+                        <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="ListPosition" Value="0.0" />
+                    </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
+            </Border>
+            
+            <ContentControl Content="{x:Bind HeaderContent}"
+                            ContentTemplate="{x:Bind HeaderTemplate}"
+                            ContentTemplateSelector="{x:Bind HeaderTemplateSelector}"
+                            HorizontalContentAlignment="Stretch"
+                            VerticalContentAlignment="Stretch"
+                            IsTabStop="False"
+                            />
+        </Grid>
+
+
+    </Grid>
+    
+    
+    
+</UserControl>

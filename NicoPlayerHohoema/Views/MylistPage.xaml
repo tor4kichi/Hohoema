@@ -50,7 +50,7 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
-            
+
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
@@ -64,87 +64,23 @@
                 </VisualState>
 
             </VisualStateGroup>
-
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <hardtrigger:DeviceFamilyTrigger Condition="Xbox" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <!-- マージン設定 -->
-                        <Setter Target="HeaderLayout.Margin" Value="0 27 48 0" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <!-- リスト表示を横向きに -->
-                        <Setter Target="VerticalVideoList.Visibility" Value="Collapsed" />
-                        <Setter Target="HorizontalVideoList.Visibility" Value="Visible" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
+            
         </VisualStateManager.VisualStateGroups>
 
-        <Grid>
-            <controls:HohoemaIncrementalLoadingList
-                    x:Name="VerticalVideoList"
-                Margin="0 64 0 0"
-                    >
-                <controls:HohoemaIncrementalLoadingList.ItemTemplate>
-                    <DataTemplate >
-                        <local:VideoInfoControl />
-                    </DataTemplate>
-                </controls:HohoemaIncrementalLoadingList.ItemTemplate>
-            </controls:HohoemaIncrementalLoadingList>
 
-            <controls:IncrementalLoadingList x:Name="HorizontalVideoList"
-                                                 Visibility="Collapsed"
-                                                 
-                                        ItemsSource="{Binding IncrementalLoadingItems}"
-                                        SelectedItems="{Binding SelectedItems, Mode=TwoWay}"
-                                        ItemCommand="{StaticResource OpenContentCommand}"
-                                        IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
-                                        Margin="8 0 0 0"
-                                        Padding="0 0 48 0"
-                                        IsTabStop="False"
-                    
-                    >
-                <controls:IncrementalLoadingList.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Margin="0 0 0 0"
-                                  >
-                            <controls:VideoInfoControl_TV />
-
-                        </Grid>
-                    </DataTemplate>
-                </controls:IncrementalLoadingList.ItemTemplate>
-
-                <controls:IncrementalLoadingList.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <ItemsWrapGrid Orientation="Horizontal"
-                                           Margin="0 96 0 27"
-                                           />
-                    </ItemsPanelTemplate>
-                </controls:IncrementalLoadingList.ItemsPanel>
-            </controls:IncrementalLoadingList>
-        </Grid>
-        
-        <toolkit:DockPanel >
-
-
-            <Border toolkit:DockPanel.Dock="Top" 
-                    x:Name="HeaderLayout"
-                    Background="{StaticResource TvHeaderBackgroundBrush}"
-                    Margin="0 0 0 0"
-                    >
+        <controls:ListingWithHeader 
+            x:Name="ListingWithHeader"
+            ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
+            SelectedItems="{Binding SelectedItems}"
+            RefreshCommand="{Binding RefreshCommand}"
+            ItemCommand="{StaticResource OpenContentCommand}"
+            IsTVModeEnabled="{Binding IsForceTVModeEnable.Value}"
+            IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
+            NowLoading="{Binding NowLoading.Value}"
+            >
+            <controls:ListingWithHeader.HeaderContent>
                 <toolkit:DockPanel >
-                    
+
                     <StackPanel toolkit:DockPanel.Dock="Right" 
                                 Orientation="Horizontal"
                                 >
@@ -168,32 +104,32 @@
                                 <SymbolIcon Symbol="People" />
                             </Button>
 
-                            <Button Command="{Binding EditMylistGroupCommand}"
-                                Background="Transparent"
-                                    x:Name="EditMylistButton"
-                                    Visibility="Collapsed"
-                                    >
+                            <Button x:Name="EditMylistButton"
+                                            Command="{Binding EditMylistGroupCommand}"
+                                            Background="Transparent"
+                                            Visibility="Collapsed"
+                                            >
                                 <StackPanel Orientation="Horizontal">
                                     <SymbolIcon Symbol="Edit" />
                                 </StackPanel>
                             </Button>
-                            <ToggleButton IsChecked="{Binding IsFavoriteMylist.Value, Mode=TwoWay}"
-                                        IsEnabled="{Binding CanChangeFavoriteMylistState.Value}"
-                                        Visibility="Collapsed"
-                                          Background="Transparent"
-                                          x:Name="ToggleMylistFavoriteButton"
-                                    >
+                            <ToggleButton x:Name="ToggleMylistFavoriteButton"
+                                                  IsChecked="{Binding IsFavoriteMylist.Value, Mode=TwoWay}"
+                                                  IsEnabled="{Binding CanChangeFavoriteMylistState.Value}"
+                                                  Background="Transparent"                                                  
+                                                  Visibility="Collapsed"
+                                                >
                                 <StackPanel Orientation="Horizontal">
                                     <SymbolIcon Symbol="Favorite" />
                                 </StackPanel>
                             </ToggleButton>
 
-                            <Button Visibility="Collapsed"
-                                Background="Transparent"
-                                Height="32"
-                                    Command="{Binding DeleteMylistCommand}"
-                                    x:Name="DeleteMylistButton"
-                                      >
+                            <Button x:Name="DeleteMylistButton"
+                                            Command="{Binding DeleteMylistCommand}"
+                                            Height="32"
+                                            Background="Transparent"
+                                            Visibility="Collapsed"
+                                          >
                                 <StackPanel Orientation="Horizontal">
                                     <SymbolIcon Symbol="Delete" />
                                 </StackPanel>
@@ -201,8 +137,8 @@
                         </StackPanel>
 
                         <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
-                                    Orientation="Horizontal"
-                                    >
+                                            Orientation="Horizontal"
+                                            >
 
                             <Button Command="{Binding RegistratioMylistCommand}"
                                             Background="Transparent"
@@ -215,9 +151,9 @@
                                 </StackPanel>
                             </Button>
                             <Button Command="{Binding UnregistrationMylistCommand}"
-                                        Background="Transparent"
-                                        Visibility="{Binding IsUserOwnerdMylist, Converter={StaticResource BooleanToVisibility}}"
-                                        >
+                                            Visibility="{Binding IsUserOwnerdMylist, Converter={StaticResource BooleanToVisibility}}"
+                                            Background="Transparent"
+                                            >
                                 <StackPanel Orientation="Horizontal">
                                     <SymbolIcon Symbol="Remove" />
                                     <TextBlock Text="マイリスト解除"
@@ -227,9 +163,9 @@
                             </Button>
 
                             <Button Command="{Binding RequestCacheDownload}"
-                                        Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
-                                        Background="Transparent"
-                                        >
+                                            Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
+                                            Background="Transparent"
+                                            >
                                 <StackPanel Orientation="Horizontal">
                                     <SymbolIcon Symbol="Download" />
                                     <TextBlock Text="キャッシュ"
@@ -256,20 +192,20 @@
                     </StackPanel>
 
                     <StackPanel Background="Transparent" IsHitTestVisible="True"
-                                Margin="16 8 0 0"
-                                >
+                                    Margin="16 8 0 0"
+                                    >
 
                         <i:Interaction.Behaviors>
                             <core:EventTriggerBehavior EventName="Tapped">
-                                <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0" />
+                                <core:ChangePropertyAction TargetObject="{x:Bind ListingWithHeader}" PropertyName="ListPosition" Value="0.0" />
                             </core:EventTriggerBehavior>
                         </i:Interaction.Behaviors>
 
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="{Binding Title, Mode=OneWay}" 
-                                    VerticalAlignment="Center"
-                                    Style="{StaticResource SubtitleTextBlockStyle}"
-                                    />
+                                            VerticalAlignment="Center"
+                                            Style="{StaticResource TitleTextBlockStyle}"
+                                            />
 
                         </StackPanel>
 
@@ -283,72 +219,44 @@
                                            >
 
                             <TextBlock FontSize="14">
-                                <Run Text="{Binding UserName}" />
-                                <Run Text="の" />
-                                <Run Text="{Binding MylistState}" />
+                                        <Run Text="{Binding UserName}" /> の <Run Text="{Binding MylistState}" />
                             </TextBlock>
 
                             <Border Visibility="{Binding IsLoginUserDeflist, Converter={StaticResource BooleanToVisibility}}"
-                                    Margin="8 0 0 0"
-                                    >
+                                            Margin="8 0 0 0"
+                                            >
                                 <TextBlock>
                                     (登録:<Run Text="{Binding DeflistRegistrationCount}" /> 上限:<Run Text="{Binding DeflistRegistrationCapacity}" />)
                                 </TextBlock>
 
                             </Border>
                             <Border Visibility="{Binding IsLoginUserMylistWithoutDeflist, Converter={StaticResource BooleanToVisibility}}"
-                                    Margin="8 0 0 0"
-                                    >
+                                            Margin="8 0 0 0"
+                                            >
                                 <TextBlock >
                                     (登録:<Run Text="{Binding MaxItemsCount.Value}" /> 合計:<Run Text="{Binding MylistRegistrationCount}" /> 上限:<Run Text="{Binding MylistRegistrationCapacity}" />)
                                 </TextBlock>
 
                             </Border>
-                            <!--
-                            <Grid x:Name="SearchButtonBorder"
-                                    BorderThickness="1"
-                                    >
-                                    
-                                    
-                                <TextBox x:Name="SearchTextBox"
-                                    PlaceholderText="ページ内検索"
-                                    InputScope="SearchIncremental"
-                                    HorizontalAlignment="Stretch"
-                                    VerticalAlignment="Top"
-                                    Height="47"
-                                    Padding="24 8 0 8"
-                                    Margin="0 0 48 0"
-                                    BorderThickness="0"
-                                    >
-
-                                </TextBox>
-
-                                <Button HorizontalAlignment="Right"
-                                        Background="Transparent"
-                                    >
-                                    <SymbolIcon Symbol="Find"  />
-                                </Button>
-                            </Grid>
-                            -->
                         </StackPanel>
                     </StackPanel>
-
-
-
-
                 </toolkit:DockPanel>
-            </Border>
+            </controls:ListingWithHeader.HeaderContent>
 
 
+            <controls:ListingWithHeader.ListItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <local:VideoInfoControl />
+                    </Grid>
+                </DataTemplate>
+            </controls:ListingWithHeader.ListItemTemplate>
 
-
-
-            <Border />
-
-
-
-        </toolkit:DockPanel>
+            <controls:ListingWithHeader.GridItemTemplate>
+                <DataTemplate>
+                    <controls:VideoInfoControl_TV />
+                </DataTemplate>
+            </controls:ListingWithHeader.GridItemTemplate>
+        </controls:ListingWithHeader>
     </Grid>
-    
-    
 </Page>

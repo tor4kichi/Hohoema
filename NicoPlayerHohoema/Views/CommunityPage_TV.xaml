@@ -175,7 +175,7 @@
                                         MinWidth="120"
                                         MinHeight="180" 
                                         >
-                                    <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
+                                    <TextBlock Style="{StaticResource TitleTextBlockStyle}"
                                                  Text="コミュニティ動画"  
                                                 />
 

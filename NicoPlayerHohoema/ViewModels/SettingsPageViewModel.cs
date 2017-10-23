@@ -21,7 +21,7 @@ using System.Windows.Input;
 using System.Text.RegularExpressions;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using Windows.ApplicationModel.Store;
 using Windows.Storage;
 using System.Diagnostics;
@@ -164,14 +164,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _ShowUpdateNoticeCommand
                     ?? (_ShowUpdateNoticeCommand = new DelegateCommand<Version>(async (version) =>
                     {
-                        var allVersions = await Models.AppUpdateNotice.GetUpdateNoticeAvairableVersionsAsync();
-                        var versions = allVersions.Where(x => x.Major == version.Major && x.Minor == version.Minor).ToList();
-                        var text = await Models.AppUpdateNotice.GetUpdateNotices(versions);
-                        var dialog = new Views.Service.MarkdownTextDialog();
-                        dialog.Title = $"v{version.Major}.{version.Minor} 更新情報 一覧";
-                        dialog.Text = text;
-                        dialog.PrimaryButtonText = "OK";
-                        await dialog.ShowAsync();
+                        await _HohoemaDialogService.ShowUpdateNoticeAsync(version);
                     }));
             }
         }
@@ -246,6 +239,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         NGSettings _NGSettings;
         RankingSettings _RankingSettings;
+        Services.HohoemaDialogService _HohoemaDialogService;
 
         public ToastNotificationService ToastNotificationService { get; private set; }
 
@@ -254,12 +248,14 @@ namespace NicoPlayerHohoema.ViewModels
 			HohoemaApp hohoemaApp
 			, PageManager pageManager
 			, ToastNotificationService toastService
+            , Services.HohoemaDialogService dialogService
 			)
 			: base(hohoemaApp, pageManager)
 		{
 			ToastNotificationService = toastService;
             _NGSettings = HohoemaApp.UserSettings.NGSettings;
             _RankingSettings = HohoemaApp.UserSettings.RankingSettings;
+            _HohoemaDialogService = dialogService;
 
             // NG Video Owner User Id
             NGVideoOwnerUserIdEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoOwnerUserIdEnable);
@@ -324,7 +320,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             IsTVModeEnable = HohoemaApp.UserSettings.AppearanceSettings
                 .ToReactivePropertyAsSynchronized(x => x.IsForceTVModeEnable);
-            IsXbox = Util.DeviceTypeHelper.IsXbox;
+            IsXbox = Helpers.DeviceTypeHelper.IsXbox;
 
 
 
@@ -640,19 +636,19 @@ namespace NicoPlayerHohoema.ViewModels
         {
             switch (type)
             {
-                case Models.LisenceType.MIT:
+                case Helpers.LisenceType.MIT:
                     return "MIT";
-                case Models.LisenceType.MS_PL:
+                case Helpers.LisenceType.MS_PL:
                     return "Microsoft Public Lisence";
-                case Models.LisenceType.Apache_v2:
+                case Helpers.LisenceType.Apache_v2:
                     return "Apache Lisence version 2.0";
-                case Models.LisenceType.GPL_v3:
+                case Helpers.LisenceType.GPL_v3:
                     return "GNU General Public License Version 3";
-                case Models.LisenceType.Simplified_BSD:
+                case Helpers.LisenceType.Simplified_BSD:
                     return "二条項BSDライセンス";
-                case Models.LisenceType.CC_BY_40:
+                case Helpers.LisenceType.CC_BY_40:
                     return "クリエイティブ・コモンズ 表示 4.0 国際";
-                case Models.LisenceType.SIL_OFL_v1_1:
+                case Helpers.LisenceType.SIL_OFL_v1_1:
                     return "SIL OPEN FONT LICENSE Version 1.1";
                 default:
                     throw new NotSupportedException(type.ToString());

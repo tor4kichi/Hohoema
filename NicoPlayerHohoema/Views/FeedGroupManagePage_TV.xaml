@@ -51,7 +51,7 @@
                                 >
                 <TextBlock Text="{Binding Title}" 
                                     VerticalAlignment="Center"
-                                    Style="{StaticResource SubheaderTextBlockStyle}"
+                                    Style="{StaticResource TitleTextBlockStyle}"
                                     />
             </Border>
             

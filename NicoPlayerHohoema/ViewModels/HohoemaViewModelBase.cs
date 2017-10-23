@@ -11,7 +11,7 @@ using System.Reactive.Disposables;
 using System.Threading;
 using Windows.UI.Xaml;
 using Windows.Foundation;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using System.Runtime.InteropServices.WindowsRuntime;
 using WinRTXamlToolkit.Async;
 using Windows.UI.Xaml.Navigation;
@@ -41,7 +41,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        static Util.AsyncLock _NavigationLock = new Util.AsyncLock();
+        static Helpers.AsyncLock _NavigationLock = new Helpers.AsyncLock();
 
         /// <summary>
         /// このページが利用可能になるアプリサービス状態を指定します。
@@ -80,7 +80,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .ToReactiveProperty()
                 .AddTo(_CompositeDisposable);
 
-            if (Util.DeviceTypeHelper.IsXbox)
+            if (Helpers.DeviceTypeHelper.IsXbox)
             {
                 IsForceTVModeEnable = new ReactiveProperty<bool>(true);
             }

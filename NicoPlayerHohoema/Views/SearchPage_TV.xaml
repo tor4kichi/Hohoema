@@ -220,16 +220,16 @@
         <Border x:Name="ContentLayout">
 
 
-            <toolkit:DockPanel>
+            <toolkit:DockPanel Margin="0 0 0 0">
 
                 <Border Background="Transparent" IsHitTestVisible="True"
-                                Margin="16 27 0 0"
+                                Margin="16"
                                 toolkit:DockPanel.Dock="Top" 
                                 >
 
                     <TextBlock Text="{Binding Title}" 
                                     VerticalAlignment="Center"
-                                    Style="{StaticResource HeaderTextBlockStyle}"
+                                    Style="{StaticResource TitleTextBlockStyle}"
                                     >
                                 
                                 <i:Interaction.Behaviors>
@@ -389,10 +389,10 @@
 
 
 
-                        <controls:IncrementalLoadingList Margin="0 0 0 0"
+                        <controls:IncrementalLoadingList Margin="16 0 0 0"
                                                          ItemsSource="{Binding IncrementalLoadingItems}"
                                                          SelectedItems="{Binding SelectedItems, Mode=TwoWay}"
-                                                         ItemCommand="{Binding SelectItemCommand}"
+                                                         ItemCommand="{StaticResource OpenContentCommand}"
                                                          IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
                                                          VerticalAlignment="Top"
                                                          IsTabStop="False"
@@ -409,8 +409,9 @@
                                                    toolkit:DockPanel.Dock="Top"
                                                    TextWrapping="Wrap"
                                            />
-                                        <TextBlock Text="{Binding Target}" 
+                                        <TextBlock Text="{Binding Target, Converter={StaticResource ToLocalText}}" 
                                            Style="{StaticResource CaptionTextBlockStyle}"
+                                                   Opacity="0.7"
                                        />
 
 

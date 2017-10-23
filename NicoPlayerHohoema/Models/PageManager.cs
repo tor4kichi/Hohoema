@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Util;
+﻿using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.ViewModels;
 using Prism.Mvvm;
 using Prism.Windows.Mvvm;
@@ -73,16 +74,20 @@ namespace NicoPlayerHohoema.Models
         public HohoemaPlaylist HohoemaPlaylist { get; private set; }
         public AppearanceSettings AppearanceSettings { get; }
         public HohoemaViewManager HohoemaViewManager { get; }
+        HohoemaDialogService _HohoemaDialogService;
+
 
         private AsyncLock _NavigationLock = new AsyncLock();
 
-        public PageManager(HohoemaApp hohoemaApp, INavigationService ns, AppearanceSettings appearanceSettings, HohoemaPlaylist playlist, HohoemaViewManager viewMan)
+        public PageManager(HohoemaApp hohoemaApp, INavigationService ns, AppearanceSettings appearanceSettings, HohoemaPlaylist playlist, HohoemaViewManager viewMan, HohoemaDialogService dialogService)
 		{
             HohoemaApp = hohoemaApp;
             NavigationService = ns;
             AppearanceSettings = appearanceSettings;
             HohoemaPlaylist = playlist;
             HohoemaViewManager = viewMan;
+            _HohoemaDialogService = dialogService;
+
 
             CurrentPageType = HohoemaPageType.RankingCategoryList;
         }
@@ -245,46 +250,17 @@ namespace NicoPlayerHohoema.Models
         {
             if (Models.AppUpdateNotice.HasNotCheckedUptedeNoticeVersion)
             {
-                Models.AppUpdateNotice.GetNotCheckedUptedeNoticeVersions()
-                    .ContinueWith(async prevTask =>
+                try
+                {
+                    HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                     {
-                        if (prevTask.Exception == null)
-                        {
-                            await HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                            {
-                                try
-                                {
-                                    var text = await Models.AppUpdateNotice.GetUpdateNotices(prevTask.Result);
-                                    var dialog = new Views.Service.MarkdownTextDialog();
-                                    dialog.Title = "更新情報";
-                                    dialog.Text = text;
-                                    dialog.PrimaryButtonText = "OK";
-
-                                    try
-                                    {
-                                        var addon = await Purchase.HohoemaPurchase.GetAvailableCheersAddOn();
-                                        var product = addon.ProductListings.FirstOrDefault(x => Purchase.HohoemaPurchase.ProductIsActive(x.Value));
-
-                                        if (product.Value != null)
-                                        {
-                                            dialog.SecondaryButtonText = "開発支援について確認する";
-                                            dialog.SecondaryButtonClick += async (_, e) =>
-                                            {
-                                                await Purchase.HohoemaPurchase.RequestPurchase(product.Value);
-                                            };
-                                        }
-                                    }
-                                    catch { }
-
-                                    await dialog.ShowAsync();
-                                }
-                                catch { }
-
-                                Models.AppUpdateNotice.UpdateLastCheckedVersionInCurrentVersion();
-
-                            });
-                        }
-                    });
+                        await _HohoemaDialogService.ShowLatestUpdateNotice();
+                        Models.AppUpdateNotice.UpdateLastCheckedVersionInCurrentVersion();
+                    })
+                    .AsTask()
+                    .ConfigureAwait(false);
+                }
+                catch { }
             }
 
             if (HohoemaApp.IsLoggedIn)
@@ -306,51 +282,7 @@ namespace NicoPlayerHohoema.Models
 
 		public static string PageTypeToTitle(HohoemaPageType pageType)
 		{
-			switch (pageType)
-			{
-				case HohoemaPageType.RankingCategoryList:
-					return "ランキングカテゴリ一覧";
-				case HohoemaPageType.RankingCategory:
-					return "カテゴリランキング";
-				case HohoemaPageType.UserMylist:
-					return "マイリスト一覧";
-				case HohoemaPageType.Mylist:
-					return "マイリスト";
-				case HohoemaPageType.FollowManage:
-					return "フォロー";
-				case HohoemaPageType.History:
-					return "視聴履歴";
-				case HohoemaPageType.Search:
-					return "検索";
-				case HohoemaPageType.CacheManagement:
-					return "キャッシュ";
-				case HohoemaPageType.Settings:
-					return "設定";
-				case HohoemaPageType.VideoInfomation:
-					return "動画情報";
-				case HohoemaPageType.ConfirmWatchHurmfulVideo:
-					return "動画視聴の確認";
-				case HohoemaPageType.FeedGroupManage:
-					return "全てのフィードグループ";
-				case HohoemaPageType.FeedGroup:
-					return "フィードグループ";
-				case HohoemaPageType.FeedVideoList:
-					return "フィードの動画一覧";
-				case HohoemaPageType.UserInfo:
-					return "ユーザー情報";
-				case HohoemaPageType.UserVideo:
-					return "ユーザー投稿動画一覧";
-				case HohoemaPageType.Community:
-					return "コミュニティ情報";
-				case HohoemaPageType.CommunityVideo:
-					return "コミュニティ動画一覧";
-                case HohoemaPageType.NicoRepo:
-                    return "ニコレポ";
-				default:
-                    Debug.WriteLine("not support " + nameof(HohoemaPageType) + "." + pageType.ToString());
-                    return pageType.ToString();
-//					throw new NotSupportedException();
-			}
+            return Helpers.CulturelizeHelper.ToCulturelizeString(pageType);
 		}
 
 		public async Task StartNoUIWork(string title, Func<IAsyncAction> actionFactory)

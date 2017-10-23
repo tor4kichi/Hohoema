@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 
 namespace NicoPlayerHohoema.Models
 {

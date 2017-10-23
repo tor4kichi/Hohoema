@@ -4,7 +4,7 @@ using Mntone.Nico2.Videos.Thumbnail;
 using Mntone.Nico2.Videos.WatchAPI;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Db;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using NicoPlayerHohoema.ViewModels.PlayerSidePaneContent;
 using NicoPlayerHohoema.Views;
 using NicoPlayerHohoema.Views.DownloadProgress;
@@ -49,6 +49,7 @@ using Windows.UI.Popups;
 using Windows.ApplicationModel.Core;
 using Windows.Foundation.Metadata;
 using Microsoft.Practices.Unity;
+using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -60,7 +61,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		const uint default_DisplayTime = 400; // 1 = 10ms, 400 = 4000ms = 4.0 Seconds
 
-        public bool IsXbox => Util.DeviceTypeHelper.IsXbox;
+        public bool IsXbox => Helpers.DeviceTypeHelper.IsXbox;
 
 		public VideoPlayerPageViewModel(
 			HohoemaApp hohoemaApp, 
@@ -68,12 +69,12 @@ namespace NicoPlayerHohoema.ViewModels
 			PageManager pageManager, 
             HohoemaViewManager viewManager,
 			ToastNotificationService toast,
-			TextInputDialogService textInputDialog
+			HohoemaDialogService dialogService
 			)
 			: base(hohoemaApp, pageManager)
 		{
 			_ToastService = toast;
-			_TextInputDialogService = textInputDialog;
+			_HohoemaDialogService = dialogService;
 
             MediaPlayer = viewManager.GetCurrentWindowMediaPlayer();
 
@@ -528,7 +529,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 var playWithCache = false;
                 // キャッシュされた動画から再生
-                if (CurrentVideoQuality.Value == NicoVideoQuality.Original)
+                if (CurrentVideoQuality.Value == NicoVideoQuality.Smile_Original)
                 {
                     if (Video.OriginalQuality.IsCached)
                     {
@@ -563,7 +564,7 @@ namespace NicoPlayerHohoema.ViewModels
             }
 
 
-            if (Util.InputCapabilityHelper.IsMouseCapable && !IsForceTVModeEnable.Value)
+            if (Helpers.InputCapabilityHelper.IsMouseCapable && !IsForceTVModeEnable.Value)
             {
                 IsAutoHideEnable = Observable.CombineLatest(
                     NowPlaying,
@@ -677,7 +678,7 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     Debug.WriteLine($"cant playback{VideoId}. due to denied access to watch page, or connection offline.");
 
-                    var dispatcher = Window.Current.CoreWindow.Dispatcher;
+                    var dispatcher = HohoemaApp.UIDispatcher;
 
                     await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                     {
@@ -747,6 +748,14 @@ namespace NicoPlayerHohoema.ViewModels
 
                     VideoPlayed(canPlayNext: true);
                 }
+                else if (videoInfo.ContentType == MovieType.Swf)
+                {
+                    // サポートしていないプロトコルです
+                    IsNotSupportVideoType = true;
+                    CannotPlayReason = videoInfo.ContentType.ToString() + " はHohoemaでサポートされない動画フォーマットです";
+
+                    VideoPlayed(canPlayNext: true);
+                }
                 else
                 {
                     IsNotSupportVideoType = false;
@@ -766,8 +775,8 @@ namespace NicoPlayerHohoema.ViewModels
             IsAvailableDmcMidiumQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Dmc_Midium).CanPlay;
             IsAvailableDmcLowQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Dmc_Low).CanPlay;
             IsAvailableDmcMobileQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Dmc_Mobile).CanPlay;
-            IsAvailableLegacyOriginalQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Original).CanPlay;
-            IsAvailableLegacyLowQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Low).CanPlay;
+            IsAvailableLegacyOriginalQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Smile_Original).CanPlay;
+            IsAvailableLegacyLowQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Smile_Low).CanPlay;
 
             UpdateCache();
 
@@ -933,11 +942,11 @@ namespace NicoPlayerHohoema.ViewModels
 			var isCurrentQualityCacheDownloadCompleted = false;
 			switch (CurrentVideoQuality.Value)
 			{
-				case NicoVideoQuality.Original:
+				case NicoVideoQuality.Smile_Original:
 					IsSaveRequestedCurrentQualityCache.Value = Video.OriginalQuality.IsCacheRequested;
 					isCurrentQualityCacheDownloadCompleted = Video.OriginalQuality.IsCached;
 					break;
-				case NicoVideoQuality.Low:
+				case NicoVideoQuality.Smile_Low:
 					IsSaveRequestedCurrentQualityCache.Value = Video.LowQuality.IsCacheRequested;
 					isCurrentQualityCacheDownloadCompleted = Video.LowQuality.IsCached;
 					break;
@@ -974,7 +983,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-            if (!Util.InputCapabilityHelper.IsMouseCapable)
+            if (!Helpers.InputCapabilityHelper.IsMouseCapable)
             {
                 IsDisplayControlUI.Value = false;
             }
@@ -1289,10 +1298,14 @@ namespace NicoPlayerHohoema.ViewModels
 
             Video = videoInfo;
 
-            Title = Video.Title;
-            VideoTitle = Title;
-            VideoLength.Value = Video.VideoLength.TotalSeconds;
-            CurrentVideoPosition.Value = TimeSpan.Zero;
+            if (!videoInfo.IsDeleted)
+            {
+                Title = Video.Title;
+                VideoTitle = Title;
+                VideoLength.Value = Video.VideoLength.TotalSeconds;
+                CurrentVideoPosition.Value = TimeSpan.Zero;
+            }
+
 
             cancelToken.ThrowIfCancellationRequested();
 
@@ -1642,11 +1655,11 @@ namespace NicoPlayerHohoema.ViewModels
 
         private void UpdateCache()
         {
-            IsCacheLegacyOriginalQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Original).IsCacheRequested;
-            IsCacheLegacyLowQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Low).IsCacheRequested;
+            IsCacheLegacyOriginalQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Smile_Original).IsCacheRequested;
+            IsCacheLegacyLowQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Smile_Low).IsCacheRequested;
 
-            CanToggleCacheRequestLegacyOriginalQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Original).CanRequestCache || IsCacheLegacyOriginalQuality.Value;
-            CanToggleCacheRequestLegacyLowQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Low).CanRequestCache || IsCacheLegacyLowQuality.Value;
+            CanToggleCacheRequestLegacyOriginalQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Smile_Original).CanRequestCache || IsCacheLegacyOriginalQuality.Value;
+            CanToggleCacheRequestLegacyLowQuality.Value = Video.GetDividedQualityNicoVideo(NicoVideoQuality.Smile_Low).CanRequestCache || IsCacheLegacyLowQuality.Value;
         }
 
 		#region Command	
@@ -2010,7 +2023,7 @@ namespace NicoPlayerHohoema.ViewModels
                             {
                                 if (divided.IsCacheRequested)
                                 {
-                                    var qualityText = new Views.Converters.NicoVideoQualityToCultualizedTextConverter().Convert(quality, typeof(string), null, null);
+                                    var qualityText = quality.ToCulturelizeString();
 
                                     var dialog = new MessageDialog(
                                         $"{VideoTitle} の キャッシュデータ（{qualityText}画質）を削除します。この操作は元に戻せません。", 
@@ -2490,7 +2503,7 @@ namespace NicoPlayerHohoema.ViewModels
         public static EmptySidePaneContentViewModel EmptySidePaneContent { get; } = new EmptySidePaneContentViewModel();
 
         ToastNotificationService _ToastService;
-		TextInputDialogService _TextInputDialogService;
+        HohoemaDialogService _HohoemaDialogService;
 
 
         // TODO: コメントのNGユーザー登録

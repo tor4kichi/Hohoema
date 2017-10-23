@@ -1,0 +1,23 @@
+﻿<ContentDialog
+    x:Class="NicoPlayerHohoema.Dialogs.MarkdownTextDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views.Service"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:uwpcontrol="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    mc:Ignorable="d"
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
+    SecondaryButtonClick="ContentDialog_SecondaryButtonClick">
+
+    <Grid>
+        <ScrollViewer>
+            <uwpcontrol:MarkdownTextBlock Style="{StaticResource HohoemaMarkdownTextBlockStyle}"
+                Text="{x:Bind Text, Mode=OneWay}"
+                LinkClicked="MarkdownTextBlock_LinkClicked"
+                
+                />
+
+        </ScrollViewer>
+    </Grid>
+</ContentDialog>

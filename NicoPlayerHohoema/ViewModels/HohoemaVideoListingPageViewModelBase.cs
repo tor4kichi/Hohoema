@@ -1,5 +1,5 @@
 ﻿using NicoPlayerHohoema.Models;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using Prism.Commands;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -280,9 +280,9 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 switch (quality)
                 {
-                    case NicoVideoQuality.Original:
+                    case NicoVideoQuality.Smile_Original:
                         return SelectedItems.Where(x => x.NicoVideo.OriginalQuality.CanRequestCache && !x.NicoVideo.OriginalQuality.IsCached);
-                    case NicoVideoQuality.Low:
+                    case NicoVideoQuality.Smile_Low:
                         return SelectedItems.Where(x => x.NicoVideo.LowQuality.CanRequestCache && !x.NicoVideo.LowQuality.IsCached);
                     default:
                         return Enumerable.Empty<VideoInfoControlViewModel>();

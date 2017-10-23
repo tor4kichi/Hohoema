@@ -8,7 +8,7 @@ using Prism.Windows.Navigation;
 using FFmpegInterop;
 using Windows.Media.Core;
 using System.Threading;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using System.Diagnostics;
 using Windows.Foundation.Collections;
 using NicoVideoRtmpClient;
@@ -32,6 +32,7 @@ using Windows.ApplicationModel.Core;
 using Windows.Foundation.Metadata;
 using NicoPlayerHohoema.ViewModels.PlayerSidePaneContent;
 using Windows.UI.Core;
+using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -61,7 +62,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		public TextInputDialogService _TextInputDialogService { get; private set; }
+		public HohoemaDialogService _HohoemaDialogService { get; private set; }
         private ToastNotificationService _ToastNotificationService;
 
 
@@ -121,7 +122,7 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _LiveElapsedTime, value); }
 		}
 
-		Util.AsyncLock _LiveElapsedTimeUpdateTimerLock = new Util.AsyncLock();
+		Helpers.AsyncLock _LiveElapsedTimeUpdateTimerLock = new Helpers.AsyncLock();
 		Timer _LiveElapsedTimeUpdateTimer;
 
 
@@ -220,14 +221,14 @@ namespace NicoPlayerHohoema.ViewModels
             HohoemaApp hohoemaApp, 
             PageManager pageManager, 
             HohoemaViewManager viewManager,
-            TextInputDialogService textInputDialogService,
+            Services.HohoemaDialogService dialogService,
             ToastNotificationService toast
             )
             : base(hohoemaApp, pageManager)
 		{
             _HohoemaViewManager = viewManager;
 
-            _TextInputDialogService = textInputDialogService;
+            _HohoemaDialogService = dialogService;
             _ToastNotificationService = toast;
 
             _CurrentWindowDispatcher = CoreApplication.GetCurrentView().Dispatcher;
@@ -397,7 +398,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             IsDisplayControlUI = HohoemaApp.Playlist.ToReactivePropertyAsSynchronized(x => x.IsDisplayPlayerControlUI, PlayerWindowUIDispatcherScheduler);
 
-            if (Util.InputCapabilityHelper.IsMouseCapable && !IsForceTVModeEnable.Value)
+            if (Helpers.InputCapabilityHelper.IsMouseCapable && !IsForceTVModeEnable.Value)
             {
                 IsAutoHideEnable = Observable.CombineLatest(
                     NowPlaying,
@@ -1010,7 +1011,7 @@ namespace NicoPlayerHohoema.ViewModels
                         
                     }
 
-                    if (!Util.InputCapabilityHelper.IsMouseCapable)
+                    if (!Helpers.InputCapabilityHelper.IsMouseCapable)
                     {
                         IsDisplayControlUI.Value = false;
                     }
@@ -1338,10 +1339,13 @@ namespace NicoPlayerHohoema.ViewModels
                         sidePaneContent = new PlayerSidePaneContent.SettingsSidePaneContentViewModel(HohoemaApp.UserSettings);
                         if (NicoLiveVideo != null)
                         {
-                            (sidePaneContent as SettingsSidePaneContentViewModel).SetupAvairableLiveQualities(
-                                NicoLiveVideo.Qualities
-                                );
-                            (sidePaneContent as SettingsSidePaneContentViewModel).IsLeoPlayerLive = NicoLiveVideo.LivePlayerType == Models.Live.LivePlayerType.Leo;
+                            if (LivePlayerType.Value == Models.Live.LivePlayerType.Leo)
+                            {
+                                (sidePaneContent as SettingsSidePaneContentViewModel).SetupAvairableLiveQualities(
+                                    NicoLiveVideo.Qualities
+                                    );
+                                (sidePaneContent as SettingsSidePaneContentViewModel).IsLeoPlayerLive = NicoLiveVideo.LivePlayerType == Models.Live.LivePlayerType.Leo;
+                            }
                         }
                         break;
                     default:

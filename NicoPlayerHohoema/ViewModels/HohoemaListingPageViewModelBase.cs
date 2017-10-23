@@ -1,5 +1,5 @@
 ﻿using NicoPlayerHohoema.Models;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using Prism.Commands;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -28,7 +28,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public HohoemaListingPageViewModelBase(HohoemaApp app, PageManager pageManager, bool useDefaultPageTitle = true)
 			: base(app, pageManager, useDefaultPageTitle: useDefaultPageTitle)
 		{
-			NowLoadingItems = new ReactiveProperty<bool>(true)
+			NowLoading = new ReactiveProperty<bool>(true)
 				.AddTo(_CompositeDisposable);
             
             SelectedItems = new ObservableCollection<ITEM_VM>();
@@ -103,7 +103,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             // 読み込み厨または選択中はソートを変更できない
             CanChangeSort = Observable.CombineLatest(
-                NowLoadingItems,
+                NowLoading,
                 IsSelectionModeEnable
                 )
                 .Select(x => !x.Any(y => y))
@@ -260,7 +260,7 @@ namespace NicoPlayerHohoema.ViewModels
 			catch
 			{
 				IncrementalLoadingItems = null;
-				NowLoadingItems.Value = false;
+				NowLoading.Value = false;
 				HasItem.Value = true;
 				HasError.Value = true;
 				Debug.WriteLine("failed GenerateIncrementalSource.");
@@ -275,12 +275,12 @@ namespace NicoPlayerHohoema.ViewModels
 		private void BeginLoadingItems()
 		{
 			HasError.Value = false;
-			NowLoadingItems.Value = true;
+			NowLoading.Value = true;
 		}
 
 		private void CompleteLoadingItems()
 		{
-			NowLoadingItems.Value = false;
+			NowLoading.Value = false;
 
 			LoadedItemsCount.Value = IncrementalLoadingItems?.Count ?? 0;
 			HasItem.Value = LoadedItemsCount.Value > 0;
@@ -387,7 +387,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<double> ListViewVerticalOffset { get; private set; }
 		private double _LastListViewOffset;
 
-		public ReactiveProperty<bool> NowLoadingItems { get; private set; }
+		public ReactiveProperty<bool> NowLoading { get; private set; }
         public ReactiveProperty<bool> CanChangeSort { get; private set; }
 
         public ReactiveProperty<bool> NowRefreshable { get; private set; }

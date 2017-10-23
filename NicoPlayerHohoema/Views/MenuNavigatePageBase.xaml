@@ -239,7 +239,7 @@
                             <SolidColorBrush Color="{ThemeResource SystemAltMediumHighColor}" />
                         </toolkit:DockPanel.Background>
 
-                        <TextBlock Text="{Binding ServiceLevel.Value, Converter={StaticResource HohoemaSerivceStatusToText}}" 
+                        <TextBlock Text="{Binding ServiceLevel.Value, Converter={StaticResource ToLocalText}}" 
                                                    x:Name="ServiceStateText_Mobile"
                                                    Visibility="Collapsed"
                                    FontSize="13"
@@ -327,8 +327,10 @@
                         DisplayMode="Inline"
                         IsPaneOpen="False"
                                IsTabStop="False"
-                               PaneBackground="{ThemeResource SystemAltMediumHighColor}"
                         >
+                        <SplitView.PaneBackground>
+                            <SolidColorBrush Color="{ThemeResource SystemAltMediumHighColor}" />
+                        </SplitView.PaneBackground>
                         <SplitView.Pane>
                             <toolkit:DockPanel x:Name="PaneLayout" 
                                                mybehavior:XYNavigationExtentions.FocusAcceptOrientation="Horizontal"
@@ -345,7 +347,7 @@
                                         TabIndex="15"
                                         >
                                     <StackPanel>
-                                        <TextBlock Text="{Binding ServiceLevel.Value, Converter={StaticResource HohoemaSerivceStatusToText}}" 
+                                        <TextBlock Text="{Binding ServiceLevel.Value, Converter={StaticResource ToLocalText}}" 
                                                    x:Name="ServiceStateText"
                                                    Visibility="Collapsed"
                                                />
@@ -421,11 +423,7 @@
                             </toolkit:DockPanel>
                         </SplitView.Pane>
                         <SplitView.Content>
-                            <Grid >
-                                <Grid.Background>
-                                    <SolidColorBrush Color="{ThemeResource ApplicationPageBackgroundThemeBrush}" />
-                                </Grid.Background>
-
+                            <Grid>
 
                                 <Grid x:Name="ContentLayout">
 

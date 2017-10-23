@@ -6,7 +6,6 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    xmlns:comment="using:NicoPlayerHohoema.Views.CommentRenderer"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
@@ -247,19 +246,19 @@
 
             <local:PlayerSidePaneContentTemplateSelecter.Playlist>
                 <DataTemplate>
-                    <sidepanecontent:PlaylistSidePaneContent />
+                    <local:PlaylistSidePaneContent />
                 </DataTemplate>
             </local:PlayerSidePaneContentTemplateSelecter.Playlist>
 
             <local:PlayerSidePaneContentTemplateSelecter.Comments>
                 <DataTemplate>
-                    <sidepanecontent:CommentsSidePaneContent />
+                    <local:CommentsSidePaneContent />
                 </DataTemplate>
             </local:PlayerSidePaneContentTemplateSelecter.Comments>
 
             <local:PlayerSidePaneContentTemplateSelecter.Settings>
                 <DataTemplate>
-                    <sidepanecontent:VideoSettingsSidePaneContent />
+                    <local:VideoSettingsSidePaneContent />
                 </DataTemplate>
             </local:PlayerSidePaneContentTemplateSelecter.Settings>
 
@@ -919,7 +918,7 @@
                         </MediaPlayerElement>
 
 
-                        <comment:CommentRendererEx
+                        <local:CommentRendererEx
                                 x:Name="CommentRederer"
                                 MediaPlayer="{Binding MediaPlayer}"
                                 Comments="{Binding Comments}"
@@ -1152,7 +1151,7 @@
                                                 >
 
                                                     <TextBlock  Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}">
-                                                        <Run Text="{Binding CurrentVideoQuality.Value, Converter={StaticResource QualityToText}}" />
+                                                        <Run Text="{Binding CurrentVideoQuality.Value, Converter={StaticResource ToLocalText}}" />
                                                         <Run Text="画質" />   
                                                     </TextBlock>
 
@@ -2030,7 +2029,7 @@
                             <!-- サポートされていないプロトコル・動画形式 -->
                             <Border HorizontalAlignment="Left"
                                   VerticalAlignment="Top"
-                                  Margin="0 88"
+                                  Margin="32 64"
                                   Visibility="{Binding IsNotSupportVideoType, Converter={StaticResource BooleanToVisibility}}"
                                   Background="{StaticResource AppBarItemPointerOverBackgroundThemeBrush}"
                                 Padding="16"

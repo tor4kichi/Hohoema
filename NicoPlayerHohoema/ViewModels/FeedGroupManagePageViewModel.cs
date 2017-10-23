@@ -7,7 +7,7 @@ using System.Windows.Input;
 using NicoPlayerHohoema.Models;
 using Prism.Mvvm;
 using Prism.Commands;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using Reactive.Bindings;
 using System.Collections.ObjectModel;
 using Prism.Windows.Navigation;
@@ -30,12 +30,12 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveCommand AddFeedGroupCommand { get; private set; }
 
 
-		private TextInputDialogService _TextInputDialogService;
+		private Services.HohoemaDialogService _HohoemaDialogService;
 
-		public FeedGroupManagePageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, TextInputDialogService textInputDialog) 
+		public FeedGroupManagePageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Services.HohoemaDialogService dialogService) 
 			: base(hohoemaApp, pageManager)
 		{
-			_TextInputDialogService = textInputDialog;
+            _HohoemaDialogService = dialogService;
 
 			FeedGroupItems = new ObservableCollection<FeedGroupListItem>();
 			HasFeedGroupItems = FeedGroupItems.ObserveProperty(x => x.Count)
@@ -144,7 +144,7 @@ namespace NicoPlayerHohoema.ViewModels
 				return _CreateFeedGroupCommand
 					?? (_CreateFeedGroupCommand = new DelegateCommand(async () =>
 					{
-						var newFeedGroupName = await _TextInputDialogService.GetTextAsync(
+						var newFeedGroupName = await _HohoemaDialogService.GetTextAsync(
 							"フィードグループを作成"
 							, "フィードグループ名"
 							, validater: (name) =>

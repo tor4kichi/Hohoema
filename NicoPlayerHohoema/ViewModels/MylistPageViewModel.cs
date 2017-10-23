@@ -14,7 +14,7 @@ using Mntone.Nico2;
 using Reactive.Bindings;
 using System.Reactive.Linq;
 using System.Diagnostics;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using Windows.UI.Xaml;
 using Reactive.Bindings.Extensions;
 using System.Threading;
@@ -25,14 +25,12 @@ using Mntone.Nico2.Live.PlayerStatus;
 using System.Runtime.InteropServices.WindowsRuntime;
 using NicoPlayerHohoema.Models.Db;
 using Windows.UI.Popups;
+using NicoPlayerHohoema.Dialogs;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	public class MylistPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
 	{
-
-        ContentSelectDialogService _ContentSelectDialogService;
-
         public ReactiveProperty<IPlayableList> PlayableList { get; private set; }
 
         public ReactiveProperty<PlaylistOrigin> MylistOrigin { get; }
@@ -157,7 +155,7 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         if (PlayableList.Value.Origin == PlaylistOrigin.Local)
                         {
-                            var textInputDialogService = App.Current.Container.Resolve<Views.Service.TextInputDialogService>();
+                            var textInputDialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
                             var localMylist = PlayableList.Value as LocalMylist;
                             var resultText = await textInputDialogService.GetTextAsync("プレイリスト名を変更",
                                 localMylist.Name,
@@ -185,12 +183,12 @@ namespace NicoPlayerHohoema.ViewModels
                                 IconType = mylistGroup.IconType,
                             };
 
-                            var editDialog = App.Current.Container.Resolve<EditMylistGroupDialogService>();
+                            var editDialog = App.Current.Container.Resolve<Services.HohoemaDialogService>();
 
                             // 成功するかキャンセルが押されるまで繰り返す
                             while (true)
                             {
-                                if (true == await editDialog.ShowAsync(data))
+                                if (true == await editDialog.ShowEditMylistGroupDialogAsync(data))
                                 {
                                     var result = await mylistGroup.UpdateMylist(
                                         data.Name,

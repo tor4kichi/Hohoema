@@ -33,6 +33,8 @@
                                       Margin="{TemplateBinding Margin}"
                                       Padding="{TemplateBinding Padding}"
                                       ItemsPanel="{TemplateBinding ItemsPanel}"
+                                      Header="{TemplateBinding Header}"
+                                      HeaderTemplate="{TemplateBinding HeaderTemplate}"
                                 >
 
                                 <GridView.ItemContainerStyle>

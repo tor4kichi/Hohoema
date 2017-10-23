@@ -36,7 +36,7 @@ namespace NicoPlayerHohoema.Models
 
         public static void LoadRecentLoginAccount()
         {
-            if (!Util.DeviceTypeHelper.IsXbox)
+            if (!Helpers.DeviceTypeHelper.IsXbox)
             {
                 var vault = new Windows.Security.Credentials.PasswordVault();
 
@@ -90,9 +90,9 @@ namespace NicoPlayerHohoema.Models
         public static Task AddOrUpdateAccount(string mailAddress, string password)
         {
 #if !DEBUG
-            if (!Util.DeviceTypeHelper.IsXbox)
+            if (!Helpers.DeviceTypeHelper.IsXbox)
 #else
-            if (!IsDebugXboxMode && !Util.DeviceTypeHelper.IsXbox)
+            if (!IsDebugXboxMode && !Helpers.DeviceTypeHelper.IsXbox)
 #endif
             {
                 _AddOrUpdateAccount(mailAddress, password);
@@ -134,7 +134,7 @@ namespace NicoPlayerHohoema.Models
         {
             var container = ApplicationData.Current.LocalSettings.CreateContainer(XBOX_ACCOUNT_PASSWORD_CONTAINER, ApplicationDataCreateDisposition.Always);
             var encryptKey = await GetXboxEncryptKey();
-            var encryptedPassword = Util.EncryptHelper.EncryptStringHelper(password, encryptKey);
+            var encryptedPassword = Helpers.EncryptHelper.EncryptStringHelper(password, encryptKey);
             foreach (var pair in container.Values.ToArray())
             {
                 var mail = pair.Key;
@@ -151,9 +151,9 @@ namespace NicoPlayerHohoema.Models
         public static bool RemoveAccount(string mailAddress)
         {
 #if !DEBUG
-            if (!Util.DeviceTypeHelper.IsXbox)
+            if (!Helpers.DeviceTypeHelper.IsXbox)
 #else
-            if (!IsDebugXboxMode && !Util.DeviceTypeHelper.IsXbox)
+            if (!IsDebugXboxMode && !Helpers.DeviceTypeHelper.IsXbox)
 #endif
             {
                 return _RemoveAccount(mailAddress);
@@ -209,9 +209,9 @@ namespace NicoPlayerHohoema.Models
             if (HasPrimaryAccount())
             {
 #if !DEBUG
-                if (!Util.DeviceTypeHelper.IsXbox)
+                if (!Helpers.DeviceTypeHelper.IsXbox)
 #else
-                if (!IsDebugXboxMode && !Util.DeviceTypeHelper.IsXbox)
+                if (!IsDebugXboxMode && !Helpers.DeviceTypeHelper.IsXbox)
 #endif
                 {
                     return Task.FromResult(_GetPrimaryAccount());
@@ -253,7 +253,7 @@ namespace NicoPlayerHohoema.Models
             {
                 var mail = pair.Key;
                 var encryptedPassword = (string)pair.Value;
-                var plainPassword = Util.EncryptHelper.DecryptStringHelper(encryptedPassword, encryptKey);
+                var plainPassword = Helpers.EncryptHelper.DecryptStringHelper(encryptedPassword, encryptKey);
 
                 return new Tuple<string, string>(mail, plainPassword);
             }

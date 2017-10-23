@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Prism.Windows.Navigation;
 using NicoPlayerHohoema.Models;
 using System.Collections.ObjectModel;
-using NicoPlayerHohoema.Util;
+using NicoPlayerHohoema.Helpers;
 using Reactive.Bindings;
 using Prism.Commands;
 using Prism.Mvvm;
@@ -541,7 +541,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			foreach (var item in CommunitySearchSortOptionListItems)
 			{
-				item.Label = Util.SortHelper.ToCulturizedText(item.Sort, item.Order);
+				item.Label = Helpers.SortHelper.ToCulturizedText(item.Sort, item.Order);
 			}
 
 
@@ -636,7 +636,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			foreach (var item in LiveSearchSortOptionListItems)
 			{
-				item.Label = Util.SortHelper.ToCulturizedText(item.Sort, item.Order);
+				item.Label = Helpers.SortHelper.ToCulturizedText(item.Sort, item.Order);
 			}
 
 

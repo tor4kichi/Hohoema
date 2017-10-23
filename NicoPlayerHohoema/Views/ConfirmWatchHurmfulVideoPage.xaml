@@ -37,7 +37,7 @@
                                 >
                         <TextBlock Text="有害動画の視聴継続を確認" 
                                     VerticalAlignment="Center"
-                                    Style="{StaticResource SubtitleTextBlockStyle}"
+                                    Style="{StaticResource TitleTextBlockStyle}"
                                     >
                         </TextBlock>
                     </Border>

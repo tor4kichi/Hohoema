@@ -1,0 +1,635 @@
+﻿<UserControl
+    x:Class="NicoPlayerHohoema.Views.VideoSettingsSidePaneContent"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views.PlayerSidePaneContent"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:hardwareTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
+    xmlns:myconverter="using:NicoPlayerHohoema.Views.Converters"
+    xmlns:uwpconverter="using:Microsoft.Toolkit.Uwp.UI.Converters"
+    mc:Ignorable="d"
+    d:DesignHeight="800"
+    d:DesignWidth="800">
+
+    <ScrollViewer>
+
+        <i:Interaction.Behaviors>
+            <core:EventTriggerBehavior EventName="Loaded">
+                <mybehavior:SetFocus TargetObject="{Binding ElementName=VideoQualityComboBox}" />
+            </core:EventTriggerBehavior>
+        </i:Interaction.Behaviors>
+
+        
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardwareTrigger:DeviceFamilyTrigger Condition="Xbox" />
+                    </VisualState.StateTriggers>
+
+                    <VisualState.Setters>
+                        <!-- Xbox利用時にはTV Mode変更はできないため設定を非表示に -->
+                        <Setter Target="DesktopPlayerSettingsLayout.Visibility" Value="Collapsed" />
+
+                        <Setter Target="SettingsContentLayout.Padding" Value="0 0 48 0" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+        <StackPanel Margin="16 8 8 8" MinWidth="400" HorizontalAlignment="Left"
+                      x:Name="SettingsContentLayout"
+                      >
+
+
+            <toolkit:DockPanel Margin="0 8">
+                <TextBlock Text="動画プレイヤーの設定"
+                            FontSize="18"
+                            VerticalAlignment="Center"
+                        FontWeight="SemiBold"
+                            toolkit:DockPanel.Dock="Left"
+                        />
+
+                <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                    BorderThickness="0 1 0 0" 
+                    Margin="8 0 16 0"
+                        VerticalAlignment="Center"
+                    />
+            </toolkit:DockPanel>
+
+            
+
+            <StackPanel Margin="0 0 0 0">
+
+                <!--
+                BGM再生機能が利用可能になるまで利用できなくします
+                <toolkit:DockPanel Margin="0 8">
+
+                    <TextBlock Text="再生中は画面を点灯したままにする"
+                        toolkit:DockPanel.Dock="Left"
+                        VerticalAlignment="Center"
+                        />
+
+                    <ToggleButton Width="32" Height="32"
+                            IsChecked="{Binding IsKeepDisplayInPlayback.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            HorizontalAlignment="Right"
+                            />
+
+                </toolkit:DockPanel>
+
+                -->
+
+
+                <!--
+
+                <toolkit:DockPanel Margin="0 8">
+
+                    <TextBlock Text="UIが非表示になるまでの時間（秒）"
+                        toolkit:DockPanel.Dock="Left"
+                        VerticalAlignment="Center"
+                        />
+
+                    <toolkit:NumericUpDown Value="{Binding AutoHideDelayTime.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    SmallChange="0.5"
+                                    LargeChange="3.0"
+                                    Minimum="1.0"
+                                    Maximum="15.0"
+                                    HorizontalAlignment="Right"
+                                           Foreground="{ThemeResource ApplicationForegroundThemeBrush}"
+                                    />
+                    
+                </toolkit:DockPanel>
+                -->
+
+
+                <StackPanel Margin="0 8 0 16">
+
+                    <TextBlock Text="画質"
+                           VerticalAlignment="Center"
+                           />
+
+                    <ComboBox ItemsSource="{Binding VideoPlayingQualityList}"
+                              SelectedItem="{Binding VideoPlayingQuality.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              x:Name="VideoQualityComboBox"
+                              >
+
+                        
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Opacity="{Binding IsAvairable, Converter={StaticResource BoolToAvairableOpacityConverter}}">
+                                    <Run Text="{Binding Path=Value, Converter={StaticResource ToLocalText}}"
+                                         />
+                                    画質
+                                </TextBlock>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+                </StackPanel>
+
+                <StackPanel Margin="0 8 0 16">
+
+                    <TextBlock Text="再生速度倍率"
+                           VerticalAlignment="Center"
+                           />
+
+                    <Slider Value="{Binding VideoPlaybackRate.Value, Mode=TwoWay, UpdateSourceTrigger=Default}"
+                            Maximum="2.0"
+                            Minimum="0.1" 
+                            TickFrequency="0.1"
+                            StepFrequency="0.1"
+                            Width="240"
+                            IsThumbToolTipEnabled="True"
+                            HorizontalAlignment="Left"
+                            HorizontalContentAlignment="Left"
+                            />
+
+                    <Button Content="再生速度を下に戻す"
+                            Command="{Binding SetPlaybackRateCommand}" 
+                            Margin="0 8"
+                            >
+                        <Button.CommandParameter>
+                            <x:Double>1.0</x:Double>
+                        </Button.CommandParameter>
+                    </Button>
+
+                </StackPanel>
+
+
+
+                <StackPanel Margin="0 8 0 16">
+
+                    <TextBlock Text="再生完了時の自動アクション"
+                           VerticalAlignment="Center"
+                           />
+
+                    <ComboBox ItemsSource="{Binding PlaylistEndActionList}"
+                              SelectedItem="{Binding PlaylistEndAction.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              >
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource ToLocalText}}" 
+                                           />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+                </StackPanel>
+
+            </StackPanel>
+
+
+
+
+
+
+            <toolkit:DockPanel Margin="0 8">
+                <TextBlock Text="コメントの投稿設定"
+                            FontSize="18"
+                            VerticalAlignment="Center"
+                        FontWeight="SemiBold"
+                            toolkit:DockPanel.Dock="Left"
+                        />
+
+                <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                    BorderThickness="0 1 0 0" 
+                    Margin="8 0 16 0"
+                        VerticalAlignment="Center"
+                    />
+            </toolkit:DockPanel>
+
+            <StackPanel Margin="0 0 0 0">
+
+                <StackPanel Margin="0 8 0 16">
+
+                    <TextBlock Text="デフォルトで匿名(184)コマンドを有効にする"
+                           VerticalAlignment="Center"
+                               
+                           />
+
+                    <ToggleSwitch 
+                              IsOn="{Binding IsDefaultCommentWithAnonymous.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                              
+                              />
+
+                </StackPanel>
+
+                <StackPanel Margin="0 8 0 16">
+
+                    <TextBlock Text="コメントを書き始めたら動画を一時停止する"
+                        VerticalAlignment="Center"
+                        />
+
+                    <ToggleSwitch 
+                            IsOn="{Binding IsPauseWithCommentWriting.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            
+                            />
+
+                </StackPanel>
+
+
+            </StackPanel>
+
+
+
+
+
+            <toolkit:DockPanel Margin="0 8">
+                <TextBlock Text="コメントの表示設定"
+                            FontSize="18"
+                            VerticalAlignment="Center"
+                            FontWeight="SemiBold"
+                            toolkit:DockPanel.Dock="Left"
+                        />
+
+                <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                        BorderThickness="0 1 0 0" 
+                        Margin="8 0 16 0"
+                        VerticalAlignment="Center"
+                    />
+            </toolkit:DockPanel>
+
+            
+            <StackPanel Margin="0 0 0 0">
+
+                <StackPanel Margin="0 8 0 16">
+
+                    <TextBlock Text="コメントの一秒あたりの描画回数"
+                           VerticalAlignment="Center"
+                           />
+
+                    <ComboBox ItemsSource="{Binding CommentRenderringFPSList}"
+                          SelectedItem="{Binding CommentRenderingFPS.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              Margin="0 4"
+                              Width="100"
+                          >
+
+                    </ComboBox>
+
+
+                </StackPanel>
+
+                <StackPanel Margin="0 8 0 16">
+
+                    <TextBlock Text="コメントの表示時間"
+                           VerticalAlignment="Center"
+                           />
+
+                    <toolkit:NumericUpDown Value="{Binding CommentDisplayDuration.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            Maximum="10"
+                            Minimum="1"
+                            SmallChange="0.5"
+                            MinWidth="200"
+                            Foreground="{ThemeResource ApplicationForegroundThemeBrush}"               
+                                           Margin="0 4"
+                                           IsFocusEngagementEnabled="True"
+                                           IsTabStop="False"
+                                           UseSystemFocusVisuals="True"
+                          >
+
+                    </toolkit:NumericUpDown>
+
+                    <TextBlock Text="デフォルトは4秒"
+                           VerticalAlignment="Center"
+                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                               FontSize="12"
+                               Margin="0 4"
+                           />
+
+
+                </StackPanel>
+
+
+
+                <StackPanel Margin="0 8 0 16">
+
+                    <TextBlock Text="コメントの表示サイズ"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+
+                    <toolkit:NumericUpDown Value="{Binding CommentFontScale.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                       SmallChange="0.05"
+                                       LargeChange="1.0"
+                                       Minimum="0.1"
+                                       Maximum="2.0"
+                                           Foreground="{ThemeResource ApplicationForegroundThemeBrush}"
+                                           Margin="0 4"
+                                           IsTabStop="False"
+                                           IsFocusEngagementEnabled="True"
+                                           UseSystemFocusVisuals="True"
+                                       />
+
+                </StackPanel>
+
+                <StackPanel Margin="0 8 0 16">
+
+                    <TextBlock Text="コメントの透過設定"
+                           VerticalAlignment="Center"
+                           />
+
+                    <ComboBox ItemsSource="{Binding CommentOpacityList}"
+                          SelectedItem="{Binding CommentOpacity.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              Margin="0 4"
+                              Width="200"
+                          >
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource ToLocalText}}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+
+                </StackPanel>
+
+                <StackPanel Margin="0 8 0 16">
+
+
+                    <TextBlock Text="デフォルトのコメント色"
+                        VerticalAlignment="Center"
+                        />
+
+                    <ComboBox ItemsSource="{Binding CommentColorList}"
+                              SelectedItem="{Binding CommentColor.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              Margin="0 4"
+                          >
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{Binding Converter={StaticResource ColorToBrush}}"
+                                    Width="80"
+                                    Height="32"
+                                    />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+
+                </StackPanel>
+
+
+            </StackPanel>
+
+
+
+            
+
+            <!--NGコメント-->
+
+            <toolkit:DockPanel Margin="0 8">
+                <TextBlock Text="コメントのNG設定"
+                            FontSize="18"
+                            VerticalAlignment="Center"
+                            FontWeight="SemiBold"
+                            toolkit:DockPanel.Dock="Left"
+                        />
+
+                <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                        BorderThickness="0 1 0 0" 
+                        Margin="8 0 16 0"
+                        VerticalAlignment="Center"
+                    />
+            </toolkit:DockPanel>
+            <!-- NGコメント -->
+            <StackPanel Margin="0 0 0 0">
+
+                <!-- NG共有スコア -->
+                <StackPanel Margin="0 8">
+
+                    <TextBlock Text="共有NGスコア設定" 
+                                       VerticalAlignment="Center"
+                               />
+
+
+                    <!-- TODO: スライダーに変更する？ -->
+
+                    <ComboBox Margin="0 8" MinWidth="100"
+                                      ItemsSource="{Binding NGCommentScoreTypes}"
+                                      SelectedItem="{Binding SelectedNGCommentScore.Value, Mode=TwoWay}"
+                                      ItemTemplateSelector="{StaticResource NGCommentScoreTypeTemplateSelector}"                                      
+                                      >
+                    </ComboBox>
+
+                    <Border />
+
+                </StackPanel>
+
+
+                <!-- NG ユーザーID -->
+                <!--
+                    <toolkit:DockPanel Margin="8">
+                        <TextBlock Text="ユーザーIDによるNGコメント機能を有効にする"
+                           toolkit:DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           />
+                        <ToggleButton Width="32" Height="32" 
+                                  Margin="0 0 8 0"
+                                  IsChecked="{Binding NGCommentUserIdEnable.Value, Mode=TwoWay}"
+                                  HorizontalAlignment="Right"
+                                          />
+                    </toolkit:DockPanel>
+
+
+                    <ListView ItemsSource="{Binding NGCommentUserIds}"
+                                  ItemTemplate="{StaticResource TextWithRemoveButtonTemplate}"
+                                  Margin="0 8"
+                                  SelectionMode="None"
+                                  >
+                    </ListView>
+
+                    -->
+
+                <!-- NG キーワード -->
+                <StackPanel Margin="0 8">
+                    <TextBlock Text="コメントのフィルタを有効にする"
+                           VerticalAlignment="Center"
+                           />
+                    <ToggleSwitch IsOn="{Binding NGCommentKeywordEnable.Value, Mode=TwoWay}"
+                                          />
+
+                </StackPanel>
+
+
+
+                <StackPanel Margin="0 8" Width="240"
+                            HorizontalAlignment="Left"
+                            >
+
+                    <TextBox Text="{Binding NGCommentKeywords.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             AcceptsReturn="True"
+                             Height="120"
+                             Width="240"
+                             PlaceholderText="NGコメントを入力"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             />
+
+                    <TextBlock Text="{Binding NGCommentKeywordError.Value}" />
+                    <TextBlock Margin="0 8" Foreground="Gray" TextWrapping="Wrap">
+                        ・１行ごとにフィルタ文字列を指定します
+                        ・正規表現が利用できます
+                    </TextBlock>
+                </StackPanel>
+
+
+                <!-- 自動芝刈り機 -->
+                <StackPanel Margin="0 8">
+
+
+                    <TextBlock Text="自動草刈機"
+                                       
+                                       VerticalAlignment="Center"
+                                          />
+                    <ToggleSwitch IsOn="{Binding CommentGlassMowerEnable.Value, Mode=TwoWay}"
+                                          />
+
+                    <TextBlock Text="※ 連続する『ｗ』を１文字に刈り込みます"
+                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                       ToolTipService.ToolTip="ｗｗｗｗｗ -> ｗ"
+                                       toolkit:DockPanel.Dock="Bottom"
+                                       />
+                </StackPanel>
+
+                <Border Height="32" />
+
+
+
+
+            </StackPanel>
+
+
+
+
+
+
+
+
+            <toolkit:DockPanel Margin="0 8">
+                <TextBlock Text="コメントの装飾許可設定"
+                            FontSize="18"
+                            VerticalAlignment="Center"
+                            FontWeight="SemiBold"
+                            toolkit:DockPanel.Dock="Left"
+                        />
+
+                <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                        BorderThickness="0 1 0 0" 
+                        Margin="8 0 16 0"
+                        VerticalAlignment="Center"
+                    />
+            </toolkit:DockPanel>
+
+            <StackPanel Margin="0 0 0 0">
+
+
+
+                <StackPanel Margin="0 8 0 16">
+                    <TextBlock Text="動画投稿者コメントの装飾を許可"
+                        VerticalAlignment="Center"
+                        />
+                    <ToggleSwitch 
+                                IsOn="{Binding IsEnableOwnerCommentCommand.Value, Mode=TwoWay}"
+                                
+                                        />
+                </StackPanel>
+
+                <StackPanel Margin="0 8 0 16">
+                    <TextBlock Text="ユーザーコメントの装飾を許可"
+                        VerticalAlignment="Center"
+                        />
+                    <ToggleSwitch 
+                                IsOn="{Binding IsEnableUserCommentCommand.Value, Mode=TwoWay}"
+                                
+                                        />
+                </StackPanel>
+
+                <StackPanel Margin="0 8 0 16">
+                    <TextBlock Text="匿名コメントの装飾を許可"
+                        VerticalAlignment="Center"
+                        />
+                    <ToggleSwitch 
+                                IsOn="{Binding IsEnableAnonymousCommentCommand.Value, Mode=TwoWay}"
+                                
+                                        />
+                </StackPanel>
+
+            </StackPanel>
+
+
+            
+            
+            <StackPanel x:Name="DesktopPlayerSettingsLayout">
+                
+                <toolkit:DockPanel Margin="0 8">
+                    <TextBlock Text="マウス操作時のプレイヤー設定"
+                            FontSize="18"
+                            VerticalAlignment="Center"
+                            FontWeight="SemiBold"
+                            toolkit:DockPanel.Dock="Left"
+                        />
+
+                    <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                        BorderThickness="0 1 0 0" 
+                        Margin="8 0 16 0"
+                        VerticalAlignment="Center"
+                    />
+                </toolkit:DockPanel>
+
+                <StackPanel Margin="0 0 0 0">
+
+
+                    <StackPanel 
+                        Margin="0 0 0 0"
+                        >
+
+                        <StackPanel Margin="0 8 0 16">
+
+
+                            <TextBlock Text="マウススクロールの音量変更量 (％)"
+                        toolkit:DockPanel.Dock="Left"
+                        VerticalAlignment="Center"
+                        />
+
+                            <toolkit:NumericUpDown Value="{Binding ScrollVolumeFrequency.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource ToUserFriendlySoubleVolume}}"
+                                                SmallChange="1"
+                                                LargeChange="5"
+                                                Minimum="1"
+                                                Maximum="10"
+                                                ValueFormat="F0"
+                                                Foreground="{ThemeResource ApplicationForegroundThemeBrush}"
+                                               Margin="0 8"
+                                               IsFocusEngagementEnabled="True"
+                                               IsTabStop="False"
+                                               UseSystemFocusVisuals="True"
+                                    />
+
+                            <TextBlock Text="※音量は 0.0 ～ 1.0 の間に設定されます"
+                                VerticalAlignment="Center"
+                                FontSize="12"
+                                Foreground="Gray"
+                                />
+
+                        </StackPanel>
+
+                    </StackPanel>
+
+                </StackPanel>
+            </StackPanel>
+
+
+
+
+
+            
+
+
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
