@@ -19,7 +19,7 @@ namespace NicoPlayerHohoema.Services
 
         public async Task<bool> ShowAcceptCacheUsaseDialogAsync(bool showWithoutConfirmButton = false)
         {
-            var dialog = new Dialogs.MarkdownTextDialog("キャッシュ利用に関する確認");
+            var dialog = new Dialogs.MarkdownTextDialog("キャッシュ機能の利用に関する確認");
 
             
             var file = await StorageFile.GetFileFromPathAsync(CacheUsageConfirmationFileUri);
