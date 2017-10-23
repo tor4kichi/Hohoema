@@ -24,6 +24,7 @@
 
     
 
+
     <Grid x:Name="ContentLayoutRoot">
 
 
@@ -52,7 +53,6 @@
             <uwpcontrol:MasterDetailsView ItemsSource="{Binding SortedRankingCategoryItems}"
                                           SelectedItem="{Binding SelectedRankingCategory.Value, Mode=TwoWay}"
                                           MasterPaneWidth="200"
-                                          Background="{StaticResource ApplicationPageBackgroundThemeBrush}"
                                           MasterPaneBackground="{StaticResource SystemControlBackgroundChromeMediumBrush}"
                                           >
 
@@ -111,8 +111,10 @@
                         <UserControl>
 
                             <Grid DataContext="{Binding ElementName=ContentLayoutRoot, Path=DataContext}"
+                                  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
                                            >
 
+                                
                                 <VisualStateManager.VisualStateGroups>
 
                                     <VisualStateGroup x:Name="SelectionStateGroup">
@@ -131,7 +133,8 @@
                                     </VisualStateGroup>
 
                                 </VisualStateManager.VisualStateGroups>
-                                
+
+
                                 <controls:ListingWithHeader x:Name="ListingWithHeader"
                                     ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
                                     SelectedItems="{Binding SelectedItems}"
@@ -182,7 +185,6 @@
                                                     >
                                             </AppBarButton>
 
-                                            <!-- 選択中のみ表示する -->
                                             <AppBarButton Command="{Binding RequestCacheDownload}"
                                                   IsEnabled="{Binding CanDownload}"
                                                   Background="Transparent"
@@ -205,7 +207,6 @@
                                             </AppBarButton>
 
 
-                                            <!-- 選択切り替えボタン -->
                                             <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                             HorizontalContentAlignment="Stretch"
                                                             VerticalContentAlignment="Stretch"

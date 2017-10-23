@@ -90,7 +90,7 @@ namespace NicoPlayerHohoema.Models
         public static Task AddOrUpdateAccount(string mailAddress, string password)
         {
 #if !DEBUG
-            if (!Util.DeviceTypeHelper.IsXbox)
+            if (!Helpers.DeviceTypeHelper.IsXbox)
 #else
             if (!IsDebugXboxMode && !Helpers.DeviceTypeHelper.IsXbox)
 #endif
@@ -151,7 +151,7 @@ namespace NicoPlayerHohoema.Models
         public static bool RemoveAccount(string mailAddress)
         {
 #if !DEBUG
-            if (!Util.DeviceTypeHelper.IsXbox)
+            if (!Helpers.DeviceTypeHelper.IsXbox)
 #else
             if (!IsDebugXboxMode && !Helpers.DeviceTypeHelper.IsXbox)
 #endif
@@ -209,7 +209,7 @@ namespace NicoPlayerHohoema.Models
             if (HasPrimaryAccount())
             {
 #if !DEBUG
-                if (!Util.DeviceTypeHelper.IsXbox)
+                if (!Helpers.DeviceTypeHelper.IsXbox)
 #else
                 if (!IsDebugXboxMode && !Helpers.DeviceTypeHelper.IsXbox)
 #endif

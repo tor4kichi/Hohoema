@@ -97,7 +97,6 @@
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
                                 <Setter Target="FloatPlayerLayout.Visibility" Value="Visible" />
-                                <Setter Target="PlayerContent.IsTapEnabled" Value="False" />
                             </VisualState.Setters>
                         </VisualState>
                         

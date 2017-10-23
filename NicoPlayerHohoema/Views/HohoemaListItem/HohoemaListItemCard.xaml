@@ -45,11 +45,14 @@
                        Height="120"
                    />
 
-                <Border Background="{ThemeResource SystemAltMediumColor}"
+                <Border 
                         HorizontalAlignment="Right" 
                         VerticalAlignment="Bottom"
                         Visibility="{Binding HasImageCaption, Converter={StaticResource BooleanToVisibility}}"
                         >
+                    <Border.Background>
+                        <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/> 
+                    </Border.Background>
                     <TextBlock Text="{Binding ImageCaption, Mode=OneWay}" 
                                Padding="4 0 3 3" 
                                TextWrapping="Wrap" VerticalAlignment="Center" 

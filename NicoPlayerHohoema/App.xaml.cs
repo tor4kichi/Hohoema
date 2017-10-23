@@ -229,7 +229,7 @@ namespace NicoPlayerHohoema
 #if DEBUG
                 if (_DEBUG_XBOX_RESOURCE)
 #else
-                if (Util.DeviceTypeHelper.IsXbox)
+                if (Helpers.DeviceTypeHelper.IsXbox)
 #endif
                 {
                     this.Resources.MergedDictionaries.Add(new ResourceDictionary()

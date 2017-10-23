@@ -608,8 +608,12 @@
 
                         <Border  VerticalAlignment="Bottom"
                                  HorizontalAlignment="Left"
-                                 Background="{ThemeResource SystemAltMediumColor}"
                                  >
+                            <Border.Background>
+                                <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
+                            </Border.Background>
+
+                            
                             <TextBlock Text="{Binding PermanentDisplayText.Value}" 
                                    TextWrapping="Wrap"
                                    />
@@ -679,9 +683,12 @@
                         <toolkit:DockPanel x:Name="DefaultUIControl">
                             <StackPanel toolkit:DockPanel.Dock="Top" >
 
-                                <Border Background="{ThemeResource SystemAltMediumColor}"
-                                x:Name="TopBarLayout"
+                                <Border x:Name="TopBarLayout"
                                 >
+                                    <Border.Background>
+                                        <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
+                                    </Border.Background>
+
                                     <toolkit:DockPanel>
 
                                         <Button Command="{Binding ClosePlayerCommand}"
@@ -741,7 +748,12 @@
                                     </i:Interaction.Behaviors>
                                 </Border>
 
-                                <StackPanel x:Name="TitleLayout" Background="{ThemeResource SystemAltMediumColor}">
+                                <StackPanel x:Name="TitleLayout" >
+                                    <StackPanel.Background>
+                                        <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
+                                    </StackPanel.Background>
+
+                                    
                                     <TextBlock Text="{Binding LiveTitle}" FontSize="24" Margin="8" HorizontalAlignment="Center" TextWrapping="Wrap" />
 
                                     <i:Interaction.Behaviors>
@@ -755,9 +767,12 @@
 
                                 <!-- 生放送情報 -->
                                 <Border toolkit:DockPanel.Dock="Top"
-                                Background="{ThemeResource SystemAltMediumColor}"
-                                x:Name="LiveInfoLayout"
+                                        x:Name="LiveInfoLayout"
                                 >
+                                    <Border.Background>
+                                        <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
+                                    </Border.Background>
+                                    
                                     <toolkit:DockPanel 
                                                >
 
@@ -888,9 +903,12 @@
 
 
                                 <!-- 再生コントロール -->
-                                <Grid Background="{ThemeResource SystemAltMediumColor}" Padding="8"
-                              x:Name="PlaybackControlLayout"
-                              >
+                                <Grid Padding="8"
+                                    x:Name="PlaybackControlLayout"
+                                    >
+                                    <Grid.Background>
+                                        <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
+                                    </Grid.Background>
 
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
@@ -1249,9 +1267,11 @@
 
                                 <!-- Comment関連 -->
                                 <!-- コメントを書く -->
-                                <Grid x:Name="CommentLayout"
-                              Background="{ThemeResource SystemAltMediumColor}"
-                          >
+                                <Grid x:Name="CommentLayout" >
+                                    <Grid.Background>
+                                        <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
+                                    </Grid.Background>
+                                    
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="*" />
                                         <RowDefinition Height="*" />

@@ -169,7 +169,10 @@
                                 </uwptoolkit:ImageEx>
 
                                 <Grid Padding="8" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0 0 4 4">
-                                    <Border Background="{ThemeResource SystemAltMediumColor}"  Opacity="0.7">
+                                    <Border Opacity="0.7">
+                                        <Border.Background>
+                                            <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
+                                        </Border.Background>
 
                                     </Border>
                                     

@@ -327,8 +327,10 @@
                         DisplayMode="Inline"
                         IsPaneOpen="False"
                                IsTabStop="False"
-                               PaneBackground="{ThemeResource SystemAltMediumHighColor}"
                         >
+                        <SplitView.PaneBackground>
+                            <SolidColorBrush Color="{ThemeResource SystemAltMediumHighColor}" />
+                        </SplitView.PaneBackground>
                         <SplitView.Pane>
                             <toolkit:DockPanel x:Name="PaneLayout" 
                                                mybehavior:XYNavigationExtentions.FocusAcceptOrientation="Horizontal"
@@ -421,11 +423,7 @@
                             </toolkit:DockPanel>
                         </SplitView.Pane>
                         <SplitView.Content>
-                            <Grid >
-                                <Grid.Background>
-                                    <SolidColorBrush Color="{ThemeResource ApplicationPageBackgroundThemeBrush}" />
-                                </Grid.Background>
-
+                            <Grid>
 
                                 <Grid x:Name="ContentLayout">
 
