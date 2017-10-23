@@ -157,11 +157,9 @@
                 VerticalAlignment="Top"
                 >
 
-            <Grid.Background>
-                <SolidColorBrush Opacity="0.95" Color="{StaticResource SystemAltMediumColor}" />
-            </Grid.Background>
-
             <Border IsTapEnabled="True"
+                    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                    Opacity="0.75"
                     >
                 <i:Interaction.Behaviors>
                     <core:EventTriggerBehavior EventName="Tapped">

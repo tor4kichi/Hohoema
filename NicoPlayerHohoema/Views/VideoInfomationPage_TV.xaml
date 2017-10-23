@@ -76,7 +76,11 @@
 
                                 </uwptoolkit:ImageEx>
 
-                                <Border Background="{ThemeResource SystemAltMediumColor}" Padding="4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0 0 4 4">
+                                <Border Padding="4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0 0 4 4">
+                                    <Border.Background>
+                                        <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
+                                    </Border.Background>
+                                    
                                     <TextBlock VerticalAlignment="Center" FontSize="18">
                                     <Run Text="{Binding VideoLength, Converter={StaticResource TimeToMovieLengthConverter}}" />
                                     </TextBlock>

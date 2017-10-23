@@ -54,12 +54,15 @@
                    >
                 </uwptoolkit:ImageEx>
 
-                <Border Background="{ThemeResource SystemAltMediumColor}"
-                        HorizontalAlignment="Right" 
+                <Border HorizontalAlignment="Right" 
                         VerticalAlignment="Bottom"
                         Visibility="{Binding HasImageCaption, Converter={StaticResource BooleanToVisibility}}"
                         CornerRadius="4 0 0 0"
                         >
+                    <Border.Background>
+                        <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
+                    </Border.Background>
+
                     <TextBlock Text="{Binding ImageCaption, Mode=OneWay}" 
                                Padding="4 0 3 3" 
                                TextWrapping="Wrap" VerticalAlignment="Center" 
