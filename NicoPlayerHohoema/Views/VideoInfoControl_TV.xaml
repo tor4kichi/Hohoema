@@ -156,23 +156,12 @@
         <!-- 削除済み動画 -->
         <Grid x:Name="DeletedPanel" Background="#60ffffff" Visibility="Collapsed">
 
-            <!-- キャッシュリクエストしていない、または削除確認済み -->
-            <StackPanel VerticalAlignment="Center" Visibility="{Binding IsCacheRequested.Value, Converter={StaticResource BooleanToVisibility}}">
-
-            </StackPanel>
-
             <!-- キャッシュ済み、ユーザー削除未確認 -->
-            <StackPanel VerticalAlignment="Center" Visibility="{Binding IsCacheRequested.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
+            <StackPanel VerticalAlignment="Center" >
 
                 <TextBlock Text="削除理由" HorizontalAlignment="Center" FontSize="13"/>
                 <TextBlock Text="{Binding PrivateReasonText}" HorizontalAlignment="Center" Margin="0 8" />
 
-                <Button Content="削除確認" 
-                                Command="{Binding ConfirmDeleteCommand}"
-                                VerticalAlignment="Center"
-                                Margin="8"
-                                >
-                </Button>
             </StackPanel>
         </Grid>
 
