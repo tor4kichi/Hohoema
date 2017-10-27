@@ -21,6 +21,7 @@ using Windows.Media.Core;
 using Windows.Media.Playback;
 using Windows.Storage;
 using Windows.UI.ViewManagement;
+using Windows.UI.Core;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -189,7 +190,10 @@ namespace NicoPlayerHohoema.Models
                 catch { }
             }
 
-        }                
+        }
+        
+
+
 
 
         private void Smtc_AutoRepeatModeChangeRequested(SystemMediaTransportControls sender, AutoRepeatModeChangeRequestedEventArgs args)

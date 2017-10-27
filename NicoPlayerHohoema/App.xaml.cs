@@ -796,8 +796,18 @@ namespace NicoPlayerHohoema
 
         private void RootFrame_Navigating(object sender, NavigatingCancelEventArgs e)
 		{
-			// Note: 有害動画の確認ページへの進む動作を防止する
-			if (e.NavigationMode == NavigationMode.Forward)
+            var playlist = Container.Resolve<HohoemaPlaylist>();
+            // プレイヤーをメインウィンドウでウィンドウいっぱいに表示しているときだけ
+            // バックキーの動作をUIの表示/非表示切り替えに割り当てる
+            if (playlist.IsDisplayMainViewPlayer && playlist.PlayerDisplayType == PlayerDisplayType.PrimaryView)
+            {
+                playlist.IsDisplayPlayerControlUI = !playlist.IsDisplayPlayerControlUI;
+                e.Cancel = true;
+                return;
+            }
+
+            // Note: 有害動画の確認ページへの進む動作を防止する
+            if (e.NavigationMode == NavigationMode.Forward)
 			{
 				if (e.SourcePageType.Name.EndsWith("Page"))
 				{

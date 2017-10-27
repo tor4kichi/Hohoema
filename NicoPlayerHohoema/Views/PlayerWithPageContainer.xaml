@@ -26,9 +26,8 @@
             <Grid>
                 <i:Interaction.Behaviors>
                     <mybehavior:UINavigationTrigger Kind="View" 
-                                                    IsEnabled="{Binding IsContentDisplayFloating.Value}"
                                                     >
-                        <core:ChangePropertyAction TargetObject="{Binding IsFillFloatContent}" PropertyName="Value" Value="True" />
+                        <core:InvokeCommandAction Command="{Binding TogglePlayerFloatDisplayCommand}" />
                     </mybehavior:UINavigationTrigger>
                 </i:Interaction.Behaviors>
 

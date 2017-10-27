@@ -40,6 +40,8 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+        // 代替キャンセル動作の管理ID
+        const string PlayerFillModeBackNavigationCancel = "fill_mode_cancel";
 
         static Helpers.AsyncLock _NavigationLock = new Helpers.AsyncLock();
 
@@ -290,32 +292,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             //            HohoemaApp.OnResumed += _OnResumed;
 
-            // TODO: プレイヤーを別ウィンドウにしている場合に、プレイヤーの表示状態変更を抑制する
-            // プレイヤーがフィル表示している時にバックキーのアクションを再定義する
-            Observable.CombineLatest(
-                HohoemaApp.Playlist.ObserveProperty(x => x.IsPlayerFloatingModeEnable).Select(x => !x),
-                HohoemaApp.Playlist.ObserveProperty(x => x.IsDisplayMainViewPlayer)
-                )
-                .Select(x => x.All(y => y))
-                .Subscribe(isBackNavigationClosePlayer =>
-                {
-                    const string PlayerFillModeBackNavigationCancel = "fill_mode_cancel";
-                    if (isBackNavigationClosePlayer)
-                    {
-                        AddSubsitutionBackNavigateAction(PlayerFillModeBackNavigationCancel, () =>
-                        {
-                            // Bボタンによる動画プレイヤーを閉じる動作を一切受け付けない
-                            HohoemaApp.Playlist.IsDisplayPlayerControlUI = !HohoemaApp.Playlist.IsDisplayPlayerControlUI;
-                            return false;
-                        });
-                    }
-                    else
-                    {
-                        RemoveSubsitutionBackNavigateAction(PlayerFillModeBackNavigationCancel);
-                    }
-                })
-                .AddTo(_NavigatingCompositeDisposable);
-
+            
             try
             {
                 // サインインステータスチェック
@@ -413,7 +390,6 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 HohoemaApp.BackgroundUpdater.Deactivate();
 
-
                 try
                 {
                     // バックナビゲーションが発生した時、
@@ -504,78 +480,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-        protected static void AddSubsitutionBackNavigateAction(string id, Func<bool> action)
-        {
-            var view = CoreApplication.GetCurrentView();
-            if (!view.IsMain) { return; }
-
-            if (!SubstitutionBackNavigation.ContainsKey(id))
-            {
-                SubstitutionBackNavigation.Add(id, action);
-
-                var nav = Windows.UI.Core.SystemNavigationManager.GetForCurrentView();                
-                nav.AppViewBackButtonVisibility = Windows.UI.Core.AppViewBackButtonVisibility.Visible;
-                nav.BackRequested += Nav_BackRequested;
-            }
-        }
-
-        private static void Nav_BackRequested(object sender, BackRequestedEventArgs e)
-        {
-            if (SubstitutionBackNavigation.Count > 0)
-            {
-                var substitutionBackNavPair = SubstitutionBackNavigation.Last();
-                var action = substitutionBackNavPair.Value;
-                
-                if (SubstitutionBackNavigation.Count == 0)
-                {
-                    var nav = Windows.UI.Core.SystemNavigationManager.GetForCurrentView();
-                    nav.BackRequested -= Nav_BackRequested;
-
-                    // バックナビゲーションが出来ない場合にBackButtonを非表示に
-                    var pageManager = App.Current.Container.Resolve<PageManager>();
-                    if (!pageManager.NavigationService.CanGoBack())
-                    {
-                        nav.AppViewBackButtonVisibility = Windows.UI.Core.AppViewBackButtonVisibility.Collapsed;
-                    }
-                }
-
-                if (action?.Invoke() ?? false)
-                {
-                    SubstitutionBackNavigation.Remove(substitutionBackNavPair.Key);
-                }
-
-                e.Handled = true;
-            }
-            
-        }
-
-        protected static bool RemoveSubsitutionBackNavigateAction(string id)
-        {
-            var view = CoreApplication.GetCurrentView();
-            if (!view.IsMain) { return false; }
-
-            if (SubstitutionBackNavigation.ContainsKey(id))
-            {
-                if (SubstitutionBackNavigation.Count == 1)
-                {
-                    var nav = Windows.UI.Core.SystemNavigationManager.GetForCurrentView();
-                    nav.BackRequested -= Nav_BackRequested;
-
-                    // バックナビゲーションが出来ない場合にBackButtonを非表示に
-                    var pageManager = App.Current.Container.Resolve<PageManager>();
-                    if (!pageManager.NavigationService.CanGoBack())
-                    {
-                        nav.AppViewBackButtonVisibility = Windows.UI.Core.AppViewBackButtonVisibility.Collapsed;
-                    }
-                }
-
-                return SubstitutionBackNavigation.Remove(id);
-            }
-            else
-            {
-                return false;
-            }
-        }
+        
 
 
         CancellationTokenSource _NavigatedToTaskCancelToken;

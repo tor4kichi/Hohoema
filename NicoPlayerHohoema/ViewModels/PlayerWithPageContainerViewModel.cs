@@ -169,30 +169,29 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         private DelegateCommand _PlayerFillDisplayCommand;
-        public DelegateCommand PlayerFillDisplayCommand
+        public DelegateCommand TogglePlayerFloatDisplayCommand
         {
             get
             {
                 return _PlayerFillDisplayCommand
                     ?? (_PlayerFillDisplayCommand = new DelegateCommand(() => 
                     {
-                        HohoemaPlaylist.PlayerDisplayType = PlayerDisplayType.PrimaryView;
+                        // プレイヤー表示中だけ切り替えを受け付け
+                        if (!HohoemaPlaylist.IsDisplayMainViewPlayer) { return; }
+
+                        // メインウィンドウでの表示状態を「ウィンドウ全体」⇔「小窓表示」と切り替える
+                        if (HohoemaPlaylist.PlayerDisplayType == PlayerDisplayType.PrimaryView)
+                        {
+                            HohoemaPlaylist.PlayerDisplayType = PlayerDisplayType.PrimaryWithSmall;
+                        }
+                        else if (HohoemaPlaylist.PlayerDisplayType == PlayerDisplayType.PrimaryWithSmall)
+                        {
+                            HohoemaPlaylist.PlayerDisplayType = PlayerDisplayType.PrimaryView;
+                        }
                     }));
             }
         }
 
-        private DelegateCommand _PlayerFloatDisplayCommand;
-        public DelegateCommand PlayerFloatDisplayCommand
-        {
-            get
-            {
-                return _PlayerFloatDisplayCommand
-                    ?? (_PlayerFloatDisplayCommand = new DelegateCommand(() =>
-                    {
-                        HohoemaPlaylist.PlayerDisplayType = PlayerDisplayType.PrimaryWithSmall;
-                    }));
-            }
-        }
 
         private DelegateCommand _ClosePlayerCommand;
         public DelegateCommand ClosePlayerCommand
