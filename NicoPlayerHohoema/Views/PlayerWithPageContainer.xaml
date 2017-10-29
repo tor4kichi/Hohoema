@@ -63,7 +63,7 @@
 
                                     <i:Interaction.Behaviors>
                                         <core:EventTriggerBehavior EventName="Tapped">
-                                            <core:InvokeCommandAction Command="{Binding PlayerFillDisplayCommand}" />
+                                            <core:InvokeCommandAction Command="{Binding TogglePlayerFloatDisplayCommand}" />
                                         </core:EventTriggerBehavior>
                                     </i:Interaction.Behaviors>
 

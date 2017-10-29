@@ -96,7 +96,7 @@ namespace NicoPlayerHohoema.Models
 
         IDisposable _PlaylistItemsChangedObserver;
 
-        private PlayerDisplayType _PlayerDisplayType = PlayerDisplayType.PrimaryView;
+        private PlayerDisplayType _PlayerDisplayType = Helpers.DeviceTypeHelper.IsDesktop ? PlayerDisplayType.SecondaryView : PlayerDisplayType.PrimaryView;
         public PlayerDisplayType PlayerDisplayType
         {
             get { return _PlayerDisplayType; }
