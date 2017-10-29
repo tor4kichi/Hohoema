@@ -350,7 +350,11 @@ namespace NicoPlayerHohoema.ViewModels
 
             // アバウト
             var version = Windows.ApplicationModel.Package.Current.Id.Version;
+#if DEBUG
+            VersionText = $"{version.Major}.{version.Minor}.{version.Build} DEBUG";
+#else
             VersionText = $"{version.Major}.{version.Minor}.{version.Build}";
+#endif
 
 
             var dispatcher = Window.Current.CoreWindow.Dispatcher;
@@ -557,7 +561,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-    #region About 
+#region About 
 
     public class ProductViewModel : BindableBase
     {
@@ -657,6 +661,6 @@ namespace NicoPlayerHohoema.ViewModels
 
     }
 
-    #endregion
+#endregion
 
 }
