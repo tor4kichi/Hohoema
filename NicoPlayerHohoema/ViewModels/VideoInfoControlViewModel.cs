@@ -27,6 +27,7 @@ using Microsoft.Practices.Unity;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.UI.Popups;
 using NicoPlayerHohoema.Views.Service;
+using System.Diagnostics;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -37,6 +38,8 @@ namespace NicoPlayerHohoema.ViewModels
 
         public PlaylistItem PlaylistItem { get; }
 
+
+        static Helpers.AsyncLock ThumbnailUpdateLock = new Helpers.AsyncLock();
 
         // とりあえずマイリストから取得したデータによる初期化
         public VideoInfoControlViewModel(MylistData data, NicoVideo nicoVideo, PageManager pageManager)
@@ -77,9 +80,9 @@ namespace NicoPlayerHohoema.ViewModels
 
         bool _IsNGEnabled = false;
 
-		public VideoInfoControlViewModel(NicoVideo nicoVideo, PageManager pageManager, bool isNgEnabled = true, PlaylistItem playlistItem = null)
-		{
-			PageManager = pageManager;
+        public VideoInfoControlViewModel(NicoVideo nicoVideo, PageManager pageManager, bool isNgEnabled = true, PlaylistItem playlistItem = null)
+        {
+            PageManager = pageManager;
             HohoemaPlaylist = nicoVideo.HohoemaApp.Playlist;
             NicoVideo = nicoVideo;
             PlaylistItem = playlistItem;
@@ -92,11 +95,10 @@ namespace NicoPlayerHohoema.ViewModels
                 Description = "Deleted";
             }
 
+            SetupFromThumbnail(NicoVideo);
+
             IsRequireConfirmDelete = new ReactiveProperty<bool>(nicoVideo.IsRequireConfirmDelete);
             PrivateReasonText = nicoVideo.PrivateReasonType.ToString() ?? "";
-
-            SetupFromThumbnail(nicoVideo);
-            
 
             QualityDividedVideos = new ObservableCollection<QualityDividedNicoVideoListItemViewModel>();
             NicoVideo.QualityDividedVideos.CollectionChangedAsObservable()
@@ -132,7 +134,27 @@ namespace NicoPlayerHohoema.ViewModels
                 .AddTo(_CompositeDisposable);
 
             Label = NicoVideo.Title;
+
         }
+
+        protected override Task OnDeferredUpdate()
+        {
+            // Note: 動画リストの一覧表示が終わってからサムネイル情報読み込みが掛かるようにする
+            return NicoVideo.Initialize()
+                .ContinueWith(async y =>
+                {
+                    await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    {
+                        SetupFromThumbnail(NicoVideo);
+                    });
+                });
+        }
+
+        protected override void OnCancelDeferrdUpdate()
+        {
+            NicoVideo.Cancel();
+        }
+
 
         private async void ResetQualityDivideVideosVM()
         {
@@ -154,8 +176,11 @@ namespace NicoPlayerHohoema.ViewModels
 
         public void SetupFromThumbnail(NicoVideo info)
         {
+            Debug.WriteLine("thumbnail reflect : " + info.RawVideoId);
+
             if (!info.IsThumbnailInitialized)
             {
+                Debug.WriteLine("thumbnail not loaded : " + info.RawVideoId);
                 return;
             }
 
@@ -205,6 +230,8 @@ namespace NicoPlayerHohoema.ViewModels
 		protected override void OnDispose()
 		{
 			_CompositeDisposable?.Dispose();
+
+            base.OnDispose();
 		}
 
 

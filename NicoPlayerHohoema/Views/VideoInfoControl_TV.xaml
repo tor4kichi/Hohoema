@@ -17,30 +17,6 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <UserControl.Resources>
-        <DataTemplate x:Key="QualityVideoTemplate">
-            <!-- 画質ごとのキャッシュ状態を表示 
-                            
-            キャッシュリクエストされていない -> 非表示
-            キャッシュ待機中 -> 灰色
-            キャッシュDL中 -> 青色
-            キャッシュ済み -> 緑色
-                            
-            -->
-            <Border>
-                <TextBlock 
-                            Visibility="{Binding IsNotCacheRequested.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                           Foreground="{Binding CacheState.Value, Converter={StaticResource CacheStateToColorBrush}}"
-                            FontSize="13"
-                            Margin="0 0"
-                            VerticalAlignment="Center"
-                            x:Name="QualityText"
-                            >
-                    <Run Text="{Binding Quality, Converter={StaticResource ToLocalText}}" />
-                </TextBlock>
-            </Border>
-        </DataTemplate>
-    </UserControl.Resources>
     
     <Grid>
 
@@ -125,7 +101,7 @@
                 <hohoemalistitem:HohoemaListItemMiniCard />
 
                 <ItemsControl ItemsSource="{Binding QualityDividedVideos}"
-                              ItemTemplate="{StaticResource QualityVideoTemplate}"
+                              ItemTemplate="{StaticResource QualityVideoTemplate_TV}"
                               HorizontalAlignment="Right"
                               VerticalAlignment="Bottom"
                               IsTabStop="False"

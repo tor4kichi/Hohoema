@@ -21,6 +21,7 @@ using System.Text.RegularExpressions;
 using Windows.Storage.Streams;
 using Microsoft.Practices.Unity;
 using NicoPlayerHohoema.Models.Db;
+using System.Collections.Concurrent;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -30,11 +31,9 @@ namespace NicoPlayerHohoema.Models
     /// ニコニコ動画の動画やサムネイル画像、
     /// 動画情報など動画に関わるメディアを管理します
     /// </summary>
-    public class NiconicoMediaManager : BindableBase, IDisposable, IBackgroundUpdateable
+    public class NiconicoMediaManager : AsyncInitialize, IDisposable
 	{
         HohoemaApp _HohoemaApp;
-        public bool IsInitialized { get; private set; }
-
 
         private static readonly Regex NicoVideoIdRegex = new Regex("\\[((?:sm|so|lv)\\d+)\\]");
 
@@ -47,12 +46,10 @@ namespace NicoPlayerHohoema.Models
 
 
         private AsyncLock _VideoIdToNicoVideoLock = new AsyncLock();
-        private Dictionary<string, NicoVideo> _VideoIdToNicoVideo;
-
+        private ConcurrentDictionary<string, NicoVideo> _VideoIdToNicoVideo;
 
 
         public event VideoCacheStateChangedEventHandler VideoCacheStateChanged;
-        public event BackgroundUpdateCompletedEventHandler Completed;
 
         public static NicoVideoCacheRequest CacheRequestInfoFromFileName(IStorageFile file)
         {
@@ -75,6 +72,7 @@ namespace NicoPlayerHohoema.Models
         static internal Task<NiconicoMediaManager> Create(HohoemaApp app)
 		{
 			var man = new NiconicoMediaManager(app);
+            man.Initialize();
 
 //            await man.RetrieveCacheCompletedVideos();
 
@@ -93,7 +91,7 @@ namespace NicoPlayerHohoema.Models
             VideoDownloadManager.DownloadCompleted += VideoDownloadManager_DownloadCompleted;
             VideoDownloadManager.DownloadCanceled += VideoDownloadManager_DownloadCanceled;
 
-            _VideoIdToNicoVideo = new Dictionary<string, NicoVideo>();
+            _VideoIdToNicoVideo = new ConcurrentDictionary<string, NicoVideo>();
 
 			_CacheVideos = new ObservableCollection<NicoVideo>();
 			CacheVideos = new ReadOnlyObservableCollection<NicoVideo>(_CacheVideos);
@@ -124,7 +122,7 @@ namespace NicoPlayerHohoema.Models
 
         private async void VideoDownloadManager_DownloadCompleted(object sender, NicoVideoCacheRequest request, string filePath)
         {
-            var nicoVideo = await GetNicoVideoAsync(request.RawVideoId);
+            var nicoVideo = GetNicoVideo(request.RawVideoId);
             var div = nicoVideo.GetDividedQualityNicoVideo(request.Quality);
 
             await div.RestoreCache(filePath);
@@ -155,87 +153,53 @@ namespace NicoPlayerHohoema.Models
 		{
 		}
 
-
-		#region interface IBackgroundUpdateable
-
-		public IAsyncAction BackgroundUpdate(CoreDispatcher uiDispatcher)
-		{
-			return Initialize()
-				.AsAsyncAction();
-		}
-
-		#endregion
-
-
-		private async Task Initialize()
+        protected override Task OnInitializeAsync(CancellationToken token)
         {
-            // キャッシュ完了したアイテムを検索
-            await RetrieveCacheCompletedVideos();
+            return Windows.System.Threading.ThreadPool.RunAsync(async (workItem) => 
+            {
+                // キャッシュ完了したアイテムを検索
+                await RetrieveCacheCompletedVideos();
 
-            // ダウンロード中の情報を復元
-            await VideoDownloadManager.Initialize();
-
-            IsInitialized = true;
-
-            Completed?.Invoke(this);
+                // ダウンロード中の情報を復元
+                await VideoDownloadManager.Initialize();
+            },
+            Windows.System.Threading.WorkItemPriority.Normal
+            )
+            .AsTask();
         }
 
 
-		
+        public async Task<NicoVideo> GetNicoVideoAsync(string rawVideoId)
+        {
+            NicoVideo nicoVideo = _VideoIdToNicoVideo.GetOrAdd(rawVideoId, (id) => new NicoVideo(_HohoemaApp, id, _HohoemaApp.MediaManager));
+
+            await nicoVideo.Initialize();
+
+            return nicoVideo;
+        }
+
+        public NicoVideo GetNicoVideo(string rawVideoId)
+        {
+            NicoVideo nicoVideo = _VideoIdToNicoVideo.GetOrAdd(rawVideoId, (id) => new NicoVideo(_HohoemaApp, id, _HohoemaApp.MediaManager));
+
+            return nicoVideo;
+        }
 
 
-		
-
-
-		public async Task<NicoVideo> GetNicoVideoAsync(string rawVideoId, bool withInitialize = true)
-		{
-			NicoVideo nicoVideo = null;
-			using (var releaser = await _VideoIdToNicoVideoLock.LockAsync())
-			{
-				if (false == _VideoIdToNicoVideo.ContainsKey(rawVideoId))
-				{
-					nicoVideo = new NicoVideo(_HohoemaApp, rawVideoId, _HohoemaApp.MediaManager);
-					_VideoIdToNicoVideo.Add(rawVideoId, nicoVideo);
-				}
-				else
-				{
-					nicoVideo = _VideoIdToNicoVideo[rawVideoId];
-				}
-			}
-
-			if (withInitialize)
-			{
-				await nicoVideo.Initialize();
-			}
-
-			return nicoVideo;
-		}
-
-
-		public async Task<List<NicoVideo>> GetNicoVideoItemsAsync(params string[] idList)
+		public List<NicoVideo> GetNicoVideoItems(params string[] idList)
 		{
 			List<NicoVideo> videos = new List<NicoVideo>();
 
-			using (var releaser = await _VideoIdToNicoVideoLock.LockAsync())
-			{
-				foreach (var id in idList)
-				{
-					NicoVideo nicoVideo = null;
-					if (false == _VideoIdToNicoVideo.ContainsKey(id))
-					{
-						nicoVideo = new NicoVideo(_HohoemaApp, id, _HohoemaApp.MediaManager);
-						_VideoIdToNicoVideo.Add(id, nicoVideo);
-					}
-					else
-					{
-						nicoVideo = _VideoIdToNicoVideo[id];
-					}
+            foreach (var rawVideoId in idList)
+            {
+                NicoVideo nicoVideo = _VideoIdToNicoVideo.GetOrAdd(rawVideoId, (id) => new NicoVideo(_HohoemaApp, id, _HohoemaApp.MediaManager));
 
-					videos.Add(nicoVideo);
-				}
-			}
+                nicoVideo.Initialize().ConfigureAwait(false);
 
-			return videos;
+                videos.Add(nicoVideo);
+            }
+
+            return videos;
 		}
 
         
@@ -269,7 +233,7 @@ namespace NicoPlayerHohoema.Models
                         continue;
                     }
 
-					var nicoVideo = await GetNicoVideoAsync(info.RawVideoId, false);
+					var nicoVideo = GetNicoVideo(info.RawVideoId);
                     var div = nicoVideo.GetDividedQualityNicoVideo(quality);
 
                     await nicoVideo.RestoreCache(quality, file.Path);
@@ -303,7 +267,7 @@ namespace NicoPlayerHohoema.Models
 
         private async Task CacheRequested(NicoVideoCacheRequest req)
         {
-            var nicoVideo = await GetNicoVideoAsync(req.RawVideoId, false);
+            var nicoVideo = GetNicoVideo(req.RawVideoId);
             using (var releaser = await _CacheVideosLock.LockAsync())
             {
                 if (_CacheVideos.Any(x => x.RawVideoId == nicoVideo.RawVideoId))
@@ -318,7 +282,7 @@ namespace NicoPlayerHohoema.Models
 
         private async Task CacheRequestCanceled(NicoVideoCacheRequest req)
         {
-            var nicoVideo = await GetNicoVideoAsync(req.RawVideoId);
+            var nicoVideo = GetNicoVideo(req.RawVideoId);
 
             if (nicoVideo.GetAllQuality().All(x => !x.IsCacheRequested))
             {

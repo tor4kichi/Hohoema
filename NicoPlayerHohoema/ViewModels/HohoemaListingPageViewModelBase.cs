@@ -76,7 +76,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			
 
-			var SelectionItemsChanged = SelectedItems.ToCollectionChanged().ToUnit();
+//			var SelectionItemsChanged = SelectedItems.ToCollectionChanged().ToUnit();
 /*
             SelectionItemsChanged.Subscribe(_ => 
             {
@@ -98,7 +98,8 @@ namespace NicoPlayerHohoema.ViewModels
 				.Subscribe(x => 
 				{
 					Debug.WriteLine("Selected Count: " + SelectedItems.Count);
-				});
+				})
+                .AddTo(_CompositeDisposable);
 #endif
 
             // 読み込み厨または選択中はソートを変更できない
@@ -107,7 +108,8 @@ namespace NicoPlayerHohoema.ViewModels
                 IsSelectionModeEnable
                 )
                 .Select(x => !x.Any(y => y))
-                .ToReactiveProperty();
+                .ToReactiveProperty()
+                .AddTo(_CompositeDisposable);
 
 
         }
@@ -116,12 +118,18 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override void OnDispose()
 		{
-			if (IncrementalLoadingItems.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
-			{
-				(IncrementalLoadingItems.Source as HohoemaIncrementalSourceBase<ITEM_VM>).Error -= HohoemaIncrementalSource_Error;
-			}
-			IncrementalLoadingItems?.Dispose();
-		}
+            if (IncrementalLoadingItems != null)
+            {
+                IncrementalLoadingItems.BeginLoading -= BeginLoadingItems;
+                IncrementalLoadingItems.DoneLoading -= CompleteLoadingItems;
+                if (IncrementalLoadingItems.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
+                {
+                    (IncrementalLoadingItems.Source as HohoemaIncrementalSourceBase<ITEM_VM>).Error -= HohoemaIncrementalSource_Error;
+                }
+                IncrementalLoadingItems.Dispose();
+                IncrementalLoadingItems = null;
+            }
+        }
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 
@@ -180,8 +188,6 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				ChangeCanIncmentalLoading(false);
 			}
-
-            CancelBackgroundLoading();
         }
 
 
@@ -222,7 +228,6 @@ namespace NicoPlayerHohoema.ViewModels
                 if (IncrementalLoadingItems.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
 				{
 					(IncrementalLoadingItems.Source as HohoemaIncrementalSourceBase<ITEM_VM>).Error -= HohoemaIncrementalSource_Error;
-                    CancelBackgroundLoading();
                 }
 				IncrementalLoadingItems.BeginLoading -= BeginLoadingItems;
 				IncrementalLoadingItems.DoneLoading -= CompleteLoadingItems;
@@ -284,7 +289,19 @@ namespace NicoPlayerHohoema.ViewModels
 
 			LoadedItemsCount.Value = IncrementalLoadingItems?.Count ?? 0;
 			HasItem.Value = LoadedItemsCount.Value > 0;
-		}
+
+            var count = IncrementalLoadingItems.Source.OneTimeLoadCount;
+            var head = LoadedItemsCount.Value - count;
+            head = head < 0 ? 0 : head;
+            
+            foreach (var item in IncrementalLoadingItems.Skip((int)head).Take((int)count).ToArray())
+            {
+                if (item is HohoemaListingPageItemBase)
+                {
+                    (item as HohoemaListingPageItemBase).DeferredUpdate();
+                }
+            }
+        }
 
 		protected virtual void PostResetList() { }
 
@@ -311,15 +328,6 @@ namespace NicoPlayerHohoema.ViewModels
 			SelectedItems.Clear();
 		}
 
-
-        private void CancelBackgroundLoading()
-        {
-            var preloadingSource = IncrementalLoadingItems?.Source as IHohoemaPreloadingIncrementalSource;
-            if (preloadingSource != null)
-            {
-                HohoemaApp.BackgroundUpdater.CancelFromGroupId(preloadingSource.PreloadScheduleLabel);
-            }
-        }
 
 		#region Selection
 

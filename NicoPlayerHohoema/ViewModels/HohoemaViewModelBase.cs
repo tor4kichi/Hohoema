@@ -278,8 +278,6 @@ namespace NicoPlayerHohoema.ViewModels
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
-            HohoemaApp.BackgroundUpdater.Deactivate();
-
             // PageManagerにナビゲーション動作を伝える
             PageManager.OnNavigated(e);
 
@@ -312,9 +310,6 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 //				PageManager.PageTitle = PageManager.CurrentDefaultPageTitle();
 			}
-
-            // BG更新処理を再開
-            HohoemaApp.BackgroundUpdater.Activate();
         }
 
         private async void _OnResumed()
@@ -329,9 +324,6 @@ namespace NicoPlayerHohoema.ViewModels
                 await CheckSignIn();
 					
 				await OnResumed();
-
-				// BG更新処理を再開
-		        HohoemaApp.BackgroundUpdater.Activate();
 			});
 		}
 
@@ -388,53 +380,44 @@ namespace NicoPlayerHohoema.ViewModels
 		{
             using (var releaser = await _NavigationLock.LockAsync())
             {
-                HohoemaApp.BackgroundUpdater.Deactivate();
+                // バックナビゲーションが発生した時、
+                // かつ、代替バックナビゲーション動作が設定されている場合に、
+                // バックナビゲーションをキャンセルします。
+                if (!suspending
+                    && e.NavigationMode == NavigationMode.Back
+                    && SubstitutionBackNavigation.Count > 0
+                    )
+                {
+                    e.Cancel = true;
+                    return;
+                }
+
+                _NavigatedToTaskCancelToken?.Cancel();
+
+                await _NavigatedToTask.WaitToCompelation();
+
+                _NavigatedToTaskCancelToken?.Dispose();
+                _NavigatedToTaskCancelToken = null;
+
 
                 try
                 {
-                    // バックナビゲーションが発生した時、
-                    // かつ、代替バックナビゲーション動作が設定されている場合に、
-                    // バックナビゲーションをキャンセルします。
-                    if (!suspending
-                        && e.NavigationMode == NavigationMode.Back
-                        && SubstitutionBackNavigation.Count > 0
-                        )
-                    {
-                        e.Cancel = true;
-                        return;
-                    }
-
-                    _NavigatedToTaskCancelToken?.Cancel();
-
-                    await _NavigatedToTask.WaitToCompelation();
-
-                    _NavigatedToTaskCancelToken?.Dispose();
-                    _NavigatedToTaskCancelToken = null;
-
-
-                    try
-                    {
-                        OnHohoemaNavigatingFrom(e, viewModelState, suspending);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine(ex.ToString());
-                    }
-
-                    _NavigatingCompositeDisposable?.Dispose();
-                    _NavigatingCompositeDisposable = new CompositeDisposable();
-
-                    if (!suspending)
-                    {
-                        HohoemaApp.OnResumed -= _OnResumed;
-                    }
-
-                    base.OnNavigatingFrom(e, viewModelState, suspending);
+                    OnHohoemaNavigatingFrom(e, viewModelState, suspending);
                 }
-                finally
+                catch (Exception ex)
                 {
-                    HohoemaApp.BackgroundUpdater.Activate();
+                    Debug.WriteLine(ex.ToString());
                 }
+
+                _NavigatingCompositeDisposable?.Dispose();
+                _NavigatingCompositeDisposable = new CompositeDisposable();
+
+                if (!suspending)
+                {
+                    HohoemaApp.OnResumed -= _OnResumed;
+                }
+
+                base.OnNavigatingFrom(e, viewModelState, suspending);
             }
 		}
 

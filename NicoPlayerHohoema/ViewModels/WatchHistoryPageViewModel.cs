@@ -140,7 +140,7 @@ namespace NicoPlayerHohoema.ViewModels
 	}
 
 
-	public class HistoryIncrementalLoadingSource : HohoemaVideoPreloadingIncrementalSourceBase<HistoryVideoInfoControlViewModel>
+	public class HistoryIncrementalLoadingSource : HohoemaIncrementalSourceBase<HistoryVideoInfoControlViewModel>
 	{
 
 		HistoriesResponse _HistoriesResponse;
@@ -148,20 +148,12 @@ namespace NicoPlayerHohoema.ViewModels
 		HohoemaApp _HohoemaApp;
 		PageManager _PageManager;
 
-
-
-		
-
-
 		public HistoryIncrementalLoadingSource(HohoemaApp hohoemaApp, PageManager pageManager, HistoriesResponse historyRes)
-            : base (hohoemaApp, "history")
 		{
 			_HohoemaApp = hohoemaApp;
 			_PageManager = pageManager;
 			_HistoriesResponse = historyRes;
 		}
-
-        List<NicoVideo> HistriesItems = new List<NicoVideo>();
 
 		public override uint OneTimeLoadCount
 		{
@@ -170,40 +162,26 @@ namespace NicoPlayerHohoema.ViewModels
 				return 10;
 			}
 		}
-        protected override async Task<int> HohoemaPreloadingResetSourceImpl()
+        
+        protected override Task<IAsyncEnumerable<HistoryVideoInfoControlViewModel>> GetPagedItemsImpl(int head, int count)
         {
-            await Task.Delay(0);
+            return Task.FromResult(_HistoriesResponse.Histories.Skip(head).Take(count).Select(x => 
+            {
+                var nicoVideo = _HohoemaApp.MediaManager.GetNicoVideo(x.ItemId);
 
-            if (_HistoriesResponse == null) { return 0; }
-
-            return _HistoriesResponse.Histories.Count;
-        }
-
-        protected override HistoryVideoInfoControlViewModel NicoVideoToTemplatedItem(NicoVideo sourceNicoVideos, int index)
-        {
-            var history = _HistoriesResponse.Histories[index];
-            var watchCount = history.WatchCount;
-
-            sourceNicoVideos.PreSetTitle(history.Title);
-
-            return new HistoryVideoInfoControlViewModel(
-                    watchCount
-                    , sourceNicoVideos
+                return new HistoryVideoInfoControlViewModel(
+                    x.WatchCount
+                    , nicoVideo
                     , _PageManager
                     );
+            })
+            .ToAsyncEnumerable()
+            );
         }
 
-
-
-        protected override async Task<IEnumerable<NicoVideo>> PreloadNicoVideo(int start, int count)
+        protected override Task<int> ResetSourceImpl()
         {
-            await Task.Delay(0);
-            var items = await HohoemaApp.MediaManager.GetNicoVideoItemsAsync(
-               _HistoriesResponse.Histories.Skip(start).Take(count).Select(x => x.ItemId).ToArray()
-               );
-
-            return items;
+            return Task.FromResult(_HistoriesResponse?.Histories.Count ?? 0);
         }
-
     }
 }

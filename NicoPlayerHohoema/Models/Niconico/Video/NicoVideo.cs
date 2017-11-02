@@ -37,21 +37,17 @@ namespace NicoPlayerHohoema.Models
     }
 
 
-	public class NicoVideo : BindableBase
+	public class NicoVideo : AsyncInitialize
 	{
 		private NicoVideoQuality _VisitedPageType = NicoVideoQuality.Smile_Low;
 
-        AsyncLock _InitializeLock = new AsyncLock();
-		bool _IsInitialized = false;
-		bool _thumbnailInitialized = false;
-
+		
         AsyncLock _BufferingLock = new AsyncLock();
-        IDisposable _BufferingLockReleaser = null;
 
         public CommentClient CommentClient { get; private set; }
 
 
-        public bool IsThumbnailInitialized => _thumbnailInitialized;
+        public bool IsThumbnailInitialized { get; private set; }
 
 
         public NicoVideo(HohoemaApp app, string rawVideoid, NiconicoMediaManager manager)
@@ -63,29 +59,21 @@ namespace NicoPlayerHohoema.Models
 			_InterfaceByQuality = new Dictionary<NicoVideoQuality, DividedQualityNicoVideo>();
             QualityDividedVideos = new ReadOnlyObservableCollection<DividedQualityNicoVideo>(_QualityDividedVideos);
             CommentClient = new CommentClient(HohoemaApp, RawVideoId);
+
+            FillVideoInfoFromDb();
         }
 
-        public async Task Initialize()
+        protected override async Task OnInitializeAsync(CancellationToken token)
         {
-            using (var releaser = await _InitializeLock.LockAsync())
+            if (HohoemaApp.ServiceStatus >= HohoemaAppServiceLevel.OnlineWithoutLoggedIn)
             {
-                if (_IsInitialized) { return; }
+                Debug.WriteLine("load thumbnail : " + RawVideoId);
 
-                if (HohoemaApp.ServiceStatus >= HohoemaAppServiceLevel.OnlineWithoutLoggedIn)
-                {
-                    Debug.WriteLine("start initialize : " + RawVideoId);
+                await UpdateWithThumbnail();
 
-                    await UpdateWithThumbnail();
-
-                    _IsInitialized = true;
-                }
-                else if (!_thumbnailInitialized && HohoemaApp.ServiceStatus == HohoemaAppServiceLevel.Offline)
-                {
-                    await FillVideoInfoFromDb();
-                }
-            }
+                Debug.WriteLine("done load thumbnail : " + RawVideoId);
+            }            
         }
-
 
 
 
@@ -444,8 +432,6 @@ namespace NicoPlayerHohoema.Models
 
         private async Task UpdateWithThumbnail()
 		{
-			if (_thumbnailInitialized) { return; }
-
 			// 動画のサムネイル情報にアクセスさせて、アプリ内部DBを更新
 			try
 			{
@@ -487,7 +473,7 @@ namespace NicoPlayerHohoema.Models
                 return;
             }
 
-            _thumbnailInitialized = true;
+            IsThumbnailInitialized = true;
 
             await HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Low, async () => 
             {
@@ -554,7 +540,7 @@ namespace NicoPlayerHohoema.Models
                 NowLowQualityOnly = dmcWatchResponse.Video.SmileInfo?.IsSlowLine ?? false;
                 //IsOriginalQualityOnly = dmcWatchResponse.Video.SmileInfo?.QualityIds?.Count == 1;
 
-                if (!_thumbnailInitialized)
+                if (!IsThumbnailInitialized)
                 {
                     RawVideoId = dmcWatchResponse.Video.Id;
                     await UpdateWithThumbnail();
@@ -668,7 +654,7 @@ namespace NicoPlayerHohoema.Models
                 PrivateReasonType = watchApiRes.PrivateReason;
                 VideoLength = watchApiRes.Length;
 
-                if (!_thumbnailInitialized)
+                if (!IsThumbnailInitialized)
                 {
                     RawVideoId = watchApiRes.videoDetail.id;
                     await UpdateWithThumbnail();
@@ -710,6 +696,8 @@ namespace NicoPlayerHohoema.Models
 
         public async Task VisitWatchPage(NicoVideoQuality quality)
 		{
+            await Initialize();
+
             try
             {
                 if (quality == NicoVideoQuality.Smile_Low)
@@ -725,6 +713,13 @@ namespace NicoPlayerHohoema.Models
             {
                 await Task.Delay(TimeSpan.FromSeconds(1));
                 await GetWatchApiResponse(quality == NicoVideoQuality.Smile_Low);
+            }
+
+            // キャッシュリクエストされている場合は
+            // Dbの登録情報を更新
+            if (GetAllQuality().Any(x => x.IsCacheRequested))
+            {
+                await UpdateVideoInfoDb();
             }
         }
 
@@ -816,8 +811,6 @@ namespace NicoPlayerHohoema.Models
         {
             var divided = GetDividedQualityNicoVideo(quality);
 
-            await FillVideoInfoFromDb();
-
             await divided.RestoreCache(filepath);
 
             await divided.RequestCache();
@@ -907,26 +900,10 @@ namespace NicoPlayerHohoema.Models
                 await CommentClient.GetComments();
             }
 
+            await UpdateVideoInfoDb();
+        }
 
-            var info = await VideoInfoDb.GetEnsureNicoVideoInfoAsync(RawVideoId);
-            
-            info.VideoId = this.VideoId;
-			info.Length = this.VideoLength;
-			info.LowSize = (uint)this.SizeLow;
-			info.HighSize = (uint)this.SizeHigh;
-			info.Title = this.Title;
-			info.UserId = this.OwnerId;
-			info.MovieType = this.ContentType;
-			info.PostedAt = this.PostedAt;
-			info.SetTags(this.Tags);
-			info.ViewCount = this.ViewCount;
-			info.MylistCount = this.MylistCount;
-			info.CommentCount = this.CommentCount;
-			info.ThumbnailUrl = this.ThumbnailUrl;
-            
-            await VideoInfoDb.UpdateAsync(info);
-		}
-
+        
 
 
 		/// <summary>
@@ -941,16 +918,36 @@ namespace NicoPlayerHohoema.Models
                 await _NiconicoMediaManager.NotifyCacheForceDeleted(this);
             }
 
-            await FillVideoInfoFromDb();
-
             // キャッシュした動画データと動画コメントの削除
             await CancelCacheRequest();
         }
 
 
-        private async Task FillVideoInfoFromDb()
+
+        private async Task UpdateVideoInfoDb()
         {
-            var videoInfo = await VideoInfoDb.GetAsync(RawVideoId);
+            var info = await VideoInfoDb.GetEnsureNicoVideoInfoAsync(RawVideoId);
+
+            info.VideoId = this.VideoId;
+            info.Length = this.VideoLength;
+            info.LowSize = (uint)this.SizeLow;
+            info.HighSize = (uint)this.SizeHigh;
+            info.Title = this.Title;
+            info.UserId = this.OwnerId;
+            info.MovieType = this.ContentType;
+            info.PostedAt = this.PostedAt;
+            info.SetTags(this.Tags);
+            info.ViewCount = this.ViewCount;
+            info.MylistCount = this.MylistCount;
+            info.CommentCount = this.CommentCount;
+            info.ThumbnailUrl = this.ThumbnailUrl;
+
+            await VideoInfoDb.UpdateAsync(info);
+        }
+
+        private void FillVideoInfoFromDb()
+        {
+            var videoInfo = VideoInfoDb.Get(RawVideoId);
 
             if (videoInfo == null) { return; }
 
@@ -970,6 +967,7 @@ namespace NicoPlayerHohoema.Models
             this.ThumbnailUrl = videoInfo.ThumbnailUrl;
             this.DescriptionWithHtml = videoInfo.DescriptionWithHtml;
 
+            IsThumbnailInitialized = true;
         }
 
 
@@ -1003,47 +1001,47 @@ namespace NicoPlayerHohoema.Models
         // Initializeが呼ばれるまで有効
         public void PreSetTitle(string title)
 		{
-			if (_IsInitialized) { return; }
+			if (IsInitialized) { return; }
 
 			Title = title;
 		}
 
 		public void PreSetPostAt(DateTime dateTime)
 		{
-			if (_IsInitialized) { return; }
+			if (IsInitialized) { return; }
 
 			PostedAt = dateTime;
 		}
 
 		public void PreSetVideoLength(TimeSpan length)
 		{
-			if (_IsInitialized) { return; }
+			if (IsInitialized) { return; }
 
 			VideoLength = length;
 		}
 
 		public void PreSetCommentCount(uint count)
 		{
-			if (_IsInitialized) { return; }
+			if (IsInitialized) { return; }
 
 			CommentCount = count;
 		}
 		public void PreSetViewCount(uint count)
 		{
-			if (_IsInitialized) { return; }
+			if (IsInitialized) { return; }
 
 			ViewCount = count;
 		}
 		public void PreSetMylistCount(uint count)
 		{
-			if (_IsInitialized) { return; }
+			if (IsInitialized) { return; }
 
 			MylistCount = count;
 		}
 
 		public void PreSetThumbnailUrl(string thumbnailUrl)
 		{
-			if (_IsInitialized) { return; }
+			if (IsInitialized) { return; }
 
 			ThumbnailUrl = thumbnailUrl;
 		}

@@ -345,7 +345,7 @@ namespace NicoPlayerHohoema.ViewModels
                 SearchedVideoIdsHash.Add(live.Video.Id);
             }
         }
-		public async Task<IEnumerable<LiveInfoViewModel>> GetPagedItems(int head, int count)
+		public async Task<IAsyncEnumerable<LiveInfoViewModel>> GetPagedItems(int head, int count)
 		{
             if (Info.Count < (head + count))
             {
@@ -364,7 +364,8 @@ namespace NicoPlayerHohoema.ViewModels
             return Info.Skip(head).Take(count).Select(x =>
 			{
 				return new LiveInfoViewModel(x, HohoemaApp.Playlist, PageManager);
-			});
+			})
+            .ToAsyncEnumerable();
 		}
 	}
 

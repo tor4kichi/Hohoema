@@ -19,6 +19,8 @@ namespace NicoPlayerHohoema.ViewModels
         IDisposable _Disposer;
         public void Dispose()
         {
+            CancelDefrredUpdate();
+
             OnDispose();
 
             _Disposer?.Dispose();
@@ -152,6 +154,24 @@ namespace NicoPlayerHohoema.ViewModels
                     RaisePropertyChanged(nameof(HasImageUrl));
                     RaisePropertyChanged(nameof(IsMultipulImages));
                 });
+        }
+
+        public Task DeferredUpdate()
+        {
+            return OnDeferredUpdate();
+        }
+
+        protected virtual Task OnDeferredUpdate() { return Task.CompletedTask; }
+
+
+        public void CancelDefrredUpdate()
+        {
+            OnCancelDeferrdUpdate();
+        }
+
+        protected virtual void OnCancelDeferrdUpdate()
+        {
+
         }
     }
 }

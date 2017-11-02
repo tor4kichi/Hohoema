@@ -133,15 +133,7 @@ namespace NicoPlayerHohoema.ViewModels
 				.AddTo(_CompositeDisposable);
             IsCommentDisplayEnable = HohoemaApp.UserSettings.PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentDisplay_Video, CurrentWindowContextScheduler)
                 .AddTo(_CompositeDisposable);
-            // プレイヤーがフィル表示かつコメント表示を有効にしている場合のみ表示
-            IsVisibleComment =
-                Observable.CombineLatest(
-                    HohoemaApp.Playlist.ObserveProperty(x => x.IsPlayerFloatingModeEnable).Select(x => !x),
-                    IsCommentDisplayEnable
-                    )
-                    .Select(x => x.All(y => y))
-                    .ToReactiveProperty(CurrentWindowContextScheduler);
-
+            
 			IsEnableRepeat = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false)
 				.AddTo(_CompositeDisposable);
 			
@@ -668,7 +660,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             try
             {
-                var videoInfo = await HohoemaApp.MediaManager.GetNicoVideoAsync(VideoId);
+                var videoInfo = HohoemaApp.MediaManager.GetNicoVideo(VideoId);
 
                 // 内部状態を更新
                 await videoInfo.VisitWatchPage(NicoVideoQuality.Dmc_Mobile);
@@ -1277,7 +1269,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-        protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        protected override Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			Debug.WriteLine("VideoPlayer OnNavigatedToAsync start.");
 
@@ -1294,7 +1286,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             cancelToken.ThrowIfCancellationRequested();
 
-            var videoInfo = await HohoemaApp.MediaManager.GetNicoVideoAsync(VideoId);
+            var videoInfo = HohoemaApp.MediaManager.GetNicoVideo(VideoId);
 
             Video = videoInfo;
 
@@ -1351,6 +1343,7 @@ namespace NicoPlayerHohoema.ViewModels
             PlaylistCanGoBack.Value = HohoemaApp.Playlist.Player.CanGoBack;
             PlaylistCanGoNext.Value = HohoemaApp.Playlist.Player.CanGoNext;
 
+            return Task.CompletedTask;
         }
 
         protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
@@ -2381,7 +2374,6 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<bool> CanSubmitComment { get; private set; }
         public ReactiveProperty<bool> NowSubmittingComment { get; private set; }
 		public ReactiveProperty<string> WritingComment { get; private set; }
-		public ReactiveProperty<bool> IsVisibleComment { get; private set; }
         public ReactiveProperty<bool> IsCommentDisplayEnable { get; private set; }
         public ReactiveProperty<bool> NowCommentWriting { get; private set; }
 		public ObservableCollection<Comment> Comments { get; private set; }

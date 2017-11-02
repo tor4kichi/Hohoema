@@ -185,7 +185,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		
 
-		public async Task<IEnumerable<MylistSearchListingItem>> GetPagedItems(int head, int count)
+		public async Task<IAsyncEnumerable<MylistSearchListingItem>> GetPagedItems(int head, int count)
 		{
 			var items = new List<MylistSearchListingItem>();
 
@@ -199,13 +199,9 @@ namespace NicoPlayerHohoema.ViewModels
 			);
 
 
-			foreach (var item in response.MylistGroupItems)
-			{
-				// TODO: mylistGroupをリスト表示
-				items.Add(new MylistSearchListingItem(item, _PageManager));
-			}
-
-			return items;
+            return response.MylistGroupItems
+                .Select(item => new MylistSearchListingItem(item, _PageManager))
+                .ToAsyncEnumerable();
 		}
 	}
 }

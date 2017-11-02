@@ -345,11 +345,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         private async Task UpdateUserMylist()
 		{
-			if (!HohoemaApp.MylistManagerUpdater.IsOneOrMoreUpdateCompleted)
-			{
-				HohoemaApp.MylistManagerUpdater.ScheduleUpdate();
-				await HohoemaApp.MylistManagerUpdater.WaitUpdate();
-			}
+            await HohoemaApp.UserMylistManager.Initialize();
 
             var listItems = HohoemaApp.UserMylistManager.UserMylists;
             MylistList.Clear();

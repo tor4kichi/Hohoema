@@ -5,17 +5,14 @@ using NicoPlayerHohoema.Helpers;
 
 namespace NicoPlayerHohoema.Models
 {
-	// TODO: 整理
 	public interface IFeedGroup
 	{
-		List<FeedItem> FeedItems { get; }
-		FeedManager FeedManager { get; }
+        Guid Id { get; }
+        string Label { get; }
+        DateTime UpdateTime { get; }
+
+        IList<FeedItem> FeedItems { get; }
 		IReadOnlyList<IFeedSource> FeedSourceList { get; }
-		HohoemaApp HohoemaApp { get; }
-		Guid Id { get; }
-		bool IsNeedRefresh { get; }
-		string Label { get; }
-		DateTime UpdateTime { get; }
 
 		IFeedSource AddMylistFeedSource(string name, string mylistGroupId);
 		IFeedSource AddTagFeedSource(string tag);
@@ -24,8 +21,10 @@ namespace NicoPlayerHohoema.Models
 		void ForceMarkAsRead();
 		int GetUnreadItemCount();
 		bool MarkAsRead(string videoId);
-		Task<bool> LoadFeedStream(FileAccessor<List<FeedItem>> fileAccessor);
-		Task Refresh();
+
+        bool IsRefreshRequired { get; }
+
+        Task Refresh();
 		void RemoveUserFeedSource(IFeedSource feedSource);
 		Task<bool> Rename(string newLabel);
 	}

@@ -158,7 +158,7 @@ namespace NicoPlayerHohoema.ViewModels
 			return Task.FromResult(VideoCount);
 		}
 
-		protected override async Task<IEnumerable<CommunityVideoInfoControlViewModel>> GetPagedItemsImpl(int start, int count)
+		protected override async Task<IAsyncEnumerable<CommunityVideoInfoControlViewModel>> GetPagedItemsImpl(int start, int count)
 		{
 			if (count >= VideoCount)
 			{
@@ -185,14 +185,7 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 			}
 
-
-			var videos = new List<CommunityVideoInfoControlViewModel>();
-			foreach (var item in Items.Skip(start).Take(count))
-			{
-				videos.Add(new CommunityVideoInfoControlViewModel(item, HohoemaApp.Playlist));
-			}
-
-			return videos.AsEnumerable();
+            return Items.Skip(start).Take(count).Select(x => new CommunityVideoInfoControlViewModel(x, HohoemaApp.Playlist)).ToAsyncEnumerable();
 		}
 
 

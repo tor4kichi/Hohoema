@@ -30,18 +30,20 @@ namespace NicoPlayerHohoema.ViewModels
 		public HohoemaVideoListingPageViewModelBase(HohoemaApp app, PageManager pageManager, bool isRequireSignIn = true, bool useDefaultPageTitle = true)
 			: base(app, pageManager, useDefaultPageTitle:useDefaultPageTitle)
 		{
-			var SelectionItemsChanged = SelectedItems.ToCollectionChanged().ToUnit();
+            var SelectionItemsChanged = SelectedItems.ToCollectionChanged().ToUnit();
 
 #if DEBUG
 			SelectedItems.CollectionChangedAsObservable()
 				.Subscribe(x =>
 				{
 					Debug.WriteLine("Selected Count: " + SelectedItems.Count);
-				});
+				})
+
+            .AddTo(_CompositeDisposable);
 #endif
 
 
-			PlayAllCommand = SelectionItemsChanged
+            PlayAllCommand = SelectionItemsChanged
 				.Select(_ => SelectedItems.Count > 0)
 				.ToReactiveCommand(false)
 				.AddTo(_CompositeDisposable);
@@ -196,8 +198,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 					await PageManager.StartNoUIWork("マイリストに追加", items.Count, () => action);
 				}
-			);
-            
+			)
+            .AddTo(_CompositeDisposable);
+
 
             Playlists = HohoemaApp.Playlist.Playlists.ToReadOnlyReactiveCollection();
         }
@@ -234,15 +237,6 @@ namespace NicoPlayerHohoema.ViewModels
 		protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
 			base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
-
-			// 戻る時だけ
-			if (e.NavigationMode == NavigationMode.Back 
-				&& IncrementalLoadingItems != null
-				&& IncrementalLoadingItems.Source is HohoemaVideoPreloadingIncrementalSourceBase<VIDEO_INFO_VM>)
-			{
-				var preloadSource = IncrementalLoadingItems.Source as HohoemaVideoPreloadingIncrementalSourceBase<VIDEO_INFO_VM>;
-				preloadSource.CancelPreloading();
-			}
 		}
 
 		private IEnumerable<VideoInfoControlViewModel> EnumerateCacheRequestedVideoItems()

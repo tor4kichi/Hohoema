@@ -75,16 +75,7 @@ namespace NicoPlayerHohoema.ViewModels
                 )
                 .Select(x => x.All(y => y))
                 .ToReactiveProperty();
-                
-            
-
-            IsContentDisplayFloating
-                .Where(x => x)
-                .Subscribe(x => 
-            {
-                hohoemaApp.BackgroundUpdater.Activate();
-            });
-                
+                                
 
             HohoemaPlaylist.OpenPlaylistItem += HohoemaPlaylist_OpenPlaylistItem;
 

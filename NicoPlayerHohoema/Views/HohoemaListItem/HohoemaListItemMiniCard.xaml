@@ -37,10 +37,10 @@
               >
             <Border>
                 <Image Source="{Binding FirstImageUrl}"
-                   Visibility="{Binding HasImageUrl, Converter={StaticResource BooleanToVisibility}}" 
-                   Stretch="Uniform"
-                   VerticalAlignment="Center"
-                   MinHeight="180"
+                       Visibility="{Binding HasImageUrl, Converter={StaticResource BooleanToVisibility}}" 
+                       Stretch="Uniform"
+                       VerticalAlignment="Center"
+                       MinHeight="180"
                    />
             </Border>
 

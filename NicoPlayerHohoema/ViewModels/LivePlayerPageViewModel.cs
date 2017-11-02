@@ -159,7 +159,6 @@ namespace NicoPlayerHohoema.ViewModels
         // comment
 
 
-        public ReactiveProperty<bool> IsVisibleComment { get; private set; }
         public ReactiveProperty<bool> IsCommentDisplayEnable { get; private set; }
         public ReactiveProperty<TimeSpan> CommentUpdateInterval { get; private set; }
 		public ReactiveProperty<TimeSpan> RequestCommentDisplayDuration { get; private set; }
@@ -268,13 +267,6 @@ namespace NicoPlayerHohoema.ViewModels
             IsCommentDisplayEnable = HohoemaApp.UserSettings.PlayerSettings
                 .ToReactivePropertyAsSynchronized(x => x.IsCommentDisplay_Live, PlayerWindowUIDispatcherScheduler)
                 .AddTo(_CompositeDisposable);
-            IsVisibleComment =
-                Observable.CombineLatest(
-                    HohoemaApp.Playlist.ObserveProperty(x => x.IsPlayerFloatingModeEnable).Select(x => !x),
-                    IsCommentDisplayEnable
-                    )
-                    .Select(x => x.All(y => y))
-                    .ToReactiveProperty(PlayerWindowUIDispatcherScheduler);
 
             CommentCanvasHeight = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0.0).AddTo(_CompositeDisposable);
 			CommentDefaultColor = new ReactiveProperty<Color>(PlayerWindowUIDispatcherScheduler, Colors.White).AddTo(_CompositeDisposable);

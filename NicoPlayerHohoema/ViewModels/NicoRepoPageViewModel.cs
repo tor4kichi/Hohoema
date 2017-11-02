@@ -172,6 +172,10 @@ namespace NicoPlayerHohoema.ViewModels
         };
 
 
+        public static List<NicoRepoItemTopic> AllowedNicoRepoItemType = Enumerable.Concat(LiveItemType, VideoItemType).ToList();
+
+
+
         List<NicoRepoTimelineItem> TimelineItems { get; } = new List<NicoRepoTimelineItem>();
 
         HohoemaApp HohoemaApp { get; }
@@ -202,7 +206,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         DateTime NiconamaDisplayTime = DateTime.Now - TimeSpan.FromHours(6);
 
-        protected override async Task<IEnumerable<NicoRepoTimelineVM>> GetPagedItemsImpl(int head, int count)
+        protected override async Task<IAsyncEnumerable<NicoRepoTimelineVM>> GetPagedItemsImpl(int head, int count)
         {
             var tail = head + count;
             if (TimelineItems.Count < tail)
@@ -215,33 +219,50 @@ namespace NicoPlayerHohoema.ViewModels
             }
 
             var list = new List<NicoRepoTimelineVM>();
-            foreach (var item in TimelineItems.Skip(head).Take(count).ToArray())
-            {
-                var topicType = NicoRepoItemTopicExtension.ToNicoRepoTopicType(item.Topic);
-                if (LiveItemType.Any(x => x == topicType))
+
+            return TimelineItems.Skip(head).Take(count).ToArray()
+                .Where(item => 
                 {
-                    if (item.Program != null)
+                    var topicType = NicoRepoItemTopicExtension.ToNicoRepoTopicType(item.Topic);
+                    if (LiveItemType.Any(type => type == topicType))
                     {
-                        // 放送開始が現時点より６時間以上前の場合には既に終了済みとして表示しない
-                        if (item.Program.BeginAt < NiconamaDisplayTime)
+                        if (item.Program != null)
                         {
-                            continue;
+                            // 放送開始が現時点より６時間以上前の場合には既に終了済みとして表示しない
+                            if (item.Program.BeginAt < NiconamaDisplayTime)
+                            {
+                                return false;
+                            }
                         }
+
+                        return true;
                     }
-
-                    var vm = new NicoRepoLiveTimeline(item, topicType, HohoemaApp.Playlist);
-                    list.Add(vm);
-                }
-                else if (VideoItemType.Any(x => x == topicType))
+                    else if (VideoItemType.Any(x => x == topicType))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                })
+                .Select<NicoRepoTimelineItem, NicoRepoTimelineVM>(item => 
                 {
-                    var vm = new NicoRepoVideoTimeline(item, topicType, HohoemaApp.Playlist);
-                    list.Add(vm);
-                }
-            }
-
-            head += count;
-
-            return list;
+                    var topicType = NicoRepoItemTopicExtension.ToNicoRepoTopicType(item.Topic);
+                    if (LiveItemType.Any(x => x == topicType))
+                    {
+                        return new NicoRepoLiveTimeline(item, topicType, HohoemaApp.Playlist);
+                    }
+                    else if (VideoItemType.Any(x => x == topicType))
+                    {
+                        return new NicoRepoVideoTimeline(item, topicType, HohoemaApp.Playlist);
+                    }
+                    else
+                    {
+                        throw new NotSupportedException(topicType.ToString());
+                    }
+                })
+                .ToAsyncEnumerable();
         }
 
     }

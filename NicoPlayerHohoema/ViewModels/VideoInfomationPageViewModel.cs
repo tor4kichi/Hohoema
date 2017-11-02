@@ -282,7 +282,7 @@ namespace NicoPlayerHohoema.ViewModels
             if (e.Parameter is string)
             {
                 var videoId = e.Parameter as string;
-                Video = await HohoemaApp.MediaManager.GetNicoVideoAsync(videoId);
+                Video = HohoemaApp.MediaManager.GetNicoVideo(videoId);
             }
 
             if (Video == null)

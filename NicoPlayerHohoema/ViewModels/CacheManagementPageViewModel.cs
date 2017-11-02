@@ -256,14 +256,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 			return payload;
 		}
-
-
-		
-		
     }
 
 
-	public class CacheVideoInfoLoadingSource : HohoemaVideoPreloadingIncrementalSourceBase<CacheVideoViewModel>
+	public class CacheVideoInfoLoadingSource : HohoemaIncrementalSourceBase<CacheVideoViewModel>
 	{
 		
 		HohoemaApp _HohoemaApp;
@@ -277,20 +273,19 @@ namespace NicoPlayerHohoema.ViewModels
         public override uint OneTimeLoadCount => (uint)10;
 
         public CacheVideoInfoLoadingSource(HohoemaApp app, PageManager pageManager)
-            : base(app, nameof(CacheManagementPageViewModel))
+            : base()
 		{
 			_HohoemaApp = app;
 			_PageManager = pageManager;
 		}
 
-        protected override async Task<IEnumerable<NicoVideo>> PreloadNicoVideo(int start, int count)
+        protected override Task<IAsyncEnumerable<CacheVideoViewModel>> GetPagedItemsImpl(int head, int count)
         {
-            await Task.Delay(0);
-            return RawList.Skip(start).Take(count).ToList();
+            return Task.FromResult(RawList.Skip(head).Take(count)
+                .Select(x => new CacheVideoViewModel(x, _PageManager)).ToAsyncEnumerable());
         }
 
-
-        protected override async Task<int> HohoemaPreloadingResetSourceImpl()
+        protected override async Task<int> ResetSourceImpl()
         {
             // 
             var contentFinder = _HohoemaApp.ContentFinder;
@@ -305,7 +300,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             foreach (var item in mediaManager.CacheVideos.ToArray())
             {
-                if (item.GetDividedQualityNicoVideo(NicoVideoQuality.Smile_Low).IsCacheRequested 
+                if (item.GetDividedQualityNicoVideo(NicoVideoQuality.Smile_Low).IsCacheRequested
                     || item.GetDividedQualityNicoVideo(NicoVideoQuality.Smile_Original).IsCacheRequested)
                 {
                     list.Add(item);
@@ -316,31 +311,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             return RawList.Count;
         }
-
-
-
-
-        protected override CacheVideoViewModel NicoVideoToTemplatedItem(
-            NicoVideo itemSource
-            , int index
-            )
-        {
-            return new CacheVideoViewModel(
-                    itemSource
-                    , _PageManager
-                );
-        }
-
-        
-
-
-
-
-
-		
-
-
-		
-	}
+    }
 
 }

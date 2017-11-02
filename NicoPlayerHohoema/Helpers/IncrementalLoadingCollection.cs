@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,7 +18,7 @@ namespace NicoPlayerHohoema.Helpers
 	{
 		uint OneTimeLoadCount { get; }
 		Task<int> ResetSource();
-		Task<IEnumerable<T>> GetPagedItems(int head, int count);
+		Task<IAsyncEnumerable<T>> GetPagedItems(int head, int count);
 	}
 
 	public class IncrementalLoadingCollection<T, I> : ObservableCollection<I>,
@@ -51,69 +52,60 @@ namespace NicoPlayerHohoema.Helpers
 
 		public IAsyncOperation<LoadMoreItemsResult> LoadMoreItemsAsync(uint count)
 		{
-			var dispatcher = Window.Current.Dispatcher;
+            var dispatcher = Window.Current.Dispatcher;
+            return AsyncInfo.Run(async (token) =>
+            {
+                try
+                {
+                    await _LoadingLock.WaitAsync();
 
-			return Task.Run(async () =>
-			{
-				try
-				{
-					await _LoadingLock.WaitAsync();
+                    BeginLoading?.Invoke();
 
-					await dispatcher.RunAsync(CoreDispatcherPriority.Normal,
-					() => BeginLoading?.Invoke()
-					);
+                    uint resultCount = 0;
 
-					uint resultCount = 0;
+                    try
+                    {
+                        var items = await _Source.GetPagedItems((int)_Position, (int)_Source.OneTimeLoadCount);
+                        
+                        if (items == null || (!await items.Any()))
+                        {
+                            _HasMoreItems = false;
+                        }
+                        else
+                        {
+                            _Position += _Source.OneTimeLoadCount;
 
-					List<I> resultItems = null;
-					try
-					{
-						var items = await _Source.GetPagedItems((int)_Position, (int)_Source.OneTimeLoadCount);
-						resultItems = items?.ToList();
-                        Debug.WriteLine("読み込み完了");
-					}
-					catch (Exception ex)
-					{
-						Debug.WriteLine(ex.Message);
-					}
+                            await items.ForEachAsync(async (item) =>
+                            {
+                                await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => { this.Add(item); });
+                            });
 
-					if (resultItems == null || resultItems.Count == 0)
-					{
-						_HasMoreItems = false;
-					}
-					else
-					{
-						resultCount = (uint)resultItems.Count;
+                            resultCount = (uint)await items.Count();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(ex.Message);
+                    }
 
-						_Position += _Source.OneTimeLoadCount;
+                    
 
-						await dispatcher.RunAsync(CoreDispatcherPriority.High,
-							() =>
-							{
-								foreach (I item in resultItems)
-									this.Add(item);
-							});
+                    // 多重読み込み防止のため
+                    // リスト表示に反映されるまで
+                    // タスクの終了を遅延させる必要があります
+                    await Task.Delay(500);
 
-					}
+                    DoneLoading?.Invoke();
 
-					// 多重読み込み防止のため
-					// リスト表示に反映されるまで
-					// タスクの終了を遅延させる必要があります
-					await Task.Delay(500);
-
-					await dispatcher.RunAsync(CoreDispatcherPriority.Normal,
-						() => DoneLoading?.Invoke()
-						);
-
-					return new LoadMoreItemsResult() { Count = resultCount };
-				}
-				finally
-				{
-					_LoadingLock.Release();
-				}
-				
-			})
-			.AsAsyncOperation();
+                    return new LoadMoreItemsResult() { Count = resultCount };
+                }
+                finally
+                {
+                    _LoadingLock.Release();
+                }
+            }
+            );
+                
 		}
 
 
@@ -139,13 +131,10 @@ namespace NicoPlayerHohoema.Helpers
 		{
 			foreach (var item in this)
 			{
-				if (item is IDisposable)
-				{
-					(item as IDisposable).Dispose();
-				}
-			}
+                (item as IDisposable)?.Dispose();
+            }
 
-			(Source as IDisposable)?.Dispose();
+            (Source as IDisposable)?.Dispose();
 		}
 
 		public bool HasMoreItems

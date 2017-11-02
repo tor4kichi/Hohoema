@@ -5,17 +5,96 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Windows.Storage;
 
 namespace NicoPlayerHohoema.Helpers
 {
-	public class FileAccessor<T>
-	{
+    public class FileAccessor<T> : IFileAccessor<T>
+    {
+        AsyncLock _Lock = new AsyncLock();
+        public StorageFile File { get; }
+
+        public string FileName => File.Name;
+
+        public FileAccessor(StorageFile file)
+        {
+            File = file;
+        }
+
+        public async Task<bool> Delete(StorageDeleteOption option = StorageDeleteOption.Default)
+        {
+            using (var releaser = await _Lock.LockAsync())
+            {
+                try
+                {
+                    await File.DeleteAsync();
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
+
+        public async Task<bool> ExistFile()
+        {
+            using (var releaser = await _Lock.LockAsync())
+            {
+                return File?.IsAvailable ?? false;
+            }
+        }
+
+        public async Task<T> Load(JsonSerializerSettings settings = null)
+        {
+            using (var releaser = await _Lock.LockAsync())
+            {
+                if (!await ExistFile()) { return default(T); }
+
+                settings = settings ?? new Newtonsoft.Json.JsonSerializerSettings();
+
+                var text = await FileIO.ReadTextAsync(File);
+
+                return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(text, settings);
+            }
+        }
+
+        public async Task<bool> Rename(string filename, bool forceReplace = false)
+        {
+            using (var releaser = await _Lock.LockAsync())
+            {
+                if (!await ExistFile()) { return false; }
+
+                await File.RenameAsync(filename, forceReplace ? NameCollisionOption.ReplaceExisting : NameCollisionOption.FailIfExists);
+
+                return true;
+            }
+        }
+
+        public async Task Save(T item, JsonSerializerSettings settings = null)
+        {
+            using (var releaser = await _Lock.LockAsync())
+            {
+                settings = settings ?? new JsonSerializerSettings();
+                await FileIO.WriteTextAsync(File, Newtonsoft.Json.JsonConvert.SerializeObject(item, settings));
+            }
+        }
+
+        public Task<StorageFile> TryGetFile()
+        {
+            return Task.FromResult(File);
+        }
+    }
+
+
+    public class FolderBasedFileAccessor<T> : IFileAccessor<T>
+    {
 		public StorageFolder Folder { get; private set; }
 		public string FileName { get; private set; }
 		private SemaphoreSlim _ReadWriteLock;
 
-		public FileAccessor(StorageFolder folder, string fileName)
+		public FolderBasedFileAccessor(StorageFolder folder, string fileName)
 		{
 			Folder = folder;
 			FileName = fileName;

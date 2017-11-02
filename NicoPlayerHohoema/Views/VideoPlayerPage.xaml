@@ -922,7 +922,7 @@
                                 x:Name="CommentRederer"
                                 MediaPlayer="{Binding MediaPlayer}"
                                 Comments="{Binding Comments}"
-                                Visibility="{Binding IsVisibleComment.Value, Converter={StaticResource BooleanToVisibility}}"
+                                Visibility="{Binding IsCommentDisplayEnable.Value, Converter={StaticResource BooleanToVisibility}}"
                                 CommentSizeScale="{Binding CommentFontScale.Value}"
                                 Height="{Binding CommentCanvasHeight.Value}"
                                 CommentDefaultColor="{Binding CommentDefaultColor.Value}"
@@ -1837,7 +1837,7 @@
                                                               Y2="{Binding ElementName=CommentIcon, Path=ActualHeight}"
                                                               Stroke="Red"
                                                               StrokeThickness="3"
-                                                              Visibility="{Binding IsVisibleComment.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                                              Visibility="{Binding IsCommentDisplayEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                                               Opacity="0.7"
                                                              />
                                                         </Canvas>

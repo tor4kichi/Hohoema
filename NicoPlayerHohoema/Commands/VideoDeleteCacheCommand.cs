@@ -20,7 +20,7 @@ namespace NicoPlayerHohoema.Commands
                 var content = parameter as Interfaces.IVideoContent;
 
                 var mediaManager = HohoemaCommnadHelper.GetHohoemaApp().MediaManager;
-                var nicoVideo = await mediaManager.GetNicoVideoAsync(content.Id);
+                var nicoVideo = mediaManager.GetNicoVideo(content.Id);
 
                 if (nicoVideo.GetAllQuality().ToArray().Any(x => x.IsCached))
                 {

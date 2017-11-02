@@ -59,7 +59,7 @@ namespace NicoPlayerHohoema.Models
         const string CACHE_REQUESTED_FILENAME = "cache_requested.json";
 
 
-        private FileAccessor<IList<NicoVideoCacheRequest>> _CacheRequestedItemsFileAccessor;
+        private FolderBasedFileAccessor<IList<NicoVideoCacheRequest>> _CacheRequestedItemsFileAccessor;
 
 
         public HohoemaApp HohoemaApp { get; private set; }
@@ -338,7 +338,7 @@ namespace NicoPlayerHohoema.Models
             Debug.Write($"ダウンロードリクエストの復元を開始");
             // キャッシュリクエストファイルのアクセサーを初期化
             var videoSaveFolder = await HohoemaApp.GetApplicationLocalDataFolder();
-            _CacheRequestedItemsFileAccessor = new FileAccessor<IList<NicoVideoCacheRequest>>(videoSaveFolder, CACHE_REQUESTED_FILENAME);
+            _CacheRequestedItemsFileAccessor = new FolderBasedFileAccessor<IList<NicoVideoCacheRequest>>(videoSaveFolder, CACHE_REQUESTED_FILENAME);
 
             // ダウンロード待機中のアイテムを復元
             await RestoreCacheRequestedItems();
@@ -397,7 +397,7 @@ namespace NicoPlayerHohoema.Models
             List<NicoVideoCacheRequest> deletedItems = new List<NicoVideoCacheRequest>();
             foreach (var req in list)
             {
-                var nicoVideo = await MediaManager.GetNicoVideoAsync(req.RawVideoId, true);
+                var nicoVideo = await MediaManager.GetNicoVideoAsync(req.RawVideoId);
                 var div = nicoVideo.GetDividedQualityNicoVideo(req.Quality);
                 if (nicoVideo.IsDeleted)
                 {

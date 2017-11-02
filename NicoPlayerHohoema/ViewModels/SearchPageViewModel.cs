@@ -724,7 +724,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-	public class VideoSearchSource : HohoemaVideoPreloadingIncrementalSourceBase<VideoInfoControlViewModel>
+	public class VideoSearchSource : HohoemaIncrementalSourceBase<VideoInfoControlViewModel>
 	{
 		public int MaxPageCount { get; private set; }
 
@@ -733,9 +733,6 @@ namespace NicoPlayerHohoema.ViewModels
 		public VideoSearchOption SearchOption { get; private set; }
 
 		public VideoSearchSource(VideoSearchOption searchOption, HohoemaApp hohoemaApp, PageManager pageManager)
-			: base(hohoemaApp
-				  , $"{searchOption.SearchTarget} Search: {searchOption.Keyword}"
-				  )
 		{
 			_HohoemaApp = hohoemaApp;
 			_PageManager = pageManager;
@@ -744,82 +741,62 @@ namespace NicoPlayerHohoema.ViewModels
 
 		VideoListingResponse res;
 
-		#region Implements HohoemaPreloadingIncrementalSourceBase		
+		
 
-		protected override async Task<IEnumerable<NicoVideo>> PreloadNicoVideo(int start, int count)
-		{
-			// 最初の検索結果だけ先行してThumbnail情報を読みこませる
-			//			VideoListingResponse res = null;
-			if (SearchOption.SearchTarget == SearchTarget.Keyword)
-			{
-				res = await _HohoemaApp.ContentFinder.GetKeywordSearch(SearchOption.Keyword, (uint)start, (uint)count, SearchOption.Sort, SearchOption.Order);
-			}
-			else if (SearchOption.SearchTarget == SearchTarget.Tag)
-			{
-				res = await _HohoemaApp.ContentFinder.GetTagSearch(SearchOption.Keyword, (uint)start, (uint)count, SearchOption.Sort, SearchOption.Order);
-			}
+        protected override async Task<IAsyncEnumerable<VideoInfoControlViewModel>> GetPagedItemsImpl(int head, int count)
+        {
+            if (SearchOption.SearchTarget == SearchTarget.Keyword)
+            {
+                res = await _HohoemaApp.ContentFinder.GetKeywordSearch(SearchOption.Keyword, (uint)head, (uint)count, SearchOption.Sort, SearchOption.Order);
+            }
+            else if (SearchOption.SearchTarget == SearchTarget.Tag)
+            {
+                res = await _HohoemaApp.ContentFinder.GetTagSearch(SearchOption.Keyword, (uint)head, (uint)count, SearchOption.Sort, SearchOption.Order);
+            }
 
 
-			if (res == null && res.VideoInfoItems == null)
-			{
-				return Enumerable.Empty<NicoVideo>();
-			}
-			else
-			{
-				List<NicoVideo> videos = new List<NicoVideo>();
-				foreach (var item in res.VideoInfoItems)
-				{
-					var nicoVideo = await ToNicoVideo(item.Video.Id);
+            if (res == null && res.VideoInfoItems == null)
+            {
+                return AsyncEnumerable.Empty<VideoInfoControlViewModel>();
+            }
+            else
+            {
+                return res.VideoInfoItems.Select(item =>
+                {
+                    var nicoVideo = _HohoemaApp.MediaManager.GetNicoVideo(item.Video.Id);
 
-					nicoVideo.PreSetTitle(item.Video.Title);
-					nicoVideo.PreSetPostAt(item.Video.UploadTime);
-					nicoVideo.PreSetThumbnailUrl(item.Video.ThumbnailUrl.AbsoluteUri);
-					nicoVideo.PreSetVideoLength(item.Video.Length);
-					nicoVideo.PreSetViewCount(item.Video.ViewCount);
-					nicoVideo.PreSetCommentCount(item.Thread.GetCommentCount());
-					nicoVideo.PreSetMylistCount(item.Video.MylistCount);
+                    nicoVideo.PreSetTitle(item.Video.Title);
+                    nicoVideo.PreSetPostAt(item.Video.UploadTime);
+                    nicoVideo.PreSetThumbnailUrl(item.Video.ThumbnailUrl.AbsoluteUri);
+                    nicoVideo.PreSetVideoLength(item.Video.Length);
+                    nicoVideo.PreSetViewCount(item.Video.ViewCount);
+                    nicoVideo.PreSetCommentCount(item.Thread.GetCommentCount());
+                    nicoVideo.PreSetMylistCount(item.Video.MylistCount);
 
-					videos.Add(nicoVideo);
-				}
+                    return new VideoInfoControlViewModel(nicoVideo, _PageManager);
+                })
+                .ToAsyncEnumerable();
+            }
+        }
 
-				return videos;
-			}
-		}
+        protected override async Task<int> ResetSourceImpl()
+        {
+            int totalCount = 0;
+            if (SearchOption.SearchTarget == SearchTarget.Keyword)
+            {
+                var res = await _HohoemaApp.ContentFinder.GetKeywordSearch(SearchOption.Keyword, 0, 2, SearchOption.Sort, SearchOption.Order);
+                totalCount = (int)res.GetTotalCount();
 
+            }
+            else if (SearchOption.SearchTarget == SearchTarget.Tag)
+            {
+                var res = await _HohoemaApp.ContentFinder.GetTagSearch(SearchOption.Keyword, 0, 2, SearchOption.Sort, SearchOption.Order);
+                totalCount = (int)res.GetTotalCount();
+            }
 
-		protected override async Task<int> HohoemaPreloadingResetSourceImpl()
-		{
-			int totalCount = 0;
-			if (SearchOption.SearchTarget == SearchTarget.Keyword)
-			{
-				var res = await _HohoemaApp.ContentFinder.GetKeywordSearch(SearchOption.Keyword, 0, 2, SearchOption.Sort, SearchOption.Order);
-				totalCount = (int)res.GetTotalCount();
-
-			}
-			else if (SearchOption.SearchTarget == SearchTarget.Tag)
-			{
-				var res = await _HohoemaApp.ContentFinder.GetTagSearch(SearchOption.Keyword, 0, 2, SearchOption.Sort, SearchOption.Order);
-				totalCount = (int)res.GetTotalCount();
-			}
-
-			return totalCount;
-		}
-
-
-
-
-		protected override VideoInfoControlViewModel NicoVideoToTemplatedItem(
-			NicoVideo sourceItem
-			, int index
-			)
-		{
-			return new VideoInfoControlViewModel(sourceItem, _PageManager);
-		}
-
-		#endregion
-
-
-	}
+            return totalCount;
+        }
+    }
 
 
 
@@ -849,13 +826,13 @@ namespace NicoPlayerHohoema.ViewModels
 
         public uint OneTimeLoadCount => 100;
 
-        public Task<IEnumerable<SearchHistoryListItem>> GetPagedItems(int head, int count)
+        public Task<IAsyncEnumerable<SearchHistoryListItem>> GetPagedItems(int head, int count)
         {
             var items = SearchHistoryDb.GetHistoryItems().Skip(head).Take(count)
                 .Select(x => new SearchHistoryListItem(x, _SearchPageViewModel.OnSearchHistorySelected))
                 .ToArray();
 
-            return Task.FromResult(items.AsEnumerable());
+            return Task.FromResult(items.ToAsyncEnumerable());
         }
 
         public Task<int> ResetSource()

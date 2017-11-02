@@ -158,52 +158,6 @@ namespace NicoPlayerHohoema.ViewModels
 			PageManager.CompleteWork += PageManager_CompleteWork;
 			PageManager.CancelWork += PageManager_CancelWork;
 
-
-
-			var updater = HohoemaApp.BackgroundUpdater;
-
-			var bgUpdateStartedObserver = Observable.FromEventPattern<BackgroundUpdateScheduleHandler>(
-				handler => updater.BackgroundUpdateStartedEvent += handler,
-				handler => updater.BackgroundUpdateStartedEvent -= handler
-				);
-
-			var bgUpdateCompletedObserver = Observable.FromEventPattern<BackgroundUpdateScheduleHandler>(
-				handler => updater.BackgroundUpdateCompletedEvent += handler,
-				handler => updater.BackgroundUpdateCompletedEvent -= handler
-				);
-				
-
-			var bgUpdateCanceledObserver = Observable.FromEventPattern<BackgroundUpdateScheduleHandler>(
-				handler => updater.BackgroundUpdateCanceledEvent += handler,
-				handler => updater.BackgroundUpdateCanceledEvent -= handler
-				);
-
-			BGUpdateText = new ReactiveProperty<string>();
-			HasBGUpdateText = BGUpdateText.Select(x => !string.IsNullOrEmpty(x))
-				.ToReactiveProperty();
-			bgUpdateStartedObserver.Subscribe(x =>
-			{
-				if (!string.IsNullOrEmpty(x.EventArgs.Label))
-				{
-					BGUpdateText.Value = $"{x.EventArgs.Label} を処理中...";
-				}
-				else
-				{
-					BGUpdateText.Value = $"{x.EventArgs.Id} を処理中...";
-				}
-			});
-
-
-            Observable.Merge(
-                bgUpdateCompletedObserver,
-                bgUpdateCanceledObserver
-                )
-                .Throttle(TimeSpan.FromSeconds(2))
-                .Subscribe(x => 
-				{
-					BGUpdateText.Value = null;
-				});
-
             HohoemaApp.ObserveProperty(x => x.IsLoggedIn)
                 .Subscribe(x => IsLoggedIn = x);
 

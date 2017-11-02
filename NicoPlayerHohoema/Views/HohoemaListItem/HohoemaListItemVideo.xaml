@@ -44,13 +44,12 @@
                   Height="62"
                   >
                 <uwptoolkit:ImageEx Source="{Binding FirstImageUrl, Mode=OneWay}" 
-                   Width="114"
-                   Height="108"
-                       Visibility="{Binding HasImageUrl, Converter={StaticResource BooleanToVisibility}}"
-                       Stretch="Uniform"
-                                    VerticalContentAlignment="Center"
+                                   Width="114"
+                                   Height="108"
+                                   Visibility="{Binding HasImageUrl, Converter={StaticResource BooleanToVisibility}}"
+                                   Stretch="Uniform"
                                     VerticalAlignment="Center"
-                                    
+                                    VerticalContentAlignment="Center"
                    >
                 </uwptoolkit:ImageEx>
 

@@ -96,6 +96,7 @@ namespace NicoPlayerHohoema
 
             RequestedTheme = GetTheme();
 
+           
 			this.InitializeComponent();
 
         }
@@ -344,7 +345,7 @@ namespace NicoPlayerHohoema
                         var videoId = decode.GetFirstValueByName("id");
                         var quality = (NicoVideoQuality)Enum.Parse(typeof(NicoVideoQuality), decode.GetFirstValueByName("quality"));
 
-                        var video = await hohoemaApp.MediaManager.GetNicoVideoAsync(videoId);
+                        var video = hohoemaApp.MediaManager.GetNicoVideo(videoId);
 
                         await video.CancelCacheRequest(quality);
                     }
@@ -641,11 +642,6 @@ namespace NicoPlayerHohoema
             Container.RegisterInstance(hohoemaApp.Playlist);
             Container.RegisterInstance(hohoemaApp.OtherOwneredMylistManager);
             Container.RegisterInstance(hohoemaApp.FeedManager);
-
-
-            // 非同期更新機能の同時実行タスク数を指定
-            var deviceFamily = Windows.System.Profile.AnalyticsInfo.VersionInfo.DeviceFamily;
-			BackgroundUpdater.MaxTaskSlotCount = deviceFamily.EndsWith("Mobile") ? 1u : 2u;
 
 #if DEBUG
 //			BackgroundUpdater.MaxTaskSlotCount = 1;
@@ -954,7 +950,7 @@ namespace NicoPlayerHohoema
         {
             if (NiconicoRegex.IsVideoId(contentId))
             {
-                await SubmitVideoContentSuggestion(contentId);
+                SubmitVideoContentSuggestion(contentId);
             }
             else if (NiconicoRegex.IsLiveId(contentId))
             {
@@ -975,7 +971,7 @@ namespace NicoPlayerHohoema
                 var contentId = contentIdGroup.Value;
                 if (NiconicoRegex.IsVideoId(contentId))
                 {
-                    await SubmitVideoContentSuggestion(contentId);
+                    SubmitVideoContentSuggestion(contentId);
                 }
                 else if (NiconicoRegex.IsLiveId(contentId))
                 {
@@ -1013,10 +1009,10 @@ namespace NicoPlayerHohoema
             }
         }
 
-        private async Task SubmitVideoContentSuggestion(string videoId)
+        private void SubmitVideoContentSuggestion(string videoId)
         {
             var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
-            var nicoVideo = await hohoemaApp.MediaManager.GetNicoVideoAsync(videoId);
+            var nicoVideo = hohoemaApp.MediaManager.GetNicoVideo(videoId);
 
             PublishInAppNotification(new InAppNotificationPayload()
             {

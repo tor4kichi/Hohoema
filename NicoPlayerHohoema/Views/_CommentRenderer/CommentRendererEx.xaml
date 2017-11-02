@@ -9,6 +9,7 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <Canvas x:Name="CommentCanvas" />
+    <Canvas x:Name="CommentCanvas"
+            />
     
 </UserControl>

@@ -598,7 +598,7 @@
                                     x:Name="CommentRederer"
                                     Comments="{Binding LiveComments}"
                                     MediaPlayer="{Binding MediaPlayer, Mode=OneWay}"                                 
-                                    Visibility="{Binding IsVisibleComment.Value, Converter={StaticResource BooleanToVisibility}}"
+                                    Visibility="{Binding IsCommentDisplayEnable.Value, Converter={StaticResource BooleanToVisibility}}"
                                     CommentSizeScale="{Binding CommentFontScale.Value}"
                                     CommentDefaultColor="{Binding CommentDefaultColor.Value}"
                                     DefaultDisplayDuration="{Binding RequestCommentDisplayDuration.Value}"
@@ -1005,7 +1005,7 @@
                                                       Y2="{Binding ElementName=CommentIcon, Path=ActualHeight}"
                                                   Stroke="Red"
                                                       StrokeThickness="3"
-                                                  Visibility="{Binding IsVisibleComment.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                                  Visibility="{Binding IsCommentDisplayEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                                   Opacity="0.7"
                                                   />
                                                 </Canvas>
@@ -1463,7 +1463,7 @@
                                                               Y2="{Binding ElementName=CommentIcon, Path=ActualHeight}"
                                                               Stroke="Red"
                                                               StrokeThickness="3"
-                                                              Visibility="{Binding IsVisibleComment.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                                              Visibility="{Binding IsCommentDisplayEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                                               Opacity="0.7"
                                                              />
                                                     </Canvas>

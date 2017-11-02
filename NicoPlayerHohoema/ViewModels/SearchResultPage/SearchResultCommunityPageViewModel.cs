@@ -132,7 +132,7 @@ namespace NicoPlayerHohoema.ViewModels
 			return (int)TotalCount;
 		}
 
-		public async Task<IEnumerable<CommunityInfoControlViewModel>> GetPagedItems(int head, int count)
+		public async Task<IAsyncEnumerable<CommunityInfoControlViewModel>> GetPagedItems(int head, int count)
 		{
 			CommunitySearchResponse res = head == 0 ? FirstResponse : null;
 
@@ -150,22 +150,15 @@ namespace NicoPlayerHohoema.ViewModels
 
 			if (res == null)
 			{
-				return Enumerable.Empty<CommunityInfoControlViewModel>();
+				return AsyncEnumerable.Empty<CommunityInfoControlViewModel>();
 			}
 
 			if (false == res.IsStatusOK)
 			{
-				return Enumerable.Empty<CommunityInfoControlViewModel>();
+				return AsyncEnumerable.Empty<CommunityInfoControlViewModel>();
 			}
 
-			var items = new List<CommunityInfoControlViewModel>();
-			foreach (var commu in res.Communities)
-			{
-				var commuVM = new CommunityInfoControlViewModel(commu, PageManager);
-				items.Add(commuVM);
-			}
-
-			return items;
+            return res.Communities.Select(x => new CommunityInfoControlViewModel(x, PageManager)).ToAsyncEnumerable();
 		}
 
 	}

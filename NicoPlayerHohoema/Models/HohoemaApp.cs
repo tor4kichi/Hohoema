@@ -70,19 +70,7 @@ namespace NicoPlayerHohoema.Models
             {
                 if (IsInitialized) { return; }
 
-                // 非同期な初期化処理の遅延実行をスケジュール
-                MediaManagerUpdater = BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(
-                    MediaManager,
-                    "NicoMediaManager",
-                    label: "キャッシュ"
-                    );
-
-
-                MediaManagerUpdater.ScheduleUpdate();
-
                 IsInitialized = true;
-
-                BackgroundUpdater.Activate();
             }
         }
 
@@ -110,11 +98,6 @@ namespace NicoPlayerHohoema.Models
             FollowManager = null;
 
 			_SigninLock = new SemaphoreSlim(1, 1);
-
-            BackgroundUpdater = new BackgroundUpdater("HohoemaBG", UIDispatcher);
-            BackgroundUpdater.Deactivate();
-
-
 
             ApplicationData.Current.DataChanged += Current_DataChanged;
 
@@ -174,7 +157,7 @@ namespace NicoPlayerHohoema.Models
 
             // 同期済みファイル
             var roamingFolder = ApplicationData.Current.RoamingFolder;
-            var syncInfoFileAccessor = new Helpers.FileAccessor<RoamingSyncInfo>(roamingFolder, "sync.json");
+            var syncInfoFileAccessor = new Helpers.FolderBasedFileAccessor<RoamingSyncInfo>(roamingFolder, "sync.json");
             var syncInfo = await syncInfoFileAccessor.Load();
             if (syncInfo == null)
             {
@@ -229,7 +212,7 @@ namespace NicoPlayerHohoema.Models
                 }
 
                 // ローミングから同期情報を取得、無ければ新規作成
-                var syncInfoFileAccessor = new Helpers.FileAccessor<RoamingSyncInfo>(roamingFolder, "sync.json");
+                var syncInfoFileAccessor = new Helpers.FolderBasedFileAccessor<RoamingSyncInfo>(roamingFolder, "sync.json");
                 var syncInfo = await syncInfoFileAccessor.Load();
                 if (syncInfo == null)
                 {
@@ -291,7 +274,7 @@ namespace NicoPlayerHohoema.Models
                 }
 
                 // ローミングから同期情報を取得、無ければ新規作成
-                var syncInfoFileAccessor = new Helpers.FileAccessor<RoamingSyncInfo>(romingFolder, "sync.json");
+                var syncInfoFileAccessor = new Helpers.FolderBasedFileAccessor<RoamingSyncInfo>(romingFolder, "sync.json");
                 var syncInfo = await syncInfoFileAccessor.Load();
                 if (syncInfo == null)
                 {
@@ -311,7 +294,7 @@ namespace NicoPlayerHohoema.Models
 
             using (var releaser = await _RoamingDataSyncLock.LockAsync())
             {
-                var syncInfoFileAccessor = new Helpers.FileAccessor<RoamingSyncInfo>(roamingFolder, "sync.json");
+                var syncInfoFileAccessor = new Helpers.FolderBasedFileAccessor<RoamingSyncInfo>(roamingFolder, "sync.json");
                 var syncInfo = await syncInfoFileAccessor.Load();
 
                 if (syncInfo == null)
@@ -473,7 +456,7 @@ namespace NicoPlayerHohoema.Models
 			var folder = await ApplicationData.Current.LocalFolder.TryGetItemAsync(userId) as StorageFolder;
 			if (folder != null)
 			{
-				var fileAccessor = new FileAccessor<CacheSettings>(ApplicationData.Current.LocalFolder, HohoemaUserSettings.CacheSettingsFileName);
+				var fileAccessor = new FolderBasedFileAccessor<CacheSettings>(ApplicationData.Current.LocalFolder, HohoemaUserSettings.CacheSettingsFileName);
 				if (false == await fileAccessor.ExistFile())
 				{
 					await MoveFiles(folder, ApplicationData.Current.LocalFolder);
@@ -726,22 +709,6 @@ namespace NicoPlayerHohoema.Models
                                 return NiconicoSignInStatus.Failed;
 							}
 
-							FollowManagerUpdater = BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(
-								FollowManager,
-								"FollowManager",
-								label: "フォロー"
-							);
-
-                            MylistManagerUpdater = BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(
-                                UserMylistManager,
-                                "MylistManagerManager",
-                                label: "マイリスト一覧"
-                                );
-
-
-                            FollowManagerUpdater.ScheduleUpdate();
-                            MylistManagerUpdater.ScheduleUpdate();
-
                             Debug.WriteLine("Login done.");
 							loginActivityLogger.LogEvent("[Success]: Login done");
 						}
@@ -791,9 +758,6 @@ namespace NicoPlayerHohoema.Models
 				{
 					return result;
 				}
-
-				// 全てのバックグラウンド処理をキャンセル
-				BackgroundUpdater.CancelAll();
 
                 try
                 {
@@ -1273,7 +1237,6 @@ namespace NicoPlayerHohoema.Models
 		{
 			MediaManager?.Dispose();
 			LoggingChannel?.Dispose();
-			BackgroundUpdater?.Dispose();
 		}
 
         public async Task<IPlayableList> ChoiceMylist(params string[] ignoreMylistId)
@@ -1483,13 +1446,6 @@ namespace NicoPlayerHohoema.Models
 
 		public IEventAggregator EventAggregator { get; private set; }
 
-
-		public BackgroundUpdater BackgroundUpdater { get; private set; }
-
-		public BackgroundUpdateScheduleHandler MylistManagerUpdater { get; private set; }
-		public BackgroundUpdateScheduleHandler FollowManagerUpdater { get; private set; }
-		public BackgroundUpdateScheduleHandler MediaManagerUpdater { get; private set; }
-		
 
 		public LoggingChannel LoggingChannel { get; private set; }
 
