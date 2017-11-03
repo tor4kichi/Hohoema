@@ -302,7 +302,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		private Task<NicoliveVideoResponse> GetLiveSearchResponseOnCurrentOption(uint from, uint length)
 		{
-			return HohoemaApp.ContentFinder.LiveSearchAsync(
+			return HohoemaApp.ContentProvider.LiveSearchAsync(
 					SearchOption.Keyword,
 					SearchOption.IsTagSearch,
 					from: from,

@@ -136,7 +136,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public TagSearchPagePayloadContent SearchOption { get; private set; }
 		public ReactiveProperty<int> LoadedPage { get; private set; }
 
-		NiconicoContentFinder _ContentFinder;
+		NiconicoContentProvider _ContentFinder;
 
         Services.HohoemaDialogService _HohoemaDialogService;
 
@@ -147,7 +147,7 @@ namespace NicoPlayerHohoema.ViewModels
             ) 
 			: base(hohoemaApp, pageManager, useDefaultPageTitle: false)
 		{
-			_ContentFinder = HohoemaApp.ContentFinder;
+			_ContentFinder = HohoemaApp.ContentProvider;
             _HohoemaDialogService = dialogService;
 
             FailLoading = new ReactiveProperty<bool>(false)

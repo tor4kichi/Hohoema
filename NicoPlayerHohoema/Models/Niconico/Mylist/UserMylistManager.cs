@@ -131,7 +131,7 @@ namespace NicoPlayerHohoema.Models
                 List<LoginUserMylistGroup> mylistGroupDataLists = null;
                 try
                 {
-                    mylistGroupDataLists = await HohoemaApp.ContentFinder.GetLoginUserMylistGroups();
+                    mylistGroupDataLists = await HohoemaApp.ContentProvider.GetLoginUserMylistGroups();
                 }
                 catch
                 {
@@ -493,7 +493,7 @@ namespace NicoPlayerHohoema.Models
 				}
 				else
 				{
-					var res = await HohoemaApp.ContentFinder.GetMylistGroupVideo(GroupId, 0, itemCountPerMylist);
+					var res = await HohoemaApp.ContentProvider.GetMylistGroupVideo(GroupId, 0, itemCountPerMylist);
 
 
 					if (res.GetCount() > 0)

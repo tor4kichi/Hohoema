@@ -36,7 +36,7 @@ namespace NicoPlayerHohoema.Models
 
 		protected override Task<List<string>> GetFollowSource()
 		{
-			return HohoemaApp.ContentFinder.GetFavTags();
+			return HohoemaApp.ContentProvider.GetFavTags();
 		}
 
 

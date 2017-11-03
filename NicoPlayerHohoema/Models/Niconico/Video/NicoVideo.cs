@@ -435,7 +435,7 @@ namespace NicoPlayerHohoema.Models
 			// 動画のサムネイル情報にアクセスさせて、アプリ内部DBを更新
 			try
 			{
-				var res = await HohoemaApp.ContentFinder.GetThumbnailResponse(RawVideoId);
+				var res = await HohoemaApp.ContentProvider.GetThumbnailResponse(RawVideoId);
 
 				this.VideoId = res.Id;
 				this.VideoLength = res.Length;
@@ -494,7 +494,7 @@ namespace NicoPlayerHohoema.Models
 
             try
             {
-                dmcWatchData = await HohoemaApp.ContentFinder.GetDmcWatchResponse(RawVideoId, HarmfulContentReactionType);
+                dmcWatchData = await HohoemaApp.ContentProvider.GetDmcWatchResponse(RawVideoId, HarmfulContentReactionType);
             }
             catch (AggregateException ea) when (ea.Flatten().InnerExceptions.Any(e => e is ContentZoningException))
             {
@@ -621,7 +621,7 @@ namespace NicoPlayerHohoema.Models
 
             try
             {
-                watchApiRes = await HohoemaApp.ContentFinder.GetWatchApiResponse(RawVideoId, forceLoqQuality, HarmfulContentReactionType);
+                watchApiRes = await HohoemaApp.ContentProvider.GetWatchApiResponse(RawVideoId, forceLoqQuality, HarmfulContentReactionType);
             }
             catch (AggregateException ea) when (ea.Flatten().InnerExceptions.Any(e => e is ContentZoningException))
             {

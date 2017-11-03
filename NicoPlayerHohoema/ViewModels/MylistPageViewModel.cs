@@ -574,7 +574,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
                 case PlaylistOrigin.OtherUser:
-                    var response = await HohoemaApp.ContentFinder.GetMylistGroupDetail(PlayableList.Value.Id);
+                    var response = await HohoemaApp.ContentProvider.GetMylistGroupDetail(PlayableList.Value.Id);
                     var mylistGroupDetail = response.MylistGroup;
                     MylistTitle = mylistGroupDetail.Name;
                     MylistDescription = mylistGroupDetail.Description;
@@ -594,7 +594,7 @@ namespace NicoPlayerHohoema.ViewModels
                     else
                     {
                         await Task.Delay(500);
-                        var userDetail = await HohoemaApp.ContentFinder.GetUserDetail(OwnerUserId);
+                        var userDetail = await HohoemaApp.ContentProvider.GetUserDetail(OwnerUserId);
                         UserName = userDetail.Nickname;
                     }
 
@@ -729,7 +729,7 @@ namespace NicoPlayerHohoema.ViewModels
             }
             else
             {
-                var res = await _HohoemaApp.ContentFinder.GetMylistGroupVideo(MylistGroupId, (uint)head, (uint)count);
+                var res = await _HohoemaApp.ContentProvider.GetMylistGroupVideo(MylistGroupId, (uint)head, (uint)count);
                 return res.MylistVideoInfoItems?.Select(x => 
                 {
                     var nicoVideo = _HohoemaApp.MediaManager.GetNicoVideo(x.Video.Id);
@@ -753,7 +753,7 @@ namespace NicoPlayerHohoema.ViewModels
             }
             else
             {
-                var res = await _HohoemaApp.ContentFinder.GetMylistGroupVideo(MylistGroupId, 0, 1);
+                var res = await _HohoemaApp.ContentProvider.GetMylistGroupVideo(MylistGroupId, 0, 1);
                 count = (int)res.GetTotalCount();
             }
 

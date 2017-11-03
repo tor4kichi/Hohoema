@@ -747,11 +747,11 @@ namespace NicoPlayerHohoema.ViewModels
         {
             if (SearchOption.SearchTarget == SearchTarget.Keyword)
             {
-                res = await _HohoemaApp.ContentFinder.GetKeywordSearch(SearchOption.Keyword, (uint)head, (uint)count, SearchOption.Sort, SearchOption.Order);
+                res = await _HohoemaApp.ContentProvider.GetKeywordSearch(SearchOption.Keyword, (uint)head, (uint)count, SearchOption.Sort, SearchOption.Order);
             }
             else if (SearchOption.SearchTarget == SearchTarget.Tag)
             {
-                res = await _HohoemaApp.ContentFinder.GetTagSearch(SearchOption.Keyword, (uint)head, (uint)count, SearchOption.Sort, SearchOption.Order);
+                res = await _HohoemaApp.ContentProvider.GetTagSearch(SearchOption.Keyword, (uint)head, (uint)count, SearchOption.Sort, SearchOption.Order);
             }
 
 
@@ -784,13 +784,13 @@ namespace NicoPlayerHohoema.ViewModels
             int totalCount = 0;
             if (SearchOption.SearchTarget == SearchTarget.Keyword)
             {
-                var res = await _HohoemaApp.ContentFinder.GetKeywordSearch(SearchOption.Keyword, 0, 2, SearchOption.Sort, SearchOption.Order);
+                var res = await _HohoemaApp.ContentProvider.GetKeywordSearch(SearchOption.Keyword, 0, 2, SearchOption.Sort, SearchOption.Order);
                 totalCount = (int)res.GetTotalCount();
 
             }
             else if (SearchOption.SearchTarget == SearchTarget.Tag)
             {
-                var res = await _HohoemaApp.ContentFinder.GetTagSearch(SearchOption.Keyword, 0, 2, SearchOption.Sort, SearchOption.Order);
+                var res = await _HohoemaApp.ContentProvider.GetTagSearch(SearchOption.Keyword, 0, 2, SearchOption.Sort, SearchOption.Order);
                 totalCount = (int)res.GetTotalCount();
             }
 

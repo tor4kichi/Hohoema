@@ -23,7 +23,7 @@ namespace NicoPlayerHohoema.Models
 
 		protected override Task<List<FollowData>> GetFollowSource()
 		{
-			return HohoemaApp.ContentFinder.GetFollowUsers();
+			return HohoemaApp.ContentProvider.GetFollowUsers();
 		}
 
 		protected override Task<ContentManageResult> AddFollow_Internal(string id, object token)

@@ -31,7 +31,7 @@ namespace NicoPlayerHohoema.Models
 	/// <summary>
 	/// 検索やランキングなどコンテンツを見つける機能をサポートします
 	/// </summary>
-	public class NiconicoContentFinder : BindableBase
+	public class NiconicoContentProvider : BindableBase
 	{
 		AsyncLock _NicoPageAccessLock = new AsyncLock();
 		DateTime LastPageApiAccessTime = DateTime.MinValue;
@@ -40,10 +40,10 @@ namespace NicoPlayerHohoema.Models
 
         AsyncLock _ThumbnailAccessLock = new AsyncLock();
 
+        public NiconicoContext Context { get; set; }
 
-        public NiconicoContentFinder(HohoemaApp app)
+        public NiconicoContentProvider()
 		{
-			_HohoemaApp = app;
 		}
 
 		private async Task WaitNicoPageAccess()
@@ -65,7 +65,7 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<ThumbnailResponse> GetThumbnailResponse(string rawVideoId)
 		{
-            if (_HohoemaApp.NiconicoContext == null)
+            if (Context == null)
             {
                 return null;
             }
@@ -76,7 +76,7 @@ namespace NicoPlayerHohoema.Models
 
                 res = await Helpers.ConnectionRetryUtil.TaskWithRetry(() =>
                 {
-                    return _HohoemaApp.NiconicoContext.Video.GetThumbnailAsync(rawVideoId);
+                    return Context.Video.GetThumbnailAsync(rawVideoId);
                 }, 
                 retryCount:5,
                 retryInterval:1000
@@ -98,12 +98,12 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<DmcWatchData> GetDmcWatchResponse(string rawVideoId, HarmfulContentReactionType harmfulContentReaction = HarmfulContentReactionType.None)
 		{
-            if (_HohoemaApp.NiconicoContext == null)
+            if (Context == null)
             {
                 return null;
             }
 
-            if (!_HohoemaApp.IsLoggedIn)
+            if (await Context.GetIsSignedInAsync() != NiconicoSignInStatus.Success)
             {
                 return null;
             }
@@ -116,7 +116,7 @@ namespace NicoPlayerHohoema.Models
 			{
 				var data = await Helpers.ConnectionRetryUtil.TaskWithRetry(() =>
 				{
-					return _HohoemaApp.NiconicoContext.Video.GetDmcWatchResponseAsync(
+					return Context.Video.GetDmcWatchResponseAsync(
 						rawVideoId
 						, harmfulReactType: harmfulContentReaction
                         );
@@ -146,12 +146,12 @@ namespace NicoPlayerHohoema.Models
 
         public async Task<WatchApiResponse> GetWatchApiResponse(string rawVideoId, bool forceLowQuality = false, HarmfulContentReactionType harmfulContentReaction = HarmfulContentReactionType.None)
         {
-            if (_HohoemaApp.NiconicoContext == null)
+            if (Context == null)
             {
                 return null;
             }
 
-            if (!_HohoemaApp.IsLoggedIn)
+            if (await Context.GetIsSignedInAsync() != NiconicoSignInStatus.Success)
             {
                 return null;
             }
@@ -164,7 +164,7 @@ namespace NicoPlayerHohoema.Models
             {
                 var res = await Helpers.ConnectionRetryUtil.TaskWithRetry(() =>
                 {
-                    return _HohoemaApp.NiconicoContext.Video.GetWatchApiAsync(
+                    return Context.Video.GetWatchApiAsync(
                         rawVideoId
                         , forceLowQuality: forceLowQuality
                         , harmfulReactType: harmfulContentReaction
@@ -194,7 +194,7 @@ namespace NicoPlayerHohoema.Models
 
         public async Task<UserDetail> GetUserInfo(string userId)
 		{
-            if (_HohoemaApp.NiconicoContext == null)
+            if (Context == null)
             {
                 return null;
             }
@@ -205,7 +205,7 @@ namespace NicoPlayerHohoema.Models
 
 			var user = await ConnectionRetryUtil.TaskWithRetry(() =>
 			{
-				return _HohoemaApp.NiconicoContext.User.GetUserDetail(userId);
+				return Context.User.GetUserDetail(userId);
 			});
 
 			if (user != null)
@@ -220,7 +220,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			var userDetail = await ConnectionRetryUtil.TaskWithRetry(() =>
 			{
-				return _HohoemaApp.NiconicoContext.User.GetUserDetail(userId);
+				return Context.User.GetUserDetail(userId);
 			});
 
 			if (userDetail != null)
@@ -243,28 +243,28 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<VideoListingResponse> GetKeywordSearch(string keyword, uint from, uint limit, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
 		{
-            if (_HohoemaApp.NiconicoContext == null)
+            if (Context == null)
             {
                 return null;
             }
 
             return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
-				return await _HohoemaApp.NiconicoContext.Search.VideoSearchWithKeywordAsync(keyword, from, limit, sort, order);
+				return await Context.Search.VideoSearchWithKeywordAsync(keyword, from, limit, sort, order);
 			}
 			, retryInterval:1000);
 		}
 
 		public async Task<VideoListingResponse> GetTagSearch(string tag, uint from, uint limit, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
 		{
-            if (_HohoemaApp.NiconicoContext == null)
+            if (Context == null)
             {
                 return null;
             }
 
             return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
-				return await _HohoemaApp.NiconicoContext.Search.VideoSearchWithTagAsync(tag, from, limit, sort, order)
+				return await Context.Search.VideoSearchWithTagAsync(tag, from, limit, sort, order)
 					.ContinueWith(prevTask =>
 					{
 						if (!prevTask.Result.IsOK)
@@ -291,14 +291,14 @@ namespace NicoPlayerHohoema.Models
 			Mntone.Nico2.Searches.Live.NicoliveSearchMode? mode = null
 			)
 		{
-            if (_HohoemaApp.NiconicoContext == null)
+            if (Context == null)
             {
                 return null;
             }
 
             using (var releaser = await _NicoPageAccessLock.LockAsync())
 			{
-				return await _HohoemaApp.NiconicoContext.Search.LiveSearchAsync(
+				return await Context.Search.LiveSearchAsync(
 					word,
 					isTagSearch,
 					provider,
@@ -314,12 +314,12 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<List<LoginUserMylistGroup>> GetLoginUserMylistGroups()
 		{
-            if (_HohoemaApp.NiconicoContext == null)
+            if (Context == null)
             {
                 return null;
             }
 
-            if (!_HohoemaApp.IsLoggedIn)
+            if (await Context.GetIsSignedInAsync() != NiconicoSignInStatus.Success)
             {
                 return null;
             }
@@ -330,7 +330,7 @@ namespace NicoPlayerHohoema.Models
 
 			return await ConnectionRetryUtil.TaskWithRetry(() =>
 			{
-				return _HohoemaApp.NiconicoContext.User.GetMylistGroupListAsync();
+				return Context.User.GetMylistGroupListAsync();
 			})
 			.ContinueWith(prevResult => 
 			{
@@ -341,7 +341,7 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<List<MylistGroupData>> GetUserMylistGroups(string userId)
 		{
-            if (_HohoemaApp.NiconicoContext == null)
+            if (Context == null)
             {
                 return null;
             }
@@ -353,7 +353,7 @@ namespace NicoPlayerHohoema.Models
 			{
 				try
 				{
-					return await _HohoemaApp.NiconicoContext.Mylist.GetUserMylistGroupAsync(userId);
+					return await Context.Mylist.GetUserMylistGroupAsync(userId);
 				}
 				catch (Exception e) when (e.Message.Contains("Forbidden"))
 				{
@@ -379,27 +379,27 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<MylistGroupDetailResponse> GetMylistGroupDetail(string mylistGroupid)
 		{
-            if (_HohoemaApp.NiconicoContext == null)
+            if (Context == null)
             {
                 return null;
             }
 
             return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
-				return await _HohoemaApp.NiconicoContext.Mylist.GetMylistGroupDetailAsync(mylistGroupid);
+				return await Context.Mylist.GetMylistGroupDetailAsync(mylistGroupid);
 			});
 		}
 
 		public async Task<MylistGroupVideoResponse> GetMylistGroupVideo(string mylistGroupid, uint from = 0, uint limit = 50)
 		{
-            if (_HohoemaApp.NiconicoContext == null)
+            if (Context == null)
             {
                 return null;
             }
 
             return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
-				return await _HohoemaApp.NiconicoContext.Mylist.GetMylistGroupVideoAsync(mylistGroupid, from, limit);
+				return await Context.Mylist.GetMylistGroupVideoAsync(mylistGroupid, from, limit);
 			});
 		}
 
@@ -408,12 +408,12 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<HistoriesResponse> GetHistory()
 		{
-            if (_HohoemaApp.NiconicoContext == null)
+            if (Context == null)
             {
                 return null;
             }
 
-            if (!_HohoemaApp.IsLoggedIn)
+            if (await Context.GetIsSignedInAsync() != NiconicoSignInStatus.Success)
             {
                 return null;
             }
@@ -422,19 +422,19 @@ namespace NicoPlayerHohoema.Models
 
 			return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
-				return await _HohoemaApp.NiconicoContext.Video.GetHistoriesAsync();
+				return await Context.Video.GetHistoriesAsync();
 			});	
 		}
 
 		
 		public async Task<List<FollowData>> GetFollowUsers()
 		{
-            if (_HohoemaApp.NiconicoContext == null)
+            if (Context == null)
             {
                 return null;
             }
 
-            if (!_HohoemaApp.IsLoggedIn)
+            if (await Context.GetIsSignedInAsync() != NiconicoSignInStatus.Success)
             {
                 return null;
             }
@@ -444,40 +444,39 @@ namespace NicoPlayerHohoema.Models
 
             using (var releaser = await _NicoPageAccessLock.LockAsync())
 			{
-				return await _HohoemaApp.NiconicoContext.User.GetFollowUsersAsync();
+				return await Context.User.GetFollowUsersAsync();
 			}
 		}
 
 
 		public async Task<List<string>> GetFavTags()
 		{
-            if (_HohoemaApp.NiconicoContext == null)
+            if (Context == null)
             {
                 return null;
             }
 
-            if (!_HohoemaApp.IsLoggedIn)
+            if (await Context.GetIsSignedInAsync() != NiconicoSignInStatus.Success)
             {
                 return null;
             }
-
 
             await WaitNicoPageAccess();
 
             using (var releaser = await _NicoPageAccessLock.LockAsync())
 			{
-				return await _HohoemaApp.NiconicoContext.User.GetFollowTagsAsync();
+				return await Context.User.GetFollowTagsAsync();
 			}
 		}
 
 		public async Task<List<FollowData>> GetFavMylists()
 		{
-            if (_HohoemaApp.NiconicoContext == null)
+            if (Context == null)
             {
                 return null;
             }
 
-            if (!_HohoemaApp.IsLoggedIn)
+            if (await Context.GetIsSignedInAsync() != NiconicoSignInStatus.Success)
             {
                 return null;
             }
@@ -487,19 +486,19 @@ namespace NicoPlayerHohoema.Models
 
             using (var releaser = await _NicoPageAccessLock.LockAsync())
 			{
-				return await _HohoemaApp.NiconicoContext.User.GetFollowMylistsAsync();
+				return await Context.User.GetFollowMylistsAsync();
 			}
 		}
 
 
 		public async Task<FollowCommunityResponse> GetFavCommunities()
 		{
-            if (_HohoemaApp.NiconicoContext == null)
+            if (Context == null)
             {
                 return null;
             }
 
-            if (!_HohoemaApp.IsLoggedIn)
+            if (await Context.GetIsSignedInAsync() != NiconicoSignInStatus.Success)
             {
                 return null;
             }
@@ -509,32 +508,32 @@ namespace NicoPlayerHohoema.Models
 
             using (var releaser = await _NicoPageAccessLock.LockAsync())
 			{
-				return await _HohoemaApp.NiconicoContext.User.GetFollowCommunityAsync();
+				return await Context.User.GetFollowCommunityAsync();
 			}
 		}
 
 
 		public async Task<UserVideoResponse> GetUserVideos(uint userId, uint page, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
 		{
-            if (_HohoemaApp.NiconicoContext == null)
+            if (Context == null)
             {
                 return null;
             }
 
             using (var releaser = await _NicoPageAccessLock.LockAsync())
 			{
-				return await _HohoemaApp.NiconicoContext.User.GetUserVideos(userId, page, sort, order);
+				return await Context.User.GetUserVideos(userId, page, sort, order);
 			}
 		}
 
 		public async Task<NicoVideoResponse> GetRelatedVideos(string videoId, uint from, uint limit, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
 		{
-            if (_HohoemaApp.NiconicoContext == null)
+            if (Context == null)
             {
                 return null;
             }
 
-            return await _HohoemaApp.NiconicoContext.Video.GetRelatedVideoAsync(videoId, from, limit, sort, order);
+            return await Context.Video.GetRelatedVideoAsync(videoId, from, limit, sort, order);
 		}
 
 
@@ -548,12 +547,12 @@ namespace NicoPlayerHohoema.Models
 			, CommunitySearchMode mode = CommunitySearchMode.Keyword
 			)
 		{
-            if (_HohoemaApp.NiconicoContext == null)
+            if (Context == null)
             {
                 return null;
             }
 
-            if (!_HohoemaApp.IsLoggedIn)
+            if (await Context.GetIsSignedInAsync() != NiconicoSignInStatus.Success)
             {
                 return null;
             }
@@ -563,7 +562,7 @@ namespace NicoPlayerHohoema.Models
 			{
 				using (var releaser = await _NicoPageAccessLock.LockAsync())
 				{
-					return await _HohoemaApp.NiconicoContext.Search.CommunitySearchAsync(keyword, page, sort, order, mode);
+					return await Context.Search.CommunitySearchAsync(keyword, page, sort, order, mode);
 				}
 			});
 		}
@@ -573,12 +572,12 @@ namespace NicoPlayerHohoema.Models
 			string communityId
 			)
 		{
-            if (_HohoemaApp.NiconicoContext == null)
+            if (Context == null)
             {
                 return null;
             }
 
-            return _HohoemaApp.NiconicoContext.Community.GetCommunifyInfoAsync(communityId);
+            return Context.Community.GetCommunifyInfoAsync(communityId);
 		}
 
 
@@ -586,12 +585,12 @@ namespace NicoPlayerHohoema.Models
 			string communityId
 			)
 		{
-            if (_HohoemaApp.NiconicoContext == null)
+            if (Context == null)
             {
                 return null;
             }
 
-            if (!_HohoemaApp.IsLoggedIn)
+            if (await Context.GetIsSignedInAsync() != NiconicoSignInStatus.Success)
             {
                 return null;
             }
@@ -604,40 +603,32 @@ namespace NicoPlayerHohoema.Models
 			{
 				using (var releaser = await _NicoPageAccessLock.LockAsync())
 				{
-					return await _HohoemaApp.NiconicoContext.Community.GetCommunityDetailAsync(communityId);
+					return await Context.Community.GetCommunityDetailAsync(communityId);
 				}
 			});
 		}
 
 
-		public Task<NiconicoVideoRss> GetCommunityVideo(
+		public async Task<NiconicoVideoRss> GetCommunityVideo(
 			string communityId,
 			uint page
 			)
 		{
-            if (_HohoemaApp.NiconicoContext == null)
+            if (Context == null)
             {
                 return null;
             }
 
-            if (!_HohoemaApp.IsLoggedIn)
+            if (await Context.GetIsSignedInAsync() != NiconicoSignInStatus.Success)
             {
                 return null;
             }
 
 
-            return ConnectionRetryUtil.TaskWithRetry(async () =>
+            return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
-				return await _HohoemaApp.NiconicoContext.Community.GetCommunityVideoAsync(communityId, page);
+				return await Context.Community.GetCommunityVideoAsync(communityId, page);
 			});
 		}
-
-
-
-
-        
-
-
-		HohoemaApp _HohoemaApp;
-	}
+   	}
 }

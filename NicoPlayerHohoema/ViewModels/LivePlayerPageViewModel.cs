@@ -955,7 +955,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                         try
                         {
-                            var communityDetail = await HohoemaApp.ContentFinder.GetCommunityInfo(CommunityId);
+                            var communityDetail = await HohoemaApp.ContentProvider.GetCommunityInfo(CommunityId);
                             if (communityDetail.IsStatusOK)
                             {
                                 CommunityName = communityDetail.Community.Name;

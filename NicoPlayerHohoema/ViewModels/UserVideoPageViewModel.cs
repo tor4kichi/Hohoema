@@ -48,7 +48,7 @@ namespace NicoPlayerHohoema.ViewModels
                 UserId = e.Parameter as string;
             }
 
-            User = await HohoemaApp.ContentFinder.GetUserDetail(UserId);
+            User = await HohoemaApp.ContentProvider.GetUserDetail(UserId);
 
 			if (User != null)
 			{
@@ -111,7 +111,7 @@ namespace NicoPlayerHohoema.ViewModels
 	public class UserVideoIncrementalSource : HohoemaIncrementalSourceBase<VideoInfoControlViewModel>
 	{
 		public uint UserId { get; }
-		public NiconicoContentFinder ContentFinder { get; }
+		public NiconicoContentProvider ContentFinder { get; }
 		public NiconicoMediaManager MediaManager { get; }
         public HohoemaApp HohoemaApp { get; }
 		public PageManager PageManager { get; }
@@ -125,7 +125,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			UserId = uint.Parse(userId);
 			User = userDetail;
-			ContentFinder = HohoemaApp.ContentFinder;
+			ContentFinder = HohoemaApp.ContentProvider;
 			MediaManager = HohoemaApp.MediaManager;
             HohoemaApp = hohoemaApp;
             PageManager = pageManager;

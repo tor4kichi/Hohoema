@@ -288,7 +288,7 @@ namespace NicoPlayerHohoema.ViewModels
         protected override async Task<int> ResetSourceImpl()
         {
             // 
-            var contentFinder = _HohoemaApp.ContentFinder;
+            var contentFinder = _HohoemaApp.ContentProvider;
             var mediaManager = _HohoemaApp.MediaManager;
 
             while (!mediaManager.IsInitialized)

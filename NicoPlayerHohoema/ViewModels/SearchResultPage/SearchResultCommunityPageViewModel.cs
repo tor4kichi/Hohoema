@@ -113,7 +113,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			try
 			{
-				FirstResponse = await HohoemaApp.ContentFinder.SearchCommunity(
+				FirstResponse = await HohoemaApp.ContentProvider.SearchCommunity(
 					SearchKeyword
 					, 1
 					, Sort
@@ -139,7 +139,7 @@ namespace NicoPlayerHohoema.ViewModels
 			if (res == null)
 			{
 				var page = (uint)((head + count) / OneTimeLoadCount);
-				res = await HohoemaApp.ContentFinder.SearchCommunity(
+				res = await HohoemaApp.ContentProvider.SearchCommunity(
 					SearchKeyword
 					, page
 					, Sort

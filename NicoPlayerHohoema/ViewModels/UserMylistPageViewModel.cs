@@ -286,7 +286,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
                 try
 				{
-					var userInfo = await HohoemaApp.ContentFinder.GetUserInfo(UserId);
+					var userInfo = await HohoemaApp.ContentProvider.GetUserInfo(UserId);
 					UserName = userInfo.Nickname;
 				}
 				catch (Exception ex)

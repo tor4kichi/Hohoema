@@ -163,7 +163,7 @@ namespace NicoPlayerHohoema.ViewModels
 							{
 								try
 								{
-									var mylistRes = await HohoemaApp.ContentFinder.GetMylistGroupDetail(FeedSourceId.Value);
+									var mylistRes = await HohoemaApp.ContentProvider.GetMylistGroupDetail(FeedSourceId.Value);
 									var mylist = mylistRes?.MylistGroup;
 									
 									if (mylist != null)
@@ -183,7 +183,7 @@ namespace NicoPlayerHohoema.ViewModels
 							{
 								try
 								{
-									var user = await HohoemaApp.ContentFinder.GetUserDetail(FeedSourceId.Value);
+									var user = await HohoemaApp.ContentProvider.GetUserDetail(FeedSourceId.Value);
 									if (user != null)
 									{
 										ExistFeedSource.Value = true;
@@ -600,7 +600,7 @@ namespace NicoPlayerHohoema.ViewModels
 				var mylistId = word;
 				try
 				{
-					var mylistDetail = await HohoemaApp.ContentFinder.GetMylistGroupDetail(mylistId);
+					var mylistDetail = await HohoemaApp.ContentProvider.GetMylistGroupDetail(mylistId);
 					if (mylistDetail != null)
 					{
 						var result = new Dialogs.SelectDialogPayload()
@@ -688,7 +688,7 @@ namespace NicoPlayerHohoema.ViewModels
 				var userId = word;
 				try
 				{
-					var userInfo= await HohoemaApp.ContentFinder.GetUserInfo(userId);
+					var userInfo= await HohoemaApp.ContentProvider.GetUserInfo(userId);
 					if (userInfo != null)
 					{
 						var result = new Dialogs.SelectDialogPayload()

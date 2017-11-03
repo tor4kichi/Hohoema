@@ -248,9 +248,6 @@ namespace NicoPlayerHohoema
                 {
                     if (!hohoemaApp.IsLoggedIn && AccountManager.HasPrimaryAccount())
                     {
-                        
-                        pageManager.OpenPage(HohoemaPageType.Splash);
-
                         hohoemaApp.SignInWithPrimaryAccount().ContinueWith(prevTask =>
                         {
                             if (prevTask.Result == Mntone.Nico2.NiconicoSignInStatus.Success)
@@ -638,7 +635,7 @@ namespace NicoPlayerHohoema
             Container.RegisterInstance(secondaryViewMan);
             Container.RegisterInstance(hohoemaApp);
 			Container.RegisterInstance(new PageManager(hohoemaApp, NavigationService, hohoemaApp.UserSettings.AppearanceSettings, hohoemaApp.Playlist, secondaryViewMan, dialogService));
-            Container.RegisterInstance(hohoemaApp.ContentFinder);
+            Container.RegisterInstance(hohoemaApp.ContentProvider);
             Container.RegisterInstance(hohoemaApp.Playlist);
             Container.RegisterInstance(hohoemaApp.OtherOwneredMylistManager);
             Container.RegisterInstance(hohoemaApp.FeedManager);
@@ -1112,7 +1109,7 @@ namespace NicoPlayerHohoema
             Mntone.Nico2.Mylist.MylistGroup.MylistGroupDetailResponse mylistDetail = null;
             try
             {
-                mylistDetail = await hohoemaApp.ContentFinder.GetMylistGroupDetail(mylistId);
+                mylistDetail = await hohoemaApp.ContentProvider.GetMylistGroupDetail(mylistId);
             }
             catch { }
 
@@ -1149,7 +1146,7 @@ namespace NicoPlayerHohoema
             Mntone.Nico2.Communities.Detail.CommunityDetailResponse communityDetail = null;
             try
             {
-                communityDetail = await hohoemaApp.ContentFinder.GetCommunityDetail(communityId);
+                communityDetail = await hohoemaApp.ContentProvider.GetCommunityDetail(communityId);
             }
             catch { }
 
@@ -1182,7 +1179,7 @@ namespace NicoPlayerHohoema
         {
             var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
 
-            var user = await hohoemaApp.ContentFinder.GetUserInfo(userId);
+            var user = await hohoemaApp.ContentProvider.GetUserInfo(userId);
 
             if (user == null) { return; }
 

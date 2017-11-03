@@ -128,7 +128,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
         
 
-        NiconicoContentFinder _ContentFinder;
+        NiconicoContentProvider _ContentFinder;
 
 
 		public SearchResultKeywordPageViewModel(
@@ -137,7 +137,7 @@ namespace NicoPlayerHohoema.ViewModels
 			) 
 			: base(hohoemaApp, pageManager, useDefaultPageTitle: false)
 		{
-			_ContentFinder = HohoemaApp.ContentFinder;
+			_ContentFinder = HohoemaApp.ContentProvider;
 
 			FailLoading = new ReactiveProperty<bool>(false)
 				.AddTo(_CompositeDisposable);

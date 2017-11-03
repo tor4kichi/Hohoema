@@ -77,7 +77,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				try
 				{
-					var res = await HohoemaApp.ContentFinder.GetCommunityDetail(CommunityId);
+					var res = await HohoemaApp.ContentProvider.GetCommunityDetail(CommunityId);
 					CommunityDetail = res.CommunitySammary.CommunityDetail;
 
 					CommunityName = CommunityDetail.Name;
@@ -173,7 +173,7 @@ namespace NicoPlayerHohoema.ViewModels
 					var pageCount = (uint)(start / 20) + 1;
 
 					Debug.WriteLine("communitu video : page " + pageCount);
-					var videoRss = await HohoemaApp.ContentFinder.GetCommunityVideo(CommunityId, pageCount);
+					var videoRss = await HohoemaApp.ContentProvider.GetCommunityVideo(CommunityId, pageCount);
 					var items = videoRss.Channel.Items;
 
 					Items.AddRange(items);

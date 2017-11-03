@@ -86,13 +86,12 @@ namespace NicoPlayerHohoema.Models
 		{
             EventAggregator = ea;
             _HohoemaDialogService = dialogService;
-            NiconicoContext = new NiconicoContext();
 			LoginUserId = uint.MaxValue;
 			LoggingChannel = new LoggingChannel("HohoemaLog", new LoggingChannelOptions(HohoemaLoggerGroupGuid));
 			UserSettings = new HohoemaUserSettings();
-			ContentFinder = new NiconicoContentFinder(this);
+			ContentProvider = new NiconicoContentProvider();
 			UserMylistManager = new UserMylistManager(this);
-            OtherOwneredMylistManager = new OtherOwneredMylistManager(ContentFinder);
+            OtherOwneredMylistManager = new OtherOwneredMylistManager(ContentProvider);
             FeedManager = new FeedManager(this);
 
             FollowManager = null;
@@ -716,16 +715,14 @@ namespace NicoPlayerHohoema.Models
 						// 動画のキャッシュフォルダの選択状態をチェック
 						await (App.Current as App).CheckVideoCacheFolderState();
 
-						// サインイン完了
-						OnSignin?.Invoke();
+                        // コンテンツプロバイダのセットアップ
+                        ContentProvider.Context = NiconicoContext;
+
+                        // サインイン完了
+                        OnSignin?.Invoke();
 
 						// TODO: 途中だった動画のダウンロードを再開
 						// await MediaManager.StartBackgroundDownload();
-
-                        
-
-                        // ニコニコサービスの裏で取得させたいので強制的に待ちを挟む
-                        await Task.Delay(1000);
                     }
 					else
 					{
@@ -784,7 +781,9 @@ namespace NicoPlayerHohoema.Models
 				{
                     NiconicoContext = new NiconicoContext();
 
-					FollowManager = null;
+                    ContentProvider.Context = NiconicoContext;
+
+                    FollowManager = null;
 					LoginUserId = uint.MaxValue;
 
 					OnSignout?.Invoke();
@@ -1412,7 +1411,7 @@ namespace NicoPlayerHohoema.Models
 
 		public NiconicoMediaManager MediaManager { get; private set; }
 
-		public NiconicoContentFinder ContentFinder { get; private set; }
+		public NiconicoContentProvider ContentProvider { get; private set; }
 
 		private FollowManager _FollowManager;
 		public FollowManager FollowManager

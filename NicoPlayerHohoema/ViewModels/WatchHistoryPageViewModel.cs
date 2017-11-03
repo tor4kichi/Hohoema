@@ -48,7 +48,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 					await UpdateList();
 
-					_HistoriesResponse = await HohoemaApp.ContentFinder.GetHistory();
+					_HistoriesResponse = await HohoemaApp.ContentProvider.GetHistory();
 
 					RemoveAllHistoryCommand.RaiseCanExecuteChanged();
 				});
@@ -77,7 +77,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override async Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			_HistoriesResponse = await HohoemaApp.ContentFinder.GetHistory();
+			_HistoriesResponse = await HohoemaApp.ContentProvider.GetHistory();
 
 			await base.ListPageNavigatedToAsync(cancelToken, e, viewModelState);
 		}
@@ -100,7 +100,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				await HohoemaApp.NiconicoContext.Video.RemoveAllHistoriesAsync(_HistoriesResponse.Token);
 
-				_HistoriesResponse = await HohoemaApp.ContentFinder.GetHistory();
+				_HistoriesResponse = await HohoemaApp.ContentProvider.GetHistory();
 
 				RemoveAllHistoryCommand.RaiseCanExecuteChanged();
 			});

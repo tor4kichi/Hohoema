@@ -21,7 +21,7 @@ namespace NicoPlayerHohoema.Models
 
 		public override async Task<IEnumerable<FeedItem>> GetLatestItems(HohoemaApp hohoemaApp)
 		{
-			var items = await hohoemaApp.ContentFinder.GetMylistGroupVideo(this.Id, 0, 32);
+			var items = await hohoemaApp.ContentProvider.GetMylistGroupVideo(this.Id, 0, 32);
 
 			if (items?.MylistVideoInfoItems != null)
 			{
